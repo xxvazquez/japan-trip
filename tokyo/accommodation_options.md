@@ -1,6 +1,6 @@
-# Tokyo — Places I Like
+# Tokyo 
 
-## Places to stay
+## Potential places to stay
 
 | Place | Area | Type | Commute fit | Rating | Pros | Cons | Price | Dates | Link | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
