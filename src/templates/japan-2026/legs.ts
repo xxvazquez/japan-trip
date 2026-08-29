@@ -1,0 +1,48 @@
+import type { Leg } from "@/core/types";
+
+export const legs: Leg[] = [
+  {
+    id: "tokyo-1",
+    base: "Tokyo",
+    nameJp: "東京",
+    start: "2026-10-21",
+    end: "2026-10-26",
+    hotelId: "hotel-section-l",
+    accent: "tokyo",
+    image: "leg-tokyo",
+    blurb: "Five nights to land softly, shake off the flight and wander the city before heading for the mountains.",
+  },
+  {
+    id: "kawaguchiko",
+    base: "Lake Kawaguchiko",
+    nameJp: "河口湖",
+    start: "2026-10-26",
+    end: "2026-10-28",
+    hotelId: "hotel-yamitsuki",
+    accent: "kawaguchiko",
+    image: "leg-kawaguchiko",
+    blurb: "Two slow nights by the lake under Mt Fuji. The big luggage goes ahead to Kyoto.",
+  },
+  {
+    id: "kyoto",
+    base: "Kyoto",
+    nameJp: "京都",
+    start: "2026-10-28",
+    end: "2026-11-11",
+    hotelId: "hotel-icy",
+    accent: "kyoto",
+    image: "leg-kyoto",
+    blurb: "The heart of the trip — two weeks with a base in Kyoto and day trips fanning out across Kansai.",
+  },
+  {
+    id: "tokyo-2",
+    base: "Tokyo",
+    nameJp: "東京",
+    start: "2026-11-11",
+    end: "2026-11-13",
+    hotelId: "hotel-section-l-2",
+    accent: "tokyo",
+    image: "leg-tokyo-2",
+    blurb: "Back to Tokyo for two nights near the monorail, then the morning flight home.",
+  },
+];

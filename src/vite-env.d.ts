@@ -1,0 +1,14 @@
+/// <reference types="vite/client" />
+/// <reference types="vite-plugin-pwa/client" />
+
+interface ImportMetaEnv {
+  readonly VITE_GMAPS_EMBED_KEY?: string;
+  readonly VITE_MYMAP_MID?: string;
+}
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
+
+interface Document {
+  startViewTransition?: (cb: () => void | Promise<void>) => { finished: Promise<void> };
+}

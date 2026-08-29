@@ -1,0 +1,172 @@
+/**
+ * A small set of thin, geometric line icons. Deliberately minimal — the app
+ * leans on typography and photography, not iconography.
+ */
+export type IconName =
+  | "today"
+  | "itinerary"
+  | "places"
+  | "explore"
+  | "vault"
+  | "search"
+  | "back"
+  | "sun"
+  | "moon"
+  | "auto"
+  | "train"
+  | "bed"
+  | "map"
+  | "external"
+  | "check"
+  | "plus"
+  | "chevron"
+  | "settings"
+  | "archive"
+  | "trash"
+  | "copy"
+  | "swap"
+  | "eye"
+  | "eye-off"
+  | "up"
+  | "down"
+  | "close";
+
+const P: Record<IconName, JSX.Element> = {
+  today: <circle cx="12" cy="12" r="6.5" />,
+  itinerary: (
+    <>
+      <path d="M6 4v16" />
+      <circle cx="6" cy="8" r="1.6" />
+      <circle cx="6" cy="16" r="1.6" />
+      <path d="M11 8h7M11 16h7" />
+    </>
+  ),
+  places: (
+    <>
+      <path d="M4 10 12 4l8 6" />
+      <path d="M6 10v10h12V10" />
+    </>
+  ),
+  explore: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="m15 9-4 1.6L9.4 15l4-1.6L15 9Z" />
+    </>
+  ),
+  vault: (
+    <>
+      <path d="M6 3h9l3 3v15H6z" />
+      <path d="M9 8h6M9 12h6M9 16h4" />
+    </>
+  ),
+  search: (
+    <>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="m16 16 4 4" />
+    </>
+  ),
+  back: <path d="M15 5l-7 7 7 7" />,
+  chevron: <path d="M9 6l6 6-6 6" />,
+  sun: (
+    <>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4" />
+    </>
+  ),
+  moon: <path d="M20 13a8 8 0 1 1-9-9 6.5 6.5 0 0 0 9 9Z" />,
+  auto: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 3.5v17" />
+      <path d="M12 3.5A8.5 8.5 0 0 1 12 20.5" fill="currentColor" stroke="none" />
+    </>
+  ),
+  train: (
+    <>
+      <rect x="6" y="4" width="12" height="13" rx="2.5" />
+      <path d="M6 11h12M9 21l1.6-2M15 21l-1.6-2" />
+      <circle cx="9" cy="14" r="0.6" fill="currentColor" />
+      <circle cx="15" cy="14" r="0.6" fill="currentColor" />
+    </>
+  ),
+  bed: (
+    <>
+      <path d="M4 7v11M4 12h16v6M20 18v-3a3 3 0 0 0-3-3" />
+      <circle cx="8.5" cy="10.5" r="1.6" />
+    </>
+  ),
+  map: (
+    <>
+      <path d="M9 4 4 6v14l5-2 6 2 5-2V4l-5 2-6-2Z" />
+      <path d="M9 4v14M15 6v14" />
+    </>
+  ),
+  external: (
+    <>
+      <path d="M14 5h5v5" />
+      <path d="M19 5l-8 8" />
+      <path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4" />
+    </>
+  ),
+  check: <path d="M5 13l4 4L19 7" />,
+  plus: <path d="M12 5v14M5 12h14" />,
+  settings: (
+    <>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 3v2.5M12 18.5V21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M3 12h2.5M18.5 12H21M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8" />
+    </>
+  ),
+  archive: (
+    <>
+      <rect x="4" y="4" width="16" height="4" rx="1" />
+      <path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4" />
+    </>
+  ),
+  trash: <path d="M5 7h14M10 7V5h4v2M6 7l1 13h10l1-13M10 11v6M14 11v6" />,
+  copy: (
+    <>
+      <rect x="9" y="9" width="11" height="11" rx="2" />
+      <path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" />
+    </>
+  ),
+  swap: <path d="M7 4l-3 3 3 3M4 7h13M17 20l3-3-3-3M20 17H7" />,
+  eye: (
+    <>
+      <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z" />
+      <circle cx="12" cy="12" r="3" />
+    </>
+  ),
+  "eye-off": <path d="M3 3l18 18M10.6 10.6a3 3 0 0 0 4 4M9.3 5.3A10 10 0 0 1 12 5c6 0 10 7 10 7a17 17 0 0 1-3.2 3.9M6.1 6.1A17 17 0 0 0 2 12s4 7 10 7a10 10 0 0 0 3-.5" />,
+  up: <path d="M6 15l6-6 6 6" />,
+  down: <path d="M6 9l6 6 6-6" />,
+  close: <path d="M6 6l12 12M18 6L6 18" />,
+};
+
+export function Icon({
+  name,
+  size = 22,
+  className,
+  strokeWidth = 1.5,
+}: {
+  name: IconName;
+  size?: number;
+  className?: string;
+  strokeWidth?: number;
+}) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      {P[name]}
+    </svg>
+  );
+}
