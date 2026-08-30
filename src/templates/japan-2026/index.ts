@@ -9,7 +9,7 @@ import { journeys } from "./journeys";
 import { luggage } from "./luggage";
 import { dayTrips } from "./dayTrips";
 import { collections } from "./collections";
-import { seasonal } from "./seasonal";
+import { weather } from "./weather";
 import { reservations } from "./reservations";
 import { packing } from "./packing";
 import { docs } from "./docs";
@@ -26,8 +26,7 @@ export function buildTemplate(): TripData {
     meta,
     media: { gallery: [] },
     legs,
-    days: days.map((d) => ({ ...d, id: d.date })),
-    seasonal: seasonal.map((s) => ({ ...s, id: s.date })),
+    days: days.map((d) => ({ ...d, ...weather[d.date], id: d.date })),
     places,
     hotels,
     journeys,
@@ -39,8 +38,6 @@ export function buildTemplate(): TripData {
     docs,
     etiquette,
     images,
-    progress: { checks: {}, foliage: {} },
-    notes: {},
   };
   return structuredClone(data);
 }

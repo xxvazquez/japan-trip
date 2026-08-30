@@ -35,7 +35,7 @@ function build(d: TripData): SearchHit[] {
       label: day.title ?? fmtDate(day.date, loc),
       sub: `${fmtDate(day.date, loc)} · ${day.city}`,
       to: `/day/${day.date}`,
-      terms: [day.title, day.city, day.summary, day.kind, fmtDate(day.date, loc, { day: "numeric", month: "long" })]
+      terms: [day.title, day.city, day.summary, fmtDate(day.date, loc, { day: "numeric", month: "long" })]
         .filter(Boolean)
         .join(" ")
         .toLowerCase(),

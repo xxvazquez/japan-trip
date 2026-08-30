@@ -1,5 +1,8 @@
 import type { DayTrip } from "@/core/types";
 
+/** checklist strings -> {id,text}; ids are list-local and stable. */
+const cl = (...t: string[]) => t.map((text, i) => ({ id: `k${i}`, text }));
+
 /**
  * Guide pages. Times and fares are from Kyoto and are typical off-peak figures —
  * check before you go, especially the Ōhara last bus and the Sagano train in
@@ -41,7 +44,7 @@ export const dayTrips: DayTrip[] = [
     ],
     route: "Gojō-zaka → Kiyomizu-dera → Sannenzaka → Ninenzaka → Kōdai-ji → Maruyama Park → Yasaka Shrine → Gion → Shirakawa.",
     mapRef: "Southern Higashiyama",
-    checklist: ["Go for opening at Kiyomizu", "Cash for the lanes", "Comfortable shoes — all stone"],
+    checklist: cl("Go for opening at Kiyomizu", "Cash for the lanes", "Comfortable shoes — all stone"),
   },
   {
     id: "dt-nara",
@@ -78,7 +81,7 @@ export const dayTrips: DayTrip[] = [
     ],
     route: "Kintetsu-Nara → Isuien → Tōdai-ji → Nigatsu-dō viewpoint → Kasuga Taisha → Naramachi → station.",
     mapRef: "Nara",
-    checklist: ["Reserve the Kintetsu seat", "Small notes for deer crackers", "Watch bags — the deer will investigate"],
+    checklist: cl("Reserve the Kintetsu seat", "Small notes for deer crackers", "Watch bags — the deer will investigate"),
   },
   {
     id: "dt-osaka",
@@ -114,7 +117,7 @@ export const dayTrips: DayTrip[] = [
     ],
     route: "Kuromon → Nipponbashi → Dōtonbori (day) → Osaka Castle → back to Namba/Shinsekai for dinner.",
     mapRef: "Osaka",
-    checklist: ["Go hungry", "IC card topped up", "Cash for market stalls"],
+    checklist: cl("Go hungry", "IC card topped up", "Cash for market stalls"),
   },
   {
     id: "dt-uji",
@@ -149,7 +152,7 @@ export const dayTrips: DayTrip[] = [
     ],
     route: "Uji Station → Byōdō-in → riverside → Ujigami Shrine → Kōshō-ji lane → station.",
     mapRef: "Uji",
-    checklist: ["Byōdō-in hall ticket on arrival", "Cash for the small shops"],
+    checklist: cl("Byōdō-in hall ticket on arrival", "Cash for the small shops"),
   },
   {
     id: "dt-ohara",
@@ -185,7 +188,7 @@ export const dayTrips: DayTrip[] = [
     eat: [{ name: "Soba near the Sanzen-in approach", note: "A handful of shops; close by ~16:00." }],
     route: "Ōhara bus stop → Sanzen-in → Hōsen-in → valley walk → Jakkō-in → bus stop.",
     mapRef: "Ohara",
-    checklist: ["Photograph the return bus timetable on arrival", "Warm layer + gloves", "Cash — little is card-friendly"],
+    checklist: cl("Photograph the return bus timetable on arrival", "Warm layer + gloves", "Cash — little is card-friendly"),
   },
   {
     id: "dt-kurama",
@@ -224,7 +227,7 @@ export const dayTrips: DayTrip[] = [
     ],
     route: "Kurama Station → Kurama-dera → ridge trail → Kibune → Kifune Shrine → Kibune-guchi Station.",
     mapRef: "Kurama Kibune",
-    checklist: ["Real walking shoes", "Book Kibune lunch", "Start by 10:00 — daylight is short", "Water + a snack"],
+    checklist: cl("Real walking shoes", "Book Kibune lunch", "Start by 10:00 — daylight is short", "Water + a snack"),
   },
   {
     id: "dt-arashiyama",
@@ -264,6 +267,6 @@ export const dayTrips: DayTrip[] = [
     ],
     route: "Saga-Arashiyama → bamboo grove → Ōkōchi Sansō → Tenryū-ji → Togetsukyō bridge → riverside → (train option from Torokko Saga).",
     mapRef: "Arashiyama",
-    checklist: ["First train out — leave by 07:15", "Pre-book the Sagano train if you want it", "Coins for temple entries"],
+    checklist: cl("First train out — leave by 07:15", "Pre-book the Sagano train if you want it", "Coins for temple entries"),
   },
 ];

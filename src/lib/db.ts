@@ -39,18 +39,6 @@ const SPECS: Record<EntityType, Spec> = {
   days: { table: "days" },
   dayTrips: { table: "day_trips", rename: { nameJp: "name_alt" } },
   collections: { table: "collections" },
-  seasonal: {
-    table: "seasonal",
-    toRow: (e, r) => {
-      const t = e.tempC as [number, number] | undefined;
-      if (t) { r.temp_lo = t[0]; r.temp_hi = t[1]; }
-      delete r.temp_c;
-    },
-    fromRow: (r, e) => {
-      if (r.temp_lo != null) e.tempC = [Number(r.temp_lo), Number(r.temp_hi)];
-      delete e.tempLo; delete e.tempHi;
-    },
-  },
   reservations: { table: "reservations", rename: { when: "when_text" } },
   packing: { table: "packing", rename: { group: "group_name" } },
   docs: { table: "docs" },
@@ -163,8 +151,7 @@ export async function loadTrip(dbId: string): Promise<TripData> {
     meta: trow.meta,
     media: trow.media ?? { gallery: [] },
     images: trow.images ?? {},
-    progress: trow.progress ?? { checks: {}, foliage: {} },
-    notes: trow.notes ?? {},
+    scratch: trow.scratch ?? undefined,
     ...byType,
   } as unknown as TripData;
 }
@@ -188,8 +175,7 @@ export async function createTrip(
       meta: data.meta,
       media: data.media,
       images: data.images,
-      progress: data.progress,
-      notes: data.notes,
+      ...(data.scratch ? { scratch: data.scratch } : {}),
     }),
   );
 
@@ -241,7 +227,7 @@ export async function setSegments(tripId: string, journeyId: string, segments: S
   check(await del);
 }
 
-/** The trip-row jsonb blobs (config / meta / media / images / progress / notes) + name. */
+/** The trip-row fields (config / meta / media / images jsonb, scratch text) + name. */
 export async function saveTripFields(tripId: string, fields: Record<string, unknown>) {
   const sb = await client();
   check(await sb.from("trips").update(fields).eq("id", tripId));

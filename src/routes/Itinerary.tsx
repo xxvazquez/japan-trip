@@ -4,11 +4,10 @@ import { TimelineRibbon } from "@/components/TimelineRibbon";
 import { Icon } from "@/components/Icon";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
-import { fmtDate, tripClock } from "@/lib/dates";
+import { fmtDate, tripClock, dayKind, type DerivedDayKind } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
-import type { DayKind } from "@/core/types";
 
-const KIND_TAG: Partial<Record<DayKind, string>> = {
+const KIND_TAG: Partial<Record<DerivedDayKind, string>> = {
   arrival: "Arrive",
   travel: "Travel",
   daytrip: "Day trip",
@@ -58,9 +57,9 @@ export default function Itinerary() {
                         {fmtDate(d.date, loc, { weekday: "short", day: "numeric" })}
                       </span>
                       <span className="min-w-0 flex-1 truncate">{d.title || d.summary || "—"}</span>
-                      {KIND_TAG[d.kind] && (
+                      {KIND_TAG[dayKind(d, data)] && (
                         <span className="shrink-0 rounded-full bg-surface-2 px-2 py-0.5 text-2xs uppercase tracking-wide text-ink-faint">
-                          {KIND_TAG[d.kind]}
+                          {KIND_TAG[dayKind(d, data)]}
                         </span>
                       )}
                     </Link>

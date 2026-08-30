@@ -40,13 +40,10 @@ export function buildBlank(name = "New trip"): TripData {
     luggage: [],
     dayTrips: [],
     collections: [],
-    seasonal: [],
     reservations: [],
     packing: [],
     docs: [],
     etiquette: [],
     images: {},
-    progress: { checks: {}, foliage: {} },
-    notes: {},
   });
 }

@@ -11,7 +11,9 @@ import { buildTemplate } from "../src/templates/japan-2026/index.ts";
 import { remapIds } from "../src/lib/remapIds.ts";
 
 const OWNER_EMAIL = process.env.OWNER_EMAIL ?? "owner1@example.com";
-const TRIP_ID = crypto.randomUUID();
+// stable so regenerating this file produces a clean git diff; the seed deletes
+// any existing trip for the owner first, so a fixed id is safe.
+const TRIP_ID = "1a2b3c4d-0000-4a26-9a26-000000000001";
 
 /* ---- mapping (mirrors src/lib/db.ts) ---- */
 const camelToSnake = (s: string) => s.replace(/[A-Z]/g, (c) => "_" + c.toLowerCase());
@@ -34,14 +36,6 @@ const SPECS: Record<string, Spec> = {
   days: { table: "days" },
   dayTrips: { table: "day_trips", rename: { nameJp: "name_alt" } },
   collections: { table: "collections" },
-  seasonal: {
-    table: "seasonal",
-    toRow: (e, r) => {
-      const t = e.tempC as [number, number] | undefined;
-      if (t) { r.temp_lo = t[0]; r.temp_hi = t[1]; }
-      delete r.temp_c;
-    },
-  },
   reservations: { table: "reservations", rename: { when: "when_text" } },
   packing: { table: "packing", rename: { group: "group_name" } },
   docs: { table: "docs" },
@@ -78,10 +72,13 @@ for (const m of ddl.matchAll(/create table if not exists (\w+) \(([\s\S]*?)\n\);
     (jsonbDefaults[table] ??= {})[c[1]] = JSON.parse(c[2]);
   }
 }
+// columns declared in 0001 but removed by a later migration — never emit them
+const DROPPED = new Set(["days.morning", "days.afternoon", "days.evening", "days.kind"]);
 function fillDefaults(table: string, row: Record<string, unknown>) {
   const defs = jsonbDefaults[table];
   if (!defs) return row;
   for (const [col, def] of Object.entries(defs)) {
+    if (DROPPED.has(`${table}.${col}`)) continue;
     if (row[col] === undefined || row[col] === null) row[col] = def;
   }
   return row;
@@ -112,9 +109,20 @@ out.push(`-- Japan 2026 seed — generated ${new Date().toISOString().slice(0, 1
 out.push(`-- Run once in the Supabase SQL editor. Requires migrations 0001 + 0002 first.`);
 out.push(`-- Owner: ${OWNER_EMAIL} (must have signed into the app at least once).`);
 out.push(``);
-out.push(`-- two journey columns that older 0001 runs were missing (idempotent):`);
-out.push(`alter table journeys add column if not exists gmaps_directions text;`);
-out.push(`alter table journeys add column if not exists official_url text;`);
+// schema top-ups so this file also works run standalone (all idempotent):
+out.push(`-- schema top-ups (idempotent), in case migrations 0003/0004 haven't been run:`);
+for (const s of [
+  `alter table journeys add column if not exists gmaps_directions text`,
+  `alter table journeys add column if not exists official_url text`,
+  `alter table days add column if not exists sunset text`,
+  `alter table days add column if not exists temp_lo numeric`,
+  `alter table days add column if not exists temp_hi numeric`,
+  `alter table days add column if not exists weather_note text`,
+  `alter table days add column if not exists entries jsonb not null default '[]'`,
+  `alter table trips add column if not exists scratch text`,
+  `alter table places add column if not exists visited boolean`,
+  `alter table packing add column if not exists done boolean`,
+]) out.push(s + ";");
 out.push(``);
 out.push(`do $seed$`);
 out.push(`declare v_uid uuid;`);
@@ -124,15 +132,14 @@ out.push(`  if v_uid is null then`);
 out.push(`    raise exception 'No auth user for ${OWNER_EMAIL} — sign into the app once with Google, then re-run.';`);
 out.push(`  end if;`);
 out.push(`  delete from trips where user_id = v_uid;   -- clear any half-seeded trip`);
-out.push(`  insert into trips (id, user_id, name, subtitle, template_id, position, config, meta, media, images, progress, notes)`);
+out.push(`  insert into trips (id, user_id, name, subtitle, template_id, position, config, meta, media, images, scratch)`);
 out.push(`  values (`);
 out.push(`    ${lit(TRIP_ID)}, v_uid, 'Japan 2026', NULL, 'japan-2026', 0,`);
 out.push(`    ${lit(data.config)},`);
 out.push(`    ${lit(data.meta)},`);
 out.push(`    ${lit(data.media ?? { gallery: [] })},`);
 out.push(`    ${lit(data.images ?? {})},`);
-out.push(`    ${lit(data.progress ?? { checks: {}, foliage: {} })},`);
-out.push(`    ${lit(data.notes ?? {})}`);
+out.push(`    ${lit((data as { scratch?: string }).scratch ?? null)}`);
 out.push(`  );`);
 out.push(`end $seed$;`);
 out.push(``);

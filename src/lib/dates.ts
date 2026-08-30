@@ -68,6 +68,21 @@ export function legForDate(d: TripData, iso: ISODate) {
   );
 }
 
+/** The shape of a day, derived from its links rather than a stored field:
+ *  a linked journey makes it an arrival / departure / travel day, a linked
+ *  day-trip makes it a day-trip day, otherwise it's a normal base day. */
+export type DerivedDayKind = "arrival" | "departure" | "travel" | "daytrip" | "base";
+export function dayKind(d: Pick<Day, "journeyId" | "dayTripId">, data: TripData): DerivedDayKind {
+  if (d.journeyId) {
+    const j = data.journeys.find((x) => x.id === d.journeyId);
+    if (j?.kind === "arrival") return "arrival";
+    if (j?.kind === "departure") return "departure";
+    return "travel";
+  }
+  if (d.dayTripId) return "daytrip";
+  return "base";
+}
+
 export function fmtDate(
   iso: ISODate,
   locale = "en-GB",

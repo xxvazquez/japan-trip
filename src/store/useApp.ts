@@ -8,7 +8,7 @@ import type { EntityType, MediaItem, TripData, TripSummary } from "@/core/types"
 const now = () => new Date().toISOString();
 
 type WithId = { id: string };
-type FieldKey = "config" | "meta" | "media" | "images" | "progress" | "notes";
+type FieldKey = "config" | "meta" | "media" | "images" | "scratch";
 type Op =
   | { t: "row"; type: EntityType; id: string }
   | { t: "del"; type: EntityType; id: string }
@@ -43,9 +43,7 @@ interface AppStore {
   removeEntity: (type: EntityType, id: string) => void;
   moveEntity: (type: EntityType, id: string, dir: -1 | 1) => void;
 
-  setCheck: (key: string, value?: boolean) => void;
-  setFoliage: (placeId: string, status: string) => void;
-  setNote: (key: string, value: string) => void;
+  setScratch: (value: string) => void;
   setMedia: (slot: "logo" | "cover", item: MediaItem | undefined) => void;
   addGalleryMedia: (item: MediaItem) => void;
   removeGalleryMedia: (id: string) => void;
@@ -129,7 +127,7 @@ async function flush(get: () => AppStore) {
   }
   if (fieldKeys.size) {
     const f: Record<string, unknown> = {};
-    for (const k of fieldKeys) f[k] = data[k];
+    for (const k of fieldKeys) f[k] = data[k] ?? null;
     if (fieldKeys.has("meta") || fieldKeys.has("config")) {
       f.name = data.meta.title || data.config.branding;
       f.subtitle = `${data.meta.start} → ${data.meta.end}`;
@@ -307,15 +305,8 @@ export const useApp = create<AppStore>((set, get) => {
       })) enqueue(get, { t: "pos", type });
     },
 
-    setCheck: (key, value) => {
-      if (local((d) => { d.progress.checks[key] = value ?? !d.progress.checks[key]; }))
-        enqueue(get, { t: "fields", keys: ["progress"] });
-    },
-    setFoliage: (placeId, status) => {
-      if (local((d) => { d.progress.foliage[placeId] = status; })) enqueue(get, { t: "fields", keys: ["progress"] });
-    },
-    setNote: (key, value) => {
-      if (local((d) => { d.notes[key] = value; })) enqueue(get, { t: "fields", keys: ["notes"] });
+    setScratch: (value) => {
+      if (local((d) => { d.scratch = value; })) enqueue(get, { t: "fields", keys: ["scratch"] });
     },
     setMedia: (slot, item) => {
       if (local((d) => { d.media[slot] = item; })) enqueue(get, { t: "fields", keys: ["media"] });

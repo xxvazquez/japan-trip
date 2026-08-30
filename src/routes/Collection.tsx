@@ -13,8 +13,6 @@ export default function Collection() {
   const { id } = useParams();
   const updateEntity = useApp((s) => s.updateEntity);
   const addEntity = useApp((s) => s.addEntity);
-  const toggleCheck = useApp((s) => s.setCheck);
-  const checks = useApp((s) => s.data?.progress.checks ?? {});
   const [picking, setPicking] = useState(false);
   if (!data) return null;
 
@@ -71,12 +69,11 @@ export default function Collection() {
 
         <ul className="mt-6">
           {members.map((p) => {
-            const key = `col:${c.id}:${p.id}`;
-            const done = !!checks[key];
+            const done = !!p.visited;
             return (
               <li key={p.id} className="group flex items-center gap-3 border-t border-line py-2.5 text-sm first:border-0">
                 {isWishlist && (
-                  <input type="checkbox" checked={done} onChange={(e) => toggleCheck(key, e.target.checked)} className="h-4 w-4 shrink-0 accent-accent" />
+                  <input type="checkbox" checked={done} onChange={(e) => updateEntity<Place>("places", p.id, { visited: e.target.checked })} className="h-4 w-4 shrink-0 accent-accent" />
                 )}
                 <span className={`min-w-0 flex-1 ${done ? "text-ink-faint line-through" : ""}`}>
                   {p.name}

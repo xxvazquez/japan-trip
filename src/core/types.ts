@@ -174,6 +174,8 @@ export interface Place {
   collections?: ID[];
   gmapsQuery?: string;
   url?: string;
+  /** ticked off on a wishlist collection */
+  visited?: boolean;
 }
 
 /* ------------------------------------------------------------------ *
@@ -233,8 +235,6 @@ export interface Leg {
   image?: ID;
 }
 
-export type DayKind = "base" | "travel" | "daytrip" | "arrival" | "departure";
-
 export interface Activity {
   time?: Clock;
   title: string;
@@ -242,11 +242,18 @@ export interface Activity {
   placeId?: ID;
 }
 
+/** A checklist line. `done` is shared trip state — ticking it syncs to whoever
+ *  else is on the trip, like any other entity edit. */
+export interface ChecklistItem {
+  id: ID;
+  text: string;
+  done?: boolean;
+}
+
 export interface Day {
   id: ID;
   /** id === date for days; kept explicit so Manage can treat it like any entity */
   date: ISODate;
-  kind: DayKind;
   city: string;
   legId: ID;
   hotelId?: ID;
@@ -254,13 +261,17 @@ export interface Day {
   dayTripId?: ID;
   title?: string;
   summary?: string;
-  morning?: Activity[];
-  afternoon?: Activity[];
-  evening?: Activity[];
+  /** the day's plan, one flat time-ordered list */
+  entries?: Activity[];
   reservationIds?: ID[];
   packingReminder?: string;
-  checklist?: string[];
+  checklist?: ChecklistItem[];
   notes?: string;
+  /** seasonal reference for the day — sunset time and typical low/high (°C) */
+  sunset?: Clock;
+  tempLo?: number;
+  tempHi?: number;
+  weatherNote?: string;
 }
 
 export interface Hotel {
@@ -326,7 +337,7 @@ export interface DayTrip {
   eat: { name: string; note?: string; placeId?: ID }[];
   route?: string;
   mapRef?: string;
-  checklist?: string[];
+  checklist?: ChecklistItem[];
   notes?: string;
 }
 
@@ -339,13 +350,6 @@ export interface Collection {
   kind: CollectionKind;
   image?: ID;
   blurb: string;
-}
-
-export interface SeasonalNote {
-  id: ID;
-  date: ISODate;
-  sunset: Clock;
-  tempC: [number, number];
 }
 
 export interface Reservation {
@@ -366,6 +370,7 @@ export interface PackingItem {
   label: string;
   phase: PackingPhase;
   group: string;
+  done?: boolean;
 }
 
 export interface Doc {
@@ -406,21 +411,13 @@ export interface TripData {
   luggage: LuggageShipment[];
   dayTrips: DayTrip[];
   collections: Collection[];
-  seasonal: SeasonalNote[];
   reservations: Reservation[];
   packing: PackingItem[];
   docs: Doc[];
   etiquette: EtiquetteCard[];
   images: Record<ID, ImageAsset>;
-  /** lightweight per-trip state that isn't structural content */
-  progress: {
-    /** keyed booleans: packing items, checklist lines, collection "been there" */
-    checks: Record<string, boolean>;
-    /** foliage status per place id */
-    foliage: Record<ID, string>;
-  };
-  /** arbitrary keyed free text (notepad, ad-hoc notes) */
-  notes: Record<string, string>;
+  /** a single free-text scratchpad for the whole trip */
+  scratch?: string;
 }
 
 /** One trip in the Atlas. Data itself lives under storage key `trip:<id>`. */
@@ -451,7 +448,6 @@ export type EntityType =
   | "luggage"
   | "dayTrips"
   | "collections"
-  | "seasonal"
   | "reservations"
   | "packing"
   | "docs"
