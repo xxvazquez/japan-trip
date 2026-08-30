@@ -1,37 +1,18 @@
-import type { LuggageShipment } from "@/core/types";
+import type { LuggageNote } from "@/core/types";
 
-/**
- * The forwarding thread: Tokyo → (ship) → Kyoto → (ship) → Tokyo.
- * Yamato "takkyūbin" between major cities is next-day. ICY is an Airbnb with no
- * staffed desk, so the Kyoto legs need a plan — see notes.
- */
-export const luggage: LuggageShipment[] = [
+/** Luggage notes for this trip — storage and forwarding. Free text; edit freely. */
+export const luggage: LuggageNote[] = [
   {
-    id: "lug-tokyo-kyoto",
-    label: "Large cases · Tokyo → Kyoto",
-    fromHotelId: "hotel-section-l",
-    toHotelId: "hotel-icy",
-    carrier: "Yamato Transport (Kuroneko Takkyūbin)",
-    sendBy: "2026-10-26",
-    expectedArrival: "2026-10-28",
-    trackingNo: "",
-    officeAddress: "Yamato service centre near Section L Hamamatsuchō — address to confirm",
-    status: "planned",
-    notes:
-      "Hand in at the hotel or a Yamato centre on the morning of the 26th (or the evening of the 25th). Tokyo→Kyoto is next-day, so it would arrive on the 27th — a day before check-in. Options: (a) ask the ICY host to receive it, or (b) address it to the nearest Yamato centre to Kyoto and collect with passport on the 28th. Decide with the host in advance.",
+    id: "lug-forwarding",
+    title: "Forwarding the big cases",
+    detail:
+      "Yamato 'takkyūbin' Tokyo → Kyoto → Tokyo — next-day between major cities, ~¥2,000–2,500 per case. Hand in at the hotel desk or a Yamato centre / konbini before ~10am; keep the tracking slip. ICY (Kyoto) has no desk, so arrange delivery with the host or send it to the nearest Yamato centre and collect with passport. On travel days, pack an overnight bag — the cases arrive a day later.",
+    date: "2026-10-26",
   },
   {
-    id: "lug-kyoto-tokyo",
-    label: "Large cases · Kyoto → Tokyo",
-    fromHotelId: "hotel-icy",
-    toHotelId: "hotel-section-l-2",
-    carrier: "Yamato Transport (Kuroneko Takkyūbin)",
-    sendBy: "2026-11-11",
-    expectedArrival: "2026-11-12",
-    trackingNo: "",
-    officeAddress: "Yamato service centre near ICY, Kyoto — address to confirm",
-    status: "planned",
-    notes:
-      "No front desk at ICY — drop the cases yourself at a Yamato centre or a konbini (7-Eleven / FamilyMart / Lawson all accept Yamato) on the morning of the 11th before catching the Shinkansen. Arrives at Section L on the 12th; the desk there will hold it.",
+    id: "lug-storage",
+    title: "Coin lockers & storage",
+    detail:
+      "Large coin lockers at Kyoto Station (central and Hachijō exits) and most JR hubs — ¥700 for the biggest, cashless ones take IC cards. For staffed storage or same-day station-to-hotel delivery, use ecbo cloak or the Carry Service desks (Kyoto Station, Arashiyama).",
   },
 ];

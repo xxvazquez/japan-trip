@@ -24,10 +24,10 @@
   --c-bg: 242 244 246;
   --c-surface: 249 250 251;
   --c-surface-2: 232 235 239;
-  --c-ink: 30 37 43;
-  --c-ink-soft: 76 86 93;
-  --c-ink-faint: 139 148 156;
-  --c-line: 219 224 229;
+  --c-ink: 26 32 38;
+  --c-ink-soft: 61 71 79;
+  --c-ink-faint: 116 126 134;
+  --c-line: 210 216 222;
 
   --c-accent: 95 127 156; /* dusty blue */
   --c-gold: 154 143 122;
@@ -44,10 +44,10 @@ html.dark {
   --c-bg: 19 23 27;
   --c-surface: 27 33 38;
   --c-surface-2: 37 44 51;
-  --c-ink: 229 233 236;
-  --c-ink-soft: 177 187 194;
-  --c-ink-faint: 123 133 142;
-  --c-line: 45 53 60;
+  --c-ink: 231 235 238;
+  --c-ink-soft: 173 183 191;
+  --c-ink-faint: 139 149 158;
+  --c-line: 51 60 68;
 
   --c-accent: 135 164 189; /* soft steel blue */
   --c-gold: 176 164 136;
@@ -67,6 +67,8 @@ html.dark {
   }
   body {
     @apply bg-bg text-ink font-sans antialiased;
+    font-size: 15px;
+    line-height: 1.5;
     font-feature-settings: "kern", "liga";
     overscroll-behavior-y: none;
     min-height: 100svh;
@@ -129,18 +131,39 @@ html.dark {
     background: rgb(var(--c-gold) / 0.1);
   }
 
+  /* ---- hierarchy utilities ---- */
   .kicker {
-    @apply text-2xs font-sans font-semibold uppercase text-ink-faint;
+    @apply text-2xs font-sans font-semibold uppercase tracking-[0.09em] text-ink-soft;
+  }
+  /* a key value that must be recognised at a glance */
+  .lead {
+    @apply text-[1.0625rem] font-medium leading-snug text-ink;
+  }
+  /* compact secondary metadata — readable, not shouting */
+  .meta {
+    @apply text-[0.8125rem] leading-normal text-ink-soft;
+  }
+  /* section heading that anchors a block of content */
+  .section-head {
+    @apply mb-3 flex items-baseline justify-between gap-3 border-b border-ink/15 pb-1.5;
+  }
+  /* a genuinely-important unresolved value */
+  .flag {
+    @apply text-accent;
+  }
+  /* an inline add / action affordance the eye can find */
+  .action {
+    @apply inline-flex items-center gap-1.5 text-sm font-medium text-accent transition-opacity hover:opacity-70;
   }
 
   .btn {
-    @apply inline-flex items-center gap-1.5 rounded-full border border-line px-3.5 py-1.5 text-sm transition-colors hover:bg-surface-2 disabled:opacity-50;
+    @apply inline-flex items-center gap-1.5 rounded-[2px] border border-ink px-3.5 py-1.5 text-sm transition-colors hover:bg-ink hover:text-bg disabled:opacity-50;
   }
   .btn-primary {
-    @apply inline-flex items-center gap-1.5 rounded-full bg-accent px-3.5 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50;
+    @apply inline-flex items-center gap-1.5 rounded-[2px] bg-ink px-3.5 py-1.5 text-sm font-medium text-bg transition-opacity hover:opacity-85 disabled:opacity-50;
   }
   .btn-sm {
-    @apply inline-flex items-center gap-1 rounded-full border border-line px-2.5 py-1 text-xs transition-colors hover:bg-surface-2;
+    @apply inline-flex items-center gap-1 rounded-[2px] border border-line px-2.5 py-1 text-xs transition-colors hover:border-ink;
   }
 }
 

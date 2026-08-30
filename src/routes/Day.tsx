@@ -1,152 +1,210 @@
 import { useParams, Link } from "react-router-dom";
-import { Hero } from "@/components/Hero";
+import { Page } from "@/components/Page";
+import { BackBar } from "@/components/BackBar";
 import { Editable } from "@/components/Editable";
-import { ActivityEditor } from "@/components/ActivityEditor";
-import { ChecklistEditor } from "@/components/ChecklistEditor";
 import { Icon } from "@/components/Icon";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { fmtDate } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
-import type { Activity, Day as DayT } from "@/core/types";
+import { gmapsLink } from "@/lib/maps";
+import type { Day as DayT, DayPlace } from "@/core/types";
+
+const rid = () => Math.random().toString(36).slice(2, 9);
 
 export default function Day() {
   const data = useData();
-  const { date } = useParams();
+  const { id } = useParams();
   const updateEntity = useApp((s) => s.updateEntity);
   if (!data) return null;
 
   const L = lookups(data);
-  const day = L.day(date);
+  const day = L.day(id);
   if (!day)
     return (
-      <div className="mx-auto max-w-reading px-5 py-16 text-center">
-        <p className="font-display text-3xl text-ink-faint">迷</p>
-        <p className="mt-3">No day for {date}.</p>
-        <Link to="/itinerary" className="mt-4 inline-block text-accent">Back to the itinerary</Link>
-      </div>
+      <Page>
+        <BackBar to="/" label="Plan" />
+        <p className="lead">No day here.</p>
+      </Page>
     );
 
   const patch = (p: Partial<DayT>) => updateEntity<DayT>("days", day.id, p);
-  const setEntries = (next: Activity[]) => patch({ entries: next });
-
   const leg = L.leg(day.legId);
   const hotel = L.hotel(day.hotelId);
-  const cover = data.media.cover?.dataUrl;
-  const legImg = L.media(leg?.mediaId)?.dataUrl;
-  const hasTemp = day.tempLo != null && day.tempHi != null;
-
-  const lastTime = (day.entries ?? [])
-    .map((a) => a.time)
-    .filter(Boolean)
-    .sort()
-    .at(-1);
-  const runsLate = day.sunset && lastTime ? lastTime > day.sunset : false;
-
-  const showChecklist = day.checklist != null;
-  const showPacking = day.packingReminder != null;
+  const journey = L.journey(day.journeyId);
+  const loc = data.config.locale;
+  const setPlaces = (next: DayPlace[]) => patch({ places: next });
 
   return (
-    <div className="relative z-10 pb-28 md:pb-14">
-      <Hero src={legImg ?? cover} alt={leg?.base ?? day.city} color={legHex(leg?.color)} height="clamp(11rem, 34vw, 17rem)">
-        <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-white/70">
-          {fmtDate(day.date, data.config.locale, { weekday: "long", day: "numeric", month: "long" })}
-        </p>
-        <h1 className="mt-1 font-display text-display text-white drop-shadow-sm">
-          <Editable label="Day title" value={day.title ?? ""} placeholder={fmtDate(day.date, data.config.locale)} onCommit={(v) => patch({ title: v || undefined })} />
-        </h1>
-        <p className="text-sm text-white/80">
-          <Editable label="City" value={day.city} placeholder="City" onCommit={(v) => patch({ city: v })} />
-        </p>
-      </Hero>
+    <Page>
+      <BackBar to="/" label="Plan" />
 
-      <div className="mx-auto max-w-reading px-5 pt-6 sm:px-7">
-        <p className="text-lg leading-relaxed text-ink-soft">
-          <Editable as="textarea" label="Day summary" value={day.summary ?? ""} placeholder="A line about the shape of the day…" onCommit={(v) => patch({ summary: v || undefined })} />
-        </p>
+      <div className="flex items-center gap-2">
+        <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: legHex(leg?.color) }} />
+        <p className="kicker">{fmtDate(day.date, loc, { weekday: "long", day: "numeric", month: "long" })}</p>
+      </div>
+      <h1 className="mt-1 font-display text-[1.75rem] leading-tight">
+        <Editable label="Day title" value={day.title ?? ""} placeholder="Untitled day" onCommit={(v) => patch({ title: v || undefined })} />
+      </h1>
 
-        <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
-          {hotel && <Chip icon="bed" to={`/hotel/${hotel.id}`}>{hotel.name}</Chip>}
-          {day.journeyId && <Chip icon="train" to={`/journey/${day.journeyId}`}>Transport</Chip>}
-          {day.dayTripId && <Chip icon="explore" to={`/day-trip/${day.dayTripId}`}>Day-trip guide</Chip>}
+      {(hotel || journey) && (
+        <div className="mt-3 flex flex-wrap gap-2 text-sm">
+          {hotel && (
+            <Link to={`/hotel/${hotel.id}`} className="inline-flex items-center gap-1.5 rounded-[2px] border border-line px-2.5 py-1 hover:border-ink">
+              <Icon name="bed" size={13} className="text-ink-soft" /> {hotel.name}
+            </Link>
+          )}
+          {journey && (
+            <Link to={`/journey/${journey.id}`} className="inline-flex items-center gap-1.5 rounded-[2px] border border-line px-2.5 py-1 hover:border-ink">
+              <Icon name="train" size={13} className="text-ink-soft" /> {journey.label}
+            </Link>
+          )}
         </div>
+      )}
 
-        <div className={`mt-4 flex flex-wrap items-center gap-x-6 gap-y-1.5 rounded-xl border px-4 py-3 text-sm ${runsLate ? "border-accent/40 bg-accent/5" : "border-line"}`}>
-          <span>
-            <span className="text-ink-faint">Sunset </span>
-            <Editable label="Sunset" value={day.sunset ?? ""} placeholder="—:—" onCommit={(v) => patch({ sunset: v || undefined })} />
-          </span>
-          <span>
-            <span className="text-ink-faint">Temp </span>
-            <Editable
-              label="Temperature range, e.g. 10–18"
-              value={hasTemp ? `${day.tempLo}–${day.tempHi}` : ""}
-              placeholder="lo–hi"
-              onCommit={(v) => {
-                const m = v.match(/(-?\d+)\s*[–-]\s*(-?\d+)/);
-                patch(m ? { tempLo: Number(m[1]), tempHi: Number(m[2]) } : { tempLo: undefined, tempHi: undefined });
-              }}
-            />
-            {hasTemp && <span className="text-ink-faint"> °C</span>}
-          </span>
-          {runsLate && <span className="w-full text-accent">Heads up — a plan runs past sunset ({lastTime}).</span>}
-        </div>
-
-        <ActivityEditor label="Plan" items={day.entries ?? []} onChange={setEntries} />
-
-        {showChecklist && (
-          <ChecklistEditor
-            items={day.checklist ?? []}
-            onChange={(next) => patch({ checklist: next })}
-            onRemoveSection={() => patch({ checklist: undefined })}
+      {/* PLAN — the day's content, given real presence */}
+      <section className="mt-7">
+        <p className="kicker mb-2">Plan</p>
+        <div className="text-[0.95rem] leading-relaxed text-ink">
+          <Editable
+            as="textarea"
+            label="Plan"
+            value={day.notes ?? ""}
+            placeholder="What's the shape of the day…"
+            onCommit={(v) => patch({ notes: v || undefined })}
           />
-        )}
+        </div>
+      </section>
 
-        {showPacking && (
-          <section className="mt-6">
-            <div className="mb-1 flex items-center justify-between">
-              <span className="kicker">Packing reminder</span>
-              <button onClick={() => patch({ packingReminder: undefined })} className="text-ink-faint hover:text-accent" aria-label="Hide packing reminder">
-                <Icon name="close" size={14} />
-              </button>
-            </div>
-            <p className="text-accent">
-              <Editable value={day.packingReminder ?? ""} label="Packing reminder" placeholder="What to pack or set aside" onCommit={(v) => patch({ packingReminder: v })} />
+      {/* PLACES */}
+      <section className="mt-8">
+        <div className="section-head">
+          <p className="kicker">Places</p>
+          <div className="flex items-center gap-3">
+            {data.places.length > 0 && (
+              <select
+                value=""
+                onChange={(e) => {
+                  const pl = data.places.find((x) => x.id === e.target.value);
+                  if (pl) setPlaces([...(day.places ?? []), { id: rid(), label: pl.name, placeId: pl.id, url: pl.url }]);
+                }}
+                className="cursor-pointer bg-transparent text-xs font-medium text-accent focus:outline-none"
+              >
+                <option value="">＋ From map</option>
+                {[...data.places].sort((a, b) => a.name.localeCompare(b.name)).map((pl) => (
+                  <option key={pl.id} value={pl.id}>{pl.name}</option>
+                ))}
+              </select>
+            )}
+            <button onClick={() => setPlaces([...(day.places ?? []), { id: rid(), label: "" }])} className="action text-xs">
+              <Icon name="plus" size={13} /> Add
+            </button>
+          </div>
+        </div>
+        {(day.places ?? []).length === 0 ? (
+          <p className="meta">Drop in a café, a temple, anything from your map.</p>
+        ) : (
+          <ul>
+            {(day.places ?? []).map((p, i) => {
+              const link = gmapsLink(p.url || (p.placeId ? p.label : undefined));
+              return (
+                <li key={p.id} className="group flex items-center gap-2.5 border-b border-line py-2.5">
+                  <a
+                    href={link}
+                    target="_blank"
+                    rel="noopener"
+                    className={`shrink-0 ${link ? "text-accent" : "pointer-events-none text-ink-faint/40"}`}
+                    aria-label="Open in Google Maps"
+                  >
+                    <Icon name="map" size={15} />
+                  </a>
+                  <span className="min-w-0 flex-1 font-medium">
+                    <Editable label="Place" value={p.label} placeholder="Name" onCommit={(v) => setPlaces(day.places!.map((x, j) => (j === i ? { ...x, label: v } : x)))} />
+                  </span>
+                  <span className="shrink-0 text-xs text-ink-soft">
+                    <Editable label="Google Maps link" value={p.url ?? ""} placeholder="＋ link" onCommit={(v) => setPlaces(day.places!.map((x, j) => (j === i ? { ...x, url: v || undefined } : x)))} />
+                  </span>
+                  <button onClick={() => setPlaces(day.places!.filter((_, j) => j !== i))} className="shrink-0 p-1 text-ink-faint opacity-0 transition-opacity hover:text-accent group-hover:opacity-100" aria-label="Remove">
+                    <Icon name="close" size={13} />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+
+      {/* DAY TRIP */}
+      {day.dayTrip ? (
+        <section className="mt-8 border-t-2 border-ink/70 pt-5">
+          <div className="section-head">
+            <p className="kicker">
+              <Icon name="explore" size={12} className="mr-1 inline align-[-1px]" /> Day trip
             </p>
-          </section>
-        )}
+            <button onClick={() => patch({ dayTrip: false })} className="text-xs text-ink-faint hover:text-accent">not a day trip</button>
+          </div>
 
-        <section className="mt-6">
-          <h2 className="kicker mb-2">Notes</h2>
-          <div className="rounded-xl border border-line px-4 py-3 text-sm leading-relaxed">
-            <Editable as="textarea" label="Day notes" value={day.notes ?? ""} placeholder="Anything else for this day…" onCommit={(v) => patch({ notes: v || undefined })} />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="Getting there">
+              <Editable as="textarea" label="Getting there" value={day.getThere ?? ""} placeholder="Route out" onCommit={(v) => patch({ getThere: v || undefined })} />
+            </Field>
+            <Field label="Getting back">
+              <Editable as="textarea" label="Getting back" value={day.getBack ?? ""} placeholder="Route back" onCommit={(v) => patch({ getBack: v || undefined })} />
+            </Field>
+          </div>
+
+          <div className="mt-4 flex items-baseline gap-2">
+            <Icon name="clock" size={14} className="shrink-0 translate-y-0.5 text-accent" />
+            <p className="text-sm">
+              <span className="text-ink-soft">Last way back — </span>
+              <span className="font-medium text-accent">
+                <Editable label="Last way back" value={day.lastTrainBack ?? ""} placeholder="e.g. last train ~23:00" onCommit={(v) => patch({ lastTrainBack: v || undefined })} />
+              </span>
+            </p>
+          </div>
+
+          <div className="mt-5">
+            <div className="section-head">
+              <p className="kicker">What to do there</p>
+              <button onClick={() => patch({ toDo: [...(day.toDo ?? []), ""] })} className="action text-xs"><Icon name="plus" size={13} /> Add</button>
+            </div>
+            <StringList items={day.toDo ?? []} onChange={(v) => patch({ toDo: v.length ? v : undefined })} />
           </div>
         </section>
+      ) : (
+        <button onClick={() => patch({ dayTrip: true })} className="action mt-8">
+          <Icon name="plus" size={14} /> Make this a day trip
+        </button>
+      )}
+    </Page>
+  );
 
-        {(!showChecklist || !showPacking) && (
-          <div className="mt-5 flex flex-wrap gap-2 text-sm text-ink-faint">
-            {!showChecklist && (
-              <button onClick={() => patch({ checklist: [] })} className="flex items-center gap-1 rounded-full border border-dashed border-line px-3 py-1 hover:text-accent">
-                <Icon name="plus" size={13} /> Checklist
-              </button>
-            )}
-            {!showPacking && (
-              <button onClick={() => patch({ packingReminder: "" })} className="flex items-center gap-1 rounded-full border border-dashed border-line px-3 py-1 hover:text-accent">
-                <Icon name="plus" size={13} /> Packing reminder
-              </button>
-            )}
-          </div>
-        )}
-      </div>
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p className="text-2xs font-semibold uppercase tracking-wide text-ink-soft">{label}</p>
+      <div className="mt-1 text-sm leading-relaxed text-ink">{children}</div>
     </div>
   );
 }
 
-function Chip({ icon, to, children }: { icon: Parameters<typeof Icon>[0]["name"]; to: string; children: React.ReactNode }) {
+function StringList({ items, onChange }: { items: string[]; onChange: (next: string[]) => void }) {
+  if (items.length === 0) return <p className="meta">Nothing yet.</p>;
   return (
-    <Link to={to} className="flex items-center gap-1.5 rounded-full border border-line px-3 py-1 text-sm hover:bg-surface-2">
-      <Icon name={icon} size={14} className="text-ink-faint" />
-      {children}
-    </Link>
+    <ul>
+      {items.map((it, i) => (
+        <li key={i} className="group flex items-center gap-2.5 border-b border-line py-2.5 text-sm">
+          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-ink-faint" />
+          <span className="min-w-0 flex-1">
+            <Editable label="Item" value={it} placeholder="…" onCommit={(v) => onChange(items.map((x, j) => (j === i ? v : x)))} />
+          </span>
+          <button onClick={() => onChange(items.filter((_, j) => j !== i))} className="shrink-0 p-1 text-ink-faint opacity-0 transition-opacity hover:text-accent group-hover:opacity-100" aria-label="Remove">
+            <Icon name="close" size={13} />
+          </button>
+        </li>
+      ))}
+    </ul>
   );
 }

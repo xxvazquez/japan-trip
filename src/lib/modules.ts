@@ -1,21 +1,17 @@
 import type { ModuleConfig, ModuleKind } from "@/core/types";
 import type { IconName } from "@/components/Icon";
 
-/** Route + matchers for each built-in section kind. */
+/** Route + extra path prefixes that count as "this section is current". */
 export const MODULE_ROUTE: Record<ModuleKind, { to: string; match: string[] }> = {
-  today: { to: "/", match: [] },
-  itinerary: { to: "/itinerary", match: ["/day"] },
-  places: { to: "/places", match: ["/hotel", "/journey", "/luggage", "/map"] },
-  explore: { to: "/explore", match: ["/collection", "/day-trip"] },
-  vault: { to: "/vault", match: ["/documents", "/packing", "/notes"] },
+  plan: { to: "/", match: ["/day", "/journey"] },
+  map: { to: "/map", match: [] },
+  logbook: { to: "/logbook", match: ["/hotel"] },
 };
 
 export const MODULE_ICON: Record<ModuleKind, IconName> = {
-  today: "today",
-  itinerary: "itinerary",
-  places: "places",
-  explore: "explore",
-  vault: "vault",
+  plan: "itinerary",
+  map: "places",
+  logbook: "vault",
 };
 
 export function moduleTo(s: ModuleConfig): string {
@@ -24,9 +20,20 @@ export function moduleTo(s: ModuleConfig): string {
 
 export function isModuleCurrent(s: ModuleConfig, pathname: string): boolean {
   const to = moduleTo(s);
-  if (to === "/") return pathname === "/";
+  if (to === "/") return pathname === "/" || MODULE_ROUTE.plan.match.some((m) => pathname.startsWith(m));
   if (pathname === to || pathname.startsWith(to + "/")) return true;
   return MODULE_ROUTE[s.kind].match.some((m) => pathname === m || pathname.startsWith(m + "/"));
 }
 
-export const enabledModules = (modules: ModuleConfig[]) => modules.filter((m) => m.enabled);
+const DEFAULTS: ModuleConfig[] = [
+  { id: "plan", kind: "plan", label: "Plan", icon: "itinerary", enabled: true },
+  { id: "map", kind: "map", label: "Map", icon: "places", enabled: true },
+  { id: "logbook", kind: "logbook", label: "Logbook", icon: "vault", enabled: true },
+];
+
+/** Known, enabled sections. Falls back to defaults if a trip's config predates
+ *  the current section set. */
+export const enabledModules = (modules: ModuleConfig[]) => {
+  const known = (modules ?? []).filter((m) => m.enabled && m.kind in MODULE_ROUTE);
+  return known.length ? known : DEFAULTS;
+};

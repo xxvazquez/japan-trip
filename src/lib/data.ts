@@ -14,16 +14,10 @@ export const byId = <T extends { id: ID }>(list: T[] | undefined, id: ID | undef
 
 export function lookups(d: TripData) {
   return {
-    place: (id?: ID) => byId(d.places, id),
     hotel: (id?: ID) => byId(d.hotels, id),
     leg: (id?: ID) => byId(d.legs, id),
-    dayTrip: (id?: ID) => byId(d.dayTrips, id),
     journey: (id?: ID) => byId(d.journeys, id),
     luggage: (id?: ID) => byId(d.luggage, id),
-    collection: (id?: ID) => byId(d.collections, id),
-    reservation: (id?: ID) => byId(d.reservations, id),
-    day: (date?: ID) => d.days.find((x) => x.date === date),
-    media: (id?: ID) => (id ? d.media.gallery.find((m) => m.id === id) : undefined),
-    placesInCollection: (cid: ID) => d.places.filter((p) => p.collections?.includes(cid)),
+    day: (id?: ID) => d.days.find((x) => x.id === id || x.date === id),
   };
 }

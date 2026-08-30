@@ -1,13 +1,12 @@
-import { useParams, Link } from "react-router-dom";
-import { Hero } from "@/components/Hero";
-import { Field } from "@/components/Field";
+import { useParams } from "react-router-dom";
+import { Page } from "@/components/Page";
+import { BackBar } from "@/components/BackBar";
 import { Editable } from "@/components/Editable";
-import { AccessLine } from "@/components/AccessLine";
-import { NearbyList } from "@/components/NearbyList";
-import { PlaceMap, MyMapEmbed } from "@/components/PlaceMap";
+import { Icon } from "@/components/Icon";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
-import { legHex } from "@/lib/legColors";
+import { gmapsLink } from "@/lib/maps";
+import { fmtDate } from "@/lib/dates";
 import type { Hotel as HotelT } from "@/core/types";
 
 export default function Hotel() {
@@ -20,64 +19,88 @@ export default function Hotel() {
   const hotel = L.hotel(id);
   if (!hotel)
     return (
-      <div className="mx-auto max-w-reading px-5 py-16 text-center">
-        <p>Stay not found.</p>
-        <Link to="/places" className="mt-3 inline-block text-accent">Back to Places</Link>
-      </div>
+      <Page>
+        <BackBar to="/logbook" label="Logbook" />
+        <p className="lead">No stay here.</p>
+      </Page>
     );
-
-  const patch = (p: Partial<HotelT>) => updateEntity<HotelT>("hotels", hotel.id, p);
-  const place = L.place(hotel.placeId);
+  const p = (patch: Partial<HotelT>) => updateEntity<HotelT>("hotels", hotel.id, patch);
   const leg = data.legs.find((l) => l.hotelId === hotel.id);
-  const loc = place?.loc;
-  const target = { loc, query: place?.gmapsQuery ?? hotel.address, name: hotel.name };
-  const galleryImg = data.media.gallery.find((g) => hotel.gallery?.includes(g.id))?.dataUrl;
+  const map = gmapsLink(hotel.mapUrl || hotel.address);
+  const loc = data.config.locale;
 
   return (
-    <div className="relative z-10 pb-28 md:pb-14">
-      <Hero src={galleryImg ?? data.media.cover?.dataUrl} alt={hotel.name} color={legHex(leg?.color)} height="clamp(10rem, 30vw, 15rem)">
-        <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-white/70">Stay{leg ? ` · ${leg.base}` : ""}</p>
-        <h1 className="mt-1 font-display text-display text-white drop-shadow-sm">
-          <Editable label="Hotel name" value={hotel.name} onCommit={(v) => patch({ name: v || hotel.name })} />
-        </h1>
-      </Hero>
+    <Page>
+      <BackBar to="/logbook" label="Logbook" />
+      <h1 className="font-display text-[1.6rem] leading-tight">
+        <Editable label="Name" value={hotel.name} onCommit={(v) => p({ name: v || hotel.name })} />
+      </h1>
+      {leg && <p className="meta mt-1">{fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – {fmtDate(leg.end, loc, { day: "numeric", month: "short" })}</p>}
 
-      <div className="mx-auto max-w-reading px-5 pt-6 sm:px-7">
-        <p className="text-lg leading-relaxed text-ink-soft">
-          <Editable as="textarea" label="Notes" value={hotel.notes ?? ""} placeholder="A line about this stay" onCommit={(v) => patch({ notes: v || undefined })} />
+      {/* address — the thing you show a taxi */}
+      <div className="mt-5 border-y-2 border-ink/15 py-4">
+        <p className="text-[0.95rem] leading-snug">
+          <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined })} />
         </p>
-
-        <div className="mt-5">
-          <AccessLine access={hotel.access} onChange={(a) => patch({ access: a })} />
-        </div>
-
-        <section className="mt-6">
-          <h2 className="kicker mb-1">Booking</h2>
-          <Field label="Address" value={hotel.address ?? ""} onCommit={(v) => patch({ address: v || undefined })} />
-          <Field label="Phone" value={hotel.phone ?? ""} onCommit={(v) => patch({ phone: v || undefined })} />
-          <Field label="Website" value={hotel.url ?? ""} onCommit={(v) => patch({ url: v || undefined })} />
-          <Field label="Check-in" value={hotel.checkIn ?? ""} onCommit={(v) => patch({ checkIn: v || undefined })} />
-          <Field label="Check-out" value={hotel.checkOut ?? ""} onCommit={(v) => patch({ checkOut: v || undefined })} />
-          <Field label="Reservation ref" value={hotel.reservationRef ?? ""} onCommit={(v) => patch({ reservationRef: v || undefined })} />
-          <Field label="Wi-Fi" value={hotel.wifi ?? ""} onCommit={(v) => patch({ wifi: v || undefined })} />
-          <Field label="Door code" value={hotel.doorCode ?? ""} onCommit={(v) => patch({ doorCode: v || undefined })} />
-        </section>
-
-        <section className="mt-7">
-          <h2 className="kicker mb-2">On the map</h2>
-          <PlaceMap target={target} />
-        </section>
-
-        <section className="mt-7">
-          <h2 className="kicker mb-3">Nearby</h2>
-          <NearbyList items={hotel.nearby} hotelLoc={loc} onChange={(n) => patch({ nearby: n })} />
-        </section>
-
-        <section className="mt-8">
-          <h2 className="kicker mb-2">Saved places</h2>
-          <MyMapEmbed />
-        </section>
+        <p className="mt-1 font-jp text-[0.95rem] leading-snug text-ink-soft">
+          <Editable label="Address (Japanese)" value={hotel.addressJp ?? ""} placeholder="現地語の住所（タクシー用）" onCommit={(v) => p({ addressJp: v || undefined })} />
+        </p>
+        {map && (
+          <a href={map} target="_blank" rel="noopener" className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-accent">
+            <Icon name="map" size={15} /> Open in Google Maps
+          </a>
+        )}
       </div>
+
+      {/* the stuff you need at the door */}
+      <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-4">
+        <Big label="Wifi" value={hotel.wifi ?? ""} onCommit={(v) => p({ wifi: v || undefined })} />
+        <Big label="Door code" value={hotel.doorCode ?? ""} onCommit={(v) => p({ doorCode: v || undefined })} />
+        <Big label="Check-in" value={hotel.checkIn ?? ""} onCommit={(v) => p({ checkIn: v || undefined })} />
+        <Big label="Check-out" value={hotel.checkOut ?? ""} onCommit={(v) => p({ checkOut: v || undefined })} />
+      </div>
+
+      <section className="mt-7">
+        <p className="kicker mb-2">Getting here</p>
+        <div className="text-sm leading-relaxed text-ink">
+          <Editable as="textarea" label="Directions" value={hotel.directions ?? ""} placeholder="From the station…" onCommit={(v) => p({ directions: v || undefined })} />
+        </div>
+      </section>
+
+      <section className="mt-7">
+        <p className="kicker mb-2">Reference</p>
+        <Row label="Phone" value={hotel.phone ?? ""} onCommit={(v) => p({ phone: v || undefined })} />
+        <Row label="Booking ref" value={hotel.reservationRef ?? ""} onCommit={(v) => p({ reservationRef: v || undefined })} />
+        <Row label="Map link" value={hotel.mapUrl ?? ""} onCommit={(v) => p({ mapUrl: v || undefined })} placeholder="paste Google Maps link" />
+        <Row label="Website" value={hotel.url ?? ""} onCommit={(v) => p({ url: v || undefined })} />
+      </section>
+
+      <section className="mt-7 border-t border-line pt-5">
+        <p className="kicker mb-2">Notes</p>
+        <div className="text-sm leading-relaxed text-ink">
+          <Editable as="textarea" label="Notes" value={hotel.notes ?? ""} placeholder="Anything about this stay" onCommit={(v) => p({ notes: v || undefined })} />
+        </div>
+      </section>
+    </Page>
+  );
+}
+
+function Big({ label, value, onCommit }: { label: string; value: string; onCommit: (v: string) => void }) {
+  return (
+    <div>
+      <p className="kicker">{label}</p>
+      <p className="mt-0.5 text-lg font-medium">
+        <Editable label={label} value={value} placeholder="—" onCommit={onCommit} />
+      </p>
+    </div>
+  );
+}
+
+function Row({ label, value, onCommit, placeholder }: { label: string; value: string; onCommit: (v: string) => void; placeholder?: string }) {
+  return (
+    <div className="flex items-baseline justify-between gap-4 border-b border-line py-2 text-sm last:border-b-0">
+      <span className="shrink-0 text-ink-soft">{label}</span>
+      <span className="min-w-0 text-right"><Editable label={label} value={value} onCommit={onCommit} placeholder={placeholder ?? "—"} /></span>
     </div>
   );
 }

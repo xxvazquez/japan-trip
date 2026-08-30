@@ -42,8 +42,10 @@ interface AppStore {
   addEntity: (type: EntityType, obj: WithId) => void;
   removeEntity: (type: EntityType, id: string) => void;
   moveEntity: (type: EntityType, id: string, dir: -1 | 1) => void;
+  reorderDays: (orderedIds: string[]) => void;
 
   setScratch: (value: string) => void;
+  syncMyMap: (url: string) => Promise<{ mapName: string; count: number }>;
   setMedia: (slot: "logo" | "cover", item: MediaItem | undefined) => void;
   addGalleryMedia: (item: MediaItem) => void;
   removeGalleryMedia: (id: string) => void;
@@ -305,8 +307,49 @@ export const useApp = create<AppStore>((set, get) => {
       })) enqueue(get, { t: "pos", type });
     },
 
+    /** Reassign the given days' calendar dates to `orderedIds`'s order,
+     *  running from the earliest current date forward. Used by drag-reorder. */
+    reorderDays: (orderedIds: string[]) => {
+      const changed: string[] = [];
+      if (!local((d) => {
+        const days = orderedIds.map((id) => d.days.find((x) => x.id === id)).filter(Boolean) as { id: string; date: string }[];
+        const dates = days.map((x) => x.date).sort();
+        days.forEach((day, i) => {
+          if (day.date !== dates[i]) { day.date = dates[i]; changed.push(day.id); }
+        });
+        d.days.sort((a, b) => a.date.localeCompare(b.date));
+      })) return;
+      for (const id of changed) enqueue(get, { t: "row", type: "days", id });
+      enqueue(get, { t: "pos", type: "days" });
+    },
+
     setScratch: (value) => {
       if (local((d) => { d.scratch = value; })) enqueue(get, { t: "fields", keys: ["scratch"] });
+    },
+
+    /** Replace all `source: "mymap"` places with a fresh import from `url`.
+     *  App-native places are untouched. */
+    syncMyMap: async (url) => {
+      const { fetchMyMap } = await import("@/lib/mymaps");
+      const rid = () => (crypto?.randomUUID ? crypto.randomUUID() : `p-${Math.random().toString(36).slice(2)}`);
+      const { mapName, places } = await fetchMyMap(url);
+      const removed: string[] = [];
+      const added: string[] = [];
+      if (!local((d) => {
+        for (const p of d.places) if (p.source === "mymap") removed.push(p.id);
+        d.places = d.places.filter((p) => p.source !== "mymap");
+        for (const p of places) {
+          const id = rid();
+          added.push(id);
+          d.places.push({ id, name: p.name, lat: p.lat, lng: p.lng, category: p.category, color: p.color, source: "mymap" });
+        }
+        d.config.mapSourceUrl = url;
+        d.config.mapSyncedAt = now();
+      })) return { mapName, count: 0 };
+      for (const id of removed) enqueue(get, { t: "del", type: "places", id });
+      for (const id of added) enqueue(get, { t: "row", type: "places", id });
+      enqueue(get, { t: "fields", keys: ["config"] });
+      return { mapName, count: places.length };
     },
     setMedia: (slot, item) => {
       if (local((d) => { d.media[slot] = item; })) enqueue(get, { t: "fields", keys: ["media"] });

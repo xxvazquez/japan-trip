@@ -6,12 +6,8 @@ import { Icon } from "./Icon";
 
 const KIND_LABEL: Record<SearchKind, string> = {
   day: "Day",
-  "day-trip": "Day trip",
   hotel: "Stay",
   transfer: "Transfer",
-  collection: "Collection",
-  place: "Place",
-  station: "Station",
 };
 
 export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -53,14 +49,14 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col items-center bg-ai/30 px-4 pt-[10vh] backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex flex-col items-center bg-ink/40 px-4 pt-[10vh]"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label="Search"
     >
       <div
-        className="flex w-full max-w-reading flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl motion-safe:animate-fade-up"
+        className="flex w-full max-w-reading flex-col overflow-hidden border border-line bg-bg motion-safe:animate-fade-up"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={onKey}
       >

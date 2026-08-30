@@ -19,30 +19,14 @@ interface Spec {
 }
 
 const SPECS: Record<EntityType, Spec> = {
-  legs: { table: "legs", rename: { nameJp: "name_alt", start: "start_date", end: "end_date", mediaId: "image" } },
+  legs: { table: "legs", rename: { nameJp: "name_alt", start: "start_date", end: "end_date" } },
   hotels: { table: "hotels", rename: { nameJp: "name_alt" } },
-  places: {
-    table: "places",
-    rename: { nameJp: "name_alt", mediaId: "image" },
-    toRow: (e, r) => {
-      const loc = e.loc as { lat: number; lng: number } | undefined;
-      if (loc) { r.lat = loc.lat; r.lng = loc.lng; }
-      delete r.loc;
-    },
-    fromRow: (r, e) => {
-      if (r.lat != null) e.loc = { lat: Number(r.lat), lng: Number(r.lng) };
-      delete e.lat; delete e.lng;
-    },
-  },
-  journeys: { table: "journeys", rename: { luggageShipmentId: "luggage_id" } },
+  journeys: { table: "journeys" },
   luggage: { table: "luggage" },
   days: { table: "days" },
-  dayTrips: { table: "day_trips", rename: { nameJp: "name_alt", mediaId: "image" } },
-  collections: { table: "collections", rename: { mediaId: "image" } },
-  reservations: { table: "reservations", rename: { when: "when_text" } },
   packing: { table: "packing", rename: { group: "group_name" } },
   docs: { table: "docs" },
-  etiquette: { table: "etiquette" },
+  places: { table: "places" },
 };
 
 export const TABLE_OF = Object.fromEntries(

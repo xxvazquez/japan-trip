@@ -31,19 +31,20 @@ export function SignalChips({ items, className = "" }: { items: (Signal | false 
 export type Tone = "warn" | "info" | "ok";
 
 const BAND_TONE: Record<Tone, string> = {
-  warn: "border-accent/40 bg-accent/8 text-accent",
-  info: "border-line bg-surface-2 text-ink-soft",
-  ok: "border-matcha/40 bg-matcha/10 text-matcha",
+  warn: "border-accent text-accent",
+  info: "border-ink-faint text-ink-soft",
+  ok: "border-matcha text-matcha",
 };
 
-/** Things that need attention, stacked at the top of a screen. */
+/** Things that need attention, stacked at the top of a screen. A colour-keyed
+ *  left rule — no filled box. */
 export function AttentionBand({ items }: { items: { icon?: IconName; text: ReactNode; tone?: Tone }[] }) {
   if (items.length === 0) return null;
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-2.5">
       {items.map((it, i) => (
-        <div key={i} className={`flex items-center gap-2.5 rounded-lg border px-3.5 py-2.5 text-sm ${BAND_TONE[it.tone ?? "warn"]}`}>
-          <Icon name={it.icon ?? "alert"} size={16} className="shrink-0" />
+        <div key={i} className={`flex items-start gap-2.5 border-l-2 pl-3 text-sm ${BAND_TONE[it.tone ?? "warn"]}`}>
+          <Icon name={it.icon ?? "alert"} size={15} className="mt-0.5 shrink-0" />
           <span>{it.text}</span>
         </div>
       ))}

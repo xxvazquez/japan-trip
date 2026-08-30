@@ -26,13 +26,13 @@ export default function Manage() {
       <p className="-mt-4 mb-6 text-sm text-ink-faint">
         Structure only. Edit the details themselves inline on each page.
       </p>
-      <div className="mb-6 flex gap-1 overflow-x-auto">
+      <div className="mb-6 flex gap-5 overflow-x-auto border-b border-line">
         {TABS.map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm capitalize transition-colors ${
-              tab === t ? "bg-accent/10 text-accent" : "text-ink-faint hover:bg-surface-2"
+            className={`shrink-0 border-b-2 pb-2 text-sm capitalize transition-colors ${
+              tab === t ? "border-ink text-ink" : "border-transparent text-ink-faint hover:text-ink-soft"
             }`}
           >
             {t}
@@ -71,7 +71,7 @@ function Trips() {
   return (
     <div className="space-y-6">
       {supabaseEnabled && auth.user && (
-        <div className="flex items-center justify-between rounded-xl border border-line px-4 py-3 text-sm">
+        <div className="flex items-center justify-between rounded-[3px] border border-line px-4 py-3 text-sm">
           <span className="min-w-0 truncate">
             <span className="text-ink-faint">Signed in · </span>
             {auth.user.email}
@@ -86,7 +86,7 @@ function Trips() {
           <Icon name="plus" size={16} /> New trip
         </button>
       ) : (
-        <div className="rounded-xl border border-line p-4">
+        <div className="rounded-[3px] border border-line p-4">
           <p className="mb-3 text-sm font-medium">Start from…</p>
           <div className="flex flex-col gap-2">
             <button onClick={() => make()} disabled={busy} className="btn justify-start">
@@ -105,10 +105,10 @@ function Trips() {
 
       <ul className="space-y-2">
         {live.map((t) => (
-          <li key={t.id} className="rounded-xl border border-line p-4">
+          <li key={t.id} className="rounded-[3px] border border-line p-4">
             <div className="flex items-center gap-2">
               <Editable label="Trip name" value={t.name} onCommit={(v) => renameTrip(t.id, v || t.name)} className="font-medium" />
-              {t.id === activeId && <span className="rounded-full bg-accent/10 px-2 py-0.5 text-2xs text-accent">active</span>}
+              {t.id === activeId && <span className="text-2xs font-semibold uppercase tracking-wide text-accent">active</span>}
             </div>
             {t.subtitle && <p className="text-xs text-ink-faint">{t.subtitle}</p>}
             <div className="mt-3 flex flex-wrap gap-1.5 text-sm">
@@ -136,7 +136,7 @@ function Trips() {
           <h3 className="kicker mb-2">Archived</h3>
           <ul className="space-y-2">
             {archived.map((t) => (
-              <li key={t.id} className="flex items-center justify-between rounded-xl border border-dashed border-line px-4 py-3 text-sm">
+              <li key={t.id} className="flex items-center justify-between rounded-[3px] border border-dashed border-line px-4 py-3 text-sm">
                 <span className="text-ink-faint">{t.name}</span>
                 <div className="flex gap-1.5">
                   <button onClick={() => archiveTrip(t.id, false)} className="btn-sm">Restore</button>
@@ -176,7 +176,7 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
   };
 
   return (
-    <div className="rounded-xl border border-line p-4">
+    <div className="rounded-[3px] border border-line p-4">
       <h3 className="kicker mb-2">Shared with</h3>
       <ul className="mb-3 space-y-1.5 text-sm">
         {members.map((m) => (
@@ -195,7 +195,7 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Invite by email"
-              className="min-w-0 flex-1 rounded-md border border-line bg-surface px-2.5 py-1.5 text-sm outline-none"
+              className="min-w-0 flex-1 rounded-[2px] border border-line bg-surface px-2.5 py-1.5 text-sm outline-none"
             />
             <button onClick={invite} disabled={busy} className="btn-sm shrink-0">Invite</button>
           </div>
@@ -215,10 +215,10 @@ function Settings() {
   const { config, meta } = data;
   const [advanced, setAdvanced] = useState(false);
 
-  const Field = ({ label, value, onCommit }: { label: string; value: string; onCommit: (v: string) => void }) => (
+  const Field = ({ label, value, onCommit, placeholder }: { label: string; value: string; onCommit: (v: string) => void; placeholder?: string }) => (
     <div className="flex items-baseline justify-between gap-4 border-t border-line py-2.5 first:border-0">
-      <span className="text-sm text-ink-faint">{label}</span>
-      <span className="text-right text-sm"><Editable label={label} value={value} onCommit={onCommit} /></span>
+      <span className="shrink-0 text-sm text-ink-faint">{label}</span>
+      <span className="min-w-0 text-right text-sm"><Editable label={label} value={value} onCommit={onCommit} placeholder={placeholder ?? "Add"} /></span>
     </div>
   );
 
@@ -240,10 +240,10 @@ function Settings() {
       </section>
 
       <section>
-        <h3 className="kicker mb-1">Money & locale</h3>
+        <h3 className="kicker mb-1">Locale & map</h3>
         <Field label="Locale" value={config.locale} onCommit={(v) => mutate((d) => { d.config.locale = v; })} />
-        <Field label="Trip currency" value={`${config.currency.code} ${config.currency.symbol}`} onCommit={(v) => mutate((d) => { const [code, sym] = v.split(" "); d.config.currency.code = code ?? ""; d.config.currency.symbol = sym ?? code ?? ""; })} />
-        <Field label="Home currency" value={`${config.homeCurrency.code} ${config.homeCurrency.symbol}`} onCommit={(v) => mutate((d) => { const [code, sym] = v.split(" "); d.config.homeCurrency.code = code ?? ""; d.config.homeCurrency.symbol = sym ?? code ?? ""; })} />
+        <Field label="Travellers" value={config.travellers} onCommit={(v) => mutate((d) => { d.config.travellers = v; })} />
+        <Field label="Google My Map link" value={config.mapSourceUrl ?? ""} placeholder="https://www.google.com/maps/d/edit?mid=…" onCommit={(v) => mutate((d) => { d.config.mapSourceUrl = v; })} />
       </section>
 
       <section>
@@ -255,7 +255,7 @@ function Settings() {
               <button
                 key={p.id}
                 onClick={() => mutate((d) => { d.config.theme = structuredClone(p.tokens); d.config.themePreset = p.id; })}
-                className={`rounded-xl border p-3 text-left transition-colors ${on ? "border-accent ring-1 ring-accent" : "border-line hover:bg-surface-2"}`}
+                className={`rounded-[3px] border p-3 text-left transition-colors ${on ? "border-accent ring-1 ring-accent" : "border-line hover:bg-surface-2"}`}
               >
                 <div className="mb-2 flex gap-1">
                   {["bg", "ink", "accent", "ai"].map((tok) => (
@@ -322,7 +322,7 @@ function Modules() {
       <p className="mb-3 text-sm text-ink-faint">Reorder, rename, or turn modules off for this trip.</p>
       <ul className="space-y-2">
         {modules.map((m, i) => (
-          <li key={m.id} className="flex items-center gap-3 rounded-lg border border-line px-3 py-2.5">
+          <li key={m.id} className="flex items-center gap-3 rounded-[3px] border border-line px-3 py-2.5">
             <div className="flex flex-col">
               <button disabled={i === 0} onClick={() => mutate((d) => { const a = d.config.modules; [a[i - 1], a[i]] = [a[i], a[i - 1]]; })} className="text-ink-faint disabled:opacity-30" aria-label="Move up">
                 <Icon name="up" size={16} />
@@ -374,7 +374,7 @@ function Media() {
       <section>
         <h3 className="kicker mb-2">Logo</h3>
         <div className="flex items-center gap-4">
-          <span className="grid h-16 w-16 place-items-center overflow-hidden rounded-xl border border-line bg-surface-2">
+          <span className="grid h-16 w-16 place-items-center overflow-hidden rounded-[3px] border border-line bg-surface-2">
             <img src={media.logo?.dataUrl || "/brand/logo-128.png"} alt="" className="h-full w-full object-cover" />
           </span>
           <div className="flex gap-2">
@@ -386,7 +386,7 @@ function Media() {
 
       <section>
         <h3 className="kicker mb-2">Cover</h3>
-        <div className="overflow-hidden rounded-xl border border-line">
+        <div className="overflow-hidden rounded-[3px] border border-line">
           {media.cover ? (
             <img src={media.cover.dataUrl} alt="" className="h-40 w-full object-cover" />
           ) : (
@@ -407,7 +407,7 @@ function Media() {
         {media.gallery.length > 0 ? (
           <div className="grid grid-cols-3 gap-2">
             {media.gallery.map((m) => (
-              <div key={m.id} className="group relative overflow-hidden rounded-lg border border-line">
+              <div key={m.id} className="group relative overflow-hidden rounded-[3px] border border-line">
                 <img src={m.dataUrl} alt={m.name} className="aspect-square w-full object-cover" />
                 <button
                   onClick={() => removeGalleryMedia(m.id)}
@@ -435,18 +435,14 @@ function Media() {
 /* -------------------------------------------------------------- Content */
 
 const ENTITY_LABELS: Record<EntityType, string> = {
-  legs: "Legs",
+  legs: "Stays",
   days: "Days",
-  places: "Places",
   hotels: "Hotels",
   journeys: "Transport",
-  luggage: "Luggage shipments",
-  dayTrips: "Day trips",
-  collections: "Collections",
-  reservations: "Reservations",
+  luggage: "Luggage notes",
   packing: "Packing items",
   docs: "Documents",
-  etiquette: "Etiquette cards",
+  places: "Map places",
 };
 
 function Content() {
@@ -459,18 +455,14 @@ function Content() {
   const blankFor = (type: EntityType): Record<string, unknown> => {
     const id = `${type}-${rid()}`;
     switch (type) {
-      case "days": return { id, date: data.meta.start, city: "", legId: data.legs[0]?.id ?? "", title: "New day" };
-      case "legs": return { id, base: "New leg", start: data.meta.start, end: data.meta.end, hotelId: "", color: "blue" };
-      case "places": return { id, name: "New place", kind: "other", city: "" };
-      case "hotels": return { id, placeId: "", name: "New hotel", access: {}, nearby: [] };
+      case "days": return { id, date: data.meta.start, legId: data.legs[0]?.id ?? "", title: "New day" };
+      case "legs": return { id, base: "New stay", start: data.meta.start, end: data.meta.end, hotelId: "", color: "blue" };
+      case "hotels": return { id, name: "New hotel" };
       case "journeys": return { id, label: "New journey", kind: "transfer", date: data.meta.start, segments: [] };
-      case "luggage": return { id, label: "New shipment", fromHotelId: "", toHotelId: "", carrier: "", sendBy: data.meta.start, expectedArrival: data.meta.start, status: "planned" };
-      case "dayTrips": return { id, name: "New day trip", city: "", blurb: "", stats: { travelTimeMin: 30, difficulty: "easy", reservation: "none" }, getThere: [], returnOptions: [], see: [], eat: [] };
-      case "collections": return { id, title: "New collection", kind: "theme", blurb: "" };
-      case "reservations": return { id, title: "New reservation" };
+      case "luggage": return { id, title: "New note" };
       case "packing": return { id, label: "New item", phase: "bring", group: "Other" };
       case "docs": return { id, title: "New document", kind: "other", fields: [] };
-      case "etiquette": return { id, title: "New card", body: "" };
+      case "places": return { id, name: "New place", lat: 35.68, lng: 139.76, category: "My places" };
       default: return { id };
     }
   };
@@ -482,8 +474,6 @@ function Content() {
     type === "days" ? `/day/${id}`
       : type === "hotels" ? `/hotel/${id}`
       : type === "journeys" ? `/journey/${id}`
-      : type === "dayTrips" ? `/day-trip/${id}`
-      : type === "collections" ? `/collection/${id}`
       : null;
 
   return (
@@ -493,7 +483,7 @@ function Content() {
         const list = data[type] as { id: string }[];
         const isOpen = open === type;
         return (
-          <div key={type} className="rounded-xl border border-line">
+          <div key={type} className="rounded-[3px] border border-line">
             <button onClick={() => setOpen(isOpen ? null : type)} className="flex w-full items-center justify-between px-4 py-3 text-left">
               <span className="font-medium">{ENTITY_LABELS[type]}</span>
               <span className="flex items-center gap-2 text-sm text-ink-faint">{list.length}<Icon name={isOpen ? "up" : "down"} size={16} /></span>

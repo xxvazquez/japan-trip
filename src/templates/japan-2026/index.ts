@@ -3,19 +3,13 @@ import { config } from "./config";
 import { meta } from "./meta";
 import { legs } from "./legs";
 import { days } from "./days";
-import { places } from "./places";
 import { hotels } from "./hotels";
 import { journeys } from "./journeys";
 import { luggage } from "./luggage";
-import { dayTrips } from "./dayTrips";
-import { collections } from "./collections";
-import { weather } from "./weather";
-import { reservations } from "./reservations";
 import { packing } from "./packing";
 import { docs } from "./docs";
-import { etiquette } from "./etiquette";
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 /** A fresh, deep-cloned dataset for a new trip built from this template. */
 export function buildTemplate(): TripData {
@@ -25,17 +19,13 @@ export function buildTemplate(): TripData {
     meta,
     media: { gallery: [] },
     legs,
-    days: days.map((d) => ({ ...d, ...weather[d.date], id: d.date })),
-    places,
+    days: days.map((d) => ({ ...d, id: d.date })),
     hotels,
     journeys,
     luggage,
-    dayTrips,
-    collections,
-    reservations,
+    places: [],
     packing,
     docs,
-    etiquette,
   };
   return structuredClone(data);
 }

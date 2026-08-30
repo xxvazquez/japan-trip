@@ -11,7 +11,7 @@ export const docs: Doc[] = [
     kind: "insurance",
     fields: [
       { label: "Insurer", value: "—" },
-      { label: "Policy no.", value: "—", sensitive: true },
+      { label: "Policy no.", value: "—" },
       { label: "24h assistance", value: "—" },
       { label: "Covered until", value: "2026-11-14" },
     ],
@@ -23,7 +23,7 @@ export const docs: Doc[] = [
     fields: [
       { label: "Outbound", value: "Warsaw 20 Oct 13:30 → Beijing → Tokyo 21 Oct" },
       { label: "Return", value: "Tokyo 13 Nov 10:00 → Beijing → Warsaw 14 Nov" },
-      { label: "Record locator", value: "—", sensitive: true },
+      { label: "Record locator", value: "—" },
       { label: "Airline app", value: "checked in?" },
     ],
   },

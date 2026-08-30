@@ -15,6 +15,8 @@ export default defineConfig({
         manualChunks: {
           // loaded on demand only when a Supabase project is configured
           supabase: ["@supabase/supabase-js"],
+          // heavy, only pulled in by the Map route — keep it cacheable on its own
+          maplibre: ["maplibre-gl", "pmtiles", "@protomaps/basemaps"],
         },
       },
     },

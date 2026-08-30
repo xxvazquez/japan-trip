@@ -24,8 +24,8 @@ export function AppShell() {
   }, []);
 
   return (
-    <div className="washi min-h-svh md:pl-[76px]">
-      <header className="sticky top-0 z-30 border-b border-line bg-bg/80 pt-[var(--sat)] backdrop-blur-md">
+    <div className="washi min-h-svh md:pl-[72px]">
+      <header className="sticky top-0 z-30 border-b border-line bg-bg pt-[var(--sat)]">
         <div className="mx-auto flex h-14 max-w-page items-center justify-between px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2" aria-label={data?.config.branding}>
             <Wordmark />
@@ -33,11 +33,11 @@ export function AppShell() {
               <span className="hidden text-2xs text-ink-faint sm:inline">· {data.config.tagline}</span>
             )}
           </Link>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-3 text-ink-soft">
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              className="grid h-9 w-9 place-items-center rounded-full text-ink-soft transition-colors hover:bg-surface-2"
+              className="grid h-9 w-9 place-items-center transition-colors hover:text-accent"
               aria-label="Search"
             >
               <Icon name="search" size={19} />
@@ -45,7 +45,7 @@ export function AppShell() {
             <ThemeToggle />
             <Link
               to="/manage"
-              className="grid h-9 w-9 place-items-center rounded-full text-ink-soft transition-colors hover:bg-surface-2"
+              className="grid h-9 w-9 place-items-center transition-colors hover:text-accent"
               aria-label="Manage trips & settings"
             >
               <Icon name="settings" size={19} />
