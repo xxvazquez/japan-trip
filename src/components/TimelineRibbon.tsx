@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useData } from "@/lib/data";
-import { tripClock, fmtDate, parseISO } from "@/lib/dates";
+import { tripClock, fmtDate, parseISO, dayKind } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { Icon, type IconName } from "./Icon";
 
@@ -36,7 +36,7 @@ export function TimelineRibbon() {
         {data.days.map((d) => {
           const isToday = d.date === clock?.todayISO;
           const leg = legOf(d.legId);
-          const icon = KIND_ICON[d.kind];
+          const icon = KIND_ICON[dayKind(d, data)];
           const dt = parseISO(d.date);
           return (
             <li key={d.date} className="snap-start">

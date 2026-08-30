@@ -23,7 +23,6 @@ export function lookups(d: TripData) {
     collection: (id?: ID) => byId(d.collections, id),
     reservation: (id?: ID) => byId(d.reservations, id),
     day: (date?: ID) => d.days.find((x) => x.date === date),
-    seasonal: (date?: ID) => d.seasonal.find((x) => x.date === date),
     image: (id?: ID) => (id ? d.images[id] : undefined),
     placesInCollection: (cid: ID) => d.places.filter((p) => p.collections?.includes(cid)),
   };

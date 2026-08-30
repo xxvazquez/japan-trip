@@ -19,7 +19,7 @@ import {
 export default function Today() {
   const data = useData();
   const mutate = useApp((s) => s.mutateTrip);
-  const setNote = useApp((s) => s.setNote);
+  const updateEntity = useApp((s) => s.updateEntity);
   if (!data) return null;
 
   const { config, meta, media } = data;
@@ -32,8 +32,8 @@ export default function Today() {
   const bookend = bookendJourney(data, c.phase);
   const res = upcomingReservations(data, c.todayISO)[0];
   const nextHotel = transfer ? L.hotel(L.leg(transfer.toLegId)?.hotelId) : undefined;
-  const season = L.seasonal(c.todayISO);
-  const noteKey = `today:${c.todayISO}`;
+  const today = L.day(c.todayISO);
+  const hasTemp = today?.tempLo != null && today?.tempHi != null;
 
   return (
     <div className="relative z-10 pb-28 md:pb-14">
@@ -131,32 +131,34 @@ export default function Today() {
           )}
         </div>
 
-        {season && (
+        {(today?.sunset || hasTemp) && (
           <div className="mt-6 flex flex-wrap gap-x-6 gap-y-1 rounded-xl border border-line px-4 py-3 text-sm">
-            <span><span className="text-ink-faint">Sunset </span>{season.sunset}</span>
-            <span><span className="text-ink-faint">Temp </span>{season.tempC[0]}–{season.tempC[1]} °C</span>
+            {today?.sunset && <span><span className="text-ink-faint">Sunset </span>{today.sunset}</span>}
+            {hasTemp && <span><span className="text-ink-faint">Temp </span>{today.tempLo}–{today.tempHi} °C</span>}
           </div>
         )}
 
-        <div className="mt-6">
-          <p className="kicker mb-1.5">Note to self</p>
-          <div className="rounded-xl border border-line px-4 py-3 text-sm leading-relaxed">
-            <Editable
-              as="textarea"
-              label="Note for today"
-              value={data.notes[noteKey] ?? ""}
-              placeholder="Anything for today…"
-              onCommit={(v) => setNote(noteKey, v)}
-            />
+        {today && (
+          <div className="mt-6">
+            <p className="kicker mb-1.5">Note to self</p>
+            <div className="rounded-xl border border-line px-4 py-3 text-sm leading-relaxed">
+              <Editable
+                as="textarea"
+                label="Note for today"
+                value={today.notes ?? ""}
+                placeholder="Anything for today…"
+                onCommit={(v) => updateEntity<Day>("days", today.id, { notes: v || undefined })}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
 }
 
 function firstActivity(day: Day): string | undefined {
-  const a = day.morning?.[0] ?? day.afternoon?.[0] ?? day.evening?.[0];
+  const a = day.entries?.[0];
   return a ? `${a.time ? a.time + " · " : ""}${a.title}` : undefined;
 }
 

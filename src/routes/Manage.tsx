@@ -443,7 +443,6 @@ const ENTITY_LABELS: Record<EntityType, string> = {
   luggage: "Luggage shipments",
   dayTrips: "Day trips",
   collections: "Collections",
-  seasonal: "Seasonal notes",
   reservations: "Reservations",
   packing: "Packing items",
   docs: "Documents",
@@ -460,8 +459,7 @@ function Content() {
   const blankFor = (type: EntityType): Record<string, unknown> => {
     const id = `${type}-${rid()}`;
     switch (type) {
-      case "days": return { id, date: data.meta.start, kind: "base", city: "", legId: data.legs[0]?.id ?? "", title: "New day" };
-      case "seasonal": return { id, date: data.meta.start, sunset: "17:00", tempC: [10, 18] };
+      case "days": return { id, date: data.meta.start, city: "", legId: data.legs[0]?.id ?? "", title: "New day" };
       case "legs": return { id, base: "New leg", start: data.meta.start, end: data.meta.end, hotelId: "", color: "blue" };
       case "places": return { id, name: "New place", kind: "other", city: "" };
       case "hotels": return { id, placeId: "", name: "New hotel", access: {}, nearby: [] };

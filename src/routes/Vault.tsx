@@ -3,10 +3,11 @@ import { Page, PageTitle } from "@/components/Page";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { Editable } from "@/components/Editable";
+import type { PackingItem } from "@/core/types";
 
 export default function Vault() {
   const data = useData();
-  const setNote = useApp((s) => s.setNote);
+  const setScratch = useApp((s) => s.setScratch);
   if (!data) return null;
 
   const groups = groupBy(data.packing, (p) => p.group);
@@ -45,7 +46,7 @@ export default function Vault() {
                 <p className="mb-1 text-sm font-medium">{group}</p>
                 <ul>
                   {items.map((it) => (
-                    <PackRow key={it.id} id={it.id} label={it.label} />
+                    <PackRow key={it.id} item={it} />
                   ))}
                 </ul>
               </div>
@@ -74,9 +75,9 @@ export default function Vault() {
           <Editable
             as="textarea"
             label="Notes"
-            value={data.notes["notepad"] ?? ""}
-            placeholder="Anything you want to remember. Saves to this device."
-            onCommit={(v) => setNote("notepad", v)}
+            value={data.scratch ?? ""}
+            placeholder="Anything you want to remember."
+            onCommit={(v) => setScratch(v)}
           />
         </div>
       </section>
@@ -89,19 +90,19 @@ export default function Vault() {
   );
 }
 
-function PackRow({ id, label }: { id: string; label: string }) {
-  const done = useApp((s) => !!s.data?.progress.checks[`pack:${id}`]);
-  const toggle = useApp((s) => s.setCheck);
+function PackRow({ item }: { item: PackingItem }) {
+  const update = useApp((s) => s.updateEntity);
+  const done = !!item.done;
   return (
     <li>
       <label className="flex cursor-pointer items-center gap-2.5 border-t border-line py-2 text-sm first:border-0">
         <input
           type="checkbox"
           checked={done}
-          onChange={(e) => toggle(`pack:${id}`, e.target.checked)}
+          onChange={(e) => update<PackingItem>("packing", item.id, { done: e.target.checked })}
           className="h-4 w-4 accent-accent"
         />
-        <span className={done ? "text-ink-faint line-through" : ""}>{label}</span>
+        <span className={done ? "text-ink-faint line-through" : ""}>{item.label}</span>
       </label>
     </li>
   );

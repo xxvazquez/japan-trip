@@ -21,7 +21,7 @@ export function remapIds(data: TripData): TripData {
   // 1. reassign every entity's own id
   const collections: (keyof TripData)[] = [
     "legs", "hotels", "places", "journeys", "luggage", "days", "dayTrips",
-    "collections", "seasonal", "reservations", "packing", "docs", "etiquette",
+    "collections", "reservations", "packing", "docs", "etiquette",
   ];
   for (const key of collections) {
     const list = d[key] as unknown as { id: string }[];
@@ -41,8 +41,7 @@ export function remapIds(data: TripData): TripData {
     day.journeyId = R(day.journeyId);
     day.dayTripId = R(day.dayTripId);
     day.reservationIds = RA(day.reservationIds);
-    for (const block of [day.morning, day.afternoon, day.evening])
-      block?.forEach((a) => { a.placeId = R(a.placeId); });
+    day.entries?.forEach((a) => { a.placeId = R(a.placeId); });
   }
   for (const j of d.journeys) {
     j.fromLegId = R(j.fromLegId);

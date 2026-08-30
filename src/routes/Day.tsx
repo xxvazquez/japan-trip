@@ -8,15 +8,12 @@ import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { fmtDate } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
-import type { Activity, Day as DayT, DayKind, SeasonalNote } from "@/core/types";
-
-const KINDS: DayKind[] = ["base", "travel", "daytrip", "arrival", "departure"];
+import type { Activity, Day as DayT } from "@/core/types";
 
 export default function Day() {
   const data = useData();
   const { date } = useParams();
   const updateEntity = useApp((s) => s.updateEntity);
-  const addEntity = useApp((s) => s.addEntity);
   if (!data) return null;
 
   const L = lookups(data);
@@ -31,25 +28,20 @@ export default function Day() {
     );
 
   const patch = (p: Partial<DayT>) => updateEntity<DayT>("days", day.id, p);
-  const setBlock = (key: "morning" | "afternoon" | "evening") => (next: Activity[]) => patch({ [key]: next });
+  const setEntries = (next: Activity[]) => patch({ entries: next });
 
   const leg = L.leg(day.legId);
   const hotel = L.hotel(day.hotelId);
-  const season = L.seasonal(day.date);
   const cover = data.media.cover?.dataUrl;
   const legImg = L.image(leg?.image)?.src;
+  const hasTemp = day.tempLo != null && day.tempHi != null;
 
-  const setSeason = (p: Partial<SeasonalNote>) => {
-    if (season) updateEntity<SeasonalNote>("seasonal", season.id, p);
-    else addEntity("seasonal", { id: day.date, date: day.date, sunset: "17:00", tempC: [10, 18], ...p } as never);
-  };
-
-  const lastTime = [...(day.morning ?? []), ...(day.afternoon ?? []), ...(day.evening ?? [])]
+  const lastTime = (day.entries ?? [])
     .map((a) => a.time)
     .filter(Boolean)
     .sort()
     .at(-1);
-  const runsLate = season && lastTime ? lastTime > season.sunset : false;
+  const runsLate = day.sunset && lastTime ? lastTime > day.sunset : false;
 
   const showChecklist = day.checklist != null;
   const showPacking = day.packingReminder != null;
@@ -74,18 +66,6 @@ export default function Day() {
         </p>
 
         <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
-          <label className="flex items-center gap-2">
-            <span className="text-ink-faint">Kind</span>
-            <select
-              value={day.kind}
-              onChange={(e) => patch({ kind: e.target.value as DayKind })}
-              className="rounded-md border border-line bg-surface px-2 py-1 text-sm"
-            >
-              {KINDS.map((k) => (
-                <option key={k} value={k}>{k}</option>
-              ))}
-            </select>
-          </label>
           {hotel && <Chip icon="bed" to={`/hotel/${hotel.id}`}>{hotel.name}</Chip>}
           {day.journeyId && <Chip icon="train" to={`/journey/${day.journeyId}`}>Transport</Chip>}
           {day.dayTripId && <Chip icon="explore" to={`/day-trip/${day.dayTripId}`}>Day-trip guide</Chip>}
@@ -94,31 +74,28 @@ export default function Day() {
         <div className={`mt-4 flex flex-wrap items-center gap-x-6 gap-y-1.5 rounded-xl border px-4 py-3 text-sm ${runsLate ? "border-accent/40 bg-accent/5" : "border-line"}`}>
           <span>
             <span className="text-ink-faint">Sunset </span>
-            <Editable label="Sunset" value={season?.sunset ?? ""} placeholder="—:—" onCommit={(v) => setSeason({ sunset: v })} />
+            <Editable label="Sunset" value={day.sunset ?? ""} placeholder="—:—" onCommit={(v) => patch({ sunset: v || undefined })} />
           </span>
           <span>
             <span className="text-ink-faint">Temp </span>
             <Editable
               label="Temperature range, e.g. 10–18"
-              value={season ? `${season.tempC[0]}–${season.tempC[1]}` : ""}
+              value={hasTemp ? `${day.tempLo}–${day.tempHi}` : ""}
               placeholder="lo–hi"
               onCommit={(v) => {
                 const m = v.match(/(-?\d+)\s*[–-]\s*(-?\d+)/);
-                if (m) setSeason({ tempC: [Number(m[1]), Number(m[2])] });
+                patch(m ? { tempLo: Number(m[1]), tempHi: Number(m[2]) } : { tempLo: undefined, tempHi: undefined });
               }}
             />
-            {season && <span className="text-ink-faint"> °C</span>}
+            {hasTemp && <span className="text-ink-faint"> °C</span>}
           </span>
           {runsLate && <span className="w-full text-accent">Heads up — a plan runs past sunset ({lastTime}).</span>}
         </div>
 
-        <ActivityEditor label="Morning" items={day.morning ?? []} onChange={setBlock("morning")} />
-        <ActivityEditor label="Afternoon" items={day.afternoon ?? []} onChange={setBlock("afternoon")} />
-        <ActivityEditor label="Evening" items={day.evening ?? []} onChange={setBlock("evening")} />
+        <ActivityEditor label="Plan" items={day.entries ?? []} onChange={setEntries} />
 
         {showChecklist && (
           <ChecklistEditor
-            scope={`day:${day.id}`}
             items={day.checklist ?? []}
             onChange={(next) => patch({ checklist: next })}
             onRemoveSection={() => patch({ checklist: undefined })}

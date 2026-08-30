@@ -3,6 +3,7 @@ import { Hero } from "@/components/Hero";
 import { Editable } from "@/components/Editable";
 import { AttentionBand, Disclosure } from "@/components/Signal";
 import { StringListEditor, LinkedListEditor } from "@/components/ListEditors";
+import { ChecklistEditor } from "@/components/ChecklistEditor";
 import { Icon, type IconName } from "@/components/Icon";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
@@ -109,12 +110,30 @@ export default function DayTrip() {
           </p>
         </div>
 
+        {t.checklist != null && (
+          <ChecklistEditor
+            label="Before you go"
+            items={t.checklist}
+            onChange={(next) => patch({ checklist: next })}
+            onRemoveSection={() => patch({ checklist: undefined })}
+          />
+        )}
+
         <div className="mt-6">
           <h2 className="kicker mb-1">Notes</h2>
           <p className="text-sm text-ink-soft">
             <Editable as="textarea" label="Notes" value={t.notes ?? ""} placeholder="Anything else" onCommit={(v) => patch({ notes: v || undefined })} />
           </p>
         </div>
+
+        {t.checklist == null && (
+          <button
+            onClick={() => patch({ checklist: [] })}
+            className="mt-5 flex items-center gap-1 rounded-full border border-dashed border-line px-3 py-1 text-sm text-ink-faint hover:text-accent"
+          >
+            <Icon name="plus" size={13} /> Checklist
+          </button>
+        )}
 
         {usedByDays.length > 0 && (
           <p className="mt-6 text-sm text-ink-faint">

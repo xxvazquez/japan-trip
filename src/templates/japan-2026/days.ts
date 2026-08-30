@@ -1,138 +1,137 @@
 import type { Day } from "@/core/types";
 type DaySeed = Omit<Day, "id">;
 
+/** checklist strings -> {id,text}; ids are list-local and stable. */
+const cl = (...t: string[]) => t.map((text, i) => ({ id: `k${i}`, text }));
+
 /**
  * 24 days. Anchored days (arrival, travel, day trips, departure) carry real
  * plans; open Kyoto days are lightly sketched and meant to be filled in on the
  * device. Day-trip logistics live on the DayTrip pages, linked via `dayTripId`.
+ * `entries` is one flat, time-ordered list — the shape of the day (arrival /
+ * travel / day-trip) is derived from its journey / day-trip links.
  */
 export const days: DaySeed[] = [
   {
     date: "2026-10-21",
-    kind: "arrival",
     city: "Tokyo",
     legId: "tokyo-1",
     hotelId: "hotel-section-l",
+    journeyId: "j-arrival",
     title: "Arrival",
     summary: "In via Beijing on the red-eye. Get connected, drop the bags, stay upright until a normal bedtime.",
-    morning: [
+    entries: [
       { time: "07:00", title: "Land at Haneda", note: "Off the Beijing flight. Pick up eSIM data / pocket wifi. Buy Suica or Welcome Suica at the machines.", placeId: "stn-hamamatsucho" },
       { time: "08:30", title: "Monorail to Hamamatsuchō", note: "~13 min from Haneda; short walk to Section L. Bags may not be ready for check-in — ask to store them." },
-    ],
-    afternoon: [
       { time: "12:00", title: "Slow lunch nearby, then a flat walk", note: "Daylight and movement beat the jet lag. Nothing that needs energy or a booking." },
       { time: "15:00", title: "Check in, unpack, shower", placeId: "hotel-section-l" },
-    ],
-    evening: [
       { time: "18:00", title: "Easy first dinner nearby", note: "Within a 10-minute walk — konbini run for breakfast supplies after." },
       { time: "20:30", title: "Early night", note: "You've been up all night — but try to hold out to ~21:30." },
     ],
     packingReminder: "Keep the day bag light for the whole Tokyo leg — laundry on ~day 4.",
-    checklist: ["Activate eSIM", "Top up Suica (¥3,000)", "Photograph passport + landing stamp"],
+    checklist: cl("Activate eSIM", "Top up Suica (¥3,000)", "Photograph passport + landing stamp"),
   },
   {
     date: "2026-10-22",
-    kind: "base",
     city: "Tokyo",
     legId: "tokyo-1",
     hotelId: "hotel-section-l",
     title: "Old Tokyo",
     summary: "Asakusa and the low city — a gentle, walkable first full day.",
-    morning: [{ time: "08:30", title: "Sensō-ji before the crowds", placeId: "p-sensoji" }],
-    afternoon: [{ title: "Kappabashi kitchen street, then the Sumida riverside" }],
-    evening: [{ title: "Dinner in Asakusa or back near Hamamatsuchō" }],
+    entries: [
+      { time: "08:30", title: "Sensō-ji before the crowds", placeId: "p-sensoji" },
+      { title: "Kappabashi kitchen street, then the Sumida riverside" },
+      { title: "Dinner in Asakusa or back near Hamamatsuchō" },
+    ],
   },
   {
     date: "2026-10-23",
-    kind: "base",
     city: "Tokyo",
     legId: "tokyo-1",
     hotelId: "hotel-section-l",
     title: "West side",
     summary: "Meiji Jingū, Harajuku, and whatever else the day wants.",
-    morning: [{ time: "09:00", title: "Meiji Jingū", placeId: "p-meiji" }],
-    afternoon: [{ title: "Omotesandō → Shibuya", placeId: "p-shibuya" }],
-    evening: [{ title: "Shimokitazawa for dinner and record shops", placeId: "p-shimokita" }],
+    entries: [
+      { time: "09:00", title: "Meiji Jingū", placeId: "p-meiji" },
+      { title: "Omotesandō → Shibuya", placeId: "p-shibuya" },
+      { title: "Shimokitazawa for dinner and record shops", placeId: "p-shimokita" },
+    ],
   },
   {
     date: "2026-10-24",
-    kind: "base",
     city: "Tokyo",
     legId: "tokyo-1",
     hotelId: "hotel-section-l",
     title: "East side & coffee",
     summary: "Kiyosumi gardens, the coffee list, and a laundry run before the mountains.",
-    morning: [{ time: "10:00", title: "Kiyosumi Teien garden", placeId: "p-koffee-mameya" }],
-    afternoon: [{ title: "Coffee crawl — Kiyosumi / Kuramae / Nakameguro", placeId: "p-nakameguro" }],
-    evening: [{ title: "Laundry night — coin laundry near the hotel" }],
+    entries: [
+      { time: "10:00", title: "Kiyosumi Teien garden", placeId: "p-koffee-mameya" },
+      { title: "Coffee crawl — Kiyosumi / Kuramae / Nakameguro", placeId: "p-nakameguro" },
+      { title: "Laundry night — coin laundry near the hotel" },
+    ],
     packingReminder: "Run a wash tonight so everything's dry before Kawaguchiko.",
   },
   {
     date: "2026-10-25",
-    kind: "base",
     city: "Tokyo",
     legId: "tokyo-1",
     hotelId: "hotel-section-l",
     title: "Open day",
     summary: "Flex day — a museum, the backstreets, more coffee, or just wandering. Repack tonight.",
-    afternoon: [{ title: "Tokyo National Museum, Ueno", placeId: "p-tokyo-nat-museum" }],
-    evening: [
+    entries: [
+      { title: "Tokyo National Museum, Ueno", placeId: "p-tokyo-nat-museum" },
       { title: "Split the luggage", note: "Overnight bag for Kawaguchiko; everything else in the big cases for Yamato tomorrow." },
     ],
-    checklist: ["Repack: overnight bag vs big cases", "Fill in the Yamato slip (to ICY / Yamato centre, Kyoto)", "Confirm Fuji Excursion seats"],
+    checklist: cl("Repack: overnight bag vs big cases", "Fill in the Yamato slip (to ICY / Yamato centre, Kyoto)", "Confirm Fuji Excursion seats"),
   },
   {
     date: "2026-10-26",
-    kind: "travel",
     city: "Lake Kawaguchiko",
     legId: "kawaguchiko",
     hotelId: "hotel-yamitsuki",
     journeyId: "j-tokyo-kawaguchiko",
     title: "To the lake",
     summary: "Ship the big cases, then the Fuji Excursion to Kawaguchiko. Afternoon by the water.",
-    morning: [
+    entries: [
       { time: "08:00", title: "Hand the large cases to Yamato", note: "At the hotel or a nearby centre." },
       { time: "08:30", title: "Fuji Excursion from Shinjuku", placeId: "stn-shinjuku" },
-    ],
-    afternoon: [
       { time: "10:30", title: "Check in area / drop bags at Villa Yamitsuki", placeId: "hotel-yamitsuki" },
       { title: "Ōishi Park and the lakeshow path", placeId: "p-oishi-park" },
+      { title: "Onsen, then dinner", note: "See the genkan / tatami etiquette card." },
     ],
-    evening: [{ title: "Onsen, then dinner", note: "See the genkan / tatami etiquette card." }],
-    checklist: ["Yamato tracking number saved", "Overnight bag only"],
+    checklist: cl("Yamato tracking number saved", "Overnight bag only"),
   },
   {
     date: "2026-10-27",
-    kind: "base",
     city: "Lake Kawaguchiko",
     legId: "kawaguchiko",
     hotelId: "hotel-yamitsuki",
     title: "Fuji day",
     summary: "Chūreitō pagoda at first light, the ropeway, and a slow lake loop.",
-    morning: [{ time: "06:30", title: "Chūreitō Pagoda for sunrise on Fuji", note: "Clearest air is early. ~400 steps up.", placeId: "p-chureito" }],
-    afternoon: [{ title: "Mt Kachi Kachi ropeway + lakeside lunch", placeId: "p-kachi-kachi" }],
-    evening: [{ title: "Last onsen; repack for Kyoto" }],
+    entries: [
+      { time: "06:30", title: "Chūreitō Pagoda for sunrise on Fuji", note: "Clearest air is early. ~400 steps up.", placeId: "p-chureito" },
+      { title: "Mt Kachi Kachi ropeway + lakeside lunch", placeId: "p-kachi-kachi" },
+      { title: "Last onsen; repack for Kyoto" },
+    ],
   },
   {
     date: "2026-10-28",
-    kind: "travel",
     city: "Kyoto",
     legId: "kyoto",
     hotelId: "hotel-icy",
     journeyId: "j-kawaguchiko-kyoto",
     title: "To Kyoto",
     summary: "Liner bus to Mishima, Hikari to Kyoto. Settle in, find the konbini, gentle evening.",
-    morning: [{ time: "09:40", title: "Mishima Liner bus from Kawaguchiko", placeId: "stn-kawaguchiko" }],
-    afternoon: [
+    entries: [
+      { time: "09:40", title: "Mishima Liner bus from Kawaguchiko", placeId: "stn-kawaguchiko" },
       { time: "12:10", title: "Hikari: Mishima → Kyoto", placeId: "stn-mishima" },
       { time: "15:00", title: "Check in to ICY; confirm the luggage arrived", placeId: "hotel-icy" },
+      { title: "Nishiki Market for dinner bits, or Pontochō", placeId: "p-nishiki" },
     ],
-    evening: [{ title: "Nishiki Market for dinner bits, or Pontochō", placeId: "p-nishiki" }],
-    checklist: ["Big cases received / located", "Learn the walk to the nearest station", "Buy a Kyoto bus/subway IC top-up"],
+    checklist: cl("Big cases received / located", "Learn the walk to the nearest station", "Buy a Kyoto bus/subway IC top-up"),
   },
   {
     date: "2026-10-29",
-    kind: "daytrip",
     city: "Kyoto",
     legId: "kyoto",
     hotelId: "hotel-icy",
@@ -142,19 +141,19 @@ export const days: DaySeed[] = [
   },
   {
     date: "2026-10-30",
-    kind: "base",
     city: "Kyoto",
     legId: "kyoto",
     hotelId: "hotel-icy",
     title: "Fushimi Inari & Tōfuku-ji",
     summary: "Torii gates before 8, then the maple ravine at Tōfuku-ji as it starts to turn.",
-    morning: [{ time: "07:30", title: "Fushimi Inari — up to the Yotsutsuji viewpoint", placeId: "p-fushimi-inari" }],
-    afternoon: [{ title: "Tōfuku-ji Tsūten-bridge and gardens", placeId: "p-tofukuji" }],
-    evening: [{ title: "Coffee at Weekenders, dinner downtown", placeId: "p-weekenders" }],
+    entries: [
+      { time: "07:30", title: "Fushimi Inari — up to the Yotsutsuji viewpoint", placeId: "p-fushimi-inari" },
+      { title: "Tōfuku-ji Tsūten-bridge and gardens", placeId: "p-tofukuji" },
+      { title: "Coffee at Weekenders, dinner downtown", placeId: "p-weekenders" },
+    ],
   },
   {
     date: "2026-10-31",
-    kind: "daytrip",
     city: "Kyoto",
     legId: "kyoto",
     hotelId: "hotel-icy",
@@ -164,18 +163,18 @@ export const days: DaySeed[] = [
   },
   {
     date: "2026-11-01",
-    kind: "base",
     city: "Kyoto",
     legId: "kyoto",
     hotelId: "hotel-icy",
     title: "Central Kyoto",
     summary: "A slower city day — Nijō Castle, Nishiki, the coffee list, Pokémon Center at Takashimaya.",
-    morning: [{ title: "Nijō Castle", placeId: "p-nijo" }],
-    afternoon: [{ title: "Nishiki Market + Teramachi arcades", placeId: "p-nishiki" }],
+    entries: [
+      { title: "Nijō Castle", placeId: "p-nijo" },
+      { title: "Nishiki Market + Teramachi arcades", placeId: "p-nishiki" },
+    ],
   },
   {
     date: "2026-11-02",
-    kind: "daytrip",
     city: "Nara",
     legId: "kyoto",
     hotelId: "hotel-icy",
@@ -185,17 +184,17 @@ export const days: DaySeed[] = [
   },
   {
     date: "2026-11-03",
-    kind: "base",
     city: "Kyoto",
     legId: "kyoto",
     hotelId: "hotel-icy",
     title: "Culture Day",
     summary: "National holiday — expect crowds at the big sights. Good day for a museum, the Kyoto Railway Museum, or the quieter west of the city.",
-    morning: [{ title: "Kyoto Railway Museum or the Manga Museum", note: "Indoor, holiday-proof." }],
+    entries: [
+      { title: "Kyoto Railway Museum or the Manga Museum", note: "Indoor, holiday-proof." },
+    ],
   },
   {
     date: "2026-11-04",
-    kind: "daytrip",
     city: "Uji",
     legId: "kyoto",
     hotelId: "hotel-icy",
@@ -205,7 +204,6 @@ export const days: DaySeed[] = [
   },
   {
     date: "2026-11-05",
-    kind: "daytrip",
     city: "Ohara",
     legId: "kyoto",
     hotelId: "hotel-icy",
@@ -215,21 +213,19 @@ export const days: DaySeed[] = [
   },
   {
     date: "2026-11-06",
-    kind: "base",
     city: "Kyoto",
     legId: "kyoto",
     hotelId: "hotel-icy",
     title: "Northern Higashiyama",
     summary: "Ginkaku-ji, the Philosopher's Path, Eikan-dō for its famous maples — walk south all afternoon.",
-    morning: [{ title: "Ginkaku-ji", placeId: "p-ginkakuji" }],
-    afternoon: [
+    entries: [
+      { title: "Ginkaku-ji", placeId: "p-ginkakuji" },
       { title: "Philosopher's Path", placeId: "p-philosophers" },
       { title: "Eikan-dō (Zenrin-ji)", placeId: "p-eikando" },
     ],
   },
   {
     date: "2026-11-07",
-    kind: "daytrip",
     city: "Kurama & Kibune",
     legId: "kyoto",
     hotelId: "hotel-icy",
@@ -239,7 +235,6 @@ export const days: DaySeed[] = [
   },
   {
     date: "2026-11-08",
-    kind: "daytrip",
     city: "Osaka",
     legId: "kyoto",
     hotelId: "hotel-icy",
@@ -249,7 +244,6 @@ export const days: DaySeed[] = [
   },
   {
     date: "2026-11-09",
-    kind: "base",
     city: "Kyoto",
     legId: "kyoto",
     hotelId: "hotel-icy",
@@ -258,50 +252,51 @@ export const days: DaySeed[] = [
   },
   {
     date: "2026-11-10",
-    kind: "base",
     city: "Kyoto",
     legId: "kyoto",
     hotelId: "hotel-icy",
     title: "Last Kyoto day",
     summary: "Favourites, last shopping, tax-free paperwork, and repacking. Ship the big cases tomorrow morning.",
-    evening: [{ title: "Farewell dinner", note: "Book something — Pontochō or a counter place." }],
-    checklist: ["Tax-free receipts together with passports", "Repack; big cases ready for Yamato", "Fill in the Kyoto → Tokyo Yamato slip"],
+    entries: [
+      { title: "Farewell dinner", note: "Book something — Pontochō or a counter place." },
+    ],
+    checklist: cl("Tax-free receipts together with passports", "Repack; big cases ready for Yamato", "Fill in the Kyoto → Tokyo Yamato slip"),
   },
   {
     date: "2026-11-11",
-    kind: "travel",
     city: "Tokyo",
     legId: "tokyo-2",
     hotelId: "hotel-section-l-2",
     journeyId: "j-kyoto-tokyo",
     title: "Back to Tokyo",
     summary: "Ship the cases, Nozomi to Tokyo, check in near the monorail. Afternoon free.",
-    morning: [
+    entries: [
       { time: "08:30", title: "Drop big cases at a Yamato centre / konbini", placeId: "hotel-icy" },
       { time: "10:30", title: "Nozomi: Kyoto → Tokyo", placeId: "stn-kyoto" },
+      { title: "Check in at Section L, then last-day Tokyo plans", placeId: "hotel-section-l-2" },
     ],
-    afternoon: [{ title: "Check in at Section L, then last-day Tokyo plans", placeId: "hotel-section-l-2" }],
   },
   {
     date: "2026-11-12",
-    kind: "base",
     city: "Tokyo",
     legId: "tokyo-2",
     hotelId: "hotel-section-l-2",
     title: "Last full day",
     summary: "Whatever Tokyo you missed the first time. Collect the shipped cases at the desk. Pack tonight.",
-    evening: [{ title: "Final dinner; early-ish night before the flight" }],
-    checklist: ["Confirm big cases arrived at the desk", "Check in online for the flight", "Spend or change leftover coins"],
+    entries: [
+      { title: "Final dinner; early-ish night before the flight" },
+    ],
+    checklist: cl("Confirm big cases arrived at the desk", "Check in online for the flight", "Spend or change leftover coins"),
   },
   {
     date: "2026-11-13",
-    kind: "departure",
     city: "Tokyo",
     legId: "tokyo-2",
     hotelId: "hotel-section-l-2",
+    journeyId: "j-departure",
     title: "Fly home",
     summary: "Monorail to Haneda for the 10:00 departure.",
-    morning: [
+    entries: [
       { time: "07:15", title: "Check out", placeId: "hotel-section-l-2" },
       { time: "07:30", title: "Monorail to Haneda", placeId: "stn-hamamatsucho" },
       { time: "10:00", title: "Flight home" },
