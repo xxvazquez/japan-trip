@@ -14,7 +14,6 @@ export const dayTrips: DayTrip[] = [
     name: "Southern Higashiyama",
     nameJp: "東山",
     city: "Kyoto",
-    image: "dt-kyoto",
     blurb:
       "The postcard walk: Kiyomizu-dera on its stilts, down the stone lanes of Sannenzaka and Ninenzaka, through Maruyama Park to Gion and the Shirakawa canal.",
     stats: {
@@ -51,7 +50,6 @@ export const dayTrips: DayTrip[] = [
     name: "Nara",
     nameJp: "奈良",
     city: "Nara",
-    image: "dt-nara",
     blurb:
       "Japan's first capital: the Great Buddha of Tōdai-ji, a park full of bowing deer, the lantern-lined approach to Kasuga Taisha, and the quiet moss of Isuien.",
     stats: {
@@ -88,7 +86,6 @@ export const dayTrips: DayTrip[] = [
     name: "Osaka",
     nameJp: "大阪",
     city: "Osaka",
-    image: "dt-osaka",
     blurb:
       "A loud, hungry counterpoint to Kyoto. Kuromon market for breakfast, the castle and its park, then Dōtonbori and Shinsekai after dark for takoyaki and kushikatsu.",
     stats: {
@@ -124,7 +121,6 @@ export const dayTrips: DayTrip[] = [
     name: "Uji",
     nameJp: "宇治",
     city: "Uji",
-    image: "dt-uji",
     blurb:
       "Half a day south for the Phoenix Hall of Byōdō-in — the building on the ¥10 coin — a walk along the fast green Uji river, and the two UNESCO shrines on the far bank.",
     stats: {
@@ -159,7 +155,6 @@ export const dayTrips: DayTrip[] = [
     name: "Ōhara",
     nameJp: "大原",
     city: "Ōhara",
-    image: "dt-ohara",
     blurb:
       "A farming valley in the northern hills. Sanzen-in's moss garden and maples, the nuns' temple of Jakkō-in, and a much slower pace than the city. Foliage turns here first.",
     stats: {
@@ -195,7 +190,6 @@ export const dayTrips: DayTrip[] = [
     name: "Kurama & Kibune",
     nameJp: "鞍馬・貴船",
     city: "Kurama & Kibune",
-    image: "dt-kurama",
     blurb:
       "Ride the two-carriage mountain railway to Kurama, climb through Kurama-dera and its cedar roots, and drop down the far side to the lantern-lit shrine and ryokan of Kibune.",
     stats: {
@@ -234,7 +228,6 @@ export const dayTrips: DayTrip[] = [
     name: "Arashiyama",
     nameJp: "嵐山",
     city: "Arashiyama",
-    image: "dt-arashiyama",
     blurb:
       "The bamboo grove at opening before the crowds, Tenryū-ji's borrowed-scenery garden, the Ōkōchi villa, monkeys on the hill, and the Hozu river under the Togetsukyō bridge.",
     stats: {

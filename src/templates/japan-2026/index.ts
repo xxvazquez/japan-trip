@@ -14,7 +14,6 @@ import { reservations } from "./reservations";
 import { packing } from "./packing";
 import { docs } from "./docs";
 import { etiquette } from "./etiquette";
-import { images } from "./images";
 
 export const SCHEMA_VERSION = 1;
 
@@ -37,7 +36,6 @@ export function buildTemplate(): TripData {
     packing,
     docs,
     etiquette,
-    images,
   };
   return structuredClone(data);
 }

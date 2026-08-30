@@ -9,7 +9,6 @@ export const legs: Leg[] = [
     end: "2026-10-26",
     hotelId: "hotel-section-l",
     color: "blue",
-    image: "leg-tokyo",
     blurb: "Five nights to land softly, shake off the flight and wander the city before heading for the mountains.",
   },
   {
@@ -20,7 +19,6 @@ export const legs: Leg[] = [
     end: "2026-10-28",
     hotelId: "hotel-yamitsuki",
     color: "sage",
-    image: "leg-kawaguchiko",
     blurb: "Two slow nights by the lake under Mt Fuji. The big luggage goes ahead to Kyoto.",
   },
   {
@@ -31,7 +29,6 @@ export const legs: Leg[] = [
     end: "2026-11-11",
     hotelId: "hotel-icy",
     color: "terracotta",
-    image: "leg-kyoto",
     blurb: "The heart of the trip — two weeks with a base in Kyoto and day trips fanning out across Kansai.",
   },
   {
@@ -42,7 +39,6 @@ export const legs: Leg[] = [
     end: "2026-11-13",
     hotelId: "hotel-section-l-2",
     color: "blue",
-    image: "leg-tokyo-2",
     blurb: "Back to Tokyo for two nights near the monorail, then the morning flight home.",
   },
 ];

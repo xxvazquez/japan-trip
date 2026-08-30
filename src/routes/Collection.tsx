@@ -42,7 +42,7 @@ export default function Collection() {
 
   return (
     <div className="relative z-10 pb-28 md:pb-14">
-      <Hero src={L.image(c.image)?.src} color={hashHex(c.id)} height="clamp(9rem, 28vw, 14rem)">
+      <Hero src={L.media(c.mediaId)?.dataUrl} alt={c.title} color={hashHex(c.id)} height="clamp(9rem, 28vw, 14rem)">
         <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-white/70">Collection</p>
         <h1 className="mt-1 font-display text-display text-white drop-shadow-sm">
           <Editable label="Collection title" value={c.title} onCommit={(v) => patch({ title: v || c.title })} />
