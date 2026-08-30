@@ -12,7 +12,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={() => setMode(next)}
-      className="grid h-9 w-9 place-items-center rounded-full text-ink-soft transition-colors hover:bg-surface-2"
+      className="grid h-9 w-9 place-items-center text-ink-soft transition-colors hover:text-accent"
       title={LABEL[mode]}
       aria-label={`${LABEL[mode]} — switch to ${LABEL[next].toLowerCase()}`}
     >

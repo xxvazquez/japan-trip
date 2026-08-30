@@ -39,6 +39,20 @@ export interface TripClock {
 
 export function tripClock(d: TripData, now = new Date()): TripClock {
   const t = todayISO(now);
+  // A partially-hydrated trip (e.g. mid Supabase load) can briefly lack meta.
+  // Return a safe, non-throwing default rather than assuming dates exist.
+  if (!d.meta || !d.meta.start || !d.meta.end) {
+    return {
+      phase: "before",
+      dayNumber: null,
+      totalDays: Math.max(1, d.days?.length ?? 1),
+      daysUntilStart: 0,
+      daysRemaining: 0,
+      todayISO: t,
+      today: d.days?.find((x) => x.date === t),
+      currentLegId: undefined,
+    };
+  }
   const { start, end } = d.meta;
   const totalDays = Math.max(1, daysBetween(start, end) + 1);
   const untilStart = daysBetween(t, start);
@@ -68,18 +82,16 @@ export function legForDate(d: TripData, iso: ISODate) {
   );
 }
 
-/** The shape of a day, derived from its links rather than a stored field:
- *  a linked journey makes it an arrival / departure / travel day, a linked
- *  day-trip makes it a day-trip day, otherwise it's a normal base day. */
+/** The shape of a day, derived from its links / flag. */
 export type DerivedDayKind = "arrival" | "departure" | "travel" | "daytrip" | "base";
-export function dayKind(d: Pick<Day, "journeyId" | "dayTripId">, data: TripData): DerivedDayKind {
+export function dayKind(d: Pick<Day, "journeyId" | "dayTrip">, data: TripData): DerivedDayKind {
   if (d.journeyId) {
     const j = data.journeys.find((x) => x.id === d.journeyId);
     if (j?.kind === "arrival") return "arrival";
     if (j?.kind === "departure") return "departure";
     return "travel";
   }
-  if (d.dayTripId) return "daytrip";
+  if (d.dayTrip) return "daytrip";
   return "base";
 }
 
@@ -90,15 +102,6 @@ export function fmtDate(
 ) {
   if (!iso) return "";
   return parseISO(iso).toLocaleDateString(locale, opts);
-}
-
-export function upcomingReservations(d: TripData, fromISO: ISODate) {
-  return [...d.reservations]
-    .filter((r) => {
-      const key = r.bookBy ?? (r.when && /^\d{4}-/.test(r.when) ? r.when : undefined);
-      return !key || key >= fromISO;
-    })
-    .sort((a, b) => (a.bookBy ?? a.when ?? "z").localeCompare(b.bookBy ?? b.when ?? "z"));
 }
 
 export function nextJourney(d: TripData, fromISO: ISODate, kinds?: string[]) {
@@ -113,12 +116,6 @@ export function bookendJourney(d: TripData, phase: "before" | "during" | "after"
   if (phase === "before") return d.journeys.find((j) => j.kind === "arrival");
   if (phase === "during") return d.journeys.find((j) => j.kind === "departure");
   return undefined;
-}
-
-export function activeLuggage(d: TripData, onISO: ISODate) {
-  return d.luggage.filter(
-    (l) => l.sendBy <= addDays(onISO, 2) && l.expectedArrival >= addDays(onISO, -1),
-  );
 }
 
 /* ---- timezone-aware datetime formatting for the journey ---- */

@@ -1,7 +1,7 @@
 import type { TripData } from "@/core/types";
 import { fmtDate } from "./dates";
 
-export type SearchKind = "place" | "hotel" | "station" | "day" | "day-trip" | "collection" | "transfer";
+export type SearchKind = "day" | "hotel" | "transfer";
 
 export interface SearchHit {
   kind: SearchKind;
@@ -15,55 +15,33 @@ function build(d: TripData): SearchHit[] {
   const hits: SearchHit[] = [];
   const loc = d.config.locale;
 
-  for (const p of d.places) {
-    const kind: SearchKind = p.kind === "hotel" ? "hotel" : p.kind === "station" ? "station" : "place";
-    const to = p.kind === "hotel" ? `/hotel/${p.id}` : `/explore?place=${encodeURIComponent(p.id)}`;
-    hits.push({
-      kind,
-      label: p.name,
-      sub: [p.nameJp, p.area ?? p.city].filter(Boolean).join(" · "),
-      to,
-      terms: [p.name, p.nameJp, p.city, p.area, p.kind, ...(p.collections ?? [])]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase(),
-    });
-  }
   for (const day of d.days) {
+    const leg = d.legs.find((l) => l.id === day.legId);
     hits.push({
       kind: "day",
       label: day.title ?? fmtDate(day.date, loc),
-      sub: `${fmtDate(day.date, loc)} · ${day.city}`,
-      to: `/day/${day.date}`,
-      terms: [day.title, day.city, day.summary, fmtDate(day.date, loc, { day: "numeric", month: "long" })]
+      sub: `${fmtDate(day.date, loc)}${leg ? ` · ${leg.base}` : ""}`,
+      to: `/day/${day.id}`,
+      terms: [day.title, leg?.base, day.notes, ...(day.places ?? []).map((p) => p.label), fmtDate(day.date, loc, { day: "numeric", month: "long" })]
         .filter(Boolean)
         .join(" ")
         .toLowerCase(),
     });
   }
-  for (const t of d.dayTrips) {
+  for (const h of d.hotels) {
     hits.push({
-      kind: "day-trip",
-      label: t.name,
-      sub: `Day trip · ${t.city}`,
-      to: `/day-trip/${t.id}`,
-      terms: [t.name, t.nameJp, t.city, t.blurb, ...t.see.map((s) => s.name)].join(" ").toLowerCase(),
-    });
-  }
-  for (const c of d.collections) {
-    hits.push({
-      kind: "collection",
-      label: c.title,
-      sub: `Collection · ${c.subtitle ?? ""}`.trim(),
-      to: `/collection/${c.id}`,
-      terms: [c.title, c.subtitle, c.blurb].filter(Boolean).join(" ").toLowerCase(),
+      kind: "hotel",
+      label: h.name,
+      sub: [h.nameJp, h.address].filter(Boolean).join(" · "),
+      to: `/hotel/${h.id}`,
+      terms: [h.name, h.nameJp, h.address, h.notes].filter(Boolean).join(" ").toLowerCase(),
     });
   }
   for (const j of d.journeys) {
     hits.push({
       kind: "transfer",
       label: j.label,
-      sub: `${j.kind === "transfer" ? "Transfer" : j.kind} · ${j.date ? fmtDate(j.date, loc) : ""}`.trim(),
+      sub: `${j.kind === "transfer" ? "Transfer" : j.kind}${j.date ? ` · ${fmtDate(j.date, loc)}` : ""}`,
       to: `/journey/${j.id}`,
       terms: [j.label, j.kind, ...j.segments.map((s) => `${s.carrier} ${s.service} ${s.from} ${s.to}`), j.notes]
         .filter(Boolean)
@@ -79,16 +57,11 @@ function score(hit: SearchHit, q: string): number {
   if (label === q) return 100;
   if (label.startsWith(q)) return 80;
   if (label.includes(q)) return 60;
-  const initials = hit.label
-    .split(/[\s&/·-]+/)
-    .map((w) => w[0]?.toLowerCase())
-    .join("");
-  if (initials.startsWith(q)) return 50;
   if (hit.terms.includes(q)) return 30;
   return 0;
 }
 
-const KIND_ORDER: SearchKind[] = ["day", "day-trip", "hotel", "transfer", "collection", "place", "station"];
+const KIND_ORDER: SearchKind[] = ["day", "hotel", "transfer"];
 
 let cache: { data: TripData; index: SearchHit[] } | null = null;
 
