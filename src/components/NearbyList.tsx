@@ -14,7 +14,7 @@ const TYPES: NearbyType[] = [
   "hospital",
 ];
 
-const LABEL: Record<NearbyType, string> = {
+const LABEL: Record<string, string> = {
   station: "Stations",
   convenience: "Convenience stores",
   supermarket: "Supermarkets",
@@ -25,7 +25,7 @@ const LABEL: Record<NearbyType, string> = {
   hospital: "Hospitals",
 };
 
-const ADD_LABEL: Record<NearbyType, string> = {
+const ADD_LABEL: Record<string, string> = {
   station: "Station",
   convenience: "Convenience",
   supermarket: "Supermarket",
@@ -35,6 +35,9 @@ const ADD_LABEL: Record<NearbyType, string> = {
   laundry: "Laundry",
   hospital: "Hospital",
 };
+
+const titleCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+const label = (t: string) => LABEL[t] ?? titleCase(t);
 
 /** Editable "what's nearby" layers for a hotel. Every row opens in Google Maps. */
 export function NearbyList({
@@ -56,14 +59,16 @@ export function NearbyList({
     name: n.brand || n.name,
   });
 
+  const groups = [...new Set<string>([...TYPES, ...items.map((n) => n.type)])];
+
   return (
     <div className="space-y-4">
-      {TYPES.map((type) => {
+      {groups.map((type) => {
         const rows = items.map((n, i) => ({ n, i })).filter((r) => r.n.type === type);
         if (rows.length === 0) return null;
         return (
           <div key={type}>
-            <p className="kicker mb-1">{LABEL[type]}</p>
+            <p className="kicker mb-1">{label(type)}</p>
             <ul>
               {rows.map(({ n, i }) => (
                 <li key={i} className="group flex items-center gap-2 border-t border-line py-2 text-sm first:border-0">
@@ -96,7 +101,7 @@ export function NearbyList({
       <div className="flex flex-wrap gap-1.5 pt-1">
         {TYPES.map((type) => (
           <button key={type} onClick={() => add(type)} className="flex items-center gap-1 rounded-full border border-dashed border-line px-2.5 py-1 text-xs text-ink-faint hover:text-accent">
-            <Icon name="plus" size={12} /> {ADD_LABEL[type]}
+            <Icon name="plus" size={12} /> {ADD_LABEL[type] ?? titleCase(type)}
           </button>
         ))}
       </div>

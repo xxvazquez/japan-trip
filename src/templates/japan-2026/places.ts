@@ -14,7 +14,6 @@ export const places: Place[] = [
     city: "Tokyo",
     area: "Hamamatsucho, Minato",
     loc: { lat: 35.6558, lng: 139.7566 },
-    image: "hotel-section-l",
     gmapsQuery: "Section L Hamamatsucho Tokyo",
     collections: ["favourites"],
   },
@@ -25,7 +24,6 @@ export const places: Place[] = [
     city: "Tokyo",
     area: "Hamamatsucho, Minato",
     loc: { lat: 35.6558, lng: 139.7566 },
-    image: "hotel-section-l",
     gmapsQuery: "Section L Hamamatsucho Tokyo",
   },
   {
@@ -36,7 +34,6 @@ export const places: Place[] = [
     city: "Lake Kawaguchiko",
     area: "Kawaguchiko",
     loc: { lat: 35.5117, lng: 138.7689 },
-    image: "hotel-yamitsuki",
     gmapsQuery: "Villa Yamitsuki Kawaguchiko",
   },
   {
@@ -46,7 +43,6 @@ export const places: Place[] = [
     city: "Kyoto",
     area: "Kyoto",
     loc: { lat: 35.0036, lng: 135.7681 },
-    image: "hotel-icy",
     gmapsQuery: "Kyoto",
   },
 

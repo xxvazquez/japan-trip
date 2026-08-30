@@ -44,6 +44,5 @@ export function buildBlank(name = "New trip"): TripData {
     packing: [],
     docs: [],
     etiquette: [],
-    images: {},
   });
 }

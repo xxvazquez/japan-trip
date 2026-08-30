@@ -8,7 +8,7 @@ import type { EntityType, MediaItem, TripData, TripSummary } from "@/core/types"
 const now = () => new Date().toISOString();
 
 type WithId = { id: string };
-type FieldKey = "config" | "meta" | "media" | "images" | "scratch";
+type FieldKey = "config" | "meta" | "media" | "scratch";
 type Op =
   | { t: "row"; type: EntityType; id: string }
   | { t: "del"; type: EntityType; id: string }

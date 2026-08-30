@@ -39,8 +39,7 @@ export type ModuleKind =
   | "itinerary"
   | "places"
   | "explore"
-  | "vault"
-  | "custom";
+  | "vault";
 
 export interface ModuleConfig {
   id: ID;
@@ -151,6 +150,7 @@ export interface Journey {
  * restaurants and cafés are all Places with a `kind`.
  * ------------------------------------------------------------------ */
 
+/** Common values below; any string is allowed so a trip can invent its own. */
 export type PlaceKind =
   | "hotel"
   | "sight"
@@ -159,7 +159,8 @@ export type PlaceKind =
   | "cafe"
   | "shop"
   | "area"
-  | "other";
+  | "other"
+  | (string & {});
 
 export interface Place {
   id: ID;
@@ -169,7 +170,7 @@ export interface Place {
   city: string;
   area?: string;
   loc?: LatLng;
-  image?: ID;
+  mediaId?: ID;
   blurb?: string;
   collections?: ID[];
   gmapsQuery?: string;
@@ -182,6 +183,7 @@ export interface Place {
  * Point-of-interest "what's nearby" for hotels.
  * ------------------------------------------------------------------ */
 
+/** Common values below; any string is allowed. */
 export type NearbyType =
   | "station"
   | "supermarket"
@@ -190,7 +192,8 @@ export type NearbyType =
   | "courier"
   | "atm"
   | "laundry"
-  | "hospital";
+  | "hospital"
+  | (string & {});
 
 export interface Nearby {
   type: NearbyType;
@@ -232,7 +235,7 @@ export interface Leg {
   /** a LEG_COLORS id — country-agnostic */
   color: string;
   blurb?: string;
-  image?: ID;
+  mediaId?: ID;
 }
 
 export interface Activity {
@@ -328,7 +331,7 @@ export interface DayTrip {
   name: string;
   nameJp?: string;
   city: string;
-  image?: ID;
+  mediaId?: ID;
   blurb: string;
   stats: DayTripStats;
   getThere: string[];
@@ -348,7 +351,7 @@ export interface Collection {
   title: string;
   subtitle?: string;
   kind: CollectionKind;
-  image?: ID;
+  mediaId?: ID;
   blurb: string;
 }
 
@@ -388,14 +391,6 @@ export interface EtiquetteCard {
   context?: string;
 }
 
-export interface ImageAsset {
-  src?: string;
-  thumb?: string;
-  alt: string;
-  credit?: string;
-  tone?: "indigo" | "matcha" | "vermillion" | "brass" | "ink";
-}
-
 /** The whole dataset for one trip, as stored on device. */
 export interface TripData {
   /** schema version, for future migrations */
@@ -415,7 +410,6 @@ export interface TripData {
   packing: PackingItem[];
   docs: Doc[];
   etiquette: EtiquetteCard[];
-  images: Record<ID, ImageAsset>;
   /** a single free-text scratchpad for the whole trip */
   scratch?: string;
 }

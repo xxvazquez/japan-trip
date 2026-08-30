@@ -30,7 +30,7 @@ export default function Explore() {
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
           {data.collections.map((c) => (
             <Link key={c.id} to={`/collection/${c.id}`} className="group relative aspect-[4/5] overflow-hidden rounded-xl">
-              <Cover id={c.id} src={L.image(c.image)?.src} />
+              <Cover id={c.id} src={L.media(c.mediaId)?.dataUrl} />
               <div className="absolute inset-x-0 bottom-0 p-3">
                 <p className="font-display text-[15px] leading-tight text-white drop-shadow">{c.title}</p>
                 <p className="text-2xs text-white/75">{L.placesInCollection(c.id).length} places</p>
@@ -59,7 +59,7 @@ export default function Explore() {
         <div className="grid gap-2.5 sm:grid-cols-2">
           {data.dayTrips.map((t) => (
             <Link key={t.id} to={`/day-trip/${t.id}`} className="group relative h-32 overflow-hidden rounded-xl">
-              <Cover id={t.id} src={L.image(t.image)?.src} />
+              <Cover id={t.id} src={L.media(t.mediaId)?.dataUrl} />
               <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-3">
                 <div>
                   <p className="font-display text-lg leading-tight text-white drop-shadow">{t.name}</p>

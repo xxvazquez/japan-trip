@@ -33,7 +33,7 @@ export default function Day() {
   const leg = L.leg(day.legId);
   const hotel = L.hotel(day.hotelId);
   const cover = data.media.cover?.dataUrl;
-  const legImg = L.image(leg?.image)?.src;
+  const legImg = L.media(leg?.mediaId)?.dataUrl;
   const hasTemp = day.tempLo != null && day.tempHi != null;
 
   const lastTime = (day.entries ?? [])

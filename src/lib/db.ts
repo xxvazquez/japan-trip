@@ -19,11 +19,11 @@ interface Spec {
 }
 
 const SPECS: Record<EntityType, Spec> = {
-  legs: { table: "legs", rename: { nameJp: "name_alt", start: "start_date", end: "end_date" } },
+  legs: { table: "legs", rename: { nameJp: "name_alt", start: "start_date", end: "end_date", mediaId: "image" } },
   hotels: { table: "hotels", rename: { nameJp: "name_alt" } },
   places: {
     table: "places",
-    rename: { nameJp: "name_alt" },
+    rename: { nameJp: "name_alt", mediaId: "image" },
     toRow: (e, r) => {
       const loc = e.loc as { lat: number; lng: number } | undefined;
       if (loc) { r.lat = loc.lat; r.lng = loc.lng; }
@@ -37,8 +37,8 @@ const SPECS: Record<EntityType, Spec> = {
   journeys: { table: "journeys", rename: { luggageShipmentId: "luggage_id" } },
   luggage: { table: "luggage" },
   days: { table: "days" },
-  dayTrips: { table: "day_trips", rename: { nameJp: "name_alt" } },
-  collections: { table: "collections" },
+  dayTrips: { table: "day_trips", rename: { nameJp: "name_alt", mediaId: "image" } },
+  collections: { table: "collections", rename: { mediaId: "image" } },
   reservations: { table: "reservations", rename: { when: "when_text" } },
   packing: { table: "packing", rename: { group: "group_name" } },
   docs: { table: "docs" },
@@ -150,7 +150,6 @@ export async function loadTrip(dbId: string): Promise<TripData> {
     config: trow.config,
     meta: trow.meta,
     media: trow.media ?? { gallery: [] },
-    images: trow.images ?? {},
     scratch: trow.scratch ?? undefined,
     ...byType,
   } as unknown as TripData;
@@ -174,7 +173,6 @@ export async function createTrip(
       config: data.config,
       meta: data.meta,
       media: data.media,
-      images: data.images,
       ...(data.scratch ? { scratch: data.scratch } : {}),
     }),
   );
@@ -227,7 +225,7 @@ export async function setSegments(tripId: string, journeyId: string, segments: S
   check(await del);
 }
 
-/** The trip-row fields (config / meta / media / images jsonb, scratch text) + name. */
+/** The trip-row fields (config / meta / media jsonb, scratch text) + name. */
 export async function saveTripFields(tripId: string, fields: Record<string, unknown>) {
   const sb = await client();
   check(await sb.from("trips").update(fields).eq("id", tripId));

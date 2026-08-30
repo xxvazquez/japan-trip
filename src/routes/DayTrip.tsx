@@ -47,7 +47,7 @@ export default function DayTrip() {
 
   return (
     <div className="relative z-10 pb-28 md:pb-14">
-      <Hero src={L.image(t.image)?.src} color={hashHex(t.id)} height="clamp(10rem, 32vw, 16rem)">
+      <Hero src={L.media(t.mediaId)?.dataUrl} alt={t.name} color={hashHex(t.id)} height="clamp(10rem, 32vw, 16rem)">
         <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-white/70">
           Day trip{t.city ? ` · ${t.city}` : ""}
         </p>
