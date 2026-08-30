@@ -1,116 +1,112 @@
 <div align="center">
-  <img src="public/brand/logo-256.png" width="96" alt="" />
+  <img src="public/brand/logo-256.png" width="88" alt="" />
   <h1>Zukness Atlas</h1>
-  <p><em>A private, offline-first travel companion. One app, many trips —<br/>each one a little book you actually enjoy opening every morning.</em></p>
+  <p><em>A private, offline-first travel workspace. One app, many trips.</em></p>
 </div>
 
 ---
 
-The first trip inside it is **Japan 2026** (Tokyo → Lake Kawaguchiko → Kyoto → Tokyo).
-It also serves as the built-in template for the next one.
+## What it is
 
-## What it does
+A visual planner for real trips. Each trip is its own little book — dates,
+itinerary, hotels, transport, places, packing, notes. Everything is edited **in
+place** by tapping a value; there is no separate admin screen for day-to-day
+changes.
+
+Nothing in the code assumes a country, a transport system, or a style of travel.
+A trip to Iceland or a European road trip works exactly the same as Japan.
 
 | Module | |
 |---|---|
-| **Today** | A calm dashboard — where you are, days left, what's next (train, hotel, reservation, luggage), sunset & weather notes, a cover photo. |
-| **Itinerary** | Every day of the trip, from a bird's-eye ribbon down to the hour-by-hour plan. |
-| **Places** | Where you sleep, how you move, where the bags are. Each hotel carries its nearest station / konbini / pharmacy / ATM / courier — one tap into Google Maps. |
-| **Explore** | Collections to browse like a magazine (autumn foliage, coffee, temples, gardens, scenic trains…) plus a guide page per day trip. |
-| **Vault** | Documents (metadata only — passport scans never leave the device), packing, etiquette, notes. |
-| **Manage** | The back office: create / duplicate / archive / switch trips, set dates & timezones, pick a theme, upload branding, reorder or hide modules. |
+| **Today** | Where you are, days left, and what's next — the next train, the next bed, the reservation to book, where the luggage is. |
+| **Itinerary** | A colour-banded ribbon of every day → tap a day for the hour-by-hour plan. |
+| **Places** | Stays, transport, luggage. Each hotel lists its nearest station / shop / pharmacy / ATM / courier, each opening in Google Maps. |
+| **Explore** | Collections to browse like a magazine, plus a guide page per day trip. |
+| **Vault** | Documents, packing, notes. |
+| **Manage** | Structural stuff only: create / duplicate / archive / switch trips, dates & timezones, theme, branding, which modules show. |
 
-Everything works on a plane. Install it to your home screen and it behaves like a native app.
+Installs to the home screen. Works with no signal once loaded.
 
-## Principles
+## How data is stored
 
-- **Data-driven.** Dates, hotels, journeys, collections, colours, branding, even which modules appear — all editable from the UI. You never touch source to change a trip.
-- **Inline editing.** Tap a value, change it, done. Manage is only for structure.
-- **Offline-first.** Trip data lives on the device (IndexedDB, with a `localStorage` fallback). The service worker precaches the shell.
-- **Fast & light.** No animation library, route-level code splitting, ~96&nbsp;KB of JS gzipped.
-- **Quiet aesthetic.** Ink on paper, one vermillion accent, generous whitespace, a serif for display.
+```
+edit in the UI  →  TripData (in memory)  →  backend
+                                            ├─ Supabase   (signed in)
+                                            └─ IndexedDB  (local, offline)
+```
 
-## Tech
+- **With Supabase** (`VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` set): every
+  entity — legs, days, journeys, segments, places, hotels, luggage, day trips,
+  collections, reservations, packing, docs, expenses — is its own row, private
+  to your account (RLS), synced across devices. Schema:
+  [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
+- **Without it**: everything stays in the browser. No sign-in.
 
-React 18 · TypeScript · Vite · Tailwind · `vite-plugin-pwa` (Workbox) · Zustand · `idb-keyval`. No backend.
+The Supabase client is code-split — it's never downloaded unless a project is
+configured.
 
 ## Getting started
 
 ```bash
 npm install
-npm run dev          # http://localhost:5173
+npm run dev            # http://localhost:5173
 ```
 
 | Script | |
 |---|---|
 | `npm run dev` | dev server |
 | `npm run build` | production build → `dist/` |
-| `npm run preview` | serve the build locally |
+| `npm run preview` | serve the build |
 | `npm run typecheck` | `tsc --noEmit` |
 
-### Optional environment — `.env.local`
+### `.env.local` (all optional)
 
 ```ini
-VITE_GMAPS_EMBED_KEY=   # Google Maps Embed API key (free) — restrict it by HTTP referrer
-VITE_MYMAP_MID=         # a shared Google "My Map" id
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+VITE_GMAPS_EMBED_KEY=    # Maps Embed API key — restrict by HTTP referrer
+VITE_MYMAP_MID=          # a shared Google "My Map" id
 ```
 
-Both are optional. Without them the app falls back to "Open in Google / Apple Maps" links.
+## Setting up Supabase
 
-## How the data works
+1. Create a project at [supabase.com](https://supabase.com).
+2. **SQL Editor** → run `supabase/migrations/0001_init.sql`.
+3. **Authentication → Providers → Google** → enable, paste a Google Cloud OAuth
+   client id/secret, and set the redirect to
+   `https://<project-ref>.supabase.co/auth/v1/callback`.
+4. **Authentication → URL Configuration → Redirect URLs** → add every origin the
+   app runs on (`http://localhost:5173`, your deployed URL).
+5. Put the URL + anon key (Project Settings → API) in `.env.local`.
 
-```mermaid
-flowchart LR
-  A["templates/japan-2026<br/>(seed only)"] -- build once --> C
-  B["blank trip"] -- build once --> C
-  C["trip:&lt;id&gt; in IndexedDB<br/>source of truth"] --> D["useApp store"]
-  D --> E["pages render + inline edits"]
-  E -- debounced save --> C
-```
+On first sign-in the app seeds your first trip into the database automatically.
 
-- A **template** is just a function returning a fresh `TripData`. Editing template files only affects *new* trips.
-- Once a trip exists, its whole dataset lives under `trip:<id>` and is yours to edit.
-- `src/lib/storage.ts` is the only module that touches storage — swap it for a cloud adapter later and nothing else changes.
+## Deploy
 
-**Add a trip** from the app: *Manage → Trips → New trip* (blank, or from a template).
-
-**Ship a new template** in code: add a folder under `src/templates/` exporting `buildTemplate(): TripData`, then register it in `src/templates/registry.ts`.
+**Cloudflare Pages** — build `npm run build`, output `dist`. Gate it with
+**Cloudflare Access** (Zero Trust → Access → self-hosted app, allow your emails).
+Add the deployed origin to the Supabase redirect URLs. `public/_redirects` and
+`public/_headers` handle SPA routing and caching.
 
 ## Project layout
 
 ```
 src/
-  core/types.ts       domain types (trip-agnostic)
-  lib/                 storage · dates · search · theme · media
-  store/useApp.ts      trips + active trip + every mutation
-  components/          shell · Hero · Editable · Icon · …
-  routes/              one file per page
-  templates/
-    registry.ts         available templates (optional)
-    japan-2026/          the built-in example trip
-scripts/make_icons.py   regenerates brand assets from logo.png
+  core/types.ts        domain types — trip-agnostic
+  lib/                  backend · db · auth · storage · dates · time · maps · theme
+  store/useApp.ts       trips + active trip + every mutation
+  components/           shell + reusable primitives (Editable, Signal, TimelineRibbon…)
+  routes/               one file per page
+  templates/            seed data for a new trip (blank, or a worked example)
+supabase/migrations/   database schema
+scripts/make_icons.py  regenerates icons from logo.png
 ```
 
-## Deploy
+## Branding
 
-Built for **Cloudflare Pages** + **Cloudflare Access** so only invited Google accounts can open it.
-
-1. Push to GitHub, connect the repo in Cloudflare Pages.
-2. Build command `npm run build`, output directory `dist`.
-3. Zero Trust → Access → add a self-hosted app for the `*.pages.dev` host with a policy allowing your emails.
-4. *(optional)* add the two `VITE_*` variables in the Pages project settings.
-
-`public/_redirects` and `public/_headers` already handle SPA routing and caching.
-
-## Branding assets
-
-`logo.png` at the repo root is the source. Regenerate every icon and favicon size:
-
-```bash
-python3 scripts/make_icons.py
-```
-
-Per-trip logos and covers are uploaded in the app (*Manage → Media*) and stored with the trip.
+`logo.png` (and `logo-wordmark.png`) at the repo root are the source. Regenerate
+every icon size with `python3 scripts/make_icons.py`. Per-trip logos and covers
+are uploaded in the app (*Manage → Media*).
 
 ---
 

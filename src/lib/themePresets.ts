@@ -7,91 +7,93 @@ export interface ThemePreset {
   tokens: ThemeTokens;
 }
 
-/** Named palettes for the friendly theme picker. "accent" can be overridden
- *  separately without leaving a preset. */
+/**
+ * Five soft, muted palettes — low saturation, generous light, nothing loud.
+ * Light + dark for each. Swap the accent separately from Manage → Settings.
+ */
 export const THEME_PRESETS: ThemePreset[] = [
   {
-    id: "sumi-paper",
-    name: "Sumi & Paper",
-    hint: "Cool gallery white, deep indigo night",
+    id: "mist",
+    name: "Mist",
+    hint: "Soft slate blue, like the mark",
     tokens: {
       light: {
-        bg: "#f3f4f6", surface: "#fafafb", "surface-2": "#e9ebee",
-        ink: "#181a1d", "ink-soft": "#454a51", "ink-faint": "#848a91", line: "#dcdfe3",
-        accent: "#bf3a2d", gold: "#968154", matcha: "#687664", ai: "#283a54",
+        bg: "#f2f4f6", surface: "#f9fafb", "surface-2": "#e8ebef",
+        ink: "#1e252b", "ink-soft": "#4c565d", "ink-faint": "#8b949c", line: "#dbe0e5",
+        accent: "#5f7f9c", gold: "#9a8f7a", matcha: "#7b8a7e", ai: "#3f5567",
       },
       dark: {
-        bg: "#12151a", surface: "#191d24", "surface-2": "#222831",
-        ink: "#e9ebee", "ink-soft": "#b7bdc5", "ink-faint": "#808994", line: "#2d343f",
-        accent: "#e07664", gold: "#b79e6c", matcha: "#8f9e84", ai: "#8aa6c6",
+        bg: "#13171b", surface: "#1b2126", "surface-2": "#252c33",
+        ink: "#e5e9ec", "ink-soft": "#b1bbc2", "ink-faint": "#7b858e", line: "#2d353c",
+        accent: "#87a4bd", gold: "#b0a488", matcha: "#95a49a", ai: "#8da7bc",
       },
     },
   },
   {
-    id: "kinari",
-    name: "Kinari",
-    hint: "Warm ivory, unbleached linen",
+    id: "linen",
+    name: "Linen",
+    hint: "Warm ivory, soft clay",
     tokens: {
       light: {
-        bg: "#f4efe3", surface: "#faf6ec", "surface-2": "#e9e1cf",
-        ink: "#211d16", "ink-soft": "#4f4636", "ink-faint": "#8a7f6a", line: "#ddd2ba",
-        accent: "#b4472e", gold: "#a5843f", matcha: "#6f7554", ai: "#31415a",
+        bg: "#f4f1ea", surface: "#faf8f2", "surface-2": "#e9e3d7",
+        ink: "#232019", "ink-soft": "#4d473c", "ink-faint": "#8c8475", line: "#ddd6c7",
+        accent: "#a5786b", gold: "#a08a5e", matcha: "#7d8268", ai: "#4b5b6b",
       },
       dark: {
-        bg: "#1a1712", surface: "#231f18", "surface-2": "#2e2820",
-        ink: "#efe7d6", "ink-soft": "#c8bda6", "ink-faint": "#8f8571", line: "#3a3327",
-        accent: "#dd7a5b", gold: "#c2a066", matcha: "#93996f", ai: "#8fa4c2",
+        bg: "#191712", surface: "#211e18", "surface-2": "#2c2820",
+        ink: "#ede7db", "ink-soft": "#c5bca9", "ink-faint": "#8f8674", line: "#37312a",
+        accent: "#bd8f81", gold: "#bda880", matcha: "#97a187", ai: "#94a7ba",
       },
     },
   },
   {
-    id: "indigo",
-    name: "Indigo Night",
-    hint: "Dark-first, aizome blue",
+    id: "sage",
+    name: "Sage",
+    hint: "Muted green-grey",
     tokens: {
       light: {
-        bg: "#eef1f4", surface: "#f8fafc", "surface-2": "#e0e6ec",
-        ink: "#15202b", "ink-soft": "#3d4d5c", "ink-faint": "#7c8b99", line: "#d3dbe3",
-        accent: "#1f5f8b", gold: "#9a7b3f", matcha: "#5f7a63", ai: "#1b3a4b",
+        bg: "#eef1ec", surface: "#f6f8f4", "surface-2": "#e0e5da",
+        ink: "#1f241d", "ink-soft": "#474e42", "ink-faint": "#848c7c", line: "#d5dacd",
+        accent: "#7f8c72", gold: "#9a8d63", matcha: "#6a7a60", ai: "#4b5b56",
       },
       dark: {
-        bg: "#0e1620", surface: "#152230", "surface-2": "#1f3140",
-        ink: "#e6eef6", "ink-soft": "#aebfce", "ink-faint": "#748698", line: "#2a3c4c",
-        accent: "#6bb8e0", gold: "#c2a267", matcha: "#8aa88e", ai: "#7fb0cc",
+        bg: "#151813", surface: "#1d211a", "surface-2": "#272c23",
+        ink: "#e7ebe2", "ink-soft": "#bcc3b4", "ink-faint": "#868d7b", line: "#333a2d",
+        accent: "#9fac8c", gold: "#b6a97f", matcha: "#94a486", ai: "#95ada4",
       },
     },
   },
   {
-    id: "sabi",
-    name: "Sabi",
-    hint: "Muted greens, aged bronze",
+    id: "fog",
+    name: "Fog",
+    hint: "Cool grey, almost monochrome",
     tokens: {
       light: {
-        bg: "#eef0ea", surface: "#f7f8f3", "surface-2": "#e0e4d8",
-        ink: "#1c211a", "ink-soft": "#454d40", "ink-faint": "#828a78", line: "#d3d9c8",
-        accent: "#8a6d3b", gold: "#9c8548", matcha: "#5b7355", ai: "#354b45",
+        bg: "#f3f4f5", surface: "#fbfbfc", "surface-2": "#e8eaec",
+        ink: "#1c1f22", "ink-soft": "#4a4e53", "ink-faint": "#888d93", line: "#dcdee1",
+        accent: "#6f7d89", gold: "#8f8a80", matcha: "#7c8580", ai: "#3d464e",
       },
       dark: {
-        bg: "#14170f", surface: "#1c2016", "surface-2": "#272c1f",
-        ink: "#e8ebdf", "ink-soft": "#bdc3ac", "ink-faint": "#868c74", line: "#343a29",
-        accent: "#c6a66a", gold: "#c2a367", matcha: "#93a887", ai: "#8fb0a0",
+        bg: "#151719", surface: "#1d2023", "surface-2": "#282c30",
+        ink: "#e6e8ea", "ink-soft": "#b2b7bc", "ink-faint": "#7d838a", line: "#2f343a",
+        accent: "#8f9da9", gold: "#a5a096", matcha: "#96a09a", ai: "#95a2af",
       },
     },
   },
   {
-    id: "mono",
-    name: "Monochrome",
-    hint: "Ink and paper, a single accent",
+    id: "blush",
+    name: "Blush",
+    hint: "Soft warm grey, dusty rose",
     tokens: {
       light: {
-        bg: "#f5f5f5", surface: "#ffffff", "surface-2": "#ebebeb",
-        ink: "#141414", "ink-soft": "#464646", "ink-faint": "#8a8a8a", line: "#dcdcdc",
-        accent: "#c2402e", gold: "#8a8a8a", matcha: "#6a6a6a", ai: "#2b2b2b",
+        bg: "#f4f2f1", surface: "#faf9f8", "surface-2": "#e9e5e3",
+        ink: "#211e1d", "ink-soft": "#4c4745", "ink-faint": "#8b8481", line: "#ddd7d4",
+        accent: "#a17d79", gold: "#9c8c73", matcha: "#7f8676", ai: "#4d5660",
       },
       dark: {
-        bg: "#121212", surface: "#1c1c1c", "surface-2": "#262626",
-        ink: "#ededed", "ink-soft": "#b6b6b6", "ink-faint": "#7d7d7d", line: "#2f2f2f",
-        accent: "#e07a5f", gold: "#a0a0a0", matcha: "#9a9a9a", ai: "#c9c9c9",
+        bg: "#181615", surface: "#201d1c", "surface-2": "#2b2725",
+        ink: "#ece8e6", "ink-soft": "#c3bcb8", "ink-faint": "#8d8682", line: "#37322f",
+        accent: "#ba9591", gold: "#b8a888", matcha: "#98a18d", ai: "#97a5b3",
       },
     },
   },
@@ -99,7 +101,6 @@ export const THEME_PRESETS: ThemePreset[] = [
 
 export const presetById = (id?: string) => THEME_PRESETS.find((p) => p.id === id);
 
-/** Apply a preset but keep the current accent if the user has customised it. */
 export function withAccent(tokens: ThemeTokens, lightAccent?: string, darkAccent?: string): ThemeTokens {
   return {
     light: { ...tokens.light, ...(lightAccent ? { accent: lightAccent } : {}) },

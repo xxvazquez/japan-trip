@@ -10,6 +10,14 @@ export default defineConfig({
   build: {
     target: "es2022",
     cssCodeSplit: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // loaded on demand only when a Supabase project is configured
+          supabase: ["@supabase/supabase-js"],
+        },
+      },
+    },
   },
   plugins: [
     react(),
@@ -35,10 +43,20 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,woff2,svg}"],
-        // Hero/AVIF/WebP imagery is precached selectively; keep the SW lean.
+        globIgnores: ["**/supabase-*.js"], // fetched on demand, runtime-cached below
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         navigateFallback: "/index.html",
         runtimeCaching: [
+          {
+            urlPattern: /\/assets\/supabase-.*\.js$/,
+            handler: "StaleWhileRevalidate",
+            options: { cacheName: "supabase-lib" },
+          },
+          {
+            urlPattern: ({ url }) => url.hostname.endsWith(".supabase.co"),
+            handler: "NetworkFirst",
+            options: { cacheName: "supabase-api", networkTimeoutSeconds: 5, expiration: { maxEntries: 200 } },
+          },
           {
             urlPattern: ({ request }) => request.destination === "image",
             handler: "CacheFirst",

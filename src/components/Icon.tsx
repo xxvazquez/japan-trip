@@ -29,7 +29,18 @@ export type IconName =
   | "eye-off"
   | "up"
   | "down"
-  | "close";
+  | "close"
+  | "plane"
+  | "bus"
+  | "ferry"
+  | "car"
+  | "walk"
+  | "clock"
+  | "coins"
+  | "alert"
+  | "elevator"
+  | "slope"
+  | "dot";
 
 const P: Record<IconName, JSX.Element> = {
   today: <circle cx="12" cy="12" r="6.5" />,
@@ -140,6 +151,52 @@ const P: Record<IconName, JSX.Element> = {
   up: <path d="M6 15l6-6 6 6" />,
   down: <path d="M6 9l6 6 6-6" />,
   close: <path d="M6 6l12 12M18 6L6 18" />,
+  plane: <path d="M10.5 13.5 3 12l1-2 6 .5L14 4c.8-.8 2.4-1.2 3 0 .6 1.2-.2 2.4-1 3l-4.5 6.5.5 5-2 1-1.5-6.5-2 2-.2 2.2-1.3.6L8 15l-2.8-.8.6-1.3 2.2-.2 2.5-2" />,
+  bus: (
+    <>
+      <rect x="4" y="4" width="16" height="13" rx="2.5" />
+      <path d="M4 12h16M8 21l1-2M16 21l-1-2" />
+      <circle cx="8" cy="14.5" r="0.6" fill="currentColor" />
+      <circle cx="16" cy="14.5" r="0.6" fill="currentColor" />
+    </>
+  ),
+  ferry: <path d="M3 15.5c1.5 1 2.5 1 4 0s2.5-1 4 0 2.5 1 4 0 2.5-1 4 0M5 15l1.5-4.5h11L19 15M8 10.5V6h8v4.5M12 3v3" />,
+  car: (
+    <>
+      <path d="M5 13l1.5-5A2 2 0 0 1 8.4 6.5h7.2A2 2 0 0 1 17.5 8L19 13v5a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-1H9.5v1a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-5Z" />
+      <path d="M5 13h14" />
+      <circle cx="8" cy="16" r="0.7" fill="currentColor" />
+      <circle cx="16" cy="16" r="0.7" fill="currentColor" />
+    </>
+  ),
+  walk: (
+    <>
+      <circle cx="13" cy="4.5" r="1.6" />
+      <path d="M13 8l-3 3 1 4M13 8l3 2 2 4M11 15l-2 5M12 15l3 5" />
+    </>
+  ),
+  clock: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7v5l3.5 2" />
+    </>
+  ),
+  coins: (
+    <>
+      <ellipse cx="9" cy="7" rx="5" ry="2.5" />
+      <path d="M4 7v4c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V7" />
+      <path d="M10 14.5c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5v-4c0-1.4-2.2-2.5-5-2.5" />
+    </>
+  ),
+  alert: <path d="M12 3.5 22 20H2L12 3.5ZM12 10v4M12 17h.01" />,
+  elevator: (
+    <>
+      <rect x="5" y="3" width="14" height="18" rx="2" />
+      <path d="M9 9l1.5-2 1.5 2M13 15l1.5 2 1.5-2M12 3v18" />
+    </>
+  ),
+  slope: <path d="M4 18 20 6M4 18h4M4 18v-4" />,
+  dot: <circle cx="12" cy="12" r="3.5" fill="currentColor" stroke="none" />,
 };
 
 export function Icon({
