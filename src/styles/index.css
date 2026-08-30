@@ -17,46 +17,44 @@
 @tailwind utilities;
 
 /* ------------------------------------------------------------------ *
- * Colour tokens — "sumi & paper": a cool gallery white, not beige.
- * Light = shironeri (cool off-white) ground, faintly-cool sumi ink.
- * Dark  = deep aiiro (indigo-charcoal) ground, moonlit paper text.
- * Accents: shinshu vermillion, aged brass, matcha, indigo.
+ * Colour tokens — soft, muted, low-saturation. These are the fallback
+ * ("Mist" preset); the active trip's palette overrides them at runtime.
  * ------------------------------------------------------------------ */
 :root {
-  --c-bg: 243 244 246; /* #f3f4f6 cool paper */
-  --c-surface: 250 250 251;
-  --c-surface-2: 233 235 238;
-  --c-ink: 24 26 29; /* #181a1d near-black, faintly cool */
-  --c-ink-soft: 69 74 81;
-  --c-ink-faint: 132 138 145;
-  --c-line: 220 223 227;
+  --c-bg: 242 244 246;
+  --c-surface: 249 250 251;
+  --c-surface-2: 232 235 239;
+  --c-ink: 30 37 43;
+  --c-ink-soft: 76 86 93;
+  --c-ink-faint: 139 148 156;
+  --c-line: 219 224 229;
 
-  --c-accent: 191 58 45; /* #bf3a2d shinshu vermillion */
-  --c-gold: 150 129 84; /* #968154 aged brass */
-  --c-matcha: 104 118 100;
-  --c-ai: 40 58 84; /* #283a54 indigo */
+  --c-accent: 95 127 156; /* dusty blue */
+  --c-gold: 154 143 122;
+  --c-matcha: 123 138 126;
+  --c-ai: 63 85 103;
 
   --ease-paper: cubic-bezier(0.22, 1, 0.36, 1);
-  --tex-opacity: 0.035;
+  --tex-opacity: 0.03;
   --sat: env(safe-area-inset-top, 0px);
   --sab: env(safe-area-inset-bottom, 0px);
 }
 
 html.dark {
-  --c-bg: 18 21 26; /* #12151a indigo-charcoal */
-  --c-surface: 25 29 36;
-  --c-surface-2: 34 40 49;
-  --c-ink: 233 235 238;
-  --c-ink-soft: 183 189 197;
-  --c-ink-faint: 128 137 148;
-  --c-line: 45 52 63;
+  --c-bg: 19 23 27;
+  --c-surface: 27 33 38;
+  --c-surface-2: 37 44 51;
+  --c-ink: 229 233 236;
+  --c-ink-soft: 177 187 194;
+  --c-ink-faint: 123 133 142;
+  --c-line: 45 53 60;
 
-  --c-accent: 224 118 100; /* #e07664 warm vermillion */
-  --c-gold: 183 158 108;
-  --c-matcha: 143 158 132;
-  --c-ai: 138 166 198;
+  --c-accent: 135 164 189; /* soft steel blue */
+  --c-gold: 176 164 136;
+  --c-matcha: 149 164 154;
+  --c-ai: 141 167 188;
 
-  --tex-opacity: 0.05;
+  --tex-opacity: 0.045;
 }
 
 @layer base {

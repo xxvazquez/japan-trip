@@ -28,7 +28,6 @@ export const days: DaySeed[] = [
       { time: "20:30", title: "Early night", note: "You've been up all night — but try to hold out to ~21:30." },
     ],
     packingReminder: "Keep the day bag light for the whole Tokyo leg — laundry on ~day 4.",
-    weatherNote: "Mid-autumn: ~13–19 °C, sunset ~16:55. A light jacket for the evening.",
     checklist: ["Activate eSIM", "Top up Suica (¥3,000)", "Photograph passport + landing stamp"],
   },
   {
@@ -42,7 +41,6 @@ export const days: DaySeed[] = [
     morning: [{ time: "08:30", title: "Sensō-ji before the crowds", placeId: "p-sensoji" }],
     afternoon: [{ title: "Kappabashi kitchen street, then the Sumida riverside" }],
     evening: [{ title: "Dinner in Asakusa or back near Hamamatsuchō" }],
-    weatherNote: "Sunset ~16:54.",
   },
   {
     date: "2026-10-23",
@@ -101,7 +99,6 @@ export const days: DaySeed[] = [
       { title: "Ōishi Park and the lakeshow path", placeId: "p-oishi-park" },
     ],
     evening: [{ title: "Onsen, then dinner", note: "See the genkan / tatami etiquette card." }],
-    weatherNote: "Kawaguchiko runs colder than Tokyo — ~6–17 °C, and can dip near freezing at night. Bring a proper layer.",
     checklist: ["Yamato tracking number saved", "Overnight bag only"],
   },
   {
@@ -115,7 +112,6 @@ export const days: DaySeed[] = [
     morning: [{ time: "06:30", title: "Chūreitō Pagoda for sunrise on Fuji", note: "Clearest air is early. ~400 steps up.", placeId: "p-chureito" }],
     afternoon: [{ title: "Mt Kachi Kachi ropeway + lakeside lunch", placeId: "p-kachi-kachi" }],
     evening: [{ title: "Last onsen; repack for Kyoto" }],
-    weatherNote: "Fuji hides by mid-morning as often as not — go early.",
   },
   {
     date: "2026-10-28",
@@ -310,6 +306,5 @@ export const days: DaySeed[] = [
       { time: "07:30", title: "Monorail to Haneda", placeId: "stn-hamamatsucho" },
       { time: "10:00", title: "Flight home" },
     ],
-    weatherNote: "Mid-November Tokyo: ~9–16 °C, sunset ~16:35.",
   },
 ];

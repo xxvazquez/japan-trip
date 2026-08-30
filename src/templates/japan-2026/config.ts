@@ -20,7 +20,7 @@ export const config: TripConfig = {
     courier: ["Yamato (Kuroneko)", "Sagawa", "Japan Post"],
   },
   theme,
-  themePreset: "sumi-paper",
+  themePreset: "mist",
   modules: [
     { id: "today", kind: "today", label: "Today", icon: "today", enabled: true },
     { id: "itinerary", kind: "itinerary", label: "Itinerary", icon: "itinerary", enabled: true },

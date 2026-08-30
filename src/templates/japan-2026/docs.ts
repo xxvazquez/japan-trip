@@ -1,32 +1,10 @@
 import type { Doc } from "@/core/types";
 
 /**
- * METADATA ONLY. Never put full passport numbers, scans or policy PDFs in here —
- * this file is in the repo. Actual documents are added on the device in the
- * Vault and stay in local storage only.
+ * METADATA ONLY. Never put full document numbers, scans or policy PDFs in here —
+ * this file is in the repo.
  */
 export const docs: Doc[] = [
-  {
-    id: "doc-passport-1",
-    title: "Passport — traveller 1",
-    kind: "passport",
-    fields: [
-      { label: "Last 4", value: "····", sensitive: true },
-      { label: "Expires", value: "—" },
-      { label: "Issued by", value: "—" },
-    ],
-    note: "Add a photo of the ID page on the device only.",
-  },
-  {
-    id: "doc-passport-2",
-    title: "Passport — traveller 2",
-    kind: "passport",
-    fields: [
-      { label: "Last 4", value: "····", sensitive: true },
-      { label: "Expires", value: "—" },
-      { label: "Issued by", value: "—" },
-    ],
-  },
   {
     id: "doc-insurance",
     title: "Travel insurance",

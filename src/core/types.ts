@@ -136,6 +136,8 @@ export interface Journey {
   toLegId?: ID;
   segments: Segment[];
   access?: Access;
+  /** a free-text thing that needs attention on the day — shown prominently */
+  alert?: string;
   backupRoute?: string;
   officialUrl?: string;
   gmapsDirections?: string;
@@ -225,7 +227,8 @@ export interface Leg {
   start: ISODate;
   end: ISODate;
   hotelId: ID;
-  accent: string;
+  /** a LEG_COLORS id — country-agnostic */
+  color: string;
   blurb?: string;
   image?: ID;
 }
@@ -256,8 +259,8 @@ export interface Day {
   evening?: Activity[];
   reservationIds?: ID[];
   packingReminder?: string;
-  weatherNote?: string;
   checklist?: string[];
+  notes?: string;
 }
 
 export interface Hotel {
@@ -343,8 +346,6 @@ export interface SeasonalNote {
   date: ISODate;
   sunset: Clock;
   tempC: [number, number];
-  koyo?: "green" | "turning" | "near-peak" | "peak" | "past";
-  wear?: string;
 }
 
 export interface Reservation {

@@ -1,7 +1,8 @@
 """Regenerate all brand assets from logo.png.  Run:  python3 scripts/make_icons.py
 
-Source of truth is logo.png in the repo root. Everything under public/icons,
-public/brand and public/favicon.png is derived from it — edit the source, re-run.
+Source of truth: logo.png in the repo root (a transparent illustration).
+Everything under public/icons, public/brand and public/favicon.png is derived
+from it — edit the source, re-run.
 """
 import os
 from PIL import Image
@@ -13,31 +14,31 @@ BRAND = os.path.join(ROOT, "public", "brand")
 os.makedirs(ICONS, exist_ok=True)
 os.makedirs(BRAND, exist_ok=True)
 
-BG = (18, 21, 26)  # indigo-charcoal, for masked / opaque contexts
+BG = (242, 244, 246)  # soft mist, for masked / opaque contexts
 
 logo = Image.open(SRC).convert("RGBA")
 
 
-def fit(size, pad=0.0, bg=None):
-    """Square canvas `size`, logo centred at (1 - 2*pad) scale."""
+def fit(size, pad=0.12, bg=None):
+    """Square `size` canvas, illustration scaled to `contain` with `pad` margin."""
     canvas = Image.new("RGBA", (size, size), (bg or (0, 0, 0, 0)))
     inner = round(size * (1 - 2 * pad))
-    scaled = logo.resize((inner, inner), Image.LANCZOS)
-    off = (size - inner) // 2
-    canvas.paste(scaled, (off, off), scaled)
+    scale = inner / max(logo.width, logo.height)
+    w, h = round(logo.width * scale), round(logo.height * scale)
+    resized = logo.resize((w, h), Image.LANCZOS)
+    canvas.paste(resized, ((size - w) // 2, (size - h) // 2), resized)
     return canvas
 
 
-# transparent, edge-to-edge (logo already has its own padding + rounded shape)
-fit(192).save(os.path.join(ICONS, "icon-192.png"))
-fit(512).save(os.path.join(ICONS, "icon-512.png"))
-# maskable + apple: opaque background, logo inside the safe zone
-fit(512, pad=0.10, bg=BG).save(os.path.join(ICONS, "icon-maskable-512.png"))
-fit(180, pad=0.06, bg=BG).save(os.path.join(ICONS, "apple-touch-icon.png"))
-# favicon
-fit(48).save(os.path.join(ROOT, "public", "favicon.png"))
-# in-app mark
-fit(128).save(os.path.join(BRAND, "logo-128.png"))
-fit(256).save(os.path.join(BRAND, "logo-256.png"))
+# PWA — opaque soft background (home-screen friendly, maskable-safe)
+fit(192, pad=0.14, bg=BG).save(os.path.join(ICONS, "icon-192.png"))
+fit(512, pad=0.14, bg=BG).save(os.path.join(ICONS, "icon-512.png"))
+fit(512, pad=0.20, bg=BG).save(os.path.join(ICONS, "icon-maskable-512.png"))
+fit(180, pad=0.12, bg=BG).save(os.path.join(ICONS, "apple-touch-icon.png"))
+
+# favicon + in-app mark — transparent so it sits on any surface
+fit(48, pad=0.06).save(os.path.join(ROOT, "public", "favicon.png"))
+fit(128, pad=0.05).save(os.path.join(BRAND, "logo-128.png"))
+fit(256, pad=0.05).save(os.path.join(BRAND, "logo-256.png"))
 
 print("brand assets written from", os.path.abspath(SRC))

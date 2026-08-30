@@ -19,7 +19,7 @@ export default function Vault() {
         <section className="mb-8">
           <h2 className="kicker mb-2">Documents</h2>
           <p className="mb-3 text-xs text-ink-faint">
-            Metadata only. Passport scans and policy PDFs stay on this device — never uploaded.
+            Reference details only — kept on this device, never uploaded.
           </p>
           <div className="space-y-2">
             {data.docs.map((d) => (

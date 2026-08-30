@@ -9,6 +9,10 @@ import { APP_NAME } from "@/lib/app";
 import { TEMPLATES } from "@/templates/registry";
 import { THEME_PRESETS } from "@/lib/themePresets";
 import { fileToMediaItem, pickImage } from "@/lib/media";
+import { supabaseEnabled } from "@/lib/supabase";
+import { useAuth, signOut } from "@/lib/auth";
+import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
+import { useEffect } from "react";
 import type { EntityType } from "@/core/types";
 
 type Tab = "trips" | "settings" | "modules" | "media" | "content";
@@ -62,9 +66,21 @@ function Trips() {
 
   const live = trips.filter((t) => !t.archived);
   const archived = trips.filter((t) => t.archived);
+  const auth = useAuth();
 
   return (
     <div className="space-y-6">
+      {supabaseEnabled && auth.user && (
+        <div className="flex items-center justify-between rounded-xl border border-line px-4 py-3 text-sm">
+          <span className="min-w-0 truncate">
+            <span className="text-ink-faint">Signed in · </span>
+            {auth.user.email}
+          </span>
+          <button onClick={() => signOut()} className="btn-sm shrink-0">Sign out</button>
+        </div>
+      )}
+      {supabaseEnabled && auth.user && activeId && <Sharing tripId={activeId} me={auth.user.id} />}
+
       {!creating ? (
         <button onClick={() => setCreating(true)} className="btn-primary">
           <Icon name="plus" size={16} /> New trip
@@ -135,11 +151,66 @@ function Trips() {
   );
 }
 
+function Sharing({ tripId, me }: { tripId: string; me: string }) {
+  const [members, setMembers] = useState<Member[]>([]);
+  const [email, setEmail] = useState("");
+  const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+  const reload = () => listMembers(tripId).then(setMembers).catch(() => {});
+  useEffect(() => { reload(); }, [tripId]);
+  const iAmOwner = members.find((m) => m.userId === me)?.role === "owner";
+
+  const invite = async () => {
+    if (!email.trim()) return;
+    setBusy(true);
+    setMsg("");
+    try {
+      const r = await inviteMember(tripId, email);
+      setMsg(r === "ok" ? "Added." : "No account with that email yet — they need to sign in once first.");
+      if (r === "ok") { setEmail(""); reload(); }
+    } catch {
+      setMsg("Couldn't add them.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-line p-4">
+      <h3 className="kicker mb-2">Shared with</h3>
+      <ul className="mb-3 space-y-1.5 text-sm">
+        {members.map((m) => (
+          <li key={m.userId} className="flex items-center justify-between gap-2">
+            <span className="truncate">{m.userId === me ? "You" : m.userId.slice(0, 8) + "…"} <span className="text-ink-faint">· {m.role}</span></span>
+            {iAmOwner && m.role !== "owner" && (
+              <button onClick={() => removeMember(tripId, m.userId).then(reload)} className="text-xs text-ink-faint hover:text-accent">remove</button>
+            )}
+          </li>
+        ))}
+      </ul>
+      {iAmOwner && (
+        <>
+          <div className="flex gap-2">
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Invite by email"
+              className="min-w-0 flex-1 rounded-md border border-line bg-surface px-2.5 py-1.5 text-sm outline-none"
+            />
+            <button onClick={invite} disabled={busy} className="btn-sm shrink-0">Invite</button>
+          </div>
+          {msg && <p className="mt-1.5 text-xs text-ink-faint">{msg}</p>}
+        </>
+      )}
+    </div>
+  );
+}
+
 /* ------------------------------------------------------------- Settings */
 
 function Settings() {
   const data = useData();
-  const mutate = useApp((s) => s.mutate);
+  const mutate = useApp((s) => s.mutateTrip);
   if (!data) return null;
   const { config, meta } = data;
   const [advanced, setAdvanced] = useState(false);
@@ -242,7 +313,7 @@ const hexOnly = (c: string) => (/^#[0-9a-f]{6}$/i.test(c) ? c : "#888888");
 
 function Modules() {
   const data = useData();
-  const mutate = useApp((s) => s.mutate);
+  const mutate = useApp((s) => s.mutateTrip);
   if (!data) return null;
   const modules = data.config.modules;
 
@@ -391,7 +462,7 @@ function Content() {
     switch (type) {
       case "days": return { id, date: data.meta.start, kind: "base", city: "", legId: data.legs[0]?.id ?? "", title: "New day" };
       case "seasonal": return { id, date: data.meta.start, sunset: "17:00", tempC: [10, 18] };
-      case "legs": return { id, base: "New leg", start: data.meta.start, end: data.meta.end, hotelId: "", accent: "transit" };
+      case "legs": return { id, base: "New leg", start: data.meta.start, end: data.meta.end, hotelId: "", color: "blue" };
       case "places": return { id, name: "New place", kind: "other", city: "" };
       case "hotels": return { id, placeId: "", name: "New hotel", access: {}, nearby: [] };
       case "journeys": return { id, label: "New journey", kind: "transfer", date: data.meta.start, segments: [] };

@@ -18,7 +18,7 @@ import {
 
 export default function Today() {
   const data = useData();
-  const mutate = useApp((s) => s.mutate);
+  const mutate = useApp((s) => s.mutateTrip);
   const setNote = useApp((s) => s.setNote);
   if (!data) return null;
 
@@ -37,7 +37,7 @@ export default function Today() {
 
   return (
     <div className="relative z-10 pb-28 md:pb-14">
-      <Hero src={media.cover?.dataUrl} alt={config.branding} tone="indigo">
+      <Hero src={media.cover?.dataUrl} alt={config.branding}>
         <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-white/70">
           {c.phase === "before"
             ? `${c.daysUntilStart} days to go`
@@ -131,17 +131,10 @@ export default function Today() {
           )}
         </div>
 
-        {(season || c.phase === "during") && (
+        {season && (
           <div className="mt-6 flex flex-wrap gap-x-6 gap-y-1 rounded-xl border border-line px-4 py-3 text-sm">
-            {season && (
-              <>
-                <span><span className="text-ink-faint">Sunset </span>{season.sunset}</span>
-                <span><span className="text-ink-faint">Temp </span>{season.tempC[0]}–{season.tempC[1]} °C</span>
-                {season.koyo && <span className="capitalize"><span className="text-ink-faint">Foliage </span>{season.koyo.replace("-", " ")}</span>}
-                {season.wear && <span className="w-full text-ink-faint">{season.wear}</span>}
-              </>
-            )}
-            {!season && <span className="text-ink-faint">No seasonal note for today — add one in Manage.</span>}
+            <span><span className="text-ink-faint">Sunset </span>{season.sunset}</span>
+            <span><span className="text-ink-faint">Temp </span>{season.tempC[0]}–{season.tempC[1]} °C</span>
           </div>
         )}
 

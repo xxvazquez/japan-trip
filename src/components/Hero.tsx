@@ -1,34 +1,22 @@
 import type { ReactNode } from "react";
 
-type Tone = "indigo" | "matcha" | "vermillion" | "brass" | "ink" | "auto";
-
-const TONE_VARS: Record<Exclude<Tone, "auto">, [string, string]> = {
-  indigo: ["--c-ai", "--c-surface-2"],
-  matcha: ["--c-matcha", "--c-surface-2"],
-  vermillion: ["--c-accent", "--c-surface-2"],
-  brass: ["--c-gold", "--c-surface-2"],
-  ink: ["--c-ink", "--c-surface-2"],
-};
-
 /**
  * A full-bleed hero. Renders a photo when `src` is set, otherwise an elegant
- * tonal wash built from the trip's own palette — never a broken image, never a
- * grey box.
+ * tonal wash built from `color` (a hex) — never a broken image, never a grey box.
  */
 export function Hero({
   src,
   alt = "",
-  tone = "indigo",
+  color = "#3a5a80",
   height = "clamp(13rem, 42vw, 22rem)",
   children,
 }: {
   src?: string;
   alt?: string;
-  tone?: Tone;
+  color?: string;
   height?: string;
   children?: ReactNode;
 }) {
-  const [a, b] = TONE_VARS[tone === "auto" ? "indigo" : tone];
   return (
     <div className="relative -mt-px w-full overflow-hidden" style={{ height }}>
       {src ? (
@@ -37,7 +25,7 @@ export function Hero({
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `radial-gradient(120% 120% at 20% 0%, rgb(var(${a}) / 0.55), transparent 60%), linear-gradient(160deg, rgb(var(${b})), rgb(var(--c-surface)))`,
+            backgroundImage: `radial-gradient(120% 120% at 18% 0%, ${color}, transparent 62%), linear-gradient(165deg, ${color}55, rgb(var(--c-surface)))`,
           }}
         />
       )}
