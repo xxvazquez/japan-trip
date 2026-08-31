@@ -72,7 +72,7 @@ function Trips() {
 
   const addDemo = async () => {
     setBusy(true);
-    const id = await createTrip({ name: "How this works", templateId: "demo" });
+    const id = await createTrip({ name: "Demo", templateId: "demo" });
     await switchTrip(id);
     setBusy(false);
     nav("/");

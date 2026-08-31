@@ -23,8 +23,8 @@ export function buildDemo(): TripData {
   const data: TripData = {
     v: 2,
     config: {
-      branding: "How this works",
-      tagline: "a quick tour — read only",
+      branding: "Demo",
+      tagline: "a quick read-only tour",
       locale: "en-GB",
       homeTimeZone: "UTC",
       tripTimeZone: "UTC",
@@ -39,7 +39,7 @@ export function buildDemo(): TripData {
       mapSourceUrl: "",
       demo: true,
     },
-    meta: { title: "How this works", start: D1, end: D4 },
+    meta: { title: "Demo", start: D1, end: D4 },
     media: { gallery: [] },
     scratch:
       "Notes is a free-text scratchpad — shopping lists, things you keep forgetting, a phrase you want to remember. It's shared with anyone the trip is shared with.",
