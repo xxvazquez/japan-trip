@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useReadOnly } from "@/lib/readonly";
+import { gmapsLink } from "@/lib/maps";
 
 type Base = {
   value: string;
@@ -10,8 +11,16 @@ type Base = {
 };
 
 type Props =
-  | (Base & { as?: "text" | "textarea" | "number" | "date" })
+  | (Base & { as?: "text" | "textarea" | "number" | "date" | "time" | "link" })
   | (Base & { as: "select"; options: { value: string; label: string }[] });
+
+function linkText(v: string) {
+  try {
+    return new URL(v).hostname.replace(/^www\./, "");
+  } catch {
+    return v.length > 30 ? v.slice(0, 30) + "…" : v;
+  }
+}
 
 /**
  * Inline editing. Shows the value; click / Enter turns it into a field in place;
@@ -44,16 +53,39 @@ export function Editable(props: Props) {
     setEditing(false);
   };
 
+  const linkHref = as === "link" && value ? gmapsLink(value) ?? value : null;
+
   if (readOnly) {
     if (!value) return null;
+    if (as === "link" && linkHref) {
+      return (
+        <a href={linkHref} target="_blank" rel="noopener" className={`text-accent underline decoration-dotted underline-offset-2 ${className}`}>
+          {linkText(value)}
+        </a>
+      );
+    }
     return <span className={`inline whitespace-pre-wrap ${className}`}>{value}</span>;
   }
 
-  // a date is always a one-tap native picker — no two-step editing
-  if (as === "date") {
+  // a filled link shows as a link with a small "edit" — not a raw text field
+  if (as === "link" && value && !editing) {
+    return (
+      <span className={`inline ${className}`}>
+        <a href={linkHref!} target="_blank" rel="noopener" className="text-accent underline decoration-dotted underline-offset-2 break-all">
+          {linkText(value)}
+        </a>
+        <button type="button" onClick={() => setEditing(true)} aria-label={`Edit ${label}`} className="ml-1.5 align-baseline text-xs text-ink-faint hover:text-accent">
+          edit
+        </button>
+      </span>
+    );
+  }
+
+  // dates and times are always a one-tap native picker — no two-step editing
+  if (as === "date" || as === "time") {
     return (
       <input
-        type="date"
+        type={as}
         aria-label={label}
         value={value}
         onChange={(e) => e.target.value && e.target.value !== value && onCommit(e.target.value)}

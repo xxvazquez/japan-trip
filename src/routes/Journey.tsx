@@ -65,9 +65,9 @@ export default function Journey() {
                   <Editable label="To" value={s.to} placeholder="TO" onCommit={(v) => setSeg(i, { to: v })} />
                 </p>
                 <p className="mt-1 font-display text-2xl tabular-nums leading-none">
-                  <Editable label="Depart time" value={clockOf(s.depart)} placeholder="--:--" onCommit={(v) => setSeg(i, { depart: mergeTime(s.depart, j.date, v) })} />
+                  <Editable as="time" label="Depart time" value={clockOf(s.depart)} placeholder="--:--" onCommit={(v) => setSeg(i, { depart: mergeTime(s.depart, j.date, v) })} />
                   <span className="mx-2 text-ink-faint">→</span>
-                  <Editable label="Arrive time" value={clockOf(s.arrive)} placeholder="--:--" onCommit={(v) => setSeg(i, { arrive: mergeTime(s.arrive, j.date, v) })} />
+                  <Editable as="time" label="Arrive time" value={clockOf(s.arrive)} placeholder="--:--" onCommit={(v) => setSeg(i, { arrive: mergeTime(s.arrive, j.date, v) })} />
                 </p>
                 <p className="meta mt-1.5 flex flex-wrap items-center gap-x-1.5">
                   <Editable as="select" label="Mode" value={s.mode} options={MODES.map((m) => ({ value: m, label: m }))} onCommit={(v) => setSeg(i, { mode: v as TransportMode })} />

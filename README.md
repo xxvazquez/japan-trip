@@ -61,7 +61,8 @@ In **Manage → Content** you can hide the Logbook sections you don't need, and
 ## Editing anything
 
 Tap almost any piece of text and it becomes editable on the spot. Type, tap
-away, done. There's no separate "edit mode".
+away, done. There's no separate "edit mode". Dates and times open a picker; once
+a link is filled in it turns into a normal clickable link (with a small "edit").
 
 ## The demo trip
 
