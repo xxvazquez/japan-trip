@@ -25,7 +25,7 @@ export default function Day() {
   if (!day)
     return (
       <Page>
-        <BackBar to="/" label="Plan" />
+        <BackBar to="/" />
         <p className="lead">No day here.</p>
       </Page>
     );
@@ -39,7 +39,7 @@ export default function Day() {
 
   return (
     <Page>
-      <BackBar to="/" label="Plan" />
+      <BackBar to="/" />
 
       <div className="flex items-center gap-2">
         <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: legHex(leg?.color) }} />
