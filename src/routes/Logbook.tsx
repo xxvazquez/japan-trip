@@ -1,6 +1,7 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { Page } from "@/components/Page";
 import { Editable } from "@/components/Editable";
+import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
@@ -410,8 +411,8 @@ function Notes() {
   const setScratch = useApp((s) => s.setScratch);
   if (ro && !data.scratch) return <p className="text-sm text-ink-faint">Nothing noted yet.</p>;
   return (
-    <div className="text-[0.95rem] leading-relaxed text-ink">
-      <Editable as="textarea" label="Notes" value={data.scratch ?? ""} placeholder="Anything to remember." onCommit={(v) => setScratch(v)} />
+    <div className="text-[0.95rem] text-ink">
+      <RichNote value={data.scratch ?? ""} onCommit={(v) => setScratch(v)} placeholder="Anything to remember." />
     </div>
   );
 }

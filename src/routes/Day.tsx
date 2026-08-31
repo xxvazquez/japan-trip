@@ -2,6 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { Page } from "@/components/Page";
 import { BackBar } from "@/components/BackBar";
 import { Editable } from "@/components/Editable";
+import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
@@ -66,17 +67,35 @@ export default function Day() {
         </div>
       )}
 
-      {/* PLAN — the day's freeform notes */}
+      {/* PLAN — a short bullet list */}
+      {((day.plan ?? []).length > 0 || !ro) && (
+        <section>
+          <div className="section-head">
+            <p className="kicker">Plan</p>
+            {!ro && (
+              <button onClick={() => patch({ plan: [...(day.plan ?? []), ""] })} className="action text-xs">
+                <Icon name="plus" size={13} /> Add
+              </button>
+            )}
+          </div>
+          <StringList
+            items={day.plan ?? []}
+            onChange={(v) => patch({ plan: v.length ? v : undefined })}
+            readOnly={ro}
+            emptyHint="Nothing planned yet."
+          />
+        </section>
+      )}
+
+      {/* NOTES — free-form, lightly formatted */}
       {(day.notes || !ro) && (
         <section>
-          <div className="section-head"><p className="kicker">Plan</p></div>
-          <div className="text-[0.95rem] leading-relaxed text-ink">
-            <Editable
-              as="textarea"
-              label="Plan"
+          <div className="section-head"><p className="kicker">Notes</p></div>
+          <div className="text-[0.95rem] text-ink">
+            <RichNote
               value={day.notes ?? ""}
-              placeholder="What's the shape of the day…"
               onCommit={(v) => patch({ notes: v || undefined })}
+              placeholder="Anything else — ideas, reminders, links…"
             />
           </div>
         </section>
@@ -206,8 +225,8 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function StringList({ items, onChange, readOnly }: { items: string[]; onChange: (next: string[]) => void; readOnly?: boolean }) {
-  if (items.length === 0) return <p className="text-sm text-ink-faint">Nothing yet.</p>;
+function StringList({ items, onChange, readOnly, emptyHint = "Nothing yet." }: { items: string[]; onChange: (next: string[]) => void; readOnly?: boolean; emptyHint?: string }) {
+  if (items.length === 0) return <p className="text-sm text-ink-faint">{emptyHint}</p>;
   return (
     <ul>
       {items.map((it, i) => (

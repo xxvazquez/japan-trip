@@ -35,9 +35,10 @@ like a normal app, full screen. Do this on both phones.
 
 **Plan** — the trip as a list of days, grouped by where you're staying.
 - Drag a day up or down to **reorder** it (the dates shuffle with it).
-- Tap a day to open it: write what the day is about, add a few places (a name +
-  a Google Maps link), and for day trips add how to get there / back and the
-  last train home.
+- Tap a day to open it. Each day has a **Plan** (a plain bullet list — one line
+  per thing) and **Notes** (free text with light formatting). Add a few places
+  (a name + a Google Maps link), and for day trips add how to get there / back
+  and the last train home.
 
 **Map** — your Google **My Map** pins, on a clean map.
 - Filter by category (coffee, see, food…) with the coloured dots.
@@ -63,6 +64,11 @@ In **Manage → Content** you can hide the Logbook sections you don't need, and
 Tap almost any piece of text and it becomes editable on the spot. Type, tap
 away, done. There's no separate "edit mode". Dates and times open a picker; once
 a link is filled in it turns into a normal clickable link (with a small "edit").
+
+**Notes** fields (on a day, a stay, a journey, and the Logbook's Notes tab) take
+light Markdown — `**bold**`, `*italic*`, `-` bullet lists, `>` quotes, headings
+and `[links](https://…)`. A slim B / I / • / link toolbar and the usual
+⌘/Ctrl-B · ⌘/Ctrl-I shortcuts are there while editing; bullets continue on Enter.
 
 ## The demo trip
 
@@ -145,7 +151,7 @@ is covered under [The map background](#the-map-background).
 
 1. Create a project at [supabase.com](https://supabase.com).
 2. **SQL Editor** → run every file in `supabase/migrations/` **in order**
-   (`0001` → `0010`).
+   (`0001` → `0011`).
 3. **Authentication → Providers → Google** → enable, paste a Google Cloud OAuth
    client id / secret, redirect
    `https://<project-ref>.supabase.co/auth/v1/callback`.

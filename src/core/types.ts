@@ -183,7 +183,9 @@ export interface Day {
   legId: ID;
   hotelId?: ID;
   title?: string;
-  /** the loose plan, free text */
+  /** the day's rough plan — one string per bullet */
+  plan?: string[];
+  /** free-form notes, rendered as light Markdown */
   notes?: string;
   places?: DayPlace[];
   /** set when this is a travel day */

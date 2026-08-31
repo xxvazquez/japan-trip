@@ -67,8 +67,9 @@ export function buildDemo(): TripData {
         legId: "leg-river",
         hotelId: "h-river",
         title: "Arrival",
+        plan: ["Land, clear customs, pick up transit cards", "Drop bags at the hotel", "Easy dinner nearby — don't overdo day one"],
         notes:
-          "Welcome. This is a day. Tap almost any text — a title, a note, a time — and it becomes editable on the spot; tap away to save.\n\nOn the Plan screen, days are grouped by where you're staying. Drag a day up or down to reorder it — the dates move to match.\n\n(This trip is the demo, so editing is switched off. Make a trip of your own to try it.)",
+          "Two ways to write here. **Plan** is a plain checklist — one line per thing. **Notes** takes light formatting: **bold**, *italic*, - bullet lists, and [links](https://maps.google.com).\n\nTap almost any text — a title, a note, a time — and it becomes editable on the spot; tap away to save. On the Plan screen, days are grouped by where you're staying; drag one to reorder it and the dates move to match.\n\n(This trip is the demo, so editing is switched off. Make a trip of your own to try it.)",
       },
       {
         id: "d2",
@@ -76,8 +77,9 @@ export function buildDemo(): TripData {
         legId: "leg-river",
         hotelId: "h-river",
         title: "A full day",
+        plan: ["Coffee before anything else", "Museum when it opens", "Market for lunch", "Wander the old streets, no fixed route"],
         notes:
-          "There's no hour-by-hour schedule — a day is a loose note plus a few places you'd like to hit.",
+          "A day is a loose plan plus a few places you'd like to hit — never an hour-by-hour schedule.\n\n> The museum is free on the first Sunday of the month.",
         places: [
           { id: "dp1", label: "A coffee place", placeId: "pl-1" },
           { id: "dp2", label: "A museum", placeId: "pl-2" },

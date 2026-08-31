@@ -40,6 +40,8 @@ export type IconName =
   | "alert"
   | "elevator"
   | "slope"
+  | "list"
+  | "link"
   | "dot";
 
 const P: Record<IconName, JSX.Element> = {
@@ -196,6 +198,20 @@ const P: Record<IconName, JSX.Element> = {
     </>
   ),
   slope: <path d="M4 18 20 6M4 18h4M4 18v-4" />,
+  list: (
+    <>
+      <path d="M9 6h11M9 12h11M9 18h11" />
+      <circle cx="4.5" cy="6" r="1" fill="currentColor" stroke="none" />
+      <circle cx="4.5" cy="12" r="1" fill="currentColor" stroke="none" />
+      <circle cx="4.5" cy="18" r="1" fill="currentColor" stroke="none" />
+    </>
+  ),
+  link: (
+    <>
+      <path d="M10 14a4 4 0 0 0 5.7 0l3-3A4 4 0 0 0 13 5.3l-1.5 1.5" />
+      <path d="M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1.5-1.5" />
+    </>
+  ),
   dot: <circle cx="12" cy="12" r="3.5" fill="currentColor" stroke="none" />,
 };
 
