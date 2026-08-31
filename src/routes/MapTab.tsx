@@ -23,14 +23,21 @@ const SNAP_H: Record<Snap, string> = {
 };
 const NEXT: Record<Snap, Snap> = { peek: "half", half: "full", full: "peek" };
 
-/** During → today. Before → nearest upcoming day. After → last day. Else all. */
+/**
+ * During → today. Before → nearest upcoming day. After → last day. Else all.
+ * But a day-scoped default only makes sense if that day actually has places
+ * pinned to it — otherwise the map opens empty. Fall back to "all" when it does.
+ */
 function defaultScope(data: TripData): string {
   const c = tripClock(data);
   const days = [...data.days].sort((a, b) => a.date.localeCompare(b.date));
-  if (c.phase === "during" && c.today) return c.today.id;
-  if (c.phase === "before") return days.find((d) => d.date >= c.todayISO)?.id ?? "all";
-  if (c.phase === "after") return days.at(-1)?.id ?? "all";
-  return "all";
+  let day: string | undefined;
+  if (c.phase === "during" && c.today) day = c.today.id;
+  else if (c.phase === "before") day = days.find((d) => d.date >= c.todayISO)?.id;
+  else if (c.phase === "after") day = days.at(-1)?.id;
+
+  const dayHasPlaces = day && (data.days.find((d) => d.id === day)?.places?.length ?? 0) > 0;
+  return dayHasPlaces ? day! : "all";
 }
 
 export default function MapTab() {
@@ -189,45 +196,33 @@ export default function MapTab() {
     }
   };
 
+  const scopeOptions: ScopeOption[] = [
+    { value: "all", label: `All places · ${places.length}` },
+    ...(c.today ? [{ value: c.today.id, label: `Today · ${c.today.title || fmtDate(c.today.date, loc)}` } as ScopeOption] : []),
+    ...data.legs.map((l) => ({ value: `leg:${l.id}`, label: l.base, group: "By stay" as const })),
+    ...[...data.days]
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .map((d) => ({
+        value: d.id,
+        label: `${fmtDate(d.date, loc, { weekday: "short", day: "numeric", month: "short" })}${d.title ? ` · ${d.title}` : ""}`,
+        group: "By day" as const,
+      })),
+  ];
+
   const panel = (
     <div className="flex h-full flex-col">
       {/* context bar */}
       <div className="shrink-0 border-b border-line px-4 pb-3 pt-3">
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <div className="relative inline-flex items-center">
-              <select
-                value={scope ?? "all"}
-                onChange={(e) => {
-                  setScope(e.target.value);
-                  setSelected(null);
-                }}
-                className="max-w-[15rem] cursor-pointer appearance-none truncate bg-transparent pr-5 font-display text-[1.35rem] leading-tight focus:outline-none"
-              >
-                <option value="all">All places · {places.length}</option>
-                {c.today && <option value={c.today.id}>Today · {c.today.title || fmtDate(c.today.date, loc)}</option>}
-                {data.legs.length > 0 && (
-                  <optgroup label="By stay">
-                    {data.legs.map((l) => (
-                      <option key={l.id} value={`leg:${l.id}`}>
-                        {l.base}
-                      </option>
-                    ))}
-                  </optgroup>
-                )}
-                <optgroup label="By day">
-                  {[...data.days]
-                    .sort((a, b) => a.date.localeCompare(b.date))
-                    .map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {fmtDate(d.date, loc, { weekday: "short", day: "numeric", month: "short" })}
-                        {d.title ? ` · ${d.title}` : ""}
-                      </option>
-                    ))}
-                </optgroup>
-              </select>
-              <Icon name="down" size={13} className="pointer-events-none absolute right-0 text-ink-faint" />
-            </div>
+            <ScopeMenu
+              value={scope ?? "all"}
+              options={scopeOptions}
+              onChange={(v) => {
+                setScope(v);
+                setSelected(null);
+              }}
+            />
           </div>
           {readOnly ? null : adding ? (
             <button onClick={cancelAdd} className="shrink-0 text-sm text-ink-soft hover:text-accent">
@@ -415,6 +410,68 @@ export default function MapTab() {
         />
         <div className="min-h-0 flex-1">{panel}</div>
       </div>
+    </div>
+  );
+}
+
+type ScopeOption = { value: string; label: string; group?: "By stay" | "By day" };
+
+function ScopeMenu({ value, options, onChange }: { value: string; options: ScopeOption[]; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [up, setUp] = useState(false);
+  const btn = useRef<HTMLButtonElement>(null);
+  const current = options.find((o) => o.value === value) ?? options[0];
+  let lastGroup: string | undefined;
+
+  const toggle = () => {
+    if (!open && btn.current) {
+      const r = btn.current.getBoundingClientRect();
+      setUp(window.innerHeight - r.bottom < 300);
+    }
+    setOpen((v) => !v);
+  };
+
+  return (
+    <div className="relative">
+      <button
+        ref={btn}
+        onClick={toggle}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={`Map scope: ${current?.label}`}
+        className="flex max-w-[15rem] items-center gap-1 font-display text-[1.35rem] leading-tight"
+      >
+        <span className="truncate">{current?.label}</span>
+        <Icon name="down" size={13} className={`shrink-0 text-ink-faint transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
+          <div
+            className={`absolute left-0 z-30 max-h-[min(60vh,24rem)] min-w-[15rem] overflow-y-auto border border-line bg-bg py-1 shadow-sm ${up ? "bottom-full mb-1.5" : "top-full mt-1.5"}`}
+          >
+            {options.map((o) => {
+              const head = o.group && o.group !== lastGroup ? o.group : null;
+              lastGroup = o.group;
+              return (
+                <div key={o.value}>
+                  {head && <p className="px-3 pb-1 pt-2.5 text-2xs font-semibold uppercase tracking-[0.06em] text-ink-faint">{head}</p>}
+                  <button
+                    onClick={() => {
+                      onChange(o.value);
+                      setOpen(false);
+                    }}
+                    className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-surface-2 ${o.value === value ? "font-semibold text-accent" : "text-ink"}`}
+                  >
+                    <Icon name="check" size={13} className={`shrink-0 ${o.value === value ? "" : "opacity-0"}`} />
+                    <span className="truncate">{o.label}</span>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 }

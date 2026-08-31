@@ -134,10 +134,12 @@ npm run dev            # http://localhost:5173
 ```ini
 VITE_SUPABASE_URL=https://<project-ref>.supabase.co
 VITE_SUPABASE_ANON_KEY=<the anon / public key>
+VITE_MAP_TILES_URL=https://<your-bucket>/japan.pmtiles
 ```
 
-Both optional — with nothing set the app runs fully local. `VITE_SUPABASE_URL`
-must be the **full https URL**, not just the project ref.
+All optional — with nothing set the app runs fully local. `VITE_SUPABASE_URL`
+must be the **full https URL**, not just the project ref. `VITE_MAP_TILES_URL`
+is covered under [The map background](#the-map-background).
 
 ## Setting up Supabase
 
@@ -196,9 +198,35 @@ supabase/migrations/   database schema, applied in order
 scripts/make_icons.py  regenerates icons from logo.png
 ```
 
+## The map background
+
 The map uses [MapLibre GL](https://maplibre.org) with free
 [Protomaps](https://protomaps.com) vector tiles — no key, no billing account.
 `maplibre-gl` is pinned to 5.x (6.x breaks pmtiles tile loading).
+
+By default it reads Protomaps' **entire planet** archive over the network. That
+works, but the first paint can take 20–30 s: every tile has to walk a directory
+inside a 130 GB file on a bucket with no edge cache. The Map screen shows a
+"Loading the map…" note while that happens.
+
+For a map that loads instantly, host a small regional extract and point
+`VITE_MAP_TILES_URL` at it:
+
+1. Install the [`pmtiles`](https://github.com/protomaps/go-pmtiles) CLI.
+2. Extract just the trip's area (one command, streams from the remote file —
+   no full download):
+   ```bash
+   pmtiles extract https://data.source.coop/protomaps/openstreetmap/v4.pmtiles japan.pmtiles \
+     --bbox=135.5,34.4,140.3,36.0 --maxzoom=15
+   ```
+   That box covers Kansai + Kanto (Kyoto, Nara, Osaka, Uji, Tokyo, Kawaguchiko)
+   and comes out well under 1 GB.
+3. Upload `japan.pmtiles` anywhere static with range-request support —
+   Cloudflare R2 (same account as the deploy), an R2 public bucket, S3, etc.
+4. Set `VITE_MAP_TILES_URL` to its public URL (locally in `.env.local`, and in
+   the Cloudflare project's environment variables). Redeploy.
+
+Nothing else changes — the styling and pins are identical.
 
 ## Branding
 
