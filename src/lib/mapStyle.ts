@@ -3,11 +3,17 @@ import type { StyleSpecification } from "maplibre-gl";
 
 /**
  * A restrained editorial basemap: one warm land tone, hairline roads, muted
- * water, sparse labels. Built on Protomaps' free planet tiles — no key, no bill.
- * Hosted on Source Cooperative (the demo-bucket URL was retired). Swap PMTILES
- * for a self-hosted regional extract later; nothing else changes.
+ * water, sparse labels. Built on Protomaps' free vector tiles — no key, no bill.
+ *
+ * Default is Protomaps' full planet archive on Source Cooperative. It works but
+ * is slow to first paint (every tile walks a directory inside a 130 GB file on
+ * a bucket with no edge cache). For a fast map, build a small regional extract
+ * with `pmtiles extract`, host the one file anywhere static (Cloudflare R2, a
+ * Pages asset, S3…), and set VITE_MAP_TILES_URL to its URL. Nothing else changes.
  */
-export const PMTILES = "pmtiles://https://data.source.coop/protomaps/openstreetmap/v4.pmtiles";
+const DEFAULT_PMTILES = "https://data.source.coop/protomaps/openstreetmap/v4.pmtiles";
+const configured = import.meta.env.VITE_MAP_TILES_URL?.trim();
+export const PMTILES = `pmtiles://${configured || DEFAULT_PMTILES}`;
 const ATTRIB = '<a href="https://protomaps.com">Protomaps</a> · <a href="https://openstreetmap.org">OpenStreetMap</a>';
 const GLYPHS = "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf";
 

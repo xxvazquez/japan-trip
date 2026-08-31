@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Map as MLMap,
   NavigationControl,
@@ -54,6 +54,7 @@ export function MapView({
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<MLMap | null>(null);
   const ready = useRef(false);
+  const [painted, setPainted] = useState(false);
   const state = useRef({ places, selectedId, dark, onSelect, onMapClick, onLongPress, onReady });
   state.current = { places, selectedId, dark, onSelect, onMapClick, onLongPress, onReady };
 
@@ -161,8 +162,11 @@ export function MapView({
       state.current.onReady?.(m);
     });
 
+    m.once("idle", () => setPainted(true));
+    const paintFallback = setTimeout(() => setPainted(true), 20000);
+
     map.current = m;
-    return () => { m.remove(); map.current = null; ready.current = false; };
+    return () => { clearTimeout(paintFallback); m.remove(); map.current = null; ready.current = false; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* data */
@@ -191,7 +195,16 @@ export function MapView({
     m.once("styledata", () => { if (!m.getSource("places")) addLayers(m); });
   }, [dark]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return <div ref={el} className="h-full w-full" />;
+  return (
+    <div className="relative h-full w-full">
+      <div ref={el} className="h-full w-full" />
+      {!painted && (
+        <div className="pointer-events-none absolute inset-0 grid place-items-center bg-bg">
+          <p className="meta animate-pulse">Loading the map…</p>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export type { MLMap };
