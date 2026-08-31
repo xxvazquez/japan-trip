@@ -7,10 +7,12 @@ import { Loader } from "./Loader";
 import { Icon } from "./Icon";
 import { Wordmark } from "./Wordmark";
 import { useData } from "@/lib/data";
+import { useReadOnly } from "@/lib/readonly";
 
 export function AppShell() {
   const [searchOpen, setSearchOpen] = useState(false);
   const data = useData();
+  const demo = useReadOnly();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -53,6 +55,12 @@ export function AppShell() {
           </div>
         </div>
       </header>
+
+      {demo && (
+        <div className="sticky top-14 z-20 border-b border-line bg-accent/10 px-4 py-1.5 text-center text-xs text-ink-soft sm:px-6">
+          Demo trip — read-only. Make your own from <Link to="/manage" className="font-medium text-accent">Manage → New trip</Link>.
+        </div>
+      )}
 
       <main className="min-h-[calc(100svh-3.5rem)]">
         <Suspense fallback={<Loader />}>

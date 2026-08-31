@@ -5,6 +5,7 @@ import { Editable } from "@/components/Editable";
 import { Icon } from "@/components/Icon";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
+import { useReadOnly } from "@/lib/readonly";
 import { fmtDate } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink } from "@/lib/maps";
@@ -16,6 +17,7 @@ export default function Day() {
   const data = useData();
   const { id } = useParams();
   const updateEntity = useApp((s) => s.updateEntity);
+  const ro = useReadOnly();
   if (!data) return null;
 
   const L = lookups(data);
@@ -80,7 +82,7 @@ export default function Day() {
       <section className="mt-8">
         <div className="section-head">
           <p className="kicker">Places</p>
-          <div className="flex items-center gap-3">
+          <div className={`flex items-center gap-3 ${ro ? "hidden" : ""}`}>
             {data.places.length > 0 && (
               <select
                 value=""
@@ -124,9 +126,11 @@ export default function Day() {
                   <span className="shrink-0 text-xs text-ink-soft">
                     <Editable label="Google Maps link" value={p.url ?? ""} placeholder="＋ link" onCommit={(v) => setPlaces(day.places!.map((x, j) => (j === i ? { ...x, url: v || undefined } : x)))} />
                   </span>
-                  <button onClick={() => setPlaces(day.places!.filter((_, j) => j !== i))} className="shrink-0 p-1 text-ink-faint opacity-0 transition-opacity hover:text-accent group-hover:opacity-100" aria-label="Remove">
-                    <Icon name="close" size={13} />
-                  </button>
+                  {!ro && (
+                    <button onClick={() => setPlaces(day.places!.filter((_, j) => j !== i))} className="shrink-0 p-1 text-ink-faint opacity-0 transition-opacity hover:text-accent group-hover:opacity-100" aria-label="Remove">
+                      <Icon name="close" size={13} />
+                    </button>
+                  )}
                 </li>
               );
             })}
@@ -141,7 +145,7 @@ export default function Day() {
             <p className="kicker">
               <Icon name="explore" size={12} className="mr-1 inline align-[-1px]" /> Day trip
             </p>
-            <button onClick={() => patch({ dayTrip: false })} className="text-xs text-ink-faint hover:text-accent">not a day trip</button>
+            {!ro && <button onClick={() => patch({ dayTrip: false })} className="text-xs text-ink-faint hover:text-accent">not a day trip</button>}
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -166,15 +170,17 @@ export default function Day() {
           <div className="mt-5">
             <div className="section-head">
               <p className="kicker">What to do there</p>
-              <button onClick={() => patch({ toDo: [...(day.toDo ?? []), ""] })} className="action text-xs"><Icon name="plus" size={13} /> Add</button>
+              {!ro && <button onClick={() => patch({ toDo: [...(day.toDo ?? []), ""] })} className="action text-xs"><Icon name="plus" size={13} /> Add</button>}
             </div>
-            <StringList items={day.toDo ?? []} onChange={(v) => patch({ toDo: v.length ? v : undefined })} />
+            <StringList items={day.toDo ?? []} onChange={(v) => patch({ toDo: v.length ? v : undefined })} readOnly={ro} />
           </div>
         </section>
       ) : (
-        <button onClick={() => patch({ dayTrip: true })} className="action mt-8">
-          <Icon name="plus" size={14} /> Make this a day trip
-        </button>
+        !ro && (
+          <button onClick={() => patch({ dayTrip: true })} className="action mt-8">
+            <Icon name="plus" size={14} /> Make this a day trip
+          </button>
+        )
       )}
     </Page>
   );
@@ -190,7 +196,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function StringList({ items, onChange }: { items: string[]; onChange: (next: string[]) => void }) {
+function StringList({ items, onChange, readOnly }: { items: string[]; onChange: (next: string[]) => void; readOnly?: boolean }) {
   if (items.length === 0) return <p className="meta">Nothing yet.</p>;
   return (
     <ul>
@@ -198,11 +204,15 @@ function StringList({ items, onChange }: { items: string[]; onChange: (next: str
         <li key={i} className="group flex items-center gap-2.5 border-b border-line py-2.5 text-sm">
           <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-ink-faint" />
           <span className="min-w-0 flex-1">
-            <Editable label="Item" value={it} placeholder="…" onCommit={(v) => onChange(items.map((x, j) => (j === i ? v : x)))} />
+            {readOnly ? it : (
+              <Editable label="Item" value={it} placeholder="…" onCommit={(v) => onChange(items.map((x, j) => (j === i ? v : x)))} />
+            )}
           </span>
-          <button onClick={() => onChange(items.filter((_, j) => j !== i))} className="shrink-0 p-1 text-ink-faint opacity-0 transition-opacity hover:text-accent group-hover:opacity-100" aria-label="Remove">
-            <Icon name="close" size={13} />
-          </button>
+          {!readOnly && (
+            <button onClick={() => onChange(items.filter((_, j) => j !== i))} className="shrink-0 p-1 text-ink-faint opacity-0 transition-opacity hover:text-accent group-hover:opacity-100" aria-label="Remove">
+              <Icon name="close" size={13} />
+            </button>
+          )}
         </li>
       ))}
     </ul>

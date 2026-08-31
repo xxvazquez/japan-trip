@@ -67,7 +67,16 @@ function Trips() {
 
   const live = trips.filter((t) => !t.archived);
   const archived = trips.filter((t) => t.archived);
+  const hasDemo = trips.some((t) => t.templateId === "demo");
   const auth = useAuth();
+
+  const addDemo = async () => {
+    setBusy(true);
+    const id = await createTrip({ name: "How this works", templateId: "demo" });
+    await switchTrip(id);
+    setBusy(false);
+    nav("/");
+  };
 
   return (
     <div className="space-y-6">
@@ -83,9 +92,16 @@ function Trips() {
       {supabaseEnabled && auth.user && activeId && <Sharing tripId={activeId} me={auth.user.id} />}
 
       {!creating ? (
-        <button onClick={() => setCreating(true)} className="btn-primary">
-          <Icon name="plus" size={16} /> New trip
-        </button>
+        <div className="flex flex-wrap items-center gap-4">
+          <button onClick={() => setCreating(true)} className="btn-primary">
+            <Icon name="plus" size={16} /> New trip
+          </button>
+          {!hasDemo && (
+            <button onClick={addDemo} disabled={busy} className="text-sm text-ink-faint hover:text-accent">
+              Add the demo tour
+            </button>
+          )}
+        </div>
       ) : (
         <div className="rounded-[3px] border border-line p-4">
           <p className="mb-3 text-sm font-medium">Start from…</p>
@@ -106,31 +122,41 @@ function Trips() {
       )}
 
       <ul className="space-y-2">
-        {live.map((t) => (
-          <li key={t.id} className="rounded-[3px] border border-line p-4">
-            <div className="flex items-center gap-2">
-              <Editable label="Trip name" value={t.name} onCommit={(v) => renameTrip(t.id, v || t.name)} className="font-medium" />
-              {t.id === activeId && <span className="text-2xs font-semibold uppercase tracking-wide text-accent">active</span>}
-            </div>
-            {t.subtitle && <p className="text-xs text-ink-faint">{t.subtitle}</p>}
-            <div className="mt-3 flex flex-wrap gap-1.5 text-sm">
-              {t.id !== activeId && (
-                <button onClick={() => switchTrip(t.id).then(() => nav("/"))} className="btn-sm">
-                  <Icon name="swap" size={14} /> Switch
+        {live.map((t) => {
+          const isDemo = t.templateId === "demo";
+          return (
+            <li key={t.id} className="rounded-[3px] border border-line p-4">
+              <div className="flex items-center gap-2">
+                {isDemo ? (
+                  <span className="font-medium">{t.name}</span>
+                ) : (
+                  <Editable label="Trip name" value={t.name} onCommit={(v) => renameTrip(t.id, v || t.name)} className="font-medium" />
+                )}
+                {t.id === activeId && <span className="text-2xs font-semibold uppercase tracking-wide text-accent">active</span>}
+                {isDemo && <span className="text-2xs uppercase tracking-wide text-ink-faint">read-only</span>}
+              </div>
+              {t.subtitle && <p className="text-xs text-ink-faint">{t.subtitle}</p>}
+              <div className="mt-3 flex flex-wrap gap-1.5 text-sm">
+                {t.id !== activeId && (
+                  <button onClick={() => switchTrip(t.id).then(() => nav("/"))} className="btn-sm">
+                    <Icon name="swap" size={14} /> Switch
+                  </button>
+                )}
+                {!isDemo && (
+                  <button onClick={() => duplicateTrip(t.id, `${t.name} copy`)} className="btn-sm">
+                    <Icon name="copy" size={14} /> Duplicate
+                  </button>
+                )}
+                <button onClick={() => archiveTrip(t.id, true)} className="btn-sm">
+                  <Icon name="archive" size={14} /> Archive
                 </button>
-              )}
-              <button onClick={() => duplicateTrip(t.id, `${t.name} copy`)} className="btn-sm">
-                <Icon name="copy" size={14} /> Duplicate
-              </button>
-              <button onClick={() => archiveTrip(t.id, true)} className="btn-sm">
-                <Icon name="archive" size={14} /> Archive
-              </button>
-              <ConfirmButton onConfirm={() => deleteTrip(t.id)} className="btn-sm text-accent">
-                <Icon name="trash" size={14} /> Delete
-              </ConfirmButton>
-            </div>
-          </li>
-        ))}
+                <ConfirmButton onConfirm={() => deleteTrip(t.id)} className="btn-sm text-accent">
+                  <Icon name="trash" size={14} /> Delete
+                </ConfirmButton>
+              </div>
+            </li>
+          );
+        })}
       </ul>
 
       {archived.length > 0 && (
@@ -210,10 +236,20 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
 
 /* ------------------------------------------------------------- Settings */
 
+function DemoNotice() {
+  return (
+    <p className="rounded-[3px] border border-line p-4 text-sm text-ink-soft">
+      This is the demo trip — it's read-only. Create a trip of your own from the{" "}
+      <span className="font-medium">Trips</span> tab to change any of this.
+    </p>
+  );
+}
+
 function Settings() {
   const data = useData();
   const mutate = useApp((s) => s.mutateTrip);
   if (!data) return null;
+  if (data.config.demo) return <DemoNotice />;
   const { config, meta } = data;
   const [advanced, setAdvanced] = useState(false);
 
@@ -317,6 +353,7 @@ function Modules() {
   const data = useData();
   const mutate = useApp((s) => s.mutateTrip);
   if (!data) return null;
+  if (data.config.demo) return <DemoNotice />;
   const modules = data.config.modules;
 
   return (
@@ -358,6 +395,7 @@ function Media() {
   const { setMedia, addGalleryMedia, removeGalleryMedia } = useApp();
   const [busy, setBusy] = useState(false);
   if (!data) return null;
+  if (data.config.demo) return <DemoNotice />;
   const { media } = data;
 
   const upload = async (fn: (item: Awaited<ReturnType<typeof fileToMediaItem>>) => void) => {
@@ -452,6 +490,7 @@ function Content() {
   const { removeEntity, moveEntity, addEntity } = useApp();
   const [open, setOpen] = useState<EntityType | null>(null);
   if (!data) return null;
+  if (data.config.demo) return <DemoNotice />;
 
   const rid = () => Math.random().toString(36).slice(2, 9);
   const blankFor = (type: EntityType): Record<string, unknown> => {

@@ -1,6 +1,5 @@
 import { create } from "zustand";
-import { buildBlank } from "@/templates/blank";
-import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
+import { buildFromTemplate, buildDemo } from "@/templates/registry";
 import { pickBackend, needsAuth, remapIds } from "@/lib/backend";
 import { subscribeTrip, unsubscribeTrip, markWritten } from "@/lib/realtime";
 import type { EntityType, MediaItem, TripData, TripSummary } from "@/core/types";
@@ -178,9 +177,9 @@ export const useApp = create<AppStore>((set, get) => {
         return;
       }
 
-      const tpl = TEMPLATES[0];
-      const seed = remapIds(tpl ? tpl.build() : buildBlank("My first trip"));
-      const summary = summarise("", tpl?.name ?? seed.meta.title, seed, tpl?.id);
+      // fresh account → drop in the read-only demo tour
+      const seed = remapIds(buildDemo());
+      const summary = summarise("", seed.meta.title, seed, "demo");
       const id = await be.createTrip(seed, summary);
       const withId = { ...summary, id };
       await be.setActive(id, [withId]);
@@ -192,9 +191,11 @@ export const useApp = create<AppStore>((set, get) => {
     createTrip: async ({ name, templateId }) => {
       const be = pickBackend();
       const data = remapIds(buildFromTemplate(templateId, name));
-      data.config.branding = name;
-      data.meta.title = name;
-      const summary = summarise("", name, data, templateId);
+      if (templateId !== "demo") {
+        data.config.branding = name;
+        data.meta.title = name;
+      }
+      const summary = summarise("", data.meta.title || name, data, templateId);
       const id = await be.createTrip(data, summary);
       const trips = [...get().trips, { ...summary, id }];
       set({ trips });
