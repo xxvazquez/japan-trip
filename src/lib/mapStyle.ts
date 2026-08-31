@@ -41,7 +41,6 @@ const LIGHT: Partial<Flavor> = {
   country_label: "#7a7f84",
   subplace_label: "#7a8088", subplace_label_halo: "#f2efe8",
   ocean_label: "#9fb0b2",
-  regular: "#5b616a", bold: "#3a3f45", italic: "#7a8088",
 };
 
 const DARK: Partial<Flavor> = {
@@ -68,7 +67,6 @@ const DARK: Partial<Flavor> = {
   country_label: "#9aa1a8",
   subplace_label: "#8b939b", subplace_label_halo: "#14181c",
   ocean_label: "#5f7176",
-  regular: "#aab1b8", bold: "#d6dade", italic: "#8b939b",
 };
 
 export function buildMapStyle(dark: boolean): StyleSpecification {

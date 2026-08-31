@@ -75,7 +75,7 @@ export function MapView({
     });
     m.addLayer({
       id: "cluster-count", type: "symbol", source: "places", filter: ["has", "point_count"],
-      layout: { "text-field": ["get", "point_count_abbreviated"], "text-font": ["Noto Sans Bold"], "text-size": 12 },
+      layout: { "text-field": ["get", "point_count_abbreviated"], "text-font": ["Noto Sans Medium"], "text-size": 12 },
       paint: { "text-color": halo },
     });
     m.addLayer({
