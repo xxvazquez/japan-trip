@@ -343,12 +343,7 @@ function Settings() {
           </select>
         </Row>
         <Row label="Google My Map">
-          <span className="inline-flex items-center gap-2">
-            <Editable label="Google My Map link" value={config.mapSourceUrl ?? ""} placeholder="paste the share link" onCommit={(v) => mutate((d) => { d.config.mapSourceUrl = v; })} />
-            {config.mapSourceUrl && /^https?:\/\//.test(config.mapSourceUrl) && (
-              <a href={config.mapSourceUrl} target="_blank" rel="noopener" className="shrink-0 font-medium text-accent">open</a>
-            )}
-          </span>
+          <Editable as="link" label="Google My Map link" value={config.mapSourceUrl ?? ""} placeholder="paste the share link" onCommit={(v) => mutate((d) => { d.config.mapSourceUrl = v; })} />
         </Row>
       </section>
 

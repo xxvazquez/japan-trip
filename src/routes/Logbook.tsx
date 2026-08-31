@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Page } from "@/components/Page";
 import { Editable } from "@/components/Editable";
 import { Icon } from "@/components/Icon";
@@ -19,7 +18,9 @@ export const OPTIONAL_SECTIONS = ["getting around", "luggage", "documents", "pac
 
 export default function Logbook() {
   const data = useData();
-  const [section, setSection] = useState<string>("stays");
+  const [params, setParams] = useSearchParams();
+  const section = params.get("s") ?? "stays";
+  const setSection = (s: string) => setParams({ s }, { replace: true });
   if (!data) return null;
 
   const hidden = data.config.hiddenLogbook ?? [];
@@ -104,9 +105,9 @@ function ListSection({ list }: { list: CustomList }) {
                   )}
                 </p>
               )}
-              {!ro && (
-                <p className="mt-0.5 text-xs text-ink-faint">
-                  <Editable label="Link" value={it.url ?? ""} placeholder="＋ Maps or web link" onCommit={(v) => set((l) => { l.items[i].url = v || undefined; })} />
+              {(it.url || !ro) && (
+                <p className="mt-0.5 text-xs">
+                  <Editable as="link" label="Link" value={it.url ?? ""} placeholder="＋ Maps or web link" onCommit={(v) => set((l) => { l.items[i].url = v || undefined; })} />
                 </p>
               )}
             </li>
@@ -195,7 +196,6 @@ function Luggage() {
       <p className="meta">Storage, lockers, forwarding, a bag left somewhere — whatever this trip needs.</p>
       {data.luggage.map((n) => {
         const p = (patch: Partial<LuggageNote>) => updateEntity<LuggageNote>("luggage", n.id, patch);
-        const link = gmapsLink(n.url);
         return (
           <div key={n.id} className="border-t-2 border-ink/20 pt-4 first:border-t-0 first:pt-0">
             <div className="flex items-baseline justify-between gap-2">
@@ -208,9 +208,8 @@ function Luggage() {
               <Editable as="textarea" label="Detail" value={n.detail ?? ""} placeholder="Where, when, how much…" onCommit={(v) => p({ detail: v || undefined })} />
             </p>
             <p className="mt-2 flex flex-wrap items-baseline gap-x-5 gap-y-1 text-xs text-ink-soft">
-              <span>When <Editable label="Date" value={n.date ?? ""} placeholder="—" onCommit={(v) => p({ date: v || undefined })} /></span>
-              <span>Map <Editable label="Google Maps link" value={n.url ?? ""} placeholder="＋ link" onCommit={(v) => p({ url: v || undefined })} /></span>
-              {link && <a href={link} target="_blank" rel="noopener" className="font-medium text-accent">open</a>}
+              <span>When <Editable as="date" label="Date" value={n.date ?? ""} placeholder="—" onCommit={(v) => p({ date: v || undefined })} /></span>
+              <span>Map <Editable as="link" label="Google Maps link" value={n.url ?? ""} placeholder="＋ link" onCommit={(v) => p({ url: v || undefined })} /></span>
             </p>
           </div>
         );

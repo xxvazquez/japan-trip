@@ -56,8 +56,8 @@ export default function Hotel() {
       <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-4">
         <Big label="Wifi" value={hotel.wifi ?? ""} onCommit={(v) => p({ wifi: v || undefined })} />
         <Big label="Door code" value={hotel.doorCode ?? ""} onCommit={(v) => p({ doorCode: v || undefined })} />
-        <Big label="Check-in" value={hotel.checkIn ?? ""} onCommit={(v) => p({ checkIn: v || undefined })} />
-        <Big label="Check-out" value={hotel.checkOut ?? ""} onCommit={(v) => p({ checkOut: v || undefined })} />
+        <Big label="Check-in" value={hotel.checkIn ?? ""} as="time" onCommit={(v) => p({ checkIn: v || undefined })} />
+        <Big label="Check-out" value={hotel.checkOut ?? ""} as="time" onCommit={(v) => p({ checkOut: v || undefined })} />
       </div>
 
       <section className="mt-7">
@@ -71,8 +71,8 @@ export default function Hotel() {
         <p className="kicker mb-2">Reference</p>
         <Row label="Phone" value={hotel.phone ?? ""} onCommit={(v) => p({ phone: v || undefined })} />
         <Row label="Booking ref" value={hotel.reservationRef ?? ""} onCommit={(v) => p({ reservationRef: v || undefined })} />
-        <Row label="Map link" value={hotel.mapUrl ?? ""} onCommit={(v) => p({ mapUrl: v || undefined })} placeholder="paste Google Maps link" />
-        <Row label="Website" value={hotel.url ?? ""} onCommit={(v) => p({ url: v || undefined })} />
+        <Row label="Map link" as="link" value={hotel.mapUrl ?? ""} onCommit={(v) => p({ mapUrl: v || undefined })} placeholder="paste Google Maps link" />
+        <Row label="Website" as="link" value={hotel.url ?? ""} onCommit={(v) => p({ url: v || undefined })} />
       </section>
 
       <section className="mt-7 border-t border-line pt-5">
@@ -85,22 +85,22 @@ export default function Hotel() {
   );
 }
 
-function Big({ label, value, onCommit }: { label: string; value: string; onCommit: (v: string) => void }) {
+function Big({ label, value, onCommit, as }: { label: string; value: string; onCommit: (v: string) => void; as?: "time" }) {
   return (
     <div>
       <p className="kicker">{label}</p>
       <p className="mt-0.5 text-lg font-medium">
-        <Editable label={label} value={value} placeholder="—" onCommit={onCommit} />
+        <Editable as={as} label={label} value={value} placeholder="—" onCommit={onCommit} />
       </p>
     </div>
   );
 }
 
-function Row({ label, value, onCommit, placeholder }: { label: string; value: string; onCommit: (v: string) => void; placeholder?: string }) {
+function Row({ label, value, onCommit, placeholder, as }: { label: string; value: string; onCommit: (v: string) => void; placeholder?: string; as?: "link" }) {
   return (
     <div className="flex items-baseline justify-between gap-4 border-b border-line py-2 text-sm last:border-b-0">
       <span className="shrink-0 text-ink-soft">{label}</span>
-      <span className="min-w-0 text-right"><Editable label={label} value={value} onCommit={onCommit} placeholder={placeholder ?? "—"} /></span>
+      <span className="min-w-0 text-right"><Editable as={as} label={label} value={value} onCommit={onCommit} placeholder={placeholder ?? "—"} /></span>
     </div>
   );
 }

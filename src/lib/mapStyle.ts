@@ -4,9 +4,10 @@ import type { StyleSpecification } from "maplibre-gl";
 /**
  * A restrained editorial basemap: one warm land tone, hairline roads, muted
  * water, sparse labels. Built on Protomaps' free planet tiles — no key, no bill.
- * Swap PMTILES for a self-hosted regional extract later; nothing else changes.
+ * Hosted on Source Cooperative (the demo-bucket URL was retired). Swap PMTILES
+ * for a self-hosted regional extract later; nothing else changes.
  */
-export const PMTILES = "pmtiles://https://demo-bucket.protomaps.com/v4.pmtiles";
+export const PMTILES = "pmtiles://https://data.source.coop/protomaps/openstreetmap/v4.pmtiles";
 const ATTRIB = '<a href="https://protomaps.com">Protomaps</a> · <a href="https://openstreetmap.org">OpenStreetMap</a>';
 const GLYPHS = "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf";
 
