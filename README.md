@@ -15,14 +15,15 @@ luggage, the documents. It lives at:
 
 ## Getting in
 
-1. Open the link. Sign in with **Google**.
-2. You each sign in with **your own** Google account.
-3. One of you owns the trip. That person goes to **Manage → share** and adds the
-   other's email. From then on you both see and edit the **same trip**, and
-   changes show up on the other phone within a second or two.
+1. Open the link. Sign in with **Google** — each person uses their **own**
+   Google account.
+2. One account owns the trip. From that account, go to **Manage → share** and
+   add the other person's email.
+3. After that you both see and edit the **same trip**, and changes show up on the
+   other device within a second or two.
 
-If your boyfriend signs in before being added, he'll just see an empty account —
-share the trip with him and it appears.
+If someone signs in before being added to the trip, they'll just see an empty
+account — share the trip with that email and it appears on their next reload.
 
 ## On your phone
 
@@ -49,7 +50,7 @@ like a normal app, full screen. Do this on both phones.
 **Logbook** — the reference drawer. Use the menu at the top to jump between:
 stays · getting around · luggage · emergency numbers · documents · packing ·
 notes. In **documents** you can attach the actual PDFs / photos (passport scans,
-insurance, tickets) — those stay only on your phone.
+insurance, tickets) — those stay only on the device they were added on.
 
 ## Editing anything
 
