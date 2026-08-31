@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { useReadOnly } from "@/lib/readonly";
 
 type Base = {
   value: string;
@@ -20,6 +21,7 @@ type Props =
 export function Editable(props: Props) {
   const { value, onCommit, placeholder = "Add…", label, className = "" } = props;
   const as = props.as ?? "text";
+  const readOnly = useReadOnly();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const ref = useRef<HTMLInputElement & HTMLTextAreaElement & HTMLSelectElement>(null);
@@ -41,6 +43,11 @@ export function Editable(props: Props) {
     setDraft(value);
     setEditing(false);
   };
+
+  if (readOnly) {
+    if (!value) return null;
+    return <span className={`inline whitespace-pre-wrap ${className}`}>{value}</span>;
+  }
 
   if (!editing) {
     const empty = !value;

@@ -31,6 +31,10 @@ export function remapIds(data: TripData): TripData {
     day.legId = R(day.legId)!;
     day.hotelId = R(day.hotelId);
     day.journeyId = R(day.journeyId);
+    for (const p of day.places ?? []) {
+      p.id = fresh(p.id)!;
+      if (p.placeId) p.placeId = R(p.placeId);
+    }
   }
   for (const j of d.journeys) {
     j.fromLegId = R(j.fromLegId);

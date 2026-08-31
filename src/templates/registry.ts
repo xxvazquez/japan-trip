@@ -1,6 +1,8 @@
 import type { TripData } from "@/core/types";
 import { buildBlank } from "./blank";
-import { buildTemplate as buildJapan2026 } from "./japan-2026";
+import { buildDemo } from "./demo";
+
+export { buildDemo };
 
 export interface TemplateEntry {
   id: string;
@@ -10,19 +12,14 @@ export interface TemplateEntry {
 }
 
 /**
- * Available templates. Optional — the app works with an empty registry (new
- * trips are then always blank). Add an entry to offer another starting point.
+ * Templates shown in "New trip → Start from…". Empty on purpose — a new trip is
+ * always blank, then trimmed in Manage → Modules. The read-only demo trip
+ * (see ./demo) is what shows how a filled-in trip looks.
  */
-export const TEMPLATES: TemplateEntry[] = [
-  {
-    id: "japan-2026",
-    name: "Japan 2026 · demo",
-    subtitle: "a full worked 24-day example — trim it or ignore it",
-    build: buildJapan2026,
-  },
-];
+export const TEMPLATES: TemplateEntry[] = [];
 
 export function buildFromTemplate(id: string | undefined, fallbackName = "New trip"): TripData {
+  if (id === "demo") return buildDemo();
   const t = id ? TEMPLATES.find((x) => x.id === id) : undefined;
   return t ? t.build() : buildBlank(fallbackName);
 }

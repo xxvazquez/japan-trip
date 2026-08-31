@@ -16,6 +16,7 @@ import { Page } from "@/components/Page";
 import { Icon, type IconName } from "@/components/Icon";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
+import { useReadOnly } from "@/lib/readonly";
 import { tripClock, fmtDate, dayKind, legForDate, addDays } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import type { Day, Leg, TripData } from "@/core/types";
@@ -30,6 +31,7 @@ const KIND: Record<string, { label: string; icon: IconName }> = {
 export default function Plan() {
   const data = useData();
   const addEntity = useApp((s) => s.addEntity);
+  const readOnly = useReadOnly();
   if (!data) return null;
 
   const c = tripClock(data);
@@ -66,19 +68,19 @@ export default function Plan() {
 
       <div className="space-y-10">
         {data.legs.map((leg) => (
-          <LegBlock key={leg.id} data={data} leg={leg} todayISO={c.todayISO} />
+          <LegBlock key={leg.id} data={data} leg={leg} todayISO={c.todayISO} readOnly={readOnly} />
         ))}
         {data.legs.length === 0 && (
           <Empty
             what="No stays yet"
-            hint="Add where you're based — Tokyo, Kyoto — and the days slot underneath."
+            hint="Add where you're based, and the days slot underneath."
             to="/manage"
             cta="Set up stays"
           />
         )}
       </div>
 
-      {data.legs.length > 0 && (
+      {data.legs.length > 0 && !readOnly && (
         <button
           onClick={() => {
             const lastLeg = data.legs.at(-1)!;
@@ -105,7 +107,7 @@ function Empty({ what, hint, to, cta }: { what: string; hint: string; to: string
   );
 }
 
-function LegBlock({ data, leg, todayISO }: { data: TripData; leg: Leg; todayISO: string }) {
+function LegBlock({ data, leg, todayISO, readOnly }: { data: TripData; leg: Leg; todayISO: string; readOnly: boolean }) {
   const reorderDays = useApp((s) => s.reorderDays);
   const loc = data.config.locale;
   const hex = legHex(leg.color);
@@ -145,22 +147,31 @@ function LegBlock({ data, leg, todayISO }: { data: TripData; leg: Leg; todayISO:
         </p>
       </div>
 
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-        <SortableContext items={order} strategy={verticalListSortingStrategy}>
-          <ul>
-            {ordered.map((d) => (
-              <DayRow key={d.id} data={data} day={d} today={d.date === todayISO} loc={loc} hex={hex} />
-            ))}
-            {ordered.length === 0 && <li className="meta py-3">No days in this stay yet.</li>}
-          </ul>
-        </SortableContext>
-      </DndContext>
+      {readOnly ? (
+        <ul>
+          {ordered.map((d) => (
+            <DayRow key={d.id} data={data} day={d} today={d.date === todayISO} loc={loc} hex={hex} readOnly />
+          ))}
+          {ordered.length === 0 && <li className="meta py-3">No days in this stay yet.</li>}
+        </ul>
+      ) : (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+          <SortableContext items={order} strategy={verticalListSortingStrategy}>
+            <ul>
+              {ordered.map((d) => (
+                <DayRow key={d.id} data={data} day={d} today={d.date === todayISO} loc={loc} hex={hex} readOnly={false} />
+              ))}
+              {ordered.length === 0 && <li className="meta py-3">No days in this stay yet.</li>}
+            </ul>
+          </SortableContext>
+        </DndContext>
+      )}
     </section>
   );
 }
 
-function DayRow({ data, day, today, loc, hex }: { data: TripData; day: Day; today: boolean; loc: string; hex: string }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: day.id });
+function DayRow({ data, day, today, loc, hex, readOnly }: { data: TripData; day: Day; today: boolean; loc: string; hex: string; readOnly: boolean }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: day.id, disabled: readOnly });
   const k = KIND[dayKind(day, data)];
   return (
     <li
@@ -169,14 +180,18 @@ function DayRow({ data, day, today, loc, hex }: { data: TripData; day: Day; toda
       className={`relative flex items-center border-b border-line bg-bg ${isDragging ? "z-10 opacity-70 shadow-sm" : ""}`}
     >
       {today && <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: hex }} />}
-      <button
-        {...attributes}
-        {...listeners}
-        className="shrink-0 cursor-grab touch-none px-2 py-4 text-ink-faint active:cursor-grabbing"
-        aria-label="Drag to reorder"
-      >
-        <GripIcon />
-      </button>
+      {readOnly ? (
+        <span className="shrink-0 px-2 py-4" />
+      ) : (
+        <button
+          {...attributes}
+          {...listeners}
+          className="shrink-0 cursor-grab touch-none px-2 py-4 text-ink-faint active:cursor-grabbing"
+          aria-label="Drag to reorder"
+        >
+          <GripIcon />
+        </button>
+      )}
       <Link to={`/day/${day.id}`} className="group flex min-w-0 flex-1 items-center gap-3 py-3.5 pr-1">
         <span className={`w-11 shrink-0 whitespace-nowrap text-xs tabular-nums ${today ? "font-bold text-ink" : "text-ink-soft"}`}>
           {fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}

@@ -46,6 +46,8 @@ export interface TripConfig {
   mapSourceUrl?: string;
   /** ISO timestamp of the last My Maps import */
   mapSyncedAt?: string;
+  /** the built-in read-only tour trip — every screen locks editing */
+  demo?: boolean;
 }
 
 /** A branding image, stored inline as a (resized) data URL so it works offline. */

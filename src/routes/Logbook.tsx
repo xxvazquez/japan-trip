@@ -5,6 +5,7 @@ import { Editable } from "@/components/Editable";
 import { Icon } from "@/components/Icon";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
+import { useReadOnly } from "@/lib/readonly";
 import { fmtDate } from "@/lib/dates";
 import { putFile, fileUrl, removeFile } from "@/lib/fileStore";
 import { gmapsLink } from "@/lib/maps";
@@ -109,6 +110,7 @@ function GettingAround() {
 
 function Luggage() {
   const data = useData()!;
+  const ro = useReadOnly();
   const updateEntity = useApp((s) => s.updateEntity);
   const addEntity = useApp((s) => s.addEntity);
   const removeEntity = useApp((s) => s.removeEntity);
@@ -125,7 +127,7 @@ function Luggage() {
               <h3 className="font-display text-lg">
                 <Editable label="Title" value={n.title} placeholder="e.g. Coin lockers" onCommit={(v) => p({ title: v || "Untitled" })} />
               </h3>
-              <button onClick={() => removeEntity("luggage", n.id)} className="shrink-0 text-xs text-ink-faint hover:text-accent">remove</button>
+              {!ro && <button onClick={() => removeEntity("luggage", n.id)} className="shrink-0 text-xs text-ink-faint hover:text-accent">remove</button>}
             </div>
             <p className="mt-1.5 text-sm leading-relaxed text-ink">
               <Editable as="textarea" label="Detail" value={n.detail ?? ""} placeholder="Where, when, how much…" onCommit={(v) => p({ detail: v || undefined })} />
@@ -138,9 +140,11 @@ function Luggage() {
           </div>
         );
       })}
-      <button onClick={() => addEntity("luggage", { id: `lug-${rid()}`, title: "New note" } as never)} className="action">
-        <Icon name="plus" size={14} /> Add
-      </button>
+      {!ro && (
+        <button onClick={() => addEntity("luggage", { id: `lug-${rid()}`, title: "New note" } as never)} className="action">
+          <Icon name="plus" size={14} /> Add
+        </button>
+      )}
     </div>
   );
 }
@@ -217,6 +221,7 @@ function Documents() {
 }
 
 function Attachments({ doc, onChange }: { doc: Doc; onChange: (files: DocFile[]) => void }) {
+  const ro = useReadOnly();
   const files = doc.files ?? [];
   const add = async (fileList: FileList | null) => {
     if (!fileList) return;
@@ -233,19 +238,22 @@ function Attachments({ doc, onChange }: { doc: Doc; onChange: (files: DocFile[])
           <Icon name="vault" size={14} className="shrink-0 text-ink-soft" />
           <button onClick={() => open(f)} className="min-w-0 flex-1 truncate text-left font-medium hover:underline">{f.name}</button>
           {f.size ? <span className="shrink-0 text-xs text-ink-faint">{(f.size / 1048576).toFixed(1)} MB</span> : null}
-          <button onClick={() => remove(f)} className="shrink-0 p-1 text-ink-faint opacity-0 hover:text-accent group-hover:opacity-100" aria-label="Remove"><Icon name="close" size={12} /></button>
+          {!ro && <button onClick={() => remove(f)} className="shrink-0 p-1 text-ink-faint opacity-0 hover:text-accent group-hover:opacity-100" aria-label="Remove"><Icon name="close" size={12} /></button>}
         </div>
       ))}
-      <label className="action mt-2 cursor-pointer">
-        <Icon name="plus" size={14} /> Attach a file
-        <input type="file" accept=".pdf,image/*" multiple className="hidden" onChange={(e) => { void add(e.target.files); e.target.value = ""; }} />
-      </label>
+      {!ro && (
+        <label className="action mt-2 cursor-pointer">
+          <Icon name="plus" size={14} /> Attach a file
+          <input type="file" accept=".pdf,image/*" multiple className="hidden" onChange={(e) => { void add(e.target.files); e.target.value = ""; }} />
+        </label>
+      )}
     </div>
   );
 }
 
 function Packing() {
   const data = useData()!;
+  const ro = useReadOnly();
   const update = useApp((s) => s.updateEntity);
   if (data.packing.length === 0) return <Empty what="No packing list" hint="Add items in Manage." />;
 
@@ -270,7 +278,7 @@ function Packing() {
                 {group}
                 <span className={`text-xs tabular-nums ${g === items.length ? "text-accent" : "text-ink-faint"}`}>{g}/{items.length}</span>
               </p>
-              <ul>{items.map((it) => <PackRow key={it.id} item={it} onToggle={(v) => update<PackingItem>("packing", it.id, { done: v })} />)}</ul>
+              <ul>{items.map((it) => <PackRow key={it.id} item={it} onToggle={(v) => update<PackingItem>("packing", it.id, { done: v })} disabled={ro} />)}</ul>
             </div>
           );
         })}
@@ -279,11 +287,11 @@ function Packing() {
   );
 }
 
-function PackRow({ item, onToggle }: { item: PackingItem; onToggle: (v: boolean) => void }) {
+function PackRow({ item, onToggle, disabled }: { item: PackingItem; onToggle: (v: boolean) => void; disabled?: boolean }) {
   return (
     <li>
-      <label className="flex cursor-pointer items-center gap-3 border-t border-line py-2.5 text-sm first:border-0">
-        <input type="checkbox" checked={!!item.done} onChange={(e) => onToggle(e.target.checked)} className="h-[18px] w-[18px] shrink-0 accent-accent" />
+      <label className={`flex items-center gap-3 border-t border-line py-2.5 text-sm first:border-0 ${disabled ? "" : "cursor-pointer"}`}>
+        <input type="checkbox" checked={!!item.done} disabled={disabled} onChange={(e) => onToggle(e.target.checked)} className="h-[18px] w-[18px] shrink-0 accent-accent" />
         <span className={item.done ? "text-ink-faint line-through" : "text-ink"}>{item.label}</span>
       </label>
     </li>

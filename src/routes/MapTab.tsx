@@ -9,6 +9,7 @@ import { tripClock, fmtDate } from "@/lib/dates";
 import { gmapsLink } from "@/lib/maps";
 import { geocode, type GeoResult } from "@/lib/geocode";
 import { useMode, isDark } from "@/lib/mode";
+import { useReadOnly } from "@/lib/readonly";
 import type { Day, DayPlace, Place, TripData } from "@/core/types";
 
 const FALLBACK = "#5f7f9c";
@@ -38,6 +39,7 @@ export default function MapTab() {
   const removeEntity = useApp((s) => s.removeEntity);
   const addEntity = useApp((s) => s.addEntity);
   const syncMyMap = useApp((s) => s.syncMyMap);
+  const readOnly = useReadOnly();
   const [mode] = useMode();
   const dark = isDark(mode);
 
@@ -159,6 +161,7 @@ export default function MapTab() {
     else setSelected(null);
   };
   const onLongPress = (lat: number, lng: number) => {
+    if (readOnly) return;
     setAdding(true);
     setSelected(null);
     setPending({ lat, lng, name: "" });
@@ -226,7 +229,7 @@ export default function MapTab() {
               <Icon name="down" size={13} className="pointer-events-none absolute right-0 text-ink-faint" />
             </div>
           </div>
-          {adding ? (
+          {readOnly ? null : adding ? (
             <button onClick={cancelAdd} className="shrink-0 text-sm text-ink-soft hover:text-accent">
               Cancel
             </button>
@@ -438,6 +441,7 @@ function PlaceRow({
   onAddToDay: (dayId: string) => void;
   onRemove: () => void;
 }) {
+  const readOnly = useReadOnly();
   const link = gmapsLink(place.url || place.name);
   const day = dayId ? days.find((d) => d.id === dayId) : undefined;
   const li = useRef<HTMLLIElement>(null);
@@ -464,19 +468,23 @@ function PlaceRow({
 
       {open && (
         <div className="pb-3.5 pl-5 pr-1">
-          {place.source && (
+          {place.source && !readOnly && (
             <div className="mb-2">
               <Editable label="Name" value={place.name} onCommit={onName} className="text-sm font-medium" />
             </div>
           )}
-          <Editable
-            as="textarea"
-            label="Note"
-            value={place.note ?? ""}
-            placeholder="＋ a note for this place"
-            onCommit={onNote}
-            className="text-sm text-ink-soft"
-          />
+          {readOnly ? (
+            place.note && <p className="whitespace-pre-wrap text-sm text-ink-soft">{place.note}</p>
+          ) : (
+            <Editable
+              as="textarea"
+              label="Note"
+              value={place.note ?? ""}
+              placeholder="＋ a note for this place"
+              onCommit={onNote}
+              className="text-sm text-ink-soft"
+            />
+          )}
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm">
             {link && (
               <a href={link} target="_blank" rel="noopener" className="font-medium text-accent">
@@ -488,26 +496,28 @@ function PlaceRow({
                 View day
               </Link>
             ) : (
-              <label className="text-ink-soft">
-                <span className="sr-only">Add to a day</span>
-                <select
-                  defaultValue=""
-                  onChange={(e) => e.target.value && onAddToDay(e.target.value)}
-                  className="cursor-pointer bg-transparent focus:outline-none"
-                >
-                  <option value="">Add to a day…</option>
-                  {[...days]
-                    .sort((a, b) => a.date.localeCompare(b.date))
-                    .map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {fmtDate(d.date, loc, { weekday: "short", day: "numeric", month: "short" })}
-                        {d.title ? ` · ${d.title}` : ""}
-                      </option>
-                    ))}
-                </select>
-              </label>
+              !readOnly && (
+                <label className="text-ink-soft">
+                  <span className="sr-only">Add to a day</span>
+                  <select
+                    defaultValue=""
+                    onChange={(e) => e.target.value && onAddToDay(e.target.value)}
+                    className="cursor-pointer bg-transparent focus:outline-none"
+                  >
+                    <option value="">Add to a day…</option>
+                    {[...days]
+                      .sort((a, b) => a.date.localeCompare(b.date))
+                      .map((d) => (
+                        <option key={d.id} value={d.id}>
+                          {fmtDate(d.date, loc, { weekday: "short", day: "numeric", month: "short" })}
+                          {d.title ? ` · ${d.title}` : ""}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+              )
             )}
-            {!place.source && (
+            {!place.source && !readOnly && (
               <button onClick={onRemove} className="text-ink-faint hover:text-accent">
                 Remove
               </button>
