@@ -29,7 +29,7 @@ export function Page({
 export function PageTitle({ kicker, children }: { kicker?: string; children: ReactNode }) {
   return (
     <header className="mb-7">
-      {kicker && <p className="kicker mb-2">{kicker}</p>}
+      {kicker && <p className="eyebrow mb-1.5">{kicker}</p>}
       <h1 className="text-display">{children}</h1>
     </header>
   );

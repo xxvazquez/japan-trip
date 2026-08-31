@@ -131,27 +131,57 @@ html.dark {
     background: rgb(var(--c-gold) / 0.1);
   }
 
-  /* ---- hierarchy utilities ---- */
+  /* ---- hierarchy utilities ---------------------------------------- *
+   * L1  screen identity  — font-display 24-28px ink, inline per screen
+   * L2  item names       — .lead
+   * L2  paired values    — .value  (right column)
+   * L3  section headers  — .kicker (inside .section-head)
+   * L3  labels/metadata  — .meta / .row-label
+   * L4  placeholders     — text-ink-faint, nothing else
+   * -------------------------------------------------------------- */
+
+  /* L3 section header: unmistakable, owns the space above it, no rule beneath */
+  .section-head {
+    @apply mb-2 mt-9 flex items-baseline justify-between gap-3;
+  }
   .kicker {
-    @apply text-2xs font-sans font-semibold uppercase tracking-[0.09em] text-ink-soft;
+    @apply font-sans text-[0.8125rem] font-semibold uppercase tracking-[0.055em] text-ink;
   }
-  /* a key value that must be recognised at a glance */
+  /* a quiet eyebrow sitting above an L1 title */
+  .eyebrow {
+    @apply font-sans text-2xs font-semibold uppercase tracking-[0.09em] text-ink-faint;
+  }
+
+  /* L2 — an item name the eye scans for */
   .lead {
-    @apply text-[1.0625rem] font-medium leading-snug text-ink;
+    @apply font-sans text-[1rem] font-semibold leading-snug text-ink;
   }
-  /* compact secondary metadata — readable, not shouting */
+  /* L2 — a value paired with a label (usually right-aligned) */
+  .value {
+    @apply font-sans text-[0.9375rem] font-medium leading-snug text-ink;
+  }
+
+  /* L3 — compact secondary metadata, readable but quiet */
   .meta {
     @apply text-[0.8125rem] leading-normal text-ink-soft;
   }
-  /* section heading that anchors a block of content */
-  .section-head {
-    @apply mb-3 flex items-baseline justify-between gap-3 border-b border-ink/15 pb-1.5;
+
+  /* a label / value list row — hairline between peers only */
+  .row {
+    @apply flex items-baseline justify-between gap-4 border-b border-line py-2.5 last:border-b-0;
   }
+  .row-label {
+    @apply shrink-0 text-[0.8125rem] text-ink-soft;
+  }
+  .row-value {
+    @apply min-w-0 text-right;
+  }
+
   /* a genuinely-important unresolved value */
   .flag {
     @apply text-accent;
   }
-  /* an inline add / action affordance the eye can find */
+  /* an inline add / secondary action the eye can find */
   .action {
     @apply inline-flex items-center gap-1.5 text-sm font-medium text-accent transition-opacity hover:opacity-70;
   }

@@ -57,7 +57,7 @@ export function AppShell() {
       </header>
 
       {demo && (
-        <div className="sticky top-14 z-20 border-b border-line bg-accent/10 px-4 py-1.5 text-center text-xs text-ink-soft sm:px-6">
+        <div className="sticky top-14 z-20 border-b border-line bg-surface-2 px-4 py-1.5 text-center text-xs text-ink-soft sm:px-6">
           Demo trip — read-only. Make your own from <Link to="/manage" className="font-medium text-accent">Manage → New trip</Link>.
         </div>
       )}

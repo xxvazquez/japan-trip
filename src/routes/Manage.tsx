@@ -23,16 +23,16 @@ export default function Manage() {
   return (
     <Page width="page">
       <PageTitle kicker={APP_NAME}>Manage</PageTitle>
-      <p className="-mt-4 mb-6 text-sm text-ink-faint">
+      <p className="-mt-4 mb-6 text-sm text-ink-soft">
         Structure only. Edit the details themselves inline on each page.
       </p>
-      <div className="mb-6 flex gap-5 overflow-x-auto border-b border-line">
+      <div className="mb-2 flex gap-5 overflow-x-auto border-b border-line">
         {TABS.map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={`shrink-0 border-b-2 pb-2 text-sm capitalize transition-colors ${
-              tab === t ? "border-ink text-ink" : "border-transparent text-ink-faint hover:text-ink-soft"
+              tab === t ? "border-ink font-semibold text-ink" : "border-transparent text-ink-soft hover:text-ink"
             }`}
           >
             {t}
@@ -79,103 +79,118 @@ function Trips() {
   };
 
   return (
-    <div className="space-y-6">
+    <div>
       {supabaseEnabled && auth.user && (
-        <div className="flex items-center justify-between rounded-[3px] border border-line px-4 py-3 text-sm">
-          <span className="min-w-0 truncate">
-            <span className="text-ink-faint">Signed in · </span>
+        <div className="row">
+          <span className="min-w-0 truncate text-sm">
+            <span className="text-ink-soft">Signed in · </span>
             {auth.user.email}
           </span>
-          <button onClick={() => signOut()} className="btn-sm shrink-0">Sign out</button>
+          <button onClick={() => signOut()} className="shrink-0 text-sm text-ink-soft hover:text-accent">Sign out</button>
         </div>
       )}
       {supabaseEnabled && auth.user && activeId && <Sharing tripId={activeId} me={auth.user.id} />}
 
       {!creating ? (
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="mb-3 mt-6 flex flex-wrap items-center gap-4">
           <button onClick={() => setCreating(true)} className="btn-primary">
             <Icon name="plus" size={16} /> New trip
           </button>
           {!hasDemo && (
-            <button onClick={addDemo} disabled={busy} className="text-sm text-ink-faint hover:text-accent">
+            <button onClick={addDemo} disabled={busy} className="text-sm text-ink-soft hover:text-accent">
               Add the demo tour
             </button>
           )}
         </div>
       ) : (
-        <div className="rounded-[3px] border border-line p-4">
-          <p className="mb-3 text-sm font-medium">Start from…</p>
+        <div className="mb-2 border-y border-line py-3">
+          <p className="kicker mb-2 !mt-0">Start from</p>
           <div className="flex flex-col gap-2">
-            <button onClick={() => make()} disabled={busy} className="btn justify-start">
+            <button onClick={() => make()} disabled={busy} className="action justify-start">
               <Icon name="plus" size={15} /> Empty template
-              <span className="ml-1 hidden text-xs text-ink-faint sm:inline">— blank; add days, hide sections you don't want</span>
+              <span className="ml-1 hidden text-xs text-ink-soft sm:inline">— blank; add days, hide sections you don't want</span>
             </button>
             {TEMPLATES.map((t) => (
-              <button key={t.id} onClick={() => make(t.id)} disabled={busy} className="btn justify-start">
+              <button key={t.id} onClick={() => make(t.id)} disabled={busy} className="action justify-start">
                 <Icon name="copy" size={15} /> {t.name}
-                <span className="ml-1 hidden text-xs text-ink-faint sm:inline">— {t.subtitle}</span>
+                <span className="ml-1 hidden text-xs text-ink-soft sm:inline">— {t.subtitle}</span>
               </button>
             ))}
           </div>
-          <button onClick={() => setCreating(false)} className="mt-3 text-xs text-ink-faint">Cancel</button>
+          <button onClick={() => setCreating(false)} className="mt-3 text-xs text-ink-soft">Cancel</button>
         </div>
       )}
 
-      <ul className="space-y-2">
+      <ul>
         {live.map((t) => {
           const isDemo = t.templateId === "demo";
           return (
-            <li key={t.id} className="rounded-[3px] border border-line p-4">
-              <div className="flex items-center gap-2">
+            <li key={t.id} className="flex items-baseline gap-3 border-b border-line py-3">
+              <span className="min-w-0 flex-1">
                 {isDemo ? (
-                  <span className="font-medium">{t.name}</span>
+                  <span className="lead">{t.name}</span>
                 ) : (
-                  <Editable label="Trip name" value={t.name} onCommit={(v) => renameTrip(t.id, v || t.name)} className="font-medium" />
+                  <Editable label="Trip name" value={t.name} onCommit={(v) => renameTrip(t.id, v || t.name)} className="lead" />
                 )}
-                {t.id === activeId && <span className="text-2xs font-semibold uppercase tracking-wide text-accent">active</span>}
-                {isDemo && <span className="text-2xs uppercase tracking-wide text-ink-faint">read-only</span>}
-              </div>
-              {t.subtitle && <p className="text-xs text-ink-faint">{t.subtitle}</p>}
-              <div className="mt-3 flex flex-wrap gap-1.5 text-sm">
-                {t.id !== activeId && (
-                  <button onClick={() => switchTrip(t.id).then(() => nav("/"))} className="btn-sm">
-                    <Icon name="swap" size={14} /> Switch
+                {t.id === activeId && <span className="ml-2 align-middle text-2xs font-semibold uppercase tracking-wide text-accent">active</span>}
+                {isDemo && <span className="ml-2 align-middle text-2xs uppercase tracking-wide text-ink-faint">read-only</span>}
+                {t.subtitle && <span className="meta mt-0.5 block">{t.subtitle}</span>}
+              </span>
+              <span className="flex shrink-0 items-center gap-1">
+                {t.id !== activeId ? (
+                  <button onClick={() => switchTrip(t.id).then(() => nav("/"))} className="text-sm font-semibold text-accent hover:opacity-70">
+                    Switch
                   </button>
+                ) : (
+                  <span className="text-xs text-ink-faint">open</span>
                 )}
-                {!isDemo && (
-                  <button onClick={() => duplicateTrip(t.id, `${t.name} copy`)} className="btn-sm">
-                    <Icon name="copy" size={14} /> Duplicate
-                  </button>
-                )}
-                <button onClick={() => archiveTrip(t.id, true)} className="btn-sm">
-                  <Icon name="archive" size={14} /> Archive
-                </button>
-                <ConfirmButton onConfirm={() => deleteTrip(t.id)} className="btn-sm text-accent">
-                  <Icon name="trash" size={14} /> Delete
-                </ConfirmButton>
-              </div>
+                <RowMenu>
+                  {!isDemo && <button onClick={() => duplicateTrip(t.id, `${t.name} copy`)} className="menu-item">Duplicate</button>}
+                  <button onClick={() => archiveTrip(t.id, true)} className="menu-item">Archive</button>
+                  <ConfirmButton onConfirm={() => deleteTrip(t.id)} className="menu-item text-accent">Delete</ConfirmButton>
+                </RowMenu>
+              </span>
             </li>
           );
         })}
       </ul>
 
       {archived.length > 0 && (
-        <div>
-          <h3 className="kicker mb-2">Archived</h3>
-          <ul className="space-y-2">
+        <>
+          <div className="section-head"><p className="kicker">Archived</p></div>
+          <ul>
             {archived.map((t) => (
-              <li key={t.id} className="flex items-center justify-between rounded-[3px] border border-dashed border-line px-4 py-3 text-sm">
-                <span className="text-ink-faint">{t.name}</span>
-                <div className="flex gap-1.5">
-                  <button onClick={() => archiveTrip(t.id, false)} className="btn-sm">Restore</button>
-                  <ConfirmButton onConfirm={() => deleteTrip(t.id)} className="btn-sm text-accent">Delete</ConfirmButton>
+              <li key={t.id} className="flex items-center justify-between border-b border-line py-2.5 text-sm">
+                <span className="text-ink-soft">{t.name}</span>
+                <div className="flex items-center gap-3">
+                  <button onClick={() => archiveTrip(t.id, false)} className="text-accent hover:opacity-70">Restore</button>
+                  <ConfirmButton onConfirm={() => deleteTrip(t.id)} className="text-ink-faint hover:text-accent">Delete</ConfirmButton>
                 </div>
               </li>
             ))}
           </ul>
-        </div>
+        </>
       )}
     </div>
+  );
+}
+
+function RowMenu({ children }: { children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span className="relative">
+      <button onClick={() => setOpen((v) => !v)} aria-label="More" className="grid h-7 w-7 place-items-center text-ink-soft hover:text-ink">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden><circle cx="3" cy="8" r="1.4" /><circle cx="8" cy="8" r="1.4" /><circle cx="13" cy="8" r="1.4" /></svg>
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 z-30 mt-1 flex min-w-[8rem] flex-col border border-line bg-bg py-1 text-sm shadow-sm [&_.menu-item]:px-3 [&_.menu-item]:py-1.5 [&_.menu-item]:text-left [&_.menu-item:hover]:bg-surface-2">
+            {children}
+          </div>
+        </>
+      )}
+    </span>
   );
 }
 
@@ -204,14 +219,14 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
   };
 
   return (
-    <div className="rounded-[3px] border border-line p-4">
-      <h3 className="kicker mb-2">Shared with</h3>
+    <div>
+      <div className="section-head"><p className="kicker">Shared with</p></div>
       <ul className="mb-3 space-y-1.5 text-sm">
         {members.map((m) => (
           <li key={m.userId} className="flex items-center justify-between gap-2">
-            <span className="truncate">{m.userId === me ? "You" : m.userId.slice(0, 8) + "…"} <span className="text-ink-faint">· {m.role}</span></span>
+            <span className="truncate">{m.userId === me ? "You" : m.userId.slice(0, 8) + "…"} <span className="text-ink-soft">· {m.role}</span></span>
             {iAmOwner && m.role !== "owner" && (
-              <button onClick={() => removeMember(tripId, m.userId).then(reload)} className="text-xs text-ink-faint hover:text-accent">remove</button>
+              <button onClick={() => removeMember(tripId, m.userId).then(reload)} className="text-xs text-ink-soft hover:text-accent">remove</button>
             )}
           </li>
         ))}
@@ -227,7 +242,7 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
             />
             <button onClick={invite} disabled={busy} className="btn-sm shrink-0">Invite</button>
           </div>
-          {msg && <p className="mt-1.5 text-xs text-ink-faint">{msg}</p>}
+          {msg && <p className="mt-1.5 text-xs text-ink-soft">{msg}</p>}
         </>
       )}
     </div>
@@ -238,9 +253,9 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
 
 function DemoNotice() {
   return (
-    <p className="rounded-[3px] border border-line p-4 text-sm text-ink-soft">
+    <p className="border-y border-line py-5 text-sm text-ink-soft">
       This is the demo trip — it's read-only. Create a trip of your own from the{" "}
-      <span className="font-medium">Trips</span> tab to change any of this.
+      <span className="font-medium text-ink">Trips</span> tab to change any of this.
     </p>
   );
 }
@@ -273,9 +288,9 @@ function rangeText(start: string, end: string, locale: string) {
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-baseline justify-between gap-4 border-t border-line py-2.5 first:border-0">
-      <span className="shrink-0 text-sm text-ink-faint">{label}</span>
-      <span className="min-w-0 text-right text-sm">{children}</span>
+    <div className="flex items-baseline justify-between gap-4 border-b border-line py-2.5 last:border-b-0">
+      <span className="row-label">{label}</span>
+      <span className="min-w-0 text-right text-[0.9375rem] font-medium text-ink">{children}</span>
     </div>
   );
 }
@@ -312,26 +327,26 @@ function Settings() {
     });
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-0">
       <section>
-        <h3 className="kicker mb-1">Identity</h3>
+        <div className="section-head"><p className="kicker">Identity</p></div>
         <Field label="Trip name" value={config.branding} onCommit={(v) => mutate((d) => { d.config.branding = v; d.meta.title = v; })} />
       </section>
 
       <section>
-        <h3 className="kicker mb-1">Dates</h3>
+        <div className="section-head"><p className="kicker">Dates</p></div>
         <Row label="Start"><Editable as="date" label="Start date" value={meta.start} onCommit={(v) => setDate("start", v)} /></Row>
         <Row label="End"><Editable as="date" label="End date" value={meta.end} onCommit={(v) => setDate("end", v)} /></Row>
       </section>
 
       <section>
-        <h3 className="kicker mb-1">Time zones</h3>
+        <div className="section-head"><p className="kicker">Time zones</p></div>
         <Row label="Home"><TzSelect value={config.homeTimeZone} onChange={(v) => mutate((d) => { d.config.homeTimeZone = v; })} /></Row>
         <Row label="On the trip"><TzSelect value={config.tripTimeZone} onChange={(v) => mutate((d) => { d.config.tripTimeZone = v; })} /></Row>
       </section>
 
       <section>
-        <h3 className="kicker mb-1">Map & format</h3>
+        <div className="section-head"><p className="kicker">Map & format</p></div>
         <Row label="Date format">
           <select
             value={config.locale}
@@ -348,7 +363,7 @@ function Settings() {
       </section>
 
       <section>
-        <h3 className="kicker mb-2">Theme</h3>
+        <div className="section-head"><p className="kicker">Theme</p></div>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {THEME_PRESETS.map((p) => {
             const on = config.themePreset === p.id;
@@ -421,10 +436,10 @@ function Modules() {
 
   return (
     <div>
-      <p className="mb-3 text-sm text-ink-faint">Reorder, rename, or turn modules off for this trip.</p>
-      <ul className="space-y-2">
+      <p className="mb-3 text-sm text-ink-soft">Reorder, rename, or turn sections off for this trip.</p>
+      <ul>
         {modules.map((m, i) => (
-          <li key={m.id} className="flex items-center gap-3 rounded-[3px] border border-line px-3 py-2.5">
+          <li key={m.id} className="flex items-center gap-3 border-b border-line py-2.5">
             <div className="flex flex-col">
               <button disabled={i === 0} onClick={() => mutate((d) => { const a = d.config.modules; [a[i - 1], a[i]] = [a[i], a[i - 1]]; })} className="text-ink-faint disabled:opacity-30" aria-label="Move up">
                 <Icon name="up" size={16} />
@@ -434,8 +449,8 @@ function Modules() {
               </button>
             </div>
             <span className="flex-1">
-              <Editable label="Module label" value={m.label} onCommit={(v) => mutate((d) => { d.config.modules[i].label = v || m.label; })} />
-              <span className="ml-2 text-xs text-ink-faint">{m.kind}</span>
+              <span className="lead"><Editable label="Section label" value={m.label} onCommit={(v) => mutate((d) => { d.config.modules[i].label = v || m.label; })} /></span>
+              <span className="ml-2 text-xs text-ink-soft">{m.kind}</span>
             </span>
             <button
               onClick={() => mutate((d) => { d.config.modules[i].enabled = !d.config.modules[i].enabled; })}
@@ -473,9 +488,9 @@ function Media() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-0">
       <section>
-        <h3 className="kicker mb-2">Logo</h3>
+        <div className="section-head"><p className="kicker">Logo</p></div>
         <div className="flex items-center gap-4">
           <span className="grid h-16 w-16 place-items-center overflow-hidden rounded-[3px] border border-line bg-surface-2">
             <img src={media.logo?.dataUrl || "/brand/logo-128.png"} alt="" className="h-full w-full object-cover" />
@@ -488,7 +503,7 @@ function Media() {
       </section>
 
       <section>
-        <h3 className="kicker mb-2">Cover</h3>
+        <div className="section-head"><p className="kicker">Cover</p></div>
         <div className="overflow-hidden rounded-[3px] border border-line">
           {media.cover ? (
             <img src={media.cover.dataUrl} alt="" className="h-40 w-full object-cover" />
@@ -503,7 +518,7 @@ function Media() {
       </section>
 
       <section>
-        <h3 className="kicker mb-2">Gallery</h3>
+        <div className="section-head"><p className="kicker">Gallery</p></div>
         <button disabled={busy} onClick={() => upload((item) => addGalleryMedia(item))} className="btn-sm mb-3">
           <Icon name="plus" size={14} /> Add image
         </button>
@@ -550,6 +565,11 @@ const ENTITY_LABELS: Record<EntityType, string> = {
 
 const OPTIONAL_LOGBOOK = ["getting around", "luggage", "documents", "packing"] as const;
 
+const CONTENT_GROUPS: { title: string; types: EntityType[] }[] = [
+  { title: "Itinerary", types: ["legs", "days", "hotels", "journeys"] },
+  { title: "Reference", types: ["luggage", "packing", "docs", "places"] },
+];
+
 function Content() {
   const data = useData();
   const { removeEntity, moveEntity, addEntity } = useApp();
@@ -592,85 +612,86 @@ function Content() {
       : type === "journeys" ? `/journey/${id}`
       : null;
 
-  return (
-    <div className="space-y-2">
-      <p className="mb-3 text-sm text-ink-faint">Add, duplicate, reorder or remove. Edit details inline on the pages.</p>
-      {(Object.keys(ENTITY_LABELS) as EntityType[]).map((type) => {
-        const list = data[type] as { id: string }[];
-        const isOpen = open === type;
-        return (
-          <div key={type} className="rounded-[3px] border border-line">
-            <button onClick={() => setOpen(isOpen ? null : type)} className="flex w-full items-center justify-between px-4 py-3 text-left">
-              <span className="font-medium">{ENTITY_LABELS[type]}</span>
-              <span className="flex items-center gap-2 text-sm text-ink-faint">{list.length}<Icon name={isOpen ? "up" : "down"} size={16} /></span>
+  const Rows = ({ type }: { type: EntityType }) => {
+    const list = data[type] as { id: string }[];
+    const isOpen = open === type;
+    return (
+      <div className="border-b border-line last:border-b-0">
+        <button onClick={() => setOpen(isOpen ? null : type)} className="flex w-full items-baseline justify-between gap-3 py-3 text-left">
+          <span className="lead">{ENTITY_LABELS[type]}</span>
+          <span className="flex items-center gap-2">
+            <span className="value tabular-nums text-ink-soft">{list.length}</span>
+            <Icon name={isOpen ? "up" : "down"} size={15} className="text-ink-faint" />
+          </span>
+        </button>
+        {isOpen && (
+          <div className="pb-3 pl-3">
+            <ul>
+              {list.map((x, i) => {
+                const rec = x as Record<string, unknown>;
+                const href = linkFor(type, x.id);
+                return (
+                  <li key={x.id} className="flex items-center gap-2 border-b border-line py-2 text-sm last:border-b-0">
+                    <button disabled={i === 0} onClick={() => moveEntity(type, x.id, -1)} className="text-ink-faint disabled:opacity-25" aria-label="Up"><Icon name="up" size={14} /></button>
+                    <button disabled={i === list.length - 1} onClick={() => moveEntity(type, x.id, 1)} className="text-ink-faint disabled:opacity-25" aria-label="Down"><Icon name="down" size={14} /></button>
+                    <span className="min-w-0 flex-1 truncate">
+                      {href ? <Link to={href} className="hover:text-accent">{nameOf(rec)}</Link> : nameOf(rec)}
+                    </span>
+                    <button onClick={() => addEntity(type, { ...structuredClone(rec), id: `${type}-${rid()}` } as { id: string })} className="text-ink-faint hover:text-ink-soft" aria-label="Duplicate"><Icon name="copy" size={14} /></button>
+                    <ConfirmButton onConfirm={() => removeEntity(type, x.id)} className="text-ink-faint hover:text-accent"><Icon name="trash" size={14} /></ConfirmButton>
+                  </li>
+                );
+              })}
+              {list.length === 0 && <li className="py-2 text-sm text-ink-faint">None yet.</li>}
+            </ul>
+            <button onClick={() => addEntity(type, blankFor(type) as { id: string })} className="action mt-3 text-xs">
+              <Icon name="plus" size={13} /> Add
             </button>
-            {isOpen && (
-              <div className="border-t border-line p-3">
-                <button onClick={() => addEntity(type, blankFor(type) as { id: string })} className="btn-sm mb-2">
-                  <Icon name="plus" size={14} /> Add
-                </button>
-                <ul className="space-y-1">
-                  {list.map((x, i) => {
-                    const rec = x as Record<string, unknown>;
-                    const href = linkFor(type, x.id);
-                    return (
-                      <li key={x.id} className="flex items-center gap-2 border-t border-line py-1.5 text-sm first:border-0">
-                        <button disabled={i === 0} onClick={() => moveEntity(type, x.id, -1)} className="text-ink-faint disabled:opacity-25" aria-label="Up"><Icon name="up" size={14} /></button>
-                        <button disabled={i === list.length - 1} onClick={() => moveEntity(type, x.id, 1)} className="text-ink-faint disabled:opacity-25" aria-label="Down"><Icon name="down" size={14} /></button>
-                        <span className="min-w-0 flex-1 truncate">
-                          {href ? <Link to={href} className="hover:text-accent">{nameOf(rec)}</Link> : nameOf(rec)}
-                        </span>
-                        <button onClick={() => addEntity(type, { ...structuredClone(rec), id: `${type}-${rid()}` } as { id: string })} className="text-ink-faint hover:text-ink-soft" aria-label="Duplicate"><Icon name="copy" size={14} /></button>
-                        <ConfirmButton onConfirm={() => removeEntity(type, x.id)} className="text-ink-faint hover:text-accent"><Icon name="trash" size={14} /></ConfirmButton>
-                      </li>
-                    );
-                  })}
-                  {list.length === 0 && <li className="py-1.5 text-ink-faint">None yet.</li>}
-                </ul>
-              </div>
-            )}
           </div>
-        );
-      })}
+        )}
+      </div>
+    );
+  };
 
-      <div className="rounded-[3px] border border-line p-4">
-        <p className="mb-1 font-medium">Logbook sections</p>
-        <p className="mb-3 text-xs text-ink-faint">Turn the optional ones off, or add your own lists.</p>
+  return (
+    <div>
+      {CONTENT_GROUPS.map((grp) => (
+        <section key={grp.title}>
+          <div className="section-head"><p className="kicker">{grp.title}</p></div>
+          {grp.types.map((type) => <Rows key={type} type={type} />)}
+        </section>
+      ))}
 
-        <ul className="mb-3 space-y-1">
+      <section>
+        <div className="section-head"><p className="kicker">Logbook sections</p></div>
+        <ul>
           {OPTIONAL_LOGBOOK.map((s) => (
-            <li key={s} className="flex items-center justify-between border-t border-line py-1.5 text-sm capitalize first:border-0">
-              {s}
-              <button onClick={() => toggleSection(s)} className="text-ink-faint hover:text-ink-soft" aria-label={hidden.includes(s) ? "Show" : "Hide"}>
+            <li key={s} className="flex items-center justify-between border-b border-line py-2.5 text-sm capitalize">
+              <span className={hidden.includes(s) ? "text-ink-faint" : ""}>{s}</span>
+              <button onClick={() => toggleSection(s)} className="text-ink-soft hover:text-ink" aria-label={hidden.includes(s) ? "Show" : "Hide"}>
                 <Icon name={hidden.includes(s) ? "eye-off" : "eye"} size={17} />
               </button>
             </li>
           ))}
+          {lists.map((l, i) => (
+            <li key={l.id} className="flex items-center gap-2 border-b border-line py-2.5 text-sm">
+              <span className="min-w-0 flex-1">
+                <Editable label="List name" value={l.title} onCommit={(v) => mutate((d) => { const x = d.config.lists?.[i]; if (x) x.title = v || "List"; })} />
+              </span>
+              <span className="shrink-0 text-xs text-ink-soft">{l.items.length}</span>
+              <ConfirmButton onConfirm={() => mutate((d) => { d.config.lists = (d.config.lists ?? []).filter((x) => x.id !== l.id); })} className="text-ink-faint hover:text-accent">
+                <Icon name="trash" size={14} />
+              </ConfirmButton>
+            </li>
+          ))}
         </ul>
-
-        {lists.length > 0 && (
-          <ul className="mb-3 space-y-1 border-t border-line pt-2">
-            {lists.map((l, i) => (
-              <li key={l.id} className="flex items-center gap-2 border-t border-line py-1.5 text-sm first:border-0">
-                <span className="min-w-0 flex-1">
-                  <Editable label="List name" value={l.title} onCommit={(v) => mutate((d) => { const x = d.config.lists?.[i]; if (x) x.title = v || "List"; })} />
-                </span>
-                <span className="shrink-0 text-xs text-ink-faint">{l.items.length}</span>
-                <ConfirmButton onConfirm={() => mutate((d) => { d.config.lists = (d.config.lists ?? []).filter((x) => x.id !== l.id); })} className="text-ink-faint hover:text-accent">
-                  <Icon name="trash" size={14} />
-                </ConfirmButton>
-              </li>
-            ))}
-          </ul>
-        )}
-
         <button
           onClick={() => mutate((d) => { (d.config.lists ??= []).push({ id: `list-${rid()}`, title: "New list", items: [] }); })}
-          className="btn-sm"
+          className="action mt-3"
         >
           <Icon name="plus" size={14} /> Add list
         </button>
-      </div>
+      </section>
     </div>
   );
 }

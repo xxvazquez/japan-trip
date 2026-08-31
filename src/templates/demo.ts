@@ -148,7 +148,7 @@ export function buildDemo(): TripData {
             service: "Airport Express",
             seat: "12A",
             platform: "3",
-            fare: "18",
+            fare: "€18",
             reserved: true,
             note: "Reserve the airport-express seat a day ahead.",
           },
