@@ -22,7 +22,7 @@ export default function Journey() {
   if (!j)
     return (
       <Page>
-        <BackBar to="/logbook" label="Logbook" />
+        <BackBar to="/logbook" />
         <p className="lead">No journey here.</p>
       </Page>
     );

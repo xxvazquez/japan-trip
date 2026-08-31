@@ -20,7 +20,7 @@ export default function Hotel() {
   if (!hotel)
     return (
       <Page>
-        <BackBar to="/logbook" label="Logbook" />
+        <BackBar to="/logbook" />
         <p className="lead">No stay here.</p>
       </Page>
     );
@@ -31,7 +31,7 @@ export default function Hotel() {
 
   return (
     <Page>
-      <BackBar to="/logbook" label="Logbook" />
+      <BackBar to="/logbook" />
       <h1 className="font-display text-[1.6rem] leading-tight">
         <Editable label="Name" value={hotel.name} onCommit={(v) => p({ name: v || hotel.name })} />
       </h1>

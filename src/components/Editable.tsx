@@ -10,7 +10,7 @@ type Base = {
 };
 
 type Props =
-  | (Base & { as?: "text" | "textarea" | "number" })
+  | (Base & { as?: "text" | "textarea" | "number" | "date" })
   | (Base & { as: "select"; options: { value: string; label: string }[] });
 
 /**
@@ -47,6 +47,19 @@ export function Editable(props: Props) {
   if (readOnly) {
     if (!value) return null;
     return <span className={`inline whitespace-pre-wrap ${className}`}>{value}</span>;
+  }
+
+  // a date is always a one-tap native picker — no two-step editing
+  if (as === "date") {
+    return (
+      <input
+        type="date"
+        aria-label={label}
+        value={value}
+        onChange={(e) => e.target.value && e.target.value !== value && onCommit(e.target.value)}
+        className={`editable inline bg-transparent tabular-nums ${className}`}
+      />
+    );
   }
 
   if (!editing) {

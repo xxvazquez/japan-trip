@@ -245,6 +245,52 @@ function DemoNotice() {
   );
 }
 
+const TIME_ZONES: string[] = (() => {
+  try {
+    return (Intl as unknown as { supportedValuesOf?: (k: string) => string[] }).supportedValuesOf?.("timeZone") ?? [];
+  } catch {
+    return [];
+  }
+})();
+
+const DATE_FORMATS: { value: string; label: string }[] = [
+  { value: "en-GB", label: "31 Oct 2026" },
+  { value: "en-US", label: "Oct 31, 2026" },
+  { value: "en-CA", label: "2026-10-31" },
+  { value: "de-DE", label: "31.10.2026" },
+  { value: "fr-FR", label: "31/10/2026" },
+];
+
+function rangeText(start: string, end: string, locale: string) {
+  if (!start || !end) return "";
+  const o: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
+  try {
+    return `${new Date(start).toLocaleDateString(locale, o)} – ${new Date(end).toLocaleDateString(locale, o)}`;
+  } catch {
+    return `${start} – ${end}`;
+  }
+}
+
+function Row({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-baseline justify-between gap-4 border-t border-line py-2.5 first:border-0">
+      <span className="shrink-0 text-sm text-ink-faint">{label}</span>
+      <span className="min-w-0 text-right text-sm">{children}</span>
+    </div>
+  );
+}
+
+function TzSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <select value={value} onChange={(e) => onChange(e.target.value)} className="max-w-[13rem] cursor-pointer truncate bg-transparent text-right focus:outline-none">
+      {!TIME_ZONES.includes(value) && <option value={value}>{value}</option>}
+      {TIME_ZONES.map((z) => (
+        <option key={z} value={z}>{z.replace(/_/g, " ")}</option>
+      ))}
+    </select>
+  );
+}
+
 function Settings() {
   const data = useData();
   const mutate = useApp((s) => s.mutateTrip);
@@ -254,34 +300,56 @@ function Settings() {
   const [advanced, setAdvanced] = useState(false);
 
   const Field = ({ label, value, onCommit, placeholder }: { label: string; value: string; onCommit: (v: string) => void; placeholder?: string }) => (
-    <div className="flex items-baseline justify-between gap-4 border-t border-line py-2.5 first:border-0">
-      <span className="shrink-0 text-sm text-ink-faint">{label}</span>
-      <span className="min-w-0 text-right text-sm"><Editable label={label} value={value} onCommit={onCommit} placeholder={placeholder ?? "Add"} /></span>
-    </div>
+    <Row label={label}>
+      <Editable label={label} value={value} onCommit={onCommit} placeholder={placeholder ?? "Add"} />
+    </Row>
   );
+
+  const setDate = (which: "start" | "end", v: string) =>
+    mutate((d) => {
+      d.meta[which] = v;
+      d.config.tagline = rangeText(d.meta.start, d.meta.end, d.config.locale);
+    });
 
   return (
     <div className="space-y-8">
       <section>
         <h3 className="kicker mb-1">Identity</h3>
         <Field label="Trip name" value={config.branding} onCommit={(v) => mutate((d) => { d.config.branding = v; d.meta.title = v; })} />
-        <Field label="Tagline" value={config.tagline} onCommit={(v) => mutate((d) => { d.config.tagline = v; })} />
-        <Field label="Travellers" value={config.travellers} onCommit={(v) => mutate((d) => { d.config.travellers = v; })} />
       </section>
 
       <section>
-        <h3 className="kicker mb-1">Dates & time</h3>
-        <Field label="Start (YYYY-MM-DD)" value={meta.start} onCommit={(v) => mutate((d) => { d.meta.start = v; })} />
-        <Field label="End (YYYY-MM-DD)" value={meta.end} onCommit={(v) => mutate((d) => { d.meta.end = v; })} />
-        <Field label="Home timezone" value={config.homeTimeZone} onCommit={(v) => mutate((d) => { d.config.homeTimeZone = v; })} />
-        <Field label="Trip timezone" value={config.tripTimeZone} onCommit={(v) => mutate((d) => { d.config.tripTimeZone = v; })} />
+        <h3 className="kicker mb-1">Dates</h3>
+        <Row label="Start"><Editable as="date" label="Start date" value={meta.start} onCommit={(v) => setDate("start", v)} /></Row>
+        <Row label="End"><Editable as="date" label="End date" value={meta.end} onCommit={(v) => setDate("end", v)} /></Row>
       </section>
 
       <section>
-        <h3 className="kicker mb-1">Locale & map</h3>
-        <Field label="Locale" value={config.locale} onCommit={(v) => mutate((d) => { d.config.locale = v; })} />
-        <Field label="Travellers" value={config.travellers} onCommit={(v) => mutate((d) => { d.config.travellers = v; })} />
-        <Field label="Google My Map link" value={config.mapSourceUrl ?? ""} placeholder="https://www.google.com/maps/d/edit?mid=…" onCommit={(v) => mutate((d) => { d.config.mapSourceUrl = v; })} />
+        <h3 className="kicker mb-1">Time zones</h3>
+        <Row label="Home"><TzSelect value={config.homeTimeZone} onChange={(v) => mutate((d) => { d.config.homeTimeZone = v; })} /></Row>
+        <Row label="On the trip"><TzSelect value={config.tripTimeZone} onChange={(v) => mutate((d) => { d.config.tripTimeZone = v; })} /></Row>
+      </section>
+
+      <section>
+        <h3 className="kicker mb-1">Map & format</h3>
+        <Row label="Date format">
+          <select
+            value={config.locale}
+            onChange={(e) => mutate((d) => { d.config.locale = e.target.value; d.config.tagline = rangeText(d.meta.start, d.meta.end, e.target.value); })}
+            className="cursor-pointer bg-transparent text-right focus:outline-none"
+          >
+            {!DATE_FORMATS.some((f) => f.value === config.locale) && <option value={config.locale}>{config.locale}</option>}
+            {DATE_FORMATS.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
+          </select>
+        </Row>
+        <Row label="Google My Map">
+          <span className="inline-flex items-center gap-2">
+            <Editable label="Google My Map link" value={config.mapSourceUrl ?? ""} placeholder="paste the share link" onCommit={(v) => mutate((d) => { d.config.mapSourceUrl = v; })} />
+            {config.mapSourceUrl && /^https?:\/\//.test(config.mapSourceUrl) && (
+              <a href={config.mapSourceUrl} target="_blank" rel="noopener" className="shrink-0 font-medium text-accent">open</a>
+            )}
+          </span>
+        </Row>
       </section>
 
       <section>
