@@ -140,7 +140,7 @@ npm run dev            # http://localhost:5173
 ```ini
 VITE_SUPABASE_URL=https://<project-ref>.supabase.co
 VITE_SUPABASE_ANON_KEY=<the anon / public key>
-VITE_MAP_TILES_URL=https://<your-bucket>/japan.pmtiles
+VITE_MAP_TILES_URL=https://<your-host>/japan.pmtiles
 ```
 
 All optional — with nothing set the app runs fully local. `VITE_SUPABASE_URL`
@@ -218,32 +218,42 @@ inside a 130 GB file on a bucket with no edge cache. The Map screen shows a
 For a map that loads instantly, host a small regional extract and point
 `VITE_MAP_TILES_URL` at its public URL.
 
-**`japan.pmtiles` (≈500 MB, z0–15) is already built** — it's in the repo root,
+**`japan.pmtiles` (≈180 MB, z0–14) is already built** — it's in the repo root,
 git-ignored. It covers two boxes — Kansai (Osaka · Kyoto · Nara · Uji ·
 Arashiyama · Ōhara · Kurama) and Kanto (Tokyo · Yokohama · Kawaguchiko · Hakone ·
-Haneda · Narita) — and renders identically to the planet file inside them.
+Haneda · Narita) — and renders identically to the planet file inside them
+(verified in-app). The only hard requirement for a host is **HTTP range-request
+support** and permissive **CORS**.
 
-To host it on **Cloudflare R2** (same account as the deploy, no egress cost):
+**Netlify** works, is free, and needs no payment card:
 
-1. R2 → **Create bucket** (e.g. `japan-trip-tiles`).
-2. Upload `japan.pmtiles` to it (the dashboard's drag-and-drop is fine for one
-   file this size, or `npx wrangler r2 object put japan-trip-tiles/japan.pmtiles --file japan.pmtiles`).
-3. Bucket → **Settings** → enable a public URL (**r2.dev** subdomain, or a custom
-   domain). R2 serves range requests and CORS for public buckets out of the box.
-4. Set `VITE_MAP_TILES_URL` to `https://<public-host>/japan.pmtiles` — in
-   `.env.local` and in the Cloudflare Pages/Workers project's environment
-   variables — and redeploy.
+1. Sign up at [netlify.com](https://netlify.com) (GitHub or email).
+2. Make a folder containing `japan.pmtiles` and a file named `_headers`:
+   ```
+   /*
+     Access-Control-Allow-Origin: *
+   ```
+3. On the Netlify dashboard: **Add new site → Deploy manually**, and drag that
+   folder in. You get a URL like `https://<name>.netlify.app`.
+4. Set `VITE_MAP_TILES_URL` to `https://<name>.netlify.app/japan.pmtiles` — in
+   `.env.local` and in the Cloudflare project's environment variables — and
+   redeploy.
+
+Cloudflare R2 also works (same account as the deploy, zero egress cost) but
+requires adding a payment card to activate — free-tier usage won't be charged.
+Cloudflare Pages/Workers static assets can't host it (25 MB per-file limit).
 
 To rebuild it later (new area, fresher OSM data): install the
 [`pmtiles`](https://github.com/protomaps/go-pmtiles) CLI and run
 
 ```bash
 pmtiles extract https://data.source.coop/protomaps/openstreetmap/v4.pmtiles japan.pmtiles \
-  --region=tiles-region.geojson --maxzoom=15
+  --region=tiles-region.geojson --maxzoom=14
 ```
 
-where `tiles-region.geojson` is a GeoJSON `MultiPolygon` of the boxes you want
-(a single `--bbox=minLon,minLat,maxLon,maxLat` also works). Nothing in the app
+`tiles-region.geojson` (in the repo root) is a GeoJSON `MultiPolygon` of the two
+boxes; a single `--bbox=minLon,minLat,maxLon,maxLat` also works. `--maxzoom=15`
+gives building-level detail at roughly 2.5× the size. Nothing in the app
 changes — the style and pins are identical.
 
 ## Branding
