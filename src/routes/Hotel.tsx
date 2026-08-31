@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { Page } from "@/components/Page";
 import { BackBar } from "@/components/BackBar";
 import { Editable } from "@/components/Editable";
+import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
@@ -124,8 +125,8 @@ export default function Hotel() {
       {(hotel.notes || !ro) && (
         <section>
           <div className="section-head"><p className="kicker">Notes</p></div>
-          <div className="text-sm leading-relaxed text-ink">
-            <Editable as="textarea" label="Notes" value={hotel.notes ?? ""} placeholder="Anything about this stay" onCommit={(v) => p({ notes: v || undefined })} />
+          <div className="text-sm text-ink">
+            <RichNote value={hotel.notes ?? ""} onCommit={(v) => p({ notes: v || undefined })} placeholder="Anything about this stay" />
           </div>
         </section>
       )}

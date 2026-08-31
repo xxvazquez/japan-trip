@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { Page } from "@/components/Page";
 import { BackBar } from "@/components/BackBar";
 import { Editable } from "@/components/Editable";
+import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
@@ -122,8 +123,8 @@ export default function Journey() {
       {(j.notes || !ro) && (
         <section>
           <div className="section-head"><p className="kicker">Notes</p></div>
-          <div className="text-sm leading-relaxed text-ink">
-            <Editable as="textarea" label="Notes" value={j.notes ?? ""} placeholder="Backup routes, reminders…" onCommit={(v) => patch({ notes: v || undefined })} />
+          <div className="text-sm text-ink">
+            <RichNote value={j.notes ?? ""} onCommit={(v) => patch({ notes: v || undefined })} placeholder="Backup routes, reminders…" />
           </div>
         </section>
       )}
