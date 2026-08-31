@@ -11,3 +11,6 @@ dist-ssr/
 .vite/
 
 *.tsbuildinfo
+
+# the map extract is hosted on R2, never committed (see "The map background" in README)
+*.pmtiles

@@ -198,15 +198,15 @@ export function buildDemo(): TripData {
       {
         id: "pl-1",
         name: "A coffee place",
-        lat: 38.712,
-        lng: -9.139,
+        lat: 35.6785,
+        lng: 139.7047,
         category: "coffee",
         color: "#8d6e63",
         note: "Pins come from a Google My Map you paste in, or you add them here. Tap a pin or a list row — they select each other and the map moves to it.",
       },
-      { id: "pl-2", name: "A museum", lat: 38.7075, lng: -9.1364, category: "see", color: "#5c6bc0" },
-      { id: "pl-3", name: "A viewpoint", lat: 38.7155, lng: -9.129, category: "see", color: "#5c6bc0" },
-      { id: "pl-4", name: "Market for lunch", lat: 38.7065, lng: -9.1462, category: "food", color: "#26a69a" },
+      { id: "pl-2", name: "A museum", lat: 35.7148, lng: 139.7752, category: "see", color: "#5c6bc0" },
+      { id: "pl-3", name: "A viewpoint", lat: 35.6586, lng: 139.7454, category: "see", color: "#5c6bc0" },
+      { id: "pl-4", name: "Market for lunch", lat: 35.6655, lng: 139.7708, category: "food", color: "#26a69a" },
     ],
   };
 

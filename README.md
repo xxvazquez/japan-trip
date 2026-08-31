@@ -216,23 +216,35 @@ inside a 130 GB file on a bucket with no edge cache. The Map screen shows a
 "Loading the map…" note while that happens.
 
 For a map that loads instantly, host a small regional extract and point
-`VITE_MAP_TILES_URL` at it:
+`VITE_MAP_TILES_URL` at its public URL.
 
-1. Install the [`pmtiles`](https://github.com/protomaps/go-pmtiles) CLI.
-2. Extract just the trip's area (one command, streams from the remote file —
-   no full download):
-   ```bash
-   pmtiles extract https://data.source.coop/protomaps/openstreetmap/v4.pmtiles japan.pmtiles \
-     --bbox=135.5,34.4,140.3,36.0 --maxzoom=15
-   ```
-   That box covers Kansai + Kanto (Kyoto, Nara, Osaka, Uji, Tokyo, Kawaguchiko)
-   and comes out well under 1 GB.
-3. Upload `japan.pmtiles` anywhere static with range-request support —
-   Cloudflare R2 (same account as the deploy), an R2 public bucket, S3, etc.
-4. Set `VITE_MAP_TILES_URL` to its public URL (locally in `.env.local`, and in
-   the Cloudflare project's environment variables). Redeploy.
+**`japan.pmtiles` (≈500 MB, z0–15) is already built** — it's in the repo root,
+git-ignored. It covers two boxes — Kansai (Osaka · Kyoto · Nara · Uji ·
+Arashiyama · Ōhara · Kurama) and Kanto (Tokyo · Yokohama · Kawaguchiko · Hakone ·
+Haneda · Narita) — and renders identically to the planet file inside them.
 
-Nothing else changes — the styling and pins are identical.
+To host it on **Cloudflare R2** (same account as the deploy, no egress cost):
+
+1. R2 → **Create bucket** (e.g. `japan-trip-tiles`).
+2. Upload `japan.pmtiles` to it (the dashboard's drag-and-drop is fine for one
+   file this size, or `npx wrangler r2 object put japan-trip-tiles/japan.pmtiles --file japan.pmtiles`).
+3. Bucket → **Settings** → enable a public URL (**r2.dev** subdomain, or a custom
+   domain). R2 serves range requests and CORS for public buckets out of the box.
+4. Set `VITE_MAP_TILES_URL` to `https://<public-host>/japan.pmtiles` — in
+   `.env.local` and in the Cloudflare Pages/Workers project's environment
+   variables — and redeploy.
+
+To rebuild it later (new area, fresher OSM data): install the
+[`pmtiles`](https://github.com/protomaps/go-pmtiles) CLI and run
+
+```bash
+pmtiles extract https://data.source.coop/protomaps/openstreetmap/v4.pmtiles japan.pmtiles \
+  --region=tiles-region.geojson --maxzoom=15
+```
+
+where `tiles-region.geojson` is a GeoJSON `MultiPolygon` of the boxes you want
+(a single `--bbox=minLon,minLat,maxLon,maxLat` also works). Nothing in the app
+changes — the style and pins are identical.
 
 ## Branding
 
