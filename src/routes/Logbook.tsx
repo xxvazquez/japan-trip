@@ -9,44 +9,119 @@ import { useReadOnly } from "@/lib/readonly";
 import { fmtDate } from "@/lib/dates";
 import { putFile, fileUrl, removeFile } from "@/lib/fileStore";
 import { gmapsLink } from "@/lib/maps";
-import type { Doc, DocFile, LuggageNote, PackingItem } from "@/core/types";
+import type { CustomList, Doc, DocFile, LuggageNote, PackingItem } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 8);
 
-const SECTIONS = ["stays", "getting around", "luggage", "emergency", "documents", "packing", "notes"] as const;
-type Section = (typeof SECTIONS)[number];
+/** always-on sections + the four that can be hidden per trip */
+const BASE_SECTIONS = ["stays", "getting around", "luggage", "emergency", "documents", "packing", "notes"] as const;
+export const OPTIONAL_SECTIONS = ["getting around", "luggage", "documents", "packing"] as const;
 
 export default function Logbook() {
   const data = useData();
-  const [section, setSection] = useState<Section>("stays");
+  const [section, setSection] = useState<string>("stays");
   if (!data) return null;
+
+  const hidden = data.config.hiddenLogbook ?? [];
+  const lists = data.config.lists ?? [];
+  const builtins = BASE_SECTIONS.filter((s) => !hidden.includes(s));
+  const tabs = [...builtins, ...lists.map((l) => l.id)];
+  const active = tabs.includes(section) ? section : "stays";
+  const activeList = lists.find((l) => l.id === active);
 
   return (
     <Page>
       <h1 className="mb-4 font-display text-xl">Logbook</h1>
       <div className="mb-7 flex gap-4 overflow-x-auto border-b border-line [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {SECTIONS.map((s) => (
-          <button
-            key={s}
-            ref={(el) => { if (section === s) el?.scrollIntoView({ inline: "center", block: "nearest" }); }}
-            onClick={() => setSection(s)}
-            className={`shrink-0 whitespace-nowrap border-b-[3px] pb-2 text-sm capitalize transition-colors ${
-              section === s ? "border-ink font-semibold text-ink" : "border-transparent text-ink-soft hover:text-ink"
-            }`}
-          >
-            {s}
-          </button>
-        ))}
+        {tabs.map((s) => {
+          const label = lists.find((l) => l.id === s)?.title ?? s;
+          return (
+            <button
+              key={s}
+              ref={(el) => { if (active === s) el?.scrollIntoView({ inline: "center", block: "nearest" }); }}
+              onClick={() => setSection(s)}
+              className={`shrink-0 whitespace-nowrap border-b-[3px] pb-2 text-sm capitalize transition-colors ${
+                active === s ? "border-ink font-semibold text-ink" : "border-transparent text-ink-soft hover:text-ink"
+              }`}
+            >
+              {label}
+            </button>
+          );
+        })}
       </div>
 
-      {section === "stays" && <Stays />}
-      {section === "getting around" && <GettingAround />}
-      {section === "luggage" && <Luggage />}
-      {section === "emergency" && <Emergency />}
-      {section === "documents" && <Documents />}
-      {section === "packing" && <Packing />}
-      {section === "notes" && <Notes />}
+      {activeList ? (
+        <ListSection list={activeList} />
+      ) : (
+        <>
+          {active === "stays" && <Stays />}
+          {active === "getting around" && <GettingAround />}
+          {active === "luggage" && <Luggage />}
+          {active === "emergency" && <Emergency />}
+          {active === "documents" && <Documents />}
+          {active === "packing" && <Packing />}
+          {active === "notes" && <Notes />}
+        </>
+      )}
     </Page>
+  );
+}
+
+function ListSection({ list }: { list: CustomList }) {
+  const ro = useReadOnly();
+  const mutate = useApp((s) => s.mutateTrip);
+  const set = (fn: (l: CustomList) => void) =>
+    mutate((d) => {
+      const l = d.config.lists?.find((x) => x.id === list.id);
+      if (l) fn(l);
+    });
+
+  return (
+    <div className="space-y-1">
+      {list.items.length === 0 && <p className="meta py-2">Nothing here yet.</p>}
+      <ul>
+        {list.items.map((it, i) => {
+          const link = gmapsLink(it.url);
+          return (
+            <li key={it.id} className="group border-b border-line py-2.5">
+              <div className="flex items-center gap-2.5">
+                <span className="min-w-0 flex-1 font-medium">
+                  {ro ? it.label : (
+                    <Editable label="Item" value={it.label} placeholder="Name" onCommit={(v) => set((l) => { l.items[i].label = v; })} />
+                  )}
+                </span>
+                {link && <a href={link} target="_blank" rel="noopener" className="shrink-0 text-accent" aria-label="Open link"><Icon name="map" size={15} /></a>}
+                {!ro && (
+                  <button onClick={() => set((l) => { l.items.splice(i, 1); })} className="shrink-0 p-1 text-ink-faint opacity-0 transition-opacity hover:text-accent group-hover:opacity-100" aria-label="Remove">
+                    <Icon name="close" size={13} />
+                  </button>
+                )}
+              </div>
+              {(it.note || !ro) && (
+                <p className="mt-0.5 text-sm text-ink-soft">
+                  {ro ? it.note : (
+                    <Editable label="Note" value={it.note ?? ""} placeholder="＋ a note" onCommit={(v) => set((l) => { l.items[i].note = v || undefined; })} />
+                  )}
+                </p>
+              )}
+              {!ro && (
+                <p className="mt-0.5 text-xs text-ink-faint">
+                  <Editable label="Link" value={it.url ?? ""} placeholder="＋ Maps or web link" onCommit={(v) => set((l) => { l.items[i].url = v || undefined; })} />
+                </p>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      {!ro && (
+        <button
+          onClick={() => set((l) => { l.items.push({ id: rid(), label: "" }); })}
+          className="action mt-3"
+        >
+          <Icon name="plus" size={14} /> Add
+        </button>
+      )}
+    </div>
   );
 }
 

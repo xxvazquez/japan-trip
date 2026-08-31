@@ -553,12 +553,24 @@ const ENTITY_LABELS: Record<EntityType, string> = {
   places: "Map places",
 };
 
+const OPTIONAL_LOGBOOK = ["getting around", "luggage", "documents", "packing"] as const;
+
 function Content() {
   const data = useData();
   const { removeEntity, moveEntity, addEntity } = useApp();
+  const mutate = useApp((s) => s.mutateTrip);
   const [open, setOpen] = useState<EntityType | null>(null);
   if (!data) return null;
   if (data.config.demo) return <DemoNotice />;
+
+  const hidden = data.config.hiddenLogbook ?? [];
+  const lists = data.config.lists ?? [];
+  const toggleSection = (s: string) =>
+    mutate((d) => {
+      const set = new Set(d.config.hiddenLogbook ?? []);
+      set.has(s) ? set.delete(s) : set.add(s);
+      d.config.hiddenLogbook = [...set];
+    });
 
   const rid = () => Math.random().toString(36).slice(2, 9);
   const blankFor = (type: EntityType): Record<string, unknown> => {
@@ -625,6 +637,45 @@ function Content() {
           </div>
         );
       })}
+
+      <div className="rounded-[3px] border border-line p-4">
+        <p className="mb-1 font-medium">Logbook sections</p>
+        <p className="mb-3 text-xs text-ink-faint">Turn the optional ones off, or add your own lists.</p>
+
+        <ul className="mb-3 space-y-1">
+          {OPTIONAL_LOGBOOK.map((s) => (
+            <li key={s} className="flex items-center justify-between border-t border-line py-1.5 text-sm capitalize first:border-0">
+              {s}
+              <button onClick={() => toggleSection(s)} className="text-ink-faint hover:text-ink-soft" aria-label={hidden.includes(s) ? "Show" : "Hide"}>
+                <Icon name={hidden.includes(s) ? "eye-off" : "eye"} size={17} />
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        {lists.length > 0 && (
+          <ul className="mb-3 space-y-1 border-t border-line pt-2">
+            {lists.map((l, i) => (
+              <li key={l.id} className="flex items-center gap-2 border-t border-line py-1.5 text-sm first:border-0">
+                <span className="min-w-0 flex-1">
+                  <Editable label="List name" value={l.title} onCommit={(v) => mutate((d) => { const x = d.config.lists?.[i]; if (x) x.title = v || "List"; })} />
+                </span>
+                <span className="shrink-0 text-xs text-ink-faint">{l.items.length}</span>
+                <ConfirmButton onConfirm={() => mutate((d) => { d.config.lists = (d.config.lists ?? []).filter((x) => x.id !== l.id); })} className="text-ink-faint hover:text-accent">
+                  <Icon name="trash" size={14} />
+                </ConfirmButton>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <button
+          onClick={() => mutate((d) => { (d.config.lists ??= []).push({ id: `list-${rid()}`, title: "New list", items: [] }); })}
+          className="btn-sm"
+        >
+          <Icon name="plus" size={14} /> Add list
+        </button>
+      </div>
     </div>
   );
 }

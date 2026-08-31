@@ -17,13 +17,14 @@ luggage, the documents. It lives at:
 
 1. Open the link. Sign in with **Google** — each person uses their **own**
    Google account.
-2. One account owns the trip. From that account, go to **Manage → share** and
-   add the other person's email.
-3. After that you both see and edit the **same trip**, and changes show up on the
-   other device within a second or two.
+2. New accounts start with just the read-only **Demo** trip. Make your real one
+   from **Manage → New trip → Empty template**.
+3. One account owns that trip. From it, go to **Manage → share** and add the
+   other person's email — then you both see and edit the **same trip**, and
+   changes show up on the other device within a second or two.
 
-If someone signs in before being added to the trip, they'll just see an empty
-account — share the trip with that email and it appears on their next reload.
+If someone signs in before being added to the trip, they'll just see the Demo —
+share the trip with that email and it appears on their next reload.
 
 ## On your phone
 
@@ -49,13 +50,24 @@ like a normal app, full screen. Do this on both phones.
 
 **Logbook** — the reference drawer. Use the menu at the top to jump between:
 stays · getting around · luggage · emergency numbers · documents · packing ·
-notes. In **documents** you can attach the actual PDFs / photos (passport scans,
-insurance, tickets) — those stay only on the device they were added on.
+notes, plus any lists you've added yourself. In **documents** you can attach the
+actual PDFs / photos (passport scans, insurance, tickets) — those stay only on
+the device they were added on.
+
+In **Manage → Content** you can hide the Logbook sections you don't need, and
+**add your own** — a title plus a list of things (name, note, link). Handy for
+"Restaurants to try", "Gifts to bring back", and so on.
 
 ## Editing anything
 
 Tap almost any piece of text and it becomes editable on the spot. Type, tap
 away, done. There's no separate "edit mode".
+
+## The demo trip
+
+Every account has a read-only **Demo** trip — a made-up example with notes
+explaining how each screen works. You can't edit it; it's just there to look at.
+Delete it whenever from Manage → Trips (and re-add it from the same place).
 
 **Manage** (the gear icon, top right) is only for bigger structural changes —
 adding or removing days, changing trip dates, theme, sharing.
