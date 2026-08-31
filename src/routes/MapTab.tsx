@@ -112,16 +112,17 @@ export default function MapTab() {
   }, [data, places, scope, hidden]);
 
   // fit the map to the current scope when nothing is selected
-  useEffect(() => {
+  const fitScope = () => {
     const m = map.current;
     if (!m || selected || scoped.length === 0) return;
     const lngs = scoped.map((p) => p.lng);
     const lats = scoped.map((p) => p.lat);
     m.fitBounds(
       [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
-      { padding: 64, maxZoom: 15, duration: 500 },
+      { padding: { top: 56, right: 44, bottom: window.innerWidth < 768 ? 180 : 44, left: 44 }, maxZoom: 15, duration: 500 },
     );
-  }, [scoped, selected]);
+  };
+  useEffect(fitScope, [scoped, selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!data) return null;
   const url = data.config.mapSourceUrl?.trim() ?? "";
@@ -194,7 +195,6 @@ export default function MapTab() {
       <div className="shrink-0 border-b border-line px-4 pb-3 pt-3">
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <p className="kicker">Places</p>
             <div className="relative inline-flex items-center">
               <select
                 value={scope ?? "all"}
@@ -202,7 +202,7 @@ export default function MapTab() {
                   setScope(e.target.value);
                   setSelected(null);
                 }}
-                className="max-w-[15rem] cursor-pointer appearance-none truncate bg-transparent pr-5 font-display text-lg leading-tight focus:outline-none"
+                className="max-w-[15rem] cursor-pointer appearance-none truncate bg-transparent pr-5 font-display text-[1.35rem] leading-tight focus:outline-none"
               >
                 <option value="all">All places · {places.length}</option>
                 {c.today && <option value={c.today.id}>Today · {c.today.title || fmtDate(c.today.date, loc)}</option>}
@@ -389,6 +389,7 @@ export default function MapTab() {
           onLongPress={onLongPress}
           onReady={(m) => {
             map.current = m;
+            fitScope();
           }}
         />
         {adding && (
@@ -448,22 +449,16 @@ function PlaceRow({
   useEffect(() => {
     if (open) li.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [open]);
+  const metaBits = [place.category, day && `on ${fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}`].filter(Boolean).join(" · ");
   return (
-    <li ref={li} className="border-b border-line">
-      <button onClick={onToggle} className="flex w-full items-center gap-2.5 py-2.5 text-left">
-        <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: place.color || FALLBACK }} />
+    <li ref={li} className="border-b border-line last:border-b-0">
+      <button onClick={onToggle} className="flex w-full items-baseline gap-2.5 py-2.5 text-left">
+        <span className="h-2.5 w-2.5 shrink-0 translate-y-0.5 rounded-full" style={{ background: place.color || FALLBACK }} />
         <span className="min-w-0 flex-1">
-          <span className={`block truncate ${open ? "font-medium" : ""}`}>{place.name}</span>
-          {(place.category || day) && (
-            <span className="meta block truncate">
-              {place.category}
-              {place.category && day ? " · " : ""}
-              {day ? `on ${fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}` : ""}
-              {!place.source ? (place.category || day ? " · added here" : "added here") : ""}
-            </span>
-          )}
+          <span className="lead block truncate">{place.name}</span>
+          {metaBits && <span className="meta block truncate">{metaBits}</span>}
         </span>
-        <Icon name={open ? "up" : "down"} size={13} className="shrink-0 text-ink-faint" />
+        <Icon name={open ? "up" : "down"} size={13} className="shrink-0 translate-y-0.5 text-ink-faint" />
       </button>
 
       {open && (

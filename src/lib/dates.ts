@@ -2,6 +2,9 @@ import type { Day, ISODate, TripData, TripMeta } from "@/core/types";
 
 const MS_DAY = 86_400_000;
 
+/** "1 night" / "3 nights" */
+export const plural = (n: number, word: string, wordN = word + "s") => `${n} ${n === 1 ? word : wordN}`;
+
 export function parseISO(d: ISODate): Date {
   const [y, m, day] = d.split("-").map(Number);
   return new Date(y, (m ?? 1) - 1, day ?? 1);

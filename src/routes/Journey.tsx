@@ -5,7 +5,8 @@ import { Editable } from "@/components/Editable";
 import { Icon } from "@/components/Icon";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
-import { fmtDate } from "@/lib/dates";
+import { useReadOnly } from "@/lib/readonly";
+import { fmtDate, plural } from "@/lib/dates";
 import { clockOf, fmtDuration, fmtMinutes, localMinutes } from "@/lib/time";
 import type { Journey as JourneyT, Segment, TransportMode } from "@/core/types";
 
@@ -27,6 +28,7 @@ export default function Journey() {
       </Page>
     );
 
+  const ro = useReadOnly();
   const patch = (p: Partial<JourneyT>) => updateEntity<JourneyT>("journeys", j.id, p);
   const setSeg = (i: number, sp: Partial<Segment>) => patch({ segments: j.segments.map((s, k) => (k === i ? { ...s, ...sp } : s)) });
   const loc = data.config.locale;
@@ -38,46 +40,51 @@ export default function Journey() {
 
   return (
     <Page>
-      <BackBar label="Back" />
-      <p className="kicker">{cap(j.kind)}{j.date ? ` · ${fmtDate(j.date, loc, { weekday: "long", day: "numeric", month: "long" })}` : ""}</p>
-      <h1 className="mt-1 font-display text-[1.6rem] leading-tight">
+      <BackBar />
+      <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-ink-soft">
+        {cap(j.kind)}{j.date ? ` · ${fmtDate(j.date, loc, { weekday: "long", day: "numeric", month: "long" })}` : ""}
+      </p>
+      <h1 className="mt-1.5 font-display text-[1.6rem] leading-tight">
         <Editable label="Label" value={j.label} onCommit={(v) => patch({ label: v || j.label })} />
       </h1>
       {j.segments.length > 0 && (
         <p className="meta mt-1.5">
-          {[total && `${total} total`, `${j.segments.length} ${j.segments.length === 1 ? "leg" : "legs"}`, changes > 0 && `${changes} ${changes === 1 ? "change" : "changes"}`]
+          {[total && `${total} total`, plural(j.segments.length, "leg"), changes > 0 && plural(changes, "change")]
             .filter(Boolean)
             .join("  ·  ")}
         </p>
       )}
 
-      <div className="mt-6">
+      <div className="mt-8">
         {j.segments.map((s, i) => {
           const next = j.segments[i + 1];
           const gap = next && s.arrive && next.depart ? localMinutes(next.depart)! - localMinutes(s.arrive)! : null;
-          const meta = [fmtDuration(s.depart, s.arrive), s.service || s.carrier, s.fare].filter(Boolean).join("  ·  ");
+          const meta = [fmtDuration(s.depart, s.arrive), s.service || s.carrier].filter(Boolean).join("  ·  ");
           return (
             <div key={s.id}>
-              <div className="group border-t border-ink/20 py-3 first:border-t-0">
-                <p className="text-sm font-bold uppercase tracking-wide">
+              <div className="group border-t border-line py-4 first:border-t-0 first:pt-0">
+                <p className="text-[0.8125rem] font-semibold uppercase tracking-[0.05em]">
                   <Editable label="From" value={s.from} placeholder="FROM" onCommit={(v) => setSeg(i, { from: v })} />
                   <span className="mx-1.5 text-ink-faint">→</span>
                   <Editable label="To" value={s.to} placeholder="TO" onCommit={(v) => setSeg(i, { to: v })} />
                 </p>
-                <p className="mt-1 font-display text-2xl tabular-nums leading-none">
+                <p className="mt-1.5 font-display text-2xl tabular-nums leading-none">
                   <Editable as="time" label="Depart time" value={clockOf(s.depart)} placeholder="--:--" onCommit={(v) => setSeg(i, { depart: mergeTime(s.depart, j.date, v) })} />
                   <span className="mx-2 text-ink-faint">→</span>
                   <Editable as="time" label="Arrive time" value={clockOf(s.arrive)} placeholder="--:--" onCommit={(v) => setSeg(i, { arrive: mergeTime(s.arrive, j.date, v) })} />
                 </p>
-                <p className="meta mt-1.5 flex flex-wrap items-center gap-x-1.5">
+                <p className="meta mt-2 flex flex-wrap items-center gap-x-1.5">
                   <Editable as="select" label="Mode" value={s.mode} options={MODES.map((m) => ({ value: m, label: m }))} onCommit={(v) => setSeg(i, { mode: v as TransportMode })} />
                   {meta && <span>· {meta}</span>}
                 </p>
-                <p className="mt-1 flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-ink-soft">
-                  <span>Platform <Editable label="Platform" value={s.platform ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { platform: v || undefined })} /></span>
-                  <span>Seat <Editable label="Seat" value={s.seat ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { seat: v || undefined })} /></span>
-                  <button onClick={() => patch({ segments: j.segments.filter((_, k) => k !== i) })} className="text-ink-faint opacity-0 hover:text-accent group-hover:opacity-100">remove</button>
-                </p>
+                {(!ro || s.platform || s.seat || s.fare) && (
+                  <p className="mt-1.5 flex flex-wrap gap-x-5 gap-y-0.5 text-xs text-ink-soft">
+                    {(!ro || s.platform) && <span>Platform <Editable label="Platform" value={s.platform ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { platform: v || undefined })} /></span>}
+                    {(!ro || s.seat) && <span>Seat <Editable label="Seat" value={s.seat ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { seat: v || undefined })} /></span>}
+                    {(!ro || s.fare) && <span>Fare <Editable label="Fare" value={s.fare ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { fare: v || undefined })} /></span>}
+                    {!ro && <button onClick={() => patch({ segments: j.segments.filter((_, k) => k !== i) })} className="text-ink-soft opacity-0 hover:text-accent group-hover:opacity-100">remove</button>}
+                  </p>
+                )}
               </div>
               {next && (
                 <p className="border-l-2 border-dashed border-line py-1.5 pl-3 text-xs text-ink-soft">
@@ -93,29 +100,33 @@ export default function Journey() {
             </div>
           );
         })}
-        <button
-          onClick={() => {
-            const l = j.segments.at(-1);
-            patch({ segments: [...j.segments, { id: `seg-${rid()}`, mode: l?.mode ?? "train", from: l?.to ?? "", to: "", fromTz: l?.toTz, toTz: l?.toTz }] });
-          }}
-          className="action mt-3"
-        >
-          <Icon name="plus" size={14} /> Add a leg
-        </button>
+        {!ro && (
+          <button
+            onClick={() => {
+              const l = j.segments.at(-1);
+              patch({ segments: [...j.segments, { id: `seg-${rid()}`, mode: l?.mode ?? "train", from: l?.to ?? "", to: "", fromTz: l?.toTz, toTz: l?.toTz }] });
+            }}
+            className="action mt-5"
+          >
+            <Icon name="plus" size={14} /> Add a leg
+          </button>
+        )}
       </div>
 
       {j.gmapsDirections && (
-        <a href={j.gmapsDirections} target="_blank" rel="noopener" className="mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-accent">
+        <a href={j.gmapsDirections} target="_blank" rel="noopener" className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-accent">
           <Icon name="map" size={14} /> Directions in Google Maps
         </a>
       )}
 
-      <section className="mt-8 border-t border-line pt-5">
-        <p className="kicker mb-2">Notes</p>
-        <div className="text-sm leading-relaxed text-ink">
-          <Editable as="textarea" label="Notes" value={j.notes ?? ""} placeholder="Backup routes, reminders…" onCommit={(v) => patch({ notes: v || undefined })} />
-        </div>
-      </section>
+      {(j.notes || !ro) && (
+        <section>
+          <div className="section-head"><p className="kicker">Notes</p></div>
+          <div className="text-sm leading-relaxed text-ink">
+            <Editable as="textarea" label="Notes" value={j.notes ?? ""} placeholder="Backup routes, reminders…" onCommit={(v) => patch({ notes: v || undefined })} />
+          </div>
+        </section>
+      )}
     </Page>
   );
 }

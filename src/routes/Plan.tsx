@@ -17,7 +17,7 @@ import { Icon, type IconName } from "@/components/Icon";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { tripClock, fmtDate, dayKind, legForDate, addDays } from "@/lib/dates";
+import { tripClock, fmtDate, dayKind, legForDate, addDays, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import type { Day, Leg, TripData } from "@/core/types";
 
@@ -58,8 +58,10 @@ export default function Plan() {
               <span className="text-lg text-ink-soft">of {c.totalDays}</span>
             </p>
             <p className="mt-2 text-sm">
-              <span className="font-semibold" style={{ color: legHex(currentLeg?.color) }}>{currentLeg?.base}</span>
-              <span className="meta"> · {c.daysRemaining} days left</span>
+              {currentLeg?.base && (
+                <span className="font-semibold" style={{ color: legHex(currentLeg.color) }}>{currentLeg.base} · </span>
+              )}
+              <span className="meta">{plural(c.daysRemaining, "day")} left</span>
             </p>
           </>
         )}
@@ -88,7 +90,7 @@ export default function Plan() {
             const nextDate = legDays.length ? addDays(legDays.at(-1)!.date, 1) : lastLeg.start;
             addEntity("days", { id: `day-${Math.random().toString(36).slice(2, 8)}`, date: nextDate, legId: lastLeg.id, hotelId: lastLeg.hotelId, title: "New day" } as never);
           }}
-          className="action mt-8"
+          className="action mt-10"
         >
           <Icon name="plus" size={15} /> Add a day
         </button>
@@ -134,76 +136,72 @@ function LegBlock({ data, leg, todayISO, readOnly }: { data: TripData; leg: Leg;
 
   const ordered = order.map((id) => legDays.find((d) => d.id === id)).filter(Boolean) as Day[];
 
+  const list = (
+    <>
+      {ordered.map((d) => (
+        <DayRow key={d.id} data={data} day={d} today={d.date === todayISO} loc={loc} readOnly={readOnly} />
+      ))}
+      {ordered.length === 0 && <li className="meta py-3">No days in this stay yet.</li>}
+    </>
+  );
+
   return (
     <section>
-      <div className="mb-3 border-b pb-1.5" style={{ borderColor: hex }}>
-        <div className="flex items-baseline gap-2">
-          <span className="h-3 w-3 shrink-0 translate-y-[1px] rounded-full" style={{ background: hex }} />
-          <h2 className="font-display text-[1.4rem] leading-tight">{leg.base}</h2>
-          {leg.nameJp && <span className="font-jp text-sm text-ink-faint">{leg.nameJp}</span>}
-        </div>
-        <p className="mt-0.5 pl-5 text-2xs uppercase tracking-wide text-ink-soft">
-          {fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – {fmtDate(leg.end, loc, { day: "numeric", month: "short" })} · {nights} nights
-        </p>
+      <div className="mb-2 flex items-baseline gap-2">
+        <span className="h-3 w-3 shrink-0 translate-y-[1px] rounded-full" style={{ background: hex }} />
+        <h2 className="font-display text-[1.35rem] leading-tight">{leg.base}</h2>
+        {leg.nameJp && <span className="font-jp text-sm text-ink-faint">{leg.nameJp}</span>}
       </div>
+      <p className="mb-2 pl-5 text-2xs uppercase tracking-[0.05em] text-ink-soft">
+        {fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – {fmtDate(leg.end, loc, { day: "numeric", month: "short" })} · {plural(nights, "night")}
+      </p>
 
-      {readOnly ? (
-        <ul>
-          {ordered.map((d) => (
-            <DayRow key={d.id} data={data} day={d} today={d.date === todayISO} loc={loc} hex={hex} readOnly />
-          ))}
-          {ordered.length === 0 && <li className="meta py-3">No days in this stay yet.</li>}
-        </ul>
-      ) : (
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-          <SortableContext items={order} strategy={verticalListSortingStrategy}>
-            <ul>
-              {ordered.map((d) => (
-                <DayRow key={d.id} data={data} day={d} today={d.date === todayISO} loc={loc} hex={hex} readOnly={false} />
-              ))}
-              {ordered.length === 0 && <li className="meta py-3">No days in this stay yet.</li>}
-            </ul>
-          </SortableContext>
-        </DndContext>
-      )}
+      <ul className="ml-1.5 border-l-2 pl-3.5" style={{ borderColor: hex }}>
+        {readOnly ? (
+          list
+        ) : (
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+            <SortableContext items={order} strategy={verticalListSortingStrategy}>
+              {list}
+            </SortableContext>
+          </DndContext>
+        )}
+      </ul>
     </section>
   );
 }
 
-function DayRow({ data, day, today, loc, hex, readOnly }: { data: TripData; day: Day; today: boolean; loc: string; hex: string; readOnly: boolean }) {
+function DayRow({ data, day, today, loc, readOnly }: { data: TripData; day: Day; today: boolean; loc: string; readOnly: boolean }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: day.id, disabled: readOnly });
   const k = KIND[dayKind(day, data)];
   return (
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`relative flex items-center border-b border-line bg-bg ${isDragging ? "z-10 opacity-70 shadow-sm" : ""}`}
+      className={`relative flex items-center border-b border-line bg-bg last:border-b-0 ${isDragging ? "z-10 opacity-70 shadow-sm" : ""}`}
     >
-      {today && <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: hex }} />}
-      {readOnly ? (
-        <span className="shrink-0 px-2 py-4" />
-      ) : (
+      {!readOnly && (
         <button
           {...attributes}
           {...listeners}
-          className="shrink-0 cursor-grab touch-none px-2 py-4 text-ink-faint active:cursor-grabbing"
+          className="-ml-1 shrink-0 cursor-grab touch-none px-1.5 py-3.5 text-ink-faint active:cursor-grabbing"
           aria-label="Drag to reorder"
         >
           <GripIcon />
         </button>
       )}
-      <Link to={`/day/${day.id}`} className="group flex min-w-0 flex-1 items-center gap-3 py-3.5 pr-1">
-        <span className={`w-11 shrink-0 whitespace-nowrap text-xs tabular-nums ${today ? "font-bold text-ink" : "text-ink-soft"}`}>
+      <Link to={`/day/${day.id}`} className={`group flex min-w-0 flex-1 items-baseline gap-3 py-3 pr-1 ${readOnly ? "pl-1" : ""}`}>
+        <span className={`w-10 shrink-0 whitespace-nowrap text-xs tabular-nums ${today ? "font-semibold text-ink" : "text-ink-soft"}`}>
           {fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}
         </span>
         <span className="min-w-0 flex-1">
-          <span className={`block truncate ${today ? "font-semibold" : "font-medium"} text-ink group-hover:underline`}>
+          <span className={`block truncate ${day.title ? "font-semibold text-ink" : "font-medium text-ink-faint"} group-hover:underline`}>
             {day.title || "Untitled day"}
             {today && <span className="ml-2 align-middle text-2xs font-bold uppercase tracking-wide text-accent">Today</span>}
           </span>
         </span>
         {k && (
-          <span className="flex shrink-0 items-center gap-1 text-2xs font-semibold uppercase tracking-wide text-ink-soft">
+          <span className="flex shrink-0 items-center gap-1 text-2xs font-semibold uppercase tracking-[0.04em] text-ink-soft">
             <Icon name={k.icon} size={12} /> {k.label}
           </span>
         )}

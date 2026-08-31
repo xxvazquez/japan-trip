@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Page } from "@/components/Page";
 import { BackBar } from "@/components/BackBar";
@@ -5,6 +6,7 @@ import { Editable } from "@/components/Editable";
 import { Icon } from "@/components/Icon";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
+import { useReadOnly } from "@/lib/readonly";
 import { gmapsLink } from "@/lib/maps";
 import { fmtDate } from "@/lib/dates";
 import type { Hotel as HotelT } from "@/core/types";
@@ -13,6 +15,8 @@ export default function Hotel() {
   const data = useData();
   const { id } = useParams();
   const updateEntity = useApp((s) => s.updateEntity);
+  const ro = useReadOnly();
+  const [showRef, setShowRef] = useState(false);
   if (!data) return null;
 
   const L = lookups(data);
@@ -29,6 +33,24 @@ export default function Hotel() {
   const map = gmapsLink(hotel.mapUrl || hotel.address);
   const loc = data.config.locale;
 
+  const door: [string, string | undefined, ((v: string) => void), ("time" | undefined)][] = [
+    ["Wifi", hotel.wifi, (v) => p({ wifi: v || undefined }), undefined],
+    ["Door code", hotel.doorCode, (v) => p({ doorCode: v || undefined }), undefined],
+    ["Check-in", hotel.checkIn, (v) => p({ checkIn: v || undefined }), "time"],
+    ["Check-out", hotel.checkOut, (v) => p({ checkOut: v || undefined }), "time"],
+  ];
+  const doorShown = ro ? door.filter(([, v]) => v) : door;
+
+  const ref: [string, string | undefined, ((v: string) => void), ("link" | undefined), string?][] = [
+    ["Phone", hotel.phone, (v) => p({ phone: v || undefined }), undefined],
+    ["Booking ref", hotel.reservationRef, (v) => p({ reservationRef: v || undefined }), undefined],
+    ["Map link", hotel.mapUrl, (v) => p({ mapUrl: v || undefined }), "link", "paste Google Maps link"],
+    ["Website", hotel.url, (v) => p({ url: v || undefined }), "link"],
+  ];
+  const refFilled = ref.filter(([, v]) => v);
+  const showRefRows = refFilled.length > 0 || (!ro && showRef);
+  const showRefSection = !ro || refFilled.length > 0;
+
   return (
     <Page>
       <BackBar to="/logbook" />
@@ -38,69 +60,75 @@ export default function Hotel() {
       {leg && <p className="meta mt-1">{fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – {fmtDate(leg.end, loc, { day: "numeric", month: "short" })}</p>}
 
       {/* address — the thing you show a taxi */}
-      <div className="mt-5 border-y-2 border-ink/15 py-4">
-        <p className="text-[0.95rem] leading-snug">
-          <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined })} />
-        </p>
-        <p className="mt-1 font-jp text-[0.95rem] leading-snug text-ink-soft">
-          <Editable label="Address (Japanese)" value={hotel.addressJp ?? ""} placeholder="現地語の住所（タクシー用）" onCommit={(v) => p({ addressJp: v || undefined })} />
-        </p>
-        {map && (
-          <a href={map} target="_blank" rel="noopener" className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-accent">
-            <Icon name="map" size={15} /> Open in Google Maps
-          </a>
-        )}
-      </div>
+      {(hotel.address || hotel.addressJp || !ro) && (
+        <div className="-mx-5 mt-6 bg-surface px-5 py-4 sm:px-7">
+          <p className="text-[1rem] font-medium leading-snug">
+            <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined })} />
+          </p>
+          {(hotel.addressJp || !ro) && (
+            <p className="mt-1 font-jp text-[0.95rem] leading-snug text-ink-soft">
+              <Editable label="Address (Japanese)" value={hotel.addressJp ?? ""} placeholder="現地語の住所（タクシー用）" onCommit={(v) => p({ addressJp: v || undefined })} />
+            </p>
+          )}
+          {map && (
+            <a href={map} target="_blank" rel="noopener" className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-accent">
+              <Icon name="map" size={15} /> Open in Google Maps
+            </a>
+          )}
+        </div>
+      )}
 
       {/* the stuff you need at the door */}
-      <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-4">
-        <Big label="Wifi" value={hotel.wifi ?? ""} onCommit={(v) => p({ wifi: v || undefined })} />
-        <Big label="Door code" value={hotel.doorCode ?? ""} onCommit={(v) => p({ doorCode: v || undefined })} />
-        <Big label="Check-in" value={hotel.checkIn ?? ""} as="time" onCommit={(v) => p({ checkIn: v || undefined })} />
-        <Big label="Check-out" value={hotel.checkOut ?? ""} as="time" onCommit={(v) => p({ checkOut: v || undefined })} />
-      </div>
-
-      <section className="mt-7">
-        <p className="kicker mb-2">Getting here</p>
-        <div className="text-sm leading-relaxed text-ink">
-          <Editable as="textarea" label="Directions" value={hotel.directions ?? ""} placeholder="From the station…" onCommit={(v) => p({ directions: v || undefined })} />
+      {doorShown.length > 0 && (
+        <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-5">
+          {doorShown.map(([label, value, onCommit, as]) => (
+            <div key={label}>
+              <p className="text-2xs font-semibold uppercase tracking-[0.06em] text-ink-soft">{label}</p>
+              <p className="mt-0.5 text-[1.0625rem] font-semibold leading-snug">
+                <Editable as={as} label={label} value={value ?? ""} placeholder="—" onCommit={onCommit} />
+              </p>
+            </div>
+          ))}
         </div>
-      </section>
+      )}
 
-      <section className="mt-7">
-        <p className="kicker mb-2">Reference</p>
-        <Row label="Phone" value={hotel.phone ?? ""} onCommit={(v) => p({ phone: v || undefined })} />
-        <Row label="Booking ref" value={hotel.reservationRef ?? ""} onCommit={(v) => p({ reservationRef: v || undefined })} />
-        <Row label="Map link" as="link" value={hotel.mapUrl ?? ""} onCommit={(v) => p({ mapUrl: v || undefined })} placeholder="paste Google Maps link" />
-        <Row label="Website" as="link" value={hotel.url ?? ""} onCommit={(v) => p({ url: v || undefined })} />
-      </section>
+      {(hotel.directions || !ro) && (
+        <section>
+          <div className="section-head"><p className="kicker">Getting here</p></div>
+          <div className="text-sm leading-relaxed text-ink">
+            <Editable as="textarea" label="Directions" value={hotel.directions ?? ""} placeholder="From the station…" onCommit={(v) => p({ directions: v || undefined })} />
+          </div>
+        </section>
+      )}
 
-      <section className="mt-7 border-t border-line pt-5">
-        <p className="kicker mb-2">Notes</p>
-        <div className="text-sm leading-relaxed text-ink">
-          <Editable as="textarea" label="Notes" value={hotel.notes ?? ""} placeholder="Anything about this stay" onCommit={(v) => p({ notes: v || undefined })} />
-        </div>
-      </section>
+      {showRefSection && (
+        <section>
+          <div className="section-head"><p className="kicker">Reference</p></div>
+          {showRefRows ? (
+            (ro ? refFilled : ref).map(([label, value, onCommit, as, ph]) => (
+              <div key={label} className="row">
+                <span className="row-label">{label}</span>
+                <span className="row-value text-sm">
+                  <Editable as={as} label={label} value={value ?? ""} onCommit={onCommit} placeholder={ph ?? "—"} />
+                </span>
+              </div>
+            ))
+          ) : (
+            <button onClick={() => setShowRef(true)} className="action">
+              <Icon name="plus" size={14} /> Add reference details
+            </button>
+          )}
+        </section>
+      )}
+
+      {(hotel.notes || !ro) && (
+        <section>
+          <div className="section-head"><p className="kicker">Notes</p></div>
+          <div className="text-sm leading-relaxed text-ink">
+            <Editable as="textarea" label="Notes" value={hotel.notes ?? ""} placeholder="Anything about this stay" onCommit={(v) => p({ notes: v || undefined })} />
+          </div>
+        </section>
+      )}
     </Page>
-  );
-}
-
-function Big({ label, value, onCommit, as }: { label: string; value: string; onCommit: (v: string) => void; as?: "time" }) {
-  return (
-    <div>
-      <p className="kicker">{label}</p>
-      <p className="mt-0.5 text-lg font-medium">
-        <Editable as={as} label={label} value={value} placeholder="—" onCommit={onCommit} />
-      </p>
-    </div>
-  );
-}
-
-function Row({ label, value, onCommit, placeholder, as }: { label: string; value: string; onCommit: (v: string) => void; placeholder?: string; as?: "link" }) {
-  return (
-    <div className="flex items-baseline justify-between gap-4 border-b border-line py-2 text-sm last:border-b-0">
-      <span className="shrink-0 text-ink-soft">{label}</span>
-      <span className="min-w-0 text-right"><Editable as={as} label={label} value={value} onCommit={onCommit} placeholder={placeholder ?? "—"} /></span>
-    </div>
   );
 }
