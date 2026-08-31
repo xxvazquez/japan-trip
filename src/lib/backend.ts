@@ -4,6 +4,7 @@ import { supabaseEnabled } from "./supabase";
 import { getUserId } from "./auth";
 import * as db from "./db";
 import { remapIds } from "./remapIds";
+import { normalizeTrip } from "./hydrate";
 import type { AtlasState, EntityType, Segment, TripData, TripSummary } from "@/core/types";
 
 export interface Backend {
@@ -37,7 +38,7 @@ const localBackend: Backend = {
     const atlas = await kv.get<AtlasState>(STORAGE_KEYS.atlas);
     return { trips: atlas?.trips ?? [], activeId: atlas?.activeTripId ?? null };
   },
-  loadTrip: (id) => kv.get<TripData>(STORAGE_KEYS.trip(id)).then((d) => d ?? null),
+  loadTrip: (id) => kv.get<TripData>(STORAGE_KEYS.trip(id)).then((d) => (d ? normalizeTrip(d) : null)),
   async createTrip(data) {
     const id = rid();
     await kv.set(STORAGE_KEYS.trip(id), data);
@@ -67,7 +68,7 @@ const supabaseBackend: Backend = {
     const activeId = (await kv.get<string>("active-trip")) ?? trips.find((t) => !t.archived)?.id ?? trips[0]?.id ?? null;
     return { trips, activeId };
   },
-  loadTrip: (id) => db.loadTrip(id).catch(() => null),
+  loadTrip: (id) => db.loadTrip(id).then(normalizeTrip).catch(() => null),
   createTrip: (data, summary) => db.createTrip(data, summary),
   deleteTrip: (id) => db.deleteTripRow(id),
   setMeta: (id, patch) => db.setTripMeta(id, patch),

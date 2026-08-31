@@ -6,7 +6,7 @@ import { Icon } from "@/components/Icon";
 import { useApp } from "@/store/useApp";
 import { useData } from "@/lib/data";
 import { APP_NAME } from "@/lib/app";
-import { TEMPLATES } from "@/templates/registry";
+import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
 import { THEME_PRESETS } from "@/lib/themePresets";
 import { fileToMediaItem, pickImage } from "@/lib/media";
 import { supabaseEnabled } from "@/lib/supabase";
@@ -58,7 +58,8 @@ function Trips() {
 
   const make = async (templateId?: string) => {
     setBusy(true);
-    const id = await createTrip({ name: templateId ? `${TEMPLATES.find((t) => t.id === templateId)?.name} copy` : "New trip", templateId });
+    const name = templateId ? (buildFromTemplate(templateId).config.branding || "New trip") : "New trip";
+    const id = await createTrip({ name, templateId });
     await switchTrip(id);
     setBusy(false);
     nav("/");
@@ -90,7 +91,8 @@ function Trips() {
           <p className="mb-3 text-sm font-medium">Start from…</p>
           <div className="flex flex-col gap-2">
             <button onClick={() => make()} disabled={busy} className="btn justify-start">
-              <Icon name="plus" size={15} /> Blank trip
+              <Icon name="plus" size={15} /> Empty template
+              <span className="ml-1 hidden text-xs text-ink-faint sm:inline">— blank; add days, hide sections you don't want</span>
             </button>
             {TEMPLATES.map((t) => (
               <button key={t.id} onClick={() => make(t.id)} disabled={busy} className="btn justify-start">

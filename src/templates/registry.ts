@@ -16,8 +16,8 @@ export interface TemplateEntry {
 export const TEMPLATES: TemplateEntry[] = [
   {
     id: "japan-2026",
-    name: "Japan 2026",
-    subtitle: "Tokyo · Kawaguchiko · Kyoto — a worked 24-day example",
+    name: "Japan 2026 · demo",
+    subtitle: "a full worked 24-day example — trim it or ignore it",
     build: buildJapan2026,
   },
 ];
