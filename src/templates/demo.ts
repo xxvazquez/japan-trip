@@ -38,6 +38,17 @@ export function buildDemo(): TripData {
       ],
       mapSourceUrl: "",
       demo: true,
+      lists: [
+        {
+          id: "list-eat",
+          title: "Food & coffee",
+          items: [
+            { id: "li-1", label: "That bakery everyone posts about", note: "Get there before 10 or it's gone", url: "https://www.google.com/maps/search/?api=1&query=bakery" },
+            { id: "li-2", label: "Natural wine bar near the second hotel" },
+            { id: "li-3", label: "Coffee roaster — closed Mondays" },
+          ],
+        },
+      ],
     },
     meta: { title: "Demo", start: D1, end: D4 },
     media: { gallery: [] },

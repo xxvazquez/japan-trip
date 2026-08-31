@@ -48,6 +48,25 @@ export interface TripConfig {
   mapSyncedAt?: string;
   /** the built-in read-only tour trip — every screen locks editing */
   demo?: boolean;
+  /** optional Logbook sections turned off for this trip
+   *  (any of: "getting around" | "luggage" | "documents" | "packing") */
+  hiddenLogbook?: string[];
+  /** extra Logbook sections — a title + a plain list of items */
+  lists?: CustomList[];
+}
+
+export interface ListItem {
+  id: ID;
+  label: string;
+  note?: string;
+  /** pasted Maps or web link */
+  url?: string;
+}
+
+export interface CustomList {
+  id: ID;
+  title: string;
+  items: ListItem[];
 }
 
 /** A branding image, stored inline as a (resized) data URL so it works offline. */
