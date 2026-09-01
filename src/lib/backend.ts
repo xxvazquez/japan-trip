@@ -23,6 +23,8 @@ export interface Backend {
   deleteRow(tripId: string, type: EntityType, id: string): Promise<void>;
   setPositions(type: EntityType, items: { id: string; position: number }[]): Promise<void>;
   setSegments(tripId: string, journeyId: string, segments: Segment[]): Promise<void>;
+  /** supabase: replace one area's place membership. local: folds into saveWhole. */
+  setAreaPlaces(tripId: string, areaId: string, placeIds: string[]): Promise<void>;
   saveTripFields(tripId: string, fields: Record<string, unknown>): Promise<void>;
 }
 
@@ -56,6 +58,7 @@ const localBackend: Backend = {
   deleteRow: noop,
   setPositions: noop,
   setSegments: noop,
+  setAreaPlaces: noop,
   saveTripFields: noop,
 };
 
@@ -80,6 +83,7 @@ const supabaseBackend: Backend = {
   deleteRow: (_tripId, type, id) => db.deleteRow(type, id),
   setPositions: (type, items) => db.setPositions(type, items),
   setSegments: (tripId, journeyId, segments) => db.setSegments(tripId, journeyId, segments),
+  setAreaPlaces: (tripId, areaId, placeIds) => db.setAreaPlaces(tripId, areaId, placeIds),
   saveTripFields: (tripId, fields) => db.saveTripFields(tripId, fields),
 };
 

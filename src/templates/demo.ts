@@ -85,6 +85,9 @@ export function buildDemo(): TripData {
           { id: "dp2", label: "A museum", placeId: "pl-2" },
           { id: "dp3", label: "Market for lunch", placeId: "pl-4" },
         ],
+        // add an area to a day and its places join the day's map (they're not
+        // copied into the plan above)
+        areaIds: ["ar-1"],
       },
       {
         id: "d3",
@@ -207,6 +210,13 @@ export function buildDemo(): TripData {
       { id: "pl-2", name: "A museum", lat: 35.7148, lng: 139.7752, category: "see", color: "#5c6bc0" },
       { id: "pl-3", name: "A viewpoint", lat: 35.6586, lng: 139.7454, category: "see", color: "#5c6bc0" },
       { id: "pl-4", name: "Market for lunch", lat: 35.6655, lng: 139.7708, category: "food", color: "#26a69a" },
+    ],
+
+    areas: [
+      // "Category" is what a place is (coffee, see…); an "area" is where it is.
+      // Add an area to a day and its places show on that day's map automatically.
+      { id: "ar-1", name: "Old town", placeIds: ["pl-2", "pl-3"] },
+      { id: "ar-2", name: "Riverside", placeIds: ["pl-1", "pl-4"] },
     ],
   };
 

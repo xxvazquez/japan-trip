@@ -17,7 +17,7 @@ export function remapIds(data: TripData): TripData {
     return map.get(old)!;
   };
 
-  const collections: (keyof TripData)[] = ["legs", "hotels", "journeys", "luggage", "days", "packing", "docs", "places"];
+  const collections: (keyof TripData)[] = ["legs", "hotels", "journeys", "luggage", "days", "packing", "docs", "places", "areas"];
   for (const key of collections) {
     const list = d[key] as unknown as { id: string }[];
     if (Array.isArray(list)) for (const e of list) e.id = fresh(e.id)!;
@@ -31,6 +31,7 @@ export function remapIds(data: TripData): TripData {
     day.legId = R(day.legId)!;
     day.hotelId = R(day.hotelId);
     day.journeyId = R(day.journeyId);
+    day.areaIds = day.areaIds?.map((id) => R(id)!);
     for (const p of day.places ?? []) {
       p.id = fresh(p.id)!;
       if (p.placeId) p.placeId = R(p.placeId);
@@ -40,6 +41,7 @@ export function remapIds(data: TripData): TripData {
     j.fromLegId = R(j.fromLegId);
     j.toLegId = R(j.toLegId);
   }
+  for (const a of d.areas ?? []) a.placeIds = (a.placeIds ?? []).map((id) => R(id)!);
 
   return d;
 }

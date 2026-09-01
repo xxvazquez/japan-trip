@@ -5,6 +5,7 @@ import { Editable } from "@/components/Editable";
 import { Icon } from "@/components/Icon";
 import { useApp } from "@/store/useApp";
 import { useData } from "@/lib/data";
+import { plural } from "@/lib/dates";
 import { APP_NAME } from "@/lib/app";
 import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
 import { THEME_PRESETS } from "@/lib/themePresets";
@@ -13,7 +14,7 @@ import { supabaseEnabled } from "@/lib/supabase";
 import { useAuth, signOut } from "@/lib/auth";
 import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
 import { useEffect } from "react";
-import type { EntityType } from "@/core/types";
+import type { Area, EntityType } from "@/core/types";
 
 type Tab = "trips" | "settings" | "modules" | "media" | "content";
 const TABS: Tab[] = ["trips", "settings", "modules", "media", "content"];
@@ -561,20 +562,22 @@ const ENTITY_LABELS: Record<EntityType, string> = {
   packing: "Packing items",
   docs: "Documents",
   places: "Map places",
+  areas: "Areas",
 };
 
 const OPTIONAL_LOGBOOK = ["getting around", "luggage", "documents", "packing"] as const;
 
 const CONTENT_GROUPS: { title: string; types: EntityType[] }[] = [
   { title: "Itinerary", types: ["legs", "days", "hotels", "journeys"] },
-  { title: "Reference", types: ["luggage", "packing", "docs", "places"] },
+  { title: "Reference", types: ["places", "areas", "luggage", "packing", "docs"] },
 ];
 
 function Content() {
   const data = useData();
-  const { removeEntity, moveEntity, addEntity } = useApp();
+  const { removeEntity, moveEntity, addEntity, updateEntity } = useApp();
   const mutate = useApp((s) => s.mutateTrip);
   const [open, setOpen] = useState<EntityType | null>(null);
+  const [areaMembers, setAreaMembers] = useState<string | null>(null);
   if (!data) return null;
   if (data.config.demo) return <DemoNotice />;
 
@@ -599,6 +602,7 @@ function Content() {
       case "packing": return { id, label: "New item", phase: "bring", group: "Other" };
       case "docs": return { id, title: "New document", kind: "other", fields: [] };
       case "places": return { id, name: "New place", lat: 35.68, lng: 139.76, category: "My places" };
+      case "areas": return { id: crypto.randomUUID?.() ?? id, name: "New area", placeIds: [] };
       default: return { id };
     }
   };
@@ -612,6 +616,63 @@ function Content() {
       : type === "journeys" ? `/journey/${id}`
       : null;
 
+  /** Areas: name + membership. "Category" is what a place is; an area is where. */
+  const AreaEditor = () => {
+    const members = areaMembers;
+    const setMembers = setAreaMembers;
+    const places = [...data.places].sort((a, b) => a.name.localeCompare(b.name));
+    const toggle = (areaId: string, placeId: string) => {
+      const a = data.areas.find((x) => x.id === areaId);
+      if (!a) return;
+      const next = a.placeIds.includes(placeId) ? a.placeIds.filter((p) => p !== placeId) : [...a.placeIds, placeId];
+      updateEntity<Area>("areas", areaId, { placeIds: next });
+    };
+    return (
+      <div className="pb-3 pl-3">
+        <ul>
+          {data.areas.map((a) => (
+            <li key={a.id} className="border-b border-line py-2 last:border-b-0">
+              <div className="flex items-center gap-2 text-sm">
+                <span className="min-w-0 flex-1 truncate">
+                  <Editable label="Area name" value={a.name} placeholder="Area name" onCommit={(v) => updateEntity<Area>("areas", a.id, { name: v || "Untitled" })} />
+                </span>
+                <button onClick={() => setMembers(members === a.id ? null : a.id)} className="shrink-0 text-xs text-ink-soft hover:text-ink">
+                  {plural(a.placeIds.length, "place")}
+                  <Icon name={members === a.id ? "up" : "down"} size={12} className="ml-1 inline align-[-1px]" />
+                </button>
+                <ConfirmButton onConfirm={() => removeEntity("areas", a.id)} className="shrink-0 text-ink-faint hover:text-accent"><Icon name="trash" size={14} /></ConfirmButton>
+              </div>
+              {members === a.id && (
+                places.length === 0 ? (
+                  <p className="mt-2 text-xs text-ink-faint">No map places yet — add pins on the Map first.</p>
+                ) : (
+                  <ul className="mt-1.5">
+                    {places.map((p) => {
+                      const on = a.placeIds.includes(p.id);
+                      return (
+                        <li key={p.id}>
+                          <button onClick={() => toggle(a.id, p.id)} className="flex w-full items-center gap-2 py-1 text-left text-sm">
+                            <Icon name="check" size={13} className={`shrink-0 ${on ? "text-accent" : "text-ink-faint/30"}`} />
+                            <span className={`min-w-0 truncate ${on ? "text-ink" : "text-ink-soft"}`}>{p.name}</span>
+                            {p.category && <span className="shrink-0 text-2xs text-ink-faint">{p.category}</span>}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )
+              )}
+            </li>
+          ))}
+          {data.areas.length === 0 && <li className="py-2 text-sm text-ink-faint">None yet.</li>}
+        </ul>
+        <button onClick={() => addEntity("areas", blankFor("areas") as { id: string })} className="action mt-3 text-xs">
+          <Icon name="plus" size={13} /> Add area
+        </button>
+      </div>
+    );
+  };
+
   const Rows = ({ type }: { type: EntityType }) => {
     const list = data[type] as { id: string }[];
     const isOpen = open === type;
@@ -624,7 +685,8 @@ function Content() {
             <Icon name={isOpen ? "up" : "down"} size={15} className="text-ink-faint" />
           </span>
         </button>
-        {isOpen && (
+        {isOpen && type === "areas" && <AreaEditor />}
+        {isOpen && type !== "areas" && (
           <div className="pb-3 pl-3">
             <ul>
               {list.map((x, i) => {

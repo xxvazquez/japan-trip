@@ -158,6 +158,16 @@ export interface DayPlace {
   placeId?: ID;
 }
 
+/** A named geographic grouping of places — "where", orthogonal to a place's
+ *  `category` ("what"). Many-to-many: a place can be in several areas. The
+ *  membership is materialised from the `area_places` join table into `placeIds`.
+ *  Trip-agnostic — works for any neighbourhood, district or region. */
+export interface Area {
+  id: ID;
+  name: string;
+  placeIds: ID[];
+}
+
 /** A pin on the trip map. Either imported from a Google My Map
  *  (`source: "mymap"`) or added in the app (`source` unset). */
 export interface Place {
@@ -188,6 +198,9 @@ export interface Day {
   /** free-form notes, rendered as light Markdown */
   notes?: string;
   places?: DayPlace[];
+  /** areas the day pulls in — their places show on the day's map (live), but
+   *  are never copied into `places`; the written plan stays explicit. */
+  areaIds?: ID[];
   /** set when this is a travel day */
   journeyId?: ID;
   /** flagged as an out-of-town day */
@@ -268,6 +281,7 @@ export interface TripData {
   journeys: Journey[];
   luggage: LuggageNote[];
   places: Place[];
+  areas: Area[];
   docs: Doc[];
   packing: PackingItem[];
   /** a single free-text scratchpad for the whole trip */
@@ -290,4 +304,4 @@ export interface AtlasState {
 }
 
 /** Entity collections Manage can add/remove/reorder. */
-export type EntityType = "legs" | "days" | "hotels" | "journeys" | "luggage" | "docs" | "packing" | "places";
+export type EntityType = "legs" | "days" | "hotels" | "journeys" | "luggage" | "docs" | "packing" | "places" | "areas";

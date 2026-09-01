@@ -163,6 +163,51 @@ export default function Day() {
       </section>
       )}
 
+      {/* AREAS — pull an area's places onto this day's map, without touching the plan */}
+      {((day.areaIds ?? []).length > 0 || (!ro && data.areas.length > 0)) && (
+        <section>
+          <div className="section-head"><p className="kicker">Areas</p></div>
+          <div className="flex flex-wrap gap-2">
+            {(day.areaIds ?? []).map((id) => {
+              const a = data.areas.find((x) => x.id === id);
+              if (!a) return null;
+              return (
+                <span key={id} className="inline-flex items-center gap-1.5 rounded-[2px] border border-line px-2 py-1 text-xs">
+                  {a.name || "Untitled"}
+                  <span className="text-ink-faint">{a.placeIds.length}</span>
+                  {!ro && (
+                    <button
+                      onClick={() => patch({ areaIds: (day.areaIds ?? []).filter((x) => x !== id) })}
+                      aria-label={`Remove ${a.name}`}
+                      className="text-ink-faint hover:text-accent"
+                    >
+                      <Icon name="close" size={11} />
+                    </button>
+                  )}
+                </span>
+              );
+            })}
+            {!ro && data.areas.some((a) => !(day.areaIds ?? []).includes(a.id)) && (
+              <select
+                value=""
+                onChange={(e) => e.target.value && patch({ areaIds: [...(day.areaIds ?? []), e.target.value] })}
+                className="cursor-pointer rounded-[2px] border border-dashed border-line bg-transparent px-2 py-1 text-xs text-accent focus:outline-none"
+              >
+                <option value="">＋ Add area</option>
+                {data.areas
+                  .filter((a) => !(day.areaIds ?? []).includes(a.id))
+                  .map((a) => (
+                    <option key={a.id} value={a.id}>{a.name || "Untitled"}</option>
+                  ))}
+              </select>
+            )}
+          </div>
+          {(day.areaIds ?? []).length > 0 && (
+            <p className="meta mt-2">Places in {(day.areaIds ?? []).length === 1 ? "this area" : "these areas"} show on the day's map — they don't change the plan above.</p>
+          )}
+        </section>
+      )}
+
       {/* DAY TRIP — a distinct block, set on a quiet surface */}
       {day.dayTrip ? (
         <section className="-mx-5 mt-9 bg-surface px-5 py-6 sm:-mx-7 sm:px-7">

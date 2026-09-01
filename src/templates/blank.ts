@@ -33,6 +33,7 @@ export function buildBlank(name = "New trip"): TripData {
     journeys: [],
     luggage: [],
     places: [],
+    areas: [],
     packing: [],
     docs: [],
   });

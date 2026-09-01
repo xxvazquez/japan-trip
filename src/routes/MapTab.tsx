@@ -10,7 +10,7 @@ import { gmapsLink } from "@/lib/maps";
 import { geocode, type GeoResult } from "@/lib/geocode";
 import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
-import type { Day, DayPlace, Place, TripData } from "@/core/types";
+import type { Area, Day, DayPlace, Place, TripData } from "@/core/types";
 
 const FALLBACK = "#5f7f9c";
 const rid = () => (crypto?.randomUUID ? crypto.randomUUID() : `p-${Math.random().toString(36).slice(2)}`);
@@ -52,7 +52,8 @@ export default function MapTab() {
 
   const map = useRef<MLMap | null>(null);
   const [scope, setScope] = useState<string | null>(null);
-  const [hidden, setHidden] = useState<Set<string>>(new Set());
+  /** category filter — empty means "all categories". Combines with any scope. */
+  const [catFilter, setCatFilter] = useState<Set<string>>(new Set());
   const [selected, setSelected] = useState<string | null>(null);
   const [snap, setSnap] = useState<Snap>("peek");
 
@@ -106,17 +107,34 @@ export default function MapTab() {
     return m;
   }, [data]);
 
-  const scoped = useMemo(() => {
-    if (!data) return [];
-    let list = places;
-    if (scope && scope !== "all") {
-      const legId = scope.startsWith("leg:") ? scope.slice(4) : null;
-      const days = legId ? data.days.filter((d) => d.legId === legId) : data.days.filter((d) => d.id === scope);
-      const ids = new Set(days.flatMap((d) => d.places ?? []).map((x) => x.placeId).filter(Boolean));
-      list = places.filter((p) => ids.has(p.id));
+  /** ids a day pulls in: explicit picks, and (live) everything in its areas */
+  const dayIds = (d: Day | undefined) => {
+    const explicit = (d?.places ?? []).map((x) => x.placeId).filter(Boolean) as string[];
+    const fromAreas = (d?.areaIds ?? []).flatMap((id) => data?.areas.find((a) => a.id === id)?.placeIds ?? []);
+    return { explicit: new Set(explicit), all: new Set([...explicit, ...fromAreas]) };
+  };
+
+  /** places for the current scope + which of them are inherited from an area (not explicit) */
+  const { scoped, derived } = useMemo(() => {
+    const cat = (p: Place) => catFilter.size === 0 || (!!p.category && catFilter.has(p.category));
+    if (!data) return { scoped: [] as Place[], derived: new Set<string>() };
+    if (!scope || scope === "all" || scope.startsWith("area:")) {
+      const ids = scope?.startsWith("area:") ? new Set(data.areas.find((a) => a.id === scope.slice(5))?.placeIds ?? []) : null;
+      return { scoped: places.filter((p) => (!ids || ids.has(p.id)) && cat(p)), derived: new Set<string>() };
     }
-    return list.filter((p) => !p.category || !hidden.has(p.category));
-  }, [data, places, scope, hidden]);
+    const days = scope.startsWith("leg:") ? data.days.filter((d) => d.legId === scope.slice(4)) : data.days.filter((d) => d.id === scope);
+    const all = new Set<string>();
+    const explicit = new Set<string>();
+    for (const d of days) {
+      const s = dayIds(d);
+      s.all.forEach((id) => all.add(id));
+      s.explicit.forEach((id) => explicit.add(id));
+    }
+    return {
+      scoped: places.filter((p) => all.has(p.id) && cat(p)),
+      derived: new Set([...all].filter((id) => !explicit.has(id))),
+    };
+  }, [data, places, scope, catFilter]);
 
   // fit the map to the current scope when nothing is selected
   const fitScope = () => {
@@ -139,7 +157,7 @@ export default function MapTab() {
   const c = tripClock(data);
 
   const toggleCat = (name: string) =>
-    setHidden((s) => {
+    setCatFilter((s) => {
       const n = new Set(s);
       n.has(name) ? n.delete(name) : n.add(name);
       return n;
@@ -182,6 +200,13 @@ export default function MapTab() {
     updateEntity<Day>("days", dayId, { places: [...(day.places ?? []), dp] });
   };
 
+  const toggleAreaPlace = (areaId: string, placeId: string) => {
+    const a = data.areas.find((x) => x.id === areaId);
+    if (!a) return;
+    const next = a.placeIds.includes(placeId) ? a.placeIds.filter((p) => p !== placeId) : [...a.placeIds, placeId];
+    updateEntity<Area>("areas", areaId, { placeIds: next });
+  };
+
   const runSync = async () => {
     if (!url) return;
     setBusy(true);
@@ -206,6 +231,13 @@ export default function MapTab() {
         value: d.id,
         label: `${fmtDate(d.date, loc, { weekday: "short", day: "numeric", month: "short" })}${d.title ? ` · ${d.title}` : ""}`,
         group: "By day" as const,
+      })),
+    ...[...data.areas]
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((a) => ({
+        value: `area:${a.id}`,
+        label: `${a.name || "Untitled"}${a.placeIds.length ? ` · ${a.placeIds.length}` : ""}`,
+        group: "By area" as const,
       })),
   ];
 
@@ -235,20 +267,20 @@ export default function MapTab() {
           )}
         </div>
 
-        {/* category dots */}
+        {/* category filter — tap to narrow; none selected = all shown */}
         {cats.length > 0 && !adding && (
           <div className="mt-2.5 flex flex-wrap gap-x-3 gap-y-1.5">
             {cats.map(([name, col]) => {
-              const off = hidden.has(name);
+              const on = catFilter.size === 0 || catFilter.has(name);
               return (
                 <button
                   key={name}
                   onClick={() => toggleCat(name)}
-                  className={`inline-flex items-center gap-1.5 text-xs transition-opacity ${off ? "opacity-35" : ""}`}
+                  className={`inline-flex items-center gap-1.5 text-xs transition-opacity ${on ? "" : "opacity-35"}`}
                 >
                   <span
                     className="h-2.5 w-2.5 shrink-0 rounded-full"
-                    style={{ background: col, boxShadow: off ? "none" : `0 0 0 1px ${col}` }}
+                    style={{ background: col, boxShadow: on ? `0 0 0 1px ${col}` : "none" }}
                   />
                   {name}
                 </button>
@@ -321,12 +353,15 @@ export default function MapTab() {
             place={p}
             open={selected === p.id}
             dayId={dayOfPlace.get(p.id)}
+            derived={derived.has(p.id)}
             days={data.days}
+            areas={data.areas}
             loc={loc}
             onToggle={() => setSelected(selected === p.id ? null : p.id)}
             onNote={(v) => updateEntity<Place>("places", p.id, { note: v || undefined })}
             onName={(v) => v && updateEntity<Place>("places", p.id, { name: v })}
             onAddToDay={(d) => addToDay(p, d)}
+            onToggleArea={(areaId) => toggleAreaPlace(areaId, p.id)}
             onRemove={() => {
               removeEntity("places", p.id);
               if (selected === p.id) setSelected(null);
@@ -337,7 +372,7 @@ export default function MapTab() {
           <li className="meta py-6">
             {places.length === 0
               ? "No places yet. Add one above, or paste a Google My Maps link in Manage to import your pins."
-              : "No places in this view. Widen the scope or turn a category back on."}
+              : "No places in this view. Widen the scope or clear the category filter."}
           </li>
         )}
         <li className="h-4" />
@@ -378,6 +413,7 @@ export default function MapTab() {
         <MapView
           places={scoped}
           selectedId={selected}
+          derivedIds={derived}
           dark={dark}
           onSelect={setSelected}
           onMapClick={onMapClick}
@@ -414,7 +450,7 @@ export default function MapTab() {
   );
 }
 
-type ScopeOption = { value: string; label: string; group?: "By stay" | "By day" };
+type ScopeOption = { value: string; label: string; group?: "By stay" | "By day" | "By area" };
 
 function ScopeMenu({ value, options, onChange }: { value: string; options: ScopeOption[]; onChange: (v: string) => void }) {
   const [open, setOpen] = useState(false);
@@ -480,23 +516,29 @@ function PlaceRow({
   place,
   open,
   dayId,
+  derived,
   days,
+  areas,
   loc,
   onToggle,
   onNote,
   onName,
   onAddToDay,
+  onToggleArea,
   onRemove,
 }: {
   place: Place;
   open: boolean;
   dayId?: string;
+  derived?: boolean;
   days: TripData["days"];
+  areas: Area[];
   loc: string;
   onToggle: () => void;
   onNote: (v: string) => void;
   onName: (v: string) => void;
   onAddToDay: (dayId: string) => void;
+  onToggleArea: (areaId: string) => void;
   onRemove: () => void;
 }) {
   const readOnly = useReadOnly();
@@ -509,11 +551,16 @@ function PlaceRow({
   const metaBits = [place.category, day && `on ${fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}`].filter(Boolean).join(" · ");
   return (
     <li ref={li} className="border-b border-line last:border-b-0">
-      <button onClick={onToggle} className="flex w-full items-baseline gap-2.5 py-2.5 text-left">
-        <span className="h-2.5 w-2.5 shrink-0 translate-y-0.5 rounded-full" style={{ background: place.color || FALLBACK }} />
+      <button onClick={onToggle} className={`flex w-full items-baseline gap-2.5 py-2.5 text-left ${derived ? "opacity-60" : ""}`}>
+        <span
+          className="h-2.5 w-2.5 shrink-0 translate-y-0.5 rounded-full"
+          style={derived ? { boxShadow: `inset 0 0 0 1.5px ${place.color || FALLBACK}` } : { background: place.color || FALLBACK }}
+        />
         <span className="min-w-0 flex-1">
           <span className="lead block truncate">{place.name}</span>
-          {metaBits && <span className="meta block truncate">{metaBits}</span>}
+          {(metaBits || derived) && (
+            <span className="meta block truncate">{[derived && "from area", metaBits].filter(Boolean).join(" · ")}</span>
+          )}
         </span>
         <Icon name={open ? "up" : "down"} size={13} className="shrink-0 translate-y-0.5 text-ink-faint" />
       </button>
@@ -537,6 +584,33 @@ function PlaceRow({
               className="text-sm text-ink-soft"
             />
           )}
+
+          {/* Areas this place belongs to — "where", separate from its category */}
+          {areas.length > 0 && (
+            readOnly ? (
+              areas.some((a) => a.placeIds.includes(place.id)) && (
+                <p className="mt-2 text-xs text-ink-soft">
+                  Area: {areas.filter((a) => a.placeIds.includes(place.id)).map((a) => a.name || "Untitled").join(" · ")}
+                </p>
+              )
+            ) : (
+              <div className="mt-2.5 flex flex-wrap gap-1.5">
+                {areas.map((a) => {
+                  const on = a.placeIds.includes(place.id);
+                  return (
+                    <button
+                      key={a.id}
+                      onClick={() => onToggleArea(a.id)}
+                      className={`rounded-[2px] border px-2 py-0.5 text-2xs ${on ? "border-accent text-accent" : "border-line text-ink-soft hover:border-ink-soft"}`}
+                    >
+                      {a.name || "Untitled"}
+                    </button>
+                  );
+                })}
+              </div>
+            )
+          )}
+
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm">
             {link && (
               <a href={link} target="_blank" rel="noopener" className="font-medium text-accent">

@@ -13,6 +13,7 @@ type Op =
   | { t: "del"; type: EntityType; id: string }
   | { t: "pos"; type: EntityType }
   | { t: "seg"; journeyId: string }
+  | { t: "areaPlaces"; areaId: string }
   | { t: "fields"; keys: FieldKey[] };
 
 interface AppStore {
@@ -95,6 +96,7 @@ async function flush(get: () => AppStore) {
   const dels = new Map<string, { type: EntityType; id: string }>();
   const positions = new Set<EntityType>();
   const segs = new Set<string>();
+  const areaSets = new Set<string>();
   const fieldKeys = new Set<FieldKey>();
 
   for (const op of ops) {
@@ -102,6 +104,7 @@ async function flush(get: () => AppStore) {
     else if (op.t === "del") { const k = `${op.type}:${op.id}`; rows.delete(k); dels.set(k, op); }
     else if (op.t === "pos") positions.add(op.type);
     else if (op.t === "seg") segs.add(op.journeyId);
+    else if (op.t === "areaPlaces") areaSets.add(op.areaId);
     else op.keys.forEach((k) => fieldKeys.add(k));
   }
 
@@ -125,6 +128,10 @@ async function flush(get: () => AppStore) {
       markWritten(j.segments.map((s) => s.id));
       tasks.push(be.setSegments(activeId, jid, j.segments).catch(fail));
     }
+  }
+  for (const aid of areaSets) {
+    const a = data.areas.find((x) => x.id === aid);
+    if (a) tasks.push(be.setAreaPlaces(activeId, aid, a.placeIds ?? []).catch(fail));
   }
   if (fieldKeys.size) {
     const f: Record<string, unknown> = {};
@@ -287,10 +294,14 @@ export const useApp = create<AppStore>((set, get) => {
       })) return;
       enqueue(get, { t: "row", type, id });
       if (type === "journeys" && (patch as { segments?: unknown }).segments) enqueue(get, { t: "seg", journeyId: id });
+      if (type === "areas" && (patch as { placeIds?: unknown }).placeIds) enqueue(get, { t: "areaPlaces", areaId: id });
     },
 
     addEntity: (type, obj) => {
-      if (local((d) => { (d[type] as WithId[]).push(obj); })) enqueue(get, { t: "row", type, id: obj.id });
+      if (local((d) => { (d[type] as WithId[]).push(obj); })) {
+        enqueue(get, { t: "row", type, id: obj.id });
+        if (type === "areas" && (obj as { placeIds?: string[] }).placeIds?.length) enqueue(get, { t: "areaPlaces", areaId: obj.id });
+      }
     },
 
     removeEntity: (type, id) => {

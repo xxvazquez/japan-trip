@@ -9,7 +9,7 @@ const DEFAULT_MODULES: ModuleConfig[] = [
   { id: "logbook", kind: "logbook", label: "Logbook", icon: "vault", enabled: true },
 ];
 
-const ENTITY_KEYS = ["legs", "days", "hotels", "journeys", "luggage", "packing", "docs", "places"] as const;
+const ENTITY_KEYS = ["legs", "days", "hotels", "journeys", "luggage", "packing", "docs", "places", "areas"] as const;
 
 function fixTheme(t: Partial<ThemeTokens> | undefined): ThemeTokens {
   const base = THEME_PRESETS[0].tokens;
