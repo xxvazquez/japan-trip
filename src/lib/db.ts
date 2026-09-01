@@ -27,6 +27,8 @@ const SPECS: Record<EntityType, Spec> = {
   packing: { table: "packing", rename: { group: "group_name" } },
   docs: { table: "docs" },
   places: { table: "places" },
+  // `placeIds` lives in the area_places join table, not on the row
+  areas: { table: "areas", toRow: (_e, row) => { delete row.place_ids; } },
 };
 
 export const TABLE_OF = Object.fromEntries(
@@ -129,6 +131,11 @@ export async function loadTrip(dbId: string): Promise<TripData> {
     j.segments = (segs ?? []).filter((s) => s.journey_id === j.id).map(rowToSeg);
   }
 
+  const ap = check(await sb.from("area_places").select("area_id,place_id").eq("trip_id", dbId));
+  for (const a of byType.areas as { id: string; placeIds?: string[] }[]) {
+    a.placeIds = (ap ?? []).filter((r) => r.area_id === a.id).map((r) => r.place_id);
+  }
+
   return {
     v: 1,
     config: trow.config,
@@ -176,6 +183,12 @@ export async function createTrip(
       if (error) errs.push(`segments: ${error.message}`);
     }
   }
+  for (const a of data.areas ?? []) {
+    for (const pid of a.placeIds ?? []) {
+      const { error } = await sb.from("area_places").upsert({ trip_id: dbId, area_id: a.id, place_id: pid });
+      if (error) errs.push(`area_places: ${error.message}`);
+    }
+  }
   if (errs.length) {
     console.error(`[seed] ${errs.length} row error(s):\n` + [...new Set(errs)].slice(0, 15).join("\n"));
   }
@@ -206,6 +219,16 @@ export async function setSegments(tripId: string, journeyId: string, segments: S
   const keep = segments.map((s) => s.id);
   let del = sb.from("segments").delete().eq("journey_id", journeyId);
   if (keep.length) del = del.not("id", "in", `(${keep.join(",")})`);
+  check(await del);
+}
+
+/** Replace one area's place membership (scoped — never touches other areas). */
+export async function setAreaPlaces(tripId: string, areaId: string, placeIds: string[]) {
+  const sb = await client();
+  if (placeIds.length)
+    check(await sb.from("area_places").upsert(placeIds.map((place_id) => ({ trip_id: tripId, area_id: areaId, place_id }))));
+  let del = sb.from("area_places").delete().eq("area_id", areaId);
+  if (placeIds.length) del = del.not("place_id", "in", `(${placeIds.join(",")})`);
   check(await del);
 }
 

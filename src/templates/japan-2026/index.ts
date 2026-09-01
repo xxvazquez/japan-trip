@@ -24,6 +24,7 @@ export function buildTemplate(): TripData {
     journeys,
     luggage,
     places: [],
+    areas: [],
     packing,
     docs,
   };

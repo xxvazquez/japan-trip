@@ -13,7 +13,7 @@ export function markWritten(ids: string[]) {
   setTimeout(() => ids.forEach((id) => justWrote.delete(id)), 4000);
 }
 
-const TABLES = [...Object.values(TABLE_OF), "segments"];
+const TABLES = [...Object.values(TABLE_OF), "segments", "area_places"];
 
 export function subscribeTrip(tripId: string, getApply: () => Apply, hasPendingFor: (id: string) => boolean) {
   unsubscribeTrip();
@@ -61,6 +61,15 @@ function splice(
     return;
   }
 
+  if (table === "area_places") {
+    const src = evt === "DELETE" ? payload.old : payload.new;
+    const a = d.areas.find((x) => x.id === src.area_id);
+    if (!a) return;
+    a.placeIds = (a.placeIds ?? []).filter((id) => id !== src.place_id);
+    if (evt !== "DELETE") a.placeIds.push(src.place_id as string);
+    return;
+  }
+
   const type = TYPE_OF_TABLE[table];
   if (!type) return;
   const list = d[type] as { id: string }[];
@@ -71,6 +80,7 @@ function splice(
   }
   const entity = rowToEntity(SPECS[type], payload.new) as { id: string };
   if (type === "journeys") (entity as { segments?: unknown[] }).segments ??= (list.find((x) => x.id === entity.id) as { segments?: unknown[] })?.segments ?? [];
+  if (type === "areas") (entity as { placeIds?: unknown[] }).placeIds ??= (list.find((x) => x.id === entity.id) as { placeIds?: unknown[] })?.placeIds ?? [];
   const i = list.findIndex((x) => x.id === entity.id);
   if (i >= 0) list[i] = entity;
   else {

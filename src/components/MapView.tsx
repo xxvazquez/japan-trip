@@ -18,16 +18,16 @@ import type { Place } from "@/core/types";
 const FALLBACK = "#5f7f9c";
 let protocolRegistered = false;
 
-type Props = { id: string; name: string; color: string };
+type Props = { id: string; name: string; color: string; derived: boolean };
 
-function toFC(places: Place[]): FeatureCollection<Point, Props> {
+function toFC(places: Place[], derivedIds?: Set<string>): FeatureCollection<Point, Props> {
   return {
     type: "FeatureCollection",
     features: places.map((p) => ({
       type: "Feature",
       id: p.id,
       geometry: { type: "Point", coordinates: [p.lng, p.lat] },
-      properties: { id: p.id, name: p.name, color: p.color || FALLBACK },
+      properties: { id: p.id, name: p.name, color: p.color || FALLBACK, derived: !!derivedIds?.has(p.id) },
     })),
   };
 }
@@ -37,6 +37,7 @@ const sel = (id: string | null) => id ?? "__none__";
 export function MapView({
   places,
   selectedId,
+  derivedIds,
   dark,
   onSelect,
   onMapClick,
@@ -45,6 +46,8 @@ export function MapView({
 }: {
   places: Place[];
   selectedId: string | null;
+  /** ids shown only because an area brought them in — rendered subtly */
+  derivedIds?: Set<string>;
   dark: boolean;
   onSelect: (id: string | null) => void;
   onMapClick?: (lat: number, lng: number) => void;
@@ -55,13 +58,13 @@ export function MapView({
   const map = useRef<MLMap | null>(null);
   const ready = useRef(false);
   const [painted, setPainted] = useState(false);
-  const state = useRef({ places, selectedId, dark, onSelect, onMapClick, onLongPress, onReady });
-  state.current = { places, selectedId, dark, onSelect, onMapClick, onLongPress, onReady };
+  const state = useRef({ places, selectedId, derivedIds, dark, onSelect, onMapClick, onLongPress, onReady });
+  state.current = { places, selectedId, derivedIds, dark, onSelect, onMapClick, onLongPress, onReady };
 
   /* add our source + layers on top of the basemap (re-run after a style swap) */
   const addLayers = (m: MLMap) => {
-    const { places: p, selectedId: s, dark: d } = state.current;
-    m.addSource("places", { type: "geojson", data: toFC(p), cluster: true, clusterRadius: 46, clusterMaxZoom: 13 });
+    const { places: p, selectedId: s, derivedIds: di, dark: d } = state.current;
+    m.addSource("places", { type: "geojson", data: toFC(p, di), cluster: true, clusterRadius: 46, clusterMaxZoom: 13 });
     const halo = d ? "#14181c" : "#f2efe8";
     const ink = d ? "#e7ebee" : "#1a2026";
 
@@ -87,9 +90,11 @@ export function MapView({
       id: "pins", type: "circle", source: "places", filter: ["!", ["has", "point_count"]],
       paint: {
         "circle-color": ["get", "color"],
-        "circle-radius": ["case", ["==", ["get", "id"], sel(s)], 8, 5.5],
+        "circle-radius": ["case", ["==", ["get", "id"], sel(s)], 8, ["get", "derived"], 4.5, 5.5],
+        "circle-opacity": ["case", ["==", ["get", "id"], sel(s)], 1, ["get", "derived"], 0.55, 1],
         "circle-stroke-width": ["case", ["==", ["get", "id"], sel(s)], 2.5, 1.5],
         "circle-stroke-color": d ? "#14181c" : "#fdfcf9",
+        "circle-stroke-opacity": ["case", ["==", ["get", "id"], sel(s)], 1, ["get", "derived"], 0.55, 1],
       },
     });
     m.addLayer({
@@ -171,8 +176,8 @@ export function MapView({
 
   /* data */
   useEffect(() => {
-    if (ready.current) (map.current!.getSource("places") as GeoJSONSource | undefined)?.setData(toFC(places));
-  }, [places]);
+    if (ready.current) (map.current!.getSource("places") as GeoJSONSource | undefined)?.setData(toFC(places, derivedIds));
+  }, [places, derivedIds]);
 
   /* selection */
   useEffect(() => {

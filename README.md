@@ -41,13 +41,23 @@ like a normal app, full screen. Do this on both phones.
   and the last train home.
 
 **Map** — your Google **My Map** pins, on a clean map.
-- Filter by category (coffee, see, food…) with the coloured dots.
-- Switch the scope: **all places**, **today**, a specific **day**, or a whole
-  **stay**.
+- Switch the scope: **all places**, **today**, a **day**, a **stay**, or an
+  **area** (see below).
+- Filter by **category** with the coloured dots — none selected shows everything;
+  tap some to narrow. Category combines with the scope, so "an area + See" shows
+  only the sights in that area.
 - Tap a pin or a list row — they select each other and the map flies there.
 - **＋ Add place** → search for somewhere, or tap the map to drop a pin.
 - **Sync** re-pulls everything from your Google My Map. It replaces the imported
   pins but keeps anything you added in the app and any notes you wrote.
+
+**Areas vs. categories.** A category is *what* a place is (coffee, see, food…).
+An **area** is *where* it is (Gion, Higashiyama, a neighbourhood you name). A
+place can sit in several areas. Assign areas from a pin's detail panel on the
+Map, or in **Manage → Content → Areas**. Add an area to a **day** (on the day
+page) and every place in that area shows on that day's map — a live link, so
+editing the area later updates the day too. Area places show slightly faded and
+never get added to your written plan; only what you type there stays there.
 
 **Logbook** — the reference drawer. Use the menu at the top to jump between:
 stays · getting around · luggage · emergency numbers · documents · packing ·
@@ -113,8 +123,8 @@ edit in the UI  →  TripData (in memory)  →  backend
 
 - **With Supabase** (`VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` set): every
   entity — legs, days, hotels, journeys (+ segments), luggage, docs, packing,
-  places — is its own row, private to your account (RLS), synced across devices
-  and shareable with another account. Schema:
+  places, areas (+ area_places) — is its own row, private to your account (RLS),
+  synced across devices and shareable with another account. Schema:
   [`supabase/migrations/`](supabase/migrations/).
 - **Without it**: everything stays in the browser. No sign-in.
 
@@ -151,7 +161,7 @@ is covered under [The map background](#the-map-background).
 
 1. Create a project at [supabase.com](https://supabase.com).
 2. **SQL Editor** → run every file in `supabase/migrations/` **in order**
-   (`0001` → `0011`).
+   (`0001` → `0013`).
 3. **Authentication → Providers → Google** → enable, paste a Google Cloud OAuth
    client id / secret, redirect
    `https://<project-ref>.supabase.co/auth/v1/callback`.
