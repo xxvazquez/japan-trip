@@ -14,26 +14,68 @@ import type { FeatureCollection, Point, Polygon } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { buildMapStyle } from "@/lib/mapStyle";
 import { transitLayers, TRANSIT_CONTROLS } from "@/lib/transitLayers";
+import { buildMarkerImage, markerKey } from "@/lib/mapGlyphs";
 import type { Place } from "@/core/types";
 
 const FALLBACK = "#5f7f9c";
 let protocolRegistered = false;
 
-type Props = { id: string; name: string; color: string; derived: boolean };
+type CatIcons = Record<string, string> | undefined;
+type Props = { id: string; name: string; color: string; derived: boolean; glyph: string; icon: string };
 
-function toFC(places: Place[], derivedIds?: Set<string>): FeatureCollection<Point, Props> {
+/** the marker glyph id for a place, or "" if its category has none */
+const glyphFor = (p: Place, catIcons: CatIcons) => (p.category && catIcons?.[p.category]) || "";
+
+function toFC(places: Place[], derivedIds: Set<string> | undefined, catIcons: CatIcons): FeatureCollection<Point, Props> {
   return {
     type: "FeatureCollection",
-    features: places.map((p) => ({
-      type: "Feature",
-      id: p.id,
-      geometry: { type: "Point", coordinates: [p.lng, p.lat] },
-      properties: { id: p.id, name: p.name, color: p.color || FALLBACK, derived: !!derivedIds?.has(p.id) },
-    })),
+    features: places.map((p) => {
+      const glyph = glyphFor(p, catIcons);
+      const color = p.color || FALLBACK;
+      return {
+        type: "Feature",
+        id: p.id,
+        geometry: { type: "Point", coordinates: [p.lng, p.lat] },
+        properties: {
+          id: p.id,
+          name: p.name,
+          color,
+          derived: !!derivedIds?.has(p.id),
+          glyph,
+          icon: glyph ? markerKey(glyph, color) : "",
+        },
+      };
+    }),
   };
 }
 
+/** make sure every (glyph, colour) pair on screen has a registered marker bitmap */
+function ensureMarkerImages(m: MLMap, places: Place[], catIcons: CatIcons, dark: boolean) {
+  if (!catIcons) return;
+  for (const p of places) {
+    const glyph = glyphFor(p, catIcons);
+    if (!glyph) continue;
+    const color = p.color || FALLBACK;
+    const key = markerKey(glyph, color);
+    if (m.hasImage(key)) continue;
+    m.addImage(key, buildMarkerImage(glyph, color, dark), { pixelRatio: 2 });
+  }
+}
+
 const sel = (id: string | null) => id ?? "__none__";
+
+/** icon-size for the glyph markers: a zoom ramp, enlarged for the selected pin.
+ *  The zoom `interpolate` has to stay top-level, so the selected bump is folded
+ *  into each stop rather than multiplied on the outside. */
+const iconSize = (selId: string): unknown => {
+  const bump = ["case", ["==", ["get", "id"], selId], 1.2, 1];
+  return [
+    "interpolate", ["linear"], ["zoom"],
+    8, ["*", 0.55, bump],
+    12, ["*", 0.82, bump],
+    16, ["*", 1, bump],
+  ];
+};
 type AreaShapeProps = { name: string; color: string };
 type AreaShapes = FeatureCollection<Polygon, AreaShapeProps>;
 const EMPTY_FC: AreaShapes = { type: "FeatureCollection", features: [] };
@@ -47,6 +89,7 @@ export function MapView({
   derivedIds,
   areaShapes,
   transit,
+  categoryIcons,
   dark,
   onSelect,
   onMapClick,
@@ -57,6 +100,8 @@ export function MapView({
   selectedId: string | null;
   /** ids shown only because an area brought them in — rendered subtly */
   derivedIds?: Set<string>;
+  /** place-category → marker glyph id (`config.categoryIcons`) */
+  categoryIcons?: Record<string, string>;
   /** area outlines to draw under the pins (visible when zoomed out) */
   areaShapes?: AreaShapes | null;
   /** enabled transit categories ("train" | "metro" | "tram" | "bus" | "airport") */
@@ -71,8 +116,8 @@ export function MapView({
   const map = useRef<MLMap | null>(null);
   const ready = useRef(false);
   const [painted, setPainted] = useState(false);
-  const state = useRef({ places, selectedId, derivedIds, areaShapes, transit, dark, onSelect, onMapClick, onLongPress, onReady });
-  state.current = { places, selectedId, derivedIds, areaShapes, transit, dark, onSelect, onMapClick, onLongPress, onReady };
+  const state = useRef({ places, selectedId, derivedIds, areaShapes, transit, categoryIcons, dark, onSelect, onMapClick, onLongPress, onReady });
+  state.current = { places, selectedId, derivedIds, areaShapes, transit, categoryIcons, dark, onSelect, onMapClick, onLongPress, onReady };
 
   /* show/hide transit layers to match the current filter */
   const applyTransit = (m: MLMap, enabled: Set<string> | undefined) => {
@@ -85,7 +130,7 @@ export function MapView({
 
   /* add our source + layers on top of the basemap (re-run after a style swap) */
   const addLayers = (m: MLMap) => {
-    const { places: p, selectedId: s, derivedIds: di, areaShapes: sh, transit: tr, dark: d } = state.current;
+    const { places: p, selectedId: s, derivedIds: di, areaShapes: sh, transit: tr, categoryIcons: ci, dark: d } = state.current;
     const halo = d ? "#14181c" : "#f2efe8";
     const ink = d ? "#e7ebee" : "#1a2026";
 
@@ -114,7 +159,8 @@ export function MapView({
       paint: { "text-color": ["get", "color"], "text-opacity": areaFade(0.95) as number, "text-halo-color": halo, "text-halo-width": 2 },
     });
 
-    m.addSource("places", { type: "geojson", data: toFC(p, di), cluster: true, clusterRadius: 46, clusterMaxZoom: 13 });
+    ensureMarkerImages(m, p, ci, d);
+    m.addSource("places", { type: "geojson", data: toFC(p, di, ci), cluster: true, clusterRadius: 46, clusterMaxZoom: 13 });
 
     m.addLayer({
       id: "clusters", type: "circle", source: "places", filter: ["has", "point_count"],
@@ -132,10 +178,15 @@ export function MapView({
     m.addLayer({
       id: "pin-halo", type: "circle", source: "places",
       filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "id"], sel(s)]],
-      paint: { "circle-radius": 13, "circle-color": ["get", "color"], "circle-opacity": 0.22 },
+      paint: {
+        "circle-radius": ["case", ["==", ["get", "glyph"], ""], 13, 18],
+        "circle-color": ["get", "color"], "circle-opacity": 0.22,
+      },
     });
+    // plain dots — pins whose category has no glyph
     m.addLayer({
-      id: "pins", type: "circle", source: "places", filter: ["!", ["has", "point_count"]],
+      id: "pins", type: "circle", source: "places",
+      filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "glyph"], ""]],
       paint: {
         "circle-color": ["get", "color"],
         "circle-radius": ["case", ["==", ["get", "id"], sel(s)], 8, ["get", "derived"], 4.5, 5.5],
@@ -145,12 +196,25 @@ export function MapView({
         "circle-stroke-opacity": ["case", ["==", ["get", "id"], sel(s)], 1, ["get", "derived"], 0.55, 1],
       },
     });
+    // glyph markers — pins whose category maps to an icon
+    m.addLayer({
+      id: "pins-icon", type: "symbol", source: "places",
+      filter: ["all", ["!", ["has", "point_count"]], ["!=", ["get", "glyph"], ""]],
+      layout: {
+        "icon-image": ["get", "icon"],
+        "icon-size": iconSize(sel(s)) as number,
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true,
+      },
+      paint: { "icon-opacity": ["case", ["get", "derived"], 0.6, 1] },
+    });
     m.addLayer({
       id: "pin-label", type: "symbol", source: "places",
       filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "id"], sel(s)]],
       layout: {
         "text-field": ["get", "name"], "text-font": ["Noto Sans Medium"], "text-size": 12,
-        "text-offset": [0, 1.3], "text-anchor": "top", "text-max-width": 9,
+        "text-offset": ["case", ["==", ["get", "glyph"], ""], ["literal", [0, 1.3]], ["literal", [0, 1.7]]],
+        "text-anchor": "top", "text-max-width": 9,
       },
       paint: { "text-color": ink, "text-halo-color": halo, "text-halo-width": 2 },
     });
@@ -178,12 +242,14 @@ export function MapView({
       addLayers(m);
       const pointer = () => (m.getCanvas().style.cursor = "pointer");
       const noPointer = () => (m.getCanvas().style.cursor = "");
-      for (const l of ["pins", "clusters"]) { m.on("mouseenter", l, pointer); m.on("mouseleave", l, noPointer); }
+      for (const l of ["pins", "pins-icon", "clusters"]) { m.on("mouseenter", l, pointer); m.on("mouseleave", l, noPointer); }
 
-      m.on("click", "pins", (e: MapLayerMouseEvent) => {
+      const pickPin = (e: MapLayerMouseEvent) => {
         const id = e.features?.[0]?.properties?.id as string | undefined;
         if (id) state.current.onSelect(id);
-      });
+      };
+      m.on("click", "pins", pickPin);
+      m.on("click", "pins-icon", pickPin);
       m.on("click", "clusters", async (e: MapLayerMouseEvent) => {
         const f = e.features?.[0];
         const cid = f?.properties?.cluster_id;
@@ -194,7 +260,7 @@ export function MapView({
         m.easeTo({ center: coords, zoom });
       });
       m.on("click", (e: MapMouseEvent) => {
-        if (m.queryRenderedFeatures(e.point, { layers: ["pins", "clusters"] }).length === 0)
+        if (m.queryRenderedFeatures(e.point, { layers: ["pins", "pins-icon", "clusters"] }).length === 0)
           state.current.onMapClick?.(e.lngLat.lat, e.lngLat.lng);
       });
 
@@ -222,10 +288,14 @@ export function MapView({
     return () => { clearTimeout(paintFallback); m.remove(); map.current = null; ready.current = false; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* data */
+  /* data — a dark-mode flip is handled by the theme effect (it rebuilds every
+     layer and marker image), so it's deliberately not a dep here */
   useEffect(() => {
-    if (ready.current) (map.current!.getSource("places") as GeoJSONSource | undefined)?.setData(toFC(places, derivedIds));
-  }, [places, derivedIds]);
+    const m = map.current;
+    if (!ready.current || !m) return;
+    ensureMarkerImages(m, places, categoryIcons, state.current.dark);
+    (m.getSource("places") as GeoJSONSource | undefined)?.setData(toFC(places, derivedIds, categoryIcons));
+  }, [places, derivedIds, categoryIcons]);
 
   useEffect(() => {
     if (ready.current) (map.current!.getSource("areas") as GeoJSONSource | undefined)?.setData(areaShapes ?? EMPTY_FC);
@@ -245,6 +315,7 @@ export function MapView({
     m.setFilter("pin-label", ["all", ["!", ["has", "point_count"]], ["==", ["get", "id"], s]]);
     m.setPaintProperty("pins", "circle-radius", ["case", ["==", ["get", "id"], s], 8, 5.5]);
     m.setPaintProperty("pins", "circle-stroke-width", ["case", ["==", ["get", "id"], s], 2.5, 1.5]);
+    if (m.getLayer("pins-icon")) m.setLayoutProperty("pins-icon", "icon-size", iconSize(s));
     const p = selectedId ? places.find((x) => x.id === selectedId) : undefined;
     if (p) m.easeTo({ center: [p.lng, p.lat], zoom: Math.max(m.getZoom(), 14), duration: 500, offset: [0, -70] });
   }, [selectedId, places]);

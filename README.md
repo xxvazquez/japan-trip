@@ -46,6 +46,9 @@ like a normal app, full screen. Do this on both phones.
 - Filter by **category** with the coloured dots — none selected shows everything;
   tap some to narrow. Category combines with the scope, so "an area + See" shows
   only the sights in that area.
+- Give a category its own **pin icon** in **Manage → Content → Category pins** —
+  those places then draw as a coloured disc with the icon instead of a plain
+  dot. Categories left as "Dot" are unchanged.
 - **Transit** row — **Train** and **Metro** are laid over the map by default;
   tap to add **Tram**, **Bus**, **Ferry** or **Airport**, or to turn any off.
   It's read straight from the basemap, so it works in any city with no setup,

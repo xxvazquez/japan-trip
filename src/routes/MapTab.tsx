@@ -13,9 +13,26 @@ import { suggestAreas, type AreaSuggestion } from "@/lib/cluster";
 import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
 import { TRANSIT_KINDS, TRANSIT_META } from "@/lib/transitLayers";
+import { glyphPath } from "@/lib/mapGlyphs";
 import type { Area, Day, DayPlace, Place, TripData } from "@/core/types";
 
 const FALLBACK = "#5f7f9c";
+
+/** the legend mark for a category chip: its glyph if it has one, else a dot */
+function CatMark({ color, glyph, on }: { color: string; glyph?: string; on: boolean }) {
+  const d = glyphPath(glyph);
+  if (d)
+    return (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color}
+        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0" aria-hidden="true">
+        <path d={d} />
+      </svg>
+    );
+  return (
+    <span className="h-2.5 w-2.5 shrink-0 rounded-full"
+      style={{ background: color, boxShadow: on ? `0 0 0 1px ${color}` : "none" }} />
+  );
+}
 const rid = () => (crypto?.randomUUID ? crypto.randomUUID() : `p-${Math.random().toString(36).slice(2)}`);
 
 const TRANSIT_KEY = "za.transit";
@@ -364,10 +381,7 @@ export default function MapTab() {
                   onClick={() => toggleCat(name)}
                   className={`inline-flex items-center gap-1.5 text-xs transition-opacity ${on ? "" : "opacity-35"}`}
                 >
-                  <span
-                    className="h-2.5 w-2.5 shrink-0 rounded-full"
-                    style={{ background: col, boxShadow: on ? `0 0 0 1px ${col}` : "none" }}
-                  />
+                  <CatMark color={col} glyph={data.config.categoryIcons?.[name]} on={on} />
                   {name}
                 </button>
               );
@@ -547,6 +561,7 @@ export default function MapTab() {
           derivedIds={derived}
           areaShapes={areaShapes}
           transit={transit}
+          categoryIcons={data.config.categoryIcons}
           dark={dark}
           onSelect={setSelected}
           onMapClick={onMapClick}
