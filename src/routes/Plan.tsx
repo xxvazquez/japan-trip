@@ -59,7 +59,7 @@ export default function Plan() {
             </p>
             <p className="mt-2 text-sm">
               {currentLeg?.base && (
-                <span className="font-semibold" style={{ color: legHex(currentLeg.color) }}>{currentLeg.base} · </span>
+                <span className="font-medium" style={{ color: legHex(currentLeg.color) }}>{currentLeg.base} · </span>
               )}
               <span className="meta">{plural(c.daysRemaining, "day")} left</span>
             </p>
@@ -152,7 +152,7 @@ function LegBlock({ data, leg, todayISO, readOnly }: { data: TripData; leg: Leg;
         <h2 className="font-display text-[1.35rem] leading-tight">{leg.base}</h2>
         {leg.nameJp && <span className="font-jp text-sm text-ink-faint">{leg.nameJp}</span>}
       </div>
-      <p className="mb-2 pl-5 text-2xs uppercase tracking-[0.05em] text-ink-soft">
+      <p className="mb-2 pl-5 text-2xs uppercase tracking-[0.12em] text-ink-soft">
         {fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – {fmtDate(leg.end, loc, { day: "numeric", month: "short" })} · {plural(nights, "night")}
       </p>
 
@@ -191,17 +191,17 @@ function DayRow({ data, day, today, loc, readOnly }: { data: TripData; day: Day;
         </button>
       )}
       <Link to={`/day/${day.id}`} className={`group flex min-w-0 flex-1 items-baseline gap-3 py-3 pr-1 ${readOnly ? "pl-1" : ""}`}>
-        <span className={`w-10 shrink-0 whitespace-nowrap text-xs tabular-nums ${today ? "font-semibold text-ink" : "text-ink-soft"}`}>
+        <span className={`w-10 shrink-0 whitespace-nowrap text-xs tabular-nums ${today ? "font-medium text-ink" : "text-ink-soft"}`}>
           {fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}
         </span>
         <span className="min-w-0 flex-1">
-          <span className={`block truncate ${day.title ? "font-semibold text-ink" : "font-medium text-ink-faint"} group-hover:underline`}>
+          <span className={`block truncate ${day.title ? "font-medium text-ink" : "font-normal text-ink-faint"} group-hover:underline`}>
             {day.title || "Untitled day"}
-            {today && <span className="ml-2 align-middle text-2xs font-bold uppercase tracking-wide text-accent">Today</span>}
+            {today && <span className="ml-2 align-middle text-2xs font-normal uppercase tracking-[0.12em] text-accent">Today</span>}
           </span>
         </span>
         {k && (
-          <span className="flex shrink-0 items-center gap-1 text-2xs font-semibold uppercase tracking-[0.04em] text-ink-soft">
+          <span className="flex shrink-0 items-center gap-1 text-2xs font-normal uppercase tracking-[0.12em] text-ink-soft">
             <Icon name={k.icon} size={12} /> {k.label}
           </span>
         )}

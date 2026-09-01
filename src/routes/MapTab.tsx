@@ -625,13 +625,13 @@ function ScopeMenu({ value, options, onChange }: { value: string; options: Scope
               lastGroup = o.group;
               return (
                 <div key={`${o.group ?? ""}:${o.value}`}>
-                  {head && <p className="px-3 pb-1 pt-2.5 text-2xs font-semibold uppercase tracking-[0.06em] text-ink-faint">{head}</p>}
+                  {head && <p className="px-3 pb-1 pt-2.5 text-2xs font-normal uppercase tracking-[0.12em] text-ink-faint">{head}</p>}
                   <button
                     onClick={() => {
                       onChange(o.value);
                       setOpen(false);
                     }}
-                    className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-surface-2 ${o.value === value ? "font-semibold text-accent" : "text-ink"}`}
+                    className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-surface-2 ${o.value === value ? "font-medium text-accent" : "text-ink"}`}
                   >
                     <Icon name="check" size={13} className={`shrink-0 ${o.value === value ? "" : "opacity-0"}`} />
                     <span className="truncate">{o.label}</span>
@@ -870,7 +870,7 @@ function SuggestReview({
       )}
       <div className="sticky bottom-0 mt-3 flex items-center gap-4 bg-bg py-2 text-sm">
         {keptCount > 0 && (
-          <button onClick={onApply} className="font-semibold text-accent hover:opacity-70">
+          <button onClick={onApply} className="font-medium text-accent hover:opacity-70">
             Create {plural(keptCount, "area")}
           </button>
         )}

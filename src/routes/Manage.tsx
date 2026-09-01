@@ -33,7 +33,7 @@ export default function Manage() {
             key={t}
             onClick={() => setTab(t)}
             className={`shrink-0 border-b-2 pb-2 text-sm capitalize transition-colors ${
-              tab === t ? "border-ink font-semibold text-ink" : "border-transparent text-ink-soft hover:text-ink"
+              tab === t ? "border-ink font-medium text-ink" : "border-transparent text-ink-soft hover:text-ink"
             }`}
           >
             {t}
@@ -133,13 +133,13 @@ function Trips() {
                 ) : (
                   <Editable label="Trip name" value={t.name} onCommit={(v) => renameTrip(t.id, v || t.name)} className="lead" />
                 )}
-                {t.id === activeId && <span className="ml-2 align-middle text-2xs font-semibold uppercase tracking-wide text-accent">active</span>}
+                {t.id === activeId && <span className="ml-2 align-middle text-2xs font-normal uppercase tracking-[0.12em] text-accent">active</span>}
                 {isDemo && <span className="ml-2 align-middle text-2xs uppercase tracking-wide text-ink-faint">read-only</span>}
                 {t.subtitle && <span className="meta mt-0.5 block">{t.subtitle}</span>}
               </span>
               <span className="flex shrink-0 items-center gap-1">
                 {t.id !== activeId ? (
-                  <button onClick={() => switchTrip(t.id).then(() => nav("/"))} className="text-sm font-semibold text-accent hover:opacity-70">
+                  <button onClick={() => switchTrip(t.id).then(() => nav("/"))} className="text-sm font-medium text-accent hover:opacity-70">
                     Switch
                   </button>
                 ) : (
