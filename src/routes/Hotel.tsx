@@ -75,7 +75,7 @@ export default function Hotel() {
             </p>
           )}
           {map && (
-            <a href={map} target="_blank" rel="noopener" className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-accent">
+            <a href={map} target="_blank" rel="noopener" className="action mt-3">
               <Icon name="map" size={15} /> Open in Google Maps
             </a>
           )}

@@ -85,7 +85,7 @@ function Trips() {
             <span className="text-ink-soft">Signed in · </span>
             {auth.user.email}
           </span>
-          <button onClick={() => signOut()} className="shrink-0 text-sm text-ink-soft hover:text-accent">Sign out</button>
+          <button onClick={() => signOut()} className="link-quiet shrink-0 text-sm">Sign out</button>
         </div>
       )}
       {supabaseEnabled && auth.user && activeId && <Sharing tripId={activeId} me={auth.user.id} />}
@@ -96,7 +96,7 @@ function Trips() {
             <Icon name="plus" size={16} /> New trip
           </button>
           {!hasDemo && (
-            <button onClick={addDemo} disabled={busy} className="text-sm text-ink-soft hover:text-accent">
+            <button onClick={addDemo} disabled={busy} className="link-quiet text-sm">
               Add the demo tour
             </button>
           )}
@@ -116,7 +116,7 @@ function Trips() {
               </button>
             ))}
           </div>
-          <button onClick={() => setCreating(false)} className="mt-3 text-xs text-ink-soft">Cancel</button>
+          <button onClick={() => setCreating(false)} className="link-quiet mt-3 text-xs">Cancel</button>
         </div>
       )}
 
@@ -223,7 +223,7 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
           <li key={m.userId} className="flex items-center justify-between gap-2">
             <span className="truncate">{m.userId === me ? "You" : m.userId.slice(0, 8) + "…"} <span className="text-ink-soft">· {m.role}</span></span>
             {iAmOwner && m.role !== "owner" && (
-              <button onClick={() => removeMember(tripId, m.userId).then(reload)} className="text-xs text-ink-soft hover:text-accent">remove</button>
+              <button onClick={() => removeMember(tripId, m.userId).then(reload)} className="link-quiet text-xs">remove</button>
             )}
           </li>
         ))}
