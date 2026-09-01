@@ -682,9 +682,11 @@ function PlaceRow({
   useEffect(() => {
     if (open) li.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [open]);
+  // scroll-margin below gives `block: "nearest"` a little breathing room so an
+  // opened row never lands flush against the list's top edge.
   const metaBits = [place.category, day && `on ${fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}`].filter(Boolean).join(" · ");
   return (
-    <li ref={li} className="border-b border-line last:border-b-0">
+    <li ref={li} className="scroll-my-3 border-b border-line last:border-b-0">
       <button onClick={onToggle} className={`flex w-full items-baseline gap-2.5 py-2.5 text-left ${derived ? "opacity-60" : ""}`}>
         <span
           className="h-2.5 w-2.5 shrink-0 translate-y-0.5 rounded-full"

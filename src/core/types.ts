@@ -53,6 +53,9 @@ export interface TripConfig {
   hiddenLogbook?: string[];
   /** extra Logbook sections — a title + a plain list of items */
   lists?: CustomList[];
+  /** Google accounts every document attachment is shared with (both travellers).
+   *  Files upload to the adder's Drive, then get read access for these emails. */
+  driveShareEmails?: string[];
 }
 
 export interface ListItem {
@@ -258,6 +261,12 @@ export interface DocFile {
   id: ID;
   name: string;
   size?: number;
+  /** Google Drive file id — set when the attachment lives in the shared Drive
+   *  folder (syncs to both people). Absent = legacy on-device blob, `id` is the
+   *  local fileStore key. */
+  driveId?: string;
+  /** MIME type, when known — lets the UI preview images inline. */
+  mime?: string;
 }
 
 export interface Doc {

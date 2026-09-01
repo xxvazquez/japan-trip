@@ -11,6 +11,7 @@ import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
 import { THEME_PRESETS } from "@/lib/themePresets";
 import { fileToMediaItem, pickImage } from "@/lib/media";
 import { supabaseEnabled } from "@/lib/supabase";
+import { driveEnabled } from "@/lib/drive";
 import { useAuth, signOut } from "@/lib/auth";
 import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
 import { useEffect } from "react";
@@ -362,6 +363,23 @@ function Settings() {
           <Editable as="link" label="Google My Map link" value={config.mapSourceUrl ?? ""} placeholder="paste the share link" onCommit={(v) => mutate((d) => { d.config.mapSourceUrl = v; })} />
         </Row>
       </section>
+
+      {driveEnabled && (
+        <section>
+          <div className="section-head"><p className="kicker">Document files</p></div>
+          <Row label="Share attachments with">
+            <Editable
+              label="Emails to share document attachments with"
+              value={(config.driveShareEmails ?? []).join(", ")}
+              placeholder="you@…, partner@…"
+              onCommit={(v) => mutate((d) => { d.config.driveShareEmails = v.split(",").map((x) => x.trim()).filter(Boolean); })}
+            />
+          </Row>
+          <p className="mt-2 text-xs text-ink-faint">
+            Attachments upload to the adder's Google Drive; these accounts are given read access. List both travellers.
+          </p>
+        </section>
+      )}
 
       <section>
         <div className="section-head"><p className="kicker">Theme</p></div>

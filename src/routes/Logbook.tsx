@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Page } from "@/components/Page";
 import { Editable } from "@/components/Editable";
@@ -5,9 +6,14 @@ import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
+import { useAuth } from "@/lib/auth";
 import { useReadOnly } from "@/lib/readonly";
+import { APP_NAME } from "@/lib/app";
 import { fmtDate, plural } from "@/lib/dates";
 import { putFile, fileUrl, removeFile } from "@/lib/fileStore";
+import {
+  driveEnabled, ensureFolder, uploadToDrive, shareFile, deleteFromDrive, driveViewUrl, driveImageUrl,
+} from "@/lib/drive";
 import type { CustomList, Doc, DocFile, LuggageNote, PackingItem } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 8);
@@ -295,8 +301,16 @@ function Emergency() {
 function Documents() {
   const data = useData()!;
   const updateEntity = useApp((s) => s.updateEntity);
+  const { user } = useAuth();
   const docs = data.docs.filter((d) => d.kind !== "contact");
   if (docs.length === 0) return <Empty what="No documents" hint="Add one in Manage — insurance, flights, anything." />;
+
+  const cloud = driveEnabled && !!user;
+  const folderName = `${APP_NAME} · ${data.meta.title}`;
+  const shareWith = (data.config.driveShareEmails ?? [])
+    .map((e) => e.trim().toLowerCase())
+    .filter((e) => e && e !== user?.email?.toLowerCase());
+
   return (
     <div>
       {docs.map((d) => (
@@ -314,42 +328,112 @@ function Documents() {
               </div>
             ))}
           </div>
-          <Attachments doc={d} onChange={(files) => updateEntity<Doc>("docs", d.id, { files })} />
+          <Attachments
+            doc={d}
+            cloud={cloud}
+            folderName={folderName}
+            shareWith={shareWith}
+            onChange={(files) => updateEntity<Doc>("docs", d.id, { files })}
+          />
         </div>
       ))}
-      <p className="mt-8 text-xs text-ink-faint">Attachments stay only on the device they're added on — passport numbers don't belong here.</p>
+      <p className="mt-8 text-xs text-ink-faint">
+        {cloud
+          ? "Attachments upload to a Google Drive folder and are shared with the people on this trip. Still — think twice before a full passport scan."
+          : "Attachments stay only on the device they're added on — passport numbers don't belong here."}
+      </p>
     </div>
   );
 }
 
-function Attachments({ doc, onChange }: { doc: Doc; onChange: (files: DocFile[]) => void }) {
+function Attachments({
+  doc, onChange, cloud, folderName, shareWith,
+}: {
+  doc: Doc;
+  onChange: (files: DocFile[]) => void;
+  cloud: boolean;
+  folderName: string;
+  shareWith: string[];
+}) {
   const ro = useReadOnly();
   const files = doc.files ?? [];
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [broken, setBroken] = useState<Set<string>>(new Set());
+
   const add = async (fileList: FileList | null) => {
-    if (!fileList) return;
-    const added: DocFile[] = [];
-    for (const f of Array.from(fileList)) added.push({ id: await putFile(f), name: f.name, size: f.size });
-    onChange([...files, ...added]);
+    if (!fileList?.length) return;
+    setErr("");
+    if (cloud) {
+      setBusy(true);
+      try {
+        const folderId = await ensureFolder(folderName);
+        const added: DocFile[] = [];
+        for (const f of Array.from(fileList)) {
+          const up = await uploadToDrive(f, f.name, folderId);
+          if (shareWith.length) await shareFile(up.id, shareWith);
+          added.push({ id: rid(), name: up.name, size: up.size, driveId: up.id, mime: up.mime });
+        }
+        onChange([...files, ...added]);
+      } catch (e) {
+        setErr(e instanceof Error ? e.message : "Upload failed.");
+      } finally {
+        setBusy(false);
+      }
+    } else {
+      const added: DocFile[] = [];
+      for (const f of Array.from(fileList)) added.push({ id: await putFile(f), name: f.name, size: f.size, mime: f.type });
+      onChange([...files, ...added]);
+    }
   };
-  const open = async (f: DocFile) => { const url = await fileUrl(f.id); if (url) window.open(url, "_blank"); };
-  const remove = async (f: DocFile) => { await removeFile(f.id); onChange(files.filter((x) => x.id !== f.id)); };
+
+  const open = async (f: DocFile) => {
+    if (f.driveId) window.open(driveViewUrl(f.driveId), "_blank", "noopener");
+    else {
+      const url = await fileUrl(f.id);
+      if (url) window.open(url, "_blank");
+    }
+  };
+  const remove = async (f: DocFile) => {
+    if (f.driveId) void deleteFromDrive(f.driveId);
+    else await removeFile(f.id);
+    onChange(files.filter((x) => x.id !== f.id));
+  };
+
   if (ro && files.length === 0) return null;
   return (
     <div className="mt-3">
-      {files.map((f) => (
-        <div key={f.id} className="group flex items-center gap-2 border-b border-line py-2 text-sm first:border-t first:border-line">
-          <Icon name="vault" size={14} className="shrink-0 text-ink-soft" />
-          <button onClick={() => open(f)} className="min-w-0 flex-1 truncate text-left font-medium hover:underline">{f.name}</button>
-          {f.size ? <span className="shrink-0 text-xs text-ink-soft">{(f.size / 1048576).toFixed(1)} MB</span> : null}
-          {!ro && <button onClick={() => remove(f)} className="shrink-0 p-1 text-ink-faint opacity-0 hover:text-accent group-hover:opacity-100" aria-label="Remove"><Icon name="close" size={12} /></button>}
-        </div>
-      ))}
+      {files.map((f) => {
+        const img = f.driveId && f.mime?.startsWith("image/") && !broken.has(f.id);
+        return (
+          <div key={f.id} className="border-b border-line py-2 first:border-t first:border-line">
+            <div className="group flex items-center gap-2 text-sm">
+              <Icon name="vault" size={14} className="shrink-0 text-ink-soft" />
+              <button onClick={() => open(f)} className="min-w-0 flex-1 truncate text-left font-medium hover:underline">{f.name}</button>
+              {f.size ? <span className="shrink-0 text-xs text-ink-soft">{(f.size / 1048576).toFixed(1)} MB</span> : null}
+              {!ro && <button onClick={() => remove(f)} className="shrink-0 p-1 text-ink-faint opacity-0 hover:text-accent group-hover:opacity-100" aria-label="Remove"><Icon name="close" size={12} /></button>}
+            </div>
+            {img && (
+              <button onClick={() => open(f)} className="mt-2 block">
+                <img
+                  src={driveImageUrl(f.driveId!)}
+                  alt={f.name}
+                  loading="lazy"
+                  onError={() => setBroken((s) => new Set(s).add(f.id))}
+                  className="max-h-40 rounded-[3px] border border-line object-cover"
+                />
+              </button>
+            )}
+          </div>
+        );
+      })}
       {!ro && (
-        <label className="action mt-3 cursor-pointer">
-          <Icon name="plus" size={14} /> Attach a file
-          <input type="file" accept=".pdf,image/*" multiple className="hidden" onChange={(e) => { void add(e.target.files); e.target.value = ""; }} />
+        <label className={`action mt-3 ${busy ? "pointer-events-none opacity-50" : "cursor-pointer"}`}>
+          <Icon name="plus" size={14} /> {busy ? "Uploading…" : "Attach a file"}
+          <input type="file" accept=".pdf,image/*" multiple className="hidden" disabled={busy} onChange={(e) => { void add(e.target.files); e.target.value = ""; }} />
         </label>
       )}
+      {err && <p className="mt-1.5 text-xs text-accent">{err}</p>}
     </div>
   );
 }

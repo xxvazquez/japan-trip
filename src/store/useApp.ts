@@ -2,7 +2,8 @@ import { create } from "zustand";
 import { buildFromTemplate, buildDemo } from "@/templates/registry";
 import { pickBackend, needsAuth, remapIds } from "@/lib/backend";
 import { subscribeTrip, unsubscribeTrip, markWritten } from "@/lib/realtime";
-import type { EntityType, MediaItem, TripData, TripSummary } from "@/core/types";
+import { addDays } from "@/lib/dates";
+import type { Day, EntityType, MediaItem, TripData, TripSummary } from "@/core/types";
 
 const now = () => new Date().toISOString();
 
@@ -42,7 +43,11 @@ interface AppStore {
   addEntity: (type: EntityType, obj: WithId) => void;
   removeEntity: (type: EntityType, id: string) => void;
   moveEntity: (type: EntityType, id: string, dir: -1 | 1) => void;
-  reorderDays: (orderedIds: string[]) => void;
+  /** Re-lay the days across the stays. `arrangement` lists every stay in trip
+   *  order with the day ids it should now hold; dates re-pack contiguously and
+   *  each stay's span is recomputed from its days. Covers within-stay reorder
+   *  and dragging a day into another stay. */
+  reorderDays: (arrangement: { legId: string; dayIds: string[] }[]) => void;
 
   setScratch: (value: string) => void;
   syncMyMap: (url: string) => Promise<{ mapName: string; count: number }>;
@@ -346,20 +351,50 @@ export const useApp = create<AppStore>((set, get) => {
       })) enqueue(get, { t: "pos", type });
     },
 
-    /** Reassign the given days' calendar dates to `orderedIds`'s order,
-     *  running from the earliest current date forward. Used by drag-reorder. */
-    reorderDays: (orderedIds: string[]) => {
+    reorderDays: (arrangement) => {
       const changed: string[] = [];
+      let legsMoved = false;
+      const mark = (id: string) => { if (!changed.includes(id)) changed.push(id); };
       if (!local((d) => {
-        const days = orderedIds.map((id) => d.days.find((x) => x.id === id)).filter(Boolean) as { id: string; date: string }[];
-        const dates = days.map((x) => x.date).sort();
-        days.forEach((day, i) => {
-          if (day.date !== dates[i]) { day.date = dates[i]; changed.push(day.id); }
+        // the new global order: each stay's days, stays in trip order
+        const flat: { day: Day; legId: string }[] = [];
+        for (const { legId, dayIds } of arrangement) {
+          for (const id of dayIds) {
+            const day = d.days.find((x) => x.id === id);
+            if (day) flat.push({ day, legId });
+          }
+        }
+        if (flat.length !== d.days.length) return; // arrangement must cover every day exactly once
+
+        // keep the trip's span fixed — re-use the same pool of dates, in order
+        const dates = d.days.map((x) => x.date).sort();
+        flat.forEach(({ day, legId }, i) => {
+          if (day.date !== dates[i]) { day.date = dates[i]; mark(day.id); }
+          if (day.legId !== legId) {
+            day.legId = legId;
+            const destHotel = d.legs.find((l) => l.id === legId)?.hotelId;
+            day.hotelId = destHotel || undefined; // move in under the new stay's hotel
+            legsMoved = true;
+            mark(day.id);
+          }
         });
+
+        // a stay now spans from its first day to the morning after its last
+        for (const leg of d.legs) {
+          const mine = flat.filter((f) => f.legId === leg.id).map((f) => f.day.date).sort();
+          if (mine.length === 0) continue;
+          const start = mine[0];
+          const end = addDays(mine[mine.length - 1], 1);
+          if (leg.start !== start || leg.end !== end) { leg.start = start; leg.end = end; legsMoved = true; }
+        }
+
         d.days.sort((a, b) => a.date.localeCompare(b.date));
       })) return;
       for (const id of changed) enqueue(get, { t: "row", type: "days", id });
       enqueue(get, { t: "pos", type: "days" });
+      if (legsMoved) {
+        for (const leg of get().data!.legs) enqueue(get, { t: "row", type: "legs", id: leg.id });
+      }
     },
 
     setScratch: (value) => {
