@@ -43,7 +43,7 @@ export default function Journey() {
   return (
     <Page>
       <BackBar />
-      <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-ink-soft">
+      <p className="text-2xs font-normal uppercase tracking-[0.12em] text-ink-soft">
         {cap(j.kind)}{j.date ? ` · ${fmtDate(j.date, loc, { weekday: "long", day: "numeric", month: "long" })}` : ""}
       </p>
       <h1 className="mt-1.5 font-display text-[1.6rem] leading-tight">
@@ -65,7 +65,7 @@ export default function Journey() {
           return (
             <div key={s.id}>
               <div className="group border-t border-line py-4 first:border-t-0 first:pt-0">
-                <p className="text-[0.8125rem] font-semibold uppercase tracking-[0.05em]">
+                <p className="text-[0.8125rem] font-normal uppercase tracking-[0.14em] text-ink">
                   <Editable label="From" value={s.from} placeholder="FROM" onCommit={(v) => setSeg(i, { from: v })} />
                   <span className="mx-1.5 text-ink-faint">→</span>
                   <Editable label="To" value={s.to} placeholder="TO" onCommit={(v) => setSeg(i, { to: v })} />
@@ -91,7 +91,7 @@ export default function Journey() {
               {next && (
                 <p className="border-l-2 border-dashed border-line py-1.5 pl-3 text-xs text-ink-soft">
                   {gap != null ? (
-                    <span className={gap < 20 ? "font-semibold text-accent" : ""}>
+                    <span className={gap < 20 ? "font-medium text-accent" : ""}>
                       {fmtMinutes(gap)} to change{s.to ? ` at ${s.to}` : ""}{gap < 20 ? " — tight" : ""}
                     </span>
                   ) : (

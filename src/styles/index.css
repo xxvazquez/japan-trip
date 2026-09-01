@@ -140,21 +140,22 @@ html.dark {
    * L4  placeholders     — text-ink-faint, nothing else
    * -------------------------------------------------------------- */
 
-  /* L3 section header: unmistakable, owns the space above it, no rule beneath */
+  /* L3 section header: stands out through wide letter-spacing + full-ink
+   * colour, not weight — never heavy. */
   .section-head {
     @apply mb-2 mt-9 flex items-baseline justify-between gap-3;
   }
   .kicker {
-    @apply font-sans text-[0.8125rem] font-semibold uppercase tracking-[0.055em] text-ink;
+    @apply font-sans text-[0.8125rem] font-normal uppercase tracking-[0.14em] text-ink;
   }
   /* a quiet eyebrow sitting above an L1 title */
   .eyebrow {
-    @apply font-sans text-2xs font-semibold uppercase tracking-[0.09em] text-ink-faint;
+    @apply font-sans text-2xs font-normal uppercase tracking-[0.12em] text-ink-faint;
   }
 
-  /* L2 — an item name the eye scans for */
+  /* L2 — an item name the eye scans for; medium weight, not bold */
   .lead {
-    @apply font-sans text-[1rem] font-semibold leading-snug text-ink;
+    @apply font-sans text-[1rem] font-medium leading-snug text-ink;
   }
   /* L2 — a value paired with a label (usually right-aligned) */
   .value {
