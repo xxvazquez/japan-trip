@@ -12,10 +12,24 @@ import { haversineKm } from "@/lib/geo";
 import { suggestAreas, type AreaSuggestion } from "@/lib/cluster";
 import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
+import { TRANSIT_KINDS, TRANSIT_META } from "@/lib/transitLayers";
 import type { Area, Day, DayPlace, Place, TripData } from "@/core/types";
 
 const FALLBACK = "#5f7f9c";
 const rid = () => (crypto?.randomUUID ? crypto.randomUUID() : `p-${Math.random().toString(36).slice(2)}`);
+
+const TRANSIT_KEY = "za.transit";
+const TRANSIT_DEFAULT = ["train", "metro"];
+const loadTransit = (): Set<string> => {
+  try {
+    const raw = localStorage.getItem(TRANSIT_KEY);
+    if (raw == null) return new Set(TRANSIT_DEFAULT); // first run — show rail by default
+    const v = JSON.parse(raw);
+    return new Set(Array.isArray(v) ? v.filter((k) => TRANSIT_KINDS.includes(k)) : []);
+  } catch {
+    return new Set(TRANSIT_DEFAULT);
+  }
+};
 
 type Snap = "peek" | "half" | "full";
 const SNAP_H: Record<Snap, string> = {
@@ -56,6 +70,8 @@ export default function MapTab() {
   const [scope, setScope] = useState<string | null>(null);
   /** category filter — empty means "all categories". Combines with any scope. */
   const [catFilter, setCatFilter] = useState<Set<string>>(new Set());
+  /** transit overlay — empty means nothing shown (opt-in). Persisted across trips. */
+  const [transit, setTransit] = useState<Set<string>>(loadTransit);
   const [selected, setSelected] = useState<string | null>(null);
   const [snap, setSnap] = useState<Snap>("peek");
 
@@ -97,6 +113,15 @@ export default function MapTab() {
   useEffect(() => {
     if (selected) setSnap((s) => (s === "peek" ? "half" : s));
   }, [selected]);
+
+  // remember the transit overlay choice (app-wide, not per-trip)
+  useEffect(() => {
+    try {
+      localStorage.setItem(TRANSIT_KEY, JSON.stringify([...transit]));
+    } catch {
+      /* private mode — fine */
+    }
+  }, [transit]);
 
   const cats = useMemo(() => {
     const m = new Map<string, string>();
@@ -165,6 +190,12 @@ export default function MapTab() {
     return { type: "FeatureCollection" as const, features };
   }, [data, places, scope]);
 
+  /** places not yet in any area — the ones worth auto-grouping */
+  const ungrouped = useMemo(() => {
+    const inArea = new Set(data?.areas.flatMap((a) => a.placeIds) ?? []);
+    return places.filter((p) => !inArea.has(p.id));
+  }, [places, data?.areas]);
+
   // fit the map to the current scope when nothing is selected
   const fitScope = () => {
     const m = map.current;
@@ -189,6 +220,13 @@ export default function MapTab() {
     setCatFilter((s) => {
       const n = new Set(s);
       n.has(name) ? n.delete(name) : n.add(name);
+      return n;
+    });
+
+  const toggleTransit = (kind: string) =>
+    setTransit((s) => {
+      const n = new Set(s);
+      n.has(kind) ? n.delete(kind) : n.add(kind);
       return n;
     });
 
@@ -235,12 +273,6 @@ export default function MapTab() {
     const next = a.placeIds.includes(placeId) ? a.placeIds.filter((p) => p !== placeId) : [...a.placeIds, placeId];
     updateEntity<Area>("areas", areaId, { placeIds: next });
   };
-
-  /** places not yet in any area — the ones worth auto-grouping */
-  const ungrouped = useMemo(() => {
-    const inArea = new Set(data?.areas.flatMap((a) => a.placeIds) ?? []);
-    return places.filter((p) => !inArea.has(p.id));
-  }, [places, data?.areas]);
 
   const startSuggest = () => {
     const found = suggestAreas(ungrouped);
@@ -337,6 +369,30 @@ export default function MapTab() {
                     style={{ background: col, boxShadow: on ? `0 0 0 1px ${col}` : "none" }}
                   />
                   {name}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* transit overlay — tap to show; drawn live from the basemap, works anywhere */}
+        {!adding && (
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-line pt-2.5">
+            <span className="text-2xs uppercase tracking-[0.06em] text-ink-faint">Transit</span>
+            {TRANSIT_KINDS.map((kind) => {
+              const on = transit.has(kind);
+              const col = dark ? TRANSIT_META[kind].dark : TRANSIT_META[kind].light;
+              return (
+                <button
+                  key={kind}
+                  onClick={() => toggleTransit(kind)}
+                  className={`inline-flex items-center gap-1.5 text-xs transition-opacity ${on ? "" : "opacity-35"}`}
+                >
+                  <span
+                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ background: col, boxShadow: on ? `0 0 0 1px ${col}` : "none" }}
+                  />
+                  {TRANSIT_META[kind].label}
                 </button>
               );
             })}
@@ -490,6 +546,7 @@ export default function MapTab() {
           selectedId={selected}
           derivedIds={derived}
           areaShapes={areaShapes}
+          transit={transit}
           dark={dark}
           onSelect={setSelected}
           onMapClick={onMapClick}

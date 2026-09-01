@@ -27,7 +27,7 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["favicon.png", "icons/*.png", "textures/*", "brand/*.png"],
       manifest: {
-        name: "Zukness Atlas",
+        name: "Zuknesst Atlas",
         short_name: "Atlas",
         description: "A private, offline-first travel atlas",
         lang: "en",
@@ -49,6 +49,28 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         navigateFallback: "/index.html",
         runtimeCaching: [
+          {
+            // Protomaps hosted basemap tiles (plain 200s — cache cleanly).
+            // An area you've opened once then paints instantly and works offline;
+            // only brand-new regions hit the network.
+            urlPattern: ({ url }) => url.hostname === "api.protomaps.com",
+            handler: "CacheFirst",
+            options: {
+              cacheName: "map-tiles",
+              expiration: { maxEntries: 6000, maxAgeSeconds: 60 * 60 * 24 * 90, purgeOnQuotaError: true },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
+          {
+            // Basemap label fonts (glyph .pbf ranges) — small, stable, needed offline.
+            urlPattern: ({ url }) => url.origin === "https://protomaps.github.io",
+            handler: "CacheFirst",
+            options: {
+              cacheName: "map-glyphs",
+              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 180, purgeOnQuotaError: true },
+              cacheableResponse: { statuses: [200] },
+            },
+          },
           {
             urlPattern: /\/assets\/supabase-.*\.js$/,
             handler: "StaleWhileRevalidate",

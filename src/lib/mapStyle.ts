@@ -3,16 +3,25 @@ import type { StyleSpecification } from "maplibre-gl";
 
 /**
  * A restrained editorial basemap: one warm land tone, hairline roads, muted
- * water, sparse labels. Built on Protomaps' free vector tiles — no key, no bill.
+ * water, sparse labels. Built on Protomaps' vector tiles — OpenStreetMap data.
  *
- * Default is Protomaps' full planet archive on Source Cooperative. It works but
- * is slow to first paint (every tile walks a directory inside a 130 GB file on
- * a bucket with no edge cache). For a fast map, build a small regional extract
- * with `pmtiles extract`, host the one file anywhere static (Cloudflare R2, a
- * Pages asset, S3…), and set VITE_MAP_TILES_URL to its URL. Nothing else changes.
+ * Tile source, in priority order:
+ *  1. VITE_PROTOMAPS_API_KEY — Protomaps' hosted API. Whole planet, CDN-cached,
+ *     fast anywhere on Earth, free for non-commercial use (≤1M tiles/month).
+ *     Recommended. Tiles come back as plain 200s, so the service worker can
+ *     cache them (see runtimeCaching in vite.config.ts) — areas you've already
+ *     opened then load instantly and work offline.
+ *  2. VITE_MAP_TILES_URL — a self-hosted .pmtiles file (e.g. a regional extract
+ *     built with `pmtiles extract`). Only covers the box you extracted.
+ *  3. Nothing set — Protomaps' full planet archive on Source Cooperative. Works
+ *     everywhere but 20-30s to first paint (130 GB file, no edge cache).
  */
+const API_KEY = import.meta.env.VITE_PROTOMAPS_API_KEY?.trim();
 const DEFAULT_PMTILES = "https://data.source.coop/protomaps/openstreetmap/v4.pmtiles";
 const configured = import.meta.env.VITE_MAP_TILES_URL?.trim();
+export const HOSTED_TILES = API_KEY
+  ? `https://api.protomaps.com/tiles/v4/{z}/{x}/{y}.mvt?key=${API_KEY}`
+  : null;
 export const PMTILES = `pmtiles://${configured || DEFAULT_PMTILES}`;
 const ATTRIB = '<a href="https://protomaps.com">Protomaps</a> · <a href="https://openstreetmap.org">OpenStreetMap</a>';
 const GLYPHS = "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf";
@@ -88,7 +97,9 @@ export function buildMapStyle(dark: boolean): StyleSpecification {
     version: 8,
     glyphs: GLYPHS,
     sources: {
-      protomaps: { type: "vector", url: PMTILES, attribution: ATTRIB },
+      protomaps: HOSTED_TILES
+        ? { type: "vector", tiles: [HOSTED_TILES], maxzoom: 15, attribution: ATTRIB }
+        : { type: "vector", url: PMTILES, attribution: ATTRIB },
     },
     layers: latinizeLabels(layers("protomaps", flavor, { lang: "en" })),
   };
