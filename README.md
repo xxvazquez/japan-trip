@@ -58,6 +58,8 @@ Map, or in **Manage → Content → Areas**. Add an area to a **day** (on the da
 page) and every place in that area shows on that day's map — a live link, so
 editing the area later updates the day too. Area places show slightly faded and
 never get added to your written plan; only what you type there stays there.
+Zoom out on **All places** or an area scope and each area gets a faint labelled
+ring so you can see its rough extent at a glance.
 
 **Logbook** — the reference drawer. Use the menu at the top to jump between:
 stays · getting around · luggage · emergency numbers · documents · packing ·

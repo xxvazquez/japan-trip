@@ -10,7 +10,7 @@ import {
   type MapTouchEvent,
 } from "maplibre-gl";
 import { Protocol } from "pmtiles";
-import type { FeatureCollection, Point } from "geojson";
+import type { FeatureCollection, Point, Polygon } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { buildMapStyle } from "@/lib/mapStyle";
 import type { Place } from "@/core/types";
@@ -33,11 +33,18 @@ function toFC(places: Place[], derivedIds?: Set<string>): FeatureCollection<Poin
 }
 
 const sel = (id: string | null) => id ?? "__none__";
+type AreaShapeProps = { name: string; color: string };
+type AreaShapes = FeatureCollection<Polygon, AreaShapeProps>;
+const EMPTY_FC: AreaShapes = { type: "FeatureCollection", features: [] };
+/** opacity curve that fades area outlines out once you're zoomed into streets */
+const areaFade = (peak: number): unknown =>
+  ["interpolate", ["linear"], ["zoom"], 8, peak, 12.5, peak, 14.5, 0];
 
 export function MapView({
   places,
   selectedId,
   derivedIds,
+  areaShapes,
   dark,
   onSelect,
   onMapClick,
@@ -48,6 +55,8 @@ export function MapView({
   selectedId: string | null;
   /** ids shown only because an area brought them in — rendered subtly */
   derivedIds?: Set<string>;
+  /** area outlines to draw under the pins (visible when zoomed out) */
+  areaShapes?: AreaShapes | null;
   dark: boolean;
   onSelect: (id: string | null) => void;
   onMapClick?: (lat: number, lng: number) => void;
@@ -58,15 +67,37 @@ export function MapView({
   const map = useRef<MLMap | null>(null);
   const ready = useRef(false);
   const [painted, setPainted] = useState(false);
-  const state = useRef({ places, selectedId, derivedIds, dark, onSelect, onMapClick, onLongPress, onReady });
-  state.current = { places, selectedId, derivedIds, dark, onSelect, onMapClick, onLongPress, onReady };
+  const state = useRef({ places, selectedId, derivedIds, areaShapes, dark, onSelect, onMapClick, onLongPress, onReady });
+  state.current = { places, selectedId, derivedIds, areaShapes, dark, onSelect, onMapClick, onLongPress, onReady };
 
   /* add our source + layers on top of the basemap (re-run after a style swap) */
   const addLayers = (m: MLMap) => {
-    const { places: p, selectedId: s, derivedIds: di, dark: d } = state.current;
-    m.addSource("places", { type: "geojson", data: toFC(p, di), cluster: true, clusterRadius: 46, clusterMaxZoom: 13 });
+    const { places: p, selectedId: s, derivedIds: di, areaShapes: sh, dark: d } = state.current;
     const halo = d ? "#14181c" : "#f2efe8";
     const ink = d ? "#e7ebee" : "#1a2026";
+
+    // area outlines sit UNDERNEATH the pins
+    m.addSource("areas", { type: "geojson", data: sh ?? EMPTY_FC });
+    m.addLayer({
+      id: "area-fill", type: "fill", source: "areas",
+      paint: { "fill-color": ["get", "color"], "fill-opacity": areaFade(0.06) as number },
+    });
+    m.addLayer({
+      id: "area-line", type: "line", source: "areas",
+      paint: { "line-color": ["get", "color"], "line-width": 1.25, "line-opacity": areaFade(0.7) as number },
+    });
+    m.addLayer({
+      id: "area-label", type: "symbol", source: "areas",
+      layout: {
+        "text-field": ["get", "name"], "text-font": ["Noto Sans Medium"], "text-size": 11,
+        "text-transform": "uppercase", "text-letter-spacing": 0.08,
+        "text-allow-overlap": true, "text-ignore-placement": true,
+        "text-offset": [0, -0.9], "text-anchor": "bottom",
+      },
+      paint: { "text-color": ["get", "color"], "text-opacity": areaFade(0.95) as number, "text-halo-color": halo, "text-halo-width": 2 },
+    });
+
+    m.addSource("places", { type: "geojson", data: toFC(p, di), cluster: true, clusterRadius: 46, clusterMaxZoom: 13 });
 
     m.addLayer({
       id: "clusters", type: "circle", source: "places", filter: ["has", "point_count"],
@@ -178,6 +209,10 @@ export function MapView({
   useEffect(() => {
     if (ready.current) (map.current!.getSource("places") as GeoJSONSource | undefined)?.setData(toFC(places, derivedIds));
   }, [places, derivedIds]);
+
+  useEffect(() => {
+    if (ready.current) (map.current!.getSource("areas") as GeoJSONSource | undefined)?.setData(areaShapes ?? EMPTY_FC);
+  }, [areaShapes]);
 
   /* selection */
   useEffect(() => {

@@ -136,6 +136,30 @@ export default function MapTab() {
     };
   }, [data, places, scope, catFilter]);
 
+  /** faint outline + label per area, for the "zoomed out" overview.
+   *  Shown on All / By-area scopes; hidden when scoped to a day/stay. */
+  const areaShapes = useMemo(() => {
+    if (!data) return null;
+    const onAreaScope = scope?.startsWith("area:") ? scope.slice(5) : null;
+    const relevant = !scope || scope === "all";
+    if (!relevant && !onAreaScope) return { type: "FeatureCollection" as const, features: [] };
+    const byId = new Map(places.map((p) => [p.id, p]));
+    const features = data.areas.flatMap((a, i) => {
+      if (onAreaScope && a.id !== onAreaScope) return [];
+      const pts = a.placeIds.map((id) => byId.get(id)).filter(Boolean) as Place[];
+      if (pts.length === 0) return [];
+      const clng = pts.reduce((s, p) => s + p.lng, 0) / pts.length;
+      const clat = pts.reduce((s, p) => s + p.lat, 0) / pts.length;
+      const km = Math.max(0.3, ...pts.map((p) => haversineKm(clat, clng, p.lat, p.lng))) * 1.25;
+      return [{
+        type: "Feature" as const,
+        properties: { name: a.name || "Untitled", color: AREA_TONES[i % AREA_TONES.length] },
+        geometry: { type: "Polygon" as const, coordinates: [circleRing(clng, clat, km)] },
+      }];
+    });
+    return { type: "FeatureCollection" as const, features };
+  }, [data, places, scope]);
+
   // fit the map to the current scope when nothing is selected
   const fitScope = () => {
     const m = map.current;
@@ -414,6 +438,7 @@ export default function MapTab() {
           places={scoped}
           selectedId={selected}
           derivedIds={derived}
+          areaShapes={areaShapes}
           dark={dark}
           onSelect={setSelected}
           onMapClick={onMapClick}
@@ -490,7 +515,7 @@ function ScopeMenu({ value, options, onChange }: { value: string; options: Scope
               const head = o.group && o.group !== lastGroup ? o.group : null;
               lastGroup = o.group;
               return (
-                <div key={o.value}>
+                <div key={`${o.group ?? ""}:${o.value}`}>
                   {head && <p className="px-3 pb-1 pt-2.5 text-2xs font-semibold uppercase tracking-[0.06em] text-ink-faint">{head}</p>}
                   <button
                     onClick={() => {
@@ -661,4 +686,27 @@ function rel(iso: string): string {
   if (s < 3600) return `${Math.round(s / 60)}m ago`;
   if (s < 86400) return `${Math.round(s / 3600)}h ago`;
   return `${Math.round(s / 86400)}d ago`;
+}
+
+/* ---- area outlines ------------------------------------------------ *
+ * Muted, distinguishable tones assigned by position — no colour picker.  */
+const AREA_TONES = ["#6f83a0", "#7e947a", "#a2856a", "#94788e", "#6f9494", "#9e9772", "#8a8fa8", "#a08674"];
+
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371, toR = Math.PI / 180;
+  const dLat = (lat2 - lat1) * toR, dLng = (lng2 - lng1) * toR;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * toR) * Math.cos(lat2 * toR) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(a));
+}
+
+/** a closed ring of lng/lat points approximating a circle of `km` around a centre */
+function circleRing(lng: number, lat: number, km: number, n = 56): [number, number][] {
+  const dLat = km / 110.574;
+  const dLng = km / (111.32 * Math.cos((lat * Math.PI) / 180));
+  const ring: [number, number][] = [];
+  for (let i = 0; i <= n; i++) {
+    const t = (i / n) * 2 * Math.PI;
+    ring.push([lng + dLng * Math.cos(t), lat + dLat * Math.sin(t)]);
+  }
+  return ring;
 }
