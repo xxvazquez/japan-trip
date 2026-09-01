@@ -37,6 +37,7 @@ export function buildDemo(): TripData {
         { id: "logbook", kind: "logbook", label: "Logbook", icon: "vault", enabled: true },
       ],
       mapSourceUrl: "",
+      categoryIcons: { coffee: "coffee", food: "food", see: "sight" },
       demo: true,
       lists: [
         {

@@ -42,6 +42,9 @@ export interface TripConfig {
   /** the id of a preset in themePresets, or "custom" */
   themePreset?: string;
   modules: ModuleConfig[];
+  /** map a place `category` to a marker glyph id (see `MAP_GLYPHS`). Categories
+   *  not listed here draw the plain coloured dot. */
+  categoryIcons?: Record<string, string>;
   /** a public Google "My Maps" link — its pins are imported into `places` */
   mapSourceUrl?: string;
   /** ISO timestamp of the last My Maps import */

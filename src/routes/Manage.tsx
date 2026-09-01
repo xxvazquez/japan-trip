@@ -9,6 +9,7 @@ import { plural } from "@/lib/dates";
 import { APP_NAME } from "@/lib/app";
 import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
 import { THEME_PRESETS } from "@/lib/themePresets";
+import { MAP_GLYPHS } from "@/lib/mapGlyphs";
 import { fileToMediaItem, pickImage } from "@/lib/media";
 import { supabaseEnabled } from "@/lib/supabase";
 import { driveEnabled } from "@/lib/drive";
@@ -733,6 +734,42 @@ function Content() {
     );
   };
 
+  const CategoryIcons = () => {
+    const names = [...new Set(data.places.map((p) => p.category).filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b));
+    if (names.length === 0) return null;
+    const icons = data.config.categoryIcons ?? {};
+    const colorOf = (name: string) => data.places.find((p) => p.category === name)?.color || "#5f7f9c";
+    const setIcon = (name: string, glyph: string) =>
+      mutate((d) => {
+        const next = { ...(d.config.categoryIcons ?? {}) };
+        if (glyph) next[name] = glyph;
+        else delete next[name];
+        d.config.categoryIcons = next;
+      });
+    return (
+      <section>
+        <div className="section-head"><p className="kicker">Category pins</p></div>
+        <p className="mb-2 text-xs text-ink-faint">Give a place category its own map marker — others show a plain dot.</p>
+        <ul>
+          {names.map((name) => (
+            <li key={name} className="flex items-center gap-2 border-b border-line py-2 text-sm last:border-b-0">
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: colorOf(name) }} />
+              <span className="min-w-0 flex-1 truncate">{name}</span>
+              <select
+                value={icons[name] ?? ""}
+                onChange={(e) => setIcon(name, e.target.value)}
+                className="shrink-0 rounded border border-line bg-surface px-1.5 py-1 text-xs text-ink-soft"
+              >
+                <option value="">Dot</option>
+                {MAP_GLYPHS.map((g) => <option key={g.id} value={g.id}>{g.label}</option>)}
+              </select>
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
+  };
+
   return (
     <div>
       {CONTENT_GROUPS.map((grp) => (
@@ -741,6 +778,8 @@ function Content() {
           {grp.types.map((type) => <Rows key={type} type={type} />)}
         </section>
       ))}
+
+      <CategoryIcons />
 
       <section>
         <div className="section-head"><p className="kicker">Logbook sections</p></div>
