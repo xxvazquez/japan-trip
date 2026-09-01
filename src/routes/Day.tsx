@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { Page } from "@/components/Page";
+import { Page, PageHeader } from "@/components/Page";
 import { BackBar } from "@/components/BackBar";
 import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
@@ -41,41 +41,36 @@ export default function Day() {
 
   return (
     <Page>
-      <BackBar to="/" />
-
       {/* IDENTITY — date, title, and where you're based / how you move */}
-      <header className="mb-8">
-        <div className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: legHex(leg?.color) }} />
-          <p className="eyebrow">
-            {fmtDate(day.date, loc, { weekday: "long", day: "numeric", month: "long" })}
-          </p>
-        </div>
-        <h1 className="mt-2 font-display text-[2rem] leading-[1.1]">
+      <PageHeader
+        back="/"
+        dotColor={legHex(leg?.color)}
+        eyebrow={fmtDate(day.date, loc, { weekday: "long", day: "numeric", month: "long" })}
+        title={
           <Editable label="Day title" value={day.title ?? ""} placeholder="Untitled day" onCommit={(v) => patch({ title: v || undefined })} />
-        </h1>
+        }
+      />
 
-        {(hotel || journey) && (
-          <div className="mt-4 flex flex-wrap gap-2">
-            {hotel && (
-              <Link
-                to={`/hotel/${hotel.id}`}
-                className="inline-flex items-center gap-1.5 rounded-[2px] border border-line px-2.5 py-1 text-[0.8125rem] font-medium transition-colors hover:border-ink"
-              >
-                <Icon name="bed" size={14} className="text-ink-soft" /> {hotel.name}
-              </Link>
-            )}
-            {journey && (
-              <Link
-                to={`/journey/${journey.id}`}
-                className="inline-flex items-center gap-1.5 rounded-[2px] border border-line px-2.5 py-1 text-[0.8125rem] font-medium transition-colors hover:border-ink"
-              >
-                <Icon name="train" size={14} className="text-ink-soft" /> {journey.label}
-              </Link>
-            )}
-          </div>
-        )}
-      </header>
+      {(hotel || journey) && (
+        <div className="-mt-4 mb-8 flex flex-wrap gap-2">
+          {hotel && (
+            <Link
+              to={`/hotel/${hotel.id}`}
+              className="inline-flex items-center gap-1.5 rounded-[2px] border border-line px-2.5 py-1 text-[0.8125rem] font-medium transition-colors hover:border-ink"
+            >
+              <Icon name="bed" size={14} className="text-ink-soft" /> {hotel.name}
+            </Link>
+          )}
+          {journey && (
+            <Link
+              to={`/journey/${journey.id}`}
+              className="inline-flex items-center gap-1.5 rounded-[2px] border border-line px-2.5 py-1 text-[0.8125rem] font-medium transition-colors hover:border-ink"
+            >
+              <Icon name="train" size={14} className="text-ink-soft" /> {journey.label}
+            </Link>
+          )}
+        </div>
+      )}
 
       <div className="space-y-3.5">
       {/* PLAN — a short bullet list */}

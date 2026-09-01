@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Page, PageTitle } from "@/components/Page";
+import { Page, PageHeader } from "@/components/Page";
 import { Editable } from "@/components/Editable";
 import { Icon } from "@/components/Icon";
 import { useApp } from "@/store/useApp";
@@ -25,10 +25,12 @@ export default function Manage() {
   const [tab, setTab] = useState<Tab>("trips");
   return (
     <Page width="page">
-      <PageTitle kicker={APP_NAME}>Manage</PageTitle>
-      <p className="-mt-4 mb-6 text-sm text-ink-soft">
-        Structure only. Edit the details themselves inline on each page.
-      </p>
+      <PageHeader
+        eyebrow={APP_NAME}
+        title="Manage"
+        meta="Structure only. Edit the details themselves inline on each page."
+        className="mb-5"
+      />
       <div className="mb-2 flex gap-5 overflow-x-auto border-b border-line">
         {TABS.map((t) => (
           <button

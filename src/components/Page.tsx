@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { BackBar } from "./BackBar";
 
 /**
  * Standard reading column. Pages that open with a full-bleed hero render the
@@ -26,11 +27,39 @@ export function Page({
   );
 }
 
-export function PageTitle({ kicker, children }: { kicker?: string; children: ReactNode }) {
+/**
+ * The one page-header pattern for every route except Plan (whose "NOW" block is
+ * its own thing). Optional back control, an eyebrow (with an optional colour
+ * dot), the title, and a quiet meta line under it. `title` takes a node so a
+ * page can drop an <Editable> straight in.
+ */
+export function PageHeader({
+  back,
+  eyebrow,
+  dotColor,
+  title,
+  meta,
+  className = "",
+}: {
+  /** show a back control: a path is the cold-load fallback, `true` uses Plan */
+  back?: string | boolean;
+  eyebrow?: ReactNode;
+  dotColor?: string;
+  title: ReactNode;
+  meta?: ReactNode;
+  className?: string;
+}) {
   return (
-    <header className="mb-7">
-      {kicker && <p className="eyebrow mb-1.5">{kicker}</p>}
-      <h1 className="text-display">{children}</h1>
+    <header className={`mb-8 ${className}`}>
+      {back ? <BackBar to={typeof back === "string" ? back : undefined} /> : null}
+      {eyebrow ? (
+        <p className="eyebrow mb-1.5 flex items-center gap-1.5">
+          {dotColor && <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: dotColor }} />}
+          {eyebrow}
+        </p>
+      ) : null}
+      <h1 className="text-title">{title}</h1>
+      {meta ? <p className="meta mt-2">{meta}</p> : null}
     </header>
   );
 }

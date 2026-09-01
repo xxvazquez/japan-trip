@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Page } from "@/components/Page";
+import { Page, PageHeader } from "@/components/Page";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
@@ -37,9 +37,9 @@ export default function Logbook() {
 
   return (
     <Page>
-      <h1 className="font-display text-[1.5rem] capitalize leading-tight">{activeLabel}</h1>
+      <PageHeader title={<span className="capitalize">{activeLabel}</span>} className="mb-4" />
 
-      <div className="relative -mx-5 mb-8 mt-3 sm:-mx-7">
+      <div className="relative -mx-5 mb-8 sm:-mx-7">
         <div className="flex gap-5 overflow-x-auto border-b border-line px-5 [mask-image:linear-gradient(to_right,transparent,#000_20px,#000_calc(100%-20px),transparent)] [scrollbar-width:none] sm:px-7 [&::-webkit-scrollbar]:hidden">
           {builtins.map((s) => (
             <Tab key={s} label={s} active={active === s} onClick={() => setSection(s)} />
