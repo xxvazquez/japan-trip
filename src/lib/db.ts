@@ -1,5 +1,6 @@
 import { getSupabase } from "./supabase";
 import { getUserId } from "./auth";
+import { SCHEMA_VERSION } from "./hydrate";
 import type { EntityType, Segment, TripData, TripSummary } from "@/core/types";
 
 /* ------------------------------------------------------------------ *
@@ -50,11 +51,16 @@ function entityToRow(spec: Spec, e: Record<string, unknown>, tripId: string, pos
   return row;
 }
 
+// columns that carry row plumbing, not entity fields. `journey_id` is NOT here:
+// on the `days` table it's the day→journey link (`Day.journeyId`), and dropping
+// it left travel days looking like ordinary days after a reload / realtime echo.
+const PLUMBING = ["id", "trip_id", "position", "created_at", "updated_at"];
+
 function rowToEntity(spec: Spec, r: Record<string, unknown>) {
   const rev = Object.fromEntries(Object.entries(spec.rename ?? {}).map(([c, s]) => [s, c]));
   const e: Record<string, unknown> = { id: r.id };
   for (const [k, v] of Object.entries(r)) {
-    if (["id", "trip_id", "journey_id", "position", "created_at", "updated_at"].includes(k)) continue;
+    if (PLUMBING.includes(k)) continue;
     if (v === null) continue;
     e[rev[k] ?? snakeToCamel(k)] = v;
   }
@@ -137,7 +143,7 @@ export async function loadTrip(dbId: string): Promise<TripData> {
   }
 
   return {
-    v: 1,
+    v: SCHEMA_VERSION,
     config: trow.config,
     meta: trow.meta,
     media: trow.media ?? { gallery: [] },

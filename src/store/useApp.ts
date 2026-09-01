@@ -54,7 +54,7 @@ interface AppStore {
 const summarise = (id: string, name: string, data: TripData, templateId?: string): TripSummary => ({
   id,
   name,
-  subtitle: data.meta.start ? `${data.meta.start} → ${data.meta.end}` : undefined,
+  subtitle: data.meta.start && data.meta.end ? `${data.meta.start} → ${data.meta.end}` : undefined,
   archived: false,
   templateId,
   createdAt: now(),
@@ -77,12 +77,36 @@ function enqueue(get: () => AppStore, op: Op) {
   if (!activeId || !data) return;
   if (be.kind === "local") {
     clearTimeout(flushTimer);
-    flushTimer = setTimeout(() => void be.saveWhole(activeId, get().data!), 400);
+    // re-read the store when the timer fires — never save under a stale trip id
+    flushTimer = setTimeout(() => {
+      const s = get();
+      if (s.activeId && s.data) void be.saveWhole(s.activeId, s.data);
+    }, 400);
     return;
   }
   queue.push(op);
   clearTimeout(flushTimer);
   flushTimer = setTimeout(() => void flush(get), 500);
+}
+
+/** Persist whatever's pending right now — call before the active trip changes
+ *  so a still-debounced edit isn't lost or written to the wrong trip. */
+function flushNow(get: () => AppStore) {
+  if (!flushTimer) return;
+  clearTimeout(flushTimer);
+  flushTimer = undefined;
+  const be = pickBackend();
+  const { activeId, data } = get();
+  if (!activeId || !data) return;
+  if (be.kind === "local") void be.saveWhole(activeId, data);
+  else void flush(get);
+}
+
+/** Drop pending writes without saving — for when the target trip is going away. */
+function discardPending() {
+  clearTimeout(flushTimer);
+  flushTimer = undefined;
+  queue = [];
 }
 
 async function flush(get: () => AppStore) {
@@ -138,7 +162,7 @@ async function flush(get: () => AppStore) {
     for (const k of fieldKeys) f[k] = data[k] ?? null;
     if (fieldKeys.has("meta") || fieldKeys.has("config")) {
       f.name = data.meta.title || data.config.branding;
-      f.subtitle = `${data.meta.start} → ${data.meta.end}`;
+      f.subtitle = data.meta.start && data.meta.end ? `${data.meta.start} → ${data.meta.end}` : null;
     }
     tasks.push(be.saveTripFields(activeId, f).catch(fail));
   }
@@ -237,6 +261,7 @@ export const useApp = create<AppStore>((set, get) => {
       const trips = get().trips.map((t) => (t.id === id ? { ...t, archived, updatedAt: now() } : t));
       let { activeId } = get();
       if (archived && activeId === id) {
+        flushNow(get);
         unsubscribeTrip();
         activeId = trips.find((t) => !t.archived)?.id ?? null;
         const data = activeId ? await be.loadTrip(activeId) : null;
@@ -249,6 +274,7 @@ export const useApp = create<AppStore>((set, get) => {
 
     deleteTrip: async (id) => {
       const be = pickBackend();
+      if (id === get().activeId) discardPending(); // its writes are moot now
       await be.deleteTrip(id);
       const trips = get().trips.filter((t) => t.id !== id);
       let { activeId, data } = get();
@@ -264,6 +290,7 @@ export const useApp = create<AppStore>((set, get) => {
 
     switchTrip: async (id) => {
       if (id === get().activeId) return;
+      flushNow(get);
       const be = pickBackend();
       unsubscribeTrip();
       const data = await be.loadTrip(id);

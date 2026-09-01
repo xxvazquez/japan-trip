@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Page } from "@/components/Page";
 import { BackBar } from "@/components/BackBar";
+import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
@@ -93,43 +94,42 @@ export default function Hotel() {
         </div>
       )}
 
-      {(hotel.directions || !ro) && (
-        <section>
-          <div className="section-head"><p className="kicker">Getting here</p></div>
-          <div className="text-sm leading-relaxed text-ink">
-            <Editable as="textarea" label="Directions" value={hotel.directions ?? ""} placeholder="From the station…" onCommit={(v) => p({ directions: v || undefined })} />
-          </div>
-        </section>
-      )}
+      <div className="mt-8 space-y-3.5">
+        {(hotel.directions || !ro) && (
+          <Section title="Getting here">
+            <div className="text-sm leading-relaxed text-ink">
+              <Editable as="textarea" label="Directions" value={hotel.directions ?? ""} placeholder="From the station…" onCommit={(v) => p({ directions: v || undefined })} />
+            </div>
+          </Section>
+        )}
 
-      {showRefSection && (
-        <section>
-          <div className="section-head"><p className="kicker">Reference</p></div>
-          {showRefRows ? (
-            (ro ? refFilled : ref).map(([label, value, onCommit, as, ph]) => (
-              <div key={label} className="row">
-                <span className="row-label">{label}</span>
-                <span className="row-value text-sm">
-                  <Editable as={as} label={label} value={value ?? ""} onCommit={onCommit} placeholder={ph ?? "—"} />
-                </span>
-              </div>
-            ))
-          ) : (
-            <button onClick={() => setShowRef(true)} className="action">
-              <Icon name="plus" size={14} /> Add reference details
-            </button>
-          )}
-        </section>
-      )}
+        {showRefSection && (
+          <Section title="Reference">
+            {showRefRows ? (
+              (ro ? refFilled : ref).map(([label, value, onCommit, as, ph]) => (
+                <div key={label} className="row">
+                  <span className="row-label">{label}</span>
+                  <span className="row-value text-sm">
+                    <Editable as={as} label={label} value={value ?? ""} onCommit={onCommit} placeholder={ph ?? "—"} />
+                  </span>
+                </div>
+              ))
+            ) : (
+              <button onClick={() => setShowRef(true)} className="action">
+                <Icon name="plus" size={14} /> Add reference details
+              </button>
+            )}
+          </Section>
+        )}
 
-      {(hotel.notes || !ro) && (
-        <section>
-          <div className="section-head"><p className="kicker">Notes</p></div>
-          <div className="text-sm text-ink">
-            <RichNote value={hotel.notes ?? ""} onCommit={(v) => p({ notes: v || undefined })} placeholder="Anything about this stay" />
-          </div>
-        </section>
-      )}
+        {(hotel.notes || !ro) && (
+          <Section title="Notes">
+            <div className="text-sm text-ink">
+              <RichNote value={hotel.notes ?? ""} onCommit={(v) => p({ notes: v || undefined })} placeholder="Anything about this stay" />
+            </div>
+          </Section>
+        )}
+      </div>
     </Page>
   );
 }

@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { Page } from "@/components/Page";
 import { BackBar } from "@/components/BackBar";
+import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
@@ -18,6 +19,7 @@ export default function Journey() {
   const data = useData();
   const { id } = useParams();
   const updateEntity = useApp((s) => s.updateEntity);
+  const ro = useReadOnly();
   if (!data) return null;
 
   const j = lookups(data).journey(id);
@@ -29,7 +31,6 @@ export default function Journey() {
       </Page>
     );
 
-  const ro = useReadOnly();
   const patch = (p: Partial<JourneyT>) => updateEntity<JourneyT>("journeys", j.id, p);
   const setSeg = (i: number, sp: Partial<Segment>) => patch({ segments: j.segments.map((s, k) => (k === i ? { ...s, ...sp } : s)) });
   const loc = data.config.locale;
@@ -121,12 +122,11 @@ export default function Journey() {
       )}
 
       {(j.notes || !ro) && (
-        <section>
-          <div className="section-head"><p className="kicker">Notes</p></div>
+        <Section title="Notes" className="mt-8">
           <div className="text-sm text-ink">
             <RichNote value={j.notes ?? ""} onCommit={(v) => patch({ notes: v || undefined })} placeholder="Backup routes, reminders…" />
           </div>
-        </section>
+        </Section>
       )}
     </Page>
   );

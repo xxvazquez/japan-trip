@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { Page } from "@/components/Page";
 import { BackBar } from "@/components/BackBar";
+import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
@@ -42,55 +43,65 @@ export default function Day() {
     <Page>
       <BackBar to="/" />
 
-      <div className="flex items-center gap-2">
-        <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: legHex(leg?.color) }} />
-        <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-ink-soft">
-          {fmtDate(day.date, loc, { weekday: "long", day: "numeric", month: "long" })}
-        </p>
-      </div>
-      <h1 className="mt-1.5 font-display text-[1.75rem] leading-tight">
-        <Editable label="Day title" value={day.title ?? ""} placeholder="Untitled day" onCommit={(v) => patch({ title: v || undefined })} />
-      </h1>
-
-      {(hotel || journey) && (
-        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm font-medium">
-          {hotel && (
-            <Link to={`/hotel/${hotel.id}`} className="inline-flex items-center gap-1.5 hover:text-accent">
-              <Icon name="bed" size={14} className="text-ink-soft" /> {hotel.name}
-            </Link>
-          )}
-          {journey && (
-            <Link to={`/journey/${journey.id}`} className="inline-flex items-center gap-1.5 hover:text-accent">
-              <Icon name="train" size={14} className="text-ink-soft" /> {journey.label}
-            </Link>
-          )}
+      {/* IDENTITY — date, title, and where you're based / how you move */}
+      <header className="mb-8">
+        <div className="flex items-center gap-2">
+          <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: legHex(leg?.color) }} />
+          <p className="text-2xs font-semibold uppercase tracking-[0.09em] text-ink-faint">
+            {fmtDate(day.date, loc, { weekday: "long", day: "numeric", month: "long" })}
+          </p>
         </div>
-      )}
+        <h1 className="mt-2 font-display text-[2rem] leading-[1.1]">
+          <Editable label="Day title" value={day.title ?? ""} placeholder="Untitled day" onCommit={(v) => patch({ title: v || undefined })} />
+        </h1>
 
+        {(hotel || journey) && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {hotel && (
+              <Link
+                to={`/hotel/${hotel.id}`}
+                className="inline-flex items-center gap-1.5 rounded-[2px] border border-line px-2.5 py-1 text-[0.8125rem] font-medium transition-colors hover:border-ink"
+              >
+                <Icon name="bed" size={14} className="text-ink-soft" /> {hotel.name}
+              </Link>
+            )}
+            {journey && (
+              <Link
+                to={`/journey/${journey.id}`}
+                className="inline-flex items-center gap-1.5 rounded-[2px] border border-line px-2.5 py-1 text-[0.8125rem] font-medium transition-colors hover:border-ink"
+              >
+                <Icon name="train" size={14} className="text-ink-soft" /> {journey.label}
+              </Link>
+            )}
+          </div>
+        )}
+      </header>
+
+      <div className="space-y-3.5">
       {/* PLAN — a short bullet list */}
       {((day.plan ?? []).length > 0 || !ro) && (
-        <section>
-          <div className="section-head">
-            <p className="kicker">Plan</p>
-            {!ro && (
+        <Section
+          title="Plan"
+          action={
+            !ro && (
               <button onClick={() => patch({ plan: [...(day.plan ?? []), ""] })} className="action text-xs">
                 <Icon name="plus" size={13} /> Add
               </button>
-            )}
-          </div>
+            )
+          }
+        >
           <StringList
             items={day.plan ?? []}
             onChange={(v) => patch({ plan: v.length ? v : undefined })}
             readOnly={ro}
             emptyHint="Nothing planned yet."
           />
-        </section>
+        </Section>
       )}
 
       {/* NOTES — free-form, lightly formatted */}
       {(day.notes || !ro) && (
-        <section>
-          <div className="section-head"><p className="kicker">Notes</p></div>
+        <Section title="Notes">
           <div className="text-[0.95rem] text-ink">
             <RichNote
               value={day.notes ?? ""}
@@ -98,23 +109,24 @@ export default function Day() {
               placeholder="Anything else — ideas, reminders, links…"
             />
           </div>
-        </section>
+        </Section>
       )}
 
       {/* PLACES */}
       {((day.places ?? []).length > 0 || !ro) && (
-      <section>
-        <div className="section-head">
-          <p className="kicker">Places</p>
+      <Section
+        title="Places"
+        action={
           <div className={`flex items-center gap-3 ${ro ? "hidden" : ""}`}>
             {data.places.length > 0 && (
               <select
                 value=""
+                aria-label="Add a place from the map"
                 onChange={(e) => {
                   const pl = data.places.find((x) => x.id === e.target.value);
                   if (pl) setPlaces([...(day.places ?? []), { id: rid(), label: pl.name, placeId: pl.id, url: pl.url }]);
                 }}
-                className="cursor-pointer bg-transparent text-xs font-medium text-accent focus:outline-none"
+                className="w-[6.5rem] cursor-pointer appearance-none bg-transparent text-xs font-medium text-accent focus:outline-none"
               >
                 <option value="">＋ From map</option>
                 {[...data.places].sort((a, b) => a.name.localeCompare(b.name)).map((pl) => (
@@ -126,7 +138,8 @@ export default function Day() {
               <Icon name="plus" size={13} /> Add
             </button>
           </div>
-        </div>
+        }
+      >
         {(day.places ?? []).length === 0 ? (
           <p className="text-sm text-ink-faint">Drop in a café, a temple, anything from your map.</p>
         ) : (
@@ -134,7 +147,7 @@ export default function Day() {
             {(day.places ?? []).map((p, i) => {
               const link = gmapsLink(p.url || (p.placeId ? p.label : undefined));
               return (
-                <li key={p.id} className="group flex items-baseline gap-2.5 border-b border-line py-2.5 last:border-b-0">
+                <li key={p.id} className="group flex items-start gap-2.5 border-b border-line/70 py-2.5 last:border-b-0 last:pb-0">
                   <a
                     href={link}
                     target="_blank"
@@ -160,13 +173,12 @@ export default function Day() {
             })}
           </ul>
         )}
-      </section>
+      </Section>
       )}
 
       {/* AREAS — pull an area's places onto this day's map, without touching the plan */}
       {((day.areaIds ?? []).length > 0 || (!ro && data.areas.length > 0)) && (
-        <section>
-          <div className="section-head"><p className="kicker">Areas</p></div>
+        <Section title="Areas">
           <div className="flex flex-wrap gap-2">
             {(day.areaIds ?? []).map((id) => {
               const a = data.areas.find((x) => x.id === id);
@@ -205,19 +217,15 @@ export default function Day() {
           {(day.areaIds ?? []).length > 0 && (
             <p className="meta mt-2">Places in {(day.areaIds ?? []).length === 1 ? "this area" : "these areas"} show on the day's map — they don't change the plan above.</p>
           )}
-        </section>
+        </Section>
       )}
 
-      {/* DAY TRIP — a distinct block, set on a quiet surface */}
-      {day.dayTrip ? (
-        <section className="-mx-5 mt-9 bg-surface px-5 py-6 sm:-mx-7 sm:px-7">
-          <div className="mb-4 flex items-baseline justify-between gap-3">
-            <p className="kicker">
-              <Icon name="explore" size={12} className="mr-1 inline align-[-1px]" /> Day trip
-            </p>
-            {!ro && <button onClick={() => patch({ dayTrip: false })} className="text-xs text-ink-soft hover:text-accent">not a day trip</button>}
-          </div>
-
+      {/* DAY TRIP — a distinct block */}
+      {day.dayTrip && (
+        <Section
+          title="Day trip"
+          action={!ro && <button onClick={() => patch({ dayTrip: false })} className="text-xs text-ink-soft transition-colors hover:text-accent">not a day trip</button>}
+        >
           <div className="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
             <Field label="Getting there">
               <Editable as="textarea" label="Getting there" value={day.getThere ?? ""} placeholder="Route out" onCommit={(v) => patch({ getThere: v || undefined })} />
@@ -248,13 +256,14 @@ export default function Day() {
               <StringList items={day.toDo ?? []} onChange={(v) => patch({ toDo: v.length ? v : undefined })} readOnly={ro} />
             </div>
           )}
-        </section>
-      ) : (
-        !ro && (
-          <button onClick={() => patch({ dayTrip: true })} className="action mt-10">
-            <Icon name="plus" size={14} /> Make this a day trip
-          </button>
-        )
+        </Section>
+      )}
+      </div>
+
+      {!day.dayTrip && !ro && (
+        <button onClick={() => patch({ dayTrip: true })} className="action mt-8">
+          <Icon name="plus" size={14} /> Make this a day trip
+        </button>
       )}
     </Page>
   );
@@ -275,8 +284,8 @@ function StringList({ items, onChange, readOnly, emptyHint = "Nothing yet." }: {
   return (
     <ul>
       {items.map((it, i) => (
-        <li key={i} className="group flex items-baseline gap-2.5 border-b border-line py-2.5 text-sm last:border-b-0">
-          <span className="h-1.5 w-1.5 shrink-0 translate-y-1.5 rounded-full bg-ink-faint" />
+        <li key={i} className="group flex items-start gap-2.5 border-b border-line/70 py-2.5 text-sm last:border-b-0 last:pb-0">
+          <span className="mt-[0.5em] h-1.5 w-1.5 shrink-0 rounded-full bg-ink-faint" />
           <span className="min-w-0 flex-1">
             {readOnly ? it : (
               <Editable label="Item" value={it} placeholder="…" onCommit={(v) => onChange(items.map((x, j) => (j === i ? v : x)))} />
