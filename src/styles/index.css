@@ -195,6 +195,10 @@ html.dark {
   .action {
     @apply inline-flex items-center gap-1.5 text-sm font-medium text-accent transition-opacity hover:opacity-70;
   }
+  /* a low-key text action ("remove", "not a day trip") — caller sets the size */
+  .link-quiet {
+    @apply text-ink-soft transition-colors hover:text-accent;
+  }
 
   .btn {
     @apply inline-flex items-center gap-1.5 rounded-[2px] border border-ink px-3.5 py-1.5 text-sm transition-colors hover:bg-ink hover:text-bg disabled:opacity-50;

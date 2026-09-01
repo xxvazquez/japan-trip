@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Empty } from "@/components/Empty";
 import { Tab } from "@/components/Tabs";
+import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
@@ -94,11 +95,7 @@ function ListSection({ list }: { list: CustomList }) {
                   <Editable label="Item" value={it.label} placeholder="Name" onCommit={(v) => set((l) => { l.items[i].label = v; })} />
                 )}
               </span>
-              {!ro && (
-                <button onClick={() => set((l) => { l.items.splice(i, 1); })} className="shrink-0 p-1 text-ink-faint opacity-0 transition-opacity hover:text-accent group-hover:opacity-100" aria-label="Remove">
-                  <Icon name="close" size={13} />
-                </button>
-              )}
+              {!ro && <RowDeleteButton onClick={() => set((l) => { l.items.splice(i, 1); })} />}
             </div>
             {(it.note || !ro) && (
               <p className="mt-0.5 text-sm text-ink-soft">
@@ -215,7 +212,7 @@ function Luggage() {
               <h3 className="lead">
                 <Editable label="Title" value={n.title} placeholder="e.g. Coin lockers" onCommit={(v) => p({ title: v || "Untitled" })} />
               </h3>
-              {!ro && <button onClick={() => removeEntity("luggage", n.id)} className="shrink-0 text-xs text-ink-soft hover:text-accent">remove</button>}
+              {!ro && <button onClick={() => removeEntity("luggage", n.id)} className="link-quiet shrink-0 text-xs">remove</button>}
             </div>
             {(n.detail || !ro) && (
               <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
@@ -399,7 +396,7 @@ function Attachments({
               <Icon name="vault" size={14} className="shrink-0 text-ink-soft" />
               <button onClick={() => open(f)} className="min-w-0 flex-1 truncate text-left font-medium hover:underline">{f.name}</button>
               {f.size ? <span className="shrink-0 text-xs text-ink-soft">{(f.size / 1048576).toFixed(1)} MB</span> : null}
-              {!ro && <button onClick={() => remove(f)} className="shrink-0 p-1 text-ink-faint opacity-0 hover:text-accent group-hover:opacity-100" aria-label="Remove"><Icon name="close" size={12} /></button>}
+              {!ro && <RowDeleteButton onClick={() => remove(f)} label="Remove file" />}
             </div>
             {img && (
               <button onClick={() => open(f)} className="mt-2 block">

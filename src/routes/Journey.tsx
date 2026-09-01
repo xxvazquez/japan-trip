@@ -81,7 +81,7 @@ export default function Journey() {
                     {(!ro || s.platform) && <span>Platform <Editable label="Platform" value={s.platform ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { platform: v || undefined })} /></span>}
                     {(!ro || s.seat) && <span>Seat <Editable label="Seat" value={s.seat ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { seat: v || undefined })} /></span>}
                     {(!ro || s.fare) && <span>Fare <Editable label="Fare" value={s.fare ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { fare: v || undefined })} /></span>}
-                    {!ro && <button onClick={() => patch({ segments: j.segments.filter((_, k) => k !== i) })} className="text-ink-soft opacity-0 hover:text-accent group-hover:opacity-100">remove</button>}
+                    {!ro && <button onClick={() => patch({ segments: j.segments.filter((_, k) => k !== i) })} className="link-quiet opacity-0 group-hover:opacity-100">remove</button>}
                   </p>
                 )}
               </div>
@@ -113,7 +113,7 @@ export default function Journey() {
       </div>
 
       {j.gmapsDirections && (
-        <a href={j.gmapsDirections} target="_blank" rel="noopener" className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-accent">
+        <a href={j.gmapsDirections} target="_blank" rel="noopener" className="action mt-6">
           <Icon name="map" size={14} /> Directions in Google Maps
         </a>
       )}

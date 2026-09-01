@@ -360,7 +360,7 @@ export default function MapTab() {
             />
           </div>
           {readOnly ? null : adding ? (
-            <button onClick={cancelAdd} className="shrink-0 text-sm text-ink-soft hover:text-accent">
+            <button onClick={cancelAdd} className="link-quiet shrink-0 text-sm">
               Cancel
             </button>
           ) : (
@@ -769,7 +769,7 @@ function PlaceRow({
               </a>
             )}
             {day ? (
-              <Link to={`/day/${day.id}`} className="text-ink-soft hover:text-accent">
+              <Link to={`/day/${day.id}`} className="link-quiet">
                 View day
               </Link>
             ) : (
@@ -870,7 +870,7 @@ function SuggestReview({
                       <li key={id}>
                         <button
                           onClick={() => set(i, { placeIds: g.placeIds.filter((x) => x !== id) })}
-                          className="flex w-full items-center gap-2 py-1 text-left text-sm text-ink-soft hover:text-accent"
+                          className="link-quiet flex w-full items-center gap-2 py-1 text-left text-sm"
                         >
                           <Icon name="close" size={11} className="shrink-0 text-ink-faint" />
                           <span className="truncate">{nameById.get(id) ?? "place"}</span>
@@ -891,7 +891,7 @@ function SuggestReview({
             Create {plural(keptCount, "area")}
           </button>
         )}
-        <button onClick={onCancel} className="text-ink-soft hover:text-accent">Cancel</button>
+        <button onClick={onCancel} className="link-quiet">Cancel</button>
       </div>
     </div>
   );

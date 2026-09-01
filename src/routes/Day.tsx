@@ -4,6 +4,7 @@ import { BackBar } from "@/components/BackBar";
 import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
+import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { Icon } from "@/components/Icon";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
@@ -54,18 +55,12 @@ export default function Day() {
       {(hotel || journey) && (
         <div className="-mt-4 mb-8 flex flex-wrap gap-2">
           {hotel && (
-            <Link
-              to={`/hotel/${hotel.id}`}
-              className="inline-flex items-center gap-1.5 rounded-[2px] border border-line px-2.5 py-1 text-[0.8125rem] font-medium transition-colors hover:border-ink"
-            >
+            <Link to={`/hotel/${hotel.id}`} className="btn-sm">
               <Icon name="bed" size={14} className="text-ink-soft" /> {hotel.name}
             </Link>
           )}
           {journey && (
-            <Link
-              to={`/journey/${journey.id}`}
-              className="inline-flex items-center gap-1.5 rounded-[2px] border border-line px-2.5 py-1 text-[0.8125rem] font-medium transition-colors hover:border-ink"
-            >
+            <Link to={`/journey/${journey.id}`} className="btn-sm">
               <Icon name="train" size={14} className="text-ink-soft" /> {journey.label}
             </Link>
           )}
@@ -158,11 +153,7 @@ export default function Day() {
                   <span className="shrink-0 text-xs text-ink-soft">
                     <Editable as="link" label="Google Maps link" value={p.url ?? ""} placeholder="＋ link" onCommit={(v) => setPlaces(day.places!.map((x, j) => (j === i ? { ...x, url: v || undefined } : x)))} />
                   </span>
-                  {!ro && (
-                    <button onClick={() => setPlaces(day.places!.filter((_, j) => j !== i))} className="shrink-0 p-1 text-ink-faint opacity-0 transition-opacity hover:text-accent group-hover:opacity-100" aria-label="Remove">
-                      <Icon name="close" size={13} />
-                    </button>
-                  )}
+                  {!ro && <RowDeleteButton onClick={() => setPlaces(day.places!.filter((_, j) => j !== i))} />}
                 </li>
               );
             })}
@@ -219,7 +210,7 @@ export default function Day() {
       {day.dayTrip && (
         <Section
           title="Day trip"
-          action={!ro && <button onClick={() => patch({ dayTrip: false })} className="text-xs text-ink-soft transition-colors hover:text-accent">not a day trip</button>}
+          action={!ro && <button onClick={() => patch({ dayTrip: false })} className="link-quiet text-xs">not a day trip</button>}
         >
           <div className="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
             <Field label="Getting there">
@@ -286,11 +277,7 @@ function StringList({ items, onChange, readOnly, emptyHint = "Nothing yet." }: {
               <Editable label="Item" value={it} placeholder="…" onCommit={(v) => onChange(items.map((x, j) => (j === i ? v : x)))} />
             )}
           </span>
-          {!readOnly && (
-            <button onClick={() => onChange(items.filter((_, j) => j !== i))} className="shrink-0 p-1 text-ink-faint opacity-0 transition-opacity hover:text-accent group-hover:opacity-100" aria-label="Remove">
-              <Icon name="close" size={13} />
-            </button>
-          )}
+          {!readOnly && <RowDeleteButton onClick={() => onChange(items.filter((_, j) => j !== i))} />}
         </li>
       ))}
     </ul>
