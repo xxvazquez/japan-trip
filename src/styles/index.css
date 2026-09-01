@@ -158,6 +158,11 @@ html.dark {
   .eyebrow {
     @apply font-sans text-2xs font-normal uppercase tracking-[0.12em] text-ink-faint;
   }
+  /* the small label above a field's value (door code, "Getting there", …) —
+   * same letterforms as .eyebrow but a touch darker, since it's read not skimmed */
+  .field-label {
+    @apply font-sans text-2xs font-normal uppercase tracking-[0.12em] text-ink-soft;
+  }
 
   /* L2 — an item name the eye scans for; medium weight, not bold */
   .lead {

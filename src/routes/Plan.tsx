@@ -17,6 +17,7 @@ import {
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Page } from "@/components/Page";
+import { Empty } from "@/components/Empty";
 import { Icon, type IconName } from "@/components/Icon";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
@@ -97,16 +98,6 @@ export default function Plan() {
         </button>
       )}
     </Page>
-  );
-}
-
-function Empty({ what, hint, to, cta }: { what: string; hint: string; to: string; cta: string }) {
-  return (
-    <div className="border-y border-line py-8 text-center">
-      <p className="lead">{what}</p>
-      <p className="meta mx-auto mt-1 max-w-xs">{hint}</p>
-      <Link to={to} className="btn-primary mt-4">{cta}</Link>
-    </div>
   );
 }
 

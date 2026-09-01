@@ -245,7 +245,7 @@ export default function Day() {
           {((day.toDo ?? []).length > 0 || !ro) && (
             <div className="mt-4 border-t border-line pt-3">
               <div className="mb-1 flex items-baseline justify-between gap-3">
-                <p className="text-2xs font-normal uppercase tracking-[0.12em] text-ink-soft">To do there</p>
+                <p className="field-label">To do there</p>
                 {!ro && <button onClick={() => patch({ toDo: [...(day.toDo ?? []), ""] })} className="action text-xs"><Icon name="plus" size={13} /> Add</button>}
               </div>
               <StringList items={day.toDo ?? []} onChange={(v) => patch({ toDo: v.length ? v : undefined })} readOnly={ro} />
@@ -268,7 +268,7 @@ export default function Day() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="text-2xs font-normal uppercase tracking-[0.12em] text-ink-soft">{label}</p>
+      <p className="field-label">{label}</p>
       <div className="mt-1 text-sm leading-relaxed text-ink">{children}</div>
     </div>
   );

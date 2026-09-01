@@ -62,7 +62,7 @@ export default function Journey() {
           return (
             <div key={s.id}>
               <div className="group border-t border-line py-4 first:border-t-0 first:pt-0">
-                <p className="text-[0.8125rem] font-normal uppercase tracking-[0.14em] text-ink">
+                <p className="kicker">
                   <Editable label="From" value={s.from} placeholder="FROM" onCommit={(v) => setSeg(i, { from: v })} />
                   <span className="mx-1.5 text-ink-faint">→</span>
                   <Editable label="To" value={s.to} placeholder="TO" onCommit={(v) => setSeg(i, { to: v })} />

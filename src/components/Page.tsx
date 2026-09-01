@@ -1,10 +1,7 @@
 import type { ReactNode } from "react";
 import { BackBar } from "./BackBar";
 
-/**
- * Standard reading column. Pages that open with a full-bleed hero render the
- * <Hero> outside <Page> and wrap the rest in <Page>.
- */
+/** Standard reading column for a route's content. */
 export function Page({
   children,
   width = "reading",
