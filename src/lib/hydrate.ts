@@ -1,6 +1,9 @@
 import { THEME_PRESETS } from "./themePresets";
 import type { ModuleConfig, ThemeTokens, TripData } from "@/core/types";
 
+/** current TripData shape version — templates, db loads and normalize all agree on this */
+export const SCHEMA_VERSION = 2;
+
 const today = () => new Date().toISOString().slice(0, 10);
 
 const DEFAULT_MODULES: ModuleConfig[] = [
@@ -29,7 +32,7 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
   const cfg = (d.config ?? {}) as Record<string, unknown>;
   const meta = (d.meta ?? {}) as Record<string, unknown>;
 
-  d.v = typeof d.v === "number" ? d.v : 2;
+  d.v = typeof d.v === "number" ? d.v : SCHEMA_VERSION;
 
   d.config = {
     branding: "",
