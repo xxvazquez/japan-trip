@@ -1,6 +1,6 @@
 <div align="center">
   <img src="public/brand/logo-256.png" width="88" alt="" />
-  <h1>Zukness Atlas</h1>
+  <h1>Zuknesst Atlas</h1>
   <p><em>A private, offline-first travel workspace. One app, many trips.</em></p>
 </div>
 
@@ -46,6 +46,10 @@ like a normal app, full screen. Do this on both phones.
 - Filter by **category** with the coloured dots — none selected shows everything;
   tap some to narrow. Category combines with the scope, so "an area + See" shows
   only the sights in that area.
+- **Transit** row — **Train** and **Metro** are laid over the map by default;
+  tap to add **Tram**, **Bus**, **Ferry** or **Airport**, or to turn any off.
+  It's read straight from the basemap, so it works in any city with no setup,
+  and the choice is remembered.
 - Tap a pin or a list row — they select each other and the map flies there.
 - **＋ Add place** → search for somewhere, or tap the map to drop a pin.
 - **Sync** re-pulls everything from your Google My Map. It replaces the imported
@@ -162,12 +166,13 @@ npm run dev            # http://localhost:5173
 ```ini
 VITE_SUPABASE_URL=https://<project-ref>.supabase.co
 VITE_SUPABASE_ANON_KEY=<the anon / public key>
-VITE_MAP_TILES_URL=https://<your-host>/japan.pmtiles
+VITE_PROTOMAPS_API_KEY=<a Protomaps hosted-API key>
 ```
 
 All optional — with nothing set the app runs fully local. `VITE_SUPABASE_URL`
-must be the **full https URL**, not just the project ref. `VITE_MAP_TILES_URL`
-is covered under [The map background](#the-map-background).
+must be the **full https URL**, not just the project ref. The map tile settings
+(`VITE_PROTOMAPS_API_KEY`, `VITE_MAP_TILES_URL`) are covered under
+[The map background](#the-map-background).
 
 ## Setting up Supabase
 
@@ -228,55 +233,55 @@ scripts/make_icons.py  regenerates icons from logo.png
 
 ## The map background
 
-The map uses [MapLibre GL](https://maplibre.org) with free
-[Protomaps](https://protomaps.com) vector tiles — no key, no billing account.
+The map uses [MapLibre GL](https://maplibre.org) with
+[Protomaps](https://protomaps.com) vector tiles (OpenStreetMap data).
 `maplibre-gl` is pinned to 5.x (6.x breaks pmtiles tile loading).
 
-By default it reads Protomaps' **entire planet** archive over the network. That
-works, but the first paint can take 20–30 s: every tile has to walk a directory
-inside a 130 GB file on a bucket with no edge cache. The Map screen shows a
-"Loading the map…" note while that happens.
+The tile source is chosen at build time, in this priority order:
 
-For a map that loads instantly, host a small regional extract and point
-`VITE_MAP_TILES_URL` at its public URL.
+### 1. Protomaps hosted API — `VITE_PROTOMAPS_API_KEY` (recommended)
 
-**`japan.pmtiles` (≈180 MB, z0–14) is already built** — it's in the repo root,
-git-ignored. It covers two boxes — Kansai (Osaka · Kyoto · Nara · Uji ·
-Arashiyama · Ōhara · Kurama) and Kanto (Tokyo · Yokohama · Kawaguchiko · Hakone ·
-Haneda · Narita) — and renders identically to the planet file inside them
-(verified in-app). The only hard requirement for a host is **HTTP range-request
-support** and permissive **CORS**.
+The **whole planet**, CDN-cached, fast to first paint anywhere on Earth — so a
+future trip to anywhere just works, no rebuild. Free for non-commercial use up
+to 1M tile requests/month; a personal trip app uses a tiny fraction of that.
 
-**Netlify** works, is free, and needs no payment card:
+1. Sign up at [protomaps.com/account](https://protomaps.com/account) and issue a key.
+2. Put it in `.env.local` as `VITE_PROTOMAPS_API_KEY=` (just the key) and in the
+   Cloudflare project's build variables, then redeploy.
 
-1. Sign up at [netlify.com](https://netlify.com) (GitHub or email).
-2. Make a folder containing `japan.pmtiles` and a file named `_headers`:
-   ```
-   /*
-     Access-Control-Allow-Origin: *
-   ```
-3. On the Netlify dashboard: **Add new site → Deploy manually**, and drag that
-   folder in. You get a URL like `https://<name>.netlify.app`.
-4. Set `VITE_MAP_TILES_URL` to `https://<name>.netlify.app/japan.pmtiles` — in
-   `.env.local` and in the Cloudflare project's environment variables — and
-   redeploy.
+Tiles come back as plain `200`s, so the service worker caches them
+([`vite.config.ts`](vite.config.ts) → `runtimeCaching` → `map-tiles`): an area
+you've opened once then paints instantly and works fully offline. Only
+brand-new regions touch the network. Label fonts are cached the same way
+(`map-glyphs`).
 
-Cloudflare R2 also works (same account as the deploy, zero egress cost) but
-requires adding a payment card to activate — free-tier usage won't be charged.
-Cloudflare Pages/Workers static assets can't host it (25 MB per-file limit).
+### 2. Self-hosted extract — `VITE_MAP_TILES_URL`
 
-To rebuild it later (new area, fresher OSM data): install the
-[`pmtiles`](https://github.com/protomaps/go-pmtiles) CLI and run
+A single `.pmtiles` file you host yourself. Only covers the geographic box you
+extracted, and range requests (`206`) aren't service-worker cached — but needs
+no third-party account. The host must support **HTTP range requests** and send
+permissive **CORS**.
+
+Build one with the [`pmtiles`](https://github.com/protomaps/go-pmtiles) CLI:
 
 ```bash
 pmtiles extract https://data.source.coop/protomaps/openstreetmap/v4.pmtiles japan.pmtiles \
   --region=tiles-region.geojson --maxzoom=14
 ```
 
-`tiles-region.geojson` (in the repo root) is a GeoJSON `MultiPolygon` of the two
-boxes; a single `--bbox=minLon,minLat,maxLon,maxLat` also works. `--maxzoom=15`
-gives building-level detail at roughly 2.5× the size. Nothing in the app
-changes — the style and pins are identical.
+`tiles-region.geojson` (repo root) is a GeoJSON `MultiPolygon` of the boxes to
+keep; a single `--bbox=minLon,minLat,maxLon,maxLat` also works. `--maxzoom=15`
+gives building-level detail at ~2.5× the size. **Netlify** hosts it free with no
+payment card (deploy a folder containing the file plus a `_headers` file whose
+body is `/*` then an indented `Access-Control-Allow-Origin: *`). Cloudflare R2
+also works but needs a card on file to activate.
+
+### 3. Nothing set
+
+Falls back to Protomaps' entire-planet archive on Source Cooperative. Works
+everywhere, but first paint takes 20–30 s — every tile walks a directory inside
+a 130 GB file on a bucket with no edge cache. The Map screen shows a
+"Loading the map…" note meanwhile.
 
 ## Branding
 

@@ -1,4 +1,4 @@
--- Zukness Atlas — schema. Generic travel-planner tables: nothing here assumes a
+-- Zuknesst Atlas — schema. Generic travel-planner tables: nothing here assumes a
 -- country, destination or trip style. Run in the Supabase SQL editor (or via the
 -- Supabase CLI). Safe to re-run.
 

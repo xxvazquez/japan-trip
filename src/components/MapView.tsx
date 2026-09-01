@@ -13,6 +13,7 @@ import { Protocol } from "pmtiles";
 import type { FeatureCollection, Point, Polygon } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { buildMapStyle } from "@/lib/mapStyle";
+import { transitLayers, TRANSIT_CONTROLS } from "@/lib/transitLayers";
 import type { Place } from "@/core/types";
 
 const FALLBACK = "#5f7f9c";
@@ -45,6 +46,7 @@ export function MapView({
   selectedId,
   derivedIds,
   areaShapes,
+  transit,
   dark,
   onSelect,
   onMapClick,
@@ -57,6 +59,8 @@ export function MapView({
   derivedIds?: Set<string>;
   /** area outlines to draw under the pins (visible when zoomed out) */
   areaShapes?: AreaShapes | null;
+  /** enabled transit categories ("train" | "metro" | "tram" | "bus" | "airport") */
+  transit?: Set<string>;
   dark: boolean;
   onSelect: (id: string | null) => void;
   onMapClick?: (lat: number, lng: number) => void;
@@ -67,14 +71,27 @@ export function MapView({
   const map = useRef<MLMap | null>(null);
   const ready = useRef(false);
   const [painted, setPainted] = useState(false);
-  const state = useRef({ places, selectedId, derivedIds, areaShapes, dark, onSelect, onMapClick, onLongPress, onReady });
-  state.current = { places, selectedId, derivedIds, areaShapes, dark, onSelect, onMapClick, onLongPress, onReady };
+  const state = useRef({ places, selectedId, derivedIds, areaShapes, transit, dark, onSelect, onMapClick, onLongPress, onReady });
+  state.current = { places, selectedId, derivedIds, areaShapes, transit, dark, onSelect, onMapClick, onLongPress, onReady };
+
+  /* show/hide transit layers to match the current filter */
+  const applyTransit = (m: MLMap, enabled: Set<string> | undefined) => {
+    for (const [layerId, kinds] of Object.entries(TRANSIT_CONTROLS)) {
+      if (!m.getLayer(layerId)) continue;
+      const on = !!enabled && kinds.some((k) => enabled.has(k));
+      m.setLayoutProperty(layerId, "visibility", on ? "visible" : "none");
+    }
+  };
 
   /* add our source + layers on top of the basemap (re-run after a style swap) */
   const addLayers = (m: MLMap) => {
-    const { places: p, selectedId: s, derivedIds: di, areaShapes: sh, dark: d } = state.current;
+    const { places: p, selectedId: s, derivedIds: di, areaShapes: sh, transit: tr, dark: d } = state.current;
     const halo = d ? "#14181c" : "#f2efe8";
     const ink = d ? "#e7ebee" : "#1a2026";
+
+    // transit overlay sits ABOVE the basemap but under our areas + pins
+    for (const layer of transitLayers(d)) m.addLayer(layer);
+    applyTransit(m, tr);
 
     // area outlines sit UNDERNEATH the pins
     m.addSource("areas", { type: "geojson", data: sh ?? EMPTY_FC });
@@ -213,6 +230,11 @@ export function MapView({
   useEffect(() => {
     if (ready.current) (map.current!.getSource("areas") as GeoJSONSource | undefined)?.setData(areaShapes ?? EMPTY_FC);
   }, [areaShapes]);
+
+  /* transit filter */
+  useEffect(() => {
+    if (ready.current && map.current) applyTransit(map.current, transit);
+  }, [transit]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* selection */
   useEffect(() => {

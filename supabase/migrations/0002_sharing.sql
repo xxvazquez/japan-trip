@@ -1,4 +1,4 @@
--- Zukness Atlas — trip sharing + membership RLS.
+-- Zuknesst Atlas — trip sharing + membership RLS.
 -- Run AFTER 0001. Safe to re-run.
 --
 -- Changes:
