@@ -69,6 +69,19 @@ const DARK: Partial<Flavor> = {
   ocean_label: "#5f7176",
 };
 
+/** English name, then Protomaps' transliterated Latin form, then whatever's
+ *  there. Keeps every label in a script the reader can actually read, on any
+ *  country — and drops the stacked "Tokyo / 東京都" dual-script labels. */
+const LATIN_NAME = ["coalesce", ["get", "name:en"], ["get", "pgf:name"], ["get", "name"]];
+
+function latinizeLabels<T extends { layout?: Record<string, unknown> }>(list: T[]): T[] {
+  return list.map((layer) => {
+    const tf = layer.layout?.["text-field"];
+    if (tf == null || !JSON.stringify(tf).includes('"name"')) return layer;
+    return { ...layer, layout: { ...layer.layout, "text-field": LATIN_NAME } };
+  });
+}
+
 export function buildMapStyle(dark: boolean): StyleSpecification {
   const flavor: Flavor = { ...namedFlavor(dark ? "dark" : "light"), ...(dark ? DARK : LIGHT) };
   return {
@@ -77,6 +90,6 @@ export function buildMapStyle(dark: boolean): StyleSpecification {
     sources: {
       protomaps: { type: "vector", url: PMTILES, attribution: ATTRIB },
     },
-    layers: layers("protomaps", flavor, { lang: "en" }),
+    layers: latinizeLabels(layers("protomaps", flavor, { lang: "en" })),
   };
 }
