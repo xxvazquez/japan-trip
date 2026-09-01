@@ -1,13 +1,17 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   DndContext,
+  DragOverlay,
   PointerSensor,
   TouchSensor,
   KeyboardSensor,
   useSensor,
   useSensors,
-  closestCenter,
+  useDroppable,
+  closestCorners,
+  type DragStartEvent,
+  type DragOverEvent,
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
@@ -68,19 +72,16 @@ export default function Plan() {
         {c.phase === "after" && <p className="lead">Home — the trip's all here.</p>}
       </header>
 
-      <div className="space-y-10">
-        {data.legs.map((leg) => (
-          <LegBlock key={leg.id} data={data} leg={leg} todayISO={c.todayISO} readOnly={readOnly} />
-        ))}
-        {data.legs.length === 0 && (
-          <Empty
-            what="No stays yet"
-            hint="Add where you're based, and the days slot underneath."
-            to="/manage"
-            cta="Set up stays"
-          />
-        )}
-      </div>
+      {data.legs.length === 0 ? (
+        <Empty
+          what="No stays yet"
+          hint="Add where you're based, and the days slot underneath."
+          to="/manage"
+          cta="Set up stays"
+        />
+      ) : (
+        <LegList data={data} todayISO={c.todayISO} readOnly={readOnly} />
+      )}
 
       {data.legs.length > 0 && !readOnly && (
         <button
@@ -109,16 +110,29 @@ function Empty({ what, hint, to, cta }: { what: string; hint: string; to: string
   );
 }
 
-function LegBlock({ data, leg, todayISO, readOnly }: { data: TripData; leg: Leg; todayISO: string; readOnly: boolean }) {
+/** All the stays, with drag-to-reorder that also moves a day into another stay.
+ *  One DndContext spans every stay; each stay is its own sortable list + a drop
+ *  target so an empty stay still accepts a day. */
+function LegList({ data, todayISO, readOnly }: { data: TripData; todayISO: string; readOnly: boolean }) {
   const reorderDays = useApp((s) => s.reorderDays);
   const loc = data.config.locale;
-  const hex = legHex(leg.color);
-  const legDays = data.days.filter((d) => d.legId === leg.id).sort((a, b) => a.date.localeCompare(b.date));
-  const ids = legDays.map((d) => d.id).join(",");
-  const nights = Math.max(0, Math.round((+new Date(leg.end) - +new Date(leg.start)) / 864e5));
+  const legIds = data.legs.map((l) => l.id);
 
-  const [order, setOrder] = useState<string[]>(legDays.map((d) => d.id));
-  useEffect(() => setOrder(legDays.map((d) => d.id)), [ids]); // eslint-disable-line react-hooks/exhaustive-deps
+  // day ids per stay, straight from the data (date order)
+  const derived: Record<string, string[]> = {};
+  for (const l of data.legs) {
+    derived[l.id] = data.days
+      .filter((d) => d.legId === l.id)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .map((d) => d.id);
+  }
+  const snapshot = () => Object.fromEntries(legIds.map((id) => [id, [...derived[id]]]));
+
+  const [working, setWorking] = useState<Record<string, string[]> | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const cols = working ?? derived;
+  const dayById = (id: string) => data.days.find((d) => d.id === id);
+  const activeDay = activeId ? dayById(activeId) : undefined;
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -126,24 +140,108 @@ function LegBlock({ data, leg, todayISO, readOnly }: { data: TripData; leg: Leg;
     useSensor(KeyboardSensor),
   );
 
-  const onDragEnd = (e: DragEndEvent) => {
-    const { active, over } = e;
-    if (!over || active.id === over.id) return;
-    const next = arrayMove(order, order.indexOf(active.id as string), order.indexOf(over.id as string));
-    setOrder(next);
-    reorderDays(next);
+  const legOf = (id: string, from: Record<string, string[]>) =>
+    legIds.includes(id) ? id : legIds.find((l) => from[l].includes(id)) ?? null;
+
+  const onDragStart = (e: DragStartEvent) => {
+    setActiveId(e.active.id as string);
+    setWorking(snapshot());
   };
 
-  const ordered = order.map((id) => legDays.find((d) => d.id === id)).filter(Boolean) as Day[];
+  const onDragOver = (e: DragOverEvent) => {
+    const { active, over } = e;
+    if (!over) return;
+    setWorking((prev) => {
+      const base = prev ?? snapshot();
+      const from = legOf(active.id as string, base);
+      const to = legOf(over.id as string, base);
+      if (!from || !to || from === to) return base;
+      const fromArr = [...base[from]];
+      const toArr = [...base[to]];
+      const fi = fromArr.indexOf(active.id as string);
+      if (fi < 0) return base;
+      fromArr.splice(fi, 1);
+      let ti = toArr.indexOf(over.id as string);
+      if (ti < 0) ti = toArr.length; // hovering the stay itself, not a day in it
+      toArr.splice(ti, 0, active.id as string);
+      return { ...base, [from]: fromArr, [to]: toArr };
+    });
+  };
 
-  const list = (
-    <>
-      {ordered.map((d) => (
-        <DayRow key={d.id} data={data} day={d} today={d.date === todayISO} loc={loc} readOnly={readOnly} />
-      ))}
-      {ordered.length === 0 && <li className="meta py-3">No days in this stay yet.</li>}
-    </>
+  const onDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    const base = working ?? snapshot();
+    let final = base;
+    if (over) {
+      const from = legOf(active.id as string, base);
+      if (from && from === legOf(over.id as string, base) && active.id !== over.id) {
+        const arr = base[from];
+        const oi = arr.indexOf(active.id as string);
+        const ni = arr.indexOf(over.id as string);
+        if (oi >= 0 && ni >= 0) final = { ...base, [from]: arrayMove(arr, oi, ni) };
+      }
+    }
+    setWorking(null);
+    setActiveId(null);
+    const changed = legIds.some((id) => {
+      const a = final[id] ?? [];
+      const b = derived[id];
+      return a.length !== b.length || a.some((x, i) => x !== b[i]);
+    });
+    if (changed) reorderDays(data.legs.map((l) => ({ legId: l.id, dayIds: final[l.id] ?? [] })));
+  };
+
+  const nightsOf = (start: string, end: string) => Math.max(0, Math.round((+new Date(end) - +new Date(start)) / 864e5));
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCorners}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDragEnd={onDragEnd}
+      onDragCancel={() => { setWorking(null); setActiveId(null); }}
+    >
+      <div className="space-y-10">
+        {data.legs.map((leg) => (
+          <LegBlock
+            key={leg.id}
+            leg={leg}
+            loc={loc}
+            nights={nightsOf(leg.start, leg.end)}
+            dayIds={cols[leg.id] ?? []}
+            days={data}
+            todayISO={todayISO}
+            readOnly={readOnly}
+          />
+        ))}
+      </div>
+      <DragOverlay>
+        {activeDay ? <DayCard day={activeDay} loc={loc} data={data} /> : null}
+      </DragOverlay>
+    </DndContext>
   );
+}
+
+function LegBlock({
+  leg, loc, nights, dayIds, days, todayISO, readOnly,
+}: {
+  leg: Leg;
+  loc: string;
+  nights: number;
+  dayIds: string[];
+  days: TripData;
+  todayISO: string;
+  readOnly: boolean;
+}) {
+  const hex = legHex(leg.color);
+  const { setNodeRef, isOver } = useDroppable({ id: leg.id, disabled: readOnly });
+  const rows = dayIds
+    .map((id) => days.days.find((d) => d.id === id))
+    .filter(Boolean)
+    .map((d) => (
+      <DayRow key={d!.id} data={days} day={d!} today={d!.date === todayISO} loc={loc} readOnly={readOnly} />
+    ));
 
   return (
     <section>
@@ -156,18 +254,36 @@ function LegBlock({ data, leg, todayISO, readOnly }: { data: TripData; leg: Leg;
         {fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – {fmtDate(leg.end, loc, { day: "numeric", month: "short" })} · {plural(nights, "night")}
       </p>
 
-      <ul className="ml-1.5 border-l-2 pl-3.5" style={{ borderColor: hex }}>
-        {readOnly ? (
-          list
-        ) : (
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-            <SortableContext items={order} strategy={verticalListSortingStrategy}>
-              {list}
-            </SortableContext>
-          </DndContext>
-        )}
+      <ul
+        ref={setNodeRef}
+        className={`ml-1.5 border-l-2 pl-3.5 transition-colors ${isOver && !readOnly ? "bg-surface-2/60" : ""}`}
+        style={{ borderColor: hex }}
+      >
+        <SortableContext items={dayIds} strategy={verticalListSortingStrategy} disabled={readOnly}>
+          {rows}
+          {dayIds.length === 0 && <li className="meta py-3">{readOnly ? "No days in this stay yet." : "Drop a day here."}</li>}
+        </SortableContext>
       </ul>
     </section>
+  );
+}
+
+/** The little block that rides under the cursor while dragging a day. */
+function DayCard({ day, loc, data }: { day: Day; loc: string; data: TripData }) {
+  const k = KIND[dayKind(day, data)];
+  return (
+    <div className="flex items-center gap-3 border border-line bg-bg px-3 py-3 text-sm shadow-md">
+      <span className="text-ink-faint"><GripIcon /></span>
+      <span className="w-10 shrink-0 whitespace-nowrap text-xs tabular-nums text-ink-soft">
+        {fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}
+      </span>
+      <span className="min-w-0 flex-1 truncate font-medium text-ink">{day.title || "Untitled day"}</span>
+      {k && (
+        <span className="flex shrink-0 items-center gap-1 text-2xs font-normal uppercase tracking-[0.12em] text-ink-soft">
+          <Icon name={k.icon} size={12} /> {k.label}
+        </span>
+      )}
+    </div>
   );
 }
 
