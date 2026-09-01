@@ -10,6 +10,7 @@ import { APP_NAME } from "@/lib/app";
 import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
 import { THEME_PRESETS } from "@/lib/themePresets";
 import { MAP_GLYPHS } from "@/lib/mapGlyphs";
+import { Tab } from "@/components/Tabs";
 import { fileToMediaItem, pickImage } from "@/lib/media";
 import { supabaseEnabled } from "@/lib/supabase";
 import { driveEnabled } from "@/lib/drive";
@@ -18,11 +19,11 @@ import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
 import { useEffect } from "react";
 import type { Area, EntityType } from "@/core/types";
 
-type Tab = "trips" | "settings" | "modules" | "media" | "content";
-const TABS: Tab[] = ["trips", "settings", "modules", "media", "content"];
+type TabId = "trips" | "settings" | "modules" | "media" | "content";
+const TABS: TabId[] = ["trips", "settings", "modules", "media", "content"];
 
 export default function Manage() {
-  const [tab, setTab] = useState<Tab>("trips");
+  const [tab, setTab] = useState<TabId>("trips");
   return (
     <Page width="page">
       <PageHeader
@@ -33,15 +34,7 @@ export default function Manage() {
       />
       <div className="mb-2 flex gap-5 overflow-x-auto border-b border-line">
         {TABS.map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`shrink-0 border-b-2 pb-2 text-sm capitalize transition-colors ${
-              tab === t ? "border-ink font-medium text-ink" : "border-transparent text-ink-soft hover:text-ink"
-            }`}
-          >
-            {t}
-          </button>
+          <Tab key={t} label={t} active={tab === t} onClick={() => setTab(t)} />
         ))}
       </div>
       {tab === "trips" && <Trips />}

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
+import { Empty } from "@/components/Empty";
+import { Tab } from "@/components/Tabs";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
@@ -42,11 +44,11 @@ export default function Logbook() {
       <div className="relative -mx-5 mb-8 sm:-mx-7">
         <div className="flex gap-5 overflow-x-auto border-b border-line px-5 [mask-image:linear-gradient(to_right,transparent,#000_20px,#000_calc(100%-20px),transparent)] [scrollbar-width:none] sm:px-7 [&::-webkit-scrollbar]:hidden">
           {builtins.map((s) => (
-            <Tab key={s} label={s} active={active === s} onClick={() => setSection(s)} />
+            <Tab key={s} label={s} active={active === s} onClick={() => setSection(s)} centerOnActive />
           ))}
           {lists.length > 0 && <span aria-hidden className="my-1.5 w-px shrink-0 self-stretch bg-line" />}
           {lists.map((l) => (
-            <Tab key={l.id} label={l.title} active={active === l.id} onClick={() => setSection(l.id)} />
+            <Tab key={l.id} label={l.title} active={active === l.id} onClick={() => setSection(l.id)} centerOnActive />
           ))}
         </div>
       </div>
@@ -65,20 +67,6 @@ export default function Logbook() {
         </>
       )}
     </Page>
-  );
-}
-
-function Tab({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
-  return (
-    <button
-      ref={(el) => { if (active) el?.scrollIntoView({ inline: "center", block: "nearest" }); }}
-      onClick={onClick}
-      className={`shrink-0 whitespace-nowrap border-b-2 pb-2 text-sm capitalize transition-colors ${
-        active ? "border-ink font-medium text-ink" : "border-transparent text-ink-soft hover:text-ink"
-      }`}
-    >
-      {label}
-    </button>
   );
 }
 
@@ -275,7 +263,7 @@ function Emergency() {
             href={isNumber(f.value) ? `tel:${f.value.replace(/\s/g, "")}` : undefined}
             className="block bg-surface p-4 transition-colors hover:bg-surface-2"
           >
-            <span className="block text-2xs font-normal uppercase tracking-[0.12em] text-ink-soft">{f.label}</span>
+            <span className="field-label block">{f.label}</span>
             <span className="mt-1 block font-display text-3xl tabular-nums">
               <Editable label={f.label} value={f.value} placeholder="—" onCommit={(v) => set(i, v)} />
             </span>
@@ -463,7 +451,7 @@ function Packing() {
           const g = items.filter((i) => i.done).length;
           return (
             <div key={group}>
-              <p className="mb-1 flex items-baseline justify-between text-[0.8125rem] font-normal uppercase tracking-[0.12em] text-ink">
+              <p className="kicker mb-1 flex items-baseline justify-between">
                 {group}
                 <span className={`text-xs tabular-nums ${g === items.length ? "text-accent" : "text-ink-soft"}`}>{g}/{items.length}</span>
               </p>
@@ -497,16 +485,6 @@ function Notes() {
   return (
     <div className="text-[0.95rem] text-ink">
       <RichNote value={data.scratch ?? ""} onCommit={(v) => setScratch(v)} placeholder="Anything to remember." />
-    </div>
-  );
-}
-
-function Empty({ what, hint }: { what: string; hint?: string }) {
-  return (
-    <div className="border-y border-line py-10 text-center">
-      <p className="lead">{what}</p>
-      {hint && <p className="meta mx-auto mt-1 max-w-xs">{hint}</p>}
-      <Link to="/manage" className="btn-primary mt-4">Open Manage</Link>
     </div>
   );
 }

@@ -87,7 +87,7 @@ export default function Hotel() {
         <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-5">
           {doorShown.map(([label, value, onCommit, as]) => (
             <div key={label}>
-              <p className="text-2xs font-normal uppercase tracking-[0.12em] text-ink-soft">{label}</p>
+              <p className="field-label">{label}</p>
               <p className="mt-0.5 text-[1.0625rem] font-medium leading-snug">
                 <Editable as={as} label={label} value={value ?? ""} placeholder="—" onCommit={onCommit} />
               </p>

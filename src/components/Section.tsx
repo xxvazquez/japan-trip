@@ -25,7 +25,7 @@ export function Section({
       className={`rounded-[4px] border border-ink-faint/20 bg-surface px-4 py-4 shadow-[0_1px_2px_rgb(0_0_0/0.03)] sm:px-5 sm:py-5 ${className}`}
     >
       <div className="mb-3 flex items-baseline justify-between gap-3 border-b border-line pb-2.5">
-        <h2 className="font-sans text-[0.8125rem] font-normal uppercase tracking-[0.14em] text-ink">{title}</h2>
+        <h2 className="kicker">{title}</h2>
         {action ? <div className="shrink-0">{action}</div> : null}
       </div>
       {children}
