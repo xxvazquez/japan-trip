@@ -132,13 +132,19 @@ html.dark {
   }
 
   /* ---- hierarchy utilities ---------------------------------------- *
-   * L1  screen identity  — font-display 24-28px ink, inline per screen
+   * L1  screen identity  — .text-title (detail pages), text-display (Plan)
    * L2  item names       — .lead
    * L2  paired values    — .value  (right column)
-   * L3  section headers  — .kicker (inside .section-head)
+   * L3  section headers  — .kicker (inside .section-head, or the Section panel)
    * L3  labels/metadata  — .meta / .row-label
    * L4  placeholders     — text-ink-faint, nothing else
    * -------------------------------------------------------------- */
+
+  /* L1 — the page title on every route but Plan. One size, via <PageHeader>. */
+  .text-title {
+    @apply font-display font-medium leading-[1.12] text-ink;
+    font-size: clamp(1.6rem, 1.15rem + 2vw, 2rem);
+  }
 
   /* L3 section header: stands out through wide letter-spacing + full-ink
    * colour, not weight — never heavy. */

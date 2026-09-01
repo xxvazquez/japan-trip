@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { Page } from "@/components/Page";
+import { Page, PageHeader } from "@/components/Page";
 import { BackBar } from "@/components/BackBar";
 import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
@@ -42,22 +42,19 @@ export default function Journey() {
 
   return (
     <Page>
-      <BackBar />
-      <p className="text-2xs font-normal uppercase tracking-[0.12em] text-ink-soft">
-        {cap(j.kind)}{j.date ? ` · ${fmtDate(j.date, loc, { weekday: "long", day: "numeric", month: "long" })}` : ""}
-      </p>
-      <h1 className="mt-1.5 font-display text-[1.6rem] leading-tight">
-        <Editable label="Label" value={j.label} onCommit={(v) => patch({ label: v || j.label })} />
-      </h1>
-      {j.segments.length > 0 && (
-        <p className="meta mt-1.5">
-          {[total && `${total} total`, plural(j.segments.length, "leg"), changes > 0 && plural(changes, "change")]
+      <PageHeader
+        back="/logbook"
+        eyebrow={`${cap(j.kind)}${j.date ? ` · ${fmtDate(j.date, loc, { weekday: "long", day: "numeric", month: "long" })}` : ""}`}
+        title={<Editable label="Label" value={j.label} onCommit={(v) => patch({ label: v || j.label })} />}
+        meta={
+          j.segments.length > 0 &&
+          [total && `${total} total`, plural(j.segments.length, "leg"), changes > 0 && plural(changes, "change")]
             .filter(Boolean)
-            .join("  ·  ")}
-        </p>
-      )}
+            .join("  ·  ")
+        }
+      />
 
-      <div className="mt-8">
+      <div>
         {j.segments.map((s, i) => {
           const next = j.segments[i + 1];
           const gap = next && s.arrive && next.depart ? localMinutes(next.depart)! - localMinutes(s.arrive)! : null;

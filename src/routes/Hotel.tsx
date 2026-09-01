@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { Page } from "@/components/Page";
+import { Page, PageHeader } from "@/components/Page";
 import { BackBar } from "@/components/BackBar";
 import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
@@ -11,6 +11,7 @@ import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { gmapsLink } from "@/lib/maps";
 import { fmtDate } from "@/lib/dates";
+import { legHex } from "@/lib/legColors";
 import type { Hotel as HotelT } from "@/core/types";
 
 export default function Hotel() {
@@ -55,15 +56,16 @@ export default function Hotel() {
 
   return (
     <Page>
-      <BackBar to="/logbook" />
-      <h1 className="font-display text-[1.6rem] leading-tight">
-        <Editable label="Name" value={hotel.name} onCommit={(v) => p({ name: v || hotel.name })} />
-      </h1>
-      {leg && <p className="meta mt-1">{fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – {fmtDate(leg.end, loc, { day: "numeric", month: "short" })}</p>}
+      <PageHeader
+        back="/logbook"
+        dotColor={leg ? legHex(leg.color) : undefined}
+        eyebrow={leg ? `${fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – ${fmtDate(leg.end, loc, { day: "numeric", month: "short" })}` : undefined}
+        title={<Editable label="Name" value={hotel.name} onCommit={(v) => p({ name: v || hotel.name })} />}
+      />
 
       {/* address — the thing you show a taxi */}
       {(hotel.address || hotel.addressJp || !ro) && (
-        <div className="-mx-5 mt-6 bg-surface px-5 py-4 sm:px-7">
+        <div className="-mx-5 -mt-2 bg-surface px-5 py-4 sm:px-7">
           <p className="text-[1rem] font-medium leading-snug">
             <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined })} />
           </p>
