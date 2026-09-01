@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
+import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
 import { Icon } from "@/components/Icon";
 import { useApp } from "@/store/useApp";
@@ -154,11 +155,10 @@ function Trips() {
       </ul>
 
       {archived.length > 0 && (
-        <>
-          <div className="section-head"><p className="kicker">Archived</p></div>
+        <Section title="Archived" className="mt-4">
           <ul>
             {archived.map((t) => (
-              <li key={t.id} className="flex items-center justify-between border-b border-line py-2.5 text-sm">
+              <li key={t.id} className="flex items-center justify-between border-b border-line py-2.5 text-sm last:border-b-0">
                 <span className="text-ink-soft">{t.name}</span>
                 <div className="flex items-center gap-3">
                   <button onClick={() => archiveTrip(t.id, false)} className="text-accent hover:opacity-70">Restore</button>
@@ -167,7 +167,7 @@ function Trips() {
               </li>
             ))}
           </ul>
-        </>
+        </Section>
       )}
     </div>
   );
@@ -217,8 +217,7 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
   };
 
   return (
-    <div>
-      <div className="section-head"><p className="kicker">Shared with</p></div>
+    <Section title="Shared with" className="mt-4">
       <ul className="mb-3 space-y-1.5 text-sm">
         {members.map((m) => (
           <li key={m.userId} className="flex items-center justify-between gap-2">
@@ -243,7 +242,7 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
           {msg && <p className="mt-1.5 text-xs text-ink-soft">{msg}</p>}
         </>
       )}
-    </div>
+    </Section>
   );
 }
 
@@ -325,26 +324,22 @@ function Settings() {
     });
 
   return (
-    <div className="space-y-0">
-      <section>
-        <div className="section-head"><p className="kicker">Identity</p></div>
+    <div className="space-y-3.5">
+      <Section title="Identity">
         <Field label="Trip name" value={config.branding} onCommit={(v) => mutate((d) => { d.config.branding = v; d.meta.title = v; })} />
-      </section>
+      </Section>
 
-      <section>
-        <div className="section-head"><p className="kicker">Dates</p></div>
+      <Section title="Dates">
         <Row label="Start"><Editable as="date" label="Start date" value={meta.start} onCommit={(v) => setDate("start", v)} /></Row>
         <Row label="End"><Editable as="date" label="End date" value={meta.end} onCommit={(v) => setDate("end", v)} /></Row>
-      </section>
+      </Section>
 
-      <section>
-        <div className="section-head"><p className="kicker">Time zones</p></div>
+      <Section title="Time zones">
         <Row label="Home"><TzSelect value={config.homeTimeZone} onChange={(v) => mutate((d) => { d.config.homeTimeZone = v; })} /></Row>
         <Row label="On the trip"><TzSelect value={config.tripTimeZone} onChange={(v) => mutate((d) => { d.config.tripTimeZone = v; })} /></Row>
-      </section>
+      </Section>
 
-      <section>
-        <div className="section-head"><p className="kicker">Map & format</p></div>
+      <Section title="Map & format">
         <Row label="Date format">
           <select
             value={config.locale}
@@ -358,11 +353,10 @@ function Settings() {
         <Row label="Google My Map">
           <Editable as="link" label="Google My Map link" value={config.mapSourceUrl ?? ""} placeholder="paste the share link" onCommit={(v) => mutate((d) => { d.config.mapSourceUrl = v; })} />
         </Row>
-      </section>
+      </Section>
 
       {driveEnabled && (
-        <section>
-          <div className="section-head"><p className="kicker">Document files</p></div>
+        <Section title="Document files">
           <Row label="Share attachments with">
             <Editable
               label="Emails to share document attachments with"
@@ -374,11 +368,10 @@ function Settings() {
           <p className="mt-2 text-xs text-ink-faint">
             Attachments upload to the adder's Google Drive; these accounts are given read access. List both travellers.
           </p>
-        </section>
+        </Section>
       )}
 
-      <section>
-        <div className="section-head"><p className="kicker">Theme</p></div>
+      <Section title="Theme">
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {THEME_PRESETS.map((p) => {
             const on = config.themePreset === p.id;
@@ -433,7 +426,7 @@ function Settings() {
               </div>
             </div>
           ))}
-      </section>
+      </Section>
     </div>
   );
 }
@@ -503,9 +496,8 @@ function Media() {
   };
 
   return (
-    <div className="space-y-0">
-      <section>
-        <div className="section-head"><p className="kicker">Logo</p></div>
+    <div className="space-y-3.5">
+      <Section title="Logo">
         <div className="flex items-center gap-4">
           <span className="grid h-16 w-16 place-items-center overflow-hidden rounded-[3px] border border-line bg-surface-2">
             <img src={media.logo?.dataUrl || "/brand/logo-128.png"} alt="" className="h-full w-full object-cover" />
@@ -515,10 +507,9 @@ function Media() {
             {media.logo && <button onClick={() => setMedia("logo", undefined)} className="btn-sm text-accent">Remove</button>}
           </div>
         </div>
-      </section>
+      </Section>
 
-      <section>
-        <div className="section-head"><p className="kicker">Cover</p></div>
+      <Section title="Cover">
         <div className="overflow-hidden rounded-[3px] border border-line">
           {media.cover ? (
             <img src={media.cover.dataUrl} alt="" className="h-40 w-full object-cover" />
@@ -530,10 +521,9 @@ function Media() {
           <button disabled={busy} onClick={() => upload((item) => setMedia("cover", item))} className="btn-sm">Upload</button>
           {media.cover && <button onClick={() => setMedia("cover", undefined)} className="btn-sm text-accent">Remove</button>}
         </div>
-      </section>
+      </Section>
 
-      <section>
-        <div className="section-head"><p className="kicker">Gallery</p></div>
+      <Section title="Gallery">
         <button disabled={busy} onClick={() => upload((item) => addGalleryMedia(item))} className="btn-sm mb-3">
           <Icon name="plus" size={14} /> Add image
         </button>
@@ -560,7 +550,7 @@ function Media() {
           <p className="text-sm text-ink-faint">No images yet.</p>
         )}
         <p className="mt-3 text-xs text-ink-faint">Images are resized to ~1600px and stored on this device with the trip.</p>
-      </section>
+      </Section>
     </div>
   );
 }
@@ -742,9 +732,8 @@ function Content() {
         d.config.categoryIcons = next;
       });
     return (
-      <section>
-        <div className="section-head"><p className="kicker">Category pins</p></div>
-        <p className="mb-2 text-xs text-ink-faint">Give a place category its own map marker — others show a plain dot.</p>
+      <Section title="Category pins">
+        <p className="-mt-1 mb-2 text-xs text-ink-faint">Give a place category its own map marker — others show a plain dot.</p>
         <ul>
           {names.map((name) => (
             <li key={name} className="flex items-center gap-2 border-b border-line py-2 text-sm last:border-b-0">
@@ -761,23 +750,21 @@ function Content() {
             </li>
           ))}
         </ul>
-      </section>
+      </Section>
     );
   };
 
   return (
-    <div>
+    <div className="space-y-3.5">
       {CONTENT_GROUPS.map((grp) => (
-        <section key={grp.title}>
-          <div className="section-head"><p className="kicker">{grp.title}</p></div>
+        <Section key={grp.title} title={grp.title}>
           {grp.types.map((type) => <Rows key={type} type={type} />)}
-        </section>
+        </Section>
       ))}
 
       <CategoryIcons />
 
-      <section>
-        <div className="section-head"><p className="kicker">Logbook sections</p></div>
+      <Section title="Logbook sections">
         <ul>
           {OPTIONAL_LOGBOOK.map((s) => (
             <li key={s} className="flex items-center justify-between border-b border-line py-2.5 text-sm capitalize">
@@ -805,7 +792,7 @@ function Content() {
         >
           <Icon name="plus" size={14} /> Add list
         </button>
-      </section>
+      </Section>
     </div>
   );
 }

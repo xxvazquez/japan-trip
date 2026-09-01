@@ -135,7 +135,7 @@ html.dark {
    * L1  screen identity  — .text-title (detail pages), text-display (Plan)
    * L2  item names       — .lead
    * L2  paired values    — .value  (right column)
-   * L3  section headers  — .kicker (inside .section-head, or the Section panel)
+   * L3  section headers  — .kicker (bare, or as the <Section> panel's header)
    * L3  labels/metadata  — .meta / .row-label
    * L4  placeholders     — text-ink-faint, nothing else
    * -------------------------------------------------------------- */
@@ -147,10 +147,8 @@ html.dark {
   }
 
   /* L3 section header: stands out through wide letter-spacing + full-ink
-   * colour, not weight — never heavy. */
-  .section-head {
-    @apply mb-2 mt-9 flex items-baseline justify-between gap-3;
-  }
+   * colour, not weight — never heavy. Bare on flat runs, or as the header of
+   * a <Section> panel. */
   .kicker {
     @apply font-sans text-[0.8125rem] font-normal uppercase tracking-[0.14em] text-ink;
   }
