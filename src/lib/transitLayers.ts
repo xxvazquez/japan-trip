@@ -8,6 +8,14 @@ import type { LayerSpecification } from "maplibre-gl";
  * Lines split cleanly by `kind_detail`; station POIs don't (a JR station and a
  * metro station are both `kind: "station"`), so the station dots turn on with
  * either Train or Metro.
+ *
+ * Basemap limitation: subway line geometry is only in the tiles from zoom 14
+ * up (every segment is flagged `min_zoom: 15`), while metro *stations* appear
+ * from zoom 10. So below z14 the Metro toggle shows dots with no connecting
+ * lines — there's simply no line data yet. `transit-line-metro` carries a
+ * matching `minzoom: 14` so it doesn't sit there empty. The tiles carry no
+ * per-line colour (`name`/`name:en` yes, `colour` no), so every metro line
+ * shares one tone.
  */
 
 export type TransitKind = "train" | "metro" | "tram" | "bus" | "ferry" | "airport";
@@ -46,17 +54,31 @@ export function transitLayers(dark: boolean): LayerSpecification[] {
   const halo = dark ? "#14181c" : "#f2efe8";
   const labelInk = dark ? "#aeb8c4" : "#586472";
   const railWidth = ["interpolate", ["exponential", 1.5], ["zoom"], 9, 0.4, 13, 1.3, 16, 3.2];
+  // subway geometry is only in the tiles from z14 up, so metro's ramp starts
+  // there — and runs a touch heavier and fully opaque so it reads apart from
+  // the Train lines.
+  const metroWidth = ["interpolate", ["exponential", 1.5], ["zoom"], 14, 2, 16, 4.4];
   const hidden = { visibility: "none" } as const;
 
-  const line = (id: string, k: TransitKind, detail: unknown): LayerSpecification =>
+  const line = (
+    id: string,
+    k: TransitKind,
+    detail: unknown,
+    opts: { minzoom?: number; width?: unknown; opacity?: number } = {},
+  ): LayerSpecification =>
     ({
       id,
       type: "line",
       source: SRC,
       "source-layer": "roads",
+      ...(opts.minzoom ? { minzoom: opts.minzoom } : {}),
       filter: ["all", ["==", ["get", "kind"], "rail"], detail],
       layout: { ...hidden, "line-cap": "round", "line-join": "round" },
-      paint: { "line-color": tone(k), "line-width": railWidth, "line-opacity": 0.85 },
+      paint: {
+        "line-color": tone(k),
+        "line-width": opts.width ?? railWidth,
+        "line-opacity": opts.opacity ?? 0.85,
+      },
     }) as unknown as LayerSpecification;
 
   return [
@@ -64,7 +86,11 @@ export function transitLayers(dark: boolean): LayerSpecification[] {
       "!",
       ["in", ["get", "kind_detail"], ["literal", ["subway", "tram", "light_rail"]]],
     ]),
-    line("transit-line-metro", "metro", ["==", ["get", "kind_detail"], "subway"]),
+    line("transit-line-metro", "metro", ["==", ["get", "kind_detail"], "subway"], {
+      minzoom: 14,
+      width: metroWidth,
+      opacity: 0.95,
+    }),
     line("transit-line-tram", "tram", [
       "in",
       ["get", "kind_detail"],
