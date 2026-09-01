@@ -5,9 +5,11 @@ import { Editable } from "@/components/Editable";
 import { Icon } from "@/components/Icon";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
-import { tripClock, fmtDate } from "@/lib/dates";
+import { tripClock, fmtDate, plural } from "@/lib/dates";
 import { gmapsLink } from "@/lib/maps";
 import { geocode, type GeoResult } from "@/lib/geocode";
+import { haversineKm } from "@/lib/geo";
+import { suggestAreas, type AreaSuggestion } from "@/lib/cluster";
 import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
 import type { Area, Day, DayPlace, Place, TripData } from "@/core/types";
@@ -64,6 +66,9 @@ export default function MapTab() {
 
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+
+  /** review state for "Suggest areas" — null when not suggesting */
+  const [review, setReview] = useState<ReviewGroup[] | null>(null);
 
   const places = useMemo(() => data?.places ?? [], [data]);
 
@@ -231,6 +236,31 @@ export default function MapTab() {
     updateEntity<Area>("areas", areaId, { placeIds: next });
   };
 
+  /** places not yet in any area — the ones worth auto-grouping */
+  const ungrouped = useMemo(() => {
+    const inArea = new Set(data?.areas.flatMap((a) => a.placeIds) ?? []);
+    return places.filter((p) => !inArea.has(p.id));
+  }, [places, data?.areas]);
+
+  const startSuggest = () => {
+    const found = suggestAreas(ungrouped);
+    setSelected(null);
+    setAdding(false);
+    setSnap((s) => (s === "peek" ? "half" : s));
+    setReview(
+      found.length
+        ? found.map((s) => ({ ...s, keep: true }))
+        : [],
+    );
+  };
+  const applyReview = () => {
+    for (const g of review ?? []) {
+      if (!g.keep || g.placeIds.length < 2) continue;
+      addEntity("areas", { id: crypto.randomUUID?.() ?? rid(), name: g.name || "Area", placeIds: g.placeIds } as never);
+    }
+    setReview(null);
+  };
+
   const runSync = async () => {
     if (!url) return;
     setBusy(true);
@@ -369,38 +399,59 @@ export default function MapTab() {
         </div>
       )}
 
-      {/* list */}
-      <ul className="min-h-0 flex-1 overflow-y-auto px-4">
-        {scoped.map((p) => (
-          <PlaceRow
-            key={p.id}
-            place={p}
-            open={selected === p.id}
-            dayId={dayOfPlace.get(p.id)}
-            derived={derived.has(p.id)}
-            days={data.days}
-            areas={data.areas}
-            loc={loc}
-            onToggle={() => setSelected(selected === p.id ? null : p.id)}
-            onNote={(v) => updateEntity<Place>("places", p.id, { note: v || undefined })}
-            onName={(v) => v && updateEntity<Place>("places", p.id, { name: v })}
-            onAddToDay={(d) => addToDay(p, d)}
-            onToggleArea={(areaId) => toggleAreaPlace(areaId, p.id)}
-            onRemove={() => {
-              removeEntity("places", p.id);
-              if (selected === p.id) setSelected(null);
-            }}
-          />
-        ))}
-        {scoped.length === 0 && (
-          <li className="meta py-6">
-            {places.length === 0
-              ? "No places yet. Add one above, or paste a Google My Maps link in Manage to import your pins."
-              : "No places in this view. Widen the scope or clear the category filter."}
-          </li>
-        )}
-        <li className="h-4" />
-      </ul>
+      {/* suggest areas — subtle, only when there's an unsorted pile worth grouping */}
+      {!readOnly && !adding && review === null && ungrouped.length >= 4 && (
+        <button
+          onClick={startSuggest}
+          className="shrink-0 border-b border-line px-4 py-2 text-left text-xs text-accent transition-opacity hover:opacity-70"
+        >
+          <Icon name="explore" size={12} className="mr-1 inline align-[-1px]" />
+          Suggest areas from {ungrouped.length} ungrouped places
+        </button>
+      )}
+
+      {/* list, or the suggestion review */}
+      {review !== null ? (
+        <SuggestReview
+          groups={review}
+          places={places}
+          onChange={setReview}
+          onApply={applyReview}
+          onCancel={() => setReview(null)}
+        />
+      ) : (
+        <ul className="min-h-0 flex-1 overflow-y-auto px-4">
+          {scoped.map((p) => (
+            <PlaceRow
+              key={p.id}
+              place={p}
+              open={selected === p.id}
+              dayId={dayOfPlace.get(p.id)}
+              derived={derived.has(p.id)}
+              days={data.days}
+              areas={data.areas}
+              loc={loc}
+              onToggle={() => setSelected(selected === p.id ? null : p.id)}
+              onNote={(v) => updateEntity<Place>("places", p.id, { note: v || undefined })}
+              onName={(v) => v && updateEntity<Place>("places", p.id, { name: v })}
+              onAddToDay={(d) => addToDay(p, d)}
+              onToggleArea={(areaId) => toggleAreaPlace(areaId, p.id)}
+              onRemove={() => {
+                removeEntity("places", p.id);
+                if (selected === p.id) setSelected(null);
+              }}
+            />
+          ))}
+          {scoped.length === 0 && (
+            <li className="meta py-6">
+              {places.length === 0
+                ? "No places yet. Add one above, or paste a Google My Maps link in Manage to import your pins."
+                : "No places in this view. Widen the scope or clear the category filter."}
+            </li>
+          )}
+          <li className="h-4" />
+        </ul>
+      )}
 
       {/* sync footer */}
       <div className="shrink-0 border-t border-line px-4 py-2.5 text-xs text-ink-soft">
@@ -476,6 +527,7 @@ export default function MapTab() {
 }
 
 type ScopeOption = { value: string; label: string; group?: "By stay" | "By day" | "By area" };
+type ReviewGroup = AreaSuggestion & { keep: boolean };
 
 function ScopeMenu({ value, options, onChange }: { value: string; options: ScopeOption[]; onChange: (v: string) => void }) {
   const [open, setOpen] = useState(false);
@@ -688,16 +740,92 @@ function rel(iso: string): string {
   return `${Math.round(s / 86400)}d ago`;
 }
 
+/* ---- suggest areas review ---------------------------------------- */
+
+function SuggestReview({
+  groups,
+  places,
+  onChange,
+  onApply,
+  onCancel,
+}: {
+  groups: ReviewGroup[];
+  places: Place[];
+  onChange: (next: ReviewGroup[]) => void;
+  onApply: () => void;
+  onCancel: () => void;
+}) {
+  const [expanded, setExpanded] = useState<number | null>(null);
+  const nameById = new Map(places.map((p) => [p.id, p.name] as const));
+  const set = (i: number, patch: Partial<ReviewGroup>) => onChange(groups.map((g, j) => (j === i ? { ...g, ...patch } : g)));
+  const keptCount = groups.filter((g) => g.keep && g.placeIds.length >= 2).length;
+
+  return (
+    <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-3">
+      {groups.length === 0 ? (
+        <p className="meta py-4">
+          Couldn't spot any clear groups — the places are too spread out or too few. Add areas by hand in Manage.
+        </p>
+      ) : (
+        <>
+          <p className="meta mb-3">
+            Found {plural(groups.length, "group")} of nearby places. Untick any you don't want, rename them, or open one to
+            drop a place.
+          </p>
+          <ul>
+            {groups.map((g, i) => (
+              <li key={i} className="border-b border-line py-2 last:border-b-0">
+                <div className="flex items-center gap-2">
+                  <button onClick={() => set(i, { keep: !g.keep })} aria-label={g.keep ? "Skip this group" : "Keep this group"} className="shrink-0">
+                    <Icon name="check" size={14} className={g.keep ? "text-accent" : "text-ink-faint/30"} />
+                  </button>
+                  <input
+                    value={g.name}
+                    onChange={(e) => set(i, { name: e.target.value })}
+                    aria-label="Area name"
+                    className="min-w-0 flex-1 border-b border-transparent bg-transparent pb-0.5 text-sm focus:border-line focus:outline-none"
+                  />
+                  <button onClick={() => setExpanded(expanded === i ? null : i)} className="shrink-0 text-xs text-ink-soft hover:text-ink">
+                    {plural(g.placeIds.length, "place")}
+                    <Icon name={expanded === i ? "up" : "down"} size={12} className="ml-1 inline align-[-1px]" />
+                  </button>
+                </div>
+                {expanded === i && (
+                  <ul className="mt-1.5 pl-6">
+                    {g.placeIds.map((id) => (
+                      <li key={id}>
+                        <button
+                          onClick={() => set(i, { placeIds: g.placeIds.filter((x) => x !== id) })}
+                          className="flex w-full items-center gap-2 py-1 text-left text-sm text-ink-soft hover:text-accent"
+                        >
+                          <Icon name="close" size={11} className="shrink-0 text-ink-faint" />
+                          <span className="truncate">{nameById.get(id) ?? "place"}</span>
+                        </button>
+                      </li>
+                    ))}
+                    {g.placeIds.length < 2 && <li className="py-1 text-2xs text-ink-faint">needs at least 2 places</li>}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      <div className="sticky bottom-0 mt-3 flex items-center gap-4 bg-bg py-2 text-sm">
+        {keptCount > 0 && (
+          <button onClick={onApply} className="font-semibold text-accent hover:opacity-70">
+            Create {plural(keptCount, "area")}
+          </button>
+        )}
+        <button onClick={onCancel} className="text-ink-soft hover:text-accent">Cancel</button>
+      </div>
+    </div>
+  );
+}
+
 /* ---- area outlines ------------------------------------------------ *
  * Muted, distinguishable tones assigned by position — no colour picker.  */
 const AREA_TONES = ["#6f83a0", "#7e947a", "#a2856a", "#94788e", "#6f9494", "#9e9772", "#8a8fa8", "#a08674"];
-
-function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 6371, toR = Math.PI / 180;
-  const dLat = (lat2 - lat1) * toR, dLng = (lng2 - lng1) * toR;
-  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * toR) * Math.cos(lat2 * toR) * Math.sin(dLng / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(a));
-}
 
 /** a closed ring of lng/lat points approximating a circle of `km` around a centre */
 function circleRing(lng: number, lat: number, km: number, n = 56): [number, number][] {

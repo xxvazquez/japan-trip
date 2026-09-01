@@ -50,6 +50,9 @@ like a normal app, full screen. Do this on both phones.
 - **＋ Add place** → search for somewhere, or tap the map to drop a pin.
 - **Sync** re-pulls everything from your Google My Map. It replaces the imported
   pins but keeps anything you added in the app and any notes you wrote.
+- Place names on the map are shown in English / Latin script (falling back to
+  the local name only when there's no other), so it reads the same in any
+  country.
 
 **Areas vs. categories.** A category is *what* a place is (coffee, see, food…).
 An **area** is *where* it is (Gion, Higashiyama, a neighbourhood you name). A
@@ -60,6 +63,13 @@ editing the area later updates the day too. Area places show slightly faded and
 never get added to your written plan; only what you type there stays there.
 Zoom out on **All places** or an area scope and each area gets a faint labelled
 ring so you can see its rough extent at a glance.
+
+**Suggest areas.** When several places aren't in any area, a *Suggest areas*
+link appears under the map list. It groups them by how close together they are
+(the "close enough" distance is worked out from your own places, so it fits a
+tight city or a spread-out road trip). You review the groups — rename, untick,
+drop a place — and only the ones you keep become real areas. It never changes
+an area you already have.
 
 **Logbook** — the reference drawer. Use the menu at the top to jump between:
 stays · getting around · luggage · emergency numbers · documents · packing ·
