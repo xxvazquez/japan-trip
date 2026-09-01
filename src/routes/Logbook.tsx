@@ -68,7 +68,7 @@ function Tab({ label, active, onClick }: { label: string; active: boolean; onCli
       ref={(el) => { if (active) el?.scrollIntoView({ inline: "center", block: "nearest" }); }}
       onClick={onClick}
       className={`shrink-0 whitespace-nowrap border-b-2 pb-2 text-sm capitalize transition-colors ${
-        active ? "border-ink font-semibold text-ink" : "border-transparent text-ink-soft hover:text-ink"
+        active ? "border-ink font-medium text-ink" : "border-transparent text-ink-soft hover:text-ink"
       }`}
     >
       {label}
@@ -269,7 +269,7 @@ function Emergency() {
             href={isNumber(f.value) ? `tel:${f.value.replace(/\s/g, "")}` : undefined}
             className="block bg-surface p-4 transition-colors hover:bg-surface-2"
           >
-            <span className="block text-2xs font-semibold uppercase tracking-[0.06em] text-ink-soft">{f.label}</span>
+            <span className="block text-2xs font-normal uppercase tracking-[0.12em] text-ink-soft">{f.label}</span>
             <span className="mt-1 block font-display text-3xl tabular-nums">
               <Editable label={f.label} value={f.value} placeholder="—" onCommit={(v) => set(i, v)} />
             </span>
@@ -369,7 +369,7 @@ function Packing() {
   return (
     <div>
       <div className="mb-7 flex items-center gap-3">
-        <span className="text-xl font-semibold tabular-nums">{done}<span className="text-ink-faint">/{total}</span></span>
+        <span className="text-xl font-medium tabular-nums">{done}<span className="text-ink-faint">/{total}</span></span>
         <span className="h-1 flex-1 overflow-hidden rounded-full bg-line">
           <span className="block h-full bg-accent transition-all" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
         </span>
@@ -379,7 +379,7 @@ function Packing() {
           const g = items.filter((i) => i.done).length;
           return (
             <div key={group}>
-              <p className="mb-1 flex items-baseline justify-between text-[0.8125rem] font-semibold uppercase tracking-[0.04em] text-ink">
+              <p className="mb-1 flex items-baseline justify-between text-[0.8125rem] font-normal uppercase tracking-[0.12em] text-ink">
                 {group}
                 <span className={`text-xs tabular-nums ${g === items.length ? "text-accent" : "text-ink-soft"}`}>{g}/{items.length}</span>
               </p>
