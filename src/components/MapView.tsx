@@ -71,9 +71,9 @@ const iconSize = (selId: string): unknown => {
   const bump = ["case", ["==", ["get", "id"], selId], 1.2, 1];
   return [
     "interpolate", ["linear"], ["zoom"],
-    8, ["*", 0.55, bump],
-    12, ["*", 0.82, bump],
-    16, ["*", 1, bump],
+    8, ["*", 0.72, bump],
+    12, ["*", 1.05, bump],
+    16, ["*", 1.28, bump],
   ];
 };
 type AreaShapeProps = { name: string; color: string };
@@ -179,7 +179,7 @@ export function MapView({
       id: "pin-halo", type: "circle", source: "places",
       filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "id"], sel(s)]],
       paint: {
-        "circle-radius": ["case", ["==", ["get", "glyph"], ""], 13, 18],
+        "circle-radius": ["case", ["==", ["get", "glyph"], ""], 16, 22],
         "circle-color": ["get", "color"], "circle-opacity": 0.22,
       },
     });
@@ -189,9 +189,9 @@ export function MapView({
       filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "glyph"], ""]],
       paint: {
         "circle-color": ["get", "color"],
-        "circle-radius": ["case", ["==", ["get", "id"], sel(s)], 8, ["get", "derived"], 4.5, 5.5],
+        "circle-radius": ["case", ["==", ["get", "id"], sel(s)], 10, ["get", "derived"], 6, 7.5],
         "circle-opacity": ["case", ["==", ["get", "id"], sel(s)], 1, ["get", "derived"], 0.55, 1],
-        "circle-stroke-width": ["case", ["==", ["get", "id"], sel(s)], 2.5, 1.5],
+        "circle-stroke-width": ["case", ["==", ["get", "id"], sel(s)], 3, 2],
         "circle-stroke-color": d ? "#14181c" : "#fdfcf9",
         "circle-stroke-opacity": ["case", ["==", ["get", "id"], sel(s)], 1, ["get", "derived"], 0.55, 1],
       },
@@ -213,7 +213,7 @@ export function MapView({
       filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "id"], sel(s)]],
       layout: {
         "text-field": ["get", "name"], "text-font": ["Noto Sans Medium"], "text-size": 12,
-        "text-offset": ["case", ["==", ["get", "glyph"], ""], ["literal", [0, 1.3]], ["literal", [0, 1.7]]],
+        "text-offset": ["case", ["==", ["get", "glyph"], ""], ["literal", [0, 1.6]], ["literal", [0, 2]]],
         "text-anchor": "top", "text-max-width": 9,
       },
       paint: { "text-color": ink, "text-halo-color": halo, "text-halo-width": 2 },
@@ -313,8 +313,8 @@ export function MapView({
     const s = sel(selectedId);
     m.setFilter("pin-halo", ["all", ["!", ["has", "point_count"]], ["==", ["get", "id"], s]]);
     m.setFilter("pin-label", ["all", ["!", ["has", "point_count"]], ["==", ["get", "id"], s]]);
-    m.setPaintProperty("pins", "circle-radius", ["case", ["==", ["get", "id"], s], 8, 5.5]);
-    m.setPaintProperty("pins", "circle-stroke-width", ["case", ["==", ["get", "id"], s], 2.5, 1.5]);
+    m.setPaintProperty("pins", "circle-radius", ["case", ["==", ["get", "id"], s], 10, ["get", "derived"], 6, 7.5]);
+    m.setPaintProperty("pins", "circle-stroke-width", ["case", ["==", ["get", "id"], s], 3, 2]);
     if (m.getLayer("pins-icon")) m.setLayoutProperty("pins-icon", "icon-size", iconSize(s));
     const p = selectedId ? places.find((x) => x.id === selectedId) : undefined;
     if (p) m.easeTo({ center: [p.lng, p.lat], zoom: Math.max(m.getZoom(), 14), duration: 500, offset: [0, -70] });
