@@ -92,6 +92,8 @@ function Trips() {
       )}
       {supabaseEnabled && auth.user && activeId && <Sharing tripId={activeId} me={auth.user.id} />}
 
+      <ExportTrip />
+
       {!creating ? (
         <div className="mb-3 mt-6 flex flex-wrap items-center gap-4">
           <button onClick={() => setCreating(true)} className="btn-primary">
@@ -172,6 +174,51 @@ function Trips() {
         </Section>
       )}
     </div>
+  );
+}
+
+/** Download the whole trip as one self-contained HTML file. The serializer is a
+ *  lazy chunk — only fetched when someone actually exports. */
+function ExportTrip() {
+  const data = useData();
+  const [includePrivate, setIncludePrivate] = useState(false);
+  const [busy, setBusy] = useState(false);
+  if (!data) return null;
+
+  const run = async () => {
+    setBusy(true);
+    try {
+      const { downloadTripHtml } = await import("@/lib/tripExport");
+      downloadTripHtml(data, { includePrivate });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Section title="Share" className="mt-4">
+      <p className="text-sm text-ink-soft">
+        A single web-page file of the whole trip — itinerary, journeys, stays and places.
+        Opens in any browser, prints cleanly, works offline. The recipient can print it to PDF.
+      </p>
+      <label className="mt-3 flex items-start gap-2.5 text-sm">
+        <input
+          type="checkbox"
+          checked={includePrivate}
+          onChange={(e) => setIncludePrivate(e.target.checked)}
+          className="mt-0.5 h-[18px] w-[18px] shrink-0 accent-accent"
+        />
+        <span>
+          Include private details
+          <span className="block text-xs text-ink-faint">
+            Door codes, wifi, phone numbers, booking references and documents. Off by default — leave off for anything you send someone. Document files are never included.
+          </span>
+        </span>
+      </label>
+      <button onClick={run} disabled={busy} className="btn-primary mt-4">
+        <Icon name="download" size={15} /> {busy ? "Building…" : "Download web page"}
+      </button>
+    </Section>
   );
 }
 

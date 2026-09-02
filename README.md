@@ -94,6 +94,17 @@ In **Manage → Content** you can hide the Logbook sections you don't need, and
 **add your own** — a title plus a list of things (name, note, link). Handy for
 "Restaurants to try", "Gifts to bring back", and so on.
 
+## Sharing a copy
+
+**Manage → Trips → Share → Download web page** builds the whole trip as one
+self-contained `.html` file — itinerary, journeys, stays and the place list, all
+styled, no internet needed. Open it in any browser, or print it (print-to-PDF for
+a PDF). Send it to whoever you're travelling with.
+
+Leave **Include private details** off for anything you share: door codes, wifi,
+phone numbers, booking references and the documents section are all held back.
+Turn it on for your own copy. Document *attachments* are never included.
+
 ## Editing anything
 
 Tap almost any piece of text and it becomes editable on the spot. Type, tap
