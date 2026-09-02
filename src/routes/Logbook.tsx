@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
-import { Section } from "@/components/Section";
+import { Card, CARD_SHELL } from "@/components/Card";
 import { Empty } from "@/components/Empty";
 import { Tab } from "@/components/Tabs";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
@@ -72,6 +72,19 @@ export default function Logbook() {
   );
 }
 
+/** The one add-a-thing button, above a stack of cards. */
+function AddButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button onClick={onClick} className="action">
+      <Icon name="plus" size={14} /> {label}
+    </button>
+  );
+}
+
+const removeBtn = (onClick: () => void) => (
+  <button onClick={onClick} className="link-quiet text-xs">remove</button>
+);
+
 /* -------------------------------------------------------------- custom list */
 
 function ListSection({ list }: { list: CustomList }) {
@@ -82,94 +95,72 @@ function ListSection({ list }: { list: CustomList }) {
       const l = d.config.lists?.find((x) => x.id === list.id);
       if (l) fn(l);
     });
+  const add = () => set((l) => { l.items.push({ id: rid(), label: "" }); });
 
-  if (ro && list.items.length === 0) return <p className="text-sm text-ink-faint">Nothing here yet.</p>;
+  if (list.items.length === 0) {
+    return ro
+      ? <p className="text-sm text-ink-faint">Nothing here yet.</p>
+      : <AddButton label="Add an item" onClick={add} />;
+  }
 
   return (
-    <Section
-      title={list.title}
-      action={
-        !ro && (
-          <button onClick={() => set((l) => { l.items.push({ id: rid(), label: "" }); })} className="action text-xs">
-            <Icon name="plus" size={13} /> Add
-          </button>
-        )
-      }
-    >
-      {list.items.length === 0 ? (
-        <p className="text-sm text-ink-faint">Nothing here yet.</p>
-      ) : (
-        <ul>
-          {list.items.map((it, i) => (
-            <li key={it.id} className="group border-b border-line py-3 first:pt-0 last:border-b-0 last:pb-0">
-              <div className="flex items-baseline gap-2.5">
-                <span className="lead min-w-0 flex-1">
-                  {ro ? it.label : (
-                    <Editable label="Item" value={it.label} placeholder="Name" onCommit={(v) => set((l) => { l.items[i].label = v; })} />
-                  )}
-                </span>
-                {!ro && <RowDeleteButton onClick={() => set((l) => { l.items.splice(i, 1); })} />}
-              </div>
+    <div className="space-y-3">
+      {!ro && <AddButton label="Add an item" onClick={add} />}
+      {list.items.map((it, i) => (
+        <Card
+          key={it.id}
+          title={ro
+            ? (it.label || "Untitled")
+            : <Editable label="Item" value={it.label} placeholder="Name" onCommit={(v) => set((l) => { l.items[i].label = v; })} />}
+          right={!ro && removeBtn(() => set((l) => { l.items.splice(i, 1); }))}
+        >
+          {(it.note || it.url || !ro) && (
+            <>
               {(it.note || !ro) && (
-                <p className="mt-0.5 text-sm text-ink-soft">
+                <p className="text-sm text-ink-soft">
                   {ro ? it.note : (
                     <Editable label="Note" value={it.note ?? ""} placeholder="＋ a note" onCommit={(v) => set((l) => { l.items[i].note = v || undefined; })} />
                   )}
                 </p>
               )}
               {(it.url || !ro) && (
-                <p className="mt-0.5 text-xs">
+                <p className="mt-1 text-xs">
                   <Editable as="link" label="Link" value={it.url ?? ""} placeholder="＋ Maps or web link" onCommit={(v) => set((l) => { l.items[i].url = v || undefined; })} />
                 </p>
               )}
-            </li>
-          ))}
-        </ul>
-      )}
-    </Section>
+            </>
+          )}
+        </Card>
+      ))}
+    </div>
   );
 }
 
-/* -------------------------------------------------------------- linked lists */
-
-function LinkRow({ to, name, meta, right }: { to: string; name: string; meta?: string; right?: string }) {
-  return (
-    <li>
-      <Link to={to} className="group flex items-start justify-between gap-4 border-b border-line py-3.5 first:pt-0 last:border-b-0 last:pb-0">
-        <span className="min-w-0">
-          <span className="lead block group-hover:underline">{name}</span>
-          {meta && <span className="meta mt-0.5 block truncate">{meta}</span>}
-        </span>
-        <span className="flex shrink-0 items-center gap-1.5">
-          {right && <span className="value tabular-nums">{right}</span>}
-          <Icon name="chevron" size={14} className="text-ink-faint" />
-        </span>
-      </Link>
-    </li>
-  );
-}
+/* -------------------------------------------------------------- stays / journeys */
 
 function Stays() {
   const data = useData()!;
   const loc = data.config.locale;
   if (data.hotels.length === 0) return <Empty what="No stays" />;
   return (
-    <Section title="Stays">
-      <ul>
-        {data.hotels.map((h) => {
-          const leg = data.legs.find((l) => l.hotelId === h.id);
-          return (
-            <LinkRow
-              key={h.id}
-              to={`/hotel/${h.id}`}
-              name={h.name}
-              meta={h.address || undefined}
-              right={leg ? fmtDate(leg.start, loc, { day: "numeric", month: "short" }) : undefined}
-            />
-          );
-        })}
-      </ul>
-    </Section>
+    <div className="space-y-3">
+      {data.hotels.map((h) => {
+        const leg = data.legs.find((l) => l.hotelId === h.id);
+        return (
+          <Card
+            key={h.id}
+            to={`/hotel/${h.id}`}
+            title={h.name}
+            meta={h.address || undefined}
+            right={leg && (
+              <span className="value tabular-nums text-ink-soft">
+                {fmtDate(leg.start, loc, { day: "numeric", month: "short" })}
+              </span>
+            )}
+          />
+        );
+      })}
+    </div>
   );
 }
 
@@ -178,25 +169,27 @@ function GettingAround() {
   const loc = data.config.locale;
   if (data.journeys.length === 0) return <Empty what="No journeys" />;
   return (
-    <Section title="Getting around">
-      <ul>
-        {[...data.journeys].sort((a, b) => (a.date ?? "").localeCompare(b.date ?? "")).map((j) => {
-          const first = j.segments[0];
-          const last = j.segments.at(-1);
-          const changes = Math.max(0, j.segments.length - 1);
-          const times = `${first?.depart?.slice(11, 16) ?? "—"} → ${(last?.arrive ?? last?.depart)?.slice(11, 16) ?? "—"}`;
-          return (
-            <LinkRow
-              key={j.id}
-              to={`/journey/${j.id}`}
-              name={j.label}
-              meta={changes > 0 ? `${times} · ${plural(changes, "change")}` : times}
-              right={j.date ? fmtDate(j.date, loc, { day: "numeric", month: "short" }) : undefined}
-            />
-          );
-        })}
-      </ul>
-    </Section>
+    <div className="space-y-3">
+      {[...data.journeys].sort((a, b) => (a.date ?? "").localeCompare(b.date ?? "")).map((j) => {
+        const first = j.segments[0];
+        const last = j.segments.at(-1);
+        const changes = Math.max(0, j.segments.length - 1);
+        const times = `${first?.depart?.slice(11, 16) ?? "—"} → ${(last?.arrive ?? last?.depart)?.slice(11, 16) ?? "—"}`;
+        return (
+          <Card
+            key={j.id}
+            to={`/journey/${j.id}`}
+            title={j.label}
+            meta={changes > 0 ? `${times} · ${plural(changes, "change")}` : times}
+            right={j.date && (
+              <span className="value tabular-nums text-ink-soft">
+                {fmtDate(j.date, loc, { day: "numeric", month: "short" })}
+              </span>
+            )}
+          />
+        );
+      })}
+    </div>
   );
 }
 
@@ -208,51 +201,53 @@ function Luggage() {
   const updateEntity = useApp((s) => s.updateEntity);
   const addEntity = useApp((s) => s.addEntity);
   const removeEntity = useApp((s) => s.removeEntity);
+  const add = () => addEntity("luggage", { id: `lug-${rid()}`, title: "New note" } as never);
 
-  if (data.luggage.length === 0 && ro)
-    return <p className="text-sm text-ink-faint">Nothing noted for luggage.</p>;
+  if (data.luggage.length === 0) {
+    return ro ? (
+      <p className="text-sm text-ink-faint">Nothing noted for luggage.</p>
+    ) : (
+      <div className="space-y-3">
+        <AddButton label="Add a note" onClick={add} />
+        <p className="text-sm text-ink-faint">Storage, lockers, a bag left somewhere — whatever this trip needs.</p>
+      </div>
+    );
+  }
 
   return (
-    <Section
-      title="Luggage"
-      action={
-        !ro && (
-          <button onClick={() => addEntity("luggage", { id: `lug-${rid()}`, title: "New note" } as never)} className="action text-xs">
-            <Icon name="plus" size={13} /> Add
-          </button>
-        )
-      }
-    >
-      {data.luggage.length === 0 && (
-        <p className="text-sm text-ink-faint">Storage, lockers, a bag left somewhere — whatever this trip needs.</p>
-      )}
+    <div className="space-y-3">
+      {!ro && <AddButton label="Add a note" onClick={add} />}
       {data.luggage.map((n) => {
         const p = (patch: Partial<LuggageNote>) => updateEntity<LuggageNote>("luggage", n.id, patch);
         return (
-          <div key={n.id} className="border-t border-line pt-4 first:border-t-0 first:pt-0 [&:not(:first-child)]:mt-6">
-            <div className="flex items-baseline justify-between gap-2">
-              <h3 className="lead">
-                <Editable label="Title" value={n.title} placeholder="e.g. Coin lockers" onCommit={(v) => p({ title: v || "Untitled" })} />
-              </h3>
-              {!ro && <button onClick={() => removeEntity("luggage", n.id)} className="link-quiet shrink-0 text-xs">remove</button>}
-            </div>
-            {(n.detail || !ro) && (
-              <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">
-                <Editable as="textarea" label="Detail" value={n.detail ?? ""} placeholder="Where, when, how much…" onCommit={(v) => p({ detail: v || undefined })} />
-              </p>
+          <Card
+            key={n.id}
+            title={<Editable label="Title" value={n.title} placeholder="e.g. Coin lockers" onCommit={(v) => p({ title: v || "Untitled" })} />}
+            right={!ro && removeBtn(() => removeEntity("luggage", n.id))}
+          >
+            {(n.detail || n.date || n.url || !ro) && (
+              <>
+                {(n.detail || !ro) && (
+                  <p className="text-sm leading-relaxed text-ink-soft">
+                    <Editable as="textarea" label="Detail" value={n.detail ?? ""} placeholder="Where, when, how much…" onCommit={(v) => p({ detail: v || undefined })} />
+                  </p>
+                )}
+                {(n.date || n.url || !ro) && (
+                  <p className="mt-2 flex flex-wrap items-baseline gap-x-5 gap-y-1 text-xs text-ink-soft">
+                    {(n.date || !ro) && (
+                      <span>When <Editable as="date" label="Date" value={n.date ?? ""} placeholder="—" onCommit={(v) => p({ date: v || undefined })} /></span>
+                    )}
+                    {(n.url || !ro) && (
+                      <span><Editable as="link" label="Google Maps link" value={n.url ?? ""} placeholder="＋ map link" onCommit={(v) => p({ url: v || undefined })} /></span>
+                    )}
+                  </p>
+                )}
+              </>
             )}
-            <p className="mt-2 flex flex-wrap items-baseline gap-x-5 gap-y-1 text-xs text-ink-soft">
-              {(n.date || !ro) && (
-                <span>When <Editable as="date" label="Date" value={n.date ?? ""} placeholder="—" onCommit={(v) => p({ date: v || undefined })} /></span>
-              )}
-              {(n.url || !ro) && (
-                <span><Editable as="link" label="Google Maps link" value={n.url ?? ""} placeholder="＋ map link" onCommit={(v) => p({ url: v || undefined })} /></span>
-              )}
-            </p>
-          </div>
+          </Card>
         );
       })}
-    </Section>
+    </div>
   );
 }
 
@@ -269,13 +264,13 @@ function Emergency() {
   const [hero, rest] = [contact.fields.slice(0, 2), contact.fields.slice(2)];
 
   return (
-    <Section title="Emergency">
+    <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
         {hero.map((f, i) => (
           <a
             key={i}
             href={isNumber(f.value) ? `tel:${f.value.replace(/\s/g, "")}` : undefined}
-            className="block rounded-[3px] border border-ink-faint/15 bg-surface-2 p-4 transition-colors hover:border-ink-faint/40"
+            className={`${CARD_SHELL} block transition-colors hover:border-ink-faint/40`}
           >
             <span className="field-label block">{f.label}</span>
             <span className="mt-1 block font-display text-3xl tabular-nums">
@@ -285,7 +280,7 @@ function Emergency() {
         ))}
       </div>
       {rest.length > 0 && (
-        <div className="mt-5">
+        <div className={CARD_SHELL}>
           {rest.map((f, i) => (
             <div key={i} className="row text-sm">
               <span className="row-label">{f.label}</span>
@@ -296,7 +291,7 @@ function Emergency() {
           ))}
         </div>
       )}
-    </Section>
+    </div>
   );
 }
 
@@ -316,13 +311,13 @@ function Documents() {
     .filter((e) => e && e !== user?.email?.toLowerCase());
 
   return (
-    <Section title="Documents">
+    <div className="space-y-3">
       {docs.map((d) => (
-        <div key={d.id} className="border-t border-line pt-5 first:border-t-0 first:pt-0 [&:not(:first-child)]:mt-6">
-          <h3 className="lead">
-            <Editable label="Title" value={d.title} onCommit={(v) => updateEntity<Doc>("docs", d.id, { title: v || d.title })} />
-          </h3>
-          <div className="mt-2">
+        <Card
+          key={d.id}
+          title={<Editable label="Title" value={d.title} onCommit={(v) => updateEntity<Doc>("docs", d.id, { title: v || d.title })} />}
+        >
+          <div>
             {d.fields.map((f, i) => (
               <div key={i} className="row text-sm">
                 <span className="row-label">{f.label}</span>
@@ -339,14 +334,14 @@ function Documents() {
             shareWith={shareWith}
             onChange={(files) => updateEntity<Doc>("docs", d.id, { files })}
           />
-        </div>
+        </Card>
       ))}
-      <p className="mt-6 border-t border-line pt-3 text-xs text-ink-faint">
+      <p className="px-1 text-xs text-ink-faint">
         {cloud
           ? "Attachments upload to a Google Drive folder and are shared with the people on this trip. Still — think twice before a full passport scan."
           : "Attachments stay only on the device they're added on — passport numbers don't belong here."}
       </p>
-    </Section>
+    </div>
   );
 }
 
@@ -455,28 +450,34 @@ function Packing() {
   const done = data.packing.filter((p) => p.done).length;
 
   return (
-    <Section title="Packing">
-      <div className="mb-5 flex items-center gap-3">
+    <div className="space-y-3">
+      <div className="flex items-center gap-3 px-1">
         <span className="text-xl font-medium tabular-nums">{done}<span className="text-ink-faint">/{total}</span></span>
         <span className="h-1 flex-1 overflow-hidden rounded-full bg-line">
           <span className="block h-full bg-accent transition-all" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
         </span>
       </div>
-      <div className="space-y-6">
-        {Object.entries(groups).map(([group, items]) => {
-          const g = items.filter((i) => i.done).length;
-          return (
-            <div key={group}>
-              <p className="kicker mb-1 flex items-baseline justify-between">
-                {group}
-                <span className={`text-xs tabular-nums ${g === items.length ? "text-accent" : "text-ink-soft"}`}>{g}/{items.length}</span>
-              </p>
-              <ul>{items.map((it) => <PackRow key={it.id} item={it} onToggle={(v) => update<PackingItem>("packing", it.id, { done: v })} disabled={ro} />)}</ul>
-            </div>
-          );
-        })}
-      </div>
-    </Section>
+      {Object.entries(groups).map(([group, items]) => {
+        const g = items.filter((i) => i.done).length;
+        return (
+          <Card
+            key={group}
+            title={group}
+            right={
+              <span className={`text-xs tabular-nums ${g === items.length ? "text-accent" : "text-ink-soft"}`}>
+                {g}/{items.length}
+              </span>
+            }
+          >
+            <ul>
+              {items.map((it) => (
+                <PackRow key={it.id} item={it} onToggle={(v) => update<PackingItem>("packing", it.id, { done: v })} disabled={ro} />
+              ))}
+            </ul>
+          </Card>
+        );
+      })}
+    </div>
   );
 }
 
@@ -499,11 +500,11 @@ function Notes() {
   const setScratch = useApp((s) => s.setScratch);
   if (ro && !data.scratch) return <p className="text-sm text-ink-faint">Nothing noted yet.</p>;
   return (
-    <Section title="Notes">
+    <Card>
       <div className="text-[0.95rem] text-ink">
         <RichNote value={data.scratch ?? ""} onCommit={(v) => setScratch(v)} placeholder="Anything to remember." />
       </div>
-    </Section>
+    </Card>
   );
 }
 
