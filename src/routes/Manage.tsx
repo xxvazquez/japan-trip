@@ -285,9 +285,9 @@ function rangeText(start: string, end: string, locale: string) {
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-baseline justify-between gap-4 border-b border-line py-2.5 last:border-b-0">
+    <div className="row">
       <span className="row-label">{label}</span>
-      <span className="min-w-0 text-right text-[0.9375rem] font-medium text-ink">{children}</span>
+      <span className="row-value text-[0.9375rem] font-medium text-ink">{children}</span>
     </div>
   );
 }
@@ -311,7 +311,7 @@ function Settings() {
   const { config, meta } = data;
   const [advanced, setAdvanced] = useState(false);
 
-  const Field = ({ label, value, onCommit, placeholder }: { label: string; value: string; onCommit: (v: string) => void; placeholder?: string }) => (
+  const EditRow = ({ label, value, onCommit, placeholder }: { label: string; value: string; onCommit: (v: string) => void; placeholder?: string }) => (
     <Row label={label}>
       <Editable label={label} value={value} onCommit={onCommit} placeholder={placeholder ?? "Add"} />
     </Row>
@@ -326,7 +326,7 @@ function Settings() {
   return (
     <div className="space-y-3.5">
       <Section title="Identity">
-        <Field label="Trip name" value={config.branding} onCommit={(v) => mutate((d) => { d.config.branding = v; d.meta.title = v; })} />
+        <EditRow label="Trip name" value={config.branding} onCommit={(v) => mutate((d) => { d.config.branding = v; d.meta.title = v; })} />
       </Section>
 
       <Section title="Dates">
