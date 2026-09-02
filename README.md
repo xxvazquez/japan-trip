@@ -120,6 +120,11 @@ Once the app has loaded on the plane / hotel wifi, it keeps working with no
 signal — on the flight, on the metro, inside temples. The one thing that needs
 data is the **map background** itself; your pins and the whole plan work offline.
 
+Edits you make while offline (or during a dropped connection) are held and
+retried automatically once you're back on signal, as long as the tab stays open.
+When the connection returns, the app also re-pulls the trip so a travel
+companion's changes made in the meantime show up.
+
 ## If something looks out of date
 
 After an update the app can briefly show an old version. Close the tab (or the
