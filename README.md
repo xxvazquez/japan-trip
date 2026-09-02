@@ -63,20 +63,22 @@ like a normal app, full screen. Do this on both phones.
 
 **Areas vs. categories.** A category is *what* a place is (coffee, see, food…).
 An **area** is *where* it is (Gion, Higashiyama, a neighbourhood you name). A
-place can sit in several areas. Assign areas from a pin's detail panel on the
-Map, or in **Manage → Content → Areas**. Add an area to a **day** (on the day
-page) and every place in that area shows on that day's map — a live link, so
-editing the area later updates the day too. Area places show slightly faded and
-never get added to your written plan; only what you type there stays there.
-Zoom out on **All places** or an area scope and each area gets a faint labelled
-ring so you can see its rough extent at a glance.
+place can sit in several areas. Create one from the *+ Add area* row under the
+map list (name it and it's made), assign places from a pin's detail panel on
+the Map, and use *Manage areas* in that same row for the full editor (rename,
+delete, bulk membership). Add an area to a **day** (on the day page) and every
+place in that area shows on that day's map — a live link, so editing the area
+later updates the day too. Area places show slightly faded and never get added
+to your written plan; only what you type there stays there. Zoom out on **All
+places** or an area scope and each area gets a faint labelled ring so you can
+see its rough extent at a glance.
 
-**Suggest areas.** When several places aren't in any area, a *Suggest areas*
-link appears under the map list. It groups them by how close together they are
-(the "close enough" distance is worked out from your own places, so it fits a
-tight city or a spread-out road trip). You review the groups — rename, untick,
-drop a place — and only the ones you keep become real areas. It never changes
-an area you already have.
+**Suggest areas.** When four or more places aren't in any area, a *Suggest
+areas* link joins that row. It groups them by how close together they are (the
+"close enough" distance is worked out from your own places, so it fits a tight
+city or a spread-out road trip) and names each group after the neighbourhood it
+sits in. You review the groups — rename, untick, drop a place — and only the
+ones you keep become real areas. It never changes an area you already have.
 
 **Logbook** — the reference drawer. Use the menu at the top to jump between:
 stays · getting around · luggage · emergency numbers · documents · packing ·
