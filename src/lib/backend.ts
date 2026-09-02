@@ -68,7 +68,7 @@ const supabaseBackend: Backend = {
   kind: "supabase",
   async listTrips() {
     const trips = await db.listTrips();
-    const activeId = (await kv.get<string>("active-trip")) ?? trips.find((t) => !t.archived)?.id ?? trips[0]?.id ?? null;
+    const activeId = (await kv.get<string>(STORAGE_KEYS.activeTrip)) ?? trips.find((t) => !t.archived)?.id ?? trips[0]?.id ?? null;
     return { trips, activeId };
   },
   loadTrip: (id) => db.loadTrip(id).then(normalizeTrip).catch(() => null),
@@ -76,7 +76,7 @@ const supabaseBackend: Backend = {
   deleteTrip: (id) => db.deleteTripRow(id),
   setMeta: (id, patch) => db.setTripMeta(id, patch),
   async setActive(id) {
-    await kv.set("active-trip", id);
+    await kv.set(STORAGE_KEYS.activeTrip, id);
   },
   saveWhole: noop,
   upsertRow: (tripId, type, entity, position) => db.upsertRow(tripId, type, entity, position),

@@ -2,6 +2,9 @@ import { create } from "zustand";
 import { buildFromTemplate, buildDemo } from "@/templates/registry";
 import { pickBackend, needsAuth, remapIds } from "@/lib/backend";
 import { subscribeTrip, unsubscribeTrip, markWritten } from "@/lib/realtime";
+import { store as kv } from "@/lib/storage";
+import { STORAGE_KEYS } from "@/lib/app";
+import { normalizeTrip } from "@/lib/hydrate";
 import { addDays } from "@/lib/dates";
 import type { Day, EntityType, MediaItem, TripData, TripSummary } from "@/core/types";
 
@@ -70,10 +73,102 @@ const summarise = (id: string, name: string, data: TripData, templateId?: string
 
 let queue: Op[] = [];
 let flushTimer: ReturnType<typeof setTimeout> | undefined;
+let retryTimer: ReturnType<typeof setTimeout> | undefined;
+let retryDelay = 0;
+const RETRY_MIN = 3_000;
+const RETRY_MAX = 60_000;
 
 /** does the local client have an unsaved change to this row? */
 function hasPendingFor(id: string) {
   return queue.some((op) => (op.t === "row" || op.t === "del") && op.id === id);
+}
+
+/* ---- outbox: the pending queue mirrored to disk, so a reload or a killed
+   tab can't lose an edit that hadn't reached Supabase yet. Signed-in only —
+   the local backend already writes the whole trip on every change. ---- */
+
+interface Outbox { ops: Op[]; data: TripData }
+let outboxTimer: ReturnType<typeof setTimeout> | undefined;
+/** the app booted offline from a mirrored outbox — once its ops land, re-pull
+ *  the trip to pick up anything a companion changed while we were away */
+let bootedFromOutbox = false;
+
+function saveOutboxSoon(get: () => AppStore) {
+  clearTimeout(outboxTimer);
+  outboxTimer = setTimeout(() => saveOutboxNow(get), 300);
+}
+
+function saveOutboxNow(get: () => AppStore) {
+  clearTimeout(outboxTimer);
+  outboxTimer = undefined;
+  const { activeId, data } = get();
+  if (!activeId || !data) return;
+  if (queue.length) void kv.set<Outbox>(STORAGE_KEYS.outbox(activeId), { ops: [...queue], data });
+  else void kv.del(STORAGE_KEYS.outbox(activeId));
+}
+
+/** Merge a restored outbox onto the fresh server copy: the queued ops' own
+ *  entities win (our unsynced edits), everything else stays as the server has
+ *  it (a companion's changes since we went offline). */
+function applyOutbox(fresh: TripData, ob: Outbox): TripData {
+  const d = structuredClone(fresh);
+  for (const op of ob.ops) {
+    if (op.t === "row") {
+      const src = (ob.data[op.type] as WithId[] | undefined)?.find((x) => x.id === op.id);
+      if (!src) continue;
+      const list = d[op.type] as WithId[];
+      const i = list.findIndex((x) => x.id === op.id);
+      if (i >= 0) list[i] = src; else list.push(src);
+    } else if (op.t === "del") {
+      d[op.type] = (d[op.type] as WithId[]).filter((x) => x.id !== op.id) as never;
+    } else if (op.t === "pos") {
+      const order = (ob.data[op.type] as WithId[]).map((x) => x.id);
+      const rank = (id: string) => { const i = order.indexOf(id); return i < 0 ? order.length : i; };
+      (d[op.type] as WithId[]).sort((a, b) => rank(a.id) - rank(b.id));
+    } else if (op.t === "seg") {
+      const j = d.journeys.find((x) => x.id === op.journeyId);
+      const src = ob.data.journeys.find((x) => x.id === op.journeyId);
+      if (j && src) j.segments = structuredClone(src.segments);
+    } else if (op.t === "areaPlaces") {
+      const a = d.areas.find((x) => x.id === op.areaId);
+      const src = ob.data.areas.find((x) => x.id === op.areaId);
+      if (a && src) a.placeIds = [...(src.placeIds ?? [])];
+    } else {
+      const dst = d as unknown as Record<FieldKey, unknown>;
+      for (const k of op.keys) dst[k] = structuredClone(ob.data[k]);
+    }
+  }
+  return d;
+}
+
+/** A Supabase write failed (offline / transient error). Its op is back on the
+ *  queue — try again on a lengthening delay so the edit isn't lost. */
+function scheduleRetry(get: () => AppStore) {
+  clearTimeout(retryTimer);
+  retryDelay = retryDelay ? Math.min(retryDelay * 2, RETRY_MAX) : RETRY_MIN;
+  retryTimer = setTimeout(() => void flush(get), retryDelay);
+}
+
+function clearRetry() {
+  clearTimeout(retryTimer);
+  retryTimer = undefined;
+  retryDelay = 0;
+}
+
+let listenersReady = false;
+/** window-level nudges to get pending writes out: on reconnect, and before the
+ *  tab is hidden or closed (a still-debounced edit would otherwise be lost). */
+function setupSyncListeners(get: () => AppStore) {
+  if (listenersReady || typeof window === "undefined") return;
+  listenersReady = true;
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") flushNow(get);
+  });
+  window.addEventListener("pagehide", () => flushNow(get));
+  window.addEventListener("online", () => {
+    retryDelay = 0;
+    void flush(get);
+  });
 }
 
 function enqueue(get: () => AppStore, op: Op) {
@@ -90,34 +185,41 @@ function enqueue(get: () => AppStore, op: Op) {
     return;
   }
   queue.push(op);
+  saveOutboxSoon(get);
   clearTimeout(flushTimer);
   flushTimer = setTimeout(() => void flush(get), 500);
 }
 
 /** Persist whatever's pending right now — call before the active trip changes
- *  so a still-debounced edit isn't lost or written to the wrong trip. */
+ *  so a still-debounced edit isn't lost or written to the wrong trip, and when
+ *  the tab is about to be hidden / closed. */
 function flushNow(get: () => AppStore) {
-  if (!flushTimer) return;
+  if (!flushTimer && !queue.length) return;
   clearTimeout(flushTimer);
   flushTimer = undefined;
   const be = pickBackend();
   const { activeId, data } = get();
   if (!activeId || !data) return;
   if (be.kind === "local") void be.saveWhole(activeId, data);
-  else void flush(get);
+  else { saveOutboxNow(get); void flush(get); }
 }
 
 /** Drop pending writes without saving — for when the target trip is going away. */
-function discardPending() {
+function discardPending(tripId?: string) {
   clearTimeout(flushTimer);
   flushTimer = undefined;
+  clearTimeout(outboxTimer);
+  outboxTimer = undefined;
+  clearRetry();
   queue = [];
+  if (tripId) void kv.del(STORAGE_KEYS.outbox(tripId));
 }
 
 async function flush(get: () => AppStore) {
   const be = pickBackend();
   const { activeId, data } = get();
   if (!activeId || !data || be.kind !== "supabase") return;
+  if (!queue.length) return;
   const ops = queue;
   queue = [];
 
@@ -138,29 +240,33 @@ async function flush(get: () => AppStore) {
   }
 
   const tasks: Promise<unknown>[] = [];
-  const fail = (e: unknown) => console.error("[sync]", e);
+  // a rejected write puts its op back on the queue for a later retry, instead of
+  // vanishing with only a console line
+  const failed: Op[] = [];
+  const run = (p: Promise<unknown>, op: Op) =>
+    p.catch((e) => { console.error("[sync]", e); failed.push(op); });
   markWritten([...rows.values(), ...dels.values()].map((o) => o.id));
 
   for (const { type, id } of rows.values()) {
     const list = data[type] as WithId[];
     const i = list.findIndex((x) => x.id === id);
-    if (i >= 0) tasks.push(be.upsertRow(activeId, type, list[i] as never, i).catch(fail));
+    if (i >= 0) tasks.push(run(be.upsertRow(activeId, type, list[i] as never, i), { t: "row", type, id }));
   }
-  for (const { type, id } of dels.values()) tasks.push(be.deleteRow(activeId, type, id).catch(fail));
+  for (const { type, id } of dels.values()) tasks.push(run(be.deleteRow(activeId, type, id), { t: "del", type, id }));
   for (const type of positions) {
     const list = data[type] as WithId[];
-    tasks.push(be.setPositions(type, list.map((x, i) => ({ id: x.id, position: i }))).catch(fail));
+    tasks.push(run(be.setPositions(type, list.map((x, i) => ({ id: x.id, position: i }))), { t: "pos", type }));
   }
   for (const jid of segs) {
     const j = data.journeys.find((x) => x.id === jid);
     if (j) {
       markWritten(j.segments.map((s) => s.id));
-      tasks.push(be.setSegments(activeId, jid, j.segments).catch(fail));
+      tasks.push(run(be.setSegments(activeId, jid, j.segments), { t: "seg", journeyId: jid }));
     }
   }
   for (const aid of areaSets) {
     const a = data.areas.find((x) => x.id === aid);
-    if (a) tasks.push(be.setAreaPlaces(activeId, aid, a.placeIds ?? []).catch(fail));
+    if (a) tasks.push(run(be.setAreaPlaces(activeId, aid, a.placeIds ?? []), { t: "areaPlaces", areaId: aid }));
   }
   if (fieldKeys.size) {
     const f: Record<string, unknown> = {};
@@ -169,14 +275,62 @@ async function flush(get: () => AppStore) {
       f.name = data.meta.title || data.config.branding;
       f.subtitle = data.meta.start && data.meta.end ? `${data.meta.start} → ${data.meta.end}` : null;
     }
-    tasks.push(be.saveTripFields(activeId, f).catch(fail));
+    tasks.push(run(be.saveTripFields(activeId, f), { t: "fields", keys: [...fieldKeys] }));
   }
   await Promise.all(tasks);
+
+  // trip switched / was discarded while we awaited — the failed ops are moot
+  if (get().activeId !== activeId) return;
+  if (failed.length) {
+    queue = [...failed, ...queue];
+    const cur = get().data;
+    if (cur) void kv.set<Outbox>(STORAGE_KEYS.outbox(activeId), { ops: [...queue], data: cur });
+    scheduleRetry(get);
+  } else if (queue.length) {
+    void flush(get); // new edits landed mid-flush
+  } else {
+    clearRetry();
+    void kv.del(STORAGE_KEYS.outbox(activeId));
+    if (bootedFromOutbox) { bootedFromOutbox = false; void resyncTrip(get, activeId); }
+  }
+}
+
+/** Signed-in cold start with no connection: if there's a mirrored outbox for the
+ *  last-open trip, bring the app up from it (with the unsynced edits) and keep
+ *  the ops queued for when the network returns. Returns false if there's nothing
+ *  to recover — caller then fails as before. */
+async function recoverFromOutbox(get: () => AppStore, listen: (id: string) => void): Promise<boolean> {
+  const id = await kv.get<string>(STORAGE_KEYS.activeTrip);
+  if (!id) return false;
+  const ob = await kv.get<Outbox>(STORAGE_KEYS.outbox(id));
+  if (!ob?.ops.length) return false;
+  queue = [...ob.ops];
+  bootedFromOutbox = true;
+  const data = normalizeTrip(ob.data);
+  useApp.setState({ trips: [summarise(id, data.meta.title, data)], activeId: id, data, hydrated: true });
+  listen(id);
+  void flush(get);
+  return true;
+}
+
+/** The realtime socket reconnected — events during the outage were missed. Push
+ *  anything pending, then re-pull the trip so a second traveller's changes show
+ *  up. Skipped while local edits are still unsynced, so nothing is clobbered. */
+async function resyncTrip(get: () => AppStore, tripId: string) {
+  const be = pickBackend();
+  if (be.kind !== "supabase") return;
+  await flush(get);
+  if (queue.length || get().activeId !== tripId) return;
+  const fresh = await be.loadTrip(tripId);
+  if (fresh && get().activeId === tripId) useApp.setState({ data: fresh });
 }
 
 /* ---------------------------------------------------- store */
 
 export const useApp = create<AppStore>((set, get) => {
+  const listen = (id: string) =>
+    subscribeTrip(id, () => get().applyRemote, hasPendingFor, () => void resyncTrip(get, id));
+
   const local = (fn: (d: TripData) => void): TripData | null => {
     const cur = get().data;
     if (!cur) return null;
@@ -203,13 +357,34 @@ export const useApp = create<AppStore>((set, get) => {
       }
       set({ authRequired: false });
       const be = pickBackend();
-      const { trips, activeId } = await be.listTrips();
+      if (be.kind === "supabase") setupSyncListeners(get);
+
+      let trips: TripSummary[];
+      let activeId: string | null;
+      try {
+        ({ trips, activeId } = await be.listTrips());
+      } catch (e) {
+        // offline / transient: recover from a mirrored outbox so unsynced edits
+        // aren't stranded and the trip stays usable until the connection returns
+        if (await recoverFromOutbox(get, listen)) return;
+        throw e;
+      }
 
       if (trips.length) {
         const id = activeId ?? trips.find((t) => !t.archived)?.id ?? trips[0].id;
-        const data = await be.loadTrip(id);
+        let data = await be.loadTrip(id);
+        if (data && be.kind === "supabase") {
+          const ob = await kv.get<Outbox>(STORAGE_KEYS.outbox(id));
+          if (ob?.ops.length) {
+            data = normalizeTrip(applyOutbox(data, ob));
+            queue = [...ob.ops];
+          }
+        }
         set({ trips, activeId: id, data, hydrated: true });
-        if (data) subscribeTrip(id, () => get().applyRemote, hasPendingFor);
+        if (data) {
+          listen(id);
+          if (queue.length) void flush(get);
+        }
         return;
       }
 
@@ -221,7 +396,7 @@ export const useApp = create<AppStore>((set, get) => {
       await be.setActive(id, [withId]);
       const data = be.kind === "supabase" ? await be.loadTrip(id) : seed;
       set({ trips: [withId], activeId: id, data, hydrated: true });
-      if (data) subscribeTrip(id, () => get().applyRemote, hasPendingFor);
+      if (data) listen(id);
     },
 
     createTrip: async ({ name, templateId }) => {
@@ -271,7 +446,7 @@ export const useApp = create<AppStore>((set, get) => {
         activeId = trips.find((t) => !t.archived)?.id ?? null;
         const data = activeId ? await be.loadTrip(activeId) : null;
         set({ trips, activeId, data });
-        if (activeId && data) subscribeTrip(activeId, () => get().applyRemote, hasPendingFor);
+        if (activeId && data) listen(activeId);
       } else set({ trips });
       await be.setMeta(id, { archived }, trips, activeId);
       void be.setActive(activeId, trips);
@@ -279,7 +454,7 @@ export const useApp = create<AppStore>((set, get) => {
 
     deleteTrip: async (id) => {
       const be = pickBackend();
-      if (id === get().activeId) discardPending(); // its writes are moot now
+      if (id === get().activeId) discardPending(id); // its writes are moot now
       await be.deleteTrip(id);
       const trips = get().trips.filter((t) => t.id !== id);
       let { activeId, data } = get();
@@ -287,7 +462,7 @@ export const useApp = create<AppStore>((set, get) => {
         unsubscribeTrip();
         activeId = trips.find((t) => !t.archived)?.id ?? trips[0]?.id ?? null;
         data = activeId ? await be.loadTrip(activeId) : null;
-        if (activeId && data) subscribeTrip(activeId, () => get().applyRemote, hasPendingFor);
+        if (activeId && data) listen(activeId);
       }
       set({ trips, activeId, data });
       void be.setActive(activeId, trips);
@@ -301,7 +476,7 @@ export const useApp = create<AppStore>((set, get) => {
       const data = await be.loadTrip(id);
       set({ activeId: id, data });
       void be.setActive(id, get().trips);
-      if (data) subscribeTrip(id, () => get().applyRemote, hasPendingFor);
+      if (data) listen(id);
     },
 
     mutate: (fn) => { local(fn); },

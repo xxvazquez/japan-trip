@@ -6,4 +6,8 @@ export const APP_TAGLINE = "A travel atlas";
 export const STORAGE_KEYS = {
   atlas: "atlas", // { trips: TripSummary[], activeTripId }
   trip: (id: string) => `trip:${id}`,
+  activeTrip: "active-trip", // signed-in: id of the last-open trip
+  /** signed-in: edits not yet confirmed by Supabase — replayed on next load so
+   *  a reload (or a killed tab) can't lose them. `{ ops, data }` per trip. */
+  outbox: (id: string) => `outbox:${id}`,
 } as const;

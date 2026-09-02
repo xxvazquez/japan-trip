@@ -15,7 +15,14 @@ export function markWritten(ids: string[]) {
 
 const TABLES = [...Object.values(TABLE_OF), "segments", "area_places"];
 
-export function subscribeTrip(tripId: string, getApply: () => Apply, hasPendingFor: (id: string) => boolean) {
+export function subscribeTrip(
+  tripId: string,
+  getApply: () => Apply,
+  hasPendingFor: (id: string) => boolean,
+  /** fired when the socket reconnects after a drop — realtime events during the
+   *  gap were missed, so the caller should re-pull the whole trip. */
+  onResync?: () => void,
+) {
   unsubscribeTrip();
   void getSupabase().then((sb) => {
     if (!sb) return;
@@ -31,7 +38,12 @@ export function subscribeTrip(tripId: string, getApply: () => Apply, hasPendingF
         },
       );
     }
-    ch.subscribe();
+    let established = false;
+    ch.subscribe((status) => {
+      if (status !== "SUBSCRIBED") return;
+      if (established) onResync?.(); // a rejoin, not the first subscribe
+      established = true;
+    });
     channel = ch;
   });
 }
