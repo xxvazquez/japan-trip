@@ -44,8 +44,8 @@ export default function Hotel() {
   ];
   const doorShown = ro ? door.filter(([, v]) => v) : door;
 
-  const ref: [string, string | undefined, ((v: string) => void), ("link" | undefined), string?][] = [
-    ["Phone", hotel.phone, (v) => p({ phone: v || undefined }), undefined],
+  const ref: [string, string | undefined, ((v: string) => void), ("link" | "tel" | undefined), string?][] = [
+    ["Phone", hotel.phone, (v) => p({ phone: v || undefined }), "tel"],
     ["Booking ref", hotel.reservationRef, (v) => p({ reservationRef: v || undefined }), undefined],
     ["Map link", hotel.mapUrl, (v) => p({ mapUrl: v || undefined }), "link", "paste Google Maps link"],
     ["Website", hotel.url, (v) => p({ url: v || undefined }), "link"],

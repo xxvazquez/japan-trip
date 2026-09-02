@@ -260,23 +260,18 @@ function Emergency() {
   if (!contact) return <Empty what="No emergency info" hint="Add a contact document in Manage." />;
 
   const set = (i: number, v: string) => updateEntity<Doc>("docs", contact.id, { fields: contact.fields.map((x, j) => (j === i ? { ...x, value: v } : x)) });
-  const isNumber = (v: string) => /^[\d\s()+-]{2,}$/.test(v);
   const [hero, rest] = [contact.fields.slice(0, 2), contact.fields.slice(2)];
 
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
         {hero.map((f, i) => (
-          <a
-            key={i}
-            href={isNumber(f.value) ? `tel:${f.value.replace(/\s/g, "")}` : undefined}
-            className={`${CARD_SHELL} block transition-colors hover:border-ink-faint/40`}
-          >
+          <div key={i} className={`${CARD_SHELL} transition-colors hover:border-ink-faint/40`}>
             <span className="field-label block">{f.label}</span>
             <span className="mt-1 block font-display text-3xl tabular-nums">
-              <Editable label={f.label} value={f.value} placeholder="—" onCommit={(v) => set(i, v)} />
+              <Editable as="auto" label={f.label} value={f.value} placeholder="—" onCommit={(v) => set(i, v)} />
             </span>
-          </a>
+          </div>
         ))}
       </div>
       {rest.length > 0 && (
@@ -285,7 +280,7 @@ function Emergency() {
             <div key={i} className="row text-sm">
               <span className="row-label">{f.label}</span>
               <span className="row-value value">
-                <Editable label={f.label} value={f.value} placeholder="—" onCommit={(v) => set(i + 2, v)} />
+                <Editable as="auto" label={f.label} value={f.value} placeholder="—" onCommit={(v) => set(i + 2, v)} />
               </span>
             </div>
           ))}
@@ -322,7 +317,7 @@ function Documents() {
               <div key={i} className="row text-sm">
                 <span className="row-label">{f.label}</span>
                 <span className="row-value value">
-                  <Editable label={f.label} value={f.value} placeholder="—" onCommit={(v) => updateEntity<Doc>("docs", d.id, { fields: d.fields.map((x, j) => (j === i ? { ...x, value: v } : x)) })} />
+                  <Editable as="auto" label={f.label} value={f.value} placeholder="—" onCommit={(v) => updateEntity<Doc>("docs", d.id, { fields: d.fields.map((x, j) => (j === i ? { ...x, value: v } : x)) })} />
                 </span>
               </div>
             ))}
