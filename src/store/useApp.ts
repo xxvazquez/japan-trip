@@ -373,11 +373,16 @@ export const useApp = create<AppStore>((set, get) => {
       if (trips.length) {
         const id = activeId ?? trips.find((t) => !t.archived)?.id ?? trips[0].id;
         let data = await be.loadTrip(id);
-        if (data && be.kind === "supabase") {
+        if (be.kind === "supabase") {
           const ob = await kv.get<Outbox>(STORAGE_KEYS.outbox(id));
           if (ob?.ops.length) {
-            data = normalizeTrip(applyOutbox(data, ob));
             queue = [...ob.ops];
+            if (data) {
+              data = normalizeTrip(applyOutbox(data, ob)); // merge edits onto the fresh copy
+            } else {
+              data = normalizeTrip(ob.data); // trip load failed — fall back to the mirror
+              bootedFromOutbox = true; // re-pull once the ops land
+            }
           }
         }
         set({ trips, activeId: id, data, hydrated: true });

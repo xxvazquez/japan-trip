@@ -60,6 +60,18 @@ const ls = {
   },
 };
 
+/**
+ * Ask the browser to keep our data through storage pressure instead of evicting
+ * it. Granted silently for an installed PWA / an engaged origin; a no-op where
+ * the API is missing. Fire-and-forget on load — nothing depends on the result.
+ */
+if (typeof navigator !== "undefined" && navigator.storage?.persist) {
+  void navigator.storage
+    .persisted()
+    .then((already) => (already ? undefined : navigator.storage.persist()))
+    .catch(() => {});
+}
+
 export const store: Store = {
   async get<T>(key: string) {
     try {
