@@ -42,6 +42,7 @@ export type IconName =
   | "slope"
   | "list"
   | "link"
+  | "download"
   | "dot";
 
 const P: Record<IconName, JSX.Element> = {
@@ -213,6 +214,12 @@ const P: Record<IconName, JSX.Element> = {
     </>
   ),
   dot: <circle cx="12" cy="12" r="3.5" fill="currentColor" stroke="none" />,
+  download: (
+    <>
+      <path d="M12 4v11M8 11l4 4 4-4" />
+      <path d="M5 19h14" />
+    </>
+  ),
 };
 
 export function Icon({
