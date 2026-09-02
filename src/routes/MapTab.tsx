@@ -7,7 +7,7 @@ import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
 import { gmapsLink } from "@/lib/maps";
-import { geocode, type GeoResult } from "@/lib/geocode";
+import { geocode, reverseGeocode, type GeoResult } from "@/lib/geocode";
 import { haversineKm } from "@/lib/geo";
 import { suggestAreas, type AreaSuggestion } from "@/lib/cluster";
 import { useMode, isDark } from "@/lib/mode";
@@ -102,6 +102,10 @@ export default function MapTab() {
 
   /** review state for "Suggest areas" — null when not suggesting */
   const [review, setReview] = useState<ReviewGroup[] | null>(null);
+  /** true while the reverse-geocode pass is still filling in neighbourhood names */
+  const [naming, setNaming] = useState(false);
+  /** bumped whenever a suggestion run starts or ends, so a stale naming loop bails */
+  const suggestRun = useRef(0);
   /** inline "name a new area" field — true while it's open */
   const [namingArea, setNamingArea] = useState(false);
   const [areaName, setAreaName] = useState("");
@@ -254,6 +258,9 @@ export default function MapTab() {
     setAdding(true);
     setSelected(null);
     setNamingArea(false);
+    suggestRun.current++;
+    setNaming(false);
+    setReview(null);
     setSnap((s) => (s === "peek" ? "half" : s));
   };
   const cancelAdd = () => {
@@ -301,18 +308,39 @@ export default function MapTab() {
     setAdding(false);
     setNamingArea(false);
     setSnap((s) => (s === "peek" ? "half" : s));
-    setReview(
-      found.length
-        ? found.map((s) => ({ ...s, keep: true }))
-        : [],
-    );
+    const groups: ReviewGroup[] = found.map((s) => ({ ...s, keep: true, auto: true }));
+    setReview(groups);
+    const run = ++suggestRun.current;
+    if (groups.length) void nameGroups(run, groups);
+  };
+  /** fill each group's name with the neighbourhood it centres on, one lookup at a
+   *  time (Nominatim is ~1 req/s). Skips groups the user has already renamed. */
+  const nameGroups = async (run: number, groups: ReviewGroup[]) => {
+    setNaming(true);
+    for (let i = 0; i < groups.length; i++) {
+      if (suggestRun.current !== run) return;
+      const label = await reverseGeocode(groups[i].lat, groups[i].lng);
+      if (suggestRun.current !== run) return;
+      if (label) {
+        setReview((cur) =>
+          cur && cur[i]?.auto ? cur.map((g, j) => (j === i ? { ...g, name: label } : g)) : cur,
+        );
+      }
+      if (i < groups.length - 1) await new Promise((r) => setTimeout(r, 1200));
+    }
+    if (suggestRun.current === run) setNaming(false);
+  };
+  const endSuggest = () => {
+    suggestRun.current++;
+    setNaming(false);
+    setReview(null);
   };
   const applyReview = () => {
     for (const g of review ?? []) {
       if (!g.keep || g.placeIds.length < 2) continue;
       addEntity("areas", { id: crypto.randomUUID?.() ?? rid(), name: g.name || "Area", placeIds: g.placeIds } as never);
     }
-    setReview(null);
+    endSuggest();
   };
   const createArea = () => {
     const name = areaName.trim();
@@ -531,9 +559,10 @@ export default function MapTab() {
         <SuggestReview
           groups={review}
           places={places}
+          naming={naming}
           onChange={setReview}
           onApply={applyReview}
-          onCancel={() => setReview(null)}
+          onCancel={endSuggest}
         />
       ) : (
         <ul className="min-h-0 flex-1 overflow-y-auto px-4">
@@ -645,7 +674,7 @@ export default function MapTab() {
 }
 
 type ScopeOption = { value: string; label: string; group?: "By stay" | "By day" | "By area" };
-type ReviewGroup = AreaSuggestion & { keep: boolean };
+type ReviewGroup = AreaSuggestion & { keep: boolean; auto: boolean };
 
 function ScopeMenu({ value, options, onChange }: { value: string; options: ScopeOption[]; onChange: (v: string) => void }) {
   const [open, setOpen] = useState(false);
@@ -865,12 +894,14 @@ function rel(iso: string): string {
 function SuggestReview({
   groups,
   places,
+  naming,
   onChange,
   onApply,
   onCancel,
 }: {
   groups: ReviewGroup[];
   places: Place[];
+  naming: boolean;
   onChange: (next: ReviewGroup[]) => void;
   onApply: () => void;
   onCancel: () => void;
@@ -889,8 +920,9 @@ function SuggestReview({
       ) : (
         <>
           <p className="meta mb-3">
-            Found {plural(groups.length, "group")} of nearby places. Untick any you don't want, rename them, or open one to
-            drop a place.
+            Found {plural(groups.length, "group")} of nearby places
+            {naming ? ", naming them by neighbourhood…" : ". "}
+            {!naming && "Untick any you don't want, rename them, or open one to drop a place."}
           </p>
           <ul>
             {groups.map((g, i) => (
@@ -901,7 +933,7 @@ function SuggestReview({
                   </button>
                   <input
                     value={g.name}
-                    onChange={(e) => set(i, { name: e.target.value })}
+                    onChange={(e) => set(i, { name: e.target.value, auto: false })}
                     aria-label="Area name"
                     className="min-w-0 flex-1 border-b border-transparent bg-transparent pb-0.5 text-sm focus:border-line focus:outline-none"
                   />

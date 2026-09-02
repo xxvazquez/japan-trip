@@ -5,6 +5,9 @@ export interface AreaSuggestion {
   /** a starting name — the place nearest the group's centre */
   name: string;
   placeIds: string[];
+  /** group centroid, so the caller can name the area by its neighbourhood */
+  lat: number;
+  lng: number;
 }
 
 const dist = (a: Place, b: Place) => haversineKm(a.lat, a.lng, b.lat, b.lng);
@@ -55,7 +58,7 @@ export function suggestAreas(places: Place[]): AreaSuggestion[] {
       const anchor = members.reduce((best, p) =>
         haversineKm(p.lat, p.lng, clat, clng) < haversineKm(best.lat, best.lng, clat, clng) ? p : best,
       );
-      return { name: anchor.name || "Area", placeIds: members.map((p) => p.id) };
+      return { name: anchor.name || "Area", placeIds: members.map((p) => p.id), lat: clat, lng: clng };
     })
     .sort((a, b) => b.placeIds.length - a.placeIds.length);
 }

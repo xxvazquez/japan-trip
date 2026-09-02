@@ -30,3 +30,33 @@ export async function geocode(query: string, near?: { lat: number; lng: number }
     lng: Number(r.lon),
   }));
 }
+
+/**
+ * The neighbourhood a coordinate sits in, via Nominatim reverse geocoding.
+ * One request per call — callers must space them out (Nominatim allows ~1/sec).
+ * Returns null on any failure so the caller can keep its own fallback name.
+ */
+export async function reverseGeocode(lat: number, lng: number): Promise<string | null> {
+  const p = new URLSearchParams({
+    lat: String(lat),
+    lon: String(lng),
+    format: "jsonv2",
+    zoom: "16",
+    addressdetails: "1",
+  });
+  try {
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?${p}`, {
+      headers: { "Accept-Language": "en" },
+    });
+    if (!res.ok) return null;
+    const a = ((await res.json()) as { address?: Record<string, string> }).address ?? {};
+    const raw =
+      a.neighbourhood || a.quarter || a.suburb || a.city_district || a.borough ||
+      a.town || a.village || a.municipality || a.city || a.county;
+    if (!raw) return null;
+    // drop a trailing block number ("Asakusa 1", "Ginza 3-chōme" → "Asakusa", "Ginza")
+    return raw.replace(/[\s,]+\d+(\s*-?\s*ch[oō]me)?$/i, "").trim() || raw;
+  } catch {
+    return null;
+  }
+}
