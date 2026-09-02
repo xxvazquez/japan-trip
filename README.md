@@ -66,12 +66,16 @@ An **area** is *where* it is (Gion, Higashiyama, a neighbourhood you name). A
 place can sit in several areas. Create one from the *+ Add area* row under the
 map list (name it and it's made), assign places from a pin's detail panel on
 the Map, and use *Manage areas* in that same row for the full editor (rename,
-delete, bulk membership). Add an area to a **day** (on the day page) and every
-place in that area shows on that day's map — a live link, so editing the area
-later updates the day too. Area places show slightly faded and never get added
-to your written plan; only what you type there stays there. Zoom out on **All
-places** or an area scope and each area gets a faint labelled ring so you can
-see its rough extent at a glance.
+delete, bulk membership). Once areas exist, an **Areas** row of chips sits with
+the category and transit filters — tap to show just those areas on the map (and
+in the list); none lit means all. On the **All places** view the list itself
+splits into a collapsible section per area (plus a *No area* group), so you can
+fold away the ones you're not looking at. Add an area to a **day** (on the day
+page) and every place in it shows on that day's map — a live link, so editing
+the area later updates the day too. Area places show slightly faded and never
+get added to your written plan; only what you type there stays there. Zoom out
+on **All places** or an area scope and each area gets a faint labelled ring so
+you can see its rough extent at a glance.
 
 **Suggest areas.** When four or more places aren't in any area, a *Suggest
 areas* link joins that row. It groups them by how close together they are (the
