@@ -38,6 +38,7 @@ export const TRANSIT_CONTROLS: Record<string, TransitKind[]> = {
   "transit-line-metro": ["metro"],
   "transit-line-tram": ["tram"],
   "transit-line-ferry": ["ferry"],
+  "transit-station-halo": ["train", "metro"],
   "transit-station": ["train", "metro"],
   "transit-station-label": ["train", "metro"],
   "transit-bus": ["bus"],
@@ -111,6 +112,23 @@ export function transitLayers(dark: boolean): LayerSpecification[] {
       },
     },
 
+    // Stations read as the classic transit-map marker: a soft outer halo, a
+    // pale centre, and a bold coloured ring — far more visible on a busy
+    // basemap than the old flat dot.
+    {
+      id: "transit-station-halo",
+      type: "circle",
+      source: SRC,
+      "source-layer": "pois",
+      minzoom: 10,
+      filter: ["==", ["get", "kind"], "station"],
+      layout: hidden,
+      paint: {
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 4, 14, 7.5, 16, 10],
+        "circle-color": halo,
+        "circle-opacity": 0.85,
+      },
+    },
     {
       id: "transit-station",
       type: "circle",
@@ -120,10 +138,10 @@ export function transitLayers(dark: boolean): LayerSpecification[] {
       filter: ["==", ["get", "kind"], "station"],
       layout: hidden,
       paint: {
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 2, 14, 4, 16, 5.5],
-        "circle-color": tone("train"),
-        "circle-stroke-width": 1.5,
-        "circle-stroke-color": halo,
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 2.6, 14, 5, 16, 6.75],
+        "circle-color": dark ? "#e9edf1" : "#ffffff",
+        "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 10, 1.6, 14, 2.6, 16, 3.2],
+        "circle-stroke-color": tone("train"),
       },
     },
     {
