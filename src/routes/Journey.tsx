@@ -57,7 +57,11 @@ export default function Journey() {
       <div>
         {j.segments.map((s, i) => {
           const next = j.segments[i + 1];
-          const gap = next && s.arrive && next.depart ? localMinutes(next.depart)! - localMinutes(s.arrive)! : null;
+          const rawGap = next && s.arrive && next.depart ? localMinutes(next.depart)! - localMinutes(s.arrive)! : null;
+          // A negative gap means the change runs past midnight (times often lack a
+          // date and get merged onto the journey day). Wrap into the next day.
+          const overnight = rawGap != null && rawGap < 0;
+          const gap = rawGap == null ? null : overnight ? rawGap + 1440 : rawGap;
           const meta = [fmtDuration(s.depart, s.arrive), s.service || s.carrier].filter(Boolean).join("  ·  ");
           return (
             <div key={s.id}>
@@ -88,8 +92,8 @@ export default function Journey() {
               {next && (
                 <p className="border-l-2 border-dashed border-line py-1.5 pl-3 text-xs text-ink-soft">
                   {gap != null ? (
-                    <span className={gap < 20 ? "font-medium text-accent" : ""}>
-                      {fmtMinutes(gap)} to change{s.to ? ` at ${s.to}` : ""}{gap < 20 ? " — tight" : ""}
+                    <span className={!overnight && gap < 20 ? "font-medium text-accent" : ""}>
+                      {fmtMinutes(gap)} to change{s.to ? ` at ${s.to}` : ""}{overnight ? " — overnight" : gap < 20 ? " — tight" : ""}
                     </span>
                   ) : (
                     <span>change{s.to ? ` at ${s.to}` : ""}</span>
