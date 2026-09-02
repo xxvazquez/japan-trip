@@ -54,7 +54,31 @@ export default function Journey() {
         }
       />
 
-      <div>
+      {j.gmapsDirections && (
+        <a href={j.gmapsDirections} target="_blank" rel="noopener" className="action mt-4">
+          <Icon name="map" size={14} /> Directions in Google Maps
+        </a>
+      )}
+
+      <div className="mt-8 space-y-3.5">
+      {(!ro || j.segments.length > 0) && (
+        <Section
+          title="Legs"
+          action={
+            !ro && (
+              <button
+                onClick={() => {
+                  const l = j.segments.at(-1);
+                  patch({ segments: [...j.segments, { id: `seg-${rid()}`, mode: l?.mode ?? "train", from: l?.to ?? "", to: "", fromTz: l?.toTz, toTz: l?.toTz }] });
+                }}
+                className="action text-xs"
+              >
+                <Icon name="plus" size={13} /> Add
+              </button>
+            )
+          }
+        >
+        {j.segments.length === 0 && <p className="text-sm text-ink-faint">No legs yet.</p>}
         {j.segments.map((s, i) => {
           const next = j.segments[i + 1];
           const rawGap = next && s.arrive && next.depart ? localMinutes(next.depart)! - localMinutes(s.arrive)! : null;
@@ -103,32 +127,17 @@ export default function Journey() {
             </div>
           );
         })}
-        {!ro && (
-          <button
-            onClick={() => {
-              const l = j.segments.at(-1);
-              patch({ segments: [...j.segments, { id: `seg-${rid()}`, mode: l?.mode ?? "train", from: l?.to ?? "", to: "", fromTz: l?.toTz, toTz: l?.toTz }] });
-            }}
-            className="action mt-5"
-          >
-            <Icon name="plus" size={14} /> Add a leg
-          </button>
-        )}
-      </div>
-
-      {j.gmapsDirections && (
-        <a href={j.gmapsDirections} target="_blank" rel="noopener" className="action mt-6">
-          <Icon name="map" size={14} /> Directions in Google Maps
-        </a>
+        </Section>
       )}
 
       {(j.notes || !ro) && (
-        <Section title="Notes" className="mt-8">
+        <Section title="Notes">
           <div className="text-sm text-ink">
             <RichNote value={j.notes ?? ""} onCommit={(v) => patch({ notes: v || undefined })} placeholder="Backup routes, reminders…" />
           </div>
         </Section>
       )}
+      </div>
     </Page>
   );
 }
