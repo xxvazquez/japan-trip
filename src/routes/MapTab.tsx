@@ -102,6 +102,9 @@ export default function MapTab() {
 
   /** review state for "Suggest areas" — null when not suggesting */
   const [review, setReview] = useState<ReviewGroup[] | null>(null);
+  /** inline "name a new area" field — true while it's open */
+  const [namingArea, setNamingArea] = useState(false);
+  const [areaName, setAreaName] = useState("");
 
   const places = useMemo(() => data?.places ?? [], [data]);
 
@@ -250,6 +253,7 @@ export default function MapTab() {
   const startAdd = () => {
     setAdding(true);
     setSelected(null);
+    setNamingArea(false);
     setSnap((s) => (s === "peek" ? "half" : s));
   };
   const cancelAdd = () => {
@@ -295,6 +299,7 @@ export default function MapTab() {
     const found = suggestAreas(ungrouped);
     setSelected(null);
     setAdding(false);
+    setNamingArea(false);
     setSnap((s) => (s === "peek" ? "half" : s));
     setReview(
       found.length
@@ -308,6 +313,13 @@ export default function MapTab() {
       addEntity("areas", { id: crypto.randomUUID?.() ?? rid(), name: g.name || "Area", placeIds: g.placeIds } as never);
     }
     setReview(null);
+  };
+  const createArea = () => {
+    const name = areaName.trim();
+    if (!name) return;
+    addEntity("areas", { id: crypto.randomUUID?.() ?? rid(), name, placeIds: [] } as never);
+    setAreaName("");
+    setNamingArea(false);
   };
 
   const runSync = async () => {
@@ -469,15 +481,49 @@ export default function MapTab() {
         </div>
       )}
 
-      {/* suggest areas — subtle, only when there's an unsorted pile worth grouping */}
-      {!readOnly && !adding && review === null && ungrouped.length >= 4 && (
-        <button
-          onClick={startSuggest}
-          className="shrink-0 border-b border-line px-4 py-2 text-left text-xs text-accent transition-opacity hover:opacity-70"
-        >
-          <Icon name="explore" size={12} className="mr-1 inline align-[-1px]" />
-          Suggest areas from {ungrouped.length} ungrouped places
-        </button>
+      {/* areas — create one by name, auto-suggest from the unsorted pile, or jump to full editing */}
+      {!readOnly && !adding && review === null && (
+        <div className="shrink-0 border-b border-line px-4 py-2 text-xs">
+          {namingArea ? (
+            <div className="flex items-center gap-3">
+              <input
+                autoFocus
+                value={areaName}
+                onChange={(e) => setAreaName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") createArea();
+                  if (e.key === "Escape") { setNamingArea(false); setAreaName(""); }
+                }}
+                placeholder="Area name — e.g. Asakusa"
+                className="min-w-0 flex-1 border-b border-ink bg-transparent pb-1 text-sm focus:outline-none"
+              />
+              <button onClick={createArea} className="shrink-0 font-medium text-accent">Add</button>
+              <button onClick={() => { setNamingArea(false); setAreaName(""); }} className="shrink-0 text-ink-faint hover:text-ink-soft">Cancel</button>
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+              <button
+                onClick={() => setNamingArea(true)}
+                className="inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70"
+              >
+                <Icon name="plus" size={12} className="align-[-1px]" />
+                Add area
+              </button>
+              {ungrouped.length >= 4 && (
+                <button
+                  onClick={startSuggest}
+                  className="inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70"
+                >
+                  <Icon name="explore" size={12} className="align-[-1px]" />
+                  Suggest from {ungrouped.length} ungrouped
+                </button>
+              )}
+              {data.areas.length > 0 && (
+                <Link to="/manage?tab=content&section=areas" className="link-quiet ml-auto">Manage areas</Link>
+              )}
+            </div>
+          )}
+        </div>
       )}
 
       {/* list, or the suggestion review */}
