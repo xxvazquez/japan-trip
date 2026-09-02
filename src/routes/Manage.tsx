@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
@@ -24,7 +24,9 @@ type TabId = "trips" | "settings" | "modules" | "media" | "content";
 const TABS: TabId[] = ["trips", "settings", "modules", "media", "content"];
 
 export default function Manage() {
-  const [tab, setTab] = useState<TabId>("trips");
+  const [params] = useSearchParams();
+  const wanted = params.get("tab") as TabId | null;
+  const [tab, setTab] = useState<TabId>(wanted && TABS.includes(wanted) ? wanted : "trips");
   return (
     <Page width="page">
       <PageHeader
@@ -580,7 +582,11 @@ function Content() {
   const data = useData();
   const { removeEntity, moveEntity, addEntity, updateEntity } = useApp();
   const mutate = useApp((s) => s.mutateTrip);
-  const [open, setOpen] = useState<EntityType | null>(null);
+  const [params] = useSearchParams();
+  const wantedSection = params.get("section") as EntityType | null;
+  const [open, setOpen] = useState<EntityType | null>(
+    wantedSection && wantedSection in ENTITY_LABELS ? wantedSection : null,
+  );
   const [areaMembers, setAreaMembers] = useState<string | null>(null);
   if (!data) return null;
   if (data.config.demo) return <DemoNotice />;
