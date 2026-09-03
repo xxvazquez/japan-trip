@@ -42,7 +42,7 @@ export function rangeText(start: string, end: string, locale: string): string {
   if (!start || !end) return "";
   const o: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
   try {
-    return `${new Date(start).toLocaleDateString(locale, o)} – ${new Date(end).toLocaleDateString(locale, o)}`;
+    return `${parseISO(start).toLocaleDateString(locale, o)} – ${parseISO(end).toLocaleDateString(locale, o)}`;
   } catch {
     return `${start} – ${end}`;
   }
