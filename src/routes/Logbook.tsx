@@ -18,12 +18,11 @@ import { putFile, fileUrl, removeFile } from "@/lib/fileStore";
 import {
   driveEnabled, ensureFolder, uploadToDrive, shareFile, deleteFromDrive, driveViewUrl, driveImageUrl,
 } from "@/lib/drive";
-import type { CustomList, Doc, DocFile, EntityType, LuggageNote, PackingItem } from "@/core/types";
+import type { CustomList, Doc, DocField, DocFile, EntityType, LuggageNote, PackingItem } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 8);
 
 type UpdateEntity = <T extends { id: string }>(type: EntityType, id: string, patch: Partial<T>) => void;
-type DocField = { label: string; value: string };
 
 /** add / remove / rename / reorder the `fields` on a document — the whole array
  *  is rewritten and re-persisted through `updateEntity`. */
@@ -33,7 +32,7 @@ function docFieldOps(updateEntity: UpdateEntity, docId: string, fields: DocField
     setValue: (i: number, value: string) => write(fields.map((x, j) => (j === i ? { ...x, value } : x))),
     setLabel: (i: number, label: string) => write(fields.map((x, j) => (j === i ? { ...x, label } : x))),
     remove: (i: number) => write(fields.filter((_, j) => j !== i)),
-    add: () => write([...fields, { label: "", value: "" }]),
+    add: () => write([...fields, { id: rid(), label: "", value: "" }]),
     move: (i: number, dir: -1 | 1) => {
       const j = i + dir;
       if (j < 0 || j >= fields.length) return;
@@ -327,7 +326,7 @@ function Emergency() {
     <div className="space-y-3">
       <div className={CARD_SHELL}>
         {contact.fields.map((f, i) => (
-          <DocFieldRow key={i} f={f} i={i} count={contact.fields.length} ops={F} ro={ro} />
+          <DocFieldRow key={f.id} f={f} i={i} count={contact.fields.length} ops={F} ro={ro} />
         ))}
         {contact.fields.length === 0 && ro && <p className="text-sm text-ink-faint">Nothing added yet.</p>}
         {!ro && (
@@ -367,7 +366,7 @@ function Documents() {
         >
           <div>
             {d.fields.map((f, i) => (
-              <DocFieldRow key={i} f={f} i={i} count={d.fields.length} ops={F} ro={ro} />
+              <DocFieldRow key={f.id} f={f} i={i} count={d.fields.length} ops={F} ro={ro} />
             ))}
             {!ro && (
               <button onClick={F.add} className="action mt-2 text-xs">
