@@ -121,20 +121,78 @@ export function bookendJourney(d: TripData, phase: "before" | "during" | "after"
   return undefined;
 }
 
-/* ---- timezone-aware datetime formatting for the journey ---- */
+/* ---- timezone-aware datetime labels for transport segments ---- */
 
-export function fmtInZone(local: string | undefined, tz: string, locale = "en-GB") {
-  if (!local) return "";
-  // `local` is wall time; render it as-is but label the zone
-  const [date, time] = local.split("T");
-  const d = parseISO(date);
-  const day = d.toLocaleDateString(locale, { weekday: "short", day: "numeric", month: "short" });
-  const zoneAbbr = shortZone(tz);
-  return time ? `${day}, ${time} ${zoneAbbr}` : day;
+/** Zones where Intl's "GMT+9" is a poorer label than the real abbreviation and
+ *  that abbreviation is unambiguous. Everything else is left to Intl. */
+const ZONE_ABBR: Record<string, string> = {
+  "Asia/Tokyo": "JST",
+  "Asia/Seoul": "KST",
+};
+
+/** Timezone abbreviation for a wall date in a zone — "JST", "CEST", "GMT+8". */
+export function zoneAbbr(local: string | undefined, tz: string | undefined): string {
+  if (!tz) return "";
+  if (ZONE_ABBR[tz]) return ZONE_ABBR[tz];
+  const when = local ? parseISO(local.split("T")[0]) : new Date();
+  try {
+    const parts = new Intl.DateTimeFormat("en-GB", { timeZone: tz, timeZoneName: "short" }).formatToParts(when);
+    return parts.find((p) => p.type === "timeZoneName")?.value ?? shortZone(tz);
+  } catch {
+    return shortZone(tz);
+  }
 }
 
 export function shortZone(tz: string) {
   return tz.split("/").pop()?.replace(/_/g, " ") ?? tz;
+}
+
+export interface SegEndpoint {
+  /** bare clock, "13:30" or "" */
+  time: string;
+  /** date label ("21 Oct") when this endpoint falls off the journey's own day, else "" */
+  date: string;
+  /** zone abbr ("JST") when the segment crosses time zones, else "" */
+  zone: string;
+}
+
+interface SegLike {
+  depart?: string;
+  arrive?: string;
+  fromTz?: string;
+  toTz?: string;
+}
+
+/** How to annotate a segment's depart & arrive beyond the bare clock: a date
+ *  when it isn't on the journey's day, a zone when the leg crosses zones. */
+export function segEndpoints(s: SegLike, journeyDate: string | undefined, locale = "en-GB") {
+  const zonesDiffer = !!s.fromTz && !!s.toTz && s.fromTz !== s.toTz;
+  const at = (dt: string | undefined, tz: string | undefined): SegEndpoint => {
+    const [date, time = ""] = (dt ?? "").split("T");
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return { time: "", date: "", zone: "" };
+    return {
+      time,
+      date: journeyDate && date !== journeyDate ? fmtDate(date, locale, { day: "numeric", month: "short" }) : "",
+      zone: zonesDiffer ? zoneAbbr(dt, tz) : "",
+    };
+  };
+  return { depart: at(s.depart, s.fromTz), arrive: at(s.arrive, s.toTz) };
+}
+
+/** One endpoint as text: "21 Oct 02:05 JST". */
+export function fmtEndpoint(e: SegEndpoint): string {
+  if (!e.time) return "";
+  return [e.date, e.time].filter(Boolean).join(" ") + (e.zone ? ` ${e.zone}` : "");
+}
+
+/** "13:30 CEST → 21 Oct 02:05 JST" — depart-to-arrive across a segment or a
+ *  whole journey (pass a synthetic `{depart, arrive, fromTz, toTz}`). "" if empty. */
+export function fmtSpan(s: SegLike, journeyDate: string | undefined, locale = "en-GB"): string {
+  const { depart, arrive } = segEndpoints(s, journeyDate, locale);
+  const a = fmtEndpoint(depart);
+  const b = fmtEndpoint(arrive);
+  if (!a && !b) return "";
+  return `${a || "—"} → ${b || "—"}`;
 }
 
 export function metaTitle(meta: TripMeta) {

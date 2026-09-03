@@ -13,7 +13,7 @@ import { useApp } from "@/store/useApp";
 import { useAuth } from "@/lib/auth";
 import { useReadOnly } from "@/lib/readonly";
 import { APP_NAME } from "@/lib/app";
-import { fmtDate, plural } from "@/lib/dates";
+import { fmtDate, fmtSpan, plural } from "@/lib/dates";
 import { putFile, fileUrl, removeFile } from "@/lib/fileStore";
 import {
   driveEnabled, ensureFolder, uploadToDrive, shareFile, deleteFromDrive, driveViewUrl, driveImageUrl,
@@ -174,7 +174,12 @@ function GettingAround() {
         const first = j.segments[0];
         const last = j.segments.at(-1);
         const changes = Math.max(0, j.segments.length - 1);
-        const times = `${first?.depart?.slice(11, 16) ?? "—"} → ${(last?.arrive ?? last?.depart)?.slice(11, 16) ?? "—"}`;
+        const times =
+          fmtSpan(
+            { depart: first?.depart, arrive: last?.arrive ?? last?.depart, fromTz: first?.fromTz, toTz: last?.toTz },
+            j.date,
+            loc,
+          ) || "—";
         return (
           <Card
             key={j.id}
