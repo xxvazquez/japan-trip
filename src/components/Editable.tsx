@@ -28,14 +28,28 @@ function linkText(v: string) {
   }
 }
 
-/** Best guess at what a free-text value actually is. */
-function detectKind(v: string): Kind {
+/** Best guess at what a free-text value actually is — null when nothing fits. */
+function detectKind(v: string): Kind | null {
   const s = v.trim();
+  if (!s) return null;
   if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return "date";
   if (/^https?:\/\//i.test(s)) return "link";
   if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)) return "email";
   if (looksLikePhone(s)) return "tel";
-  return "text";
+  return null;
+}
+
+/** What a field's *label* implies it holds — so an empty "Phone" field still
+ *  offers a dialler and an empty "Expiry" field still opens a date picker.
+ *  Checked before the value itself, since the label is the field's intent. */
+function labelKind(label: string): Kind | null {
+  const s = label.toLowerCase();
+  if (/e-?mail/.test(s)) return "email";
+  if (/\b(phone|tel|telephone|mobile|cell|hotline|helpline|whatsapp|fax)\b/.test(s)) return "tel";
+  if (/\b(url|web ?site|homepage)\b/.test(s)) return "link";
+  if (/\b(date|expiry|expires|valid|issued|until|check-?in|check-?out|dob)\b/.test(s)) return "date";
+  if (/\b(price|cost|fare|amount|fee|total|deposit|balance|budget)\b/.test(s)) return "number";
+  return null;
 }
 
 /** 3–4 digit short codes (110, 119, 911…), or a longer +/spaced/dashed number. */
@@ -70,7 +84,7 @@ export function Editable(props: Props) {
   const { value, onCommit, placeholder = "Add…", label, className = "" } = props;
   const rawAs = props.as ?? "text";
   const as: Kind =
-    rawAs === "auto" ? (value.trim() ? detectKind(value) : "text")
+    rawAs === "auto" ? (labelKind(label) ?? detectKind(value) ?? "text")
       : rawAs === "select" ? "text"
       : rawAs;
   const readOnly = useReadOnly();
