@@ -1,7 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { useData } from "@/lib/data";
 import { enabledModules, moduleTo, isModuleCurrent } from "@/lib/modules";
-import { tripLogoSrc } from "./Wordmark";
 import { Icon, type IconName } from "./Icon";
 
 /** Bottom tab bar on mobile; a quiet left rail from md up. Driven by the active
@@ -21,11 +20,6 @@ export function TabBarOrRail() {
       ].join(" ")}
     >
       <ul className="flex md:h-full md:flex-col md:items-center md:gap-1 md:py-5">
-        <li className="hidden md:mb-2 md:block">
-          <NavLink to="/" aria-label="Home">
-            <img src={tripLogoSrc(data)} width={28} height={28} alt="" className="rounded-[22%] object-cover" decoding="async" />
-          </NavLink>
-        </li>
         {modules.map((s) => {
           const current = isModuleCurrent(s, pathname);
           return (
