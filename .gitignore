@@ -5,6 +5,7 @@ PLAN.md
 node_modules/
 dist/
 dist-ssr/
+dist-noauth/
 *.log
 .env
 .env.local
