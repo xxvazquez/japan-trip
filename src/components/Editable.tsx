@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useReadOnly } from "@/lib/readonly";
 import { gmapsLink } from "@/lib/maps";
+import { fmtDate } from "@/lib/dates";
 
 type Base = {
   value: string;
@@ -111,7 +112,8 @@ export function Editable(props: Props) {
         </a>
       );
     }
-    return <span className={`inline whitespace-pre-wrap ${className}`}>{value}</span>;
+    const text = as === "date" ? fmtDate(value, "en-GB", { day: "numeric", month: "short", year: "numeric" }) : value;
+    return <span className={`inline whitespace-pre-wrap ${className}`}>{text}</span>;
   }
 
   // a filled link / phone / email shows as the real thing with a small "edit" —
