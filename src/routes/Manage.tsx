@@ -6,7 +6,7 @@ import { Editable } from "@/components/Editable";
 import { Icon } from "@/components/Icon";
 import { useApp } from "@/store/useApp";
 import { useData } from "@/lib/data";
-import { plural } from "@/lib/dates";
+import { daysBetween, plural, rangeText } from "@/lib/dates";
 import { APP_NAME } from "@/lib/app";
 import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
 import { THEME_PRESETS } from "@/lib/themePresets";
@@ -322,16 +322,6 @@ const DATE_FORMATS: { value: string; label: string }[] = [
   { value: "fr-FR", label: "31/10/2026" },
 ];
 
-function rangeText(start: string, end: string, locale: string) {
-  if (!start || !end) return "";
-  const o: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
-  try {
-    return `${new Date(start).toLocaleDateString(locale, o)} – ${new Date(end).toLocaleDateString(locale, o)}`;
-  } catch {
-    return `${start} – ${end}`;
-  }
-}
-
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="row">
@@ -366,11 +356,12 @@ function Settings() {
     </Row>
   );
 
-  const setDate = (which: "start" | "end", v: string) =>
-    mutate((d) => {
-      d.meta[which] = v;
-      d.config.tagline = rangeText(d.meta.start, d.meta.end, d.config.locale);
-    });
+  const shiftDates = useApp((s) => s.shiftDates);
+  // moving either end slides the whole itinerary — the length is set by the days
+  const moveTrip = (from: string, to: string) => {
+    const delta = daysBetween(from, to);
+    if (Number.isFinite(delta) && delta !== 0) shiftDates(delta);
+  };
 
   return (
     <div className="space-y-3.5">
@@ -379,8 +370,9 @@ function Settings() {
       </Section>
 
       <Section title="Dates">
-        <Row label="Start"><Editable as="date" label="Start date" value={meta.start} onCommit={(v) => setDate("start", v)} /></Row>
-        <Row label="End"><Editable as="date" label="End date" value={meta.end} onCommit={(v) => setDate("end", v)} /></Row>
+        <Row label="Start"><Editable as="date" label="Start date" value={meta.start} onCommit={(v) => moveTrip(meta.start, v)} /></Row>
+        <Row label="End"><Editable as="date" label="End date" value={meta.end} onCommit={(v) => moveTrip(meta.end, v)} /></Row>
+        <p className="meta mt-2">Moving either date slides the whole itinerary — days, stays and journeys shift with it. To change the length, add or remove days in Plan.</p>
       </Section>
 
       <Section title="Time zones">

@@ -27,6 +27,27 @@ export function addDays(d: ISODate, n: number): ISODate {
   return todayISO(dt);
 }
 
+/** Move the date part of an ISO date (`YYYY-MM-DD`) or a local datetime
+ *  (`YYYY-MM-DDTHH:MM`) by whole days, keeping any time component. */
+export function shiftDate(value: string, days: number): string {
+  if (!value || !days) return value;
+  const [date, time] = value.split("T");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return value;
+  const moved = addDays(date, days);
+  return time !== undefined ? `${moved}T${time}` : moved;
+}
+
+/** "20 Oct – 14 Nov" in the given locale — the trip's tagline under the wordmark. */
+export function rangeText(start: string, end: string, locale: string): string {
+  if (!start || !end) return "";
+  const o: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
+  try {
+    return `${new Date(start).toLocaleDateString(locale, o)} – ${new Date(end).toLocaleDateString(locale, o)}`;
+  } catch {
+    return `${start} – ${end}`;
+  }
+}
+
 export type TripPhase = "before" | "during" | "after";
 
 export interface TripClock {
