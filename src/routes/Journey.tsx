@@ -8,7 +8,7 @@ import { Icon } from "@/components/Icon";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { fmtDate, plural } from "@/lib/dates";
+import { fmtDate, plural, segEndpoints } from "@/lib/dates";
 import { clockOf, fmtDuration, fmtMinutes, localMinutes } from "@/lib/time";
 import type { Journey as JourneyT, Segment, TransportMode } from "@/core/types";
 
@@ -87,6 +87,13 @@ export default function Journey() {
           const overnight = rawGap != null && rawGap < 0;
           const gap = rawGap == null ? null : overnight ? rawGap + 1440 : rawGap;
           const meta = [fmtDuration(s.depart, s.arrive), s.service || s.carrier].filter(Boolean).join("  ·  ");
+          const ep = segEndpoints(s, j.date, loc);
+          const offDay = [
+            ep.depart.date && `Departs ${ep.depart.date}`,
+            ep.arrive.date && `Arrives ${ep.arrive.date}`,
+          ]
+            .filter(Boolean)
+            .join("  ·  ");
           return (
             <div key={s.id}>
               <div className="group border-t border-line py-4 first:border-t-0 first:pt-0">
@@ -97,9 +104,12 @@ export default function Journey() {
                 </p>
                 <p className="mt-1.5 font-display text-2xl tabular-nums leading-none">
                   <Editable as="time" label="Depart time" value={clockOf(s.depart)} placeholder="--:--" onCommit={(v) => setSeg(i, { depart: mergeTime(s.depart, j.date, v) })} />
+                  {ep.depart.zone && <span className="ml-1 align-middle text-xs text-ink-faint">{ep.depart.zone}</span>}
                   <span className="mx-2 text-ink-faint">→</span>
                   <Editable as="time" label="Arrive time" value={clockOf(s.arrive)} placeholder="--:--" onCommit={(v) => setSeg(i, { arrive: mergeTime(s.arrive, j.date, v) })} />
+                  {ep.arrive.zone && <span className="ml-1 align-middle text-xs text-ink-faint">{ep.arrive.zone}</span>}
                 </p>
+                {offDay && <p className="mt-1 text-xs text-ink-soft">{offDay}</p>}
                 <p className="meta mt-2 flex flex-wrap items-center gap-x-1.5">
                   <Editable as="select" label="Mode" value={s.mode} options={MODES.map((m) => ({ value: m, label: m }))} onCommit={(v) => setSeg(i, { mode: v as TransportMode })} />
                   {meta && <span>· {meta}</span>}

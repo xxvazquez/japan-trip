@@ -16,7 +16,7 @@
 import type {
   Day, Doc, Hotel, Journey, Leg, Place, Segment, TripData,
 } from "@/core/types";
-import { fmtDate, plural } from "@/lib/dates";
+import { fmtDate, fmtSpan, plural } from "@/lib/dates";
 import { localMinutes, fmtMinutes } from "@/lib/time";
 import { gmapsLink } from "@/lib/maps";
 import { APP_NAME } from "@/lib/app";
@@ -75,8 +75,6 @@ function mdToHtml(src: string): string {
  * small render helpers
  * ------------------------------------------------------------------ */
 
-const clock = (dt?: string): string => (dt && dt.includes("T") ? dt.slice(11, 16) : "");
-
 const link = (url: string | undefined, label: string): string => {
   const href = gmapsLink(url);
   return href ? `<a href="${safeHref(href)}">${esc(label)}</a>` : esc(label);
@@ -126,7 +124,11 @@ function dayBlock(day: Day, data: TripData, loc: string): string {
   if (journey) {
     const first = journey.segments[0];
     const last = journey.segments.at(-1);
-    const span = [clock(first?.depart), clock(last?.arrive ?? last?.depart)].filter(Boolean).join(" → ");
+    const span = fmtSpan(
+      { depart: first?.depart, arrive: last?.arrive ?? last?.depart, fromTz: first?.fromTz, toTz: last?.toTz },
+      journey.date,
+      loc,
+    );
     const changes = Math.max(0, journey.segments.length - 1);
     parts.push(`<p class="day-journey"><a href="#journey-${esc(journey.id)}">${esc(journey.label)}</a>${span ? ` · ${esc(span)}` : ""}${changes ? ` · ${esc(plural(changes, "change"))}` : ""}</p>`);
   }
@@ -177,8 +179,8 @@ function itinerarySection(data: TripData): string {
   return `<section class="group"><h2>Itinerary</h2>${blocks.join("\n")}</section>`;
 }
 
-function segmentBlock(s: Segment, next: Segment | undefined, opts: ExportOptions): string {
-  const times = [clock(s.depart), clock(s.arrive)].filter(Boolean).join(" → ");
+function segmentBlock(s: Segment, next: Segment | undefined, opts: ExportOptions, journeyDate: string | undefined, loc: string): string {
+  const times = fmtSpan(s, journeyDate, loc);
   const meta = [MODE_LABEL[s.mode] ?? s.mode, s.carrier, s.service].filter(Boolean).map((x) => esc(x!)).join(" · ");
   const detail = rows([
     ["Platform", s.platform],
@@ -215,7 +217,7 @@ function journeysSection(data: TripData, opts: ExportOptions): string {
     return `<section class="journey" id="journey-${esc(j.id)}">
       <h3>${esc(j.label)}</h3>
       ${when ? `<p class="leg-range">${esc(when)}</p>` : ""}
-      ${j.segments.map((s, i) => segmentBlock(s, j.segments[i + 1], opts)).join("\n") || `<p class="empty">No legs yet.</p>`}
+      ${j.segments.map((s, i) => segmentBlock(s, j.segments[i + 1], opts, j.date, loc)).join("\n") || `<p class="empty">No legs yet.</p>`}
       ${dir}
       ${j.notes?.trim() ? `<div class="note">${mdToHtml(j.notes)}</div>` : ""}
     </section>`;
