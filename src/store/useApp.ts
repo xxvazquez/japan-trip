@@ -5,7 +5,7 @@ import { subscribeTrip, unsubscribeTrip, markWritten } from "@/lib/realtime";
 import { store as kv } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/app";
 import { normalizeTrip } from "@/lib/hydrate";
-import { addDays } from "@/lib/dates";
+import { addDays, rangeText, shiftDate } from "@/lib/dates";
 import type { Day, EntityType, MediaItem, TripData, TripSummary } from "@/core/types";
 
 const now = () => new Date().toISOString();
@@ -51,6 +51,10 @@ interface AppStore {
    *  each stay's span is recomputed from its days. Covers within-stay reorder
    *  and dragging a day into another stay. */
   reorderDays: (arrangement: { legId: string; dayIds: string[] }[]) => void;
+  /** Slide the whole itinerary by whole days — every day, stay, journey,
+   *  segment and luggage date, plus the trip's own start / end. The trip's
+   *  length is unchanged. Backs the trip start / end date pickers. */
+  shiftDates: (deltaDays: number) => void;
 
   setScratch: (value: string) => void;
   syncMyMap: (url: string) => Promise<{ mapName: string; count: number }>;
@@ -575,6 +579,37 @@ export const useApp = create<AppStore>((set, get) => {
       if (legsMoved) {
         for (const leg of get().data!.legs) enqueue(get, { t: "row", type: "legs", id: leg.id });
       }
+    },
+
+    shiftDates: (deltaDays) => {
+      if (!Number.isFinite(deltaDays) || deltaDays === 0) return;
+      if (!local((d) => {
+        d.meta.start = shiftDate(d.meta.start, deltaDays);
+        d.meta.end = shiftDate(d.meta.end, deltaDays);
+        for (const day of d.days) day.date = shiftDate(day.date, deltaDays);
+        for (const leg of d.legs) {
+          leg.start = shiftDate(leg.start, deltaDays);
+          leg.end = shiftDate(leg.end, deltaDays);
+        }
+        for (const j of d.journeys) {
+          if (j.date) j.date = shiftDate(j.date, deltaDays);
+          for (const s of j.segments) {
+            if (s.depart) s.depart = shiftDate(s.depart, deltaDays);
+            if (s.arrive) s.arrive = shiftDate(s.arrive, deltaDays);
+          }
+        }
+        for (const n of d.luggage) if (n.date) n.date = shiftDate(n.date, deltaDays);
+        d.config.tagline = rangeText(d.meta.start, d.meta.end, d.config.locale);
+      })) return;
+      const d = get().data!;
+      enqueue(get, { t: "fields", keys: ["meta", "config"] });
+      for (const day of d.days) enqueue(get, { t: "row", type: "days", id: day.id });
+      for (const leg of d.legs) enqueue(get, { t: "row", type: "legs", id: leg.id });
+      for (const j of d.journeys) {
+        if (j.date) enqueue(get, { t: "row", type: "journeys", id: j.id });
+        if (j.segments.length) enqueue(get, { t: "seg", journeyId: j.id });
+      }
+      for (const n of d.luggage) if (n.date) enqueue(get, { t: "row", type: "luggage", id: n.id });
     },
 
     setScratch: (value) => {
