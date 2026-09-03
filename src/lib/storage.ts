@@ -105,5 +105,3 @@ export const store: Store = {
     }
   },
 };
-
-export const idbStore = store;

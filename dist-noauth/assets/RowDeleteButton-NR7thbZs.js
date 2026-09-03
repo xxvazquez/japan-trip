@@ -1,0 +1,1 @@
+import{j as t,I as a}from"./index-Oju6MyWw.js";function i({onClick:e,label:o="Remove"}){return t.jsx("button",{onClick:e,"aria-label":o,className:"shrink-0 p-1 text-ink-faint opacity-0 transition-opacity hover:text-accent group-hover:opacity-100",children:t.jsx(a,{name:"close",size:13})})}export{i as R};

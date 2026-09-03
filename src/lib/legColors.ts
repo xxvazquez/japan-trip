@@ -13,18 +13,6 @@ export const LEG_COLORS = {
 } as const;
 
 export type LegColorId = keyof typeof LEG_COLORS;
-export const LEG_COLOR_IDS = Object.keys(LEG_COLORS) as LegColorId[];
 
 export const legHex = (id?: string): string =>
   (id && id in LEG_COLORS ? LEG_COLORS[id as LegColorId] : LEG_COLORS.blue);
-
-/** Default colour for the Nth leg, so a fresh trip is already colour-coded. */
-export const defaultLegColor = (index: number): LegColorId => LEG_COLOR_IDS[index % LEG_COLOR_IDS.length];
-
-/** A stable colour for any string (collection, day trip…) so lists look
- *  intentional without anyone picking colours. */
-export function hashHex(s: string): string {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
-  return LEG_COLORS[LEG_COLOR_IDS[Math.abs(h) % LEG_COLOR_IDS.length]];
-}

@@ -1,17 +1,10 @@
 import type { ModuleConfig, ModuleKind } from "@/core/types";
-import type { IconName } from "@/components/Icon";
 
 /** Route + extra path prefixes that count as "this section is current". */
 export const MODULE_ROUTE: Record<ModuleKind, { to: string; match: string[] }> = {
   plan: { to: "/", match: ["/day", "/journey"] },
   map: { to: "/map", match: [] },
   logbook: { to: "/logbook", match: ["/hotel"] },
-};
-
-export const MODULE_ICON: Record<ModuleKind, IconName> = {
-  plan: "itinerary",
-  map: "places",
-  logbook: "vault",
 };
 
 export function moduleTo(s: ModuleConfig): string {

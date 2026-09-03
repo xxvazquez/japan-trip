@@ -6,9 +6,6 @@ export function useData(): TripData | null {
   return useApp((s) => s.data);
 }
 
-/** Non-hook access (search index, one-off reads). */
-export const getData = (): TripData | null => useApp.getState().data;
-
 export const byId = <T extends { id: ID }>(list: T[] | undefined, id: ID | undefined) =>
   id && list ? list.find((x) => x.id === id) : undefined;
 
