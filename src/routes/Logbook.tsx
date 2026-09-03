@@ -18,9 +18,65 @@ import { putFile, fileUrl, removeFile } from "@/lib/fileStore";
 import {
   driveEnabled, ensureFolder, uploadToDrive, shareFile, deleteFromDrive, driveViewUrl, driveImageUrl,
 } from "@/lib/drive";
-import type { CustomList, Doc, DocFile, LuggageNote, PackingItem } from "@/core/types";
+import type { CustomList, Doc, DocFile, EntityType, LuggageNote, PackingItem } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 8);
+
+type UpdateEntity = <T extends { id: string }>(type: EntityType, id: string, patch: Partial<T>) => void;
+type DocField = { label: string; value: string };
+
+/** add / remove / rename / reorder the `fields` on a document — the whole array
+ *  is rewritten and re-persisted through `updateEntity`. */
+function docFieldOps(updateEntity: UpdateEntity, docId: string, fields: DocField[]) {
+  const write = (next: DocField[]) => updateEntity<Doc>("docs", docId, { fields: next });
+  return {
+    setValue: (i: number, value: string) => write(fields.map((x, j) => (j === i ? { ...x, value } : x))),
+    setLabel: (i: number, label: string) => write(fields.map((x, j) => (j === i ? { ...x, label } : x))),
+    remove: (i: number) => write(fields.filter((_, j) => j !== i)),
+    add: () => write([...fields, { label: "", value: "" }]),
+    move: (i: number, dir: -1 | 1) => {
+      const j = i + dir;
+      if (j < 0 || j >= fields.length) return;
+      const next = fields.slice();
+      [next[i], next[j]] = [next[j], next[i]];
+      write(next);
+    },
+  };
+}
+
+function FieldControls({ i, count, onMove, onRemove }: { i: number; count: number; onMove: (dir: -1 | 1) => void; onRemove: () => void }) {
+  return (
+    <span className="flex shrink-0 items-center gap-0.5 text-ink-faint">
+      <button disabled={i === 0} onClick={() => onMove(-1)} aria-label="Move field up" className="p-0.5 hover:text-ink-soft disabled:opacity-25"><Icon name="up" size={13} /></button>
+      <button disabled={i === count - 1} onClick={() => onMove(1)} aria-label="Move field down" className="p-0.5 hover:text-ink-soft disabled:opacity-25"><Icon name="down" size={13} /></button>
+      <button onClick={onRemove} aria-label="Remove field" className="p-0.5 hover:text-accent"><Icon name="close" size={13} /></button>
+    </span>
+  );
+}
+
+/** One `{label, value}` row of a document. Read-only: the compact label→value
+ *  row. Editable: label + value stacked, with reorder / remove controls. */
+function DocFieldRow({ f, i, count, ops, ro }: { f: DocField; i: number; count: number; ops: ReturnType<typeof docFieldOps>; ro: boolean }) {
+  if (ro) {
+    return (
+      <div className="row text-sm">
+        <span className="row-label">{f.label}</span>
+        <span className="row-value value"><Editable as="auto" label={f.label} value={f.value} placeholder="—" onCommit={() => {}} /></span>
+      </div>
+    );
+  }
+  return (
+    <div className="flex items-start gap-2 border-b border-line py-2 last:border-b-0">
+      <div className="min-w-0 flex-1">
+        <Editable label="Field name" value={f.label} placeholder="Label" className="text-[0.8125rem] text-ink-soft" onCommit={(v) => ops.setLabel(i, v)} />
+        <div className="value mt-0.5 break-words">
+          <Editable as="auto" label={f.label || "Field"} value={f.value} placeholder="—" onCommit={(v) => ops.setValue(i, v)} />
+        </div>
+      </div>
+      <div className="pt-0.5"><FieldControls i={i} count={count} onMove={(d) => ops.move(i, d)} onRemove={() => ops.remove(i)} /></div>
+    </div>
+  );
+}
 
 const BASE_SECTIONS = ["stays", "getting around", "luggage", "emergency", "documents", "packing", "notes"] as const;
 
@@ -260,37 +316,26 @@ function Luggage() {
 
 function Emergency() {
   const data = useData()!;
+  const ro = useReadOnly();
   const updateEntity = useApp((s) => s.updateEntity);
   const contact = data.docs.find((d) => d.kind === "contact");
   if (!contact) return <Empty what="No emergency info" hint="Add a contact document in Manage." />;
 
-  const set = (i: number, v: string) => updateEntity<Doc>("docs", contact.id, { fields: contact.fields.map((x, j) => (j === i ? { ...x, value: v } : x)) });
-  const [hero, rest] = [contact.fields.slice(0, 2), contact.fields.slice(2)];
+  const F = docFieldOps(updateEntity, contact.id, contact.fields);
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-2 gap-3">
-        {hero.map((f, i) => (
-          <div key={i} className={`${CARD_SHELL} transition-colors hover:border-ink-faint/40`}>
-            <span className="field-label block">{f.label}</span>
-            <span className="mt-1 block font-display text-3xl tabular-nums">
-              <Editable as="auto" label={f.label} value={f.value} placeholder="—" onCommit={(v) => set(i, v)} />
-            </span>
-          </div>
+      <div className={CARD_SHELL}>
+        {contact.fields.map((f, i) => (
+          <DocFieldRow key={i} f={f} i={i} count={contact.fields.length} ops={F} ro={ro} />
         ))}
+        {contact.fields.length === 0 && ro && <p className="text-sm text-ink-faint">Nothing added yet.</p>}
+        {!ro && (
+          <button onClick={F.add} className="action mt-2 text-xs">
+            <Icon name="plus" size={13} /> Add field
+          </button>
+        )}
       </div>
-      {rest.length > 0 && (
-        <div className={CARD_SHELL}>
-          {rest.map((f, i) => (
-            <div key={i} className="row text-sm">
-              <span className="row-label">{f.label}</span>
-              <span className="row-value value">
-                <Editable as="auto" label={f.label} value={f.value} placeholder="—" onCommit={(v) => set(i + 2, v)} />
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
@@ -299,6 +344,7 @@ function Emergency() {
 
 function Documents() {
   const data = useData()!;
+  const ro = useReadOnly();
   const updateEntity = useApp((s) => s.updateEntity);
   const { user } = useAuth();
   const docs = data.docs.filter((d) => d.kind !== "contact");
@@ -312,20 +358,22 @@ function Documents() {
 
   return (
     <div className="space-y-3">
-      {docs.map((d) => (
+      {docs.map((d) => {
+        const F = docFieldOps(updateEntity, d.id, d.fields);
+        return (
         <Card
           key={d.id}
           title={<Editable label="Title" value={d.title} onCommit={(v) => updateEntity<Doc>("docs", d.id, { title: v || d.title })} />}
         >
           <div>
             {d.fields.map((f, i) => (
-              <div key={i} className="row text-sm">
-                <span className="row-label">{f.label}</span>
-                <span className="row-value value">
-                  <Editable as="auto" label={f.label} value={f.value} placeholder="—" onCommit={(v) => updateEntity<Doc>("docs", d.id, { fields: d.fields.map((x, j) => (j === i ? { ...x, value: v } : x)) })} />
-                </span>
-              </div>
+              <DocFieldRow key={i} f={f} i={i} count={d.fields.length} ops={F} ro={ro} />
             ))}
+            {!ro && (
+              <button onClick={F.add} className="action mt-2 text-xs">
+                <Icon name="plus" size={13} /> Add field
+              </button>
+            )}
           </div>
           <Attachments
             doc={d}
@@ -335,7 +383,8 @@ function Documents() {
             onChange={(files) => updateEntity<Doc>("docs", d.id, { files })}
           />
         </Card>
-      ))}
+        );
+      })}
       <p className="px-1 text-xs text-ink-faint">
         {cloud
           ? "Attachments upload to a Google Drive folder and are shared with the people on this trip. Still — think twice before a full passport scan."
