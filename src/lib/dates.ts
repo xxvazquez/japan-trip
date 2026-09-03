@@ -1,4 +1,4 @@
-import type { Day, ISODate, TripData, TripMeta } from "@/core/types";
+import type { Day, ISODate, TripData } from "@/core/types";
 
 const MS_DAY = 86_400_000;
 
@@ -128,20 +128,6 @@ export function fmtDate(
   return parseISO(iso).toLocaleDateString(locale, opts);
 }
 
-export function nextJourney(d: TripData, fromISO: ISODate, kinds?: string[]) {
-  return [...d.journeys]
-    .filter((j) => j.date && (!kinds || kinds.includes(j.kind)))
-    .sort((a, b) => (a.date ?? "").localeCompare(b.date ?? ""))
-    .find((j) => (j.date ?? "") >= fromISO);
-}
-
-/** the arrival (before/during) or departure (near end) journey */
-export function bookendJourney(d: TripData, phase: "before" | "during" | "after") {
-  if (phase === "before") return d.journeys.find((j) => j.kind === "arrival");
-  if (phase === "during") return d.journeys.find((j) => j.kind === "departure");
-  return undefined;
-}
-
 /* ---- timezone-aware datetime labels for transport segments ---- */
 
 /** Zones where Intl's "GMT+9" is a poorer label than the real abbreviation and
@@ -214,8 +200,4 @@ export function fmtSpan(s: SegLike, journeyDate: string | undefined, locale = "e
   const b = fmtEndpoint(arrive);
   if (!a && !b) return "";
   return `${a || "—"} → ${b || "—"}`;
-}
-
-export function metaTitle(meta: TripMeta) {
-  return meta.title;
 }

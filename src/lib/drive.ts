@@ -114,7 +114,6 @@ export async function getToken(interactive = false): Promise<string> {
 export async function connectDrive(): Promise<void> {
   await getToken(true);
 }
-export const isDriveConnected = () => !!token && token.exp > Date.now();
 
 /* -------------------------------------------------------------------- calls */
 

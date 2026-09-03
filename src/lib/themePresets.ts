@@ -99,12 +99,3 @@ export const THEME_PRESETS: ThemePreset[] = [
     },
   },
 ];
-
-export const presetById = (id?: string) => THEME_PRESETS.find((p) => p.id === id);
-
-export function withAccent(tokens: ThemeTokens, lightAccent?: string, darkAccent?: string): ThemeTokens {
-  return {
-    light: { ...tokens.light, ...(lightAccent ? { accent: lightAccent } : {}) },
-    dark: { ...tokens.dark, ...(darkAccent ? { accent: darkAccent } : {}) },
-  };
-}

@@ -1,0 +1,1 @@
+import{j as e,L as n}from"./index-Oju6MyWw.js";function x({what:s,hint:a,to:r="/manage",cta:m="Open Manage"}){return e.jsxs("div",{className:"border-y border-line py-9 text-center",children:[e.jsx("p",{className:"lead",children:s}),a&&e.jsx("p",{className:"meta mx-auto mt-1 max-w-xs",children:a}),e.jsx(n,{to:r,className:"btn-primary mt-4",children:m})]})}export{x as E};

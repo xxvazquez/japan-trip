@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f2f4f6" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#13171b" media="(prefers-color-scheme: dark)" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="description" content="A private, offline-first travel atlas" />
+    <title>Zuknesst Atlas</title>
+    <script>
+      // Apply saved light/dark mode before first paint to avoid a flash.
+      (function () {
+        try {
+          document.documentElement.classList.remove("no-js");
+          var t = localStorage.getItem("za.mode") || "system";
+          var dark = t === "dark" || (t === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+          document.documentElement.classList.toggle("dark", dark);
+        } catch (e) {}
+      })();
+    </script>
+    <script type="module" crossorigin src="/assets/index-Oju6MyWw.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/maplibre-wOE1cd-g.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-DG7FMKx_.css">
+  <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
