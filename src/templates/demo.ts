@@ -21,7 +21,7 @@ const D4 = iso(33);
 
 export function buildDemo(): TripData {
   const data: TripData = {
-    v: 2,
+    v: 3,
     config: {
       branding: "Demo",
       tagline: "a quick read-only tour",
@@ -185,8 +185,8 @@ export function buildDemo(): TripData {
         title: "Travel insurance",
         kind: "insurance",
         fields: [
-          { label: "Policy no.", value: "—" },
-          { label: "24h assistance", value: "+00 000 000 000" },
+          { id: "doc-1-f1", label: "Policy no.", value: "—" },
+          { id: "doc-1-f2", label: "24h assistance", value: "+00 000 000 000" },
         ],
         note: "Use 'attach' to add the real PDF. Attachments stay on the device you add them on — they're never uploaded or shared.",
       },
@@ -194,7 +194,7 @@ export function buildDemo(): TripData {
         id: "doc-2",
         title: "Flights",
         kind: "flight",
-        fields: [{ label: "Booking reference", value: "—" }],
+        fields: [{ id: "doc-2-f1", label: "Booking reference", value: "—" }],
       },
     ],
 

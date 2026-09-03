@@ -1,7 +1,7 @@
 import type { TripData } from "@/core/types";
 import { THEME_PRESETS } from "@/lib/themePresets";
 
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 /** A minimal, empty trip. Everything is added from the UI afterwards. */
 export function buildBlank(name = "New trip"): TripData {

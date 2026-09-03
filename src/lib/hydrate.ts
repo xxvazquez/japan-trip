@@ -1,8 +1,11 @@
 import { THEME_PRESETS } from "./themePresets";
-import type { ModuleConfig, ThemeTokens, TripData } from "@/core/types";
+import type { Doc, DocField, ModuleConfig, ThemeTokens, TripData } from "@/core/types";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
+
+const fieldId = () =>
+  (globalThis.crypto?.randomUUID?.() ?? `f-${Math.random().toString(36).slice(2, 10)}`);
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -61,6 +64,14 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
 
   for (const k of ENTITY_KEYS) {
     if (!Array.isArray((d as Record<string, unknown>)[k])) (d as Record<string, unknown>)[k] = [];
+  }
+
+  // every doc has a `fields` array, and every field a stable id (older rows and
+  // hand-authored seeds predate the id)
+  for (const doc of d.docs as Doc[]) {
+    doc.fields = Array.isArray(doc.fields)
+      ? doc.fields.map((f): DocField => ({ id: f.id || fieldId(), label: f.label ?? "", value: f.value ?? "" }))
+      : [];
   }
 
   return d as T;

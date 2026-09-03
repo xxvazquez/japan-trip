@@ -272,11 +272,19 @@ export interface DocFile {
   mime?: string;
 }
 
+/** One `{label, value}` row of a document. `id` is stable across reorder /
+ *  remove so inline editors keep their place. */
+export interface DocField {
+  id: ID;
+  label: string;
+  value: string;
+}
+
 export interface Doc {
   id: ID;
   title: string;
   kind: "insurance" | "flight" | "reservation" | "contact" | "other";
-  fields: { label: string; value: string }[];
+  fields: DocField[];
   files?: DocFile[];
   note?: string;
 }
