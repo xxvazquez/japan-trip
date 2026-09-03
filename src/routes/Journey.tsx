@@ -94,6 +94,8 @@ export default function Journey() {
           ]
             .filter(Boolean)
             .join("  ·  ");
+          // flights don't have platforms
+          const showPlatform = s.mode !== "flight" && (!ro || !!s.platform);
           return (
             <div key={s.id}>
               <div className="group border-t border-line py-4 first:border-t-0 first:pt-0">
@@ -111,12 +113,18 @@ export default function Journey() {
                 </p>
                 {offDay && <p className="mt-1 text-xs text-ink-soft">{offDay}</p>}
                 <p className="meta mt-2 flex flex-wrap items-center gap-x-1.5">
-                  <Editable as="select" label="Mode" value={s.mode} options={MODES.map((m) => ({ value: m, label: m }))} onCommit={(v) => setSeg(i, { mode: v as TransportMode })} />
+                  <Editable
+                    as="select"
+                    label="Mode"
+                    value={s.mode}
+                    options={MODES.map((m) => ({ value: m, label: m }))}
+                    onCommit={(v) => setSeg(i, v === "flight" ? { mode: "flight", platform: undefined } : { mode: v as TransportMode })}
+                  />
                   {meta && <span>· {meta}</span>}
                 </p>
-                {(!ro || s.platform || s.seat || s.fare) && (
+                {(!ro || showPlatform || s.seat || s.fare) && (
                   <p className="mt-1.5 flex flex-wrap gap-x-5 gap-y-0.5 text-xs text-ink-soft">
-                    {(!ro || s.platform) && <span>Platform <Editable label="Platform" value={s.platform ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { platform: v || undefined })} /></span>}
+                    {showPlatform && <span>Platform <Editable label="Platform" value={s.platform ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { platform: v || undefined })} /></span>}
                     {(!ro || s.seat) && <span>Seat <Editable label="Seat" value={s.seat ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { seat: v || undefined })} /></span>}
                     {(!ro || s.fare) && <span>Fare <Editable label="Fare" value={s.fare ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { fare: v || undefined })} /></span>}
                     {!ro && <button onClick={() => patch({ segments: j.segments.filter((_, k) => k !== i) })} className="link-quiet opacity-0 group-hover:opacity-100">remove</button>}

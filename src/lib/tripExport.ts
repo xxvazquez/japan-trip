@@ -183,7 +183,7 @@ function segmentBlock(s: Segment, next: Segment | undefined, opts: ExportOptions
   const times = fmtSpan(s, journeyDate, loc);
   const meta = [MODE_LABEL[s.mode] ?? s.mode, s.carrier, s.service].filter(Boolean).map((x) => esc(x!)).join(" · ");
   const detail = rows([
-    ["Platform", s.platform],
+    ["Platform", s.mode === "flight" ? undefined : s.platform],
     ["Seat", s.seat],
     ["Fare", s.fare],
     ["Booking ref", opts.includePrivate ? s.bookingRef : undefined],
