@@ -60,6 +60,20 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
     if (m.kind === "map" && m.icon === "places") m.icon = "map";
   }
 
+  // four of the five presets' light `gold` were too pale to clear WCAG's 3:1
+  // non-text contrast against their own bg — it's the keyboard focus ring's
+  // only colour. Remap the known old values to the darker ones now in
+  // themePresets.ts; a hand-picked custom gold (Settings → Theme → every
+  // colour) never matches these exactly, so it's left alone.
+  const GOLD_FIX: Record<string, string> = {
+    "#9a8f7a": "#8f8571", // mist
+    "#9d8a4e": "#94824a", // olive
+    "#8f8570": "#8c826e", // indigo
+    "#9c8a73": "#93826c", // rosewood
+  };
+  const goldNow = d.config.theme.light.gold?.toLowerCase();
+  if (goldNow && goldNow in GOLD_FIX) d.config.theme.light.gold = GOLD_FIX[goldNow];
+
   d.meta = {
     title: (meta.title as string) || (d.config.branding as string) || "Trip",
     start: (meta.start as string) || today(),
