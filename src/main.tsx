@@ -7,6 +7,7 @@ import { applyMode, applyPalette, useMode } from "./lib/mode";
 import { useAuth } from "./lib/auth";
 import { Loader } from "./components/Loader";
 import { SignIn } from "./routes/SignIn";
+import { Offline } from "./routes/Offline";
 import "./styles/index.css";
 
 void initApp();
@@ -25,6 +26,7 @@ function Root() {
   const auth = useAuth();
   const hydrated = useSyncExternalStore((cb) => useApp.subscribe(cb), () => useApp.getState().hydrated);
   const authRequired = useSyncExternalStore((cb) => useApp.subscribe(cb), () => useApp.getState().authRequired);
+  const bootError = useSyncExternalStore((cb) => useApp.subscribe(cb), () => useApp.getState().bootError);
 
   // re-load trips whenever the signed-in user changes
   useEffect(() => {
@@ -34,8 +36,10 @@ function Root() {
   return (
     <>
       <ThemeVars />
-      {!auth.ready || !hydrated ? (
+      {!auth.ready || (!hydrated && !bootError) ? (
         <Loader label="Opening your atlas" />
+      ) : bootError ? (
+        <Offline />
       ) : authRequired ? (
         <SignIn />
       ) : (

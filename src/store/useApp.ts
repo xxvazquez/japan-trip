@@ -23,11 +23,17 @@ type Op =
 interface AppStore {
   hydrated: boolean;
   authRequired: boolean;
+  /** signed in, but the very first trip list couldn't be fetched (offline)
+   *  and there was no mirrored outbox to fall back to — nothing to show yet */
+  bootError: boolean;
   trips: TripSummary[];
   activeId: string | null;
   data: TripData | null;
 
   init: () => Promise<void>;
+  /** re-run init after a failed cold boot — from the offline screen, or
+   *  automatically once the connection returns */
+  retryBoot: () => void;
   createTrip: (opts: { name: string; templateId?: string }) => Promise<string>;
   duplicateTrip: (id: string, name: string) => Promise<string>;
   renameTrip: (id: string, name: string) => Promise<void>;
@@ -172,6 +178,7 @@ function setupSyncListeners(get: () => AppStore) {
   window.addEventListener("online", () => {
     retryDelay = 0;
     void flush(get);
+    if (get().bootError) get().retryBoot();
   });
 }
 
@@ -350,6 +357,7 @@ export const useApp = create<AppStore>((set, get) => {
   return {
     hydrated: false,
     authRequired: false,
+    bootError: false,
     trips: [],
     activeId: null,
     data: null,
@@ -371,8 +379,13 @@ export const useApp = create<AppStore>((set, get) => {
         // offline / transient: recover from a mirrored outbox so unsynced edits
         // aren't stranded and the trip stays usable until the connection returns
         if (await recoverFromOutbox(get, listen)) return;
-        throw e;
+        // nothing pending to fall back to — a cold boot with no signal. Surface
+        // it instead of hanging on the loader forever; retryBoot tries again.
+        console.error("[boot]", e);
+        set({ hydrated: true, bootError: true });
+        return;
       }
+      set({ bootError: false });
 
       if (trips.length) {
         const id = activeId ?? trips.find((t) => !t.archived)?.id ?? trips[0].id;
@@ -406,6 +419,11 @@ export const useApp = create<AppStore>((set, get) => {
       const data = be.kind === "supabase" ? await be.loadTrip(id) : seed;
       set({ trips: [withId], activeId: id, data, hydrated: true });
       if (data) listen(id);
+    },
+
+    retryBoot: () => {
+      set({ hydrated: false, bootError: false });
+      void get().init();
     },
 
     createTrip: async ({ name, templateId }) => {

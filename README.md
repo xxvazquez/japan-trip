@@ -143,6 +143,11 @@ retried automatically once you're back on signal, as long as the tab stays open.
 When the connection returns, the app also re-pulls the trip so a travel
 companion's changes made in the meantime show up.
 
+Opening the app for the very first time on a device with no signal (before
+anything's cached) shows a plain "you're offline" screen instead of hanging on
+the loading spinner — it retries on its own once you're back on signal, or tap
+Try again.
+
 ## If something looks out of date
 
 After an update the app can briefly show an old version. Close the tab (or the
