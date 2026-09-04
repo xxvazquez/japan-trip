@@ -15,6 +15,10 @@ export interface ThemePreset {
  * `gold` doubles as the app's only keyboard focus-ring colour (`:focus-visible`
  * in index.css), so every light `gold` needs to clear WCAG's 3:1 non-text
  * contrast ratio against that same theme's light `bg` — check before tuning it.
+ *
+ * Mist is the app-wide fallback (`fixTheme` in hydrate.ts backfills any
+ * missing token from it, for every preset) and is also index.css's `:root` /
+ * `html.dark` block, byte for byte — keep the two in sync if you touch it.
  */
 export const THEME_PRESETS: ThemePreset[] = [
   {
@@ -24,7 +28,7 @@ export const THEME_PRESETS: ThemePreset[] = [
     tokens: {
       light: {
         bg: "#f2f4f6", surface: "#f9fafb", "surface-2": "#e8ebef",
-        ink: "#1e252b", "ink-soft": "#4c565d", "ink-faint": "#8b949c", line: "#dbe0e5",
+        ink: "#1a2026", "ink-soft": "#3d474f", "ink-faint": "#747e86", line: "#d2d8de",
         accent: "#5f7f9c", gold: "#8f8571", matcha: "#7b8a7e", ai: "#3f5567",
       },
       dark: {
