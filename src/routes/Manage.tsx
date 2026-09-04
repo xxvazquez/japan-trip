@@ -535,10 +535,21 @@ function Appearance() {
                 onClick={() => mutate((d) => { d.config.theme = structuredClone(p.tokens); d.config.themePreset = p.id; })}
                 className={`rounded-[3px] border p-3 text-left transition-colors ${on ? "border-accent ring-1 ring-accent" : "border-line hover:bg-surface-2"}`}
               >
-                <div className="mb-2 flex gap-1">
-                  {["bg", "ink", "accent", "ai"].map((tok) => (
-                    <span key={tok} className="h-4 w-4 rounded-full border border-line" style={{ background: p.tokens.light[tok] }} />
-                  ))}
+                <div
+                  className="mb-2 overflow-hidden rounded-[3px] border p-2"
+                  style={{ borderColor: p.tokens.light.line, background: p.tokens.light.bg }}
+                >
+                  <div className="rounded-[2px] px-2 py-1.5" style={{ background: p.tokens.light.surface }}>
+                    <p className="truncate font-display text-[11px] leading-tight" style={{ color: p.tokens.light.ink }}>
+                      Hotel by the river
+                    </p>
+                    <p className="mt-0.5 truncate text-[9px]" style={{ color: p.tokens.light["ink-soft"] }}>
+                      12 Example Street
+                    </p>
+                    <p className="mt-1 truncate text-[9px] underline" style={{ color: p.tokens.light.accent }}>
+                      Directions in Google Maps
+                    </p>
+                  </div>
                 </div>
                 <p className="text-sm font-medium">{p.name}</p>
                 <p className="text-xs text-ink-faint">{p.hint}</p>
