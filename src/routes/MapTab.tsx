@@ -512,7 +512,7 @@ export default function MapTab() {
                   className={`inline-flex items-center gap-1.5 text-xs transition-opacity ${on ? "" : "opacity-35"}`}
                 >
                   <CatMark color={col} glyph={data.config.categoryIcons?.[name]} on={on} />
-                  {name}
+                  <span className="capitalize">{name}</span>
                 </button>
               );
             })}
