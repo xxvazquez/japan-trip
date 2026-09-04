@@ -74,6 +74,23 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
   const goldNow = d.config.theme.light.gold?.toLowerCase();
   if (goldNow && goldNow in GOLD_FIX) d.config.theme.light.gold = GOLD_FIX[goldNow];
 
+  // Mist's light ink / ink-soft / ink-faint / line had drifted from the values
+  // in index.css they're supposed to mirror exactly — ink-faint measured
+  // 2.80:1 against its own bg, under WCAG's 3:1 non-text minimum. Remap the
+  // known old values to the current ones; a hand-picked custom colour never
+  // matches these exactly, so it's left alone.
+  const INK_FIX: Record<"ink" | "ink-soft" | "ink-faint" | "line", Record<string, string>> = {
+    ink: { "#1e252b": "#1a2026" },
+    "ink-soft": { "#4c565d": "#3d474f" },
+    "ink-faint": { "#8b949c": "#747e86" },
+    line: { "#dbe0e5": "#d2d8de" },
+  };
+  for (const key of ["ink", "ink-soft", "ink-faint", "line"] as const) {
+    const now = d.config.theme.light[key]?.toLowerCase();
+    const fix = now && INK_FIX[key][now];
+    if (fix) d.config.theme.light[key] = fix;
+  }
+
   d.meta = {
     title: (meta.title as string) || (d.config.branding as string) || "Trip",
     start: (meta.start as string) || today(),
