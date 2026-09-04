@@ -334,6 +334,15 @@ function Emergency() {
             <Icon name="plus" size={13} /> Add field
           </button>
         )}
+        {(contact.note?.trim() || !ro) && (
+          <div className="mt-2 text-sm text-ink-soft">
+            <RichNote
+              value={contact.note ?? ""}
+              onCommit={(v) => updateEntity<Doc>("docs", contact.id, { note: v || undefined })}
+              placeholder="＋ a note"
+            />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -374,6 +383,15 @@ function Documents() {
               </button>
             )}
           </div>
+          {(d.note?.trim() || !ro) && (
+            <div className="mt-2 text-sm text-ink-soft">
+              <RichNote
+                value={d.note ?? ""}
+                onCommit={(v) => updateEntity<Doc>("docs", d.id, { note: v || undefined })}
+                placeholder="＋ a note"
+              />
+            </div>
+          )}
           <Attachments
             doc={d}
             cloud={cloud}
