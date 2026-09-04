@@ -131,6 +131,9 @@ adding or removing days, changing trip dates, theme, sharing.
 Once the app has loaded on the plane / hotel wifi, it keeps working with no
 signal — on the flight, on the metro, inside temples. The one thing that needs
 data is the **map background** itself; your pins and the whole plan work offline.
+Map areas you've already looked at are cached, so they still draw with no
+signal; open a fresh area offline and the map says so and offers a retry
+(which fires automatically the moment you're back online).
 
 Edits you make while offline (or during a dropped connection) are held and
 retried automatically once you're back on signal, as long as the tab stays open.

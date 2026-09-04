@@ -13,6 +13,7 @@ import { Protocol } from "pmtiles";
 import type { FeatureCollection, Point, Polygon } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { buildMapStyle } from "@/lib/mapStyle";
+import { Icon } from "@/components/Icon";
 import { transitLayers, TRANSIT_CONTROLS } from "@/lib/transitLayers";
 import { buildMarkerImage, markerKey } from "@/lib/mapGlyphs";
 import type { Place } from "@/core/types";
@@ -115,7 +116,11 @@ export function MapView({
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<MLMap | null>(null);
   const ready = useRef(false);
-  const [painted, setPainted] = useState(false);
+  const tileErrs = useRef(0);
+  const tilesOk = useRef(0);
+  const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
+  const [retryKey, setRetryKey] = useState(0);
+  const [online, setOnline] = useState(() => (typeof navigator === "undefined" ? true : navigator.onLine));
   const state = useRef({ places, selectedId, derivedIds, areaShapes, transit, categoryIcons, dark, onSelect, onMapClick, onLongPress, onReady });
   state.current = { places, selectedId, derivedIds, areaShapes, transit, categoryIcons, dark, onSelect, onMapClick, onLongPress, onReady };
 
@@ -236,7 +241,23 @@ export function MapView({
     });
     m.addControl(new NavigationControl({ showCompass: false }), "top-right");
     m.addControl(new AttributionControl({ compact: true }), "bottom-right");
-    m.on("error", (e) => console.error("[MapView]", (e as { error?: Error }).error?.message || e));
+    tileErrs.current = 0;
+    tilesOk.current = 0;
+    m.on("sourcedata", (e) => {
+      // count only tiles that actually returned renderable data, so a fully
+      // failed basemap keeps tilesOk at 0
+      if (e.sourceId === "protomaps" && (e as { tile?: { state?: string } }).tile?.state === "loaded")
+        tilesOk.current += 1;
+    });
+    m.on("error", (e) => {
+      console.error("[MapView]", (e as { error?: Error }).error?.message || e);
+      tileErrs.current += 1;
+      // Fail fast once errors pile up with nothing on screen — the offline,
+      // un-cached-area case. A stray edge-of-extract 404 while other tiles
+      // load fine won't trip this (tilesOk stays > 0).
+      if (tileErrs.current >= 4 && tilesOk.current === 0)
+        setStatus((s) => (s === "loading" ? "error" : s));
+    });
 
     m.on("load", () => {
       addLayers(m);
@@ -281,12 +302,16 @@ export function MapView({
       state.current.onReady?.(m);
     });
 
-    m.once("idle", () => setPainted(true));
-    const paintFallback = setTimeout(() => setPainted(true), 20000);
+    // Map settled: show it if any tile made it, otherwise it's broken.
+    const settle = () => setStatus((s) => (s === "loading" ? (tilesOk.current > 0 ? "ok" : "error") : s));
+    m.once("idle", settle);
+    // last resort — the Source Cooperative planet archive can be 20–30s to
+    // first paint, so wait a while before forcing the decision.
+    const paintFallback = setTimeout(settle, 25000);
 
     map.current = m;
     return () => { clearTimeout(paintFallback); m.remove(); map.current = null; ready.current = false; };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [retryKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* data — a dark-mode flip is handled by the theme effect (it rebuilds every
      layer and marker image), so it's deliberately not a dep here */
@@ -328,12 +353,49 @@ export function MapView({
     m.once("styledata", () => { if (!m.getSource("places")) addLayers(m); });
   }, [dark]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const retry = () => {
+    setStatus("loading");
+    tileErrs.current = 0;
+    tilesOk.current = 0;
+    setRetryKey((k) => k + 1);
+  };
+
+  /* connectivity — drives the failed-state copy, and auto-retries the moment
+     the connection comes back */
+  useEffect(() => {
+    const sync = () => setOnline(navigator.onLine);
+    window.addEventListener("online", sync);
+    window.addEventListener("offline", sync);
+    return () => {
+      window.removeEventListener("online", sync);
+      window.removeEventListener("offline", sync);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (online && status === "error") retry();
+  }, [online]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <div className="relative h-full w-full">
       <div ref={el} className="h-full w-full" />
-      {!painted && (
+      {status === "loading" && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center bg-bg">
           <p className="meta animate-pulse">Loading the map…</p>
+        </div>
+      )}
+      {status === "error" && (
+        <div className="absolute inset-0 grid place-items-center bg-bg px-6">
+          <div className="max-w-xs text-center">
+            <Icon name="map" size={30} className="mx-auto text-ink-faint" />
+            <h2 className="mt-3 font-display text-lg">{online ? "Map didn't load" : "You're offline"}</h2>
+            <p className="mt-1 text-sm text-ink-soft">
+              {online
+                ? "Couldn't reach the map tiles. Your pins and the plan still work."
+                : "Areas you've already opened stay on the device. This one isn't downloaded yet."}
+            </p>
+            <button onClick={retry} className="btn mt-4">Try again</button>
+          </div>
         </div>
       )}
     </div>
