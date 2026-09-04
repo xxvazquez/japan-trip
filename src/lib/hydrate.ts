@@ -53,9 +53,9 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
         : DEFAULT_MODULES,
   } as TripData["config"];
 
-  // the Map tab shipped with the house glyph ("places") by default — never a
-  // deliberate choice, and there's no UI to change it — so move it to the map
-  // glyph on load
+  // early trips stored the Map tab's icon as "places" (a house glyph, since
+  // removed) — never a deliberate choice and there's no UI to change it, so
+  // pin it to the map glyph on load
   for (const m of d.config.modules) {
     if (m.kind === "map" && m.icon === "places") m.icon = "map";
   }

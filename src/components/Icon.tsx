@@ -3,9 +3,7 @@
  * leans on typography and photography, not iconography.
  */
 export type IconName =
-  | "today"
   | "itinerary"
-  | "places"
   | "explore"
   | "vault"
   | "search"
@@ -21,10 +19,8 @@ export type IconName =
   | "plus"
   | "chevron"
   | "settings"
-  | "archive"
   | "trash"
   | "copy"
-  | "swap"
   | "eye"
   | "eye-off"
   | "up"
@@ -36,29 +32,17 @@ export type IconName =
   | "car"
   | "walk"
   | "clock"
-  | "coins"
-  | "alert"
-  | "elevator"
-  | "slope"
   | "list"
   | "link"
-  | "download"
-  | "dot";
+  | "download";
 
 const P: Record<IconName, JSX.Element> = {
-  today: <circle cx="12" cy="12" r="6.5" />,
   itinerary: (
     <>
       <path d="M6 4v16" />
       <circle cx="6" cy="8" r="1.6" />
       <circle cx="6" cy="16" r="1.6" />
       <path d="M11 8h7M11 16h7" />
-    </>
-  ),
-  places: (
-    <>
-      <path d="M4 10 12 4l8 6" />
-      <path d="M6 10v10h12V10" />
     </>
   ),
   explore: (
@@ -130,12 +114,6 @@ const P: Record<IconName, JSX.Element> = {
       <circle cx="12" cy="12" r="3" />
     </>
   ),
-  archive: (
-    <>
-      <rect x="4" y="4" width="16" height="4" rx="1" />
-      <path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4" />
-    </>
-  ),
   trash: <path d="M5 7h14M10 7V5h4v2M6 7l1 13h10l1-13M10 11v6M14 11v6" />,
   copy: (
     <>
@@ -143,7 +121,6 @@ const P: Record<IconName, JSX.Element> = {
       <path d="M6 15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1" />
     </>
   ),
-  swap: <path d="M7 4l-3 3 3 3M4 7h13M17 20l3-3-3-3M20 17H7" />,
   eye: (
     <>
       <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z" />
@@ -184,21 +161,6 @@ const P: Record<IconName, JSX.Element> = {
       <path d="M12 7v5l3.5 2" />
     </>
   ),
-  coins: (
-    <>
-      <ellipse cx="9" cy="7" rx="5" ry="2.5" />
-      <path d="M4 7v4c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V7" />
-      <path d="M10 14.5c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5v-4c0-1.4-2.2-2.5-5-2.5" />
-    </>
-  ),
-  alert: <path d="M12 3.5 22 20H2L12 3.5ZM12 10v4M12 17h.01" />,
-  elevator: (
-    <>
-      <rect x="5" y="3" width="14" height="18" rx="2" />
-      <path d="M9 9l1.5-2 1.5 2M13 15l1.5 2 1.5-2M12 3v18" />
-    </>
-  ),
-  slope: <path d="M4 18 20 6M4 18h4M4 18v-4" />,
   list: (
     <>
       <path d="M9 6h11M9 12h11M9 18h11" />
@@ -213,7 +175,6 @@ const P: Record<IconName, JSX.Element> = {
       <path d="M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1.5-1.5" />
     </>
   ),
-  dot: <circle cx="12" cy="12" r="3.5" fill="currentColor" stroke="none" />,
   download: (
     <>
       <path d="M12 4v11M8 11l4 4 4-4" />
