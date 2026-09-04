@@ -17,7 +17,7 @@ export function Empty({
   cta?: string;
 }) {
   return (
-    <div className="border-y border-line py-9 text-center">
+    <div className="py-9 text-center">
       <p className="lead">{what}</p>
       {hint && <p className="meta mx-auto mt-1 max-w-xs">{hint}</p>}
       <Link to={to} className="btn-primary mt-4">{cta}</Link>
