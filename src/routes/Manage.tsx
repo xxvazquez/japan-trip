@@ -68,6 +68,11 @@ function Trips() {
     nav("/");
   };
 
+  // no registered templates beyond the always-blank default → skip the
+  // "Start from" picker (a single-option menu isn't a choice) and create
+  // straight away; rename inline once you land on the trip
+  const newTrip = () => (TEMPLATES.length === 0 ? make() : setCreating(true));
+
   const live = trips.filter((t) => !t.archived);
   const archived = trips.filter((t) => t.archived);
   const hasDemo = trips.some((t) => t.templateId === "demo");
@@ -94,7 +99,7 @@ function Trips() {
       )}
       {!creating ? (
         <div className="mb-3 mt-6 flex flex-wrap items-center gap-4">
-          <button onClick={() => setCreating(true)} className="btn-primary">
+          <button onClick={newTrip} disabled={busy} className="btn-primary">
             <Icon name="plus" size={16} /> New trip
           </button>
           {!hasDemo && (
