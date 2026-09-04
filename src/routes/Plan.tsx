@@ -42,12 +42,26 @@ export default function Plan() {
   const c = tripClock(data);
   const loc = data.config.locale;
   const currentLeg = data.legs.find((l) => l.id === c.currentLegId) ?? legForDate(data, c.todayISO);
+  // a fresh trip is created with start === end (today); the phase copy
+  // ("Day 1 of 1", "Home — the trip's all here") makes no sense until real
+  // dates are set
+  const noDates = !!data.meta.start && data.meta.start === data.meta.end;
 
   return (
     <Page>
       {/* NOW — the one thing to know on opening */}
       <header className="mb-9">
-        {c.phase === "before" && (
+        {noDates && (
+          <>
+            <p className="lead">No travel dates yet</p>
+            <p className="meta mt-2">
+              Set the start and end in{" "}
+              <Link to="/manage?tab=setup" className="text-accent hover:opacity-70">Setup</Link>
+              {" "}— then the countdown and the day-by-day fill in.
+            </p>
+          </>
+        )}
+        {!noDates && c.phase === "before" && (
           <>
             <p className="flex items-baseline gap-2">
               <span className="font-display text-[2.75rem] leading-none">{c.daysUntilStart}</span>
@@ -56,7 +70,7 @@ export default function Plan() {
             <p className="meta mt-2">Leaving {fmtDate(data.meta.start, loc, { weekday: "long", day: "numeric", month: "long" })}</p>
           </>
         )}
-        {c.phase === "during" && (
+        {!noDates && c.phase === "during" && (
           <>
             <p className="flex items-baseline gap-2">
               <span className="font-display text-[2.75rem] leading-none">Day {c.dayNumber}</span>
@@ -70,7 +84,7 @@ export default function Plan() {
             </p>
           </>
         )}
-        {c.phase === "after" && <p className="lead">Home — the trip’s all here.</p>}
+        {!noDates && c.phase === "after" && <p className="lead">Home — the trip’s all here.</p>}
       </header>
 
       {data.legs.length === 0 ? (
