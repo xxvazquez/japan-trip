@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
-import { BackBar } from "@/components/BackBar";
+import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
@@ -25,12 +25,7 @@ export default function Hotel() {
   const L = lookups(data);
   const hotel = L.hotel(id);
   if (!hotel)
-    return (
-      <Page>
-        <BackBar to="/logbook" />
-        <p className="lead">No stay here.</p>
-      </Page>
-    );
+    return <Missing title="No stay here" body="That stay isn't part of this trip." to="/logbook" cta="Back to Logbook" />;
   const p = (patch: Partial<HotelT>) => updateEntity<HotelT>("hotels", hotel.id, patch);
   const leg = data.legs.find((l) => l.hotelId === hotel.id);
   const map = gmapsLink(hotel.mapUrl || hotel.address);
