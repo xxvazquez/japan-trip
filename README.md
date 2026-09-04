@@ -19,7 +19,7 @@ luggage, the documents. It lives at:
    Google account.
 2. New accounts start with just the read-only **Demo** trip. Make your real one
    from **Manage → New trip → Empty template**.
-3. One account owns that trip. From it, go to **Manage → share** and add the
+3. One account owns that trip. From it, go to **Manage → Sharing** and add the
    other person's email — then you both see and edit the **same trip**, and
    changes show up on the other device within a second or two.
 
@@ -91,13 +91,13 @@ actual PDFs / photos (passport scans, insurance, tickets) — those stay only on
 the device they were added on. In **packing** you build the checklist right
 there — add a category, add items under it, tick them off as you go.
 
-In **Manage → Content** you can hide the Logbook sections you don't need, and
+In **Manage → Setup** you can hide the Logbook sections you don't need, and
 **add your own** — a title plus a list of things (name, note, link). Handy for
 "Restaurants to try", "Gifts to bring back", and so on.
 
 ## Sharing a copy
 
-**Manage → Trips → Share → Download web page** builds the whole trip as one
+**Manage → Sharing → Download web page** builds the whole trip as one
 self-contained `.html` file — itinerary, journeys, stays and the place list, all
 styled, no internet needed. Open it in any browser, or print it (print-to-PDF for
 a PDF). Send it to whoever you're travelling with.
@@ -313,7 +313,7 @@ a 130 GB file on a bucket with no edge cache. The Map screen shows a
 
 `logo.png` / `logo-wordmark.png` at the repo root are the source. Regenerate
 icons with `python3 scripts/make_icons.py`. Per-trip logos and covers are
-uploaded in the app (*Manage → Media*).
+uploaded in the app (*Manage → Appearance*).
 
 ---
 

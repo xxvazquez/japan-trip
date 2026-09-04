@@ -20,8 +20,8 @@ import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
 import { useEffect } from "react";
 import type { Area, EntityType } from "@/core/types";
 
-type TabId = "trips" | "settings" | "modules" | "media" | "content";
-const TABS: TabId[] = ["trips", "settings", "modules", "media", "content"];
+type TabId = "trips" | "setup" | "content" | "appearance" | "sharing";
+const TABS: TabId[] = ["trips", "setup", "content", "appearance", "sharing"];
 
 export default function Manage() {
   const [params] = useSearchParams();
@@ -32,7 +32,7 @@ export default function Manage() {
       <PageHeader
         eyebrow={APP_NAME}
         title="Manage"
-        meta="Structure only. Edit the details themselves inline on each page."
+        meta="Your trips and this trip's setup. The details themselves you edit inline on each page."
         className="mb-5"
       />
       <div className="mb-2 flex gap-5 overflow-x-auto border-b border-line">
@@ -41,10 +41,10 @@ export default function Manage() {
         ))}
       </div>
       {tab === "trips" && <Trips />}
-      {tab === "settings" && <Settings />}
-      {tab === "modules" && <Modules />}
-      {tab === "media" && <Media />}
+      {tab === "setup" && <Setup />}
       {tab === "content" && <Content />}
+      {tab === "appearance" && <Appearance />}
+      {tab === "sharing" && <SharingTab />}
     </Page>
   );
 }
@@ -90,10 +90,6 @@ function Trips() {
           <button onClick={() => signOut()} className="link-quiet shrink-0 text-sm">Sign out</button>
         </div>
       )}
-      {supabaseEnabled && auth.user && activeId && <Sharing tripId={activeId} me={auth.user.id} />}
-
-      <ExportTrip />
-
       {!creating ? (
         <div className="mb-3 mt-6 flex flex-wrap items-center gap-4">
           <button onClick={() => setCreating(true)} className="btn-primary">
@@ -196,7 +192,7 @@ function ExportTrip() {
   };
 
   return (
-    <Section title="Share" className="mt-4">
+    <Section title="Export">
       <p className="text-sm text-ink-soft">
         A single web-page file of the whole trip — itinerary, journeys, stays and places.
         Opens in any browser, prints cleanly, works offline. The recipient can print it to PDF.
@@ -266,7 +262,7 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
   };
 
   return (
-    <Section title="Shared with" className="mt-4">
+    <Section title="Shared with">
       <ul className="mb-3 space-y-1.5 text-sm">
         {members.map((m) => (
           <li key={m.userId} className="flex items-center justify-between gap-2">
@@ -342,13 +338,13 @@ function TzSelect({ value, onChange }: { value: string; onChange: (v: string) =>
   );
 }
 
-function Settings() {
+function Setup() {
   const data = useData();
   const mutate = useApp((s) => s.mutateTrip);
+  const shiftDates = useApp((s) => s.shiftDates);
   if (!data) return null;
   if (data.config.demo) return <DemoNotice />;
   const { config, meta } = data;
-  const [advanced, setAdvanced] = useState(false);
 
   const EditRow = ({ label, value, onCommit, placeholder }: { label: string; value: string; onCommit: (v: string) => void; placeholder?: string }) => (
     <Row label={label}>
@@ -356,7 +352,6 @@ function Settings() {
     </Row>
   );
 
-  const shiftDates = useApp((s) => s.shiftDates);
   // moving either end slides the whole itinerary — the length is set by the days
   const moveTrip = (from: string, to: string) => {
     const delta = daysBetween(from, to);
@@ -396,22 +391,127 @@ function Settings() {
         </Row>
       </Section>
 
-      {driveEnabled && (
-        <Section title="Document files">
-          <Row label="Share attachments with">
-            <Editable
-              label="Emails to share document attachments with"
-              value={(config.driveShareEmails ?? []).join(", ")}
-              placeholder="you@…, partner@…"
-              onCommit={(v) => mutate((d) => { d.config.driveShareEmails = v.split(",").map((x) => x.trim()).filter(Boolean); })}
-            />
-          </Row>
-          <p className="mt-2 text-xs text-ink-faint">
-            Attachments upload to the adder's Google Drive; these accounts are given read access. List both travellers.
-          </p>
-        </Section>
-      )}
+      <ModulesPanel />
+      <LogbookSectionsPanel />
+    </div>
+  );
+}
 
+/* what shows up in the app for this trip: the main tabs, the optional Logbook
+ * sections, and any custom lists */
+
+function ModulesPanel() {
+  const data = useData();
+  const mutate = useApp((s) => s.mutateTrip);
+  if (!data) return null;
+  const modules = data.config.modules;
+
+  return (
+    <Section title="Tabs">
+      <p className="-mt-1 mb-2 text-xs text-ink-faint">Reorder, rename, or turn the main tabs off for this trip.</p>
+      <ul>
+        {modules.map((m, i) => (
+          <li key={m.id} className="flex items-center gap-3 border-b border-line py-2.5 last:border-b-0">
+            <div className="flex flex-col">
+              <button disabled={i === 0} onClick={() => mutate((d) => { const a = d.config.modules; [a[i - 1], a[i]] = [a[i], a[i - 1]]; })} className="text-ink-faint disabled:opacity-30" aria-label="Move up">
+                <Icon name="up" size={16} />
+              </button>
+              <button disabled={i === modules.length - 1} onClick={() => mutate((d) => { const a = d.config.modules; [a[i + 1], a[i]] = [a[i], a[i + 1]]; })} className="text-ink-faint disabled:opacity-30" aria-label="Move down">
+                <Icon name="down" size={16} />
+              </button>
+            </div>
+            <span className="flex-1">
+              <span className="lead"><Editable label="Section label" value={m.label} onCommit={(v) => mutate((d) => { d.config.modules[i].label = v || m.label; })} /></span>
+              <span className="ml-2 text-xs text-ink-soft">{m.kind}</span>
+            </span>
+            <button
+              onClick={() => mutate((d) => { d.config.modules[i].enabled = !d.config.modules[i].enabled; })}
+              className="text-ink-faint hover:text-ink-soft"
+              aria-label={m.enabled ? "Disable" : "Enable"}
+            >
+              <Icon name={m.enabled ? "eye" : "eye-off"} size={18} />
+            </button>
+          </li>
+        ))}
+      </ul>
+    </Section>
+  );
+}
+
+function LogbookSectionsPanel() {
+  const data = useData();
+  const mutate = useApp((s) => s.mutateTrip);
+  if (!data) return null;
+  const hidden = data.config.hiddenLogbook ?? [];
+  const lists = data.config.lists ?? [];
+  const rid = () => Math.random().toString(36).slice(2, 9);
+  const toggleSection = (s: string) =>
+    mutate((d) => {
+      const set = new Set(d.config.hiddenLogbook ?? []);
+      set.has(s) ? set.delete(s) : set.add(s);
+      d.config.hiddenLogbook = [...set];
+    });
+
+  return (
+    <Section title="Logbook sections">
+      <ul>
+        {OPTIONAL_LOGBOOK.map((s) => (
+          <li key={s} className="flex items-center justify-between border-b border-line py-2.5 text-sm capitalize">
+            <span className={hidden.includes(s) ? "text-ink-faint" : ""}>{s}</span>
+            <button onClick={() => toggleSection(s)} className="text-ink-soft hover:text-ink" aria-label={hidden.includes(s) ? "Show" : "Hide"}>
+              <Icon name={hidden.includes(s) ? "eye-off" : "eye"} size={17} />
+            </button>
+          </li>
+        ))}
+        {lists.map((l, i) => (
+          <li key={l.id} className="flex items-center gap-2 border-b border-line py-2.5 text-sm">
+            <span className="min-w-0 flex-1">
+              <Editable label="List name" value={l.title} onCommit={(v) => mutate((d) => { const x = d.config.lists?.[i]; if (x) x.title = v || "List"; })} />
+            </span>
+            <span className="shrink-0 text-xs text-ink-soft">{l.items.length}</span>
+            <ConfirmButton onConfirm={() => mutate((d) => { d.config.lists = (d.config.lists ?? []).filter((x) => x.id !== l.id); })} className="text-ink-faint hover:text-accent">
+              <Icon name="trash" size={14} />
+            </ConfirmButton>
+          </li>
+        ))}
+      </ul>
+      <button
+        onClick={() => mutate((d) => { (d.config.lists ??= []).push({ id: `list-${rid()}`, title: "New list", items: [] }); })}
+        className="action mt-3"
+      >
+        <Icon name="plus" size={14} /> Add list
+      </button>
+    </Section>
+  );
+}
+
+const hexOnly = (c: string) => (/^#[0-9a-f]{6}$/i.test(c) ? c : "#888888");
+
+/* ----------------------------------------------------------- Appearance */
+
+function Appearance() {
+  const data = useData();
+  const mutate = useApp((s) => s.mutateTrip);
+  const { setMedia, addGalleryMedia, removeGalleryMedia } = useApp();
+  const [advanced, setAdvanced] = useState(false);
+  const [busy, setBusy] = useState(false);
+  if (!data) return null;
+  if (data.config.demo) return <DemoNotice />;
+  const { config, media } = data;
+
+  const upload = async (fn: (item: Awaited<ReturnType<typeof fileToMediaItem>>) => void) => {
+    const file = await pickImage();
+    if (!file) return;
+    setBusy(true);
+    try {
+      fn(await fileToMediaItem(file));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3.5">
       <Section title="Theme">
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {THEME_PRESETS.map((p) => {
@@ -468,76 +568,7 @@ function Settings() {
             </div>
           ))}
       </Section>
-    </div>
-  );
-}
 
-const hexOnly = (c: string) => (/^#[0-9a-f]{6}$/i.test(c) ? c : "#888888");
-
-/* -------------------------------------------------------------- Modules */
-
-function Modules() {
-  const data = useData();
-  const mutate = useApp((s) => s.mutateTrip);
-  if (!data) return null;
-  if (data.config.demo) return <DemoNotice />;
-  const modules = data.config.modules;
-
-  return (
-    <div>
-      <p className="mb-3 text-sm text-ink-soft">Reorder, rename, or turn sections off for this trip.</p>
-      <ul>
-        {modules.map((m, i) => (
-          <li key={m.id} className="flex items-center gap-3 border-b border-line py-2.5">
-            <div className="flex flex-col">
-              <button disabled={i === 0} onClick={() => mutate((d) => { const a = d.config.modules; [a[i - 1], a[i]] = [a[i], a[i - 1]]; })} className="text-ink-faint disabled:opacity-30" aria-label="Move up">
-                <Icon name="up" size={16} />
-              </button>
-              <button disabled={i === modules.length - 1} onClick={() => mutate((d) => { const a = d.config.modules; [a[i + 1], a[i]] = [a[i], a[i + 1]]; })} className="text-ink-faint disabled:opacity-30" aria-label="Move down">
-                <Icon name="down" size={16} />
-              </button>
-            </div>
-            <span className="flex-1">
-              <span className="lead"><Editable label="Section label" value={m.label} onCommit={(v) => mutate((d) => { d.config.modules[i].label = v || m.label; })} /></span>
-              <span className="ml-2 text-xs text-ink-soft">{m.kind}</span>
-            </span>
-            <button
-              onClick={() => mutate((d) => { d.config.modules[i].enabled = !d.config.modules[i].enabled; })}
-              className="text-ink-faint hover:text-ink-soft"
-              aria-label={m.enabled ? "Disable" : "Enable"}
-            >
-              <Icon name={m.enabled ? "eye" : "eye-off"} size={18} />
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-/* ---------------------------------------------------------------- Media */
-
-function Media() {
-  const data = useData();
-  const { setMedia, addGalleryMedia, removeGalleryMedia } = useApp();
-  const [busy, setBusy] = useState(false);
-  if (!data) return null;
-  if (data.config.demo) return <DemoNotice />;
-  const { media } = data;
-
-  const upload = async (fn: (item: Awaited<ReturnType<typeof fileToMediaItem>>) => void) => {
-    const file = await pickImage();
-    if (!file) return;
-    setBusy(true);
-    try {
-      fn(await fileToMediaItem(file));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return (
-    <div className="space-y-3.5">
       <Section title="Logo">
         <div className="flex items-center gap-4">
           <span className="grid h-16 w-16 place-items-center overflow-hidden rounded-[3px] border border-line bg-surface-2">
@@ -596,6 +627,43 @@ function Media() {
   );
 }
 
+/* ------------------------------------------------------------- Sharing */
+
+function SharingTab() {
+  const data = useData();
+  const mutate = useApp((s) => s.mutateTrip);
+  const auth = useAuth();
+  const activeId = useApp((s) => s.activeId);
+  if (!data) return null;
+  const isDemo = data.config.demo;
+
+  return (
+    <div className="space-y-3.5">
+      {supabaseEnabled && auth.user && activeId && !isDemo && (
+        <Sharing tripId={activeId} me={auth.user.id} />
+      )}
+
+      {driveEnabled && !isDemo && (
+        <Section title="Document files">
+          <Row label="Share attachments with">
+            <Editable
+              label="Emails to share document attachments with"
+              value={(data.config.driveShareEmails ?? []).join(", ")}
+              placeholder="you@…, partner@…"
+              onCommit={(v) => mutate((d) => { d.config.driveShareEmails = v.split(",").map((x) => x.trim()).filter(Boolean); })}
+            />
+          </Row>
+          <p className="mt-2 text-xs text-ink-faint">
+            Attachments upload to the adder's Google Drive; these accounts are given read access. List both travellers.
+          </p>
+        </Section>
+      )}
+
+      <ExportTrip />
+    </div>
+  );
+}
+
 /* -------------------------------------------------------------- Content */
 
 const ENTITY_LABELS: Record<EntityType, string> = {
@@ -629,15 +697,6 @@ function Content() {
   const [areaMembers, setAreaMembers] = useState<string | null>(null);
   if (!data) return null;
   if (data.config.demo) return <DemoNotice />;
-
-  const hidden = data.config.hiddenLogbook ?? [];
-  const lists = data.config.lists ?? [];
-  const toggleSection = (s: string) =>
-    mutate((d) => {
-      const set = new Set(d.config.hiddenLogbook ?? []);
-      set.has(s) ? set.delete(s) : set.add(s);
-      d.config.hiddenLogbook = [...set];
-    });
 
   const rid = () => Math.random().toString(36).slice(2, 9);
   const blankFor = (type: EntityType): Record<string, unknown> => {
@@ -808,36 +867,6 @@ function Content() {
       ))}
 
       <CategoryIcons />
-
-      <Section title="Logbook sections">
-        <ul>
-          {OPTIONAL_LOGBOOK.map((s) => (
-            <li key={s} className="flex items-center justify-between border-b border-line py-2.5 text-sm capitalize">
-              <span className={hidden.includes(s) ? "text-ink-faint" : ""}>{s}</span>
-              <button onClick={() => toggleSection(s)} className="text-ink-soft hover:text-ink" aria-label={hidden.includes(s) ? "Show" : "Hide"}>
-                <Icon name={hidden.includes(s) ? "eye-off" : "eye"} size={17} />
-              </button>
-            </li>
-          ))}
-          {lists.map((l, i) => (
-            <li key={l.id} className="flex items-center gap-2 border-b border-line py-2.5 text-sm">
-              <span className="min-w-0 flex-1">
-                <Editable label="List name" value={l.title} onCommit={(v) => mutate((d) => { const x = d.config.lists?.[i]; if (x) x.title = v || "List"; })} />
-              </span>
-              <span className="shrink-0 text-xs text-ink-soft">{l.items.length}</span>
-              <ConfirmButton onConfirm={() => mutate((d) => { d.config.lists = (d.config.lists ?? []).filter((x) => x.id !== l.id); })} className="text-ink-faint hover:text-accent">
-                <Icon name="trash" size={14} />
-              </ConfirmButton>
-            </li>
-          ))}
-        </ul>
-        <button
-          onClick={() => mutate((d) => { (d.config.lists ??= []).push({ id: `list-${rid()}`, title: "New list", items: [] }); })}
-          className="action mt-3"
-        >
-          <Icon name="plus" size={14} /> Add list
-        </button>
-      </Section>
     </div>
   );
 }
