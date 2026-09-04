@@ -5,6 +5,7 @@ import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
+import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
@@ -140,7 +141,7 @@ export default function Journey() {
                     {(!ro || s.seat) && <span>Seat <Editable label="Seat" value={s.seat ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { seat: v || undefined })} /></span>}
                     {(!ro || s.bookingRef) && <span>Booking ref <Editable label="Booking reference" value={s.bookingRef ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { bookingRef: v || undefined })} /></span>}
                     {(!ro || s.fare) && <span>Fare <Editable label="Fare" value={s.fare ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { fare: v || undefined })} /></span>}
-                    {!ro && <button onClick={() => patch({ segments: j.segments.filter((_, k) => k !== i) })} className="link-quiet opacity-0 group-hover:opacity-100">remove</button>}
+                    {!ro && <RowDeleteButton onClick={() => patch({ segments: j.segments.filter((_, k) => k !== i) })} label="Remove hop" />}
                   </p>
                 )}
               </div>
