@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { MapView, type MLMap } from "@/components/MapView";
 import { Editable } from "@/components/Editable";
 import { Icon } from "@/components/Icon";
@@ -121,6 +121,24 @@ export default function MapTab() {
   useEffect(() => {
     if (data && scope === null) setScope(defaultScope(data));
   }, [data, scope]);
+
+  // arrived from search with ?sel=<placeId>: widen to all places so the pin is
+  // on the map, select it, then drop the param
+  const [params, setParams] = useSearchParams();
+  const selHandled = useRef(false);
+  useEffect(() => {
+    if (selHandled.current || !data) return;
+    const sel = params.get("sel");
+    if (!sel) return;
+    selHandled.current = true;
+    if (data.places.some((p) => p.id === sel)) {
+      setScope("all");
+      setCatFilter(new Set());
+      setAreaFilter(new Set());
+      setSelected(sel);
+    }
+    setParams((p) => { p.delete("sel"); return p; }, { replace: true });
+  }, [data, params, setParams]);
 
   // debounced place search (Nominatim)
   useEffect(() => {
