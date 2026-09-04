@@ -4,6 +4,8 @@
  *  separator only keeps a multi-hop label ("A → B → C") lossless when the
  *  "to" side is left untouched. */
 
+import type { Journey, Segment } from "@/core/types";
+
 const SEPARATOR = /\s*(?:→|➜|➔|⟶|->|—|–)\s*|\s+-\s+/;
 
 export function splitRoute(label: string): { from: string; to: string } {
@@ -19,4 +21,12 @@ export function joinRoute(from: string, to: string): string {
   const f = from.trim();
   const t = to.trim();
   return f && t ? `${f} → ${t}` : f || t;
+}
+
+/** Every flight hop across the trip, each with the journey it belongs to — the
+ *  Flights document shows these instead of asking for them a second time. */
+export function flightSegments(journeys: Journey[]): { seg: Segment; journey: Journey }[] {
+  return journeys.flatMap((j) =>
+    j.segments.filter((s) => s.mode === "flight").map((seg) => ({ seg, journey: j })),
+  );
 }

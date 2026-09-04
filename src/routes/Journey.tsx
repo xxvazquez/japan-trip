@@ -94,7 +94,9 @@ export default function Journey() {
           // date and get merged onto the journey day). Wrap into the next day.
           const overnight = rawGap != null && rawGap < 0;
           const gap = rawGap == null ? null : overnight ? rawGap + 1440 : rawGap;
-          const meta = [fmtDuration(s.depart, s.arrive), s.service || s.carrier].filter(Boolean).join("  ·  ");
+          const meta = s.mode === "flight"
+            ? fmtDuration(s.depart, s.arrive)
+            : [fmtDuration(s.depart, s.arrive), s.service || s.carrier].filter(Boolean).join("  ·  ");
           const ep = segEndpoints(s, j.date, loc);
           const offDay = [
             ep.depart.date && `Departs ${ep.depart.date}`,
@@ -130,10 +132,13 @@ export default function Journey() {
                   />
                   {meta && <span>· {meta}</span>}
                 </p>
-                {(!ro || showPlatform || s.seat || s.fare) && (
+                {(!ro || showPlatform || s.seat || s.fare || s.carrier || s.service || s.bookingRef) && (
                   <p className="mt-1.5 flex flex-wrap gap-x-5 gap-y-0.5 text-xs text-ink-soft">
+                    {s.mode === "flight" && (!ro || s.carrier) && <span>Airline <Editable label="Airline" value={s.carrier ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { carrier: v || undefined })} /></span>}
+                    {s.mode === "flight" && (!ro || s.service) && <span>Flight no. <Editable label="Flight number" value={s.service ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { service: v || undefined })} /></span>}
                     {showPlatform && <span>Platform <Editable label="Platform" value={s.platform ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { platform: v || undefined })} /></span>}
                     {(!ro || s.seat) && <span>Seat <Editable label="Seat" value={s.seat ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { seat: v || undefined })} /></span>}
+                    {(!ro || s.bookingRef) && <span>Booking ref <Editable label="Booking reference" value={s.bookingRef ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { bookingRef: v || undefined })} /></span>}
                     {(!ro || s.fare) && <span>Fare <Editable label="Fare" value={s.fare ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { fare: v || undefined })} /></span>}
                     {!ro && <button onClick={() => patch({ segments: j.segments.filter((_, k) => k !== i) })} className="link-quiet opacity-0 group-hover:opacity-100">remove</button>}
                   </p>

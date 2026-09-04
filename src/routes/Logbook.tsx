@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Card, CARD_SHELL } from "@/components/Card";
 import { Empty } from "@/components/Empty";
@@ -14,6 +14,7 @@ import { useAuth } from "@/lib/auth";
 import { useReadOnly } from "@/lib/readonly";
 import { APP_NAME } from "@/lib/app";
 import { fmtDate, fmtSpan, plural } from "@/lib/dates";
+import { flightSegments } from "@/lib/journey";
 import { putFile, fileUrl, removeFile } from "@/lib/fileStore";
 import {
   driveEnabled, ensureFolder, uploadToDrive, shareFile, deleteFromDrive, driveViewUrl, driveImageUrl,
@@ -239,7 +240,7 @@ function GettingAround() {
           <Card
             key={j.id}
             to={`/journey/${j.id}`}
-            title={j.label}
+            title={j.label || "Journey"}
             meta={changes > 0 ? `${times} · ${plural(changes, "change")}` : times}
             right={j.date && (
               <span className="value tabular-nums text-ink-soft">
@@ -350,6 +351,78 @@ function Emergency() {
 
 /* -------------------------------------------------------------- documents */
 
+const DOC_KINDS = [
+  { value: "other", label: "General" },
+  { value: "flight", label: "Flights" },
+  { value: "insurance", label: "Insurance" },
+  { value: "reservation", label: "Reservation" },
+];
+
+/** A flight document lists the flights themselves from the journeys that hold
+ *  them — number, route, times and seat are entered once, on the flight. */
+function FlightBookings() {
+  const data = useData()!;
+  const ro = useReadOnly();
+  const addEntity = useApp((s) => s.addEntity);
+  const nav = useNavigate();
+  const loc = data.config.locale;
+  const flights = flightSegments(data.journeys);
+
+  const addFlight = () => {
+    const id = `journeys-${rid()}`;
+    const has = (k: string) => data.journeys.some((j) => j.kind === k);
+    const kind = !has("arrival") ? "arrival" : !has("departure") ? "departure" : "transfer";
+    addEntity("journeys", {
+      id,
+      label: "Flight",
+      kind,
+      date: kind === "departure" ? data.meta.end : data.meta.start,
+      segments: [{ id: `seg-${rid()}`, mode: "flight", from: "", to: "" }],
+    } as never);
+    nav(`/journey/${id}`);
+  };
+
+  if (flights.length === 0 && ro) return null;
+
+  return (
+    <div className="mb-3">
+      {flights.map(({ seg, journey }) => {
+        const name = [seg.carrier, seg.service].filter(Boolean).join(" ") || "Flight";
+        const line = [fmtSpan(seg, journey.date, loc), seg.seat && `seat ${seg.seat}`, seg.bookingRef]
+          .filter(Boolean)
+          .join("  ·  ");
+        return (
+          <Link
+            key={seg.id}
+            to={`/journey/${journey.id}`}
+            className="group flex items-baseline justify-between gap-3 border-b border-line py-2 first:border-t first:border-line"
+          >
+            <span className="min-w-0">
+              <span className="value block">{name}</span>
+              <span className="meta block">
+                {(seg.from || "—") + " → " + (seg.to || "—")}
+                {journey.date ? ` · ${fmtDate(journey.date, loc, { day: "numeric", month: "short" })}` : ""}
+              </span>
+              {line && <span className="meta block">{line}</span>}
+            </span>
+            <Icon name="chevron" size={14} className="shrink-0 translate-y-0.5 text-ink-faint group-hover:text-ink-soft" />
+          </Link>
+        );
+      })}
+      {!ro && (
+        <button onClick={addFlight} className="action mt-2 text-xs">
+          <Icon name="plus" size={13} /> Add a flight
+        </button>
+      )}
+      {flights.length === 0 && !ro && (
+        <p className="mt-1 text-xs text-ink-faint">
+          Number, times and seat are entered once — on the flight — and show on the travel day too.
+        </p>
+      )}
+    </div>
+  );
+}
+
 function Documents() {
   const data = useData()!;
   const ro = useReadOnly();
@@ -373,6 +446,19 @@ function Documents() {
           key={d.id}
           title={<Editable label="Title" value={d.title} onCommit={(v) => updateEntity<Doc>("docs", d.id, { title: v || d.title })} />}
         >
+          {!ro && (
+            <div className="-mt-1 mb-2">
+              <Editable
+                as="select"
+                label="Document type"
+                value={d.kind === "contact" ? "other" : d.kind}
+                options={DOC_KINDS}
+                className="text-xs text-ink-soft"
+                onCommit={(v) => updateEntity<Doc>("docs", d.id, { kind: v as Doc["kind"] })}
+              />
+            </div>
+          )}
+          {d.kind === "flight" && <FlightBookings />}
           <div>
             {d.fields.map((f, i) => (
               <DocFieldRow key={f.id} f={f} i={i} count={d.fields.length} ops={F} ro={ro} />
