@@ -183,6 +183,7 @@ export default function Day() {
             {!ro && data.areas.some((a) => !(day.areaIds ?? []).includes(a.id)) && (
               <select
                 value=""
+                aria-label="Add an area to this day"
                 onChange={(e) => e.target.value && patch({ areaIds: [...(day.areaIds ?? []), e.target.value] })}
                 className="cursor-pointer rounded-[2px] border border-dashed border-line bg-transparent px-2 py-1 text-xs text-accent focus:outline-none"
               >

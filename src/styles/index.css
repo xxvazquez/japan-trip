@@ -131,6 +131,11 @@ html.dark {
   .editable:hover {
     background: rgb(var(--c-gold) / 0.1);
   }
+  /* the same wash reads much fainter on a dark ground — a light-on-dark tint
+     at equal alpha carries less visual weight than dark-on-light does */
+  html.dark .editable:hover {
+    background: rgb(var(--c-gold) / 0.16);
+  }
 
   /* ---- hierarchy utilities ---------------------------------------- *
    * L1  screen identity  — .text-title (detail pages), text-display (Plan)
