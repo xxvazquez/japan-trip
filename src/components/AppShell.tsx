@@ -26,7 +26,10 @@ export function AppShell() {
   }, []);
 
   return (
-    <div className="washi min-h-svh md:pl-[72px]">
+    <div
+      className="washi min-h-svh md:pl-[72px]"
+      style={demo ? ({ "--demo-h": "2.25rem" } as Record<string, string>) : undefined}
+    >
       <header className="sticky top-0 z-30 border-b border-line bg-bg pt-[var(--sat)]">
         <div className="mx-auto flex h-14 max-w-page items-center justify-between px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2" aria-label={data?.config.branding}>
@@ -57,8 +60,9 @@ export function AppShell() {
       </header>
 
       {demo && (
-        <div className="sticky top-14 z-20 border-b border-line bg-surface-2 px-4 py-1.5 text-center text-xs text-ink-soft sm:px-6">
-          Demo trip — read-only. Make your own from <Link to="/manage" className="font-medium text-accent">Manage → New trip</Link>.
+        <div className="sticky top-14 z-20 flex h-9 items-center justify-center gap-1 border-b border-line bg-surface-2 px-4 text-center text-xs text-ink-soft sm:px-6">
+          <span>Demo trip — read-only.</span>
+          <Link to="/manage" className="font-medium text-accent">Make your own →</Link>
         </div>
       )}
 

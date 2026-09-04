@@ -733,7 +733,7 @@ export default function MapTab() {
   );
 
   return (
-    <div className="fixed inset-x-0 bottom-[56px] top-14 z-20 md:bottom-0 md:left-[72px]">
+    <div className="fixed inset-x-0 bottom-[56px] top-[calc(3.5rem+var(--demo-h,0px))] z-20 md:bottom-0 md:left-[72px]">
       {/* map */}
       <div className="absolute inset-0 md:left-[340px]">
         <MapView
