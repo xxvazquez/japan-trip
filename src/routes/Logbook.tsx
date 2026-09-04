@@ -490,52 +490,109 @@ function Attachments({
 function Packing() {
   const data = useData()!;
   const ro = useReadOnly();
-  const update = useApp((s) => s.updateEntity);
-  if (data.packing.length === 0) return <Empty what="No packing list" hint="Add items in Manage." />;
+  const { updateEntity, addEntity, removeEntity } = useApp();
 
-  const groups = groupBy(data.packing, (p) => p.group);
-  const total = data.packing.length;
-  const done = data.packing.filter((p) => p.done).length;
+  const items = data.packing;
+  const groups = groupBy(items, (p) => p.group);
+  const total = items.length;
+  const done = items.filter((p) => p.done).length;
+
+  const newItem = (group: string): PackingItem => ({ id: `packing-${rid()}`, label: "", phase: "bring", group });
+  const addItem = (group: string) => addEntity("packing", newItem(group));
+  const addCategory = () => {
+    let name = "New category";
+    for (let n = 2; groups[name]; n++) name = `New category ${n}`;
+    addEntity("packing", newItem(name));
+  };
+  const renameGroup = (from: string, to: string) => {
+    const target = to.trim() || "Other";
+    if (target === from) return;
+    for (const it of groups[from] ?? []) updateEntity<PackingItem>("packing", it.id, { group: target });
+  };
+  const removeGroup = (group: string) => {
+    for (const it of groups[group] ?? []) removeEntity("packing", it.id);
+  };
+
+  if (total === 0 && ro) return <Empty what="No packing list" />;
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-3 px-1">
-        <span className="text-xl font-medium tabular-nums">{done}<span className="text-ink-faint">/{total}</span></span>
-        <span className="h-1 flex-1 overflow-hidden rounded-full bg-line">
-          <span className="block h-full bg-accent transition-all" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
-        </span>
-      </div>
-      {Object.entries(groups).map(([group, items]) => {
-        const g = items.filter((i) => i.done).length;
+      {total > 0 && (
+        <div className="flex items-center gap-3 px-1">
+          <span className="text-xl font-medium tabular-nums">{done}<span className="text-ink-faint">/{total}</span></span>
+          <span className="h-1 flex-1 overflow-hidden rounded-full bg-line">
+            <span className="block h-full bg-accent transition-all" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
+          </span>
+        </div>
+      )}
+      {Object.entries(groups).map(([group, list]) => {
+        const g = list.filter((i) => i.done).length;
         return (
           <Card
             key={group}
-            title={group}
-            right={
-              <span className={`text-xs tabular-nums ${g === items.length ? "text-accent" : "text-ink-soft"}`}>
-                {g}/{items.length}
-              </span>
-            }
+            title={ro ? group : (
+              <Editable label="Category" value={group} placeholder="Category" onCommit={(v) => renameGroup(group, v)} />
+            )}
+            right={ro
+              ? (
+                <span className={`text-xs tabular-nums ${g === list.length ? "text-accent" : "text-ink-soft"}`}>
+                  {g}/{list.length}
+                </span>
+              )
+              : removeBtn(() => removeGroup(group))}
           >
             <ul>
-              {items.map((it) => (
-                <PackRow key={it.id} item={it} onToggle={(v) => update<PackingItem>("packing", it.id, { done: v })} disabled={ro} />
+              {list.map((it) => (
+                <PackRow
+                  key={it.id}
+                  item={it}
+                  ro={ro}
+                  onToggle={(v) => updateEntity<PackingItem>("packing", it.id, { done: v })}
+                  onLabel={(v) => updateEntity<PackingItem>("packing", it.id, { label: v })}
+                  onRemove={() => removeEntity("packing", it.id)}
+                />
               ))}
             </ul>
+            {!ro && (
+              <button onClick={() => addItem(group)} className="action mt-2 text-xs">
+                <Icon name="plus" size={13} /> Add item
+              </button>
+            )}
           </Card>
         );
       })}
+      {!ro && <AddButton label="Add a category" onClick={addCategory} />}
     </div>
   );
 }
 
-function PackRow({ item, onToggle, disabled }: { item: PackingItem; onToggle: (v: boolean) => void; disabled?: boolean }) {
+function PackRow({ item, ro, onToggle, onLabel, onRemove }: {
+  item: PackingItem;
+  ro: boolean;
+  onToggle: (v: boolean) => void;
+  onLabel: (v: string) => void;
+  onRemove: () => void;
+}) {
+  const box = (
+    <input type="checkbox" checked={!!item.done} disabled={ro} onChange={(e) => onToggle(e.target.checked)} className="h-[18px] w-[18px] shrink-0 accent-accent" />
+  );
+  if (ro) {
+    return (
+      <li>
+        <label className="flex items-center gap-3 border-t border-line py-2.5 text-sm first:border-0 cursor-pointer">
+          {box}
+          <span className={item.done ? "text-ink-faint line-through" : "text-ink"}>{item.label}</span>
+        </label>
+      </li>
+    );
+  }
   return (
-    <li>
-      <label className={`flex items-center gap-3 border-t border-line py-2.5 text-sm first:border-0 ${disabled ? "" : "cursor-pointer"}`}>
-        <input type="checkbox" checked={!!item.done} disabled={disabled} onChange={(e) => onToggle(e.target.checked)} className="h-[18px] w-[18px] shrink-0 accent-accent" />
-        <span className={item.done ? "text-ink-faint line-through" : "text-ink"}>{item.label}</span>
-      </label>
+    <li className="flex items-center gap-3 border-t border-line py-2.5 text-sm first:border-0">
+      {box}
+      <span className="min-w-0 flex-1">
+        <Editable label="Item" value={item.label} placeholder="Item" className={item.done ? "text-ink-faint line-through" : "text-ink"} onCommit={onLabel} />
+      </span>
+      <button onClick={onRemove} aria-label="Remove item" className="shrink-0 p-0.5 text-ink-faint hover:text-accent"><Icon name="close" size={13} /></button>
     </li>
   );
 }
