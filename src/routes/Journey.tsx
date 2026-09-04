@@ -10,6 +10,7 @@ import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { fmtDate, plural, segEndpoints } from "@/lib/dates";
 import { clockOf, fmtDuration, fmtMinutes, localMinutes } from "@/lib/time";
+import { MODE_LABEL } from "@/lib/transport";
 import type { Journey as JourneyT, Segment, TransportMode } from "@/core/types";
 
 const MODES: TransportMode[] = ["flight", "train", "bus", "ferry", "car", "taxi", "subway", "walk"];
@@ -112,7 +113,7 @@ export default function Journey() {
                     as="select"
                     label="Mode"
                     value={s.mode}
-                    options={MODES.map((m) => ({ value: m, label: m }))}
+                    options={MODES.map((m) => ({ value: m, label: MODE_LABEL[m] }))}
                     onCommit={(v) => setSeg(i, v === "flight" ? { mode: "flight", platform: undefined } : { mode: v as TransportMode })}
                   />
                   {meta && <span>· {meta}</span>}
