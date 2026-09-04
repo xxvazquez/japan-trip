@@ -87,7 +87,7 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
                   onClick={() => go(hit)}
                   className={`flex w-full items-center gap-3 px-4 py-2.5 text-left ${i === active ? "bg-surface-2" : ""}`}
                 >
-                  <span className="field-label w-14 shrink-0">{KIND_LABEL[hit.kind]}</span>
+                  <span className="field-label w-[5.5rem] shrink-0 whitespace-nowrap">{hit.chip ?? KIND_LABEL[hit.kind]}</span>
                   <span className="min-w-0 flex-1">
                     <span className="lead block truncate">{hit.label}</span>
                     {hit.sub && <span className="block truncate text-xs text-ink-soft">{hit.sub}</span>}

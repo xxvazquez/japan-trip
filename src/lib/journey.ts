@@ -4,7 +4,15 @@
  *  separator only keeps a multi-hop label ("A → B → C") lossless when the
  *  "to" side is left untouched. */
 
-import type { Journey, Segment } from "@/core/types";
+import type { Journey, JourneyKind, Segment } from "@/core/types";
+
+/** Title-case label for a journey's kind — the stored value is lowercase, every
+ *  surface (the Journey eyebrow, a search result) shows it capitalised. */
+export const JOURNEY_KIND_LABEL: Record<JourneyKind, string> = {
+  arrival: "Arrival",
+  departure: "Departure",
+  transfer: "Transfer",
+};
 
 const SEPARATOR = /\s*(?:→|➜|➔|⟶|->|—|–)\s*|\s+-\s+/;
 

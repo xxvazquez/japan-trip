@@ -12,7 +12,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { fmtDate, plural, segEndpoints } from "@/lib/dates";
 import { clockOf, fmtDuration, fmtMinutes, localMinutes } from "@/lib/time";
 import { MODE_LABEL } from "@/lib/transport";
-import { splitRoute, joinRoute } from "@/lib/journey";
+import { splitRoute, joinRoute, JOURNEY_KIND_LABEL } from "@/lib/journey";
 import type { Journey as JourneyT, Segment, TransportMode } from "@/core/types";
 
 const MODES: TransportMode[] = ["flight", "train", "bus", "ferry", "car", "taxi", "subway", "walk"];
@@ -43,7 +43,7 @@ export default function Journey() {
     <Page>
       <PageHeader
         back="/logbook"
-        eyebrow={`${cap(j.kind)}${j.date ? ` · ${fmtDate(j.date, loc, { weekday: "long", day: "numeric", month: "long" })}` : ""}`}
+        eyebrow={`${JOURNEY_KIND_LABEL[j.kind]}${j.date ? ` · ${fmtDate(j.date, loc, { weekday: "long", day: "numeric", month: "long" })}` : ""}`}
         title={
           ro ? (
             j.label
@@ -173,8 +173,6 @@ export default function Journey() {
     </Page>
   );
 }
-
-const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function mergeTime(existing: string | undefined, fallbackDate: string | undefined, hhmm: string): string | undefined {
   if (!hhmm) return undefined;
