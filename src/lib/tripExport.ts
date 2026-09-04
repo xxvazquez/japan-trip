@@ -269,10 +269,13 @@ function placesSection(data: TripData): string {
     .sort((x, y) => x.name.localeCompare(y.name));
   const inArea = new Set(data.areas.flatMap((a) => a.placeIds));
   const loose = data.places.filter((p) => !inArea.has(p.id));
-  if (loose.length) grouped.push({ name: grouped.length ? "Other places" : "Places", items: loose });
+  // With areas present the loose pins get their own "Other places" group; when
+  // they're the only group the section's own <h2>Places</h2> already labels
+  // them, so skip the redundant sub-heading (name left blank).
+  if (loose.length) grouped.push({ name: grouped.length ? "Other places" : "", items: loose });
 
   const blocks = grouped.map((g) => `<div class="place-group">
-    <h3>${esc(g.name)}</h3>
+    ${g.name ? `<h3>${esc(g.name)}</h3>` : ""}
     <ul class="places">${[...g.items].sort((a, b) => a.name.localeCompare(b.name)).map(placeRow).join("")}</ul>
   </div>`);
   return `<section class="group"><h2>Places</h2>${blocks.join("\n")}</section>`;
