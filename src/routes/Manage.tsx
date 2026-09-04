@@ -13,6 +13,7 @@ import { THEME_PRESETS } from "@/lib/themePresets";
 import { MAP_GLYPHS } from "@/lib/mapGlyphs";
 import { Tab } from "@/components/Tabs";
 import { ConfirmButton } from "@/components/ConfirmButton";
+import { OPTIONAL_LOGBOOK_SECTIONS, logbookLabel } from "@/lib/logbook";
 import { fileToMediaItem, pickImage } from "@/lib/media";
 import { supabaseEnabled } from "@/lib/supabase";
 import { driveEnabled } from "@/lib/drive";
@@ -38,7 +39,7 @@ export default function Manage() {
       />
       <div className="mb-2 flex gap-5 overflow-x-auto border-b border-line">
         {TABS.map((t) => (
-          <Tab key={t} label={t} active={tab === t} onClick={() => setTab(t)} />
+          <Tab key={t} label={t[0].toUpperCase() + t.slice(1)} active={tab === t} onClick={() => setTab(t)} />
         ))}
       </div>
       {tab === "trips" && <Trips />}
@@ -462,9 +463,9 @@ function LogbookSectionsPanel() {
   return (
     <Section title="Logbook sections">
       <ul>
-        {OPTIONAL_LOGBOOK.map((s) => (
-          <li key={s} className="flex items-center justify-between border-b border-line py-2.5 text-sm capitalize">
-            <span className={hidden.includes(s) ? "text-ink-faint" : ""}>{s}</span>
+        {OPTIONAL_LOGBOOK_SECTIONS.map((s) => (
+          <li key={s} className="flex items-center justify-between border-b border-line py-2.5 text-sm">
+            <span className={hidden.includes(s) ? "text-ink-faint" : ""}>{logbookLabel(s)}</span>
             <button onClick={() => toggleSection(s)} className="text-ink-soft hover:text-ink" aria-label={hidden.includes(s) ? "Show" : "Hide"}>
               <Icon name={hidden.includes(s) ? "eye-off" : "eye"} size={17} />
             </button>
@@ -684,8 +685,6 @@ const ENTITY_LABELS: Record<EntityType, string> = {
   places: "Map places",
   areas: "Areas",
 };
-
-const OPTIONAL_LOGBOOK = ["getting around", "luggage", "documents", "packing"] as const;
 
 const CONTENT_GROUPS: { title: string; types: EntityType[] }[] = [
   { title: "Itinerary", types: ["legs", "days", "hotels", "journeys"] },

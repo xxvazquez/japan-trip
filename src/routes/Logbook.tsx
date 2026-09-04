@@ -16,6 +16,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { APP_NAME } from "@/lib/app";
 import { fmtDate, fmtSpan, plural } from "@/lib/dates";
 import { flightSegments } from "@/lib/journey";
+import { LOGBOOK_SECTIONS, logbookLabel } from "@/lib/logbook";
 import { putFile, fileUrl, removeFile } from "@/lib/fileStore";
 import {
   driveEnabled, ensureFolder, uploadToDrive, shareFile, deleteFromDrive, driveViewUrl, driveImageUrl,
@@ -79,8 +80,6 @@ function DocFieldRow({ f, i, count, ops, ro }: { f: DocField; i: number; count: 
   );
 }
 
-const BASE_SECTIONS = ["stays", "getting around", "luggage", "emergency", "documents", "packing", "notes"] as const;
-
 export default function Logbook() {
   const data = useData();
   const [params, setParams] = useSearchParams();
@@ -90,7 +89,7 @@ export default function Logbook() {
 
   const hidden = data.config.hiddenLogbook ?? [];
   const lists = data.config.lists ?? [];
-  const builtins = BASE_SECTIONS.filter((s) => !hidden.includes(s));
+  const builtins = LOGBOOK_SECTIONS.filter((s) => !hidden.includes(s));
   const tabs = [...builtins, ...lists.map((l) => l.id)];
   const active = tabs.includes(section) ? section : "stays";
   const activeList = lists.find((l) => l.id === active);
@@ -103,7 +102,7 @@ export default function Logbook() {
       <div className="relative -mx-5 mb-8 sm:-mx-7">
         <div className="flex gap-5 overflow-x-auto border-b border-line px-5 [mask-image:linear-gradient(to_right,transparent,#000_20px,#000_calc(100%-20px),transparent)] [scrollbar-width:none] sm:px-7 [&::-webkit-scrollbar]:hidden">
           {builtins.map((s) => (
-            <Tab key={s} label={s} active={active === s} onClick={() => setSection(s)} centerOnActive />
+            <Tab key={s} label={logbookLabel(s)} active={active === s} onClick={() => setSection(s)} centerOnActive />
           ))}
           {lists.length > 0 && <span aria-hidden className="my-1.5 w-px shrink-0 self-stretch bg-line" />}
           {lists.map((l) => (
