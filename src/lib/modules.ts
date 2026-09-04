@@ -20,7 +20,7 @@ export function isModuleCurrent(s: ModuleConfig, pathname: string): boolean {
 
 const DEFAULTS: ModuleConfig[] = [
   { id: "plan", kind: "plan", label: "Plan", icon: "itinerary", enabled: true },
-  { id: "map", kind: "map", label: "Map", icon: "places", enabled: true },
+  { id: "map", kind: "map", label: "Map", icon: "map", enabled: true },
   { id: "logbook", kind: "logbook", label: "Logbook", icon: "vault", enabled: true },
 ];
 

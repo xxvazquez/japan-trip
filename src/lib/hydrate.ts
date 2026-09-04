@@ -11,7 +11,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 
 const DEFAULT_MODULES: ModuleConfig[] = [
   { id: "plan", kind: "plan", label: "Plan", icon: "itinerary", enabled: true },
-  { id: "map", kind: "map", label: "Map", icon: "places", enabled: true },
+  { id: "map", kind: "map", label: "Map", icon: "map", enabled: true },
   { id: "logbook", kind: "logbook", label: "Logbook", icon: "vault", enabled: true },
 ];
 
@@ -52,6 +52,13 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
         ? (cfg.modules as ModuleConfig[])
         : DEFAULT_MODULES,
   } as TripData["config"];
+
+  // the Map tab shipped with the house glyph ("places") by default — never a
+  // deliberate choice, and there's no UI to change it — so move it to the map
+  // glyph on load
+  for (const m of d.config.modules) {
+    if (m.kind === "map" && m.icon === "places") m.icon = "map";
+  }
 
   d.meta = {
     title: (meta.title as string) || (d.config.branding as string) || "Trip",
