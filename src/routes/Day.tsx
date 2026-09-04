@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
-import { BackBar } from "@/components/BackBar";
+import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
@@ -26,12 +26,7 @@ export default function Day() {
   const L = lookups(data);
   const day = L.day(id);
   if (!day)
-    return (
-      <Page>
-        <BackBar to="/" />
-        <p className="lead">No day here.</p>
-      </Page>
-    );
+    return <Missing title="No day here" body="That day isn't part of this trip." to="/" cta="Back to Plan" />;
 
   const patch = (p: Partial<DayT>) => updateEntity<DayT>("days", day.id, p);
   const leg = L.leg(day.legId);

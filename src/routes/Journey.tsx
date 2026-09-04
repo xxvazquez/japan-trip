@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
-import { BackBar } from "@/components/BackBar";
+import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
@@ -24,12 +24,7 @@ export default function Journey() {
 
   const j = lookups(data).journey(id);
   if (!j)
-    return (
-      <Page>
-        <BackBar to="/logbook" />
-        <p className="lead">No journey here.</p>
-      </Page>
-    );
+    return <Missing title="No journey here" body="That journey isn't part of this trip." to="/logbook?s=getting+around" cta="See all journeys" />;
 
   const patch = (p: Partial<JourneyT>) => updateEntity<JourneyT>("journeys", j.id, p);
   const setSeg = (i: number, sp: Partial<Segment>) => patch({ segments: j.segments.map((s, k) => (k === i ? { ...s, ...sp } : s)) });
