@@ -48,7 +48,7 @@ export default function Journey() {
         title={<Editable label="Label" value={j.label} onCommit={(v) => patch({ label: v || j.label })} />}
         meta={
           j.segments.length > 0 &&
-          [total && `${total} total`, plural(j.segments.length, "leg"), changes > 0 && plural(changes, "change")]
+          [total && `${total} total`, plural(j.segments.length, "hop"), changes > 0 && plural(changes, "change")]
             .filter(Boolean)
             .join("  ·  ")
         }
@@ -63,7 +63,7 @@ export default function Journey() {
       <div className="mt-8 space-y-3.5">
       {(!ro || j.segments.length > 0) && (
         <Section
-          title="Legs"
+          title="Hops"
           action={
             !ro && (
               <button
@@ -78,7 +78,7 @@ export default function Journey() {
             )
           }
         >
-        {j.segments.length === 0 && <p className="text-sm text-ink-faint">No legs yet.</p>}
+        {j.segments.length === 0 && <p className="text-sm text-ink-faint">No hops yet.</p>}
         {j.segments.map((s, i) => {
           const next = j.segments[i + 1];
           const rawGap = next && s.arrive && next.depart ? localMinutes(next.depart)! - localMinutes(s.arrive)! : null;

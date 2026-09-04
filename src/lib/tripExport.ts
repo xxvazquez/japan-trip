@@ -217,7 +217,7 @@ function journeysSection(data: TripData, opts: ExportOptions): string {
     return `<section class="journey" id="journey-${esc(j.id)}">
       <h3>${esc(j.label)}</h3>
       ${when ? `<p class="leg-range">${esc(when)}</p>` : ""}
-      ${j.segments.map((s, i) => segmentBlock(s, j.segments[i + 1], opts, j.date, loc)).join("\n") || `<p class="empty">No legs yet.</p>`}
+      ${j.segments.map((s, i) => segmentBlock(s, j.segments[i + 1], opts, j.date, loc)).join("\n") || `<p class="empty">No hops yet.</p>`}
       ${dir}
       ${j.notes?.trim() ? `<div class="note">${mdToHtml(j.notes)}</div>` : ""}
     </section>`;
