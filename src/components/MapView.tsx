@@ -14,6 +14,7 @@ import type { FeatureCollection, Point, Polygon } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { buildMapStyle } from "@/lib/mapStyle";
 import { Icon } from "@/components/Icon";
+import { Loader } from "@/components/Loader";
 import { transitLayers, TRANSIT_CONTROLS } from "@/lib/transitLayers";
 import { buildMarkerImage, markerKey } from "@/lib/mapGlyphs";
 import type { Place } from "@/core/types";
@@ -381,7 +382,7 @@ export function MapView({
       <div ref={el} className="h-full w-full" />
       {status === "loading" && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center bg-bg">
-          <p className="meta animate-pulse">Loading the map…</p>
+          <Loader label="Loading the map" />
         </div>
       )}
       {status === "error" && (

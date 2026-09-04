@@ -313,8 +313,8 @@ also works but needs a card on file to activate.
 
 Falls back to Protomaps' entire-planet archive on Source Cooperative. Works
 everywhere, but first paint takes 20–30 s — every tile walks a directory inside
-a 130 GB file on a bucket with no edge cache. The Map screen shows a
-"Loading the map…" note meanwhile.
+a 130 GB file on a bucket with no edge cache. The Map screen shows the loading
+spinner meanwhile.
 
 ## Branding
 
