@@ -207,7 +207,7 @@ must be the **full https URL**, not just the project ref. The map tile settings
 
 1. Create a project at [supabase.com](https://supabase.com).
 2. **SQL Editor** → run every file in `supabase/migrations/` **in order**
-   (`0001` → `0013`).
+   (`0001` → `0014`).
 3. **Authentication → Providers → Google** → enable, paste a Google Cloud OAuth
    client id / secret, redirect
    `https://<project-ref>.supabase.co/auth/v1/callback`.
@@ -257,6 +257,7 @@ src/
                        Hotel, Manage)
   templates/           seed data for a new trip (blank, or a worked example)
 supabase/migrations/   database schema, applied in order
+supabase/dump_trip.sql read-only: one trip's whole content as JSON, for diffing
 scripts/make_icons.py  regenerates icons from logo.png
 ```
 
