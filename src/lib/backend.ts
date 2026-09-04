@@ -5,6 +5,7 @@ import { getUserId } from "./auth";
 import * as db from "./db";
 import { remapIds } from "./remapIds";
 import { normalizeTrip } from "./hydrate";
+import { rangeText } from "./dates";
 import type { AtlasState, EntityType, Segment, TripData, TripSummary } from "@/core/types";
 
 export interface Backend {
@@ -38,7 +39,16 @@ const localBackend: Backend = {
   kind: "local",
   async listTrips() {
     const atlas = await kv.get<AtlasState>(STORAGE_KEYS.atlas);
-    return { trips: atlas?.trips ?? [], activeId: atlas?.activeTripId ?? null };
+    // Derive the date-range subtitle from each trip's meta so the list matches
+    // the formatted dates shown everywhere else, regardless of what an older
+    // build wrote into the stored summary.
+    const trips = await Promise.all((atlas?.trips ?? []).map(async (t) => {
+      const d = await kv.get<TripData>(STORAGE_KEYS.trip(t.id));
+      return d?.meta?.start && d?.meta?.end
+        ? { ...t, subtitle: rangeText(d.meta.start, d.meta.end, d.config?.locale) }
+        : t;
+    }));
+    return { trips, activeId: atlas?.activeTripId ?? null };
   },
   loadTrip: (id) => kv.get<TripData>(STORAGE_KEYS.trip(id)).then((d) => (d ? normalizeTrip(d) : null)),
   async createTrip(data) {

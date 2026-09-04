@@ -1,6 +1,7 @@
 import { getSupabase } from "./supabase";
 import { getUserId } from "./auth";
 import { SCHEMA_VERSION } from "./hydrate";
+import { rangeText } from "@/lib/dates";
 import type { EntityType, Segment, TripData, TripSummary } from "@/core/types";
 
 /* ------------------------------------------------------------------ *
@@ -104,19 +105,27 @@ export async function listTrips(): Promise<TripSummary[]> {
   const data = check(
     await sb
       .from("trips")
-      .select("id,name,subtitle,archived,template_id,position,created_at,updated_at")
+      .select("id,name,subtitle,meta,config,archived,template_id,position,created_at,updated_at")
       .order("position")
       .order("created_at"),
   );
-  return (data ?? []).map((r) => ({
-    id: r.id,
-    name: r.name,
-    subtitle: r.subtitle ?? undefined,
-    archived: r.archived,
-    templateId: r.template_id ?? undefined,
-    createdAt: r.created_at,
-    updatedAt: r.updated_at,
-  }));
+  return (data ?? []).map((r) => {
+    // Recompute the date range from meta so the list matches the formatted
+    // dates shown everywhere else, even for trips whose stored `subtitle`
+    // predates this (it was once written as raw ISO).
+    const range = r.meta?.start && r.meta?.end
+      ? rangeText(r.meta.start, r.meta.end, r.config?.locale)
+      : undefined;
+    return {
+      id: r.id,
+      name: r.name,
+      subtitle: range ?? r.subtitle ?? undefined,
+      archived: r.archived,
+      templateId: r.template_id ?? undefined,
+      createdAt: r.created_at,
+      updatedAt: r.updated_at,
+    };
+  });
 }
 
 export async function loadTrip(dbId: string): Promise<TripData> {

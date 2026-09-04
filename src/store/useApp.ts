@@ -66,7 +66,7 @@ interface AppStore {
 const summarise = (id: string, name: string, data: TripData, templateId?: string): TripSummary => ({
   id,
   name,
-  subtitle: data.meta.start && data.meta.end ? `${data.meta.start} → ${data.meta.end}` : undefined,
+  subtitle: data.meta.start && data.meta.end ? rangeText(data.meta.start, data.meta.end, data.config.locale) : undefined,
   archived: false,
   templateId,
   createdAt: now(),
@@ -277,7 +277,7 @@ async function flush(get: () => AppStore) {
     for (const k of fieldKeys) f[k] = data[k] ?? null;
     if (fieldKeys.has("meta") || fieldKeys.has("config")) {
       f.name = data.meta.title || data.config.branding;
-      f.subtitle = data.meta.start && data.meta.end ? `${data.meta.start} → ${data.meta.end}` : null;
+      f.subtitle = data.meta.start && data.meta.end ? rangeText(data.meta.start, data.meta.end, data.config.locale) : null;
     }
     tasks.push(run(be.saveTripFields(activeId, f), { t: "fields", keys: [...fieldKeys] }));
   }
