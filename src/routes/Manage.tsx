@@ -308,7 +308,7 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
 
 function DemoNotice() {
   return (
-    <p className="border-y border-line py-5 text-sm text-ink-soft">
+    <p className="py-5 text-sm text-ink-soft">
       This is the demo trip — it’s read-only. Create a trip of your own from the{" "}
       <span className="font-medium text-ink">Trips</span> tab to change any of this.
     </p>
