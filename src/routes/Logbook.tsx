@@ -497,7 +497,7 @@ function Documents() {
       <p className="px-1 text-xs text-ink-faint">
         {cloud
           ? "Attachments upload to a Google Drive folder and are shared with the people on this trip. Still — think twice before a full passport scan."
-          : "Attachments stay only on the device they're added on — passport numbers don't belong here."}
+          : "Attachments stay only on the device they’re added on — passport numbers don’t belong here."}
       </p>
     </div>
   );

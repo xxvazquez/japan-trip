@@ -26,7 +26,7 @@ export default function Day() {
   const L = lookups(data);
   const day = L.day(id);
   if (!day)
-    return <Missing title="No day here" body="That day isn't part of this trip." to="/" cta="Back to Plan" />;
+    return <Missing title="No day here" body="That day isn’t part of this trip." to="/" cta="Back to Plan" />;
 
   const patch = (p: Partial<DayT>) => updateEntity<DayT>("days", day.id, p);
   const leg = L.leg(day.legId);
@@ -196,7 +196,7 @@ export default function Day() {
             )}
           </div>
           {(day.areaIds ?? []).length > 0 && (
-            <p className="meta mt-2">Places in {(day.areaIds ?? []).length === 1 ? "this area" : "these areas"} show on the day's map — they don't change the plan above.</p>
+            <p className="meta mt-2">Places in {(day.areaIds ?? []).length === 1 ? "this area" : "these areas"} show on the day’s map — they don’t change the plan above.</p>
           )}
         </Section>
       )}

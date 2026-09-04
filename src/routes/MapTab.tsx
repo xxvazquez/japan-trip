@@ -1022,14 +1022,14 @@ function SuggestReview({
     <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-3">
       {groups.length === 0 ? (
         <p className="meta py-4">
-          Couldn't spot any clear groups — the places are too spread out or too few. Add areas by hand in Manage.
+          Couldn’t spot any clear groups — the places are too spread out or too few. Add areas by hand in Manage.
         </p>
       ) : (
         <>
           <p className="meta mb-3">
             Found {plural(groups.length, "group")} of nearby places
             {naming ? ", naming them by neighbourhood…" : ". "}
-            {!naming && "Untick any you don't want, rename them, or open one to drop a place."}
+            {!naming && "Untick any you don’t want, rename them, or open one to drop a place."}
           </p>
           <ul>
             {groups.map((g, i) => (

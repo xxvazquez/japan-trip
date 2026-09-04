@@ -10,7 +10,7 @@ import { Page } from "@/components/Page";
 export function Missing({
   glyph = "迷",
   title = "Off the map",
-  body = "This page doesn't exist.",
+  body = "This page doesn’t exist.",
   to = "/",
   cta = "Back to Today",
 }: {

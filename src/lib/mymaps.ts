@@ -30,9 +30,9 @@ export function kmlUrl(mid: string): string {
 
 export async function fetchMyMap(url: string): Promise<MyMapImport> {
   const mid = myMapId(url);
-  if (!mid) throw new Error("That doesn't look like a Google My Maps link (no mid=).");
+  if (!mid) throw new Error("That doesn’t look like a Google My Maps link (no mid=).");
   const res = await fetch(kmlUrl(mid));
-  if (!res.ok) throw new Error(`Couldn't fetch the map (${res.status}). Is it public?`);
+  if (!res.ok) throw new Error(`Couldn’t fetch the map (${res.status}). Is it public?`);
   return parseKml(await res.text());
 }
 
@@ -45,7 +45,7 @@ function abgrToHex(abgr?: string | null): string | undefined {
 
 export function parseKml(xml: string): MyMapImport {
   const doc = new DOMParser().parseFromString(xml, "application/xml");
-  if (doc.querySelector("parsererror")) throw new Error("The map export wasn't valid KML.");
+  if (doc.querySelector("parsererror")) throw new Error("The map export wasn’t valid KML.");
 
   // style id -> colour. My Maps style ids look like `icon-1534-795548-nodesc`;
   // the 6-hex chunk is the colour the user picked. Fall back to <IconStyle><color>.

@@ -55,7 +55,7 @@ function loadGis(): Promise<void> {
     s.src = "https://accounts.google.com/gsi/client";
     s.async = true;
     s.onload = () => resolve();
-    s.onerror = () => { scriptReady = null; reject(new Error("Couldn't reach Google to sign in.")); };
+    s.onerror = () => { scriptReady = null; reject(new Error("Couldn’t reach Google to sign in.")); };
     document.head.appendChild(s);
   });
   return scriptReady;
@@ -95,7 +95,7 @@ export async function getToken(interactive = false): Promise<string> {
   const request = (prompt: string) =>
     new Promise<string>((ok, fail) => {
       const timer = setTimeout(() => {
-        if (pending) { pending = null; fail(new Error("Google didn't respond — try again.")); }
+        if (pending) { pending = null; fail(new Error("Google didn’t respond — try again.")); }
       }, 90_000);
       pending = {
         ok: (t) => { clearTimeout(timer); ok(t); },

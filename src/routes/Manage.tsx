@@ -33,7 +33,7 @@ export default function Manage() {
       <PageHeader
         eyebrow={APP_NAME}
         title="Manage"
-        meta="Your trips and this trip's setup. The details themselves you edit inline on each page."
+        meta="Your trips and this trip’s setup. The details themselves you edit inline on each page."
         className="mb-5"
       />
       <div className="mb-2 flex gap-5 overflow-x-auto border-b border-line">
@@ -108,7 +108,7 @@ function Trips() {
           <div className="flex flex-col gap-2">
             <button onClick={() => make()} disabled={busy} className="action justify-start">
               <Icon name="plus" size={15} /> Empty template
-              <span className="ml-1 hidden text-xs text-ink-soft sm:inline">— blank; add days, hide sections you don't want</span>
+              <span className="ml-1 hidden text-xs text-ink-soft sm:inline">— blank; add days, hide sections you don’t want</span>
             </button>
             {TEMPLATES.map((t) => (
               <button key={t.id} onClick={() => make(t.id)} disabled={busy} className="action justify-start">
@@ -256,7 +256,7 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
       setMsg(r === "ok" ? "Added." : "No account with that email yet — they need to sign in once first.");
       if (r === "ok") { setEmail(""); reload(); }
     } catch {
-      setMsg("Couldn't add them.");
+      setMsg("Couldn’t add them.");
     } finally {
       setBusy(false);
     }
@@ -303,7 +303,7 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
 function DemoNotice() {
   return (
     <p className="border-y border-line py-5 text-sm text-ink-soft">
-      This is the demo trip — it's read-only. Create a trip of your own from the{" "}
+      This is the demo trip — it’s read-only. Create a trip of your own from the{" "}
       <span className="font-medium text-ink">Trips</span> tab to change any of this.
     </p>
   );
@@ -661,7 +661,7 @@ function SharingTab() {
             />
           </Row>
           <p className="mt-2 text-xs text-ink-faint">
-            Attachments upload to the adder's Google Drive; these accounts are given read access. List both travellers.
+            Attachments upload to the adder’s Google Drive; these accounts are given read access. List both travellers.
           </p>
         </Section>
       )}
