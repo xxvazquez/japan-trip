@@ -33,7 +33,7 @@ export function buildDemo(): TripData {
       themePreset: THEME_PRESETS[0].id,
       modules: [
         { id: "plan", kind: "plan", label: "Plan", icon: "itinerary", enabled: true },
-        { id: "map", kind: "map", label: "Map", icon: "places", enabled: true },
+        { id: "map", kind: "map", label: "Map", icon: "map", enabled: true },
         { id: "logbook", kind: "logbook", label: "Logbook", icon: "vault", enabled: true },
       ],
       mapSourceUrl: "",
