@@ -7,6 +7,7 @@ import { Icon } from "./Icon";
 const KIND_LABEL: Record<SearchKind, string> = {
   day: "Day",
   hotel: "Stay",
+  place: "Place",
   transfer: "Transfer",
 };
 

@@ -2,7 +2,7 @@ import type { TripData } from "@/core/types";
 import { fmtDate } from "./dates";
 import { JOURNEY_KIND_LABEL } from "./journey";
 
-export type SearchKind = "day" | "hotel" | "transfer";
+export type SearchKind = "day" | "hotel" | "place" | "transfer";
 
 export interface SearchHit {
   kind: SearchKind;
@@ -40,6 +40,15 @@ function build(d: TripData): SearchHit[] {
       terms: [h.name, h.nameJp, h.address, h.notes].filter(Boolean).join(" ").toLowerCase(),
     });
   }
+  for (const p of d.places) {
+    hits.push({
+      kind: "place",
+      label: p.name,
+      sub: p.category || undefined,
+      to: `/map?sel=${p.id}`,
+      terms: [p.name, p.category, p.note].filter(Boolean).join(" ").toLowerCase(),
+    });
+  }
   for (const j of d.journeys) {
     hits.push({
       kind: "transfer",
@@ -65,7 +74,7 @@ function score(hit: SearchHit, q: string): number {
   return 0;
 }
 
-const KIND_ORDER: SearchKind[] = ["day", "hotel", "transfer"];
+const KIND_ORDER: SearchKind[] = ["day", "hotel", "place", "transfer"];
 
 let cache: { data: TripData; index: SearchHit[] } | null = null;
 
