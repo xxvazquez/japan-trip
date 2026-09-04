@@ -19,6 +19,7 @@ import type {
 import { fmtDate, fmtSpan, plural } from "@/lib/dates";
 import { localMinutes, fmtMinutes } from "@/lib/time";
 import { gmapsLink } from "@/lib/maps";
+import { MODE_LABEL } from "@/lib/transport";
 import { APP_NAME } from "@/lib/app";
 
 export interface ExportOptions {
@@ -87,10 +88,6 @@ const rows = (pairs: [string, string | undefined][]): string => {
   return `<dl>${kept.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v!.trim())}</dd>`).join("")}</dl>`;
 };
 
-const MODE_LABEL: Record<string, string> = {
-  flight: "Flight", train: "Train", bus: "Bus", ferry: "Ferry",
-  car: "Car", taxi: "Taxi", subway: "Subway", walk: "Walk",
-};
 
 /* ------------------------------------------------------------------ *
  * sections

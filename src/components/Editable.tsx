@@ -87,6 +87,9 @@ export function Editable(props: Props) {
     rawAs === "auto" ? (labelKind(label) ?? detectKind(value) ?? "text")
       : rawAs === "select" ? "text"
       : rawAs;
+  // a select shows its option's label, not the raw stored value
+  const displayValue =
+    props.as === "select" ? (props.options.find((o) => o.value === value)?.label ?? value) : value;
   const readOnly = useReadOnly();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
@@ -126,7 +129,7 @@ export function Editable(props: Props) {
         </a>
       );
     }
-    const text = as === "date" ? fmtDate(value, "en-GB", { day: "numeric", month: "short", year: "numeric" }) : value;
+    const text = as === "date" ? fmtDate(value, "en-GB", { day: "numeric", month: "short", year: "numeric" }) : displayValue;
     return <span className={`inline whitespace-pre-wrap ${className}`}>{text}</span>;
   }
 
@@ -171,7 +174,7 @@ export function Editable(props: Props) {
         aria-label={`Edit ${label}`}
         className={`editable inline text-left ${empty ? "italic text-ink-faint" : ""} ${className}`}
       >
-        {empty ? placeholder : value}
+        {empty ? placeholder : displayValue}
       </button>
     );
   }
