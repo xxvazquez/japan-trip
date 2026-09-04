@@ -30,7 +30,8 @@
   --c-line: 210 216 222;
 
   --c-accent: 95 127 156; /* dusty blue */
-  --c-gold: 154 143 122;
+  --c-gold: 143 133 113; /* darkened from the raw brand tone (154 143 122) so
+    the focus-visible ring clears WCAG's 3:1 non-text contrast against --c-bg */
   --c-matcha: 123 138 126;
   --c-ai: 63 85 103;
 

@@ -11,6 +11,10 @@ export interface ThemePreset {
  * Five palettes with distinct character but all restrained — low saturation,
  * generous light, nothing loud. Light + dark for each. The accent can still be
  * overridden separately in Manage → Settings.
+ *
+ * `gold` doubles as the app's only keyboard focus-ring colour (`:focus-visible`
+ * in index.css), so every light `gold` needs to clear WCAG's 3:1 non-text
+ * contrast ratio against that same theme's light `bg` — check before tuning it.
  */
 export const THEME_PRESETS: ThemePreset[] = [
   {
@@ -21,7 +25,7 @@ export const THEME_PRESETS: ThemePreset[] = [
       light: {
         bg: "#f2f4f6", surface: "#f9fafb", "surface-2": "#e8ebef",
         ink: "#1e252b", "ink-soft": "#4c565d", "ink-faint": "#8b949c", line: "#dbe0e5",
-        accent: "#5f7f9c", gold: "#9a8f7a", matcha: "#7b8a7e", ai: "#3f5567",
+        accent: "#5f7f9c", gold: "#8f8571", matcha: "#7b8a7e", ai: "#3f5567",
       },
       dark: {
         bg: "#13171b", surface: "#1b2126", "surface-2": "#252c33",
@@ -55,7 +59,7 @@ export const THEME_PRESETS: ThemePreset[] = [
       light: {
         bg: "#f1f1e8", surface: "#f7f7f0", "surface-2": "#e4e4d5",
         ink: "#20211a", "ink-soft": "#47483c", "ink-faint": "#85867a", line: "#d6d6c6",
-        accent: "#77813f", gold: "#9d8a4e", matcha: "#6b7746", ai: "#4c5b52",
+        accent: "#77813f", gold: "#94824a", matcha: "#6b7746", ai: "#4c5b52",
       },
       dark: {
         bg: "#15150f", surface: "#1d1d15", "surface-2": "#27271d",
@@ -72,7 +76,7 @@ export const THEME_PRESETS: ThemePreset[] = [
       light: {
         bg: "#eef0f4", surface: "#f6f7fa", "surface-2": "#e2e5ec",
         ink: "#191c26", "ink-soft": "#434959", "ink-faint": "#838a9c", line: "#d7dbe4",
-        accent: "#3d4f8a", gold: "#8f8570", matcha: "#6f7d7a", ai: "#2f3c66",
+        accent: "#3d4f8a", gold: "#8c826e", matcha: "#6f7d7a", ai: "#2f3c66",
       },
       dark: {
         bg: "#111320", surface: "#181b2a", "surface-2": "#222636",
@@ -89,7 +93,7 @@ export const THEME_PRESETS: ThemePreset[] = [
       light: {
         bg: "#f4f1f0", surface: "#faf8f7", "surface-2": "#e9e3e2",
         ink: "#211d1c", "ink-soft": "#4c4644", "ink-faint": "#8b8480", line: "#ddd6d4",
-        accent: "#97566a", gold: "#9c8a73", matcha: "#7d8676", ai: "#4e5764",
+        accent: "#97566a", gold: "#93826c", matcha: "#7d8676", ai: "#4e5764",
       },
       dark: {
         bg: "#171314", surface: "#1f1a1b", "surface-2": "#2a2325",
