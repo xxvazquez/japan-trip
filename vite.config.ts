@@ -89,20 +89,6 @@ export default defineConfig({
               expiration: { maxEntries: 120, maxAgeSeconds: 60 * 60 * 24 * 60 },
             },
           },
-          {
-            urlPattern: ({ url }) => url.origin === "https://maps.googleapis.com",
-            handler: "StaleWhileRevalidate",
-            options: { cacheName: "map-static", expiration: { maxEntries: 60 } },
-          },
-          {
-            urlPattern: ({ url }) => url.origin === "https://api.open-meteo.com",
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "weather",
-              networkTimeoutSeconds: 4,
-              expiration: { maxEntries: 12, maxAgeSeconds: 60 * 60 * 6 },
-            },
-          },
         ],
       },
       devOptions: { enabled: false },
