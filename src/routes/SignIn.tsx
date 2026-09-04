@@ -1,6 +1,5 @@
 import { APP_NAME } from "@/lib/app";
 import { signInWithGoogle } from "@/lib/auth";
-import { Icon } from "@/components/Icon";
 
 /** Shown only when a Supabase project is configured but nobody is signed in. */
 export function SignIn() {
@@ -11,7 +10,7 @@ export function SignIn() {
         <h1 className="mt-5 font-display text-2xl">{APP_NAME}</h1>
         <p className="mt-2 text-sm text-ink-soft">Sign in to reach your trips on every device.</p>
         <button onClick={() => signInWithGoogle()} className="btn-primary mt-6 w-full justify-center py-2.5">
-          <Icon name="external" size={16} /> Continue with Google
+          Continue with Google
         </button>
         <p className="mt-4 text-xs text-ink-faint">Your trips are private to your account.</p>
       </div>
