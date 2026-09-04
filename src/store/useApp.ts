@@ -517,6 +517,7 @@ export const useApp = create<AppStore>((set, get) => {
       if (local((d) => { (d[type] as WithId[]).push(obj); })) {
         enqueue(get, { t: "row", type, id: obj.id });
         if (type === "areas" && (obj as { placeIds?: string[] }).placeIds?.length) enqueue(get, { t: "areaPlaces", areaId: obj.id });
+        if (type === "journeys" && (obj as { segments?: unknown[] }).segments?.length) enqueue(get, { t: "seg", journeyId: obj.id });
       }
     },
 
