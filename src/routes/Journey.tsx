@@ -11,6 +11,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { fmtDate, plural, segEndpoints } from "@/lib/dates";
 import { clockOf, fmtDuration, fmtMinutes, localMinutes } from "@/lib/time";
 import { MODE_LABEL } from "@/lib/transport";
+import { splitRoute, joinRoute } from "@/lib/journey";
 import type { Journey as JourneyT, Segment, TransportMode } from "@/core/types";
 
 const MODES: TransportMode[] = ["flight", "train", "bus", "ferry", "car", "taxi", "subway", "walk"];
@@ -28,6 +29,7 @@ export default function Journey() {
     return <Missing title="No journey here" body="That journey isn't part of this trip." to="/logbook?s=getting+around" cta="See all journeys" />;
 
   const patch = (p: Partial<JourneyT>) => updateEntity<JourneyT>("journeys", j.id, p);
+  const route = splitRoute(j.label);
   const setSeg = (i: number, sp: Partial<Segment>) => patch({ segments: j.segments.map((s, k) => (k === i ? { ...s, ...sp } : s)) });
   const loc = data.config.locale;
 
@@ -41,7 +43,17 @@ export default function Journey() {
       <PageHeader
         back="/logbook"
         eyebrow={`${cap(j.kind)}${j.date ? ` · ${fmtDate(j.date, loc, { weekday: "long", day: "numeric", month: "long" })}` : ""}`}
-        title={<Editable label="Label" value={j.label} onCommit={(v) => patch({ label: v || j.label })} />}
+        title={
+          ro ? (
+            j.label
+          ) : (
+            <span className="inline-flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <Editable label="From" value={route.from} placeholder="From" onCommit={(v) => patch({ label: joinRoute(v, route.to) || j.label })} />
+              <span className="text-ink-faint">→</span>
+              <Editable label="To" value={route.to} placeholder="To" onCommit={(v) => patch({ label: joinRoute(route.from, v) || j.label })} />
+            </span>
+          )
+        }
         meta={
           j.segments.length > 0 &&
           [total && `${total} total`, plural(j.segments.length, "hop"), changes > 0 && plural(changes, "change")]
