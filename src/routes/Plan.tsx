@@ -70,13 +70,13 @@ export default function Plan() {
             </p>
           </>
         )}
-        {c.phase === "after" && <p className="lead">Home — the trip's all here.</p>}
+        {c.phase === "after" && <p className="lead">Home — the trip’s all here.</p>}
       </header>
 
       {data.legs.length === 0 ? (
         <Empty
           what="No stays yet"
-          hint="Add where you're based, and the days slot underneath."
+          hint="Add where you’re based, and the days slot underneath."
           to="/manage"
           cta="Set up stays"
         />

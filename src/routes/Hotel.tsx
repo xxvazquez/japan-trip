@@ -25,7 +25,7 @@ export default function Hotel() {
   const L = lookups(data);
   const hotel = L.hotel(id);
   if (!hotel)
-    return <Missing title="No stay here" body="That stay isn't part of this trip." to="/logbook" cta="Back to Logbook" />;
+    return <Missing title="No stay here" body="That stay isn’t part of this trip." to="/logbook" cta="Back to Logbook" />;
   const p = (patch: Partial<HotelT>) => updateEntity<HotelT>("hotels", hotel.id, patch);
   const leg = data.legs.find((l) => l.hotelId === hotel.id);
   const map = gmapsLink(hotel.mapUrl || hotel.address);

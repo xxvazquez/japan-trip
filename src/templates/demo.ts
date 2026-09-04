@@ -44,7 +44,7 @@ export function buildDemo(): TripData {
           id: "list-eat",
           title: "Food & coffee",
           items: [
-            { id: "li-1", label: "That bakery everyone posts about", note: "Get there before 10 or it's gone", url: "https://www.google.com/maps/search/?api=1&query=bakery" },
+            { id: "li-1", label: "That bakery everyone posts about", note: "Get there before 10 or it’s gone", url: "https://www.google.com/maps/search/?api=1&query=bakery" },
             { id: "li-2", label: "Natural wine bar near the second hotel" },
             { id: "li-3", label: "Coffee roaster — closed Mondays" },
           ],
@@ -54,7 +54,7 @@ export function buildDemo(): TripData {
     meta: { title: "Demo", start: D1, end: D4 },
     media: { gallery: [] },
     scratch:
-      "Notes is a free-text scratchpad — shopping lists, things you keep forgetting, a phrase you want to remember. It's shared with anyone the trip is shared with.",
+      "Notes is a free-text scratchpad — shopping lists, things you keep forgetting, a phrase you want to remember. It’s shared with anyone the trip is shared with.",
 
     legs: [
       { id: "leg-river", base: "Riverside", start: D1, end: D2, hotelId: "h-river", color: "blue" },
@@ -68,9 +68,9 @@ export function buildDemo(): TripData {
         legId: "leg-river",
         hotelId: "h-river",
         title: "Arrival",
-        plan: ["Land, clear customs, pick up transit cards", "Drop bags at the hotel", "Easy dinner nearby — don't overdo day one"],
+        plan: ["Land, clear customs, pick up transit cards", "Drop bags at the hotel", "Easy dinner nearby — don’t overdo day one"],
         notes:
-          "Two ways to write here. **Plan** is a plain checklist — one line per thing. **Notes** takes light formatting: **bold**, *italic*, - bullet lists, and [links](https://maps.google.com).\n\nTap almost any text — a title, a note, a time — and it becomes editable on the spot; tap away to save. On the Plan screen, days are grouped by where you're staying; drag one to reorder it and the dates move to match.\n\n(This trip is the demo, so editing is switched off. Make a trip of your own to try it.)",
+          "Two ways to write here. **Plan** is a plain checklist — one line per thing. **Notes** takes light formatting: **bold**, *italic*, - bullet lists, and [links](https://maps.google.com).\n\nTap almost any text — a title, a note, a time — and it becomes editable on the spot; tap away to save. On the Plan screen, days are grouped by where you’re staying; drag one to reorder it and the dates move to match.\n\n(This trip is the demo, so editing is switched off. Make a trip of your own to try it.)",
       },
       {
         id: "d2",
@@ -80,7 +80,7 @@ export function buildDemo(): TripData {
         title: "A full day",
         plan: ["Coffee before anything else", "Museum when it opens", "Market for lunch", "Wander the old streets, no fixed route"],
         notes:
-          "A day is a loose plan plus a few places you'd like to hit — never an hour-by-hour schedule.\n\n> The museum is free on the first Sunday of the month.",
+          "A day is a loose plan plus a few places you’d like to hit — never an hour-by-hour schedule.\n\n> The museum is free on the first Sunday of the month.",
         places: [
           { id: "dp1", label: "A coffee place", placeId: "pl-1" },
           { id: "dp2", label: "A museum", placeId: "pl-2" },
@@ -188,7 +188,7 @@ export function buildDemo(): TripData {
           { id: "doc-1-f1", label: "Policy no.", value: "—" },
           { id: "doc-1-f2", label: "24h assistance", value: "+00 000 000 000" },
         ],
-        note: "Use 'attach' to add the real PDF. Attachments stay on the device you add them on — they're never uploaded or shared.",
+        note: "Use “attach” to add the real PDF. Attachments stay on the device you add them on — they’re never uploaded or shared.",
       },
       {
         id: "doc-2",

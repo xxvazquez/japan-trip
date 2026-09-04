@@ -27,7 +27,7 @@ export default function Journey() {
 
   const j = lookups(data).journey(id);
   if (!j)
-    return <Missing title="No journey here" body="That journey isn't part of this trip." to="/logbook?s=getting+around" cta="See all journeys" />;
+    return <Missing title="No journey here" body="That journey isn’t part of this trip." to="/logbook?s=getting+around" cta="See all journeys" />;
 
   const patch = (p: Partial<JourneyT>) => updateEntity<JourneyT>("journeys", j.id, p);
   const route = splitRoute(j.label);

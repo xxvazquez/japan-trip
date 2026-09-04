@@ -388,11 +388,11 @@ export function MapView({
         <div className="absolute inset-0 grid place-items-center bg-bg px-6">
           <div className="max-w-xs text-center">
             <Icon name="map" size={30} className="mx-auto text-ink-faint" />
-            <h2 className="mt-3 font-display text-lg">{online ? "Map didn't load" : "You're offline"}</h2>
+            <h2 className="mt-3 font-display text-lg">{online ? "Map didn’t load" : "You’re offline"}</h2>
             <p className="mt-1 text-sm text-ink-soft">
               {online
-                ? "Couldn't reach the map tiles. Your pins and the plan still work."
-                : "Areas you've already opened stay on the device. This one isn't downloaded yet."}
+                ? "Couldn’t reach the map tiles. Your pins and the plan still work."
+                : "Areas you’ve already opened stay on the device. This one isn’t downloaded yet."}
             </p>
             <button onClick={retry} className="btn mt-4">Try again</button>
           </div>
