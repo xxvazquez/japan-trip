@@ -123,7 +123,7 @@ export function Editable(props: Props) {
         <a
           href={href}
           {...(external ? { target: "_blank", rel: "noopener" } : {})}
-          className={`text-accent underline decoration-dotted underline-offset-2 ${className}`}
+          className={`text-accent underline underline-offset-2 ${className}`}
         >
           {as === "link" ? linkText(value) : value}
         </a>
@@ -141,7 +141,7 @@ export function Editable(props: Props) {
         <a
           href={href}
           {...(as === "link" ? { target: "_blank", rel: "noopener" } : {})}
-          className="text-accent underline decoration-dotted underline-offset-2 break-all"
+          className="text-accent underline underline-offset-2 break-all"
         >
           {as === "link" ? linkText(value) : value}
         </a>
