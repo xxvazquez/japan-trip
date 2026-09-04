@@ -12,6 +12,7 @@ import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
 import { THEME_PRESETS } from "@/lib/themePresets";
 import { MAP_GLYPHS } from "@/lib/mapGlyphs";
 import { Tab } from "@/components/Tabs";
+import { ConfirmButton } from "@/components/ConfirmButton";
 import { fileToMediaItem, pickImage } from "@/lib/media";
 import { supabaseEnabled } from "@/lib/supabase";
 import { driveEnabled } from "@/lib/drive";
@@ -268,7 +269,13 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
           <li key={m.userId} className="flex items-center justify-between gap-2">
             <span className="truncate">{m.userId === me ? "You" : m.userId.slice(0, 8) + "…"} <span className="text-ink-soft">· {m.role}</span></span>
             {iAmOwner && m.role !== "owner" && (
-              <button onClick={() => removeMember(tripId, m.userId).then(reload)} className="link-quiet text-xs">remove</button>
+              <ConfirmButton
+                label="Remove access"
+                onConfirm={() => removeMember(tripId, m.userId).then(reload)}
+                className="shrink-0 text-xs text-ink-faint hover:text-accent"
+              >
+                <Icon name="trash" size={13} />
+              </ConfirmButton>
             )}
           </li>
         ))}
@@ -873,20 +880,3 @@ function Content() {
 
 /* --------------------------------------------------------------- shared */
 
-function ConfirmButton({ onConfirm, children, className = "" }: { onConfirm: () => void; children: React.ReactNode; className?: string }) {
-  const [armed, setArmed] = useState(false);
-  return (
-    <button
-      onClick={() => {
-        if (armed) onConfirm();
-        else {
-          setArmed(true);
-          setTimeout(() => setArmed(false), 2500);
-        }
-      }}
-      className={`inline-flex items-center gap-1 ${className}`}
-    >
-      {armed ? "Sure?" : children}
-    </button>
-  );
-}

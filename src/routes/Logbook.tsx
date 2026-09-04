@@ -5,6 +5,7 @@ import { Card, CARD_SHELL } from "@/components/Card";
 import { Empty } from "@/components/Empty";
 import { Tab } from "@/components/Tabs";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
+import { ConfirmButton } from "@/components/ConfirmButton";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
@@ -137,8 +138,13 @@ function AddButton({ label, onClick }: { label: string; onClick: () => void }) {
   );
 }
 
-const removeBtn = (onClick: () => void) => (
-  <button onClick={onClick} className="link-quiet text-xs">remove</button>
+/** Delete control for a whole card / group on a Logbook tab — a luggage note, a
+ *  custom-list item, a packing group. Two-tap confirm, like everywhere a thing
+ *  (not a row) gets removed. */
+const cardDeleteBtn = (onConfirm: () => void, label: string) => (
+  <ConfirmButton onConfirm={onConfirm} label={label} className="shrink-0 text-xs text-ink-faint hover:text-accent">
+    <Icon name="trash" size={14} />
+  </ConfirmButton>
 );
 
 /* -------------------------------------------------------------- custom list */
@@ -168,7 +174,7 @@ function ListSection({ list }: { list: CustomList }) {
           title={ro
             ? (it.label || "Untitled")
             : <Editable label="Item" value={it.label} placeholder="Name" onCommit={(v) => set((l) => { l.items[i].label = v; })} />}
-          right={!ro && removeBtn(() => set((l) => { l.items.splice(i, 1); }))}
+          right={!ro && cardDeleteBtn(() => set((l) => { l.items.splice(i, 1); }), "Delete item")}
         >
           {(it.note || it.url || !ro) && (
             <>
@@ -284,7 +290,7 @@ function Luggage() {
           <Card
             key={n.id}
             title={<Editable label="Title" value={n.title} placeholder="e.g. Coin lockers" onCommit={(v) => p({ title: v || "Untitled" })} />}
-            right={!ro && removeBtn(() => removeEntity("luggage", n.id))}
+            right={!ro && cardDeleteBtn(() => removeEntity("luggage", n.id), "Delete note")}
           >
             {(n.detail || n.date || n.url || !ro) && (
               <>
@@ -562,7 +568,11 @@ function Attachments({
               <Icon name="vault" size={14} className="shrink-0 text-ink-soft" />
               <button onClick={() => open(f)} className="min-w-0 flex-1 truncate text-left font-medium hover:underline">{f.name}</button>
               {f.size ? <span className="shrink-0 text-xs text-ink-soft">{(f.size / 1048576).toFixed(1)} MB</span> : null}
-              {!ro && <RowDeleteButton onClick={() => remove(f)} label="Remove file" />}
+              {!ro && (
+                <ConfirmButton onConfirm={() => remove(f)} label="Remove file" className="shrink-0 text-xs text-ink-faint hover:text-accent">
+                  <Icon name="trash" size={13} />
+                </ConfirmButton>
+              )}
             </div>
             {img && (
               <button onClick={() => open(f)} className="mt-2 block">
@@ -643,7 +653,7 @@ function Packing() {
                   {g}/{list.length}
                 </span>
               )
-              : removeBtn(() => removeGroup(group))}
+              : cardDeleteBtn(() => removeGroup(group), "Delete category")}
           >
             <ul>
               {list.map((it) => (
@@ -691,12 +701,12 @@ function PackRow({ item, ro, onToggle, onLabel, onRemove }: {
     );
   }
   return (
-    <li className="flex items-center gap-3 border-t border-line py-2.5 text-sm first:border-0">
+    <li className="group flex items-center gap-3 border-t border-line py-2.5 text-sm first:border-0">
       {box}
       <span className="min-w-0 flex-1">
         <Editable label="Item" value={item.label} placeholder="Item" className={item.done ? "text-ink-faint line-through" : "text-ink"} onCommit={onLabel} />
       </span>
-      <button onClick={onRemove} aria-label="Remove item" className="shrink-0 p-0.5 text-ink-faint hover:text-accent"><Icon name="close" size={13} /></button>
+      <RowDeleteButton onClick={onRemove} label="Remove item" />
     </li>
   );
 }

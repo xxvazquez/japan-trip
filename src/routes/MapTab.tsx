@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { MapView, type MLMap } from "@/components/MapView";
 import { Editable } from "@/components/Editable";
 import { Icon } from "@/components/Icon";
+import { ConfirmButton } from "@/components/ConfirmButton";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
@@ -976,9 +977,9 @@ function PlaceRow({
               )
             )}
             {!place.source && !readOnly && (
-              <button onClick={onRemove} className="text-ink-faint hover:text-accent">
+              <ConfirmButton onConfirm={onRemove} label="Remove place" className="text-ink-faint hover:text-accent">
                 Remove
-              </button>
+              </ConfirmButton>
             )}
           </div>
         </div>
