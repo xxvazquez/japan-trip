@@ -114,6 +114,8 @@ export default function MapTab() {
   /** inline "name a new area" field — true while it's open */
   const [namingArea, setNamingArea] = useState(false);
   const [areaName, setAreaName] = useState("");
+  /** inline area list open for rename / delete */
+  const [editingAreas, setEditingAreas] = useState(false);
 
   const places = useMemo(() => data?.places ?? [], [data]);
 
@@ -681,9 +683,36 @@ export default function MapTab() {
                 </button>
               )}
               {data.areas.length > 0 && (
-                <Link to="/manage?tab=content&section=areas" className="link-quiet ml-auto">Manage areas</Link>
+                <button onClick={() => setEditingAreas((v) => !v)} className="link-quiet ml-auto">
+                  {editingAreas ? "Done" : "Edit areas"}
+                </button>
               )}
             </div>
+          )}
+          {editingAreas && data.areas.length > 0 && (
+            <ul className="mt-2 border-t border-line pt-1.5">
+              {[...data.areas]
+                .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
+                .map((a) => (
+                  <li key={a.id} className="flex items-center gap-2 border-b border-line py-1.5 text-sm last:border-b-0">
+                    <span className="min-w-0 flex-1 truncate">
+                      <Editable
+                        label="Area name"
+                        value={a.name}
+                        placeholder="Area name"
+                        onCommit={(v) => updateEntity<Area>("areas", a.id, { name: v.trim() || "Untitled" })}
+                      />
+                    </span>
+                    <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{plural(a.placeIds.length, "place")}</span>
+                    <ConfirmButton
+                      onConfirm={() => removeEntity("areas", a.id)}
+                      className="shrink-0 text-ink-faint hover:text-accent"
+                    >
+                      <Icon name="trash" size={13} />
+                    </ConfirmButton>
+                  </li>
+                ))}
+            </ul>
           )}
         </div>
       )}
