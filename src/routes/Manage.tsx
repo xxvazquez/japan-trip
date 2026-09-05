@@ -735,6 +735,7 @@ function Content() {
 
   const linkFor = (type: EntityType, id: string): string | null =>
     type === "days" ? `/day/${id}`
+      : type === "legs" ? `/leg/${id}`
       : type === "hotels" ? `/hotel/${id}`
       : type === "journeys" ? `/journey/${id}`
       : null;
@@ -902,6 +903,12 @@ function Content() {
 
   return (
     <div className="space-y-3.5">
+      <p className="text-xs leading-relaxed text-ink-faint">
+        Add, duplicate, remove and reorder items here. To fill in the details, open the item:
+        stays, days, hotels and journeys each have their own page; luggage, packing and
+        documents are edited on the <Link to="/logbook" className="text-accent">Logbook</Link>;
+        pins and areas on the <Link to="/map" className="text-accent">Map</Link>.
+      </p>
       {CONTENT_GROUPS.map((grp) => (
         <Section key={grp.title} title={grp.title}>
           {grp.types.map((type) => <Rows key={type} type={type} />)}
