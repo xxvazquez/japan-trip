@@ -13,6 +13,14 @@
  *   Reference  luggage, documents, emergency, packing
  *   Money      budget
  *   Free text  notes (custom lists render after these)
+ *
+ * `budget` is the odd one out — a ROLL-UP, not a data-owning section. It has
+ * no entity, no add/edit/reorder, nothing to sync; it just totals prices
+ * already entered on stays and journeys (see `tripCost`). It's in this list
+ * only so it gets a tab. Any future summary view (a packing-weight total, a
+ * per-day cost) is the same kind of thing — model it on `budget`, keep it in
+ * the money/summary cluster, and don't give it the entity plumbing the tabs
+ * around it have.
  */
 export const LOGBOOK_SECTIONS = [
   "stays",
