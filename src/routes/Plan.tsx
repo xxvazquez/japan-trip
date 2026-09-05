@@ -278,7 +278,7 @@ function DayCard({ day, loc, data }: { day: Day; loc: string; data: TripData }) 
   const k = KIND[dayKind(day, data)];
   return (
     <div className="flex items-center gap-3 border border-line bg-bg px-3 py-3 text-sm shadow-md">
-      <span className="text-ink-faint"><GripIcon /></span>
+      <span className="text-ink-faint"><Icon name="grip" size={14} /></span>
       <span className="w-10 shrink-0 whitespace-nowrap text-xs tabular-nums text-ink-soft">
         {fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}
       </span>
@@ -308,7 +308,7 @@ function DayRow({ data, day, today, loc, readOnly }: { data: TripData; day: Day;
           className="-ml-1 shrink-0 cursor-grab touch-none px-1.5 py-3.5 text-ink-faint active:cursor-grabbing"
           aria-label="Drag to reorder"
         >
-          <GripIcon />
+          <Icon name="grip" size={14} />
         </button>
       )}
       <Link to={`/day/${day.id}`} className={`group flex min-w-0 flex-1 items-baseline gap-3 py-3 pr-1 ${readOnly ? "pl-1" : ""}`}>
@@ -328,13 +328,5 @@ function DayRow({ data, day, today, loc, readOnly }: { data: TripData; day: Day;
         )}
       </Link>
     </li>
-  );
-}
-
-function GripIcon() {
-  return (
-    <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden>
-      {[0, 5, 10].map((y) => [1.5, 8.5].map((x) => <circle key={`${x}-${y}`} cx={x} cy={y + 3} r="1.3" />))}
-    </svg>
   );
 }
