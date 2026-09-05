@@ -164,10 +164,22 @@ export default function Day() {
             {(day.areaIds ?? []).map((id) => {
               const a = data.areas.find((x) => x.id === id);
               if (!a) return null;
+              const linked = new Set((day.places ?? []).map((p) => p.placeId).filter(Boolean));
+              const newPlaces = a.placeIds.filter((pid) => !linked.has(pid)).map((pid) => data.places.find((p) => p.id === pid)).filter((p): p is NonNullable<typeof p> => !!p);
               return (
                 <span key={id} className="inline-flex items-center gap-1.5 rounded-[2px] border border-line px-2 py-1 text-xs">
                   {a.name || "Untitled"}
                   <span className="text-ink-faint">{a.placeIds.length}</span>
+                  {!ro && newPlaces.length > 0 && (
+                    <button
+                      onClick={() => setPlaces([...(day.places ?? []), ...newPlaces.map((p) => ({ id: rid(), label: p.name, placeId: p.id, url: p.url }))])}
+                      aria-label={`Add ${a.name}'s places to today's list`}
+                      title="Add these places to today's list"
+                      className="text-ink-faint hover:text-accent"
+                    >
+                      <Icon name="plus" size={11} />
+                    </button>
+                  )}
                   {!ro && (
                     <button
                       onClick={() => patch({ areaIds: (day.areaIds ?? []).filter((x) => x !== id) })}
@@ -197,7 +209,10 @@ export default function Day() {
             )}
           </div>
           {(day.areaIds ?? []).length > 0 && (
-            <p className="meta mt-2">Places in {(day.areaIds ?? []).length === 1 ? "this area" : "these areas"} show on the day’s map — they don’t change the plan above.</p>
+            <p className="meta mt-2">
+              Places in {(day.areaIds ?? []).length === 1 ? "this area" : "these areas"} show on the day’s map — they
+              don’t change the list above{!ro ? ", unless you tap + to add them to it" : ""}.
+            </p>
           )}
         </Section>
       )}
