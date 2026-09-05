@@ -809,9 +809,19 @@ function Content() {
     );
   };
 
+  /** a leg/day created with no hotel/stay to attach to would fail to sync
+   *  (an empty id isn't a valid foreign key) and have no way to fix it after —
+   *  so block "Add" until there's something valid for it to point at. */
+  const addBlockedReason = (type: EntityType): string | null => {
+    if (type === "legs" && data.hotels.length === 0) return "Add a hotel first";
+    if (type === "days" && data.legs.length === 0) return "Add a stay first";
+    return null;
+  };
+
   const Rows = ({ type }: { type: EntityType }) => {
     const list = data[type] as { id: string }[];
     const isOpen = open === type;
+    const blocked = addBlockedReason(type);
     return (
       <div className="border-b border-line last:border-b-0">
         <button onClick={() => setOpen(isOpen ? null : type)} className="flex w-full items-baseline justify-between gap-3 py-3 text-left">
@@ -842,9 +852,13 @@ function Content() {
               })}
               {list.length === 0 && <li className="py-2 text-sm text-ink-faint">None yet.</li>}
             </ul>
-            <button onClick={() => addEntity(type, blankFor(type) as { id: string })} className="action mt-3 text-xs">
-              <Icon name="plus" size={13} /> Add
-            </button>
+            {blocked ? (
+              <p className="mt-3 text-xs text-ink-faint">{blocked}</p>
+            ) : (
+              <button onClick={() => addEntity(type, blankFor(type) as { id: string })} className="action mt-3 text-xs">
+                <Icon name="plus" size={13} /> Add
+              </button>
+            )}
           </div>
         )}
       </div>
