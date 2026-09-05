@@ -731,7 +731,13 @@ function Content() {
       case "luggage": return { id, title: "New note" };
       case "packing": return { id, label: "New item", phase: "bring", group: "Other" };
       case "docs": return { id, title: "New document", kind: "other", fields: [] };
-      case "places": return { id, name: "New place", lat: 35.68, lng: 139.76, category: "My places" };
+      case "places": {
+        // drop the pin among the trip's own places, not a fixed coordinate
+        const pts = data.places;
+        const lat = pts.length ? pts.reduce((s, p) => s + p.lat, 0) / pts.length : 20;
+        const lng = pts.length ? pts.reduce((s, p) => s + p.lng, 0) / pts.length : 0;
+        return { id, name: "New place", lat, lng, category: "My places" };
+      }
       case "areas": return { id: crypto.randomUUID?.() ?? id, name: "New area", placeIds: [] };
       default: return { id };
     }
