@@ -1,6 +1,7 @@
 import { lazy } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import { AppShell } from "@/components/AppShell";
+import RouteError from "@/routes/RouteError";
 
 const Plan = lazy(() => import("@/routes/Plan"));
 const Day = lazy(() => import("@/routes/Day"));
@@ -14,6 +15,7 @@ const NotFound = lazy(() => import("@/routes/NotFound"));
 export const router = createBrowserRouter([
   {
     element: <AppShell />,
+    errorElement: <RouteError />,
     children: [
       { index: true, element: <Plan /> },
       { path: "day/:id", element: <Day /> },
