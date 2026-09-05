@@ -326,7 +326,9 @@ function Emergency() {
   const ro = useReadOnly();
   const updateEntity = useApp((s) => s.updateEntity);
   const contact = data.docs.find((d) => d.kind === "contact");
-  if (!contact) return <Empty what="No emergency info" hint="Add a contact document in Manage." />;
+  // every trip gets one of these backfilled on load (normalizeTrip) — this
+  // only shows if it was just deleted via Manage's raw entity list mid-session
+  if (!contact) return <Empty what="No emergency info" hint="It's added automatically — reload the page and it'll be back." />;
 
   const F = docFieldOps(updateEntity, contact.id, contact.fields);
 
