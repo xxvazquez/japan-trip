@@ -234,8 +234,10 @@ export function MapView({
     const m = new MLMap({
       container: el.current,
       style: buildMapStyle(state.current.dark),
-      center: [139.76, 35.68],
-      zoom: 9,
+      // a neutral, trip-agnostic starting view — the caller fits to the
+      // trip's own places as soon as they're known (see MapTab's fitScope)
+      center: [0, 20],
+      zoom: 1.5,
       attributionControl: false,
       dragRotate: false,
       pitchWithRotate: false,
