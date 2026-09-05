@@ -6,6 +6,8 @@ import { Editable } from "@/components/Editable";
 import { Icon } from "@/components/Icon";
 import { useApp } from "@/store/useApp";
 import { useData } from "@/lib/data";
+import { useIsDark } from "@/lib/mode";
+import { tripLogoSrc } from "@/components/Wordmark";
 import { daysBetween, plural, rangeText } from "@/lib/dates";
 import { APP_NAME } from "@/lib/app";
 import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
@@ -504,6 +506,7 @@ const hexOnly = (c: string) => (/^#[0-9a-f]{6}$/i.test(c) ? c : "#888888");
 
 function Appearance() {
   const data = useData();
+  const dark = useIsDark();
   const mutate = useApp((s) => s.mutateTrip);
   const { setMedia, addGalleryMedia, removeGalleryMedia } = useApp();
   const [advanced, setAdvanced] = useState(false);
@@ -596,7 +599,7 @@ function Appearance() {
       <Section title="Logo">
         <div className="flex items-center gap-4">
           <span className="grid h-16 w-16 place-items-center overflow-hidden rounded-[3px] border border-line bg-surface-2">
-            <img src={media.logo?.dataUrl || "/brand/logo-128.png"} alt="" className="h-full w-full object-cover" />
+            <img src={tripLogoSrc(data, dark)} alt="" className="h-full w-full object-cover" />
           </span>
           <div className="flex gap-2">
             <button disabled={busy} onClick={() => upload((item) => setMedia("logo", item))} className="btn-sm">Upload</button>

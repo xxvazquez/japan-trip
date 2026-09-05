@@ -1,5 +1,6 @@
 import { APP_NAME } from "@/lib/app";
 import { useApp } from "@/store/useApp";
+import { useIsDark } from "@/lib/mode";
 
 /**
  * Shown on a cold start with no connection and nothing cached yet to fall
@@ -8,10 +9,11 @@ import { useApp } from "@/store/useApp";
  * sync later); this screen only covers the gap before that first success.
  */
 export function Offline() {
+  const dark = useIsDark();
   return (
     <div className="washi grid min-h-svh place-items-center px-6">
       <div className="w-full max-w-sm text-center">
-        <img src="/brand/logo-256.png" width={64} height={64} alt="" className="mx-auto rounded-[22%]" />
+        <img src={dark ? "/brand/logo-256-dark.png" : "/brand/logo-256-light.png"} width={64} height={64} alt="" className="mx-auto rounded-[22%]" />
         <h1 className="mt-5 font-display text-2xl">You’re offline</h1>
         <p className="mt-2 text-sm text-ink-soft">
           {APP_NAME} hasn’t loaded your trip on this device yet, so there’s nothing to show without a

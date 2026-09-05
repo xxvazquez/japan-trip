@@ -1,44 +1,48 @@
-"""Regenerate all brand assets from logo.png.  Run:  python3 scripts/make_icons.py
+"""Regenerate all brand assets from logo.png / logo-light.png.  Run:
+    python3 scripts/make_icons.py
 
-Source of truth: logo.png in the repo root (a transparent illustration).
-Everything under public/icons, public/brand and public/favicon.png is derived
-from it — edit the source, re-run.
+Source of truth: logo.png (dark) and logo-light.png (light) in the repo root —
+both full-bleed square marks with no transparent margin. Everything under
+public/icons, public/brand and public/favicon.png is derived from them; edit
+the sources, re-run. logo-wordmark(.png|-light.png) are reference art only
+(not consumed here — nothing in the app currently shows a baked-in wordmark).
 """
 import os
 from PIL import Image
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
-SRC = os.path.join(ROOT, "logo.png")
 ICONS = os.path.join(ROOT, "public", "icons")
 BRAND = os.path.join(ROOT, "public", "brand")
 os.makedirs(ICONS, exist_ok=True)
 os.makedirs(BRAND, exist_ok=True)
 
-BG = (242, 244, 246)  # soft mist, for masked / opaque contexts
-
-logo = Image.open(SRC).convert("RGBA")
-
-
-def fit(size, pad=0.12, bg=None):
-    """Square `size` canvas, illustration scaled to `contain` with `pad` margin."""
-    canvas = Image.new("RGBA", (size, size), (bg or (0, 0, 0, 0)))
-    inner = round(size * (1 - 2 * pad))
-    scale = inner / max(logo.width, logo.height)
-    w, h = round(logo.width * scale), round(logo.height * scale)
-    resized = logo.resize((w, h), Image.LANCZOS)
-    canvas.paste(resized, ((size - w) // 2, (size - h) // 2), resized)
-    return canvas
+dark = Image.open(os.path.join(ROOT, "logo.png")).convert("RGB")
+light = Image.open(os.path.join(ROOT, "logo-light.png")).convert("RGB")
 
 
-# PWA — opaque soft background (home-screen friendly, maskable-safe)
-fit(192, pad=0.14, bg=BG).save(os.path.join(ICONS, "icon-192.png"))
-fit(512, pad=0.14, bg=BG).save(os.path.join(ICONS, "icon-512.png"))
-fit(512, pad=0.20, bg=BG).save(os.path.join(ICONS, "icon-maskable-512.png"))
-fit(180, pad=0.12, bg=BG).save(os.path.join(ICONS, "apple-touch-icon.png"))
+def resize(im, size):
+    return im.resize((size, size), Image.LANCZOS)
 
-# favicon + in-app mark — transparent so it sits on any surface
-fit(48, pad=0.06).save(os.path.join(ROOT, "public", "favicon.png"))
-fit(128, pad=0.05).save(os.path.join(BRAND, "logo-128.png"))
-fit(256, pad=0.05).save(os.path.join(BRAND, "logo-256.png"))
 
-print("brand assets written from", os.path.abspath(SRC))
+# PWA icons — static (a manifest can't react to the OS theme), so the bolder
+# dark mark is used throughout; full-bleed, no padding.
+resize(dark, 192).save(os.path.join(ICONS, "icon-192.png"))
+resize(dark, 512).save(os.path.join(ICONS, "icon-512.png"))
+resize(dark, 180).save(os.path.join(ICONS, "apple-touch-icon.png"))
+resize(dark, 48).save(os.path.join(ROOT, "public", "favicon.png"))
+
+# Maskable icon: the OS applies its own (often circular) mask, so keep the
+# ring comfortably inside an ~80% safe zone instead of full-bleed.
+canvas = Image.new("RGB", (512, 512), dark.getpixel((10, 10)))
+inner = resize(dark, 410)
+canvas.paste(inner, ((512 - 410) // 2, (512 - 410) // 2))
+canvas.save(os.path.join(ICONS, "icon-maskable-512.png"))
+
+# In-app marks: theme-reactive (see src/lib/mode.ts's useIsDark), so both
+# variants are kept, at the two sizes callers use (Wordmark ~128, full-screen
+# states like SignIn/Offline/RouteError ~256).
+for size in (128, 256):
+    resize(dark, size).save(os.path.join(BRAND, f"logo-{size}-dark.png"))
+    resize(light, size).save(os.path.join(BRAND, f"logo-{size}-light.png"))
+
+print("brand assets written from logo.png / logo-light.png")
