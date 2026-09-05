@@ -6,9 +6,15 @@ import { Icon } from "./Icon";
 
 const KIND_LABEL: Record<SearchKind, string> = {
   day: "Day",
+  leg: "Base",
   hotel: "Stay",
   place: "Place",
   transfer: "Transfer",
+  area: "Area",
+  luggage: "Luggage",
+  doc: "Document",
+  packing: "Packing",
+  list: "List",
 };
 
 export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -68,7 +74,7 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
             type="text"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Days, stays, journeys, map places…"
+            placeholder="Search everything in your trip…"
             className="w-full bg-transparent py-4 text-base outline-none placeholder:text-ink-faint"
             autoComplete="off"
             spellCheck={false}

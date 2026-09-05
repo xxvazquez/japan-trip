@@ -140,6 +140,23 @@ export default function MapTab() {
     setParams((p) => { p.delete("sel"); return p; }, { replace: true });
   }, [data, params, setParams]);
 
+  // arrived from search with ?area=<areaId>: widen to all places, filter to
+  // just that area, and make sure its group isn't left collapsed
+  const areaHandled = useRef(false);
+  useEffect(() => {
+    if (areaHandled.current || !data) return;
+    const area = params.get("area");
+    if (!area) return;
+    areaHandled.current = true;
+    if (data.areas.some((a) => a.id === area)) {
+      setScope("all");
+      setCatFilter(new Set());
+      setAreaFilter(new Set([area]));
+      setCollapsedAreas((prev) => { const next = new Set(prev); next.delete(area); return next; });
+    }
+    setParams((p) => { p.delete("area"); return p; }, { replace: true });
+  }, [data, params, setParams]);
+
   // debounced place search (Nominatim)
   useEffect(() => {
     if (!adding || pending) return;

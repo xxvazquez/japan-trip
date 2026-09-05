@@ -2,7 +2,7 @@ import type { TripData } from "@/core/types";
 import { fmtDate } from "./dates";
 import { JOURNEY_KIND_LABEL } from "./journey";
 
-export type SearchKind = "day" | "hotel" | "place" | "transfer";
+export type SearchKind = "day" | "leg" | "hotel" | "place" | "transfer" | "area" | "luggage" | "doc" | "packing" | "list";
 
 export interface SearchHit {
   kind: SearchKind;
@@ -29,6 +29,15 @@ function build(d: TripData): SearchHit[] {
         .filter(Boolean)
         .join(" ")
         .toLowerCase(),
+    });
+  }
+  for (const leg of d.legs) {
+    hits.push({
+      kind: "leg",
+      label: leg.base,
+      sub: [leg.nameAlt, `${fmtDate(leg.start, loc)} – ${fmtDate(leg.end, loc)}`].filter(Boolean).join(" · "),
+      to: `/leg/${leg.id}`,
+      terms: [leg.base, leg.nameAlt, leg.blurb].filter(Boolean).join(" ").toLowerCase(),
     });
   }
   for (const h of d.hotels) {
@@ -62,6 +71,55 @@ function build(d: TripData): SearchHit[] {
         .toLowerCase(),
     });
   }
+  for (const a of d.areas) {
+    hits.push({
+      kind: "area",
+      label: a.name || "Untitled",
+      sub: a.placeIds.length ? `${a.placeIds.length} places` : undefined,
+      to: `/map?area=${a.id}`,
+      terms: (a.name ?? "").toLowerCase(),
+    });
+  }
+  for (const n of d.luggage) {
+    hits.push({
+      kind: "luggage",
+      label: n.title,
+      sub: n.detail || undefined,
+      to: "/logbook?s=luggage",
+      terms: [n.title, n.detail].filter(Boolean).join(" ").toLowerCase(),
+    });
+  }
+  for (const doc of d.docs) {
+    hits.push({
+      kind: "doc",
+      chip: doc.kind === "contact" ? "Emergency" : undefined,
+      label: doc.title,
+      sub: doc.fields.map((f) => f.value).filter(Boolean).join(" · ") || undefined,
+      to: doc.kind === "contact" ? "/logbook?s=emergency" : "/logbook?s=documents",
+      terms: [doc.title, doc.note, ...doc.fields.flatMap((f) => [f.label, f.value])].filter(Boolean).join(" ").toLowerCase(),
+    });
+  }
+  for (const item of d.packing) {
+    hits.push({
+      kind: "packing",
+      label: item.label,
+      sub: item.group || undefined,
+      to: "/logbook?s=packing",
+      terms: [item.label, item.group].filter(Boolean).join(" ").toLowerCase(),
+    });
+  }
+  for (const list of d.config.lists ?? []) {
+    for (const item of list.items) {
+      hits.push({
+        kind: "list",
+        chip: list.title,
+        label: item.label || "Untitled",
+        sub: item.note || undefined,
+        to: `/logbook?s=${list.id}`,
+        terms: [item.label, item.note].filter(Boolean).join(" ").toLowerCase(),
+      });
+    }
+  }
   return hits;
 }
 
@@ -74,7 +132,7 @@ function score(hit: SearchHit, q: string): number {
   return 0;
 }
 
-const KIND_ORDER: SearchKind[] = ["day", "hotel", "place", "transfer"];
+const KIND_ORDER: SearchKind[] = ["day", "leg", "hotel", "place", "transfer", "area", "doc", "luggage", "list", "packing"];
 
 let cache: { data: TripData; index: SearchHit[] } | null = null;
 
