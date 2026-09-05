@@ -183,27 +183,37 @@ export async function createTrip(
     }),
   );
 
-  // per-row so one bad row can't take out the rest, and errors are visible
+  // per-row so one bad row can't take out the rest, and errors stay visible;
+  // fired in parallel — entity rows first, then the joins that reference them
   const errs: string[] = [];
-  for (const type of Object.keys(SPECS) as EntityType[]) {
-    const list = (data[type] as unknown as Record<string, unknown>[]) ?? [];
-    for (let i = 0; i < list.length; i++) {
-      const { error } = await sb.from(SPECS[type].table).upsert(entityToRow(SPECS[type], list[i], dbId, i));
-      if (error) errs.push(`${SPECS[type].table}: ${error.message}${error.hint ? ` — ${error.hint}` : ""}${error.details ? ` (${error.details})` : ""}`);
-    }
-  }
-  for (const j of data.journeys) {
-    for (let i = 0; i < j.segments.length; i++) {
-      const { error } = await sb.from("segments").upsert(segToRow(j.segments[i], dbId, j.id, i));
-      if (error) errs.push(`segments: ${error.message}`);
-    }
-  }
-  for (const a of data.areas ?? []) {
-    for (const pid of a.placeIds ?? []) {
-      const { error } = await sb.from("area_places").upsert({ trip_id: dbId, area_id: a.id, place_id: pid });
-      if (error) errs.push(`area_places: ${error.message}`);
-    }
-  }
+  const seed = async (
+    q: PromiseLike<{ error: { message: string; hint?: string; details?: string } | null }>,
+    label: string,
+  ) => {
+    const { error } = await q;
+    if (error) errs.push(`${label}: ${error.message}${error.hint ? ` — ${error.hint}` : ""}${error.details ? ` (${error.details})` : ""}`);
+  };
+
+  await Promise.all(
+    (Object.keys(SPECS) as EntityType[]).flatMap((type) => {
+      const list = (data[type] as unknown as Record<string, unknown>[]) ?? [];
+      return list.map((row, i) =>
+        seed(sb.from(SPECS[type].table).upsert(entityToRow(SPECS[type], row, dbId, i)), SPECS[type].table),
+      );
+    }),
+  );
+
+  await Promise.all([
+    ...data.journeys.flatMap((j) =>
+      j.segments.map((s, i) => seed(sb.from("segments").upsert(segToRow(s, dbId, j.id, i)), "segments")),
+    ),
+    ...(data.areas ?? []).flatMap((a) =>
+      (a.placeIds ?? []).map((pid) =>
+        seed(sb.from("area_places").upsert({ trip_id: dbId, area_id: a.id, place_id: pid }), "area_places"),
+      ),
+    ),
+  ]);
+
   if (errs.length) {
     console.error(`[seed] ${errs.length} row error(s):\n` + [...new Set(errs)].slice(0, 15).join("\n"));
   }
