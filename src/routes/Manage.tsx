@@ -805,6 +805,15 @@ function Content() {
     return null;
   };
 
+  /** hotels: how many stays/days still point here — deleting nulls those links */
+  const hotelLinks = (id: string): string | null => {
+    const stays = data.legs.filter((l) => l.hotelId === id).length;
+    const days = data.days.filter((d) => d.hotelId === id).length;
+    if (!stays && !days) return null;
+    const bits = [stays && plural(stays, "stay"), days && plural(days, "day")].filter(Boolean);
+    return `${bits.join(" and ")} link here — delete clears the link`;
+  };
+
   const Rows = ({ type }: { type: EntityType }) => {
     const list = data[type] as { id: string }[];
     const isOpen = open === type;
@@ -825,15 +834,19 @@ function Content() {
               {list.map((x, i) => {
                 const rec = x as Record<string, unknown>;
                 const href = linkFor(type, x.id);
+                const links = type === "hotels" ? hotelLinks(x.id) : null;
                 return (
-                  <li key={x.id} className="flex items-center gap-2 border-b border-line py-2 text-sm last:border-b-0">
-                    <button disabled={i === 0} onClick={() => moveEntity(type, x.id, -1)} className="text-ink-faint disabled:opacity-25" aria-label="Up"><Icon name="up" size={14} /></button>
-                    <button disabled={i === list.length - 1} onClick={() => moveEntity(type, x.id, 1)} className="text-ink-faint disabled:opacity-25" aria-label="Down"><Icon name="down" size={14} /></button>
-                    <span className="min-w-0 flex-1 truncate">
-                      {href ? <Link to={href} className="hover:text-accent">{nameOf(rec)}</Link> : nameOf(rec)}
-                    </span>
-                    <button onClick={() => addEntity(type, { ...structuredClone(rec), id: `${type}-${rid()}` } as { id: string })} className="text-ink-faint hover:text-ink-soft" aria-label="Duplicate"><Icon name="copy" size={14} /></button>
-                    <ConfirmButton onConfirm={() => removeEntity(type, x.id)} className="text-ink-faint hover:text-accent"><Icon name="trash" size={14} /></ConfirmButton>
+                  <li key={x.id} className="border-b border-line py-2 text-sm last:border-b-0">
+                    <div className="flex items-center gap-2">
+                      <button disabled={i === 0} onClick={() => moveEntity(type, x.id, -1)} className="text-ink-faint disabled:opacity-25" aria-label="Up"><Icon name="up" size={14} /></button>
+                      <button disabled={i === list.length - 1} onClick={() => moveEntity(type, x.id, 1)} className="text-ink-faint disabled:opacity-25" aria-label="Down"><Icon name="down" size={14} /></button>
+                      <span className="min-w-0 flex-1 truncate">
+                        {href ? <Link to={href} className="hover:text-accent">{nameOf(rec)}</Link> : nameOf(rec)}
+                      </span>
+                      <button onClick={() => addEntity(type, { ...structuredClone(rec), id: `${type}-${rid()}` } as { id: string })} className="text-ink-faint hover:text-ink-soft" aria-label="Duplicate"><Icon name="copy" size={14} /></button>
+                      <ConfirmButton onConfirm={() => removeEntity(type, x.id)} className="text-ink-faint hover:text-accent"><Icon name="trash" size={14} /></ConfirmButton>
+                    </div>
+                    {links && <p className="mt-1 pl-[3.25rem] text-2xs text-ink-faint">{links}</p>}
                   </li>
                 );
               })}
