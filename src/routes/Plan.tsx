@@ -326,13 +326,15 @@ function DayRow({ data, day, today, loc, readOnly }: { data: TripData; day: Day;
       )}
       <Link to={`/day/${day.id}`} className={`group flex min-w-0 flex-1 items-baseline gap-3 py-3 pr-1 ${readOnly ? "pl-1" : ""}`}>
         <DayDate date={day.date} loc={loc} strong={today} />
-        <span className="min-w-0 flex-1">
-          <span className={`block truncate ${day.title ? "font-medium text-ink" : "font-normal text-ink-faint"} group-hover:underline`}>
+        {/* title + its tags travel together — the kind tag stays next to the
+            day it belongs to instead of drifting to the far edge on wide rows */}
+        <span className="flex min-w-0 flex-1 items-baseline gap-2.5">
+          <span className={`min-w-0 truncate ${day.title ? "font-medium text-ink" : "font-normal text-ink-faint"} group-hover:underline`}>
             {day.title || "Untitled day"}
-            {today && <span className="ml-2 align-middle text-2xs font-normal uppercase tracking-[0.12em] text-accent">Today</span>}
           </span>
+          {today && <span className="shrink-0 text-2xs font-normal uppercase tracking-[0.12em] text-accent">Today</span>}
+          <DayKindTag day={day} data={data} />
         </span>
-        <DayKindTag day={day} data={data} />
       </Link>
     </li>
   );
