@@ -184,7 +184,8 @@ export async function createTrip(
   );
 
   // per-row so one bad row can't take out the rest, and errors stay visible;
-  // fired in parallel — entity rows first, then the joins that reference them
+  // fired in parallel, but phased by dependency — hotels before the legs/days
+  // that carry a hotel_id foreign key, entity rows before the joins onto them
   const errs: string[] = [];
   const seed = async (
     q: PromiseLike<{ error: { message: string; hint?: string; details?: string } | null }>,
@@ -193,14 +194,14 @@ export async function createTrip(
     const { error } = await q;
     if (error) errs.push(`${label}: ${error.message}${error.hint ? ` — ${error.hint}` : ""}${error.details ? ` (${error.details})` : ""}`);
   };
+  const seedType = (type: EntityType) =>
+    ((data[type] as unknown as Record<string, unknown>[]) ?? []).map((row, i) =>
+      seed(sb.from(SPECS[type].table).upsert(entityToRow(SPECS[type], row, dbId, i)), SPECS[type].table),
+    );
 
+  await Promise.all(seedType("hotels"));
   await Promise.all(
-    (Object.keys(SPECS) as EntityType[]).flatMap((type) => {
-      const list = (data[type] as unknown as Record<string, unknown>[]) ?? [];
-      return list.map((row, i) =>
-        seed(sb.from(SPECS[type].table).upsert(entityToRow(SPECS[type], row, dbId, i)), SPECS[type].table),
-      );
-    }),
+    (Object.keys(SPECS) as EntityType[]).filter((t) => t !== "hotels").flatMap(seedType),
   );
 
   await Promise.all([
