@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Card, CARD_SHELL } from "@/components/Card";
@@ -230,10 +230,14 @@ function Stays() {
 function GettingAround() {
   const data = useData()!;
   const loc = data.config.locale;
-  if (data.journeys.length === 0) return <Empty what="No journeys" />;
+  const journeys = useMemo(
+    () => [...data.journeys].sort((a, b) => (a.date ?? "").localeCompare(b.date ?? "")),
+    [data.journeys],
+  );
+  if (journeys.length === 0) return <Empty what="No journeys" />;
   return (
     <div className="space-y-3">
-      {[...data.journeys].sort((a, b) => (a.date ?? "").localeCompare(b.date ?? "")).map((j) => {
+      {journeys.map((j) => {
         const first = j.segments[0];
         const last = j.segments.at(-1);
         const changes = Math.max(0, j.segments.length - 1);
