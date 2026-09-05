@@ -128,6 +128,11 @@ export interface Journey {
   /** a pasted Google Maps directions link */
   gmapsDirections?: string;
   notes?: string;
+  /** the whole journey's price, free text — a multi-hop journey is usually one
+   *  ticket at one price. Overrides summing the segments' own `fare` in the
+   *  cost roll-up when set; per-segment fares still work for hops bought
+   *  separately. */
+  fare?: string;
 }
 
 /* ------------------------------------------------------------------ *
@@ -236,6 +241,8 @@ export interface Hotel {
   doorCode?: string;
   reservationRef?: string;
   notes?: string;
+  /** the whole stay's price, free text (e.g. "¥42,000" or "€310 for 3 nights") */
+  price?: string;
 }
 
 /** A luggage note — storage, lockers, forwarding, a bag left somewhere.

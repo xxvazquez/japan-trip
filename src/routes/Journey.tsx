@@ -69,6 +69,12 @@ export default function Journey() {
         </a>
       )}
 
+      {(j.fare || !ro) && (
+        <p className="mt-4 text-sm text-ink-soft">
+          Total fare <Editable label="Total fare" value={j.fare ?? ""} placeholder="—" onCommit={(v) => patch({ fare: v || undefined })} />
+        </p>
+      )}
+
       <div className="mt-8 space-y-3.5">
       {(!ro || j.segments.length > 0) && (
         <Section
