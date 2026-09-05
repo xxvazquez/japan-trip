@@ -34,7 +34,10 @@ const LABELS: Record<LogbookSection, string> = {
   documents: "Documents",
   packing: "Packing",
   budget: "Budget",
-  notes: "Notes",
+  // the id/URL param stays "notes" (config.hiddenLogbook, ?s=) — this is a
+  // single trip-wide scratchpad, not a home for the notes fields scattered
+  // across Day/Journey/Hotel/Luggage/Docs, so the label says what it is
+  notes: "Scratchpad",
 };
 
 export const logbookLabel = (section: string): string =>

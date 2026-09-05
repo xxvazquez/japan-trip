@@ -89,7 +89,7 @@ ones you keep become real areas. It never changes an area you already have.
 
 **Logbook** — the reference drawer. Use the menu at the top to jump between:
 stays · getting around · luggage · emergency numbers · documents · packing ·
-budget · notes, plus any lists you've added yourself. In **documents** you can
+budget · a scratchpad, plus any lists you've added yourself. In **documents** you can
 attach the actual PDFs / photos (passport scans, insurance, tickets) — those
 stay only on the device they were added on. Set a document's type to
 **Flights** and it lists the flights straight from your itinerary (number,
@@ -121,7 +121,7 @@ Tap almost any piece of text and it becomes editable on the spot. Type, tap
 away, done. There's no separate "edit mode". Dates and times open a picker; once
 a link is filled in it turns into a normal clickable link (with a small "edit").
 
-**Notes** fields (on a day, a stay, a journey, and the Logbook's Notes tab) take
+**Notes** fields (on a day, a stay, a journey, and the Logbook's Scratchpad) take
 light Markdown — `**bold**`, `*italic*`, `-` bullet lists, `>` quotes, headings
 and `[links](https://…)`. A slim B / I / • / link toolbar and the usual
 ⌘/Ctrl-B · ⌘/Ctrl-I shortcuts are there while editing; bullets continue on Enter.
