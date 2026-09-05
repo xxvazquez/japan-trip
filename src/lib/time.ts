@@ -36,7 +36,3 @@ export function fmtMinutes(total: number): string {
 export function clockOf(s?: string): string {
   return parseLocal(s)?.time ?? "";
 }
-
-export function dayOf(s?: string): string {
-  return parseLocal(s)?.date ?? "";
-}

@@ -16,7 +16,7 @@
 import type {
   Day, Doc, Hotel, Journey, Leg, Place, Segment, TripData,
 } from "@/core/types";
-import { fmtDate, fmtSpan, plural } from "@/lib/dates";
+import { fmtDate, fmtSpan, plural, todayISO } from "@/lib/dates";
 import { localMinutes, fmtMinutes } from "@/lib/time";
 import { gmapsLink } from "@/lib/maps";
 import { MODE_LABEL } from "@/lib/transport";
@@ -410,7 +410,7 @@ function styles(data: TripData): string {
 /** Build the whole trip as one HTML document string. */
 export function buildTripHtml(data: TripData, opts: ExportOptions): string {
   const title = data.meta.title || data.config.branding || "Trip";
-  const generated = new Date().toLocaleDateString(data.config.locale || "en-GB", { day: "numeric", month: "long", year: "numeric" });
+  const generated = fmtDate(todayISO(), data.config.locale || "en-GB", { day: "numeric", month: "long", year: "numeric" });
   const body = [
     coverSection(data),
     itinerarySection(data),

@@ -9,8 +9,6 @@ export type ID = string;
 export type ISODate = string;
 /** local wall time, YYYY-MM-DDTHH:MM (no zone — the zone is a sibling field) */
 export type LocalDateTime = string;
-/** 24h clock, HH:MM */
-export type Clock = string;
 
 /** One palette. Values are CSS colours. Keys are the app's design tokens. */
 export type Palette = Record<string, string>;
