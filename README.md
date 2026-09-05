@@ -267,8 +267,8 @@ src/
                        mapStyle · mymaps (KML import) · geocode (Nominatim)
   store/useApp.ts      trips + active trip + every mutation
   components/          shell + primitives (Editable, MapView, BackBar, Icon…)
-  routes/              one file per page (Plan, Day, Journey, MapTab, Logbook,
-                       Hotel, Manage)
+  routes/              one file per page (Plan, Day, Leg, Journey, MapTab,
+                       Logbook, Hotel, Manage)
   templates/           seed data for a new trip (blank, or a worked example)
 supabase/migrations/   database schema, applied in order
 supabase/dump_trip.sql read-only: one trip's whole content as JSON, for diffing

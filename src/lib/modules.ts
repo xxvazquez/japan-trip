@@ -2,7 +2,7 @@ import type { ModuleConfig, ModuleKind } from "@/core/types";
 
 /** Route + extra path prefixes that count as "this section is current". */
 export const MODULE_ROUTE: Record<ModuleKind, { to: string; match: string[] }> = {
-  plan: { to: "/", match: ["/day", "/journey"] },
+  plan: { to: "/", match: ["/day", "/leg", "/journey"] },
   map: { to: "/map", match: [] },
   logbook: { to: "/logbook", match: ["/hotel"] },
 };
