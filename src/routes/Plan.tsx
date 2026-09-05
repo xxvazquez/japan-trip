@@ -273,28 +273,41 @@ function LegBlock({
   );
 }
 
+/** The fixed-width weekday+date cell at the start of a day row. */
+function DayDate({ date, loc, strong }: { date: string; loc: string; strong?: boolean }) {
+  return (
+    <span className={`w-10 shrink-0 whitespace-nowrap text-xs tabular-nums ${strong ? "font-medium text-ink" : "text-ink-soft"}`}>
+      {fmtDate(date, loc, { weekday: "short", day: "numeric" })}
+    </span>
+  );
+}
+
+/** The uppercase "Arrive / Travel / Day trip" tag at the end of a day row —
+ *  identical in the live row and the drag overlay, so it lives in one place. */
+function DayKindTag({ day, data }: { day: Day; data: TripData }) {
+  const k = KIND[dayKind(day, data)];
+  if (!k) return null;
+  return (
+    <span className="flex shrink-0 items-center gap-1 text-2xs font-normal uppercase tracking-[0.12em] text-ink-soft">
+      <Icon name={k.icon} size={12} /> {k.label}
+    </span>
+  );
+}
+
 /** The little block that rides under the cursor while dragging a day. */
 function DayCard({ day, loc, data }: { day: Day; loc: string; data: TripData }) {
-  const k = KIND[dayKind(day, data)];
   return (
     <div className="flex items-center gap-3 border border-line bg-bg px-3 py-3 text-sm shadow-md">
       <span className="text-ink-faint"><Icon name="grip" size={14} /></span>
-      <span className="w-10 shrink-0 whitespace-nowrap text-xs tabular-nums text-ink-soft">
-        {fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}
-      </span>
+      <DayDate date={day.date} loc={loc} />
       <span className="min-w-0 flex-1 truncate font-medium text-ink">{day.title || "Untitled day"}</span>
-      {k && (
-        <span className="flex shrink-0 items-center gap-1 text-2xs font-normal uppercase tracking-[0.12em] text-ink-soft">
-          <Icon name={k.icon} size={12} /> {k.label}
-        </span>
-      )}
+      <DayKindTag day={day} data={data} />
     </div>
   );
 }
 
 function DayRow({ data, day, today, loc, readOnly }: { data: TripData; day: Day; today: boolean; loc: string; readOnly: boolean }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: day.id, disabled: readOnly });
-  const k = KIND[dayKind(day, data)];
   return (
     <li
       ref={setNodeRef}
@@ -312,20 +325,14 @@ function DayRow({ data, day, today, loc, readOnly }: { data: TripData; day: Day;
         </button>
       )}
       <Link to={`/day/${day.id}`} className={`group flex min-w-0 flex-1 items-baseline gap-3 py-3 pr-1 ${readOnly ? "pl-1" : ""}`}>
-        <span className={`w-10 shrink-0 whitespace-nowrap text-xs tabular-nums ${today ? "font-medium text-ink" : "text-ink-soft"}`}>
-          {fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}
-        </span>
+        <DayDate date={day.date} loc={loc} strong={today} />
         <span className="min-w-0 flex-1">
           <span className={`block truncate ${day.title ? "font-medium text-ink" : "font-normal text-ink-faint"} group-hover:underline`}>
             {day.title || "Untitled day"}
             {today && <span className="ml-2 align-middle text-2xs font-normal uppercase tracking-[0.12em] text-accent">Today</span>}
           </span>
         </span>
-        {k && (
-          <span className="flex shrink-0 items-center gap-1 text-2xs font-normal uppercase tracking-[0.12em] text-ink-soft">
-            <Icon name={k.icon} size={12} /> {k.label}
-          </span>
-        )}
+        <DayKindTag day={day} data={data} />
       </Link>
     </li>
   );
