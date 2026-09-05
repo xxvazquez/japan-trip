@@ -84,3 +84,19 @@ export function tripCost(data: TripData): CostSummary {
 
   return { byCurrency, unparsed };
 }
+
+/** e.g. (42000, "JPY") -> "¥42,000"; falls back to a plain number when the
+ *  currency is unknown or Intl doesn't recognise the code. */
+export function fmtMoney(amount: number, currency: string): string {
+  if (!currency) return amount.toLocaleString();
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+      currencyDisplay: "narrowSymbol",
+      maximumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+    }).format(amount);
+  } catch {
+    return `${amount.toLocaleString()} ${currency}`;
+  }
+}

@@ -17,6 +17,7 @@ import { APP_NAME } from "@/lib/app";
 import { fmtDate, fmtSpan, plural } from "@/lib/dates";
 import { flightSegments } from "@/lib/journey";
 import { LOGBOOK_SECTIONS, logbookLabel } from "@/lib/logbook";
+import { tripCost, fmtMoney } from "@/lib/cost";
 import { putFile, fileUrl, removeFile } from "@/lib/fileStore";
 import {
   driveEnabled, ensureFolder, uploadToDrive, shareFile, deleteFromDrive, driveViewUrl, driveImageUrl,
@@ -121,6 +122,7 @@ export default function Logbook() {
           {active === "emergency" && <Emergency />}
           {active === "documents" && <Documents />}
           {active === "packing" && <Packing />}
+          {active === "budget" && <Budget />}
           {active === "notes" && <Notes />}
         </>
       )}
@@ -350,6 +352,49 @@ function Emergency() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------- budget */
+
+const CATEGORY_LABEL = { accommodation: "Accommodation", transport: "Transport", other: "Other" } as const;
+
+function Budget() {
+  const data = useData()!;
+  const { byCurrency, unparsed } = tripCost(data);
+  const currencies = Object.keys(byCurrency);
+
+  if (currencies.length === 0) {
+    return <Empty what="No prices yet" hint="Add a price on a stay or a journey and it'll total up here." />;
+  }
+
+  return (
+    <div className="space-y-3">
+      {currencies.map((cur) => {
+        const g = byCurrency[cur];
+        return (
+          <Card key={cur || "—"} title={cur || "Unspecified currency"}>
+            {(Object.keys(CATEGORY_LABEL) as (keyof typeof CATEGORY_LABEL)[])
+              .filter((k) => g[k] > 0)
+              .map((k) => (
+                <div key={k} className="row">
+                  <span className="row-label">{CATEGORY_LABEL[k]}</span>
+                  <span className="row-value value">{fmtMoney(g[k], cur)}</span>
+                </div>
+              ))}
+            <div className="row">
+              <span className="row-label font-medium text-ink">Total</span>
+              <span className="row-value value font-medium text-ink">{fmtMoney(g.total, cur)}</span>
+            </div>
+          </Card>
+        );
+      })}
+      {unparsed.length > 0 && (
+        <p className="px-1 text-xs text-ink-faint">
+          Couldn’t read {plural(unparsed.length, "price")}: {unparsed.join(", ")}
+        </p>
+      )}
     </div>
   );
 }
