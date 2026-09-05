@@ -249,3 +249,28 @@ html.dark {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * MapLibre chrome — the vendor stylesheet loads with the map chunk, so
+ * this needs to sit outside @layer to win. The zoom control is our own
+ * (see MapView); this is just the compact attribution pill, dragged into
+ * the flat / hairline / token-colour language.
+ * ------------------------------------------------------------------ */
+.maplibregl-ctrl-attrib.maplibregl-compact {
+  background: rgb(var(--c-surface) / 0.85) !important;
+  border-radius: 2px !important;
+  box-shadow: none !important;
+  border: 1px solid rgb(var(--c-line));
+  min-height: 20px;
+}
+.maplibregl-ctrl-attrib.maplibregl-compact-show {
+  background: rgb(var(--c-surface)) !important;
+}
+.maplibregl-ctrl-attrib,
+.maplibregl-ctrl-attrib a {
+  color: rgb(var(--c-ink-faint));
+  font-family: theme("fontFamily.sans");
+}
+.maplibregl-ctrl-attrib-button {
+  background-color: rgb(var(--c-ink-faint)) !important;
+}

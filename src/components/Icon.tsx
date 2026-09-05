@@ -16,6 +16,7 @@ export type IconName =
   | "map"
   | "check"
   | "plus"
+  | "minus"
   | "chevron"
   | "settings"
   | "trash"
@@ -102,6 +103,7 @@ const P: Record<IconName, JSX.Element> = {
   ),
   check: <path d="M5 13l4 4L19 7" />,
   plus: <path d="M12 5v14M5 12h14" />,
+  minus: <path d="M5 12h14" />,
   settings: (
     <>
       <path d="M4 7h3M11 7h9M4 12h9M17 12h3M4 17h5M13 17h7" />
