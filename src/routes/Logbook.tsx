@@ -682,32 +682,44 @@ function Packing() {
 
   if (total === 0 && ro) return <Empty what="No packing list" />;
 
+  const allDone = total > 0 && done === total;
+
   return (
-    <div className="space-y-3">
+    <div className="space-y-6">
       {total > 0 && (
         <div className="flex items-center gap-3 px-1">
           <span className="text-xl font-medium tabular-nums">{done}<span className="text-ink-faint">/{total}</span></span>
-          <span className="h-1 flex-1 overflow-hidden rounded-full bg-line">
-            <span className="block h-full bg-accent transition-all" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
+          <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
+            <span
+              className="block h-full rounded-full bg-accent transition-all"
+              style={{ width: done === 0 ? "0%" : `${Math.max(6, (done / total) * 100)}%` }}
+            />
           </span>
+          {allDone && <span className="shrink-0 text-xs font-medium text-accent">All packed</span>}
         </div>
+      )}
+      {total === 0 && !ro && (
+        <p className="px-1 text-sm text-ink-faint">
+          Start with a category — Clothes, Tech, Toiletries… — then add what goes in it.
+        </p>
       )}
       {Object.entries(groups).map(([group, list]) => {
         const g = list.filter((i) => i.done).length;
         return (
-          <Card
-            key={group}
-            title={ro ? group : (
-              <Editable label="Category" value={group} placeholder="Category" onCommit={(v) => renameGroup(group, v)} />
-            )}
-            right={ro
-              ? (
-                <span className={`text-xs tabular-nums ${g === list.length ? "text-accent" : "text-ink-soft"}`}>
+          <div key={group}>
+            <div className="flex items-baseline justify-between gap-3 border-b border-line pb-1.5">
+              <span className="lead min-w-0 truncate">
+                {ro ? group : (
+                  <Editable label="Category" value={group} placeholder="Category" onCommit={(v) => renameGroup(group, v)} />
+                )}
+              </span>
+              <span className="flex shrink-0 items-center gap-2 pt-0.5">
+                <span className={`text-xs tabular-nums ${g === list.length ? "text-accent" : "text-ink-faint"}`}>
                   {g}/{list.length}
                 </span>
-              )
-              : cardDeleteBtn(() => removeGroup(group), "Delete category")}
-          >
+                {!ro && cardDeleteBtn(() => removeGroup(group), "Delete category")}
+              </span>
+            </div>
             <ul>
               {list.map((it) => (
                 <PackRow
@@ -725,7 +737,7 @@ function Packing() {
                 <Icon name="plus" size={13} /> Add item
               </button>
             )}
-          </Card>
+          </div>
         );
       })}
       {!ro && <AddButton label="Add a category" onClick={addCategory} />}
