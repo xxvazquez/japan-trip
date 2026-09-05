@@ -215,6 +215,7 @@ function journeysSection(data: TripData, opts: ExportOptions): string {
       <h3>${esc(j.label)}</h3>
       ${when ? `<p class="leg-range">${esc(when)}</p>` : ""}
       ${j.segments.map((s, i) => segmentBlock(s, j.segments[i + 1], opts, j.date, loc)).join("\n") || `<p class="empty">No hops yet.</p>`}
+      ${j.fare ? `<p class="seg-meta">Total fare: ${esc(j.fare)}</p>` : ""}
       ${dir}
       ${j.notes?.trim() ? `<div class="note">${mdToHtml(j.notes)}</div>` : ""}
     </section>`;
@@ -240,6 +241,7 @@ function staysSection(data: TripData, opts: ExportOptions): string {
       ${rows([
         ["Check-in", h.checkIn],
         ["Check-out", h.checkOut],
+        ["Price", h.price],
         ["Wifi", opts.includePrivate ? h.wifi : undefined],
         ["Door code", opts.includePrivate ? h.doorCode : undefined],
         ["Phone", opts.includePrivate ? h.phone : undefined],
