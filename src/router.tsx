@@ -5,6 +5,7 @@ import RouteError from "@/routes/RouteError";
 
 const Plan = lazy(() => import("@/routes/Plan"));
 const Day = lazy(() => import("@/routes/Day"));
+const Leg = lazy(() => import("@/routes/Leg"));
 const Journey = lazy(() => import("@/routes/Journey"));
 const MapTab = lazy(() => import("@/routes/MapTab"));
 const Logbook = lazy(() => import("@/routes/Logbook"));
@@ -19,6 +20,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Plan /> },
       { path: "day/:id", element: <Day /> },
+      { path: "leg/:id", element: <Leg /> },
       { path: "journey/:id", element: <Journey /> },
       { path: "map", element: <MapTab /> },
       { path: "logbook", element: <Logbook /> },
