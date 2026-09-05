@@ -6,6 +6,7 @@ import { Editable } from "@/components/Editable";
 import { Icon } from "@/components/Icon";
 import { useApp } from "@/store/useApp";
 import { useData } from "@/lib/data";
+import { useAsyncAction } from "@/lib/useAsyncAction";
 import { useIsDark } from "@/lib/mode";
 import { tripLogoSrc } from "@/components/Wordmark";
 import { daysBetween, plural, rangeText } from "@/lib/dates";
@@ -58,17 +59,16 @@ export default function Manage() {
 function Trips() {
   const { trips, activeId, createTrip, duplicateTrip, renameTrip, archiveTrip, deleteTrip, switchTrip } = useApp();
   const nav = useNavigate();
-  const [busy, setBusy] = useState(false);
+  const { busy, run } = useAsyncAction();
   const [creating, setCreating] = useState(false);
 
-  const make = async (templateId?: string) => {
-    setBusy(true);
-    const name = templateId ? (buildFromTemplate(templateId).config.branding || "New trip") : "New trip";
-    const id = await createTrip({ name, templateId });
-    await switchTrip(id);
-    setBusy(false);
-    nav("/");
-  };
+  const make = (templateId?: string) =>
+    run(async () => {
+      const name = templateId ? (buildFromTemplate(templateId).config.branding || "New trip") : "New trip";
+      const id = await createTrip({ name, templateId });
+      await switchTrip(id);
+      nav("/");
+    });
 
   // no registered templates beyond the always-blank default → skip the
   // "Start from" picker (a single-option menu isn't a choice) and create
@@ -80,13 +80,12 @@ function Trips() {
   const hasDemo = trips.some((t) => t.templateId === "demo");
   const auth = useAuth();
 
-  const addDemo = async () => {
-    setBusy(true);
-    const id = await createTrip({ name: "Demo", templateId: "demo" });
-    await switchTrip(id);
-    setBusy(false);
-    nav("/");
-  };
+  const addDemo = () =>
+    run(async () => {
+      const id = await createTrip({ name: "Demo", templateId: "demo" });
+      await switchTrip(id);
+      nav("/");
+    });
 
   return (
     <div>
@@ -187,18 +186,14 @@ function Trips() {
 function ExportTrip() {
   const data = useData();
   const [includePrivate, setIncludePrivate] = useState(false);
-  const [busy, setBusy] = useState(false);
+  const { busy, run } = useAsyncAction();
   if (!data) return null;
 
-  const run = async () => {
-    setBusy(true);
-    try {
+  const download = () =>
+    run(async () => {
       const { downloadTripHtml } = await import("@/lib/tripExport");
       downloadTripHtml(data, { includePrivate });
-    } finally {
-      setBusy(false);
-    }
-  };
+    });
 
   return (
     <Section title="Export">
@@ -220,7 +215,7 @@ function ExportTrip() {
           </span>
         </span>
       </label>
-      <button onClick={run} disabled={busy} className="btn-primary mt-4">
+      <button onClick={download} disabled={busy} className="btn-primary mt-4">
         <Icon name="download" size={15} /> {busy ? "Building…" : "Download web page"}
       </button>
     </Section>
@@ -249,25 +244,18 @@ function RowMenu({ children }: { children: React.ReactNode }) {
 function Sharing({ tripId, me }: { tripId: string; me: string }) {
   const [members, setMembers] = useState<Member[]>([]);
   const [email, setEmail] = useState("");
-  const [msg, setMsg] = useState("");
-  const [busy, setBusy] = useState(false);
+  const { busy, msg, run } = useAsyncAction("Couldn’t add them.");
   const reload = () => listMembers(tripId).then(setMembers).catch(() => {});
   useEffect(() => { reload(); }, [tripId]);
   const iAmOwner = members.find((m) => m.userId === me)?.role === "owner";
 
-  const invite = async () => {
+  const invite = () => {
     if (!email.trim()) return;
-    setBusy(true);
-    setMsg("");
-    try {
+    run(async () => {
       const r = await inviteMember(tripId, email);
-      setMsg(r === "ok" ? "Added." : "No account with that email yet — they need to sign in once first.");
       if (r === "ok") { setEmail(""); reload(); }
-    } catch {
-      setMsg("Couldn’t add them.");
-    } finally {
-      setBusy(false);
-    }
+      return r === "ok" ? "Added." : "No account with that email yet — they need to sign in once first.";
+    });
   };
 
   return (
@@ -510,21 +498,17 @@ function Appearance() {
   const mutate = useApp((s) => s.mutateTrip);
   const { setMedia, addGalleryMedia, removeGalleryMedia } = useApp();
   const [advanced, setAdvanced] = useState(false);
-  const [busy, setBusy] = useState(false);
+  const { busy, run } = useAsyncAction();
   if (!data) return null;
   if (data.config.demo) return <DemoNotice />;
   const { config, media } = data;
 
-  const upload = async (fn: (item: Awaited<ReturnType<typeof fileToMediaItem>>) => void) => {
-    const file = await pickImage();
-    if (!file) return;
-    setBusy(true);
-    try {
+  const upload = (fn: (item: Awaited<ReturnType<typeof fileToMediaItem>>) => void) =>
+    run(async () => {
+      const file = await pickImage();
+      if (!file) return;
       fn(await fileToMediaItem(file));
-    } finally {
-      setBusy(false);
-    }
-  };
+    });
 
   return (
     <div className="space-y-3.5">
