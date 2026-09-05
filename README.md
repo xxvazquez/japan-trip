@@ -1,5 +1,8 @@
 <div align="center">
-  <img src="public/brand/logo-256.png" width="88" alt="" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="public/brand/logo-256-dark.png">
+    <img src="public/brand/logo-256-light.png" width="88" alt="" />
+  </picture>
   <h1>Zuknesst Atlas</h1>
   <p><em>A private, offline-first travel workspace. One app, many trips.</em></p>
 </div>
@@ -323,9 +326,16 @@ spinner meanwhile.
 
 ## Branding
 
-`logo.png` / `logo-wordmark.png` at the repo root are the source. Regenerate
-icons with `python3 scripts/make_icons.py`. Per-trip logos and covers are
-uploaded in the app (*Manage → Appearance*).
+`logo.png` (dark) / `logo-light.png` at the repo root are the source — both
+full-bleed square marks, no padding. Regenerate everything under
+`public/icons` and `public/brand` with `python3 scripts/make_icons.py`.
+PWA icons are static (a manifest can't react to the OS theme) so they use the
+dark mark; in-app marks (`Wordmark`, sign-in/offline/error screens) switch
+between the dark/light PNGs at runtime via `useIsDark()` (`src/lib/mode.ts`).
+`logo-wordmark.png` / `logo-wordmark-light.png` are reference art with the
+"ZUKNESST ATLAS" wordmark baked in — not consumed anywhere yet, kept for a
+future banner/share-image use. Per-trip logos and covers are uploaded in the
+app (*Manage → Appearance*).
 
 ---
 

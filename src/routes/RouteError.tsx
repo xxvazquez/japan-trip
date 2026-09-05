@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useRouteError } from "react-router-dom";
 import { APP_NAME } from "@/lib/app";
+import { useIsDark } from "@/lib/mode";
 
 const RELOAD_KEY = "za.chunk-reload-at";
 const RELOAD_COOLDOWN_MS = 10_000;
@@ -22,6 +23,7 @@ function shouldAutoReload(): boolean {
  *  doesn't help, falls back to a plain error screen instead of a blank page. */
 export default function RouteError() {
   const error = useRouteError();
+  const dark = useIsDark();
   const chunkError = isChunkLoadError(error);
   const willReload = chunkError && shouldAutoReload();
 
@@ -36,7 +38,7 @@ export default function RouteError() {
   return (
     <div className="washi grid min-h-svh place-items-center px-6">
       <div className="w-full max-w-sm text-center">
-        <img src="/brand/logo-256.png" width={64} height={64} alt="" className="mx-auto rounded-[22%]" />
+        <img src={dark ? "/brand/logo-256-dark.png" : "/brand/logo-256-light.png"} width={64} height={64} alt="" className="mx-auto rounded-[22%]" />
         <h1 className="mt-5 font-display text-2xl">Something went wrong</h1>
         <p className="mt-2 text-sm text-ink-soft">
           {APP_NAME} hit a snag loading that page. Reloading usually fixes it.

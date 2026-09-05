@@ -56,6 +56,12 @@ export function useMode(): [Mode, (m: Mode) => void] {
   return [m, setMode];
 }
 
+/** Whether dark mode is actually in effect right now (resolves "system"). */
+export function useIsDark(): boolean {
+  const [m] = useMode();
+  return isDark(m);
+}
+
 /** Write a trip's palette to CSS custom properties for the current mode. */
 export function applyPalette(light: Palette, dark: Palette, m: Mode = read()) {
   const p = isDark(m) ? dark : light;
