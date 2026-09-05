@@ -28,6 +28,15 @@ function linkText(v: string) {
   }
 }
 
+/* Two heuristics feed `as: "auto"`, resolved in this order (see `resolveKind`):
+ *  1. `labelKind` — what the field's *name* implies ("Phone" → tel), so an
+ *     empty field still gets the right input. Its rule order only matters for
+ *     labels that mention two types at once (rare); label intent wins overall.
+ *  2. `detectKind` — the *value*'s own format. Order matters here: an ISO date
+ *     also satisfies `looksLikePhone`, so `date` must be tested before `tel`.
+ *  A new detectable kind needs a rule in whichever of the two applies (often
+ *  both) — keep each list's existing order. */
+
 /** Best guess at what a free-text value actually is — null when nothing fits. */
 function detectKind(v: string): Kind | null {
   const s = v.trim();
@@ -50,6 +59,11 @@ function labelKind(label: string): Kind | null {
   if (/\b(date|expiry|expires|valid|issued|until|check-?in|check-?out|dob)\b/.test(s)) return "date";
   if (/\b(price|cost|fare|amount|fee|total|deposit|balance|budget)\b/.test(s)) return "number";
   return null;
+}
+
+/** The single `as: "auto"` decision — label intent first, then value format. */
+function resolveKind(label: string, value: string): Kind {
+  return labelKind(label) ?? detectKind(value) ?? "text";
 }
 
 /** 3–4 digit short codes (110, 119, 911…), or a longer +/spaced/dashed number. */
@@ -84,7 +98,7 @@ export function Editable(props: Props) {
   const { value, onCommit, placeholder = "Add…", label, className = "" } = props;
   const rawAs = props.as ?? "text";
   const as: Kind =
-    rawAs === "auto" ? (labelKind(label) ?? detectKind(value) ?? "text")
+    rawAs === "auto" ? resolveKind(label, value)
       : rawAs === "select" ? "text"
       : rawAs;
   // a select shows its option's label, not the raw stored value
