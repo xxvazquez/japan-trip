@@ -33,7 +33,9 @@ export type IconName =
   | "clock"
   | "list"
   | "link"
-  | "download";
+  | "download"
+  | "grip"
+  | "more";
 
 const P: Record<IconName, JSX.Element> = {
   itinerary: (
@@ -173,7 +175,26 @@ const P: Record<IconName, JSX.Element> = {
       <path d="M5 19h14" />
     </>
   ),
+  grip: (
+    <>
+      <circle cx="9" cy="6" r="1.4" fill="currentColor" stroke="none" />
+      <circle cx="9" cy="12" r="1.4" fill="currentColor" stroke="none" />
+      <circle cx="9" cy="18" r="1.4" fill="currentColor" stroke="none" />
+      <circle cx="15" cy="6" r="1.4" fill="currentColor" stroke="none" />
+      <circle cx="15" cy="12" r="1.4" fill="currentColor" stroke="none" />
+      <circle cx="15" cy="18" r="1.4" fill="currentColor" stroke="none" />
+    </>
+  ),
+  more: (
+    <>
+      <circle cx="5" cy="12" r="1.4" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none" />
+      <circle cx="19" cy="12" r="1.4" fill="currentColor" stroke="none" />
+    </>
+  ),
 };
+
+export const isIconName = (x: string): x is IconName => x in P;
 
 export function Icon({
   name,

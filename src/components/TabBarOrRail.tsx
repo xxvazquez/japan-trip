@@ -1,7 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { useData } from "@/lib/data";
 import { enabledModules, moduleTo, isModuleCurrent } from "@/lib/modules";
-import { Icon, type IconName } from "./Icon";
+import { Icon, isIconName } from "./Icon";
 
 /** Bottom tab bar on mobile; a quiet left rail from md up. Driven by the active
  *  trip's section config — reorder / rename / hide them in Manage. */
@@ -38,7 +38,7 @@ export function TabBarOrRail() {
                   current ? "text-accent" : "text-ink-faint hover:text-ink-soft",
                 ].join(" ")}
               >
-                <Icon name={(s.icon as IconName) || "vault"} size={20} />
+                <Icon name={s.icon && isIconName(s.icon) ? s.icon : "vault"} size={20} />
                 {s.label}
               </NavLink>
             </li>

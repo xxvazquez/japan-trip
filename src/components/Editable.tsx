@@ -159,7 +159,7 @@ export function Editable(props: Props) {
         type={as}
         aria-label={label}
         value={value}
-        onChange={(e) => e.target.value && e.target.value !== value && onCommit(e.target.value)}
+        onChange={(e) => e.target.value !== value && onCommit(e.target.value)}
         className={`editable inline bg-transparent tabular-nums ${className}`}
       />
     );

@@ -557,6 +557,7 @@ export const useApp = create<AppStore>((set, get) => {
     reorderDays: (arrangement) => {
       const changed: string[] = [];
       let legsMoved = false;
+      let valid = true;
       const mark = (id: string) => { if (!changed.includes(id)) changed.push(id); };
       if (!local((d) => {
         // the new global order: each stay's days, stays in trip order
@@ -567,7 +568,7 @@ export const useApp = create<AppStore>((set, get) => {
             if (day) flat.push({ day, legId });
           }
         }
-        if (flat.length !== d.days.length) return; // arrangement must cover every day exactly once
+        if (flat.length !== d.days.length) { valid = false; return; } // arrangement must cover every day exactly once
 
         // keep the trip's span fixed — re-use the same pool of dates, in order
         const dates = d.days.map((x) => x.date).sort();
@@ -593,6 +594,7 @@ export const useApp = create<AppStore>((set, get) => {
 
         d.days.sort((a, b) => a.date.localeCompare(b.date));
       })) return;
+      if (!valid) return;
       for (const id of changed) enqueue(get, { t: "row", type: "days", id });
       enqueue(get, { t: "pos", type: "days" });
       if (legsMoved) {
