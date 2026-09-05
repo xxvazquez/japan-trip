@@ -35,9 +35,9 @@ function build(d: TripData): SearchHit[] {
     hits.push({
       kind: "hotel",
       label: h.name,
-      sub: [h.nameJp, h.address].filter(Boolean).join(" · "),
+      sub: [h.nameAlt, h.address].filter(Boolean).join(" · "),
       to: `/hotel/${h.id}`,
-      terms: [h.name, h.nameJp, h.address, h.notes].filter(Boolean).join(" ").toLowerCase(),
+      terms: [h.name, h.nameAlt, h.address, h.notes].filter(Boolean).join(" ").toLowerCase(),
     });
   }
   for (const p of d.places) {

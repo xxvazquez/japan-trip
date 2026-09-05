@@ -167,7 +167,7 @@ function itinerarySection(data: TripData): string {
       ? `${fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – ${fmtDate(leg.end, loc, { day: "numeric", month: "short" })} · ${plural(nights, "night")}`
       : "";
     return `<section class="leg">
-      <h3>${esc(leg.base)}${leg.nameJp ? ` <span class="jp">${esc(leg.nameJp)}</span>` : ""}</h3>
+      <h3>${esc(leg.base)}${leg.nameAlt ? ` <span class="jp">${esc(leg.nameAlt)}</span>` : ""}</h3>
       ${range ? `<p class="leg-range">${esc(range)}</p>` : ""}
       ${leg.blurb?.trim() ? `<div class="note">${mdToHtml(leg.blurb)}</div>` : ""}
       ${days.map((d) => dayBlock(d, data, loc)).join("\n") || `<p class="empty">No days yet.</p>`}
@@ -232,10 +232,10 @@ function staysSection(data: TripData, opts: ExportOptions): string {
       : "";
     const mapHref = gmapsLink(h.mapUrl || h.address);
     return `<section class="stay">
-      <h3>${esc(h.name)}${h.nameJp ? ` <span class="jp">${esc(h.nameJp)}</span>` : ""}</h3>
+      <h3>${esc(h.name)}${h.nameAlt ? ` <span class="jp">${esc(h.nameAlt)}</span>` : ""}</h3>
       ${range ? `<p class="leg-range">${esc(range)}</p>` : ""}
       ${h.address ? `<p class="stay-address">${esc(h.address)}</p>` : ""}
-      ${h.addressJp ? `<p class="stay-address jp">${esc(h.addressJp)}</p>` : ""}
+      ${h.addressAlt ? `<p class="stay-address jp">${esc(h.addressAlt)}</p>` : ""}
       ${mapHref ? `<p class="seg-meta"><a href="${safeHref(mapHref)}">Open in Google Maps</a></p>` : ""}
       ${rows([
         ["Check-in", h.checkIn],
