@@ -144,7 +144,8 @@ export interface TripMeta {
 export interface Leg {
   id: ID;
   base: string;
-  nameJp?: string;
+  /** name in the local script, if different from `base` */
+  nameAlt?: string;
   start: ISODate;
   end: ISODate;
   hotelId: ID;
@@ -218,10 +219,11 @@ export interface Day {
 export interface Hotel {
   id: ID;
   name: string;
-  nameJp?: string;
+  /** name in the local script, if different from `name` */
+  nameAlt?: string;
   address?: string;
-  /** address in Japanese, to show a taxi driver */
-  addressJp?: string;
+  /** address in the local script, to show a taxi driver */
+  addressAlt?: string;
   /** how to get here from the station, free text */
   directions?: string;
   /** pasted Google Maps link */

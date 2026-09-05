@@ -59,14 +59,14 @@ export default function Hotel() {
       />
 
       {/* address — the thing you show a taxi */}
-      {(hotel.address || hotel.addressJp || !ro) && (
+      {(hotel.address || hotel.addressAlt || !ro) && (
         <div className="-mx-5 -mt-2 bg-surface px-5 py-4 sm:px-7">
           <p className="text-[1rem] font-medium leading-snug">
             <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined })} />
           </p>
-          {(hotel.addressJp || !ro) && (
+          {(hotel.addressAlt || !ro) && (
             <p className="mt-1 font-jp text-[0.95rem] leading-snug text-ink-soft">
-              <Editable label="Address (Japanese)" value={hotel.addressJp ?? ""} placeholder="現地語の住所（タクシー用）" onCommit={(v) => p({ addressJp: v || undefined })} />
+              <Editable label="Local address" value={hotel.addressAlt ?? ""} placeholder="Local-language address, for taxis" onCommit={(v) => p({ addressAlt: v || undefined })} />
             </p>
           )}
           {map && (

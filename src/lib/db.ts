@@ -21,8 +21,8 @@ interface Spec {
 }
 
 const SPECS: Record<EntityType, Spec> = {
-  legs: { table: "legs", rename: { nameJp: "name_alt", start: "start_date", end: "end_date" } },
-  hotels: { table: "hotels", rename: { nameJp: "name_alt" } },
+  legs: { table: "legs", rename: { start: "start_date", end: "end_date" } },
+  hotels: { table: "hotels" },
   journeys: { table: "journeys" },
   luggage: { table: "luggage" },
   days: { table: "days" },

@@ -253,7 +253,7 @@ function LegBlock({
       <div className="mb-2 flex items-baseline gap-2">
         <span className="h-3 w-3 shrink-0 translate-y-[1px] rounded-full" style={{ background: hex }} />
         <h2 className="font-display text-[1.35rem] leading-tight">{leg.base}</h2>
-        {leg.nameJp && <span className="font-jp text-sm text-ink-faint">{leg.nameJp}</span>}
+        {leg.nameAlt && <span className="font-jp text-sm text-ink-faint">{leg.nameAlt}</span>}
       </div>
       <p className="mb-2 pl-5 text-2xs uppercase tracking-[0.12em] text-ink-soft">
         {fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – {fmtDate(leg.end, loc, { day: "numeric", month: "short" })} · {plural(nights, "night")}
