@@ -112,5 +112,13 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
       : [];
   }
 
+  // the Logbook "Emergency" tab shows the one doc with kind "contact" — but
+  // that kind isn't a selectable Document type (it's meant to be a
+  // singleton), so there's no way to create one by hand. Every trip needs
+  // exactly one, or the tab is a permanent dead end.
+  if (!(d.docs as Doc[]).some((doc) => doc.kind === "contact")) {
+    (d.docs as Doc[]).push({ id: `docs-${fieldId()}`, title: "Emergency contacts", kind: "contact", fields: [] });
+  }
+
   return d as T;
 }
