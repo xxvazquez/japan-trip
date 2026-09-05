@@ -366,6 +366,9 @@ function Emergency() {
 
 const CATEGORY_LABEL = { accommodation: "Accommodation", transport: "Transport", other: "Other" } as const;
 
+/** A read-only roll-up, not a data-owning tab: everything here is derived from
+ *  prices on stays and journeys by `tripCost`. Nothing is added or stored. See
+ *  the note in `lib/logbook.ts` before adding another summary view like this. */
 function Budget() {
   const data = useData()!;
   const { byCurrency, unparsed } = tripCost(data);
