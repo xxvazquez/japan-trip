@@ -500,10 +500,23 @@ export const useApp = create<AppStore>((set, get) => {
       flushNow(get);
       const be = pickBackend();
       unsubscribeTrip();
-      const data = await be.loadTrip(id);
+      let data = await be.loadTrip(id);
+      // pick up any edit to this trip that didn't reach Supabase last time it
+      // was open (same recovery `init` does on a cold boot), so switching away
+      // and back within one session can't silently drop it
+      if (be.kind === "supabase") {
+        const ob = await kv.get<Outbox>(STORAGE_KEYS.outbox(id));
+        if (ob?.ops.length) {
+          queue = [...ob.ops];
+          data = data ? normalizeTrip(applyOutbox(data, ob)) : normalizeTrip(ob.data);
+        }
+      }
       set({ activeId: id, data });
       void be.setActive(id, get().trips);
-      if (data) listen(id);
+      if (data) {
+        listen(id);
+        if (queue.length) void flush(get);
+      }
     },
 
     mutate: (fn) => { local(fn); },
