@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
   Map as MLMap,
-  NavigationControl,
   AttributionControl,
   addProtocol,
   type GeoJSONSource,
@@ -242,7 +241,8 @@ export function MapView({
       dragRotate: false,
       pitchWithRotate: false,
     });
-    m.addControl(new NavigationControl({ showCompass: false }), "top-right");
+    // no NavigationControl — its boxed, drop-shadowed buttons clash with the
+    // flat / hairline UI; a matching +/- is rendered in JSX below instead
     m.addControl(new AttributionControl({ compact: true }), "bottom-right");
     tileErrs.current = 0;
     tilesOk.current = 0;
@@ -382,6 +382,24 @@ export function MapView({
   return (
     <div className="relative h-full w-full">
       <div ref={el} className="h-full w-full" />
+      {status === "ok" && (
+        <div className="absolute right-3 top-3 flex flex-col overflow-hidden rounded-[2px] border border-line bg-surface text-ink-soft">
+          <button
+            onClick={() => map.current?.zoomIn()}
+            aria-label="Zoom in"
+            className="grid h-8 w-8 place-items-center transition-colors hover:bg-surface-2 hover:text-ink"
+          >
+            <Icon name="plus" size={15} />
+          </button>
+          <button
+            onClick={() => map.current?.zoomOut()}
+            aria-label="Zoom out"
+            className="grid h-8 w-8 place-items-center border-t border-line transition-colors hover:bg-surface-2 hover:text-ink"
+          >
+            <Icon name="minus" size={15} />
+          </button>
+        </div>
+      )}
       {status === "loading" && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center bg-bg">
           <Loader label="Loading the map" />
