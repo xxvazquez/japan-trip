@@ -230,7 +230,7 @@ function RowMenu({ children }: { children: React.ReactNode }) {
   return (
     <span className="relative">
       <button onClick={() => setOpen((v) => !v)} aria-label="More" className="grid h-7 w-7 place-items-center text-ink-soft hover:text-ink">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden><circle cx="3" cy="8" r="1.4" /><circle cx="8" cy="8" r="1.4" /><circle cx="13" cy="8" r="1.4" /></svg>
+        <Icon name="more" size={16} />
       </button>
       {open && (
         <>
