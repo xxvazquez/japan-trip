@@ -80,7 +80,7 @@ export const THEME_PRESETS: ThemePreset[] = [
       light: {
         bg: "#eef0f4", surface: "#f6f7fa", "surface-2": "#e2e5ec",
         ink: "#191c26", "ink-soft": "#434959", "ink-faint": "#838a9c", line: "#d7dbe4",
-        accent: "#3d4f8a", gold: "#8c826e", matcha: "#6f7d7a", ai: "#2f3c66",
+        accent: "#5163a0", gold: "#8c826e", matcha: "#6f7d7a", ai: "#2f3c66",
       },
       dark: {
         bg: "#111320", surface: "#181b2a", "surface-2": "#222636",
