@@ -291,6 +291,8 @@ export default function MapTab() {
     return places.filter((p) => !inArea.has(p.id));
   }, [places, data?.areas]);
 
+  const imported = useMemo(() => places.filter((p) => p.source === "mymap").length, [places]);
+
   // fit the map to the current scope when nothing is selected
   const fitScope = () => {
     const m = map.current;
@@ -307,7 +309,6 @@ export default function MapTab() {
   if (!data) return null;
   const url = data.config.mapSourceUrl?.trim() ?? "";
   const syncedAt = data.config.mapSyncedAt;
-  const imported = places.filter((p) => p.source === "mymap").length;
   const loc = data.config.locale;
   const c = tripClock(data);
 
