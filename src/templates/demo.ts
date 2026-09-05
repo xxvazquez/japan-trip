@@ -54,7 +54,7 @@ export function buildDemo(): TripData {
     meta: { title: "Demo", start: D1, end: D4 },
     media: { gallery: [] },
     scratch:
-      "Notes is a free-text scratchpad — shopping lists, things you keep forgetting, a phrase you want to remember. It’s shared with anyone the trip is shared with.",
+      "A free-text scratchpad — shopping lists, things you keep forgetting, a phrase you want to remember. It’s shared with anyone the trip is shared with.",
 
     legs: [
       { id: "leg-river", base: "Riverside", start: D1, end: D2, hotelId: "h-river", color: "blue" },
