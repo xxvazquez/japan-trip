@@ -324,9 +324,11 @@ async function recoverFromOutbox(get: () => AppStore, listen: (id: string) => vo
   return true;
 }
 
-/** The realtime socket reconnected — events during the outage were missed. Push
- *  anything pending, then re-pull the trip so a second traveller's changes show
- *  up. Skipped while local edits are still unsynced, so nothing is clobbered. */
+/** Re-pull the whole trip: either the realtime socket reconnected (events
+ *  during the outage were missed), or a membership row arrived before the
+ *  area/journey it belongs to (see realtime.ts's splice). Pushes anything
+ *  pending first, then skips while local edits are still unsynced, so
+ *  nothing is clobbered. */
 async function resyncTrip(get: () => AppStore, tripId: string) {
   const be = pickBackend();
   if (be.kind !== "supabase") return;
