@@ -68,8 +68,9 @@ like a normal app, full screen. Do this on both phones.
 An **area** is *where* it is (Gion, Higashiyama, a neighbourhood you name). A
 place can sit in several areas. Create one from the *+ Add area* row under the
 map list (name it and it's made), assign places from a pin's detail panel on
-the Map, and use *Manage areas* in that same row for the full editor (rename,
-delete, bulk membership). Once areas exist, an **Areas** row of chips sits with
+the Map, and rename or delete one with *Edit areas* in that same row
+(place-by-place membership for a whole area lives in Manage → Content →
+Areas). Once areas exist, an **Areas** row of chips sits with
 the category and transit filters — tap to show just those areas on the map (and
 in the list); none lit means all. On the **All places** view the list itself
 splits into a collapsible section per area (plus a *No area* group), so you can
