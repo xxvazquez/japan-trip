@@ -25,10 +25,16 @@ export function Page({
 }
 
 /**
- * The one page-header pattern for every route except Plan (whose "NOW" block is
- * its own thing). Optional back control, an eyebrow (with an optional colour
- * dot), the title, and a quiet meta line under it. `title` takes a node so a
- * page can drop an <Editable> straight in.
+ * The one page-header pattern for the reading-column routes. Two shapes:
+ *
+ *   • detail page (Day / Journey / Hotel / Leg) — `back` + `eyebrow`
+ *     (a date, a stay span, "Stay") + `title`
+ *   • section page (Logbook / Manage) — `title` alone, optional `meta`, no
+ *     `back`, no `eyebrow`: the tab bar already says where you are
+ *
+ * `title` takes a node so a page can drop an <Editable> straight in. Two routes
+ * deliberately don't use this: Plan (its "NOW" countdown block stands in for a
+ * title) and Map (full-bleed, no reading column).
  */
 export function PageHeader({
   back,
