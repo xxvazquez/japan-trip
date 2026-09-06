@@ -23,7 +23,7 @@ export function Section({
 }) {
   return (
     <section className={`${CARD_SHELL} ${className}`}>
-      <div className="mb-3 flex items-baseline justify-between gap-3 border-b border-line pb-2.5">
+      <div className="mb-2.5 flex items-baseline justify-between gap-3 border-b border-line pb-2.5">
         <h2 className="kicker">{title}</h2>
         {action ? <div className="shrink-0">{action}</div> : null}
       </div>
