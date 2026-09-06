@@ -74,7 +74,8 @@ function parseBlocks(src: string): Block[] {
 function renderBlock(b: Block, key: number): ReactNode {
   switch (b.t) {
     case "h": {
-      const cls = b.level === 1 ? "text-[1.15rem]" : b.level === 2 ? "text-[1.05rem]" : "text-[0.95rem]";
+      // sized in em so a heading tracks the note's own prose size (.note)
+      const cls = b.level === 1 ? "text-[1.15em]" : b.level === 2 ? "text-[1.05em]" : "text-[0.95em]";
       return <p key={key} className={`font-display font-medium leading-snug text-ink ${cls}`}>{inline(b.text)}</p>;
     }
     case "hr":

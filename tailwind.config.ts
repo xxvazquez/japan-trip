@@ -37,7 +37,7 @@ export default {
       fontSize: {
         // a small, deliberate scale
         "2xs": ["0.6875rem", { lineHeight: "1rem", letterSpacing: "0.06em" }],
-        display: ["clamp(2rem, 6vw, 3rem)", { lineHeight: "1.08", letterSpacing: "-0.02em" }],
+        display: ["clamp(2.5rem, 7vw, 3.25rem)", { lineHeight: "1.05", letterSpacing: "-0.02em" }],
         "display-lg": ["clamp(2.6rem, 9vw, 4.5rem)", { lineHeight: "1.02", letterSpacing: "-0.025em" }],
       },
       maxWidth: {

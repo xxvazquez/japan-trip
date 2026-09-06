@@ -872,7 +872,7 @@ function ScopeMenu({ value, options, onChange }: { value: string; options: Scope
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`Map scope: ${current?.label}`}
-        className="flex max-w-[15rem] items-center gap-1 font-display text-[1.35rem] leading-tight"
+        className="subhead flex max-w-[15rem] items-center gap-1"
       >
         <span className="truncate">{current?.label}</span>
         <Icon name="down" size={13} className={`shrink-0 text-ink-faint transition-transform ${open ? "rotate-180" : ""}`} />

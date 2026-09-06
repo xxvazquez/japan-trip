@@ -138,9 +138,12 @@ html.dark {
   }
 
   /* ---- hierarchy utilities ---------------------------------------- *
-   * L1  screen identity  — .text-title (detail pages), text-display (Plan)
+   * L0  Plan hero        — text-display  (the countdown number, nothing else)
+   * L1  screen identity  — .text-title  (the page title, via <PageHeader>)
+   * L1  display sub-head  — .subhead  (a serif heading below a page title:
+   *                         a Plan stay, the Map scope)
    * L2  item names       — .lead
-   * L2  paired values    — .value  (right column)
+   * L2  paired values    — .value  (right column) / .field-value (under a label)
    * L3  section headers  — .kicker (bare, or as the <Section> panel's header)
    * L3  free-text prose  — .note  (every note field + the scratchpad)
    * L3  labels/metadata  — .meta / .row-label
@@ -151,6 +154,12 @@ html.dark {
   .text-title {
     @apply font-display font-medium leading-[1.12] text-ink;
     font-size: clamp(1.6rem, 1.15rem + 2vw, 2rem);
+  }
+
+  /* L1 — a serif heading that sits below a page title: a stay on the Plan, the
+   * scope label on the Map. Smaller than .text-title, same family + weight. */
+  .subhead {
+    @apply font-display text-[1.3125rem] font-medium leading-tight text-ink;
   }
 
   /* L3 section header: stands out through wide letter-spacing + full-ink
