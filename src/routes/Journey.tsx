@@ -176,7 +176,7 @@ export default function Journey() {
               {next && (
                 <p className="border-l-2 border-dashed border-line py-1.5 pl-3 text-xs text-ink-soft">
                   {gap != null ? (
-                    <span className={!overnight && gap < 20 ? "font-medium text-accent" : ""}>
+                    <span className={!overnight && gap < 20 ? "font-medium text-ink" : ""}>
                       {fmtMinutes(gap)} to change{s.to ? ` at ${s.to}` : ""}{overnight ? " — overnight" : gap < 20 ? " — tight" : ""}
                     </span>
                   ) : (

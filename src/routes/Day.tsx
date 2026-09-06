@@ -94,10 +94,10 @@ export default function Day() {
 
           {(day.lastTrainBack || !ro) && (
             <div className="mt-4 flex items-baseline gap-2 border-t border-line pt-3">
-              <Icon name="clock" size={14} className="shrink-0 translate-y-0.5 text-accent" />
+              <Icon name="clock" size={14} className="shrink-0 translate-y-0.5 text-ink-faint" />
               <p className="text-sm">
                 <span className="text-ink-soft">Last way back — </span>
-                <span className="font-medium text-accent">
+                <span className="font-medium text-ink">
                   <Editable label="Last way back" value={day.lastTrainBack ?? ""} placeholder="e.g. last train ~23:00" onCommit={(v) => patch({ lastTrainBack: v || undefined })} />
                 </span>
               </p>
@@ -338,7 +338,7 @@ function PlanRow({ item, place, places, readOnly, onPatch, onRemove }: {
             <Icon
               name="chevron"
               size={13}
-              className={`transition-transform ${open ? "rotate-90" : ""} ${hasNote ? "text-accent" : "text-ink-faint/50"}`}
+              className={`transition-transform ${open ? "rotate-90" : ""} ${hasNote ? "text-ink-soft" : "text-ink-faint/50"}`}
             />
           </button>
         )}
@@ -349,12 +349,12 @@ function PlanRow({ item, place, places, readOnly, onPatch, onRemove }: {
         <div className="ml-[4.5rem] space-y-2.5 border-l border-line pb-3 pl-3 pr-1">
           {!readOnly && (places.length > 0 || item.placeId) && (
             <div className="flex items-center gap-1.5">
-              <Icon name="pin" size={12} className={item.placeId ? "shrink-0 text-accent" : "shrink-0 text-ink-faint"} />
+              <Icon name="pin" size={12} className={item.placeId ? "shrink-0 text-ink-soft" : "shrink-0 text-ink-faint"} />
               <select
                 value={item.placeId ?? ""}
                 onChange={(e) => onPatch({ placeId: e.target.value || undefined })}
                 aria-label="Link this step to a place"
-                className="min-w-0 flex-1 cursor-pointer bg-transparent text-xs font-medium text-accent focus:outline-none"
+                className="min-w-0 flex-1 cursor-pointer bg-transparent text-xs font-medium text-ink focus:outline-none"
               >
                 <option value="">Link a place…</option>
                 {[...places].sort((a, b) => a.name.localeCompare(b.name)).map((p) => (

@@ -139,7 +139,7 @@ function Trips() {
                 ) : (
                   <Editable label="Trip name" value={t.name} onCommit={(v) => renameTrip(t.id, v || t.name)} className="lead" />
                 )}
-                {t.id === activeId && <span className="ml-2 align-middle text-2xs font-normal uppercase tracking-[0.12em] text-accent">active</span>}
+                {t.id === activeId && <span className="ml-2 align-middle text-2xs font-medium uppercase tracking-[0.12em] text-ink">active</span>}
                 {isDemo && <span className="ml-2 align-middle text-2xs uppercase tracking-wide text-ink-faint">read-only</span>}
                 {t.subtitle && <span className="meta mt-0.5 block">{t.subtitle}</span>}
               </span>

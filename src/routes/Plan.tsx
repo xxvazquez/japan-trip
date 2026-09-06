@@ -332,7 +332,7 @@ function DayRow({ data, day, today, loc, readOnly }: { data: TripData; day: Day;
           <span className={`min-w-0 truncate ${day.title ? "font-medium text-ink" : "font-normal text-ink-faint"} group-hover:underline`}>
             {day.title || "Untitled day"}
           </span>
-          {today && <span className="shrink-0 text-2xs font-normal uppercase tracking-[0.12em] text-accent">Today</span>}
+          {today && <span className="shrink-0 text-2xs font-medium uppercase tracking-[0.12em] text-ink">Today</span>}
           <DayKindTag day={day} data={data} />
         </span>
       </Link>
