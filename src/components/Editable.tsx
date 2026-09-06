@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useReadOnly } from "@/lib/readonly";
 import { gmapsLink } from "@/lib/maps";
 import { fmtDate } from "@/lib/dates";
+import { linkLabel } from "@/lib/linkLabel";
 
 type Base = {
   value: string;
@@ -19,26 +20,6 @@ type Kind = "text" | "textarea" | "number" | "date" | "time" | "link" | "tel" | 
 type Props =
   | (Base & { as?: Kind | "auto" })
   | (Base & { as: "select"; options: { value: string; label: string }[] });
-
-/** A short, human label for a link. Names the services this app actually sees
- *  (mostly map links — "google.com" tells you nothing); otherwise the bare
- *  host without "www". */
-function linkText(v: string) {
-  try {
-    const u = new URL(v);
-    const host = u.hostname.replace(/^www\./, "");
-    const isGmaps =
-      (/(^|\.)google\.[a-z.]+$/.test(host) && u.pathname.startsWith("/maps")) ||
-      host === "maps.app.goo.gl" ||
-      host === "g.page" ||
-      (host === "goo.gl" && u.pathname.startsWith("/maps"));
-    if (isGmaps) return "Google Maps";
-    if (host === "maps.apple.com") return "Apple Maps";
-    return host;
-  } catch {
-    return v.length > 30 ? v.slice(0, 30) + "…" : v;
-  }
-}
 
 /* Two heuristics feed `as: "auto"`, resolved in this order (see `resolveKind`):
  *  1. `labelKind` — what the field's *name* implies ("Phone" → tel), so an
@@ -151,7 +132,7 @@ export function Editable(props: Props) {
           {...(external ? { target: "_blank", rel: "noopener" } : {})}
           className={`text-accent underline underline-offset-2 ${className}`}
         >
-          {as === "link" ? linkText(value) : value}
+          {as === "link" ? linkLabel(value) : value}
         </a>
       );
     }
@@ -169,7 +150,7 @@ export function Editable(props: Props) {
           {...(as === "link" ? { target: "_blank", rel: "noopener" } : {})}
           className="text-accent underline underline-offset-2 break-all"
         >
-          {as === "link" ? linkText(value) : value}
+          {as === "link" ? linkLabel(value) : value}
         </a>
         <button type="button" onClick={() => setEditing(true)} aria-label={`Edit ${label}`} className="ml-1.5 align-baseline text-xs text-ink-faint hover:text-accent">
           edit
