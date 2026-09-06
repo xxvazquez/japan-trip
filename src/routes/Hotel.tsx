@@ -68,7 +68,7 @@ export default function Hotel() {
         <div className={CARD_SHELL}>
           {showAddress && (
             <div>
-              <p className="text-[1.05rem] font-medium leading-snug">
+              <p className="field-value">
                 <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined })} />
               </p>
               {(hotel.addressAlt || !ro) && (
@@ -88,7 +88,7 @@ export default function Hotel() {
               {doorShown.map(([label, value, onCommit, as]) => (
                 <div key={label}>
                   <p className="field-label">{label}</p>
-                  <p className="mt-0.5 text-[1.0625rem] font-medium leading-snug">
+                  <p className="mt-0.5 field-value">
                     <Editable as={as} label={label} value={value ?? ""} placeholder="—" onCommit={onCommit} />
                   </p>
                 </div>
@@ -101,7 +101,7 @@ export default function Hotel() {
       <div className="mt-3.5 space-y-3.5">
         {(hotel.directions || !ro) && (
           <Section title="Getting here">
-            <div className="text-sm leading-relaxed text-ink">
+            <div className="note">
               <Editable as="textarea" label="Directions" value={hotel.directions ?? ""} placeholder="From the station…" onCommit={(v) => p({ directions: v || undefined })} />
             </div>
           </Section>
@@ -128,7 +128,7 @@ export default function Hotel() {
 
         {(hotel.notes || !ro) && (
           <Section title="Notes">
-            <div className="text-sm text-ink">
+            <div className="note">
               <RichNote value={hotel.notes ?? ""} onCommit={(v) => p({ notes: v || undefined })} placeholder="Anything about this stay" />
             </div>
           </Section>

@@ -142,6 +142,7 @@ html.dark {
    * L2  item names       — .lead
    * L2  paired values    — .value  (right column)
    * L3  section headers  — .kicker (bare, or as the <Section> panel's header)
+   * L3  free-text prose  — .note  (every note field + the scratchpad)
    * L3  labels/metadata  — .meta / .row-label
    * L4  placeholders     — text-ink-faint, nothing else
    * -------------------------------------------------------------- */
@@ -167,6 +168,11 @@ html.dark {
   .field-label {
     @apply font-sans text-2xs font-normal uppercase tracking-[0.12em] text-ink-soft;
   }
+  /* the value sitting under a .field-label — a door code, a date, an address.
+   * Bigger than a .row's .value because it stands alone as the panel's content. */
+  .field-value {
+    @apply text-[1.0625rem] font-medium leading-snug text-ink;
+  }
 
   /* L2 — an item name the eye scans for; medium weight, not bold */
   .lead {
@@ -180,6 +186,13 @@ html.dark {
   /* L3 — compact secondary metadata, readable but quiet */
   .meta {
     @apply text-[0.8125rem] leading-normal text-ink-soft;
+  }
+
+  /* L3 — free-text prose: a note field, the scratchpad. One size everywhere,
+   * matching the edit textarea so nothing resizes when you tap in. Callers may
+   * override the colour (text-ink-soft on a note that's secondary to its card). */
+  .note {
+    @apply text-[0.95rem] leading-relaxed text-ink;
   }
 
   /* a label / value list row — hairline between peers only */

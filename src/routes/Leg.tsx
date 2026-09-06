@@ -51,13 +51,13 @@ export default function Leg() {
       <div className="mb-8 grid grid-cols-2 gap-x-4 gap-y-5">
         <div>
           <p className="field-label">Start</p>
-          <p className="mt-0.5 text-[1.0625rem] font-medium leading-snug">
+          <p className="mt-0.5 field-value">
             <Editable as="date" label="Start date" value={leg.start} onCommit={(v) => v && p({ start: v })} />
           </p>
         </div>
         <div>
           <p className="field-label">End</p>
-          <p className="mt-0.5 text-[1.0625rem] font-medium leading-snug">
+          <p className="mt-0.5 field-value">
             <Editable as="date" label="End date" value={leg.end} onCommit={(v) => v && p({ end: v })} />
           </p>
         </div>
@@ -114,7 +114,7 @@ export default function Leg() {
 
       {(leg.blurb || !ro) && (
         <Section title="About this stay">
-          <div className="text-sm text-ink">
+          <div className="note">
             <RichNote value={leg.blurb ?? ""} onCommit={(v) => p({ blurb: v || undefined })} placeholder="A line or two about this stay…" />
           </div>
         </Section>

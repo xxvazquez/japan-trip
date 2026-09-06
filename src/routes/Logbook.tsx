@@ -192,7 +192,7 @@ function ListSection({ list }: { list: CustomList }) {
           {(it.note || it.url || !ro) && (
             <>
               {(it.note || !ro) && (
-                <p className="text-sm text-ink-soft">
+                <p className="note text-ink-soft">
                   {ro ? it.note : (
                     <Editable label="Note" value={it.note ?? ""} placeholder="＋ a note" onCommit={(v) => set((l) => { l.items[i].note = v || undefined; })} />
                   )}
@@ -312,7 +312,7 @@ function Luggage() {
             {(n.detail || n.date || n.url || !ro) && (
               <>
                 {(n.detail || !ro) && (
-                  <p className="text-sm leading-relaxed text-ink-soft">
+                  <p className="note text-ink-soft">
                     <Editable as="textarea" label="Detail" value={n.detail ?? ""} placeholder="Where, when, how much…" onCommit={(v) => p({ detail: v || undefined })} />
                   </p>
                 )}
@@ -361,7 +361,7 @@ function Emergency() {
           </button>
         )}
         {(contact.note?.trim() || !ro) && (
-          <div className="mt-2 text-sm text-ink-soft">
+          <div className="note mt-2 text-ink-soft">
             <RichNote
               value={contact.note ?? ""}
               onCommit={(v) => updateEntity<Doc>("docs", contact.id, { note: v || undefined })}
@@ -541,7 +541,7 @@ function Documents() {
             )}
           </div>
           {(d.note?.trim() || !ro) && (
-            <div className="mt-2 text-sm text-ink-soft">
+            <div className="note mt-2 text-ink-soft">
               <RichNote
                 value={d.note ?? ""}
                 onCommit={(v) => updateEntity<Doc>("docs", d.id, { note: v || undefined })}
@@ -797,7 +797,7 @@ function Notes() {
   if (ro && !data.scratch) return <p className="text-sm text-ink-faint">Nothing noted yet.</p>;
   return (
     <Card>
-      <div className="text-[0.95rem] text-ink">
+      <div className="note">
         <RichNote value={data.scratch ?? ""} onCommit={(v) => setScratch(v)} placeholder="Anything to remember." />
       </div>
     </Card>

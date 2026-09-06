@@ -972,7 +972,7 @@ function PlaceRow({
             </div>
           )}
           {readOnly ? (
-            place.note && <p className="whitespace-pre-wrap text-sm text-ink-soft">{place.note}</p>
+            place.note && <p className="note whitespace-pre-wrap text-ink-soft">{place.note}</p>
           ) : (
             <Editable
               as="textarea"
@@ -980,7 +980,7 @@ function PlaceRow({
               value={place.note ?? ""}
               placeholder="＋ a note for this place"
               onCommit={onNote}
-              className="text-sm text-ink-soft"
+              className="note text-ink-soft"
             />
           )}
 

@@ -195,7 +195,7 @@ export default function Day() {
       {/* GENERAL NOTES — free-form catch-all, after the day's actual plan */}
       {(day.notes || !ro) && (
         <Section title="General notes">
-          <div className="text-[0.95rem] text-ink">
+          <div className="note">
             <RichNote
               value={day.notes ?? ""}
               onCommit={(v) => patch({ notes: v || undefined })}
@@ -220,7 +220,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   return (
     <div>
       <p className="field-label">{label}</p>
-      <div className="mt-1 text-sm leading-relaxed text-ink">{children}</div>
+      <div className="note mt-1">{children}</div>
     </div>
   );
 }
@@ -363,7 +363,7 @@ function PlanRow({ item, place, places, readOnly, onPatch, onRemove }: {
               </select>
             </div>
           )}
-          <div className="text-[0.8125rem] leading-relaxed text-ink">
+          <div className="note">
             {readOnly
               ? (hasNote && <Markdown text={item.note!} />)
               : (

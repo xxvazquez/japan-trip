@@ -192,7 +192,7 @@ export default function Journey() {
 
       {(j.notes || !ro) && (
         <Section title="Notes">
-          <div className="text-sm text-ink">
+          <div className="note">
             <RichNote value={j.notes ?? ""} onCommit={(v) => patch({ notes: v || undefined })} placeholder="Backup routes, reminders…" />
           </div>
         </Section>
