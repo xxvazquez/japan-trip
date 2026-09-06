@@ -91,9 +91,10 @@ city or a spread-out road trip) and names each group after the neighbourhood it
 sits in. You review the groups — rename, untick, drop a place — and only the
 ones you keep become real areas. It never changes an area you already have.
 
-**Logbook** — the reference drawer. Use the menu at the top to jump between:
-stays · getting around · luggage · emergency numbers · documents · packing ·
-budget · a scratchpad, plus any lists you've added yourself. In **documents** you can
+**Logbook** — the reference drawer. The tabs along the top are grouped —
+*Bookings* (stays, getting around), *Reference* (luggage, documents, emergency
+numbers, packing), *Money* (budget), *Free text* (a scratchpad, plus any lists
+you've added yourself). In **documents** you can
 attach the actual PDFs / photos (passport scans, insurance, tickets) — those
 stay only on the device they were added on. Set a document's type to
 **Flights** and it lists the flights straight from your itinerary (number,

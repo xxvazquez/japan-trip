@@ -26,8 +26,14 @@ export function Tab({
               // only the strip (never the page), and only far enough to clear
               // the ~20px fade mask, so the first tab isn't left half-hidden
               if (!el || !active) return;
-              const row = el.parentElement;
-              if (!row || row.scrollWidth <= row.clientWidth + 1) return;
+              // the scroll container may be a level or two up (Logbook wraps
+              // each cluster in its own flex div) — walk to the first
+              // horizontally-scrollable ancestor
+              let row = el.parentElement;
+              while (row && row !== document.body && row.scrollWidth <= row.clientWidth + 1) {
+                row = row.parentElement;
+              }
+              if (!row || row === document.body) return;
               const t = el.getBoundingClientRect();
               const r = row.getBoundingClientRect();
               const pad = 24;
