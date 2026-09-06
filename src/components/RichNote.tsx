@@ -145,7 +145,7 @@ export function RichNote({
       aria-label={label}
       onMouseDown={(e) => e.preventDefault()}
       onClick={on}
-      className="grid h-7 w-7 place-items-center rounded-[2px] text-ink-soft hover:bg-surface-2 hover:text-ink"
+      className="grid h-7 w-7 place-items-center rounded text-ink-soft hover:bg-surface-2 hover:text-ink"
     >
       {children}
     </button>
@@ -167,7 +167,7 @@ export function RichNote({
         onBlur={commit}
         onKeyDown={onKeyDown}
         rows={3}
-        className="w-full resize-none rounded-[2px] border border-gold/60 bg-surface px-2.5 py-2 text-[0.95rem] leading-relaxed outline-none focus:border-gold"
+        className="w-full resize-none rounded border border-gold/60 bg-surface px-2.5 py-2 text-[0.95rem] leading-relaxed outline-none focus:border-gold"
       />
       <p className="mt-1 text-2xs text-ink-faint">
         **bold** · *italic* · - bullet · [text](link) — ⌘/Ctrl-Enter saves, Esc cancels

@@ -142,7 +142,7 @@ export default function Day() {
               const linked = new Set((day.plan ?? []).map((it) => it.placeId).filter(Boolean));
               const newPlaces = a.placeIds.filter((pid) => !linked.has(pid)).map((pid) => data.places.find((p) => p.id === pid)).filter((p): p is NonNullable<typeof p> => !!p);
               return (
-                <span key={id} className="inline-flex items-center gap-1.5 rounded-[2px] border border-line px-2 py-1 text-xs">
+                <span key={id} className="inline-flex items-center gap-1.5 rounded border border-line px-2 py-1 text-xs">
                   {a.name || "Untitled"}
                   <span className="text-ink-faint">{a.placeIds.length}</span>
                   {!ro && newPlaces.length > 0 && (
@@ -172,7 +172,7 @@ export default function Day() {
                 value=""
                 aria-label="Add an area to this day"
                 onChange={(e) => e.target.value && patch({ areaIds: [...(day.areaIds ?? []), e.target.value] })}
-                className="cursor-pointer rounded-[2px] border border-dashed border-line bg-transparent px-2 py-1 text-xs text-accent focus:outline-none"
+                className="cursor-pointer rounded border border-dashed border-line bg-transparent px-2 py-1 text-xs text-accent focus:outline-none"
               >
                 <option value="">＋ Add area</option>
                 {data.areas

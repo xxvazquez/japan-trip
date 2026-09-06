@@ -7,7 +7,7 @@ import { Icon } from "./Icon";
  *  outlined box. Dark: a shadow barely registers on a dark ground, so the lift
  *  comes from a faint light-tinted border (`ink/10`) over a deeper shadow. */
 export const CARD_SHELL =
-  "rounded-[4px] border border-line bg-surface px-4 py-4 sm:px-5 sm:py-5 " +
+  "rounded border border-line bg-surface px-4 py-4 sm:px-5 sm:py-5 " +
   "shadow-[0_1px_1px_rgb(0_0_0/0.04),0_3px_8px_-2px_rgb(0_0_0/0.06)] " +
   "dark:border-ink/10 dark:shadow-[0_1px_2px_rgb(0_0_0/0.4),0_6px_16px_-4px_rgb(0_0_0/0.5)]";
 

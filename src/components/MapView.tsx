@@ -383,7 +383,7 @@ export function MapView({
     <div className="relative h-full w-full">
       <div ref={el} className="h-full w-full" />
       {status === "ok" && (
-        <div className="absolute right-3 top-3 flex flex-col overflow-hidden rounded-[2px] border border-line bg-surface text-ink-soft">
+        <div className="absolute right-3 top-3 flex flex-col overflow-hidden rounded border border-line bg-surface text-ink-soft">
           <button
             onClick={() => map.current?.zoomIn()}
             aria-label="Zoom in"

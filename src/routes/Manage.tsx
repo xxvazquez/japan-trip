@@ -281,7 +281,7 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Invite by email"
-              className="min-w-0 flex-1 rounded-[2px] border border-line bg-surface px-2.5 py-1.5 text-sm outline-none"
+              className="min-w-0 flex-1 rounded border border-line bg-surface px-2.5 py-1.5 text-sm outline-none"
             />
             <button onClick={invite} disabled={busy} className="btn-sm shrink-0">Invite</button>
           </div>
@@ -518,13 +518,13 @@ function Appearance() {
               <button
                 key={p.id}
                 onClick={() => mutate((d) => { d.config.theme = structuredClone(p.tokens); d.config.themePreset = p.id; })}
-                className={`rounded-[3px] border p-3 text-left transition-colors ${on ? "border-accent ring-1 ring-accent" : "border-line hover:bg-surface-2"}`}
+                className={`rounded border p-3 text-left transition-colors ${on ? "border-accent ring-1 ring-accent" : "border-line hover:bg-surface-2"}`}
               >
                 <div
-                  className="mb-2 overflow-hidden rounded-[3px] border p-2"
+                  className="mb-2 overflow-hidden rounded border p-2"
                   style={{ borderColor: p.tokens.light.line, background: p.tokens.light.bg }}
                 >
-                  <div className="rounded-[2px] px-2 py-1.5" style={{ background: p.tokens.light.surface }}>
+                  <div className="rounded px-2 py-1.5" style={{ background: p.tokens.light.surface }}>
                     <p className="truncate font-display text-[11px] leading-tight" style={{ color: p.tokens.light.ink }}>
                       Hotel by the river
                     </p>
@@ -580,7 +580,7 @@ function Appearance() {
 
       <Section title="Logo">
         <div className="flex items-center gap-4">
-          <span className="grid h-16 w-16 place-items-center overflow-hidden rounded-[3px] border border-line bg-surface-2">
+          <span className="grid h-16 w-16 place-items-center overflow-hidden rounded border border-line bg-surface-2">
             <img src={tripLogoSrc(data, dark)} alt="" className="h-full w-full object-cover" />
           </span>
           <div className="flex gap-2">
@@ -591,7 +591,7 @@ function Appearance() {
       </Section>
 
       <Section title="Cover">
-        <div className="overflow-hidden rounded-[3px] border border-line">
+        <div className="overflow-hidden rounded border border-line">
           {media.cover ? (
             <img src={media.cover.dataUrl} alt="" className="h-40 w-full object-cover" />
           ) : (
@@ -611,7 +611,7 @@ function Appearance() {
         {media.gallery.length > 0 ? (
           <div className="grid grid-cols-3 gap-2">
             {media.gallery.map((m) => (
-              <div key={m.id} className="group relative overflow-hidden rounded-[3px] border border-line">
+              <div key={m.id} className="group relative overflow-hidden rounded border border-line">
                 <img src={m.dataUrl} alt={m.name} className="aspect-square w-full object-cover" />
                 <button
                   onClick={() => removeGalleryMedia(m.id)}

@@ -1000,7 +1000,7 @@ function PlaceRow({
                     <button
                       key={a.id}
                       onClick={() => onToggleArea(a.id)}
-                      className={`rounded-[2px] border px-2 py-0.5 text-2xs ${on ? "border-accent text-accent" : "border-line text-ink-soft hover:border-ink-soft"}`}
+                      className={`rounded border px-2 py-0.5 text-2xs ${on ? "border-accent text-accent" : "border-line text-ink-soft hover:border-ink-soft"}`}
                     >
                       {a.name || "Untitled"}
                     </button>
