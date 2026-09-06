@@ -11,7 +11,7 @@ import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { fmtDate, plural, segEndpoints } from "@/lib/dates";
 import { clockOf, fmtDuration, fmtMinutes, localMinutes } from "@/lib/time";
-import { MODE_LABEL } from "@/lib/transport";
+import { MODE_LABEL, MODE_ICON } from "@/lib/transport";
 import { splitRoute, joinRoute, routeStops, JOURNEY_KIND_LABEL } from "@/lib/journey";
 import type { Journey as JourneyT, Segment, TransportMode } from "@/core/types";
 
@@ -152,6 +152,7 @@ export default function Journey() {
                 </p>
                 {offDay && <p className="mt-1 text-xs text-ink-soft">{offDay}</p>}
                 <p className="meta mt-2 flex flex-wrap items-center gap-x-1.5">
+                  <Icon name={MODE_ICON[s.mode]} size={14} className="shrink-0 text-ink-soft" />
                   <Editable
                     as="select"
                     label="Mode"

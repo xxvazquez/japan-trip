@@ -31,6 +31,8 @@ export type IconName =
   | "bus"
   | "ferry"
   | "car"
+  | "taxi"
+  | "subway"
   | "walk"
   | "clock"
   | "list"
@@ -152,6 +154,23 @@ const P: Record<IconName, JSX.Element> = {
       <path d="M5 13h14" />
       <circle cx="8" cy="16" r="0.7" fill="currentColor" />
       <circle cx="16" cy="16" r="0.7" fill="currentColor" />
+    </>
+  ),
+  taxi: (
+    <>
+      <path d="M5 13l1.5-5A2 2 0 0 1 8.4 6.5h7.2A2 2 0 0 1 17.5 8L19 13v5a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-1H9.5v1a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-5Z" />
+      <path d="M5 13h14" />
+      <rect x="9.75" y="3.4" width="4.5" height="2.2" rx="0.5" />
+      <circle cx="8" cy="16" r="0.7" fill="currentColor" />
+      <circle cx="16" cy="16" r="0.7" fill="currentColor" />
+    </>
+  ),
+  subway: (
+    <>
+      <rect x="6" y="4" width="12" height="12" rx="2.5" />
+      <path d="M6 10.5h12M5 20h14" />
+      <circle cx="9.5" cy="13" r="0.6" fill="currentColor" />
+      <circle cx="14.5" cy="13" r="0.6" fill="currentColor" />
     </>
   ),
   walk: (
