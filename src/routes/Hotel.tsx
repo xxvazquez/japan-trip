@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
+import { CARD_SHELL } from "@/components/Card";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
@@ -50,6 +51,9 @@ export default function Hotel() {
   const showRefRows = refFilled.length > 0 || (!ro && showRef);
   const showRefSection = !ro || refFilled.length > 0;
 
+  const showAddress = !!(hotel.address || hotel.addressAlt || !ro);
+  const showArrival = showAddress || doorShown.length > 0;
+
   return (
     <Page>
       <PageHeader
@@ -59,40 +63,42 @@ export default function Hotel() {
         title={<Editable label="Name" value={hotel.name} onCommit={(v) => p({ name: v || hotel.name })} />}
       />
 
-      {/* address — the thing you show a taxi */}
-      {(hotel.address || hotel.addressAlt || !ro) && (
-        <div className="-mx-5 -mt-2 bg-surface px-5 py-4 sm:px-7">
-          <p className="text-[1rem] font-medium leading-snug">
-            <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined })} />
-          </p>
-          {(hotel.addressAlt || !ro) && (
-            <p className="mt-1 font-jp text-[0.95rem] leading-snug text-ink-soft">
-              <Editable label="Local address" value={hotel.addressAlt ?? ""} placeholder="Local-language address, for taxis" onCommit={(v) => p({ addressAlt: v || undefined })} />
-            </p>
-          )}
-          {map && (
-            <a href={map} target="_blank" rel="noopener" className="action mt-3">
-              <Icon name="map" size={15} /> Open in Google Maps
-            </a>
-          )}
-        </div>
-      )}
-
-      {/* the stuff you need at the door */}
-      {doorShown.length > 0 && (
-        <div className="mt-6 grid grid-cols-2 gap-x-4 gap-y-5">
-          {doorShown.map(([label, value, onCommit, as]) => (
-            <div key={label}>
-              <p className="field-label">{label}</p>
-              <p className="mt-0.5 text-[1.0625rem] font-medium leading-snug">
-                <Editable as={as} label={label} value={value ?? ""} placeholder="—" onCommit={onCommit} />
+      {/* arrival — where it is and how you get in, in one panel */}
+      {showArrival && (
+        <div className={CARD_SHELL}>
+          {showAddress && (
+            <div>
+              <p className="text-[1.05rem] font-medium leading-snug">
+                <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined })} />
               </p>
+              {(hotel.addressAlt || !ro) && (
+                <p className="mt-1 font-jp text-[0.95rem] leading-snug text-ink-soft">
+                  <Editable label="Local address" value={hotel.addressAlt ?? ""} placeholder="Local-language address, for taxis" onCommit={(v) => p({ addressAlt: v || undefined })} />
+                </p>
+              )}
+              {map && (
+                <a href={map} target="_blank" rel="noopener" className="action mt-2.5">
+                  <Icon name="map" size={15} /> Open in Google Maps
+                </a>
+              )}
             </div>
-          ))}
+          )}
+          {doorShown.length > 0 && (
+            <div className={`grid grid-cols-2 gap-x-4 gap-y-4 ${showAddress ? "mt-4 border-t border-line pt-4" : ""}`}>
+              {doorShown.map(([label, value, onCommit, as]) => (
+                <div key={label}>
+                  <p className="field-label">{label}</p>
+                  <p className="mt-0.5 text-[1.0625rem] font-medium leading-snug">
+                    <Editable as={as} label={label} value={value ?? ""} placeholder="—" onCommit={onCommit} />
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
-      <div className="mt-8 space-y-3.5">
+      <div className="mt-3.5 space-y-3.5">
         {(hotel.directions || !ro) && (
           <Section title="Getting here">
             <div className="text-sm leading-relaxed text-ink">
