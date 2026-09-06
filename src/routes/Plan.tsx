@@ -64,7 +64,7 @@ export default function Plan() {
         {!noDates && c.phase === "before" && (
           <>
             <p className="flex items-baseline gap-2">
-              <span className="font-display text-[2.75rem] leading-none">{c.daysUntilStart}</span>
+              <span className="font-display text-display">{c.daysUntilStart}</span>
               <span className="text-lg text-ink-soft">days to go</span>
             </p>
             <p className="meta mt-2">Leaving {fmtDate(data.meta.start, loc, { weekday: "long", day: "numeric", month: "long" })}</p>
@@ -73,7 +73,7 @@ export default function Plan() {
         {!noDates && c.phase === "during" && (
           <>
             <p className="flex items-baseline gap-2">
-              <span className="font-display text-[2.75rem] leading-none">Day {c.dayNumber}</span>
+              <span className="font-display text-display">Day {c.dayNumber}</span>
               <span className="text-lg text-ink-soft">of {c.totalDays}</span>
             </p>
             <p className="mt-2 text-sm">
@@ -252,7 +252,7 @@ function LegBlock({
     <section>
       <Link to={`/leg/${leg.id}`} className="group mb-2 flex items-baseline gap-2">
         <span className="h-3 w-3 shrink-0 translate-y-[1px] rounded-full" style={{ background: hex }} />
-        <h2 className="font-display text-[1.35rem] leading-tight group-hover:underline">{leg.base}</h2>
+        <h2 className="subhead group-hover:underline">{leg.base}</h2>
         {leg.nameAlt && <span className="font-jp text-sm text-ink-faint">{leg.nameAlt}</span>}
       </Link>
       <p className="mb-2 pl-5 text-2xs uppercase tracking-[0.12em] text-ink-soft">
