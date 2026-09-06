@@ -14,6 +14,7 @@ export type IconName =
   | "train"
   | "bed"
   | "map"
+  | "pin"
   | "check"
   | "plus"
   | "minus"
@@ -99,6 +100,12 @@ const P: Record<IconName, JSX.Element> = {
     <>
       <path d="M9 4 4 6v14l5-2 6 2 5-2V4l-5 2-6-2Z" />
       <path d="M9 4v14M15 6v14" />
+    </>
+  ),
+  pin: (
+    <>
+      <path d="M12 21s6.5-5.8 6.5-11a6.5 6.5 0 0 0-13 0c0 5.2 6.5 11 6.5 11Z" />
+      <circle cx="12" cy="10" r="2.4" />
     </>
   ),
   check: <path d="M5 13l4 4L19 7" />,

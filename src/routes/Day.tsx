@@ -140,7 +140,7 @@ export default function Day() {
                     className={`shrink-0 translate-y-0.5 ${link ? "text-accent" : "pointer-events-none text-ink-faint/40"}`}
                     aria-label="Open in Google Maps"
                   >
-                    <Icon name="map" size={15} />
+                    <Icon name="pin" size={14} />
                   </a>
                   <span className="lead min-w-0 flex-1">
                     <Editable label="Place" value={p.label} placeholder="Name" onCommit={(v) => setPlaces(day.places!.map((x, j) => (j === i ? { ...x, label: v } : x)))} />
