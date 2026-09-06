@@ -19,7 +19,9 @@ luggage, the documents. It lives at:
 ## Getting in
 
 1. Open the link. Sign in with **Google** — each person uses their **own**
-   Google account.
+   Google account. (Or tap **Use on this device only** to skip the account
+   entirely: the trip stays on that one device and doesn't sync. **Manage →
+   Trips → Sign in to sync** switches back later.)
 2. New accounts start with just the read-only **Demo** trip. Make your real one
    from **Manage → New trip → Empty template**.
 3. One account owns that trip. From it, go to **Manage → Sharing** and add the
@@ -191,6 +193,10 @@ edit in the UI  →  TripData (in memory)  →  backend
   synced across devices and shareable with another account. Schema:
   [`supabase/migrations/`](supabase/migrations/).
 - **Without it**: everything stays in the browser. No sign-in.
+- **With it, but "Use on this device only"** (the link on the sign-in screen):
+  same local browser storage as above, no account — a per-device
+  `localStorage["za.localOnly"]` flag that `needsAuth()` honours. **Manage →
+  Trips** has the way back.
 
 The Supabase client is code-split — never downloaded unless a project is
 configured. So is the MapLibre bundle (only the Map section pulls it in).

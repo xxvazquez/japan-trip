@@ -2,6 +2,7 @@ import { store as kv } from "./storage";
 import { STORAGE_KEYS } from "./app";
 import { supabaseEnabled } from "./supabase";
 import { getUserId } from "./auth";
+import { isLocalOnly } from "./localMode";
 import * as db from "./db";
 import { remapIds } from "./remapIds";
 import { normalizeTrip } from "./hydrate";
@@ -102,7 +103,7 @@ export function pickBackend(): Backend {
 }
 
 export function needsAuth(): boolean {
-  return supabaseEnabled && !getUserId();
+  return supabaseEnabled && !getUserId() && !isLocalOnly();
 }
 
 export { remapIds, now };
