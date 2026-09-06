@@ -128,6 +128,10 @@ Tap almost any piece of text and it becomes editable on the spot. Type, tap
 away, done. There's no separate "edit mode". Dates and times open a picker; once
 a link is filled in it turns into a normal clickable link (with a small "edit").
 
+When you're signed in, a small dot next to the header search icon shows edits
+saving (grey), saved (green, briefly), or held for later if you're offline
+(amber). On-device-only trips save instantly and show nothing.
+
 **Notes** fields (a day's General notes, a stay, a journey, and the Logbook's Scratchpad) take
 light Markdown — `**bold**`, `*italic*`, `-` bullet lists, `>` quotes, headings
 and `[links](https://…)`. A slim B / I / • / link toolbar and the usual

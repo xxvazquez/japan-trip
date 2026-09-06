@@ -23,6 +23,9 @@ type Op =
 interface AppStore {
   hydrated: boolean;
   authRequired: boolean;
+  /** the sync queue's visible state — signed-in path only; local writes stay
+   *  "idle". Drives the header's <SyncStatus> dot. */
+  syncState: "idle" | "saving" | "saved" | "error";
   /** signed in, but the very first trip list couldn't be fetched (offline)
    *  and there was no mirrored outbox to fall back to — nothing to show yet */
   bootError: boolean;
@@ -196,6 +199,7 @@ function enqueue(get: () => AppStore, op: Op) {
     return;
   }
   queue.push(op);
+  useApp.setState({ syncState: "saving" });
   saveOutboxSoon(get);
   clearTimeout(flushTimer);
   flushTimer = setTimeout(() => void flush(get), 500);
@@ -296,11 +300,13 @@ async function flush(get: () => AppStore) {
     queue = [...failed, ...queue];
     const cur = get().data;
     if (cur) void kv.set<Outbox>(STORAGE_KEYS.outbox(activeId), { ops: [...queue], data: cur });
+    useApp.setState({ syncState: "error" });
     scheduleRetry(get);
   } else if (queue.length) {
     void flush(get); // new edits landed mid-flush
   } else {
     clearRetry();
+    useApp.setState({ syncState: "saved" });
     void kv.del(STORAGE_KEYS.outbox(activeId));
     if (bootedFromOutbox) { bootedFromOutbox = false; void resyncTrip(get, activeId); }
   }
@@ -359,6 +365,7 @@ export const useApp = create<AppStore>((set, get) => {
   return {
     hydrated: false,
     authRequired: false,
+    syncState: "idle",
     bootError: false,
     trips: [],
     activeId: null,

@@ -2,6 +2,7 @@ import { Suspense, useEffect, useState } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { TabBarOrRail } from "./TabBarOrRail";
 import { ThemeToggle } from "./ThemeToggle";
+import { SyncStatus } from "./SyncStatus";
 import { SearchOverlay } from "./SearchOverlay";
 import { Loader } from "./Loader";
 import { Icon } from "./Icon";
@@ -39,6 +40,7 @@ export function AppShell() {
             )}
           </Link>
           <div className="flex items-center gap-3 text-ink-soft">
+            <SyncStatus />
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
