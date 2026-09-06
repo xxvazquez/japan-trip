@@ -136,6 +136,16 @@ html.dark {
   html.dark .editable:hover {
     background: rgb(var(--c-gold) / 0.16);
   }
+  /* the native date/time picker button is heavier than the rest of the field —
+     quiet it so an empty `dd/mm/yyyy` field doesn't shout next to a muted `—` */
+  .editable::-webkit-calendar-picker-indicator {
+    opacity: 0.45;
+    transition: opacity 0.15s;
+  }
+  .editable:hover::-webkit-calendar-picker-indicator,
+  .editable:focus::-webkit-calendar-picker-indicator {
+    opacity: 0.8;
+  }
 
   /* ---- hierarchy utilities ---------------------------------------- *
    * L0  Plan hero        — text-display  (the countdown number, nothing else)
