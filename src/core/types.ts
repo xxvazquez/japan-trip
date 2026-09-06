@@ -159,13 +159,21 @@ export interface Leg {
   blurb?: string;
 }
 
-/** A loose place attached to a day — a label and a Maps link, optionally
- *  linked to a `Place` pin on the trip map. */
-export interface DayPlace {
+/** One line of a day's itinerary. `time` and `text` are the two columns;
+ *  `note` is an optional collapsible note; `placeId` links the step to a map
+ *  `Place` pin (so it shows on the day's map), `url` is a plain link fallback.
+ *  Trip-agnostic — a "step in a day" for any trip. */
+export interface PlanItem {
   id: ID;
-  label: string;
-  url?: string;
+  /** free text — "11:34", "14:00–15:15", "Around 18:00", or blank */
+  time?: string;
+  text: string;
+  /** a per-row note, revealed when the row is expanded */
+  note?: string;
+  /** links this step to a trip `Place` — it then shows on the day's map */
   placeId?: ID;
+  /** a plain link when the step isn't a map pin (kept from the old model) */
+  url?: string;
 }
 
 /** A named geographic grouping of places — "where", orthogonal to a place's
@@ -203,13 +211,12 @@ export interface Day {
   legId: ID;
   hotelId?: ID;
   title?: string;
-  /** the day's rough plan — one string per bullet */
-  plan?: string[];
-  /** free-form notes, rendered as light Markdown */
+  /** the day's itinerary — an ordered list of steps */
+  plan?: PlanItem[];
+  /** free-form "general notes", rendered as light Markdown */
   notes?: string;
-  places?: DayPlace[];
   /** areas the day pulls in — their places show on the day's map (live), but
-   *  are never copied into `places`; the written plan stays explicit. */
+   *  are never copied into the plan; the written steps stay explicit. */
   areaIds?: ID[];
   /** set when this is a travel day */
   journeyId?: ID;

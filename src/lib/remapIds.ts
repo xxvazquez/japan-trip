@@ -32,9 +32,9 @@ export function remapIds(data: TripData): TripData {
     day.hotelId = R(day.hotelId);
     day.journeyId = R(day.journeyId);
     day.areaIds = day.areaIds?.map((id) => R(id)!);
-    for (const p of day.places ?? []) {
-      p.id = fresh(p.id)!;
-      if (p.placeId) p.placeId = R(p.placeId);
+    for (const it of day.plan ?? []) {
+      it.id = fresh(it.id)!;
+      if (it.placeId) it.placeId = R(it.placeId);
     }
   }
   for (const j of d.journeys) {

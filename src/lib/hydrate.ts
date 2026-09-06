@@ -1,8 +1,8 @@
 import { THEME_PRESETS } from "./themePresets";
-import type { Doc, DocField, ModuleConfig, ThemeTokens, TripData } from "@/core/types";
+import type { Day, Doc, DocField, ModuleConfig, PlanItem, ThemeTokens, TripData } from "@/core/types";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 const fieldId = () =>
   (globalThis.crypto?.randomUUID?.() ?? `f-${Math.random().toString(36).slice(2, 10)}`);
@@ -102,6 +102,45 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
 
   for (const k of ENTITY_KEYS) {
     if (!Array.isArray((d as Record<string, unknown>)[k])) (d as Record<string, unknown>)[k] = [];
+  }
+
+  // v4: Day.plan went string[] → PlanItem[], and the separate Day.places list
+  // folded into the plan. Once `plan` is an array of objects the day is on the
+  // new shape — leave it alone (and drop any stale `places` so a lingering DB
+  // column can't be re-folded on the next load).
+  const LEADING_TIME = /^\s*(\d{1,2}:\d{2}(?:\s*[–—-]\s*\d{1,2}:\d{2})?)\s+(.+)$/;
+  for (const day of d.days as Day[]) {
+    const raw = day as unknown as { plan?: unknown; places?: unknown[] };
+    const planIsNew = Array.isArray(raw.plan) && typeof raw.plan[0] === "object" && raw.plan[0] !== null;
+    if (planIsNew) {
+      day.plan = (raw.plan as Partial<PlanItem>[]).map((it): PlanItem => ({
+        id: it.id || `pi-${fieldId()}`,
+        text: it.text ?? "",
+        time: it.time || undefined,
+        note: it.note || undefined,
+        placeId: it.placeId || undefined,
+        url: it.url || undefined,
+      }));
+    } else {
+      const fromStrings = (Array.isArray(raw.plan) ? (raw.plan as unknown[]) : [])
+        .filter((s): s is string => typeof s === "string")
+        .map((s): PlanItem => {
+          const m = LEADING_TIME.exec(s);
+          return m
+            ? { id: `pi-${fieldId()}`, time: m[1].replace(/\s+/g, ""), text: m[2].trim() }
+            : { id: `pi-${fieldId()}`, text: s.trim() };
+        });
+      const fromPlaces = (Array.isArray(raw.places) ? (raw.places as { label?: string; url?: string; placeId?: string }[]) : [])
+        .filter((p) => (p.label ?? "").trim() || p.placeId)
+        .map((p): PlanItem => ({
+          id: `pi-${fieldId()}`,
+          text: (p.label ?? "").trim() || "Place",
+          placeId: p.placeId || undefined,
+          url: p.url || undefined,
+        }));
+      day.plan = [...fromStrings, ...fromPlaces].filter((it) => it.text);
+    }
+    delete raw.places;
   }
 
   // every doc has a `fields` array, and every field a stable id (older rows and

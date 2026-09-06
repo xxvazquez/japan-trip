@@ -25,7 +25,7 @@ function build(d: TripData): SearchHit[] {
       label: day.title ?? fmtDate(day.date, loc),
       sub: `${fmtDate(day.date, loc)}${leg ? ` · ${leg.base}` : ""}`,
       to: `/day/${day.id}`,
-      terms: [day.title, leg?.base, day.notes, ...(day.places ?? []).map((p) => p.label), fmtDate(day.date, loc, { day: "numeric", month: "long" })]
+      terms: [day.title, leg?.base, day.notes, ...(day.plan ?? []).map((p) => p.text), fmtDate(day.date, loc, { day: "numeric", month: "long" })]
         .filter(Boolean)
         .join(" ")
         .toLowerCase(),

@@ -1,4 +1,16 @@
 import { useParams, Link } from "react-router-dom";
+import {
+  DndContext,
+  PointerSensor,
+  TouchSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
@@ -12,7 +24,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { fmtDate } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink } from "@/lib/maps";
-import type { Day as DayT, DayPlace } from "@/core/types";
+import type { Day as DayT, PlanItem, Place } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 9);
 
@@ -33,7 +45,7 @@ export default function Day() {
   const hotel = L.hotel(day.hotelId);
   const journey = L.journey(day.journeyId);
   const loc = data.config.locale;
-  const setPlaces = (next: DayPlace[]) => patch({ places: next });
+  const setPlan = (next: PlanItem[]) => patch({ plan: next.length ? next : undefined });
 
   return (
     <Page>
@@ -102,85 +114,20 @@ export default function Day() {
         </Section>
       )}
 
-      {/* PLAN — a short bullet list */}
+      {/* PLAN — the day's itinerary: time + step, drag to reorder */}
       {((day.plan ?? []).length > 0 || !ro) && (
         <Section
           title="Plan"
           action={
             !ro && (
-              <button onClick={() => patch({ plan: [...(day.plan ?? []), ""] })} className="action text-xs">
+              <button onClick={() => setPlan([...(day.plan ?? []), { id: rid(), text: "" }])} className="action text-xs">
                 <Icon name="plus" size={13} /> Add
               </button>
             )
           }
         >
-          <StringList
-            items={day.plan ?? []}
-            onChange={(v) => patch({ plan: v.length ? v : undefined })}
-            readOnly={ro}
-            emptyHint="Nothing planned yet."
-          />
+          <PlanList items={day.plan ?? []} places={data.places} readOnly={ro} onChange={setPlan} />
         </Section>
-      )}
-
-      {/* PLACES */}
-      {((day.places ?? []).length > 0 || !ro) && (
-      <Section
-        title="Places"
-        action={
-          <div className={`flex items-center gap-3 ${ro ? "hidden" : ""}`}>
-            {data.places.length > 0 && (
-              <select
-                value=""
-                aria-label="Add a place from the map"
-                onChange={(e) => {
-                  const pl = data.places.find((x) => x.id === e.target.value);
-                  if (pl) setPlaces([...(day.places ?? []), { id: rid(), label: pl.name, placeId: pl.id, url: pl.url }]);
-                }}
-                className="w-[6.5rem] cursor-pointer appearance-none bg-transparent text-xs font-medium text-accent focus:outline-none"
-              >
-                <option value="">＋ From map</option>
-                {[...data.places].sort((a, b) => a.name.localeCompare(b.name)).map((pl) => (
-                  <option key={pl.id} value={pl.id}>{pl.name}</option>
-                ))}
-              </select>
-            )}
-            <button onClick={() => setPlaces([...(day.places ?? []), { id: rid(), label: "" }])} className="action text-xs">
-              <Icon name="plus" size={13} /> Add
-            </button>
-          </div>
-        }
-      >
-        {(day.places ?? []).length === 0 ? (
-          <p className="text-sm text-ink-faint">Drop in a café, a temple, anything from your map.</p>
-        ) : (
-          <ul>
-            {(day.places ?? []).map((p, i) => {
-              const link = gmapsLink(p.url || (p.placeId ? p.label : undefined));
-              return (
-                <li key={p.id} className="group flex items-start gap-2.5 border-b border-line/70 py-2.5 last:border-b-0 last:pb-0">
-                  <a
-                    href={link}
-                    target="_blank"
-                    rel="noopener"
-                    className={`shrink-0 translate-y-0.5 ${link ? "text-accent" : "pointer-events-none text-ink-faint/40"}`}
-                    aria-label="Open in Google Maps"
-                  >
-                    <Icon name="pin" size={14} />
-                  </a>
-                  <span className="lead min-w-0 flex-1">
-                    <Editable label="Place" value={p.label} placeholder="Name" onCommit={(v) => setPlaces(day.places!.map((x, j) => (j === i ? { ...x, label: v } : x)))} />
-                  </span>
-                  <span className="shrink-0 text-xs text-ink-soft">
-                    <Editable as="link" label="Google Maps link" value={p.url ?? ""} placeholder="＋ link" onCommit={(v) => setPlaces(day.places!.map((x, j) => (j === i ? { ...x, url: v || undefined } : x)))} />
-                  </span>
-                  {!ro && <RowDeleteButton onClick={() => setPlaces(day.places!.filter((_, j) => j !== i))} />}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </Section>
       )}
 
       {/* AREAS — pull an area's places onto this day's map, without touching the plan */}
@@ -190,7 +137,7 @@ export default function Day() {
             {(day.areaIds ?? []).map((id) => {
               const a = data.areas.find((x) => x.id === id);
               if (!a) return null;
-              const linked = new Set((day.places ?? []).map((p) => p.placeId).filter(Boolean));
+              const linked = new Set((day.plan ?? []).map((it) => it.placeId).filter(Boolean));
               const newPlaces = a.placeIds.filter((pid) => !linked.has(pid)).map((pid) => data.places.find((p) => p.id === pid)).filter((p): p is NonNullable<typeof p> => !!p);
               return (
                 <span key={id} className="inline-flex items-center gap-1.5 rounded-[2px] border border-line px-2 py-1 text-xs">
@@ -198,9 +145,9 @@ export default function Day() {
                   <span className="text-ink-faint">{a.placeIds.length}</span>
                   {!ro && newPlaces.length > 0 && (
                     <button
-                      onClick={() => setPlaces([...(day.places ?? []), ...newPlaces.map((p) => ({ id: rid(), label: p.name, placeId: p.id, url: p.url }))])}
-                      aria-label={`Add ${a.name}'s places to today's list`}
-                      title="Add these places to today's list"
+                      onClick={() => setPlan([...(day.plan ?? []), ...newPlaces.map((p) => ({ id: rid(), text: p.name, placeId: p.id }))])}
+                      aria-label={`Add ${a.name}'s places to the plan`}
+                      title="Add these places to the plan"
                       className="text-ink-faint hover:text-accent"
                     >
                       <Icon name="plus" size={11} />
@@ -237,15 +184,15 @@ export default function Day() {
           {(day.areaIds ?? []).length > 0 && (
             <p className="meta mt-2">
               Places in {(day.areaIds ?? []).length === 1 ? "this area" : "these areas"} show on the day’s map — they
-              don’t change the list above{!ro ? ", unless you tap + to add them to it" : ""}.
+              don’t change the plan above{!ro ? ", unless you tap + to add one as a step" : ""}.
             </p>
           )}
         </Section>
       )}
 
-      {/* NOTES — free-form catch-all, so it lands after the day's actual plan */}
+      {/* GENERAL NOTES — free-form catch-all, after the day's actual plan */}
       {(day.notes || !ro) && (
-        <Section title="Notes">
+        <Section title="General notes">
           <div className="text-[0.95rem] text-ink">
             <RichNote
               value={day.notes ?? ""}
@@ -273,6 +220,104 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <p className="field-label">{label}</p>
       <div className="mt-1 text-sm leading-relaxed text-ink">{children}</div>
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------ plan */
+
+function PlanList({ items, places, readOnly, onChange }: {
+  items: PlanItem[];
+  places: Place[];
+  readOnly: boolean;
+  onChange: (next: PlanItem[]) => void;
+}) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 8 } }),
+    useSensor(KeyboardSensor),
+  );
+  const patchItem = (id: string, p: Partial<PlanItem>) => onChange(items.map((x) => (x.id === id ? { ...x, ...p } : x)));
+  const removeItem = (id: string) => onChange(items.filter((x) => x.id !== id));
+
+  if (items.length === 0) return <p className="text-sm text-ink-faint">Nothing planned yet.</p>;
+
+  const rows = items.map((it) => (
+    <PlanRow
+      key={it.id}
+      item={it}
+      place={it.placeId ? places.find((p) => p.id === it.placeId) : undefined}
+      readOnly={readOnly}
+      onPatch={(p) => patchItem(it.id, p)}
+      onRemove={() => removeItem(it.id)}
+    />
+  ));
+
+  if (readOnly) return <ul>{rows}</ul>;
+
+  const onDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!over || active.id === over.id) return;
+    const from = items.findIndex((x) => x.id === active.id);
+    const to = items.findIndex((x) => x.id === over.id);
+    if (from >= 0 && to >= 0) onChange(arrayMove(items, from, to));
+  };
+
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+      <SortableContext items={items.map((x) => x.id)} strategy={verticalListSortingStrategy}>
+        <ul>{rows}</ul>
+      </SortableContext>
+    </DndContext>
+  );
+}
+
+function PlanRow({ item, place, readOnly, onPatch, onRemove }: {
+  item: PlanItem;
+  place?: Place;
+  readOnly: boolean;
+  onPatch: (p: Partial<PlanItem>) => void;
+  onRemove: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id, disabled: readOnly });
+  const mapHref = gmapsLink(item.url || place?.url || place?.name);
+  return (
+    <li
+      ref={setNodeRef}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={`group flex items-start gap-2 border-b border-line/70 bg-surface py-2.5 text-sm last:border-b-0 last:pb-0 ${isDragging ? "z-10 opacity-70" : ""}`}
+    >
+      {!readOnly && (
+        <button
+          {...attributes}
+          {...listeners}
+          className="mt-[0.15em] shrink-0 cursor-grab touch-none px-0.5 text-ink-faint/60 active:cursor-grabbing"
+          aria-label="Drag to reorder"
+        >
+          <Icon name="grip" size={13} />
+        </button>
+      )}
+      <span className="w-[4.25rem] shrink-0 pt-px text-[0.75rem] leading-tight tabular-nums text-ink-soft">
+        {readOnly
+          ? item.time
+          : <Editable label="Time" value={item.time ?? ""} placeholder="––:––" onCommit={(v) => onPatch({ time: v.replace(/\s+/g, "") || undefined })} />}
+      </span>
+      {(mapHref || item.placeId) && (
+        <a
+          href={mapHref}
+          target="_blank"
+          rel="noopener"
+          className={`mt-[0.1em] shrink-0 ${mapHref ? "text-accent" : "pointer-events-none text-ink-faint/40"}`}
+          aria-label={place ? `Open ${place.name} in Google Maps` : "Open in Google Maps"}
+        >
+          <Icon name="pin" size={13} />
+        </a>
+      )}
+      <span className="min-w-0 flex-1">
+        {readOnly
+          ? item.text
+          : <Editable label="Step" value={item.text} placeholder="What's happening" onCommit={(v) => onPatch({ text: v })} />}
+      </span>
+      {!readOnly && <RowDeleteButton onClick={onRemove} label="Remove step" />}
+    </li>
   );
 }
 

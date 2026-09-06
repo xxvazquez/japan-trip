@@ -15,7 +15,7 @@ import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
 import { TRANSIT_KINDS, TRANSIT_META } from "@/lib/transitLayers";
 import { glyphPath } from "@/lib/mapGlyphs";
-import type { Area, Day, DayPlace, Place, TripData } from "@/core/types";
+import type { Area, Day, PlanItem, Place, TripData } from "@/core/types";
 
 const FALLBACK = "#5f7f9c";
 
@@ -70,7 +70,7 @@ function defaultScope(data: TripData): string {
   else if (c.phase === "before") day = days.find((d) => d.date >= c.todayISO)?.id;
   else if (c.phase === "after") day = days.at(-1)?.id;
 
-  const dayHasPlaces = day && (data.days.find((d) => d.id === day)?.places?.length ?? 0) > 0;
+  const dayHasPlaces = day && (data.days.find((d) => d.id === day)?.plan ?? []).some((it) => it.placeId);
   return dayHasPlaces ? day! : "all";
 }
 
@@ -199,13 +199,13 @@ export default function MapTab() {
     const m = new Map<string, string>();
     if (!data) return m;
     for (const d of data.days)
-      for (const dp of d.places ?? []) if (dp.placeId) m.set(dp.placeId, d.id);
+      for (const it of d.plan ?? []) if (it.placeId) m.set(it.placeId, d.id);
     return m;
   }, [data]);
 
-  /** ids a day pulls in: explicit picks, and (live) everything in its areas */
+  /** ids a day pulls in: places named in its plan, and (live) everything in its areas */
   const dayIds = (d: Day | undefined) => {
-    const explicit = (d?.places ?? []).map((x) => x.placeId).filter(Boolean) as string[];
+    const explicit = (d?.plan ?? []).map((x) => x.placeId).filter(Boolean) as string[];
     const fromAreas = (d?.areaIds ?? []).flatMap((id) => data?.areas.find((a) => a.id === id)?.placeIds ?? []);
     return { explicit: new Set(explicit), all: new Set([...explicit, ...fromAreas]) };
   };
@@ -379,8 +379,9 @@ export default function MapTab() {
   const addToDay = (place: Place, dayId: string) => {
     const day = data.days.find((d) => d.id === dayId);
     if (!day) return;
-    const dp: DayPlace = { id: rid(), label: place.name, placeId: place.id, url: place.url };
-    updateEntity<Day>("days", dayId, { places: [...(day.places ?? []), dp] });
+    if ((day.plan ?? []).some((it) => it.placeId === place.id)) return;
+    const step: PlanItem = { id: rid(), text: place.name, placeId: place.id };
+    updateEntity<Day>("days", dayId, { plan: [...(day.plan ?? []), step] });
   };
 
   const toggleAreaPlace = (areaId: string, placeId: string) => {
