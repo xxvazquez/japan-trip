@@ -8,9 +8,9 @@ dist-ssr/
 dist-noauth/
 *.log
 .env
-.env.local
-.env.*.local
+.env*.local
 .env.local.real
+.env *
 .vite/
 
 *.tsbuildinfo
