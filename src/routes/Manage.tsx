@@ -10,7 +10,6 @@ import { useAsyncAction } from "@/lib/useAsyncAction";
 import { useIsDark } from "@/lib/mode";
 import { tripLogoSrc } from "@/components/Wordmark";
 import { daysBetween, plural, rangeText } from "@/lib/dates";
-import { APP_NAME } from "@/lib/app";
 import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
 import { THEME_PRESETS } from "@/lib/themePresets";
 import { MAP_GLYPHS } from "@/lib/mapGlyphs";
@@ -35,10 +34,9 @@ export default function Manage() {
   return (
     <Page width="page">
       <PageHeader
-        eyebrow={APP_NAME}
         title="Manage"
         meta="Your trips and this trip’s setup. The details themselves you edit inline on each page."
-        className="mb-5"
+        className="mb-4"
       />
       <div className="mb-2 flex gap-5 overflow-x-auto border-b border-line">
         {TABS.map((t) => (
