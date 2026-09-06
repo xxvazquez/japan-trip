@@ -298,35 +298,35 @@ function PlanRow({ item, place, places, readOnly, onPatch, onRemove }: {
           <button
             {...attributes}
             {...listeners}
-            className="mt-[0.15em] shrink-0 cursor-grab touch-none px-0.5 text-ink-faint/60 active:cursor-grabbing"
+            className="mt-[0.15em] grid h-4 w-4 shrink-0 cursor-grab touch-none place-items-center text-ink-faint/50 active:cursor-grabbing"
             aria-label="Drag to reorder"
           >
             <Icon name="grip" size={13} />
           </button>
         )}
-        <span className="w-[4.25rem] shrink-0 pt-px text-[0.75rem] leading-tight tabular-nums text-ink-soft">
+        {/* time + pin-slot are fixed width so every step's text starts at the same x */}
+        <span className="w-[4.5rem] shrink-0 whitespace-nowrap pt-px text-[0.7rem] leading-tight tabular-nums text-ink-soft">
           {readOnly
             ? item.time
             : <Editable label="Time" value={item.time ?? ""} placeholder="––:––" onCommit={(v) => onPatch({ time: v.replace(/\s+/g, "") || undefined })} />}
         </span>
-        {(mapHref || item.placeId) && (
-          <a
-            href={mapHref}
-            target="_blank"
-            rel="noopener"
-            className={`mt-[0.1em] shrink-0 ${mapHref ? "text-accent" : "pointer-events-none text-ink-faint/40"}`}
-            aria-label={place ? `Open ${place.name} in Google Maps` : "Open in Google Maps"}
-          >
-            <Icon name="pin" size={13} />
-          </a>
-        )}
+        <span className="mt-[0.1em] grid w-4 shrink-0 place-items-center">
+          {(mapHref || item.placeId) && (
+            <a
+              href={mapHref}
+              target="_blank"
+              rel="noopener"
+              className={mapHref ? "text-accent" : "pointer-events-none text-ink-faint/40"}
+              aria-label={place ? `Open ${place.name} in Google Maps` : "Open in Google Maps"}
+            >
+              <Icon name="pin" size={13} />
+            </a>
+          )}
+        </span>
         <span className="min-w-0 flex-1">
           {readOnly
             ? item.text
             : <Editable label="Step" value={item.text} placeholder="What's happening" onCommit={(v) => onPatch({ text: v })} />}
-          {hasNote && !open && (
-            <span className="mt-0.5 block truncate text-xs text-ink-faint">{item.note}</span>
-          )}
         </span>
         {canExpand && (
           <button
@@ -338,7 +338,7 @@ function PlanRow({ item, place, places, readOnly, onPatch, onRemove }: {
             <Icon
               name="chevron"
               size={13}
-              className={`transition-transform ${open ? "rotate-90" : ""} ${hasNote ? "text-ink-soft" : "text-ink-faint/50"}`}
+              className={`transition-transform ${open ? "rotate-90" : ""} ${hasNote ? "text-accent" : "text-ink-faint/50"}`}
             />
           </button>
         )}
@@ -346,21 +346,22 @@ function PlanRow({ item, place, places, readOnly, onPatch, onRemove }: {
       </div>
 
       {open && (
-        <div className="space-y-2 pb-3 pl-6 pr-1">
+        <div className="ml-[4.5rem] space-y-2.5 border-l border-line pb-3 pl-3 pr-1">
           {!readOnly && (places.length > 0 || item.placeId) && (
-            <label className="flex items-center gap-2 text-xs">
-              <span className="shrink-0 text-ink-faint">Place</span>
+            <div className="flex items-center gap-1.5">
+              <Icon name="pin" size={12} className={item.placeId ? "shrink-0 text-accent" : "shrink-0 text-ink-faint"} />
               <select
                 value={item.placeId ?? ""}
                 onChange={(e) => onPatch({ placeId: e.target.value || undefined })}
-                className="min-w-0 flex-1 cursor-pointer rounded-[2px] border border-line bg-surface px-1.5 py-1 text-xs"
+                aria-label="Link this step to a place"
+                className="min-w-0 flex-1 cursor-pointer bg-transparent text-xs font-medium text-accent focus:outline-none"
               >
-                <option value="">— none —</option>
+                <option value="">Link a place…</option>
                 {[...places].sort((a, b) => a.name.localeCompare(b.name)).map((p) => (
                   <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
               </select>
-            </label>
+            </div>
           )}
           <div className="text-[0.8125rem] leading-relaxed text-ink">
             {readOnly
@@ -370,7 +371,7 @@ function PlanRow({ item, place, places, readOnly, onPatch, onRemove }: {
                   as="textarea"
                   label="Step note"
                   value={item.note ?? ""}
-                  placeholder="A note for this step…"
+                  placeholder="Add a note…"
                   onCommit={(v) => onPatch({ note: v || undefined })}
                 />
               )}
