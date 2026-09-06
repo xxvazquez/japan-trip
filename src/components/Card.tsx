@@ -2,9 +2,10 @@ import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "./Icon";
 
-/** The panel shell shared with <Section> — a quiet surface framed by a hairline. */
+/** The panel shell shared with <Section> — a quiet surface framed by a hairline.
+ *  The border uses the `line` token, same as every other hairline in the app. */
 export const CARD_SHELL =
-  "rounded-[4px] border border-ink-faint/20 bg-surface px-4 py-4 shadow-[0_1px_2px_rgb(var(--c-ink)/0.03)] sm:px-5 sm:py-5";
+  "rounded-[4px] border border-line bg-surface px-4 py-4 shadow-[0_1px_2px_rgb(var(--c-ink)/0.03)] sm:px-5 sm:py-5";
 
 /**
  * One entry on a Logbook tab — a stay, a journey, a document, a note. Same shell
@@ -53,7 +54,7 @@ export function Card({
   );
 
   return to ? (
-    <Link to={to} className={`group block ${CARD_SHELL} transition-colors hover:border-ink-faint/40 ${className}`}>
+    <Link to={to} className={`group block ${CARD_SHELL} transition-colors hover:border-ink-soft/30 ${className}`}>
       {body}
     </Link>
   ) : (
