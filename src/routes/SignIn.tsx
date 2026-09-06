@@ -1,6 +1,8 @@
 import { APP_NAME } from "@/lib/app";
 import { signInWithGoogle } from "@/lib/auth";
 import { useIsDark } from "@/lib/mode";
+import { setLocalOnly } from "@/lib/localMode";
+import { initApp } from "@/store/useApp";
 
 /** Shown only when a Supabase project is configured but nobody is signed in. */
 export function SignIn() {
@@ -15,6 +17,13 @@ export function SignIn() {
           Continue with Google
         </button>
         <p className="mt-4 text-xs text-ink-faint">Your trips are private to your account.</p>
+        <button
+          onClick={() => { setLocalOnly(true); void initApp(); }}
+          className="link-quiet mt-6 text-xs"
+        >
+          Use on this device only
+        </button>
+        <p className="mt-1.5 text-2xs text-ink-faint">No account — trips stay on this device and don’t sync.</p>
       </div>
     </div>
   );

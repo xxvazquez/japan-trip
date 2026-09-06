@@ -20,6 +20,7 @@ import { fileToMediaItem, pickImage } from "@/lib/media";
 import { supabaseEnabled } from "@/lib/supabase";
 import { driveEnabled } from "@/lib/drive";
 import { useAuth, signOut } from "@/lib/auth";
+import { isLocalOnly, setLocalOnly } from "@/lib/localMode";
 import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
 import { useEffect } from "react";
 import type { Area, EntityType } from "@/core/types";
@@ -94,6 +95,17 @@ function Trips() {
             {auth.user.email}
           </span>
           <button onClick={() => signOut()} className="link-quiet shrink-0 text-sm">Sign out</button>
+        </div>
+      )}
+      {supabaseEnabled && !auth.user && isLocalOnly() && (
+        <div className="row">
+          <span className="min-w-0 truncate text-sm text-ink-soft">On this device only</span>
+          <button
+            onClick={() => { setLocalOnly(false); location.reload(); }}
+            className="link-quiet shrink-0 text-sm"
+          >
+            Sign in to sync
+          </button>
         </div>
       )}
       {!creating ? (
