@@ -242,6 +242,15 @@ export default function MapTab() {
     };
   }, [data, places, scope, catFilter, areaAllowed]);
 
+  // open to the half sheet when the default view already has places to show —
+  // the peek snap is all filter chrome and none of the list. Once only.
+  const snapInit = useRef(false);
+  useEffect(() => {
+    if (snapInit.current || scope === null) return;
+    snapInit.current = true;
+    if (scoped.length > 0) setSnap("half");
+  }, [scope, scoped.length]);
+
   /** the list grouped into collapsible area sections — only on the "all" scope,
    *  and only once areas exist. null → render the flat list instead. */
   const areaGroups = useMemo(() => {
