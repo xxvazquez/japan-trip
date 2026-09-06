@@ -25,6 +25,12 @@ export function splitRoute(label: string): { from: string; to: string } {
   };
 }
 
+/** Every stop in a route label ("A → B → C" → ["A","B","C"]) — for rendering
+ *  the connector as markup instead of a baked-in character. */
+export function routeStops(label: string): string[] {
+  return label.split(SEPARATOR).map((s) => s.trim()).filter(Boolean);
+}
+
 export function joinRoute(from: string, to: string): string {
   const f = from.trim();
   const t = to.trim();
