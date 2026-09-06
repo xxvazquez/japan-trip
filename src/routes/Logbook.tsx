@@ -703,8 +703,8 @@ function Packing() {
           <span className="text-xl font-medium tabular-nums">{done}<span className="text-ink-faint">/{total}</span></span>
           <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
             <span
-              className="block h-full rounded-full bg-accent transition-all"
-              style={{ width: done === 0 ? "0%" : `${Math.max(6, (done / total) * 100)}%` }}
+              className={`block h-full rounded-full transition-all ${done === 0 ? "bg-accent/30" : "bg-accent"}`}
+              style={{ width: done === 0 ? "0.375rem" : `${Math.max(6, (done / total) * 100)}%` }}
             />
           </span>
           {allDone && <span className="shrink-0 text-xs font-medium text-ink">All packed</span>}
