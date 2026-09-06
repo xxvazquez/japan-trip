@@ -212,7 +212,7 @@ export function Editable(props: Props) {
     value: draft,
     onBlur: commit,
     className:
-      "w-full rounded-[2px] border border-gold/60 bg-surface px-2 py-1 text-[0.95em] outline-none focus:border-gold " +
+      "w-full rounded border border-gold/60 bg-surface px-2 py-1 text-[0.95em] outline-none focus:border-gold " +
       className,
   };
 

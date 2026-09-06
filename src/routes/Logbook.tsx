@@ -646,7 +646,7 @@ function Attachments({
                   alt={f.name}
                   loading="lazy"
                   onError={() => setBroken((s) => new Set(s).add(f.id))}
-                  className="max-h-40 rounded-[3px] border border-line object-cover"
+                  className="max-h-40 rounded border border-line object-cover"
                 />
               </button>
             )}

@@ -40,6 +40,11 @@ export default {
         display: ["clamp(2.5rem, 7vw, 3.25rem)", { lineHeight: "1.05", letterSpacing: "-0.02em" }],
         "display-lg": ["clamp(2.6rem, 9vw, 4.5rem)", { lineHeight: "1.02", letterSpacing: "-0.025em" }],
       },
+      // one small radius for everything that isn't a circle (rounded-full) or
+      // the app mark (Wordmark's 22%). `rounded` = 3px, used verbatim everywhere.
+      borderRadius: {
+        DEFAULT: "3px",
+      },
       maxWidth: {
         reading: "44rem",
         page: "60rem",

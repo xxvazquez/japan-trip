@@ -230,13 +230,13 @@ html.dark {
   }
 
   .btn {
-    @apply inline-flex items-center gap-1.5 rounded-[2px] border border-ink px-3.5 py-1.5 text-sm transition-colors hover:bg-ink hover:text-bg disabled:opacity-50;
+    @apply inline-flex items-center gap-1.5 rounded border border-ink px-3.5 py-1.5 text-sm transition-colors hover:bg-ink hover:text-bg disabled:opacity-50;
   }
   .btn-primary {
-    @apply inline-flex items-center gap-1.5 rounded-[2px] bg-ink px-3.5 py-1.5 text-sm font-medium text-bg transition-opacity hover:opacity-85 disabled:opacity-50;
+    @apply inline-flex items-center gap-1.5 rounded bg-ink px-3.5 py-1.5 text-sm font-medium text-bg transition-opacity hover:opacity-85 disabled:opacity-50;
   }
   .btn-sm {
-    @apply inline-flex items-center gap-1 rounded-[2px] border border-line px-2.5 py-1 text-xs transition-colors hover:border-ink;
+    @apply inline-flex items-center gap-1 rounded border border-line px-2.5 py-1 text-xs transition-colors hover:border-ink;
   }
 }
 

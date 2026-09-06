@@ -95,7 +95,7 @@ export default function Leg() {
             <select
               value={hotel ? leg.hotelId : ""}
               onChange={(e) => e.target.value && p({ hotelId: e.target.value })}
-              className="w-full cursor-pointer rounded-[2px] border border-line bg-transparent px-2 py-1.5 text-sm focus:outline-none"
+              className="w-full cursor-pointer rounded border border-line bg-transparent px-2 py-1.5 text-sm focus:outline-none"
             >
               {hotelDangling && <option value="" disabled>Unknown hotel — pick one below</option>}
               {data.hotels.length === 0 && <option value="" disabled>No hotels yet — add one in Manage</option>}
