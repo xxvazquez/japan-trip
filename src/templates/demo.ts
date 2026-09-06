@@ -1,5 +1,6 @@
 import type { TripData } from "@/core/types";
 import { THEME_PRESETS } from "@/lib/themePresets";
+import { SCHEMA_VERSION } from "@/lib/hydrate";
 
 /**
  * The built-in read-only tour. Not tied to any destination — it exists to show
@@ -21,7 +22,7 @@ const D4 = iso(33);
 
 export function buildDemo(): TripData {
   const data: TripData = {
-    v: 3,
+    v: SCHEMA_VERSION,
     config: {
       branding: "Demo",
       tagline: "a quick read-only tour",
@@ -68,9 +69,13 @@ export function buildDemo(): TripData {
         legId: "leg-river",
         hotelId: "h-river",
         title: "Arrival",
-        plan: ["Land, clear customs, pick up transit cards", "Drop bags at the hotel", "Easy dinner nearby — don’t overdo day one"],
+        plan: [
+          { id: "d1-p1", time: "14:20", text: "Land, clear customs, pick up transit cards" },
+          { id: "d1-p2", time: "16:00", text: "Drop bags at the hotel" },
+          { id: "d1-p3", time: "18:30", text: "Easy dinner nearby — don’t overdo day one" },
+        ],
         notes:
-          "Two ways to write here. **Plan** is a plain checklist — one line per thing. **Notes** takes light formatting: **bold**, *italic*, - bullet lists, and [links](https://maps.google.com).\n\nTap almost any text — a title, a note, a time — and it becomes editable on the spot; tap away to save. On the Plan screen, days are grouped by where you’re staying; drag one to reorder it and the dates move to match.\n\n(This trip is the demo, so editing is switched off. Make a trip of your own to try it.)",
+          "The **Plan** is the day’s itinerary — a time and a step per row, drag to reorder. Link a row to a place on your map and it shows on the day’s map. **General notes** takes light formatting: **bold**, *italic*, - bullet lists, [links](https://maps.google.com).\n\nTap almost any text — a title, a time, a step — and it becomes editable on the spot; tap away to save. On the Plan screen, days are grouped by where you’re staying; drag one to reorder it and the dates move to match.\n\n(This trip is the demo, so editing is switched off. Make a trip of your own to try it.)",
       },
       {
         id: "d2",
@@ -78,16 +83,16 @@ export function buildDemo(): TripData {
         legId: "leg-river",
         hotelId: "h-river",
         title: "A full day",
-        plan: ["Coffee before anything else", "Museum when it opens", "Market for lunch", "Wander the old streets, no fixed route"],
+        plan: [
+          { id: "d2-p1", time: "08:30", text: "Coffee before anything else", placeId: "pl-1" },
+          { id: "d2-p2", time: "10:00", text: "Museum when it opens", placeId: "pl-2" },
+          { id: "d2-p3", time: "13:00", text: "Market for lunch", placeId: "pl-4" },
+          { id: "d2-p4", text: "Wander the old streets, no fixed route" },
+        ],
         notes:
           "A day is a loose plan plus a few places you’d like to hit — never an hour-by-hour schedule.\n\n> The museum is free on the first Sunday of the month.",
-        places: [
-          { id: "dp1", label: "A coffee place", placeId: "pl-1" },
-          { id: "dp2", label: "A museum", placeId: "pl-2" },
-          { id: "dp3", label: "Market for lunch", placeId: "pl-4" },
-        ],
-        // add an area to a day and its places join the day's map (they're not
-        // copied into the plan above)
+        // add an area to a day and every place in it joins the day's map — a
+        // live link, without adding each one as a step above
         areaIds: ["ar-1"],
       },
       {

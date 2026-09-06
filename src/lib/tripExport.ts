@@ -130,8 +130,19 @@ function dayBlock(day: Day, data: TripData, loc: string): string {
     parts.push(`<p class="day-journey"><a href="#journey-${esc(journey.id)}">${esc(journey.label)}</a>${span ? ` · ${esc(span)}` : ""}${changes ? ` · ${esc(plural(changes, "change"))}` : ""}</p>`);
   }
 
-  if (day.plan?.length) {
-    parts.push(`<ul class="day-plan">${day.plan.filter((p) => p.trim()).map((p) => `<li>${esc(p)}</li>`).join("")}</ul>`);
+  const steps = (day.plan ?? []).filter((it) => it.text.trim() || it.time?.trim());
+  if (steps.length) {
+    const placeById = new Map(data.places.map((p) => [p.id, p] as const));
+    const li = steps
+      .map((it) => {
+        const time = it.time?.trim() ? `<span class="pi-time">${esc(it.time.trim())}</span> ` : "";
+        const pl = it.placeId ? placeById.get(it.placeId) : undefined;
+        const body = it.url || pl ? link(it.url || pl?.url || pl?.name || it.text, it.text) : esc(it.text);
+        const note = it.note?.trim() ? `<div class="pi-note">${mdToHtml(it.note)}</div>` : "";
+        return `<li>${time}${body}${note}</li>`;
+      })
+      .join("");
+    parts.push(`<ul class="day-plan">${li}</ul>`);
   }
 
   if (day.notes?.trim()) parts.push(`<div class="note">${mdToHtml(day.notes)}</div>`);
@@ -145,11 +156,6 @@ function dayBlock(day: Day, data: TripData, loc: string): string {
     if (day.toDo?.length) {
       parts.push(`<ul class="day-plan">${day.toDo.filter((t) => t.trim()).map((t) => `<li>${esc(t)}</li>`).join("")}</ul>`);
     }
-  }
-
-  const places = (day.places ?? []).filter((p) => p.label.trim());
-  if (places.length) {
-    parts.push(`<ul class="day-places">${places.map((p) => `<li>${link(p.url || (p.placeId ? p.label : undefined), p.label)}</li>`).join("")}</ul>`);
   }
 
   return `<div class="day">${parts.filter(Boolean).join("\n")}</div>`;
@@ -377,9 +383,10 @@ function styles(data: TripData): string {
   .leg-range, .seg-meta, .day-journey { color: var(--ink-soft); font-size: .9rem; }
   .leg-range { margin-top: 0; }
   .day { margin: .8rem 0 .8rem; padding-left: .9rem; border-left: 2px solid var(--line); }
-  .day-plan, .day-places { margin: .3rem 0; }
-  .day-places { list-style: none; padding-left: 0; }
-  .day-places li::before { content: "→ "; color: var(--ink-faint); }
+  .day-plan { margin: .3rem 0; }
+  .day-plan .pi-time { color: var(--ink-faint); font-variant-numeric: tabular-nums; margin-right: .15rem; }
+  .day-plan .pi-note { color: var(--ink-soft); font-size: .9rem; margin: .15rem 0 .35rem; }
+  .day-plan .pi-note p:first-child { margin-top: 0; }
   .note { color: var(--ink-soft); font-size: .95rem; margin: .4rem 0; }
   .note p:first-child { margin-top: 0; }
   .note .label, .lb-item .label, .pack-group .label { font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 600; font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-faint); margin-bottom: .1rem; }
