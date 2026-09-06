@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   DndContext,
@@ -16,6 +17,7 @@ import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
+import { Markdown } from "@/components/Markdown";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { Icon } from "@/components/Icon";
 import { useData, lookups } from "@/lib/data";
@@ -246,6 +248,7 @@ function PlanList({ items, places, readOnly, onChange }: {
       key={it.id}
       item={it}
       place={it.placeId ? places.find((p) => p.id === it.placeId) : undefined}
+      places={places}
       readOnly={readOnly}
       onPatch={(p) => patchItem(it.id, p)}
       onRemove={() => removeItem(it.id)}
@@ -270,53 +273,110 @@ function PlanList({ items, places, readOnly, onChange }: {
   );
 }
 
-function PlanRow({ item, place, readOnly, onPatch, onRemove }: {
+function PlanRow({ item, place, places, readOnly, onPatch, onRemove }: {
   item: PlanItem;
   place?: Place;
+  places: Place[];
   readOnly: boolean;
   onPatch: (p: Partial<PlanItem>) => void;
   onRemove: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id, disabled: readOnly });
   const mapHref = gmapsLink(item.url || place?.url || place?.name);
+  const hasNote = !!item.note?.trim();
+  const [open, setOpen] = useState(false);
+  const canExpand = !readOnly || hasNote;
+
   return (
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`group flex items-start gap-2 border-b border-line/70 bg-surface py-2.5 text-sm last:border-b-0 last:pb-0 ${isDragging ? "z-10 opacity-70" : ""}`}
+      className={`group border-b border-line/70 bg-surface text-sm last:border-b-0 ${isDragging ? "z-10 opacity-70" : ""}`}
     >
-      {!readOnly && (
-        <button
-          {...attributes}
-          {...listeners}
-          className="mt-[0.15em] shrink-0 cursor-grab touch-none px-0.5 text-ink-faint/60 active:cursor-grabbing"
-          aria-label="Drag to reorder"
-        >
-          <Icon name="grip" size={13} />
-        </button>
+      <div className="flex items-start gap-2 py-2.5">
+        {!readOnly && (
+          <button
+            {...attributes}
+            {...listeners}
+            className="mt-[0.15em] shrink-0 cursor-grab touch-none px-0.5 text-ink-faint/60 active:cursor-grabbing"
+            aria-label="Drag to reorder"
+          >
+            <Icon name="grip" size={13} />
+          </button>
+        )}
+        <span className="w-[4.25rem] shrink-0 pt-px text-[0.75rem] leading-tight tabular-nums text-ink-soft">
+          {readOnly
+            ? item.time
+            : <Editable label="Time" value={item.time ?? ""} placeholder="––:––" onCommit={(v) => onPatch({ time: v.replace(/\s+/g, "") || undefined })} />}
+        </span>
+        {(mapHref || item.placeId) && (
+          <a
+            href={mapHref}
+            target="_blank"
+            rel="noopener"
+            className={`mt-[0.1em] shrink-0 ${mapHref ? "text-accent" : "pointer-events-none text-ink-faint/40"}`}
+            aria-label={place ? `Open ${place.name} in Google Maps` : "Open in Google Maps"}
+          >
+            <Icon name="pin" size={13} />
+          </a>
+        )}
+        <span className="min-w-0 flex-1">
+          {readOnly
+            ? item.text
+            : <Editable label="Step" value={item.text} placeholder="What's happening" onCommit={(v) => onPatch({ text: v })} />}
+          {hasNote && !open && (
+            <span className="mt-0.5 block truncate text-xs text-ink-faint">{item.note}</span>
+          )}
+        </span>
+        {canExpand && (
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-label={open ? "Hide step details" : "Step details"}
+            className="mt-[0.1em] shrink-0 px-0.5"
+          >
+            <Icon
+              name="chevron"
+              size={13}
+              className={`transition-transform ${open ? "rotate-90" : ""} ${hasNote ? "text-ink-soft" : "text-ink-faint/50"}`}
+            />
+          </button>
+        )}
+        {!readOnly && <RowDeleteButton onClick={onRemove} label="Remove step" />}
+      </div>
+
+      {open && (
+        <div className="space-y-2 pb-3 pl-6 pr-1">
+          {!readOnly && (places.length > 0 || item.placeId) && (
+            <label className="flex items-center gap-2 text-xs">
+              <span className="shrink-0 text-ink-faint">Place</span>
+              <select
+                value={item.placeId ?? ""}
+                onChange={(e) => onPatch({ placeId: e.target.value || undefined })}
+                className="min-w-0 flex-1 cursor-pointer rounded-[2px] border border-line bg-surface px-1.5 py-1 text-xs"
+              >
+                <option value="">— none —</option>
+                {[...places].sort((a, b) => a.name.localeCompare(b.name)).map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            </label>
+          )}
+          <div className="text-[0.8125rem] leading-relaxed text-ink">
+            {readOnly
+              ? (hasNote && <Markdown text={item.note!} />)
+              : (
+                <Editable
+                  as="textarea"
+                  label="Step note"
+                  value={item.note ?? ""}
+                  placeholder="A note for this step…"
+                  onCommit={(v) => onPatch({ note: v || undefined })}
+                />
+              )}
+          </div>
+        </div>
       )}
-      <span className="w-[4.25rem] shrink-0 pt-px text-[0.75rem] leading-tight tabular-nums text-ink-soft">
-        {readOnly
-          ? item.time
-          : <Editable label="Time" value={item.time ?? ""} placeholder="––:––" onCommit={(v) => onPatch({ time: v.replace(/\s+/g, "") || undefined })} />}
-      </span>
-      {(mapHref || item.placeId) && (
-        <a
-          href={mapHref}
-          target="_blank"
-          rel="noopener"
-          className={`mt-[0.1em] shrink-0 ${mapHref ? "text-accent" : "pointer-events-none text-ink-faint/40"}`}
-          aria-label={place ? `Open ${place.name} in Google Maps` : "Open in Google Maps"}
-        >
-          <Icon name="pin" size={13} />
-        </a>
-      )}
-      <span className="min-w-0 flex-1">
-        {readOnly
-          ? item.text
-          : <Editable label="Step" value={item.text} placeholder="What's happening" onCommit={(v) => onPatch({ text: v })} />}
-      </span>
-      {!readOnly && <RowDeleteButton onClick={onRemove} label="Remove step" />}
     </li>
   );
 }

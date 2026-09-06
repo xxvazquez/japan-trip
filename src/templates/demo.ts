@@ -85,12 +85,18 @@ export function buildDemo(): TripData {
         title: "A full day",
         plan: [
           { id: "d2-p1", time: "08:30", text: "Coffee before anything else", placeId: "pl-1" },
-          { id: "d2-p2", time: "10:00", text: "Museum when it opens", placeId: "pl-2" },
+          {
+            id: "d2-p2",
+            time: "10:00",
+            text: "Museum when it opens",
+            placeId: "pl-2",
+            note: "Free on the first Sunday. Tap the ⌄ on any step for a note like this — and to link it to a place.",
+          },
           { id: "d2-p3", time: "13:00", text: "Market for lunch", placeId: "pl-4" },
           { id: "d2-p4", text: "Wander the old streets, no fixed route" },
         ],
         notes:
-          "A day is a loose plan plus a few places you’d like to hit — never an hour-by-hour schedule.\n\n> The museum is free on the first Sunday of the month.",
+          "A day is a loose plan plus a few places you’d like to hit — never an hour-by-hour schedule. **General notes** is for anything that isn’t a step.",
         // add an area to a day and every place in it joins the day's map — a
         // live link, without adding each one as a step above
         areaIds: ["ar-1"],
