@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { CARD_SHELL } from "./Card";
 
 /**
  * A titled block on a detail page: a quiet surface panel, framed by a hairline,
@@ -21,9 +22,7 @@ export function Section({
   className?: string;
 }) {
   return (
-    <section
-      className={`rounded-[4px] border border-line bg-surface px-4 py-4 shadow-[0_1px_2px_rgb(var(--c-ink)/0.03)] sm:px-5 sm:py-5 ${className}`}
-    >
+    <section className={`${CARD_SHELL} ${className}`}>
       <div className="mb-3 flex items-baseline justify-between gap-3 border-b border-line pb-2.5">
         <h2 className="kicker">{title}</h2>
         {action ? <div className="shrink-0">{action}</div> : null}
