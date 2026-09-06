@@ -20,9 +20,21 @@ type Props =
   | (Base & { as?: Kind | "auto" })
   | (Base & { as: "select"; options: { value: string; label: string }[] });
 
+/** A short, human label for a link. Names the services this app actually sees
+ *  (mostly map links — "google.com" tells you nothing); otherwise the bare
+ *  host without "www". */
 function linkText(v: string) {
   try {
-    return new URL(v).hostname.replace(/^www\./, "");
+    const u = new URL(v);
+    const host = u.hostname.replace(/^www\./, "");
+    const isGmaps =
+      (/(^|\.)google\.[a-z.]+$/.test(host) && u.pathname.startsWith("/maps")) ||
+      host === "maps.app.goo.gl" ||
+      host === "g.page" ||
+      (host === "goo.gl" && u.pathname.startsWith("/maps"));
+    if (isGmaps) return "Google Maps";
+    if (host === "maps.apple.com") return "Apple Maps";
+    return host;
   } catch {
     return v.length > 30 ? v.slice(0, 30) + "…" : v;
   }
