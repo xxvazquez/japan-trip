@@ -50,7 +50,7 @@ export default function Plan() {
   return (
     <Page>
       {/* NOW — the one thing to know on opening */}
-      <header className="mb-9">
+      <header className="mb-8">
         {noDates && (
           <>
             <p className="lead">No travel dates yet</p>
@@ -106,7 +106,7 @@ export default function Plan() {
             const nextDate = legDays.length ? addDays(legDays.at(-1)!.date, 1) : lastLeg.start;
             addEntity("days", { id: `day-${Math.random().toString(36).slice(2, 8)}`, date: nextDate, legId: lastLeg.id, hotelId: lastLeg.hotelId, title: "New day" } as never);
           }}
-          className="action mt-10"
+          className="action mt-8"
         >
           <Icon name="plus" size={15} /> Add a day
         </button>
@@ -207,7 +207,7 @@ function LegList({ data, todayISO, readOnly }: { data: TripData; todayISO: strin
       onDragEnd={onDragEnd}
       onDragCancel={() => { setWorking(null); setActiveId(null); }}
     >
-      <div className="space-y-10">
+      <div className="space-y-8">
         {data.legs.map((leg) => (
           <LegBlock
             key={leg.id}
