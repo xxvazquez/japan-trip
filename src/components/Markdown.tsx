@@ -1,4 +1,5 @@
 import { Fragment, type ReactNode } from "react";
+import { linkLabel } from "@/lib/linkLabel";
 
 /**
  * A deliberately small Markdown renderer — bold, italic, inline code, links,
@@ -139,7 +140,7 @@ function inline(text: string): ReactNode {
     else if (i1 || i2) nodes.push(<em key={k++}>{i1 || i2}</em>);
     else if (code) nodes.push(<code key={k++} className="rounded bg-surface-2 px-1 py-0.5 text-[0.9em]">{code}</code>);
     else if (linkText && linkUrl) nodes.push(<Anchor key={k++} href={linkUrl}>{linkText}</Anchor>);
-    else if (url) nodes.push(<Anchor key={k++} href={url}>{url.replace(/^https?:\/\/(www\.)?/, "")}</Anchor>);
+    else if (url) nodes.push(<Anchor key={k++} href={url}>{linkLabel(url)}</Anchor>);
     last = m.index + m[0].length;
   }
   if (last < text.length) nodes.push(text.slice(last));
