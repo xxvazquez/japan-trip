@@ -38,10 +38,10 @@ like a normal app, full screen. Do this on both phones.
 
 **Plan** — the trip as a list of days, grouped by where you're staying.
 - Drag a day up or down to **reorder** it (the dates shuffle with it).
-- Tap a day to open it. Each day has a **Plan** (a plain bullet list — one line
-  per thing) and **Notes** (free text with light formatting). Add a few places
-  (a name + a Google Maps link), and for day trips add how to get there / back
-  and the last train home.
+- Tap a day to open it. A **day trip** leads with how to get there and back, a
+  checklist and the last train home; every day then has a **Plan** (a plain
+  bullet list — one line per thing), a few **places** (a name + a Google Maps
+  link), and free-text **Notes** with light formatting.
 
 **Map** — your Google **My Map** pins, on a clean map.
 - Switch the scope: **all places**, **today**, a **day**, a **stay**, or an

@@ -63,6 +63,45 @@ export default function Day() {
       )}
 
       <div className="space-y-3.5">
+      {/* DAY TRIP — the logistics you opened the page for; first when it applies */}
+      {day.dayTrip && (
+        <Section
+          title="Day trip"
+          action={!ro && <button onClick={() => patch({ dayTrip: false })} className="link-quiet text-xs">not a day trip</button>}
+        >
+          <div className="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
+            <Field label="Getting there">
+              <Editable as="textarea" label="Getting there" value={day.getThere ?? ""} placeholder="Route out" onCommit={(v) => patch({ getThere: v || undefined })} />
+            </Field>
+            <Field label="Getting back">
+              <Editable as="textarea" label="Getting back" value={day.getBack ?? ""} placeholder="Route back" onCommit={(v) => patch({ getBack: v || undefined })} />
+            </Field>
+          </div>
+
+          {(day.lastTrainBack || !ro) && (
+            <div className="mt-4 flex items-baseline gap-2 border-t border-line pt-3">
+              <Icon name="clock" size={14} className="shrink-0 translate-y-0.5 text-accent" />
+              <p className="text-sm">
+                <span className="text-ink-soft">Last way back — </span>
+                <span className="font-medium text-accent">
+                  <Editable label="Last way back" value={day.lastTrainBack ?? ""} placeholder="e.g. last train ~23:00" onCommit={(v) => patch({ lastTrainBack: v || undefined })} />
+                </span>
+              </p>
+            </div>
+          )}
+
+          {((day.toDo ?? []).length > 0 || !ro) && (
+            <div className="mt-4 border-t border-line pt-3">
+              <div className="mb-1 flex items-baseline justify-between gap-3">
+                <p className="field-label">To do there</p>
+                {!ro && <button onClick={() => patch({ toDo: [...(day.toDo ?? []), ""] })} className="action text-xs"><Icon name="plus" size={13} /> Add</button>}
+              </div>
+              <StringList items={day.toDo ?? []} onChange={(v) => patch({ toDo: v.length ? v : undefined })} readOnly={ro} />
+            </div>
+          )}
+        </Section>
+      )}
+
       {/* PLAN — a short bullet list */}
       {((day.plan ?? []).length > 0 || !ro) && (
         <Section
@@ -81,19 +120,6 @@ export default function Day() {
             readOnly={ro}
             emptyHint="Nothing planned yet."
           />
-        </Section>
-      )}
-
-      {/* NOTES — free-form, lightly formatted */}
-      {(day.notes || !ro) && (
-        <Section title="Notes">
-          <div className="text-[0.95rem] text-ink">
-            <RichNote
-              value={day.notes ?? ""}
-              onCommit={(v) => patch({ notes: v || undefined })}
-              placeholder="Anything else — ideas, reminders, links…"
-            />
-          </div>
         </Section>
       )}
 
@@ -217,42 +243,16 @@ export default function Day() {
         </Section>
       )}
 
-      {/* DAY TRIP — a distinct block */}
-      {day.dayTrip && (
-        <Section
-          title="Day trip"
-          action={!ro && <button onClick={() => patch({ dayTrip: false })} className="link-quiet text-xs">not a day trip</button>}
-        >
-          <div className="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
-            <Field label="Getting there">
-              <Editable as="textarea" label="Getting there" value={day.getThere ?? ""} placeholder="Route out" onCommit={(v) => patch({ getThere: v || undefined })} />
-            </Field>
-            <Field label="Getting back">
-              <Editable as="textarea" label="Getting back" value={day.getBack ?? ""} placeholder="Route back" onCommit={(v) => patch({ getBack: v || undefined })} />
-            </Field>
+      {/* NOTES — free-form catch-all, so it lands after the day's actual plan */}
+      {(day.notes || !ro) && (
+        <Section title="Notes">
+          <div className="text-[0.95rem] text-ink">
+            <RichNote
+              value={day.notes ?? ""}
+              onCommit={(v) => patch({ notes: v || undefined })}
+              placeholder="Anything else — ideas, reminders, links…"
+            />
           </div>
-
-          {(day.lastTrainBack || !ro) && (
-            <div className="mt-4 flex items-baseline gap-2 border-t border-line pt-3">
-              <Icon name="clock" size={14} className="shrink-0 translate-y-0.5 text-accent" />
-              <p className="text-sm">
-                <span className="text-ink-soft">Last way back — </span>
-                <span className="font-medium text-accent">
-                  <Editable label="Last way back" value={day.lastTrainBack ?? ""} placeholder="e.g. last train ~23:00" onCommit={(v) => patch({ lastTrainBack: v || undefined })} />
-                </span>
-              </p>
-            </div>
-          )}
-
-          {((day.toDo ?? []).length > 0 || !ro) && (
-            <div className="mt-4 border-t border-line pt-3">
-              <div className="mb-1 flex items-baseline justify-between gap-3">
-                <p className="field-label">To do there</p>
-                {!ro && <button onClick={() => patch({ toDo: [...(day.toDo ?? []), ""] })} className="action text-xs"><Icon name="plus" size={13} /> Add</button>}
-              </div>
-              <StringList items={day.toDo ?? []} onChange={(v) => patch({ toDo: v.length ? v : undefined })} readOnly={ro} />
-            </div>
-          )}
         </Section>
       )}
       </div>
