@@ -56,7 +56,7 @@ export function PageHeader({
     <header className={`mb-8 ${className}`}>
       {back ? <BackBar to={typeof back === "string" ? back : undefined} /> : null}
       {eyebrow ? (
-        <p className="eyebrow mb-1.5 flex items-center gap-1.5">
+        <p className="eyebrow mb-1.5 flex items-center gap-1.5 text-ink-faint">
           {dotColor && <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: dotColor }} />}
           {eyebrow}
         </p>

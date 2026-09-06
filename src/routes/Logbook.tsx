@@ -109,7 +109,7 @@ export default function Logbook() {
             return (
               <div key={cluster.label} className="flex shrink-0 items-baseline gap-4">
                 {ci > 0 && <span aria-hidden className="mx-1 h-3 w-px shrink-0 -translate-y-px self-center bg-line" />}
-                <span className="shrink-0 text-2xs font-normal uppercase tracking-[0.12em] text-ink-faint">
+                <span className="eyebrow shrink-0 text-ink-faint">
                   {cluster.label}
                 </span>
                 {secs.map((s) => (

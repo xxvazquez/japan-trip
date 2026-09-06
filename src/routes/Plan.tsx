@@ -255,7 +255,7 @@ function LegBlock({
         <h2 className="subhead group-hover:underline">{leg.base}</h2>
         {leg.nameAlt && <span className="font-jp text-sm text-ink-faint">{leg.nameAlt}</span>}
       </Link>
-      <p className="mb-2 pl-5 text-2xs uppercase tracking-[0.12em] text-ink-soft">
+      <p className="eyebrow mb-2 pl-5">
         {fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – {fmtDate(leg.end, loc, { day: "numeric", month: "short" })} · {plural(nights, "night")}
       </p>
 
@@ -288,7 +288,7 @@ function DayKindTag({ day, data }: { day: Day; data: TripData }) {
   const k = KIND[dayKind(day, data)];
   if (!k) return null;
   return (
-    <span className="flex shrink-0 items-center gap-1 text-2xs font-normal uppercase tracking-[0.12em] text-ink-soft">
+    <span className="eyebrow flex shrink-0 items-center gap-1">
       <Icon name={k.icon} size={12} /> {k.label}
     </span>
   );
@@ -332,7 +332,7 @@ function DayRow({ data, day, today, loc, readOnly }: { data: TripData; day: Day;
           <span className={`min-w-0 truncate ${day.title ? "font-medium text-ink" : "font-normal text-ink-faint"} group-hover:underline`}>
             {day.title || "Untitled day"}
           </span>
-          {today && <span className="shrink-0 text-2xs font-medium uppercase tracking-[0.12em] text-ink">Today</span>}
+          {today && <span className="eyebrow shrink-0 text-ink">Today</span>}
           <DayKindTag day={day} data={data} />
         </span>
       </Link>
