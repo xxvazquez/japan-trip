@@ -56,14 +56,14 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col items-center bg-ink/40 px-4 pt-[10vh]"
+      className="fixed inset-0 z-50 flex flex-col items-center bg-ink/40 sm:px-4 sm:pt-[8vh]"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label="Search"
     >
       <div
-        className="flex w-full max-w-reading flex-col overflow-hidden border border-line bg-bg motion-safe:animate-fade-up"
+        className="flex w-full max-w-reading flex-col overflow-hidden border-b border-line bg-bg shadow-xl motion-safe:animate-fade-up sm:rounded sm:border"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={onKey}
       >
