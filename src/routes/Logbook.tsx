@@ -707,7 +707,7 @@ function Packing() {
               style={{ width: done === 0 ? "0%" : `${Math.max(6, (done / total) * 100)}%` }}
             />
           </span>
-          {allDone && <span className="shrink-0 text-xs font-medium text-accent">All packed</span>}
+          {allDone && <span className="shrink-0 text-xs font-medium text-ink">All packed</span>}
         </div>
       )}
       {total === 0 && !ro && (
@@ -726,7 +726,7 @@ function Packing() {
                 )}
               </span>
               <span className="flex shrink-0 items-center gap-2 pt-0.5">
-                <span className={`text-xs tabular-nums ${g === list.length ? "text-accent" : "text-ink-faint"}`}>
+                <span className={`text-xs tabular-nums ${g === list.length ? "text-ink" : "text-ink-faint"}`}>
                   {g}/{list.length}
                 </span>
                 {!ro && cardDeleteBtn(() => removeGroup(group), "Delete category")}
