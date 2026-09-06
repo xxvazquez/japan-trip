@@ -40,10 +40,10 @@ like a normal app, full screen. Do this on both phones.
 - Drag a day up or down to **reorder** it (the dates shuffle with it).
 - Tap a day to open it. A **day trip** leads with how to get there and back, a
   checklist and the last train home; every day then has a **Plan** — an
-  itinerary of steps, each a time and a line of text, **drag to reorder**. Link
-  a step to a place on your map and it shows on the day's map. Below that,
-  **Areas** (drop a whole neighbourhood's pins onto the map) and free-text
-  **General notes**.
+  itinerary of steps, each a time and a line of text, **drag to reorder**.
+  Expand a step (the **⌄**) for a note and to link it to a place on your map —
+  linked steps show on the day's map. Below that, **Areas** (drop a whole
+  neighbourhood's pins onto the map) and free-text **General notes**.
 
 **Map** — your Google **My Map** pins, on a clean map.
 - Switch the scope: **all places**, **today**, a **day**, a **stay**, or an
