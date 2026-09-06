@@ -8,6 +8,7 @@ import { useApp } from "@/store/useApp";
 import { useData } from "@/lib/data";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import { useIsDark } from "@/lib/mode";
+import { APP_NAME, APP_TAGLINE } from "@/lib/app";
 import { tripLogoSrc } from "@/components/Wordmark";
 import { daysBetween, plural, rangeText } from "@/lib/dates";
 import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
@@ -49,7 +50,28 @@ export default function Manage() {
       {tab === "content" && <Content />}
       {tab === "appearance" && <Appearance />}
       {tab === "sharing" && <SharingTab />}
+
+      <AppFooter />
     </Page>
+  );
+}
+
+/** The product's quiet home — Manage is the "about the app" surface, so the
+ *  logotype lives here rather than in the trip chrome. */
+function AppFooter() {
+  const dark = useIsDark();
+  return (
+    <footer className="mt-16 flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 border-t border-line pt-6 text-ink-faint">
+      <img
+        src={dark ? "/brand/logo-128-dark.png" : "/brand/logo-128-light.png"}
+        width={20}
+        height={20}
+        alt=""
+        className="rounded-[22%]"
+      />
+      <span className="font-display text-sm font-medium tracking-tight text-ink-soft">{APP_NAME}</span>
+      <span className="text-2xs">· {APP_TAGLINE}</span>
+    </footer>
   );
 }
 
