@@ -100,6 +100,7 @@ export default function Journey() {
       <div className="mt-8 space-y-3.5">
       {(!ro || j.segments.length > 0) && (
         <Section
+          icon="itinerary"
           title="Hops"
           action={
             !ro && (
@@ -192,7 +193,7 @@ export default function Journey() {
       )}
 
       {(j.notes || !ro) && (
-        <Section title="Notes">
+        <Section icon="list" title="Notes">
           <div className="note">
             <RichNote value={j.notes ?? ""} onCommit={(v) => patch({ notes: v || undefined })} placeholder="Backup routes, reminders…" />
           </div>

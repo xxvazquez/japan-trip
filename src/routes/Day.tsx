@@ -80,6 +80,7 @@ export default function Day() {
       {/* DAY TRIP — the logistics you opened the page for; first when it applies */}
       {day.dayTrip && (
         <Section
+          icon="explore"
           title="Day trip"
           action={!ro && <button onClick={() => patch({ dayTrip: false })} className="link-quiet text-xs">not a day trip</button>}
         >
@@ -119,6 +120,7 @@ export default function Day() {
       {/* PLAN — the day's itinerary: time + step, drag to reorder */}
       {((day.plan ?? []).length > 0 || !ro) && (
         <Section
+          icon="itinerary"
           title="Plan"
           action={
             !ro && (
@@ -134,7 +136,7 @@ export default function Day() {
 
       {/* AREAS — pull an area's places onto this day's map, without touching the plan */}
       {((day.areaIds ?? []).length > 0 || (!ro && data.areas.length > 0)) && (
-        <Section title="Areas">
+        <Section icon="pin" title="Areas">
           <div className="flex flex-wrap gap-2">
             {(day.areaIds ?? []).map((id) => {
               const a = data.areas.find((x) => x.id === id);
@@ -194,7 +196,7 @@ export default function Day() {
 
       {/* GENERAL NOTES — free-form catch-all, after the day's actual plan */}
       {(day.notes || !ro) && (
-        <Section title="General notes">
+        <Section icon="list" title="General notes">
           <div className="note">
             <RichNote
               value={day.notes ?? ""}

@@ -100,7 +100,7 @@ export default function Hotel() {
 
       <div className="mt-3.5 space-y-3.5">
         {(hotel.directions || !ro) && (
-          <Section title="Getting here">
+          <Section icon="map" title="Getting here">
             <div className="note">
               <Editable as="textarea" label="Directions" value={hotel.directions ?? ""} placeholder="From the station…" onCommit={(v) => p({ directions: v || undefined })} />
             </div>
@@ -108,7 +108,7 @@ export default function Hotel() {
         )}
 
         {showRefSection && (
-          <Section title="Reference">
+          <Section icon="vault" title="Reference">
             {showRefRows ? (
               (ro ? refFilled : ref).map(([label, value, onCommit, as, ph]) => (
                 <div key={label} className="row">
@@ -127,7 +127,7 @@ export default function Hotel() {
         )}
 
         {(hotel.notes || !ro) && (
-          <Section title="Notes">
+          <Section icon="list" title="Notes">
             <div className="note">
               <RichNote value={hotel.notes ?? ""} onCommit={(v) => p({ notes: v || undefined })} placeholder="Anything about this stay" />
             </div>
