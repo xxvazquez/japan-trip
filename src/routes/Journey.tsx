@@ -12,11 +12,33 @@ import { useReadOnly } from "@/lib/readonly";
 import { fmtDate, plural, segEndpoints } from "@/lib/dates";
 import { clockOf, fmtDuration, fmtMinutes, localMinutes } from "@/lib/time";
 import { MODE_LABEL } from "@/lib/transport";
-import { splitRoute, joinRoute, JOURNEY_KIND_LABEL } from "@/lib/journey";
+import { splitRoute, joinRoute, routeStops, JOURNEY_KIND_LABEL } from "@/lib/journey";
 import type { Journey as JourneyT, Segment, TransportMode } from "@/core/types";
 
 const MODES: TransportMode[] = ["flight", "train", "bus", "ferry", "car", "taxi", "subway", "walk"];
 const rid = () => Math.random().toString(36).slice(2, 8);
+
+/** The from → to connector. One weight everywhere a route shows — always Inter,
+ *  never the page's serif, so the Journey screen stops mixing arrow styles. */
+function Arrow({ className = "" }: { className?: string }) {
+  return <span className={`font-sans font-normal text-ink-faint ${className}`}>→</span>;
+}
+
+/** A stored "A → B" label with the arrow rendered as markup, not a baked char. */
+function RouteLabel({ label }: { label: string }) {
+  const stops = routeStops(label);
+  if (stops.length < 2) return <>{label}</>;
+  return (
+    <span className="inline-flex flex-wrap items-baseline gap-x-2">
+      {stops.map((s, i) => (
+        <span key={i} className="inline-flex items-baseline gap-x-2">
+          {i > 0 && <Arrow />}
+          {s}
+        </span>
+      ))}
+    </span>
+  );
+}
 
 export default function Journey() {
   const data = useData();
@@ -46,11 +68,11 @@ export default function Journey() {
         eyebrow={`${JOURNEY_KIND_LABEL[j.kind]}${j.date ? ` · ${fmtDate(j.date, loc, { weekday: "long", day: "numeric", month: "long" })}` : ""}`}
         title={
           ro ? (
-            j.label
+            <RouteLabel label={j.label} />
           ) : (
             <span className="inline-flex flex-wrap items-baseline gap-x-2 gap-y-1">
               <Editable label="From" value={route.from} placeholder="From" onCommit={(v) => patch({ label: joinRoute(v, route.to) || j.label })} />
-              <span className="text-ink-faint">→</span>
+              <Arrow />
               <Editable label="To" value={route.to} placeholder="To" onCommit={(v) => patch({ label: joinRoute(route.from, v) || j.label })} />
             </span>
           )
@@ -118,13 +140,13 @@ export default function Journey() {
               <div className="group border-t border-line py-4 first:border-t-0 first:pt-0">
                 <p className="kicker">
                   <Editable label="From" value={s.from} placeholder="FROM" onCommit={(v) => setSeg(i, { from: v })} />
-                  <span className="mx-1.5 text-ink-faint">→</span>
+                  <Arrow className="mx-1.5" />
                   <Editable label="To" value={s.to} placeholder="TO" onCommit={(v) => setSeg(i, { to: v })} />
                 </p>
                 <p className="mt-1.5 font-display text-2xl tabular-nums leading-none">
                   <Editable as="time" label="Depart time" value={clockOf(s.depart)} placeholder="--:--" onCommit={(v) => setSeg(i, { depart: mergeTime(s.depart, j.date, v) })} />
                   {ep.depart.zone && <span className="ml-1 align-middle text-xs text-ink-faint">{ep.depart.zone}</span>}
-                  <span className="mx-2 text-ink-faint">→</span>
+                  <Arrow className="mx-2 align-middle text-base" />
                   <Editable as="time" label="Arrive time" value={clockOf(s.arrive)} placeholder="--:--" onCommit={(v) => setSeg(i, { arrive: mergeTime(s.arrive, j.date, v) })} />
                   {ep.arrive.zone && <span className="ml-1 align-middle text-xs text-ink-faint">{ep.arrive.zone}</span>}
                 </p>
