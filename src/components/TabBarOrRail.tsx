@@ -44,17 +44,27 @@ export function TabBarOrRail() {
             </li>
           );
         })}
-        <li className="hidden md:mt-auto md:block">
+        {/* Manage — a rail peer, not a stranded corner button: same footprint
+            and active bar as the sections, just parked at the foot of the list */}
+        <li className="relative hidden md:mt-auto md:block md:w-[72px]">
+          {pathname.startsWith("/manage") && (
+            <span
+              aria-hidden
+              className="absolute left-0 top-1/2 h-8 w-[2px] -translate-y-1/2 bg-accent"
+            />
+          )}
           <NavLink
             to="/manage"
             aria-label="Manage"
             className={({ isActive }) =>
-              `grid h-9 w-9 place-items-center rounded-full transition-colors ${
-                isActive ? "text-accent" : "text-ink-faint hover:bg-surface-2 hover:text-ink-soft"
-              }`
+              [
+                "group flex flex-col items-center gap-1 py-3 text-[10px] font-medium tracking-wide transition-colors",
+                isActive ? "text-accent" : "text-ink-faint hover:text-ink-soft",
+              ].join(" ")
             }
           >
-            <Icon name="settings" size={19} />
+            <Icon name="settings" size={20} />
+            Manage
           </NavLink>
         </li>
       </ul>
