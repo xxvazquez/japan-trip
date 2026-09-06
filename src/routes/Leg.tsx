@@ -50,13 +50,13 @@ export default function Leg() {
 
       <div className="mb-8 grid grid-cols-2 gap-x-4 gap-y-5">
         <div>
-          <p className="field-label">Start</p>
+          <p className="eyebrow">Start</p>
           <p className="mt-0.5 field-value">
             <Editable as="date" label="Start date" value={leg.start} onCommit={(v) => v && p({ start: v })} />
           </p>
         </div>
         <div>
-          <p className="field-label">End</p>
+          <p className="eyebrow">End</p>
           <p className="mt-0.5 field-value">
             <Editable as="date" label="End date" value={leg.end} onCommit={(v) => v && p({ end: v })} />
           </p>
@@ -65,7 +65,7 @@ export default function Leg() {
 
       {!ro && (
         <div className="mb-8">
-          <p className="field-label mb-2">Colour</p>
+          <p className="eyebrow mb-2">Colour</p>
           <div className="flex gap-2">
             {(Object.keys(LEG_COLORS) as LegColorId[]).map((cid) => (
               <button
@@ -83,7 +83,7 @@ export default function Leg() {
       )}
 
       <div className="mb-8">
-        <p className="field-label mb-1.5">Hotel</p>
+        <p className="eyebrow mb-1.5">Hotel</p>
         {ro ? (
           hotel ? (
             <Link to={`/hotel/${hotel.id}`} className="value text-accent underline underline-offset-2">{hotel.name}</Link>

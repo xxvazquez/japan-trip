@@ -543,7 +543,7 @@ export default function MapTab() {
         {/* area filter — tap to narrow the map (and list) to certain areas; none selected = all */}
         {data.areas.length > 0 && !adding && (
           <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-line pt-2.5">
-            <span className="text-2xs uppercase tracking-[0.06em] text-ink-faint">Areas</span>
+            <span className="eyebrow text-ink-faint">Areas</span>
             {data.areas
               .map((a, i) => ({ a, col: AREA_TONES[i % AREA_TONES.length] }))
               .sort((x, y) => (x.a.name || "").localeCompare(y.a.name || ""))
@@ -569,7 +569,7 @@ export default function MapTab() {
         {/* transit overlay — tap to show; drawn live from the basemap, works anywhere */}
         {!adding && (
           <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-line pt-2.5">
-            <span className="text-2xs uppercase tracking-[0.06em] text-ink-faint">Transit</span>
+            <span className="eyebrow text-ink-faint">Transit</span>
             {TRANSIT_KINDS.map((kind) => {
               const on = transit.has(kind);
               const col = dark ? TRANSIT_META[kind].dark : TRANSIT_META[kind].light;
@@ -740,7 +740,7 @@ export default function MapTab() {
                   className="sticky top-0 z-[1] flex w-full items-center gap-2 border-b border-line bg-bg px-4 py-2 text-left"
                 >
                   <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: g.tone }} />
-                  <span className="min-w-0 flex-1 truncate text-2xs font-medium uppercase tracking-[0.08em] text-ink-soft">{g.name}</span>
+                  <span className="eyebrow min-w-0 flex-1 truncate font-medium">{g.name}</span>
                   <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{g.items.length}</span>
                   <Icon name={shut ? "down" : "up"} size={12} className="shrink-0 text-ink-faint" />
                 </button>
@@ -888,7 +888,7 @@ function ScopeMenu({ value, options, onChange }: { value: string; options: Scope
               lastGroup = o.group;
               return (
                 <div key={`${o.group ?? ""}:${o.value}`}>
-                  {head && <p className="px-3 pb-1 pt-2.5 text-2xs font-normal uppercase tracking-[0.12em] text-ink-faint">{head}</p>}
+                  {head && <p className="eyebrow px-3 pb-1 pt-2.5 text-ink-faint">{head}</p>}
                   <button
                     onClick={() => {
                       onChange(o.value);
