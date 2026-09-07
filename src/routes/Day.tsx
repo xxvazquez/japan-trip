@@ -31,6 +31,14 @@ import type { Day as DayT, DayCost, PlanItem, Place } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 9);
 
+/** A spending amount feeds the day total, so it has to be a plain number —
+ *  strip currency symbols, separators and stray text, round to a whole unit.
+ *  Anything with no number in it clears the row. */
+function cleanAmount(v: string): string {
+  const n = Math.round(Number(v.replace(/[^0-9.-]/g, "")));
+  return Number.isFinite(n) && n !== 0 ? String(n) : "";
+}
+
 export default function Day() {
   const data = useData();
   const { id } = useParams();
@@ -526,7 +534,7 @@ function CostList({ costs, currency, readOnly, onChange }: {
             </span>
             <span className="value shrink-0 text-right tabular-nums">
               {readOnly ? c.amount : (
-                <Editable label="Amount" value={c.amount} placeholder="—" onCommit={(v) => setAt(i, { amount: v })} />
+                <Editable as="number" label="Amount" value={c.amount} placeholder="—" onCommit={(v) => setAt(i, { amount: cleanAmount(v) })} />
               )}
             </span>
             {!readOnly && <RowDeleteButton onClick={() => onChange(costs.filter((_, j) => j !== i))} />}
