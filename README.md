@@ -50,7 +50,9 @@ automatically from what you set on the day itself, never chosen by hand.
   text, **drag to reorder**.
   Expand a step (the **⌄**) for a note and to link it to a place on your map —
   linked steps show on the day's map. Below that, **Areas** (drop a whole
-  neighbourhood's pins onto the map) and free-text **General notes**.
+  neighbourhood's pins onto the map), a **Spending** list (a label and a whole
+  number per row, subtotalled and fed to Budget), and free-text **General
+  notes**.
 
 **Journeys** (linked from a day, or the *getting around* tab). A journey is one
 or more **hops**. Each hop is a card, tinted by mode (rail, air/sea, road, on
