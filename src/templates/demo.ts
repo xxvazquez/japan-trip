@@ -46,7 +46,7 @@ export function buildDemo(): TripData {
           title: "Food & coffee",
           items: [
             { id: "li-1", label: "That bakery everyone posts about", note: "Get there before 10 or it’s gone", url: "https://www.google.com/maps/search/?api=1&query=bakery" },
-            { id: "li-2", label: "Natural wine bar near the second hotel" },
+            { id: "li-2", label: "Natural wine bar near the Fenwick guesthouse" },
             { id: "li-3", label: "Coffee roaster — closed Mondays" },
           ],
         },
@@ -58,8 +58,8 @@ export function buildDemo(): TripData {
       "A free-text scratchpad — shopping lists, things you keep forgetting, a phrase you want to remember. It’s shared with anyone the trip is shared with.",
 
     legs: [
-      { id: "leg-river", base: "Riverside", start: D1, end: D2, hotelId: "h-river", color: "blue" },
-      { id: "leg-old", base: "Old town", start: D3, end: D4, hotelId: "h-old", color: "sage" },
+      { id: "leg-river", base: "Riverton", start: D1, end: D2, hotelId: "h-river", color: "blue" },
+      { id: "leg-old", base: "Fenwick", start: D3, end: D4, hotelId: "h-old", color: "sage" },
     ],
 
     days: [
@@ -108,7 +108,7 @@ export function buildDemo(): TripData {
         hotelId: "h-old",
         title: "A day out",
         dayTrip: true,
-        getThere: "Train from the main station, about 40 min",
+        getThere: "Train from Fenwick, about 40 min",
         getBack: "Same line back",
         lastTrainBack: "Last train ~23:15",
         toDo: ["Buy the return ticket in the morning", "Pack water + a layer"],
@@ -118,8 +118,13 @@ export function buildDemo(): TripData {
         id: "d4",
         date: D4,
         legId: "leg-old",
+        hotelId: "h-old",
         journeyId: "j-home",
         title: "Travel + departure",
+        plan: [
+          { id: "d4-p1", time: "08:30", text: "Last coffee before the train", placeId: "pl-5" },
+          { id: "d4-p2", time: "09:10", text: "Airport train — times and seat are on the journey below" },
+        ],
         notes: "Travel days link to a journey with the times, platform and seat — tap the chip near the top of the day.",
       },
     ],
@@ -134,24 +139,24 @@ export function buildDemo(): TripData {
         price: "€240",
         fields: [
           { id: "h-river-f1", label: "Booking ref", value: "RSV-00123" },
-          { id: "h-river-f2", label: "Wifi", value: "guest / riverside2027" },
+          { id: "h-river-f2", label: "Wifi", value: "guest / riverton2027" },
         ],
         notes: "Everything here is a placeholder. Reference is your own — rename a row, add a field, remove one.",
       },
       {
         id: "h-old",
-        name: "Guesthouse in the old town",
+        name: "Guesthouse in Fenwick",
         address: "4 Lantern Lane",
         checkIn: "16:00",
         checkOut: "10:00",
-        fields: [{ id: "h-old-f1", label: "Wifi", value: "oldtown-guest" }],
+        fields: [{ id: "h-old-f1", label: "Wifi", value: "fenwick-guest" }],
       },
     ],
 
     journeys: [
       {
         id: "j-home",
-        label: "Old town → home",
+        label: "Fenwick → home",
         kind: "departure",
         date: D4,
         fromLegId: "leg-old",
@@ -160,7 +165,7 @@ export function buildDemo(): TripData {
           {
             id: "seg-1",
             mode: "train",
-            from: "Old Town",
+            from: "Fenwick",
             to: "Airport",
             depart: at(33, "09:10"),
             arrive: at(33, "10:05"),
@@ -225,13 +230,18 @@ export function buildDemo(): TripData {
       { id: "pl-2", name: "A museum", lat: 35.7148, lng: 139.7752, category: "see", color: "#5c6bc0" },
       { id: "pl-3", name: "A viewpoint", lat: 35.6586, lng: 139.7454, category: "see", color: "#5c6bc0" },
       { id: "pl-4", name: "Market for lunch", lat: 35.6655, lng: 139.7708, category: "food", color: "#26a69a" },
+      // a second city — so the map's city pills have something to switch between
+      { id: "pl-5", name: "Corner coffee, Fenwick", lat: 35.0116, lng: 135.7681, category: "coffee", color: "#8d6e63" },
+      { id: "pl-6", name: "Fenwick fish market", lat: 35.0089, lng: 135.7660, category: "food", color: "#26a69a" },
     ],
 
     areas: [
-      // "Category" is what a place is (coffee, see…); an "area" is where it is.
-      // Add an area to a day and its places show on that day's map automatically.
-      { id: "ar-1", name: "Old town", placeIds: ["pl-2", "pl-3"] },
-      { id: "ar-2", name: "Riverside", placeIds: ["pl-1", "pl-4"] },
+      // "Category" is what a place is (coffee, see…); an "area" is where it is —
+      // a neighbourhood within a city. Add an area to a day and its places show
+      // on that day's map automatically.
+      { id: "ar-1", name: "Museum quarter", placeIds: ["pl-2", "pl-3"] },
+      { id: "ar-2", name: "The waterfront", placeIds: ["pl-1", "pl-4"] },
+      { id: "ar-3", name: "Market row", placeIds: ["pl-5", "pl-6"] },
     ],
   };
 
