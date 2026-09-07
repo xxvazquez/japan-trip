@@ -17,7 +17,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { APP_NAME } from "@/lib/app";
 import { fmtDate, fmtSpan, plural } from "@/lib/dates";
 import { flightSegments } from "@/lib/journey";
-import { LOGBOOK_SECTIONS, LOGBOOK_CLUSTERS, logbookLabel } from "@/lib/logbook";
+import { LOGBOOK_SECTIONS, logbookLabel } from "@/lib/logbook";
 import { tripCost, fmtMoney } from "@/lib/cost";
 import { putFile, fileUrl, removeFile } from "@/lib/fileStore";
 import {
@@ -102,26 +102,14 @@ export default function Logbook() {
       <PageHeader title={moduleLabel} className="mb-4" />
 
       <div className="relative -mx-5 mb-8 sm:-mx-7">
-        <div className="flex items-baseline gap-4 overflow-x-auto border-b border-line px-5 [mask-image:linear-gradient(to_right,transparent,#000_20px,#000_calc(100%-20px),transparent)] [scrollbar-width:none] sm:px-7 [&::-webkit-scrollbar]:hidden">
-          {LOGBOOK_CLUSTERS.map((cluster, ci) => {
-            const secs = cluster.sections.filter((s) => builtins.includes(s));
-            const withLists = ci === LOGBOOK_CLUSTERS.length - 1 ? lists : [];
-            if (secs.length === 0 && withLists.length === 0) return null;
-            return (
-              <div key={cluster.label} className="flex shrink-0 items-baseline gap-4">
-                {ci > 0 && <span aria-hidden className="mx-1 h-3 w-px shrink-0 -translate-y-px self-center bg-line" />}
-                <span className="eyebrow shrink-0 text-ink-faint">
-                  {cluster.label}
-                </span>
-                {secs.map((s) => (
-                  <Tab key={s} label={logbookLabel(s)} active={active === s} onClick={() => setSection(s)} centerOnActive />
-                ))}
-                {withLists.map((l) => (
-                  <Tab key={l.id} label={l.title} active={active === l.id} onClick={() => setSection(l.id)} centerOnActive />
-                ))}
-              </div>
-            );
-          })}
+        <div className="flex gap-5 overflow-x-auto border-b border-line px-5 [mask-image:linear-gradient(to_right,transparent,#000_20px,#000_calc(100%-20px),transparent)] [scrollbar-width:none] sm:px-7 [&::-webkit-scrollbar]:hidden">
+          {builtins.map((s) => (
+            <Tab key={s} label={logbookLabel(s)} active={active === s} onClick={() => setSection(s)} centerOnActive />
+          ))}
+          {lists.length > 0 && <span aria-hidden className="my-1.5 w-px shrink-0 self-stretch bg-line" />}
+          {lists.map((l) => (
+            <Tab key={l.id} label={l.title} active={active === l.id} onClick={() => setSection(l.id)} centerOnActive />
+          ))}
         </div>
       </div>
 
