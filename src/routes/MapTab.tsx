@@ -594,7 +594,7 @@ export default function MapTab() {
               return (
                 <button
                   key={city.id}
-                  onClick={() => { setScope(city.id); setSelected(null); }}
+                  onClick={() => { setScope(city.id); setSelected(null); setAreaFilter(new Set()); }}
                   className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors ${active ? "border-ink bg-ink text-bg" : "border-line text-ink-soft hover:border-ink-soft"}`}
                 >
                   {city.hex && <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: active ? "currentColor" : city.hex }} />}
@@ -612,8 +612,10 @@ export default function MapTab() {
           ))}
         </div>
 
-        {/* area chips — only the current city's areas, and only ones with a place in view */}
-        {scopeAreas.length > 0 && !adding && (
+        {/* area chips — only once a city is picked, and only that city's areas
+            that have a place in view. On "All" the list's own area sections do
+            the narrowing; a chip wall there is the thing this redesign killed. */}
+        {scope?.startsWith("leg:") && scopeAreas.length > 0 && !adding && (
           <div className="mt-2.5 flex flex-wrap gap-x-3 gap-y-1.5">
             {scopeAreas.map(({ a, col }) => {
               const on = areaFilter.size === 0 || areaFilter.has(a.id);
