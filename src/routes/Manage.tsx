@@ -25,7 +25,7 @@ import { isLocalOnly, setLocalOnly } from "@/lib/localMode";
 import { RowMenu } from "@/components/RowMenu";
 import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
 import { useEffect } from "react";
-import type { Area, EntityType } from "@/core/types";
+import type { Area, EntityType, TripData } from "@/core/types";
 
 type TabId = "trips" | "setup" | "content" | "appearance" | "sharing";
 const TABS: TabId[] = ["trips", "setup", "content", "appearance", "sharing"];
@@ -381,6 +381,8 @@ function Setup() {
         <EditRow label="Trip name" value={config.branding} onCommit={(v) => mutate((d) => { d.config.branding = v; d.meta.title = v; })} />
       </Section>
 
+      <TravellersPanel />
+
       <Section title="Dates">
         <Row label="Start"><Editable as="date" label="Start date" value={meta.start} onCommit={(v) => moveTrip(meta.start, v)} /></Row>
         <Row label="End"><Editable as="date" label="End date" value={meta.end} onCommit={(v) => moveTrip(meta.end, v)} /></Row>
@@ -403,6 +405,14 @@ function Setup() {
             {DATE_FORMATS.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
           </select>
         </Row>
+        <Row label="Currency">
+          <Editable
+            label="Trip currency"
+            value={config.currency ?? ""}
+            placeholder="e.g. PLN"
+            onCommit={(v) => mutate((d) => { d.config.currency = v.trim().toUpperCase() || undefined; })}
+          />
+        </Row>
         <Row label="Google My Map">
           <Editable as="link" label="Google My Map link" value={config.mapSourceUrl ?? ""} placeholder="paste the share link" onCommit={(v) => mutate((d) => { d.config.mapSourceUrl = v; })} />
         </Row>
@@ -411,6 +421,47 @@ function Setup() {
       <ModulesPanel />
       <LogbookSectionsPanel />
     </div>
+  );
+}
+
+/** The trip's travellers. Powers packing assignment + initials; the free-text
+ *  `config.travellers` line (export cover) is kept in sync from these. */
+function TravellersPanel() {
+  const data = useData();
+  const mutate = useApp((s) => s.mutateTrip);
+  if (!data) return null;
+  if (data.config.demo) return null;
+  const people = data.config.people ?? [];
+
+  const sync = (d: TripData, next: { id: string; name: string }[]) => {
+    d.config.people = next;
+    d.config.travellers = next.map((p) => p.name).filter(Boolean).join(" & ");
+  };
+  const setName = (i: number, name: string) =>
+    mutate((d) => sync(d, people.map((p, j) => (j === i ? { ...p, name } : p))));
+  const remove = (i: number) => mutate((d) => sync(d, people.filter((_, j) => j !== i)));
+  const add = () =>
+    mutate((d) => sync(d, [...people, { id: `p-${Math.random().toString(36).slice(2, 8)}`, name: "" }]));
+
+  return (
+    <Section title="Travellers">
+      <p className="-mt-1 mb-2 text-xs text-ink-faint">Who's on this trip — used for packing assignment.</p>
+      <ul>
+        {people.map((p, i) => (
+          <li key={p.id} className="flex items-center gap-3 border-b border-line py-2.5 last:border-b-0">
+            <span className="min-w-0 flex-1">
+              <Editable label="Name" value={p.name} placeholder="Name" onCommit={(v) => setName(i, v)} />
+            </span>
+            <ConfirmButton onConfirm={() => remove(i)} label="Remove person" className="shrink-0 text-ink-faint hover:text-accent">
+              <Icon name="trash" size={14} />
+            </ConfirmButton>
+          </li>
+        ))}
+      </ul>
+      <button onClick={add} className="action mt-2 text-xs">
+        <Icon name="plus" size={13} /> Add a traveller
+      </button>
+    </Section>
   );
 }
 

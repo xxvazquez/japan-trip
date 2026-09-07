@@ -107,8 +107,10 @@ every price you've entered (a stay's price, a journey's fare) grouped by
 currency — nothing is summed across currencies, and prices are entered on the
 stay/journey itself, not here.
 
-In **Manage → Setup** you can hide the Logbook sections you don't need, and
-**add your own** — a title plus a list of things (name, note, link). Handy for
+In **Manage → Setup** you name the **travellers** (used for packing
+assignment), set a **trip currency** so a bare `100` in a price means `100`
+of that currency, hide the Logbook sections you don't need, and **add your
+own** — a title plus a list of things (name, note, link). Handy for
 "Restaurants to try", "Gifts to bring back", and so on.
 
 ## Sharing a copy

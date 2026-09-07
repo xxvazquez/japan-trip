@@ -29,13 +29,28 @@ export interface ModuleConfig {
   enabled: boolean;
 }
 
+/** One person on the trip. Used for packing assignment and initials; the
+ *  free-text `TripConfig.travellers` line is derived from these for the
+ *  export cover / Drive-share copy. */
+export interface Person {
+  id: ID;
+  name: string;
+}
+
 export interface TripConfig {
   branding: string;
   tagline: string;
   locale: string;
   homeTimeZone: string;
   tripTimeZone: string;
+  /** free-text traveller line — legacy; kept for the export cover. Prefer
+   *  `people` (derived into this when set). */
   travellers: string;
+  /** the trip's travellers, in order */
+  people?: Person[];
+  /** ISO currency code assumed for bare-number prices (e.g. "PLN"). Blank =
+   *  no assumption. */
+  currency?: string;
   theme: ThemeTokens;
   /** the id of a preset in themePresets, or "custom" */
   themePreset?: string;
