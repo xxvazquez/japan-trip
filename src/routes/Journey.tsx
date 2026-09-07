@@ -13,9 +13,10 @@ import { fmtDate, plural, segEndpoints } from "@/lib/dates";
 import { clockOf, fmtDuration, fmtMinutes, localMinutes } from "@/lib/time";
 import { MODE_LABEL, MODE_ICON } from "@/lib/transport";
 import { splitRoute, joinRoute, routeStops, JOURNEY_KIND_LABEL } from "@/lib/journey";
-import type { Journey as JourneyT, Segment, TransportMode } from "@/core/types";
+import type { Journey as JourneyT, JourneyKind, Segment, TransportMode } from "@/core/types";
 
 const MODES: TransportMode[] = ["flight", "train", "bus", "ferry", "car", "taxi", "subway", "walk"];
+const KINDS: JourneyKind[] = ["arrival", "transfer", "departure"];
 const rid = () => Math.random().toString(36).slice(2, 8);
 
 /** The from → to connector. One weight everywhere a route shows — always Inter,
@@ -65,7 +66,22 @@ export default function Journey() {
     <Page>
       <PageHeader
         back="/logbook"
-        eyebrow={`${JOURNEY_KIND_LABEL[j.kind]}${j.date ? ` · ${fmtDate(j.date, loc, { weekday: "long", day: "numeric", month: "long" })}` : ""}`}
+        eyebrow={
+          <span className="flex items-center gap-1.5">
+            {ro ? (
+              JOURNEY_KIND_LABEL[j.kind]
+            ) : (
+              <Editable
+                as="select"
+                label="Journey type"
+                value={j.kind}
+                options={KINDS.map((k) => ({ value: k, label: JOURNEY_KIND_LABEL[k] }))}
+                onCommit={(v) => patch({ kind: v as JourneyKind })}
+              />
+            )}
+            {j.date && <span>· {fmtDate(j.date, loc, { weekday: "long", day: "numeric", month: "long" })}</span>}
+          </span>
+        }
         title={
           ro ? (
             <RouteLabel label={j.label} />

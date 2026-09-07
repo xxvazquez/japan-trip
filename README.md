@@ -38,11 +38,15 @@ like a normal app, full screen. Do this on both phones.
 
 ## The three tabs
 
-**Plan** — the trip as a list of days, grouped by where you're staying.
+**Plan** — the trip as a list of days, grouped by where you're staying. Each day
+carries a tag — **Arrive**, **Travel**, **Depart**, **Day trip** — worked out
+automatically from what you set on the day itself, never chosen by hand.
 - Drag a day up or down to **reorder** it (the dates shuffle with it).
-- Tap a day to open it. A **day trip** leads with how to get there and back, a
-  checklist and the last train home; every day then has a **Plan** — an
-  itinerary of steps, each a time and a line of text, **drag to reorder**.
+- Tap a day to open it. At the top: **Staying at** (which hotel) and **Journey**
+  (link an existing one, or ＋ new — you then pick its type on the journey
+  page). A **day trip** leads with how to get there and back, a checklist and
+  the last train home; every day then has a **Plan** — an itinerary of steps,
+  each a time and a line of text, **drag to reorder**.
   Expand a step (the **⌄**) for a note and to link it to a place on your map —
   linked steps show on the day's map. Below that, **Areas** (drop a whole
   neighbourhood's pins onto the map) and free-text **General notes**.

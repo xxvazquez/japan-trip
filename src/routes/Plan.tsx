@@ -28,7 +28,7 @@ import type { Day, Leg, TripData } from "@/core/types";
 
 const KIND: Record<string, { label: string; icon: IconName }> = {
   arrival: { label: "Arrive", icon: "plane" },
-  departure: { label: "Fly home", icon: "plane" },
+  departure: { label: "Depart", icon: "plane" },
   travel: { label: "Travel", icon: "train" },
   daytrip: { label: "Day trip", icon: "explore" },
 };

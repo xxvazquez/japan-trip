@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   DndContext,
   PointerSensor,
@@ -34,6 +34,8 @@ export default function Day() {
   const data = useData();
   const { id } = useParams();
   const updateEntity = useApp((s) => s.updateEntity);
+  const addEntity = useApp((s) => s.addEntity);
+  const nav = useNavigate();
   const ro = useReadOnly();
   if (!data) return null;
 
@@ -49,6 +51,15 @@ export default function Day() {
   const loc = data.config.locale;
   const setPlan = (next: PlanItem[]) => patch({ plan: next.length ? next : undefined });
 
+  // "＋ New journey" — a blank journey, its type chosen on the journey page (never
+  // guessed from the day's date: you can arrive, transfer or leave at any point).
+  const newJourney = () => {
+    const jid = `journeys-${rid()}`;
+    addEntity("journeys", { id: jid, label: "", kind: "transfer", date: day.date, segments: [] } as never);
+    patch({ journeyId: jid });
+    nav(`/journey/${jid}`);
+  };
+
   return (
     <Page>
       {/* IDENTITY — date, title, and where you're based / how you move */}
@@ -61,17 +72,64 @@ export default function Day() {
         }
       />
 
-      {(hotel || journey) && (
-        <div className="-mt-4 mb-8 flex flex-wrap gap-2">
-          {hotel && (
-            <Link to={`/hotel/${hotel.id}`} className="btn-sm">
-              <Icon name="bed" size={14} className="text-ink-soft" /> {hotel.name}
-            </Link>
-          )}
-          {journey && (
-            <Link to={`/journey/${journey.id}`} className="btn-sm">
-              <Icon name="train" size={14} className="text-ink-soft" /> {journey.label}
-            </Link>
+      {ro ? (
+        (hotel || journey) && (
+          <div className="-mt-4 mb-8 flex flex-wrap gap-2">
+            {hotel && (
+              <Link to={`/hotel/${hotel.id}`} className="btn-sm">
+                <Icon name="bed" size={14} className="text-ink-soft" /> {hotel.name}
+              </Link>
+            )}
+            {journey && (
+              <Link to={`/journey/${journey.id}`} className="btn-sm">
+                <Icon name="train" size={14} className="text-ink-soft" /> {journey.label || "Journey"}
+              </Link>
+            )}
+          </div>
+        )
+      ) : (
+        <div className="-mt-4 mb-8 space-y-2">
+          <div className="flex items-baseline gap-3">
+            <span className="eyebrow w-[5.5rem] shrink-0">Staying at</span>
+            <select
+              value={day.hotelId ?? ""}
+              onChange={(e) => patch({ hotelId: e.target.value || undefined })}
+              aria-label="Which hotel you're staying at"
+              className="min-w-0 flex-1 cursor-pointer bg-transparent text-sm focus:outline-none"
+            >
+              <option value="">— none —</option>
+              {data.hotels.map((h) => <option key={h.id} value={h.id}>{h.name || "Hotel"}</option>)}
+            </select>
+          </div>
+          <div className="flex items-baseline gap-3">
+            <span className="eyebrow w-[5.5rem] shrink-0">Journey</span>
+            <select
+              value={day.journeyId ?? ""}
+              onChange={(e) => {
+                if (e.target.value === "__new") newJourney();
+                else patch({ journeyId: e.target.value || undefined });
+              }}
+              aria-label="A journey on this day"
+              className="min-w-0 flex-1 cursor-pointer bg-transparent text-sm focus:outline-none"
+            >
+              <option value="">None</option>
+              {data.journeys.map((j) => <option key={j.id} value={j.id}>{j.label || "Journey"}</option>)}
+              <option value="__new">＋ New journey…</option>
+            </select>
+          </div>
+          {(hotel || journey) && (
+            <div className="flex flex-wrap gap-2 pt-1">
+              {hotel && (
+                <Link to={`/hotel/${hotel.id}`} className="btn-sm">
+                  <Icon name="bed" size={14} className="text-ink-soft" /> {hotel.name}
+                </Link>
+              )}
+              {journey && (
+                <Link to={`/journey/${journey.id}`} className="btn-sm">
+                  <Icon name="train" size={14} className="text-ink-soft" /> {journey.label || "Journey"}
+                </Link>
+              )}
+            </div>
           )}
         </div>
       )}
