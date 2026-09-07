@@ -97,6 +97,8 @@ export default function MapTab() {
   const [areaFilter, setAreaFilter] = useState<Set<string>>(new Set());
   /** area groups collapsed in the list, by area id ("" = the "no area" group) */
   const [collapsedAreas, setCollapsedAreas] = useState<Set<string>>(new Set());
+  /** city groups collapsed in the "All" list, by leg id ("" = the "no city" group) */
+  const [collapsedCities, setCollapsedCities] = useState<Set<string>>(new Set());
   /** transit overlay — empty means nothing shown (opt-in). Persisted across trips. */
   const [transit, setTransit] = useState<Set<string>>(loadTransit);
   const [selected, setSelected] = useState<string | null>(null);
@@ -380,6 +382,60 @@ export default function MapTab() {
     return groups.length > 1 ? groups : null;
   }, [data, scoped]);
 
+  /** the "All" list nested city → area → places. Each area sits under the city
+   *  most of its pins fall in. Null unless more than one city actually shows —
+   *  then `areaGroups` (flat) or the plain list takes over. */
+  const cityGroups = useMemo(() => {
+    if (!data || (scope && scope !== "all") || data.areas.length === 0) return null;
+    const byId = new Map(scoped.map((p) => [p.id, p] as const));
+    const tone = new Map(data.areas.map((a, i) => [a.id, AREA_TONES[i % AREA_TONES.length]] as const));
+    const order = new Map(data.legs.map((l, i) => [l.id, i] as const));
+
+    // an area's city = where the plurality of its in-view pins sit
+    const areaCity = (a: Area) => {
+      const tally = new Map<string, number>();
+      for (const id of a.placeIds) {
+        if (!byId.has(id)) continue;
+        const lg = placeLeg.get(id) ?? "";
+        tally.set(lg, (tally.get(lg) ?? 0) + 1);
+      }
+      let best = "", bn = 0;
+      for (const [lg, n] of tally) if (n > bn) { bn = n; best = lg; }
+      return best;
+    };
+
+    type Sub = { id: string; name: string; tone: string; items: Place[] };
+    const cities = new Map<string, { legId: string; name: string; hex: string; areas: Sub[]; loose: Place[] }>();
+    const bucket = (legId: string) => {
+      let c = cities.get(legId);
+      if (!c) {
+        const leg = data.legs.find((l) => l.id === legId);
+        c = { legId, name: leg?.base || "No city", hex: leg ? legHex(leg.color) : "#9aa3ad", areas: [], loose: [] };
+        cities.set(legId, c);
+      }
+      return c;
+    };
+
+    for (const a of data.areas) {
+      const items = a.placeIds.map((id) => byId.get(id)).filter(Boolean) as Place[];
+      if (items.length === 0) continue;
+      bucket(areaCity(a)).areas.push({ id: a.id, name: a.name || "Untitled", tone: tone.get(a.id)!, items });
+    }
+    const inArea = new Set(data.areas.flatMap((a) => a.placeIds));
+    for (const p of scoped) if (!inArea.has(p.id)) bucket(placeLeg.get(p.id) ?? "").loose.push(p);
+
+    const groups = [...cities.values()]
+      .filter((c) => c.areas.length > 0 || c.loose.length > 0)
+      .map((c) => ({
+        ...c,
+        areas: c.areas.sort((x, y) => x.name.localeCompare(y.name)),
+        count: c.areas.reduce((s, a) => s + a.items.length, 0) + c.loose.length,
+      }))
+      .sort((x, y) => (order.get(x.legId) ?? 99) - (order.get(y.legId) ?? 99));
+
+    return groups.length > 1 ? groups : null;
+  }, [data, scope, scoped, placeLeg]);
+
   /** the area chips to show for the current city — only areas that actually have
    *  a place in view. Derived from the scope *before* the chips narrow it, so
    *  ticking one can't make its own chip disappear. */
@@ -493,6 +549,13 @@ export default function MapTab() {
 
   const toggleAreaCollapsed = (id: string) =>
     setCollapsedAreas((s) => {
+      const n = new Set(s);
+      n.has(id) ? n.delete(id) : n.add(id);
+      return n;
+    });
+
+  const toggleCityCollapsed = (id: string) =>
+    setCollapsedCities((s) => {
       const n = new Set(s);
       n.has(id) ? n.delete(id) : n.add(id);
       return n;
@@ -873,6 +936,57 @@ export default function MapTab() {
           onApply={applyReview}
           onCancel={endSuggest}
         />
+      ) : cityGroups ? (
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          {cityGroups.map((c) => {
+            const cityShut = collapsedCities.has(c.legId)
+              && !c.areas.some((a) => a.items.some((p) => p.id === selected))
+              && !c.loose.some((p) => p.id === selected);
+            return (
+              <section key={c.legId || "none"}>
+                <button
+                  onClick={() => toggleCityCollapsed(c.legId)}
+                  className="sticky top-0 z-[2] flex w-full items-center gap-2 border-b border-line bg-bg px-4 py-2.5 text-left"
+                >
+                  <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: c.hex }} />
+                  <span className="subhead min-w-0 flex-1 truncate">{c.name}</span>
+                  <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{c.count}</span>
+                  <Icon name={cityShut ? "down" : "up"} size={13} className="shrink-0 text-ink-faint" />
+                </button>
+                {!cityShut && (
+                  <>
+                    {c.areas.map((a) => {
+                      const shut = collapsedAreas.has(a.id) && !a.items.some((p) => p.id === selected);
+                      return (
+                        <div key={a.id}>
+                          <button
+                            onClick={() => toggleAreaCollapsed(a.id)}
+                            className="flex w-full items-center gap-2 border-b border-line py-1.5 pl-8 pr-4 text-left"
+                          >
+                            <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: a.tone }} />
+                            <span className="eyebrow min-w-0 flex-1 truncate font-medium">{a.name}</span>
+                            <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{a.items.length}</span>
+                            <Icon name={shut ? "down" : "up"} size={12} className="shrink-0 text-ink-faint" />
+                          </button>
+                          {!shut && <ul className="pl-8 pr-4">{a.items.map(renderRow)}</ul>}
+                        </div>
+                      );
+                    })}
+                    {c.loose.length > 0 && (
+                      <>
+                        {c.areas.length > 0 && (
+                          <p className="eyebrow border-b border-line py-1.5 pl-8 pr-4 text-ink-faint">No area</p>
+                        )}
+                        <ul className="pl-8 pr-4">{c.loose.map(renderRow)}</ul>
+                      </>
+                    )}
+                  </>
+                )}
+              </section>
+            );
+          })}
+          <div className="h-4" />
+        </div>
       ) : areaGroups ? (
         <div className="min-h-0 flex-1 overflow-y-auto">
           {areaGroups.map((g) => {
