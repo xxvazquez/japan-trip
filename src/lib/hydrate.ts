@@ -1,8 +1,9 @@
 import { THEME_PRESETS } from "./themePresets";
+import { mapUrlCoords } from "./maps";
 import type { Day, Doc, DocField, Hotel, ModuleConfig, PlanItem, ThemeTokens, TripData } from "@/core/types";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
-export const SCHEMA_VERSION = 5;
+export const SCHEMA_VERSION = 6;
 
 const fieldId = () =>
   (globalThis.crypto?.randomUUID?.() ?? `f-${Math.random().toString(36).slice(2, 10)}`);
@@ -178,6 +179,19 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
         hotel.fields.push({ id: fieldId(), label, value: v });
       }
       delete (hotel as unknown as Record<string, unknown>)[key];
+    }
+    // coords anchor the Map's city pills — keep a valid explicit pair, else lift
+    // one out of the pasted Maps link; the address geocode (Map tab) fills the
+    // rest and writes back here.
+    const lat = Number(hotel.lat);
+    const lng = Number(hotel.lng);
+    if (Number.isFinite(lat) && Number.isFinite(lng) && (lat !== 0 || lng !== 0)) {
+      hotel.lat = lat;
+      hotel.lng = lng;
+    } else {
+      const c = mapUrlCoords(hotel.mapUrl);
+      if (c) { [hotel.lat, hotel.lng] = c; }
+      else { delete hotel.lat; delete hotel.lng; }
     }
   }
 

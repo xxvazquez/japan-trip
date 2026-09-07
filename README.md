@@ -67,13 +67,15 @@ filters → places**, top to bottom.
   running), coloured to match the trip. Pick a city and the map and the list
   both narrow to it straight away; the app opens on wherever you are (or the
   first stay). A city's pins are the ones planned on its days, plus any imported
-  pins that fall nearest to it — "nearest" measured from the stay's hotel (the
-  coordinates in its pasted Maps link) or, failing that, the places its days
-  already use. A stay with nothing to show doesn't get a pill.
+  pins that fall nearest to it — "nearest" measured from the stay's **hotel**
+  (its coordinates, taken from the pasted Maps link or geocoded from the address
+  once) or, failing that, the places its days already use. A stay with nothing
+  to show doesn't get a pill.
 - **＋ Add place** sits next to the pills, always one tap — search for somewhere,
   or tap the map to drop a pin.
-- **Area chips** — just the areas that have a place in the chosen city (see
-  below). Tap to show only those; none lit means all.
+- **Area chips** appear once a city is picked — just that city's areas that have
+  a place in view. Tap to show only those; none lit means all. On **All** the
+  list's own collapsible area sections do the narrowing instead.
 - **Filters** — a disclosure holding **category** and **transit**, folded away
   by default:
   - **Category** — the coloured dots; none selected shows everything, tap some
@@ -263,7 +265,7 @@ must be the **full https URL**, not just the project ref. The map tile settings
 
 1. Create a project at [supabase.com](https://supabase.com).
 2. **SQL Editor** → run every file in `supabase/migrations/` **in order**
-   (`0001` → `0022`).
+   (`0001` → `0023`).
 3. **Authentication → Providers → Google** → enable, paste a Google Cloud OAuth
    client id / secret, redirect
    `https://<project-ref>.supabase.co/auth/v1/callback`.

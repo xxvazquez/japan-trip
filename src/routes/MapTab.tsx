@@ -16,7 +16,7 @@ import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
 import { TRANSIT_KINDS, TRANSIT_META } from "@/lib/transitLayers";
 import { glyphPath } from "@/lib/mapGlyphs";
-import type { Area, Day, PlanItem, Place, TripData } from "@/core/types";
+import type { Area, Day, Hotel, PlanItem, Place, TripData } from "@/core/types";
 
 const FALLBACK = "#5f7f9c";
 
@@ -192,6 +192,34 @@ export default function MapTab() {
     }
   }, [transit]);
 
+  // Geocode a hotel's address once when it has no coords and its Maps link
+  // carries none — so the city pills anchor on real trips whose hotel links are
+  // the short `maps.app.goo.gl` kind. One lookup per hotel, spaced for Nominatim,
+  // cached straight back onto the entity.
+  const geoTried = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!data || readOnly) return;
+    const pending = data.hotels.filter(
+      (h) =>
+        h.address?.trim() &&
+        !geoTried.current.has(h.id) &&
+        !(Number.isFinite(h.lat) && Number.isFinite(h.lng)) &&
+        !mapUrlCoords(h.mapUrl),
+    );
+    if (pending.length === 0) return;
+    let stop = false;
+    (async () => {
+      for (const h of pending) {
+        if (stop) return;
+        geoTried.current.add(h.id);
+        const [hit] = await geocode(h.address!.trim());
+        if (hit) updateEntity<Hotel>("hotels", h.id, { lat: hit.lat, lng: hit.lng });
+        await new Promise((r) => setTimeout(r, 1200));
+      }
+    })();
+    return () => { stop = true; };
+  }, [data, readOnly, updateEntity]);
+
   const cats = useMemo(() => {
     const m = new Map<string, string>();
     for (const p of places) if (p.category && !m.has(p.category)) m.set(p.category, p.color || FALLBACK);
@@ -222,17 +250,19 @@ export default function MapTab() {
   }, [data, areaFilter]);
 
   /** each place's "home city" (leg), by nearest leg anchor. A leg is anchored on
-   *  its hotel (coords parsed from the pasted Maps link) or, failing that, the
-   *  centroid of the places its days pull in. A leg with neither has no anchor
-   *  and claims nothing. Lets a whole city's imported pins sit under its pill
-   *  even before they're linked to a day. */
+   *  its hotel (its stored coords — from the Maps link or a one-off geocode of
+   *  the address) or, failing that, the centroid of the places its days pull in.
+   *  A leg with neither has no anchor and claims nothing. Lets a whole city's
+   *  imported pins sit under its pill even before they're linked to a day. */
   const placeLeg = useMemo(() => {
     const m = new Map<string, string>();
     if (!data) return m;
     const anchors: { legId: string; lat: number; lng: number }[] = [];
     for (const leg of data.legs) {
       const hotel = data.hotels.find((h) => h.id === leg.hotelId);
-      const hc = mapUrlCoords(hotel?.mapUrl);
+      const hc = hotel && Number.isFinite(hotel.lat) && Number.isFinite(hotel.lng)
+        ? ([hotel.lat, hotel.lng] as [number, number])
+        : mapUrlCoords(hotel?.mapUrl);
       if (hc) {
         anchors.push({ legId: leg.id, lat: hc[0], lng: hc[1] });
         continue;
@@ -594,7 +624,7 @@ export default function MapTab() {
               return (
                 <button
                   key={city.id}
-                  onClick={() => { setScope(city.id); setSelected(null); setAreaFilter(new Set()); }}
+                  onClick={() => { setScope(city.id); setSelected(null); setAreaFilter(new Set()); setCatFilter(new Set()); }}
                   className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors ${active ? "border-ink bg-ink text-bg" : "border-line text-ink-soft hover:border-ink-soft"}`}
                 >
                   {city.hex && <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: active ? "currentColor" : city.hex }} />}
@@ -852,7 +882,9 @@ export default function MapTab() {
             <li className="meta py-6">
               {places.length === 0
                 ? "No places yet. Add one above, or paste a Google My Maps link in Manage to import your pins."
-                : "No places in this city yet. Pick “All”, or add one above."}
+                : scope?.startsWith("day:")
+                  ? "Nothing on the map for today. Pick “All”, or add a place above."
+                  : "No places in this city yet. Pick “All”, or add one above."}
             </li>
           )}
           <li className="h-4" />
