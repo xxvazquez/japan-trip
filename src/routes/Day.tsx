@@ -26,7 +26,8 @@ import { useReadOnly } from "@/lib/readonly";
 import { fmtDate } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink } from "@/lib/maps";
-import type { Day as DayT, PlanItem, Place } from "@/core/types";
+import { parseMoney, fmtMoney } from "@/lib/cost";
+import type { Day as DayT, DayCost, PlanItem, Place } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 9);
 
@@ -252,6 +253,18 @@ export default function Day() {
         </Section>
       )}
 
+      {/* SPENDING — what the day cost; feeds the Budget roll-up */}
+      {((day.costs ?? []).length > 0 || !ro) && (
+        <Section icon="vault" title="Spending">
+          <CostList
+            costs={day.costs ?? []}
+            currency={data.config.currency ?? ""}
+            readOnly={ro}
+            onChange={(next) => patch({ costs: next.length ? next : undefined })}
+          />
+        </Section>
+      )}
+
       {/* GENERAL NOTES — free-form catch-all, after the day's actual plan */}
       {(day.notes || !ro) && (
         <Section icon="list" title="General notes">
@@ -470,5 +483,64 @@ function StringList({ items, onChange, readOnly, emptyHint = "Nothing yet." }: {
         </li>
       ))}
     </ul>
+  );
+}
+
+/** The day's spend — a label + a free-text amount per row, with a per-currency
+ *  subtotal. The amounts feed `tripCost`; the rows are the traveller's own. */
+function CostList({ costs, currency, readOnly, onChange }: {
+  costs: DayCost[];
+  currency: string;
+  readOnly: boolean;
+  onChange: (next: DayCost[]) => void;
+}) {
+  const setAt = (i: number, patch: Partial<DayCost>) => onChange(costs.map((c, j) => (j === i ? { ...c, ...patch } : c)));
+  const add = () => onChange([...costs, { id: rid(), label: "", amount: "" }]);
+
+  const subtotals = new Map<string, number>();
+  for (const c of costs) {
+    const m = parseMoney(c.amount, currency);
+    if (m) subtotals.set(m.currency, (subtotals.get(m.currency) ?? 0) + m.amount);
+  }
+
+  if (costs.length === 0) {
+    return readOnly ? (
+      <p className="text-sm text-ink-faint">Nothing logged.</p>
+    ) : (
+      <button onClick={add} className="action text-sm"><Icon name="plus" size={14} /> Add an amount</button>
+    );
+  }
+
+  return (
+    <div>
+      <ul>
+        {costs.map((c, i) => (
+          <li key={c.id} className="group flex items-baseline gap-3 border-b border-line/70 py-2 last:border-b-0">
+            <span className="min-w-0 flex-1">
+              {readOnly ? (c.label || "—") : (
+                <Editable label="What" value={c.label} placeholder="What for" onCommit={(v) => setAt(i, { label: v })} />
+              )}
+            </span>
+            <span className="value shrink-0 text-right tabular-nums">
+              {readOnly ? c.amount : (
+                <Editable label="Amount" value={c.amount} placeholder="—" onCommit={(v) => setAt(i, { amount: v })} />
+              )}
+            </span>
+            {!readOnly && <RowDeleteButton onClick={() => onChange(costs.filter((_, j) => j !== i))} />}
+          </li>
+        ))}
+      </ul>
+      {subtotals.size > 0 && (
+        <p className="mt-2 flex flex-wrap justify-end gap-x-3 text-sm">
+          <span className="eyebrow self-center">Day total</span>
+          {[...subtotals].map(([cur, amt]) => (
+            <span key={cur || "—"} className="value tabular-nums">{fmtMoney(amt, cur)}</span>
+          ))}
+        </p>
+      )}
+      {!readOnly && (
+        <button onClick={add} className="action mt-2 text-xs"><Icon name="plus" size={13} /> Add an amount</button>
+      )}
+    </div>
   );
 }
