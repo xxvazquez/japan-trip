@@ -1,5 +1,5 @@
 import { THEME_PRESETS } from "./themePresets";
-import type { Day, Doc, DocField, ModuleConfig, PlanItem, ThemeTokens, TripData } from "@/core/types";
+import type { Day, Doc, DocField, Hotel, ModuleConfig, PlanItem, ThemeTokens, TripData } from "@/core/types";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
 export const SCHEMA_VERSION = 5;
@@ -152,6 +152,30 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
       ? doc.fields.map((f): DocField => ({ id: f.id || fieldId(), label: f.label ?? "", value: f.value ?? "" }))
       : [];
     if ((doc.kind as string) !== "contact") doc.kind = "other";
+  }
+
+  // hotels: the old fixed reference columns (phone / booking ref / website /
+  // wifi / door code) fold into the free `fields` list so nothing is lost —
+  // they become ordinary user rows. Price + mapUrl stay dedicated (Budget +
+  // the map button parse them). Runs once: a hotel already carrying `fields`
+  // that came from a legacy column keeps them; only unmigrated columns move.
+  const HOTEL_LEGACY: [keyof Hotel, string][] = [
+    ["reservationRef", "Booking ref"],
+    ["phone", "Phone"],
+    ["url", "Website"],
+    ["wifi", "Wifi"],
+    ["doorCode", "Door code"],
+  ];
+  for (const hotel of d.hotels as Hotel[]) {
+    if (!Array.isArray(hotel.fields)) hotel.fields = [];
+    hotel.fields = hotel.fields.map((f) => ({ id: f.id || fieldId(), label: f.label ?? "", value: f.value ?? "" }));
+    for (const [key, label] of HOTEL_LEGACY) {
+      const v = hotel[key];
+      if (typeof v === "string" && v.trim() && !hotel.fields.some((f) => f.label === label)) {
+        hotel.fields.push({ id: fieldId(), label, value: v });
+      }
+      delete (hotel as unknown as Record<string, unknown>)[key];
+    }
   }
 
   // the Logbook "Emergency" tab shows the one doc with kind "contact" — but

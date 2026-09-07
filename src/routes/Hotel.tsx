@@ -1,10 +1,10 @@
-import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { CARD_SHELL } from "@/components/Card";
 import { Editable } from "@/components/Editable";
+import { FieldList } from "@/components/FieldList";
 import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
 import { useData, lookups } from "@/lib/data";
@@ -20,7 +20,6 @@ export default function Hotel() {
   const { id } = useParams();
   const updateEntity = useApp((s) => s.updateEntity);
   const ro = useReadOnly();
-  const [showRef, setShowRef] = useState(false);
   if (!data) return null;
 
   const L = lookups(data);
@@ -31,27 +30,17 @@ export default function Hotel() {
   const leg = data.legs.find((l) => l.hotelId === hotel.id);
   const map = gmapsLink(hotel.mapUrl || hotel.address);
   const loc = data.config.locale;
+  const fields = hotel.fields ?? [];
 
-  const door: [string, string | undefined, ((v: string) => void), ("time" | undefined)][] = [
-    ["Wifi", hotel.wifi, (v) => p({ wifi: v || undefined }), undefined],
-    ["Door code", hotel.doorCode, (v) => p({ doorCode: v || undefined }), undefined],
-    ["Check-in", hotel.checkIn, (v) => p({ checkIn: v || undefined }), "time"],
-    ["Check-out", hotel.checkOut, (v) => p({ checkOut: v || undefined }), "time"],
+  // Check-in / -out: a fixed, useful pair (not a calc field, but not free-form).
+  const door: [string, string | undefined, ((v: string) => void)][] = [
+    ["Check-in", hotel.checkIn, (v) => p({ checkIn: v || undefined })],
+    ["Check-out", hotel.checkOut, (v) => p({ checkOut: v || undefined })],
   ];
   const doorShown = ro ? door.filter(([, v]) => v) : door;
 
-  const ref: [string, string | undefined, ((v: string) => void), ("link" | "tel" | undefined), string?][] = [
-    ["Price", hotel.price, (v) => p({ price: v || undefined }), undefined],
-    ["Phone", hotel.phone, (v) => p({ phone: v || undefined }), "tel"],
-    ["Booking ref", hotel.reservationRef, (v) => p({ reservationRef: v || undefined }), undefined],
-    ["Map link", hotel.mapUrl, (v) => p({ mapUrl: v || undefined }), "link", "paste Google Maps link"],
-    ["Website", hotel.url, (v) => p({ url: v || undefined }), "link"],
-  ];
-  const refFilled = ref.filter(([, v]) => v);
-  const showRefRows = refFilled.length > 0 || (!ro && showRef);
-  const showRefSection = !ro || refFilled.length > 0;
-
-  const showAddress = !!(hotel.address || hotel.addressAlt || !ro);
+  const showRefSection = !ro || !!hotel.price || !!hotel.mapUrl || fields.length > 0;
+  const showAddress = !!(hotel.address || !ro);
   const showArrival = showAddress || doorShown.length > 0;
 
   return (
@@ -71,11 +60,6 @@ export default function Hotel() {
               <p className="value">
                 <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined })} />
               </p>
-              {(hotel.addressAlt || !ro) && (
-                <p className="mt-1 font-jp text-[0.95rem] leading-snug text-ink-soft">
-                  <Editable label="Local address" value={hotel.addressAlt ?? ""} placeholder="Local-language address, for taxis" onCommit={(v) => p({ addressAlt: v || undefined })} />
-                </p>
-              )}
               {map && (
                 <a href={map} target="_blank" rel="noopener" className="action mt-2.5">
                   <Icon name="map" size={15} /> Open in Google Maps
@@ -85,11 +69,11 @@ export default function Hotel() {
           )}
           {doorShown.length > 0 && (
             <div className={`grid grid-cols-2 gap-x-4 gap-y-4 ${showAddress ? "mt-4 border-t border-line pt-4" : ""}`}>
-              {doorShown.map(([label, value, onCommit, as]) => (
+              {doorShown.map(([label, value, onCommit]) => (
                 <div key={label}>
                   <p className="eyebrow">{label}</p>
                   <p className="mt-0.5 value">
-                    <Editable as={as} label={label} value={value ?? ""} placeholder="—" onCommit={onCommit} />
+                    <Editable as="time" label={label} value={value ?? ""} placeholder="—" onCommit={onCommit} />
                   </p>
                 </div>
               ))}
@@ -109,20 +93,25 @@ export default function Hotel() {
 
         {showRefSection && (
           <Section icon="vault" title="Reference">
-            {showRefRows ? (
-              (ro ? refFilled : ref).map(([label, value, onCommit, as, ph]) => (
-                <div key={label} className="row">
-                  <span className="row-label">{label}</span>
-                  <span className="row-value text-sm">
-                    <Editable as={as} label={label} value={value ?? ""} onCommit={onCommit} placeholder={ph ?? "—"} />
-                  </span>
-                </div>
-              ))
-            ) : (
-              <button onClick={() => setShowRef(true)} className="action">
-                <Icon name="plus" size={14} /> Add reference details
-              </button>
+            {(!ro || hotel.price) && (
+              <div className="row">
+                <span className="row-label">Price</span>
+                <span className="row-value value">
+                  <Editable label="Price" value={hotel.price ?? ""} placeholder="—" onCommit={(v) => p({ price: v || undefined })} />
+                </span>
+              </div>
             )}
+            {(!ro || hotel.mapUrl) && (
+              <div className="row">
+                <span className="row-label">Map link</span>
+                <span className="row-value value">
+                  <Editable as="link" label="Map link" value={hotel.mapUrl ?? ""} placeholder="paste Google Maps link" onCommit={(v) => p({ mapUrl: v || undefined })} />
+                </span>
+              </div>
+            )}
+            <div className="mt-1">
+              <FieldList fields={fields} onChange={(next) => p({ fields: next })} addLabel="Add a detail" />
+            </div>
           </Section>
         )}
 

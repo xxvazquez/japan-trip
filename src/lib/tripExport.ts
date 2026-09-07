@@ -248,11 +248,9 @@ function staysSection(data: TripData, opts: ExportOptions): string {
         ["Check-in", h.checkIn],
         ["Check-out", h.checkOut],
         ["Price", h.price],
-        ["Wifi", opts.includePrivate ? h.wifi : undefined],
-        ["Door code", opts.includePrivate ? h.doorCode : undefined],
-        ["Phone", opts.includePrivate ? h.phone : undefined],
-        ["Booking ref", opts.includePrivate ? h.reservationRef : undefined],
-        ["Website", h.url],
+        // the traveller's own reference fields (booking ref, wifi, door code…)
+        // are held back unless this is a personal copy
+        ...(opts.includePrivate ? (h.fields ?? []).map((f) => [f.label, f.value] as [string, string | undefined]) : []),
       ])}
       ${h.directions?.trim() ? `<div class="note"><p class="label">Getting here</p>${mdToHtml(h.directions)}</div>` : ""}
       ${h.notes?.trim() ? `<div class="note">${mdToHtml(h.notes)}</div>` : ""}

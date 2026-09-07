@@ -119,9 +119,10 @@ self-contained `.html` file — itinerary, journeys, stays and the place list, a
 styled, no internet needed. Open it in any browser, or print it (print-to-PDF for
 a PDF). Send it to whoever you're travelling with.
 
-Leave **Include private details** off for anything you share: door codes, wifi,
-phone numbers, booking references and the documents section are all held back.
-Turn it on for your own copy. Document *attachments* are never included.
+Leave **Include private details** off for anything you share: a stay's own
+reference fields (door codes, wifi, booking refs…), a segment's booking ref and
+the whole documents section are held back. Turn it on for your own copy.
+Document *attachments* are never included.
 
 ## Editing anything
 
@@ -237,7 +238,7 @@ must be the **full https URL**, not just the project ref. The map tile settings
 
 1. Create a project at [supabase.com](https://supabase.com).
 2. **SQL Editor** → run every file in `supabase/migrations/` **in order**
-   (`0001` → `0019`).
+   (`0001` → `0020`).
 3. **Authentication → Providers → Google** → enable, paste a Google Cloud OAuth
    client id / secret, redirect
    `https://<project-ref>.supabase.co/auth/v1/callback`.
