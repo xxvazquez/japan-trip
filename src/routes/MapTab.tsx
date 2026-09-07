@@ -10,6 +10,7 @@ import { tripClock, fmtDate, plural } from "@/lib/dates";
 import { gmapsLink } from "@/lib/maps";
 import { geocode, reverseGeocode, type GeoResult } from "@/lib/geocode";
 import { haversineKm } from "@/lib/geo";
+import { legHex } from "@/lib/legColors";
 import { suggestAreas, type AreaSuggestion } from "@/lib/cluster";
 import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
@@ -58,20 +59,20 @@ const SNAP_H: Record<Snap, string> = {
 const NEXT: Record<Snap, Snap> = { peek: "half", half: "full", full: "peek" };
 
 /**
- * During → today. Before → nearest upcoming day. After → last day. Else all.
- * But a day-scoped default only makes sense if that day actually has places
- * pinned to it — otherwise the map opens empty. Fall back to "all" when it does.
+ * Open on the city (leg) you're currently in — during: today's leg; before: the
+ * first leg; after: the last. "all" when there's nothing better, or when that
+ * leg has no places to show.
  */
 function defaultScope(data: TripData): string {
+  if (data.legs.length < 2) return "all";
   const c = tripClock(data);
   const days = [...data.days].sort((a, b) => a.date.localeCompare(b.date));
-  let day: string | undefined;
-  if (c.phase === "during" && c.today) day = c.today.id;
-  else if (c.phase === "before") day = days.find((d) => d.date >= c.todayISO)?.id;
-  else if (c.phase === "after") day = days.at(-1)?.id;
-
-  const dayHasPlaces = day && (data.days.find((d) => d.id === day)?.plan ?? []).some((it) => it.placeId);
-  return dayHasPlaces ? day! : "all";
+  let day: Day | undefined;
+  if (c.phase === "during" && c.today) day = c.today;
+  else if (c.phase === "before") day = days[0];
+  else if (c.phase === "after") day = days.at(-1);
+  const legId = day?.legId ?? data.legs[0]?.id;
+  return legId ? `leg:${legId}` : "all";
 }
 
 export default function MapTab() {
@@ -96,6 +97,8 @@ export default function MapTab() {
   const [transit, setTransit] = useState<Set<string>>(loadTransit);
   const [selected, setSelected] = useState<string | null>(null);
   const [snap, setSnap] = useState<Snap>("peek");
+  /** the "Filters" disclosure (category, transit, area editing) */
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const [adding, setAdding] = useState(false);
   const [q, setQ] = useState("");
@@ -218,43 +221,87 @@ export default function MapTab() {
     return ids;
   }, [data, areaFilter]);
 
-  /** places for the current scope + which of them are inherited from an area (not explicit) */
-  const { scoped, derived } = useMemo(() => {
-    const pass = (p: Place) =>
-      (catFilter.size === 0 || (!!p.category && catFilter.has(p.category))) &&
-      (!areaAllowed || areaAllowed.has(p.id));
-    if (!data) return { scoped: [] as Place[], derived: new Set<string>() };
-    if (!scope || scope === "all" || scope.startsWith("area:")) {
-      const ids = scope?.startsWith("area:") ? new Set(data.areas.find((a) => a.id === scope.slice(5))?.placeIds ?? []) : null;
-      return { scoped: places.filter((p) => (!ids || ids.has(p.id)) && pass(p)), derived: new Set<string>() };
+  /** each place's "home city" (leg), by nearest leg anchor. A leg is anchored at
+   *  the centroid of the places its days explicitly plan; a leg with none has no
+   *  anchor and claims nothing. Lets a whole city's imported pins show under the
+   *  city pill even when they aren't linked to a specific day yet. */
+  const placeLeg = useMemo(() => {
+    const m = new Map<string, string>();
+    if (!data) return m;
+    const anchors: { legId: string; lat: number; lng: number }[] = [];
+    for (const leg of data.legs) {
+      const pts = data.days
+        .filter((d) => d.legId === leg.id)
+        .flatMap((d) => (d.plan ?? []).map((x) => x.placeId).filter(Boolean) as string[])
+        .map((id) => places.find((p) => p.id === id))
+        .filter((p): p is Place => !!p);
+      if (pts.length) {
+        anchors.push({
+          legId: leg.id,
+          lat: pts.reduce((s, p) => s + p.lat, 0) / pts.length,
+          lng: pts.reduce((s, p) => s + p.lng, 0) / pts.length,
+        });
+      }
     }
-    const days = scope.startsWith("leg:") ? data.days.filter((d) => d.legId === scope.slice(4)) : data.days.filter((d) => d.id === scope);
+    if (anchors.length === 0) return m;
+    for (const p of places) {
+      let best = anchors[0].legId, bd = Infinity;
+      for (const a of anchors) {
+        const d = haversineKm(p.lat, p.lng, a.lat, a.lng);
+        if (d < bd) { bd = d; best = a.legId; }
+      }
+      m.set(p.id, best);
+    }
+    return m;
+  }, [data, places]);
+
+  /** ids in the current scope, before the category / area chips narrow it —
+   *  the area chips derive from this so ticking one can't make its own chip
+   *  vanish. Also tracks which came in via an area, not an explicit plan step. */
+  const { inScopeIds, derivedIds } = useMemo(() => {
+    if (!data) return { inScopeIds: new Set<string>(), derivedIds: new Set<string>() };
+    if (!scope || scope === "all") {
+      return { inScopeIds: new Set(places.map((p) => p.id)), derivedIds: new Set<string>() };
+    }
+    const legId = scope.slice(4);
     const all = new Set<string>();
     const explicit = new Set<string>();
-    for (const d of days) {
+    for (const d of data.days.filter((d) => d.legId === legId)) {
       const s = dayIds(d);
       s.all.forEach((id) => all.add(id));
       s.explicit.forEach((id) => explicit.add(id));
     }
-    return {
-      scoped: places.filter((p) => all.has(p.id) && pass(p)),
-      derived: new Set([...all].filter((id) => !explicit.has(id))),
-    };
-  }, [data, places, scope, catFilter, areaAllowed]);
+    for (const p of places) if (placeLeg.get(p.id) === legId) all.add(p.id);
+    return { inScopeIds: all, derivedIds: new Set([...all].filter((id) => !explicit.has(id) && !placeLeg.has(id))) };
+  }, [data, places, scope, placeLeg]);
 
-  // open to the half sheet when the default view already has places to show —
-  // the peek snap is all filter chrome and none of the list. Once only.
+  /** the scope, narrowed by the category + area chips */
+  const scoped = useMemo(() => {
+    const pass = (p: Place) =>
+      inScopeIds.has(p.id) &&
+      (catFilter.size === 0 || (!!p.category && catFilter.has(p.category))) &&
+      (!areaAllowed || areaAllowed.has(p.id));
+    return places.filter(pass);
+  }, [places, inScopeIds, catFilter, areaAllowed]);
+  const derived = derivedIds;
+
+  // settle the opening view once: if the default city has no places, widen to
+  // "all"; then open to the half sheet if there's a list worth showing.
   const snapInit = useRef(false);
   useEffect(() => {
     if (snapInit.current || scope === null) return;
+    if (scoped.length === 0 && places.length > 0 && scope.startsWith("leg:")) {
+      setScope("all");
+      return;
+    }
     snapInit.current = true;
     if (scoped.length > 0) setSnap("half");
-  }, [scope, scoped.length]);
+  }, [scope, scoped.length, places.length]);
 
-  /** the list grouped into collapsible area sections — only on the "all" scope,
-   *  and only once areas exist. null → render the flat list instead. */
+  /** the list split into collapsible area sections. Shown whenever areas exist
+   *  and more than one is represented in the current view; null → flat list. */
   const areaGroups = useMemo(() => {
-    if (!data || data.areas.length === 0 || (scope && scope !== "all")) return null;
+    if (!data || data.areas.length === 0) return null;
     const byId = new Map(scoped.map((p) => [p.id, p] as const));
     const groups = data.areas
       .map((a, i) => ({
@@ -268,21 +315,34 @@ export default function MapTab() {
     const inArea = new Set(data.areas.flatMap((a) => a.placeIds));
     const loose = scoped.filter((p) => !inArea.has(p.id));
     if (loose.length) groups.push({ id: "", name: "No area", tone: "#9aa3ad", items: loose });
-    return groups;
-  }, [data, scope, scoped]);
+    // one group only → not worth the section chrome, render flat
+    return groups.length > 1 ? groups : null;
+  }, [data, scoped]);
+
+  /** the area chips to show for the current city — only areas that actually have
+   *  a place in view. Derived from the scope *before* the chips narrow it, so
+   *  ticking one can't make its own chip disappear. */
+  const scopeAreas = useMemo(() => {
+    if (!data) return [];
+    return data.areas
+      .map((a, i) => ({
+        a,
+        col: AREA_TONES[i % AREA_TONES.length],
+        n: a.placeIds.filter((id) => inScopeIds.has(id)).length,
+      }))
+      .filter((g) => g.n > 0)
+      .sort((x, y) => (x.a.name || "").localeCompare(y.a.name || ""));
+  }, [data, inScopeIds]);
 
   /** faint outline + label per area, for the "zoomed out" overview.
    *  Shown on All / By-area scopes; hidden when scoped to a day/stay. */
   const areaShapes = useMemo(() => {
     if (!data) return null;
-    const onAreaScope = scope?.startsWith("area:") ? scope.slice(5) : null;
-    const relevant = !scope || scope === "all";
-    if (!relevant && !onAreaScope) return { type: "FeatureCollection" as const, features: [] };
     const byId = new Map(places.map((p) => [p.id, p]));
+    const inScope = inScopeIds;
     const features = data.areas.flatMap((a, i) => {
-      if (onAreaScope && a.id !== onAreaScope) return [];
       if (areaFilter.size > 0 && !areaFilter.has(a.id)) return [];
-      const pts = a.placeIds.map((id) => byId.get(id)).filter(Boolean) as Place[];
+      const pts = a.placeIds.map((id) => byId.get(id)).filter((p): p is Place => !!p && inScope.has(p.id));
       if (pts.length === 0) return [];
       const clng = pts.reduce((s, p) => s + p.lng, 0) / pts.length;
       const clat = pts.reduce((s, p) => s + p.lat, 0) / pts.length;
@@ -294,7 +354,7 @@ export default function MapTab() {
       }];
     });
     return { type: "FeatureCollection" as const, features };
-  }, [data, places, scope, areaFilter]);
+  }, [data, places, inScopeIds, areaFilter]);
 
   /** places not yet in any area — the ones worth auto-grouping */
   const ungrouped = useMemo(() => {
@@ -321,7 +381,6 @@ export default function MapTab() {
   const url = data.config.mapSourceUrl?.trim() ?? "";
   const syncedAt = data.config.mapSyncedAt;
   const loc = data.config.locale;
-  const c = tripClock(data);
 
   const toggleCat = (name: string) =>
     setCatFilter((s) => {
@@ -462,26 +521,6 @@ export default function MapTab() {
     }
   };
 
-  const scopeOptions: ScopeOption[] = [
-    { value: "all", label: `All places · ${places.length}` },
-    ...(c.today ? [{ value: c.today.id, label: `Today · ${c.today.title || fmtDate(c.today.date, loc)}` } as ScopeOption] : []),
-    ...data.legs.map((l) => ({ value: `leg:${l.id}`, label: l.base, group: "By stay" as const })),
-    ...[...data.days]
-      .sort((a, b) => a.date.localeCompare(b.date))
-      .map((d) => ({
-        value: d.id,
-        label: `${fmtDate(d.date, loc, { weekday: "short", day: "numeric", month: "short" })}${d.title ? ` · ${d.title}` : ""}`,
-        group: "By day" as const,
-      })),
-    ...[...data.areas]
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map((a) => ({
-        value: `area:${a.id}`,
-        label: `${a.name || "Untitled"}${a.placeIds.length ? ` · ${a.placeIds.length}` : ""}`,
-        group: "By area" as const,
-      })),
-  ];
-
   const renderRow = (p: Place) => (
     <PlaceRow
       key={p.id}
@@ -506,96 +545,167 @@ export default function MapTab() {
 
   const panel = (
     <div className="flex h-full flex-col">
-      {/* context bar */}
-      <div className="shrink-0 border-b border-line px-4 pb-3 pt-3">
-        <div className="flex items-center justify-between gap-2">
-          <div className="min-w-0">
-            <ScopeMenu
-              value={scope ?? "all"}
-              options={scopeOptions}
-              onChange={(v) => {
-                setScope(v);
-                setSelected(null);
-              }}
-            />
+      {/* context bar — city → area → filters */}
+      <div className="shrink-0 border-b border-line px-4 pb-2.5 pt-3">
+        {/* city pills + Add place (always one tap) */}
+        <div className="flex items-center gap-2">
+          <div className="-mx-1 flex min-w-0 flex-1 gap-1.5 overflow-x-auto px-1 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {[{ id: "all", label: `All · ${places.length}`, hex: "" }, ...data.legs.map((l) => ({ id: `leg:${l.id}`, label: l.base || "Stay", hex: legHex(l.color) }))].map((city) => {
+              const active = (scope ?? "all") === city.id;
+              return (
+                <button
+                  key={city.id}
+                  onClick={() => { setScope(city.id); setSelected(null); }}
+                  className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors ${active ? "border-ink bg-ink text-bg" : "border-line text-ink-soft hover:border-ink-soft"}`}
+                >
+                  {city.hex && <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: active ? "currentColor" : city.hex }} />}
+                  <span className="whitespace-nowrap">{city.label}</span>
+                </button>
+              );
+            })}
           </div>
-          {readOnly ? null : adding ? (
-            <button onClick={cancelAdd} className="link-quiet shrink-0 text-sm">
-              Cancel
-            </button>
+          {!readOnly && (adding ? (
+            <button onClick={cancelAdd} className="link-quiet shrink-0 text-sm">Cancel</button>
           ) : (
-            <button onClick={startAdd} className="action shrink-0 text-sm">
+            <button onClick={startAdd} className="action shrink-0 whitespace-nowrap text-sm">
               <Icon name="plus" size={14} /> Add place
             </button>
-          )}
+          ))}
         </div>
 
-        {/* category filter — tap to narrow; none selected = all shown */}
-        {cats.length > 0 && !adding && (
+        {/* area chips — only the current city's areas, and only ones with a place in view */}
+        {scopeAreas.length > 0 && !adding && (
           <div className="mt-2.5 flex flex-wrap gap-x-3 gap-y-1.5">
-            {cats.map(([name, col]) => {
-              const on = catFilter.size === 0 || catFilter.has(name);
+            {scopeAreas.map(({ a, col }) => {
+              const on = areaFilter.size === 0 || areaFilter.has(a.id);
               return (
                 <button
-                  key={name}
-                  onClick={() => toggleCat(name)}
+                  key={a.id}
+                  onClick={() => toggleAreaFilter(a.id)}
                   className={`inline-flex items-center gap-1.5 text-xs transition-opacity ${on ? "" : "opacity-35"}`}
                 >
-                  <CatMark color={col} glyph={data.config.categoryIcons?.[name]} on={on} />
-                  <span className="capitalize">{name}</span>
+                  <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: col, boxShadow: on ? `0 0 0 1px ${col}` : "none" }} />
+                  {a.name || "Untitled"}
                 </button>
               );
             })}
           </div>
         )}
 
-        {/* area filter — tap to narrow the map (and list) to certain areas; none selected = all */}
-        {data.areas.length > 0 && !adding && (
-          <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-line pt-2.5">
-            <span className="eyebrow text-ink-faint">Areas</span>
-            {data.areas
-              .map((a, i) => ({ a, col: AREA_TONES[i % AREA_TONES.length] }))
-              .sort((x, y) => (x.a.name || "").localeCompare(y.a.name || ""))
-              .map(({ a, col }) => {
-                const on = areaFilter.size === 0 || areaFilter.has(a.id);
-                return (
-                  <button
-                    key={a.id}
-                    onClick={() => toggleAreaFilter(a.id)}
-                    className={`inline-flex items-center gap-1.5 text-xs transition-opacity ${on ? "" : "opacity-35"}`}
-                  >
-                    <span
-                      className="h-2.5 w-2.5 shrink-0 rounded-full"
-                      style={{ background: col, boxShadow: on ? `0 0 0 1px ${col}` : "none" }}
-                    />
-                    {a.name || "Untitled"}
-                  </button>
-                );
-              })}
-          </div>
-        )}
-
-        {/* transit overlay — tap to show; drawn live from the basemap, works anywhere */}
+        {/* Filters — category, transit, and area editing, folded away by default */}
         {!adding && (
-          <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-line pt-2.5">
-            <span className="eyebrow text-ink-faint">Transit</span>
-            {TRANSIT_KINDS.map((kind) => {
-              const on = transit.has(kind);
-              const col = dark ? TRANSIT_META[kind].dark : TRANSIT_META[kind].light;
-              return (
-                <button
-                  key={kind}
-                  onClick={() => toggleTransit(kind)}
-                  className={`inline-flex items-center gap-1.5 text-xs transition-opacity ${on ? "" : "opacity-35"}`}
-                >
-                  <span
-                    className="h-2.5 w-2.5 shrink-0 rounded-full"
-                    style={{ background: col, boxShadow: on ? `0 0 0 1px ${col}` : "none" }}
-                  />
-                  {TRANSIT_META[kind].label}
-                </button>
-              );
-            })}
+          <div className="mt-2 border-t border-line pt-1">
+            <button
+              onClick={() => setFiltersOpen((v) => !v)}
+              aria-expanded={filtersOpen}
+              className="flex w-full items-center justify-between py-1 text-left"
+            >
+              <span className="eyebrow text-ink-faint">
+                Filters{catFilter.size > 0 ? ` · ${catFilter.size}` : ""}
+              </span>
+              <Icon name="chevron" size={13} className={`text-ink-faint transition-transform ${filtersOpen ? "rotate-90" : ""}`} />
+            </button>
+
+            {filtersOpen && (
+              <div className="space-y-3 pb-1 pt-1.5">
+                {cats.length > 0 && (
+                  <div>
+                    <p className="eyebrow mb-1.5 text-ink-faint">Category</p>
+                    <div className="flex flex-wrap gap-x-3 gap-y-1.5">
+                      {cats.map(([name, col]) => {
+                        const on = catFilter.size === 0 || catFilter.has(name);
+                        return (
+                          <button
+                            key={name}
+                            onClick={() => toggleCat(name)}
+                            className={`inline-flex items-center gap-1.5 text-xs transition-opacity ${on ? "" : "opacity-35"}`}
+                          >
+                            <CatMark color={col} glyph={data.config.categoryIcons?.[name]} on={on} />
+                            <span className="capitalize">{name}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <p className="eyebrow mb-1.5 text-ink-faint">Transit</p>
+                  <div className="flex flex-wrap gap-x-3 gap-y-1.5">
+                    {TRANSIT_KINDS.map((kind) => {
+                      const on = transit.has(kind);
+                      const col = dark ? TRANSIT_META[kind].dark : TRANSIT_META[kind].light;
+                      return (
+                        <button
+                          key={kind}
+                          onClick={() => toggleTransit(kind)}
+                          className={`inline-flex items-center gap-1.5 text-xs transition-opacity ${on ? "" : "opacity-35"}`}
+                        >
+                          <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: col, boxShadow: on ? `0 0 0 1px ${col}` : "none" }} />
+                          {TRANSIT_META[kind].label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {!readOnly && review === null && (
+                  <div>
+                    <p className="eyebrow mb-1.5 text-ink-faint">Areas</p>
+                    {namingArea ? (
+                      <div className="flex items-center gap-3">
+                        <input
+                          autoFocus
+                          value={areaName}
+                          onChange={(e) => setAreaName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") createArea();
+                            if (e.key === "Escape") { setNamingArea(false); setAreaName(""); }
+                          }}
+                          placeholder="Area name — e.g. Asakusa"
+                          className="min-w-0 flex-1 border-b border-ink bg-transparent pb-1 text-sm focus:outline-none"
+                        />
+                        <button onClick={createArea} className="shrink-0 font-medium text-accent">Add</button>
+                        <button onClick={() => { setNamingArea(false); setAreaName(""); }} className="shrink-0 text-ink-faint hover:text-ink-soft">Cancel</button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+                        <button onClick={() => setNamingArea(true)} className="inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70">
+                          <Icon name="plus" size={12} className="align-[-1px]" /> Add area
+                        </button>
+                        {ungrouped.length >= 4 && (
+                          <button onClick={startSuggest} className="inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70">
+                            <Icon name="explore" size={12} className="align-[-1px]" /> Suggest from {ungrouped.length}
+                          </button>
+                        )}
+                        {data.areas.length > 0 && (
+                          <button onClick={() => setEditingAreas((v) => !v)} className="link-quiet ml-auto">
+                            {editingAreas ? "Done" : "Edit areas"}
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    {editingAreas && data.areas.length > 0 && (
+                      <ul className="mt-2 border-t border-line pt-1.5">
+                        {[...data.areas]
+                          .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
+                          .map((a) => (
+                            <li key={a.id} className="flex items-center gap-2 border-b border-line py-1.5 text-sm last:border-b-0">
+                              <span className="min-w-0 flex-1 truncate">
+                                <Editable label="Area name" value={a.name} placeholder="Area name" onCommit={(v) => updateEntity<Area>("areas", a.id, { name: v.trim() || "Untitled" })} />
+                              </span>
+                              <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{plural(a.placeIds.length, "place")}</span>
+                              <ConfirmButton onConfirm={() => removeEntity("areas", a.id)} className="shrink-0 text-ink-faint hover:text-accent">
+                                <Icon name="trash" size={13} />
+                              </ConfirmButton>
+                            </li>
+                          ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -655,78 +765,6 @@ export default function MapTab() {
         </div>
       )}
 
-      {/* areas — create one by name, auto-suggest from the unsorted pile, or jump to full editing */}
-      {!readOnly && !adding && review === null && (
-        <div className="shrink-0 border-b border-line px-4 py-2 text-xs">
-          {namingArea ? (
-            <div className="flex items-center gap-3">
-              <input
-                autoFocus
-                value={areaName}
-                onChange={(e) => setAreaName(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") createArea();
-                  if (e.key === "Escape") { setNamingArea(false); setAreaName(""); }
-                }}
-                placeholder="Area name — e.g. Asakusa"
-                className="min-w-0 flex-1 border-b border-ink bg-transparent pb-1 text-sm focus:outline-none"
-              />
-              <button onClick={createArea} className="shrink-0 font-medium text-accent">Add</button>
-              <button onClick={() => { setNamingArea(false); setAreaName(""); }} className="shrink-0 text-ink-faint hover:text-ink-soft">Cancel</button>
-            </div>
-          ) : (
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-              <button
-                onClick={() => setNamingArea(true)}
-                className="inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70"
-              >
-                <Icon name="plus" size={12} className="align-[-1px]" />
-                Add area
-              </button>
-              {ungrouped.length >= 4 && (
-                <button
-                  onClick={startSuggest}
-                  className="inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70"
-                >
-                  <Icon name="explore" size={12} className="align-[-1px]" />
-                  Suggest from {ungrouped.length} ungrouped
-                </button>
-              )}
-              {data.areas.length > 0 && (
-                <button onClick={() => setEditingAreas((v) => !v)} className="link-quiet ml-auto">
-                  {editingAreas ? "Done" : "Edit areas"}
-                </button>
-              )}
-            </div>
-          )}
-          {editingAreas && data.areas.length > 0 && (
-            <ul className="mt-2 border-t border-line pt-1.5">
-              {[...data.areas]
-                .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
-                .map((a) => (
-                  <li key={a.id} className="flex items-center gap-2 border-b border-line py-1.5 text-sm last:border-b-0">
-                    <span className="min-w-0 flex-1 truncate">
-                      <Editable
-                        label="Area name"
-                        value={a.name}
-                        placeholder="Area name"
-                        onCommit={(v) => updateEntity<Area>("areas", a.id, { name: v.trim() || "Untitled" })}
-                      />
-                    </span>
-                    <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{plural(a.placeIds.length, "place")}</span>
-                    <ConfirmButton
-                      onConfirm={() => removeEntity("areas", a.id)}
-                      className="shrink-0 text-ink-faint hover:text-accent"
-                    >
-                      <Icon name="trash" size={13} />
-                    </ConfirmButton>
-                  </li>
-                ))}
-            </ul>
-          )}
-        </div>
-      )}
-
       {/* list, or the suggestion review */}
       {review !== null ? (
         <SuggestReview
@@ -773,7 +811,7 @@ export default function MapTab() {
             <li className="meta py-6">
               {places.length === 0
                 ? "No places yet. Add one above, or paste a Google My Maps link in Manage to import your pins."
-                : "No places in this view. Widen the scope or clear the category filter."}
+                : "No places in this city yet. Pick “All”, or add one above."}
             </li>
           )}
           <li className="h-4" />
@@ -855,68 +893,7 @@ export default function MapTab() {
   );
 }
 
-type ScopeOption = { value: string; label: string; group?: "By stay" | "By day" | "By area" };
 type ReviewGroup = AreaSuggestion & { keep: boolean; auto: boolean };
-
-function ScopeMenu({ value, options, onChange }: { value: string; options: ScopeOption[]; onChange: (v: string) => void }) {
-  const [open, setOpen] = useState(false);
-  const [up, setUp] = useState(false);
-  const btn = useRef<HTMLButtonElement>(null);
-  const current = options.find((o) => o.value === value) ?? options[0];
-  let lastGroup: string | undefined;
-
-  const toggle = () => {
-    if (!open && btn.current) {
-      const r = btn.current.getBoundingClientRect();
-      setUp(window.innerHeight - r.bottom < 300);
-    }
-    setOpen((v) => !v);
-  };
-
-  return (
-    <div className="relative">
-      <button
-        ref={btn}
-        onClick={toggle}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-label={`Map scope: ${current?.label}`}
-        className="subhead flex max-w-[15rem] items-center gap-1"
-      >
-        <span className="truncate">{current?.label}</span>
-        <Icon name="down" size={13} className={`shrink-0 text-ink-faint transition-transform ${open ? "rotate-180" : ""}`} />
-      </button>
-      {open && (
-        <>
-          <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
-          <div
-            className={`absolute left-0 z-30 max-h-[min(60vh,24rem)] min-w-[15rem] overflow-y-auto border border-line bg-bg py-1 shadow-sm ${up ? "bottom-full mb-1.5" : "top-full mt-1.5"}`}
-          >
-            {options.map((o) => {
-              const head = o.group && o.group !== lastGroup ? o.group : null;
-              lastGroup = o.group;
-              return (
-                <div key={`${o.group ?? ""}:${o.value}`}>
-                  {head && <p className="eyebrow px-3 pb-1 pt-2.5 text-ink-faint">{head}</p>}
-                  <button
-                    onClick={() => {
-                      onChange(o.value);
-                      setOpen(false);
-                    }}
-                    className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-surface-2 ${o.value === value ? "font-medium text-accent" : "text-ink"}`}
-                  >
-                    <Icon name="check" size={13} className={`shrink-0 ${o.value === value ? "" : "opacity-0"}`} />
-                    <span className="truncate">{o.label}</span>
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
 
 function PlaceRow({
   place,

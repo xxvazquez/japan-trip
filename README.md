@@ -51,21 +51,28 @@ automatically from what you set on the day itself, never chosen by hand.
   linked steps show on the day's map. Below that, **Areas** (drop a whole
   neighbourhood's pins onto the map) and free-text **General notes**.
 
-**Map** — your Google **My Map** pins, on a clean map.
-- Switch the scope: **all places**, **today**, a **day**, a **stay**, or an
-  **area** (see below).
-- Filter by **category** with the coloured dots — none selected shows everything;
-  tap some to narrow. Category combines with the scope, so "an area + See" shows
-  only the sights in that area.
-- Give a category its own **pin icon** in **Manage → Content → Category pins** —
-  those places then draw as a coloured disc with the icon instead of a plain
-  dot. Categories left as "Dot" are unchanged.
-- **Transit** row — **Train** and **Metro** are laid over the map by default;
-  tap to add **Tram**, **Bus**, **Ferry** or **Airport**, or to turn any off.
-  It's read straight from the basemap, so it works in any city with no setup,
-  and the choice is remembered.
+**Map** — your Google **My Map** pins, on a clean map. It reads **city → area →
+filters → places**, top to bottom.
+- **City pills** — **All** plus one per stay, coloured to match the trip. Pick a
+  city and the map and the list both narrow to it straight away; the app opens
+  on wherever you are (or the first stay). A city's pins are the ones planned on
+  its days, plus any imported pins that fall nearest to it.
+- **＋ Add place** sits next to the pills, always one tap — search for somewhere,
+  or tap the map to drop a pin.
+- **Area chips** — just the areas that have a place in the chosen city (see
+  below). Tap to show only those; none lit means all.
+- **Filters** — a disclosure holding **category** and **transit**, folded away
+  by default:
+  - **Category** — the coloured dots; none selected shows everything, tap some
+    to narrow. Give a category its own **pin icon** in **Manage → Content →
+    Category pins** — those places draw as a coloured disc with the icon.
+  - **Transit** — **Train** and **Metro** are laid over the map by default; tap
+    to add **Tram**, **Bus**, **Ferry** or **Airport**, or to turn any off.
+    It's read straight from the basemap, works in any city with no setup, and
+    the choice is remembered.
+  - When editing, **Areas** — add one, suggest areas, or rename / delete —
+    lives here too.
 - Tap a pin or a list row — they select each other and the map flies there.
-- **＋ Add place** → search for somewhere, or tap the map to drop a pin.
 - **Sync** re-pulls everything from your Google My Map. It replaces the imported
   pins but keeps anything you added in the app and any notes you wrote.
 - Place names on the map are shown in English / Latin script (falling back to
@@ -74,24 +81,23 @@ automatically from what you set on the day itself, never chosen by hand.
 
 **Areas vs. categories.** A category is *what* a place is (coffee, see, food…).
 An **area** is *where* it is (Gion, Higashiyama, a neighbourhood you name). A
-place can sit in several areas. Create one from the *+ Add area* row under the
-map list (name it and it's made), assign places from a pin's detail panel on
-the Map, and rename or delete one with *Edit areas* in that same row
-(place-by-place membership for a whole area lives in Manage → Content →
-Areas). Once areas exist, an **Areas** row of chips sits with
-the category and transit filters — tap to show just those areas on the map (and
-in the list); none lit means all. On the **All places** view the list itself
-splits into a collapsible section per area (plus a *No area* group), so you can
-fold away the ones you're not looking at. Add an area to a **day** (on the day
-page) and every place in it shows on that day's map — a live link, so editing
-the area later updates the day too. Area places show slightly faded and aren't
-added to your plan unless you tap the **+** on the area to drop one in as a
-step. Zoom out
-on **All places** or an area scope and each area gets a faint labelled ring so
-you can see its rough extent at a glance.
+place can sit in several areas. Create one under **Filters → Areas → Add area**
+(name it and it's made), assign places from a pin's detail panel on the Map, and
+rename or delete one with *Edit areas* in that same place (place-by-place
+membership for a whole area lives in Manage → Content → Areas). The **area
+chips** above the Filters row show only the areas with a place in the chosen
+city — tap to show just those on the map and in the list; none lit means all.
+The list itself splits into a collapsible section per area (plus a *No area*
+group), so you can fold away the ones you're not looking at. Add an area to a
+**day** (on the day page) and every place in it shows on that day's map — a live
+link, so editing the area later updates the day too. Area places show slightly
+faded and aren't added to your plan unless you tap the **+** on the area to drop
+one in as a step. Zoom out and each area gets a faint labelled ring so you can
+see its rough extent at a glance.
 
 **Suggest areas.** When four or more places aren't in any area, a *Suggest
-areas* link joins that row. It groups them by how close together they are (the
+areas* link joins the Areas controls. It groups them by how close together they
+are (the
 "close enough" distance is worked out from your own places, so it fits a tight
 city or a spread-out road trip) and names each group after the neighbourhood it
 sits in. You review the groups — rename, untick, drop a place — and only the
