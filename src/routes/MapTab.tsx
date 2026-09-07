@@ -7,7 +7,7 @@ import { ConfirmButton } from "@/components/ConfirmButton";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
-import { gmapsLink } from "@/lib/maps";
+import { gmapsLink, mapUrlCoords } from "@/lib/maps";
 import { geocode, reverseGeocode, type GeoResult } from "@/lib/geocode";
 import { haversineKm } from "@/lib/geo";
 import { legHex } from "@/lib/legColors";
@@ -221,18 +221,25 @@ export default function MapTab() {
     return ids;
   }, [data, areaFilter]);
 
-  /** each place's "home city" (leg), by nearest leg anchor. A leg is anchored at
-   *  the centroid of the places its days explicitly plan; a leg with none has no
-   *  anchor and claims nothing. Lets a whole city's imported pins show under the
-   *  city pill even when they aren't linked to a specific day yet. */
+  /** each place's "home city" (leg), by nearest leg anchor. A leg is anchored on
+   *  its hotel (coords parsed from the pasted Maps link) or, failing that, the
+   *  centroid of the places its days pull in. A leg with neither has no anchor
+   *  and claims nothing. Lets a whole city's imported pins sit under its pill
+   *  even before they're linked to a day. */
   const placeLeg = useMemo(() => {
     const m = new Map<string, string>();
     if (!data) return m;
     const anchors: { legId: string; lat: number; lng: number }[] = [];
     for (const leg of data.legs) {
+      const hotel = data.hotels.find((h) => h.id === leg.hotelId);
+      const hc = mapUrlCoords(hotel?.mapUrl);
+      if (hc) {
+        anchors.push({ legId: leg.id, lat: hc[0], lng: hc[1] });
+        continue;
+      }
       const pts = data.days
         .filter((d) => d.legId === leg.id)
-        .flatMap((d) => (d.plan ?? []).map((x) => x.placeId).filter(Boolean) as string[])
+        .flatMap((d) => [...dayIds(d).all])
         .map((id) => places.find((p) => p.id === id))
         .filter((p): p is Place => !!p);
       if (pts.length) {
@@ -253,7 +260,7 @@ export default function MapTab() {
       m.set(p.id, best);
     }
     return m;
-  }, [data, places]);
+  }, [data, places]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /** ids in the current scope, before the category / area chips narrow it —
    *  the area chips derive from this so ticking one can't make its own chip
@@ -263,9 +270,18 @@ export default function MapTab() {
     if (!scope || scope === "all") {
       return { inScopeIds: new Set(places.map((p) => p.id)), derivedIds: new Set<string>() };
     }
-    const legId = scope.slice(4);
     const all = new Set<string>();
     const explicit = new Set<string>();
+    // a single day — the "Today" pill
+    if (scope.startsWith("day:")) {
+      const d = data.days.find((x) => x.id === scope.slice(4));
+      const s = dayIds(d);
+      s.all.forEach((id) => all.add(id));
+      s.explicit.forEach((id) => explicit.add(id));
+      return { inScopeIds: all, derivedIds: new Set([...all].filter((id) => !explicit.has(id))) };
+    }
+    // a stay / city
+    const legId = scope.slice(4);
     for (const d of data.days.filter((d) => d.legId === legId)) {
       const s = dayIds(d);
       s.all.forEach((id) => all.add(id));
@@ -334,6 +350,20 @@ export default function MapTab() {
       .sort((x, y) => (x.a.name || "").localeCompare(y.a.name || ""));
   }, [data, inScopeIds]);
 
+  /** how many places each stay would show — so a stay with nothing to show
+   *  doesn't get a dead city pill */
+  const legCounts = useMemo(() => {
+    const m = new Map<string, number>();
+    if (!data) return m;
+    for (const leg of data.legs) {
+      const ids = new Set<string>();
+      for (const d of data.days.filter((d) => d.legId === leg.id)) dayIds(d).all.forEach((id) => ids.add(id));
+      for (const p of places) if (placeLeg.get(p.id) === leg.id) ids.add(p.id);
+      m.set(leg.id, ids.size);
+    }
+    return m;
+  }, [data, places, placeLeg]); // eslint-disable-line react-hooks/exhaustive-deps
+
   /** faint outline + label per area, for the "zoomed out" overview.
    *  Shown on All / By-area scopes; hidden when scoped to a day/stay. */
   const areaShapes = useMemo(() => {
@@ -381,6 +411,7 @@ export default function MapTab() {
   const url = data.config.mapSourceUrl?.trim() ?? "";
   const syncedAt = data.config.mapSyncedAt;
   const loc = data.config.locale;
+  const clock = tripClock(data);
 
   const toggleCat = (name: string) =>
     setCatFilter((s) => {
@@ -550,7 +581,15 @@ export default function MapTab() {
         {/* city pills + Add place (always one tap) */}
         <div className="flex items-center gap-2">
           <div className="-mx-1 flex min-w-0 flex-1 gap-1.5 overflow-x-auto px-1 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {[{ id: "all", label: `All · ${places.length}`, hex: "" }, ...data.legs.map((l) => ({ id: `leg:${l.id}`, label: l.base || "Stay", hex: legHex(l.color) }))].map((city) => {
+            {[
+              ...(clock.phase === "during" && clock.today
+                ? [{ id: `day:${clock.today.id}`, label: "Today", hex: "" }]
+                : []),
+              { id: "all", label: `All · ${places.length}`, hex: "" },
+              ...data.legs
+                .filter((l) => (legCounts.get(l.id) ?? 0) > 0 || scope === `leg:${l.id}`)
+                .map((l) => ({ id: `leg:${l.id}`, label: l.base || "Stay", hex: legHex(l.color) })),
+            ].map((city) => {
               const active = (scope ?? "all") === city.id;
               return (
                 <button

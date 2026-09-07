@@ -53,10 +53,13 @@ automatically from what you set on the day itself, never chosen by hand.
 
 **Map** — your Google **My Map** pins, on a clean map. It reads **city → area →
 filters → places**, top to bottom.
-- **City pills** — **All** plus one per stay, coloured to match the trip. Pick a
-  city and the map and the list both narrow to it straight away; the app opens
-  on wherever you are (or the first stay). A city's pins are the ones planned on
-  its days, plus any imported pins that fall nearest to it.
+- **City pills** — **All** plus one per stay (and **Today** while the trip is
+  running), coloured to match the trip. Pick a city and the map and the list
+  both narrow to it straight away; the app opens on wherever you are (or the
+  first stay). A city's pins are the ones planned on its days, plus any imported
+  pins that fall nearest to it — "nearest" measured from the stay's hotel (the
+  coordinates in its pasted Maps link) or, failing that, the places its days
+  already use. A stay with nothing to show doesn't get a pill.
 - **＋ Add place** sits next to the pills, always one tap — search for somewhere,
   or tap the map to drop a pin.
 - **Area chips** — just the areas that have a place in the chosen city (see
