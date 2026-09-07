@@ -17,7 +17,6 @@ import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
-import { Markdown } from "@/components/Markdown";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { Icon } from "@/components/Icon";
 import { useData, lookups } from "@/lib/data";
@@ -30,6 +29,12 @@ import { parseMoney, fmtMoney } from "@/lib/cost";
 import type { Day as DayT, DayCost, PlanItem, Place } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 9);
+
+/** "14:00–15:15" (any dash, any spacing) → ["14:00", "15:15"]; else null */
+function splitRange(t?: string): [string, string] | null {
+  const m = (t ?? "").match(/^\s*(\d{1,2}:\d{2})\s*[–—-]\s*(\d{1,2}:\d{2})\s*$/);
+  return m ? [m[1], m[2]] : null;
+}
 
 /** A spending amount feeds the day total, so it has to be a plain number —
  *  strip currency symbols, separators and stray text, round to a whole unit.
@@ -199,6 +204,7 @@ export default function Day() {
       {/* PLAN — the day's itinerary: time + step, drag to reorder */}
       {((day.plan ?? []).length > 0 || !ro) && (
         <Section
+          collapsible
           icon="itinerary"
           title="Plan"
           action={
@@ -396,15 +402,24 @@ function PlanRow({ item, place, places, readOnly, onPatch, onRemove }: {
             <Icon name="grip" size={13} />
           </button>
         )}
-        {/* time + pin-slot are fixed width so every step's text starts at the same x */}
-        <span className="w-[3.75rem] shrink-0 whitespace-nowrap pt-px text-[0.8125rem] leading-tight tabular-nums text-ink-soft">
-          {readOnly ? (
-            item.time
-          ) : /^\d{1,2}:\d{2}$/.test(item.time ?? "") || !item.time ? (
-            <Editable as="time" label="Time" value={item.time ?? ""} placeholder="––:––" onCommit={(v) => onPatch({ time: v || undefined })} />
-          ) : (
-            <Editable label="Time" value={item.time} placeholder="––:––" onCommit={(v) => onPatch({ time: v.trim() || undefined })} />
-          )}
+        {/* time + pin-slot are fixed width so every step's text starts at the same x.
+            a range stacks (start over a quieter end) instead of overrunning the column */}
+        <span className="w-[3.75rem] shrink-0 pt-px text-[0.8125rem] leading-[1.15] tabular-nums text-ink-soft [overflow-wrap:anywhere]">
+          {(() => {
+            const range = splitRange(item.time);
+            if (readOnly) {
+              return range ? (
+                <>{range[0]}<span className="block text-ink-faint">{range[1]}</span></>
+              ) : (
+                item.time
+              );
+            }
+            return /^\d{1,2}:\d{2}$/.test(item.time ?? "") || !item.time ? (
+              <Editable as="time" label="Time" value={item.time ?? ""} placeholder="––:––" onCommit={(v) => onPatch({ time: v || undefined })} />
+            ) : (
+              <Editable label="Time" value={item.time} className="[overflow-wrap:anywhere]" placeholder="––:––" onCommit={(v) => onPatch({ time: v.trim() || undefined })} />
+            );
+          })()}
         </span>
         <span className="mt-[0.1em] grid w-4 shrink-0 place-items-center">
           {(mapHref || item.placeId) && (
@@ -459,19 +474,16 @@ function PlanRow({ item, place, places, readOnly, onPatch, onRemove }: {
               </select>
             </div>
           )}
-          <div className="note">
-            {readOnly
-              ? (hasNote && <Markdown text={item.note!} />)
-              : (
-                <Editable
-                  as="textarea"
-                  label="Step note"
-                  value={item.note ?? ""}
-                  placeholder="Add a note…"
-                  onCommit={(v) => onPatch({ note: v || undefined })}
-                />
-              )}
-          </div>
+          {(!readOnly || hasNote) && (
+            <div className="rounded border border-line bg-bg/60 px-3 py-2.5">
+              <RichNote
+                value={item.note ?? ""}
+                onCommit={(v) => onPatch({ note: v || undefined })}
+                placeholder="Add a note — bold, bullets, links…"
+                className="text-[0.875rem] leading-relaxed text-ink-soft [&_strong]:text-ink"
+              />
+            </div>
+          )}
         </div>
       )}
     </li>

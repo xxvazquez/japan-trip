@@ -46,10 +46,12 @@ automatically from what you set on the day itself, never chosen by hand.
   (link an existing one, or ＋ new — you then pick its type on the journey
   page). A **day trip** leads with a **Getting there** and a **Getting back**
   card (free text, the last way home folded into the back one), a checklist,
-  then the day's **Plan** — an itinerary of steps, each a time and a line of
-  text, **drag to reorder**.
-  Expand a step (the **⌄**) for a note and to link it to a place on your map —
-  linked steps show on the day's map. Below that, **Areas** (drop a whole
+  then the day's **Plan** — an itinerary of steps, each a time (a single
+  time or a `14:00–15:15` range) and a line of text, **drag to reorder**;
+  the whole section folds away from its header.
+  Expand a step (the **⌄**) for a formatted note (bold, bullets, links) in
+  its own box, and to link it to a place on your map — linked steps show on
+  the day's map. Below that, **Areas** (drop a whole
   neighbourhood's pins onto the map), a **Spending** list (a label and a whole
   number per row, subtotalled and fed to Budget), and free-text **General
   notes**.
