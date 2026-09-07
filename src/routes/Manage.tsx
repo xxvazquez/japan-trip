@@ -416,6 +416,7 @@ function Setup() {
         <Row label="Google My Map">
           <Editable as="link" label="Google My Map link" value={config.mapSourceUrl ?? ""} placeholder="paste the share link" onCommit={(v) => mutate((d) => { d.config.mapSourceUrl = v; })} />
         </Row>
+        <p className="meta mt-2">Currency: a price typed as a bare number counts as {config.currency || "the trip currency"}; one with its own symbol or code is left alone.</p>
       </Section>
 
       <ModulesPanel />
