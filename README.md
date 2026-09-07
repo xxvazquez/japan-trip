@@ -67,10 +67,12 @@ filters → places**, top to bottom.
   running), coloured to match the trip. Pick a city and the map and the list
   both narrow to it straight away; the app opens on wherever you are (or the
   first stay). A city's pins are the ones planned on its days, plus any imported
-  pins that fall nearest to it — "nearest" measured from the stay's **hotel**
-  (its coordinates, taken from the pasted Maps link or geocoded from the address
-  once) or, failing that, the places its days already use. A stay with nothing
-  to show doesn't get a pill.
+  pins that fall nearest to it, within about 60 km — "nearest" measured from the
+  stay's **hotel** (its coordinates, taken from the pasted Maps link or geocoded
+  from the address once) or, failing that, the places its days already use. A
+  pin farther than that from every stay belongs to no city and shows only on
+  **All**. A stay gets a pill once its hotel has coordinates, or once it has a
+  pin to show.
 - **＋ Add place** sits next to the pills, always one tap — search for somewhere,
   or tap the map to drop a pin.
 - **Area chips** appear once a city is picked — just that city's areas that have
