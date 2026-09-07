@@ -246,25 +246,29 @@ export interface Day {
 export interface Hotel {
   id: ID;
   name: string;
-  /** name in the local script, if different from `name` */
+  /** name in the local script — legacy, no UI (see the flexible-content rule) */
   nameAlt?: string;
   address?: string;
-  /** address in the local script, to show a taxi driver */
+  /** address in the local script — legacy, no UI */
   addressAlt?: string;
   /** how to get here from the station, free text */
   directions?: string;
-  /** pasted Google Maps link */
+  /** pasted Google Maps link — drives the "Open in Google Maps" button */
   mapUrl?: string;
-  phone?: string;
-  url?: string;
   checkIn?: string;
   checkOut?: string;
+  notes?: string;
+  /** the whole stay's price, free text (e.g. "¥42,000" or "€310 for 3 nights") —
+   *  parsed into the Budget roll-up, so it stays a fixed system field */
+  price?: string;
+  /** the traveller's own reference fields (booking ref, phone, wifi, …) */
+  fields?: DocField[];
+  /** legacy — folded into `fields` on load */
+  phone?: string;
+  url?: string;
   wifi?: string;
   doorCode?: string;
   reservationRef?: string;
-  notes?: string;
-  /** the whole stay's price, free text (e.g. "¥42,000" or "€310 for 3 nights") */
-  price?: string;
 }
 
 /** A luggage note — storage, lockers, forwarding, a bag left somewhere.

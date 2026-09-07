@@ -36,19 +36,7 @@ export default function Leg() {
         title={<Editable label="Stay name" value={leg.base} onCommit={(v) => p({ base: v || leg.base })} />}
       />
 
-      {(leg.nameAlt || !ro) && (
-        <p className="-mt-5 mb-8">
-          <Editable
-            label="Local name"
-            value={leg.nameAlt ?? ""}
-            placeholder="Name in the local script"
-            className="font-jp text-sm text-ink-soft"
-            onCommit={(v) => p({ nameAlt: v || undefined })}
-          />
-        </p>
-      )}
-
-      <div className="mb-8 grid grid-cols-2 gap-x-4 gap-y-5">
+      <div className="mt-2 mb-8 grid grid-cols-2 gap-x-4 gap-y-5">
         <div>
           <p className="eyebrow">Start</p>
           <p className="mt-0.5 value">

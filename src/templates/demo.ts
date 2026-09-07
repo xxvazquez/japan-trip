@@ -131,9 +131,12 @@ export function buildDemo(): TripData {
         address: "12 Example Street",
         checkIn: "15:00",
         checkOut: "11:00",
-        wifi: "guest / riverside2027",
-        doorCode: "1984",
-        notes: "Everything here is a placeholder — your real booking details would replace it.",
+        price: "€240",
+        fields: [
+          { id: "h-river-f1", label: "Booking ref", value: "RSV-00123" },
+          { id: "h-river-f2", label: "Wifi", value: "guest / riverside2027" },
+        ],
+        notes: "Everything here is a placeholder. Reference is your own — rename a row, add a field, remove one.",
       },
       {
         id: "h-old",
@@ -141,7 +144,7 @@ export function buildDemo(): TripData {
         address: "4 Lantern Lane",
         checkIn: "16:00",
         checkOut: "10:00",
-        wifi: "oldtown-guest",
+        fields: [{ id: "h-old-f1", label: "Wifi", value: "oldtown-guest" }],
       },
     ],
 
