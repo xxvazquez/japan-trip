@@ -22,6 +22,7 @@ import { supabaseEnabled } from "@/lib/supabase";
 import { driveEnabled } from "@/lib/drive";
 import { useAuth, signOut } from "@/lib/auth";
 import { isLocalOnly, setLocalOnly } from "@/lib/localMode";
+import { RowMenu } from "@/components/RowMenu";
 import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
 import { useEffect } from "react";
 import type { Area, EntityType } from "@/core/types";
@@ -251,25 +252,6 @@ function ExportTrip() {
         <Icon name="download" size={15} /> {busy ? "Building…" : "Download web page"}
       </button>
     </Section>
-  );
-}
-
-function RowMenu({ children }: { children: React.ReactNode }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <span className="relative">
-      <button onClick={() => setOpen((v) => !v)} aria-label="More" className="grid h-7 w-7 place-items-center text-ink-soft hover:text-ink">
-        <Icon name="more" size={16} />
-      </button>
-      {open && (
-        <>
-          <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-30 mt-1 flex min-w-[8rem] flex-col border border-line bg-bg py-1 text-sm shadow-sm [&_.menu-item]:px-3 [&_.menu-item]:py-1.5 [&_.menu-item]:text-left [&_.menu-item:hover]:bg-surface-2">
-            {children}
-          </div>
-        </>
-      )}
-    </span>
   );
 }
 

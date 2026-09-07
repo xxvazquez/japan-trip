@@ -7,6 +7,7 @@ import { Tab } from "@/components/Tabs";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { Editable } from "@/components/Editable";
+import { FieldList } from "@/components/FieldList";
 import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
 import { useData } from "@/lib/data";
@@ -346,20 +347,15 @@ function Emergency() {
   // only shows if it was just deleted via Manage's raw entity list mid-session
   if (!contact) return <Empty what="No emergency info" hint="It's added automatically — reload the page and it'll be back." />;
 
-  const F = docFieldOps(updateEntity, contact.id, contact.fields);
-
   return (
     <div className="space-y-3">
       <div className={CARD_SHELL}>
-        {contact.fields.map((f, i) => (
-          <DocFieldRow key={f.id} f={f} i={i} count={contact.fields.length} ops={F} ro={ro} />
-        ))}
+        <FieldList
+          fields={contact.fields}
+          onChange={(next) => updateEntity<Doc>("docs", contact.id, { fields: next })}
+          addLabel="Add a contact"
+        />
         {contact.fields.length === 0 && ro && <p className="text-sm text-ink-faint">Nothing added yet.</p>}
-        {!ro && (
-          <button onClick={F.add} className="action mt-2 text-xs">
-            <Icon name="plus" size={13} /> Add field
-          </button>
-        )}
         {(contact.note?.trim() || !ro) && (
           <div className="note mt-2 text-ink-soft">
             <RichNote
