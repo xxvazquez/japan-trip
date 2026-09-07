@@ -68,7 +68,7 @@ export default function Hotel() {
         <div className={CARD_SHELL}>
           {showAddress && (
             <div>
-              <p className="field-value">
+              <p className="value">
                 <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined })} />
               </p>
               {(hotel.addressAlt || !ro) && (
@@ -88,7 +88,7 @@ export default function Hotel() {
               {doorShown.map(([label, value, onCommit, as]) => (
                 <div key={label}>
                   <p className="eyebrow">{label}</p>
-                  <p className="mt-0.5 field-value">
+                  <p className="mt-0.5 value">
                     <Editable as={as} label={label} value={value ?? ""} placeholder="—" onCommit={onCommit} />
                   </p>
                 </div>
