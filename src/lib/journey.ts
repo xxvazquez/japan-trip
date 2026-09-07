@@ -4,7 +4,7 @@
  *  separator only keeps a multi-hop label ("A → B → C") lossless when the
  *  "to" side is left untouched. */
 
-import type { Journey, JourneyKind, Segment } from "@/core/types";
+import type { JourneyKind } from "@/core/types";
 
 /** Title-case label for a journey's kind — the stored value is lowercase, every
  *  surface (the Journey eyebrow, a search result) shows it capitalised. */
@@ -37,10 +37,3 @@ export function joinRoute(from: string, to: string): string {
   return f && t ? `${f} → ${t}` : f || t;
 }
 
-/** Every flight hop across the trip, each with the journey it belongs to — the
- *  Flights document shows these instead of asking for them a second time. */
-export function flightSegments(journeys: Journey[]): { seg: Segment; journey: Journey }[] {
-  return journeys.flatMap((j) =>
-    j.segments.filter((s) => s.mode === "flight").map((seg) => ({ seg, journey: j })),
-  );
-}

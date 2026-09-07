@@ -145,11 +145,13 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
   }
 
   // every doc has a `fields` array, and every field a stable id (older rows and
-  // hand-authored seeds predate the id)
+  // hand-authored seeds predate the id). `kind` collapsed to contact | other —
+  // insurance / flight / reservation are just plain cards now.
   for (const doc of d.docs as Doc[]) {
     doc.fields = Array.isArray(doc.fields)
       ? doc.fields.map((f): DocField => ({ id: f.id || fieldId(), label: f.label ?? "", value: f.value ?? "" }))
       : [];
+    if ((doc.kind as string) !== "contact") doc.kind = "other";
   }
 
   // the Logbook "Emergency" tab shows the one doc with kind "contact" — but

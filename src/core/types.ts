@@ -312,7 +312,10 @@ export interface DocField {
 export interface Doc {
   id: ID;
   title: string;
-  kind: "insurance" | "flight" | "reservation" | "contact" | "other";
+  /** `contact` is the singleton behind the Emergency tab (created by
+   *  `normalizeTrip`, never by the user). Everything else is `other` — a plain
+   *  titled reference card. */
+  kind: "contact" | "other";
   fields: DocField[];
   files?: DocFile[];
   note?: string;
