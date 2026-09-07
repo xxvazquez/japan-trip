@@ -755,9 +755,11 @@ const ENTITY_LABELS: Record<EntityType, string> = {
   areas: "Areas",
 };
 
+// `docs` is intentionally absent — documents are created and managed on the
+// Logbook › Documents tab, not here.
 const CONTENT_GROUPS: { title: string; types: EntityType[] }[] = [
   { title: "Itinerary", types: ["legs", "days", "hotels", "journeys"] },
-  { title: "Reference", types: ["places", "areas", "luggage", "packing", "docs"] },
+  { title: "Reference", types: ["places", "areas", "luggage", "packing"] },
 ];
 
 function Content() {

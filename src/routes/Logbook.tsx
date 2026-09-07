@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Card, CARD_SHELL } from "@/components/Card";
 import { Empty } from "@/components/Empty";
@@ -16,71 +16,15 @@ import { useAuth } from "@/lib/auth";
 import { useReadOnly } from "@/lib/readonly";
 import { APP_NAME } from "@/lib/app";
 import { fmtDate, fmtSpan, plural } from "@/lib/dates";
-import { flightSegments } from "@/lib/journey";
 import { LOGBOOK_SECTIONS, logbookLabel } from "@/lib/logbook";
 import { tripCost, fmtMoney } from "@/lib/cost";
 import { putFile, fileUrl, removeFile } from "@/lib/fileStore";
 import {
   driveEnabled, ensureFolder, uploadToDrive, shareFile, deleteFromDrive, driveViewUrl, driveImageUrl,
 } from "@/lib/drive";
-import type { CustomList, Doc, DocField, DocFile, EntityType, LuggageNote, PackingItem } from "@/core/types";
+import type { CustomList, Doc, DocFile, LuggageNote, PackingItem } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 8);
-
-type UpdateEntity = <T extends { id: string }>(type: EntityType, id: string, patch: Partial<T>) => void;
-
-/** add / remove / rename / reorder the `fields` on a document — the whole array
- *  is rewritten and re-persisted through `updateEntity`. */
-function docFieldOps(updateEntity: UpdateEntity, docId: string, fields: DocField[]) {
-  const write = (next: DocField[]) => updateEntity<Doc>("docs", docId, { fields: next });
-  return {
-    setValue: (i: number, value: string) => write(fields.map((x, j) => (j === i ? { ...x, value } : x))),
-    setLabel: (i: number, label: string) => write(fields.map((x, j) => (j === i ? { ...x, label } : x))),
-    remove: (i: number) => write(fields.filter((_, j) => j !== i)),
-    add: () => write([...fields, { id: rid(), label: "", value: "" }]),
-    move: (i: number, dir: -1 | 1) => {
-      const j = i + dir;
-      if (j < 0 || j >= fields.length) return;
-      const next = fields.slice();
-      [next[i], next[j]] = [next[j], next[i]];
-      write(next);
-    },
-  };
-}
-
-function FieldControls({ i, count, onMove, onRemove }: { i: number; count: number; onMove: (dir: -1 | 1) => void; onRemove: () => void }) {
-  return (
-    <span className="flex shrink-0 items-center gap-0.5 text-ink-faint">
-      <button disabled={i === 0} onClick={() => onMove(-1)} aria-label="Move field up" className="p-0.5 hover:text-ink-soft disabled:opacity-25"><Icon name="up" size={13} /></button>
-      <button disabled={i === count - 1} onClick={() => onMove(1)} aria-label="Move field down" className="p-0.5 hover:text-ink-soft disabled:opacity-25"><Icon name="down" size={13} /></button>
-      <button onClick={onRemove} aria-label="Remove field" className="p-0.5 hover:text-accent"><Icon name="close" size={13} /></button>
-    </span>
-  );
-}
-
-/** One `{label, value}` row of a document. Read-only: the compact label→value
- *  row. Editable: label + value stacked, with reorder / remove controls. */
-function DocFieldRow({ f, i, count, ops, ro }: { f: DocField; i: number; count: number; ops: ReturnType<typeof docFieldOps>; ro: boolean }) {
-  if (ro) {
-    return (
-      <div className="row text-sm">
-        <span className="row-label">{f.label}</span>
-        <span className="row-value value"><Editable as="auto" label={f.label} value={f.value} placeholder="—" onCommit={() => {}} /></span>
-      </div>
-    );
-  }
-  return (
-    <div className="flex items-start gap-2 border-b border-line py-2 last:border-b-0">
-      <div className="min-w-0 flex-1">
-        <Editable label="Field name" value={f.label} placeholder="Label" className="text-[0.8125rem] text-ink-soft" onCommit={(v) => ops.setLabel(i, v)} />
-        <div className="value mt-0.5 break-words">
-          <Editable as="auto" label={f.label || "Field"} value={f.value} placeholder="—" onCommit={(v) => ops.setValue(i, v)} />
-        </div>
-      </div>
-      <div className="pt-0.5"><FieldControls i={i} count={count} onMove={(d) => ops.move(i, d)} onRemove={() => ops.remove(i)} /></div>
-    </div>
-  );
-}
 
 export default function Logbook() {
   const data = useData();
@@ -406,85 +350,17 @@ function Budget() {
 
 /* -------------------------------------------------------------- documents */
 
-const DOC_KINDS = [
-  { value: "other", label: "General" },
-  { value: "flight", label: "Flights" },
-  { value: "insurance", label: "Insurance" },
-  { value: "reservation", label: "Reservation" },
-];
-
-/** A flight document lists the flights themselves from the journeys that hold
- *  them — number, route, times and seat are entered once, on the flight. */
-function FlightBookings() {
-  const data = useData()!;
-  const ro = useReadOnly();
-  const addEntity = useApp((s) => s.addEntity);
-  const nav = useNavigate();
-  const loc = data.config.locale;
-  const flights = flightSegments(data.journeys);
-
-  const addFlight = () => {
-    const id = `journeys-${rid()}`;
-    const has = (k: string) => data.journeys.some((j) => j.kind === k);
-    const kind = !has("arrival") ? "arrival" : !has("departure") ? "departure" : "transfer";
-    addEntity("journeys", {
-      id,
-      label: "Flight",
-      kind,
-      date: kind === "departure" ? data.meta.end : data.meta.start,
-      segments: [{ id: `seg-${rid()}`, mode: "flight", from: "", to: "" }],
-    } as never);
-    nav(`/journey/${id}`);
-  };
-
-  if (flights.length === 0 && ro) return null;
-
-  return (
-    <div className="mb-3">
-      {flights.map(({ seg, journey }) => {
-        const name = [seg.carrier, seg.service].filter(Boolean).join(" ") || "Flight";
-        const line = [fmtSpan(seg, journey.date, loc), seg.seat && `seat ${seg.seat}`, seg.bookingRef]
-          .filter(Boolean)
-          .join("  ·  ");
-        return (
-          <Link
-            key={seg.id}
-            to={`/journey/${journey.id}`}
-            className="group flex items-baseline justify-between gap-3 border-b border-line py-2 first:border-t first:border-line"
-          >
-            <span className="min-w-0">
-              <span className="value block">{name}</span>
-              <span className="meta block">
-                {(seg.from || "—") + " → " + (seg.to || "—")}
-                {journey.date ? ` · ${fmtDate(journey.date, loc, { day: "numeric", month: "short" })}` : ""}
-              </span>
-              {line && <span className="meta block">{line}</span>}
-            </span>
-            <Icon name="chevron" size={14} className="shrink-0 translate-y-0.5 text-ink-faint group-hover:text-ink-soft" />
-          </Link>
-        );
-      })}
-      {!ro && (
-        <button onClick={addFlight} className="action mt-2 text-xs">
-          <Icon name="plus" size={13} /> Add a flight
-        </button>
-      )}
-      {flights.length === 0 && !ro && (
-        <p className="mt-1 text-xs text-ink-faint">
-          Number, times and seat are entered once — on the flight — and show on the travel day too.
-        </p>
-      )}
-    </div>
-  );
-}
-
+/** Documents are plain titled reference cards — one per document. Rename it,
+ *  attach the file, add whatever fields you want, add a note. Every card is
+ *  editable, removable, and you add more from the tab. */
 function Documents() {
   const data = useData()!;
   const ro = useReadOnly();
   const updateEntity = useApp((s) => s.updateEntity);
+  const addEntity = useApp((s) => s.addEntity);
+  const removeEntity = useApp((s) => s.removeEntity);
   const { user } = useAuth();
   const docs = data.docs.filter((d) => d.kind !== "contact");
-  if (docs.length === 0) return <Empty what="No documents" hint="Add one in Manage — insurance, flights, anything." />;
 
   const cloud = driveEnabled && !!user;
   const folderName = `${APP_NAME} · ${data.meta.title}`;
@@ -492,47 +368,27 @@ function Documents() {
     .map((e) => e.trim().toLowerCase())
     .filter((e) => e && e !== user?.email?.toLowerCase());
 
+  const addDoc = () => addEntity("docs", { id: `docs-${rid()}`, title: "New document", kind: "other", fields: [] } as never);
+
+  if (docs.length === 0) {
+    return ro
+      ? <Empty what="No documents" hint="Insurance, a booking, a permit — one card each." />
+      : <AddButton label="Add a document" onClick={addDoc} />;
+  }
+
   return (
     <div className="space-y-3">
-      {docs.map((d) => {
-        const F = docFieldOps(updateEntity, d.id, d.fields);
-        return (
+      {!ro && <AddButton label="Add a document" onClick={addDoc} />}
+      {docs.map((d) => (
         <Card
           key={d.id}
-          title={<Editable label="Title" value={d.title} onCommit={(v) => updateEntity<Doc>("docs", d.id, { title: v || d.title })} />}
+          title={
+            ro
+              ? d.title
+              : <Editable label="Document name" value={d.title} placeholder="Name" onCommit={(v) => updateEntity<Doc>("docs", d.id, { title: v || "Untitled" })} />
+          }
+          right={!ro && cardDeleteBtn(() => removeEntity("docs", d.id), "Delete document")}
         >
-          {!ro && (
-            <div className="-mt-1 mb-2">
-              <Editable
-                as="select"
-                label="Document type"
-                value={d.kind === "contact" ? "other" : d.kind}
-                options={DOC_KINDS}
-                className="text-xs text-ink-soft"
-                onCommit={(v) => updateEntity<Doc>("docs", d.id, { kind: v as Doc["kind"] })}
-              />
-            </div>
-          )}
-          {d.kind === "flight" && <FlightBookings />}
-          <div>
-            {d.fields.map((f, i) => (
-              <DocFieldRow key={f.id} f={f} i={i} count={d.fields.length} ops={F} ro={ro} />
-            ))}
-            {!ro && (
-              <button onClick={F.add} className="action mt-2 text-xs">
-                <Icon name="plus" size={13} /> Add field
-              </button>
-            )}
-          </div>
-          {(d.note?.trim() || !ro) && (
-            <div className="note mt-2 text-ink-soft">
-              <RichNote
-                value={d.note ?? ""}
-                onCommit={(v) => updateEntity<Doc>("docs", d.id, { note: v || undefined })}
-                placeholder="＋ a note"
-              />
-            </div>
-          )}
           <Attachments
             doc={d}
             cloud={cloud}
@@ -540,12 +396,26 @@ function Documents() {
             shareWith={shareWith}
             onChange={(files) => updateEntity<Doc>("docs", d.id, { files })}
           />
+          <div className="mt-3">
+            <FieldList
+              fields={d.fields}
+              onChange={(next) => updateEntity<Doc>("docs", d.id, { fields: next })}
+            />
+          </div>
+          {(d.note?.trim() || !ro) && (
+            <div className="note mt-3 text-ink-soft">
+              <RichNote
+                value={d.note ?? ""}
+                onCommit={(v) => updateEntity<Doc>("docs", d.id, { note: v || undefined })}
+                placeholder="＋ a note"
+              />
+            </div>
+          )}
         </Card>
-        );
-      })}
+      ))}
       <p className="px-1 text-xs text-ink-faint">
         {cloud
-          ? "Attachments upload to a Google Drive folder and are shared with the people on this trip. Still — think twice before a full passport scan."
+          ? "Attachments upload to a Google Drive folder shared with the people on this trip. Still — think twice before a full passport scan."
           : "Attachments stay only on the device they’re added on — passport numbers don’t belong here."}
       </p>
     </div>
@@ -608,15 +478,15 @@ function Attachments({
 
   if (ro && files.length === 0) return null;
   return (
-    <div className="mt-3">
+    <div>
       {files.map((f) => {
         const img = f.driveId && f.mime?.startsWith("image/") && !broken.has(f.id);
         return (
-          <div key={f.id} className="border-b border-line py-2 first:border-t first:border-line">
-            <div className="group flex items-center gap-2 text-sm">
-              <Icon name="vault" size={14} className="shrink-0 text-ink-soft" />
-              <button onClick={() => open(f)} className="min-w-0 flex-1 truncate text-left font-medium hover:underline">{f.name}</button>
-              {f.size ? <span className="shrink-0 text-xs text-ink-soft">{(f.size / 1048576).toFixed(1)} MB</span> : null}
+          <div key={f.id} className="border-b border-line py-2.5 first:border-t first:border-line">
+            <div className="group flex items-center gap-2.5">
+              <Icon name="vault" size={16} className="shrink-0 text-ink-soft" />
+              <button onClick={() => open(f)} className="value min-w-0 flex-1 truncate text-left hover:underline">{f.name}</button>
+              {f.size ? <span className="shrink-0 text-xs text-ink-faint tabular-nums">{(f.size / 1048576).toFixed(1)} MB</span> : null}
               {!ro && (
                 <ConfirmButton onConfirm={() => remove(f)} label="Remove file" className="shrink-0 text-xs text-ink-faint hover:text-accent">
                   <Icon name="trash" size={13} />
@@ -638,8 +508,10 @@ function Attachments({
         );
       })}
       {!ro && (
-        <label className={`action mt-3 ${busy ? "pointer-events-none opacity-50" : "cursor-pointer"}`}>
-          <Icon name="plus" size={14} /> {busy ? "Uploading…" : "Attach a file"}
+        <label
+          className={`mt-3 flex items-center justify-center gap-2 rounded border border-dashed border-line py-2.5 text-sm font-medium text-ink-soft transition-colors hover:border-ink-soft hover:text-ink ${busy ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
+        >
+          <Icon name="download" size={15} className="rotate-180" /> {busy ? "Uploading…" : files.length ? "Attach another file" : "Attach a file"}
           <input type="file" accept=".pdf,image/*" multiple className="hidden" disabled={busy} onChange={(e) => { void add(e.target.files); e.target.value = ""; }} />
         </label>
       )}

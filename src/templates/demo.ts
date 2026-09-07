@@ -194,17 +194,17 @@ export function buildDemo(): TripData {
       {
         id: "doc-1",
         title: "Travel insurance",
-        kind: "insurance",
+        kind: "other",
         fields: [
           { id: "doc-1-f1", label: "Policy no.", value: "—" },
           { id: "doc-1-f2", label: "24h assistance", value: "+00 000 000 000" },
         ],
-        note: "Use “attach” to add the real PDF. Attachments stay on the device you add them on — they’re never uploaded or shared.",
+        note: "One card per document — rename it, add your own fields, attach the real PDF. Attachments stay on the device you add them on; they’re never uploaded or shared.",
       },
       {
         id: "doc-2",
-        title: "Flights",
-        kind: "flight",
+        title: "Flight booking",
+        kind: "other",
         fields: [{ id: "doc-2-f1", label: "Booking reference", value: "—" }],
       },
     ],
