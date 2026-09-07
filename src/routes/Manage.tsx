@@ -357,7 +357,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   return (
     <div className="row">
       <span className="row-label">{label}</span>
-      <span className="row-value text-[0.9375rem] font-medium text-ink">{children}</span>
+      <span className="row-value value">{children}</span>
     </div>
   );
 }

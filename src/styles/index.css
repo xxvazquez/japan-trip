@@ -147,17 +147,22 @@ html.dark {
     opacity: 0.8;
   }
 
-  /* ---- hierarchy utilities ---------------------------------------- *
-   * L0  Plan hero        — text-display  (the countdown number, nothing else)
-   * L1  screen identity  — .text-title  (the page title, via <PageHeader>)
-   * L1  display sub-head  — .subhead  (a serif heading below a page title:
-   *                         a Plan stay, the Map scope)
-   * L2  item names       — .lead
-   * L2  paired values    — .value  (right column) / .field-value (under a label)
-   * L3  section headers  — .kicker (bare, or as the <Section> panel's header)
-   * L3  free-text prose  — .note  (every note field + the scratchpad)
-   * L3  labels/metadata  — .meta / .row-label
-   * L4  placeholders     — text-ink-faint, nothing else
+  /* ---- typography hierarchy — one ladder, small steps ------------ *
+   * Hierarchy is size + weight + colour + spacing, never a size cliff.
+   *
+   *   text-display   Plan hero (the countdown number, nothing else)
+   *   .text-title    page title — clamp 1.6–2rem, display 500 ink  (<PageHeader>)
+   *   .subhead       serif sub-head — 1.3125rem  (Plan stay, Map scope)
+   *   .lead          card / item title — 1.0625rem, sans 500 ink
+   *   .value         main value — 0.9375rem, sans 500 ink  (paired + under-label)
+   *   .note          body / prose — 0.9375rem, sans 400 ink
+   *   .meta          metadata — 0.8125rem, sans 400 ink-soft  (+ .row-label)
+   *   .kicker        section header — 0.8125rem, 400 uppercase +0.14em ink
+   *   .eyebrow       micro-label / tag — 0.6875rem, 400 uppercase +0.12em
+   *                  ink-soft (·-faint quietest, ·ink for a live tag)
+   *
+   * Content typography routes through these. Component-specific sizing
+   * (compact controls, icons, nav labels, map overlays) stays local.
    * -------------------------------------------------------------- */
 
   /* L1 — the page title on every route but Plan. One size, via <PageHeader>. */
@@ -188,17 +193,13 @@ html.dark {
   .eyebrow {
     @apply font-sans text-2xs font-normal uppercase tracking-[0.12em] text-ink-soft;
   }
-  /* the value sitting under an .eyebrow label — a door code, a date, an address.
-   * Bigger than a .row's .value because it stands alone as the panel's content. */
-  .field-value {
-    @apply text-[1.0625rem] font-medium leading-snug text-ink;
-  }
 
-  /* L2 — an item name the eye scans for; medium weight, not bold */
+  /* a card / item title the eye scans for — medium weight, a hair above body */
   .lead {
-    @apply font-sans text-[1rem] font-medium leading-snug text-ink;
+    @apply font-sans text-[1.0625rem] font-medium leading-snug text-ink;
   }
-  /* L2 — a value paired with a label (usually right-aligned) */
+  /* a value — paired with a label, or sitting under one. One size everywhere;
+   * hierarchy against the label comes from weight (500 vs 400) + colour. */
   .value {
     @apply font-sans text-[0.9375rem] font-medium leading-snug text-ink;
   }

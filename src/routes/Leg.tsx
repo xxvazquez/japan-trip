@@ -51,13 +51,13 @@ export default function Leg() {
       <div className="mb-8 grid grid-cols-2 gap-x-4 gap-y-5">
         <div>
           <p className="eyebrow">Start</p>
-          <p className="mt-0.5 field-value">
+          <p className="mt-0.5 value">
             <Editable as="date" label="Start date" value={leg.start} onCommit={(v) => v && p({ start: v })} />
           </p>
         </div>
         <div>
           <p className="eyebrow">End</p>
-          <p className="mt-0.5 field-value">
+          <p className="mt-0.5 value">
             <Editable as="date" label="End date" value={leg.end} onCommit={(v) => v && p({ end: v })} />
           </p>
         </div>
