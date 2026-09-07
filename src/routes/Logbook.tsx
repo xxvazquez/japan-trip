@@ -306,16 +306,16 @@ function Emergency() {
 
 const CATEGORY_LABEL = { accommodation: "Accommodation", transport: "Transport", other: "Other" } as const;
 
-/** A read-only roll-up, not a data-owning tab: everything here is derived from
- *  prices on stays and journeys by `tripCost`. Nothing is added or stored. See
- *  the note in `lib/logbook.ts` before adding another summary view like this. */
+/** A read-only roll-up, not a data-owning tab: every number is derived by
+ *  `tripCost` from prices on stays, journeys and days. Nothing is added or
+ *  stored. See the note in `lib/logbook.ts` before adding another summary view. */
 function Budget() {
   const data = useData()!;
   const { byCurrency, unparsed } = tripCost(data);
   const currencies = Object.keys(byCurrency);
 
   if (currencies.length === 0) {
-    return <Empty what="No prices yet" hint="Add a price on a stay or a journey and it'll total up here." />;
+    return <Empty what="No prices yet" hint="Put a price on a stay, a journey or a day's spending and it totals up here." />;
   }
 
   return (

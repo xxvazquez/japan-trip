@@ -1,4 +1,4 @@
-import type { TripData } from "@/core/types";
+import type { Journey, TripData } from "@/core/types";
 
 const SYMBOL_CURRENCY: Record<string, string> = {
   "¥": "JPY", "$": "USD", "€": "EUR", "£": "GBP", "₩": "KRW", "₹": "INR",
@@ -58,6 +58,24 @@ export interface CostSummary {
 
 const emptyGroup = (): CostGroup => ({ accommodation: 0, transport: 0, other: 0, total: 0 });
 
+/**
+ * A journey's effective fare, per currency. `journey.fare` (a manual total)
+ * wins when set — otherwise the hops' own `fare`s are summed. A journey is
+ * therefore counted **once**: never the manual total *and* the hops.
+ */
+export function journeyFare(journey: Journey, fallbackCurrency = ""): Money[] {
+  if (journey.fare?.trim()) {
+    const m = parseMoney(journey.fare, fallbackCurrency);
+    return m ? [m] : [];
+  }
+  const byCur = new Map<string, number>();
+  for (const seg of journey.segments) {
+    const m = seg.fare?.trim() ? parseMoney(seg.fare, fallbackCurrency) : null;
+    if (m) byCur.set(m.currency, (byCur.get(m.currency) ?? 0) + m.amount);
+  }
+  return [...byCur].map(([currency, amount]) => ({ amount, currency }));
+}
+
 /** Rolls up every priced field in the trip, grouped by currency so nothing
  *  gets silently added across currencies. */
 export function tripCost(data: TripData): CostSummary {
@@ -65,24 +83,35 @@ export function tripCost(data: TripData): CostSummary {
   const unparsed: string[] = [];
   const fallback = data.config.currency ?? "";
 
+  const addMoney = (m: Money, bucket: keyof Omit<CostGroup, "total">) => {
+    const group = (byCurrency[m.currency] ??= emptyGroup());
+    group[bucket] += m.amount;
+    group.total += m.amount;
+  };
   const add = (raw: string | undefined, bucket: keyof Omit<CostGroup, "total">, what: string) => {
     if (!raw?.trim()) return;
     const money = parseMoney(raw, fallback);
     if (!money) { unparsed.push(`${what} — "${raw}"`); return; }
-    const group = (byCurrency[money.currency] ??= emptyGroup());
-    group[bucket] += money.amount;
-    group.total += money.amount;
+    addMoney(money, bucket);
   };
 
   for (const hotel of data.hotels) add(hotel.price, "accommodation", hotel.name || "Hotel");
 
+  // one value per journey — journeyFare picks the manual total or the hop sum,
+  // so a journey can never be double-counted
   for (const journey of data.journeys) {
-    const label = journey.label || "Journey";
-    if (journey.fare) {
-      add(journey.fare, "transport", label);
-      continue; // an explicit total overrides summing the hops' own fares
+    if (journey.fare?.trim() && !parseMoney(journey.fare, fallback)) {
+      unparsed.push(`${journey.label || "Journey"} — "${journey.fare}"`);
+      continue;
     }
-    for (const seg of journey.segments) add(seg.fare, "transport", `${label} (${seg.from} → ${seg.to})`);
+    for (const m of journeyFare(journey, fallback)) addMoney(m, "transport");
+  }
+
+  // per-day spending
+  for (const day of data.days) {
+    for (const c of day.costs ?? []) {
+      add(c.amount, "other", `${day.title || day.date} — ${c.label || "spending"}`);
+    }
   }
 
   return { byCurrency, unparsed };

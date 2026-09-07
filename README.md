@@ -106,9 +106,10 @@ the tab. Attachments stay only on the device they were added on (or, when
 Drive is connected, a shared trip folder). In **packing** you build the
 checklist right there —
 add a category, add items under it, tick them off as you go. **Budget** totals
-every price you've entered (a stay's price, a journey's fare) grouped by
-currency — nothing is summed across currencies, and prices are entered on the
-stay/journey itself, not here.
+every price in the trip — a stay's price, a journey's fare, a day's spending —
+grouped by currency (nothing is summed across currencies). A journey with a
+total *and* per-hop fares counts once, not twice. Bare numbers count as the
+trip currency (Manage → Setup). Nothing is entered on this tab.
 
 In **Manage → Setup** you name the **travellers** (used for packing
 assignment), set a **trip currency** so a bare `100` in a price means `100`
