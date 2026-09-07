@@ -264,6 +264,11 @@ export interface Hotel {
   directions?: string;
   /** pasted Google Maps link — drives the "Open in Google Maps" button */
   mapUrl?: string;
+  /** the hotel's coordinates — parsed from `mapUrl` when it carries them, else
+   *  geocoded from `address` once and cached. Anchors the Map's city pills so a
+   *  stay's imported pins group under it before any day-planning. */
+  lat?: number;
+  lng?: number;
   checkIn?: string;
   checkOut?: string;
   notes?: string;
