@@ -241,6 +241,15 @@ export interface Day {
   getBack?: string;
   toDo?: string[];
   lastTrainBack?: string;
+  /** what you spent on the day — one row per amount (a museum, lunch, a taxi).
+   *  `amount` is free text, parsed into the Budget roll-up. */
+  costs?: DayCost[];
+}
+
+export interface DayCost {
+  id: ID;
+  label: string;
+  amount: string;
 }
 
 export interface Hotel {

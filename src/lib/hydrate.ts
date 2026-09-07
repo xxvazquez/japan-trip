@@ -142,6 +142,9 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
       day.plan = [...fromStrings, ...fromPlaces].filter((it) => it.text);
     }
     delete raw.places;
+    day.costs = Array.isArray(day.costs)
+      ? day.costs.map((c) => ({ id: c.id || fieldId(), label: c.label ?? "", amount: c.amount ?? "" }))
+      : [];
   }
 
   // every doc has a `fields` array, and every field a stable id (older rows and
