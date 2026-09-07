@@ -148,11 +148,14 @@ function dayBlock(day: Day, data: TripData, loc: string): string {
   if (day.notes?.trim()) parts.push(`<div class="note">${mdToHtml(day.notes)}</div>`);
 
   if (day.dayTrip && (day.getThere || day.getBack || day.lastTrainBack || day.toDo?.length)) {
-    parts.push(rows([
-      ["Getting there", day.getThere],
-      ["Getting back", day.getBack],
-      ["Last way back", day.lastTrainBack],
-    ]));
+    // free text — keep the writer's line breaks, don't flatten into <dl> rows
+    const leg = (label: string, text: string | undefined) =>
+      text?.trim() ? `<div class="note"><p class="label">${esc(label)}</p>${mdToHtml(text)}</div>` : "";
+    parts.push(leg("Getting there", day.getThere));
+    parts.push(leg("Getting back", day.getBack));
+    if (day.lastTrainBack?.trim()) {
+      parts.push(`<div class="note"><span class="label">Last way back</span> ${esc(day.lastTrainBack.trim())}</div>`);
+    }
     if (day.toDo?.length) {
       parts.push(`<ul class="day-plan">${day.toDo.filter((t) => t.trim()).map((t) => `<li>${esc(t)}</li>`).join("")}</ul>`);
     }
