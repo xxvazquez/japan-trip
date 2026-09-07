@@ -77,7 +77,8 @@ filters → places**, top to bottom.
   or tap the map to drop a pin.
 - **Area chips** appear once a city is picked — just that city's areas that have
   a place in view. Tap to show only those; none lit means all. On **All** the
-  list's own collapsible area sections do the narrowing instead.
+  list nests instead — **city → area → places**, each level collapsible — so a
+  multi-city trip reads top to bottom without the chips.
 - **Filters** — a disclosure holding **category** and **transit**, folded away
   by default:
   - **Category** — the coloured dots; none selected shows everything, tap some
