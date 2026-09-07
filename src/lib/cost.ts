@@ -20,8 +20,10 @@ export interface Money {
 }
 
 /** Best-effort read of a free-text price like "¥42,000", "€310", "1200 EUR",
- *  "$1,234.56 total". Returns null when no number can be found at all. */
-export function parseMoney(s: string): Money | null {
+ *  "$1,234.56 total". Returns null when no number can be found at all. When the
+ *  text carries no symbol or code, `fallbackCurrency` (the trip currency) is
+ *  used — so a bare "100" on a PLN trip is simply 100 PLN. */
+export function parseMoney(s: string, fallbackCurrency = ""): Money | null {
   const trimmed = s.trim();
   const numMatch = trimmed.match(/\d[\d,]*\.?\d*/);
   if (!numMatch) return null;
@@ -36,7 +38,7 @@ export function parseMoney(s: string): Money | null {
     const code = trimmed.match(/\b[A-Za-z]{3}\b/)?.[0].toUpperCase();
     if (code && ISO_CODES.has(code)) currency = code;
   }
-  return { amount, currency };
+  return { amount, currency: currency || fallbackCurrency };
 }
 
 export interface CostGroup {
@@ -61,10 +63,11 @@ const emptyGroup = (): CostGroup => ({ accommodation: 0, transport: 0, other: 0,
 export function tripCost(data: TripData): CostSummary {
   const byCurrency: Record<string, CostGroup> = {};
   const unparsed: string[] = [];
+  const fallback = data.config.currency ?? "";
 
   const add = (raw: string | undefined, bucket: keyof Omit<CostGroup, "total">, what: string) => {
     if (!raw?.trim()) return;
-    const money = parseMoney(raw);
+    const money = parseMoney(raw, fallback);
     if (!money) { unparsed.push(`${what} — "${raw}"`); return; }
     const group = (byCurrency[money.currency] ??= emptyGroup());
     group[bucket] += money.amount;

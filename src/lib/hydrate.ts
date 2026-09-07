@@ -2,7 +2,7 @@ import { THEME_PRESETS } from "./themePresets";
 import type { Day, Doc, DocField, ModuleConfig, PlanItem, ThemeTokens, TripData } from "@/core/types";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 
 const fieldId = () =>
   (globalThis.crypto?.randomUUID?.() ?? `f-${Math.random().toString(36).slice(2, 10)}`);
@@ -46,6 +46,7 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
     travellers: "",
     themePreset: THEME_PRESETS[0].id,
     ...cfg,
+    people: Array.isArray(cfg.people) ? (cfg.people as TripData["config"]["people"]) : [],
     theme: fixTheme(cfg.theme as Partial<ThemeTokens> | undefined),
     modules:
       Array.isArray(cfg.modules) && (cfg.modules as unknown[]).length
