@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
@@ -20,6 +21,8 @@ export default function Hotel() {
   const { id } = useParams();
   const updateEntity = useApp((s) => s.updateEntity);
   const ro = useReadOnly();
+  const [pinEditing, setPinEditing] = useState(false);
+  const [pinDraft, setPinDraft] = useState("");
   if (!data) return null;
 
   const L = lookups(data);
@@ -39,7 +42,9 @@ export default function Hotel() {
   ];
   const doorShown = ro ? door.filter(([, v]) => v) : door;
 
-  const showRefSection = !ro || !!hotel.price || !!hotel.mapUrl || fields.length > 0;
+  const showRefSection = !ro || !!hotel.price || fields.length > 0;
+  const savePin = () => { p({ mapUrl: pinDraft.trim() || undefined }); setPinEditing(false); };
+  const openPin = () => { setPinDraft(hotel.mapUrl ?? ""); setPinEditing(true); };
   const showAddress = !!(hotel.address || !ro);
   const showArrival = showAddress || doorShown.length > 0;
 
@@ -60,10 +65,32 @@ export default function Hotel() {
               <p className="value">
                 <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined })} />
               </p>
-              {map && (
-                <a href={map} target="_blank" rel="noopener" className="action mt-2.5">
-                  <Icon name="map" size={15} /> Open in Google Maps
-                </a>
+              {pinEditing ? (
+                <div className="mt-2.5 flex items-center gap-2">
+                  <input
+                    autoFocus
+                    value={pinDraft}
+                    onChange={(e) => setPinDraft(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") savePin(); if (e.key === "Escape") setPinEditing(false); }}
+                    placeholder="Paste a Google Maps link"
+                    className="min-w-0 flex-1 border-b border-ink bg-transparent pb-1 text-sm focus:outline-none"
+                  />
+                  <button onClick={savePin} className="shrink-0 text-xs font-medium text-accent">Save</button>
+                  <button onClick={() => setPinEditing(false)} className="shrink-0 text-xs text-ink-faint hover:text-ink-soft">Cancel</button>
+                </div>
+              ) : (
+                <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1">
+                  {map && (
+                    <a href={map} target="_blank" rel="noopener" className="action">
+                      <Icon name="map" size={15} /> Open in Google Maps
+                    </a>
+                  )}
+                  {!ro && (
+                    <button onClick={openPin} className="link-quiet text-xs">
+                      {hotel.mapUrl ? "Edit map pin" : "Set exact pin"}
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           )}
@@ -98,14 +125,6 @@ export default function Hotel() {
                 <span className="row-label">Price</span>
                 <span className="row-value value">
                   <Editable label="Price" value={hotel.price ?? ""} placeholder="—" onCommit={(v) => p({ price: v || undefined })} />
-                </span>
-              </div>
-            )}
-            {(!ro || hotel.mapUrl) && (
-              <div className="row">
-                <span className="row-label">Map link</span>
-                <span className="row-value value">
-                  <Editable as="link" label="Map link" value={hotel.mapUrl ?? ""} placeholder="paste Google Maps link" onCommit={(v) => p({ mapUrl: v || undefined })} />
                 </span>
               </div>
             )}
