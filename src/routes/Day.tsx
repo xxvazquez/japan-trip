@@ -123,7 +123,7 @@ export default function Day() {
           icon="itinerary"
           title="Plan"
           action={
-            !ro && (
+            !ro && (day.plan ?? []).length > 0 && (
               <button onClick={() => setPlan([...(day.plan ?? []), { id: rid(), text: "" }])} className="action text-xs">
                 <Icon name="plus" size={13} /> Add
               </button>
@@ -243,7 +243,15 @@ function PlanList({ items, places, readOnly, onChange }: {
   const patchItem = (id: string, p: Partial<PlanItem>) => onChange(items.map((x) => (x.id === id ? { ...x, ...p } : x)));
   const removeItem = (id: string) => onChange(items.filter((x) => x.id !== id));
 
-  if (items.length === 0) return <p className="text-sm text-ink-faint">Nothing planned yet.</p>;
+  if (items.length === 0) {
+    return readOnly ? (
+      <p className="text-sm text-ink-faint">Nothing planned yet.</p>
+    ) : (
+      <button onClick={() => onChange([{ id: rid(), text: "" }])} className="action text-sm">
+        <Icon name="plus" size={14} /> Add a step
+      </button>
+    );
+  }
 
   const rows = items.map((it) => (
     <PlanRow
@@ -307,10 +315,14 @@ function PlanRow({ item, place, places, readOnly, onPatch, onRemove }: {
           </button>
         )}
         {/* time + pin-slot are fixed width so every step's text starts at the same x */}
-        <span className="w-[4.5rem] shrink-0 whitespace-nowrap pt-px text-[0.7rem] leading-tight tabular-nums text-ink-soft">
-          {readOnly
-            ? item.time
-            : <Editable label="Time" value={item.time ?? ""} placeholder="––:––" onCommit={(v) => onPatch({ time: v.replace(/\s+/g, "") || undefined })} />}
+        <span className="w-[3.75rem] shrink-0 whitespace-nowrap pt-px text-[0.8125rem] leading-tight tabular-nums text-ink-soft">
+          {readOnly ? (
+            item.time
+          ) : /^\d{1,2}:\d{2}$/.test(item.time ?? "") || !item.time ? (
+            <Editable as="time" label="Time" value={item.time ?? ""} placeholder="––:––" onCommit={(v) => onPatch({ time: v || undefined })} />
+          ) : (
+            <Editable label="Time" value={item.time} placeholder="––:––" onCommit={(v) => onPatch({ time: v.trim() || undefined })} />
+          )}
         </span>
         <span className="mt-[0.1em] grid w-4 shrink-0 place-items-center">
           {(mapHref || item.placeId) && (
@@ -328,7 +340,7 @@ function PlanRow({ item, place, places, readOnly, onPatch, onRemove }: {
         <span className="min-w-0 flex-1">
           {readOnly
             ? item.text
-            : <Editable label="Step" value={item.text} placeholder="What's happening" onCommit={(v) => onPatch({ text: v })} />}
+            : <Editable label="Step" value={item.text} placeholder="Add a step" onCommit={(v) => onPatch({ text: v })} />}
         </span>
         {canExpand && (
           <button
