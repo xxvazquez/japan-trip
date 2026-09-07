@@ -14,6 +14,21 @@ export const MODE_LABEL: Record<TransportMode, string> = {
   walk: "Walk",
 };
 
+/** A muted colour token per mode, so the "Getting there" cards carry one calm
+ *  tint each and never a rainbow. Grouped: on rails = accent, through air or
+ *  water = ai, on the road = gold, on foot = matcha. Maps to a `--c-*` token
+ *  and the matching Tailwind colour utility. */
+export const MODE_TONE: Record<TransportMode, "accent" | "ai" | "gold" | "matcha"> = {
+  train: "accent",
+  subway: "accent",
+  flight: "ai",
+  ferry: "ai",
+  bus: "gold",
+  car: "gold",
+  taxi: "gold",
+  walk: "matcha",
+};
+
 /** The line icon for each mode (see `Icon`). */
 export const MODE_ICON: Record<TransportMode, IconName> = {
   flight: "plane",

@@ -143,26 +143,38 @@ export default function Day() {
           title="Day trip"
           action={!ro && <button onClick={() => patch({ dayTrip: false })} className="link-quiet text-xs">not a day trip</button>}
         >
-          <div className="grid grid-cols-1 gap-x-5 gap-y-4 sm:grid-cols-2">
-            <Field label="Getting there">
-              <Editable as="textarea" label="Getting there" value={day.getThere ?? ""} placeholder="Route out" onCommit={(v) => patch({ getThere: v || undefined })} />
-            </Field>
-            <Field label="Getting back">
-              <Editable as="textarea" label="Getting back" value={day.getBack ?? ""} placeholder="Route back" onCommit={(v) => patch({ getBack: v || undefined })} />
-            </Field>
-          </div>
-
-          {(day.lastTrainBack || !ro) && (
-            <div className="mt-4 flex items-baseline gap-2 border-t border-line pt-3">
-              <Icon name="clock" size={14} className="shrink-0 translate-y-0.5 text-ink-faint" />
-              <p className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-sm">
-                <span className="eyebrow">Last way back</span>
-                <span className="font-medium text-ink">
-                  <Editable label="Last way back" value={day.lastTrainBack ?? ""} placeholder="e.g. last train ~23:00" onCommit={(v) => patch({ lastTrainBack: v || undefined })} />
-                </span>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {/* out */}
+            <div className="rounded border border-line border-l-2 border-l-accent/70 bg-accent/[0.05] p-3">
+              <p className="flex items-center gap-1.5 text-accent">
+                <Icon name="chevron" size={13} className="shrink-0" />
+                <span className="text-2xs font-medium uppercase tracking-[0.12em]">Getting there</span>
               </p>
+              <div className="note mt-1.5 text-ink">
+                <Editable as="textarea" label="Getting there" value={day.getThere ?? ""} placeholder="The route out — train, bus, how long" onCommit={(v) => patch({ getThere: v || undefined })} />
+              </div>
             </div>
-          )}
+
+            {/* back */}
+            <div className="rounded border border-line border-l-2 border-l-gold/70 bg-gold/[0.06] p-3">
+              <p className="flex items-center gap-1.5 text-gold">
+                <Icon name="chevron" size={13} className="shrink-0 rotate-180" />
+                <span className="text-2xs font-medium uppercase tracking-[0.12em]">Getting back</span>
+              </p>
+              <div className="note mt-1.5 text-ink">
+                <Editable as="textarea" label="Getting back" value={day.getBack ?? ""} placeholder="The route back" onCommit={(v) => patch({ getBack: v || undefined })} />
+              </div>
+              {(day.lastTrainBack || !ro) && (
+                <p className="mt-2.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 border-t border-gold/25 pt-2 text-sm">
+                  <Icon name="clock" size={13} className="shrink-0 translate-y-0.5 text-gold" />
+                  <span className="text-2xs font-medium uppercase tracking-[0.12em] text-gold">Last way back</span>
+                  <span className="value">
+                    <Editable label="Last way back" value={day.lastTrainBack ?? ""} placeholder="e.g. last train ~23:00" onCommit={(v) => patch({ lastTrainBack: v || undefined })} />
+                  </span>
+                </p>
+              )}
+            </div>
+          </div>
 
           {((day.toDo ?? []).length > 0 || !ro) && (
             <div className="mt-4 border-t border-line pt-3">
@@ -287,15 +299,6 @@ export default function Day() {
     </Page>
   );
 
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <p className="eyebrow">{label}</p>
-      <div className="note mt-1">{children}</div>
-    </div>
-  );
 }
 
 /* ------------------------------------------------------------------ plan */

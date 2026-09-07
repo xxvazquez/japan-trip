@@ -44,12 +44,22 @@ automatically from what you set on the day itself, never chosen by hand.
 - Drag a day up or down to **reorder** it (the dates shuffle with it).
 - Tap a day to open it. At the top: **Staying at** (which hotel) and **Journey**
   (link an existing one, or ＋ new — you then pick its type on the journey
-  page). A **day trip** leads with how to get there and back, a checklist and
-  the last train home; every day then has a **Plan** — an itinerary of steps,
-  each a time and a line of text, **drag to reorder**.
+  page). A **day trip** leads with a **Getting there** and a **Getting back**
+  card (free text, the last way home folded into the back one), a checklist,
+  then the day's **Plan** — an itinerary of steps, each a time and a line of
+  text, **drag to reorder**.
   Expand a step (the **⌄**) for a note and to link it to a place on your map —
   linked steps show on the day's map. Below that, **Areas** (drop a whole
   neighbourhood's pins onto the map) and free-text **General notes**.
+
+**Journeys** (linked from a day, or the *getting around* tab). A journey is one
+or more **hops**. Each hop is a card, tinted by mode (rail, air/sea, road, on
+foot), reading top to bottom: mode → route → the two times joined by a rule
+with the duration on it → the details (carrier, platform, seat, booking ref,
+fare) as label-and-value rows. Between hops, a note on the connection time
+flags a tight or overnight change. The **total fare** at the top adds itself up
+from the hops' fares; type a figure into it to override with a single ticket
+price. It's the same number the Budget uses, counted once.
 
 **Map** — your Google **My Map** pins, on a clean map. It reads **city → area →
 filters → places**, top to bottom.
