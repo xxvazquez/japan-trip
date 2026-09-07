@@ -19,6 +19,10 @@ import { glyphPath } from "@/lib/mapGlyphs";
 import type { Area, Day, Hotel, PlanItem, Place, TripData } from "@/core/types";
 
 const FALLBACK = "#5f7f9c";
+/** how far a pin can sit from a stay's anchor and still count as "in" that base
+ *  — roughly a metro area plus a short day-out. Beyond it the pin belongs to no
+ *  city pill and shows only on "All" or on a day that names it. */
+const MAX_ANCHOR_KM = 60;
 
 /** the legend mark for a category chip: its glyph if it has one, else a dot */
 function CatMark({ color, glyph, on }: { color: string; glyph?: string; on: boolean }) {
@@ -212,7 +216,15 @@ export default function MapTab() {
       for (const h of pending) {
         if (stop) return;
         geoTried.current.add(h.id);
-        const [hit] = await geocode(h.address!.trim());
+        // drop a leading postcode ("〒105-0013 ") — Nominatim reads it as noise
+        const q = h.address!.trim().replace(/^〒?\s*\d{3}-?\d{4}[\s,]*/, "");
+        let [hit] = await geocode(q);
+        // retry with the latin part only — a Japanese building-name tail
+        // ("… ビーサイト浜松町") often sinks the whole lookup
+        if (!hit) {
+          const latin = q.replace(/[^\x00-\x7F]+/g, " ").replace(/\s{2,}/g, " ").replace(/[\s,]+$/, "").trim();
+          if (latin && latin !== q) [hit] = await geocode(latin);
+        }
         if (hit) updateEntity<Hotel>("hotels", h.id, { lat: hit.lat, lng: hit.lng });
         await new Promise((r) => setTimeout(r, 1200));
       }
@@ -287,7 +299,10 @@ export default function MapTab() {
         const d = haversineKm(p.lat, p.lng, a.lat, a.lng);
         if (d < bd) { bd = d; best = a.legId; }
       }
-      m.set(p.id, best);
+      // only claim a pin that's plausibly in that base's orbit — otherwise a
+      // lone anchored leg vacuums up every pin in the trip (a Tokyo pin is not
+      // "in" Kawaguchiko just because that's the only stay with coordinates).
+      if (bd <= MAX_ANCHOR_KM) m.set(p.id, best);
     }
     return m;
   }, [data, places]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -379,6 +394,18 @@ export default function MapTab() {
       .filter((g) => g.n > 0)
       .sort((x, y) => (x.a.name || "").localeCompare(y.a.name || ""));
   }, [data, inScopeIds]);
+
+  /** legs whose hotel has coordinates — enough to earn a city pill even before
+   *  any pin sits under it, so linking a hotel is all it takes to see the city */
+  const anchoredLegIds = useMemo(() => {
+    const s = new Set<string>();
+    if (!data) return s;
+    for (const leg of data.legs) {
+      const h = data.hotels.find((x) => x.id === leg.hotelId);
+      if ((h && Number.isFinite(h.lat) && Number.isFinite(h.lng)) || mapUrlCoords(h?.mapUrl)) s.add(leg.id);
+    }
+    return s;
+  }, [data]);
 
   /** how many places each stay would show — so a stay with nothing to show
    *  doesn't get a dead city pill */
@@ -617,7 +644,7 @@ export default function MapTab() {
                 : []),
               { id: "all", label: `All · ${places.length}`, hex: "" },
               ...data.legs
-                .filter((l) => (legCounts.get(l.id) ?? 0) > 0 || scope === `leg:${l.id}`)
+                .filter((l) => (legCounts.get(l.id) ?? 0) > 0 || anchoredLegIds.has(l.id) || scope === `leg:${l.id}`)
                 .map((l) => ({ id: `leg:${l.id}`, label: l.base || "Stay", hex: legHex(l.color) })),
             ].map((city) => {
               const active = (scope ?? "all") === city.id;
