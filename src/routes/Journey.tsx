@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
@@ -11,13 +12,23 @@ import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { fmtDate, plural, segEndpoints } from "@/lib/dates";
 import { clockOf, fmtDuration, fmtMinutes, localMinutes } from "@/lib/time";
-import { MODE_LABEL, MODE_ICON } from "@/lib/transport";
+import { MODE_LABEL, MODE_ICON, MODE_TONE } from "@/lib/transport";
+import { journeyFare, fmtMoney } from "@/lib/cost";
 import { splitRoute, joinRoute, routeStops, JOURNEY_KIND_LABEL } from "@/lib/journey";
 import type { Journey as JourneyT, JourneyKind, Segment, TransportMode } from "@/core/types";
 
 const MODES: TransportMode[] = ["flight", "train", "bus", "ferry", "car", "taxi", "subway", "walk"];
 const KINDS: JourneyKind[] = ["arrival", "transfer", "departure"];
 const rid = () => Math.random().toString(36).slice(2, 8);
+
+/** the muted card treatment for each mode tone — literal strings so Tailwind
+ *  keeps them. One tint per hop card: a thin left rule + a wash + the mode label. */
+const TONE_CLASS: Record<string, { card: string; text: string }> = {
+  accent: { card: "border-l-accent/70 bg-accent/[0.05]", text: "text-accent" },
+  ai: { card: "border-l-ai/70 bg-ai/[0.05]", text: "text-ai" },
+  gold: { card: "border-l-gold/70 bg-gold/[0.06]", text: "text-gold" },
+  matcha: { card: "border-l-matcha/70 bg-matcha/[0.06]", text: "text-matcha" },
+};
 
 /** The from → to connector. One weight everywhere a route shows — always Inter,
  *  never the page's serif, so the Journey screen stops mixing arrow styles. */
@@ -61,6 +72,11 @@ export default function Journey() {
   const last = j.segments.at(-1);
   const total = fmtDuration(first?.depart, last?.arrive ?? last?.depart);
   const changes = Math.max(0, j.segments.length - 1);
+
+  // the fare adds up on its own — a manual `j.fare` wins, otherwise the hops
+  const fareLines = journeyFare(j, data.config.currency ?? "");
+  const fareText = fareLines.map((m) => fmtMoney(m.amount, m.currency)).join("  +  ");
+  const fareDerived = !j.fare?.trim() && fareLines.length > 0;
 
   return (
     <Page>
@@ -107,10 +123,22 @@ export default function Journey() {
         </a>
       )}
 
-      {(j.fare || !ro) && (
-        <p className="mt-4 text-sm text-ink-soft">
-          Total fare <Editable label="Total fare" value={j.fare ?? ""} placeholder="—" onCommit={(v) => patch({ fare: v || undefined })} />
-        </p>
+      {(fareText || !ro) && (
+        <div className="mt-4 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+          <span className="row-label">Total fare</span>
+          <span className="value">{fareText || "—"}</span>
+          {fareDerived && <span className="meta text-ink-faint">summed from the hops</span>}
+          {!ro && (
+            <span className="meta">
+              <Editable
+                label="Set the total fare by hand"
+                value={j.fare ?? ""}
+                placeholder={j.fare ? "" : "set by hand"}
+                onCommit={(v) => patch({ fare: v || undefined })}
+              />
+            </span>
+          )}
+        </div>
       )}
 
       <div className="mt-8 space-y-3.5">
@@ -132,6 +160,7 @@ export default function Journey() {
             )
           }
         >
+        <div className="space-y-2.5">
         {j.segments.length === 0 && <p className="text-sm text-ink-faint">No hops yet.</p>}
         {j.segments.map((s, i) => {
           const next = j.segments[i + 1];
@@ -140,59 +169,108 @@ export default function Journey() {
           // date and get merged onto the journey day). Wrap into the next day.
           const overnight = rawGap != null && rawGap < 0;
           const gap = rawGap == null ? null : overnight ? rawGap + 1440 : rawGap;
-          const meta = s.mode === "flight"
-            ? fmtDuration(s.depart, s.arrive)
-            : [fmtDuration(s.depart, s.arrive), s.service || s.carrier].filter(Boolean).join("  ·  ");
+          const dur = fmtDuration(s.depart, s.arrive);
           const ep = segEndpoints(s, j.date, loc);
           const offDay = [
-            ep.depart.date && `Departs ${ep.depart.date}`,
-            ep.arrive.date && `Arrives ${ep.arrive.date}`,
+            ep.depart.date && `departs ${ep.depart.date}`,
+            ep.arrive.date && `arrives ${ep.arrive.date}`,
           ]
             .filter(Boolean)
             .join("  ·  ");
-          // flights don't have platforms
-          const showPlatform = s.mode !== "flight" && (!ro || !!s.platform);
+          const tone = TONE_CLASS[MODE_TONE[s.mode]];
+          const foot = s.mode === "walk";
+          // which fields are worth offering for this mode when editing — an
+          // already-filled value always shows regardless
+          const rel = {
+            carrier: !foot,
+            service: !foot,
+            platform: s.mode === "train" || s.mode === "subway",
+            seat: s.mode === "train" || s.mode === "bus" || s.mode === "flight" || s.mode === "ferry",
+            bookingRef: !foot,
+            fare: !foot,
+          };
+          const show = (k: keyof typeof rel, filled: unknown) => (!ro && rel[k]) || !!filled;
+
+          const detail = (label: string, node: ReactNode, on: boolean) =>
+            on ? (
+              <div className="row" key={label}>
+                <span className="row-label">{label}</span>
+                <span className="row-value value">{node}</span>
+              </div>
+            ) : null;
+
+          const rows = [
+            detail(
+              s.mode === "flight" ? "Airline" : "Carrier",
+              <Editable label={s.mode === "flight" ? "Airline" : "Carrier"} value={s.carrier ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { carrier: v || undefined })} />,
+              show("carrier", s.carrier),
+            ),
+            detail(
+              s.mode === "flight" ? "Flight no." : "Service",
+              <Editable label={s.mode === "flight" ? "Flight number" : "Service"} value={s.service ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { service: v || undefined })} />,
+              show("service", s.service),
+            ),
+            detail("Platform", <Editable label="Platform" value={s.platform ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { platform: v || undefined })} />, show("platform", s.platform)),
+            detail("Seat", <Editable label="Seat" value={s.seat ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { seat: v || undefined })} />, show("seat", s.seat)),
+            detail("Booking ref", <Editable label="Booking reference" value={s.bookingRef ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { bookingRef: v || undefined })} />, show("bookingRef", s.bookingRef)),
+            detail("Fare", <Editable label="Fare" value={s.fare ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { fare: v || undefined })} />, show("fare", s.fare)),
+          ].filter(Boolean);
+
           return (
             <div key={s.id}>
-              <div className="group border-t border-line py-4 first:border-t-0 first:pt-0">
-                <p className="kicker">
-                  <Editable label="From" value={s.from} placeholder="FROM" onCommit={(v) => setSeg(i, { from: v })} />
-                  <Arrow className="mx-1.5" />
-                  <Editable label="To" value={s.to} placeholder="TO" onCommit={(v) => setSeg(i, { to: v })} />
+              <div className={`group rounded border border-line border-l-2 py-3 pl-3.5 pr-3 ${tone.card}`}>
+                {/* mode */}
+                <p className={`flex items-center gap-1.5 ${tone.text}`}>
+                  <Icon name={MODE_ICON[s.mode]} size={15} className="shrink-0" />
+                  {ro ? (
+                    <span className="text-2xs font-medium uppercase tracking-[0.12em]">{MODE_LABEL[s.mode]}</span>
+                  ) : (
+                    <Editable
+                      as="select"
+                      label="Mode"
+                      value={s.mode}
+                      options={MODES.map((m) => ({ value: m, label: MODE_LABEL[m] }))}
+                      onCommit={(v) => setSeg(i, v === "flight" ? { mode: "flight", platform: undefined } : { mode: v as TransportMode })}
+                      className="text-2xs font-medium uppercase tracking-[0.12em]"
+                    />
+                  )}
                 </p>
-                <p className="mt-1.5 font-display text-2xl tabular-nums leading-none">
-                  <Editable as="time" label="Depart time" value={clockOf(s.depart)} placeholder="--:--" onCommit={(v) => setSeg(i, { depart: mergeTime(s.depart, j.date, v) })} />
-                  {ep.depart.zone && <span className="ml-1 align-middle text-xs text-ink-faint">{ep.depart.zone}</span>}
-                  <Arrow className="mx-2 align-middle text-base" />
-                  <Editable as="time" label="Arrive time" value={clockOf(s.arrive)} placeholder="--:--" onCommit={(v) => setSeg(i, { arrive: mergeTime(s.arrive, j.date, v) })} />
-                  {ep.arrive.zone && <span className="ml-1 align-middle text-xs text-ink-faint">{ep.arrive.zone}</span>}
+
+                {/* route */}
+                <p className="lead mt-1.5">
+                  <Editable label="From" value={s.from} placeholder="From" onCommit={(v) => setSeg(i, { from: v })} />
+                  <Arrow className="mx-2" />
+                  <Editable label="To" value={s.to} placeholder="To" onCommit={(v) => setSeg(i, { to: v })} />
                 </p>
-                {offDay && <p className="mt-1 text-xs text-ink-soft">{offDay}</p>}
-                <p className="meta mt-2 flex flex-wrap items-center gap-x-1.5">
-                  <Icon name={MODE_ICON[s.mode]} size={14} className="shrink-0 text-ink-soft" />
-                  <Editable
-                    as="select"
-                    label="Mode"
-                    value={s.mode}
-                    options={MODES.map((m) => ({ value: m, label: MODE_LABEL[m] }))}
-                    onCommit={(v) => setSeg(i, v === "flight" ? { mode: "flight", platform: undefined } : { mode: v as TransportMode })}
-                  />
-                  {meta && <span>· {meta}</span>}
-                </p>
-                {(!ro || showPlatform || s.seat || s.fare || s.carrier || s.service || s.bookingRef) && (
-                  <p className="mt-1.5 flex flex-wrap gap-x-5 gap-y-0.5 text-xs text-ink-soft">
-                    {s.mode === "flight" && (!ro || s.carrier) && <span>Airline <Editable label="Airline" value={s.carrier ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { carrier: v || undefined })} /></span>}
-                    {s.mode === "flight" && (!ro || s.service) && <span>Flight no. <Editable label="Flight number" value={s.service ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { service: v || undefined })} /></span>}
-                    {showPlatform && <span>Platform <Editable label="Platform" value={s.platform ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { platform: v || undefined })} /></span>}
-                    {(!ro || s.seat) && <span>Seat <Editable label="Seat" value={s.seat ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { seat: v || undefined })} /></span>}
-                    {(!ro || s.bookingRef) && <span>Booking ref <Editable label="Booking reference" value={s.bookingRef ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { bookingRef: v || undefined })} /></span>}
-                    {(!ro || s.fare) && <span>Fare <Editable label="Fare" value={s.fare ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { fare: v || undefined })} /></span>}
-                    {!ro && <RowDeleteButton onClick={() => patch({ segments: j.segments.filter((_, k) => k !== i) })} label="Remove hop" />}
-                  </p>
+
+                {/* times on a line, duration on a rule beneath */}
+                <div className="mt-3 flex items-baseline justify-between gap-3">
+                  <span className="font-display text-2xl tabular-nums leading-none">
+                    <Editable as="time" label="Depart time" value={clockOf(s.depart)} placeholder="--:--" onCommit={(v) => setSeg(i, { depart: mergeTime(s.depart, j.date, v) })} />
+                    {ep.depart.zone && <span className="ml-1 align-middle text-xs text-ink-faint">{ep.depart.zone}</span>}
+                  </span>
+                  <span className="font-display text-2xl tabular-nums leading-none">
+                    <Editable as="time" label="Arrive time" value={clockOf(s.arrive)} placeholder="--:--" onCommit={(v) => setSeg(i, { arrive: mergeTime(s.arrive, j.date, v) })} />
+                    {ep.arrive.zone && <span className="ml-1 align-middle text-xs text-ink-faint">{ep.arrive.zone}</span>}
+                  </span>
+                </div>
+                <div className="mt-2 flex items-center gap-2.5">
+                  <span className="h-px flex-1 bg-line" />
+                  <span className="meta shrink-0">{dur || "—"}</span>
+                  <span className="h-px flex-1 bg-line" />
+                </div>
+                {offDay && <p className="meta mt-1 text-center text-ink-faint">{offDay}</p>}
+
+                {/* secondary details as label ↔ value rows */}
+                {rows.length > 0 && <div className="mt-3 border-t border-line pt-0.5">{rows}</div>}
+                {!ro && (
+                  <div className="mt-2 flex justify-end">
+                    <RowDeleteButton onClick={() => patch({ segments: j.segments.filter((_, k) => k !== i) })} label="Remove hop" />
+                  </div>
                 )}
               </div>
               {next && (
-                <p className="border-l-2 border-dashed border-line py-1.5 pl-3 text-xs text-ink-soft">
+                <p className="ml-3.5 border-l-2 border-dashed border-line py-1.5 pl-3 text-xs text-ink-soft">
                   {gap != null ? (
                     <span className={!overnight && gap < 20 ? "font-medium text-ink" : ""}>
                       {fmtMinutes(gap)} to change{s.to ? ` at ${s.to}` : ""}{overnight ? " — overnight" : gap < 20 ? " — tight" : ""}
@@ -205,6 +283,7 @@ export default function Journey() {
             </div>
           );
         })}
+        </div>
         </Section>
       )}
 
