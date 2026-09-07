@@ -42,11 +42,17 @@ export const TYPE_OF_TABLE = Object.fromEntries(
 
 const SEG_RENAME: Record<string, string> = { from: "from_place", to: "to_place" };
 
+// jsonb columns declared NOT NULL DEFAULT '[]' — a cleared one must upsert as an
+// empty array so the delete sticks: null is rejected, and dropping the key lets
+// the stale rows survive the reload. Every other cleared field upserts as null.
+const JSON_ARRAY_KEYS = new Set(["plan", "toDo", "areaIds", "costs", "fields"]);
+
 function entityToRow(spec: Spec, e: Record<string, unknown>, tripId: string, position: number) {
   const row: Record<string, unknown> = { id: e.id, trip_id: tripId, position };
   for (const [k, v] of Object.entries(e)) {
-    if (k === "id" || k === "segments" || v === undefined) continue;
-    row[spec.rename?.[k] ?? camelToSnake(k)] = v;
+    if (k === "id" || k === "segments") continue;
+    const col = spec.rename?.[k] ?? camelToSnake(k);
+    row[col] = v !== undefined ? v : JSON_ARRAY_KEYS.has(k) ? [] : null;
   }
   spec.toRow?.(e, row);
   return row;
