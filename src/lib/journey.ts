@@ -6,12 +6,12 @@
 
 import type { JourneyKind } from "@/core/types";
 
-/** Title-case label for a journey's kind — the stored value is lowercase, every
- *  surface (the Journey eyebrow, a search result) shows it capitalised. */
+/** Label for a journey's kind — matches the Plan day tag: arriving in a base,
+ *  moving between bases, leaving for home. */
 export const JOURNEY_KIND_LABEL: Record<JourneyKind, string> = {
-  arrival: "Arrival",
-  departure: "Departure",
-  transfer: "Transfer",
+  arrival: "Arrive",
+  departure: "Depart",
+  transfer: "Travel",
 };
 
 const SEPARATOR = /\s*(?:→|➜|➔|⟶|->|—|–)\s*|\s+-\s+/;
