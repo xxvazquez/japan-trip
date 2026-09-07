@@ -9,6 +9,8 @@ import { ConfirmButton } from "@/components/ConfirmButton";
 import { Editable } from "@/components/Editable";
 import { FieldList } from "@/components/FieldList";
 import { RichNote } from "@/components/RichNote";
+import { withInitials, assigneeTag } from "@/lib/people";
+import type { Person } from "@/core/types";
 import { Icon } from "@/components/Icon";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
@@ -526,6 +528,11 @@ function Packing() {
   const data = useData()!;
   const ro = useReadOnly();
   const { updateEntity, addEntity, removeEntity } = useApp();
+  const [shut, setShut] = useState<Set<string>>(new Set());
+  const toggleGroup = (g: string) => setShut((s) => { const n = new Set(s); n.has(g) ? n.delete(g) : n.add(g); return n; });
+
+  const people = data.config.people ?? [];
+  const tagged = withInitials(people);
 
   const items = data.packing;
   const groups = groupBy(items, (p) => p.group);
@@ -573,37 +580,56 @@ function Packing() {
       )}
       {Object.entries(groups).map(([group, list]) => {
         const g = list.filter((i) => i.done).length;
+        const collapsed = shut.has(group);
         return (
           <div key={group}>
             <div className="flex items-baseline justify-between gap-3 border-b border-line pb-1.5">
-              <span className="lead min-w-0 truncate">
-                {ro ? group : (
-                  <Editable label="Category" value={group} placeholder="Category" onCommit={(v) => renameGroup(group, v)} />
-                )}
+              <span className="flex min-w-0 items-baseline gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => toggleGroup(group)}
+                  aria-label={collapsed ? `Show ${group}` : `Hide ${group}`}
+                  aria-expanded={!collapsed}
+                  className="shrink-0"
+                >
+                  <Icon name="chevron" size={13} className={`translate-y-px text-ink-faint transition-transform ${collapsed ? "" : "rotate-90"}`} />
+                </button>
+                <span className="lead min-w-0 truncate">
+                  {ro || collapsed ? group : (
+                    <Editable label="Category" value={group} placeholder="Category" onCommit={(v) => renameGroup(group, v)} />
+                  )}
+                </span>
               </span>
               <span className="flex shrink-0 items-center gap-2 pt-0.5">
                 <span className={`text-xs tabular-nums ${g === list.length ? "text-ink" : "text-ink-faint"}`}>
                   {g}/{list.length}
                 </span>
-                {!ro && cardDeleteBtn(() => removeGroup(group), "Delete category")}
+                {!ro && !collapsed && cardDeleteBtn(() => removeGroup(group), "Delete category")}
               </span>
             </div>
-            <ul>
-              {list.map((it) => (
-                <PackRow
-                  key={it.id}
-                  item={it}
-                  ro={ro}
-                  onToggle={(v) => updateEntity<PackingItem>("packing", it.id, { done: v })}
-                  onLabel={(v) => updateEntity<PackingItem>("packing", it.id, { label: v })}
-                  onRemove={() => removeEntity("packing", it.id)}
-                />
-              ))}
-            </ul>
-            {!ro && (
-              <button onClick={() => addItem(group)} className="action mt-2 text-xs">
-                <Icon name="plus" size={13} /> Add item
-              </button>
+            {!collapsed && (
+              <>
+                <ul>
+                  {list.map((it) => (
+                    <PackRow
+                      key={it.id}
+                      item={it}
+                      ro={ro}
+                      people={people}
+                      tagged={tagged}
+                      onToggle={(v) => updateEntity<PackingItem>("packing", it.id, { done: v })}
+                      onLabel={(v) => updateEntity<PackingItem>("packing", it.id, { label: v })}
+                      onAssign={(v) => updateEntity<PackingItem>("packing", it.id, { assignee: v })}
+                      onRemove={() => removeEntity("packing", it.id)}
+                    />
+                  ))}
+                </ul>
+                {!ro && (
+                  <button onClick={() => addItem(group)} className="action mt-2 text-xs">
+                    <Icon name="plus" size={13} /> Add item
+                  </button>
+                )}
+              </>
             )}
           </div>
         );
@@ -613,22 +639,29 @@ function Packing() {
   );
 }
 
-function PackRow({ item, ro, onToggle, onLabel, onRemove }: {
+function PackRow({ item, ro, people, tagged, onToggle, onLabel, onAssign, onRemove }: {
   item: PackingItem;
   ro: boolean;
+  people: Person[];
+  tagged: ReturnType<typeof withInitials>;
   onToggle: (v: boolean) => void;
   onLabel: (v: string) => void;
+  onAssign: (v: string | undefined) => void;
   onRemove: () => void;
 }) {
   const box = (
     <input type="checkbox" checked={!!item.done} disabled={ro} onChange={(e) => onToggle(e.target.checked)} className="h-[18px] w-[18px] shrink-0 accent-accent" />
   );
+  const showAssign = people.length >= 2;
+  const pill = showAssign && <AssignPill value={item.assignee} people={people} tagged={tagged} readOnly={ro} onChange={onAssign} />;
+
   if (ro) {
     return (
       <li>
         <label className="flex items-center gap-3 border-t border-line py-2.5 text-sm first:border-0 cursor-pointer">
           {box}
-          <span className={item.done ? "text-ink-faint line-through" : "text-ink"}>{item.label}</span>
+          <span className={`min-w-0 flex-1 ${item.done ? "text-ink-faint line-through" : "text-ink"}`}>{item.label}</span>
+          {pill}
         </label>
       </li>
     );
@@ -639,8 +672,54 @@ function PackRow({ item, ro, onToggle, onLabel, onRemove }: {
       <span className="min-w-0 flex-1">
         <Editable label="Item" value={item.label} placeholder="Item" className={item.done ? "text-ink-faint line-through" : "text-ink"} onCommit={onLabel} />
       </span>
+      {pill}
       <RowDeleteButton onClick={onRemove} label="Remove item" />
     </li>
+  );
+}
+
+/** The right-aligned "assign to" control: a small pill showing the initial /
+ *  "Shared" / "—", tapped to open a picker of the trip's travellers. */
+function AssignPill({ value, people, tagged, readOnly, onChange }: {
+  value: string | undefined;
+  people: Person[];
+  tagged: ReturnType<typeof withInitials>;
+  readOnly: boolean;
+  onChange: (v: string | undefined) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const label = assigneeTag(value, tagged);
+  const chip = (
+    <span
+      className={`inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full border px-1.5 text-2xs font-medium tabular-nums ${
+        value ? "border-line text-ink-soft" : "border-dashed border-line text-ink-faint"
+      }`}
+    >
+      {label}
+    </span>
+  );
+  if (readOnly) return <span className="shrink-0">{chip}</span>;
+  return (
+    <span className="relative shrink-0">
+      <button type="button" onClick={() => setOpen((v) => !v)} aria-label="Assign to" aria-expanded={open}>
+        {chip}
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
+          <div
+            className="absolute right-0 z-30 mt-1 flex min-w-[8rem] flex-col border border-line bg-bg py-1 text-sm shadow-sm [&>button]:px-3 [&>button]:py-1.5 [&>button]:text-left [&>button:hover]:bg-surface-2"
+            onClick={() => setOpen(false)}
+          >
+            {people.map((p) => (
+              <button key={p.id} type="button" onClick={() => onChange(p.id)}>{p.name || "—"}</button>
+            ))}
+            <button type="button" onClick={() => onChange("shared")}>Shared</button>
+            <button type="button" onClick={() => onChange(undefined)}>Unassigned</button>
+          </div>
+        </>
+      )}
+    </span>
   );
 }
 

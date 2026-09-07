@@ -104,8 +104,9 @@ name it ("Travel insurance"), attach the PDF / photo, add whatever fields you
 want, add a note. Every card is renamable, removable, and you add more from
 the tab. Attachments stay only on the device they were added on (or, when
 Drive is connected, a shared trip folder). In **packing** you build the
-checklist right there —
-add a category, add items under it, tick them off as you go. **Budget** totals
+checklist right there — add a category, add items, tick them off. Categories
+fold away; with two or more travellers set (Manage → Setup) each item gets an
+**assign** pill (a traveller's initial, **Shared**, or **—**). **Budget** totals
 every price in the trip — a stay's price, a journey's fare, a day's spending —
 grouped by currency (nothing is summed across currencies). A journey with a
 total *and* per-hop fares counts once, not twice. Bare numbers count as the
@@ -243,7 +244,7 @@ must be the **full https URL**, not just the project ref. The map tile settings
 
 1. Create a project at [supabase.com](https://supabase.com).
 2. **SQL Editor** → run every file in `supabase/migrations/` **in order**
-   (`0001` → `0021`).
+   (`0001` → `0022`).
 3. **Authentication → Providers → Google** → enable, paste a Google Cloud OAuth
    client id / secret, redirect
    `https://<project-ref>.supabase.co/auth/v1/callback`.

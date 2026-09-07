@@ -300,6 +300,8 @@ export interface PackingItem {
   phase: PackingPhase;
   group: string;
   done?: boolean;
+  /** who's responsible — a `config.people` id, or `"shared"`. Unset = anyone. */
+  assignee?: string;
 }
 
 export interface DocFile {
