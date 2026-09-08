@@ -44,7 +44,8 @@ export function TileRow({
       {showChevron && <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />}
     </>
   );
-  const cls = `flex w-full items-center gap-3 px-3.5 py-2.5 text-left ${className}`;
+  // the grouped inset clips its overflow, so pull the focus ring inward
+  const cls = `flex w-full items-center gap-3 px-3.5 py-2.5 text-left focus-visible:[outline-offset:-2px] ${className}`;
   return (
     <li>
       {to ? (

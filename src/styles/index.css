@@ -158,7 +158,7 @@ html.dark {
    *   .value         main value — 0.9375rem, sans 500 ink  (paired + under-label)
    *   .note          body / prose — 0.9rem, sans 400 ink, leading 1.6
    *   .meta          metadata — 0.8125rem, sans 400 ink-soft  (+ .row-label)
-   *   .kicker        section header — 0.8125rem, 400 uppercase +0.14em ink
+   *   .kicker        section header — 0.8125rem, 500 uppercase +0.14em ink
    *   .eyebrow       micro-label / tag — 0.6875rem, 400 uppercase +0.12em
    *                  ink-soft (·-faint quietest, ·ink for a live tag)
    *
@@ -189,7 +189,7 @@ html.dark {
    *                ("active", "Today").
    */
   .kicker {
-    @apply font-sans text-[0.8125rem] font-normal uppercase tracking-[0.14em] text-ink;
+    @apply font-sans text-[0.8125rem] font-medium uppercase tracking-[0.14em] text-ink;
   }
   .eyebrow {
     @apply font-sans text-2xs font-normal uppercase tracking-[0.12em] text-ink-soft;

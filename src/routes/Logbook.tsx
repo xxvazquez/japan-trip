@@ -158,7 +158,7 @@ function Stays() {
   const loc = data.config.locale;
   if (data.hotels.length === 0) return <Empty what="No stays" />;
   return (
-    <Section variant="grouped" title="Stays">
+    <Section variant="grouped">
       <ul className="divide-y divide-line">
         {data.hotels.map((h) => {
           const leg = data.legs.find((l) => l.hotelId === h.id);
@@ -187,7 +187,7 @@ function GettingAround() {
   );
   if (journeys.length === 0) return <Empty what="No journeys" />;
   return (
-    <Section variant="grouped" title="Getting around">
+    <Section variant="grouped">
       <ul className="divide-y divide-line">
         {journeys.map((j) => {
           const first = j.segments[0];
