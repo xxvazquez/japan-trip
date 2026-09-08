@@ -39,7 +39,11 @@ export type IconName =
   | "link"
   | "download"
   | "grip"
-  | "more";
+  | "more"
+  | "seat"
+  | "door"
+  | "ticket"
+  | "route";
 
 const P: Record<IconName, JSX.Element> = {
   itinerary: (
@@ -220,6 +224,21 @@ const P: Record<IconName, JSX.Element> = {
       <circle cx="5" cy="12" r="1.4" fill="currentColor" stroke="none" />
       <circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none" />
       <circle cx="19" cy="12" r="1.4" fill="currentColor" stroke="none" />
+    </>
+  ),
+  seat: <path d="M7 5v6h7M7 11v8M14 11h1a3 3 0 0 1 3 3v5M5 19h15" />,
+  door: <path d="M4 20h16M6 20v-8l6-3.5L18 12v8M9.5 20v-4h5v4" />,
+  route: (
+    <>
+      <circle cx="6" cy="6" r="2" />
+      <circle cx="18" cy="18" r="2" />
+      <path d="M6 8v5a5 5 0 0 0 5 5h5" />
+    </>
+  ),
+  ticket: (
+    <>
+      <path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2 1.6 1.6 0 0 0 0 3v2a1.6 1.6 0 0 0 0 3 2 2 0 0 1-2 2H6a2 2 0 0 1-2-2 1.6 1.6 0 0 0 0-3v-2a1.6 1.6 0 0 0 0-3Z" />
+      <path d="M13 6v2M13 11v2M13 16v2" />
     </>
   ),
 };
