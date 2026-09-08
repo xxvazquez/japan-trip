@@ -18,7 +18,8 @@
 
 /* ------------------------------------------------------------------ *
  * Colour tokens — soft, muted, low-saturation. These are the fallback
- * ("Mist" preset); the active trip's palette overrides them at runtime.
+ * ("Ink & Moss" preset, index 0 in themePresets.ts — keep the two in sync
+ * byte for byte); the active trip's palette overrides them at runtime.
  * ------------------------------------------------------------------ */
 :root {
   --c-bg: 242 244 246;
@@ -29,11 +30,11 @@
   --c-ink-faint: 116 126 134;
   --c-line: 210 216 222;
 
-  --c-accent: 95 127 156; /* dusty blue */
-  --c-gold: 143 133 113; /* darkened from the raw brand tone (154 143 122) so
-    the focus-visible ring clears WCAG's 3:1 non-text contrast against --c-bg */
-  --c-matcha: 123 138 126;
-  --c-ai: 63 85 103;
+  --c-accent: 94 113 138; /* muted indigo */
+  --c-gold: 135 112 68; /* warm ochre, darkened from #9b8254 so the
+    focus-visible ring clears WCAG's 3:1 non-text contrast against --c-bg */
+  --c-matcha: 111 130 108; /* moss */
+  --c-ai: 113 134 154; /* transit blue-grey */
 
   --ease-paper: cubic-bezier(0.22, 1, 0.36, 1);
   --tex-opacity: 0.03;
@@ -45,15 +46,15 @@ html.dark {
   --c-bg: 19 23 27;
   --c-surface: 27 33 38;
   --c-surface-2: 37 44 51;
-  --c-ink: 231 235 238;
-  --c-ink-soft: 173 183 191;
-  --c-ink-faint: 139 149 158;
-  --c-line: 51 60 68;
+  --c-ink: 229 233 236;
+  --c-ink-soft: 177 187 194;
+  --c-ink-faint: 123 133 142;
+  --c-line: 45 53 60;
 
-  --c-accent: 135 164 189; /* soft steel blue */
-  --c-gold: 176 164 136;
-  --c-matcha: 149 164 154;
-  --c-ai: 141 167 188;
+  --c-accent: 128 149 175; /* muted indigo */
+  --c-gold: 184 158 115;
+  --c-matcha: 139 157 134; /* moss */
+  --c-ai: 144 163 182; /* transit blue-grey */
 
   --tex-opacity: 0.045;
 }
