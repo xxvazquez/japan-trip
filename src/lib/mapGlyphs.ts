@@ -24,7 +24,8 @@ export type MapGlyphId =
   | "view"
   | "photo"
   | "station"
-  | "bath";
+  | "bath"
+  | "luggage";
 
 export const MAP_GLYPHS: { id: MapGlyphId; label: string; path: string }[] = [
   { id: "coffee", label: "Coffee", path: "M5 8h11v5a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V8Z M16 9h1.5a2.5 2.5 0 0 1 0 5H16 M8 3v2 M11 3v2" },
@@ -40,6 +41,7 @@ export const MAP_GLYPHS: { id: MapGlyphId; label: string; path: string }[] = [
   { id: "photo", label: "Photo spot", path: "M4 8h4l1.5-2h5L17 8h3v11H4V8Z M12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" },
   { id: "station", label: "Station", path: "M7 4h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z M5 11h14 M9 8h6 M9 20l1.6-2 M15 20l-1.6-2" },
   { id: "bath", label: "Hot spring", path: "M5 13h14v1.5a5.5 5.5 0 0 1-11 0V13Z M10 13V9.5C10 8.5 9 8 9 6.5 M14 13V8.5C14 7.5 13 7 13 5.5" },
+  { id: "luggage", label: "Luggage", path: "M6 8.5h12v10a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 18.5v-10Z M9.5 8.5V6a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 6v2.5 M10 12v4 M14 12v4" },
 ];
 
 const PATHS: Record<string, string> = Object.fromEntries(MAP_GLYPHS.map((g) => [g.id, g.path]));
