@@ -337,7 +337,7 @@ export default function Journey() {
       )}
 
       {(j.notes || !ro) && (
-        <Section icon="list" title="Notes">
+        <Section collapsible icon="list" title="Notes">
           <div className="note">
             <RichNote value={j.notes ?? ""} onCommit={(v) => patch({ notes: v || undefined })} placeholder="Backup routes, reminders…" />
           </div>

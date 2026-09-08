@@ -156,7 +156,7 @@ html.dark {
    *   .subhead       serif sub-head — 1.3125rem  (Plan stay, Map scope)
    *   .lead          card / item title — 1.0625rem, sans 500 ink
    *   .value         main value — 0.9375rem, sans 500 ink  (paired + under-label)
-   *   .note          body / prose — 0.9375rem, sans 400 ink
+   *   .note          body / prose — 0.9rem, sans 400 ink, leading 1.6
    *   .meta          metadata — 0.8125rem, sans 400 ink-soft  (+ .row-label)
    *   .kicker        section header — 0.8125rem, 400 uppercase +0.14em ink
    *   .eyebrow       micro-label / tag — 0.6875rem, 400 uppercase +0.12em
@@ -211,10 +211,11 @@ html.dark {
   }
 
   /* L3 — free-text prose: a note field, the scratchpad. One size everywhere,
-   * matching the edit textarea so nothing resizes when you tap in. Callers may
-   * override the colour (text-ink-soft on a note that's secondary to its card). */
+   * matching the edit textarea so nothing resizes when you tap in. A hair
+   * below .value so a note never reads louder than the quiet section header
+   * above it. Callers may override the colour (text-ink-soft when secondary). */
   .note {
-    @apply text-[0.95rem] leading-relaxed text-ink;
+    @apply text-[0.9rem] leading-[1.6] text-ink;
   }
 
   /* a label / value list row — hairline between peers only */

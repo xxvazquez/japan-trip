@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "./Icon";
 
@@ -20,6 +20,12 @@ export const CARD_SHELL =
  * Pass `to` to make the whole card a link (a chevron appears, the name
  * underlines on hover); otherwise it's a plain container for editable content.
  * `title` is optional — omit it for a card that's just a body (e.g. Notes).
+ *
+ * `collapsible` adds a fold chevron before the title (the chevron alone is the
+ * toggle, so an `Editable` title stays tappable-to-edit); `defaultOpen` is true
+ * unless set. Ignored when `to` is set — a link card can't also be a toggle.
+ * Collapse state is per-mount, it doesn't persist. `right` (a count, a delete)
+ * stays visible while collapsed.
  */
 export function Card({
   title,
@@ -28,6 +34,8 @@ export function Card({
   to,
   children,
   className = "",
+  collapsible = false,
+  defaultOpen = true,
 }: {
   title?: ReactNode;
   /** node shown at the top-right — a date, a count, a remove button */
@@ -37,10 +45,33 @@ export function Card({
   to?: string;
   children?: ReactNode;
   className?: string;
+  collapsible?: boolean;
+  defaultOpen?: boolean;
 }) {
+  const [open, setOpen] = useState(defaultOpen);
+  const canCollapse = collapsible && !to;
+  const shut = canCollapse && !open;
+
   const header = title != null && (
     <div className="flex items-start justify-between gap-3">
-      <span className={`lead min-w-0 ${to ? "group-hover:underline" : ""}`}>{title}</span>
+      <span className={`lead flex min-w-0 items-center gap-1.5 ${to ? "group-hover:underline" : ""}`}>
+        {canCollapse && (
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            aria-label={open ? "Collapse" : "Expand"}
+            className="-m-1 shrink-0 p-1"
+          >
+            <Icon
+              name="chevron"
+              size={13}
+              className={`text-ink-faint transition-transform ${open ? "rotate-90" : ""}`}
+            />
+          </button>
+        )}
+        <span className="min-w-0 truncate">{title}</span>
+      </span>
       {(right || to) && (
         <span className="flex shrink-0 items-center gap-2 pt-0.5">
           {right}
@@ -52,8 +83,8 @@ export function Card({
   const body = (
     <>
       {header}
-      {meta && <p className={`meta ${title != null ? "mt-1" : ""}`}>{meta}</p>}
-      {children && <div className={title != null || meta ? "mt-3" : ""}>{children}</div>}
+      {!shut && meta && <p className={`meta ${title != null ? "mt-1" : ""}`}>{meta}</p>}
+      {!shut && children && <div className={title != null || meta ? "mt-3" : ""}>{children}</div>}
     </>
   );
 
