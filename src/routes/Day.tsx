@@ -25,8 +25,8 @@ import { useReadOnly } from "@/lib/readonly";
 import { fmtDate } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink } from "@/lib/maps";
-import { parseMoney, fmtMoney } from "@/lib/cost";
-import type { Day as DayT, DayCost, PlanItem, Place } from "@/core/types";
+import { parseMoney, fmtMoney, cleanAmount, fmtFare, currencySymbol } from "@/lib/cost";
+import type { Day as DayT, DayCost, ExpenseCategory, PlanItem, Place } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 9);
 
@@ -34,14 +34,6 @@ const rid = () => Math.random().toString(36).slice(2, 9);
 function splitRange(t?: string): [string, string] | null {
   const m = (t ?? "").match(/^\s*(\d{1,2}:\d{2})\s*[–—-]\s*(\d{1,2}:\d{2})\s*$/);
   return m ? [m[1], m[2]] : null;
-}
-
-/** A spending amount feeds the day total, so it has to be a plain number —
- *  strip currency symbols, separators and stray text, round to a whole unit.
- *  Anything with no number in it clears the row. */
-function cleanAmount(v: string): string {
-  const n = Math.round(Number(v.replace(/[^0-9.-]/g, "")));
-  return Number.isFinite(n) && n !== 0 ? String(n) : "";
 }
 
 export default function Day() {
@@ -279,12 +271,13 @@ export default function Day() {
         </Section>
       )}
 
-      {/* SPENDING — what the day cost; feeds the Budget roll-up */}
+      {/* SPENDING — what the day cost; feeds the Expenses roll-up */}
       {((day.costs ?? []).length > 0 || !ro) && (
         <Section icon="vault" title="Spending">
           <CostList
             costs={day.costs ?? []}
-            currency={data.config.currency ?? ""}
+            categories={data.config.expenseCategories ?? []}
+            currencies={(data.config.currencies ?? []).filter(Boolean)}
             readOnly={ro}
             onChange={(next) => patch({ costs: next.length ? next : undefined })}
           />
@@ -509,20 +502,26 @@ function StringList({ items, onChange, readOnly, emptyHint = "Nothing yet." }: {
   );
 }
 
-/** The day's spend — a label + a free-text amount per row, with a per-currency
- *  subtotal. The amounts feed `tripCost`; the rows are the traveller's own. */
-function CostList({ costs, currency, readOnly, onChange }: {
+/** The day's spend — a category + a whole-number amount per row, with an
+ *  optional free-text note. The amounts feed `tripCost`; the category drives
+ *  the Expenses grouping. */
+function CostList({ costs, categories, currencies, readOnly, onChange }: {
   costs: DayCost[];
-  currency: string;
+  categories: ExpenseCategory[];
+  currencies: string[];
   readOnly: boolean;
   onChange: (next: DayCost[]) => void;
 }) {
+  const primary = currencies[0] ?? "";
+  const multi = currencies.length >= 2;
+  const primarySym = currencySymbol(primary);
   const setAt = (i: number, patch: Partial<DayCost>) => onChange(costs.map((c, j) => (j === i ? { ...c, ...patch } : c)));
-  const add = () => onChange([...costs, { id: rid(), label: "", amount: "" }]);
+  const add = () => onChange([...costs, { id: rid(), categoryId: categories[0]?.id, label: "", amount: "" }]);
+  const catLabel = (id?: string) => categories.find((c) => c.id === id)?.label ?? "Uncategorised";
 
   const subtotals = new Map<string, number>();
   for (const c of costs) {
-    const m = parseMoney(c.amount, currency);
+    const m = parseMoney(c.amount, c.currency || primary);
     if (m) subtotals.set(m.currency, (subtotals.get(m.currency) ?? 0) + m.amount);
   }
 
@@ -537,21 +536,63 @@ function CostList({ costs, currency, readOnly, onChange }: {
   return (
     <div>
       <ul>
-        {costs.map((c, i) => (
-          <li key={c.id} className="group flex items-baseline gap-3 border-b border-line/70 py-2 last:border-b-0">
-            <span className="min-w-0 flex-1">
-              {readOnly ? (c.label || "—") : (
-                <Editable label="What" value={c.label} placeholder="What for" onCommit={(v) => setAt(i, { label: v })} />
+        {costs.map((c, i) => {
+          const known = !c.categoryId || categories.some((cat) => cat.id === c.categoryId);
+          return (
+            <li key={c.id} className="group border-b border-line/70 py-2 last:border-b-0">
+              <div className="flex items-baseline gap-3">
+                <span className="min-w-0 flex-1">
+                  {readOnly ? (
+                    <span className="value">{catLabel(c.categoryId)}</span>
+                  ) : (
+                    <select
+                      value={c.categoryId ?? ""}
+                      onChange={(e) => setAt(i, { categoryId: e.target.value || undefined })}
+                      aria-label="Category"
+                      className="value -ml-0.5 min-w-0 max-w-full cursor-pointer bg-transparent focus:outline-none"
+                    >
+                      {(!c.categoryId || !known) && <option value={c.categoryId ?? ""}>{c.categoryId ? "Uncategorised" : "Category…"}</option>}
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>{cat.label}</option>
+                      ))}
+                    </select>
+                  )}
+                </span>
+                {readOnly ? (
+                  <span className="value shrink-0 text-right tabular-nums">{fmtFare(c.amount, c.currency || primary)}</span>
+                ) : (
+                  <span className="flex shrink-0 items-baseline gap-1.5">
+                    {multi ? (
+                      <select
+                        value={c.currency ?? primary}
+                        onChange={(e) => setAt(i, { currency: e.target.value === primary ? undefined : e.target.value })}
+                        aria-label="Currency"
+                        className="cursor-pointer bg-transparent text-[0.8125rem] text-ink-soft focus:outline-none"
+                      >
+                        {[...new Set([...currencies, c.currency || primary])].filter(Boolean).map((cc) => (
+                          <option key={cc} value={cc}>{cc}</option>
+                        ))}
+                      </select>
+                    ) : primarySym && (!c.amount || /^[\d.,]+$/.test(c.amount)) ? (
+                      <span className="text-[0.8125rem] text-ink-faint">{primarySym}</span>
+                    ) : null}
+                    <span className="value text-right tabular-nums">
+                      <Editable as="number" label="Amount" value={c.amount} placeholder="—" onCommit={(v) => setAt(i, { amount: cleanAmount(v) })} />
+                    </span>
+                  </span>
+                )}
+                {!readOnly && <RowDeleteButton onClick={() => onChange(costs.filter((_, j) => j !== i))} />}
+              </div>
+              {(!readOnly || c.label.trim()) && (
+                <div className="meta mt-0.5">
+                  {readOnly ? c.label : (
+                    <Editable label="Note" value={c.label} placeholder="Note (optional)" onCommit={(v) => setAt(i, { label: v })} />
+                  )}
+                </div>
               )}
-            </span>
-            <span className="value shrink-0 text-right tabular-nums">
-              {readOnly ? c.amount : (
-                <Editable as="number" label="Amount" value={c.amount} placeholder="—" onCommit={(v) => setAt(i, { amount: cleanAmount(v) })} />
-              )}
-            </span>
-            {!readOnly && <RowDeleteButton onClick={() => onChange(costs.filter((_, j) => j !== i))} />}
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
       {subtotals.size > 0 && (
         <p className="mt-2 flex flex-wrap justify-end gap-x-3 text-sm">

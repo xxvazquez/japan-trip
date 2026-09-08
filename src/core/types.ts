@@ -37,6 +37,18 @@ export interface Person {
   name: string;
 }
 
+/** A spending bucket. Every priced thing on the trip — a day's spending row, a
+ *  fare, a stay — rolls up under one of these in the Expenses view. The list is
+ *  per-trip, seeded with a default set, edited in Manage; it's never empty.
+ *  `role` marks the two categories that collect a derived cost automatically:
+ *  "lodging" gets every stay price, "transport" gets every fare. At most one
+ *  category per role; a plain day-spending category leaves it unset. */
+export interface ExpenseCategory {
+  id: ID;
+  label: string;
+  role?: "lodging" | "transport";
+}
+
 export interface TripConfig {
   branding: string;
   tagline: string;
@@ -48,9 +60,13 @@ export interface TripConfig {
   travellers: string;
   /** the trip's travellers, in order */
   people?: Person[];
-  /** ISO currency code assumed for bare-number prices (e.g. "PLN"). Blank =
-   *  no assumption. */
+  /** the trip's primary currency — the ISO code assumed for a bare-number price
+   *  (e.g. "PLN"). Blank = no assumption. Kept in sync with `currencies[0]`. */
   currency?: string;
+  /** every currency the trip uses, in order, first = primary. A spending row or
+   *  a fare picks one; with 0–1 entries there's no picker, just the symbol.
+   *  Derived from `currency` on load for older trips. */
+  currencies?: string[];
   theme: ThemeTokens;
   /** the id of a preset in themePresets, or "custom" */
   themePreset?: string;
@@ -69,6 +85,9 @@ export interface TripConfig {
   hiddenLogbook?: string[];
   /** extra Logbook sections — a title + a plain list of items */
   lists?: CustomList[];
+  /** the trip's expense categories, in display order — every spending row and
+   *  fare groups under one in the Expenses view. Seeded on load; never empty. */
+  expenseCategories?: ExpenseCategory[];
   /** Google accounts every document attachment is shared with (both travellers).
    *  Files upload to the adder's Drive, then get read access for these emails. */
   driveShareEmails?: string[];
@@ -123,7 +142,11 @@ export interface Segment {
   service?: string;
   seat?: string;
   platform?: string;
+  /** what this hop cost — a whole number in the trip currency. Stored as a
+   *  string; legacy free text ("€18") is still read by the roll-up. */
   fare?: string;
+  /** which currency `fare` is in — absent = the trip's primary currency */
+  fareCurrency?: string;
   bookingRef?: string;
   reserved?: boolean;
   note?: string;
@@ -143,11 +166,14 @@ export interface Journey {
   /** a pasted Google Maps directions link */
   gmapsDirections?: string;
   notes?: string;
-  /** the whole journey's price, free text — a multi-hop journey is usually one
-   *  ticket at one price. Overrides summing the segments' own `fare` in the
-   *  cost roll-up when set; per-segment fares still work for hops bought
-   *  separately. */
+  /** the whole journey's price — a whole number in the trip currency; a
+   *  multi-hop journey is usually one ticket at one price. Overrides summing the
+   *  segments' own `fare` in the cost roll-up when set; per-segment fares still
+   *  work for hops bought separately. Stored as a string; legacy free text is
+   *  still read by the roll-up. */
   fare?: string;
+  /** which currency `fare` is in — absent = the trip's primary currency */
+  fareCurrency?: string;
 }
 
 /* ------------------------------------------------------------------ *
@@ -242,14 +268,24 @@ export interface Day {
   toDo?: string[];
   lastTrainBack?: string;
   /** what you spent on the day — one row per amount (a museum, lunch, a taxi).
-   *  `amount` is free text, parsed into the Budget roll-up. */
+   *  Each row picks an `ExpenseCategory`; the amount rolls up under it in the
+   *  Expenses view. */
   costs?: DayCost[];
 }
 
 export interface DayCost {
   id: ID;
+  /** the expense category this row counts towards (a `config.expenseCategories`
+   *  id). Absent only on legacy rows a normalize couldn't match. */
+  categoryId?: ID;
+  /** optional free-text note — what it actually was ("lunch at Ichiran"). Not
+   *  parsed; the category does the grouping. */
   label: string;
+  /** whole number */
   amount: string;
+  /** which currency `amount` is in — a `config.currencies` code. Absent = the
+   *  trip's primary currency. */
+  currency?: string;
 }
 
 export interface Hotel {
@@ -273,7 +309,8 @@ export interface Hotel {
   checkOut?: string;
   notes?: string;
   /** the whole stay's price, free text (e.g. "¥42,000" or "€310 for 3 nights") —
-   *  parsed into the Budget roll-up, so it stays a fixed system field */
+   *  parsed into the Expenses roll-up under the Accommodation category, so it
+   *  stays a fixed system field */
   price?: string;
   /** the traveller's own reference fields (booking ref, phone, wifi, …) */
   fields?: DocField[];

@@ -69,7 +69,7 @@ export default function Logbook() {
           {active === "emergency" && <Emergency />}
           {active === "documents" && <Documents />}
           {active === "packing" && <Packing />}
-          {active === "budget" && <Budget />}
+          {active === "budget" && <Expenses />}
           {active === "notes" && <Notes />}
         </>
       )}
@@ -304,39 +304,44 @@ function Emergency() {
   );
 }
 
-/* -------------------------------------------------------------- budget */
-
-const CATEGORY_LABEL = { accommodation: "Accommodation", transport: "Transport", other: "Other" } as const;
+/* ------------------------------------------------------------ expenses */
 
 /** A read-only roll-up, not a data-owning tab: every number is derived by
- *  `tripCost` from prices on stays, journeys and days. Nothing is added or
- *  stored. See the note in `lib/logbook.ts` before adding another summary view. */
-function Budget() {
+ *  `tripCost` from prices on stays, journeys and days, grouped by the trip's
+ *  expense categories. Nothing is added or stored. See the note in
+ *  `lib/logbook.ts` before adding another summary view. */
+function Expenses() {
   const data = useData()!;
-  const { byCurrency, unparsed } = tripCost(data);
+  const { byCurrency, categories, unparsed } = tripCost(data);
   const currencies = Object.keys(byCurrency);
 
   if (currencies.length === 0) {
-    return <Empty what="No prices yet" hint="Put a price on a stay, a journey or a day's spending and it totals up here." />;
+    return <Empty what="No spending yet" hint="Put a price on a stay or a journey, or log a day's spending, and it totals up here by category." />;
   }
 
   return (
     <div className="space-y-3">
       {currencies.map((cur) => {
-        const g = byCurrency[cur];
+        const b = byCurrency[cur];
         return (
           <Card key={cur || "—"} title={cur || "Unspecified currency"}>
-            {(Object.keys(CATEGORY_LABEL) as (keyof typeof CATEGORY_LABEL)[])
-              .filter((k) => g[k] > 0)
-              .map((k) => (
-                <div key={k} className="row">
-                  <span className="row-label">{CATEGORY_LABEL[k]}</span>
-                  <span className="row-value value">{fmtMoney(g[k], cur)}</span>
+            {categories
+              .filter((c) => (b.byCategory[c.id] ?? 0) > 0)
+              .map((c) => (
+                <div key={c.id} className="row">
+                  <span className="row-label">{c.label}</span>
+                  <span className="row-value value">{fmtMoney(b.byCategory[c.id], cur)}</span>
                 </div>
               ))}
+            {b.uncategorised > 0 && (
+              <div className="row">
+                <span className="row-label text-ink-soft">Uncategorised</span>
+                <span className="row-value value">{fmtMoney(b.uncategorised, cur)}</span>
+              </div>
+            )}
             <div className="row">
               <span className="row-label font-medium text-ink">Total</span>
-              <span className="row-value value font-medium text-ink">{fmtMoney(g.total, cur)}</span>
+              <span className="row-value value font-medium text-ink">{fmtMoney(b.total, cur)}</span>
             </div>
           </Card>
         );

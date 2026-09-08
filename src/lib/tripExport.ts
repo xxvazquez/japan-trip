@@ -20,6 +20,7 @@ import { fmtDate, fmtSpan, plural, todayISO } from "@/lib/dates";
 import { localMinutes, fmtMinutes } from "@/lib/time";
 import { gmapsLink } from "@/lib/maps";
 import { MODE_LABEL } from "@/lib/transport";
+import { fmtFare } from "@/lib/cost";
 import { APP_NAME } from "@/lib/app";
 
 export interface ExportOptions {
@@ -185,13 +186,13 @@ function itinerarySection(data: TripData): string {
   return `<section class="group"><h2>Itinerary</h2>${blocks.join("\n")}</section>`;
 }
 
-function segmentBlock(s: Segment, next: Segment | undefined, opts: ExportOptions, journeyDate: string | undefined, loc: string): string {
+function segmentBlock(s: Segment, next: Segment | undefined, opts: ExportOptions, journeyDate: string | undefined, loc: string, currency: string): string {
   const times = fmtSpan(s, journeyDate, loc);
   const meta = [MODE_LABEL[s.mode] ?? s.mode, s.carrier, s.service].filter(Boolean).map((x) => esc(x!)).join(" · ");
   const detail = rows([
     ["Platform", s.mode === "flight" ? undefined : s.platform],
     ["Seat", s.seat],
-    ["Fare", s.fare],
+    ["Fare", fmtFare(s.fare, s.fareCurrency || currency) || undefined],
     ["Booking ref", opts.includePrivate ? s.bookingRef : undefined],
     ["Note", s.note],
   ]);
@@ -215,6 +216,7 @@ function journeysSection(data: TripData, opts: ExportOptions): string {
   if (!data.journeys.length) return "";
   const loc = data.config.locale;
   const ordered = [...data.journeys].sort((a, b) => (a.date ?? "").localeCompare(b.date ?? ""));
+  const currency = data.config.currency ?? "";
   const blocks = ordered.map((j: Journey) => {
     const when = j.date ? fmtDate(j.date, loc, { weekday: "long", day: "numeric", month: "long" }) : "";
     const dir = j.gmapsDirections
@@ -223,8 +225,8 @@ function journeysSection(data: TripData, opts: ExportOptions): string {
     return `<section class="journey" id="journey-${esc(j.id)}">
       <h3>${esc(j.label)}</h3>
       ${when ? `<p class="leg-range">${esc(when)}</p>` : ""}
-      ${j.segments.map((s, i) => segmentBlock(s, j.segments[i + 1], opts, j.date, loc)).join("\n") || `<p class="empty">No hops yet.</p>`}
-      ${j.fare ? `<p class="seg-meta">Total fare: ${esc(j.fare)}</p>` : ""}
+      ${j.segments.map((s, i) => segmentBlock(s, j.segments[i + 1], opts, j.date, loc, currency)).join("\n") || `<p class="empty">No hops yet.</p>`}
+      ${j.fare ? `<p class="seg-meta">Total fare: ${esc(fmtFare(j.fare, j.fareCurrency || currency))}</p>` : ""}
       ${dir}
       ${j.notes?.trim() ? `<div class="note">${mdToHtml(j.notes)}</div>` : ""}
     </section>`;

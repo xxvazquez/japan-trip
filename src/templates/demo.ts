@@ -1,6 +1,6 @@
 import type { TripData } from "@/core/types";
 import { THEME_PRESETS } from "@/lib/themePresets";
-import { SCHEMA_VERSION } from "@/lib/hydrate";
+import { DEFAULT_EXPENSE_CATEGORIES, SCHEMA_VERSION } from "@/lib/hydrate";
 
 /**
  * The built-in read-only tour. Not tied to any destination — it exists to show
@@ -30,6 +30,8 @@ export function buildDemo(): TripData {
       homeTimeZone: "UTC",
       tripTimeZone: "UTC",
       travellers: "You",
+      currency: "EUR",
+      currencies: ["EUR", "GBP"],
       theme: THEME_PRESETS[0].tokens,
       themePreset: THEME_PRESETS[0].id,
       modules: [
@@ -39,6 +41,7 @@ export function buildDemo(): TripData {
       ],
       mapSourceUrl: "",
       categoryIcons: { coffee: "coffee", food: "food", see: "sight" },
+      expenseCategories: DEFAULT_EXPENSE_CATEGORIES.map((c) => ({ ...c })),
       demo: true,
       lists: [
         {
@@ -96,10 +99,15 @@ export function buildDemo(): TripData {
           { id: "d2-p4", text: "Wander the old streets, no fixed route" },
         ],
         notes:
-          "A day is a loose plan plus a few places you’d like to hit — never an hour-by-hour schedule. **General notes** is for anything that isn’t a step.",
+          "A day is a loose plan plus a few places you’d like to hit — never an hour-by-hour schedule. **General notes** is for anything that isn’t a step.\n\n**Spending** tags each amount with a category; the Expenses tab in the Logbook adds them all up by category.",
         // add an area to a day and every place in it joins the day's map — a
         // live link, without adding each one as a step above
         areaIds: ["ar-1"],
+        costs: [
+          { id: "d2-c1", categoryId: "cat-food", amount: "16", label: "Coffee + pastry" },
+          { id: "d2-c2", categoryId: "cat-activities", amount: "12", label: "Museum entry" },
+          { id: "d2-c3", categoryId: "cat-food", amount: "28", label: "Lunch at the market" },
+        ],
       },
       {
         id: "d3",
@@ -113,6 +121,11 @@ export function buildDemo(): TripData {
         lastTrainBack: "Last train ~23:15",
         toDo: ["Buy the return ticket in the morning", "Pack water + a layer"],
         notes: "Out-of-town days get extra fields: how to get there and back, a checklist, and the last train home.",
+        costs: [
+          { id: "d3-c1", categoryId: "cat-transport", amount: "24", label: "Return train tickets" },
+          { id: "d3-c2", categoryId: "cat-food", amount: "31", label: "Lunch out of town" },
+          { id: "d3-c3", categoryId: "cat-shopping", amount: "18", label: "Souvenirs", currency: "GBP" },
+        ],
       },
       {
         id: "d4",
@@ -173,7 +186,7 @@ export function buildDemo(): TripData {
             service: "Airport Express",
             seat: "12A",
             platform: "3",
-            fare: "€18",
+            fare: "18",
             reserved: true,
             note: "Reserve the airport-express seat a day ahead.",
           },

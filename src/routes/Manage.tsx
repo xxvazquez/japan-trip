@@ -405,19 +405,13 @@ function Setup() {
             {DATE_FORMATS.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
           </select>
         </Row>
-        <Row label="Currency">
-          <Editable
-            label="Trip currency"
-            value={config.currency ?? ""}
-            placeholder="e.g. PLN"
-            onCommit={(v) => mutate((d) => { d.config.currency = v.trim().toUpperCase() || undefined; })}
-          />
-        </Row>
         <Row label="Google My Map">
           <Editable as="link" label="Google My Map link" value={config.mapSourceUrl ?? ""} placeholder="paste the share link" onCommit={(v) => mutate((d) => { d.config.mapSourceUrl = v; })} />
         </Row>
-        <p className="meta mt-2">Currency: a price typed as a bare number counts as {config.currency || "the trip currency"}; one with its own symbol or code is left alone.</p>
       </Section>
+
+      <CurrenciesPanel />
+      <ExpenseCategoriesPanel />
 
       <ModulesPanel />
       <LogbookSectionsPanel />
@@ -461,6 +455,126 @@ function TravellersPanel() {
       </ul>
       <button onClick={add} className="action mt-2 text-xs">
         <Icon name="plus" size={13} /> Add a traveller
+      </button>
+    </Section>
+  );
+}
+
+/** The currencies this trip uses. The first is the default — the bare-number
+ *  assumption (`config.currency`) is kept in step with it. With two or more,
+ *  every spending row and fare shows a currency picker. */
+function CurrenciesPanel() {
+  const data = useData();
+  const mutate = useApp((s) => s.mutateTrip);
+  if (!data) return null;
+  if (data.config.demo) return null;
+  const list = data.config.currencies ?? [];
+
+  const sync = (d: TripData, next: string[]) => {
+    const clean = next.map((c) => c.trim().toUpperCase());
+    d.config.currencies = clean;
+    d.config.currency = clean.find(Boolean) || undefined;
+  };
+  const setAt = (i: number, v: string) => mutate((d) => sync(d, list.map((c, j) => (j === i ? v : c))));
+  const move = (i: number, dir: -1 | 1) =>
+    mutate((d) => { const a = [...list]; [a[i + dir], a[i]] = [a[i], a[i + dir]]; sync(d, a); });
+  const remove = (i: number) => mutate((d) => sync(d, list.filter((_, j) => j !== i)));
+  const add = () => mutate((d) => sync(d, [...list, ""]));
+
+  return (
+    <Section title="Currencies">
+      <p className="-mt-1 mb-2 text-xs text-ink-faint">
+        Every currency this trip uses. The first is the default — a price typed as a bare number counts as it; one with its own symbol is left alone. Add a second and each spending row and fare gets a currency picker.
+      </p>
+      <ul>
+        {list.map((c, i) => (
+          <li key={`${c}-${i}`} className="flex items-center gap-3 border-b border-line py-2.5 last:border-b-0">
+            <div className="flex flex-col">
+              <button disabled={i === 0} onClick={() => move(i, -1)} className="text-ink-faint disabled:opacity-30" aria-label="Move up">
+                <Icon name="up" size={16} />
+              </button>
+              <button disabled={i === list.length - 1} onClick={() => move(i, 1)} className="text-ink-faint disabled:opacity-30" aria-label="Move down">
+                <Icon name="down" size={16} />
+              </button>
+            </div>
+            <span className="min-w-0 flex-1">
+              <Editable label="Currency code" value={c} placeholder="e.g. JPY" onCommit={(v) => setAt(i, v)} />
+              {i === 0 && c && <span className="ml-2 text-xs text-ink-soft">default</span>}
+            </span>
+            <ConfirmButton
+              label="Remove currency"
+              onConfirm={() => remove(i)}
+              className="shrink-0 text-ink-faint hover:text-accent"
+            >
+              <Icon name="trash" size={14} />
+            </ConfirmButton>
+          </li>
+        ))}
+      </ul>
+      <button onClick={add} className="action mt-2 text-xs">
+        <Icon name="plus" size={13} /> Add a currency
+      </button>
+    </Section>
+  );
+}
+
+/** The trip's expense categories — the buckets every spending row rolls up
+ *  under on the Expenses tab. Reorder / rename / add / remove; the list can't
+ *  be emptied. The two "auto" rows also gather fares and stay prices on their
+ *  own, so renaming one keeps that wiring. */
+function ExpenseCategoriesPanel() {
+  const data = useData();
+  const mutate = useApp((s) => s.mutateTrip);
+  if (!data) return null;
+  if (data.config.demo) return null;
+  const cats = data.config.expenseCategories ?? [];
+  const rid = () => Math.random().toString(36).slice(2, 9);
+
+  const move = (i: number, dir: -1 | 1) =>
+    mutate((d) => { const a = d.config.expenseCategories!; [a[i + dir], a[i]] = [a[i], a[i + dir]]; });
+
+  return (
+    <Section title="Expense categories">
+      <p className="-mt-1 mb-2 text-xs text-ink-faint">
+        The buckets your spending groups into on the Expenses tab. “Accommodation” collects every stay price and “Transport” every fare automatically.
+      </p>
+      <ul>
+        {cats.map((c, i) => (
+          <li key={c.id} className="flex items-center gap-3 border-b border-line py-2.5 last:border-b-0">
+            <div className="flex flex-col">
+              <button disabled={i === 0} onClick={() => move(i, -1)} className="text-ink-faint disabled:opacity-30" aria-label="Move up">
+                <Icon name="up" size={16} />
+              </button>
+              <button disabled={i === cats.length - 1} onClick={() => move(i, 1)} className="text-ink-faint disabled:opacity-30" aria-label="Move down">
+                <Icon name="down" size={16} />
+              </button>
+            </div>
+            <span className="min-w-0 flex-1">
+              <Editable
+                label="Category name"
+                value={c.label}
+                placeholder="Name"
+                onCommit={(v) => mutate((d) => { const x = d.config.expenseCategories?.[i]; if (x) x.label = v || x.label; })}
+              />
+              {c.role && <span className="ml-2 text-xs text-ink-soft">auto: {c.role === "lodging" ? "stays" : "fares"}</span>}
+            </span>
+            {cats.length > 1 && (
+              <ConfirmButton
+                label="Remove category"
+                onConfirm={() => mutate((d) => { d.config.expenseCategories = (d.config.expenseCategories ?? []).filter((x) => x.id !== c.id); })}
+                className="shrink-0 text-ink-faint hover:text-accent"
+              >
+                <Icon name="trash" size={14} />
+              </ConfirmButton>
+            )}
+          </li>
+        ))}
+      </ul>
+      <button
+        onClick={() => mutate((d) => { (d.config.expenseCategories ??= []).push({ id: `cat-${rid()}`, label: "New category" }); })}
+        className="action mt-2 text-xs"
+      >
+        <Icon name="plus" size={13} /> Add a category
       </button>
     </Section>
   );

@@ -14,7 +14,7 @@ const rid = () => Math.random().toString(36).slice(2, 8);
  * ── The flexible-content rule ─────────────────────────────────────────────
  * USER reference content — this list — is editable, renamable, removable and
  * reorderable (reorder/remove live behind the row's ⋯ menu, not a handle on
- * every row). SYSTEM fields — a price the budget parses, a date the itinerary
+ * every row). SYSTEM fields — a price the Expenses roll-up parses, a date the itinerary
  * shifts, a hotel/journey link, the trip currency — are NOT passed here: the
  * caller renders those in a fixed slot with a fixed label, so a rename or a
  * delete can never break a calculation.
