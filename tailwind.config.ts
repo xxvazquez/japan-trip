@@ -21,11 +21,11 @@ export default {
         "ink-soft": withVar("--c-ink-soft"),
         "ink-faint": withVar("--c-ink-faint"),
         line: withVar("--c-line"),
-        // traditional palette
-        accent: withVar("--c-accent"), // shu vermillion
-        gold: withVar("--c-gold"), // kin
-        matcha: withVar("--c-matcha"),
-        ai: withVar("--c-ai"), // indigo
+        // accent palette — role, not hue (the active preset sets the colours)
+        accent: withVar("--c-accent"), // primary
+        gold: withVar("--c-gold"), // food / focus ring
+        matcha: withVar("--c-matcha"), // nature
+        ai: withVar("--c-ai"), // transit
       },
       fontFamily: {
         display: ['"Shippori Mincho"', '"Hiragino Mincho ProN"', "ui-serif", "Georgia", "serif"],
