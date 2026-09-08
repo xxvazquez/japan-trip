@@ -213,7 +213,7 @@ export default function Day() {
 
       {/* AREAS — pull an area's places onto this day's map, without touching the plan */}
       {((day.areaIds ?? []).length > 0 || (!ro && data.areas.length > 0)) && (
-        <Section icon="pin" title="Areas">
+        <Section collapsible icon="pin" title="Areas">
           <div className="flex flex-wrap gap-2">
             {(day.areaIds ?? []).map((id) => {
               const a = data.areas.find((x) => x.id === id);
@@ -273,7 +273,7 @@ export default function Day() {
 
       {/* SPENDING — what the day cost; feeds the Expenses roll-up */}
       {((day.costs ?? []).length > 0 || !ro) && (
-        <Section icon="vault" title="Spending">
+        <Section collapsible icon="vault" title="Spending">
           <CostList
             costs={day.costs ?? []}
             categories={data.config.expenseCategories ?? []}
@@ -286,7 +286,7 @@ export default function Day() {
 
       {/* GENERAL NOTES — free-form catch-all, after the day's actual plan */}
       {(day.notes || !ro) && (
-        <Section icon="list" title="General notes">
+        <Section collapsible icon="list" title="General notes">
           <div className="note">
             <RichNote
               value={day.notes ?? ""}

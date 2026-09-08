@@ -533,8 +533,6 @@ function Packing() {
   const data = useData()!;
   const ro = useReadOnly();
   const { updateEntity, addEntity, removeEntity } = useApp();
-  const [shut, setShut] = useState<Set<string>>(new Set());
-  const toggleGroup = (g: string) => setShut((s) => { const n = new Set(s); n.has(g) ? n.delete(g) : n.add(g); return n; });
 
   const people = data.config.people ?? [];
   const tagged = withInitials(people);
@@ -565,7 +563,7 @@ function Packing() {
   const allDone = total > 0 && done === total;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {total > 0 && (
         <div className="flex items-center gap-3 px-1">
           <span className="text-xl font-medium tabular-nums">{done}<span className="text-ink-faint">/{total}</span></span>
@@ -583,62 +581,49 @@ function Packing() {
           Start with a category — Clothes, Tech, Toiletries… — then add what goes in it.
         </p>
       )}
-      {Object.entries(groups).map(([group, list]) => {
-        const g = list.filter((i) => i.done).length;
-        const collapsed = shut.has(group);
-        return (
-          <div key={group}>
-            <div className="flex items-baseline justify-between gap-3 border-b border-line pb-1.5">
-              <span className="flex min-w-0 items-baseline gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => toggleGroup(group)}
-                  aria-label={collapsed ? `Show ${group}` : `Hide ${group}`}
-                  aria-expanded={!collapsed}
-                  className="shrink-0"
-                >
-                  <Icon name="chevron" size={13} className={`translate-y-px text-ink-faint transition-transform ${collapsed ? "" : "rotate-90"}`} />
+      <div className="space-y-3.5">
+        {Object.entries(groups).map(([group, list]) => {
+          const g = list.filter((i) => i.done).length;
+          return (
+            <Card
+              key={group}
+              collapsible
+              title={ro ? group : (
+                <Editable label="Category" value={group} placeholder="Category" onCommit={(v) => renameGroup(group, v)} />
+              )}
+              right={
+                <>
+                  <span className={`text-xs tabular-nums ${g === list.length ? "text-ink" : "text-ink-faint"}`}>
+                    {g}/{list.length}
+                  </span>
+                  {!ro && cardDeleteBtn(() => removeGroup(group), "Delete category")}
+                </>
+              }
+            >
+              <ul>
+                {list.map((it) => (
+                  <PackRow
+                    key={it.id}
+                    item={it}
+                    ro={ro}
+                    people={people}
+                    tagged={tagged}
+                    onToggle={(v) => updateEntity<PackingItem>("packing", it.id, { done: v })}
+                    onLabel={(v) => updateEntity<PackingItem>("packing", it.id, { label: v })}
+                    onAssign={(v) => updateEntity<PackingItem>("packing", it.id, { assignee: v })}
+                    onRemove={() => removeEntity("packing", it.id)}
+                  />
+                ))}
+              </ul>
+              {!ro && (
+                <button onClick={() => addItem(group)} className="action mt-2 text-xs">
+                  <Icon name="plus" size={13} /> Add item
                 </button>
-                <span className="lead min-w-0 truncate">
-                  {ro || collapsed ? group : (
-                    <Editable label="Category" value={group} placeholder="Category" onCommit={(v) => renameGroup(group, v)} />
-                  )}
-                </span>
-              </span>
-              <span className="flex shrink-0 items-center gap-2 pt-0.5">
-                <span className={`text-xs tabular-nums ${g === list.length ? "text-ink" : "text-ink-faint"}`}>
-                  {g}/{list.length}
-                </span>
-                {!ro && !collapsed && cardDeleteBtn(() => removeGroup(group), "Delete category")}
-              </span>
-            </div>
-            {!collapsed && (
-              <>
-                <ul>
-                  {list.map((it) => (
-                    <PackRow
-                      key={it.id}
-                      item={it}
-                      ro={ro}
-                      people={people}
-                      tagged={tagged}
-                      onToggle={(v) => updateEntity<PackingItem>("packing", it.id, { done: v })}
-                      onLabel={(v) => updateEntity<PackingItem>("packing", it.id, { label: v })}
-                      onAssign={(v) => updateEntity<PackingItem>("packing", it.id, { assignee: v })}
-                      onRemove={() => removeEntity("packing", it.id)}
-                    />
-                  ))}
-                </ul>
-                {!ro && (
-                  <button onClick={() => addItem(group)} className="action mt-2 text-xs">
-                    <Icon name="plus" size={13} /> Add item
-                  </button>
-                )}
-              </>
-            )}
-          </div>
-        );
-      })}
+              )}
+            </Card>
+          );
+        })}
+      </div>
       {!ro && <AddButton label="Add a category" onClick={addCategory} />}
     </div>
   );

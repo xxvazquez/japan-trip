@@ -111,7 +111,7 @@ export default function Hotel() {
 
       <div className="mt-3.5 space-y-3.5">
         {(hotel.directions || !ro) && (
-          <Section icon="map" title="Getting here">
+          <Section collapsible icon="map" title="Getting here">
             <div className="note">
               <Editable as="textarea" label="Directions" value={hotel.directions ?? ""} placeholder="From the station…" onCommit={(v) => p({ directions: v || undefined })} />
             </div>
@@ -119,7 +119,7 @@ export default function Hotel() {
         )}
 
         {showRefSection && (
-          <Section icon="vault" title="Reference">
+          <Section collapsible icon="vault" title="Reference">
             {(!ro || hotel.price) && (
               <div className="row">
                 <span className="row-label">Price</span>
@@ -135,7 +135,7 @@ export default function Hotel() {
         )}
 
         {(hotel.notes || !ro) && (
-          <Section icon="list" title="Notes">
+          <Section collapsible icon="list" title="Notes">
             <div className="note">
               <RichNote value={hotel.notes ?? ""} onCommit={(v) => p({ notes: v || undefined })} placeholder="Anything about this stay" />
             </div>
