@@ -17,6 +17,8 @@ const TONE_BG: Record<Tone, string> = {
  *
  * The fill is either a palette `tone` (from `lib/tones.ts`) or an explicit
  * `color` (a hex — pass a place's own colour so the list matches its map pin).
+ * `ghost` swaps the solid fill for a quiet neutral wash + a muted glyph — for a
+ * secondary mark (a detail-strip cell) that shouldn't shout.
  *
  *   md — 28px, the default row tile
  *   sm — 22px, a lighter touch (a detail row, a nested item)
@@ -26,6 +28,7 @@ export function IconTile({
   glyph,
   tone,
   color,
+  ghost = false,
   size = "md",
   className = "",
 }: {
@@ -33,18 +36,21 @@ export function IconTile({
   glyph?: MapGlyphId | string;
   tone?: Tone;
   color?: string;
+  ghost?: boolean;
   size?: "sm" | "md";
   className?: string;
 }) {
   const box = size === "md" ? "h-7 w-7" : "h-[22px] w-[22px]";
   const px = size === "md" ? 16 : 13;
   const d = glyph ? glyphPath(glyph) : undefined;
-  const toneClass = color ? "" : TONE_BG[tone ?? "accent"];
+  const fill = ghost
+    ? "bg-ink-faint/[0.14] text-ink-soft"
+    : `text-white ${color ? "" : TONE_BG[tone ?? "accent"]}`;
 
   return (
     <span
-      className={`grid shrink-0 place-items-center rounded-[7px] text-white ${box} ${toneClass} ${className}`}
-      style={color ? { background: color } : undefined}
+      className={`grid shrink-0 place-items-center rounded-[7px] ${box} ${fill} ${className}`}
+      style={!ghost && color ? { background: color } : undefined}
       aria-hidden="true"
     >
       {d ? (

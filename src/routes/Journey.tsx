@@ -5,7 +5,8 @@ import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
-import { Icon } from "@/components/Icon";
+import { Icon, type IconName } from "@/components/Icon";
+import { IconTile } from "@/components/IconTile";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
@@ -20,13 +21,6 @@ import type { Journey as JourneyT, JourneyKind, Segment, TransportMode } from "@
 const MODES: TransportMode[] = ["flight", "train", "bus", "ferry", "car", "taxi", "subway", "walk"];
 const KINDS: JourneyKind[] = ["arrival", "transfer", "departure"];
 const rid = () => Math.random().toString(36).slice(2, 8);
-
-/** the muted card treatment for each mode tone — literal strings so Tailwind
- *  keeps them. One tint per hop card: a thin left rule + a wash + the mode label. */
-const TONE_CLASS: Record<"ai" | "matcha", { card: string; text: string }> = {
-  ai: { card: "border-l-ai/70 bg-ai/[0.05]", text: "text-ai" },
-  matcha: { card: "border-l-matcha/70 bg-matcha/[0.06]", text: "text-matcha" },
-};
 
 /** The from → to connector. One weight everywhere a route shows — always Inter,
  *  never the page's serif, so the Journey screen stops mixing arrow styles. */
@@ -211,7 +205,6 @@ export default function Journey() {
           ]
             .filter(Boolean)
             .join("  ·  ");
-          const tone = TONE_CLASS[MODE_TONE[s.mode]];
           const foot = s.mode === "walk";
           // which fields are worth offering for this mode when editing — an
           // already-filled value always shows regardless
@@ -232,6 +225,19 @@ export default function Journey() {
                 <span className="row-value value">{node}</span>
               </div>
             ) : null;
+
+          // read-only: the filled-in details as a compact icon strip
+          type Cell = { icon: IconName; label: string; value: string };
+          const stripCells: Cell[] = ro
+            ? [
+                s.carrier && { icon: MODE_ICON[s.mode], label: s.mode === "flight" ? "Airline" : "Carrier", value: s.carrier },
+                s.service && { icon: "route" as const, label: s.mode === "flight" ? "Flight" : "Service", value: s.service },
+                s.platform && { icon: "door" as const, label: "Platform", value: s.platform },
+                s.seat && { icon: "seat" as const, label: "Seat", value: s.seat },
+                s.bookingRef && { icon: "copy" as const, label: "Ref", value: s.bookingRef },
+                s.fare && { icon: "ticket" as const, label: "Fare", value: fmtFare(s.fare, s.fareCurrency || primary) },
+              ].filter((c): c is Cell => !!c)
+            : [];
 
           const rows = [
             detail(
@@ -263,53 +269,102 @@ export default function Journey() {
             ),
           ].filter(Boolean);
 
+          const dotBg = MODE_TONE[s.mode] === "matcha" ? "bg-matcha" : "bg-ai";
+          const pillCls =
+            MODE_TONE[s.mode] === "matcha" ? "bg-matcha/[0.14] text-matcha" : "bg-ai/[0.14] text-ai";
+
           return (
             <div key={s.id}>
-              <div className={`group rounded border border-line border-l-2 py-3 pl-3.5 pr-3 ${tone.card}`}>
-                {/* mode */}
-                <p className={`flex items-center gap-1.5 ${tone.text}`}>
-                  <Icon name={MODE_ICON[s.mode]} size={15} className="shrink-0" />
-                  {ro ? (
-                    <span className="text-2xs font-medium uppercase tracking-[0.12em]">{MODE_LABEL[s.mode]}</span>
-                  ) : (
-                    <Editable
-                      as="select"
-                      label="Mode"
-                      value={s.mode}
-                      options={MODES.map((m) => ({ value: m, label: MODE_LABEL[m] }))}
-                      onCommit={(v) => setSeg(i, v === "flight" ? { mode: "flight", platform: undefined } : { mode: v as TransportMode })}
-                      className="text-2xs font-medium uppercase tracking-[0.12em]"
-                    />
+              <div className="group rounded-[12px] border border-line bg-surface p-4 shadow-[0_1px_1px_rgb(0_0_0/0.04),0_3px_8px_-2px_rgb(0_0_0/0.06)] dark:border-ink/10 dark:shadow-[0_1px_2px_rgb(0_0_0/0.4),0_6px_16px_-4px_rgb(0_0_0/0.5)]">
+                {/* header — mode tile, route, and (read-only) the service as a pill */}
+                <div className="flex items-start gap-2.5">
+                  <IconTile size="md" name={MODE_ICON[s.mode]} tone={MODE_TONE[s.mode]} />
+                  <div className="min-w-0 flex-1">
+                    {ro ? (
+                      <p className="eyebrow text-ink-faint">{MODE_LABEL[s.mode]}</p>
+                    ) : (
+                      <Editable
+                        as="select"
+                        label="Mode"
+                        value={s.mode}
+                        options={MODES.map((m) => ({ value: m, label: MODE_LABEL[m] }))}
+                        onCommit={(v) => setSeg(i, v === "flight" ? { mode: "flight", platform: undefined } : { mode: v as TransportMode })}
+                        className="eyebrow"
+                      />
+                    )}
+                    <p className="mt-0.5 font-display text-[1.0625rem] font-medium leading-snug text-ink">
+                      {ro ? (
+                        <>{s.from || "—"}<Arrow className="mx-1.5" />{s.to || "—"}</>
+                      ) : (
+                        <>
+                          <Editable label="From" value={s.from} placeholder="From" onCommit={(v) => setSeg(i, { from: v })} />
+                          <Arrow className="mx-1.5" />
+                          <Editable label="To" value={s.to} placeholder="To" onCommit={(v) => setSeg(i, { to: v })} />
+                        </>
+                      )}
+                    </p>
+                  </div>
+                  {ro && s.service && (
+                    <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${pillCls}`}>{s.service}</span>
                   )}
-                </p>
-
-                {/* route */}
-                <p className="lead mt-1.5">
-                  <Editable label="From" value={s.from} placeholder="From" onCommit={(v) => setSeg(i, { from: v })} />
-                  <Arrow className="mx-2" />
-                  <Editable label="To" value={s.to} placeholder="To" onCommit={(v) => setSeg(i, { to: v })} />
-                </p>
-
-                {/* times on a line, duration on a rule beneath */}
-                <div className="mt-3 flex items-baseline justify-between gap-3">
-                  <span className="font-display text-2xl tabular-nums leading-none">
-                    <Editable as="time" label="Depart time" value={clockOf(s.depart)} placeholder="--:--" onCommit={(v) => setSeg(i, { depart: mergeTime(s.depart, j.date, v) })} />
-                    {ep.depart.zone && <span className="ml-1 align-middle text-xs text-ink-faint">{ep.depart.zone}</span>}
-                  </span>
-                  <span className="font-display text-2xl tabular-nums leading-none">
-                    <Editable as="time" label="Arrive time" value={clockOf(s.arrive)} placeholder="--:--" onCommit={(v) => setSeg(i, { arrive: mergeTime(s.arrive, j.date, v) })} />
-                    {ep.arrive.zone && <span className="ml-1 align-middle text-xs text-ink-faint">{ep.arrive.zone}</span>}
-                  </span>
                 </div>
-                <div className="mt-2 flex items-center gap-2.5">
-                  <span className="h-px flex-1 bg-line" />
-                  <span className="meta shrink-0">{dur || "—"}</span>
-                  <span className="h-px flex-1 bg-line" />
-                </div>
-                {offDay && <p className="meta mt-1 text-center text-ink-faint">{offDay}</p>}
 
-                {/* secondary details as label ↔ value rows */}
-                {rows.length > 0 && <div className="mt-3 border-t border-line pt-0.5">{rows}</div>}
+                {/* times, joined by one connector line with the duration above it */}
+                <div className="mt-3.5 flex items-start gap-3">
+                  <div className="shrink-0">
+                    <span className="font-display text-2xl tabular-nums leading-none">
+                      {ro ? (
+                        clockOf(s.depart) || "--:--"
+                      ) : (
+                        <Editable as="time" label="Depart time" value={clockOf(s.depart)} placeholder="--:--" onCommit={(v) => setSeg(i, { depart: mergeTime(s.depart, j.date, v) })} />
+                      )}
+                      {ep.depart.zone && <span className="ml-1 align-middle text-xs text-ink-faint">{ep.depart.zone}</span>}
+                    </span>
+                    {ro && s.from && <p className="meta mt-1 text-ink-faint">{s.from}</p>}
+                  </div>
+                  <div className="relative mt-[0.6rem] h-2 flex-1">
+                    <span className="absolute inset-x-[3px] top-1/2 h-px -translate-y-1/2 bg-line" />
+                    <span className={`absolute left-0 top-1/2 h-[5px] w-[5px] -translate-y-1/2 rounded-full ${dotBg}`} />
+                    <span className={`absolute right-0 top-1/2 h-[5px] w-[5px] -translate-y-1/2 rounded-full ${dotBg}`} />
+                    {dur && (
+                      <span className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-[1.15rem] whitespace-nowrap text-[0.75rem] text-ink-soft">
+                        {dur}
+                      </span>
+                    )}
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <span className="font-display text-2xl tabular-nums leading-none">
+                      {ro ? (
+                        clockOf(s.arrive) || "--:--"
+                      ) : (
+                        <Editable as="time" label="Arrive time" value={clockOf(s.arrive)} placeholder="--:--" onCommit={(v) => setSeg(i, { arrive: mergeTime(s.arrive, j.date, v) })} />
+                      )}
+                      {ep.arrive.zone && <span className="ml-1 align-middle text-xs text-ink-faint">{ep.arrive.zone}</span>}
+                    </span>
+                    {ro && s.to && <p className="meta mt-1 text-ink-faint">{s.to}</p>}
+                  </div>
+                </div>
+                {offDay && <p className="meta mt-1.5 text-center text-ink-faint">{offDay}</p>}
+
+                {/* details — an icon strip read-only, editable rows when editing */}
+                {ro
+                  ? stripCells.length > 0 && (
+                      <div className="mt-3.5 overflow-hidden rounded-[10px] bg-surface-2">
+                        <div className="flex">
+                          {stripCells.map((c, ci) => (
+                            <div
+                              key={c.label}
+                              className={`relative flex-1 px-1.5 py-3 text-center ${ci > 0 ? "before:absolute before:left-0 before:top-[22%] before:bottom-[22%] before:w-px before:bg-line before:content-['']" : ""}`}
+                            >
+                              <IconTile ghost size="sm" name={c.icon} className="mx-auto mb-1.5" />
+                              <div className="text-2xs uppercase tracking-[0.04em] text-ink-faint">{c.label}</div>
+                              <div className="value mt-0.5 text-[0.8125rem] leading-tight [overflow-wrap:anywhere]">{c.value}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  : rows.length > 0 && <div className="mt-3 border-t border-line pt-0.5">{rows}</div>}
                 {!ro && (
                   <div className="mt-2 flex justify-end">
                     <RowDeleteButton onClick={() => patch({ segments: j.segments.filter((_, k) => k !== i) })} label="Remove hop" />
