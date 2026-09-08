@@ -23,10 +23,8 @@ const rid = () => Math.random().toString(36).slice(2, 8);
 
 /** the muted card treatment for each mode tone — literal strings so Tailwind
  *  keeps them. One tint per hop card: a thin left rule + a wash + the mode label. */
-const TONE_CLASS: Record<string, { card: string; text: string }> = {
-  accent: { card: "border-l-accent/70 bg-accent/[0.05]", text: "text-accent" },
+const TONE_CLASS: Record<"ai" | "matcha", { card: string; text: string }> = {
   ai: { card: "border-l-ai/70 bg-ai/[0.05]", text: "text-ai" },
-  gold: { card: "border-l-gold/70 bg-gold/[0.06]", text: "text-gold" },
   matcha: { card: "border-l-matcha/70 bg-matcha/[0.06]", text: "text-matcha" },
 };
 

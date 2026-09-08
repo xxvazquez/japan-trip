@@ -1,5 +1,6 @@
 import type { JourneyKind, TransportMode } from "@/core/types";
 import type { MapGlyphId } from "@/lib/mapGlyphs";
+import { MODE_TONE } from "@/lib/transport";
 
 /**
  * One place that maps a *kind of thing* to a palette role, so the leading
@@ -12,9 +13,11 @@ import type { MapGlyphId } from "@/lib/mapGlyphs";
  */
 export type Tone = "accent" | "matcha" | "gold" | "ai" | "ink-faint";
 
-/** train / bus / subway / ferry / plane / car / taxi → transit; on foot → moss. */
+/** train / bus / subway / ferry / plane / car / taxi → transit; on foot → moss.
+ *  `MODE_TONE` in `lib/transport.ts` is the source of truth (the Journey hop
+ *  cards read it directly). */
 export function toneForSegmentMode(mode: TransportMode): Tone {
-  return mode === "walk" ? "matcha" : "ai";
+  return MODE_TONE[mode];
 }
 
 /** a journey is transit, whatever its kind. */

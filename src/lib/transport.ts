@@ -14,18 +14,18 @@ export const MODE_LABEL: Record<TransportMode, string> = {
   walk: "Walk",
 };
 
-/** A muted colour token per mode, so the "Getting there" cards carry one calm
- *  tint each and never a rainbow. Grouped: on rails = accent, through air or
- *  water = ai, on the road = gold, on foot = matcha. Maps to a `--c-*` token
- *  and the matching Tailwind colour utility. */
-export const MODE_TONE: Record<TransportMode, "accent" | "ai" | "gold" | "matcha"> = {
-  train: "accent",
-  subway: "accent",
+/** A muted colour token per mode. Transit — however you're carried — reads as
+ *  one calm blue-grey (`ai`); on foot is moss (`matcha`). Kept in step with
+ *  `toneForSegmentMode` in `lib/tones.ts` so a hop card and its Logbook list
+ *  tile match. Maps to a `--c-*` token and the matching Tailwind utility. */
+export const MODE_TONE: Record<TransportMode, "ai" | "matcha"> = {
+  train: "ai",
+  subway: "ai",
   flight: "ai",
   ferry: "ai",
-  bus: "gold",
-  car: "gold",
-  taxi: "gold",
+  bus: "ai",
+  car: "ai",
+  taxi: "ai",
   walk: "matcha",
 };
 
