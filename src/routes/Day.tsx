@@ -19,6 +19,8 @@ import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { Icon } from "@/components/Icon";
+import { IconTile } from "@/components/IconTile";
+import { toneForPlaceCategory } from "@/lib/tones";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
@@ -207,7 +209,7 @@ export default function Day() {
             )
           }
         >
-          <PlanList items={day.plan ?? []} places={data.places} readOnly={ro} onChange={setPlan} />
+          <PlanList items={day.plan ?? []} places={data.places} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} />
         </Section>
       )}
 
@@ -310,9 +312,10 @@ export default function Day() {
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanList({ items, places, readOnly, onChange }: {
+function PlanList({ items, places, categoryIcons, readOnly, onChange }: {
   items: PlanItem[];
   places: Place[];
+  categoryIcons?: Record<string, string>;
   readOnly: boolean;
   onChange: (next: PlanItem[]) => void;
 }) {
@@ -340,6 +343,7 @@ function PlanList({ items, places, readOnly, onChange }: {
       item={it}
       place={it.placeId ? places.find((p) => p.id === it.placeId) : undefined}
       places={places}
+      categoryIcons={categoryIcons}
       readOnly={readOnly}
       onPatch={(p) => patchItem(it.id, p)}
       onRemove={() => removeItem(it.id)}
@@ -364,10 +368,11 @@ function PlanList({ items, places, readOnly, onChange }: {
   );
 }
 
-function PlanRow({ item, place, places, readOnly, onPatch, onRemove }: {
+function PlanRow({ item, place, places, categoryIcons, readOnly, onPatch, onRemove }: {
   item: PlanItem;
   place?: Place;
   places: Place[];
+  categoryIcons?: Record<string, string>;
   readOnly: boolean;
   onPatch: (p: Partial<PlanItem>) => void;
   onRemove: () => void;
@@ -378,66 +383,69 @@ function PlanRow({ item, place, places, readOnly, onPatch, onRemove }: {
   const [open, setOpen] = useState(false);
   const canExpand = !readOnly || hasNote;
 
+  const range = splitRange(item.time);
+  const timeText = range ? `${range[0]} – ${range[1]}` : item.time;
+  const plainTime = !item.time || /^\d{1,2}:\d{2}$/.test(item.time);
+  const catGlyph = place?.category ? categoryIcons?.[place.category] : undefined;
+  const tile = (
+    <IconTile
+      size="sm"
+      glyph={place ? catGlyph : undefined}
+      name={place && catGlyph ? undefined : "pin"}
+      color={place?.source === "mymap" ? place.color : undefined}
+      tone={place ? toneForPlaceCategory(place.category, categoryIcons) : "ink-faint"}
+      className={place ? "" : "opacity-70"}
+    />
+  );
+
   return (
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={`group border-b border-line/70 bg-surface text-sm last:border-b-0 ${isDragging ? "z-10 opacity-70" : ""}`}
     >
-      <div className="flex items-start gap-2 py-2.5">
+      <div className="flex items-center gap-2.5 py-2">
         {!readOnly && (
           <button
             {...attributes}
             {...listeners}
-            className="mt-[0.15em] grid h-4 w-4 shrink-0 cursor-grab touch-none place-items-center text-ink-faint/50 active:cursor-grabbing"
+            className="grid h-4 w-3 shrink-0 cursor-grab touch-none place-items-center text-ink-faint/50 active:cursor-grabbing"
             aria-label="Drag to reorder"
           >
             <Icon name="grip" size={13} />
           </button>
         )}
-        {/* time + pin-slot are fixed width so every step's text starts at the same x.
-            a range stacks (start over a quieter end) instead of overrunning the column */}
-        <span className="w-[3.75rem] shrink-0 pt-px text-[0.8125rem] leading-[1.15] tabular-nums text-ink-soft [overflow-wrap:anywhere]">
-          {(() => {
-            const range = splitRange(item.time);
-            if (readOnly) {
-              return range ? (
-                <>{range[0]}<span className="block text-ink-faint">{range[1]}</span></>
-              ) : (
-                item.time
-              );
-            }
-            return /^\d{1,2}:\d{2}$/.test(item.time ?? "") || !item.time ? (
-              <Editable as="time" label="Time" value={item.time ?? ""} placeholder="––:––" onCommit={(v) => onPatch({ time: v || undefined })} />
-            ) : (
-              <Editable label="Time" value={item.time} className="[overflow-wrap:anywhere]" placeholder="––:––" onCommit={(v) => onPatch({ time: v.trim() || undefined })} />
-            );
-          })()}
-        </span>
-        <span className="mt-[0.1em] grid w-4 shrink-0 place-items-center">
-          {(mapHref || item.placeId) && (
-            <a
-              href={mapHref}
-              target="_blank"
-              rel="noopener"
-              className={mapHref ? "text-accent" : "pointer-events-none text-ink-faint/40"}
-              aria-label={place ? `Open ${place.name} in Google Maps` : "Open in Google Maps"}
-            >
-              <Icon name="pin" size={13} />
-            </a>
-          )}
-        </span>
+        {mapHref ? (
+          <a href={mapHref} target="_blank" rel="noopener" className="shrink-0" aria-label={place ? `Open ${place.name} in Google Maps` : "Open in Google Maps"}>
+            {tile}
+          </a>
+        ) : (
+          tile
+        )}
         <span className="min-w-0 flex-1">
-          {readOnly
-            ? item.text
-            : <Editable label="Step" value={item.text} placeholder="Add a step" onCommit={(v) => onPatch({ text: v })} />}
+          <span className="block truncate leading-snug text-ink">
+            {readOnly
+              ? item.text
+              : <Editable label="Step" value={item.text} placeholder="Add a step" onCommit={(v) => onPatch({ text: v })} />}
+          </span>
+          {(readOnly ? !!timeText : true) && (
+            <span className="meta block leading-tight tabular-nums">
+              {readOnly ? (
+                timeText
+              ) : plainTime ? (
+                <Editable as="time" label="Time" value={item.time ?? ""} placeholder="Add a time" onCommit={(v) => onPatch({ time: v || undefined })} />
+              ) : (
+                <Editable label="Time" value={item.time ?? ""} placeholder="Add a time" onCommit={(v) => onPatch({ time: v.trim() || undefined })} />
+              )}
+            </span>
+          )}
         </span>
         {canExpand && (
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}
             aria-label={open ? "Hide step details" : "Step details"}
-            className="mt-[0.1em] shrink-0 px-0.5"
+            className="shrink-0 px-0.5"
           >
             <Icon
               name="chevron"
@@ -450,7 +458,7 @@ function PlanRow({ item, place, places, readOnly, onPatch, onRemove }: {
       </div>
 
       {open && (
-        <div className="ml-[4.5rem] space-y-2.5 border-l border-line pb-3 pl-3 pr-1">
+        <div className="ml-8 space-y-2.5 border-l border-line pb-3 pl-3 pr-1">
           {!readOnly && (places.length > 0 || item.placeId) && (
             <div className="flex items-center gap-1.5">
               <Icon name="pin" size={12} className={item.placeId ? "shrink-0 text-ink-soft" : "shrink-0 text-ink-faint"} />
