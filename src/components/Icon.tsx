@@ -226,17 +226,58 @@ const P: Record<IconName, JSX.Element> = {
 
 export const isIconName = (x: string): x is IconName => x in P;
 
+/** Solid silhouettes for the handful of icons that need a filled state — the
+ *  bottom-nav / rail set, where the current tab reads as filled. Any icon
+ *  without an entry here falls back to its stroked glyph. */
+const FILLED: Partial<Record<IconName, JSX.Element>> = {
+  itinerary: (
+    <>
+      <circle cx="6" cy="7.5" r="2.6" />
+      <circle cx="6" cy="16.5" r="2.6" />
+      <rect x="4.7" y="7" width="2.6" height="10" />
+      <rect x="10.5" y="6.1" width="9.5" height="2.8" rx="1.4" />
+      <rect x="10.5" y="15.1" width="9.5" height="2.8" rx="1.4" />
+    </>
+  ),
+  map: (
+    <>
+      <path d="M8.6 3.8 4 5.6a1 1 0 0 0-.6.9v12.9a1 1 0 0 0 1.4.9l3.8-1.5V3.8Z" />
+      <path d="M9.8 3.9v15.7l4.4 1.5V5.4L9.8 3.9Z" />
+      <path d="M15.4 5.5v15.6l4-1.6a1 1 0 0 0 .6-.9V4.1a1 1 0 0 0-1.4-.9l-3.2 2.3Z" />
+    </>
+  ),
+  vault: (
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M6.5 3H14.2a1 1 0 0 1 .7.3l3.8 3.8a1 1 0 0 1 .3.7V20a1 1 0 0 1-1 1H6.5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1ZM9 7.25a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5H9Zm0 4a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5H9Zm0 4a.75.75 0 0 0 0 1.5h4a.75.75 0 0 0 0-1.5H9Z"
+    />
+  ),
+  settings: (
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M4 6a1 1 0 0 1 1-1h1.55a3.5 3.5 0 0 1 6.9 0H19a1 1 0 1 1 0 2h-5.55a3.5 3.5 0 0 1-6.9 0H5a1 1 0 0 1-1-1Zm6 1.6a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2ZM4 12a1 1 0 0 1 1-1h9.55a3.5 3.5 0 0 1 6.9 0H21a1 1 0 1 1 0 2h-.55a3.5 3.5 0 0 1-6.9 0H5a1 1 0 0 1-1-1Zm14 1.6a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2ZM4 18a1 1 0 0 1 1-1h4.55a3.5 3.5 0 0 1 6.9 0H19a1 1 0 1 1 0 2h-2.55a3.5 3.5 0 0 1-6.9 0H5a1 1 0 0 1-1-1Zm9 1.6a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2Z"
+    />
+  ),
+};
+
 export function Icon({
   name,
   size = 22,
   className,
   strokeWidth,
+  filled = false,
 }: {
   name: IconName;
   size?: number;
   className?: string;
   strokeWidth?: number;
+  /** render the solid silhouette (only some icons have one — see FILLED) */
+  filled?: boolean;
 }) {
+  const solid = filled ? FILLED[name] : undefined;
+
   // stroke lives in the 24-unit viewBox, so it already scales with `size`; this
   // eases it down a touch at small sizes (≈1.25 at 12px → 1.5 at 22px) so the
   // 12–14px icons don't read heavier than the 20–22px header set. Explicit wins.
@@ -247,15 +288,15 @@ export function Icon({
       width={size}
       height={size}
       viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
+      fill={solid ? "currentColor" : "none"}
+      stroke={solid ? "none" : "currentColor"}
       strokeWidth={sw}
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
       aria-hidden="true"
     >
-      {P[name]}
+      {solid ?? P[name]}
     </svg>
   );
 }
