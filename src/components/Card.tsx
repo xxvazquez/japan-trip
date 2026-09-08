@@ -29,6 +29,7 @@ export const CARD_SHELL =
  */
 export function Card({
   title,
+  lead,
   right,
   meta,
   to,
@@ -38,6 +39,8 @@ export function Card({
   defaultOpen = true,
 }: {
   title?: ReactNode;
+  /** a leading mark before the title — an <IconTile> */
+  lead?: ReactNode;
   /** node shown at the top-right — a date, a count, a remove button */
   right?: ReactNode;
   /** a quiet line under the title */
@@ -54,7 +57,7 @@ export function Card({
 
   const header = title != null && (
     <div className="flex items-start justify-between gap-3">
-      <span className={`lead flex min-w-0 items-center gap-1.5 ${to ? "group-hover:underline" : ""}`}>
+      <span className="lead flex min-w-0 items-center gap-2">
         {canCollapse && (
           <button
             type="button"
@@ -70,7 +73,8 @@ export function Card({
             />
           </button>
         )}
-        <span className="min-w-0 truncate">{title}</span>
+        {lead}
+        <span className={`min-w-0 truncate ${to ? "group-hover:underline" : ""}`}>{title}</span>
       </span>
       {(right || to) && (
         <span className="flex shrink-0 items-center gap-2 pt-0.5">

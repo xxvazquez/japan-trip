@@ -2,6 +2,9 @@ import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Card, CARD_SHELL } from "@/components/Card";
+import { Section } from "@/components/Section";
+import { IconTile } from "@/components/IconTile";
+import { TileRow } from "@/components/TileRow";
 import { Empty } from "@/components/Empty";
 import { Tab } from "@/components/Tabs";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
@@ -18,6 +21,8 @@ import { useAuth } from "@/lib/auth";
 import { useReadOnly } from "@/lib/readonly";
 import { APP_NAME } from "@/lib/app";
 import { fmtDate, fmtSpan, plural } from "@/lib/dates";
+import { MODE_ICON } from "@/lib/transport";
+import { toneForSegmentMode } from "@/lib/tones";
 import { LOGBOOK_SECTIONS, logbookLabel } from "@/lib/logbook";
 import { tripCost, fmtMoney } from "@/lib/cost";
 import { putFile, fileUrl, removeFile } from "@/lib/fileStore";
@@ -153,24 +158,23 @@ function Stays() {
   const loc = data.config.locale;
   if (data.hotels.length === 0) return <Empty what="No stays" />;
   return (
-    <div className="space-y-3">
-      {data.hotels.map((h) => {
-        const leg = data.legs.find((l) => l.hotelId === h.id);
-        return (
-          <Card
-            key={h.id}
-            to={`/hotel/${h.id}`}
-            title={h.name}
-            meta={h.address || undefined}
-            right={leg && (
-              <span className="value tabular-nums text-ink-soft">
-                {fmtDate(leg.start, loc, { day: "numeric", month: "short" })}
-              </span>
-            )}
-          />
-        );
-      })}
-    </div>
+    <Section variant="grouped" title="Stays">
+      <ul className="divide-y divide-line">
+        {data.hotels.map((h) => {
+          const leg = data.legs.find((l) => l.hotelId === h.id);
+          return (
+            <TileRow
+              key={h.id}
+              to={`/hotel/${h.id}`}
+              tile={<IconTile size="sm" glyph="hotel" tone="ink-faint" />}
+              title={h.name}
+              meta={h.address || undefined}
+              right={leg && fmtDate(leg.start, loc, { day: "numeric", month: "short" })}
+            />
+          );
+        })}
+      </ul>
+    </Section>
   );
 }
 
@@ -183,32 +187,32 @@ function GettingAround() {
   );
   if (journeys.length === 0) return <Empty what="No journeys" />;
   return (
-    <div className="space-y-3">
-      {journeys.map((j) => {
-        const first = j.segments[0];
-        const last = j.segments.at(-1);
-        const changes = Math.max(0, j.segments.length - 1);
-        const times =
-          fmtSpan(
-            { depart: first?.depart, arrive: last?.arrive ?? last?.depart, fromTz: first?.fromTz, toTz: last?.toTz },
-            j.date,
-            loc,
-          ) || "—";
-        return (
-          <Card
-            key={j.id}
-            to={`/journey/${j.id}`}
-            title={j.label || "Journey"}
-            meta={changes > 0 ? `${times} · ${plural(changes, "change")}` : times}
-            right={j.date && (
-              <span className="value tabular-nums text-ink-soft">
-                {fmtDate(j.date, loc, { day: "numeric", month: "short" })}
-              </span>
-            )}
-          />
-        );
-      })}
-    </div>
+    <Section variant="grouped" title="Getting around">
+      <ul className="divide-y divide-line">
+        {journeys.map((j) => {
+          const first = j.segments[0];
+          const last = j.segments.at(-1);
+          const changes = Math.max(0, j.segments.length - 1);
+          const mode = first?.mode ?? "train";
+          const times =
+            fmtSpan(
+              { depart: first?.depart, arrive: last?.arrive ?? last?.depart, fromTz: first?.fromTz, toTz: last?.toTz },
+              j.date,
+              loc,
+            ) || "—";
+          return (
+            <TileRow
+              key={j.id}
+              to={`/journey/${j.id}`}
+              tile={<IconTile size="sm" name={MODE_ICON[mode]} tone={toneForSegmentMode(mode)} />}
+              title={j.label || "Journey"}
+              meta={changes > 0 ? `${times} · ${plural(changes, "change")}` : times}
+              right={j.date && fmtDate(j.date, loc, { day: "numeric", month: "short" })}
+            />
+          );
+        })}
+      </ul>
+    </Section>
   );
 }
 
@@ -241,6 +245,7 @@ function Luggage() {
         return (
           <Card
             key={n.id}
+            lead={<IconTile size="sm" glyph="luggage" tone="ink-faint" />}
             title={<Editable label="Title" value={n.title} placeholder="e.g. Coin lockers" onCommit={(v) => p({ title: v || "Untitled" })} />}
             right={!ro && cardDeleteBtn(() => removeEntity("luggage", n.id), "Delete note")}
           >
@@ -389,6 +394,7 @@ function Documents() {
       {docs.map((d) => (
         <Card
           key={d.id}
+          lead={<IconTile size="sm" name="vault" tone="accent" />}
           title={
             ro
               ? d.title
