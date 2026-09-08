@@ -11,9 +11,12 @@ const TONE_BG: Record<Tone, string> = {
 };
 
 /**
- * The leading mark on a grouped-list row: a filled, tone-coloured rounded
- * square with a white glyph. Takes an `Icon` name **or** a `MAP_GLYPHS` id
- * (reuses `glyphPath`, no new icon set). `tone` comes from `lib/tones.ts`.
+ * The leading mark on a grouped-list row: a filled rounded square with a white
+ * glyph. Takes an `Icon` name **or** a `MAP_GLYPHS` id (reuses `glyphPath`, no
+ * new icon set).
+ *
+ * The fill is either a palette `tone` (from `lib/tones.ts`) or an explicit
+ * `color` (a hex — pass a place's own colour so the list matches its map pin).
  *
  *   md — 28px, the default row tile
  *   sm — 22px, a lighter touch (a detail row, a nested item)
@@ -22,22 +25,26 @@ export function IconTile({
   name,
   glyph,
   tone,
+  color,
   size = "md",
   className = "",
 }: {
   name?: IconName;
   glyph?: MapGlyphId | string;
-  tone: Tone;
+  tone?: Tone;
+  color?: string;
   size?: "sm" | "md";
   className?: string;
 }) {
   const box = size === "md" ? "h-7 w-7" : "h-[22px] w-[22px]";
   const px = size === "md" ? 16 : 13;
   const d = glyph ? glyphPath(glyph) : undefined;
+  const toneClass = color ? "" : TONE_BG[tone ?? "accent"];
 
   return (
     <span
-      className={`grid shrink-0 place-items-center rounded-[7px] text-white ${box} ${TONE_BG[tone]} ${className}`}
+      className={`grid shrink-0 place-items-center rounded-[7px] text-white ${box} ${toneClass} ${className}`}
+      style={color ? { background: color } : undefined}
       aria-hidden="true"
     >
       {d ? (

@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { MapView, type MLMap } from "@/components/MapView";
 import { Editable } from "@/components/Editable";
 import { Icon } from "@/components/Icon";
+import { IconTile } from "@/components/IconTile";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
@@ -16,6 +17,7 @@ import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
 import { TRANSIT_KINDS, TRANSIT_META } from "@/lib/transitLayers";
 import { glyphPath } from "@/lib/mapGlyphs";
+import { toneForPlaceCategory } from "@/lib/tones";
 import type { Area, Day, Hotel, PlanItem, Place, TripData } from "@/core/types";
 
 const FALLBACK = "#5f7f9c";
@@ -681,6 +683,7 @@ export default function MapTab() {
       derived={derived.has(p.id)}
       days={data.days}
       areas={data.areas}
+      categoryIcons={data.config.categoryIcons}
       loc={loc}
       onToggle={() => setSelected(selected === p.id ? null : p.id)}
       onNote={(v) => updateEntity<Place>("places", p.id, { note: v || undefined })}
@@ -1116,6 +1119,7 @@ function PlaceRow({
   derived,
   days,
   areas,
+  categoryIcons,
   loc,
   onToggle,
   onNote,
@@ -1130,6 +1134,7 @@ function PlaceRow({
   derived?: boolean;
   days: TripData["days"];
   areas: Area[];
+  categoryIcons?: Record<string, string>;
   loc: string;
   onToggle: () => void;
   onNote: (v: string) => void;
@@ -1148,12 +1153,19 @@ function PlaceRow({
   // scroll-margin below gives `block: "nearest"` a little breathing room so an
   // opened row never lands flush against the list's top edge.
   const metaBits = [place.category, day && `on ${fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}`].filter(Boolean).join(" · ");
+  const catGlyph = place.category ? categoryIcons?.[place.category] : undefined;
+  // an imported pin keeps its own colour (matches its map marker); an app-native
+  // pin has no real colour, so tint it by category instead
+  const ownColour = place.color && place.color !== FALLBACK ? place.color : undefined;
   return (
     <li ref={li} className="scroll-my-3 border-b border-line last:border-b-0">
-      <button onClick={onToggle} className={`flex w-full items-baseline gap-2.5 py-2 text-left ${derived ? "opacity-60" : ""}`}>
-        <span
-          className="h-2 w-2 shrink-0 translate-y-0.5 rounded-full"
-          style={derived ? { boxShadow: `inset 0 0 0 1.5px ${place.color || FALLBACK}` } : { background: place.color || FALLBACK }}
+      <button onClick={onToggle} className={`flex w-full items-center gap-3 py-2 text-left ${derived ? "opacity-60" : ""}`}>
+        <IconTile
+          size="sm"
+          glyph={catGlyph}
+          name={catGlyph ? undefined : "pin"}
+          color={ownColour}
+          tone={toneForPlaceCategory(place.category, categoryIcons)}
         />
         <span className="min-w-0 flex-1">
           <span className="block truncate text-sm font-medium leading-snug text-ink">{place.name}</span>
@@ -1161,11 +1173,11 @@ function PlaceRow({
             <span className="meta block truncate">{[derived && "from area", metaBits].filter(Boolean).join(" · ")}</span>
           )}
         </span>
-        <Icon name={open ? "up" : "down"} size={13} className="shrink-0 translate-y-0.5 text-ink-faint" />
+        <Icon name={open ? "up" : "down"} size={13} className="shrink-0 text-ink-faint" />
       </button>
 
       {open && (
-        <div className="pb-3.5 pl-5 pr-1">
+        <div className="pb-3.5 pl-[calc(22px+0.75rem)] pr-1">
           {place.source && !readOnly && (
             <div className="mb-2">
               <Editable label="Name" value={place.name} onCommit={onName} className="text-sm font-medium" />
