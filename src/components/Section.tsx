@@ -32,7 +32,8 @@ export function Section({
   collapsible = false,
   defaultOpen = true,
 }: {
-  title: ReactNode;
+  /** omit on a `grouped` section whose enclosing tab already names it */
+  title?: ReactNode;
   icon?: IconName;
   action?: ReactNode;
   children: ReactNode;
@@ -44,6 +45,7 @@ export function Section({
   const [open, setOpen] = useState(defaultOpen);
   const shut = collapsible && !open;
   const grouped = variant === "grouped";
+  const hasHeader = title != null || action != null;
 
   const heading = (
     <h2
@@ -92,7 +94,7 @@ export function Section({
   if (grouped) {
     return (
       <section className={className}>
-        {headerRow}
+        {hasHeader && headerRow}
         {!shut && (
           <div className="overflow-hidden rounded-[12px] border border-line bg-surface shadow-[0_1px_1px_rgb(0_0_0/0.04),0_3px_8px_-2px_rgb(0_0_0/0.06)] dark:border-ink/10 dark:shadow-[0_1px_2px_rgb(0_0_0/0.4),0_6px_16px_-4px_rgb(0_0_0/0.5)]">
             {children}
@@ -104,7 +106,7 @@ export function Section({
 
   return (
     <section className={`${CARD_SHELL} ${className}`}>
-      {headerRow}
+      {hasHeader && headerRow}
       {!shut && children}
     </section>
   );
