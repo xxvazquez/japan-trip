@@ -1,12 +1,51 @@
 import { THEME_PRESETS } from "./themePresets";
 import { mapUrlCoords } from "./maps";
-import type { Day, Doc, DocField, Hotel, ModuleConfig, PlanItem, ThemeTokens, TripData } from "@/core/types";
+import type { Day, Doc, DocField, ExpenseCategory, Hotel, ModuleConfig, PlanItem, ThemeTokens, TripData } from "@/core/types";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
-export const SCHEMA_VERSION = 6;
+export const SCHEMA_VERSION = 7;
+
+/** Seed expense categories for a new trip. The two `role` entries collect stay
+ *  prices and fares automatically; the rest are day-spending buckets. Editable
+ *  in Manage afterwards. */
+export const DEFAULT_EXPENSE_CATEGORIES: ExpenseCategory[] = [
+  { id: "cat-food", label: "Food & drink" },
+  { id: "cat-transport", label: "Transport", role: "transport" },
+  { id: "cat-lodging", label: "Accommodation", role: "lodging" },
+  { id: "cat-activities", label: "Activities" },
+  { id: "cat-shopping", label: "Shopping" },
+  { id: "cat-other", label: "Other" },
+];
 
 const fieldId = () =>
   (globalThis.crypto?.randomUUID?.() ?? `f-${Math.random().toString(36).slice(2, 10)}`);
+
+/** Legacy spending rows carried only a free-text label. Best-effort match it to
+ *  one of the trip's categories by keyword so the Expenses grouping isn't all
+ *  one bucket — the original text stays on the row as its note. Returns an
+ *  "other"-ish category when nothing matches, undefined only if the list is
+ *  somehow empty. */
+function guessCategoryId(label: string, cats: ExpenseCategory[]): string | undefined {
+  const t = label.toLowerCase();
+  const has = (...w: string[]) => w.some((x) => t.includes(x));
+  const byLabel = (re: RegExp, role?: ExpenseCategory["role"]) =>
+    cats.find((c) => (role && c.role === role) || re.test(c.label.toLowerCase()))?.id;
+
+  if (has("lunch", "dinner", "breakfast", "brunch", "food", "cafe", "café", "coffee", "restaurant", "meal", "snack", "drink", "bar", "izakaya", "bakery"))
+    return byLabel(/food|drink|eat|meal/) ?? fallbackCategoryId(cats);
+  if (has("train", "metro", "subway", "bus", "taxi", "fare", "transit", "shinkansen", "suica", "pasmo", "uber", "tram", "ferry", "flight"))
+    return byLabel(/transport|travel|getting/, "transport") ?? fallbackCategoryId(cats);
+  if (has("hotel", "hostel", "ryokan", "airbnb", "lodging", "accommodation", "guesthouse"))
+    return byLabel(/accommodation|lodging|stay|hotel/, "lodging") ?? fallbackCategoryId(cats);
+  if (has("museum", "entry", "tour", "admission", "onsen", "temple", "shrine", "activity", "experience", "show", "concert", "ticket"))
+    return byLabel(/activit|thing|see|do/) ?? fallbackCategoryId(cats);
+  if (has("shop", "souvenir", "gift", "store", "market", "clothes"))
+    return byLabel(/shop/) ?? fallbackCategoryId(cats);
+  return fallbackCategoryId(cats);
+}
+
+const fallbackCategoryId = (cats: ExpenseCategory[]): string | undefined =>
+  (cats.find((c) => /other|misc/.test(c.label.toLowerCase())) ?? cats.find((c) => !c.role) ?? cats[cats.length - 1])?.id;
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -48,12 +87,30 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
     themePreset: THEME_PRESETS[0].id,
     ...cfg,
     people: Array.isArray(cfg.people) ? (cfg.people as TripData["config"]["people"]) : [],
+    expenseCategories:
+      Array.isArray(cfg.expenseCategories) && (cfg.expenseCategories as unknown[]).length
+        ? (cfg.expenseCategories as ExpenseCategory[]).map((c) => ({
+            id: c.id || `cat-${fieldId()}`,
+            label: c.label ?? "",
+            ...(c.role ? { role: c.role } : {}),
+          }))
+        : DEFAULT_EXPENSE_CATEGORIES.map((c) => ({ ...c })),
     theme: fixTheme(cfg.theme as Partial<ThemeTokens> | undefined),
     modules:
       Array.isArray(cfg.modules) && (cfg.modules as unknown[]).length
         ? (cfg.modules as ModuleConfig[])
         : DEFAULT_MODULES,
   } as TripData["config"];
+
+  // currencies: the ordered list drives the per-row picker; `currency` (the
+  // bare-number assumption used all over) is kept as its first entry. Older
+  // trips only have `currency` — seed the list from it.
+  const ccy = [
+    ...(typeof cfg.currency === "string" ? [cfg.currency] : []),
+    ...(Array.isArray(cfg.currencies) ? (cfg.currencies as unknown[]) : []),
+  ].map((c) => String(c).trim().toUpperCase()).filter(Boolean);
+  d.config.currencies = [...new Set(ccy)];
+  d.config.currency = d.config.currencies[0] || undefined;
 
   // early trips stored the Map tab's icon as "places" (a house glyph, since
   // removed) — never a deliberate choice and there's no UI to change it, so
@@ -143,8 +200,15 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
       day.plan = [...fromStrings, ...fromPlaces].filter((it) => it.text);
     }
     delete raw.places;
+    const cats = d.config.expenseCategories ?? [];
     day.costs = Array.isArray(day.costs)
-      ? day.costs.map((c) => ({ id: c.id || fieldId(), label: c.label ?? "", amount: c.amount ?? "" }))
+      ? day.costs.map((c) => ({
+          id: c.id || fieldId(),
+          categoryId: c.categoryId || guessCategoryId(c.label ?? "", cats),
+          label: c.label ?? "",
+          amount: c.amount ?? "",
+          ...(c.currency ? { currency: c.currency } : {}),
+        }))
       : [];
   }
 
@@ -160,7 +224,7 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
 
   // hotels: the old fixed reference columns (phone / booking ref / website /
   // wifi / door code) fold into the free `fields` list so nothing is lost —
-  // they become ordinary user rows. Price + mapUrl stay dedicated (Budget +
+  // they become ordinary user rows. Price + mapUrl stay dedicated (Expenses +
   // the map button parse them). Runs once: a hotel already carrying `fields`
   // that came from a legacy column keeps them; only unmigrated columns move.
   const HOTEL_LEGACY: [keyof Hotel, string][] = [

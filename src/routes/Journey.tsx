@@ -13,7 +13,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { fmtDate, plural, segEndpoints } from "@/lib/dates";
 import { clockOf, fmtDuration, fmtMinutes, localMinutes } from "@/lib/time";
 import { MODE_LABEL, MODE_ICON, MODE_TONE } from "@/lib/transport";
-import { journeyFare, fmtMoney } from "@/lib/cost";
+import { journeyFare, fmtMoney, cleanAmount, fmtFare, currencySymbol } from "@/lib/cost";
 import { splitRoute, joinRoute, routeStops, JOURNEY_KIND_LABEL } from "@/lib/journey";
 import type { Journey as JourneyT, JourneyKind, Segment, TransportMode } from "@/core/types";
 
@@ -34,6 +34,38 @@ const TONE_CLASS: Record<string, { card: string; text: string }> = {
  *  never the page's serif, so the Journey screen stops mixing arrow styles. */
 function Arrow({ className = "" }: { className?: string }) {
   return <span className={`font-sans font-normal text-ink-faint ${className}`}>→</span>;
+}
+
+/** A fare amount + its currency. With one trip currency the code is just the
+ *  symbol; with two or more it's a picker. Absent picked currency = primary. */
+function FareField({ amount, currency, currencies, primary, onAmount, onCurrency }: {
+  amount: string;
+  currency: string | undefined;
+  currencies: string[];
+  primary: string;
+  onAmount: (v: string) => void;
+  onCurrency: (c: string | undefined) => void;
+}) {
+  const sym = currencySymbol(primary);
+  return (
+    <span className="inline-flex items-baseline gap-1.5">
+      {currencies.length >= 2 ? (
+        <select
+          value={currency ?? primary}
+          onChange={(e) => onCurrency(e.target.value === primary ? undefined : e.target.value)}
+          aria-label="Currency"
+          className="cursor-pointer bg-transparent text-[0.8125rem] text-ink-soft focus:outline-none"
+        >
+          {[...new Set([...currencies, currency || primary])].filter(Boolean).map((cc) => (
+            <option key={cc} value={cc}>{cc}</option>
+          ))}
+        </select>
+      ) : sym && (!amount || /^[\d.,]+$/.test(amount)) ? (
+        <span className="text-[0.8125rem] text-ink-faint">{sym}</span>
+      ) : null}
+      <Editable as="number" label="Fare" value={amount} placeholder="—" onCommit={onAmount} />
+    </span>
+  );
 }
 
 /** A stored "A → B" label with the arrow rendered as markup, not a baked char. */
@@ -67,6 +99,8 @@ export default function Journey() {
   const route = splitRoute(j.label);
   const setSeg = (i: number, sp: Partial<Segment>) => patch({ segments: j.segments.map((s, k) => (k === i ? { ...s, ...sp } : s)) });
   const loc = data.config.locale;
+  const currencies = (data.config.currencies ?? []).filter(Boolean);
+  const primary = currencies[0] ?? "";
 
   const first = j.segments[0];
   const last = j.segments.at(-1);
@@ -74,7 +108,7 @@ export default function Journey() {
   const changes = Math.max(0, j.segments.length - 1);
 
   // the fare adds up on its own — a manual `j.fare` wins, otherwise the hops
-  const fareLines = journeyFare(j, data.config.currency ?? "");
+  const fareLines = journeyFare(j, primary);
   const fareText = fareLines.map((m) => fmtMoney(m.amount, m.currency)).join("  +  ");
   const fareDerived = !j.fare?.trim() && fareLines.length > 0;
 
@@ -130,11 +164,13 @@ export default function Journey() {
           {fareDerived && <span className="meta text-ink-faint">summed from the hops</span>}
           {!ro && (
             <span className="meta">
-              <Editable
-                label="Set the total fare by hand"
-                value={j.fare ?? ""}
-                placeholder={j.fare ? "" : "set by hand"}
-                onCommit={(v) => patch({ fare: v || undefined })}
+              <FareField
+                amount={j.fare ?? ""}
+                currency={j.fareCurrency}
+                currencies={currencies}
+                primary={primary}
+                onAmount={(v) => patch({ fare: cleanAmount(v) || undefined })}
+                onCurrency={(c) => patch({ fareCurrency: c })}
               />
             </span>
           )}
@@ -213,7 +249,20 @@ export default function Journey() {
             detail("Platform", <Editable label="Platform" value={s.platform ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { platform: v || undefined })} />, show("platform", s.platform)),
             detail("Seat", <Editable label="Seat" value={s.seat ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { seat: v || undefined })} />, show("seat", s.seat)),
             detail("Booking ref", <Editable label="Booking reference" value={s.bookingRef ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { bookingRef: v || undefined })} />, show("bookingRef", s.bookingRef)),
-            detail("Fare", <Editable label="Fare" value={s.fare ?? ""} placeholder="—" onCommit={(v) => setSeg(i, { fare: v || undefined })} />, show("fare", s.fare)),
+            detail(
+              "Fare",
+              ro ? fmtFare(s.fare, s.fareCurrency || primary) : (
+                <FareField
+                  amount={s.fare ?? ""}
+                  currency={s.fareCurrency}
+                  currencies={currencies}
+                  primary={primary}
+                  onAmount={(v) => setSeg(i, { fare: cleanAmount(v) || undefined })}
+                  onCurrency={(c) => setSeg(i, { fareCurrency: c })}
+                />
+              ),
+              show("fare", s.fare),
+            ),
           ].filter(Boolean);
 
           return (

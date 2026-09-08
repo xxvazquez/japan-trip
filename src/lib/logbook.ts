@@ -8,11 +8,14 @@
  * Ordered in loose theme groups (bookings → reference → money → free text) so
  * related tabs sit next to each other in the flat scrolling strip.
  *
- * `budget` is the odd one out — a ROLL-UP, not a data-owning section. It has
- * no entity, no add/edit/reorder, nothing to sync; it just totals prices
- * entered on stays, journeys and days (see `tripCost`). It's in this list only
- * so it gets a tab. Any future summary view is the same kind of thing — model
- * it on `budget`, don't give it the entity plumbing the tabs around it have.
+ * `budget` (shown as "Expenses") is the odd one out — a ROLL-UP, not a
+ * data-owning section. It has no entity, no add/edit/reorder, nothing to sync;
+ * it just totals prices entered on stays, journeys and days, grouped by the
+ * trip's expense categories (see `tripCost`). The key stays `budget` so the
+ * `?s=` param and `hiddenLogbook` entries don't need migrating. It's in this
+ * list only so it gets a tab. Any future summary view is the same kind of
+ * thing — model it on `budget`, don't give it the entity plumbing the tabs
+ * around it have.
  */
 export const LOGBOOK_SECTIONS = [
   "stays",
@@ -43,7 +46,7 @@ const LABELS: Record<LogbookSection, string> = {
   emergency: "Emergency",
   documents: "Documents",
   packing: "Packing",
-  budget: "Budget",
+  budget: "Expenses",
   // the id/URL param stays "notes" (config.hiddenLogbook, ?s=) — this is a
   // single trip-wide scratchpad, not a home for the notes fields scattered
   // across Day/Journey/Hotel/Luggage/Docs, so the label says what it is

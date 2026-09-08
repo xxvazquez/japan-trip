@@ -1,4 +1,4 @@
-import type { Journey, TripData } from "@/core/types";
+import type { ExpenseCategory, Journey, TripData } from "@/core/types";
 
 const SYMBOL_CURRENCY: Record<string, string> = {
   "¥": "JPY", "$": "USD", "€": "EUR", "£": "GBP", "₩": "KRW", "₹": "INR",
@@ -41,22 +41,55 @@ export function parseMoney(s: string, fallbackCurrency = ""): Money | null {
   return { amount, currency: currency || fallbackCurrency };
 }
 
-export interface CostGroup {
-  accommodation: number;
-  transport: number;
-  other: number;
+/** Coerce a free-text amount / fare to a whole-number string in the trip
+ *  currency — strips symbols, separators and stray text, rounds to a whole
+ *  unit. Empty when there's no number in it. */
+export function cleanAmount(v: string): string {
+  const n = Math.round(Number(v.replace(/[^0-9.-]/g, "")));
+  return Number.isFinite(n) && n !== 0 ? String(n) : "";
+}
+
+/** Display a stored fare: format through the given currency when it reads as a
+ *  number ("18" → "€18"), else show the raw text (legacy "€18 for two"). */
+export function fmtFare(raw: string | undefined, currency = ""): string {
+  if (!raw?.trim()) return "";
+  const m = parseMoney(raw, currency);
+  return m ? fmtMoney(m.amount, m.currency) : raw;
+}
+
+/** The narrow symbol for an ISO code ("JPY" → "¥"), or the code itself when
+ *  there's no symbol / it isn't recognised. "" for a blank code. */
+export function currencySymbol(code: string): string {
+  if (!code) return "";
+  try {
+    const parts = new Intl.NumberFormat(undefined, {
+      style: "currency", currency: code, currencyDisplay: "narrowSymbol",
+    }).formatToParts(0);
+    return parts.find((p) => p.type === "currency")?.value || code;
+  } catch {
+    return code;
+  }
+}
+
+export interface CurrencyBucket {
+  /** categoryId → summed amount; only categories with a non-zero total land here */
+  byCategory: Record<string, number>;
+  /** amounts with no category, or one no longer in the trip's list */
+  uncategorised: number;
   total: number;
 }
 
 export interface CostSummary {
-  /** one group per currency actually seen — mixed currencies are never summed
+  /** one bucket per currency actually seen — mixed currencies are never summed
    *  together, "" is the bucket for amounts with no detectable currency */
-  byCurrency: Record<string, CostGroup>;
+  byCurrency: Record<string, CurrencyBucket>;
+  /** the trip's categories, in display order — for row labels and order */
+  categories: ExpenseCategory[];
   /** "<what> — <raw value>" for every price that had text but no readable number */
   unparsed: string[];
 }
 
-const emptyGroup = (): CostGroup => ({ accommodation: 0, transport: 0, other: 0, total: 0 });
+const emptyBucket = (): CurrencyBucket => ({ byCategory: {}, uncategorised: 0, total: 0 });
 
 /**
  * A journey's effective fare, per currency. `journey.fare` (a manual total)
@@ -65,56 +98,69 @@ const emptyGroup = (): CostGroup => ({ accommodation: 0, transport: 0, other: 0,
  */
 export function journeyFare(journey: Journey, fallbackCurrency = ""): Money[] {
   if (journey.fare?.trim()) {
-    const m = parseMoney(journey.fare, fallbackCurrency);
+    // a symbol in the text still wins; otherwise the picked fareCurrency, then
+    // the trip primary
+    const m = parseMoney(journey.fare, journey.fareCurrency || fallbackCurrency);
     return m ? [m] : [];
   }
   const byCur = new Map<string, number>();
   for (const seg of journey.segments) {
-    const m = seg.fare?.trim() ? parseMoney(seg.fare, fallbackCurrency) : null;
+    const m = seg.fare?.trim() ? parseMoney(seg.fare, seg.fareCurrency || fallbackCurrency) : null;
     if (m) byCur.set(m.currency, (byCur.get(m.currency) ?? 0) + m.amount);
   }
   return [...byCur].map(([currency, amount]) => ({ amount, currency }));
 }
 
-/** Rolls up every priced field in the trip, grouped by currency so nothing
- *  gets silently added across currencies. */
+/** Rolls up every priced field in the trip: stay prices land under the
+ *  `lodging`-role category, fares under `transport`, day-spending rows under
+ *  their own category. Grouped by currency so nothing is added across
+ *  currencies; a value whose category is missing or no longer in the list
+ *  falls into `uncategorised`. */
 export function tripCost(data: TripData): CostSummary {
-  const byCurrency: Record<string, CostGroup> = {};
+  const byCurrency: Record<string, CurrencyBucket> = {};
   const unparsed: string[] = [];
   const fallback = data.config.currency ?? "";
+  const categories = data.config.expenseCategories ?? [];
+  const known = new Set(categories.map((c) => c.id));
+  const lodgingId = categories.find((c) => c.role === "lodging")?.id;
+  const transportId = categories.find((c) => c.role === "transport")?.id;
 
-  const addMoney = (m: Money, bucket: keyof Omit<CostGroup, "total">) => {
-    const group = (byCurrency[m.currency] ??= emptyGroup());
-    group[bucket] += m.amount;
-    group.total += m.amount;
+  const addMoney = (m: Money, categoryId: string | undefined) => {
+    const bucket = (byCurrency[m.currency] ??= emptyBucket());
+    if (categoryId && known.has(categoryId)) {
+      bucket.byCategory[categoryId] = (bucket.byCategory[categoryId] ?? 0) + m.amount;
+    } else {
+      bucket.uncategorised += m.amount;
+    }
+    bucket.total += m.amount;
   };
-  const add = (raw: string | undefined, bucket: keyof Omit<CostGroup, "total">, what: string) => {
+  const add = (raw: string | undefined, categoryId: string | undefined, what: string, currency?: string) => {
     if (!raw?.trim()) return;
-    const money = parseMoney(raw, fallback);
+    const money = parseMoney(raw, currency || fallback);
     if (!money) { unparsed.push(`${what} — "${raw}"`); return; }
-    addMoney(money, bucket);
+    addMoney(money, categoryId);
   };
 
-  for (const hotel of data.hotels) add(hotel.price, "accommodation", hotel.name || "Hotel");
+  for (const hotel of data.hotels) add(hotel.price, lodgingId, hotel.name || "Hotel");
 
   // one value per journey — journeyFare picks the manual total or the hop sum,
   // so a journey can never be double-counted
   for (const journey of data.journeys) {
-    if (journey.fare?.trim() && !parseMoney(journey.fare, fallback)) {
+    if (journey.fare?.trim() && !parseMoney(journey.fare, journey.fareCurrency || fallback)) {
       unparsed.push(`${journey.label || "Journey"} — "${journey.fare}"`);
       continue;
     }
-    for (const m of journeyFare(journey, fallback)) addMoney(m, "transport");
+    for (const m of journeyFare(journey, fallback)) addMoney(m, transportId);
   }
 
   // per-day spending
   for (const day of data.days) {
     for (const c of day.costs ?? []) {
-      add(c.amount, "other", `${day.title || day.date} — ${c.label || "spending"}`);
+      add(c.amount, c.categoryId, `${day.title || day.date} — ${c.label || "spending"}`, c.currency);
     }
   }
 
-  return { byCurrency, unparsed };
+  return { byCurrency, categories, unparsed };
 }
 
 /** e.g. (42000, "JPY") -> "¥42,000"; falls back to a plain number when the

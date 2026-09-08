@@ -1,6 +1,6 @@
 import type { TripData } from "@/core/types";
 import { THEME_PRESETS } from "@/lib/themePresets";
-import { SCHEMA_VERSION } from "@/lib/hydrate";
+import { DEFAULT_EXPENSE_CATEGORIES, SCHEMA_VERSION } from "@/lib/hydrate";
 
 /** A minimal, empty trip. Everything is added from the UI afterwards. */
 export function buildBlank(name = "New trip"): TripData {
@@ -23,6 +23,7 @@ export function buildBlank(name = "New trip"): TripData {
         { id: "logbook", kind: "logbook", label: "Logbook", icon: "vault", enabled: true },
       ],
       mapSourceUrl: "",
+      expenseCategories: DEFAULT_EXPENSE_CATEGORIES.map((c) => ({ ...c })),
     },
     meta: { title: name, start: today, end: today },
     media: { gallery: [] },

@@ -52,18 +52,20 @@ automatically from what you set on the day itself, never chosen by hand.
   Expand a step (the **⌄**) for a formatted note (bold, bullets, links) in
   its own box, and to link it to a place on your map — linked steps show on
   the day's map. Below that, **Areas** (drop a whole
-  neighbourhood's pins onto the map), a **Spending** list (a label and a whole
-  number per row, subtotalled and fed to Budget), and free-text **General
-  notes**.
+  neighbourhood's pins onto the map), a **Spending** list (a category and a
+  whole number per row, plus an optional note; subtotalled and fed to
+  Expenses), and free-text **General notes**.
 
 **Journeys** (linked from a day, or the *getting around* tab). A journey is one
 or more **hops**. Each hop is a card, tinted by mode (rail, air/sea, road, on
 foot), reading top to bottom: mode → route → the two times joined by a rule
 with the duration on it → the details (carrier, platform, seat, booking ref,
-fare) as label-and-value rows. Between hops, a note on the connection time
-flags a tight or overnight change. The **total fare** at the top adds itself up
-from the hops' fares; type a figure into it to override with a single ticket
-price. It's the same number the Budget uses, counted once.
+fare — a whole number, in the trip's currency unless you pick another) as
+label-and-value rows. Between hops, a note on the connection time flags a
+tight or overnight change. The
+**total fare** at the top adds itself up from the hops' fares; type a figure
+into it to override with a single ticket price. It's the same number Expenses
+uses, counted once, under the Transport category.
 
 **Map** — your Google **My Map** pins, on a clean map. It reads **city → area →
 filters → places**, top to bottom.
@@ -126,7 +128,7 @@ sits in. You review the groups — rename, untick, drop a place — and only the
 ones you keep become real areas. It never changes an area you already have.
 
 **Logbook** — the reference drawer. Tabs along the top: stays · getting around ·
-luggage · documents · emergency numbers · packing · budget · a scratchpad, plus
+luggage · documents · emergency numbers · packing · expenses · a scratchpad, plus
 any lists you've added yourself. **Documents** is one card per document —
 name it ("Travel insurance"), attach the PDF / photo, add whatever fields you
 want, add a note. Every card is renamable, removable, and you add more from
@@ -134,17 +136,21 @@ the tab. Attachments stay only on the device they were added on (or, when
 Drive is connected, a shared trip folder). In **packing** you build the
 checklist right there — add a category, add items, tick them off. Categories
 fold away; with two or more travellers set (Manage → Setup) each item gets an
-**assign** pill (a traveller's initial, **Shared**, or **—**). **Budget** totals
+**assign** pill (a traveller's initial, **Shared**, or **—**). **Expenses** totals
 every price in the trip — a stay's price, a journey's fare, a day's spending —
-grouped by currency (nothing is summed across currencies). A journey with a
-total *and* per-hop fares counts once, not twice. Bare numbers count as the
-trip currency (Manage → Setup). Nothing is entered on this tab.
+**grouped by category** and then by currency (nothing is summed across
+currencies). Stay prices land under Accommodation, fares under Transport, and
+each day-spending row under the category you picked; a value with no category
+shows as *Uncategorised*. A journey with a total *and* per-hop fares counts
+once, not twice. Nothing is entered on this tab.
 
 In **Manage → Setup** you name the **travellers** (used for packing
-assignment), set a **trip currency** so a bare `100` in a price means `100`
-of that currency, hide the Logbook sections you don't need, and **add your
-own** — a title plus a list of things (name, note, link). Handy for
-"Restaurants to try", "Gifts to bring back", and so on.
+assignment), list the **currencies** the trip uses — the first is the default,
+so a bare `100` in a price counts as it; add a second and every spending row
+and fare gets a currency picker — edit the **expense categories** (reorder,
+rename, add, remove — the list can't be emptied), hide the Logbook sections
+you don't need, and **add your own** — a title plus a list of things (name,
+note, link). Handy for "Restaurants to try", "Gifts to bring back", and so on.
 
 ## Sharing a copy
 
