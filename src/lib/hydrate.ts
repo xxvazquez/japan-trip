@@ -3,7 +3,7 @@ import { mapUrlCoords } from "./maps";
 import type { Day, Doc, DocField, ExpenseCategory, Hotel, ModuleConfig, PlanItem, ThemeTokens, TripData } from "@/core/types";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
-export const SCHEMA_VERSION = 7;
+export const SCHEMA_VERSION = 8;
 
 /** Seed expense categories for a new trip. The two `role` entries collect stay
  *  prices and fares automatically; the rest are day-spending buckets. Editable
@@ -111,6 +111,14 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
   ].map((c) => String(c).trim().toUpperCase()).filter(Boolean);
   d.config.currencies = [...new Set(ccy)];
   d.config.currency = d.config.currencies[0] || undefined;
+
+  // one-time: move trips off the old default (Mist, or nothing set) onto
+  // Ink & Moss — the new app default. A named preset or a hand-tuned "custom"
+  // palette is a deliberate choice and left alone.
+  if (!cfg.themePreset || cfg.themePreset === "mist") {
+    d.config.themePreset = "ink-moss";
+    d.config.theme = structuredClone(THEME_PRESETS[0].tokens);
+  }
 
   // early trips stored the Map tab's icon as "places" (a house glyph, since
   // removed) — never a deliberate choice and there's no UI to change it, so

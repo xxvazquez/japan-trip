@@ -8,7 +8,7 @@ export interface ThemePreset {
 }
 
 /**
- * Five palettes with distinct character but all restrained — low saturation,
+ * Six palettes with distinct character but all restrained — low saturation,
  * generous light, nothing loud. Light + dark for each. The accent can still be
  * overridden separately in Manage → Settings.
  *
@@ -16,11 +16,29 @@ export interface ThemePreset {
  * in index.css), so every light `gold` needs to clear WCAG's 3:1 non-text
  * contrast ratio against that same theme's light `bg` — check before tuning it.
  *
- * Mist is the app-wide fallback (`fixTheme` in hydrate.ts backfills any
- * missing token from it, for every preset) and is also index.css's `:root` /
- * `html.dark` block, byte for byte — keep the two in sync if you touch it.
+ * Index 0 (Ink & Moss) is the app-wide fallback (`fixTheme` in hydrate.ts
+ * backfills any missing token from it, for every preset) and is also
+ * index.css's `:root` / `html.dark` block, byte for byte — keep the two in
+ * sync if you touch it.
  */
 export const THEME_PRESETS: ThemePreset[] = [
+  {
+    id: "ink-moss",
+    name: "Ink & Moss",
+    hint: "Muted indigo, moss, transit blue-grey",
+    tokens: {
+      light: {
+        bg: "#f2f4f6", surface: "#f9fafb", "surface-2": "#e8ebef",
+        ink: "#1a2026", "ink-soft": "#3d474f", "ink-faint": "#747e86", line: "#d2d8de",
+        accent: "#5e718a", gold: "#877044", matcha: "#6f826c", ai: "#71869a",
+      },
+      dark: {
+        bg: "#13171b", surface: "#1b2126", "surface-2": "#252c33",
+        ink: "#e5e9ec", "ink-soft": "#b1bbc2", "ink-faint": "#7b858e", line: "#2d353c",
+        accent: "#8095af", gold: "#b89e73", matcha: "#8b9d86", ai: "#90a3b6",
+      },
+    },
+  },
   {
     id: "mist",
     name: "Mist",
