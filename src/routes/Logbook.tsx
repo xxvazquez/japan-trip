@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
-import { Card, CARD_SHELL } from "@/components/Card";
+import { Card } from "@/components/Card";
 import { Section } from "@/components/Section";
 import { IconTile } from "@/components/IconTile";
 import { TileRow } from "@/components/TileRow";
 import { CheckCircle } from "@/components/CheckCircle";
 import { InfoNote } from "@/components/InfoNote";
+import { InsetRow } from "@/components/InsetRow";
 import { Empty } from "@/components/Empty";
 import { Tab } from "@/components/Tabs";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
@@ -230,11 +231,12 @@ function Luggage() {
 
   if (data.luggage.length === 0) {
     return ro ? (
-      <p className="text-sm text-ink-faint">Nothing noted for luggage.</p>
+      <Empty what="No luggage notes" hint="Storage, lockers, a bag left somewhere." />
     ) : (
-      <div className="space-y-3">
+      <div className="flex min-h-[52vh] flex-col items-center justify-center gap-3 text-center">
+        <p className="lead">No luggage notes</p>
+        <p className="meta max-w-xs">Storage, lockers, a bag left somewhere — whatever this trip needs.</p>
         <AddButton label="Add a note" onClick={add} />
-        <p className="text-sm text-ink-faint">Storage, lockers, a bag left somewhere — whatever this trip needs.</p>
       </div>
     );
   }
@@ -287,26 +289,32 @@ function Emergency() {
   // every trip gets one of these backfilled on load (normalizeTrip) — this
   // only shows if it was just deleted via Manage's raw entity list mid-session
   if (!contact) return <Empty what="No emergency info" hint="It's added automatically — reload the page and it'll be back." />;
+  if (ro && contact.fields.length === 0 && !contact.note?.trim())
+    return <Empty what="No emergency info" hint="Embassy, insurance, a number to call — added on your own trip." />;
 
   return (
-    <div className="space-y-3">
-      <div className={CARD_SHELL}>
-        <FieldList
-          fields={contact.fields}
-          onChange={(next) => updateEntity<Doc>("docs", contact.id, { fields: next })}
-          addLabel="Add a contact"
-        />
-        {contact.fields.length === 0 && ro && <p className="text-sm text-ink-faint">Nothing added yet.</p>}
-        {(contact.note?.trim() || !ro) && (
-          <div className="note mt-2 text-ink-soft">
+    <div className="space-y-6">
+      <Section variant="grouped">
+        <ul>
+          <FieldList
+            inset
+            fields={contact.fields}
+            onChange={(next) => updateEntity<Doc>("docs", contact.id, { fields: next })}
+            addLabel="Add a contact"
+          />
+        </ul>
+      </Section>
+      {(contact.note?.trim() || !ro) && (
+        <Section variant="grouped" title="Notes">
+          <div className="note px-3.5 py-3">
             <RichNote
               value={contact.note ?? ""}
               onCommit={(v) => updateEntity<Doc>("docs", contact.id, { note: v || undefined })}
               placeholder="＋ a note"
             />
           </div>
-        )}
-      </div>
+        </Section>
+      )}
     </div>
   );
 }
@@ -327,30 +335,25 @@ function Expenses() {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-6">
       {currencies.map((cur) => {
         const b = byCurrency[cur];
         return (
-          <Card key={cur || "—"} title={cur || "Unspecified currency"}>
-            {categories
-              .filter((c) => (b.byCategory[c.id] ?? 0) > 0)
-              .map((c) => (
-                <div key={c.id} className="row">
-                  <span className="row-label">{c.label}</span>
-                  <span className="row-value">{fmtMoney(b.byCategory[c.id], cur)}</span>
-                </div>
-              ))}
-            {b.uncategorised > 0 && (
-              <div className="row">
-                <span className="row-label text-ink-soft">Uncategorised</span>
-                <span className="row-value">{fmtMoney(b.uncategorised, cur)}</span>
-              </div>
-            )}
-            <div className="row">
-              <span className="row-label font-semibold text-ink">Total</span>
-              <span className="row-value font-semibold">{fmtMoney(b.total, cur)}</span>
-            </div>
-          </Card>
+          <Section key={cur || "—"} variant="grouped" title={cur || "Unspecified currency"}>
+            <ul>
+              {categories
+                .filter((c) => (b.byCategory[c.id] ?? 0) > 0)
+                .map((c) => (
+                  <InsetRow key={c.id} label={c.label}>{fmtMoney(b.byCategory[c.id], cur)}</InsetRow>
+                ))}
+              {b.uncategorised > 0 && (
+                <InsetRow label="Uncategorised">{fmtMoney(b.uncategorised, cur)}</InsetRow>
+              )}
+              <InsetRow label={<span className="font-semibold text-ink">Total</span>}>
+                <span className="font-semibold">{fmtMoney(b.total, cur)}</span>
+              </InsetRow>
+            </ul>
+          </Section>
         );
       })}
       {unparsed.length > 0 && (
@@ -591,23 +594,23 @@ function Packing() {
           Start with a category — Clothes, Tech, Toiletries… — then add what goes in it.
         </p>
       )}
-      <div className="space-y-3.5">
+      <div className="space-y-6">
         {Object.entries(groups).map(([group, list]) => {
           const g = list.filter((i) => i.done).length;
           return (
-            <Card
+            <Section
               key={group}
-              collapsible
+              variant="grouped"
               title={ro ? group : (
                 <Editable label="Category" value={group} placeholder="Category" onCommit={(v) => renameGroup(group, v)} />
               )}
-              right={
-                <>
+              action={
+                <span className="flex items-center gap-2">
                   <span className={`text-xs tabular-nums ${g === list.length ? "text-ink" : "text-ink-faint"}`}>
                     {g}/{list.length}
                   </span>
                   {!ro && cardDeleteBtn(() => removeGroup(group), "Delete category")}
-                </>
+                </span>
               }
             >
               <ul>
@@ -624,13 +627,15 @@ function Packing() {
                     onRemove={() => removeEntity("packing", it.id)}
                   />
                 ))}
+                {!ro && (
+                  <li>
+                    <button onClick={() => addItem(group)} className="action w-full px-3.5 py-2.5 text-xs">
+                      <Icon name="plus" size={13} /> Add item
+                    </button>
+                  </li>
+                )}
               </ul>
-              {!ro && (
-                <button onClick={() => addItem(group)} className="action mt-2 text-xs">
-                  <Icon name="plus" size={13} /> Add item
-                </button>
-              )}
-            </Card>
+            </Section>
           );
         })}
       </div>
@@ -655,9 +660,10 @@ function PackRow({ item, ro, people, tagged, onToggle, onLabel, onAssign, onRemo
   const showAssign = people.length >= 2;
   const pill = showAssign && <AssignPill value={item.assignee} people={people} tagged={tagged} readOnly={ro} onChange={onAssign} />;
 
+  const li = "relative flex items-center gap-3 px-3.5 py-2.5 text-sm after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden";
   if (ro) {
     return (
-      <li className="flex items-center gap-3 border-t border-line py-2.5 text-sm first:border-0">
+      <li className={li}>
         {box}
         <span className={`min-w-0 flex-1 ${item.done ? "text-ink-faint line-through" : "text-ink"}`}>{item.label}</span>
         {pill}
@@ -665,7 +671,7 @@ function PackRow({ item, ro, people, tagged, onToggle, onLabel, onAssign, onRemo
     );
   }
   return (
-    <li className="group flex items-center gap-3 border-t border-line py-2.5 text-sm first:border-0">
+    <li className={`group ${li}`}>
       {box}
       <span className="min-w-0 flex-1">
         <Editable label="Item" value={item.label} placeholder="Item" className={item.done ? "text-ink-faint line-through" : "text-ink"} onCommit={onLabel} />
@@ -727,13 +733,13 @@ function Notes() {
   const data = useData()!;
   const ro = useReadOnly();
   const setScratch = useApp((s) => s.setScratch);
-  if (ro && !data.scratch) return <p className="text-sm text-ink-faint">Nothing noted yet.</p>;
+  if (ro && !data.scratch) return <Empty what="Nothing noted yet" hint="A scratchpad for anything you want to remember." />;
   return (
-    <Card>
-      <div className="note">
+    <Section variant="grouped">
+      <div className="note px-3.5 py-3">
         <RichNote value={data.scratch ?? ""} onCommit={(v) => setScratch(v)} placeholder="Anything to remember." />
       </div>
-    </Card>
+    </Section>
   );
 }
 
