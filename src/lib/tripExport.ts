@@ -21,7 +21,7 @@ import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import { localMinutes, fmtMinutes } from "@/lib/time";
 import { gmapsLink } from "@/lib/maps";
 import { MODE_LABEL } from "@/lib/transport";
-import { fmtFare } from "@/lib/cost";
+import { fmtFare, isMoneyLabel } from "@/lib/cost";
 import { APP_NAME } from "@/lib/app";
 
 export interface ExportOptions {
@@ -238,6 +238,7 @@ function journeysSection(data: TripData, opts: ExportOptions): string {
 function staysSection(data: TripData, opts: ExportOptions): string {
   if (!data.hotels.length) return "";
   const loc = data.config.locale;
+  const currency = data.config.currency ?? "";
   const blocks = data.hotels.map((h: Hotel) => {
     const leg = data.legs.find((l) => l.hotelId === h.id);
     const range = leg && leg.start && leg.end
@@ -253,10 +254,10 @@ function staysSection(data: TripData, opts: ExportOptions): string {
       ${rows([
         ["Check-in", h.checkIn],
         ["Check-out", h.checkOut],
-        ["Price", h.price],
+        ["Price", fmtFare(h.price, h.priceCurrency || currency)],
         // the traveller's own reference fields (booking ref, wifi, door code…)
         // are held back unless this is a personal copy
-        ...(opts.includePrivate ? (h.fields ?? []).map((f) => [f.label, f.value] as [string, string | undefined]) : []),
+        ...(opts.includePrivate ? (h.fields ?? []).map((f) => [f.label, isMoneyLabel(f.label) ? fmtFare(f.value, f.currency || currency) : f.value] as [string, string | undefined]) : []),
       ])}
       ${h.directions?.trim() ? `<div class="note"><p class="label">Getting here</p>${mdToHtml(h.directions)}</div>` : ""}
       ${h.notes?.trim() ? `<div class="note">${mdToHtml(h.notes)}</div>` : ""}

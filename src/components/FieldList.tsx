@@ -1,7 +1,10 @@
 import { Editable } from "./Editable";
+import { MoneyField } from "./MoneyField";
 import { Icon } from "./Icon";
 import { RowMenu } from "./RowMenu";
 import { useReadOnly } from "@/lib/readonly";
+import { useData } from "@/lib/data";
+import { fmtFare, isMoneyLabel } from "@/lib/cost";
 import type { DocField } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 8);
@@ -32,6 +35,14 @@ export function FieldList({
   inset?: boolean;
 }) {
   const ro = useReadOnly();
+  const primary = (useData()?.config.currencies ?? []).filter(Boolean)[0] ?? "";
+
+  // a field whose name reads as money ("Price", "Entry fee") shows the trip
+  // currency without the symbol being typed, and formats a bare number
+  const readValue = (f: DocField) =>
+    isMoneyLabel(f.label)
+      ? fmtFare(f.value, f.currency || primary) || "—"
+      : <Editable as="auto" label={f.label} value={f.value} placeholder="—" onCommit={() => {}} />;
 
   const setAt = (i: number, patch: Partial<DocField>) =>
     onChange(fields.map((f, j) => (j === i ? { ...f, ...patch } : f)));
@@ -60,7 +71,7 @@ export function FieldList({
             <li key={f.id} className={`${insetLi} flex items-baseline justify-between gap-4 px-3.5 py-2.5`}>
               <span className="shrink-0 text-[0.8125rem] text-ink-soft">{f.label || "—"}</span>
               <span className="min-w-0 text-right font-sans text-[0.8125rem] font-medium leading-snug text-ink">
-                <Editable as="auto" label={f.label} value={f.value} placeholder="—" onCommit={() => {}} />
+                {readValue(f)}
               </span>
             </li>
           ))}
@@ -71,9 +82,7 @@ export function FieldList({
         {fields.map((f) => (
           <div key={f.id} className="row">
             <span className="row-label">{f.label || "—"}</span>
-            <span className="row-value">
-              <Editable as="auto" label={f.label} value={f.value} placeholder="—" onCommit={() => {}} />
-            </span>
+            <span className="row-value">{readValue(f)}</span>
           </div>
         ))}
       </div>
@@ -98,14 +107,24 @@ export function FieldList({
         />
       </span>
       <span className="min-w-0 flex-1 break-words">
-        <Editable
-          as="auto"
-          label={f.label || "Field"}
-          value={f.value}
-          placeholder="—"
-          className="row-value text-left"
-          onCommit={(v) => setAt(i, { value: v })}
-        />
+        {isMoneyLabel(f.label) ? (
+          <MoneyField
+            label={f.label || "Price"}
+            amount={f.value}
+            currency={f.currency}
+            onAmount={(v) => setAt(i, { value: v })}
+            onCurrency={(c) => setAt(i, { currency: c })}
+          />
+        ) : (
+          <Editable
+            as="auto"
+            label={f.label || "Field"}
+            value={f.value}
+            placeholder="—"
+            className="row-value text-left"
+            onCommit={(v) => setAt(i, { value: v })}
+          />
+        )}
       </span>
       <RowMenu label="Field options">
         <button type="button" className="menu-item" disabled={i === 0} onClick={() => move(i, -1)}>Move up</button>

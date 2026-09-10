@@ -23,6 +23,8 @@ export function buildBlank(name = "New trip"): TripData {
         { id: "logbook", kind: "logbook", label: "Logbook", icon: "vault", enabled: true },
       ],
       mapSourceUrl: "",
+      currency: "PLN",
+      currencies: ["PLN"],
       expenseCategories: DEFAULT_EXPENSE_CATEGORIES.map((c) => ({ ...c })),
     },
     meta: { title: name, start: today, end: today },

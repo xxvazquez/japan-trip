@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useReadOnly } from "@/lib/readonly";
 import { gmapsLink } from "@/lib/maps";
+import { isMoneyLabel } from "@/lib/cost";
 import { fmtDate } from "@/lib/dates";
 import { linkLabel } from "@/lib/linkLabel";
 import { Icon } from "./Icon";
@@ -51,7 +52,7 @@ function labelKind(label: string): Kind | null {
   if (/\b(phone|tel|telephone|mobile|cell|hotline|helpline|whatsapp|fax)\b/.test(s)) return "tel";
   if (/\b(url|web ?site|homepage)\b/.test(s)) return "link";
   if (/\b(date|expiry|expires|valid|issued|until|check-?in|check-?out|dob)\b/.test(s)) return "date";
-  if (/\b(price|cost|fare|amount|fee|total|deposit|balance|budget)\b/.test(s)) return "number";
+  if (isMoneyLabel(s)) return "number";
   return null;
 }
 
