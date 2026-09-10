@@ -23,10 +23,13 @@ export function FieldList({
   fields,
   onChange,
   addLabel = "Add field",
+  inset = false,
 }: {
   fields: DocField[];
   onChange: (next: DocField[]) => void;
   addLabel?: string;
+  /** render as rows of a grouped-inset list (padded `<li>`s in a divided `<ul>`) */
+  inset?: boolean;
 }) {
   const ro = useReadOnly();
 
@@ -42,8 +45,24 @@ export function FieldList({
   };
   const add = () => onChange([...fields, { id: rid(), label: "", value: "" }]);
 
+  // `inset` mode emits a fragment of padded `<li>`s — the caller owns the
+  // `<ul className="divide-y divide-line">` so a fixed system row (a price) can
+  // sit in the same group. Default mode is self-contained.
   if (ro) {
     if (fields.length === 0) return null;
+    if (inset)
+      return (
+        <>
+          {fields.map((f) => (
+            <li key={f.id} className="flex items-baseline justify-between gap-4 px-3.5 py-2.5">
+              <span className="shrink-0 text-[0.8125rem] text-ink-soft">{f.label || "—"}</span>
+              <span className="min-w-0 text-right font-sans text-[0.8125rem] font-medium leading-snug text-ink">
+                <Editable as="auto" label={f.label} value={f.value} placeholder="—" onCommit={() => {}} />
+              </span>
+            </li>
+          ))}
+        </>
+      );
     return (
       <div>
         {fields.map((f) => (
@@ -58,39 +77,59 @@ export function FieldList({
     );
   }
 
+  const addBtn = (
+    <button onClick={add} className={`action text-xs ${inset ? "w-full px-3.5 py-2.5" : "mt-2"}`}>
+      <Icon name="plus" size={13} /> {addLabel}
+    </button>
+  );
+
+  const editRow = (f: DocField, i: number) => (
+    <>
+      <span className="w-[38%] shrink-0">
+        <Editable
+          label="Field name"
+          value={f.label}
+          placeholder="Label"
+          className="row-label"
+          onCommit={(v) => setAt(i, { label: v })}
+        />
+      </span>
+      <span className="min-w-0 flex-1 break-words">
+        <Editable
+          as="auto"
+          label={f.label || "Field"}
+          value={f.value}
+          placeholder="—"
+          className="row-value text-left"
+          onCommit={(v) => setAt(i, { value: v })}
+        />
+      </span>
+      <RowMenu label="Field options">
+        <button type="button" className="menu-item" disabled={i === 0} onClick={() => move(i, -1)}>Move up</button>
+        <button type="button" className="menu-item" disabled={i === fields.length - 1} onClick={() => move(i, 1)}>Move down</button>
+        <button type="button" className="menu-item text-accent" onClick={() => removeAt(i)}>Remove</button>
+      </RowMenu>
+    </>
+  );
+
+  if (inset)
+    return (
+      <>
+        {fields.map((f, i) => (
+          <li key={f.id} className="flex items-baseline gap-2 px-3.5 py-2.5">{editRow(f, i)}</li>
+        ))}
+        <li>{addBtn}</li>
+      </>
+    );
+
   return (
     <div>
       {fields.map((f, i) => (
         <div key={f.id} className="flex items-baseline gap-2 border-b border-line py-2 last:border-b-0">
-          <span className="w-[38%] shrink-0">
-            <Editable
-              label="Field name"
-              value={f.label}
-              placeholder="Label"
-              className="row-label"
-              onCommit={(v) => setAt(i, { label: v })}
-            />
-          </span>
-          <span className="min-w-0 flex-1 break-words">
-            <Editable
-              as="auto"
-              label={f.label || "Field"}
-              value={f.value}
-              placeholder="—"
-              className="row-value text-left"
-              onCommit={(v) => setAt(i, { value: v })}
-            />
-          </span>
-          <RowMenu label="Field options">
-            <button type="button" className="menu-item" disabled={i === 0} onClick={() => move(i, -1)}>Move up</button>
-            <button type="button" className="menu-item" disabled={i === fields.length - 1} onClick={() => move(i, 1)}>Move down</button>
-            <button type="button" className="menu-item text-accent" onClick={() => removeAt(i)}>Remove</button>
-          </RowMenu>
+          {editRow(f, i)}
         </div>
       ))}
-      <button onClick={add} className="action mt-2 text-xs">
-        <Icon name="plus" size={13} /> {addLabel}
-      </button>
+      {addBtn}
     </div>
   );
 }
