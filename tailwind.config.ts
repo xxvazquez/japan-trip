@@ -44,10 +44,12 @@ export default {
         display: ["clamp(2.5rem, 7vw, 3.25rem)", { lineHeight: "1.05", letterSpacing: "-0.02em" }],
         "display-lg": ["clamp(2.6rem, 9vw, 4.5rem)", { lineHeight: "1.02", letterSpacing: "-0.025em" }],
       },
-      // one small radius for everything that isn't a circle (rounded-full) or
-      // the app mark (Wordmark's 22%). `rounded` = 3px, used verbatim everywhere.
+      // `rounded` = 8px — the iOS control radius, used verbatim for inputs,
+      // selects, small buttons, thumbnails, content boxes. Bigger elements go
+      // explicit: cards/insets `rounded-[12px]`, pills/chips `rounded-full`,
+      // the app mark 22%. Tailwind's md/lg/xl scale stays available.
       borderRadius: {
-        DEFAULT: "3px",
+        DEFAULT: "8px",
       },
       maxWidth: {
         reading: "44rem",
