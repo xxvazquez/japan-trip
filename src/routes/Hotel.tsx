@@ -123,7 +123,7 @@ export default function Hotel() {
             {(!ro || hotel.price) && (
               <div className="row">
                 <span className="row-label">Price</span>
-                <span className="row-value value">
+                <span className="row-value">
                   <Editable label="Price" value={hotel.price ?? ""} placeholder="—" onCommit={(v) => p({ price: v || undefined })} />
                 </span>
               </div>

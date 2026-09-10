@@ -339,7 +339,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   return (
     <div className="row">
       <span className="row-label">{label}</span>
-      <span className="row-value value">{children}</span>
+      <span className="row-value">{children}</span>
     </div>
   );
 }

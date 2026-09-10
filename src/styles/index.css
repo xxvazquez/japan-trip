@@ -156,6 +156,7 @@ html.dark {
    *   .subhead       serif sub-head — 1.3125rem  (Plan stay, Map scope)
    *   .lead          card / item title — 1.0625rem, sans 500 ink
    *   .value         main value — 0.9375rem, sans 500 ink  (paired + under-label)
+   *   .row-value     value in a label/value .row — 0.8125rem 500, matches label
    *   .note          body / prose — 0.9rem, sans 400 ink, leading 1.6
    *   .meta          metadata — 0.8125rem, sans 400 ink-soft  (+ .row-label)
    *   .kicker        section header — 0.8125rem, 500 uppercase +0.14em ink
@@ -218,7 +219,9 @@ html.dark {
     @apply text-[0.9rem] leading-[1.6] text-ink;
   }
 
-  /* a label / value list row — hairline between peers only */
+  /* a label / value list row — hairline between peers only. Label and value
+   * sit at the same size (13px); the value carries the weight (500 vs 400) and
+   * full ink so there's no size cliff between a row and its label. */
   .row {
     @apply flex items-baseline justify-between gap-4 border-b border-line py-2.5 last:border-b-0;
   }
@@ -226,7 +229,7 @@ html.dark {
     @apply shrink-0 text-[0.8125rem] text-ink-soft;
   }
   .row-value {
-    @apply min-w-0 text-right;
+    @apply min-w-0 text-right font-sans text-[0.8125rem] font-medium leading-snug text-ink;
   }
 
   /* a genuinely-important unresolved value */
