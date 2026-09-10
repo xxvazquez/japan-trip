@@ -44,6 +44,7 @@ export type IconName =
   | "door"
   | "ticket"
   | "route"
+  | "pencil"
   | "info";
 
 const P: Record<IconName, JSX.Element> = {
@@ -247,6 +248,12 @@ const P: Record<IconName, JSX.Element> = {
     <>
       <path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2 1.6 1.6 0 0 0 0 3v2a1.6 1.6 0 0 0 0 3 2 2 0 0 1-2 2H6a2 2 0 0 1-2-2 1.6 1.6 0 0 0 0-3v-2a1.6 1.6 0 0 0 0-3Z" />
       <path d="M13 6v2M13 11v2M13 16v2" />
+    </>
+  ),
+  pencil: (
+    <>
+      <path d="M4 20l1-4L16 5a2 2 0 0 1 3 3L8 19l-4 1Z" />
+      <path d="m13.5 7.5 3 3" />
     </>
   ),
 };

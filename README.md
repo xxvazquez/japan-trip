@@ -168,7 +168,8 @@ Document *attachments* are never included.
 
 Tap almost any piece of text and it becomes editable on the spot. Type, tap
 away, done. There's no separate "edit mode". Dates and times open a picker; once
-a link is filled in it turns into a normal clickable link (with a small "edit").
+a link, phone or email is filled in it turns into the real clickable thing, with
+a small pencil on the right of the row to edit it.
 
 When you're signed in, a small dot next to the header search icon shows edits
 saving (grey), saved (green, briefly), or held for later if you're offline

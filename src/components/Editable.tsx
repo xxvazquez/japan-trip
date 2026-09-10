@@ -3,6 +3,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { gmapsLink } from "@/lib/maps";
 import { fmtDate } from "@/lib/dates";
 import { linkLabel } from "@/lib/linkLabel";
+import { Icon } from "./Icon";
 
 type Base = {
   value: string;
@@ -85,7 +86,7 @@ const inputType = (kind: Kind) =>
  * Inline editing. Shows the value; click / Enter turns it into a field in place;
  * blur or Enter commits, Escape reverts. No modal. Empty values show the
  * placeholder in a muted "add…" style. Dates and times are a one-tap picker;
- * links / phones / emails render as the real thing with a small "edit".
+ * links / phones / emails render as the real thing with a pencil to edit.
  */
 export function Editable(props: Props) {
   const { value, onCommit, placeholder = "Add…", label, className = "" } = props;
@@ -140,20 +141,25 @@ export function Editable(props: Props) {
     return <span className={`inline whitespace-pre-wrap ${className}`}>{text}</span>;
   }
 
-  // a filled link / phone / email shows as the real thing with a small "edit" —
-  // not a raw text field
+  // a filled link / phone / email shows as the real thing, with the edit
+  // affordance as a pencil pushed to the right of the cell — not a raw text field
   if (href && !editing) {
     return (
-      <span className={`inline ${className}`}>
+      <span className={`flex items-center justify-between gap-2 ${className}`}>
         <a
           href={href}
           {...(as === "link" ? { target: "_blank", rel: "noopener" } : {})}
-          className="text-accent break-all"
+          className="min-w-0 break-all text-accent"
         >
           {as === "link" ? linkLabel(value) : value}
         </a>
-        <button type="button" onClick={() => setEditing(true)} aria-label={`Edit ${label}`} className="ml-1.5 align-baseline text-xs text-ink-faint hover:text-accent">
-          edit
+        <button
+          type="button"
+          onClick={() => setEditing(true)}
+          aria-label={`Edit ${label}`}
+          className="-my-1 shrink-0 rounded p-1 text-ink-faint hover:text-accent"
+        >
+          <Icon name="pencil" size={15} />
         </button>
       </span>
     );
