@@ -404,7 +404,7 @@ function PlanRow({ item, place, places, categoryIcons, readOnly, onPatch, onRemo
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={`group relative text-sm after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden ${isDragging ? "z-10 bg-surface opacity-80" : ""}`}
     >
-      <SwipeToDelete onDelete={readOnly ? undefined : onRemove} label="Remove step">
+      <SwipeToDelete onDelete={readOnly ? undefined : onRemove}>
       <div className="flex items-center gap-2.5 px-3.5 py-2.5">
         {!readOnly && (
           <button
@@ -455,7 +455,7 @@ function PlanRow({ item, place, places, categoryIcons, readOnly, onPatch, onRemo
             />
           </button>
         )}
-        {!readOnly && <RowDeleteButton onClick={onRemove} label="Remove step" />}
+        {!readOnly && <RowDeleteButton onClick={onRemove} />}
       </div>
       </SwipeToDelete>
 

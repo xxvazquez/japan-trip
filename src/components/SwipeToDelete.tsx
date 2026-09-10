@@ -4,8 +4,9 @@ const supportsTouch = () =>
   typeof window !== "undefined" &&
   window.matchMedia("(hover: none) and (pointer: coarse)").matches;
 
-const REVEAL = 80; // resting width of the Delete pane
+const REVEAL = 84; // width the pane snaps to when opened
 const FULL = 150; // drag past this and release = delete straight away
+const MAX = 260; // furthest the row can be dragged
 
 /**
  * iOS swipe-to-delete for a list row. Wrap the row's content (its padded inner
@@ -13,9 +14,9 @@ const FULL = 150; // drag past this and release = delete straight away
  * drag snaps it open, a long drag deletes. On a pointer device it renders the
  * content untouched, so the row's own ✕ / ⋯ stay the way to delete there.
  *
- * Does NOT render the `<li>` — the caller keeps its own element, key, divider
- * classes and any drag refs. `bg` is the row's own background token so the red
- * pane stays hidden until the row is dragged (default `bg-surface`).
+ * Does NOT render the `<li>`. The `<Section>` inset clips the pane to its rounded
+ * corners on the first / last row (its `isolate` is what makes that clip reach
+ * the translated pane in Chromium).
  */
 export function SwipeToDelete({
   children,
@@ -29,9 +30,14 @@ export function SwipeToDelete({
   label?: string;
   bg?: string;
 }) {
-  const [dx, setDx] = useState(0);
+  const [dx, setDxState] = useState(0);
   const [open, setOpen] = useState(false);
   const dragging = useRef(false);
+  const dxRef = useRef(0); // the synchronous truth for the touch handlers
+  const setDx = (v: number) => {
+    dxRef.current = v;
+    setDxState(v);
+  };
   const g = useRef<{ x: number; y: number; base: number; axis: "?" | "x" | "y" } | null>(null);
   const touch = supportsTouch() && !!onDelete;
 
@@ -63,7 +69,7 @@ export function SwipeToDelete({
     }
     if (s.axis !== "x") return;
     dragging.current = true;
-    setDx(Math.max(Math.min(0, s.base + ddx), -(FULL + 56)));
+    setDx(Math.max(Math.min(0, s.base + ddx), -MAX));
   };
   const onEnd = () => {
     const s = g.current;
@@ -71,13 +77,14 @@ export function SwipeToDelete({
     const was = dragging.current;
     dragging.current = false;
     if (!s || s.axis !== "x" || !was) return;
-    if (dx <= -FULL) {
+    const at = dxRef.current;
+    if (at <= -FULL) {
       onDelete?.();
       setOpen(false);
       setDx(0);
       return;
     }
-    if (dx <= -REVEAL / 2) {
+    if (at <= -REVEAL / 2) {
       setOpen(true);
       setDx(-REVEAL);
     } else {
@@ -91,32 +98,35 @@ export function SwipeToDelete({
     fn?.();
   };
 
-  // only clip while the row is engaged — otherwise an inline field's focus ring
-  // (2px offset) would be shaved on the row edges during editing
   const engaged = open || dx !== 0;
+  const paneW = Math.min(MAX, Math.max(REVEAL, -dx));
 
+  // The pane only exists while engaged, so at rest an inline field's focus ring
+  // isn't shaved and there's no stray red.
   return (
-    <div className={`relative ${engaged ? "overflow-hidden" : ""}`}>
-      <button
-        type="button"
-        onClick={() => closeAnd(onDelete)}
-        aria-label={label}
-        tabIndex={-1}
-        className="absolute inset-y-0 right-0 flex items-center justify-end bg-danger pl-4 pr-5 text-[15px] font-medium text-white"
-        style={{ width: Math.max(REVEAL, -dx) }}
-      >
-        {label}
-      </button>
+    <div className="relative">
+      {engaged && (
+        <button
+          type="button"
+          onClick={() => closeAnd(onDelete)}
+          aria-label={label}
+          tabIndex={-1}
+          className="absolute inset-y-0 right-0 flex items-center justify-center bg-danger px-3 text-[15px] font-medium text-white"
+          style={{ width: paneW }}
+        >
+          {label}
+        </button>
+      )}
       <div
         onTouchStart={onStart}
         onTouchMove={onMove}
         onTouchEnd={onEnd}
+        className={`relative ${bg}`}
         style={{
-          transform: `translate3d(${dx}px,0,0)`,
+          transform: `translateX(${dx}px)`,
           touchAction: "pan-y",
           transition: dragging.current ? "none" : "transform 0.22s var(--ease-paper)",
         }}
-        className={`relative ${bg}`}
       >
         {children}
         {open && (
