@@ -31,19 +31,24 @@ const DEFAULT_PIN_COLORS = new Set([FALLBACK, "#5f7f9c"]);
  *  city pill and shows only on "All" or on a day that names it. */
 const MAX_ANCHOR_KM = 60;
 
-/** the legend mark for a category chip: its glyph if it has one, else a dot */
-function CatMark({ color, glyph, on }: { color: string; glyph?: string; on: boolean }) {
+/** the legend mark for a category chip — a mini filled tile echoing the place
+ *  rows and the map pins: the category colour, its glyph in white if it has one.
+ *  The chip button dims as a whole when the filter's off, so no separate state. */
+function CatMark({ color, glyph }: { color: string; glyph?: string }) {
   const d = glyphPath(glyph);
-  if (d)
-    return (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color}
-        strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0" aria-hidden="true">
-        <path d={d} />
-      </svg>
-    );
   return (
-    <span className="h-2.5 w-2.5 shrink-0 rounded-full"
-      style={{ background: color, boxShadow: on ? `0 0 0 1px ${color}` : "none" }} />
+    <span
+      className="grid h-[15px] w-[15px] shrink-0 place-items-center rounded-[4px]"
+      style={{ background: color }}
+      aria-hidden="true"
+    >
+      {d && (
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff"
+          strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d={d} />
+        </svg>
+      )}
+    </span>
   );
 }
 const rid = () => (crypto?.randomUUID ? crypto.randomUUID() : `p-${Math.random().toString(36).slice(2)}`);
@@ -789,7 +794,7 @@ export default function MapTab() {
                             onClick={() => toggleCat(name)}
                             className={`inline-flex items-center gap-1.5 text-xs transition-opacity ${on ? "" : "opacity-35"}`}
                           >
-                            <CatMark color={col} glyph={data.config.categoryIcons?.[name]} on={on} />
+                            <CatMark color={col} glyph={data.config.categoryIcons?.[name]} />
                             <span className="capitalize">{name}</span>
                           </button>
                         );
