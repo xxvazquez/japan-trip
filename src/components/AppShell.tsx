@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useState } from "react";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useNavigate } from "react-router-dom";
 import { TabBarOrRail } from "./TabBarOrRail";
 import { ThemeToggle } from "./ThemeToggle";
 import { SyncStatus } from "./SyncStatus";
@@ -14,6 +14,7 @@ export function AppShell() {
   const [searchOpen, setSearchOpen] = useState(false);
   const data = useData();
   const demo = useReadOnly();
+  const nav = useNavigate();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -25,6 +26,30 @@ export function AppShell() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  // iOS edge-swipe back: a drag that starts within 24px of the left edge and
+  // travels right goes back a screen (the fusuma view-transition animates it).
+  useEffect(() => {
+    let x0 = 0, y0 = 0, live = false;
+    const start = (e: TouchEvent) => {
+      const t = e.touches[0];
+      live = t.clientX <= 24 && ((window.history.state?.idx ?? 0) > 0);
+      x0 = t.clientX;
+      y0 = t.clientY;
+    };
+    const end = (e: TouchEvent) => {
+      if (!live) return;
+      live = false;
+      const t = e.changedTouches[0];
+      if (t.clientX - x0 > 64 && Math.abs(t.clientY - y0) < 48) nav(-1);
+    };
+    document.addEventListener("touchstart", start, { passive: true });
+    document.addEventListener("touchend", end, { passive: true });
+    return () => {
+      document.removeEventListener("touchstart", start);
+      document.removeEventListener("touchend", end);
+    };
+  }, [nav]);
 
   return (
     <div
