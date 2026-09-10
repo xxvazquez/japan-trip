@@ -44,11 +44,11 @@
 
 html.dark {
   --c-bg: 19 23 27;
-  --c-surface: 27 33 38;
-  --c-surface-2: 37 44 51;
+  --c-surface: 34 40 45;
+  --c-surface-2: 45 52 59;
   --c-ink: 229 233 236;
   --c-ink-soft: 177 187 194;
-  --c-ink-faint: 123 133 142;
+  --c-ink-faint: 135 143 152;
   --c-line: 45 53 60;
 
   --c-accent: 128 149 175; /* muted indigo */

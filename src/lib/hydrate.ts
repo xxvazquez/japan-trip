@@ -3,7 +3,7 @@ import { mapUrlCoords } from "./maps";
 import type { Day, Doc, DocField, ExpenseCategory, Hotel, ModuleConfig, PlanItem, ThemeTokens, TripData } from "@/core/types";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
-export const SCHEMA_VERSION = 8;
+export const SCHEMA_VERSION = 9;
 
 /** Seed expense categories for a new trip. The two `role` entries collect stay
  *  prices and fares automatically; the rest are day-spending buckets. Editable
@@ -156,6 +156,39 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
     const now = d.config.theme.light[key]?.toLowerCase();
     const fix = now && INK_FIX[key][now];
     if (fix) d.config.theme.light[key] = fix;
+  }
+
+  // Every preset's dark `surface` / `surface-2` sat only ~8 levels above its
+  // `bg`, so a card barely lifted off the page. Deepen the lift, and nudge dark
+  // `ink-faint` up to hold WCAG against the lighter surface. Known old values
+  // only — a hand-tuned custom palette won't match and is left alone.
+  const DARK_FIX: Record<"surface" | "surface-2" | "ink-faint", Record<string, string>> = {
+    surface: {
+      "#1b2126": "#22282d", // ink & moss / mist
+      "#1c1a15": "#23211c", // paper
+      "#1d1d15": "#24241c", // olive
+      "#181b2a": "#1f2332", // indigo
+      "#1f1a1b": "#262122", // rosewood
+    },
+    "surface-2": {
+      "#252c33": "#2d343b",
+      "#26231d": "#2e2b25",
+      "#27271d": "#2f2f25",
+      "#222636": "#2a2e3f",
+      "#2a2325": "#322b2d",
+    },
+    "ink-faint": {
+      "#7b858e": "#878f98",
+      "#8a8474": "#948e7e",
+      "#86867a": "#909084",
+      "#7b8398": "#878fa4",
+      "#8e8583": "#988f8d",
+    },
+  };
+  for (const key of ["surface", "surface-2", "ink-faint"] as const) {
+    const now = d.config.theme.dark[key]?.toLowerCase();
+    const fix = now && DARK_FIX[key][now];
+    if (fix) d.config.theme.dark[key] = fix;
   }
 
   d.meta = {
