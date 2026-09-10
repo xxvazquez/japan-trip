@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
-import { Card } from "@/components/Card";
 import { Section } from "@/components/Section";
 import { IconTile } from "@/components/IconTile";
 import { TileRow } from "@/components/TileRow";
@@ -117,40 +116,56 @@ function ListSection({ list }: { list: CustomList }) {
 
   if (list.items.length === 0) {
     return ro
-      ? <p className="text-sm text-ink-faint">Nothing here yet.</p>
-      : <AddButton label="Add an item" onClick={add} />;
+      ? <Empty what="Nothing here yet" hint="A list of your own — add items on your trip." />
+      : (
+        <div className="flex min-h-[52vh] flex-col items-center justify-center gap-3 text-center">
+          <p className="lead">Nothing here yet</p>
+          <AddButton label="Add an item" onClick={add} />
+        </div>
+      );
   }
 
   return (
-    <div className="space-y-3">
-      {!ro && <AddButton label="Add an item" onClick={add} />}
-      {list.items.map((it, i) => (
-        <Card
-          key={it.id}
-          title={ro
-            ? (it.label || "Untitled")
-            : <Editable label="Item" value={it.label} placeholder="Name" onCommit={(v) => set((l) => { l.items[i].label = v; })} />}
-          right={!ro && cardDeleteBtn(() => set((l) => { l.items.splice(i, 1); }), "Delete item")}
-        >
-          {(it.note || it.url || !ro) && (
-            <>
-              {(it.note || !ro) && (
-                <p className="note text-ink-soft">
-                  {ro ? it.note : (
-                    <Editable label="Note" value={it.note ?? ""} placeholder="＋ a note" onCommit={(v) => set((l) => { l.items[i].note = v || undefined; })} />
-                  )}
-                </p>
-              )}
-              {(it.url || !ro) && (
-                <p className="mt-1 text-xs">
-                  <Editable as="link" label="Link" value={it.url ?? ""} placeholder="＋ Maps or web link" onCommit={(v) => set((l) => { l.items[i].url = v || undefined; })} />
-                </p>
-              )}
-            </>
-          )}
-        </Card>
-      ))}
-    </div>
+    <Section variant="grouped">
+      <ul>
+        {list.items.map((it, i) => (
+          <li
+            key={it.id}
+            className="relative px-3.5 py-2.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden"
+          >
+            <div className="flex items-start gap-2">
+              <span className="min-w-0 flex-1">
+                <span className="block text-[0.9375rem] font-medium leading-snug text-ink">
+                  {ro
+                    ? (it.label || "Untitled")
+                    : <Editable label="Item" value={it.label} placeholder="Name" onCommit={(v) => set((l) => { l.items[i].label = v; })} />}
+                </span>
+                {(it.note || !ro) && (
+                  <span className="meta mt-0.5 block text-ink-soft">
+                    {ro ? it.note : (
+                      <Editable label="Note" value={it.note ?? ""} placeholder="＋ a note" onCommit={(v) => set((l) => { l.items[i].note = v || undefined; })} />
+                    )}
+                  </span>
+                )}
+                {(it.url || !ro) && (
+                  <span className="mt-1 block text-xs">
+                    <Editable as="link" label="Link" value={it.url ?? ""} placeholder="＋ Maps or web link" onCommit={(v) => set((l) => { l.items[i].url = v || undefined; })} />
+                  </span>
+                )}
+              </span>
+              {!ro && <RowDeleteButton onClick={() => set((l) => { l.items.splice(i, 1); })} label="Delete item" />}
+            </div>
+          </li>
+        ))}
+        {!ro && (
+          <li>
+            <button onClick={add} className="action w-full px-3.5 py-2.5 text-xs">
+              <Icon name="plus" size={13} /> Add an item
+            </button>
+          </li>
+        )}
+      </ul>
+    </Section>
   );
 }
 

@@ -14,7 +14,9 @@ import { daysBetween, plural, rangeText } from "@/lib/dates";
 import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
 import { THEME_PRESETS, DEFAULT_ACCENT } from "@/lib/themePresets";
 import { MAP_GLYPHS } from "@/lib/mapGlyphs";
-import { Tab } from "@/components/Tabs";
+import { SegmentedControl } from "@/components/SegmentedControl";
+import { InsetRow } from "@/components/InsetRow";
+import { InfoNote } from "@/components/InfoNote";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { OPTIONAL_LOGBOOK_SECTIONS, logbookLabel } from "@/lib/logbook";
 import { fileToMediaItem, pickImage } from "@/lib/media";
@@ -30,6 +32,13 @@ import type { Area, EntityType, TripData } from "@/core/types";
 
 type TabId = "trips" | "setup" | "content" | "appearance" | "sharing";
 const TABS: TabId[] = ["trips", "setup", "content", "appearance", "sharing"];
+const TAB_LABEL: Record<TabId, string> = {
+  trips: "Trips",
+  setup: "Setup",
+  content: "Content",
+  appearance: "Look",
+  sharing: "Sharing",
+};
 
 export default function Manage() {
   const [params] = useSearchParams();
@@ -37,16 +46,13 @@ export default function Manage() {
   const [tab, setTab] = useState<TabId>(wanted && TABS.includes(wanted) ? wanted : "trips");
   return (
     <Page width="page">
-      <PageHeader
-        title="Manage"
-        meta="Your trips and this trip’s setup. The details themselves you edit inline on each page."
-        className="mb-4"
+      <PageHeader title="Manage" className="mb-4" />
+      <SegmentedControl
+        className="mb-6"
+        value={tab}
+        onChange={setTab}
+        options={TABS.map((t) => ({ value: t, label: TAB_LABEL[t] }))}
       />
-      <div className="mb-2 flex gap-5 overflow-x-auto border-b border-line">
-        {TABS.map((t) => (
-          <Tab key={t} label={t[0].toUpperCase() + t.slice(1)} active={tab === t} onClick={() => setTab(t)} />
-        ))}
-      </div>
       {tab === "trips" && <Trips />}
       {tab === "setup" && <Setup />}
       {tab === "content" && <Content />}
@@ -197,10 +203,10 @@ function Trips() {
       </ul>
 
       {archived.length > 0 && (
-        <Section title="Archived" className="mt-4">
+        <Section variant="grouped" title="Archived" className="mt-8">
           <ul>
             {archived.map((t) => (
-              <li key={t.id} className="flex items-center justify-between border-b border-line py-2.5 text-sm last:border-b-0">
+              <li key={t.id} className={`${MLI} justify-between text-sm`}>
                 <span className="text-ink-soft">{t.name}</span>
                 <div className="flex items-center gap-3">
                   <button onClick={() => archiveTrip(t.id, false)} className="text-accent hover:opacity-70">Restore</button>
@@ -231,16 +237,20 @@ function ExportTrip() {
 
   return (
     <Section
+      variant="grouped"
       title="Export"
       info="A single web-page file of the whole trip — itinerary, journeys, stays and places. Opens in any browser, prints cleanly, works offline; the recipient can print it to PDF. “Include private details” adds door codes, wifi, phone numbers and booking references — leave it off for anything you send someone. Document files are never included either way."
     >
-      <div className="flex items-center justify-between gap-4">
-        <span className="text-sm">Include private details</span>
-        <Switch checked={includePrivate} onChange={setIncludePrivate} label="Include private details" />
-      </div>
-      <button onClick={download} disabled={busy} className="btn-primary mt-4 w-full">
-        <Icon name="download" size={15} /> {busy ? "Building…" : "Download web page"}
-      </button>
+      <ul>
+        <InsetRow label="Include private details">
+          <Switch checked={includePrivate} onChange={setIncludePrivate} label="Include private details" />
+        </InsetRow>
+        <li className="p-3.5">
+          <button onClick={download} disabled={busy} className="btn-primary w-full">
+            <Icon name="download" size={15} /> {busy ? "Building…" : "Download web page"}
+          </button>
+        </li>
+      </ul>
     </Section>
   );
 }
@@ -263,10 +273,10 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
   };
 
   return (
-    <Section title="Shared with">
-      <ul className="mb-3 space-y-1.5 text-sm">
+    <Section variant="grouped" title="Shared with">
+      <ul>
         {members.map((m) => (
-          <li key={m.userId} className="flex items-center justify-between gap-2">
+          <li key={m.userId} className={`${MLI} justify-between text-sm`}>
             <span className="truncate">{m.userId === me ? "You" : m.userId.slice(0, 8) + "…"} <span className="text-ink-soft">· {m.role}</span></span>
             {iAmOwner && m.role !== "owner" && (
               <ConfirmButton
@@ -279,21 +289,21 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
             )}
           </li>
         ))}
+        {iAmOwner && (
+          <li className="p-3.5">
+            <div className="flex gap-2">
+              <input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Invite by email"
+                className="min-w-0 flex-1 rounded border border-line bg-surface px-2.5 py-1.5 text-sm outline-none"
+              />
+              <button onClick={invite} disabled={busy} className="btn-sm shrink-0">Invite</button>
+            </div>
+            {msg && <p className="mt-1.5 text-xs text-ink-soft">{msg}</p>}
+          </li>
+        )}
       </ul>
-      {iAmOwner && (
-        <>
-          <div className="flex gap-2">
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Invite by email"
-              className="min-w-0 flex-1 rounded border border-line bg-surface px-2.5 py-1.5 text-sm outline-none"
-            />
-            <button onClick={invite} disabled={busy} className="btn-sm shrink-0">Invite</button>
-          </div>
-          {msg && <p className="mt-1.5 text-xs text-ink-soft">{msg}</p>}
-        </>
-      )}
     </Section>
   );
 }
@@ -325,12 +335,24 @@ const DATE_FORMATS: { value: string; label: string }[] = [
   { value: "fr-FR", label: "31/10/2026" },
 ];
 
+/** A label/value row for a grouped `<Section>` in Manage — wrap a run in `<ul>`. */
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
+  return <InsetRow label={label}>{children}</InsetRow>;
+}
+
+/** `<li>` class for a Manage grouped-list item (a traveller, a currency…):
+ *  padded, its own inset hairline, gone on the last row. */
+const MLI =
+  "relative flex items-center gap-3 px-3.5 py-2.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden";
+
+/** the trailing "＋ Add …" row inside a Manage grouped list */
+function AddRow({ label, onClick }: { label: string; onClick: () => void }) {
   return (
-    <div className="row">
-      <span className="row-label">{label}</span>
-      <span className="row-value">{children}</span>
-    </div>
+    <li>
+      <button onClick={onClick} className="action w-full px-3.5 py-2.5 text-xs">
+        <Icon name="plus" size={13} /> {label}
+      </button>
+    </li>
   );
 }
 
@@ -366,27 +388,35 @@ function Setup() {
   };
 
   return (
-    <div className="space-y-3.5">
-      <Section title="Identity">
-        <EditRow label="Trip name" value={config.branding} onCommit={(v) => mutate((d) => { d.config.branding = v; d.meta.title = v; })} />
+    <div className="space-y-6">
+      <Section variant="grouped" title="Identity">
+        <ul>
+          <EditRow label="Trip name" value={config.branding} onCommit={(v) => mutate((d) => { d.config.branding = v; d.meta.title = v; })} />
+        </ul>
       </Section>
 
       <TravellersPanel />
 
       <Section
+        variant="grouped"
         title="Dates"
         info="Moving either date slides the whole itinerary — days, stays and journeys shift with it. To change the length, add or remove days in Plan."
       >
-        <Row label="Start"><Editable as="date" label="Start date" value={meta.start} onCommit={(v) => moveTrip(meta.start, v)} /></Row>
-        <Row label="End"><Editable as="date" label="End date" value={meta.end} onCommit={(v) => moveTrip(meta.end, v)} /></Row>
+        <ul>
+          <Row label="Start"><Editable as="date" label="Start date" value={meta.start} onCommit={(v) => moveTrip(meta.start, v)} /></Row>
+          <Row label="End"><Editable as="date" label="End date" value={meta.end} onCommit={(v) => moveTrip(meta.end, v)} /></Row>
+        </ul>
       </Section>
 
-      <Section title="Time zones">
-        <Row label="Home"><TzSelect value={config.homeTimeZone} onChange={(v) => mutate((d) => { d.config.homeTimeZone = v; })} /></Row>
-        <Row label="On the trip"><TzSelect value={config.tripTimeZone} onChange={(v) => mutate((d) => { d.config.tripTimeZone = v; })} /></Row>
+      <Section variant="grouped" title="Time zones">
+        <ul>
+          <Row label="Home"><TzSelect value={config.homeTimeZone} onChange={(v) => mutate((d) => { d.config.homeTimeZone = v; })} /></Row>
+          <Row label="On the trip"><TzSelect value={config.tripTimeZone} onChange={(v) => mutate((d) => { d.config.tripTimeZone = v; })} /></Row>
+        </ul>
       </Section>
 
-      <Section title="Map & format">
+      <Section variant="grouped" title="Map & format">
+        <ul>
         <Row label="Date format">
           <select
             value={config.locale}
@@ -400,6 +430,7 @@ function Setup() {
         <Row label="Google My Map">
           <Editable as="link" label="Google My Map link" value={config.mapSourceUrl ?? ""} placeholder="paste the share link" onCommit={(v) => mutate((d) => { d.config.mapSourceUrl = v; })} />
         </Row>
+        </ul>
       </Section>
 
       <CurrenciesPanel />
@@ -431,10 +462,10 @@ function TravellersPanel() {
     mutate((d) => sync(d, [...people, { id: `p-${Math.random().toString(36).slice(2, 8)}`, name: "" }]));
 
   return (
-    <Section title="Travellers" info="Who's on this trip — used for packing assignment.">
+    <Section variant="grouped" title="Travellers" info="Who's on this trip — used for packing assignment.">
       <ul>
         {people.map((p, i) => (
-          <li key={p.id} className="flex items-center gap-3 border-b border-line py-2.5 last:border-b-0">
+          <li key={p.id} className={MLI}>
             <span className="min-w-0 flex-1">
               <Editable label="Name" value={p.name} placeholder="Name" onCommit={(v) => setName(i, v)} />
             </span>
@@ -443,10 +474,8 @@ function TravellersPanel() {
             </ConfirmButton>
           </li>
         ))}
+        <AddRow label="Add a traveller" onClick={add} />
       </ul>
-      <button onClick={add} className="action mt-2 text-xs">
-        <Icon name="plus" size={13} /> Add a traveller
-      </button>
     </Section>
   );
 }
@@ -474,12 +503,13 @@ function CurrenciesPanel() {
 
   return (
     <Section
+      variant="grouped"
       title="Currencies"
       info="Every currency this trip uses. The first is the default — a price typed as a bare number counts as it; one with its own symbol is left alone. Add a second and each spending row and fare gets a currency picker."
     >
       <ul>
         {list.map((c, i) => (
-          <li key={`${c}-${i}`} className="flex items-center gap-3 border-b border-line py-2.5 last:border-b-0">
+          <li key={`${c}-${i}`} className={MLI}>
             <div className="flex flex-col">
               <button disabled={i === 0} onClick={() => move(i, -1)} className="text-ink-faint disabled:opacity-30" aria-label="Move up">
                 <Icon name="up" size={16} />
@@ -501,10 +531,8 @@ function CurrenciesPanel() {
             </ConfirmButton>
           </li>
         ))}
+        <AddRow label="Add a currency" onClick={add} />
       </ul>
-      <button onClick={add} className="action mt-2 text-xs">
-        <Icon name="plus" size={13} /> Add a currency
-      </button>
     </Section>
   );
 }
@@ -526,12 +554,13 @@ function ExpenseCategoriesPanel() {
 
   return (
     <Section
+      variant="grouped"
       title="Expense categories"
       info="The buckets your spending groups into on the Expenses tab. “Accommodation” collects every stay price and “Transport” every fare automatically."
     >
       <ul>
         {cats.map((c, i) => (
-          <li key={c.id} className="flex items-center gap-3 border-b border-line py-2.5 last:border-b-0">
+          <li key={c.id} className={MLI}>
             <div className="flex flex-col">
               <button disabled={i === 0} onClick={() => move(i, -1)} className="text-ink-faint disabled:opacity-30" aria-label="Move up">
                 <Icon name="up" size={16} />
@@ -560,13 +589,8 @@ function ExpenseCategoriesPanel() {
             )}
           </li>
         ))}
+        <AddRow label="Add a category" onClick={() => mutate((d) => { (d.config.expenseCategories ??= []).push({ id: `cat-${rid()}`, label: "New category" }); })} />
       </ul>
-      <button
-        onClick={() => mutate((d) => { (d.config.expenseCategories ??= []).push({ id: `cat-${rid()}`, label: "New category" }); })}
-        className="action mt-2 text-xs"
-      >
-        <Icon name="plus" size={13} /> Add a category
-      </button>
     </Section>
   );
 }
@@ -581,10 +605,10 @@ function ModulesPanel() {
   const modules = data.config.modules;
 
   return (
-    <Section title="Tabs" info="Reorder, rename, or turn the main tabs off for this trip.">
+    <Section variant="grouped" title="Tabs" info="Reorder, rename, or turn the main tabs off for this trip.">
       <ul>
         {modules.map((m, i) => (
-          <li key={m.id} className="flex items-center gap-3 border-b border-line py-2.5 last:border-b-0">
+          <li key={m.id} className={MLI}>
             <div className="flex flex-col">
               <button disabled={i === 0} onClick={() => mutate((d) => { const a = d.config.modules; [a[i - 1], a[i]] = [a[i], a[i - 1]]; })} className="text-ink-faint disabled:opacity-30" aria-label="Move up">
                 <Icon name="up" size={16} />
@@ -626,10 +650,10 @@ function LogbookSectionsPanel() {
     });
 
   return (
-    <Section title="Logbook sections">
+    <Section variant="grouped" title="Logbook sections">
       <ul>
         {OPTIONAL_LOGBOOK_SECTIONS.map((s) => (
-          <li key={s} className="flex items-center justify-between border-b border-line py-2.5 text-sm">
+          <li key={s} className={`${MLI} justify-between text-sm`}>
             <span className={hidden.includes(s) ? "text-ink-faint" : ""}>{logbookLabel(s)}</span>
             <button onClick={() => toggleSection(s)} className="text-ink-soft hover:text-ink" aria-label={hidden.includes(s) ? "Show" : "Hide"}>
               <Icon name={hidden.includes(s) ? "eye-off" : "eye"} size={17} />
@@ -637,7 +661,7 @@ function LogbookSectionsPanel() {
           </li>
         ))}
         {lists.map((l, i) => (
-          <li key={l.id} className="flex items-center gap-2 border-b border-line py-2.5 text-sm">
+          <li key={l.id} className={`${MLI} text-sm`}>
             <span className="min-w-0 flex-1">
               <Editable label="List name" value={l.title} onCommit={(v) => mutate((d) => { const x = d.config.lists?.[i]; if (x) x.title = v || "List"; })} />
             </span>
@@ -647,13 +671,8 @@ function LogbookSectionsPanel() {
             </ConfirmButton>
           </li>
         ))}
+        <AddRow label="Add list" onClick={() => mutate((d) => { (d.config.lists ??= []).push({ id: `list-${rid()}`, title: "New list", items: [] }); })} />
       </ul>
-      <button
-        onClick={() => mutate((d) => { (d.config.lists ??= []).push({ id: `list-${rid()}`, title: "New list", items: [] }); })}
-        className="action mt-3"
-      >
-        <Icon name="plus" size={14} /> Add list
-      </button>
     </Section>
   );
 }
@@ -681,8 +700,9 @@ function Appearance() {
     });
 
   return (
-    <div className="space-y-3.5">
-      <Section title="Theme">
+    <div className="space-y-6">
+      <Section variant="grouped" title="Theme">
+        <div className="p-3.5">
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {THEME_PRESETS.map((p) => {
             const on = config.themePreset === p.id;
@@ -748,10 +768,11 @@ function Appearance() {
               </div>
             </div>
           ))}
+        </div>
       </Section>
 
-      <Section title="Logo">
-        <div className="flex items-center gap-4">
+      <Section variant="grouped" title="Logo">
+        <div className="flex items-center gap-4 p-3.5">
           <span className="grid h-16 w-16 place-items-center overflow-hidden rounded border border-line bg-surface-2">
             <img src={tripLogoSrc(data, dark)} alt="" className="h-full w-full object-cover" />
           </span>
@@ -762,8 +783,9 @@ function Appearance() {
         </div>
       </Section>
 
-      <Section title="Cover">
-        <div className="overflow-hidden rounded border border-line">
+      <Section variant="grouped" title="Cover">
+        <div className="p-3.5">
+        <div className="overflow-hidden rounded-[10px] border border-line">
           {media.cover ? (
             <img src={media.cover.dataUrl} alt="" className="h-40 w-full object-cover" />
           ) : (
@@ -774,10 +796,11 @@ function Appearance() {
           <button disabled={busy} onClick={() => upload((item) => setMedia("cover", item))} className="btn-sm">Upload</button>
           {media.cover && <button onClick={() => setMedia("cover", undefined)} className="btn-sm text-accent">Remove</button>}
         </div>
+        </div>
       </Section>
 
-      <Section title="Gallery" info="Images are resized to ~1600px and stored on this device with the trip.">
-
+      <Section variant="grouped" title="Gallery" info="Images are resized to ~1600px and stored on this device with the trip.">
+        <div className="p-3.5">
         <button disabled={busy} onClick={() => upload((item) => addGalleryMedia(item))} className="btn-sm mb-3">
           <Icon name="plus" size={14} /> Add image
         </button>
@@ -803,6 +826,7 @@ function Appearance() {
         ) : (
           <p className="text-sm text-ink-faint">No images yet.</p>
         )}
+        </div>
       </Section>
     </div>
   );
@@ -826,6 +850,7 @@ function SharingTab() {
 
       {driveEnabled && !isDemo && (
         <Section
+          variant="grouped"
           title="Document files"
           info="Attachments upload to the adder’s Google Drive; these accounts are given read access. List both travellers."
         >
@@ -992,7 +1017,7 @@ function Content() {
     const isOpen = open === type;
     const blocked = addBlockedReason(type);
     return (
-      <div className="border-b border-line last:border-b-0">
+      <div className="relative px-3.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
         <button onClick={() => setOpen(isOpen ? null : type)} className="flex w-full items-baseline justify-between gap-3 py-3 text-left">
           <span className="lead">{ENTITY_LABELS[type]}</span>
           <span className="flex items-center gap-2">
@@ -1002,7 +1027,7 @@ function Content() {
         </button>
         {isOpen && type === "areas" && <AreaEditor />}
         {isOpen && type !== "areas" && (
-          <div className="pb-3 pl-3">
+          <div className="pb-3">
             <ul>
               {list.map((x, i) => {
                 const rec = x as Record<string, unknown>;
@@ -1051,10 +1076,10 @@ function Content() {
         d.config.categoryIcons = next;
       });
     return (
-      <Section title="Category pins" info="Give a place category its own map marker — others show a plain dot.">
+      <Section variant="grouped" title="Category pins" info="Give a place category its own map marker — others show a plain dot.">
         <ul>
           {names.map((name) => (
-            <li key={name} className="flex items-center gap-2 border-b border-line py-2 text-sm last:border-b-0">
+            <li key={name} className={`${MLI} text-sm`}>
               <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: colorOf(name) }} />
               <span className="min-w-0 flex-1 truncate">{name}</span>
               <select
@@ -1073,15 +1098,17 @@ function Content() {
   };
 
   return (
-    <div className="space-y-3.5">
-      <p className="text-xs leading-relaxed text-ink-faint">
-        Add, duplicate, remove and reorder items here. To fill in the details, open the item:
-        stays, days, hotels and journeys each have their own page; luggage, packing and
-        documents are edited on the <Link to="/logbook" className="text-accent">Logbook</Link>;
-        pins and areas on the <Link to="/map" className="text-accent">Map</Link>.
-      </p>
+    <div className="space-y-6">
+      <div className="flex justify-end">
+        <InfoNote align="right">
+          Add, duplicate, remove and reorder items here. To fill in the details, open the item:
+          stays, days, hotels and journeys each have their own page; luggage, packing and
+          documents are edited on the <Link to="/logbook" className="text-accent">Logbook</Link>;
+          pins and areas on the <Link to="/map" className="text-accent">Map</Link>.
+        </InfoNote>
+      </div>
       {CONTENT_GROUPS.map((grp) => (
-        <Section key={grp.title} title={grp.title}>
+        <Section key={grp.title} variant="grouped" title={grp.title}>
           {grp.types.map((type) => <Rows key={type} type={type} />)}
         </Section>
       ))}
