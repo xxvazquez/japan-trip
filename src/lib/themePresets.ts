@@ -21,6 +21,13 @@ export interface ThemePreset {
  * index.css's `:root` / `html.dark` block, byte for byte — keep the two in
  * sync if you touch it.
  */
+/**
+ * The default accent (Ink & Moss, light). Use this wherever a hardcoded accent
+ * hex is needed outside the CSS-variable system — map pin fallbacks, the export
+ * stylesheet's `:root` fallback — so a palette change is followed in one place.
+ */
+export const DEFAULT_ACCENT = "#5e718a";
+
 export const THEME_PRESETS: ThemePreset[] = [
   {
     id: "ink-moss",

@@ -17,6 +17,7 @@ import type {
   Day, Doc, Hotel, Journey, Leg, Place, Segment, TripData,
 } from "@/core/types";
 import { fmtDate, fmtSpan, plural, todayISO } from "@/lib/dates";
+import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import { localMinutes, fmtMinutes } from "@/lib/time";
 import { gmapsLink } from "@/lib/maps";
 import { MODE_LABEL } from "@/lib/transport";
@@ -349,13 +350,13 @@ function styles(data: TripData): string {
   const v = (k: string, fallback: string) => (t[k] || fallback);
   return `
   :root {
-    --bg: ${v("bg", "#f7f7f4")};
-    --surface: ${v("surface", "#ffffff")};
-    --ink: ${v("ink", "#1c1c1c")};
-    --ink-soft: ${v("ink-soft", "#4a4a4a")};
-    --ink-faint: ${v("ink-faint", "#8a8a8a")};
-    --line: ${v("line", "#e0e0da")};
-    --accent: ${v("accent", "#5f7f9c")};
+    --bg: ${v("bg", "#f2f4f6")};
+    --surface: ${v("surface", "#f9fafb")};
+    --ink: ${v("ink", "#1a2026")};
+    --ink-soft: ${v("ink-soft", "#3d474f")};
+    --ink-faint: ${v("ink-faint", "#747e86")};
+    --line: ${v("line", "#d2d8de")};
+    --accent: ${v("accent", DEFAULT_ACCENT)};
   }
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }

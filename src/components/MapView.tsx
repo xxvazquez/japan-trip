@@ -17,8 +17,9 @@ import { Loader } from "@/components/Loader";
 import { transitLayers, TRANSIT_CONTROLS } from "@/lib/transitLayers";
 import { buildMarkerImage, markerKey } from "@/lib/mapGlyphs";
 import type { Place } from "@/core/types";
+import { DEFAULT_ACCENT } from "@/lib/themePresets";
 
-const FALLBACK = "#5f7f9c";
+const FALLBACK = DEFAULT_ACCENT;
 let protocolRegistered = false;
 
 type CatIcons = Record<string, string> | undefined;
