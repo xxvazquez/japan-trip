@@ -139,7 +139,7 @@ function Trips() {
         </div>
       )}
       {!creating ? (
-        <div className="mb-3 mt-6 flex flex-wrap items-center gap-4">
+        <div className="mb-6 mt-6 flex flex-wrap items-center gap-4">
           <button onClick={newTrip} disabled={busy} className="btn-primary">
             <Icon name="plus" size={16} /> New trip
           </button>
@@ -168,11 +168,12 @@ function Trips() {
         </div>
       )}
 
+      <Section>
       <ul>
         {live.map((t) => {
           const isDemo = t.templateId === "demo";
           return (
-            <li key={t.id} className="flex items-baseline gap-3 border-b border-line py-3">
+            <li key={t.id} className="relative flex items-baseline gap-3 px-3.5 py-3 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
               <span className="min-w-0 flex-1">
                 {isDemo ? (
                   <span className="lead">{t.name}</span>
@@ -201,6 +202,7 @@ function Trips() {
           );
         })}
       </ul>
+      </Section>
 
       {archived.length > 0 && (
         <Section title="Archived" className="mt-8">
