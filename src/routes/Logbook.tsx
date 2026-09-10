@@ -134,7 +134,7 @@ function ListSection({ list }: { list: CustomList }) {
             key={it.id}
             className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden"
           >
-            <SwipeToDelete onDelete={ro ? undefined : () => set((l) => { l.items.splice(i, 1); })} label="Delete item">
+            <SwipeToDelete onDelete={ro ? undefined : () => set((l) => { l.items.splice(i, 1); })}>
             <div className="flex items-start gap-2 px-3.5 py-2.5">
               <span className="min-w-0 flex-1">
                 <span className="block text-[0.9375rem] font-medium leading-snug text-ink">
@@ -155,7 +155,7 @@ function ListSection({ list }: { list: CustomList }) {
                   </span>
                 )}
               </span>
-              {!ro && <RowDeleteButton onClick={() => set((l) => { l.items.splice(i, 1); })} label="Delete item" />}
+              {!ro && <RowDeleteButton onClick={() => set((l) => { l.items.splice(i, 1); })} />}
             </div>
             </SwipeToDelete>
           </li>
@@ -697,14 +697,14 @@ function PackRow({ item, ro, people, tagged, onToggle, onLabel, onAssign, onRemo
   }
   return (
     <li className={`group ${liOuter}`}>
-      <SwipeToDelete onDelete={onRemove} label="Remove item">
+      <SwipeToDelete onDelete={onRemove}>
         <div className={rowInner}>
           {box}
           <span className="min-w-0 flex-1">
             <Editable label="Item" value={item.label} placeholder="Item" className={item.done ? "text-ink-faint line-through" : "text-ink"} onCommit={onLabel} />
           </span>
           {pill}
-          <RowDeleteButton onClick={onRemove} label="Remove item" />
+          <RowDeleteButton onClick={onRemove} />
         </div>
       </SwipeToDelete>
     </li>
