@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
+import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
 import { Icon, type IconName } from "@/components/Icon";
@@ -143,51 +144,61 @@ export default function Journey() {
         }
       />
 
-      {j.gmapsDirections && (
-        <a href={j.gmapsDirections} target="_blank" rel="noopener" className="action mt-4">
-          <Icon name="map" size={14} /> Directions in Google Maps
-        </a>
+      {(j.gmapsDirections || fareText || !ro) && (
+        <Section variant="grouped" className="mt-5">
+          <ul>
+            {j.gmapsDirections && (
+              <li className={INSET_DIVIDER}>
+                <a href={j.gmapsDirections} target="_blank" rel="noopener" className="flex items-center justify-between gap-3 px-3.5 py-2.5">
+                  <span className="flex items-center gap-2 text-[0.8125rem] font-medium text-accent">
+                    <Icon name="map" size={15} /> Directions in Google Maps
+                  </span>
+                  <Icon name="chevron" size={14} className="-mr-1 shrink-0 text-ink-faint" />
+                </a>
+              </li>
+            )}
+            {(fareText || !ro) && (
+              <InsetRow label="Total fare">
+                {ro ? (
+                  <>
+                    {fareText || "—"}
+                    {fareDerived && <span className="ml-2 font-normal text-ink-faint">from hops</span>}
+                  </>
+                ) : (
+                  <FareField
+                    amount={j.fare ?? ""}
+                    currency={j.fareCurrency}
+                    currencies={currencies}
+                    primary={primary}
+                    onAmount={(v) => patch({ fare: cleanAmount(v) || undefined })}
+                    onCurrency={(c) => patch({ fareCurrency: c })}
+                  />
+                )}
+              </InsetRow>
+            )}
+          </ul>
+        </Section>
       )}
 
-      {(fareText || !ro) && (
-        <div className="mt-4 flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-          <span className="row-label">Total fare</span>
-          <span className="value">{fareText || "—"}</span>
-          {fareDerived && <span className="meta text-ink-faint">summed from the hops</span>}
+      <div className="mt-6 space-y-6">
+      {(!ro || j.segments.length > 0) && (
+        <section>
+        <div className="mb-2 flex items-baseline justify-between px-1">
+          <h2 className="eyebrow flex items-center gap-1.5 text-ink-faint">
+            <Icon name="itinerary" size={12} className="-translate-y-px" /> Hops
+          </h2>
           {!ro && (
-            <span className="meta">
-              <FareField
-                amount={j.fare ?? ""}
-                currency={j.fareCurrency}
-                currencies={currencies}
-                primary={primary}
-                onAmount={(v) => patch({ fare: cleanAmount(v) || undefined })}
-                onCurrency={(c) => patch({ fareCurrency: c })}
-              />
-            </span>
+            <button
+              onClick={() => {
+                const l = j.segments.at(-1);
+                patch({ segments: [...j.segments, { id: `seg-${rid()}`, mode: l?.mode ?? "train", from: l?.to ?? "", to: "", fromTz: l?.toTz, toTz: l?.toTz }] });
+              }}
+              className="action text-xs"
+            >
+              <Icon name="plus" size={13} /> Add
+            </button>
           )}
         </div>
-      )}
-
-      <div className="mt-8 space-y-3.5">
-      {(!ro || j.segments.length > 0) && (
-        <Section
-          icon="itinerary"
-          title="Hops"
-          action={
-            !ro && (
-              <button
-                onClick={() => {
-                  const l = j.segments.at(-1);
-                  patch({ segments: [...j.segments, { id: `seg-${rid()}`, mode: l?.mode ?? "train", from: l?.to ?? "", to: "", fromTz: l?.toTz, toTz: l?.toTz }] });
-                }}
-                className="action text-xs"
-              >
-                <Icon name="plus" size={13} /> Add
-              </button>
-            )
-          }
-        >
         <div className="space-y-2.5">
         {j.segments.length === 0 && <p className="text-sm text-ink-faint">No hops yet.</p>}
         {j.segments.map((s, i) => {
@@ -386,12 +397,12 @@ export default function Journey() {
           );
         })}
         </div>
-        </Section>
+        </section>
       )}
 
       {(j.notes || !ro) && (
-        <Section collapsible icon="list" title="Notes">
-          <div className="note">
+        <Section variant="grouped" icon="list" title="Notes">
+          <div className="note px-3.5 py-3">
             <RichNote value={j.notes ?? ""} onCommit={(v) => patch({ notes: v || undefined })} placeholder="Backup routes, reminders…" />
           </div>
         </Section>

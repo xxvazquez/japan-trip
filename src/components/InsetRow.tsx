@@ -1,4 +1,6 @@
 import { type ReactNode } from "react";
+import { Link } from "react-router-dom";
+import { Icon } from "./Icon";
 
 /**
  * A label / value row for a grouped-inset list (`<Section variant="grouped">`) —
@@ -7,21 +9,27 @@ import { type ReactNode } from "react";
  * takes an `<Editable>` straight in.
  *
  * Renders an `<li>` with its own hairline divider (inset to the label, gone on
- * the last row) — wrap a run in a plain `<ul>`, no `divide-y`. For a value that
- * needs the full width (a long address, a wrapping note) pass `stacked` — the
- * label sits above.
+ * the last row) — wrap a run in a plain `<ul>`, no `divide-y`. `stacked` puts
+ * the label above a full-width value (a long address, a note). `to` makes the
+ * whole row a link with a trailing chevron.
  */
-const LI = "relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden";
+/** The inset hairline for a grouped-list `<li>` — for hand-rolled rows that
+ *  can't use `<InsetRow>` (an external-link row, a custom cell). */
+export const INSET_DIVIDER =
+  "relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden";
+const LI = INSET_DIVIDER;
 
 export function InsetRow({
   label,
   children,
   stacked = false,
+  to,
   className = "",
 }: {
   label: ReactNode;
   children: ReactNode;
   stacked?: boolean;
+  to?: string;
   className?: string;
 }) {
   if (stacked) {
@@ -32,12 +40,30 @@ export function InsetRow({
       </li>
     );
   }
-  return (
-    <li className={`${LI} flex items-baseline justify-between gap-4 px-3.5 py-2.5 ${className}`}>
+
+  const inner = (
+    <>
       <span className="shrink-0 text-[0.8125rem] text-ink-soft">{label}</span>
       <span className="min-w-0 text-right font-sans text-[0.8125rem] font-medium leading-snug text-ink">
         {children}
       </span>
+      {to && <Icon name="chevron" size={14} className="-mr-1 shrink-0 text-ink-faint" />}
+    </>
+  );
+
+  if (to) {
+    return (
+      <li className={LI}>
+        <Link to={to} className={`flex items-center justify-between gap-3 px-3.5 py-2.5 transition-colors hover:bg-surface-2/40 focus-visible:[outline-offset:-2px] ${className}`}>
+          {inner}
+        </Link>
+      </li>
+    );
+  }
+
+  return (
+    <li className={`${LI} flex items-baseline justify-between gap-4 px-3.5 py-2.5 ${className}`}>
+      {inner}
     </li>
   );
 }
