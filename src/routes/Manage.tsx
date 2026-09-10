@@ -12,7 +12,7 @@ import { APP_NAME, APP_TAGLINE } from "@/lib/app";
 import { tripLogoSrc } from "@/components/Wordmark";
 import { daysBetween, plural, rangeText } from "@/lib/dates";
 import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
-import { THEME_PRESETS } from "@/lib/themePresets";
+import { THEME_PRESETS, DEFAULT_ACCENT } from "@/lib/themePresets";
 import { MAP_GLYPHS } from "@/lib/mapGlyphs";
 import { Tab } from "@/components/Tabs";
 import { ConfirmButton } from "@/components/ConfirmButton";
@@ -1052,7 +1052,7 @@ function Content() {
     const names = [...new Set(data.places.map((p) => p.category).filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b));
     if (names.length === 0) return null;
     const icons = data.config.categoryIcons ?? {};
-    const colorOf = (name: string) => data.places.find((p) => p.category === name)?.color || "#5f7f9c";
+    const colorOf = (name: string) => data.places.find((p) => p.category === name)?.color || DEFAULT_ACCENT;
     const setIcon = (name: string, glyph: string) =>
       mutate((d) => {
         const next = { ...(d.config.categoryIcons ?? {}) };

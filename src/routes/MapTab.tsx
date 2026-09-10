@@ -18,9 +18,14 @@ import { useReadOnly } from "@/lib/readonly";
 import { TRANSIT_KINDS, TRANSIT_META } from "@/lib/transitLayers";
 import { glyphPath } from "@/lib/mapGlyphs";
 import { toneForPlaceCategory } from "@/lib/tones";
+import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import type { Area, Day, Hotel, PlanItem, Place, TripData } from "@/core/types";
 
-const FALLBACK = "#5f7f9c";
+const FALLBACK = DEFAULT_ACCENT;
+// colours an app-native pin may carry that aren't a real "own" colour — the
+// current accent fallback and the prior default it replaced. An imported pin's
+// colour is anything else.
+const DEFAULT_PIN_COLORS = new Set([FALLBACK, "#5f7f9c"]);
 /** how far a pin can sit from a stay's anchor and still count as "in" that base
  *  — roughly a metro area plus a short day-out. Beyond it the pin belongs to no
  *  city pill and shows only on "All" or on a day that names it. */
@@ -1156,7 +1161,7 @@ function PlaceRow({
   const catGlyph = place.category ? categoryIcons?.[place.category] : undefined;
   // an imported pin keeps its own colour (matches its map marker); an app-native
   // pin has no real colour, so tint it by category instead
-  const ownColour = place.color && place.color !== FALLBACK ? place.color : undefined;
+  const ownColour = place.color && !DEFAULT_PIN_COLORS.has(place.color) ? place.color : undefined;
   return (
     <li ref={li} className="scroll-my-3 border-b border-line last:border-b-0">
       <button onClick={onToggle} className={`flex w-full items-center gap-3 py-2 text-left ${derived ? "opacity-60" : ""}`}>
