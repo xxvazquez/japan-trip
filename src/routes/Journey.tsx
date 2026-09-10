@@ -5,6 +5,7 @@ import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { Editable } from "@/components/Editable";
+import { MoneyField } from "@/components/MoneyField";
 import { RichNote } from "@/components/RichNote";
 import { Icon, type IconName } from "@/components/Icon";
 import { IconTile } from "@/components/IconTile";
@@ -15,7 +16,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { fmtDate, plural, segEndpoints } from "@/lib/dates";
 import { clockOf, fmtDuration, fmtMinutes, localMinutes } from "@/lib/time";
 import { MODE_LABEL, MODE_ICON, MODE_TONE } from "@/lib/transport";
-import { journeyFare, fmtMoney, cleanAmount, fmtFare, currencySymbol } from "@/lib/cost";
+import { journeyFare, fmtMoney, cleanAmount, fmtFare } from "@/lib/cost";
 import { splitRoute, joinRoute, routeStops, JOURNEY_KIND_LABEL } from "@/lib/journey";
 import type { Journey as JourneyT, JourneyKind, Segment, TransportMode } from "@/core/types";
 
@@ -27,38 +28,6 @@ const rid = () => Math.random().toString(36).slice(2, 8);
  *  never the page's serif, so the Journey screen stops mixing arrow styles. */
 function Arrow({ className = "" }: { className?: string }) {
   return <span className={`font-sans font-normal text-ink-faint ${className}`}>→</span>;
-}
-
-/** A fare amount + its currency. With one trip currency the code is just the
- *  symbol; with two or more it's a picker. Absent picked currency = primary. */
-function FareField({ amount, currency, currencies, primary, onAmount, onCurrency }: {
-  amount: string;
-  currency: string | undefined;
-  currencies: string[];
-  primary: string;
-  onAmount: (v: string) => void;
-  onCurrency: (c: string | undefined) => void;
-}) {
-  const sym = currencySymbol(primary);
-  return (
-    <span className="inline-flex items-baseline gap-1.5">
-      {currencies.length >= 2 ? (
-        <select
-          value={currency ?? primary}
-          onChange={(e) => onCurrency(e.target.value === primary ? undefined : e.target.value)}
-          aria-label="Currency"
-          className="cursor-pointer bg-transparent text-[0.8125rem] text-ink-soft focus:outline-none"
-        >
-          {[...new Set([...currencies, currency || primary])].filter(Boolean).map((cc) => (
-            <option key={cc} value={cc}>{cc}</option>
-          ))}
-        </select>
-      ) : sym && (!amount || /^[\d.,]+$/.test(amount)) ? (
-        <span className="text-[0.8125rem] text-ink-faint">{sym}</span>
-      ) : null}
-      <Editable as="number" label="Fare" value={amount} placeholder="—" onCommit={onAmount} />
-    </span>
-  );
 }
 
 /** A stored "A → B" label with the arrow rendered as markup, not a baked char. */
@@ -92,8 +61,7 @@ export default function Journey() {
   const route = splitRoute(j.label);
   const setSeg = (i: number, sp: Partial<Segment>) => patch({ segments: j.segments.map((s, k) => (k === i ? { ...s, ...sp } : s)) });
   const loc = data.config.locale;
-  const currencies = (data.config.currencies ?? []).filter(Boolean);
-  const primary = currencies[0] ?? "";
+  const primary = (data.config.currencies ?? []).filter(Boolean)[0] ?? "";
 
   const first = j.segments[0];
   const last = j.segments.at(-1);
@@ -165,11 +133,10 @@ export default function Journey() {
                     {fareDerived && <span className="ml-2 font-normal text-ink-faint">from hops</span>}
                   </>
                 ) : (
-                  <FareField
+                  <MoneyField
+                    label="Total fare"
                     amount={j.fare ?? ""}
                     currency={j.fareCurrency}
-                    currencies={currencies}
-                    primary={primary}
                     onAmount={(v) => patch({ fare: cleanAmount(v) || undefined })}
                     onCurrency={(c) => patch({ fareCurrency: c })}
                   />
@@ -267,11 +234,10 @@ export default function Journey() {
             detail(
               "Fare",
               ro ? fmtFare(s.fare, s.fareCurrency || primary) : (
-                <FareField
+                <MoneyField
+                  label="Fare"
                   amount={s.fare ?? ""}
                   currency={s.fareCurrency}
-                  currencies={currencies}
-                  primary={primary}
                   onAmount={(v) => setSeg(i, { fare: cleanAmount(v) || undefined })}
                   onCurrency={(c) => setSeg(i, { fareCurrency: c })}
                 />

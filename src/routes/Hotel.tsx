@@ -5,6 +5,7 @@ import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { InsetRow } from "@/components/InsetRow";
 import { Editable } from "@/components/Editable";
+import { MoneyField } from "@/components/MoneyField";
 import { FieldList } from "@/components/FieldList";
 import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
@@ -12,6 +13,7 @@ import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { gmapsLink } from "@/lib/maps";
+import { fmtFare } from "@/lib/cost";
 import { fmtDate } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import type { Hotel as HotelT } from "@/core/types";
@@ -33,6 +35,7 @@ export default function Hotel() {
   const leg = data.legs.find((l) => l.hotelId === hotel.id);
   const map = gmapsLink(hotel.mapUrl || hotel.address);
   const loc = data.config.locale;
+  const primary = (data.config.currencies ?? []).filter(Boolean)[0] ?? "";
   const fields = hotel.fields ?? [];
 
   // Check-in / -out: a fixed, useful pair (not a calc field, but not free-form).
@@ -121,7 +124,17 @@ export default function Hotel() {
             <ul>
               {(!ro || hotel.price) && (
                 <InsetRow label="Price">
-                  <Editable label="Price" value={hotel.price ?? ""} placeholder="—" onCommit={(v) => p({ price: v || undefined })} />
+                  {ro ? (
+                    fmtFare(hotel.price, hotel.priceCurrency || primary) || "—"
+                  ) : (
+                    <MoneyField
+                      label="Price"
+                      amount={hotel.price ?? ""}
+                      currency={hotel.priceCurrency}
+                      onAmount={(v) => p({ price: v || undefined })}
+                      onCurrency={(c) => p({ priceCurrency: c })}
+                    />
+                  )}
                 </InsetRow>
               )}
               <FieldList inset fields={fields} onChange={(next) => p({ fields: next })} addLabel="Add a detail" />

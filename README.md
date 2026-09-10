@@ -145,9 +145,11 @@ shows as *Uncategorised*. A journey with a total *and* per-hop fares counts
 once, not twice. Nothing is entered on this tab.
 
 In **Manage → Setup** you name the **travellers** (used for packing
-assignment), list the **currencies** the trip uses — the first is the default,
-so a bare `100` in a price counts as it; add a second and every spending row
-and fare gets a currency picker — edit the **expense categories** (reorder,
+assignment), list the **currencies** the trip uses — the first is the default
+(a new trip starts on `PLN`), so every price field shows its symbol and a bare
+`100` counts as it without the symbol being typed; add a second currency and
+every price — a stay, a fare, a spending row, a custom "Price" field — gets a
+currency picker — edit the **expense categories** (reorder,
 rename, add, remove — the list can't be emptied), hide the Logbook sections
 you don't need, and **add your own** — a title plus a list of things (name,
 note, link). Handy for "Restaurants to try", "Gifts to bring back", and so on.
@@ -279,7 +281,7 @@ must be the **full https URL**, not just the project ref. The map tile settings
 
 1. Create a project at [supabase.com](https://supabase.com).
 2. **SQL Editor** → run every file in `supabase/migrations/` **in order**
-   (`0001` → `0023`).
+   (`0001` → `0024`).
 3. **Authentication → Providers → Google** → enable, paste a Google Cloud OAuth
    client id / secret, redirect
    `https://<project-ref>.supabase.co/auth/v1/callback`.

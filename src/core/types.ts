@@ -308,10 +308,14 @@ export interface Hotel {
   checkIn?: string;
   checkOut?: string;
   notes?: string;
-  /** the whole stay's price, free text (e.g. "¥42,000" or "€310 for 3 nights") —
-   *  parsed into the Expenses roll-up under the Accommodation category, so it
-   *  stays a fixed system field */
+  /** the whole stay's price — a bare number in the trip currency, or free text
+   *  that carries its own symbol (e.g. "€310 for 3 nights"). Parsed into the
+   *  Expenses roll-up under the Accommodation category, so it stays a fixed
+   *  system field */
   price?: string;
+  /** which currency `price` is in — a `config.currencies` code. Absent = the
+   *  trip's primary currency */
+  priceCurrency?: string;
   /** the traveller's own reference fields (booking ref, phone, wifi, …) */
   fields?: DocField[];
   /** legacy — folded into `fields` on load */
@@ -364,6 +368,10 @@ export interface DocField {
   id: ID;
   label: string;
   value: string;
+  /** only for a money field (label reads as "price"/"cost"/…): which currency
+   *  `value` is in — a `config.currencies` code. Absent = the trip's primary.
+   *  Rides in the `fields` jsonb, so no column. */
+  currency?: string;
 }
 
 export interface Doc {

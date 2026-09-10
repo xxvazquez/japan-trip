@@ -13,6 +13,12 @@ const ISO_CODES = new Set([
   "AED", "SEK", "NOK", "DKK", "PLN", "CZK", "HUF", "TRY", "ILS", "RUB",
 ]);
 
+/** True when a free-text field's *name* reads as money ("Price", "Entry fee",
+ *  "Deposit") — the caller renders it through `MoneyField` so it picks up the
+ *  trip currency without the symbol being typed. */
+export const isMoneyLabel = (label: string) =>
+  /\b(price|cost|fare|amount|fee|total|deposit|balance|budget)\b/.test(label.toLowerCase());
+
 export interface Money {
   amount: number;
   /** ISO code, or "" when none could be detected — never guessed */
@@ -141,7 +147,7 @@ export function tripCost(data: TripData): CostSummary {
     addMoney(money, categoryId);
   };
 
-  for (const hotel of data.hotels) add(hotel.price, lodgingId, hotel.name || "Hotel");
+  for (const hotel of data.hotels) add(hotel.price, lodgingId, hotel.name || "Hotel", hotel.priceCurrency);
 
   // one value per journey — journeyFare picks the manual total or the hop sum,
   // so a journey can never be double-counted

@@ -16,6 +16,7 @@ import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
+import { MoneyField } from "@/components/MoneyField";
 import { RichNote } from "@/components/RichNote";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { SwipeToDelete } from "@/components/SwipeToDelete";
@@ -28,7 +29,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { fmtDate } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink } from "@/lib/maps";
-import { parseMoney, fmtMoney, cleanAmount, fmtFare, currencySymbol } from "@/lib/cost";
+import { parseMoney, fmtMoney, cleanAmount, fmtFare } from "@/lib/cost";
 import type { Day as DayT, DayCost, ExpenseCategory, PlanItem, Place } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 9);
@@ -527,8 +528,6 @@ function CostList({ costs, categories, currencies, readOnly, onChange }: {
   onChange: (next: DayCost[]) => void;
 }) {
   const primary = currencies[0] ?? "";
-  const multi = currencies.length >= 2;
-  const primarySym = currencySymbol(primary);
   const setAt = (i: number, patch: Partial<DayCost>) => onChange(costs.map((c, j) => (j === i ? { ...c, ...patch } : c)));
   const add = () => onChange([...costs, { id: rid(), categoryId: categories[0]?.id, label: "", amount: "" }]);
   const catLabel = (id?: string) => categories.find((c) => c.id === id)?.label ?? "Uncategorised";
@@ -566,24 +565,14 @@ function CostList({ costs, categories, currencies, readOnly, onChange }: {
                 {readOnly ? (
                   <span className="value shrink-0 text-right tabular-nums">{fmtFare(c.amount, c.currency || primary)}</span>
                 ) : (
-                  <span className="flex shrink-0 items-baseline gap-1.5">
-                    {multi ? (
-                      <select
-                        value={c.currency ?? primary}
-                        onChange={(e) => setAt(i, { currency: e.target.value === primary ? undefined : e.target.value })}
-                        aria-label="Currency"
-                        className="cursor-pointer bg-transparent text-[0.8125rem] text-ink-soft focus:outline-none"
-                      >
-                        {[...new Set([...currencies, c.currency || primary])].filter(Boolean).map((cc) => (
-                          <option key={cc} value={cc}>{cc}</option>
-                        ))}
-                      </select>
-                    ) : primarySym && (!c.amount || /^[\d.,]+$/.test(c.amount)) ? (
-                      <span className="value text-ink-faint">{primarySym}</span>
-                    ) : null}
-                    <span className="value text-right tabular-nums">
-                      <Editable as="number" label="Amount" value={c.amount} placeholder="—" onCommit={(v) => setAt(i, { amount: cleanAmount(v) })} />
-                    </span>
+                  <span className="value shrink-0 text-right tabular-nums">
+                    <MoneyField
+                      label="Amount"
+                      amount={c.amount}
+                      currency={c.currency}
+                      onAmount={(v) => setAt(i, { amount: cleanAmount(v) })}
+                      onCurrency={(cc) => setAt(i, { currency: cc })}
+                    />
                   </span>
                 )}
                 {!readOnly && <RowDeleteButton onClick={() => onChange(costs.filter((_, j) => j !== i))} />}
