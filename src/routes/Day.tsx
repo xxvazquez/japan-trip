@@ -215,7 +215,12 @@ export default function Day() {
 
       {/* AREAS — pull an area's places onto this day's map, without touching the plan */}
       {((day.areaIds ?? []).length > 0 || (!ro && data.areas.length > 0)) && (
-        <Section collapsible icon="pin" title="Areas">
+        <Section
+          collapsible
+          icon="pin"
+          title="Areas"
+          info={`Places in an area you add here show on the day’s map — they don’t change the plan above${ro ? "." : ", unless you tap + on a chip to add one as a step."}`}
+        >
           <div className="flex flex-wrap gap-2">
             {(day.areaIds ?? []).map((id) => {
               const a = data.areas.find((x) => x.id === id);
@@ -264,12 +269,6 @@ export default function Day() {
               </select>
             )}
           </div>
-          {(day.areaIds ?? []).length > 0 && (
-            <p className="meta mt-2">
-              Places in {(day.areaIds ?? []).length === 1 ? "this area" : "these areas"} show on the day’s map — they
-              don’t change the plan above{!ro ? ", unless you tap + to add one as a step" : ""}.
-            </p>
-          )}
         </Section>
       )}
 

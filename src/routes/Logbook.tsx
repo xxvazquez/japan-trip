@@ -6,6 +6,7 @@ import { Section } from "@/components/Section";
 import { IconTile } from "@/components/IconTile";
 import { TileRow } from "@/components/TileRow";
 import { CheckCircle } from "@/components/CheckCircle";
+import { InfoNote } from "@/components/InfoNote";
 import { Empty } from "@/components/Empty";
 import { Tab } from "@/components/Tabs";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
@@ -391,7 +392,14 @@ function Documents() {
 
   return (
     <div className="space-y-3">
-      {!ro && <AddButton label="Add a document" onClick={addDoc} />}
+      <div className={`flex items-center ${ro ? "justify-end" : "justify-between"}`}>
+        {!ro && <AddButton label="Add a document" onClick={addDoc} />}
+        <InfoNote align="right">
+          {cloud
+            ? "Attachments upload to a Google Drive folder shared with the people on this trip. Still — think twice before a full passport scan."
+            : "Attachments stay only on the device they’re added on — passport numbers don’t belong here."}
+        </InfoNote>
+      </div>
       {docs.map((d) => (
         <Card
           key={d.id}
@@ -427,11 +435,6 @@ function Documents() {
           )}
         </Card>
       ))}
-      <p className="px-1 text-xs text-ink-faint">
-        {cloud
-          ? "Attachments upload to a Google Drive folder shared with the people on this trip. Still — think twice before a full passport scan."
-          : "Attachments stay only on the device they’re added on — passport numbers don’t belong here."}
-      </p>
     </div>
   );
 }

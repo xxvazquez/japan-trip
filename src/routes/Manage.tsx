@@ -230,18 +230,12 @@ function ExportTrip() {
     });
 
   return (
-    <Section title="Export">
-      <p className="text-sm text-ink-soft">
-        A single web-page file of the whole trip — itinerary, journeys, stays and places.
-        Opens in any browser, prints cleanly, works offline. The recipient can print it to PDF.
-      </p>
-      <div className="mt-3 flex items-start justify-between gap-4">
-        <span className="min-w-0 text-sm">
-          Include private details
-          <span className="mt-0.5 block text-xs text-ink-faint">
-            Door codes, wifi, phone numbers, booking references and documents. Off by default — leave off for anything you send someone. Document files are never included.
-          </span>
-        </span>
+    <Section
+      title="Export"
+      info="A single web-page file of the whole trip — itinerary, journeys, stays and places. Opens in any browser, prints cleanly, works offline; the recipient can print it to PDF. “Include private details” adds door codes, wifi, phone numbers and booking references — leave it off for anything you send someone. Document files are never included either way."
+    >
+      <div className="flex items-center justify-between gap-4">
+        <span className="text-sm">Include private details</span>
         <Switch checked={includePrivate} onChange={setIncludePrivate} label="Include private details" />
       </div>
       <button onClick={download} disabled={busy} className="btn-primary mt-4 w-full">
@@ -437,8 +431,7 @@ function TravellersPanel() {
     mutate((d) => sync(d, [...people, { id: `p-${Math.random().toString(36).slice(2, 8)}`, name: "" }]));
 
   return (
-    <Section title="Travellers">
-      <p className="-mt-1 mb-2 text-xs text-ink-faint">Who's on this trip — used for packing assignment.</p>
+    <Section title="Travellers" info="Who's on this trip — used for packing assignment.">
       <ul>
         {people.map((p, i) => (
           <li key={p.id} className="flex items-center gap-3 border-b border-line py-2.5 last:border-b-0">
@@ -480,10 +473,10 @@ function CurrenciesPanel() {
   const add = () => mutate((d) => sync(d, [...list, ""]));
 
   return (
-    <Section title="Currencies">
-      <p className="-mt-1 mb-2 text-xs text-ink-faint">
-        Every currency this trip uses. The first is the default — a price typed as a bare number counts as it; one with its own symbol is left alone. Add a second and each spending row and fare gets a currency picker.
-      </p>
+    <Section
+      title="Currencies"
+      info="Every currency this trip uses. The first is the default — a price typed as a bare number counts as it; one with its own symbol is left alone. Add a second and each spending row and fare gets a currency picker."
+    >
       <ul>
         {list.map((c, i) => (
           <li key={`${c}-${i}`} className="flex items-center gap-3 border-b border-line py-2.5 last:border-b-0">
@@ -532,10 +525,10 @@ function ExpenseCategoriesPanel() {
     mutate((d) => { const a = d.config.expenseCategories!; [a[i + dir], a[i]] = [a[i], a[i + dir]]; });
 
   return (
-    <Section title="Expense categories">
-      <p className="-mt-1 mb-2 text-xs text-ink-faint">
-        The buckets your spending groups into on the Expenses tab. “Accommodation” collects every stay price and “Transport” every fare automatically.
-      </p>
+    <Section
+      title="Expense categories"
+      info="The buckets your spending groups into on the Expenses tab. “Accommodation” collects every stay price and “Transport” every fare automatically."
+    >
       <ul>
         {cats.map((c, i) => (
           <li key={c.id} className="flex items-center gap-3 border-b border-line py-2.5 last:border-b-0">
@@ -588,8 +581,7 @@ function ModulesPanel() {
   const modules = data.config.modules;
 
   return (
-    <Section title="Tabs">
-      <p className="-mt-1 mb-2 text-xs text-ink-faint">Reorder, rename, or turn the main tabs off for this trip.</p>
+    <Section title="Tabs" info="Reorder, rename, or turn the main tabs off for this trip.">
       <ul>
         {modules.map((m, i) => (
           <li key={m.id} className="flex items-center gap-3 border-b border-line py-2.5 last:border-b-0">
@@ -784,7 +776,8 @@ function Appearance() {
         </div>
       </Section>
 
-      <Section title="Gallery">
+      <Section title="Gallery" info="Images are resized to ~1600px and stored on this device with the trip.">
+
         <button disabled={busy} onClick={() => upload((item) => addGalleryMedia(item))} className="btn-sm mb-3">
           <Icon name="plus" size={14} /> Add image
         </button>
@@ -810,7 +803,6 @@ function Appearance() {
         ) : (
           <p className="text-sm text-ink-faint">No images yet.</p>
         )}
-        <p className="mt-3 text-xs text-ink-faint">Images are resized to ~1600px and stored on this device with the trip.</p>
       </Section>
     </div>
   );
@@ -833,7 +825,10 @@ function SharingTab() {
       )}
 
       {driveEnabled && !isDemo && (
-        <Section title="Document files">
+        <Section
+          title="Document files"
+          info="Attachments upload to the adder’s Google Drive; these accounts are given read access. List both travellers."
+        >
           <Row label="Share attachments with">
             <Editable
               label="Emails to share document attachments with"
@@ -842,9 +837,6 @@ function SharingTab() {
               onCommit={(v) => mutate((d) => { d.config.driveShareEmails = v.split(",").map((x) => x.trim()).filter(Boolean); })}
             />
           </Row>
-          <p className="mt-2 text-xs text-ink-faint">
-            Attachments upload to the adder’s Google Drive; these accounts are given read access. List both travellers.
-          </p>
         </Section>
       )}
 
@@ -1059,8 +1051,7 @@ function Content() {
         d.config.categoryIcons = next;
       });
     return (
-      <Section title="Category pins">
-        <p className="-mt-1 mb-2 text-xs text-ink-faint">Give a place category its own map marker — others show a plain dot.</p>
+      <Section title="Category pins" info="Give a place category its own map marker — others show a plain dot.">
         <ul>
           {names.map((name) => (
             <li key={name} className="flex items-center gap-2 border-b border-line py-2 text-sm last:border-b-0">
