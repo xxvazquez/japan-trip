@@ -558,19 +558,9 @@ function CostList({ costs, categories, currencies, readOnly, onChange }: {
               <div className="flex items-baseline gap-3">
                 <span className="min-w-0 flex-1">
                   {readOnly ? (
-                    <span className="value">{catLabel(c.categoryId)}</span>
+                    <span className="value">{c.label.trim() || catLabel(c.categoryId)}</span>
                   ) : (
-                    <select
-                      value={c.categoryId ?? ""}
-                      onChange={(e) => setAt(i, { categoryId: e.target.value || undefined })}
-                      aria-label="Category"
-                      className="value -ml-0.5 min-w-0 max-w-full cursor-pointer bg-transparent focus:outline-none"
-                    >
-                      {(!c.categoryId || !known) && <option value={c.categoryId ?? ""}>{c.categoryId ? "Uncategorised" : "Category…"}</option>}
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={cat.id}>{cat.label}</option>
-                      ))}
-                    </select>
+                    <Editable label="What was it?" value={c.label} placeholder="What was it?" className="value" onCommit={(v) => setAt(i, { label: v })} />
                   )}
                 </span>
                 {readOnly ? (
@@ -589,7 +579,7 @@ function CostList({ costs, categories, currencies, readOnly, onChange }: {
                         ))}
                       </select>
                     ) : primarySym && (!c.amount || /^[\d.,]+$/.test(c.amount)) ? (
-                      <span className="text-[0.8125rem] text-ink-faint">{primarySym}</span>
+                      <span className="value text-ink-faint">{primarySym}</span>
                     ) : null}
                     <span className="value text-right tabular-nums">
                       <Editable as="number" label="Amount" value={c.amount} placeholder="—" onCommit={(v) => setAt(i, { amount: cleanAmount(v) })} />
@@ -598,12 +588,22 @@ function CostList({ costs, categories, currencies, readOnly, onChange }: {
                 )}
                 {!readOnly && <RowDeleteButton onClick={() => onChange(costs.filter((_, j) => j !== i))} />}
               </div>
-              {(!readOnly || c.label.trim()) && (
-                <div className="meta mt-0.5">
-                  {readOnly ? c.label : (
-                    <Editable label="Note" value={c.label} placeholder="Note (optional)" onCommit={(v) => setAt(i, { label: v })} />
-                  )}
-                </div>
+              {/* category — the quiet second line, so it never shouts the same
+                  word down the list */}
+              {readOnly ? (
+                c.label.trim() && <div className="meta mt-0.5">{catLabel(c.categoryId)}</div>
+              ) : (
+                <select
+                  value={c.categoryId ?? ""}
+                  onChange={(e) => setAt(i, { categoryId: e.target.value || undefined })}
+                  aria-label="Category"
+                  className="meta mt-0.5 -ml-0.5 block max-w-full cursor-pointer bg-transparent focus:outline-none"
+                >
+                  {(!c.categoryId || !known) && <option value={c.categoryId ?? ""}>{c.categoryId ? "Uncategorised" : "Category…"}</option>}
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>{cat.label}</option>
+                  ))}
+                </select>
               )}
               </div>
               </SwipeToDelete>
@@ -612,8 +612,8 @@ function CostList({ costs, categories, currencies, readOnly, onChange }: {
         })}
       {subtotals.size > 0 && (
         <li className="relative flex items-baseline justify-between gap-4 px-3.5 py-2.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
-          <span className="text-[0.8125rem] font-semibold text-ink">Day total</span>
-          <span className="flex flex-wrap justify-end gap-x-3 text-[0.8125rem] font-semibold tabular-nums text-ink">
+          <span className="value font-semibold">Day total</span>
+          <span className="value flex flex-wrap justify-end gap-x-3 font-semibold tabular-nums">
             {[...subtotals].map(([cur, amt]) => (
               <span key={cur || "—"}>{fmtMoney(amt, cur)}</span>
             ))}
