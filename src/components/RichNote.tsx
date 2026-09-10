@@ -145,7 +145,7 @@ export function RichNote({
       aria-label={label}
       onMouseDown={(e) => e.preventDefault()}
       onClick={on}
-      className="grid h-7 w-7 place-items-center rounded text-ink-soft hover:bg-surface-2 hover:text-ink"
+      className="relative grid h-7 w-7 place-items-center rounded text-ink-soft before:absolute before:-inset-1.5 before:content-[''] hover:bg-surface-2 hover:text-ink"
     >
       {children}
     </button>
