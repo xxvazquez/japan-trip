@@ -18,6 +18,7 @@ import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
+import { SwipeToDelete } from "@/components/SwipeToDelete";
 import { Icon } from "@/components/Icon";
 import { IconTile } from "@/components/IconTile";
 import { toneForPlaceCategory } from "@/lib/tones";
@@ -403,6 +404,7 @@ function PlanRow({ item, place, places, categoryIcons, readOnly, onPatch, onRemo
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={`group relative text-sm after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden ${isDragging ? "z-10 bg-surface opacity-80" : ""}`}
     >
+      <SwipeToDelete onDelete={readOnly ? undefined : onRemove} label="Remove step">
       <div className="flex items-center gap-2.5 px-3.5 py-2.5">
         {!readOnly && (
           <button
@@ -455,6 +457,7 @@ function PlanRow({ item, place, places, categoryIcons, readOnly, onPatch, onRemo
         )}
         {!readOnly && <RowDeleteButton onClick={onRemove} label="Remove step" />}
       </div>
+      </SwipeToDelete>
 
       {open && (
         <div className="space-y-2.5 pb-3 pl-12 pr-3.5">
@@ -495,14 +498,18 @@ function StringList({ items, onChange, readOnly, emptyHint = "Nothing yet." }: {
   return (
     <ul>
       {items.map((it, i) => (
-        <li key={i} className="group flex items-start gap-2.5 border-b border-line/70 py-2.5 text-sm last:border-b-0 last:pb-0">
-          <span className="mt-[0.5em] h-1.5 w-1.5 shrink-0 rounded-full bg-ink-faint" />
-          <span className="min-w-0 flex-1">
-            {readOnly ? it : (
-              <Editable label="Item" value={it} placeholder="…" onCommit={(v) => onChange(items.map((x, j) => (j === i ? v : x)))} />
-            )}
-          </span>
-          {!readOnly && <RowDeleteButton onClick={() => onChange(items.filter((_, j) => j !== i))} />}
+        <li key={i} className="group border-b border-line/70 text-sm last:border-b-0">
+          <SwipeToDelete onDelete={readOnly ? undefined : () => onChange(items.filter((_, j) => j !== i))}>
+            <div className="flex items-start gap-2.5 py-2.5">
+              <span className="mt-[0.5em] h-1.5 w-1.5 shrink-0 rounded-full bg-ink-faint" />
+              <span className="min-w-0 flex-1">
+                {readOnly ? it : (
+                  <Editable label="Item" value={it} placeholder="…" onCommit={(v) => onChange(items.map((x, j) => (j === i ? v : x)))} />
+                )}
+              </span>
+              {!readOnly && <RowDeleteButton onClick={() => onChange(items.filter((_, j) => j !== i))} />}
+            </div>
+          </SwipeToDelete>
         </li>
       ))}
     </ul>
@@ -545,7 +552,9 @@ function CostList({ costs, categories, currencies, readOnly, onChange }: {
       {costs.map((c, i) => {
           const known = !c.categoryId || categories.some((cat) => cat.id === c.categoryId);
           return (
-            <li key={c.id} className="group relative px-3.5 py-2.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
+            <li key={c.id} className="group relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
+              <SwipeToDelete onDelete={readOnly ? undefined : () => onChange(costs.filter((_, j) => j !== i))}>
+              <div className="px-3.5 py-2.5">
               <div className="flex items-baseline gap-3">
                 <span className="min-w-0 flex-1">
                   {readOnly ? (
@@ -596,6 +605,8 @@ function CostList({ costs, categories, currencies, readOnly, onChange }: {
                   )}
                 </div>
               )}
+              </div>
+              </SwipeToDelete>
             </li>
           );
         })}

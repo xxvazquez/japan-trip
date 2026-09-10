@@ -10,6 +10,7 @@ import { InsetRow } from "@/components/InsetRow";
 import { Empty } from "@/components/Empty";
 import { Tab } from "@/components/Tabs";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
+import { SwipeToDelete } from "@/components/SwipeToDelete";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { Editable } from "@/components/Editable";
 import { FieldList } from "@/components/FieldList";
@@ -131,9 +132,10 @@ function ListSection({ list }: { list: CustomList }) {
         {list.items.map((it, i) => (
           <li
             key={it.id}
-            className="relative px-3.5 py-2.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden"
+            className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden"
           >
-            <div className="flex items-start gap-2">
+            <SwipeToDelete onDelete={ro ? undefined : () => set((l) => { l.items.splice(i, 1); })} label="Delete item">
+            <div className="flex items-start gap-2 px-3.5 py-2.5">
               <span className="min-w-0 flex-1">
                 <span className="block text-[0.9375rem] font-medium leading-snug text-ink">
                   {ro
@@ -155,6 +157,7 @@ function ListSection({ list }: { list: CustomList }) {
               </span>
               {!ro && <RowDeleteButton onClick={() => set((l) => { l.items.splice(i, 1); })} label="Delete item" />}
             </div>
+            </SwipeToDelete>
           </li>
         ))}
         {!ro && (
@@ -681,10 +684,11 @@ function PackRow({ item, ro, people, tagged, onToggle, onLabel, onAssign, onRemo
   const showAssign = people.length >= 2;
   const pill = showAssign && <AssignPill value={item.assignee} people={people} tagged={tagged} readOnly={ro} onChange={onAssign} />;
 
-  const li = "relative flex items-center gap-3 px-3.5 py-2.5 text-sm after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden";
+  const liOuter = "relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden";
+  const rowInner = "flex items-center gap-3 px-3.5 py-2.5 text-sm";
   if (ro) {
     return (
-      <li className={li}>
+      <li className={`${liOuter} ${rowInner}`}>
         {box}
         <span className={`min-w-0 flex-1 ${item.done ? "text-ink-faint line-through" : "text-ink"}`}>{item.label}</span>
         {pill}
@@ -692,13 +696,17 @@ function PackRow({ item, ro, people, tagged, onToggle, onLabel, onAssign, onRemo
     );
   }
   return (
-    <li className={`group ${li}`}>
-      {box}
-      <span className="min-w-0 flex-1">
-        <Editable label="Item" value={item.label} placeholder="Item" className={item.done ? "text-ink-faint line-through" : "text-ink"} onCommit={onLabel} />
-      </span>
-      {pill}
-      <RowDeleteButton onClick={onRemove} label="Remove item" />
+    <li className={`group ${liOuter}`}>
+      <SwipeToDelete onDelete={onRemove} label="Remove item">
+        <div className={rowInner}>
+          {box}
+          <span className="min-w-0 flex-1">
+            <Editable label="Item" value={item.label} placeholder="Item" className={item.done ? "text-ink-faint line-through" : "text-ink"} onCommit={onLabel} />
+          </span>
+          {pill}
+          <RowDeleteButton onClick={onRemove} label="Remove item" />
+        </div>
+      </SwipeToDelete>
     </li>
   );
 }

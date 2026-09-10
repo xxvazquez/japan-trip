@@ -26,6 +26,7 @@ export default {
         gold: withVar("--c-gold"), // food / focus ring
         matcha: withVar("--c-matcha"), // nature
         ai: withVar("--c-ai"), // transit
+        danger: withVar("--c-danger"), // destructive
       },
       fontFamily: {
         // The OS UI font — SF on Apple, Segoe on Windows, Roboto on Android.
