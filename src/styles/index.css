@@ -1,16 +1,7 @@
-/* Latin + latin-ext only (English UI, occasional Polish). Japanese text renders
- * in the OS's own high-quality JP font — no JP webfont is bundled, which keeps
- * the payload and the service-worker precache small. */
-@import "@fontsource/shippori-mincho/latin-400.css";
-@import "@fontsource/shippori-mincho/latin-500.css";
-@import "@fontsource/shippori-mincho/latin-600.css";
-@import "@fontsource/shippori-mincho/latin-ext-400.css";
-@import "@fontsource/shippori-mincho/latin-ext-600.css";
-@import "@fontsource/inter/latin-400.css";
-@import "@fontsource/inter/latin-500.css";
-@import "@fontsource/inter/latin-600.css";
-@import "@fontsource/inter/latin-ext-400.css";
-@import "@fontsource/inter/latin-ext-500.css";
+/* No UI webfont is bundled — the app uses the OS font (SF on Apple, Segoe on
+ * Windows, Roboto on Android; see tailwind.config.ts). That's the native-iOS
+ * look, and it keeps the payload and the service-worker precache small.
+ * Japanese text renders in the OS's own JP font for the same reason. */
 
 @tailwind base;
 @tailwind components;
@@ -152,8 +143,8 @@ html.dark {
    * Hierarchy is size + weight + colour + spacing, never a size cliff.
    *
    *   text-display   Plan hero (the countdown number, nothing else)
-   *   .text-title    page title — clamp 1.6–2rem, display 500 ink  (<PageHeader>)
-   *   .subhead       serif sub-head — 1.3125rem  (Plan stay, Map scope)
+   *   .text-title    page title — clamp 1.6–2rem, 500 ink  (<PageHeader>)
+   *   .subhead       sub-head under a page title — 1.3125rem 500 (Plan stay, Map scope)
    *   .lead          card / item title — 1.0625rem, sans 500 ink
    *   .value         main value — 0.9375rem, sans 500 ink  (paired + under-label)
    *   .row-value     value in a label/value .row — 0.8125rem 500, matches label
@@ -173,13 +164,13 @@ html.dark {
     font-size: clamp(1.6rem, 1.15rem + 2vw, 2rem);
   }
 
-  /* L1 — a serif heading that sits below a page title: a stay on the Plan, the
-   * scope label on the Map. Smaller than .text-title, same family + weight. */
+  /* L1 — a heading that sits below a page title: a stay on the Plan, the scope
+   * label on the Map. Smaller than .text-title, same family + weight. */
   .subhead {
     @apply font-display text-[1.3125rem] font-medium leading-tight text-ink;
   }
 
-  /* Two uppercase micro-labels, and only two. Both are Inter, normal weight,
+  /* Two uppercase micro-labels, and only two. Both normal weight,
    * tracked +0.12em, never heavy — pick by role, and set casing at the source
    * (always Title Case or ALL CAPS for a label, never sentence case).
    *
