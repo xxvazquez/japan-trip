@@ -26,6 +26,7 @@
     focus-visible ring clears WCAG's 3:1 non-text contrast against --c-bg */
   --c-matcha: 111 130 108; /* moss */
   --c-ai: 113 134 154; /* transit blue-grey */
+  --c-danger: 200 68 62; /* destructive — swipe-to-delete, "Delete" in a sheet */
 
   --ease-paper: cubic-bezier(0.22, 1, 0.36, 1);
   --tex-opacity: 0.03;
@@ -46,6 +47,7 @@ html.dark {
   --c-gold: 184 158 115;
   --c-matcha: 139 157 134; /* moss */
   --c-ai: 144 163 182; /* transit blue-grey */
+  --c-danger: 224 107 102; /* destructive */
 
   --tex-opacity: 0.045;
 }

@@ -33,7 +33,7 @@ export function ConfirmButton({
         {children}
       </button>
       <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={ref} title={`${label}?`}>
-        <button type="button" className="menu-item font-medium text-accent" onClick={onConfirm}>
+        <button type="button" className="menu-item font-medium text-danger" onClick={onConfirm}>
           {label}
         </button>
       </ActionSheet>
