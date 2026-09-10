@@ -112,10 +112,11 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
   d.config.currencies = [...new Set(ccy)];
   d.config.currency = d.config.currencies[0] || undefined;
 
-  // one-time: move trips off the old default (Mist, or nothing set) onto
-  // Ink & Moss — the new app default. A named preset or a hand-tuned "custom"
-  // palette is a deliberate choice and left alone.
-  if (!cfg.themePreset || cfg.themePreset === "mist") {
+  // one-time: move trips off a retired preset (or nothing set) onto Ink & Moss
+  // — the app default. A live named preset or a hand-tuned "custom" palette is a
+  // deliberate choice and left alone.
+  const RETIRED_PRESETS = ["mist", "paper", "olive", "rosewood", "indigo"];
+  if (!cfg.themePreset || RETIRED_PRESETS.includes(cfg.themePreset as string)) {
     d.config.themePreset = "ink-moss";
     d.config.theme = structuredClone(THEME_PRESETS[0].tokens);
   }
