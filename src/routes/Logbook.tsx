@@ -159,7 +159,7 @@ function Stays() {
   if (data.hotels.length === 0) return <Empty what="No stays" />;
   return (
     <Section variant="grouped">
-      <ul className="divide-y divide-line">
+      <ul>
         {data.hotels.map((h) => {
           const leg = data.legs.find((l) => l.hotelId === h.id);
           return (
@@ -188,7 +188,7 @@ function GettingAround() {
   if (journeys.length === 0) return <Empty what="No journeys" />;
   return (
     <Section variant="grouped">
-      <ul className="divide-y divide-line">
+      <ul>
         {journeys.map((j) => {
           const first = j.segments[0];
           const last = j.segments.at(-1);

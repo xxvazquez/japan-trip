@@ -7,9 +7,9 @@ import { Icon } from "./Icon";
  * an optional quiet sub-line, an optional trailing value, and a chevron when the
  * row goes somewhere.
  *
- * Renders an `<li>` — wrap a run in `<ul className="divide-y divide-line">` (or
- * put it straight inside a `<Section variant="grouped">`). Pass `to` for a link
- * row, `onClick` for a toggle row.
+ * Renders an `<li>` with its own hairline divider, inset past the leading tile
+ * (iOS-style) and dropped on the last row — so wrap a run in a plain `<ul>`, no
+ * `divide-y`. Pass `to` for a link row, `onClick` for a toggle row.
  */
 export function TileRow({
   tile,
@@ -46,8 +46,10 @@ export function TileRow({
   );
   // the grouped inset clips its overflow, so pull the focus ring inward
   const cls = `flex w-full items-center gap-3 px-3.5 py-2.5 text-left focus-visible:[outline-offset:-2px] ${className}`;
+  // own hairline, inset past the tile (14px pad + 22px tile + 12px gap), gone on the last row
+  const li = "relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden";
   return (
-    <li>
+    <li className={li}>
       {to ? (
         <Link to={to} className={`${cls} transition-colors hover:bg-surface-2/40`}>
           {body}
