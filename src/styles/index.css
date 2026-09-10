@@ -65,6 +65,10 @@ html.dark {
     font-feature-settings: "kern", "liga";
     overscroll-behavior-y: none;
     min-height: 100svh;
+    /* app-like touch: no double-tap-zoom, no 300ms tap delay. The
+     * `maximum-scale=1, user-scalable=no` viewport (index.html) is what stops
+     * the focus-zoom on small inputs in the standalone PWA. */
+    touch-action: manipulation;
   }
   :lang(ja),
   .font-jp {
@@ -77,6 +81,14 @@ html.dark {
   a {
     color: inherit;
     text-decoration: none;
+  }
+  /* no iOS long-press callout on controls — native apps don't pop a
+   * Copy/Share menu when you hold a button. Real content stays selectable. */
+  button,
+  a,
+  [role="button"],
+  summary {
+    -webkit-touch-callout: none;
   }
   ::selection {
     background: rgb(var(--c-accent) / 0.16);
