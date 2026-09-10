@@ -28,8 +28,12 @@ export default {
         ai: withVar("--c-ai"), // transit
       },
       fontFamily: {
-        display: ['"Shippori Mincho"', '"Hiragino Mincho ProN"', "ui-serif", "Georgia", "serif"],
-        sans: ['"Inter"', "ui-sans-serif", "system-ui", "sans-serif"],
+        // The OS UI font — SF on Apple, Segoe on Windows, Roboto on Android.
+        // No webfont is bundled: it's the native-iOS look and zero payload.
+        // `display` and `sans` are the same stack; `-apple-system` picks the
+        // right optical size (SF Pro Display vs Text) by element size itself.
+        display: ["-apple-system", "BlinkMacSystemFont", '"Segoe UI"', "Roboto", '"Helvetica Neue"', "Arial", "system-ui", "sans-serif"],
+        sans: ["-apple-system", "BlinkMacSystemFont", '"Segoe UI"', "Roboto", '"Helvetica Neue"', "Arial", "system-ui", "sans-serif"],
         // Japanese uses the OS font — Hiragino on Apple, Yu Gothic on Windows,
         // Noto on Android/Linux. All are excellent; none costs us bytes.
         jp: ['"Hiragino Sans"', '"Hiragino Kaku Gothic ProN"', '"Yu Gothic"', '"Noto Sans JP"', "sans-serif"],
