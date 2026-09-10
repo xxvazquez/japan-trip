@@ -43,7 +43,8 @@ export type IconName =
   | "seat"
   | "door"
   | "ticket"
-  | "route";
+  | "route"
+  | "info";
 
 const P: Record<IconName, JSX.Element> = {
   itinerary: (
@@ -224,6 +225,13 @@ const P: Record<IconName, JSX.Element> = {
       <circle cx="5" cy="12" r="1.4" fill="currentColor" stroke="none" />
       <circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none" />
       <circle cx="19" cy="12" r="1.4" fill="currentColor" stroke="none" />
+    </>
+  ),
+  info: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 11.2v4.8" />
+      <circle cx="12" cy="8.1" r="0.6" fill="currentColor" stroke="none" />
     </>
   ),
   seat: <path d="M7 5v6h7M7 11v8M14 11h1a3 3 0 0 1 3 3v5M5 19h15" />,
