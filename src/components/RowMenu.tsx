@@ -31,7 +31,7 @@ export function RowMenu({ children, label = "More" }: { children: ReactNode; lab
         onClick={toggle}
         aria-label={label}
         aria-expanded={open}
-        className="grid h-7 w-7 place-items-center text-ink-faint hover:text-ink"
+        className="relative grid h-7 w-7 place-items-center text-ink-faint before:absolute before:-inset-2 before:content-[''] hover:text-ink"
       >
         <Icon name="more" size={16} />
       </button>

@@ -726,7 +726,7 @@ function AssignPill({ value, people, tagged, readOnly, onChange }: {
   if (readOnly) return <span className="shrink-0">{chip}</span>;
   return (
     <span className="relative shrink-0">
-      <button type="button" onClick={() => setOpen((v) => !v)} aria-label="Assign to" aria-expanded={open}>
+      <button type="button" onClick={() => setOpen((v) => !v)} aria-label="Assign to" aria-expanded={open} className="relative before:absolute before:-inset-2 before:content-['']">
         {chip}
       </button>
       {open && (
