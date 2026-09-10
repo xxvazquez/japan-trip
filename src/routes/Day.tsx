@@ -142,63 +142,66 @@ export default function Day() {
         </div>
       )}
 
-      <div className="space-y-3.5">
+      <div className="space-y-6">
       {/* DAY TRIP — the logistics you opened the page for; first when it applies */}
       {day.dayTrip && (
         <Section
+          variant="grouped"
           icon="explore"
           title="Day trip"
           action={!ro && <button onClick={() => patch({ dayTrip: false })} className="link-quiet text-xs">not a day trip</button>}
         >
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {/* out */}
-            <div className="rounded border border-line border-l-2 border-l-accent/70 bg-accent/[0.05] p-3">
-              <p className="flex items-center gap-1.5 text-accent">
-                <Icon name="chevron" size={13} className="shrink-0" />
-                <span className="text-2xs font-medium uppercase tracking-[0.12em]">Getting there</span>
-              </p>
-              <div className="note mt-1.5 text-ink">
-                <Editable as="textarea" label="Getting there" value={day.getThere ?? ""} placeholder="The route out — train, bus, how long" onCommit={(v) => patch({ getThere: v || undefined })} />
-              </div>
-            </div>
-
-            {/* back */}
-            <div className="rounded border border-line border-l-2 border-l-gold/70 bg-gold/[0.06] p-3">
-              <p className="flex items-center gap-1.5 text-gold">
-                <Icon name="chevron" size={13} className="shrink-0 rotate-180" />
-                <span className="text-2xs font-medium uppercase tracking-[0.12em]">Getting back</span>
-              </p>
-              <div className="note mt-1.5 text-ink">
-                <Editable as="textarea" label="Getting back" value={day.getBack ?? ""} placeholder="The route back" onCommit={(v) => patch({ getBack: v || undefined })} />
-              </div>
-              {(day.lastTrainBack || !ro) && (
-                <p className="mt-2.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 border-t border-gold/25 pt-2 text-sm">
-                  <Icon name="clock" size={13} className="shrink-0 translate-y-0.5 text-gold" />
-                  <span className="text-2xs font-medium uppercase tracking-[0.12em] text-gold">Last way back</span>
-                  <span className="value">
-                    <Editable label="Last way back" value={day.lastTrainBack ?? ""} placeholder="e.g. last train ~23:00" onCommit={(v) => patch({ lastTrainBack: v || undefined })} />
-                  </span>
+          <div className="space-y-3 px-3.5 py-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {/* out */}
+              <div className="rounded-[10px] bg-accent/[0.07] p-3">
+                <p className="flex items-center gap-1.5 text-accent">
+                  <Icon name="chevron" size={13} className="shrink-0" />
+                  <span className="text-2xs font-medium uppercase tracking-[0.12em]">Getting there</span>
                 </p>
-              )}
-            </div>
-          </div>
-
-          {((day.toDo ?? []).length > 0 || !ro) && (
-            <div className="mt-4 border-t border-line pt-3">
-              <div className="mb-1 flex items-baseline justify-between gap-3">
-                <p className="eyebrow">To do there</p>
-                {!ro && <button onClick={() => patch({ toDo: [...(day.toDo ?? []), ""] })} className="action text-xs"><Icon name="plus" size={13} /> Add</button>}
+                <div className="note mt-1.5 text-ink">
+                  <Editable as="textarea" label="Getting there" value={day.getThere ?? ""} placeholder="The route out — train, bus, how long" onCommit={(v) => patch({ getThere: v || undefined })} />
+                </div>
               </div>
-              <StringList items={day.toDo ?? []} onChange={(v) => patch({ toDo: v.length ? v : undefined })} readOnly={ro} />
+
+              {/* back */}
+              <div className="rounded-[10px] bg-gold/[0.08] p-3">
+                <p className="flex items-center gap-1.5 text-gold">
+                  <Icon name="chevron" size={13} className="shrink-0 rotate-180" />
+                  <span className="text-2xs font-medium uppercase tracking-[0.12em]">Getting back</span>
+                </p>
+                <div className="note mt-1.5 text-ink">
+                  <Editable as="textarea" label="Getting back" value={day.getBack ?? ""} placeholder="The route back" onCommit={(v) => patch({ getBack: v || undefined })} />
+                </div>
+                {(day.lastTrainBack || !ro) && (
+                  <p className="mt-2.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 border-t border-gold/25 pt-2 text-sm">
+                    <Icon name="clock" size={13} className="shrink-0 translate-y-0.5 text-gold" />
+                    <span className="text-2xs font-medium uppercase tracking-[0.12em] text-gold">Last way back</span>
+                    <span className="value">
+                      <Editable label="Last way back" value={day.lastTrainBack ?? ""} placeholder="e.g. last train ~23:00" onCommit={(v) => patch({ lastTrainBack: v || undefined })} />
+                    </span>
+                  </p>
+                )}
+              </div>
             </div>
-          )}
+
+            {((day.toDo ?? []).length > 0 || !ro) && (
+              <div className="border-t border-line pt-3">
+                <div className="mb-1 flex items-baseline justify-between gap-3">
+                  <p className="eyebrow">To do there</p>
+                  {!ro && <button onClick={() => patch({ toDo: [...(day.toDo ?? []), ""] })} className="action text-xs"><Icon name="plus" size={13} /> Add</button>}
+                </div>
+                <StringList items={day.toDo ?? []} onChange={(v) => patch({ toDo: v.length ? v : undefined })} readOnly={ro} />
+              </div>
+            )}
+          </div>
         </Section>
       )}
 
       {/* PLAN — the day's itinerary: time + step, drag to reorder */}
       {((day.plan ?? []).length > 0 || !ro) && (
         <Section
-          collapsible
+          variant="grouped"
           icon="itinerary"
           title="Plan"
           action={
@@ -216,12 +219,12 @@ export default function Day() {
       {/* AREAS — pull an area's places onto this day's map, without touching the plan */}
       {((day.areaIds ?? []).length > 0 || (!ro && data.areas.length > 0)) && (
         <Section
-          collapsible
+          variant="grouped"
           icon="pin"
           title="Areas"
           info={`Places in an area you add here show on the day’s map — they don’t change the plan above${ro ? "." : ", unless you tap + on a chip to add one as a step."}`}
         >
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 px-3.5 py-3">
             {(day.areaIds ?? []).map((id) => {
               const a = data.areas.find((x) => x.id === id);
               if (!a) return null;
@@ -274,7 +277,7 @@ export default function Day() {
 
       {/* SPENDING — what the day cost; feeds the Expenses roll-up */}
       {((day.costs ?? []).length > 0 || !ro) && (
-        <Section collapsible icon="vault" title="Spending">
+        <Section variant="grouped" icon="vault" title="Spending">
           <CostList
             costs={day.costs ?? []}
             categories={data.config.expenseCategories ?? []}
@@ -287,8 +290,8 @@ export default function Day() {
 
       {/* GENERAL NOTES — free-form catch-all, after the day's actual plan */}
       {(day.notes || !ro) && (
-        <Section collapsible icon="list" title="General notes">
-          <div className="note">
+        <Section variant="grouped" icon="list" title="General notes">
+          <div className="note px-3.5 py-3">
             <RichNote
               value={day.notes ?? ""}
               onCommit={(v) => patch({ notes: v || undefined })}
@@ -328,9 +331,9 @@ function PlanList({ items, places, categoryIcons, readOnly, onChange }: {
 
   if (items.length === 0) {
     return readOnly ? (
-      <p className="text-sm text-ink-faint">Nothing planned yet.</p>
+      <p className="px-3.5 py-3 text-sm text-ink-faint">Nothing planned yet.</p>
     ) : (
-      <button onClick={() => onChange([{ id: rid(), text: "" }])} className="action text-sm">
+      <button onClick={() => onChange([{ id: rid(), text: "" }])} className="action w-full px-3.5 py-3 text-sm">
         <Icon name="plus" size={14} /> Add a step
       </button>
     );
@@ -401,9 +404,9 @@ function PlanRow({ item, place, places, categoryIcons, readOnly, onPatch, onRemo
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`group border-b border-line/70 bg-surface text-sm last:border-b-0 ${isDragging ? "z-10 opacity-70" : ""}`}
+      className={`group relative text-sm after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden ${isDragging ? "z-10 bg-surface opacity-80" : ""}`}
     >
-      <div className="flex items-center gap-2.5 py-2">
+      <div className="flex items-center gap-2.5 px-3.5 py-2.5">
         {!readOnly && (
           <button
             {...attributes}
@@ -457,7 +460,7 @@ function PlanRow({ item, place, places, categoryIcons, readOnly, onPatch, onRemo
       </div>
 
       {open && (
-        <div className="ml-8 space-y-2.5 border-l border-line pb-3 pl-3 pr-1">
+        <div className="space-y-2.5 pb-3 pl-12 pr-3.5">
           {!readOnly && (places.length > 0 || item.placeId) && (
             <div className="flex items-center gap-1.5">
               <Icon name="pin" size={12} className={item.placeId ? "shrink-0 text-ink-soft" : "shrink-0 text-ink-faint"} />
@@ -534,19 +537,18 @@ function CostList({ costs, categories, currencies, readOnly, onChange }: {
 
   if (costs.length === 0) {
     return readOnly ? (
-      <p className="text-sm text-ink-faint">Nothing logged.</p>
+      <p className="px-3.5 py-3 text-sm text-ink-faint">Nothing logged.</p>
     ) : (
-      <button onClick={add} className="action text-sm"><Icon name="plus" size={14} /> Add an amount</button>
+      <button onClick={add} className="action w-full px-3.5 py-3 text-sm"><Icon name="plus" size={14} /> Add an amount</button>
     );
   }
 
   return (
-    <div>
-      <ul>
-        {costs.map((c, i) => {
+    <ul>
+      {costs.map((c, i) => {
           const known = !c.categoryId || categories.some((cat) => cat.id === c.categoryId);
           return (
-            <li key={c.id} className="group border-b border-line/70 py-2 last:border-b-0">
+            <li key={c.id} className="group relative px-3.5 py-2.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
               <div className="flex items-baseline gap-3">
                 <span className="min-w-0 flex-1">
                   {readOnly ? (
@@ -600,18 +602,21 @@ function CostList({ costs, categories, currencies, readOnly, onChange }: {
             </li>
           );
         })}
-      </ul>
       {subtotals.size > 0 && (
-        <p className="mt-2 flex flex-wrap justify-end gap-x-3 text-sm">
-          <span className="eyebrow self-center">Day total</span>
-          {[...subtotals].map(([cur, amt]) => (
-            <span key={cur || "—"} className="value tabular-nums">{fmtMoney(amt, cur)}</span>
-          ))}
-        </p>
+        <li className="relative flex items-baseline justify-between gap-4 px-3.5 py-2.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
+          <span className="text-[0.8125rem] font-semibold text-ink">Day total</span>
+          <span className="flex flex-wrap justify-end gap-x-3 text-[0.8125rem] font-semibold tabular-nums text-ink">
+            {[...subtotals].map(([cur, amt]) => (
+              <span key={cur || "—"}>{fmtMoney(amt, cur)}</span>
+            ))}
+          </span>
+        </li>
       )}
       {!readOnly && (
-        <button onClick={add} className="action mt-2 text-xs"><Icon name="plus" size={13} /> Add an amount</button>
+        <li>
+          <button onClick={add} className="action w-full px-3.5 py-2.5 text-xs"><Icon name="plus" size={13} /> Add an amount</button>
+        </li>
       )}
-    </div>
+    </ul>
   );
 }
