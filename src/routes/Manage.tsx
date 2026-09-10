@@ -195,7 +195,8 @@ function Trips() {
                 <RowMenu>
                   {!isDemo && <button onClick={() => duplicateTrip(t.id, `${t.name} copy`)} className="menu-item">Duplicate</button>}
                   <button onClick={() => archiveTrip(t.id, true)} className="menu-item">Archive</button>
-                  <ConfirmButton onConfirm={() => deleteTrip(t.id)} className="menu-item text-accent">Delete</ConfirmButton>
+                  {/* the sheet itself is the confirmation — Archive (reversible) sits right above */}
+                  <button onClick={() => deleteTrip(t.id)} className="menu-item font-medium text-accent">Delete</button>
                 </RowMenu>
               </span>
             </li>

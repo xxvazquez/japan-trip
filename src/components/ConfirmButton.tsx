@@ -1,12 +1,12 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
+import { ActionSheet } from "./ActionSheet";
 
 /**
- * A destructive action guarded by a second tap: the first tap arms it and swaps
- * the label to "Sure?", a second tap within 2.5s goes through. Use it for
- * anything whose loss stings — a trip, a stay, a journey, a whole list, a
- * luggage or packing group, an uploaded file, a person's access. Trivial
- * one-line rows (a place, a to-do, a hop) use <RowDeleteButton> — a plain
- * hover ✕ with no confirm — instead.
+ * A destructive action, guarded by an iOS confirm sheet: the trigger renders
+ * `children` (usually a trash icon or a "Delete" label); tapping it slides up a
+ * sheet — a red confirm plus Cancel — on a phone, or a small popover on a wider
+ * screen. Use for anything whose loss stings; trivial one-line rows use
+ * `<RowDeleteButton>` (a plain ✕, no confirm) instead.
  */
 export function ConfirmButton({
   onConfirm,
@@ -19,20 +19,24 @@ export function ConfirmButton({
   className?: string;
   label?: string;
 }) {
-  const [armed, setArmed] = useState(false);
-  useEffect(() => {
-    if (!armed) return;
-    const t = setTimeout(() => setArmed(false), 2500);
-    return () => clearTimeout(t);
-  }, [armed]);
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLButtonElement>(null);
   return (
-    <button
-      type="button"
-      aria-label={armed ? "Tap again to confirm" : label}
-      onClick={() => (armed ? onConfirm() : setArmed(true))}
-      className={`inline-flex items-center gap-1 ${className}`}
-    >
-      {armed ? "Sure?" : children}
-    </button>
+    <>
+      <button
+        ref={ref}
+        type="button"
+        aria-label={label}
+        onClick={() => setOpen(true)}
+        className={`inline-flex items-center gap-1 ${className}`}
+      >
+        {children}
+      </button>
+      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={ref} title={`${label}?`}>
+        <button type="button" className="menu-item font-medium text-accent" onClick={onConfirm}>
+          {label}
+        </button>
+      </ActionSheet>
+    </>
   );
 }

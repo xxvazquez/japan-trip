@@ -63,12 +63,19 @@ export default {
           from: { opacity: "0", transform: "translateY(8px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        "fade-in": { from: { opacity: "0" }, to: { opacity: "1" } },
+        "sheet-up": {
+          from: { opacity: "0", transform: "translateY(100%)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
         "enso-spin": {
           to: { transform: "rotate(360deg)" },
         },
       },
       animation: {
         "fade-up": "fade-up 0.32s var(--ease-paper) both",
+        "fade-in": "fade-in 0.15s ease-out both",
+        "sheet-up": "sheet-up 0.24s var(--ease-paper) both",
         "enso-spin": "enso-spin 1.1s linear infinite",
       },
     },
