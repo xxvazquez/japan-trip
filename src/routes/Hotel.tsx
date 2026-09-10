@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
-import { CARD_SHELL } from "@/components/Card";
+import { InsetRow } from "@/components/InsetRow";
 import { Editable } from "@/components/Editable";
 import { FieldList } from "@/components/FieldList";
 import { RichNote } from "@/components/RichNote";
@@ -57,86 +57,81 @@ export default function Hotel() {
         title={<Editable label="Name" value={hotel.name} onCommit={(v) => p({ name: v || hotel.name })} />}
       />
 
-      {/* arrival — where it is and how you get in, in one panel */}
-      {showArrival && (
-        <div className={CARD_SHELL}>
-          {showAddress && (
-            <div>
-              <p className="value">
-                <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined })} />
-              </p>
-              {pinEditing ? (
-                <div className="mt-2.5 flex items-center gap-2">
-                  <input
-                    autoFocus
-                    value={pinDraft}
-                    onChange={(e) => setPinDraft(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") savePin(); if (e.key === "Escape") setPinEditing(false); }}
-                    placeholder="Paste a Google Maps link"
-                    className="min-w-0 flex-1 border-b border-ink bg-transparent pb-1 text-sm focus:outline-none"
-                  />
-                  <button onClick={savePin} className="shrink-0 text-xs font-medium text-accent">Save</button>
-                  <button onClick={() => setPinEditing(false)} className="shrink-0 text-xs text-ink-faint hover:text-ink-soft">Cancel</button>
-                </div>
-              ) : (
-                <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1">
-                  {map && (
-                    <a href={map} target="_blank" rel="noopener" className="action">
-                      <Icon name="map" size={15} /> Open in Google Maps
-                    </a>
+      <div className="mt-5 space-y-6">
+        {/* arrival — where it is and how you get in */}
+        {showArrival && (
+          <Section variant="grouped">
+            <ul className="divide-y divide-line">
+              {showAddress && (
+                <li className="px-3.5 py-2.5">
+                  <span className="mb-0.5 block text-[0.8125rem] text-ink-soft">Address</span>
+                  <span className="block font-sans text-[0.8125rem] font-medium leading-snug text-ink">
+                    <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined })} />
+                  </span>
+                  {pinEditing ? (
+                    <div className="mt-2.5 flex items-center gap-2">
+                      <input
+                        autoFocus
+                        value={pinDraft}
+                        onChange={(e) => setPinDraft(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter") savePin(); if (e.key === "Escape") setPinEditing(false); }}
+                        placeholder="Paste a Google Maps link"
+                        className="min-w-0 flex-1 border-b border-ink bg-transparent pb-1 text-sm focus:outline-none"
+                      />
+                      <button onClick={savePin} className="shrink-0 text-xs font-medium text-accent">Save</button>
+                      <button onClick={() => setPinEditing(false)} className="shrink-0 text-xs text-ink-faint hover:text-ink-soft">Cancel</button>
+                    </div>
+                  ) : (
+                    (map || !ro) && (
+                      <span className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+                        {map && (
+                          <a href={map} target="_blank" rel="noopener" className="action">
+                            <Icon name="map" size={15} /> Open in Google Maps
+                          </a>
+                        )}
+                        {!ro && (
+                          <button onClick={openPin} className="link-quiet text-xs">
+                            {hotel.mapUrl ? "Edit map pin" : "Set exact pin"}
+                          </button>
+                        )}
+                      </span>
+                    )
                   )}
-                  {!ro && (
-                    <button onClick={openPin} className="link-quiet text-xs">
-                      {hotel.mapUrl ? "Edit map pin" : "Set exact pin"}
-                    </button>
-                  )}
-                </div>
+                </li>
               )}
-            </div>
-          )}
-          {doorShown.length > 0 && (
-            <div className={`grid grid-cols-2 gap-x-4 gap-y-4 ${showAddress ? "mt-4 border-t border-line pt-4" : ""}`}>
               {doorShown.map(([label, value, onCommit]) => (
-                <div key={label}>
-                  <p className="eyebrow">{label}</p>
-                  <p className="mt-0.5 value">
-                    <Editable as="time" label={label} value={value ?? ""} placeholder="—" onCommit={onCommit} />
-                  </p>
-                </div>
+                <InsetRow key={label} label={label}>
+                  <Editable as="time" label={label} value={value ?? ""} placeholder="—" onCommit={onCommit} />
+                </InsetRow>
               ))}
-            </div>
-          )}
-        </div>
-      )}
+            </ul>
+          </Section>
+        )}
 
-      <div className="mt-3.5 space-y-3.5">
         {(hotel.directions || !ro) && (
-          <Section collapsible icon="map" title="Getting here">
-            <div className="note">
+          <Section collapsible variant="grouped" icon="map" title="Getting here">
+            <div className="note px-3.5 py-3">
               <Editable as="textarea" label="Directions" value={hotel.directions ?? ""} placeholder="From the station…" onCommit={(v) => p({ directions: v || undefined })} />
             </div>
           </Section>
         )}
 
         {showRefSection && (
-          <Section collapsible icon="vault" title="Reference">
-            {(!ro || hotel.price) && (
-              <div className="row">
-                <span className="row-label">Price</span>
-                <span className="row-value">
+          <Section collapsible variant="grouped" icon="vault" title="Reference">
+            <ul className="divide-y divide-line">
+              {(!ro || hotel.price) && (
+                <InsetRow label="Price">
                   <Editable label="Price" value={hotel.price ?? ""} placeholder="—" onCommit={(v) => p({ price: v || undefined })} />
-                </span>
-              </div>
-            )}
-            <div className="mt-1">
-              <FieldList fields={fields} onChange={(next) => p({ fields: next })} addLabel="Add a detail" />
-            </div>
+                </InsetRow>
+              )}
+              <FieldList inset fields={fields} onChange={(next) => p({ fields: next })} addLabel="Add a detail" />
+            </ul>
           </Section>
         )}
 
         {(hotel.notes || !ro) && (
-          <Section collapsible icon="list" title="Notes">
-            <div className="note">
+          <Section collapsible variant="grouped" icon="list" title="Notes">
+            <div className="note px-3.5 py-3">
               <RichNote value={hotel.notes ?? ""} onCommit={(v) => p({ notes: v || undefined })} placeholder="Anything about this stay" />
             </div>
           </Section>
