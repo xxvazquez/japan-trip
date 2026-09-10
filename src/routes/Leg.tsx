@@ -38,7 +38,7 @@ export default function Leg() {
       />
 
       <div className="mt-5 space-y-6">
-        <Section variant="grouped">
+        <Section>
           <ul>
             <InsetRow label="Start">
               <Editable as="date" label="Start date" value={leg.start} onCommit={(v) => v && p({ start: v })} />
@@ -97,7 +97,7 @@ export default function Leg() {
         )}
 
         {(leg.blurb || !ro) && (
-          <Section variant="grouped" icon="bed" title="About this stay">
+          <Section icon="bed" title="About this stay">
             <div className="note px-3.5 py-3">
               <RichNote value={leg.blurb ?? ""} onCommit={(v) => p({ blurb: v || undefined })} placeholder="A line or two about this stay…" />
             </div>

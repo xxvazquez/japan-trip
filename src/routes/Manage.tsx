@@ -203,7 +203,7 @@ function Trips() {
       </ul>
 
       {archived.length > 0 && (
-        <Section variant="grouped" title="Archived" className="mt-8">
+        <Section title="Archived" className="mt-8">
           <ul>
             {archived.map((t) => (
               <li key={t.id} className={`${MLI} justify-between text-sm`}>
@@ -237,7 +237,6 @@ function ExportTrip() {
 
   return (
     <Section
-      variant="grouped"
       title="Export"
       info="A single web-page file of the whole trip — itinerary, journeys, stays and places. Opens in any browser, prints cleanly, works offline; the recipient can print it to PDF. “Include private details” adds door codes, wifi, phone numbers and booking references — leave it off for anything you send someone. Document files are never included either way."
     >
@@ -273,7 +272,7 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
   };
 
   return (
-    <Section variant="grouped" title="Shared with">
+    <Section title="Shared with">
       <ul>
         {members.map((m) => (
           <li key={m.userId} className={`${MLI} justify-between text-sm`}>
@@ -389,7 +388,7 @@ function Setup() {
 
   return (
     <div className="space-y-6">
-      <Section variant="grouped" title="Identity">
+      <Section title="Identity">
         <ul>
           <EditRow label="Trip name" value={config.branding} onCommit={(v) => mutate((d) => { d.config.branding = v; d.meta.title = v; })} />
         </ul>
@@ -398,7 +397,6 @@ function Setup() {
       <TravellersPanel />
 
       <Section
-        variant="grouped"
         title="Dates"
         info="Moving either date slides the whole itinerary — days, stays and journeys shift with it. To change the length, add or remove days in Plan."
       >
@@ -408,14 +406,14 @@ function Setup() {
         </ul>
       </Section>
 
-      <Section variant="grouped" title="Time zones">
+      <Section title="Time zones">
         <ul>
           <Row label="Home"><TzSelect value={config.homeTimeZone} onChange={(v) => mutate((d) => { d.config.homeTimeZone = v; })} /></Row>
           <Row label="On the trip"><TzSelect value={config.tripTimeZone} onChange={(v) => mutate((d) => { d.config.tripTimeZone = v; })} /></Row>
         </ul>
       </Section>
 
-      <Section variant="grouped" title="Map & format">
+      <Section title="Map & format">
         <ul>
         <Row label="Date format">
           <select
@@ -462,7 +460,7 @@ function TravellersPanel() {
     mutate((d) => sync(d, [...people, { id: `p-${Math.random().toString(36).slice(2, 8)}`, name: "" }]));
 
   return (
-    <Section variant="grouped" title="Travellers" info="Who's on this trip — used for packing assignment.">
+    <Section title="Travellers" info="Who's on this trip — used for packing assignment.">
       <ul>
         {people.map((p, i) => (
           <li key={p.id} className={MLI}>
@@ -503,7 +501,6 @@ function CurrenciesPanel() {
 
   return (
     <Section
-      variant="grouped"
       title="Currencies"
       info="Every currency this trip uses. The first is the default — a price typed as a bare number counts as it; one with its own symbol is left alone. Add a second and each spending row and fare gets a currency picker."
     >
@@ -554,7 +551,6 @@ function ExpenseCategoriesPanel() {
 
   return (
     <Section
-      variant="grouped"
       title="Expense categories"
       info="The buckets your spending groups into on the Expenses tab. “Accommodation” collects every stay price and “Transport” every fare automatically."
     >
@@ -605,7 +601,7 @@ function ModulesPanel() {
   const modules = data.config.modules;
 
   return (
-    <Section variant="grouped" title="Tabs" info="Reorder, rename, or turn the main tabs off for this trip.">
+    <Section title="Tabs" info="Reorder, rename, or turn the main tabs off for this trip.">
       <ul>
         {modules.map((m, i) => (
           <li key={m.id} className={MLI}>
@@ -650,7 +646,7 @@ function LogbookSectionsPanel() {
     });
 
   return (
-    <Section variant="grouped" title="Logbook sections">
+    <Section title="Logbook sections">
       <ul>
         {OPTIONAL_LOGBOOK_SECTIONS.map((s) => (
           <li key={s} className={`${MLI} justify-between text-sm`}>
@@ -701,7 +697,7 @@ function Appearance() {
 
   return (
     <div className="space-y-6">
-      <Section variant="grouped" title="Theme">
+      <Section title="Theme">
         <div className="p-3.5">
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {THEME_PRESETS.map((p) => {
@@ -771,7 +767,7 @@ function Appearance() {
         </div>
       </Section>
 
-      <Section variant="grouped" title="Logo">
+      <Section title="Logo">
         <div className="flex items-center gap-4 p-3.5">
           <span className="grid h-16 w-16 place-items-center overflow-hidden rounded border border-line bg-surface-2">
             <img src={tripLogoSrc(data, dark)} alt="" className="h-full w-full object-cover" />
@@ -783,7 +779,7 @@ function Appearance() {
         </div>
       </Section>
 
-      <Section variant="grouped" title="Cover">
+      <Section title="Cover">
         <div className="p-3.5">
         <div className="overflow-hidden rounded-[10px] border border-line">
           {media.cover ? (
@@ -799,7 +795,7 @@ function Appearance() {
         </div>
       </Section>
 
-      <Section variant="grouped" title="Gallery" info="Images are resized to ~1600px and stored on this device with the trip.">
+      <Section title="Gallery" info="Images are resized to ~1600px and stored on this device with the trip.">
         <div className="p-3.5">
         <button disabled={busy} onClick={() => upload((item) => addGalleryMedia(item))} className="btn-sm mb-3">
           <Icon name="plus" size={14} /> Add image
@@ -850,7 +846,6 @@ function SharingTab() {
 
       {driveEnabled && !isDemo && (
         <Section
-          variant="grouped"
           title="Document files"
           info="Attachments upload to the adder’s Google Drive; these accounts are given read access. List both travellers."
         >
@@ -1076,7 +1071,7 @@ function Content() {
         d.config.categoryIcons = next;
       });
     return (
-      <Section variant="grouped" title="Category pins" info="Give a place category its own map marker — others show a plain dot.">
+      <Section title="Category pins" info="Give a place category its own map marker — others show a plain dot.">
         <ul>
           {names.map((name) => (
             <li key={name} className={`${MLI} text-sm`}>
@@ -1108,7 +1103,7 @@ function Content() {
         </InfoNote>
       </div>
       {CONTENT_GROUPS.map((grp) => (
-        <Section key={grp.title} variant="grouped" title={grp.title}>
+        <Section key={grp.title} title={grp.title}>
           {grp.types.map((type) => <Rows key={type} type={type} />)}
         </Section>
       ))}
