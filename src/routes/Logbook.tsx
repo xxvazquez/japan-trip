@@ -5,6 +5,7 @@ import { Card, CARD_SHELL } from "@/components/Card";
 import { Section } from "@/components/Section";
 import { IconTile } from "@/components/IconTile";
 import { TileRow } from "@/components/TileRow";
+import { CheckCircle } from "@/components/CheckCircle";
 import { Empty } from "@/components/Empty";
 import { Tab } from "@/components/Tabs";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
@@ -646,19 +647,17 @@ function PackRow({ item, ro, people, tagged, onToggle, onLabel, onAssign, onRemo
   onRemove: () => void;
 }) {
   const box = (
-    <input type="checkbox" checked={!!item.done} disabled={ro} onChange={(e) => onToggle(e.target.checked)} className="h-[18px] w-[18px] shrink-0 accent-accent" />
+    <CheckCircle checked={!!item.done} disabled={ro} onChange={onToggle} label={`Pack ${item.label || "item"}`} />
   );
   const showAssign = people.length >= 2;
   const pill = showAssign && <AssignPill value={item.assignee} people={people} tagged={tagged} readOnly={ro} onChange={onAssign} />;
 
   if (ro) {
     return (
-      <li>
-        <label className="flex items-center gap-3 border-t border-line py-2.5 text-sm first:border-0 cursor-pointer">
-          {box}
-          <span className={`min-w-0 flex-1 ${item.done ? "text-ink-faint line-through" : "text-ink"}`}>{item.label}</span>
-          {pill}
-        </label>
+      <li className="flex items-center gap-3 border-t border-line py-2.5 text-sm first:border-0">
+        {box}
+        <span className={`min-w-0 flex-1 ${item.done ? "text-ink-faint line-through" : "text-ink"}`}>{item.label}</span>
+        {pill}
       </li>
     );
   }

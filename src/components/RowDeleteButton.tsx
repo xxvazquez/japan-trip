@@ -12,7 +12,7 @@ export function RowDeleteButton({ onClick, label = "Remove" }: { onClick: () => 
       type="button"
       onClick={onClick}
       aria-label={label}
-      className="shrink-0 p-1 text-ink-faint opacity-60 transition-opacity hover:text-accent sm:opacity-0 sm:group-hover:opacity-100"
+      className="relative shrink-0 p-1 text-ink-faint opacity-60 transition-opacity hover:text-accent before:absolute before:-inset-2 before:content-[''] sm:opacity-0 sm:group-hover:opacity-100"
     >
       <Icon name="close" size={13} />
     </button>

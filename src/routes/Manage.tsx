@@ -23,6 +23,7 @@ import { driveEnabled } from "@/lib/drive";
 import { useAuth, signOut } from "@/lib/auth";
 import { isLocalOnly, setLocalOnly } from "@/lib/localMode";
 import { RowMenu } from "@/components/RowMenu";
+import { Switch } from "@/components/Switch";
 import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
 import { useEffect } from "react";
 import type { Area, EntityType, TripData } from "@/core/types";
@@ -234,21 +235,16 @@ function ExportTrip() {
         A single web-page file of the whole trip — itinerary, journeys, stays and places.
         Opens in any browser, prints cleanly, works offline. The recipient can print it to PDF.
       </p>
-      <label className="mt-3 flex items-start gap-2.5 text-sm">
-        <input
-          type="checkbox"
-          checked={includePrivate}
-          onChange={(e) => setIncludePrivate(e.target.checked)}
-          className="mt-0.5 h-[18px] w-[18px] shrink-0 accent-accent"
-        />
-        <span>
+      <div className="mt-3 flex items-start justify-between gap-4">
+        <span className="min-w-0 text-sm">
           Include private details
-          <span className="block text-xs text-ink-faint">
+          <span className="mt-0.5 block text-xs text-ink-faint">
             Door codes, wifi, phone numbers, booking references and documents. Off by default — leave off for anything you send someone. Document files are never included.
           </span>
         </span>
-      </label>
-      <button onClick={download} disabled={busy} className="btn-primary mt-4">
+        <Switch checked={includePrivate} onChange={setIncludePrivate} label="Include private details" />
+      </div>
+      <button onClick={download} disabled={busy} className="btn-primary mt-4 w-full">
         <Icon name="download" size={15} /> {busy ? "Building…" : "Download web page"}
       </button>
     </Section>
