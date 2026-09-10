@@ -335,18 +335,18 @@ function Expenses() {
               .map((c) => (
                 <div key={c.id} className="row">
                   <span className="row-label">{c.label}</span>
-                  <span className="row-value value">{fmtMoney(b.byCategory[c.id], cur)}</span>
+                  <span className="row-value">{fmtMoney(b.byCategory[c.id], cur)}</span>
                 </div>
               ))}
             {b.uncategorised > 0 && (
               <div className="row">
                 <span className="row-label text-ink-soft">Uncategorised</span>
-                <span className="row-value value">{fmtMoney(b.uncategorised, cur)}</span>
+                <span className="row-value">{fmtMoney(b.uncategorised, cur)}</span>
               </div>
             )}
             <div className="row">
-              <span className="row-label font-medium text-ink">Total</span>
-              <span className="row-value value font-medium text-ink">{fmtMoney(b.total, cur)}</span>
+              <span className="row-label font-semibold text-ink">Total</span>
+              <span className="row-value font-semibold">{fmtMoney(b.total, cur)}</span>
             </div>
           </Card>
         );

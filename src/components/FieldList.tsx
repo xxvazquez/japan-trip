@@ -49,7 +49,7 @@ export function FieldList({
         {fields.map((f) => (
           <div key={f.id} className="row">
             <span className="row-label">{f.label || "—"}</span>
-            <span className="row-value value">
+            <span className="row-value">
               <Editable as="auto" label={f.label} value={f.value} placeholder="—" onCommit={() => {}} />
             </span>
           </div>
@@ -77,7 +77,7 @@ export function FieldList({
               label={f.label || "Field"}
               value={f.value}
               placeholder="—"
-              className="value"
+              className="row-value text-left"
               onCommit={(v) => setAt(i, { value: v })}
             />
           </span>

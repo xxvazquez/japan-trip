@@ -222,7 +222,7 @@ export default function Journey() {
             on ? (
               <div className="row" key={label}>
                 <span className="row-label">{label}</span>
-                <span className="row-value value">{node}</span>
+                <span className="row-value">{node}</span>
               </div>
             ) : null;
 
