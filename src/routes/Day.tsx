@@ -146,7 +146,6 @@ export default function Day() {
       {/* DAY TRIP — the logistics you opened the page for; first when it applies */}
       {day.dayTrip && (
         <Section
-          variant="grouped"
           icon="explore"
           title="Day trip"
           action={!ro && <button onClick={() => patch({ dayTrip: false })} className="link-quiet text-xs">not a day trip</button>}
@@ -201,7 +200,6 @@ export default function Day() {
       {/* PLAN — the day's itinerary: time + step, drag to reorder */}
       {((day.plan ?? []).length > 0 || !ro) && (
         <Section
-          variant="grouped"
           icon="itinerary"
           title="Plan"
           action={
@@ -219,7 +217,6 @@ export default function Day() {
       {/* AREAS — pull an area's places onto this day's map, without touching the plan */}
       {((day.areaIds ?? []).length > 0 || (!ro && data.areas.length > 0)) && (
         <Section
-          variant="grouped"
           icon="pin"
           title="Areas"
           info={`Places in an area you add here show on the day’s map — they don’t change the plan above${ro ? "." : ", unless you tap + on a chip to add one as a step."}`}
@@ -277,7 +274,7 @@ export default function Day() {
 
       {/* SPENDING — what the day cost; feeds the Expenses roll-up */}
       {((day.costs ?? []).length > 0 || !ro) && (
-        <Section variant="grouped" icon="vault" title="Spending">
+        <Section icon="vault" title="Spending">
           <CostList
             costs={day.costs ?? []}
             categories={data.config.expenseCategories ?? []}
@@ -290,7 +287,7 @@ export default function Day() {
 
       {/* GENERAL NOTES — free-form catch-all, after the day's actual plan */}
       {(day.notes || !ro) && (
-        <Section variant="grouped" icon="list" title="General notes">
+        <Section icon="list" title="General notes">
           <div className="note px-3.5 py-3">
             <RichNote
               value={day.notes ?? ""}

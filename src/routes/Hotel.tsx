@@ -60,7 +60,7 @@ export default function Hotel() {
       <div className="mt-5 space-y-6">
         {/* arrival — where it is and how you get in */}
         {showArrival && (
-          <Section variant="grouped">
+          <Section>
             <ul>
               {showAddress && (
                 <li className="relative px-3.5 py-2.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
@@ -109,7 +109,7 @@ export default function Hotel() {
         )}
 
         {(hotel.directions || !ro) && (
-          <Section variant="grouped" icon="map" title="Getting here">
+          <Section icon="map" title="Getting here">
             <div className="note px-3.5 py-3">
               <Editable as="textarea" label="Directions" value={hotel.directions ?? ""} placeholder="From the station…" onCommit={(v) => p({ directions: v || undefined })} />
             </div>
@@ -117,7 +117,7 @@ export default function Hotel() {
         )}
 
         {showRefSection && (
-          <Section variant="grouped" icon="vault" title="Reference">
+          <Section icon="vault" title="Reference">
             <ul>
               {(!ro || hotel.price) && (
                 <InsetRow label="Price">
@@ -130,7 +130,7 @@ export default function Hotel() {
         )}
 
         {(hotel.notes || !ro) && (
-          <Section variant="grouped" icon="list" title="Notes">
+          <Section icon="list" title="Notes">
             <div className="note px-3.5 py-3">
               <RichNote value={hotel.notes ?? ""} onCommit={(v) => p({ notes: v || undefined })} placeholder="Anything about this stay" />
             </div>

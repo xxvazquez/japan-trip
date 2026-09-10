@@ -126,7 +126,7 @@ function ListSection({ list }: { list: CustomList }) {
   }
 
   return (
-    <Section variant="grouped">
+    <Section>
       <ul>
         {list.items.map((it, i) => (
           <li
@@ -176,7 +176,7 @@ function Stays() {
   const loc = data.config.locale;
   if (data.hotels.length === 0) return <Empty what="No stays" />;
   return (
-    <Section variant="grouped">
+    <Section>
       <ul>
         {data.hotels.map((h) => {
           const leg = data.legs.find((l) => l.hotelId === h.id);
@@ -205,7 +205,7 @@ function GettingAround() {
   );
   if (journeys.length === 0) return <Empty what="No journeys" />;
   return (
-    <Section variant="grouped">
+    <Section>
       <ul>
         {journeys.map((j) => {
           const first = j.segments[0];
@@ -265,7 +265,6 @@ function Luggage() {
         return (
           <Section
             key={n.id}
-            variant="grouped"
             title={<Editable label="Title" value={n.title} placeholder="e.g. Coin lockers" onCommit={(v) => p({ title: v || "Untitled" })} />}
             action={!ro && cardDeleteBtn(() => removeEntity("luggage", n.id), "Delete note")}
           >
@@ -310,7 +309,7 @@ function Emergency() {
 
   return (
     <div className="space-y-6">
-      <Section variant="grouped">
+      <Section>
         <ul>
           <FieldList
             inset
@@ -321,7 +320,7 @@ function Emergency() {
         </ul>
       </Section>
       {(contact.note?.trim() || !ro) && (
-        <Section variant="grouped" title="Notes">
+        <Section title="Notes">
           <div className="note px-3.5 py-3">
             <RichNote
               value={contact.note ?? ""}
@@ -355,7 +354,7 @@ function Expenses() {
       {currencies.map((cur) => {
         const b = byCurrency[cur];
         return (
-          <Section key={cur || "—"} variant="grouped" title={cur || "Unspecified currency"}>
+          <Section key={cur || "—"} title={cur || "Unspecified currency"}>
             <ul>
               {categories
                 .filter((c) => (b.byCategory[c.id] ?? 0) > 0)
@@ -422,7 +421,6 @@ function Documents() {
       {docs.map((d) => (
         <Section
           key={d.id}
-          variant="grouped"
           icon="vault"
           title={
             ro
@@ -624,7 +622,6 @@ function Packing() {
           return (
             <Section
               key={group}
-              variant="grouped"
               title={ro ? group : (
                 <Editable label="Category" value={group} placeholder="Category" onCommit={(v) => renameGroup(group, v)} />
               )}
@@ -759,7 +756,7 @@ function Notes() {
   const setScratch = useApp((s) => s.setScratch);
   if (ro && !data.scratch) return <Empty what="Nothing noted yet" hint="A scratchpad for anything you want to remember." />;
   return (
-    <Section variant="grouped">
+    <Section>
       <div className="note px-3.5 py-3">
         <RichNote value={data.scratch ?? ""} onCommit={(v) => setScratch(v)} placeholder="Anything to remember." />
       </div>

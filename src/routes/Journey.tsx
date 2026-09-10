@@ -145,7 +145,7 @@ export default function Journey() {
       />
 
       {(j.gmapsDirections || fareText || !ro) && (
-        <Section variant="grouped" className="mt-5">
+        <Section className="mt-5">
           <ul>
             {j.gmapsDirections && (
               <li className={INSET_DIVIDER}>
@@ -401,7 +401,7 @@ export default function Journey() {
       )}
 
       {(j.notes || !ro) && (
-        <Section variant="grouped" icon="list" title="Notes">
+        <Section icon="list" title="Notes">
           <div className="note px-3.5 py-3">
             <RichNote value={j.notes ?? ""} onCommit={(v) => patch({ notes: v || undefined })} placeholder="Backup routes, reminders…" />
           </div>
