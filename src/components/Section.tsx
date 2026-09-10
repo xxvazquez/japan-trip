@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { CARD_SHELL } from "./Card";
 import { Icon, type IconName } from "./Icon";
 
@@ -19,13 +19,16 @@ import { Icon, type IconName } from "./Icon";
  * `collapsible` turns the header into a toggle (a chevron appears on the left);
  * `defaultOpen` is true unless set. Collapse state is per-mount.
  *
- * Secondary actions (＋ Add, ＋ From map…) go in `action`. Callers own the
- * spacing between sections — wrap a run in `space-y-3.5`.
+ * Secondary actions (＋ Add, ＋ From map…) go in `action`. `info` is help text
+ * that's useful once and clutter after — it hides behind an ⓘ toggle in the
+ * header instead of taking a permanent line. Callers own the spacing between
+ * sections — wrap a run in `space-y-3.5`.
  */
 export function Section({
   title,
   icon,
   action,
+  info,
   children,
   className = "",
   variant = "panel",
@@ -36,6 +39,8 @@ export function Section({
   title?: ReactNode;
   icon?: IconName;
   action?: ReactNode;
+  /** one-off explanatory copy, revealed by an ⓘ toggle in the header */
+  info?: ReactNode;
   children: ReactNode;
   className?: string;
   variant?: "panel" | "grouped";
@@ -43,9 +48,11 @@ export function Section({
   defaultOpen?: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  const [showInfo, setShowInfo] = useState(false);
+  const infoId = useId();
   const shut = collapsible && !open;
   const grouped = variant === "grouped";
-  const hasHeader = title != null || action != null;
+  const hasHeader = title != null || action != null || info != null;
 
   const heading = (
     <h2
@@ -87,14 +94,38 @@ export function Section({
       ) : (
         heading
       )}
-      {action ? <div className="shrink-0">{action}</div> : null}
+      {(action || (info && !shut)) && (
+        <div className="flex shrink-0 items-center gap-2">
+          {action}
+          {info && !shut && (
+            <button
+              type="button"
+              onClick={() => setShowInfo((v) => !v)}
+              aria-expanded={showInfo}
+              aria-controls={infoId}
+              className="-m-1 p-1 text-ink-faint transition-colors hover:text-ink-soft"
+            >
+              <Icon name="info" size={15} className={showInfo ? "text-accent" : undefined} />
+              <span className="sr-only">About this section</span>
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
+
+  const infoBlock =
+    info && !shut && showInfo ? (
+      <p id={infoId} className={grouped ? "meta -mt-0.5 mb-2 px-1" : "meta -mt-0.5 mb-3"}>
+        {info}
+      </p>
+    ) : null;
 
   if (grouped) {
     return (
       <section className={className}>
         {hasHeader && headerRow}
+        {infoBlock}
         {!shut && (
           <div className="overflow-hidden rounded-[12px] border border-line bg-surface shadow-[0_1px_1px_rgb(0_0_0/0.04),0_3px_8px_-2px_rgb(0_0_0/0.06)] dark:border-ink/10 dark:shadow-[0_1px_2px_rgb(0_0_0/0.4),0_6px_16px_-4px_rgb(0_0_0/0.5)]">
             {children}
@@ -107,6 +138,7 @@ export function Section({
   return (
     <section className={`${CARD_SHELL} ${className}`}>
       {hasHeader && headerRow}
+      {infoBlock}
       {!shut && children}
     </section>
   );

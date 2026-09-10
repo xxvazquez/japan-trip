@@ -383,10 +383,12 @@ function Setup() {
 
       <TravellersPanel />
 
-      <Section title="Dates">
+      <Section
+        title="Dates"
+        info="Moving either date slides the whole itinerary — days, stays and journeys shift with it. To change the length, add or remove days in Plan."
+      >
         <Row label="Start"><Editable as="date" label="Start date" value={meta.start} onCommit={(v) => moveTrip(meta.start, v)} /></Row>
         <Row label="End"><Editable as="date" label="End date" value={meta.end} onCommit={(v) => moveTrip(meta.end, v)} /></Row>
-        <p className="meta mt-2">Moving either date slides the whole itinerary — days, stays and journeys shift with it. To change the length, add or remove days in Plan.</p>
       </Section>
 
       <Section title="Time zones">
