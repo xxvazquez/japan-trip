@@ -75,9 +75,10 @@ function parseBlocks(src: string): Block[] {
 function renderBlock(b: Block, key: number): ReactNode {
   switch (b.t) {
     case "h": {
-      // sized in em so a heading tracks the note's own prose size (.note)
+      // sized in em so a heading tracks the note's own prose size (.note);
+      // semibold (not the old serif) is what sets it apart from the prose now
       const cls = b.level === 1 ? "text-[1.15em]" : b.level === 2 ? "text-[1.05em]" : "text-[0.95em]";
-      return <p key={key} className={`font-display font-medium leading-snug text-ink ${cls}`}>{inline(b.text)}</p>;
+      return <p key={key} className={`font-semibold leading-snug text-ink ${cls}`}>{inline(b.text)}</p>;
     }
     case "hr":
       return <hr key={key} className="border-line" />;

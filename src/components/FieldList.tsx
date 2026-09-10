@@ -45,16 +45,19 @@ export function FieldList({
   };
   const add = () => onChange([...fields, { id: rid(), label: "", value: "" }]);
 
-  // `inset` mode emits a fragment of padded `<li>`s — the caller owns the
-  // `<ul className="divide-y divide-line">` so a fixed system row (a price) can
-  // sit in the same group. Default mode is self-contained.
+  // `inset` mode emits a fragment of padded `<li>`s (each with its own inset
+  // hairline) — the caller owns the plain `<ul>`, so a fixed system row (a
+  // price) can sit in the same group. Default mode is self-contained.
+  const insetLi =
+    "relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden";
+
   if (ro) {
     if (fields.length === 0) return null;
     if (inset)
       return (
         <>
           {fields.map((f) => (
-            <li key={f.id} className="flex items-baseline justify-between gap-4 px-3.5 py-2.5">
+            <li key={f.id} className={`${insetLi} flex items-baseline justify-between gap-4 px-3.5 py-2.5`}>
               <span className="shrink-0 text-[0.8125rem] text-ink-soft">{f.label || "—"}</span>
               <span className="min-w-0 text-right font-sans text-[0.8125rem] font-medium leading-snug text-ink">
                 <Editable as="auto" label={f.label} value={f.value} placeholder="—" onCommit={() => {}} />
@@ -116,7 +119,7 @@ export function FieldList({
     return (
       <>
         {fields.map((f, i) => (
-          <li key={f.id} className="flex items-baseline gap-2 px-3.5 py-2.5">{editRow(f, i)}</li>
+          <li key={f.id} className={`${insetLi} flex items-baseline gap-2 px-3.5 py-2.5`}>{editRow(f, i)}</li>
         ))}
         <li>{addBtn}</li>
       </>
