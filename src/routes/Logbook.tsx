@@ -242,37 +242,38 @@ function Luggage() {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-6">
       {!ro && <AddButton label="Add a note" onClick={add} />}
       {data.luggage.map((n) => {
         const p = (patch: Partial<LuggageNote>) => updateEntity<LuggageNote>("luggage", n.id, patch);
+        const hasDetail = !!n.detail || !ro;
         return (
-          <Card
+          <Section
             key={n.id}
-            lead={<IconTile size="sm" glyph="luggage" tone="ink-faint" />}
+            variant="grouped"
             title={<Editable label="Title" value={n.title} placeholder="e.g. Coin lockers" onCommit={(v) => p({ title: v || "Untitled" })} />}
-            right={!ro && cardDeleteBtn(() => removeEntity("luggage", n.id), "Delete note")}
+            action={!ro && cardDeleteBtn(() => removeEntity("luggage", n.id), "Delete note")}
           >
-            {(n.detail || n.date || n.url || !ro) && (
-              <>
-                {(n.detail || !ro) && (
-                  <p className="note text-ink-soft">
-                    <Editable as="textarea" label="Detail" value={n.detail ?? ""} placeholder="Where, when, how much…" onCommit={(v) => p({ detail: v || undefined })} />
-                  </p>
-                )}
-                {(n.date || n.url || !ro) && (
-                  <p className="mt-2 flex flex-wrap items-baseline gap-x-5 gap-y-1 text-xs text-ink-soft">
-                    {(n.date || !ro) && (
-                      <span>When <Editable as="date" label="Date" value={n.date ?? ""} placeholder="—" onCommit={(v) => p({ date: v || undefined })} /></span>
-                    )}
-                    {(n.url || !ro) && (
-                      <span><Editable as="link" label="Google Maps link" value={n.url ?? ""} placeholder="＋ map link" onCommit={(v) => p({ url: v || undefined })} /></span>
-                    )}
-                  </p>
-                )}
-              </>
+            {hasDetail && (
+              <div className="note px-3.5 py-3 text-ink-soft">
+                <Editable as="textarea" label="Detail" value={n.detail ?? ""} placeholder="Where, when, how much…" onCommit={(v) => p({ detail: v || undefined })} />
+              </div>
             )}
-          </Card>
+            {(n.date || n.url || !ro) && (
+              <ul className={hasDetail ? "border-t border-line" : ""}>
+                {(n.date || !ro) && (
+                  <InsetRow label="When">
+                    <Editable as="date" label="Date" value={n.date ?? ""} placeholder="—" onCommit={(v) => p({ date: v || undefined })} />
+                  </InsetRow>
+                )}
+                {(n.url || !ro) && (
+                  <InsetRow label="Link">
+                    <Editable as="link" label="Google Maps link" value={n.url ?? ""} placeholder="＋ map link" onCommit={(v) => p({ url: v || undefined })} />
+                  </InsetRow>
+                )}
+              </ul>
+            )}
+          </Section>
         );
       })}
     </div>
@@ -394,7 +395,7 @@ function Documents() {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-6">
       <div className={`flex items-center ${ro ? "justify-end" : "justify-between"}`}>
         {!ro && <AddButton label="Add a document" onClick={addDoc} />}
         <InfoNote align="right">
@@ -404,31 +405,39 @@ function Documents() {
         </InfoNote>
       </div>
       {docs.map((d) => (
-        <Card
+        <Section
           key={d.id}
-          lead={<IconTile size="sm" name="vault" tone="accent" />}
+          variant="grouped"
+          icon="vault"
           title={
             ro
               ? d.title
               : <Editable label="Document name" value={d.title} placeholder="Name" onCommit={(v) => updateEntity<Doc>("docs", d.id, { title: v || "Untitled" })} />
           }
-          right={!ro && cardDeleteBtn(() => removeEntity("docs", d.id), "Delete document")}
+          action={!ro && cardDeleteBtn(() => removeEntity("docs", d.id), "Delete document")}
         >
-          <Attachments
-            doc={d}
-            cloud={cloud}
-            folderName={folderName}
-            shareWith={shareWith}
-            onChange={(files) => updateEntity<Doc>("docs", d.id, { files })}
-          />
-          <div className="mt-3">
-            <FieldList
-              fields={d.fields}
-              onChange={(next) => updateEntity<Doc>("docs", d.id, { fields: next })}
-            />
-          </div>
+          {(!ro || (d.files?.length ?? 0) > 0) && (
+            <div className="px-3.5 py-3">
+              <Attachments
+                doc={d}
+                cloud={cloud}
+                folderName={folderName}
+                shareWith={shareWith}
+                onChange={(files) => updateEntity<Doc>("docs", d.id, { files })}
+              />
+            </div>
+          )}
+          {(d.fields.length > 0 || !ro) && (
+            <ul className="border-t border-line">
+              <FieldList
+                inset
+                fields={d.fields}
+                onChange={(next) => updateEntity<Doc>("docs", d.id, { fields: next })}
+              />
+            </ul>
+          )}
           {(d.note?.trim() || !ro) && (
-            <div className="note mt-3 text-ink-soft">
+            <div className="note border-t border-line px-3.5 py-3 text-ink-soft">
               <RichNote
                 value={d.note ?? ""}
                 onCommit={(v) => updateEntity<Doc>("docs", d.id, { note: v || undefined })}
@@ -436,7 +445,7 @@ function Documents() {
               />
             </div>
           )}
-        </Card>
+        </Section>
       ))}
     </div>
   );
