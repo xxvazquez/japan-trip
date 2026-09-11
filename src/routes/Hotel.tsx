@@ -136,7 +136,7 @@ export default function Hotel() {
         )}
 
         {showRefSection && (
-          <Section icon="vault" title="Reference">
+          <Section icon="vault" title="Reference" info="Reference is your own — rename a row, add a field, remove one.">
             <ul>
               {(!ro || hotel.price) && (
                 <InsetRow label="Price">

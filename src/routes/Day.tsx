@@ -150,6 +150,7 @@ export default function Day() {
         <Section
           icon="explore"
           title="Day trip"
+          info="Out-of-town days get extra fields: how to get there and back, a checklist, and the last train home."
           action={!ro && <button onClick={() => patch({ dayTrip: false })} className="link-quiet text-xs">not a day trip</button>}
         >
           <div className="space-y-3 px-3.5 py-3">
@@ -204,6 +205,7 @@ export default function Day() {
         <Section
           icon="itinerary"
           title="Plan"
+          info="Drag to reorder. Tap ⌄ on a step for a note, or link it to a place on your map."
           action={
             !ro && (day.plan ?? []).length > 0 && (
               <button onClick={() => setPlan([...(day.plan ?? []), { id: rid(), text: "" }])} className="action text-xs">
@@ -276,7 +278,7 @@ export default function Day() {
 
       {/* SPENDING — what the day cost; feeds the Expenses roll-up */}
       {((day.costs ?? []).length > 0 || !ro) && (
-        <Section icon="vault" title="Spending">
+        <Section icon="vault" title="Spending" info="Tag each amount with a category — the Expenses tab in Logbook adds them up.">
           <CostList
             costs={day.costs ?? []}
             categories={data.config.expenseCategories ?? []}
@@ -289,7 +291,7 @@ export default function Day() {
 
       {/* GENERAL NOTES — free-form catch-all, after the day's actual plan */}
       {(day.notes || !ro) && (
-        <Section icon="list" title="General notes">
+        <Section icon="list" title="General notes" info="Light formatting — **bold**, *italic*, bullet lists, links.">
           <div className="note px-3.5 py-3">
             <RichNote
               value={day.notes ?? ""}
