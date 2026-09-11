@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import { buildFromTemplate, buildDemo } from "@/templates/registry";
+import { buildFromTemplate, buildDemo, buildSandbox } from "@/templates/registry";
+import { sandboxMode } from "@/lib/supabase";
 import { pickBackend, needsAuth, remapIds } from "@/lib/backend";
 import { subscribeTrip, unsubscribeTrip, markWritten } from "@/lib/realtime";
 import { store as kv } from "@/lib/storage";
@@ -105,6 +106,12 @@ let outboxTimer: ReturnType<typeof setTimeout> | undefined;
 /** the app booted offline from a mirrored outbox — once its ops land, re-pull
  *  the trip to pick up anything a companion changed while we were away */
 let bootedFromOutbox = false;
+
+/** dedupes truly concurrent `init()` calls (StrictMode double-invokes the
+ *  mount effect, and the module-level boot call can race it) into one run —
+ *  cleared once that run settles, so a later real re-init (auth change,
+ *  retryBoot) always starts fresh rather than awaiting a stale result. */
+let initInFlight: Promise<void> | null = null;
 
 function saveOutboxSoon(get: () => AppStore) {
   clearTimeout(outboxTimer);
@@ -371,63 +378,71 @@ export const useApp = create<AppStore>((set, get) => {
     activeId: null,
     data: null,
 
-    init: async () => {
-      if (needsAuth()) {
-        set({ authRequired: true, hydrated: true, trips: [], activeId: null, data: null });
-        return;
-      }
-      set({ authRequired: false });
-      const be = pickBackend();
-      if (be.kind === "supabase") setupSyncListeners(get);
+    init: () => {
+      const run = async () => {
+        if (needsAuth()) {
+          set({ authRequired: true, hydrated: true, trips: [], activeId: null, data: null });
+          return;
+        }
+        set({ authRequired: false });
+        const be = pickBackend();
+        if (be.kind === "supabase") setupSyncListeners(get);
 
-      let trips: TripSummary[];
-      let activeId: string | null;
-      try {
-        ({ trips, activeId } = await be.listTrips());
-      } catch (e) {
-        // offline / transient: recover from a mirrored outbox so unsynced edits
-        // aren't stranded and the trip stays usable until the connection returns
-        if (await recoverFromOutbox(get, listen)) return;
-        // nothing pending to fall back to — a cold boot with no signal. Surface
-        // it instead of hanging on the loader forever; retryBoot tries again.
-        console.error("[boot]", e);
-        set({ hydrated: true, bootError: true });
-        return;
-      }
-      set({ bootError: false });
+        let trips: TripSummary[];
+        let activeId: string | null;
+        try {
+          ({ trips, activeId } = await be.listTrips());
+        } catch (e) {
+          // offline / transient: recover from a mirrored outbox so unsynced edits
+          // aren't stranded and the trip stays usable until the connection returns
+          if (await recoverFromOutbox(get, listen)) return;
+          // nothing pending to fall back to — a cold boot with no signal. Surface
+          // it instead of hanging on the loader forever; retryBoot tries again.
+          console.error("[boot]", e);
+          set({ hydrated: true, bootError: true });
+          return;
+        }
+        set({ bootError: false });
 
-      if (trips.length) {
-        const id = activeId ?? trips.find((t) => !t.archived)?.id ?? trips[0].id;
-        let data = await be.loadTrip(id);
-        if (be.kind === "supabase") {
-          const ob = await kv.get<Outbox>(STORAGE_KEYS.outbox(id));
-          if (ob?.ops.length) {
-            queue = [...ob.ops];
-            if (data) {
-              data = normalizeTrip(applyOutbox(data, ob)); // merge edits onto the fresh copy
-            } else {
-              data = normalizeTrip(ob.data); // trip load failed — fall back to the mirror
-              bootedFromOutbox = true; // re-pull once the ops land
+        if (trips.length) {
+          const id = activeId ?? trips.find((t) => !t.archived)?.id ?? trips[0].id;
+          let data = await be.loadTrip(id);
+          if (be.kind === "supabase") {
+            const ob = await kv.get<Outbox>(STORAGE_KEYS.outbox(id));
+            if (ob?.ops.length) {
+              queue = [...ob.ops];
+              if (data) {
+                data = normalizeTrip(applyOutbox(data, ob)); // merge edits onto the fresh copy
+              } else {
+                data = normalizeTrip(ob.data); // trip load failed — fall back to the mirror
+                bootedFromOutbox = true; // re-pull once the ops land
+              }
             }
           }
+          set({ trips, activeId: id, data, hydrated: true });
+          if (data) {
+            listen(id);
+            if (queue.length) void flush(get);
+          }
+          return;
         }
-        set({ trips, activeId: id, data, hydrated: true });
-        if (data) {
-          listen(id);
-          if (queue.length) void flush(get);
-        }
-        return;
-      }
 
-      // fresh account → drop in the read-only demo tour
-      const seed = remapIds(buildDemo());
-      const summary = summarise("", seed.meta.title, seed, "demo");
-      const id = await be.createTrip(seed, summary);
-      const withId = { ...summary, id };
-      await be.setActive(id, [withId]);
-      const data = be.kind === "supabase" ? await be.loadTrip(id) : seed;
-      set({ trips: [withId], activeId: id, data, hydrated: true });
-      if (data) listen(id);
+        // fresh account → drop in the read-only demo tour, or an editable
+        // Sandbox under `npm run dev:demo`
+        const seed = remapIds(sandboxMode ? buildSandbox() : buildDemo());
+        const summary = summarise("", seed.meta.title, seed, sandboxMode ? "sandbox" : "demo");
+        const id = await be.createTrip(seed, summary);
+        const withId = { ...summary, id };
+        await be.setActive(id, [withId]);
+        const data = be.kind === "supabase" ? await be.loadTrip(id) : seed;
+        set({ trips: [withId], activeId: id, data, hydrated: true });
+        if (data) listen(id);
+      };
+      // dedupe concurrent calls (StrictMode's double effect-invoke, racing the
+      // module-level boot call) into one run; cleared on settle so a later
+      // real re-init always starts fresh
+      initInFlight ??= run().finally(() => { initInFlight = null; });
+      return initInFlight;
     },
 
     retryBoot: () => {

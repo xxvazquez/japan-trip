@@ -260,3 +260,17 @@ export function buildDemo(): TripData {
 
   return structuredClone(data);
 }
+
+/** The demo content, editable — for `npm run dev:demo` (`sandboxMode` in
+ *  `lib/supabase.ts`). Lets every edit path get clicked through against
+ *  something that looks like a real trip, without touching real trip data.
+ *  A second currency pair exercises the currency pickers. */
+export function buildSandbox(): TripData {
+  const data = buildDemo();
+  data.config.branding = "Sandbox";
+  data.config.tagline = "edit anything — it stays on this device";
+  data.config.demo = false;
+  data.config.currency = "EUR";
+  data.config.currencies = ["EUR", "PLN"];
+  return data;
+}

@@ -1,8 +1,8 @@
 import type { TripData } from "@/core/types";
 import { buildBlank } from "./blank";
-import { buildDemo } from "./demo";
+import { buildDemo, buildSandbox } from "./demo";
 
-export { buildDemo };
+export { buildDemo, buildSandbox };
 
 export interface TemplateEntry {
   id: string;
@@ -20,6 +20,7 @@ export const TEMPLATES: TemplateEntry[] = [];
 
 export function buildFromTemplate(id: string | undefined, fallbackName = "New trip"): TripData {
   if (id === "demo") return buildDemo();
+  if (id === "sandbox") return buildSandbox();
   const t = id ? TEMPLATES.find((x) => x.id === id) : undefined;
   return t ? t.build() : buildBlank(fallbackName);
 }

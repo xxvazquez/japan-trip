@@ -260,6 +260,7 @@ npm run dev            # http://localhost:5173
 | Script | |
 |---|---|
 | `npm run dev` | dev server |
+| `npm run dev:demo` | dev server, local-only, seeded with an editable Sandbox trip — no Supabase project or sign-in needed |
 | `npm run build` | production build → `dist/` |
 | `npm run preview` | serve the build |
 | `npm run typecheck` | `tsc --noEmit` |
