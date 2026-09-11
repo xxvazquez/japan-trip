@@ -40,6 +40,19 @@ function splitRange(t?: string): [string, string] | null {
   return m ? [m[1], m[2]] : null;
 }
 
+/** the day's costs, summed per currency — for the header meta line, same
+ *  math as CostList's own subtotal row. */
+function daySpentText(costs: DayCost[] | undefined, primary: string): string | undefined {
+  if (!costs?.length) return undefined;
+  const subtotals = new Map<string, number>();
+  for (const c of costs) {
+    const m = parseMoney(c.amount, c.currency || primary);
+    if (m) subtotals.set(m.currency, (subtotals.get(m.currency) ?? 0) + m.amount);
+  }
+  if (subtotals.size === 0) return undefined;
+  return `Total spent: ${[...subtotals].map(([cur, amt]) => fmtMoney(amt, cur)).join(" · ")}`;
+}
+
 export default function Day() {
   const data = useData();
   const { id } = useParams();
@@ -80,6 +93,7 @@ export default function Day() {
         title={
           <Editable label="Day title" value={day.title ?? ""} placeholder="Untitled day" onCommit={(v) => patch({ title: v || undefined })} />
         }
+        meta={daySpentText(day.costs, (data.config.currencies ?? [])[0] ?? "")}
       />
 
       {ro ? (
@@ -597,16 +611,14 @@ function CostList({ costs, categories, currencies, readOnly, onChange }: {
             </li>
           );
         })}
-      {subtotals.size > 0 && (
-        <li className="relative flex items-baseline justify-between gap-4 px-3.5 py-2.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
-          <span className="value font-semibold">Day total</span>
-          <span className="value flex flex-wrap justify-end gap-x-3 font-semibold tabular-nums">
-            {[...subtotals].map(([cur, amt]) => (
-              <span key={cur || "—"}>{fmtMoney(amt, cur)}</span>
-            ))}
-          </span>
-        </li>
-      )}
+      <li className="relative flex items-baseline justify-between gap-4 px-3.5 py-2.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
+        <span className="value font-semibold">Total spent</span>
+        <span className="value flex flex-wrap justify-end gap-x-3 font-semibold tabular-nums">
+          {subtotals.size > 0
+            ? [...subtotals].map(([cur, amt]) => <span key={cur || "—"}>{fmtMoney(amt, cur)}</span>)
+            : "—"}
+        </span>
+      </li>
       {!readOnly && (
         <li>
           <button onClick={add} className="action w-full px-3.5 py-2.5 text-xs"><Icon name="plus" size={13} /> Add an amount</button>

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
@@ -43,6 +43,43 @@ function RouteLabel({ label }: { label: string }) {
         </span>
       ))}
     </span>
+  );
+}
+
+/** In edit mode, a fare calculated from the hops showed a blank input with no
+ *  hint of the total behind it. Show the derived sum (same as read-only) until
+ *  tapped; only then does it drop to a real, editable amount. Once the trip
+ *  fare's overridden by hand, the field just stays a normal MoneyField. */
+function TotalFareField({
+  j,
+  fareDerived,
+  fareText,
+  onAmount,
+  onCurrency,
+}: {
+  j: JourneyT;
+  fareDerived: boolean;
+  fareText: string;
+  onAmount: (v: string) => void;
+  onCurrency: (c: string | undefined) => void;
+}) {
+  const [overriding, setOverriding] = useState(false);
+  if (fareDerived && !overriding) {
+    return (
+      <button type="button" onClick={() => setOverriding(true)} className="value text-right tabular-nums">
+        {fareText}
+        <span className="ml-2 font-normal text-ink-faint">from hops</span>
+      </button>
+    );
+  }
+  return (
+    <MoneyField
+      label="Total fare"
+      amount={j.fare ?? ""}
+      currency={j.fareCurrency}
+      onAmount={onAmount}
+      onCurrency={onCurrency}
+    />
   );
 }
 
@@ -133,10 +170,10 @@ export default function Journey() {
                     {fareDerived && <span className="ml-2 font-normal text-ink-faint">from hops</span>}
                   </>
                 ) : (
-                  <MoneyField
-                    label="Total fare"
-                    amount={j.fare ?? ""}
-                    currency={j.fareCurrency}
+                  <TotalFareField
+                    j={j}
+                    fareDerived={fareDerived}
+                    fareText={fareText}
                     onAmount={(v) => patch({ fare: cleanAmount(v) || undefined })}
                     onCurrency={(c) => patch({ fareCurrency: c })}
                   />
