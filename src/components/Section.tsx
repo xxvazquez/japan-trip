@@ -34,8 +34,8 @@ export function Section({
     <section className={className}>
       {hasHeader && (
         <div className="mb-1.5 flex items-baseline justify-between gap-3 px-1">
-          <h2 className="eyebrow flex min-w-0 items-center gap-1.5 text-ink-faint">
-            {icon && <Icon name={icon} size={12} className="shrink-0 -translate-y-px text-ink-faint" />}
+          <h2 className="flex min-w-0 items-center gap-1.5 text-[0.8125rem] font-medium uppercase tracking-[0.03em] text-ink-soft">
+            {icon && <Icon name={icon} size={13} className="shrink-0 -translate-y-px text-ink-soft" />}
             <span className="truncate">{title}</span>
           </h2>
           {(action || info) && (
