@@ -53,7 +53,7 @@ export default {
         DEFAULT: "8px",
       },
       maxWidth: {
-        reading: "44rem",
+        reading: "50rem",
         page: "60rem",
       },
       transitionTimingFunction: {

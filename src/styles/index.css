@@ -221,7 +221,7 @@ html.dark {
    * below .value so a note never reads louder than the quiet section header
    * above it. Callers may override the colour (text-ink-soft when secondary). */
   .note {
-    @apply text-[0.9rem] leading-[1.6] text-ink;
+    @apply max-w-prose text-[0.9rem] leading-[1.6] text-ink;
   }
 
   /* a label / value list row — hairline between peers only. Label and value
