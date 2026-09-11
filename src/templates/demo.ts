@@ -1,11 +1,14 @@
 import type { TripData } from "@/core/types";
 import { THEME_PRESETS } from "@/lib/themePresets";
 import { DEFAULT_EXPENSE_CATEGORIES, SCHEMA_VERSION } from "@/lib/hydrate";
+import { rangeText } from "@/lib/dates";
 
 /**
  * The built-in read-only tour. Not tied to any destination — it exists to show
- * what a filled-in trip looks like and how each screen works. `config.demo`
- * makes every screen hide its editing controls.
+ * what a filled-in trip looks like. `config.demo` makes every screen hide its
+ * editing controls. Content reads like an ordinary trip (real fields explain
+ * themselves via each page's ⓘ, not through the seed data) so the demo and a
+ * real trip look exactly the same.
  */
 
 const iso = (offsetDays: number) => {
@@ -25,7 +28,7 @@ export function buildDemo(): TripData {
     v: SCHEMA_VERSION,
     config: {
       branding: "Demo",
-      tagline: "a quick read-only tour",
+      tagline: rangeText(D1, D4, "en-GB"),
       locale: "en-GB",
       homeTimeZone: "UTC",
       tripTimeZone: "UTC",
@@ -57,8 +60,7 @@ export function buildDemo(): TripData {
     },
     meta: { title: "Demo", start: D1, end: D4 },
     media: { gallery: [] },
-    scratch:
-      "A free-text scratchpad — shopping lists, things you keep forgetting, a phrase you want to remember. It’s shared with anyone the trip is shared with.",
+    scratch: "Pack the travel adapter. Ask about late checkout on the last day.",
 
     legs: [
       { id: "leg-river", base: "Riverton", start: D1, end: D2, hotelId: "h-river", color: "blue" },
@@ -77,8 +79,7 @@ export function buildDemo(): TripData {
           { id: "d1-p2", time: "16:00", text: "Drop bags at the hotel" },
           { id: "d1-p3", time: "18:30", text: "Easy dinner nearby — don’t overdo day one" },
         ],
-        notes:
-          "The **Plan** is the day’s itinerary — a time and a step per row, drag to reorder. Link a row to a place on your map and it shows on the day’s map. **General notes** takes light formatting: **bold**, *italic*, - bullet lists, [links](https://maps.google.com).\n\nTap almost any text — a title, a time, a step — and it becomes editable on the spot; tap away to save. On the Plan screen, days are grouped by where you’re staying; drag one to reorder it and the dates move to match.\n\n(This trip is the demo, so editing is switched off. Make a trip of your own to try it.)",
+        notes: "Try to stay up till at least 9pm to beat the jet lag.",
       },
       {
         id: "d2",
@@ -88,20 +89,11 @@ export function buildDemo(): TripData {
         title: "A full day",
         plan: [
           { id: "d2-p1", time: "08:30", text: "Coffee before anything else", placeId: "pl-1" },
-          {
-            id: "d2-p2",
-            time: "10:00",
-            text: "Museum when it opens",
-            placeId: "pl-2",
-            note: "Free on the first Sunday. Tap the ⌄ on any step for a note like this — and to link it to a place.",
-          },
+          { id: "d2-p2", time: "10:00", text: "Museum when it opens", placeId: "pl-2", note: "Free on the first Sunday." },
           { id: "d2-p3", time: "13:00", text: "Market for lunch", placeId: "pl-4" },
           { id: "d2-p4", text: "Wander the old streets, no fixed route" },
         ],
-        notes:
-          "A day is a loose plan plus a few places you’d like to hit — never an hour-by-hour schedule. **General notes** is for anything that isn’t a step.\n\n**Spending** tags each amount with a category; the Expenses tab in the Logbook adds them all up by category.",
-        // add an area to a day and every place in it joins the day's map — a
-        // live link, without adding each one as a step above
+        notes: "Book the museum tickets online if the queue looks long.",
         areaIds: ["ar-1"],
         costs: [
           { id: "d2-c1", categoryId: "cat-food", amount: "16", label: "Coffee + pastry" },
@@ -120,7 +112,7 @@ export function buildDemo(): TripData {
         getBack: "Same line back",
         lastTrainBack: "Last train ~23:15",
         toDo: ["Buy the return ticket in the morning", "Pack water + a layer"],
-        notes: "Out-of-town days get extra fields: how to get there and back, a checklist, and the last train home.",
+        notes: "Double check the last train time before we leave — it gets busy on weekends.",
         costs: [
           { id: "d3-c1", categoryId: "cat-transport", amount: "24", label: "Return train tickets" },
           { id: "d3-c2", categoryId: "cat-food", amount: "31", label: "Lunch out of town" },
@@ -136,9 +128,9 @@ export function buildDemo(): TripData {
         title: "Travel + departure",
         plan: [
           { id: "d4-p1", time: "08:30", text: "Last coffee before the train", placeId: "pl-5" },
-          { id: "d4-p2", time: "09:10", text: "Airport train — times and seat are on the journey below" },
+          { id: "d4-p2", time: "09:10", text: "Airport train" },
         ],
-        notes: "Travel days link to a journey with the times, platform and seat — tap the chip near the top of the day.",
+        notes: "Leave the hotel with plenty of time — the security line looked long online.",
       },
     ],
 
@@ -154,7 +146,7 @@ export function buildDemo(): TripData {
           { id: "h-river-f1", label: "Booking ref", value: "RSV-00123" },
           { id: "h-river-f2", label: "Wifi", value: "guest / riverton2027" },
         ],
-        notes: "Everything here is a placeholder. Reference is your own — rename a row, add a field, remove one.",
+        notes: "Rooftop bar closes at 11pm — worth a visit if we’re back early enough.",
       },
       {
         id: "h-old",
@@ -220,7 +212,7 @@ export function buildDemo(): TripData {
           { id: "doc-1-f1", label: "Policy no.", value: "—" },
           { id: "doc-1-f2", label: "24h assistance", value: "+00 000 000 000" },
         ],
-        note: "One card per document — rename it, add your own fields, attach the real PDF. Attachments stay on the device you add them on; they’re never uploaded or shared.",
+        note: "Covers both of us for the whole trip.",
       },
       {
         id: "doc-2",
@@ -238,7 +230,7 @@ export function buildDemo(): TripData {
         lng: 139.7047,
         category: "coffee",
         color: "#8d6e63",
-        note: "Pins come from a Google My Map you paste in, or you add them here. Tap a pin or a list row — they select each other and the map moves to it.",
+        note: "Oat flat white was excellent, worth the queue.",
       },
       { id: "pl-2", name: "A museum", lat: 35.7148, lng: 139.7752, category: "see", color: "#5c6bc0" },
       { id: "pl-3", name: "A viewpoint", lat: 35.6586, lng: 139.7454, category: "see", color: "#5c6bc0" },
@@ -268,7 +260,6 @@ export function buildDemo(): TripData {
 export function buildSandbox(): TripData {
   const data = buildDemo();
   data.config.branding = "Sandbox";
-  data.config.tagline = "edit anything — it stays on this device";
   data.config.demo = false;
   data.config.currency = "EUR";
   data.config.currencies = ["EUR", "PLN"];

@@ -417,6 +417,7 @@ function Documents() {
       <div className={`flex items-center ${ro ? "justify-end" : "justify-between"}`}>
         {!ro && <AddButton label="Add a document" onClick={addDoc} />}
         <InfoNote align="right">
+          One card per document — rename it, add your own fields, attach a file, add a note.{" "}
           {cloud
             ? "Attachments upload to a Google Drive folder shared with the people on this trip. Still — think twice before a full passport scan."
             : "Attachments stay only on the device they’re added on — passport numbers don’t belong here."}
@@ -765,7 +766,7 @@ function Notes() {
   const setScratch = useApp((s) => s.setScratch);
   if (ro && !data.scratch) return <Empty what="Nothing noted yet" hint="A scratchpad for anything you want to remember." />;
   return (
-    <Section>
+    <Section info="A free-text scratchpad — shopping lists, things you keep forgetting, a phrase you want to remember. Shared with anyone the trip is shared with.">
       <div className="note px-3.5 py-3">
         <RichNote value={data.scratch ?? ""} onCommit={(v) => setScratch(v)} placeholder="Anything to remember." />
       </div>
