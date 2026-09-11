@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { MapView, type MLMap } from "@/components/MapView";
 import { Editable } from "@/components/Editable";
@@ -67,12 +67,16 @@ const loadTransit = (): Set<string> => {
 };
 
 type Snap = "peek" | "half" | "full";
-const SNAP_H: Record<Snap, string> = {
-  peek: "h-[132px]",
-  half: "h-[46svh]",
-  full: "h-[calc(100%-8px)]",
-};
+/** a small preview, just past the city pills; enough of "half" to be worth
+ *  defaulting to when there's a list; "full" leaves an 8px peek of map. */
+const PEEK_PX = 132;
+const HALF_RATIO = 0.58;
+const FULL_GAP_PX = 8;
+const snapPx = (s: Snap, containerH: number): number =>
+  s === "peek" ? PEEK_PX : s === "half" ? Math.round(containerH * HALF_RATIO) : containerH - FULL_GAP_PX;
 const NEXT: Record<Snap, Snap> = { peek: "half", half: "full", full: "peek" };
+/** a tap (vs. a real drag) on the handle just cycles to the next stop */
+const TAP_SLOP_PX = 6;
 
 /**
  * Open on the city (leg) you're currently in — during: today's leg; before: the
@@ -117,6 +121,55 @@ export default function MapTab() {
   const [snap, setSnap] = useState<Snap>("peek");
   /** the "Filters" disclosure (category, transit, area editing) */
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  // the mobile sheet's handle: a real drag (not just a tap-to-cycle button),
+  // snapping to the nearest of peek/half/full on release
+  const shellRef = useRef<HTMLDivElement | null>(null);
+  const sheetRef = useRef<HTMLDivElement | null>(null);
+  const [containerH, setContainerH] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const dragStart = useRef<{ y: number; h: number } | null>(null);
+  const suppressClick = useRef(false);
+
+  useEffect(() => {
+    const el = shellRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => setContainerH(entry.contentRect.height));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const availH = containerH || window.innerHeight - 112;
+  const sheetHeight = snapPx(snap, availH);
+
+  const onHandlePointerDown = (e: ReactPointerEvent) => {
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    dragStart.current = { y: e.clientY, h: sheetRef.current?.getBoundingClientRect().height ?? sheetHeight };
+    setDragging(true);
+  };
+  const onHandlePointerMove = (e: ReactPointerEvent) => {
+    if (!dragStart.current || !sheetRef.current) return;
+    const next = Math.min(Math.max(dragStart.current.h + (dragStart.current.y - e.clientY), PEEK_PX), availH - FULL_GAP_PX);
+    sheetRef.current.style.height = `${next}px`;
+  };
+  const onHandlePointerUp = (e: ReactPointerEvent) => {
+    if (!dragStart.current || !sheetRef.current) return;
+    const moved = Math.abs(e.clientY - dragStart.current.y);
+    setDragging(false);
+    suppressClick.current = true;
+    if (moved < TAP_SLOP_PX) {
+      setSnap(NEXT[snap]);
+    } else {
+      const finalH = sheetRef.current.getBoundingClientRect().height;
+      const stops: Snap[] = ["peek", "half", "full"];
+      setSnap(stops.reduce((best, s) => (Math.abs(snapPx(s, availH) - finalH) < Math.abs(snapPx(best, availH) - finalH) ? s : best)));
+    }
+    dragStart.current = null;
+  };
+  const onHandleClick = () => {
+    if (suppressClick.current) { suppressClick.current = false; return; }
+    setSnap(NEXT[snap]); // keyboard activation — no pointer sequence to read a drag from
+  };
 
   const [adding, setAdding] = useState(false);
   const [q, setQ] = useState("");
@@ -710,7 +763,7 @@ export default function MapTab() {
   const panel = (
     <div className="flex h-full flex-col">
       {/* context bar — city → area → filters */}
-      <div className="shrink-0 border-b border-line px-4 pb-2.5 pt-3">
+      <div className="shrink-0 border-b border-line px-4 pb-2 pt-2.5">
         {/* city pills + Add place (always one tap) */}
         <div className="flex items-center gap-2">
           <div className="-mx-1 flex min-w-0 flex-1 gap-1.5 overflow-x-auto px-1 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -959,7 +1012,7 @@ export default function MapTab() {
               <section key={c.legId || "none"}>
                 <button
                   onClick={() => toggleCityCollapsed(c.legId)}
-                  className="sticky top-0 z-[2] flex w-full items-center gap-2 border-b border-line bg-bg px-4 py-2.5 text-left"
+                  className="sticky top-0 z-[2] flex w-full items-center gap-2 border-b border-line bg-bg px-4 py-2 text-left"
                 >
                   <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: c.hex }} />
                   <span className="subhead min-w-0 flex-1 truncate">{c.name}</span>
@@ -1009,7 +1062,7 @@ export default function MapTab() {
               <section key={g.id || "none"}>
                 <button
                   onClick={() => toggleAreaCollapsed(g.id)}
-                  className="sticky top-0 z-[1] flex w-full items-center gap-2 border-b border-line bg-bg px-4 py-2 text-left"
+                  className="sticky top-0 z-[1] flex w-full items-center gap-2 border-b border-line bg-bg px-4 py-1.5 text-left"
                 >
                   <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: g.tone }} />
                   <span className="eyebrow min-w-0 flex-1 truncate font-medium">{g.name}</span>
@@ -1074,7 +1127,7 @@ export default function MapTab() {
   );
 
   return (
-    <div className="fixed inset-x-0 bottom-[56px] top-[calc(3.5rem+var(--demo-h,0px))] z-20 md:bottom-0 md:left-[72px]">
+    <div ref={shellRef} className="fixed inset-x-0 bottom-[56px] top-[calc(3.5rem+var(--demo-h,0px))] z-20 md:bottom-0 md:left-[72px]">
       {/* map */}
       <div className="absolute inset-0 md:left-[340px]">
         <MapView
@@ -1107,12 +1160,18 @@ export default function MapTab() {
 
       {/* mobile sheet */}
       <div
-        className={`absolute inset-x-0 bottom-0 z-10 flex flex-col border-t border-line bg-bg transition-[height] duration-200 ease-paper md:hidden ${SNAP_H[snap]}`}
+        ref={sheetRef}
+        style={{ height: `${sheetHeight}px` }}
+        className={`absolute inset-x-0 bottom-0 z-10 flex flex-col border-t border-line bg-bg md:hidden ${dragging ? "" : "transition-[height] duration-200 ease-paper"}`}
       >
         <button
-          onClick={() => setSnap(NEXT[snap])}
+          onPointerDown={onHandlePointerDown}
+          onPointerMove={onHandlePointerMove}
+          onPointerUp={onHandlePointerUp}
+          onPointerCancel={onHandlePointerUp}
+          onClick={onHandleClick}
           aria-label="Resize list"
-          className="mx-auto mt-2 mb-1 h-1 w-9 shrink-0 rounded-full bg-ink/25"
+          className="mx-auto mt-2 mb-1 h-1 w-9 shrink-0 touch-none rounded-full bg-ink/25"
         />
         <div className="min-h-0 flex-1">{panel}</div>
       </div>
