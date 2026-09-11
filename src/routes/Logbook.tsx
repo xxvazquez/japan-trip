@@ -555,10 +555,8 @@ function Attachments({
         );
       })}
       {!ro && (
-        <label
-          className={`mt-3 flex items-center justify-center gap-2 rounded border border-dashed border-line py-2.5 text-sm font-medium text-ink-soft transition-colors hover:border-ink-soft hover:text-ink ${busy ? "pointer-events-none opacity-50" : "cursor-pointer"}`}
-        >
-          <Icon name="download" size={15} className="rotate-180" /> {busy ? "Uploading…" : files.length ? "Attach another file" : "Attach a file"}
+        <label className={`action mt-3 text-xs ${busy ? "pointer-events-none opacity-50" : "cursor-pointer"}`}>
+          <Icon name="download" size={13} className="rotate-180" /> {busy ? "Uploading…" : files.length ? "Attach another file" : "Attach a file"}
           <input type="file" accept=".pdf,image/*" multiple className="hidden" disabled={busy} onChange={(e) => { void add(e.target.files); e.target.value = ""; }} />
         </label>
       )}
