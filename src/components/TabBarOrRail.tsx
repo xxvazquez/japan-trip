@@ -47,9 +47,9 @@ export function TabBarOrRail() {
             </li>
           );
         })}
-        {/* Manage — a rail peer parked at the foot of the list (desktop only;
-            on mobile it lives in the page header) */}
-        <li className="hidden md:mt-auto md:block">
+        {/* Manage — a peer tab everywhere now; parked at the foot of the list
+            on the desktop rail, just the fourth item on the mobile bar */}
+        <li className="md:mt-auto">
           <NavLink to="/manage" aria-label="Manage" className="group flex">
             {({ isActive }) => cell(isActive, "Manage", "settings")}
           </NavLink>
