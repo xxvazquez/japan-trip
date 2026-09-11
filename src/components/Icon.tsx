@@ -45,7 +45,9 @@ export type IconName =
   | "ticket"
   | "route"
   | "pencil"
-  | "info";
+  | "info"
+  | "alert"
+  | "wallet";
 
 const P: Record<IconName, JSX.Element> = {
   itinerary: (
@@ -254,6 +256,20 @@ const P: Record<IconName, JSX.Element> = {
     <>
       <path d="M4 20l1-4L16 5a2 2 0 0 1 3 3L8 19l-4 1Z" />
       <path d="m13.5 7.5 3 3" />
+    </>
+  ),
+  alert: (
+    <>
+      <path d="M12 3.5 21.5 19.5H2.5L12 3.5Z" />
+      <path d="M12 10v4" />
+      <circle cx="12" cy="16.7" r="0.9" fill="currentColor" stroke="none" />
+    </>
+  ),
+  wallet: (
+    <>
+      <rect x="3" y="6.5" width="18" height="12" rx="2.5" />
+      <path d="M3 10.5h14a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H3" />
+      <circle cx="16.5" cy="13" r="0.9" fill="currentColor" stroke="none" />
     </>
   ),
 };

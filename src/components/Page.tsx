@@ -27,10 +27,10 @@ export function Page({
 /**
  * The one page-header pattern for the reading-column routes. Two shapes:
  *
- *   • detail page (Day / Journey / Hotel / Leg) — `back` + `eyebrow`
- *     (a date, a stay span, "Stay") + `title`
- *   • section page (Logbook / Manage) — `title` alone, optional `meta`, no
- *     `back`, no `eyebrow`: the tab bar already says where you are
+ *   • detail page (Day / Journey / Hotel / Leg / a Logbook section) — `back` +
+ *     `eyebrow` (a date, a stay span, "Stay") + `title`
+ *   • section page (the Logbook index / Manage) — `title` alone, optional
+ *     `meta`, no `back`, no `eyebrow`: the tab bar already says where you are
  *
  * `title` takes a node so a page can drop an <Editable> straight in. Two routes
  * deliberately don't use this: Plan (its "NOW" countdown block stands in for a

@@ -8,7 +8,8 @@ const Day = lazy(() => import("@/routes/Day"));
 const Leg = lazy(() => import("@/routes/Leg"));
 const Journey = lazy(() => import("@/routes/Journey"));
 const MapTab = lazy(() => import("@/routes/MapTab"));
-const Logbook = lazy(() => import("@/routes/Logbook"));
+const LogbookIndex = lazy(() => import("@/routes/Logbook").then((m) => ({ default: m.LogbookIndex })));
+const LogbookSection = lazy(() => import("@/routes/Logbook").then((m) => ({ default: m.LogbookSection })));
 const Hotel = lazy(() => import("@/routes/Hotel"));
 const Manage = lazy(() => import("@/routes/Manage"));
 const NotFound = lazy(() => import("@/routes/NotFound"));
@@ -23,7 +24,8 @@ export const router = createBrowserRouter([
       { path: "leg/:id", element: <Leg /> },
       { path: "journey/:id", element: <Journey /> },
       { path: "map", element: <MapTab /> },
-      { path: "logbook", element: <Logbook /> },
+      { path: "logbook", element: <LogbookIndex /> },
+      { path: "logbook/:section", element: <LogbookSection /> },
       { path: "hotel/:id", element: <Hotel /> },
       { path: "manage", element: <Manage /> },
       { path: "*", element: <NotFound /> },
