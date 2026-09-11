@@ -130,9 +130,14 @@ html.dark {
     @apply border-line;
   }
 
-  /* Editable value affordance */
+  /* Editable value affordance. Tailwind's own reset forces text-transform:
+     none on every button/select — invisible almost everywhere, but it breaks
+     an editable title inside an upper-cased Section header (Packing
+     categories, Documents, Luggage notes), which read in sentence case
+     instead of matching their all-caps siblings. Inherit it back. */
   .editable {
     @apply -mx-1 rounded px-1 transition-colors;
+    text-transform: inherit;
   }
   .editable:hover {
     background: rgb(var(--c-gold) / 0.1);
