@@ -964,7 +964,7 @@ export default function MapTab() {
                   <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: c.hex }} />
                   <span className="subhead min-w-0 flex-1 truncate">{c.name}</span>
                   <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{c.count}</span>
-                  <Icon name={cityShut ? "down" : "up"} size={13} className="shrink-0 text-ink-faint" />
+                  <Icon name="chevron" size={13} className={`shrink-0 text-ink-faint transition-transform ${cityShut ? "" : "rotate-90"}`} />
                 </button>
                 {!cityShut && (
                   <>
@@ -979,7 +979,7 @@ export default function MapTab() {
                             <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: a.tone }} />
                             <span className="eyebrow min-w-0 flex-1 truncate font-medium">{a.name}</span>
                             <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{a.items.length}</span>
-                            <Icon name={shut ? "down" : "up"} size={12} className="shrink-0 text-ink-faint" />
+                            <Icon name="chevron" size={12} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />
                           </button>
                           {!shut && <ul className="pl-8 pr-4">{a.items.map(renderRow)}</ul>}
                         </div>
@@ -1014,7 +1014,7 @@ export default function MapTab() {
                   <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: g.tone }} />
                   <span className="eyebrow min-w-0 flex-1 truncate font-medium">{g.name}</span>
                   <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{g.items.length}</span>
-                  <Icon name={shut ? "down" : "up"} size={12} className="shrink-0 text-ink-faint" />
+                  <Icon name="chevron" size={12} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />
                 </button>
                 {!shut && <ul className="px-4">{g.items.map(renderRow)}</ul>}
               </section>
@@ -1183,7 +1183,7 @@ function PlaceRow({
             <span className="meta block truncate">{[derived && "from area", metaBits].filter(Boolean).join(" · ")}</span>
           )}
         </span>
-        <Icon name={open ? "up" : "down"} size={13} className="shrink-0 text-ink-faint" />
+        <Icon name="chevron" size={13} className={`shrink-0 text-ink-faint transition-transform ${open ? "rotate-90" : ""}`} />
       </button>
 
       {open && (
@@ -1334,7 +1334,7 @@ function SuggestReview({
                   />
                   <button onClick={() => setExpanded(expanded === i ? null : i)} className="shrink-0 text-xs text-ink-soft hover:text-ink">
                     {plural(g.placeIds.length, "place")}
-                    <Icon name={expanded === i ? "up" : "down"} size={12} className="ml-1 inline align-[-1px]" />
+                    <Icon name="chevron" size={12} className={`ml-1 inline align-[-1px] transition-transform ${expanded === i ? "rotate-90" : ""}`} />
                   </button>
                 </div>
                 {expanded === i && (
