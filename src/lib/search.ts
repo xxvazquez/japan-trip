@@ -85,7 +85,7 @@ function build(d: TripData): SearchHit[] {
       kind: "luggage",
       label: n.title,
       sub: n.detail || undefined,
-      to: "/logbook?s=luggage",
+      to: "/logbook/luggage",
       terms: [n.title, n.detail].filter(Boolean).join(" ").toLowerCase(),
     });
   }
@@ -95,7 +95,7 @@ function build(d: TripData): SearchHit[] {
       chip: doc.kind === "contact" ? "Emergency" : undefined,
       label: doc.title,
       sub: doc.fields.map((f) => f.value).filter(Boolean).join(" · ") || undefined,
-      to: doc.kind === "contact" ? "/logbook?s=emergency" : "/logbook?s=documents",
+      to: doc.kind === "contact" ? "/logbook/emergency" : "/logbook/documents",
       terms: [doc.title, doc.note, ...doc.fields.flatMap((f) => [f.label, f.value])].filter(Boolean).join(" ").toLowerCase(),
     });
   }
@@ -104,7 +104,7 @@ function build(d: TripData): SearchHit[] {
       kind: "packing",
       label: item.label,
       sub: item.group || undefined,
-      to: "/logbook?s=packing",
+      to: "/logbook/packing",
       terms: [item.label, item.group].filter(Boolean).join(" ").toLowerCase(),
     });
   }
@@ -115,7 +115,7 @@ function build(d: TripData): SearchHit[] {
         chip: list.title,
         label: item.label || "Untitled",
         sub: item.note || undefined,
-        to: `/logbook?s=${list.id}`,
+        to: `/logbook/${list.id}`,
         terms: [item.label, item.note].filter(Boolean).join(" ").toLowerCase(),
       });
     }

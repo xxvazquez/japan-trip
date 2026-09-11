@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
+import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { IconTile } from "@/components/IconTile";
 import { TileRow } from "@/components/TileRow";
@@ -8,7 +9,6 @@ import { CheckCircle } from "@/components/CheckCircle";
 import { InfoNote } from "@/components/InfoNote";
 import { InsetRow } from "@/components/InsetRow";
 import { Empty } from "@/components/Empty";
-import { Tab } from "@/components/Tabs";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { SwipeToDelete } from "@/components/SwipeToDelete";
 import { ConfirmButton } from "@/components/ConfirmButton";
@@ -17,7 +17,8 @@ import { FieldList } from "@/components/FieldList";
 import { RichNote } from "@/components/RichNote";
 import { withInitials, assigneeTag } from "@/lib/people";
 import type { Person } from "@/core/types";
-import { Icon } from "@/components/Icon";
+import { Icon, type IconName } from "@/components/Icon";
+import type { MapGlyphId } from "@/lib/mapGlyphs";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { useAuth } from "@/lib/auth";
@@ -26,7 +27,7 @@ import { APP_NAME } from "@/lib/app";
 import { fmtDate, fmtSpan, plural } from "@/lib/dates";
 import { MODE_ICON } from "@/lib/transport";
 import { toneForSegmentMode } from "@/lib/tones";
-import { LOGBOOK_SECTIONS, logbookLabel } from "@/lib/logbook";
+import { LOGBOOK_SECTIONS, logbookLabel, type LogbookSection } from "@/lib/logbook";
 import { tripCost, fmtMoney } from "@/lib/cost";
 import { putFile, fileUrl, removeFile } from "@/lib/fileStore";
 import {
@@ -36,49 +37,102 @@ import type { CustomList, Doc, DocFile, LuggageNote, PackingItem } from "@/core/
 
 const rid = () => Math.random().toString(36).slice(2, 8);
 
-export default function Logbook() {
+/** "getting around" is the one built-in section key with a space — every
+ *  other key (and every custom list id) already reads fine as a URL segment. */
+const sectionSlug = (s: string) => (s === "getting around" ? "getting-around" : s);
+const sectionFromSlug = (s: string) => (s === "getting-around" ? "getting around" : s);
+
+const SECTION_TILE: Record<LogbookSection, { name?: IconName; glyph?: MapGlyphId }> = {
+  stays: { glyph: "hotel" },
+  "getting around": { name: "train" },
+  luggage: { glyph: "luggage" },
+  documents: { name: "vault" },
+  emergency: { name: "alert" },
+  packing: { name: "check" },
+  budget: { name: "wallet" },
+  notes: { name: "list" },
+};
+
+/** The Logbook home — a plain menu of its sections, each pushing to its own
+ *  page. Hidden built-ins (Manage → Logbook sections) and custom lists both
+ *  come straight from trip config, same as the old tab strip did. */
+export function LogbookIndex() {
   const data = useData();
-  const [params, setParams] = useSearchParams();
-  const section = params.get("s") ?? "stays";
-  const setSection = (s: string) => setParams({ s }, { replace: true });
   if (!data) return null;
 
   const hidden = data.config.hiddenLogbook ?? [];
   const lists = data.config.lists ?? [];
   const builtins = LOGBOOK_SECTIONS.filter((s) => !hidden.includes(s));
-  const tabs = [...builtins, ...lists.map((l) => l.id)];
-  const active = tabs.includes(section) ? section : "stays";
-  const activeList = lists.find((l) => l.id === active);
   const moduleLabel = data.config.modules.find((m) => m.kind === "logbook")?.label ?? "Logbook";
 
   return (
     <Page>
-      <PageHeader title={moduleLabel} className="mb-4" />
-
-      <div className="relative -mx-5 mb-8 sm:-mx-7">
-        <div className="flex gap-5 overflow-x-auto border-b border-line px-5 [mask-image:linear-gradient(to_right,transparent,#000_20px,#000_calc(100%-20px),transparent)] [scrollbar-width:none] sm:px-7 [&::-webkit-scrollbar]:hidden">
+      <PageHeader title={moduleLabel} className="mb-6" />
+      <Section>
+        <ul>
           {builtins.map((s) => (
-            <Tab key={s} label={logbookLabel(s)} active={active === s} onClick={() => setSection(s)} centerOnActive />
+            <TileRow
+              key={s}
+              to={`/logbook/${sectionSlug(s)}`}
+              tile={<IconTile size="sm" tone="ink-faint" {...SECTION_TILE[s]} />}
+              title={logbookLabel(s)}
+            />
           ))}
-          {lists.length > 0 && <span aria-hidden className="my-1.5 w-px shrink-0 self-stretch bg-line" />}
-          {lists.map((l) => (
-            <Tab key={l.id} label={l.title} active={active === l.id} onClick={() => setSection(l.id)} centerOnActive />
-          ))}
-        </div>
-      </div>
+        </ul>
+      </Section>
+      {lists.length > 0 && (
+        <Section title="Your lists" className="mt-6">
+          <ul>
+            {lists.map((l) => (
+              <TileRow
+                key={l.id}
+                to={`/logbook/${l.id}`}
+                tile={<IconTile size="sm" name="list" tone="ink-faint" />}
+                title={l.title}
+                meta={l.items.length ? plural(l.items.length, "item") : undefined}
+              />
+            ))}
+          </ul>
+        </Section>
+      )}
+    </Page>
+  );
+}
 
-      {activeList ? (
-        <ListSection list={activeList} />
+/** One Logbook section, pushed as its own page — a back bar + title, then the
+ *  same content the old in-page tab used to swap in. */
+export function LogbookSection() {
+  const data = useData();
+  const { section: raw } = useParams();
+  if (!data) return null;
+
+  const hidden = data.config.hiddenLogbook ?? [];
+  const lists = data.config.lists ?? [];
+  const key = sectionFromSlug(raw ?? "");
+  const builtin = (LOGBOOK_SECTIONS as readonly string[]).includes(key) && !hidden.includes(key as LogbookSection)
+    ? (key as LogbookSection)
+    : undefined;
+  const list = !builtin ? lists.find((l) => l.id === raw) : undefined;
+
+  if (!builtin && !list) {
+    return <Missing title="No such section" body="That part of the Logbook isn’t here." to="/logbook" cta="Back to Logbook" />;
+  }
+
+  return (
+    <Page>
+      <PageHeader back="/logbook" title={list ? list.title : logbookLabel(builtin!)} className="mb-6" />
+      {list ? (
+        <ListSection list={list} />
       ) : (
         <>
-          {active === "stays" && <Stays />}
-          {active === "getting around" && <GettingAround />}
-          {active === "luggage" && <Luggage />}
-          {active === "emergency" && <Emergency />}
-          {active === "documents" && <Documents />}
-          {active === "packing" && <Packing />}
-          {active === "budget" && <Expenses />}
-          {active === "notes" && <Notes />}
+          {builtin === "stays" && <Stays />}
+          {builtin === "getting around" && <GettingAround />}
+          {builtin === "luggage" && <Luggage />}
+          {builtin === "emergency" && <Emergency />}
+          {builtin === "documents" && <Documents />}
+          {builtin === "packing" && <Packing />}
+          {builtin === "budget" && <Expenses />}
+          {builtin === "notes" && <Notes />}
         </>
       )}
     </Page>

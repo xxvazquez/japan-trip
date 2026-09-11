@@ -36,7 +36,7 @@ share the trip with that email and it appears on their next reload.
 Open the link in Safari / Chrome → **Share → Add to Home Screen**. It then opens
 like a normal app, full screen. Do this on both phones.
 
-## The three tabs
+## Plan, Map, Logbook
 
 **Plan** — the trip as a list of days, grouped by where you're staying. Each day
 carries a tag — **Arrive**, **Travel**, **Depart**, **Day trip** — worked out
@@ -127,9 +127,10 @@ city or a spread-out road trip) and names each group after the neighbourhood it
 sits in. You review the groups — rename, untick, drop a place — and only the
 ones you keep become real areas. It never changes an area you already have.
 
-**Logbook** — the reference drawer. Tabs along the top: stays · getting around ·
-luggage · documents · emergency numbers · packing · expenses · a scratchpad, plus
-any lists you've added yourself. **Documents** is one card per document —
+**Logbook** — the reference drawer. A menu of sections, each its own page:
+stays · getting around · luggage · documents · emergency numbers · packing ·
+expenses · a scratchpad, plus any lists you've added yourself. **Documents** is
+one card per document —
 name it ("Travel insurance"), attach the PDF / photo, add whatever fields you
 want, add a note. Every card is renamable, removable, and you add more from
 the tab. Attachments stay only on the device they were added on (or, when
