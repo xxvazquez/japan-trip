@@ -40,6 +40,17 @@ export default function Leg() {
       <div className="mt-5 space-y-6">
         <Section>
           <ul>
+            {(leg.nameAlt || !ro) && (
+              <InsetRow label="Local name">
+                <Editable
+                  label="Local name"
+                  value={leg.nameAlt ?? ""}
+                  placeholder="Name in the local script"
+                  className="font-jp"
+                  onCommit={(v) => p({ nameAlt: v || undefined })}
+                />
+              </InsetRow>
+            )}
             <InsetRow label="Start">
               <Editable as="date" label="Start date" value={leg.start} onCommit={(v) => v && p({ start: v })} />
             </InsetRow>

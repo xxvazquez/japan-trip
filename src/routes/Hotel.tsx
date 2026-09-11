@@ -48,8 +48,8 @@ export default function Hotel() {
   const showRefSection = !ro || !!hotel.price || fields.length > 0;
   const savePin = () => { p({ mapUrl: pinDraft.trim() || undefined }); setPinEditing(false); };
   const openPin = () => { setPinDraft(hotel.mapUrl ?? ""); setPinEditing(true); };
-  const showAddress = !!(hotel.address || !ro);
-  const showArrival = showAddress || doorShown.length > 0;
+  const showAddress = !!(hotel.address || hotel.addressAlt || !ro);
+  const showArrival = showAddress || doorShown.length > 0 || !!hotel.nameAlt;
 
   return (
     <Page>
@@ -65,12 +65,28 @@ export default function Hotel() {
         {showArrival && (
           <Section>
             <ul>
+              {(hotel.nameAlt || !ro) && (
+                <InsetRow label="Local name">
+                  <Editable
+                    label="Local name"
+                    value={hotel.nameAlt ?? ""}
+                    placeholder="Name in the local script"
+                    className="font-jp"
+                    onCommit={(v) => p({ nameAlt: v || undefined })}
+                  />
+                </InsetRow>
+              )}
               {showAddress && (
                 <li className="relative px-3.5 py-2.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
                   <span className="mb-0.5 block text-[0.8125rem] text-ink-soft">Address</span>
                   <span className="block font-sans text-[0.8125rem] font-medium leading-snug text-ink">
                     <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined })} />
                   </span>
+                  {(hotel.addressAlt || !ro) && (
+                    <span className="mt-1 block font-jp text-[0.8125rem] leading-snug text-ink-soft">
+                      <Editable label="Local address" value={hotel.addressAlt ?? ""} placeholder="Local-script address, for taxis" onCommit={(v) => p({ addressAlt: v || undefined })} />
+                    </span>
+                  )}
                   {pinEditing ? (
                     <div className="mt-2.5 flex items-center gap-2">
                       <input
