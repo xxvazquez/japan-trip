@@ -1234,17 +1234,18 @@ function PlaceRow({
 
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm">
             {link && (
-              <a href={link} target="_blank" rel="noopener" className="font-medium text-accent">
-                Open in Google Maps
+              <a href={link} target="_blank" rel="noopener" className="action">
+                <Icon name="map" size={14} /> Open in Google Maps
               </a>
             )}
             {day ? (
-              <Link to={`/day/${day.id}`} className="link-quiet">
-                View day
+              <Link to={`/day/${day.id}`} className="link-quiet inline-flex items-center gap-1">
+                <Icon name="itinerary" size={14} /> View day
               </Link>
             ) : (
               !readOnly && (
-                <label className="text-ink-soft">
+                <label className="inline-flex items-center gap-1 text-ink-soft">
+                  <Icon name="plus" size={13} className="shrink-0" />
                   <span className="sr-only">Add to a day</span>
                   <select
                     defaultValue=""
@@ -1265,8 +1266,8 @@ function PlaceRow({
               )
             )}
             {!place.source && !readOnly && (
-              <ConfirmButton onConfirm={onRemove} label="Remove place" className="text-ink-faint hover:text-accent">
-                Remove
+              <ConfirmButton onConfirm={onRemove} label="Remove place" className="inline-flex items-center gap-1 text-ink-faint hover:text-accent">
+                <Icon name="trash" size={14} /> Remove
               </ConfirmButton>
             )}
           </div>
