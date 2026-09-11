@@ -268,6 +268,7 @@ function Luggage() {
         return (
           <Section
             key={n.id}
+            id={n.id}
             title={<Editable label="Title" value={n.title} placeholder="e.g. Coin lockers" onCommit={(v) => p({ title: v || "Untitled" })} />}
             action={!ro && cardDeleteBtn(() => removeEntity("luggage", n.id), "Delete note")}
           >
@@ -424,6 +425,7 @@ function Documents() {
       {docs.map((d) => (
         <Section
           key={d.id}
+          id={d.id}
           icon="vault"
           title={
             ro
@@ -625,6 +627,7 @@ function Packing() {
           return (
             <Section
               key={group}
+              id={group}
               title={ro ? group : (
                 <Editable label="Category" value={group} placeholder="Category" onCommit={(v) => renameGroup(group, v)} />
               )}
