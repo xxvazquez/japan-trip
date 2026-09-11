@@ -110,6 +110,11 @@ export default function Day() {
               <option value="">— none —</option>
               {data.hotels.map((h) => <option key={h.id} value={h.id}>{h.name || "Hotel"}</option>)}
             </select>
+            {hotel && (
+              <Link to={`/hotel/${hotel.id}`} aria-label={`Open ${hotel.name || "hotel"}`} className="shrink-0 text-ink-faint hover:text-accent">
+                <Icon name="chevron" size={15} />
+              </Link>
+            )}
           </div>
           <div className="flex items-baseline gap-3">
             <span className="eyebrow w-[5.5rem] shrink-0">Journey</span>
@@ -126,21 +131,12 @@ export default function Day() {
               {data.journeys.map((j) => <option key={j.id} value={j.id}>{j.label || "Journey"}</option>)}
               <option value="__new">＋ New journey…</option>
             </select>
+            {journey && (
+              <Link to={`/journey/${journey.id}`} aria-label={`Open ${journey.label || "journey"}`} className="shrink-0 text-ink-faint hover:text-accent">
+                <Icon name="chevron" size={15} />
+              </Link>
+            )}
           </div>
-          {(hotel || journey) && (
-            <div className="flex flex-wrap gap-2 pt-1">
-              {hotel && (
-                <Link to={`/hotel/${hotel.id}`} className="btn-sm">
-                  <Icon name="bed" size={14} className="text-ink-soft" /> {hotel.name}
-                </Link>
-              )}
-              {journey && (
-                <Link to={`/journey/${journey.id}`} className="btn-sm">
-                  <Icon name="train" size={14} className="text-ink-soft" /> {journey.label || "Journey"}
-                </Link>
-              )}
-            </div>
-          )}
         </div>
       )}
 
