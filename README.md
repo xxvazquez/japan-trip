@@ -400,11 +400,11 @@ Two source files at the repo root, both full-bleed squares, regenerated into
 everything under `public/icons` and `public/brand` with
 `python3 scripts/make_icons.py`:
 
-- `logo.png` — **opaque**, dark-teal background, no baked-in rounding. Drives
-  the static PWA icons + favicon, which need a solid backing (iOS in
-  particular forces a black one behind a transparent apple-touch-icon) and
-  get their own rounding from the OS, not the art. There's only one — not a
-  light/dark pair — since a manifest icon can't react to the OS theme anyway.
+- `logo.png` — **opaque**, dark-teal background (its own rounded-card shape
+  baked in — a deliberate trade-off, see below). Drives the static PWA icons +
+  favicon, which need a solid backing (iOS in particular forces a black one
+  behind a transparent apple-touch-icon). There's only one — not a light/dark
+  pair — since a manifest icon can't react to the OS theme anyway.
 - `logo-mark.png` — **transparent**, the glyph only, no background at all.
   Drives the in-app themed marks (`Wordmark`, sign-in/offline/error screens),
   which already sit inside the app's own rounded, coloured container — a
@@ -417,6 +417,14 @@ filenames (`logo-{size}-dark/light.png`) currently render from that one file.
 Swap in a genuinely different per-theme pair later if the mark ever needs one
 and each will pick up its own split automatically (`useIsDark()`,
 `src/lib/mode.ts`).
+
+`logo.png` and `logo-mark.png` come from two separate renders (a light-bg one
+and a dark-bg one), not the same art with the background swapped — pulling a
+clean background-less cutout out of the dark one wasn't reliable (its
+background gradient overlaps the beetle's own dark shading too closely), so
+`logo-mark.png` still comes from the light render. The two are close enough in
+style that this doesn't show in practice, but if a from-scratch redo of either
+ever happens, keep both renders from the same generation so they truly match.
 `logo-wordmark.png` / `logo-wordmark-light.png` are reference art with the
 "ZUKNESST ATLAS" wordmark baked in — not consumed anywhere yet, kept for a
 future banner/share-image use. Per-trip logos and covers are uploaded in the
