@@ -31,7 +31,7 @@ export interface Money {
  *  used — so a bare "100" on a PLN trip is simply 100 PLN. */
 export function parseMoney(s: string, fallbackCurrency = ""): Money | null {
   const trimmed = s.trim();
-  const numMatch = trimmed.match(/\d[\d,]*\.?\d*/);
+  const numMatch = trimmed.match(/-?\d[\d,]*\.?\d*/);
   if (!numMatch) return null;
   const amount = Number(numMatch[0].replace(/,/g, ""));
   if (!Number.isFinite(amount)) return null;
