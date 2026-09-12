@@ -47,9 +47,11 @@ export function TabBarOrRail() {
             </li>
           );
         })}
-        {/* Manage — a peer tab everywhere now; parked at the foot of the list
-            on the desktop rail, just the fourth item on the mobile bar */}
-        <li className="md:mt-auto">
+        {/* Manage — parked at the foot of the desktop rail, where it's had a
+            spare slot all along; on mobile a 4-item bar it competes with the
+            actual sections, so it lives as a header gear icon instead (see
+            AppShell) — the rail has room, the bar doesn't. */}
+        <li className="hidden md:mt-auto md:block">
           <NavLink to="/manage" aria-label="Manage" className="group flex">
             {({ isActive }) => cell(isActive, "Manage", "settings")}
           </NavLink>

@@ -76,6 +76,13 @@ export function AppShell() {
               <Icon name="search" size={19} />
             </button>
             <ThemeToggle />
+            <Link
+              to="/manage"
+              className="grid h-9 w-9 place-items-center transition-colors hover:text-accent md:hidden"
+              aria-label="Manage trips & settings"
+            >
+              <Icon name="settings" size={19} />
+            </Link>
           </div>
         </div>
       </header>
