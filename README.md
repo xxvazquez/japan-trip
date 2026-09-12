@@ -400,8 +400,8 @@ Two source files at the repo root, both full-bleed squares, regenerated into
 everything under `public/icons` and `public/brand` with
 `python3 scripts/make_icons.py`:
 
-- `logo.png` — **opaque**, dark-teal background (its own rounded-card shape
-  baked in — a deliberate trade-off, see below). Drives only the two icon
+- `logo.png` — **opaque**, one flat dark-teal background (see below — the raw
+  render's own background isn't actually flat). Drives only the two icon
   outputs that genuinely need a solid background: `apple-touch-icon.png`
   (iOS forces an ugly black one behind a transparent touch icon) and
   `icon-maskable-512.png` (the OS crops it to its own shape but never adds a
@@ -423,6 +423,17 @@ filenames (`logo-{size}-dark/light.png`) currently render from that one file.
 Swap in a genuinely different per-theme pair later if the mark ever needs one
 and each will pick up its own split automatically (`useIsDark()`,
 `src/lib/mode.ts`).
+
+The raw dark render `logo.png` comes from has a rounded, lighter "card" sitting
+on a visibly darker square — a vignette baked in by whatever generated it, not
+a flat colour. Left as-is, that reads as a second background layer behind the
+real one. Rather than a hard cutout (unreliable on this file — its background
+gradient overlaps the beetle's own dark shading too closely for a clean
+separation), `logo.png` is background-corrected: fit a smooth low-order
+surface to the border area only, then blend every pixel toward one flat tone
+in proportion to how well it matches that fitted surface — the beetle's own
+sharper, higher-contrast shading doesn't fit the smooth model and survives
+untouched, only the slow vignette gets ironed out.
 
 `logo.png` and `logo-mark.png` come from two separate renders (a light-bg one
 and a dark-bg one), not the same art with the background swapped — pulling a
