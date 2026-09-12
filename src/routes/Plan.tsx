@@ -17,6 +17,7 @@ import {
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Page } from "@/components/Page";
+import { Section } from "@/components/Section";
 import { Empty } from "@/components/Empty";
 import { Icon, type IconName } from "@/components/Icon";
 import { useData } from "@/lib/data";
@@ -245,7 +246,7 @@ function LegBlock({
     .map((id) => days.days.find((d) => d.id === id))
     .filter(Boolean)
     .map((d) => (
-      <DayRow key={d!.id} data={days} day={d!} today={d!.date === todayISO} loc={loc} readOnly={readOnly} />
+      <DayRow key={d!.id} data={days} day={d!} today={d!.date === todayISO} loc={loc} readOnly={readOnly} hex={hex} />
     ));
 
   return (
@@ -259,16 +260,16 @@ function LegBlock({
         {fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – {fmtDate(leg.end, loc, { day: "numeric", month: "short" })} · {plural(nights, "night")}
       </p>
 
-      <ul
-        ref={setNodeRef}
-        className={`ml-1.5 border-l-2 pl-3.5 transition-colors ${isOver && !readOnly ? "bg-surface-2/60" : ""}`}
-        style={{ borderColor: hex }}
-      >
-        <SortableContext items={dayIds} strategy={verticalListSortingStrategy} disabled={readOnly}>
-          {rows}
-          {dayIds.length === 0 && <li className="meta py-3">{readOnly ? "No days in this stay yet." : "Drop a day here."}</li>}
-        </SortableContext>
-      </ul>
+      <Section>
+        <ul ref={setNodeRef} className={`transition-colors ${isOver && !readOnly ? "bg-surface-2/60" : ""}`}>
+          <SortableContext items={dayIds} strategy={verticalListSortingStrategy} disabled={readOnly}>
+            {rows}
+            {dayIds.length === 0 && (
+              <li className="meta px-3.5 py-3">{readOnly ? "No days in this stay yet." : "Drop a day here."}</li>
+            )}
+          </SortableContext>
+        </ul>
+      </Section>
     </section>
   );
 }
@@ -297,7 +298,7 @@ function DayKindTag({ day, data }: { day: Day; data: TripData }) {
 /** The little block that rides under the cursor while dragging a day. */
 function DayCard({ day, loc, data }: { day: Day; loc: string; data: TripData }) {
   return (
-    <div className="flex items-center gap-3 border border-line bg-bg px-3 py-3 text-sm shadow-md">
+    <div className="flex items-center gap-3 rounded-[12px] border border-line bg-surface px-3.5 py-3 text-sm shadow-md">
       <span className="text-ink-faint"><Icon name="grip" size={14} /></span>
       <DayDate date={day.date} loc={loc} />
       <span className="min-w-0 flex-1 truncate font-medium text-ink">{day.title || "Untitled day"}</span>
@@ -306,26 +307,38 @@ function DayCard({ day, loc, data }: { day: Day; loc: string; data: TripData }) 
   );
 }
 
-function DayRow({ data, day, today, loc, readOnly }: { data: TripData; day: Day; today: boolean; loc: string; readOnly: boolean }) {
+/** Own hairline, inset past the leading dot + date (not the drag handle,
+ *  which sits outside the link) — dropped on the last row, like every other
+ *  grouped-inset list. */
+const DAY_ROW_LI =
+  "relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden";
+
+function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day: Day; today: boolean; loc: string; readOnly: boolean; hex: string }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: day.id, disabled: readOnly });
   return (
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`relative flex items-center border-b border-line bg-bg last:border-b-0 ${isDragging ? "z-10 opacity-70 shadow-sm" : ""}`}
+      className={`${DAY_ROW_LI} flex items-center ${isDragging ? "z-10 bg-surface opacity-70 shadow-sm" : ""}`}
     >
       {!readOnly && (
         <button
           {...attributes}
           {...listeners}
-          className="-ml-1 shrink-0 cursor-grab touch-none px-1.5 py-3.5 text-ink-faint active:cursor-grabbing"
+          className="shrink-0 cursor-grab touch-none py-2.5 pl-2.5 pr-0.5 text-ink-faint active:cursor-grabbing"
           aria-label="Drag to reorder"
         >
           <Icon name="grip" size={14} />
         </button>
       )}
-      <Link to={`/day/${day.id}`} className={`group flex min-w-0 flex-1 items-baseline gap-3 py-3 pr-1 ${readOnly ? "pl-1" : ""}`}>
-        <DayDate date={day.date} loc={loc} strong={today} />
+      <Link
+        to={`/day/${day.id}`}
+        className={`group flex min-w-0 flex-1 items-center gap-3 py-2.5 pr-3.5 ${readOnly ? "pl-3.5" : "pl-1"}`}
+      >
+        <span className="flex shrink-0 items-center gap-1.5">
+          <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: hex }} />
+          <DayDate date={day.date} loc={loc} strong={today} />
+        </span>
         {/* title + its tags travel together — the kind tag stays next to the
             day it belongs to instead of drifting to the far edge on wide rows */}
         <span className="flex min-w-0 flex-1 items-baseline gap-2.5">
@@ -335,6 +348,7 @@ function DayRow({ data, day, today, loc, readOnly }: { data: TripData; day: Day;
           {today && <span className="eyebrow shrink-0 text-ink">Today</span>}
           <DayKindTag day={day} data={data} />
         </span>
+        <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
       </Link>
     </li>
   );
