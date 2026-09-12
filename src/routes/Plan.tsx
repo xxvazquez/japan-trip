@@ -339,15 +339,11 @@ function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day:
           <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: hex }} />
           <DayDate date={day.date} loc={loc} strong={today} />
         </span>
-        {/* title + its tags travel together — the kind tag stays next to the
-            day it belongs to instead of drifting to the far edge on wide rows */}
-        <span className="flex min-w-0 flex-1 items-baseline gap-2.5">
-          <span className={`min-w-0 truncate ${day.title ? "font-medium text-ink" : "font-normal text-ink-faint"} group-hover:underline`}>
-            {day.title || "Untitled day"}
-          </span>
-          {today && <span className="eyebrow shrink-0 text-ink">Today</span>}
-          <DayKindTag day={day} data={data} />
+        <span className={`min-w-0 flex-1 truncate ${day.title ? "font-medium text-ink" : "font-normal text-ink-faint"} group-hover:underline`}>
+          {day.title || "Untitled day"}
         </span>
+        {today && <span className="eyebrow shrink-0 text-ink">Today</span>}
+        <DayKindTag day={day} data={data} />
         <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
       </Link>
     </li>
