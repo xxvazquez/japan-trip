@@ -12,6 +12,22 @@ import "./styles/index.css";
 
 void initApp();
 
+// Every deploy's service worker calls skipWaiting()+clientsClaim() (see
+// vite.config.ts), so a new version takes over an already-open tab as soon as
+// the browser notices it — but the tab's own JS keeps running the old bundle
+// until it reloads. Without this, a phone PWA left open across a multi-day
+// trip can sit on days-old code indefinitely (silently missing any fix,
+// including this one). `pagehide`/`visibilitychange` already flush any
+// pending edit before a reload (see useApp.ts), so nothing in flight is lost.
+if ("serviceWorker" in navigator) {
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (refreshing) return;
+    refreshing = true;
+    window.location.reload();
+  });
+}
+
 function ThemeVars() {
   const [mode] = useMode();
   const theme = useApp((s) => s.data?.config.theme);

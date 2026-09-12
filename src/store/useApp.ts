@@ -100,6 +100,13 @@ function hasPendingFor(id: string) {
   return queue.some((op) => (op.t === "row" || op.t === "del") && op.id === id);
 }
 
+/** does the local client have an unsaved change to the trip row itself
+ *  (config/meta/media/scratch)? Only one trip is ever active, so — unlike
+ *  `hasPendingFor` — there's no id to match against. */
+function hasPendingFields() {
+  return queue.some((op) => op.t === "fields");
+}
+
 /* ---- outbox: the pending queue mirrored to disk, so a reload or a killed
    tab can't lose an edit that hadn't reached Supabase yet. Signed-in only —
    the local backend already writes the whole trip on every change. ---- */
@@ -300,6 +307,7 @@ async function flush(get: () => AppStore) {
       f.name = data.meta.title || data.config.branding;
       f.subtitle = data.meta.start && data.meta.end ? rangeText(data.meta.start, data.meta.end, data.config.locale) : null;
     }
+    markWritten([activeId]); // the trip row's own id — see realtime.ts's `trips` subscription
     tasks.push(run(be.saveTripFields(activeId, f), { t: "fields", keys: [...fieldKeys] }));
   }
   await Promise.all(tasks);
@@ -358,7 +366,7 @@ async function resyncTrip(get: () => AppStore, tripId: string) {
 
 export const useApp = create<AppStore>((set, get) => {
   const listen = (id: string) =>
-    subscribeTrip(id, () => get().applyRemote, hasPendingFor, () => void resyncTrip(get, id));
+    subscribeTrip(id, () => get().applyRemote, hasPendingFor, () => void resyncTrip(get, id), hasPendingFields);
 
   const local = (fn: (d: TripData) => void): TripData | null => {
     const cur = get().data;

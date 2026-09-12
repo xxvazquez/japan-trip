@@ -24,6 +24,10 @@ export function subscribeTrip(
    *  to — either way, events were missed or arrived out of order, so the
    *  caller should re-pull the whole trip. */
   onResync?: () => void,
+  /** does the local client have an unsaved change to the trip row itself
+   *  (config/meta/media/scratch) — the `trips` table's equivalent of
+   *  `hasPendingFor` for an entity row. */
+  hasPendingFields?: () => boolean,
 ) {
   unsubscribeTrip();
   // an area/journey and its members are written as separate ops with no
@@ -50,6 +54,18 @@ export function subscribeTrip(
         },
       );
     }
+    // the trip row itself (config/meta/media/scratch — currencies, dates,
+    // theme, the Scratchpad, module toggles…) isn't `trip_id`-scoped like the
+    // entity tables above, it's addressed by its own id, and it patches the
+    // trip in place rather than splicing an entity list
+    ch.on(
+      "postgres_changes",
+      { event: "UPDATE", schema: "public", table: "trips", filter: `id=eq.${tripId}` },
+      (payload: { new: Record<string, unknown> }) => {
+        if (justWrote.has(tripId) || hasPendingFields?.()) return;
+        getApply()((d) => { spliceTripRow(d, payload.new); });
+      },
+    );
     let established = false;
     ch.subscribe((status) => {
       if (status !== "SUBSCRIBED") return;
@@ -58,6 +74,15 @@ export function subscribeTrip(
     });
     channel = ch;
   });
+}
+
+/** Applies an inbound `trips` row update — the trip-level singletons, not an
+ *  entity. Only patches the fields actually present in the payload. */
+function spliceTripRow(d: TripData, row: Record<string, unknown>) {
+  if ("config" in row) d.config = row.config as TripData["config"];
+  if ("meta" in row) d.meta = row.meta as TripData["meta"];
+  if ("media" in row) d.media = row.media as TripData["media"];
+  if ("scratch" in row) d.scratch = (row.scratch as string) || undefined;
 }
 
 export function unsubscribeTrip() {
