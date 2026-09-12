@@ -6,7 +6,7 @@ import { subscribeTrip, unsubscribeTrip, markWritten } from "@/lib/realtime";
 import { store as kv } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/app";
 import { normalizeTrip } from "@/lib/hydrate";
-import { addDays, rangeText, shiftDate } from "@/lib/dates";
+import { rangeText, shiftDate } from "@/lib/dates";
 import type { Day, EntityType, MediaItem, TripData, TripSummary } from "@/core/types";
 
 const now = () => new Date().toISOString();
@@ -629,12 +629,14 @@ export const useApp = create<AppStore>((set, get) => {
           }
         });
 
-        // a stay now spans from its first day to the morning after its last
+        // a stay now spans from its first day to its last (leg.end is that
+        // day's own date, same convention templates/Manage seed it with —
+        // not the morning after, which silently added a night on every reorder)
         for (const leg of d.legs) {
           const mine = flat.filter((f) => f.legId === leg.id).map((f) => f.day.date).sort();
           if (mine.length === 0) continue;
           const start = mine[0];
-          const end = addDays(mine[mine.length - 1], 1);
+          const end = mine[mine.length - 1];
           if (leg.start !== start || leg.end !== end) { leg.start = start; leg.end = end; legsMoved = true; }
         }
 
