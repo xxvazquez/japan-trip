@@ -119,7 +119,7 @@ export default function Day() {
               value={day.hotelId ?? ""}
               onChange={(e) => patch({ hotelId: e.target.value || undefined })}
               aria-label="Which hotel you're staying at"
-              className="min-w-0 flex-1 cursor-pointer bg-transparent text-sm focus:outline-none"
+              className="min-w-0 flex-1 cursor-pointer bg-transparent text-right text-sm focus:outline-none"
             >
               <option value="">— none —</option>
               {data.hotels.map((h) => <option key={h.id} value={h.id}>{h.name || "Hotel"}</option>)}
@@ -139,7 +139,7 @@ export default function Day() {
                 else patch({ journeyId: e.target.value || undefined });
               }}
               aria-label="A journey on this day"
-              className="min-w-0 flex-1 cursor-pointer bg-transparent text-sm focus:outline-none"
+              className="min-w-0 flex-1 cursor-pointer bg-transparent text-right text-sm focus:outline-none"
             >
               <option value="">None</option>
               {data.journeys.map((j) => <option key={j.id} value={j.id}>{j.label || "Journey"}</option>)}
