@@ -192,7 +192,8 @@ Every account has a read-only **Demo** trip — a made-up example with notes
 explaining how each screen works. You can't edit it; it's just there to look at.
 Delete it whenever from Manage → Trips (and re-add it from the same place).
 
-**Manage** (its own tab) is only for bigger structural changes — adding or
+**Manage** (the gear icon, top right — or its own spot at the foot of the
+sidebar on a wider screen) is only for bigger structural changes — adding or
 removing days, changing trip dates, theme, sharing.
 
 ## Offline
