@@ -402,6 +402,11 @@ full-bleed square marks, no padding. Regenerate everything under
 PWA icons are static (a manifest can't react to the OS theme) so they use the
 dark mark; in-app marks (`Wordmark`, sign-in/offline/error screens) switch
 between the dark/light PNGs at runtime via `useIsDark()` (`src/lib/mode.ts`).
+The current mark (a beetle carrying a topographic map) is a fixed illustrated
+badge, not a colour-field that needs to invert with the theme, so `logo.png`
+and `logo-light.png` are currently identical on purpose — swap in a real
+dark-background render later if one shows up and it'll pick up the split
+automatically.
 `logo-wordmark.png` / `logo-wordmark-light.png` are reference art with the
 "ZUKNESST ATLAS" wordmark baked in — not consumed anywhere yet, kept for a
 future banner/share-image use. Per-trip logos and covers are uploaded in the
