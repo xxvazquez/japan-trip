@@ -401,14 +401,20 @@ everything under `public/icons` and `public/brand` with
 `python3 scripts/make_icons.py`:
 
 - `logo.png` — **opaque**, dark-teal background (its own rounded-card shape
-  baked in — a deliberate trade-off, see below). Drives the static PWA icons +
-  favicon, which need a solid backing (iOS in particular forces a black one
-  behind a transparent apple-touch-icon). There's only one — not a light/dark
+  baked in — a deliberate trade-off, see below). Drives only the two icon
+  outputs that genuinely need a solid background: `apple-touch-icon.png`
+  (iOS forces an ugly black one behind a transparent touch icon) and
+  `icon-maskable-512.png` (the OS crops it to its own shape but never adds a
+  backing, so a transparent one shows through as holes — that's what
+  "maskable" means in the manifest spec). There's only one — not a light/dark
   pair — since a manifest icon can't react to the OS theme anyway.
 - `logo-mark.png` — **transparent**, the glyph only, no background at all.
-  Drives the in-app themed marks (`Wordmark`, sign-in/offline/error screens),
-  which already sit inside the app's own rounded, coloured container — a
-  baked-in background there doubled up one rounded shape inside another.
+  Drives everything that can safely stay transparent: `favicon.png`, the
+  `"any"`-purpose PWA icons (`icon-192.png` / `icon-512.png` — a browser tab
+  or a launcher just shows whatever's behind them) and the in-app themed marks
+  (`Wordmark`, sign-in/offline/error screens), which already sit inside the
+  app's own rounded, coloured container — a baked-in background there doubled
+  up one rounded shape inside another.
 
 The current mark (a beetle carrying a topographic map) doesn't need a
 different in-app rendering per theme — being background-less, `logo-mark.png`
