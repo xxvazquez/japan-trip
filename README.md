@@ -174,9 +174,12 @@ away, done. There's no separate "edit mode". Dates and times open a picker; once
 a link, phone or email is filled in it turns into the real clickable thing, with
 a small pencil on the right of the row to edit it.
 
-When you're signed in, a small dot next to the header search icon shows edits
-saving (grey), saved (green, briefly), or held for later if you're offline
-(amber). On-device-only trips save instantly and show nothing.
+When you're signed in, a small label next to the header search icon shows
+what's happening: **Saving…** (grey, while it's in flight), **Saved** (green,
+flashes briefly once it lands), or **Offline** (amber, stays up for as long as
+you're disconnected — edits keep queuing and send the moment you're back).
+On-device-only trips save instantly and show nothing — there's nothing to be
+behind on.
 
 **Notes** fields (a day's General notes, a stay, a journey, and the Logbook's Scratchpad) take
 light Markdown — `**bold**`, `*italic*`, `-` bullet lists, `>` quotes, headings
@@ -189,8 +192,8 @@ Every account has a read-only **Demo** trip — a made-up example with notes
 explaining how each screen works. You can't edit it; it's just there to look at.
 Delete it whenever from Manage → Trips (and re-add it from the same place).
 
-**Manage** (the gear icon, top right) is only for bigger structural changes —
-adding or removing days, changing trip dates, theme, sharing.
+**Manage** (its own tab) is only for bigger structural changes — adding or
+removing days, changing trip dates, theme, sharing.
 
 ## Offline
 
@@ -214,7 +217,8 @@ Try again.
 ## If something looks out of date
 
 After an update the app can briefly show an old version. Close the tab (or the
-installed app) fully and reopen it, or pull down to refresh. It'll catch up.
+installed app) fully and reopen it, or pull down from the top of any page to
+re-pull the trip. It'll catch up.
 
 ---
 

@@ -3,6 +3,7 @@ import { Outlet, Link, useNavigate } from "react-router-dom";
 import { TabBarOrRail } from "./TabBarOrRail";
 import { ThemeToggle } from "./ThemeToggle";
 import { SyncStatus } from "./SyncStatus";
+import { PullToRefresh } from "./PullToRefresh";
 import { SearchOverlay } from "./SearchOverlay";
 import { Loader } from "./Loader";
 import { Icon } from "./Icon";
@@ -87,6 +88,7 @@ export function AppShell() {
       )}
 
       <main className="min-h-[calc(100svh-3.5rem)]">
+        <PullToRefresh />
         <Suspense fallback={<Loader />}>
           <Outlet />
         </Suspense>
