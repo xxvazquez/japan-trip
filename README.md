@@ -396,25 +396,26 @@ spinner meanwhile.
 
 ## Branding
 
-Three source files at the repo root, all full-bleed squares, regenerated into
+Two source files at the repo root, both full-bleed squares, regenerated into
 everything under `public/icons` and `public/brand` with
 `python3 scripts/make_icons.py`:
 
-- `logo.png` (dark) / `logo-light.png` (light) — **opaque**, flat background,
-  no baked-in rounding. Drive the static PWA icons + favicon, which need a
-  solid backing (iOS in particular forces a black one behind a transparent
-  apple-touch-icon) and get their own rounding from the OS, not the art.
+- `logo.png` — **opaque**, dark-teal background, no baked-in rounding. Drives
+  the static PWA icons + favicon, which need a solid backing (iOS in
+  particular forces a black one behind a transparent apple-touch-icon) and
+  get their own rounding from the OS, not the art. There's only one — not a
+  light/dark pair — since a manifest icon can't react to the OS theme anyway.
 - `logo-mark.png` — **transparent**, the glyph only, no background at all.
   Drives the in-app themed marks (`Wordmark`, sign-in/offline/error screens),
   which already sit inside the app's own rounded, coloured container — a
   baked-in background there doubled up one rounded shape inside another.
 
-The current mark (a beetle carrying a topographic map) is a fixed illustrated
-badge, not a colour-field that needs to invert with the theme, so `logo.png`
-and `logo-light.png` are currently identical, and both in-app filenames
-(`logo-{size}-dark/light.png`) currently render from the one transparent
-`logo-mark.png` — swap in real per-theme renders later if they show up and
-each will pick up its own split automatically (`useIsDark()`,
+The current mark (a beetle carrying a topographic map) doesn't need a
+different in-app rendering per theme — being background-less, `logo-mark.png`
+already reads fine on both a light and a dark surface — so both in-app
+filenames (`logo-{size}-dark/light.png`) currently render from that one file.
+Swap in a genuinely different per-theme pair later if the mark ever needs one
+and each will pick up its own split automatically (`useIsDark()`,
 `src/lib/mode.ts`).
 `logo-wordmark.png` / `logo-wordmark-light.png` are reference art with the
 "ZUKNESST ATLAS" wordmark baked in — not consumed anywhere yet, kept for a
