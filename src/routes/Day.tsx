@@ -15,6 +15,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
+import { InsetRow } from "@/components/InsetRow";
 import { Editable } from "@/components/Editable";
 import { MoneyField } from "@/components/MoneyField";
 import { RichNote } from "@/components/RichNote";
@@ -112,46 +113,50 @@ export default function Day() {
           </div>
         )
       ) : (
-        <div className="-mt-4 mb-8 space-y-2">
-          <div className="flex items-baseline gap-3">
-            <span className="eyebrow w-[5.5rem] shrink-0">Staying at</span>
-            <select
-              value={day.hotelId ?? ""}
-              onChange={(e) => patch({ hotelId: e.target.value || undefined })}
-              aria-label="Which hotel you're staying at"
-              className="min-w-0 flex-1 cursor-pointer bg-transparent text-right text-sm focus:outline-none"
-            >
-              <option value="">— none —</option>
-              {data.hotels.map((h) => <option key={h.id} value={h.id}>{h.name || "Hotel"}</option>)}
-            </select>
-            {hotel && (
-              <Link to={`/hotel/${hotel.id}`} aria-label={`Open ${hotel.name || "hotel"}`} className="shrink-0 text-ink-faint hover:text-accent">
-                <Icon name="chevron" size={15} />
-              </Link>
-            )}
-          </div>
-          <div className="flex items-baseline gap-3">
-            <span className="eyebrow w-[5.5rem] shrink-0">Journey</span>
-            <select
-              value={day.journeyId ?? ""}
-              onChange={(e) => {
-                if (e.target.value === "__new") newJourney();
-                else patch({ journeyId: e.target.value || undefined });
-              }}
-              aria-label="A journey on this day"
-              className="min-w-0 flex-1 cursor-pointer bg-transparent text-right text-sm focus:outline-none"
-            >
-              <option value="">None</option>
-              {data.journeys.map((j) => <option key={j.id} value={j.id}>{j.label || "Journey"}</option>)}
-              <option value="__new">＋ New journey…</option>
-            </select>
-            {journey && (
-              <Link to={`/journey/${journey.id}`} aria-label={`Open ${journey.label || "journey"}`} className="shrink-0 text-ink-faint hover:text-accent">
-                <Icon name="chevron" size={15} />
-              </Link>
-            )}
-          </div>
-        </div>
+        <Section className="-mt-4 mb-8">
+          <ul>
+            <InsetRow label="Staying at">
+              <span className="flex items-center justify-end gap-1">
+                <select
+                  value={day.hotelId ?? ""}
+                  onChange={(e) => patch({ hotelId: e.target.value || undefined })}
+                  aria-label="Which hotel you're staying at"
+                  className="min-w-0 max-w-full cursor-pointer bg-transparent text-right font-sans text-[0.8125rem] font-medium focus:outline-none"
+                >
+                  <option value="">— none —</option>
+                  {data.hotels.map((h) => <option key={h.id} value={h.id}>{h.name || "Hotel"}</option>)}
+                </select>
+                {hotel && (
+                  <Link to={`/hotel/${hotel.id}`} aria-label={`Open ${hotel.name || "hotel"}`} className="shrink-0 text-ink-faint hover:text-accent">
+                    <Icon name="chevron" size={14} />
+                  </Link>
+                )}
+              </span>
+            </InsetRow>
+            <InsetRow label="Journey">
+              <span className="flex items-center justify-end gap-1">
+                <select
+                  value={day.journeyId ?? ""}
+                  onChange={(e) => {
+                    if (e.target.value === "__new") newJourney();
+                    else patch({ journeyId: e.target.value || undefined });
+                  }}
+                  aria-label="A journey on this day"
+                  className="min-w-0 max-w-full cursor-pointer bg-transparent text-right font-sans text-[0.8125rem] font-medium focus:outline-none"
+                >
+                  <option value="">None</option>
+                  {data.journeys.map((j) => <option key={j.id} value={j.id}>{j.label || "Journey"}</option>)}
+                  <option value="__new">＋ New journey…</option>
+                </select>
+                {journey && (
+                  <Link to={`/journey/${journey.id}`} aria-label={`Open ${journey.label || "journey"}`} className="shrink-0 text-ink-faint hover:text-accent">
+                    <Icon name="chevron" size={14} />
+                  </Link>
+                )}
+              </span>
+            </InsetRow>
+          </ul>
+        </Section>
       )}
 
       <div className="space-y-6">
