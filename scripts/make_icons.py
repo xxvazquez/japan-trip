@@ -1,11 +1,18 @@
-"""Regenerate all brand assets from logo.png / logo-light.png.  Run:
+"""Regenerate all brand assets. Run:
     python3 scripts/make_icons.py
 
-Source of truth: logo.png (dark) and logo-light.png (light) in the repo root —
-both full-bleed square marks with no transparent margin. Everything under
-public/icons, public/brand and public/favicon.png is derived from them; edit
-the sources, re-run. logo-wordmark(.png|-light.png) are reference art only
-(not consumed here — nothing in the app currently shows a baked-in wordmark).
+Two source pairs at the repo root, both full-bleed squares:
+  - logo.png (dark) / logo-light.png (light) — OPAQUE, no transparent margin.
+    Drive the static PWA icons + favicon, which need a solid background (iOS
+    in particular forces a black one behind a transparent apple-touch-icon).
+  - logo-mark.png — TRANSPARENT (the glyph only, no background baked in).
+    Drives the in-app themed marks (Wordmark, sign-in/offline/error screens),
+    which already sit inside the app's own rounded, coloured container —
+    baking in a second background there doubles up one shape inside another.
+Everything under public/icons, public/brand and public/favicon.png is derived
+from these; edit the sources, re-run. logo-wordmark(.png|-light.png) are
+reference art only (not consumed here — nothing in the app currently shows a
+baked-in wordmark).
 """
 import os
 from PIL import Image
@@ -18,6 +25,7 @@ os.makedirs(BRAND, exist_ok=True)
 
 dark = Image.open(os.path.join(ROOT, "logo.png")).convert("RGB")
 light = Image.open(os.path.join(ROOT, "logo-light.png")).convert("RGB")
+mark = Image.open(os.path.join(ROOT, "logo-mark.png")).convert("RGBA")
 
 
 def resize(im, size):
@@ -38,11 +46,12 @@ inner = resize(dark, 410)
 canvas.paste(inner, ((512 - 410) // 2, (512 - 410) // 2))
 canvas.save(os.path.join(ICONS, "icon-maskable-512.png"))
 
-# In-app marks: theme-reactive (see src/lib/mode.ts's useIsDark), so both
-# variants are kept, at the two sizes callers use (Wordmark ~128, full-screen
-# states like SignIn/Offline/RouteError ~256).
+# In-app marks: theme-reactive (see src/lib/mode.ts's useIsDark) — both
+# filenames are kept for that switch, but currently share one transparent
+# source (see the module docstring above), at the two sizes callers use
+# (Wordmark ~128, full-screen states like SignIn/Offline/RouteError ~256).
 for size in (128, 256):
-    resize(dark, size).save(os.path.join(BRAND, f"logo-{size}-dark.png"))
-    resize(light, size).save(os.path.join(BRAND, f"logo-{size}-light.png"))
+    resize(mark, size).save(os.path.join(BRAND, f"logo-{size}-dark.png"))
+    resize(mark, size).save(os.path.join(BRAND, f"logo-{size}-light.png"))
 
-print("brand assets written from logo.png / logo-light.png")
+print("brand assets written from logo.png / logo-light.png / logo-mark.png")

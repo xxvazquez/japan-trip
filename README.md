@@ -396,17 +396,26 @@ spinner meanwhile.
 
 ## Branding
 
-`logo.png` (dark) / `logo-light.png` at the repo root are the source — both
-full-bleed square marks, no padding. Regenerate everything under
-`public/icons` and `public/brand` with `python3 scripts/make_icons.py`.
-PWA icons are static (a manifest can't react to the OS theme) so they use the
-dark mark; in-app marks (`Wordmark`, sign-in/offline/error screens) switch
-between the dark/light PNGs at runtime via `useIsDark()` (`src/lib/mode.ts`).
+Three source files at the repo root, all full-bleed squares, regenerated into
+everything under `public/icons` and `public/brand` with
+`python3 scripts/make_icons.py`:
+
+- `logo.png` (dark) / `logo-light.png` (light) — **opaque**, flat background,
+  no baked-in rounding. Drive the static PWA icons + favicon, which need a
+  solid backing (iOS in particular forces a black one behind a transparent
+  apple-touch-icon) and get their own rounding from the OS, not the art.
+- `logo-mark.png` — **transparent**, the glyph only, no background at all.
+  Drives the in-app themed marks (`Wordmark`, sign-in/offline/error screens),
+  which already sit inside the app's own rounded, coloured container — a
+  baked-in background there doubled up one rounded shape inside another.
+
 The current mark (a beetle carrying a topographic map) is a fixed illustrated
 badge, not a colour-field that needs to invert with the theme, so `logo.png`
-and `logo-light.png` are currently identical on purpose — swap in a real
-dark-background render later if one shows up and it'll pick up the split
-automatically.
+and `logo-light.png` are currently identical, and both in-app filenames
+(`logo-{size}-dark/light.png`) currently render from the one transparent
+`logo-mark.png` — swap in real per-theme renders later if they show up and
+each will pick up its own split automatically (`useIsDark()`,
+`src/lib/mode.ts`).
 `logo-wordmark.png` / `logo-wordmark-light.png` are reference art with the
 "ZUKNESST ATLAS" wordmark baked in — not consumed anywhere yet, kept for a
 future banner/share-image use. Per-trip logos and covers are uploaded in the
