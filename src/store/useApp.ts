@@ -44,6 +44,9 @@ interface AppStore {
   archiveTrip: (id: string, archived: boolean) => Promise<void>;
   deleteTrip: (id: string) => Promise<void>;
   switchTrip: (id: string) => Promise<void>;
+  /** Manual "pull to refresh" — re-pull the active trip from Supabase (a no-op
+   *  on the local backend, nothing there to be behind). */
+  refreshTrip: () => Promise<void>;
 
   /** local state only — pair with an op or use mutateTrip */
   mutate: (fn: (draft: TripData) => void) => void;
@@ -541,6 +544,12 @@ export const useApp = create<AppStore>((set, get) => {
         listen(id);
         if (queue.length) void flush(get);
       }
+    },
+
+    refreshTrip: async () => {
+      const { activeId } = get();
+      if (!activeId) return;
+      await resyncTrip(get, activeId);
     },
 
     mutate: (fn) => { local(fn); },
