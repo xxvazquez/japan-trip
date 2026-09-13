@@ -497,7 +497,7 @@ function PlanRow({ item, place, areaPlaces, areaNameByPlaceId, categoryIcons, re
               italic placeholder when empty, tap to expand and edit. */}
           <div className="min-w-0 flex-1 space-y-1 pt-px">
             {readOnly ? (
-              <span className="block truncate leading-snug text-ink">{item.text}</span>
+              <span className="block truncate text-[0.9375rem] font-medium leading-snug text-ink">{item.text}</span>
             ) : sortedPickable.length > 0 ? (
               <>
                 <PlacePicker
@@ -511,11 +511,11 @@ function PlanRow({ item, place, areaPlaces, areaNameByPlaceId, categoryIcons, re
                   }}
                 />
                 {!item.placeId && (
-                  <Editable label="Custom step" value={item.text} placeholder="What is it?" onCommit={(v) => onPatch({ text: v })} className="block leading-snug text-ink" />
+                  <Editable label="Custom step" value={item.text} placeholder="What is it?" onCommit={(v) => onPatch({ text: v })} className="block text-[0.9375rem] font-medium leading-snug text-ink" />
                 )}
               </>
             ) : (
-              <Editable label="Step" value={item.text} placeholder="Add a step" onCommit={(v) => onPatch({ text: v })} className="block leading-snug text-ink" />
+              <Editable label="Step" value={item.text} placeholder="Add a step" onCommit={(v) => onPatch({ text: v })} className="block text-[0.9375rem] font-medium leading-snug text-ink" />
             )}
             <RichNote
               value={item.note ?? ""}
@@ -554,9 +554,13 @@ function PlacePicker({ value, places, areaNameByPlaceId, onPick }: {
         onClick={() => setOpen(true)}
         aria-label="What this step is"
         aria-haspopup="menu"
-        className="editable block w-full max-w-full cursor-pointer truncate bg-transparent text-left leading-snug text-ink focus:outline-none"
+        className={`editable block w-full max-w-full cursor-pointer truncate bg-transparent text-left leading-snug focus:outline-none ${
+          current ? "text-[0.9375rem] font-medium text-ink" : "text-[0.8125rem] text-ink-soft"
+        }`}
       >
-        {current ? current.name : "Custom…"}
+        {current ? current.name : (
+          <>Custom… <Icon name="down" size={11} className="inline-block align-[1px] text-ink-faint" /></>
+        )}
       </button>
       <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="What this step is">
         <div className="max-h-[60vh] overflow-y-auto">
