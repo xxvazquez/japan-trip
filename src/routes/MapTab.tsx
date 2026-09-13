@@ -94,6 +94,19 @@ const loadPanelWidth = (): number => {
   }
 };
 
+// "List" hides the map and lets the place list fill the whole screen — for
+// area/city management work where the map itself isn't what you need to see.
+// Remembered like the panel width, since it's a real mode switch, not a
+// one-off peek.
+const LIST_ONLY_KEY = "za.map.listOnly";
+const loadListOnly = (): boolean => {
+  try {
+    return localStorage.getItem(LIST_ONLY_KEY) === "1";
+  } catch {
+    return false;
+  }
+};
+
 /**
  * Open on the city (leg) you're currently in — during: today's leg; before: the
  * first leg; after: the last. "all" when there's nothing better, or when that
@@ -137,6 +150,12 @@ export default function MapTab() {
   const [snap, setSnap] = useState<Snap>("peek");
   /** the "Filters" disclosure (category, transit, area editing) */
   const [filtersOpen, setFiltersOpen] = useState(false);
+  /** hides the map, list fills the screen — see LIST_ONLY_KEY above */
+  const [listOnly, setListOnly] = useState(loadListOnly);
+  const setListOnlyPersist = (v: boolean) => {
+    setListOnly(v);
+    try { localStorage.setItem(LIST_ONLY_KEY, v ? "1" : "0"); } catch { /* private window */ }
+  };
 
   // the mobile sheet's handle: a real drag (not just a tap-to-cycle button),
   // snapping to the nearest of peek/half/full on release
@@ -834,6 +853,14 @@ export default function MapTab() {
               );
             })}
           </div>
+          <button
+            onClick={() => setListOnlyPersist(!listOnly)}
+            aria-label={listOnly ? "Show map" : "Show list only, full screen"}
+            aria-pressed={listOnly}
+            className={`shrink-0 rounded-full border p-1.5 transition-colors ${listOnly ? "border-ink bg-ink text-bg" : "border-line text-ink-soft hover:border-ink-soft"}`}
+          >
+            <Icon name={listOnly ? "map" : "list"} size={15} />
+          </button>
           {!readOnly && (adding ? (
             <button onClick={cancelAdd} className="link-quiet shrink-0 text-sm">Cancel</button>
           ) : (
@@ -1177,8 +1204,9 @@ export default function MapTab() {
       style={{ "--panel-w": `${panelWidth}px` } as CSSProperties}
       className="fixed inset-x-0 bottom-[56px] top-[calc(3.5rem+var(--demo-h,0px))] z-20 md:bottom-0 md:left-[72px]"
     >
-      {/* map */}
-      <div className="absolute inset-0 md:left-[var(--panel-w)]">
+      {/* map — hidden, not unmounted, in list-only view: keeps its instance
+          (viewport, loaded tiles) alive for an instant toggle back */}
+      <div className={`absolute inset-0 md:left-[var(--panel-w)] ${listOnly ? "hidden" : ""}`}>
         <MapView
           places={scoped}
           selectedId={selected}
@@ -1202,36 +1230,44 @@ export default function MapTab() {
         )}
       </div>
 
-      {/* desktop column */}
-      <div ref={panelRef} className="absolute left-0 top-0 bottom-0 z-10 hidden border-r border-line bg-bg md:block md:w-[var(--panel-w)]">
+      {/* desktop column — full width, no resize handle, in list-only view */}
+      <div
+        ref={panelRef}
+        className={`absolute left-0 top-0 bottom-0 z-10 hidden bg-bg md:block ${listOnly ? "md:w-full" : "border-r border-line md:w-[var(--panel-w)]"}`}
+      >
         {panel}
-        <div
-          onPointerDown={onPanelHandlePointerDown}
-          onPointerMove={onPanelHandlePointerMove}
-          onPointerUp={onPanelHandlePointerUp}
-          onPointerCancel={onPanelHandlePointerUp}
-          role="separator"
-          aria-orientation="vertical"
-          aria-label="Resize list"
-          className={`absolute inset-y-0 -right-1.5 z-10 hidden w-3 cursor-col-resize touch-none md:block ${panelDragging ? "bg-accent/15" : "hover:bg-accent/10"}`}
-        />
+        {!listOnly && (
+          <div
+            onPointerDown={onPanelHandlePointerDown}
+            onPointerMove={onPanelHandlePointerMove}
+            onPointerUp={onPanelHandlePointerUp}
+            onPointerCancel={onPanelHandlePointerUp}
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize list"
+            className={`absolute inset-y-0 -right-1.5 z-10 hidden w-3 cursor-col-resize touch-none md:block ${panelDragging ? "bg-accent/15" : "hover:bg-accent/10"}`}
+          />
+        )}
       </div>
 
-      {/* mobile sheet */}
+      {/* mobile sheet — full height, no drag handle, in list-only view (there's
+          no map underneath to reveal by dragging) */}
       <div
         ref={sheetRef}
-        style={{ height: `${sheetHeight}px` }}
-        className={`absolute inset-x-0 bottom-0 z-10 flex flex-col border-t border-line bg-bg md:hidden ${dragging ? "" : "transition-[height] duration-200 ease-paper"}`}
+        style={listOnly ? undefined : { height: `${sheetHeight}px` }}
+        className={`absolute inset-x-0 z-10 flex flex-col border-t border-line bg-bg md:hidden ${listOnly ? "inset-y-0" : "bottom-0"} ${dragging ? "" : "transition-[height] duration-200 ease-paper"}`}
       >
-        <button
-          onPointerDown={onHandlePointerDown}
-          onPointerMove={onHandlePointerMove}
-          onPointerUp={onHandlePointerUp}
-          onPointerCancel={onHandlePointerUp}
-          onClick={onHandleClick}
-          aria-label="Resize list"
-          className="mx-auto mt-2 mb-1 h-1 w-9 shrink-0 touch-none rounded-full bg-ink/25"
-        />
+        {!listOnly && (
+          <button
+            onPointerDown={onHandlePointerDown}
+            onPointerMove={onHandlePointerMove}
+            onPointerUp={onHandlePointerUp}
+            onPointerCancel={onHandlePointerUp}
+            onClick={onHandleClick}
+            aria-label="Resize list"
+            className="mx-auto mt-2 mb-1 h-1 w-9 shrink-0 touch-none rounded-full bg-ink/25"
+          />
+        )}
         <div className="min-h-0 flex-1">{panel}</div>
       </div>
     </div>

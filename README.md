@@ -99,6 +99,10 @@ filters → places**, top to bottom.
   - When editing, **Areas** — add one, suggest areas, or rename / delete —
     lives here too.
 - Tap a pin or a list row — they select each other and the map flies there.
+- The small list/map icon next to **＋ Add place** switches to a **full-screen
+  list** — no map, just the list at full width (desktop) or full height
+  (phone). Handy for reorganising areas or picking through a long list; tap it
+  again for the map back. Remembered next time you open the tab.
 - **Sync** re-pulls everything from your Google My Map. It replaces the imported
   pins but keeps anything you added in the app and any notes you wrote.
 - Place names on the map are shown in English / Latin script (falling back to
