@@ -28,7 +28,7 @@ import { fmtDate, fmtSpan, plural } from "@/lib/dates";
 import { MODE_ICON } from "@/lib/transport";
 import { toneForSegmentMode } from "@/lib/tones";
 import { LOGBOOK_SECTIONS, logbookLabel, type LogbookSection } from "@/lib/logbook";
-import { tripCost, fmtMoney, combineCurrencies } from "@/lib/cost";
+import { tripCost, fmtMoney, combineCurrencies, expenseCategoryIcon } from "@/lib/cost";
 import { useFxRates } from "@/lib/fx";
 import { putFile, fileUrl, removeFile } from "@/lib/fileStore";
 import {
@@ -437,6 +437,16 @@ function Expenses() {
     return <Empty what="No spending yet" hint="Put a price on a stay or a journey, or log a day's spending, and it totals up here by category." />;
   }
 
+  const catLabel = (c: (typeof categories)[number]) => {
+    const tile = expenseCategoryIcon(c);
+    return (
+      <span className="flex items-center gap-2">
+        <IconTile size="sm" name={tile.name} glyph={tile.glyph} tone={tile.tone} />
+        {c.label}
+      </span>
+    );
+  };
+
   return (
     <div className="space-y-6">
       {combined && (
@@ -450,7 +460,7 @@ function Expenses() {
             {categories
               .filter((c) => (combined.byCategory[c.id] ?? 0) > 0)
               .map((c) => (
-                <InsetRow key={c.id} label={c.label}>{fmtMoney(combined.byCategory[c.id], primary)}</InsetRow>
+                <InsetRow key={c.id} label={catLabel(c)}>{fmtMoney(combined.byCategory[c.id], primary)}</InsetRow>
               ))}
             {combined.uncategorised > 0 && (
               <InsetRow label="Uncategorised">{fmtMoney(combined.uncategorised, primary)}</InsetRow>
@@ -469,7 +479,7 @@ function Expenses() {
               {categories
                 .filter((c) => (b.byCategory[c.id] ?? 0) > 0)
                 .map((c) => (
-                  <InsetRow key={c.id} label={c.label}>{fmtMoney(b.byCategory[c.id], cur)}</InsetRow>
+                  <InsetRow key={c.id} label={catLabel(c)}>{fmtMoney(b.byCategory[c.id], cur)}</InsetRow>
                 ))}
               {b.uncategorised > 0 && (
                 <InsetRow label="Uncategorised">{fmtMoney(b.uncategorised, cur)}</InsetRow>

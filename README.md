@@ -167,8 +167,10 @@ every price — a stay, a fare, a spending row, a custom "Price" field — gets 
 currency picker — edit the **expense categories** (reorder, rename, add,
 remove — the list can't be emptied, and removing one moves its spending to
 the next category rather than leaving it uncategorised; a category can also
-claim specific hop modes so fares split further than one lump "Transport"),
-hide the Logbook
+claim specific hop modes so fares split further than one lump "Transport").
+Each one's **icon** (shown on every Spending row and in Expenses) is guessed
+from that mode/role, or the name — pick your own from the "Auto icon" dropdown
+to override it. Hide the Logbook
 sections you don't need, and **add your own** — a title plus a list of things
 (name, note, link). Handy for "Restaurants to try", "Gifts to bring back", and
 so on.

@@ -1,4 +1,7 @@
 import type { ExpenseCategory, Journey, TransportMode, TripData } from "@/core/types";
+import type { IconName } from "@/components/Icon";
+import { MODE_ICON } from "@/lib/transport";
+import { toneForGlyph, toneForSegmentMode, type Tone } from "@/lib/tones";
 
 const SYMBOL_CURRENCY: Record<string, string> = {
   "¥": "JPY", "$": "USD", "€": "EUR", "£": "GBP", "₩": "KRW", "₹": "INR",
@@ -226,4 +229,29 @@ export function fmtMoney(amount: number, currency: string): string {
   } catch {
     return `${amount.toLocaleString()} ${currency}`;
   }
+}
+
+export interface CategoryTile {
+  name?: IconName;
+  glyph?: string;
+  tone: Tone;
+}
+
+/** What `IconTile` should show for an expense category on an Expenses row.
+ *  An explicit `icon` (set in Manage) wins; otherwise reuse the signal the
+ *  category already carries — the mode it claims (Train, Flights…), or the
+ *  lodging/transport catch-all role — then a keyword guess on the label, so
+ *  every built-in category looks right with no setup at all. `icon` is there
+ *  for the rest (Food & drink, Activities, Shopping, Other, a custom one). */
+export function expenseCategoryIcon(cat: ExpenseCategory): CategoryTile {
+  if (cat.icon) return { glyph: cat.icon, tone: toneForGlyph(cat.icon) };
+  if (cat.modes?.[0]) return { name: MODE_ICON[cat.modes[0]], tone: toneForSegmentMode(cat.modes[0]) };
+  if (cat.role === "lodging") return { name: "bed", tone: "ink-faint" };
+  if (cat.role === "transport") return { glyph: "station", tone: toneForGlyph("station") };
+
+  const t = cat.label.toLowerCase();
+  if (/food|drink|coffee|caf[eé]|eat|meal|restaurant|bar|izakaya|bakery/.test(t)) return { glyph: "food", tone: toneForGlyph("food") };
+  if (/shop|souvenir|gift|market/.test(t)) return { glyph: "shop", tone: toneForGlyph("shop") };
+  if (/activit|sight|museum|see|do|tour|ticket|onsen|bath/.test(t)) return { glyph: "sight", tone: toneForGlyph("sight") };
+  return { name: "wallet", tone: "accent" };
 }
