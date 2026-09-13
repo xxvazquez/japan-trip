@@ -13,7 +13,8 @@ import { tripLogoSrc } from "@/components/Wordmark";
 import { daysBetween, plural, rangeText } from "@/lib/dates";
 import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
 import { THEME_PRESETS, DEFAULT_ACCENT } from "@/lib/themePresets";
-import { MAP_GLYPHS } from "@/lib/mapGlyphs";
+import { GlyphPicker } from "@/components/GlyphPicker";
+import { toneForGlyph } from "@/lib/tones";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { InsetRow } from "@/components/InsetRow";
 import { InfoNote } from "@/components/InfoNote";
@@ -640,20 +641,18 @@ function ExpenseCategoriesPanel() {
                     {c.modes?.length ? c.modes.map((m) => MODE_LABEL[m]).join(", ") : "+ modes"}
                   </button>
                 )}
-                <select
-                  value={c.icon ?? ""}
-                  onChange={(e) => mutate((d) => {
+                <GlyphPicker
+                  value={c.icon}
+                  tone={c.icon ? toneForGlyph(c.icon) : undefined}
+                  clearLabel="Auto icon"
+                  label={c.label}
+                  onChange={(glyph) => mutate((d) => {
                     const x = d.config.expenseCategories?.[i];
                     if (!x) return;
-                    if (e.target.value) x.icon = e.target.value;
+                    if (glyph) x.icon = glyph;
                     else delete x.icon;
                   })}
-                  aria-label="Icon"
-                  className="rounded border border-line bg-transparent px-1 py-0.5 text-xs text-ink-soft"
-                >
-                  <option value="">Auto icon</option>
-                  {MAP_GLYPHS.map((g) => <option key={g.id} value={g.id}>{g.label}</option>)}
-                </select>
+                />
               </div>
               {modesFor === c.id && canClaimModes(c) && (
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -1175,14 +1174,13 @@ function Content() {
             <li key={name} className={`${MLI} text-sm`}>
               <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: colorOf(name) }} />
               <span className="min-w-0 flex-1 truncate">{name}</span>
-              <select
-                value={icons[name] ?? ""}
-                onChange={(e) => setIcon(name, e.target.value)}
-                className="shrink-0 rounded border border-line bg-surface px-1.5 py-1 text-xs text-ink-soft"
-              >
-                <option value="">Dot</option>
-                {MAP_GLYPHS.map((g) => <option key={g.id} value={g.id}>{g.label}</option>)}
-              </select>
+              <GlyphPicker
+                value={icons[name]}
+                color={colorOf(name)}
+                clearLabel="Dot"
+                label={name}
+                onChange={(glyph) => setIcon(name, glyph)}
+              />
             </li>
           ))}
         </ul>
