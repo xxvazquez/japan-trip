@@ -435,39 +435,84 @@ function PlanRow({ item, place, areaPlaces, categoryIcons, readOnly, onPatch, on
     >
       <SwipeToDelete onDelete={readOnly ? undefined : onRemove}>
       <div className="px-3.5 py-2.5">
-        <div className="flex items-center gap-2.5">
-          {!readOnly && (
-            <button
-              {...attributes}
-              {...listeners}
-              className="grid h-4 w-3 shrink-0 cursor-grab touch-none place-items-center text-ink-faint/50 active:cursor-grabbing"
-              aria-label="Drag to reorder"
-            >
-              <Icon name="grip" size={13} />
-            </button>
-          )}
-          {mapHref ? (
-            <a href={mapHref} target="_blank" rel="noopener" className="shrink-0" aria-label={place ? `Open ${place.name} in Google Maps` : "Open in Google Maps"}>
-              {tile}
-            </a>
-          ) : (
-            tile
-          )}
-          {/* hour first — optional, quiet (meta) styling since the step's
-              name below is the main thing */}
-          {(readOnly ? !!timeText : true) && (
-            <span className="min-w-0 flex-1">
-              <span className="meta block leading-tight tabular-nums">
+        <div className="flex items-start gap-2.5">
+          {/* leading column — drag handle, tile, hour; sized to its own
+              content so the picker/custom column below always starts at the
+              same left edge, whatever the hour's width */}
+          <div className="flex shrink-0 items-center gap-2.5">
+            {!readOnly && (
+              <button
+                {...attributes}
+                {...listeners}
+                className="grid h-4 w-3 shrink-0 cursor-grab touch-none place-items-center text-ink-faint/50 active:cursor-grabbing"
+                aria-label="Drag to reorder"
+              >
+                <Icon name="grip" size={13} />
+              </button>
+            )}
+            {mapHref ? (
+              <a href={mapHref} target="_blank" rel="noopener" className="shrink-0" aria-label={place ? `Open ${place.name} in Google Maps` : "Open in Google Maps"}>
+                {tile}
+              </a>
+            ) : (
+              tile
+            )}
+            {/* hour — optional, quiet (meta) styling; no native clock icon,
+                and blank rather than "--:--" until a time is actually set */}
+            {(readOnly ? !!timeText : true) && (
+              <span className="meta shrink-0 tabular-nums">
                 {readOnly ? (
                   timeText
                 ) : plainTime ? (
-                  <Editable as="time" label="Time" value={item.time ?? ""} placeholder="Add a time" onCommit={(v) => onPatch({ time: v || undefined })} />
+                  <Editable
+                    as="time"
+                    label="Time"
+                    value={item.time ?? ""}
+                    placeholder=""
+                    onCommit={(v) => onPatch({ time: v || undefined })}
+                    className={`[&::-webkit-calendar-picker-indicator]:hidden ${!item.time ? "[&:not(:focus)]:text-transparent" : ""}`}
+                  />
                 ) : (
                   <Editable label="Time" value={item.time ?? ""} placeholder="Add a time" onCommit={(v) => onPatch({ time: v.trim() || undefined })} />
                 )}
               </span>
-            </span>
-          )}
+            )}
+          </div>
+
+          {/* what the step is — in line with the hour: a place from one of
+              this day's Areas, or Custom text below it; falls back to a
+              plain text field when there's nothing to pick from yet (no
+              Area added to the day). */}
+          <div className="min-w-0 flex-1 space-y-1.5 pt-px">
+            {readOnly ? (
+              <span className="block truncate leading-snug text-ink">{item.text}</span>
+            ) : sortedPickable.length > 0 ? (
+              <>
+                <select
+                  value={item.placeId ?? ""}
+                  onChange={(e) => {
+                    const pid = e.target.value;
+                    if (!pid) { onPatch({ placeId: undefined }); return; }
+                    const p = sortedPickable.find((x) => x.id === pid);
+                    onPatch({ placeId: pid, text: p?.name ?? item.text });
+                  }}
+                  aria-label="What this step is"
+                  className="block w-full max-w-full cursor-pointer truncate bg-transparent text-left leading-snug text-ink focus:outline-none"
+                >
+                  <option value="">Custom…</option>
+                  {sortedPickable.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+                {!item.placeId && (
+                  <Editable label="Custom step" value={item.text} placeholder="What is it?" onCommit={(v) => onPatch({ text: v })} className="block leading-snug text-ink" />
+                )}
+              </>
+            ) : (
+              <Editable label="Step" value={item.text} placeholder="Add a step" onCommit={(v) => onPatch({ text: v })} className="block leading-snug text-ink" />
+            )}
+          </div>
+
           {canExpand && (
             <button
               type="button"
@@ -483,39 +528,6 @@ function PlanRow({ item, place, areaPlaces, categoryIcons, readOnly, onPatch, on
             </button>
           )}
           {!readOnly && <RowDeleteButton onClick={onRemove} />}
-        </div>
-
-        {/* what the step is — a place from one of this day's Areas, or Custom
-            text; falls back to a plain text field when there's nothing to
-            pick from yet (no Area added to the day). */}
-        <div className="mt-1 space-y-1.5 pl-[calc(22px+0.75rem)]">
-          {readOnly ? (
-            <span className="block truncate leading-snug text-ink">{item.text}</span>
-          ) : sortedPickable.length > 0 ? (
-            <>
-              <select
-                value={item.placeId ?? ""}
-                onChange={(e) => {
-                  const pid = e.target.value;
-                  if (!pid) { onPatch({ placeId: undefined }); return; }
-                  const p = sortedPickable.find((x) => x.id === pid);
-                  onPatch({ placeId: pid, text: p?.name ?? item.text });
-                }}
-                aria-label="What this step is"
-                className="block w-full max-w-full cursor-pointer truncate bg-transparent text-left leading-snug text-ink focus:outline-none"
-              >
-                <option value="">Custom…</option>
-                {sortedPickable.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
-              {!item.placeId && (
-                <Editable label="Custom step" value={item.text} placeholder="What is it?" onCommit={(v) => onPatch({ text: v })} className="block leading-snug text-ink" />
-              )}
-            </>
-          ) : (
-            <Editable label="Step" value={item.text} placeholder="Add a step" onCommit={(v) => onPatch({ text: v })} className="block leading-snug text-ink" />
-          )}
         </div>
       </div>
       </SwipeToDelete>
