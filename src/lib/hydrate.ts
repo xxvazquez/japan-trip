@@ -128,7 +128,7 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
   // one-time: move trips off a retired preset (or nothing set) onto Ink & Moss
   // — the app default. A live named preset or a hand-tuned "custom" palette is a
   // deliberate choice and left alone.
-  const RETIRED_PRESETS = ["mist", "paper", "olive", "rosewood", "indigo"];
+  const RETIRED_PRESETS = ["mist", "paper", "olive", "rosewood", "indigo", "ios", "violet", "rose", "fern"];
   if (!cfg.themePreset || RETIRED_PRESETS.includes(cfg.themePreset as string)) {
     d.config.themePreset = "ink-moss";
     d.config.theme = structuredClone(THEME_PRESETS[0].tokens);
