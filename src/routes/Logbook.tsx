@@ -121,7 +121,12 @@ export function LogbookSection() {
 
   return (
     <Page>
-      <PageHeader back="/logbook" title={list ? list.title : logbookLabel(builtin!)} className="mb-6" />
+      <PageHeader
+        back="/logbook"
+        title={list ? list.title : logbookLabel(builtin!)}
+        info={builtin === "notes" ? "A free-text scratchpad — shopping lists, things you keep forgetting, a phrase you want to remember. Shared with anyone the trip is shared with." : undefined}
+        className="mb-6"
+      />
       {list ? (
         <ListSection list={list} />
       ) : (
@@ -882,7 +887,7 @@ function Notes() {
   const setScratch = useApp((s) => s.setScratch);
   if (ro && !data.scratch) return <Empty what="Nothing noted yet" hint="A scratchpad for anything you want to remember." />;
   return (
-    <Section info="A free-text scratchpad — shopping lists, things you keep forgetting, a phrase you want to remember. Shared with anyone the trip is shared with.">
+    <Section>
       <div className="note px-3.5 py-3">
         <RichNote value={data.scratch ?? ""} onCommit={(v) => setScratch(v)} placeholder="Anything to remember." />
       </div>

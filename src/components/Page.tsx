@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { BackBar } from "./BackBar";
+import { Icon } from "./Icon";
 
 /** Standard reading column for a route's content. */
 export function Page({
@@ -35,6 +36,10 @@ export function Page({
  * `title` takes a node so a page can drop an <Editable> straight in. Two routes
  * deliberately don't use this: Plan (its "NOW" countdown block stands in for a
  * title) and Map (full-bleed, no reading column).
+ *
+ * `info` — one-off "how this works" copy for a page with no `<Section>` of its
+ * own to hang it on (e.g. Scratchpad), revealed by an ⓘ next to the title
+ * itself rather than a near-empty section header underneath.
  */
 export function PageHeader({
   back,
@@ -42,6 +47,7 @@ export function PageHeader({
   dotColor,
   title,
   meta,
+  info,
   className = "",
 }: {
   /** show a back control: a path is the cold-load fallback, `true` uses Plan */
@@ -50,8 +56,11 @@ export function PageHeader({
   dotColor?: string;
   title: ReactNode;
   meta?: ReactNode;
+  info?: ReactNode;
   className?: string;
 }) {
+  const [showInfo, setShowInfo] = useState(false);
+  const infoId = useId();
   return (
     <header className={`mb-8 ${className}`}>
       {back ? <BackBar to={typeof back === "string" ? back : undefined} /> : null}
@@ -61,7 +70,22 @@ export function PageHeader({
           {eyebrow}
         </p>
       ) : null}
-      <h1 className="text-title">{title}</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-title min-w-0">{title}</h1>
+        {info && (
+          <button
+            type="button"
+            onClick={() => setShowInfo((v) => !v)}
+            aria-expanded={showInfo}
+            aria-controls={infoId}
+            className="-m-1 shrink-0 p-1 text-ink-faint transition-colors hover:text-ink-soft"
+          >
+            <Icon name="info" size={17} className={showInfo ? "text-accent" : undefined} />
+            <span className="sr-only">About this page</span>
+          </button>
+        )}
+      </div>
+      {info && showInfo && <p id={infoId} className="meta mt-1.5">{info}</p>}
       {meta ? <p className="meta mt-2">{meta}</p> : null}
     </header>
   );
