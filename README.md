@@ -174,8 +174,8 @@ to override it. Hide the Logbook
 sections you don't need, and **add your own** — a title plus a list of things
 (name, note, link). Handy for "Restaurants to try", "Gifts to bring back", and
 so on. A **Help & FAQ** link sits at the bottom of every Manage tab — plain-
-language answers to the non-obvious bits ("modes", Areas vs. categories,
-sharing, the read-only Demo…), for anyone new to the app.
+language answers to the non-obvious bits ("modes", Custom vs. a place in
+Plan, Areas vs. categories, My Maps sync…), for anyone new to the app.
 
 ## Sharing a copy
 
