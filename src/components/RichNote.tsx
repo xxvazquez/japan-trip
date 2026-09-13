@@ -6,9 +6,10 @@ import { Icon } from "./Icon";
 /**
  * A free-text note that supports a small slice of Markdown (see <Markdown>).
  * Reads as formatted text; tap to edit in a plain textarea with a slim
- * B / I / U / S / list / link toolbar and the usual Cmd/Ctrl-B · Cmd/Ctrl-I ·
- * Cmd/Ctrl-U · Cmd/Ctrl-Shift-X shortcuts. Bullets continue on Enter; Enter
- * on an empty bullet ends the list.
+ * B / I / U / S / H / quote / list / checklist / link toolbar — so the common
+ * formatting doesn't require knowing the Markdown syntax for it — and the
+ * usual Cmd/Ctrl-B · Cmd/Ctrl-I · Cmd/Ctrl-U · Cmd/Ctrl-Shift-X shortcuts.
+ * Bullets continue on Enter; Enter on an empty bullet ends the list.
  *
  * Edits go through document.execCommand("insertText"), which keeps the native
  * caret position and undo history and fires a normal input event.
@@ -139,6 +140,40 @@ export function RichNote({
     insert(next);
   };
 
+  /** toggle "> " in front of every line the selection touches */
+  const quotify = () => {
+    const el = ta.current;
+    if (!el) return;
+    el.focus();
+    const { selectionStart: s, selectionEnd: e, value: v } = el;
+    const from = v.lastIndexOf("\n", s - 1) + 1;
+    let to = v.indexOf("\n", e);
+    if (to === -1) to = v.length;
+    const rows = v.slice(from, to).split("\n");
+    const allQuoted = rows.every((l) => l.trim() === "" || /^\s*>\s?/.test(l));
+    const next = rows
+      .map((l) => (l.trim() === "" ? l : allQuoted ? l.replace(/^(\s*)>\s?/, "$1") : `> ${l}`))
+      .join("\n");
+    el.setSelectionRange(from, to);
+    insert(next);
+  };
+
+  /** toggle "## " in front of the caret's own line */
+  const headingify = () => {
+    const el = ta.current;
+    if (!el) return;
+    el.focus();
+    const { selectionStart: s, value: v } = el;
+    const from = v.lastIndexOf("\n", s - 1) + 1;
+    let to = v.indexOf("\n", s);
+    if (to === -1) to = v.length;
+    const line = v.slice(from, to);
+    const isHeading = /^\s*#{1,3}\s+/.test(line);
+    const next = isHeading ? line.replace(/^(\s*)#{1,3}\s+/, "$1") : `## ${line}`;
+    el.setSelectionRange(from, to);
+    insert(next);
+  };
+
   const addLink = () => {
     const el = ta.current;
     if (!el) return;
@@ -194,6 +229,8 @@ export function RichNote({
         <Tool label="Italic" on={() => wrap("*")}><span className="font-serif text-[0.9rem] italic">I</span></Tool>
         <Tool label="Underline" on={() => wrap("++")}><span className="text-[0.9rem] underline underline-offset-2">U</span></Tool>
         <Tool label="Strikethrough" on={() => wrap("~~")}><span className="text-[0.9rem] line-through">S</span></Tool>
+        <Tool label="Heading" on={headingify}><span className="text-[0.8rem] font-bold">H</span></Tool>
+        <Tool label="Quote" on={quotify}><span className="text-[0.95rem] font-serif font-bold">”</span></Tool>
         <Tool label="Bullet list" on={listify}><Icon name="list" size={15} /></Tool>
         <Tool label="Checklist" on={checklistify}><Icon name="checklist" size={15} /></Tool>
         <Tool label="Link" on={addLink}><Icon name="link" size={15} /></Tool>
@@ -209,7 +246,8 @@ export function RichNote({
         className="w-full resize-none rounded border border-gold/60 bg-surface px-2.5 py-2 text-[0.9rem] leading-[1.6] outline-none focus:border-gold"
       />
       <p className="mt-1 text-2xs text-ink-faint">
-        **bold** · *italic* · ++underline++ · ~~strike~~ · - bullet · - [ ] checklist · [text](link) — ⌘/Ctrl-Enter saves, Esc cancels
+        **bold** · *italic* · ++underline++ · ~~strike~~ · ## heading · {">"} quote · - bullet · - [ ] checklist ·{" "}
+        [text](link) — ⌘/Ctrl-Enter saves, Esc cancels
       </p>
     </div>
   );

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerE
 import { Link, useSearchParams } from "react-router-dom";
 import { MapView, type MLMap } from "@/components/MapView";
 import { Editable } from "@/components/Editable";
+import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
 import { IconTile } from "@/components/IconTile";
 import { InfoNote } from "@/components/InfoNote";
@@ -1352,18 +1353,7 @@ function PlaceRow({
               <Editable label="Name" value={place.name} onCommit={onName} className="text-sm font-medium" />
             </div>
           )}
-          {readOnly ? (
-            place.note && <p className="note whitespace-pre-wrap text-ink-soft">{place.note}</p>
-          ) : (
-            <Editable
-              as="textarea"
-              label="Note"
-              value={place.note ?? ""}
-              placeholder="＋ a note for this place"
-              onCommit={onNote}
-              className="note text-ink-soft"
-            />
-          )}
+          <RichNote value={place.note ?? ""} onCommit={onNote} placeholder="＋ a note for this place" className="note text-ink-soft" />
 
           {/* Areas this place belongs to — "where", separate from its category */}
           {areas.length > 0 && (

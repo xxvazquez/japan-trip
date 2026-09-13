@@ -203,13 +203,15 @@ you're disconnected — edits keep queuing and send the moment you're back).
 On-device-only trips save instantly and show nothing — there's nothing to be
 behind on.
 
-**Notes** fields (a day's General notes, a stay, a journey, and the Logbook's Scratchpad) take
-light Markdown — `**bold**`, `*italic*`, `++underline++`, `~~strikethrough~~`,
-`-` bullet lists, `- [ ]` checklists, `>` quotes, headings and
-`[links](https://…)`. A slim B / I / U / S / • / ☑ / link toolbar and the
-usual ⌘/Ctrl-B · ⌘/Ctrl-I · ⌘/Ctrl-U · ⌘/Ctrl-Shift-X shortcuts are there
-while editing; bullets continue on Enter. A checklist item's box is tappable
-straight from the read view — ticking it off doesn't open the editor.
+**Notes** fields (a day's General notes and Getting there/back, a stay's notes
+and directions, a journey, a luggage note's detail, a map place's note, and
+the Logbook's Scratchpad) take light Markdown — `**bold**`, `*italic*`,
+`++underline++`, `~~strikethrough~~`, `##` headings, `>` quotes, `-` bullet
+lists, `- [ ]` checklists and `[links](https://…)`. A slim B / I / U / S / H /
+" / • / ☑ / link toolbar covers all of it without needing to know the syntax,
+plus the usual ⌘/Ctrl-B · ⌘/Ctrl-I · ⌘/Ctrl-U · ⌘/Ctrl-Shift-X shortcuts;
+bullets continue on Enter. A checklist item's box is tappable straight from
+the read view — ticking it off doesn't open the editor.
 
 ## The demo trip
 

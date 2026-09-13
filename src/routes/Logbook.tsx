@@ -359,7 +359,7 @@ function Luggage() {
           >
             {hasDetail && (
               <div className="note px-3.5 py-3 text-ink-soft">
-                <Editable as="textarea" label="Detail" value={n.detail ?? ""} placeholder="Where, when, how much…" onCommit={(v) => p({ detail: v || undefined })} />
+                <RichNote value={n.detail ?? ""} placeholder="Where, when, how much…" onCommit={(v) => p({ detail: v || undefined })} />
               </div>
             )}
             {(n.date || n.url || !ro) && (

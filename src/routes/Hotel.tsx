@@ -133,7 +133,7 @@ export default function Hotel() {
         {(hotel.directions || !ro) && (
           <Section icon="map" title="Getting here">
             <div className="note px-3.5 py-3">
-              <Editable as="textarea" label="Directions" value={hotel.directions ?? ""} placeholder="From the station…" onCommit={(v) => p({ directions: v || undefined })} />
+              <RichNote value={hotel.directions ?? ""} placeholder="From the station…" onCommit={(v) => p({ directions: v || undefined })} />
             </div>
           </Section>
         )}
