@@ -1,15 +1,28 @@
+import { useEffect, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useData } from "@/lib/data";
-import { enabledModules, moduleTo, isModuleCurrent } from "@/lib/modules";
+import { enabledModules, hubForPath, isSharedDetail, moduleTo } from "@/lib/modules";
 import { Icon, isIconName, type IconName } from "./Icon";
+import type { ModuleKind } from "@/core/types";
 
 /** Bottom tab bar on mobile; a quiet left rail from md up. Driven by the active
  *  trip's section config — reorder / rename / hide them in Manage. The current
- *  tab carries a soft accent pill behind its icon + label. */
+ *  tab carries a soft accent pill behind its icon + label.
+ *
+ *  A day/hotel/journey/leg page has no tab of its own — it stays highlighted
+ *  on whichever hub pushed it (Plan, Map or Logbook can all open one), so
+ *  `lastHub` remembers that across the shared page instead of the tab bar
+ *  guessing from the URL and picking the wrong one. */
 export function TabBarOrRail() {
   const { pathname } = useLocation();
   const data = useData();
   const modules = enabledModules(data?.config.modules ?? []);
+  const hub = hubForPath(pathname);
+  const lastHub = useRef<ModuleKind>("plan");
+  useEffect(() => {
+    if (hub) lastHub.current = hub;
+  }, [hub]);
+  const activeKind = hub ?? (isSharedDetail(pathname) ? lastHub.current : null);
 
   const cell = (current: boolean, label: string, icon: IconName) => (
     <span
@@ -34,7 +47,7 @@ export function TabBarOrRail() {
     >
       <ul className="flex justify-around px-1 py-1.5 md:h-full md:flex-col md:items-center md:justify-start md:gap-1.5 md:px-0 md:py-5">
         {modules.map((s) => {
-          const current = isModuleCurrent(s, pathname);
+          const current = s.kind === activeKind;
           return (
             <li key={s.id}>
               <NavLink
