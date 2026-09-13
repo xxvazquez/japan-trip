@@ -18,6 +18,7 @@ import { SegmentedControl } from "@/components/SegmentedControl";
 import { InsetRow } from "@/components/InsetRow";
 import { InfoNote } from "@/components/InfoNote";
 import { ConfirmButton } from "@/components/ConfirmButton";
+import { entityLink } from "@/lib/entityLink";
 import { OPTIONAL_LOGBOOK_SECTIONS, logbookLabel } from "@/lib/logbook";
 import { fileToMediaItem, pickImage } from "@/lib/media";
 import { supabaseEnabled } from "@/lib/supabase";
@@ -1029,13 +1030,6 @@ function Content() {
   const nameOf = (x: Record<string, unknown>): string =>
     (x.title as string) || (x.name as string) || (x.label as string) || (x.base as string) || (x.date as string) || (x.id as string);
 
-  const linkFor = (type: EntityType, id: string): string | null =>
-    type === "days" ? `/day/${id}`
-      : type === "legs" ? `/leg/${id}`
-      : type === "hotels" ? `/hotel/${id}`
-      : type === "journeys" ? `/journey/${id}`
-      : null;
-
   /** Areas: name + membership. "Category" is what a place is; an area is where. */
   const AreaEditor = () => {
     const members = areaMembers;
@@ -1130,7 +1124,7 @@ function Content() {
             <ul>
               {list.map((x, i) => {
                 const rec = x as Record<string, unknown>;
-                const href = linkFor(type, x.id);
+                const href = entityLink(type, x.id);
                 const links = type === "hotels" ? hotelLinks(x.id) : null;
                 return (
                   <li key={x.id} className="border-b border-line py-2 text-sm last:border-b-0">

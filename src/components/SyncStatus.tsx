@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useApp } from "@/store/useApp";
 import { pickBackend } from "@/lib/backend";
+import { entityLink } from "@/lib/entityLink";
 import { ActionSheet, useActionSheet } from "./ActionSheet";
 import { Icon } from "./Icon";
 
@@ -77,21 +79,31 @@ export function SyncStatus() {
         {dot}
       </button>
       <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="Not saved yet">
-        {errorItems.map((item) =>
-          item.type && item.id ? (
-            <button
-              key={item.key}
-              type="button"
-              onClick={() => discardSyncIssue(item.key)}
-              className="menu-item justify-between text-danger"
-            >
-              <span className="min-w-0 truncate">{item.label}</span>
-              <Icon name="trash" size={14} className="shrink-0" />
-            </button>
-          ) : (
-            <div key={item.key} className="menu-item text-ink">{item.label}</div>
-          ),
-        )}
+        {errorItems.map((item) => {
+          if (!(item.type && item.id)) {
+            return <div key={item.key} className="menu-item text-ink">{item.label}</div>;
+          }
+          const href = entityLink(item.type, item.id);
+          return (
+            <div key={item.key} className="menu-item justify-between gap-2">
+              {href ? (
+                <Link to={href} onClick={() => setOpen(false)} className="min-w-0 flex-1 truncate text-ink hover:text-accent">
+                  {item.label}
+                </Link>
+              ) : (
+                <span className="min-w-0 flex-1 truncate text-ink">{item.label}</span>
+              )}
+              <button
+                type="button"
+                onClick={() => discardSyncIssue(item.key)}
+                aria-label="Discard this change"
+                className="shrink-0 text-danger"
+              >
+                <Icon name="trash" size={14} />
+              </button>
+            </div>
+          );
+        })}
         <button type="button" onClick={() => retrySyncNow()} className="menu-item font-medium text-accent">
           Retry now
         </button>
