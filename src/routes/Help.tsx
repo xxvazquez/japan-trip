@@ -17,7 +17,7 @@ function QA({ q, children }: { q: string; children: ReactNode }) {
         aria-expanded={open}
         className="flex w-full items-center gap-3 px-3.5 py-3 text-left"
       >
-        <span className="value min-w-0 flex-1">{q}</span>
+        <span className="min-w-0 flex-1 text-[0.9375rem] leading-snug text-ink">{q}</span>
         <Icon name="chevron" size={14} className={`shrink-0 text-ink-faint transition-transform ${open ? "rotate-90" : ""}`} />
       </button>
       {open && <p className="note -mt-1 px-3.5 pb-3.5 text-ink-soft">{children}</p>}
