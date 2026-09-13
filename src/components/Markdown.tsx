@@ -1,22 +1,40 @@
 import { Fragment, type ReactNode } from "react";
 import { linkLabel } from "@/lib/linkLabel";
+import { CheckCircle } from "./CheckCircle";
+import { Icon } from "./Icon";
 
 /**
  * A deliberately small Markdown renderer — bold, italic, inline code, links,
- * headings, bullet / numbered lists, block quotes, rules, paragraphs. No raw
- * HTML, no tables, no images: it renders to React elements, so there is no
- * dangerouslySetInnerHTML and nothing to sanitise. Plain text renders as-is.
+ * headings, bullet / numbered lists, checklist items, block quotes, rules,
+ * paragraphs. No raw HTML, no tables, no images: it renders to React
+ * elements, so there is no dangerouslySetInnerHTML and nothing to sanitise.
+ * Plain text renders as-is.
+ *
+ * A bullet written `- [ ] text` / `- [x] text` renders as a checklist row.
+ * Pass `onToggleCheck` to make those rows tappable — it's called with the
+ * item's source line number (into the normalised, \n-split text) so the
+ * caller can flip just that line and re-commit the raw note text.
  */
-export function Markdown({ text, className = "" }: { text: string; className?: string }) {
+export function Markdown({
+  text,
+  className = "",
+  onToggleCheck,
+}: {
+  text: string;
+  className?: string;
+  onToggleCheck?: (line: number, checked: boolean) => void;
+}) {
   const blocks = parseBlocks(text.replace(/\r\n?/g, "\n"));
-  return <div className={`space-y-2.5 ${className}`}>{blocks.map((b, i) => renderBlock(b, i))}</div>;
+  return <div className={`space-y-2.5 ${className}`}>{blocks.map((b, i) => renderBlock(b, i, onToggleCheck))}</div>;
 }
+
+type ListItem = { text: string; line: number; checked?: boolean };
 
 type Block =
   | { t: "h"; level: number; text: string }
   | { t: "p"; text: string }
   | { t: "quote"; lines: string[] }
-  | { t: "ul"; items: string[] }
+  | { t: "ul"; items: ListItem[] }
   | { t: "ol"; items: string[] }
   | { t: "hr" };
 
@@ -43,8 +61,13 @@ function parseBlocks(src: string): Block[] {
     }
 
     if (/^\s*[-*+]\s+/.test(line)) {
-      const items: string[] = [];
-      while (i < lines.length && /^\s*[-*+]\s+/.test(lines[i])) { items.push(lines[i].replace(/^\s*[-*+]\s+/, "")); i++; }
+      const items: ListItem[] = [];
+      while (i < lines.length && /^\s*[-*+]\s+/.test(lines[i])) {
+        const raw = lines[i].replace(/^\s*[-*+]\s+/, "");
+        const box = raw.match(/^\[([ xX])\]\s*(.*)$/);
+        items.push(box ? { text: box[2], line: i, checked: /x/i.test(box[1]) } : { text: raw, line: i });
+        i++;
+      }
       out.push({ t: "ul", items });
       continue;
     }
@@ -72,7 +95,7 @@ function parseBlocks(src: string): Block[] {
   return out;
 }
 
-function renderBlock(b: Block, key: number): ReactNode {
+function renderBlock(b: Block, key: number, onToggleCheck?: (line: number, checked: boolean) => void): ReactNode {
   switch (b.t) {
     case "h": {
       // sized in em so a heading tracks the note's own prose size (.note);
@@ -91,10 +114,24 @@ function renderBlock(b: Block, key: number): ReactNode {
     case "ul":
       return (
         <ul key={key} className="space-y-1">
-          {b.items.map((it, j) => (
-            <li key={j} className="flex gap-2">
-              <span className="mt-[0.5em] h-1 w-1 shrink-0 rounded-full bg-ink-faint" />
-              <span className="min-w-0 flex-1">{inline(it)}</span>
+          {b.items.map((it) => (
+            <li key={it.line} className={`flex gap-2 ${it.checked !== undefined ? "items-center" : ""}`}>
+              {it.checked === undefined ? (
+                <span className="mt-[0.5em] h-1 w-1 shrink-0 rounded-full bg-ink-faint" />
+              ) : onToggleCheck ? (
+                <span onClick={(e) => e.stopPropagation()} className="shrink-0">
+                  <CheckCircle checked={it.checked} onChange={(v) => onToggleCheck(it.line, v)} label={it.text || "Checklist item"} />
+                </span>
+              ) : (
+                <span
+                  className={`grid h-4 w-4 shrink-0 place-items-center rounded-full border-2 ${
+                    it.checked ? "border-accent bg-accent text-white" : "border-line text-transparent"
+                  }`}
+                >
+                  <Icon name="check" size={10} strokeWidth={3} />
+                </span>
+              )}
+              <span className={`min-w-0 flex-1 ${it.checked ? "text-ink-faint line-through" : ""}`}>{inline(it.text)}</span>
             </li>
           ))}
         </ul>
