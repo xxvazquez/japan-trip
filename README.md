@@ -169,8 +169,8 @@ remove — the list can't be emptied, and removing one moves its spending to
 the next category rather than leaving it uncategorised; a category can also
 claim specific hop modes so fares split further than one lump "Transport").
 Each one's **icon** (shown on every Spending row and in Expenses) is guessed
-from that mode/role, or the name — pick your own from the "Auto icon" dropdown
-to override it. Hide the Logbook
+from that mode/role, or the name — tap "Auto icon" to pick your own from a
+grid of icons instead. Hide the Logbook
 sections you don't need, and **add your own** — a title plus a list of things
 (name, note, link). Handy for "Restaurants to try", "Gifts to bring back", and
 so on. A **Help & FAQ** link sits at the bottom of every Manage tab — plain-
