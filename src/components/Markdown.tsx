@@ -4,11 +4,11 @@ import { CheckCircle } from "./CheckCircle";
 import { Icon } from "./Icon";
 
 /**
- * A deliberately small Markdown renderer — bold, italic, inline code, links,
- * headings, bullet / numbered lists, checklist items, block quotes, rules,
- * paragraphs. No raw HTML, no tables, no images: it renders to React
- * elements, so there is no dangerouslySetInnerHTML and nothing to sanitise.
- * Plain text renders as-is.
+ * A deliberately small Markdown renderer — bold, italic, underline,
+ * strikethrough, inline code, links, headings, bullet / numbered lists,
+ * checklist items, block quotes, rules, paragraphs. No raw HTML, no tables,
+ * no images: it renders to React elements, so there is no
+ * dangerouslySetInnerHTML and nothing to sanitise. Plain text renders as-is.
  *
  * A bullet written `- [ ] text` / `- [x] text` renders as a checklist row.
  * Pass `onToggleCheck` to make those rows tappable — it's called with the
@@ -162,8 +162,9 @@ function withBreaks(text: string): ReactNode {
   ));
 }
 
-/** Inline spans: **bold**, *italic* / _italic_, `code`, [text](url), bare URLs. */
-const INLINE = /(\*\*([^*]+)\*\*|__([^_]+)__|\*([^*\n]+)\*|_([^_\n]+)_|`([^`]+)`|\[([^\]]+)\]\(([^)\s]+)\)|(https?:\/\/[^\s<)]+))/g;
+/** Inline spans: **bold**, *italic* / _italic_, ~~strikethrough~~, ++underline++,
+ *  `code`, [text](url), bare URLs. */
+const INLINE = /(\*\*([^*]+)\*\*|__([^_]+)__|~~([^~\n]+)~~|\+\+([^+\n]+)\+\+|\*([^*\n]+)\*|_([^_\n]+)_|`([^`]+)`|\[([^\]]+)\]\(([^)\s]+)\)|(https?:\/\/[^\s<)]+))/g;
 
 function inline(text: string): ReactNode {
   const nodes: ReactNode[] = [];
@@ -173,8 +174,10 @@ function inline(text: string): ReactNode {
   let k = 0;
   while ((m = INLINE.exec(text))) {
     if (m.index > last) nodes.push(text.slice(last, m.index));
-    const [, , b1, b2, i1, i2, code, linkText, linkUrl, url] = m;
+    const [, , b1, b2, strike, underline, i1, i2, code, linkText, linkUrl, url] = m;
     if (b1 || b2) nodes.push(<strong key={k++} className="font-semibold text-ink">{b1 || b2}</strong>);
+    else if (strike) nodes.push(<s key={k++} className="text-ink-faint">{strike}</s>);
+    else if (underline) nodes.push(<span key={k++} className="underline underline-offset-2">{underline}</span>);
     else if (i1 || i2) nodes.push(<em key={k++}>{i1 || i2}</em>);
     else if (code) nodes.push(<code key={k++} className="rounded bg-surface-2 px-1 py-0.5 text-[0.9em]">{code}</code>);
     else if (linkText && linkUrl) nodes.push(<Anchor key={k++} href={linkUrl}>{linkText}</Anchor>);
