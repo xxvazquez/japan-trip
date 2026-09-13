@@ -1,16 +1,26 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Page, PageHeader } from "@/components/Page";
 import { Section } from "@/components/Section";
+import { Icon } from "@/components/Icon";
 import { INSET_DIVIDER } from "@/components/InsetRow";
 
-/** One question + answer, styled like a grouped-list row: the question reads
- *  like a row's title, the answer like its note underneath. Not collapsible —
- *  this whole page only exists to be read, so there's nothing to hide. */
+/** One question, as a disclosure row — closed by default, like an iOS
+ *  Settings row: the question is what you scan, the answer is what you tap
+ *  for. Chevron rotates the same way `<Section>`'s own header does. */
 function QA({ q, children }: { q: string; children: ReactNode }) {
+  const [open, setOpen] = useState(false);
   return (
-    <li className={`${INSET_DIVIDER} px-3.5 py-3`}>
-      <p className="lead">{q}</p>
-      <p className="note mt-1 text-ink-soft">{children}</p>
+    <li className={INSET_DIVIDER}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-3 px-3.5 py-3 text-left"
+      >
+        <span className="value min-w-0 flex-1">{q}</span>
+        <Icon name="chevron" size={14} className={`shrink-0 text-ink-faint transition-transform ${open ? "rotate-90" : ""}`} />
+      </button>
+      {open && <p className="note -mt-1 px-3.5 pb-3.5 text-ink-soft">{children}</p>}
     </li>
   );
 }
@@ -25,7 +35,7 @@ function QA({ q, children }: { q: string; children: ReactNode }) {
 export default function Help() {
   return (
     <Page>
-      <PageHeader back="/manage" title="Help & FAQ" meta="The non-obvious bits, in plain language." />
+      <PageHeader back="/manage" title="Help & FAQ" meta="Tap a question for the answer." />
 
       <div className="space-y-6">
         <Section title="Money & spending">
@@ -53,7 +63,7 @@ export default function Help() {
 
         <Section title="Planning your days">
           <ul>
-            <QA q="In a day's Plan, what's the difference between picking a place and “Custom…”?">
+            <QA q="Picking a place vs. “Custom…” in a day's Plan — what's the difference?">
               If you've added an Area to that day (further down the same page), its places show up
               in a dropdown so you can pick one directly — the step then links to that place and
               shows on the day's map. “Custom…” is for anything that isn't a place — an errand, a
