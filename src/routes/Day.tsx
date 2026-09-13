@@ -21,6 +21,7 @@ import { MoneyField } from "@/components/MoneyField";
 import { RichNote } from "@/components/RichNote";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { SwipeToDelete } from "@/components/SwipeToDelete";
+import { ConfirmButton } from "@/components/ConfirmButton";
 import { Icon } from "@/components/Icon";
 import { IconTile } from "@/components/IconTile";
 import { toneForPlaceCategory } from "@/lib/tones";
@@ -59,6 +60,7 @@ export default function Day() {
   const { id } = useParams();
   const updateEntity = useApp((s) => s.updateEntity);
   const addEntity = useApp((s) => s.addEntity);
+  const removeEntity = useApp((s) => s.removeEntity);
   const nav = useNavigate();
   const ro = useReadOnly();
   if (!data) return null;
@@ -308,6 +310,16 @@ export default function Day() {
         <button onClick={() => patch({ dayTrip: true })} className="action mt-8">
           <Icon name="plus" size={14} /> Make this a day trip
         </button>
+      )}
+
+      {!ro && (
+        <ConfirmButton
+          label="Delete day"
+          onConfirm={() => { removeEntity("days", day.id); nav("/"); }}
+          className="mt-4 w-full justify-center py-2 text-sm font-medium text-danger"
+        >
+          Delete day
+        </ConfirmButton>
       )}
     </Page>
   );
