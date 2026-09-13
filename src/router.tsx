@@ -12,6 +12,7 @@ const LogbookIndex = lazy(() => import("@/routes/Logbook").then((m) => ({ defaul
 const LogbookSection = lazy(() => import("@/routes/Logbook").then((m) => ({ default: m.LogbookSection })));
 const Hotel = lazy(() => import("@/routes/Hotel"));
 const Manage = lazy(() => import("@/routes/Manage"));
+const Help = lazy(() => import("@/routes/Help"));
 const NotFound = lazy(() => import("@/routes/NotFound"));
 
 export const router = createBrowserRouter([
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
       { path: "logbook/:section", element: <LogbookSection /> },
       { path: "hotel/:id", element: <Hotel /> },
       { path: "manage", element: <Manage /> },
+      { path: "help", element: <Help /> },
       { path: "*", element: <NotFound /> },
     ],
   },
