@@ -53,11 +53,25 @@ export function RichNote({
     setEditing(false);
   };
 
+  /** flip a single checklist line's `[ ]`/`[x]` and commit, without opening edit mode */
+  const toggleCheck = (line: number, checked: boolean) => {
+    const lines = value.replace(/\r\n?/g, "\n").split("\n");
+    lines[line] = lines[line].replace(/\[[ xX]\]/, checked ? "[x]" : "[ ]");
+    onCommit(lines.join("\n"));
+  };
+
   if (!editing) {
     return value.trim() ? (
-      <button type="button" onClick={() => setEditing(true)} aria-label="Edit note" className={`editable block w-full text-left ${className}`}>
-        <Markdown text={value} />
-      </button>
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => setEditing(true)}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setEditing(true); } }}
+        aria-label="Edit note"
+        className={`editable block w-full text-left ${className}`}
+      >
+        <Markdown text={value} onToggleCheck={toggleCheck} />
+      </div>
     ) : (
       <button type="button" onClick={() => setEditing(true)} aria-label="Add a note" className={`editable block text-left italic text-ink-faint ${className}`}>
         {placeholder}
@@ -100,6 +114,25 @@ export function RichNote({
     const allBullets = rows.every((l) => l.trim() === "" || /^\s*[-*+]\s+/.test(l));
     const next = rows
       .map((l) => (l.trim() === "" ? l : allBullets ? l.replace(/^(\s*)[-*+]\s+/, "$1") : `- ${l}`))
+      .join("\n");
+    el.setSelectionRange(from, to);
+    insert(next);
+  };
+
+  /** toggle "- [ ] " in front of every line the selection touches */
+  const checklistify = () => {
+    const el = ta.current;
+    if (!el) return;
+    el.focus();
+    const { selectionStart: s, selectionEnd: e, value: v } = el;
+    const from = v.lastIndexOf("\n", s - 1) + 1;
+    let to = v.indexOf("\n", e);
+    if (to === -1) to = v.length;
+    const rows = v.slice(from, to).split("\n");
+    const stripPrefix = (l: string) => l.replace(/^(\s*)[-*+]\s+(?:\[[ xX]\]\s*)?/, "$1");
+    const allChecks = rows.every((l) => l.trim() === "" || /^\s*[-*+]\s+\[[ xX]\]\s+/.test(l));
+    const next = rows
+      .map((l) => (l.trim() === "" ? l : allChecks ? stripPrefix(l) : `- [ ] ${stripPrefix(l)}`))
       .join("\n");
     el.setSelectionRange(from, to);
     insert(next);
@@ -157,6 +190,7 @@ export function RichNote({
         <Tool label="Bold" on={() => wrap("**")}><span className="text-[0.9rem] font-bold">B</span></Tool>
         <Tool label="Italic" on={() => wrap("*")}><span className="font-serif text-[0.9rem] italic">I</span></Tool>
         <Tool label="Bullet list" on={listify}><Icon name="list" size={15} /></Tool>
+        <Tool label="Checklist" on={checklistify}><Icon name="checklist" size={15} /></Tool>
         <Tool label="Link" on={addLink}><Icon name="link" size={15} /></Tool>
       </div>
       <textarea
@@ -170,7 +204,7 @@ export function RichNote({
         className="w-full resize-none rounded border border-gold/60 bg-surface px-2.5 py-2 text-[0.9rem] leading-[1.6] outline-none focus:border-gold"
       />
       <p className="mt-1 text-2xs text-ink-faint">
-        **bold** · *italic* · - bullet · [text](link) — ⌘/Ctrl-Enter saves, Esc cancels
+        **bold** · *italic* · - bullet · - [ ] checklist · [text](link) — ⌘/Ctrl-Enter saves, Esc cancels
       </p>
     </div>
   );

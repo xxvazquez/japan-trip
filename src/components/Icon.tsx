@@ -36,6 +36,7 @@ export type IconName =
   | "walk"
   | "clock"
   | "list"
+  | "checklist"
   | "link"
   | "download"
   | "grip"
@@ -198,6 +199,16 @@ const P: Record<IconName, JSX.Element> = {
       <circle cx="4.5" cy="6" r="1" fill="currentColor" stroke="none" />
       <circle cx="4.5" cy="12" r="1" fill="currentColor" stroke="none" />
       <circle cx="4.5" cy="18" r="1" fill="currentColor" stroke="none" />
+    </>
+  ),
+  checklist: (
+    <>
+      <path d="m3.5 6.5 1.5 1.5L8 5" />
+      <path d="M12 6h8.5" />
+      <rect x="3.5" y="11" width="4" height="4" rx="1" />
+      <path d="M12 13h8.5" />
+      <rect x="3.5" y="17" width="4" height="4" rx="1" />
+      <path d="M12 19h8.5" />
     </>
   ),
   link: (
