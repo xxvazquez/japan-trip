@@ -180,7 +180,7 @@ export default function Day() {
                   <span className="text-2xs font-medium uppercase tracking-[0.12em]">Getting there</span>
                 </p>
                 <div className="note mt-1.5 text-ink">
-                  <Editable as="textarea" label="Getting there" value={day.getThere ?? ""} placeholder="The route out — train, bus, how long" onCommit={(v) => patch({ getThere: v || undefined })} />
+                  <RichNote value={day.getThere ?? ""} placeholder="The route out — train, bus, how long" onCommit={(v) => patch({ getThere: v || undefined })} />
                 </div>
               </div>
 
@@ -191,7 +191,7 @@ export default function Day() {
                   <span className="text-2xs font-medium uppercase tracking-[0.12em]">Getting back</span>
                 </p>
                 <div className="note mt-1.5 text-ink">
-                  <Editable as="textarea" label="Getting back" value={day.getBack ?? ""} placeholder="The route back" onCommit={(v) => patch({ getBack: v || undefined })} />
+                  <RichNote value={day.getBack ?? ""} placeholder="The route back" onCommit={(v) => patch({ getBack: v || undefined })} />
                 </div>
                 {(day.lastTrainBack || !ro) && (
                   <p className="mt-2.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 border-t border-gold/25 pt-2 text-sm">
