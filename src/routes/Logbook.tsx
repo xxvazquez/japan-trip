@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
@@ -257,38 +257,63 @@ function Stays() {
 function GettingAround() {
   const data = useData()!;
   const loc = data.config.locale;
+  const ro = useReadOnly();
+  const addEntity = useApp((s) => s.addEntity);
+  const nav = useNavigate();
   const journeys = useMemo(
     () => [...data.journeys].sort((a, b) => (a.date ?? "").localeCompare(b.date ?? "")),
     [data.journeys],
   );
-  if (journeys.length === 0) return <Empty what="No journeys" />;
+
+  // blank journey, kind chosen on its own page — same pattern as the Day
+  // route's "＋ New journey" (never guessed from a date here either)
+  const add = () => {
+    const id = crypto.randomUUID?.() ?? `journeys-${rid()}`;
+    addEntity("journeys", { id, label: "", kind: "transfer", date: data.meta.start, segments: [] } as never);
+    nav(`/journey/${id}`);
+  };
+
+  if (journeys.length === 0) {
+    return ro ? (
+      <Empty what="No journeys" />
+    ) : (
+      <div className="flex min-h-[52vh] flex-col items-center justify-center gap-3 text-center">
+        <p className="lead">No journeys</p>
+        <p className="meta max-w-xs">Flights, trains, transfers — however you get from A to B.</p>
+        <AddButton label="Add a journey" onClick={add} />
+      </div>
+    );
+  }
   return (
-    <Section>
-      <ul>
-        {journeys.map((j) => {
-          const first = j.segments[0];
-          const last = j.segments.at(-1);
-          const changes = Math.max(0, j.segments.length - 1);
-          const mode = first?.mode ?? "train";
-          const times =
-            fmtSpan(
-              { depart: first?.depart, arrive: last?.arrive ?? last?.depart, fromTz: first?.fromTz, toTz: last?.toTz },
-              j.date,
-              loc,
-            ) || "—";
-          return (
-            <TileRow
-              key={j.id}
-              to={`/journey/${j.id}`}
-              tile={<IconTile size="sm" name={MODE_ICON[mode]} tone={toneForSegmentMode(mode)} />}
-              title={j.label || "Journey"}
-              meta={changes > 0 ? `${times} · ${plural(changes, "change")}` : times}
-              right={j.date && fmtDate(j.date, loc, { day: "numeric", month: "short" })}
-            />
-          );
-        })}
-      </ul>
-    </Section>
+    <div className="space-y-3">
+      {!ro && <AddButton label="Add a journey" onClick={add} />}
+      <Section>
+        <ul>
+          {journeys.map((j) => {
+            const first = j.segments[0];
+            const last = j.segments.at(-1);
+            const changes = Math.max(0, j.segments.length - 1);
+            const mode = first?.mode ?? "train";
+            const times =
+              fmtSpan(
+                { depart: first?.depart, arrive: last?.arrive ?? last?.depart, fromTz: first?.fromTz, toTz: last?.toTz },
+                j.date,
+                loc,
+              ) || "—";
+            return (
+              <TileRow
+                key={j.id}
+                to={`/journey/${j.id}`}
+                tile={<IconTile size="sm" name={MODE_ICON[mode]} tone={toneForSegmentMode(mode)} />}
+                title={j.label || "Journey"}
+                meta={changes > 0 ? `${times} · ${plural(changes, "change")}` : times}
+                right={j.date && fmtDate(j.date, loc, { day: "numeric", month: "short" })}
+              />
+            );
+          })}
+        </ul>
+      </Section>
+    </div>
   );
 }
 
