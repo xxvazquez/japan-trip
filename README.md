@@ -47,14 +47,17 @@ automatically from what you set on the day itself, never chosen by hand.
   page). A **day trip** leads with a **Getting there** and a **Getting back**
   card (free text, the last way home folded into the back one), a checklist,
   then the day's **Plan** — an itinerary of steps, each with a leading tile
-  (the linked place's category, or a plain pin), a time on a quiet line (a
-  single time or a `14:00–15:15` range), and a line of text, **drag to
+  (the linked place's category, or a plain pin), a time on a quiet line first
+  (optional — a single time or a `14:00–15:15` range), then what the step
+  actually is: a dropdown of places from the Areas you've added to this day
+  (below), or **Custom…** for a one-off with its own text field. **Drag to
   reorder**. Expand a step (the **⌄**) for a formatted note (bold, bullets,
-  links) in its own box, and to link it to a place on your map — linked steps
-  show on the day's map. Below that, **Areas** (drop a whole neighbourhood's
-  pins onto the map), a **Spending** list (a category and a whole number per
-  row, plus an optional note; subtotalled and fed to Expenses), and free-text
-  **General notes**. Every section here folds away from its header.
+  links) in its own box — a step linked to a place shows on the day's map.
+  Below that, **Areas** (drop a whole neighbourhood's pins onto the map — a
+  chip's **×** asks first), a **Spending** list (a category and a whole
+  number per row, plus an optional note; subtotalled and fed to Expenses),
+  and free-text **General notes**. Every section here folds away from its
+  header.
 
 **Journeys** (linked from a day, or the *getting around* tab). A journey is one
 or more **hops**. Each hop is a card, tinted by mode (rail, air/sea, road, on

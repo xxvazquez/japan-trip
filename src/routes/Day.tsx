@@ -76,6 +76,10 @@ export default function Day() {
   const journey = L.journey(day.journeyId);
   const loc = data.config.locale;
   const setPlan = (next: PlanItem[]) => patch({ plan: next.length ? next : undefined });
+  // places available to a plan step's picker — drawn only from this day's own
+  // linked areas (see the Areas section below), not every place in the trip
+  const areaPlaceIds = new Set((day.areaIds ?? []).flatMap((aid) => data.areas.find((a) => a.id === aid)?.placeIds ?? []));
+  const areaPlaces = data.places.filter((p) => areaPlaceIds.has(p.id));
 
   // "＋ New journey" — a blank journey, its type chosen on the journey page (never
   // guessed from the day's date: you can arrive, transfer or leave at any point).
@@ -208,7 +212,7 @@ export default function Day() {
         <Section
           icon="itinerary"
           title="Plan"
-          info="Drag to reorder. Tap ⌄ on a step for a note, or link it to a place on your map."
+          info="Drag to reorder. Pick a place from an Area you've added below, or Custom for anything else. Tap ⌄ on a step for a note."
           action={
             !ro && (day.plan ?? []).length > 0 && (
               <button onClick={() => setPlan([...(day.plan ?? []), { id: rid(), text: "" }])} className="action text-xs">
@@ -217,7 +221,7 @@ export default function Day() {
             )
           }
         >
-          <PlanList items={day.plan ?? []} places={data.places} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} />
+          <PlanList items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} />
         </Section>
       )}
 
@@ -249,13 +253,13 @@ export default function Day() {
                     </button>
                   )}
                   {!ro && (
-                    <button
-                      onClick={() => patch({ areaIds: (day.areaIds ?? []).filter((x) => x !== id) })}
-                      aria-label={`Remove ${a.name}`}
+                    <ConfirmButton
+                      label={`Remove ${a.name || "this area"}`}
+                      onConfirm={() => patch({ areaIds: (day.areaIds ?? []).filter((x) => x !== id) })}
                       className="text-ink-faint hover:text-accent"
                     >
                       <Icon name="close" size={11} />
-                    </button>
+                    </ConfirmButton>
                   )}
                 </span>
               );
@@ -328,9 +332,10 @@ export default function Day() {
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanList({ items, places, categoryIcons, readOnly, onChange }: {
+function PlanList({ items, places, areaPlaces, categoryIcons, readOnly, onChange }: {
   items: PlanItem[];
   places: Place[];
+  areaPlaces: Place[];
   categoryIcons?: Record<string, string>;
   readOnly: boolean;
   onChange: (next: PlanItem[]) => void;
@@ -358,7 +363,7 @@ function PlanList({ items, places, categoryIcons, readOnly, onChange }: {
       key={it.id}
       item={it}
       place={it.placeId ? places.find((p) => p.id === it.placeId) : undefined}
-      places={places}
+      areaPlaces={areaPlaces}
       categoryIcons={categoryIcons}
       readOnly={readOnly}
       onPatch={(p) => patchItem(it.id, p)}
@@ -384,10 +389,10 @@ function PlanList({ items, places, categoryIcons, readOnly, onChange }: {
   );
 }
 
-function PlanRow({ item, place, places, categoryIcons, readOnly, onPatch, onRemove }: {
+function PlanRow({ item, place, areaPlaces, categoryIcons, readOnly, onPatch, onRemove }: {
   item: PlanItem;
   place?: Place;
-  places: Place[];
+  areaPlaces: Place[];
   categoryIcons?: Record<string, string>;
   readOnly: boolean;
   onPatch: (p: Partial<PlanItem>) => void;
@@ -398,6 +403,14 @@ function PlanRow({ item, place, places, categoryIcons, readOnly, onPatch, onRemo
   const hasNote = !!item.note?.trim();
   const [open, setOpen] = useState(false);
   const canExpand = !readOnly || hasNote;
+
+  // the step's "what" picker: this day's own area places, plus the step's
+  // already-linked place if it isn't one of them (an area removed later, or
+  // a legacy link) — never silently drops an existing link.
+  const pickable = place && !areaPlaces.some((p) => p.id === place.id)
+    ? [place, ...areaPlaces]
+    : areaPlaces;
+  const sortedPickable = [...pickable].sort((a, b) => a.name.localeCompare(b.name));
 
   const range = splitRange(item.time);
   const timeText = range ? `${range[0]} – ${range[1]}` : item.time;
@@ -421,78 +434,94 @@ function PlanRow({ item, place, places, categoryIcons, readOnly, onPatch, onRemo
       className={`group relative text-sm after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden ${isDragging ? "z-10 bg-surface opacity-80" : ""}`}
     >
       <SwipeToDelete onDelete={readOnly ? undefined : onRemove}>
-      <div className="flex items-center gap-2.5 px-3.5 py-2.5">
-        {!readOnly && (
-          <button
-            {...attributes}
-            {...listeners}
-            className="grid h-4 w-3 shrink-0 cursor-grab touch-none place-items-center text-ink-faint/50 active:cursor-grabbing"
-            aria-label="Drag to reorder"
-          >
-            <Icon name="grip" size={13} />
-          </button>
-        )}
-        {mapHref ? (
-          <a href={mapHref} target="_blank" rel="noopener" className="shrink-0" aria-label={place ? `Open ${place.name} in Google Maps` : "Open in Google Maps"}>
-            {tile}
-          </a>
-        ) : (
-          tile
-        )}
-        <span className="min-w-0 flex-1">
-          <span className="block truncate leading-snug text-ink">
-            {readOnly
-              ? item.text
-              : <Editable label="Step" value={item.text} placeholder="Add a step" onCommit={(v) => onPatch({ text: v })} />}
-          </span>
+      <div className="px-3.5 py-2.5">
+        <div className="flex items-center gap-2.5">
+          {!readOnly && (
+            <button
+              {...attributes}
+              {...listeners}
+              className="grid h-4 w-3 shrink-0 cursor-grab touch-none place-items-center text-ink-faint/50 active:cursor-grabbing"
+              aria-label="Drag to reorder"
+            >
+              <Icon name="grip" size={13} />
+            </button>
+          )}
+          {mapHref ? (
+            <a href={mapHref} target="_blank" rel="noopener" className="shrink-0" aria-label={place ? `Open ${place.name} in Google Maps` : "Open in Google Maps"}>
+              {tile}
+            </a>
+          ) : (
+            tile
+          )}
+          {/* hour first — optional, quiet (meta) styling since the step's
+              name below is the main thing */}
           {(readOnly ? !!timeText : true) && (
-            <span className="meta block leading-tight tabular-nums">
-              {readOnly ? (
-                timeText
-              ) : plainTime ? (
-                <Editable as="time" label="Time" value={item.time ?? ""} placeholder="Add a time" onCommit={(v) => onPatch({ time: v || undefined })} />
-              ) : (
-                <Editable label="Time" value={item.time ?? ""} placeholder="Add a time" onCommit={(v) => onPatch({ time: v.trim() || undefined })} />
-              )}
+            <span className="min-w-0 flex-1">
+              <span className="meta block leading-tight tabular-nums">
+                {readOnly ? (
+                  timeText
+                ) : plainTime ? (
+                  <Editable as="time" label="Time" value={item.time ?? ""} placeholder="Add a time" onCommit={(v) => onPatch({ time: v || undefined })} />
+                ) : (
+                  <Editable label="Time" value={item.time ?? ""} placeholder="Add a time" onCommit={(v) => onPatch({ time: v.trim() || undefined })} />
+                )}
+              </span>
             </span>
           )}
-        </span>
-        {canExpand && (
-          <button
-            type="button"
-            onClick={() => setOpen((o) => !o)}
-            aria-label={open ? "Hide step details" : "Step details"}
-            className="shrink-0 px-0.5"
-          >
-            <Icon
-              name="chevron"
-              size={13}
-              className={`transition-transform ${open ? "rotate-90" : ""} ${hasNote ? "text-ink-soft" : "text-ink-faint/50"}`}
-            />
-          </button>
-        )}
-        {!readOnly && <RowDeleteButton onClick={onRemove} />}
+          {canExpand && (
+            <button
+              type="button"
+              onClick={() => setOpen((o) => !o)}
+              aria-label={open ? "Hide step details" : "Step details"}
+              className="shrink-0 px-0.5"
+            >
+              <Icon
+                name="chevron"
+                size={13}
+                className={`transition-transform ${open ? "rotate-90" : ""} ${hasNote ? "text-ink-soft" : "text-ink-faint/50"}`}
+              />
+            </button>
+          )}
+          {!readOnly && <RowDeleteButton onClick={onRemove} />}
+        </div>
+
+        {/* what the step is — a place from one of this day's Areas, or Custom
+            text; falls back to a plain text field when there's nothing to
+            pick from yet (no Area added to the day). */}
+        <div className="mt-1 space-y-1.5 pl-[calc(22px+0.75rem)]">
+          {readOnly ? (
+            <span className="block truncate leading-snug text-ink">{item.text}</span>
+          ) : sortedPickable.length > 0 ? (
+            <>
+              <select
+                value={item.placeId ?? ""}
+                onChange={(e) => {
+                  const pid = e.target.value;
+                  if (!pid) { onPatch({ placeId: undefined }); return; }
+                  const p = sortedPickable.find((x) => x.id === pid);
+                  onPatch({ placeId: pid, text: p?.name ?? item.text });
+                }}
+                aria-label="What this step is"
+                className="block w-full max-w-full cursor-pointer truncate bg-transparent text-left leading-snug text-ink focus:outline-none"
+              >
+                <option value="">Custom…</option>
+                {sortedPickable.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+              {!item.placeId && (
+                <Editable label="Custom step" value={item.text} placeholder="What is it?" onCommit={(v) => onPatch({ text: v })} className="block leading-snug text-ink" />
+              )}
+            </>
+          ) : (
+            <Editable label="Step" value={item.text} placeholder="Add a step" onCommit={(v) => onPatch({ text: v })} className="block leading-snug text-ink" />
+          )}
+        </div>
       </div>
       </SwipeToDelete>
 
       {open && (
         <div className="space-y-2.5 pb-3 pl-12 pr-3.5">
-          {!readOnly && (places.length > 0 || item.placeId) && (
-            <div className="flex items-center gap-1.5">
-              <Icon name="pin" size={12} className={item.placeId ? "shrink-0 text-ink-soft" : "shrink-0 text-ink-faint"} />
-              <select
-                value={item.placeId ?? ""}
-                onChange={(e) => onPatch({ placeId: e.target.value || undefined })}
-                aria-label="Link this step to a place"
-                className="min-w-0 flex-1 cursor-pointer bg-transparent text-xs font-medium text-ink focus:outline-none"
-              >
-                <option value="">Link a place…</option>
-                {[...places].sort((a, b) => a.name.localeCompare(b.name)).map((p) => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
-            </div>
-          )}
           {(!readOnly || hasNote) && (
             <div className="rounded border border-line bg-bg/60 px-3 py-2.5">
               <RichNote
