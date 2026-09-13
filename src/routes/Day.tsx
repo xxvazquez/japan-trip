@@ -15,6 +15,7 @@ import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { InsetRow } from "@/components/InsetRow";
+import { ActionSheet, useActionSheet } from "@/components/ActionSheet";
 import { Editable } from "@/components/Editable";
 import { MoneyField } from "@/components/MoneyField";
 import { RichNote } from "@/components/RichNote";
@@ -79,6 +80,17 @@ export default function Day() {
   // linked areas (see the Areas section below), not every place in the trip
   const areaPlaceIds = new Set((day.areaIds ?? []).flatMap((aid) => data.areas.find((a) => a.id === aid)?.placeIds ?? []));
   const areaPlaces = data.places.filter((p) => areaPlaceIds.has(p.id));
+  // once a day spans more than 2 areas, the picker shows which area each
+  // place is from (first area wins for a place linked to more than one)
+  const areaNameByPlaceId = new Map<string, string>();
+  if ((day.areaIds ?? []).length > 2) {
+    for (const aid of day.areaIds ?? []) {
+      const a = data.areas.find((x) => x.id === aid);
+      for (const pid of a?.placeIds ?? []) {
+        if (!areaNameByPlaceId.has(pid)) areaNameByPlaceId.set(pid, a!.name);
+      }
+    }
+  }
 
   // "＋ New journey" — a blank journey, its type chosen on the journey page (never
   // guessed from the day's date: you can arrive, transfer or leave at any point).
@@ -220,7 +232,7 @@ export default function Day() {
             )
           }
         >
-          <PlanList items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} />
+          <PlanList items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} />
         </Section>
       )}
 
@@ -331,10 +343,11 @@ export default function Day() {
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanList({ items, places, areaPlaces, categoryIcons, readOnly, onChange }: {
+function PlanList({ items, places, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onChange }: {
   items: PlanItem[];
   places: Place[];
   areaPlaces: Place[];
+  areaNameByPlaceId: Map<string, string>;
   categoryIcons?: Record<string, string>;
   readOnly: boolean;
   onChange: (next: PlanItem[]) => void;
@@ -363,6 +376,7 @@ function PlanList({ items, places, areaPlaces, categoryIcons, readOnly, onChange
       item={it}
       place={it.placeId ? places.find((p) => p.id === it.placeId) : undefined}
       areaPlaces={areaPlaces}
+      areaNameByPlaceId={areaNameByPlaceId}
       categoryIcons={categoryIcons}
       readOnly={readOnly}
       onPatch={(p) => patchItem(it.id, p)}
@@ -388,10 +402,11 @@ function PlanList({ items, places, areaPlaces, categoryIcons, readOnly, onChange
   );
 }
 
-function PlanRow({ item, place, areaPlaces, categoryIcons, readOnly, onPatch, onRemove }: {
+function PlanRow({ item, place, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onPatch, onRemove }: {
   item: PlanItem;
   place?: Place;
   areaPlaces: Place[];
+  areaNameByPlaceId: Map<string, string>;
   categoryIcons?: Record<string, string>;
   readOnly: boolean;
   onPatch: (p: Partial<PlanItem>) => void;
@@ -485,22 +500,16 @@ function PlanRow({ item, place, areaPlaces, categoryIcons, readOnly, onPatch, on
               <span className="block truncate leading-snug text-ink">{item.text}</span>
             ) : sortedPickable.length > 0 ? (
               <>
-                <select
-                  value={item.placeId ?? ""}
-                  onChange={(e) => {
-                    const pid = e.target.value;
+                <PlacePicker
+                  value={item.placeId}
+                  places={sortedPickable}
+                  areaNameByPlaceId={areaNameByPlaceId}
+                  onPick={(pid) => {
                     if (!pid) { onPatch({ placeId: undefined }); return; }
                     const p = sortedPickable.find((x) => x.id === pid);
                     onPatch({ placeId: pid, text: p?.name ?? item.text });
                   }}
-                  aria-label="What this step is"
-                  className="editable block w-full max-w-full cursor-pointer truncate bg-transparent text-left leading-snug text-ink focus:outline-none"
-                >
-                  <option value="">Custom…</option>
-                  {sortedPickable.map((p) => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
-                  ))}
-                </select>
+                />
                 {!item.placeId && (
                   <Editable label="Custom step" value={item.text} placeholder="What is it?" onCommit={(v) => onPatch({ text: v })} className="block leading-snug text-ink" />
                 )}
@@ -521,6 +530,54 @@ function PlanRow({ item, place, areaPlaces, categoryIcons, readOnly, onPatch, on
       </div>
       </SwipeToDelete>
     </li>
+  );
+}
+
+/** the plan step's "what" picker — a native `<select>` can't style part of an
+ *  option's text, so once a day has more than 2 Areas (see `areaNameByPlaceId`
+ *  in `Day`) and a place name alone stops being enough to tell rows apart, this
+ *  renders as an iOS-style sheet list instead, with the area as trailing quiet
+ *  text on the same line (same idiom as a place's category in Manage). */
+function PlacePicker({ value, places, areaNameByPlaceId, onPick }: {
+  value?: string;
+  places: Place[];
+  areaNameByPlaceId: Map<string, string>;
+  onPick: (id?: string) => void;
+}) {
+  const { open, setOpen, anchorRef } = useActionSheet();
+  const current = value ? places.find((p) => p.id === value) : undefined;
+  return (
+    <>
+      <button
+        ref={anchorRef}
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="What this step is"
+        aria-haspopup="menu"
+        className="editable block w-full max-w-full cursor-pointer truncate bg-transparent text-left leading-snug text-ink focus:outline-none"
+      >
+        {current ? current.name : "Custom…"}
+      </button>
+      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="What this step is">
+        <div className="max-h-[60vh] overflow-y-auto">
+          <button type="button" onClick={() => onPick(undefined)} className="menu-item flex w-full items-center gap-2">
+            <Icon name="check" size={13} className={`shrink-0 ${!value ? "text-accent" : "text-ink-faint/30"}`} />
+            <span className="min-w-0 flex-1 truncate">Custom…</span>
+          </button>
+          {places.map((p) => {
+            const areaName = areaNameByPlaceId.get(p.id);
+            const on = p.id === value;
+            return (
+              <button key={p.id} type="button" onClick={() => onPick(p.id)} className="menu-item flex w-full items-center gap-2">
+                <Icon name="check" size={13} className={`shrink-0 ${on ? "text-accent" : "text-ink-faint/30"}`} />
+                <span className="min-w-0 flex-1 truncate">{p.name}</span>
+                {areaName && <span className="shrink-0 text-2xs text-ink-faint">{areaName}</span>}
+              </button>
+            );
+          })}
+        </div>
+      </ActionSheet>
+    </>
   );
 }
 

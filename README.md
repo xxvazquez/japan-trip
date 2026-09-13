@@ -49,10 +49,11 @@ automatically from what you set on the day itself, never chosen by hand.
   then the day's **Plan** — an itinerary of steps, each with a leading tile
   (the linked place's category, or a plain pin), a time on a quiet line first
   (optional — a single time or a `14:00–15:15` range), then what the step
-  actually is: a dropdown of places from the Areas you've added to this day
-  (below), or **Custom…** for a one-off with its own text field. **Drag to
-  reorder**. Expand a step (the **⌄**) for a formatted note (bold, bullets,
-  links) in its own box — a step linked to a place shows on the day's map.
+  actually is: pick a place from the Areas you've added to this day (below) —
+  past 2 linked areas, each option in the picker shows which area it's from —
+  or **Custom…** for a one-off with its own text field. **Drag to reorder**.
+  Underneath, its own quiet note line (bold, bullets, links) — tap to expand
+  and edit; a step linked to a place shows on the day's map.
   Below that, **Areas** (drop a whole neighbourhood's pins onto the map — a
   chip's **×** asks first), a **Spending** list (a category and a whole
   number per row, plus an optional note; subtotalled and fed to Expenses),
