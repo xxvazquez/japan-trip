@@ -92,33 +92,6 @@ export default function Help() {
             </QA>
           </ul>
         </Section>
-
-        <Section title="Sharing & accounts">
-          <ul>
-            <QA q="How do I share the trip with someone else?">
-              Manage → Sharing → add their email (the one they'll sign in with). From then on you
-              both see and edit the exact same trip — changes show up on the other person's screen
-              within a second or two.
-            </QA>
-            <QA q="Why does a trip say “read-only”?">
-              That's the built-in Demo — a tour of the app, not a real trip, so it can't be edited.
-              Make your own from Manage → Trips → New trip; that one's fully yours.
-            </QA>
-          </ul>
-        </Section>
-
-        <Section title="Using it day to day">
-          <ul>
-            <QA q="How do I delete something — I see both a swipe and an ×?">
-              On a touchscreen, swipe a row left to reveal Delete. With a mouse or trackpad, use the
-              × (or the ⋯ menu) instead — there's nothing to swipe there.
-            </QA>
-            <QA q="Can I put this on my home screen like a real app?">
-              Yes — open the link in Safari or Chrome, then Share → Add to Home Screen. It opens
-              full-screen with no browser bar, and still works offline for anything already loaded.
-            </QA>
-          </ul>
-        </Section>
       </div>
     </Page>
   );
