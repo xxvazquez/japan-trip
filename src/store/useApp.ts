@@ -7,7 +7,7 @@ import { store as kv } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/app";
 import { normalizeTrip } from "@/lib/hydrate";
 import { fmtDate, rangeText, shiftDate } from "@/lib/dates";
-import type { Day, EntityType, MediaItem, TripData, TripSummary } from "@/core/types";
+import type { Day, EntityType, MediaItem, Place, TripData, TripSummary } from "@/core/types";
 
 const now = () => new Date().toISOString();
 
@@ -859,20 +859,36 @@ export const useApp = create<AppStore>((set, get) => {
       const rid = () => (crypto?.randomUUID ? crypto.randomUUID() : `p-${Math.random().toString(36).slice(2)}`);
       const { mapName, places } = await fetchMyMap(url);
       const removed: string[] = [];
-      const added: string[] = [];
+      const upserted: string[] = [];
       if (!local((d) => {
-        for (const p of d.places) if (p.source === "mymap") removed.push(p.id);
-        d.places = d.places.filter((p) => p.source !== "mymap");
-        for (const p of places) {
-          const id = rid();
-          added.push(id);
-          d.places.push({ id, name: p.name, lat: p.lat, lng: p.lng, category: p.category, color: p.color, source: "mymap" });
+        // Match incoming pins back to their existing row (by name — the KML
+        // export carries no stable id) so an unchanged pin keeps its id, its
+        // Area membership, and any note/link added in the app. Only a pin
+        // genuinely gone from the map, or genuinely new, changes id.
+        const norm = (s: string) => s.trim().toLowerCase();
+        const byName = new Map<string, Place[]>();
+        for (const p of d.places) {
+          if (p.source !== "mymap") continue;
+          const key = norm(p.name);
+          const bucket = byName.get(key);
+          if (bucket) bucket.push(p); else byName.set(key, [p]);
         }
+        const next: Place[] = places.map((p) => {
+          const match = byName.get(norm(p.name))?.shift();
+          const id = match?.id ?? rid();
+          upserted.push(id);
+          return {
+            id, name: p.name, lat: p.lat, lng: p.lng, category: p.category, color: p.color,
+            source: "mymap", note: match?.note, url: match?.url,
+          };
+        });
+        for (const bucket of byName.values()) for (const p of bucket) removed.push(p.id);
+        d.places = [...d.places.filter((p) => p.source !== "mymap"), ...next];
         d.config.mapSourceUrl = url;
         d.config.mapSyncedAt = now();
       })) return { mapName, count: 0 };
       for (const id of removed) enqueue(get, { t: "del", type: "places", id });
-      for (const id of added) enqueue(get, { t: "row", type: "places", id });
+      for (const id of upserted) enqueue(get, { t: "row", type: "places", id });
       enqueue(get, { t: "fields", keys: ["config"] });
       return { mapName, count: places.length };
     },
