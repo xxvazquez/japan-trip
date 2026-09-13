@@ -718,7 +718,7 @@ function ModulesPanel() {
               </button>
             </div>
             <span className="flex-1">
-              <span className="lead"><Editable label="Section label" value={m.label} onCommit={(v) => mutate((d) => { d.config.modules[i].label = v || m.label; })} /></span>
+              <Editable label="Section label" value={m.label} onCommit={(v) => mutate((d) => { d.config.modules[i].label = v || m.label; })} />
               <span className="ml-2 text-xs text-ink-soft">{m.kind}</span>
             </span>
             <button
