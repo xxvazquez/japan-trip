@@ -1,4 +1,4 @@
-import type { ExpenseCategory, Journey, TripData } from "@/core/types";
+import type { ExpenseCategory, Journey, TransportMode, TripData } from "@/core/types";
 
 const SYMBOL_CURRENCY: Record<string, string> = {
   "¥": "JPY", "$": "USD", "€": "EUR", "£": "GBP", "₩": "KRW", "₹": "INR",
@@ -130,6 +130,10 @@ export function tripCost(data: TripData): CostSummary {
   const known = new Set(categories.map((c) => c.id));
   const lodgingId = categories.find((c) => c.role === "lodging")?.id;
   const transportId = categories.find((c) => c.role === "transport")?.id;
+  // a hop mode claimed by a category (Train, Flights…) skips the transport-role
+  // catch-all; first category to claim a mode wins, matching the Manage UI
+  const modeCategory = new Map<TransportMode, string>();
+  for (const c of categories) for (const m of c.modes ?? []) if (!modeCategory.has(m)) modeCategory.set(m, c.id);
 
   const addMoney = (m: Money, categoryId: string | undefined) => {
     const bucket = (byCurrency[m.currency] ??= emptyBucket());
@@ -149,14 +153,23 @@ export function tripCost(data: TripData): CostSummary {
 
   for (const hotel of data.hotels) add(hotel.price, lodgingId, hotel.name || "Hotel", hotel.priceCurrency);
 
-  // one value per journey — journeyFare picks the manual total or the hop sum,
-  // so a journey can never be double-counted
+  // one value per journey — a manual total and the hop sum are never both
+  // counted (journeyFare's own rule), so a journey can never be double-counted.
+  // A manual total carries no mode (it's one figure for the whole journey) and
+  // always falls to the transport-role catch-all; per-hop fares split by mode.
   for (const journey of data.journeys) {
-    if (journey.fare?.trim() && !parseMoney(journey.fare, journey.fareCurrency || fallback)) {
-      unparsed.push(`${journey.label || "Journey"} — "${journey.fare}"`);
+    if (journey.fare?.trim()) {
+      const m = parseMoney(journey.fare, journey.fareCurrency || fallback);
+      if (!m) { unparsed.push(`${journey.label || "Journey"} — "${journey.fare}"`); continue; }
+      addMoney(m, transportId);
       continue;
     }
-    for (const m of journeyFare(journey, fallback)) addMoney(m, transportId);
+    for (const seg of journey.segments) {
+      if (!seg.fare?.trim()) continue;
+      const m = parseMoney(seg.fare, seg.fareCurrency || fallback);
+      if (!m) { unparsed.push(`${journey.label || "Journey"} — "${seg.fare}"`); continue; }
+      addMoney(m, modeCategory.get(seg.mode) ?? transportId);
+    }
   }
 
   // per-day spending
@@ -167,6 +180,36 @@ export function tripCost(data: TripData): CostSummary {
   }
 
   return { byCurrency, categories, unparsed };
+}
+
+/** Blends every currency in `byCurrency` into one bucket, in `primary` units,
+ *  for the Expenses "combined" total — `rates` is `useFxRates`' shape (amount
+ *  of a currency per 1 unit of `primary`; divide by it to convert into
+ *  `primary`). A currency with no rate yet (still loading, offline before the
+ *  first fetch, or one frankfurter doesn't know) is left out of the blend —
+ *  its own per-currency section still shows it, nothing is silently dropped.
+ *  Null when there's nothing to combine (one currency, or no rates at all). */
+export function combineCurrencies(
+  byCurrency: Record<string, CurrencyBucket>,
+  primary: string,
+  rates: Record<string, number>,
+): CurrencyBucket | null {
+  const currencies = Object.keys(byCurrency).filter(Boolean);
+  if (!primary || currencies.length < 2) return null;
+  const usable = currencies.filter((c) => c === primary || rates[c]);
+  if (usable.length < 2) return null;
+
+  const out = emptyBucket();
+  for (const cur of usable) {
+    const factor = cur === primary ? 1 : rates[cur];
+    const bucket = byCurrency[cur];
+    for (const [catId, amt] of Object.entries(bucket.byCategory)) {
+      out.byCategory[catId] = (out.byCategory[catId] ?? 0) + amt / factor;
+    }
+    out.uncategorised += bucket.uncategorised / factor;
+    out.total += bucket.total / factor;
+  }
+  return out;
 }
 
 /** e.g. (42000, "JPY") -> "¥42,000"; falls back to a plain number when the

@@ -25,6 +25,8 @@ import { driveEnabled } from "@/lib/drive";
 import { useAuth, signOut } from "@/lib/auth";
 import { isLocalOnly, setLocalOnly } from "@/lib/localMode";
 import { RowMenu } from "@/components/RowMenu";
+import { MODE_LABEL } from "@/lib/transport";
+import type { TransportMode } from "@/core/types";
 import { Switch } from "@/components/Switch";
 import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
 import { useEffect } from "react";
@@ -537,25 +539,44 @@ function CurrenciesPanel() {
   );
 }
 
+/** every hop mode a category could claim, common ones first */
+const MODE_ORDER: TransportMode[] = ["train", "subway", "bus", "flight", "ferry", "taxi", "car", "walk"];
+
 /** The trip's expense categories — the buckets every spending row rolls up
  *  under on the Expenses tab. Reorder / rename / add / remove; the list can't
  *  be emptied. The two "auto" rows also gather fares and stay prices on their
- *  own, so renaming one keeps that wiring. */
+ *  own, so renaming one keeps that wiring. A category can also claim specific
+ *  hop modes (Train, Flights…) so fares split further than a single lump
+ *  "Transport" — a mode can only belong to one category at a time. */
 function ExpenseCategoriesPanel() {
   const data = useData();
   const mutate = useApp((s) => s.mutateTrip);
+  const [modesFor, setModesFor] = useState<string | null>(null);
   if (!data) return null;
   if (data.config.demo) return null;
   const cats = data.config.expenseCategories ?? [];
   const rid = () => Math.random().toString(36).slice(2, 9);
 
+  // which category (if any) already claims each mode, so a chip can't be
+  // double-assigned by mistake
+  const claimedBy = new Map<TransportMode, string>();
+  for (const c of cats) for (const m of c.modes ?? []) claimedBy.set(m, c.id);
+
   const move = (i: number, dir: -1 | 1) =>
     mutate((d) => { const a = d.config.expenseCategories!; [a[i + dir], a[i]] = [a[i], a[i + dir]]; });
+  const toggleMode = (catId: string, m: TransportMode) =>
+    mutate((d) => {
+      const cat = d.config.expenseCategories?.find((x) => x.id === catId);
+      if (!cat) return;
+      const has = (cat.modes ?? []).includes(m);
+      cat.modes = has ? cat.modes!.filter((x) => x !== m) : [...(cat.modes ?? []), m];
+      if (!cat.modes.length) delete cat.modes;
+    });
 
   return (
     <Section
       title="Expense categories"
-      info="The buckets your spending groups into on the Expenses tab. “Accommodation” collects every stay price and “Transport” every fare automatically."
+      info="The buckets your spending groups into on the Expenses tab. “Accommodation” collects every stay price automatically; a category can claim specific hop modes (Train, Flights…) to auto-collect those fares too — anything left over falls to whichever category is marked “fares”."
     >
       <ul>
         {cats.map((c, i) => (
@@ -569,13 +590,45 @@ function ExpenseCategoriesPanel() {
               </button>
             </div>
             <span className="min-w-0 flex-1">
-              <Editable
-                label="Category name"
-                value={c.label}
-                placeholder="Name"
-                onCommit={(v) => mutate((d) => { const x = d.config.expenseCategories?.[i]; if (x) x.label = v || x.label; })}
-              />
-              {c.role && <span className="ml-2 text-xs text-ink-soft">auto: {c.role === "lodging" ? "stays" : "fares"}</span>}
+              <div className="flex flex-wrap items-baseline gap-x-2">
+                <Editable
+                  label="Category name"
+                  value={c.label}
+                  placeholder="Name"
+                  onCommit={(v) => mutate((d) => { const x = d.config.expenseCategories?.[i]; if (x) x.label = v || x.label; })}
+                />
+                {c.role && <span className="text-xs text-ink-soft">auto: {c.role === "lodging" ? "stays" : "fares"}</span>}
+                <button
+                  type="button"
+                  onClick={() => setModesFor(modesFor === c.id ? null : c.id)}
+                  className="text-xs text-accent"
+                >
+                  {c.modes?.length ? c.modes.map((m) => MODE_LABEL[m]).join(", ") : "+ modes"}
+                </button>
+              </div>
+              {modesFor === c.id && (
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {MODE_ORDER.map((m) => {
+                    const mine = (c.modes ?? []).includes(m);
+                    const other = claimedBy.get(m);
+                    const disabled = !!other && other !== c.id;
+                    return (
+                      <button
+                        key={m}
+                        type="button"
+                        disabled={disabled}
+                        onClick={() => toggleMode(c.id, m)}
+                        title={disabled ? `Already claimed by another category` : undefined}
+                        className={`rounded-full border px-2.5 py-1 text-xs disabled:opacity-30 ${
+                          mine ? "border-accent bg-accent/10 text-accent" : "border-line text-ink-soft"
+                        }`}
+                      >
+                        {MODE_LABEL[m]}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </span>
             {cats.length > 1 && (
               <ConfirmButton
