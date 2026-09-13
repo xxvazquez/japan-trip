@@ -740,8 +740,10 @@ function LogbookSectionsPanel() {
   const mutate = useApp((s) => s.mutateTrip);
   if (!data) return null;
   const hidden = data.config.hiddenLogbook ?? [];
+  // custom lists are a retired feature — no way to add one any more, but an
+  // already-created list (an older trip, or the demo) still shows here to
+  // rename or remove.
   const lists = data.config.lists ?? [];
-  const rid = () => Math.random().toString(36).slice(2, 9);
   const toggleSection = (s: string) =>
     mutate((d) => {
       const set = new Set(d.config.hiddenLogbook ?? []);
@@ -771,7 +773,6 @@ function LogbookSectionsPanel() {
             </ConfirmButton>
           </li>
         ))}
-        <AddRow label="Add list" onClick={() => mutate((d) => { (d.config.lists ??= []).push({ id: `list-${rid()}`, title: "New list", items: [] }); })} />
       </ul>
     </Section>
   );
