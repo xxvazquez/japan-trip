@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   DndContext,
@@ -212,7 +211,7 @@ export default function Day() {
         <Section
           icon="itinerary"
           title="Plan"
-          info="Drag to reorder. Pick a place from an Area you've added below, or Custom for anything else. Tap ⌄ on a step for a note."
+          info="Drag to reorder. Pick a place from an Area you've added below, or Custom for anything else — tap the note line under it to add one."
           action={
             !ro && (day.plan ?? []).length > 0 && (
               <button onClick={() => setPlan([...(day.plan ?? []), { id: rid(), text: "" }])} className="action text-xs">
@@ -298,7 +297,7 @@ export default function Day() {
 
       {/* GENERAL NOTES — free-form catch-all, after the day's actual plan */}
       {(day.notes || !ro) && (
-        <Section icon="list" title="General notes" info="Light formatting — **bold**, *italic*, bullet lists, links.">
+        <Section icon="list" title="General notes" info="Light formatting — **bold**, *italic*, bullet lists, checklists, links.">
           <div className="note px-3.5 py-3">
             <RichNote
               value={day.notes ?? ""}
@@ -400,9 +399,6 @@ function PlanRow({ item, place, areaPlaces, categoryIcons, readOnly, onPatch, on
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id, disabled: readOnly });
   const mapHref = gmapsLink(item.url || place?.url || place?.name);
-  const hasNote = !!item.note?.trim();
-  const [open, setOpen] = useState(false);
-  const canExpand = !readOnly || hasNote;
 
   // the step's "what" picker: this day's own area places, plus the step's
   // already-linked place if it isn't one of them (an area removed later, or
@@ -482,8 +478,9 @@ function PlanRow({ item, place, areaPlaces, categoryIcons, readOnly, onPatch, on
           {/* what the step is — in line with the hour: a place from one of
               this day's Areas, or Custom text below it; falls back to a
               plain text field when there's nothing to pick from yet (no
-              Area added to the day). */}
-          <div className="min-w-0 flex-1 space-y-1.5 pt-px">
+              Area added to the day). A note is its own quiet row underneath —
+              italic placeholder when empty, tap to expand and edit. */}
+          <div className="min-w-0 flex-1 space-y-1 pt-px">
             {readOnly ? (
               <span className="block truncate leading-snug text-ink">{item.text}</span>
             ) : sortedPickable.length > 0 ? (
@@ -497,7 +494,7 @@ function PlanRow({ item, place, areaPlaces, categoryIcons, readOnly, onPatch, on
                     onPatch({ placeId: pid, text: p?.name ?? item.text });
                   }}
                   aria-label="What this step is"
-                  className="block w-full max-w-full cursor-pointer truncate bg-transparent text-left leading-snug text-ink focus:outline-none"
+                  className="editable block w-full max-w-full cursor-pointer truncate bg-transparent text-left leading-snug text-ink focus:outline-none"
                 >
                   <option value="">Custom…</option>
                   {sortedPickable.map((p) => (
@@ -511,41 +508,18 @@ function PlanRow({ item, place, areaPlaces, categoryIcons, readOnly, onPatch, on
             ) : (
               <Editable label="Step" value={item.text} placeholder="Add a step" onCommit={(v) => onPatch({ text: v })} className="block leading-snug text-ink" />
             )}
+            <RichNote
+              value={item.note ?? ""}
+              onCommit={(v) => onPatch({ note: v || undefined })}
+              placeholder="Add a note…"
+              className="block text-[0.8125rem] leading-relaxed text-ink-faint [&_strong]:text-ink-soft"
+            />
           </div>
 
-          {canExpand && (
-            <button
-              type="button"
-              onClick={() => setOpen((o) => !o)}
-              aria-label={open ? "Hide step details" : "Step details"}
-              className="shrink-0 px-0.5"
-            >
-              <Icon
-                name="chevron"
-                size={13}
-                className={`transition-transform ${open ? "rotate-90" : ""} ${hasNote ? "text-ink-soft" : "text-ink-faint/50"}`}
-              />
-            </button>
-          )}
           {!readOnly && <RowDeleteButton onClick={onRemove} />}
         </div>
       </div>
       </SwipeToDelete>
-
-      {open && (
-        <div className="space-y-2.5 pb-3 pl-12 pr-3.5">
-          {(!readOnly || hasNote) && (
-            <div className="rounded border border-line bg-bg/60 px-3 py-2.5">
-              <RichNote
-                value={item.note ?? ""}
-                onCommit={(v) => onPatch({ note: v || undefined })}
-                placeholder="Add a note — bold, bullets, links…"
-                className="text-[0.875rem] leading-relaxed text-ink-soft [&_strong]:text-ink"
-              />
-            </div>
-          )}
-        </div>
-      )}
     </li>
   );
 }
