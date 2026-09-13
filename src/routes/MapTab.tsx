@@ -140,8 +140,12 @@ export default function MapTab() {
   const [catFilter, setCatFilter] = useState<Set<string>>(new Set());
   /** area filter — empty means "all areas". Combines with scope + category. */
   const [areaFilter, setAreaFilter] = useState<Set<string>>(new Set());
-  /** area groups collapsed in the list, by area id ("" = the "no area" group) */
-  const [collapsedAreas, setCollapsedAreas] = useState<Set<string>>(new Set());
+  /** area groups collapsed in the list, by area id ("" = the "no area" group)
+   *  — every area starts collapsed; a pin picked on the map still opens its
+   *  own group (see the `shut` checks below). */
+  const [collapsedAreas, setCollapsedAreas] = useState<Set<string>>(
+    () => new Set([...(data?.areas.map((a) => a.id) ?? []), ""]),
+  );
   /** city groups collapsed in the "All" list, by leg id ("" = the "no city" group) */
   const [collapsedCities, setCollapsedCities] = useState<Set<string>>(new Set());
   /** transit overlay — empty means nothing shown (opt-in). Persisted across trips. */

@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
@@ -10,6 +10,7 @@ import { RichNote } from "@/components/RichNote";
 import { Icon, type IconName } from "@/components/Icon";
 import { IconTile } from "@/components/IconTile";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
+import { ConfirmButton } from "@/components/ConfirmButton";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
@@ -86,7 +87,9 @@ function TotalFareField({
 export default function Journey() {
   const data = useData();
   const { id } = useParams();
+  const navigate = useNavigate();
   const updateEntity = useApp((s) => s.updateEntity);
+  const removeEntity = useApp((s) => s.removeEntity);
   const ro = useReadOnly();
   if (!data) return null;
 
@@ -409,6 +412,18 @@ export default function Journey() {
             <RichNote value={j.notes ?? ""} onCommit={(v) => patch({ notes: v || undefined })} placeholder="Backup routes, reminders…" />
           </div>
         </Section>
+      )}
+
+      {!ro && (
+        <div className="pt-2 text-center">
+          <ConfirmButton
+            onConfirm={() => { removeEntity("journeys", j.id); navigate("/logbook"); }}
+            label="Delete journey"
+            className="text-sm font-medium text-danger"
+          >
+            Delete journey
+          </ConfirmButton>
+        </div>
       )}
       </div>
     </Page>

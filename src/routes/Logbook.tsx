@@ -548,6 +548,7 @@ function Documents() {
         <Section
           key={d.id}
           id={d.id}
+          defaultOpen={false}
           icon="vault"
           title={
             ro
