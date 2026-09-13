@@ -149,9 +149,8 @@ every price in the trip — a stay's price, a journey's fare, a day's spending �
 currencies, except the **Combined** total — see below). Stay prices land under
 Accommodation; a fare lands under whichever category claims its hop's mode
 (Train, Flights…), or under Transport if none does; each day-spending row
-lands under the category you picked; a value with no category shows as
-*Uncategorised*. A journey with a total *and* per-hop fares counts once, not
-twice. If the trip uses two or more currencies, a **Combined** section at the
+lands under the category you picked. A journey with a total *and* per-hop
+fares counts once, not twice. If the trip uses two or more currencies, a **Combined** section at the
 top adds them all together in the primary one, using an exchange rate fetched
 automatically when you're online (and cached for when you're not — it just
 shows the last one it fetched). Nothing is entered on this tab.
@@ -162,8 +161,10 @@ assignment), list the **currencies** the trip uses — the first is the default
 `100` counts as it without the symbol being typed; add a second currency and
 every price — a stay, a fare, a spending row, a custom "Price" field — gets a
 currency picker — edit the **expense categories** (reorder, rename, add,
-remove — the list can't be emptied; a category can also claim specific hop
-modes so fares split further than one lump "Transport"), hide the Logbook
+remove — the list can't be emptied, and removing one moves its spending to
+the next category rather than leaving it uncategorised; a category can also
+claim specific hop modes so fares split further than one lump "Transport"),
+hide the Logbook
 sections you don't need, and **add your own** — a title plus a list of things
 (name, note, link). Handy for "Restaurants to try", "Gifts to bring back", and
 so on.

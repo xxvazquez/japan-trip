@@ -51,7 +51,11 @@ function guessCategoryId(label: string, cats: ExpenseCategory[]): string | undef
   return fallbackCategoryId(cats);
 }
 
-const fallbackCategoryId = (cats: ExpenseCategory[]): string | undefined =>
+/** The sensible default category when a row has none to match — an "Other"/
+ *  "Misc" one if there is one, else any category with no fixed role, else
+ *  just the last category. Also reused by the Manage panel so deleting a
+ *  category can reassign its spending instead of leaving it uncategorised. */
+export const fallbackCategoryId = (cats: ExpenseCategory[]): string | undefined =>
   (cats.find((c) => /other|misc/.test(c.label.toLowerCase())) ?? cats.find((c) => !c.role) ?? cats[cats.length - 1])?.id;
 
 const today = () => new Date().toISOString().slice(0, 10);

@@ -26,11 +26,12 @@ import { useAuth, signOut } from "@/lib/auth";
 import { isLocalOnly, setLocalOnly } from "@/lib/localMode";
 import { RowMenu } from "@/components/RowMenu";
 import { MODE_LABEL } from "@/lib/transport";
+import { fallbackCategoryId } from "@/lib/hydrate";
 import type { TransportMode } from "@/core/types";
 import { Switch } from "@/components/Switch";
 import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
 import { useEffect } from "react";
-import type { Area, EntityType, TripData } from "@/core/types";
+import type { Area, Day, EntityType, ExpenseCategory, TripData } from "@/core/types";
 
 type TabId = "trips" | "setup" | "content" | "appearance" | "sharing";
 const TABS: TabId[] = ["trips", "setup", "content", "appearance", "sharing"];
@@ -551,6 +552,7 @@ const MODE_ORDER: TransportMode[] = ["train", "subway", "bus", "flight", "ferry"
 function ExpenseCategoriesPanel() {
   const data = useData();
   const mutate = useApp((s) => s.mutateTrip);
+  const updateEntity = useApp((s) => s.updateEntity);
   const [modesFor, setModesFor] = useState<string | null>(null);
   if (!data) return null;
   if (data.config.demo) return null;
@@ -564,6 +566,27 @@ function ExpenseCategoriesPanel() {
 
   const move = (i: number, dir: -1 | 1) =>
     mutate((d) => { const a = d.config.expenseCategories!; [a[i + dir], a[i]] = [a[i], a[i + dir]]; });
+  // deleting a category must never leave spending "uncategorised": any day-cost
+  // row pointing at it moves to the next remaining category, and if the
+  // deleted one carried a role (auto-collects stays/fares), that role moves
+  // to the fallback too so hotels/journeys keep resolving to a real bucket.
+  const removeCategory = (catId: string, role: ExpenseCategory["role"]) => {
+    const fallbackId = fallbackCategoryId(cats.filter((x) => x.id !== catId));
+    if (!fallbackId) return;
+    mutate((d) => {
+      d.config.expenseCategories = (d.config.expenseCategories ?? []).filter((x) => x.id !== catId);
+      if (role && !d.config.expenseCategories.some((x) => x.role === role)) {
+        const target = d.config.expenseCategories.find((x) => x.id === fallbackId);
+        if (target) target.role = role;
+      }
+    });
+    for (const day of data.days) {
+      if (!(day.costs ?? []).some((c) => c.categoryId === catId)) continue;
+      updateEntity<Day>("days", day.id, {
+        costs: day.costs!.map((c) => (c.categoryId === catId ? { ...c, categoryId: fallbackId } : c)),
+      });
+    }
+  };
   const toggleMode = (catId: string, m: TransportMode) =>
     mutate((d) => {
       const cat = d.config.expenseCategories?.find((x) => x.id === catId);
@@ -633,7 +656,7 @@ function ExpenseCategoriesPanel() {
             {cats.length > 1 && (
               <ConfirmButton
                 label="Remove category"
-                onConfirm={() => mutate((d) => { d.config.expenseCategories = (d.config.expenseCategories ?? []).filter((x) => x.id !== c.id); })}
+                onConfirm={() => removeCategory(c.id, c.role)}
                 className="shrink-0 text-ink-faint hover:text-accent"
               >
                 <Icon name="trash" size={14} />
