@@ -209,7 +209,7 @@ export function buildDemo(): TripData {
         title: "Travel insurance",
         kind: "other",
         fields: [
-          { id: "doc-1-f1", label: "Policy no.", value: "—" },
+          { id: "doc-1-f1", label: "Policy no.", value: "POL-000000" },
           { id: "doc-1-f2", label: "24h assistance", value: "+00 000 000 000" },
         ],
         note: "Covers both of us for the whole trip.",
@@ -218,7 +218,7 @@ export function buildDemo(): TripData {
         id: "doc-2",
         title: "Flight booking",
         kind: "other",
-        fields: [{ id: "doc-2-f1", label: "Booking reference", value: "—" }],
+        fields: [{ id: "doc-2-f1", label: "Booking reference", value: "ABC000" }],
       },
     ],
 
