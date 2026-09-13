@@ -591,6 +591,10 @@ function ExpenseCategoriesPanel() {
       });
     }
   };
+  // modes are a transport concept — offer the picker only to a category
+  // that's already transport in nature (claims a mode, or is the fares
+  // catch-all), never to Food & drink, Accommodation, Activities, Shopping…
+  const canClaimModes = (c: ExpenseCategory) => c.role === "transport" || !!c.modes?.length;
   const toggleMode = (catId: string, m: TransportMode) =>
     mutate((d) => {
       const cat = d.config.expenseCategories?.find((x) => x.id === catId);
@@ -626,13 +630,15 @@ function ExpenseCategoriesPanel() {
                   onCommit={(v) => mutate((d) => { const x = d.config.expenseCategories?.[i]; if (x) x.label = v || x.label; })}
                 />
                 {c.role && <span className="text-xs text-ink-soft">auto: {c.role === "lodging" ? "stays" : "fares"}</span>}
-                <button
-                  type="button"
-                  onClick={() => setModesFor(modesFor === c.id ? null : c.id)}
-                  className="text-xs text-accent"
-                >
-                  {c.modes?.length ? c.modes.map((m) => MODE_LABEL[m]).join(", ") : "+ modes"}
-                </button>
+                {canClaimModes(c) && (
+                  <button
+                    type="button"
+                    onClick={() => setModesFor(modesFor === c.id ? null : c.id)}
+                    className="text-xs text-accent"
+                  >
+                    {c.modes?.length ? c.modes.map((m) => MODE_LABEL[m]).join(", ") : "+ modes"}
+                  </button>
+                )}
                 <select
                   value={c.icon ?? ""}
                   onChange={(e) => mutate((d) => {
@@ -648,7 +654,7 @@ function ExpenseCategoriesPanel() {
                   {MAP_GLYPHS.map((g) => <option key={g.id} value={g.id}>{g.label}</option>)}
                 </select>
               </div>
-              {modesFor === c.id && (
+              {modesFor === c.id && canClaimModes(c) && (
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {MODE_ORDER.map((m) => {
                     const mine = (c.modes ?? []).includes(m);
