@@ -94,7 +94,7 @@ function renderBlock(b: Block, key: number): ReactNode {
           {b.items.map((it, j) => (
             <li key={j} className="flex gap-2">
               <span className="mt-[0.5em] h-1 w-1 shrink-0 rounded-full bg-ink-faint" />
-              <span className="min-w-0">{inline(it)}</span>
+              <span className="min-w-0 flex-1">{inline(it)}</span>
             </li>
           ))}
         </ul>
@@ -105,7 +105,7 @@ function renderBlock(b: Block, key: number): ReactNode {
           {b.items.map((it, j) => (
             <li key={j} className="flex gap-2">
               <span className="shrink-0 tabular-nums text-ink-faint">{j + 1}.</span>
-              <span className="min-w-0">{inline(it)}</span>
+              <span className="min-w-0 flex-1">{inline(it)}</span>
             </li>
           ))}
         </ol>
