@@ -6,11 +6,12 @@ const KEY_PREFIX = "za.section.";
 
 const slug = (s: string) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
-function readOpen(key: string): boolean {
+function readOpen(key: string, fallback: boolean): boolean {
   try {
-    return localStorage.getItem(key) !== "0";
+    const v = localStorage.getItem(key);
+    return v === null ? fallback : v !== "0";
   } catch {
-    return true;
+    return fallback;
   }
 }
 
@@ -37,6 +38,9 @@ function writeOpen(key: string, open: boolean) {
  * `action` — a secondary control in the header (＋ Add, a count, a delete).
  * `info` — one-off "how this works" copy, revealed by an ⓘ toggle in the header
  * rather than taking a permanent line. (`<InfoNote>` is the free-standing form.)
+ * `defaultOpen` — the first-ever state, before the viewer has touched the
+ * chevron (default `true`). Set `false` for a section that's more useful shut
+ * until asked for, e.g. one card per list entry.
  */
 export function Section({
   title,
@@ -44,6 +48,7 @@ export function Section({
   action,
   info,
   id,
+  defaultOpen = true,
   children,
   className = "",
 }: {
@@ -52,6 +57,7 @@ export function Section({
   action?: ReactNode;
   info?: ReactNode;
   id?: string;
+  defaultOpen?: boolean;
   children: ReactNode;
   className?: string;
 }) {
@@ -59,7 +65,7 @@ export function Section({
   const sectionKey = id ?? (typeof title === "string" ? slug(title) : undefined);
   const storageKey = tripId && sectionKey ? `${KEY_PREFIX}${tripId}.${sectionKey}` : undefined;
   const collapsible = title != null;
-  const [open, setOpen] = useState(() => (storageKey ? readOpen(storageKey) : true));
+  const [open, setOpen] = useState(() => (storageKey ? readOpen(storageKey, defaultOpen) : defaultOpen));
   const [showInfo, setShowInfo] = useState(false);
   const infoId = useId();
   const bodyId = useId();

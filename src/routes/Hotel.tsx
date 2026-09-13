@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
@@ -8,6 +8,7 @@ import { Editable } from "@/components/Editable";
 import { MoneyField } from "@/components/MoneyField";
 import { FieldList } from "@/components/FieldList";
 import { RichNote } from "@/components/RichNote";
+import { ConfirmButton } from "@/components/ConfirmButton";
 import { Icon } from "@/components/Icon";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
@@ -21,7 +22,9 @@ import type { Hotel as HotelT } from "@/core/types";
 export default function Hotel() {
   const data = useData();
   const { id } = useParams();
+  const navigate = useNavigate();
   const updateEntity = useApp((s) => s.updateEntity);
+  const removeEntity = useApp((s) => s.removeEntity);
   const ro = useReadOnly();
   const [pinEditing, setPinEditing] = useState(false);
   const [pinDraft, setPinDraft] = useState("");
@@ -164,6 +167,18 @@ export default function Hotel() {
               <RichNote value={hotel.notes ?? ""} onCommit={(v) => p({ notes: v || undefined })} placeholder="Anything about this stay" />
             </div>
           </Section>
+        )}
+
+        {!ro && (
+          <div className="pt-2 text-center">
+            <ConfirmButton
+              onConfirm={() => { removeEntity("hotels", hotel.id); navigate("/logbook"); }}
+              label="Delete stay"
+              className="text-sm font-medium text-danger"
+            >
+              Delete stay
+            </ConfirmButton>
+          </div>
         )}
       </div>
     </Page>
