@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { MapView, type MLMap } from "@/components/MapView";
 import { Editable } from "@/components/Editable";
@@ -77,6 +77,22 @@ const snapPx = (s: Snap, containerH: number): number =>
 const NEXT: Record<Snap, Snap> = { peek: "half", half: "full", full: "peek" };
 /** a tap (vs. a real drag) on the handle just cycles to the next stop */
 const TAP_SLOP_PX = 6;
+
+// the desktop column's counterpart to the mobile sheet: a real drag on the
+// right edge, continuous rather than snapped (a mouse is precise enough that
+// stops would just get in the way) — width remembered across visits.
+const PANEL_KEY = "za.map.panelW";
+const PANEL_MIN_PX = 280;
+const PANEL_MAX_PX = 640;
+const PANEL_DEFAULT_PX = 340;
+const loadPanelWidth = (): number => {
+  try {
+    const n = Number(localStorage.getItem(PANEL_KEY));
+    return Number.isFinite(n) && n > 0 ? Math.min(Math.max(n, PANEL_MIN_PX), PANEL_MAX_PX) : PANEL_DEFAULT_PX;
+  } catch {
+    return PANEL_DEFAULT_PX;
+  }
+};
 
 /**
  * Open on the city (leg) you're currently in — during: today's leg; before: the
@@ -169,6 +185,35 @@ export default function MapTab() {
   const onHandleClick = () => {
     if (suppressClick.current) { suppressClick.current = false; return; }
     setSnap(NEXT[snap]); // keyboard activation — no pointer sequence to read a drag from
+  };
+
+  // the desktop column's own drag handle, on its right edge — same idea as the
+  // mobile handle above (mutate the DOM directly while dragging, commit to
+  // state only on release) but a plain continuous width, not a snap
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const [panelWidth, setPanelWidth] = useState(loadPanelWidth);
+  const [panelDragging, setPanelDragging] = useState(false);
+  const panelDragStart = useRef<{ x: number; w: number } | null>(null);
+
+  const onPanelHandlePointerDown = (e: ReactPointerEvent) => {
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    panelDragStart.current = { x: e.clientX, w: panelRef.current?.getBoundingClientRect().width ?? panelWidth };
+    setPanelDragging(true);
+  };
+  const onPanelHandlePointerMove = (e: ReactPointerEvent) => {
+    if (!panelDragStart.current || !shellRef.current) return;
+    const next = Math.min(Math.max(panelDragStart.current.w + (e.clientX - panelDragStart.current.x), PANEL_MIN_PX), PANEL_MAX_PX);
+    // set on the shared ancestor, not the panel itself — the map div reads the
+    // same custom property to keep its left edge flush against the panel
+    shellRef.current.style.setProperty("--panel-w", `${next}px`);
+  };
+  const onPanelHandlePointerUp = () => {
+    if (!panelDragStart.current || !panelRef.current) return;
+    setPanelDragging(false);
+    const finalW = panelRef.current.getBoundingClientRect().width;
+    setPanelWidth(finalW);
+    try { localStorage.setItem(PANEL_KEY, String(Math.round(finalW))); } catch { /* private window — nothing to persist */ }
+    panelDragStart.current = null;
   };
 
   const [adding, setAdding] = useState(false);
@@ -1127,9 +1172,13 @@ export default function MapTab() {
   );
 
   return (
-    <div ref={shellRef} className="fixed inset-x-0 bottom-[56px] top-[calc(3.5rem+var(--demo-h,0px))] z-20 md:bottom-0 md:left-[72px]">
+    <div
+      ref={shellRef}
+      style={{ "--panel-w": `${panelWidth}px` } as CSSProperties}
+      className="fixed inset-x-0 bottom-[56px] top-[calc(3.5rem+var(--demo-h,0px))] z-20 md:bottom-0 md:left-[72px]"
+    >
       {/* map */}
-      <div className="absolute inset-0 md:left-[340px]">
+      <div className="absolute inset-0 md:left-[var(--panel-w)]">
         <MapView
           places={scoped}
           selectedId={selected}
@@ -1154,8 +1203,18 @@ export default function MapTab() {
       </div>
 
       {/* desktop column */}
-      <div className="absolute left-0 top-0 bottom-0 z-10 hidden w-[340px] border-r border-line bg-bg md:block">
+      <div ref={panelRef} className="absolute left-0 top-0 bottom-0 z-10 hidden border-r border-line bg-bg md:block md:w-[var(--panel-w)]">
         {panel}
+        <div
+          onPointerDown={onPanelHandlePointerDown}
+          onPointerMove={onPanelHandlePointerMove}
+          onPointerUp={onPanelHandlePointerUp}
+          onPointerCancel={onPanelHandlePointerUp}
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize list"
+          className={`absolute inset-y-0 -right-1.5 z-10 hidden w-3 cursor-col-resize touch-none md:block ${panelDragging ? "bg-accent/15" : "hover:bg-accent/10"}`}
+        />
       </div>
 
       {/* mobile sheet */}
