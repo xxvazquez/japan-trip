@@ -6,8 +6,9 @@ import { Icon } from "./Icon";
 /**
  * A free-text note that supports a small slice of Markdown (see <Markdown>).
  * Reads as formatted text; tap to edit in a plain textarea with a slim
- * B / I / list / link toolbar and the usual Cmd/Ctrl-B · Cmd/Ctrl-I shortcuts.
- * Bullets continue on Enter; Enter on an empty bullet ends the list.
+ * B / I / U / S / list / link toolbar and the usual Cmd/Ctrl-B · Cmd/Ctrl-I ·
+ * Cmd/Ctrl-U · Cmd/Ctrl-Shift-X shortcuts. Bullets continue on Enter; Enter
+ * on an empty bullet ends the list.
  *
  * Edits go through document.execCommand("insertText"), which keeps the native
  * caret position and undo history and fires a normal input event.
@@ -155,6 +156,8 @@ export function RichNote({
     if (cmd && ev.key === "Enter") { ev.preventDefault(); return commit(); }
     if (cmd && ev.key.toLowerCase() === "b") { ev.preventDefault(); return wrap("**"); }
     if (cmd && ev.key.toLowerCase() === "i") { ev.preventDefault(); return wrap("*"); }
+    if (cmd && ev.key.toLowerCase() === "u") { ev.preventDefault(); return wrap("++"); }
+    if (cmd && ev.shiftKey && ev.key.toLowerCase() === "x") { ev.preventDefault(); return wrap("~~"); }
     if (ev.key === "Enter" && !ev.shiftKey && !cmd) {
       const el = ev.currentTarget;
       const { selectionStart: s, value: v } = el;
@@ -189,6 +192,8 @@ export function RichNote({
       <div className="mb-1 flex items-center gap-0.5 border-b border-line pb-1">
         <Tool label="Bold" on={() => wrap("**")}><span className="text-[0.9rem] font-bold">B</span></Tool>
         <Tool label="Italic" on={() => wrap("*")}><span className="font-serif text-[0.9rem] italic">I</span></Tool>
+        <Tool label="Underline" on={() => wrap("++")}><span className="text-[0.9rem] underline underline-offset-2">U</span></Tool>
+        <Tool label="Strikethrough" on={() => wrap("~~")}><span className="text-[0.9rem] line-through">S</span></Tool>
         <Tool label="Bullet list" on={listify}><Icon name="list" size={15} /></Tool>
         <Tool label="Checklist" on={checklistify}><Icon name="checklist" size={15} /></Tool>
         <Tool label="Link" on={addLink}><Icon name="link" size={15} /></Tool>
@@ -204,7 +209,7 @@ export function RichNote({
         className="w-full resize-none rounded border border-gold/60 bg-surface px-2.5 py-2 text-[0.9rem] leading-[1.6] outline-none focus:border-gold"
       />
       <p className="mt-1 text-2xs text-ink-faint">
-        **bold** · *italic* · - bullet · - [ ] checklist · [text](link) — ⌘/Ctrl-Enter saves, Esc cancels
+        **bold** · *italic* · ++underline++ · ~~strike~~ · - bullet · - [ ] checklist · [text](link) — ⌘/Ctrl-Enter saves, Esc cancels
       </p>
     </div>
   );
