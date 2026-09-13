@@ -28,7 +28,8 @@ import { fmtDate, fmtSpan, plural } from "@/lib/dates";
 import { MODE_ICON } from "@/lib/transport";
 import { toneForSegmentMode } from "@/lib/tones";
 import { LOGBOOK_SECTIONS, logbookLabel, type LogbookSection } from "@/lib/logbook";
-import { tripCost, fmtMoney } from "@/lib/cost";
+import { tripCost, fmtMoney, combineCurrencies } from "@/lib/cost";
+import { useFxRates } from "@/lib/fx";
 import { putFile, fileUrl, removeFile } from "@/lib/fileStore";
 import {
   driveEnabled, ensureFolder, uploadToDrive, shareFile, deleteFromDrive, driveViewUrl, driveImageUrl,
@@ -402,6 +403,10 @@ function Expenses() {
   const data = useData()!;
   const { byCurrency, categories, unparsed } = tripCost(data);
   const currencies = Object.keys(byCurrency);
+  const primary = data.config.currency || currencies[0] || "";
+  const others = currencies.filter((c) => c && c !== primary);
+  const { rates, date, stale } = useFxRates(primary, others);
+  const combined = combineCurrencies(byCurrency, primary, rates);
 
   if (currencies.length === 0) {
     return <Empty what="No spending yet" hint="Put a price on a stay or a journey, or log a day's spending, and it totals up here by category." />;
@@ -409,6 +414,28 @@ function Expenses() {
 
   return (
     <div className="space-y-6">
+      {combined && (
+        <Section
+          title={`Combined · ${primary}`}
+          info={`Every currency converted into ${primary} and added together — each still gets its own section below, unconverted. Exchange rate ${
+            date ? `as of ${fmtDate(date, data.config.locale, { day: "numeric", month: "short", year: "numeric" })}` : "unavailable"
+          }${stale ? ", the last one fetched — offline, or due to refresh" : ", fetched automatically"}.`}
+        >
+          <ul>
+            {categories
+              .filter((c) => (combined.byCategory[c.id] ?? 0) > 0)
+              .map((c) => (
+                <InsetRow key={c.id} label={c.label}>{fmtMoney(combined.byCategory[c.id], primary)}</InsetRow>
+              ))}
+            {combined.uncategorised > 0 && (
+              <InsetRow label="Uncategorised">{fmtMoney(combined.uncategorised, primary)}</InsetRow>
+            )}
+            <InsetRow label={<span className="font-semibold text-ink">Total</span>}>
+              <span className="font-semibold">{fmtMoney(combined.total, primary)}</span>
+            </InsetRow>
+          </ul>
+        </Section>
+      )}
       {currencies.map((cur) => {
         const b = byCurrency[cur];
         return (

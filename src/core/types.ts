@@ -41,12 +41,18 @@ export interface Person {
  *  fare, a stay — rolls up under one of these in the Expenses view. The list is
  *  per-trip, seeded with a default set, edited in Manage; it's never empty.
  *  `role` marks the two categories that collect a derived cost automatically:
- *  "lodging" gets every stay price, "transport" gets every fare. At most one
- *  category per role; a plain day-spending category leaves it unset. */
+ *  "lodging" gets every stay price, "transport" gets every fare not claimed by
+ *  a `modes` category (below). At most one category per role; a plain
+ *  day-spending category leaves it unset.
+ *  `modes` is a finer-grained way to auto-tag a fare: a hop whose `mode` is
+ *  listed here lands in this category instead of the "transport"-role one —
+ *  so "Train" and "Flights" can sit apart instead of one lump "Transport".
+ *  A mode can only be claimed by one category; the first match wins. */
 export interface ExpenseCategory {
   id: ID;
   label: string;
   role?: "lodging" | "transport";
+  modes?: TransportMode[];
 }
 
 export interface TripConfig {

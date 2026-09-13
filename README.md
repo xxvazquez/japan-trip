@@ -65,7 +65,9 @@ label-and-value rows. Between hops, a note on the connection time flags a
 tight or overnight change. The
 **total fare** at the top adds itself up from the hops' fares; type a figure
 into it to override with a single ticket price. It's the same number Expenses
-uses, counted once, under the Transport category.
+uses, counted once — split by each hop's mode if a category claims it,
+otherwise under the generic Transport category (a manual override total has no
+single mode, so it always lands there).
 
 **Map** — your Google **My Map** pins, on a clean map. It reads **city → area →
 filters → places**, top to bottom.
@@ -140,20 +142,27 @@ fold away; with two or more travellers set (Manage → Setup) each item gets an
 **assign** pill (a traveller's initial, **Shared**, or **—**). **Expenses** totals
 every price in the trip — a stay's price, a journey's fare, a day's spending —
 **grouped by category** and then by currency (nothing is summed across
-currencies). Stay prices land under Accommodation, fares under Transport, and
-each day-spending row under the category you picked; a value with no category
-shows as *Uncategorised*. A journey with a total *and* per-hop fares counts
-once, not twice. Nothing is entered on this tab.
+currencies, except the **Combined** total — see below). Stay prices land under
+Accommodation; a fare lands under whichever category claims its hop's mode
+(Train, Flights…), or under Transport if none does; each day-spending row
+lands under the category you picked; a value with no category shows as
+*Uncategorised*. A journey with a total *and* per-hop fares counts once, not
+twice. If the trip uses two or more currencies, a **Combined** section at the
+top adds them all together in the primary one, using an exchange rate fetched
+automatically when you're online (and cached for when you're not — it just
+shows the last one it fetched). Nothing is entered on this tab.
 
 In **Manage → Setup** you name the **travellers** (used for packing
 assignment), list the **currencies** the trip uses — the first is the default
 (a new trip starts on `PLN`), so every price field shows its symbol and a bare
 `100` counts as it without the symbol being typed; add a second currency and
 every price — a stay, a fare, a spending row, a custom "Price" field — gets a
-currency picker — edit the **expense categories** (reorder,
-rename, add, remove — the list can't be emptied), hide the Logbook sections
-you don't need, and **add your own** — a title plus a list of things (name,
-note, link). Handy for "Restaurants to try", "Gifts to bring back", and so on.
+currency picker — edit the **expense categories** (reorder, rename, add,
+remove — the list can't be emptied; a category can also claim specific hop
+modes so fares split further than one lump "Transport"), hide the Logbook
+sections you don't need, and **add your own** — a title plus a list of things
+(name, note, link). Handy for "Restaurants to try", "Gifts to bring back", and
+so on.
 
 ## Sharing a copy
 

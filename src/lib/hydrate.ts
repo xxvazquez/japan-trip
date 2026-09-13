@@ -5,11 +5,18 @@ import type { Day, Doc, DocField, ExpenseCategory, Hotel, ModuleConfig, PlanItem
 /** current TripData shape version — templates, db loads and normalize all agree on this */
 export const SCHEMA_VERSION = 9;
 
-/** Seed expense categories for a new trip. The two `role` entries collect stay
- *  prices and fares automatically; the rest are day-spending buckets. Editable
- *  in Manage afterwards. */
+/** Seed expense categories for a new trip. `role: "transport"` is the catch-all
+ *  for any fare whose mode isn't claimed below (ferry, car, walk, or a manual
+ *  journey total with no mode at all); `role: "lodging"` collects stay prices.
+ *  Train / Metro & Bus / Flights / Taxi claim their own modes so a trip's
+ *  transport spending doesn't land in one lump. All editable in Manage
+ *  afterwards — rename, reassign modes, add, remove. */
 export const DEFAULT_EXPENSE_CATEGORIES: ExpenseCategory[] = [
   { id: "cat-food", label: "Food & drink" },
+  { id: "cat-train", label: "Train", modes: ["train"] },
+  { id: "cat-metrobus", label: "Metro & Bus", modes: ["subway", "bus"] },
+  { id: "cat-flights", label: "Flights", modes: ["flight"] },
+  { id: "cat-taxi", label: "Taxi", modes: ["taxi"] },
   { id: "cat-transport", label: "Transport", role: "transport" },
   { id: "cat-lodging", label: "Accommodation", role: "lodging" },
   { id: "cat-activities", label: "Activities" },
@@ -93,6 +100,7 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
             id: c.id || `cat-${fieldId()}`,
             label: c.label ?? "",
             ...(c.role ? { role: c.role } : {}),
+            ...(Array.isArray(c.modes) && c.modes.length ? { modes: c.modes } : {}),
           }))
         : DEFAULT_EXPENSE_CATEGORIES.map((c) => ({ ...c })),
     theme: fixTheme(cfg.theme as Partial<ThemeTokens> | undefined),
