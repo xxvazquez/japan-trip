@@ -4,6 +4,7 @@ import { MapView, type MLMap } from "@/components/MapView";
 import { Editable } from "@/components/Editable";
 import { Icon } from "@/components/Icon";
 import { IconTile } from "@/components/IconTile";
+import { InfoNote } from "@/components/InfoNote";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
@@ -1186,9 +1187,9 @@ export default function MapTab() {
               {busy ? "syncing…" : "Sync"}
             </button>
           )}
+          {imported > 0 && <InfoNote>Syncing replaces imported pins. Your added places and notes are kept.</InfoNote>}
         </div>
         {msg && <p className="mt-1 text-accent">{msg}</p>}
-        {imported > 0 && <p className="mt-0.5 text-2xs text-ink-faint">Syncing replaces imported pins. Your added places and notes are kept.</p>}
         {!url && (
           <p className="mt-1 text-2xs text-ink-faint">
             Add a My Maps link in{" "}
