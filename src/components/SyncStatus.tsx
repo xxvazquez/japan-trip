@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useApp } from "@/store/useApp";
 import { pickBackend } from "@/lib/backend";
 import { ActionSheet, useActionSheet } from "./ActionSheet";
+import { Icon } from "./Icon";
 
 function useOnline(): boolean {
   const [online, setOnline] = useState(() => navigator.onLine);
@@ -27,7 +28,9 @@ function useOnline(): boolean {
 export function SyncStatus() {
   const signedIn = pickBackend().kind === "supabase";
   const state = useApp((s) => s.syncState);
-  const errorLabels = useApp((s) => s.syncErrorLabels);
+  const errorItems = useApp((s) => s.syncErrorItems);
+  const retrySyncNow = useApp((s) => s.retrySyncNow);
+  const discardSyncIssue = useApp((s) => s.discardSyncIssue);
   const online = useOnline();
   const [showSaved, setShowSaved] = useState(false);
   const { open, setOpen, anchorRef } = useActionSheet();
@@ -60,7 +63,7 @@ export function SyncStatus() {
     </span>
   );
 
-  if (state !== "error" || !errorLabels.length) return dot;
+  if (state !== "error" || !errorItems.length) return dot;
 
   return (
     <>
@@ -74,9 +77,24 @@ export function SyncStatus() {
         {dot}
       </button>
       <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="Not saved yet">
-        {errorLabels.map((l) => (
-          <div key={l} className="menu-item text-ink">{l}</div>
-        ))}
+        {errorItems.map((item) =>
+          item.type && item.id ? (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => discardSyncIssue(item.key)}
+              className="menu-item justify-between text-danger"
+            >
+              <span className="min-w-0 truncate">{item.label}</span>
+              <Icon name="trash" size={14} className="shrink-0" />
+            </button>
+          ) : (
+            <div key={item.key} className="menu-item text-ink">{item.label}</div>
+          ),
+        )}
+        <button type="button" onClick={() => retrySyncNow()} className="menu-item font-medium text-accent">
+          Retry now
+        </button>
       </ActionSheet>
     </>
   );

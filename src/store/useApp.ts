@@ -21,15 +21,26 @@ type Op =
   | { t: "areaPlaces"; areaId: string }
   | { t: "fields"; keys: FieldKey[] };
 
+/** One item stuck in the sync queue, as shown in the header's "couldn't save"
+ *  list. `type`/`id` are present for a row/delete op — enough for the UI to
+ *  offer a "Delete" action; a queue-wide op (reorder, trip settings…) has
+ *  neither and is shown as read-only context. */
+export interface SyncIssue {
+  key: string;
+  label: string;
+  type?: EntityType;
+  id?: string;
+}
+
 interface AppStore {
   hydrated: boolean;
   authRequired: boolean;
   /** the sync queue's visible state — signed-in path only; local writes stay
    *  "idle". Drives the header's <SyncStatus> dot. */
   syncState: "idle" | "saving" | "saved" | "error";
-  /** human-readable names of what's stuck in the queue, set alongside
-   *  syncState "error" — lets <SyncStatus> show what hasn't saved yet. */
-  syncErrorLabels: string[];
+  /** what's stuck in the queue, set alongside syncState "error" — lets
+   *  <SyncStatus> show what hasn't saved yet, with a way to retry or drop it. */
+  syncErrorItems: SyncIssue[];
   /** signed in, but the very first trip list couldn't be fetched (offline)
    *  and there was no mirrored outbox to fall back to — nothing to show yet */
   bootError: boolean;
@@ -50,6 +61,12 @@ interface AppStore {
   /** Manual "pull to refresh" — re-pull the active trip from Supabase (a no-op
    *  on the local backend, nothing there to be behind). */
   refreshTrip: () => Promise<void>;
+  /** Stop waiting for the backoff and try flushing the queue right now. */
+  retrySyncNow: () => void;
+  /** Give up on one stuck item — drop its queued write and, for a row/delete
+   *  op, remove the entity locally too, so a write that can never land
+   *  doesn't sit retrying forever. */
+  discardSyncIssue: (key: string) => void;
 
   /** local state only — pair with an op or use mutateTrip */
   mutate: (fn: (draft: TripData) => void) => void;
@@ -201,20 +218,79 @@ function nameOfRow(type: EntityType, id: string, data: TripData): string {
   }
 }
 
-/** Human-readable names for whatever's stuck on the queue, for the header's
- *  "couldn't save" readout — best-effort against the live trip data, so a row
- *  already gone by the time we look falls back to its type. */
-function describePendingOps(ops: Op[], data: TripData): string[] {
-  const labels: string[] = [];
-  const add = (s: string) => { if (!labels.includes(s)) labels.push(s); };
-  for (const op of ops) {
-    if (op.t === "row" || op.t === "del") add(nameOfRow(op.type, op.id, data));
-    else if (op.t === "pos") add(`${ENTITY_LABELS[op.type]} order`);
-    else if (op.t === "seg") add(`${data.journeys.find((j) => j.id === op.journeyId)?.label || ENTITY_LABELS.journeys} stops`);
-    else if (op.t === "areaPlaces") add(`${data.areas.find((a) => a.id === op.areaId)?.name || ENTITY_LABELS.areas} places`);
-    else op.keys.forEach((k) => add(FIELD_LABELS[k]));
+/** A stable identity for one queued op — used both to dedupe the "couldn't
+ *  save" list and to target a "Delete" action back at the right op(s). */
+function opKeyOf(op: Op): string {
+  switch (op.t) {
+    case "row": case "del": return `${op.type}:${op.id}`;
+    case "pos": return `pos:${op.type}`;
+    case "seg": return `seg:${op.journeyId}`;
+    case "areaPlaces": return `areaPlaces:${op.areaId}`;
+    case "fields": return "fields";
   }
-  return labels;
+}
+
+function labelOf(op: Op, data: TripData): string {
+  if (op.t === "row" || op.t === "del") return nameOfRow(op.type, op.id, data);
+  if (op.t === "pos") return `${ENTITY_LABELS[op.type]} order`;
+  if (op.t === "seg") return `${data.journeys.find((j) => j.id === op.journeyId)?.label || ENTITY_LABELS.journeys} stops`;
+  if (op.t === "areaPlaces") return `${data.areas.find((a) => a.id === op.areaId)?.name || ENTITY_LABELS.areas} places`;
+  return op.keys.map((k) => FIELD_LABELS[k]).join(", ");
+}
+
+/** Labels are frozen the first time an op is seen failing, keyed by
+ *  `opKeyOf` — so a row that's since been deleted locally still shows the
+ *  name it had, instead of falling back to its bare type. Cleared whenever
+ *  the queue fully drains or the active trip changes. */
+const stuckLabels = new Map<string, string>();
+
+/** Human-readable, de-duped issues for whatever's stuck on the queue, for the
+ *  header's "couldn't save" readout — each one traceable back to an op so the
+ *  UI can offer a delete. */
+function describePendingOps(ops: Op[], data: TripData): SyncIssue[] {
+  const seen = new Set<string>();
+  const items: SyncIssue[] = [];
+  for (const op of ops) {
+    const key = opKeyOf(op);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    if (!stuckLabels.has(key)) stuckLabels.set(key, labelOf(op, data));
+    const target = op.t === "row" || op.t === "del" ? { type: op.type, id: op.id } : {};
+    items.push({ key, label: stuckLabels.get(key)!, ...target });
+  }
+  return items;
+}
+
+/** Postgres' "invalid input syntax" — an id that was never a valid uuid to
+ *  begin with. No amount of retrying fixes that, so these are handled once
+ *  instead of retried forever. */
+function isUnrecoverable(e: unknown): boolean {
+  return (e as { code?: string } | null | undefined)?.code === "22P02";
+}
+
+/** Entity types nothing else points at by id — safe to re-mint a fresh id for
+ *  without a reference-fixup pass elsewhere in the trip. */
+const REID_SAFE = new Set<EntityType>(["packing", "days"]);
+
+/** A row created with a bad (pre-fix) id can never be inserted under that id.
+ *  Since the type is one nothing else references, give it a fresh uuid and
+ *  requeue it — the edit itself is fine, only its id was wrong. Returns
+ *  false (nothing to heal) if the row's already gone or a uuid isn't
+ *  available, so the caller can fall back to just dropping the op. */
+function healBadId(get: () => AppStore, type: EntityType, oldId: string): boolean {
+  if (!crypto?.randomUUID) return false;
+  const cur = get().data;
+  const list = cur?.[type] as WithId[] | undefined;
+  if (!cur || !list?.some((x) => x.id === oldId)) return false;
+  const next = structuredClone(cur);
+  const nl = next[type] as WithId[];
+  const i = nl.findIndex((x) => x.id === oldId);
+  if (i < 0) return false;
+  const freshId = crypto.randomUUID();
+  nl[i] = { ...nl[i], id: freshId };
+  useApp.setState({ data: next });
+  queue.push({ t: "row", type, id: freshId });
+  return true;
 }
 
 /** A Supabase write failed (offline / transient error). Its op is back on the
@@ -290,6 +366,7 @@ function discardPending(tripId?: string) {
   outboxTimer = undefined;
   clearRetry();
   queue = [];
+  stuckLabels.clear();
   if (tripId) void kv.del(STORAGE_KEYS.outbox(tripId));
 }
 
@@ -319,10 +396,16 @@ async function flush(get: () => AppStore) {
 
   const tasks: Promise<unknown>[] = [];
   // a rejected write puts its op back on the queue for a later retry, instead of
-  // vanishing with only a console line
+  // vanishing with only a console line — unless the error is unrecoverable
+  // (a bad id from before it was fixed at the source), in which case retrying
+  // forever helps no one; see `unrecoverable` below.
   const failed: Op[] = [];
+  const unrecoverable: Op[] = [];
   const run = (p: Promise<unknown>, op: Op) =>
-    p.catch((e) => { console.error("[sync]", e); failed.push(op); });
+    p.catch((e) => {
+      console.error("[sync]", e);
+      (isUnrecoverable(e) ? unrecoverable : failed).push(op);
+    });
   markWritten([...rows.values(), ...dels.values()].map((o) => o.id));
 
   for (const { type, id } of rows.values()) {
@@ -358,19 +441,27 @@ async function flush(get: () => AppStore) {
   }
   await Promise.all(tasks);
 
-  // trip switched / was discarded while we awaited — the failed ops are moot
+  // trip switched / was discarded while we awaited — every result is moot
   if (get().activeId !== activeId) return;
+
+  for (const op of unrecoverable) {
+    stuckLabels.delete(opKeyOf(op));
+    const healed = op.t === "row" && REID_SAFE.has(op.type) && healBadId(get, op.type, op.id);
+    if (!healed) console.error("[sync] dropping an un-syncable op — its id is invalid and can't be retried:", op);
+  }
+
   if (failed.length) {
     queue = [...failed, ...queue];
     const cur = get().data;
     if (cur) void kv.set<Outbox>(STORAGE_KEYS.outbox(activeId), { ops: [...queue], data: cur });
-    useApp.setState({ syncState: "error", syncErrorLabels: cur ? describePendingOps(failed, cur) : [] });
+    useApp.setState({ syncState: "error", syncErrorItems: cur ? describePendingOps(failed, cur) : [] });
     scheduleRetry(get);
   } else if (queue.length) {
-    void flush(get); // new edits landed mid-flush
+    void flush(get); // new edits landed mid-flush, or a bad id was just re-minted
   } else {
     clearRetry();
-    useApp.setState({ syncState: "saved", syncErrorLabels: [] });
+    stuckLabels.clear();
+    useApp.setState({ syncState: "saved", syncErrorItems: [] });
     void kv.del(STORAGE_KEYS.outbox(activeId));
     if (bootedFromOutbox) { bootedFromOutbox = false; void resyncTrip(get, activeId); }
   }
@@ -430,7 +521,7 @@ export const useApp = create<AppStore>((set, get) => {
     hydrated: false,
     authRequired: false,
     syncState: "idle",
-    syncErrorLabels: [],
+    syncErrorItems: [],
     bootError: false,
     trips: [],
     activeId: null,
@@ -605,6 +696,27 @@ export const useApp = create<AppStore>((set, get) => {
       const { activeId } = get();
       if (!activeId) return;
       await resyncTrip(get, activeId);
+    },
+
+    retrySyncNow: () => {
+      retryDelay = 0;
+      clearTimeout(retryTimer);
+      void flush(get);
+    },
+
+    discardSyncIssue: (key) => {
+      const issue = get().syncErrorItems.find((i) => i.key === key);
+      if (!issue) return;
+      queue = queue.filter((op) => opKeyOf(op) !== key);
+      stuckLabels.delete(key);
+      if (issue.type && issue.id) {
+        const t = issue.type, id = issue.id;
+        local((d) => { d[t] = (d[t] as WithId[]).filter((x) => x.id !== id) as never; });
+      }
+      saveOutboxNow(get);
+      const syncErrorItems = get().syncErrorItems.filter((i) => i.key !== key);
+      if (queue.length) set({ syncErrorItems });
+      else { clearRetry(); set({ syncState: "saved", syncErrorItems: [] }); }
     },
 
     mutate: (fn) => { local(fn); },
