@@ -84,6 +84,8 @@ function AppFooter() {
       />
       <span className="font-display text-sm font-medium tracking-tight text-ink-soft">{APP_NAME}</span>
       <span className="text-2xs">· {APP_TAGLINE}</span>
+      <span className="text-2xs">·</span>
+      <Link to="/help" className="text-2xs text-accent">Help &amp; FAQ</Link>
     </footer>
   );
 }
@@ -601,7 +603,7 @@ function ExpenseCategoriesPanel() {
   return (
     <Section
       title="Expense categories"
-      info="The buckets your spending groups into on the Expenses tab. “Accommodation” collects every stay price automatically; a category can claim specific hop modes (Train, Flights…) to auto-collect those fares too — anything left over falls to whichever category is marked “fares”. Its icon is guessed from that, or the name — pick your own with “Auto icon”."
+      info="The buckets your spending groups into on the Expenses tab. A mode is how you travelled — train, bus, taxi, flight… Tap “+ modes” on a category to make it claim one or more, so a journey's fare lands there automatically instead of one big “Transport”. “Accommodation” already does this for every stay's price. A mode nobody's claimed falls to whichever category is marked “auto: fares”. Each category's icon is guessed from all this, or its name — override it with “Auto icon”."
     >
       <ul>
         {cats.map((c, i) => (
