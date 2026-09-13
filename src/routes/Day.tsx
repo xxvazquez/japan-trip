@@ -80,7 +80,7 @@ export default function Day() {
   // "＋ New journey" — a blank journey, its type chosen on the journey page (never
   // guessed from the day's date: you can arrive, transfer or leave at any point).
   const newJourney = () => {
-    const jid = `journeys-${rid()}`;
+    const jid = crypto.randomUUID?.() ?? `journeys-${rid()}`;
     addEntity("journeys", { id: jid, label: "", kind: "transfer", date: day.date, segments: [] } as never);
     patch({ journeyId: jid });
     nav(`/journey/${jid}`);

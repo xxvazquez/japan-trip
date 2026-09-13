@@ -980,7 +980,7 @@ function Content() {
 
   const rid = () => Math.random().toString(36).slice(2, 9);
   const blankFor = (type: EntityType): Record<string, unknown> => {
-    const id = `${type}-${rid()}`;
+    const id = crypto.randomUUID?.() ?? `${type}-${rid()}`;
     switch (type) {
       case "days": return { id, date: data.meta.start, legId: data.legs[0]?.id ?? "", title: "New day" };
       case "legs": return { id, base: "New stay", start: data.meta.start, end: data.meta.end, hotelId: "", color: "blue" };
@@ -1115,7 +1115,7 @@ function Content() {
                       <span className="min-w-0 flex-1 truncate">
                         {href ? <Link to={href} className="hover:text-accent">{nameOf(rec)}</Link> : nameOf(rec)}
                       </span>
-                      <button onClick={() => addEntity(type, { ...structuredClone(rec), id: `${type}-${rid()}` } as { id: string })} className="text-ink-faint hover:text-ink-soft" aria-label="Duplicate"><Icon name="copy" size={14} /></button>
+                      <button onClick={() => addEntity(type, { ...structuredClone(rec), id: crypto.randomUUID?.() ?? `${type}-${rid()}` } as { id: string })} className="text-ink-faint hover:text-ink-soft" aria-label="Duplicate"><Icon name="copy" size={14} /></button>
                       <ConfirmButton onConfirm={() => removeEntity(type, x.id)} className="text-ink-faint hover:text-accent"><Icon name="trash" size={14} /></ConfirmButton>
                     </div>
                     {links && <p className="mt-1 pl-[3.25rem] text-2xs text-ink-faint">{links}</p>}

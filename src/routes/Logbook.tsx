@@ -300,7 +300,7 @@ function Luggage() {
   const updateEntity = useApp((s) => s.updateEntity);
   const addEntity = useApp((s) => s.addEntity);
   const removeEntity = useApp((s) => s.removeEntity);
-  const add = () => addEntity("luggage", { id: `lug-${rid()}`, title: "New note" } as never);
+  const add = () => addEntity("luggage", { id: crypto.randomUUID?.() ?? `lug-${rid()}`, title: "New note" } as never);
 
   if (data.luggage.length === 0) {
     return ro ? (
@@ -485,7 +485,7 @@ function Documents() {
     .map((e) => e.trim().toLowerCase())
     .filter((e) => e && e !== user?.email?.toLowerCase());
 
-  const addDoc = () => addEntity("docs", { id: `docs-${rid()}`, title: "New document", kind: "other", fields: [] } as never);
+  const addDoc = () => addEntity("docs", { id: crypto.randomUUID?.() ?? `docs-${rid()}`, title: "New document", kind: "other", fields: [] } as never);
 
   if (docs.length === 0) {
     return ro
@@ -662,7 +662,7 @@ function Packing() {
   const total = items.length;
   const done = items.filter((p) => p.done).length;
 
-  const newItem = (group: string): PackingItem => ({ id: `packing-${rid()}`, label: "", phase: "bring", group });
+  const newItem = (group: string): PackingItem => ({ id: crypto.randomUUID?.() ?? `packing-${rid()}`, label: "", phase: "bring", group });
   const addItem = (group: string) => addEntity("packing", newItem(group));
   const addCategory = () => {
     let name = "New category";
