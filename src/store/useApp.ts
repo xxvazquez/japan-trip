@@ -6,7 +6,7 @@ import { subscribeTrip, unsubscribeTrip, markWritten } from "@/lib/realtime";
 import { store as kv } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/app";
 import { normalizeTrip } from "@/lib/hydrate";
-import { rangeText, shiftDate } from "@/lib/dates";
+import { fmtDate, rangeText, shiftDate } from "@/lib/dates";
 import type { Day, EntityType, MediaItem, TripData, TripSummary } from "@/core/types";
 
 const now = () => new Date().toISOString();
@@ -27,6 +27,9 @@ interface AppStore {
   /** the sync queue's visible state — signed-in path only; local writes stay
    *  "idle". Drives the header's <SyncStatus> dot. */
   syncState: "idle" | "saving" | "saved" | "error";
+  /** human-readable names of what's stuck in the queue, set alongside
+   *  syncState "error" — lets <SyncStatus> show what hasn't saved yet. */
+  syncErrorLabels: string[];
   /** signed in, but the very first trip list couldn't be fetched (offline)
    *  and there was no mirrored outbox to fall back to — nothing to show yet */
   bootError: boolean;
@@ -169,6 +172,49 @@ function applyOutbox(fresh: TripData, ob: Outbox): TripData {
     }
   }
   return d;
+}
+
+const ENTITY_LABELS: Record<EntityType, string> = {
+  legs: "Stay", days: "Day", hotels: "Hotel", journeys: "Journey",
+  luggage: "Luggage note", docs: "Document", packing: "Packing item",
+  places: "Place", areas: "Area",
+};
+
+const FIELD_LABELS: Record<FieldKey, string> = {
+  config: "Trip settings", meta: "Trip details", media: "Photos", scratch: "Scratchpad",
+};
+
+function nameOfRow(type: EntityType, id: string, data: TripData): string {
+  switch (type) {
+    case "hotels": return data.hotels.find((x) => x.id === id)?.name || ENTITY_LABELS.hotels;
+    case "legs": return data.legs.find((x) => x.id === id)?.base || ENTITY_LABELS.legs;
+    case "journeys": return data.journeys.find((x) => x.id === id)?.label || ENTITY_LABELS.journeys;
+    case "luggage": return data.luggage.find((x) => x.id === id)?.title || ENTITY_LABELS.luggage;
+    case "docs": return data.docs.find((x) => x.id === id)?.title || ENTITY_LABELS.docs;
+    case "places": return data.places.find((x) => x.id === id)?.name || ENTITY_LABELS.places;
+    case "areas": return data.areas.find((x) => x.id === id)?.name || ENTITY_LABELS.areas;
+    case "packing": return data.packing.find((x) => x.id === id)?.label || ENTITY_LABELS.packing;
+    case "days": {
+      const d = data.days.find((x) => x.id === id);
+      return (d && (d.title || fmtDate(d.date, data.config.locale))) || ENTITY_LABELS.days;
+    }
+  }
+}
+
+/** Human-readable names for whatever's stuck on the queue, for the header's
+ *  "couldn't save" readout — best-effort against the live trip data, so a row
+ *  already gone by the time we look falls back to its type. */
+function describePendingOps(ops: Op[], data: TripData): string[] {
+  const labels: string[] = [];
+  const add = (s: string) => { if (!labels.includes(s)) labels.push(s); };
+  for (const op of ops) {
+    if (op.t === "row" || op.t === "del") add(nameOfRow(op.type, op.id, data));
+    else if (op.t === "pos") add(`${ENTITY_LABELS[op.type]} order`);
+    else if (op.t === "seg") add(`${data.journeys.find((j) => j.id === op.journeyId)?.label || ENTITY_LABELS.journeys} stops`);
+    else if (op.t === "areaPlaces") add(`${data.areas.find((a) => a.id === op.areaId)?.name || ENTITY_LABELS.areas} places`);
+    else op.keys.forEach((k) => add(FIELD_LABELS[k]));
+  }
+  return labels;
 }
 
 /** A Supabase write failed (offline / transient error). Its op is back on the
@@ -318,13 +364,13 @@ async function flush(get: () => AppStore) {
     queue = [...failed, ...queue];
     const cur = get().data;
     if (cur) void kv.set<Outbox>(STORAGE_KEYS.outbox(activeId), { ops: [...queue], data: cur });
-    useApp.setState({ syncState: "error" });
+    useApp.setState({ syncState: "error", syncErrorLabels: cur ? describePendingOps(failed, cur) : [] });
     scheduleRetry(get);
   } else if (queue.length) {
     void flush(get); // new edits landed mid-flush
   } else {
     clearRetry();
-    useApp.setState({ syncState: "saved" });
+    useApp.setState({ syncState: "saved", syncErrorLabels: [] });
     void kv.del(STORAGE_KEYS.outbox(activeId));
     if (bootedFromOutbox) { bootedFromOutbox = false; void resyncTrip(get, activeId); }
   }
@@ -384,6 +430,7 @@ export const useApp = create<AppStore>((set, get) => {
     hydrated: false,
     authRequired: false,
     syncState: "idle",
+    syncErrorLabels: [],
     bootError: false,
     trips: [],
     activeId: null,

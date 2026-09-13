@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useApp } from "@/store/useApp";
 import { pickBackend } from "@/lib/backend";
+import { ActionSheet, useActionSheet } from "./ActionSheet";
 
 function useOnline(): boolean {
   const [online, setOnline] = useState(() => navigator.onLine);
@@ -26,8 +27,10 @@ function useOnline(): boolean {
 export function SyncStatus() {
   const signedIn = pickBackend().kind === "supabase";
   const state = useApp((s) => s.syncState);
+  const errorLabels = useApp((s) => s.syncErrorLabels);
   const online = useOnline();
   const [showSaved, setShowSaved] = useState(false);
+  const { open, setOpen, anchorRef } = useActionSheet();
 
   useEffect(() => {
     if (state !== "saved") return setShowSaved(false);
@@ -50,10 +53,31 @@ export function SyncStatus() {
     : state === "saving" ? "animate-pulse bg-ink-faint"
     : "bg-matcha";
 
-  return (
+  const dot = (
     <span className="flex items-center gap-1.5 text-2xs text-ink-soft" role="status">
       <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${tone}`} />
       {label}
     </span>
+  );
+
+  if (state !== "error" || !errorLabels.length) return dot;
+
+  return (
+    <>
+      <button
+        ref={anchorRef}
+        onClick={() => setOpen(true)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="relative before:absolute before:-inset-2 before:content-['']"
+      >
+        {dot}
+      </button>
+      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="Not saved yet">
+        {errorLabels.map((l) => (
+          <div key={l} className="menu-item text-ink">{l}</div>
+        ))}
+      </ActionSheet>
+    </>
   );
 }
