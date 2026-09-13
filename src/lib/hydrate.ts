@@ -105,6 +105,7 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
             label: c.label ?? "",
             ...(c.role ? { role: c.role } : {}),
             ...(Array.isArray(c.modes) && c.modes.length ? { modes: c.modes } : {}),
+            ...(c.icon ? { icon: c.icon } : {}),
           }))
         : DEFAULT_EXPENSE_CATEGORIES.map((c) => ({ ...c })),
     theme: fixTheme(cfg.theme as Partial<ThemeTokens> | undefined),

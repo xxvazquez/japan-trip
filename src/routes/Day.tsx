@@ -31,7 +31,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { fmtDate } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink } from "@/lib/maps";
-import { parseMoney, fmtMoney, cleanAmount, fmtFare } from "@/lib/cost";
+import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon } from "@/lib/cost";
 import type { Day as DayT, DayCost, ExpenseCategory, PlanItem, Place } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 9);
@@ -637,50 +637,57 @@ function CostList({ costs, categories, currencies, readOnly, onChange }: {
     <ul>
       {costs.map((c, i) => {
           const known = !c.categoryId || categories.some((cat) => cat.id === c.categoryId);
+          const category = categories.find((cat) => cat.id === c.categoryId);
+          const tile = category ? expenseCategoryIcon(category) : { name: "wallet" as const, tone: "ink-faint" as const };
           return (
             <li key={c.id} className="group relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
               <SwipeToDelete onDelete={readOnly ? undefined : () => onChange(costs.filter((_, j) => j !== i))}>
               <div className="px-3.5 py-2.5">
-              <div className="flex items-baseline gap-3">
-                <span className="min-w-0 flex-1">
+              <div className="flex items-start gap-3">
+                <IconTile size="sm" name={tile.name} glyph={tile.glyph} tone={tile.tone} className="mt-0.5 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline gap-3">
+                    <span className="min-w-0 flex-1">
+                      {readOnly ? (
+                        <span className="value">{c.label.trim() || catLabel(c.categoryId)}</span>
+                      ) : (
+                        <Editable label="What was it?" value={c.label} placeholder="What was it?" className="value" onCommit={(v) => setAt(i, { label: v })} />
+                      )}
+                    </span>
+                    {readOnly ? (
+                      <span className="value shrink-0 text-right tabular-nums">{fmtFare(c.amount, c.currency || primary)}</span>
+                    ) : (
+                      <span className="value shrink-0 text-right tabular-nums">
+                        <MoneyField
+                          label="Amount"
+                          amount={c.amount}
+                          currency={c.currency}
+                          onAmount={(v) => setAt(i, { amount: cleanAmount(v) })}
+                          onCurrency={(cc) => setAt(i, { currency: cc })}
+                        />
+                      </span>
+                    )}
+                  </div>
+                  {/* category — the quiet second line, so it never shouts the
+                      same word down the list */}
                   {readOnly ? (
-                    <span className="value">{c.label.trim() || catLabel(c.categoryId)}</span>
+                    c.label.trim() && <div className="meta mt-0.5">{catLabel(c.categoryId)}</div>
                   ) : (
-                    <Editable label="What was it?" value={c.label} placeholder="What was it?" className="value" onCommit={(v) => setAt(i, { label: v })} />
+                    <select
+                      value={c.categoryId ?? ""}
+                      onChange={(e) => setAt(i, { categoryId: e.target.value || undefined })}
+                      aria-label="Category"
+                      className="meta mt-0.5 -ml-0.5 block max-w-full cursor-pointer bg-transparent focus:outline-none"
+                    >
+                      {(!c.categoryId || !known) && <option value={c.categoryId ?? ""}>{c.categoryId ? "Uncategorised" : "Category…"}</option>}
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>{cat.label}</option>
+                      ))}
+                    </select>
                   )}
-                </span>
-                {readOnly ? (
-                  <span className="value shrink-0 text-right tabular-nums">{fmtFare(c.amount, c.currency || primary)}</span>
-                ) : (
-                  <span className="value shrink-0 text-right tabular-nums">
-                    <MoneyField
-                      label="Amount"
-                      amount={c.amount}
-                      currency={c.currency}
-                      onAmount={(v) => setAt(i, { amount: cleanAmount(v) })}
-                      onCurrency={(cc) => setAt(i, { currency: cc })}
-                    />
-                  </span>
-                )}
+                </div>
                 {!readOnly && <RowDeleteButton onClick={() => onChange(costs.filter((_, j) => j !== i))} />}
               </div>
-              {/* category — the quiet second line, so it never shouts the same
-                  word down the list */}
-              {readOnly ? (
-                c.label.trim() && <div className="meta mt-0.5">{catLabel(c.categoryId)}</div>
-              ) : (
-                <select
-                  value={c.categoryId ?? ""}
-                  onChange={(e) => setAt(i, { categoryId: e.target.value || undefined })}
-                  aria-label="Category"
-                  className="meta mt-0.5 -ml-0.5 block max-w-full cursor-pointer bg-transparent focus:outline-none"
-                >
-                  {(!c.categoryId || !known) && <option value={c.categoryId ?? ""}>{c.categoryId ? "Uncategorised" : "Category…"}</option>}
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>{cat.label}</option>
-                  ))}
-                </select>
-              )}
               </div>
               </SwipeToDelete>
             </li>

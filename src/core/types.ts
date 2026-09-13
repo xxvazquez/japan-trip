@@ -53,6 +53,10 @@ export interface ExpenseCategory {
   label: string;
   role?: "lodging" | "transport";
   modes?: TransportMode[];
+  /** an explicit `MAP_GLYPHS` id, set in Manage — overrides the icon Expenses
+   *  would otherwise guess from `modes`/`role`/the label. Optional: most
+   *  categories look right without ever setting this. */
+  icon?: string;
 }
 
 export interface TripConfig {

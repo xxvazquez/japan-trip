@@ -27,6 +27,8 @@ import { isLocalOnly, setLocalOnly } from "@/lib/localMode";
 import { RowMenu } from "@/components/RowMenu";
 import { MODE_LABEL } from "@/lib/transport";
 import { fallbackCategoryId } from "@/lib/hydrate";
+import { expenseCategoryIcon } from "@/lib/cost";
+import { IconTile } from "@/components/IconTile";
 import type { TransportMode } from "@/core/types";
 import { Switch } from "@/components/Switch";
 import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
@@ -599,7 +601,7 @@ function ExpenseCategoriesPanel() {
   return (
     <Section
       title="Expense categories"
-      info="The buckets your spending groups into on the Expenses tab. “Accommodation” collects every stay price automatically; a category can claim specific hop modes (Train, Flights…) to auto-collect those fares too — anything left over falls to whichever category is marked “fares”."
+      info="The buckets your spending groups into on the Expenses tab. “Accommodation” collects every stay price automatically; a category can claim specific hop modes (Train, Flights…) to auto-collect those fares too — anything left over falls to whichever category is marked “fares”. Its icon is guessed from that, or the name — pick your own with “Auto icon”."
     >
       <ul>
         {cats.map((c, i) => (
@@ -612,6 +614,7 @@ function ExpenseCategoriesPanel() {
                 <Icon name="down" size={16} />
               </button>
             </div>
+            <IconTile size="sm" {...expenseCategoryIcon(c)} className="shrink-0" />
             <span className="min-w-0 flex-1">
               <div className="flex flex-wrap items-baseline gap-x-2">
                 <Editable
@@ -628,6 +631,20 @@ function ExpenseCategoriesPanel() {
                 >
                   {c.modes?.length ? c.modes.map((m) => MODE_LABEL[m]).join(", ") : "+ modes"}
                 </button>
+                <select
+                  value={c.icon ?? ""}
+                  onChange={(e) => mutate((d) => {
+                    const x = d.config.expenseCategories?.[i];
+                    if (!x) return;
+                    if (e.target.value) x.icon = e.target.value;
+                    else delete x.icon;
+                  })}
+                  aria-label="Icon"
+                  className="rounded border border-line bg-transparent px-1 py-0.5 text-xs text-ink-soft"
+                >
+                  <option value="">Auto icon</option>
+                  {MAP_GLYPHS.map((g) => <option key={g.id} value={g.id}>{g.label}</option>)}
+                </select>
               </div>
               {modesFor === c.id && (
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
