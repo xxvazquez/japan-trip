@@ -195,7 +195,7 @@ export default function Journey() {
             <button
               onClick={() => {
                 const l = j.segments.at(-1);
-                patch({ segments: [...j.segments, { id: `seg-${rid()}`, mode: l?.mode ?? "train", from: l?.to ?? "", to: "", fromTz: l?.toTz, toTz: l?.toTz }] });
+                patch({ segments: [...j.segments, { id: crypto.randomUUID?.() ?? `seg-${rid()}`, mode: l?.mode ?? "train", from: l?.to ?? "", to: "", fromTz: l?.toTz, toTz: l?.toTz }] });
               }}
               className="action text-xs"
             >

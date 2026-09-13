@@ -105,7 +105,7 @@ export default function Plan() {
             const lastLeg = data.legs.at(-1)!;
             const legDays = data.days.filter((d) => d.legId === lastLeg.id);
             const nextDate = legDays.length ? addDays(legDays.at(-1)!.date, 1) : lastLeg.start;
-            addEntity("days", { id: `day-${Math.random().toString(36).slice(2, 8)}`, date: nextDate, legId: lastLeg.id, hotelId: lastLeg.hotelId, title: "New day" } as never);
+            addEntity("days", { id: crypto.randomUUID?.() ?? `day-${Math.random().toString(36).slice(2, 8)}`, date: nextDate, legId: lastLeg.id, hotelId: lastLeg.hotelId, title: "New day" } as never);
           }}
           className="action mt-8"
         >
