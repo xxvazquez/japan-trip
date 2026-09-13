@@ -649,15 +649,15 @@ function CostList({ costs, categories, currencies, readOnly, onChange }: {
                   <div className="flex items-baseline gap-3">
                     <span className="min-w-0 flex-1">
                       {readOnly ? (
-                        <span className="value">{c.label.trim() || catLabel(c.categoryId)}</span>
+                        <span className="text-sm text-ink">{c.label.trim() || catLabel(c.categoryId)}</span>
                       ) : (
-                        <Editable label="What was it?" value={c.label} placeholder="What was it?" className="value" onCommit={(v) => setAt(i, { label: v })} />
+                        <Editable label="What was it?" value={c.label} placeholder="What was it?" className="text-sm text-ink" onCommit={(v) => setAt(i, { label: v })} />
                       )}
                     </span>
                     {readOnly ? (
-                      <span className="value shrink-0 text-right tabular-nums">{fmtFare(c.amount, c.currency || primary)}</span>
+                      <span className="shrink-0 text-right text-sm text-ink tabular-nums">{fmtFare(c.amount, c.currency || primary)}</span>
                     ) : (
-                      <span className="value shrink-0 text-right tabular-nums">
+                      <span className="shrink-0 text-right text-sm text-ink tabular-nums">
                         <MoneyField
                           label="Amount"
                           amount={c.amount}
