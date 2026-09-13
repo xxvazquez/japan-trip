@@ -616,7 +616,7 @@ function CostList({ costs, categories, currencies, readOnly, onChange }: {
 }) {
   const primary = currencies[0] ?? "";
   const setAt = (i: number, patch: Partial<DayCost>) => onChange(costs.map((c, j) => (j === i ? { ...c, ...patch } : c)));
-  const add = () => onChange([...costs, { id: rid(), categoryId: categories[0]?.id, label: "", amount: "" }]);
+  const add = () => onChange([...costs, { id: rid(), label: "", amount: "" }]);
   const catLabel = (id?: string) => categories.find((c) => c.id === id)?.label ?? "Uncategorised";
 
   const subtotals = new Map<string, number>();
