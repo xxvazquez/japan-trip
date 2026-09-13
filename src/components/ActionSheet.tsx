@@ -52,7 +52,7 @@ export function ActionSheet({
       <>
         <div className="fixed inset-0 z-50 bg-black/40 motion-safe:animate-fade-in" onClick={onClose} />
         <div
-          className="fixed inset-x-0 bottom-0 z-[55] rounded-t-[16px] border-t border-line bg-bg pb-[max(0.75rem,var(--sab))] pt-2 motion-safe:animate-sheet-up"
+          className="fixed inset-x-0 bottom-0 z-[55] rounded-t-[16px] border-t border-line bg-surface pb-[max(0.75rem,var(--sab))] pt-2 motion-safe:animate-sheet-up"
           onClick={onClose}
           role="menu"
         >
@@ -85,7 +85,7 @@ export function ActionSheet({
           top: (r?.bottom ?? 0) + 4,
           left,
         }}
-        className="fixed z-[55] flex min-w-[10rem] flex-col rounded-[10px] border border-line bg-bg py-1 text-sm shadow-md motion-safe:animate-fade-in [&_.menu-item]:px-3 [&_.menu-item]:py-1.5 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 [&_.menu-item:hover]:bg-surface-2"
+        className="fixed z-[55] flex min-w-[10rem] flex-col rounded-[10px] border border-line bg-surface py-1 text-sm shadow-md motion-safe:animate-fade-in [&_.menu-item]:px-3 [&_.menu-item]:py-1.5 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 [&_.menu-item:hover]:bg-surface-2"
       >
         {children}
       </div>
