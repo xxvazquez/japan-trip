@@ -1118,7 +1118,7 @@ function Content() {
     return (
       <div className="relative px-3.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
         <button onClick={() => setOpen(isOpen ? null : type)} className="flex w-full items-baseline justify-between gap-3 py-3 text-left">
-          <span className="lead">{ENTITY_LABELS[type]}</span>
+          <span className="text-[0.9375rem] leading-snug text-ink">{ENTITY_LABELS[type]}</span>
           <span className="flex items-center gap-2">
             <span className="value tabular-nums text-ink-soft">{list.length}</span>
             <Icon name={isOpen ? "up" : "down"} size={15} className="text-ink-faint" />
