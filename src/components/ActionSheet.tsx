@@ -26,6 +26,8 @@ export function ActionSheet({
   children: ReactNode;
 }) {
   const [, bump] = useReducer((n: number) => n + 1, 0);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [menuWidth, setMenuWidth] = useState(0);
 
   useEffect(() => {
     if (!open) return;
@@ -37,6 +39,11 @@ export function ActionSheet({
       window.removeEventListener("resize", bump);
     };
   }, [open, onClose]);
+
+  useEffect(() => {
+    if (open && menuRef.current) setMenuWidth(menuRef.current.offsetWidth);
+    else setMenuWidth(0);
+  }, [open]);
 
   if (!open) return null;
 
@@ -64,15 +71,19 @@ export function ActionSheet({
   }
 
   const r = anchorRef.current?.getBoundingClientRect();
+  const w = menuWidth || 160;
+  const center = (r?.left ?? 0) + (r?.width ?? 0) / 2;
+  const left = Math.min(Math.max(center - w / 2, 8), window.innerWidth - w - 8);
   return createPortal(
     <>
       <div className="fixed inset-0 z-50" onClick={onClose} />
       <div
+        ref={menuRef}
         role="menu"
         onClick={onClose}
         style={{
           top: (r?.bottom ?? 0) + 4,
-          right: Math.max(8, window.innerWidth - (r?.right ?? window.innerWidth)),
+          left,
         }}
         className="fixed z-[55] flex min-w-[10rem] flex-col rounded-[10px] border border-line bg-bg py-1 text-sm shadow-md motion-safe:animate-fade-in [&_.menu-item]:px-3 [&_.menu-item]:py-1.5 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 [&_.menu-item:hover]:bg-surface-2"
       >
