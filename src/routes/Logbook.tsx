@@ -5,6 +5,7 @@ import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { IconTile } from "@/components/IconTile";
 import { TileRow } from "@/components/TileRow";
+import { RouteLabel } from "@/components/RouteLabel";
 import { CheckCircle } from "@/components/CheckCircle";
 import { InfoNote } from "@/components/InfoNote";
 import { InsetRow } from "@/components/InsetRow";
@@ -308,7 +309,7 @@ function GettingAround() {
                   key={j.id}
                   to={`/journey/${j.id}`}
                   tile={<IconTile size="sm" name={MODE_ICON[mode]} tone={toneForSegmentMode(mode)} />}
-                  title={j.label || "Journey"}
+                  title={<RouteLabel label={j.label || "Journey"} />}
                   meta={changes > 0 ? `${times} · ${plural(changes, "change")}` : times}
                   right={j.date && fmtDate(j.date, loc, { day: "numeric", month: "short" })}
                 />

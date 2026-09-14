@@ -23,6 +23,7 @@ import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { SwipeToDelete } from "@/components/SwipeToDelete";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { Icon } from "@/components/Icon";
+import { RouteLabel } from "@/components/RouteLabel";
 import { IconTile } from "@/components/IconTile";
 import { toneForPlaceCategory } from "@/lib/tones";
 import { useData, lookups } from "@/lib/data";
@@ -124,7 +125,7 @@ export default function Day() {
             )}
             {journey && (
               <Link to={`/journey/${journey.id}`} className="btn-sm">
-                <Icon name="train" size={14} className="text-ink-soft" /> {journey.label || "Journey"}
+                <Icon name="train" size={14} className="text-ink-soft" /> <RouteLabel label={journey.label || "Journey"} />
               </Link>
             )}
           </div>
