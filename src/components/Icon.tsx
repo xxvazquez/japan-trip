@@ -250,8 +250,25 @@ const P: Record<IconName, JSX.Element> = {
       <circle cx="12" cy="8.1" r="0.6" fill="currentColor" stroke="none" />
     </>
   ),
-  seat: <path d="M7 5v6h7M7 11v8M14 11h1a3 3 0 0 1 3 3v5M5 19h15" />,
-  door: <path d="M4 20h16M6 20v-8l6-3.5L18 12v8M9.5 20v-4h5v4" />,
+  // a chair silhouette (backrest + seat cushion + two legs) reads clearly
+  // even at the 13px this shows at on a hop card; the old thin-stroke
+  // version was an ambiguous "h" shape at any size, not just small ones.
+  seat: (
+    <>
+      <rect x="8" y="3.5" width="5" height="9.5" rx="1" />
+      <rect x="5.5" y="13" width="12" height="2.5" rx="0.8" />
+      <path d="M7.5 15.5v4M18.5 15.5v4" />
+    </>
+  ),
+  // a plain doorway, for "which platform/gate" — the old roofline shape
+  // read as a house, not a door or a platform.
+  door: (
+    <>
+      <path d="M4 21h16" />
+      <path d="M6.5 21V6a1.5 1.5 0 0 1 1.5-1.5h8A1.5 1.5 0 0 1 17.5 6v15" />
+      <circle cx="14.2" cy="13" r="0.9" fill="currentColor" stroke="none" />
+    </>
+  ),
   route: (
     <>
       <circle cx="6" cy="6" r="2" />
