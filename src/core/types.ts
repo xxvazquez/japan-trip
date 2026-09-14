@@ -18,8 +18,10 @@ export interface ThemeTokens {
   dark: Palette;
 }
 
-/** A navigable section (tab). Order / label / enabled are per-trip. */
-export type ModuleKind = "plan" | "map" | "logbook";
+/** A navigable section (tab). Order / label / enabled are per-trip.
+ *  `logbook-section` is a pin of one built-in Logbook page (see `target`)
+ *  straight onto the main nav, alongside the three fixed hubs. */
+export type ModuleKind = "plan" | "map" | "logbook" | "logbook-section";
 
 export interface ModuleConfig {
   id: ID;
@@ -27,6 +29,9 @@ export interface ModuleConfig {
   label: string;
   icon: string;
   enabled: boolean;
+  /** `logbook-section` only: which built-in section this tab jumps to
+   *  (a `LogbookSection` key, e.g. "packing"). */
+  target?: string;
 }
 
 /** One person on the trip. Used for packing assignment and initials; the
