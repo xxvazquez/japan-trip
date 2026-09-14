@@ -117,8 +117,9 @@ filters → places**, top to bottom.
 An **area** is *where* it is (Gion, Higashiyama, a neighbourhood you name). A
 place can sit in several areas. Create one under **Filters → Areas → Add area**
 (name it and it's made), assign places from a pin's detail panel on the Map, and
-rename or delete one with *Edit areas* in that same place (place-by-place
-membership for a whole area lives in Manage → Content → Areas). The **area
+rename or delete one with *Edit areas* in that same place — that's also where
+place-by-place membership for a whole area is edited; Manage → Content doesn't
+list areas, since the Map's own editor already covers it. The **area
 chips** above the Filters row show only the areas with a place in the chosen
 city — tap to show just those on the map and in the list; none lit means all.
 The list itself splits into a collapsible section per area (plus a *No area*
