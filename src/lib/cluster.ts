@@ -12,11 +12,61 @@ export interface AreaSuggestion {
 
 const dist = (a: Place, b: Place) => haversineKm(a.lat, a.lng, b.lat, b.lng);
 
+/** Floor and ceiling for the merge threshold, in km. The floor keeps a very
+ *  dense point cloud from being fragmented into single-digit-metre slivers;
+ *  the ceiling is the real fix here — roughly a 15–20 min end-to-end walk,
+ *  the most a suggested "area" should ever span regardless of how spread out
+ *  the rest of the trip's places happen to be. Without it, a sparse
+ *  itinerary's own data (see `suggestAreas`) could otherwise produce a
+ *  "walkable" area several km across. */
+const MIN_MERGE_KM = 0.15;
+const MAX_AREA_DIAMETER_KM = 1.5;
+
 /**
- * Group places by geographic proximity — single-link (union-find) clustering
- * with a threshold derived from the data itself (roughly the typical gap
- * between neighbouring places), so it adapts to a dense city or a spread-out
- * road trip with no configuration. Groups of one are left out.
+ * Complete-link agglomerative clustering, capped at `maxDiameter`: repeatedly
+ * merge whichever two clusters are closest by their *worst-case* pairwise
+ * distance (not their nearest points), stopping once no merge would keep
+ * every member within `maxDiameter` of every other. This is deliberately not
+ * single-link (union-find on a plain distance threshold) — single-link only
+ * checks the nearest link between two groups, so a chain of points each just
+ * inside the threshold of the next (A–B–C–D…) can end up sharing one "area"
+ * that spans far more than the threshold end to end. Bounding by diameter
+ * instead means an area can never claim to be walkable when it isn't, and
+ * two tight neighbouring clusters still merge into one — as long as the
+ * result stays within the cap.
+ */
+function clusterByDiameter(pts: Place[], maxDiameter: number): number[][] {
+  const n = pts.length;
+  const d: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
+  for (let i = 0; i < n; i++)
+    for (let j = i + 1; j < n; j++) d[i][j] = d[j][i] = dist(pts[i], pts[j]);
+
+  let clusters: number[][] = pts.map((_, i) => [i]);
+  const linkDist = (a: number[], b: number[]) => {
+    let max = 0;
+    for (const i of a) for (const j of b) max = Math.max(max, d[i][j]);
+    return max;
+  };
+
+  for (;;) {
+    let bi = -1, bj = -1, best = Infinity;
+    for (let i = 0; i < clusters.length; i++)
+      for (let j = i + 1; j < clusters.length; j++) {
+        const ld = linkDist(clusters[i], clusters[j]);
+        if (ld < best) { best = ld; bi = i; bj = j; }
+      }
+    if (bi === -1 || best > maxDiameter) break;
+    clusters[bi] = [...clusters[bi], ...clusters[bj]];
+    clusters.splice(bj, 1);
+  }
+  return clusters;
+}
+
+/**
+ * Group places by geographic proximity, adapting to how spread out the trip's
+ * own places are (a dense city centre clusters tighter than a road trip) but
+ * never past `MAX_AREA_DIAMETER_KM` — see `clusterByDiameter`. Groups of one
+ * are left out.
  *
  * This only *suggests*. Nothing here writes an area — the caller decides.
  */
@@ -33,23 +83,9 @@ export function suggestAreas(places: Place[]): AreaSuggestion[] {
     })
     .sort((a, b) => a - b);
   const median = nn[Math.floor(nn.length / 2)] || 0.3;
-  const threshold = Math.max(0.15, median * 2.5); // km — "close enough to be one area"
+  const threshold = Math.min(MAX_AREA_DIAMETER_KM, Math.max(MIN_MERGE_KM, median * 2.5));
 
-  // union-find: connect any pair within the threshold
-  const parent = pts.map((_, i) => i);
-  const find = (x: number): number => (parent[x] === x ? x : (parent[x] = find(parent[x])));
-  for (let i = 0; i < pts.length; i++)
-    for (let j = i + 1; j < pts.length; j++)
-      if (dist(pts[i], pts[j]) <= threshold) parent[find(i)] = find(j);
-
-  const groups = new Map<number, number[]>();
-  pts.forEach((_, i) => {
-    const r = find(i);
-    if (!groups.has(r)) groups.set(r, []);
-    groups.get(r)!.push(i);
-  });
-
-  return [...groups.values()]
+  return clusterByDiameter(pts, threshold)
     .filter((idx) => idx.length >= 2)
     .map((idx) => {
       const members = idx.map((i) => pts[i]);
