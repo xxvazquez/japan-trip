@@ -20,7 +20,8 @@ import { InsetRow } from "@/components/InsetRow";
 import { InfoNote } from "@/components/InfoNote";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { entityLink } from "@/lib/entityLink";
-import { OPTIONAL_LOGBOOK_SECTIONS, logbookLabel } from "@/lib/logbook";
+import { OPTIONAL_LOGBOOK_SECTIONS, LOGBOOK_SECTIONS, LOGBOOK_NAV_ICON, logbookLabel } from "@/lib/logbook";
+import { ActionSheet, useActionSheet } from "@/components/ActionSheet";
 import { fileToMediaItem, pickImage } from "@/lib/media";
 import { supabaseEnabled } from "@/lib/supabase";
 import { driveEnabled } from "@/lib/drive";
@@ -698,6 +699,48 @@ function ExpenseCategoriesPanel() {
 /* what shows up in the app for this trip: the main tabs, the optional Logbook
  * sections, and any custom lists */
 
+/** Sheet listing Logbook sections not already pinned as their own tab, and
+ *  not currently hidden (see `LogbookSectionsPanel`) — picking one appends a
+ *  new "logbook-section" module, same reorder/rename/hide/delete as any tab. */
+function AddTabButton() {
+  const data = useData();
+  const mutate = useApp((s) => s.mutateTrip);
+  const { open, setOpen, anchorRef } = useActionSheet();
+  if (!data) return null;
+  const modules = data.config.modules;
+  const hidden = data.config.hiddenLogbook ?? [];
+  const pinned = new Set(modules.filter((m) => m.kind === "logbook-section").map((m) => m.target));
+  const available = LOGBOOK_SECTIONS.filter((s) => !hidden.includes(s) && !pinned.has(s));
+  if (available.length === 0) return null;
+
+  const add = (s: (typeof LOGBOOK_SECTIONS)[number]) => {
+    mutate((d) => {
+      d.config.modules.push({
+        id: crypto.randomUUID?.() ?? `tab-${Math.random().toString(36).slice(2, 9)}`,
+        kind: "logbook-section",
+        target: s,
+        label: logbookLabel(s),
+        icon: LOGBOOK_NAV_ICON[s],
+        enabled: true,
+      });
+    });
+    setOpen(false);
+  };
+
+  return (
+    <li>
+      <button ref={anchorRef} onClick={() => setOpen(true)} className="action w-full px-3.5 py-2.5 text-xs">
+        <Icon name="plus" size={13} /> Add tab
+      </button>
+      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="Pin a Logbook page">
+        {available.map((s) => (
+          <button key={s} className="menu-item" onClick={() => add(s)}>{logbookLabel(s)}</button>
+        ))}
+      </ActionSheet>
+    </li>
+  );
+}
+
 function ModulesPanel() {
   const data = useData();
   const mutate = useApp((s) => s.mutateTrip);
@@ -705,7 +748,7 @@ function ModulesPanel() {
   const modules = data.config.modules;
 
   return (
-    <Section title="Tabs" info="Reorder, rename, or turn the main tabs off for this trip.">
+    <Section title="Tabs" info="Reorder, rename, or turn the main tabs off for this trip. Pin a Logbook page (like Packing) to add it as its own tab.">
       <ul>
         {modules.map((m, i) => (
           <li key={m.id} className={MLI}>
@@ -719,7 +762,7 @@ function ModulesPanel() {
             </div>
             <span className="flex-1">
               <Editable label="Section label" value={m.label} onCommit={(v) => mutate((d) => { d.config.modules[i].label = v || m.label; })} />
-              <span className="ml-2 text-xs text-ink-soft">{m.kind}</span>
+              <span className="ml-2 text-xs text-ink-soft">{m.kind === "logbook-section" ? logbookLabel(m.target ?? "") : m.kind}</span>
             </span>
             <button
               onClick={() => mutate((d) => { d.config.modules[i].enabled = !d.config.modules[i].enabled; })}
@@ -728,8 +771,14 @@ function ModulesPanel() {
             >
               <Icon name={m.enabled ? "eye" : "eye-off"} size={18} />
             </button>
+            {m.kind === "logbook-section" && (
+              <ConfirmButton onConfirm={() => mutate((d) => { d.config.modules = d.config.modules.filter((x) => x.id !== m.id); })} className="text-ink-faint hover:text-accent">
+                <Icon name="trash" size={14} />
+              </ConfirmButton>
+            )}
           </li>
         ))}
+        <AddTabButton />
       </ul>
     </Section>
   );
@@ -747,8 +796,17 @@ function LogbookSectionsPanel() {
   const toggleSection = (s: string) =>
     mutate((d) => {
       const set = new Set(d.config.hiddenLogbook ?? []);
-      set.has(s) ? set.delete(s) : set.add(s);
+      const hiding = !set.has(s);
+      hiding ? set.add(s) : set.delete(s);
       d.config.hiddenLogbook = [...set];
+      // a pinned tab pointing at a page that's now hidden would be a dead
+      // link — disable it too. Un-hiding doesn't auto-restore it: same one
+      // extra tap as re-enabling any other tab.
+      if (hiding) {
+        for (const m of d.config.modules) {
+          if (m.kind === "logbook-section" && m.target === s) m.enabled = false;
+        }
+      }
     });
 
   return (

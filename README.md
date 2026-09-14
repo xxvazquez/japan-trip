@@ -172,7 +172,11 @@ claim specific hop modes so fares split further than one lump "Transport").
 Each one's **icon** (shown on every Spending row and in Expenses) is guessed
 from that mode/role, or the name — tap "Auto icon" to pick your own from a
 grid of icons instead. Hide the Logbook sections you don't need from the same
-Setup tab. A **Help & FAQ** link sits at the bottom of every Manage tab —
+Setup tab. The **Tabs** panel above it reorders, renames or hides the three
+main tabs (Plan, Map, Logbook) — and **Add tab** lets you pin any Logbook page
+(Packing, say) straight onto the main nav as its own tab, alongside them;
+hiding a pinned page's Logbook section disables its tab too, so there's never
+a dead link. A **Help & FAQ** link sits at the bottom of every Manage tab —
 plain-language answers to the non-obvious bits ("modes", Custom vs. a place
 in Plan, Areas vs. categories, My Maps sync…), for anyone new to the app.
 

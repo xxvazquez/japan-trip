@@ -27,7 +27,7 @@ import { APP_NAME } from "@/lib/app";
 import { fmtDate, fmtSpan, plural } from "@/lib/dates";
 import { MODE_ICON } from "@/lib/transport";
 import { toneForSegmentMode } from "@/lib/tones";
-import { LOGBOOK_SECTIONS, logbookLabel, type LogbookSection } from "@/lib/logbook";
+import { LOGBOOK_SECTIONS, logbookLabel, sectionSlug, sectionFromSlug, type LogbookSection } from "@/lib/logbook";
 import { tripCost, fmtMoney, combineCurrencies, expenseCategoryIcon } from "@/lib/cost";
 import { useFxRates } from "@/lib/fx";
 import { putFile, fileUrl, removeFile } from "@/lib/fileStore";
@@ -37,11 +37,6 @@ import {
 import type { CustomList, Doc, DocFile, LuggageNote, PackingItem } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 8);
-
-/** "getting around" is the one built-in section key with a space — every
- *  other key (and every custom list id) already reads fine as a URL segment. */
-const sectionSlug = (s: string) => (s === "getting around" ? "getting-around" : s);
-const sectionFromSlug = (s: string) => (s === "getting-around" ? "getting around" : s);
 
 const SECTION_TILE: Record<LogbookSection, { name?: IconName; glyph?: MapGlyphId }> = {
   stays: { glyph: "hotel" },

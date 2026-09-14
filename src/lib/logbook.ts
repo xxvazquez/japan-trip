@@ -55,3 +55,23 @@ const LABELS: Record<LogbookSection, string> = {
 
 export const logbookLabel = (section: string): string =>
   LABELS[section as LogbookSection] ?? section;
+
+/** "getting around" is the one built-in section key with a space — every
+ *  other key already reads fine as a URL segment. Shared by the Logbook
+ *  route and by any pinned nav tab that jumps straight to a section. */
+export const sectionSlug = (s: string) => (s === "getting around" ? "getting-around" : s);
+export const sectionFromSlug = (s: string) => (s === "getting-around" ? "getting around" : s);
+
+/** Default icon for a section pinned as its own nav tab (see `ModuleConfig`,
+ *  kind "logbook-section") — a plain `IconName`, distinct from the fancier
+ *  glyph tiles the Logbook home page itself uses. */
+export const LOGBOOK_NAV_ICON: Record<LogbookSection, string> = {
+  stays: "bed",
+  "getting around": "train",
+  luggage: "luggage",
+  documents: "vault",
+  emergency: "alert",
+  packing: "checklist",
+  budget: "wallet",
+  notes: "list",
+};

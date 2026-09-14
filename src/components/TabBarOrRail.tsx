@@ -3,7 +3,26 @@ import { NavLink, useLocation } from "react-router-dom";
 import { useData } from "@/lib/data";
 import { enabledModules, hubForPath, isSharedDetail, moduleTo } from "@/lib/modules";
 import { Icon, isIconName, type IconName } from "./Icon";
-import type { ModuleKind } from "@/core/types";
+import type { ModuleConfig, ModuleKind } from "@/core/types";
+
+/** Which tab is current: whichever enabled module's own route is the longest
+ *  prefix match of the pathname — a pinned Logbook-section tab (e.g.
+ *  `/logbook/packing`) outranks the general Logbook tab (`/logbook`) when
+ *  both are enabled and the visitor is on that specific page. A shared detail
+ *  page (day/hotel/journey/leg) matches no route, so it falls back to
+ *  whichever hub last owned the page. */
+function currentModuleId(modules: ModuleConfig[], pathname: string, hub: ModuleKind | null, lastHub: ModuleKind): string | null {
+  let best: ModuleConfig | null = null;
+  for (const m of modules) {
+    const to = moduleTo(m);
+    if (pathname === to || pathname.startsWith(`${to}/`)) {
+      if (!best || to.length > moduleTo(best).length) best = m;
+    }
+  }
+  if (best) return best.id;
+  const kind = hub ?? (isSharedDetail(pathname) ? lastHub : null);
+  return kind ? (modules.find((m) => m.kind === kind)?.id ?? null) : null;
+}
 
 /** Bottom tab bar on mobile; a quiet left rail from md up. Driven by the active
  *  trip's section config — reorder / rename / hide them in Manage. The current
@@ -22,7 +41,7 @@ export function TabBarOrRail() {
   useEffect(() => {
     if (hub) lastHub.current = hub;
   }, [hub]);
-  const activeKind = hub ?? (isSharedDetail(pathname) ? lastHub.current : null);
+  const activeId = currentModuleId(modules, pathname, hub, lastHub.current);
 
   const cell = (current: boolean, label: string, icon: IconName) => (
     <span
@@ -47,7 +66,7 @@ export function TabBarOrRail() {
     >
       <ul className="flex justify-around px-1 py-1.5 md:h-full md:flex-col md:items-center md:justify-start md:gap-1.5 md:px-0 md:py-5">
         {modules.map((s) => {
-          const current = s.kind === activeKind;
+          const current = s.id === activeId;
           return (
             <li key={s.id}>
               <NavLink
