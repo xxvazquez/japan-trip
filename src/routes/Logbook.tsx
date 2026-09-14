@@ -10,6 +10,7 @@ import { InfoNote } from "@/components/InfoNote";
 import { InsetRow } from "@/components/InsetRow";
 import { Empty } from "@/components/Empty";
 import { CenterIfShort } from "@/components/CenterIfShort";
+import { AccordionRow } from "@/components/AccordionRow";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { SwipeToDelete } from "@/components/SwipeToDelete";
 import { ConfirmButton } from "@/components/ConfirmButton";
@@ -346,38 +347,43 @@ function Luggage() {
     <CenterIfShort>
       <div className="space-y-6">
         {!ro && <AddButton label="Add a note" onClick={add} />}
-        {data.luggage.map((n) => {
-          const p = (patch: Partial<LuggageNote>) => updateEntity<LuggageNote>("luggage", n.id, patch);
-          const hasDetail = !!n.detail || !ro;
-          return (
-            <Section
-              key={n.id}
-              id={n.id}
-              title={<Editable label="Title" value={n.title} placeholder="e.g. Coin lockers" onCommit={(v) => p({ title: v || "Untitled" })} />}
-              action={!ro && cardDeleteBtn(() => removeEntity("luggage", n.id), "Delete note")}
-            >
-              {hasDetail && (
-                <div className="note px-3.5 py-3 text-ink-soft">
-                  <RichNote value={n.detail ?? ""} placeholder="Where, when, how much…" onCommit={(v) => p({ detail: v || undefined })} />
-                </div>
-              )}
-              {(n.date || n.url || !ro) && (
-                <ul className={hasDetail ? "border-t border-line" : ""}>
-                  {(n.date || !ro) && (
-                    <InsetRow label="When">
-                      <Editable as="date" label="Date" value={n.date ?? ""} placeholder="—" onCommit={(v) => p({ date: v || undefined })} />
-                    </InsetRow>
+        <Section>
+          <ul>
+            {data.luggage.map((n) => {
+              const p = (patch: Partial<LuggageNote>) => updateEntity<LuggageNote>("luggage", n.id, patch);
+              const hasDetail = !!n.detail || !ro;
+              return (
+                <AccordionRow
+                  key={n.id}
+                  id={n.id}
+                  defaultOpen
+                  title={<Editable label="Title" value={n.title} placeholder="e.g. Coin lockers" onCommit={(v) => p({ title: v || "Untitled" })} />}
+                  action={!ro && cardDeleteBtn(() => removeEntity("luggage", n.id), "Delete note")}
+                >
+                  {hasDetail && (
+                    <div className="note px-3.5 py-3 text-ink-soft">
+                      <RichNote value={n.detail ?? ""} placeholder="Where, when, how much…" onCommit={(v) => p({ detail: v || undefined })} />
+                    </div>
                   )}
-                  {(n.url || !ro) && (
-                    <InsetRow label="Link">
-                      <Editable as="link" label="Google Maps link" value={n.url ?? ""} placeholder="＋ map link" onCommit={(v) => p({ url: v || undefined })} />
-                    </InsetRow>
+                  {(n.date || n.url || !ro) && (
+                    <ul className={hasDetail ? "border-t border-line" : ""}>
+                      {(n.date || !ro) && (
+                        <InsetRow label="When">
+                          <Editable as="date" label="Date" value={n.date ?? ""} placeholder="—" onCommit={(v) => p({ date: v || undefined })} />
+                        </InsetRow>
+                      )}
+                      {(n.url || !ro) && (
+                        <InsetRow label="Link">
+                          <Editable as="link" label="Google Maps link" value={n.url ?? ""} placeholder="＋ map link" onCommit={(v) => p({ url: v || undefined })} />
+                        </InsetRow>
+                      )}
+                    </ul>
                   )}
-                </ul>
-              )}
-            </Section>
-          );
-        })}
+                </AccordionRow>
+              );
+            })}
+          </ul>
+        </Section>
       </div>
     </CenterIfShort>
   );
@@ -553,50 +559,53 @@ function Documents() {
               : "Attachments stay only on the device they’re added on — passport numbers don’t belong here."}
           </InfoNote>
         </div>
-        {docs.map((d) => (
-          <Section
-            key={d.id}
-            id={d.id}
-            defaultOpen={false}
-            icon="vault"
-            title={
-              ro
-                ? d.title
-                : <Editable label="Document name" value={d.title} placeholder="Name" onCommit={(v) => updateEntity<Doc>("docs", d.id, { title: v || "Untitled" })} />
-            }
-            action={!ro && cardDeleteBtn(() => removeEntity("docs", d.id), "Delete document")}
-          >
-            {(!ro || (d.files?.length ?? 0) > 0) && (
-              <div className="px-3.5 py-3">
-                <Attachments
-                  doc={d}
-                  cloud={cloud}
-                  folderName={folderName}
-                  shareWith={shareWith}
-                  onChange={(files) => updateEntity<Doc>("docs", d.id, { files })}
-                />
-              </div>
-            )}
-            {(d.fields.length > 0 || !ro) && (
-              <ul className="border-t border-line">
-                <FieldList
-                  inset
-                  fields={d.fields}
-                  onChange={(next) => updateEntity<Doc>("docs", d.id, { fields: next })}
-                />
-              </ul>
-            )}
-            {(d.note?.trim() || !ro) && (
-              <div className="note border-t border-line px-3.5 py-3 text-ink-soft">
-                <RichNote
-                  value={d.note ?? ""}
-                  onCommit={(v) => updateEntity<Doc>("docs", d.id, { note: v || undefined })}
-                  placeholder="＋ a note"
-                />
-              </div>
-            )}
-          </Section>
-        ))}
+        <Section>
+          <ul>
+            {docs.map((d) => (
+              <AccordionRow
+                key={d.id}
+                id={d.id}
+                icon="vault"
+                title={
+                  ro
+                    ? d.title
+                    : <Editable label="Document name" value={d.title} placeholder="Name" onCommit={(v) => updateEntity<Doc>("docs", d.id, { title: v || "Untitled" })} />
+                }
+                action={!ro && cardDeleteBtn(() => removeEntity("docs", d.id), "Delete document")}
+              >
+                {(!ro || (d.files?.length ?? 0) > 0) && (
+                  <div className="px-3.5 py-3">
+                    <Attachments
+                      doc={d}
+                      cloud={cloud}
+                      folderName={folderName}
+                      shareWith={shareWith}
+                      onChange={(files) => updateEntity<Doc>("docs", d.id, { files })}
+                    />
+                  </div>
+                )}
+                {(d.fields.length > 0 || !ro) && (
+                  <ul className="border-t border-line">
+                    <FieldList
+                      inset
+                      fields={d.fields}
+                      onChange={(next) => updateEntity<Doc>("docs", d.id, { fields: next })}
+                    />
+                  </ul>
+                )}
+                {(d.note?.trim() || !ro) && (
+                  <div className="note border-t border-line px-3.5 py-3 text-ink-soft">
+                    <RichNote
+                      value={d.note ?? ""}
+                      onCommit={(v) => updateEntity<Doc>("docs", d.id, { note: v || undefined })}
+                      placeholder="＋ a note"
+                    />
+                  </div>
+                )}
+              </AccordionRow>
+            ))}
+          </ul>
+        </Section>
       </div>
     </CenterIfShort>
   );
