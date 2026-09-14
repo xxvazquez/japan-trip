@@ -29,7 +29,7 @@ import { toneForPlaceCategory } from "@/lib/tones";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { fmtDate } from "@/lib/dates";
+import { fmtDate, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink } from "@/lib/maps";
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon } from "@/lib/cost";
@@ -287,7 +287,7 @@ export default function Day() {
                 {data.areas
                   .filter((a) => !(day.areaIds ?? []).includes(a.id))
                   .map((a) => (
-                    <option key={a.id} value={a.id}>{a.name || "Untitled"}</option>
+                    <option key={a.id} value={a.id}>{a.name || "Untitled"} · {plural(a.placeIds.length, "place")}</option>
                   ))}
               </select>
             )}

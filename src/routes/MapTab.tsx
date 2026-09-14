@@ -781,14 +781,21 @@ export default function MapTab() {
   const applyReview = () => {
     for (const g of review ?? []) {
       if (!g.keep || g.placeIds.length < 2) continue;
-      addEntity("areas", { id: crypto.randomUUID?.() ?? rid(), name: g.name || "Area", placeIds: g.placeIds } as never);
+      const name = g.name || "Area";
+      const dup = data.areas.find((a) => (a.name || "").trim().toLowerCase() === name.trim().toLowerCase());
+      if (dup) {
+        updateEntity<Area>("areas", dup.id, { placeIds: [...new Set([...dup.placeIds, ...g.placeIds])] });
+      } else {
+        addEntity("areas", { id: crypto.randomUUID?.() ?? rid(), name, placeIds: g.placeIds } as never);
+      }
     }
     endSuggest();
   };
   const createArea = () => {
     const name = areaName.trim();
     if (!name) return;
-    addEntity("areas", { id: crypto.randomUUID?.() ?? rid(), name, placeIds: [] } as never);
+    const dup = data.areas.find((a) => (a.name || "").trim().toLowerCase() === name.toLowerCase());
+    if (!dup) addEntity("areas", { id: crypto.randomUUID?.() ?? rid(), name, placeIds: [] } as never);
     setAreaName("");
     setNamingArea(false);
   };
