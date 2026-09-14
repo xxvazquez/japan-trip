@@ -34,30 +34,40 @@ const MAX_AREA_DIAMETER_KM = 1.5;
  * instead means an area can never claim to be walkable when it isn't, and
  * two tight neighbouring clusters still merge into one — as long as the
  * result stays within the cap.
+ *
+ * The cluster-to-cluster distance matrix is updated incrementally on each
+ * merge (`max(dist(A,k), dist(B,k))` — complete link's standard
+ * Lance-Williams update), not recomputed by rescanning every member pair of
+ * every cluster pair from scratch each time. A trip's own places stay small,
+ * but a bulk Google My Maps import can hand this a few hundred ungrouped
+ * points in one go, and the naive rescan is steep enough there to visibly
+ * stall the tab on "Suggest areas".
  */
 function clusterByDiameter(pts: Place[], maxDiameter: number): number[][] {
   const n = pts.length;
-  const d: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
-  for (let i = 0; i < n; i++)
-    for (let j = i + 1; j < n; j++) d[i][j] = d[j][i] = dist(pts[i], pts[j]);
-
   let clusters: number[][] = pts.map((_, i) => [i]);
-  const linkDist = (a: number[], b: number[]) => {
-    let max = 0;
-    for (const i of a) for (const j of b) max = Math.max(max, d[i][j]);
-    return max;
-  };
+  // cd[i][j]: current distance between clusters i and j (indices into
+  // `clusters`, kept in lockstep as clusters merge and the arrays shrink)
+  const cd: number[][] = Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (_, j) => (i === j ? Infinity : dist(pts[i], pts[j]))),
+  );
 
   for (;;) {
     let bi = -1, bj = -1, best = Infinity;
     for (let i = 0; i < clusters.length; i++)
-      for (let j = i + 1; j < clusters.length; j++) {
-        const ld = linkDist(clusters[i], clusters[j]);
-        if (ld < best) { best = ld; bi = i; bj = j; }
-      }
+      for (let j = i + 1; j < clusters.length; j++)
+        if (cd[i][j] < best) { best = cd[i][j]; bi = i; bj = j; }
     if (bi === -1 || best > maxDiameter) break;
+
+    for (let k = 0; k < clusters.length; k++) {
+      if (k === bi || k === bj) continue;
+      const merged = Math.max(cd[bi][k], cd[bj][k]);
+      cd[bi][k] = cd[k][bi] = merged;
+    }
     clusters[bi] = [...clusters[bi], ...clusters[bj]];
     clusters.splice(bj, 1);
+    cd.splice(bj, 1);
+    for (const row of cd) row.splice(bj, 1);
   }
   return clusters;
 }

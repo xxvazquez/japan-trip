@@ -8,20 +8,20 @@ import type { ModuleConfig, ModuleKind } from "@/core/types";
 /** Which tab is current: whichever enabled module's own route is the longest
  *  prefix match of the pathname — a pinned Logbook-section tab (e.g.
  *  `/logbook/packing`) outranks the general Logbook tab (`/logbook`) when
- *  both are enabled and the visitor is on that specific page. A shared detail
- *  page (day/hotel/journey/leg) matches no route, so it falls back to
- *  whichever hub last owned the page. */
-function currentModuleId(modules: ModuleConfig[], pathname: string, hub: ModuleKind | null, lastHub: ModuleKind): string | null {
+ *  both are enabled and the visitor is on that specific page. Returns null
+ *  on a page no module owns (a shared detail page, Manage, Help…) — the
+ *  caller remembers the last non-null id for those. */
+function currentModuleId(modules: ModuleConfig[], pathname: string, hub: ModuleKind | null): string | null {
   let best: ModuleConfig | null = null;
+  let bestTo = "";
   for (const m of modules) {
     const to = moduleTo(m);
     if (pathname === to || pathname.startsWith(`${to}/`)) {
-      if (!best || to.length > moduleTo(best).length) best = m;
+      if (!best || to.length > bestTo.length) { best = m; bestTo = to; }
     }
   }
   if (best) return best.id;
-  const kind = hub ?? (isSharedDetail(pathname) ? lastHub : null);
-  return kind ? (modules.find((m) => m.kind === kind)?.id ?? null) : null;
+  return hub ? (modules.find((m) => m.kind === hub)?.id ?? null) : null;
 }
 
 /** Bottom tab bar on mobile; a quiet left rail from md up. Driven by the active
@@ -29,19 +29,22 @@ function currentModuleId(modules: ModuleConfig[], pathname: string, hub: ModuleK
  *  tab carries a soft accent pill behind its icon + label.
  *
  *  A day/hotel/journey/leg page has no tab of its own — it stays highlighted
- *  on whichever hub pushed it (Plan, Map or Logbook can all open one), so
- *  `lastHub` remembers that across the shared page instead of the tab bar
- *  guessing from the URL and picking the wrong one. */
+ *  on whichever tab pushed it (Plan, Map, Logbook, or a pinned Logbook-section
+ *  tab can all open one), so `lastActiveId` remembers the specific tab across
+ *  the shared page instead of the tab bar guessing from the URL — remembering
+ *  a module id rather than just its coarse kind means this still works if the
+ *  visitor got there from a pinned tab whose own hub tab is disabled. */
 export function TabBarOrRail() {
   const { pathname } = useLocation();
   const data = useData();
   const modules = enabledModules(data?.config.modules ?? []);
   const hub = hubForPath(pathname);
-  const lastHub = useRef<ModuleKind>("plan");
+  const matchedId = currentModuleId(modules, pathname, hub);
+  const lastActiveId = useRef<string | null>(modules.find((m) => m.kind === "plan")?.id ?? null);
   useEffect(() => {
-    if (hub) lastHub.current = hub;
-  }, [hub]);
-  const activeId = currentModuleId(modules, pathname, hub, lastHub.current);
+    if (matchedId) lastActiveId.current = matchedId;
+  }, [matchedId]);
+  const activeId = matchedId ?? (isSharedDetail(pathname) ? lastActiveId.current : null);
 
   const cell = (current: boolean, label: string, icon: IconName) => (
     <span
