@@ -1,27 +1,6 @@
 import { useId, useState, type ReactNode } from "react";
 import { Icon, type IconName } from "./Icon";
-import { useApp } from "@/store/useApp";
-
-const KEY_PREFIX = "za.section.";
-
-const slug = (s: string) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-
-function readOpen(key: string, fallback: boolean): boolean {
-  try {
-    const v = localStorage.getItem(key);
-    return v === null ? fallback : v !== "0";
-  } catch {
-    return fallback;
-  }
-}
-
-function writeOpen(key: string, open: boolean) {
-  try {
-    localStorage.setItem(key, open ? "1" : "0");
-  } catch {
-    /* ignore */
-  }
-}
+import { usePersistedOpen, slug } from "@/lib/collapse";
 
 /**
  * The iOS grouped-inset section: a small quiet label sitting *above* a rounded
@@ -61,22 +40,15 @@ export function Section({
   children: ReactNode;
   className?: string;
 }) {
-  const tripId = useApp((s) => s.activeId);
   const sectionKey = id ?? (typeof title === "string" ? slug(title) : undefined);
-  const storageKey = tripId && sectionKey ? `${KEY_PREFIX}${tripId}.${sectionKey}` : undefined;
   const collapsible = title != null;
-  const [open, setOpen] = useState(() => (storageKey ? readOpen(storageKey, defaultOpen) : defaultOpen));
+  const [open, setOpen] = usePersistedOpen(sectionKey, defaultOpen);
   const [showInfo, setShowInfo] = useState(false);
   const infoId = useId();
   const bodyId = useId();
   const hasHeader = title != null || action != null || info != null;
 
-  const toggle = () =>
-    setOpen((o) => {
-      const next = !o;
-      if (storageKey) writeOpen(storageKey, next);
-      return next;
-    });
+  const toggle = () => setOpen((was) => !was);
 
   return (
     <section className={className}>
