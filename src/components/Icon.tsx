@@ -1,3 +1,5 @@
+import { glyphPath } from "@/lib/mapGlyphs";
+
 /**
  * A small set of thin, geometric line icons. Deliberately minimal — the app
  * leans on typography and photography, not iconography.
@@ -283,13 +285,9 @@ const P: Record<IconName, JSX.Element> = {
       <circle cx="16.5" cy="13" r="0.9" fill="currentColor" stroke="none" />
     </>
   ),
-  luggage: (
-    <>
-      <rect x="6" y="8.5" width="12" height="11" rx="1.5" />
-      <path d="M9.5 8.5V6a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 6v2.5" />
-      <path d="M10 12v4M14 12v4" />
-    </>
-  ),
+  // same geometry as the "luggage" MAP_GLYPHS marker (mapGlyphs.ts) — both
+  // render stroked on a 24×24 canvas, so it's one shape, not redrawn twice.
+  luggage: <path d={glyphPath("luggage")} />,
 };
 
 export const isIconName = (x: string): x is IconName => x in P;

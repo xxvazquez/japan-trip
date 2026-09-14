@@ -746,11 +746,17 @@ function ModulesPanel() {
   const mutate = useApp((s) => s.mutateTrip);
   if (!data) return null;
   const modules = data.config.modules;
+  const hidden = data.config.hiddenLogbook ?? [];
 
   return (
     <Section title="Tabs" info="Reorder, rename, or turn the main tabs off for this trip. Pin a Logbook page (like Packing) to add it as its own tab.">
       <ul>
-        {modules.map((m, i) => (
+        {modules.map((m, i) => {
+          // a pinned tab whose target section is hidden would dead-end
+          // (LogbookSectionsPanel disables it for that reason) — block
+          // re-enabling it here too, until the section's shown again.
+          const stuckHidden = m.kind === "logbook-section" && !m.enabled && hidden.includes(m.target ?? "");
+          return (
           <li key={m.id} className={MLI}>
             <div className="flex flex-col">
               <button disabled={i === 0} onClick={() => mutate((d) => { const a = d.config.modules; [a[i - 1], a[i]] = [a[i], a[i - 1]]; })} className="text-ink-faint disabled:opacity-30" aria-label="Move up">
@@ -762,11 +768,15 @@ function ModulesPanel() {
             </div>
             <span className="flex-1">
               <Editable label="Section label" value={m.label} onCommit={(v) => mutate((d) => { d.config.modules[i].label = v || m.label; })} />
-              <span className="ml-2 text-xs text-ink-soft">{m.kind === "logbook-section" ? logbookLabel(m.target ?? "") : m.kind}</span>
+              <span className="ml-2 text-xs text-ink-soft">
+                {m.kind === "logbook-section" ? logbookLabel(m.target ?? "") : m.kind}
+                {stuckHidden && " · hidden"}
+              </span>
             </span>
             <button
+              disabled={stuckHidden}
               onClick={() => mutate((d) => { d.config.modules[i].enabled = !d.config.modules[i].enabled; })}
-              className="text-ink-faint hover:text-ink-soft"
+              className="text-ink-faint hover:text-ink-soft disabled:opacity-30"
               aria-label={m.enabled ? "Disable" : "Enable"}
             >
               <Icon name={m.enabled ? "eye" : "eye-off"} size={18} />
@@ -777,7 +787,8 @@ function ModulesPanel() {
               </ConfirmButton>
             )}
           </li>
-        ))}
+          );
+        })}
         <AddTabButton />
       </ul>
     </Section>
@@ -1129,12 +1140,8 @@ function Content() {
                 return (
                   <li key={x.id} className="border-b border-line py-2 text-sm last:border-b-0">
                     <div className="flex items-center gap-2">
-                      {type !== "places" && (
-                        <>
-                          <button disabled={i === 0} onClick={() => moveEntity(type, x.id, -1)} className="text-ink-faint disabled:opacity-25" aria-label="Up"><Icon name="up" size={14} /></button>
-                          <button disabled={i === list.length - 1} onClick={() => moveEntity(type, x.id, 1)} className="text-ink-faint disabled:opacity-25" aria-label="Down"><Icon name="down" size={14} /></button>
-                        </>
-                      )}
+                      <button disabled={i === 0} onClick={() => moveEntity(type, x.id, -1)} className="text-ink-faint disabled:opacity-25" aria-label="Up"><Icon name="up" size={14} /></button>
+                      <button disabled={i === list.length - 1} onClick={() => moveEntity(type, x.id, 1)} className="text-ink-faint disabled:opacity-25" aria-label="Down"><Icon name="down" size={14} /></button>
                       <span className="min-w-0 flex-1 truncate">
                         {href ? <Link to={href} className="hover:text-accent">{nameOf(rec)}</Link> : nameOf(rec)}
                       </span>
