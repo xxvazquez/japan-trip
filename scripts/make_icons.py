@@ -21,7 +21,7 @@ reference art only (not consumed here — nothing in the app currently shows a
 baked-in wordmark).
 """
 import os
-from PIL import Image
+from PIL import Image, ImageEnhance, ImageFilter
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
 ICONS = os.path.join(ROOT, "public", "icons")
@@ -37,6 +37,23 @@ def resize(im, size):
     return im.resize((size, size), Image.LANCZOS)
 
 
+def bolden_for_favicon(im):
+    """The mark's topographic wing detail is fine at every size it's shown at
+    (128px in-app, 192/512 PWA icons) except the actual browser-tab favicon,
+    which a browser shrinks further to ~16px — at that size the fine lines
+    just average into soft grey-green mush and the silhouette itself goes
+    soft. A flat resize can't fix that: contrast/sharpen has to run on the
+    already-small image (boosting it on the full-res source, then shrinking,
+    just gets blurred straight back out by the resize). Only ever applied to
+    favicon.png — every other output keeps the plain resize."""
+    r, g, b, a = im.split()
+    rgb = Image.merge("RGB", (r, g, b))
+    rgb = ImageEnhance.Color(rgb).enhance(1.2)
+    rgb = ImageEnhance.Contrast(rgb).enhance(1.45)
+    rgb = rgb.filter(ImageFilter.UnsharpMask(radius=1.2, percent=200, threshold=1))
+    return Image.merge("RGBA", (*rgb.split(), a))
+
+
 # Needs a solid background: iOS forces one behind apple-touch-icon anyway, and
 # a maskable icon is defined to fill its own safe zone (no OS-added backing).
 resize(icon, 180).save(os.path.join(ICONS, "apple-touch-icon.png"))
@@ -47,7 +64,7 @@ canvas.save(os.path.join(ICONS, "icon-maskable-512.png"))
 
 # Safe to leave transparent: a browser tab / "any"-purpose launcher icon just
 # shows whatever's behind it.
-resize(mark, 48).save(os.path.join(ROOT, "public", "favicon.png"))
+bolden_for_favicon(resize(mark, 48)).save(os.path.join(ROOT, "public", "favicon.png"))
 resize(mark, 192).save(os.path.join(ICONS, "icon-192.png"))
 resize(mark, 512).save(os.path.join(ICONS, "icon-512.png"))
 
