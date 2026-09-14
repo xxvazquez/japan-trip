@@ -18,34 +18,13 @@ import { fmtDate, plural, segEndpoints } from "@/lib/dates";
 import { clockOf, fmtDuration, fmtMinutes, localMinutes } from "@/lib/time";
 import { MODE_LABEL, MODE_ICON, MODE_TONE } from "@/lib/transport";
 import { journeyFare, fmtMoney, cleanAmount, fmtFare } from "@/lib/cost";
-import { splitRoute, joinRoute, routeStops, JOURNEY_KIND_LABEL } from "@/lib/journey";
+import { splitRoute, joinRoute, JOURNEY_KIND_LABEL } from "@/lib/journey";
+import { Arrow, RouteLabel } from "@/components/RouteLabel";
 import type { Journey as JourneyT, JourneyKind, Segment, TransportMode } from "@/core/types";
 
 const MODES: TransportMode[] = ["flight", "train", "bus", "ferry", "car", "taxi", "subway", "walk"];
 const KINDS: JourneyKind[] = ["arrival", "transfer", "departure"];
 const rid = () => Math.random().toString(36).slice(2, 8);
-
-/** The from → to connector. One weight everywhere a route shows — always Inter,
- *  never the page's serif, so the Journey screen stops mixing arrow styles. */
-function Arrow({ className = "" }: { className?: string }) {
-  return <span className={`font-sans font-normal text-ink-faint ${className}`}>→</span>;
-}
-
-/** A stored "A → B" label with the arrow rendered as markup, not a baked char. */
-function RouteLabel({ label }: { label: string }) {
-  const stops = routeStops(label);
-  if (stops.length < 2) return <>{label}</>;
-  return (
-    <span className="inline-flex flex-wrap items-baseline gap-x-2">
-      {stops.map((s, i) => (
-        <span key={i} className="inline-flex items-baseline gap-x-2">
-          {i > 0 && <Arrow />}
-          {s}
-        </span>
-      ))}
-    </span>
-  );
-}
 
 /** In edit mode, a fare calculated from the hops showed a blank input with no
  *  hint of the total behind it. Show the derived sum (same as read-only) until
