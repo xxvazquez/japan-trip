@@ -9,6 +9,7 @@ import { CheckCircle } from "@/components/CheckCircle";
 import { InfoNote } from "@/components/InfoNote";
 import { InsetRow } from "@/components/InsetRow";
 import { Empty } from "@/components/Empty";
+import { CenterIfShort } from "@/components/CenterIfShort";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { SwipeToDelete } from "@/components/SwipeToDelete";
 import { ConfirmButton } from "@/components/ConfirmButton";
@@ -284,41 +285,39 @@ function GettingAround() {
       </div>
     );
   }
-  // a lone journey otherwise trails into a mostly-empty page — give it the
-  // same quiet vertical centring as the fully-empty state above, instead of
-  // pinning one short card to the top of a tall blank screen.
-  const list = (
-    <div className="space-y-3">
-      {!ro && <AddButton label="Add a journey" onClick={add} />}
-      <Section>
-        <ul>
-          {journeys.map((j) => {
-            const first = j.segments[0];
-            const last = j.segments.at(-1);
-            const changes = Math.max(0, j.segments.length - 1);
-            const mode = first?.mode ?? "train";
-            const times =
-              fmtSpan(
-                { depart: first?.depart, arrive: last?.arrive ?? last?.depart, fromTz: first?.fromTz, toTz: last?.toTz },
-                j.date,
-                loc,
-              ) || "—";
-            return (
-              <TileRow
-                key={j.id}
-                to={`/journey/${j.id}`}
-                tile={<IconTile size="sm" name={MODE_ICON[mode]} tone={toneForSegmentMode(mode)} />}
-                title={j.label || "Journey"}
-                meta={changes > 0 ? `${times} · ${plural(changes, "change")}` : times}
-                right={j.date && fmtDate(j.date, loc, { day: "numeric", month: "short" })}
-              />
-            );
-          })}
-        </ul>
-      </Section>
-    </div>
+  return (
+    <CenterIfShort>
+      <div className="space-y-3">
+        {!ro && <AddButton label="Add a journey" onClick={add} />}
+        <Section>
+          <ul>
+            {journeys.map((j) => {
+              const first = j.segments[0];
+              const last = j.segments.at(-1);
+              const changes = Math.max(0, j.segments.length - 1);
+              const mode = first?.mode ?? "train";
+              const times =
+                fmtSpan(
+                  { depart: first?.depart, arrive: last?.arrive ?? last?.depart, fromTz: first?.fromTz, toTz: last?.toTz },
+                  j.date,
+                  loc,
+                ) || "—";
+              return (
+                <TileRow
+                  key={j.id}
+                  to={`/journey/${j.id}`}
+                  tile={<IconTile size="sm" name={MODE_ICON[mode]} tone={toneForSegmentMode(mode)} />}
+                  title={j.label || "Journey"}
+                  meta={changes > 0 ? `${times} · ${plural(changes, "change")}` : times}
+                  right={j.date && fmtDate(j.date, loc, { day: "numeric", month: "short" })}
+                />
+              );
+            })}
+          </ul>
+        </Section>
+      </div>
+    </CenterIfShort>
   );
-  return journeys.length === 1 ? <div className="flex min-h-[52vh] flex-col justify-center">{list}</div> : list;
 }
 
 /* -------------------------------------------------------------- luggage */
@@ -344,41 +343,43 @@ function Luggage() {
   }
 
   return (
-    <div className="space-y-6">
-      {!ro && <AddButton label="Add a note" onClick={add} />}
-      {data.luggage.map((n) => {
-        const p = (patch: Partial<LuggageNote>) => updateEntity<LuggageNote>("luggage", n.id, patch);
-        const hasDetail = !!n.detail || !ro;
-        return (
-          <Section
-            key={n.id}
-            id={n.id}
-            title={<Editable label="Title" value={n.title} placeholder="e.g. Coin lockers" onCommit={(v) => p({ title: v || "Untitled" })} />}
-            action={!ro && cardDeleteBtn(() => removeEntity("luggage", n.id), "Delete note")}
-          >
-            {hasDetail && (
-              <div className="note px-3.5 py-3 text-ink-soft">
-                <RichNote value={n.detail ?? ""} placeholder="Where, when, how much…" onCommit={(v) => p({ detail: v || undefined })} />
-              </div>
-            )}
-            {(n.date || n.url || !ro) && (
-              <ul className={hasDetail ? "border-t border-line" : ""}>
-                {(n.date || !ro) && (
-                  <InsetRow label="When">
-                    <Editable as="date" label="Date" value={n.date ?? ""} placeholder="—" onCommit={(v) => p({ date: v || undefined })} />
-                  </InsetRow>
-                )}
-                {(n.url || !ro) && (
-                  <InsetRow label="Link">
-                    <Editable as="link" label="Google Maps link" value={n.url ?? ""} placeholder="＋ map link" onCommit={(v) => p({ url: v || undefined })} />
-                  </InsetRow>
-                )}
-              </ul>
-            )}
-          </Section>
-        );
-      })}
-    </div>
+    <CenterIfShort>
+      <div className="space-y-6">
+        {!ro && <AddButton label="Add a note" onClick={add} />}
+        {data.luggage.map((n) => {
+          const p = (patch: Partial<LuggageNote>) => updateEntity<LuggageNote>("luggage", n.id, patch);
+          const hasDetail = !!n.detail || !ro;
+          return (
+            <Section
+              key={n.id}
+              id={n.id}
+              title={<Editable label="Title" value={n.title} placeholder="e.g. Coin lockers" onCommit={(v) => p({ title: v || "Untitled" })} />}
+              action={!ro && cardDeleteBtn(() => removeEntity("luggage", n.id), "Delete note")}
+            >
+              {hasDetail && (
+                <div className="note px-3.5 py-3 text-ink-soft">
+                  <RichNote value={n.detail ?? ""} placeholder="Where, when, how much…" onCommit={(v) => p({ detail: v || undefined })} />
+                </div>
+              )}
+              {(n.date || n.url || !ro) && (
+                <ul className={hasDetail ? "border-t border-line" : ""}>
+                  {(n.date || !ro) && (
+                    <InsetRow label="When">
+                      <Editable as="date" label="Date" value={n.date ?? ""} placeholder="—" onCommit={(v) => p({ date: v || undefined })} />
+                    </InsetRow>
+                  )}
+                  {(n.url || !ro) && (
+                    <InsetRow label="Link">
+                      <Editable as="link" label="Google Maps link" value={n.url ?? ""} placeholder="＋ map link" onCommit={(v) => p({ url: v || undefined })} />
+                    </InsetRow>
+                  )}
+                </ul>
+              )}
+            </Section>
+          );
+        })}
+      </div>
+    </CenterIfShort>
   );
 }
 
@@ -452,55 +453,57 @@ function Expenses() {
   };
 
   return (
-    <div className="space-y-6">
-      {combined && (
-        <Section
-          title={`Combined · ${primary}`}
-          info={`Every currency converted into ${primary} and added together — each still gets its own section below, unconverted. Exchange rate ${
-            date ? `as of ${fmtDate(date, data.config.locale, { day: "numeric", month: "short", year: "numeric" })}` : "unavailable"
-          }${stale ? ", the last one fetched — offline, or due to refresh" : ", fetched automatically"}.`}
-        >
-          <ul>
-            {categories
-              .filter((c) => (combined.byCategory[c.id] ?? 0) > 0)
-              .map((c) => (
-                <InsetRow key={c.id} label={catLabel(c)}>{fmtMoney(combined.byCategory[c.id], primary)}</InsetRow>
-              ))}
-            {combined.uncategorised > 0 && (
-              <InsetRow label="Uncategorised">{fmtMoney(combined.uncategorised, primary)}</InsetRow>
-            )}
-            <InsetRow label={<span className="font-semibold text-ink">Total</span>}>
-              <span className="font-semibold">{fmtMoney(combined.total, primary)}</span>
-            </InsetRow>
-          </ul>
-        </Section>
-      )}
-      {currencies.map((cur) => {
-        const b = byCurrency[cur];
-        return (
-          <Section key={cur || "—"} title={cur || "Unspecified currency"}>
+    <CenterIfShort>
+      <div className="space-y-6">
+        {combined && (
+          <Section
+            title={`Combined · ${primary}`}
+            info={`Every currency converted into ${primary} and added together — each still gets its own section below, unconverted. Exchange rate ${
+              date ? `as of ${fmtDate(date, data.config.locale, { day: "numeric", month: "short", year: "numeric" })}` : "unavailable"
+            }${stale ? ", the last one fetched — offline, or due to refresh" : ", fetched automatically"}.`}
+          >
             <ul>
               {categories
-                .filter((c) => (b.byCategory[c.id] ?? 0) > 0)
+                .filter((c) => (combined.byCategory[c.id] ?? 0) > 0)
                 .map((c) => (
-                  <InsetRow key={c.id} label={catLabel(c)}>{fmtMoney(b.byCategory[c.id], cur)}</InsetRow>
+                  <InsetRow key={c.id} label={catLabel(c)}>{fmtMoney(combined.byCategory[c.id], primary)}</InsetRow>
                 ))}
-              {b.uncategorised > 0 && (
-                <InsetRow label="Uncategorised">{fmtMoney(b.uncategorised, cur)}</InsetRow>
+              {combined.uncategorised > 0 && (
+                <InsetRow label="Uncategorised">{fmtMoney(combined.uncategorised, primary)}</InsetRow>
               )}
               <InsetRow label={<span className="font-semibold text-ink">Total</span>}>
-                <span className="font-semibold">{fmtMoney(b.total, cur)}</span>
+                <span className="font-semibold">{fmtMoney(combined.total, primary)}</span>
               </InsetRow>
             </ul>
           </Section>
-        );
-      })}
-      {unparsed.length > 0 && (
-        <p className="px-1 text-xs text-ink-faint">
-          Couldn’t read {plural(unparsed.length, "price")}: {unparsed.join(", ")}
-        </p>
-      )}
-    </div>
+        )}
+        {currencies.map((cur) => {
+          const b = byCurrency[cur];
+          return (
+            <Section key={cur || "—"} title={cur || "Unspecified currency"}>
+              <ul>
+                {categories
+                  .filter((c) => (b.byCategory[c.id] ?? 0) > 0)
+                  .map((c) => (
+                    <InsetRow key={c.id} label={catLabel(c)}>{fmtMoney(b.byCategory[c.id], cur)}</InsetRow>
+                  ))}
+                {b.uncategorised > 0 && (
+                  <InsetRow label="Uncategorised">{fmtMoney(b.uncategorised, cur)}</InsetRow>
+                )}
+                <InsetRow label={<span className="font-semibold text-ink">Total</span>}>
+                  <span className="font-semibold">{fmtMoney(b.total, cur)}</span>
+                </InsetRow>
+              </ul>
+            </Section>
+          );
+        })}
+        {unparsed.length > 0 && (
+          <p className="px-1 text-xs text-ink-faint">
+            Couldn’t read {plural(unparsed.length, "price")}: {unparsed.join(", ")}
+          </p>
+        )}
+      </div>
+    </CenterIfShort>
   );
 }
 
@@ -527,67 +530,75 @@ function Documents() {
   const addDoc = () => addEntity("docs", { id: crypto.randomUUID?.() ?? `docs-${rid()}`, title: "New document", kind: "other", fields: [] } as never);
 
   if (docs.length === 0) {
-    return ro
-      ? <Empty what="No documents" hint="Insurance, a booking, a permit — one card each." />
-      : <AddButton label="Add a document" onClick={addDoc} />;
+    return ro ? (
+      <Empty what="No documents" hint="Insurance, a booking, a permit — one card each." />
+    ) : (
+      <div className="flex min-h-[52vh] flex-col items-center justify-center gap-3 text-center">
+        <p className="lead">No documents</p>
+        <p className="meta max-w-xs">Insurance, a booking, a permit — one card each.</p>
+        <AddButton label="Add a document" onClick={addDoc} />
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      <div className={`flex items-center ${ro ? "justify-end" : "justify-between"}`}>
-        {!ro && <AddButton label="Add a document" onClick={addDoc} />}
-        <InfoNote align="right">
-          One card per document — rename it, add your own fields, attach a file, add a note.{" "}
-          {cloud
-            ? "Attachments upload to a Google Drive folder shared with the people on this trip. Still — think twice before a full passport scan."
-            : "Attachments stay only on the device they’re added on — passport numbers don’t belong here."}
-        </InfoNote>
+    <CenterIfShort>
+      <div className="space-y-6">
+        <div className={`flex items-center ${ro ? "justify-end" : "justify-between"}`}>
+          {!ro && <AddButton label="Add a document" onClick={addDoc} />}
+          <InfoNote align="right">
+            One card per document — rename it, add your own fields, attach a file, add a note.{" "}
+            {cloud
+              ? "Attachments upload to a Google Drive folder shared with the people on this trip. Still — think twice before a full passport scan."
+              : "Attachments stay only on the device they’re added on — passport numbers don’t belong here."}
+          </InfoNote>
+        </div>
+        {docs.map((d) => (
+          <Section
+            key={d.id}
+            id={d.id}
+            defaultOpen={false}
+            icon="vault"
+            title={
+              ro
+                ? d.title
+                : <Editable label="Document name" value={d.title} placeholder="Name" onCommit={(v) => updateEntity<Doc>("docs", d.id, { title: v || "Untitled" })} />
+            }
+            action={!ro && cardDeleteBtn(() => removeEntity("docs", d.id), "Delete document")}
+          >
+            {(!ro || (d.files?.length ?? 0) > 0) && (
+              <div className="px-3.5 py-3">
+                <Attachments
+                  doc={d}
+                  cloud={cloud}
+                  folderName={folderName}
+                  shareWith={shareWith}
+                  onChange={(files) => updateEntity<Doc>("docs", d.id, { files })}
+                />
+              </div>
+            )}
+            {(d.fields.length > 0 || !ro) && (
+              <ul className="border-t border-line">
+                <FieldList
+                  inset
+                  fields={d.fields}
+                  onChange={(next) => updateEntity<Doc>("docs", d.id, { fields: next })}
+                />
+              </ul>
+            )}
+            {(d.note?.trim() || !ro) && (
+              <div className="note border-t border-line px-3.5 py-3 text-ink-soft">
+                <RichNote
+                  value={d.note ?? ""}
+                  onCommit={(v) => updateEntity<Doc>("docs", d.id, { note: v || undefined })}
+                  placeholder="＋ a note"
+                />
+              </div>
+            )}
+          </Section>
+        ))}
       </div>
-      {docs.map((d) => (
-        <Section
-          key={d.id}
-          id={d.id}
-          defaultOpen={false}
-          icon="vault"
-          title={
-            ro
-              ? d.title
-              : <Editable label="Document name" value={d.title} placeholder="Name" onCommit={(v) => updateEntity<Doc>("docs", d.id, { title: v || "Untitled" })} />
-          }
-          action={!ro && cardDeleteBtn(() => removeEntity("docs", d.id), "Delete document")}
-        >
-          {(!ro || (d.files?.length ?? 0) > 0) && (
-            <div className="px-3.5 py-3">
-              <Attachments
-                doc={d}
-                cloud={cloud}
-                folderName={folderName}
-                shareWith={shareWith}
-                onChange={(files) => updateEntity<Doc>("docs", d.id, { files })}
-              />
-            </div>
-          )}
-          {(d.fields.length > 0 || !ro) && (
-            <ul className="border-t border-line">
-              <FieldList
-                inset
-                fields={d.fields}
-                onChange={(next) => updateEntity<Doc>("docs", d.id, { fields: next })}
-              />
-            </ul>
-          )}
-          {(d.note?.trim() || !ro) && (
-            <div className="note border-t border-line px-3.5 py-3 text-ink-soft">
-              <RichNote
-                value={d.note ?? ""}
-                onCommit={(v) => updateEntity<Doc>("docs", d.id, { note: v || undefined })}
-                placeholder="＋ a note"
-              />
-            </div>
-          )}
-        </Section>
-      ))}
-    </div>
+    </CenterIfShort>
   );
 }
 
