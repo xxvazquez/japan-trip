@@ -132,11 +132,13 @@ see its rough extent at a glance.
 
 **Suggest areas.** When four or more places aren't in any area, a *Suggest
 areas* link joins the Areas controls. It groups them by how close together they
-are (the
-"close enough" distance is worked out from your own places, so it fits a tight
-city or a spread-out road trip) and names each group after the neighbourhood it
-sits in. You review the groups — rename, untick, drop a place — and only the
-ones you keep become real areas. It never changes an area you already have.
+are (the "close enough" distance is worked out from your own places, so it
+fits a tight city or a spread-out road trip, but never past roughly a 15–20
+min walk end to end — a spread-out itinerary's own places never get lumped
+into one supposedly "walkable" group just because everything else that trip is
+even more spread out) and names each group after the neighbourhood it sits in.
+You review the groups — rename, untick, drop a place — and only the ones you
+keep become real areas. It never changes an area you already have.
 
 **Logbook** — the reference drawer. A menu of sections, each its own page:
 stays · getting around · luggage · documents · emergency numbers · packing ·
