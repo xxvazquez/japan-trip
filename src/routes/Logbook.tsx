@@ -284,7 +284,10 @@ function GettingAround() {
       </div>
     );
   }
-  return (
+  // a lone journey otherwise trails into a mostly-empty page — give it the
+  // same quiet vertical centring as the fully-empty state above, instead of
+  // pinning one short card to the top of a tall blank screen.
+  const list = (
     <div className="space-y-3">
       {!ro && <AddButton label="Add a journey" onClick={add} />}
       <Section>
@@ -315,6 +318,7 @@ function GettingAround() {
       </Section>
     </div>
   );
+  return journeys.length === 1 ? <div className="flex min-h-[52vh] flex-col justify-center">{list}</div> : list;
 }
 
 /* -------------------------------------------------------------- luggage */
