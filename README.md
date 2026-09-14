@@ -446,7 +446,13 @@ everything under `public/icons` and `public/brand` with
   or a launcher just shows whatever's behind them) and the in-app themed marks
   (`Wordmark`, sign-in/offline/error screens), which already sit inside the
   app's own rounded, coloured container — a baked-in background there doubled
-  up one rounded shape inside another.
+  up one rounded shape inside another. `favicon.png` alone gets an extra
+  contrast/saturation/sharpen pass (`bolden_for_favicon` in the script,
+  applied after the resize, not before — sharpening the full-res source and
+  then shrinking just blurs it straight back out) since a browser tab shrinks
+  it further still, to ~16px, where the mark's fine topographic wing lines
+  would otherwise average into soft grey-green mush. Every other output stays
+  a plain resize; the topo detail is fine at every size it's actually shown.
 
 The current mark (a beetle carrying a topographic map) doesn't need a
 different in-app rendering per theme — being background-less, `logo-mark.png`
