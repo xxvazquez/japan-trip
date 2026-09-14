@@ -1348,7 +1348,7 @@ function PlaceRow({
 
       {open && (
         <div className="pb-3.5 pl-[calc(22px+0.75rem)] pr-1">
-          {place.source && !readOnly && (
+          {!readOnly && (
             <div className="mb-2">
               <Editable label="Name" value={place.name} onCommit={onName} className="text-sm font-medium" />
             </div>
