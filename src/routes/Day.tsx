@@ -175,7 +175,7 @@ export default function Day() {
           <div className="space-y-3 px-3.5 py-3">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {/* out */}
-              <div className="rounded-[10px] bg-accent/[0.07] p-3">
+              <div className="rounded-[12px] bg-accent/[0.07] p-3">
                 <p className="flex items-center gap-1.5 text-accent">
                   <Icon name="chevron" size={13} className="shrink-0" />
                   <span className="text-2xs font-medium uppercase tracking-[0.12em]">Getting there</span>
@@ -186,7 +186,7 @@ export default function Day() {
               </div>
 
               {/* back */}
-              <div className="rounded-[10px] bg-gold/[0.08] p-3">
+              <div className="rounded-[12px] bg-gold/[0.08] p-3">
                 <p className="flex items-center gap-1.5 text-gold">
                   <Icon name="chevron" size={13} className="shrink-0 rotate-180" />
                   <span className="text-2xs font-medium uppercase tracking-[0.12em]">Getting back</span>
