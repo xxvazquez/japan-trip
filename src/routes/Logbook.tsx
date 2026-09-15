@@ -762,52 +762,60 @@ function Packing() {
           Start with a category — Clothes, Tech, Toiletries… — then add what goes in it.
         </p>
       )}
-      <div className="space-y-6">
-        {Object.entries(groups).map(([group, list]) => {
-          const g = list.filter((i) => i.done).length;
-          return (
-            <Section
-              key={group}
-              id={group}
-              title={ro ? group : (
-                <Editable label="Category" value={group} placeholder="Category" onCommit={(v) => renameGroup(group, v)} />
-              )}
-              action={
-                <span className="flex items-center gap-2">
-                  <span className={`text-xs tabular-nums ${g === list.length ? "text-ink" : "text-ink-faint"}`}>
-                    {g}/{list.length}
-                  </span>
-                  {!ro && cardDeleteBtn(() => removeGroup(group), "Delete category")}
-                </span>
-              }
-            >
-              <ul>
-                {list.map((it) => (
-                  <PackRow
-                    key={it.id}
-                    item={it}
-                    ro={ro}
-                    people={people}
-                    tagged={tagged}
-                    onToggle={(v) => updateEntity<PackingItem>("packing", it.id, { done: v })}
-                    onLabel={(v) => updateEntity<PackingItem>("packing", it.id, { label: v })}
-                    onAssign={(v) => updateEntity<PackingItem>("packing", it.id, { assignee: v })}
-                    onRemove={() => removeEntity("packing", it.id)}
-                  />
-                ))}
-                {!ro && (
-                  <li>
-                    <button onClick={() => addItem(group)} className="action w-full px-3.5 py-2.5 text-xs">
-                      <Icon name="plus" size={13} /> Add item
-                    </button>
-                  </li>
-                )}
-              </ul>
-            </Section>
-          );
-        })}
-      </div>
-      {!ro && <AddButton label="Add a category" onClick={addCategory} />}
+      {Object.keys(groups).length > 0 && (
+        <>
+          {!ro && <AddButton label="Add a category" onClick={addCategory} />}
+          <Section>
+            <ul>
+              {Object.entries(groups).map(([group, list]) => {
+                const g = list.filter((i) => i.done).length;
+                return (
+                  <AccordionRow
+                    key={group}
+                    id={group}
+                    defaultOpen
+                    title={ro ? group : (
+                      <Editable label="Category" value={group} placeholder="Category" onCommit={(v) => renameGroup(group, v)} />
+                    )}
+                    action={
+                      <span className="flex items-center gap-2">
+                        <span className={`text-xs tabular-nums ${g === list.length ? "text-ink" : "text-ink-faint"}`}>
+                          {g}/{list.length}
+                        </span>
+                        {!ro && cardDeleteBtn(() => removeGroup(group), "Delete category")}
+                      </span>
+                    }
+                  >
+                    <ul>
+                      {list.map((it) => (
+                        <PackRow
+                          key={it.id}
+                          item={it}
+                          ro={ro}
+                          people={people}
+                          tagged={tagged}
+                          onToggle={(v) => updateEntity<PackingItem>("packing", it.id, { done: v })}
+                          onLabel={(v) => updateEntity<PackingItem>("packing", it.id, { label: v })}
+                          onAssign={(v) => updateEntity<PackingItem>("packing", it.id, { assignee: v })}
+                          onRemove={() => removeEntity("packing", it.id)}
+                        />
+                      ))}
+                      {!ro && (
+                        <li>
+                          <button onClick={() => addItem(group)} className="action w-full px-3.5 py-2.5 text-xs">
+                            <Icon name="plus" size={13} /> Add item
+                          </button>
+                        </li>
+                      )}
+                    </ul>
+                  </AccordionRow>
+                );
+              })}
+            </ul>
+          </Section>
+        </>
+      )}
+      {Object.keys(groups).length === 0 && !ro && <AddButton label="Add a category" onClick={addCategory} />}
     </div>
   );
 }
