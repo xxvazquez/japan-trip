@@ -17,7 +17,6 @@ import { GlyphPicker } from "@/components/GlyphPicker";
 import { toneForGlyph } from "@/lib/tones";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { InsetRow } from "@/components/InsetRow";
-import { InfoNote } from "@/components/InfoNote";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { entityLink } from "@/lib/entityLink";
 import { OPTIONAL_LOGBOOK_SECTIONS, LOGBOOK_SECTIONS, LOGBOOK_NAV_ICON, logbookLabel } from "@/lib/logbook";
@@ -1204,16 +1203,19 @@ function Content() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
-        <InfoNote align="right">
-          Add, duplicate, remove and reorder items here. To fill in the details, open the item:
-          stays, days, hotels and journeys each have their own page; luggage, packing and
-          documents are edited on the <Link to="/logbook" className="text-accent">Logbook</Link>;
-          pins and areas on the <Link to="/map" className="text-accent">Map</Link>.
-        </InfoNote>
-      </div>
-      {CONTENT_GROUPS.map((grp) => (
-        <Section key={grp.title} title={grp.title}>
+      {CONTENT_GROUPS.map((grp, i) => (
+        <Section
+          key={grp.title}
+          title={grp.title}
+          info={i === 0 ? (
+            <>
+              Add, duplicate, remove and reorder items here. To fill in the details, open the item:
+              stays, days, hotels and journeys each have their own page; luggage, packing and
+              documents are edited on the <Link to="/logbook" className="text-accent">Logbook</Link>;
+              pins and areas on the <Link to="/map" className="text-accent">Map</Link>.
+            </>
+          ) : undefined}
+        >
           {grp.types.map((type) => <Rows key={type} type={type} />)}
         </Section>
       ))}
