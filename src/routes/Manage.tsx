@@ -951,22 +951,6 @@ function Appearance() {
         </div>
       </Section>
 
-      <Section title="Cover">
-        <div className="p-3.5">
-        <div className="overflow-hidden rounded-[10px] border border-line">
-          {media.cover ? (
-            <img src={media.cover.dataUrl} alt="" className="h-40 w-full object-cover" />
-          ) : (
-            <div className="grid h-40 w-full place-items-center bg-surface-2 text-sm text-ink-faint">No cover</div>
-          )}
-        </div>
-        <div className="mt-2 flex gap-2">
-          <button disabled={busy} onClick={() => upload((item) => setMedia("cover", item))} className="btn-sm">Upload</button>
-          {media.cover && <button onClick={() => setMedia("cover", undefined)} className="btn-sm text-accent">Remove</button>}
-        </div>
-        </div>
-      </Section>
-
       <Section title="Gallery" info="Images are resized to ~1600px and stored on this device with the trip.">
         <div className="p-3.5">
         <button disabled={busy} onClick={() => upload((item) => addGalleryMedia(item))} className="btn-sm mb-3">
@@ -985,7 +969,6 @@ function Appearance() {
                   <Icon name="close" size={13} />
                 </button>
                 <div className="absolute inset-x-0 bottom-0 flex gap-1 bg-black/40 p-1 opacity-0 transition-opacity group-hover:opacity-100">
-                  <button onClick={() => setMedia("cover", m)} className="rounded bg-white/20 px-1.5 text-2xs text-white">Cover</button>
                   <button onClick={() => setMedia("logo", m)} className="rounded bg-white/20 px-1.5 text-2xs text-white">Logo</button>
                 </div>
               </div>

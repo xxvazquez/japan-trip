@@ -96,17 +96,13 @@ const rows = (pairs: [string, string | undefined][]): string => {
  * ------------------------------------------------------------------ */
 
 function coverSection(data: TripData): string {
-  const { config, meta, media } = data;
+  const { config, meta } = data;
   const title = meta.title || config.branding || "Trip";
   const dates = config.tagline
     || (meta.start && meta.end
       ? `${fmtDate(meta.start, config.locale, { day: "numeric", month: "long", year: "numeric" })} – ${fmtDate(meta.end, config.locale, { day: "numeric", month: "long", year: "numeric" })}`
       : "");
-  const img = media.cover?.dataUrl
-    ? `<img class="cover-photo" src="${esc(media.cover.dataUrl)}" alt="">`
-    : "";
   return `<header class="cover">
-    ${img}
     <h1>${esc(title)}</h1>
     ${dates ? `<p class="cover-dates">${esc(dates)}</p>` : ""}
     ${config.travellers ? `<p class="cover-travellers">${esc(config.travellers)} travelling</p>` : ""}
@@ -382,7 +378,6 @@ function styles(data: TripData): string {
   li { margin: .15rem 0; }
   code { background: var(--surface); border: 1px solid var(--line); border-radius: 3px; padding: 0 .25em; font-size: .9em; }
   .cover { text-align: center; margin-bottom: 1rem; }
-  .cover-photo { width: 100%; max-height: 20rem; object-fit: cover; border-radius: 4px; margin-bottom: 1.4rem; }
   .cover-dates { font-size: 1.05rem; color: var(--ink-soft); }
   .cover-travellers { color: var(--ink-faint); font-size: .95rem; }
   .leg, .journey, .stay { margin-bottom: 1.4rem; }

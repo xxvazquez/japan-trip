@@ -90,7 +90,7 @@ interface AppStore {
   shiftDates: (deltaDays: number) => void;
 
   syncMyMap: (url: string) => Promise<{ mapName: string; count: number }>;
-  setMedia: (slot: "logo" | "cover", item: MediaItem | undefined) => void;
+  setMedia: (slot: "logo", item: MediaItem | undefined) => void;
   addGalleryMedia: (item: MediaItem) => void;
   removeGalleryMedia: (id: string) => void;
 }
@@ -925,7 +925,6 @@ export const useApp = create<AppStore>((set, get) => {
       if (local((d) => {
         d.media.gallery = d.media.gallery.filter((m) => m.id !== id);
         if (d.media.logo?.id === id) d.media.logo = undefined;
-        if (d.media.cover?.id === id) d.media.cover = undefined;
       })) enqueue(get, { t: "fields", keys: ["media"] });
     },
   };
