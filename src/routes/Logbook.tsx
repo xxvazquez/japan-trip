@@ -177,48 +177,50 @@ function ListSection({ list }: { list: CustomList }) {
   }
 
   return (
-    <Section>
-      <ul>
-        {list.items.map((it, i) => (
-          <li
-            key={it.id}
-            className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden"
-          >
-            <SwipeToDelete onDelete={ro ? undefined : () => set((l) => { l.items.splice(i, 1); })}>
-            <div className="flex items-start gap-2 px-3.5 py-2.5">
-              <span className="min-w-0 flex-1">
-                <span className="block text-[0.9375rem] font-medium leading-snug text-ink">
-                  {ro
-                    ? (it.label || "Untitled")
-                    : <Editable label="Item" value={it.label} placeholder="Name" onCommit={(v) => set((l) => { l.items[i].label = v; })} />}
+    <CenterIfShort>
+      <Section>
+        <ul>
+          {list.items.map((it, i) => (
+            <li
+              key={it.id}
+              className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden"
+            >
+              <SwipeToDelete onDelete={ro ? undefined : () => set((l) => { l.items.splice(i, 1); })}>
+              <div className="flex items-start gap-2 px-3.5 py-2.5">
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[0.9375rem] font-medium leading-snug text-ink">
+                    {ro
+                      ? (it.label || "Untitled")
+                      : <Editable label="Item" value={it.label} placeholder="Name" onCommit={(v) => set((l) => { l.items[i].label = v; })} />}
+                  </span>
+                  {(it.note || !ro) && (
+                    <span className="meta mt-0.5 block text-ink-soft">
+                      {ro ? it.note : (
+                        <Editable label="Note" value={it.note ?? ""} placeholder="＋ a note" onCommit={(v) => set((l) => { l.items[i].note = v || undefined; })} />
+                      )}
+                    </span>
+                  )}
+                  {(it.url || !ro) && (
+                    <span className="mt-1 block text-xs">
+                      <Editable as="link" label="Link" value={it.url ?? ""} placeholder="＋ Maps or web link" onCommit={(v) => set((l) => { l.items[i].url = v || undefined; })} />
+                    </span>
+                  )}
                 </span>
-                {(it.note || !ro) && (
-                  <span className="meta mt-0.5 block text-ink-soft">
-                    {ro ? it.note : (
-                      <Editable label="Note" value={it.note ?? ""} placeholder="＋ a note" onCommit={(v) => set((l) => { l.items[i].note = v || undefined; })} />
-                    )}
-                  </span>
-                )}
-                {(it.url || !ro) && (
-                  <span className="mt-1 block text-xs">
-                    <Editable as="link" label="Link" value={it.url ?? ""} placeholder="＋ Maps or web link" onCommit={(v) => set((l) => { l.items[i].url = v || undefined; })} />
-                  </span>
-                )}
-              </span>
-              {!ro && <RowDeleteButton onClick={() => set((l) => { l.items.splice(i, 1); })} />}
-            </div>
-            </SwipeToDelete>
-          </li>
-        ))}
-        {!ro && (
-          <li>
-            <button onClick={add} className="action w-full px-3.5 py-2.5 text-xs">
-              <Icon name="plus" size={13} /> Add an item
-            </button>
-          </li>
-        )}
-      </ul>
-    </Section>
+                {!ro && <RowDeleteButton onClick={() => set((l) => { l.items.splice(i, 1); })} />}
+              </div>
+              </SwipeToDelete>
+            </li>
+          ))}
+          {!ro && (
+            <li>
+              <button onClick={add} className="action w-full px-3.5 py-2.5 text-xs">
+                <Icon name="plus" size={13} /> Add an item
+              </button>
+            </li>
+          )}
+        </ul>
+      </Section>
+    </CenterIfShort>
   );
 }
 
