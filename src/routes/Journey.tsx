@@ -306,6 +306,32 @@ export default function Journey() {
                   {ro && s.service && (
                     <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${pillCls}`}>{s.service}</span>
                   )}
+                  {(s.depart || !ro) && (
+                    <div className="flex shrink-0 items-center gap-0.5">
+                      {s.depart && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            // open synchronously in the same click (see Day.tsx's
+                            // addToGoogleCalendar) so the popup blocker doesn't
+                            // treat the dynamic import's resolution as unrequested
+                            const w = window.open("", "_blank");
+                            import("@/lib/ics").then(({ googleCalendarUrlForSegment }) => {
+                              const url = googleCalendarUrlForSegment(s, data.config.tripTimeZone);
+                              if (!w) return;
+                              if (url) w.location.href = url; else w.close();
+                            });
+                          }}
+                          aria-label={`Add ${s.from} to ${s.to} to Google Calendar`}
+                          title="Add to Google Calendar"
+                          className="relative shrink-0 p-1 text-ink-faint opacity-60 transition-opacity hover:text-accent active:text-accent before:absolute before:-inset-2 before:content-[''] sm:opacity-0 sm:group-hover:opacity-100"
+                        >
+                          <Icon name="calendar" size={14} />
+                        </button>
+                      )}
+                      {!ro && <RowDeleteButton onClick={() => patch({ segments: j.segments.filter((_, k) => k !== i) })} label="Remove hop" />}
+                    </div>
+                  )}
                 </div>
 
                 {/* times, joined by one connector line with the duration above it */}
@@ -364,32 +390,6 @@ export default function Journey() {
                       </div>
                     )
                   : rows.length > 0 && <div className="mt-3 border-t border-line pt-0.5">{rows}</div>}
-                {(s.depart || !ro) && (
-                  <div className="mt-2 flex items-center justify-end gap-0.5">
-                    {s.depart && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          // open synchronously in the same click (see Day.tsx's
-                          // addToGoogleCalendar) so the popup blocker doesn't
-                          // treat the dynamic import's resolution as unrequested
-                          const w = window.open("", "_blank");
-                          import("@/lib/ics").then(({ googleCalendarUrlForSegment }) => {
-                            const url = googleCalendarUrlForSegment(s, data.config.tripTimeZone);
-                            if (!w) return;
-                            if (url) w.location.href = url; else w.close();
-                          });
-                        }}
-                        aria-label={`Add ${s.from} to ${s.to} to Google Calendar`}
-                        title="Add to Google Calendar"
-                        className="relative shrink-0 p-1.5 text-ink-faint opacity-60 transition-opacity hover:text-accent active:text-accent before:absolute before:-inset-2 before:content-[''] sm:opacity-0 sm:group-hover:opacity-100"
-                      >
-                        <Icon name="calendar" size={14} />
-                      </button>
-                    )}
-                    {!ro && <RowDeleteButton onClick={() => patch({ segments: j.segments.filter((_, k) => k !== i) })} label="Remove hop" />}
-                  </div>
-                )}
               </div>
               </SwipeToDelete>
               </Section>
