@@ -753,8 +753,35 @@ export const useApp = create<AppStore>((set, get) => {
     },
 
     removeEntity: (type, id) => {
-      if (local((d) => { d[type] = (d[type] as WithId[]).filter((x) => x.id !== id) as never; }))
+      // deleting a place would otherwise leave a dangling id sitting in every
+      // area's placeIds and any plan step that picked it — nothing crashes on
+      // a stale id (every read path does its own `.find()`/filter), but the
+      // raw counts shown in the Map's "Edit areas" panel and the duplicate-
+      // area merge tool don't filter, so they'd quietly drift high forever
+      const touchedAreas: string[] = [];
+      const touchedDays: string[] = [];
+      const next = local((d) => {
+        d[type] = (d[type] as WithId[]).filter((x) => x.id !== id) as never;
+        if (type === "places") {
+          for (const a of d.areas) {
+            if (!a.placeIds.includes(id)) continue;
+            a.placeIds = a.placeIds.filter((pid) => pid !== id);
+            touchedAreas.push(a.id);
+          }
+          for (const day of d.days) {
+            let changed = false;
+            for (const it of day.plan ?? []) {
+              if (it.placeId === id) { it.placeId = undefined; changed = true; }
+            }
+            if (changed) touchedDays.push(day.id);
+          }
+        }
+      });
+      if (next) {
         enqueue(get, { t: "del", type, id });
+        for (const areaId of touchedAreas) enqueue(get, { t: "areaPlaces", areaId });
+        for (const dayId of touchedDays) enqueue(get, { t: "row", type: "days", id: dayId });
+      }
     },
 
     moveEntity: (type, id, dir) => {
