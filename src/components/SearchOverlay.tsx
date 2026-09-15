@@ -80,6 +80,9 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
             autoComplete="off"
             spellCheck={false}
           />
+          <button type="button" onClick={onClose} className="shrink-0 whitespace-nowrap text-sm text-accent">
+            Cancel
+          </button>
           <kbd className="hidden rounded border border-line px-1.5 py-0.5 text-2xs text-ink-faint sm:block">esc</kbd>
         </div>
 
