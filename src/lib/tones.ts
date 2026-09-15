@@ -72,16 +72,41 @@ export function toneForGlyph(glyph: MapGlyphId | string | undefined): Tone {
   }
 }
 
-/** a built-in Logbook section, by its key → tone for its index tile. Only
- *  `stays` (a hotel — `ink-faint`, same as everywhere else a stay renders)
- *  and `getting around` (transit — `ai`, matching its own journey rows) map
- *  to something specific; every other section (luggage, documents,
- *  emergency, packing, budget, notes) is reference/admin content with no
- *  particular "kind," same as a custom list — the generic `accent` default. */
-export function toneForLogbookSection(section: LogbookSection): Tone {
-  if (section === "stays") return "ink-faint";
-  if (section === "getting around") return "ai";
-  return "accent";
+/** Fixed hex per built-in Logbook section with no natural semantic tone of
+ *  its own (see `logbookSectionTile`) — assigned by the section's own key,
+ *  not its position in the visible list, so hiding one never shifts another's
+ *  colour. Skips `AREA_TONES[0]` (too close to `ai`, which sits right above
+ *  these in the list as "Getting around") and reserves `[7]` as where a
+ *  trip's own custom lists start cycling, so the two runs don't collide. */
+const LOGBOOK_SECTION_COLOR: Partial<Record<LogbookSection, string>> = {
+  luggage: AREA_TONES[1],
+  documents: AREA_TONES[2],
+  emergency: AREA_TONES[3],
+  packing: AREA_TONES[4],
+  budget: AREA_TONES[5],
+  notes: AREA_TONES[6],
+};
+
+/** The Logbook home's own index tile per section: `stays` (a hotel —
+ *  `ink-faint`, same as everywhere else a stay renders) and `getting around`
+ *  (transit — `ai`, matching its own journey rows) carry real meaning
+ *  elsewhere in the app, so they keep it here too. Every other section
+ *  (luggage, documents, emergency, packing, budget, notes) is reference/admin
+ *  content with no particular "kind" — each still gets its own fixed colour
+ *  instead of collapsing onto one shared default, so the list reads at a
+ *  glance instead of by icon shape alone. */
+export function logbookSectionTile(section: LogbookSection): { tone?: Tone; color?: string } {
+  if (section === "stays") return { tone: "ink-faint" };
+  if (section === "getting around") return { tone: "ai" };
+  return { color: LOGBOOK_SECTION_COLOR[section] };
+}
+
+/** A trip's own custom Logbook lists, by position — continues the same
+ *  colour cycle `logbookSectionTile` uses for the built-ins, starting past
+ *  the slots those already claim (see `LOGBOOK_SECTION_COLOR`) so a list
+ *  right below them doesn't repeat a colour that's still on screen. */
+export function customListColor(index: number): string {
+  return AREA_TONES[(7 + index) % AREA_TONES.length];
 }
 
 /** a place's free-text category → tone: its mapped glyph if it has one, else a

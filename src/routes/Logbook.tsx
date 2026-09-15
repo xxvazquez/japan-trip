@@ -30,7 +30,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { APP_NAME } from "@/lib/app";
 import { fmtDate, fmtSpan, plural } from "@/lib/dates";
 import { MODE_ICON } from "@/lib/transport";
-import { toneForSegmentMode, toneForLogbookSection, TONE_BG, type Tone } from "@/lib/tones";
+import { toneForSegmentMode, logbookSectionTile, customListColor, TONE_BG, type Tone } from "@/lib/tones";
 import { LOGBOOK_SECTIONS, logbookLabel, sectionSlug, sectionFromSlug, type LogbookSection } from "@/lib/logbook";
 import { tripCost, fmtMoney, combineCurrencies, expenseCategoryIcon } from "@/lib/cost";
 import { useFxRates } from "@/lib/fx";
@@ -74,7 +74,7 @@ export function LogbookIndex() {
             <TileRow
               key={s}
               to={`/logbook/${sectionSlug(s)}`}
-              tile={<IconTile size="sm" tone={toneForLogbookSection(s)} {...SECTION_TILE[s]} />}
+              tile={<IconTile size="sm" {...logbookSectionTile(s)} {...SECTION_TILE[s]} />}
               title={logbookLabel(s)}
             />
           ))}
@@ -83,11 +83,11 @@ export function LogbookIndex() {
       {lists.length > 0 && (
         <Section title="Your lists" className="mt-6">
           <ul>
-            {lists.map((l) => (
+            {lists.map((l, i) => (
               <TileRow
                 key={l.id}
                 to={`/logbook/${l.id}`}
-                tile={<IconTile size="sm" name="list" tone="accent" />}
+                tile={<IconTile size="sm" name="list" color={customListColor(i)} />}
                 title={l.title}
                 meta={l.items.length ? plural(l.items.length, "item") : undefined}
               />
