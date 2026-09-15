@@ -877,7 +877,7 @@ export default function MapTab() {
       <div className="shrink-0 border-b border-line px-4 pb-2 pt-2.5">
         {/* city pills + Add place (always one tap) */}
         <div className="flex items-center gap-2">
-          <div className="-mx-1 flex min-w-0 flex-1 gap-1.5 overflow-x-auto px-1 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="-mx-1 flex min-w-0 flex-1 gap-1.5 overflow-x-auto px-1 pb-0.5 [scrollbar-width:none] [-webkit-mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent_100%)] [mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent_100%)] [&::-webkit-scrollbar]:hidden">
             {[
               ...(clock.phase === "during" && clock.today
                 ? [{ id: `day:${clock.today.id}`, label: "Today", hex: "" }]
