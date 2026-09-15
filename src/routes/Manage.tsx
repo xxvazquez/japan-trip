@@ -218,9 +218,9 @@ function Trips() {
         <Section title="Archived" className="mt-8">
           <ul>
             {archived.map((t) => (
-              <li key={t.id} className={`${MLI} justify-between text-sm`}>
-                <span className="text-ink-soft">{t.name}</span>
-                <div className="flex items-center gap-3">
+              <li key={t.id} className={`${INSET_DIVIDER} flex items-baseline justify-between gap-3 px-3.5 py-3`}>
+                <span className="lead min-w-0 flex-1 truncate text-ink-soft">{t.name}</span>
+                <div className="flex shrink-0 items-center gap-3 text-sm">
                   <button onClick={() => archiveTrip(t.id, false)} className="text-accent hover:opacity-70">Restore</button>
                   <ConfirmButton onConfirm={() => deleteTrip(t.id)} className="text-ink-faint hover:text-accent">Delete</ConfirmButton>
                 </div>
