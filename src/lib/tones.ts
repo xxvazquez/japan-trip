@@ -1,5 +1,6 @@
 import type { JourneyKind, TransportMode } from "@/core/types";
 import type { MapGlyphId } from "@/lib/mapGlyphs";
+import type { LogbookSection } from "@/lib/logbook";
 import { MODE_TONE } from "@/lib/transport";
 
 /**
@@ -44,6 +45,18 @@ export function toneForGlyph(glyph: MapGlyphId | string | undefined): Tone {
     default:
       return "accent";
   }
+}
+
+/** a built-in Logbook section, by its key → tone for its index tile. Only
+ *  `stays` (a hotel — `ink-faint`, same as everywhere else a stay renders)
+ *  and `getting around` (transit — `ai`, matching its own journey rows) map
+ *  to something specific; every other section (luggage, documents,
+ *  emergency, packing, budget, notes) is reference/admin content with no
+ *  particular "kind," same as a custom list — the generic `accent` default. */
+export function toneForLogbookSection(section: LogbookSection): Tone {
+  if (section === "stays") return "ink-faint";
+  if (section === "getting around") return "ai";
+  return "accent";
 }
 
 /** a place's free-text category → tone: its mapped glyph if it has one, else a
