@@ -92,6 +92,15 @@ export default function Day() {
       }
     }
   }
+  // places already on this day's plan — offered as a quick pick when logging
+  // an expense, so its name doesn't need retyping
+  const dayPlaceIds = new Set<string>();
+  const dayPlaces: Place[] = [];
+  for (const it of day.plan ?? []) {
+    if (!it.placeId || dayPlaceIds.has(it.placeId)) continue;
+    const p = data.places.find((pl) => pl.id === it.placeId);
+    if (p) { dayPlaceIds.add(it.placeId); dayPlaces.push(p); }
+  }
 
   // "＋ New journey" — a blank journey, its type chosen on the journey page (never
   // guessed from the day's date: you can arrive, transfer or leave at any point).
@@ -302,6 +311,7 @@ export default function Day() {
             costs={day.costs ?? []}
             categories={data.config.expenseCategories ?? []}
             currencies={(data.config.currencies ?? []).filter(Boolean)}
+            places={dayPlaces}
             readOnly={ro}
             onChange={(next) => patch({ costs: next.length ? next : undefined })}
           />
@@ -625,17 +635,35 @@ function StringList({ items, onChange, readOnly, emptyHint = "Nothing yet." }: {
 /** The day's spend — a category + a whole-number amount per row, with an
  *  optional free-text note. The amounts feed `tripCost`; the category drives
  *  the Expenses grouping. */
-function CostList({ costs, categories, currencies, readOnly, onChange }: {
+function CostList({ costs, categories, currencies, places, readOnly, onChange }: {
   costs: DayCost[];
   categories: ExpenseCategory[];
   currencies: string[];
+  places: Place[];
   readOnly: boolean;
   onChange: (next: DayCost[]) => void;
 }) {
   const primary = currencies[0] ?? "";
   const setAt = (i: number, patch: Partial<DayCost>) => onChange(costs.map((c, j) => (j === i ? { ...c, ...patch } : c)));
-  const add = () => onChange([...costs, { id: rid(), label: "", amount: "" }]);
+  const addWithLabel = (label: string) => onChange([...costs, { id: rid(), label, amount: "" }]);
+  const { open, setOpen, anchorRef } = useActionSheet();
+  // a place already on the day's plan can be picked straight off, so its name
+  // doesn't need retyping — otherwise there's nothing to pick from, so skip
+  // straight to a blank row like before
+  const add = () => (places.length > 0 ? setOpen(true) : addWithLabel(""));
   const catLabel = (id?: string) => categories.find((c) => c.id === id)?.label ?? "Uncategorised";
+
+  const addButton = (className: string, iconSize: number) => (
+    <>
+      <button ref={anchorRef} onClick={add} className={className}><Icon name="plus" size={iconSize} /> Add an amount</button>
+      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="What was it?">
+        <button type="button" onClick={() => addWithLabel("")} className="menu-item">Custom…</button>
+        {places.map((p) => (
+          <button key={p.id} type="button" onClick={() => addWithLabel(p.name)} className="menu-item">{p.name}</button>
+        ))}
+      </ActionSheet>
+    </>
+  );
 
   const subtotals = new Map<string, number>();
   for (const c of costs) {
@@ -647,7 +675,7 @@ function CostList({ costs, categories, currencies, readOnly, onChange }: {
     return readOnly ? (
       <p className="px-3.5 py-3 text-sm text-ink-faint">Nothing logged.</p>
     ) : (
-      <button onClick={add} className="action w-full px-3.5 py-3 text-sm"><Icon name="plus" size={14} /> Add an amount</button>
+      addButton("action w-full px-3.5 py-3 text-sm", 14)
     );
   }
 
@@ -719,11 +747,7 @@ function CostList({ costs, categories, currencies, readOnly, onChange }: {
             : "—"}
         </span>
       </li>
-      {!readOnly && (
-        <li>
-          <button onClick={add} className="action w-full px-3.5 py-2.5 text-xs"><Icon name="plus" size={13} /> Add an amount</button>
-        </li>
-      )}
+      {!readOnly && <li>{addButton("action w-full px-3.5 py-2.5 text-xs", 13)}</li>}
     </ul>
   );
 }
