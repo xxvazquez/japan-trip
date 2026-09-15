@@ -163,8 +163,15 @@ function withBreaks(text: string): ReactNode {
 }
 
 /** Inline spans: **bold**, *italic* / _italic_, ~~strikethrough~~, ++underline++,
- *  `code`, [text](url), bare URLs. */
-const INLINE = /(\*\*([^*]+)\*\*|__([^_]+)__|~~([^~\n]+)~~|\+\+([^+\n]+)\+\+|\*([^*\n]+)\*|_([^_\n]+)_|`([^`]+)`|\[([^\]]+)\]\(([^)\s]+)\)|(https?:\/\/[^\s<)]+))/g;
+ *  `code`, [text](url), bare URLs. The url part allows one level of balanced
+ *  parens (`(...)`) inside it — real links often carry them, e.g. a Wikipedia
+ *  page or a "#:~:text=" fragment like "…(¥400 for groups)…" — so it isn't
+ *  cut off at the first `)` it meets. */
+const BALANCED_URL = "(?:[^\\s()<]|\\([^\\s()]*\\))+";
+const INLINE = new RegExp(
+  `(\\*\\*([^*]+)\\*\\*|__([^_]+)__|~~([^~\\n]+)~~|\\+\\+([^+\\n]+)\\+\\+|\\*([^*\\n]+)\\*|_([^_\\n]+)_|\`([^\`]+)\`|\\[([^\\]]+)\\]\\((${BALANCED_URL})\\)|(https?:\\/\\/${BALANCED_URL}))`,
+  "g",
+);
 
 function inline(text: string): ReactNode {
   const nodes: ReactNode[] = [];
