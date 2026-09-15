@@ -31,6 +31,7 @@ const SPECS: Record<EntityType, Spec> = {
   places: { table: "places" },
   // `placeIds` lives in the area_places join table, not on the row
   areas: { table: "areas", toRow: (_e, row) => { delete row.place_ids; } },
+  scratchNotes: { table: "scratch_notes" },
 };
 
 export const TABLE_OF = Object.fromEntries(
@@ -162,7 +163,6 @@ export async function loadTrip(dbId: string): Promise<TripData> {
     config: trow.config,
     meta: trow.meta,
     media: trow.media ?? { gallery: [] },
-    scratch: trow.scratch ?? undefined,
     ...byType,
   } as unknown as TripData;
 }
@@ -185,7 +185,6 @@ export async function createTrip(
       config: data.config,
       meta: data.meta,
       media: data.media,
-      ...(data.scratch ? { scratch: data.scratch } : {}),
     }),
   );
 
@@ -264,7 +263,7 @@ export async function setAreaPlaces(tripId: string, areaId: string, placeIds: st
   check(await del);
 }
 
-/** The trip-row fields (config / meta / media jsonb, scratch text) + name. */
+/** The trip-row fields (config / meta / media jsonb) + name. */
 export async function saveTripFields(tripId: string, fields: Record<string, unknown>) {
   const sb = await client();
   check(await sb.from("trips").update(fields).eq("id", tripId));

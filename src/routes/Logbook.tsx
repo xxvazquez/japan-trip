@@ -37,7 +37,7 @@ import { putFile, fileUrl, removeFile } from "@/lib/fileStore";
 import {
   driveEnabled, ensureFolder, uploadToDrive, shareFile, deleteFromDrive, driveViewUrl, driveImageUrl,
 } from "@/lib/drive";
-import type { CustomList, Doc, DocFile, LuggageNote, PackingItem } from "@/core/types";
+import type { CustomList, Doc, DocFile, LuggageNote, PackingItem, ScratchNote } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 8);
 
@@ -122,7 +122,7 @@ export function LogbookSection() {
       <PageHeader
         back="/logbook"
         title={list ? list.title : logbookLabel(builtin!)}
-        info={builtin === "notes" ? "A free-text scratchpad — shopping lists, things you keep forgetting, a phrase you want to remember. Shared with anyone the trip is shared with." : undefined}
+        info={builtin === "notes" ? "A scratchpad of separate notes — shopping lists, things you keep forgetting, a phrase you want to remember. Shared with anyone the trip is shared with." : undefined}
         className="mb-6"
       />
       {list ? (
@@ -905,14 +905,49 @@ function AssignPill({ value, people, tagged, readOnly, onChange }: {
 function Notes() {
   const data = useData()!;
   const ro = useReadOnly();
-  const setScratch = useApp((s) => s.setScratch);
-  if (ro && !data.scratch) return <Empty what="Nothing noted yet" hint="A scratchpad for anything you want to remember." />;
-  return (
-    <Section>
-      <div className="note px-3.5 py-3">
-        <RichNote value={data.scratch ?? ""} onCommit={(v) => setScratch(v)} placeholder="Anything to remember." />
+  const updateEntity = useApp((s) => s.updateEntity);
+  const addEntity = useApp((s) => s.addEntity);
+  const removeEntity = useApp((s) => s.removeEntity);
+  const add = () => addEntity("scratchNotes", { id: crypto.randomUUID?.() ?? `note-${rid()}`, title: "New note" } as never);
+
+  if (data.scratchNotes.length === 0) {
+    return ro ? (
+      <Empty what="Nothing noted yet" hint="A scratchpad for anything you want to remember." />
+    ) : (
+      <div className="flex min-h-[52vh] flex-col items-center justify-center gap-3 text-center">
+        <p className="lead">Nothing noted yet</p>
+        <p className="meta max-w-xs">A phrase to remember, a packing reminder — whatever's easiest as its own box.</p>
+        <AddButton label="Add a note" onClick={add} />
       </div>
-    </Section>
+    );
+  }
+
+  return (
+    <CenterIfShort>
+      <div className="space-y-6">
+        {!ro && <AddButton label="Add a note" onClick={add} />}
+        <Section>
+          <ul>
+            {data.scratchNotes.map((n) => {
+              const p = (patch: Partial<ScratchNote>) => updateEntity<ScratchNote>("scratchNotes", n.id, patch);
+              return (
+                <AccordionRow
+                  key={n.id}
+                  id={n.id}
+                  defaultOpen
+                  title={<Editable label="Title" value={n.title} placeholder="Untitled" onCommit={(v) => p({ title: v || "Untitled" })} />}
+                  action={!ro && cardDeleteBtn(() => removeEntity("scratchNotes", n.id), "Delete note")}
+                >
+                  <div className="note px-3.5 py-3 text-ink-soft">
+                    <RichNote value={n.text ?? ""} placeholder="Anything to remember." onCommit={(v) => p({ text: v || undefined })} />
+                  </div>
+                </AccordionRow>
+              );
+            })}
+          </ul>
+        </Section>
+      </div>
+    </CenterIfShort>
   );
 }
 

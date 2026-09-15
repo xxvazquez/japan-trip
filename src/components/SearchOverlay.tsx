@@ -15,6 +15,7 @@ const KIND_LABEL: Record<SearchKind, string> = {
   doc: "Document",
   packing: "Packing",
   list: "List",
+  note: "Note",
 };
 
 export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () => void }) {

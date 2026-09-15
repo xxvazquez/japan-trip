@@ -1051,12 +1051,14 @@ const ENTITY_LABELS: Record<EntityType, string> = {
   docs: "Documents",
   places: "Map places",
   areas: "Areas",
+  scratchNotes: "Scratchpad notes",
 };
 
 // `docs` is intentionally absent — documents are created and managed on the
 // Logbook › Documents tab, not here. `areas` is intentionally absent too —
 // name + membership editing is already on the Map's own area editor, with
-// no unique capability here.
+// no unique capability here. `scratchNotes` likewise — added/edited/removed
+// on the Logbook › Scratchpad tab, same as documents.
 const CONTENT_GROUPS: { title: string; types: EntityType[] }[] = [
   { title: "Itinerary", types: ["legs", "days", "hotels", "journeys"] },
   { title: "Reference", types: ["places", "luggage", "packing"] },

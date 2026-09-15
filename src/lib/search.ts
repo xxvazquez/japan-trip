@@ -2,7 +2,7 @@ import type { TripData } from "@/core/types";
 import { fmtDate } from "./dates";
 import { JOURNEY_KIND_LABEL } from "./journey";
 
-export type SearchKind = "day" | "leg" | "hotel" | "place" | "transfer" | "area" | "luggage" | "doc" | "packing" | "list";
+export type SearchKind = "day" | "leg" | "hotel" | "place" | "transfer" | "area" | "luggage" | "doc" | "packing" | "list" | "note";
 
 export interface SearchHit {
   kind: SearchKind;
@@ -108,6 +108,15 @@ function build(d: TripData): SearchHit[] {
       terms: [item.label, item.group].filter(Boolean).join(" ").toLowerCase(),
     });
   }
+  for (const n of d.scratchNotes) {
+    hits.push({
+      kind: "note",
+      label: n.title,
+      sub: n.text || undefined,
+      to: "/logbook/notes",
+      terms: [n.title, n.text].filter(Boolean).join(" ").toLowerCase(),
+    });
+  }
   for (const list of d.config.lists ?? []) {
     for (const item of list.items) {
       hits.push({
@@ -132,7 +141,7 @@ function score(hit: SearchHit, q: string): number {
   return 0;
 }
 
-const KIND_ORDER: SearchKind[] = ["day", "leg", "hotel", "place", "transfer", "area", "doc", "luggage", "list", "packing"];
+const KIND_ORDER: SearchKind[] = ["day", "leg", "hotel", "place", "transfer", "area", "doc", "luggage", "list", "note", "packing"];
 
 let cache: { data: TripData; index: SearchHit[] } | null = null;
 

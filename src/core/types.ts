@@ -341,6 +341,15 @@ export interface Hotel {
   reservationRef?: string;
 }
 
+/** One box in the Scratchpad — a titled free-text note. Multiple of these
+ *  replace the old single trip-wide scratch string, so unrelated jottings
+ *  (a packing reminder, a phrase to remember) don't pile into one blob. */
+export interface ScratchNote {
+  id: ID;
+  title: string;
+  text?: string;
+}
+
 /** A luggage note — storage, lockers, forwarding, a bag left somewhere.
  *  Just a title + free text. Nothing country-specific, nothing required. */
 export interface LuggageNote {
@@ -416,8 +425,8 @@ export interface TripData {
   areas: Area[];
   docs: Doc[];
   packing: PackingItem[];
-  /** a single free-text scratchpad for the whole trip */
-  scratch?: string;
+  /** the Scratchpad's own notes — several independent free-text boxes */
+  scratchNotes: ScratchNote[];
 }
 
 export interface TripSummary {
@@ -436,4 +445,4 @@ export interface AtlasState {
 }
 
 /** Entity collections Manage can add/remove/reorder. */
-export type EntityType = "legs" | "days" | "hotels" | "journeys" | "luggage" | "docs" | "packing" | "places" | "areas";
+export type EntityType = "legs" | "days" | "hotels" | "journeys" | "luggage" | "docs" | "packing" | "places" | "areas" | "scratchNotes";
