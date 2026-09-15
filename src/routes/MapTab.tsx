@@ -998,7 +998,7 @@ export default function MapTab() {
                       </div>
                     )}
                     {editingAreas && data.areas.length > 0 && (
-                      <ul className="mt-2 border-t border-line pt-1.5">
+                      <ul className="mt-2 max-h-64 overflow-y-auto border-t border-line pt-1.5">
                         {[...data.areas]
                           .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
                           .map((a) => (
