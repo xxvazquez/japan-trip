@@ -893,7 +893,7 @@ function Appearance() {
                       12 Example Street
                     </p>
                     <p className="mt-1 truncate text-[9px] underline" style={{ color: p.tokens.light.accent }}>
-                      Directions in Google Maps
+                      Directions ›
                     </p>
                   </div>
                 </div>
