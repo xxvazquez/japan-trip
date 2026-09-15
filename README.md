@@ -482,8 +482,8 @@ style that this doesn't show in practice, but if a from-scratch redo of either
 ever happens, keep both renders from the same generation so they truly match.
 `logo-wordmark.png` / `logo-wordmark-light.png` are reference art with the
 "ZUKNESST ATLAS" wordmark baked in — not consumed anywhere yet, kept for a
-future banner/share-image use. Per-trip logos and covers are uploaded in the
-app (*Manage → Appearance*).
+future banner/share-image use. Per-trip logos are uploaded in the app
+(*Manage → Look*).
 
 ---
 

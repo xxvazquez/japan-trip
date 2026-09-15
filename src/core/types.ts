@@ -133,7 +133,6 @@ export interface MediaItem {
 
 export interface TripMedia {
   logo?: MediaItem;
-  cover?: MediaItem;
   gallery: MediaItem[];
 }
 
