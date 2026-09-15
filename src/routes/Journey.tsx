@@ -354,7 +354,7 @@ export default function Journey() {
                               className={`relative flex-1 px-1.5 py-3 text-center ${ci > 0 ? "before:absolute before:left-0 before:top-[22%] before:bottom-[22%] before:w-px before:bg-line before:content-['']" : ""}`}
                             >
                               <IconTile ghost size="sm" name={c.icon} className="mx-auto mb-1.5" />
-                              <div className="text-2xs uppercase tracking-[0.04em] text-ink-faint">{c.label}</div>
+                              <div className="eyebrow text-ink-faint">{c.label}</div>
                               <div className="value mt-0.5 text-[0.8125rem] leading-tight [overflow-wrap:anywhere]">{c.value}</div>
                             </div>
                           ))}

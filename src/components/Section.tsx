@@ -54,7 +54,7 @@ export function Section({
     <section className={className}>
       {hasHeader && (
         <div className={`flex items-baseline justify-between gap-3 px-1 ${open ? "mb-1.5" : ""}`}>
-          <h2 className="flex min-w-0 items-center gap-1.5 text-[0.8125rem] font-medium uppercase tracking-[0.03em] text-ink-soft">
+          <h2 className="kicker flex min-w-0 items-center gap-1.5">
             {collapsible && (
               <button
                 type="button"

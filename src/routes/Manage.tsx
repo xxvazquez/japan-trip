@@ -195,7 +195,7 @@ function Trips() {
               </span>
               <span className="flex shrink-0 items-center gap-1">
                 {t.id !== activeId ? (
-                  <button onClick={() => switchTrip(t.id).then(() => nav("/"))} className="text-sm font-medium text-accent hover:opacity-70">
+                  <button onClick={() => switchTrip(t.id).then(() => nav("/"))} className="action">
                     Switch
                   </button>
                 ) : (

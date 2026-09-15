@@ -169,7 +169,7 @@ html.dark {
    *   .row-value     value in a label/value .row — 0.8125rem 500, matches label
    *   .note          body / prose — 0.9rem, sans 400 ink, leading 1.6
    *   .meta          metadata — 0.8125rem, sans 400 ink-soft  (+ .row-label)
-   *   .kicker        section header — 0.8125rem, 500 uppercase +0.14em ink
+   *   .kicker        section header — 0.8125rem, 500 uppercase +0.03em ink-soft
    *   .eyebrow       micro-label / tag — 0.6875rem, 400 uppercase +0.12em
    *                  ink-soft (·-faint quietest, ·ink for a live tag)
    *
@@ -193,14 +193,14 @@ html.dark {
    * tracked +0.12em, never heavy — pick by role, and set casing at the source
    * (always Title Case or ALL CAPS for a label, never sentence case).
    *
-   *   .kicker      a section / panel HEADING — 0.8125rem, full ink, +0.14em
+   *   .kicker      a section / panel HEADING — 0.8125rem, ink-soft, +0.03em
    *   .eyebrow     a LABEL or TAG above / beside content — 2xs. Default
    *                text-ink-soft; add `text-ink-faint` for the quietest ones
    *                (a page eyebrow, a group head) or `text-ink` for a live tag
    *                ("active", "Today").
    */
   .kicker {
-    @apply font-sans text-[0.8125rem] font-medium uppercase tracking-[0.14em] text-ink;
+    @apply font-sans text-[0.8125rem] font-medium uppercase tracking-[0.03em] text-ink-soft;
   }
   .eyebrow {
     @apply font-sans text-2xs font-normal uppercase tracking-[0.12em] text-ink-soft;
