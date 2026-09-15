@@ -14,21 +14,31 @@ import { Icon } from "./Icon";
  * Edits go through document.execCommand("insertText"), which keeps the native
  * caret position and undo history and fires a normal input event.
  */
+/** notes past this length collapse behind "Show more" when `collapsible` */
+const COLLAPSE_AT = 160;
+
 export function RichNote({
   value,
   onCommit,
   placeholder = "Write anything — notes, reminders, a rough plan…",
   className = "",
+  collapsible = false,
 }: {
   value: string;
   onCommit: (next: string) => void;
   placeholder?: string;
   className?: string;
+  /** clamp to 3 lines behind a "Show more" toggle when the note is long —
+   *  for a note that's one entry among many (e.g. a plan step), not a page's
+   *  single free-text field (Scratchpad, a doc field) that's fine to show in full */
+  collapsible?: boolean;
 }) {
   const readOnly = useReadOnly();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
+  const [expanded, setExpanded] = useState(false);
   const ta = useRef<HTMLTextAreaElement>(null);
+  const long = collapsible && value.trim().length > COLLAPSE_AT;
 
   useEffect(() => setDraft(value), [value]);
   useEffect(() => {
@@ -40,9 +50,23 @@ export function RichNote({
     }
   }, [editing]);
 
+  const ShowToggle = ({ onClick }: { onClick: (e: React.MouseEvent) => void }) => (
+    <button type="button" onClick={onClick} className="mt-1 block text-2xs font-medium text-accent">
+      {expanded ? "Show less" : "Show more"}
+    </button>
+  );
+
   if (readOnly) {
     if (!value.trim()) return null;
-    return <Markdown text={value} className={className} />;
+    if (!long || expanded) return <Markdown text={value} className={className} />;
+    return (
+      <div className={className}>
+        <div className="line-clamp-3 overflow-hidden">
+          <Markdown text={value} />
+        </div>
+        <ShowToggle onClick={() => setExpanded(true)} />
+      </div>
+    );
   }
 
   const commit = () => {
@@ -72,7 +96,19 @@ export function RichNote({
         aria-label="Edit note"
         className={`editable block w-full text-left ${className}`}
       >
-        <Markdown text={value} onToggleCheck={toggleCheck} />
+        {long && !expanded ? (
+          <>
+            <div className="line-clamp-3 overflow-hidden">
+              <Markdown text={value} onToggleCheck={toggleCheck} />
+            </div>
+            <ShowToggle onClick={(e) => { e.stopPropagation(); setExpanded(true); }} />
+          </>
+        ) : (
+          <>
+            <Markdown text={value} onToggleCheck={toggleCheck} />
+            {long && <ShowToggle onClick={(e) => { e.stopPropagation(); setExpanded(false); }} />}
+          </>
+        )}
       </div>
     ) : (
       <button type="button" onClick={() => setEditing(true)} aria-label="Add a note" className={`editable block text-left italic text-ink-faint ${className}`}>
