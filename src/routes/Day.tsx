@@ -390,7 +390,7 @@ function PlanList({ items, places, areaPlaces, areaNameByPlaceId, categoryIcons,
     );
   }
 
-  const rows = items.map((it) => (
+  const rows = items.map((it, i) => (
     <PlanRow
       key={it.id}
       item={it}
@@ -399,6 +399,8 @@ function PlanList({ items, places, areaPlaces, areaNameByPlaceId, categoryIcons,
       areaNameByPlaceId={areaNameByPlaceId}
       categoryIcons={categoryIcons}
       readOnly={readOnly}
+      first={i === 0}
+      last={i === items.length - 1}
       onPatch={(p) => patchItem(it.id, p)}
       onRemove={() => removeItem(it.id)}
       onQuickAddCost={onQuickAddCost}
@@ -423,13 +425,15 @@ function PlanList({ items, places, areaPlaces, areaNameByPlaceId, categoryIcons,
   );
 }
 
-function PlanRow({ item, place, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onPatch, onRemove, onQuickAddCost }: {
+function PlanRow({ item, place, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, first, last, onPatch, onRemove, onQuickAddCost }: {
   item: PlanItem;
   place?: Place;
   areaPlaces: Place[];
   areaNameByPlaceId: Map<string, string>;
   categoryIcons?: Record<string, string>;
   readOnly: boolean;
+  first: boolean;
+  last: boolean;
   onPatch: (p: Partial<PlanItem>) => void;
   onRemove: () => void;
   onQuickAddCost: (label: string) => void;
@@ -466,6 +470,18 @@ function PlanRow({ item, place, areaPlaces, areaNameByPlaceId, categoryIcons, re
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={`group relative text-sm after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden ${isDragging ? "z-10 bg-surface opacity-80" : ""}`}
     >
+      {/* chronology connector — a stem through every tile's own centre (21px:
+          the 10px row padding plus half the 22px tile), skipped above the
+          first row and below the last. Fixed to the li (not the swiped
+          content) so it doesn't slide with a touch drag; the drag handle
+          only exists when editable, so its x shifts with `readOnly`. */}
+      {!(first && last) && (
+        <span
+          aria-hidden="true"
+          className={`pointer-events-none absolute w-px bg-line ${readOnly ? "left-[25px]" : "left-[47px]"}`}
+          style={{ top: first ? "21px" : 0, bottom: last ? "calc(100% - 21px)" : 0 }}
+        />
+      )}
       <SwipeToDelete onDelete={readOnly ? undefined : onRemove}>
       <div className="px-3.5 py-2.5">
         <div className="flex items-start gap-2.5">
