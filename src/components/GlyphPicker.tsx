@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ActionSheet, useActionSheet } from "./ActionSheet";
 import { IconTile } from "./IconTile";
+import type { IconName } from "./Icon";
 import { MAP_GLYPHS } from "@/lib/mapGlyphs";
 import type { Tone } from "@/lib/tones";
 
@@ -15,9 +16,11 @@ export function GlyphPicker({
   onChange,
   color,
   tone,
+  glyphTile,
   clearLabel,
   label,
   displayGlyph,
+  displayName,
   size = "sm",
 }: {
   value: string | undefined;
@@ -26,6 +29,12 @@ export function GlyphPicker({
   color?: string;
   /** a palette tone to fill the swatch with, when there's no single colour */
   tone?: Tone;
+  /** per-option override for the grid: given a glyph id, the tone/colour it
+   *  would actually render with once picked (e.g. an expense category's icon
+   *  carries its own semantic-or-cycled colour, not one fixed swatch colour
+   *  for every option). Falls back to the fixed `color`/`tone` above when
+   *  omitted — the right default for a single-colour thing like a place pin. */
+  glyphTile?: (glyphId: string) => { tone?: Tone; color?: string };
   /** the grid's first option, for clearing back to "no glyph set" */
   clearLabel: string;
   /** the thing this picks an icon for, e.g. a category's own name */
@@ -33,10 +42,16 @@ export function GlyphPicker({
   /** glyph actually painted on the trigger when `value` is unset — e.g. an
    *  auto-guessed icon. Falls back to `value` itself. */
   displayGlyph?: string;
+  /** an `Icon` name to paint on the trigger instead, when the auto-guessed
+   *  icon isn't one of `MAP_GLYPHS` (a claimed transport mode, the lodging
+   *  role, the generic fallback…). Only used when neither `value` nor
+   *  `displayGlyph` is set — picking a real grid option always yields a glyph. */
+  displayName?: IconName;
   size?: "sm" | "md";
 }) {
   const { open, setOpen, anchorRef } = useActionSheet();
-  const shown = value ?? displayGlyph;
+  const glyphShown = value ?? displayGlyph;
+  const shown = glyphShown ?? displayName;
   return (
     <>
       <button
@@ -48,20 +63,23 @@ export function GlyphPicker({
         aria-label={`Change ${label} icon`}
         className="shrink-0 rounded-[7px]"
       >
-        <IconTile size={size} glyph={shown} color={color} tone={tone} ghost={!shown} />
+        <IconTile size={size} glyph={glyphShown} name={glyphShown ? undefined : displayName} color={color} tone={tone} ghost={!shown} />
       </button>
       <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title={`${label} icon`}>
         <div className="grid grid-cols-5 gap-2 p-3 sm:grid-cols-6">
           <GlyphOption label={clearLabel} selected={!value} onSelect={() => onChange("")} />
-          {MAP_GLYPHS.map((g) => (
-            <GlyphOption
-              key={g.id}
-              label={g.label}
-              selected={value === g.id}
-              onSelect={() => onChange(g.id)}
-              tile={<IconTile glyph={g.id} color={color} tone={tone} />}
-            />
-          ))}
+          {MAP_GLYPHS.map((g) => {
+            const t = glyphTile?.(g.id) ?? { tone, color };
+            return (
+              <GlyphOption
+                key={g.id}
+                label={g.label}
+                selected={value === g.id}
+                onSelect={() => onChange(g.id)}
+                tile={<IconTile glyph={g.id} color={t.color} tone={t.tone} />}
+              />
+            );
+          })}
         </div>
       </ActionSheet>
     </>

@@ -62,6 +62,10 @@ export function toneForGlyph(glyph: MapGlyphId | string | undefined): Tone {
     case "hotel":
       return "ink-faint";
     case "station":
+    case "train":
+    case "plane":
+    case "bus":
+    case "car":
       return "ai";
     default:
       return "accent";

@@ -25,7 +25,13 @@ export type MapGlyphId =
   | "photo"
   | "station"
   | "bath"
-  | "luggage";
+  | "luggage"
+  | "train"
+  | "plane"
+  | "bus"
+  | "car"
+  | "ticket"
+  | "money";
 
 export const MAP_GLYPHS: { id: MapGlyphId; label: string; path: string }[] = [
   { id: "coffee", label: "Coffee", path: "M5 8h11v5a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V8Z M16 9h1.5a2.5 2.5 0 0 1 0 5H16 M8 3v2 M11 3v2" },
@@ -42,6 +48,12 @@ export const MAP_GLYPHS: { id: MapGlyphId; label: string; path: string }[] = [
   { id: "station", label: "Station", path: "M7 4h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z M5 11h14 M9 8h6 M9 20l1.6-2 M15 20l-1.6-2" },
   { id: "bath", label: "Hot spring", path: "M5 13h14v1.5a5.5 5.5 0 0 1-11 0V13Z M10 13V9.5C10 8.5 9 8 9 6.5 M14 13V8.5C14 7.5 13 7 13 5.5" },
   { id: "luggage", label: "Luggage", path: "M6 8.5h12v10a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 18.5v-10Z M9.5 8.5V6a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 6v2.5 M10 12v4 M14 12v4" },
+  { id: "train", label: "Train", path: "M7 4h10a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z M5 11h14 M9 21l1.6-2 M15 21l-1.6-2" },
+  { id: "plane", label: "Flight", path: "M10.5 13.5 3 12l1-2 6 .5L14 4c.8-.8 2.4-1.2 3 0 .6 1.2-.2 2.4-1 3l-4.5 6.5.5 5-2 1-1.5-6.5-2 2-.2 2.2-1.3.6L8 15l-2.8-.8.6-1.3 2.2-.2 2.5-2" },
+  { id: "bus", label: "Bus", path: "M6.5 4h11a2.5 2.5 0 0 1 2.5 2.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 14.5v-8A2.5 2.5 0 0 1 6.5 4Z M4 12h16 M8 21l1-2 M16 21l-1-2" },
+  { id: "car", label: "Car / taxi", path: "M5 13l1.5-5A2 2 0 0 1 8.4 6.5h7.2A2 2 0 0 1 17.5 8L19 13v5a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-1H9.5v1a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-5Z M5 13h14" },
+  { id: "ticket", label: "Ticket", path: "M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2 1.6 1.6 0 0 0 0 3v2a1.6 1.6 0 0 0 0 3 2 2 0 0 1-2 2H6a2 2 0 0 1-2-2 1.6 1.6 0 0 0 0-3v-2a1.6 1.6 0 0 0 0-3Z M13 6v2 M13 11v2 M13 16v2" },
+  { id: "money", label: "Money", path: "M5.5 6.5h13a2.5 2.5 0 0 1 2.5 2.5v6.5a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 15.5V9A2.5 2.5 0 0 1 5.5 6.5Z M3 10.5h14a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2H3" },
 ];
 
 const PATHS: Record<string, string> = Object.fromEntries(MAP_GLYPHS.map((g) => [g.id, g.path]));

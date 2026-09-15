@@ -28,7 +28,7 @@ import { isLocalOnly, setLocalOnly } from "@/lib/localMode";
 import { RowMenu } from "@/components/RowMenu";
 import { MODE_LABEL } from "@/lib/transport";
 import { fallbackCategoryId } from "@/lib/hydrate";
-import { expenseCategoryIcon } from "@/lib/cost";
+import { expenseCategoryIcon, categoryGlyphTile } from "@/lib/cost";
 import type { TransportMode } from "@/core/types";
 import { Switch } from "@/components/Switch";
 import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
@@ -635,8 +635,11 @@ function ExpenseCategoriesPanel() {
             </div>
             <GlyphPicker
               value={c.icon}
-              displayGlyph={expenseCategoryIcon(c).glyph}
-              tone={expenseCategoryIcon(c).tone}
+              displayGlyph={expenseCategoryIcon(c, i).glyph}
+              displayName={expenseCategoryIcon(c, i).name}
+              tone={expenseCategoryIcon(c, i).tone}
+              color={expenseCategoryIcon(c, i).color}
+              glyphTile={(glyphId) => categoryGlyphTile(glyphId, i)}
               clearLabel="Auto icon"
               label={c.label}
               onChange={(glyph) => mutate((d) => {

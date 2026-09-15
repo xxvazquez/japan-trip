@@ -1,7 +1,7 @@
 import type { ExpenseCategory, Journey, TransportMode, TripData } from "@/core/types";
 import type { IconName } from "@/components/Icon";
 import { MODE_ICON } from "@/lib/transport";
-import { toneForGlyph, toneForSegmentMode, type Tone } from "@/lib/tones";
+import { AREA_TONES, toneForGlyph, toneForSegmentMode, type Tone } from "@/lib/tones";
 
 const SYMBOL_CURRENCY: Record<string, string> = {
   "¥": "JPY", "$": "USD", "€": "EUR", "£": "GBP", "₩": "KRW", "₹": "INR",
@@ -234,7 +234,28 @@ export function fmtMoney(amount: number, currency: string): string {
 export interface CategoryTile {
   name?: IconName;
   glyph?: string;
-  tone: Tone;
+  tone?: Tone;
+  /** a hex fill, for a category whose glyph has no fixed semantic tone — see
+   *  `categoryColor`. Takes precedence over `tone` (same rule as `IconTile`). */
+  color?: string;
+}
+
+/** A distinct hex per category, cycled by list position — the same fix
+ *  `AREA_TONES` gives map areas: an arbitrary-length list with no fixed
+ *  "kind" per item still needs every item to read as a different colour. */
+function categoryColor(index: number): string {
+  return AREA_TONES[index % AREA_TONES.length];
+}
+
+/** A glyph's tile colour at a given category slot: its own semantic tone
+ *  (transit blue-grey, food gold…) when it has one, else this category's spot
+ *  in the distinct colour cycle — so two categories that both fall back to
+ *  the generic default (Activities, Shopping, a custom one…) never render
+ *  identically. Exported so the icon picker can preview each option the way
+ *  it'll actually look once picked. */
+export function categoryGlyphTile(glyph: string, index: number): Pick<CategoryTile, "tone" | "color"> {
+  const tone = toneForGlyph(glyph);
+  return tone === "accent" ? { color: categoryColor(index) } : { tone };
 }
 
 /** What `IconTile` should show for an expense category on an Expenses row.
@@ -242,16 +263,23 @@ export interface CategoryTile {
  *  category already carries — the mode it claims (Train, Flights…), or the
  *  lodging/transport catch-all role — then a keyword guess on the label, so
  *  every built-in category looks right with no setup at all. `icon` is there
- *  for the rest (Food & drink, Activities, Shopping, Other, a custom one). */
-export function expenseCategoryIcon(cat: ExpenseCategory): CategoryTile {
-  if (cat.icon) return { glyph: cat.icon, tone: toneForGlyph(cat.icon) };
+ *  for the rest (Food & drink, Activities, Shopping, Other, a custom one).
+ *  `index` is the category's position in `config.expenseCategories` — it
+ *  only feeds the colour cycle above, so pass a category's real position for
+ *  every category being rendered together (a filtered subset would collide). */
+export function expenseCategoryIcon(cat: ExpenseCategory, index: number): CategoryTile {
+  if (cat.icon) return { glyph: cat.icon, ...categoryGlyphTile(cat.icon, index) };
   if (cat.modes?.[0]) return { name: MODE_ICON[cat.modes[0]], tone: toneForSegmentMode(cat.modes[0]) };
   if (cat.role === "lodging") return { name: "bed", tone: "ink-faint" };
   if (cat.role === "transport") return { glyph: "station", tone: toneForGlyph("station") };
 
   const t = cat.label.toLowerCase();
   if (/food|drink|coffee|caf[eé]|eat|meal|restaurant|bar|izakaya|bakery/.test(t)) return { glyph: "food", tone: toneForGlyph("food") };
-  if (/shop|souvenir|gift|market/.test(t)) return { glyph: "shop", tone: toneForGlyph("shop") };
-  if (/activit|sight|museum|see|do|tour|ticket|onsen|bath/.test(t)) return { glyph: "sight", tone: toneForGlyph("sight") };
-  return { name: "wallet", tone: "accent" };
+  if (/train|rail/.test(t)) return { glyph: "train", tone: toneForGlyph("train") };
+  if (/flight|plane|air/.test(t)) return { glyph: "plane", tone: toneForGlyph("plane") };
+  if (/\bbus\b|coach/.test(t)) return { glyph: "bus", tone: toneForGlyph("bus") };
+  if (/taxi|cab|rideshare|\buber\b/.test(t)) return { glyph: "car", tone: toneForGlyph("car") };
+  if (/shop|souvenir|gift|market/.test(t)) return { glyph: "shop", ...categoryGlyphTile("shop", index) };
+  if (/activit|sight|museum|see|do|tour|ticket|onsen|bath/.test(t)) return { glyph: "sight", ...categoryGlyphTile("sight", index) };
+  return { name: "wallet", color: categoryColor(index) };
 }

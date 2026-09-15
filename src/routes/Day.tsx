@@ -740,7 +740,7 @@ function CostList({ costs, categories, currencies, places, highlightId, readOnly
       {costs.map((c, i) => {
           const known = !c.categoryId || categories.some((cat) => cat.id === c.categoryId);
           const category = categories.find((cat) => cat.id === c.categoryId);
-          const tile = category ? expenseCategoryIcon(category) : { name: "wallet" as const, tone: "ink-faint" as const };
+          const tile = category ? expenseCategoryIcon(category, categories.indexOf(category)) : { name: "wallet" as const, tone: "ink-faint" as const };
           return (
             <li
               key={c.id}
@@ -750,7 +750,7 @@ function CostList({ costs, categories, currencies, places, highlightId, readOnly
               <SwipeToDelete onDelete={readOnly ? undefined : () => onChange(costs.filter((_, j) => j !== i))}>
               <div className="px-3.5 py-2.5">
               <div className="flex items-start gap-3">
-                <IconTile size="sm" name={tile.name} glyph={tile.glyph} tone={tile.tone} className="mt-0.5 shrink-0" />
+                <IconTile size="sm" name={tile.name} glyph={tile.glyph} tone={tile.tone} color={tile.color} className="mt-0.5 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline gap-3">
                     <span className="min-w-0 flex-1">

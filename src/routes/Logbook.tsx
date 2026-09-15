@@ -433,14 +433,18 @@ function Emergency() {
  *  as their key rather than needing its own legend. Purely a visual
  *  reinforcement of the real numbers in the list underneath, never the only
  *  place an amount shows — `aria-hidden`, nothing here is read-only data. */
-function ProportionBar({ segments }: { segments: { id: string; amount: number; tone: Tone; faded?: boolean }[] }) {
+function ProportionBar({ segments }: { segments: { id: string; amount: number; tone?: Tone; color?: string; faded?: boolean }[] }) {
   const total = segments.reduce((sum, s) => sum + s.amount, 0);
   if (total <= 0) return null;
   return (
     <div className={`${INSET_DIVIDER} px-3.5 py-3`} aria-hidden="true">
       <div className="flex h-2 gap-px overflow-hidden rounded-full bg-surface-2">
         {segments.map((s) => (
-          <div key={s.id} className={`${TONE_BG[s.tone]} ${s.faded ? "opacity-40" : ""}`} style={{ width: `${(s.amount / total) * 100}%` }} />
+          <div
+            key={s.id}
+            className={`${s.color ? "" : TONE_BG[s.tone ?? "accent"]} ${s.faded ? "opacity-40" : ""}`}
+            style={{ width: `${(s.amount / total) * 100}%`, background: s.color }}
+          />
         ))}
       </div>
     </div>
@@ -461,10 +465,10 @@ function Expenses() {
   }
 
   const catLabel = (c: (typeof categories)[number]) => {
-    const tile = expenseCategoryIcon(c);
+    const tile = expenseCategoryIcon(c, categories.indexOf(c));
     return (
       <span className="flex items-center gap-2">
-        <IconTile size="sm" name={tile.name} glyph={tile.glyph} tone={tile.tone} />
+        <IconTile size="sm" name={tile.name} glyph={tile.glyph} tone={tile.tone} color={tile.color} />
         {c.label}
       </span>
     );
@@ -473,9 +477,12 @@ function Expenses() {
   // same colour each category's own IconTile already uses, so the bar reads
   // as a proportional key to the rows below it — no separate legend needed
   const segmentsFor = (byCategory: Record<string, number>, uncategorised: number) => {
-    const segs: { id: string; amount: number; tone: Tone; faded?: boolean }[] = categories
+    const segs: { id: string; amount: number; tone?: Tone; color?: string; faded?: boolean }[] = categories
       .filter((c) => (byCategory[c.id] ?? 0) > 0)
-      .map((c) => ({ id: c.id, amount: byCategory[c.id], tone: expenseCategoryIcon(c).tone }));
+      .map((c) => {
+        const tile = expenseCategoryIcon(c, categories.indexOf(c));
+        return { id: c.id, amount: byCategory[c.id], tone: tile.tone, color: tile.color };
+      });
     // faded rather than a solid tone — "ink-faint" is also Accommodation's
     // real colour (its `role: "lodging"` fallback in expenseCategoryIcon), so
     // a plain ink-faint segment here could sit flush against an Accommodation
