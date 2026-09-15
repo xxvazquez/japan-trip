@@ -605,27 +605,29 @@ function PlanRow({ day, tz, item, place, areaPlaces, areaNameByPlaceId, category
             />
           </div>
 
-          <button
-            type="button"
-            onClick={addToGoogleCalendar}
-            aria-label={`Add ${place?.name || item.text || "this step"} to Google Calendar`}
-            title="Add to Google Calendar"
-            className="relative shrink-0 p-1 text-ink-faint opacity-60 transition-opacity hover:text-accent active:text-accent before:absolute before:-inset-2 before:content-[''] sm:opacity-0 sm:group-hover:opacity-100"
-          >
-            <Icon name="calendar" size={13} />
-          </button>
-          {!readOnly && (
+          <div className="flex shrink-0 items-center gap-0.5">
             <button
               type="button"
-              onClick={() => onQuickAddCost(place?.name || item.text || "")}
-              aria-label={`Add an expense for ${place?.name || item.text || "this step"}`}
-              title="Add an expense"
+              onClick={addToGoogleCalendar}
+              aria-label={`Add ${place?.name || item.text || "this step"} to Google Calendar`}
+              title="Add to Google Calendar"
               className="relative shrink-0 p-1 text-ink-faint opacity-60 transition-opacity hover:text-accent active:text-accent before:absolute before:-inset-2 before:content-[''] sm:opacity-0 sm:group-hover:opacity-100"
             >
-              <Icon name="wallet" size={13} />
+              <Icon name="calendar" size={13} />
             </button>
-          )}
-          {!readOnly && <RowDeleteButton onClick={onRemove} />}
+            {!readOnly && (
+              <button
+                type="button"
+                onClick={() => onQuickAddCost(place?.name || item.text || "")}
+                aria-label={`Add an expense for ${place?.name || item.text || "this step"}`}
+                title="Add an expense"
+                className="relative shrink-0 p-1 text-ink-faint opacity-60 transition-opacity hover:text-accent active:text-accent before:absolute before:-inset-2 before:content-[''] sm:opacity-0 sm:group-hover:opacity-100"
+              >
+                <Icon name="wallet" size={13} />
+              </button>
+            )}
+            {!readOnly && <RowDeleteButton onClick={onRemove} />}
+          </div>
         </div>
       </div>
       </SwipeToDelete>

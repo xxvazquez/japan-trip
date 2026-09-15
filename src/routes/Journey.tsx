@@ -365,7 +365,7 @@ export default function Journey() {
                     )
                   : rows.length > 0 && <div className="mt-3 border-t border-line pt-0.5">{rows}</div>}
                 {(s.depart || !ro) && (
-                  <div className="mt-2 flex items-center justify-end gap-1">
+                  <div className="mt-2 flex items-center justify-end gap-0.5">
                     {s.depart && (
                       <button
                         type="button"
