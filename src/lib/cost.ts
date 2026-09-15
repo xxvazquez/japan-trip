@@ -158,13 +158,18 @@ export function tripCost(data: TripData): CostSummary {
 
   // one value per journey — a manual total and the hop sum are never both
   // counted (journeyFare's own rule), so a journey can never be double-counted.
-  // A manual total carries no mode (it's one figure for the whole journey) and
-  // always falls to the transport-role catch-all; per-hop fares split by mode.
+  // A manual total still carries a mode when every one of its segments does —
+  // a single flight, or a multi-hop journey that's all train, is unambiguous
+  // even priced as one figure — so it lands under whatever category claims
+  // that mode, same as a per-hop fare would. Only a genuinely mixed-mode
+  // journey (or one with no segments yet) falls to the transport catch-all.
   for (const journey of data.journeys) {
     if (journey.fare?.trim()) {
       const m = parseMoney(journey.fare, journey.fareCurrency || fallback);
       if (!m) { unparsed.push(`${journey.label || "Journey"} — "${journey.fare}"`); continue; }
-      addMoney(m, transportId);
+      const modes = new Set(journey.segments.map((s) => s.mode));
+      const soleMode = modes.size === 1 ? [...modes][0] : undefined;
+      addMoney(m, (soleMode && modeCategory.get(soleMode)) ?? transportId);
       continue;
     }
     for (const seg of journey.segments) {
