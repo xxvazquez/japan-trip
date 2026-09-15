@@ -271,7 +271,8 @@ export default function Journey() {
 
           return (
             <div key={s.id}>
-              <div className="group rounded-[12px] border border-line bg-surface p-4 shadow-[0_1px_1px_rgb(0_0_0/0.04),0_3px_8px_-2px_rgb(0_0_0/0.06)] dark:border-ink/10 dark:shadow-[0_1px_2px_rgb(0_0_0/0.4),0_6px_16px_-4px_rgb(0_0_0/0.5)]">
+              <Section>
+              <div className="p-4">
                 {/* header — mode tile, route, and (read-only) the service as a pill */}
                 <div className="flex items-start gap-2.5">
                   <IconTile size="md" name={MODE_ICON[s.mode]} tone={MODE_TONE[s.mode]} />
@@ -367,6 +368,7 @@ export default function Journey() {
                   </div>
                 )}
               </div>
+              </Section>
               {next && (
                 <p className="ml-3.5 border-l-2 border-dashed border-line py-1.5 pl-3 text-xs text-ink-soft">
                   {gap != null ? (

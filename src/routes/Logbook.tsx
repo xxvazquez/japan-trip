@@ -10,6 +10,7 @@ import { CheckCircle } from "@/components/CheckCircle";
 import { InfoNote } from "@/components/InfoNote";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { Empty } from "@/components/Empty";
+import { AddButton } from "@/components/AddButton";
 import { CenterIfShort } from "@/components/CenterIfShort";
 import { AccordionRow } from "@/components/AccordionRow";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
@@ -143,15 +144,6 @@ export function LogbookSection() {
   );
 }
 
-/** The one add-a-thing button, above a stack of cards. */
-function AddButton({ label, onClick }: { label: string; onClick: () => void }) {
-  return (
-    <button onClick={onClick} className="action">
-      <Icon name="plus" size={14} /> {label}
-    </button>
-  );
-}
-
 /** Delete control for a whole card / group on a Logbook tab — a luggage note, a
  *  custom-list item, a packing group. Two-tap confirm, like everywhere a thing
  *  (not a row) gets removed. */
@@ -174,14 +166,14 @@ function ListSection({ list }: { list: CustomList }) {
   const add = () => set((l) => { l.items.push({ id: rid(), label: "" }); });
 
   if (list.items.length === 0) {
-    return ro
-      ? <Empty what="Nothing here yet" hint="A list of your own — add items on your trip." />
-      : (
-        <div className="flex min-h-[52vh] flex-col items-center justify-center gap-3 text-center">
-          <p className="lead">Nothing here yet</p>
-          <AddButton label="Add an item" onClick={add} />
-        </div>
-      );
+    return (
+      <Empty
+        what="Nothing here yet"
+        hint={ro ? "A list of your own — add items on your trip." : undefined}
+        onAdd={ro ? undefined : add}
+        addLabel="Add an item"
+      />
+    );
   }
 
   return (
@@ -277,14 +269,13 @@ function GettingAround() {
   };
 
   if (journeys.length === 0) {
-    return ro ? (
-      <Empty what="No journeys" />
-    ) : (
-      <div className="flex min-h-[52vh] flex-col items-center justify-center gap-3 text-center">
-        <p className="lead">No journeys</p>
-        <p className="meta max-w-xs">Flights, trains, transfers — however you get from A to B.</p>
-        <AddButton label="Add a journey" onClick={add} />
-      </div>
+    return (
+      <Empty
+        what="No journeys"
+        hint={ro ? undefined : "Flights, trains, transfers — however you get from A to B."}
+        onAdd={ro ? undefined : add}
+        addLabel="Add a journey"
+      />
     );
   }
   return (
@@ -333,14 +324,13 @@ function Luggage() {
   const add = () => addEntity("luggage", { id: crypto.randomUUID?.() ?? `lug-${rid()}`, title: "New note" } as never);
 
   if (data.luggage.length === 0) {
-    return ro ? (
-      <Empty what="No luggage notes" hint="Storage, lockers, a bag left somewhere." />
-    ) : (
-      <div className="flex min-h-[52vh] flex-col items-center justify-center gap-3 text-center">
-        <p className="lead">No luggage notes</p>
-        <p className="meta max-w-xs">Storage, lockers, a bag left somewhere — whatever this trip needs.</p>
-        <AddButton label="Add a note" onClick={add} />
-      </div>
+    return (
+      <Empty
+        what="No luggage notes"
+        hint={ro ? "Storage, lockers, a bag left somewhere." : "Storage, lockers, a bag left somewhere — whatever this trip needs."}
+        onAdd={ro ? undefined : add}
+        addLabel="Add a note"
+      />
     );
   }
 
@@ -537,14 +527,13 @@ function Documents() {
   const addDoc = () => addEntity("docs", { id: crypto.randomUUID?.() ?? `docs-${rid()}`, title: "New document", kind: "other", fields: [] } as never);
 
   if (docs.length === 0) {
-    return ro ? (
-      <Empty what="No documents" hint="Insurance, a booking, a permit — one card each." />
-    ) : (
-      <div className="flex min-h-[52vh] flex-col items-center justify-center gap-3 text-center">
-        <p className="lead">No documents</p>
-        <p className="meta max-w-xs">Insurance, a booking, a permit — one card each.</p>
-        <AddButton label="Add a document" onClick={addDoc} />
-      </div>
+    return (
+      <Empty
+        what="No documents"
+        hint="Insurance, a booking, a permit — one card each."
+        onAdd={ro ? undefined : addDoc}
+        addLabel="Add a document"
+      />
     );
   }
 
@@ -919,14 +908,13 @@ function Notes() {
   const add = () => addEntity("scratchNotes", { id: crypto.randomUUID?.() ?? `note-${rid()}`, title: "New note" } as never);
 
   if (data.scratchNotes.length === 0) {
-    return ro ? (
-      <Empty what="Nothing noted yet" hint="A scratchpad for anything you want to remember." />
-    ) : (
-      <div className="flex min-h-[52vh] flex-col items-center justify-center gap-3 text-center">
-        <p className="lead">Nothing noted yet</p>
-        <p className="meta max-w-xs">A phrase to remember, a packing reminder — whatever's easiest as its own box.</p>
-        <AddButton label="Add a note" onClick={add} />
-      </div>
+    return (
+      <Empty
+        what="Nothing noted yet"
+        hint={ro ? "A scratchpad for anything you want to remember." : "A phrase to remember, a packing reminder — whatever's easiest as its own box."}
+        onAdd={ro ? undefined : add}
+        addLabel="Add a note"
+      />
     );
   }
 

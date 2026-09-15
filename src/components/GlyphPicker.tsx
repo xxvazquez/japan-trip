@@ -82,7 +82,7 @@ function GlyphOption({
       onClick={onSelect}
       aria-pressed={selected}
       aria-label={label}
-      className={`flex flex-col items-center gap-1 rounded-lg p-1.5 ${selected ? "bg-surface-2" : ""}`}
+      className={`flex flex-col items-center gap-1 rounded p-1.5 ${selected ? "bg-surface-2" : ""}`}
     >
       <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-[7px] ${selected ? "ring-2 ring-accent" : ""}`}>
         {tile ?? <IconTile ghost size="md" />}
