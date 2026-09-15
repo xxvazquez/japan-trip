@@ -364,9 +364,30 @@ export default function Journey() {
                       </div>
                     )
                   : rows.length > 0 && <div className="mt-3 border-t border-line pt-0.5">{rows}</div>}
-                {!ro && (
-                  <div className="mt-2 flex justify-end">
-                    <RowDeleteButton onClick={() => patch({ segments: j.segments.filter((_, k) => k !== i) })} label="Remove hop" />
+                {(s.depart || !ro) && (
+                  <div className="mt-2 flex items-center justify-end gap-1">
+                    {s.depart && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          // open synchronously in the same click (see Day.tsx's
+                          // addToGoogleCalendar) so the popup blocker doesn't
+                          // treat the dynamic import's resolution as unrequested
+                          const w = window.open("", "_blank");
+                          import("@/lib/ics").then(({ googleCalendarUrlForSegment }) => {
+                            const url = googleCalendarUrlForSegment(s, data.config.tripTimeZone);
+                            if (!w) return;
+                            if (url) w.location.href = url; else w.close();
+                          });
+                        }}
+                        aria-label={`Add ${s.from} to ${s.to} to Google Calendar`}
+                        title="Add to Google Calendar"
+                        className="relative shrink-0 p-1.5 text-ink-faint opacity-60 transition-opacity hover:text-accent active:text-accent before:absolute before:-inset-2 before:content-[''] sm:opacity-0 sm:group-hover:opacity-100"
+                      >
+                        <Icon name="calendar" size={14} />
+                      </button>
+                    )}
+                    {!ro && <RowDeleteButton onClick={() => patch({ segments: j.segments.filter((_, k) => k !== i) })} label="Remove hop" />}
                   </div>
                 )}
               </div>

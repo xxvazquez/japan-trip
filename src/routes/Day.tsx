@@ -263,7 +263,7 @@ export default function Day() {
             )
           }
         >
-          <PlanList items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} onQuickAddCost={quickAddCost} />
+          <PlanList day={day} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} onQuickAddCost={quickAddCost} />
         </Section>
       )}
 
@@ -376,7 +376,9 @@ export default function Day() {
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanList({ items, places, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onChange, onQuickAddCost }: {
+function PlanList({ day, tz, items, places, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onChange, onQuickAddCost }: {
+  day: DayT;
+  tz?: string;
   items: PlanItem[];
   places: Place[];
   areaPlaces: Place[];
@@ -407,6 +409,8 @@ function PlanList({ items, places, areaPlaces, areaNameByPlaceId, categoryIcons,
   const rows = items.map((it, i) => (
     <PlanRow
       key={it.id}
+      day={day}
+      tz={tz}
       item={it}
       place={it.placeId ? places.find((p) => p.id === it.placeId) : undefined}
       areaPlaces={areaPlaces}
@@ -439,7 +443,9 @@ function PlanList({ items, places, areaPlaces, areaNameByPlaceId, categoryIcons,
   );
 }
 
-function PlanRow({ item, place, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, first, last, onPatch, onRemove, onQuickAddCost }: {
+function PlanRow({ day, tz, item, place, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, first, last, onPatch, onRemove, onQuickAddCost }: {
+  day: DayT;
+  tz?: string;
   item: PlanItem;
   place?: Place;
   areaPlaces: Place[];
@@ -454,6 +460,15 @@ function PlanRow({ item, place, areaPlaces, areaNameByPlaceId, categoryIcons, re
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id, disabled: readOnly });
   const mapHref = gmapsLink(item.url || place?.url || place?.name);
+  // open the tab synchronously, in the same click, so the browser doesn't
+  // treat it as an unrequested popup once the dynamic import resolves — then
+  // point it at the real link once `ics.ts` (a separate lazy chunk) loads
+  const addToGoogleCalendar = () => {
+    const w = window.open("", "_blank");
+    import("@/lib/ics").then(({ googleCalendarUrlForPlanItem }) => {
+      if (w) w.location.href = googleCalendarUrlForPlanItem(item, day, tz, place);
+    });
+  };
 
   // the step's "what" picker: this day's own area places, plus the step's
   // already-linked place if it isn't one of them (an area removed later, or
@@ -590,6 +605,15 @@ function PlanRow({ item, place, areaPlaces, areaNameByPlaceId, categoryIcons, re
             />
           </div>
 
+          <button
+            type="button"
+            onClick={addToGoogleCalendar}
+            aria-label={`Add ${place?.name || item.text || "this step"} to Google Calendar`}
+            title="Add to Google Calendar"
+            className="relative shrink-0 p-1 text-ink-faint opacity-60 transition-opacity hover:text-accent active:text-accent before:absolute before:-inset-2 before:content-[''] sm:opacity-0 sm:group-hover:opacity-100"
+          >
+            <Icon name="calendar" size={13} />
+          </button>
           {!readOnly && (
             <button
               type="button"

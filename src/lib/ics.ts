@@ -101,32 +101,75 @@ const singleTime = (t: string | undefined): string | null => {
 };
 
 /* ------------------------------------------------------------------ *
+ * event timing — shared between the .ics lines below and the single-event
+ * Google Calendar links further down, so both read off the same clock math.
+ * ------------------------------------------------------------------ */
+
+type EventTiming =
+  | { allDay: false; start: Date; end: Date }
+  | { allDay: true; startDate: string; endDateExclusive: string };
+
+function planItemTiming(item: PlanItem, day: Day, tz: string): EventTiming {
+  const range = splitRange(item.time);
+  const single = range ? null : singleTime(item.time);
+  if (range) {
+    const start = zonedTimeToUtc(day.date, range[0], tz);
+    const end = zonedTimeToUtc(day.date, range[1], tz);
+    if (start && end) return { allDay: false, start, end };
+  } else if (single) {
+    const start = zonedTimeToUtc(day.date, single, tz);
+    if (start) return { allDay: false, start, end: new Date(start.getTime() + 60 * 60_000) };
+  }
+  return { allDay: true, startDate: day.date, endDateExclusive: addDays(day.date, 1) };
+}
+
+/** `null` when the hop has no departure time to build an event from. */
+function segmentTiming(seg: Segment, tripTz: string): EventTiming | null {
+  if (!seg.depart) return null;
+  const fromTz = safeTz(seg.fromTz || tripTz);
+  const toTz = safeTz(seg.toTz || seg.fromTz || tripTz);
+  const [depDate, depTime] = seg.depart.split("T");
+  const start = zonedTimeToUtc(depDate, depTime, fromTz);
+  if (!start) return null;
+  let end: Date | null = null;
+  if (seg.arrive) {
+    const [arrDate, arrTime] = seg.arrive.split("T");
+    end = zonedTimeToUtc(arrDate, arrTime, toTz);
+  }
+  return { allDay: false, start, end: end ?? new Date(start.getTime() + 60 * 60_000) };
+}
+
+const planItemDesc = (item: PlanItem, timing: EventTiming): string[] =>
+  [timing.allDay && item.time ? `Time: ${item.time}` : null, item.note].filter(Boolean) as string[];
+
+const segmentDesc = (seg: Segment, opts: IcsOptions): string[] =>
+  [
+    seg.carrier && `Carrier: ${seg.carrier}`,
+    seg.service && `Service: ${seg.service}`,
+    seg.seat && `Seat: ${seg.seat}`,
+    seg.platform && `Platform: ${seg.platform}`,
+    opts.includePrivate && seg.bookingRef && `Booking ref: ${seg.bookingRef}`,
+    seg.note,
+  ].filter(Boolean) as string[];
+
+/* ------------------------------------------------------------------ *
  * event builders
  * ------------------------------------------------------------------ */
 
 function planItemEvent(item: PlanItem, day: Day, tz: string, place: Place | undefined): string[] {
-  const range = splitRange(item.time);
-  const single = range ? null : singleTime(item.time);
+  const timing = planItemTiming(item, day, tz);
   const lines = ["BEGIN:VEVENT", `UID:${item.id}@zuknesst-atlas.local`, `DTSTAMP:${fmtUtcStamp(new Date())}`];
 
-  if (range) {
-    const start = zonedTimeToUtc(day.date, range[0], tz);
-    const end = zonedTimeToUtc(day.date, range[1], tz);
-    if (start) lines.push(`DTSTART:${fmtUtcStamp(start)}`);
-    if (end) lines.push(`DTEND:${fmtUtcStamp(end)}`);
-  } else if (single) {
-    const start = zonedTimeToUtc(day.date, single, tz);
-    if (start) {
-      lines.push(`DTSTART:${fmtUtcStamp(start)}`);
-      lines.push(`DTEND:${fmtUtcStamp(new Date(start.getTime() + 60 * 60_000))}`);
-    }
+  if (timing.allDay) {
+    lines.push(`DTSTART;VALUE=DATE:${fmtDateStamp(timing.startDate)}`);
+    lines.push(`DTEND;VALUE=DATE:${fmtDateStamp(timing.endDateExclusive)}`);
   } else {
-    lines.push(`DTSTART;VALUE=DATE:${fmtDateStamp(day.date)}`);
-    lines.push(`DTEND;VALUE=DATE:${fmtDateStamp(addDays(day.date, 1))}`);
+    lines.push(`DTSTART:${fmtUtcStamp(timing.start)}`);
+    lines.push(`DTEND:${fmtUtcStamp(timing.end)}`);
   }
 
   lines.push(`SUMMARY:${escText(item.text || "Untitled")}`);
-  const desc = [!range && !single && item.time ? `Time: ${item.time}` : null, item.note].filter(Boolean) as string[];
+  const desc = planItemDesc(item, timing);
   if (desc.length) lines.push(`DESCRIPTION:${escText(desc.join("\n"))}`);
   if (place) {
     lines.push(`LOCATION:${escText(place.name)}`);
@@ -140,34 +183,18 @@ function planItemEvent(item: PlanItem, day: Day, tz: string, place: Place | unde
 }
 
 function segmentEvent(seg: Segment, tripTz: string, opts: IcsOptions): string[] | null {
-  if (!seg.depart) return null;
-  const fromTz = safeTz(seg.fromTz || tripTz);
-  const toTz = safeTz(seg.toTz || seg.fromTz || tripTz);
-  const [depDate, depTime] = seg.depart.split("T");
-  const start = zonedTimeToUtc(depDate, depTime, fromTz);
-  if (!start) return null;
-  let end: Date | null = null;
-  if (seg.arrive) {
-    const [arrDate, arrTime] = seg.arrive.split("T");
-    end = zonedTimeToUtc(arrDate, arrTime, toTz);
-  }
+  const timing = segmentTiming(seg, tripTz);
+  if (!timing || timing.allDay) return null; // a hop always has real timestamps once it has a depart at all
 
   const lines = [
     "BEGIN:VEVENT",
     `UID:${seg.id}@zuknesst-atlas.local`,
     `DTSTAMP:${fmtUtcStamp(new Date())}`,
-    `DTSTART:${fmtUtcStamp(start)}`,
-    `DTEND:${fmtUtcStamp(end ?? new Date(start.getTime() + 60 * 60_000))}`,
+    `DTSTART:${fmtUtcStamp(timing.start)}`,
+    `DTEND:${fmtUtcStamp(timing.end)}`,
     `SUMMARY:${escText(`${MODE_LABEL[seg.mode] ?? seg.mode}: ${seg.from} → ${seg.to}`)}`,
   ];
-  const desc = [
-    seg.carrier && `Carrier: ${seg.carrier}`,
-    seg.service && `Service: ${seg.service}`,
-    seg.seat && `Seat: ${seg.seat}`,
-    seg.platform && `Platform: ${seg.platform}`,
-    opts.includePrivate && seg.bookingRef && `Booking ref: ${seg.bookingRef}`,
-    seg.note,
-  ].filter(Boolean) as string[];
+  const desc = segmentDesc(seg, opts);
   if (desc.length) lines.push(`DESCRIPTION:${escText(desc.join("\n"))}`);
   lines.push(`LOCATION:${escText(`${seg.from} → ${seg.to}`)}`);
   lines.push("END:VEVENT");
@@ -234,4 +261,39 @@ export function downloadIcs(filename: string, content: string): void {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* ------------------------------------------------------------------ *
+ * per-event Google Calendar links — one click, no file, no app-switch.
+ * Google-only (Apple Calendar / Outlook users still want the .ics export
+ * above); additive, not a replacement. Always written as if for your own
+ * phone (booking refs included) — same as the per-day .ics button, since
+ * opening a compose link isn't something you'd hand to someone else anyway.
+ * ------------------------------------------------------------------ */
+
+function googleCalendarDates(t: EventTiming): string {
+  return t.allDay
+    ? `${fmtDateStamp(t.startDate)}/${fmtDateStamp(t.endDateExclusive)}`
+    : `${fmtUtcStamp(t.start)}/${fmtUtcStamp(t.end)}`;
+}
+
+function googleCalendarUrl(title: string, timing: EventTiming, description?: string, location?: string): string {
+  const params = new URLSearchParams({ action: "TEMPLATE", text: title, dates: googleCalendarDates(timing) });
+  if (description) params.set("details", description);
+  if (location) params.set("location", location);
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+export function googleCalendarUrlForPlanItem(item: PlanItem, day: Day, tz: string | undefined, place: Place | undefined): string {
+  const timing = planItemTiming(item, day, safeTz(tz));
+  const desc = planItemDesc(item, timing).join("\n");
+  return googleCalendarUrl(item.text || "Untitled", timing, desc || undefined, place?.name);
+}
+
+/** `null` when the hop has no departure time — nothing to add yet. */
+export function googleCalendarUrlForSegment(seg: Segment, tripTz: string): string | null {
+  const timing = segmentTiming(seg, tripTz);
+  if (!timing) return null;
+  const desc = segmentDesc(seg, { includePrivate: true }).join("\n");
+  return googleCalendarUrl(`${MODE_LABEL[seg.mode] ?? seg.mode}: ${seg.from} → ${seg.to}`, timing, desc || undefined, `${seg.from} → ${seg.to}`);
 }

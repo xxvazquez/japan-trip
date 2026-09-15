@@ -218,6 +218,9 @@ event, so the trip lands on your phone's own calendar next to everything else.
 - A day's linked journey adds its own hop events from the segment's real departure / arrival times.
 - The per-day button always includes booking references — it's building an event for your own
   calendar, not something you're handing to someone else.
+- Each individual plan step and journey hop also has its own small calendar icon (tap to reveal it on
+  a plan row) that opens Google Calendar directly with just that one event — no file, no app-switching.
+  Google-only; the `.ics` buttons above still cover Apple Calendar, Outlook, and everything else.
 
 ## Editing anything
 
