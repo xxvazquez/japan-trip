@@ -7,6 +7,7 @@ import { Icon } from "@/components/Icon";
 import { IconTile } from "@/components/IconTile";
 import { InfoNote } from "@/components/InfoNote";
 import { ConfirmButton } from "@/components/ConfirmButton";
+import { INSET_DIVIDER } from "@/components/InsetRow";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
@@ -1106,9 +1107,9 @@ export default function MapTab() {
               />
               <p className="meta mt-1.5">…or tap the map to drop a pin.</p>
               {results.length > 0 && (
-                <ul className="mt-2 divide-y divide-line">
+                <ul className="mt-2">
                   {results.map((r, i) => (
-                    <li key={i}>
+                    <li key={i} className={INSET_DIVIDER}>
                       <button
                         onClick={() => commitPlace(r.name, r.lat, r.lng)}
                         className="block w-full py-2 text-left"

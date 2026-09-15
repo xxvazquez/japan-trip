@@ -16,7 +16,7 @@ import { THEME_PRESETS, DEFAULT_ACCENT } from "@/lib/themePresets";
 import { GlyphPicker } from "@/components/GlyphPicker";
 import { toneForGlyph } from "@/lib/tones";
 import { SegmentedControl } from "@/components/SegmentedControl";
-import { InsetRow } from "@/components/InsetRow";
+import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { entityLink } from "@/lib/entityLink";
 import { OPTIONAL_LOGBOOK_SECTIONS, LOGBOOK_SECTIONS, LOGBOOK_NAV_ICON, logbookLabel } from "@/lib/logbook";
@@ -352,9 +352,8 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 }
 
 /** `<li>` class for a Manage grouped-list item (a traveller, a currency…):
- *  padded, its own inset hairline, gone on the last row. */
-const MLI =
-  "relative flex items-center gap-3 px-3.5 py-2.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden";
+ *  padded, `InsetRow`'s own inset hairline, gone on the last row. */
+const MLI = `${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-2.5`;
 
 /** the trailing "＋ Add …" row inside a Manage grouped list */
 function AddRow({ label, onClick }: { label: string; onClick: () => void }) {

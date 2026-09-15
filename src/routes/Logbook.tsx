@@ -8,7 +8,7 @@ import { TileRow } from "@/components/TileRow";
 import { RouteLabel } from "@/components/RouteLabel";
 import { CheckCircle } from "@/components/CheckCircle";
 import { InfoNote } from "@/components/InfoNote";
-import { InsetRow } from "@/components/InsetRow";
+import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { Empty } from "@/components/Empty";
 import { CenterIfShort } from "@/components/CenterIfShort";
 import { AccordionRow } from "@/components/AccordionRow";
@@ -672,7 +672,7 @@ function Attachments({
       {files.map((f) => {
         const img = f.driveId && f.mime?.startsWith("image/") && !broken.has(f.id);
         return (
-          <div key={f.id} className="border-b border-line py-2.5 first:border-t first:border-line">
+          <div key={f.id} className={`${INSET_DIVIDER} py-2.5`}>
             <div className="group flex items-center gap-2.5">
               <Icon name="vault" size={16} className="shrink-0 text-ink-soft" />
               <button onClick={() => open(f)} className="value min-w-0 flex-1 truncate text-left hover:underline">{f.name}</button>
