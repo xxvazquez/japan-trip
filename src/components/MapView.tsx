@@ -171,7 +171,7 @@ export function MapView({
     m.addLayer({
       id: "clusters", type: "circle", source: "places", filter: ["has", "point_count"],
       paint: {
-        "circle-color": d ? "#e7ebee" : "#1a2026",
+        "circle-color": ink,
         "circle-radius": ["step", ["get", "point_count"], 15, 10, 19, 25, 24],
         "circle-stroke-width": 3, "circle-stroke-color": halo,
       },

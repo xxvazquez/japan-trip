@@ -19,7 +19,7 @@ import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
 import { TRANSIT_KINDS, TRANSIT_META } from "@/lib/transitLayers";
 import { glyphPath } from "@/lib/mapGlyphs";
-import { toneForPlaceCategory } from "@/lib/tones";
+import { toneForPlaceCategory, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import type { Area, Day, Hotel, PlanItem, Place, TripData } from "@/core/types";
 
@@ -512,7 +512,7 @@ export default function MapTab() {
       .sort((x, y) => x.name.localeCompare(y.name));
     const inArea = new Set(data.areas.flatMap((a) => a.placeIds));
     const loose = scoped.filter((p) => !inArea.has(p.id));
-    if (loose.length) groups.push({ id: "", name: "No area", tone: "#9aa3ad", items: loose });
+    if (loose.length) groups.push({ id: "", name: "No area", tone: NEUTRAL_TONE, items: loose });
     // one group only → not worth the section chrome, render flat
     return groups.length > 1 ? groups : null;
   }, [data, scoped]);
@@ -545,7 +545,7 @@ export default function MapTab() {
       let c = cities.get(legId);
       if (!c) {
         const leg = data.legs.find((l) => l.id === legId);
-        c = { legId, name: leg?.base || "No city", hex: leg ? legHex(leg.color) : "#9aa3ad", areas: [], loose: [] };
+        c = { legId, name: leg?.base || "No city", hex: leg ? legHex(leg.color) : NEUTRAL_TONE, areas: [], loose: [] };
         cities.set(legId, c);
       }
       return c;
@@ -1575,9 +1575,7 @@ function SuggestReview({
   );
 }
 
-/* ---- area outlines ------------------------------------------------ *
- * Muted, distinguishable tones assigned by position — no colour picker.  */
-const AREA_TONES = ["#6f83a0", "#7e947a", "#a2856a", "#94788e", "#6f9494", "#9e9772", "#8a8fa8", "#a08674"];
+/* ---- area outlines ------------------------------------------------ */
 
 /** a closed ring of lng/lat points approximating a circle of `km` around a centre */
 function circleRing(lng: number, lat: number, km: number, n = 56): [number, number][] {
