@@ -800,6 +800,40 @@ export default function MapTab() {
     setNamingArea(false);
   };
 
+  /** areas sharing a case-insensitive trimmed name with at least one other —
+   *  left over from before duplicate creation was guarded against. */
+  const duplicateAreaGroups = useMemo(() => {
+    const byName = new Map<string, Area[]>();
+    for (const a of data.areas) {
+      const key = (a.name || "").trim().toLowerCase();
+      if (!key) continue;
+      if (!byName.has(key)) byName.set(key, []);
+      byName.get(key)!.push(a);
+    }
+    return [...byName.values()].filter((g) => g.length > 1);
+  }, [data.areas]);
+
+  /** union each duplicate group's places onto the one with the most (ties → the
+   *  first), repoint any day that linked one of the others, then drop them. */
+  const mergeDuplicateAreas = () => {
+    for (const group of duplicateAreaGroups) {
+      const keep = [...group].sort((x, y) => y.placeIds.length - x.placeIds.length)[0];
+      const mergedIds = [...new Set(group.flatMap((a) => a.placeIds))];
+      if (mergedIds.length !== keep.placeIds.length) {
+        updateEntity<Area>("areas", keep.id, { placeIds: mergedIds });
+      }
+      const dupIds = new Set(group.filter((a) => a.id !== keep.id).map((a) => a.id));
+      for (const day of data.days) {
+        const areaIds = day.areaIds ?? [];
+        if (!areaIds.some((id) => dupIds.has(id))) continue;
+        updateEntity<Day>("days", day.id, {
+          areaIds: [...new Set(areaIds.map((id) => (dupIds.has(id) ? keep.id : id)))],
+        });
+      }
+      for (const id of dupIds) removeEntity("areas", id);
+    }
+  };
+
   const runSync = async () => {
     if (!url) return;
     setBusy(true);
@@ -995,6 +1029,20 @@ export default function MapTab() {
                             {editingAreas ? "Done" : "Edit areas"}
                           </button>
                         )}
+                      </div>
+                    )}
+                    {editingAreas && duplicateAreaGroups.length > 0 && (
+                      <div className="mt-2 flex items-center justify-between gap-2 rounded-[8px] bg-accent/10 px-2.5 py-1.5 text-xs">
+                        <span className="text-ink-soft">
+                          {plural(duplicateAreaGroups.length, "duplicate name")} found — merging combines their places and keeps one.
+                        </span>
+                        <ConfirmButton
+                          label="Merge duplicate areas"
+                          onConfirm={mergeDuplicateAreas}
+                          className="shrink-0 font-medium text-accent"
+                        >
+                          Merge
+                        </ConfirmButton>
                       </div>
                     )}
                     {editingAreas && data.areas.length > 0 && (
