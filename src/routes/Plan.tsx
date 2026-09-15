@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import {
   DndContext,
@@ -26,6 +26,14 @@ import { useReadOnly } from "@/lib/readonly";
 import { tripClock, fmtDate, dayKind, legForDate, addDays, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import type { Day, Leg, TripData } from "@/core/types";
+
+/** Makes the "Day X of Y" header itself the shortcut to today's Day page
+ *  while the trip is live — the whole point of the header is "here's today,"
+ *  so tapping it to jump straight there needs no extra button. Falls back to
+ *  a plain block (no link, no hover styling) if today has no Day yet. */
+function Wrap({ to, children }: { to: string | false | undefined; children: ReactNode }) {
+  return to ? <Link to={to} className="group block">{children}</Link> : <div>{children}</div>;
+}
 
 const KIND: Record<string, { label: string; icon: IconName }> = {
   arrival: { label: "Arrive", icon: "plane" },
@@ -72,9 +80,9 @@ export default function Plan() {
           </>
         )}
         {!noDates && c.phase === "during" && (
-          <>
+          <Wrap to={c.today && `/day/${c.today.id}`}>
             <p className="flex items-baseline gap-2">
-              <span className="font-display text-display">Day {c.dayNumber}</span>
+              <span className="font-display text-display group-hover:underline">Day {c.dayNumber}</span>
               <span className="text-lg text-ink-soft">of {c.totalDays}</span>
             </p>
             <p className="mt-2 text-sm">
@@ -83,7 +91,7 @@ export default function Plan() {
               )}
               <span className="meta">{plural(c.daysRemaining, "day")} left</span>
             </p>
-          </>
+          </Wrap>
         )}
         {!noDates && c.phase === "after" && <p className="lead">Home — the trip’s all here.</p>}
       </header>
