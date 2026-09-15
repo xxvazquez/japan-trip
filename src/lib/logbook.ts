@@ -47,9 +47,10 @@ const LABELS: Record<LogbookSection, string> = {
   documents: "Documents",
   packing: "Packing",
   budget: "Expenses",
-  // the id/URL param stays "notes" (config.hiddenLogbook, ?s=) — this is a
-  // single trip-wide scratchpad, not a home for the notes fields scattered
-  // across Day/Journey/Hotel/Luggage/Docs, so the label says what it is
+  // the id/URL param stays "notes" (config.hiddenLogbook, ?s=) — this is the
+  // trip-wide scratchpad (several independent notes), not a home for the
+  // notes fields scattered across Day/Journey/Hotel/Luggage/Docs, so the
+  // label says what it is
   notes: "Scratchpad",
 };
 

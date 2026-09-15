@@ -17,7 +17,7 @@ export function remapIds(data: TripData): TripData {
     return map.get(old)!;
   };
 
-  const collections: (keyof TripData)[] = ["legs", "hotels", "journeys", "luggage", "days", "packing", "docs", "places", "areas"];
+  const collections: (keyof TripData)[] = ["legs", "hotels", "journeys", "luggage", "days", "packing", "docs", "places", "areas", "scratchNotes"];
   for (const key of collections) {
     const list = d[key] as unknown as { id: string }[];
     if (Array.isArray(list)) for (const e of list) e.id = fresh(e.id)!;

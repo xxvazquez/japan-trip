@@ -3,7 +3,7 @@ import { mapUrlCoords } from "./maps";
 import type { Day, Doc, DocField, ExpenseCategory, Hotel, ModuleConfig, PlanItem, ThemeTokens, TripData } from "@/core/types";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
-export const SCHEMA_VERSION = 9;
+export const SCHEMA_VERSION = 10;
 
 /** Seed expense categories for a new trip. `role: "transport"` is the catch-all
  *  for any fare whose mode isn't claimed below (ferry, car, walk, or a manual
@@ -66,7 +66,7 @@ const DEFAULT_MODULES: ModuleConfig[] = [
   { id: "logbook", kind: "logbook", label: "Logbook", icon: "vault", enabled: true },
 ];
 
-const ENTITY_KEYS = ["legs", "days", "hotels", "journeys", "luggage", "packing", "docs", "places", "areas"] as const;
+const ENTITY_KEYS = ["legs", "days", "hotels", "journeys", "luggage", "packing", "docs", "places", "areas", "scratchNotes"] as const;
 
 function fixTheme(t: Partial<ThemeTokens> | undefined): ThemeTokens {
   const base = THEME_PRESETS[0].tokens;
@@ -217,6 +217,17 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
   for (const k of ENTITY_KEYS) {
     if (!Array.isArray((d as Record<string, unknown>)[k])) (d as Record<string, unknown>)[k] = [];
   }
+
+  // v10: the Scratchpad's single free-text `scratch` string became multiple
+  // independent notes. A signed-in trip's own column moves server-side (see
+  // the matching SQL migration); this only catches an offline/local trip
+  // (no SQL migration reaches it) or a not-yet-migrated row — fold its text
+  // into the first note rather than silently losing it.
+  const legacyScratch = (d as { scratch?: unknown }).scratch;
+  if ((d.scratchNotes as unknown[]).length === 0 && typeof legacyScratch === "string" && legacyScratch.trim()) {
+    d.scratchNotes = [{ id: `note-${fieldId()}`, title: "Untitled", text: legacyScratch }];
+  }
+  delete (d as { scratch?: unknown }).scratch;
 
   // v4: Day.plan went string[] → PlanItem[], and the separate Day.places list
   // folded into the plan. Once `plan` is an array of objects the day is on the

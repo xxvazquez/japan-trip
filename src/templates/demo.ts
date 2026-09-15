@@ -60,7 +60,9 @@ export function buildDemo(): TripData {
     },
     meta: { title: "Demo", start: D1, end: D4 },
     media: { gallery: [] },
-    scratch: "Pack the travel adapter. Ask about late checkout on the last day.",
+    scratchNotes: [
+      { id: "note-1", title: "Before we land", text: "Pack the travel adapter. Ask about late checkout on the last day." },
+    ],
 
     legs: [
       { id: "leg-river", base: "Riverton", start: D1, end: D2, hotelId: "h-river", color: "blue" },

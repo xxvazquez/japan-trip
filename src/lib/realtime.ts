@@ -82,7 +82,6 @@ function spliceTripRow(d: TripData, row: Record<string, unknown>) {
   if ("config" in row) d.config = row.config as TripData["config"];
   if ("meta" in row) d.meta = row.meta as TripData["meta"];
   if ("media" in row) d.media = row.media as TripData["media"];
-  if ("scratch" in row) d.scratch = (row.scratch as string) || undefined;
 }
 
 export function unsubscribeTrip() {

@@ -210,7 +210,7 @@ behind on.
 
 **Notes** fields (a day's General notes and Getting there/back, a stay's notes
 and directions, a journey, a luggage note's detail, a map place's note, and
-the Logbook's Scratchpad) take light Markdown — `**bold**`, `*italic*`,
+each of the Logbook Scratchpad's notes) take light Markdown — `**bold**`, `*italic*`,
 `++underline++`, `~~strikethrough~~`, `##` headings, `>` quotes, `-` bullet
 lists, `- [ ]` checklists and `[links](https://…)`. A slim B / I / U / S / H /
 " / • / ☑ / link toolbar covers all of it without needing to know the syntax,
@@ -276,9 +276,9 @@ edit in the UI  →  TripData (in memory)  →  backend
 
 - **With Supabase** (`VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` set): every
   entity — legs, days, hotels, journeys (+ segments), luggage, docs, packing,
-  places, areas (+ area_places) — is its own row, private to your account (RLS),
-  synced across devices and shareable with another account. Schema:
-  [`supabase/migrations/`](supabase/migrations/).
+  places, areas (+ area_places), scratchpad notes — is its own row, private to
+  your account (RLS), synced across devices and shareable with another
+  account. Schema: [`supabase/migrations/`](supabase/migrations/).
 - **Without it**: everything stays in the browser. No sign-in.
 - **With it, but "Use on this device only"** (the link on the sign-in screen):
   same local browser storage as above, no account — a per-device
@@ -320,7 +320,7 @@ must be the **full https URL**, not just the project ref. The map tile settings
 
 1. Create a project at [supabase.com](https://supabase.com).
 2. **SQL Editor** → run every file in `supabase/migrations/` **in order**
-   (`0001` → `0024`).
+   (`0001` → `0025`).
 3. **Authentication → Providers → Google** → enable, paste a Google Cloud OAuth
    client id / secret, redirect
    `https://<project-ref>.supabase.co/auth/v1/callback`.

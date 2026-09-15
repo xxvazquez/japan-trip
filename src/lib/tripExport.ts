@@ -334,8 +334,12 @@ function logbookSection(data: TripData, opts: ExportOptions): string {
       </div>`).join("")}</div>`);
   }
 
-  if (data.scratch?.trim()) {
-    parts.push(`<div class="lb-block"><h3>Notes</h3><div class="note">${mdToHtml(data.scratch)}</div></div>`);
+  if (data.scratchNotes.length) {
+    parts.push(`<div class="lb-block"><h3>Notes</h3>${data.scratchNotes.map((n) => `
+      <div class="lb-item">
+        <p class="label">${esc(n.title)}</p>
+        ${n.text?.trim() ? `<div class="note">${mdToHtml(n.text)}</div>` : ""}
+      </div>`).join("")}</div>`);
   }
 
   if (!parts.length) return "";

@@ -12,7 +12,7 @@ import type { Day, EntityType, MediaItem, Place, TripData, TripSummary } from "@
 const now = () => new Date().toISOString();
 
 type WithId = { id: string };
-type FieldKey = "config" | "meta" | "media" | "scratch";
+type FieldKey = "config" | "meta" | "media";
 type Op =
   | { t: "row"; type: EntityType; id: string }
   | { t: "del"; type: EntityType; id: string }
@@ -89,7 +89,6 @@ interface AppStore {
    *  length is unchanged. Backs the trip start / end date pickers. */
   shiftDates: (deltaDays: number) => void;
 
-  setScratch: (value: string) => void;
   syncMyMap: (url: string) => Promise<{ mapName: string; count: number }>;
   setMedia: (slot: "logo" | "cover", item: MediaItem | undefined) => void;
   addGalleryMedia: (item: MediaItem) => void;
@@ -121,7 +120,7 @@ function hasPendingFor(id: string) {
 }
 
 /** does the local client have an unsaved change to the trip row itself
- *  (config/meta/media/scratch)? Only one trip is ever active, so — unlike
+ *  (config/meta/media)? Only one trip is ever active, so — unlike
  *  `hasPendingFor` — there's no id to match against. */
 function hasPendingFields() {
   return queue.some((op) => op.t === "fields");
@@ -194,11 +193,11 @@ function applyOutbox(fresh: TripData, ob: Outbox): TripData {
 const ENTITY_LABELS: Record<EntityType, string> = {
   legs: "Stay", days: "Day", hotels: "Hotel", journeys: "Journey",
   luggage: "Luggage note", docs: "Document", packing: "Packing item",
-  places: "Place", areas: "Area",
+  places: "Place", areas: "Area", scratchNotes: "Scratchpad note",
 };
 
 const FIELD_LABELS: Record<FieldKey, string> = {
-  config: "Trip settings", meta: "Trip details", media: "Photos", scratch: "Scratchpad",
+  config: "Trip settings", meta: "Trip details", media: "Photos",
 };
 
 function nameOfRow(type: EntityType, id: string, data: TripData): string {
@@ -211,6 +210,7 @@ function nameOfRow(type: EntityType, id: string, data: TripData): string {
     case "places": return data.places.find((x) => x.id === id)?.name || ENTITY_LABELS.places;
     case "areas": return data.areas.find((x) => x.id === id)?.name || ENTITY_LABELS.areas;
     case "packing": return data.packing.find((x) => x.id === id)?.label || ENTITY_LABELS.packing;
+    case "scratchNotes": return data.scratchNotes.find((x) => x.id === id)?.title || ENTITY_LABELS.scratchNotes;
     case "days": {
       const d = data.days.find((x) => x.id === id);
       return (d && (d.title || fmtDate(d.date, data.config.locale))) || ENTITY_LABELS.days;
@@ -846,10 +846,6 @@ export const useApp = create<AppStore>((set, get) => {
         if (j.segments.length) enqueue(get, { t: "seg", journeyId: j.id });
       }
       for (const n of d.luggage) if (n.date) enqueue(get, { t: "row", type: "luggage", id: n.id });
-    },
-
-    setScratch: (value) => {
-      if (local((d) => { d.scratch = value; })) enqueue(get, { t: "fields", keys: ["scratch"] });
     },
 
     /** Replace all `source: "mymap"` places with a fresh import from `url`.
