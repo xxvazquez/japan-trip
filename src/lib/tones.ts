@@ -14,6 +14,16 @@ import { MODE_TONE } from "@/lib/transport";
  */
 export type Tone = "accent" | "matcha" | "gold" | "ai" | "ink-faint";
 
+/** Muted, mutually distinguishable hex tones assigned to map areas by
+ *  position (not a semantic role like `Tone` above — there's no fixed
+ *  "kind" of area). No colour picker; `MapTab.tsx` cycles through these. */
+export const AREA_TONES = ["#6f83a0", "#7e947a", "#a2856a", "#94788e", "#6f9494", "#9e9772", "#8a8fa8", "#a08674"];
+
+/** the muted grey used wherever a place/area has no real colour of its own
+ *  (an ungrouped place, a leg with no assigned colour) — named once so it's
+ *  not retyped at every call site. */
+export const NEUTRAL_TONE = "#9aa3ad";
+
 /** train / bus / subway / ferry / plane / car / taxi → transit; on foot → moss.
  *  `MODE_TONE` in `lib/transport.ts` is the source of truth (the Journey hop
  *  cards read it directly). */
