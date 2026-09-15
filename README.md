@@ -74,8 +74,8 @@ Linked from a day, or the *getting around* tab. A journey is one or more **hops*
 - The **total fare** at the top adds itself up from the hops' fares; type a figure into it to
   override with a single ticket price.
 - It's the same number Expenses uses, counted once — split by each hop's mode if a category claims
-  it, otherwise under the generic Transport category (a manual override total has no single mode, so
-  it always lands there).
+  it. A manual override total follows the same rule when every hop shares one mode (a single flight,
+  say); only a genuinely mixed-mode journey falls to the generic Transport category.
 
 ### Map
 
