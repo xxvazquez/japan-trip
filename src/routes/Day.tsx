@@ -34,6 +34,7 @@ import { fmtDate, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink } from "@/lib/maps";
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon } from "@/lib/cost";
+import { useAsyncAction } from "@/lib/useAsyncAction";
 import type { Day as DayT, DayCost, ExpenseCategory, PlanItem, Place } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 9);
@@ -65,6 +66,7 @@ export default function Day() {
   const removeEntity = useApp((s) => s.removeEntity);
   const nav = useNavigate();
   const ro = useReadOnly();
+  const { busy: icsBusy, run: runIcs } = useAsyncAction();
   if (!data) return null;
 
   const L = lookups(data);
@@ -128,6 +130,12 @@ export default function Day() {
     nav(`/journey/${jid}`);
   };
 
+  const downloadDayCalendar = () =>
+    runIcs(async () => {
+      const { buildDayIcs, downloadIcs } = await import("@/lib/ics");
+      downloadIcs(day.title || fmtDate(day.date, loc), buildDayIcs(data, day, { includePrivate: true }));
+    });
+
   return (
     <Page>
       {/* IDENTITY — date, title, and where you're based / how you move */}
@@ -141,9 +149,15 @@ export default function Day() {
         meta={daySpentText(day.costs, (data.config.currencies ?? [])[0] ?? "")}
       />
 
+      <div className="-mt-4 mb-8 flex flex-wrap gap-2">
+        <button onClick={downloadDayCalendar} disabled={icsBusy} className="btn-sm">
+          <Icon name="calendar" size={14} className="text-ink-soft" /> {icsBusy ? "Building…" : "Add to calendar"}
+        </button>
+      </div>
+
       {ro ? (
         (hotel || journey) && (
-          <div className="-mt-4 mb-8 flex flex-wrap gap-2">
+          <div className="mb-8 flex flex-wrap gap-2">
             {hotel && (
               <Link to={`/hotel/${hotel.id}`} className="btn-sm">
                 <Icon name="bed" size={14} className="text-ink-soft" /> {hotel.name}
@@ -157,7 +171,7 @@ export default function Day() {
           </div>
         )
       ) : (
-        <Section className="-mt-4 mb-8">
+        <Section className="mb-8">
           <ul>
             <InsetRow label="Staying at">
               <select

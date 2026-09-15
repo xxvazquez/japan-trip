@@ -52,7 +52,8 @@ export type IconName =
   | "alert"
   | "wallet"
   | "luggage"
-  | "locate";
+  | "locate"
+  | "calendar";
 
 const P: Record<IconName, JSX.Element> = {
   itinerary: (
@@ -310,6 +311,12 @@ const P: Record<IconName, JSX.Element> = {
     <>
       <circle cx="12" cy="12" r="3.2" />
       <path d="M12 2.5v3.4M12 18.1v3.4M2.5 12h3.4M18.1 12h3.4" />
+    </>
+  ),
+  calendar: (
+    <>
+      <rect x="4" y="5.5" width="16" height="15" rx="2.5" />
+      <path d="M4 10h16M8 3.5v4M16 3.5v4" />
     </>
   ),
 };

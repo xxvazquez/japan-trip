@@ -168,6 +168,15 @@ Leave **Include private details** off for anything you share: a stay's own refer
 codes, wifi, booking refs…), a segment's booking ref and the whole documents section are held back.
 Turn it on for your own copy. Document *attachments* are never included.
 
+**Add to calendar (.ics)** sits right below it — every plan step and travel hop as a standard
+calendar event, so the trip lands on your phone's own calendar next to everything else. Import the
+whole trip from **Manage → Sharing**, or just one day from the **Add to calendar** button at the top
+of that Day page. A step's time ("11:34", a "14:00–15:15" range) becomes a timed event; anything
+looser ("Around 18:00", or blank) becomes an all-day event instead, with the original text kept in
+the description. A day's linked journey adds its own hop events from the segment's real departure /
+arrival times. The per-day button always includes booking references — it's building an event for
+your own calendar, not something you're handing to someone else.
+
 ## Editing anything
 
 Tap almost any piece of text and it becomes editable on the spot. Type, tap away, done. There's no

@@ -240,6 +240,7 @@ function ExportTrip() {
   const data = useData();
   const [includePrivate, setIncludePrivate] = useState(false);
   const { busy, run } = useAsyncAction();
+  const { busy: icsBusy, run: runIcs } = useAsyncAction();
   if (!data) return null;
 
   const download = () =>
@@ -247,11 +248,16 @@ function ExportTrip() {
       const { downloadTripHtml } = await import("@/lib/tripExport");
       downloadTripHtml(data, { includePrivate });
     });
+  const downloadCalendar = () =>
+    runIcs(async () => {
+      const { buildTripIcs, downloadIcs } = await import("@/lib/ics");
+      downloadIcs(data.meta.title || "trip", buildTripIcs(data, { includePrivate }));
+    });
 
   return (
     <Section
       title="Export"
-      info="A single web-page file of the whole trip — itinerary, journeys, stays and places. Opens in any browser, prints cleanly, works offline; the recipient can print it to PDF. “Include private details” adds door codes, wifi, phone numbers and booking references — leave it off for anything you send someone. Document files are never included either way."
+      info="A single web-page file of the whole trip — itinerary, journeys, stays and places. Opens in any browser, prints cleanly, works offline; the recipient can print it to PDF. “Add to calendar” instead makes a .ics file — every plan step and travel hop as a calendar event, import it into your phone's own calendar. “Include private details” adds door codes, wifi, phone numbers and booking references — leave it off for anything you send someone. Document files are never included either way."
     >
       <ul>
         <InsetRow label="Include private details">
@@ -260,6 +266,11 @@ function ExportTrip() {
         <li className="p-3.5">
           <button onClick={download} disabled={busy} className="btn-primary w-full">
             <Icon name="download" size={15} /> {busy ? "Building…" : "Download web page"}
+          </button>
+        </li>
+        <li className="px-3.5 pb-3.5">
+          <button onClick={downloadCalendar} disabled={icsBusy} className="btn w-full">
+            <Icon name="calendar" size={15} /> {icsBusy ? "Building…" : "Add to calendar (.ics)"}
           </button>
         </li>
       </ul>
