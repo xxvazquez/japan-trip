@@ -280,7 +280,6 @@ export interface Day {
   dayTrip?: boolean;
   getThere?: string;
   getBack?: string;
-  toDo?: string[];
   lastTrainBack?: string;
   /** what you spent on the day — one row per amount (a museum, lunch, a taxi).
    *  Each row picks an `ExpenseCategory`; the amount rolls up under it in the

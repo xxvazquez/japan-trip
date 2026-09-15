@@ -113,7 +113,10 @@ export function buildDemo(): TripData {
         getThere: "Train from Fenwick, about 40 min",
         getBack: "Same line back",
         lastTrainBack: "Last train ~23:15",
-        toDo: ["Buy the return ticket in the morning", "Pack water + a layer"],
+        plan: [
+          { id: "d3-p1", text: "Buy the return ticket in the morning" },
+          { id: "d3-p2", text: "Pack water + a layer" },
+        ],
         notes: "Double check the last train time before we leave — it gets busy on weekends.",
         costs: [
           { id: "d3-c1", categoryId: "cat-transport", amount: "24", label: "Return train tickets" },
