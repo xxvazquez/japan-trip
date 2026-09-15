@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   DndContext,
@@ -101,6 +102,22 @@ export default function Day() {
     const p = data.places.find((pl) => pl.id === it.placeId);
     if (p) { dayPlaceIds.add(it.placeId); dayPlaces.push(p); }
   }
+  const setCosts = (next: DayCost[]) => patch({ costs: next.length ? next : undefined });
+  // the wallet icon on a plan row: add a cost prefilled with that step's name,
+  // then scroll it into view and briefly highlight it so it's obvious where it
+  // landed — amount and category are still typed in by hand, same as always
+  const [justAddedCostId, setJustAddedCostId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!justAddedCostId) return;
+    document.getElementById(`cost-${justAddedCostId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    const t = setTimeout(() => setJustAddedCostId(null), 1600);
+    return () => clearTimeout(t);
+  }, [justAddedCostId]);
+  const quickAddCost = (label: string) => {
+    const id = rid();
+    setCosts([...(day.costs ?? []), { id, label, amount: "" }]);
+    setJustAddedCostId(id);
+  };
 
   // "＋ New journey" — a blank journey, its type chosen on the journey page (never
   // guessed from the day's date: you can arrive, transfer or leave at any point).
@@ -232,7 +249,7 @@ export default function Day() {
             )
           }
         >
-          <PlanList items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} />
+          <PlanList items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} onQuickAddCost={quickAddCost} />
         </Section>
       )}
 
@@ -302,8 +319,9 @@ export default function Day() {
             categories={data.config.expenseCategories ?? []}
             currencies={(data.config.currencies ?? []).filter(Boolean)}
             places={dayPlaces}
+            highlightId={justAddedCostId}
             readOnly={ro}
-            onChange={(next) => patch({ costs: next.length ? next : undefined })}
+            onChange={setCosts}
           />
         </Section>
       )}
@@ -344,7 +362,7 @@ export default function Day() {
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanList({ items, places, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onChange }: {
+function PlanList({ items, places, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onChange, onQuickAddCost }: {
   items: PlanItem[];
   places: Place[];
   areaPlaces: Place[];
@@ -352,6 +370,7 @@ function PlanList({ items, places, areaPlaces, areaNameByPlaceId, categoryIcons,
   categoryIcons?: Record<string, string>;
   readOnly: boolean;
   onChange: (next: PlanItem[]) => void;
+  onQuickAddCost: (label: string) => void;
 }) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -382,6 +401,7 @@ function PlanList({ items, places, areaPlaces, areaNameByPlaceId, categoryIcons,
       readOnly={readOnly}
       onPatch={(p) => patchItem(it.id, p)}
       onRemove={() => removeItem(it.id)}
+      onQuickAddCost={onQuickAddCost}
     />
   ));
 
@@ -403,7 +423,7 @@ function PlanList({ items, places, areaPlaces, areaNameByPlaceId, categoryIcons,
   );
 }
 
-function PlanRow({ item, place, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onPatch, onRemove }: {
+function PlanRow({ item, place, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onPatch, onRemove, onQuickAddCost }: {
   item: PlanItem;
   place?: Place;
   areaPlaces: Place[];
@@ -412,6 +432,7 @@ function PlanRow({ item, place, areaPlaces, areaNameByPlaceId, categoryIcons, re
   readOnly: boolean;
   onPatch: (p: Partial<PlanItem>) => void;
   onRemove: () => void;
+  onQuickAddCost: (label: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id, disabled: readOnly });
   const mapHref = gmapsLink(item.url || place?.url || place?.name);
@@ -539,6 +560,17 @@ function PlanRow({ item, place, areaPlaces, areaNameByPlaceId, categoryIcons, re
             />
           </div>
 
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={() => onQuickAddCost(place?.name || item.text || "")}
+              aria-label={`Add an expense for ${place?.name || item.text || "this step"}`}
+              title="Add an expense"
+              className="relative shrink-0 p-1 text-ink-faint opacity-60 transition-opacity hover:text-accent active:text-accent before:absolute before:-inset-2 before:content-[''] sm:opacity-0 sm:group-hover:opacity-100"
+            >
+              <Icon name="wallet" size={13} />
+            </button>
+          )}
           {!readOnly && <RowDeleteButton onClick={onRemove} />}
         </div>
       </div>
@@ -602,11 +634,12 @@ function PlacePicker({ value, places, areaNameByPlaceId, onPick }: {
 /** The day's spend — a category + a whole-number amount per row, with an
  *  optional free-text note. The amounts feed `tripCost`; the category drives
  *  the Expenses grouping. */
-function CostList({ costs, categories, currencies, places, readOnly, onChange }: {
+function CostList({ costs, categories, currencies, places, highlightId, readOnly, onChange }: {
   costs: DayCost[];
   categories: ExpenseCategory[];
   currencies: string[];
   places: Place[];
+  highlightId?: string | null;
   readOnly: boolean;
   onChange: (next: DayCost[]) => void;
 }) {
@@ -653,7 +686,11 @@ function CostList({ costs, categories, currencies, places, readOnly, onChange }:
           const category = categories.find((cat) => cat.id === c.categoryId);
           const tile = category ? expenseCategoryIcon(category) : { name: "wallet" as const, tone: "ink-faint" as const };
           return (
-            <li key={c.id} className="group relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
+            <li
+              key={c.id}
+              id={`cost-${c.id}`}
+              className={`group relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden transition-colors duration-700 ${c.id === highlightId ? "bg-accent/10" : ""}`}
+            >
               <SwipeToDelete onDelete={readOnly ? undefined : () => onChange(costs.filter((_, j) => j !== i))}>
               <div className="px-3.5 py-2.5">
               <div className="flex items-start gap-3">
