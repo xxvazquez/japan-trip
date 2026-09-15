@@ -815,24 +815,31 @@ export default function MapTab() {
   }, [data.areas]);
 
   /** union each duplicate group's places onto the one with the most (ties → the
-   *  first), repoint any day that linked one of the others, then drop them. */
+   *  first), repoint any day that linked one of the others, then drop them.
+   *  Builds one dup→keep remap across every group before touching a single
+   *  day — a day spanning two separate duplicate groups (Laura's real trip
+   *  had several at once) needs one `updateEntity` covering both, not one
+   *  per group: two sequential calls each read the same pre-merge `data.days`
+   *  snapshot, so the second would silently overwrite the first's fix with
+   *  stale `areaIds` and leave a dangling reference behind. */
   const mergeDuplicateAreas = () => {
+    const remap = new Map<string, string>();
     for (const group of duplicateAreaGroups) {
       const keep = [...group].sort((x, y) => y.placeIds.length - x.placeIds.length)[0];
       const mergedIds = [...new Set(group.flatMap((a) => a.placeIds))];
       if (mergedIds.length !== keep.placeIds.length) {
         updateEntity<Area>("areas", keep.id, { placeIds: mergedIds });
       }
-      const dupIds = new Set(group.filter((a) => a.id !== keep.id).map((a) => a.id));
-      for (const day of data.days) {
-        const areaIds = day.areaIds ?? [];
-        if (!areaIds.some((id) => dupIds.has(id))) continue;
-        updateEntity<Day>("days", day.id, {
-          areaIds: [...new Set(areaIds.map((id) => (dupIds.has(id) ? keep.id : id)))],
-        });
-      }
-      for (const id of dupIds) removeEntity("areas", id);
+      for (const a of group) if (a.id !== keep.id) remap.set(a.id, keep.id);
     }
+    for (const day of data.days) {
+      const areaIds = day.areaIds ?? [];
+      if (!areaIds.some((id) => remap.has(id))) continue;
+      updateEntity<Day>("days", day.id, {
+        areaIds: [...new Set(areaIds.map((id) => remap.get(id) ?? id))],
+      });
+    }
+    for (const id of remap.keys()) removeEntity("areas", id);
   };
 
   const runSync = async () => {
