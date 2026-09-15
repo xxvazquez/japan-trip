@@ -10,6 +10,7 @@ import { RichNote } from "@/components/RichNote";
 import { Icon, type IconName } from "@/components/Icon";
 import { IconTile } from "@/components/IconTile";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
+import { SwipeToDelete } from "@/components/SwipeToDelete";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
@@ -270,8 +271,9 @@ export default function Journey() {
             MODE_TONE[s.mode] === "matcha" ? "bg-matcha/[0.14] text-matcha" : "bg-ai/[0.14] text-ai";
 
           return (
-            <div key={s.id}>
+            <div key={s.id} className="group">
               <Section>
+              <SwipeToDelete onDelete={ro ? undefined : () => patch({ segments: j.segments.filter((_, k) => k !== i) })} label="Remove hop">
               <div className="p-4">
                 {/* header — mode tile, route, and (read-only) the service as a pill */}
                 <div className="flex items-start gap-2.5">
@@ -368,6 +370,7 @@ export default function Journey() {
                   </div>
                 )}
               </div>
+              </SwipeToDelete>
               </Section>
               {next && (
                 <p className="ml-3.5 border-l-2 border-dashed border-line py-1.5 pl-3 text-xs text-ink-soft">
