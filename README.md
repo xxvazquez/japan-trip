@@ -103,6 +103,13 @@ filters → places**, top to bottom.
   - When editing, **Areas** — add one, suggest areas, or rename / delete —
     lives here too.
 - Tap a pin or a list row — they select each other and the map flies there.
+- While **Today** is picked, a **crosshair icon** turns the list into what's
+  actually close by — asks for your location once, then sorts by distance and
+  narrows to within 1.5 km if that leaves anything (a place's row shows its
+  distance in place of the category dot). Nothing within range, no fix yet, or
+  location denied — you still see today's full list, nearest-first once a fix
+  arrives. Never asks until you tap it, and doesn't remember being on for next
+  time.
 - The small list/map icon next to **＋ Add place** switches to a **full-screen
   list** — no map, just the list at full width (desktop) or full height
   (phone). Handy for reorganising areas or picking through a long list; tap it

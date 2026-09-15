@@ -13,7 +13,7 @@ import { useApp } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
 import { gmapsLink, mapUrlCoords } from "@/lib/maps";
 import { geocode, reverseGeocode, type GeoResult } from "@/lib/geocode";
-import { haversineKm } from "@/lib/geo";
+import { haversineKm, fmtDistanceKm, useGeolocation } from "@/lib/geo";
 import { legHex } from "@/lib/legColors";
 import { suggestAreas, type AreaSuggestion } from "@/lib/cluster";
 import { useMode, isDark } from "@/lib/mode";
@@ -163,6 +163,17 @@ export default function MapTab() {
     setListOnly(v);
     try { localStorage.setItem(LIST_ONLY_KEY, v ? "1" : "0"); } catch { /* private window */ }
   };
+  /** "Nearby now" toggle on the Today list — not persisted, so it never asks
+   *  for location on its own next time the trip opens. */
+  const [nearbyOn, setNearbyOn] = useState(false);
+  /** the "Today" pill's own scope id, so the toggle only ever applies there */
+  const todayScopeId = useMemo(() => {
+    if (!data) return null;
+    const c = tripClock(data);
+    return c.phase === "during" && c.today ? `day:${c.today.id}` : null;
+  }, [data]);
+  const nearbyActive = nearbyOn && !!todayScopeId && scope === todayScopeId;
+  const geo = useGeolocation(nearbyActive);
 
   // the mobile sheet's handle: a real drag (not just a tap-to-cycle button),
   // snapping to the nearest of peek/half/full on release
@@ -483,6 +494,27 @@ export default function MapTab() {
     return places.filter(pass);
   }, [places, inScopeIds, catFilter, areaAllowed]);
   const derived = derivedIds;
+
+  /** distance-sorted Today places once "Nearby" is on and a fix has come in —
+   *  filtered to `radiusKm` when that leaves anything, otherwise the full
+   *  Today list, still nearest-first. Null whenever the caller should fall
+   *  back to the normal grouped/flat view (toggle off, still locating, or the
+   *  browser wouldn't give a position). */
+  const nearby = useMemo(() => {
+    if (!nearbyActive || geo.status !== "ready") return null;
+    const radiusKm = 1.5;
+    const withDist = scoped
+      .map((p) => ({ p, km: haversineKm(geo.lat, geo.lng, p.lat, p.lng) }))
+      .sort((a, b) => a.km - b.km);
+    const near = withDist.filter((x) => x.km <= radiusKm);
+    const chosen = near.length ? near : withDist;
+    return {
+      list: chosen.map((x) => x.p),
+      distances: new Map(chosen.map((x) => [x.p.id, x.km] as const)),
+      filtered: near.length > 0,
+      radiusKm,
+    };
+  }, [nearbyActive, geo, scoped]);
 
   // settle the opening view once: if the default city has no places, widen to
   // "all"; then open to the half sheet if there's a list worth showing.
@@ -856,13 +888,14 @@ export default function MapTab() {
     }
   };
 
-  const renderRow = (p: Place) => (
+  const renderRow = (p: Place, distanceKm?: number) => (
     <PlaceRow
       key={p.id}
       place={p}
       open={selected === p.id}
       dayId={dayOfPlace.get(p.id)}
       derived={derived.has(p.id)}
+      distanceKm={distanceKm}
       days={data.days}
       areas={data.areas}
       categoryIcons={data.config.categoryIcons}
@@ -908,6 +941,16 @@ export default function MapTab() {
               );
             })}
           </div>
+          {todayScopeId && scope === todayScopeId && (
+            <button
+              onClick={() => setNearbyOn((v) => !v)}
+              aria-label={nearbyOn ? "Show today's full list" : "Show what's nearby right now"}
+              aria-pressed={nearbyOn}
+              className={`shrink-0 rounded-full border p-1.5 transition-colors ${nearbyOn ? "border-ink bg-ink text-bg" : "border-line text-ink-soft hover:border-ink-soft"}`}
+            >
+              <Icon name="locate" size={15} />
+            </button>
+          )}
           <button
             onClick={() => setListOnlyPersist(!listOnly)}
             aria-label={listOnly ? "Show map" : "Show list only, full screen"}
@@ -1133,6 +1176,20 @@ export default function MapTab() {
         </div>
       )}
 
+      {/* "Nearby" status — pinned above the list so it stays visible while
+          locating, and after, whether or not distance actually narrowed it */}
+      {nearbyActive && review === null && (
+        <p className="meta shrink-0 border-b border-line px-4 py-1.5">
+          {geo.status === "pending" && "Finding what's nearby…"}
+          {geo.status === "error" && "Couldn't get your location — showing today's full list."}
+          {geo.status === "ready" && nearby && (
+            nearby.filtered
+              ? `${nearby.list.length} within ${fmtDistanceKm(nearby.radiusKm)}`
+              : `Nothing within ${fmtDistanceKm(nearby.radiusKm)} — showing today's list, nearest first.`
+          )}
+        </p>
+      )}
+
       {/* list, or the suggestion review */}
       {review !== null ? (
         <SuggestReview
@@ -1143,6 +1200,14 @@ export default function MapTab() {
           onApply={applyReview}
           onCancel={endSuggest}
         />
+      ) : nearby ? (
+        <ul className="min-h-0 flex-1 overflow-y-auto px-4">
+          {nearby.list.map((p) => renderRow(p, nearby.distances.get(p.id)))}
+          {nearby.list.length === 0 && (
+            <li className="meta py-6">Nothing on the map for today. Pick “All”, or add a place above.</li>
+          )}
+          <li className="h-4" />
+        </ul>
       ) : cityGroups ? (
         <div className="min-h-0 flex-1 overflow-y-auto">
           {cityGroups.map((c) => {
@@ -1350,6 +1415,7 @@ function PlaceRow({
   open,
   dayId,
   derived,
+  distanceKm,
   days,
   areas,
   categoryIcons,
@@ -1365,6 +1431,8 @@ function PlaceRow({
   open: boolean;
   dayId?: string;
   derived?: boolean;
+  /** shown ahead of the usual category/day meta when the "Nearby" toggle is on */
+  distanceKm?: number;
   days: TripData["days"];
   areas: Area[];
   categoryIcons?: Record<string, string>;
@@ -1385,7 +1453,11 @@ function PlaceRow({
   }, [open]);
   // scroll-margin below gives `block: "nearest"` a little breathing room so an
   // opened row never lands flush against the list's top edge.
-  const metaBits = [place.category, day && `on ${fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}`].filter(Boolean).join(" · ");
+  const metaBits = [
+    distanceKm !== undefined && fmtDistanceKm(distanceKm),
+    place.category,
+    day && `on ${fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}`,
+  ].filter(Boolean).join(" · ");
   const catGlyph = place.category ? categoryIcons?.[place.category] : undefined;
   // an imported pin keeps its own colour (matches its map marker); an app-native
   // pin has no real colour, so tint it by category instead

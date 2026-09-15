@@ -51,7 +51,8 @@ export type IconName =
   | "info"
   | "alert"
   | "wallet"
-  | "luggage";
+  | "luggage"
+  | "locate";
 
 const P: Record<IconName, JSX.Element> = {
   itinerary: (
@@ -305,6 +306,12 @@ const P: Record<IconName, JSX.Element> = {
   // same geometry as the "luggage" MAP_GLYPHS marker (mapGlyphs.ts) — both
   // render stroked on a 24×24 canvas, so it's one shape, not redrawn twice.
   luggage: <path d={glyphPath("luggage")} />,
+  locate: (
+    <>
+      <circle cx="12" cy="12" r="3.2" />
+      <path d="M12 2.5v3.4M12 18.1v3.4M2.5 12h3.4M18.1 12h3.4" />
+    </>
+  ),
 };
 
 export const isIconName = (x: string): x is IconName => x in P;
