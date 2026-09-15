@@ -14,7 +14,6 @@ import { daysBetween, plural, rangeText } from "@/lib/dates";
 import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
 import { THEME_PRESETS, DEFAULT_ACCENT } from "@/lib/themePresets";
 import { GlyphPicker } from "@/components/GlyphPicker";
-import { toneForGlyph } from "@/lib/tones";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { ConfirmButton } from "@/components/ConfirmButton";
@@ -30,7 +29,6 @@ import { RowMenu } from "@/components/RowMenu";
 import { MODE_LABEL } from "@/lib/transport";
 import { fallbackCategoryId } from "@/lib/hydrate";
 import { expenseCategoryIcon } from "@/lib/cost";
-import { IconTile } from "@/components/IconTile";
 import type { TransportMode } from "@/core/types";
 import { Switch } from "@/components/Switch";
 import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
@@ -624,7 +622,19 @@ function ExpenseCategoriesPanel() {
                 <Icon name="down" size={16} />
               </button>
             </div>
-            <IconTile size="sm" {...expenseCategoryIcon(c)} className="shrink-0" />
+            <GlyphPicker
+              value={c.icon}
+              displayGlyph={expenseCategoryIcon(c).glyph}
+              tone={expenseCategoryIcon(c).tone}
+              clearLabel="Auto icon"
+              label={c.label}
+              onChange={(glyph) => mutate((d) => {
+                const x = d.config.expenseCategories?.[i];
+                if (!x) return;
+                if (glyph) x.icon = glyph;
+                else delete x.icon;
+              })}
+            />
             <span className="min-w-0 flex-1">
               <div className="flex flex-wrap items-baseline gap-x-2">
                 <Editable
@@ -643,18 +653,6 @@ function ExpenseCategoriesPanel() {
                     {c.modes?.length ? c.modes.map((m) => MODE_LABEL[m]).join(", ") : "+ modes"}
                   </button>
                 )}
-                <GlyphPicker
-                  value={c.icon}
-                  tone={c.icon ? toneForGlyph(c.icon) : undefined}
-                  clearLabel="Auto icon"
-                  label={c.label}
-                  onChange={(glyph) => mutate((d) => {
-                    const x = d.config.expenseCategories?.[i];
-                    if (!x) return;
-                    if (glyph) x.icon = glyph;
-                    else delete x.icon;
-                  })}
-                />
               </div>
               {modesFor === c.id && canClaimModes(c) && (
                 <div className="mt-1.5 flex flex-wrap gap-1.5">

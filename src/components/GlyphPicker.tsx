@@ -1,15 +1,14 @@
 import type { ReactNode } from "react";
 import { ActionSheet, useActionSheet } from "./ActionSheet";
 import { IconTile } from "./IconTile";
-import { Icon } from "./Icon";
 import { MAP_GLYPHS } from "@/lib/mapGlyphs";
 import type { Tone } from "@/lib/tones";
 
 /**
- * A tappable grid of `MAP_GLYPHS`, in an `ActionSheet` — swaps a plain
- * `<select>` of icon names for a picker that actually shows the glyphs.
- * Swatches are `IconTile`, so the picker previews exactly what the glyph
- * looks like everywhere else it's used (a place's own colour, or a tone).
+ * A tappable icon — press it to swap for any `MAP_GLYPHS` marker via an
+ * `ActionSheet` grid. The tile itself is both the current-icon preview and
+ * the button that opens the picker, so it drops straight into a list row as
+ * that row's own leading icon (no separate "change icon" control needed).
  */
 export function GlyphPicker({
   value,
@@ -18,6 +17,8 @@ export function GlyphPicker({
   tone,
   clearLabel,
   label,
+  displayGlyph,
+  size = "sm",
 }: {
   value: string | undefined;
   onChange: (glyph: string) => void;
@@ -25,13 +26,17 @@ export function GlyphPicker({
   color?: string;
   /** a palette tone to fill the swatch with, when there's no single colour */
   tone?: Tone;
-  /** shown (and swatched as a quiet neutral) for "no glyph set" */
+  /** the grid's first option, for clearing back to "no glyph set" */
   clearLabel: string;
   /** the thing this picks an icon for, e.g. a category's own name */
   label: string;
+  /** glyph actually painted on the trigger when `value` is unset — e.g. an
+   *  auto-guessed icon. Falls back to `value` itself. */
+  displayGlyph?: string;
+  size?: "sm" | "md";
 }) {
   const { open, setOpen, anchorRef } = useActionSheet();
-  const current = MAP_GLYPHS.find((g) => g.id === value);
+  const shown = value ?? displayGlyph;
   return (
     <>
       <button
@@ -40,15 +45,13 @@ export function GlyphPicker({
         onClick={() => setOpen(true)}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={`${label} icon`}
-        className="flex shrink-0 items-center gap-1.5 rounded border border-line bg-surface py-1 pl-1 pr-1.5 text-xs text-ink-soft"
+        aria-label={`Change ${label} icon`}
+        className="shrink-0 rounded-[7px]"
       >
-        <IconTile size="sm" glyph={value} color={color} tone={tone} ghost={!value} />
-        <span className="max-w-[6.5rem] truncate">{current?.label ?? clearLabel}</span>
-        <Icon name="chevron" size={11} className="shrink-0 text-ink-faint" />
+        <IconTile size={size} glyph={shown} color={color} tone={tone} ghost={!shown} />
       </button>
       <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title={`${label} icon`}>
-        <div className="grid grid-cols-4 gap-1 p-3 sm:grid-cols-5">
+        <div className="grid grid-cols-5 gap-2 p-3 sm:grid-cols-6">
           <GlyphOption label={clearLabel} selected={!value} onSelect={() => onChange("")} />
           {MAP_GLYPHS.map((g) => (
             <GlyphOption
@@ -79,15 +82,13 @@ function GlyphOption({
   return (
     <button
       type="button"
+      title={label}
       onClick={onSelect}
       aria-pressed={selected}
       aria-label={label}
-      className={`flex flex-col items-center gap-1 rounded p-1.5 ${selected ? "bg-surface-2" : ""}`}
+      className={`grid place-items-center rounded-[9px] p-1.5 ${selected ? "ring-2 ring-accent" : ""}`}
     >
-      <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-[7px] ${selected ? "ring-2 ring-accent" : ""}`}>
-        {tile ?? <IconTile ghost size="md" />}
-      </span>
-      <span className="max-w-full truncate text-[10px] leading-tight text-ink-soft">{label}</span>
+      {tile ?? <IconTile ghost size="md" />}
     </button>
   );
 }

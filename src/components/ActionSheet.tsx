@@ -52,16 +52,16 @@ export function ActionSheet({
       <>
         <div className="fixed inset-0 z-50 bg-black/40 motion-safe:animate-fade-in" onClick={onClose} />
         <div
-          className="fixed inset-x-0 bottom-0 z-[55] rounded-t-[16px] border-t border-line bg-surface pb-[max(0.75rem,var(--sab))] pt-2 motion-safe:animate-sheet-up"
+          className="fixed inset-x-0 bottom-0 z-[55] flex max-h-[85vh] flex-col rounded-t-[16px] border-t border-line bg-surface pb-[max(0.75rem,var(--sab))] pt-2 motion-safe:animate-sheet-up"
           onClick={onClose}
           role="menu"
         >
-          <span aria-hidden className="mx-auto mb-1.5 block h-1 w-9 rounded-full bg-ink/20" />
-          {title && <p className="px-4 pb-1 pt-1 text-xs text-ink-faint">{title}</p>}
-          <div className="flex flex-col [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-4 [&_.menu-item]:py-3.5 [&_.menu-item]:text-left [&_.menu-item]:text-[15px] [&_.menu-item:disabled]:opacity-40 [&_.menu-item:active]:bg-surface-2">
+          <span aria-hidden className="mx-auto mb-1.5 block h-1 w-9 shrink-0 rounded-full bg-ink/20" />
+          {title && <p className="shrink-0 px-4 pb-1 pt-1 text-xs text-ink-faint">{title}</p>}
+          <div className="flex-1 overflow-y-auto overscroll-contain [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-4 [&_.menu-item]:py-3.5 [&_.menu-item]:text-left [&_.menu-item]:text-[15px] [&_.menu-item:disabled]:opacity-40 [&_.menu-item:active]:bg-surface-2">
             {children}
           </div>
-          <button onClick={onClose} className="mt-1 w-full border-t border-line px-4 py-3.5 text-[15px] font-medium text-accent">
+          <button onClick={onClose} className="mt-1 w-full shrink-0 border-t border-line px-4 py-3.5 text-[15px] font-medium text-accent">
             Cancel
           </button>
         </div>
@@ -85,7 +85,7 @@ export function ActionSheet({
           top: (r?.bottom ?? 0) + 4,
           left,
         }}
-        className="fixed z-[55] flex min-w-[10rem] flex-col rounded-[10px] border border-line bg-surface py-1 text-sm shadow-md motion-safe:animate-fade-in [&_.menu-item]:px-3 [&_.menu-item]:py-1.5 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 [&_.menu-item:hover]:bg-surface-2"
+        className="fixed z-[55] flex max-h-[70vh] min-w-[10rem] flex-col overflow-y-auto rounded-[10px] border border-line bg-surface py-1 text-sm shadow-md motion-safe:animate-fade-in [&_.menu-item]:px-3 [&_.menu-item]:py-1.5 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 [&_.menu-item:hover]:bg-surface-2"
       >
         {children}
       </div>

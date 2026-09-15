@@ -174,8 +174,8 @@ remove — the list can't be emptied, and removing one moves its spending to
 the next category rather than leaving it uncategorised; a category can also
 claim specific hop modes so fares split further than one lump "Transport").
 Each one's **icon** (shown on every Spending row and in Expenses) is guessed
-from that mode/role, or the name — tap "Auto icon" to pick your own from a
-grid of icons instead. Hide the Logbook sections you don't need from the same
+from that mode/role, or the name — tap the icon itself to pick your own from a
+grid instead. Hide the Logbook sections you don't need from the same
 Setup tab. The **Tabs** panel above it reorders, renames or hides the three
 main tabs (Plan, Map, Logbook) — and **Add tab** lets you pin any Logbook page
 (Packing, say) straight onto the main nav as its own tab, alongside them;
