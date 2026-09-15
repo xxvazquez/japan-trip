@@ -47,7 +47,7 @@ export function AccordionRow({
           <span className="sr-only">{open ? "Collapse" : "Expand"}</span>
         </button>
         {icon && <Icon name={icon} size={15} className="shrink-0 text-ink-soft" />}
-        <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink">{title}</span>
+        <span className="min-w-0 flex-1 truncate text-sm font-medium leading-snug text-ink">{title}</span>
         {action}
       </div>
       {open && <div className="border-t border-line">{children}</div>}

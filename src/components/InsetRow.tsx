@@ -35,16 +35,16 @@ export function InsetRow({
   if (stacked) {
     return (
       <li className={`${LI} px-3.5 py-2.5 ${className}`}>
-        <span className="mb-0.5 block text-[0.8125rem] text-ink-soft">{label}</span>
-        <span className="block font-sans text-[0.8125rem] font-medium leading-snug text-ink">{children}</span>
+        <span className="row-label mb-0.5 block">{label}</span>
+        <span className="row-value block text-left">{children}</span>
       </li>
     );
   }
 
   const inner = (
     <>
-      <span className="shrink-0 text-[0.8125rem] text-ink-soft">{label}</span>
-      <span className="min-w-0 text-right font-sans text-[0.8125rem] font-medium leading-snug text-ink">
+      <span className="row-label">{label}</span>
+      <span className="row-value">
         {children}
       </span>
       {to && <Icon name="chevron" size={14} className="-mr-1 shrink-0 text-ink-faint" />}
