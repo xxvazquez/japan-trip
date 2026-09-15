@@ -45,8 +45,8 @@ automatically from what you set on the day itself, never chosen by hand.
 - Tap a day to open it. At the top: **Staying at** (which hotel) and **Journey**
   (link an existing one, or ＋ new — you then pick its type on the journey
   page). A **day trip** leads with a **Getting there** and a **Getting back**
-  card (free text, the last way home folded into the back one), a checklist,
-  then the day's **Plan** — an itinerary of steps, each with a leading tile
+  card (free text, the last way home folded into the back one), then the
+  day's **Plan** — an itinerary of steps, each with a leading tile
   (the linked place's category, or a plain pin), a time on a quiet line first
   (optional — a single time or a `14:00–15:15` range), then what the step
   actually is: pick a place from the Areas you've added to this day (below) —

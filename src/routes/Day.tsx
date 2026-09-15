@@ -178,7 +178,7 @@ export default function Day() {
         <Section
           icon="explore"
           title="Day trip"
-          info="Out-of-town days get extra fields: how to get there and back, a checklist, and the last train home."
+          info="Out-of-town days get extra fields: how to get there and back, and the last train home."
           action={!ro && <button onClick={() => patch({ dayTrip: false })} className="link-quiet text-xs">not a day trip</button>}
         >
           <div className="space-y-3 px-3.5 py-3">
@@ -214,16 +214,6 @@ export default function Day() {
                 )}
               </div>
             </div>
-
-            {((day.toDo ?? []).length > 0 || !ro) && (
-              <div className="border-t border-line pt-3">
-                <div className="mb-1 flex items-baseline justify-between gap-3">
-                  <p className="eyebrow">To do there</p>
-                  {!ro && <button onClick={() => patch({ toDo: [...(day.toDo ?? []), ""] })} className="action text-xs"><Icon name="plus" size={13} /> Add</button>}
-                </div>
-                <StringList items={day.toDo ?? []} onChange={(v) => patch({ toDo: v.length ? v : undefined })} readOnly={ro} />
-              </div>
-            )}
           </div>
         </Section>
       )}
@@ -606,29 +596,6 @@ function PlacePicker({ value, places, areaNameByPlaceId, onPick }: {
         </div>
       </ActionSheet>
     </>
-  );
-}
-
-function StringList({ items, onChange, readOnly, emptyHint = "Nothing yet." }: { items: string[]; onChange: (next: string[]) => void; readOnly?: boolean; emptyHint?: string }) {
-  if (items.length === 0) return <p className="text-sm text-ink-faint">{emptyHint}</p>;
-  return (
-    <ul>
-      {items.map((it, i) => (
-        <li key={i} className="group border-b border-line/70 text-sm last:border-b-0">
-          <SwipeToDelete onDelete={readOnly ? undefined : () => onChange(items.filter((_, j) => j !== i))}>
-            <div className="flex items-start gap-2.5 py-2.5">
-              <span className="mt-[0.5em] h-1.5 w-1.5 shrink-0 rounded-full bg-ink-faint" />
-              <span className="min-w-0 flex-1">
-                {readOnly ? it : (
-                  <Editable label="Item" value={it} placeholder="…" onCommit={(v) => onChange(items.map((x, j) => (j === i ? v : x)))} />
-                )}
-              </span>
-              {!readOnly && <RowDeleteButton onClick={() => onChange(items.filter((_, j) => j !== i))} />}
-            </div>
-          </SwipeToDelete>
-        </li>
-      ))}
-    </ul>
   );
 }
 
