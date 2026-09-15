@@ -1,14 +1,6 @@
 import { Icon, type IconName } from "./Icon";
 import { glyphPath, type MapGlyphId } from "@/lib/mapGlyphs";
-import type { Tone } from "@/lib/tones";
-
-const TONE_BG: Record<Tone, string> = {
-  accent: "bg-accent",
-  matcha: "bg-matcha",
-  gold: "bg-gold",
-  ai: "bg-ai",
-  "ink-faint": "bg-ink-faint",
-};
+import { TONE_BG, type Tone } from "@/lib/tones";
 
 /**
  * The leading mark on a grouped-list row: a filled rounded square with a white

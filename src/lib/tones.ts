@@ -14,6 +14,17 @@ import { MODE_TONE } from "@/lib/transport";
  */
 export type Tone = "accent" | "matcha" | "gold" | "ai" | "ink-faint";
 
+/** a `Tone` resolved to its solid background fill class — `IconTile`'s own
+ *  fill, and anywhere else a tone needs painting directly (a proportion bar
+ *  segment) rather than driving an `IconTile`. */
+export const TONE_BG: Record<Tone, string> = {
+  accent: "bg-accent",
+  matcha: "bg-matcha",
+  gold: "bg-gold",
+  ai: "bg-ai",
+  "ink-faint": "bg-ink-faint",
+};
+
 /** Muted, mutually distinguishable hex tones assigned to map areas by
  *  position (not a semantic role like `Tone` above — there's no fixed
  *  "kind" of area). No colour picker; `MapTab.tsx` cycles through these. */

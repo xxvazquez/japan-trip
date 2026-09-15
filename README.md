@@ -142,7 +142,9 @@ keep become real areas. It never changes an area you already have.
 
 **Logbook** — the reference drawer. A menu of sections, each its own page:
 stays · getting around · luggage · documents · emergency numbers · packing ·
-expenses · a scratchpad, plus any lists you've added yourself. **Documents** is
+expenses (a proportional bar above each currency's list shows the category
+split at a glance, coloured to match each category's own icon) · a
+scratchpad, plus any lists you've added yourself. **Documents** is
 one card per document —
 name it ("Travel insurance"), attach the PDF / photo, add whatever fields you
 want, add a note. Every card is renamable, removable, and you add more from
