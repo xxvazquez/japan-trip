@@ -164,12 +164,12 @@ function Trips() {
           <div className="flex flex-col gap-2">
             <button onClick={() => make()} disabled={busy} className="action justify-start">
               <Icon name="plus" size={15} /> Empty template
-              <span className="ml-1 hidden text-xs text-ink-soft sm:inline">— blank; add days, hide sections you don’t want</span>
+              <span className="meta ml-1 hidden sm:inline">— blank; add days, hide sections you don’t want</span>
             </button>
             {TEMPLATES.map((t) => (
               <button key={t.id} onClick={() => make(t.id)} disabled={busy} className="action justify-start">
                 <Icon name="copy" size={15} /> {t.name}
-                <span className="ml-1 hidden text-xs text-ink-soft sm:inline">— {t.subtitle}</span>
+                <span className="meta ml-1 hidden sm:inline">— {t.subtitle}</span>
               </button>
             ))}
           </div>
@@ -199,7 +199,7 @@ function Trips() {
                     Switch
                   </button>
                 ) : (
-                  <span className="text-xs text-ink-faint">open</span>
+                  <span className="eyebrow text-ink-faint">open</span>
                 )}
                 <RowMenu>
                   {!isDemo && <button onClick={() => duplicateTrip(t.id, `${t.name} copy`)} className="menu-item">Duplicate</button>}
@@ -326,7 +326,7 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
 
 function DemoNotice() {
   return (
-    <p className="py-5 text-sm text-ink-soft">
+    <p className="note py-5 text-ink-soft">
       This is the demo trip — it’s read-only. Create a trip of your own from the{" "}
       <span className="font-medium text-ink">Trips</span> tab to change any of this.
     </p>
@@ -531,7 +531,7 @@ function CurrenciesPanel() {
             </div>
             <span className="min-w-0 flex-1">
               <Editable label="Currency code" value={c} placeholder="e.g. JPY" onCommit={(v) => setAt(i, v)} />
-              {i === 0 && c && <span className="ml-2 text-xs text-ink-soft">default</span>}
+              {i === 0 && c && <span className="eyebrow ml-2">default</span>}
             </span>
             <ConfirmButton
               label="Remove currency"
@@ -633,7 +633,7 @@ function ExpenseCategoriesPanel() {
                   placeholder="Name"
                   onCommit={(v) => mutate((d) => { const x = d.config.expenseCategories?.[i]; if (x) x.label = v || x.label; })}
                 />
-                {c.role && <span className="text-xs text-ink-soft">auto: {c.role === "lodging" ? "stays" : "fares"}</span>}
+                {c.role && <span className="eyebrow">auto: {c.role === "lodging" ? "stays" : "fares"}</span>}
                 {canClaimModes(c) && (
                   <button
                     type="button"
@@ -769,7 +769,7 @@ function ModulesPanel() {
             </div>
             <span className="flex-1">
               <Editable label="Section label" value={m.label} onCommit={(v) => mutate((d) => { d.config.modules[i].label = v || m.label; })} />
-              <span className="ml-2 text-xs text-ink-soft">
+              <span className="meta ml-2">
                 {m.kind === "logbook-section" ? logbookLabel(m.target ?? "") : m.kind}
                 {stuckHidden && " · hidden"}
               </span>
@@ -837,7 +837,7 @@ function LogbookSectionsPanel() {
             <span className="min-w-0 flex-1">
               <Editable label="List name" value={l.title} onCommit={(v) => mutate((d) => { const x = d.config.lists?.[i]; if (x) x.title = v || "List"; })} />
             </span>
-            <span className="shrink-0 text-xs text-ink-soft">{l.items.length}</span>
+            <span className="value shrink-0 tabular-nums text-ink-soft">{l.items.length}</span>
             <ConfirmButton onConfirm={() => mutate((d) => { d.config.lists = (d.config.lists ?? []).filter((x) => x.id !== l.id); })} className="text-ink-faint hover:text-accent">
               <Icon name="trash" size={14} />
             </ConfirmButton>
@@ -900,7 +900,7 @@ function Appearance() {
                   </div>
                 </div>
                 <p className="text-sm font-medium">{p.name}</p>
-                <p className="text-xs text-ink-faint">{p.hint}</p>
+                <p className="meta">{p.hint}</p>
               </button>
             );
           })}
@@ -978,7 +978,7 @@ function Appearance() {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-ink-faint">No images yet.</p>
+          <p className="meta">No images yet.</p>
         )}
         </div>
       </Section>
