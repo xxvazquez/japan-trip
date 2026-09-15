@@ -498,7 +498,19 @@ function PlanRow({ item, place, areaPlaces, areaNameByPlaceId, categoryIcons, re
               italic placeholder when empty, tap to expand and edit. */}
           <div className="min-w-0 flex-1 space-y-1 pt-px">
             {readOnly ? (
-              <span className="block truncate text-[0.9375rem] font-medium leading-snug text-ink">{item.text}</span>
+              mapHref ? (
+                <a
+                  href={mapHref}
+                  target="_blank"
+                  rel="noopener"
+                  aria-label={`Open ${item.text} in Google Maps`}
+                  className="block truncate text-[0.9375rem] font-medium leading-snug text-accent underline underline-offset-2"
+                >
+                  {item.text}
+                </a>
+              ) : (
+                <span className="block truncate text-[0.9375rem] font-medium leading-snug text-ink">{item.text}</span>
+              )
             ) : sortedPickable.length > 0 ? (
               <>
                 <PlacePicker
@@ -523,6 +535,7 @@ function PlanRow({ item, place, areaPlaces, areaNameByPlaceId, categoryIcons, re
               onCommit={(v) => onPatch({ note: v || undefined })}
               placeholder="Add a note…"
               className="block text-[0.8125rem] leading-relaxed text-ink-faint [&_strong]:text-ink-soft"
+              collapsible
             />
           </div>
 
