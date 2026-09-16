@@ -555,7 +555,7 @@ function PlanRow({ day, tz, item, place, areaPlaces, areaNameByPlaceId, category
                 tile
               )}
               {(readOnly ? !!timeText : true) && (
-                <span className="meta shrink-0 tabular-nums">
+                <span className="meta flex h-[22px] shrink-0 items-center rounded-[7px] bg-surface-2 px-1.5 tabular-nums">
                   {readOnly ? (
                     timeText
                   ) : plainTime ? (
@@ -580,12 +580,12 @@ function PlanRow({ day, tz, item, place, areaPlaces, areaNameByPlaceId, category
                   target="_blank"
                   rel="noopener"
                   aria-label={`Open ${item.text} in Google Maps`}
-                  className="block truncate text-sm font-medium leading-snug text-accent underline underline-offset-2"
+                  className="block text-sm font-medium leading-snug text-accent underline underline-offset-2"
                 >
                   {item.text}
                 </a>
               ) : (
-                <span className="block truncate text-sm font-medium leading-snug text-ink">{item.text}</span>
+                <span className="block text-sm font-medium leading-snug text-ink">{item.text}</span>
               )
             ) : sortedPickable.length > 0 ? (
               <>
@@ -668,7 +668,7 @@ function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, onPick }
         onClick={() => setOpen(true)}
         aria-label="What this step is"
         aria-haspopup="menu"
-        className={`editable block w-full max-w-full cursor-pointer truncate bg-transparent text-left leading-snug focus:outline-none ${
+        className={`editable block w-full max-w-full cursor-pointer bg-transparent text-left leading-snug focus:outline-none ${
           current ? "text-sm font-medium text-ink" : "text-[0.8125rem] text-ink-soft"
         }`}
       >
