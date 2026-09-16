@@ -11,7 +11,6 @@ import { InfoNote } from "@/components/InfoNote";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { Empty } from "@/components/Empty";
 import { AddButton } from "@/components/AddButton";
-import { CenterIfShort } from "@/components/CenterIfShort";
 import { AccordionRow } from "@/components/AccordionRow";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { SwipeToDelete } from "@/components/SwipeToDelete";
@@ -177,50 +176,48 @@ function ListSection({ list }: { list: CustomList }) {
   }
 
   return (
-    <CenterIfShort>
-      <Section>
-        <ul>
-          {list.items.map((it, i) => (
-            <li
-              key={it.id}
-              className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden"
-            >
-              <SwipeToDelete onDelete={ro ? undefined : () => set((l) => { l.items.splice(i, 1); })}>
-              <div className="flex items-start gap-2 px-3.5 py-2.5">
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[0.9375rem] font-medium leading-snug text-ink">
-                    {ro
-                      ? (it.label || "Untitled")
-                      : <Editable label="Item" value={it.label} placeholder="Name" onCommit={(v) => set((l) => { l.items[i].label = v; })} />}
-                  </span>
-                  {(it.note || !ro) && (
-                    <span className="meta mt-0.5 block text-ink-soft">
-                      {ro ? it.note : (
-                        <Editable label="Note" value={it.note ?? ""} placeholder="＋ a note" onCommit={(v) => set((l) => { l.items[i].note = v || undefined; })} />
-                      )}
-                    </span>
-                  )}
-                  {(it.url || !ro) && (
-                    <span className="mt-1 block text-xs">
-                      <Editable as="link" label="Link" value={it.url ?? ""} placeholder="＋ Maps or web link" onCommit={(v) => set((l) => { l.items[i].url = v || undefined; })} />
-                    </span>
-                  )}
+    <Section>
+      <ul>
+        {list.items.map((it, i) => (
+          <li
+            key={it.id}
+            className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden"
+          >
+            <SwipeToDelete onDelete={ro ? undefined : () => set((l) => { l.items.splice(i, 1); })}>
+            <div className="flex items-start gap-2 px-3.5 py-2.5">
+              <span className="min-w-0 flex-1">
+                <span className="block text-[0.9375rem] font-medium leading-snug text-ink">
+                  {ro
+                    ? (it.label || "Untitled")
+                    : <Editable label="Item" value={it.label} placeholder="Name" onCommit={(v) => set((l) => { l.items[i].label = v; })} />}
                 </span>
-                {!ro && <RowDeleteButton onClick={() => set((l) => { l.items.splice(i, 1); })} />}
-              </div>
-              </SwipeToDelete>
-            </li>
-          ))}
-          {!ro && (
-            <li>
-              <button onClick={add} className="action w-full px-3.5 py-2.5 text-xs">
-                <Icon name="plus" size={13} /> Add an item
-              </button>
-            </li>
-          )}
-        </ul>
-      </Section>
-    </CenterIfShort>
+                {(it.note || !ro) && (
+                  <span className="meta mt-0.5 block text-ink-soft">
+                    {ro ? it.note : (
+                      <Editable label="Note" value={it.note ?? ""} placeholder="＋ a note" onCommit={(v) => set((l) => { l.items[i].note = v || undefined; })} />
+                    )}
+                  </span>
+                )}
+                {(it.url || !ro) && (
+                  <span className="mt-1 block text-xs">
+                    <Editable as="link" label="Link" value={it.url ?? ""} placeholder="＋ Maps or web link" onCommit={(v) => set((l) => { l.items[i].url = v || undefined; })} />
+                  </span>
+                )}
+              </span>
+              {!ro && <RowDeleteButton onClick={() => set((l) => { l.items.splice(i, 1); })} />}
+            </div>
+            </SwipeToDelete>
+          </li>
+        ))}
+        {!ro && (
+          <li>
+            <button onClick={add} className="action w-full px-3.5 py-2.5 text-xs">
+              <Icon name="plus" size={13} /> Add an item
+            </button>
+          </li>
+        )}
+      </ul>
+    </Section>
   );
 }
 
@@ -231,25 +228,23 @@ function Stays() {
   const loc = data.config.locale;
   if (data.hotels.length === 0) return <Empty what="No stays" />;
   return (
-    <CenterIfShort>
-      <Section>
-        <ul>
-          {data.hotels.map((h) => {
-            const leg = data.legs.find((l) => l.hotelId === h.id);
-            return (
-              <TileRow
-                key={h.id}
-                to={`/hotel/${h.id}`}
-                tile={<IconTile size="sm" glyph="hotel" tone="ink-faint" />}
-                title={h.name}
-                meta={h.address || undefined}
-                right={leg && fmtDate(leg.start, loc, { day: "numeric", month: "short" })}
-              />
-            );
-          })}
-        </ul>
-      </Section>
-    </CenterIfShort>
+    <Section>
+      <ul>
+        {data.hotels.map((h) => {
+          const leg = data.legs.find((l) => l.hotelId === h.id);
+          return (
+            <TileRow
+              key={h.id}
+              to={`/hotel/${h.id}`}
+              tile={<IconTile size="sm" glyph="hotel" tone="ink-faint" />}
+              title={h.name}
+              meta={h.address || undefined}
+              right={leg && fmtDate(leg.start, loc, { day: "numeric", month: "short" })}
+            />
+          );
+        })}
+      </ul>
+    </Section>
   );
 }
 
@@ -283,37 +278,35 @@ function GettingAround() {
     );
   }
   return (
-    <CenterIfShort>
-      <div className="space-y-3">
-        {!ro && <AddButton label="Add a journey" onClick={add} />}
-        <Section>
-          <ul>
-            {journeys.map((j) => {
-              const first = j.segments[0];
-              const last = j.segments.at(-1);
-              const changes = Math.max(0, j.segments.length - 1);
-              const mode = first?.mode ?? "train";
-              const times =
-                fmtSpan(
-                  { depart: first?.depart, arrive: last?.arrive ?? last?.depart, fromTz: first?.fromTz, toTz: last?.toTz },
-                  j.date,
-                  loc,
-                ) || "—";
-              return (
-                <TileRow
-                  key={j.id}
-                  to={`/journey/${j.id}`}
-                  tile={<IconTile size="sm" name={MODE_ICON[mode]} tone={toneForSegmentMode(mode)} />}
-                  title={<RouteLabel label={j.label || "Journey"} />}
-                  meta={changes > 0 ? `${times} · ${plural(changes, "change")}` : times}
-                  right={j.date && fmtDate(j.date, loc, { day: "numeric", month: "short" })}
-                />
-              );
-            })}
-          </ul>
-        </Section>
-      </div>
-    </CenterIfShort>
+    <div className="space-y-3">
+      {!ro && <AddButton label="Add a journey" onClick={add} />}
+      <Section>
+        <ul>
+          {journeys.map((j) => {
+            const first = j.segments[0];
+            const last = j.segments.at(-1);
+            const changes = Math.max(0, j.segments.length - 1);
+            const mode = first?.mode ?? "train";
+            const times =
+              fmtSpan(
+                { depart: first?.depart, arrive: last?.arrive ?? last?.depart, fromTz: first?.fromTz, toTz: last?.toTz },
+                j.date,
+                loc,
+              ) || "—";
+            return (
+              <TileRow
+                key={j.id}
+                to={`/journey/${j.id}`}
+                tile={<IconTile size="sm" name={MODE_ICON[mode]} tone={toneForSegmentMode(mode)} />}
+                title={<RouteLabel label={j.label || "Journey"} />}
+                meta={changes > 0 ? `${times} · ${plural(changes, "change")}` : times}
+                right={j.date && fmtDate(j.date, loc, { day: "numeric", month: "short" })}
+              />
+            );
+          })}
+        </ul>
+      </Section>
+    </div>
   );
 }
 
@@ -339,48 +332,46 @@ function Luggage() {
   }
 
   return (
-    <CenterIfShort>
-      <div className="space-y-6">
-        {!ro && <AddButton label="Add a note" onClick={add} />}
-        <Section>
-          <ul>
-            {data.luggage.map((n) => {
-              const p = (patch: Partial<LuggageNote>) => updateEntity<LuggageNote>("luggage", n.id, patch);
-              const hasDetail = !!n.detail || !ro;
-              return (
-                <AccordionRow
-                  key={n.id}
-                  id={n.id}
-                  defaultOpen
-                  title={<Editable label="Title" value={n.title} placeholder="e.g. Coin lockers" onCommit={(v) => p({ title: v || "Untitled" })} />}
-                  action={!ro && cardDeleteBtn(() => removeEntity("luggage", n.id), "Delete note")}
-                >
-                  {hasDetail && (
-                    <div className="note px-3.5 py-3 text-ink-soft">
-                      <RichNote value={n.detail ?? ""} placeholder="Where, when, how much…" onCommit={(v) => p({ detail: v || undefined })} />
-                    </div>
-                  )}
-                  {(n.date || n.url || !ro) && (
-                    <ul className={hasDetail ? "border-t border-line" : ""}>
-                      {(n.date || !ro) && (
-                        <InsetRow label="When">
-                          <Editable as="date" label="Date" value={n.date ?? ""} placeholder="—" onCommit={(v) => p({ date: v || undefined })} />
-                        </InsetRow>
-                      )}
-                      {(n.url || !ro) && (
-                        <InsetRow label="Link">
-                          <Editable as="link" label="Google Maps link" value={n.url ?? ""} placeholder="＋ map link" onCommit={(v) => p({ url: v || undefined })} />
-                        </InsetRow>
-                      )}
-                    </ul>
-                  )}
-                </AccordionRow>
-              );
-            })}
-          </ul>
-        </Section>
-      </div>
-    </CenterIfShort>
+    <div className="space-y-6">
+      {!ro && <AddButton label="Add a note" onClick={add} />}
+      <Section>
+        <ul>
+          {data.luggage.map((n) => {
+            const p = (patch: Partial<LuggageNote>) => updateEntity<LuggageNote>("luggage", n.id, patch);
+            const hasDetail = !!n.detail || !ro;
+            return (
+              <AccordionRow
+                key={n.id}
+                id={n.id}
+                defaultOpen
+                title={<Editable label="Title" value={n.title} placeholder="e.g. Coin lockers" onCommit={(v) => p({ title: v || "Untitled" })} />}
+                action={!ro && cardDeleteBtn(() => removeEntity("luggage", n.id), "Delete note")}
+              >
+                {hasDetail && (
+                  <div className="note px-3.5 py-3 text-ink-soft">
+                    <RichNote value={n.detail ?? ""} placeholder="Where, when, how much…" onCommit={(v) => p({ detail: v || undefined })} />
+                  </div>
+                )}
+                {(n.date || n.url || !ro) && (
+                  <ul className={hasDetail ? "border-t border-line" : ""}>
+                    {(n.date || !ro) && (
+                      <InsetRow label="When">
+                        <Editable as="date" label="Date" value={n.date ?? ""} placeholder="—" onCommit={(v) => p({ date: v || undefined })} />
+                      </InsetRow>
+                    )}
+                    {(n.url || !ro) && (
+                      <InsetRow label="Link">
+                        <Editable as="link" label="Google Maps link" value={n.url ?? ""} placeholder="＋ map link" onCommit={(v) => p({ url: v || undefined })} />
+                      </InsetRow>
+                    )}
+                  </ul>
+                )}
+              </AccordionRow>
+            );
+          })}
+        </ul>
+      </Section>
+    </div>
   );
 }
 
@@ -398,31 +389,29 @@ function Emergency() {
     return <Empty what="No emergency info" hint="Embassy, insurance, a number to call — added on your own trip." />;
 
   return (
-    <CenterIfShort>
-      <div className="space-y-6">
-        <Section>
-          <ul>
-            <FieldList
-              inset
-              fields={contact.fields}
-              onChange={(next) => updateEntity<Doc>("docs", contact.id, { fields: next })}
-              addLabel="Add a contact"
+    <div className="space-y-6">
+      <Section>
+        <ul>
+          <FieldList
+            inset
+            fields={contact.fields}
+            onChange={(next) => updateEntity<Doc>("docs", contact.id, { fields: next })}
+            addLabel="Add a contact"
+          />
+        </ul>
+      </Section>
+      {(contact.note?.trim() || !ro) && (
+        <Section title="Notes">
+          <div className="note px-3.5 py-3">
+            <RichNote
+              value={contact.note ?? ""}
+              onCommit={(v) => updateEntity<Doc>("docs", contact.id, { note: v || undefined })}
+              placeholder="＋ a note"
             />
-          </ul>
+          </div>
         </Section>
-        {(contact.note?.trim() || !ro) && (
-          <Section title="Notes">
-            <div className="note px-3.5 py-3">
-              <RichNote
-                value={contact.note ?? ""}
-                onCommit={(v) => updateEntity<Doc>("docs", contact.id, { note: v || undefined })}
-                placeholder="＋ a note"
-              />
-            </div>
-          </Section>
-        )}
-      </div>
-    </CenterIfShort>
+      )}
+    </div>
   );
 }
 
@@ -496,59 +485,57 @@ function Expenses() {
   };
 
   return (
-    <CenterIfShort>
-      <div className="space-y-6">
-        {combined && (
-          <Section
-            title={`Combined · ${primary}`}
-            info={`Every currency converted into ${primary} and added together — each still gets its own section below, unconverted. Exchange rate ${
-              date ? `as of ${fmtDate(date, data.config.locale, { day: "numeric", month: "short", year: "numeric" })}` : "unavailable"
-            }${stale ? ", the last one fetched — offline, or due to refresh" : ", fetched automatically"}.`}
-          >
-            <ProportionBar segments={segmentsFor(combined.byCategory, combined.uncategorised)} />
+    <div className="space-y-6">
+      {combined && (
+        <Section
+          title={`Combined · ${primary}`}
+          info={`Every currency converted into ${primary} and added together — each still gets its own section below, unconverted. Exchange rate ${
+            date ? `as of ${fmtDate(date, data.config.locale, { day: "numeric", month: "short", year: "numeric" })}` : "unavailable"
+          }${stale ? ", the last one fetched — offline, or due to refresh" : ", fetched automatically"}.`}
+        >
+          <ProportionBar segments={segmentsFor(combined.byCategory, combined.uncategorised)} />
+          <ul>
+            {categories
+              .filter((c) => (combined.byCategory[c.id] ?? 0) > 0)
+              .map((c) => (
+                <InsetRow key={c.id} label={catLabel(c)}>{fmtMoney(combined.byCategory[c.id], primary)}</InsetRow>
+              ))}
+            {combined.uncategorised > 0 && (
+              <InsetRow label="Uncategorised">{fmtMoney(combined.uncategorised, primary)}</InsetRow>
+            )}
+            <InsetRow label={<span className="font-semibold text-ink">Total</span>}>
+              <span className="font-semibold">{fmtMoney(combined.total, primary)}</span>
+            </InsetRow>
+          </ul>
+        </Section>
+      )}
+      {currencies.map((cur) => {
+        const b = byCurrency[cur];
+        return (
+          <Section key={cur || "—"} title={cur || "Unspecified currency"}>
+            <ProportionBar segments={segmentsFor(b.byCategory, b.uncategorised)} />
             <ul>
               {categories
-                .filter((c) => (combined.byCategory[c.id] ?? 0) > 0)
+                .filter((c) => (b.byCategory[c.id] ?? 0) > 0)
                 .map((c) => (
-                  <InsetRow key={c.id} label={catLabel(c)}>{fmtMoney(combined.byCategory[c.id], primary)}</InsetRow>
+                  <InsetRow key={c.id} label={catLabel(c)}>{fmtMoney(b.byCategory[c.id], cur)}</InsetRow>
                 ))}
-              {combined.uncategorised > 0 && (
-                <InsetRow label="Uncategorised">{fmtMoney(combined.uncategorised, primary)}</InsetRow>
+              {b.uncategorised > 0 && (
+                <InsetRow label="Uncategorised">{fmtMoney(b.uncategorised, cur)}</InsetRow>
               )}
               <InsetRow label={<span className="font-semibold text-ink">Total</span>}>
-                <span className="font-semibold">{fmtMoney(combined.total, primary)}</span>
+                <span className="font-semibold">{fmtMoney(b.total, cur)}</span>
               </InsetRow>
             </ul>
           </Section>
-        )}
-        {currencies.map((cur) => {
-          const b = byCurrency[cur];
-          return (
-            <Section key={cur || "—"} title={cur || "Unspecified currency"}>
-              <ProportionBar segments={segmentsFor(b.byCategory, b.uncategorised)} />
-              <ul>
-                {categories
-                  .filter((c) => (b.byCategory[c.id] ?? 0) > 0)
-                  .map((c) => (
-                    <InsetRow key={c.id} label={catLabel(c)}>{fmtMoney(b.byCategory[c.id], cur)}</InsetRow>
-                  ))}
-                {b.uncategorised > 0 && (
-                  <InsetRow label="Uncategorised">{fmtMoney(b.uncategorised, cur)}</InsetRow>
-                )}
-                <InsetRow label={<span className="font-semibold text-ink">Total</span>}>
-                  <span className="font-semibold">{fmtMoney(b.total, cur)}</span>
-                </InsetRow>
-              </ul>
-            </Section>
-          );
-        })}
-        {unparsed.length > 0 && (
-          <p className="px-1 text-xs text-ink-faint">
-            Couldn’t read {plural(unparsed.length, "price")}: {unparsed.join(", ")}
-          </p>
-        )}
-      </div>
-    </CenterIfShort>
+        );
+      })}
+      {unparsed.length > 0 && (
+        <p className="px-1 text-xs text-ink-faint">
+          Couldn’t read {plural(unparsed.length, "price")}: {unparsed.join(", ")}
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -586,66 +573,64 @@ function Documents() {
   }
 
   return (
-    <CenterIfShort>
-      <div className="space-y-6">
-        <div className={`flex items-center ${ro ? "justify-end" : "justify-between"}`}>
-          {!ro && <AddButton label="Add a document" onClick={addDoc} />}
-          <InfoNote align="right">
-            One card per document — rename it, add your own fields, attach a file, add a note.{" "}
-            {cloud
-              ? "Attachments upload to a Google Drive folder shared with the people on this trip. Still — think twice before a full passport scan."
-              : "Attachments stay only on the device they’re added on — passport numbers don’t belong here."}
-          </InfoNote>
-        </div>
-        <Section>
-          <ul>
-            {docs.map((d) => (
-              <AccordionRow
-                key={d.id}
-                id={d.id}
-                icon="vault"
-                title={
-                  ro
-                    ? d.title
-                    : <Editable label="Document name" value={d.title} placeholder="Name" onCommit={(v) => updateEntity<Doc>("docs", d.id, { title: v || "Untitled" })} />
-                }
-                action={!ro && cardDeleteBtn(() => removeEntity("docs", d.id), "Delete document")}
-              >
-                {(!ro || (d.files?.length ?? 0) > 0) && (
-                  <div className="px-3.5 py-3">
-                    <Attachments
-                      doc={d}
-                      cloud={cloud}
-                      folderName={folderName}
-                      shareWith={shareWith}
-                      onChange={(files) => updateEntity<Doc>("docs", d.id, { files })}
-                    />
-                  </div>
-                )}
-                {(d.fields.length > 0 || !ro) && (
-                  <ul className="border-t border-line">
-                    <FieldList
-                      inset
-                      fields={d.fields}
-                      onChange={(next) => updateEntity<Doc>("docs", d.id, { fields: next })}
-                    />
-                  </ul>
-                )}
-                {(d.note?.trim() || !ro) && (
-                  <div className="note border-t border-line px-3.5 py-3 text-ink-soft">
-                    <RichNote
-                      value={d.note ?? ""}
-                      onCommit={(v) => updateEntity<Doc>("docs", d.id, { note: v || undefined })}
-                      placeholder="＋ a note"
-                    />
-                  </div>
-                )}
-              </AccordionRow>
-            ))}
-          </ul>
-        </Section>
+    <div className="space-y-6">
+      <div className={`flex items-center ${ro ? "justify-end" : "justify-between"}`}>
+        {!ro && <AddButton label="Add a document" onClick={addDoc} />}
+        <InfoNote align="right">
+          One card per document — rename it, add your own fields, attach a file, add a note.{" "}
+          {cloud
+            ? "Attachments upload to a Google Drive folder shared with the people on this trip. Still — think twice before a full passport scan."
+            : "Attachments stay only on the device they’re added on — passport numbers don’t belong here."}
+        </InfoNote>
       </div>
-    </CenterIfShort>
+      <Section>
+        <ul>
+          {docs.map((d) => (
+            <AccordionRow
+              key={d.id}
+              id={d.id}
+              icon="vault"
+              title={
+                ro
+                  ? d.title
+                  : <Editable label="Document name" value={d.title} placeholder="Name" onCommit={(v) => updateEntity<Doc>("docs", d.id, { title: v || "Untitled" })} />
+              }
+              action={!ro && cardDeleteBtn(() => removeEntity("docs", d.id), "Delete document")}
+            >
+              {(!ro || (d.files?.length ?? 0) > 0) && (
+                <div className="px-3.5 py-3">
+                  <Attachments
+                    doc={d}
+                    cloud={cloud}
+                    folderName={folderName}
+                    shareWith={shareWith}
+                    onChange={(files) => updateEntity<Doc>("docs", d.id, { files })}
+                  />
+                </div>
+              )}
+              {(d.fields.length > 0 || !ro) && (
+                <ul className="border-t border-line">
+                  <FieldList
+                    inset
+                    fields={d.fields}
+                    onChange={(next) => updateEntity<Doc>("docs", d.id, { fields: next })}
+                  />
+                </ul>
+              )}
+              {(d.note?.trim() || !ro) && (
+                <div className="note border-t border-line px-3.5 py-3 text-ink-soft">
+                  <RichNote
+                    value={d.note ?? ""}
+                    onCommit={(v) => updateEntity<Doc>("docs", d.id, { note: v || undefined })}
+                    placeholder="＋ a note"
+                  />
+                </div>
+              )}
+            </AccordionRow>
+          ))}
+        </ul>
+      </Section>
+    </div>
   );
 }
 
@@ -781,81 +766,79 @@ function Packing() {
   const allDone = total > 0 && done === total;
 
   return (
-    <CenterIfShort>
-      <div className="space-y-4">
-        {total > 0 && (
-          <div className="flex items-center gap-3 px-1">
-            <span className="text-xl font-medium tabular-nums">{done}<span className="text-ink-faint">/{total}</span></span>
-            <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
-              <span
-                className={`block h-full rounded-full transition-all ${done === 0 ? "bg-accent/30" : "bg-accent"}`}
-                style={{ width: done === 0 ? "0.375rem" : `${Math.max(6, (done / total) * 100)}%` }}
-              />
-            </span>
-            {allDone && <span className="shrink-0 text-xs font-medium text-ink">All packed</span>}
-          </div>
-        )}
-        {total === 0 && !ro && (
-          <p className="px-1 text-sm text-ink-faint">
-            Start with a category — Clothes, Tech, Toiletries… — then add what goes in it.
-          </p>
-        )}
-        {Object.keys(groups).length > 0 && (
-          <>
-            {!ro && <AddButton label="Add a category" onClick={addCategory} />}
-            <Section>
-              <ul>
-                {Object.entries(groups).map(([group, list]) => {
-                  const g = list.filter((i) => i.done).length;
-                  return (
-                    <AccordionRow
-                      key={group}
-                      id={group}
-                      defaultOpen
-                      title={ro ? group : (
-                        <Editable label="Category" value={group} placeholder="Category" onCommit={(v) => renameGroup(group, v)} />
-                      )}
-                      action={
-                        <span className="flex items-center gap-2">
-                          <span className={`text-xs tabular-nums ${g === list.length ? "text-ink" : "text-ink-faint"}`}>
-                            {g}/{list.length}
-                          </span>
-                          {!ro && cardDeleteBtn(() => removeGroup(group), "Delete category")}
+    <div className="space-y-4">
+      {total > 0 && (
+        <div className="flex items-center gap-3 px-1">
+          <span className="text-xl font-medium tabular-nums">{done}<span className="text-ink-faint">/{total}</span></span>
+          <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
+            <span
+              className={`block h-full rounded-full transition-all ${done === 0 ? "bg-accent/30" : "bg-accent"}`}
+              style={{ width: done === 0 ? "0.375rem" : `${Math.max(6, (done / total) * 100)}%` }}
+            />
+          </span>
+          {allDone && <span className="shrink-0 text-xs font-medium text-ink">All packed</span>}
+        </div>
+      )}
+      {total === 0 && !ro && (
+        <p className="px-1 text-sm text-ink-faint">
+          Start with a category — Clothes, Tech, Toiletries… — then add what goes in it.
+        </p>
+      )}
+      {Object.keys(groups).length > 0 && (
+        <>
+          {!ro && <AddButton label="Add a category" onClick={addCategory} />}
+          <Section>
+            <ul>
+              {Object.entries(groups).map(([group, list]) => {
+                const g = list.filter((i) => i.done).length;
+                return (
+                  <AccordionRow
+                    key={group}
+                    id={group}
+                    defaultOpen
+                    title={ro ? group : (
+                      <Editable label="Category" value={group} placeholder="Category" onCommit={(v) => renameGroup(group, v)} />
+                    )}
+                    action={
+                      <span className="flex items-center gap-2">
+                        <span className={`text-xs tabular-nums ${g === list.length ? "text-ink" : "text-ink-faint"}`}>
+                          {g}/{list.length}
                         </span>
-                      }
-                    >
-                      <ul>
-                        {list.map((it) => (
-                          <PackRow
-                            key={it.id}
-                            item={it}
-                            ro={ro}
-                            people={people}
-                            tagged={tagged}
-                            onToggle={(v) => updateEntity<PackingItem>("packing", it.id, { done: v })}
-                            onLabel={(v) => updateEntity<PackingItem>("packing", it.id, { label: v })}
-                            onAssign={(v) => updateEntity<PackingItem>("packing", it.id, { assignee: v })}
-                            onRemove={() => removeEntity("packing", it.id)}
-                          />
-                        ))}
-                        {!ro && (
-                          <li>
-                            <button onClick={() => addItem(group)} className="action w-full px-3.5 py-2.5 text-xs">
-                              <Icon name="plus" size={13} /> Add item
-                            </button>
-                          </li>
-                        )}
-                      </ul>
-                    </AccordionRow>
-                  );
-                })}
-              </ul>
-            </Section>
-          </>
-        )}
-        {Object.keys(groups).length === 0 && !ro && <AddButton label="Add a category" onClick={addCategory} />}
-      </div>
-    </CenterIfShort>
+                        {!ro && cardDeleteBtn(() => removeGroup(group), "Delete category")}
+                      </span>
+                    }
+                  >
+                    <ul>
+                      {list.map((it) => (
+                        <PackRow
+                          key={it.id}
+                          item={it}
+                          ro={ro}
+                          people={people}
+                          tagged={tagged}
+                          onToggle={(v) => updateEntity<PackingItem>("packing", it.id, { done: v })}
+                          onLabel={(v) => updateEntity<PackingItem>("packing", it.id, { label: v })}
+                          onAssign={(v) => updateEntity<PackingItem>("packing", it.id, { assignee: v })}
+                          onRemove={() => removeEntity("packing", it.id)}
+                        />
+                      ))}
+                      {!ro && (
+                        <li>
+                          <button onClick={() => addItem(group)} className="action w-full px-3.5 py-2.5 text-xs">
+                            <Icon name="plus" size={13} /> Add item
+                          </button>
+                        </li>
+                      )}
+                    </ul>
+                  </AccordionRow>
+                );
+              })}
+            </ul>
+          </Section>
+        </>
+      )}
+      {Object.keys(groups).length === 0 && !ro && <AddButton label="Add a category" onClick={addCategory} />}
+    </div>
   );
 }
 
@@ -969,31 +952,29 @@ function Notes() {
   }
 
   return (
-    <CenterIfShort>
-      <div className="space-y-6">
-        {!ro && <AddButton label="Add a note" onClick={add} />}
-        <Section>
-          <ul>
-            {data.scratchNotes.map((n) => {
-              const p = (patch: Partial<ScratchNote>) => updateEntity<ScratchNote>("scratchNotes", n.id, patch);
-              return (
-                <AccordionRow
-                  key={n.id}
-                  id={n.id}
-                  defaultOpen
-                  title={<Editable label="Title" value={n.title} placeholder="Untitled" onCommit={(v) => p({ title: v || "Untitled" })} />}
-                  action={!ro && cardDeleteBtn(() => removeEntity("scratchNotes", n.id), "Delete note")}
-                >
-                  <div className="note px-3.5 py-3 text-ink-soft">
-                    <RichNote value={n.text ?? ""} placeholder="Anything to remember." onCommit={(v) => p({ text: v || undefined })} />
-                  </div>
-                </AccordionRow>
-              );
-            })}
-          </ul>
-        </Section>
-      </div>
-    </CenterIfShort>
+    <div className="space-y-6">
+      {!ro && <AddButton label="Add a note" onClick={add} />}
+      <Section>
+        <ul>
+          {data.scratchNotes.map((n) => {
+            const p = (patch: Partial<ScratchNote>) => updateEntity<ScratchNote>("scratchNotes", n.id, patch);
+            return (
+              <AccordionRow
+                key={n.id}
+                id={n.id}
+                defaultOpen
+                title={<Editable label="Title" value={n.title} placeholder="Untitled" onCommit={(v) => p({ title: v || "Untitled" })} />}
+                action={!ro && cardDeleteBtn(() => removeEntity("scratchNotes", n.id), "Delete note")}
+              >
+                <div className="note px-3.5 py-3 text-ink-soft">
+                  <RichNote value={n.text ?? ""} placeholder="Anything to remember." onCommit={(v) => p({ text: v || undefined })} />
+                </div>
+              </AccordionRow>
+            );
+          })}
+        </ul>
+      </Section>
+    </div>
   );
 }
 
