@@ -1372,31 +1372,24 @@ export default function MapTab() {
         </ul>
       )}
 
-      {/* sync footer */}
-      <div className="shrink-0 border-t border-line px-4 py-2.5 text-xs text-ink-soft">
-        <div className="flex items-center gap-x-3">
-          <span className="min-w-0 flex-1 truncate">
-            {imported > 0 ? `${imported} pins from Google My Maps` : "No My Maps pins"}
-            {syncedAt ? ` · synced ${rel(syncedAt)}` : ""}
-          </span>
-          {url && (
+      {/* sync footer — only once a My Maps link is actually configured; the
+          empty-state "add a link" guidance lives in Manage now, where the
+          link itself is added, instead of taking a permanent row here */}
+      {url && (
+        <div className="shrink-0 border-t border-line px-4 py-2.5 text-xs text-ink-soft">
+          <div className="flex items-center gap-x-3">
+            <span className="min-w-0 flex-1 truncate">
+              {imported > 0 ? `${imported} pins from Google My Maps` : "No My Maps pins"}
+              {syncedAt ? ` · synced ${rel(syncedAt)}` : ""}
+            </span>
             <button onClick={runSync} disabled={busy} className="shrink-0 font-medium text-accent disabled:opacity-50">
               {busy ? "syncing…" : "Sync"}
             </button>
-          )}
-          {imported > 0 && <InfoNote className="shrink-0">Syncing replaces imported pins. Your added places and notes are kept.</InfoNote>}
+            {imported > 0 && <InfoNote className="shrink-0">Syncing replaces imported pins. Your added places and notes are kept.</InfoNote>}
+          </div>
+          {msg && <p className="mt-1 text-accent">{msg}</p>}
         </div>
-        {msg && <p className="mt-1 text-accent">{msg}</p>}
-        {!url && (
-          <p className="mt-1 text-2xs text-ink-faint">
-            Add a My Maps link in{" "}
-            <Link to="/manage" className="text-accent">
-              Manage
-            </Link>{" "}
-            to import pins.
-          </p>
-        )}
-      </div>
+      )}
     </div>
   );
 

@@ -438,7 +438,7 @@ function Setup() {
 
       <Section
         title="Map & format"
-        info="Local-script font sets the typeface for a hotel/stay's local name (Manage → Content, or the hotel/stay page itself) — paste a CSS font stack, e.g. Hiragino Sans, Yu Gothic, sans-serif for Japanese, or Noto Sans KR, sans-serif for Korean. Leave blank to use the app's regular font."
+        info="Google My Map takes a share link from a Google My Maps map — paste it here and the Map tab can import and sync its pins. Local-script font sets the typeface for a hotel/stay's local name (Manage → Content, or the hotel/stay page itself) — paste a CSS font stack, e.g. Hiragino Sans, Yu Gothic, sans-serif for Japanese, or Noto Sans KR, sans-serif for Korean. Leave blank to use the app's regular font."
       >
         <ul>
         <Row label="Date format">
