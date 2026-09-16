@@ -576,12 +576,12 @@ function PlanRow({ day, tz, item, place, areaPlaces, areaNameByPlaceId, category
                   target="_blank"
                   rel="noopener"
                   aria-label={`Open ${item.text} in Google Maps`}
-                  className="block truncate text-[0.9375rem] font-medium leading-snug text-accent underline underline-offset-2"
+                  className="block truncate text-sm font-medium leading-snug text-accent underline underline-offset-2"
                 >
                   {item.text}
                 </a>
               ) : (
-                <span className="block truncate text-[0.9375rem] font-medium leading-snug text-ink">{item.text}</span>
+                <span className="block truncate text-sm font-medium leading-snug text-ink">{item.text}</span>
               )
             ) : sortedPickable.length > 0 ? (
               <>
@@ -596,11 +596,11 @@ function PlanRow({ day, tz, item, place, areaPlaces, areaNameByPlaceId, category
                   }}
                 />
                 {!item.placeId && (
-                  <Editable label="Custom step" value={item.text} placeholder="What is it?" onCommit={(v) => onPatch({ text: v })} className="block text-[0.9375rem] font-medium leading-snug text-ink" />
+                  <Editable label="Custom step" value={item.text} placeholder="What is it?" onCommit={(v) => onPatch({ text: v })} className="block text-sm font-medium leading-snug text-ink" />
                 )}
               </>
             ) : (
-              <Editable label="Step" value={item.text} placeholder="Add a step" onCommit={(v) => onPatch({ text: v })} className="block text-[0.9375rem] font-medium leading-snug text-ink" />
+              <Editable label="Step" value={item.text} placeholder="Add a step" onCommit={(v) => onPatch({ text: v })} className="block text-sm font-medium leading-snug text-ink" />
             )}
             <RichNote
               value={item.note ?? ""}
@@ -663,7 +663,7 @@ function PlacePicker({ value, places, areaNameByPlaceId, onPick }: {
         aria-label="What this step is"
         aria-haspopup="menu"
         className={`editable block w-full max-w-full cursor-pointer truncate bg-transparent text-left leading-snug focus:outline-none ${
-          current ? "text-[0.9375rem] font-medium text-ink" : "text-[0.8125rem] text-ink-soft"
+          current ? "text-sm font-medium text-ink" : "text-[0.8125rem] text-ink-soft"
         }`}
       >
         {current ? current.name : (
