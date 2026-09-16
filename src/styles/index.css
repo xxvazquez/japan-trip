@@ -57,23 +57,21 @@ html.dark {
     -webkit-tap-highlight-color: transparent;
   }
   html {
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
     scrollbar-gutter: stable;
   }
   /* Android Chrome's text autosizer inflates font size in narrow flex
    * columns to keep small text legible when the page is pinch-zoomed out —
    * useful on a plain article, wrong for an app UI that's already sized for
-   * touch. `html`'s 100% opts the page out, but Chromium's own UA stylesheet
-   * sets it back to `auto` on form controls, so a button/input/textarea/select
-   * re-inflates independently of its container (visible as text wrapping to
-   * one word per line inside what looks like a much wider box — the glyphs
-   * grew but the layout width didn't). iOS Chrome runs on WebKit, which
-   * doesn't have this autosizer, so it never showed there. */
-  button,
-  input,
-  textarea,
-  select {
+   * touch (visible as text wrapping to one word per line inside what looks
+   * like a much wider box — the glyphs grew but the layout width didn't).
+   * Opting out needs restating 100% on every element, not just `html` —
+   * the property doesn't reliably inherit across every flex/grid formatting
+   * context Chromium's autosizer walks. Form controls are the most visible
+   * case (their UA stylesheet resets `auto` explicitly), but plain divs
+   * nested a few flex columns deep (a step's note, in its read/collapsed
+   * state) hit the same reset. iOS Chrome runs on WebKit, which has no such
+   * autosizer, so it never showed there. */
+  * {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
