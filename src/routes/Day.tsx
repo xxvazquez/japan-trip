@@ -147,13 +147,17 @@ export default function Day() {
           <Editable label="Day title" value={day.title ?? ""} placeholder="Untitled day" onCommit={(v) => patch({ title: v || undefined })} />
         }
         meta={daySpentText(day.costs, (data.config.currencies ?? [])[0] ?? "")}
+        action={
+          <button
+            onClick={downloadDayCalendar}
+            disabled={icsBusy}
+            className="-m-1 p-1 text-ink-faint transition-colors hover:text-ink-soft disabled:opacity-50"
+          >
+            <Icon name="calendar" size={17} />
+            <span className="sr-only">{icsBusy ? "Building calendar file…" : "Add to calendar"}</span>
+          </button>
+        }
       />
-
-      <div className="-mt-4 mb-8 flex flex-wrap gap-2">
-        <button onClick={downloadDayCalendar} disabled={icsBusy} className="btn-sm">
-          <Icon name="calendar" size={14} className="text-ink-soft" /> {icsBusy ? "Building…" : "Add to calendar"}
-        </button>
-      </div>
 
       {ro ? (
         (hotel || journey) && (

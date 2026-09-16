@@ -40,6 +40,11 @@ export function Page({
  * `info` — one-off "how this works" copy for a page with no `<Section>` of its
  * own to hang it on (e.g. Scratchpad), revealed by an ⓘ next to the title
  * itself rather than a near-empty section header underneath.
+ *
+ * `action` — a single page-level action (e.g. "add to calendar") that would
+ * otherwise need a whole row to itself below the header. Sits beside the
+ * title as a bare icon button, nav-bar-button-item style, same footprint as
+ * the ⓘ toggle.
  */
 export function PageHeader({
   back,
@@ -48,6 +53,7 @@ export function PageHeader({
   title,
   meta,
   info,
+  action,
   className = "",
 }: {
   /** show a back control: a path is the cold-load fallback, `true` uses Plan */
@@ -57,6 +63,7 @@ export function PageHeader({
   title: ReactNode;
   meta?: ReactNode;
   info?: ReactNode;
+  action?: ReactNode;
   className?: string;
 }) {
   const [showInfo, setShowInfo] = useState(false);
@@ -72,17 +79,22 @@ export function PageHeader({
       ) : null}
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-title min-w-0">{title}</h1>
-        {info && (
-          <button
-            type="button"
-            onClick={() => setShowInfo((v) => !v)}
-            aria-expanded={showInfo}
-            aria-controls={infoId}
-            className="-m-1 shrink-0 p-1 text-ink-faint transition-colors hover:text-ink-soft"
-          >
-            <Icon name="info" size={17} className={showInfo ? "text-accent" : undefined} />
-            <span className="sr-only">About this page</span>
-          </button>
+        {(action || info) && (
+          <div className="flex shrink-0 items-center gap-1">
+            {action}
+            {info && (
+              <button
+                type="button"
+                onClick={() => setShowInfo((v) => !v)}
+                aria-expanded={showInfo}
+                aria-controls={infoId}
+                className="-m-1 p-1 text-ink-faint transition-colors hover:text-ink-soft"
+              >
+                <Icon name="info" size={17} className={showInfo ? "text-accent" : undefined} />
+                <span className="sr-only">About this page</span>
+              </button>
+            )}
+          </div>
         )}
       </div>
       {info && showInfo && <p id={infoId} className="meta mt-1.5">{info}</p>}
