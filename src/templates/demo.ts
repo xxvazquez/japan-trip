@@ -265,6 +265,7 @@ export function buildDemo(): TripData {
 export function buildSandbox(): TripData {
   const data = buildDemo();
   data.config.branding = "Sandbox";
+  data.meta.title = "Sandbox";
   data.config.demo = false;
   data.config.currency = "EUR";
   data.config.currencies = ["EUR", "PLN"];
