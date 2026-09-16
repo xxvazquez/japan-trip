@@ -1272,7 +1272,7 @@ export default function MapTab() {
                   className="sticky top-0 z-[2] flex w-full items-center gap-2 border-b border-line bg-bg px-4 py-2 text-left"
                 >
                   <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: c.hex }} />
-                  <span className="subhead min-w-0 flex-1 truncate">{c.name}</span>
+                  <span className="lead min-w-0 flex-1 truncate">{c.name}</span>
                   <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{c.count}</span>
                   <Icon name="chevron" size={13} className={`shrink-0 text-ink-faint transition-transform ${cityShut ? "" : "rotate-90"}`} />
                 </button>
