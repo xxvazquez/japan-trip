@@ -491,7 +491,7 @@ function PlanRow({ day, tz, item, place, areaPlaces, areaNameByPlaceId, category
       name={place && catGlyph ? undefined : "pin"}
       color={place?.source === "mymap" ? place.color : undefined}
       tone={place ? toneForPlaceCategory(place.category, categoryIcons) : "ink-faint"}
-      className={place ? "" : "opacity-70"}
+      className={`relative z-10 ${place ? "" : "opacity-70"}`}
     />
   );
 
