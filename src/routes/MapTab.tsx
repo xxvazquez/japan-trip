@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { MapView, type MLMap } from "@/components/MapView";
 import { Editable } from "@/components/Editable";
@@ -71,10 +71,15 @@ const loadTransit = (): Set<string> => {
 
 type Snap = "peek" | "half" | "full";
 /** a small preview, just past the city pills; enough of "half" to be worth
- *  defaulting to when there's a list; "full" leaves an 8px peek of map. */
+ *  defaulting to when there's a list; "full" leaves an 8px peek of map.
+ *  "half" itself is capped at this ratio but shrinks to fit a short list
+ *  instead — see `halfFitPx` below. */
 const PEEK_PX = 132;
 const HALF_RATIO = 0.58;
 const FULL_GAP_PX = 8;
+/** "half" never lands closer to "peek" than this — a short list still gets a
+ *  visible bump when the handle is tapped, not a no-op. */
+const HALF_MIN_PX = PEEK_PX + 64;
 const snapPx = (s: Snap, containerH: number): number =>
   s === "peek" ? PEEK_PX : s === "half" ? Math.round(containerH * HALF_RATIO) : containerH - FULL_GAP_PX;
 const NEXT: Record<Snap, Snap> = { peek: "half", half: "full", full: "peek" };
@@ -192,8 +197,46 @@ export default function MapTab() {
     return () => ro.disconnect();
   }, []);
 
+  // "half" shrinks to fit a short list instead of always jumping to the full
+  // ratio — a couple of areas shouldn't open onto a sheet that's mostly empty
+  // space. `panelRootRef` sits on the mobile sheet's own copy of `panel`
+  // (its top-level flex column: handle-adjacent context bar, the scrolling
+  // list, the sync footer…); `listOuterRef` sits on whichever list branch is
+  // rendering (the one flex-1 child in that column). Measuring at the
+  // *current* snap state directly (sheet.offsetHeight minus the list's
+  // clipped clientHeight) breaks when the sheet is currently shorter than
+  // the chrome's own natural height — "peek" clips the list to 0 but doesn't
+  // grow the chrome to fit, so that subtraction would read the wrong,
+  // squeezed chrome height instead of the real one. Walking `panelRootRef`'s
+  // children directly sidesteps that: every shrink-0 sibling reports its own
+  // true natural offsetHeight regardless of how little room the sheet
+  // currently gives it (flex-shrink: 0 never shrinks below content size, it
+  // just overflows), and the one flex-1 child (the list) is measured the
+  // same way `CenterIfShort` does — the sum of its own children's natural
+  // heights, not its own (possibly clipped) scrollHeight.
+  const panelRootRef = useRef<HTMLElement | null>(null);
+  const setPanelRoot = (el: HTMLElement | null) => { panelRootRef.current = el; };
+  const listOuterRef = useRef<HTMLElement | null>(null);
+  const setListOuter = (el: HTMLElement | null) => { listOuterRef.current = el; };
+  const [halfFitPx, setHalfFitPx] = useState<number | null>(null);
+  useLayoutEffect(() => {
+    const root = panelRootRef.current, listOuter = listOuterRef.current;
+    if (!root) { setHalfFitPx(null); return; }
+    let total = 0;
+    for (const child of root.children) {
+      if (child === listOuter) {
+        for (const row of listOuter.children) total += (row as HTMLElement).offsetHeight;
+      } else {
+        total += (child as HTMLElement).offsetHeight;
+      }
+    }
+    setHalfFitPx(total);
+  });
+
   const availH = containerH || window.innerHeight - 112;
-  const sheetHeight = snapPx(snap, availH);
+  const halfStopPx = Math.min(Math.max(halfFitPx ?? Infinity, HALF_MIN_PX), Math.round(availH * HALF_RATIO));
+  const stopPx = (s: Snap): number => (s === "half" ? halfStopPx : snapPx(s, availH));
+  const sheetHeight = stopPx(snap);
 
   const onHandlePointerDown = (e: ReactPointerEvent) => {
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
@@ -215,7 +258,7 @@ export default function MapTab() {
     } else {
       const finalH = sheetRef.current.getBoundingClientRect().height;
       const stops: Snap[] = ["peek", "half", "full"];
-      setSnap(stops.reduce((best, s) => (Math.abs(snapPx(s, availH) - finalH) < Math.abs(snapPx(best, availH) - finalH) ? s : best)));
+      setSnap(stops.reduce((best, s) => (Math.abs(stopPx(s) - finalH) < Math.abs(stopPx(best) - finalH) ? s : best)));
     }
     dragStart.current = null;
   };
@@ -912,8 +955,12 @@ export default function MapTab() {
     />
   );
 
-  const panel = (
-    <div className="flex h-full flex-col">
+  // a function, not a plain element — rendered once for the desktop column
+  // and once for the mobile sheet (below), so `forMobile` can gate the
+  // content-height measurement ref to the one instance that actually needs
+  // it, rather than racing two instances for a single shared ref
+  const renderPanel = (forMobile: boolean) => (
+    <div ref={forMobile ? setPanelRoot : undefined} className="flex h-full flex-col">
       {/* context bar — city → area → filters */}
       <div className="shrink-0 border-b border-line px-4 pb-2 pt-2.5">
         {/* city pills + Add place (always one tap) */}
@@ -1201,7 +1248,7 @@ export default function MapTab() {
           onCancel={endSuggest}
         />
       ) : nearby ? (
-        <ul className="min-h-0 flex-1 overflow-y-auto px-4">
+        <ul ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto px-4">
           {nearby.list.map((p) => renderRow(p, nearby.distances.get(p.id)))}
           {nearby.list.length === 0 && (
             <li className="meta py-6">Nothing on the map for today. Pick “All”, or add a place above.</li>
@@ -1209,7 +1256,7 @@ export default function MapTab() {
           <li className="h-4" />
         </ul>
       ) : cityGroups ? (
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        <div ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto">
           {cityGroups.map((c) => {
             const cityShut = collapsedCities.has(c.legId)
               && !c.areas.some((a) => a.items.some((p) => p.id === selected))
@@ -1260,7 +1307,7 @@ export default function MapTab() {
           <div className="h-4" />
         </div>
       ) : areaGroups ? (
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        <div ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto">
           {areaGroups.map((g) => {
             // a collapsed group still opens to reveal a pin picked on the map
             const shut = collapsedAreas.has(g.id) && !g.items.some((p) => p.id === selected);
@@ -1289,7 +1336,7 @@ export default function MapTab() {
           <div className="h-4" />
         </div>
       ) : (
-        <ul className="min-h-0 flex-1 overflow-y-auto px-4">
+        <ul ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto px-4">
           {scoped.map(renderRow)}
           {scoped.length === 0 && (
             <li className="meta py-6">
@@ -1369,7 +1416,7 @@ export default function MapTab() {
         ref={panelRef}
         className={`absolute left-0 top-0 bottom-0 z-10 hidden bg-bg md:block ${listOnly ? "md:w-full" : "border-r border-line md:w-[var(--panel-w)]"}`}
       >
-        {panel}
+        {renderPanel(false)}
         {!listOnly && (
           <div
             onPointerDown={onPanelHandlePointerDown}
@@ -1402,7 +1449,7 @@ export default function MapTab() {
             className="mx-auto mt-2 mb-1 h-1 w-9 shrink-0 touch-none rounded-full bg-ink/25"
           />
         )}
-        <div className="min-h-0 flex-1">{panel}</div>
+        <div className="min-h-0 flex-1">{renderPanel(true)}</div>
       </div>
     </div>
   );
