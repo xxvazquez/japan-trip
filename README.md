@@ -95,14 +95,16 @@ bottom.
 - **Area chips** appear once a city is picked — just that city's areas that have a place in view. Tap
   to show only those; none lit means all. On **All** the list nests instead — **city → area →
   places**, each level collapsible — so a multi-city trip reads top to bottom without the chips.
-- **Filters** — a disclosure holding **category** and **transit**, folded away by default:
+- **Filters** opens a sheet with **category** and **transit** — real filtering, so it overlays the
+  list instead of shrinking it:
   - **Category** — the coloured dots; none selected shows everything, tap some to narrow. Give a
     category its own **pin icon** in **Manage → Content → Category pins** — those places draw as a
     coloured disc with the icon.
   - **Transit** — **Train** and **Metro** are laid over the map by default; tap to add **Tram**,
     **Bus**, **Ferry** or **Airport**, or to turn any off. It's read straight from the basemap, works
     in any city with no setup, and the choice is remembered.
-  - When editing, **Areas** — add one, suggest areas, or rename / delete — lives here too.
+- **Areas**, next to Filters, is its own disclosure — area upkeep (add, suggest, rename, delete) is
+  separate from filtering, so it folds away on its own instead of sharing the Filters label.
 - Tap a pin or a list row — they select each other and the map flies there.
 - While **Today** is picked, a **crosshair icon** turns the list into what's actually close by — asks
   for your location once, then sorts by distance and narrows to within 1.5 km if that leaves anything
@@ -122,7 +124,7 @@ bottom.
 A **category** is *what* a place is (coffee, see, food…). An **area** is *where* it is (Gion,
 Higashiyama, a neighbourhood you name). A place can sit in several areas.
 
-- Create an area under **Filters → Areas → Add area** (name it and it's made).
+- Create an area under **Areas → Add area** (name it and it's made).
 - Assign places to it from a pin's detail panel on the Map.
 - Rename or delete an area with *Edit areas* in that same place — that's also where place-by-place
   membership for a whole area is edited. Manage → Content doesn't list areas, since the Map's own

@@ -7,6 +7,7 @@ import { Icon } from "@/components/Icon";
 import { IconTile } from "@/components/IconTile";
 import { InfoNote } from "@/components/InfoNote";
 import { ConfirmButton } from "@/components/ConfirmButton";
+import { ActionSheet, useActionSheet } from "@/components/ActionSheet";
 import { INSET_DIVIDER } from "@/components/InsetRow";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
@@ -160,8 +161,10 @@ export default function MapTab() {
   const [transit, setTransit] = useState<Set<string>>(loadTransit);
   const [selected, setSelected] = useState<string | null>(null);
   const [snap, setSnap] = useState<Snap>("peek");
-  /** the "Filters" disclosure (category, transit, area editing) */
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  /** the "Areas" disclosure (add/suggest/edit/merge — area upkeep, not filtering) */
+  const [areasOpen, setAreasOpen] = useState(false);
+  /** the "Filters" (category, transit) sheet — real filtering, split out from area upkeep above */
+  const filterSheet = useActionSheet();
   /** hides the map, list fills the screen — see LIST_ONLY_KEY above */
   const [listOnly, setListOnly] = useState(loadListOnly);
   const setListOnlyPersist = (v: boolean) => {
@@ -1039,133 +1042,148 @@ export default function MapTab() {
           ))}
         </div>
 
-        {/* Filters — category, transit, and area editing, folded away by default */}
+        {/* Filters (category, transit) open as a sheet, not an inline fold —
+            it's the frequent action and shouldn't compete with the list for
+            height. Area upkeep (add/suggest/edit/merge) is a separate fold
+            below: it's maintenance, not filtering, so it no longer shares
+            the "Filters" label or trigger. */}
         {!adding && (
-          <div className="mt-2 border-t border-line pt-1">
+          <div className="mt-2 flex items-center gap-4 border-t border-line pt-1.5">
             <button
-              onClick={() => setFiltersOpen((v) => !v)}
-              aria-expanded={filtersOpen}
-              className="flex w-full items-center justify-between py-1 text-left"
+              ref={filterSheet.anchorRef}
+              onClick={() => filterSheet.setOpen(true)}
+              aria-haspopup="menu"
+              aria-expanded={filterSheet.open}
+              className="eyebrow flex items-center gap-1 text-ink-faint transition-colors hover:text-ink-soft"
             >
-              <span className="eyebrow text-ink-faint">
-                Filters{catFilter.size > 0 ? ` · ${catFilter.size}` : ""}
-              </span>
-              <Icon name="chevron" size={13} className={`text-ink-faint transition-transform ${filtersOpen ? "rotate-90" : ""}`} />
+              Filters{catFilter.size > 0 ? ` · ${catFilter.size}` : ""}
+              <Icon name="down" size={10} className="align-[-1px]" />
             </button>
+            {!readOnly && review === null && (
+              <button
+                onClick={() => setAreasOpen((v) => !v)}
+                aria-expanded={areasOpen}
+                className="eyebrow ml-auto flex items-center gap-1 text-ink-faint transition-colors hover:text-ink-soft"
+              >
+                Areas
+                <Icon name="chevron" size={11} className={`transition-transform ${areasOpen ? "rotate-90" : ""}`} />
+              </button>
+            )}
+          </div>
+        )}
 
-            {filtersOpen && (
-              <div className="space-y-3 pb-1 pt-1.5">
-                {cats.length > 0 && (
-                  <div>
-                    <p className="eyebrow mb-1.5 text-ink-faint">Category</p>
-                    <div className="flex flex-wrap gap-x-3 gap-y-1.5">
-                      {cats.map(([name, col]) => {
-                        const on = catFilter.size === 0 || catFilter.has(name);
-                        return (
-                          <button
-                            key={name}
-                            onClick={() => toggleCat(name)}
-                            className={`inline-flex items-center gap-1.5 text-xs transition-opacity ${on ? "" : "opacity-35"}`}
-                          >
-                            <CatMark color={col} glyph={data.config.categoryIcons?.[name]} />
-                            <span className="capitalize">{name}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                <div>
-                  <p className="eyebrow mb-1.5 text-ink-faint">Transit</p>
-                  <div className="flex flex-wrap gap-x-3 gap-y-1.5">
-                    {TRANSIT_KINDS.map((kind) => {
-                      const on = transit.has(kind);
-                      const col = dark ? TRANSIT_META[kind].dark : TRANSIT_META[kind].light;
-                      return (
-                        <button
-                          key={kind}
-                          onClick={() => toggleTransit(kind)}
-                          className={`inline-flex items-center gap-1.5 text-xs transition-opacity ${on ? "" : "opacity-35"}`}
-                        >
-                          <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: col, boxShadow: on ? `0 0 0 1px ${col}` : "none" }} />
-                          {TRANSIT_META[kind].label}
-                        </button>
-                      );
-                    })}
-                  </div>
+        <ActionSheet open={filterSheet.open && !adding} onClose={() => filterSheet.setOpen(false)} anchorRef={filterSheet.anchorRef} title="Filters">
+          {/* toggles stay open until dismissed — stopPropagation so a chip
+              tap doesn't trigger ActionSheet's "close on any click inside" */}
+          <div onClick={(e) => e.stopPropagation()} className="space-y-4 px-4 pb-3 pt-1">
+            {cats.length > 0 && (
+              <div>
+                <p className="eyebrow mb-1.5 text-ink-faint">Category</p>
+                <div className="flex flex-wrap gap-x-3 gap-y-1.5">
+                  {cats.map(([name, col]) => {
+                    const on = catFilter.size === 0 || catFilter.has(name);
+                    return (
+                      <button
+                        key={name}
+                        onClick={() => toggleCat(name)}
+                        className={`inline-flex items-center gap-1.5 text-xs transition-opacity ${on ? "" : "opacity-35"}`}
+                      >
+                        <CatMark color={col} glyph={data.config.categoryIcons?.[name]} />
+                        <span className="capitalize">{name}</span>
+                      </button>
+                    );
+                  })}
                 </div>
+              </div>
+            )}
 
-                {!readOnly && review === null && (
-                  <div>
-                    <p className="eyebrow mb-1.5 text-ink-faint">Areas</p>
-                    {namingArea ? (
-                      <div className="flex items-center gap-3">
-                        <input
-                          autoFocus
-                          value={areaName}
-                          onChange={(e) => setAreaName(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") createArea();
-                            if (e.key === "Escape") { setNamingArea(false); setAreaName(""); }
-                          }}
-                          placeholder="Area name — e.g. Asakusa"
-                          className="min-w-0 flex-1 border-b border-ink bg-transparent pb-1 text-sm focus:outline-none"
-                        />
-                        <button onClick={createArea} className="shrink-0 font-medium text-accent">Add</button>
-                        <button onClick={() => { setNamingArea(false); setAreaName(""); }} className="shrink-0 text-ink-faint hover:text-ink-soft">Cancel</button>
-                      </div>
-                    ) : (
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-                        <button onClick={() => setNamingArea(true)} className="inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70">
-                          <Icon name="plus" size={12} className="align-[-1px]" /> Add area
-                        </button>
-                        {ungrouped.length >= 4 && (
-                          <button onClick={startSuggest} className="inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70">
-                            <Icon name="explore" size={12} className="align-[-1px]" /> Suggest from {ungrouped.length}
-                          </button>
-                        )}
-                        {data.areas.length > 0 && (
-                          <button onClick={() => setEditingAreas((v) => !v)} className="link-quiet ml-auto">
-                            {editingAreas ? "Done" : "Edit areas"}
-                          </button>
-                        )}
-                      </div>
-                    )}
-                    {editingAreas && duplicateAreaGroups.length > 0 && (
-                      <div className="mt-2 flex items-center justify-between gap-2 rounded-[8px] bg-accent/10 px-2.5 py-1.5 text-xs">
-                        <span className="text-ink-soft">
-                          {plural(duplicateAreaGroups.length, "duplicate name")} found — merging combines their places and keeps one.
-                        </span>
-                        <ConfirmButton
-                          label="Merge duplicate areas"
-                          onConfirm={mergeDuplicateAreas}
-                          className="shrink-0 font-medium text-accent"
-                        >
-                          Merge
-                        </ConfirmButton>
-                      </div>
-                    )}
-                    {editingAreas && data.areas.length > 0 && (
-                      <ul className="mt-2 max-h-64 overflow-y-auto border-t border-line pt-1.5">
-                        {[...data.areas]
-                          .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
-                          .map((a) => (
-                            <li key={a.id} className="flex items-center gap-2 border-b border-line py-1.5 text-sm last:border-b-0">
-                              <span className="min-w-0 flex-1 truncate">
-                                <Editable label="Area name" value={a.name} placeholder="Area name" onCommit={(v) => updateEntity<Area>("areas", a.id, { name: v.trim() || "Untitled" })} />
-                              </span>
-                              <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{plural(a.placeIds.length, "place")}</span>
-                              <ConfirmButton onConfirm={() => removeEntity("areas", a.id)} className="shrink-0 text-ink-faint hover:text-accent">
-                                <Icon name="trash" size={13} />
-                              </ConfirmButton>
-                            </li>
-                          ))}
-                      </ul>
-                    )}
-                  </div>
+            <div>
+              <p className="eyebrow mb-1.5 text-ink-faint">Transit</p>
+              <div className="flex flex-wrap gap-x-3 gap-y-1.5">
+                {TRANSIT_KINDS.map((kind) => {
+                  const on = transit.has(kind);
+                  const col = dark ? TRANSIT_META[kind].dark : TRANSIT_META[kind].light;
+                  return (
+                    <button
+                      key={kind}
+                      onClick={() => toggleTransit(kind)}
+                      className={`inline-flex items-center gap-1.5 text-xs transition-opacity ${on ? "" : "opacity-35"}`}
+                    >
+                      <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: col, boxShadow: on ? `0 0 0 1px ${col}` : "none" }} />
+                      {TRANSIT_META[kind].label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </ActionSheet>
+
+        {areasOpen && !adding && !readOnly && review === null && (
+          <div className="space-y-2 border-t border-line pb-1 pt-2">
+            {namingArea ? (
+              <div className="flex items-center gap-3">
+                <input
+                  autoFocus
+                  value={areaName}
+                  onChange={(e) => setAreaName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") createArea();
+                    if (e.key === "Escape") { setNamingArea(false); setAreaName(""); }
+                  }}
+                  placeholder="Area name — e.g. Asakusa"
+                  className="min-w-0 flex-1 border-b border-ink bg-transparent pb-1 text-sm focus:outline-none"
+                />
+                <button onClick={createArea} className="shrink-0 font-medium text-accent">Add</button>
+                <button onClick={() => { setNamingArea(false); setAreaName(""); }} className="shrink-0 text-ink-faint hover:text-ink-soft">Cancel</button>
+              </div>
+            ) : (
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+                <button onClick={() => setNamingArea(true)} className="inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70">
+                  <Icon name="plus" size={12} className="align-[-1px]" /> Add area
+                </button>
+                {ungrouped.length >= 4 && (
+                  <button onClick={startSuggest} className="inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70">
+                    <Icon name="explore" size={12} className="align-[-1px]" /> Suggest from {ungrouped.length}
+                  </button>
+                )}
+                {data.areas.length > 0 && (
+                  <button onClick={() => setEditingAreas((v) => !v)} className="link-quiet ml-auto">
+                    {editingAreas ? "Done" : "Edit areas"}
+                  </button>
                 )}
               </div>
+            )}
+            {editingAreas && duplicateAreaGroups.length > 0 && (
+              <div className="flex items-center justify-between gap-2 rounded-[8px] bg-accent/10 px-2.5 py-1.5 text-xs">
+                <span className="text-ink-soft">
+                  {plural(duplicateAreaGroups.length, "duplicate name")} found — merging combines their places and keeps one.
+                </span>
+                <ConfirmButton
+                  label="Merge duplicate areas"
+                  onConfirm={mergeDuplicateAreas}
+                  className="shrink-0 font-medium text-accent"
+                >
+                  Merge
+                </ConfirmButton>
+              </div>
+            )}
+            {editingAreas && data.areas.length > 0 && (
+              <ul className="max-h-64 overflow-y-auto border-t border-line pt-1.5">
+                {[...data.areas]
+                  .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
+                  .map((a) => (
+                    <li key={a.id} className="flex items-center gap-2 border-b border-line py-1.5 text-sm last:border-b-0">
+                      <span className="min-w-0 flex-1 truncate">
+                        <Editable label="Area name" value={a.name} placeholder="Area name" onCommit={(v) => updateEntity<Area>("areas", a.id, { name: v.trim() || "Untitled" })} />
+                      </span>
+                      <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{plural(a.placeIds.length, "place")}</span>
+                      <ConfirmButton onConfirm={() => removeEntity("areas", a.id)} className="shrink-0 text-ink-faint hover:text-accent">
+                        <Icon name="trash" size={13} />
+                      </ConfirmButton>
+                    </li>
+                  ))}
+              </ul>
             )}
           </div>
         )}
