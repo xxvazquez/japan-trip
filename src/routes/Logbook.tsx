@@ -231,23 +231,25 @@ function Stays() {
   const loc = data.config.locale;
   if (data.hotels.length === 0) return <Empty what="No stays" />;
   return (
-    <Section>
-      <ul>
-        {data.hotels.map((h) => {
-          const leg = data.legs.find((l) => l.hotelId === h.id);
-          return (
-            <TileRow
-              key={h.id}
-              to={`/hotel/${h.id}`}
-              tile={<IconTile size="sm" glyph="hotel" tone="ink-faint" />}
-              title={h.name}
-              meta={h.address || undefined}
-              right={leg && fmtDate(leg.start, loc, { day: "numeric", month: "short" })}
-            />
-          );
-        })}
-      </ul>
-    </Section>
+    <CenterIfShort>
+      <Section>
+        <ul>
+          {data.hotels.map((h) => {
+            const leg = data.legs.find((l) => l.hotelId === h.id);
+            return (
+              <TileRow
+                key={h.id}
+                to={`/hotel/${h.id}`}
+                tile={<IconTile size="sm" glyph="hotel" tone="ink-faint" />}
+                title={h.name}
+                meta={h.address || undefined}
+                right={leg && fmtDate(leg.start, loc, { day: "numeric", month: "short" })}
+              />
+            );
+          })}
+        </ul>
+      </Section>
+    </CenterIfShort>
   );
 }
 
@@ -396,29 +398,31 @@ function Emergency() {
     return <Empty what="No emergency info" hint="Embassy, insurance, a number to call — added on your own trip." />;
 
   return (
-    <div className="space-y-6">
-      <Section>
-        <ul>
-          <FieldList
-            inset
-            fields={contact.fields}
-            onChange={(next) => updateEntity<Doc>("docs", contact.id, { fields: next })}
-            addLabel="Add a contact"
-          />
-        </ul>
-      </Section>
-      {(contact.note?.trim() || !ro) && (
-        <Section title="Notes">
-          <div className="note px-3.5 py-3">
-            <RichNote
-              value={contact.note ?? ""}
-              onCommit={(v) => updateEntity<Doc>("docs", contact.id, { note: v || undefined })}
-              placeholder="＋ a note"
+    <CenterIfShort>
+      <div className="space-y-6">
+        <Section>
+          <ul>
+            <FieldList
+              inset
+              fields={contact.fields}
+              onChange={(next) => updateEntity<Doc>("docs", contact.id, { fields: next })}
+              addLabel="Add a contact"
             />
-          </div>
+          </ul>
         </Section>
-      )}
-    </div>
+        {(contact.note?.trim() || !ro) && (
+          <Section title="Notes">
+            <div className="note px-3.5 py-3">
+              <RichNote
+                value={contact.note ?? ""}
+                onCommit={(v) => updateEntity<Doc>("docs", contact.id, { note: v || undefined })}
+                placeholder="＋ a note"
+              />
+            </div>
+          </Section>
+        )}
+      </div>
+    </CenterIfShort>
   );
 }
 
@@ -582,64 +586,66 @@ function Documents() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className={`flex items-center ${ro ? "justify-end" : "justify-between"}`}>
-        {!ro && <AddButton label="Add a document" onClick={addDoc} />}
-        <InfoNote align="right">
-          One card per document — rename it, add your own fields, attach a file, add a note.{" "}
-          {cloud
-            ? "Attachments upload to a Google Drive folder shared with the people on this trip. Still — think twice before a full passport scan."
-            : "Attachments stay only on the device they’re added on — passport numbers don’t belong here."}
-        </InfoNote>
+    <CenterIfShort>
+      <div className="space-y-6">
+        <div className={`flex items-center ${ro ? "justify-end" : "justify-between"}`}>
+          {!ro && <AddButton label="Add a document" onClick={addDoc} />}
+          <InfoNote align="right">
+            One card per document — rename it, add your own fields, attach a file, add a note.{" "}
+            {cloud
+              ? "Attachments upload to a Google Drive folder shared with the people on this trip. Still — think twice before a full passport scan."
+              : "Attachments stay only on the device they’re added on — passport numbers don’t belong here."}
+          </InfoNote>
+        </div>
+        <Section>
+          <ul>
+            {docs.map((d) => (
+              <AccordionRow
+                key={d.id}
+                id={d.id}
+                icon="vault"
+                title={
+                  ro
+                    ? d.title
+                    : <Editable label="Document name" value={d.title} placeholder="Name" onCommit={(v) => updateEntity<Doc>("docs", d.id, { title: v || "Untitled" })} />
+                }
+                action={!ro && cardDeleteBtn(() => removeEntity("docs", d.id), "Delete document")}
+              >
+                {(!ro || (d.files?.length ?? 0) > 0) && (
+                  <div className="px-3.5 py-3">
+                    <Attachments
+                      doc={d}
+                      cloud={cloud}
+                      folderName={folderName}
+                      shareWith={shareWith}
+                      onChange={(files) => updateEntity<Doc>("docs", d.id, { files })}
+                    />
+                  </div>
+                )}
+                {(d.fields.length > 0 || !ro) && (
+                  <ul className="border-t border-line">
+                    <FieldList
+                      inset
+                      fields={d.fields}
+                      onChange={(next) => updateEntity<Doc>("docs", d.id, { fields: next })}
+                    />
+                  </ul>
+                )}
+                {(d.note?.trim() || !ro) && (
+                  <div className="note border-t border-line px-3.5 py-3 text-ink-soft">
+                    <RichNote
+                      value={d.note ?? ""}
+                      onCommit={(v) => updateEntity<Doc>("docs", d.id, { note: v || undefined })}
+                      placeholder="＋ a note"
+                    />
+                  </div>
+                )}
+              </AccordionRow>
+            ))}
+          </ul>
+        </Section>
       </div>
-      <Section>
-        <ul>
-          {docs.map((d) => (
-            <AccordionRow
-              key={d.id}
-              id={d.id}
-              icon="vault"
-              title={
-                ro
-                  ? d.title
-                  : <Editable label="Document name" value={d.title} placeholder="Name" onCommit={(v) => updateEntity<Doc>("docs", d.id, { title: v || "Untitled" })} />
-              }
-              action={!ro && cardDeleteBtn(() => removeEntity("docs", d.id), "Delete document")}
-            >
-              {(!ro || (d.files?.length ?? 0) > 0) && (
-                <div className="px-3.5 py-3">
-                  <Attachments
-                    doc={d}
-                    cloud={cloud}
-                    folderName={folderName}
-                    shareWith={shareWith}
-                    onChange={(files) => updateEntity<Doc>("docs", d.id, { files })}
-                  />
-                </div>
-              )}
-              {(d.fields.length > 0 || !ro) && (
-                <ul className="border-t border-line">
-                  <FieldList
-                    inset
-                    fields={d.fields}
-                    onChange={(next) => updateEntity<Doc>("docs", d.id, { fields: next })}
-                  />
-                </ul>
-              )}
-              {(d.note?.trim() || !ro) && (
-                <div className="note border-t border-line px-3.5 py-3 text-ink-soft">
-                  <RichNote
-                    value={d.note ?? ""}
-                    onCommit={(v) => updateEntity<Doc>("docs", d.id, { note: v || undefined })}
-                    placeholder="＋ a note"
-                  />
-                </div>
-              )}
-            </AccordionRow>
-          ))}
-        </ul>
-      </Section>
-    </div>
+    </CenterIfShort>
   );
 }
 
@@ -775,79 +781,81 @@ function Packing() {
   const allDone = total > 0 && done === total;
 
   return (
-    <div className="space-y-4">
-      {total > 0 && (
-        <div className="flex items-center gap-3 px-1">
-          <span className="text-xl font-medium tabular-nums">{done}<span className="text-ink-faint">/{total}</span></span>
-          <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
-            <span
-              className={`block h-full rounded-full transition-all ${done === 0 ? "bg-accent/30" : "bg-accent"}`}
-              style={{ width: done === 0 ? "0.375rem" : `${Math.max(6, (done / total) * 100)}%` }}
-            />
-          </span>
-          {allDone && <span className="shrink-0 text-xs font-medium text-ink">All packed</span>}
-        </div>
-      )}
-      {total === 0 && !ro && (
-        <p className="px-1 text-sm text-ink-faint">
-          Start with a category — Clothes, Tech, Toiletries… — then add what goes in it.
-        </p>
-      )}
-      {Object.keys(groups).length > 0 && (
-        <>
-          {!ro && <AddButton label="Add a category" onClick={addCategory} />}
-          <Section>
-            <ul>
-              {Object.entries(groups).map(([group, list]) => {
-                const g = list.filter((i) => i.done).length;
-                return (
-                  <AccordionRow
-                    key={group}
-                    id={group}
-                    defaultOpen
-                    title={ro ? group : (
-                      <Editable label="Category" value={group} placeholder="Category" onCommit={(v) => renameGroup(group, v)} />
-                    )}
-                    action={
-                      <span className="flex items-center gap-2">
-                        <span className={`text-xs tabular-nums ${g === list.length ? "text-ink" : "text-ink-faint"}`}>
-                          {g}/{list.length}
-                        </span>
-                        {!ro && cardDeleteBtn(() => removeGroup(group), "Delete category")}
-                      </span>
-                    }
-                  >
-                    <ul>
-                      {list.map((it) => (
-                        <PackRow
-                          key={it.id}
-                          item={it}
-                          ro={ro}
-                          people={people}
-                          tagged={tagged}
-                          onToggle={(v) => updateEntity<PackingItem>("packing", it.id, { done: v })}
-                          onLabel={(v) => updateEntity<PackingItem>("packing", it.id, { label: v })}
-                          onAssign={(v) => updateEntity<PackingItem>("packing", it.id, { assignee: v })}
-                          onRemove={() => removeEntity("packing", it.id)}
-                        />
-                      ))}
-                      {!ro && (
-                        <li>
-                          <button onClick={() => addItem(group)} className="action w-full px-3.5 py-2.5 text-xs">
-                            <Icon name="plus" size={13} /> Add item
-                          </button>
-                        </li>
+    <CenterIfShort>
+      <div className="space-y-4">
+        {total > 0 && (
+          <div className="flex items-center gap-3 px-1">
+            <span className="text-xl font-medium tabular-nums">{done}<span className="text-ink-faint">/{total}</span></span>
+            <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
+              <span
+                className={`block h-full rounded-full transition-all ${done === 0 ? "bg-accent/30" : "bg-accent"}`}
+                style={{ width: done === 0 ? "0.375rem" : `${Math.max(6, (done / total) * 100)}%` }}
+              />
+            </span>
+            {allDone && <span className="shrink-0 text-xs font-medium text-ink">All packed</span>}
+          </div>
+        )}
+        {total === 0 && !ro && (
+          <p className="px-1 text-sm text-ink-faint">
+            Start with a category — Clothes, Tech, Toiletries… — then add what goes in it.
+          </p>
+        )}
+        {Object.keys(groups).length > 0 && (
+          <>
+            {!ro && <AddButton label="Add a category" onClick={addCategory} />}
+            <Section>
+              <ul>
+                {Object.entries(groups).map(([group, list]) => {
+                  const g = list.filter((i) => i.done).length;
+                  return (
+                    <AccordionRow
+                      key={group}
+                      id={group}
+                      defaultOpen
+                      title={ro ? group : (
+                        <Editable label="Category" value={group} placeholder="Category" onCommit={(v) => renameGroup(group, v)} />
                       )}
-                    </ul>
-                  </AccordionRow>
-                );
-              })}
-            </ul>
-          </Section>
-        </>
-      )}
-      {Object.keys(groups).length === 0 && !ro && <AddButton label="Add a category" onClick={addCategory} />}
-    </div>
+                      action={
+                        <span className="flex items-center gap-2">
+                          <span className={`text-xs tabular-nums ${g === list.length ? "text-ink" : "text-ink-faint"}`}>
+                            {g}/{list.length}
+                          </span>
+                          {!ro && cardDeleteBtn(() => removeGroup(group), "Delete category")}
+                        </span>
+                      }
+                    >
+                      <ul>
+                        {list.map((it) => (
+                          <PackRow
+                            key={it.id}
+                            item={it}
+                            ro={ro}
+                            people={people}
+                            tagged={tagged}
+                            onToggle={(v) => updateEntity<PackingItem>("packing", it.id, { done: v })}
+                            onLabel={(v) => updateEntity<PackingItem>("packing", it.id, { label: v })}
+                            onAssign={(v) => updateEntity<PackingItem>("packing", it.id, { assignee: v })}
+                            onRemove={() => removeEntity("packing", it.id)}
+                          />
+                        ))}
+                        {!ro && (
+                          <li>
+                            <button onClick={() => addItem(group)} className="action w-full px-3.5 py-2.5 text-xs">
+                              <Icon name="plus" size={13} /> Add item
+                            </button>
+                          </li>
+                        )}
+                      </ul>
+                    </AccordionRow>
+                  );
+                })}
+              </ul>
+            </Section>
+          </>
+        )}
+        {Object.keys(groups).length === 0 && !ro && <AddButton label="Add a category" onClick={addCategory} />}
+      </div>
+    </CenterIfShort>
   );
 }
 
@@ -961,29 +969,31 @@ function Notes() {
   }
 
   return (
-    <div className="space-y-6">
-      {!ro && <AddButton label="Add a note" onClick={add} />}
-      <Section>
-        <ul>
-          {data.scratchNotes.map((n) => {
-            const p = (patch: Partial<ScratchNote>) => updateEntity<ScratchNote>("scratchNotes", n.id, patch);
-            return (
-              <AccordionRow
-                key={n.id}
-                id={n.id}
-                defaultOpen
-                title={<Editable label="Title" value={n.title} placeholder="Untitled" onCommit={(v) => p({ title: v || "Untitled" })} />}
-                action={!ro && cardDeleteBtn(() => removeEntity("scratchNotes", n.id), "Delete note")}
-              >
-                <div className="note px-3.5 py-3 text-ink-soft">
-                  <RichNote value={n.text ?? ""} placeholder="Anything to remember." onCommit={(v) => p({ text: v || undefined })} />
-                </div>
-              </AccordionRow>
-            );
-          })}
-        </ul>
-      </Section>
-    </div>
+    <CenterIfShort>
+      <div className="space-y-6">
+        {!ro && <AddButton label="Add a note" onClick={add} />}
+        <Section>
+          <ul>
+            {data.scratchNotes.map((n) => {
+              const p = (patch: Partial<ScratchNote>) => updateEntity<ScratchNote>("scratchNotes", n.id, patch);
+              return (
+                <AccordionRow
+                  key={n.id}
+                  id={n.id}
+                  defaultOpen
+                  title={<Editable label="Title" value={n.title} placeholder="Untitled" onCommit={(v) => p({ title: v || "Untitled" })} />}
+                  action={!ro && cardDeleteBtn(() => removeEntity("scratchNotes", n.id), "Delete note")}
+                >
+                  <div className="note px-3.5 py-3 text-ink-soft">
+                    <RichNote value={n.text ?? ""} placeholder="Anything to remember." onCommit={(v) => p({ text: v || undefined })} />
+                  </div>
+                </AccordionRow>
+              );
+            })}
+          </ul>
+        </Section>
+      </div>
+    </CenterIfShort>
   );
 }
 
