@@ -519,11 +519,14 @@ function PlanRow({ day, tz, item, place, areaPlaces, areaNameByPlaceId, category
       <SwipeToDelete onDelete={readOnly ? undefined : onRemove}>
       <div className="px-3.5 py-2.5">
         <div className="flex items-start gap-2.5">
-          {/* leading column — drag handle, tile, hour; sized to its own
-              content so the picker/custom column below always starts at the
-              same left edge, whatever the hour's width */}
-          <div className="flex shrink-0 items-center gap-2.5">
-            {!readOnly && (
+          {/* leading column — just the drag handle now; tile + hour moved
+              into the content column's own meta line below, so the row
+              shares one left margin instead of a separate icon/hour column
+              sitting empty once the title/note grow past it. Omitted
+              entirely when read-only (nothing left to put there), which is
+              also why the stem's left offset (below) differs by mode. */}
+          {!readOnly && (
+            <div className="flex shrink-0 items-center">
               <button
                 {...attributes}
                 {...listeners}
@@ -532,42 +535,44 @@ function PlanRow({ day, tz, item, place, areaPlaces, areaNameByPlaceId, category
               >
                 <Icon name="grip" size={13} />
               </button>
-            )}
-            {mapHref ? (
-              <a href={mapHref} target="_blank" rel="noopener" className="shrink-0" aria-label={place ? `Open ${place.name} in Google Maps` : "Open in Google Maps"}>
-                {tile}
-              </a>
-            ) : (
-              tile
-            )}
-            {/* hour — optional, quiet (meta) styling; no native clock icon,
-                and blank rather than "--:--" until a time is actually set */}
-            {(readOnly ? !!timeText : true) && (
-              <span className="meta shrink-0 tabular-nums">
-                {readOnly ? (
-                  timeText
-                ) : plainTime ? (
-                  <Editable
-                    as="time"
-                    label="Time"
-                    value={item.time ?? ""}
-                    placeholder=""
-                    onCommit={(v) => onPatch({ time: v || undefined })}
-                    className={`[&::-webkit-calendar-picker-indicator]:hidden ${!item.time ? "[&:not(:focus)]:text-transparent" : ""}`}
-                  />
-                ) : (
-                  <Editable label="Time" value={item.time ?? ""} placeholder="Add a time" onCommit={(v) => onPatch({ time: v.trim() || undefined })} />
-                )}
-              </span>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* what the step is — in line with the hour: a place from one of
-              this day's Areas, or Custom text below it; falls back to a
-              plain text field when there's nothing to pick from yet (no
-              Area added to the day). A note is its own quiet row underneath —
-              italic placeholder when empty, tap to expand and edit. */}
+          {/* what the step is — a place from one of this day's Areas, or
+              Custom text below it; falls back to a plain text field when
+              there's nothing to pick from yet (no Area added to the day). A
+              note is its own quiet row underneath — italic placeholder when
+              empty, tap to expand and edit. */}
           <div className="min-w-0 flex-1 space-y-1 pt-px">
+            {/* tile + hour — one meta line, icon leading so the hour reads
+                like a caption under it rather than a column of its own */}
+            <div className="flex items-center gap-1.5">
+              {mapHref ? (
+                <a href={mapHref} target="_blank" rel="noopener" className="shrink-0" aria-label={place ? `Open ${place.name} in Google Maps` : "Open in Google Maps"}>
+                  {tile}
+                </a>
+              ) : (
+                tile
+              )}
+              {(readOnly ? !!timeText : true) && (
+                <span className="meta shrink-0 tabular-nums">
+                  {readOnly ? (
+                    timeText
+                  ) : plainTime ? (
+                    <Editable
+                      as="time"
+                      label="Time"
+                      value={item.time ?? ""}
+                      placeholder=""
+                      onCommit={(v) => onPatch({ time: v || undefined })}
+                      className={`[&::-webkit-calendar-picker-indicator]:hidden ${!item.time ? "[&:not(:focus)]:text-transparent" : ""}`}
+                    />
+                  ) : (
+                    <Editable label="Time" value={item.time ?? ""} placeholder="Add a time" onCommit={(v) => onPatch({ time: v.trim() || undefined })} />
+                  )}
+                </span>
+              )}
+            </div>
             {readOnly ? (
               mapHref ? (
                 <a
