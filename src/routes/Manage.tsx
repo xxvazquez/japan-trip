@@ -16,6 +16,7 @@ import { THEME_PRESETS, DEFAULT_ACCENT } from "@/lib/themePresets";
 import { GlyphPicker } from "@/components/GlyphPicker";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
+import { RowSelect } from "@/components/RowSelect";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { entityLink } from "@/lib/entityLink";
 import { OPTIONAL_LOGBOOK_SECTIONS, LOGBOOK_SECTIONS, LOGBOOK_NAV_ICON, logbookLabel } from "@/lib/logbook";
@@ -380,12 +381,12 @@ function AddRow({ label, onClick }: { label: string; onClick: () => void }) {
 
 function TzSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
-    <select value={value} onChange={(e) => onChange(e.target.value)} className="max-w-[13rem] cursor-pointer truncate bg-transparent text-right focus:outline-none">
+    <RowSelect value={value} onChange={(e) => onChange(e.target.value)} className="max-w-[13rem] truncate">
       {!TIME_ZONES.includes(value) && <option value={value}>{value}</option>}
       {TIME_ZONES.map((z) => (
         <option key={z} value={z}>{z.replace(/_/g, " ")}</option>
       ))}
-    </select>
+    </RowSelect>
   );
 }
 
@@ -442,14 +443,13 @@ function Setup() {
       >
         <ul>
         <Row label="Date format">
-          <select
+          <RowSelect
             value={config.locale}
             onChange={(e) => mutate((d) => { d.config.locale = e.target.value; d.config.tagline = rangeText(d.meta.start, d.meta.end, e.target.value); })}
-            className="cursor-pointer bg-transparent text-right focus:outline-none"
           >
             {!DATE_FORMATS.some((f) => f.value === config.locale) && <option value={config.locale}>{config.locale}</option>}
             {DATE_FORMATS.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
-          </select>
+          </RowSelect>
         </Row>
         <Row label="Google My Map">
           <Editable as="link" label="Google My Map link" value={config.mapSourceUrl ?? ""} placeholder="paste the share link" onCommit={(v) => mutate((d) => { d.config.mapSourceUrl = v; })} />

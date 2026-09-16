@@ -16,6 +16,7 @@ import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { InsetRow } from "@/components/InsetRow";
+import { RowSelect } from "@/components/RowSelect";
 import { ActionSheet, useActionSheet } from "@/components/ActionSheet";
 import { Editable } from "@/components/Editable";
 import { MoneyField } from "@/components/MoneyField";
@@ -178,30 +179,28 @@ export default function Day() {
         <Section className="mb-8">
           <ul>
             <InsetRow label="Staying at">
-              <select
+              <RowSelect
                 value={day.hotelId ?? ""}
                 onChange={(e) => patch({ hotelId: e.target.value || undefined })}
                 aria-label="Which hotel you're staying at"
-                className="max-w-full cursor-pointer bg-transparent text-right font-sans text-[0.8125rem] font-medium focus:outline-none"
               >
                 <option value="">— none —</option>
                 {data.hotels.map((h) => <option key={h.id} value={h.id}>{h.name || "Hotel"}</option>)}
-              </select>
+              </RowSelect>
             </InsetRow>
             <InsetRow label="Journey">
-              <select
+              <RowSelect
                 value={day.journeyId ?? ""}
                 onChange={(e) => {
                   if (e.target.value === "__new") newJourney();
                   else patch({ journeyId: e.target.value || undefined });
                 }}
                 aria-label="A journey on this day"
-                className="max-w-full cursor-pointer bg-transparent text-right font-sans text-[0.8125rem] font-medium focus:outline-none"
               >
                 <option value="">None</option>
                 {data.journeys.map((j) => <option key={j.id} value={j.id}>{j.label || "Journey"}</option>)}
                 <option value="__new">＋ New journey…</option>
-              </select>
+              </RowSelect>
             </InsetRow>
           </ul>
         </Section>
@@ -589,6 +588,7 @@ function PlanRow({ day, tz, item, place, areaPlaces, areaNameByPlaceId, category
                   value={item.placeId}
                   places={sortedPickable}
                   areaNameByPlaceId={areaNameByPlaceId}
+                  categoryIcons={categoryIcons}
                   onPick={(pid) => {
                     if (!pid) { onPatch({ placeId: undefined }); return; }
                     const p = sortedPickable.find((x) => x.id === pid);
@@ -646,10 +646,11 @@ function PlanRow({ day, tz, item, place, areaPlaces, areaNameByPlaceId, category
  *  in `Day`) and a place name alone stops being enough to tell rows apart, this
  *  renders as an iOS-style sheet list instead, with the area as trailing quiet
  *  text on the same line (same idiom as a place's category in Manage). */
-function PlacePicker({ value, places, areaNameByPlaceId, onPick }: {
+function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, onPick }: {
   value?: string;
   places: Place[];
   areaNameByPlaceId: Map<string, string>;
+  categoryIcons?: Record<string, string>;
   onPick: (id?: string) => void;
 }) {
   const { open, setOpen, anchorRef } = useActionSheet();
@@ -674,14 +675,23 @@ function PlacePicker({ value, places, areaNameByPlaceId, onPick }: {
         <div className="max-h-[60vh] overflow-y-auto">
           <button type="button" onClick={() => onPick(undefined)} className="menu-item flex w-full items-center gap-2">
             <Icon name="check" size={13} className={`shrink-0 ${!value ? "text-accent" : "text-ink-faint/30"}`} />
+            <IconTile size="sm" name="pin" tone="ink-faint" className="opacity-70" />
             <span className="min-w-0 flex-1 truncate">Custom…</span>
           </button>
           {places.map((p) => {
             const areaName = areaNameByPlaceId.get(p.id);
             const on = p.id === value;
+            const glyph = p.category ? categoryIcons?.[p.category] : undefined;
             return (
               <button key={p.id} type="button" onClick={() => onPick(p.id)} className="menu-item flex w-full items-center gap-2">
                 <Icon name="check" size={13} className={`shrink-0 ${on ? "text-accent" : "text-ink-faint/30"}`} />
+                <IconTile
+                  size="sm"
+                  glyph={glyph}
+                  name={glyph ? undefined : "pin"}
+                  color={p.source === "mymap" ? p.color : undefined}
+                  tone={toneForPlaceCategory(p.category, categoryIcons)}
+                />
                 <span className="min-w-0 flex-1 truncate">{p.name}</span>
                 {areaName && <span className="shrink-0 text-2xs text-ink-faint">{areaName}</span>}
               </button>

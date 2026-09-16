@@ -3,6 +3,7 @@ import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { InsetRow } from "@/components/InsetRow";
+import { RowSelect } from "@/components/RowSelect";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
@@ -67,10 +68,9 @@ export default function Leg() {
               )
             ) : (
               <InsetRow label="Hotel">
-                <select
+                <RowSelect
                   value={hotel ? leg.hotelId : ""}
                   onChange={(e) => e.target.value && p({ hotelId: e.target.value })}
-                  className="max-w-full cursor-pointer bg-transparent text-right text-[0.8125rem] font-medium focus:outline-none"
                 >
                   {hotelDangling && <option value="" disabled>Unknown — pick one</option>}
                   {!hotel && !hotelDangling && <option value="">— none —</option>}
@@ -78,7 +78,7 @@ export default function Leg() {
                   {data.hotels.map((h) => (
                     <option key={h.id} value={h.id}>{h.name}</option>
                   ))}
-                </select>
+                </RowSelect>
               </InsetRow>
             )}
 
