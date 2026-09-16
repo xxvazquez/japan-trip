@@ -281,10 +281,7 @@ export function RichNote({
         rows={3}
         className="w-full resize-none rounded border border-gold/60 bg-surface px-2.5 py-2 text-[0.9rem] leading-[1.6] outline-none focus:border-gold"
       />
-      <p className="mt-1 text-2xs text-ink-faint">
-        **bold** · *italic* · ++underline++ · ~~strike~~ · ## heading · {">"} quote · - bullet · - [ ] checklist ·{" "}
-        [text](link) — ⌘/Ctrl-Enter saves, Esc cancels
-      </p>
+      <p className="mt-1 text-2xs text-ink-faint">⌘/Ctrl-Enter saves, Esc cancels</p>
     </div>
   );
 }

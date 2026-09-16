@@ -346,7 +346,7 @@ export default function Day() {
 
       {/* GENERAL NOTES — free-form catch-all, after the day's actual plan */}
       {(day.notes || !ro) && (
-        <Section icon="list" title="General notes" info="Light formatting — **bold**, *italic*, bullet lists, checklists, links.">
+        <Section icon="list" title="General notes" info="Supports bold, italic, bullet lists, checklists, and links — tap a note to see the formatting toolbar.">
           <div className="note px-3.5 py-3">
             <RichNote
               value={day.notes ?? ""}
