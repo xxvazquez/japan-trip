@@ -70,13 +70,14 @@ export default function Hotel() {
             <ul>
               {(hotel.nameAlt || !ro) && (
                 <InsetRow label="Local name">
-                  <Editable
-                    label="Local name"
-                    value={hotel.nameAlt ?? ""}
-                    placeholder="Name in the local script"
-                    className="font-jp"
-                    onCommit={(v) => p({ nameAlt: v || undefined })}
-                  />
+                  <span style={data.config.localScriptFont ? { fontFamily: data.config.localScriptFont } : undefined}>
+                    <Editable
+                      label="Local name"
+                      value={hotel.nameAlt ?? ""}
+                      placeholder="Name in the local script"
+                      onCommit={(v) => p({ nameAlt: v || undefined })}
+                    />
+                  </span>
                 </InsetRow>
               )}
               {showAddress && (
@@ -86,7 +87,10 @@ export default function Hotel() {
                     <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined })} />
                   </span>
                   {(hotel.addressAlt || !ro) && (
-                    <span className="mt-1 block font-jp text-[0.8125rem] leading-snug text-ink-soft">
+                    <span
+                      className="mt-1 block text-[0.8125rem] leading-snug text-ink-soft"
+                      style={data.config.localScriptFont ? { fontFamily: data.config.localScriptFont } : undefined}
+                    >
                       <Editable label="Local address" value={hotel.addressAlt ?? ""} placeholder="Local-script address, for taxis" onCommit={(v) => p({ addressAlt: v || undefined })} />
                     </span>
                   )}

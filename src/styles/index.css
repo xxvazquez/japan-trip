@@ -72,10 +72,6 @@ html.dark {
      * the focus-zoom on small inputs in the standalone PWA. */
     touch-action: manipulation;
   }
-  :lang(ja),
-  .font-jp {
-    font-family: theme("fontFamily.jp");
-  }
   h1, h2, h3 {
     @apply font-display font-medium text-ink;
     text-wrap: balance;

@@ -436,7 +436,10 @@ function Setup() {
         </ul>
       </Section>
 
-      <Section title="Map & format">
+      <Section
+        title="Map & format"
+        info="Local-script font sets the typeface for a hotel/stay's local name (Manage → Content, or the hotel/stay page itself) — paste a CSS font stack, e.g. Hiragino Sans, Yu Gothic, sans-serif for Japanese, or Noto Sans KR, sans-serif for Korean. Leave blank to use the app's regular font."
+      >
         <ul>
         <Row label="Date format">
           <select
@@ -450,6 +453,9 @@ function Setup() {
         </Row>
         <Row label="Google My Map">
           <Editable as="link" label="Google My Map link" value={config.mapSourceUrl ?? ""} placeholder="paste the share link" onCommit={(v) => mutate((d) => { d.config.mapSourceUrl = v; })} />
+        </Row>
+        <Row label="Local-script font">
+          <Editable label="Local-script font" value={config.localScriptFont ?? ""} placeholder="app default" onCommit={(v) => mutate((d) => { d.config.localScriptFont = v || undefined; })} />
         </Row>
         </ul>
       </Section>

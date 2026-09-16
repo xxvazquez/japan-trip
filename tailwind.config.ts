@@ -35,9 +35,6 @@ export default {
         // right optical size (SF Pro Display vs Text) by element size itself.
         display: ["-apple-system", "BlinkMacSystemFont", '"Segoe UI"', "Roboto", '"Helvetica Neue"', "Arial", "system-ui", "sans-serif"],
         sans: ["-apple-system", "BlinkMacSystemFont", '"Segoe UI"', "Roboto", '"Helvetica Neue"', "Arial", "system-ui", "sans-serif"],
-        // Japanese uses the OS font — Hiragino on Apple, Yu Gothic on Windows,
-        // Noto on Android/Linux. All are excellent; none costs us bytes.
-        jp: ['"Hiragino Sans"', '"Hiragino Kaku Gothic ProN"', '"Yu Gothic"', '"Noto Sans JP"', "sans-serif"],
       },
       fontSize: {
         // a small, deliberate scale

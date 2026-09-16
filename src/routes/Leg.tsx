@@ -42,13 +42,14 @@ export default function Leg() {
           <ul>
             {(leg.nameAlt || !ro) && (
               <InsetRow label="Local name">
-                <Editable
-                  label="Local name"
-                  value={leg.nameAlt ?? ""}
-                  placeholder="Name in the local script"
-                  className="font-jp"
-                  onCommit={(v) => p({ nameAlt: v || undefined })}
-                />
+                <span style={data.config.localScriptFont ? { fontFamily: data.config.localScriptFont } : undefined}>
+                  <Editable
+                    label="Local name"
+                    value={leg.nameAlt ?? ""}
+                    placeholder="Name in the local script"
+                    onCommit={(v) => p({ nameAlt: v || undefined })}
+                  />
+                </span>
               </InsetRow>
             )}
             <InsetRow label="Start">

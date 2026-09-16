@@ -106,6 +106,11 @@ export interface TripConfig {
   /** Google accounts every document attachment is shared with (both travellers).
    *  Files upload to the adder's Drive, then get read access for these emails. */
   driveShareEmails?: string[];
+  /** CSS font-family value (e.g. `"Hiragino Sans", "Yu Gothic", sans-serif`)
+   *  applied to a hotel/stay's local-script alternate name — free text, since
+   *  the app has no fixed notion of which language a trip's local script is.
+   *  Unset falls back to the regular UI font stack. */
+  localScriptFont?: string;
 }
 
 export interface ListItem {

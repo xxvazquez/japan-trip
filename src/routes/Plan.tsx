@@ -262,7 +262,11 @@ function LegBlock({
       <Link to={`/leg/${leg.id}`} className="group mb-2 flex items-baseline gap-2">
         <span className="h-3 w-3 shrink-0 translate-y-[1px] rounded-full" style={{ background: hex }} />
         <h2 className="subhead group-hover:underline">{leg.base}</h2>
-        {leg.nameAlt && <span className="font-jp text-sm text-ink-faint">{leg.nameAlt}</span>}
+        {leg.nameAlt && (
+          <span className="text-sm text-ink-faint" style={days.config.localScriptFont ? { fontFamily: days.config.localScriptFont } : undefined}>
+            {leg.nameAlt}
+          </span>
+        )}
       </Link>
       <p className="eyebrow mb-2 pl-5">
         {fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – {fmtDate(leg.end, loc, { day: "numeric", month: "short" })} · {plural(nights, "night")}

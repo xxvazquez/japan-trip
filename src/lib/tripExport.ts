@@ -1,12 +1,13 @@
 /**
  * Export a whole trip as one self-contained HTML file — every style inlined,
  * images kept as the data URIs they already are, no external references. Opens
- * in any browser, prints cleanly, and Japanese text falls back to the reader's
- * OS font (no webfont is bundled, same as the app).
+ * in any browser, prints cleanly; a local-script name (`.local-name`) uses
+ * `config.localScriptFont` if set, else falls back to the reader's OS font
+ * (no webfont is bundled, same as the app).
  *
  * Trip-agnostic: this walks the generic `TripData` shape and nothing here knows
- * about Japan. Loaded on demand (dynamic import) so it stays out of the main
- * bundle.
+ * about any one trip. Loaded on demand (dynamic import) so it stays out of the
+ * main bundle.
  *
  * `includePrivate` (default off) is the difference between a version safe to
  * send someone and a personal copy: with it off, door codes, wifi, phone
@@ -39,6 +40,12 @@ const safeHref = (url: string): string => {
   const u = url.trim();
   return /^(https?:|mailto:|tel:)/i.test(u) ? esc(u) : "#";
 };
+
+/** a free-text `font-family` value going straight into a `<style>` block —
+ *  strip anything that could break out of the declaration (braces, quotes
+ *  used to close early, `;`, `<`), rather than HTML-escape it (`esc` would
+ *  leave those CSS-special characters untouched). */
+const safeFontFamily = (v: string): string => v.replace(/[{}<>;`\\]/g, "").trim();
 
 /** A deliberately tiny Markdown → HTML pass: **bold**, *italic*, `code`,
  *  [text](url), bare URLs, `- ` bullet lists, blank-line paragraphs. Everything
@@ -171,7 +178,7 @@ function itinerarySection(data: TripData): string {
       ? `${fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – ${fmtDate(leg.end, loc, { day: "numeric", month: "short" })} · ${plural(nights, "night")}`
       : "";
     return `<section class="leg">
-      <h3>${esc(leg.base)}${leg.nameAlt ? ` <span class="jp">${esc(leg.nameAlt)}</span>` : ""}</h3>
+      <h3>${esc(leg.base)}${leg.nameAlt ? ` <span class="local-name">${esc(leg.nameAlt)}</span>` : ""}</h3>
       ${range ? `<p class="leg-range">${esc(range)}</p>` : ""}
       ${leg.blurb?.trim() ? `<div class="note">${mdToHtml(leg.blurb)}</div>` : ""}
       ${days.map((d) => dayBlock(d, data, loc)).join("\n") || `<p class="empty">No days yet.</p>`}
@@ -239,7 +246,7 @@ function staysSection(data: TripData, opts: ExportOptions): string {
       : "";
     const mapHref = gmapsLink(h.mapUrl || h.address);
     return `<section class="stay">
-      <h3>${esc(h.name)}${h.nameAlt ? ` <span class="jp">${esc(h.nameAlt)}</span>` : ""}</h3>
+      <h3>${esc(h.name)}${h.nameAlt ? ` <span class="local-name">${esc(h.nameAlt)}</span>` : ""}</h3>
       ${range ? `<p class="leg-range">${esc(range)}</p>` : ""}
       ${h.address ? `<p class="stay-address">${esc(h.address)}</p>` : ""}
       ${h.addressAlt ? `<p class="stay-address jp">${esc(h.addressAlt)}</p>` : ""}
@@ -364,7 +371,7 @@ function styles(data: TripData): string {
     color: var(--ink);
     font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
-  .jp { font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif; color: var(--ink-faint); font-weight: normal; }
+  .local-name { font-family: ${data.config.localScriptFont ? safeFontFamily(data.config.localScriptFont) : "inherit"}; color: var(--ink-faint); font-weight: normal; }
   main { max-width: 44rem; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
   h1, h2, h3, h4 { font-family: Georgia, "Times New Roman", serif; font-weight: 600; line-height: 1.25; color: var(--ink); }
   h1 { font-size: 2.1rem; margin: 0 0 .3rem; }

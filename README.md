@@ -189,6 +189,10 @@ yourself.
   one's **icon** (shown on every Spending row and in Expenses) is guessed from that mode/role, or the
   name — tap the icon itself to pick your own instead, from a searchable grid of 130+ icons grouped
   into categories (Food & drink, Transport, Weather…).
+- **Local-script font** (under Map & format) sets the typeface for a hotel/stay's local-script name
+  (Manage → Content, or the hotel/stay page itself) — paste a CSS font stack, e.g. `Hiragino Sans, Yu
+  Gothic, sans-serif` for Japanese, or `Noto Sans KR, sans-serif` for Korean. Leave it blank to use
+  the app's regular font.
 - Hide the Logbook sections you don't need, from the same Setup tab.
 - The **Tabs** panel above it reorders, renames or hides the three main tabs (Plan, Map, Logbook) —
   and **Add tab** lets you pin any Logbook page (Packing, say) straight onto the main nav as its own
