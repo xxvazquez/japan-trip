@@ -963,9 +963,11 @@ export default function MapTab() {
     <div ref={forMobile ? setPanelRoot : undefined} className="flex h-full flex-col">
       {/* context bar — city → area → filters */}
       <div className="shrink-0 border-b border-line px-4 pb-2 pt-2.5">
-        {/* city pills + Add place (always one tap) */}
+        {/* city pills, then — same row — the active city's area pills, so
+            picking a city and narrowing to one of its areas is one scroll
+            strip instead of two stacked rows. Add place (always one tap) */}
         <div className="flex items-center gap-2">
-          <div className="-mx-1 flex min-w-0 flex-1 gap-1.5 overflow-x-auto px-1 pb-0.5 [scrollbar-width:none] [-webkit-mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent_100%)] [mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent_100%)] [&::-webkit-scrollbar]:hidden">
+          <div className="-mx-1 flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto px-1 pb-0.5 [scrollbar-width:none] [-webkit-mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent_100%)] [mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent_100%)] [&::-webkit-scrollbar]:hidden">
             {[
               ...(clock.phase === "during" && clock.today
                 ? [{ id: `day:${clock.today.id}`, label: "Today", hex: "" }]
@@ -987,6 +989,24 @@ export default function MapTab() {
                 </button>
               );
             })}
+            {scope?.startsWith("leg:") && scopeAreas.length > 0 && !adding && (
+              <>
+                <span className="h-4 w-px shrink-0 bg-line" aria-hidden="true" />
+                {scopeAreas.map(({ a, col }) => {
+                  const on = areaFilter.size === 0 || areaFilter.has(a.id);
+                  return (
+                    <button
+                      key={a.id}
+                      onClick={() => toggleAreaFilter(a.id)}
+                      className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-opacity ${on ? "border-line text-ink-soft hover:border-ink-soft" : "border-line text-ink-faint opacity-40"}`}
+                    >
+                      <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: col }} />
+                      <span className="whitespace-nowrap">{a.name || "Untitled"}</span>
+                    </button>
+                  );
+                })}
+              </>
+            )}
           </div>
           {todayScopeId && scope === todayScopeId && (
             <button
@@ -1018,27 +1038,6 @@ export default function MapTab() {
             </button>
           ))}
         </div>
-
-        {/* area chips — only once a city is picked, and only that city's areas
-            that have a place in view. On "All" the list's own area sections do
-            the narrowing; a chip wall there is the thing this redesign killed. */}
-        {scope?.startsWith("leg:") && scopeAreas.length > 0 && !adding && (
-          <div className="-mx-1 mt-2.5 flex gap-3 overflow-x-auto px-1 pb-0.5 [scrollbar-width:none] [-webkit-mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent_100%)] [mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent_100%)] [&::-webkit-scrollbar]:hidden">
-            {scopeAreas.map(({ a, col }) => {
-              const on = areaFilter.size === 0 || areaFilter.has(a.id);
-              return (
-                <button
-                  key={a.id}
-                  onClick={() => toggleAreaFilter(a.id)}
-                  className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-xs transition-opacity ${on ? "" : "opacity-35"}`}
-                >
-                  <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: col, boxShadow: on ? `0 0 0 1px ${col}` : "none" }} />
-                  {a.name || "Untitled"}
-                </button>
-              );
-            })}
-          </div>
-        )}
 
         {/* Filters — category, transit, and area editing, folded away by default */}
         {!adding && (
