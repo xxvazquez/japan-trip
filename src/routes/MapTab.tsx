@@ -531,14 +531,22 @@ export default function MapTab() {
     return { inScopeIds: all, derivedIds: new Set([...all].filter((id) => !explicit.has(id) && !placeLeg.has(id))) };
   }, [data, places, scope, placeLeg]);
 
-  /** the scope, narrowed by the category + area chips */
-  const scoped = useMemo(() => {
+  /** the scope, narrowed by category only — area groups build their headers
+   *  and counts from this, so soloing one area can't make its own header
+   *  (or another area's count) disappear. */
+  const preAreaScoped = useMemo(() => {
     const pass = (p: Place) =>
       inScopeIds.has(p.id) &&
-      (catFilter.size === 0 || (!!p.category && catFilter.has(p.category))) &&
-      (!areaAllowed || areaAllowed.has(p.id));
+      (catFilter.size === 0 || (!!p.category && catFilter.has(p.category)));
     return places.filter(pass);
-  }, [places, inScopeIds, catFilter, areaAllowed]);
+  }, [places, inScopeIds, catFilter]);
+
+  /** the scope, narrowed by category + the area filter — what the map and
+   *  the flat/ungrouped list actually show */
+  const scoped = useMemo(
+    () => (areaAllowed ? preAreaScoped.filter((p) => areaAllowed.has(p.id)) : preAreaScoped),
+    [preAreaScoped, areaAllowed],
+  );
   const derived = derivedIds;
 
   /** distance-sorted Today places once "Nearby" is on and a fix has come in —
@@ -579,7 +587,7 @@ export default function MapTab() {
    *  and more than one is represented in the current view; null → flat list. */
   const areaGroups = useMemo(() => {
     if (!data || data.areas.length === 0) return null;
-    const byId = new Map(scoped.map((p) => [p.id, p] as const));
+    const byId = new Map(preAreaScoped.map((p) => [p.id, p] as const));
     const groups = data.areas
       .map((a, i) => ({
         id: a.id,
@@ -590,11 +598,11 @@ export default function MapTab() {
       .filter((g) => g.items.length > 0)
       .sort((x, y) => x.name.localeCompare(y.name));
     const inArea = new Set(data.areas.flatMap((a) => a.placeIds));
-    const loose = scoped.filter((p) => !inArea.has(p.id));
+    const loose = preAreaScoped.filter((p) => !inArea.has(p.id));
     if (loose.length) groups.push({ id: "", name: "No area", tone: NEUTRAL_TONE, items: loose });
     // one group only → not worth the section chrome, render flat
     return groups.length > 1 ? groups : null;
-  }, [data, scoped]);
+  }, [data, preAreaScoped]);
 
   /** the "All" list nested city → area → places. Each area sits under the city
    *  most of its pins fall in. Null unless more than one city actually shows —
@@ -649,21 +657,6 @@ export default function MapTab() {
 
     return groups.length > 1 ? groups : null;
   }, [data, scope, scoped, placeLeg]);
-
-  /** the area chips to show for the current city — only areas that actually have
-   *  a place in view. Derived from the scope *before* the chips narrow it, so
-   *  ticking one can't make its own chip disappear. */
-  const scopeAreas = useMemo(() => {
-    if (!data) return [];
-    return data.areas
-      .map((a, i) => ({
-        a,
-        col: AREA_TONES[i % AREA_TONES.length],
-        n: a.placeIds.filter((id) => inScopeIds.has(id)).length,
-      }))
-      .filter((g) => g.n > 0)
-      .sort((x, y) => (x.a.name || "").localeCompare(y.a.name || ""));
-  }, [data, inScopeIds]);
 
   /** legs whose hotel has coordinates — enough to earn a city pill even before
    *  any pin sits under it, so linking a hotel is all it takes to see the city */
@@ -966,9 +959,9 @@ export default function MapTab() {
     <div ref={forMobile ? setPanelRoot : undefined} className="flex h-full flex-col">
       {/* context bar — city → area → filters */}
       <div className="shrink-0 border-b border-line px-4 pb-2 pt-2.5">
-        {/* city pills, then — same row — the active city's area pills, so
-            picking a city and narrowing to one of its areas is one scroll
-            strip instead of two stacked rows. Add place (always one tap) */}
+        {/* city pills. Soloing an area happens on its own row in the list
+            below (areaGroups), not up here — a second row of area pills just
+            duplicated that row's colour dot + name. */}
         <div className="flex items-center gap-2">
           <div className="-mx-1 flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto px-1 pb-0.5 [scrollbar-width:none] [-webkit-mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent_100%)] [mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent_100%)] [&::-webkit-scrollbar]:hidden">
             {[
@@ -992,24 +985,6 @@ export default function MapTab() {
                 </button>
               );
             })}
-            {scope?.startsWith("leg:") && scopeAreas.length > 0 && !adding && (
-              <>
-                <span className="h-4 w-px shrink-0 bg-line" aria-hidden="true" />
-                {scopeAreas.map(({ a, col }) => {
-                  const on = areaFilter.size === 0 || areaFilter.has(a.id);
-                  return (
-                    <button
-                      key={a.id}
-                      onClick={() => toggleAreaFilter(a.id)}
-                      className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-opacity ${on ? "border-line text-ink-soft hover:border-ink-soft" : "border-line text-ink-faint opacity-40"}`}
-                    >
-                      <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: col }} />
-                      <span className="whitespace-nowrap">{a.name || "Untitled"}</span>
-                    </button>
-                  );
-                })}
-              </>
-            )}
           </div>
           {todayScopeId && scope === todayScopeId && (
             <button
@@ -1330,19 +1305,40 @@ export default function MapTab() {
       ) : areaGroups ? (
         <div ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto">
           {areaGroups.map((g) => {
+            const isArea = g.id !== "";
+            // the dot doubles as the old area-pill filter — soloed areas dim
+            // out here instead of in a separate row above. "No area" has no
+            // filter of its own; it just drops out while any area's soloed.
+            const filteredOut = isArea ? areaFilter.size > 0 && !areaFilter.has(g.id) : areaFilter.size > 0;
             // a collapsed group still opens to reveal a pin picked on the map
-            const shut = collapsedAreas.has(g.id) && !g.items.some((p) => p.id === selected);
+            const manuallyShut = collapsedAreas.has(g.id) && !g.items.some((p) => p.id === selected);
+            const shut = filteredOut || manuallyShut;
             return (
               <section key={g.id || "none"}>
-                <button
-                  onClick={() => toggleAreaCollapsed(g.id)}
-                  className="sticky top-0 z-[1] flex w-full items-center gap-2 border-b border-line bg-bg px-4 py-1.5 text-left"
+                <div
+                  className={`sticky top-0 z-[1] flex items-center gap-2 border-b border-line bg-bg px-4 py-1.5 transition-opacity ${filteredOut ? "opacity-40" : ""}`}
                 >
-                  <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: g.tone }} />
-                  <span className="eyebrow min-w-0 flex-1 truncate font-medium">{g.name}</span>
-                  <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{g.items.length}</span>
-                  <Icon name="chevron" size={12} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />
-                </button>
+                  {isArea ? (
+                    <button
+                      onClick={() => toggleAreaFilter(g.id)}
+                      aria-label={filteredOut ? `Show ${g.name} on the map` : `Show only ${g.name} on the map`}
+                      aria-pressed={!filteredOut}
+                      className="-m-1.5 shrink-0 rounded-full p-1.5"
+                    >
+                      <span className="block h-2 w-2 rounded-full" style={{ background: g.tone }} />
+                    </button>
+                  ) : (
+                    <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: g.tone }} />
+                  )}
+                  <button
+                    onClick={() => toggleAreaCollapsed(g.id)}
+                    className="flex min-w-0 flex-1 items-center gap-2 text-left"
+                  >
+                    <span className="eyebrow min-w-0 flex-1 truncate font-medium">{g.name}</span>
+                    <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{g.items.length}</span>
+                    <Icon name="chevron" size={12} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />
+                  </button>
+                </div>
                 {!shut && <ul className="px-4">{g.items.map(renderRow)}</ul>}
               </section>
             );

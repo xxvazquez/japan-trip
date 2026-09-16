@@ -79,8 +79,8 @@ Linked from a day, or the *getting around* tab. A journey is one or more **hops*
 
 ### Map
 
-Your Google **My Map** pins, on a clean map. It reads **city → area → filters → places**, top to
-bottom.
+Your Google **My Map** pins, on a clean map. It reads **city → filters → places**, top to bottom —
+places grouped and foldable by area once a city's picked.
 
 - **City pills** — **All** plus one per stay (and **Today** while the trip is running), coloured to
   match the trip. Pick a city and the map and the list both narrow to it straight away; the app opens
@@ -92,9 +92,10 @@ bottom.
   a pin to show.
 - **＋ Add place** sits next to the pills, always one tap — search for somewhere, or tap the map to
   drop a pin.
-- **Area chips** appear once a city is picked — just that city's areas that have a place in view. Tap
-  to show only those; none lit means all. On **All** the list nests instead — **city → area →
-  places**, each level collapsible — so a multi-city trip reads top to bottom without the chips.
+- Once a city is picked, its areas list below as their own rows — tap a row to fold or unfold its
+  places, tap the **colour dot** to show only that area on the map and in the list; no dot picked
+  shows all. On **All** the list nests instead — **city → area → places**, each level collapsible —
+  so a multi-city trip reads top to bottom the same way.
 - **Filters** opens a sheet with **category** and **transit** — real filtering, so it overlays the
   list instead of shrinking it:
   - **Category** — the coloured dots; none selected shows everything, tap some to narrow. Give a
@@ -129,10 +130,9 @@ Higashiyama, a neighbourhood you name). A place can sit in several areas.
 - Rename or delete an area with *Edit areas* in that same place — that's also where place-by-place
   membership for a whole area is edited. Manage → Content doesn't list areas, since the Map's own
   editor already covers it.
-- The **area chips** above the Filters row show only the areas with a place in the chosen city — tap
-  to show just those on the map and in the list; none lit means all. The list itself splits into a
-  collapsible section per area (plus a *No area* group), so you can fold away the ones you're not
-  looking at.
+- Once a city's picked, the list splits into a collapsible section per area (plus a *No area* group).
+  Tap a section's **colour dot** to show just that area on the map and in the list — no dot picked
+  shows all; tap the rest of the row to fold it away instead.
 - Add an area to a **day** (on the day page) and every place in it shows on that day's map — a live
   link, so editing the area later updates the day too. Area places show slightly faded and aren't
   added to your plan unless you tap the **+** on the area to drop one in as a step.
