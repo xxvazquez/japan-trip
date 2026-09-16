@@ -1019,14 +1019,14 @@ export default function MapTab() {
             that have a place in view. On "All" the list's own area sections do
             the narrowing; a chip wall there is the thing this redesign killed. */}
         {scope?.startsWith("leg:") && scopeAreas.length > 0 && !adding && (
-          <div className="mt-2.5 flex flex-wrap gap-x-3 gap-y-1.5">
+          <div className="-mx-1 mt-2.5 flex gap-3 overflow-x-auto px-1 pb-0.5 [scrollbar-width:none] [-webkit-mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent_100%)] [mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent_100%)] [&::-webkit-scrollbar]:hidden">
             {scopeAreas.map(({ a, col }) => {
               const on = areaFilter.size === 0 || areaFilter.has(a.id);
               return (
                 <button
                   key={a.id}
                   onClick={() => toggleAreaFilter(a.id)}
-                  className={`inline-flex items-center gap-1.5 text-xs transition-opacity ${on ? "" : "opacity-35"}`}
+                  className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap text-xs transition-opacity ${on ? "" : "opacity-35"}`}
                 >
                   <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: col, boxShadow: on ? `0 0 0 1px ${col}` : "none" }} />
                   {a.name || "Untitled"}
@@ -1353,17 +1353,17 @@ export default function MapTab() {
 
       {/* sync footer */}
       <div className="shrink-0 border-t border-line px-4 py-2.5 text-xs text-ink-soft">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <span>
+        <div className="flex items-center gap-x-3">
+          <span className="min-w-0 flex-1 truncate">
             {imported > 0 ? `${imported} pins from Google My Maps` : "No My Maps pins"}
             {syncedAt ? ` · synced ${rel(syncedAt)}` : ""}
           </span>
           {url && (
-            <button onClick={runSync} disabled={busy} className="font-medium text-accent disabled:opacity-50">
+            <button onClick={runSync} disabled={busy} className="shrink-0 font-medium text-accent disabled:opacity-50">
               {busy ? "syncing…" : "Sync"}
             </button>
           )}
-          {imported > 0 && <InfoNote>Syncing replaces imported pins. Your added places and notes are kept.</InfoNote>}
+          {imported > 0 && <InfoNote className="shrink-0">Syncing replaces imported pins. Your added places and notes are kept.</InfoNote>}
         </div>
         {msg && <p className="mt-1 text-accent">{msg}</p>}
         {!url && (
