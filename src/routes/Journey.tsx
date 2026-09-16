@@ -420,15 +420,15 @@ export default function Journey() {
       )}
 
       {!ro && (
-        <div className="pt-2 text-center">
+        <Section>
           <ConfirmButton
             onConfirm={() => { removeEntity("journeys", j.id); navigate("/logbook"); }}
             label="Delete journey"
-            className="text-sm font-medium text-danger"
+            className="w-full justify-center px-3.5 py-3 text-sm font-medium text-danger"
           >
             Delete journey
           </ConfirmButton>
-        </div>
+        </Section>
       )}
       </div>
     </Page>

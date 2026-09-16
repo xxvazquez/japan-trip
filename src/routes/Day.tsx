@@ -361,13 +361,15 @@ export default function Day() {
       )}
 
       {!ro && (
-        <ConfirmButton
-          label="Delete day"
-          onConfirm={() => { removeEntity("days", day.id); nav("/"); }}
-          className="mt-4 w-full justify-center py-2 text-sm font-medium text-danger"
-        >
-          Delete day
-        </ConfirmButton>
+        <Section className="mt-6">
+          <ConfirmButton
+            label="Delete day"
+            onConfirm={() => { removeEntity("days", day.id); nav("/"); }}
+            className="w-full justify-center px-3.5 py-3 text-sm font-medium text-danger"
+          >
+            Delete day
+          </ConfirmButton>
+        </Section>
       )}
     </Page>
   );

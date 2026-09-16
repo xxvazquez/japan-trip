@@ -170,15 +170,15 @@ export default function Hotel() {
         )}
 
         {!ro && (
-          <div className="pt-2 text-center">
+          <Section>
             <ConfirmButton
               onConfirm={() => { removeEntity("hotels", hotel.id); navigate("/logbook"); }}
               label="Delete stay"
-              className="text-sm font-medium text-danger"
+              className="w-full justify-center px-3.5 py-3 text-sm font-medium text-danger"
             >
               Delete stay
             </ConfirmButton>
-          </div>
+          </Section>
         )}
       </div>
     </Page>
