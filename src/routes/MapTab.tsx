@@ -1009,8 +1009,12 @@ export default function MapTab() {
           {!readOnly && (adding ? (
             <button onClick={cancelAdd} className="link-quiet shrink-0 text-sm">Cancel</button>
           ) : (
-            <button onClick={startAdd} className="action shrink-0 whitespace-nowrap text-sm">
-              <Icon name="plus" size={14} /> Add place
+            <button
+              onClick={startAdd}
+              aria-label="Add place"
+              className="shrink-0 rounded-full border border-line p-1.5 text-accent transition-colors hover:border-accent"
+            >
+              <Icon name="plus" size={15} />
             </button>
           ))}
         </div>
