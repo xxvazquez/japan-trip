@@ -58,7 +58,7 @@ export function AppShell() {
       style={demo ? ({ "--demo-h": "2.25rem" } as Record<string, string>) : undefined}
     >
       <header className="sticky top-0 z-30 border-b border-line bg-bg pt-[var(--sat)]">
-        <div className="mx-auto flex h-14 max-w-page items-center justify-between px-4 sm:px-6">
+        <div className="flex h-14 items-center justify-between px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2" aria-label={data?.config.branding}>
             <Wordmark />
             {data?.config.tagline && (
