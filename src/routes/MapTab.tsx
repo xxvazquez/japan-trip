@@ -741,6 +741,20 @@ export default function MapTab() {
 
   const imported = useMemo(() => places.filter((p) => p.source === "mymap").length, [places]);
 
+  /** areas sharing a case-insensitive trimmed name with at least one other —
+   *  left over from before duplicate creation was guarded against. */
+  const duplicateAreaGroups = useMemo(() => {
+    if (!data) return [];
+    const byName = new Map<string, Area[]>();
+    for (const a of data.areas) {
+      const key = (a.name || "").trim().toLowerCase();
+      if (!key) continue;
+      if (!byName.has(key)) byName.set(key, []);
+      byName.get(key)!.push(a);
+    }
+    return [...byName.values()].filter((g) => g.length > 1);
+  }, [data]);
+
   // fit the map to the current scope when nothing is selected
   const fitScope = () => {
     const m = map.current;
@@ -898,19 +912,6 @@ export default function MapTab() {
     setAreaName("");
     setNamingArea(false);
   };
-
-  /** areas sharing a case-insensitive trimmed name with at least one other —
-   *  left over from before duplicate creation was guarded against. */
-  const duplicateAreaGroups = useMemo(() => {
-    const byName = new Map<string, Area[]>();
-    for (const a of data.areas) {
-      const key = (a.name || "").trim().toLowerCase();
-      if (!key) continue;
-      if (!byName.has(key)) byName.set(key, []);
-      byName.get(key)!.push(a);
-    }
-    return [...byName.values()].filter((g) => g.length > 1);
-  }, [data.areas]);
 
   /** union each duplicate group's places onto the one with the most (ties → the
    *  first), repoint any day that linked one of the others, then drop them.
