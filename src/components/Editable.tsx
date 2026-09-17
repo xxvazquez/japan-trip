@@ -23,6 +23,9 @@ type Props =
   | (Base & { as?: Kind | "auto" })
   | (Base & { as: "select"; options: { value: string; label: string }[] });
 
+const HOURS = Array.from({ length: 24 }, (_, h) => String(h).padStart(2, "0"));
+const MINUTES = Array.from({ length: 60 }, (_, m) => String(m).padStart(2, "0"));
+
 /* Two heuristics feed `as: "auto"`, resolved in this order (see `resolveKind`):
  *  1. `labelKind` — what the field's *name* implies ("Phone" → tel), so an
  *     empty field still gets the right input. Its rule order only matters for
@@ -166,16 +169,53 @@ export function Editable(props: Props) {
     );
   }
 
-  // dates and times are always a one-tap native picker — no two-step editing
-  if (as === "date" || as === "time") {
+  // dates are always a one-tap native picker — no two-step editing
+  if (as === "date") {
     return (
       <input
-        type={as}
+        type="date"
         aria-label={label}
         value={value}
         onChange={(e) => e.target.value !== value && onCommit(e.target.value)}
         className={`editable inline bg-transparent tabular-nums ${className}`}
       />
+    );
+  }
+
+  // time is two plain native <select>s, not `input type="time"` — that
+  // control's own picker is a one-tap wheel on iOS but drops to a typable
+  // keypad by default on Android, which is exactly the "type a time" ask
+  // this app never wants. A <select> can only ever be chosen from, on any
+  // platform, so hour and minute stay tap-only everywhere.
+  if (as === "time") {
+    const [h, m] = value ? value.split(":") : ["", ""];
+    // picking "--" on either select always clears the whole time, even if
+    // the other half already has a value; picking a real value on one
+    // defaults the other to "00" only when it was still unset
+    const handleHour = (nh: string) => onCommit(nh ? `${nh}:${m || "00"}` : "");
+    const handleMinute = (nm: string) => onCommit(nm ? `${h || "00"}:${nm}` : "");
+    return (
+      <span className={`editable inline-flex items-center bg-transparent tabular-nums ${className}`}>
+        <select
+          aria-label={`${label} — hour`}
+          value={h}
+          onChange={(e) => handleHour(e.target.value)}
+          className="cursor-pointer appearance-none bg-transparent text-right focus:outline-none"
+        >
+          <option value="">--</option>
+          {HOURS.map((hh) => <option key={hh} value={hh}>{hh}</option>)}
+        </select>
+        <span aria-hidden="true">:</span>
+        <select
+          aria-label={`${label} — minute`}
+          value={m}
+          onChange={(e) => handleMinute(e.target.value)}
+          className="cursor-pointer appearance-none bg-transparent focus:outline-none"
+        >
+          <option value="">--</option>
+          {MINUTES.map((mm) => <option key={mm} value={mm}>{mm}</option>)}
+        </select>
+      </span>
     );
   }
 

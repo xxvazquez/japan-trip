@@ -563,9 +563,7 @@ function PlanRow({ day, tz, item, place, areaPlaces, areaNameByPlaceId, category
                       as="time"
                       label="Time"
                       value={item.time ?? ""}
-                      placeholder=""
                       onCommit={(v) => onPatch({ time: v || undefined })}
-                      className={`[&::-webkit-calendar-picker-indicator]:hidden ${!item.time ? "[&:not(:focus)]:text-transparent" : ""}`}
                     />
                   ) : (
                     <Editable label="Time" value={item.time ?? ""} placeholder="Add a time" onCommit={(v) => onPatch({ time: v.trim() || undefined })} />
