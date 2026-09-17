@@ -137,6 +137,9 @@ Higashiyama, a neighbourhood you name). A place can sit in several areas.
   link, so editing the area later updates the day too. Area places show slightly faded and aren't
   added to your plan unless you tap the **+** on the area to drop one in as a step.
 - Zoom out and each area gets a faint labelled ring so you can see its rough extent at a glance.
+- An area's section header shows roughly how long it'd take to walk end to end (e.g. "≈ 12 min walk
+  across") — a straight-line estimate at an easy walking pace, not a real route, so treat it as a
+  rough sense of the area's spread rather than exact directions.
 
 ### Suggest areas
 
