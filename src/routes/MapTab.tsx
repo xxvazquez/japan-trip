@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { MapView, type MLMap } from "@/components/MapView";
 import { Editable } from "@/components/Editable";
@@ -20,6 +20,7 @@ import { suggestAreas, type AreaSuggestion } from "@/lib/cluster";
 import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
 import { TRANSIT_KINDS, TRANSIT_META } from "@/lib/transitLayers";
+import { nearestStationFromMap, nearestStationOverpass, type NearbyStation } from "@/lib/transitStation";
 import { glyphPath } from "@/lib/mapGlyphs";
 import { toneForPlaceCategory, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
@@ -170,6 +171,10 @@ export default function MapTab() {
   const dark = isDark(mode);
 
   const map = useRef<MLMap | null>(null);
+  /** flips once on the map's first load — a place row's nearest-station
+   *  lookup waits for this instead of finding `map.current` still null and
+   *  reaching for Overpass on every cold load. */
+  const [mapReady, setMapReady] = useState(false);
   const [scope, setScope] = useState<string | null>(null);
   /** category filter — empty means "all categories". Combines with any scope. */
   const [catFilter, setCatFilter] = useState<Set<string>>(new Set());
@@ -967,6 +972,8 @@ export default function MapTab() {
       areas={data.areas}
       categoryIcons={data.config.categoryIcons}
       loc={loc}
+      map={map}
+      mapReady={mapReady}
       onToggle={() => setSelected(selected === p.id ? null : p.id)}
       onNote={(v) => updateEntity<Place>("places", p.id, { note: v || undefined })}
       onName={(v) => v && updateEntity<Place>("places", p.id, { name: v })}
@@ -1310,7 +1317,7 @@ export default function MapTab() {
                             <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: a.tone }} />
                             <span className="min-w-0 flex-1">
                               <span className="eyebrow block truncate font-medium">{a.name}</span>
-                              {walk !== null && <span className="block text-2xs text-ink-faint">≈ {fmtWalkMin(walk)} walk across</span>}
+                              {walk !== null && <span className="block text-2xs text-ink-faint">≈ {fmtWalkMin(walk)} end to end</span>}
                             </span>
                             <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{a.items.length}</span>
                             <Icon name="chevron" size={12} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />
@@ -1369,7 +1376,7 @@ export default function MapTab() {
                   >
                     <span className="min-w-0 flex-1">
                       <span className="eyebrow block truncate font-medium">{g.name}</span>
-                      {walk !== null && <span className="block text-2xs text-ink-faint">≈ {fmtWalkMin(walk)} walk across</span>}
+                      {walk !== null && <span className="block text-2xs text-ink-faint">≈ {fmtWalkMin(walk)} end to end</span>}
                     </span>
                     <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{g.items.length}</span>
                     <Icon name="chevron" size={12} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />
@@ -1448,6 +1455,7 @@ export default function MapTab() {
           onReady={(m) => {
             map.current = m;
             fitScope();
+            setMapReady(true);
           }}
         />
         {adding && (
@@ -1513,6 +1521,8 @@ function PlaceRow({
   areas,
   categoryIcons,
   loc,
+  map,
+  mapReady,
   onToggle,
   onNote,
   onName,
@@ -1530,6 +1540,10 @@ function PlaceRow({
   areas: Area[];
   categoryIcons?: Record<string, string>;
   loc: string;
+  /** for the nearest-station lookup — read-only, never used to mutate the map */
+  map: RefObject<MLMap | null>;
+  /** the map's first load — before this, `map.current` is still null */
+  mapReady: boolean;
   onToggle: () => void;
   onNote: (v: string) => void;
   onName: (v: string) => void;
@@ -1544,6 +1558,43 @@ function PlaceRow({
   useEffect(() => {
     if (open) li.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [open]);
+
+  // nearest station — the map's own loaded tiles first (no request). Waits
+  // for `mapReady` (the list mounts well before the map's first load) rather
+  // than treating a not-yet-ready map as "no station"; if that first check
+  // still comes up empty, gives the map one more settle cycle (e.g. the
+  // scope-fit pan/zoom pulling in new tiles) before falling back to Overpass,
+  // so a place whose tile just hasn't loaded yet doesn't hit the network for
+  // no reason. Only ever runs for a place whose row is actually mounted (a
+  // collapsed area's places never render), so this is never a batch job over
+  // the whole trip, and Overpass runs at most once per place.
+  const [station, setStation] = useState<NearbyStation | null>(null);
+  useEffect(() => {
+    setStation(null);
+    if (!mapReady) return;
+    const m = map.current;
+    if (!m) return;
+    let cancelled = false;
+
+    const tryTiles = () => {
+      const hit = nearestStationFromMap(m, place.lat, place.lng);
+      if (!hit) return false;
+      if (!cancelled) setStation(hit);
+      return true;
+    };
+    const tryOverpass = () => {
+      void nearestStationOverpass(place.lat, place.lng).then((hit) => {
+        if (!cancelled) setStation(hit);
+      });
+    };
+
+    if (!tryTiles()) {
+      m.once("idle", () => {
+        if (!cancelled && !tryTiles()) tryOverpass();
+      });
+    }
+    return () => { cancelled = true; };
+  }, [map, mapReady, place.id, place.lat, place.lng]);
   // scroll-margin below gives `block: "nearest"` a little breathing room so an
   // opened row never lands flush against the list's top edge.
   const metaBits = [
@@ -1569,6 +1620,12 @@ function PlaceRow({
           <span className="block truncate text-sm font-medium leading-snug text-ink">{place.name}</span>
           {(metaBits || derived) && (
             <span className="meta block truncate">{[derived && "from area", metaBits].filter(Boolean).join(" · ")}</span>
+          )}
+          {station && (
+            <span className="meta flex items-center gap-1 truncate text-ink-faint">
+              <Icon name="train" size={11} className="shrink-0" />
+              {fmtDistanceKm(station.km)} from {station.name}
+            </span>
           )}
         </span>
         <Icon name="chevron" size={13} className={`shrink-0 text-ink-faint transition-transform ${open ? "rotate-90" : ""}`} />
