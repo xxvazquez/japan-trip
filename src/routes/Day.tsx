@@ -37,6 +37,7 @@ import { gmapsLink } from "@/lib/maps";
 import { fmtDistanceKm } from "@/lib/geo";
 import { walkingRoute, type WalkRoute } from "@/lib/walkRoute";
 import { nearestStationOverpass, type NearbyStation } from "@/lib/transitStation";
+import { nearestOpeningHours, type PlaceHours } from "@/lib/placeHours";
 import { fetchDayWeather, weatherLabel, type DayWeather } from "@/lib/weather";
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
@@ -625,6 +626,7 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
               className="block text-[0.8125rem] leading-relaxed text-ink-faint [&_strong]:text-ink-soft"
               collapsible
             />
+            {place && <PlaceHoursLine place={place} />}
             {place && nextPlace && <WalkToNext from={place} to={nextPlace} />}
           </div>
 
@@ -655,6 +657,26 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
       </div>
       </SwipeToDelete>
     </li>
+  );
+}
+
+/** the step's own opening hours, straight from OpenStreetMap — an FYI to
+ *  replan by eye, not a warning; nothing is checked against the day or
+ *  flagged as a conflict. Silent when nothing's tagged nearby. */
+function PlaceHoursLine({ place }: { place: Place }) {
+  const [hours, setHours] = useState<PlaceHours | null>(null);
+  useEffect(() => {
+    setHours(null);
+    let cancelled = false;
+    void nearestOpeningHours(place.lat, place.lng).then((h) => { if (!cancelled) setHours(h); });
+    return () => { cancelled = true; };
+  }, [place.id, place.lat, place.lng]);
+  if (!hours) return null;
+  return (
+    <p className="meta flex items-center gap-1 text-ink-faint">
+      <Icon name="clock" size={12} className="shrink-0" />
+      {hours.hours}
+    </p>
   );
 }
 

@@ -61,6 +61,10 @@ never chosen by hand.
   - **drag to reorder**
   - its own quiet note line underneath (bold, bullets, links) — tap to expand and edit
   - a link to the map, if the step is tied to a place
+  - if the linked place has opening hours tagged on OpenStreetMap, a quiet line showing them as-is
+    (e.g. "Mo-Su 09:30-22:00") — an FYI to replan by eye, not a warning: nothing is checked against
+    the day or flagged as a conflict, and plenty of places simply aren't tagged, so this is a bonus
+    when it's there, not something to rely on.
   - when this step and the next one are both tied to a place, a real walking time and distance to
     the next stop (e.g. "≈ 9 min walk to next stop · 0.8 km") — an actual route, not a straight
     line, from the same free routing service the Map's area-width estimate uses. Nothing shows for

@@ -1,0 +1,50 @@
+import { haversineKm } from "./geo";
+
+/**
+ * A place's opening hours, straight from OpenStreetMap's own `opening_hours`
+ * tag (via the free Overpass API) — shown as-is, not parsed or checked
+ * against the day's date. This is an FYI for replanning by eye, not a
+ * warning: OSM's tagging is inconsistent, so plenty of places won't have it
+ * at all, and even a well-tagged one could be stale.
+ */
+export interface PlaceHours {
+  hours: string;
+  km: number;
+}
+
+const SEARCH_RADIUS_KM = 0.1;
+
+const cache = new Map<string, PlaceHours | null>();
+
+export async function nearestOpeningHours(lat: number, lng: number): Promise<PlaceHours | null> {
+  const key = `${lat.toFixed(4)},${lng.toFixed(4)}`;
+  if (cache.has(key)) return cache.get(key)!;
+  const radius = SEARCH_RADIUS_KM * 1000;
+  const query = `[out:json][timeout:10];(node(around:${radius},${lat},${lng})["opening_hours"];way(around:${radius},${lat},${lng})["opening_hours"];);out center 5;`;
+  try {
+    const res = await fetch("https://overpass-api.de/api/interpreter", {
+      method: "POST",
+      body: new URLSearchParams({ data: query }),
+    });
+    if (!res.ok) throw new Error(String(res.status));
+    const json = (await res.json()) as {
+      elements?: { lat?: number; lon?: number; center?: { lat: number; lon: number }; tags?: Record<string, string> }[];
+    };
+    let best: PlaceHours | null = null;
+    for (const el of json.elements ?? []) {
+      const hours = el.tags?.opening_hours;
+      const elat = el.lat ?? el.center?.lat;
+      const elon = el.lon ?? el.center?.lon;
+      if (!hours || elat === undefined || elon === undefined) continue;
+      const km = haversineKm(lat, lng, elat, elon);
+      if (!best || km < best.km) best = { hours, km };
+    }
+    // cached even when null — "nothing tagged nearby" is a stable answer,
+    // same as `transitStation.ts`'s own Overpass cache
+    cache.set(key, best);
+    return best;
+  } catch {
+    // not cached — a transient failure shouldn't stick as "no hours" forever
+    return null;
+  }
+}
