@@ -12,7 +12,7 @@ export interface PlaceHours {
   km: number;
 }
 
-const SEARCH_RADIUS_KM = 0.1;
+const SEARCH_RADIUS_KM = 0.2;
 
 const cache = new Map<string, PlaceHours | null>();
 
