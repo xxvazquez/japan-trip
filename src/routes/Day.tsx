@@ -426,8 +426,6 @@ function PlanList({ day, tz, items, places, areaPlaces, areaNameByPlaceId, categ
       areaNameByPlaceId={areaNameByPlaceId}
       categoryIcons={categoryIcons}
       readOnly={readOnly}
-      first={i === 0}
-      last={i === items.length - 1}
       onPatch={(p) => patchItem(it.id, p)}
       onRemove={() => removeItem(it.id)}
       onQuickAddCost={onQuickAddCost}
@@ -452,7 +450,7 @@ function PlanList({ day, tz, items, places, areaPlaces, areaNameByPlaceId, categ
   );
 }
 
-function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, first, last, onPatch, onRemove, onQuickAddCost }: {
+function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onPatch, onRemove, onQuickAddCost }: {
   day: DayT;
   tz?: string;
   item: PlanItem;
@@ -464,8 +462,6 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
   areaNameByPlaceId: Map<string, string>;
   categoryIcons?: Record<string, string>;
   readOnly: boolean;
-  first: boolean;
-  last: boolean;
   onPatch: (p: Partial<PlanItem>) => void;
   onRemove: () => void;
   onQuickAddCost: (label: string) => void;
@@ -511,18 +507,6 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={`group relative text-sm after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden ${isDragging ? "z-10 bg-surface opacity-80" : ""}`}
     >
-      {/* chronology connector — a stem through every tile's own centre (21px:
-          the 10px row padding plus half the 22px tile), skipped above the
-          first row and below the last. Fixed to the li (not the swiped
-          content) so it doesn't slide with a touch drag; the drag handle
-          only exists when editable, so its x shifts with `readOnly`. */}
-      {!(first && last) && (
-        <span
-          aria-hidden="true"
-          className={`pointer-events-none absolute w-px bg-line ${readOnly ? "left-[25px]" : "left-[47px]"}`}
-          style={{ top: first ? "21px" : 0, bottom: last ? "calc(100% - 21px)" : 0 }}
-        />
-      )}
       <SwipeToDelete onDelete={readOnly ? undefined : onRemove}>
       <div className="px-3.5 py-2.5">
         <div className="flex items-start gap-2.5">
@@ -685,14 +669,14 @@ function WalkToNext({ from, to }: { from: Place; to: Place }) {
   if (!route) return null;
   return (
     <>
-      <p className="meta flex items-center gap-1 pl-4 text-ink-faint">
+      <p className="meta flex items-center gap-1 text-ink-faint">
         <Icon name="walk" size={12} className="shrink-0" />
         ≈ {route.min} min walk to next stop · {fmtDistanceKm(route.km)}
       </p>
       {/* no line name or duration — there's no free, keyless transit-routing API
        *  that covers Tokyo, and a guessed one would risk sending the wrong way */}
       {long && fromStation && toStation && fromStation.name !== toStation.name && (
-        <p className="meta flex items-center gap-1 pl-4 text-ink-faint">
+        <p className="meta flex items-center gap-1 text-ink-faint">
           <Icon name="train" size={12} className="shrink-0" />
           that's far to walk — by train: {fromStation.name} → {toStation.name}
         </p>
