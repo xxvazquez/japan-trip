@@ -36,6 +36,7 @@ import { legHex } from "@/lib/legColors";
 import { gmapsLink } from "@/lib/maps";
 import { fmtDistanceKm } from "@/lib/geo";
 import { walkingRoute, type WalkRoute } from "@/lib/walkRoute";
+import { nearestStationOverpass, type NearbyStation } from "@/lib/transitStation";
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import type { Day as DayT, DayCost, ExpenseCategory, PlanItem, Place } from "@/core/types";
@@ -655,6 +656,10 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
  *  not a straight line) — only rendered by `PlanRow` when both this step and
  *  the next one link to a real place. Renders nothing while resolving or if
  *  no route is found, rather than guess. */
+/** past this, walking isn't really the plan — worth naming the nearest
+ *  station at each end instead of just a discouraging minute count. */
+const LONG_WALK_MIN = 20;
+
 function WalkToNext({ from, to }: { from: Place; to: Place }) {
   const [route, setRoute] = useState<WalkRoute | null>(null);
   useEffect(() => {
@@ -663,12 +668,36 @@ function WalkToNext({ from, to }: { from: Place; to: Place }) {
     void walkingRoute(from, to).then((r) => { if (!cancelled) setRoute(r); });
     return () => { cancelled = true; };
   }, [from.id, to.id]);
+
+  const long = !!route && route.min > LONG_WALK_MIN;
+  const [fromStation, setFromStation] = useState<NearbyStation | null>(null);
+  const [toStation, setToStation] = useState<NearbyStation | null>(null);
+  useEffect(() => {
+    setFromStation(null);
+    setToStation(null);
+    if (!long) return;
+    let cancelled = false;
+    void nearestStationOverpass(from.lat, from.lng).then((s) => { if (!cancelled) setFromStation(s); });
+    void nearestStationOverpass(to.lat, to.lng).then((s) => { if (!cancelled) setToStation(s); });
+    return () => { cancelled = true; };
+  }, [long, from.lat, from.lng, to.lat, to.lng]);
+
   if (!route) return null;
   return (
-    <p className="meta flex items-center gap-1 text-ink-faint">
-      <Icon name="walk" size={12} className="shrink-0" />
-      ≈ {route.min} min walk to next stop · {fmtDistanceKm(route.km)}
-    </p>
+    <>
+      <p className="meta flex items-center gap-1 text-ink-faint">
+        <Icon name="walk" size={12} className="shrink-0" />
+        ≈ {route.min} min walk to next stop · {fmtDistanceKm(route.km)}
+      </p>
+      {/* no line name or duration — there's no free, keyless transit-routing API
+       *  that covers Tokyo, and a guessed one would risk sending the wrong way */}
+      {long && fromStation && toStation && fromStation.name !== toStation.name && (
+        <p className="meta flex items-center gap-1 text-ink-faint">
+          <Icon name="train" size={12} className="shrink-0" />
+          that's far to walk — by train: {fromStation.name} → {toStation.name}
+        </p>
+      )}
+    </>
   );
 }
 

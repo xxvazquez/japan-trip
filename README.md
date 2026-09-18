@@ -60,7 +60,10 @@ never chosen by hand.
   - when this step and the next one are both tied to a place, a real walking time and distance to
     the next stop (e.g. "≈ 9 min walk to next stop · 0.8 km") — an actual route, not a straight
     line, from the same free routing service the Map's area-width estimate uses. Nothing shows for
-    a step that isn't tied to a place, or the one after it, or if a route can't be found.
+    a step that isn't tied to a place, or the one after it, or if a route can't be found. Past 20
+    minutes, a second line names the nearest station at each end (e.g. "that's far to walk — by
+    train: Ueno → Shibuya") — there's no free, no-card transit-routing API that covers Tokyo's rail
+    network line-by-line, so this doesn't name a line or a duration, just where to head for one.
 - Below the itinerary: **Areas** (drop a whole neighbourhood's pins onto the map — a chip's **×**
   asks first), a **Spending** list (a category and a whole number per row, plus an optional note;
   subtotalled and fed to Expenses), and free-text **General notes**.
