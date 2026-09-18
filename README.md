@@ -137,9 +137,9 @@ Higashiyama, a neighbourhood you name). A place can sit in several areas.
   link, so editing the area later updates the day too. Area places show slightly faded and aren't
   added to your plan unless you tap the **+** on the area to drop one in as a step.
 - Zoom out and each area gets a faint labelled ring so you can see its rough extent at a glance.
-- An area's section header shows roughly how long it'd take to walk end to end (e.g. "≈ 12 min end
-  to end") — a straight-line estimate at an easy walking pace, not a real route, so treat it as a
-  rough sense of the area's spread rather than exact directions.
+- An area's section header shows roughly how wide it is on foot (e.g. "≈ 12 min wide") — the walk
+  between its two farthest-apart places, not a tour of everywhere in it, and a straight-line
+  estimate at an easy walking pace rather than a real route.
 - Each place in the list shows its nearest metro/train station and the walk to it (e.g. "195 m from
   Ueno"), read straight from the map's own tiles — no extra request, since it's the same station
   data the Train/Metro overlay already draws. A place whose map tile hasn't loaded yet falls back to

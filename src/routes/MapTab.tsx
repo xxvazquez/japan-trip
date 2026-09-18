@@ -41,7 +41,8 @@ const MAX_ANCHOR_KM = 60;
  *  straight-line distance between an area's two farthest places to go on;
  *  there's no routing API behind this, just `haversineKm`. */
 const WALK_KMH = 4.5;
-/** ≈ minutes to walk end to end across an area, or null with fewer than two
+/** ≈ minutes to walk between an area's two farthest-apart places (its
+ *  "width", not a tour of everywhere in it), or null with fewer than two
  *  placed points to span. */
 function walkSpanMin(items: Place[]): number | null {
   const pts = items.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
@@ -1321,7 +1322,7 @@ export default function MapTab() {
                             <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: a.tone }} />
                             <span className="min-w-0 flex-1">
                               <span className="eyebrow block truncate font-medium">{a.name}</span>
-                              {walk !== null && <span className="block text-2xs text-ink-faint">≈ {fmtWalkMin(walk)} end to end</span>}
+                              {walk !== null && <span className="block text-2xs text-ink-faint">≈ {fmtWalkMin(walk)} wide</span>}
                             </span>
                             <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{a.items.length}</span>
                             <Icon name="chevron" size={12} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />
@@ -1380,7 +1381,7 @@ export default function MapTab() {
                   >
                     <span className="min-w-0 flex-1">
                       <span className="eyebrow block truncate font-medium">{g.name}</span>
-                      {walk !== null && <span className="block text-2xs text-ink-faint">≈ {fmtWalkMin(walk)} end to end</span>}
+                      {walk !== null && <span className="block text-2xs text-ink-faint">≈ {fmtWalkMin(walk)} wide</span>}
                     </span>
                     <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{g.items.length}</span>
                     <Icon name="chevron" size={12} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />
