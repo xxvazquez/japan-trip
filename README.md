@@ -58,7 +58,8 @@ never chosen by hand.
   - the step itself: pick a place from the Areas you've added to this day (below) — past 2 linked
     areas, each option in the picker shows which area it's from — or **Custom…** for a one-off with
     its own text field
-  - **drag to reorder**
+  - **drag to reorder**, a **⧉ duplicate** (dropped right after the original — handy for the same
+    stop twice on a long day), and delete
   - its own quiet note line underneath (bold, bullets, links) — tap to expand and edit
   - a link to the map, if the step is tied to a place
   - if the step is tied to a place, its nearest metro/train station by name and a real walking time
@@ -76,6 +77,8 @@ never chosen by hand.
     minutes, a second line names the nearest station at each end (e.g. "that's far to walk — by
     train: Ueno → Shibuya") — there's no free, no-card transit-routing API that covers Tokyo's rail
     network line-by-line, so this doesn't name a line or a duration, just where to head for one.
+  - **+ Add a step** at the foot of the list too, not just up in the section header — so a long
+    day's plan doesn't need a scroll back to the top to add the next thing.
 - Below the itinerary: **Areas** (drop a whole neighbourhood's pins onto the map — a chip's **×**
   asks first), a **Spending** list (a category and a whole number per row, plus an optional note;
   subtotalled and fed to Expenses), and free-text **General notes**.

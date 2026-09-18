@@ -426,6 +426,13 @@ function PlanList({ day, tz, items, places, areaPlaces, areaNameByPlaceId, categ
   );
   const patchItem = (id: string, p: Partial<PlanItem>) => onChange(items.map((x) => (x.id === id ? { ...x, ...p } : x)));
   const removeItem = (id: string) => onChange(items.filter((x) => x.id !== id));
+  // dropped right after the original — a copied step usually belongs right
+  // next to it (e.g. the same coffee stop, twice on a long day), not at the end
+  const duplicateItem = (id: string) => {
+    const i = items.findIndex((x) => x.id === id);
+    if (i === -1) return;
+    onChange([...items.slice(0, i + 1), { ...items[i], id: rid() }, ...items.slice(i + 1)]);
+  };
 
   if (items.length === 0) {
     return readOnly ? (
@@ -451,6 +458,7 @@ function PlanList({ day, tz, items, places, areaPlaces, areaNameByPlaceId, categ
       readOnly={readOnly}
       onPatch={(p) => patchItem(it.id, p)}
       onRemove={() => removeItem(it.id)}
+      onDuplicate={() => duplicateItem(it.id)}
       onQuickAddCost={onQuickAddCost}
     />
   ));
@@ -465,15 +473,23 @@ function PlanList({ day, tz, items, places, areaPlaces, areaNameByPlaceId, categ
   };
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-      <SortableContext items={items.map((x) => x.id)} strategy={verticalListSortingStrategy}>
-        <ul>{rows}</ul>
-      </SortableContext>
-    </DndContext>
+    <>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <SortableContext items={items.map((x) => x.id)} strategy={verticalListSortingStrategy}>
+          <ul>{rows}</ul>
+        </SortableContext>
+      </DndContext>
+      {/* a second "add" affordance down here too — the one up in the Section
+       *  header (see Day()) means a long plan otherwise needs a scroll back
+       *  to the top just to add the next step */}
+      <button onClick={() => onChange([...items, { id: rid(), text: "" }])} className="action w-full border-t border-line px-3.5 py-3 text-sm">
+        <Icon name="plus" size={14} /> Add a step
+      </button>
+    </>
   );
 }
 
-function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onPatch, onRemove, onQuickAddCost }: {
+function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onPatch, onRemove, onDuplicate, onQuickAddCost }: {
   day: DayT;
   tz?: string;
   item: PlanItem;
@@ -487,6 +503,7 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
   readOnly: boolean;
   onPatch: (p: Partial<PlanItem>) => void;
   onRemove: () => void;
+  onDuplicate: () => void;
   onQuickAddCost: (label: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id, disabled: readOnly });
@@ -641,6 +658,17 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
             >
               <Icon name="calendar" size={13} />
             </button>
+            {!readOnly && (
+              <button
+                type="button"
+                onClick={onDuplicate}
+                aria-label={`Duplicate ${place?.name || item.text || "this step"}`}
+                title="Duplicate"
+                className="relative shrink-0 p-1 text-ink-faint opacity-60 transition-opacity hover:text-accent active:text-accent before:absolute before:-inset-2 before:content-[''] sm:opacity-0 sm:group-hover:opacity-100"
+              >
+                <Icon name="copy" size={13} />
+              </button>
+            )}
             {!readOnly && (
               <button
                 type="button"
