@@ -141,10 +141,11 @@ Higashiyama, a neighbourhood you name). A place can sit in several areas.
   link, so editing the area later updates the day too. Area places show slightly faded and aren't
   added to your plan unless you tap the **+** on the area to drop one in as a step.
 - Zoom out and each area gets a faint labelled ring so you can see its rough extent at a glance.
-- An area's section header shows roughly how wide it is on foot (e.g. "≈ 12 min wide") — a real
-  walking route (actual streets, via OpenRouteService — see `VITE_ORS_API_KEY` above) between its
-  two farthest-apart places, not a tour of everywhere in it. Nothing shows if a route can't be
-  found or the service is briefly unavailable, rather than falling back to a straight-line guess.
+- An area's section header shows roughly how far it stretches on foot (e.g. "≈ 12 min walk
+  across") — a real walking route (actual streets, via OpenRouteService — see `VITE_ORS_API_KEY`
+  above) between its two farthest-apart places, not a tour of everywhere in it. Nothing shows if a
+  route can't be found or the service is briefly unavailable, rather than falling back to a
+  straight-line guess.
 - Each place in the list shows its nearest metro/train station and the walk to it (e.g. "195 m from
   Ueno"), read straight from the map's own tiles — no extra request, since it's the same station
   data the Train/Metro overlay already draws. A place whose map tile hasn't loaded yet falls back to

@@ -80,7 +80,7 @@ function AreaWalkSpan({ items }: { items: Place[] }) {
     return () => { cancelled = true; };
   }, [pair?.[0].id, pair?.[1].id]);
   if (!route) return null;
-  return <span className="block text-2xs text-ink-faint">≈ {fmtWalkMin(route.min)} wide</span>;
+  return <span className="block text-2xs text-ink-faint">≈ {fmtWalkMin(route.min)} walk across</span>;
 }
 
 /** the legend mark for a category chip — a mini filled tile echoing the place
@@ -115,6 +115,29 @@ const loadTransit = (): Set<string> => {
     return new Set(Array.isArray(v) ? v.filter((k) => TRANSIT_KINDS.includes(k)) : []);
   } catch {
     return new Set(TRANSIT_DEFAULT);
+  }
+};
+
+// areas start collapsed every time unless the trip's own record says this one
+// was left open — tracks *opened* ids (not collapsed ones) so an area added
+// later still defaults shut without needing a special case.
+const OPEN_AREAS_PREFIX = "za.map.openAreas.";
+const loadOpenAreaIds = (tripId: string | null): Set<string> => {
+  if (!tripId) return new Set();
+  try {
+    const raw = localStorage.getItem(OPEN_AREAS_PREFIX + tripId);
+    const v = raw ? JSON.parse(raw) : [];
+    return new Set(Array.isArray(v) ? v : []);
+  } catch {
+    return new Set();
+  }
+};
+const saveOpenAreaIds = (tripId: string | null, ids: string[]) => {
+  if (!tripId) return;
+  try {
+    localStorage.setItem(OPEN_AREAS_PREFIX + tripId, JSON.stringify(ids));
+  } catch {
+    /* private window */
   }
 };
 
@@ -201,13 +224,16 @@ export default function MapTab() {
   const [catFilter, setCatFilter] = useState<Set<string>>(new Set());
   /** area filter — empty means "all areas". Combines with scope + category. */
   const [areaFilter, setAreaFilter] = useState<Set<string>>(new Set());
-  /** area groups collapsed in the list, by area id ("" = the "no area" group)
-   *  — every area starts open (empty set), same as cities in the "All" list;
-   *  a place is otherwise city → tap area → tap place, one tap more than
-   *  cities need. Manually collapsing one still works and is remembered for
-   *  the session; a pin picked on the map still opens its own group (see the
-   *  `shut` checks below) even if the user shut it. */
-  const [collapsedAreas, setCollapsedAreas] = useState<Set<string>>(new Set());
+  const tripId = useApp((s) => s.activeId);
+  /** area groups opened in the list, by area id ("" = the "no area" group) —
+   *  every area starts shut; opening one is remembered per trip, so it stays
+   *  shut again next visit only if it was never opened. A newly added area
+   *  defaults shut with no special-casing needed. A pin picked on the map
+   *  still opens its own group (see the `shut` checks below) even if you'd
+   *  shut it. */
+  const [openAreas, setOpenAreas] = useState<Set<string>>(() => loadOpenAreaIds(tripId));
+  useEffect(() => setOpenAreas(loadOpenAreaIds(tripId)), [tripId]);
+  useEffect(() => saveOpenAreaIds(tripId, [...openAreas]), [tripId, openAreas]);
   /** city groups collapsed in the "All" list, by leg id ("" = the "no city" group) */
   const [collapsedCities, setCollapsedCities] = useState<Set<string>>(new Set());
   /** transit overlay — empty means nothing shown (opt-in). Persisted across trips. */
@@ -409,7 +435,7 @@ export default function MapTab() {
       setScope("all");
       setCatFilter(new Set());
       setAreaFilter(new Set([area]));
-      setCollapsedAreas((prev) => { const next = new Set(prev); next.delete(area); return next; });
+      setOpenAreas((prev) => new Set(prev).add(area));
     }
     setParams((p) => { p.delete("area"); return p; }, { replace: true });
   }, [data, params, setParams]);
@@ -822,7 +848,7 @@ export default function MapTab() {
     });
 
   const toggleAreaCollapsed = (id: string) =>
-    setCollapsedAreas((s) => {
+    setOpenAreas((s) => {
       const n = new Set(s);
       n.has(id) ? n.delete(id) : n.add(id);
       return n;
@@ -1331,7 +1357,7 @@ export default function MapTab() {
                 {!cityShut && (
                   <>
                     {c.areas.map((a) => {
-                      const shut = collapsedAreas.has(a.id) && !a.items.some((p) => p.id === selected);
+                      const shut = !openAreas.has(a.id) && !a.items.some((p) => p.id === selected);
                       return (
                         <div key={a.id}>
                           <button
@@ -1374,7 +1400,7 @@ export default function MapTab() {
             // filter of its own; it just drops out while any area's soloed.
             const filteredOut = isArea ? areaFilter.size > 0 && !areaFilter.has(g.id) : areaFilter.size > 0;
             // a collapsed group still opens to reveal a pin picked on the map
-            const manuallyShut = collapsedAreas.has(g.id) && !g.items.some((p) => p.id === selected);
+            const manuallyShut = !openAreas.has(g.id) && !g.items.some((p) => p.id === selected);
             const shut = filteredOut || manuallyShut;
             return (
               <section key={g.id || "none"}>
