@@ -61,6 +61,8 @@ never chosen by hand.
   - **drag to reorder**
   - its own quiet note line underneath (bold, bullets, links) — tap to expand and edit
   - a link to the map, if the step is tied to a place
+  - if the step is tied to a place, its nearest metro/train station and the walk to it (e.g. "195 m
+    from Ueno") — same free lookup and wording as a place's row on the Map tab.
   - if the linked place has opening hours tagged on OpenStreetMap, a quiet line showing them as-is
     (e.g. "Mo-Su 09:30-22:00") — an FYI to replan by eye, not a warning: nothing is checked against
     the day or flagged as a conflict, and plenty of places simply aren't tagged, so this is a bonus

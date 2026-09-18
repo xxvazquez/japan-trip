@@ -626,6 +626,7 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
               className="block text-[0.8125rem] leading-relaxed text-ink-faint [&_strong]:text-ink-soft"
               collapsible
             />
+            {place && <NearestStationLine place={place} />}
             {place && <PlaceHoursLine place={place} />}
             {place && nextPlace && <WalkToNext from={place} to={nextPlace} />}
           </div>
@@ -676,6 +677,27 @@ function PlaceHoursLine({ place }: { place: Place }) {
     <p className="meta flex items-center gap-1 text-ink-faint">
       <Icon name="clock" size={12} className="shrink-0" />
       {hours.hours}
+    </p>
+  );
+}
+
+/** the step's own nearest metro/train station — same lookup and wording as
+ *  a place's row on the Map tab (`src/lib/transitStation.ts`), just without
+ *  that page's "check the map's own tiles first" shortcut, since this route
+ *  never loads a map. Silent when nothing's within range. */
+function NearestStationLine({ place }: { place: Place }) {
+  const [station, setStation] = useState<NearbyStation | null>(null);
+  useEffect(() => {
+    setStation(null);
+    let cancelled = false;
+    void nearestStationOverpass(place.lat, place.lng).then((s) => { if (!cancelled) setStation(s); });
+    return () => { cancelled = true; };
+  }, [place.id, place.lat, place.lng]);
+  if (!station) return null;
+  return (
+    <p className="meta flex items-center gap-1 text-ink-faint">
+      <Icon name="train" size={12} className="shrink-0" />
+      {fmtDistanceKm(station.km)} from {station.name}
     </p>
   );
 }
