@@ -685,14 +685,14 @@ function WalkToNext({ from, to }: { from: Place; to: Place }) {
   if (!route) return null;
   return (
     <>
-      <p className="meta flex items-center gap-1 text-ink-faint">
+      <p className="meta flex items-center gap-1 pl-4 text-ink-faint">
         <Icon name="walk" size={12} className="shrink-0" />
         ≈ {route.min} min walk to next stop · {fmtDistanceKm(route.km)}
       </p>
       {/* no line name or duration — there's no free, keyless transit-routing API
        *  that covers Tokyo, and a guessed one would risk sending the wrong way */}
       {long && fromStation && toStation && fromStation.name !== toStation.name && (
-        <p className="meta flex items-center gap-1 text-ink-faint">
+        <p className="meta flex items-center gap-1 pl-4 text-ink-faint">
           <Icon name="train" size={12} className="shrink-0" />
           that's far to walk — by train: {fromStation.name} → {toStation.name}
         </p>
