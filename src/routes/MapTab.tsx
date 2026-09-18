@@ -960,6 +960,10 @@ export default function MapTab() {
     }
   };
 
+  // `distanceKm` is only ever real for the "Nearby" list — never pass this
+  // bare to `.map()` elsewhere: Array.map's own (item, index) callback shape
+  // silently satisfies `(p, distanceKm?)` and the row index gets typeset as a
+  // distance ("row 2" → "2.0 km"). Always wrap it: `.map((p) => renderRow(p))`.
   const renderRow = (p: Place, distanceKm?: number) => (
     <PlaceRow
       key={p.id}
@@ -1322,7 +1326,7 @@ export default function MapTab() {
                             <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{a.items.length}</span>
                             <Icon name="chevron" size={12} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />
                           </button>
-                          {!shut && <ul className="pl-8 pr-4">{a.items.map(renderRow)}</ul>}
+                          {!shut && <ul className="pl-8 pr-4">{a.items.map((p) => renderRow(p))}</ul>}
                         </div>
                       );
                     })}
@@ -1331,7 +1335,7 @@ export default function MapTab() {
                         {c.areas.length > 0 && (
                           <p className="eyebrow border-b border-line py-1.5 pl-8 pr-4 text-ink-faint">No area</p>
                         )}
-                        <ul className="pl-8 pr-4">{c.loose.map(renderRow)}</ul>
+                        <ul className="pl-8 pr-4">{c.loose.map((p) => renderRow(p))}</ul>
                       </>
                     )}
                   </>
@@ -1382,7 +1386,7 @@ export default function MapTab() {
                     <Icon name="chevron" size={12} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />
                   </button>
                 </div>
-                {!shut && <ul className="px-4">{g.items.map(renderRow)}</ul>}
+                {!shut && <ul className="px-4">{g.items.map((p) => renderRow(p))}</ul>}
               </section>
             );
           })}
@@ -1397,7 +1401,7 @@ export default function MapTab() {
         </div>
       ) : (
         <ul ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto px-4">
-          {scoped.map(renderRow)}
+          {scoped.map((p) => renderRow(p))}
           {scoped.length === 0 && (
             <li className="meta py-6">
               {places.length === 0
