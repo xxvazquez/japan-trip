@@ -37,6 +37,7 @@ import { gmapsLink } from "@/lib/maps";
 import { fmtDistanceKm } from "@/lib/geo";
 import { walkingRoute, type WalkRoute } from "@/lib/walkRoute";
 import { nearestStationOverpass, type NearbyStation } from "@/lib/transitStation";
+import { fetchDayWeather, weatherLabel, type DayWeather } from "@/lib/weather";
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import type { Day as DayT, DayCost, ExpenseCategory, PlanItem, Place } from "@/core/types";
@@ -60,6 +61,11 @@ function daySpentText(costs: DayCost[] | undefined, primary: string): string | u
   }
   if (subtotals.size === 0) return undefined;
   return `Total spent: ${[...subtotals].map(([cur, amt]) => fmtMoney(amt, cur)).join(" · ")}`;
+}
+
+function weatherText(w: DayWeather): string {
+  const text = `${weatherLabel(w.code)}, ${w.lowC}–${w.highC}°C`;
+  return w.precipPct >= 30 ? `${text} · ${w.precipPct}% rain` : text;
 }
 
 export default function Day() {
@@ -108,6 +114,20 @@ export default function Day() {
     const p = data.places.find((pl) => pl.id === it.placeId);
     if (p) { dayPlaceIds.add(it.placeId); dayPlaces.push(p); }
   }
+  // the day's forecast — anchored to wherever you're staying that day (an
+  // override, else the leg's own hotel), since a day has no coordinates of
+  // its own. Silent when that hotel has no coordinates yet or the date is
+  // too far out for the free forecast window.
+  const weatherHotel = hotel ?? L.hotel(leg?.hotelId);
+  const [weather, setWeather] = useState<DayWeather | null>(null);
+  useEffect(() => {
+    setWeather(null);
+    if (weatherHotel?.lat === undefined || weatherHotel?.lng === undefined) return;
+    let cancelled = false;
+    void fetchDayWeather(weatherHotel.lat, weatherHotel.lng, day.date).then((w) => { if (!cancelled) setWeather(w); });
+    return () => { cancelled = true; };
+  }, [weatherHotel?.lat, weatherHotel?.lng, day.date]);
+
   const setCosts = (next: DayCost[]) => patch({ costs: next.length ? next : undefined });
   // the wallet icon on a plan row: add a cost prefilled with that step's name,
   // then scroll it into view and briefly highlight it so it's obvious where it
@@ -150,7 +170,9 @@ export default function Day() {
         title={
           <Editable label="Day title" value={day.title ?? ""} placeholder="Untitled day" onCommit={(v) => patch({ title: v || undefined })} />
         }
-        meta={daySpentText(day.costs, (data.config.currencies ?? [])[0] ?? "")}
+        meta={[weather && weatherText(weather), daySpentText(day.costs, (data.config.currencies ?? [])[0] ?? "")]
+          .filter(Boolean)
+          .join(" · ") || undefined}
         action={
           <button
             onClick={downloadDayCalendar}

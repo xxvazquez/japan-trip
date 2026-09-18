@@ -46,6 +46,10 @@ never chosen by hand.
 - Drag a day up or down to **reorder** it (the dates shuffle with it).
 - Tap a day to open it. At the top: **Staying at** (which hotel) and **Journey** (link an existing
   one, or ＋ new — you then pick its type on the journey page).
+- If that day's hotel has coordinates, its header line shows the day's forecast (e.g. "Showers,
+  19–24°C") — free, no key needed (Open-Meteo). Forecasts only exist for the next ~16 days, so a day
+  further out just shows nothing yet rather than a guess; it starts appearing on its own as the trip
+  gets closer.
 - A **day trip** leads with a **Getting there** and a **Getting back** card (free text, the last way
   home folded into the back one).
 - Then the day's **Plan** — an itinerary of steps. Each step has:
