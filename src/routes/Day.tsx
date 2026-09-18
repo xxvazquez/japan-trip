@@ -618,6 +618,7 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
               className="block text-[0.8125rem] leading-relaxed text-ink-faint [&_strong]:text-ink-soft"
               collapsible
             />
+            {place && nextPlace && <WalkToNext from={place} to={nextPlace} />}
           </div>
 
           <div className="flex shrink-0 items-center gap-0.5">
@@ -644,7 +645,6 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
             {!readOnly && <RowDeleteButton onClick={onRemove} />}
           </div>
         </div>
-        {place && nextPlace && <WalkToNext from={place} to={nextPlace} />}
       </div>
       </SwipeToDelete>
     </li>
@@ -665,7 +665,7 @@ function WalkToNext({ from, to }: { from: Place; to: Place }) {
   }, [from.id, to.id]);
   if (!route) return null;
   return (
-    <p className="meta mt-1.5 flex items-center gap-1 pl-8 text-ink-faint">
+    <p className="meta flex items-center gap-1 text-ink-faint">
       <Icon name="walk" size={12} className="shrink-0" />
       ≈ {route.min} min walk to next stop · {fmtDistanceKm(route.km)}
     </p>
