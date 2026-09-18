@@ -34,6 +34,8 @@ import { useReadOnly } from "@/lib/readonly";
 import { fmtDate, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink } from "@/lib/maps";
+import { fmtDistanceKm } from "@/lib/geo";
+import { walkingRoute, type WalkRoute } from "@/lib/walkRoute";
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import type { Day as DayT, DayCost, ExpenseCategory, PlanItem, Place } from "@/core/types";
@@ -418,6 +420,7 @@ function PlanList({ day, tz, items, places, areaPlaces, areaNameByPlaceId, categ
       tz={tz}
       item={it}
       place={it.placeId ? places.find((p) => p.id === it.placeId) : undefined}
+      nextPlace={items[i + 1]?.placeId ? places.find((p) => p.id === items[i + 1].placeId) : undefined}
       areaPlaces={areaPlaces}
       areaNameByPlaceId={areaNameByPlaceId}
       categoryIcons={categoryIcons}
@@ -448,11 +451,14 @@ function PlanList({ day, tz, items, places, areaPlaces, areaNameByPlaceId, categ
   );
 }
 
-function PlanRow({ day, tz, item, place, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, first, last, onPatch, onRemove, onQuickAddCost }: {
+function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, first, last, onPatch, onRemove, onQuickAddCost }: {
   day: DayT;
   tz?: string;
   item: PlanItem;
   place?: Place;
+  /** the next step's linked place, if both it and this step have one — for
+   *  the real walking time shown at the foot of this card (see `WalkToNext`) */
+  nextPlace?: Place;
   areaPlaces: Place[];
   areaNameByPlaceId: Map<string, string>;
   categoryIcons?: Record<string, string>;
@@ -638,9 +644,31 @@ function PlanRow({ day, tz, item, place, areaPlaces, areaNameByPlaceId, category
             {!readOnly && <RowDeleteButton onClick={onRemove} />}
           </div>
         </div>
+        {place && nextPlace && <WalkToNext from={place} to={nextPlace} />}
       </div>
       </SwipeToDelete>
     </li>
+  );
+}
+
+/** real walking time to the next step, via `walkingRoute` (actual streets,
+ *  not a straight line) — only rendered by `PlanRow` when both this step and
+ *  the next one link to a real place. Renders nothing while resolving or if
+ *  no route is found, rather than guess. */
+function WalkToNext({ from, to }: { from: Place; to: Place }) {
+  const [route, setRoute] = useState<WalkRoute | null>(null);
+  useEffect(() => {
+    setRoute(null);
+    let cancelled = false;
+    void walkingRoute(from, to).then((r) => { if (!cancelled) setRoute(r); });
+    return () => { cancelled = true; };
+  }, [from.id, to.id]);
+  if (!route) return null;
+  return (
+    <p className="meta mt-1.5 flex items-center gap-1 pl-8 text-ink-faint">
+      <Icon name="walk" size={12} className="shrink-0" />
+      ≈ {route.min} min walk to next stop · {fmtDistanceKm(route.km)}
+    </p>
   );
 }
 

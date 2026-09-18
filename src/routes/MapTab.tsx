@@ -21,6 +21,7 @@ import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
 import { TRANSIT_KINDS, TRANSIT_META } from "@/lib/transitLayers";
 import { nearestStationFromMap, nearestStationOverpass, type NearbyStation } from "@/lib/transitStation";
+import { walkingRoute, type WalkRoute } from "@/lib/walkRoute";
 import { glyphPath } from "@/lib/mapGlyphs";
 import { toneForPlaceCategory, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
@@ -36,24 +37,22 @@ const DEFAULT_PIN_COLORS = new Set([FALLBACK, "#5f7f9c"]);
  *  city pill and shows only on "All" or on a day that names it. */
 const MAX_ANCHOR_KM = 60;
 
-/** an easy, unhurried pace — biases the estimate slow rather than fast, since
- *  it stands in for a real route (turns, blocks, crossings) with only the
- *  straight-line distance between an area's two farthest places to go on;
- *  there's no routing API behind this, just `haversineKm`. */
-const WALK_KMH = 4.5;
-/** ≈ minutes to walk between an area's two farthest-apart places (its
- *  "width", not a tour of everywhere in it), or null with fewer than two
- *  placed points to span. */
-function walkSpanMin(items: Place[]): number | null {
+/** an area's two farthest-apart places (its "width", not a tour of everywhere
+ *  in it) — cheap local haversine just to find *which* pair, real walking
+ *  time for that one pair comes from `walkingRoute` (see `AreaWalkSpan`).
+ *  Null with fewer than two placed points to span. */
+function farthestPair(items: Place[]): [Place, Place] | null {
   const pts = items.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
   if (pts.length < 2) return null;
-  let maxKm = 0;
+  let best: [Place, Place] = [pts[0], pts[1]];
+  let maxKm = haversineKm(pts[0].lat, pts[0].lng, pts[1].lat, pts[1].lng);
   for (let i = 0; i < pts.length; i++) {
     for (let j = i + 1; j < pts.length; j++) {
-      maxKm = Math.max(maxKm, haversineKm(pts[i].lat, pts[i].lng, pts[j].lat, pts[j].lng));
+      const km = haversineKm(pts[i].lat, pts[i].lng, pts[j].lat, pts[j].lng);
+      if (km > maxKm) { maxKm = km; best = [pts[i], pts[j]]; }
     }
   }
-  return Math.max(1, Math.round((maxKm / WALK_KMH) * 60));
+  return best;
 }
 /** "12 min" under an hour, "1h 30min" past it — a manually-built area can
  *  span a whole city, and a bare minute count stops reading sensibly there. */
@@ -61,6 +60,27 @@ function fmtWalkMin(min: number): string {
   if (min < 60) return `${min} min`;
   const h = Math.floor(min / 60), m = min % 60;
   return m ? `${h}h ${m}min` : `${h}h`;
+}
+
+/** an area's section-header subtitle — real walking time (`walkingRoute`,
+ *  actual streets) between its two farthest-apart places, found cheaply via
+ *  `farthestPair` first so only one real route request is needed per area,
+ *  not one per pair. Renders nothing while resolving or if the route can't
+ *  be found (no guessing, no straight-line fallback shown as if it were real). */
+function AreaWalkSpan({ items }: { items: Place[] }) {
+  const pair = farthestPair(items);
+  const [route, setRoute] = useState<WalkRoute | null>(null);
+  useEffect(() => {
+    setRoute(null);
+    if (!pair) return;
+    let cancelled = false;
+    void walkingRoute(pair[0], pair[1]).then((r) => {
+      if (!cancelled) setRoute(r);
+    });
+    return () => { cancelled = true; };
+  }, [pair?.[0].id, pair?.[1].id]);
+  if (!route) return null;
+  return <span className="block text-2xs text-ink-faint">≈ {fmtWalkMin(route.min)} wide</span>;
 }
 
 /** the legend mark for a category chip — a mini filled tile echoing the place
@@ -1312,7 +1332,6 @@ export default function MapTab() {
                   <>
                     {c.areas.map((a) => {
                       const shut = collapsedAreas.has(a.id) && !a.items.some((p) => p.id === selected);
-                      const walk = walkSpanMin(a.items);
                       return (
                         <div key={a.id}>
                           <button
@@ -1322,7 +1341,7 @@ export default function MapTab() {
                             <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: a.tone }} />
                             <span className="min-w-0 flex-1">
                               <span className="eyebrow block truncate font-medium">{a.name}</span>
-                              {walk !== null && <span className="block text-2xs text-ink-faint">≈ {fmtWalkMin(walk)} wide</span>}
+                              <AreaWalkSpan items={a.items} />
                             </span>
                             <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{a.items.length}</span>
                             <Icon name="chevron" size={12} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />
@@ -1357,7 +1376,6 @@ export default function MapTab() {
             // a collapsed group still opens to reveal a pin picked on the map
             const manuallyShut = collapsedAreas.has(g.id) && !g.items.some((p) => p.id === selected);
             const shut = filteredOut || manuallyShut;
-            const walk = isArea ? walkSpanMin(g.items) : null;
             return (
               <section key={g.id || "none"}>
                 <div
@@ -1381,7 +1399,7 @@ export default function MapTab() {
                   >
                     <span className="min-w-0 flex-1">
                       <span className="eyebrow block truncate font-medium">{g.name}</span>
-                      {walk !== null && <span className="block text-2xs text-ink-faint">≈ {fmtWalkMin(walk)} wide</span>}
+                      {isArea && <AreaWalkSpan items={g.items} />}
                     </span>
                     <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{g.items.length}</span>
                     <Icon name="chevron" size={12} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />

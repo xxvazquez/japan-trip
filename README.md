@@ -57,6 +57,10 @@ never chosen by hand.
   - **drag to reorder**
   - its own quiet note line underneath (bold, bullets, links) — tap to expand and edit
   - a link to the map, if the step is tied to a place
+  - when this step and the next one are both tied to a place, a real walking time and distance to
+    the next stop (e.g. "≈ 9 min walk to next stop · 0.8 km") — an actual route, not a straight
+    line, from the same free routing service the Map's area-width estimate uses. Nothing shows for
+    a step that isn't tied to a place, or the one after it, or if a route can't be found.
 - Below the itinerary: **Areas** (drop a whole neighbourhood's pins onto the map — a chip's **×**
   asks first), a **Spending** list (a category and a whole number per row, plus an optional note;
   subtotalled and fed to Expenses), and free-text **General notes**.
@@ -137,9 +141,10 @@ Higashiyama, a neighbourhood you name). A place can sit in several areas.
   link, so editing the area later updates the day too. Area places show slightly faded and aren't
   added to your plan unless you tap the **+** on the area to drop one in as a step.
 - Zoom out and each area gets a faint labelled ring so you can see its rough extent at a glance.
-- An area's section header shows roughly how wide it is on foot (e.g. "≈ 12 min wide") — the walk
-  between its two farthest-apart places, not a tour of everywhere in it, and a straight-line
-  estimate at an easy walking pace rather than a real route.
+- An area's section header shows roughly how wide it is on foot (e.g. "≈ 12 min wide") — a real
+  walking route (actual streets, via the free OpenStreetMap Valhalla routing service) between its
+  two farthest-apart places, not a tour of everywhere in it. Nothing shows if a route can't be
+  found or the service is briefly unavailable, rather than falling back to a straight-line guess.
 - Each place in the list shows its nearest metro/train station and the walk to it (e.g. "195 m from
   Ueno"), read straight from the map's own tiles — no extra request, since it's the same station
   data the Train/Metro overlay already draws. A place whose map tile hasn't loaded yet falls back to
