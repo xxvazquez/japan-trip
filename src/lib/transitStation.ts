@@ -12,6 +12,8 @@ import { haversineKm } from "./geo";
 export interface NearbyStation {
   name: string;
   km: number;
+  lat: number;
+  lng: number;
 }
 
 const SEARCH_RADIUS_KM = 1;
@@ -47,7 +49,7 @@ export function nearestStationFromMap(map: MLMap, lat: number, lng: number): Nea
     const km = haversineKm(lat, lng, flat, flng);
     if (km > SEARCH_RADIUS_KM) continue;
     const name = stationName(f.properties ?? {});
-    if (name) candidates.push({ name, km });
+    if (name) candidates.push({ name, km, lat: flat, lng: flng });
   }
   return closest(candidates);
 }
@@ -75,7 +77,7 @@ export async function nearestStationOverpass(lat: number, lng: number): Promise<
     const candidates: NearbyStation[] = [];
     for (const el of json.elements ?? []) {
       const name = el.tags?.["name:en"] || el.tags?.name;
-      if (name) candidates.push({ name, km: haversineKm(lat, lng, el.lat, el.lon) });
+      if (name) candidates.push({ name, km: haversineKm(lat, lng, el.lat, el.lon), lat: el.lat, lng: el.lon });
     }
     const result = closest(candidates);
     overpassCache.set(key, result);

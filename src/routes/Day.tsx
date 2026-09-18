@@ -681,23 +681,29 @@ function PlaceHoursLine({ place }: { place: Place }) {
   );
 }
 
-/** the step's own nearest metro/train station — same lookup and wording as
- *  a place's row on the Map tab (`src/lib/transitStation.ts`), just without
+/** the step's own nearest metro/train station — same station lookup as a
+ *  place's row on the Map tab (`src/lib/transitStation.ts`), just without
  *  that page's "check the map's own tiles first" shortcut, since this route
- *  never loads a map. Silent when nothing's within range. */
+ *  never loads a map. Unlike the Map tab, shows a real walking time to that
+ *  station (`walkingRoute`, not straight-line) alongside the distance.
+ *  Silent unless both the station lookup and the route to it succeed. */
 function NearestStationLine({ place }: { place: Place }) {
-  const [station, setStation] = useState<NearbyStation | null>(null);
+  const [nearest, setNearest] = useState<{ name: string; walk: WalkRoute } | null>(null);
   useEffect(() => {
-    setStation(null);
+    setNearest(null);
     let cancelled = false;
-    void nearestStationOverpass(place.lat, place.lng).then((s) => { if (!cancelled) setStation(s); });
+    void nearestStationOverpass(place.lat, place.lng).then(async (station) => {
+      if (!station || cancelled) return;
+      const walk = await walkingRoute(place, station);
+      if (!cancelled && walk) setNearest({ name: station.name, walk });
+    });
     return () => { cancelled = true; };
   }, [place.id, place.lat, place.lng]);
-  if (!station) return null;
+  if (!nearest) return null;
   return (
     <p className="meta flex items-center gap-1 text-ink-faint">
       <Icon name="train" size={12} className="shrink-0" />
-      {fmtDistanceKm(station.km)} from {station.name}
+      ≈ {nearest.walk.min} min to {nearest.name} · {fmtDistanceKm(nearest.walk.km)}
     </p>
   );
 }
