@@ -142,7 +142,7 @@ Higashiyama, a neighbourhood you name). A place can sit in several areas.
   added to your plan unless you tap the **+** on the area to drop one in as a step.
 - Zoom out and each area gets a faint labelled ring so you can see its rough extent at a glance.
 - An area's section header shows roughly how wide it is on foot (e.g. "≈ 12 min wide") — a real
-  walking route (actual streets, via the free OpenStreetMap Valhalla routing service) between its
+  walking route (actual streets, via OpenRouteService — see `VITE_ORS_API_KEY` above) between its
   two farthest-apart places, not a tour of everywhere in it. Nothing shows if a route can't be
   found or the service is briefly unavailable, rather than falling back to a straight-line guess.
 - Each place in the list shows its nearest metro/train station and the walk to it (e.g. "195 m from
@@ -345,11 +345,16 @@ npm run dev            # http://localhost:5173
 VITE_SUPABASE_URL=https://<project-ref>.supabase.co
 VITE_SUPABASE_ANON_KEY=<the anon / public key>
 VITE_PROTOMAPS_API_KEY=<a Protomaps hosted-API key>
+VITE_ORS_API_KEY=<an OpenRouteService key>
 ```
 
 All optional — with nothing set the app runs fully local. `VITE_SUPABASE_URL` must be the **full
 https URL**, not just the project ref. The map tile settings (`VITE_PROTOMAPS_API_KEY`,
 `VITE_MAP_TILES_URL`) are covered under [The map background](#the-map-background).
+`VITE_ORS_API_KEY` is a free key (no card) from
+[openrouteservice.org/dev/#/signup](https://openrouteservice.org/dev/#/signup) — 2,000 requests/day
+— that powers the real walking-route estimates (an area's width on the Map, a plan step's walk to
+the next one). Without it, those two features simply show nothing; everything else works the same.
 
 ## Setting up Supabase
 
