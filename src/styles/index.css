@@ -141,6 +141,15 @@ html.dark {
     @apply border-line;
   }
 
+  /* the time picker's scroll wheel — a plain scrollable column standing in
+     for a native wheel, so the browser's own scrollbar has to go */
+  .wheel-col {
+    scrollbar-width: none;
+  }
+  .wheel-col::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Editable value affordance. Tailwind's own reset forces text-transform:
      none on every button/select — invisible almost everywhere, but it breaks
      an editable title inside an upper-cased Section header (Packing

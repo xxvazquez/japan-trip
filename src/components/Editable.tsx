@@ -5,6 +5,7 @@ import { isMoneyLabel } from "@/lib/cost";
 import { fmtDate } from "@/lib/dates";
 import { linkLabel } from "@/lib/linkLabel";
 import { Icon } from "./Icon";
+import { TimeWheelSheet } from "./TimeWheel";
 
 type Base = {
   value: string;
@@ -22,9 +23,6 @@ type Kind = "text" | "textarea" | "number" | "date" | "time" | "link" | "tel" | 
 type Props =
   | (Base & { as?: Kind | "auto" })
   | (Base & { as: "select"; options: { value: string; label: string }[] });
-
-const HOURS = Array.from({ length: 24 }, (_, h) => String(h).padStart(2, "0"));
-const MINUTES = Array.from({ length: 60 }, (_, m) => String(m).padStart(2, "0"));
 
 /* Two heuristics feed `as: "auto"`, resolved in this order (see `resolveKind`):
  *  1. `labelKind` — what the field's *name* implies ("Phone" → tel), so an
@@ -107,6 +105,8 @@ export function Editable(props: Props) {
   const [draft, setDraft] = useState(value);
   const ref = useRef<HTMLInputElement & HTMLTextAreaElement & HTMLSelectElement>(null);
   const id = useId();
+  const [timeSheetOpen, setTimeSheetOpen] = useState(false);
+  const timeAnchorRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => setDraft(value), [value]);
   useEffect(() => {
@@ -189,33 +189,27 @@ export function Editable(props: Props) {
   // platform, so hour and minute stay tap-only everywhere.
   if (as === "time") {
     const [h, m] = value ? value.split(":") : ["", ""];
-    // picking "--" on either select always clears the whole time, even if
-    // the other half already has a value; picking a real value on one
-    // defaults the other to "00" only when it was still unset
-    const handleHour = (nh: string) => onCommit(nh ? `${nh}:${m || "00"}` : "");
-    const handleMinute = (nm: string) => onCommit(nm ? `${h || "00"}:${nm}` : "");
     return (
-      <span className={`editable inline-flex items-center bg-transparent tabular-nums ${className}`}>
-        <select
-          aria-label={`${label} — hour`}
-          value={h}
-          onChange={(e) => handleHour(e.target.value)}
-          className="cursor-pointer appearance-none bg-transparent text-right focus:outline-none"
+      <>
+        <button
+          ref={timeAnchorRef}
+          type="button"
+          onClick={() => setTimeSheetOpen(true)}
+          aria-label={`Edit ${label}`}
+          className={`editable inline bg-transparent text-left tabular-nums ${!value ? "italic text-ink-faint" : ""} ${className}`}
         >
-          <option value="">--</option>
-          {HOURS.map((hh) => <option key={hh} value={hh}>{hh}</option>)}
-        </select>
-        <span aria-hidden="true">:</span>
-        <select
-          aria-label={`${label} — minute`}
-          value={m}
-          onChange={(e) => handleMinute(e.target.value)}
-          className="cursor-pointer appearance-none bg-transparent focus:outline-none"
-        >
-          <option value="">--</option>
-          {MINUTES.map((mm) => <option key={mm} value={mm}>{mm}</option>)}
-        </select>
-      </span>
+          {value || placeholder}
+        </button>
+        <TimeWheelSheet
+          open={timeSheetOpen}
+          onClose={() => setTimeSheetOpen(false)}
+          anchorRef={timeAnchorRef}
+          hour={h}
+          minute={m}
+          onPick={(nh, nm) => onCommit(`${nh}:${nm}`)}
+          onClear={() => { onCommit(""); setTimeSheetOpen(false); }}
+        />
+      </>
     );
   }
 
