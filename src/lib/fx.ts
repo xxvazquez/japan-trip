@@ -17,6 +17,9 @@ interface FxSnapshot {
   /** other currency code -> amount of it per 1 unit of the primary */
   rates: Record<string, number>;
   fetchedAt: number;
+  /** every currency the fetch asked for — frankfurter quietly drops ones it
+   *  doesn't cover, so "asked" is what tells "not covered" from "not fetched yet" */
+  asked?: string[];
 }
 
 const cacheKey = (primary: string) => `${KEY_PREFIX}${primary}`;
@@ -60,15 +63,18 @@ export function useFxRates(primary: string, others: string[]): FxRates {
   useEffect(() => {
     if (!primary || !symbols) return;
     const cached = readCache(primary);
-    if (cached) setSnap(cached);
-    if (cached && Date.now() - cached.fetchedAt < STALE_MS) return; // fresh enough
+    // null on a base change too, so the previous base's rates are never applied to this one
+    setSnap(cached);
+    // fresh enough — but only if it already has a rate for every currency asked for
+    const covers = cached && symbols.split(",").every((c) => (cached.asked ?? Object.keys(cached.rates)).includes(c));
+    if (cached && covers && Date.now() - cached.fetchedAt < STALE_MS) return;
 
     let cancelled = false;
     fetch(`https://api.frankfurter.dev/v1/latest?base=${primary}&symbols=${symbols}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data: { date?: string; rates?: Record<string, number> } | null) => {
         if (cancelled || !data?.rates) return;
-        const next: FxSnapshot = { date: data.date ?? "", rates: data.rates, fetchedAt: Date.now() };
+        const next: FxSnapshot = { date: data.date ?? "", rates: data.rates, fetchedAt: Date.now(), asked: symbols.split(",") };
         writeCache(primary, next);
         setSnap(next);
       })

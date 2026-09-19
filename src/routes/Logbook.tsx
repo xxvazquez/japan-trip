@@ -452,6 +452,7 @@ function Expenses() {
   const others = currencies.filter((c) => c && c !== primary);
   const { rates, date, stale } = useFxRates(primary, others);
   const combined = combineCurrencies(byCurrency, primary, rates);
+  const unconverted = others.filter((c) => !rates[c]);
 
   if (currencies.length === 0) {
     return <Empty what="No spending yet" hint="Put a price on a stay or a journey, or log a day's spending, and it totals up here by category." />;
@@ -507,6 +508,9 @@ function Expenses() {
               <span className="font-semibold">{fmtMoney(combined.total, primary)}</span>
             </InsetRow>
           </ul>
+          {unconverted.length > 0 && (
+            <p className="meta mt-2 px-1 text-ink-soft">Not included yet: {unconverted.join(", ")} — no exchange rate.</p>
+          )}
         </Section>
       )}
       {currencies.map((cur) => {

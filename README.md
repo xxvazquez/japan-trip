@@ -217,7 +217,8 @@ yourself.
   - A journey with a total *and* per-hop fares counts once, not twice.
   - If the trip uses two or more currencies, a **Combined** section at the top adds them all together
     in the primary one, using an exchange rate fetched automatically when you're online (and cached
-    for when you're not — it just shows the last one it fetched).
+    for when you're not — it just shows the last one it fetched). A currency the rate source doesn't
+    cover is left out of the blend, and a line under the total says so.
   - A proportional bar above each currency's list shows the category split at a glance, coloured to
     match each category's own icon.
 
