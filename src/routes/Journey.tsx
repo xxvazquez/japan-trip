@@ -304,7 +304,7 @@ export default function Journey() {
                     </p>
                   </div>
                   {ro && s.service && (
-                    <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${pillCls}`}>{s.service}</span>
+                    <span className={`shrink-0 rounded-[8px] px-2.5 py-0.5 text-xs font-medium ${pillCls}`}>{s.service}</span>
                   )}
                   {(s.depart || !ro) && (
                     <div className="flex shrink-0 items-center gap-0.5">
