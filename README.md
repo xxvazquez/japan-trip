@@ -84,10 +84,9 @@ never chosen by hand.
     remembered on the device. A step that isn't tied to a place has no position to measure from, so
     it shows neither figure. Once the walk to the next step passes 20 minutes, a third piece appears:
     "Train: Ueno → Uguisudani · ≈ 24 min total" — a link that opens Google Maps transit directions
-    between the nearest station at each end, labelled with a rough door-to-door estimate: both walks
-    plus the ride itself, from HERE's scheduled Public Transit API (see `VITE_HERE_API_KEY` above) —
-    a straight-line guess at the ride until/unless that's configured — the same long-walk-to-transit
-    swap as the **Back to &lt;hotel&gt;** row below.
+    between the nearest station at each end, labelled with a rough door-to-door estimate (both walks
+    plus a straight-line guess at the ride itself, since there's no free keyless transit-routing API
+    to ask instead) — the same long-walk-to-transit swap as the **Back to &lt;hotel&gt;** row below.
   - if the linked place has opening hours tagged on OpenStreetMap, the hours **for that day** sit at
     the right end of the tile/time row (e.g. "09:00–17:00") — always in the same spot. The app reads
     the place's tagged schedule (from Overpass, or from a Nominatim search by the place's name when Overpass fails) and picks the rule that covers the day's date (its month and
@@ -508,7 +507,6 @@ VITE_SUPABASE_URL=https://<project-ref>.supabase.co
 VITE_SUPABASE_ANON_KEY=<the anon / public key>
 VITE_PROTOMAPS_API_KEY=<a Protomaps hosted-API key>
 VITE_ORS_API_KEY=<an OpenRouteService key>
-VITE_HERE_API_KEY=<a HERE API key>
 ```
 
 All optional — with nothing set the app runs fully local. `VITE_SUPABASE_URL` must be the **full
@@ -517,11 +515,7 @@ https URL**, not just the project ref. The map tile settings (`VITE_PROTOMAPS_AP
 `VITE_ORS_API_KEY` is a free key (no card) from
 [openrouteservice.org/dev/#/signup](https://openrouteservice.org/dev/#/signup) — 2,000 requests/day
 — that powers the real walking-route estimates (an area's width on the Map, a plan step's walk to
-the next one). `VITE_HERE_API_KEY` is a free key (no card) from
-[developer.here.com](https://developer.here.com) — 250,000 requests/month — that powers the real
-transit-ride time in the "Train: ... total" figure on a long walk between plan steps (real
-scheduled lines and transfers via HERE's Public Transit API, not a straight-line guess). Without
-either key, those features fall back to a straight-line estimate; everything else works the same.
+the next one). Without it, those two features fall back to a straight-line estimate; everything else works the same.
 Requests are spaced out to stay under the free per-minute limit, pause for a minute if the service
 pushes back, and every route is remembered on the device, so a page only asks for what it hasn't seen.
 
