@@ -206,83 +206,29 @@ function defaultScope(data: TripData): string {
   return legId ? `leg:${legId}` : "all";
 }
 
-export default function MapTab() {
-  const data = useData();
-  const updateEntity = useApp((s) => s.updateEntity);
-  const removeEntity = useApp((s) => s.removeEntity);
-  const addEntity = useApp((s) => s.addEntity);
-  const syncMyMap = useApp((s) => s.syncMyMap);
-  const readOnly = useReadOnly();
-  const [mode] = useMode();
-  const dark = isDark(mode);
-
-  const map = useRef<MLMap | null>(null);
-  /** flips once on the map's first load — a place row's nearest-station
-   *  lookup waits for this instead of finding `map.current` still null and
-   *  reaching for Overpass on every cold load. */
-  const [mapReady, setMapReady] = useState(false);
-  const [scope, setScope] = useState<string | null>(null);
-  /** category filter — empty means "all categories". Combines with any scope. */
-  const [catFilter, setCatFilter] = useState<Set<string>>(new Set());
-  /** area filter — empty means "all areas". Combines with scope + category. */
-  const [areaFilter, setAreaFilter] = useState<Set<string>>(new Set());
-  const tripId = useApp((s) => s.activeId);
-  /** area groups opened in the list, by area id ("" = the "no area" group) —
-   *  every area starts shut; opening one is remembered per trip, so it stays
-   *  shut again next visit only if it was never opened. A newly added area
-   *  defaults shut with no special-casing needed. Nothing but a tap on the
-   *  group's own header opens or shuts it — picking a pin on the map shows
-   *  that place in its own card at the top instead of springing its group
-   *  open. Written straight to storage on every change (not from an effect),
-   *  so switching trips can never write one trip's state over another's. */
-  const [openAreas, setOpenAreasState] = useState<Set<string>>(() => loadOpenAreaIds(tripId));
-  useEffect(() => setOpenAreasState(loadOpenAreaIds(tripId)), [tripId]);
-  const setOpenAreas = (fn: (prev: Set<string>) => Set<string>) =>
-    setOpenAreasState((prev) => {
-      const next = fn(prev);
-      saveOpenAreaIds(tripId, [...next]);
-      return next;
-    });
-  /** city groups shut in the "All" list, by leg id ("" = the "no city" group) — remembered per trip */
-  const [collapsedCities, setCollapsedCitiesState] = useState<Set<string>>(() => loadShutCities(tripId));
-  useEffect(() => setCollapsedCitiesState(loadShutCities(tripId)), [tripId]);
-  const setCollapsedCities = (fn: (prev: Set<string>) => Set<string>) =>
-    setCollapsedCitiesState((prev) => {
-      const next = fn(prev);
-      saveShutCities(tripId, [...next]);
-      return next;
-    });
-  /** transit overlay — empty means nothing shown (opt-in). Persisted across trips. */
-  const [transit, setTransit] = useState<Set<string>>(loadTransit);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [snap, setSnap] = useState<Snap>("peek");
-  /** the "Areas" disclosure (add/suggest/edit/merge — area upkeep, not filtering) */
-  const [areasOpen, setAreasOpen] = useState(false);
-  /** the "Filters" (category, transit) sheet — real filtering, split out from area upkeep above */
-  const filterSheet = useActionSheet();
-  /** hides the map, list fills the screen — see LIST_ONLY_KEY above */
-  const [listOnly, setListOnly] = useState(loadListOnly);
-  const setListOnlyPersist = (v: boolean) => {
-    setListOnly(v);
-    try { localStorage.setItem(LIST_ONLY_KEY, v ? "1" : "0"); } catch { /* private window */ }
-  };
-  /** "Nearby now" toggle on the Today list — not persisted, so it never asks
-   *  for location on its own next time the trip opens. */
-  const [nearbyOn, setNearbyOn] = useState(false);
-  /** the "Today" pill's own scope id, so the toggle only ever applies there */
-  const todayScopeId = useMemo(() => {
-    if (!data) return null;
-    const c = tripClock(data);
-    return c.phase === "during" && c.today ? `day:${c.today.id}` : null;
-  }, [data]);
-  const nearbyActive = nearbyOn && !!todayScopeId && scope === todayScopeId;
-  const geo = useGeolocation(nearbyActive);
-
-  // the mobile sheet's handle: a real drag (not just a tap-to-cycle button),
-  // snapping to the nearest of peek/half/full on release
-  const shellRef = useRef<HTMLDivElement | null>(null);
+/** the mobile sheet's handle: a real drag (not just a tap-to-cycle button),
+ *  snapping to the nearest of peek/half/full on release. "half" shrinks to
+ *  fit a short list instead of always jumping to the full ratio — a couple
+ *  of areas shouldn't open onto a sheet that's mostly empty space.
+ *  `panelRootRef` sits on the mobile sheet's own copy of `panel` (its
+ *  top-level flex column: handle-adjacent context bar, the scrolling list,
+ *  the sync footer…); `listOuterRef` sits on whichever list branch is
+ *  rendering (the one flex-1 child in that column). Measuring at the
+ *  *current* snap state directly (sheet.offsetHeight minus the list's
+ *  clipped clientHeight) breaks when the sheet is currently shorter than the
+ *  chrome's own natural height — "peek" clips the list to 0 but doesn't grow
+ *  the chrome to fit, so that subtraction would read the wrong, squeezed
+ *  chrome height instead of the real one. Walking `panelRootRef`'s children
+ *  directly sidesteps that: every shrink-0 sibling reports its own true
+ *  natural offsetHeight regardless of how little room the sheet currently
+ *  gives it (flex-shrink: 0 never shrinks below content size, it just
+ *  overflows), and the one flex-1 child (the list) is measured the same way
+ *  `CenterIfShort` does — the sum of its own children's natural heights, not
+ *  its own (possibly clipped) scrollHeight. */
+function useSheetSnap(shellRef: RefObject<HTMLDivElement | null>) {
   const sheetRef = useRef<HTMLDivElement | null>(null);
   const [containerH, setContainerH] = useState(0);
+  const [snap, setSnap] = useState<Snap>("peek");
   const [dragging, setDragging] = useState(false);
   const dragStart = useRef<{ y: number; h: number } | null>(null);
   const suppressClick = useRef(false);
@@ -293,25 +239,8 @@ export default function MapTab() {
     const ro = new ResizeObserver(([entry]) => setContainerH(entry.contentRect.height));
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
+  }, [shellRef]);
 
-  // "half" shrinks to fit a short list instead of always jumping to the full
-  // ratio — a couple of areas shouldn't open onto a sheet that's mostly empty
-  // space. `panelRootRef` sits on the mobile sheet's own copy of `panel`
-  // (its top-level flex column: handle-adjacent context bar, the scrolling
-  // list, the sync footer…); `listOuterRef` sits on whichever list branch is
-  // rendering (the one flex-1 child in that column). Measuring at the
-  // *current* snap state directly (sheet.offsetHeight minus the list's
-  // clipped clientHeight) breaks when the sheet is currently shorter than
-  // the chrome's own natural height — "peek" clips the list to 0 but doesn't
-  // grow the chrome to fit, so that subtraction would read the wrong,
-  // squeezed chrome height instead of the real one. Walking `panelRootRef`'s
-  // children directly sidesteps that: every shrink-0 sibling reports its own
-  // true natural offsetHeight regardless of how little room the sheet
-  // currently gives it (flex-shrink: 0 never shrinks below content size, it
-  // just overflows), and the one flex-1 child (the list) is measured the
-  // same way `CenterIfShort` does — the sum of its own children's natural
-  // heights, not its own (possibly clipped) scrollHeight.
   const panelRootRef = useRef<HTMLElement | null>(null);
   const setPanelRoot = (el: HTMLElement | null) => { panelRootRef.current = el; };
   const listOuterRef = useRef<HTMLElement | null>(null);
@@ -365,9 +294,16 @@ export default function MapTab() {
     setSnap(NEXT[snap]); // keyboard activation — no pointer sequence to read a drag from
   };
 
-  // the desktop column's own drag handle, on its right edge — same idea as the
-  // mobile handle above (mutate the DOM directly while dragging, commit to
-  // state only on release) but a plain continuous width, not a snap
+  return {
+    sheetRef, snap, setSnap, sheetHeight, dragging, setPanelRoot, setListOuter,
+    onHandlePointerDown, onHandlePointerMove, onHandlePointerUp, onHandleClick,
+  };
+}
+
+/** the desktop column's own drag handle, on its right edge — same idea as the
+ *  mobile handle above (mutate the DOM directly while dragging, commit to
+ *  state only on release) but a plain continuous width, not a snap. */
+function usePanelDrag(shellRef: RefObject<HTMLDivElement | null>) {
   const panelRef = useRef<HTMLDivElement | null>(null);
   const [panelWidth, setPanelWidth] = useState(loadPanelWidth);
   const [panelDragging, setPanelDragging] = useState(false);
@@ -394,13 +330,37 @@ export default function MapTab() {
     panelDragStart.current = null;
   };
 
+  return {
+    panelRef, panelWidth, panelDragging,
+    onPanelHandlePointerDown, onPanelHandlePointerMove, onPanelHandlePointerUp,
+  };
+}
+
+/** "add a place" (search/pin-drop) and "suggest areas" (auto-group + review)
+ *  share one editing-mode state machine — starting either one cancels
+ *  whatever the other was mid-flight, so they're grouped in one hook rather
+ *  than two that would each need to know how to reset the other. */
+function useMapEditing(
+  mapRef: RefObject<MLMap | null>,
+  onSelect: (id: string | null) => void,
+  bumpSheetOpen: () => void,
+) {
+  const data = useData();
+  const readOnly = useReadOnly();
+  const updateEntity = useApp((s) => s.updateEntity);
+  const addEntity = useApp((s) => s.addEntity);
+
+  const places = data?.places ?? [];
+  /** places not yet in any area — the ones worth auto-grouping */
+  const ungrouped = useMemo(() => {
+    const inArea = new Set(data?.areas.flatMap((a) => a.placeIds) ?? []);
+    return places.filter((p) => !inArea.has(p.id));
+  }, [places, data?.areas]);
+
   const [adding, setAdding] = useState(false);
   const [q, setQ] = useState("");
   const [results, setResults] = useState<GeoResult[]>([]);
   const [pending, setPending] = useState<{ lat: number; lng: number; name: string } | null>(null);
-
-  const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState("");
 
   /** review state for "Suggest areas" — null when not suggesting */
   const [review, setReview] = useState<ReviewGroup[] | null>(null);
@@ -413,6 +373,209 @@ export default function MapTab() {
   const [areaName, setAreaName] = useState("");
   /** inline area list open for rename / delete */
   const [editingAreas, setEditingAreas] = useState(false);
+
+  // debounced place search (Nominatim)
+  useEffect(() => {
+    if (!adding || pending) return;
+    const t = setTimeout(async () => {
+      const c = mapRef.current?.getCenter();
+      setResults(await geocode(q, c ? { lat: c.lat, lng: c.lng } : undefined));
+    }, 400);
+    return () => clearTimeout(t);
+  }, [q, adding, pending, mapRef]);
+
+  const startAdd = () => {
+    setAdding(true);
+    onSelect(null);
+    setNamingArea(false);
+    suggestRun.current++;
+    setNaming(false);
+    setReview(null);
+    bumpSheetOpen();
+  };
+  const cancelAdd = () => {
+    setAdding(false);
+    setQ("");
+    setResults([]);
+    setPending(null);
+  };
+  const commitPlace = (name: string, lat: number, lng: number) => {
+    const id = rid();
+    addEntity("places", { id, name: name || "New place", lat, lng, category: "My places", color: FALLBACK } as Place);
+    cancelAdd();
+    onSelect(id);
+    mapRef.current?.easeTo({ center: [lng, lat], zoom: Math.max(mapRef.current.getZoom(), 14) });
+  };
+
+  const onMapClick = (lat: number, lng: number) => {
+    if (adding) setPending({ lat, lng, name: "" });
+    else onSelect(null);
+  };
+  const onLongPress = (lat: number, lng: number) => {
+    if (readOnly) return;
+    setAdding(true);
+    onSelect(null);
+    setPending({ lat, lng, name: "" });
+  };
+
+  const startSuggest = () => {
+    const found = suggestAreas(ungrouped);
+    onSelect(null);
+    setAdding(false);
+    setNamingArea(false);
+    bumpSheetOpen();
+    const groups: ReviewGroup[] = found.map((s) => ({ ...s, keep: true, auto: true }));
+    setReview(groups);
+    const run = ++suggestRun.current;
+    if (groups.length) void nameGroups(run, groups);
+  };
+  /** fill each group's name with the neighbourhood it centres on, one lookup at a
+   *  time (Nominatim is ~1 req/s). Skips groups the user has already renamed. */
+  const nameGroups = async (run: number, groups: ReviewGroup[]) => {
+    setNaming(true);
+    for (let i = 0; i < groups.length; i++) {
+      if (suggestRun.current !== run) return;
+      const label = await reverseGeocode(groups[i].lat, groups[i].lng);
+      if (suggestRun.current !== run) return;
+      if (label) {
+        setReview((cur) =>
+          cur && cur[i]?.auto ? cur.map((g, j) => (j === i ? { ...g, name: label } : g)) : cur,
+        );
+      }
+      if (i < groups.length - 1) await new Promise((r) => setTimeout(r, 1200));
+    }
+    if (suggestRun.current === run) setNaming(false);
+  };
+  const endSuggest = () => {
+    suggestRun.current++;
+    setNaming(false);
+    setReview(null);
+  };
+  const applyReview = () => {
+    if (!data) return;
+    for (const g of review ?? []) {
+      if (!g.keep || g.placeIds.length < 2) continue;
+      const name = g.name || "Area";
+      const dup = data.areas.find((a) => (a.name || "").trim().toLowerCase() === name.trim().toLowerCase());
+      if (dup) {
+        updateEntity<Area>("areas", dup.id, { placeIds: [...new Set([...dup.placeIds, ...g.placeIds])] });
+      } else {
+        addEntity("areas", { id: crypto.randomUUID?.() ?? rid(), name, placeIds: g.placeIds } as never);
+      }
+    }
+    endSuggest();
+  };
+  const createArea = () => {
+    if (!data) return;
+    const name = areaName.trim();
+    if (!name) return;
+    const dup = data.areas.find((a) => (a.name || "").trim().toLowerCase() === name.toLowerCase());
+    if (!dup) addEntity("areas", { id: crypto.randomUUID?.() ?? rid(), name, placeIds: [] } as never);
+    setAreaName("");
+    setNamingArea(false);
+  };
+
+  return {
+    ungrouped,
+    adding, q, setQ, results, pending, setPending,
+    startAdd, cancelAdd, commitPlace, onMapClick, onLongPress,
+    review, setReview, naming,
+    namingArea, setNamingArea, areaName, setAreaName, editingAreas, setEditingAreas,
+    startSuggest, endSuggest, applyReview, createArea,
+  };
+}
+
+export default function MapTab() {
+  const data = useData();
+  const updateEntity = useApp((s) => s.updateEntity);
+  const removeEntity = useApp((s) => s.removeEntity);
+  const syncMyMap = useApp((s) => s.syncMyMap);
+  const readOnly = useReadOnly();
+  const [mode] = useMode();
+  const dark = isDark(mode);
+
+  const map = useRef<MLMap | null>(null);
+  /** flips once on the map's first load — a place row's nearest-station
+   *  lookup waits for this instead of finding `map.current` still null and
+   *  reaching for Overpass on every cold load. */
+  const [mapReady, setMapReady] = useState(false);
+  const [scope, setScope] = useState<string | null>(null);
+  /** category filter — empty means "all categories". Combines with any scope. */
+  const [catFilter, setCatFilter] = useState<Set<string>>(new Set());
+  /** area filter — empty means "all areas". Combines with scope + category. */
+  const [areaFilter, setAreaFilter] = useState<Set<string>>(new Set());
+  const tripId = useApp((s) => s.activeId);
+  /** area groups opened in the list, by area id ("" = the "no area" group) —
+   *  every area starts shut; opening one is remembered per trip, so it stays
+   *  shut again next visit only if it was never opened. A newly added area
+   *  defaults shut with no special-casing needed. Nothing but a tap on the
+   *  group's own header opens or shuts it — picking a pin on the map shows
+   *  that place in its own card at the top instead of springing its group
+   *  open. Written straight to storage on every change (not from an effect),
+   *  so switching trips can never write one trip's state over another's. */
+  const [openAreas, setOpenAreasState] = useState<Set<string>>(() => loadOpenAreaIds(tripId));
+  useEffect(() => setOpenAreasState(loadOpenAreaIds(tripId)), [tripId]);
+  const setOpenAreas = (fn: (prev: Set<string>) => Set<string>) =>
+    setOpenAreasState((prev) => {
+      const next = fn(prev);
+      saveOpenAreaIds(tripId, [...next]);
+      return next;
+    });
+  /** city groups shut in the "All" list, by leg id ("" = the "no city" group) — remembered per trip */
+  const [collapsedCities, setCollapsedCitiesState] = useState<Set<string>>(() => loadShutCities(tripId));
+  useEffect(() => setCollapsedCitiesState(loadShutCities(tripId)), [tripId]);
+  const setCollapsedCities = (fn: (prev: Set<string>) => Set<string>) =>
+    setCollapsedCitiesState((prev) => {
+      const next = fn(prev);
+      saveShutCities(tripId, [...next]);
+      return next;
+    });
+  /** transit overlay — empty means nothing shown (opt-in). Persisted across trips. */
+  const [transit, setTransit] = useState<Set<string>>(loadTransit);
+  const [selected, setSelected] = useState<string | null>(null);
+  /** the "Areas" disclosure (add/suggest/edit/merge — area upkeep, not filtering) */
+  const [areasOpen, setAreasOpen] = useState(false);
+  /** the "Filters" (category, transit) sheet — real filtering, split out from area upkeep above */
+  const filterSheet = useActionSheet();
+  /** hides the map, list fills the screen — see LIST_ONLY_KEY above */
+  const [listOnly, setListOnly] = useState(loadListOnly);
+  const setListOnlyPersist = (v: boolean) => {
+    setListOnly(v);
+    try { localStorage.setItem(LIST_ONLY_KEY, v ? "1" : "0"); } catch { /* private window */ }
+  };
+  /** "Nearby now" toggle on the Today list — not persisted, so it never asks
+   *  for location on its own next time the trip opens. */
+  const [nearbyOn, setNearbyOn] = useState(false);
+  /** the "Today" pill's own scope id, so the toggle only ever applies there */
+  const todayScopeId = useMemo(() => {
+    if (!data) return null;
+    const c = tripClock(data);
+    return c.phase === "during" && c.today ? `day:${c.today.id}` : null;
+  }, [data]);
+  const nearbyActive = nearbyOn && !!todayScopeId && scope === todayScopeId;
+  const geo = useGeolocation(nearbyActive);
+
+  const shellRef = useRef<HTMLDivElement | null>(null);
+  const {
+    sheetRef, snap, setSnap, sheetHeight, dragging, setPanelRoot, setListOuter,
+    onHandlePointerDown, onHandlePointerMove, onHandlePointerUp, onHandleClick,
+  } = useSheetSnap(shellRef);
+  const {
+    panelRef, panelWidth, panelDragging,
+    onPanelHandlePointerDown, onPanelHandlePointerMove, onPanelHandlePointerUp,
+  } = usePanelDrag(shellRef);
+
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  const {
+    ungrouped,
+    adding, q, setQ, results, pending, setPending,
+    startAdd, cancelAdd, commitPlace, onMapClick, onLongPress,
+    review, setReview, naming,
+    namingArea, setNamingArea, areaName, setAreaName, editingAreas, setEditingAreas,
+    startSuggest, endSuggest, applyReview, createArea,
+  } = useMapEditing(map, setSelected, () => setSnap((s) => (s === "peek" ? "half" : s)));
 
   const places = useMemo(() => data?.places ?? [], [data]);
 
@@ -455,16 +618,6 @@ export default function MapTab() {
     }
     setParams((p) => { p.delete("area"); return p; }, { replace: true });
   }, [data, params, setParams]);
-
-  // debounced place search (Nominatim)
-  useEffect(() => {
-    if (!adding || pending) return;
-    const t = setTimeout(async () => {
-      const c = map.current?.getCenter();
-      setResults(await geocode(q, c ? { lat: c.lat, lng: c.lng } : undefined));
-    }, 400);
-    return () => clearTimeout(t);
-  }, [q, adding, pending]);
 
   // keep the map sized to the sheet / panel
   useEffect(() => {
@@ -724,12 +877,6 @@ export default function MapTab() {
     return { type: "FeatureCollection" as const, features };
   }, [data, places, inScopeIds, areaFilter]);
 
-  /** places not yet in any area — the ones worth auto-grouping */
-  const ungrouped = useMemo(() => {
-    const inArea = new Set(data?.areas.flatMap((a) => a.placeIds) ?? []);
-    return places.filter((p) => !inArea.has(p.id));
-  }, [places, data?.areas]);
-
   const imported = useMemo(() => places.filter((p) => p.source === "mymap").length, [places]);
 
   /** areas sharing a case-insensitive trimmed name with at least one other —
@@ -800,40 +947,6 @@ export default function MapTab() {
       return n;
     });
 
-  const startAdd = () => {
-    setAdding(true);
-    setSelected(null);
-    setNamingArea(false);
-    suggestRun.current++;
-    setNaming(false);
-    setReview(null);
-    setSnap((s) => (s === "peek" ? "half" : s));
-  };
-  const cancelAdd = () => {
-    setAdding(false);
-    setQ("");
-    setResults([]);
-    setPending(null);
-  };
-  const commitPlace = (name: string, lat: number, lng: number) => {
-    const id = rid();
-    addEntity("places", { id, name: name || "New place", lat, lng, category: "My places", color: FALLBACK } as Place);
-    cancelAdd();
-    setSelected(id);
-    map.current?.easeTo({ center: [lng, lat], zoom: Math.max(map.current.getZoom(), 14) });
-  };
-
-  const onMapClick = (lat: number, lng: number) => {
-    if (adding) setPending({ lat, lng, name: "" });
-    else setSelected(null);
-  };
-  const onLongPress = (lat: number, lng: number) => {
-    if (readOnly) return;
-    setAdding(true);
-    setSelected(null);
-    setPending({ lat, lng, name: "" });
-  };
-
   const addToDay = (place: Place, dayId: string) => {
     const day = data.days.find((d) => d.id === dayId);
     if (!day) return;
@@ -847,61 +960,6 @@ export default function MapTab() {
     if (!a) return;
     const next = a.placeIds.includes(placeId) ? a.placeIds.filter((p) => p !== placeId) : [...a.placeIds, placeId];
     updateEntity<Area>("areas", areaId, { placeIds: next });
-  };
-
-  const startSuggest = () => {
-    const found = suggestAreas(ungrouped);
-    setSelected(null);
-    setAdding(false);
-    setNamingArea(false);
-    setSnap((s) => (s === "peek" ? "half" : s));
-    const groups: ReviewGroup[] = found.map((s) => ({ ...s, keep: true, auto: true }));
-    setReview(groups);
-    const run = ++suggestRun.current;
-    if (groups.length) void nameGroups(run, groups);
-  };
-  /** fill each group's name with the neighbourhood it centres on, one lookup at a
-   *  time (Nominatim is ~1 req/s). Skips groups the user has already renamed. */
-  const nameGroups = async (run: number, groups: ReviewGroup[]) => {
-    setNaming(true);
-    for (let i = 0; i < groups.length; i++) {
-      if (suggestRun.current !== run) return;
-      const label = await reverseGeocode(groups[i].lat, groups[i].lng);
-      if (suggestRun.current !== run) return;
-      if (label) {
-        setReview((cur) =>
-          cur && cur[i]?.auto ? cur.map((g, j) => (j === i ? { ...g, name: label } : g)) : cur,
-        );
-      }
-      if (i < groups.length - 1) await new Promise((r) => setTimeout(r, 1200));
-    }
-    if (suggestRun.current === run) setNaming(false);
-  };
-  const endSuggest = () => {
-    suggestRun.current++;
-    setNaming(false);
-    setReview(null);
-  };
-  const applyReview = () => {
-    for (const g of review ?? []) {
-      if (!g.keep || g.placeIds.length < 2) continue;
-      const name = g.name || "Area";
-      const dup = data.areas.find((a) => (a.name || "").trim().toLowerCase() === name.trim().toLowerCase());
-      if (dup) {
-        updateEntity<Area>("areas", dup.id, { placeIds: [...new Set([...dup.placeIds, ...g.placeIds])] });
-      } else {
-        addEntity("areas", { id: crypto.randomUUID?.() ?? rid(), name, placeIds: g.placeIds } as never);
-      }
-    }
-    endSuggest();
-  };
-  const createArea = () => {
-    const name = areaName.trim();
-    if (!name) return;
-    const dup = data.areas.find((a) => (a.name || "").trim().toLowerCase() === name.toLowerCase());
-    if (!dup) addEntity("areas", { id: crypto.randomUUID?.() ?? rid(), name, placeIds: [] } as never);
-    setAreaName("");
-    setNamingArea(false);
   };
 
   /** union each duplicate group's places onto the one with the most (ties → the

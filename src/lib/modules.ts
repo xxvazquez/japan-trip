@@ -1,18 +1,17 @@
 import type { ModuleConfig, ModuleKind } from "@/core/types";
 import { sectionSlug } from "@/lib/logbook";
 
-/** Routes for the three fixed hubs. `logbook-section` (a pinned Logbook page)
- *  has no fixed route — it's derived from the module's own `target`, see
- *  `moduleTo`. */
-export const MODULE_ROUTE: Record<Exclude<ModuleKind, "logbook-section">, { to: string }> = {
-  plan: { to: "/" },
-  map: { to: "/map" },
-  logbook: { to: "/logbook" },
+/** Route resolver per module kind. `logbook-section` (a pinned Logbook page)
+ *  has no fixed route — it's derived from the module's own `target`. */
+export const MODULE_ROUTE: Record<ModuleKind, (m: ModuleConfig) => string> = {
+  plan: () => "/",
+  map: () => "/map",
+  logbook: () => "/logbook",
+  "logbook-section": (m) => `/logbook/${sectionSlug(m.target ?? "")}`,
 };
 
 export function moduleTo(s: ModuleConfig): string {
-  if (s.kind === "logbook-section") return `/logbook/${sectionSlug(s.target ?? "")}`;
-  return MODULE_ROUTE[s.kind].to;
+  return MODULE_ROUTE[s.kind](s);
 }
 
 /** Which tab's own hub a pathname belongs to — `/`, `/map…`, `/logbook…` — or
@@ -48,7 +47,7 @@ const DEFAULTS: ModuleConfig[] = [
  *  the current section set. */
 export const enabledModules = (modules: ModuleConfig[]) => {
   const known = (modules ?? []).filter(
-    (m) => m.enabled && (m.kind === "logbook-section" ? !!m.target : m.kind in MODULE_ROUTE),
+    (m) => m.enabled && m.kind in MODULE_ROUTE && (m.kind !== "logbook-section" || !!m.target),
   );
   return known.length ? known : DEFAULTS;
 };
