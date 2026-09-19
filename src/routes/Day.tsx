@@ -37,8 +37,8 @@ import { useReadOnly } from "@/lib/readonly";
 import { dayKind, fmtDate, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink, gmapsRoute, mapUrlCoords } from "@/lib/maps";
-import { fmtWalk } from "@/lib/geo";
-import { useWalk } from "@/lib/walkRoute";
+import { fmtWalk, fmtWalkMin, haversineKm } from "@/lib/geo";
+import { useWalk, estimateTransit } from "@/lib/walkRoute";
 import { nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
 import { nearestOpeningHours, type PlaceHours } from "@/lib/placeHours";
 import { hoursForDate } from "@/lib/openingHours";
@@ -830,17 +830,22 @@ function PlaceHoursLine({ place, date }: { place: Place; date?: string }) {
   );
 }
 
-/** one caption of the walk figures — 🚶 "≈ 2h 2min · 9.8 km" (to the next
- *  step) and 🚆 "≈ 1 min · 84 m · Kita-sando" (to the nearest station) — side
- *  by side on one line, the icons saying which is which, wrapping as whole
- *  pieces only when the screen is too narrow for both. Time and distance always come
+/** one caption of the walk figures — 🚶 "Walk to X ≈ 2h 2min · 9.8 km" (straight
+ *  to the next step) and 🚆 "Walk to Y ≈ 1 min · 84 m" (to the nearest station
+ *  from here) — side by side on one line, each spelling out what it's a
+ *  distance *to* rather than leaning on the icon alone (the train icon on the
+ *  station figure is about the trip being transit, not about that number
+ *  being a train ride — it's still a walk). Time and distance always come
  *  as a pair (`useWalk`: estimate first, real route when it lands). The
  *  station comes from OpenStreetMap (`transitStation.ts`); a lookup that
  *  came back empty is tried once more shortly after, since the public
  *  server drops the odd request. Past `LONG_WALK_MIN` to the next step, a
- *  third piece appears — the nearest station at each end, as a link to
- *  Google Maps transit directions between them (same "no free keyless
- *  multi-modal API" reasoning as `ReturnToHotel`). */
+ *  third piece appears — the train leg between the nearest station at each
+ *  end, as a link to Google Maps transit directions (same "no free keyless
+ *  multi-modal API" reasoning as `ReturnToHotel`), labelled with a rough
+ *  door-to-door total (`estimateTransit` for the ride itself, plus both walk
+ *  legs) so the link isn't just two station names with no sense of the time
+ *  they add up to. */
 function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }) {
   const next = useWalk(place, nextPlace);
   const [station, setStation] = useState<NearbyStation | null>(null);
@@ -868,21 +873,26 @@ function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }
     void nearestStationLookup(nextPlace.lat, nextPlace.lng).then((s) => { if (!cancelled) setNextStation(s); });
     return () => { cancelled = true; };
   }, [long, nextPlace?.id, nextPlace?.lat, nextPlace?.lng]);
+  const fromNextStation = useWalk(nextPlace ?? { lat: 0, lng: 0 }, nextPlace ? nextStation : null);
+  const transitTotal =
+    station && nextStation && toStation && fromNextStation
+      ? toStation.min + estimateTransit(haversineKm(station.lat, station.lng, nextStation.lat, nextStation.lng)) + fromNextStation.min
+      : null;
   const piece = "flex min-w-0 items-start gap-1";
   return (
     <>
       {(next || (station && toStation)) && (
         <span className="meta flex flex-wrap gap-x-3 gap-y-0.5 text-ink-faint">
-          {next && (
+          {next && nextPlace && (
             <span className={piece}>
               <Icon name="walk" size={12} className="mt-[3px] shrink-0" />
-              <span className="min-w-0">{fmtWalk(next)}</span>
+              <span className="min-w-0">Walk to {nextPlace.name} {fmtWalk(next)}</span>
             </span>
           )}
           {station && toStation && (
             <span className={piece}>
               <Icon name="train" size={12} className="mt-[3px] shrink-0" />
-              <span className="min-w-0">{fmtWalk(toStation)} · {station.name}</span>
+              <span className="min-w-0">Walk to {station.name} {fmtWalk(toStation)}</span>
             </span>
           )}
           {long && nextPlace && station && nextStation && station.name !== nextStation.name && (
@@ -891,10 +901,13 @@ function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }
               target="_blank"
               rel="noopener"
               className={`${piece} text-accent`}
-              aria-label={`Transit directions from ${station.name} to ${nextStation.name}`}
+              aria-label={`Transit directions from ${station.name} to ${nextStation.name}${transitTotal ? `, about ${fmtWalkMin(transitTotal)} door to door` : ""}`}
             >
               <Icon name="train" size={12} className="mt-[3px] shrink-0" />
-              <span className="min-w-0">{station.name} → {nextStation.name}</span>
+              <span className="min-w-0">
+                Train: {station.name} → {nextStation.name}
+                {transitTotal && <> · ≈ {fmtWalkMin(transitTotal)} total</>}
+              </span>
             </a>
           )}
         </span>

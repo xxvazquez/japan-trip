@@ -73,18 +73,20 @@ never chosen by hand.
     behind one button so the step's own text gets the room
   - its own quiet note line underneath (bold, bullets, links) — tap to expand and edit
   - a link to the map, if the step is tied to a place
-  - if the step is tied to a place, one quiet line with two walks side by side: 🚶 the time and
-    distance to the next step (when that one is tied to a place too, e.g. "≈ 9 min · 0.8 km"), and
-    🚆 the time and distance to the nearest metro/train station, named (e.g. "≈ 3 min · 195 m ·
-    Ueno") — the same station lookup the Map tab uses. Time and distance always show together: a
-    straight-line estimate first, replaced by an actual walking route once that comes back (or kept
-    if there's no routing key). On a narrow phone the two wrap as whole pieces rather than clip.
-    The station comes from OpenStreetMap (Overpass, then Nominatim if that fails), which sometimes
-    drops a request — a miss is retried once, and a found station is remembered on the device. A
-    step that isn't tied to a place has no position to measure from, so it shows neither figure.
-    Once the walk to the next step passes 20 minutes, a third piece appears: the nearest station at
-    each end as a link ("Ueno → Uguisudani") that opens Google Maps transit directions between them —
-    the same long-walk-to-transit swap as the **Back to &lt;hotel&gt;** row below.
+  - if the step is tied to a place, one quiet line with two walks side by side, each spelled out
+    rather than left to the icon alone: 🚶 "Walk to &lt;next step&gt; ≈ 9 min · 0.8 km" (when that one
+    is tied to a place too), and 🚆 "Walk to &lt;station&gt; ≈ 3 min · 195 m" — the walk to the nearest
+    metro/train station from here, using the same station lookup the Map tab uses. Time and distance
+    always show together: a straight-line estimate first, replaced by an actual walking route once
+    that comes back (or kept if there's no routing key). On a narrow phone the two wrap as whole
+    pieces rather than clip. The station comes from OpenStreetMap (Overpass, then Nominatim if that
+    fails), which sometimes drops a request — a miss is retried once, and a found station is
+    remembered on the device. A step that isn't tied to a place has no position to measure from, so
+    it shows neither figure. Once the walk to the next step passes 20 minutes, a third piece appears:
+    "Train: Ueno → Uguisudani · ≈ 24 min total" — a link that opens Google Maps transit directions
+    between the nearest station at each end, labelled with a rough door-to-door estimate (both walks
+    plus a straight-line guess at the ride itself, since there's no free keyless transit-routing API
+    to ask instead) — the same long-walk-to-transit swap as the **Back to &lt;hotel&gt;** row below.
   - if the linked place has opening hours tagged on OpenStreetMap, the hours **for that day** sit at
     the right end of the tile/time row (e.g. "09:00–17:00") — always in the same spot. The app reads
     the place's tagged schedule (from Overpass, or from a Nominatim search by the place's name when Overpass fails) and picks the rule that covers the day's date (its month and
