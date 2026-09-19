@@ -55,6 +55,9 @@ interface AppStore {
   retryBoot: () => void;
   createTrip: (opts: { name: string; templateId?: string }) => Promise<string>;
   duplicateTrip: (id: string, name: string) => Promise<string>;
+  /** Add a trip read back from a backup file as a new trip (fresh ids — never
+   *  overwrites anything). A name already in use gets " (restored)" after it. */
+  importTrip: (data: TripData) => Promise<string>;
   renameTrip: (id: string, name: string) => Promise<void>;
   archiveTrip: (id: string, archived: boolean) => Promise<void>;
   deleteTrip: (id: string) => Promise<void>;
@@ -691,6 +694,24 @@ export const useApp = create<AppStore>((set, get) => {
       data.config.branding = name;
       data.meta.title = name;
       const summary = summarise("", name, data, get().trips.find((t) => t.id === srcId)?.templateId);
+      const id = await be.createTrip(data, summary);
+      const trips = [...get().trips, { ...summary, id }];
+      set({ trips });
+      void be.setActive(get().activeId, trips);
+      return id;
+    },
+
+    importTrip: async (src) => {
+      const be = pickBackend();
+      const data = remapIds(src);
+      const title = data.meta.title || data.config.branding || "Restored trip";
+      const taken = new Set(get().trips.map((t) => t.name));
+      const base = title.replace(/ \(restored( \d+)?\)$/, ""); // restoring a restore shouldn't stack suffixes
+      let name = title;
+      for (let n = 1; taken.has(name); n++) name = n === 1 ? `${base} (restored)` : `${base} (restored ${n})`;
+      data.config.branding = name;
+      data.meta.title = name;
+      const summary = summarise("", name, data);
       const id = await be.createTrip(data, summary);
       const trips = [...get().trips, { ...summary, id }];
       set({ trips });

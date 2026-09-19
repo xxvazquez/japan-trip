@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Section } from "@/components/Section";
@@ -30,6 +30,7 @@ import { isLocalOnly, setLocalOnly } from "@/lib/localMode";
 import { RowMenu } from "@/components/RowMenu";
 import { MODE_LABEL } from "@/lib/transport";
 import { fallbackCategoryId } from "@/lib/hydrate";
+import { BackupError, downloadBackup, parseBackup } from "@/lib/tripBackup";
 import { expenseCategoryIcon, categoryGlyphTile } from "@/lib/cost";
 import type { TransportMode } from "@/core/types";
 import { Switch } from "@/components/Switch";
@@ -97,9 +98,10 @@ function AppFooter() {
 /* ---------------------------------------------------------------- Trips */
 
 function Trips() {
-  const { trips, activeId, createTrip, duplicateTrip, renameTrip, archiveTrip, deleteTrip, switchTrip } = useApp();
+  const { trips, activeId, createTrip, duplicateTrip, importTrip, renameTrip, archiveTrip, deleteTrip, switchTrip } = useApp();
   const nav = useNavigate();
-  const { busy, run } = useAsyncAction();
+  const { busy, msg, run } = useAsyncAction();
+  const fileRef = useRef<HTMLInputElement>(null);
   const [creating, setCreating] = useState(false);
 
   const make = (templateId?: string) =>
@@ -123,6 +125,20 @@ function Trips() {
   const addDemo = () =>
     run(async () => {
       const id = await createTrip({ name: "Demo", templateId: "demo" });
+      await switchTrip(id);
+      nav("/");
+    });
+
+  // a backup file → a new trip (never touches an existing one), then open it
+  const restore = (file: File) =>
+    run(async () => {
+      let data;
+      try {
+        data = parseBackup(await file.text());
+      } catch (e) {
+        return e instanceof BackupError ? e.message : "Couldn’t read that file.";
+      }
+      const id = await importTrip(data);
       await switchTrip(id);
       nav("/");
     });
@@ -159,6 +175,21 @@ function Trips() {
               Add the demo tour
             </button>
           )}
+          <button onClick={() => fileRef.current?.click()} disabled={busy} className="link-quiet text-sm">
+            Restore from backup
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".json,application/json"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              e.target.value = ""; // picking the same file again should still fire
+              if (f) void restore(f);
+            }}
+          />
+          {msg && <p className="w-full text-sm text-danger" role="alert">{msg}</p>}
         </div>
       ) : (
         <div className="mb-2 border-y border-line py-3">
@@ -275,6 +306,27 @@ function ExportTrip() {
         <li className="px-3.5 pb-3.5">
           <button onClick={downloadCalendar} disabled={icsBusy} className="btn w-full">
             <Icon name="calendar" size={15} /> {icsBusy ? "Building…" : "Add to calendar (.ics)"}
+          </button>
+        </li>
+      </ul>
+    </Section>
+  );
+}
+
+/** A lossless copy of the trip as one file — the thing to keep somewhere safe,
+ *  or to move a trip to another device. Restoring lives on the Trips tab. */
+function BackupTrip() {
+  const data = useData();
+  if (!data) return null;
+  return (
+    <Section
+      title="Backup"
+      info="A complete copy of this trip as a .json file — every stay, day, place and setting, including private details like booking references and wifi, so keep it somewhere you trust. To bring it back (on this device or another), use Restore from backup on the Trips tab; it's added as a new trip and never overwrites one you have. Attached document files aren't inside the backup: ones stored in Google Drive still open from anywhere, ones saved only on this device stay on this device."
+    >
+      <ul>
+        <li className="p-3.5">
+          <button onClick={() => downloadBackup(data)} className="btn w-full">
+            <Icon name="download" size={15} /> Download backup (.json)
           </button>
         </li>
       </ul>
@@ -1019,6 +1071,7 @@ function SharingTab() {
       )}
 
       <ExportTrip />
+      <BackupTrip />
     </div>
   );
 }

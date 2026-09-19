@@ -279,6 +279,19 @@ event, so the trip lands on your phone's own calendar next to everything else.
   a plan row) that opens Google Calendar directly with just that one event — no file, no app-switching.
   Google-only; the `.ics` buttons above still cover Apple Calendar, Outlook, and everything else.
 
+### Backup and restore
+
+**Download backup (.json)** (Manage → Sharing → Backup) saves the whole trip as one file — unlike the
+web page it's lossless: every stay, day, place and setting, *including* private details, so keep it
+somewhere you trust. It's the way to keep a safe copy of a trip that lives only on this device, or to
+move one to another device.
+
+**Restore from backup** (Manage → Trips) reads that file back in as a **new trip** and opens it. It
+never overwrites a trip you already have; if the name is taken the copy is called "… (restored)". A
+file that isn't a backup, or was made by a newer version of the app, is refused with a message.
+Attached document files aren't inside the backup: ones stored in Google Drive still open from
+anywhere, ones saved only on a device stay on that device.
+
 ## Editing anything
 
 Tap almost any piece of text and it becomes editable on the spot. Type, tap away, done. There's no
