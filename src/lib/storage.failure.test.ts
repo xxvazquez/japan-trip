@@ -80,4 +80,33 @@ describe("store failure modes", () => {
     vi.mocked(idb.del).mockImplementation(boom);
     await expect(store.del("k")).rejects.toBeInstanceOf(StorageError);
   });
+
+  it("a value that was parked in localStorage moves back into IndexedDB once it works again, and IndexedDB never keeps an older copy", async () => {
+    await store.set("k", { v: "old" }); // IndexedDB holds the old copy
+    vi.mocked(idb.set).mockImplementation(boom);
+    await store.set("k", { v: "new" }); // IndexedDB failing: newest copy goes to localStorage
+    vi.mocked(idb.set).mockImplementation(real.set);
+    expect(await store.get("k")).toEqual({ v: "new" }); // read prefers the newest…
+    await new Promise((r) => setTimeout(r, 30)); // …and migrates it back in the background
+    expect(localStorage.getItem("j26:k")).toBeNull();
+    expect(await real.get("j26:k")).toEqual({ v: "new" });
+  });
+
+  it("the migration never overwrites a newer write", async () => {
+    vi.mocked(idb.set).mockImplementation(boom);
+    await store.set("k", { v: 1 });
+    vi.mocked(idb.set).mockImplementation(real.set);
+    void store.get("k"); // starts migrating v1…
+    await store.set("k", { v: 2 }); // …while a newer write lands
+    await new Promise((r) => setTimeout(r, 30));
+    expect(await store.get("k")).toEqual({ v: 2 });
+    expect(await real.get("j26:k")).toEqual({ v: 2 });
+  });
+
+  it("emergency drafts are left where they are", async () => {
+    localStorage.setItem("j26:draft:t1", JSON.stringify({ x: 1 }));
+    await store.get("draft:t1");
+    await new Promise((r) => setTimeout(r, 30));
+    expect(localStorage.getItem("j26:draft:t1")).not.toBeNull();
+  });
 });

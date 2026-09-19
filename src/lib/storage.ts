@@ -86,10 +86,44 @@ if (typeof navigator !== "undefined" && navigator.storage?.persist) {
     .catch(() => {});
 }
 
+/** every write, delete and migration of one key runs in order, so a slow
+ *  migration can never land after (and undo) a newer write */
+const chains = new Map<string, Promise<unknown>>();
+function serial<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  const next = (chains.get(key) ?? Promise.resolve()).catch(() => {}).then(fn);
+  chains.set(key, next.catch(() => {}));
+  return next;
+}
+
+/** A value that had to be written to localStorage (IndexedDB was failing) is the
+ *  newest copy, and reads prefer it. Once IndexedDB works again, move it back so
+ *  there's one home for it and IndexedDB never holds an older copy. Skipped if
+ *  the fallback copy has changed since — a newer write wins. */
+function migrateBack(key: string) {
+  let raw: string | null = null;
+  try { raw = localStorage.getItem(PREFIX + key); } catch { return; }
+  if (raw == null) return;
+  const snapshot = raw;
+  void serial(key, async () => {
+    try {
+      if (localStorage.getItem(PREFIX + key) !== snapshot) return;
+      await set(PREFIX + key, JSON.parse(snapshot));
+      markIdbSeen();
+      if (localStorage.getItem(PREFIX + key) === snapshot) ls.remove(key);
+    } catch { /* IndexedDB still not working — the fallback copy stays */ }
+  });
+}
+
+/** keys owned elsewhere (the synchronous emergency draft) — never migrated */
+const isDraftKey = (k: string) => k.startsWith("draft:");
+
 export const store: Store = {
   async get<T>(key: string) {
     const local = ls.read<T>(key);
-    if (local.found) return local.value; // written while IndexedDB was failing — newest copy
+    if (local.found) {
+      if (!isDraftKey(key)) migrateBack(key);
+      return local.value; // written while IndexedDB was failing — newest copy
+    }
     try {
       return (await get(PREFIX + key)) as T | undefined;
     } catch (e) {
@@ -98,28 +132,32 @@ export const store: Store = {
     }
   },
 
-  async set<T>(key: string, value: T) {
-    try {
-      await set(PREFIX + key, value);
-      markIdbSeen();
-      ls.remove(key); // IndexedDB now holds the newest copy
-      return;
-    } catch (e) {
-      if (isQuotaError(e)) throw new StorageError("quota", "This device is out of storage space", e);
-      // fall through to localStorage; it throws if that fails too
-    }
-    ls.write(key, value);
+  set<T>(key: string, value: T) {
+    return serial(key, async () => {
+      try {
+        await set(PREFIX + key, value);
+        markIdbSeen();
+        ls.remove(key); // IndexedDB now holds the newest copy
+        return;
+      } catch (e) {
+        if (isQuotaError(e)) throw new StorageError("quota", "This device is out of storage space", e);
+        // fall through to localStorage; it throws if that fails too
+      }
+      ls.write(key, value);
+    });
   },
 
-  async del(key: string) {
-    let idbErr: unknown;
-    try {
-      await del(PREFIX + key);
-    } catch (e) {
-      idbErr = e;
-    }
-    ls.remove(key);
-    if (idbErr && idbSeen()) throw new StorageError("write", "Couldn't remove saved data", idbErr);
+  del(key: string) {
+    return serial(key, async () => {
+      let idbErr: unknown;
+      try {
+        await del(PREFIX + key);
+      } catch (e) {
+        idbErr = e;
+      }
+      ls.remove(key);
+      if (idbErr && idbSeen()) throw new StorageError("write", "Couldn't remove saved data", idbErr);
+    });
   },
 
   async keys() {
