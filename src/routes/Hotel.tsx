@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
@@ -26,8 +25,6 @@ export default function Hotel() {
   const updateEntity = useApp((s) => s.updateEntity);
   const removeEntity = useApp((s) => s.removeEntity);
   const ro = useReadOnly();
-  const [pinEditing, setPinEditing] = useState(false);
-  const [pinDraft, setPinDraft] = useState("");
   if (!data) return null;
 
   const L = lookups(data);
@@ -49,8 +46,6 @@ export default function Hotel() {
   const doorShown = ro ? door.filter(([, v]) => v) : door;
 
   const showRefSection = !ro || !!hotel.price || fields.length > 0;
-  const savePin = () => { p({ mapUrl: pinDraft.trim() || undefined }); setPinEditing(false); };
-  const openPin = () => { setPinDraft(hotel.mapUrl ?? ""); setPinEditing(true); };
   const showAddress = !!(hotel.address || hotel.addressAlt || !ro);
   const showArrival = showAddress || doorShown.length > 0 || !!hotel.nameAlt;
 
@@ -84,7 +79,7 @@ export default function Hotel() {
                 <li className="relative px-3.5 py-2.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
                   <span className="mb-0.5 block text-[0.8125rem] text-ink-soft">Address</span>
                   <span className="block font-sans text-[0.8125rem] font-medium leading-snug text-ink">
-                    <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined })} />
+                    <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined, lat: undefined, lng: undefined })} />
                   </span>
                   {(hotel.addressAlt || !ro) && (
                     <span
@@ -94,34 +89,12 @@ export default function Hotel() {
                       <Editable label="Local address" value={hotel.addressAlt ?? ""} placeholder="Local-script address, for taxis" onCommit={(v) => p({ addressAlt: v || undefined })} />
                     </span>
                   )}
-                  {pinEditing ? (
-                    <div className="mt-2.5 flex items-center gap-2">
-                      <input
-                        autoFocus
-                        value={pinDraft}
-                        onChange={(e) => setPinDraft(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === "Enter") savePin(); if (e.key === "Escape") setPinEditing(false); }}
-                        placeholder="Paste a Google Maps link"
-                        className="min-w-0 flex-1 border-b border-ink bg-transparent pb-1 text-sm focus:outline-none"
-                      />
-                      <button onClick={savePin} className="shrink-0 text-xs font-medium text-accent">Save</button>
-                      <button onClick={() => setPinEditing(false)} className="shrink-0 text-xs text-ink-faint hover:text-ink-soft">Cancel</button>
-                    </div>
-                  ) : (
-                    (map || !ro) && (
-                      <span className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-                        {map && (
-                          <a href={map} target="_blank" rel="noopener" className="action">
-                            <Icon name="map" size={15} /> Open in Google Maps
-                          </a>
-                        )}
-                        {!ro && (
-                          <button onClick={openPin} className="link-quiet text-xs">
-                            {hotel.mapUrl ? "Edit map pin" : "Set exact pin"}
-                          </button>
-                        )}
-                      </span>
-                    )
+                  {map && (
+                    <span className="mt-2 flex">
+                      <a href={map} target="_blank" rel="noopener" className="action">
+                        <Icon name="map" size={15} /> Open in Google Maps
+                      </a>
+                    </span>
                   )}
                 </li>
               )}

@@ -82,8 +82,8 @@ never chosen by hand.
   - the day closes with a **Back to <hotel>** row under the last step — the way home to wherever you're
     staying that day (the day's own hotel, else its stay's). When the last step is tied to a place it
     shows the walk there (time and distance, e.g. "≈ 1h 37min · 7.7 km") and, once that's a long
-    walk, the two stations to head between ("Tsukiji → Asakusa"); it needs the hotel to have
-    coordinates for those figures. Tapping the row opens Google Maps directions — transit for a
+    walk, the two stations to head between ("Tsukiji → Asakusa"); the hotel's
+    coordinates come from its address automatically. Tapping the row opens Google Maps directions — transit for a
     long way, walking for a short one — so the actual best route, lines and transfers included, is
     Google's own (there's no free no-card transit-routing API to do it in the app). If the last step
     is a free-text one, the row still shows and opens directions from wherever you are.
@@ -118,7 +118,7 @@ places grouped and foldable by area once a city's picked.
   match the trip. Pick a city and the map and the list both narrow to it straight away; the app opens
   on wherever you are (or the first stay). A city's pins are the ones planned on its days, plus any
   imported pins that fall nearest to it, within about 60 km — "nearest" measured from the stay's
-  **hotel** (its coordinates, taken from the pasted Maps link or geocoded from the address once) or,
+  **hotel** (its coordinates, worked out automatically — taken from its Maps link when that carries them, otherwise geocoded from the address once, wherever you are in the app; nothing to set by hand) or,
   failing that, the places its days already use. A pin farther than that from every stay belongs to
   no city and shows only on **All**. A stay gets a pill once its hotel has coordinates, or once it has
   a pin to show.

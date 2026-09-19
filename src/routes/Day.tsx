@@ -34,7 +34,7 @@ import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { fmtDate, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
-import { gmapsLink, gmapsRoute } from "@/lib/maps";
+import { gmapsLink, gmapsRoute, mapUrlCoords } from "@/lib/maps";
 import { fmtWalk } from "@/lib/geo";
 import { useWalk } from "@/lib/walkRoute";
 import { nearestStationOverpass, type NearbyStation } from "@/lib/transitStation";
@@ -690,7 +690,11 @@ const LONG_WALK_MIN = 20;
  *  last step isn't tied to a place there's no start point to measure from,
  *  so the row just opens directions from wherever you are. */
 function ReturnToHotel({ from, hotel, indent }: { from?: Place; hotel: Hotel; indent: boolean }) {
-  const to = hotel.lat !== undefined && hotel.lng !== undefined ? { lat: hotel.lat, lng: hotel.lng } : null;
+  const linkCoords = mapUrlCoords(hotel.mapUrl);
+  const to =
+    hotel.lat !== undefined && hotel.lng !== undefined ? { lat: hotel.lat, lng: hotel.lng }
+    : linkCoords ? { lat: linkCoords[0], lng: linkCoords[1] }
+    : null;
   const walk = useWalk(from ?? { lat: 0, lng: 0 }, from ? to : null);
   const long = !walk || walk.min > LONG_WALK_MIN;
 

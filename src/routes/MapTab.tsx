@@ -26,7 +26,7 @@ import { WalkLine } from "@/components/WalkLine";
 import { glyphPath } from "@/lib/mapGlyphs";
 import { toneForPlaceCategory, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
-import type { Area, Day, Hotel, PlanItem, Place, TripData } from "@/core/types";
+import type { Area, Day, PlanItem, Place, TripData } from "@/core/types";
 
 const FALLBACK = DEFAULT_ACCENT;
 // colours an app-native pin may carry that aren't a real "own" colour — the
@@ -453,42 +453,6 @@ export default function MapTab() {
       /* private mode — fine */
     }
   }, [transit]);
-
-  // Geocode a hotel's address once when it has no coords and its Maps link
-  // carries none — so the city pills anchor on real trips whose hotel links are
-  // the short `maps.app.goo.gl` kind. One lookup per hotel, spaced for Nominatim,
-  // cached straight back onto the entity.
-  const geoTried = useRef<Set<string>>(new Set());
-  useEffect(() => {
-    if (!data || readOnly) return;
-    const pending = data.hotels.filter(
-      (h) =>
-        h.address?.trim() &&
-        !geoTried.current.has(h.id) &&
-        !(Number.isFinite(h.lat) && Number.isFinite(h.lng)) &&
-        !mapUrlCoords(h.mapUrl),
-    );
-    if (pending.length === 0) return;
-    let stop = false;
-    (async () => {
-      for (const h of pending) {
-        if (stop) return;
-        geoTried.current.add(h.id);
-        // drop a leading postcode ("〒105-0013 ") — Nominatim reads it as noise
-        const q = h.address!.trim().replace(/^〒?\s*\d{3}-?\d{4}[\s,]*/, "");
-        let [hit] = await geocode(q);
-        // retry with the latin part only — a Japanese building-name tail
-        // ("… ビーサイト浜松町") often sinks the whole lookup
-        if (!hit) {
-          const latin = q.replace(/[^\x00-\x7F]+/g, " ").replace(/\s{2,}/g, " ").replace(/[\s,]+$/, "").trim();
-          if (latin && latin !== q) [hit] = await geocode(latin);
-        }
-        if (hit) updateEntity<Hotel>("hotels", h.id, { lat: hit.lat, lng: hit.lng });
-        await new Promise((r) => setTimeout(r, 1200));
-      }
-    })();
-    return () => { stop = true; };
-  }, [data, readOnly, updateEntity]);
 
   const cats = useMemo(() => {
     const m = new Map<string, string>();

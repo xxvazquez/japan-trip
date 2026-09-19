@@ -10,12 +10,14 @@ import { Icon } from "./Icon";
 import { Wordmark } from "./Wordmark";
 import { useData } from "@/lib/data";
 import { useReadOnly } from "@/lib/readonly";
+import { useAutoHotelCoords } from "@/lib/hotelCoords";
 
 export function AppShell() {
   const [searchOpen, setSearchOpen] = useState(false);
   const data = useData();
   const demo = useReadOnly();
   const nav = useNavigate();
+  useAutoHotelCoords(!demo);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
