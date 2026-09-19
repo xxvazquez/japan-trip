@@ -69,9 +69,9 @@ export function FieldList({
       return (
         <>
           {fields.map((f) => (
-            <li key={f.id} className={`${insetLi} flex items-baseline justify-between gap-4 px-3.5 py-2.5`}>
-              <span className="shrink-0 text-[0.8125rem] text-ink-soft">{f.label || "—"}</span>
-              <span className="min-w-0 text-right font-sans text-[0.8125rem] font-medium leading-snug text-ink">
+            <li key={f.id} className={`${insetLi} flex items-baseline justify-between gap-4 px-3.5 py-3`}>
+              <span className="shrink-0 text-[0.9375rem] text-ink-soft">{f.label || "—"}</span>
+              <span className="min-w-0 text-right font-sans text-[0.9375rem] font-medium leading-snug text-ink">
                 {readValue(f)}
               </span>
             </li>
@@ -91,7 +91,7 @@ export function FieldList({
   }
 
   const addBtn = (
-    <button onClick={add} className={`action ${inset ? "w-full px-3.5 py-2.5 text-[0.8125rem]" : "mt-2 text-xs"}`}>
+    <button onClick={add} className={`action ${inset ? "w-full px-3.5 py-3 text-[0.9375rem]" : "mt-2 text-xs"}`}>
       <Icon name="plus" size={13} /> {addLabel}
     </button>
   );
@@ -139,7 +139,7 @@ export function FieldList({
     return (
       <>
         {fields.map((f, i) => (
-          <li key={f.id} className={`${insetLi} flex items-baseline gap-2 px-3.5 py-2.5`}>{editRow(f, i)}</li>
+          <li key={f.id} className={`${insetLi} flex items-baseline gap-2 px-3.5 py-3`}>{editRow(f, i)}</li>
         ))}
         <li>{addBtn}</li>
       </>

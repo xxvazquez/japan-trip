@@ -76,9 +76,9 @@ export default function Hotel() {
                 </InsetRow>
               )}
               {showAddress && (
-                <li className="relative px-3.5 py-2.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
-                  <span className="mb-0.5 block text-[0.8125rem] text-ink-soft">Address</span>
-                  <span className="block font-sans text-[0.8125rem] font-medium leading-snug text-ink">
+                <li className="relative px-3.5 py-3 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
+                  <span className="mb-0.5 block text-[0.9375rem] text-ink-soft">Address</span>
+                  <span className="block font-sans text-[0.9375rem] font-medium leading-snug text-ink">
                     <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined, lat: undefined, lng: undefined })} />
                   </span>
                   {(hotel.addressAlt || !ro) && (

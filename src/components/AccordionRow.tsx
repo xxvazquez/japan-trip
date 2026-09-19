@@ -36,7 +36,7 @@ export function AccordionRow({
 
   return (
     <li className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px after:bg-line last:after:hidden">
-      <div className="flex items-center gap-2 py-2.5 pl-2 pr-3.5">
+      <div className="flex items-center gap-2 py-3 pl-2 pr-3.5">
         <button
           type="button"
           onClick={() => setOpen((was) => !was)}

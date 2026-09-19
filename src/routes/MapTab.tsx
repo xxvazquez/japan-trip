@@ -1675,7 +1675,7 @@ function PlaceRow({
   // pin has no real colour, so tint it by category instead
   const ownColour = place.color && !DEFAULT_PIN_COLORS.has(place.color) ? place.color : undefined;
   // grouped-inset rows, iOS Settings style: a quiet label left, the value right
-  const rowCls = "flex items-center gap-3 px-3.5 py-2.5 text-[0.9375rem]";
+  const rowCls = "flex items-center gap-3 px-3.5 py-3 text-[0.9375rem]";
   const sortedDays = [...days].sort((a, b) => a.date.localeCompare(b.date));
   return (
     <>
@@ -1715,7 +1715,7 @@ function PlaceRow({
             </li>
           )}
           {(!readOnly || place.note?.trim()) && (
-            <li className={`${INSET_DIVIDER} px-3.5 py-2.5`}>
+            <li className={`${INSET_DIVIDER} px-3.5 py-3`}>
               <RichNote value={place.note ?? ""} onCommit={onNote} placeholder="Add a note" className="text-[0.8125rem] leading-snug text-ink-soft" />
             </li>
           )}

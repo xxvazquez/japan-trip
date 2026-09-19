@@ -137,8 +137,8 @@ export default function Journey() {
           <ul>
             {j.gmapsDirections && (
               <li className={INSET_DIVIDER}>
-                <a href={j.gmapsDirections} target="_blank" rel="noopener" className="flex items-center justify-between gap-3 px-3.5 py-2.5">
-                  <span className="flex items-center gap-2 text-[0.8125rem] font-medium text-accent">
+                <a href={j.gmapsDirections} target="_blank" rel="noopener" className="flex items-center justify-between gap-3 px-3.5 py-3">
+                  <span className="flex items-center gap-2 text-[0.9375rem] font-medium text-accent">
                     <Icon name="map" size={15} /> Directions in Google Maps
                   </span>
                   <Icon name="chevron" size={14} className="-mr-1 shrink-0 text-ink-faint" />
@@ -383,7 +383,7 @@ export default function Journey() {
                             >
                               <IconTile ghost size="sm" name={c.icon} className="mx-auto mb-1.5" />
                               <div className="eyebrow text-ink-faint">{c.label}</div>
-                              <div className="value mt-0.5 text-[0.8125rem] leading-tight [overflow-wrap:anywhere]">{c.value}</div>
+                              <div className="value mt-0.5 text-[0.9375rem] leading-tight [overflow-wrap:anywhere]">{c.value}</div>
                             </div>
                           ))}
                         </div>

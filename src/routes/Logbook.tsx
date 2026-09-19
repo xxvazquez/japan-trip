@@ -207,7 +207,7 @@ function ListSection({ list }: { list: CustomList }) {
             className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden"
           >
             <SwipeToDelete undoLabel="Item removed" onDelete={ro ? undefined : () => set((l) => { l.items.splice(i, 1); })}>
-            <div className="flex items-start gap-2 px-3.5 py-2.5">
+            <div className="flex items-start gap-2 px-3.5 py-3">
               <span className="min-w-0 flex-1">
                 <span className="block text-[0.9375rem] font-medium leading-snug text-ink">
                   {ro
@@ -234,7 +234,7 @@ function ListSection({ list }: { list: CustomList }) {
         ))}
         {!ro && (
           <li>
-            <button onClick={add} className="action w-full px-3.5 py-2.5 text-[0.8125rem]">
+            <button onClick={add} className="action w-full px-3.5 py-3 text-[0.9375rem]">
               <Icon name="plus" size={13} /> Add an item
             </button>
           </li>
@@ -721,7 +721,7 @@ function Attachments({
       {files.map((f) => {
         const img = f.driveId && f.mime?.startsWith("image/") && !broken.has(f.id);
         return (
-          <div key={f.id} className={`${INSET_DIVIDER} py-2.5`}>
+          <div key={f.id} className={`${INSET_DIVIDER} py-3`}>
             <div className="group flex items-center gap-2.5">
               <Icon name="vault" size={16} className="shrink-0 text-ink-soft" />
               <button onClick={() => open(f)} className="value min-w-0 flex-1 break-words text-left hover:underline">{f.name}</button>
@@ -853,7 +853,7 @@ function Packing() {
                       ))}
                       {!ro && (
                         <li>
-                          <button onClick={() => addItem(group)} className="action w-full px-3.5 py-2.5 text-[0.8125rem]">
+                          <button onClick={() => addItem(group)} className="action w-full px-3.5 py-3 text-[0.9375rem]">
                             <Icon name="plus" size={13} /> Add item
                           </button>
                         </li>
@@ -888,7 +888,7 @@ function PackRow({ item, ro, people, tagged, onToggle, onLabel, onAssign, onRemo
   const pill = showAssign && <AssignPill value={item.assignee} people={people} tagged={tagged} readOnly={ro} onChange={onAssign} />;
 
   const liOuter = "relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden";
-  const rowInner = "flex items-center gap-3 px-3.5 py-2.5 text-sm";
+  const rowInner = "flex items-center gap-3 px-3.5 py-3 text-sm";
   if (ro) {
     return (
       <li className={`${liOuter} ${rowInner}`}>

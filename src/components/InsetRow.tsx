@@ -34,7 +34,7 @@ export function InsetRow({
 }) {
   if (stacked) {
     return (
-      <li className={`${LI} px-3.5 py-2.5 ${className}`}>
+      <li className={`${LI} px-3.5 py-3 ${className}`}>
         <span className="row-label mb-0.5 block">{label}</span>
         <span className="row-value block text-left">{children}</span>
       </li>
@@ -54,7 +54,7 @@ export function InsetRow({
   if (to) {
     return (
       <li className={LI}>
-        <Link to={to} className={`flex items-center justify-between gap-3 px-3.5 py-2.5 transition-colors hover:bg-surface-2/40 focus-visible:[outline-offset:-2px] ${className}`}>
+        <Link to={to} className={`flex items-center justify-between gap-3 px-3.5 py-3 transition-colors hover:bg-surface-2/40 focus-visible:[outline-offset:-2px] ${className}`}>
           {inner}
         </Link>
       </li>
@@ -62,7 +62,7 @@ export function InsetRow({
   }
 
   return (
-    <li className={`${LI} flex items-baseline justify-between gap-4 px-3.5 py-2.5 ${className}`}>
+    <li className={`${LI} flex items-baseline justify-between gap-4 px-3.5 py-3 ${className}`}>
       {inner}
     </li>
   );

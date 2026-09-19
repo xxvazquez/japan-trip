@@ -150,7 +150,7 @@ export function TimeZonePicker({ value, onChange, label }: { value: string; onCh
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={`${label}: ${zoneLabel(value)}`}
-        className="inline-flex max-w-[13rem] items-center gap-1 text-right text-[0.8125rem] font-medium"
+        className="inline-flex max-w-[13rem] items-center gap-1 text-right text-[0.9375rem] font-medium"
       >
         <span className="break-words">{zoneLabel(value)}</span>
         <Icon name="chevron" size={11} className="rotate-90 shrink-0 text-ink-faint" />

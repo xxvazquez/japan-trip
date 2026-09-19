@@ -39,14 +39,14 @@ export function MoneyField({
           value={currency || primary}
           onChange={(e) => onCurrency!(e.target.value === primary ? undefined : e.target.value)}
           aria-label="Currency"
-          className="cursor-pointer bg-transparent text-[0.8125rem] text-ink-soft focus:outline-none"
+          className="cursor-pointer bg-transparent text-[0.9375rem] text-ink-soft focus:outline-none"
         >
           {[...new Set([...currencies, currency || primary])].filter(Boolean).map((cc) => (
             <option key={cc} value={cc}>{cc}</option>
           ))}
         </select>
       ) : sym && bare ? (
-        <span className="text-[0.8125rem] text-ink-faint">{sym}</span>
+        <span className="text-[0.9375rem] text-ink-faint">{sym}</span>
       ) : null}
       <Editable as="number" label={label} value={amount} placeholder="—" onCommit={onAmount} />
     </span>

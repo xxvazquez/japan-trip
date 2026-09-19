@@ -39,13 +39,13 @@ export function TileRow({
         {meta != null && meta !== "" && <span className="meta mt-0.5 block break-words">{meta}</span>}
       </span>
       {right != null && right !== "" && (
-        <span className="shrink-0 text-[0.8125rem] tabular-nums text-ink-soft">{right}</span>
+        <span className="shrink-0 text-[0.9375rem] tabular-nums text-ink-soft">{right}</span>
       )}
       {showChevron && <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />}
     </>
   );
   // the grouped inset clips its overflow, so pull the focus ring inward
-  const cls = `flex w-full items-center gap-3 px-3.5 py-2.5 text-left focus-visible:[outline-offset:-2px] ${className}`;
+  const cls = `flex w-full items-center gap-3 px-3.5 py-3 text-left focus-visible:[outline-offset:-2px] ${className}`;
   // own hairline, inset past the tile (14px pad + 22px tile + 12px gap), gone on the last row
   const li = "relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden";
   return (

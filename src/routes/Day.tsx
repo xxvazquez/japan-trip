@@ -441,7 +441,7 @@ function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByP
     return readOnly ? (
       <p className="px-3.5 py-3 text-sm text-ink-faint">Nothing planned yet.</p>
     ) : (
-      <button onClick={() => onChange([{ id: rid(), text: "" }])} className="action w-full px-3.5 py-2.5 text-[0.8125rem]">
+      <button onClick={() => onChange([{ id: rid(), text: "" }])} className="action w-full px-3.5 py-3 text-[0.9375rem]">
         <Icon name="plus" size={14} /> Add a step
       </button>
     );
@@ -491,7 +491,7 @@ function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByP
       {/* a second "add" affordance down here too — the one up in the Section
        *  header (see Day()) means a long plan otherwise needs a scroll back
        *  to the top just to add the next step */}
-      <button onClick={() => onChange([...items, { id: rid(), text: "" }])} className="action w-full border-t border-line px-3.5 py-2.5 text-[0.8125rem]">
+      <button onClick={() => onChange([...items, { id: rid(), text: "" }])} className="action w-full border-t border-line px-3.5 py-3 text-[0.9375rem]">
         <Icon name="plus" size={14} /> Add a step
       </button>
     </>
@@ -557,7 +557,7 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
       className={`group relative text-sm after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden ${isDragging ? "z-10 bg-surface opacity-80" : ""}`}
     >
       <SwipeToDelete undoLabel="Step removed" onDelete={readOnly ? undefined : onRemove}>
-      <div className="px-3.5 py-2.5">
+      <div className="px-3.5 py-3">
         <div className="flex items-start gap-2.5">
           {/* leading column — just the drag handle now; tile + hour moved
               into the content column's own meta line below, so the row
@@ -714,7 +714,7 @@ function ReturnToHotel({ from, hotel, indent }: { from?: Place; hotel: Hotel; in
       target="_blank"
       rel="noopener"
       aria-label={`Directions back to ${hotel.name || "the hotel"}`}
-      className={`flex items-start gap-2.5 border-t border-line py-2.5 pr-3.5 active:bg-surface-2 ${indent ? "pl-9" : "pl-3.5"}`}
+      className={`flex items-start gap-2.5 border-t border-line py-3 pr-3.5 active:bg-surface-2 ${indent ? "pl-9" : "pl-3.5"}`}
     >
       <IconTile size="sm" name="bed" tone="accent" className="mt-px" />
       <span className="min-w-0 flex-1 space-y-1">
@@ -922,7 +922,7 @@ function CostList({ costs, categories, currencies, places, highlightId, readOnly
     return readOnly ? (
       <p className="px-3.5 py-3 text-sm text-ink-faint">Nothing logged.</p>
     ) : (
-      addButton("action w-full px-3.5 py-2.5 text-[0.8125rem]", 14)
+      addButton("action w-full px-3.5 py-3 text-[0.9375rem]", 14)
     );
   }
 
@@ -939,7 +939,7 @@ function CostList({ costs, categories, currencies, places, highlightId, readOnly
               className={`group relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden transition-colors duration-700 ${c.id === highlightId ? "bg-accent/10" : ""}`}
             >
               <SwipeToDelete undoLabel="Expense removed" onDelete={readOnly ? undefined : () => onChange(costs.filter((_, j) => j !== i))}>
-              <div className="px-3.5 py-2.5">
+              <div className="px-3.5 py-3">
               <div className="flex items-start gap-3">
                 <IconTile size="sm" name={tile.name} glyph={tile.glyph} tone={tile.tone} color={tile.color} className="mt-0.5 shrink-0" />
                 <div className="min-w-0 flex-1">
@@ -990,7 +990,7 @@ function CostList({ costs, categories, currencies, places, highlightId, readOnly
             </li>
           );
         })}
-      <li className="relative flex items-baseline justify-between gap-4 px-3.5 py-2.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
+      <li className="relative flex items-baseline justify-between gap-4 px-3.5 py-3 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
         <span className="value font-semibold">Total spent</span>
         <span className="value flex flex-wrap justify-end gap-x-3 font-semibold tabular-nums">
           {subtotals.size > 0
@@ -998,7 +998,7 @@ function CostList({ costs, categories, currencies, places, highlightId, readOnly
             : "—"}
         </span>
       </li>
-      {!readOnly && <li>{addButton("action w-full px-3.5 py-2.5 text-[0.8125rem]", 14)}</li>}
+      {!readOnly && <li>{addButton("action w-full px-3.5 py-3 text-[0.9375rem]", 14)}</li>}
     </ul>
   );
 }

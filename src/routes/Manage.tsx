@@ -427,14 +427,14 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 
 /** `<li>` class for a Manage grouped-list item (a traveller, a currency…):
  *  padded, `InsetRow`'s own inset hairline, gone on the last row. */
-const MLI = `${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-2.5`;
+const MLI = `${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-3`;
 
 /** an action in a grouped list — the iOS Settings idiom: a full-width row with
  *  an accent label, never a wide filled button inside the card */
 function ActionRow({ icon, label, hint, onClick, disabled }: { icon?: IconName; label: string; hint?: string; onClick: () => void; disabled?: boolean }) {
   return (
     <li className={INSET_DIVIDER}>
-      <button onClick={onClick} disabled={disabled} className="action w-full px-3.5 py-2.5 text-[0.8125rem] disabled:opacity-50">
+      <button onClick={onClick} disabled={disabled} className="action w-full px-3.5 py-3 text-[0.9375rem] disabled:opacity-50">
         {icon && <Icon name={icon} size={14} />} {label}
         {hint && <span className="meta ml-1 hidden font-normal sm:inline">— {hint}</span>}
       </button>
@@ -446,7 +446,7 @@ function ActionRow({ icon, label, hint, onClick, disabled }: { icon?: IconName; 
 function AddRow({ label, onClick }: { label: string; onClick: () => void }) {
   return (
     <li>
-      <button onClick={onClick} className="action w-full px-3.5 py-2.5 text-[0.8125rem]">
+      <button onClick={onClick} className="action w-full px-3.5 py-3 text-[0.9375rem]">
         <Icon name="plus" size={14} /> {label}
       </button>
     </li>
@@ -809,7 +809,7 @@ function AddTabButton() {
 
   return (
     <li>
-      <button ref={anchorRef} onClick={() => setOpen(true)} className="action w-full px-3.5 py-2.5 text-xs">
+      <button ref={anchorRef} onClick={() => setOpen(true)} className="action w-full px-3.5 py-3 text-xs">
         <Icon name="plus" size={13} /> Add tab
       </button>
       <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="Pin a Logbook page">
@@ -961,7 +961,7 @@ function Appearance() {
                   role="radio"
                   aria-checked={on}
                   onClick={() => mutate((d) => { d.config.theme = structuredClone(p.tokens); d.config.themePreset = p.id; })}
-                  className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left transition-colors hover:bg-surface-2/40"
+                  className="flex w-full items-center gap-3 px-3.5 py-3 text-left transition-colors hover:bg-surface-2/40"
                 >
                   <span
                     className="grid h-8 w-8 shrink-0 place-items-center rounded border"
@@ -1081,7 +1081,7 @@ function SharingTab() {
             <Editable
               label="Emails to share document attachments with"
               value={(data.config.driveShareEmails ?? []).join(", ")}
-              placeholder="you@…, partner@…"
+              placeholder="Add emails"
               onCommit={(v) => mutate((d) => { d.config.driveShareEmails = v.split(",").map((x) => x.trim()).filter(Boolean); })}
             />
           </Row>

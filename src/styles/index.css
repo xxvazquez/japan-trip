@@ -186,8 +186,8 @@ html.dark {
    *   .subhead       sub-head under a page title — 1.3125rem 500 (Plan stay, Map scope)
    *   .lead          card / item title — 1.0625rem, sans 500 ink
    *   .value         main value — 0.9375rem, sans 500 ink  (paired + under-label)
-   *   .row-value     value in a label/value .row — 0.8125rem 500, matches label
-   *   .note          body / prose — 0.9rem, sans 400 ink, leading 1.6
+   *   .row-value     value in a label/value .row — 0.9375rem 500, matches label
+   *   .note          body / prose — 0.9375rem, sans 400 ink, leading 1.6
    *   .meta          metadata — 0.8125rem, sans 400 ink-soft  (+ .row-label)
    *   .kicker        section header — 0.8125rem, 500 uppercase +0.03em ink-soft
    *   .eyebrow       micro-label / tag — 0.6875rem, 400 uppercase +0.12em
@@ -246,20 +246,20 @@ html.dark {
    * below .value so a note never reads louder than the quiet section header
    * above it. Callers may override the colour (text-ink-soft when secondary). */
   .note {
-    @apply text-[0.9rem] leading-[1.6] text-ink;
+    @apply text-[0.9375rem] leading-[1.6] text-ink;
   }
 
   /* a label / value list row — hairline between peers only. Label and value
-   * sit at the same size (13px); the value carries the weight (500 vs 400) and
+   * sit at the same size (15px); the value carries the weight (500 vs 400) and
    * full ink so there's no size cliff between a row and its label. */
   .row {
-    @apply flex items-baseline justify-between gap-4 border-b border-line py-2.5 last:border-b-0;
+    @apply flex items-baseline justify-between gap-4 border-b border-line py-3 last:border-b-0;
   }
   .row-label {
-    @apply shrink-0 text-[0.8125rem] text-ink-soft;
+    @apply shrink-0 text-[0.9375rem] text-ink-soft;
   }
   .row-value {
-    @apply min-w-0 text-right font-sans text-[0.8125rem] font-medium leading-snug text-ink;
+    @apply min-w-0 text-right font-sans text-[0.9375rem] font-medium leading-snug text-ink;
   }
 
   /* a genuinely-important unresolved value */
@@ -284,15 +284,15 @@ html.dark {
   .btn-primary {
     @apply inline-flex items-center justify-center gap-1.5 rounded-[10px] bg-ink px-4 py-2 text-sm font-medium text-bg transition-opacity hover:opacity-90 disabled:opacity-50;
   }
-  /* the one pill: 30px tall, filled (iOS capsule, no outline), label centred.
+  /* the one pill: 32px tall, filled (iOS capsule, no outline), label centred.
    * Filters, area tags, toggles and small actions all share it so a row of
    * them lines up. 8px corners (iOS rounded rectangle), not a capsule.
    * `aria-pressed` / `.chip-on` flips it to the solid ink fill;
    * `.chip-accent` is the tinted "selected" used where ink would be too loud.
-   * `.chip-icon` is the same chip with only a glyph — a 30px square. */
+   * `.chip-icon` is the same chip with only a glyph — a 32px square. */
   .chip,
   .btn-sm {
-    @apply inline-flex h-[30px] shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-[8px] bg-surface-2 px-3 text-xs font-medium leading-none text-ink-soft transition-colors hover:bg-line/60 disabled:opacity-30;
+    @apply inline-flex h-[32px] shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-[8px] bg-surface-2 px-3 text-xs font-medium leading-none text-ink-soft transition-colors hover:bg-line/60 disabled:opacity-30;
   }
   .chip[aria-pressed="true"],
   .chip-on {
@@ -302,7 +302,7 @@ html.dark {
     @apply bg-accent/[0.14] text-accent hover:bg-accent/[0.14];
   }
   .chip-icon {
-    @apply w-[30px] px-0;
+    @apply w-[32px] px-0;
   }
 }
 

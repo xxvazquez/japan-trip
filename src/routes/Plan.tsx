@@ -337,7 +337,7 @@ function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day:
         <button
           {...attributes}
           {...listeners}
-          className="shrink-0 cursor-grab touch-none py-2.5 pl-2.5 pr-0.5 text-ink-faint active:cursor-grabbing"
+          className="shrink-0 cursor-grab touch-none py-3 pl-2.5 pr-0.5 text-ink-faint active:cursor-grabbing"
           aria-label="Drag to reorder"
         >
           <Icon name="grip" size={14} />
@@ -345,7 +345,7 @@ function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day:
       )}
       <Link
         to={`/day/${day.id}`}
-        className={`group flex min-w-0 flex-1 items-center gap-3 py-2.5 pr-3.5 ${readOnly ? "pl-3.5" : "pl-1"}`}
+        className={`group flex min-w-0 flex-1 items-center gap-3 py-3 pr-3.5 ${readOnly ? "pl-3.5" : "pl-1"}`}
       >
         <span className="flex shrink-0 items-center gap-1.5">
           <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: hex }} />

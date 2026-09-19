@@ -279,7 +279,7 @@ export function RichNote({
         onBlur={commit}
         onKeyDown={onKeyDown}
         rows={3}
-        className="w-full resize-none rounded border border-gold/60 bg-surface px-2.5 py-2 text-[0.9rem] leading-[1.6] outline-none focus:border-gold"
+        className="w-full resize-none rounded border border-gold/60 bg-surface px-2.5 py-2 text-[0.9375rem] leading-[1.6] outline-none focus:border-gold"
       />
       <p className="mt-1 text-2xs text-ink-faint">⌘/Ctrl-Enter saves, Esc cancels</p>
     </div>
