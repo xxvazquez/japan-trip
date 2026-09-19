@@ -1,4 +1,4 @@
-import type { JourneyKind, TransportMode } from "@/core/types";
+import type { TransportMode } from "@/core/types";
 import type { MapGlyphId } from "@/lib/mapGlyphs";
 import type { LogbookSection } from "@/lib/logbook";
 import { MODE_TONE } from "@/lib/transport";
@@ -40,11 +40,6 @@ export const NEUTRAL_TONE = "#9aa3ad";
  *  cards read it directly). */
 export function toneForSegmentMode(mode: TransportMode): Tone {
   return MODE_TONE[mode];
-}
-
-/** a journey is transit, whatever its kind. */
-export function toneForJourneyKind(_kind: JourneyKind): Tone {
-  return "ai";
 }
 
 /** a map glyph id → tone. The one lookup that knows which glyphs are "nature",

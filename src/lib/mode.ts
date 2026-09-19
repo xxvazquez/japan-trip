@@ -15,8 +15,7 @@ function read(): Mode {
 }
 
 const mql = () => window.matchMedia("(prefers-color-scheme: dark)");
-export const systemDark = () => mql().matches;
-export const isDark = (m: Mode = read()) => m === "dark" || (m === "system" && systemDark());
+export const isDark = (m: Mode = read()) => m === "dark" || (m === "system" && mql().matches);
 
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());

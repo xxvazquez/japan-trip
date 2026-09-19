@@ -111,10 +111,6 @@ export async function getToken(interactive = false): Promise<string> {
   }
 }
 
-export async function connectDrive(): Promise<void> {
-  await getToken(true);
-}
-
 /* -------------------------------------------------------------------- calls */
 
 async function api<T = unknown>(url: string, init: RequestInit = {}, interactive = false): Promise<T> {

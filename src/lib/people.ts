@@ -23,13 +23,6 @@ export function withInitials(people: Person[] | undefined): PersonTag[] {
 const firstLetter = (s: string) => s.trim()[0]?.toUpperCase() ?? "";
 const cap = (s: string) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 
-/** The name for a stored assignee value — a person id, `"shared"`, or unset. */
-export function assigneeLabel(value: string | undefined, people: Person[] | undefined): string {
-  if (!value) return "—";
-  if (value === "shared") return "Shared";
-  return people?.find((p) => p.id === value)?.name ?? "—";
-}
-
 /** The short pill label for an assignee value. */
 export function assigneeTag(value: string | undefined, tagged: PersonTag[]): string {
   if (!value) return "—";
