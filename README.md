@@ -428,9 +428,12 @@ and the whole plan work offline.
 - Edits you make while offline (or during a dropped connection) are held and retried automatically
   once you're back on signal, as long as the tab stays open. When the connection returns, the app also
   re-pulls the trip so a travel companion's changes made in the meantime show up.
-- Opening the app for the very first time on a device with no signal (before anything's cached) shows
-  a plain "you're offline" screen instead of hanging on the loading spinner — it retries on its own
-  once you're back on signal, or tap Try again.
+- Once a trip has opened on a device while signed in, that device keeps a copy of it (and the trip
+  list), so the app opens with no signal at all — and edits made that way are held and sent when you're
+  back. The copy is cleared when you sign out, and another account on the same device never sees it.
+- Opening the app for the very first time on a device with no signal (before anything's been opened
+  there) shows a plain "you're offline" screen instead of hanging on the loading spinner — it retries
+  on its own once you're back on signal, or tap Try again.
 
 ## If something looks out of date
 

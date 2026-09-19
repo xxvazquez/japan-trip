@@ -16,5 +16,9 @@ export const STORAGE_KEYS = {
    *  a reload (or a killed tab) can't lose them. `{ ops, data, at }`, one key per
    *  trip PER TAB (`outbox:<trip>:<tab>`) so tabs never overwrite each other's;
    *  the bare `outbox:<trip>` is the older single-key form, still adopted. */
+  /** signed-in: the last server-confirmed copy of a trip + the trip list, kept so
+   *  the app can open with no connection. `{ at, user, data }` / `{ at, user, trips }`. */
+  mirror: (id: string) => `mirror:${id}`,
+  mirrorTrips: "mirror-trips",
   outbox: (id: string, tab?: string) => (tab ? `outbox:${id}:${tab}` : `outbox:${id}`),
 } as const;

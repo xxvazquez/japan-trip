@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { buildFromTemplate, buildDemo, buildSandbox } from "@/templates/registry";
 import { sandboxMode } from "@/lib/supabase";
 import { pickBackend, needsAuth, remapIds, saveDraftSync, type Backend } from "@/lib/backend";
-import { isAuthReady } from "@/lib/auth";
+import { isAuthReady, getUserId } from "@/lib/auth";
 import { subscribeTrip, unsubscribeTrip, markWritten } from "@/lib/realtime";
 import { store as kv } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/app";
@@ -182,7 +182,7 @@ function hasPendingFields() {
    batch that has been sent but not answered is exactly the one a killed tab
    loses, so it stays in the mirror until the server confirms it. ---- */
 
-interface Outbox { ops: Op[]; data: TripData; /** when it was written — orders outboxes from several tabs */ at?: number }
+interface Outbox { ops: Op[]; data: TripData; user?: string | null; /** when it was written — orders outboxes from several tabs */ at?: number }
 /** one batch of ops handed to the server and not yet answered */
 interface Flight { tripId: string; ops: Op[] }
 const flights = new Set<Flight>();
@@ -210,7 +210,7 @@ function writeOutbox(tripId: string, ops: Op[], data: TripData | null) {
   const key = STORAGE_KEYS.outbox(tripId, TAB_ID);
   outboxChain = outboxChain
     .then(async () => {
-      if (ops.length && data) await kv.set<Outbox>(key, { ops, data, at: Date.now() });
+      if (ops.length && data) await kv.set<Outbox>(key, { ops, data, user: getUserId(), at: Date.now() });
       else if (!ops.length) await kv.del(key);
     })
     .catch((e) => console.error("[outbox]", e));
@@ -231,6 +231,59 @@ function saveOutboxNow(get: () => AppStore) {
 
 const isOp = (o: unknown): o is Op =>
   !!o && typeof o === "object" && ["row", "del", "pos", "seg", "areaPlaces", "fields"].includes((o as Op).t);
+
+/* ---- device mirror: the last server-confirmed copy of the open trip (and the
+   trip list), so a signed-in device can still open with no connection — even
+   when no edits are pending. Never a source of truth while online: it's only
+   read when the server can't be reached. Tagged with the account, so another
+   account on the same device never sees it. ---- */
+
+interface Mirror { at: number; user: string | null; data: TripData }
+interface MirrorTrips { at: number; user: string | null; trips: TripSummary[] }
+let mirrorTimer: ReturnType<typeof setTimeout> | undefined;
+
+function writeMirror(tripId: string, data: TripData, trips: TripSummary[]) {
+  if (validateTrip(data).fatal) return; // never mirror something that isn't a whole, valid trip
+  const user = getUserId();
+  const at = Date.now();
+  void kv.set<Mirror>(STORAGE_KEYS.mirror(tripId), { at, user, data }).catch(() => {});
+  void kv.set<MirrorTrips>(STORAGE_KEYS.mirrorTrips, { at, user, trips }).catch(() => {});
+}
+
+/** mirror the open trip once it's on the server and nothing is pending (debounced) */
+function mirrorSoon(get: () => AppStore) {
+  clearTimeout(mirrorTimer);
+  mirrorTimer = setTimeout(() => {
+    const { activeId, data, trips } = get();
+    if (activeId && data && !queue.length && !flights.size && pickBackend().kind === "supabase") writeMirror(activeId, data, trips);
+  }, 2000);
+}
+
+async function readMirror(id: string): Promise<Mirror | null> {
+  try {
+    const m = await kv.get<Mirror>(STORAGE_KEYS.mirror(id));
+    if (!m || (m.user && m.user !== getUserId()) || validateTrip(m.data).fatal) return null;
+    return m;
+  } catch {
+    return null;
+  }
+}
+
+/** Drop every mirror (sign-out: the next account must not inherit this one's trips). */
+export async function clearDeviceMirrors() {
+  try {
+    for (const k of await kv.keys()) if (k.startsWith("mirror:") || k === STORAGE_KEYS.mirrorTrips) await kv.del(k);
+  } catch { /* nothing more to do */ }
+}
+
+/** What to open when the server can't be reached: the mirrored trip with any
+ *  unsent edits applied on top, or — with no mirror — the outbox's own copy. */
+async function offlineData(id: string, ob: Outbox | null): Promise<TripData | null> {
+  const m = await readMirror(id);
+  const own = ob && (!ob.user || ob.user === getUserId()) ? ob : null;
+  if (m) return normalizeTrip(own?.ops.length ? applyOutbox(m.data, own) : structuredClone(m.data));
+  return own?.ops.length ? normalizeTrip(structuredClone(own.data)) : null;
+}
 
 /** other tabs' outbox keys read by the last `readOutbox`, waiting to be taken over */
 let adopting: { tripId: string; keys: string[] } | null = null;
@@ -461,6 +514,7 @@ function setupSyncListeners(get: () => AppStore) {
     void flush(get);
     void persistLocal(get);
     if (get().bootError) get().retryBoot();
+    else if (bootedFromOutbox && get().activeId) void resyncTrip(get, get().activeId!);
   });
   // an unexpected exception anywhere: get whatever is pending onto disk first
   window.addEventListener("error", () => flushNow(get));
@@ -752,6 +806,7 @@ async function flush(get: () => AppStore) {
     useApp.setState({ syncState: "saved", syncErrorItems: [] });
     saveOutboxNow(get); // nothing pending any more → this clears the mirror (ordered after any write before it)
     void afterSynced(get, activeId);
+    mirrorSoon(get);
     if (bootedFromOutbox) { bootedFromOutbox = false; void resyncTrip(get, activeId); }
   }
 }
@@ -792,20 +847,23 @@ async function afterSynced(get: () => AppStore, tripId: string) {
   }
 }
 
-/** Signed-in cold start with no connection: if there's a mirrored outbox for the
- *  last-open trip, bring the app up from it (with the unsynced edits) and keep
- *  the ops queued for when the network returns. Returns false if there's nothing
- *  to recover — caller then fails as before. */
+/** Signed-in cold start with no connection: open the last-open trip from the
+ *  device mirror (with any unsent edits applied) and keep the ops queued for
+ *  when the network returns. Returns false if there's nothing to recover from —
+ *  the caller then shows the offline screen. */
 async function recoverFromOutbox(get: () => AppStore, listen: (id: string) => void): Promise<boolean> {
   const id = await kv.get<string>(STORAGE_KEYS.activeTrip).catch(() => undefined);
   if (!id) return false;
   const ob = await readOutbox(id);
-  if (!ob?.ops.length) return false;
-  queue = [...ob.ops];
-  bootedFromOutbox = true;
-  const data = normalizeTrip(ob.data);
-  useApp.setState({ trips: [summarise(id, data.meta.title, data)], activeId: id, data, hydrated: true });
-  commitAdopt(get, id);
+  const data = await offlineData(id, ob);
+  if (!data) return false;
+  queue = ob?.ops.length && (!ob.user || ob.user === getUserId()) ? [...ob.ops] : [];
+  bootedFromOutbox = true; // re-pull as soon as the connection is back
+  const list = await kv.get<MirrorTrips>(STORAGE_KEYS.mirrorTrips).catch(() => undefined);
+  const known = list && (!list.user || list.user === getUserId()) ? list.trips.filter((t) => !!t?.id) : [];
+  const trips = known.some((t) => t.id === id) ? known : [summarise(id, data.meta.title, data), ...known];
+  useApp.setState({ trips, activeId: id, data, hydrated: true });
+  if (queue.length) commitAdopt(get, id);
   listen(id);
   void flush(get);
   return true;
@@ -823,7 +881,15 @@ async function resyncTrip(get: () => AppStore, tripId: string) {
   if (queue.length || flights.size || get().activeId !== tripId) return;
   try {
     const fresh = await be.loadTrip(tripId);
-    if (get().activeId === tripId && !queue.length && !flights.size) useApp.setState({ data: fresh });
+    if (get().activeId === tripId && !queue.length && !flights.size) {
+      useApp.setState({ data: fresh });
+      if (bootedFromOutbox) {
+        // we opened from the device mirror; the server is back and its copy is now on screen
+        bootedFromOutbox = false;
+        try { useApp.setState({ trips: (await be.listTrips()).trips }); } catch { /* keep the mirrored list */ }
+      }
+      mirrorSoon(get);
+    }
   } catch {
     /* couldn't re-pull — keep what's on screen; it's still correct as of the last sync */
   }
@@ -984,19 +1050,21 @@ export const useApp = create<AppStore>((set, get) => {
           let data = loaded.data;
           let issue = loaded.issue;
           if (be.kind === "supabase") {
+            if (data) writeMirror(id, data, trips); // the server's copy, before any unsent edits go on top
             const ob = await readOutbox(id);
-            if (ob?.ops.length) {
+            const offline = !data && issue?.kind === "unavailable" ? await offlineData(id, ob) : null;
+            if (offline) {
+              queue = ob?.ops.length ? [...ob.ops] : [];
+              data = offline; // server unreachable — open from the device mirror
+              bootedFromOutbox = true; // re-pull once the connection is back
+              issue = null;
+            } else if (ob?.ops.length) {
               if (data) {
                 queue = [...ob.ops];
                 // the server's copy is about to be overwritten by our queued edits —
                 // keep it, so a companion's newer change to the same row is recoverable
                 void takeSnapshot(id, data, "before-sync", { cloud: true });
                 data = normalizeTrip(applyOutbox(data, ob)); // merge edits onto the fresh copy
-              } else if (issue?.kind === "unavailable") {
-                queue = [...ob.ops];
-                data = normalizeTrip(ob.data); // server unreachable — fall back to the mirror
-                bootedFromOutbox = true; // re-pull once the ops land
-                issue = null;
               } // damaged / missing / newer: leave the outbox on disk untouched
             }
           }
@@ -1218,18 +1286,18 @@ export const useApp = create<AppStore>((set, get) => {
       // was open (same recovery `init` does on a cold boot), so switching away
       // and back within one session can't silently drop it
       if (be.kind === "supabase") {
+        if (data) writeMirror(id, data, get().trips);
         const ob = await readOutbox(id);
-        if (ob?.ops.length) {
-          if (data) {
-            queue = [...ob.ops];
-            void takeSnapshot(id, data, "before-sync", { cloud: true });
-            data = normalizeTrip(applyOutbox(data, ob));
-          } else if (issue?.kind === "unavailable") {
-            queue = [...ob.ops];
-            data = normalizeTrip(ob.data);
-            bootedFromOutbox = true;
-            issue = null;
-          }
+        const offline = !data && issue?.kind === "unavailable" ? await offlineData(id, ob) : null;
+        if (offline) {
+          queue = ob?.ops.length ? [...ob.ops] : [];
+          data = offline;
+          bootedFromOutbox = true;
+          issue = null;
+        } else if (ob?.ops.length && data) {
+          queue = [...ob.ops];
+          void takeSnapshot(id, data, "before-sync", { cloud: true });
+          data = normalizeTrip(applyOutbox(data, ob));
         }
       }
       set({ activeId: id, data, loadIssue: issue, notice: null, syncState: "idle", syncErrorItems: [] });

@@ -439,3 +439,86 @@ describe("signed-in: several tabs", () => {
     expect((await outbox(b.kv, id))!.ops.map((o) => o.id)).toContain("handover");
   });
 });
+
+describe("signed-in: opening with no connection", () => {
+  const offline = () => { fake.current.ctl.fail = () => ({ message: "Failed to fetch" }); };
+  const online = () => { fake.current.ctl.fail = null; };
+
+  it("a device that has opened the trip before opens it with no connection at all, even with nothing pending", async () => {
+    const id = await seedTrip("Offline trip");
+    const a = await boot();
+    await sleep(80); // the mirror is written in the background
+    offline();
+    const b = await boot();
+    expect(b.s().bootError).toBe(false);
+    expect(b.s().loadIssue).toBeNull();
+    expect(b.s().activeId).toBe(id);
+    expect(b.s().data!.meta.title).toBe("Offline trip");
+    expect(b.s().trips.map((t) => t.id)).toContain(id);
+    void a;
+  });
+
+  it("edits made offline are queued, survive another offline reload, and reach the server when it's back", async () => {
+    const id = await seedTrip();
+    await boot();
+    await sleep(80);
+    offline();
+    const b = await boot();
+    b.s().addEntity("places", place("planeEdit"));
+    b.flushPendingNow();
+    await sleep(100);
+    const c = await boot(); // still offline, page reloaded
+    expect(c.s().data!.places.map((p) => p.id)).toContain("planeEdit");
+    online();
+    await c.s().refreshTrip(); // what the 'online' event triggers
+    await c.settlePending();
+    await sleep(80);
+    expect(rows("places").map((r) => r.id)).toContain("planeEdit");
+    expect(await outboxKeys(c.kv, id)).toEqual([]);
+  });
+
+  it("the mirror only ever holds server-confirmed state, never unsent edits", async () => {
+    const id = await seedTrip();
+    const a = await boot();
+    await sleep(80);
+    offline();
+    a.s().addEntity("places", place("unsent"));
+    a.flushPendingNow();
+    await sleep(100);
+    const m = await a.kv.get<{ data: TripData }>(STORAGE_KEYS.mirror(id));
+    expect(m!.data.places.map((p) => p.id)).not.toContain("unsent");
+  });
+
+  it("never opens another account's mirror", async () => {
+    const id = await seedTrip();
+    const a = await boot();
+    await sleep(80);
+    const m = await a.kv.get<{ user: string; data: TripData; at: number }>(STORAGE_KEYS.mirror(id));
+    await a.kv.set(STORAGE_KEYS.mirror(id), { ...m, user: "someone-else" });
+    offline();
+    const b = await boot();
+    expect(b.s().data).toBeNull();
+    expect(b.s().bootError).toBe(true);
+  });
+
+  it("signing out clears the mirrors", async () => {
+    const id = await seedTrip();
+    const a = await boot();
+    await sleep(80);
+    expect(await a.kv.get(STORAGE_KEYS.mirror(id))).toBeDefined();
+    await a.clearDeviceMirrors();
+    expect(await a.kv.get(STORAGE_KEYS.mirror(id))).toBeUndefined();
+    expect(await a.kv.get(STORAGE_KEYS.mirrorTrips)).toBeUndefined();
+  });
+
+  it("a damaged mirror is not opened", async () => {
+    const id = await seedTrip();
+    const a = await boot();
+    await sleep(80);
+    await a.kv.set(STORAGE_KEYS.mirror(id), { at: 1, user: "user-1", data: { days: "broken" } });
+    offline();
+    const b = await boot();
+    expect(b.s().data).toBeNull();
+    expect(b.s().bootError).toBe(true);
+  });
+});
