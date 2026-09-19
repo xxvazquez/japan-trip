@@ -14,7 +14,6 @@ import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } 
 import { CSS } from "@dnd-kit/utilities";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
-import { TodayCard } from "@/components/TodayCard";
 import { Section } from "@/components/Section";
 import { InsetRow } from "@/components/InsetRow";
 import { RowSelect } from "@/components/RowSelect";
@@ -33,7 +32,7 @@ import { toneForPlaceCategory } from "@/lib/tones";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { dayKind, fmtDate, plural, todayISO } from "@/lib/dates";
+import { dayKind, fmtDate, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink, gmapsRoute, mapUrlCoords } from "@/lib/maps";
 import { fmtWalk } from "@/lib/geo";
@@ -194,9 +193,6 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
           </button>
         }
       />
-
-      {/* today only: what's happening now / next — the main Plan stays a plain list of days */}
-      {day.date === todayISO() && <TodayCard day={day} places={data.places} />}
 
       {ro ? (
         (hotel || journey) && (
