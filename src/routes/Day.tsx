@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   DndContext,
@@ -29,6 +29,7 @@ import { Icon } from "@/components/Icon";
 import { RouteLabel } from "@/components/RouteLabel";
 import { IconTile } from "@/components/IconTile";
 import { toneForPlaceCategory } from "@/lib/tones";
+import { placeLegMap, areaLeg } from "@/lib/cityAssign";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
@@ -91,6 +92,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const nav = useNavigate();
   const ro = useReadOnly();
   const { busy: icsBusy, run: runIcs } = useAsyncAction();
+  const areaSheet = useActionSheet();
 
   const L = lookups(data);
   const patch = (p: Partial<DayT>) => updateEntity<DayT>("days", day.id, p);
@@ -99,6 +101,16 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const journey = L.journey(day.journeyId);
   const loc = data.config.locale;
   const setPlan = (next: PlanItem[]) => patch({ plan: next.length ? next : undefined });
+  // areas offered by "+ Add area" — scoped to this day's own city so a
+  // multi-city trip doesn't dump every area in the trip into one list; falls
+  // back to the whole list if none resolve to a city yet (an unlinked hotel,
+  // say) so the picker is never left with nothing to offer
+  const cityAreas = useMemo(() => {
+    const placeLeg = placeLegMap(data);
+    const inCity = data.areas.filter((a) => areaLeg(a, placeLeg) === day.legId);
+    return inCity.length > 0 ? inCity : data.areas;
+  }, [data, day.legId]);
+
   // places available to a plan step's picker — drawn only from this day's own
   // linked areas (see the Areas section below), not every place in the trip
   const areaPlaceIds = new Set((day.areaIds ?? []).flatMap((aid) => data.areas.find((a) => a.id === aid)?.placeIds ?? []));
@@ -298,7 +310,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       )}
 
       {/* AREAS — pull an area's places onto this day's map, without touching the plan */}
-      {((day.areaIds ?? []).length > 0 || (!ro && data.areas.length > 0)) && (
+      {((day.areaIds ?? []).length > 0 || (!ro && cityAreas.length > 0)) && (
         <Section
           icon="pin"
           title="Areas"
@@ -336,20 +348,26 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
                 </span>
               );
             })}
-            {!ro && data.areas.some((a) => !(day.areaIds ?? []).includes(a.id)) && (
-              <select
-                value=""
-                aria-label="Add an area to this day"
-                onChange={(e) => e.target.value && patch({ areaIds: [...(day.areaIds ?? []), e.target.value] })}
-                className="chip cursor-pointer appearance-none text-accent focus:outline-none"
-              >
-                <option value="">＋ Add area</option>
-                {data.areas
-                  .filter((a) => !(day.areaIds ?? []).includes(a.id))
-                  .map((a) => (
-                    <option key={a.id} value={a.id}>{a.name || "Untitled"} · {plural(a.placeIds.length, "place")}</option>
-                  ))}
-              </select>
+            {!ro && cityAreas.some((a) => !(day.areaIds ?? []).includes(a.id)) && (
+              <>
+                <button ref={areaSheet.anchorRef} onClick={() => areaSheet.setOpen(true)} className="action">
+                  <Icon name="plus" size={12} /> Add area
+                </button>
+                <ActionSheet open={areaSheet.open} onClose={() => areaSheet.setOpen(false)} anchorRef={areaSheet.anchorRef} title="Add an area">
+                  {cityAreas
+                    .filter((a) => !(day.areaIds ?? []).includes(a.id))
+                    .map((a) => (
+                      <button
+                        key={a.id}
+                        type="button"
+                        onClick={() => { patch({ areaIds: [...(day.areaIds ?? []), a.id] }); areaSheet.setOpen(false); }}
+                        className="menu-item"
+                      >
+                        {a.name || "Untitled"} · {plural(a.placeIds.length, "place")}
+                      </button>
+                    ))}
+                </ActionSheet>
+              </>
             )}
           </div>
         </Section>

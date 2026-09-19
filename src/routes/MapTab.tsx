@@ -26,6 +26,7 @@ import { estimateWalk, useWalk } from "@/lib/walkRoute";
 import { WalkLine } from "@/components/WalkLine";
 import { glyphPath } from "@/lib/mapGlyphs";
 import { toneForPlaceCategory, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
+import { placeLegMap } from "@/lib/cityAssign";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import type { Area, Day, PlanItem, Place, TripData } from "@/core/types";
 
@@ -34,10 +35,6 @@ const FALLBACK = DEFAULT_ACCENT;
 // current accent fallback and the prior default it replaced. An imported pin's
 // colour is anything else.
 const DEFAULT_PIN_COLORS = new Set([FALLBACK, "#5f7f9c"]);
-/** how far a pin can sit from a stay's anchor and still count as "in" that base
- *  — roughly a metro area plus a short day-out. Beyond it the pin belongs to no
- *  city pill and shows only on "All" or on a day that names it. */
-const MAX_ANCHOR_KM = 60;
 
 /** an area's two farthest-apart places (its "width", not a tour of everywhere
  *  in it) — cheap local haversine just to find *which* pair, real walking
@@ -518,57 +515,10 @@ export default function MapTab() {
     return ids;
   }, [data, areaFilter]);
 
-  /** each place's "home city" (leg), by nearest leg anchor. A leg is anchored on
-   *  its hotel (its stored coords — from the Maps link or a one-off geocode of
-   *  the address) or, failing that, the centroid of the places its days pull in.
-   *  A leg with neither has no anchor and claims nothing. Lets a whole city's
-   *  imported pins sit under its pill even before they're linked to a day. */
-  const placeLeg = useMemo(() => {
-    const m = new Map<string, string>();
-    if (!data) return m;
-    const legIds = new Set(data.legs.map((l) => l.id));
-    const manual = new Set<string>();
-    for (const p of places) {
-      if (p.legId && legIds.has(p.legId)) { m.set(p.id, p.legId); manual.add(p.id); }
-    }
-    const anchors: { legId: string; lat: number; lng: number }[] = [];
-    for (const leg of data.legs) {
-      const hotel = data.hotels.find((h) => h.id === leg.hotelId);
-      const hc = hotel && Number.isFinite(hotel.lat) && Number.isFinite(hotel.lng)
-        ? ([hotel.lat, hotel.lng] as [number, number])
-        : mapUrlCoords(hotel?.mapUrl);
-      if (hc) {
-        anchors.push({ legId: leg.id, lat: hc[0], lng: hc[1] });
-        continue;
-      }
-      const pts = data.days
-        .filter((d) => d.legId === leg.id)
-        .flatMap((d) => [...dayIds(d).all])
-        .map((id) => places.find((p) => p.id === id))
-        .filter((p): p is Place => !!p);
-      if (pts.length) {
-        anchors.push({
-          legId: leg.id,
-          lat: pts.reduce((s, p) => s + p.lat, 0) / pts.length,
-          lng: pts.reduce((s, p) => s + p.lng, 0) / pts.length,
-        });
-      }
-    }
-    if (anchors.length === 0) return m;
-    for (const p of places) {
-      if (manual.has(p.id)) continue;
-      let best = anchors[0].legId, bd = Infinity;
-      for (const a of anchors) {
-        const d = haversineKm(p.lat, p.lng, a.lat, a.lng);
-        if (d < bd) { bd = d; best = a.legId; }
-      }
-      // only claim a pin that's plausibly in that base's orbit — otherwise a
-      // lone anchored leg vacuums up every pin in the trip (a Tokyo pin is not
-      // "in" Kawaguchiko just because that's the only stay with coordinates).
-      if (bd <= MAX_ANCHOR_KM) m.set(p.id, best);
-    }
-    return m;
-  }, [data, places]); // eslint-disable-line react-hooks/exhaustive-deps
+  /** each place's "home city" (leg) — see `placeLegMap` for how it's guessed
+   *  (or overridden by hand). Lets a whole city's imported pins sit under
+   *  its pill even before they're linked to a day. */
+  const placeLeg = useMemo(() => (data ? placeLegMap(data) : new Map<string, string>()), [data]);
 
   /** ids in the current scope, before the category / area chips narrow it —
    *  the area chips derive from this so ticking one can't make its own chip
