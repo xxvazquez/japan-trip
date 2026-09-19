@@ -34,7 +34,7 @@ import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { fmtDate, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
-import { gmapsLink } from "@/lib/maps";
+import { gmapsLink, gmapsRoute } from "@/lib/maps";
 import { fmtWalk } from "@/lib/geo";
 import { useWalk } from "@/lib/walkRoute";
 import { nearestStationOverpass, type NearbyStation } from "@/lib/transitStation";
@@ -43,7 +43,7 @@ import { hoursForDate } from "@/lib/openingHours";
 import { fetchDayWeather, weatherLabel, type DayWeather } from "@/lib/weather";
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
-import type { Day as DayT, DayCost, ExpenseCategory, PlanItem, Place } from "@/core/types";
+import type { Day as DayT, DayCost, ExpenseCategory, Hotel, PlanItem, Place } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 9);
 
@@ -287,7 +287,7 @@ export default function Day() {
           title="Plan"
           info="Drag to reorder. Pick a place from an Area you've added below, or Custom for anything else — tap the note line under it to add one."
         >
-          <PlanList day={day} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} onQuickAddCost={quickAddCost} />
+          <PlanList day={day} returnHotel={weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} onQuickAddCost={quickAddCost} />
         </Section>
       )}
 
@@ -402,8 +402,10 @@ export default function Day() {
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanList({ day, tz, items, places, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onChange, onQuickAddCost }: {
+function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onChange, onQuickAddCost }: {
   day: DayT;
+  /** where the day ends — the hotel you're staying at (see `ReturnToHotel`) */
+  returnHotel?: Hotel;
   tz?: string;
   items: PlanItem[];
   places: Place[];
@@ -458,7 +460,12 @@ function PlanList({ day, tz, items, places, areaPlaces, areaNameByPlaceId, categ
     />
   ));
 
-  if (readOnly) return <ul>{rows}</ul>;
+  // the day closes with the way back to the hotel; its walk figures need the
+  // last step to be tied to a real place, the directions link doesn't
+  const lastPlace = items[items.length - 1].placeId ? places.find((p) => p.id === items[items.length - 1].placeId) : undefined;
+  const backRow = returnHotel ? <ReturnToHotel from={lastPlace} hotel={returnHotel} indent={!readOnly} /> : null;
+
+  if (readOnly) return <><ul>{rows}</ul>{backRow}</>;
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) return;
@@ -474,6 +481,7 @@ function PlanList({ day, tz, items, places, areaPlaces, areaNameByPlaceId, categ
           <ul>{rows}</ul>
         </SortableContext>
       </DndContext>
+      {backRow}
       {/* a second "add" affordance down here too — the one up in the Section
        *  header (see Day()) means a long plan otherwise needs a scroll back
        *  to the top just to add the next step */}
@@ -666,6 +674,73 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
       </div>
       </SwipeToDelete>
     </li>
+  );
+}
+
+/** past this, a walk stops being the plan — the row points at the train (and
+ *  Google Maps' own transit directions) instead of a walking route. */
+const LONG_WALK_MIN = 20;
+
+/** The day's closing row: how to get from the last stop back to the hotel
+ *  you're staying at. Walking time and distance when the hotel has
+ *  coordinates, plus — once the walk is long — the station to head for at
+ *  each end. The whole row opens Google Maps directions (transit when far,
+ *  walking when close): the best route with the actual lines and transfers is
+ *  Google's to work out, there's no free keyless API for it here. When the
+ *  last step isn't tied to a place there's no start point to measure from,
+ *  so the row just opens directions from wherever you are. */
+function ReturnToHotel({ from, hotel, indent }: { from?: Place; hotel: Hotel; indent: boolean }) {
+  const to = hotel.lat !== undefined && hotel.lng !== undefined ? { lat: hotel.lat, lng: hotel.lng } : null;
+  const walk = useWalk(from ?? { lat: 0, lng: 0 }, from ? to : null);
+  const long = !walk || walk.min > LONG_WALK_MIN;
+
+  const [fromStation, setFromStation] = useState<NearbyStation | null>(null);
+  const [hotelStation, setHotelStation] = useState<NearbyStation | null>(null);
+  useEffect(() => {
+    setFromStation(null);
+    setHotelStation(null);
+    if (!from || !to || !long) return;
+    let cancelled = false;
+    void nearestStationOverpass(from.lat, from.lng).then((s) => { if (!cancelled) setFromStation(s); });
+    void nearestStationOverpass(to.lat, to.lng).then((s) => { if (!cancelled) setHotelStation(s); });
+    return () => { cancelled = true; };
+  }, [long, from?.lat, from?.lng, to?.lat, to?.lng]);
+
+  const dest = to ? `${to.lat},${to.lng}` : [hotel.name, hotel.address].filter(Boolean).join(" ");
+  const href = gmapsRoute(from && `${from.lat},${from.lng}`, dest, long ? "transit" : "walking");
+  const piece = "flex min-w-0 items-start gap-1";
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener"
+      aria-label={`Directions back to ${hotel.name || "the hotel"}`}
+      className={`flex items-start gap-2.5 border-t border-line py-2.5 pr-3.5 active:bg-surface-2 ${indent ? "pl-9" : "pl-3.5"}`}
+    >
+      <IconTile size="sm" name="bed" tone="accent" className="mt-px" />
+      <span className="min-w-0 flex-1 space-y-1">
+        <span className="block text-sm font-medium leading-snug text-ink">Back to {hotel.name || "the hotel"}</span>
+        {(walk || (fromStation && hotelStation && fromStation.name !== hotelStation.name)) && (
+          <span className="meta flex flex-wrap gap-x-3 gap-y-0.5 text-ink-faint">
+            {walk && (
+              <span className={piece}>
+                <Icon name="walk" size={12} className="mt-[3px] shrink-0" />
+                <span className="min-w-0">{fmtWalk(walk)}</span>
+              </span>
+            )}
+            {long && fromStation && hotelStation && fromStation.name !== hotelStation.name && (
+              <span className={piece}>
+                <Icon name="train" size={12} className="mt-[3px] shrink-0" />
+                <span className="min-w-0">{fromStation.name} → {hotelStation.name}</span>
+              </span>
+            )}
+          </span>
+        )}
+      </span>
+      <span className="flex shrink-0 items-center gap-1 pt-0.5 text-xs font-medium text-accent">
+        Directions <Icon name="chevron" size={12} />
+      </span>
+    </a>
   );
 }
 

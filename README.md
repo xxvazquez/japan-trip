@@ -79,6 +79,14 @@ never chosen by hand.
     reliably (holiday rules aside, which are skipped) shows the tagged text as-is instead. An FYI
     to replan by eye, not a warning: nothing is flagged as a conflict, and plenty of places simply
     aren't tagged, so this is a bonus when it's there, not something to rely on.
+  - the day closes with a **Back to <hotel>** row under the last step — the way home to wherever you're
+    staying that day (the day's own hotel, else its stay's). When the last step is tied to a place it
+    shows the walk there (time and distance, e.g. "≈ 1h 37min · 7.7 km") and, once that's a long
+    walk, the two stations to head between ("Tsukiji → Asakusa"); it needs the hotel to have
+    coordinates for those figures. Tapping the row opens Google Maps directions — transit for a
+    long way, walking for a short one — so the actual best route, lines and transfers included, is
+    Google's own (there's no free no-card transit-routing API to do it in the app). If the last step
+    is a free-text one, the row still shows and opens directions from wherever you are.
   - **+ Add a step** at the foot of the list — so a long day's plan doesn't need a scroll back to
     the top to add the next thing.
 - Below the itinerary: **Areas** (drop a whole neighbourhood's pins onto the map — a chip's **×**
