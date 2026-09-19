@@ -28,6 +28,7 @@ export function ActionSheet({
   const [, bump] = useReducer((n: number) => n + 1, 0);
   const menuRef = useRef<HTMLDivElement>(null);
   const [menuWidth, setMenuWidth] = useState(0);
+  const [menuHeight, setMenuHeight] = useState(0);
 
   useEffect(() => {
     if (!open) return;
@@ -41,8 +42,13 @@ export function ActionSheet({
   }, [open, onClose]);
 
   useEffect(() => {
-    if (open && menuRef.current) setMenuWidth(menuRef.current.offsetWidth);
-    else setMenuWidth(0);
+    if (open && menuRef.current) {
+      setMenuWidth(menuRef.current.offsetWidth);
+      setMenuHeight(menuRef.current.offsetHeight);
+    } else {
+      setMenuWidth(0);
+      setMenuHeight(0);
+    }
   }, [open]);
 
   if (!open) return null;
@@ -74,6 +80,8 @@ export function ActionSheet({
   const w = menuWidth || 160;
   const center = (r?.left ?? 0) + (r?.width ?? 0) / 2;
   const left = Math.min(Math.max(center - w / 2, 8), window.innerWidth - w - 8);
+  // keep a tall popover on screen: slide it up rather than hang off the bottom
+  const top = Math.max(8, Math.min((r?.bottom ?? 0) + 4, window.innerHeight - menuHeight - 8));
   return createPortal(
     <>
       <div className="fixed inset-0 z-50" onClick={onClose} />
@@ -82,7 +90,7 @@ export function ActionSheet({
         role="menu"
         onClick={onClose}
         style={{
-          top: (r?.bottom ?? 0) + 4,
+          top,
           left,
         }}
         className="fixed z-[55] flex max-h-[70vh] min-w-[10rem] flex-col overflow-y-auto rounded-[10px] border border-line bg-surface py-1 text-sm shadow-md motion-safe:animate-fade-in [&_.menu-item]:px-3 [&_.menu-item]:py-1.5 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 [&_.menu-item:hover]:bg-surface-2"

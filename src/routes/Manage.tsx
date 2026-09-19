@@ -16,6 +16,7 @@ import { THEME_PRESETS, DEFAULT_ACCENT } from "@/lib/themePresets";
 import { GlyphPicker } from "@/components/GlyphPicker";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
+import { TimeZonePicker } from "@/components/TimeZonePicker";
 import { RowSelect } from "@/components/RowSelect";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { entityLink } from "@/lib/entityLink";
@@ -345,14 +346,6 @@ function DemoNotice() {
   );
 }
 
-const TIME_ZONES: string[] = (() => {
-  try {
-    return (Intl as unknown as { supportedValuesOf?: (k: string) => string[] }).supportedValuesOf?.("timeZone") ?? [];
-  } catch {
-    return [];
-  }
-})();
-
 const DATE_FORMATS: { value: string; label: string }[] = [
   { value: "en-GB", label: "31 Oct 2026" },
   { value: "en-US", label: "Oct 31, 2026" },
@@ -378,17 +371,6 @@ function AddRow({ label, onClick }: { label: string; onClick: () => void }) {
         <Icon name="plus" size={13} /> {label}
       </button>
     </li>
-  );
-}
-
-function TzSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  return (
-    <RowSelect value={value} onChange={(e) => onChange(e.target.value)} className="max-w-[13rem] truncate">
-      {!TIME_ZONES.includes(value) && <option value={value}>{value}</option>}
-      {TIME_ZONES.map((z) => (
-        <option key={z} value={z}>{z.replace(/_/g, " ")}</option>
-      ))}
-    </RowSelect>
   );
 }
 
@@ -434,8 +416,8 @@ function Setup() {
 
       <Section title="Time zones">
         <ul>
-          <Row label="Home"><TzSelect value={config.homeTimeZone} onChange={(v) => mutate((d) => { d.config.homeTimeZone = v; })} /></Row>
-          <Row label="On the trip"><TzSelect value={config.tripTimeZone} onChange={(v) => mutate((d) => { d.config.tripTimeZone = v; })} /></Row>
+          <Row label="Home"><TimeZonePicker label="Home time zone" value={config.homeTimeZone} onChange={(v) => mutate((d) => { d.config.homeTimeZone = v; })} /></Row>
+          <Row label="On the trip"><TimeZonePicker label="Trip time zone" value={config.tripTimeZone} onChange={(v) => mutate((d) => { d.config.tripTimeZone = v; })} /></Row>
         </ul>
       </Section>
 
