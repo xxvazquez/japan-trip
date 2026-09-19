@@ -66,6 +66,26 @@ function ensureMarkerImages(m: MLMap, places: Place[], catIcons: CatIcons, dark:
 
 const sel = (id: string | null) => id ?? "__none__";
 
+/** highlight the selected pin (halo, label, bigger icon) and, when it's tied
+ *  to a place, move the camera there. Shared by the reactive selection effect
+ *  and the initial `load` handler — a map that mounts with a selection
+ *  already set (e.g. arriving via a `?sel=` deep link) needs this applied
+ *  once ready, not just on a later change, or the camera is left on its
+ *  neutral whole-world starting view. */
+function applySelection(m: MLMap, selectedId: string | null, places: Place[], animate: boolean) {
+  if (!m.getLayer("pins")) return;
+  const s = sel(selectedId);
+  m.setFilter("pin-halo", ["all", ["!", ["has", "point_count"]], ["==", ["get", "id"], s]]);
+  m.setFilter("pin-label", ["all", ["!", ["has", "point_count"]], ["==", ["get", "id"], s]]);
+  m.setPaintProperty("pins", "circle-radius", ["case", ["==", ["get", "id"], s], 10, ["get", "derived"], 6, 7.5]);
+  m.setPaintProperty("pins", "circle-stroke-width", ["case", ["==", ["get", "id"], s], 3, 2]);
+  if (m.getLayer("pins-icon")) m.setLayoutProperty("pins-icon", "icon-size", iconSize(s));
+  if (m.getLayer("pinned-icon")) m.setLayoutProperty("pinned-icon", "icon-size", pinnedIconSize(s));
+  if (m.getLayer("pinned-dot")) m.setPaintProperty("pinned-dot", "circle-stroke-width", ["case", ["==", ["get", "id"], s], 5, 3]);
+  const p = selectedId ? places.find((x) => x.id === selectedId) : undefined;
+  if (p) m.easeTo({ center: [p.lng, p.lat], zoom: Math.max(m.getZoom(), 14), duration: animate ? 500 : 0, offset: [0, -70] });
+}
+
 /** categories the trip wants kept on screen when zoomed out (`config.pinnedCategories`) */
 function splitPinned(places: Place[], cats: string[] | undefined): { pinned: Place[]; rest: Place[] } {
   if (!cats?.length) return { pinned: [], rest: places };
@@ -324,6 +344,7 @@ export function MapView({
 
     m.on("load", () => {
       addLayers(m);
+      applySelection(m, state.current.selectedId, state.current.places, false);
       const pointer = () => (m.getCanvas().style.cursor = "pointer");
       const noPointer = () => (m.getCanvas().style.cursor = "");
       for (const l of ["pins", "pins-icon", "clusters", "pinned-icon", "pinned-dot"]) { m.on("mouseenter", l, pointer); m.on("mouseleave", l, noPointer); }
@@ -401,17 +422,8 @@ export function MapView({
   /* selection */
   useEffect(() => {
     const m = map.current;
-    if (!m || !ready.current || !m.getLayer("pins")) return;
-    const s = sel(selectedId);
-    m.setFilter("pin-halo", ["all", ["!", ["has", "point_count"]], ["==", ["get", "id"], s]]);
-    m.setFilter("pin-label", ["all", ["!", ["has", "point_count"]], ["==", ["get", "id"], s]]);
-    m.setPaintProperty("pins", "circle-radius", ["case", ["==", ["get", "id"], s], 10, ["get", "derived"], 6, 7.5]);
-    m.setPaintProperty("pins", "circle-stroke-width", ["case", ["==", ["get", "id"], s], 3, 2]);
-    if (m.getLayer("pins-icon")) m.setLayoutProperty("pins-icon", "icon-size", iconSize(s));
-    if (m.getLayer("pinned-icon")) m.setLayoutProperty("pinned-icon", "icon-size", pinnedIconSize(s));
-    if (m.getLayer("pinned-dot")) m.setPaintProperty("pinned-dot", "circle-stroke-width", ["case", ["==", ["get", "id"], s], 5, 3]);
-    const p = selectedId ? places.find((x) => x.id === selectedId) : undefined;
-    if (p) m.easeTo({ center: [p.lng, p.lat], zoom: Math.max(m.getZoom(), 14), duration: 500, offset: [0, -70] });
+    if (!m || !ready.current) return;
+    applySelection(m, selectedId, places, true);
   }, [selectedId, places]);
 
   /* theme */
