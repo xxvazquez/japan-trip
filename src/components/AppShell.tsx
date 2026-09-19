@@ -9,6 +9,7 @@ import { Loader } from "./Loader";
 import { Icon } from "./Icon";
 import { Wordmark } from "./Wordmark";
 import { UndoToast } from "./UndoToast";
+import { SplitMap, useSplit } from "./SplitMap";
 import { useData } from "@/lib/data";
 import { useReadOnly } from "@/lib/readonly";
 import { useAutoHotelCoords, useAutoTripTimeZone } from "@/lib/hotelCoords";
@@ -18,6 +19,7 @@ export function AppShell() {
   const data = useData();
   const demo = useReadOnly();
   const nav = useNavigate();
+  const split = useSplit();
   useAutoHotelCoords(!demo);
   useAutoTripTimeZone(!demo);
 
@@ -59,7 +61,12 @@ export function AppShell() {
   return (
     <div
       className="washi min-h-svh md:pl-[72px]"
-      style={demo ? ({ "--demo-h": "2.25rem" } as Record<string, string>) : undefined}
+      style={
+        {
+          "--pane-w": "clamp(400px, 42vw, 760px)", // the map half of the wide-screen split
+          ...(demo ? { "--demo-h": "2.25rem" } : {}),
+        } as Record<string, string>
+      }
     >
       <header className="sticky top-0 z-30 border-b border-line bg-bg pt-[var(--sat)]">
         <div className="flex h-14 items-center justify-between px-4 sm:px-6">
@@ -98,7 +105,7 @@ export function AppShell() {
         </div>
       )}
 
-      <main className="min-h-[calc(100svh-3.5rem)]">
+      <main className={`min-h-[calc(100svh-3.5rem)] ${split.active ? "mr-[var(--pane-w)]" : ""}`}>
         <PullToRefresh />
         <Suspense fallback={<Loader />}>
           <Outlet />
@@ -107,6 +114,7 @@ export function AppShell() {
 
       <TabBarOrRail />
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <SplitMap />
       <UndoToast />
     </div>
   );
