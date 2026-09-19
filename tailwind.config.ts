@@ -51,7 +51,9 @@ export default {
       },
       maxWidth: {
         reading: "50rem",
-        page: "60rem",
+        // a settings-style column: iPad/Mac Settings keep grouped lists this
+        // narrow so a label and its value never drift a screen apart
+        form: "40rem",
       },
       transitionTimingFunction: {
         paper: "cubic-bezier(0.22, 1, 0.36, 1)",

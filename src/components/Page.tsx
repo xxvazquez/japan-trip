@@ -9,14 +9,14 @@ export function Page({
   className = "",
 }: {
   children: ReactNode;
-  width?: "reading" | "page";
+  width?: "reading" | "form";
   className?: string;
 }) {
   return (
     <div
       className={[
         "relative z-10 mx-auto w-full px-5 pb-28 pt-6 sm:px-7 md:pb-14",
-        width === "reading" ? "max-w-reading" : "max-w-page",
+        width === "reading" ? "max-w-reading" : "max-w-form",
         className,
       ].join(" ")}
     >

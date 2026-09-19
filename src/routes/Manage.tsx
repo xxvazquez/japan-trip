@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
-import { Icon } from "@/components/Icon";
+import { Icon, type IconName } from "@/components/Icon";
 import { useApp, undoable } from "@/store/useApp";
 import { useData } from "@/lib/data";
 import { useAsyncAction } from "@/lib/useAsyncAction";
@@ -54,7 +54,7 @@ export default function Manage() {
   const wanted = params.get("tab") as TabId | null;
   const [tab, setTab] = useState<TabId>(wanted && TABS.includes(wanted) ? wanted : "trips");
   return (
-    <Page width="page">
+    <Page width="form">
       <PageHeader title="Manage" className="mb-4" />
       <SegmentedControl
         className="mb-6"
@@ -148,40 +148,30 @@ function Trips() {
     });
 
   return (
-    <div>
+    <div className="space-y-6">
       {supabaseEnabled && auth.user && (
-        <div className="row">
-          <span className="min-w-0 truncate text-sm">
-            <span className="text-ink-soft">Signed in · </span>
-            {auth.user.email}
-          </span>
-          <button onClick={() => signOut()} className="link-quiet shrink-0 text-sm">Sign out</button>
-        </div>
+        <Section>
+          <ul>
+            <InsetRow label="Signed in"><span className="truncate">{auth.user.email}</span></InsetRow>
+            <ActionRow label="Sign out" onClick={() => signOut()} />
+          </ul>
+        </Section>
       )}
       {supabaseEnabled && !auth.user && isLocalOnly() && (
-        <div className="row">
-          <span className="min-w-0 truncate text-sm text-ink-soft">On this device only</span>
-          <button
-            onClick={() => { setLocalOnly(false); location.reload(); }}
-            className="link-quiet shrink-0 text-sm"
-          >
-            Sign in to sync
-          </button>
-        </div>
+        <Section>
+          <ul>
+            <InsetRow label="Storage">On this device only</InsetRow>
+            <ActionRow label="Sign in to sync" onClick={() => { setLocalOnly(false); location.reload(); }} />
+          </ul>
+        </Section>
       )}
       {!creating ? (
-        <div className="mb-6 mt-6 flex flex-wrap items-center gap-4">
-          <button onClick={newTrip} disabled={busy} className="btn-primary">
-            <Icon name="plus" size={16} /> New trip
-          </button>
-          {!hasDemo && (
-            <button onClick={addDemo} disabled={busy} className="link-quiet text-sm">
-              Add the demo tour
-            </button>
-          )}
-          <button onClick={() => fileRef.current?.click()} disabled={busy} className="link-quiet text-sm">
-            Restore from backup
-          </button>
+        <Section>
+          <ul>
+            <ActionRow icon="plus" label="New trip" onClick={newTrip} disabled={busy} />
+            {!hasDemo && <ActionRow icon="copy" label="Add the demo tour" onClick={addDemo} disabled={busy} />}
+            <ActionRow icon="download" label="Restore from backup" onClick={() => fileRef.current?.click()} disabled={busy} />
+          </ul>
           <input
             ref={fileRef}
             type="file"
@@ -193,25 +183,18 @@ function Trips() {
               if (f) void restore(f);
             }}
           />
-          {msg && <p className="w-full text-sm text-danger" role="alert">{msg}</p>}
-        </div>
+          {msg && <p className="px-3.5 pb-2.5 text-sm text-danger" role="alert">{msg}</p>}
+        </Section>
       ) : (
-        <div className="mb-2 border-y border-line py-3">
-          <p className="kicker mb-2 !mt-0">Start from</p>
-          <div className="flex flex-col gap-2">
-            <button onClick={() => make()} disabled={busy} className="action justify-start">
-              <Icon name="plus" size={15} /> Empty template
-              <span className="meta ml-1 hidden sm:inline">— blank; add days, hide sections you don’t want</span>
-            </button>
+        <Section title="Start from">
+          <ul>
+            <ActionRow icon="plus" label="Empty template" hint="blank; add days, hide sections you don’t want" onClick={() => make()} disabled={busy} />
             {TEMPLATES.map((t) => (
-              <button key={t.id} onClick={() => make(t.id)} disabled={busy} className="action justify-start">
-                <Icon name="copy" size={15} /> {t.name}
-                <span className="meta ml-1 hidden sm:inline">— {t.subtitle}</span>
-              </button>
+              <ActionRow key={t.id} icon="copy" label={t.name} hint={t.subtitle} onClick={() => make(t.id)} disabled={busy} />
             ))}
-          </div>
-          <button onClick={() => setCreating(false)} className="link-quiet mt-3 text-xs">Cancel</button>
-        </div>
+            <ActionRow label="Cancel" onClick={() => setCreating(false)} />
+          </ul>
+        </Section>
       )}
 
       <Section>
@@ -300,15 +283,12 @@ function ThisDevice() {
         {install.kind === "installed" && <Row label="Home screen">Installed</Row>}
         {install.kind === "ios" && <Row label="Home screen">Share → Add to Home Screen</Row>}
         {install.kind === "prompt" && (
-          <li>
-            <button
-              onClick={() => { setInstalling(true); void install.install().finally(() => setInstalling(false)); }}
-              disabled={installing}
-              className="action w-full px-3.5 py-2.5 disabled:opacity-50"
-            >
-              <Icon name="download" size={15} /> Install app
-            </button>
-          </li>
+          <ActionRow
+            icon="download"
+            label="Install app"
+            disabled={installing}
+            onClick={() => { setInstalling(true); void install.install().finally(() => setInstalling(false)); }}
+          />
         )}
       </ul>
     </Section>
@@ -344,16 +324,8 @@ function ExportTrip() {
         <InsetRow label="Include private details">
           <Switch checked={includePrivate} onChange={setIncludePrivate} label="Include private details" />
         </InsetRow>
-        <li className="p-3.5">
-          <button onClick={download} disabled={busy} className="btn-primary w-full">
-            <Icon name="download" size={15} /> {busy ? "Building…" : "Download web page"}
-          </button>
-        </li>
-        <li className="px-3.5 pb-3.5">
-          <button onClick={downloadCalendar} disabled={icsBusy} className="btn w-full">
-            <Icon name="calendar" size={15} /> {icsBusy ? "Building…" : "Add to calendar (.ics)"}
-          </button>
-        </li>
+        <ActionRow icon="download" label={busy ? "Building…" : "Download web page"} onClick={download} disabled={busy} />
+        <ActionRow icon="calendar" label={icsBusy ? "Building…" : "Add to calendar (.ics)"} onClick={downloadCalendar} disabled={icsBusy} />
       </ul>
     </Section>
   );
@@ -370,11 +342,7 @@ function BackupTrip() {
       info="A complete copy of this trip as a .json file — every stay, day, place and setting, including private details like booking references and wifi, so keep it somewhere you trust. To bring it back (on this device or another), use Restore from backup on the Trips tab; it's added as a new trip and never overwrites one you have. Attached document files aren't inside the backup: ones stored in Google Drive still open from anywhere, ones saved only on this device stay on this device."
     >
       <ul>
-        <li className="p-3.5">
-          <button onClick={() => downloadBackup(data)} className="btn w-full">
-            <Icon name="download" size={15} /> Download backup (.json)
-          </button>
-        </li>
+        <ActionRow icon="download" label="Download backup (.json)" onClick={() => downloadBackup(data)} />
       </ul>
     </Section>
   );
@@ -460,6 +428,19 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 /** `<li>` class for a Manage grouped-list item (a traveller, a currency…):
  *  padded, `InsetRow`'s own inset hairline, gone on the last row. */
 const MLI = `${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-2.5`;
+
+/** an action in a grouped list — the iOS Settings idiom: a full-width row with
+ *  an accent label, never a wide filled button inside the card */
+function ActionRow({ icon, label, hint, onClick, disabled }: { icon?: IconName; label: string; hint?: string; onClick: () => void; disabled?: boolean }) {
+  return (
+    <li className={INSET_DIVIDER}>
+      <button onClick={onClick} disabled={disabled} className="action w-full px-3.5 py-2.5 disabled:opacity-50">
+        {icon && <Icon name={icon} size={15} />} {label}
+        {hint && <span className="meta ml-1 hidden font-normal sm:inline">— {hint}</span>}
+      </button>
+    </li>
+  );
+}
 
 /** the trailing "＋ Add …" row inside a Manage grouped list */
 function AddRow({ label, onClick }: { label: string; onClick: () => void }) {
