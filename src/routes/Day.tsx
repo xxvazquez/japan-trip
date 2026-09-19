@@ -38,7 +38,7 @@ import { legHex } from "@/lib/legColors";
 import { gmapsLink, gmapsRoute, mapUrlCoords } from "@/lib/maps";
 import { fmtWalk } from "@/lib/geo";
 import { useWalk } from "@/lib/walkRoute";
-import { nearestStationOverpass, type NearbyStation } from "@/lib/transitStation";
+import { nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
 import { nearestOpeningHours, type PlaceHours } from "@/lib/placeHours";
 import { hoursForDate } from "@/lib/openingHours";
 import { fetchDayWeather, weatherLabel, type DayWeather } from "@/lib/weather";
@@ -704,8 +704,8 @@ function ReturnToHotel({ from, hotel, indent }: { from?: Place; hotel: Hotel; in
     setHotelStation(null);
     if (!from || !to || !long) return;
     let cancelled = false;
-    void nearestStationOverpass(from.lat, from.lng).then((s) => { if (!cancelled) setFromStation(s); });
-    void nearestStationOverpass(to.lat, to.lng).then((s) => { if (!cancelled) setHotelStation(s); });
+    void nearestStationLookup(from.lat, from.lng).then((s) => { if (!cancelled) setFromStation(s); });
+    void nearestStationLookup(to.lat, to.lng).then((s) => { if (!cancelled) setHotelStation(s); });
     return () => { cancelled = true; };
   }, [long, from?.lat, from?.lng, to?.lat, to?.lng]);
 
@@ -786,11 +786,11 @@ function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }
     setStation(null);
     let cancelled = false;
     let retry: ReturnType<typeof setTimeout> | undefined;
-    void nearestStationOverpass(place.lat, place.lng).then((s) => {
+    void nearestStationLookup(place.lat, place.lng).then((s) => {
       if (cancelled) return;
       if (s) { setStation(s); return; }
       retry = setTimeout(() => {
-        void nearestStationOverpass(place.lat, place.lng).then((s2) => { if (!cancelled) setStation(s2); });
+        void nearestStationLookup(place.lat, place.lng).then((s2) => { if (!cancelled) setStation(s2); });
       }, 6000);
     });
     return () => { cancelled = true; clearTimeout(retry); };

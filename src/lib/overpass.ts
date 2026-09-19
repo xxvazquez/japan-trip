@@ -11,6 +11,11 @@ const ENDPOINTS = [
   "https://overpass.kumi.systems/api/interpreter",
 ];
 const MAX_IN_FLIGHT = 1;
+/** after a lookup fails on every server, stop trying for a while — a server
+ *  that's down or refusing this connection would otherwise make every line on
+ *  the page wait out its own timeout */
+const BACKOFF_MS = 120_000;
+let downUntil = 0;
 const BUSY = new Set([429, 502, 503, 504]);
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -33,6 +38,7 @@ async function slot<T>(fn: () => Promise<T>, low: boolean): Promise<T> {
  *  station lines a page is waiting on aren't held up by it. */
 export function overpass<T>(query: string, { low = false }: { low?: boolean } = {}): Promise<T> {
   return slot(async () => {
+    if (Date.now() < downUntil) throw new Error("overpass unavailable");
     let lastError: unknown = new Error("overpass unavailable");
     for (const url of ENDPOINTS) {
       for (let attempt = 0; attempt < 2; attempt++) {
@@ -41,7 +47,7 @@ export function overpass<T>(query: string, { low = false }: { low?: boolean } = 
           const res = await fetch(url, {
             method: "POST",
             body: new URLSearchParams({ data: query }),
-            signal: AbortSignal.timeout(12000),
+            signal: AbortSignal.timeout(8000),
           });
           if (res.ok) return (await res.json()) as T;
           lastError = new Error(String(res.status));
@@ -53,6 +59,7 @@ export function overpass<T>(query: string, { low = false }: { low?: boolean } = 
         }
       }
     }
+    downUntil = Date.now() + BACKOFF_MS;
     throw lastError;
   }, low);
 }

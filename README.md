@@ -75,8 +75,9 @@ never chosen by hand.
     Ueno") — the same station lookup the Map tab uses. Time and distance always show together: a
     straight-line estimate first, replaced by an actual walking route once that comes back (or kept
     if there's no routing key). On a narrow phone the two wrap as whole pieces rather than clip.
-    The station comes from OpenStreetMap, which sometimes drops a request — a miss is retried once,
-    and a found station is remembered on the device.
+    The station comes from OpenStreetMap (Overpass, then Nominatim if that fails), which sometimes
+    drops a request — a miss is retried once, and a found station is remembered on the device. A
+    step that isn't tied to a place has no position to measure from, so it shows neither figure.
   - if the linked place has opening hours tagged on OpenStreetMap, the hours **for that day** sit at
     the right end of the tile/time row (e.g. "09:00–17:00") — always in the same spot. The app reads
     the place's tagged schedule and picks the rule that covers the day's date (its month and
@@ -182,9 +183,11 @@ Higashiyama, a neighbourhood you name). A place can sit in several areas.
 - Each place in the list shows its nearest metro/train station with the walking time and distance
   (e.g. "≈ 3 min · 195 m to Ueno"), read straight from the map's own tiles — no extra request, since
   it's the same station data the Train/Metro overlay already draws. A place whose map tile hasn't
-  loaded yet falls back to a lookup against the free OpenStreetMap Overpass API (one request at a
-  time, retried and mirrored when the public server is busy, and remembered on the device once
-  found); nothing shows if there's genuinely no station within a kilometre. A place's distance from
+  loaded yet falls back to a network lookup — the free OpenStreetMap Overpass API first (one request
+  at a time, retried and mirrored when the public server is busy), then OpenStreetMap's Nominatim
+  search when Overpass fails outright, so a station line doesn't depend on one public server being
+  up; a found station is remembered on the device. Nothing shows if there's genuinely no station
+  within a kilometre. A place's distance from
   you (the Nearby list) reads the same way — time and distance together.
 
 ### Suggest areas

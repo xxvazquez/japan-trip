@@ -20,7 +20,7 @@ import { suggestAreas, type AreaSuggestion } from "@/lib/cluster";
 import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
 import { TRANSIT_KINDS, TRANSIT_META } from "@/lib/transitLayers";
-import { nearestStationFromMap, nearestStationOverpass, type NearbyStation } from "@/lib/transitStation";
+import { nearestStationFromMap, nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
 import { estimateWalk, useWalk } from "@/lib/walkRoute";
 import { WalkLine } from "@/components/WalkLine";
 import { glyphPath } from "@/lib/mapGlyphs";
@@ -1581,7 +1581,7 @@ function PlaceRow({
       return true;
     };
     const tryOverpass = () => {
-      void nearestStationOverpass(place.lat, place.lng).then((hit) => {
+      void nearestStationLookup(place.lat, place.lng).then((hit) => {
         if (!cancelled) setStation(hit);
       });
     };
