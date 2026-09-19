@@ -13,11 +13,8 @@ export function Arrow({ className = "" }: { className?: string }) {
  *  this is applied at render time wherever a journey's title actually shows —
  *  not just the Journey page's own header.
  *
- *  Plain inline spans, not flex — a flex/flex-wrap wrapper fights a parent's
- *  `truncate` (a long title clips mid-word instead of ellipsizing) since
- *  flex content doesn't participate in normal inline overflow the way plain
- *  text does. Inline still wraps naturally where there's no `truncate`, e.g.
- *  the Journey page's own untruncated title. */
+ *  Plain inline spans, not flex — flex content doesn't wrap like normal
+ *  inline text, so a long title would break oddly inside a parent row. */
 export function RouteLabel({ label }: { label: string }) {
   const stops = routeStops(label);
   if (stops.length < 2) return <>{label}</>;

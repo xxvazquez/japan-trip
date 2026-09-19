@@ -100,8 +100,8 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
                 >
                   <span className="eyebrow w-[5.5rem] shrink-0 whitespace-nowrap">{hit.chip ?? KIND_LABEL[hit.kind]}</span>
                   <span className="min-w-0 flex-1">
-                    <span className="lead block truncate">{hit.label}</span>
-                    {hit.sub && <span className="block truncate text-xs text-ink-soft">{hit.sub}</span>}
+                    <span className="lead block break-words">{hit.label}</span>
+                    {hit.sub && <span className="block break-words text-xs text-ink-soft">{hit.sub}</span>}
                   </span>
                   <Icon name="chevron" size={15} className="shrink-0 text-ink-faint" />
                 </button>

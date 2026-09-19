@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Icon } from "./Icon";
 
 /**
- * One row of a grouped-inset list: a leading `IconTile`, a title that truncates,
+ * One row of a grouped-inset list: a leading `IconTile`, a title that wraps,
  * an optional quiet sub-line, an optional trailing value, and a chevron when the
  * row goes somewhere.
  *
@@ -35,8 +35,8 @@ export function TileRow({
     <>
       {tile}
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-sm font-medium leading-snug text-ink">{title}</span>
-        {meta != null && meta !== "" && <span className="meta mt-0.5 block truncate">{meta}</span>}
+        <span className="block break-words text-sm font-medium leading-snug text-ink">{title}</span>
+        {meta != null && meta !== "" && <span className="meta mt-0.5 block break-words">{meta}</span>}
       </span>
       {right != null && right !== "" && (
         <span className="shrink-0 text-[0.8125rem] tabular-nums text-ink-soft">{right}</span>

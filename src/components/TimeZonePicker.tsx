@@ -131,7 +131,7 @@ export function TimeZonePicker({ value, onChange, label }: { value: string; onCh
         aria-current={selected || undefined}
         onClick={() => onChange(z.id)}
       >
-        <span className="min-w-0 flex-1 truncate">
+        <span className="min-w-0 flex-1 break-words">
           {z.city}
           {z.qualifier && <span className="meta ml-1.5">{z.qualifier}</span>}
         </span>
@@ -152,7 +152,7 @@ export function TimeZonePicker({ value, onChange, label }: { value: string; onCh
         aria-label={`${label}: ${zoneLabel(value)}`}
         className="inline-flex max-w-[13rem] items-center gap-1 text-right text-[0.8125rem] font-medium"
       >
-        <span className="truncate">{zoneLabel(value)}</span>
+        <span className="break-words">{zoneLabel(value)}</span>
         <Icon name="chevron" size={11} className="rotate-90 shrink-0 text-ink-faint" />
       </button>
       <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title={label}>

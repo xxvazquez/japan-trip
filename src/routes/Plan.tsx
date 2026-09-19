@@ -313,7 +313,7 @@ function DayCard({ day, loc, data }: { day: Day; loc: string; data: TripData }) 
     <div className="flex items-center gap-3 rounded-[12px] border border-line bg-surface px-3.5 py-3 text-sm shadow-md">
       <span className="text-ink-faint"><Icon name="grip" size={14} /></span>
       <DayDate date={day.date} loc={loc} />
-      <span className="min-w-0 flex-1 line-clamp-2 leading-snug font-medium text-ink">{day.title || "Untitled day"}</span>
+      <span className="min-w-0 flex-1 leading-snug font-medium text-ink">{day.title || "Untitled day"}</span>
       <DayKindTag day={day} data={data} />
     </div>
   );
@@ -351,7 +351,7 @@ function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day:
           <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: hex }} />
           <DayDate date={day.date} loc={loc} strong={today} />
         </span>
-        <span className={`min-w-0 flex-1 line-clamp-2 leading-snug ${day.title ? "font-medium text-ink" : "font-normal text-ink-faint"} group-hover:underline`}>
+        <span className={`min-w-0 flex-1 leading-snug ${day.title ? "font-medium text-ink" : "font-normal text-ink-faint"} group-hover:underline`}>
           {day.title || "Untitled day"}
         </span>
         {today && <span className="eyebrow shrink-0 text-ink">Today</span>}

@@ -152,7 +152,7 @@ function Trips() {
       {supabaseEnabled && auth.user && (
         <Section>
           <ul>
-            <InsetRow label="Signed in"><span className="truncate">{auth.user.email}</span></InsetRow>
+            <InsetRow label="Signed in"><span className="break-words">{auth.user.email}</span></InsetRow>
             <ActionRow label="Sign out" onClick={() => signOut()} />
           </ul>
         </Section>
@@ -239,7 +239,7 @@ function Trips() {
           <ul>
             {archived.map((t) => (
               <li key={t.id} className={`${INSET_DIVIDER} flex items-baseline justify-between gap-3 px-3.5 py-3`}>
-                <span className="lead min-w-0 flex-1 truncate text-ink-soft">{t.name}</span>
+                <span className="lead min-w-0 flex-1 break-words text-ink-soft">{t.name}</span>
                 <span className="flex shrink-0 items-center gap-1">
                   <button onClick={() => archiveTrip(t.id, false)} className="action">Restore</button>
                   <RowMenu>
@@ -370,7 +370,7 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
       <ul>
         {members.map((m) => (
           <li key={m.userId} className={`${MLI} justify-between text-sm`}>
-            <span className="truncate">{m.userId === me ? "You" : m.userId.slice(0, 8) + "…"} <span className="text-ink-soft">· {m.role}</span></span>
+            <span className="break-words">{m.userId === me ? "You" : m.userId.slice(0, 8) + "…"} <span className="text-ink-soft">· {m.role}</span></span>
             {iAmOwner && m.role !== "owner" && (
               <ConfirmButton
                 label="Remove access"
@@ -973,7 +973,7 @@ function Appearance() {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="value block">{p.name}</span>
-                    <span className="meta block truncate">{p.hint}</span>
+                    <span className="meta block break-words">{p.hint}</span>
                   </span>
                   {on && <Icon name="check" size={16} className="shrink-0 text-accent" />}
                 </button>
@@ -1199,7 +1199,7 @@ function Content() {
                     <div className="flex items-center gap-2">
                       <button disabled={i === 0} onClick={() => moveEntity(type, x.id, -1)} className="text-ink-faint disabled:opacity-25" aria-label="Up"><Icon name="up" size={14} /></button>
                       <button disabled={i === list.length - 1} onClick={() => moveEntity(type, x.id, 1)} className="text-ink-faint disabled:opacity-25" aria-label="Down"><Icon name="down" size={14} /></button>
-                      <span className="min-w-0 flex-1 truncate">
+                      <span className="min-w-0 flex-1 break-words">
                         {href ? <Link to={href} className="hover:text-accent">{nameOf(rec)}</Link> : nameOf(rec)}
                       </span>
                       <button onClick={() => addEntity(type, { ...structuredClone(rec), id: crypto.randomUUID?.() ?? `${type}-${rid()}` } as { id: string })} className="text-ink-faint hover:text-ink-soft" aria-label="Duplicate"><Icon name="copy" size={14} /></button>
@@ -1252,7 +1252,7 @@ function Content() {
           {names.map((name) => (
             <li key={name} className={`${MLI} text-sm`}>
               <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: colorOf(name) }} />
-              <span className="min-w-0 flex-1 truncate">{name}</span>
+              <span className="min-w-0 flex-1 break-words">{name}</span>
               <button type="button" className="chip" aria-pressed={pinned.includes(name)} onClick={() => togglePinned(name)}>
                 Always show
               </button>

@@ -27,7 +27,7 @@ export function UndoToast() {
         role="status"
         className="pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-[12px] bg-ink py-2.5 pl-4 pr-2 text-sm text-bg shadow-md motion-safe:animate-fade-in"
       >
-        <span className="min-w-0 flex-1 truncate">{toast.label}</span>
+        <span className="min-w-0 flex-1 break-words">{toast.label}</span>
         <button
           type="button"
           onClick={undo}

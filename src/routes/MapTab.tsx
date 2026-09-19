@@ -1235,7 +1235,7 @@ export default function MapTab() {
                   .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
                   .map((a) => (
                     <li key={a.id} className="flex items-center gap-2 border-b border-line py-1.5 text-sm last:border-b-0">
-                      <span className="min-w-0 flex-1 truncate">
+                      <span className="min-w-0 flex-1 break-words">
                         <Editable label="Area name" value={a.name} placeholder="Area name" onCommit={(v) => updateEntity<Area>("areas", a.id, { name: v.trim() || "Untitled" })} />
                       </span>
                       <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{plural(a.placeIds.length, "place")}</span>
@@ -1294,7 +1294,7 @@ export default function MapTab() {
                         className="block w-full py-2 text-left"
                       >
                         <span className="block text-sm font-medium">{r.name}</span>
-                        <span className="meta block truncate">{r.detail}</span>
+                        <span className="meta block break-words">{r.detail}</span>
                       </button>
                     </li>
                   ))}
@@ -1350,7 +1350,7 @@ export default function MapTab() {
                   className="sticky top-0 z-[2] flex w-full items-center gap-2 border-b border-line bg-bg px-4 py-2 text-left"
                 >
                   <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: c.hex }} />
-                  <span className="lead min-w-0 flex-1 truncate">{c.name}</span>
+                  <span className="lead min-w-0 flex-1 break-words">{c.name}</span>
                   <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{c.count}</span>
                   <Icon name="chevron" size={13} className={`shrink-0 text-ink-faint transition-transform ${cityShut ? "" : "rotate-90"}`} />
                 </button>
@@ -1366,7 +1366,7 @@ export default function MapTab() {
                           >
                             <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: a.tone }} />
                             <span className="min-w-0 flex-1">
-                              <span className="eyebrow block truncate font-medium">{a.name}</span>
+                              <span className="eyebrow block break-words font-medium">{a.name}</span>
                               <AreaWalkSpan items={a.items} />
                             </span>
                             <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{a.items.length}</span>
@@ -1424,7 +1424,7 @@ export default function MapTab() {
                     className="flex min-w-0 flex-1 items-center gap-2 text-left"
                   >
                     <span className="min-w-0 flex-1">
-                      <span className="eyebrow block truncate font-medium">{g.name}</span>
+                      <span className="eyebrow block break-words font-medium">{g.name}</span>
                       {isArea && <AreaWalkSpan items={g.items} />}
                     </span>
                     <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{g.items.length}</span>
@@ -1467,7 +1467,7 @@ export default function MapTab() {
       {url && (
         <div className="shrink-0 border-t border-line px-4 py-2.5 text-xs text-ink-soft">
           <div className="flex items-center gap-x-3">
-            <span className="min-w-0 flex-1 truncate">
+            <span className="min-w-0 flex-1 break-words">
               {imported > 0 ? `${imported} pins from Google My Maps` : "No My Maps pins"}
               {syncedAt ? ` · synced ${rel(syncedAt)}` : ""}
             </span>
@@ -1694,9 +1694,9 @@ function PlaceRow({
             tone={toneForPlaceCategory(place.category, categoryIcons)}
           />
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-medium leading-snug text-ink">{place.name}</span>
+            <span className="block break-words text-sm font-medium leading-snug text-ink">{place.name}</span>
             {(metaBits || derived) && (
-              <span className="meta block truncate">{[derived && "from area", metaBits].filter(Boolean).join(" · ")}</span>
+              <span className="meta block break-words">{[derived && "from area", metaBits].filter(Boolean).join(" · ")}</span>
             )}
             {station && <WalkLine icon="train" from={place} to={station}>to {station.name}</WalkLine>}
           </span>
@@ -1733,7 +1733,7 @@ function PlaceRow({
             <li className={INSET_DIVIDER}>
               <Link to={`/day/${day.id}`} className={`${rowCls} active:bg-surface-2`}>
                 <span className="row-label">On</span>
-                <span className="row-value min-w-0 flex-1 truncate text-right">
+                <span className="row-value min-w-0 flex-1 break-words text-right">
                   {fmtDate(day.date, loc, { weekday: "short", day: "numeric", month: "short" })}{day.title ? ` · ${day.title}` : ""}
                 </span>
                 <Icon name="chevron" size={13} className="shrink-0 text-ink-faint" />
@@ -1795,7 +1795,7 @@ function AreasRow({
     return mine.length > 0 ? (
       <li className={`${INSET_DIVIDER} ${rowCls}`}>
         <span className="row-label">Areas</span>
-        <span className="row-value min-w-0 flex-1 truncate text-right">{names}</span>
+        <span className="row-value min-w-0 flex-1 break-words text-right">{names}</span>
       </li>
     ) : null;
   }
@@ -1803,7 +1803,7 @@ function AreasRow({
     <li className={INSET_DIVIDER}>
       <button ref={sheet.anchorRef} onClick={() => sheet.setOpen(true)} aria-haspopup="menu" className={`${rowCls} w-full text-left active:bg-surface-2`}>
         <span className="row-label">Areas</span>
-        <span className={`row-value min-w-0 flex-1 truncate text-right ${mine.length ? "" : "text-ink-faint"}`}>{names || "None"}</span>
+        <span className={`row-value min-w-0 flex-1 break-words text-right ${mine.length ? "" : "text-ink-faint"}`}>{names || "None"}</span>
         <Icon name="chevron" size={13} className="shrink-0 text-ink-faint" />
       </button>
       <ActionSheet open={sheet.open} onClose={() => sheet.setOpen(false)} anchorRef={sheet.anchorRef} title={`Areas for ${place.name}`} doneLabel="Done">
@@ -1814,7 +1814,7 @@ function AreasRow({
             .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
             .map((a) => (
               <button key={a.id} type="button" className="menu-item flex w-full items-center gap-2" onClick={() => onToggleArea(a.id)}>
-                <span className="min-w-0 flex-1 truncate text-left">{a.name || "Untitled"}</span>
+                <span className="min-w-0 flex-1 break-words text-left">{a.name || "Untitled"}</span>
                 <span className="w-4 shrink-0 text-accent">{a.placeIds.includes(place.id) && <Icon name="check" size={14} />}</span>
               </button>
             ))}
@@ -1894,7 +1894,7 @@ function SuggestReview({
                           className="link-quiet flex w-full items-center gap-2 py-1 text-left text-sm"
                         >
                           <Icon name="close" size={11} className="shrink-0 text-ink-faint" />
-                          <span className="truncate">{nameById.get(id) ?? "place"}</span>
+                          <span className="break-words">{nameById.get(id) ?? "place"}</span>
                         </button>
                       </li>
                     ))}

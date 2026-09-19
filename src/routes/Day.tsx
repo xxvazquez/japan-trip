@@ -851,7 +851,7 @@ function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, onPick }
           <button type="button" onClick={() => onPick(undefined)} className="menu-item flex w-full items-center gap-2">
             <Icon name="check" size={13} className={`shrink-0 ${!value ? "text-accent" : "text-ink-faint/30"}`} />
             <IconTile size="sm" name="pin" tone="ink-faint" className="opacity-70" />
-            <span className="min-w-0 flex-1 truncate">Custom…</span>
+            <span className="min-w-0 flex-1 break-words">Custom…</span>
           </button>
           {places.map((p) => {
             const areaName = areaNameByPlaceId.get(p.id);
@@ -867,7 +867,7 @@ function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, onPick }
                   color={p.source === "mymap" ? p.color : undefined}
                   tone={toneForPlaceCategory(p.category, categoryIcons)}
                 />
-                <span className="min-w-0 flex-1 truncate">{p.name}</span>
+                <span className="min-w-0 flex-1 break-words">{p.name}</span>
                 {areaName && <span className="shrink-0 text-2xs text-ink-faint">{areaName}</span>}
               </button>
             );

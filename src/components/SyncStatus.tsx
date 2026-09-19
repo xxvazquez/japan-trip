@@ -87,11 +87,11 @@ export function SyncStatus() {
           return (
             <div key={item.key} className="menu-item justify-between gap-2">
               {href ? (
-                <Link to={href} onClick={() => setOpen(false)} className="min-w-0 flex-1 truncate text-ink hover:text-accent">
+                <Link to={href} onClick={() => setOpen(false)} className="min-w-0 flex-1 break-words text-ink hover:text-accent">
                   {item.label}
                 </Link>
               ) : (
-                <span className="min-w-0 flex-1 truncate text-ink">{item.label}</span>
+                <span className="min-w-0 flex-1 break-words text-ink">{item.label}</span>
               )}
               <button
                 type="button"

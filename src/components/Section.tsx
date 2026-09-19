@@ -68,7 +68,7 @@ export function Section({
               </button>
             )}
             {icon && <Icon name={icon} size={13} className="shrink-0 -translate-y-px text-ink-soft" />}
-            <span className="min-w-0 truncate">{title}</span>
+            <span className="min-w-0 break-words">{title}</span>
           </h2>
           {(action || info) && (
             <div className="flex shrink-0 items-center gap-2">

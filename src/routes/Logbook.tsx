@@ -724,7 +724,7 @@ function Attachments({
           <div key={f.id} className={`${INSET_DIVIDER} py-2.5`}>
             <div className="group flex items-center gap-2.5">
               <Icon name="vault" size={16} className="shrink-0 text-ink-soft" />
-              <button onClick={() => open(f)} className="value min-w-0 flex-1 truncate text-left hover:underline">{f.name}</button>
+              <button onClick={() => open(f)} className="value min-w-0 flex-1 break-words text-left hover:underline">{f.name}</button>
               {f.size ? <span className="shrink-0 text-xs text-ink-faint tabular-nums">{(f.size / 1048576).toFixed(1)} MB</span> : null}
               {!ro && (
                 <ConfirmButton onConfirm={() => remove(f)} label="Remove file" className="shrink-0 text-xs text-ink-faint hover:text-accent">
