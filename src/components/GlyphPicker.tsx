@@ -148,9 +148,7 @@ function CategoryChip({ label, active, onSelect }: { label: string; active: bool
       type="button"
       onClick={onSelect}
       aria-pressed={active}
-      className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1 text-xs transition-colors ${
-        active ? "border-ink bg-ink text-bg" : "border-line text-ink-soft hover:border-ink-soft"
-      }`}
+      className="chip"
     >
       {label}
     </button>

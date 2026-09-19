@@ -1,4 +1,5 @@
 import { haversineKm } from "./geo";
+import { overpass, readPersisted, writePersisted } from "./overpass";
 
 /**
  * A place's opening hours, straight from OpenStreetMap's own `opening_hours`
@@ -19,17 +20,17 @@ const cache = new Map<string, PlaceHours | null>();
 export async function nearestOpeningHours(lat: number, lng: number): Promise<PlaceHours | null> {
   const key = `${lat.toFixed(4)},${lng.toFixed(4)}`;
   if (cache.has(key)) return cache.get(key)!;
+  const stored = readPersisted<PlaceHours>(`hours.${key}`);
+  if (stored) {
+    cache.set(key, stored);
+    return stored;
+  }
   const radius = SEARCH_RADIUS_KM * 1000;
   const query = `[out:json][timeout:10];(node(around:${radius},${lat},${lng})["opening_hours"];way(around:${radius},${lat},${lng})["opening_hours"];);out center 5;`;
   try {
-    const res = await fetch("https://overpass-api.de/api/interpreter", {
-      method: "POST",
-      body: new URLSearchParams({ data: query }),
-    });
-    if (!res.ok) throw new Error(String(res.status));
-    const json = (await res.json()) as {
+    const json = await overpass<{
       elements?: { lat?: number; lon?: number; center?: { lat: number; lon: number }; tags?: Record<string, string> }[];
-    };
+    }>(query);
     let best: PlaceHours | null = null;
     for (const el of json.elements ?? []) {
       const hours = el.tags?.opening_hours;
@@ -42,6 +43,7 @@ export async function nearestOpeningHours(lat: number, lng: number): Promise<Pla
     // cached even when null — "nothing tagged nearby" is a stable answer,
     // same as `transitStation.ts`'s own Overpass cache
     cache.set(key, best);
+    if (best) writePersisted(`hours.${key}`, best);
     return best;
   } catch {
     // not cached — a transient failure shouldn't stick as "no hours" forever

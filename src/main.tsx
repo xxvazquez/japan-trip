@@ -5,7 +5,7 @@ import { router } from "./router";
 import { initApp, useApp } from "./store/useApp";
 import { applyMode, applyPalette, useMode } from "./lib/mode";
 import { useAuth } from "./lib/auth";
-import { Loader } from "./components/Loader";
+import { BootScreen } from "./components/Loader";
 import { SignIn } from "./routes/SignIn";
 import { Offline } from "./routes/Offline";
 import "./styles/index.css";
@@ -53,7 +53,7 @@ function Root() {
     <>
       <ThemeVars />
       {!auth.ready || (!hydrated && !bootError) ? (
-        <Loader label="Opening your atlas" />
+        <BootScreen />
       ) : bootError ? (
         <Offline />
       ) : authRequired ? (

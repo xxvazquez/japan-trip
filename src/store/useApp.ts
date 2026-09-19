@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { buildFromTemplate, buildDemo, buildSandbox } from "@/templates/registry";
 import { sandboxMode } from "@/lib/supabase";
 import { pickBackend, needsAuth, remapIds } from "@/lib/backend";
+import { isAuthReady } from "@/lib/auth";
 import { subscribeTrip, unsubscribeTrip, markWritten } from "@/lib/realtime";
 import { store as kv } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/app";
@@ -529,11 +530,18 @@ export const useApp = create<AppStore>((set, get) => {
 
     init: () => {
       const run = async () => {
+        // the module-level boot call fires before the saved session has been
+        // read back — "no user yet" then isn't "signed out". Deciding now would
+        // mark the app hydrated with no trip loaded (a blank shell with only the
+        // 3 default tabs) until Root's re-init lands; wait for auth instead.
+        if (!isAuthReady()) return;
         if (needsAuth()) {
           set({ authRequired: true, hydrated: true, trips: [], activeId: null, data: null });
           return;
         }
-        set({ authRequired: false });
+        // loading a trip (sign-in, or a first boot): stay on the loader until
+        // the data is in, rather than rendering the shell around `data: null`
+        set({ authRequired: false, ...(get().data ? {} : { hydrated: false }) });
         const be = pickBackend();
         if (be.kind === "supabase") setupSyncListeners(get);
 

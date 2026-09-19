@@ -14,14 +14,15 @@ import { useApp } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
 import { gmapsLink, mapUrlCoords } from "@/lib/maps";
 import { geocode, reverseGeocode, type GeoResult } from "@/lib/geocode";
-import { haversineKm, fmtDistanceKm, useGeolocation } from "@/lib/geo";
+import { haversineKm, fmtDistanceKm, fmtWalk, useGeolocation } from "@/lib/geo";
 import { legHex } from "@/lib/legColors";
 import { suggestAreas, type AreaSuggestion } from "@/lib/cluster";
 import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
 import { TRANSIT_KINDS, TRANSIT_META } from "@/lib/transitLayers";
 import { nearestStationFromMap, nearestStationOverpass, type NearbyStation } from "@/lib/transitStation";
-import { walkingRoute, type WalkRoute } from "@/lib/walkRoute";
+import { estimateWalk, useWalk } from "@/lib/walkRoute";
+import { WalkLine } from "@/components/WalkLine";
 import { glyphPath } from "@/lib/mapGlyphs";
 import { toneForPlaceCategory, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
@@ -39,7 +40,7 @@ const MAX_ANCHOR_KM = 60;
 
 /** an area's two farthest-apart places (its "width", not a tour of everywhere
  *  in it) — cheap local haversine just to find *which* pair, real walking
- *  time for that one pair comes from `walkingRoute` (see `AreaWalkSpan`).
+ *  time for that one pair comes from `useWalk` (see `AreaWalkSpan`).
  *  Null with fewer than two placed points to span. */
 function farthestPair(items: Place[]): [Place, Place] | null {
   const pts = items.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
@@ -54,33 +55,16 @@ function farthestPair(items: Place[]): [Place, Place] | null {
   }
   return best;
 }
-/** "12 min" under an hour, "1h 30min" past it — a manually-built area can
- *  span a whole city, and a bare minute count stops reading sensibly there. */
-function fmtWalkMin(min: number): string {
-  if (min < 60) return `${min} min`;
-  const h = Math.floor(min / 60), m = min % 60;
-  return m ? `${h}h ${m}min` : `${h}h`;
-}
 
-/** an area's section-header subtitle — real walking time (`walkingRoute`,
- *  actual streets) between its two farthest-apart places, found cheaply via
- *  `farthestPair` first so only one real route request is needed per area,
- *  not one per pair. Renders nothing while resolving or if the route can't
- *  be found (no guessing, no straight-line fallback shown as if it were real). */
+/** an area's section-header subtitle — walking time and distance between its
+ *  two farthest-apart places, found cheaply via `farthestPair` first so only
+ *  one route request is needed per area, not one per pair. A straight-line
+ *  estimate shows first (always behind a "≈"), then the real street route. */
 function AreaWalkSpan({ items }: { items: Place[] }) {
   const pair = farthestPair(items);
-  const [route, setRoute] = useState<WalkRoute | null>(null);
-  useEffect(() => {
-    setRoute(null);
-    if (!pair) return;
-    let cancelled = false;
-    void walkingRoute(pair[0], pair[1]).then((r) => {
-      if (!cancelled) setRoute(r);
-    });
-    return () => { cancelled = true; };
-  }, [pair?.[0].id, pair?.[1].id]);
-  if (!route) return null;
-  return <span className="block text-2xs text-ink-faint">≈ {fmtWalkMin(route.min)} walk across</span>;
+  const route = useWalk(pair?.[0] ?? { lat: 0, lng: 0 }, pair?.[1]);
+  if (!pair || !route) return null;
+  return <span className="block text-2xs text-ink-faint">{fmtWalk(route)} walk across</span>;
 }
 
 /** the legend mark for a category chip — a mini filled tile echoing the place
@@ -1049,7 +1033,7 @@ export default function MapTab() {
             below (areaGroups), not up here — a second row of area pills just
             duplicated that row's colour dot + name. */}
         <div className="flex items-center gap-2">
-          <div className="-mx-1 flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto px-1 pb-0.5 [scrollbar-width:none] [-webkit-mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent_100%)] [mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent_100%)] [&::-webkit-scrollbar]:hidden">
+          <div className="-mx-1 flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto px-1 [scrollbar-width:none] [-webkit-mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent_100%)] [mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent_100%)] [&::-webkit-scrollbar]:hidden">
             {[
               ...(clock.phase === "during" && clock.today
                 ? [{ id: `day:${clock.today.id}`, label: "Today", hex: "" }]
@@ -1064,7 +1048,8 @@ export default function MapTab() {
                 <button
                   key={city.id}
                   onClick={() => { setScope(city.id); setSelected(null); setAreaFilter(new Set()); setCatFilter(new Set()); }}
-                  className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors ${active ? "border-ink bg-ink text-bg" : "border-line text-ink-soft hover:border-ink-soft"}`}
+                  className="chip"
+                  aria-pressed={active}
                 >
                   {city.hex && <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: active ? "currentColor" : city.hex }} />}
                   <span className="whitespace-nowrap">{city.label}</span>
@@ -1077,7 +1062,7 @@ export default function MapTab() {
               onClick={() => setNearbyOn((v) => !v)}
               aria-label={nearbyOn ? "Show today's full list" : "Show what's nearby right now"}
               aria-pressed={nearbyOn}
-              className={`shrink-0 rounded-full border p-1.5 transition-colors ${nearbyOn ? "border-ink bg-ink text-bg" : "border-line text-ink-soft hover:border-ink-soft"}`}
+              className="chip chip-icon"
             >
               <Icon name="locate" size={15} />
             </button>
@@ -1086,7 +1071,7 @@ export default function MapTab() {
             onClick={() => setListOnlyPersist(!listOnly)}
             aria-label={listOnly ? "Show map" : "Show list only, full screen"}
             aria-pressed={listOnly}
-            className={`shrink-0 rounded-full border p-1.5 transition-colors ${listOnly ? "border-ink bg-ink text-bg" : "border-line text-ink-soft hover:border-ink-soft"}`}
+            className="chip chip-icon"
           >
             <Icon name={listOnly ? "map" : "list"} size={15} />
           </button>
@@ -1096,7 +1081,7 @@ export default function MapTab() {
             <button
               onClick={startAdd}
               aria-label="Add place"
-              className="shrink-0 rounded-full border border-line p-1.5 text-accent transition-colors hover:border-accent"
+              className="chip chip-icon text-accent"
             >
               <Icon name="plus" size={15} />
             </button>
@@ -1140,14 +1125,14 @@ export default function MapTab() {
             {cats.length > 0 && (
               <div>
                 <p className="eyebrow mb-1.5 text-ink-faint">Category</p>
-                <div className="flex flex-wrap gap-x-3 gap-y-1.5">
+                <div className="flex flex-wrap gap-2">
                   {cats.map(([name, col]) => {
                     const on = catFilter.size === 0 || catFilter.has(name);
                     return (
                       <button
                         key={name}
                         onClick={() => toggleCat(name)}
-                        className={`inline-flex items-center gap-1.5 text-xs transition-opacity ${on ? "" : "opacity-35"}`}
+                        className={`chip ${on ? "" : "opacity-40"}`}
                       >
                         <CatMark color={col} glyph={data.config.categoryIcons?.[name]} />
                         <span className="capitalize">{name}</span>
@@ -1160,7 +1145,7 @@ export default function MapTab() {
 
             <div>
               <p className="eyebrow mb-1.5 text-ink-faint">Transit</p>
-              <div className="flex flex-wrap gap-x-3 gap-y-1.5">
+              <div className="flex flex-wrap gap-2">
                 {TRANSIT_KINDS.map((kind) => {
                   const on = transit.has(kind);
                   const col = dark ? TRANSIT_META[kind].dark : TRANSIT_META[kind].light;
@@ -1168,7 +1153,7 @@ export default function MapTab() {
                     <button
                       key={kind}
                       onClick={() => toggleTransit(kind)}
-                      className={`inline-flex items-center gap-1.5 text-xs transition-opacity ${on ? "" : "opacity-35"}`}
+                      className={`chip ${on ? "" : "opacity-40"}`}
                     >
                       <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: col, boxShadow: on ? `0 0 0 1px ${col}` : "none" }} />
                       {TRANSIT_META[kind].label}
@@ -1647,7 +1632,7 @@ function PlaceRow({
   // scroll-margin below gives `block: "nearest"` a little breathing room so an
   // opened row never lands flush against the list's top edge.
   const metaBits = [
-    distanceKm !== undefined && fmtDistanceKm(distanceKm),
+    distanceKm !== undefined && fmtWalk({ min: estimateWalk(distanceKm).min, km: distanceKm }),
     place.category,
     day && `on ${fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}`,
   ].filter(Boolean).join(" · ");
@@ -1670,12 +1655,7 @@ function PlaceRow({
           {(metaBits || derived) && (
             <span className="meta block truncate">{[derived && "from area", metaBits].filter(Boolean).join(" · ")}</span>
           )}
-          {station && (
-            <span className="meta flex items-center gap-1 truncate text-ink-faint">
-              <Icon name="train" size={11} className="shrink-0" />
-              {fmtDistanceKm(station.km)} from {station.name}
-            </span>
-          )}
+          {station && <WalkLine icon="train" from={place} to={station}>to {station.name}</WalkLine>}
         </span>
         <Icon name="chevron" size={13} className={`shrink-0 text-ink-faint transition-transform ${open ? "rotate-90" : ""}`} />
       </button>
@@ -1705,7 +1685,7 @@ function PlaceRow({
                     <button
                       key={a.id}
                       onClick={() => onToggleArea(a.id)}
-                      className={`rounded-full border px-2.5 py-0.5 text-2xs ${on ? "border-accent text-accent" : "border-line text-ink-soft hover:border-ink-soft"}`}
+                      className={`chip ${on ? "chip-accent" : ""}`}
                     >
                       {a.name || "Untitled"}
                     </button>

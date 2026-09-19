@@ -898,8 +898,8 @@ function AssignPill({ value, people, tagged, readOnly, onChange }: {
   const label = assigneeTag(value, tagged);
   const chip = (
     <span
-      className={`inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full border px-1.5 text-2xs font-medium tabular-nums ${
-        value ? "border-line text-ink-soft" : "border-dashed border-line text-ink-faint"
+      className={`inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full px-2 text-2xs font-medium tabular-nums ${
+        value ? "bg-surface-2 text-ink-soft" : "border border-dashed border-line text-ink-faint"
       }`}
     >
       {label}

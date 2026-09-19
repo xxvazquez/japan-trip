@@ -46,6 +46,10 @@ export function TabBarOrRail() {
   }, [matchedId]);
   const activeId = matchedId ?? (isSharedDetail(pathname) ? lastActiveId.current : null);
 
+  // no trip loaded yet — nothing to list, and the 3-tab fallback would flash
+  // a wrong bar (the trip may have six) before its real config arrives
+  if (!data) return null;
+
   const cell = (current: boolean, label: string, icon: IconName) => (
     <span
       className={[

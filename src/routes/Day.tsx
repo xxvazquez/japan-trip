@@ -21,12 +21,14 @@ import { ActionSheet, useActionSheet } from "@/components/ActionSheet";
 import { Editable } from "@/components/Editable";
 import { MoneyField } from "@/components/MoneyField";
 import { RichNote } from "@/components/RichNote";
+import { RowMenu } from "@/components/RowMenu";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { SwipeToDelete } from "@/components/SwipeToDelete";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { Icon } from "@/components/Icon";
 import { RouteLabel } from "@/components/RouteLabel";
 import { IconTile } from "@/components/IconTile";
+import { WalkLine } from "@/components/WalkLine";
 import { toneForPlaceCategory } from "@/lib/tones";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
@@ -34,8 +36,8 @@ import { useReadOnly } from "@/lib/readonly";
 import { fmtDate, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink } from "@/lib/maps";
-import { fmtDistanceKm } from "@/lib/geo";
-import { walkingRoute, type WalkRoute } from "@/lib/walkRoute";
+import { fmtWalk } from "@/lib/geo";
+import { useWalk } from "@/lib/walkRoute";
 import { nearestStationOverpass, type NearbyStation } from "@/lib/transitStation";
 import { nearestOpeningHours, type PlaceHours } from "@/lib/placeHours";
 import { fetchDayWeather, weatherLabel, type DayWeather } from "@/lib/weather";
@@ -284,13 +286,6 @@ export default function Day() {
           icon="itinerary"
           title="Plan"
           info="Drag to reorder. Pick a place from an Area you've added below, or Custom for anything else — tap the note line under it to add one."
-          action={
-            !ro && (day.plan ?? []).length > 0 && (
-              <button onClick={() => setPlan([...(day.plan ?? []), { id: rid(), text: "" }])} className="action text-xs">
-                <Icon name="plus" size={13} /> Add
-              </button>
-            )
-          }
         >
           <PlanList day={day} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} onQuickAddCost={quickAddCost} />
         </Section>
@@ -310,7 +305,7 @@ export default function Day() {
               const linked = new Set((day.plan ?? []).map((it) => it.placeId).filter(Boolean));
               const newPlaces = a.placeIds.filter((pid) => !linked.has(pid)).map((pid) => data.places.find((p) => p.id === pid)).filter((p): p is NonNullable<typeof p> => !!p);
               return (
-                <span key={id} className="inline-flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-xs">
+                <span key={id} className="chip pr-2.5">
                   {a.name || "Untitled"}
                   <span className="text-ink-faint">{a.placeIds.length}</span>
                   {!ro && newPlaces.length > 0 && (
@@ -340,7 +335,7 @@ export default function Day() {
                 value=""
                 aria-label="Add an area to this day"
                 onChange={(e) => e.target.value && patch({ areaIds: [...(day.areaIds ?? []), e.target.value] })}
-                className="cursor-pointer rounded-full border border-dashed border-line bg-transparent px-2.5 py-1 text-xs text-accent focus:outline-none"
+                className="chip cursor-pointer appearance-none text-accent focus:outline-none"
               >
                 <option value="">＋ Add area</option>
                 {data.areas
@@ -648,40 +643,26 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
             {place && nextPlace && <WalkToNext from={place} to={nextPlace} />}
           </div>
 
-          <div className="flex shrink-0 items-center gap-0.5">
-            <button
-              type="button"
-              onClick={addToGoogleCalendar}
-              aria-label={`Add ${place?.name || item.text || "this step"} to Google Calendar`}
-              title="Add to Google Calendar"
-              className="relative shrink-0 p-1 text-ink-faint opacity-60 transition-opacity hover:text-accent active:text-accent before:absolute before:-inset-2 before:content-[''] sm:opacity-0 sm:group-hover:opacity-100"
-            >
-              <Icon name="calendar" size={13} />
+          {/* one ⋯ instead of four loose glyphs — the step's title and lines
+              get the width, the secondary actions sit behind the sheet */}
+          <RowMenu label={`More for ${place?.name || item.text || "this step"}`}>
+            <button type="button" className="menu-item" onClick={addToGoogleCalendar}>
+              <Icon name="calendar" size={16} /> Add to Google Calendar
             </button>
             {!readOnly && (
-              <button
-                type="button"
-                onClick={onDuplicate}
-                aria-label={`Duplicate ${place?.name || item.text || "this step"}`}
-                title="Duplicate"
-                className="relative shrink-0 p-1 text-ink-faint opacity-60 transition-opacity hover:text-accent active:text-accent before:absolute before:-inset-2 before:content-[''] sm:opacity-0 sm:group-hover:opacity-100"
-              >
-                <Icon name="copy" size={13} />
-              </button>
+              <>
+                <button type="button" className="menu-item" onClick={onDuplicate}>
+                  <Icon name="copy" size={16} /> Duplicate
+                </button>
+                <button type="button" className="menu-item" onClick={() => onQuickAddCost(place?.name || item.text || "")}>
+                  <Icon name="wallet" size={16} /> Add an expense
+                </button>
+                <button type="button" className="menu-item text-danger" onClick={onRemove}>
+                  <Icon name="close" size={16} /> Remove
+                </button>
+              </>
             )}
-            {!readOnly && (
-              <button
-                type="button"
-                onClick={() => onQuickAddCost(place?.name || item.text || "")}
-                aria-label={`Add an expense for ${place?.name || item.text || "this step"}`}
-                title="Add an expense"
-                className="relative shrink-0 p-1 text-ink-faint opacity-60 transition-opacity hover:text-accent active:text-accent before:absolute before:-inset-2 before:content-[''] sm:opacity-0 sm:group-hover:opacity-100"
-              >
-                <Icon name="wallet" size={13} />
-              </button>
-            )}
-            {!readOnly && <RowDeleteButton onClick={onRemove} />}
-          </div>
+          </RowMenu>
         </div>
       </div>
       </SwipeToDelete>
@@ -702,56 +683,38 @@ function PlaceHoursLine({ place }: { place: Place }) {
   }, [place.id, place.lat, place.lng]);
   if (!hours) return null;
   return (
-    <p className="meta flex items-center gap-1 text-ink-faint">
-      <Icon name="clock" size={12} className="shrink-0" />
-      {hours.hours}
-    </p>
+    <span className="meta flex items-start gap-1 text-ink-faint">
+      <Icon name="clock" size={12} className="mt-[3px] shrink-0" />
+      <span className="min-w-0">{hours.hours}</span>
+    </span>
   );
 }
 
-/** the step's own nearest metro/train station — same station lookup as a
- *  place's row on the Map tab (`src/lib/transitStation.ts`), just without
- *  that page's "check the map's own tiles first" shortcut, since this route
- *  never loads a map. Unlike the Map tab, shows a real walking time to that
- *  station (`walkingRoute`, not straight-line) alongside the distance.
- *  Silent unless both the station lookup and the route to it succeed. */
+/** the step's own nearest metro/train station — same lookup as a place's row
+ *  on the Map tab (`src/lib/transitStation.ts`), minus that page's "check the
+ *  map's own tiles first" shortcut, since this route never loads a map. Shows
+ *  walking time and distance together (`WalkLine`), silent only when no
+ *  station turns up within range. */
 function NearestStationLine({ place }: { place: Place }) {
-  const [nearest, setNearest] = useState<{ name: string; walk: WalkRoute } | null>(null);
+  const [station, setStation] = useState<NearbyStation | null>(null);
   useEffect(() => {
-    setNearest(null);
+    setStation(null);
     let cancelled = false;
-    void nearestStationOverpass(place.lat, place.lng).then(async (station) => {
-      if (!station || cancelled) return;
-      const walk = await walkingRoute(place, station);
-      if (!cancelled && walk) setNearest({ name: station.name, walk });
-    });
+    void nearestStationOverpass(place.lat, place.lng).then((s) => { if (!cancelled) setStation(s); });
     return () => { cancelled = true; };
   }, [place.id, place.lat, place.lng]);
-  if (!nearest) return null;
-  return (
-    <p className="meta flex items-center gap-1 text-ink-faint">
-      <Icon name="train" size={12} className="shrink-0" />
-      ≈ {nearest.walk.min} min to {nearest.name} · {fmtDistanceKm(nearest.walk.km)}
-    </p>
-  );
+  if (!station) return null;
+  return <WalkLine icon="train" from={place} to={station}>to {station.name}</WalkLine>;
 }
 
-/** real walking time to the next step, via `walkingRoute` (actual streets,
- *  not a straight line) — only rendered by `PlanRow` when both this step and
- *  the next one link to a real place. Renders nothing while resolving or if
- *  no route is found, rather than guess. */
 /** past this, walking isn't really the plan — worth naming the nearest
  *  station at each end instead of just a discouraging minute count. */
 const LONG_WALK_MIN = 20;
 
+/** walking time + distance to the next step — only rendered by `PlanRow` when
+ *  both this step and the next one link to a real place. */
 function WalkToNext({ from, to }: { from: Place; to: Place }) {
-  const [route, setRoute] = useState<WalkRoute | null>(null);
-  useEffect(() => {
-    setRoute(null);
-    let cancelled = false;
-    void walkingRoute(from, to).then((r) => { if (!cancelled) setRoute(r); });
-    return () => { cancelled = true; };
-  }, [from.id, to.id]);
+  const route = useWalk(from, to);
 
   const long = !!route && route.min > LONG_WALK_MIN;
   const [fromStation, setFromStation] = useState<NearbyStation | null>(null);
@@ -769,17 +732,17 @@ function WalkToNext({ from, to }: { from: Place; to: Place }) {
   if (!route) return null;
   return (
     <>
-      <p className="meta flex items-center gap-1 text-ink-faint">
-        <Icon name="walk" size={12} className="shrink-0" />
-        ≈ {route.min} min walk to next stop · {fmtDistanceKm(route.km)}
-      </p>
+      <span className="meta flex items-start gap-1 text-ink-faint">
+        <Icon name="walk" size={12} className="mt-[3px] shrink-0" />
+        <span className="min-w-0">{fmtWalk(route)} walk to next stop</span>
+      </span>
       {/* no line name or duration — there's no free, keyless transit-routing API
        *  that covers Tokyo, and a guessed one would risk sending the wrong way */}
       {long && fromStation && toStation && fromStation.name !== toStation.name && (
-        <p className="meta flex items-center gap-1 text-ink-faint">
-          <Icon name="train" size={12} className="shrink-0" />
-          that's far to walk — by train: {fromStation.name} → {toStation.name}
-        </p>
+        <span className="meta flex items-start gap-1 text-ink-faint">
+          <Icon name="train" size={12} className="mt-[3px] shrink-0" />
+          <span className="min-w-0">that's far to walk — by train: {fromStation.name} → {toStation.name}</span>
+        </span>
       )}
     </>
   );

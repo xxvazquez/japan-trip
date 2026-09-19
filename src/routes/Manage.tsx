@@ -687,9 +687,7 @@ function ExpenseCategoriesPanel() {
                         disabled={disabled}
                         onClick={() => toggleMode(c.id, m)}
                         title={disabled ? `Already claimed by another category` : undefined}
-                        className={`rounded-full border px-2.5 py-1 text-xs disabled:opacity-30 ${
-                          mine ? "border-accent bg-accent/10 text-accent" : "border-line text-ink-soft"
-                        }`}
+                        className={`chip ${mine ? "chip-accent" : ""}`}
                       >
                         {MODE_LABEL[m]}
                       </button>

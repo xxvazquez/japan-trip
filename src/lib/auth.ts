@@ -37,6 +37,7 @@ export function useAuth(): AuthState {
   return current;
 }
 
+export const isAuthReady = (): boolean => current.ready;
 export const getUserId = (): string | null => current.user?.id ?? null;
 
 export async function signInWithGoogle() {

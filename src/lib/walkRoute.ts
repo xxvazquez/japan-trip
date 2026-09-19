@@ -1,3 +1,6 @@
+import { useEffect, useState } from "react";
+import { haversineKm } from "./geo";
+
 /**
  * Real walking time/distance between two points, via OpenRouteService's
  * directions API — actual streets and paths, not a straight line. Needs
@@ -9,6 +12,15 @@
 export interface WalkRoute {
   min: number;
   km: number;
+}
+
+/** A rough stand-in until (or without) a real route: straight-line distance
+ *  padded ~30% for street layout, at a 4.8 km/h walking pace. Always shown
+ *  behind a "≈", so the time and the distance are both on screen from the
+ *  first paint instead of one waiting on the routing API. */
+export function estimateWalk(straightKm: number): WalkRoute {
+  const km = straightKm * 1.3;
+  return { min: Math.max(1, Math.round((km / 4.8) * 60)), km };
 }
 
 type LatLng = { lat: number; lng: number };
@@ -45,4 +57,22 @@ export async function walkingRoute(a: LatLng, b: LatLng): Promise<WalkRoute | nu
     // not cached — a transient failure shouldn't stick as "no route" forever
     return null;
   }
+}
+
+/** Walk from `a` to `b`: the straight-line estimate straight away, swapped for
+ *  the real street route the moment it resolves (or kept, when there's no
+ *  routing key or the request fails) — so a row always shows both a time and
+ *  a distance rather than going quiet. `null` only while there's no `b`. */
+export function useWalk(a: LatLng, b: LatLng | null | undefined): WalkRoute | null {
+  const [real, setReal] = useState<WalkRoute | null>(null);
+  const bLat = b?.lat, bLng = b?.lng;
+  useEffect(() => {
+    setReal(null);
+    if (bLat === undefined || bLng === undefined) return;
+    let cancelled = false;
+    void walkingRoute(a, { lat: bLat, lng: bLng }).then((r) => { if (!cancelled) setReal(r); });
+    return () => { cancelled = true; };
+  }, [a.lat, a.lng, bLat, bLng]);
+  if (bLat === undefined || bLng === undefined) return null;
+  return real ?? estimateWalk(haversineKm(a.lat, a.lng, bLat, bLng));
 }

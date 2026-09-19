@@ -1,5 +1,6 @@
 import type { Map as MLMap } from "maplibre-gl";
 import { haversineKm } from "./geo";
+import { overpass, readPersisted, writePersisted } from "./overpass";
 
 /**
  * "What's the nearest metro/train station to this place?" — read first from
@@ -65,15 +66,15 @@ const overpassCache = new Map<string, NearbyStation | null>();
 export async function nearestStationOverpass(lat: number, lng: number): Promise<NearbyStation | null> {
   const key = `${lat.toFixed(4)},${lng.toFixed(4)}`;
   if (overpassCache.has(key)) return overpassCache.get(key)!;
+  const stored = readPersisted<NearbyStation>(`station.${key}`);
+  if (stored) {
+    overpassCache.set(key, stored);
+    return stored;
+  }
   const radius = SEARCH_RADIUS_KM * 1000;
   const query = `[out:json][timeout:10];node(around:${radius},${lat},${lng})["railway"~"^(station|halt)$"];out body 8;`;
   try {
-    const res = await fetch("https://overpass-api.de/api/interpreter", {
-      method: "POST",
-      body: new URLSearchParams({ data: query }),
-    });
-    if (!res.ok) throw new Error(String(res.status));
-    const json = (await res.json()) as { elements?: { lat: number; lon: number; tags?: Record<string, string> }[] };
+    const json = await overpass<{ elements?: { lat: number; lon: number; tags?: Record<string, string> }[] }>(query);
     const candidates: NearbyStation[] = [];
     for (const el of json.elements ?? []) {
       const name = el.tags?.["name:en"] || el.tags?.name;
@@ -81,6 +82,7 @@ export async function nearestStationOverpass(lat: number, lng: number): Promise<
     }
     const result = closest(candidates);
     overpassCache.set(key, result);
+    if (result) writePersisted(`station.${key}`, result);
     return result;
   } catch {
     // not cached — a transient failure shouldn't stick as "no station" forever

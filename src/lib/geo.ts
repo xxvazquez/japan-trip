@@ -17,6 +17,20 @@ export function fmtDistanceKm(km: number): string {
   return km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`;
 }
 
+/** "12 min" under an hour, "1h 30min" past it — a manually-built area, or a
+ *  long walk to a station, can span well past an hour, and a bare minute
+ *  count stops reading sensibly there. */
+export function fmtWalkMin(min: number): string {
+  if (min < 60) return `${min} min`;
+  const h = Math.floor(min / 60), m = min % 60;
+  return m ? `${h}h ${m}min` : `${h}h`;
+}
+
+/** "≈ 6 min · 450 m" — a walk always reads as time and distance together. */
+export function fmtWalk(w: { min: number; km: number }): string {
+  return `≈ ${fmtWalkMin(w.min)} · ${fmtDistanceKm(w.km)}`;
+}
+
 export type GeoState =
   | { status: "idle" }
   | { status: "pending" }

@@ -284,8 +284,24 @@ html.dark {
   .btn-primary {
     @apply inline-flex items-center justify-center gap-1.5 rounded-[10px] bg-ink px-4 py-2 text-sm font-medium text-bg transition-opacity hover:opacity-90 disabled:opacity-50;
   }
+  /* the one pill: 30px tall, filled (iOS capsule, no outline), label centred.
+   * Filters, area tags, toggles and small actions all share it so a row of
+   * them lines up. `aria-pressed` / `.chip-on` flips it to the solid ink fill;
+   * `.chip-accent` is the tinted "selected" used where ink would be too loud.
+   * `.chip-icon` is the same pill with only a glyph — a 30px circle. */
+  .chip,
   .btn-sm {
-    @apply inline-flex items-center gap-1 rounded-full border border-line px-3 py-1 text-xs text-ink-soft transition-colors hover:border-ink-soft;
+    @apply inline-flex h-[30px] shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-surface-2 px-3 text-xs font-medium leading-none text-ink-soft transition-colors hover:bg-line/60 disabled:opacity-30;
+  }
+  .chip[aria-pressed="true"],
+  .chip-on {
+    @apply bg-ink text-bg hover:bg-ink;
+  }
+  .chip-accent {
+    @apply bg-accent/[0.14] text-accent hover:bg-accent/[0.14];
+  }
+  .chip-icon {
+    @apply w-[30px] px-0;
   }
 }
 
