@@ -932,7 +932,7 @@ function Appearance() {
   const data = useData();
   const dark = useIsDark();
   const mutate = useApp((s) => s.mutateTrip);
-  const { setMedia, addGalleryMedia, removeGalleryMedia } = useApp();
+  const { setMedia, addGalleryMedia, removeGalleryMedia, undoable } = useApp();
   const [advanced, setAdvanced] = useState(false);
   const { busy, run } = useAsyncAction();
   if (!data) return null;
@@ -1033,7 +1033,7 @@ function Appearance() {
               <div key={m.id} className="group relative overflow-hidden rounded border border-line">
                 <img src={m.dataUrl} alt={m.name} className="aspect-square w-full object-cover" />
                 <button
-                  onClick={() => removeGalleryMedia(m.id)}
+                  onClick={() => undoable("Image removed", () => removeGalleryMedia(m.id))}
                   className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-black/50 text-white transition-opacity [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
                   aria-label="Remove"
                 >

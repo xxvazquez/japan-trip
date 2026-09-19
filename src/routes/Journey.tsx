@@ -337,7 +337,7 @@ export default function Journey() {
                 {/* times, joined by one connector line with the duration above it */}
                 <div className="mt-3.5 flex items-start gap-3">
                   <div className="shrink-0">
-                    <span className="font-display text-2xl tabular-nums leading-none">
+                    <span className="font-display text-[1.3125rem] font-medium tabular-nums leading-none">
                       {ro ? (
                         clockOf(s.depart) || "--:--"
                       ) : (
@@ -358,7 +358,7 @@ export default function Journey() {
                     )}
                   </div>
                   <div className="shrink-0 text-right">
-                    <span className="font-display text-2xl tabular-nums leading-none">
+                    <span className="font-display text-[1.3125rem] font-medium tabular-nums leading-none">
                       {ro ? (
                         clockOf(s.arrive) || "--:--"
                       ) : (

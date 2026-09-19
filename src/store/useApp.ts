@@ -783,6 +783,7 @@ interface UndoRecord {
   rows: { type: EntityType; id: string; index: number; before?: WithId }[];
   config: Record<string, unknown>;
   meta?: TripData["meta"];
+  media?: TripData["media"];
 }
 
 let undoRecord: UndoRecord | null = null;
@@ -809,8 +810,9 @@ function diffForUndo(tripId: string, before: TripData, after: TripData): UndoRec
     if (JSON.stringify(a[k]) !== JSON.stringify(b[k])) config[k] = b[k];
   }
   const metaChanged = JSON.stringify(before.meta) !== JSON.stringify(after.meta);
-  if (!rows.length && !Object.keys(config).length && !metaChanged) return null;
-  return { tripId, rows, config, meta: metaChanged ? before.meta : undefined };
+  const mediaChanged = JSON.stringify(before.media) !== JSON.stringify(after.media);
+  if (!rows.length && !Object.keys(config).length && !metaChanged && !mediaChanged) return null;
+  return { tripId, rows, config, meta: metaChanged ? before.meta : undefined, media: mediaChanged ? before.media : undefined };
 }
 
 /** The trip list (device-only atlas / active-trip pointer) failed to write. The
@@ -1233,6 +1235,7 @@ export const useApp = create<AppStore>((set, get) => {
           if (v === undefined) delete cfg[k]; else cfg[k] = structuredClone(v);
         }
         if (rec.meta) d.meta = structuredClone(rec.meta);
+        if (rec.media) d.media = structuredClone(rec.media);
       });
       if (!next) return;
       for (const r of rec.rows) {
@@ -1245,6 +1248,7 @@ export const useApp = create<AppStore>((set, get) => {
       const keys: FieldKey[] = [];
       if (Object.keys(rec.config).length) keys.push("config");
       if (rec.meta) keys.push("meta");
+      if (rec.media) keys.push("media");
       if (keys.length) enqueue(get, { t: "fields", keys });
     },
 
