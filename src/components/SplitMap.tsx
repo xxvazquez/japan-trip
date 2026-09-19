@@ -20,22 +20,22 @@ function useWide(): boolean {
 }
 
 /**
- * Whether the current screen is one that splits: the Plan and a day's page,
- * on a screen wide enough to hold a map beside them. `AppShell` uses it to
- * make room; `<SplitMap>` uses it to decide whether to draw the map at all.
+ * Whether the current screen splits: a day's page, on a screen wide enough to
+ * hold a map beside it. The Plan itself never does — it's a plain list of days —
+ * and neither does anything on a phone. `AppShell` uses this to make room;
+ * `<SplitMap>` uses it to decide whether to draw the map at all.
  */
 export function useSplit(): { active: boolean; dayId?: string } {
   const wide = useWide();
-  const plan = useMatch("/");
   const day = useMatch("/day/:id");
-  return { active: wide && !!(plan || day), dayId: day?.params.id };
+  return { active: wide && !!day, dayId: day?.params.id };
 }
 
-/** The map that sits beside the Plan / a day on a wide screen. Fixed under the
- *  header on the right, so the page scrolls on its own while the map stays. */
+/** The map that sits beside a day on a wide screen. Fixed under the header on
+ *  the right, so the page scrolls on its own while the map stays. */
 export function SplitMap() {
   const { active, dayId } = useSplit();
-  if (!active) return null;
+  if (!active || !dayId) return null;
   return (
     <aside
       aria-label="Map"

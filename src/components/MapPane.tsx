@@ -8,16 +8,14 @@ import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import type { Place, TripData } from "@/core/types";
 
 /**
- * The map half of the wide-screen split view: what's on it follows what's on
- * the left. Beside the Plan it shows every place in the trip; beside a day it
- * shows that day's own — the places its plan steps are tied to, the places of
- * its areas (drawn more quietly), and the hotel it's based at.
+ * The map half of a day's wide-screen split view: that day's own places — the
+ * ones its plan steps are tied to, the places of its areas (drawn more quietly)
+ * and the hotel it's based at.
  *
  * MapLibre lives behind this file, so `SplitMap` loads it lazily — phones and
  * narrow windows never fetch it.
  */
-function contextPlaces(data: TripData, dayId: string | undefined): { places: Place[]; derived: Set<string> } {
-  if (!dayId) return { places: data.places, derived: new Set() };
+function dayPlaces(data: TripData, dayId: string): { places: Place[]; derived: Set<string> } {
   const day = data.days.find((d) => d.id === dayId);
   if (!day) return { places: [], derived: new Set() };
 
@@ -39,14 +37,14 @@ function contextPlaces(data: TripData, dayId: string | undefined): { places: Pla
   return { places, derived: viaAreas };
 }
 
-export default function MapPane({ dayId }: { dayId?: string }) {
+export default function MapPane({ dayId }: { dayId: string }) {
   const data = useData();
   const dark = useIsDark();
   const map = useRef<MLMap | null>(null);
   const [ready, setReady] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
 
-  const ctx = useMemo(() => (data ? contextPlaces(data, dayId) : { places: [], derived: new Set<string>() }), [data, dayId]);
+  const ctx = useMemo(() => (data ? dayPlaces(data, dayId) : { places: [], derived: new Set<string>() }), [data, dayId]);
   const fitKey = ctx.places.map((p) => `${p.id}@${p.lat},${p.lng}`).join("|");
 
   useEffect(() => setSelected(null), [dayId]);
@@ -85,7 +83,7 @@ export default function MapPane({ dayId }: { dayId?: string }) {
 
       {ctx.places.length === 0 && (
         <p className="pointer-events-none absolute inset-x-6 top-6 rounded-[12px] border border-line bg-surface/95 px-4 py-3 text-sm text-ink-soft shadow-sm">
-          {dayId ? "Nothing to show yet — tie a plan step to a place, or add an area, and it appears here." : "No places yet — pins you add on the Map show up here."}
+          Nothing to show yet — tie a plan step to a place, or add an area, and it appears here.
         </p>
       )}
 

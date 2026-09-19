@@ -43,12 +43,12 @@ The trip as a list of days, grouped by where you're staying. Each day carries a 
 **Travel**, **Depart**, **Day trip** — worked out automatically from what you set on the day itself,
 never chosen by hand.
 
-- **On a wide screen** (a laptop, or a tablet held sideways — 1024px and up) the Plan and every day's
-  page get a **map beside them**. Next to the Plan it shows every place in the trip; open a day and it
-  narrows to that day's own — the places its steps are tied to, the places of its areas (drawn more
-  quietly) and the hotel you're staying at — and moves as you go between days. Tap a pin for its name
-  and a **Directions** link. On a phone or a narrower window nothing changes and the map isn't even
-  downloaded; the Map tab is still where you filter, search and edit places.
+- **On a wide screen** (a laptop, or a tablet held sideways — 1024px and up) a **day's page** gets a
+  **map beside it** showing that day's own places — the ones its steps are tied to, the places of its
+  areas (drawn more quietly) and the hotel you're staying at — and it moves as you go between days.
+  Tap a pin for its name and a **Directions** link. The Plan itself stays a plain list of days, and on
+  a phone or a narrower window nothing changes at all: the map isn't even downloaded. The Map tab is
+  still where you filter, search and edit places.
 - Drag a day up or down to **reorder** it (the dates shuffle with it).
 - On **today's own day page** (only that one), a card at the very top shows what's **Now** (a timed
   range like "14:00–15:15" that's under way) and what's **Next** (the soonest step still to come).
