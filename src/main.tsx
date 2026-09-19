@@ -8,6 +8,7 @@ import { useAuth } from "./lib/auth";
 import { BootScreen } from "./components/Loader";
 import { SignIn } from "./routes/SignIn";
 import { Offline } from "./routes/Offline";
+import "./lib/pwa"; // starts listening for the install prompt before anything can miss it
 import "./styles/index.css";
 
 void initApp();

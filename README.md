@@ -292,6 +292,20 @@ file that isn't a backup, or was made by a newer version of the app, is refused 
 Attached document files aren't inside the backup: ones stored in Google Drive still open from
 anywhere, ones saved only on a device stay on that device.
 
+### Offline and installing
+
+**Manage → Trips → This device** shows two things. **Works offline** turns to *Ready* once the
+service worker has saved the whole app on the device — from then on it opens with no signal (it reads
+*Getting ready…* for the first moments of a first visit, and *Not available here* in development,
+where there's no service worker). A trip kept on this device is fully offline; if you sign in to
+sync, open the trip once while online before travelling. Map areas you've already looked at are
+saved too.
+
+The second row is about installing to the home screen. Where the browser offers it (Android, desktop
+Chrome) there's an **Install app** button that opens the browser's own install dialog. On iPhone
+there's no such dialog, so the row says *Share → Add to Home Screen*. Once it's running installed,
+the row reads *Installed*. The same answers are in **Help & FAQ** under "Offline & installing".
+
 ## Editing anything
 
 Tap almost any piece of text and it becomes editable on the spot. Type, tap away, done. There's no

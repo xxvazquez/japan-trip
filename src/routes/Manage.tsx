@@ -31,6 +31,7 @@ import { RowMenu } from "@/components/RowMenu";
 import { MODE_LABEL } from "@/lib/transport";
 import { fallbackCategoryId } from "@/lib/hydrate";
 import { BackupError, downloadBackup, parseBackup } from "@/lib/tripBackup";
+import { useInstallState, useOfflineState } from "@/lib/pwa";
 import { expenseCategoryIcon, categoryGlyphTile } from "@/lib/cost";
 import type { TransportMode } from "@/core/types";
 import { Switch } from "@/components/Switch";
@@ -265,7 +266,49 @@ function Trips() {
           </ul>
         </Section>
       )}
+
+      <ThisDevice />
     </div>
+  );
+}
+
+/** How this device is set up for travelling: whether the app opens with no
+ *  signal, and putting it on the home screen. */
+function ThisDevice() {
+  const offline = useOfflineState();
+  const install = useInstallState();
+  const [installing, setInstalling] = useState(false);
+  return (
+    <Section
+      title="This device"
+      className="mt-8"
+      info="Ready means the app itself is saved on this device and opens with no signal. A trip kept on this device works fully offline; if you sign in to sync, open your trip once while you're online before you travel. Map areas you've already looked at are saved too, so look over the ones you'll need while you have wifi. Installing puts the app on your home screen and opens it full-screen like any other. On iPhone: tap the Share button, then “Add to Home Screen”."
+    >
+      <ul>
+        <Row label="Works offline">
+          {offline === "ready" ? (
+            <span className="inline-flex items-center gap-1 text-matcha"><Icon name="check" size={13} /> Ready</span>
+          ) : offline === "preparing" ? (
+            "Getting ready…"
+          ) : (
+            "Not available here"
+          )}
+        </Row>
+        {install.kind === "installed" && <Row label="Home screen">Installed</Row>}
+        {install.kind === "ios" && <Row label="Home screen">Share → Add to Home Screen</Row>}
+        {install.kind === "prompt" && (
+          <li className="p-3.5">
+            <button
+              onClick={() => { setInstalling(true); void install.install().finally(() => setInstalling(false)); }}
+              disabled={installing}
+              className="btn w-full"
+            >
+              <Icon name="download" size={15} /> Install app
+            </button>
+          </li>
+        )}
+      </ul>
+    </Section>
   );
 }
 

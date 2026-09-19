@@ -92,6 +92,22 @@ export default function Help() {
             </QA>
           </ul>
         </Section>
+
+        <Section title="Offline & installing">
+          <ul>
+            <QA q="Will it work without signal?">
+              Yes — once Manage → Trips → This device says “Ready”, the app opens with no signal at
+              all. A trip kept on this device works fully offline; if you sign in to sync, open your
+              trip once while you're online before you travel. Map areas you've already looked at
+              are saved too, so look over the ones you'll need while you still have wifi.
+            </QA>
+            <QA q="How do I put it on my home screen?">
+              On iPhone, tap the Share button in your browser, then “Add to Home Screen”. On Android
+              and desktop Chrome, Manage → Trips → This device has an “Install app” button. Either
+              way it then opens full-screen, like any other app.
+            </QA>
+          </ul>
+        </Section>
       </div>
     </Page>
   );
