@@ -75,18 +75,20 @@ export default function Manage() {
 function AppFooter() {
   const dark = useIsDark();
   return (
-    <footer className="mt-16 flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 border-t border-line pt-6 text-ink-faint">
-      <img
-        src={dark ? "/brand/logo-128-dark.png" : "/brand/logo-128-light.png"}
-        width={20}
-        height={20}
-        alt=""
-        className="rounded-[22%]"
-      />
-      <span className="font-display text-sm font-medium tracking-tight text-ink-soft">{APP_NAME}</span>
-      <span className="text-2xs">· {APP_TAGLINE}</span>
-      <span className="text-2xs">·</span>
-      <Link to="/help" className="text-2xs text-accent">Help &amp; FAQ</Link>
+    <footer className="mt-16 border-t border-line pt-6 text-center text-ink-faint">
+      <div className="flex items-center justify-center gap-2">
+        <img
+          src={dark ? "/brand/logo-128-dark.png" : "/brand/logo-128-light.png"}
+          width={20}
+          height={20}
+          alt=""
+          className="rounded-[22%]"
+        />
+        <span className="font-display text-sm font-medium tracking-tight text-ink-soft">{APP_NAME}</span>
+      </div>
+      <p className="mt-1 text-2xs">
+        {APP_TAGLINE} · <Link to="/help" className="text-accent">Help &amp; FAQ</Link>
+      </p>
     </footer>
   );
 }
@@ -897,7 +899,7 @@ function Appearance() {
               <button
                 key={p.id}
                 onClick={() => mutate((d) => { d.config.theme = structuredClone(p.tokens); d.config.themePreset = p.id; })}
-                className={`rounded border p-3 text-left transition-colors ${on ? "border-accent ring-1 ring-accent" : "border-line hover:bg-surface-2"}`}
+                className={`flex flex-col justify-start rounded border p-3 text-left transition-colors ${on ? "border-accent ring-1 ring-accent" : "border-line hover:bg-surface-2"}`}
               >
                 <div
                   className="mb-2 overflow-hidden rounded border p-2"
