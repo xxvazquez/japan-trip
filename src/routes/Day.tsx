@@ -37,8 +37,9 @@ import { useReadOnly } from "@/lib/readonly";
 import { dayKind, fmtDate, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink, gmapsRoute, mapUrlCoords } from "@/lib/maps";
-import { fmtWalk, fmtWalkMin, haversineKm } from "@/lib/geo";
-import { useWalk, estimateTransit } from "@/lib/walkRoute";
+import { fmtWalk, fmtWalkMin } from "@/lib/geo";
+import { useWalk } from "@/lib/walkRoute";
+import { useTransitRide } from "@/lib/transitRoute";
 import { nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
 import { nearestOpeningHours, type PlaceHours } from "@/lib/placeHours";
 import { hoursForDate } from "@/lib/openingHours";
@@ -841,11 +842,13 @@ function PlaceHoursLine({ place, date }: { place: Place; date?: string }) {
  *  came back empty is tried once more shortly after, since the public
  *  server drops the odd request. Past `LONG_WALK_MIN` to the next step, a
  *  third piece appears — the train leg between the nearest station at each
- *  end, as a link to Google Maps transit directions (same "no free keyless
- *  multi-modal API" reasoning as `ReturnToHotel`), labelled with a rough
- *  door-to-door total (`estimateTransit` for the ride itself, plus both walk
- *  legs) so the link isn't just two station names with no sense of the time
- *  they add up to. */
+ *  end, as a link to Google Maps transit directions (Google's own route is
+ *  still the one to actually follow — same "no card, no billing" reasoning
+ *  as `ReturnToHotel`), labelled with a rough door-to-door total: both walk
+ *  legs plus the ride itself from `useTransitRide` (HERE's scheduled transit
+ *  routing — a straight-line guess until/unless that's configured) so the
+ *  link isn't just two station names with no sense of the time they add up
+ *  to. */
 function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }) {
   const next = useWalk(place, nextPlace);
   const [station, setStation] = useState<NearbyStation | null>(null);
@@ -874,10 +877,9 @@ function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }
     return () => { cancelled = true; };
   }, [long, nextPlace?.id, nextPlace?.lat, nextPlace?.lng]);
   const fromNextStation = useWalk(nextPlace ?? { lat: 0, lng: 0 }, nextPlace ? nextStation : null);
+  const ride = useTransitRide(station ?? { lat: 0, lng: 0 }, station ? nextStation : null);
   const transitTotal =
-    station && nextStation && toStation && fromNextStation
-      ? toStation.min + estimateTransit(haversineKm(station.lat, station.lng, nextStation.lat, nextStation.lng)) + fromNextStation.min
-      : null;
+    toStation && ride && fromNextStation ? toStation.min + ride.min + fromNextStation.min : null;
   const piece = "flex min-w-0 items-start gap-1";
   return (
     <>

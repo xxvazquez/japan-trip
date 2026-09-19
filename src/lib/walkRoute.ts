@@ -23,15 +23,6 @@ export function estimateWalk(straightKm: number): WalkRoute {
   return { min: Math.max(1, Math.round((km / 4.8) * 60)), km };
 }
 
-/** A rough stand-in for the ride itself, between two stations: straight-line
- *  distance at a typical urban-rail speed (incl. stops), plus a flat few
- *  minutes for boarding/waiting/any transfer. Same reasoning as `estimateWalk`
- *  — there's no free keyless multi-modal API to ask for the real figure, and
- *  this is only ever shown behind a "≈". */
-export function estimateTransit(straightKm: number): number {
-  return Math.max(5, Math.round((straightKm / 28) * 60 + 6));
-}
-
 type LatLng = { lat: number; lng: number };
 
 const API_KEY = import.meta.env.VITE_ORS_API_KEY?.trim();
