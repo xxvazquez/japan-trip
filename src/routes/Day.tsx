@@ -792,7 +792,10 @@ function PlaceHoursLine({ place, date }: { place: Place; date?: string }) {
  *  as a pair (`useWalk`: estimate first, real route when it lands). The
  *  station comes from OpenStreetMap (`transitStation.ts`); a lookup that
  *  came back empty is tried once more shortly after, since the public
- *  server drops the odd request. */
+ *  server drops the odd request. Past `LONG_WALK_MIN` to the next step, a
+ *  third piece appears — the nearest station at each end, as a link to
+ *  Google Maps transit directions between them (same "no free keyless
+ *  multi-modal API" reasoning as `ReturnToHotel`). */
 function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }) {
   const next = useWalk(place, nextPlace);
   const [station, setStation] = useState<NearbyStation | null>(null);
@@ -811,6 +814,15 @@ function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }
   }, [place.id, place.lat, place.lng]);
   const toStation = useWalk(place, station);
 
+  const long = !!nextPlace && (!next || next.min > LONG_WALK_MIN);
+  const [nextStation, setNextStation] = useState<NearbyStation | null>(null);
+  useEffect(() => {
+    setNextStation(null);
+    if (!nextPlace || !long) return;
+    let cancelled = false;
+    void nearestStationLookup(nextPlace.lat, nextPlace.lng).then((s) => { if (!cancelled) setNextStation(s); });
+    return () => { cancelled = true; };
+  }, [long, nextPlace?.id, nextPlace?.lat, nextPlace?.lng]);
   const piece = "flex min-w-0 items-start gap-1";
   return (
     <>
@@ -827,6 +839,18 @@ function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }
               <Icon name="train" size={12} className="mt-[3px] shrink-0" />
               <span className="min-w-0">{fmtWalk(toStation)} · {station.name}</span>
             </span>
+          )}
+          {long && nextPlace && station && nextStation && station.name !== nextStation.name && (
+            <a
+              href={gmapsRoute(`${place.lat},${place.lng}`, `${nextPlace.lat},${nextPlace.lng}`, "transit")}
+              target="_blank"
+              rel="noopener"
+              className={`${piece} text-accent`}
+              aria-label={`Transit directions from ${station.name} to ${nextStation.name}`}
+            >
+              <Icon name="train" size={12} className="mt-[3px] shrink-0" />
+              <span className="min-w-0">{station.name} → {nextStation.name}</span>
+            </a>
           )}
         </span>
       )}
