@@ -28,6 +28,10 @@ export interface IcsOptions {
 const escText = (s: string): string =>
   s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
 
+/** URL is a URI value, not TEXT — escaping its commas and semicolons would
+ *  break the link. Only line breaks can't appear in it. */
+const uriValue = (s: string): string => s.replace(/[\r\n]+/g, "");
+
 /** RFC 5545 line folding — wraps a content line at ~74 octets so it survives
  *  parsers that reject long lines; a continuation line starts with a space. */
 function foldLine(line: string): string {
@@ -114,7 +118,9 @@ function planItemTiming(item: PlanItem, day: Day, tz: string): EventTiming {
   const single = range ? null : singleTime(item.time);
   if (range) {
     const start = zonedTimeToUtc(day.date, range[0], tz);
-    const end = zonedTimeToUtc(day.date, range[1], tz);
+    let end = zonedTimeToUtc(day.date, range[1], tz);
+    // "22:00–01:00" runs past midnight — its end is on the next day
+    if (start && end && end <= start) end = zonedTimeToUtc(addDays(day.date, 1), range[1], tz);
     if (start && end) return { allDay: false, start, end };
   } else if (single) {
     const start = zonedTimeToUtc(day.date, single, tz);
@@ -174,9 +180,9 @@ function planItemEvent(item: PlanItem, day: Day, tz: string, place: Place | unde
   if (place) {
     lines.push(`LOCATION:${escText(place.name)}`);
     if (Number.isFinite(place.lat) && Number.isFinite(place.lng)) lines.push(`GEO:${place.lat};${place.lng}`);
-    if (place.url) lines.push(`URL:${escText(place.url)}`);
+    if (place.url) lines.push(`URL:${uriValue(place.url)}`);
   } else if (item.url) {
-    lines.push(`URL:${escText(item.url)}`);
+    lines.push(`URL:${uriValue(item.url)}`);
   }
   lines.push("END:VEVENT");
   return lines;
