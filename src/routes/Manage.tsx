@@ -8,7 +8,7 @@ import { useApp, undoable } from "@/store/useApp";
 import { useData } from "@/lib/data";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import { useIsDark } from "@/lib/mode";
-import { APP_NAME, APP_TAGLINE } from "@/lib/app";
+import { APP_BUILD, APP_NAME, APP_TAGLINE } from "@/lib/app";
 import { tripLogoSrc } from "@/components/Wordmark";
 import { daysBetween, plural, rangeText } from "@/lib/dates";
 import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
@@ -91,6 +91,9 @@ function AppFooter() {
       </div>
       <p className="mt-1 text-2xs">
         {APP_TAGLINE} · <Link to="/help" className="text-accent">Help &amp; FAQ</Link>
+      </p>
+      <p className="mt-1 text-2xs tabular-nums" title="The build this device is running">
+        Build {APP_BUILD.commit} · {new Date(APP_BUILD.built).toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
       </p>
     </footer>
   );

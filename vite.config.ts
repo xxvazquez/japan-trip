@@ -2,8 +2,26 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import { fileURLToPath, URL } from "node:url";
+import { execSync } from "node:child_process";
 
-export default defineConfig({
+/** which commit this bundle was built from — Cloudflare's build sets the SHA;
+ *  locally it's read from git. Shown in Manage so it's easy to tell whether a
+ *  device is running the latest deploy. */
+function buildCommit(): string {
+  const ci = process.env.WORKERS_CI_COMMIT_SHA || process.env.CF_PAGES_COMMIT_SHA;
+  if (ci) return ci.slice(0, 7);
+  try {
+    return execSync("git rev-parse --short=7 HEAD", { stdio: ["ignore", "pipe", "ignore"] }).toString().trim();
+  } catch {
+    return "unknown";
+  }
+}
+
+export default defineConfig(({ command }) => ({
+  define: {
+    __APP_COMMIT__: JSON.stringify(command === "serve" ? `${buildCommit()} (dev)` : buildCommit()),
+    __APP_BUILT__: JSON.stringify(new Date().toISOString()),
+  },
   resolve: {
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },
@@ -94,4 +112,4 @@ export default defineConfig({
       devOptions: { enabled: false },
     }),
   ],
-});
+}));

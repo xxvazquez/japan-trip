@@ -18,3 +18,7 @@ interface ImportMeta {
 interface Document {
   startViewTransition?: (cb: () => void | Promise<void>) => { finished: Promise<void> };
 }
+
+/** injected at build time by vite.config.ts */
+declare const __APP_COMMIT__: string;
+declare const __APP_BUILT__: string;

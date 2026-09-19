@@ -4,6 +4,10 @@
 export const APP_NAME = "Zuknesst Atlas";
 export const APP_TAGLINE = "A private, offline-first travel atlas";
 
+/** the build this device is running — the commit it came from and when it was
+ *  built (see `vite.config.ts`). Shown at the foot of Manage. */
+export const APP_BUILD = { commit: __APP_COMMIT__, built: __APP_BUILT__ } as const;
+
 export const STORAGE_KEYS = {
   atlas: "atlas", // { trips: TripSummary[], activeTripId }
   trip: (id: string) => `trip:${id}`,
