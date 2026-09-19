@@ -97,7 +97,8 @@ never chosen by hand.
   - **+ Add a step** at the foot of the list — so a long day's plan doesn't need a scroll back to
     the top to add the next thing.
 - Below the itinerary: **Areas** (drop a whole neighbourhood's pins onto the map — a chip's **×**
-  asks first), a **Spending** list (a category and a whole number per row, plus an optional note;
+  asks first; **+ Add area** offers just the areas in this day's own city, so a multi-city trip
+  doesn't dump every area into one list), a **Spending** list (a category and a whole number per row, plus an optional note;
   subtotalled and fed to Expenses), and free-text **General notes**.
 - Every section on the day page folds away from its header.
 
