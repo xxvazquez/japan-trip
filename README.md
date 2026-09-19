@@ -80,7 +80,7 @@ never chosen by hand.
     to replan by eye, not a warning: nothing is flagged as a conflict, and plenty of places simply
     aren't tagged, so this is a bonus when it's there, not something to rely on.
   - the day closes with a **Back to <hotel>** row under the last step — the way home to wherever you're
-    staying that day (the day's own hotel, else its stay's). When the last step is tied to a place it
+    staying that day (the day's own hotel, else its stay's), left off on a departure day. When the last step is tied to a place it
     shows the walk there (time and distance, e.g. "≈ 1h 37min · 7.7 km") and, once that's a long
     walk, the two stations to head between ("Tsukiji → Asakusa"); the hotel's
     coordinates come from its address automatically. Tapping the row opens Google Maps directions — transit for a

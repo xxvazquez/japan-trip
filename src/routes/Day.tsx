@@ -32,7 +32,7 @@ import { toneForPlaceCategory } from "@/lib/tones";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { fmtDate, plural } from "@/lib/dates";
+import { dayKind, fmtDate, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink, gmapsRoute, mapUrlCoords } from "@/lib/maps";
 import { fmtWalk } from "@/lib/geo";
@@ -287,7 +287,7 @@ export default function Day() {
           title="Plan"
           info="Drag to reorder. Pick a place from an Area you've added below, or Custom for anything else — tap the note line under it to add one."
         >
-          <PlanList day={day} returnHotel={weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} onQuickAddCost={quickAddCost} />
+          <PlanList day={day} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} onQuickAddCost={quickAddCost} />
         </Section>
       )}
 
