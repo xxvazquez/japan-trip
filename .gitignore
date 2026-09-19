@@ -17,3 +17,7 @@ dist-noauth/
 
 # the map extract is hosted on R2, never committed (see "The map background" in README)
 *.pmtiles
+
+# personal trip files kept locally, not part of the app
+china/
+to_know/
