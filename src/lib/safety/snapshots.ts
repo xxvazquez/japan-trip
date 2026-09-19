@@ -337,3 +337,35 @@ export async function latestValidSnapshot(
   }
   return null;
 }
+
+/* ------------------------------------------------------------------ retention */
+
+/** Restore points of a trip that no longer exists are kept this long (the
+ *  "Recently deleted" window), then removed so they don't pile up for ever. */
+export const DELETED_KEEP_DAYS = 90;
+
+/**
+ * Remove the restore points of trips that were deleted more than
+ * `DELETED_KEEP_DAYS` ago — judged by the newest restore point of each such
+ * trip, so a trip that's still in `knownTripIds` is never touched. Device ring
+ * always; the account's copies too when `cloud`. Best effort, never throws.
+ */
+export async function purgeDeletedTripSnapshots(knownTripIds: Iterable<string>, opts: { cloud?: boolean; now?: number } = {}): Promise<number> {
+  const known = new Set(knownTripIds);
+  const cutoff = (opts.now ?? Date.now()) - DELETED_KEEP_DAYS * 86_400_000;
+  let removed = 0;
+  try {
+    const newest = new Map<string, number>();
+    const keys = await deviceKeys();
+    for (const k of keys) if (!known.has(k.tripId)) newest.set(k.tripId, Math.max(newest.get(k.tripId) ?? 0, k.ts));
+    for (const [tripId, ts] of newest) {
+      if (ts >= cutoff) continue;
+      for (const k of keys.filter((x) => x.tripId === tripId)) { await kv.del(k.key).catch(() => {}); removed++; }
+      lastDevice.delete(tripId);
+    }
+  } catch { /* storage unreadable — nothing purged */ }
+  if (opts.cloud) {
+    try { removed += await db.purgeCloudSnapshots(known, cutoff); } catch { /* offline / not set up */ }
+  }
+  return removed;
+}

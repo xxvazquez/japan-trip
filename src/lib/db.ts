@@ -411,6 +411,19 @@ export async function pruneCloudSnapshots(tripId: string, keepAuto: number, keep
   }
 }
 
+/** Remove the account's restore points for trips that no longer exist and whose
+ *  newest restore point is older than `cutoff` (ms). Returns how many went. */
+export async function purgeCloudSnapshots(knownTripIds: Set<string>, cutoff: number): Promise<number> {
+  const sb = await client();
+  const rows = (check(await sb.from("trip_snapshots").select("id,trip_id,created_at").order("created_at", { ascending: false }).limit(500)) ?? []) as
+    { id: string; trip_id: string; created_at: string }[];
+  const byTrip = new Map<string, { id: string; at: number }[]>();
+  for (const r of rows) if (!knownTripIds.has(r.trip_id)) byTrip.set(r.trip_id, [...(byTrip.get(r.trip_id) ?? []), { id: r.id, at: Date.parse(r.created_at) }]);
+  const drop = [...byTrip.values()].filter((l) => Math.max(...l.map((x) => x.at)) < cutoff).flatMap((l) => l.map((x) => x.id));
+  for (let i = 0; i < drop.length; i += 50) check(await sb.from("trip_snapshots").delete().in("id", drop.slice(i, i + 50)));
+  return drop.length;
+}
+
 /* ------------------------------------------------------------------ in-place restore */
 
 const CHUNK = 200;

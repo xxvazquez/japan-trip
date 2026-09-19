@@ -7,6 +7,8 @@ import {
   readSnapshot,
   latestValidSnapshot,
   resetSnapshotMemory,
+  purgeDeletedTripSnapshots,
+  DELETED_KEEP_DAYS,
   LIMITS,
 } from "./snapshots";
 import type { TripData } from "@/core/types";
@@ -116,5 +118,22 @@ describe("latestValidSnapshot", () => {
 
   it("returns null when there are no restore points", async () => {
     expect(await latestValidSnapshot("no-such-trip")).toBeNull();
+  });
+});
+
+describe("purgeDeletedTripSnapshots", () => {
+  const day = 86_400_000;
+  it("removes restore points of trips deleted longer ago than the window, keeps recent ones and live trips", async () => {
+    const t = buildBlank("x");
+    for (const id of ["gone-old", "alive"]) await takeDeviceSnapshot(id, t, "manual", { force: true });
+    const future = Date.now() + (DELETED_KEEP_DAYS + 1) * day;
+    const removed = await purgeDeletedTripSnapshots(["alive"], { now: future }); // both are old by then; only one is a deleted trip
+    expect(removed).toBeGreaterThan(0);
+    expect(await listDeviceSnapshots("gone-old")).toHaveLength(0);
+    expect((await listDeviceSnapshots("alive")).length).toBe(1);
+    // a trip deleted just now keeps its restore points
+    await takeDeviceSnapshot("gone-new", t, "before-delete", { force: true });
+    expect(await purgeDeletedTripSnapshots([], { now: Date.now() })).toBe(0);
+    expect((await listDeviceSnapshots("gone-new")).length).toBe(1);
   });
 });

@@ -10,7 +10,7 @@ import { normalizeTrip } from "@/lib/hydrate";
 import { fmtDate, rangeText, shiftDate } from "@/lib/dates";
 import { TripLoadError, SaveBlockedError, StorageError, type LoadFailure } from "@/lib/safety/errors";
 import { validateTrip, describeProblems } from "@/lib/safety/validate";
-import { takeSnapshot, ensureBackedUp, readSnapshot, type SnapshotMeta } from "@/lib/safety/snapshots";
+import { takeSnapshot, ensureBackedUp, readSnapshot, purgeDeletedTripSnapshots, type SnapshotMeta } from "@/lib/safety/snapshots";
 import { quarantine } from "@/lib/safety/quarantine";
 import { onSavedElsewhere, isTabAlive, TAB_ID } from "@/lib/safety/crossTab";
 import type { Day, Doc, EntityType, MediaItem, Place, TripData, TripSummary } from "@/core/types";
@@ -973,6 +973,8 @@ export const useApp = create<AppStore>((set, get) => {
           return;
         }
         set({ bootError: false });
+        // long-deleted trips' restore points age out (the trip list just read is authoritative)
+        void purgeDeletedTripSnapshots(trips.map((t) => t.id), { cloud: be.kind === "supabase" });
 
         if (trips.length) {
           const id = activeId && trips.some((t) => t.id === activeId)

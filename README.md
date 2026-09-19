@@ -350,7 +350,7 @@ checksummed copies of a trip — so a crash, a bad save or a wrong tap never cos
   adds it alongside and touches nothing. **Recently deleted** lists trips you deleted, with a Restore.
   **Back up now** takes one on demand.
 - **Deleting a trip** first makes a restore point that outlives it; if one can't be made, the trip is
-  not deleted.
+  not deleted. Restore points of a deleted trip are kept for 90 days, then cleared.
 - **If a trip's data is damaged** the app opens a recovery screen instead of an empty trip: it keeps a
   copy of the damaged data, offers the newest good restore point, and lets you open another trip. It
   never replaces your data with a blank or default trip.
