@@ -1,6 +1,7 @@
 import type { Map as MLMap } from "maplibre-gl";
 import { haversineKm } from "./geo";
 import { overpass, readPersisted, writePersisted } from "./overpass";
+import { nominatimGet } from "./nominatim";
 
 /**
  * "What's the nearest metro/train station to this place?" — read first from
@@ -59,22 +60,13 @@ export function nearestStationFromMap(map: MLMap, lat: number, lng: number): Nea
  *  the network (a found station is also kept across reloads, see below) */
 const lookupCache = new Map<string, NearbyStation | null>();
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-let nominatimChain: Promise<unknown> = Promise.resolve();
-/** Nominatim asks for at most one request a second */
-function nominatimSlot<T>(fn: () => Promise<T>): Promise<T> {
-  const run = nominatimChain.then(fn, fn);
-  nominatimChain = run.then(() => sleep(1100), () => sleep(1100));
-  return run;
-}
-
 /** The same question put to Nominatim (the app's own place search): every
  *  railway station inside a ~1 km box, nearest wins. Slower to be exact than
  *  Overpass but a different server, so it answers when Overpass doesn't. */
 async function stationsFromNominatim(lat: number, lng: number): Promise<NearbyStation[]> {
   const dLat = SEARCH_RADIUS_KM / 111;
   const dLng = SEARCH_RADIUS_KM / (111 * Math.max(0.2, Math.cos((lat * Math.PI) / 180)));
-  const params = new URLSearchParams({
+  const params = {
     q: "station",
     format: "jsonv2",
     limit: "20",
@@ -82,20 +74,16 @@ async function stationsFromNominatim(lat: number, lng: number): Promise<NearbySt
     bounded: "1",
     addressdetails: "0",
     namedetails: "1",
-  });
-  const rows = await nominatimSlot(async () => {
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, { headers: { "Accept-Language": "en" } });
-    if (!res.ok) throw new Error(String(res.status));
-    return (await res.json()) as {
-      name?: string;
-      category?: string;
-      class?: string;
-      type?: string;
-      lat: string;
-      lon: string;
-      namedetails?: Record<string, string>;
-    }[];
-  });
+  };
+  const rows = await nominatimGet<{
+    name?: string;
+    category?: string;
+    class?: string;
+    type?: string;
+    lat: string;
+    lon: string;
+    namedetails?: Record<string, string>;
+  }[]>("search", params);
   const out: NearbyStation[] = [];
   for (const r of rows) {
     if ((r.category ?? r.class) !== "railway" || (r.type !== "station" && r.type !== "halt")) continue;

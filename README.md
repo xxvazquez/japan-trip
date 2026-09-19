@@ -80,7 +80,7 @@ never chosen by hand.
     step that isn't tied to a place has no position to measure from, so it shows neither figure.
   - if the linked place has opening hours tagged on OpenStreetMap, the hours **for that day** sit at
     the right end of the tile/time row (e.g. "09:00–17:00") — always in the same spot. The app reads
-    the place's tagged schedule and picks the rule that covers the day's date (its month and
+    the place's tagged schedule (from Overpass, or from a Nominatim search by the place's name when Overpass fails) and picks the rule that covers the day's date (its month and
     weekday), so a seasonal or weekday-only schedule shows just what applies, "Closed" on an
     explicit closed date, and nothing when no rule covers that date. Anything it can't read
     reliably (holiday rules aside, which are skipped) shows the tagged text as-is instead. An FYI

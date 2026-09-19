@@ -758,7 +758,7 @@ function PlaceHoursLine({ place, date }: { place: Place; date?: string }) {
   useEffect(() => {
     setHours(null);
     let cancelled = false;
-    void nearestOpeningHours(place.lat, place.lng).then((h) => { if (!cancelled) setHours(h); });
+    void nearestOpeningHours(place.lat, place.lng, place.name).then((h) => { if (!cancelled) setHours(h); });
     return () => { cancelled = true; };
   }, [place.id, place.lat, place.lng]);
   const text = hours ? (date ? hoursForDate(hours.hours, date) : hours.hours) : null;
