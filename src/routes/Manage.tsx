@@ -300,11 +300,11 @@ function ThisDevice() {
         {install.kind === "installed" && <Row label="Home screen">Installed</Row>}
         {install.kind === "ios" && <Row label="Home screen">Share → Add to Home Screen</Row>}
         {install.kind === "prompt" && (
-          <li className="p-3.5">
+          <li>
             <button
               onClick={() => { setInstalling(true); void install.install().finally(() => setInstalling(false)); }}
               disabled={installing}
-              className="btn w-full"
+              className="action w-full px-3.5 py-2.5 disabled:opacity-50"
             >
               <Icon name="download" size={15} /> Install app
             </button>
