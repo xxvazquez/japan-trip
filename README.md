@@ -596,6 +596,13 @@ Tiles come back as plain `200`s, so the service worker caches them
 paints instantly and works fully offline. Only brand-new regions touch the network. Label fonts are
 cached the same way (`map-glyphs`).
 
+A day page's **Areas** section has a **Download offline maps** action that walks every tile the day's
+places (its areas, its own plan steps, its hotel) cover — padded ~700m, at the zoom levels the map
+actually renders — so that corner of the map works offline before you've ever panned around it
+([`src/lib/offlineTiles.ts`](src/lib/offlineTiles.ts)). Only shows up with the hosted API configured:
+the self-hosted/fallback pmtiles sources read byte ranges out of one archive, not separate cacheable
+requests, so there's nothing to pre-fetch.
+
 ### 2. Self-hosted extract — `VITE_MAP_TILES_URL`
 
 A single `.pmtiles` file you host yourself. Only covers the geographic box you extracted, and range

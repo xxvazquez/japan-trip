@@ -43,6 +43,7 @@ import { nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
 import { nearestOpeningHours, type PlaceHours } from "@/lib/placeHours";
 import { hoursForDate } from "@/lib/openingHours";
 import { fetchDayWeather, weatherLabel, type DayWeather } from "@/lib/weather";
+import { prefetchTiles, canPrefetchTiles, type LatLng } from "@/lib/offlineTiles";
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import type { Day as DayT, DayCost, ExpenseCategory, Hotel, PlanItem, Place, TripData } from "@/core/types";
@@ -152,6 +153,23 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     void fetchDayWeather(weatherHotel.lat, weatherHotel.lng, day.date).then((w) => { if (!cancelled) setWeather(w); });
     return () => { cancelled = true; };
   }, [weatherHotel?.lat, weatherHotel?.lng, day.date]);
+
+  // offline pre-fetch — every place this day's map shows (its areas, its own
+  // plan steps, the hotel it's anchored to), so the day's corner of the map
+  // works offline before you've ever panned around it
+  const offlinePoints: LatLng[] = [
+    ...areaPlaces.map((p) => ({ lat: p.lat, lng: p.lng })),
+    ...dayPlaces.map((p) => ({ lat: p.lat, lng: p.lng })),
+    ...(weatherHotel?.lat !== undefined && weatherHotel?.lng !== undefined ? [{ lat: weatherHotel.lat, lng: weatherHotel.lng }] : []),
+  ];
+  const { busy: offlineBusy, msg: offlineMsg, run: runOffline } = useAsyncAction("Couldn't cache the map tiles.");
+  const downloadOfflineMaps = () =>
+    runOffline(async () => {
+      const { ok, truncated } = await prefetchTiles(offlinePoints);
+      return truncated
+        ? `Cached ${ok} tiles — this area is large, so the far edges were left out.`
+        : `Cached ${ok} map tiles for offline use.`;
+    });
 
   const setCosts = (next: DayCost[]) => patch({ costs: next.length ? next : undefined });
   // the wallet icon on a plan row: add a cost prefilled with that step's name,
@@ -386,7 +404,13 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
                 </ActionSheet>
               </>
             )}
+            {canPrefetchTiles && offlinePoints.length > 0 && (
+              <button onClick={downloadOfflineMaps} disabled={offlineBusy} className="action">
+                <Icon name="download" size={12} /> {offlineBusy ? "Caching…" : "Download offline maps"}
+              </button>
+            )}
           </div>
+          {offlineMsg && <p className="meta px-3.5 pb-3">{offlineMsg}</p>}
         </Section>
       )}
 
