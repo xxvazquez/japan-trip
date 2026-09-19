@@ -127,8 +127,10 @@ places grouped and foldable by area once a city's picked.
   imported pins that fall nearest to it, within about 60 km — "nearest" measured from the stay's
   **hotel** (its coordinates, worked out automatically — taken from its Maps link when that carries them, otherwise geocoded from the address once, wherever you are in the app; nothing to set by hand) or,
   failing that, the places its days already use. A pin farther than that from every stay belongs to
-  no city and shows only on **All**. A stay gets a pill once its hotel has coordinates, or once it has
-  a pin to show.
+  no city and shows only on **All** — or if a stay has no hotel and no days yet, it has nothing to
+  measure from and can't claim any pins at all. Either way, open the pin's card and set **City** by
+  hand (**Auto** or a specific stay) to fix it. A stay gets a pill once its hotel has coordinates, or
+  once it has a pin to show.
 - **＋ Add place** sits next to the pills, always one tap — search for somewhere, or tap the map to
   drop a pin.
 - Once a city is picked, its areas list below as their own rows — tap a row to fold or unfold its
@@ -138,9 +140,10 @@ places grouped and foldable by area once a city's picked.
   their own row opens or shuts them; what you've opened is remembered for next time (per trip), and
   picking a pin on the map never springs an area open.
 - Tapping a place — in the list or on the map — puts it in a **card at the top of the list**, in
-  iOS-style rows: its name, a note, the **Areas** it belongs to (tap for a checklist), Open in Google
-  Maps, the day it's on (or **Add to a day**), and Remove. Rows in the list stay two lines: the name
-  and how far it is to the nearest station.
+  iOS-style rows: its name, a note, the **Areas** it belongs to (tap for a checklist), its **City**
+  (**Auto** by default; pick a stay to override the automatic guess), Open in Google Maps, the day
+  it's on (or **Add to a day**), and Remove. Rows in the list stay two lines: the name and how far it
+  is to the nearest station.
 - The map's resize handles are visible: a grabber on the phone sheet (drag it, or tap to step through
   the three heights) and a grip on the divider of the desktop panel.
 - **Filters** opens a sheet with **category** and **transit** — real filtering, so it overlays the
@@ -309,9 +312,43 @@ move one to another device.
 
 **Restore from backup** (Manage → Trips) reads that file back in as a **new trip** and opens it. It
 never overwrites a trip you already have; if the name is taken the copy is called "… (restored)". A
-file that isn't a backup, or was made by a newer version of the app, is refused with a message.
+file that isn't a backup, is empty, was cut off or edited after it was saved (each backup carries a
+checksum), or was made by a newer version of the app, is refused with a message — and a backup is
+read back and checked before the download is offered, so you never get a file that can't be restored.
 Attached document files aren't inside the backup: ones stored in Google Drive still open from
 anywhere, ones saved only on a device stay on that device.
+
+### Data safety
+
+Every edit saves as you make it. On top of that the app keeps **restore points** — complete,
+checksummed copies of a trip — so a crash, a bad save or a wrong tap never costs you the trip.
+
+- **When they're taken.** Automatically while you edit (at most every few minutes; the newest 12 are
+  kept), and always *before* something risky: deleting a trip, restoring over one, syncing offline
+  edits onto the server, and — for a device-only trip — an app update that reshapes your data or a
+  save that would remove more than half the trip. Those "before…" ones are kept separately (newest
+  10) so a burst of edits can't push them out.
+- **Where they live.** In your account (Supabase, so they survive losing the phone — and outlive the
+  trip itself; needs migration `0026` applied) and on the device (works offline, and is the only kind
+  a device-only trip has).
+- **Get one back.** **Manage → Sharing → Data safety** lists them: *Restore over this trip* puts it
+  back exactly as it was (what was there is kept as a restore point first), *Restore as a new trip*
+  adds it alongside and touches nothing. **Recently deleted** lists trips you deleted, with a Restore.
+  **Back up now** takes one on demand.
+- **Deleting a trip** first makes a restore point that outlives it; if one can't be made, the trip is
+  not deleted.
+- **If a trip's data is damaged** the app opens a recovery screen instead of an empty trip: it keeps a
+  copy of the damaged data, offers the newest good restore point, and lets you open another trip. It
+  never replaces your data with a blank or default trip.
+- **If a save fails** (out of storage, a dropped connection) your changes stay on screen and a banner
+  or the header says so; the app keeps retrying, and edits that hadn't reached the server survive a
+  reload or a closed tab.
+- **A save that would wipe a device-only trip entirely is refused outright**, not just flagged — a copy
+  of the last good version is kept and the banner offers **Save anyway** if that's really what you meant.
+- **Newer data, older app.** An older version of the app refuses to open a trip a newer one has
+  written ("reload to update") rather than rewriting it in a shape it doesn't understand.
+
+Before applying a migration that rewrites existing data, use **Back up now** on each trip.
 
 ### Offline and installing
 
@@ -417,6 +454,25 @@ edit in the UI  →  TripData (in memory)  →  backend
 The Supabase client is code-split — never downloaded unless a project is configured. So is the
 MapLibre bundle (only the Map section pulls it in).
 
+**Data-safety layer** (`src/lib/safety/`, used by the store and both backends):
+
+- `validate.ts` — shape checks at every trust boundary (before a save, after a load, on a backup file,
+  on a restore point), item counts, a content hash.
+- `snapshots.ts` — restore points: a device ring in IndexedDB and cloud rows in `trip_snapshots`
+  (migration `0026`, no foreign key to `trips` so they outlive a deleted trip). Also `ensureBackedUp`,
+  the "no delete without a backup" gate.
+- `quarantine.ts` — anything that fails validation is copied here before it's touched; a load never
+  deletes or overwrites the original.
+- `errors.ts` — typed failures. A backend's `loadTrip` throws `TripLoadError` (`unavailable` /
+  `corrupt` / `missing` / `newer`) instead of returning `null` or a default, so "couldn't read it"
+  can never look like "empty" and trigger seeding over real data.
+- `storage.ts` — `get` returns `undefined` only when a key is truly absent; a failed or unparseable
+  read, or a failed write (quota), throws. The device backend validates every save, refuses to
+  replace a trip with nothing, reads each write back, serialises saves per trip, and keeps a restore
+  point of anything it's about to replace that another tab changed.
+- The Supabase outbox (unconfirmed edits, mirrored to IndexedDB) covers batches *in flight* as well as
+  queued ones, and its writes are ordered so a stale write can't resurrect synced ops.
+
 ## Getting started
 
 ```bash
@@ -431,6 +487,7 @@ npm run dev            # http://localhost:5173
 | `npm run build` | production build → `dist/` |
 | `npm run preview` | serve the build |
 | `npm run typecheck` | `tsc --noEmit` |
+| `npm test` | `vitest run` — unit tests for the data-safety layer (`src/lib/safety/`) |
 
 ### `.env.local`
 
@@ -454,7 +511,7 @@ pushes back, and every route is remembered on the device, so a page only asks fo
 ## Setting up Supabase
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. **SQL Editor** → run every file in `supabase/migrations/` **in order** (`0001` → `0025`).
+2. **SQL Editor** → run every file in `supabase/migrations/` **in order** (`0001` → `0027`).
 3. **Authentication → Providers → Google** → enable, paste a Google Cloud OAuth client id / secret,
    redirect `https://<project-ref>.supabase.co/auth/v1/callback`.
 4. **Authentication → URL Configuration → Redirect URLs** → add `http://localhost:5173` and the

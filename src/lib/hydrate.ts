@@ -216,6 +216,19 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
 
   for (const k of ENTITY_KEYS) {
     if (!Array.isArray((d as Record<string, unknown>)[k])) (d as Record<string, unknown>)[k] = [];
+    // a row with no id can't be saved to (or matched in) the database — give it
+    // one rather than lose it. Rows that aren't objects at all are left for
+    // validation to reject; they're never silently dropped here.
+    for (const row of (d as Record<string, unknown>)[k] as unknown[]) {
+      const r = row as { id?: unknown } | null;
+      if (r && typeof r === "object" && (typeof r.id !== "string" || !r.id)) r.id = `${k}-${fieldId()}`;
+    }
+  }
+  for (const j of d.journeys as { segments?: unknown }[]) {
+    if (j && typeof j === "object" && !Array.isArray(j.segments)) j.segments = [];
+  }
+  for (const a of d.areas as { placeIds?: unknown }[]) {
+    if (a && typeof a === "object" && !Array.isArray(a.placeIds)) a.placeIds = [];
   }
 
   // v10: the Scratchpad's single free-text `scratch` string became multiple
@@ -332,6 +345,10 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
   if (!(d.docs as Doc[]).some((doc) => doc.kind === "contact")) {
     (d.docs as Doc[]).push({ id: `docs-${fieldId()}`, title: "Emergency contacts", kind: "contact", fields: [] });
   }
+
+  // migrated: from here on this is current-shape data (callers that want a
+  // pre-migration backup read the old `v` off the raw input before calling)
+  d.v = SCHEMA_VERSION;
 
   return d as T;
 }

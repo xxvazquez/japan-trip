@@ -33,6 +33,7 @@ import { RowMenu } from "@/components/RowMenu";
 import { MODE_LABEL } from "@/lib/transport";
 import { fallbackCategoryId } from "@/lib/hydrate";
 import { BackupError, downloadBackup, parseBackup } from "@/lib/tripBackup";
+import { DataSafety } from "@/components/DataSafety";
 import { useInstallState, useOfflineState } from "@/lib/pwa";
 import { expenseCategoryIcon, categoryGlyphTile } from "@/lib/cost";
 import type { TransportMode } from "@/core/types";
@@ -344,7 +345,14 @@ function BackupTrip() {
       info="A complete copy of this trip as a .json file — every stay, day, place and setting, including private details like booking references and wifi, so keep it somewhere you trust. To bring it back (on this device or another), use Restore from backup on the Trips tab; it's added as a new trip and never overwrites one you have. Attached document files aren't inside the backup: ones stored in Google Drive still open from anywhere, ones saved only on this device stay on this device."
     >
       <ul>
-        <ActionRow icon="download" label="Download backup (.json)" onClick={() => downloadBackup(data)} />
+        <ActionRow
+          icon="download"
+          label="Download backup (.json)"
+          onClick={() => {
+            try { downloadBackup(data); }
+            catch (e) { useApp.setState({ notice: { tone: "error", text: e instanceof Error ? e.message : "Couldn’t make the backup." } }); }
+          }}
+        />
       </ul>
     </Section>
   );
@@ -1080,6 +1088,7 @@ function SharingTab() {
 
       <ExportTrip />
       <BackupTrip />
+      <DataSafety />
     </div>
   );
 }

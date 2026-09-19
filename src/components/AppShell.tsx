@@ -9,6 +9,7 @@ import { Loader } from "./Loader";
 import { Icon } from "./Icon";
 import { Wordmark } from "./Wordmark";
 import { UndoToast } from "./UndoToast";
+import { SafetyBanner } from "./SafetyBanner";
 import { SplitMap, useSplit } from "./SplitMap";
 import { useData } from "@/lib/data";
 import { useReadOnly } from "@/lib/readonly";
@@ -97,6 +98,8 @@ export function AppShell() {
           </div>
         </div>
       </header>
+
+      <SafetyBanner />
 
       {demo && (
         <div className="sticky top-14 z-20 flex h-9 items-center justify-center gap-1 border-b border-line bg-surface-2 px-4 text-center text-xs text-ink-soft sm:px-6">

@@ -1,13 +1,18 @@
 import { create } from "zustand";
 import { buildFromTemplate, buildDemo, buildSandbox } from "@/templates/registry";
 import { sandboxMode } from "@/lib/supabase";
-import { pickBackend, needsAuth, remapIds } from "@/lib/backend";
+import { pickBackend, needsAuth, remapIds, type Backend } from "@/lib/backend";
 import { isAuthReady } from "@/lib/auth";
 import { subscribeTrip, unsubscribeTrip, markWritten } from "@/lib/realtime";
 import { store as kv } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/app";
 import { normalizeTrip } from "@/lib/hydrate";
 import { fmtDate, rangeText, shiftDate } from "@/lib/dates";
+import { TripLoadError, SaveBlockedError, StorageError, type LoadFailure } from "@/lib/safety/errors";
+import { validateTrip, describeProblems } from "@/lib/safety/validate";
+import { takeSnapshot, ensureBackedUp, readSnapshot, type SnapshotMeta } from "@/lib/safety/snapshots";
+import { quarantine } from "@/lib/safety/quarantine";
+import { onSavedElsewhere } from "@/lib/safety/crossTab";
 import type { Day, EntityType, MediaItem, Place, TripData, TripSummary } from "@/core/types";
 
 const now = () => new Date().toISOString();
@@ -33,8 +38,39 @@ export interface SyncIssue {
   id?: string;
 }
 
+/** The active trip couldn't be opened safely. While set, `data` is null and the
+ *  recovery screen takes over — the app never substitutes an empty trip. */
+export interface LoadIssue {
+  kind: LoadFailure;
+  message: string;
+  tripId: string;
+}
+
+/** A message about the safety of the user's data that needs to stay on screen
+ *  until it's dealt with (a save that keeps failing, a delete that was refused). */
+export interface SafetyNotice {
+  tone: "error" | "warn";
+  text: string;
+  /** what the banner offers besides dismissing */
+  action?: "retry" | "save-anyway";
+}
+
 interface AppStore {
   hydrated: boolean;
+  /** set when the active trip's data couldn't be opened — drives the recovery screen */
+  loadIssue: LoadIssue | null;
+  notice: SafetyNotice | null;
+  dismissNotice: () => void;
+  /** try the failed device save again now */
+  retrySave: () => void;
+  /** save even though it would empty the trip (a restore point is kept first) */
+  saveAnyway: () => void;
+  /** Bring a restore point back. "replace" rewrites this trip's contents
+   *  (a restore point of the current state is taken first); "copy" adds it as a
+   *  new trip and touches nothing that exists. */
+  restoreSnapshot: (meta: SnapshotMeta, mode: "replace" | "copy") => Promise<void>;
+  /** Take a restore point of the open trip right now. */
+  backUpNow: () => Promise<{ device: boolean; cloud: boolean }>;
   authRequired: boolean;
   /** the sync queue's visible state — signed-in path only; local writes stay
    *  "idle". Drives the header's <SyncStatus> dot. */
@@ -138,12 +174,23 @@ function hasPendingFields() {
   return queue.some((op) => op.t === "fields");
 }
 
-/* ---- outbox: the pending queue mirrored to disk, so a reload or a killed
+/* ---- outbox: the unconfirmed ops mirrored to disk, so a reload or a killed
    tab can't lose an edit that hadn't reached Supabase yet. Signed-in only —
-   the local backend already writes the whole trip on every change. ---- */
+   the local backend writes the whole trip on every change.
+
+   "Unconfirmed" means BOTH the queue and every batch currently in flight: a
+   batch that has been sent but not answered is exactly the one a killed tab
+   loses, so it stays in the mirror until the server confirms it. ---- */
 
 interface Outbox { ops: Op[]; data: TripData }
+/** one batch of ops handed to the server and not yet answered */
+interface Flight { tripId: string; ops: Op[] }
+const flights = new Set<Flight>();
 let outboxTimer: ReturnType<typeof setTimeout> | undefined;
+/** every outbox write/delete runs in call order, so a slow `set` can't land
+ *  after the `del` that follows a confirmed sync and resurrect ops the server
+ *  already has (which would later replay over a companion's newer edit) */
+let outboxChain: Promise<void> = Promise.resolve();
 /** the app booted offline from a mirrored outbox — once its ops land, re-pull
  *  the trip to pick up anything a companion changed while we were away */
 let bootedFromOutbox = false;
@@ -154,9 +201,24 @@ let bootedFromOutbox = false;
  *  retryBoot) always starts fresh rather than awaiting a stale result. */
 let initInFlight: Promise<void> | null = null;
 
+const pendingOps = (tripId: string, activeId: string | null): Op[] => [
+  ...[...flights].filter((f) => f.tripId === tripId).flatMap((f) => f.ops),
+  ...(tripId === activeId ? queue : []),
+];
+
+function writeOutbox(tripId: string, ops: Op[], data: TripData | null) {
+  const key = STORAGE_KEYS.outbox(tripId);
+  outboxChain = outboxChain
+    .then(async () => {
+      if (ops.length && data) await kv.set<Outbox>(key, { ops, data });
+      else if (!ops.length) await kv.del(key);
+    })
+    .catch((e) => console.error("[outbox]", e));
+}
+
 function saveOutboxSoon(get: () => AppStore) {
   clearTimeout(outboxTimer);
-  outboxTimer = setTimeout(() => saveOutboxNow(get), 300);
+  outboxTimer = setTimeout(() => saveOutboxNow(get), 150);
 }
 
 function saveOutboxNow(get: () => AppStore) {
@@ -164,8 +226,29 @@ function saveOutboxNow(get: () => AppStore) {
   outboxTimer = undefined;
   const { activeId, data } = get();
   if (!activeId || !data) return;
-  if (queue.length) void kv.set<Outbox>(STORAGE_KEYS.outbox(activeId), { ops: [...queue], data });
-  else void kv.del(STORAGE_KEYS.outbox(activeId));
+  writeOutbox(activeId, pendingOps(activeId, activeId), data);
+}
+
+const isOp = (o: unknown): o is Op =>
+  !!o && typeof o === "object" && ["row", "del", "pos", "seg", "areaPlaces", "fields"].includes((o as Op).t);
+
+/** Read a trip's mirrored outbox. Anything that isn't a well-formed outbox is
+ *  copied to quarantine (not deleted, not replayed) — replaying garbage onto a
+ *  live trip is how a bad mirror becomes real data loss. */
+async function readOutbox(id: string): Promise<Outbox | null> {
+  let raw: unknown;
+  try {
+    raw = await kv.get<unknown>(STORAGE_KEYS.outbox(id));
+  } catch {
+    return null; // couldn't read it — it stays on disk untouched
+  }
+  if (raw === undefined) return null;
+  const ob = raw as Partial<Outbox>;
+  if (!Array.isArray(ob.ops) || !ob.ops.every(isOp) || validateTrip(ob.data).fatal) {
+    await quarantine(`outbox-${id}`, raw, "unreadable outbox");
+    return null;
+  }
+  return ob as Outbox;
 }
 
 /** Merge a restored outbox onto the fresh server copy: the queued ops' own
@@ -332,8 +415,89 @@ function setupSyncListeners(get: () => AppStore) {
   window.addEventListener("online", () => {
     retryDelay = 0;
     void flush(get);
+    void persistLocal(get);
     if (get().bootError) get().retryBoot();
   });
+  // an unexpected exception anywhere: get whatever is pending onto disk first
+  window.addEventListener("error", () => flushNow(get));
+  window.addEventListener("unhandledrejection", () => flushNow(get));
+  // another tab saved this device-only trip — adopt it if we've nothing unsaved
+  onSavedElsewhere((tripId) => {
+    const s = get();
+    if (pickBackend().kind !== "local" || s.activeId !== tripId) return;
+    if (localTimer || localRunning || s.syncState === "error") return; // we have our own edits — ours are saved over theirs, with a restore point kept
+    void pickBackend().loadTrip(tripId).then((data) => {
+      if (get().activeId === tripId && !localTimer && !localRunning) useApp.setState({ data });
+    }).catch(() => {});
+  });
+}
+
+/* ---- device-only trips: the whole trip is one blob, saved (debounced) by a
+   single-flight writer — never two writes in parallel, always the newest state
+   — that surfaces every failure instead of swallowing it. ---- */
+
+let localTimer: ReturnType<typeof setTimeout> | undefined;
+let localRetryTimer: ReturnType<typeof setTimeout> | undefined;
+let localRetryDelay = 0;
+let localRunning: Promise<void> | null = null;
+let localDirty = false;
+let localForce = false;
+
+const clearLocalRetry = () => { clearTimeout(localRetryTimer); localRetryTimer = undefined; localRetryDelay = 0; };
+
+function scheduleLocalSave(get: () => AppStore) {
+  clearTimeout(localTimer);
+  localTimer = setTimeout(() => { localTimer = undefined; void persistLocal(get); }, 400);
+}
+
+function persistLocal(get: () => AppStore, force = false): Promise<void> {
+  clearTimeout(localTimer);
+  localTimer = undefined;
+  if (force) localForce = true;
+  const be = pickBackend();
+  if (be.kind !== "local") return Promise.resolve();
+  if (localRunning) { localDirty = true; return localRunning; }
+  localRunning = (async () => {
+    do {
+      localDirty = false;
+      // re-read the store now — never save under a stale trip id or old data
+      const { activeId, data } = get();
+      if (!activeId || !data) break;
+      try {
+        await be.saveWhole(activeId, data, { force: localForce });
+        localForce = false;
+        clearLocalRetry();
+        if (get().syncState === "error") useApp.setState({ syncState: "idle", syncErrorItems: [], notice: null });
+      } catch (e) {
+        onLocalSaveFailed(get, e);
+        break;
+      }
+    } while (localDirty);
+  })().finally(() => { localRunning = null; });
+  return localRunning;
+}
+
+function onLocalSaveFailed(get: () => AppStore, e: unknown) {
+  console.error("[save]", e);
+  const blocked = e instanceof SaveBlockedError;
+  useApp.setState({
+    syncState: "error",
+    syncErrorItems: [{ key: "local", label: "Changes on this device" }],
+    notice: {
+      tone: "error",
+      text: blocked
+        ? (e as Error).message
+        : e instanceof StorageError && e.kind === "quota"
+          ? "This device is out of storage space, so your latest changes aren't saved. They're still on screen — free some space, then tap Retry."
+          : "Couldn't save your latest changes on this device. They're still on screen — retrying.",
+      action: blocked && (e as SaveBlockedError).reason === "would-erase" ? "save-anyway" : "retry",
+    },
+  });
+  // a refusal on purpose isn't retried on a timer — a person decides
+  if (blocked) return;
+  clearTimeout(localRetryTimer);
+  localRetryDelay = localRetryDelay ? Math.min(localRetryDelay * 2, RETRY_MAX) : RETRY_MIN;
+  localRetryTimer = setTimeout(() => void persistLocal(get), localRetryDelay);
 }
 
 function enqueue(get: () => AppStore, op: Op) {
@@ -341,12 +505,7 @@ function enqueue(get: () => AppStore, op: Op) {
   const { activeId, data } = get();
   if (!activeId || !data) return;
   if (be.kind === "local") {
-    clearTimeout(flushTimer);
-    // re-read the store when the timer fires — never save under a stale trip id
-    flushTimer = setTimeout(() => {
-      const s = get();
-      if (s.activeId && s.data) void be.saveWhole(s.activeId, s.data);
-    }, 400);
+    scheduleLocalSave(get);
     return;
   }
   queue.push(op);
@@ -360,14 +519,19 @@ function enqueue(get: () => AppStore, op: Op) {
  *  so a still-debounced edit isn't lost or written to the wrong trip, and when
  *  the tab is about to be hidden / closed. */
 function flushNow(get: () => AppStore) {
-  if (!flushTimer && !queue.length) return;
-  clearTimeout(flushTimer);
-  flushTimer = undefined;
-  const be = pickBackend();
   const { activeId, data } = get();
   if (!activeId || !data) return;
-  if (be.kind === "local") void be.saveWhole(activeId, data);
-  else { saveOutboxNow(get); void flush(get); }
+  if (pickBackend().kind === "local") {
+    if (localTimer || localRunning || localDirty) void persistLocal(get);
+    return;
+  }
+  // a batch already in flight still counts: it may not be answered before the
+  // page goes, so the mirror has to hold it
+  if (!flushTimer && !queue.length && !flights.size) return;
+  clearTimeout(flushTimer);
+  flushTimer = undefined;
+  saveOutboxNow(get);
+  void flush(get);
 }
 
 /** Drop pending writes without saving — for when the target trip is going away. */
@@ -376,10 +540,36 @@ function discardPending(tripId?: string) {
   flushTimer = undefined;
   clearTimeout(outboxTimer);
   outboxTimer = undefined;
+  clearTimeout(localTimer);
+  localTimer = undefined;
+  clearLocalRetry();
   clearRetry();
   queue = [];
   stuckLabels.clear();
-  if (tripId) void kv.del(STORAGE_KEYS.outbox(tripId));
+  if (tripId) {
+    for (const f of [...flights]) if (f.tripId === tripId) flights.delete(f);
+    writeOutbox(tripId, [], null);
+  }
+}
+
+/** Flush any pending edit right now, from outside the store (an error screen,
+ *  a sign-out) — the public face of `flushNow`. */
+export function flushPendingNow() {
+  flushNow(useApp.getState);
+}
+
+/** Wait (bounded) until nothing is unconfirmed. Resolves true when everything
+ *  reached its destination; false if time ran out — the mirror still holds it. */
+export async function settlePending(timeoutMs = 4000): Promise<boolean> {
+  const get = useApp.getState;
+  flushNow(get);
+  const t0 = Date.now();
+  while (Date.now() - t0 < timeoutMs) {
+    const idle = !queue.length && !flights.size && !localRunning && !localTimer && get().syncState !== "error";
+    if (idle) return true;
+    await new Promise((r) => setTimeout(r, 50));
+  }
+  return false;
 }
 
 async function flush(get: () => AppStore) {
@@ -414,6 +604,23 @@ async function flush(get: () => AppStore) {
     else if (op.t === "areaPlaces") areaSets.add(op.areaId);
     else op.keys.forEach((k) => fieldKeys.add(k));
   }
+
+  // Refuse to send a trip that's structurally broken — a write built from it
+  // could damage server rows. The ops go back on the queue (and stay in the
+  // mirror) and the header says why; nothing is dropped.
+  const ok = validateTrip(data);
+  if (ok.fatal) {
+    queue = [...ops, ...queue];
+    useApp.setState({
+      syncState: "error",
+      syncErrorItems: [{ key: "invalid", label: "Saving is paused — the trip data on this screen looks invalid" }],
+    });
+    console.error("[sync] refusing to save invalid trip data:", describeProblems(ok));
+    return;
+  }
+
+  const flight: Flight = { tripId: activeId, ops };
+  flights.add(flight);
 
   const tasks: Promise<unknown>[] = [];
   // a rejected write puts its op back on the queue for a later retry, instead of
@@ -461,20 +668,33 @@ async function flush(get: () => AppStore) {
     tasks.push(run(be.saveTripFields(activeId, f), { t: "fields", keys: [...fieldKeys] }));
   }
   await Promise.all(tasks);
+  flights.delete(flight);
 
-  // trip switched / was discarded while we awaited — every result is moot
-  if (get().activeId !== activeId) return;
+  // trip switched / was discarded while we awaited. Nothing to show for it in
+  // the UI, but the mirror for THAT trip must stay truthful: confirmed → clear
+  // it (so its ops can't replay over newer server data later); failed → keep
+  // exactly the ops that didn't land.
+  if (get().activeId !== activeId) {
+    const left = [...failed, ...pendingOps(activeId, null)];
+    writeOutbox(activeId, left, left.length ? data : null);
+    return;
+  }
 
   for (const op of unrecoverable) {
     stuckLabels.delete(opKeyOf(op));
     const healed = op.t === "row" && REID_SAFE.has(op.type) && healBadId(get, op.type, op.id);
-    if (!healed) console.error("[sync] dropping an un-syncable op — its id is invalid and can't be retried:", op);
+    if (!healed) {
+      // keep what we're giving up on, not just a console line
+      const entity = op.t === "row" ? (data[op.type] as WithId[]).find((x) => x.id === op.id) : undefined;
+      void quarantine("dropped-op", { op, entity }, "id was never valid for the database");
+      console.error("[sync] dropping an un-syncable op — its id is invalid and can't be retried:", op);
+    }
   }
 
   if (failed.length) {
     queue = [...failed, ...queue];
     const cur = get().data;
-    if (cur) void kv.set<Outbox>(STORAGE_KEYS.outbox(activeId), { ops: [...queue], data: cur });
+    saveOutboxNow(get);
     useApp.setState({ syncState: "error", syncErrorItems: cur ? describePendingOps(failed, cur) : [] });
     scheduleRetry(get);
   } else if (queue.length) {
@@ -483,8 +703,22 @@ async function flush(get: () => AppStore) {
     clearRetry();
     stuckLabels.clear();
     useApp.setState({ syncState: "saved", syncErrorItems: [] });
-    void kv.del(STORAGE_KEYS.outbox(activeId));
+    saveOutboxNow(get); // nothing pending any more → this clears the mirror (ordered after any write before it)
+    void afterSynced(get, activeId);
     if (bootedFromOutbox) { bootedFromOutbox = false; void resyncTrip(get, activeId); }
+  }
+}
+
+const stamped = new Set<string>();
+/** everything is on the server: keep a rolling restore point of that state
+ *  (throttled inside `takeSnapshot`) and record which app version touched it */
+async function afterSynced(get: () => AppStore, tripId: string) {
+  const cur = get().data;
+  if (!cur || get().activeId !== tripId || queue.length || cur.config.demo) return;
+  void takeSnapshot(tripId, cur, "auto", { cloud: true });
+  if (!stamped.has(tripId)) {
+    stamped.add(tripId);
+    void import("@/lib/db").then((m) => m.stampSchema(tripId)).catch(() => stamped.delete(tripId));
   }
 }
 
@@ -493,9 +727,9 @@ async function flush(get: () => AppStore) {
  *  the ops queued for when the network returns. Returns false if there's nothing
  *  to recover — caller then fails as before. */
 async function recoverFromOutbox(get: () => AppStore, listen: (id: string) => void): Promise<boolean> {
-  const id = await kv.get<string>(STORAGE_KEYS.activeTrip);
+  const id = await kv.get<string>(STORAGE_KEYS.activeTrip).catch(() => undefined);
   if (!id) return false;
-  const ob = await kv.get<Outbox>(STORAGE_KEYS.outbox(id));
+  const ob = await readOutbox(id);
   if (!ob?.ops.length) return false;
   queue = [...ob.ops];
   bootedFromOutbox = true;
@@ -515,9 +749,25 @@ async function resyncTrip(get: () => AppStore, tripId: string) {
   const be = pickBackend();
   if (be.kind !== "supabase") return;
   await flush(get);
-  if (queue.length || get().activeId !== tripId) return;
-  const fresh = await be.loadTrip(tripId);
-  if (fresh && get().activeId === tripId) useApp.setState({ data: fresh });
+  if (queue.length || flights.size || get().activeId !== tripId) return;
+  try {
+    const fresh = await be.loadTrip(tripId);
+    if (get().activeId === tripId && !queue.length && !flights.size) useApp.setState({ data: fresh });
+  } catch {
+    /* couldn't re-pull — keep what's on screen; it's still correct as of the last sync */
+  }
+}
+
+/** Open a trip without ever throwing: either its data, or an issue describing
+ *  why it couldn't be opened. `null` is not a possible answer. */
+async function tryLoad(be: Backend, id: string): Promise<{ data: TripData; issue: null } | { data: null; issue: LoadIssue }> {
+  try {
+    return { data: await be.loadTrip(id), issue: null };
+  } catch (e) {
+    if (e instanceof TripLoadError) return { data: null, issue: { kind: e.kind, message: e.message, tripId: id } };
+    console.error("[load]", e);
+    return { data: null, issue: { kind: "unavailable", message: "Couldn't open this trip. Your data hasn't been touched — try again.", tripId: id } };
+  }
 }
 
 /* ---------------------------------------------------- undo */
@@ -563,6 +813,24 @@ function diffForUndo(tripId: string, before: TripData, after: TripData): UndoRec
   return { tripId, rows, config, meta: metaChanged ? before.meta : undefined };
 }
 
+/** The trip list (device-only atlas / active-trip pointer) failed to write. The
+ *  trips themselves are safe and the list is rebuilt from them on next load, so
+ *  this is a heads-up, not an emergency. */
+function reportListFailure(e: unknown) {
+  console.error("[list]", e);
+  useApp.setState({ notice: { tone: "warn", text: "Couldn't update the trip list on this device. Your trips are safe; it will be rebuilt next time the app opens." } });
+}
+
+/** Everything the current trip has pending must be on disk before the active
+ *  trip changes underneath it. For a device-only trip that means awaiting the
+ *  write itself: the writer re-reads the store each pass, so a switch that
+ *  raced it would otherwise leave the old trip's last edit behind. */
+async function flushForSwitch(get: () => AppStore) {
+  const pending = !!(localTimer || localRunning || localDirty);
+  flushNow(get);
+  if (pickBackend().kind === "local" && pending) await persistLocal(get);
+}
+
 /* ---------------------------------------------------- store */
 
 export const useApp = create<AppStore>((set, get) => {
@@ -583,6 +851,8 @@ export const useApp = create<AppStore>((set, get) => {
 
   return {
     hydrated: false,
+    loadIssue: null,
+    notice: null,
     undoToast: null,
     authRequired: false,
     syncState: "idle",
@@ -600,14 +870,18 @@ export const useApp = create<AppStore>((set, get) => {
         // 3 default tabs) until Root's re-init lands; wait for auth instead.
         if (!isAuthReady()) return;
         if (needsAuth()) {
-          set({ authRequired: true, hydrated: true, trips: [], activeId: null, data: null });
+          // signed out: nothing in memory may follow into the next account.
+          // (Unconfirmed edits are already mirrored to disk under their trip's id.)
+          queue = [];
+          flights.clear();
+          set({ authRequired: true, hydrated: true, trips: [], activeId: null, data: null, loadIssue: null });
           return;
         }
         // loading a trip (sign-in, or a first boot): stay on the loader until
         // the data is in, rather than rendering the shell around `data: null`
         set({ authRequired: false, ...(get().data ? {} : { hydrated: false }) });
         const be = pickBackend();
-        if (be.kind === "supabase") setupSyncListeners(get);
+        setupSyncListeners(get);
 
         let trips: TripSummary[];
         let activeId: string | null;
@@ -617,8 +891,10 @@ export const useApp = create<AppStore>((set, get) => {
           // offline / transient: recover from a mirrored outbox so unsynced edits
           // aren't stranded and the trip stays usable until the connection returns
           if (await recoverFromOutbox(get, listen)) return;
-          // nothing pending to fall back to — a cold boot with no signal. Surface
-          // it instead of hanging on the loader forever; retryBoot tries again.
+          // nothing pending to fall back to — a cold boot with no signal, or
+          // device storage that wouldn't read. Surface it instead of hanging on
+          // the loader forever (and never mistaking it for "no trips"); retryBoot
+          // tries again.
           console.error("[boot]", e);
           set({ hydrated: true, bootError: true });
           return;
@@ -626,21 +902,30 @@ export const useApp = create<AppStore>((set, get) => {
         set({ bootError: false });
 
         if (trips.length) {
-          const id = activeId ?? trips.find((t) => !t.archived)?.id ?? trips[0].id;
-          let data = await be.loadTrip(id);
+          const id = activeId && trips.some((t) => t.id === activeId)
+            ? activeId
+            : (trips.find((t) => !t.archived)?.id ?? trips[0].id);
+          const loaded = await tryLoad(be, id);
+          let data = loaded.data;
+          let issue = loaded.issue;
           if (be.kind === "supabase") {
-            const ob = await kv.get<Outbox>(STORAGE_KEYS.outbox(id));
+            const ob = await readOutbox(id);
             if (ob?.ops.length) {
-              queue = [...ob.ops];
               if (data) {
+                queue = [...ob.ops];
+                // the server's copy is about to be overwritten by our queued edits —
+                // keep it, so a companion's newer change to the same row is recoverable
+                void takeSnapshot(id, data, "before-sync", { cloud: true });
                 data = normalizeTrip(applyOutbox(data, ob)); // merge edits onto the fresh copy
-              } else {
-                data = normalizeTrip(ob.data); // trip load failed — fall back to the mirror
+              } else if (issue?.kind === "unavailable") {
+                queue = [...ob.ops];
+                data = normalizeTrip(ob.data); // server unreachable — fall back to the mirror
                 bootedFromOutbox = true; // re-pull once the ops land
-              }
+                issue = null;
+              } // damaged / missing / newer: leave the outbox on disk untouched
             }
           }
-          set({ trips, activeId: id, data, hydrated: true });
+          set({ trips, activeId: id, data, loadIssue: issue, hydrated: true });
           if (data) {
             listen(id);
             if (queue.length) void flush(get);
@@ -648,16 +933,22 @@ export const useApp = create<AppStore>((set, get) => {
           return;
         }
 
-        // fresh account → drop in the read-only demo tour, or an editable
-        // Sandbox under `npm run dev:demo`
-        const seed = remapIds(sandboxMode ? buildSandbox() : buildDemo());
-        const summary = summarise("", seed.meta.title, seed, sandboxMode ? "sandbox" : "demo");
-        const id = await be.createTrip(seed, summary);
-        const withId = { ...summary, id };
-        await be.setActive(id, [withId]);
-        const data = be.kind === "supabase" ? await be.loadTrip(id) : seed;
-        set({ trips: [withId], activeId: id, data, hydrated: true });
-        if (data) listen(id);
+        // Only reached when the backend answered, successfully, "you have no
+        // trips" (a failed read throws above) → fresh account: drop in the
+        // read-only demo tour, or an editable Sandbox under `npm run dev:demo`
+        try {
+          const seed = remapIds(sandboxMode ? buildSandbox() : buildDemo());
+          const summary = summarise("", seed.meta.title, seed, sandboxMode ? "sandbox" : "demo");
+          const id = await be.createTrip(seed, summary);
+          const withId = { ...summary, id };
+          await be.setActive(id, [withId]);
+          const data = be.kind === "supabase" ? await be.loadTrip(id) : seed;
+          set({ trips: [withId], activeId: id, data, loadIssue: null, hydrated: true });
+          listen(id);
+        } catch (e) {
+          console.error("[boot] couldn't set up the first trip", e);
+          set({ hydrated: true, bootError: true });
+        }
       };
       // dedupe concurrent calls (StrictMode's double effect-invoke, racing the
       // module-level boot call) into one run; cleared on settle so a later
@@ -671,6 +962,49 @@ export const useApp = create<AppStore>((set, get) => {
       void get().init();
     },
 
+    dismissNotice: () => set({ notice: null }),
+
+    retrySave: () => {
+      clearLocalRetry();
+      void persistLocal(get);
+      get().retrySyncNow();
+    },
+
+    saveAnyway: () => {
+      set({ notice: null });
+      void persistLocal(get, true);
+    },
+
+    backUpNow: async () => {
+      const { activeId, data } = get();
+      if (!activeId || !data) return { device: false, cloud: false };
+      const r = await takeSnapshot(activeId, data, "manual", { force: true, cloud: pickBackend().kind === "supabase" });
+      return { device: !!r.device, cloud: !!r.cloud };
+    },
+
+    restoreSnapshot: async (meta, mode) => {
+      const be = pickBackend();
+      const snap = await readSnapshot(meta); // throws if the restore point is damaged — nothing changes
+      const known = get().trips.some((t) => t.id === meta.tripId);
+      if (mode === "copy" || !known) {
+        const id = await get().importTrip(snap);
+        await get().switchTrip(id);
+        return;
+      }
+      const tripId = meta.tripId;
+      if (tripId !== get().activeId) await get().switchTrip(tripId);
+      // whatever is being replaced is kept first — a restore is itself undoable
+      const current = get().activeId === tripId ? get().data : null;
+      if (current) await ensureBackedUp(tripId, current, "before-restore", { cloud: be.kind === "supabase" });
+      discardPending(tripId);
+      const restored = normalizeTrip(structuredClone(snap));
+      await be.replaceTrip(tripId, restored);
+      const data = be.kind === "supabase" ? await be.loadTrip(tripId) : restored;
+      const trips = get().trips.map((t) => (t.id === tripId ? { ...t, name: data.meta.title || t.name, updatedAt: now() } : t));
+      set({ data, trips, loadIssue: null, notice: null, syncState: "idle", syncErrorItems: [] });
+      if (be.kind === "supabase") listen(tripId);
+    },
+
     createTrip: async ({ name, templateId }) => {
       const be = pickBackend();
       const data = remapIds(buildFromTemplate(templateId, name));
@@ -682,13 +1016,13 @@ export const useApp = create<AppStore>((set, get) => {
       const id = await be.createTrip(data, summary);
       const trips = [...get().trips, { ...summary, id }];
       set({ trips });
-      void be.setActive(get().activeId, trips);
+      void be.setActive(get().activeId, trips).catch(reportListFailure);
       return id;
     },
 
     duplicateTrip: async (srcId, name) => {
       const be = pickBackend();
-      const src = srcId === get().activeId ? get().data : await be.loadTrip(srcId);
+      const src = srcId === get().activeId && get().data ? get().data : await be.loadTrip(srcId); // throws a TripLoadError if it can't be read
       if (!src) throw new Error("source trip not found");
       const data = remapIds(src);
       data.config.branding = name;
@@ -697,12 +1031,14 @@ export const useApp = create<AppStore>((set, get) => {
       const id = await be.createTrip(data, summary);
       const trips = [...get().trips, { ...summary, id }];
       set({ trips });
-      void be.setActive(get().activeId, trips);
+      void be.setActive(get().activeId, trips).catch(reportListFailure);
       return id;
     },
 
     importTrip: async (src) => {
       const be = pickBackend();
+      const check = validateTrip(src);
+      if (check.fatal) throw new Error(`That data can't be added as a trip (${describeProblems(check)}). Nothing was changed.`);
       const data = remapIds(src);
       const title = data.meta.title || data.config.branding || "Restored trip";
       const taken = new Set(get().trips.map((t) => t.name));
@@ -715,7 +1051,7 @@ export const useApp = create<AppStore>((set, get) => {
       const id = await be.createTrip(data, summary);
       const trips = [...get().trips, { ...summary, id }];
       set({ trips });
-      void be.setActive(get().activeId, trips);
+      void be.setActive(get().activeId, trips).catch(reportListFailure);
       return id;
     },
 
@@ -731,51 +1067,96 @@ export const useApp = create<AppStore>((set, get) => {
       const trips = get().trips.map((t) => (t.id === id ? { ...t, archived, updatedAt: now() } : t));
       let { activeId } = get();
       if (archived && activeId === id) {
-        flushNow(get);
+        await flushForSwitch(get);
+        queue = [];
         unsubscribeTrip();
         activeId = trips.find((t) => !t.archived)?.id ?? null;
-        const data = activeId ? await be.loadTrip(activeId) : null;
-        set({ trips, activeId, data });
-        if (activeId && data) listen(activeId);
+        const next = activeId ? await tryLoad(be, activeId) : { data: null, issue: null };
+        set({ trips, activeId, data: next.data, loadIssue: next.issue });
+        if (activeId && next.data) listen(activeId);
       } else set({ trips });
       await be.setMeta(id, { archived }, trips, activeId);
-      void be.setActive(activeId, trips);
+      void be.setActive(activeId, trips).catch(reportListFailure);
     },
 
     deleteTrip: async (id) => {
       const be = pickBackend();
-      if (id === get().activeId) discardPending(id); // its writes are moot now
+      const isActive = id === get().activeId;
+      const demo = get().trips.find((t) => t.id === id)?.templateId === "demo";
+
+      // Nothing is deleted until a restore point that outlives the trip exists.
+      // (Cloud: `trip_snapshots` has no foreign key to the trip, so it survives.)
+      if (!demo) {
+        if (isActive) await flushForSwitch(get);
+        let src: TripData | null = isActive ? get().data : null;
+        if (!src) {
+          const loaded = await tryLoad(be, id);
+          if (loaded.data) src = loaded.data;
+          else {
+            // a damaged device-only blob is quarantined by the load; anything
+            // we simply couldn't read must not be deleted blind
+            const blindOk = be.kind === "local" && (loaded.issue.kind === "corrupt" || loaded.issue.kind === "missing");
+            if (!blindOk) {
+              set({ notice: { tone: "error", text: "Couldn't read this trip to back it up first, so it wasn't deleted. Try again in a moment." } });
+              return;
+            }
+          }
+        }
+        if (src && !src.config.demo) {
+          try {
+            await ensureBackedUp(id, src, "before-delete", { cloud: be.kind === "supabase" });
+          } catch (e) {
+            set({ notice: { tone: "error", text: e instanceof Error ? e.message : "Couldn't back the trip up first, so it wasn't deleted." } });
+            return;
+          }
+        }
+      }
+
+      if (isActive) discardPending(id); // its writes are moot now
       await be.deleteTrip(id);
       const trips = get().trips.filter((t) => t.id !== id);
-      let { activeId, data } = get();
+      let { activeId, data, loadIssue } = get();
       if (activeId === id) {
         unsubscribeTrip();
         activeId = trips.find((t) => !t.archived)?.id ?? trips[0]?.id ?? null;
-        data = activeId ? await be.loadTrip(activeId) : null;
+        const next = activeId ? await tryLoad(be, activeId) : { data: null, issue: null };
+        data = next.data;
+        loadIssue = next.issue;
         if (activeId && data) listen(activeId);
       }
-      set({ trips, activeId, data });
-      void be.setActive(activeId, trips);
+      set({ trips, activeId, data, loadIssue });
+      void be.setActive(activeId, trips).catch(reportListFailure);
     },
 
     switchTrip: async (id) => {
-      if (id === get().activeId) return;
-      flushNow(get);
+      if (id === get().activeId && !get().loadIssue) return;
+      await flushForSwitch(get);
+      queue = []; // the old trip's unconfirmed ops are safe in its mirror; none may follow us to the next trip
       const be = pickBackend();
       unsubscribeTrip();
-      let data = await be.loadTrip(id);
+      const loaded = await tryLoad(be, id);
+      let data = loaded.data;
+      let issue = loaded.issue;
       // pick up any edit to this trip that didn't reach Supabase last time it
       // was open (same recovery `init` does on a cold boot), so switching away
       // and back within one session can't silently drop it
       if (be.kind === "supabase") {
-        const ob = await kv.get<Outbox>(STORAGE_KEYS.outbox(id));
+        const ob = await readOutbox(id);
         if (ob?.ops.length) {
-          queue = [...ob.ops];
-          data = data ? normalizeTrip(applyOutbox(data, ob)) : normalizeTrip(ob.data);
+          if (data) {
+            queue = [...ob.ops];
+            void takeSnapshot(id, data, "before-sync", { cloud: true });
+            data = normalizeTrip(applyOutbox(data, ob));
+          } else if (issue?.kind === "unavailable") {
+            queue = [...ob.ops];
+            data = normalizeTrip(ob.data);
+            bootedFromOutbox = true;
+            issue = null;
+          }
         }
       }
-      set({ activeId: id, data });
-      void be.setActive(id, get().trips);
+      set({ activeId: id, data, loadIssue: issue, notice: null, syncState: "idle", syncErrorItems: [] });
+      void be.setActive(id, get().trips).catch(reportListFailure);
       if (data) {
         listen(id);
         if (queue.length) void flush(get);
@@ -876,7 +1257,9 @@ export const useApp = create<AppStore>((set, get) => {
       if (!cur) return;
       const next = structuredClone(cur);
       fn(next);
-      set({ data: next });
+      // another client's row/config may be from an older or newer build — repair
+      // it the same way a load does, so a partial payload can't crash the UI
+      set({ data: normalizeTrip(next) });
     },
 
     updateEntity: (type, id, patch) => {
@@ -1048,7 +1431,7 @@ export const useApp = create<AppStore>((set, get) => {
           upserted.push(id);
           return {
             id, name: p.name, lat: p.lat, lng: p.lng, category: p.category, color: p.color,
-            source: "mymap", note: match?.note, url: match?.url,
+            source: "mymap", note: match?.note, url: match?.url, legId: match?.legId,
           };
         });
         for (const bucket of byName.values()) for (const p of bucket) removed.push(p.id);

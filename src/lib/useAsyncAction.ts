@@ -1,5 +1,7 @@
 import { useCallback, useState } from "react";
 
+import { UserFacingError } from "./safety/errors";
+
 /** Runs an async action with `busy` + `msg` state and a guaranteed reset.
  *
  *  `run(fn)` flips `busy` on, clears `msg`, awaits `fn`, and always clears
@@ -17,8 +19,9 @@ export function useAsyncAction(fallback = "Something went wrong.") {
       try {
         const r = await fn();
         if (typeof r === "string") setMsg(r);
-      } catch {
-        setMsg(fallback);
+      } catch (e) {
+        // our own errors are written for people ("nothing was changed…"); anything else stays generic
+        setMsg(e instanceof UserFacingError ? e.message : fallback);
       } finally {
         setBusy(false);
       }

@@ -1,7 +1,9 @@
 import { getSupabase } from "./supabase";
 import { getUserId } from "./auth";
 import { SCHEMA_VERSION } from "./hydrate";
+import { TripLoadError, UserFacingError } from "./safety/errors";
 import { rangeText } from "@/lib/dates";
+import type { SnapshotMeta } from "./safety/snapshots";
 import type { EntityType, Segment, TripData, TripSummary } from "@/core/types";
 
 /* ------------------------------------------------------------------ *
@@ -135,27 +137,61 @@ export async function listTrips(): Promise<TripSummary[]> {
   });
 }
 
+/** PostgREST returns at most 1000 rows per request and says nothing when it
+ *  cuts a list off — a big trip would load short, and every reload would then
+ *  make the missing rows look deleted. Page through until a short page. */
+const PAGE = 1000;
+async function selectAll(table: string, col: string, val: string, order: string[]): Promise<Record<string, unknown>[]> {
+  const sb = await client();
+  const rows: Record<string, unknown>[] = [];
+  for (let from = 0; ; from += PAGE) {
+    let q = sb.from(table).select("*").eq(col, val);
+    for (const o of order) q = q.order(o);
+    const page = (check(await q.range(from, from + PAGE - 1)) ?? []) as Record<string, unknown>[];
+    rows.push(...page);
+    if (page.length < PAGE) return rows;
+  }
+}
+
+/** Does the `trips` table have the `schema_version` column yet (migration
+ *  0026)? Learned from the first load; writes only include it once known, so
+ *  shipping the app before the migration can't break saving. */
+let serverHasSchemaCol = false;
+
 export async function loadTrip(dbId: string): Promise<TripData> {
   const sb = await client();
   const trow = check(await sb.from("trips").select("*").eq("id", dbId).single());
 
+  if (typeof trow.schema_version === "number") {
+    serverHasSchemaCol = true;
+    // a newer app has written to this trip: an older one must not open it for
+    // editing, or its (older-shaped) writes could mangle what the newer one made
+    if (trow.schema_version > SCHEMA_VERSION) {
+      throw new TripLoadError(
+        "newer",
+        "This trip was saved by a newer version of the app. Reload to update, then open it again.",
+        dbId,
+      );
+    }
+  }
+
   const byType = Object.fromEntries(
     await Promise.all(
       (Object.keys(SPECS) as EntityType[]).map(async (type) => {
-        const data = check(await sb.from(SPECS[type].table).select("*").eq("trip_id", dbId).order("position"));
-        return [type, (data ?? []).map((r) => rowToEntity(SPECS[type], r))] as const;
+        const data = await selectAll(SPECS[type].table, "trip_id", dbId, ["position", "id"]);
+        return [type, data.map((r) => rowToEntity(SPECS[type], r))] as const;
       }),
     ),
   ) as Record<EntityType, Record<string, unknown>[]>;
 
-  const segs = check(await sb.from("segments").select("*").eq("trip_id", dbId).order("position"));
+  const segs = await selectAll("segments", "trip_id", dbId, ["position", "id"]);
   for (const j of byType.journeys as { id: string; segments?: Segment[] }[]) {
-    j.segments = (segs ?? []).filter((s) => s.journey_id === j.id).map(rowToSeg);
+    j.segments = segs.filter((s) => s.journey_id === j.id).map(rowToSeg);
   }
 
-  const ap = check(await sb.from("area_places").select("area_id,place_id").eq("trip_id", dbId));
+  const ap = await selectAll("area_places", "trip_id", dbId, ["area_id", "place_id"]);
   for (const a of byType.areas as { id: string; placeIds?: string[] }[]) {
-    a.placeIds = (ap ?? []).filter((r) => r.area_id === a.id).map((r) => r.place_id);
+    a.placeIds = ap.filter((r) => r.area_id === a.id).map((r) => r.place_id as string);
   }
 
   return {
@@ -185,12 +221,15 @@ export async function createTrip(
       config: data.config,
       meta: data.meta,
       media: data.media,
+      ...(serverHasSchemaCol ? { schema_version: SCHEMA_VERSION } : {}),
     }),
   );
 
-  // per-row so one bad row can't take out the rest, and errors stay visible;
-  // fired in parallel, but phased by dependency — hotels before the legs/days
-  // that carry a hotel_id foreign key, entity rows before the joins onto them
+  // Per-row so one bad row is reported precisely; fired in parallel, phased by
+  // dependency — hotels before the legs/days that carry a hotel_id foreign key,
+  // entity rows before the joins onto them. If ANY row fails the whole trip is
+  // removed again and the call throws: a half-copied trip that looks complete
+  // is worse than no trip (nothing else is touched, so the user just retries).
   const errs: string[] = [];
   const seed = async (
     q: PromiseLike<{ error: { message: string; hint?: string; details?: string } | null }>,
@@ -204,24 +243,30 @@ export async function createTrip(
       seed(sb.from(SPECS[type].table).upsert(entityToRow(SPECS[type], row, dbId, i)), SPECS[type].table),
     );
 
-  await Promise.all(seedType("hotels"));
-  await Promise.all(
-    (Object.keys(SPECS) as EntityType[]).filter((t) => t !== "hotels").flatMap(seedType),
-  );
+  try {
+    await Promise.all(seedType("hotels"));
+    await Promise.all(
+      (Object.keys(SPECS) as EntityType[]).filter((t) => t !== "hotels").flatMap(seedType),
+    );
 
-  await Promise.all([
-    ...data.journeys.flatMap((j) =>
-      j.segments.map((s, i) => seed(sb.from("segments").upsert(segToRow(s, dbId, j.id, i)), "segments")),
-    ),
-    ...(data.areas ?? []).flatMap((a) =>
-      (a.placeIds ?? []).map((pid) =>
-        seed(sb.from("area_places").upsert({ trip_id: dbId, area_id: a.id, place_id: pid }), "area_places"),
+    await Promise.all([
+      ...data.journeys.flatMap((j) =>
+        j.segments.map((s, i) => seed(sb.from("segments").upsert(segToRow(s, dbId, j.id, i)), "segments")),
       ),
-    ),
-  ]);
+      ...(data.areas ?? []).flatMap((a) =>
+        (a.placeIds ?? []).map((pid) =>
+          seed(sb.from("area_places").upsert({ trip_id: dbId, area_id: a.id, place_id: pid }), "area_places"),
+        ),
+      ),
+    ]);
+  } catch (e) {
+    errs.push(e instanceof Error ? e.message : String(e));
+  }
 
   if (errs.length) {
     console.error(`[seed] ${errs.length} row error(s):\n` + [...new Set(errs)].slice(0, 15).join("\n"));
+    await sb.from("trips").delete().eq("id", dbId); // cascades whatever did land
+    throw new UserFacingError(`Couldn't create the trip — ${errs.length} item${errs.length === 1 ? "" : "s"} didn't save (${[...new Set(errs)][0]}). Nothing was added.`);
   }
   return dbId;
 }
@@ -240,7 +285,10 @@ export async function deleteRow(type: EntityType, id: string) {
 
 export async function setPositions(type: EntityType, items: { id: string; position: number }[]) {
   const sb = await client();
-  await Promise.all(items.map((it) => sb.from(SPECS[type].table).update({ position: it.position }).eq("id", it.id)));
+  // a failed reorder must fail the op (so it retries), not vanish: the update
+  // builder resolves with `{ error }` rather than rejecting
+  const results = await Promise.all(items.map((it) => sb.from(SPECS[type].table).update({ position: it.position }).eq("id", it.id)));
+  for (const r of results) if (r.error) throw r.error;
 }
 
 /** Replace one journey's segments (scoped — never touches other data). */
@@ -266,7 +314,17 @@ export async function setAreaPlaces(tripId: string, areaId: string, placeIds: st
 /** The trip-row fields (config / meta / media jsonb) + name. */
 export async function saveTripFields(tripId: string, fields: Record<string, unknown>) {
   const sb = await client();
-  check(await sb.from("trips").update(fields).eq("id", tripId));
+  const stamp = serverHasSchemaCol ? { schema_version: SCHEMA_VERSION } : {};
+  check(await sb.from("trips").update({ ...fields, ...stamp }).eq("id", tripId));
+}
+
+/** Record that this app version has touched the trip, so an older one refuses to
+ *  open it (see `loadTrip`). Best effort, once per session — a no-op until the
+ *  column exists. */
+export async function stampSchema(tripId: string) {
+  if (!serverHasSchemaCol) return;
+  const sb = await client();
+  check(await sb.from("trips").update({ schema_version: SCHEMA_VERSION }).eq("id", tripId));
 }
 
 export async function deleteTripRow(dbId: string) {
@@ -277,6 +335,137 @@ export async function deleteTripRow(dbId: string) {
 export async function setTripMeta(dbId: string, patch: { name?: string; archived?: boolean }) {
   const sb = await client();
   check(await sb.from("trips").update(patch).eq("id", dbId));
+}
+
+/* ------------------------------------------------------------------ cloud snapshots */
+
+const SNAP_COLS = "id,trip_id,trip_name,reason,schema_version,stats,hash,created_at";
+const toMeta = (r: Record<string, any>): SnapshotMeta => ({
+  id: r.id,
+  source: "cloud",
+  tripId: r.trip_id,
+  tripName: r.trip_name ?? "Trip",
+  at: r.created_at,
+  reason: r.reason,
+  schema: r.schema_version,
+  stats: r.stats ?? { total: 0, counts: {} },
+  hash: r.hash ?? "",
+});
+
+/** Store one immutable snapshot. `trip_snapshots` deliberately has no foreign
+ *  key to `trips`, so it outlives the trip it was taken from. */
+export async function insertCloudSnapshot(s: Omit<SnapshotMeta, "id"> & { data: TripData }): Promise<string> {
+  const sb = await client();
+  const row = check(
+    await sb
+      .from("trip_snapshots")
+      .insert({
+        trip_id: s.tripId,
+        user_id: getUserId(),
+        trip_name: s.tripName,
+        reason: s.reason,
+        schema_version: s.schema,
+        stats: s.stats,
+        hash: s.hash,
+        data: s.data,
+      })
+      .select("id")
+      .single(),
+  ) as { id: string };
+  return row.id;
+}
+
+export async function listCloudSnapshots(tripId?: string): Promise<SnapshotMeta[]> {
+  const sb = await client();
+  let q = sb.from("trip_snapshots").select(SNAP_COLS).order("created_at", { ascending: false }).limit(200);
+  if (tripId) q = q.eq("trip_id", tripId);
+  return ((check(await q) ?? []) as Record<string, unknown>[]).map(toMeta);
+}
+
+export async function getCloudSnapshot(id: string): Promise<{ data: TripData; hash?: string }> {
+  const sb = await client();
+  const r = check(await sb.from("trip_snapshots").select("data,hash").eq("id", id).single()) as { data: TripData; hash?: string };
+  return r;
+}
+
+export async function newestCloudSnapshotAt(tripId: string): Promise<number> {
+  const sb = await client();
+  const rows = check(
+    await sb.from("trip_snapshots").select("created_at").eq("trip_id", tripId).order("created_at", { ascending: false }).limit(1),
+  ) as { created_at: string }[];
+  return rows[0] ? Date.parse(rows[0].created_at) : 0;
+}
+
+/** Keep the newest `keepAuto` automatic and `keepEvent` event snapshots for a trip. */
+export async function pruneCloudSnapshots(tripId: string, keepAuto: number, keepEvent: number) {
+  const sb = await client();
+  const rows = (check(
+    await sb.from("trip_snapshots").select("id,reason,created_at").eq("trip_id", tripId).order("created_at", { ascending: false }),
+  ) ?? []) as { id: string; reason: string }[];
+  const drop = [
+    ...rows.filter((r) => r.reason === "auto").slice(keepAuto),
+    ...rows.filter((r) => r.reason !== "auto").slice(keepEvent),
+  ].map((r) => r.id);
+  for (let i = 0; i < drop.length; i += 50) {
+    check(await sb.from("trip_snapshots").delete().in("id", drop.slice(i, i + 50)));
+  }
+}
+
+/* ------------------------------------------------------------------ in-place restore */
+
+const CHUNK = 200;
+
+/**
+ * Make a trip's rows match `data` exactly, keeping the same trip (and so its
+ * sharing). Ordered so an interruption can only leave MORE than the target,
+ * never less: everything in `data` is upserted first, and only then are rows
+ * that aren't in it removed. Running it again just finishes the job.
+ * The caller takes a snapshot of the current state before calling this.
+ */
+export async function replaceTrip(tripId: string, data: TripData) {
+  const sb = await client();
+  check(
+    await sb
+      .from("trips")
+      .update({
+        config: data.config,
+        meta: data.meta,
+        media: data.media,
+        name: data.meta.title || data.config.branding,
+        ...(serverHasSchemaCol ? { schema_version: SCHEMA_VERSION } : {}),
+      })
+      .eq("id", tripId),
+  );
+
+  const order: EntityType[] = ["hotels", ...(Object.keys(SPECS) as EntityType[]).filter((t) => t !== "hotels")];
+  for (const type of order) {
+    const rows = ((data[type] as unknown as Record<string, unknown>[]) ?? []).map((e, i) =>
+      entityToRow(SPECS[type], e, tripId, i),
+    );
+    for (let i = 0; i < rows.length; i += CHUNK) check(await sb.from(SPECS[type].table).upsert(rows.slice(i, i + CHUNK)));
+  }
+  const segRows = data.journeys.flatMap((j) => j.segments.map((s, i) => segToRow(s, tripId, j.id, i)));
+  for (let i = 0; i < segRows.length; i += CHUNK) check(await sb.from("segments").upsert(segRows.slice(i, i + CHUNK)));
+  const apRows = (data.areas ?? []).flatMap((a) => (a.placeIds ?? []).map((place_id) => ({ trip_id: tripId, area_id: a.id, place_id })));
+  for (let i = 0; i < apRows.length; i += CHUNK) check(await sb.from("area_places").upsert(apRows.slice(i, i + CHUNK)));
+
+  // now drop what the snapshot doesn't have
+  const removeMissing = async (table: string, keep: Set<string>) => {
+    const have = await selectAll(table, "trip_id", tripId, ["id"]);
+    const gone = have.map((r) => r.id as string).filter((id) => !keep.has(id));
+    for (let i = 0; i < gone.length; i += 50) check(await sb.from(table).delete().in("id", gone.slice(i, i + 50)));
+  };
+  await removeMissing("segments", new Set(segRows.map((r) => r.id as string)));
+  for (const type of order) {
+    await removeMissing(SPECS[type].table, new Set(((data[type] as unknown as { id: string }[]) ?? []).map((e) => e.id)));
+  }
+  const wantAp = new Set(apRows.map((r) => `${r.area_id}|${r.place_id}`));
+  const haveAp = await selectAll("area_places", "trip_id", tripId, ["area_id", "place_id"]);
+  for (const r of haveAp) {
+    if (!wantAp.has(`${r.area_id}|${r.place_id}`)) {
+      check(await sb.from("area_places").delete().eq("area_id", r.area_id as string).eq("place_id", r.place_id as string));
+    }
+  }
 }
 
 /* ------------------------------------------------------------------ members */

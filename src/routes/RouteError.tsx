@@ -3,6 +3,7 @@ import { useRouteError } from "react-router-dom";
 import { APP_NAME } from "@/lib/app";
 import { useIsDark } from "@/lib/mode";
 import { BootScreen } from "@/components/Loader";
+import { flushPendingNow } from "@/store/useApp";
 
 const RELOAD_KEY = "za.chunk-reload";
 const RELOAD_WINDOW_MS = 60_000;
@@ -47,6 +48,9 @@ export default function RouteError() {
   const spent = chunkError ? reloadsSpent() : MAX_RELOADS;
   const willReload = chunkError && spent < MAX_RELOADS;
 
+  // a render error must never strand an edit that was still waiting to save
+  useEffect(() => { flushPendingNow(); }, []);
+
   useEffect(() => {
     if (!willReload) return;
     const t = setTimeout(() => {
@@ -64,7 +68,7 @@ export default function RouteError() {
         <img src={dark ? "/brand/logo-256-dark.png" : "/brand/logo-256-light.png"} width={64} height={64} alt="" className="mx-auto rounded-[22%]" />
         <h1 className="mt-5 font-display text-2xl">Something went wrong</h1>
         <p className="mt-2 text-sm text-ink-soft">
-          {APP_NAME} hit a snag loading that page. Reloading usually fixes it.
+          {APP_NAME} hit a snag loading that page. Reloading usually fixes it — your trip’s data is saved and isn’t affected.
         </p>
         <button onClick={() => window.location.reload()} className="btn-primary mt-6 w-full justify-center py-2.5">
           Reload

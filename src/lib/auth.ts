@@ -48,6 +48,12 @@ export async function signInWithGoogle() {
 }
 
 export async function signOut() {
+  // signing out drops the session the queued writes need — get them on their
+  // way first (anything still unconfirmed stays mirrored on disk for next time)
+  try {
+    const { settlePending } = await import("@/store/useApp");
+    await settlePending(4000);
+  } catch { /* never let this block signing out */ }
   const sb = await getSupabase();
   await sb?.auth.signOut();
 }
