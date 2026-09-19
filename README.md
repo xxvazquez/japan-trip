@@ -485,7 +485,9 @@ MapLibre bundle (only the Map section pulls it in).
   replace a trip with nothing, reads each write back, serialises saves per trip, and keeps a restore
   point of anything it's about to replace that another tab changed.
 - The Supabase outbox (unconfirmed edits, mirrored to IndexedDB) covers batches *in flight* as well as
-  queued ones, and its writes are ordered so a stale write can't resurrect synced ops.
+  queued ones, and its writes are ordered so a stale write can't resurrect synced ops. Each open tab
+  keeps its own outbox; edits left behind by a tab that closed or died are picked up by the next tab
+  that opens the trip (Web Locks tell a dead tab from a live one, with a heartbeat as the fallback).
 
 ## Getting started
 

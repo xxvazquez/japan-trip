@@ -13,6 +13,8 @@ export const STORAGE_KEYS = {
   trip: (id: string) => `trip:${id}`,
   activeTrip: "active-trip", // signed-in: id of the last-open trip
   /** signed-in: edits not yet confirmed by Supabase — replayed on next load so
-   *  a reload (or a killed tab) can't lose them. `{ ops, data }` per trip. */
-  outbox: (id: string) => `outbox:${id}`,
+   *  a reload (or a killed tab) can't lose them. `{ ops, data, at }`, one key per
+   *  trip PER TAB (`outbox:<trip>:<tab>`) so tabs never overwrite each other's;
+   *  the bare `outbox:<trip>` is the older single-key form, still adopted. */
+  outbox: (id: string, tab?: string) => (tab ? `outbox:${id}:${tab}` : `outbox:${id}`),
 } as const;

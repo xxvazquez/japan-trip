@@ -42,8 +42,13 @@ async function boot() {
   await app.useApp.getState().init();
   return { ...app, kv, snaps, s: () => app.useApp.getState() };
 }
-const outbox = (kv: { get: <T>(k: string) => Promise<T | undefined> }, id: string) =>
-  kv.get<{ ops: { t: string; id?: string }[]; data: TripData }>(STORAGE_KEYS.outbox(id));
+/** the unconfirmed edits saved for a trip, from whichever tab's key holds them */
+const outboxKeys = async (kv: { keys: () => Promise<string[]> }, id: string) =>
+  (await kv.keys()).filter((k) => k === STORAGE_KEYS.outbox(id) || k.startsWith(`${STORAGE_KEYS.outbox(id)}:`));
+const outbox = async (kv: { get: <T>(k: string) => Promise<T | undefined>; keys: () => Promise<string[]> }, id: string) => {
+  const [key] = await outboxKeys(kv, id);
+  return key ? kv.get<{ ops: { t: string; id?: string }[]; data: TripData }>(key) : undefined;
+};
 
 beforeEach(() => {
   fake.current = createFakeSupabase();
@@ -80,7 +85,8 @@ describe("signed-in: loading", () => {
     const b = await boot(); // cold start with no connection
     expect(b.s().data?.places.map((p) => p.id)).toContain("offline1");
     expect(b.s().loadIssue).toBeNull();
-    expect((await outbox(b.kv, id))?.ops.length).toBeGreaterThan(0);
+    await sleep(60);
+    expect((await outbox(b.kv, id))?.ops.length).toBeGreaterThan(0); // still held for when the network returns
   });
 
   it("refuses a trip a newer app has written", async () => {
@@ -347,5 +353,89 @@ describe("signed-in: on-device attachments", () => {
     expect(files[0].storagePath).toBe(`${id}/${fileId}`);
     expect((rows("docs").find((r) => r.id === "doc1")!.files as { storagePath?: string }[])[0].storagePath).toBe(`${id}/${fileId}`);
     expect(await getFileBlob(fileId)).toBeDefined();
+  });
+});
+
+describe("signed-in: several tabs", () => {
+  /** a tab whose edits can't reach the server, so they stay in its own outbox */
+  async function tabWithStuckEdit(id: string, placeId: string) {
+    const t = await boot();
+    fake.current.ctl.fail = (op, table) => (op === "upsert" && table === "places" ? { message: "Failed to fetch" } : null);
+    t.s().addEntity("places", place(placeId));
+    await t.settlePending(200);
+    await sleep(60);
+    fake.current.ctl.fail = null;
+    const { TAB_ID } = await import("@/lib/safety/crossTab");
+    expect(await outboxKeys(t.kv, id)).toContain(STORAGE_KEYS.outbox(id, TAB_ID));
+    return { t, tab: TAB_ID };
+  }
+  const alive = (tab: string) => localStorage.setItem(`za.beat.${tab}`, String(Date.now()));
+  const dead = (tab: string) => localStorage.removeItem(`za.beat.${tab}`);
+
+  it("each tab keeps its own outbox: one tab finishing doesn't clear another's", async () => {
+    const id = await seedTrip();
+    const { tab } = await tabWithStuckEdit(id, "tabA");
+    alive(tab);
+    const b = await boot();
+    b.s().addEntity("places", place("tabB"));
+    await b.settlePending();
+    await sleep(60);
+    expect(rows("places").map((r) => r.id)).toContain("tabB");
+    expect(rows("places").map((r) => r.id)).not.toContain("tabA"); // B never replayed A's edit
+    expect(await outboxKeys(b.kv, id)).toEqual([STORAGE_KEYS.outbox(id, tab)]); // A's is intact, B's is gone
+  });
+
+  it("a closed tab's unconfirmed edits are picked up by the next tab and reach the server", async () => {
+    const id = await seedTrip();
+    const { tab } = await tabWithStuckEdit(id, "orphan1");
+    dead(tab);
+    const b = await boot();
+    await b.settlePending();
+    await sleep(80);
+    expect(b.s().data!.places.map((p) => p.id)).toContain("orphan1");
+    expect(rows("places").map((r) => r.id)).toContain("orphan1");
+    expect(await outboxKeys(b.kv, id)).toEqual([]); // adopted, replayed, and cleaned up
+  });
+
+  it("edits left by two different closed tabs are both recovered", async () => {
+    const id = await seedTrip();
+    const one = await tabWithStuckEdit(id, "fromOne");
+    alive(one.tab); // still open when the second tab starts, so it leaves that outbox alone
+    const two = await tabWithStuckEdit(id, "fromTwo");
+    dead(one.tab);
+    dead(two.tab);
+    const b = await boot();
+    await b.settlePending();
+    await sleep(80);
+    const ids = rows("places").map((r) => r.id);
+    expect(ids).toEqual(expect.arrayContaining(["fromOne", "fromTwo"]));
+    expect(await outboxKeys(b.kv, id)).toEqual([]);
+  });
+
+  it("the older single-key outbox is still recovered", async () => {
+    const id = await seedTrip();
+    const a = await boot();
+    const data = structuredClone(a.s().data!);
+    data.places.push(place("legacy1"));
+    await a.kv.set(STORAGE_KEYS.outbox(id), { ops: [{ t: "row", type: "places", id: "legacy1" }], data });
+    const b = await boot();
+    await b.settlePending();
+    await sleep(80);
+    expect(rows("places").map((r) => r.id)).toContain("legacy1");
+    expect(await outboxKeys(b.kv, id)).toEqual([]);
+  });
+
+  it("adopted edits are saved under the new tab's key before the old key goes", async () => {
+    const id = await seedTrip();
+    const { tab } = await tabWithStuckEdit(id, "handover");
+    dead(tab);
+    fake.current.ctl.fail = () => ({ message: "Failed to fetch" }); // the new tab can't reach the server either
+    const b = await boot();
+    fake.current.ctl.fail = () => ({ message: "Failed to fetch" });
+    await sleep(200);
+    const { TAB_ID } = await import("@/lib/safety/crossTab");
+    const keys = await outboxKeys(b.kv, id);
+    expect(keys).toEqual([STORAGE_KEYS.outbox(id, TAB_ID)]);
+    expect((await outbox(b.kv, id))!.ops.map((o) => o.id)).toContain("handover");
   });
 });

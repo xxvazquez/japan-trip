@@ -12,7 +12,7 @@ import { TripLoadError, SaveBlockedError, StorageError, type LoadFailure } from 
 import { validateTrip, describeProblems } from "@/lib/safety/validate";
 import { takeSnapshot, ensureBackedUp, readSnapshot, type SnapshotMeta } from "@/lib/safety/snapshots";
 import { quarantine } from "@/lib/safety/quarantine";
-import { onSavedElsewhere } from "@/lib/safety/crossTab";
+import { onSavedElsewhere, isTabAlive, TAB_ID } from "@/lib/safety/crossTab";
 import type { Day, Doc, EntityType, MediaItem, Place, TripData, TripSummary } from "@/core/types";
 
 const now = () => new Date().toISOString();
@@ -182,7 +182,7 @@ function hasPendingFields() {
    batch that has been sent but not answered is exactly the one a killed tab
    loses, so it stays in the mirror until the server confirms it. ---- */
 
-interface Outbox { ops: Op[]; data: TripData }
+interface Outbox { ops: Op[]; data: TripData; /** when it was written — orders outboxes from several tabs */ at?: number }
 /** one batch of ops handed to the server and not yet answered */
 interface Flight { tripId: string; ops: Op[] }
 const flights = new Set<Flight>();
@@ -207,10 +207,10 @@ const pendingOps = (tripId: string, activeId: string | null): Op[] => [
 ];
 
 function writeOutbox(tripId: string, ops: Op[], data: TripData | null) {
-  const key = STORAGE_KEYS.outbox(tripId);
+  const key = STORAGE_KEYS.outbox(tripId, TAB_ID);
   outboxChain = outboxChain
     .then(async () => {
-      if (ops.length && data) await kv.set<Outbox>(key, { ops, data });
+      if (ops.length && data) await kv.set<Outbox>(key, { ops, data, at: Date.now() });
       else if (!ops.length) await kv.del(key);
     })
     .catch((e) => console.error("[outbox]", e));
@@ -232,23 +232,67 @@ function saveOutboxNow(get: () => AppStore) {
 const isOp = (o: unknown): o is Op =>
   !!o && typeof o === "object" && ["row", "del", "pos", "seg", "areaPlaces", "fields"].includes((o as Op).t);
 
-/** Read a trip's mirrored outbox. Anything that isn't a well-formed outbox is
- *  copied to quarantine (not deleted, not replayed) — replaying garbage onto a
- *  live trip is how a bad mirror becomes real data loss. */
+/** other tabs' outbox keys read by the last `readOutbox`, waiting to be taken over */
+let adopting: { tripId: string; keys: string[] } | null = null;
+
+/**
+ * Read the unconfirmed edits saved for a trip — this tab's own, plus any left by
+ * tabs that have since closed or died (a tab still open keeps its own; we never
+ * touch it). Several are folded into one, oldest first, so the newest edit to a
+ * row wins. Anything that isn't a well-formed outbox is copied to quarantine
+ * (not replayed) — replaying garbage onto a live trip is how a bad mirror
+ * becomes real data loss.
+ *
+ * Reading doesn't take ownership. Once the caller has the ops queued it calls
+ * `commitAdopt`, which re-saves them under this tab's key and only then removes
+ * the old keys, so there's no moment where they exist nowhere.
+ */
 async function readOutbox(id: string): Promise<Outbox | null> {
-  let raw: unknown;
+  adopting = null;
+  const base = STORAGE_KEYS.outbox(id);
+  let keys: string[];
   try {
-    raw = await kv.get<unknown>(STORAGE_KEYS.outbox(id));
+    keys = (await kv.keys()).filter((k) => k === base || k.startsWith(`${base}:`));
   } catch {
-    return null; // couldn't read it — it stays on disk untouched
+    return null; // couldn't list them — they stay on disk untouched
   }
-  if (raw === undefined) return null;
-  const ob = raw as Partial<Outbox>;
-  if (!Array.isArray(ob.ops) || !ob.ops.every(isOp) || validateTrip(ob.data).fatal) {
-    await quarantine(`outbox-${id}`, raw, "unreadable outbox");
-    return null;
+  const found: { key: string; ob: Outbox }[] = [];
+  for (const key of keys) {
+    const tab = key === base ? "" : key.slice(base.length + 1);
+    if (tab && tab !== TAB_ID && (await isTabAlive(tab))) continue; // its owner is still running
+    let raw: unknown;
+    try {
+      raw = await kv.get<unknown>(key);
+    } catch {
+      continue;
+    }
+    if (raw === undefined) continue;
+    const ob = raw as Partial<Outbox>;
+    if (!Array.isArray(ob.ops) || !ob.ops.every(isOp) || validateTrip(ob.data).fatal) {
+      await quarantine(`outbox-${id}`, raw, "unreadable outbox");
+      await kv.del(key).catch(() => {}); // the copy is set aside; don't re-read it every load
+      continue;
+    }
+    if (ob.ops.length) found.push({ key, ob: ob as Outbox });
   }
-  return ob as Outbox;
+  if (!found.length) return null;
+  found.sort((x, y) => (x.ob.at ?? 0) - (y.ob.at ?? 0));
+  let merged: Outbox | null = null;
+  for (const { ob } of found) {
+    merged = merged ? { ops: [...merged.ops, ...ob.ops], data: applyOutbox(merged.data, ob), at: ob.at } : ob;
+  }
+  adopting = { tripId: id, keys: found.map((f) => f.key).filter((k) => k !== STORAGE_KEYS.outbox(id, TAB_ID)) };
+  return merged;
+}
+
+/** The ops from `readOutbox` are now this tab's: save them under its own key,
+ *  then remove the keys they came from. */
+function commitAdopt(get: () => AppStore, tripId: string) {
+  if (!adopting || adopting.tripId !== tripId) return;
+  const { keys } = adopting;
+  adopting = null;
+  saveOutboxNow(get); // own key first…
+  outboxChain = outboxChain.then(() => Promise.all(keys.map((k) => kv.del(k).catch(() => {}))).then(() => {})); // …then the old ones
 }
 
 /** Merge a restored outbox onto the fresh server copy: the queued ops' own
@@ -758,6 +802,7 @@ async function recoverFromOutbox(get: () => AppStore, listen: (id: string) => vo
   bootedFromOutbox = true;
   const data = normalizeTrip(ob.data);
   useApp.setState({ trips: [summarise(id, data.meta.title, data)], activeId: id, data, hydrated: true });
+  commitAdopt(get, id);
   listen(id);
   void flush(get);
   return true;
@@ -952,6 +997,7 @@ export const useApp = create<AppStore>((set, get) => {
           }
           set({ trips, activeId: id, data, loadIssue: issue, hydrated: true });
           if (data) {
+            if (queue.length) commitAdopt(get, id);
             listen(id);
             if (queue.length) void flush(get);
             void syncDeviceFiles(get, id);
@@ -1184,6 +1230,7 @@ export const useApp = create<AppStore>((set, get) => {
       set({ activeId: id, data, loadIssue: issue, notice: null, syncState: "idle", syncErrorItems: [] });
       void be.setActive(id, get().trips).catch(reportListFailure);
       if (data) {
+        if (queue.length) commitAdopt(get, id);
         listen(id);
         if (queue.length) void flush(get);
         void syncDeviceFiles(get, id);
