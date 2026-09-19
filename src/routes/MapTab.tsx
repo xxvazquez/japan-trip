@@ -938,7 +938,7 @@ export default function MapTab() {
     setMsg("");
     try {
       const r = await syncMyMap(url);
-      setMsg(`Imported ${r.count} pins from “${r.mapName}”.`);
+      setMsg(r.count > 0 ? `Added ${r.count} new pin${r.count === 1 ? "" : "s"} from “${r.mapName}”.` : `No new pins in “${r.mapName}”.`);
     } catch (e) {
       setMsg(e instanceof Error ? e.message : "Sync failed.");
     } finally {
@@ -1432,7 +1432,7 @@ export default function MapTab() {
             <button onClick={runSync} disabled={busy} className="shrink-0 font-medium text-accent disabled:opacity-50">
               {busy ? "syncing…" : "Sync"}
             </button>
-            {imported > 0 && <InfoNote className="shrink-0">Syncing replaces imported pins. Your added places and notes are kept.</InfoNote>}
+            {imported > 0 && <InfoNote className="shrink-0">Syncing only adds new pins from My Maps — nothing already here is changed or removed.</InfoNote>}
           </div>
           {msg && <p className="mt-1 text-accent">{msg}</p>}
         </div>

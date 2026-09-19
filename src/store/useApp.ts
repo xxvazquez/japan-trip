@@ -1404,45 +1404,42 @@ export const useApp = create<AppStore>((set, get) => {
       for (const n of d.luggage) if (n.date) enqueue(get, { t: "row", type: "luggage", id: n.id });
     },
 
-    /** Replace all `source: "mymap"` places with a fresh import from `url`.
-     *  App-native places are untouched. */
+    /** Add any pin in `url`'s My Map that isn't already synced. Existing
+     *  pins — their notes, links, city override, Area membership, even ones
+     *  since removed from the My Map itself — are never touched or removed;
+     *  a sync only ever adds. */
     syncMyMap: async (url) => {
       const { fetchMyMap } = await import("@/lib/mymaps");
       const rid = () => (crypto?.randomUUID ? crypto.randomUUID() : `p-${Math.random().toString(36).slice(2)}`);
       const { mapName, places } = await fetchMyMap(url);
-      const removed: string[] = [];
-      const upserted: string[] = [];
+      const added: string[] = [];
       if (!local((d) => {
-        // Match incoming pins back to their existing row (by name — the KML
-        // export carries no stable id) so an unchanged pin keeps its id, its
-        // Area membership, and any note/link added in the app. Only a pin
-        // genuinely gone from the map, or genuinely new, changes id.
+        // No stable id in the KML export, so a pin already here (by name) is
+        // left alone rather than matched and rewritten. Duplicate names are
+        // matched by count, so a second same-named pin still comes in as new.
         const norm = (s: string) => s.trim().toLowerCase();
-        const byName = new Map<string, Place[]>();
+        const already = new Map<string, number>();
         for (const p of d.places) {
           if (p.source !== "mymap") continue;
           const key = norm(p.name);
-          const bucket = byName.get(key);
-          if (bucket) bucket.push(p); else byName.set(key, [p]);
+          already.set(key, (already.get(key) ?? 0) + 1);
         }
-        const next: Place[] = places.map((p) => {
-          const match = byName.get(norm(p.name))?.shift();
-          const id = match?.id ?? rid();
-          upserted.push(id);
-          return {
-            id, name: p.name, lat: p.lat, lng: p.lng, category: p.category, color: p.color,
-            source: "mymap", note: match?.note, url: match?.url, legId: match?.legId,
-          };
-        });
-        for (const bucket of byName.values()) for (const p of bucket) removed.push(p.id);
-        d.places = [...d.places.filter((p) => p.source !== "mymap"), ...next];
+        const next: Place[] = [];
+        for (const p of places) {
+          const key = norm(p.name);
+          const n = already.get(key) ?? 0;
+          if (n > 0) { already.set(key, n - 1); continue; }
+          const id = rid();
+          added.push(id);
+          next.push({ id, name: p.name, lat: p.lat, lng: p.lng, category: p.category, color: p.color, source: "mymap" });
+        }
+        d.places = [...d.places, ...next];
         d.config.mapSourceUrl = url;
         d.config.mapSyncedAt = now();
       })) return { mapName, count: 0 };
-      for (const id of removed) enqueue(get, { t: "del", type: "places", id });
-      for (const id of upserted) enqueue(get, { t: "row", type: "places", id });
+      for (const id of added) enqueue(get, { t: "row", type: "places", id });
       enqueue(get, { t: "fields", keys: ["config"] });
-      return { mapName, count: places.length };
+      return { mapName, count: added.length };
     },
     setMedia: (slot, item) => {
       if (local((d) => { d.media[slot] = item; })) enqueue(get, { t: "fields", keys: ["media"] });
