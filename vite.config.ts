@@ -20,13 +20,20 @@ function buildCommit(): string {
 
 /** the app version — `major.minor` from package.json, with the patch being the
  *  number of commits on the branch, so it goes up by itself with every change.
- *  Falls back to package.json's own version if git history isn't available
- *  (e.g. a shallow clone, where the count would be wrong). */
+ *  CI hosts clone shallowly (a count of 1), so it fetches the full history
+ *  first; if that isn't possible it falls back to package.json's own version
+ *  rather than show a wrong number. */
 function buildVersion(): string {
   const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")).version as string;
+  const git = (args: string) => execSync(`git ${args}`, { stdio: ["ignore", "pipe", "ignore"] }).toString().trim();
   try {
-    const git = (args: string) => execSync(`git ${args}`, { stdio: ["ignore", "pipe", "ignore"] }).toString().trim();
-    if (git("rev-parse --is-shallow-repository") === "true") return pkg;
+    if (git("rev-parse --is-shallow-repository") === "true") {
+      try {
+        git("fetch --unshallow --quiet");
+      } catch {
+        return pkg;
+      }
+    }
     const [major, minor] = pkg.split(".");
     return `${major}.${minor}.${git("rev-list --count HEAD")}`;
   } catch {
