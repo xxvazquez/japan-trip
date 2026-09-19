@@ -96,7 +96,7 @@ export function ActionSheet({
           top,
           left,
         }}
-        className="fixed z-[55] flex max-h-[70vh] min-w-[10rem] flex-col overflow-y-auto rounded-[10px] border border-line bg-surface py-1 text-sm shadow-md motion-safe:animate-fade-in [&_.menu-item]:px-3 [&_.menu-item]:py-1.5 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 [&_.menu-item:hover]:bg-surface-2"
+        className="fixed z-[55] flex max-h-[70vh] min-w-[10rem] max-w-[22rem] flex-col overflow-y-auto rounded-[10px] border border-line bg-surface py-1 text-sm shadow-md motion-safe:animate-fade-in [&_.menu-item]:px-3 [&_.menu-item]:py-1.5 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 [&_.menu-item:hover]:bg-surface-2"
       >
         {children}
       </div>
