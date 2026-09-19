@@ -1013,3 +1013,4 @@ function CostList({ costs, categories, currencies, places, highlightId, readOnly
     </ul>
   );
 }
+this is not valid )(

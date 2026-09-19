@@ -2,38 +2,61 @@ import { useEffect } from "react";
 import { useRouteError } from "react-router-dom";
 import { APP_NAME } from "@/lib/app";
 import { useIsDark } from "@/lib/mode";
+import { BootScreen } from "@/components/Loader";
 
-const RELOAD_KEY = "za.chunk-reload-at";
-const RELOAD_COOLDOWN_MS = 10_000;
+const RELOAD_KEY = "za.chunk-reload";
+const RELOAD_WINDOW_MS = 60_000;
+const MAX_RELOADS = 3;
+const RELOAD_DELAY_MS = 1_200;
 
-/** a lazy route's chunk 404s when the page was open before a new deploy
- *  replaced it on the server — reloading picks up the current build. */
+/** a lazy route's chunk fails to load when the page was open before a new
+ *  deploy replaced it on the server, or when the connection hiccups on a
+ *  reload — either way it's a wait, not a fault, and reloading recovers. */
 function isChunkLoadError(err: unknown): boolean {
   const msg = err instanceof Error ? err.message : String(err);
-  return /dynamically imported module|importing a module script failed/i.test(msg);
+  return /dynamically imported module|importing a module script failed|loading chunk|load failed/i.test(msg);
 }
 
-function shouldAutoReload(): boolean {
-  const last = Number(sessionStorage.getItem(RELOAD_KEY) || 0);
-  return Date.now() - last > RELOAD_COOLDOWN_MS;
+/** reloads already spent in the last minute, so a chunk that's really gone
+ *  ends on the error screen instead of looping forever */
+function reloadsSpent(): number {
+  try {
+    const { at, n } = JSON.parse(sessionStorage.getItem(RELOAD_KEY) || "{}") as { at?: number; n?: number };
+    return at && Date.now() - at < RELOAD_WINDOW_MS ? (n ?? 0) : 0;
+  } catch {
+    return 0;
+  }
 }
 
-/** Catches any error thrown while rendering a route — most commonly a stale
- *  lazy-chunk reference after a new deploy. Reloads once to recover; if that
- *  doesn't help, falls back to a plain error screen instead of a blank page. */
+function noteReload(spent: number) {
+  try {
+    sessionStorage.setItem(RELOAD_KEY, JSON.stringify({ at: Date.now(), n: spent + 1 }));
+  } catch {
+    /* private mode — worst case the reload isn't rate-limited */
+  }
+}
+
+/** Catches any error thrown while rendering a route. A failed lazy chunk
+ *  shows the same loader as any other load and retries by reloading; if that
+ *  keeps failing, or it's some other error, falls back to a plain error
+ *  screen instead of a blank page. */
 export default function RouteError() {
   const error = useRouteError();
   const dark = useIsDark();
   const chunkError = isChunkLoadError(error);
-  const willReload = chunkError && shouldAutoReload();
+  const spent = chunkError ? reloadsSpent() : MAX_RELOADS;
+  const willReload = chunkError && spent < MAX_RELOADS;
 
   useEffect(() => {
     if (!willReload) return;
-    sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
-    window.location.reload();
-  }, [willReload]);
+    const t = setTimeout(() => {
+      noteReload(spent);
+      window.location.reload();
+    }, RELOAD_DELAY_MS);
+    return () => clearTimeout(t);
+  }, [willReload, spent]);
 
-  if (willReload) return null;
+  if (willReload) return <BootScreen label="Loading" />;
 
   return (
     <div className="washi grid min-h-svh place-items-center px-6">
