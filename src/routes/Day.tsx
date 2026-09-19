@@ -39,6 +39,7 @@ import { fmtWalk } from "@/lib/geo";
 import { useWalk } from "@/lib/walkRoute";
 import { nearestStationOverpass, type NearbyStation } from "@/lib/transitStation";
 import { nearestOpeningHours, type PlaceHours } from "@/lib/placeHours";
+import { hoursForDate } from "@/lib/openingHours";
 import { fetchDayWeather, weatherLabel, type DayWeather } from "@/lib/weather";
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
@@ -595,7 +596,7 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
                   )}
                 </span>
               )}
-              {place && <PlaceHoursLine place={place} inline />}
+              {place && <PlaceHoursLine place={place} date={day.date} />}
             </div>
             {readOnly ? (
               mapHref ? (
@@ -639,7 +640,6 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
               collapsible
             />
             {place && <StepWalkLines place={place} nextPlace={nextPlace} />}
-            {place && <PlaceHoursLine place={place} />}
           </div>
 
           {/* one ⋯ instead of four loose glyphs — the step's title and lines
@@ -669,14 +669,13 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
   );
 }
 
-/** the step's own opening hours, straight from OpenStreetMap — an FYI to
- *  replan by eye, not a warning; nothing is checked against the day or
- *  flagged as a conflict. Silent when nothing's tagged nearby. A short value
- *  (`inline`) rides on the tile/time row so a step stays compact; a long
- *  schedule gets its own line below instead of stretching that row. */
-const INLINE_HOURS_MAX = 22;
-
-function PlaceHoursLine({ place, inline = false }: { place: Place; inline?: boolean }) {
+/** the step's own opening hours, straight from OpenStreetMap and narrowed to
+ *  the day's own date (`hoursForDate` — the rule for that month and weekday,
+ *  not the whole year's schedule; nothing at all when nothing covers the
+ *  date). An FYI to replan by eye, not a warning: nothing is flagged as a
+ *  conflict. Always the same spot — right end of the tile/time row — however
+ *  long the text. Silent when nothing's tagged nearby. */
+function PlaceHoursLine({ place, date }: { place: Place; date?: string }) {
   const [hours, setHours] = useState<PlaceHours | null>(null);
   useEffect(() => {
     setHours(null);
@@ -684,11 +683,12 @@ function PlaceHoursLine({ place, inline = false }: { place: Place; inline?: bool
     void nearestOpeningHours(place.lat, place.lng).then((h) => { if (!cancelled) setHours(h); });
     return () => { cancelled = true; };
   }, [place.id, place.lat, place.lng]);
-  if (!hours || (hours.hours.length <= INLINE_HOURS_MAX) !== inline) return null;
+  const text = hours ? (date ? hoursForDate(hours.hours, date) : hours.hours) : null;
+  if (!text) return null;
   return (
-    <span className={`meta flex min-w-0 gap-1 text-ink-faint ${inline ? "items-center" : "items-start"}`}>
-      <Icon name="clock" size={12} className={`shrink-0 ${inline ? "" : "mt-[3px]"}`} />
-      <span className="min-w-0">{hours.hours}</span>
+    <span className="meta ml-auto flex min-w-0 items-center gap-1 text-right text-ink-faint">
+      <Icon name="clock" size={12} className="shrink-0" />
+      <span className="min-w-0">{text}</span>
     </span>
   );
 }

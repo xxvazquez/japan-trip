@@ -71,10 +71,14 @@ never chosen by hand.
     if there's no routing key). On a narrow phone the two wrap as whole pieces rather than clip.
     The station comes from OpenStreetMap, which sometimes drops a request — a miss is retried once,
     and a found station is remembered on the device.
-  - if the linked place has opening hours tagged on OpenStreetMap, they show as-is beside the time
-    (e.g. "11:00-20:00"); a long schedule gets its own line instead. An FYI to replan by eye, not a
-    warning: nothing is checked against the day or flagged as a conflict, and plenty of places
-    simply aren't tagged, so this is a bonus when it's there, not something to rely on.
+  - if the linked place has opening hours tagged on OpenStreetMap, the hours **for that day** sit at
+    the right end of the tile/time row (e.g. "09:00–17:00") — always in the same spot. The app reads
+    the place's tagged schedule and picks the rule that covers the day's date (its month and
+    weekday), so a seasonal or weekday-only schedule shows just what applies, "Closed" on an
+    explicit closed date, and nothing when no rule covers that date. Anything it can't read
+    reliably (holiday rules aside, which are skipped) shows the tagged text as-is instead. An FYI
+    to replan by eye, not a warning: nothing is flagged as a conflict, and plenty of places simply
+    aren't tagged, so this is a bonus when it's there, not something to rely on.
   - **+ Add a step** at the foot of the list — so a long day's plan doesn't need a scroll back to
     the top to add the next thing.
 - Below the itinerary: **Areas** (drop a whole neighbourhood's pins onto the map — a chip's **×**
