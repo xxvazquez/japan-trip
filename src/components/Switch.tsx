@@ -1,6 +1,8 @@
 /**
  * An iOS toggle switch — the settings-context on/off control (a checkbox in a
- * settings list is a switch on iOS). 51×31, accent track when on.
+ * settings list is a switch on iOS). 42×25 — the iOS 51×31 scaled to sit
+ * in step with the app's 13px row type, which the full size dwarfs — accent
+ * track when on. An invisible ::before pushes the hit target out to ~44pt.
  */
 export function Switch({
   checked,
@@ -21,13 +23,13 @@ export function Switch({
       aria-label={label}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-[31px] w-[51px] shrink-0 items-center rounded-full transition-colors disabled:opacity-50 ${
+      className={`relative inline-flex h-[25px] w-[42px] shrink-0 items-center rounded-full transition-colors before:absolute before:-inset-x-1 before:-inset-y-2.5 before:content-[''] disabled:opacity-50 ${
         checked ? "bg-accent" : "bg-ink/20"
       }`}
     >
       <span
-        className={`inline-block h-[27px] w-[27px] rounded-full bg-white shadow transition-transform ${
-          checked ? "translate-x-[22px]" : "translate-x-[2px]"
+        className={`inline-block h-[21px] w-[21px] rounded-full bg-white shadow transition-transform ${
+          checked ? "translate-x-[19px]" : "translate-x-[2px]"
         }`}
       />
     </button>

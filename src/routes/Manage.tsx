@@ -321,7 +321,7 @@ function ExportTrip() {
       info="A single web-page file of the whole trip — itinerary, journeys, stays and places. Opens in any browser, prints cleanly, works offline; the recipient can print it to PDF. “Add to calendar” instead makes a .ics file — every plan step and travel hop as a calendar event, import it into your phone's own calendar. “Include private details” adds door codes, wifi, phone numbers and booking references — leave it off for anything you send someone. Document files are never included either way."
     >
       <ul>
-        <InsetRow label="Include private details">
+        <InsetRow label="Include private details" className="!items-center">
           <Switch checked={includePrivate} onChange={setIncludePrivate} label="Include private details" />
         </InsetRow>
         <ActionRow icon="download" label={busy ? "Building…" : "Download web page"} onClick={download} disabled={busy} />
@@ -952,56 +952,46 @@ function Appearance() {
   return (
     <div className="space-y-6">
       <Section title="Theme">
-        <div className="p-3.5">
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <ul role="radiogroup" aria-label="Theme">
           {THEME_PRESETS.map((p) => {
             const on = config.themePreset === p.id;
             return (
-              <button
-                key={p.id}
-                onClick={() => mutate((d) => { d.config.theme = structuredClone(p.tokens); d.config.themePreset = p.id; })}
-                className={`flex flex-col justify-start rounded border p-3 text-left transition-colors ${on ? "border-accent ring-1 ring-accent" : "border-line hover:bg-surface-2"}`}
-              >
-                <div
-                  className="mb-2 overflow-hidden rounded border p-2"
-                  style={{ borderColor: p.tokens.light.line, background: p.tokens.light.bg }}
+              <li key={p.id} className={INSET_DIVIDER}>
+                <button
+                  role="radio"
+                  aria-checked={on}
+                  onClick={() => mutate((d) => { d.config.theme = structuredClone(p.tokens); d.config.themePreset = p.id; })}
+                  className="flex w-full items-center gap-3 px-3.5 py-2.5 text-left transition-colors hover:bg-surface-2/40"
                 >
-                  <div className="rounded px-2 py-1.5" style={{ background: p.tokens.light.surface }}>
-                    <p className="truncate font-display text-[11px] leading-tight" style={{ color: p.tokens.light.ink }}>
-                      Hotel by the river
-                    </p>
-                    <p className="mt-0.5 truncate text-[9px]" style={{ color: p.tokens.light["ink-soft"] }}>
-                      12 Example Street
-                    </p>
-                    <p className="mt-1 truncate text-[9px] underline" style={{ color: p.tokens.light.accent }}>
-                      Directions ›
-                    </p>
-                  </div>
-                </div>
-                <p className="text-sm font-medium">{p.name}</p>
-                <p className="meta">{p.hint}</p>
-              </button>
+                  <span
+                    className="grid h-8 w-8 shrink-0 place-items-center rounded border"
+                    style={{ borderColor: p.tokens.light.line, background: p.tokens.light.bg }}
+                  >
+                    <span className="grid h-[18px] w-[18px] place-items-center rounded-[5px]" style={{ background: p.tokens.light.surface }}>
+                      <span className="h-2 w-2 rounded-full" style={{ background: p.tokens.light.accent }} />
+                    </span>
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="value block">{p.name}</span>
+                    <span className="meta block truncate">{p.hint}</span>
+                  </span>
+                  {on && <Icon name="check" size={16} className="shrink-0 text-accent" />}
+                </button>
+              </li>
             );
           })}
-        </div>
-
-        <div className="mt-4 flex items-center gap-4">
-          <label className="flex items-center gap-2 text-sm">
-            <span className="text-ink-faint">Accent (light)</span>
-            <input type="color" value={hexOnly(config.theme.light.accent)} onChange={(e) => mutate((d) => { d.config.theme.light.accent = e.target.value; d.config.themePreset = "custom"; })} className="h-7 w-10 cursor-pointer rounded border border-line bg-transparent" />
-          </label>
-          <label className="flex items-center gap-2 text-sm">
-            <span className="text-ink-faint">Accent (dark)</span>
-            <input type="color" value={hexOnly(config.theme.dark.accent)} onChange={(e) => mutate((d) => { d.config.theme.dark.accent = e.target.value; d.config.themePreset = "custom"; })} className="h-7 w-10 cursor-pointer rounded border border-line bg-transparent" />
-          </label>
-        </div>
-
-        <button onClick={() => setAdvanced((v) => !v)} className="mt-3 text-xs text-ink-faint hover:text-accent">
-          {advanced ? "Hide" : "Show"} every colour
-        </button>
-        {advanced &&
-          (["light", "dark"] as const).map((scheme) => (
-            <div key={scheme} className="mt-3">
+          <InsetRow label="Accent (light)" className="!items-center">
+            <input type="color" value={hexOnly(config.theme.light.accent)} onChange={(e) => mutate((d) => { d.config.theme.light.accent = e.target.value; d.config.themePreset = "custom"; })} className="h-6 w-9 cursor-pointer rounded border border-line bg-transparent" aria-label="Accent colour, light" />
+          </InsetRow>
+          <InsetRow label="Accent (dark)" className="!items-center">
+            <input type="color" value={hexOnly(config.theme.dark.accent)} onChange={(e) => mutate((d) => { d.config.theme.dark.accent = e.target.value; d.config.themePreset = "custom"; })} className="h-6 w-9 cursor-pointer rounded border border-line bg-transparent" aria-label="Accent colour, dark" />
+          </InsetRow>
+          <ActionRow label={`${advanced ? "Hide" : "Show"} every colour`} onClick={() => setAdvanced((v) => !v)} />
+        </ul>
+        {advanced && (
+          <div className="space-y-3 border-t border-line p-3.5">
+            {(["light", "dark"] as const).map((scheme) => (
+            <div key={scheme}>
               <p className="mb-1 text-sm font-medium capitalize">{scheme}</p>
               <div className="grid grid-cols-2 gap-x-4">
                 {Object.entries(config.theme[scheme]).map(([token, hex]) => (
@@ -1017,8 +1007,9 @@ function Appearance() {
                 ))}
               </div>
             </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </Section>
 
       <Section title="Logo">
