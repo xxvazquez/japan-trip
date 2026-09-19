@@ -63,21 +63,18 @@ never chosen by hand.
     kept behind one button so the step's own text gets the room
   - its own quiet note line underneath (bold, bullets, links) — tap to expand and edit
   - a link to the map, if the step is tied to a place
-  - if the step is tied to a place, its nearest metro/train station by name with the walking time
-    and distance to it (e.g. "≈ 3 min · 195 m to Ueno") — the same station lookup the Map tab uses.
-    Time and distance always show together: a straight-line estimate first, replaced by an actual
-    walking route once that comes back (or kept if there's no routing key).
-  - if the linked place has opening hours tagged on OpenStreetMap, a quiet line showing them as-is
-    (e.g. "Mo-Su 09:30-22:00") — an FYI to replan by eye, not a warning: nothing is checked against
-    the day or flagged as a conflict, and plenty of places simply aren't tagged, so this is a bonus
-    when it's there, not something to rely on.
-  - when this step and the next one are both tied to a place, a real walking time and distance to
-    the next stop (e.g. "≈ 9 min · 0.8 km walk to next stop") — an actual route when the free
-    routing service answers, a straight-line estimate until then. Nothing shows for a step that
-    isn't tied to a place, or the one after it. Past 20
-    minutes, a second line names the nearest station at each end (e.g. "that's far to walk — by
-    train: Ueno → Shibuya") — there's no free, no-card transit-routing API that covers Tokyo's rail
-    network line-by-line, so this doesn't name a line or a duration, just where to head for one.
+  - if the step is tied to a place, one quiet line with two walks side by side: 🚶 the time and
+    distance to the next step (when that one is tied to a place too, e.g. "≈ 9 min · 0.8 km"), and
+    🚆 the time and distance to the nearest metro/train station, named (e.g. "≈ 3 min · 195 m ·
+    Ueno") — the same station lookup the Map tab uses. Time and distance always show together: a
+    straight-line estimate first, replaced by an actual walking route once that comes back (or kept
+    if there's no routing key). On a narrow phone the two wrap as whole pieces rather than clip.
+    The station comes from OpenStreetMap, which sometimes drops a request — a miss is retried once,
+    and a found station is remembered on the device.
+  - if the linked place has opening hours tagged on OpenStreetMap, they show as-is beside the time
+    (e.g. "11:00-20:00"); a long schedule gets its own line instead. An FYI to replan by eye, not a
+    warning: nothing is checked against the day or flagged as a conflict, and plenty of places
+    simply aren't tagged, so this is a bonus when it's there, not something to rely on.
   - **+ Add a step** at the foot of the list — so a long day's plan doesn't need a scroll back to
     the top to add the next thing.
 - Below the itinerary: **Areas** (drop a whole neighbourhood's pins onto the map — a chip's **×**

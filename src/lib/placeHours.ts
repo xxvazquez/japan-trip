@@ -17,7 +17,20 @@ const SEARCH_RADIUS_KM = 0.2;
 
 const cache = new Map<string, PlaceHours | null>();
 
-export async function nearestOpeningHours(lat: number, lng: number): Promise<PlaceHours | null> {
+/** the same place asked twice at once (two lines of one step) shares one request */
+const inFlight = new Map<string, Promise<PlaceHours | null>>();
+
+export function nearestOpeningHours(lat: number, lng: number): Promise<PlaceHours | null> {
+  const key = `${lat.toFixed(4)},${lng.toFixed(4)}`;
+  let p = inFlight.get(key);
+  if (!p) {
+    p = fetchOpeningHours(lat, lng).finally(() => inFlight.delete(key));
+    inFlight.set(key, p);
+  }
+  return p;
+}
+
+async function fetchOpeningHours(lat: number, lng: number): Promise<PlaceHours | null> {
   const key = `${lat.toFixed(4)},${lng.toFixed(4)}`;
   if (cache.has(key)) return cache.get(key)!;
   const stored = readPersisted<PlaceHours>(`hours.${key}`);
@@ -30,7 +43,7 @@ export async function nearestOpeningHours(lat: number, lng: number): Promise<Pla
   try {
     const json = await overpass<{
       elements?: { lat?: number; lon?: number; center?: { lat: number; lon: number }; tags?: Record<string, string> }[];
-    }>(query);
+    }>(query, { low: true });
     let best: PlaceHours | null = null;
     for (const el of json.elements ?? []) {
       const hours = el.tags?.opening_hours;

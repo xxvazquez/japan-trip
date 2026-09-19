@@ -16,19 +16,22 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 let active = 0;
 const waiting: (() => void)[] = [];
+const waitingLow: (() => void)[] = [];
 
-async function slot<T>(fn: () => Promise<T>): Promise<T> {
-  if (active >= MAX_IN_FLIGHT) await new Promise<void>((resolve) => waiting.push(resolve));
+async function slot<T>(fn: () => Promise<T>, low: boolean): Promise<T> {
+  if (active >= MAX_IN_FLIGHT) await new Promise<void>((resolve) => (low ? waitingLow : waiting).push(resolve));
   active++;
   try {
     return await fn();
   } finally {
     active--;
-    waiting.shift()?.();
+    (waiting.shift() ?? waitingLow.shift())?.();
   }
 }
 
-export function overpass<T>(query: string): Promise<T> {
+/** `low` puts an FYI lookup (opening hours) behind every normal one, so the
+ *  station lines a page is waiting on aren't held up by it. */
+export function overpass<T>(query: string, { low = false }: { low?: boolean } = {}): Promise<T> {
   return slot(async () => {
     let lastError: unknown = new Error("overpass unavailable");
     for (const url of ENDPOINTS) {
@@ -51,7 +54,7 @@ export function overpass<T>(query: string): Promise<T> {
       }
     }
     throw lastError;
-  });
+  }, low);
 }
 
 /** Successful lookups are stable (a station or an opening-hours tag doesn't

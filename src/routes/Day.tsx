@@ -28,7 +28,6 @@ import { ConfirmButton } from "@/components/ConfirmButton";
 import { Icon } from "@/components/Icon";
 import { RouteLabel } from "@/components/RouteLabel";
 import { IconTile } from "@/components/IconTile";
-import { WalkLine } from "@/components/WalkLine";
 import { toneForPlaceCategory } from "@/lib/tones";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
@@ -490,7 +489,7 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
   item: PlanItem;
   place?: Place;
   /** the next step's linked place, if both it and this step have one — for
-   *  the real walking time shown at the foot of this card (see `WalkToNext`) */
+   *  the real walking time shown at the foot of this card (see `StepWalkLines`) */
   nextPlace?: Place;
   areaPlaces: Place[];
   areaNameByPlaceId: Map<string, string>;
@@ -596,6 +595,7 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
                   )}
                 </span>
               )}
+              {place && <PlaceHoursLine place={place} inline />}
             </div>
             {readOnly ? (
               mapHref ? (
@@ -638,9 +638,8 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
               className="block text-[0.8125rem] leading-relaxed text-ink-faint [&_strong]:text-ink-soft"
               collapsible
             />
-            {place && <NearestStationLine place={place} />}
+            {place && <StepWalkLines place={place} nextPlace={nextPlace} />}
             {place && <PlaceHoursLine place={place} />}
-            {place && nextPlace && <WalkToNext from={place} to={nextPlace} />}
           </div>
 
           {/* one ⋯ instead of four loose glyphs — the step's title and lines
@@ -672,8 +671,12 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
 
 /** the step's own opening hours, straight from OpenStreetMap — an FYI to
  *  replan by eye, not a warning; nothing is checked against the day or
- *  flagged as a conflict. Silent when nothing's tagged nearby. */
-function PlaceHoursLine({ place }: { place: Place }) {
+ *  flagged as a conflict. Silent when nothing's tagged nearby. A short value
+ *  (`inline`) rides on the tile/time row so a step stays compact; a long
+ *  schedule gets its own line below instead of stretching that row. */
+const INLINE_HOURS_MAX = 22;
+
+function PlaceHoursLine({ place, inline = false }: { place: Place; inline?: boolean }) {
   const [hours, setHours] = useState<PlaceHours | null>(null);
   useEffect(() => {
     setHours(null);
@@ -681,67 +684,58 @@ function PlaceHoursLine({ place }: { place: Place }) {
     void nearestOpeningHours(place.lat, place.lng).then((h) => { if (!cancelled) setHours(h); });
     return () => { cancelled = true; };
   }, [place.id, place.lat, place.lng]);
-  if (!hours) return null;
+  if (!hours || (hours.hours.length <= INLINE_HOURS_MAX) !== inline) return null;
   return (
-    <span className="meta flex items-start gap-1 text-ink-faint">
-      <Icon name="clock" size={12} className="mt-[3px] shrink-0" />
+    <span className={`meta flex min-w-0 gap-1 text-ink-faint ${inline ? "items-center" : "items-start"}`}>
+      <Icon name="clock" size={12} className={`shrink-0 ${inline ? "" : "mt-[3px]"}`} />
       <span className="min-w-0">{hours.hours}</span>
     </span>
   );
 }
 
-/** the step's own nearest metro/train station — same lookup as a place's row
- *  on the Map tab (`src/lib/transitStation.ts`), minus that page's "check the
- *  map's own tiles first" shortcut, since this route never loads a map. Shows
- *  walking time and distance together (`WalkLine`), silent only when no
- *  station turns up within range. */
-function NearestStationLine({ place }: { place: Place }) {
+/** one caption of the walk figures — 🚶 "≈ 2h 2min · 9.8 km" (to the next
+ *  step) and 🚆 "≈ 1 min · 84 m · Kita-sando" (to the nearest station) — side
+ *  by side on one line, the icons saying which is which, wrapping as whole
+ *  pieces only when the screen is too narrow for both. Time and distance always come
+ *  as a pair (`useWalk`: estimate first, real route when it lands). The
+ *  station comes from OpenStreetMap (`transitStation.ts`); a lookup that
+ *  came back empty is tried once more shortly after, since the public
+ *  server drops the odd request. */
+function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }) {
+  const next = useWalk(place, nextPlace);
   const [station, setStation] = useState<NearbyStation | null>(null);
   useEffect(() => {
     setStation(null);
     let cancelled = false;
-    void nearestStationOverpass(place.lat, place.lng).then((s) => { if (!cancelled) setStation(s); });
-    return () => { cancelled = true; };
+    let retry: ReturnType<typeof setTimeout> | undefined;
+    void nearestStationOverpass(place.lat, place.lng).then((s) => {
+      if (cancelled) return;
+      if (s) { setStation(s); return; }
+      retry = setTimeout(() => {
+        void nearestStationOverpass(place.lat, place.lng).then((s2) => { if (!cancelled) setStation(s2); });
+      }, 6000);
+    });
+    return () => { cancelled = true; clearTimeout(retry); };
   }, [place.id, place.lat, place.lng]);
-  if (!station) return null;
-  return <WalkLine icon="train" from={place} to={station}>to {station.name}</WalkLine>;
-}
+  const toStation = useWalk(place, station);
 
-/** past this, walking isn't really the plan — worth naming the nearest
- *  station at each end instead of just a discouraging minute count. */
-const LONG_WALK_MIN = 20;
-
-/** walking time + distance to the next step — only rendered by `PlanRow` when
- *  both this step and the next one link to a real place. */
-function WalkToNext({ from, to }: { from: Place; to: Place }) {
-  const route = useWalk(from, to);
-
-  const long = !!route && route.min > LONG_WALK_MIN;
-  const [fromStation, setFromStation] = useState<NearbyStation | null>(null);
-  const [toStation, setToStation] = useState<NearbyStation | null>(null);
-  useEffect(() => {
-    setFromStation(null);
-    setToStation(null);
-    if (!long) return;
-    let cancelled = false;
-    void nearestStationOverpass(from.lat, from.lng).then((s) => { if (!cancelled) setFromStation(s); });
-    void nearestStationOverpass(to.lat, to.lng).then((s) => { if (!cancelled) setToStation(s); });
-    return () => { cancelled = true; };
-  }, [long, from.lat, from.lng, to.lat, to.lng]);
-
-  if (!route) return null;
+  const piece = "flex min-w-0 items-start gap-1";
   return (
     <>
-      <span className="meta flex items-start gap-1 text-ink-faint">
-        <Icon name="walk" size={12} className="mt-[3px] shrink-0" />
-        <span className="min-w-0">{fmtWalk(route)} walk to next stop</span>
-      </span>
-      {/* no line name or duration — there's no free, keyless transit-routing API
-       *  that covers Tokyo, and a guessed one would risk sending the wrong way */}
-      {long && fromStation && toStation && fromStation.name !== toStation.name && (
-        <span className="meta flex items-start gap-1 text-ink-faint">
-          <Icon name="train" size={12} className="mt-[3px] shrink-0" />
-          <span className="min-w-0">that's far to walk — by train: {fromStation.name} → {toStation.name}</span>
+      {(next || (station && toStation)) && (
+        <span className="meta flex flex-wrap gap-x-3 gap-y-0.5 text-ink-faint">
+          {next && (
+            <span className={piece}>
+              <Icon name="walk" size={12} className="mt-[3px] shrink-0" />
+              <span className="min-w-0">{fmtWalk(next)}</span>
+            </span>
+          )}
+          {station && toStation && (
+            <span className={piece}>
+              <Icon name="train" size={12} className="mt-[3px] shrink-0" />
+              <span className="min-w-0">{fmtWalk(toStation)} · {station.name}</span>
+            </span>
+          )}
         </span>
       )}
     </>
