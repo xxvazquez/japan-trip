@@ -395,6 +395,10 @@ export interface DocFile {
    *  folder (syncs to both people). Absent = legacy on-device blob, `id` is the
    *  local fileStore key. */
   driveId?: string;
+  /** Path in the account's private file storage (`<tripId>/<fileId>`) — set when
+   *  the attachment was added signed-in without Drive, or an on-device file has
+   *  been uploaded. Shared with everyone on the trip. */
+  storagePath?: string;
   /** MIME type, when known — lets the UI preview images inline. */
   mime?: string;
 }

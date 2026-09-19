@@ -238,8 +238,11 @@ the total spent — and nothing when it's empty.
 
 - **Documents** — one card per document. Name it ("Travel insurance"), attach the PDF / photo, add
   whatever fields you want, add a note. Every card is renamable, removable, and you add more from the
-  tab. Attachments stay only on the device they were added on (or, when Drive is connected, a shared
-  trip folder).
+  tab. Signed in, attachments are saved to your account (private, shared with everyone on the trip;
+  25 MB per file) — or to a shared Google Drive folder when Drive is connected. Signed out / "this
+  device only", they stay on the device. Files that were added on a device earlier are uploaded to
+  your account automatically the next time the trip opens, and the device copy is kept. Removing an
+  attachment only removes it from the card; the file itself is never deleted.
 - **Packing** — build the checklist right there: add a category, add items, tick them off. Categories
   fold away; with two or more travellers set (Manage → Setup) each item gets an **assign** pill (a
   traveller's initial, **Shared**, or **—**).
@@ -326,8 +329,8 @@ never overwrites a trip you already have; if the name is taken the copy is calle
 file that isn't a backup, is empty, was cut off or edited after it was saved (each backup carries a
 checksum), or was made by a newer version of the app, is refused with a message — and a backup is
 read back and checked before the download is offered, so you never get a file that can't be restored.
-Attached document files aren't inside the backup: ones stored in Google Drive still open from
-anywhere, ones saved only on a device stay on that device.
+Attached document files aren't inside the backup: ones in your account or Google Drive still open
+from anywhere, ones saved only on a device stay on that device.
 
 ### Data safety
 
@@ -522,7 +525,7 @@ pushes back, and every route is remembered on the device, so a page only asks fo
 ## Setting up Supabase
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. **SQL Editor** → run every file in `supabase/migrations/` **in order** (`0001` → `0028`).
+2. **SQL Editor** → run every file in `supabase/migrations/` **in order** (`0001` → `0029`).
 3. **Authentication → Providers → Google** → enable, paste a Google Cloud OAuth client id / secret,
    redirect `https://<project-ref>.supabase.co/auth/v1/callback`.
 4. **Authentication → URL Configuration → Redirect URLs** → add `http://localhost:5173` and the

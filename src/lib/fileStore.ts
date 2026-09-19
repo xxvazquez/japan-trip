@@ -14,6 +14,11 @@ export async function putFile(file: Blob): Promise<string> {
   return id;
 }
 
+/** the stored bytes, or undefined when this device doesn't have them */
+export async function getFileBlob(id: string): Promise<Blob | undefined> {
+  return get<Blob>(key(id));
+}
+
 export async function fileUrl(id: string): Promise<string | null> {
   const blob = await get<Blob>(key(id));
   return blob ? URL.createObjectURL(blob) : null;

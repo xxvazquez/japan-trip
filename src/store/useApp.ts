@@ -13,7 +13,7 @@ import { validateTrip, describeProblems } from "@/lib/safety/validate";
 import { takeSnapshot, ensureBackedUp, readSnapshot, type SnapshotMeta } from "@/lib/safety/snapshots";
 import { quarantine } from "@/lib/safety/quarantine";
 import { onSavedElsewhere } from "@/lib/safety/crossTab";
-import type { Day, EntityType, MediaItem, Place, TripData, TripSummary } from "@/core/types";
+import type { Day, Doc, EntityType, MediaItem, Place, TripData, TripSummary } from "@/core/types";
 
 const now = () => new Date().toISOString();
 
@@ -709,6 +709,29 @@ async function flush(get: () => AppStore) {
   }
 }
 
+let fileSyncRunning = false;
+/** signed-in: upload any attachment that only exists on this device (see fileSync.ts) */
+async function syncDeviceFiles(get: () => AppStore, tripId: string) {
+  if (fileSyncRunning || pickBackend().kind !== "supabase" || get().data?.config.demo) return;
+  fileSyncRunning = true;
+  try {
+    const { uploadDeviceFiles } = await import("@/lib/fileSync");
+    await uploadDeviceFiles({
+      tripId,
+      docs: () => (get().activeId === tripId ? get().data?.docs ?? [] : []),
+      setStoragePath: (docId, fileId, path) => {
+        const doc = get().data?.docs.find((x) => x.id === docId);
+        if (!doc || get().activeId !== tripId) return;
+        get().updateEntity<Doc>("docs", docId, { files: (doc.files ?? []).map((f) => (f.id === fileId ? { ...f, storagePath: path } : f)) });
+      },
+    });
+  } catch (e) {
+    console.error("[files]", e);
+  } finally {
+    fileSyncRunning = false;
+  }
+}
+
 const stamped = new Set<string>();
 /** everything is on the server: keep a rolling restore point of that state
  *  (throttled inside `takeSnapshot`) and record which app version touched it */
@@ -931,6 +954,7 @@ export const useApp = create<AppStore>((set, get) => {
           if (data) {
             listen(id);
             if (queue.length) void flush(get);
+            void syncDeviceFiles(get, id);
           }
           return;
         }
@@ -1162,6 +1186,7 @@ export const useApp = create<AppStore>((set, get) => {
       if (data) {
         listen(id);
         if (queue.length) void flush(get);
+        void syncDeviceFiles(get, id);
       }
     },
 

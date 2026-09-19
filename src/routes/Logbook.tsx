@@ -24,6 +24,8 @@ import type { MapGlyphId } from "@/lib/mapGlyphs";
 import { useData } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useAuth } from "@/lib/auth";
+import { supabaseEnabled } from "@/lib/supabase";
+import { uploadFile, signedFileUrl, MAX_FILE_BYTES } from "@/lib/cloudFiles";
 import { useReadOnly } from "@/lib/readonly";
 import { APP_NAME } from "@/lib/app";
 import { fmtDate, fmtSpan, plural } from "@/lib/dates";
@@ -574,6 +576,9 @@ function Documents() {
   const docs = data.docs.filter((d) => d.kind !== "contact");
 
   const cloud = driveEnabled && !!user;
+  // signed in without Drive: files go to the account's own private storage
+  const stored = !cloud && supabaseEnabled && !!user;
+  const tripId = useApp((s) => s.activeId);
   const folderName = `${APP_NAME} · ${data.meta.title}`;
   const shareWith = (data.config.driveShareEmails ?? [])
     .map((e) => e.trim().toLowerCase())
@@ -600,7 +605,9 @@ function Documents() {
             One card per document — rename it, add your own fields, attach a file, add a note.{" "}
             {cloud
               ? "Attachments upload to a Google Drive folder shared with the people on this trip. Still — think twice before a full passport scan."
-              : "Attachments stay only on the device they’re added on — passport numbers don’t belong here."}
+              : stored
+                ? "Attachments are saved to your account and shared with the people on this trip. Still — think twice before a full passport scan."
+                : "Attachments stay only on the device they’re added on — passport numbers don’t belong here."}
           </>
         }
       >
@@ -622,6 +629,7 @@ function Documents() {
                   <Attachments
                     doc={d}
                     cloud={cloud}
+                    tripId={stored ? tripId : null}
                     folderName={folderName}
                     shareWith={shareWith}
                     onChange={(files) => updateEntity<Doc>("docs", d.id, { files })}
@@ -656,11 +664,13 @@ function Documents() {
 }
 
 function Attachments({
-  doc, onChange, cloud, folderName, shareWith,
+  doc, onChange, cloud, tripId, folderName, shareWith,
 }: {
   doc: Doc;
   onChange: (files: DocFile[]) => void;
   cloud: boolean;
+  /** set when files should go to the account's private storage for this trip */
+  tripId: string | null;
   folderName: string;
   shareWith: string[];
 }) {
@@ -689,6 +699,23 @@ function Attachments({
       } finally {
         setBusy(false);
       }
+    } else if (tripId) {
+      setBusy(true);
+      try {
+        const added: DocFile[] = [];
+        for (const f of Array.from(fileList)) {
+          if (f.size > MAX_FILE_BYTES) throw new Error(`“${f.name}” is over ${MAX_FILE_BYTES / 1048576} MB, which is the most one file can be.`);
+          const id = crypto.randomUUID();
+          const storagePath = `${tripId}/${id}`;
+          await uploadFile(storagePath, f);
+          added.push({ id, name: f.name, size: f.size, mime: f.type, storagePath });
+        }
+        onChange([...files, ...added]);
+      } catch (e) {
+        setErr(e instanceof Error ? e.message : "Upload failed.");
+      } finally {
+        setBusy(false);
+      }
     } else {
       const added: DocFile[] = [];
       for (const f of Array.from(fileList)) added.push({ id: await putFile(f), name: f.name, size: f.size, mime: f.type });
@@ -698,7 +725,13 @@ function Attachments({
 
   const open = async (f: DocFile) => {
     if (f.driveId) window.open(driveViewUrl(f.driveId), "_blank", "noopener");
-    else {
+    else if (f.storagePath) {
+      // open the tab first (a popup blocker only allows it inside the tap), then point it at the signed link
+      const w = window.open("", "_blank");
+      const url = await signedFileUrl(f.storagePath).catch(() => null);
+      if (url && w) w.location.href = url;
+      else { w?.close(); setErr("Couldn’t open that file right now — check your connection and try again."); }
+    } else {
       const url = await fileUrl(f.id);
       if (url) window.open(url, "_blank");
     }

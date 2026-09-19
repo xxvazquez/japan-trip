@@ -328,3 +328,24 @@ describe("signed-in: deleting, restoring, creating", () => {
     expect((await a.snaps.listSnapshots(id, { cloud: true })).map((p) => p.reason)).toContain("before-restore");
   });
 });
+
+describe("signed-in: on-device attachments", () => {
+  it("uploads a device-only attachment once on open, keeps the local copy, and marks the file", async () => {
+    const id = await seedTrip();
+    const { putFile, getFileBlob } = await import("@/lib/fileStore");
+    const fileId = await putFile(new Blob(["hello"], { type: "application/pdf" }));
+    (fake.current.ctl.tables.docs ??= []).push({ id: "doc1", trip_id: id, position: 0, title: "Booking", kind: "other", fields: [], files: [{ id: fileId, name: "b.pdf" }] });
+    const uploaded: string[] = [];
+    (fake.current.client as unknown as { storage: unknown }).storage = { from: () => ({ upload: async (path: string) => { uploaded.push(path); return { error: null }; } }) } as never;
+
+    const a = await boot();
+    await sleep(200);
+    await a.settlePending();
+    await sleep(100);
+    expect(uploaded).toEqual([`${id}/${fileId}`]);
+    const files = a.s().data!.docs.find((d) => d.id === "doc1")!.files!;
+    expect(files[0].storagePath).toBe(`${id}/${fileId}`);
+    expect((rows("docs").find((r) => r.id === "doc1")!.files as { storagePath?: string }[])[0].storagePath).toBe(`${id}/${fileId}`);
+    expect(await getFileBlob(fileId)).toBeDefined();
+  });
+});
