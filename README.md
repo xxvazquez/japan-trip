@@ -284,6 +284,12 @@ Tap almost any piece of text and it becomes editable on the spot. Type, tap away
 separate "edit mode". Dates and times open a picker; once a link, phone or email is filled in it turns
 into the real clickable thing, with a small pencil on the right of the row to edit it.
 
+**Deleted something by mistake?** Removing a plan step, an expense, a packing item, a list item, a
+journey hop or a detail — or deleting a whole day, stay, journey, place, area, document or note —
+brings up an **Undo** bar above the tab bar for a few seconds. Tap it and exactly what was removed
+comes back, in its old spot; anything else you edited in the meantime is left alone. It covers the
+last delete only, and deleting a whole trip or a file attachment isn't undoable.
+
 When you're signed in, a small label next to the header search icon shows what's happening:
 **Saving…** (grey, while it's in flight), **Saved** (green, flashes briefly once it lands), or
 **Offline** (amber, stays up for as long as you're disconnected — edits keep queuing and send the

@@ -69,6 +69,14 @@ interface AppStore {
    *  doesn't sit retrying forever. */
   discardSyncIssue: (key: string) => void;
 
+  /** the toast offering to take back the last delete; null when there's nothing to undo */
+  undoToast: { key: number; label: string } | null;
+  /** Run a delete and remember what it changed, so <UndoToast> can offer to
+   *  bring it back. Works on any mix of entity / config edits made inside `fn`. */
+  undoable: (label: string, fn: () => void) => void;
+  undo: () => void;
+  dismissUndo: () => void;
+
   /** local state only — pair with an op or use mutateTrip */
   mutate: (fn: (draft: TripData) => void) => void;
   /** edit trip-level settings (config / meta) and persist them */
@@ -387,7 +395,16 @@ async function flush(get: () => AppStore) {
   const fieldKeys = new Set<FieldKey>();
 
   for (const op of ops) {
-    if (op.t === "row") { const k = `${op.type}:${op.id}`; if (!dels.has(k)) rows.set(k, op); }
+    if (op.t === "row") {
+      const k = `${op.type}:${op.id}`;
+      // a row queued after its own delete only counts when the entity is back
+      // (an undo) — otherwise it's a stale edit to something already removed
+      if (dels.has(k)) {
+        if (!(data[op.type] as WithId[]).some((x) => x.id === op.id)) continue;
+        dels.delete(k);
+      }
+      rows.set(k, op);
+    }
     else if (op.t === "del") { const k = `${op.type}:${op.id}`; rows.delete(k); dels.set(k, op); }
     else if (op.t === "pos") positions.add(op.type);
     else if (op.t === "seg") segs.add(op.journeyId);
@@ -500,6 +517,49 @@ async function resyncTrip(get: () => AppStore, tripId: string) {
   if (fresh && get().activeId === tripId) useApp.setState({ data: fresh });
 }
 
+/* ---------------------------------------------------- undo */
+
+const ENTITY_TYPES: EntityType[] = ["legs", "days", "hotels", "journeys", "luggage", "docs", "packing", "places", "areas", "scratchNotes"];
+
+/** What one `undoable` call changed — the "before" of every entity row it
+ *  touched (or a marker for one it added), plus any trip-settings keys. Rows,
+ *  not a whole-trip snapshot, so undoing never rolls back an unrelated edit
+ *  made in the seconds the toast is up. */
+interface UndoRecord {
+  tripId: string;
+  rows: { type: EntityType; id: string; index: number; before?: WithId }[];
+  config: Record<string, unknown>;
+  meta?: TripData["meta"];
+}
+
+let undoRecord: UndoRecord | null = null;
+let undoKey = 0;
+let undoDepth = 0;
+
+function diffForUndo(tripId: string, before: TripData, after: TripData): UndoRecord | null {
+  const rows: UndoRecord["rows"] = [];
+  for (const type of ENTITY_TYPES) {
+    const was = before[type] as WithId[];
+    const is = after[type] as WithId[];
+    const now = new Map(is.map((x) => [x.id, x]));
+    was.forEach((row, index) => {
+      const cur = now.get(row.id);
+      if (!cur || JSON.stringify(cur) !== JSON.stringify(row)) rows.push({ type, id: row.id, index, before: row });
+    });
+    const had = new Set(was.map((x) => x.id));
+    for (const row of is) if (!had.has(row.id)) rows.push({ type, id: row.id, index: -1 });
+  }
+  const config: Record<string, unknown> = {};
+  const b = before.config as unknown as Record<string, unknown>;
+  const a = after.config as unknown as Record<string, unknown>;
+  for (const k of new Set([...Object.keys(b), ...Object.keys(a)])) {
+    if (JSON.stringify(a[k]) !== JSON.stringify(b[k])) config[k] = b[k];
+  }
+  const metaChanged = JSON.stringify(before.meta) !== JSON.stringify(after.meta);
+  if (!rows.length && !Object.keys(config).length && !metaChanged) return null;
+  return { tripId, rows, config, meta: metaChanged ? before.meta : undefined };
+}
+
 /* ---------------------------------------------------- store */
 
 export const useApp = create<AppStore>((set, get) => {
@@ -520,6 +580,7 @@ export const useApp = create<AppStore>((set, get) => {
 
   return {
     hydrated: false,
+    undoToast: null,
     authRequired: false,
     syncState: "idle",
     syncErrorItems: [],
@@ -728,6 +789,62 @@ export const useApp = create<AppStore>((set, get) => {
     },
 
     mutate: (fn) => { local(fn); },
+
+    undoable: (label, fn) => {
+      // a delete that's itself made of smaller deletes is one undo, not several
+      if (undoDepth > 0) { fn(); return; }
+      const before = get().data;
+      const tripId = get().activeId;
+      undoDepth++;
+      try { fn(); } finally { undoDepth--; }
+      const after = get().data;
+      // switching trips (or a trip going away) inside `fn` isn't undoable
+      if (!before || !after || !tripId || get().activeId !== tripId) return;
+      const rec = diffForUndo(tripId, before, after);
+      if (!rec) return;
+      undoRecord = rec;
+      set({ undoToast: { key: ++undoKey, label } });
+    },
+
+    dismissUndo: () => {
+      undoRecord = null;
+      set({ undoToast: null });
+    },
+
+    undo: () => {
+      const rec = undoRecord;
+      undoRecord = null;
+      set({ undoToast: null });
+      if (!rec || get().activeId !== rec.tripId) return;
+      const reinserted = new Set<EntityType>();
+      const next = local((d) => {
+        for (const r of rec.rows) {
+          const list = d[r.type] as WithId[];
+          const i = list.findIndex((x) => x.id === r.id);
+          if (!r.before) { if (i >= 0) list.splice(i, 1); continue; } // added by the delete → take it out again
+          const row = structuredClone(r.before);
+          if (i >= 0) list[i] = row;
+          else { list.splice(Math.min(r.index, list.length), 0, row); reinserted.add(r.type); }
+        }
+        const cfg = d.config as unknown as Record<string, unknown>;
+        for (const [k, v] of Object.entries(rec.config)) {
+          if (v === undefined) delete cfg[k]; else cfg[k] = structuredClone(v);
+        }
+        if (rec.meta) d.meta = structuredClone(rec.meta);
+      });
+      if (!next) return;
+      for (const r of rec.rows) {
+        if (!r.before) { enqueue(get, { t: "del", type: r.type, id: r.id }); continue; }
+        enqueue(get, { t: "row", type: r.type, id: r.id });
+        if (r.type === "journeys") enqueue(get, { t: "seg", journeyId: r.id });
+        if (r.type === "areas") enqueue(get, { t: "areaPlaces", areaId: r.id });
+      }
+      for (const type of reinserted) enqueue(get, { t: "pos", type });
+      const keys: FieldKey[] = [];
+      if (Object.keys(rec.config).length) keys.push("config");
+      if (rec.meta) keys.push("meta");
+      if (keys.length) enqueue(get, { t: "fields", keys });
+    },
 
     mutateTrip: (fn) => {
       if (local(fn)) enqueue(get, { t: "fields", keys: ["config", "meta"] });
@@ -939,3 +1056,7 @@ export const useApp = create<AppStore>((set, get) => {
 });
 
 export const initApp = () => useApp.getState().init();
+
+/** `undoable` for call sites outside a component — a ConfirmButton's onConfirm,
+ *  a menu item — where there's no hook to hang the store selector on. */
+export const undoable = (label: string, fn: () => void) => useApp.getState().undoable(label, fn);

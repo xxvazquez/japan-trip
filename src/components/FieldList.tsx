@@ -1,4 +1,5 @@
 import { Editable } from "./Editable";
+import { undoable } from "@/store/useApp";
 import { MoneyField } from "./MoneyField";
 import { Icon } from "./Icon";
 import { RowMenu } from "./RowMenu";
@@ -129,7 +130,7 @@ export function FieldList({
       <RowMenu label="Field options">
         <button type="button" className="menu-item" disabled={i === 0} onClick={() => move(i, -1)}>Move up</button>
         <button type="button" className="menu-item" disabled={i === fields.length - 1} onClick={() => move(i, 1)}>Move down</button>
-        <button type="button" className="menu-item text-danger" onClick={() => removeAt(i)}>Remove</button>
+        <button type="button" className="menu-item text-danger" onClick={() => undoable("Removed", () => removeAt(i))}>Remove</button>
       </RowMenu>
     </>
   );

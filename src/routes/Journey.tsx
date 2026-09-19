@@ -13,7 +13,7 @@ import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { SwipeToDelete } from "@/components/SwipeToDelete";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { useData, lookups } from "@/lib/data";
-import { useApp } from "@/store/useApp";
+import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { fmtDate, plural, segEndpoints } from "@/lib/dates";
 import { clockOf, fmtDuration, fmtMinutes, localMinutes } from "@/lib/time";
@@ -273,7 +273,7 @@ export default function Journey() {
           return (
             <div key={s.id} className="group">
               <Section>
-              <SwipeToDelete onDelete={ro ? undefined : () => patch({ segments: j.segments.filter((_, k) => k !== i) })} label="Remove hop">
+              <SwipeToDelete undoLabel="Hop removed" onDelete={ro ? undefined : () => patch({ segments: j.segments.filter((_, k) => k !== i) })} label="Remove hop">
               <div className="p-4">
                 {/* header — mode tile, route, and (read-only) the service as a pill */}
                 <div className="flex items-start gap-2.5">
@@ -329,7 +329,7 @@ export default function Journey() {
                           <Icon name="calendar" size={14} />
                         </button>
                       )}
-                      {!ro && <RowDeleteButton onClick={() => patch({ segments: j.segments.filter((_, k) => k !== i) })} label="Remove hop" />}
+                      {!ro && <RowDeleteButton undoLabel="Hop removed" onClick={() => patch({ segments: j.segments.filter((_, k) => k !== i) })} label="Remove hop" />}
                     </div>
                   )}
                 </div>
@@ -422,7 +422,7 @@ export default function Journey() {
       {!ro && (
         <Section>
           <ConfirmButton
-            onConfirm={() => { removeEntity("journeys", j.id); navigate("/logbook"); }}
+            onConfirm={() => undoable("Journey deleted", () => { removeEntity("journeys", j.id); navigate("/logbook"); })}
             label="Delete journey"
             className="w-full justify-center px-3.5 py-3 text-sm font-medium text-danger"
           >

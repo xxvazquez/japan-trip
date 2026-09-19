@@ -10,7 +10,7 @@ import { RichNote } from "@/components/RichNote";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { Icon } from "@/components/Icon";
 import { useData, lookups } from "@/lib/data";
-import { useApp } from "@/store/useApp";
+import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { gmapsLink } from "@/lib/maps";
 import { fmtFare } from "@/lib/cost";
@@ -149,7 +149,7 @@ export default function Hotel() {
         {!ro && (
           <Section>
             <ConfirmButton
-              onConfirm={() => { removeEntity("hotels", hotel.id); navigate("/logbook"); }}
+              onConfirm={() => undoable("Stay deleted", () => { removeEntity("hotels", hotel.id); navigate("/logbook"); })}
               label="Delete stay"
               className="w-full justify-center px-3.5 py-3 text-sm font-medium text-danger"
             >

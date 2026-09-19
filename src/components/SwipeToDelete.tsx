@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useApp } from "@/store/useApp";
 
 const supportsTouch = () =>
   typeof window !== "undefined" &&
@@ -22,12 +23,15 @@ export function SwipeToDelete({
   children,
   onDelete,
   label = "Delete",
+  undoLabel = "Removed",
   bg = "bg-surface",
 }: {
   children: ReactNode;
   /** Omit (e.g. in read-only mode) to render the content untouched. */
   onDelete?: () => void;
   label?: string;
+  /** what the "Undo" toast says once it's deleted */
+  undoLabel?: string;
   bg?: string;
 }) {
   const [dx, setDxState] = useState(0);
@@ -39,6 +43,8 @@ export function SwipeToDelete({
     setDxState(v);
   };
   const g = useRef<{ x: number; y: number; base: number; axis: "?" | "x" | "y" } | null>(null);
+  const undoable = useApp((st) => st.undoable);
+  const del = onDelete && (() => undoable(undoLabel, onDelete));
   const touch = supportsTouch() && !!onDelete;
 
   useEffect(() => {
@@ -79,7 +85,7 @@ export function SwipeToDelete({
     if (!s || s.axis !== "x" || !was) return;
     const at = dxRef.current;
     if (at <= -FULL) {
-      onDelete?.();
+      del?.();
       setOpen(false);
       setDx(0);
       return;
@@ -108,7 +114,7 @@ export function SwipeToDelete({
       {engaged && (
         <button
           type="button"
-          onClick={() => closeAnd(onDelete)}
+          onClick={() => closeAnd(del)}
           aria-label={label}
           tabIndex={-1}
           className="absolute inset-y-0 right-0 flex items-center justify-center bg-danger px-3 text-[15px] font-medium text-white"

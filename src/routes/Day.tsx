@@ -30,7 +30,7 @@ import { RouteLabel } from "@/components/RouteLabel";
 import { IconTile } from "@/components/IconTile";
 import { toneForPlaceCategory } from "@/lib/tones";
 import { useData, lookups } from "@/lib/data";
-import { useApp } from "@/store/useApp";
+import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { dayKind, fmtDate, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
@@ -394,7 +394,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         <Section className="mt-6">
           <ConfirmButton
             label="Delete day"
-            onConfirm={() => { removeEntity("days", day.id); nav("/"); }}
+            onConfirm={() => undoable("Day deleted", () => { removeEntity("days", day.id); nav("/"); })}
             className="w-full justify-center px-3.5 py-3 text-sm font-medium text-danger"
           >
             Delete day
@@ -556,7 +556,7 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={`group relative text-sm after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden ${isDragging ? "z-10 bg-surface opacity-80" : ""}`}
     >
-      <SwipeToDelete onDelete={readOnly ? undefined : onRemove}>
+      <SwipeToDelete undoLabel="Step removed" onDelete={readOnly ? undefined : onRemove}>
       <div className="px-3.5 py-2.5">
         <div className="flex items-start gap-2.5">
           {/* leading column — just the drag handle now; tile + hour moved
@@ -670,7 +670,7 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
                 <button type="button" className="menu-item" onClick={() => onQuickAddCost(place?.name || item.text || "")}>
                   <Icon name="wallet" size={16} /> Add an expense
                 </button>
-                <button type="button" className="menu-item text-danger" onClick={onRemove}>
+                <button type="button" className="menu-item text-danger" onClick={() => undoable("Step removed", onRemove)}>
                   <Icon name="close" size={16} /> Remove
                 </button>
               </>
@@ -949,7 +949,7 @@ function CostList({ costs, categories, currencies, places, highlightId, readOnly
               id={`cost-${c.id}`}
               className={`group relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden transition-colors duration-700 ${c.id === highlightId ? "bg-accent/10" : ""}`}
             >
-              <SwipeToDelete onDelete={readOnly ? undefined : () => onChange(costs.filter((_, j) => j !== i))}>
+              <SwipeToDelete undoLabel="Expense removed" onDelete={readOnly ? undefined : () => onChange(costs.filter((_, j) => j !== i))}>
               <div className="px-3.5 py-2.5">
               <div className="flex items-start gap-3">
                 <IconTile size="sm" name={tile.name} glyph={tile.glyph} tone={tile.tone} color={tile.color} className="mt-0.5 shrink-0" />
@@ -994,7 +994,7 @@ function CostList({ costs, categories, currencies, places, highlightId, readOnly
                     </select>
                   )}
                 </div>
-                {!readOnly && <RowDeleteButton onClick={() => onChange(costs.filter((_, j) => j !== i))} />}
+                {!readOnly && <RowDeleteButton undoLabel="Expense removed" onClick={() => onChange(costs.filter((_, j) => j !== i))} />}
               </div>
               </div>
               </SwipeToDelete>

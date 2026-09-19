@@ -4,7 +4,7 @@ import { Page, PageHeader } from "@/components/Page";
 import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
 import { Icon } from "@/components/Icon";
-import { useApp } from "@/store/useApp";
+import { useApp, undoable } from "@/store/useApp";
 import { useData } from "@/lib/data";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import { useIsDark } from "@/lib/mode";
@@ -838,7 +838,7 @@ function LogbookSectionsPanel() {
               <Editable label="List name" value={l.title} onCommit={(v) => mutate((d) => { const x = d.config.lists?.[i]; if (x) x.title = v || "List"; })} />
             </span>
             <span className="value shrink-0 tabular-nums text-ink-soft">{l.items.length}</span>
-            <ConfirmButton onConfirm={() => mutate((d) => { d.config.lists = (d.config.lists ?? []).filter((x) => x.id !== l.id); })} className="text-ink-faint hover:text-accent">
+            <ConfirmButton onConfirm={() => undoable("List deleted", () => mutate((d) => { d.config.lists = (d.config.lists ?? []).filter((x) => x.id !== l.id); }))} className="text-ink-faint hover:text-accent">
               <Icon name="trash" size={14} />
             </ConfirmButton>
           </li>
@@ -1132,7 +1132,7 @@ function Content() {
                         {href ? <Link to={href} className="hover:text-accent">{nameOf(rec)}</Link> : nameOf(rec)}
                       </span>
                       <button onClick={() => addEntity(type, { ...structuredClone(rec), id: crypto.randomUUID?.() ?? `${type}-${rid()}` } as { id: string })} className="text-ink-faint hover:text-ink-soft" aria-label="Duplicate"><Icon name="copy" size={14} /></button>
-                      <ConfirmButton onConfirm={() => removeEntity(type, x.id)} className="text-ink-faint hover:text-accent"><Icon name="trash" size={14} /></ConfirmButton>
+                      <ConfirmButton onConfirm={() => undoable("Deleted", () => removeEntity(type, x.id))} className="text-ink-faint hover:text-accent"><Icon name="trash" size={14} /></ConfirmButton>
                     </div>
                     {links && <p className="mt-1 pl-[3.25rem] text-2xs text-ink-faint">{links}</p>}
                   </li>

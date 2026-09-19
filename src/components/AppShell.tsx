@@ -8,6 +8,7 @@ import { SearchOverlay } from "./SearchOverlay";
 import { Loader } from "./Loader";
 import { Icon } from "./Icon";
 import { Wordmark } from "./Wordmark";
+import { UndoToast } from "./UndoToast";
 import { useData } from "@/lib/data";
 import { useReadOnly } from "@/lib/readonly";
 import { useAutoHotelCoords, useAutoTripTimeZone } from "@/lib/hotelCoords";
@@ -106,6 +107,7 @@ export function AppShell() {
 
       <TabBarOrRail />
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <UndoToast />
     </div>
   );
 }

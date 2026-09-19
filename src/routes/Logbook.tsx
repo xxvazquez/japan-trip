@@ -23,7 +23,7 @@ import type { Person } from "@/core/types";
 import { Icon, type IconName } from "@/components/Icon";
 import type { MapGlyphId } from "@/lib/mapGlyphs";
 import { useData } from "@/lib/data";
-import { useApp } from "@/store/useApp";
+import { useApp, undoable } from "@/store/useApp";
 import { useAuth } from "@/lib/auth";
 import { useReadOnly } from "@/lib/readonly";
 import { APP_NAME } from "@/lib/app";
@@ -183,7 +183,7 @@ function ListSection({ list }: { list: CustomList }) {
             key={it.id}
             className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden"
           >
-            <SwipeToDelete onDelete={ro ? undefined : () => set((l) => { l.items.splice(i, 1); })}>
+            <SwipeToDelete undoLabel="Item removed" onDelete={ro ? undefined : () => set((l) => { l.items.splice(i, 1); })}>
             <div className="flex items-start gap-2 px-3.5 py-2.5">
               <span className="min-w-0 flex-1">
                 <span className="block text-[0.9375rem] font-medium leading-snug text-ink">
@@ -204,7 +204,7 @@ function ListSection({ list }: { list: CustomList }) {
                   </span>
                 )}
               </span>
-              {!ro && <RowDeleteButton onClick={() => set((l) => { l.items.splice(i, 1); })} />}
+              {!ro && <RowDeleteButton undoLabel="Item removed" onClick={() => set((l) => { l.items.splice(i, 1); })} />}
             </div>
             </SwipeToDelete>
           </li>
@@ -345,7 +345,7 @@ function Luggage() {
                 id={n.id}
                 defaultOpen
                 title={<Editable label="Title" value={n.title} placeholder="e.g. Coin lockers" onCommit={(v) => p({ title: v || "Untitled" })} />}
-                action={!ro && cardDeleteBtn(() => removeEntity("luggage", n.id), "Delete note")}
+                action={!ro && cardDeleteBtn(() => undoable("Luggage note deleted", () => removeEntity("luggage", n.id)), "Delete note")}
               >
                 {hasDetail && (
                   <div className="note px-3.5 py-3 text-ink-soft">
@@ -599,7 +599,7 @@ function Documents() {
                   ? d.title
                   : <Editable label="Document name" value={d.title} placeholder="Name" onCommit={(v) => updateEntity<Doc>("docs", d.id, { title: v || "Untitled" })} />
               }
-              action={!ro && cardDeleteBtn(() => removeEntity("docs", d.id), "Delete document")}
+              action={!ro && cardDeleteBtn(() => undoable("Document deleted", () => removeEntity("docs", d.id)), "Delete document")}
             >
               {(!ro || (d.files?.length ?? 0) > 0) && (
                 <div className="px-3.5 py-3">
@@ -762,7 +762,9 @@ function Packing() {
     for (const it of groups[from] ?? []) updateEntity<PackingItem>("packing", it.id, { group: target });
   };
   const removeGroup = (group: string) => {
-    for (const it of groups[group] ?? []) removeEntity("packing", it.id);
+    undoable("Category deleted", () => {
+      for (const it of groups[group] ?? []) removeEntity("packing", it.id);
+    });
   };
 
   if (total === 0 && ro) return <Empty what="No packing list" />;
@@ -875,14 +877,14 @@ function PackRow({ item, ro, people, tagged, onToggle, onLabel, onAssign, onRemo
   }
   return (
     <li className={`group ${liOuter}`}>
-      <SwipeToDelete onDelete={onRemove}>
+      <SwipeToDelete undoLabel="Packing item removed" onDelete={onRemove}>
         <div className={rowInner}>
           {box}
           <span className="min-w-0 flex-1">
             <Editable label="Item" value={item.label} placeholder="Item" className={item.done ? "text-ink-faint line-through" : "text-ink"} onCommit={onLabel} />
           </span>
           {pill}
-          <RowDeleteButton onClick={onRemove} />
+          <RowDeleteButton undoLabel="Packing item removed" onClick={onRemove} />
         </div>
       </SwipeToDelete>
     </li>
@@ -968,7 +970,7 @@ function Notes() {
                 id={n.id}
                 defaultOpen
                 title={<Editable label="Title" value={n.title} placeholder="Untitled" onCommit={(v) => p({ title: v || "Untitled" })} />}
-                action={!ro && cardDeleteBtn(() => removeEntity("scratchNotes", n.id), "Delete note")}
+                action={!ro && cardDeleteBtn(() => undoable("Note deleted", () => removeEntity("scratchNotes", n.id)), "Delete note")}
               >
                 <div className="note px-3.5 py-3 text-ink-soft">
                   <RichNote value={n.text ?? ""} placeholder="Anything to remember." onCommit={(v) => p({ text: v || undefined })} />

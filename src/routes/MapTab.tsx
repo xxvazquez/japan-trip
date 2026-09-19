@@ -10,7 +10,7 @@ import { ConfirmButton } from "@/components/ConfirmButton";
 import { ActionSheet, useActionSheet } from "@/components/ActionSheet";
 import { INSET_DIVIDER } from "@/components/InsetRow";
 import { useData } from "@/lib/data";
-import { useApp } from "@/store/useApp";
+import { useApp, undoable } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
 import { gmapsLink, mapUrlCoords } from "@/lib/maps";
 import { geocode, reverseGeocode, type GeoResult } from "@/lib/geocode";
@@ -978,10 +978,10 @@ export default function MapTab() {
       onName={(v) => v && updateEntity<Place>("places", p.id, { name: v })}
       onAddToDay={(d) => addToDay(p, d)}
       onToggleArea={(areaId) => toggleAreaPlace(areaId, p.id)}
-      onRemove={() => {
+      onRemove={() => undoable("Place deleted", () => {
         removeEntity("places", p.id);
         if (selected === p.id) setSelected(null);
-      }}
+      })}
     />
   );
 
@@ -1188,7 +1188,7 @@ export default function MapTab() {
                         <Editable label="Area name" value={a.name} placeholder="Area name" onCommit={(v) => updateEntity<Area>("areas", a.id, { name: v.trim() || "Untitled" })} />
                       </span>
                       <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{plural(a.placeIds.length, "place")}</span>
-                      <ConfirmButton onConfirm={() => removeEntity("areas", a.id)} className="shrink-0 text-ink-faint hover:text-accent">
+                      <ConfirmButton onConfirm={() => undoable("Area deleted", () => removeEntity("areas", a.id))} className="shrink-0 text-ink-faint hover:text-accent">
                         <Icon name="trash" size={13} />
                       </ConfirmButton>
                     </li>
