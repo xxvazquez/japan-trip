@@ -317,7 +317,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
           title="Plan"
           info="Drag to reorder. Pick a place from an Area you've added below, or Custom for anything else — tap the note line under it to add one."
           action={overwhelmingCount > 0 && (
-            <span className="flex items-center gap-1 text-[0.8125rem] font-medium text-gold" title={`${plural(overwhelmingCount, "overwhelming place")} today`}>
+            <span className="flex items-center gap-1 text-[0.8125rem] font-medium text-danger" title={`${plural(overwhelmingCount, "overwhelming place")} today`}>
               <Icon name="alert" size={13} /> {overwhelmingCount}
             </span>
           )}
@@ -653,11 +653,15 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
                   )}
                 </span>
               )}
-              {place && <PlaceHoursLine place={place} date={day.date} />}
-              {place?.overwhelming && (
-                <span className="shrink-0 text-gold" title="Can be overwhelming">
-                  <Icon name="alert" size={13} />
-                  <span className="sr-only">Can be overwhelming</span>
+              {place && (
+                <span className="ml-auto flex min-w-0 shrink-0 items-center gap-1.5">
+                  <PlaceHoursLine place={place} date={day.date} />
+                  {place.overwhelming && (
+                    <span className="shrink-0 text-danger" title="Can be overwhelming">
+                      <Icon name="alert" size={13} />
+                      <span className="sr-only">Can be overwhelming</span>
+                    </span>
+                  )}
                 </span>
               )}
             </div>
@@ -819,7 +823,7 @@ function PlaceHoursLine({ place, date }: { place: Place; date?: string }) {
   const text = hours ? (date ? hoursForDate(hours.hours, date) : hours.hours) : null;
   if (!text) return null;
   return (
-    <span className="meta ml-auto flex min-w-0 items-center gap-1 text-right text-ink-faint">
+    <span className="meta flex min-w-0 items-center gap-1 text-right text-ink-faint">
       <Icon name="clock" size={12} className="shrink-0" />
       <span className="min-w-0">{text}</span>
     </span>
