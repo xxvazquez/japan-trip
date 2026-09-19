@@ -9,6 +9,7 @@ import { InfoNote } from "@/components/InfoNote";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { ActionSheet, useActionSheet } from "@/components/ActionSheet";
 import { INSET_DIVIDER } from "@/components/InsetRow";
+import { RowSelect } from "@/components/RowSelect";
 import { useData } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
@@ -99,6 +100,26 @@ const loadTransit = (): Set<string> => {
     return new Set(Array.isArray(v) ? v.filter((k) => TRANSIT_KINDS.includes(k)) : []);
   } catch {
     return new Set(TRANSIT_DEFAULT);
+  }
+};
+
+// city groups the person shut in the "All" list — remembered per trip too
+const SHUT_CITIES_PREFIX = "za.map.shutCities.";
+const loadShutCities = (tripId: string | null): Set<string> => {
+  if (!tripId) return new Set();
+  try {
+    const v = JSON.parse(localStorage.getItem(SHUT_CITIES_PREFIX + tripId) ?? "[]");
+    return new Set(Array.isArray(v) ? v : []);
+  } catch {
+    return new Set();
+  }
+};
+const saveShutCities = (tripId: string | null, ids: string[]) => {
+  if (!tripId) return;
+  try {
+    localStorage.setItem(SHUT_CITIES_PREFIX + tripId, JSON.stringify(ids));
+  } catch {
+    /* private window */
   }
 };
 
@@ -212,14 +233,28 @@ export default function MapTab() {
   /** area groups opened in the list, by area id ("" = the "no area" group) —
    *  every area starts shut; opening one is remembered per trip, so it stays
    *  shut again next visit only if it was never opened. A newly added area
-   *  defaults shut with no special-casing needed. A pin picked on the map
-   *  still opens its own group (see the `shut` checks below) even if you'd
-   *  shut it. */
-  const [openAreas, setOpenAreas] = useState<Set<string>>(() => loadOpenAreaIds(tripId));
-  useEffect(() => setOpenAreas(loadOpenAreaIds(tripId)), [tripId]);
-  useEffect(() => saveOpenAreaIds(tripId, [...openAreas]), [tripId, openAreas]);
-  /** city groups collapsed in the "All" list, by leg id ("" = the "no city" group) */
-  const [collapsedCities, setCollapsedCities] = useState<Set<string>>(new Set());
+   *  defaults shut with no special-casing needed. Nothing but a tap on the
+   *  group's own header opens or shuts it — picking a pin on the map shows
+   *  that place in its own card at the top instead of springing its group
+   *  open. Written straight to storage on every change (not from an effect),
+   *  so switching trips can never write one trip's state over another's. */
+  const [openAreas, setOpenAreasState] = useState<Set<string>>(() => loadOpenAreaIds(tripId));
+  useEffect(() => setOpenAreasState(loadOpenAreaIds(tripId)), [tripId]);
+  const setOpenAreas = (fn: (prev: Set<string>) => Set<string>) =>
+    setOpenAreasState((prev) => {
+      const next = fn(prev);
+      saveOpenAreaIds(tripId, [...next]);
+      return next;
+    });
+  /** city groups shut in the "All" list, by leg id ("" = the "no city" group) — remembered per trip */
+  const [collapsedCities, setCollapsedCitiesState] = useState<Set<string>>(() => loadShutCities(tripId));
+  useEffect(() => setCollapsedCitiesState(loadShutCities(tripId)), [tripId]);
+  const setCollapsedCities = (fn: (prev: Set<string>) => Set<string>) =>
+    setCollapsedCitiesState((prev) => {
+      const next = fn(prev);
+      saveShutCities(tripId, [...next]);
+      return next;
+    });
   /** transit overlay — empty means nothing shown (opt-in). Persisted across trips. */
   const [transit, setTransit] = useState<Set<string>>(loadTransit);
   const [selected, setSelected] = useState<string | null>(null);
@@ -959,11 +994,13 @@ export default function MapTab() {
   // bare to `.map()` elsewhere: Array.map's own (item, index) callback shape
   // silently satisfies `(p, distanceKm?)` and the row index gets typeset as a
   // distance ("row 2" → "2.0 km"). Always wrap it: `.map((p) => renderRow(p))`.
-  const renderRow = (p: Place, distanceKm?: number) => (
+  const renderRow = (p: Place, distanceKm?: number, card = false) => (
     <PlaceRow
       key={p.id}
       place={p}
-      open={selected === p.id}
+      card={card}
+      open={card}
+      active={!card && selected === p.id}
       dayId={dayOfPlace.get(p.id)}
       derived={derived.has(p.id)}
       distanceKm={distanceKm}
@@ -984,6 +1021,20 @@ export default function MapTab() {
       })}
     />
   );
+
+  // The selected place shows as a card at the top of whichever list is up —
+  // its details live there, so a shut area or city never has to spring open to
+  // reveal it. `asItem` for the <ul> lists, plain block for the <div> ones.
+  const selectedPlace = selected ? data.places.find((p) => p.id === selected) : undefined;
+  const selectedCard = (asItem: boolean) => {
+    if (!selectedPlace) return null;
+    const card = (
+      <ul className="mx-4 mb-1 mt-3 overflow-hidden rounded-[12px] border border-line bg-surface">
+        {renderRow(selectedPlace, undefined, true)}
+      </ul>
+    );
+    return asItem ? <li key="selected" className="-mx-4 list-none">{card}</li> : card;
+  };
 
   // a function, not a plain element — rendered once for the desktop column
   // and once for the mobile sheet (below), so `forMobile` can gate the
@@ -1280,6 +1331,7 @@ export default function MapTab() {
         />
       ) : nearby ? (
         <ul ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto px-4">
+          {selectedCard(true)}
           {nearby.list.map((p) => renderRow(p, nearby.distances.get(p.id)))}
           {nearby.list.length === 0 && (
             <li className="meta py-6">Nothing on the map for today. Pick “All”, or add a place above.</li>
@@ -1288,10 +1340,9 @@ export default function MapTab() {
         </ul>
       ) : cityGroups ? (
         <div ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto">
+          {selectedCard(false)}
           {cityGroups.map((c) => {
-            const cityShut = collapsedCities.has(c.legId)
-              && !c.areas.some((a) => a.items.some((p) => p.id === selected))
-              && !c.loose.some((p) => p.id === selected);
+            const cityShut = collapsedCities.has(c.legId);
             return (
               <section key={c.legId || "none"}>
                 <button
@@ -1306,7 +1357,7 @@ export default function MapTab() {
                 {!cityShut && (
                   <>
                     {c.areas.map((a) => {
-                      const shut = !openAreas.has(a.id) && !a.items.some((p) => p.id === selected);
+                      const shut = !openAreas.has(a.id);
                       return (
                         <div key={a.id}>
                           <button
@@ -1342,14 +1393,14 @@ export default function MapTab() {
         </div>
       ) : areaGroups ? (
         <div ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto">
+          {selectedCard(false)}
           {areaGroups.map((g) => {
             const isArea = g.id !== "";
             // the dot doubles as the old area-pill filter — soloed areas dim
             // out here instead of in a separate row above. "No area" has no
             // filter of its own; it just drops out while any area's soloed.
             const filteredOut = isArea ? areaFilter.size > 0 && !areaFilter.has(g.id) : areaFilter.size > 0;
-            // a collapsed group still opens to reveal a pin picked on the map
-            const manuallyShut = !openAreas.has(g.id) && !g.items.some((p) => p.id === selected);
+            const manuallyShut = !openAreas.has(g.id);
             const shut = filteredOut || manuallyShut;
             return (
               <section key={g.id || "none"}>
@@ -1395,6 +1446,7 @@ export default function MapTab() {
         </div>
       ) : (
         <ul ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto px-4">
+          {selectedCard(true)}
           {scoped.map((p) => renderRow(p))}
           {scoped.length === 0 && (
             <li className="meta py-6">
@@ -1479,8 +1531,14 @@ export default function MapTab() {
             role="separator"
             aria-orientation="vertical"
             aria-label="Resize list"
-            className={`absolute inset-y-0 -right-1.5 z-10 hidden w-3 cursor-col-resize touch-none md:block ${panelDragging ? "bg-accent/15" : "hover:bg-accent/10"}`}
-          />
+            className={`group absolute inset-y-0 -right-1.5 z-10 hidden w-3 cursor-col-resize touch-none md:block ${panelDragging ? "bg-accent/15" : "hover:bg-accent/10"}`}
+          >
+            {/* the grip — a short bar centred on the divider, like the sheet's grabber */}
+            <span
+              aria-hidden
+              className={`pointer-events-none absolute left-1/2 top-1/2 h-10 w-[5px] -translate-x-1/2 -translate-y-1/2 rounded-full transition-colors ${panelDragging ? "bg-ink/50" : "bg-ink/30 group-hover:bg-ink/50"}`}
+            />
+          </div>
         )}
       </div>
 
@@ -1499,8 +1557,10 @@ export default function MapTab() {
             onPointerCancel={onHandlePointerUp}
             onClick={onHandleClick}
             aria-label="Resize list"
-            className="mx-auto mt-2 mb-1 h-1 w-9 shrink-0 touch-none rounded-full bg-ink/25"
-          />
+            className="group flex h-6 w-full shrink-0 touch-none items-center justify-center"
+          >
+            <span className="block h-[5px] w-9 rounded-full bg-ink/30 transition-colors group-active:bg-ink/50" />
+          </button>
         )}
         <div className="min-h-0 flex-1">{renderPanel(true)}</div>
       </div>
@@ -1512,7 +1572,9 @@ type ReviewGroup = AreaSuggestion & { keep: boolean; auto: boolean };
 
 function PlaceRow({
   place,
+  card = false,
   open,
+  active = false,
   dayId,
   derived,
   distanceKm,
@@ -1530,7 +1592,12 @@ function PlaceRow({
   onRemove,
 }: {
   place: Place;
+  /** drawn as the selected place's card at the top of the list, not as a list row */
+  card?: boolean;
+  /** show the place's details under its header (only ever true in the card) */
   open: boolean;
+  /** this row's place is the selected one — highlighted, details are in the card */
+  active?: boolean;
   dayId?: string;
   derived?: boolean;
   /** shown ahead of the usual category/day meta when the "Nearby" toggle is on */
@@ -1596,111 +1663,163 @@ function PlaceRow({
   }, [map, mapReady, place.id, place.lat, place.lng]);
   // scroll-margin below gives `block: "nearest"` a little breathing room so an
   // opened row never lands flush against the list's top edge.
+  const catGlyph = place.category ? categoryIcons?.[place.category] : undefined;
+  // the category is named by the tile's own icon when it has one — repeating it
+  // as text only made the row a line taller
   const metaBits = [
     distanceKm !== undefined && fmtWalk({ min: estimateWalk(distanceKm).min, km: distanceKm }),
-    place.category,
+    !catGlyph && place.category,
     day && `on ${fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}`,
   ].filter(Boolean).join(" · ");
-  const catGlyph = place.category ? categoryIcons?.[place.category] : undefined;
   // an imported pin keeps its own colour (matches its map marker); an app-native
   // pin has no real colour, so tint it by category instead
   const ownColour = place.color && !DEFAULT_PIN_COLORS.has(place.color) ? place.color : undefined;
+  // grouped-inset rows, iOS Settings style: a quiet label left, the value right
+  const rowCls = "flex items-center gap-3 px-3.5 py-2.5 text-[0.9375rem]";
+  const sortedDays = [...days].sort((a, b) => a.date.localeCompare(b.date));
   return (
-    <li ref={li} className="scroll-my-3 border-b border-line last:border-b-0">
-      <button onClick={onToggle} className={`flex w-full items-center gap-3 py-2 text-left ${derived ? "opacity-60" : ""}`}>
-        <IconTile
-          size="sm"
-          glyph={catGlyph}
-          name={catGlyph ? undefined : "pin"}
-          color={ownColour}
-          tone={toneForPlaceCategory(place.category, categoryIcons)}
-        />
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-sm font-medium leading-snug text-ink">{place.name}</span>
-          {(metaBits || derived) && (
-            <span className="meta block truncate">{[derived && "from area", metaBits].filter(Boolean).join(" · ")}</span>
-          )}
-          {station && <WalkLine icon="train" from={place} to={station}>to {station.name}</WalkLine>}
-        </span>
-        <Icon name="chevron" size={13} className={`shrink-0 text-ink-faint transition-transform ${open ? "rotate-90" : ""}`} />
-      </button>
+    <>
+      <li ref={li} className={card ? INSET_DIVIDER : "scroll-my-3 border-b border-line last:border-b-0"}>
+        <button
+          onClick={onToggle}
+          className={`flex w-full items-center gap-3 text-left ${
+            card ? "px-3.5 py-3" : `py-2 ${active ? "-mx-2 rounded-[8px] bg-accent/[0.10] px-2" : ""}`
+          } ${derived ? "opacity-60" : ""}`}
+        >
+          <IconTile
+            size="md"
+            glyph={catGlyph}
+            name={catGlyph ? undefined : "pin"}
+            color={ownColour}
+            tone={toneForPlaceCategory(place.category, categoryIcons)}
+          />
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-medium leading-snug text-ink">{place.name}</span>
+            {(metaBits || derived) && (
+              <span className="meta block truncate">{[derived && "from area", metaBits].filter(Boolean).join(" · ")}</span>
+            )}
+            {station && <WalkLine icon="train" from={place} to={station}>to {station.name}</WalkLine>}
+          </span>
+          <Icon name={card ? "close" : "chevron"} size={card ? 14 : 13} className="shrink-0 text-ink-faint" />
+        </button>
+      </li>
 
       {open && (
-        <div className="pb-3.5 pl-[calc(22px+0.75rem)] pr-1">
+        <>
           {!readOnly && (
-            <div className="mb-2">
-              <Editable label="Name" value={place.name} onCommit={onName} className="text-sm font-medium" />
-            </div>
+            <li className={`${INSET_DIVIDER} ${rowCls}`}>
+              <span className="row-label">Name</span>
+              <span className="row-value min-w-0 flex-1 text-right">
+                <Editable label="Name" value={place.name} onCommit={onName} />
+              </span>
+            </li>
           )}
-          <RichNote value={place.note ?? ""} onCommit={onNote} placeholder="＋ a note for this place" className="note text-ink-soft" />
-
-          {/* Areas this place belongs to — "where", separate from its category */}
-          {areas.length > 0 && (
-            readOnly ? (
-              areas.some((a) => a.placeIds.includes(place.id)) && (
-                <p className="mt-2 text-xs text-ink-soft">
-                  Area: {areas.filter((a) => a.placeIds.includes(place.id)).map((a) => a.name || "Untitled").join(" · ")}
-                </p>
-              )
-            ) : (
-              <div className="mt-2.5 flex flex-wrap gap-1.5">
-                {areas.map((a) => {
-                  const on = a.placeIds.includes(place.id);
-                  return (
-                    <button
-                      key={a.id}
-                      onClick={() => onToggleArea(a.id)}
-                      className={`chip ${on ? "chip-accent" : ""}`}
-                    >
-                      {a.name || "Untitled"}
-                    </button>
-                  );
-                })}
-              </div>
-            )
+          {(!readOnly || place.note?.trim()) && (
+            <li className={`${INSET_DIVIDER} px-3.5 py-2.5`}>
+              <RichNote value={place.note ?? ""} onCommit={onNote} placeholder="Add a note" className="text-[0.8125rem] leading-snug text-ink-soft" />
+            </li>
           )}
-
-          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm">
-            {link && (
-              <a href={link} target="_blank" rel="noopener" className="action">
-                <Icon name="map" size={14} /> Open in Google Maps
+          <AreasRow place={place} areas={areas} readOnly={readOnly} onToggleArea={onToggleArea} rowCls={rowCls} />
+          {link && (
+            <li className={INSET_DIVIDER}>
+              <a href={link} target="_blank" rel="noopener" className={`${rowCls} text-accent active:bg-surface-2`}>
+                <Icon name="map" size={15} className="shrink-0" />
+                <span className="min-w-0 flex-1">Open in Google Maps</span>
+                <Icon name="chevron" size={13} className="shrink-0 text-ink-faint" />
               </a>
-            )}
-            {day ? (
-              <Link to={`/day/${day.id}`} className="link-quiet inline-flex items-center gap-1">
-                <Icon name="itinerary" size={14} /> View day
+            </li>
+          )}
+          {day ? (
+            <li className={INSET_DIVIDER}>
+              <Link to={`/day/${day.id}`} className={`${rowCls} active:bg-surface-2`}>
+                <span className="row-label">On</span>
+                <span className="row-value min-w-0 flex-1 truncate text-right">
+                  {fmtDate(day.date, loc, { weekday: "short", day: "numeric", month: "short" })}{day.title ? ` · ${day.title}` : ""}
+                </span>
+                <Icon name="chevron" size={13} className="shrink-0 text-ink-faint" />
               </Link>
-            ) : (
-              !readOnly && (
-                <label className="inline-flex items-center gap-1 text-ink-soft">
-                  <Icon name="plus" size={13} className="shrink-0" />
-                  <span className="sr-only">Add to a day</span>
-                  <select
-                    defaultValue=""
-                    onChange={(e) => e.target.value && onAddToDay(e.target.value)}
-                    className="cursor-pointer bg-transparent focus:outline-none"
-                  >
-                    <option value="">Add to a day…</option>
-                    {[...days]
-                      .sort((a, b) => a.date.localeCompare(b.date))
-                      .map((d) => (
+            </li>
+          ) : (
+            !readOnly && (
+              <li className={INSET_DIVIDER}>
+                <label className={`${rowCls} cursor-pointer`}>
+                  <span className="row-label">Add to a day</span>
+                  <span className="flex min-w-0 flex-1 justify-end">
+                    <RowSelect value="" onChange={(e) => e.target.value && onAddToDay(e.target.value)} aria-label="Add to a day" className="max-w-[12rem] truncate">
+                      <option value="">Choose…</option>
+                      {sortedDays.map((d) => (
                         <option key={d.id} value={d.id}>
                           {fmtDate(d.date, loc, { weekday: "short", day: "numeric", month: "short" })}
                           {d.title ? ` · ${d.title}` : ""}
                         </option>
                       ))}
-                  </select>
+                    </RowSelect>
+                  </span>
                 </label>
-              )
-            )}
-            {!place.source && !readOnly && (
-              <ConfirmButton onConfirm={onRemove} label="Remove place" className="inline-flex items-center gap-1 text-ink-faint hover:text-accent">
-                <Icon name="trash" size={14} /> Remove
+              </li>
+            )
+          )}
+          {!place.source && !readOnly && (
+            <li className={INSET_DIVIDER}>
+              <ConfirmButton onConfirm={onRemove} label="Remove place" className={`${rowCls} w-full text-left text-danger`}>
+                <Icon name="trash" size={15} className="shrink-0" /> Remove place
               </ConfirmButton>
-            )}
-          </div>
-        </div>
+            </li>
+          )}
+        </>
       )}
+    </>
+  );
+}
+
+/** The areas a place belongs to, as one row — the names on the right, a check
+ *  list on tap — instead of a pill per area in the city. */
+function AreasRow({
+  place,
+  areas,
+  readOnly,
+  onToggleArea,
+  rowCls,
+}: {
+  place: Place;
+  areas: Area[];
+  readOnly: boolean;
+  onToggleArea: (areaId: string) => void;
+  rowCls: string;
+}) {
+  const sheet = useActionSheet();
+  if (areas.length === 0) return null;
+  const mine = areas.filter((a) => a.placeIds.includes(place.id));
+  const names = mine.map((a) => a.name || "Untitled").join(", ");
+  if (readOnly) {
+    return mine.length > 0 ? (
+      <li className={`${INSET_DIVIDER} ${rowCls}`}>
+        <span className="row-label">Areas</span>
+        <span className="row-value min-w-0 flex-1 truncate text-right">{names}</span>
+      </li>
+    ) : null;
+  }
+  return (
+    <li className={INSET_DIVIDER}>
+      <button ref={sheet.anchorRef} onClick={() => sheet.setOpen(true)} aria-haspopup="menu" className={`${rowCls} w-full text-left active:bg-surface-2`}>
+        <span className="row-label">Areas</span>
+        <span className={`row-value min-w-0 flex-1 truncate text-right ${mine.length ? "" : "text-ink-faint"}`}>{names || "None"}</span>
+        <Icon name="chevron" size={13} className="shrink-0 text-ink-faint" />
+      </button>
+      <ActionSheet open={sheet.open} onClose={() => sheet.setOpen(false)} anchorRef={sheet.anchorRef} title={`Areas for ${place.name}`} doneLabel="Done">
+        {/* toggles stay open until dismissed — stopPropagation so a tap
+            doesn't trigger ActionSheet's "close on any click inside" */}
+        <div onClick={(e) => e.stopPropagation()}>
+          {[...areas]
+            .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
+            .map((a) => (
+              <button key={a.id} type="button" className="menu-item flex w-full items-center gap-2" onClick={() => onToggleArea(a.id)}>
+                <span className="min-w-0 flex-1 truncate text-left">{a.name || "Untitled"}</span>
+                <span className="w-4 shrink-0 text-accent">{a.placeIds.includes(place.id) && <Icon name="check" size={14} />}</span>
+              </button>
+            ))}
+        </div>
+      </ActionSheet>
     </li>
   );
 }

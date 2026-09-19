@@ -73,16 +73,17 @@ function splitPinned(places: Place[], cats: string[] | undefined): { pinned: Pla
   return { pinned: places.filter((p) => p.category && on.has(p.category)), rest: places.filter((p) => !p.category || !on.has(p.category)) };
 }
 
-/** pinned pins stay visible from a country-wide view down; below this they'd just be noise */
-const PINNED_MINZOOM = 3;
+/** pinned pins show while you're browsing a city (a whole city is about zoom 10) and
+ *  drop out at regional / country views, where a pin per city would just be noise */
+const PINNED_MINZOOM = 9;
 
 /** like `iconSize`, but bigger all the way down so a pinned marker reads from far out */
 const pinnedIconSize = (selId: string): unknown => {
   const bump = ["case", ["==", ["get", "id"], selId], 1.2, 1];
   return [
     "interpolate", ["linear"], ["zoom"],
-    4, ["*", 0.8, bump],
-    9, ["*", 1.05, bump],
+    9, ["*", 0.95, bump],
+    11, ["*", 1.15, bump],
     13, ["*", 1.4, bump],
     16, ["*", 1.6, bump],
   ];
@@ -259,7 +260,7 @@ export function MapView({
       filter: ["==", ["get", "glyph"], ""],
       paint: {
         "circle-color": ["get", "color"],
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 6, 10, 9, 15, 12],
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 7, 12, 9, 15, 12],
         "circle-stroke-width": 3,
         "circle-stroke-color": halo,
       },

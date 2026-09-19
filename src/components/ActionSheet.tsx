@@ -17,12 +17,15 @@ export function ActionSheet({
   onClose,
   anchorRef,
   title,
+  doneLabel = "Cancel",
   children,
 }: {
   open: boolean;
   onClose: () => void;
   anchorRef: RefObject<HTMLElement>;
   title?: string;
+  /** the bottom button on the phone sheet — "Done" for a multi-select that stays open */
+  doneLabel?: string;
   children: ReactNode;
 }) {
   const [, bump] = useReducer((n: number) => n + 1, 0);
@@ -68,7 +71,7 @@ export function ActionSheet({
             {children}
           </div>
           <button onClick={onClose} className="mt-1 w-full shrink-0 border-t border-line px-4 py-3.5 text-[15px] font-medium text-accent">
-            Cancel
+            {doneLabel}
           </button>
         </div>
       </>,

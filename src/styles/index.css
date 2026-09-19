@@ -286,12 +286,13 @@ html.dark {
   }
   /* the one pill: 30px tall, filled (iOS capsule, no outline), label centred.
    * Filters, area tags, toggles and small actions all share it so a row of
-   * them lines up. `aria-pressed` / `.chip-on` flips it to the solid ink fill;
+   * them lines up. 8px corners (iOS rounded rectangle), not a capsule.
+   * `aria-pressed` / `.chip-on` flips it to the solid ink fill;
    * `.chip-accent` is the tinted "selected" used where ink would be too loud.
-   * `.chip-icon` is the same pill with only a glyph — a 30px circle. */
+   * `.chip-icon` is the same chip with only a glyph — a 30px square. */
   .chip,
   .btn-sm {
-    @apply inline-flex h-[30px] shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-surface-2 px-3 text-xs font-medium leading-none text-ink-soft transition-colors hover:bg-line/60 disabled:opacity-30;
+    @apply inline-flex h-[30px] shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-[8px] bg-surface-2 px-3 text-xs font-medium leading-none text-ink-soft transition-colors hover:bg-line/60 disabled:opacity-30;
   }
   .chip[aria-pressed="true"],
   .chip-on {

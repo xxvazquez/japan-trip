@@ -134,15 +134,24 @@ places grouped and foldable by area once a city's picked.
 - Once a city is picked, its areas list below as their own rows — tap a row to fold or unfold its
   places, tap the **colour dot** to show only that area on the map and in the list; no dot picked
   shows all. On **All** the list nests instead — **city → area → places**, each level collapsible —
-  so a multi-city trip reads top to bottom the same way.
+  so a multi-city trip reads top to bottom the same way. Areas **start collapsed** and only a tap on
+  their own row opens or shuts them; what you've opened is remembered for next time (per trip), and
+  picking a pin on the map never springs an area open.
+- Tapping a place — in the list or on the map — puts it in a **card at the top of the list**, in
+  iOS-style rows: its name, a note, the **Areas** it belongs to (tap for a checklist), Open in Google
+  Maps, the day it's on (or **Add to a day**), and Remove. Rows in the list stay two lines: the name
+  and how far it is to the nearest station.
+- The map's resize handles are visible: a grabber on the phone sheet (drag it, or tap to step through
+  the three heights) and a grip on the divider of the desktop panel.
 - **Filters** opens a sheet with **category** and **transit** — real filtering, so it overlays the
   list instead of shrinking it:
   - **Category** — the coloured dots; none selected shows everything, tap some to narrow. Give a
     category its own **pin icon** in **Manage → Content → Category pins** — those places draw as a
     coloured disc with the icon. Switch **Always show** on for a category (your hotel's, say) and
     its pins stay on the map when you zoom far out — bigger, on top of everything, named once you're
-    close — instead of being folded into a numbered cluster. It holds in every city, down to about a
-    whole-country view.
+    close — instead of being folded into a numbered cluster. It holds in every city, while you're
+    browsing that city (about zoom 9 and closer); zoom out to a region or the country and the pins go
+    away, so you never see another city's.
   - **Transit** — **Train** and **Metro** are laid over the map by default; tap to add **Tram**,
     **Bus**, **Ferry** or **Airport**, or to turn any off. It's read straight from the basemap, works
     in any city with no setup, and the choice is remembered.
