@@ -14,6 +14,7 @@ import { daysBetween, plural, rangeText } from "@/lib/dates";
 import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
 import { THEME_PRESETS, DEFAULT_ACCENT } from "@/lib/themePresets";
 import { GlyphPicker } from "@/components/GlyphPicker";
+import { ColorSwatch } from "@/components/ColorSwatch";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { TimeZonePicker } from "@/components/TimeZonePicker";
@@ -941,6 +942,16 @@ function Appearance() {
   if (!data) return null;
   if (data.config.demo) return <DemoNotice />;
   const { config, media } = data;
+  // the colours actually showing: a named preset's own, else the trip's stored set
+  const active = THEME_PRESETS.find((p) => p.id === config.themePreset)?.tokens ?? config.theme;
+  // changing one colour turns the palette "custom", starting from what's showing
+  const setToken = (scheme: "light" | "dark", token: string, hex: string) =>
+    mutate((d) => {
+      const base = THEME_PRESETS.find((p) => p.id === d.config.themePreset)?.tokens ?? d.config.theme;
+      d.config.theme = structuredClone(base);
+      d.config.theme[scheme][token] = hex;
+      d.config.themePreset = "custom";
+    });
 
   const upload = (fn: (item: Awaited<ReturnType<typeof fileToMediaItem>>) => void) =>
     run(async () => {
@@ -981,36 +992,27 @@ function Appearance() {
             );
           })}
           <InsetRow label="Accent (light)" className="!items-center">
-            <input type="color" value={hexOnly(config.theme.light.accent)} onChange={(e) => mutate((d) => { d.config.theme.light.accent = e.target.value; d.config.themePreset = "custom"; })} className="h-6 w-9 cursor-pointer rounded border border-line bg-transparent" aria-label="Accent colour, light" />
+            <ColorSwatch label="Accent (light)" value={hexOnly(active.light.accent)} onChange={(c) => setToken("light", "accent", c)} />
           </InsetRow>
           <InsetRow label="Accent (dark)" className="!items-center">
-            <input type="color" value={hexOnly(config.theme.dark.accent)} onChange={(e) => mutate((d) => { d.config.theme.dark.accent = e.target.value; d.config.themePreset = "custom"; })} className="h-6 w-9 cursor-pointer rounded border border-line bg-transparent" aria-label="Accent colour, dark" />
+            <ColorSwatch label="Accent (dark)" value={hexOnly(active.dark.accent)} onChange={(c) => setToken("dark", "accent", c)} />
           </InsetRow>
           <ActionRow label={`${advanced ? "Hide" : "Show"} every colour`} onClick={() => setAdvanced((v) => !v)} />
         </ul>
-        {advanced && (
-          <div className="space-y-3 border-t border-line p-3.5">
-            {(["light", "dark"] as const).map((scheme) => (
-            <div key={scheme}>
-              <p className="mb-1 text-sm font-medium capitalize">{scheme}</p>
-              <div className="grid grid-cols-2 gap-x-4">
-                {Object.entries(config.theme[scheme]).map(([token, hex]) => (
-                  <label key={token} className="flex items-center justify-between gap-2 border-t border-line py-1.5 text-sm first:border-0">
-                    <span className="text-ink-faint">{token}</span>
-                    <input
-                      type="color"
-                      value={hexOnly(hex)}
-                      onChange={(e) => mutate((d) => { d.config.theme[scheme][token] = e.target.value; d.config.themePreset = "custom"; })}
-                      className="h-6 w-9 cursor-pointer rounded border border-line bg-transparent"
-                    />
-                  </label>
-                ))}
-              </div>
-            </div>
-            ))}
-          </div>
-        )}
       </Section>
+
+      {advanced &&
+        (["light", "dark"] as const).map((scheme) => (
+          <Section key={scheme} title={scheme === "light" ? "Light colours" : "Dark colours"} id={`colours-${scheme}`}>
+            <ul>
+              {Object.entries(active[scheme]).map(([token, c]) => (
+                <InsetRow key={token} label={token} className="!items-center">
+                  <ColorSwatch label={`${token} (${scheme})`} value={hexOnly(c)} onChange={(v) => setToken(scheme, token, v)} />
+                </InsetRow>
+              ))}
+            </ul>
+          </Section>
+        ))}
 
       <Section title="Logo">
         <div className="flex items-center gap-4 p-3.5">
