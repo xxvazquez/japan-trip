@@ -21,7 +21,7 @@
   --c-ink-faint: 116 126 134;
   --c-line: 210 216 222;
 
-  --c-accent: 94 113 138; /* muted indigo */
+  --c-accent: 63 102 166; /* indigo blue */
   --c-gold: 135 112 68; /* warm ochre, darkened from #9b8254 so the
     focus-visible ring clears WCAG's 3:1 non-text contrast against --c-bg */
   --c-matcha: 111 130 108; /* moss */
@@ -43,7 +43,7 @@ html.dark {
   --c-ink-faint: 135 143 152;
   --c-line: 45 53 60;
 
-  --c-accent: 128 149 175; /* muted indigo */
+  --c-accent: 134 167 222; /* indigo blue */
   --c-gold: 184 158 115;
   --c-matcha: 139 157 134; /* moss */
   --c-ai: 144 163 182; /* transit blue-grey */

@@ -5,6 +5,7 @@ import { router } from "./router";
 import { initApp, useApp } from "./store/useApp";
 import { applyMode, applyPalette, useMode } from "./lib/mode";
 import { useAuth } from "./lib/auth";
+import { THEME_PRESETS } from "./lib/themePresets";
 import { BootScreen } from "./components/Loader";
 import { SignIn } from "./routes/SignIn";
 import { Offline } from "./routes/Offline";
@@ -31,7 +32,12 @@ if ("serviceWorker" in navigator) {
 
 function ThemeVars() {
   const [mode] = useMode();
-  const theme = useApp((s) => s.data?.config.theme);
+  const stored = useApp((s) => s.data?.config.theme);
+  const presetId = useApp((s) => s.data?.config.themePreset);
+  // a trip on a named preset always shows that preset's current colours, so a
+  // palette refinement reaches trips saved under the old one; a hand-tuned
+  // ("custom") palette is used as stored
+  const theme = THEME_PRESETS.find((p) => p.id === presetId)?.tokens ?? stored;
   useEffect(() => {
     applyMode(mode);
     if (theme) applyPalette(theme.light, theme.dark, mode);
