@@ -170,8 +170,9 @@ places grouped and foldable by area once a city's picked.
 - The small list/map icon next to **＋ Add place** switches to a **full-screen list** — no map, just
   the list at full width (desktop) or full height (phone). Handy for reorganising areas or picking
   through a long list; tap it again for the map back. Remembered next time you open the tab.
-- **Sync** re-pulls everything from your Google My Map. It replaces the imported pins but keeps
-  anything you added in the app and any notes you wrote.
+- **Sync** only ever adds — any pin already imported (its notes, city, area membership) is left
+  exactly as it is, and nothing already in the trip is removed even if it's gone from the My Map
+  itself. Re-run it after adding new pins to your My Map and only the new ones come in.
 - Place names on the map are shown in English / Latin script (falling back to the local name only
   when there's no other), so it reads the same in any country.
 
