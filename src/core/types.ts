@@ -266,6 +266,10 @@ export interface Place {
   url?: string;
   /** "mymap" for imported pins; unset for app-native ones */
   source?: "mymap";
+  /** manual override of the computed "home city" (leg) — set when the
+   *  nearest-stay guess is wrong, or there's no stay anchor yet to guess
+   *  from. Unset means "auto". */
+  legId?: ID;
 }
 
 export interface Day {

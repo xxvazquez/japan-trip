@@ -526,6 +526,11 @@ export default function MapTab() {
   const placeLeg = useMemo(() => {
     const m = new Map<string, string>();
     if (!data) return m;
+    const legIds = new Set(data.legs.map((l) => l.id));
+    const manual = new Set<string>();
+    for (const p of places) {
+      if (p.legId && legIds.has(p.legId)) { m.set(p.id, p.legId); manual.add(p.id); }
+    }
     const anchors: { legId: string; lat: number; lng: number }[] = [];
     for (const leg of data.legs) {
       const hotel = data.hotels.find((h) => h.id === leg.hotelId);
@@ -551,6 +556,7 @@ export default function MapTab() {
     }
     if (anchors.length === 0) return m;
     for (const p of places) {
+      if (manual.has(p.id)) continue;
       let best = anchors[0].legId, bd = Infinity;
       for (const a of anchors) {
         const d = haversineKm(p.lat, p.lng, a.lat, a.lng);
@@ -1006,6 +1012,7 @@ export default function MapTab() {
       distanceKm={distanceKm}
       days={data.days}
       areas={data.areas}
+      legs={data.legs}
       categoryIcons={data.config.categoryIcons}
       loc={loc}
       map={map}
@@ -1015,6 +1022,7 @@ export default function MapTab() {
       onName={(v) => v && updateEntity<Place>("places", p.id, { name: v })}
       onAddToDay={(d) => addToDay(p, d)}
       onToggleArea={(areaId) => toggleAreaPlace(areaId, p.id)}
+      onLeg={(legId) => updateEntity<Place>("places", p.id, { legId })}
       onRemove={() => undoable("Place deleted", () => {
         removeEntity("places", p.id);
         if (selected === p.id) setSelected(null);
@@ -1580,6 +1588,7 @@ function PlaceRow({
   distanceKm,
   days,
   areas,
+  legs,
   categoryIcons,
   loc,
   map,
@@ -1589,6 +1598,7 @@ function PlaceRow({
   onName,
   onAddToDay,
   onToggleArea,
+  onLeg,
   onRemove,
 }: {
   place: Place;
@@ -1604,6 +1614,7 @@ function PlaceRow({
   distanceKm?: number;
   days: TripData["days"];
   areas: Area[];
+  legs: TripData["legs"];
   categoryIcons?: Record<string, string>;
   loc: string;
   /** for the nearest-station lookup — read-only, never used to mutate the map */
@@ -1615,6 +1626,7 @@ function PlaceRow({
   onName: (v: string) => void;
   onAddToDay: (dayId: string) => void;
   onToggleArea: (areaId: string) => void;
+  onLeg: (legId: string | undefined) => void;
   onRemove: () => void;
 }) {
   const readOnly = useReadOnly();
@@ -1720,6 +1732,30 @@ function PlaceRow({
             </li>
           )}
           <AreasRow place={place} areas={areas} readOnly={readOnly} onToggleArea={onToggleArea} rowCls={rowCls} />
+          {legs.length > 0 && (
+            <li className={`${INSET_DIVIDER} ${rowCls}`}>
+              <span className="row-label">City</span>
+              {readOnly ? (
+                <span className="row-value min-w-0 flex-1 text-right">
+                  {legs.find((l) => l.id === place.legId)?.base || "Auto"}
+                </span>
+              ) : (
+                <label className="flex min-w-0 flex-1 cursor-pointer justify-end">
+                  <RowSelect
+                    value={place.legId ?? ""}
+                    onChange={(e) => onLeg(e.target.value || undefined)}
+                    aria-label="City"
+                    className="max-w-[12rem] truncate"
+                  >
+                    <option value="">Auto</option>
+                    {legs.map((l) => (
+                      <option key={l.id} value={l.id}>{l.base || "Stay"}</option>
+                    ))}
+                  </RowSelect>
+                </label>
+              )}
+            </li>
+          )}
           {link && (
             <li className={INSET_DIVIDER}>
               <a href={link} target="_blank" rel="noopener" className={`${rowCls} text-accent active:bg-surface-2`}>
