@@ -37,7 +37,7 @@ import { putFile, fileUrl, removeFile } from "@/lib/fileStore";
 import {
   driveEnabled, ensureFolder, uploadToDrive, shareFile, deleteFromDrive, driveViewUrl, driveImageUrl,
 } from "@/lib/drive";
-import type { CustomList, Doc, DocFile, LuggageNote, PackingItem, ScratchNote } from "@/core/types";
+import type { CustomList, Doc, DocFile, LuggageNote, PackingItem, ScratchNote, TripData } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 8);
 
@@ -51,6 +51,28 @@ const SECTION_TILE: Record<LogbookSection, { name?: IconName; glyph?: MapGlyphId
   budget: { name: "wallet" },
   notes: { name: "list" },
 };
+
+/** The quiet trailing value on a Logbook menu row — how much is in the section,
+ *  or how far along it is (packing, spending). Nothing when it's empty. */
+function sectionSummary(s: LogbookSection, data: TripData): string | undefined {
+  const n = (count: number) => (count > 0 ? String(count) : undefined);
+  switch (s) {
+    case "stays": return n(data.hotels.length);
+    case "getting around": return n(data.journeys.length);
+    case "luggage": return n(data.luggage.length);
+    case "documents": return n(data.docs.filter((d) => d.kind !== "contact").length);
+    case "emergency": return n(data.docs.find((d) => d.kind === "contact")?.fields.filter((f) => f.value.trim()).length ?? 0);
+    case "packing": {
+      const total = data.packing.length;
+      return total ? `${data.packing.filter((i) => i.done).length}/${total}` : undefined;
+    }
+    case "budget": {
+      const totals = Object.entries(tripCost(data).byCurrency).filter(([, b]) => b.total > 0);
+      return totals.length ? totals.map(([cur, b]) => fmtMoney(b.total, cur)).join(" · ") : undefined;
+    }
+    case "notes": return n(data.scratchNotes.length);
+  }
+}
 
 /** The Logbook home — a plain menu of its sections, each pushing to its own
  *  page. Hidden built-ins (Manage → Logbook sections) and custom lists both
@@ -75,6 +97,7 @@ export function LogbookIndex() {
               to={`/logbook/${sectionSlug(s)}`}
               tile={<IconTile size="sm" {...logbookSectionTile(s)} {...SECTION_TILE[s]} />}
               title={logbookLabel(s)}
+              right={sectionSummary(s, data)}
             />
           ))}
         </ul>
@@ -88,7 +111,7 @@ export function LogbookIndex() {
                 to={`/logbook/${l.id}`}
                 tile={<IconTile size="sm" name="list" color={customListColor(i)} />}
                 title={l.title}
-                meta={l.items.length ? plural(l.items.length, "item") : undefined}
+                right={l.items.length ? String(l.items.length) : undefined}
               />
             ))}
           </ul>

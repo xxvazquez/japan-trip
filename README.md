@@ -198,7 +198,8 @@ When four or more places aren't in any area, a *Suggest areas* link joins the Ar
 
 The reference drawer. A menu of sections, each its own page: stays · getting around · luggage ·
 documents · emergency numbers · packing · expenses · a scratchpad, plus any lists you've added
-yourself.
+yourself. Each row shows at a glance how much is in it — a count, packing progress ("3/8"), or
+the total spent — and nothing when it's empty.
 
 - **Documents** — one card per document. Name it ("Travel insurance"), attach the PDF / photo, add
   whatever fields you want, add a note. Every card is renamable, removable, and you add more from the
