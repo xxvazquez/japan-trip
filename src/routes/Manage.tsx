@@ -1264,13 +1264,26 @@ function Content() {
         else delete next[name];
         d.config.categoryIcons = next;
       });
+    const pinned = data.config.pinnedCategories ?? [];
+    const togglePinned = (name: string) =>
+      mutate((d) => {
+        const cur = d.config.pinnedCategories ?? [];
+        const next = cur.includes(name) ? cur.filter((c) => c !== name) : [...cur, name];
+        d.config.pinnedCategories = next.length ? next : undefined;
+      });
     return (
-      <Section title="Category pins" info="Give a place category its own map marker — others show a plain dot.">
+      <Section
+        title="Category pins"
+        info="Give a place category its own map marker — others show a plain dot. “Always show” keeps a category's pins on the map when you zoom far out, on top of everything, instead of folding them into a numbered cluster — handy for your hotel, or anything you need to find at a glance."
+      >
         <ul>
           {names.map((name) => (
             <li key={name} className={`${MLI} text-sm`}>
               <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: colorOf(name) }} />
               <span className="min-w-0 flex-1 truncate">{name}</span>
+              <button type="button" className="chip" aria-pressed={pinned.includes(name)} onClick={() => togglePinned(name)}>
+                Always show
+              </button>
               <GlyphPicker
                 value={icons[name]}
                 color={colorOf(name)}

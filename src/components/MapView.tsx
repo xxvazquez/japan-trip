@@ -66,6 +66,28 @@ function ensureMarkerImages(m: MLMap, places: Place[], catIcons: CatIcons, dark:
 
 const sel = (id: string | null) => id ?? "__none__";
 
+/** categories the trip wants kept on screen when zoomed out (`config.pinnedCategories`) */
+function splitPinned(places: Place[], cats: string[] | undefined): { pinned: Place[]; rest: Place[] } {
+  if (!cats?.length) return { pinned: [], rest: places };
+  const on = new Set(cats);
+  return { pinned: places.filter((p) => p.category && on.has(p.category)), rest: places.filter((p) => !p.category || !on.has(p.category)) };
+}
+
+/** pinned pins stay visible from a country-wide view down; below this they'd just be noise */
+const PINNED_MINZOOM = 3;
+
+/** like `iconSize`, but bigger all the way down so a pinned marker reads from far out */
+const pinnedIconSize = (selId: string): unknown => {
+  const bump = ["case", ["==", ["get", "id"], selId], 1.2, 1];
+  return [
+    "interpolate", ["linear"], ["zoom"],
+    4, ["*", 0.8, bump],
+    9, ["*", 1.05, bump],
+    13, ["*", 1.4, bump],
+    16, ["*", 1.6, bump],
+  ];
+};
+
 /** icon-size for the glyph markers: a zoom ramp, enlarged for the selected pin.
  *  The zoom `interpolate` has to stay top-level, so the selected bump is folded
  *  into each stop rather than multiplied on the outside. */
@@ -92,6 +114,7 @@ export function MapView({
   areaShapes,
   transit,
   categoryIcons,
+  pinnedCategories,
   dark,
   onSelect,
   onMapClick,
@@ -104,6 +127,8 @@ export function MapView({
   derivedIds?: Set<string>;
   /** place-category → marker glyph id (`config.categoryIcons`) */
   categoryIcons?: Record<string, string>;
+  /** categories drawn on top, unclustered, and kept visible when zoomed out */
+  pinnedCategories?: string[];
   /** area outlines to draw under the pins (visible when zoomed out) */
   areaShapes?: AreaShapes | null;
   /** enabled transit categories ("train" | "metro" | "tram" | "bus" | "airport") */
@@ -122,8 +147,8 @@ export function MapView({
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
   const [retryKey, setRetryKey] = useState(0);
   const [online, setOnline] = useState(() => (typeof navigator === "undefined" ? true : navigator.onLine));
-  const state = useRef({ places, selectedId, derivedIds, areaShapes, transit, categoryIcons, dark, onSelect, onMapClick, onLongPress, onReady });
-  state.current = { places, selectedId, derivedIds, areaShapes, transit, categoryIcons, dark, onSelect, onMapClick, onLongPress, onReady };
+  const state = useRef({ places, selectedId, derivedIds, areaShapes, transit, categoryIcons, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onReady });
+  state.current = { places, selectedId, derivedIds, areaShapes, transit, categoryIcons, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onReady };
 
   /* show/hide transit layers to match the current filter */
   const applyTransit = (m: MLMap, enabled: Set<string> | undefined) => {
@@ -136,7 +161,8 @@ export function MapView({
 
   /* add our source + layers on top of the basemap (re-run after a style swap) */
   const addLayers = (m: MLMap) => {
-    const { places: p, selectedId: s, derivedIds: di, areaShapes: sh, transit: tr, categoryIcons: ci, dark: d } = state.current;
+    const { places: p, selectedId: s, derivedIds: di, areaShapes: sh, transit: tr, categoryIcons: ci, pinnedCategories: pc, dark: d } = state.current;
+    const { pinned, rest } = splitPinned(p, pc);
     const halo = d ? "#14181c" : "#f2efe8";
     const ink = d ? "#e7ebee" : "#1a2026";
 
@@ -166,7 +192,7 @@ export function MapView({
     });
 
     ensureMarkerImages(m, p, ci, d);
-    m.addSource("places", { type: "geojson", data: toFC(p, di, ci), cluster: true, clusterRadius: 46, clusterMaxZoom: 13 });
+    m.addSource("places", { type: "geojson", data: toFC(rest, di, ci), cluster: true, clusterRadius: 46, clusterMaxZoom: 13 });
 
     m.addLayer({
       id: "clusters", type: "circle", source: "places", filter: ["has", "point_count"],
@@ -224,6 +250,38 @@ export function MapView({
       },
       paint: { "text-color": ink, "text-halo-color": halo, "text-halo-width": 2 },
     });
+
+    // pinned categories: their own source, so nothing folds them into a cluster,
+    // and drawn last, so they sit above every cluster, area outline and pin
+    m.addSource("pinned", { type: "geojson", data: toFC(pinned, di, ci) });
+    m.addLayer({
+      id: "pinned-dot", type: "circle", source: "pinned", minzoom: PINNED_MINZOOM,
+      filter: ["==", ["get", "glyph"], ""],
+      paint: {
+        "circle-color": ["get", "color"],
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 6, 10, 9, 15, 12],
+        "circle-stroke-width": 3,
+        "circle-stroke-color": halo,
+      },
+    });
+    m.addLayer({
+      id: "pinned-icon", type: "symbol", source: "pinned", minzoom: PINNED_MINZOOM,
+      filter: ["!=", ["get", "glyph"], ""],
+      layout: {
+        "icon-image": ["get", "icon"],
+        "icon-size": pinnedIconSize(sel(s)) as number,
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true,
+      },
+    });
+    m.addLayer({
+      id: "pinned-label", type: "symbol", source: "pinned", minzoom: 11,
+      layout: {
+        "text-field": ["get", "name"], "text-font": ["Noto Sans Medium"], "text-size": 12,
+        "text-offset": [0, 2.3], "text-anchor": "top", "text-max-width": 9,
+      },
+      paint: { "text-color": ink, "text-halo-color": halo, "text-halo-width": 2 },
+    });
   };
 
   /* init */
@@ -267,7 +325,7 @@ export function MapView({
       addLayers(m);
       const pointer = () => (m.getCanvas().style.cursor = "pointer");
       const noPointer = () => (m.getCanvas().style.cursor = "");
-      for (const l of ["pins", "pins-icon", "clusters"]) { m.on("mouseenter", l, pointer); m.on("mouseleave", l, noPointer); }
+      for (const l of ["pins", "pins-icon", "clusters", "pinned-icon", "pinned-dot"]) { m.on("mouseenter", l, pointer); m.on("mouseleave", l, noPointer); }
 
       const pickPin = (e: MapLayerMouseEvent) => {
         const id = e.features?.[0]?.properties?.id as string | undefined;
@@ -275,6 +333,8 @@ export function MapView({
       };
       m.on("click", "pins", pickPin);
       m.on("click", "pins-icon", pickPin);
+      m.on("click", "pinned-icon", pickPin);
+      m.on("click", "pinned-dot", pickPin);
       m.on("click", "clusters", async (e: MapLayerMouseEvent) => {
         const f = e.features?.[0];
         const cid = f?.properties?.cluster_id;
@@ -285,7 +345,7 @@ export function MapView({
         m.easeTo({ center: coords, zoom });
       });
       m.on("click", (e: MapMouseEvent) => {
-        if (m.queryRenderedFeatures(e.point, { layers: ["pins", "pins-icon", "clusters"] }).length === 0)
+        if (m.queryRenderedFeatures(e.point, { layers: ["pins", "pins-icon", "clusters", "pinned-icon", "pinned-dot"] }).length === 0)
           state.current.onMapClick?.(e.lngLat.lat, e.lngLat.lng);
       });
 
@@ -323,8 +383,10 @@ export function MapView({
     const m = map.current;
     if (!ready.current || !m) return;
     ensureMarkerImages(m, places, categoryIcons, state.current.dark);
-    (m.getSource("places") as GeoJSONSource | undefined)?.setData(toFC(places, derivedIds, categoryIcons));
-  }, [places, derivedIds, categoryIcons]);
+    const { pinned, rest } = splitPinned(places, pinnedCategories);
+    (m.getSource("places") as GeoJSONSource | undefined)?.setData(toFC(rest, derivedIds, categoryIcons));
+    (m.getSource("pinned") as GeoJSONSource | undefined)?.setData(toFC(pinned, derivedIds, categoryIcons));
+  }, [places, derivedIds, categoryIcons, pinnedCategories]);
 
   useEffect(() => {
     if (ready.current) (map.current!.getSource("areas") as GeoJSONSource | undefined)?.setData(areaShapes ?? EMPTY_FC);
@@ -345,6 +407,8 @@ export function MapView({
     m.setPaintProperty("pins", "circle-radius", ["case", ["==", ["get", "id"], s], 10, ["get", "derived"], 6, 7.5]);
     m.setPaintProperty("pins", "circle-stroke-width", ["case", ["==", ["get", "id"], s], 3, 2]);
     if (m.getLayer("pins-icon")) m.setLayoutProperty("pins-icon", "icon-size", iconSize(s));
+    if (m.getLayer("pinned-icon")) m.setLayoutProperty("pinned-icon", "icon-size", pinnedIconSize(s));
+    if (m.getLayer("pinned-dot")) m.setPaintProperty("pinned-dot", "circle-stroke-width", ["case", ["==", ["get", "id"], s], 5, 3]);
     const p = selectedId ? places.find((x) => x.id === selectedId) : undefined;
     if (p) m.easeTo({ center: [p.lng, p.lat], zoom: Math.max(m.getZoom(), 14), duration: 500, offset: [0, -70] });
   }, [selectedId, places]);

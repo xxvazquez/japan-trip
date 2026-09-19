@@ -1446,6 +1446,7 @@ export default function MapTab() {
           areaShapes={areaShapes}
           transit={transit}
           categoryIcons={data.config.categoryIcons}
+          pinnedCategories={data.config.pinnedCategories}
           dark={dark}
           onSelect={setSelected}
           onMapClick={onMapClick}

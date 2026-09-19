@@ -73,6 +73,7 @@ export default function MapPane({ dayId }: { dayId: string }) {
         selectedId={selected}
         derivedIds={ctx.derived}
         categoryIcons={data.config.categoryIcons}
+        pinnedCategories={data.config.pinnedCategories}
         dark={dark}
         onSelect={setSelected}
         onReady={(m) => {

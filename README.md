@@ -139,7 +139,10 @@ places grouped and foldable by area once a city's picked.
   list instead of shrinking it:
   - **Category** — the coloured dots; none selected shows everything, tap some to narrow. Give a
     category its own **pin icon** in **Manage → Content → Category pins** — those places draw as a
-    coloured disc with the icon.
+    coloured disc with the icon. Switch **Always show** on for a category (your hotel's, say) and
+    its pins stay on the map when you zoom far out — bigger, on top of everything, named once you're
+    close — instead of being folded into a numbered cluster. It holds in every city, down to about a
+    whole-country view.
   - **Transit** — **Train** and **Metro** are laid over the map by default; tap to add **Tram**,
     **Bus**, **Ferry** or **Airport**, or to turn any off. It's read straight from the basemap, works
     in any city with no setup, and the choice is remembered.

@@ -89,6 +89,9 @@ export interface TripConfig {
   /** map a place `category` to a marker glyph id (see `MAP_GLYPHS`). Categories
    *  not listed here draw the plain coloured dot. */
   categoryIcons?: Record<string, string>;
+  /** place categories whose pins stay on the map when zoomed far out — drawn
+   *  on top and never folded into a numbered cluster (e.g. the hotel) */
+  pinnedCategories?: string[];
   /** a public Google "My Maps" link — its pins are imported into `places` */
   mapSourceUrl?: string;
   /** ISO timestamp of the last My Maps import */
