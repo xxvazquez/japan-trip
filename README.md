@@ -43,14 +43,13 @@ The trip as a list of days, grouped by where you're staying. Each day carries a 
 **Travel**, **Depart**, **Day trip** — worked out automatically from what you set on the day itself,
 never chosen by hand.
 
-- While the trip is running, a **Today** card sits under the "Day X of Y" header: today's title, the
-  step that's **Now** (a timed range like "14:00–15:15" that's under way) and the one that's **Next**
-  (the soonest step still to come). A step tied to a map place shows the walk from the step before it
-  and a **Directions** link that opens Google Maps from wherever you're standing. Only steps with a
-  real time ("13:00" or a range) can be placed on the clock — looser text like "Around noon" is left
-  out — and it keeps itself current while the app is open. Uses the phone's own clock, which follows
-  you across time zones.
 - Drag a day up or down to **reorder** it (the dates shuffle with it).
+- On **today's own day page** (only that one), a card at the very top shows what's **Now** (a timed
+  range like "14:00–15:15" that's under way) and what's **Next** (the soonest step still to come).
+  A step tied to a map place shows the walk from the step before it and a **Directions** link that
+  opens Google Maps from wherever you're standing. Only steps with a real time ("13:00" or a range)
+  can be placed on the clock — looser text like "Around noon" is left out — and it keeps itself
+  current while the app is open, on the phone's own clock. The main Plan list stays just the days.
 - Tap a day to open it. At the top: **Staying at** (which hotel) and **Journey** (link an existing
   one, or ＋ new — you then pick its type on the journey page).
 - If that day's hotel has coordinates, its header line shows the day's forecast (e.g. "Showers,

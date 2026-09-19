@@ -19,7 +19,6 @@ import { CSS } from "@dnd-kit/utilities";
 import { Page } from "@/components/Page";
 import { Section } from "@/components/Section";
 import { Empty } from "@/components/Empty";
-import { TodayCard } from "@/components/TodayCard";
 import { Icon, type IconName } from "@/components/Icon";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
@@ -96,8 +95,6 @@ export default function Plan() {
         )}
         {!noDates && c.phase === "after" && <p className="lead">Home — the trip’s all here.</p>}
       </header>
-
-      {!noDates && c.phase === "during" && c.today && <TodayCard day={c.today} places={data.places} loc={loc} />}
 
       {data.legs.length === 0 ? (
         <Empty
