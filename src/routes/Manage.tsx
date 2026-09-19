@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
-import { Icon, type IconName } from "@/components/Icon";
+import { Icon } from "@/components/Icon";
 import { useApp, undoable } from "@/store/useApp";
 import { useData } from "@/lib/data";
 import { useAsyncAction } from "@/lib/useAsyncAction";
@@ -15,6 +15,7 @@ import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
 import { THEME_PRESETS, DEFAULT_ACCENT } from "@/lib/themePresets";
 import { GlyphPicker } from "@/components/GlyphPicker";
 import { ColorSwatch } from "@/components/ColorSwatch";
+import { ActionRow } from "@/components/ActionRow";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { TimeZonePicker } from "@/components/TimeZonePicker";
@@ -429,19 +430,6 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 /** `<li>` class for a Manage grouped-list item (a traveller, a currency…):
  *  padded, `InsetRow`'s own inset hairline, gone on the last row. */
 const MLI = `${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-3`;
-
-/** an action in a grouped list — the iOS Settings idiom: a full-width row with
- *  an accent label, never a wide filled button inside the card */
-function ActionRow({ icon, label, hint, onClick, disabled }: { icon?: IconName; label: string; hint?: string; onClick: () => void; disabled?: boolean }) {
-  return (
-    <li className={INSET_DIVIDER}>
-      <button onClick={onClick} disabled={disabled} className="action w-full px-3.5 py-3 text-[0.9375rem] disabled:opacity-50">
-        {icon && <Icon name={icon} size={14} />} {label}
-        {hint && <span className="meta ml-1 hidden font-normal sm:inline">— {hint}</span>}
-      </button>
-    </li>
-  );
-}
 
 /** the trailing "＋ Add …" row inside a Manage grouped list */
 function AddRow({ label, onClick }: { label: string; onClick: () => void }) {

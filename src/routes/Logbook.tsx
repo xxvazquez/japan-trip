@@ -7,10 +7,9 @@ import { IconTile } from "@/components/IconTile";
 import { TileRow } from "@/components/TileRow";
 import { RouteLabel } from "@/components/RouteLabel";
 import { CheckCircle } from "@/components/CheckCircle";
-import { InfoNote } from "@/components/InfoNote";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { Empty } from "@/components/Empty";
-import { AddButton } from "@/components/AddButton";
+import { ActionRow } from "@/components/ActionRow";
 import { AccordionRow } from "@/components/AccordionRow";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { SwipeToDelete } from "@/components/SwipeToDelete";
@@ -33,9 +32,9 @@ import { toneForSegmentMode, logbookSectionTile, customListColor, TONE_BG, type 
 import { LOGBOOK_SECTIONS, logbookLabel, sectionSlug, sectionFromSlug, type LogbookSection } from "@/lib/logbook";
 import { tripCost, fmtMoney, combineCurrencies, expenseCategoryIcon } from "@/lib/cost";
 import { useFxRates } from "@/lib/fx";
-import { putFile, fileUrl, removeFile } from "@/lib/fileStore";
+import { putFile, fileUrl } from "@/lib/fileStore";
 import {
-  driveEnabled, ensureFolder, uploadToDrive, shareFile, deleteFromDrive, driveViewUrl, driveImageUrl,
+  driveEnabled, ensureFolder, uploadToDrive, shareFile, driveViewUrl, driveImageUrl,
 } from "@/lib/drive";
 import type { CustomList, Doc, DocFile, LuggageNote, PackingItem, ScratchNote, TripData } from "@/core/types";
 
@@ -232,13 +231,7 @@ function ListSection({ list }: { list: CustomList }) {
             </SwipeToDelete>
           </li>
         ))}
-        {!ro && (
-          <li>
-            <button onClick={add} className="action w-full px-3.5 py-3 text-[0.9375rem]">
-              <Icon name="plus" size={13} /> Add an item
-            </button>
-          </li>
-        )}
+        {!ro && <ActionRow icon="plus" label="Add an item" onClick={add} />}
       </ul>
     </Section>
   );
@@ -302,7 +295,6 @@ function GettingAround() {
   }
   return (
     <div className="space-y-3">
-      {!ro && <AddButton label="Add a journey" onClick={add} />}
       <Section>
         <ul>
           {journeys.map((j) => {
@@ -327,6 +319,7 @@ function GettingAround() {
               />
             );
           })}
+          {!ro && <ActionRow icon="plus" label="Add a journey" onClick={add} />}
         </ul>
       </Section>
     </div>
@@ -356,7 +349,6 @@ function Luggage() {
 
   return (
     <div className="space-y-6">
-      {!ro && <AddButton label="Add a note" onClick={add} />}
       <Section>
         <ul>
           {data.luggage.map((n) => {
@@ -392,6 +384,7 @@ function Luggage() {
               </AccordionRow>
             );
           })}
+          {!ro && <ActionRow icon="plus" label="Add a note" onClick={add} />}
         </ul>
       </Section>
     </div>
@@ -601,16 +594,16 @@ function Documents() {
 
   return (
     <div className="space-y-6">
-      <div className={`flex items-center ${ro ? "justify-end" : "justify-between"}`}>
-        {!ro && <AddButton label="Add a document" onClick={addDoc} />}
-        <InfoNote align="right">
-          One card per document — rename it, add your own fields, attach a file, add a note.{" "}
-          {cloud
-            ? "Attachments upload to a Google Drive folder shared with the people on this trip. Still — think twice before a full passport scan."
-            : "Attachments stay only on the device they’re added on — passport numbers don’t belong here."}
-        </InfoNote>
-      </div>
-      <Section>
+      <Section
+        info={
+          <>
+            One card per document — rename it, add your own fields, attach a file, add a note.{" "}
+            {cloud
+              ? "Attachments upload to a Google Drive folder shared with the people on this trip. Still — think twice before a full passport scan."
+              : "Attachments stay only on the device they’re added on — passport numbers don’t belong here."}
+          </>
+        }
+      >
         <ul>
           {docs.map((d) => (
             <AccordionRow
@@ -655,6 +648,7 @@ function Documents() {
               )}
             </AccordionRow>
           ))}
+          {!ro && <ActionRow icon="plus" label="Add a document" onClick={addDoc} />}
         </ul>
       </Section>
     </div>
@@ -709,9 +703,10 @@ function Attachments({
       if (url) window.open(url, "_blank");
     }
   };
+  // Only the reference goes. The bytes (device or Drive) are deliberately left
+  // where they are: removing a row can be undone from the toast or a restore
+  // point, and an undo pointing at a deleted file would restore a dead link.
   const remove = async (f: DocFile) => {
-    if (f.driveId) void deleteFromDrive(f.driveId);
-    else await removeFile(f.id);
     onChange(files.filter((x) => x.id !== f.id));
   };
 
@@ -813,60 +808,50 @@ function Packing() {
           Start with a category — Clothes, Tech, Toiletries… — then add what goes in it.
         </p>
       )}
-      {Object.keys(groups).length > 0 && (
-        <>
-          {!ro && <AddButton label="Add a category" onClick={addCategory} />}
-          <Section>
+      {Object.entries(groups).map(([group, list]) => {
+        const g = list.filter((i) => i.done).length;
+        return (
+          <Section
+            key={group}
+            id={`pack-${group}`}
+            title={ro ? group : (
+              <Editable label="Category" value={group} placeholder="Category" onCommit={(v) => renameGroup(group, v)} />
+            )}
+            action={
+              <span className="flex items-center gap-2">
+                <span className={`text-xs tabular-nums ${g === list.length ? "text-ink" : "text-ink-faint"}`}>
+                  {g}/{list.length}
+                </span>
+                {!ro && cardDeleteBtn(() => removeGroup(group), "Delete category")}
+              </span>
+            }
+          >
             <ul>
-              {Object.entries(groups).map(([group, list]) => {
-                const g = list.filter((i) => i.done).length;
-                return (
-                  <AccordionRow
-                    key={group}
-                    id={group}
-                    defaultOpen
-                    title={ro ? group : (
-                      <Editable label="Category" value={group} placeholder="Category" onCommit={(v) => renameGroup(group, v)} />
-                    )}
-                    action={
-                      <span className="flex items-center gap-2">
-                        <span className={`text-xs tabular-nums ${g === list.length ? "text-ink" : "text-ink-faint"}`}>
-                          {g}/{list.length}
-                        </span>
-                        {!ro && cardDeleteBtn(() => removeGroup(group), "Delete category")}
-                      </span>
-                    }
-                  >
-                    <ul>
-                      {list.map((it) => (
-                        <PackRow
-                          key={it.id}
-                          item={it}
-                          ro={ro}
-                          people={people}
-                          tagged={tagged}
-                          onToggle={(v) => updateEntity<PackingItem>("packing", it.id, { done: v })}
-                          onLabel={(v) => updateEntity<PackingItem>("packing", it.id, { label: v })}
-                          onAssign={(v) => updateEntity<PackingItem>("packing", it.id, { assignee: v })}
-                          onRemove={() => removeEntity("packing", it.id)}
-                        />
-                      ))}
-                      {!ro && (
-                        <li>
-                          <button onClick={() => addItem(group)} className="action w-full px-3.5 py-3 text-[0.9375rem]">
-                            <Icon name="plus" size={13} /> Add item
-                          </button>
-                        </li>
-                      )}
-                    </ul>
-                  </AccordionRow>
-                );
-              })}
+              {list.map((it) => (
+                <PackRow
+                  key={it.id}
+                  item={it}
+                  ro={ro}
+                  people={people}
+                  tagged={tagged}
+                  onToggle={(v) => updateEntity<PackingItem>("packing", it.id, { done: v })}
+                  onLabel={(v) => updateEntity<PackingItem>("packing", it.id, { label: v })}
+                  onAssign={(v) => updateEntity<PackingItem>("packing", it.id, { assignee: v })}
+                  onRemove={() => removeEntity("packing", it.id)}
+                />
+              ))}
+              {!ro && <ActionRow icon="plus" label="Add item" onClick={() => addItem(group)} />}
             </ul>
           </Section>
-        </>
+        );
+      })}
+      {!ro && (
+        <Section>
+          <ul>
+            <ActionRow icon="plus" label="Add a category" onClick={addCategory} />
+          </ul>
+        </Section>
       )}
-      {Object.keys(groups).length === 0 && !ro && <AddButton label="Add a category" onClick={addCategory} />}
     </div>
   );
 }
@@ -982,7 +967,6 @@ function Notes() {
 
   return (
     <div className="space-y-6">
-      {!ro && <AddButton label="Add a note" onClick={add} />}
       <Section>
         <ul>
           {data.scratchNotes.map((n) => {
@@ -1001,6 +985,7 @@ function Notes() {
               </AccordionRow>
             );
           })}
+          {!ro && <ActionRow icon="plus" label="Add a note" onClick={add} />}
         </ul>
       </Section>
     </div>
