@@ -441,7 +441,7 @@ function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByP
     return readOnly ? (
       <p className="px-3.5 py-3 text-sm text-ink-faint">Nothing planned yet.</p>
     ) : (
-      <button onClick={() => onChange([{ id: rid(), text: "" }])} className="action w-full px-3.5 py-3 text-sm">
+      <button onClick={() => onChange([{ id: rid(), text: "" }])} className="action w-full px-3.5 py-2.5 text-[0.8125rem]">
         <Icon name="plus" size={14} /> Add a step
       </button>
     );
@@ -491,7 +491,7 @@ function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByP
       {/* a second "add" affordance down here too — the one up in the Section
        *  header (see Day()) means a long plan otherwise needs a scroll back
        *  to the top just to add the next step */}
-      <button onClick={() => onChange([...items, { id: rid(), text: "" }])} className="action w-full border-t border-line px-3.5 py-3 text-sm">
+      <button onClick={() => onChange([...items, { id: rid(), text: "" }])} className="action w-full border-t border-line px-3.5 py-2.5 text-[0.8125rem]">
         <Icon name="plus" size={14} /> Add a step
       </button>
     </>
@@ -922,7 +922,7 @@ function CostList({ costs, categories, currencies, places, highlightId, readOnly
     return readOnly ? (
       <p className="px-3.5 py-3 text-sm text-ink-faint">Nothing logged.</p>
     ) : (
-      addButton("action w-full px-3.5 py-3 text-sm", 14)
+      addButton("action w-full px-3.5 py-2.5 text-[0.8125rem]", 14)
     );
   }
 
@@ -998,7 +998,7 @@ function CostList({ costs, categories, currencies, places, highlightId, readOnly
             : "—"}
         </span>
       </li>
-      {!readOnly && <li>{addButton("action w-full px-3.5 py-2.5 text-xs", 13)}</li>}
+      {!readOnly && <li>{addButton("action w-full px-3.5 py-2.5 text-[0.8125rem]", 14)}</li>}
     </ul>
   );
 }

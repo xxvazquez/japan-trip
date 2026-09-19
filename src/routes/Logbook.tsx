@@ -234,7 +234,7 @@ function ListSection({ list }: { list: CustomList }) {
         ))}
         {!ro && (
           <li>
-            <button onClick={add} className="action w-full px-3.5 py-2.5 text-xs">
+            <button onClick={add} className="action w-full px-3.5 py-2.5 text-[0.8125rem]">
               <Icon name="plus" size={13} /> Add an item
             </button>
           </li>
@@ -853,7 +853,7 @@ function Packing() {
                       ))}
                       {!ro && (
                         <li>
-                          <button onClick={() => addItem(group)} className="action w-full px-3.5 py-2.5 text-xs">
+                          <button onClick={() => addItem(group)} className="action w-full px-3.5 py-2.5 text-[0.8125rem]">
                             <Icon name="plus" size={13} /> Add item
                           </button>
                         </li>

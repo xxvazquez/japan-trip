@@ -91,7 +91,7 @@ export function FieldList({
   }
 
   const addBtn = (
-    <button onClick={add} className={`action text-xs ${inset ? "w-full px-3.5 py-2.5" : "mt-2"}`}>
+    <button onClick={add} className={`action ${inset ? "w-full px-3.5 py-2.5 text-[0.8125rem]" : "mt-2 text-xs"}`}>
       <Icon name="plus" size={13} /> {addLabel}
     </button>
   );

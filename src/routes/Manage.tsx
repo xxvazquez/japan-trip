@@ -434,8 +434,8 @@ const MLI = `${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-2.5`;
 function ActionRow({ icon, label, hint, onClick, disabled }: { icon?: IconName; label: string; hint?: string; onClick: () => void; disabled?: boolean }) {
   return (
     <li className={INSET_DIVIDER}>
-      <button onClick={onClick} disabled={disabled} className="action w-full px-3.5 py-2.5 disabled:opacity-50">
-        {icon && <Icon name={icon} size={15} />} {label}
+      <button onClick={onClick} disabled={disabled} className="action w-full px-3.5 py-2.5 text-[0.8125rem] disabled:opacity-50">
+        {icon && <Icon name={icon} size={14} />} {label}
         {hint && <span className="meta ml-1 hidden font-normal sm:inline">— {hint}</span>}
       </button>
     </li>
@@ -446,8 +446,8 @@ function ActionRow({ icon, label, hint, onClick, disabled }: { icon?: IconName; 
 function AddRow({ label, onClick }: { label: string; onClick: () => void }) {
   return (
     <li>
-      <button onClick={onClick} className="action w-full px-3.5 py-2.5 text-xs">
-        <Icon name="plus" size={13} /> {label}
+      <button onClick={onClick} className="action w-full px-3.5 py-2.5 text-[0.8125rem]">
+        <Icon name="plus" size={14} /> {label}
       </button>
     </li>
   );
