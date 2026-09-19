@@ -368,7 +368,7 @@ and the whole plan work offline.
 After an update the app can briefly show an old version. Close the tab (or the installed app) fully
 and reopen it, or pull down from the top of any page to re-pull the trip. It'll catch up. To tell
 whether a device has the latest deploy, the foot of **Manage** shows the build it's running — the
-short commit and the date it was built — to compare against the commit you pushed.
+app version (which goes up with every commit), the short commit and the date it was built — to compare against the commit you pushed.
 
 ---
 

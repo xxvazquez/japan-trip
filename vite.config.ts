@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import { fileURLToPath, URL } from "node:url";
 import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 
 /** which commit this bundle was built from — Cloudflare's build sets the SHA;
  *  locally it's read from git. Shown in Manage so it's easy to tell whether a
@@ -17,8 +18,25 @@ function buildCommit(): string {
   }
 }
 
+/** the app version — `major.minor` from package.json, with the patch being the
+ *  number of commits on the branch, so it goes up by itself with every change.
+ *  Falls back to package.json's own version if git history isn't available
+ *  (e.g. a shallow clone, where the count would be wrong). */
+function buildVersion(): string {
+  const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")).version as string;
+  try {
+    const git = (args: string) => execSync(`git ${args}`, { stdio: ["ignore", "pipe", "ignore"] }).toString().trim();
+    if (git("rev-parse --is-shallow-repository") === "true") return pkg;
+    const [major, minor] = pkg.split(".");
+    return `${major}.${minor}.${git("rev-list --count HEAD")}`;
+  } catch {
+    return pkg;
+  }
+}
+
 export default defineConfig(({ command }) => ({
   define: {
+    __APP_VERSION__: JSON.stringify(buildVersion()),
     __APP_COMMIT__: JSON.stringify(command === "serve" ? `${buildCommit()} (dev)` : buildCommit()),
     __APP_BUILT__: JSON.stringify(new Date().toISOString()),
   },

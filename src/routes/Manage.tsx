@@ -93,7 +93,7 @@ function AppFooter() {
         {APP_TAGLINE} · <Link to="/help" className="text-accent">Help &amp; FAQ</Link>
       </p>
       <p className="mt-1 text-2xs tabular-nums" title="The build this device is running">
-        Build {APP_BUILD.commit} · {new Date(APP_BUILD.built).toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+        Version {APP_BUILD.version} · Build {APP_BUILD.commit} · {new Date(APP_BUILD.built).toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
       </p>
     </footer>
   );
