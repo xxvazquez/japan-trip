@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { getSupabase, supabaseEnabled } from "./supabase";
 
@@ -25,16 +25,18 @@ if (supabaseEnabled) {
   });
 }
 
+const subscribe = (cb: () => void) => {
+  listeners.add(cb);
+  return () => {
+    listeners.delete(cb);
+  };
+};
+
+/** Read straight from the external store, so a session that resolves before
+ *  the first component has subscribed is still seen on that first render
+ *  (a plain effect-subscription would miss the update and never re-render). */
 export function useAuth(): AuthState {
-  const [, force] = useState(0);
-  useEffect(() => {
-    const cb = () => force((n) => n + 1);
-    listeners.add(cb);
-    return () => {
-      listeners.delete(cb);
-    };
-  }, []);
-  return current;
+  return useSyncExternalStore(subscribe, () => current);
 }
 
 export const isAuthReady = (): boolean => current.ready;
