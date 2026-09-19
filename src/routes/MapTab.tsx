@@ -1714,7 +1714,7 @@ function PlaceRow({
             tone={toneForPlaceCategory(place.category, categoryIcons)}
           />
           <span className="min-w-0 flex-1">
-            <span className="block break-words text-sm font-medium leading-snug text-ink">{place.name}</span>
+            <span className={`block break-words ${card ? "lead" : "text-sm font-medium leading-snug text-ink"}`}>{place.name}</span>
             {(metaBits || derived) && (
               <span className="meta block break-words">{[derived && "from area", metaBits].filter(Boolean).join(" · ")}</span>
             )}
