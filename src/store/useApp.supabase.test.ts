@@ -522,3 +522,77 @@ describe("signed-in: opening with no connection", () => {
     expect(b.s().bootError).toBe(true);
   });
 });
+
+describe("signed-in: two devices editing the trip's settings", () => {
+  /** what another device would do: change the row on the server directly */
+  const otherDeviceSaves = (patch: (row: Record<string, any>) => void) => {
+    const row = rows("trips")[0] as Record<string, any>;
+    patch(row);
+    row.updated_at = new Date(Date.now() + 86_400_000).toISOString();
+  };
+
+  it("keeps the other device's change to a different setting instead of overwriting it", async () => {
+    await seedTrip();
+    const a = await boot();
+    otherDeviceSaves((r) => { r.config = { ...r.config, locale: "fr-FR" }; });
+    a.s().mutateTrip((d) => { d.config.tagline = "written here"; });
+    await a.settlePending();
+    await sleep(60);
+    const server = rows("trips")[0].config as Record<string, unknown>;
+    expect(server.tagline).toBe("written here");
+    expect(server.locale).toBe("fr-FR"); // not lost
+    expect(a.s().data!.config.locale).toBe("fr-FR"); // and now shown here too
+    expect(a.s().data!.config.tagline).toBe("written here");
+  });
+
+  it("both devices adding a photo keeps both", async () => {
+    await seedTrip();
+    const a = await boot();
+    otherDeviceSaves((r) => { r.media = { gallery: [{ id: "theirs", src: "t.jpg" }] }; });
+    a.s().addGalleryMedia({ id: "mine", src: "m.jpg" } as never);
+    await a.settlePending();
+    await sleep(60);
+    const gallery = (rows("trips")[0].media as { gallery: { id: string }[] }).gallery.map((g) => g.id).sort();
+    expect(gallery).toEqual(["mine", "theirs"]);
+    expect(a.s().data!.media.gallery.map((g) => g.id).sort()).toEqual(["mine", "theirs"]);
+  });
+
+  it("a save that races another device's save merges again on top of it rather than overwriting", async () => {
+    await seedTrip();
+    const a = await boot();
+    let raced = false;
+    fake.current.ctl.fail = (op, table) => {
+      if (op === "update" && table === "trips" && !raced) {
+        raced = true; // the other device saves between our read and our write
+        otherDeviceSaves((r) => { r.config = { ...r.config, homeTimeZone: "Asia/Tokyo" }; });
+      }
+      return null;
+    };
+    a.s().mutateTrip((d) => { d.config.tagline = "raced"; });
+    await a.settlePending();
+    await sleep(60);
+    const server = rows("trips")[0].config as Record<string, unknown>;
+    expect(raced).toBe(true);
+    expect(server.tagline).toBe("raced");
+    expect(server.homeTimeZone).toBe("Asia/Tokyo");
+  });
+
+  it("this device's own settings still save when nothing else changed", async () => {
+    await seedTrip();
+    const a = await boot();
+    a.s().mutateTrip((d) => { d.config.tagline = "solo"; });
+    await a.settlePending();
+    await sleep(60);
+    expect((rows("trips")[0].config as Record<string, unknown>).tagline).toBe("solo");
+    expect(a.s().syncState).toBe("saved");
+  });
+
+  it("the trip name follows the merged title", async () => {
+    await seedTrip("Before");
+    const a = await boot();
+    a.s().mutateTrip((d) => { d.meta.title = "After"; d.config.branding = "After"; });
+    await a.settlePending();
+    await sleep(60);
+    expect(rows("trips")[0].name).toBe("After");
+  });
+});

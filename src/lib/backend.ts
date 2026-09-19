@@ -39,6 +39,14 @@ export interface Backend {
   /** supabase: replace one area's place membership. local: folds into saveWhole. */
   setAreaPlaces(tripId: string, areaId: string, placeIds: string[]): Promise<void>;
   saveTripFields(tripId: string, fields: Record<string, unknown>): Promise<void>;
+  /** supabase: save config/meta/media merged with what other devices saved
+   *  (returns the merged values). local: nothing to merge against. */
+  mergeTripFields(
+    tripId: string,
+    local: Record<string, unknown>,
+    base: Record<string, unknown>,
+    derive: (merged: Record<string, unknown>) => Record<string, unknown>,
+  ): Promise<Record<string, unknown>>;
 }
 
 const now = () => new Date().toISOString();
@@ -305,6 +313,7 @@ const localBackend: Backend = {
   setSegments: noop,
   setAreaPlaces: noop,
   saveTripFields: noop,
+  mergeTripFields: async (_id, local) => local,
 };
 
 /* ---------------------------------------------------- supabase */
@@ -344,6 +353,7 @@ const supabaseBackend: Backend = {
   setSegments: (tripId, journeyId, segments) => db.setSegments(tripId, journeyId, segments),
   setAreaPlaces: (tripId, areaId, placeIds) => db.setAreaPlaces(tripId, areaId, placeIds),
   saveTripFields: (tripId, fields) => db.saveTripFields(tripId, fields),
+  mergeTripFields: (tripId, local, base, derive) => db.mergeTripFields(tripId, local, base, derive),
 };
 
 export function pickBackend(): Backend {

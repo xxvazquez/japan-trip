@@ -19,6 +19,10 @@ export interface FakeControls {
 
 const PK: Record<string, string[]> = { area_places: ["area_id", "place_id"] };
 
+let tick = 0;
+/** strictly increasing timestamps, like a row's updated_at */
+const stamp = () => new Date(Date.UTC(2026, 0, 1) + ++tick * 1000).toISOString();
+
 export function createFakeSupabase() {
   const ctl: FakeControls = { tables: {}, gate: null, fail: null, missing: new Set(), requests: [] };
   const t = (name: string) => (ctl.tables[name] ??= []);
@@ -73,6 +77,7 @@ export function createFakeSupabase() {
         for (const p of arr(this.payload!)) {
           const row = structuredClone(p);
           if (this.table === "trip_snapshots") { row.id ??= crypto.randomUUID(); row.created_at ??= new Date().toISOString(); }
+          if (this.table === "trips") row.updated_at ??= stamp();
           const keys = PK[this.table] ?? ["id"];
           const i = rows.findIndex((r) => keys.every((k) => r[k] === row[k]));
           if (i >= 0) {
@@ -84,8 +89,12 @@ export function createFakeSupabase() {
         return this.reply(this.returning ? out : null);
       }
       if (this.op === "update") {
-        for (const r of rows.filter(match)) Object.assign(r, structuredClone(this.payload as Row));
-        return { data: null, error: null };
+        const hit = rows.filter(match);
+        for (const r of hit) {
+          Object.assign(r, structuredClone(this.payload as Row));
+          if (this.table === "trips") r.updated_at = stamp(); // the row's updated_at trigger
+        }
+        return this.reply(this.returning ? hit.map((r) => structuredClone(r)) : null);
       }
       if (this.op === "delete") {
         ctl.tables[this.table] = rows.filter((r) => !match(r));

@@ -2,6 +2,7 @@ import { getSupabase } from "./supabase";
 import { getUserId } from "./auth";
 import { SCHEMA_VERSION } from "./hydrate";
 import { TripLoadError, UserFacingError } from "./safety/errors";
+import { mergeJson } from "./safety/merge";
 import { rangeText } from "@/lib/dates";
 import type { SnapshotMeta } from "./safety/snapshots";
 import type { EntityType, Segment, TripData, TripSummary } from "@/core/types";
@@ -316,6 +317,40 @@ export async function saveTripFields(tripId: string, fields: Record<string, unkn
   const sb = await client();
   const stamp = serverHasSchemaCol ? { schema_version: SCHEMA_VERSION } : {};
   check(await sb.from("trips").update({ ...fields, ...stamp }).eq("id", tripId));
+}
+
+/**
+ * Save trip-level fields (config / meta / media) WITHOUT overwriting what another
+ * device saved since this one last looked. Reads the server's current values,
+ * three-way merges this device's changes (vs `base`, the last server copy it saw)
+ * onto them, and writes the result only if the row hasn't changed in between
+ * (compare-and-swap on `updated_at`) — otherwise it merges again on the newer
+ * copy. Returns the merged values so the caller can show the other device's
+ * changes too.
+ */
+export async function mergeTripFields(
+  tripId: string,
+  local: Record<string, unknown>,
+  base: Record<string, unknown>,
+  derive: (merged: Record<string, unknown>) => Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  const sb = await client();
+  const keys = Object.keys(local);
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const row = check(await sb.from("trips").select(`${keys.join(",")},updated_at`).eq("id", tripId).single()) as Record<string, unknown>;
+    const merged: Record<string, unknown> = {};
+    for (const k of keys) {
+      // no known base for a field: this device's version stands over the server's (the old behaviour)
+      merged[k] = mergeJson(k in base ? base[k] : row[k], local[k], row[k]) ?? null;
+    }
+    const patch = { ...merged, ...derive(merged), ...(serverHasSchemaCol ? { schema_version: SCHEMA_VERSION } : {}) };
+    let q = sb.from("trips").update(patch).eq("id", tripId);
+    if (row.updated_at !== undefined) q = q.eq("updated_at", row.updated_at as string);
+    const done = check(await q.select("id")) as unknown[] | null;
+    if (!row.updated_at || done?.length) return merged;
+    // someone saved between our read and write — merge again on top of theirs
+  }
+  throw new Error("Trip settings changed too often to save — will retry.");
 }
 
 /** Record that this app version has touched the trip, so an older one refuses to

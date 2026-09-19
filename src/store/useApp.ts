@@ -13,6 +13,7 @@ import { validateTrip, describeProblems } from "@/lib/safety/validate";
 import { takeSnapshot, ensureBackedUp, readSnapshot, purgeDeletedTripSnapshots, type SnapshotMeta } from "@/lib/safety/snapshots";
 import { quarantine } from "@/lib/safety/quarantine";
 import { onSavedElsewhere, isTabAlive, TAB_ID } from "@/lib/safety/crossTab";
+import { mergeJson } from "@/lib/safety/merge";
 import type { Day, Doc, EntityType, MediaItem, Place, TripData, TripSummary } from "@/core/types";
 
 const now = () => new Date().toISOString();
@@ -281,9 +282,24 @@ export async function clearDeviceMirrors() {
 async function offlineData(id: string, ob: Outbox | null): Promise<TripData | null> {
   const m = await readMirror(id);
   const own = ob && (!ob.user || ob.user === getUserId()) ? ob : null;
-  if (m) return normalizeTrip(own?.ops.length ? applyOutbox(m.data, own) : structuredClone(m.data));
+  if (m) {
+    setFieldBase(m.data); // the last server-confirmed copy is the common starting point
+    return normalizeTrip(own?.ops.length ? applyOutbox(m.data, own) : structuredClone(m.data));
+  }
+  setFieldBase(null);
   return own?.ops.length ? normalizeTrip(structuredClone(own.data)) : null;
 }
+
+/* ---- trip-level fields (config / meta / media) are saved whole, so two devices
+   editing at once would otherwise overwrite each other. Each save is instead
+   merged against what the server holds, using the last server copy this device
+   saw as the common starting point (`fieldBase`). ---- */
+
+const FIELD_KEYS: FieldKey[] = ["config", "meta", "media"];
+let fieldBase: Partial<Record<FieldKey, unknown>> = {};
+const setFieldBase = (d: TripData | null | undefined) => {
+  fieldBase = d ? Object.fromEntries(FIELD_KEYS.map((k) => [k, structuredClone(d[k])])) : {};
+};
 
 /** other tabs' outbox keys read by the last `readOutbox`, waiting to be taken over */
 let adopting: { tripId: string; keys: string[] } | null = null;
@@ -759,14 +775,37 @@ async function flush(get: () => AppStore) {
     if (a) tasks.push(run(be.setAreaPlaces(activeId, aid, a.placeIds ?? []), { t: "areaPlaces", areaId: aid }));
   }
   if (fieldKeys.size) {
-    const f: Record<string, unknown> = {};
-    for (const k of fieldKeys) f[k] = data[k] ?? null;
-    if (fieldKeys.has("meta") || fieldKeys.has("config")) {
-      f.name = data.meta.title || data.config.branding;
-      f.subtitle = data.meta.start && data.meta.end ? rangeText(data.meta.start, data.meta.end, data.config.locale) : null;
-    }
+    const keys = [...fieldKeys];
+    const sent = Object.fromEntries(keys.map((k) => [k, structuredClone(data[k] ?? null)])) as Record<FieldKey, unknown>;
+    // the trip's name/subtitle columns follow meta + config, so derive them from the MERGED values
+    const derive = (m: Record<string, unknown>): Record<string, unknown> => {
+      if (!fieldKeys.has("meta") && !fieldKeys.has("config")) return {};
+      const meta = (m.meta ?? data.meta) as TripData["meta"];
+      const cfg = (m.config ?? data.config) as TripData["config"];
+      return {
+        name: meta.title || cfg.branding,
+        subtitle: meta.start && meta.end ? rangeText(meta.start, meta.end, cfg.locale) : null,
+      };
+    };
     markWritten([activeId]); // the trip row's own id — see realtime.ts's `trips` subscription
-    tasks.push(run(be.saveTripFields(activeId, f), { t: "fields", keys: [...fieldKeys] }));
+    tasks.push(run(
+      be.mergeTripFields(activeId, sent, fieldBase as Record<string, unknown>, derive).then((merged) => {
+        // what the server now holds is the new common starting point…
+        for (const k of keys) fieldBase[k] = structuredClone(merged[k]);
+        // …and anything another device changed shows up here too. Edits made here since
+        // this save started are folded in on top rather than overwritten.
+        const cur = get().data;
+        if (get().activeId !== activeId || !cur) return;
+        const next = { ...cur } as Record<string, unknown>;
+        let changed = false;
+        for (const k of keys) {
+          const v = mergeJson(sent[k as FieldKey], cur[k], merged[k]);
+          if (JSON.stringify(v) !== JSON.stringify(cur[k])) { next[k] = v; changed = true; }
+        }
+        if (changed) useApp.setState({ data: next as unknown as TripData });
+      }),
+      { t: "fields", keys },
+    ));
   }
   await Promise.all(tasks);
   flights.delete(flight);
@@ -882,6 +921,7 @@ async function resyncTrip(get: () => AppStore, tripId: string) {
   try {
     const fresh = await be.loadTrip(tripId);
     if (get().activeId === tripId && !queue.length && !flights.size) {
+      setFieldBase(fresh);
       useApp.setState({ data: fresh });
       if (bootedFromOutbox) {
         // we opened from the device mirror; the server is back and its copy is now on screen
@@ -1050,7 +1090,7 @@ export const useApp = create<AppStore>((set, get) => {
           let data = loaded.data;
           let issue = loaded.issue;
           if (be.kind === "supabase") {
-            if (data) writeMirror(id, data, trips); // the server's copy, before any unsent edits go on top
+            if (data) { writeMirror(id, data, trips); setFieldBase(data); } // the server's copy, before any unsent edits go on top
             const ob = await readOutbox(id);
             const offline = !data && issue?.kind === "unavailable" ? await offlineData(id, ob) : null;
             if (offline) {
@@ -1286,7 +1326,7 @@ export const useApp = create<AppStore>((set, get) => {
       // was open (same recovery `init` does on a cold boot), so switching away
       // and back within one session can't silently drop it
       if (be.kind === "supabase") {
-        if (data) writeMirror(id, data, get().trips);
+        if (data) { writeMirror(id, data, get().trips); setFieldBase(data); }
         const ob = await readOutbox(id);
         const offline = !data && issue?.kind === "unavailable" ? await offlineData(id, ob) : null;
         if (offline) {
@@ -1408,7 +1448,10 @@ export const useApp = create<AppStore>((set, get) => {
       fn(next);
       // another client's row/config may be from an older or newer build — repair
       // it the same way a load does, so a partial payload can't crash the UI
-      set({ data: normalizeTrip(next) });
+      const repaired = normalizeTrip(next);
+      // with nothing of ours unsent, what's on screen IS the server's copy
+      if (!hasPendingFields()) setFieldBase(repaired);
+      set({ data: repaired });
     },
 
     updateEntity: (type, id, patch) => {

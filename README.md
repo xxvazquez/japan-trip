@@ -362,6 +362,10 @@ checksummed copies of a trip — so a crash, a bad save or a wrong tap never cos
   reload or a closed tab.
 - **A save that would wipe a device-only trip entirely is refused outright**, not just flagged — a copy
   of the last good version is kept and the banner offers **Save anyway** if that's really what you meant.
+- **Two devices editing the same trip's settings** (theme, currencies, tabs, photos…): each save is
+  merged with what the other device saved instead of replacing it — different settings both keep
+  their change, two photos added at once both stay, and if you both changed the very same value
+  yours stands. (Days, stays, places and the rest are saved row by row and already didn't clash.)
 - **Newer data, older app.** An older version of the app refuses to open a trip a newer one has
   written ("reload to update") rather than rewriting it in a shape it doesn't understand.
 
