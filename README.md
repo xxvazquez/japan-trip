@@ -385,6 +385,8 @@ https URL**, not just the project ref. The map tile settings (`VITE_PROTOMAPS_AP
 [openrouteservice.org/dev/#/signup](https://openrouteservice.org/dev/#/signup) — 2,000 requests/day
 — that powers the real walking-route estimates (an area's width on the Map, a plan step's walk to
 the next one). Without it, those two features fall back to a straight-line estimate; everything else works the same.
+Requests are spaced out to stay under the free per-minute limit, pause for a minute if the service
+pushes back, and every route is remembered on the device, so a page only asks for what it hasn't seen.
 
 ## Setting up Supabase
 
