@@ -55,3 +55,44 @@ export function useAutoHotelCoords(enabled: boolean) {
     return () => { stop = true; };
   }, [enabled, hotels, updateEntity]);
 }
+
+/** The IANA zone at a point, from Open-Meteo (the same keyless service the
+ *  forecast uses — `timezone=auto` names the zone for any coordinates). */
+async function zoneAt(lat: number, lng: number): Promise<string | null> {
+  try {
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weathercode&forecast_days=1&timezone=auto`);
+    if (!res.ok) return null;
+    const tz = ((await res.json()) as { timezone?: string }).timezone;
+    if (!tz) return null;
+    Intl.DateTimeFormat(undefined, { timeZone: tz }); // throws on a name the browser doesn't know
+    return tz;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * A new trip starts on "UTC" as its trip time zone, which would put every
+ * calendar export and hop time at the wrong hour until someone found the
+ * picker on Manage. While it's still that untouched default, name the zone
+ * from the first hotel that has coordinates. Once it's anything else it's
+ * never touched again, so a zone picked by hand always wins.
+ */
+export function useAutoTripTimeZone(enabled: boolean) {
+  const tripId = useApp((s) => s.activeId);
+  const zone = useApp((s) => s.data?.config.tripTimeZone);
+  const anchor = useApp((s) => s.data?.hotels.find((h) => Number.isFinite(h.lat) && Number.isFinite(h.lng)));
+  const mutateTrip = useApp((s) => s.mutateTrip);
+  const tried = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!enabled || !tripId || zone !== "UTC" || !anchor || tried.current.has(tripId)) return;
+    tried.current.add(tripId);
+    void zoneAt(anchor.lat!, anchor.lng!).then((tz) => {
+      if (!tz) { tried.current.delete(tripId); return; } // offline — try again on a later change
+      // the trip may have been switched, or its zone set by hand, meanwhile
+      if (tz === "UTC" || useApp.getState().activeId !== tripId) return;
+      mutateTrip((d) => { if (d.config.tripTimeZone === "UTC") d.config.tripTimeZone = tz; });
+    });
+  }, [enabled, tripId, zone, anchor?.lat, anchor?.lng, mutateTrip]);
+}

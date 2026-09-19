@@ -10,7 +10,7 @@ import { Icon } from "./Icon";
 import { Wordmark } from "./Wordmark";
 import { useData } from "@/lib/data";
 import { useReadOnly } from "@/lib/readonly";
-import { useAutoHotelCoords } from "@/lib/hotelCoords";
+import { useAutoHotelCoords, useAutoTripTimeZone } from "@/lib/hotelCoords";
 
 export function AppShell() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -18,6 +18,7 @@ export function AppShell() {
   const demo = useReadOnly();
   const nav = useNavigate();
   useAutoHotelCoords(!demo);
+  useAutoTripTimeZone(!demo);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

@@ -224,6 +224,9 @@ yourself.
 ### Manage → Setup
 
 - Name the **travellers** (used for packing assignment).
+- **Time zones**: *Home* is taken from the device; *On the trip* starts on `UTC` and fills itself in
+  from the first hotel that has coordinates, so calendar exports and hop times land at the right
+  hour. It only does this while the zone is still `UTC` — pick one by hand and it's never changed.
 - List the **currencies** the trip uses — the first is the default (a new trip starts on `PLN`), so
   every price field shows its symbol and a bare `100` counts as it without the symbol being typed;
   add a second currency and every price — a stay, a fare, a spending row, a custom "Price" field —
