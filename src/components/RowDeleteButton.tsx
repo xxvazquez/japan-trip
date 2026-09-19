@@ -14,7 +14,7 @@ export function RowDeleteButton({ onClick, label = "Remove", undoLabel = "Remove
       type="button"
       onClick={() => undoable(undoLabel, onClick)}
       aria-label={label}
-      className="relative shrink-0 p-1 text-ink-faint opacity-60 transition-opacity hover:text-accent before:absolute before:-inset-2 before:content-[''] sm:opacity-0 sm:group-hover:opacity-100"
+      className="tap shrink-0 p-1 text-ink-faint opacity-60 transition-opacity hover:text-accent [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
     >
       <Icon name="close" size={13} />
     </button>

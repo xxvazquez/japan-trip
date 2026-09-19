@@ -266,6 +266,21 @@ html.dark {
   .flag {
     @apply text-accent;
   }
+  /* a small control (icon button, chevron, grip) gets a 44pt tap area — an
+   * invisible box centred on it — without growing what's drawn */
+  .tap {
+    position: relative;
+  }
+  .tap::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+
   /* an inline add / secondary action the eye can find */
   .action {
     @apply inline-flex items-center gap-1.5 text-sm font-medium text-accent transition-opacity hover:opacity-70;

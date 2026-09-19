@@ -337,7 +337,7 @@ function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day:
         <button
           {...attributes}
           {...listeners}
-          className="shrink-0 cursor-grab touch-none py-3 pl-2.5 pr-0.5 text-ink-faint active:cursor-grabbing"
+          className="tap shrink-0 cursor-grab touch-none py-3 pl-3 pr-1 text-ink-faint active:cursor-grabbing"
           aria-label="Drag to reorder"
         >
           <Icon name="grip" size={14} />

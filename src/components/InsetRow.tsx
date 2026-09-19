@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type MouseEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Icon } from "./Icon";
 
@@ -62,8 +62,17 @@ export function InsetRow({
   }
 
   return (
-    <li className={`${LI} flex items-baseline justify-between gap-4 px-3.5 py-3 ${className}`}>
+    <li className={`${LI} flex items-baseline justify-between gap-4 px-3.5 py-3 ${className}`} onClick={tapRowToEdit}>
       {inner}
     </li>
   );
+}
+
+/** iOS rows are tappable edge to edge, not just on the value's text: a tap on
+ *  the empty part of a row opens its (single) inline editor — a text field or
+ *  the time wheel. Taps on real controls inside the row are left alone. */
+function tapRowToEdit(e: MouseEvent<HTMLLIElement>) {
+  if ((e.target as HTMLElement).closest("button, a, input, select, textarea, label, [role=switch]")) return;
+  const editors = e.currentTarget.querySelectorAll<HTMLButtonElement>("button.editable");
+  if (editors.length === 1) editors[0].click();
 }

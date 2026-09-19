@@ -19,7 +19,7 @@ export function RowMenu({ children, label = "More" }: { children: ReactNode; lab
         aria-label={label}
         aria-expanded={open}
         aria-haspopup="menu"
-        className="relative grid h-7 w-7 place-items-center text-ink-faint before:absolute before:-inset-2 before:content-[''] hover:text-ink"
+        className="tap grid h-7 w-7 place-items-center text-ink-faint hover:text-ink"
       >
         <Icon name="more" size={16} />
       </button>

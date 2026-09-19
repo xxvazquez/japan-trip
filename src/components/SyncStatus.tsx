@@ -74,7 +74,7 @@ export function SyncStatus() {
         onClick={() => setOpen(true)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="relative before:absolute before:-inset-2 before:content-['']"
+        className="tap"
       >
         {dot}
       </button>

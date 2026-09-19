@@ -61,7 +61,7 @@ export function Section({
                 onClick={toggle}
                 aria-expanded={open}
                 aria-controls={bodyId}
-                className="-m-1 shrink-0 p-1 text-ink-faint transition-colors hover:text-ink-soft"
+                className="tap -m-1 shrink-0 p-1 text-ink-faint transition-colors hover:text-ink-soft"
               >
                 <Icon name="chevron" size={13} className={`transition-transform ${open ? "rotate-90" : ""}`} />
                 <span className="sr-only">{open ? "Collapse" : "Expand"} section</span>
@@ -79,7 +79,7 @@ export function Section({
                   onClick={() => setShowInfo((v) => !v)}
                   aria-expanded={showInfo}
                   aria-controls={infoId}
-                  className="-m-1 p-1 text-ink-faint transition-colors hover:text-ink-soft"
+                  className="tap -m-1 p-1 text-ink-faint transition-colors hover:text-ink-soft"
                 >
                   <Icon name="info" size={15} className={showInfo ? "text-accent" : undefined} />
                   <span className="sr-only">About this section</span>
