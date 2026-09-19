@@ -43,7 +43,7 @@ import { hoursForDate } from "@/lib/openingHours";
 import { fetchDayWeather, weatherLabel, type DayWeather } from "@/lib/weather";
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
-import type { Day as DayT, DayCost, ExpenseCategory, Hotel, PlanItem, Place } from "@/core/types";
+import type { Day as DayT, DayCost, ExpenseCategory, Hotel, PlanItem, Place, TripData } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 9);
 
@@ -74,19 +74,25 @@ function weatherText(w: DayWeather): string {
 export default function Day() {
   const data = useData();
   const { id } = useParams();
+  if (!data) return null;
+  const day = lookups(data).day(id);
+  if (!day)
+    return <Missing title="No day here" body="That day isn’t part of this trip." to="/" cta="Back to Plan" />;
+  // the page proper is its own component so its hooks never sit behind the
+  // early returns above — a day deleted while it's open (a shared trip's
+  // realtime change) would otherwise change the hook count and crash
+  return <DayPage data={data} day={day} />;
+}
+
+function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const updateEntity = useApp((s) => s.updateEntity);
   const addEntity = useApp((s) => s.addEntity);
   const removeEntity = useApp((s) => s.removeEntity);
   const nav = useNavigate();
   const ro = useReadOnly();
   const { busy: icsBusy, run: runIcs } = useAsyncAction();
-  if (!data) return null;
 
   const L = lookups(data);
-  const day = L.day(id);
-  if (!day)
-    return <Missing title="No day here" body="That day isn’t part of this trip." to="/" cta="Back to Plan" />;
-
   const patch = (p: Partial<DayT>) => updateEntity<DayT>("days", day.id, p);
   const leg = L.leg(day.legId);
   const hotel = L.hotel(day.hotelId);
