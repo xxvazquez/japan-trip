@@ -270,6 +270,9 @@ export interface Place {
    *  nearest-stay guess is wrong, or there's no stay anchor yet to guess
    *  from. Unset means "auto". */
   legId?: ID;
+  /** sensory-overwhelming (crowds, noise, light) — flagged so a day's plan
+   *  can show at a glance how many of its stops are like that */
+  overwhelming?: boolean;
 }
 
 export interface Day {

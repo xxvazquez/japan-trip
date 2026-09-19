@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { MapView, type MLMap } from "./MapView";
 import { Icon } from "./Icon";
 import { useData } from "@/lib/data";
@@ -48,6 +49,16 @@ export default function MapPane({ dayId }: { dayId: string }) {
   const fitKey = ctx.places.map((p) => `${p.id}@${p.lat},${p.lng}`).join("|");
 
   useEffect(() => setSelected(null), [dayId]);
+
+  // a plan row's "Show on map" sets ?sel= on the day's own URL — pick it up,
+  // select + zoom to that place (MapView does the zoom), then drop the param
+  const [params, setParams] = useSearchParams();
+  useEffect(() => {
+    const sel = params.get("sel");
+    if (!sel) return;
+    if (ctx.places.some((p) => p.id === sel)) setSelected(sel);
+    setParams((p) => { p.delete("sel"); return p; }, { replace: true });
+  }, [params, ctx.places, setParams]);
 
   // fit to whatever is on the map now — again whenever that set changes
   const first = useRef(true);

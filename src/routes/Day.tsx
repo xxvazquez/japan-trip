@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import {
   DndContext,
   PointerSensor,
@@ -28,6 +28,7 @@ import { ConfirmButton } from "@/components/ConfirmButton";
 import { Icon } from "@/components/Icon";
 import { RouteLabel } from "@/components/RouteLabel";
 import { IconTile } from "@/components/IconTile";
+import { useSplit } from "@/components/SplitMap";
 import { toneForPlaceCategory } from "@/lib/tones";
 import { placeLegMap, areaLeg } from "@/lib/cityAssign";
 import { useData, lookups } from "@/lib/data";
@@ -90,6 +91,8 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const addEntity = useApp((s) => s.addEntity);
   const removeEntity = useApp((s) => s.removeEntity);
   const nav = useNavigate();
+  const [, setParams] = useSearchParams();
+  const { active: splitActive } = useSplit();
   const ro = useReadOnly();
   const { busy: icsBusy, run: runIcs } = useAsyncAction();
   const areaSheet = useActionSheet();
@@ -135,6 +138,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     const p = data.places.find((pl) => pl.id === it.placeId);
     if (p) { dayPlaceIds.add(it.placeId); dayPlaces.push(p); }
   }
+  const overwhelmingCount = dayPlaces.filter((p) => p.overwhelming).length;
   // the day's forecast — anchored to wherever you're staying that day (an
   // override, else the leg's own hotel), since a day has no coordinates of
   // its own. Silent when that hotel has no coordinates yet or the date is
@@ -164,6 +168,14 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     const id = rid();
     setCosts([...(day.costs ?? []), { id, label, amount: "" }]);
     setJustAddedCostId(id);
+  };
+
+  // "show on map" — on a wide screen the map is already open beside this day
+  // (SplitMap), so just select the place in it; on phone there's no pane, so
+  // jump to the Map tab instead (same ?sel= deep link the search already uses)
+  const showOnMap = (place: Place) => {
+    if (splitActive) setParams((p) => { p.set("sel", place.id); return p; }, { replace: true });
+    else nav(`/map?sel=${place.id}`);
   };
 
   // "＋ New journey" — a blank journey, its type chosen on the journey page (never
@@ -304,8 +316,13 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
           icon="itinerary"
           title="Plan"
           info="Drag to reorder. Pick a place from an Area you've added below, or Custom for anything else — tap the note line under it to add one."
+          action={overwhelmingCount > 0 && (
+            <span className="flex items-center gap-1 text-[0.8125rem] font-medium text-gold" title={`${plural(overwhelmingCount, "overwhelming place")} today`}>
+              <Icon name="alert" size={13} /> {overwhelmingCount}
+            </span>
+          )}
         >
-          <PlanList day={day} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} onQuickAddCost={quickAddCost} />
+          <PlanList day={day} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
         </Section>
       )}
 
@@ -426,7 +443,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onChange, onQuickAddCost }: {
+function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onChange, onQuickAddCost, onShowOnMap }: {
   day: DayT;
   /** where the day ends — the hotel you're staying at (see `ReturnToHotel`) */
   returnHotel?: Hotel;
@@ -439,6 +456,7 @@ function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByP
   readOnly: boolean;
   onChange: (next: PlanItem[]) => void;
   onQuickAddCost: (label: string) => void;
+  onShowOnMap: (place: Place) => void;
 }) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -481,6 +499,7 @@ function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByP
       onRemove={() => removeItem(it.id)}
       onDuplicate={() => duplicateItem(it.id)}
       onQuickAddCost={onQuickAddCost}
+      onShowOnMap={onShowOnMap}
     />
   ));
 
@@ -516,7 +535,7 @@ function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByP
   );
 }
 
-function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onPatch, onRemove, onDuplicate, onQuickAddCost }: {
+function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onPatch, onRemove, onDuplicate, onQuickAddCost, onShowOnMap }: {
   day: DayT;
   tz?: string;
   item: PlanItem;
@@ -532,9 +551,15 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
   onRemove: () => void;
   onDuplicate: () => void;
   onQuickAddCost: (label: string) => void;
+  onShowOnMap: (place: Place) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id, disabled: readOnly });
+  const updateEntity = useApp((s) => s.updateEntity);
   const mapHref = gmapsLink(item.url || place?.url || place?.name);
+  const toggleOverwhelming = () => {
+    if (!place) return;
+    updateEntity<Place>("places", place.id, { overwhelming: !place.overwhelming || undefined });
+  };
   // open the tab synchronously, in the same click, so the browser doesn't
   // treat it as an unrequested popup once the dynamic import resolves — then
   // point it at the real link once `ics.ts` (a separate lazy chunk) loads
@@ -629,6 +654,12 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
                 </span>
               )}
               {place && <PlaceHoursLine place={place} date={day.date} />}
+              {place?.overwhelming && (
+                <span className="shrink-0 text-gold" title="Can be overwhelming">
+                  <Icon name="alert" size={13} />
+                  <span className="sr-only">Can be overwhelming</span>
+                </span>
+              )}
             </div>
             {readOnly ? (
               // plain text — the tile beside the time is the Maps link
@@ -666,11 +697,21 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
           {/* one ⋯ instead of four loose glyphs — the step's title and lines
               get the width, the secondary actions sit behind the sheet */}
           <RowMenu label={`More for ${place?.name || item.text || "this step"}`}>
+            {place && (
+              <button type="button" className="menu-item" onClick={() => onShowOnMap(place)}>
+                <Icon name="locate" size={16} /> Show on map
+              </button>
+            )}
             <button type="button" className="menu-item" onClick={addToGoogleCalendar}>
               <Icon name="calendar" size={16} /> Add to Google Calendar
             </button>
             {!readOnly && (
               <>
+                {place && (
+                  <button type="button" className="menu-item" onClick={toggleOverwhelming}>
+                    <Icon name="alert" size={16} /> {place.overwhelming ? "Unmark as overwhelming" : "Mark as overwhelming"}
+                  </button>
+                )}
                 <button type="button" className="menu-item" onClick={onDuplicate}>
                   <Icon name="copy" size={16} /> Duplicate
                 </button>

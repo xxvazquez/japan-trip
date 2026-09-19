@@ -46,8 +46,10 @@ never chosen by hand.
 - **On a wide screen** (a laptop, or a tablet held sideways — 1024px and up) a **day's page** gets a
   **map beside it** showing that day's own places — the ones its steps are tied to, the places of its
   areas (drawn more quietly) and the hotel you're staying at — and it moves as you go between days.
-  Tap a pin for its name and a **Directions** link. The Plan itself stays a plain list of days, and on
-  a phone or a narrower window nothing changes at all: the map isn't even downloaded. The Map tab is
+  Tap a pin for its name and a **Directions** link. A step's **⋯ → Show on map** jumps that pane
+  straight to its pin, already zoomed in — no manual panning to find it. The Plan itself stays a plain
+  list of days, and on a phone or a narrower window nothing changes at all: the map isn't even
+  downloaded — there, **Show on map** opens the Map tab instead, centred on that pin. The Map tab is
   still where you filter, search and edit places.
 - Drag a day up or down to **reorder** it (the dates shuffle with it).
 - Tap a day to open it. At the top: **Staying at** (which hotel) and **Journey** (link an existing
@@ -64,9 +66,11 @@ never chosen by hand.
   - the step itself: pick a place from the Areas you've added to this day (below) — past 2 linked
     areas, each option in the picker shows which area it's from — or **Custom…** for a one-off with
     its own text field
-  - **drag to reorder**, and one **⋯** menu with add to Google Calendar, **duplicate** (dropped right
-    after the original — handy for the same stop twice on a long day), add an expense and remove —
-    kept behind one button so the step's own text gets the room
+  - **drag to reorder**, and one **⋯** menu with show on map, add to Google Calendar, mark/unmark as
+    **overwhelming** (a small ⚠ next to the tile when it's on — a sensory heads-up, e.g. for autism —
+    and the Plan section header shows the day's total at a glance), **duplicate** (dropped right after
+    the original — handy for the same stop twice on a long day), add an expense and remove — kept
+    behind one button so the step's own text gets the room
   - its own quiet note line underneath (bold, bullets, links) — tap to expand and edit
   - a link to the map, if the step is tied to a place
   - if the step is tied to a place, one quiet line with two walks side by side: 🚶 the time and
@@ -516,7 +520,7 @@ pushes back, and every route is remembered on the device, so a page only asks fo
 ## Setting up Supabase
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. **SQL Editor** → run every file in `supabase/migrations/` **in order** (`0001` → `0027`).
+2. **SQL Editor** → run every file in `supabase/migrations/` **in order** (`0001` → `0028`).
 3. **Authentication → Providers → Google** → enable, paste a Google Cloud OAuth client id / secret,
    redirect `https://<project-ref>.supabase.co/auth/v1/callback`.
 4. **Authentication → URL Configuration → Redirect URLs** → add `http://localhost:5173` and the
