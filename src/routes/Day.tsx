@@ -617,19 +617,8 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
               {place && <PlaceHoursLine place={place} date={day.date} />}
             </div>
             {readOnly ? (
-              mapHref ? (
-                <a
-                  href={mapHref}
-                  target="_blank"
-                  rel="noopener"
-                  aria-label={`Open ${item.text} in Google Maps`}
-                  className="block text-sm font-medium leading-snug text-accent underline underline-offset-2"
-                >
-                  {item.text}
-                </a>
-              ) : (
-                <span className="block text-sm font-medium leading-snug text-ink">{item.text}</span>
-              )
+              // plain text — the tile beside the time is the Maps link
+              <span className="block text-sm font-medium leading-snug text-ink">{item.text}</span>
             ) : sortedPickable.length > 0 ? (
               <>
                 <PlacePicker
