@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { buildFromTemplate, buildDemo, buildSandbox } from "@/templates/registry";
 import { sandboxMode } from "@/lib/supabase";
-import { pickBackend, needsAuth, remapIds, type Backend } from "@/lib/backend";
+import { pickBackend, needsAuth, remapIds, saveDraftSync, type Backend } from "@/lib/backend";
 import { isAuthReady } from "@/lib/auth";
 import { subscribeTrip, unsubscribeTrip, markWritten } from "@/lib/realtime";
 import { store as kv } from "@/lib/storage";
@@ -566,7 +566,10 @@ function flushNow(get: () => AppStore) {
   const { activeId, data } = get();
   if (!activeId || !data) return;
   if (pickBackend().kind === "local") {
-    if (localTimer || localRunning || localDirty) void persistLocal(get);
+    if (localTimer || localRunning || localDirty) {
+      saveDraftSync(activeId, data); // synchronous: survives even if the page dies before the write below finishes
+      void persistLocal(get);
+    }
     return;
   }
   // a batch already in flight still counts: it may not be answered before the

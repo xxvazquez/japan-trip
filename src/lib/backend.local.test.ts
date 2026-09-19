@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { pickBackend } from "./backend";
+import { pickBackend, saveDraftSync } from "./backend";
 import { store as kv } from "./storage";
 import { STORAGE_KEYS } from "./app";
 import { SCHEMA_VERSION } from "./hydrate";
 import { resetSnapshotMemory, listDeviceSnapshots, latestValidSnapshot } from "./safety/snapshots";
 import { listQuarantine } from "./safety/quarantine";
-import { tripStats } from "./safety/validate";
+import { tripStats, hashOf } from "./safety/validate";
 import { TripLoadError, SaveBlockedError, StorageError } from "./safety/errors";
 import { buildDemo } from "@/templates/demo";
 import type { TripData } from "@/core/types";
@@ -204,5 +204,67 @@ describe("local backend: deleting and restoring", () => {
     await be.replaceTrip(id, emptied(t));
     await be.replaceTrip(id, t);
     expect(tripStats(await stored(id)).total).toBe(tripStats(t).total);
+  });
+});
+
+describe("local backend: the emergency draft (an edit the page died before saving)", () => {
+  const edited = (t: TripData, title: string): TripData => ({ ...t, meta: { ...t.meta, title } });
+  const draftKey = (id: string) => `j26:draft:${id}`;
+
+  it("the next load adopts a draft that is the successor of what's stored, and saves it", async () => {
+    const t = trip();
+    const id = await be.createTrip(t, summary);
+    await be.loadTrip(id); // this "page" knows the stored version
+    saveDraftSync(id, edited(t, "typed just before the tab was killed"));
+    // (page dies; a new page loads — same device storage, fresh memory)
+    const d = await be.loadTrip(id);
+    expect(d.meta.title).toBe("typed just before the tab was killed");
+    expect((await stored(id))!.meta.title).toBe("typed just before the tab was killed");
+    expect(localStorage.getItem(draftKey(id))).toBeNull();
+    // and what it replaced is a restore point
+    expect((await listDeviceSnapshots(id)).map((s) => s.reason)).toContain("crash");
+  });
+
+  it("a draft that already got saved is simply discarded", async () => {
+    const t = trip();
+    const id = await be.createTrip(t, summary);
+    await be.loadTrip(id);
+    const next = edited(t, "saved fine");
+    saveDraftSync(id, next);
+    await kv.set(STORAGE_KEYS.trip(id), next); // the normal save did finish
+    const d = await be.loadTrip(id);
+    expect(d.meta.title).toBe("saved fine");
+    expect(localStorage.getItem(draftKey(id))).toBeNull();
+  });
+
+  it("when the stored trip changed some other way, the draft is kept as a restore point, not adopted", async () => {
+    const t = trip();
+    const id = await be.createTrip(t, summary);
+    await be.loadTrip(id);
+    saveDraftSync(id, edited(t, "draft"));
+    await kv.set(STORAGE_KEYS.trip(id), edited(t, "another tab saved this"));
+    const d = await be.loadTrip(id);
+    expect(d.meta.title).toBe("another tab saved this");
+    const crash = (await listDeviceSnapshots(id)).find((s) => s.reason === "crash");
+    expect(crash?.tripName).toBe("draft");
+  });
+
+  it("a damaged draft is ignored and removed", async () => {
+    const t = trip();
+    const id = await be.createTrip(t, summary);
+    localStorage.setItem(draftKey(id), "{not json");
+    expect((await be.loadTrip(id)).meta.title).toBe(t.meta.title);
+    expect(localStorage.getItem(draftKey(id))).toBeNull();
+    localStorage.setItem(draftKey(id), JSON.stringify({ at: 1, hash: "wrong", data: edited(t, "x") }));
+    expect((await be.loadTrip(id)).meta.title).toBe(t.meta.title);
+  });
+
+  it("a normal save clears the draft", async () => {
+    const t = trip();
+    const id = await be.createTrip(t, summary);
+    saveDraftSync(id, edited(t, "draft"));
+    await be.saveWhole(id, edited(t, "saved"));
+    expect(localStorage.getItem(draftKey(id))).toBeNull();
+    void hashOf;
   });
 });

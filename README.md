@@ -354,6 +354,9 @@ checksummed copies of a trip — so a crash, a bad save or a wrong tap never cos
 - **If a trip's data is damaged** the app opens a recovery screen instead of an empty trip: it keeps a
   copy of the damaged data, offers the newest good restore point, and lets you open another trip. It
   never replaces your data with a blank or default trip.
+- **Closing the tab right after an edit** (device-only trips): as the page hides, a synchronous copy
+  of anything not yet saved is stashed, and the next open adopts it if it's exactly the next version
+  of what's stored — the version it replaces is kept as a restore point.
 - **If a save fails** (out of storage, a dropped connection) your changes stay on screen and a banner
   or the header says so; the app keeps retrying, and edits that hadn't reached the server survive a
   reload or a closed tab.

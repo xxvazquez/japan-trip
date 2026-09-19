@@ -52,6 +52,31 @@ describe("device-only trips: edits survive reloads", () => {
   });
 });
 
+describe("device-only trips: the page dies right after an edit", () => {
+  it("an edit made in the last moments survives even though the disk write never finished", async () => {
+    const a = await boot();
+    a.s().addEntity("places", place("lastsecond"));
+    // the page is going away: the store drops a synchronous copy, then starts the async save…
+    const { StorageError } = await import("@/lib/safety/errors");
+    vi.spyOn(a.kv, "set").mockRejectedValue(new StorageError("write", "process killed"));
+    a.flushPendingNow();
+    await a.settlePending(300); // …which never lands
+    vi.restoreAllMocks();
+
+    const b = await boot(); // next open
+    expect(b.s().data!.places.map((p) => p.id)).toContain("lastsecond");
+  });
+
+  it("an edit inside the debounce window with no hide event is (only) what the draft exists for", async () => {
+    const a = await boot();
+    a.s().addEntity("places", place("nodraft"));
+    // killed with no pagehide at all and nothing saved: nothing to recover, and nothing corrupt either
+    const b = await boot();
+    expect(b.s().data).not.toBeNull();
+    expect(b.s().loadIssue).toBeNull();
+  });
+});
+
 describe("device-only trips: damaged storage never becomes an empty trip", () => {
   it("a corrupt trip blob opens the recovery state, leaves the blob alone, and keeps the other trips", async () => {
     const a = await boot();
@@ -134,8 +159,9 @@ describe("device-only trips: a failed save is loud, keeps the edit, and retries"
     expect(b.s().data!.places.map((p) => p.id)).toContain("q1");
   });
 
-  it("an interrupted write leaves the last saved version on disk", async () => {
+  it("an interrupted write leaves the last saved version on disk untouched", async () => {
     const a = await boot();
+    const id = a.s().activeId!;
     a.s().addEntity("places", place("safe"));
     await a.settlePending();
     const { StorageError } = await import("@/lib/safety/errors");
@@ -143,10 +169,10 @@ describe("device-only trips: a failed save is loud, keeps the edit, and retries"
     a.s().addEntity("places", place("lost-for-now"));
     await a.settlePending(500);
     vi.restoreAllMocks();
-    const b = await boot();
-    const ids = b.s().data!.places.map((p) => p.id);
+    const blob = await a.kv.get<TripData>(STORAGE_KEYS.trip(id));
+    const ids = blob!.places.map((p) => p.id);
     expect(ids).toContain("safe");
-    expect(ids).not.toContain("lost-for-now");
+    expect(ids).not.toContain("lost-for-now"); // the stored trip was never half-written
   });
 });
 

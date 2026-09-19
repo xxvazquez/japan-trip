@@ -73,6 +73,45 @@ function serial<T>(key: string, fn: () => Promise<T>): Promise<T> {
   return next;
 }
 
+/* ---- emergency draft: the debounced save can't finish if the page is killed
+   in the last few hundred ms after an edit, and IndexedDB writes can't be
+   awaited while a page is going away. localStorage can be written synchronously,
+   so as the page hides the store drops a copy there. It is NOT the trip's own
+   key (a late-finishing IndexedDB write must never clobber it): it carries the
+   hash of the version it was made from, and the next load adopts it only if it
+   is exactly the successor of what's stored. ---- */
+
+const draftKey = (id: string) => `j26:draft:${id}`;
+interface Draft { at: number; base?: string; hash: string; data: TripData }
+
+/** Synchronously stash the unsaved trip. Best effort — a full or missing
+ *  localStorage just means no draft. */
+export function saveDraftSync(id: string, data: TripData): void {
+  try {
+    const draft: Draft = { at: Date.now(), base: known.get(id), hash: hashOf(data), data };
+    localStorage.setItem(draftKey(id), JSON.stringify(draft));
+  } catch { /* nothing more can be done as the page closes */ }
+}
+
+const clearDraft = (id: string) => { try { localStorage.removeItem(draftKey(id)); } catch { /* ignore */ } };
+
+function readDraft(id: string): Draft | null {
+  let d: Partial<Draft>;
+  try {
+    const raw = localStorage.getItem(draftKey(id));
+    if (raw == null) return null;
+    d = JSON.parse(raw) as Partial<Draft>;
+  } catch {
+    clearDraft(id);
+    return null;
+  }
+  if (typeof d.hash !== "string" || !d.data || validateTrip(d.data).fatal || hashOf(d.data) !== d.hash) {
+    clearDraft(id); // damaged — never adopted
+    return null;
+  }
+  return d as Draft;
+}
+
 const isAtlas = (x: unknown): x is AtlasState =>
   !!x && typeof x === "object" && Array.isArray((x as AtlasState).trips) &&
   (x as AtlasState).trips.every((t) => !!t && typeof t === "object" && typeof t.id === "string");
@@ -160,10 +199,30 @@ const localBackend: Backend = {
     if (typeof rawV === "number" && rawV > SCHEMA_VERSION) {
       throw new TripLoadError("newer", "This trip was saved by a newer version of the app. Reload to update, then open it again.", id);
     }
-    known.set(id, hashOf(raw));
+    const storedHash = hashOf(raw);
+    known.set(id, storedHash);
     // about to be migrated to the current shape: keep the pre-migration copy
     if (typeof rawV !== "number" || rawV < SCHEMA_VERSION) {
       await takeSnapshot(id, raw as TripData, "pre-migration", { force: true, cloud: false });
+    }
+
+    // an edit the last session couldn't finish saving before the page went away
+    const draft = readDraft(id);
+    if (draft) {
+      if (draft.hash === storedHash) {
+        clearDraft(id); // it did get saved after all
+      } else if (draft.base === storedHash) {
+        // exactly the next version of what's stored: keep the old one as a restore
+        // point, then make the draft the saved copy
+        await takeSnapshot(id, raw as TripData, "crash", { force: true, cloud: false });
+        await localBackend.saveWhole(id, draft.data, { force: true });
+        return normalizeTrip(structuredClone(draft.data));
+      } else {
+        // stored data moved on some other way (another tab saved): don't guess —
+        // keep the draft as a restore point and leave what's stored alone
+        await takeSnapshot(id, draft.data, "crash", { force: true, cloud: false });
+        clearDraft(id);
+      }
     }
     return normalizeTrip(raw as TripData);
   },
@@ -230,6 +289,7 @@ const localBackend: Backend = {
 
       await writeVerified(key, data);
       known.set(id, hashOf(data));
+      clearDraft(id); // saved properly — the emergency copy is now redundant
       // a rolling restore point of the newest good state (throttled)
       await takeSnapshot(id, data, "auto", { cloud: false });
       announceSaved(id);
