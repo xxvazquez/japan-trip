@@ -1,4 +1,5 @@
 import { Editable } from "./Editable";
+import { CopyButton } from "./CopyButton";
 import { undoable } from "@/store/useApp";
 import { MoneyField } from "./MoneyField";
 import { Icon } from "./Icon";
@@ -45,6 +46,14 @@ export function FieldList({
       ? fmtFare(f.value, f.currency || primary) || "—"
       : <Editable as="auto" label={f.label} value={f.value} placeholder="—" onCommit={() => {}} />;
 
+  // the copy icon always takes the same 24px column — empty for a price or a
+  // blank value — so values line up whether or not a row has one
+  const copySlot = (f: DocField) => (
+    <span className="flex h-6 w-[19px] shrink-0 items-center justify-center self-start">
+      {!isMoneyLabel(f.label) && <CopyButton value={f.value} label={f.label || "value"} />}
+    </span>
+  );
+
   const setAt = (i: number, patch: Partial<DocField>) =>
     onChange(fields.map((f, j) => (j === i ? { ...f, ...patch } : f)));
   const removeAt = (i: number) => onChange(fields.filter((_, j) => j !== i));
@@ -69,11 +78,12 @@ export function FieldList({
       return (
         <>
           {fields.map((f) => (
-            <li key={f.id} className={`${insetLi} flex items-baseline justify-between gap-4 px-3.5 py-3`}>
+            <li key={f.id} className={`${insetLi} flex items-start justify-between gap-4 px-3.5 py-3`}>
               <span className="shrink-0 text-[1.0625rem] text-ink-soft">{f.label || "—"}</span>
               <span className="min-w-0 text-right font-sans text-[1.0625rem] leading-snug text-ink">
                 {readValue(f)}
               </span>
+              {copySlot(f)}
             </li>
           ))}
         </>
@@ -84,6 +94,7 @@ export function FieldList({
           <div key={f.id} className="row">
             <span className="row-label">{f.label || "—"}</span>
             <span className="row-value">{readValue(f)}</span>
+            {copySlot(f)}
           </div>
         ))}
       </div>
@@ -98,7 +109,7 @@ export function FieldList({
 
   const editRow = (f: DocField, i: number) => (
     <>
-      <span className="w-[38%] shrink-0">
+      <span className="w-[32%] shrink-0">
         <Editable
           label="Field name"
           value={f.label}
@@ -127,11 +138,14 @@ export function FieldList({
           />
         )}
       </span>
+      <span className="flex shrink-0 items-center self-start">
+      {copySlot(f)}
       <RowMenu label="Field options">
         <button type="button" className="menu-item" disabled={i === 0} onClick={() => move(i, -1)}>Move up</button>
         <button type="button" className="menu-item" disabled={i === fields.length - 1} onClick={() => move(i, 1)}>Move down</button>
         <button type="button" className="menu-item text-danger" onClick={() => undoable("Removed", () => removeAt(i))}>Remove</button>
       </RowMenu>
+      </span>
     </>
   );
 
@@ -139,7 +153,7 @@ export function FieldList({
     return (
       <>
         {fields.map((f, i) => (
-          <li key={f.id} className={`${insetLi} flex items-baseline gap-2 px-3.5 py-3`}>{editRow(f, i)}</li>
+          <li key={f.id} className={`${insetLi} flex items-start gap-2 px-3.5 py-3`}>{editRow(f, i)}</li>
         ))}
         <li>{addBtn}</li>
       </>
@@ -148,7 +162,7 @@ export function FieldList({
   return (
     <div>
       {fields.map((f, i) => (
-        <div key={f.id} className="flex items-baseline gap-2 border-b border-line py-2 last:border-b-0">
+        <div key={f.id} className="flex items-start gap-2 border-b border-line py-2 last:border-b-0">
           {editRow(f, i)}
         </div>
       ))}

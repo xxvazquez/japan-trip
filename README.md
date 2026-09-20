@@ -236,6 +236,11 @@ documents · emergency numbers · packing · stamps · expenses · a scratchpad,
 yourself. Each row shows at a glance how much is in it — a count, packing progress ("3/8"), or
 the total spent — and nothing when it's empty.
 
+Text in the app isn't selectable (as in a native app), so values you'd want to paste elsewhere — a
+stay's address and local address, and every reference detail on a stay, document or luggage note
+(a booking number, a Wi-Fi password) — have a small **copy** icon beside them. Tap it and the icon
+turns to a tick for a moment.
+
 - **Documents** — one card per document. Name it ("Travel insurance"), attach the PDF / photo, add
   whatever fields you want, add a note. Every card is renamable, removable, and you add more from the
   tab. Signed in, attachments are saved to your account (private, shared with everyone on the trip;
