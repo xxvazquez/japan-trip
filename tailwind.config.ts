@@ -66,7 +66,8 @@ export default {
         form: "40rem",
       },
       transitionTimingFunction: {
-        paper: "cubic-bezier(0.22, 1, 0.36, 1)",
+        paper: "cubic-bezier(0.32, 0.72, 0, 1)",
+        spring: "cubic-bezier(0.34, 1.45, 0.64, 1)",
       },
       keyframes: {
         "fade-up": {
@@ -91,7 +92,7 @@ export default {
         "fade-up": "fade-up 0.32s var(--ease-paper) both",
         "fade-in": "fade-in 0.15s ease-out both",
         // `backwards`, not `both`: after it ends the sheet must be free to follow a drag
-        "sheet-up": "sheet-up 0.24s var(--ease-paper) backwards",
+        "sheet-up": "sheet-up 0.36s var(--ease-paper) backwards",
         "enso-spin": "enso-spin 1.1s linear infinite",
         "stamp-press": "stamp-press 0.28s var(--ease-paper) both",
       },
