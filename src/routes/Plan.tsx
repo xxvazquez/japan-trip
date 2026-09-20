@@ -289,7 +289,7 @@ function LegBlock({
 /** The fixed-width weekday+date cell at the start of a day row. */
 function DayDate({ date, loc, strong }: { date: string; loc: string; strong?: boolean }) {
   return (
-    <span className={`min-w-10 shrink-0 whitespace-nowrap text-xs tabular-nums ${strong ? "text-ink" : "text-ink-soft"}`}>
+    <span className={`w-[3.75rem] shrink-0 whitespace-nowrap text-xs tabular-nums ${strong ? "text-ink" : "text-ink-soft"}`}>
       {fmtDate(date, loc, { weekday: "short", day: "numeric" })}
     </span>
   );
