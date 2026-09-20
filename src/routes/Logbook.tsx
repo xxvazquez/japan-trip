@@ -15,6 +15,7 @@ import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { SwipeToDelete } from "@/components/SwipeToDelete";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { Editable } from "@/components/Editable";
+import { Stamps } from "@/components/Stamps";
 import { FieldList } from "@/components/FieldList";
 import { RichNote } from "@/components/RichNote";
 import { withInitials, assigneeTag } from "@/lib/people";
@@ -27,7 +28,6 @@ import { useAuth } from "@/lib/auth";
 import { supabaseEnabled } from "@/lib/supabase";
 import { uploadFile, signedFileUrl, MAX_FILE_BYTES } from "@/lib/cloudFiles";
 import { useReadOnly } from "@/lib/readonly";
-import { parseStampFile } from "@/lib/stampImport";
 import { APP_NAME } from "@/lib/app";
 import { fmtDate, fmtSpan, plural } from "@/lib/dates";
 import { MODE_ICON } from "@/lib/transport";
@@ -39,7 +39,7 @@ import { putFile, fileUrl } from "@/lib/fileStore";
 import {
   driveEnabled, ensureFolder, uploadToDrive, shareFile, driveViewUrl, driveImageUrl,
 } from "@/lib/drive";
-import type { CustomList, Doc, DocFile, LuggageNote, PackingItem, ScratchNote, StampItem, TripData } from "@/core/types";
+import type { CustomList, Doc, DocFile, LuggageNote, PackingItem, ScratchNote, TripData } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 8);
 
@@ -152,9 +152,6 @@ export function LogbookSection() {
       <PageHeader
         back="/logbook"
         title={list ? list.title : logbookLabel(builtin!)}
-        meta={builtin === "stamps" && (data.config.stamps ?? []).length
-          ? `${(data.config.stamps ?? []).filter((x) => x.done).length} of ${(data.config.stamps ?? []).length} collected`
-          : undefined}
         info={builtin === "notes" ? "A scratchpad of separate notes — shopping lists, things you keep forgetting, a phrase you want to remember. Shared with anyone the trip is shared with." : undefined}
         className="mb-6"
       />
@@ -246,155 +243,6 @@ function ListSection({ list }: { list: CustomList }) {
         {!ro && <ActionRow icon="plus" label="Add an item" onClick={add} />}
       </ul>
     </Section>
-  );
-}
-
-/* -------------------------------------------------------------- stamps */
-
-function Stamps() {
-  const data = useData()!;
-  const ro = useReadOnly();
-  const mutate = useApp((s) => s.mutateTrip);
-  const [msg, setMsg] = useState<string>();
-  const stamps = data.config.stamps ?? [];
-  const set = (fn: (list: StampItem[]) => void) =>
-    mutate((d) => {
-      d.config.stamps ??= [];
-      fn(d.config.stamps);
-    });
-  const add = (group?: string) => set((l) => { l.push({ id: rid(), label: "", ...(group ? { group } : {}) }); });
-
-  const importFile = async (file: File | undefined) => {
-    if (!file) return;
-    try {
-      const incoming = parseStampFile(await file.text());
-      const key = (s: StampItem) => `${s.group ?? ""}\u0000${s.label.toLowerCase()}`;
-      const have = new Set(stamps.map(key));
-      const fresh = incoming.filter((s) => !have.has(key(s)));
-      if (fresh.length) set((l) => { l.push(...fresh); });
-      setMsg(fresh.length ? `Added ${plural(fresh.length, "stamp")}.` : "Nothing new — those stamps are already here.");
-    } catch (e) {
-      setMsg(e instanceof Error ? e.message : "Couldn’t read that file.");
-    }
-  };
-
-  const importRow = !ro && (
-    <Section className="mt-6">
-      <ul>
-        <li className={INSET_DIVIDER}>
-          <label className="action flex w-full cursor-pointer px-3.5 py-2.5 text-[0.8125rem]">
-            <Icon name="plus" size={14} /> Import stamps from a file
-            <input type="file" accept=".json,application/json" className="hidden" onChange={(e) => { void importFile(e.target.files?.[0]); e.target.value = ""; }} />
-          </label>
-        </li>
-      </ul>
-      {msg && <p className="meta mt-1.5 px-1" role="status">{msg}</p>}
-    </Section>
-  );
-
-  if (stamps.length === 0) {
-    return (
-      <>
-        <Empty
-          what="No stamps yet"
-          hint={ro ? undefined : "Station stamps, temple seals, castle stamps — add the ones you want to collect."}
-          onAdd={ro ? undefined : () => add()}
-          addLabel="Add a stamp"
-        />
-        {importRow}
-      </>
-    );
-  }
-
-  // sections in the order each group first appears; ungrouped stamps lead
-  const groups = new Map<string, { item: StampItem; i: number }[]>();
-  stamps.forEach((item, i) => {
-    const g = item.group ?? "";
-    if (!groups.has(g)) groups.set(g, []);
-    groups.get(g)!.push({ item, i });
-  });
-  const ordered = [...groups.entries()].sort(([a], [b]) => (a === "" ? -1 : b === "" ? 1 : 0));
-
-  return (
-    <>
-      <div className="space-y-6">
-        {ordered.map(([group, rows]) => {
-          const got = rows.filter((r) => r.item.done).length;
-          return (
-            <Section
-              key={group}
-              id={`stamps-${group}`}
-              title={group || undefined}
-              action={group ? (
-                <span className="meta flex items-center gap-2">
-                  <span className="tabular-nums">{got}/{rows.length}</span>
-                  {!ro && (
-                    <ConfirmButton
-                      onConfirm={() => undoable("Stamps removed", () => set((l) => { for (let k = l.length - 1; k >= 0; k--) if ((l[k].group ?? "") === group) l.splice(k, 1); }))}
-                      className="tap text-ink-faint hover:text-accent"
-                    >
-                      <Icon name="trash" size={13} />
-                    </ConfirmButton>
-                  )}
-                </span>
-              ) : undefined}
-            >
-              <ul>
-                {rows.map(({ item: s, i }) => {
-                  const remove = () => set((l) => { l.splice(i, 1); });
-                  return (
-                    <li
-                      key={s.id}
-                      className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden"
-                    >
-                      <SwipeToDelete undoLabel="Stamp removed" onDelete={ro ? undefined : remove}>
-                        <div className="flex items-start gap-3 px-3.5 py-3">
-                          <span className="pt-0.5">
-                            <CheckCircle
-                              checked={!!s.done}
-                              disabled={ro}
-                              onChange={(v) => set((l) => { l[i].done = v || undefined; })}
-                              label={`Collected ${s.label || "stamp"}`}
-                            />
-                          </span>
-                          <span className="min-w-0 flex-1">
-                            <span className="flex items-baseline justify-between gap-3">
-                              <span className={`min-w-0 break-words text-[0.9375rem] font-medium leading-snug ${s.done ? "text-ink-faint line-through" : "text-ink"}`}>
-                                {ro
-                                  ? (s.label || "Untitled")
-                                  : <Editable label="Stamp" value={s.label} placeholder="Name" onCommit={(v) => set((l) => { l[i].label = v; })} />}
-                              </span>
-                              {s.local && (
-                                <span
-                                  className="meta shrink-0 text-ink-faint"
-                                  style={data.config.localScriptFont ? { fontFamily: data.config.localScriptFont } : undefined}
-                                >
-                                  {s.local}
-                                </span>
-                              )}
-                            </span>
-                            {(s.note || !ro) && (
-                              <span className="meta mt-0.5 block text-ink-soft">
-                                {ro ? s.note : (
-                                  <Editable label="Where and cost" value={s.note ?? ""} placeholder="＋ where, cost" onCommit={(v) => set((l) => { l[i].note = v || undefined; })} />
-                                )}
-                              </span>
-                            )}
-                          </span>
-                          {!ro && <RowDeleteButton undoLabel="Stamp removed" onClick={remove} />}
-                        </div>
-                      </SwipeToDelete>
-                    </li>
-                  );
-                })}
-                {!ro && <ActionRow icon="plus" label="Add a stamp" onClick={() => add(group || undefined)} />}
-              </ul>
-            </Section>
-          );
-        })}
-      </div>
-      {importRow}
-    </>
   );
 }
 

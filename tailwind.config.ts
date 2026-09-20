@@ -75,12 +75,18 @@ export default {
         "enso-spin": {
           to: { transform: "rotate(360deg)" },
         },
+        "stamp-press": {
+          "0%": { transform: "scale(0.6)" },
+          "60%": { transform: "scale(1.15)" },
+          "100%": { transform: "scale(1)" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.32s var(--ease-paper) both",
         "fade-in": "fade-in 0.15s ease-out both",
         "sheet-up": "sheet-up 0.24s var(--ease-paper) both",
         "enso-spin": "enso-spin 1.1s linear infinite",
+        "stamp-press": "stamp-press 0.28s var(--ease-paper) both",
       },
     },
   },
