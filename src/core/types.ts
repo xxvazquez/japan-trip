@@ -126,6 +126,9 @@ export interface ListItem {
   url?: string;
 }
 
+/** what a stamp is — drives its icon in the list */
+export type StampKind = "station" | "temple";
+
 export interface StampItem {
   id: ID;
   label: string;
@@ -136,6 +139,8 @@ export interface StampItem {
   group?: string;
   /** the name in the local script, shown quietly beside the label */
   local?: string;
+  /** station / temple — unset shows no icon */
+  kind?: StampKind;
 }
 
 export interface CustomList {

@@ -255,7 +255,7 @@ the total spent — and nothing when it's empty.
   which section it came from) and tapping it there puts it back. Group stamps into sections of your
   own: tap a section's name to rename it, **New section** adds one, and a stamp's ⋯ menu moves it to
   another section (or out of any). **Select** lets you tick many stamps and move or delete them
-  together. A stamp can also carry a name in the local script, shown beside the English one. Stamps
+  together. A stamp can be marked as a **station** or a **temple** (from its ⋯ menu) and shows that icon at the start of its row, and can also carry a name in the local script, shown beside the English one. Stamps
   are part of the trip, so anyone the trip is shared with sees the same list and the same ticks.
   Nothing is looked up for you.
 - **Expenses** — totals every price in the trip (a stay's price, a journey's fare, a day's spending),

@@ -52,6 +52,7 @@ export type IconName =
   | "alert"
   | "wallet"
   | "luggage"
+  | "temple"
   | "locate"
   | "calendar";
 
@@ -307,6 +308,8 @@ const P: Record<IconName, JSX.Element> = {
   // same geometry as the "luggage" MAP_GLYPHS marker (mapGlyphs.ts) — both
   // render stroked on a 24×24 canvas, so it's one shape, not redrawn twice.
   luggage: <path d={glyphPath("luggage")} />,
+  // a temple hall: a sweeping roof over three pillars
+  temple: <path d="M2 10c5 0 8-3 10-6 2 3 5 6 10 6M6 10v9M12 10v9M18 10v9M3 20h18" />,
   locate: (
     <>
       <circle cx="12" cy="12" r="3.2" />

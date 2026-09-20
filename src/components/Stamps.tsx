@@ -9,15 +9,20 @@ import { RowMenu } from "./RowMenu";
 import { ActionSheet, useActionSheet } from "./ActionSheet";
 import { CheckCircle } from "./CheckCircle";
 import { StampSeal } from "./StampSeal";
+import { IconTile } from "./IconTile";
 import { Icon } from "./Icon";
 import { useData } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { plural } from "@/lib/dates";
-import type { StampItem } from "@/core/types";
+import type { StampItem, StampKind } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 8);
 const NEW_SECTION = "New section";
+const KINDS: Record<StampKind, { label: string; icon: "train" | "temple"; tone: "ai" | "gold" }> = {
+  station: { label: "Station", icon: "train", tone: "ai" },
+  temple: { label: "Temple", icon: "temple", tone: "gold" },
+};
 const ROW = "relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden";
 
 /** A bottom sheet / popover listing the sections a stamp (or a selection) can
@@ -181,6 +186,11 @@ export function Stamps() {
             />
           )}
         </span>
+        {s.kind && (
+          <span className="pt-0.5">
+            <IconTile size="sm" name={KINDS[s.kind].icon} tone={KINDS[s.kind].tone} />
+          </span>
+        )}
         <span className="min-w-0 flex-1 pt-0.5">
           <span className="flex items-baseline justify-between gap-3">
             <span className={`min-w-0 break-words text-[0.9375rem] font-medium leading-snug ${s.done ? "text-ink-soft" : "text-ink"}`}>
@@ -215,6 +225,10 @@ export function Stamps() {
               newName={uniqueName()}
               onPick={(g) => relocate([s.id], g)}
             />
+            {(Object.keys(KINDS) as StampKind[]).filter((k) => k !== s.kind).map((k) => (
+              <button key={k} className="menu-item" onClick={() => set((l) => { l[i].kind = k; })}>Mark as {KINDS[k].label.toLowerCase()}</button>
+            ))}
+            {s.kind && <button className="menu-item" onClick={() => set((l) => { delete l[i].kind; })}>Remove icon</button>}
             <button className="menu-item text-danger" onClick={remove}>Delete</button>
           </RowMenu>
         )}
