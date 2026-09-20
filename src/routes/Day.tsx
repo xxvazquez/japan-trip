@@ -807,7 +807,7 @@ function ReturnToHotel({ from, hotel, indent }: { from?: Place; hotel: Hotel; in
       <span className="min-w-0 flex-1 space-y-1">
         <span className="block text-sm leading-snug text-ink">Back to {hotel.name || "the hotel"}</span>
         {(walk || (fromStation && hotelStation && fromStation.name !== hotelStation.name)) && (
-          <span className="meta flex flex-wrap gap-x-3 gap-y-0.5 text-[0.8125rem] text-ink-faint">
+          <span className="meta flex flex-wrap gap-x-3 gap-y-0.5 text-[0.8125rem] text-accent">
             {walk && (
               <span className={piece}>
                 <Icon name="walk" size={12} className="mt-[3px] shrink-0" />
@@ -822,9 +822,6 @@ function ReturnToHotel({ from, hotel, indent }: { from?: Place; hotel: Hotel; in
             )}
           </span>
         )}
-      </span>
-      <span className="flex shrink-0 items-center gap-1 pt-0.5 text-xs text-accent">
-        Directions <Icon name="chevron" size={12} />
       </span>
     </a>
   );
