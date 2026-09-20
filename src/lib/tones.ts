@@ -70,14 +70,15 @@ export function toneForGlyph(glyph: MapGlyphId | string | undefined): Tone {
 /** Fixed hex per built-in Logbook section with no natural semantic tone of
  *  its own (see `logbookSectionTile`) — assigned by the section's own key,
  *  not its position in the visible list, so hiding one never shifts another's
- *  colour. Skips `AREA_TONES[0]` (too close to `ai`, which sits right above
- *  these in the list as "Getting around") and reserves `[7]` as where a
+ *  colour. Skips `AREA_TONES[0]` except for stamps, which sits well below
+ *  "Getting around" in the list (too close to `ai` if adjacent) and reserves `[7]` as where a
  *  trip's own custom lists start cycling, so the two runs don't collide. */
 const LOGBOOK_SECTION_COLOR: Partial<Record<LogbookSection, string>> = {
   luggage: AREA_TONES[1],
   documents: AREA_TONES[2],
   emergency: AREA_TONES[3],
   packing: AREA_TONES[4],
+  stamps: AREA_TONES[0],
   budget: AREA_TONES[5],
   notes: AREA_TONES[6],
 };

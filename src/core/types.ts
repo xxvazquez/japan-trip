@@ -103,6 +103,8 @@ export interface TripConfig {
   hiddenLogbook?: string[];
   /** extra Logbook sections — a title + a plain list of items */
   lists?: CustomList[];
+  /** the Logbook's stamp tracker — stamps to collect, ticked off as you get them */
+  stamps?: StampItem[];
   /** the trip's expense categories, in display order — every spending row and
    *  fare groups under one in the Expenses view. Seeded on load; never empty. */
   expenseCategories?: ExpenseCategory[];
@@ -122,6 +124,14 @@ export interface ListItem {
   note?: string;
   /** pasted Maps or web link */
   url?: string;
+}
+
+export interface StampItem {
+  id: ID;
+  label: string;
+  /** where to find it / what it costs — free text */
+  note?: string;
+  done?: boolean;
 }
 
 export interface CustomList {

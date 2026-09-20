@@ -303,6 +303,14 @@ function logbookSection(data: TripData, opts: ExportOptions): string {
       </div>`).join("")}</div>`);
   }
 
+  const stamps = data.config.stamps ?? [];
+  if (stamps.length) {
+    parts.push(`<div class="lb-block"><h3>Stamps</h3><ul class="places">${stamps.map((s) => {
+      const meta = s.note ? ` <span class="place-meta">${esc(s.note.trim())}</span>` : "";
+      return `<li>${s.done ? "✓ " : ""}${esc(s.label || "—")}${meta}</li>`;
+    }).join("")}</ul></div>`);
+  }
+
   for (const list of data.config.lists ?? []) {
     if (!list.items.length) continue;
     parts.push(`<div class="lb-block"><h3>${esc(list.title || "List")}</h3><ul class="places">${list.items.map((it) => {

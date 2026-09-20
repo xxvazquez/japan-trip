@@ -117,6 +117,16 @@ function build(d: TripData): SearchHit[] {
       terms: [n.title, n.text].filter(Boolean).join(" ").toLowerCase(),
     });
   }
+  for (const s of d.config.stamps ?? []) {
+    hits.push({
+      kind: "list",
+      chip: "Stamps",
+      label: s.label || "Untitled",
+      sub: s.note || undefined,
+      to: "/logbook/stamps",
+      terms: [s.label, s.note].filter(Boolean).join(" ").toLowerCase(),
+    });
+  }
   for (const list of d.config.lists ?? []) {
     for (const item of list.items) {
       hits.push({

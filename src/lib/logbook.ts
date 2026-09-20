@@ -24,6 +24,7 @@ export const LOGBOOK_SECTIONS = [
   "documents",
   "emergency",
   "packing",
+  "stamps",
   "budget",
   "notes",
 ] as const;
@@ -36,6 +37,7 @@ export const OPTIONAL_LOGBOOK_SECTIONS: LogbookSection[] = [
   "luggage",
   "documents",
   "packing",
+  "stamps",
   "budget",
 ];
 
@@ -46,6 +48,7 @@ const LABELS: Record<LogbookSection, string> = {
   emergency: "Emergency",
   documents: "Documents",
   packing: "Packing",
+  stamps: "Stamps",
   budget: "Expenses",
   // the id/URL param stays "notes" (config.hiddenLogbook, ?s=) — this is the
   // trip-wide scratchpad (several independent notes), not a home for the
@@ -73,6 +76,7 @@ export const LOGBOOK_NAV_ICON: Record<LogbookSection, string> = {
   documents: "vault",
   emergency: "alert",
   packing: "check",
+  stamps: "pin",
   budget: "wallet",
   notes: "list",
 };

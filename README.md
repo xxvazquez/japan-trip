@@ -232,7 +232,7 @@ When four or more places aren't in any area, a *Suggest areas* link joins the Ar
 ### Logbook
 
 The reference drawer. A menu of sections, each its own page: stays · getting around · luggage ·
-documents · emergency numbers · packing · expenses · a scratchpad, plus any lists you've added
+documents · emergency numbers · packing · stamps · expenses · a scratchpad, plus any lists you've added
 yourself. Each row shows at a glance how much is in it — a count, packing progress ("3/8"), or
 the total spent — and nothing when it's empty.
 
@@ -246,6 +246,9 @@ the total spent — and nothing when it's empty.
 - **Packing** — build the checklist right there: add a category, add items, tick them off. Categories
   fold away; with two or more travellers set (Manage → Setup) each item gets an **assign** pill (a
   traveller's initial, **Shared**, or **—**).
+- **Stamps** — a checklist of stamps to collect (station stamps, temple seals, castle stamps).
+  Add each with a name and a note for where to find it and what it costs, then tick it off when you
+  have it. Nothing is looked up for you — you fill it in yourself. Shown as "3/8" on the menu.
 - **Expenses** — totals every price in the trip (a stay's price, a journey's fare, a day's spending),
   **grouped by category** and then by currency (nothing is summed across currencies, except the
   **Combined** total). Nothing is entered on this tab — it's read-only.

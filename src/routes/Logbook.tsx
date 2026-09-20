@@ -38,7 +38,7 @@ import { putFile, fileUrl } from "@/lib/fileStore";
 import {
   driveEnabled, ensureFolder, uploadToDrive, shareFile, driveViewUrl, driveImageUrl,
 } from "@/lib/drive";
-import type { CustomList, Doc, DocFile, LuggageNote, PackingItem, ScratchNote, TripData } from "@/core/types";
+import type { CustomList, Doc, DocFile, LuggageNote, PackingItem, ScratchNote, StampItem, TripData } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 8);
 
@@ -49,6 +49,7 @@ const SECTION_TILE: Record<LogbookSection, { name?: IconName; glyph?: MapGlyphId
   documents: { name: "vault" },
   emergency: { name: "alert" },
   packing: { name: "check" },
+  stamps: { name: "pin" },
   budget: { name: "wallet" },
   notes: { name: "list" },
 };
@@ -66,6 +67,10 @@ function sectionSummary(s: LogbookSection, data: TripData): string | undefined {
     case "packing": {
       const total = data.packing.length;
       return total ? `${data.packing.filter((i) => i.done).length}/${total}` : undefined;
+    }
+    case "stamps": {
+      const stamps = data.config.stamps ?? [];
+      return stamps.length ? `${stamps.filter((i) => i.done).length}/${stamps.length}` : undefined;
     }
     case "budget": {
       const totals = Object.entries(tripCost(data).byCurrency).filter(([, b]) => b.total > 0);
@@ -159,6 +164,7 @@ export function LogbookSection() {
           {builtin === "emergency" && <Emergency />}
           {builtin === "documents" && <Documents />}
           {builtin === "packing" && <Packing />}
+          {builtin === "stamps" && <Stamps />}
           {builtin === "budget" && <Expenses />}
           {builtin === "notes" && <Notes />}
         </>
@@ -234,6 +240,77 @@ function ListSection({ list }: { list: CustomList }) {
           </li>
         ))}
         {!ro && <ActionRow icon="plus" label="Add an item" onClick={add} />}
+      </ul>
+    </Section>
+  );
+}
+
+/* -------------------------------------------------------------- stamps */
+
+function Stamps() {
+  const data = useData()!;
+  const ro = useReadOnly();
+  const mutate = useApp((s) => s.mutateTrip);
+  const stamps = data.config.stamps ?? [];
+  const set = (fn: (list: StampItem[]) => void) =>
+    mutate((d) => {
+      d.config.stamps ??= [];
+      fn(d.config.stamps);
+    });
+  const add = () => set((l) => { l.push({ id: rid(), label: "" }); });
+
+  if (stamps.length === 0) {
+    return (
+      <Empty
+        what="No stamps yet"
+        hint={ro ? undefined : "Station stamps, temple seals, castle stamps — add the ones you want to collect."}
+        onAdd={ro ? undefined : add}
+        addLabel="Add a stamp"
+      />
+    );
+  }
+
+  return (
+    <Section>
+      <ul>
+        {stamps.map((s, i) => {
+          const remove = () => set((l) => { l.splice(i, 1); });
+          return (
+            <li
+              key={s.id}
+              className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden"
+            >
+              <SwipeToDelete undoLabel="Stamp removed" onDelete={ro ? undefined : remove}>
+                <div className="flex items-start gap-3 px-3.5 py-3">
+                  <span className="pt-0.5">
+                    <CheckCircle
+                      checked={!!s.done}
+                      disabled={ro}
+                      onChange={(v) => set((l) => { l[i].done = v || undefined; })}
+                      label={`Collected ${s.label || "stamp"}`}
+                    />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className={`block text-[0.9375rem] font-medium leading-snug ${s.done ? "text-ink-faint line-through" : "text-ink"}`}>
+                      {ro
+                        ? (s.label || "Untitled")
+                        : <Editable label="Stamp" value={s.label} placeholder="Name" onCommit={(v) => set((l) => { l[i].label = v; })} />}
+                    </span>
+                    {(s.note || !ro) && (
+                      <span className="meta mt-0.5 block text-ink-soft">
+                        {ro ? s.note : (
+                          <Editable label="Where and cost" value={s.note ?? ""} placeholder="＋ where, cost" onCommit={(v) => set((l) => { l[i].note = v || undefined; })} />
+                        )}
+                      </span>
+                    )}
+                  </span>
+                  {!ro && <RowDeleteButton undoLabel="Stamp removed" onClick={remove} />}
+                </div>
+              </SwipeToDelete>
+            </li>
+          );
+        })}
+        {!ro && <ActionRow icon="plus" label="Add a stamp" onClick={add} />}
       </ul>
     </Section>
   );
