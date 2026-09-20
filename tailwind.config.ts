@@ -8,6 +8,9 @@ import type { Config } from "tailwindcss";
 const withVar = (name: string) => `rgb(var(${name}) / <alpha-value>)`;
 
 export default {
+  // `hover:` only where a real pointer can hover — on a phone a tap would
+  // otherwise leave the row stuck in its hover colour until the next tap
+  future: { hoverOnlyWhenSupported: true },
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   darkMode: "class",
   theme: {
