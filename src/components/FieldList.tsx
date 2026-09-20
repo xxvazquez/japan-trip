@@ -118,7 +118,7 @@ export function FieldList({
           onCommit={(v) => setAt(i, { label: v })}
         />
       </span>
-      <span className="min-w-0 flex-1 break-words">
+      <span className="min-w-0 flex-1 break-words text-right">
         {isMoneyLabel(f.label) ? (
           <MoneyField
             label={f.label || "Price"}
@@ -133,7 +133,7 @@ export function FieldList({
             label={f.label || "Field"}
             value={f.value}
             placeholder="—"
-            className="row-value text-left"
+            className="row-value text-right"
             onCommit={(v) => setAt(i, { value: v })}
           />
         )}
