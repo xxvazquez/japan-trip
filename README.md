@@ -247,13 +247,17 @@ the total spent — and nothing when it's empty.
   fold away; with two or more travellers set (Manage → Setup) each item gets an **assign** pill (a
   traveller's initial, **Shared**, or **—**).
 - **Stamps** — a checklist of stamps to collect (station stamps, temple seals, castle stamps).
-  The summary card at the top shows a progress ring, "12 of 78 collected" and the next one up. Each
-  stamp has a name, a note for where to find it and what it costs, and a seal you tap to press it —
-  it inks in when collected. Group them into sections of your own: tap a section's name to rename it,
-  **New section** adds one, and a stamp's ⋯ menu moves it to another section (or out of any).
-  **Select** lets you tick many stamps and move or delete them together. A stamp can also carry a
-  name in the local script, shown beside the English one. Stamps are part of the trip, so anyone the
-  trip is shared with sees the same list and the same ticks. Nothing is looked up for you.
+  The summary card at the top shows "12 of 78 collected" with a thin progress bar, and **Sort**
+  switches every section (and the sections themselves) between your own order and A–Z — a
+  per-device setting. The search field filters by name, local-script name, note or section. Each
+  stamp has a name, a note for where to find it and what it costs, and a circle you tap to collect
+  it; a collected stamp moves down into a **Collected** list (folded away until you open it, showing
+  which section it came from) and tapping it there puts it back. Group stamps into sections of your
+  own: tap a section's name to rename it, **New section** adds one, and a stamp's ⋯ menu moves it to
+  another section (or out of any). **Select** lets you tick many stamps and move or delete them
+  together. A stamp can also carry a name in the local script, shown beside the English one. Stamps
+  are part of the trip, so anyone the trip is shared with sees the same list and the same ticks.
+  Nothing is looked up for you.
 - **Expenses** — totals every price in the trip (a stay's price, a journey's fare, a day's spending),
   **grouped by category** and then by currency (nothing is summed across currencies, except the
   **Combined** total). Nothing is entered on this tab — it's read-only.
