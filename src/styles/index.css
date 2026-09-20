@@ -182,7 +182,7 @@ html.dark {
    * Hierarchy is size + weight + colour + spacing, never a size cliff.
    *
    *   text-display   Plan hero (the countdown number, nothing else)
-   *   .text-title    page title — clamp 1.6–2rem, 500 ink  (<PageHeader>)
+   *   .text-title    page title — clamp 1.5–1.75rem, 500 ink  (<PageHeader>)
    *   .subhead       sub-head under a page title — 1.3125rem 500 (Plan stay, Map scope)
    *   .lead          card / item title — 1.0625rem, sans 500 ink
    *   .value         main value — 0.9375rem, sans 500 ink  (paired + under-label)
@@ -200,7 +200,7 @@ html.dark {
   /* L1 — the page title on every route but Plan. One size, via <PageHeader>. */
   .text-title {
     @apply font-display font-medium leading-[1.12] text-ink;
-    font-size: clamp(1.6rem, 1.15rem + 2vw, 2rem);
+    font-size: clamp(1.5rem, 1.25rem + 1vw, 1.75rem);
   }
 
   /* L1 — a heading that sits below a page title: a stay on the Plan, the scope
