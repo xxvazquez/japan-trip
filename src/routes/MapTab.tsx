@@ -1211,7 +1211,7 @@ export default function MapTab() {
                   placeholder="Area name — e.g. Asakusa"
                   className="min-w-0 flex-1 border-b border-ink bg-transparent pb-1 text-sm focus:outline-none"
                 />
-                <button onClick={createArea} className="shrink-0 font-medium text-accent">Add</button>
+                <button onClick={createArea} className="shrink-0 text-accent">Add</button>
                 <button onClick={() => { setNamingArea(false); setAreaName(""); }} className="shrink-0 text-ink-faint hover:text-ink-soft">Cancel</button>
               </div>
             ) : (
@@ -1239,7 +1239,7 @@ export default function MapTab() {
                 <ConfirmButton
                   label="Merge duplicate areas"
                   onConfirm={mergeDuplicateAreas}
-                  className="shrink-0 font-medium text-accent"
+                  className="shrink-0 text-accent"
                 >
                   Merge
                 </ConfirmButton>
@@ -1283,7 +1283,7 @@ export default function MapTab() {
                 className="w-full border-b border-ink bg-transparent pb-1 text-sm focus:outline-none"
               />
               <div className="mt-3 flex gap-4 text-sm">
-                <button onClick={() => commitPlace(pending.name, pending.lat, pending.lng)} className="font-medium text-accent">
+                <button onClick={() => commitPlace(pending.name, pending.lat, pending.lng)} className="text-accent">
                   Save place
                 </button>
                 <button onClick={() => setPending(null)} className="text-ink-faint hover:text-ink-soft">
@@ -1309,7 +1309,7 @@ export default function MapTab() {
                         onClick={() => commitPlace(r.name, r.lat, r.lng)}
                         className="block w-full py-2 text-left"
                       >
-                        <span className="block text-sm font-medium">{r.name}</span>
+                        <span className="block text-sm">{r.name}</span>
                         <span className="meta block break-words">{r.detail}</span>
                       </button>
                     </li>
@@ -1382,7 +1382,7 @@ export default function MapTab() {
                           >
                             <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: a.tone }} />
                             <span className="min-w-0 flex-1">
-                              <span className="eyebrow block break-words font-medium">{a.name}</span>
+                              <span className="eyebrow block break-words">{a.name}</span>
                               <AreaWalkSpan items={a.items} />
                             </span>
                             <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{a.items.length}</span>
@@ -1440,7 +1440,7 @@ export default function MapTab() {
                     className="flex min-w-0 flex-1 items-center gap-2 text-left"
                   >
                     <span className="min-w-0 flex-1">
-                      <span className="eyebrow block break-words font-medium">{g.name}</span>
+                      <span className="eyebrow block break-words">{g.name}</span>
                       {isArea && <AreaWalkSpan items={g.items} />}
                     </span>
                     <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{g.items.length}</span>
@@ -1487,7 +1487,7 @@ export default function MapTab() {
               {imported > 0 ? `${imported} pins from Google My Maps` : "No My Maps pins"}
               {syncedAt ? ` · synced ${rel(syncedAt)}` : ""}
             </span>
-            <button onClick={runSync} disabled={busy} className="shrink-0 font-medium text-accent disabled:opacity-50">
+            <button onClick={runSync} disabled={busy} className="shrink-0 text-accent disabled:opacity-50">
               {busy ? "syncing…" : "Sync"}
             </button>
             {imported > 0 && <InfoNote className="shrink-0">Syncing only adds new pins from My Maps — nothing already here is changed or removed.</InfoNote>}
@@ -1714,7 +1714,7 @@ function PlaceRow({
             tone={toneForPlaceCategory(place.category, categoryIcons)}
           />
           <span className="min-w-0 flex-1">
-            <span className={`block break-words ${card ? "lead" : "text-sm font-medium leading-snug text-ink"}`}>{place.name}</span>
+            <span className={`block break-words ${card ? "lead" : "text-sm leading-snug text-ink"}`}>{place.name}</span>
             {(metaBits || derived) && (
               <span className="meta block break-words">{[derived && "from area", metaBits].filter(Boolean).join(" · ")}</span>
             )}
@@ -1952,7 +1952,7 @@ function SuggestReview({
       )}
       <div className="sticky bottom-0 mt-3 flex items-center gap-4 bg-bg py-2 text-sm">
         {keptCount > 0 && (
-          <button onClick={onApply} className="font-medium text-accent hover:opacity-70">
+          <button onClick={onApply} className="text-accent hover:opacity-70">
             Create {plural(keptCount, "area")}
           </button>
         )}

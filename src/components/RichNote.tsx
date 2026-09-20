@@ -51,7 +51,7 @@ export function RichNote({
   }, [editing]);
 
   const ShowToggle = ({ onClick }: { onClick: (e: React.MouseEvent) => void }) => (
-    <button type="button" onClick={onClick} className="mt-1 block text-2xs font-medium text-accent">
+    <button type="button" onClick={onClick} className="mt-1 block text-2xs text-accent">
       {expanded ? "Show less" : "Show more"}
     </button>
   );

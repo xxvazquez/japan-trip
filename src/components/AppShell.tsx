@@ -104,7 +104,7 @@ export function AppShell() {
       {demo && (
         <div className="sticky top-14 z-20 flex h-9 items-center justify-center gap-1 border-b border-line bg-surface-2 px-4 text-center text-xs text-ink-soft sm:px-6">
           <span>Demo trip — read-only.</span>
-          <Link to="/manage" className="font-medium text-accent">Make your own →</Link>
+          <Link to="/manage" className="text-accent">Make your own →</Link>
         </div>
       )}
 

@@ -87,7 +87,7 @@ export default function Plan() {
             </p>
             <p className="mt-2 text-sm">
               {currentLeg?.base && (
-                <span className="font-medium" style={{ color: legHex(currentLeg.color) }}>{currentLeg.base} · </span>
+                <span style={{ color: legHex(currentLeg.color) }}>{currentLeg.base} · </span>
               )}
               <span className="meta">{plural(c.daysRemaining, "day")} left</span>
             </p>

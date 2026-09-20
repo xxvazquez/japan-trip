@@ -71,7 +71,7 @@ export function FieldList({
           {fields.map((f) => (
             <li key={f.id} className={`${insetLi} flex items-baseline justify-between gap-4 px-3.5 py-3`}>
               <span className="shrink-0 text-[0.9375rem] text-ink-soft">{f.label || "—"}</span>
-              <span className="min-w-0 text-right font-sans text-[0.9375rem] font-medium leading-snug text-ink">
+              <span className="min-w-0 text-right font-sans text-[0.9375rem] leading-snug text-ink">
                 {readValue(f)}
               </span>
             </li>

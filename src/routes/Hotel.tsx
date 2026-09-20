@@ -78,7 +78,7 @@ export default function Hotel() {
               {showAddress && (
                 <li className="relative px-3.5 py-3 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
                   <span className="mb-0.5 block text-[0.9375rem] text-ink-soft">Address</span>
-                  <span className="block font-sans text-[0.9375rem] font-medium leading-snug text-ink">
+                  <span className="block font-sans text-[0.9375rem] leading-snug text-ink">
                     <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined, lat: undefined, lng: undefined })} />
                   </span>
                   {(hotel.addressAlt || !ro) && (
@@ -151,7 +151,7 @@ export default function Hotel() {
             <ConfirmButton
               onConfirm={() => undoable("Stay deleted", () => { removeEntity("hotels", hotel.id); navigate("/logbook"); })}
               label="Delete stay"
-              className="w-full justify-center px-3.5 py-3 text-sm font-medium text-danger"
+              className="w-full justify-center px-3.5 py-3 text-sm text-danger"
             >
               Delete stay
             </ConfirmButton>

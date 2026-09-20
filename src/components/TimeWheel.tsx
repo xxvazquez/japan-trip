@@ -120,7 +120,7 @@ function ClockRing({ options, value, onChange, ariaLabel, size }: {
             onClick={() => onChange(o)}
             style={{ left: cx + r * Math.cos(angle(n)), top: cy + r * Math.sin(angle(n)) }}
             className={`absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-[10px] tabular-nums transition-colors ${
-              active ? "bg-accent font-medium text-white" : "text-ink-soft hover:bg-surface-2"
+              active ? "bg-accent text-white" : "text-ink-soft hover:bg-surface-2"
             }`}
           >
             {o}

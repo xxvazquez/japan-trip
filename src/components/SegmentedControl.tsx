@@ -23,8 +23,8 @@ export function SegmentedControl<T extends string>({
           role="tab"
           aria-selected={value === o.value}
           onClick={() => onChange(o.value)}
-          className={`min-w-0 flex-1 truncate rounded-[7px] px-1.5 py-1.5 text-[13px] font-medium transition-colors ${
-            value === o.value ? "bg-surface text-ink shadow-sm" : "text-ink-soft hover:text-ink"
+          className={`min-w-0 flex-1 truncate rounded-[7px] px-1.5 py-1.5 text-[13px] transition-colors ${
+            value === o.value ? "bg-surface font-medium text-ink shadow-sm" : "text-ink-soft hover:text-ink"
           }`}
         >
           {o.label}

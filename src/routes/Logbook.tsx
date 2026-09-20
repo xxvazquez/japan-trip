@@ -217,7 +217,7 @@ function ListSection({ list }: { list: CustomList }) {
             <SwipeToDelete undoLabel="Item removed" onDelete={ro ? undefined : () => set((l) => { l.items.splice(i, 1); })}>
             <div className="flex items-start gap-2 px-3.5 py-3">
               <span className="min-w-0 flex-1">
-                <span className="block text-[0.9375rem] font-medium leading-snug text-ink">
+                <span className="block text-[0.9375rem] leading-snug text-ink">
                   {ro
                     ? (it.label || "Untitled")
                     : <Editable label="Item" value={it.label} placeholder="Name" onCommit={(v) => set((l) => { l.items[i].label = v; })} />}
@@ -529,8 +529,8 @@ function Expenses() {
             {combined.uncategorised > 0 && (
               <InsetRow label="Uncategorised">{fmtMoney(combined.uncategorised, primary)}</InsetRow>
             )}
-            <InsetRow label={<span className="font-semibold text-ink">Total</span>}>
-              <span className="font-semibold">{fmtMoney(combined.total, primary)}</span>
+            <InsetRow label={<span className="font-medium text-ink">Total</span>}>
+              <span className="font-medium">{fmtMoney(combined.total, primary)}</span>
             </InsetRow>
           </ul>
           {unconverted.length > 0 && (
@@ -552,8 +552,8 @@ function Expenses() {
               {b.uncategorised > 0 && (
                 <InsetRow label="Uncategorised">{fmtMoney(b.uncategorised, cur)}</InsetRow>
               )}
-              <InsetRow label={<span className="font-semibold text-ink">Total</span>}>
-                <span className="font-semibold">{fmtMoney(b.total, cur)}</span>
+              <InsetRow label={<span className="font-medium text-ink">Total</span>}>
+                <span className="font-medium">{fmtMoney(b.total, cur)}</span>
               </InsetRow>
             </ul>
           </Section>
@@ -840,7 +840,7 @@ function Packing() {
               style={{ width: done === 0 ? "0.375rem" : `${Math.max(6, (done / total) * 100)}%` }}
             />
           </span>
-          {allDone && <span className="shrink-0 text-xs font-medium text-ink">All packed</span>}
+          {allDone && <span className="shrink-0 text-xs text-ink">All packed</span>}
         </div>
       )}
       {total === 0 && !ro && (

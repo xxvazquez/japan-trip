@@ -104,7 +104,7 @@ export function SyncStatus() {
             </div>
           );
         })}
-        <button type="button" onClick={() => retrySyncNow()} className="menu-item font-medium text-accent">
+        <button type="button" onClick={() => retrySyncNow()} className="menu-item text-accent">
           Retry now
         </button>
       </ActionSheet>

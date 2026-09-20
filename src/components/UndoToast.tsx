@@ -31,7 +31,7 @@ export function UndoToast() {
         <button
           type="button"
           onClick={undo}
-          className="shrink-0 rounded-[8px] px-3 py-1.5 text-sm font-semibold underline-offset-2 active:opacity-70"
+          className="shrink-0 rounded-[8px] px-3 py-1.5 text-sm font-medium underline-offset-2 active:opacity-70"
         >
           Undo
         </button>

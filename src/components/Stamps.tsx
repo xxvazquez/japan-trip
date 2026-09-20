@@ -357,7 +357,7 @@ export function Stamps() {
     <>
       {inOverview ? (
         <div className="mb-4 flex items-baseline justify-between gap-3">
-          <p className="text-[0.9375rem] font-medium tabular-nums text-ink">{got} of {stamps.length} collected</p>
+          <p className="text-[0.9375rem] tabular-nums text-ink">{got} of {stamps.length} collected</p>
           {sortBtn}
         </div>
       ) : (
@@ -454,7 +454,7 @@ export function Stamps() {
                 <li className={INSET_DIVIDER}>
                   <button
                     onClick={() => { undoable("Stamps removed", () => removeIds(ids)); stopSelecting(); }}
-                    className="w-full px-3.5 py-2.5 text-left text-[0.8125rem] font-medium text-danger"
+                    className="w-full px-3.5 py-2.5 text-left text-[0.8125rem] text-danger"
                   >
                     <Icon name="trash" size={14} className="mr-1.5 inline-block -translate-y-px" />
                     Delete {plural(ids.length, "stamp")}

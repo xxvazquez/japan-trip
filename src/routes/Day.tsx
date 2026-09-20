@@ -335,7 +335,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
           title="Plan"
           info="Drag to reorder. Pick a place from an Area you've added below, or Custom for anything else — tap the note line under it to add one."
           action={overwhelmingCount > 0 && (
-            <span className="flex items-center gap-1 text-[0.8125rem] font-medium text-danger" title={`${plural(overwhelmingCount, "overwhelming place")} today`}>
+            <span className="flex items-center gap-1 text-[0.8125rem] text-danger" title={`${plural(overwhelmingCount, "overwhelming place")} today`}>
               <Icon name="alert" size={13} /> {overwhelmingCount}
             </span>
           )}
@@ -454,7 +454,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
           <ConfirmButton
             label="Delete day"
             onConfirm={() => undoable("Day deleted", () => { removeEntity("days", day.id); nav("/"); })}
-            className="w-full justify-center px-3.5 py-3 text-sm font-medium text-danger"
+            className="w-full justify-center px-3.5 py-3 text-sm text-danger"
           >
             Delete day
           </ConfirmButton>
@@ -823,7 +823,7 @@ function ReturnToHotel({ from, hotel, indent }: { from?: Place; hotel: Hotel; in
           </span>
         )}
       </span>
-      <span className="flex shrink-0 items-center gap-1 pt-0.5 text-xs font-medium text-accent">
+      <span className="flex shrink-0 items-center gap-1 pt-0.5 text-xs text-accent">
         Directions <Icon name="chevron" size={12} />
       </span>
     </a>
@@ -963,7 +963,7 @@ function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, onPick }
         aria-label="What this step is"
         aria-haspopup="menu"
         className={`editable block w-full max-w-full cursor-pointer bg-transparent text-left leading-snug focus:outline-none ${
-          current ? "text-sm font-medium text-ink" : "text-[0.8125rem] text-ink-soft"
+          current ? "text-sm text-ink" : "text-[0.8125rem] text-ink-soft"
         }`}
       >
         {current ? current.name : (
@@ -1115,8 +1115,8 @@ function CostList({ costs, categories, currencies, places, highlightId, readOnly
           );
         })}
       <li className="relative flex items-baseline justify-between gap-4 px-3.5 py-3 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
-        <span className="value font-semibold">Total spent</span>
-        <span className="value flex flex-wrap justify-end gap-x-3 font-semibold tabular-nums">
+        <span className="value font-medium">Total spent</span>
+        <span className="value flex flex-wrap justify-end gap-x-3 font-medium tabular-nums">
           {subtotals.size > 0
             ? [...subtotals].map(([cur, amt]) => <span key={cur || "—"}>{fmtMoney(amt, cur)}</span>)
             : "—"}

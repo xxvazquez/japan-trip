@@ -53,7 +53,7 @@ export function TabBarOrRail() {
   const cell = (current: boolean, label: string, icon: IconName) => (
     <span
       className={[
-        "flex flex-col items-center gap-1 rounded-[10px] px-3.5 py-1.5 text-2xs font-medium transition-colors",
+        "flex flex-col items-center gap-1 rounded-[10px] px-3.5 py-1.5 text-2xs transition-colors",
         current ? "bg-accent/[0.14] text-accent" : "text-ink-faint group-hover:text-ink-soft",
       ].join(" ")}
     >

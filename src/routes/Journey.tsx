@@ -138,7 +138,7 @@ export default function Journey() {
             {j.gmapsDirections && (
               <li className={INSET_DIVIDER}>
                 <a href={j.gmapsDirections} target="_blank" rel="noopener" className="flex items-center justify-between gap-3 px-3.5 py-3">
-                  <span className="flex items-center gap-2 text-[0.9375rem] font-medium text-accent">
+                  <span className="flex items-center gap-2 text-[0.9375rem] text-accent">
                     <Icon name="map" size={15} /> Directions in Google Maps
                   </span>
                   <Icon name="chevron" size={14} className="-mr-1 shrink-0 text-ink-faint" />
@@ -291,7 +291,7 @@ export default function Journey() {
                         className="eyebrow"
                       />
                     )}
-                    <p className="mt-0.5 font-display text-[1.0625rem] font-medium leading-snug text-ink">
+                    <p className="mt-0.5 font-display text-[1.0625rem] leading-snug text-ink">
                       {ro ? (
                         <>{s.from || "—"}<Arrow className="mx-1.5" />{s.to || "—"}</>
                       ) : (
@@ -424,7 +424,7 @@ export default function Journey() {
           <ConfirmButton
             onConfirm={() => undoable("Journey deleted", () => { removeEntity("journeys", j.id); navigate("/logbook"); })}
             label="Delete journey"
-            className="w-full justify-center px-3.5 py-3 text-sm font-medium text-danger"
+            className="w-full justify-center px-3.5 py-3 text-sm text-danger"
           >
             Delete journey
           </ConfirmButton>
