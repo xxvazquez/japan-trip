@@ -54,6 +54,8 @@ export default {
       // selects, small buttons, thumbnails, content boxes. Bigger elements go
       // explicit: cards/insets `rounded-[12px]`, pills/chips `rounded-full`,
       // the app mark 22%. Tailwind's md/lg/xl scale stays available.
+      borderWidth: { DEFAULT: "var(--hair)" },
+      divideWidth: { DEFAULT: "var(--hair)" },
       borderRadius: {
         DEFAULT: "8px",
       },

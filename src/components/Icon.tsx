@@ -381,7 +381,7 @@ export function Icon({
   // stroke lives in the 24-unit viewBox, so it already scales with `size`; this
   // eases it down a touch at small sizes (≈1.25 at 12px → 1.5 at 22px) so the
   // 12–14px icons don't read heavier than the 20–22px header set. Explicit wins.
-  const sw = strokeWidth ?? Math.max(1.25, Math.min(1.5, 1.25 + (size - 12) * 0.025));
+  const sw = strokeWidth ?? Math.max(1.5, Math.min(1.9, 1.5 + (size - 12) * 0.03));
 
   return (
     <svg

@@ -81,8 +81,8 @@ export default defineConfig(({ command }) => ({
         scope: "/",
         display: "standalone",
         orientation: "portrait",
-        background_color: "#12151a",
-        theme_color: "#12151a",
+        background_color: "#000000",
+        theme_color: "#000000",
         icons: [
           { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
           { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },

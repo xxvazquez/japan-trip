@@ -30,18 +30,27 @@
 
   --ease-paper: cubic-bezier(0.22, 1, 0.36, 1);
   --tex-opacity: 0.03;
+  /* a separator: one device pixel on a 2x+ screen (iOS's 0.5pt hairline), a
+     full px where a half would blur away */
+  --hair: 1px;
   --sat: env(safe-area-inset-top, 0px);
   --sab: env(safe-area-inset-bottom, 0px);
 }
 
+@media (min-resolution: 2dppx) {
+  :root {
+    --hair: 0.5px;
+  }
+}
+
 html.dark {
-  --c-bg: 19 23 27;
-  --c-surface: 34 40 45;
-  --c-surface-2: 45 52 59;
-  --c-ink: 229 233 236;
-  --c-ink-soft: 177 187 194;
-  --c-ink-faint: 135 143 152;
-  --c-line: 45 53 60;
+  --c-bg: 0 0 0;
+  --c-surface: 28 28 30;
+  --c-surface-2: 44 44 46;
+  --c-ink: 245 245 247;
+  --c-ink-soft: 174 174 180;
+  --c-ink-faint: 138 138 144;
+  --c-line: 56 56 58;
 
   --c-accent: 134 167 222; /* indigo blue */
   --c-gold: 184 158 115;

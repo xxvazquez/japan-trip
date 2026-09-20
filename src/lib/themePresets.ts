@@ -8,8 +8,9 @@ export interface ThemePreset {
 }
 
 /**
- * Six palettes, each with its own clear character and its own neutral ramp —
- * no preset shares another's grey. "Ink & Moss" (index 0) is the house
+ * Six palettes, each with its own clear character and its own light neutral
+ * ramp — no preset shares another's light grey (dark mode shares the iOS ramp,
+ * see DARK_NEUTRAL). "Ink & Moss" (index 0) is the house
  * default — a cool-grey ramp with a clear indigo-blue accent. The other five each
  * carry a faint tint of their own accent through bg/surface/ink (barely a
  * cast, still reads as native-app grey) so they're distinguishable at a
@@ -44,6 +45,14 @@ const MATCHA = { light: "#6f826c", dark: "#8b9d86" };
 const AI = { light: "#71869a", dark: "#90a3b6" };
 const DANGER = { light: "#c8443e", dark: "#e06b66" };
 
+/** Dark neutrals, shared by every preset: the iOS dark ramp — true black page,
+ *  #1C1C1E cards, #2C2C2E for the next level up, #38383A separators. Only the
+ *  accent (and light-mode ramp) tell the presets apart in dark. */
+const DARK_NEUTRAL = {
+  bg: "#000000", surface: "#1c1c1e", "surface-2": "#2c2c2e",
+  ink: "#f5f5f7", "ink-soft": "#aeaeb4", "ink-faint": "#8a8a90", line: "#38383a",
+};
+
 export const THEME_PRESETS: ThemePreset[] = [
   {
     id: "ink-moss",
@@ -56,8 +65,7 @@ export const THEME_PRESETS: ThemePreset[] = [
         accent: "#3f66a6", gold: GOLD.light, matcha: MATCHA.light, ai: AI.light, danger: DANGER.light,
       },
       dark: {
-        bg: "#13171b", surface: "#22282d", "surface-2": "#2d343b",
-        ink: "#e5e9ec", "ink-soft": "#b1bbc2", "ink-faint": "#878f98", line: "#2d353c",
+        ...DARK_NEUTRAL,
         accent: "#86a7de", gold: GOLD.dark, matcha: MATCHA.dark, ai: AI.dark, danger: DANGER.dark,
       },
     },
@@ -73,8 +81,7 @@ export const THEME_PRESETS: ThemePreset[] = [
         accent: "#2f6c94", gold: GOLD.light, matcha: MATCHA.light, ai: AI.light, danger: DANGER.light,
       },
       dark: {
-        bg: "#0d1114", surface: "#1a2027", "surface-2": "#242c34",
-        ink: "#eef2f5", "ink-soft": "#aab5bd", "ink-faint": "#7e8991", line: "#2c353d",
+        ...DARK_NEUTRAL,
         accent: "#82b3d6", gold: GOLD.dark, matcha: MATCHA.dark, ai: AI.dark, danger: DANGER.dark,
       },
     },
@@ -90,8 +97,7 @@ export const THEME_PRESETS: ThemePreset[] = [
         accent: "#2b7d7d", gold: GOLD.light, matcha: MATCHA.light, ai: AI.light, danger: DANGER.light,
       },
       dark: {
-        bg: "#0c1211", surface: "#19211f", "surface-2": "#232c29",
-        ink: "#ecf2f0", "ink-soft": "#a8b6b2", "ink-faint": "#7c8985", line: "#2b3532",
+        ...DARK_NEUTRAL,
         accent: "#6fc0c0", gold: GOLD.dark, matcha: MATCHA.dark, ai: AI.dark, danger: DANGER.dark,
       },
     },
@@ -107,8 +113,7 @@ export const THEME_PRESETS: ThemePreset[] = [
         accent: "#7a4c96", gold: GOLD.light, matcha: MATCHA.light, ai: AI.light, danger: DANGER.light,
       },
       dark: {
-        bg: "#100d15", surface: "#1e1a24", "surface-2": "#29232f",
-        ink: "#efecf2", "ink-soft": "#b3a9bf", "ink-faint": "#857a90", line: "#322b3a",
+        ...DARK_NEUTRAL,
         accent: "#b48fd0", gold: GOLD.dark, matcha: MATCHA.dark, ai: AI.dark, danger: DANGER.dark,
       },
     },
@@ -124,8 +129,7 @@ export const THEME_PRESETS: ThemePreset[] = [
         accent: "#4a7c3f", gold: GOLD.light, matcha: MATCHA.light, ai: AI.light, danger: DANGER.light,
       },
       dark: {
-        bg: "#0e130b", surface: "#1b2117", "surface-2": "#252c20",
-        ink: "#ecf1e7", "ink-soft": "#a9b49f", "ink-faint": "#7c8672", line: "#2d352a",
+        ...DARK_NEUTRAL,
         accent: "#90bd82", gold: GOLD.dark, matcha: MATCHA.dark, ai: AI.dark, danger: DANGER.dark,
       },
     },
@@ -141,8 +145,7 @@ export const THEME_PRESETS: ThemePreset[] = [
         accent: "#b04a3a", gold: GOLD.light, matcha: MATCHA.light, ai: AI.light, danger: DANGER.light,
       },
       dark: {
-        bg: "#150f0e", surface: "#241c1a", "surface-2": "#2f2624",
-        ink: "#f1e6e3", "ink-soft": "#bda9a5", "ink-faint": "#8f7d7a", line: "#38302c",
+        ...DARK_NEUTRAL,
         accent: "#dd8a78", gold: GOLD.dark, matcha: MATCHA.dark, ai: AI.dark, danger: DANGER.dark,
       },
     },

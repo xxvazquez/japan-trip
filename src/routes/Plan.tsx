@@ -323,7 +323,7 @@ function DayCard({ day, loc, data }: { day: Day; loc: string; data: TripData }) 
  *  which sits outside the link) — dropped on the last row, like every other
  *  grouped-inset list. */
 const DAY_ROW_LI =
-  "relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden";
+  "relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
 
 function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day: Day; today: boolean; loc: string; readOnly: boolean; hex: string }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: day.id, disabled: readOnly });

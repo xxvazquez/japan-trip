@@ -70,4 +70,21 @@ describe("normalizeTrip migrations", () => {
       expect(Array.isArray(d[k])).toBe(true);
     }
   });
+
+  it("moves a saved dark palette onto the iOS neutrals but keeps a custom accent and colours", () => {
+    const d = normalizeTrip({
+      config: {
+        themePreset: "slate",
+        theme: {
+          light: {},
+          dark: { bg: "#0d1114", surface: "#1a2027", ink: "#ff00ff", accent: "#123456" },
+        },
+      },
+      meta: {},
+    } as unknown as TripData);
+    expect(d.config.theme.dark.bg).toBe("#000000");
+    expect(d.config.theme.dark.surface).toBe("#1c1c1e");
+    expect(d.config.theme.dark.ink).toBe("#ff00ff"); // hand-picked, not a known old value
+    expect(d.config.theme.dark.accent).toBe("#123456");
+  });
 });

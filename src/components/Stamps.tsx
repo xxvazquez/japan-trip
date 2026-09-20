@@ -30,7 +30,7 @@ const CARD_TONES = ["bg-accent", "bg-matcha", "bg-gold", "bg-ai"];
 /** `?section=` values that aren't a section's own name */
 const COLLECTED = "__collected";
 const NONE = "__none";
-const ROW = "relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden";
+const ROW = "relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
 
 /** A bottom sheet / popover listing the sections a stamp (or a selection) can
  *  move to, plus a fresh one. `current` is left out of the list. */

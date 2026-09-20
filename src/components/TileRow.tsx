@@ -47,7 +47,7 @@ export function TileRow({
   // the grouped inset clips its overflow, so pull the focus ring inward
   const cls = `flex w-full items-center gap-3 px-3.5 py-3 text-left focus-visible:[outline-offset:-2px] ${className}`;
   // own hairline, inset past the tile (14px pad + 22px tile + 12px gap), gone on the last row
-  const li = "relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden";
+  const li = "relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
   return (
     <li className={li}>
       {to ? (

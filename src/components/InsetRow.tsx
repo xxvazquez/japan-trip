@@ -16,7 +16,7 @@ import { Icon } from "./Icon";
 /** The inset hairline for a grouped-list `<li>` — for hand-rolled rows that
  *  can't use `<InsetRow>` (an external-link row, a custom cell). */
 export const INSET_DIVIDER =
-  "relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden";
+  "relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
 const LI = INSET_DIVIDER;
 
 export function InsetRow({

@@ -212,7 +212,7 @@ function ListSection({ list }: { list: CustomList }) {
         {list.items.map((it, i) => (
           <li
             key={it.id}
-            className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden"
+            className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden"
           >
             <SwipeToDelete undoLabel="Item removed" onDelete={ro ? undefined : () => set((l) => { l.items.splice(i, 1); })}>
             <div className="flex items-start gap-2 px-3.5 py-3">
@@ -912,7 +912,7 @@ function PackRow({ item, ro, people, tagged, onToggle, onLabel, onAssign, onRemo
   const showAssign = people.length >= 2;
   const pill = showAssign && <AssignPill value={item.assignee} people={people} tagged={tagged} readOnly={ro} onChange={onAssign} />;
 
-  const liOuter = "relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-px after:bg-line last:after:hidden";
+  const liOuter = "relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
   const rowInner = "flex items-center gap-3 px-3.5 py-3 text-sm";
   if (ro) {
     return (

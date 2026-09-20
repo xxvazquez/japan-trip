@@ -205,7 +205,7 @@ function Trips() {
         {live.map((t) => {
           const isDemo = t.templateId === "demo";
           return (
-            <li key={t.id} className="relative flex items-baseline gap-3 px-3.5 py-3 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
+            <li key={t.id} className="relative flex items-baseline gap-3 px-3.5 py-3 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
               <span className="min-w-0 flex-1">
                 {isDemo ? (
                   <span className="lead">{t.name}</span>
@@ -1178,7 +1178,7 @@ function Content() {
     const isOpen = open === type;
     const blocked = addBlockedReason(type);
     return (
-      <div className="relative px-3.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
+      <div className="relative px-3.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
         <button onClick={() => setOpen(isOpen ? null : type)} className="flex w-full items-baseline justify-between gap-3 py-3 text-left">
           <span className="text-[1.0625rem] leading-snug text-ink">{ENTITY_LABELS[type]}</span>
           <span className="flex items-center gap-2">

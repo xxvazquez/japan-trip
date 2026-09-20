@@ -205,6 +205,23 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
     if (fix) d.config.theme.dark[key] = fix;
   }
 
+  // dark mode moved to the iOS neutral ramp (true black page, #1C1C1E cards).
+  // Remap each preset's previous dark neutral — only exact old values, so a
+  // hand-tuned custom colour is left alone; the accent is never touched.
+  const IOS_DARK: Record<"bg" | "surface" | "surface-2" | "ink" | "ink-soft" | "ink-faint" | "line", [string[], string]> = {
+    bg: [["#13171b", "#0d1114", "#0c1211", "#100d15", "#0e130b", "#150f0e"], "#000000"],
+    surface: [["#22282d", "#1a2027", "#19211f", "#1e1a24", "#1b2117", "#241c1a"], "#1c1c1e"],
+    "surface-2": [["#2d343b", "#242c34", "#232c29", "#29232f", "#252c20", "#2f2624"], "#2c2c2e"],
+    ink: [["#e5e9ec", "#eef2f5", "#ecf2f0", "#efecf2", "#ecf1e7", "#f1e6e3"], "#f5f5f7"],
+    "ink-soft": [["#b1bbc2", "#aab5bd", "#a8b6b2", "#b3a9bf", "#a9b49f", "#bda9a5"], "#aeaeb4"],
+    "ink-faint": [["#878f98", "#7e8991", "#7c8985", "#857a90", "#7c8672", "#8f7d7a"], "#8a8a90"],
+    line: [["#2d353c", "#2c353d", "#2b3532", "#322b3a", "#2d352a", "#38302c"], "#38383a"],
+  };
+  for (const key of Object.keys(IOS_DARK) as (keyof typeof IOS_DARK)[]) {
+    const now = d.config.theme.dark[key]?.toLowerCase();
+    if (now && IOS_DARK[key][0].includes(now)) d.config.theme.dark[key] = IOS_DARK[key][1];
+  }
+
   d.meta = {
     title: (meta.title as string) || (d.config.branding as string) || "Trip",
     start: (meta.start as string) || today(),

@@ -61,7 +61,7 @@ export function FieldList({
   // hairline) — the caller owns the plain `<ul>`, so a fixed system row (a
   // price) can sit in the same group. Default mode is self-contained.
   const insetLi =
-    "relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden";
+    "relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
 
   if (ro) {
     if (fields.length === 0) return null;
