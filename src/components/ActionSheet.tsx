@@ -1,5 +1,6 @@
 import { useEffect, useReducer, useRef, useState, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
+import { useSheetDrag } from "./useSheetDrag";
 
 const isNarrow = () =>
   typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches;
@@ -32,6 +33,7 @@ export function ActionSheet({
   const menuRef = useRef<HTMLDivElement>(null);
   const [menuWidth, setMenuWidth] = useState(0);
   const [menuHeight, setMenuHeight] = useState(0);
+  const { sheetRef, handleProps } = useSheetDrag(onClose);
 
   useEffect(() => {
     if (!open) return;
@@ -61,12 +63,16 @@ export function ActionSheet({
       <>
         <div className="fixed inset-0 z-50 bg-black/40 motion-safe:animate-fade-in" onClick={onClose} />
         <div
+          ref={sheetRef}
           className="fixed inset-x-0 bottom-0 z-[55] flex max-h-[85vh] flex-col rounded-t-[16px] border-t border-line bg-surface pb-[max(0.75rem,var(--sab))] pt-2 motion-safe:animate-sheet-up"
           onClick={onClose}
           role="menu"
         >
-          <span aria-hidden className="mx-auto mb-1.5 block h-1 w-9 shrink-0 rounded-full bg-ink/20" />
-          {title && <p className="shrink-0 px-4 pb-1 pt-1 text-xs text-ink-faint">{title}</p>}
+          {/* the grabber + title strip — drag it down to dismiss */}
+          <div {...handleProps} className="shrink-0 cursor-grab touch-none">
+            <span aria-hidden className="mx-auto mb-1.5 block h-1 w-9 rounded-full bg-ink/20" />
+            {title && <p className="px-4 pb-1 pt-1 text-xs text-ink-faint">{title}</p>}
+          </div>
           <div className="flex-1 overflow-y-auto overscroll-contain [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-4 [&_.menu-item]:py-3.5 [&_.menu-item]:text-left [&_.menu-item]:text-[17px] [&_.menu-item:disabled]:opacity-40 [&_.menu-item:active]:bg-surface-2">
             {children}
           </div>

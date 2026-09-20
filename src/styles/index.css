@@ -112,6 +112,21 @@ html.dark {
   summary {
     -webkit-touch-callout: none;
   }
+  /* UI text isn't selectable, as in a native app — only inputs, notes and
+   * anything marked .selectable are. (iOS Safari needs inputs re-enabled
+   * explicitly or they can't take focus inside a user-select:none tree.) */
+  body {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  input,
+  textarea,
+  [contenteditable],
+  .selectable,
+  .note {
+    -webkit-user-select: text;
+    user-select: text;
+  }
   ::selection {
     background: rgb(var(--c-accent) / 0.16);
   }

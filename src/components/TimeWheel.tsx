@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, type KeyboardEvent, type RefObject } from "react";
 import { createPortal } from "react-dom";
+import { useSheetDrag } from "./useSheetDrag";
 
 const HOURS = Array.from({ length: 24 }, (_, h) => String(h).padStart(2, "0"));
 const MINUTES = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, "0"));
@@ -170,6 +171,7 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, onPick,
   onPick: (h: string, m: string) => void;
   onClear: () => void;
 }) {
+  const { sheetRef, handleProps } = useSheetDrag(onClose);
   useEffect(() => {
     if (!open) return;
     const onKey = (e: globalThis.KeyboardEvent) => e.key === "Escape" && onClose();
@@ -194,8 +196,10 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, onPick,
     return createPortal(
       <>
         <div className="fixed inset-0 z-50 bg-black/40 motion-safe:animate-fade-in" onClick={onClose} />
-        <div className="fixed inset-x-0 bottom-0 z-[55] flex flex-col rounded-t-[16px] border-t border-line bg-surface pb-[max(0.75rem,var(--sab))] pt-2 motion-safe:animate-sheet-up">
-          <span aria-hidden className="mx-auto mb-1.5 block h-1 w-9 shrink-0 rounded-full bg-ink/20" />
+        <div ref={sheetRef} className="fixed inset-x-0 bottom-0 z-[55] flex flex-col rounded-t-[16px] border-t border-line bg-surface pb-[max(0.75rem,var(--sab))] pt-2 motion-safe:animate-sheet-up">
+          <div {...handleProps} className="shrink-0 cursor-grab touch-none pb-1">
+            <span aria-hidden className="mx-auto mb-1.5 block h-1 w-9 rounded-full bg-ink/20" />
+          </div>
           <div className="flex items-center justify-between px-4 pb-2">
             <button type="button" onClick={onClear} className="text-[17px] text-danger">Clear</button>
             <button type="button" onClick={onClose} className="text-[17px] font-medium text-accent">Done</button>

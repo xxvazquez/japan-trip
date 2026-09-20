@@ -25,7 +25,7 @@ export function Markdown({
   onToggleCheck?: (line: number, checked: boolean) => void;
 }) {
   const blocks = parseBlocks(text.replace(/\r\n?/g, "\n"));
-  return <div className={`space-y-2.5 ${className}`}>{blocks.map((b, i) => renderBlock(b, i, onToggleCheck))}</div>;
+  return <div className={`selectable space-y-2.5 ${className}`}>{blocks.map((b, i) => renderBlock(b, i, onToggleCheck))}</div>;
 }
 
 type ListItem = { text: string; line: number; checked?: boolean };

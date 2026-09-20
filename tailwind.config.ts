@@ -90,7 +90,8 @@ export default {
       animation: {
         "fade-up": "fade-up 0.32s var(--ease-paper) both",
         "fade-in": "fade-in 0.15s ease-out both",
-        "sheet-up": "sheet-up 0.24s var(--ease-paper) both",
+        // `backwards`, not `both`: after it ends the sheet must be free to follow a drag
+        "sheet-up": "sheet-up 0.24s var(--ease-paper) backwards",
         "enso-spin": "enso-spin 1.1s linear infinite",
         "stamp-press": "stamp-press 0.28s var(--ease-paper) both",
       },
