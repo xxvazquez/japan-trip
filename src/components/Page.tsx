@@ -1,4 +1,4 @@
-import { useId, useState, type ReactNode } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 import { useNavRegistration } from "./NavBar";
 import { Icon } from "./Icon";
 
@@ -70,7 +70,14 @@ export function PageHeader({
   const infoId = useId();
   // the back button and the collapsed small title live in the nav bar
   const [h1, setH1] = useState<HTMLHeadingElement | null>(null);
-  useNavRegistration(h1, back ? { to: typeof back === "string" ? back : undefined } : undefined, h1?.textContent ?? "");
+  // the title's text, read after each render (so a renamed title isn't one
+  // render behind); an <Editable> mid-edit has no text, so keep the last one
+  const [titleText, setTitleText] = useState("");
+  useEffect(() => {
+    const t = h1?.textContent?.trim();
+    if (t && t !== titleText) setTitleText(t);
+  });
+  useNavRegistration(h1, back ? { to: typeof back === "string" ? back : undefined } : undefined, titleText);
   return (
     <header className={`mb-8 ${className}`}>
       {eyebrow ? (
