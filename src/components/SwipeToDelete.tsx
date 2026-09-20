@@ -131,7 +131,7 @@ export function SwipeToDelete({
         style={{
           transform: `translateX(${dx}px)`,
           touchAction: "pan-y",
-          transition: dragging.current ? "none" : "transform 0.22s var(--ease-paper)",
+          transition: dragging.current ? "none" : "transform 0.32s var(--ease-spring)",
         }}
       >
         {children}

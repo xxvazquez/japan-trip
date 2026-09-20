@@ -28,7 +28,8 @@
   --c-ai: 113 134 154; /* transit blue-grey */
   --c-danger: 200 68 62; /* destructive — swipe-to-delete, "Delete" in a sheet */
 
-  --ease-paper: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-paper: cubic-bezier(0.32, 0.72, 0, 1); /* iOS's own push / sheet curve */
+  --ease-spring: cubic-bezier(0.34, 1.45, 0.64, 1); /* a small overshoot — toggles, snap-backs */
   --tex-opacity: 0.03;
   /* a separator: one device pixel on a 2x+ screen (iOS's 0.5pt hairline), a
      full px where a half would blur away */
@@ -331,7 +332,7 @@ html.dark {
 
   /* an inline add / secondary action the eye can find */
   .action {
-    @apply inline-flex items-center gap-1.5 text-sm text-accent transition-opacity hover:opacity-70;
+    @apply inline-flex items-center gap-1.5 text-sm text-accent transition-opacity hover:opacity-70 active:opacity-50;
   }
   /* a low-key text action ("remove", "not a day trip") — caller sets the size */
   .link-quiet {
@@ -342,10 +343,10 @@ html.dark {
    * target. `.btn` is the quiet grey (iOS `.bordered`); `.btn-primary` the
    * prominent fill; `.btn-sm` a pill for inline chip actions. */
   .btn {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-[10px] bg-surface-2 px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-line/60 disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-1.5 rounded-[10px] bg-surface-2 px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-line/60 active:bg-line disabled:opacity-50;
   }
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-1.5 rounded-[10px] bg-ink px-4 py-2 text-sm font-medium text-bg transition-opacity hover:opacity-90 disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-1.5 rounded-[10px] bg-ink px-4 py-2 text-sm font-medium text-bg transition-opacity hover:opacity-90 active:opacity-70 disabled:opacity-50;
   }
   /* the one pill: 32px tall, filled (iOS capsule, no outline), label centred.
    * Filters, area tags, toggles and small actions all share it so a row of
@@ -355,7 +356,7 @@ html.dark {
    * `.chip-icon` is the same chip with only a glyph — a 32px square. */
   .chip,
   .btn-sm {
-    @apply inline-flex h-[32px] shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-[8px] bg-surface-2 px-3 text-xs font-medium leading-none text-ink-soft transition-colors hover:bg-line/60 disabled:opacity-30;
+    @apply inline-flex h-[32px] shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-[8px] bg-surface-2 px-3 text-xs font-medium leading-none text-ink-soft transition-colors hover:bg-line/60 active:bg-line disabled:opacity-30;
   }
   .chip[aria-pressed="true"],
   .chip-on {
@@ -374,10 +375,10 @@ html.dark {
  * ------------------------------------------------------------------ */
 @media (prefers-reduced-motion: no-preference) {
   ::view-transition-old(root) {
-    animation: vt-out 0.26s var(--ease-paper) both;
+    animation: vt-out 0.32s var(--ease-paper) both;
   }
   ::view-transition-new(root) {
-    animation: vt-in 0.3s var(--ease-paper) both;
+    animation: vt-in 0.4s var(--ease-paper) both;
   }
 }
 @keyframes vt-out {

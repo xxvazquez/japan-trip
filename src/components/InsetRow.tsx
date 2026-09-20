@@ -54,7 +54,7 @@ export function InsetRow({
   if (to) {
     return (
       <li className={LI}>
-        <Link to={to} className={`flex items-center justify-between gap-3 px-3.5 py-3 transition-colors hover:bg-surface-2/40 focus-visible:[outline-offset:-2px] ${className}`}>
+        <Link to={to} className={`flex items-center justify-between gap-3 px-3.5 py-3 transition-colors duration-150 hover:bg-surface-2/40 active:bg-ink/[0.07] focus-visible:[outline-offset:-2px] ${className}`}>
           {inner}
         </Link>
       </li>

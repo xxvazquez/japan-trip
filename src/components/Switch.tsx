@@ -22,12 +22,12 @@ export function Switch({
       aria-label={label}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-[31px] w-[51px] shrink-0 items-center rounded-full transition-colors before:absolute before:-inset-x-1 before:-inset-y-2.5 before:content-[''] disabled:opacity-50 ${
+      className={`relative inline-flex h-[31px] w-[51px] shrink-0 items-center rounded-full transition-colors duration-200 before:absolute before:-inset-x-1 before:-inset-y-2.5 before:content-[''] disabled:opacity-50 ${
         checked ? "bg-accent" : "bg-ink/20"
       }`}
     >
       <span
-        className={`inline-block h-[27px] w-[27px] rounded-full bg-white shadow transition-transform ${
+        className={`inline-block h-[27px] w-[27px] rounded-full bg-white shadow transition-transform duration-300 ease-spring ${
           checked ? "translate-x-[22px]" : "translate-x-[2px]"
         }`}
       />

@@ -55,7 +55,7 @@ export function TabBarOrRail() {
       className={[
         // phone: iOS tab bar — icon over label, only the tint changes; the
         // left rail (md+) keeps the soft pill behind the current item
-        "flex flex-col items-center justify-center gap-0.5 text-2xs tracking-normal transition-colors md:gap-1 md:rounded-[10px] md:px-3.5 md:py-1.5",
+        "flex flex-col items-center justify-center gap-0.5 text-2xs tracking-normal transition-colors group-active:opacity-60 md:gap-1 md:rounded-[10px] md:px-3.5 md:py-1.5",
         current ? "text-accent md:bg-accent/[0.14]" : "text-ink-faint group-hover:text-ink-soft",
       ].join(" ")}
     >
