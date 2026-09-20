@@ -105,6 +105,9 @@ export interface TripConfig {
   lists?: CustomList[];
   /** the Logbook's stamp tracker — stamps to collect, ticked off as you get them */
   stamps?: StampItem[];
+  /** a stamp section's name in the local script (section name → local name),
+   *  drawn as a ghosted watermark on the section's card */
+  stampSections?: Record<string, string>;
   /** the trip's expense categories, in display order — every spending row and
    *  fare groups under one in the Expenses view. Seeded on load; never empty. */
   expenseCategories?: ExpenseCategory[];

@@ -72,8 +72,13 @@ function MoveRow({ count, children }: { count: number; children: ReactNode }) {
  *  under the next so only its top strip — name and count — peeks out; the last
  *  card shows whole, with a dot per stamp (filled = collected). Pinned above a
  *  section's list it's a plain `div`, so its title can be an `<Editable>`. */
-function StampCard({ title, done, total, tone, dots, onClick, stacked }: {
+function StampCard({ title, sub, local, font, done, total, tone, dots, onClick, stacked }: {
   title: ReactNode;
+  /** a line under the title (the section's local-script name, editable) */
+  sub?: ReactNode;
+  /** the section's local-script name, ghosted behind the card */
+  local?: string;
+  font?: string;
   done: number;
   total: number;
   tone: string;
@@ -81,16 +86,28 @@ function StampCard({ title, done, total, tone, dots, onClick, stacked }: {
   onClick?: () => void;
   stacked?: boolean;
 }) {
-  const cls = `${tone} relative flex min-h-[9.25rem] w-full flex-col justify-between rounded-[16px] px-4 py-3.5 text-left text-white ${
+  const cls = `${tone} relative flex min-h-[9.25rem] w-full flex-col overflow-hidden justify-between rounded-[16px] px-4 py-3.5 text-left text-white ${
     stacked ? "-mt-[5.75rem] shadow-[0_-3px_8px_-3px_rgb(0_0_0/0.28)]" : ""
   }`;
   const inner = (
     <>
-      <span className="flex items-baseline justify-between gap-3">
-        <span className="min-w-0 break-words text-[1.0625rem] font-medium leading-snug">{title}</span>
+      {local && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -bottom-3 right-3 select-none text-[5.25rem] font-medium leading-none text-white/20"
+          style={font ? { fontFamily: font } : undefined}
+        >
+          {local}
+        </span>
+      )}
+      <span className="relative flex items-baseline justify-between gap-3">
+        <span className="min-w-0 break-words text-[1.0625rem] font-medium leading-snug [&_input]:text-ink [&_.editable]:text-white">
+          {title}
+          {sub && <span className="block text-[0.8125rem] font-normal">{sub}</span>}
+        </span>
         <span className="shrink-0 text-[0.875rem] tabular-nums">{done} / {total}</span>
       </span>
-      <span className="flex flex-wrap gap-1.5" aria-hidden>
+      <span className="relative flex flex-wrap gap-1.5" aria-hidden>
         {dots.slice(0, 40).map((d, i) => (
           <span key={i} className={`h-3.5 w-3.5 rounded-full border-[1.5px] ${d ? "border-white bg-white" : "border-white/70"}`} />
         ))}
@@ -147,10 +164,25 @@ export function Stamps() {
     });
   const removeIds = (ids: string[]) =>
     set((l) => { for (let k = l.length - 1; k >= 0; k--) if (ids.includes(l[k].id)) l.splice(k, 1); });
+  const localOf = (g: string) => data.config.stampSections?.[g];
+  const setLocal = (g: string, v: string) =>
+    mutate((d) => {
+      const m = (d.config.stampSections ??= {});
+      if (v) m[g] = v;
+      else delete m[g];
+      if (!Object.keys(m).length) delete d.config.stampSections;
+    });
   const rename = (from: string, to: string) => {
     const next = to.trim();
     if (!next || next === from) return;
-    set((l) => { for (const s of l) if ((s.group ?? "") === from) s.group = next; });
+    mutate((d) => {
+      for (const s of d.config.stamps ?? []) if ((s.group ?? "") === from) s.group = next;
+      const m = d.config.stampSections;
+      if (m?.[from]) {
+        m[next] ??= m[from];
+        delete m[from];
+      }
+    });
   };
   const togglePick = (id: string) =>
     setPicked((p) => {
@@ -366,7 +398,10 @@ export function Stamps() {
                 <button
                   className="menu-item text-danger"
                   onClick={() => {
-                    undoable("Section removed", () => removeIds(groups.get(openGroup!)!.map((r) => r.item.id)));
+                    undoable("Section removed", () => {
+                      removeIds(groups.get(openGroup!)!.map((r) => r.item.id));
+                      setLocal(openGroup!, "");
+                    });
                     goto(null, true);
                   }}
                 >
@@ -440,6 +475,8 @@ export function Stamps() {
                 stacked={n > 0}
                 tone={toneFor(g)}
                 title={g || "Ungrouped"}
+                local={localOf(g)}
+                font={data.config.localScriptFont}
                 done={list.filter((r) => r.item.done).length}
                 total={list.length}
                 dots={list.map((r) => !!r.item.done)}
@@ -475,6 +512,13 @@ export function Stamps() {
                   ? openGroup
                   : <Editable label="Section name" value={openGroup} placeholder="Section name" onCommit={(v) => { rename(openGroup, v); if (v.trim()) goto(v.trim(), true); }} />)
               : "Ungrouped"}
+            sub={openGroup
+              ? (plain
+                  ? localOf(openGroup)
+                  : <Editable label="Local name" value={localOf(openGroup) ?? ""} placeholder="＋ local name" onCommit={(v) => setLocal(openGroup, v.trim())} />)
+              : undefined}
+            local={openGroup ? localOf(openGroup) : undefined}
+            font={data.config.localScriptFont}
             done={rows!.filter((r) => r.item.done).length}
             total={rows!.length}
             dots={groups.get(openGroup!)!.map((r) => !!r.item.done)}

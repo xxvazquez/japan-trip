@@ -253,7 +253,7 @@ the total spent — and nothing when it's empty.
   between your own order and A–Z (a per-device setting). The search field filters by name,
   local-script name, note or section, and lists the matches flat. Tap a card to open that
   section: the card pins to the top and its stamps list below it — tap a section's name to
-  rename it, its ⋯ menu adds a stamp or deletes the section, and **‹ Stamps** (or swipe back)
+  rename it, add a name in the local script under it (it shows ghosted behind the card, here and in the stack), its ⋯ menu adds a stamp or deletes the section, and **‹ Stamps** (or swipe back)
   returns to the stack. Each stamp has a name, a note for where to find it and what it costs, and
   a circle you tap to collect it (it stays in place). The **Collected** row under the stack opens
   every collected stamp across sections, showing which section each came from; tapping one there
