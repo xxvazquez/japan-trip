@@ -74,7 +74,7 @@ never chosen by hand.
   - its own quiet note line underneath (bold, bullets, links) — tap to expand and edit
   - a link to the map, if the step is tied to a place
   - if the step is tied to a place, one quiet line with two walks side by side, each spelled out
-    rather than left to the icon alone: 🚶 "Walk to &lt;next step&gt; ≈ 9 min · 0.8 km" (when that one
+    rather than left to the icon alone: 🚶 "Walk to next stop ≈ 9 min · 0.8 km" (when that one
     is tied to a place too), and 🚆 "Walk to &lt;station&gt; ≈ 3 min · 195 m" — the walk to the nearest
     metro/train station from here, using the same station lookup the Map tab uses. Time and distance
     always show together: a straight-line estimate first, replaced by an actual walking route once

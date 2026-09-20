@@ -854,7 +854,7 @@ function PlaceHoursLine({ place, date }: { place: Place; date?: string }) {
   );
 }
 
-/** one caption of the walk figures — 🚶 "Walk to X ≈ 2h 2min · 9.8 km" (straight
+/** one caption of the walk figures — 🚶 "Walk to next stop ≈ 2h 2min · 9.8 km" (straight
  *  to the next step) and 🚆 "Walk to Y ≈ 1 min · 84 m" (to the nearest station
  *  from here) — side by side on one line, each spelling out what it's a
  *  distance *to* rather than leaning on the icon alone (the train icon on the
@@ -906,17 +906,17 @@ function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }
   return (
     <>
       {(next || (station && toStation)) && (
-        <span className="meta flex flex-wrap gap-x-3 gap-y-0.5 text-ink-faint">
+        <span className="meta flex flex-wrap gap-x-3 gap-y-0.5 text-[0.8125rem] text-ink-faint">
           {next && nextPlace && (
             <span className={piece}>
               <Icon name="walk" size={12} className="mt-[3px] shrink-0" />
-              <span className="min-w-0">Walk to {nextPlace.name} <span className="whitespace-nowrap">{fmtWalk(next)}</span></span>
+              <span className="min-w-0">Walk to next stop {fmtWalk(next)}</span>
             </span>
           )}
           {station && toStation && (
             <span className={piece}>
               <Icon name="train" size={12} className="mt-[3px] shrink-0" />
-              <span className="min-w-0">Walk to {station.name} <span className="whitespace-nowrap">{fmtWalk(toStation)}</span></span>
+              <span className="min-w-0">Walk to {station.name} {fmtWalk(toStation)}</span>
             </span>
           )}
           {long && nextPlace && station && nextStation && station.name !== nextStation.name && (
