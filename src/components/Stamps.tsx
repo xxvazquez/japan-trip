@@ -86,7 +86,7 @@ function StampCard({ title, sub, local, font, done, total, tone, dots, onClick, 
   onClick?: () => void;
   stacked?: boolean;
 }) {
-  const cls = `${tone} relative flex min-h-[9.25rem] w-full flex-col overflow-hidden justify-between rounded-[16px] px-4 py-3.5 text-left text-white ${
+  const cls = `${tone} relative flex min-h-[9.25rem] w-full flex-col overflow-hidden justify-between rounded-[16px] px-4 py-3.5 text-left text-white dark:text-bg ${
     stacked ? "-mt-[5.75rem] shadow-[0_-3px_8px_-3px_rgb(0_0_0/0.28)]" : ""
   }`;
   const inner = (
@@ -94,14 +94,14 @@ function StampCard({ title, sub, local, font, done, total, tone, dots, onClick, 
       {local && (
         <span
           aria-hidden
-          className="pointer-events-none absolute -bottom-3 right-3 select-none text-[5.25rem] font-medium leading-none text-white/20"
+          className="pointer-events-none absolute -bottom-3 right-3 select-none text-[5.25rem] font-medium leading-none opacity-20"
           style={font ? { fontFamily: font } : undefined}
         >
           {local}
         </span>
       )}
       <span className="relative flex items-baseline justify-between gap-3">
-        <span className="min-w-0 break-words text-[1.0625rem] font-medium leading-snug [&_input]:text-ink [&_.editable]:text-white">
+        <span className="min-w-0 break-words text-[1.0625rem] font-medium leading-snug [&_input]:text-ink [&_.editable]:text-white dark:[&_.editable]:text-bg">
           {title}
           {sub && <span className="block text-[0.8125rem] font-normal">{sub}</span>}
         </span>
@@ -109,7 +109,7 @@ function StampCard({ title, sub, local, font, done, total, tone, dots, onClick, 
       </span>
       <span className="relative flex flex-wrap gap-1.5" aria-hidden>
         {dots.slice(0, 40).map((d, i) => (
-          <span key={i} className={`h-3.5 w-3.5 rounded-full border-[1.5px] ${d ? "border-white bg-white" : "border-white/70"}`} />
+          <span key={i} className={`h-3.5 w-3.5 rounded-full border-[1.5px] ${d ? "border-current bg-current" : "border-current opacity-70"}`} />
         ))}
       </span>
     </>
@@ -423,13 +423,13 @@ export function Stamps() {
             enterKeyHint="search"
             autoComplete="off"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => { setQuery(e.target.value); if (!e.target.value.trim()) stopSelecting(); }}
             placeholder="Search"
             aria-label="Search stamps"
             className="w-full rounded-[10px] bg-ink/[0.06] py-2 pl-9 pr-9 text-[0.9375rem] text-ink outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-accent/40"
           />
           {query && (
-            <button onClick={() => setQuery("")} aria-label="Clear search" className="tap absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink-soft">
+            <button onClick={() => { setQuery(""); stopSelecting(); }} aria-label="Clear search" className="tap absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink-soft">
               <Icon name="close" size={14} />
             </button>
           )}
@@ -489,7 +489,7 @@ export function Stamps() {
               <ul>
                 <li className={INSET_DIVIDER}>
                   <button onClick={() => goto(COLLECTED)} className="flex w-full items-center gap-3 px-3.5 py-3 text-left">
-                    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-accent text-white">
+                    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-accent text-white dark:text-bg">
                       <Icon name="check" size={14} strokeWidth={2.75} />
                     </span>
                     <span className="flex-1 text-[0.9375rem] text-ink">Collected</span>
