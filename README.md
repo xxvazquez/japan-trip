@@ -247,8 +247,12 @@ the total spent — and nothing when it's empty.
   fold away; with two or more travellers set (Manage → Setup) each item gets an **assign** pill (a
   traveller's initial, **Shared**, or **—**).
 - **Stamps** — a checklist of stamps to collect (station stamps, temple seals, castle stamps).
-  Add each with a name and a note for where to find it and what it costs, then tick it off when you
-  have it. Nothing is looked up for you — you fill it in yourself. Shown as "3/8" on the menu.
+  Each has a name, a note for where to find it and what it costs, and a tick for when you have it;
+  the page header shows "12 of 78 collected". Stamps can sit under section headings (a day, a city),
+  each with its own count and a bin to clear the whole section, and can show a name in the local
+  script beside the English one. **Import stamps from a file** adds a whole list at once from a JSON
+  file — `{ "stamps": [{ "group", "label", "local", "note" }] }`, everything but `label` optional —
+  skipping any already there. Nothing is looked up for you.
 - **Expenses** — totals every price in the trip (a stay's price, a journey's fare, a day's spending),
   **grouped by category** and then by currency (nothing is summed across currencies, except the
   **Combined** total). Nothing is entered on this tab — it's read-only.

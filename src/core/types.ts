@@ -132,6 +132,10 @@ export interface StampItem {
   /** where to find it / what it costs — free text */
   note?: string;
   done?: boolean;
+  /** the section it sits under (a day, a city, a line) — unset = ungrouped */
+  group?: string;
+  /** the name in the local script, shown quietly beside the label */
+  local?: string;
 }
 
 export interface CustomList {
