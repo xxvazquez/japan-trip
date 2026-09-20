@@ -69,7 +69,7 @@ export function AppShell() {
         } as Record<string, string>
       }
     >
-      <header className="sticky top-0 z-30 border-b border-line bg-bg pt-[var(--sat)]">
+      <header className="sticky top-0 z-30 border-b border-line bg-bg pt-[var(--sat)] supports-[backdrop-filter]:bg-bg/80 supports-[backdrop-filter]:backdrop-blur-xl">
         <div className="flex h-14 items-center justify-between px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2" aria-label={data?.config.branding}>
             <Wordmark />

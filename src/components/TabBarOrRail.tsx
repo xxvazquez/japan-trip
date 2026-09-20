@@ -25,8 +25,8 @@ function currentModuleId(modules: ModuleConfig[], pathname: string, hub: ModuleK
 }
 
 /** Bottom tab bar on mobile; a quiet left rail from md up. Driven by the active
- *  trip's section config — reorder / rename / hide them in Manage. The current
- *  tab carries a soft accent pill behind its icon + label.
+ *  trip's section config — reorder / rename / hide them in Manage. On a phone the current tab is
+ *  just tinted (translucent bar, like iOS); the rail gives it a soft accent pill.
  *
  *  A day/hotel/journey/leg page has no tab of its own — it stays highlighted
  *  on whichever tab pushed it (Plan, Map, Logbook, or a pinned Logbook-section
@@ -53,11 +53,13 @@ export function TabBarOrRail() {
   const cell = (current: boolean, label: string, icon: IconName) => (
     <span
       className={[
-        "flex flex-col items-center gap-1 rounded-[10px] px-3.5 py-1.5 text-2xs transition-colors",
-        current ? "bg-accent/[0.14] text-accent" : "text-ink-faint group-hover:text-ink-soft",
+        // phone: iOS tab bar — icon over label, only the tint changes; the
+        // left rail (md+) keeps the soft pill behind the current item
+        "flex flex-col items-center justify-center gap-0.5 text-2xs tracking-normal transition-colors md:gap-1 md:rounded-[10px] md:px-3.5 md:py-1.5",
+        current ? "text-accent md:bg-accent/[0.14]" : "text-ink-faint group-hover:text-ink-soft",
       ].join(" ")}
     >
-      <Icon name={icon} size={20} filled={current} />
+      <Icon name={icon} size={24} filled={current} />
       {label}
     </span>
   );
@@ -66,20 +68,21 @@ export function TabBarOrRail() {
     <nav
       aria-label="Sections"
       className={[
-        "fixed z-40 bg-bg",
+        // translucent material where the browser can blur what scrolls beneath
+        "fixed z-40 bg-bg supports-[backdrop-filter]:bg-bg/80 supports-[backdrop-filter]:backdrop-blur-xl",
         "inset-x-0 bottom-0 border-t border-line pb-[var(--sab)]",
         "md:inset-x-auto md:bottom-0 md:left-0 md:top-0 md:h-full md:w-[72px] md:border-r md:border-t-0 md:pb-0",
       ].join(" ")}
     >
-      <ul className="flex justify-around px-1 py-1.5 md:h-full md:flex-col md:items-center md:justify-start md:gap-1.5 md:px-0 md:py-5">
+      <ul className="flex h-[49px] justify-around px-1 md:h-full md:flex-col md:items-center md:justify-start md:gap-1.5 md:px-0 md:py-5">
         {modules.map((s) => {
           const current = s.id === activeId;
           return (
-            <li key={s.id}>
+            <li key={s.id} className="flex-1 md:flex-none">
               <NavLink
                 to={moduleTo(s)}
                 aria-current={current ? "page" : undefined}
-                className="group flex"
+                className="group flex h-full w-full items-center justify-center"
               >
                 {cell(current, s.label, s.icon && isIconName(s.icon) ? s.icon : "vault")}
               </NavLink>
