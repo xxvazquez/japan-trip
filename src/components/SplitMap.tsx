@@ -39,7 +39,7 @@ export function SplitMap() {
   return (
     <aside
       aria-label="Map"
-      className="fixed bottom-0 right-0 top-[calc(3.5rem+var(--demo-h,0px))] z-20 w-[var(--pane-w)] border-l border-line bg-bg"
+      className="fixed bottom-0 right-0 top-[calc(var(--sat)+var(--nav-h)+var(--demo-h,0px))] z-20 w-[var(--pane-w)] border-l border-line bg-bg"
     >
       <Suspense fallback={<div className="grid h-full place-items-center"><Loader label="Loading the map" /></div>}>
         <MapPane dayId={dayId} />

@@ -7,17 +7,15 @@ import { PullToRefresh } from "./PullToRefresh";
 import { SearchOverlay } from "./SearchOverlay";
 import { Loader } from "./Loader";
 import { Icon } from "./Icon";
-import { Wordmark } from "./Wordmark";
+import { NavProvider, NavLeft, NavTitle } from "./NavBar";
 import { UndoToast } from "./UndoToast";
 import { SafetyBanner } from "./SafetyBanner";
 import { SplitMap, useSplit } from "./SplitMap";
-import { useData } from "@/lib/data";
 import { useReadOnly } from "@/lib/readonly";
 import { useAutoHotelCoords, useAutoTripTimeZone } from "@/lib/hotelCoords";
 
 export function AppShell() {
   const [searchOpen, setSearchOpen] = useState(false);
-  const data = useData();
   const demo = useReadOnly();
   const nav = useNavigate();
   const split = useSplit();
@@ -60,6 +58,7 @@ export function AppShell() {
   }, [nav]);
 
   return (
+    <NavProvider>
     <div
       className="washi min-h-svh md:pl-[72px]"
       style={
@@ -70,19 +69,17 @@ export function AppShell() {
       }
     >
       <header className="sticky top-0 z-30 material border-b border-line pt-[var(--sat)]">
-        <div className="flex h-14 items-center justify-between px-4 sm:px-6">
-          <Link to="/" className="flex items-center gap-2" aria-label={data?.config.branding}>
-            <Wordmark />
-            {data?.config.tagline && (
-              <span className="hidden text-2xs text-ink-faint sm:inline">· {data.config.tagline}</span>
-            )}
-          </Link>
-          <div className="flex items-center gap-3 text-ink-soft">
+        <div className="flex h-[var(--nav-h)] items-center gap-2 px-4 sm:px-6">
+          <div className="flex min-w-0 flex-1 items-center justify-start">
+            <NavLeft />
+          </div>
+          <NavTitle />
+          <div className="flex min-w-0 flex-1 items-center justify-end text-ink-soft">
             <SyncStatus />
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              className="grid h-9 w-9 place-items-center transition-colors hover:text-accent"
+              className="grid h-11 w-11 place-items-center transition-colors hover:text-accent"
               aria-label="Search"
             >
               <Icon name="search" size={19} />
@@ -90,7 +87,7 @@ export function AppShell() {
             <ThemeToggle />
             <Link
               to="/manage"
-              className="grid h-9 w-9 place-items-center transition-colors hover:text-accent md:hidden"
+              className="grid h-11 w-11 place-items-center transition-colors hover:text-accent md:hidden"
               aria-label="Manage trips & settings"
             >
               <Icon name="settings" size={19} />
@@ -102,13 +99,13 @@ export function AppShell() {
       <SafetyBanner />
 
       {demo && (
-        <div className="sticky top-14 z-20 flex h-9 items-center justify-center gap-1 border-b border-line bg-surface-2 px-4 text-center text-xs text-ink-soft sm:px-6">
+        <div className="sticky top-[calc(var(--sat)+var(--nav-h))] z-20 flex h-9 items-center justify-center gap-1 border-b border-line bg-surface-2 px-4 text-center text-xs text-ink-soft sm:px-6">
           <span>Demo trip — read-only.</span>
           <Link to="/manage" className="text-accent">Make your own →</Link>
         </div>
       )}
 
-      <main className={`min-h-[calc(100svh-3.5rem)] ${split.active ? "mr-[var(--pane-w)]" : ""}`}>
+      <main className={`min-h-[calc(100svh-var(--nav-h)-var(--sat))] ${split.active ? "mr-[var(--pane-w)]" : ""}`}>
         <PullToRefresh />
         <Suspense fallback={<Loader />}>
           <Outlet />
@@ -120,5 +117,6 @@ export function AppShell() {
       <SplitMap />
       <UndoToast />
     </div>
+    </NavProvider>
   );
 }

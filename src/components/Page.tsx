@@ -1,5 +1,5 @@
 import { useId, useState, type ReactNode } from "react";
-import { BackBar } from "./BackBar";
+import { useNavRegistration } from "./NavBar";
 import { Icon } from "./Icon";
 
 /** Standard reading column for a route's content. */
@@ -68,9 +68,11 @@ export function PageHeader({
 }) {
   const [showInfo, setShowInfo] = useState(false);
   const infoId = useId();
+  // the back button and the collapsed small title live in the nav bar
+  const [h1, setH1] = useState<HTMLHeadingElement | null>(null);
+  useNavRegistration(h1, back ? { to: typeof back === "string" ? back : undefined } : undefined, h1?.textContent ?? "");
   return (
     <header className={`mb-8 ${className}`}>
-      {back ? <BackBar to={typeof back === "string" ? back : undefined} /> : null}
       {eyebrow ? (
         <p className="eyebrow mb-1.5 flex items-center gap-1.5 text-ink-faint">
           {dotColor && <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: dotColor }} />}
@@ -78,7 +80,7 @@ export function PageHeader({
         </p>
       ) : null}
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-title min-w-0">{title}</h1>
+        <h1 ref={setH1} className="text-title min-w-0">{title}</h1>
         {(action || info) && (
           <div className="flex shrink-0 items-center gap-1">
             {action}

@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Icon } from "./Icon";
 
-const PARENT_LABEL: Record<string, string> = {
+export const PARENT_LABEL: Record<string, string> = {
   "/": "Plan",
   "/logbook": "Logbook",
   "/map": "Map",

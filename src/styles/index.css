@@ -33,6 +33,7 @@
   /* a separator: one device pixel on a 2x+ screen (iOS's 0.5pt hairline), a
      full px where a half would blur away */
   --hair: 1px;
+  --nav-h: 2.75rem; /* the navigation bar, below the safe area — iOS's 44pt */
   --sat: env(safe-area-inset-top, 0px);
   --sab: env(safe-area-inset-bottom, 0px);
 }
@@ -210,7 +211,7 @@ html.dark {
    * Hierarchy is size + weight + colour + spacing, never a size cliff.
    *
    *   text-display   Plan hero (the countdown number, nothing else)
-   *   .text-title    page title — clamp 1.5–1.75rem, 500 ink  (<PageHeader>)
+   *   .text-title    large page title — clamp 1.75–2.125rem, 500 ink  (<PageHeader>)
    *   .subhead       sub-head under a page title — 1.3125rem 500 (Plan stay, Map scope)
    *   .lead          card / item title — 1.0625rem, sans 400 ink
    *   .value         main value — 1.0625rem (17px, iOS body), sans 400 ink  (paired + under-label)
@@ -228,7 +229,7 @@ html.dark {
   /* L1 — the page title on every route but Plan. One size, via <PageHeader>. */
   .text-title {
     @apply font-display font-medium leading-[1.12] text-ink;
-    font-size: clamp(1.5rem, 1.25rem + 1vw, 1.75rem);
+    font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.125rem); /* iOS large title, 34pt at most */
   }
 
   /* L1 — a heading that sits below a page title: a stay on the Plan, the scope
