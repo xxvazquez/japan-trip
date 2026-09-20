@@ -47,10 +47,12 @@ never chosen by hand.
   **map beside it** showing that day's own places — the ones its steps are tied to, the places of its
   areas (drawn more quietly) and the hotel you're staying at — and it moves as you go between days.
   Tap a pin for its name and a **Directions** link. A step's **⋯ → Show on map** jumps that pane
-  straight to its pin, already zoomed in — no manual panning to find it. The Plan itself stays a plain
-  list of days, and on a phone or a narrower window nothing changes at all: the map isn't even
-  downloaded — there, **Show on map** opens the Map tab instead, centred on that pin. The Map tab is
-  still where you filter, search and edit places.
+  straight to its pin, already zoomed in — no manual panning to find it. Drag its left edge to
+  **resize** it, or tap the **✕** to hide it and get the page back to full width — a small tab on the
+  edge brings it back, both remembered next time. The Plan itself stays a plain list of days, and on a
+  phone or a narrower window nothing changes at all: the map isn't even downloaded — there, **Show on
+  map** opens the Map tab instead, centred on that pin. The Map tab is still where you filter, search
+  and edit places.
 - Drag a day up or down to **reorder** it (the dates shuffle with it).
 - Tap a day to open it. At the top: **Staying at** (which hotel) and **Journey** (link an existing
   one, or ＋ new — you then pick its type on the journey page).

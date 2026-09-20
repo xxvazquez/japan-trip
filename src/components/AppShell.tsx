@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { TabBarOrRail } from "./TabBarOrRail";
 import { ThemeToggle } from "./ThemeToggle";
@@ -10,7 +10,7 @@ import { Icon } from "./Icon";
 import { NavProvider, NavLeft, NavTitle } from "./NavBar";
 import { UndoToast } from "./UndoToast";
 import { SafetyBanner } from "./SafetyBanner";
-import { SplitMap, useSplit } from "./SplitMap";
+import { SplitMap, useSplit, useSplitPane } from "./SplitMap";
 import { useReadOnly } from "@/lib/readonly";
 import { useAutoHotelCoords, useAutoTripTimeZone } from "@/lib/hotelCoords";
 
@@ -19,6 +19,8 @@ export function AppShell() {
   const demo = useReadOnly();
   const nav = useNavigate();
   const split = useSplit();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const pane = useSplitPane(rootRef);
   useAutoHotelCoords(!demo);
   useAutoTripTimeZone(!demo);
 
@@ -60,10 +62,11 @@ export function AppShell() {
   return (
     <NavProvider>
     <div
+      ref={rootRef}
       className="washi min-h-svh md:pl-[72px]"
       style={
         {
-          "--pane-w": "clamp(400px, 42vw, 760px)", // the map half of the wide-screen split
+          "--pane-w": `${pane.paneWidth}px`, // the map half of the wide-screen split — resizable, see SplitMap
           ...(demo ? { "--demo-h": "2.25rem" } : {}),
         } as Record<string, string>
       }
@@ -105,7 +108,7 @@ export function AppShell() {
         </div>
       )}
 
-      <main className={`min-h-[calc(100svh-var(--nav-h)-var(--sat))] ${split.active ? "mr-[var(--pane-w)]" : ""}`}>
+      <main className={`min-h-[calc(100svh-var(--nav-h)-var(--sat))] ${split.active && !pane.collapsed ? "mr-[var(--pane-w)]" : ""}`}>
         <PullToRefresh />
         <Suspense fallback={<Loader />}>
           <Outlet />
@@ -114,7 +117,7 @@ export function AppShell() {
 
       <TabBarOrRail />
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
-      <SplitMap />
+      <SplitMap pane={pane} />
       <UndoToast />
     </div>
     </NavProvider>
