@@ -691,7 +691,7 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
             </div>
             {readOnly ? (
               // plain text — the tile beside the time is the Maps link
-              <span className="block text-sm font-medium leading-snug text-ink">{item.text}</span>
+              <span className="block text-sm leading-snug text-ink">{item.text}</span>
             ) : sortedPickable.length > 0 ? (
               <>
                 <PlacePicker
@@ -706,11 +706,11 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
                   }}
                 />
                 {!item.placeId && (
-                  <Editable label="Custom step" value={item.text} placeholder="What is it?" onCommit={(v) => onPatch({ text: v })} className="block text-sm font-medium leading-snug text-ink" />
+                  <Editable label="Custom step" value={item.text} placeholder="What is it?" onCommit={(v) => onPatch({ text: v })} className="block text-sm leading-snug text-ink" />
                 )}
               </>
             ) : (
-              <Editable label="Step" value={item.text} placeholder="Add a step" onCommit={(v) => onPatch({ text: v })} className="block text-sm font-medium leading-snug text-ink" />
+              <Editable label="Step" value={item.text} placeholder="Add a step" onCommit={(v) => onPatch({ text: v })} className="block text-sm leading-snug text-ink" />
             )}
             <RichNote
               value={item.note ?? ""}
@@ -805,7 +805,7 @@ function ReturnToHotel({ from, hotel, indent }: { from?: Place; hotel: Hotel; in
     >
       <IconTile size="sm" name="bed" tone="accent" className="mt-px" />
       <span className="min-w-0 flex-1 space-y-1">
-        <span className="block text-sm font-medium leading-snug text-ink">Back to {hotel.name || "the hotel"}</span>
+        <span className="block text-sm leading-snug text-ink">Back to {hotel.name || "the hotel"}</span>
         {(walk || (fromStation && hotelStation && fromStation.name !== hotelStation.name)) && (
           <span className="meta flex flex-wrap gap-x-3 gap-y-0.5 text-ink-faint">
             {walk && (

@@ -220,7 +220,7 @@ html.dark {
    *                ("active", "Today").
    */
   .kicker {
-    @apply font-sans text-[0.8125rem] font-medium uppercase tracking-[0.03em] text-ink-soft;
+    @apply font-sans text-[0.8125rem] font-normal uppercase tracking-[0.03em] text-ink-soft;
   }
   .eyebrow {
     @apply font-sans text-2xs font-normal uppercase tracking-[0.12em] text-ink-soft;
@@ -228,12 +228,12 @@ html.dark {
 
   /* a card / item title the eye scans for — medium weight, a hair above body */
   .lead {
-    @apply font-sans text-[1.0625rem] font-medium leading-snug text-ink;
+    @apply font-sans text-[1.0625rem] font-normal leading-snug text-ink;
   }
   /* a value — paired with a label, or sitting under one. One size everywhere;
-   * hierarchy against the label comes from weight (500 vs 400) + colour. */
+   * hierarchy against the label comes from colour (SF Regular throughout, like iOS Settings). */
   .value {
-    @apply font-sans text-[0.9375rem] font-medium leading-snug text-ink;
+    @apply font-sans text-[0.9375rem] font-normal leading-snug text-ink;
   }
 
   /* L3 — compact secondary metadata, readable but quiet */
@@ -259,7 +259,7 @@ html.dark {
     @apply shrink-0 text-[0.9375rem] text-ink-soft;
   }
   .row-value {
-    @apply min-w-0 text-right font-sans text-[0.9375rem] font-medium leading-snug text-ink;
+    @apply min-w-0 text-right font-sans text-[0.9375rem] font-normal leading-snug text-ink;
   }
 
   /* a genuinely-important unresolved value */
@@ -283,7 +283,7 @@ html.dark {
 
   /* an inline add / secondary action the eye can find */
   .action {
-    @apply inline-flex items-center gap-1.5 text-sm font-medium text-accent transition-opacity hover:opacity-70;
+    @apply inline-flex items-center gap-1.5 text-sm text-accent transition-opacity hover:opacity-70;
   }
   /* a low-key text action ("remove", "not a day trip") — caller sets the size */
   .link-quiet {

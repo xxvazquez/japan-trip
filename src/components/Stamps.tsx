@@ -289,7 +289,7 @@ export function Stamps() {
         )}
         <span className="min-w-0 flex-1 pt-0.5">
           <span className="flex items-baseline justify-between gap-3">
-            <span className={`min-w-0 break-words text-[0.9375rem] font-medium leading-snug ${s.done ? "text-ink-soft" : "text-ink"}`}>
+            <span className={`min-w-0 break-words text-[0.9375rem] leading-snug ${s.done ? "text-ink-soft" : "text-ink"}`}>
               {plain
                 ? (s.label || "Untitled")
                 : <Editable label="Stamp" value={s.label} placeholder="Name" onCommit={(v) => set((l) => { l[i].label = v; })} />}

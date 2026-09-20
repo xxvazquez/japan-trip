@@ -35,7 +35,7 @@ export function TileRow({
     <>
       {tile}
       <span className="min-w-0 flex-1">
-        <span className="block break-words text-sm font-medium leading-snug text-ink">{title}</span>
+        <span className="block break-words text-sm leading-snug text-ink">{title}</span>
         {meta != null && meta !== "" && <span className="meta mt-0.5 block break-words">{meta}</span>}
       </span>
       {right != null && right !== "" && (
