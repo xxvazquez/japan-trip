@@ -58,7 +58,7 @@ function MoveRow({ count, children }: { count: number; children: ReactNode }) {
   const { open, setOpen, anchorRef } = useActionSheet();
   return (
     <li className={INSET_DIVIDER}>
-      <button ref={anchorRef} onClick={() => setOpen(true)} className="action w-full px-3.5 py-2.5 text-[0.9375rem]">
+      <button ref={anchorRef} onClick={() => setOpen(true)} className="action w-full px-3.5 py-2.5 text-xs">
         <Icon name="itinerary" size={14} /> Move {plural(count, "stamp")} to…
       </button>
       <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title={`Move ${plural(count, "stamp")} to`}>
@@ -101,9 +101,9 @@ function StampCard({ title, sub, local, font, done, total, tone, dots, onClick, 
         </span>
       )}
       <span className="relative flex items-baseline justify-between gap-3">
-        <span className="min-w-0 break-words text-[1.0625rem] font-medium leading-snug [&_input]:text-ink [&_.editable]:text-white dark:[&_.editable]:text-bg">
+        <span className="min-w-0 break-words text-sm font-medium leading-snug [&_input]:text-ink [&_.editable]:text-white dark:[&_.editable]:text-bg">
           {title}
-          {sub && <span className="block text-[0.9375rem] font-normal">{sub}</span>}
+          {sub && <span className="block text-xs font-normal">{sub}</span>}
         </span>
         <span className="shrink-0 text-[0.875rem] tabular-nums">{done} / {total}</span>
       </span>
@@ -289,7 +289,7 @@ export function Stamps() {
         )}
         <span className="min-w-0 flex-1 pt-0.5">
           <span className="flex items-baseline justify-between gap-3">
-            <span className={`min-w-0 break-words text-[1.0625rem] leading-snug ${s.done ? "text-ink-soft" : "text-ink"}`}>
+            <span className={`min-w-0 break-words text-sm leading-snug ${s.done ? "text-ink-soft" : "text-ink"}`}>
               {plain
                 ? (s.label || "Untitled")
                 : <Editable label="Stamp" value={s.label} placeholder="Name" onCommit={(v) => set((l) => { l[i].label = v; })} />}
@@ -338,7 +338,7 @@ export function Stamps() {
   };
 
   const sortBtn = (
-    <button ref={sortMenu.anchorRef} onClick={() => sortMenu.setOpen(true)} className="action tap text-[0.9375rem]">
+    <button ref={sortMenu.anchorRef} onClick={() => sortMenu.setOpen(true)} className="action tap text-xs">
       Sort
     </button>
   );
@@ -357,7 +357,7 @@ export function Stamps() {
     <>
       {inOverview ? (
         <div className="mb-4 flex items-baseline justify-between gap-3">
-          <p className="text-[1.0625rem] tabular-nums text-ink">{got} of {stamps.length} collected</p>
+          <p className="text-sm tabular-nums text-ink">{got} of {stamps.length} collected</p>
           {sortBtn}
         </div>
       ) : (
@@ -373,7 +373,7 @@ export function Stamps() {
           <span className="flex shrink-0 items-center gap-4">
             {selecting && rows && rows.length > 0 && (
               <button
-                className="action tap text-[0.9375rem]"
+                className="action tap text-xs"
                 onClick={() => setPicked((p) => {
                   const n = new Set(p);
                   for (const r of rows) {
@@ -388,7 +388,7 @@ export function Stamps() {
             )}
             {sortBtn}
             {!ro && (
-              <button onClick={selecting ? stopSelecting : () => setSelecting(true)} className="action tap text-[0.9375rem]">
+              <button onClick={selecting ? stopSelecting : () => setSelecting(true)} className="action tap text-xs">
                 {selecting ? "Done" : "Select"}
               </button>
             )}
@@ -426,7 +426,7 @@ export function Stamps() {
             onChange={(e) => { setQuery(e.target.value); if (!e.target.value.trim()) stopSelecting(); }}
             placeholder="Search"
             aria-label="Search stamps"
-            className="w-full rounded-[10px] bg-ink/[0.06] py-2 pl-9 pr-9 text-[1.0625rem] text-ink outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-accent/40"
+            className="w-full rounded-[10px] bg-ink/[0.06] py-2 pl-9 pr-9 text-sm text-ink outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-accent/40"
           />
           {query && (
             <button onClick={() => { setQuery(""); stopSelecting(); }} aria-label="Clear search" className="tap absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink-soft">
@@ -440,7 +440,7 @@ export function Stamps() {
         <Section className="mb-6">
           <ul>
             {ids.length === 0 ? (
-              <li className="px-3.5 py-2.5 text-[0.9375rem] text-ink-soft">Tap stamps to select them.</li>
+              <li className="px-3.5 py-2.5 text-xs text-ink-soft">Tap stamps to select them.</li>
             ) : (
               <>
                 <MoveRow count={ids.length}>
@@ -454,7 +454,7 @@ export function Stamps() {
                 <li className={INSET_DIVIDER}>
                   <button
                     onClick={() => { undoable("Stamps removed", () => removeIds(ids)); stopSelecting(); }}
-                    className="w-full px-3.5 py-2.5 text-left text-[0.9375rem] text-danger"
+                    className="w-full px-3.5 py-2.5 text-left text-xs text-danger"
                   >
                     <Icon name="trash" size={14} className="mr-1.5 inline-block -translate-y-px" />
                     Delete {plural(ids.length, "stamp")}
@@ -492,7 +492,7 @@ export function Stamps() {
                     <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-accent text-white dark:text-bg">
                       <Icon name="check" size={14} strokeWidth={2.75} />
                     </span>
-                    <span className="flex-1 text-[1.0625rem] text-ink">Collected</span>
+                    <span className="flex-1 text-sm text-ink">Collected</span>
                     <span className="meta tabular-nums">{got}</span>
                     <Icon name="chevron" size={14} className="-mr-1 shrink-0 text-ink-faint" />
                   </button>
@@ -536,7 +536,7 @@ export function Stamps() {
           <ul>
             {rows.map((r) => renderRow(r, !inGroup))}
             {searching && rows.length === 0 && (
-              <li className="px-3.5 py-3 text-[0.9375rem] text-ink-soft">No stamps match “{query.trim()}”.</li>
+              <li className="px-3.5 py-3 text-xs text-ink-soft">No stamps match “{query.trim()}”.</li>
             )}
             {inGroup && !ro && !selecting && <ActionRow icon="plus" label="Add a stamp" onClick={() => add(openGroup || undefined)} />}
           </ul>

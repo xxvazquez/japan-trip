@@ -79,8 +79,8 @@ export function FieldList({
         <>
           {fields.map((f) => (
             <li key={f.id} className={`${insetLi} flex items-start justify-between gap-4 px-3.5 py-3`}>
-              <span className="shrink-0 text-[1.0625rem] text-ink-soft">{f.label || "—"}</span>
-              <span className="min-w-0 text-right font-sans text-[1.0625rem] leading-snug text-ink">
+              <span className="shrink-0 text-sm text-ink-soft">{f.label || "—"}</span>
+              <span className="min-w-0 text-right font-sans text-sm leading-snug text-ink">
                 {readValue(f)}
               </span>
               {copySlot(f)}
@@ -102,7 +102,7 @@ export function FieldList({
   }
 
   const addBtn = (
-    <button onClick={add} className={`action ${inset ? "w-full px-3.5 py-3 text-[1.0625rem]" : "mt-2 text-xs"}`}>
+    <button onClick={add} className={`action ${inset ? "w-full px-3.5 py-3 text-sm" : "mt-2 text-xs"}`}>
       <Icon name="plus" size={13} /> {addLabel}
     </button>
   );

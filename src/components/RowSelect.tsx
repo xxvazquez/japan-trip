@@ -13,7 +13,7 @@ export function RowSelect({ className = "", children, ...props }: SelectHTMLAttr
     <span className="inline-flex max-w-full items-center gap-1">
       <select
         {...props}
-        className={`min-w-0 cursor-pointer appearance-none bg-transparent text-right font-sans text-[1.0625rem] focus:outline-none ${className}`}
+        className={`min-w-0 cursor-pointer appearance-none bg-transparent text-right font-sans text-sm focus:outline-none ${className}`}
       >
         {children}
       </select>

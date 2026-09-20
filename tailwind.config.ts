@@ -40,12 +40,12 @@ export default {
         sans: ["-apple-system", "BlinkMacSystemFont", '"Segoe UI"', "Roboto", '"Helvetica Neue"', "Arial", "system-ui", "sans-serif"],
       },
       fontSize: {
-        // a small, deliberate scale
-        // one notch up from Tailwind's defaults so the whole app sits on the
-        // iOS ladder: sm = body 17px, xs = subheadline 15px (footnote 13px and
-        // caption 11px are `.kicker` / `2xs`)
-        xs: ["0.9375rem", { lineHeight: "1.25rem" }],
-        sm: ["1.0625rem", { lineHeight: "1.375rem" }],
+        // a small, deliberate scale, one notch down from the original iOS
+        // "body 17 / subheadline 15" pairing — technically HIG-accurate, but
+        // reading as oversized next to other native apps: sm = 15px, xs =
+        // 13px (footnote), caption 11px is `.kicker` / `2xs`
+        xs: ["0.8125rem", { lineHeight: "1.125rem" }],
+        sm: ["0.9375rem", { lineHeight: "1.25rem" }],
         "2xs": ["0.6875rem", { lineHeight: "1rem", letterSpacing: "0.06em" }],
         display: ["clamp(2.5rem, 7vw, 3.25rem)", { lineHeight: "1.05", letterSpacing: "-0.02em" }],
         "display-lg": ["clamp(2.6rem, 9vw, 4.5rem)", { lineHeight: "1.02", letterSpacing: "-0.025em" }],

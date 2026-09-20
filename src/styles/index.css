@@ -214,11 +214,11 @@ html.dark {
    *   text-display   Plan hero (the countdown number, nothing else)
    *   .text-title    large page title — clamp 1.75–2.125rem, 500 ink  (<PageHeader>)
    *   .subhead       sub-head under a page title — 1.3125rem 500 (Plan stay, Map scope)
-   *   .lead          card / item title — 1.0625rem, sans 400 ink
-   *   .value         main value — 1.0625rem (17px, iOS body), sans 400 ink  (paired + under-label)
-   *   .row-value     value in a label/value .row — 1.0625rem 400, matches label
-   *   .note          body / prose — 1.0625rem, sans 400 ink, leading 1.5
-   *   .meta          metadata — 0.9375rem (15px, iOS subheadline), sans 400 ink-soft  (+ .row-label)
+   *   .lead          card / item title — 0.9375rem (15px), sans 400 ink
+   *   .value         main value — 0.9375rem (15px), sans 400 ink  (paired + under-label)
+   *   .row-value     value in a label/value .row — 0.9375rem 400, matches label
+   *   .note          body / prose — 0.9375rem, sans 400 ink, leading 1.5
+   *   .meta          metadata — 0.8125rem (13px, iOS footnote), sans 400 ink-soft  (+ .row-label)
    *   .kicker        section header — 0.8125rem, 500 uppercase +0.03em ink-soft
    *   .eyebrow       micro-label / tag — 0.6875rem, 400 uppercase +0.12em
    *                  ink-soft (·-faint quietest, ·ink for a live tag)
@@ -258,17 +258,17 @@ html.dark {
 
   /* a card / item title the eye scans for — medium weight, a hair above body */
   .lead {
-    @apply font-sans text-[1.0625rem] font-normal leading-snug text-ink;
+    @apply font-sans text-sm font-normal leading-snug text-ink;
   }
   /* a value — paired with a label, or sitting under one. One size everywhere;
    * hierarchy against the label comes from colour (SF Regular throughout, like iOS Settings). */
   .value {
-    @apply font-sans text-[1.0625rem] font-normal leading-snug text-ink;
+    @apply font-sans text-sm font-normal leading-snug text-ink;
   }
 
   /* L3 — compact secondary metadata, readable but quiet */
   .meta {
-    @apply text-[0.9375rem] leading-normal text-ink-soft;
+    @apply text-xs leading-normal text-ink-soft;
   }
 
   /* L3 — free-text prose: a note field, the scratchpad. One size everywhere,
@@ -276,7 +276,7 @@ html.dark {
    * below .value so a note never reads louder than the quiet section header
    * above it. Callers may override the colour (text-ink-soft when secondary). */
   .note {
-    @apply text-[1.0625rem] leading-[1.5] text-ink;
+    @apply text-sm leading-[1.5] text-ink;
   }
 
   /* a label / value list row — hairline between peers only. Label and value
@@ -286,10 +286,10 @@ html.dark {
     @apply flex items-baseline justify-between gap-4 border-b border-line py-3 last:border-b-0;
   }
   .row-label {
-    @apply shrink-0 text-[1.0625rem] text-ink-soft;
+    @apply shrink-0 text-sm text-ink-soft;
   }
   .row-value {
-    @apply min-w-0 text-right font-sans text-[1.0625rem] font-normal leading-snug text-ink;
+    @apply min-w-0 text-right font-sans text-sm font-normal leading-snug text-ink;
   }
 
   /* a genuinely-important unresolved value */
@@ -331,10 +331,10 @@ html.dark {
   }
 
   /* an inline add / secondary action the eye can find — sized like its
-   * neighbours (0.9375rem/15px), not text-sm (17px), which reads oversized
+   * neighbours (text-xs, 13px), not text-sm (15px), which reads oversized
    * next to the row content it sits beside. */
   .action {
-    @apply inline-flex items-center gap-1.5 text-[0.9375rem] text-accent transition-opacity hover:opacity-70 active:opacity-50;
+    @apply inline-flex items-center gap-1.5 text-xs text-accent transition-opacity hover:opacity-70 active:opacity-50;
   }
   /* a low-key text action ("remove", "not a day trip") — caller sets the size */
   .link-quiet {
