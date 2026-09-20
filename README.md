@@ -246,18 +246,23 @@ the total spent — and nothing when it's empty.
 - **Packing** — build the checklist right there: add a category, add items, tick them off. Categories
   fold away; with two or more travellers set (Manage → Setup) each item gets an **assign** pill (a
   traveller's initial, **Shared**, or **—**).
-- **Stamps** — a checklist of stamps to collect (station stamps, temple seals, castle stamps).
-  The summary card at the top shows "12 of 78 collected" with a thin progress bar, and **Sort**
-  switches every section (and the sections themselves) between your own order and A–Z — a
-  per-device setting. The search field filters by name, local-script name, note or section. Each
-  stamp has a name, a note for where to find it and what it costs, and a circle you tap to collect
-  it; a collected stamp moves down into a **Collected** list (folded away until you open it, showing
-  which section it came from) and tapping it there puts it back. Group stamps into sections of your
-  own: tap a section's name to rename it, **New section** adds one, and a stamp's ⋯ menu moves it to
-  another section (or out of any). **Select** lets you tick many stamps and move or delete them
-  together. A stamp can be marked as a **station** or a **temple** (from its ⋯ menu) and shows that icon at the start of its row, and can also carry a name in the local script, shown beside the English one. Stamps
-  are part of the trip, so anyone the trip is shared with sees the same list and the same ticks.
-  Nothing is looked up for you.
+- **Stamps** — a checklist of stamps to collect (station stamps, temple seals, castle stamps),
+  laid out like a wallet: each section is a coloured card, stacked so every card peeks out with
+  its name and "4 / 6" and the last one shows whole, a dot per stamp (filled = collected). A
+  "12 of 78 collected" line sits above, and **Sort** switches the sections and their stamps
+  between your own order and A–Z (a per-device setting). The search field filters by name,
+  local-script name, note or section, and lists the matches flat. Tap a card to open that
+  section: the card pins to the top and its stamps list below it — tap a section's name to
+  rename it, its ⋯ menu adds a stamp or deletes the section, and **‹ Stamps** (or swipe back)
+  returns to the stack. Each stamp has a name, a note for where to find it and what it costs, and
+  a circle you tap to collect it (it stays in place). The **Collected** row under the stack opens
+  every collected stamp across sections, showing which section each came from; tapping one there
+  puts it back. **New section** adds a section, and a stamp's ⋯ menu moves it to another section
+  (or out of any); stamps with no section sit on an **Ungrouped** card. **Select** lets you tick
+  many stamps and move or delete them together. A stamp can be marked as a **station** or a
+  **temple** (from its ⋯ menu) and shows that icon at the start of its row, and can also carry a
+  name in the local script, shown beside the English one. Stamps are part of the trip, so anyone
+  the trip is shared with sees the same list and the same ticks. Nothing is looked up for you.
 - **Expenses** — totals every price in the trip (a stay's price, a journey's fare, a day's spending),
   **grouped by category** and then by currency (nothing is summed across currencies, except the
   **Combined** total). Nothing is entered on this tab — it's read-only.
