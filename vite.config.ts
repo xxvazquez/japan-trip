@@ -52,6 +52,9 @@ export default defineConfig(({ command }) => ({
   },
   build: {
     target: "es2022",
+    // CSS is minified for iOS 15+ too, so Safari-only prefixes (-webkit-backdrop-filter
+    // on the bar material) survive instead of being dropped as redundant
+    cssTarget: ["chrome100", "safari15", "firefox100"],
     cssCodeSplit: true,
     rollupOptions: {
       output: {

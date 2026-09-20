@@ -286,15 +286,20 @@ html.dark {
   }
 
   /* iOS "bar material" for the header and tab bar: translucent + blurred where
-   * the browser can (Safari before 18 only knows the -webkit- prefix, so both
-   * spellings are tested), the plain opaque background everywhere else. */
+   * the browser can (Safari before 18 only knows the -webkit- prefix, so each spelling
+   * has its own @supports block — a minifier would merge an `or`), the plain opaque background everywhere else. */
   .material {
     background: rgb(var(--c-bg));
   }
-  @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  @supports (-webkit-backdrop-filter: blur(1px)) {
     .material {
       background: rgb(var(--c-bg) / 0.8);
       -webkit-backdrop-filter: saturate(180%) blur(20px);
+    }
+  }
+  @supports (backdrop-filter: blur(1px)) {
+    .material {
+      background: rgb(var(--c-bg) / 0.8);
       backdrop-filter: saturate(180%) blur(20px);
     }
   }
