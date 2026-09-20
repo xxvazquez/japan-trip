@@ -37,6 +37,13 @@ export async function fetchDayWeather(lat: number, lng: number, date: string): P
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&timezone=auto&start_date=${date}&end_date=${date}`;
     const res = await fetch(url);
+    if (res.status === 400) {
+      // the date is outside Open-Meteo's forecast window — deterministic for
+      // this session (unlike a transient failure below), so remember it
+      // instead of re-asking every time the day is reopened
+      cache.set(key, null);
+      return null;
+    }
     if (!res.ok) throw new Error(String(res.status));
     const json = (await res.json()) as {
       daily?: {
@@ -54,9 +61,9 @@ export async function fetchDayWeather(lat: number, lng: number, date: string): P
     cache.set(key, result);
     return result;
   } catch {
-    // not cached — a date that's out of range today may come into the
-    // rolling forecast window on a later visit, and a transient failure
-    // shouldn't stick as "no forecast" forever
+    // not cached — a genuinely transient failure (offline, a 5xx) shouldn't
+    // stick as "no forecast" forever; the 400 out-of-range case is handled,
+    // and cached, above
     return null;
   }
 }
