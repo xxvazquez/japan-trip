@@ -21,7 +21,7 @@ export function Wordmark({ size = 26 }: { size?: number }) {
         className="shrink-0 rounded-[22%] object-cover"
         decoding="async"
       />
-      <span className="font-display text-[15px] font-medium tracking-tight">{name}</span>
+      <span className="font-display text-[17px] font-medium tracking-tight">{name}</span>
     </span>
   );
 }

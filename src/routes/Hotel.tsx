@@ -77,13 +77,13 @@ export default function Hotel() {
               )}
               {showAddress && (
                 <li className="relative px-3.5 py-3 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-px after:bg-line last:after:hidden">
-                  <span className="mb-0.5 block text-[0.9375rem] text-ink-soft">Address</span>
-                  <span className="block font-sans text-[0.9375rem] leading-snug text-ink">
+                  <span className="mb-0.5 block text-[1.0625rem] text-ink-soft">Address</span>
+                  <span className="block font-sans text-[1.0625rem] leading-snug text-ink">
                     <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined, lat: undefined, lng: undefined })} />
                   </span>
                   {(hotel.addressAlt || !ro) && (
                     <span
-                      className="mt-1 block text-[0.8125rem] leading-snug text-ink-soft"
+                      className="mt-1 block text-[0.9375rem] leading-snug text-ink-soft"
                       style={data.config.localScriptFont ? { fontFamily: data.config.localScriptFont } : undefined}
                     >
                       <Editable label="Local address" value={hotel.addressAlt ?? ""} placeholder="Local-script address, for taxis" onCommit={(v) => p({ addressAlt: v || undefined })} />

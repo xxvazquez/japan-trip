@@ -197,8 +197,8 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, onPick,
         <div className="fixed inset-x-0 bottom-0 z-[55] flex flex-col rounded-t-[16px] border-t border-line bg-surface pb-[max(0.75rem,var(--sab))] pt-2 motion-safe:animate-sheet-up">
           <span aria-hidden className="mx-auto mb-1.5 block h-1 w-9 shrink-0 rounded-full bg-ink/20" />
           <div className="flex items-center justify-between px-4 pb-2">
-            <button type="button" onClick={onClear} className="text-[15px] text-danger">Clear</button>
-            <button type="button" onClick={onClose} className="text-[15px] font-medium text-accent">Done</button>
+            <button type="button" onClick={onClear} className="text-[17px] text-danger">Clear</button>
+            <button type="button" onClick={onClose} className="text-[17px] font-medium text-accent">Done</button>
           </div>
           <div className="pb-2">{wheels}</div>
         </div>

@@ -335,7 +335,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
           title="Plan"
           info="Drag to reorder. Pick a place from an Area you've added below, or Custom for anything else — tap the note line under it to add one."
           action={overwhelmingCount > 0 && (
-            <span className="flex items-center gap-1 text-[0.8125rem] text-danger" title={`${plural(overwhelmingCount, "overwhelming place")} today`}>
+            <span className="flex items-center gap-1 text-[0.9375rem] text-danger" title={`${plural(overwhelmingCount, "overwhelming place")} today`}>
               <Icon name="alert" size={13} /> {overwhelmingCount}
             </span>
           )}
@@ -501,7 +501,7 @@ function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByP
     return readOnly ? (
       <p className="px-3.5 py-3 text-sm text-ink-faint">Nothing planned yet.</p>
     ) : (
-      <button onClick={() => onChange([{ id: rid(), text: "" }])} className="action w-full px-3.5 py-3 text-[0.9375rem]">
+      <button onClick={() => onChange([{ id: rid(), text: "" }])} className="action w-full px-3.5 py-3 text-[1.0625rem]">
         <Icon name="plus" size={14} /> Add a step
       </button>
     );
@@ -552,7 +552,7 @@ function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByP
       {/* a second "add" affordance down here too — the one up in the Section
        *  header (see Day()) means a long plan otherwise needs a scroll back
        *  to the top just to add the next step */}
-      <button onClick={() => onChange([...items, { id: rid(), text: "" }])} className="action w-full border-t border-line px-3.5 py-3 text-[0.9375rem]">
+      <button onClick={() => onChange([...items, { id: rid(), text: "" }])} className="action w-full border-t border-line px-3.5 py-3 text-[1.0625rem]">
         <Icon name="plus" size={14} /> Add a step
       </button>
     </>
@@ -716,7 +716,7 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
               value={item.note ?? ""}
               onCommit={(v) => onPatch({ note: v || undefined })}
               placeholder="Add a note…"
-              className="block text-[0.8125rem] leading-relaxed text-ink-faint [&_strong]:text-ink-soft"
+              className="block text-[0.9375rem] leading-relaxed text-ink-faint [&_strong]:text-ink-soft"
               collapsible
             />
             {place && <StepWalkLines place={place} nextPlace={nextPlace} />}
@@ -807,7 +807,7 @@ function ReturnToHotel({ from, hotel, indent }: { from?: Place; hotel: Hotel; in
       <span className="min-w-0 flex-1 space-y-1">
         <span className="block text-sm leading-snug text-ink">Back to {hotel.name || "the hotel"}</span>
         {(walk || (fromStation && hotelStation && fromStation.name !== hotelStation.name)) && (
-          <span className="meta flex flex-wrap gap-x-3 gap-y-0.5 text-ink-faint">
+          <span className="meta flex flex-wrap gap-x-3 gap-y-0.5 text-[0.8125rem] text-ink-faint">
             {walk && (
               <span className={piece}>
                 <Icon name="walk" size={12} className="mt-[3px] shrink-0" />
@@ -910,13 +910,13 @@ function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }
           {next && nextPlace && (
             <span className={piece}>
               <Icon name="walk" size={12} className="mt-[3px] shrink-0" />
-              <span className="min-w-0">Walk to {nextPlace.name} {fmtWalk(next)}</span>
+              <span className="min-w-0">Walk to {nextPlace.name} <span className="whitespace-nowrap">{fmtWalk(next)}</span></span>
             </span>
           )}
           {station && toStation && (
             <span className={piece}>
               <Icon name="train" size={12} className="mt-[3px] shrink-0" />
-              <span className="min-w-0">Walk to {station.name} {fmtWalk(toStation)}</span>
+              <span className="min-w-0">Walk to {station.name} <span className="whitespace-nowrap">{fmtWalk(toStation)}</span></span>
             </span>
           )}
           {long && nextPlace && station && nextStation && station.name !== nextStation.name && (
@@ -963,7 +963,7 @@ function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, onPick }
         aria-label="What this step is"
         aria-haspopup="menu"
         className={`editable block w-full max-w-full cursor-pointer bg-transparent text-left leading-snug focus:outline-none ${
-          current ? "text-sm text-ink" : "text-[0.8125rem] text-ink-soft"
+          current ? "text-sm text-ink" : "text-[0.9375rem] text-ink-soft"
         }`}
       >
         {current ? current.name : (
@@ -1046,7 +1046,7 @@ function CostList({ costs, categories, currencies, places, highlightId, readOnly
     return readOnly ? (
       <p className="px-3.5 py-3 text-sm text-ink-faint">Nothing logged.</p>
     ) : (
-      addButton("action w-full px-3.5 py-3 text-[0.9375rem]", 14)
+      addButton("action w-full px-3.5 py-3 text-[1.0625rem]", 14)
     );
   }
 
@@ -1122,7 +1122,7 @@ function CostList({ costs, categories, currencies, places, highlightId, readOnly
             : "—"}
         </span>
       </li>
-      {!readOnly && <li>{addButton("action w-full px-3.5 py-3 text-[0.9375rem]", 14)}</li>}
+      {!readOnly && <li>{addButton("action w-full px-3.5 py-3 text-[1.0625rem]", 14)}</li>}
     </ul>
   );
 }

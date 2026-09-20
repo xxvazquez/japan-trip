@@ -67,10 +67,10 @@ export function ActionSheet({
         >
           <span aria-hidden className="mx-auto mb-1.5 block h-1 w-9 shrink-0 rounded-full bg-ink/20" />
           {title && <p className="shrink-0 px-4 pb-1 pt-1 text-xs text-ink-faint">{title}</p>}
-          <div className="flex-1 overflow-y-auto overscroll-contain [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-4 [&_.menu-item]:py-3.5 [&_.menu-item]:text-left [&_.menu-item]:text-[15px] [&_.menu-item:disabled]:opacity-40 [&_.menu-item:active]:bg-surface-2">
+          <div className="flex-1 overflow-y-auto overscroll-contain [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-4 [&_.menu-item]:py-3.5 [&_.menu-item]:text-left [&_.menu-item]:text-[17px] [&_.menu-item:disabled]:opacity-40 [&_.menu-item:active]:bg-surface-2">
             {children}
           </div>
-          <button onClick={onClose} className="mt-1 w-full shrink-0 border-t border-line px-4 py-3.5 text-[15px] font-medium text-accent">
+          <button onClick={onClose} className="mt-1 w-full shrink-0 border-t border-line px-4 py-3.5 text-[17px] font-medium text-accent">
             {doneLabel}
           </button>
         </div>

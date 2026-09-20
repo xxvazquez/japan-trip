@@ -68,8 +68,8 @@ export function TabBarOrRail() {
     <nav
       aria-label="Sections"
       className={[
-        // translucent material where the browser can blur what scrolls beneath
-        "fixed z-40 bg-bg supports-[backdrop-filter]:bg-bg/80 supports-[backdrop-filter]:backdrop-blur-xl",
+        // translucent material (see .material) where the browser can blur what scrolls beneath
+        "material fixed z-40",
         "inset-x-0 bottom-0 border-t border-line pb-[var(--sab)]",
         "md:inset-x-auto md:bottom-0 md:left-0 md:top-0 md:h-full md:w-[72px] md:border-r md:border-t-0 md:pb-0",
       ].join(" ")}

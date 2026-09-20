@@ -77,7 +77,7 @@ html.dark {
   }
   body {
     @apply bg-bg text-ink font-sans antialiased;
-    font-size: 15px;
+    font-size: 17px;
     line-height: 1.5;
     font-feature-settings: "kern", "liga";
     overscroll-behavior-y: none;
@@ -189,10 +189,10 @@ html.dark {
    *   .text-title    page title — clamp 1.5–1.75rem, 500 ink  (<PageHeader>)
    *   .subhead       sub-head under a page title — 1.3125rem 500 (Plan stay, Map scope)
    *   .lead          card / item title — 1.0625rem, sans 400 ink
-   *   .value         main value — 0.9375rem, sans 400 ink  (paired + under-label)
-   *   .row-value     value in a label/value .row — 0.9375rem 400, matches label
-   *   .note          body / prose — 0.9375rem, sans 400 ink, leading 1.6
-   *   .meta          metadata — 0.8125rem, sans 400 ink-soft  (+ .row-label)
+   *   .value         main value — 1.0625rem (17px, iOS body), sans 400 ink  (paired + under-label)
+   *   .row-value     value in a label/value .row — 1.0625rem 400, matches label
+   *   .note          body / prose — 1.0625rem, sans 400 ink, leading 1.5
+   *   .meta          metadata — 0.9375rem (15px, iOS subheadline), sans 400 ink-soft  (+ .row-label)
    *   .kicker        section header — 0.8125rem, 500 uppercase +0.03em ink-soft
    *   .eyebrow       micro-label / tag — 0.6875rem, 400 uppercase +0.12em
    *                  ink-soft (·-faint quietest, ·ink for a live tag)
@@ -237,12 +237,12 @@ html.dark {
   /* a value — paired with a label, or sitting under one. One size everywhere;
    * hierarchy against the label comes from colour (SF Regular throughout, like iOS Settings). */
   .value {
-    @apply font-sans text-[0.9375rem] font-normal leading-snug text-ink;
+    @apply font-sans text-[1.0625rem] font-normal leading-snug text-ink;
   }
 
   /* L3 — compact secondary metadata, readable but quiet */
   .meta {
-    @apply text-[0.8125rem] leading-normal text-ink-soft;
+    @apply text-[0.9375rem] leading-normal text-ink-soft;
   }
 
   /* L3 — free-text prose: a note field, the scratchpad. One size everywhere,
@@ -250,7 +250,7 @@ html.dark {
    * below .value so a note never reads louder than the quiet section header
    * above it. Callers may override the colour (text-ink-soft when secondary). */
   .note {
-    @apply text-[0.9375rem] leading-[1.6] text-ink;
+    @apply text-[1.0625rem] leading-[1.5] text-ink;
   }
 
   /* a label / value list row — hairline between peers only. Label and value
@@ -260,10 +260,10 @@ html.dark {
     @apply flex items-baseline justify-between gap-4 border-b border-line py-3 last:border-b-0;
   }
   .row-label {
-    @apply shrink-0 text-[0.9375rem] text-ink-soft;
+    @apply shrink-0 text-[1.0625rem] text-ink-soft;
   }
   .row-value {
-    @apply min-w-0 text-right font-sans text-[0.9375rem] font-normal leading-snug text-ink;
+    @apply min-w-0 text-right font-sans text-[1.0625rem] font-normal leading-snug text-ink;
   }
 
   /* a genuinely-important unresolved value */
@@ -283,6 +283,20 @@ html.dark {
     width: max(100%, 44px);
     height: max(100%, 44px);
     transform: translate(-50%, -50%);
+  }
+
+  /* iOS "bar material" for the header and tab bar: translucent + blurred where
+   * the browser can (Safari before 18 only knows the -webkit- prefix, so both
+   * spellings are tested), the plain opaque background everywhere else. */
+  .material {
+    background: rgb(var(--c-bg));
+  }
+  @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .material {
+      background: rgb(var(--c-bg) / 0.8);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      backdrop-filter: saturate(180%) blur(20px);
+    }
   }
 
   /* an inline add / secondary action the eye can find */

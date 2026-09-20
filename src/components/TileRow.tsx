@@ -39,7 +39,7 @@ export function TileRow({
         {meta != null && meta !== "" && <span className="meta mt-0.5 block break-words">{meta}</span>}
       </span>
       {right != null && right !== "" && (
-        <span className="shrink-0 text-[0.9375rem] tabular-nums text-ink-soft">{right}</span>
+        <span className="shrink-0 text-[1.0625rem] tabular-nums text-ink-soft">{right}</span>
       )}
       {showChevron && <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />}
     </>

@@ -217,7 +217,7 @@ function ListSection({ list }: { list: CustomList }) {
             <SwipeToDelete undoLabel="Item removed" onDelete={ro ? undefined : () => set((l) => { l.items.splice(i, 1); })}>
             <div className="flex items-start gap-2 px-3.5 py-3">
               <span className="min-w-0 flex-1">
-                <span className="block text-[0.9375rem] leading-snug text-ink">
+                <span className="block text-[1.0625rem] leading-snug text-ink">
                   {ro
                     ? (it.label || "Untitled")
                     : <Editable label="Item" value={it.label} placeholder="Name" onCommit={(v) => set((l) => { l.items[i].label = v; })} />}

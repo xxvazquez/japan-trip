@@ -106,7 +106,7 @@ export default function MapPane({ dayId }: { dayId: string }) {
             href={gmapsRoute(undefined, `${picked.lat},${picked.lng}`, "walking")}
             target="_blank"
             rel="noopener"
-            className="flex shrink-0 items-center gap-0.5 text-[0.8125rem] text-accent"
+            className="flex shrink-0 items-center gap-0.5 text-[0.9375rem] text-accent"
           >
             Directions <Icon name="chevron" size={12} />
           </a>

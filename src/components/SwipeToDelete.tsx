@@ -117,7 +117,7 @@ export function SwipeToDelete({
           onClick={() => closeAnd(del)}
           aria-label={label}
           tabIndex={-1}
-          className="absolute inset-y-0 right-0 flex items-center justify-center bg-danger px-3 text-[15px] font-medium text-white"
+          className="absolute inset-y-0 right-0 flex items-center justify-center bg-danger px-3 text-[17px] font-medium text-white"
           style={{ width: paneW }}
         >
           {label}

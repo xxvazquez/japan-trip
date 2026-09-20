@@ -20,7 +20,7 @@ export function BackBar({ to = "/", label }: { to?: string; label?: string }) {
   return (
     <button
       onClick={() => (canGoBack ? nav(-1) : nav(to))}
-      className="-ml-1.5 mb-4 flex items-center gap-0.5 text-[15px] text-accent transition-opacity hover:opacity-70"
+      className="-ml-1.5 mb-4 flex items-center gap-0.5 text-[17px] text-accent transition-opacity hover:opacity-70"
     >
       <Icon name="back" size={19} />
       {text}
