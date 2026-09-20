@@ -330,9 +330,11 @@ html.dark {
     }
   }
 
-  /* an inline add / secondary action the eye can find */
+  /* an inline add / secondary action the eye can find — sized like its
+   * neighbours (0.9375rem/15px), not text-sm (17px), which reads oversized
+   * next to the row content it sits beside. */
   .action {
-    @apply inline-flex items-center gap-1.5 text-sm text-accent transition-opacity hover:opacity-70 active:opacity-50;
+    @apply inline-flex items-center gap-1.5 text-[0.9375rem] text-accent transition-opacity hover:opacity-70 active:opacity-50;
   }
   /* a low-key text action ("remove", "not a day trip") — caller sets the size */
   .link-quiet {
