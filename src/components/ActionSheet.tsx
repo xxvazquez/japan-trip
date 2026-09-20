@@ -117,3 +117,32 @@ export function useActionSheet() {
   const anchorRef = useRef<HTMLButtonElement>(null);
   return { open, setOpen, anchorRef };
 }
+
+/**
+ * A destructive `menu-item` for inside a `RowMenu`/`ActionSheet` — a
+ * `<ConfirmButton>` can't go here (the sheet closing on any inner click
+ * unmounts its own confirm sheet before it can open). Instead the first tap
+ * arms it in place (relabels itself, red stays red) without closing the
+ * sheet; the second tap fires `onConfirm` and lets the click bubble to close
+ * the sheet as usual. Re-mounts unarmed every time the sheet reopens.
+ */
+export function ConfirmMenuItem({ onConfirm, label = "Remove", confirmLabel, icon }: { onConfirm: () => void; label?: string; confirmLabel?: string; icon?: ReactNode }) {
+  const [armed, setArmed] = useState(false);
+  return (
+    <button
+      type="button"
+      className="menu-item text-danger"
+      onClick={(e) => {
+        if (!armed) {
+          e.stopPropagation();
+          setArmed(true);
+          return;
+        }
+        onConfirm();
+      }}
+    >
+      {!armed && icon}
+      {armed ? confirmLabel ?? `Tap again to ${label.toLowerCase()}` : label}
+    </button>
+  );
+}

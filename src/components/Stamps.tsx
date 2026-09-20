@@ -7,7 +7,8 @@ import { INSET_DIVIDER } from "./InsetRow";
 import { Editable } from "./Editable";
 import { SwipeToDelete } from "./SwipeToDelete";
 import { RowMenu } from "./RowMenu";
-import { ActionSheet, useActionSheet } from "./ActionSheet";
+import { ConfirmButton } from "./ConfirmButton";
+import { ActionSheet, useActionSheet, ConfirmMenuItem } from "./ActionSheet";
 import { CheckCircle } from "./CheckCircle";
 import { StampSeal } from "./StampSeal";
 import { IconTile } from "./IconTile";
@@ -325,7 +326,7 @@ export function Stamps() {
               <button key={k} className="menu-item" onClick={() => set((l) => { l[i].kind = k; })}>Mark as {KINDS[k].label.toLowerCase()}</button>
             ))}
             {s.kind && <button className="menu-item" onClick={() => set((l) => { delete l[i].kind; })}>Remove icon</button>}
-            <button className="menu-item text-danger" onClick={remove}>Delete</button>
+            <ConfirmMenuItem onConfirm={remove} label="Delete" />
           </RowMenu>
         )}
       </div>
@@ -395,18 +396,16 @@ export function Stamps() {
             {inGroup && !ro && !selecting && (
               <RowMenu label="Section options">
                 <button className="menu-item" onClick={() => add(openGroup || undefined)}>Add a stamp</button>
-                <button
-                  className="menu-item text-danger"
-                  onClick={() => {
+                <ConfirmMenuItem
+                  label="Delete section"
+                  onConfirm={() => {
                     undoable("Section removed", () => {
                       removeIds(groups.get(openGroup!)!.map((r) => r.item.id));
                       setLocal(openGroup!, "");
                     });
                     goto(null, true);
                   }}
-                >
-                  Delete section
-                </button>
+                />
               </RowMenu>
             )}
           </span>
@@ -452,13 +451,14 @@ export function Stamps() {
                   />
                 </MoveRow>
                 <li className={INSET_DIVIDER}>
-                  <button
-                    onClick={() => { undoable("Stamps removed", () => removeIds(ids)); stopSelecting(); }}
+                  <ConfirmButton
+                    onConfirm={() => { undoable("Stamps removed", () => removeIds(ids)); stopSelecting(); }}
+                    label={`Delete ${plural(ids.length, "stamp")}`}
                     className="w-full px-3.5 py-2.5 text-left text-xs text-danger"
                   >
                     <Icon name="trash" size={14} className="mr-1.5 inline-block -translate-y-px" />
                     Delete {plural(ids.length, "stamp")}
-                  </button>
+                  </ConfirmButton>
                 </li>
               </>
             )}

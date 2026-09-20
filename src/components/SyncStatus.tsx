@@ -35,6 +35,7 @@ export function SyncStatus() {
   const discardSyncIssue = useApp((s) => s.discardSyncIssue);
   const online = useOnline();
   const [showSaved, setShowSaved] = useState(false);
+  const [armedKey, setArmedKey] = useState<string | null>(null);
   const { open, setOpen, anchorRef } = useActionSheet();
 
   useEffect(() => {
@@ -95,11 +96,18 @@ export function SyncStatus() {
               )}
               <button
                 type="button"
-                onClick={() => discardSyncIssue(item.key)}
-                aria-label="Discard this change"
+                onClick={(e) => {
+                  if (armedKey !== item.key) {
+                    e.stopPropagation();
+                    setArmedKey(item.key);
+                    return;
+                  }
+                  discardSyncIssue(item.key);
+                }}
+                aria-label={armedKey === item.key ? "Tap again to discard this change" : "Discard this change"}
                 className="shrink-0 text-danger"
               >
-                <Icon name="trash" size={14} />
+                {armedKey === item.key ? <span className="text-2xs">Tap again</span> : <Icon name="trash" size={14} />}
               </button>
             </div>
           );

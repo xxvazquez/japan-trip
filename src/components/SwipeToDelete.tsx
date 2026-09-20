@@ -1,18 +1,18 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useApp } from "@/store/useApp";
+import { ActionSheet } from "./ActionSheet";
 
 const supportsTouch = () =>
   typeof window !== "undefined" &&
   window.matchMedia("(hover: none) and (pointer: coarse)").matches;
 
 const REVEAL = 84; // width the pane snaps to when opened
-const FULL = 150; // drag past this and release = delete straight away
 const MAX = 260; // furthest the row can be dragged
 
 /**
  * iOS swipe-to-delete for a list row. Wrap the row's content (its padded inner
- * element); on a touch device, dragging left reveals a red Delete — a short
- * drag snaps it open, a long drag deletes. On a pointer device it renders the
+ * element); on a touch device, dragging left reveals a red Delete — tapping it
+ * asks for confirmation before it deletes. On a pointer device it renders the
  * content untouched, so the row's own ✕ / ⋯ stay the way to delete there.
  *
  * Does NOT render the `<li>`. The `<Section>` inset clips the pane to its rounded
@@ -36,6 +36,8 @@ export function SwipeToDelete({
 }) {
   const [dx, setDxState] = useState(0);
   const [open, setOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const deleteBtnRef = useRef<HTMLButtonElement>(null);
   const dragging = useRef(false);
   const dxRef = useRef(0); // the synchronous truth for the touch handlers
   const setDx = (v: number) => {
@@ -84,12 +86,6 @@ export function SwipeToDelete({
     dragging.current = false;
     if (!s || s.axis !== "x" || !was) return;
     const at = dxRef.current;
-    if (at <= -FULL) {
-      del?.();
-      setOpen(false);
-      setDx(0);
-      return;
-    }
     if (at <= -REVEAL / 2) {
       setOpen(true);
       setDx(-REVEAL);
@@ -113,8 +109,9 @@ export function SwipeToDelete({
     <div className="relative">
       {engaged && (
         <button
+          ref={deleteBtnRef}
           type="button"
-          onClick={() => closeAnd(del)}
+          onClick={() => setConfirmOpen(true)}
           aria-label={label}
           tabIndex={-1}
           className="absolute inset-y-0 right-0 flex items-center justify-center bg-danger px-3 text-[17px] font-medium text-white"
@@ -123,6 +120,18 @@ export function SwipeToDelete({
           {label}
         </button>
       )}
+      <ActionSheet open={confirmOpen} onClose={() => setConfirmOpen(false)} anchorRef={deleteBtnRef} title={`${label}?`}>
+        <button
+          type="button"
+          className="menu-item text-danger"
+          onClick={() => {
+            setConfirmOpen(false);
+            closeAnd(del);
+          }}
+        >
+          {label}
+        </button>
+      </ActionSheet>
       <div
         onTouchStart={onStart}
         onTouchMove={onMove}

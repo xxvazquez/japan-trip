@@ -23,7 +23,7 @@ import { RowSelect } from "@/components/RowSelect";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { entityLink } from "@/lib/entityLink";
 import { OPTIONAL_LOGBOOK_SECTIONS, LOGBOOK_SECTIONS, LOGBOOK_NAV_ICON, logbookLabel } from "@/lib/logbook";
-import { ActionSheet, useActionSheet } from "@/components/ActionSheet";
+import { ActionSheet, useActionSheet, ConfirmMenuItem } from "@/components/ActionSheet";
 import { fileToMediaItem, pickImage } from "@/lib/media";
 import { supabaseEnabled } from "@/lib/supabase";
 import { driveEnabled } from "@/lib/drive";
@@ -227,8 +227,7 @@ function Trips() {
                 <RowMenu>
                   {!isDemo && <button onClick={() => duplicateTrip(t.id, `${t.name} copy`)} className="menu-item">Duplicate</button>}
                   <button onClick={() => archiveTrip(t.id, true)} className="menu-item">Archive</button>
-                  {/* the sheet itself is the confirmation — Archive (reversible) sits right above */}
-                  <button onClick={() => deleteTrip(t.id)} className="menu-item text-danger">Delete</button>
+                  <ConfirmMenuItem onConfirm={() => deleteTrip(t.id)} label="Delete" confirmLabel="Tap again to delete this trip" />
                 </RowMenu>
               </span>
             </li>
@@ -246,8 +245,7 @@ function Trips() {
                 <span className="flex shrink-0 items-center gap-1">
                   <button onClick={() => archiveTrip(t.id, false)} className="action">Restore</button>
                   <RowMenu>
-                    {/* the sheet itself is the confirmation, same as the live trip list above */}
-                    <button onClick={() => deleteTrip(t.id)} className="menu-item text-danger">Delete</button>
+                    <ConfirmMenuItem onConfirm={() => deleteTrip(t.id)} label="Delete" confirmLabel="Tap again to delete this trip" />
                   </RowMenu>
                 </span>
               </li>

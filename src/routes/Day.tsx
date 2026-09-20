@@ -17,7 +17,7 @@ import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { InsetRow } from "@/components/InsetRow";
 import { RowSelect } from "@/components/RowSelect";
-import { ActionSheet, useActionSheet } from "@/components/ActionSheet";
+import { ActionSheet, useActionSheet, ConfirmMenuItem } from "@/components/ActionSheet";
 import { Editable } from "@/components/Editable";
 import { MoneyField } from "@/components/MoneyField";
 import { RichNote } from "@/components/RichNote";
@@ -746,9 +746,7 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
                 <button type="button" className="menu-item" onClick={() => onQuickAddCost(place?.name || item.text || "")}>
                   <Icon name="wallet" size={16} /> Add an expense
                 </button>
-                <button type="button" className="menu-item text-danger" onClick={() => undoable("Step removed", onRemove)}>
-                  <Icon name="close" size={16} /> Remove
-                </button>
+                <ConfirmMenuItem onConfirm={() => undoable("Step removed", onRemove)} label="Remove" icon={<Icon name="close" size={16} />} />
               </>
             )}
           </RowMenu>

@@ -4,6 +4,7 @@ import { undoable } from "@/store/useApp";
 import { MoneyField } from "./MoneyField";
 import { Icon } from "./Icon";
 import { RowMenu } from "./RowMenu";
+import { ConfirmMenuItem } from "./ActionSheet";
 import { useReadOnly } from "@/lib/readonly";
 import { useData } from "@/lib/data";
 import { fmtFare, isMoneyLabel } from "@/lib/cost";
@@ -143,7 +144,7 @@ export function FieldList({
       <RowMenu label="Field options">
         <button type="button" className="menu-item" disabled={i === 0} onClick={() => move(i, -1)}>Move up</button>
         <button type="button" className="menu-item" disabled={i === fields.length - 1} onClick={() => move(i, 1)}>Move down</button>
-        <button type="button" className="menu-item text-danger" onClick={() => undoable("Removed", () => removeAt(i))}>Remove</button>
+        <ConfirmMenuItem onConfirm={() => undoable("Removed", () => removeAt(i))} label="Remove" />
       </RowMenu>
       </span>
     </>
