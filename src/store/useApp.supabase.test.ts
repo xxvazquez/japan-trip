@@ -8,6 +8,7 @@ const fake = vi.hoisted(() => ({ current: null as unknown as ReturnType<typeof c
 vi.mock("@/lib/supabase", () => ({
   supabaseEnabled: true,
   sandboxMode: false,
+  publicDemoMode: false,
   getSupabase: () => Promise.resolve(fake.current.client),
 }));
 vi.mock("@/lib/auth", () => ({

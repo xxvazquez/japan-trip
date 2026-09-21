@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { buildFromTemplate, buildDemo, buildSandbox } from "@/templates/registry";
-import { sandboxMode } from "@/lib/supabase";
+import { sandboxMode, publicDemoMode } from "@/lib/supabase";
 import { pickBackend, needsAuth, remapIds, saveDraftSync, type Backend } from "@/lib/backend";
 import { isAuthReady, getUserId } from "@/lib/auth";
 import { subscribeTrip, unsubscribeTrip, markWritten } from "@/lib/realtime";
@@ -1121,9 +1121,11 @@ export const useApp = create<AppStore>((set, get) => {
         // Only reached when the backend answered, successfully, "you have no
         // trips" (a failed read throws above) → fresh account: drop in the
         // read-only demo tour, or an editable Sandbox under `npm run dev:demo`
+        // or the public no-login demo deploy
+        const editableDemo = sandboxMode || publicDemoMode;
         try {
-          const seed = remapIds(sandboxMode ? buildSandbox() : buildDemo());
-          const summary = summarise("", seed.meta.title, seed, sandboxMode ? "sandbox" : "demo");
+          const seed = remapIds(editableDemo ? buildSandbox() : buildDemo());
+          const summary = summarise("", seed.meta.title, seed, editableDemo ? "sandbox" : "demo");
           const id = await be.createTrip(seed, summary);
           const withId = { ...summary, id };
           await be.setActive(id, [withId]);

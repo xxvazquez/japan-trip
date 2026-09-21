@@ -398,6 +398,22 @@ Runs on **Cloudflare Workers** (static assets) via the Git integration.
 
 After the first deploy: add the `*.workers.dev` URL to the Supabase Redirect URLs (step 4 above), or Google sign-in fails. Optionally gate the site with **Cloudflare Access** (Zero Trust → Access → self-hosted app → allow your emails).
 
+### Public demo (no login)
+
+A second, separate Workers project that boots straight into an editable **Sandbox** trip — no Google sign-in, no Supabase project touched. Good for sharing the app with people who shouldn't need an account.
+
+It works by setting `VITE_PUBLIC_DEMO=1` (via [`.env.demo-public`](.env.demo-public)), which turns off Supabase the same way `dev:demo` does locally, just without the dev-only guard — see `publicDemoMode` in [`src/lib/supabase.ts`](src/lib/supabase.ts). Each visitor gets their own local copy in their browser's IndexedDB; nothing is shared between visitors and nothing reaches Supabase.
+
+**Cloudflare dashboard → Workers & Pages → Create → import `xxvazquez/japan-trip` again, as a separate project:**
+
+| Setting | Value |
+|---|---|
+| Build command | `npm run build:demo` |
+| Deploy command | `npx wrangler deploy -c wrangler.demo.jsonc` |
+| Build variables | `NODE_VERSION` = `22` (no Supabase variables — leave them unset) |
+
+The separate [`wrangler.demo.jsonc`](wrangler.demo.jsonc) (name `japan-trip-demo`) keeps this on its own `*.workers.dev` URL, distinct from the real site — don't point it at the main `wrangler.jsonc` or it'll overwrite the production deploy.
+
 ## Project layout
 
 ```
