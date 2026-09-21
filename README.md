@@ -359,7 +359,7 @@ All optional — with nothing set the app runs fully local.
 ## Setting up Supabase
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. **SQL Editor** → run every file in `supabase/migrations/` **in order** (`0001` → `0029`).
+2. **SQL Editor** → run every file in `supabase/migrations/` **in order** (`0001` → `0030`).
 3. **Authentication → Providers → Google** → enable, paste a Google Cloud OAuth client id / secret, redirect `https://<project-ref>.supabase.co/auth/v1/callback`.
 4. **Authentication → URL Configuration → Redirect URLs** → add `http://localhost:5173` and the deployed URL.
 5. Put the Project URL + anon key (**Project Settings → API**) in `.env.local`.
@@ -371,7 +371,13 @@ On first sign-in the app seeds your first trip automatically. After a schema cha
 Google sign-in has no built-in allowlist, so anyone who finds the deployed URL can otherwise create their own account (they'd only ever see their own empty trip, thanks to RLS — but it's still worth locking down).
 
 - **Quick option** — in Google Cloud Console → **APIs & Services → OAuth consent screen**, keep **Publishing status = Testing** and list only the allowed emails under **Test users**. Anyone else is blocked at Google's own sign-in screen.
-- **Durable option** — add a Supabase **"Before User Created" Auth Hook** (a Postgres function) that rejects sign-up unless the email is on an allowlist, regardless of the Google consent-screen setting.
+- **Durable option** — migration `0030` adds an `allowed_signup_emails` table plus a `restrict_signup` function; wire the function as **Authentication → Hooks → Before user created**. The table starts empty (no emails checked into the repo) — add the allowed addresses yourself in the SQL Editor:
+  ```sql
+  insert into public.allowed_signup_emails (email) values
+    (lower('you@example.com')),
+    (lower('them@example.com'))
+  on conflict do nothing;
+  ```
 
 ## Deploy
 
