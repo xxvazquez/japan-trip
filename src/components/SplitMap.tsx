@@ -108,7 +108,7 @@ export type SplitPane = ReturnType<typeof useSplitPane>;
  *  map isn't wanted. */
 export function SplitMap({ pane }: { pane: SplitPane }) {
   const { active, dayId } = useSplit();
-  const { paneWidth, collapsed, setCollapsed, dragging, onHandlePointerDown, onHandlePointerMove, onHandlePointerUp } = pane;
+  const { collapsed, setCollapsed, dragging, onHandlePointerDown, onHandlePointerMove, onHandlePointerUp } = pane;
   if (!active || !dayId) return null;
 
   if (collapsed) {
@@ -127,8 +127,7 @@ export function SplitMap({ pane }: { pane: SplitPane }) {
   return (
     <aside
       aria-label="Map"
-      style={{ width: `${paneWidth}px` }}
-      className="fixed bottom-0 right-0 top-[calc(var(--sat)+var(--nav-h)+var(--demo-h,0px))] z-20 border-l border-line bg-bg"
+      className="fixed bottom-0 right-0 top-[calc(var(--sat)+var(--nav-h)+var(--demo-h,0px))] z-20 w-[var(--pane-w)] border-l border-line bg-bg"
     >
       <div
         onPointerDown={onHandlePointerDown}
