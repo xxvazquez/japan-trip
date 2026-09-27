@@ -126,7 +126,7 @@ export default function Hotel() {
               {(!ro || hotel.price) && (
                 <InsetRow label="Price">
                   {ro ? (
-                    <span className="mr-[35px]">{fmtFare(hotel.price, hotel.priceCurrency || primary) || "—"}</span>
+                    <span className="mr-[36px]">{fmtFare(hotel.price, hotel.priceCurrency || primary) || "—"}</span>
                   ) : (
                     <MoneyField
                       trailing

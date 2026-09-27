@@ -148,7 +148,7 @@ export function buildDemo(): TripData {
         lng: 139.7790,
         checkIn: "15:00",
         checkOut: "11:00",
-        price: "€240",
+        price: "240",
         fields: [
           { id: "h-river-f1", label: "Booking ref", value: "RSV-00123" },
           { id: "h-river-f2", label: "Wifi", value: "guest / riverton2027" },

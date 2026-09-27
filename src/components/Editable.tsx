@@ -16,6 +16,9 @@ type Base = {
   className?: string;
   /** what an empty time shows instead of the placeholder text (e.g. a clock glyph) */
   emptyContent?: React.ReactNode;
+  /** how a filled value reads when not being edited ("1945.64" → "1,945.64");
+   *  the input itself still edits the raw value */
+  format?: (v: string) => string;
 };
 
 /** `auto` inspects the value and renders it as a date picker / phone / email /
@@ -102,7 +105,9 @@ export function Editable(props: Props) {
       : rawAs;
   // a select shows its option's label, not the raw stored value
   const displayValue =
-    props.as === "select" ? (props.options.find((o) => o.value === value)?.label ?? value) : value;
+    props.as === "select" ? (props.options.find((o) => o.value === value)?.label ?? value)
+      : props.format && value ? props.format(value)
+      : value;
   const readOnly = useReadOnly();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);

@@ -220,6 +220,34 @@ export function combineCurrencies(
   return out;
 }
 
+/** `fmtMoney` split around its symbol, so an editable amount can sit where the
+ *  number goes: (1945.64, "PLN") → { before: "zł\u00a0", number: "1,945.64",
+ *  after: "" }; (18, "EUR") → { before: "€", number: "18", after: "" }. The
+ *  symbol side keeps whatever spacing the currency formats with. */
+export function moneyParts(amount: number, currency: string): { before: string; number: string; after: string } {
+  const plain = { before: "", number: amount.toLocaleString(undefined, { maximumFractionDigits: 2 }), after: "" };
+  if (!currency) return plain;
+  try {
+    const parts = new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency,
+      currencyDisplay: "narrowSymbol",
+      maximumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+    }).formatToParts(amount);
+    const at = parts.findIndex((p) => p.type === "currency");
+    if (at < 0) return plain;
+    const isNum = (t: string) => t !== "currency" && t !== "literal";
+    const first = parts.findIndex((p) => isNum(p.type));
+    const last = parts.length - 1 - [...parts].reverse().findIndex((p) => isNum(p.type));
+    const join = (a: number, b: number) => parts.slice(a, b).map((p) => p.value).join("");
+    return at < first
+      ? { before: join(0, first), number: join(first, last + 1), after: "" }
+      : { before: "", number: join(0, last + 1), after: join(last + 1, parts.length) };
+  } catch {
+    return { ...plain, after: ` ${currency}` };
+  }
+}
+
 /** e.g. (42000, "JPY") -> "¥42,000"; falls back to a plain number when the
  *  currency is unknown or Intl doesn't recognise the code. */
 export function fmtMoney(amount: number, currency: string): string {
