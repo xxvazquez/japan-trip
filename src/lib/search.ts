@@ -95,7 +95,7 @@ function build(d: TripData): SearchHit[] {
       chip: doc.kind === "contact" ? "Emergency" : undefined,
       label: doc.title,
       sub: doc.fields.map((f) => f.value).filter(Boolean).join(" · ") || undefined,
-      to: doc.kind === "contact" ? "/logbook/emergency" : "/logbook/documents",
+      to: doc.kind === "contact" ? "/logbook/emergency" : `/logbook/documents/${doc.id}`,
       terms: [doc.title, doc.note, ...doc.fields.flatMap((f) => [f.label, f.value])].filter(Boolean).join(" ").toLowerCase(),
     });
   }

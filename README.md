@@ -161,11 +161,11 @@ Text in the app isn't selectable (as in a native app), so values you'd want to p
 
 ### Documents
 
-One card per document. Name it ("Travel insurance"), attach the PDF / photo, add whatever fields you want, add a note. Every card is renamable, removable, and you add more from the tab.
+A list of documents; tap one to open its own page. Name it ("Travel insurance"), attach the PDF / photo, add whatever fields you want, add a note. Rename it from its title, delete it at the bottom of its page, and add more from the list — a new one opens straight onto its page. A row shows how many files it has.
 
 - Signed in, attachments are saved to your account (private, shared with everyone on the trip; 25 MB per file) — or to a shared Google Drive folder when Drive is connected.
 - Signed out / "this device only", they stay on the device. Files added on a device earlier are uploaded to your account automatically the next time the trip opens, and the device copy is kept.
-- Removing an attachment only removes it from the card; the file itself is never deleted.
+- Removing an attachment only removes it from the document; the file itself is never deleted.
 
 ### Packing
 

@@ -13,7 +13,6 @@ import { ActionRow } from "@/components/ActionRow";
 import { AccordionRow } from "@/components/AccordionRow";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { SwipeToDelete } from "@/components/SwipeToDelete";
-import { ConfirmButton } from "@/components/ConfirmButton";
 import { RowMenu } from "@/components/RowMenu";
 import { ConfirmMenuItem } from "@/components/ActionSheet";
 import { Editable } from "@/components/Editable";
@@ -28,20 +27,15 @@ import { useData } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useAuth } from "@/lib/auth";
 import { supabaseEnabled } from "@/lib/supabase";
-import { uploadFile, signedFileUrl, MAX_FILE_BYTES } from "@/lib/cloudFiles";
+import { driveEnabled } from "@/lib/drive";
 import { useReadOnly } from "@/lib/readonly";
-import { APP_NAME } from "@/lib/app";
 import { fmtDate, fmtSpan, journeyDepartDate, plural } from "@/lib/dates";
 import { MODE_ICON } from "@/lib/transport";
 import { toneForSegmentMode, logbookSectionTile, customListColor, TONE_BG, type Tone } from "@/lib/tones";
 import { LOGBOOK_SECTIONS, logbookLabel, sectionSlug, sectionFromSlug, type LogbookSection } from "@/lib/logbook";
 import { tripCost, fmtMoney, combineCurrencies, expenseCategoryIcon } from "@/lib/cost";
 import { useFxRates } from "@/lib/fx";
-import { putFile, fileUrl } from "@/lib/fileStore";
-import {
-  driveEnabled, ensureFolder, uploadToDrive, shareFile, driveViewUrl, driveImageUrl,
-} from "@/lib/drive";
-import type { CustomList, Doc, DocFile, LuggageNote, PackingItem, ScratchNote, TripData } from "@/core/types";
+import type { CustomList, Doc, LuggageNote, PackingItem, ScratchNote, TripData } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 8);
 
@@ -590,7 +584,7 @@ function DocumentsInfo() {
   const stored = !cloud && supabaseEnabled && !!user;
   return (
     <>
-      One card per document — rename it, add your own fields, attach a file, add a note.{" "}
+      One page per document — rename it, add your own fields, attach a file, add a note.{" "}
       {cloud
         ? "Attachments upload to a Google Drive folder shared with the people on this trip. Still — think twice before a full passport scan."
         : stored
@@ -603,28 +597,22 @@ function DocumentsInfo() {
 function Documents() {
   const data = useData()!;
   const ro = useReadOnly();
-  const updateEntity = useApp((s) => s.updateEntity);
   const addEntity = useApp((s) => s.addEntity);
-  const removeEntity = useApp((s) => s.removeEntity);
-  const { user } = useAuth();
+  const nav = useNavigate();
   const docs = data.docs.filter((d) => d.kind !== "contact");
 
-  const cloud = driveEnabled && !!user;
-  // signed in without Drive: files go to the account's own private storage
-  const stored = !cloud && supabaseEnabled && !!user;
-  const tripId = useApp((s) => s.activeId);
-  const folderName = `${APP_NAME} · ${data.meta.title}`;
-  const shareWith = (data.config.driveShareEmails ?? [])
-    .map((e) => e.trim().toLowerCase())
-    .filter((e) => e && e !== user?.email?.toLowerCase());
-
-  const addDoc = () => addEntity("docs", { id: crypto.randomUUID?.() ?? `docs-${rid()}`, title: "New document", kind: "other", fields: [] } as never);
+  // a new document opens straight onto its own page, same as a new journey
+  const addDoc = () => {
+    const id = crypto.randomUUID?.() ?? `docs-${rid()}`;
+    addEntity("docs", { id, title: "New document", kind: "other", fields: [] } as never);
+    nav(`/logbook/documents/${id}`);
+  };
 
   if (docs.length === 0) {
     return (
       <Empty
         what="No documents"
-        hint="Insurance, a booking, a permit — one card each."
+        hint="Insurance, a booking, a permit — one page each."
         onAdd={ro ? undefined : addDoc}
         addLabel="Add a document"
       />
@@ -632,179 +620,23 @@ function Documents() {
   }
 
   return (
-    <div className="space-y-6">
-      <Section>
-        <ul>
-          {docs.map((d) => (
-            <AccordionRow
+    <Section>
+      <ul>
+        {docs.map((d) => {
+          const n = d.files?.length ?? 0;
+          return (
+            <TileRow
               key={d.id}
-              id={d.id}
-              icon="vault"
-              title={
-                ro
-                  ? d.title
-                  : <Editable label="Document name" value={d.title} placeholder="Name" onCommit={(v) => updateEntity<Doc>("docs", d.id, { title: v || "Untitled" })} />
-              }
-              action={!ro && cardDeleteBtn(() => undoable("Document deleted", () => removeEntity("docs", d.id)), "Delete document")}
-            >
-              {(!ro || (d.files?.length ?? 0) > 0) && (
-                <div className="px-3.5 py-3">
-                  <Attachments
-                    doc={d}
-                    cloud={cloud}
-                    tripId={stored ? tripId : null}
-                    folderName={folderName}
-                    shareWith={shareWith}
-                    onChange={(files) => updateEntity<Doc>("docs", d.id, { files })}
-                  />
-                </div>
-              )}
-              {(d.fields.length > 0 || !ro) && (
-                <ul className="border-t border-line">
-                  <FieldList
-                    inset
-                    fields={d.fields}
-                    onChange={(next) => updateEntity<Doc>("docs", d.id, { fields: next })}
-                  />
-                </ul>
-              )}
-              {(d.note?.trim() || !ro) && (
-                <div className="note border-t border-line px-3.5 py-3 text-ink-soft">
-                  <RichNote
-                    value={d.note ?? ""}
-                    onCommit={(v) => updateEntity<Doc>("docs", d.id, { note: v || undefined })}
-                    placeholder="Add a note…"
-                  />
-                </div>
-              )}
-            </AccordionRow>
-          ))}
-          {!ro && <ActionRow icon="plus" label="Add a document" onClick={addDoc} />}
-        </ul>
-      </Section>
-    </div>
-  );
-}
-
-function Attachments({
-  doc, onChange, cloud, tripId, folderName, shareWith,
-}: {
-  doc: Doc;
-  onChange: (files: DocFile[]) => void;
-  cloud: boolean;
-  /** set when files should go to the account's private storage for this trip */
-  tripId: string | null;
-  folderName: string;
-  shareWith: string[];
-}) {
-  const ro = useReadOnly();
-  const files = doc.files ?? [];
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState("");
-  const [broken, setBroken] = useState<Set<string>>(new Set());
-
-  const add = async (fileList: FileList | null) => {
-    if (!fileList?.length) return;
-    setErr("");
-    if (cloud) {
-      setBusy(true);
-      try {
-        const folderId = await ensureFolder(folderName);
-        const added: DocFile[] = [];
-        for (const f of Array.from(fileList)) {
-          const up = await uploadToDrive(f, f.name, folderId);
-          if (shareWith.length) await shareFile(up.id, shareWith);
-          added.push({ id: rid(), name: up.name, size: up.size, driveId: up.id, mime: up.mime });
-        }
-        onChange([...files, ...added]);
-      } catch (e) {
-        setErr(e instanceof Error ? e.message : "Upload failed.");
-      } finally {
-        setBusy(false);
-      }
-    } else if (tripId) {
-      setBusy(true);
-      try {
-        const added: DocFile[] = [];
-        for (const f of Array.from(fileList)) {
-          if (f.size > MAX_FILE_BYTES) throw new Error(`“${f.name}” is over ${MAX_FILE_BYTES / 1048576} MB, which is the most one file can be.`);
-          const id = crypto.randomUUID();
-          const storagePath = `${tripId}/${id}`;
-          await uploadFile(storagePath, f);
-          added.push({ id, name: f.name, size: f.size, mime: f.type, storagePath });
-        }
-        onChange([...files, ...added]);
-      } catch (e) {
-        setErr(e instanceof Error ? e.message : "Upload failed.");
-      } finally {
-        setBusy(false);
-      }
-    } else {
-      const added: DocFile[] = [];
-      for (const f of Array.from(fileList)) added.push({ id: await putFile(f), name: f.name, size: f.size, mime: f.type });
-      onChange([...files, ...added]);
-    }
-  };
-
-  const open = async (f: DocFile) => {
-    if (f.driveId) window.open(driveViewUrl(f.driveId), "_blank", "noopener");
-    else if (f.storagePath) {
-      // open the tab first (a popup blocker only allows it inside the tap), then point it at the signed link
-      const w = window.open("", "_blank");
-      const url = await signedFileUrl(f.storagePath).catch(() => null);
-      if (url && w) w.location.href = url;
-      else { w?.close(); setErr("Couldn’t open that file right now — check your connection and try again."); }
-    } else {
-      const url = await fileUrl(f.id);
-      if (url) window.open(url, "_blank");
-    }
-  };
-  // Only the reference goes. The bytes (device or Drive) are deliberately left
-  // where they are: removing a row can be undone from the toast or a restore
-  // point, and an undo pointing at a deleted file would restore a dead link.
-  const remove = async (f: DocFile) => {
-    onChange(files.filter((x) => x.id !== f.id));
-  };
-
-  if (ro && files.length === 0) return null;
-  return (
-    <div>
-      {files.map((f) => {
-        const img = f.driveId && f.mime?.startsWith("image/") && !broken.has(f.id);
-        return (
-          <div key={f.id} className={`${INSET_DIVIDER} py-3`}>
-            <div className="group flex items-center gap-2.5">
-              <Icon name="vault" size={16} className="shrink-0 text-ink-soft" />
-              <button onClick={() => open(f)} className="value min-w-0 flex-1 break-words text-left hover:underline">{f.name}</button>
-              {f.size ? <span className="shrink-0 text-xs text-ink-faint tabular-nums">{(f.size / 1048576).toFixed(1)} MB</span> : null}
-              {!ro && (
-                <ConfirmButton onConfirm={() => remove(f)} label="Remove file" className="shrink-0 text-xs text-ink-faint hover:text-accent">
-                  <Icon name="trash" size={13} />
-                </ConfirmButton>
-              )}
-            </div>
-            {img && (
-              <button onClick={() => open(f)} className="mt-2 block">
-                <img
-                  src={driveImageUrl(f.driveId!)}
-                  alt={f.name}
-                  loading="lazy"
-                  onError={() => setBroken((s) => new Set(s).add(f.id))}
-                  className="max-h-40 rounded border border-line object-cover"
-                />
-              </button>
-            )}
-          </div>
-        );
-      })}
-      {!ro && (
-        <label className={`action mt-3 text-xs ${busy ? "pointer-events-none opacity-50" : "cursor-pointer"}`}>
-          <Icon name="download" size={13} className="rotate-180" /> {busy ? "Uploading…" : files.length ? "Attach another file" : "Attach a file"}
-          <input type="file" accept=".pdf,image/*" multiple className="hidden" disabled={busy} onChange={(e) => { void add(e.target.files); e.target.value = ""; }} />
-        </label>
-      )}
-      {err && <p className="mt-1.5 text-xs text-accent">{err}</p>}
-    </div>
+              to={`/logbook/documents/${d.id}`}
+              tile={<IconTile size="sm" name="vault" tone="ink-faint" />}
+              title={d.title}
+              meta={n ? plural(n, "file") : undefined}
+            />
+          );
+        })}
+        {!ro && <ActionRow icon="plus" label="Add a document" onClick={addDoc} />}
+      </ul>
+    </Section>
   );
 }
 

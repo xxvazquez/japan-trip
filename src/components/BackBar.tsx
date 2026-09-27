@@ -4,6 +4,7 @@ import { Icon } from "./Icon";
 export const PARENT_LABEL: Record<string, string> = {
   "/": "Plan",
   "/logbook": "Logbook",
+  "/logbook/documents": "Documents",
   "/map": "Map",
   "/manage": "Manage",
 };
