@@ -180,6 +180,15 @@ export async function loadTrip(dbId: string): Promise<TripData> {
     await Promise.all(
       (Object.keys(SPECS) as EntityType[]).map(async (type) => {
         const data = await selectAll(SPECS[type].table, "trip_id", dbId, ["position", "id"]);
+        const drift: { id: string; position: number }[] = [];
+        data.forEach((r, i) => {
+          knownPos.set(posKey(type, r.id as string), r.position as number);
+          if (r.position !== i) drift.push({ id: r.id as string, position: i });
+        });
+        // older builds left gaps and duplicate positions behind after a delete,
+        // so ties came back in id order instead of the order they were saved in;
+        // store the order just loaded so it stays put from now on
+        if (drift.length) void setPositions(type, drift).catch((e) => console.warn("[db] couldn't repair list order", e));
         return [type, data.map((r) => rowToEntity(SPECS[type], r))] as const;
       }),
     ),
@@ -274,9 +283,19 @@ export async function createTrip(
 
 /* ------------------------------------------------------------------ per-row writes */
 
+/** Last position each row is known to hold on the server, so a renumber only
+ *  sends the rows that actually moved. */
+const knownPos = new Map<string, number>();
+const posKey = (type: EntityType, id: string) => `${type}:${id}`;
+/** a row's position as another device just wrote it (realtime inbound) */
+export function notePosition(type: EntityType, id: string, position: unknown) {
+  if (typeof position === "number") knownPos.set(posKey(type, id), position);
+}
+
 export async function upsertRow(tripId: string, type: EntityType, entity: Record<string, unknown>, position: number) {
   const sb = await client();
   check(await sb.from(SPECS[type].table).upsert(entityToRow(SPECS[type], entity, tripId, position)));
+  knownPos.set(posKey(type, entity.id as string), position);
 }
 
 export async function deleteRow(type: EntityType, id: string) {
@@ -288,8 +307,10 @@ export async function setPositions(type: EntityType, items: { id: string; positi
   const sb = await client();
   // a failed reorder must fail the op (so it retries), not vanish: the update
   // builder resolves with `{ error }` rather than rejecting
-  const results = await Promise.all(items.map((it) => sb.from(SPECS[type].table).update({ position: it.position }).eq("id", it.id)));
+  const moved = items.filter((it) => knownPos.get(posKey(type, it.id)) !== it.position);
+  const results = await Promise.all(moved.map((it) => sb.from(SPECS[type].table).update({ position: it.position }).eq("id", it.id)));
   for (const r of results) if (r.error) throw r.error;
+  for (const it of moved) knownPos.set(posKey(type, it.id), it.position);
 }
 
 /** Replace one journey's segments (scoped — never touches other data). */

@@ -1,5 +1,5 @@
 import { getSupabase } from "./supabase";
-import { TABLE_OF, TYPE_OF_TABLE, rowToEntity, rowToSeg, SPECS } from "./db";
+import { TABLE_OF, TYPE_OF_TABLE, rowToEntity, rowToSeg, SPECS, notePosition } from "./db";
 import type { TripData } from "@/core/types";
 
 type Apply = (fn: (d: TripData) => void) => void;
@@ -132,6 +132,7 @@ function splice(
     return true;
   }
   const entity = rowToEntity(SPECS[type], payload.new) as { id: string };
+  notePosition(type, entity.id, payload.new.position);
   if (type === "journeys") (entity as { segments?: unknown[] }).segments ??= (list.find((x) => x.id === entity.id) as { segments?: unknown[] })?.segments ?? [];
   if (type === "areas") (entity as { placeIds?: unknown[] }).placeIds ??= (list.find((x) => x.id === entity.id) as { placeIds?: unknown[] })?.placeIds ?? [];
   const i = list.findIndex((x) => x.id === entity.id);

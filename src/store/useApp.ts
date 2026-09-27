@@ -1502,6 +1502,9 @@ export const useApp = create<AppStore>((set, get) => {
       });
       if (next) {
         enqueue(get, { t: "del", type, id });
+        // close the gap, or the next single-row save lands on a position a
+        // later row still holds and the two swap places on reload
+        enqueue(get, { t: "pos", type });
         for (const areaId of touchedAreas) enqueue(get, { t: "areaPlaces", areaId });
         for (const dayId of touchedDays) enqueue(get, { t: "row", type: "days", id: dayId });
       }
