@@ -7,7 +7,7 @@ import { Icon } from "@/components/Icon";
 import { useApp, undoable } from "@/store/useApp";
 import { useData } from "@/lib/data";
 import { useAsyncAction } from "@/lib/useAsyncAction";
-import { useIsDark } from "@/lib/mode";
+import { useIsDark, useMode, type Mode } from "@/lib/mode";
 import { APP_BUILD, APP_NAME, APP_TAGLINE } from "@/lib/app";
 import { tripLogoSrc } from "@/components/Wordmark";
 import { daysBetween, plural, rangeText } from "@/lib/dates";
@@ -936,8 +936,26 @@ function Appearance() {
   const { setMedia, addGalleryMedia, removeGalleryMedia, undoable } = useApp();
   const [advanced, setAdvanced] = useState(false);
   const { busy, run } = useAsyncAction();
+  const [mode, setMode] = useMode();
   if (!data) return null;
-  if (data.config.demo) return <DemoNotice />;
+  // light/dark belongs to this device, not the trip — so it's here even on the
+  // read-only demo, where the rest of the tab is off limits
+  const appearance = (
+    <Section title="Appearance">
+      <div className="px-3.5 py-3">
+        <SegmentedControl<Mode>
+          value={mode}
+          onChange={setMode}
+          options={[
+            { value: "system", label: "Automatic" },
+            { value: "light", label: "Light" },
+            { value: "dark", label: "Dark" },
+          ]}
+        />
+      </div>
+    </Section>
+  );
+  if (data.config.demo) return <div className="space-y-6">{appearance}<DemoNotice /></div>;
   const { config, media } = data;
   // the colours actually showing: a named preset's own, else the trip's stored set
   const active = THEME_PRESETS.find((p) => p.id === config.themePreset)?.tokens ?? config.theme;
@@ -959,6 +977,7 @@ function Appearance() {
 
   return (
     <div className="space-y-6">
+      {appearance}
       <Section title="Theme">
         <ul role="radiogroup" aria-label="Theme">
           {THEME_PRESETS.map((p) => {

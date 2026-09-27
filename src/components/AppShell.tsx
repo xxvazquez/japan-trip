@@ -1,7 +1,6 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { TabBarOrRail } from "./TabBarOrRail";
-import { ThemeToggle } from "./ThemeToggle";
 import { SyncStatus } from "./SyncStatus";
 import { PullToRefresh } from "./PullToRefresh";
 import { SearchOverlay } from "./SearchOverlay";
@@ -87,7 +86,6 @@ export function AppShell() {
             >
               <Icon name="search" size={19} />
             </button>
-            <ThemeToggle />
             <Link
               to="/manage"
               className="grid h-11 w-11 place-items-center transition-colors hover:text-accent md:hidden"

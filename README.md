@@ -207,6 +207,8 @@ Totals every price in the trip (a stay's price, a journey's fare, a day's spendi
 - The **Tabs** panel above it reorders, renames or hides the three main tabs (Plan, Map, Logbook) — and **Add tab** lets you pin any Logbook page (Packing, say) straight onto the main nav as its own tab; hiding a pinned page's Logbook section disables its tab too, so there's never a dead link.
 - A **Help & FAQ** link sits at the bottom of every Manage tab — plain-language answers to the non-obvious bits ("modes", Custom vs. a place in Plan, Areas vs. categories, My Maps sync…).
 
+**Light or dark** is set per device under *Manage → Look → Appearance* — *Automatic* follows the phone's own setting. It works on the demo trip too, since it isn't part of any trip.
+
 ## Sharing a copy
 
 **Download web page** (Manage → Sharing) builds the whole trip as one self-contained `.html` file — itinerary, journeys, stays and the place list, all styled, no internet needed. Open it in any browser, or print it (print-to-PDF for a PDF). Send it to whoever you're travelling with.
