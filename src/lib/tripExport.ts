@@ -17,7 +17,7 @@
 import type {
   Day, Doc, Hotel, Journey, Leg, Place, Segment, TripData,
 } from "@/core/types";
-import { fmtDate, fmtSpan, plural, todayISO } from "@/lib/dates";
+import { fmtDate, fmtSpan, legNights, plural, todayISO } from "@/lib/dates";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import { localMinutes, fmtMinutes } from "@/lib/time";
 import { gmapsLink } from "@/lib/maps";
@@ -173,7 +173,7 @@ function itinerarySection(data: TripData): string {
     const days = data.days
       .filter((d) => d.legId === leg.id)
       .sort((a, b) => a.date.localeCompare(b.date));
-    const nights = Math.max(0, Math.round((+new Date(leg.end) - +new Date(leg.start)) / 864e5));
+    const nights = legNights(leg, data.legs);
     const range = leg.start && leg.end
       ? `${fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – ${fmtDate(leg.end, loc, { day: "numeric", month: "short" })} · ${plural(nights, "night")}`
       : "";

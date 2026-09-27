@@ -23,7 +23,7 @@ import { Icon, type IconName } from "@/components/Icon";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { tripClock, fmtDate, dayKind, legForDate, addDays, plural } from "@/lib/dates";
+import { tripClock, fmtDate, dayKind, legForDate, addDays, legNights, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import type { Day, Leg, TripData } from "@/core/types";
 
@@ -205,8 +205,6 @@ function LegList({ data, todayISO, readOnly }: { data: TripData; todayISO: strin
     if (changed) reorderDays(data.legs.map((l) => ({ legId: l.id, dayIds: final[l.id] ?? [] })));
   };
 
-  const nightsOf = (start: string, end: string) => Math.max(0, Math.round((+new Date(end) - +new Date(start)) / 864e5));
-
   return (
     <DndContext
       sensors={sensors}
@@ -222,7 +220,7 @@ function LegList({ data, todayISO, readOnly }: { data: TripData; todayISO: strin
             key={leg.id}
             leg={leg}
             loc={loc}
-            nights={nightsOf(leg.start, leg.end)}
+            nights={legNights(leg, data.legs)}
             dayIds={cols[leg.id] ?? []}
             days={data}
             todayISO={todayISO}

@@ -1,4 +1,4 @@
-import type { Day, ISODate, TripData } from "@/core/types";
+import type { Day, ISODate, Leg, TripData } from "@/core/types";
 
 const MS_DAY = 86_400_000;
 
@@ -19,6 +19,17 @@ export function todayISO(now = new Date()): ISODate {
 
 export function daysBetween(a: ISODate, b: ISODate): number {
   return Math.round((parseISO(b).getTime() - parseISO(a).getTime()) / MS_DAY);
+}
+
+/** Nights spent at a stay. `leg.end` is the stay's last day, not the morning
+ *  after — so a stay followed by another one also sleeps its last day there
+ *  (up to the next stay's start), while the trip's final stay ends the night
+ *  before its last day, which is the day home. */
+export function legNights(leg: Leg, legs: Leg[]): number {
+  if (!leg.start || !leg.end) return 0;
+  const span = Math.max(0, daysBetween(leg.start, leg.end));
+  const next = legs.map((l) => l.start).filter((s) => s && s > leg.start).sort()[0];
+  return next ? Math.min(span + 1, Math.max(0, daysBetween(leg.start, next))) : span;
 }
 
 export function addDays(d: ISODate, n: number): ISODate {
