@@ -14,6 +14,8 @@ import { AccordionRow } from "@/components/AccordionRow";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { SwipeToDelete } from "@/components/SwipeToDelete";
 import { ConfirmButton } from "@/components/ConfirmButton";
+import { RowMenu } from "@/components/RowMenu";
+import { ConfirmMenuItem } from "@/components/ActionSheet";
 import { Editable } from "@/components/Editable";
 import { Stamps } from "@/components/Stamps";
 import { FieldList } from "@/components/FieldList";
@@ -177,10 +179,12 @@ export function LogbookSection() {
 /** Delete control for a whole card / group on a Logbook tab — a luggage note, a
  *  custom-list item, a packing group. Two-tap confirm, like everywhere a thing
  *  (not a row) gets removed. */
+// behind ⋯ rather than a standing trash icon — a destructive control
+// shouldn't sit in plain view on every card header
 const cardDeleteBtn = (onConfirm: () => void, label: string) => (
-  <ConfirmButton onConfirm={onConfirm} label={label} className="shrink-0 text-xs text-ink-faint hover:text-accent">
-    <Icon name="trash" size={14} />
-  </ConfirmButton>
+  <RowMenu label={`More — ${label.toLowerCase()}`}>
+    <ConfirmMenuItem onConfirm={onConfirm} label={label} icon={<Icon name="trash" size={16} />} />
+  </RowMenu>
 );
 
 /* -------------------------------------------------------------- custom list */
