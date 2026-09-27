@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { ChipStrip } from "./ChipStrip";
 import { ActionSheet, useActionSheet } from "./ActionSheet";
 import { Icon } from "./Icon";
 import { zoneAbbr } from "@/lib/dates";
@@ -170,12 +171,12 @@ export function TimeZonePicker({ value, onChange, label }: { value: string; onCh
               />
             </div>
             {!tokens.length && (
-              <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-0.5 [-webkit-mask-image:linear-gradient(to_right,black_calc(100%-20px),transparent_100%)] [mask-image:linear-gradient(to_right,black_calc(100%-20px),transparent_100%)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <ChipStrip className="pb-0.5">
                 <button type="button" className="chip" aria-pressed={!region} onClick={() => setRegion(null)}>All</button>
                 {regions.map((r) => (
                   <button key={r} type="button" className="chip" aria-pressed={region === r} onClick={() => setRegion(r)}>{r}</button>
                 ))}
-              </div>
+              </ChipStrip>
             )}
           </div>
 

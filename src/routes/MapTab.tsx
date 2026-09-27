@@ -24,6 +24,7 @@ import { TRANSIT_KINDS, TRANSIT_META } from "@/lib/transitLayers";
 import { nearestStationFromMap, nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
 import { estimateWalk, useWalk } from "@/lib/walkRoute";
 import { WalkLine } from "@/components/WalkLine";
+import { ChipStrip } from "@/components/ChipStrip";
 import { glyphPath } from "@/lib/mapGlyphs";
 import { toneForPlaceCategory, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
 import { placeLegMap } from "@/lib/cityAssign";
@@ -1064,7 +1065,7 @@ export default function MapTab() {
             below (areaGroups), not up here — a second row of area pills just
             duplicated that row's colour dot + name. */}
         <div className="flex items-center gap-2">
-          <div className="-mx-1 flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto px-1 [scrollbar-width:none] [-webkit-mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent_100%)] [mask-image:linear-gradient(to_right,black_calc(100%-28px),transparent_100%)] [&::-webkit-scrollbar]:hidden">
+          <ChipStrip className="min-w-0 flex-1 items-center">
             {[
               ...(clock.phase === "during" && clock.today
                 ? [{ id: `day:${clock.today.id}`, label: "Today", hex: "" }]
@@ -1087,7 +1088,7 @@ export default function MapTab() {
                 </button>
               );
             })}
-          </div>
+          </ChipStrip>
           {todayScopeId && scope === todayScopeId && (
             <button
               onClick={() => setNearbyOn((v) => !v)}

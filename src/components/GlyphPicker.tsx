@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { ChipStrip } from "./ChipStrip";
 import { ActionSheet, useActionSheet } from "./ActionSheet";
 import { IconTile } from "./IconTile";
 import { Icon, type IconName } from "./Icon";
@@ -104,12 +105,12 @@ export function GlyphPicker({
             />
           </div>
           {!q && (
-            <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-0.5 [-webkit-mask-image:linear-gradient(to_right,black_calc(100%-20px),transparent_100%)] [mask-image:linear-gradient(to_right,black_calc(100%-20px),transparent_100%)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <ChipStrip className="pb-0.5">
               <CategoryChip label="All" active={!category} onSelect={() => setCategory(null)} />
               {MAP_GLYPH_CATEGORIES.map((c) => (
                 <CategoryChip key={c.category} label={c.category} active={category === c.category} onSelect={() => setCategory(c.category)} />
               ))}
-            </div>
+            </ChipStrip>
           )}
         </div>
 
