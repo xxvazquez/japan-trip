@@ -154,7 +154,11 @@ export function LogbookSection() {
       <PageHeader
         back="/logbook"
         title={list ? list.title : logbookLabel(builtin!)}
-        info={builtin === "notes" ? "A scratchpad of separate notes — shopping lists, things you keep forgetting, a phrase you want to remember. Shared with anyone the trip is shared with." : undefined}
+        info={
+          builtin === "notes" ? "A scratchpad of separate notes — shopping lists, things you keep forgetting, a phrase you want to remember. Shared with anyone the trip is shared with."
+            : builtin === "documents" ? <DocumentsInfo />
+            : undefined
+        }
         className="mb-6"
       />
       {list ? (
@@ -579,6 +583,23 @@ function Expenses() {
 /** Documents are plain titled reference cards — one per document. Rename it,
  *  attach the file, add whatever fields you want, add a note. Every card is
  *  editable, removable, and you add more from the tab. */
+/** The Documents page's ⓘ — where attachments end up depends on how you're signed in. */
+function DocumentsInfo() {
+  const { user } = useAuth();
+  const cloud = driveEnabled && !!user;
+  const stored = !cloud && supabaseEnabled && !!user;
+  return (
+    <>
+      One card per document — rename it, add your own fields, attach a file, add a note.{" "}
+      {cloud
+        ? "Attachments upload to a Google Drive folder shared with the people on this trip. Still — think twice before a full passport scan."
+        : stored
+          ? "Attachments are saved to your account and shared with the people on this trip. Still — think twice before a full passport scan."
+          : "Attachments stay only on the device they’re added on — passport numbers don’t belong here."}
+    </>
+  );
+}
+
 function Documents() {
   const data = useData()!;
   const ro = useReadOnly();
@@ -612,18 +633,7 @@ function Documents() {
 
   return (
     <div className="space-y-6">
-      <Section
-        info={
-          <>
-            One card per document — rename it, add your own fields, attach a file, add a note.{" "}
-            {cloud
-              ? "Attachments upload to a Google Drive folder shared with the people on this trip. Still — think twice before a full passport scan."
-              : stored
-                ? "Attachments are saved to your account and shared with the people on this trip. Still — think twice before a full passport scan."
-                : "Attachments stay only on the device they’re added on — passport numbers don’t belong here."}
-          </>
-        }
-      >
+      <Section>
         <ul>
           {docs.map((d) => (
             <AccordionRow
