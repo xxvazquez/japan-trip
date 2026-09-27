@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
@@ -35,7 +35,9 @@ export default function Document() {
   const ro = useReadOnly();
   if (!data) return null;
 
-  const doc = data.docs.find((d) => d.id === id && d.kind !== "contact");
+  const doc = data.docs.find((d) => d.id === id);
+  // emergency contacts are docs too, but they live on their own list
+  if (doc?.kind === "contact") return <Navigate to="/logbook/emergency" replace />;
   if (!doc)
     return <Missing title="No document here" body="That document isn’t part of this trip." to="/logbook/documents" cta="See all documents" />;
   const p = (patch: Partial<Doc>) => updateEntity<Doc>("docs", doc.id, patch);
