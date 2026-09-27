@@ -260,7 +260,10 @@ function categoryColor(index: number): string {
  *  it'll actually look once picked. */
 export function categoryGlyphTile(glyph: string, index: number): Pick<CategoryTile, "tone" | "color"> {
   const tone = toneForGlyph(glyph);
-  return tone === "accent" ? { color: categoryColor(index) } : { tone };
+  if (tone === "accent") return { color: categoryColor(index) };
+  // a hotel glyph is grey on a map pin, but in Expenses grey is the faded
+  // "uncategorised" segment and sat flush against Transport's blue-grey
+  return { tone: tone === "ink-faint" ? "accent" : tone };
 }
 
 /** What `IconTile` should show for an expense category on an Expenses row.
@@ -275,7 +278,8 @@ export function categoryGlyphTile(glyph: string, index: number): Pick<CategoryTi
 export function expenseCategoryIcon(cat: ExpenseCategory, index: number): CategoryTile {
   if (cat.icon) return { glyph: cat.icon, ...categoryGlyphTile(cat.icon, index) };
   if (cat.modes?.[0]) return { name: MODE_ICON[cat.modes[0]], tone: toneForSegmentMode(cat.modes[0]) };
-  if (cat.role === "lodging") return { name: "bed", tone: "ink-faint" };
+  // indigo, not a hotel pin's grey — see `categoryGlyphTile`
+  if (cat.role === "lodging") return { name: "bed", tone: "accent" };
   if (cat.role === "transport") return { glyph: "station", tone: toneForGlyph("station") };
 
   const t = cat.label.toLowerCase();

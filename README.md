@@ -193,7 +193,7 @@ Totals every price in the trip (a stay's price, a journey's fare, a day's spendi
 - A fare lands under whichever category claims its hop's mode (Train, Flights…), or under Transport if none does.
 - Each day-spending row lands under the category you picked.
 - A journey with a total *and* per-hop fares counts once, not twice.
-- If the trip uses two or more currencies, a **Combined** section at the top adds them all together in the primary one, using an exchange rate fetched automatically when you're online (and cached for when you're not). A currency the rate source doesn't cover is left out of the blend, and a line under the total says so.
+- If the trip uses two or more currencies, a **Combined** section at the top adds them all together in the primary one, using an exchange rate fetched automatically when you're online (and cached for when you're not), rounded to whole units since the rate is only an estimate. A currency the rate source doesn't cover is left out of the blend, and a line under the total says so.
 - A proportional bar above each currency's list shows the category split at a glance, coloured to match each category's own icon.
 
 ## Manage → Setup

@@ -502,10 +502,7 @@ function Expenses() {
         const tile = expenseCategoryIcon(c, categories.indexOf(c));
         return { id: c.id, amount: byCategory[c.id], tone: tile.tone, color: tile.color };
       });
-    // faded rather than a solid tone — "ink-faint" is also Accommodation's
-    // real colour (its `role: "lodging"` fallback in expenseCategoryIcon), so
-    // a plain ink-faint segment here could sit flush against an Accommodation
-    // segment and read as one continuous block instead of two categories
+    // faded rather than a solid tone, so it never reads as one more category
     if (uncategorised > 0) segs.push({ id: "uncategorised", amount: uncategorised, tone: "ink-faint" as Tone, faded: true });
     return segs;
   };
@@ -524,13 +521,13 @@ function Expenses() {
             {categories
               .filter((c) => (combined.byCategory[c.id] ?? 0) > 0)
               .map((c) => (
-                <InsetRow key={c.id} label={catLabel(c)}>{fmtMoney(combined.byCategory[c.id], primary)}</InsetRow>
+                <InsetRow key={c.id} label={catLabel(c)}>{fmtMoney(Math.round(combined.byCategory[c.id]), primary)}</InsetRow>
               ))}
             {combined.uncategorised > 0 && (
-              <InsetRow label="Uncategorised">{fmtMoney(combined.uncategorised, primary)}</InsetRow>
+              <InsetRow label="Uncategorised">{fmtMoney(Math.round(combined.uncategorised), primary)}</InsetRow>
             )}
             <InsetRow label={<span className="font-medium text-ink">Total</span>}>
-              <span className="font-medium">{fmtMoney(combined.total, primary)}</span>
+              <span className="font-medium">{fmtMoney(Math.round(combined.total), primary)}</span>
             </InsetRow>
           </ul>
           {unconverted.length > 0 && (
