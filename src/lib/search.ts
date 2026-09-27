@@ -111,7 +111,7 @@ function build(d: TripData): SearchHit[] {
   for (const n of d.scratchNotes) {
     hits.push({
       kind: "note",
-      label: n.title,
+      label: n.title || "Note",
       sub: n.text || undefined,
       to: "/logbook/notes",
       terms: [n.title, n.text].filter(Boolean).join(" ").toLowerCase(),

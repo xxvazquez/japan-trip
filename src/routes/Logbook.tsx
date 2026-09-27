@@ -998,7 +998,7 @@ function Notes() {
   const updateEntity = useApp((s) => s.updateEntity);
   const addEntity = useApp((s) => s.addEntity);
   const removeEntity = useApp((s) => s.removeEntity);
-  const add = () => addEntity("scratchNotes", { id: crypto.randomUUID?.() ?? `note-${rid()}`, title: "New note" } as never);
+  const add = () => addEntity("scratchNotes", { id: crypto.randomUUID?.() ?? `note-${rid()}`, title: "" } as never);
 
   if (data.scratchNotes.length === 0) {
     return (
@@ -1022,7 +1022,7 @@ function Notes() {
                 key={n.id}
                 id={n.id}
                 defaultOpen
-                title={<Editable label="Title" value={n.title} placeholder="Untitled" onCommit={(v) => p({ title: v || "Untitled" })} />}
+                title={<Editable label="Title" value={n.title} placeholder="Title" onCommit={(v) => p({ title: v })} />}
                 action={!ro && cardDeleteBtn(() => undoable("Note deleted", () => removeEntity("scratchNotes", n.id)), "Delete note")}
               >
                 <div className="note px-3.5 py-3 text-ink-soft">

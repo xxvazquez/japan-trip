@@ -255,9 +255,14 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
   // into the first note rather than silently losing it.
   const legacyScratch = (d as { scratch?: unknown }).scratch;
   if ((d.scratchNotes as unknown[]).length === 0 && typeof legacyScratch === "string" && legacyScratch.trim()) {
-    d.scratchNotes = [{ id: `note-${fieldId()}`, title: "Untitled", text: legacyScratch }];
+    d.scratchNotes = [{ id: `note-${fieldId()}`, title: "", text: legacyScratch }];
   }
   delete (d as { scratch?: unknown }).scratch;
+  // a note with no title used to be saved as the literal "Untitled" (and
+  // migration 0025 wrote the same) — no title now means an empty one
+  for (const n of d.scratchNotes as { title?: unknown }[]) {
+    if (n && typeof n === "object" && (typeof n.title !== "string" || n.title === "Untitled")) n.title = "";
+  }
 
   // v4: Day.plan went string[] → PlanItem[], and the separate Day.places list
   // folded into the plan. Once `plan` is an array of objects the day is on the

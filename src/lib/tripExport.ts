@@ -346,7 +346,7 @@ function logbookSection(data: TripData, opts: ExportOptions): string {
   if (data.scratchNotes.length) {
     parts.push(`<div class="lb-block"><h3>Notes</h3>${data.scratchNotes.map((n) => `
       <div class="lb-item">
-        <p class="label">${esc(n.title)}</p>
+        ${n.title ? `<p class="label">${esc(n.title)}</p>` : ""}
         ${n.text?.trim() ? `<div class="note">${mdToHtml(n.text)}</div>` : ""}
       </div>`).join("")}</div>`);
   }
