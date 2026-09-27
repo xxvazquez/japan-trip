@@ -31,7 +31,7 @@ import { supabaseEnabled } from "@/lib/supabase";
 import { uploadFile, signedFileUrl, MAX_FILE_BYTES } from "@/lib/cloudFiles";
 import { useReadOnly } from "@/lib/readonly";
 import { APP_NAME } from "@/lib/app";
-import { fmtDate, fmtSpan, plural } from "@/lib/dates";
+import { fmtDate, fmtSpan, journeyDepartDate, plural } from "@/lib/dates";
 import { MODE_ICON } from "@/lib/transport";
 import { toneForSegmentMode, logbookSectionTile, customListColor, TONE_BG, type Tone } from "@/lib/tones";
 import { LOGBOOK_SECTIONS, logbookLabel, sectionSlug, sectionFromSlug, type LogbookSection } from "@/lib/logbook";
@@ -283,8 +283,13 @@ function GettingAround() {
   const ro = useReadOnly();
   const addEntity = useApp((s) => s.addEntity);
   const nav = useNavigate();
+  // listed and labelled by when it leaves, not the day it's attached to — an
+  // overnight flight sits on its arrival day but departs the evening before
   const journeys = useMemo(
-    () => [...data.journeys].sort((a, b) => (a.date ?? "").localeCompare(b.date ?? "")),
+    () =>
+      data.journeys
+        .map((j) => ({ j, when: journeyDepartDate(j) }))
+        .sort((a, b) => (a.when ?? "").localeCompare(b.when ?? "")),
     [data.journeys],
   );
 
@@ -310,7 +315,7 @@ function GettingAround() {
     <div className="space-y-3">
       <Section>
         <ul>
-          {journeys.map((j) => {
+          {journeys.map(({ j, when }) => {
             const first = j.segments[0];
             const last = j.segments.at(-1);
             const changes = Math.max(0, j.segments.length - 1);
@@ -318,7 +323,7 @@ function GettingAround() {
             const times =
               fmtSpan(
                 { depart: first?.depart, arrive: last?.arrive ?? last?.depart, fromTz: first?.fromTz, toTz: last?.toTz },
-                j.date,
+                when,
                 loc,
               ) || "—";
             return (
@@ -328,7 +333,7 @@ function GettingAround() {
                 tile={<IconTile size="sm" name={MODE_ICON[mode]} tone={toneForSegmentMode(mode)} />}
                 title={<RouteLabel label={j.label || "Journey"} />}
                 meta={changes > 0 ? `${times} · ${plural(changes, "change")}` : times}
-                right={j.date && fmtDate(j.date, loc, { day: "numeric", month: "short" })}
+                right={when && fmtDate(when, loc, { day: "numeric", month: "short" })}
               />
             );
           })}

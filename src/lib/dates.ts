@@ -1,4 +1,4 @@
-import type { Day, ISODate, Leg, TripData } from "@/core/types";
+import type { Day, ISODate, Journey, Leg, TripData } from "@/core/types";
 
 const MS_DAY = 86_400_000;
 
@@ -211,4 +211,12 @@ export function fmtSpan(s: SegLike, journeyDate: string | undefined, locale = "e
   const b = fmtEndpoint(arrive);
   if (!a && !b) return "";
   return `${a || "—"} → ${b || "—"}`;
+}
+
+/** The date a journey sets off: its first segment's departure, else the day
+ *  it's attached to — an overnight flight sits on its arrival day but leaves
+ *  the evening before. */
+export function journeyDepartDate(j: Pick<Journey, "date" | "segments">): ISODate | undefined {
+  const d = j.segments[0]?.depart?.slice(0, 10);
+  return d && /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : j.date;
 }

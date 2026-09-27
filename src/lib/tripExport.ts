@@ -17,7 +17,7 @@
 import type {
   Day, Doc, Hotel, Journey, Leg, Place, Segment, TripData,
 } from "@/core/types";
-import { fmtDate, fmtSpan, legNights, plural, todayISO } from "@/lib/dates";
+import { fmtDate, fmtSpan, journeyDepartDate, legNights, plural, todayISO } from "@/lib/dates";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import { localMinutes, fmtMinutes } from "@/lib/time";
 import { gmapsLink } from "@/lib/maps";
@@ -216,17 +216,18 @@ function segmentBlock(s: Segment, next: Segment | undefined, opts: ExportOptions
 function journeysSection(data: TripData, opts: ExportOptions): string {
   if (!data.journeys.length) return "";
   const loc = data.config.locale;
-  const ordered = [...data.journeys].sort((a, b) => (a.date ?? "").localeCompare(b.date ?? ""));
+  const ordered = [...data.journeys].sort((a, b) => (journeyDepartDate(a) ?? "").localeCompare(journeyDepartDate(b) ?? ""));
   const currency = data.config.currency ?? "";
   const blocks = ordered.map((j: Journey) => {
-    const when = j.date ? fmtDate(j.date, loc, { weekday: "long", day: "numeric", month: "long" }) : "";
+    const day = journeyDepartDate(j);
+    const when = day ? fmtDate(day, loc, { weekday: "long", day: "numeric", month: "long" }) : "";
     const dir = j.gmapsDirections
       ? `<p class="seg-meta"><a href="${safeHref(j.gmapsDirections)}">Directions in Google Maps</a></p>`
       : "";
     return `<section class="journey" id="journey-${esc(j.id)}">
       <h3>${esc(j.label)}</h3>
       ${when ? `<p class="leg-range">${esc(when)}</p>` : ""}
-      ${j.segments.map((s, i) => segmentBlock(s, j.segments[i + 1], opts, j.date, loc, currency)).join("\n") || `<p class="empty">No hops yet.</p>`}
+      ${j.segments.map((s, i) => segmentBlock(s, j.segments[i + 1], opts, day, loc, currency)).join("\n") || `<p class="empty">No hops yet.</p>`}
       ${j.fare ? `<p class="seg-meta">Total fare: ${esc(fmtFare(j.fare, j.fareCurrency || currency))}</p>` : ""}
       ${dir}
       ${j.notes?.trim() ? `<div class="note">${mdToHtml(j.notes)}</div>` : ""}
