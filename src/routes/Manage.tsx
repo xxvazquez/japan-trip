@@ -443,6 +443,36 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
  *  padded, `InsetRow`'s own inset hairline, gone on the last row. */
 const MLI = `${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-3`;
 
+/** A Manage list row's ⋯ — move up / down and remove, instead of standing
+ *  arrows and a trash icon on every row. `onRemove` omitted = can't remove. */
+function ReorderMenu({ label, index, count, onMove, onRemove, removeLabel = "Remove", undoLabel = "Removed" }: {
+  label: string;
+  index: number;
+  count: number;
+  onMove: (dir: -1 | 1) => void;
+  onRemove?: () => void;
+  removeLabel?: string;
+  undoLabel?: string;
+}) {
+  return (
+    <RowMenu label={`More for ${label || "this row"}`}>
+      {count > 1 && (
+        <>
+          <button type="button" className="menu-item" disabled={index === 0} onClick={() => onMove(-1)}>
+            <Icon name="up" size={16} /> Move up
+          </button>
+          <button type="button" className="menu-item" disabled={index === count - 1} onClick={() => onMove(1)}>
+            <Icon name="down" size={16} /> Move down
+          </button>
+        </>
+      )}
+      {onRemove && (
+        <ConfirmMenuItem onConfirm={() => undoable(undoLabel, onRemove)} label={removeLabel} icon={<Icon name="trash" size={16} />} />
+      )}
+    </RowMenu>
+  );
+}
+
 /** the trailing "＋ Add …" row inside a Manage grouped list */
 function AddRow({ label, onClick }: { label: string; onClick: () => void }) {
   return (
@@ -560,9 +590,15 @@ function TravellersPanel() {
             <span className="min-w-0 flex-1">
               <Editable label="Name" value={p.name} placeholder="Name" onCommit={(v) => setName(i, v)} />
             </span>
-            <ConfirmButton onConfirm={() => remove(i)} label="Remove person" className="shrink-0 text-ink-faint hover:text-accent">
-              <Icon name="trash" size={14} />
-            </ConfirmButton>
+            <ReorderMenu
+              label={p.name}
+              index={i}
+              count={people.length}
+              onMove={(dir) => mutate((d) => { const a = people.slice(); [a[i], a[i + dir]] = [a[i + dir], a[i]]; sync(d, a); })}
+              onRemove={() => remove(i)}
+              removeLabel="Remove person"
+              undoLabel="Traveller removed"
+            />
           </li>
         ))}
         <AddRow label="Add a traveller" onClick={add} />
@@ -600,25 +636,11 @@ function CurrenciesPanel() {
       <ul>
         {list.map((c, i) => (
           <li key={`${c}-${i}`} className={MLI}>
-            <div className="flex flex-col">
-              <button disabled={i === 0} onClick={() => move(i, -1)} className="text-ink-faint disabled:opacity-30" aria-label="Move up">
-                <Icon name="up" size={16} />
-              </button>
-              <button disabled={i === list.length - 1} onClick={() => move(i, 1)} className="text-ink-faint disabled:opacity-30" aria-label="Move down">
-                <Icon name="down" size={16} />
-              </button>
-            </div>
             <span className="min-w-0 flex-1">
               <Editable label="Currency code" value={c} placeholder="e.g. JPY" onCommit={(v) => setAt(i, v)} />
               {i === 0 && c && <span className="eyebrow ml-2">default</span>}
             </span>
-            <ConfirmButton
-              label="Remove currency"
-              onConfirm={() => remove(i)}
-              className="shrink-0 text-ink-faint hover:text-accent"
-            >
-              <Icon name="trash" size={14} />
-            </ConfirmButton>
+            <ReorderMenu label={c} index={i} count={list.length} onMove={(dir) => move(i, dir)} onRemove={() => remove(i)} removeLabel="Remove currency" undoLabel="Currency removed" />
           </li>
         ))}
         <AddRow label="Add a currency" onClick={add} />
@@ -695,14 +717,6 @@ function ExpenseCategoriesPanel() {
       <ul>
         {cats.map((c, i) => (
           <li key={c.id} className={MLI}>
-            <div className="flex flex-col">
-              <button disabled={i === 0} onClick={() => move(i, -1)} className="text-ink-faint disabled:opacity-30" aria-label="Move up">
-                <Icon name="up" size={16} />
-              </button>
-              <button disabled={i === cats.length - 1} onClick={() => move(i, 1)} className="text-ink-faint disabled:opacity-30" aria-label="Move down">
-                <Icon name="down" size={16} />
-              </button>
-            </div>
             <GlyphPicker
               value={c.icon}
               displayGlyph={expenseCategoryIcon(c, i).glyph}
@@ -760,15 +774,15 @@ function ExpenseCategoriesPanel() {
                 </div>
               )}
             </span>
-            {cats.length > 1 && (
-              <ConfirmButton
-                label="Remove category"
-                onConfirm={() => removeCategory(c.id, c.role)}
-                className="shrink-0 text-ink-faint hover:text-accent"
-              >
-                <Icon name="trash" size={14} />
-              </ConfirmButton>
-            )}
+            <ReorderMenu
+              label={c.label}
+              index={i}
+              count={cats.length}
+              onMove={(dir) => move(i, dir)}
+              onRemove={cats.length > 1 ? () => removeCategory(c.id, c.role) : undefined}
+              removeLabel="Remove category"
+              undoLabel="Category removed"
+            />
           </li>
         ))}
         <AddRow label="Add a category" onClick={() => mutate((d) => { (d.config.expenseCategories ??= []).push({ id: `cat-${rid()}`, label: "New category" }); })} />
@@ -842,14 +856,6 @@ function ModulesPanel() {
           const renamed = (x: typeof m) => tabTarget(x).toLowerCase() !== x.label.trim().toLowerCase();
           return (
           <li key={m.id} className={MLI}>
-            <div className="flex flex-col">
-              <button disabled={i === 0} onClick={() => mutate((d) => { const a = d.config.modules; [a[i - 1], a[i]] = [a[i], a[i - 1]]; })} className="text-ink-faint disabled:opacity-30" aria-label="Move up">
-                <Icon name="up" size={16} />
-              </button>
-              <button disabled={i === modules.length - 1} onClick={() => mutate((d) => { const a = d.config.modules; [a[i + 1], a[i]] = [a[i], a[i + 1]]; })} className="text-ink-faint disabled:opacity-30" aria-label="Move down">
-                <Icon name="down" size={16} />
-              </button>
-            </div>
             <span className="flex-1">
               <Editable label="Section label" value={m.label} onCommit={(v) => mutate((d) => { d.config.modules[i].label = v || m.label; })} />
               {/* what the tab opens — only worth saying once it's been renamed
@@ -868,11 +874,15 @@ function ModulesPanel() {
             >
               <Icon name={m.enabled ? "eye" : "eye-off"} size={18} />
             </button>
-            {m.kind === "logbook-section" && (
-              <ConfirmButton onConfirm={() => mutate((d) => { d.config.modules = d.config.modules.filter((x) => x.id !== m.id); })} className="text-ink-faint hover:text-accent">
-                <Icon name="trash" size={14} />
-              </ConfirmButton>
-            )}
+            <ReorderMenu
+              label={m.label}
+              index={i}
+              count={modules.length}
+              onMove={(dir) => mutate((d) => { const a = d.config.modules; [a[i], a[i + dir]] = [a[i + dir], a[i]]; })}
+              onRemove={m.kind === "logbook-section" ? () => mutate((d) => { d.config.modules = d.config.modules.filter((x) => x.id !== m.id); }) : undefined}
+              removeLabel="Remove tab"
+              undoLabel="Tab removed"
+            />
           </li>
           );
         })}
