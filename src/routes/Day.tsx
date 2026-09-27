@@ -15,7 +15,8 @@ import { CSS } from "@dnd-kit/utilities";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
-import { InsetRow } from "@/components/InsetRow";
+import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
+import { ActionRow } from "@/components/ActionRow";
 import { RowSelect } from "@/components/RowSelect";
 import { ActionSheet, useActionSheet, ConfirmMenuItem } from "@/components/ActionSheet";
 import { Editable } from "@/components/Editable";
@@ -443,21 +444,21 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       )}
       </div>
 
-      {!day.dayTrip && !ro && (
-        <button onClick={() => patch({ dayTrip: true })} className="action mt-8">
-          <Icon name="plus" size={14} /> Make this a day trip
-        </button>
-      )}
-
+      {/* the day's own actions, one grouped list like an iOS settings footer */}
       {!ro && (
-        <Section className="mt-6">
-          <ConfirmButton
-            label="Delete day"
-            onConfirm={() => undoable("Day deleted", () => { removeEntity("days", day.id); nav("/"); })}
-            className="w-full justify-center px-3.5 py-3 text-sm text-danger"
-          >
-            Delete day
-          </ConfirmButton>
+        <Section className="mt-8">
+          <ul>
+            {!day.dayTrip && <ActionRow icon="plus" label="Make this a day trip" onClick={() => patch({ dayTrip: true })} />}
+            <li className={INSET_DIVIDER}>
+              <ConfirmButton
+                label="Delete day"
+                onConfirm={() => undoable("Day deleted", () => { removeEntity("days", day.id); nav("/"); })}
+                className="w-full px-3.5 py-2.5 text-left text-xs text-danger active:bg-ink/[0.07]"
+              >
+                Delete day
+              </ConfirmButton>
+            </li>
+          </ul>
         </Section>
       )}
     </Page>
