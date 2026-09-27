@@ -1382,7 +1382,7 @@ export default function MapTab() {
                           >
                             <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: a.tone }} />
                             <span className="min-w-0 flex-1">
-                              <span className="eyebrow block break-words">{a.name}</span>
+                              <span className="block break-words text-[0.9375rem] leading-snug text-ink">{a.name}</span>
                               <AreaWalkSpan items={a.items} />
                             </span>
                             <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{a.items.length}</span>
@@ -1440,7 +1440,7 @@ export default function MapTab() {
                     className="flex min-w-0 flex-1 items-center gap-2 text-left"
                   >
                     <span className="min-w-0 flex-1">
-                      <span className="eyebrow block break-words">{g.name}</span>
+                      <span className="block break-words text-[0.9375rem] leading-snug text-ink">{g.name}</span>
                       {isArea && <AreaWalkSpan items={g.items} />}
                     </span>
                     <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{g.items.length}</span>
