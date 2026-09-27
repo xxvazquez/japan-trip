@@ -229,7 +229,7 @@ function ListSection({ list }: { list: CustomList }) {
                 {(it.note || !ro) && (
                   <span className="meta mt-0.5 block text-ink-soft">
                     {ro ? it.note : (
-                      <Editable label="Note" value={it.note ?? ""} placeholder="＋ a note" onCommit={(v) => set((l) => { l.items[i].note = v || undefined; })} />
+                      <Editable label="Note" value={it.note ?? ""} placeholder="Add a note…" onCommit={(v) => set((l) => { l.items[i].note = v || undefined; })} />
                     )}
                   </span>
                 )}
@@ -435,7 +435,7 @@ function Emergency() {
             <RichNote
               value={contact.note ?? ""}
               onCommit={(v) => updateEntity<Doc>("docs", contact.id, { note: v || undefined })}
-              placeholder="＋ a note"
+              placeholder="Add a note…"
             />
           </div>
         </Section>
@@ -658,7 +658,7 @@ function Documents() {
                   <RichNote
                     value={d.note ?? ""}
                     onCommit={(v) => updateEntity<Doc>("docs", d.id, { note: v || undefined })}
-                    placeholder="＋ a note"
+                    placeholder="Add a note…"
                   />
                 </div>
               )}

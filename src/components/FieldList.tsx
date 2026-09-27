@@ -7,6 +7,7 @@ import { RowMenu } from "./RowMenu";
 import { ConfirmMenuItem } from "./ActionSheet";
 import { useReadOnly } from "@/lib/readonly";
 import { useData } from "@/lib/data";
+import { copyText } from "@/lib/clipboard";
 import { fmtFare, isMoneyLabel } from "@/lib/cost";
 import type { DocField } from "@/core/types";
 
@@ -110,7 +111,9 @@ export function FieldList({
 
   const editRow = (f: DocField, i: number) => (
     <>
-      <span className="w-[32%] shrink-0">
+      {/* the name takes whatever the value leaves — a long one ("Japan
+          Visitor Hotline (24h, EN)") wraps, a phone number never splits */}
+      <span className="min-w-0 flex-1">
         <Editable
           label="Field name"
           value={f.label}
@@ -119,7 +122,7 @@ export function FieldList({
           onCommit={(v) => setAt(i, { label: v })}
         />
       </span>
-      <span className="min-w-0 flex-1 break-words text-right">
+      <span className="max-w-[60%] break-words text-right [&_.row-value]:[overflow-wrap:normal]">
         {isMoneyLabel(f.label) ? (
           <MoneyField
             label={f.label || "Price"}
@@ -139,9 +142,15 @@ export function FieldList({
           />
         )}
       </span>
+      {/* copy lives in the menu while editing — a pencil, a copy icon and a
+          ⋯ on every row was three controls where one does */}
       <span className="flex shrink-0 items-center self-start">
-      {copySlot(f)}
       <RowMenu label="Field options">
+        {f.value.trim() && !isMoneyLabel(f.label) && (
+          <button type="button" className="menu-item" onClick={() => void copyText(f.value)}>
+            <Icon name="copy" size={16} /> Copy
+          </button>
+        )}
         <button type="button" className="menu-item" disabled={i === 0} onClick={() => move(i, -1)}>Move up</button>
         <button type="button" className="menu-item" disabled={i === fields.length - 1} onClick={() => move(i, 1)}>Move down</button>
         <ConfirmMenuItem onConfirm={() => undoable("Removed", () => removeAt(i))} label="Remove" />
