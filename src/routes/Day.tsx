@@ -38,7 +38,8 @@ import { useReadOnly } from "@/lib/readonly";
 import { dayKind, fmtDate, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink, gmapsRoute, mapUrlCoords } from "@/lib/maps";
-import { fmtWalk, fmtWalkMin, haversineKm } from "@/lib/geo";
+import { fmtWalk, haversineKm } from "@/lib/geo";
+import { fmtMinutes } from "@/lib/time";
 import { useWalk, estimateTransit } from "@/lib/walkRoute";
 import { nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
 import { nearestOpeningHours, type PlaceHours } from "@/lib/placeHours";
@@ -939,12 +940,12 @@ function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }
               target="_blank"
               rel="noopener"
               className={`${piece} text-accent`}
-              aria-label={`Transit directions from ${station.name} to ${nextStation.name}${transitTotal ? `, about ${fmtWalkMin(transitTotal)} door to door` : ""}`}
+              aria-label={`Transit directions from ${station.name} to ${nextStation.name}${transitTotal ? `, about ${fmtMinutes(transitTotal)} door to door` : ""}`}
             >
               <Icon name="train" size={12} className="mt-[3px] shrink-0" />
               <span className="min-w-0">
                 Train: {station.name} → {nextStation.name}
-                {transitTotal && <> · ≈ {fmtWalkMin(transitTotal)} total</>}
+                {transitTotal && <> · ≈ {fmtMinutes(transitTotal)} total</>}
               </span>
             </a>
           )}

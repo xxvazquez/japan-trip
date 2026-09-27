@@ -16,7 +16,7 @@ export function localMinutes(s?: string): number | null {
   return Date.UTC(y, m - 1, d, hh, mm) / 60000;
 }
 
-/** "1h 40m", "40m", "2h" — from two LocalDateTimes (ignores timezone shift). */
+/** "1h 40min", "40 min", "2h" — from two LocalDateTimes (ignores timezone shift). */
 export function fmtDuration(from?: string, to?: string): string | null {
   const a = localMinutes(from);
   const b = localMinutes(to);
@@ -24,12 +24,15 @@ export function fmtDuration(from?: string, to?: string): string | null {
   return fmtMinutes(b - a);
 }
 
+/** The one duration format — journeys, changes, walks, transit alike: "12 min"
+ *  under an hour, "1h 30min" / "2h" past it. Never a bare "m", which next to
+ *  a walk's "450 m" reads as metres. No-break space keeps "12 min" together. */
 export function fmtMinutes(total: number): string {
   const h = Math.floor(total / 60);
   const m = Math.round(total % 60);
-  if (h && m) return `${h}h ${m}m`;
+  if (h && m) return `${h}h ${m}min`;
   if (h) return `${h}h`;
-  return `${m}m`;
+  return `${m}\u00a0min`;
 }
 
 /** just the HH:MM part, for the timeline rail */

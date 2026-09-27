@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { fmtMinutes } from "@/lib/time";
 
 /** Great-circle distance between two lat/lng points, in kilometres. */
 export function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -18,18 +19,9 @@ export function fmtDistanceKm(km: number): string {
   return km < 1 ? `${Math.round(km * 1000)}\u00a0m` : `${km.toFixed(1)}\u00a0km`;
 }
 
-/** "12 min" under an hour, "1h 30min" past it — a manually-built area, or a
- *  long walk to a station, can span well past an hour, and a bare minute
- *  count stops reading sensibly there. */
-export function fmtWalkMin(min: number): string {
-  if (min < 60) return `${min}\u00a0min`;
-  const h = Math.floor(min / 60), m = min % 60;
-  return m ? `${h}h ${m}min` : `${h}h`;
-}
-
 /** "≈ 6 min · 450 m" — a walk always reads as time and distance together. */
 export function fmtWalk(w: { min: number; km: number }): string {
-  return `≈\u00a0${fmtWalkMin(w.min)} · ${fmtDistanceKm(w.km)}`;
+  return `≈\u00a0${fmtMinutes(w.min)} · ${fmtDistanceKm(w.km)}`;
 }
 
 export type GeoState =
