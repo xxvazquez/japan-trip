@@ -23,6 +23,8 @@ export function RichNote({
   placeholder = "Write anything — notes, reminders, a rough plan…",
   className = "",
   collapsible = false,
+  autoEdit = false,
+  onEditEnd,
 }: {
   value: string;
   onCommit: (next: string) => void;
@@ -32,9 +34,13 @@ export function RichNote({
    *  for a note that's one entry among many (e.g. a plan step), not a page's
    *  single free-text field (Scratchpad, a doc field) that's fine to show in full */
   collapsible?: boolean;
+  /** mount already editing — for a note the caller only shows once asked for */
+  autoEdit?: boolean;
+  /** called when editing ends, saved or not */
+  onEditEnd?: () => void;
 }) {
   const readOnly = useReadOnly();
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(autoEdit);
   const [draft, setDraft] = useState(value);
   const [expanded, setExpanded] = useState(false);
   const ta = useRef<HTMLTextAreaElement>(null);
@@ -73,10 +79,12 @@ export function RichNote({
     setEditing(false);
     const next = draft.trim();
     if (next !== value) onCommit(next);
+    onEditEnd?.();
   };
   const cancel = () => {
     setDraft(value);
     setEditing(false);
+    onEditEnd?.();
   };
 
   /** flip a single checklist line's `[ ]`/`[x]` and commit, without opening edit mode */

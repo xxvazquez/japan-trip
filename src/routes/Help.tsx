@@ -64,10 +64,10 @@ export default function Help() {
         <Section title="Planning your days">
           <ul>
             <QA q="Picking a place vs. “Custom…” in a day's Plan — what's the difference?">
-              If you've added an Area to that day (further down the same page), its places show up
-              in a dropdown so you can pick one directly — the step then links to that place and
-              shows on the day's map. “Custom…” is for anything that isn't a place — an errand, a
-              reminder, “book train tickets.” Pick it and you get a plain text box instead.
+              If you've added an Area to that day (further down the same page), tap a step's grey pin
+              and its places show up in a list so you can pick one directly — the step then links to
+              that place and shows on the day's map. A step without a place is just text — an errand,
+              a reminder, “book train tickets.” To unlink one, tap its name and pick “Custom…”.
             </QA>
             <QA q="What's the difference between an Area and a category?">
               A category is what a place is — coffee, a sight, a shop. An Area is where it is — a

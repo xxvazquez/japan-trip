@@ -333,7 +333,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         <Section
           icon="itinerary"
           title="Plan"
-          info="Drag to reorder. Pick a place from an Area you've added below, or Custom for anything else — tap the note line under it to add one."
+          info="Drag to reorder. Tap a step's grey pin to link it to a place from an Area you've added below; notes are under ⋯."
           action={overwhelmingCount > 0 && (
             <span className="flex items-center gap-1 text-xs text-danger" title={`${plural(overwhelmingCount, "overwhelming place")} today`}>
               <Icon name="alert" size={13} /> {overwhelmingCount}
@@ -579,6 +579,8 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id, disabled: readOnly });
   const updateEntity = useApp((s) => s.updateEntity);
+  // an empty note stays out of the card until "Add a note" asks for it
+  const [noteOpen, setNoteOpen] = useState(false);
   const mapHref = gmapsLink(item.url || place?.url || place?.name);
   const toggleOverwhelming = () => {
     if (!place) return;
@@ -601,6 +603,11 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
     ? [place, ...areaPlaces]
     : areaPlaces;
   const sortedPickable = [...pickable].sort((a, b) => a.name.localeCompare(b.name));
+  const pick = (pid?: string) => {
+    if (!pid) { onPatch({ placeId: undefined }); return; }
+    const p = sortedPickable.find((x) => x.id === pid);
+    onPatch({ placeId: pid, text: p?.name ?? item.text });
+  };
 
   const range = splitRange(item.time);
   const timeText = range ? `${range[0]} – ${range[1]}` : item.time;
@@ -654,7 +661,17 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
             {/* tile + hour — one meta line, icon leading so the hour reads
                 like a caption under it rather than a column of its own */}
             <div className="flex items-center gap-1.5">
-              {mapHref ? (
+              {!readOnly && !item.placeId && sortedPickable.length > 0 ? (
+                // an unlinked step's grey pin is where you link it to a place
+                <PlacePicker
+                  value={item.placeId}
+                  places={sortedPickable}
+                  areaNameByPlaceId={areaNameByPlaceId}
+                  categoryIcons={categoryIcons}
+                  onPick={pick}
+                  trigger={tile}
+                />
+              ) : mapHref ? (
                 <a href={mapHref} target="_blank" rel="noopener" className="shrink-0" aria-label={place ? `Open ${place.name} in Google Maps` : "Open in Google Maps"}>
                   {tile}
                 </a>
@@ -671,6 +688,7 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
                       label="Time"
                       value={item.time ?? ""}
                       onCommit={(v) => onPatch({ time: v || undefined })}
+                      emptyContent={<Icon name="clock" size={12} className="inline-block align-[-1px] not-italic" />}
                     />
                   ) : (
                     <Editable label="Time" value={item.time ?? ""} placeholder="Add a time" onCommit={(v) => onPatch({ time: v.trim() || undefined })} />
@@ -692,33 +710,28 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
             {readOnly ? (
               // plain text — the tile beside the time is the Maps link
               <span className="block text-sm leading-snug text-ink">{item.text}</span>
-            ) : sortedPickable.length > 0 ? (
-              <>
-                <PlacePicker
-                  value={item.placeId}
-                  places={sortedPickable}
-                  areaNameByPlaceId={areaNameByPlaceId}
-                  categoryIcons={categoryIcons}
-                  onPick={(pid) => {
-                    if (!pid) { onPatch({ placeId: undefined }); return; }
-                    const p = sortedPickable.find((x) => x.id === pid);
-                    onPatch({ placeId: pid, text: p?.name ?? item.text });
-                  }}
-                />
-                {!item.placeId && (
-                  <Editable label="Custom step" value={item.text} placeholder="What is it?" onCommit={(v) => onPatch({ text: v })} className="block text-sm leading-snug text-ink" />
-                )}
-              </>
+            ) : item.placeId && sortedPickable.length > 0 ? (
+              <PlacePicker
+                value={item.placeId}
+                places={sortedPickable}
+                areaNameByPlaceId={areaNameByPlaceId}
+                categoryIcons={categoryIcons}
+                onPick={pick}
+              />
             ) : (
-              <Editable label="Step" value={item.text} placeholder="Add a step" onCommit={(v) => onPatch({ text: v })} className="block text-sm leading-snug text-ink" />
+              <Editable label="Step" value={item.text} placeholder="What is it?" onCommit={(v) => onPatch({ text: v })} className="block text-sm leading-snug text-ink" />
             )}
-            <RichNote
-              value={item.note ?? ""}
-              onCommit={(v) => onPatch({ note: v || undefined })}
-              placeholder="Add a note…"
-              className="block text-xs leading-relaxed text-ink-faint [&_strong]:text-ink-soft"
-              collapsible
-            />
+            {(readOnly || item.note || noteOpen) && (
+              <RichNote
+                value={item.note ?? ""}
+                onCommit={(v) => onPatch({ note: v || undefined })}
+                placeholder="Add a note…"
+                className="block text-xs leading-relaxed text-ink-faint [&_strong]:text-ink-soft"
+                collapsible
+                autoEdit={noteOpen}
+                onEditEnd={() => setNoteOpen(false)}
+              />
+            )}
             {place && <StepWalkLines place={place} nextPlace={nextPlace} />}
           </div>
 
@@ -738,6 +751,11 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
                 {place && (
                   <button type="button" className="menu-item" onClick={toggleOverwhelming}>
                     <Icon name="alert" size={16} /> {place.overwhelming ? "Unmark as overwhelming" : "Mark as overwhelming"}
+                  </button>
+                )}
+                {!item.note && (
+                  <button type="button" className="menu-item" onClick={() => setNoteOpen(true)}>
+                    <Icon name="pencil" size={16} /> Add a note
                   </button>
                 )}
                 <button type="button" className="menu-item" onClick={onDuplicate}>
@@ -940,17 +958,31 @@ function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }
  *  in `Day`) and a place name alone stops being enough to tell rows apart, this
  *  renders as an iOS-style sheet list instead, with the area as trailing quiet
  *  text on the same line (same idiom as a place's category in Manage). */
-function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, onPick }: {
+function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, onPick, trigger }: {
   value?: string;
   places: Place[];
   areaNameByPlaceId: Map<string, string>;
   categoryIcons?: Record<string, string>;
   onPick: (id?: string) => void;
+  /** what to tap instead of the name line — an unlinked step's pin tile */
+  trigger?: React.ReactNode;
 }) {
   const { open, setOpen, anchorRef } = useActionSheet();
   const current = value ? places.find((p) => p.id === value) : undefined;
   return (
     <>
+      {trigger ? (
+        <button
+          ref={anchorRef}
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label="Link this step to a place"
+          aria-haspopup="menu"
+          className="tap relative shrink-0"
+        >
+          {trigger}
+        </button>
+      ) : (
       <button
         ref={anchorRef}
         type="button"
@@ -965,6 +997,7 @@ function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, onPick }
           <>Custom… <Icon name="down" size={11} className="inline-block align-[1px] text-ink-faint" /></>
         )}
       </button>
+      )}
       <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="What this step is">
         <div className="max-h-[60vh] overflow-y-auto">
           <button type="button" onClick={() => onPick(undefined)} className="menu-item flex w-full items-center gap-2">

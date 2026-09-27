@@ -1,3 +1,4 @@
+import type React from "react";
 import { useEffect, useId, useRef, useState } from "react";
 import { useReadOnly } from "@/lib/readonly";
 import { gmapsLink } from "@/lib/maps";
@@ -13,6 +14,8 @@ type Base = {
   placeholder?: string;
   label: string;
   className?: string;
+  /** what an empty time shows instead of the placeholder text (e.g. a clock glyph) */
+  emptyContent?: React.ReactNode;
 };
 
 /** `auto` inspects the value and renders it as a date picker / phone / email /
@@ -91,7 +94,7 @@ const inputType = (kind: Kind) =>
  * links / phones / emails render as the real thing with a pencil to edit.
  */
 export function Editable(props: Props) {
-  const { value, onCommit, placeholder = "Add…", label, className = "" } = props;
+  const { value, onCommit, placeholder = "Add…", label, className = "", emptyContent } = props;
   const rawAs = props.as ?? "text";
   const as: Kind =
     rawAs === "auto" ? resolveKind(label, value)
@@ -198,7 +201,7 @@ export function Editable(props: Props) {
           aria-label={`Edit ${label}`}
           className={`editable inline bg-transparent text-left tabular-nums ${!value ? "italic text-ink-faint" : ""} ${className}`}
         >
-          {value || placeholder}
+          {value || emptyContent || placeholder}
         </button>
         <TimeWheelSheet
           open={timeSheetOpen}

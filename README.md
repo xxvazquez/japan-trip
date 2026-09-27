@@ -54,10 +54,10 @@ On a laptop, or a tablet held sideways (1024px and up), a **day's page** gets a 
 Each step in the day's itinerary has:
 
 - A leading tile (the linked place's category, or a plain pin).
-- A time on a quiet line first (optional — a single time or a `14:00–15:15` range).
-- The step itself: pick a place from the Areas you've added to this day — past 2 linked areas, each option in the picker shows which area it's from — or **Custom…** for a one-off with its own text field.
-- **Drag to reorder**, and one **⋯** menu with: show on map, add to Google Calendar, mark/unmark as **overwhelming** (a small ⚠ next to the tile — a sensory heads-up, e.g. for autism — with the day's total shown at a glance on the Plan section header), **duplicate** (dropped right after the original), add an expense, and remove.
-- Its own quiet note line underneath (bold, bullets, links) — tap to expand and edit.
+- A time on a quiet line first (optional — a single time or a `14:00–15:15` range; an empty one is just a small clock to tap).
+- The step itself: its own text, or a place from the Areas you've added to this day — tap the grey pin to link one (past 2 linked areas, each option in the picker shows which area it's from). A linked step's name reopens the picker; **Custom…** there unlinks it.
+- **Drag to reorder**, and one **⋯** menu with: show on map, add to Google Calendar, mark/unmark as **overwhelming** (a small ⚠ next to the tile — a sensory heads-up, e.g. for autism — with the day's total shown at a glance on the Plan section header), **add a note**, **duplicate** (dropped right after the original), add an expense, and remove.
+- Its own quiet note line underneath (bold, bullets, links) — tap to expand and edit. Empty fields stay hidden, so a step without a note is just its time and name.
 - A link to the map, if the step is tied to a place.
 - **+ Add a step** at the foot of the list, so a long day's plan doesn't need a scroll back to the top.
 
