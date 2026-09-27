@@ -47,7 +47,14 @@ export function useAutoHotelCoords(enabled: boolean) {
       for (const h of pending) {
         if (stop) return;
         tried.current.add(key(h));
-        const hit = await geocodeAddress(h.address!);
+        let hit: { lat: number; lng: number } | null;
+        try {
+          hit = await geocodeAddress(h.address!);
+        } catch {
+          // offline or the server's busy — leave it untried so a later change retries
+          tried.current.delete(key(h));
+          return;
+        }
         if (hit) updateEntity<Hotel>("hotels", h.id, hit);
         await new Promise((r) => setTimeout(r, 1200));
       }

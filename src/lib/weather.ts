@@ -4,6 +4,8 @@
  * data yet; same "quietly unavailable" shape as the rest of this app's free
  * APIs, not an error.
  */
+import { daysBetween, todayISO } from "@/lib/dates";
+
 export interface DayWeather {
   highC: number;
   lowC: number;
@@ -28,12 +30,18 @@ export function weatherLabel(code: number): string {
   return "Thunderstorms";
 }
 
+/** how far ahead Open-Meteo forecasts (its default window is 16 days, today included) */
+const FORECAST_DAYS = 15;
+
 const cache = new Map<string, DayWeather | null>();
 
 /** date as "YYYY-MM-DD" (an ISODate) */
 export async function fetchDayWeather(lat: number, lng: number, date: string): Promise<DayWeather | null> {
   const key = `${lat.toFixed(2)},${lng.toFixed(2)},${date}`;
   if (cache.has(key)) return cache.get(key)!;
+  // past the forecast window there's nothing to ask for — the API would only
+  // answer 400, which still shows up as a failed request in the console
+  if (daysBetween(todayISO(), date) > FORECAST_DAYS) return null;
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&timezone=auto&start_date=${date}&end_date=${date}`;
     const res = await fetch(url);
