@@ -83,7 +83,7 @@ function build(d: TripData): SearchHit[] {
   for (const n of d.luggage) {
     hits.push({
       kind: "luggage",
-      label: n.title,
+      label: n.title || "Note",
       sub: n.detail || undefined,
       to: "/logbook/luggage",
       terms: [n.title, n.detail].filter(Boolean).join(" ").toLowerCase(),

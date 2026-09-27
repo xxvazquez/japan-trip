@@ -298,7 +298,7 @@ function logbookSection(data: TripData, opts: ExportOptions): string {
   if (data.luggage.length) {
     parts.push(`<div class="lb-block"><h3>Luggage</h3>${data.luggage.map((n) => `
       <div class="lb-item">
-        <p class="label">${esc(n.title)}${n.date ? ` · ${esc(fmtDate(n.date, data.config.locale, { day: "numeric", month: "short" }))}` : ""}</p>
+        <p class="label">${esc(n.title || "Note")}${n.date ? ` · ${esc(fmtDate(n.date, data.config.locale, { day: "numeric", month: "short" }))}` : ""}</p>
         ${n.detail?.trim() ? `<div class="note">${mdToHtml(n.detail)}</div>` : ""}
         ${n.url ? `<p class="seg-meta">${link(n.url, "Map link")}</p>` : ""}
       </div>`).join("")}</div>`);

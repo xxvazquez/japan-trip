@@ -260,7 +260,7 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
   delete (d as { scratch?: unknown }).scratch;
   // a note with no title used to be saved as the literal "Untitled" (and
   // migration 0025 wrote the same) — no title now means an empty one
-  for (const n of d.scratchNotes as { title?: unknown }[]) {
+  for (const n of [...(d.scratchNotes ?? []), ...(d.luggage ?? [])] as { title?: unknown }[]) {
     if (n && typeof n === "object" && (typeof n.title !== "string" || n.title === "Untitled")) n.title = "";
   }
 

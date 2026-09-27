@@ -350,7 +350,7 @@ function Luggage() {
   const updateEntity = useApp((s) => s.updateEntity);
   const addEntity = useApp((s) => s.addEntity);
   const removeEntity = useApp((s) => s.removeEntity);
-  const add = () => addEntity("luggage", { id: crypto.randomUUID?.() ?? `lug-${rid()}`, title: "New note" } as never);
+  const add = () => addEntity("luggage", { id: crypto.randomUUID?.() ?? `lug-${rid()}`, title: "" } as never);
 
   if (data.luggage.length === 0) {
     return (
@@ -375,7 +375,7 @@ function Luggage() {
                 key={n.id}
                 id={n.id}
                 defaultOpen
-                title={<Editable label="Title" value={n.title} placeholder="e.g. Coin lockers" onCommit={(v) => p({ title: v || "Untitled" })} />}
+                title={<Editable label="Title" value={n.title} placeholder="Title" onCommit={(v) => p({ title: v })} />}
                 action={!ro && cardDeleteBtn(() => undoable("Luggage note deleted", () => removeEntity("luggage", n.id)), "Delete note")}
               >
                 {hasDetail && (
