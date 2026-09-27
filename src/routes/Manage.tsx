@@ -212,7 +212,6 @@ function Trips() {
                 ) : (
                   <Editable label="Trip name" value={t.name} onCommit={(v) => renameTrip(t.id, v || t.name)} className="lead" />
                 )}
-                {t.id === activeId && <span className="eyebrow ml-2 align-middle text-ink">active</span>}
                 {isDemo && <span className="eyebrow ml-2 align-middle text-ink-faint">read-only</span>}
                 {t.subtitle && <span className="meta mt-0.5 block">{t.subtitle}</span>}
               </span>
@@ -222,7 +221,11 @@ function Trips() {
                     Switch
                   </button>
                 ) : (
-                  <span className="eyebrow text-ink-faint">open</span>
+                  // the open trip gets a tick, the way iOS marks the current choice
+                  <span className="grid h-7 w-7 place-items-center text-accent" title="Open now">
+                    <Icon name="check" size={16} />
+                    <span className="sr-only">Open now</span>
+                  </span>
                 )}
                 <RowMenu>
                   {!isDemo && <button onClick={() => duplicateTrip(t.id, `${t.name} copy`)} className="menu-item">Duplicate</button>}
