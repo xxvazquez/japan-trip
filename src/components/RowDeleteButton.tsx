@@ -6,9 +6,11 @@ import { ActionSheet } from "./ActionSheet";
 /**
  * The little ✕ that removes a list row (a place, a to-do, a hop) — tapping it
  * asks for confirmation via the same sheet as <ConfirmButton>, then offers an
- * Undo toast. Faint but always tappable on touch; on a pointer device it stays
- * hidden until the row (a `group`) is hovered. Put it as the last child of a
- * `flex` row inside a `group` container.
+ * Undo toast. On a pointer device it stays hidden until the row (a `group`) is
+ * hovered; on a touch phone it isn't drawn at all — every row that has one is
+ * also wrapped in <SwipeToDelete>, and swiping is how a phone deletes (same
+ * media query as there). Put it as the last child of a `flex` row inside a
+ * `group` container.
  */
 export function RowDeleteButton({ onClick, label = "Remove", undoLabel = "Removed" }: { onClick: () => void; label?: string; undoLabel?: string }) {
   const undoable = useApp((s) => s.undoable);
@@ -21,7 +23,7 @@ export function RowDeleteButton({ onClick, label = "Remove", undoLabel = "Remove
         type="button"
         onClick={() => setOpen(true)}
         aria-label={label}
-        className="tap shrink-0 p-1 text-ink-faint opacity-60 transition-opacity hover:text-accent [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
+        className="tap shrink-0 p-1 text-ink-faint opacity-60 transition-opacity hover:text-accent [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:none)_and_(pointer:coarse)]:hidden"
       >
         <Icon name="close" size={13} />
       </button>
