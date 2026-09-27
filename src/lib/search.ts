@@ -1,5 +1,5 @@
 import type { TripData } from "@/core/types";
-import { fmtDate } from "./dates";
+import { fmtDate, journeyDepartDate } from "./dates";
 import { JOURNEY_KIND_LABEL } from "./journey";
 
 export type SearchKind = "day" | "leg" | "hotel" | "place" | "transfer" | "area" | "luggage" | "doc" | "packing" | "list" | "note";
@@ -63,7 +63,7 @@ function build(d: TripData): SearchHit[] {
       kind: "transfer",
       chip: JOURNEY_KIND_LABEL[j.kind],
       label: j.label,
-      sub: j.date ? fmtDate(j.date, loc) : undefined,
+      sub: journeyDepartDate(j) ? fmtDate(journeyDepartDate(j)!, loc) : undefined,
       to: `/journey/${j.id}`,
       terms: [j.label, j.kind, ...j.segments.map((s) => `${s.carrier} ${s.service} ${s.from} ${s.to}`), j.notes]
         .filter(Boolean)

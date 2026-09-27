@@ -15,7 +15,7 @@ import { ConfirmButton } from "@/components/ConfirmButton";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { fmtDate, plural, segEndpoints } from "@/lib/dates";
+import { fmtDate, journeyDepartDate, plural, segEndpoints } from "@/lib/dates";
 import { clockOf, fmtDuration, fmtMinutes, localMinutes } from "@/lib/time";
 import { MODE_LABEL, MODE_ICON, MODE_TONE } from "@/lib/transport";
 import { journeyFare, fmtMoney, cleanAmount, fmtFare } from "@/lib/cost";
@@ -85,6 +85,9 @@ export default function Journey() {
 
   const first = j.segments[0];
   const last = j.segments.at(-1);
+  // dated by when it leaves, same as the Getting around list — an overnight
+  // flight is attached to the day it lands
+  const day = journeyDepartDate(j);
   const total = fmtDuration(first?.depart, last?.arrive ?? last?.depart);
   const changes = Math.max(0, j.segments.length - 1);
 
@@ -110,7 +113,7 @@ export default function Journey() {
                 onCommit={(v) => patch({ kind: v as JourneyKind })}
               />
             )}
-            {j.date && <span>· {fmtDate(j.date, loc, { weekday: "long", day: "numeric", month: "long" })}</span>}
+            {day && <span>· {fmtDate(day, loc, { weekday: "long", day: "numeric", month: "long" })}</span>}
           </span>
         }
         title={
@@ -196,7 +199,7 @@ export default function Journey() {
           const overnight = rawGap != null && rawGap < 0;
           const gap = rawGap == null ? null : overnight ? rawGap + 1440 : rawGap;
           const dur = fmtDuration(s.depart, s.arrive);
-          const ep = segEndpoints(s, j.date, loc);
+          const ep = segEndpoints(s, day, loc);
           const offDay = [
             ep.depart.date && `departs ${ep.depart.date}`,
             ep.arrive.date && `arrives ${ep.arrive.date}`,
