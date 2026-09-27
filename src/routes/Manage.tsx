@@ -35,6 +35,7 @@ import { fallbackCategoryId } from "@/lib/hydrate";
 import { BackupError, downloadBackup, parseBackup } from "@/lib/tripBackup";
 import { DataSafety } from "@/components/DataSafety";
 import { useInstallState, useOfflineState } from "@/lib/pwa";
+import { canPrefetchTiles, prefetchTileGroups, tripOfflineGroups } from "@/lib/offlineTiles";
 import { expenseCategoryIcon, categoryGlyphTile } from "@/lib/cost";
 import type { TransportMode } from "@/core/types";
 import { Switch } from "@/components/Switch";
@@ -265,14 +266,32 @@ function Trips() {
 /** How this device is set up for travelling: whether the app opens with no
  *  signal, and putting it on the home screen. */
 function ThisDevice() {
+  const data = useData();
   const offline = useOfflineState();
   const install = useInstallState();
   const [installing, setInstalling] = useState(false);
+  // saving the whole trip's map: progress while it runs, a summary after
+  const [mapProgress, setMapProgress] = useState<{ done: number; total: number } | null>(null);
+  const [mapMsg, setMapMsg] = useState("");
+  const mapGroups = data && canPrefetchTiles ? tripOfflineGroups(data) : [];
+  const saveMaps = async () => {
+    setMapMsg("");
+    setMapProgress({ done: 0, total: 0 });
+    try {
+      const { ok, failed, truncated } = await prefetchTileGroups(mapGroups, (done, total) => setMapProgress({ done, total }));
+      setMapMsg(
+        failed && !ok ? "Couldn’t reach the map server — try again once you have a connection."
+          : `Saved ${ok} map tiles for offline use${failed ? `; ${failed} didn’t load, run it again to retry them` : ""}.${truncated ? " The trip covers a lot of ground, so some outer edges were left out." : ""}`,
+      );
+    } finally {
+      setMapProgress(null);
+    }
+  };
   return (
     <Section
       title="This device"
       className="mt-8"
-      info="Ready means the app itself is saved on this device and opens with no signal. A trip kept on this device works fully offline; if you sign in to sync, open your trip once while you're online before you travel. Map areas you've already looked at are saved too, so look over the ones you'll need while you have wifi. Installing puts the app on your home screen and opens it full-screen like any other. On iPhone: tap the Share button, then “Add to Home Screen”."
+      info="Ready means the app itself is saved on this device and opens with no signal. A trip kept on this device works fully offline; if you sign in to sync, open your trip once while you're online before you travel. Map areas you've already looked at are saved too — Save trip maps saves the area around every day, stay and place in this trip in one go, so do it on wifi before you leave. Installing puts the app on your home screen and opens it full-screen like any other. On iPhone: tap the Share button, then “Add to Home Screen”."
     >
       <ul>
         <Row label="Works offline">
@@ -284,6 +303,14 @@ function ThisDevice() {
             "Not available here"
           )}
         </Row>
+        {mapGroups.length > 0 && (
+          <ActionRow
+            icon="download"
+            label={mapProgress ? `Saving maps… ${mapProgress.total ? `${Math.round((mapProgress.done / mapProgress.total) * 100)}%` : ""}` : "Save trip maps for offline"}
+            disabled={!!mapProgress}
+            onClick={() => void saveMaps()}
+          />
+        )}
         {install.kind === "installed" && <Row label="Home screen">Installed</Row>}
         {install.kind === "ios" && <Row label="Home screen">Share → Add to Home Screen</Row>}
         {install.kind === "prompt" && (
@@ -295,6 +322,7 @@ function ThisDevice() {
           />
         )}
       </ul>
+      {mapMsg && <p className="meta px-3.5 pb-3">{mapMsg}</p>}
     </Section>
   );
 }

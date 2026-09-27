@@ -1,5 +1,6 @@
 import { layers, namedFlavor, type Flavor } from "@protomaps/basemaps";
 import type { StyleSpecification } from "maplibre-gl";
+import { HOSTED_TILES } from "./tileSource";
 
 /**
  * A restrained editorial basemap: one warm land tone, hairline roads, muted
@@ -16,12 +17,9 @@ import type { StyleSpecification } from "maplibre-gl";
  *  3. Nothing set — Protomaps' full planet archive on Source Cooperative. Works
  *     everywhere but 20-30s to first paint (130 GB file, no edge cache).
  */
-const API_KEY = import.meta.env.VITE_PROTOMAPS_API_KEY?.trim();
 const DEFAULT_PMTILES = "https://data.source.coop/protomaps/openstreetmap/v4.pmtiles";
 const configured = import.meta.env.VITE_MAP_TILES_URL?.trim();
-export const HOSTED_TILES = API_KEY
-  ? `https://api.protomaps.com/tiles/v4/{z}/{x}/{y}.mvt?key=${API_KEY}`
-  : null;
+export { HOSTED_TILES };
 export const PMTILES = `pmtiles://${configured || DEFAULT_PMTILES}`;
 const ATTRIB = '<a href="https://protomaps.com">Protomaps</a> · <a href="https://openstreetmap.org">OpenStreetMap</a>';
 const GLYPHS = "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf";
