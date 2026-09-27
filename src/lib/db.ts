@@ -543,12 +543,20 @@ export interface Member {
   userId: string;
   role: "owner" | "editor" | "viewer";
   email?: string;
+  name?: string;
 }
 
 export async function listMembers(tripId: string): Promise<Member[]> {
   const sb = await client();
   const data = check(await sb.from("trip_members").select("user_id,role").eq("trip_id", tripId));
-  return (data ?? []).map((r) => ({ userId: r.user_id, role: r.role }));
+  // names come from migration 0031; before it's applied the call just fails
+  // and the list still shows, only without them
+  const profiles = await sb.rpc("trip_member_profiles", { p_trip_id: tripId });
+  const byId = new Map<string, { email?: string; name?: string }>(
+    ((profiles.error ? [] : profiles.data) as { user_id: string; email: string | null; name: string | null }[] ?? [])
+      .map((p) => [p.user_id, { email: p.email ?? undefined, name: p.name ?? undefined }]),
+  );
+  return (data ?? []).map((r) => ({ userId: r.user_id, role: r.role, ...byId.get(r.user_id) }));
 }
 
 /** Invite by email — needs the invited user to have signed in at least once.

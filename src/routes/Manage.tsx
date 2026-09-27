@@ -381,7 +381,10 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
       <ul>
         {members.map((m) => (
           <li key={m.userId} className={`${MLI} justify-between text-sm`}>
-            <span className="break-words">{m.userId === me ? "You" : m.userId.slice(0, 8) + "…"} <span className="text-ink-soft">· {m.role}</span></span>
+            <span className="min-w-0 break-words">
+              {m.userId === me ? "You" : m.name || m.email || "Someone on this trip"} <span className="text-ink-soft">· {m.role}</span>
+              {m.userId !== me && m.name && m.email && <span className="meta block break-all">{m.email}</span>}
+            </span>
             {iAmOwner && m.role !== "owner" && (
               <ConfirmButton
                 label="Remove access"

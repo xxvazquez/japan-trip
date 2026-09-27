@@ -361,7 +361,7 @@ All optional — with nothing set the app runs fully local.
 ## Setting up Supabase
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. **SQL Editor** → run every file in `supabase/migrations/` **in order** (`0001` → `0030`).
+2. **SQL Editor** → run every file in `supabase/migrations/` **in order** (`0001` → `0031`).
 3. **Authentication → Providers → Google** → enable, paste a Google Cloud OAuth client id / secret, redirect `https://<project-ref>.supabase.co/auth/v1/callback`.
 4. **Authentication → URL Configuration → Redirect URLs** → add `http://localhost:5173` and the deployed URL.
 5. Put the Project URL + anon key (**Project Settings → API**) in `.env.local`.
