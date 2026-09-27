@@ -837,6 +837,9 @@ function ModulesPanel() {
           // (LogbookSectionsPanel disables it for that reason) — block
           // re-enabling it here too, until the section's shown again.
           const stuckHidden = m.kind === "logbook-section" && !m.enabled && hidden.includes(m.target ?? "");
+          const tabTarget = (x: typeof m) =>
+            x.kind === "logbook-section" ? logbookLabel(x.target ?? "") : x.kind.charAt(0).toUpperCase() + x.kind.slice(1);
+          const renamed = (x: typeof m) => tabTarget(x).toLowerCase() !== x.label.trim().toLowerCase();
           return (
           <li key={m.id} className={MLI}>
             <div className="flex flex-col">
@@ -849,10 +852,13 @@ function ModulesPanel() {
             </div>
             <span className="flex-1">
               <Editable label="Section label" value={m.label} onCommit={(v) => mutate((d) => { d.config.modules[i].label = v || m.label; })} />
-              <span className="meta ml-2">
-                {m.kind === "logbook-section" ? logbookLabel(m.target ?? "") : m.kind}
-                {stuckHidden && " · hidden"}
-              </span>
+              {/* what the tab opens — only worth saying once it's been renamed
+                  to something else, or it just repeats the label */}
+              {(renamed(m) || stuckHidden) && (
+                <span className="meta ml-2">
+                  {[renamed(m) && tabTarget(m), stuckHidden && "hidden"].filter(Boolean).join(" · ")}
+                </span>
+              )}
             </span>
             <button
               disabled={stuckHidden}
@@ -1098,14 +1104,17 @@ function SharingTab() {
           title="Document files"
           info="Attachments upload to the adder’s Google Drive; these accounts are given read access. List both travellers."
         >
-          <Row label="Share attachments with">
-            <Editable
-              label="Emails to share document attachments with"
-              value={(data.config.driveShareEmails ?? []).join(", ")}
-              placeholder="Add emails"
-              onCommit={(v) => mutate((d) => { d.config.driveShareEmails = v.split(",").map((x) => x.trim()).filter(Boolean); })}
-            />
-          </Row>
+          <ul>
+            {/* stacked — an email list is too long to sit beside its label */}
+            <InsetRow label="Share attachments with" stacked>
+              <Editable
+                label="Emails to share document attachments with"
+                value={(data.config.driveShareEmails ?? []).join(", ")}
+                placeholder="Add emails"
+                onCommit={(v) => mutate((d) => { d.config.driveShareEmails = v.split(",").map((x) => x.trim()).filter(Boolean); })}
+              />
+            </InsetRow>
+          </ul>
         </Section>
       )}
 

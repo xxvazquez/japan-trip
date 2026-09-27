@@ -290,6 +290,9 @@ html.dark {
   }
   .row-value {
     @apply min-w-0 text-right font-sans text-sm font-normal leading-snug text-ink;
+    /* a long unbroken value (an email, a booking ref) wraps instead of
+       running past the card edge */
+    overflow-wrap: anywhere;
   }
 
   /* a genuinely-important unresolved value */
