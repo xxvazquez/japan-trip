@@ -76,11 +76,14 @@ export function AppShell() {
             blurred edge, and the controls float on it as glass */}
         <div aria-hidden className="scroll-edge pointer-events-none absolute inset-x-0 top-0 -bottom-4" />
         <div className="relative flex h-[var(--nav-h)] items-center gap-2 px-3 sm:px-5">
-          <div className="flex min-w-0 flex-1 items-center justify-start">
+          {/* left and right keep their natural width; the title gets what's
+              left and truncates, so on a narrow phone it can never slide
+              under the buttons */}
+          <div className="flex min-w-0 shrink items-center justify-start">
             <NavLeft />
           </div>
           <NavTitle />
-          <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
+          <div className="flex shrink-0 items-center justify-end gap-2">
             <SyncStatus />
             <div id="nav-actions" className="contents" />
             <div className="glass flex h-11 items-center rounded-full px-0.5 text-ink">

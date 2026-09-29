@@ -293,13 +293,15 @@ function DayDate({ date, loc, strong }: { date: string; loc: string; strong?: bo
   );
 }
 
-/** The uppercase "Arrive / Travel / Day trip" tag at the end of a day row —
- *  identical in the live row and the drag overlay, so it lives in one place. */
+/** The "Arrive / Travel / Day trip" tag — a quiet subtitle under the day's
+ *  title, the iOS list idiom, not a column beside it: beside it, a long
+ *  one-word title ("Arashiyama") couldn't wrap and ran into the tag on a
+ *  narrow phone. Identical in the live row and the drag overlay. */
 function DayKindTag({ day, data }: { day: Day; data: TripData }) {
   const k = KIND[dayKind(day, data)];
   if (!k) return null;
   return (
-    <span className="eyebrow flex shrink-0 items-center gap-1">
+    <span className="mt-0.5 flex items-center gap-1 text-xs text-ink-soft">
       <Icon name={k.icon} size={12} /> {k.label}
     </span>
   );
@@ -311,8 +313,10 @@ function DayCard({ day, loc, data }: { day: Day; loc: string; data: TripData }) 
     <div className="flex items-center gap-3 rounded-[12px] border border-line bg-surface px-3.5 py-3 text-sm shadow-md">
       <span className="text-ink-faint"><Icon name="grip" size={14} /></span>
       <DayDate date={day.date} loc={loc} />
-      <span className="min-w-0 flex-1 leading-snug text-ink">{day.title || "Untitled day"}</span>
-      <DayKindTag day={day} data={data} />
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="break-words leading-snug text-ink">{day.title || "Untitled day"}</span>
+        <DayKindTag day={day} data={data} />
+      </span>
     </div>
   );
 }
@@ -349,11 +353,13 @@ function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day:
           <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: hex }} />
           <DayDate date={day.date} loc={loc} strong={today} />
         </span>
-        <span className={`min-w-0 flex-1 leading-snug ${day.title ? "text-ink" : "text-ink-faint"} group-hover:underline`}>
-          {day.title || "Untitled day"}
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className={`break-words leading-snug ${day.title ? "text-ink" : "text-ink-faint"} group-hover:underline`}>
+            {day.title || "Untitled day"}
+          </span>
+          <DayKindTag day={day} data={data} />
         </span>
         {today && <span className="eyebrow shrink-0 text-ink">Today</span>}
-        <DayKindTag day={day} data={data} />
         <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
       </Link>
     </li>

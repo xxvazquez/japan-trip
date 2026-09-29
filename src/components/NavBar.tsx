@@ -124,7 +124,7 @@ export function NavTitle() {
   return (
     <span
       aria-hidden={!show}
-      className={`max-w-[46%] truncate text-center text-[17px] font-medium transition-opacity duration-150 ${show ? "opacity-100" : "opacity-0"}`}
+      className={`min-w-0 flex-1 truncate text-center text-[17px] font-medium transition-opacity duration-150 ${show ? "opacity-100" : "opacity-0"}`}
     >
       {nav?.state.title}
     </span>

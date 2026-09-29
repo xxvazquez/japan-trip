@@ -12,7 +12,7 @@ export function Wordmark({ size = 26 }: { size?: number }) {
   const dark = useIsDark();
   const name = data?.config.branding || APP_NAME;
   return (
-    <span className="flex items-center gap-2">
+    <span className="flex min-w-0 items-center gap-2">
       <img
         src={tripLogoSrc(data, dark)}
         width={size}
@@ -21,7 +21,9 @@ export function Wordmark({ size = 26 }: { size?: number }) {
         className="shrink-0 rounded-[22%] object-cover"
         decoding="async"
       />
-      <span className="font-display text-[17px] font-medium tracking-tight">{name}</span>
+      {/* one line in the bar, like any iOS bar title — the full name is in
+          the trip menu and on Manage */}
+      <span className="min-w-0 truncate whitespace-nowrap font-display text-[17px] font-medium tracking-tight">{name}</span>
     </span>
   );
 }
