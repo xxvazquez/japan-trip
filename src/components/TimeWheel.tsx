@@ -14,7 +14,7 @@ const to12 = (h24: string) => String(Number(h24) % 12 || 12);
 const periodOf = (h24: string): Period => (Number(h24) < 12 ? "AM" : "PM");
 const to24 = (h12: string, p: Period) =>
   String((Number(h12) % 12) + (p === "PM" ? 12 : 0)).padStart(2, "0");
-const MINUTES = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, "0"));
+const MINUTES = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, "0"));
 
 const ITEM_H = 44;
 const VISIBLE_ROWS = 5;
@@ -91,25 +91,39 @@ function WheelColumn({ options, value, onChange, ariaLabel }: {
   );
 }
 
-/** One ring of a clock face (hour or minute) — every option gets its own
- *  absolutely-positioned tap target around the circle, so picking a time is
- *  a single click with a mouse instead of a scroll (the wheel columns stay
- *  the touch-first control on phone widths; this is the pointer-first one
- *  for the desktop popover). A short accent hand points at the current
- *  value, same look as `CheckCircle`'s filled ring for "selected". */
-function ClockRing({ options, value, onChange, ariaLabel, size }: {
+/** One ring of a clock face (hour or minute). Clicking — or dragging — anywhere
+ *  on the face picks the nearest value by angle, so the minute face can land on
+ *  any minute (37, 52…) while only every `labelEvery`th value is labelled, the
+ *  way a real clock only numbers the fives. The labels stay buttons for
+ *  keyboard use. A short accent hand points at the current value, and a
+ *  value between labels gets its own dot on the ring. */
+function ClockRing({ options, value, onChange, ariaLabel, size, labelEvery = 1 }: {
   options: string[];
   value: string;
   onChange: (v: string) => void;
   ariaLabel: string;
   size: number;
+  labelEvery?: number;
 }) {
   const cx = size / 2, cy = size / 2;
   const r = size / 2 - 15;
   const i = options.indexOf(value);
   const angle = (n: number) => (n / options.length) * 2 * Math.PI - Math.PI / 2;
+  const pick = (e: React.PointerEvent<HTMLDivElement>) => {
+    const box = e.currentTarget.getBoundingClientRect();
+    const a = Math.atan2(e.clientY - box.top - cy, e.clientX - box.left - cx) + Math.PI / 2;
+    const n = Math.round(((a + 2 * Math.PI) % (2 * Math.PI)) / (2 * Math.PI) * options.length) % options.length;
+    if (options[n] !== value) onChange(options[n]);
+  };
   return (
-    <div role="listbox" aria-label={ariaLabel} className="relative shrink-0" style={{ width: size, height: size }}>
+    <div
+      role="listbox"
+      aria-label={ariaLabel}
+      onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); pick(e); }}
+      onPointerMove={(e) => e.buttons === 1 && pick(e)}
+      className="relative shrink-0 cursor-pointer touch-none select-none"
+      style={{ width: size, height: size }}
+    >
       <div aria-hidden className="absolute inset-0 rounded-full border border-line" />
       {i >= 0 && (
         <svg aria-hidden className="pointer-events-none absolute inset-0" width={size} height={size}>
@@ -118,10 +132,14 @@ function ClockRing({ options, value, onChange, ariaLabel, size }: {
             x2={cx + (r - 6) * 0.6 * Math.cos(angle(i))} y2={cy + (r - 6) * 0.6 * Math.sin(angle(i))}
             className="stroke-accent" strokeWidth={2} strokeLinecap="round"
           />
+          {i % labelEvery !== 0 && (
+            <circle cx={cx + r * Math.cos(angle(i))} cy={cy + r * Math.sin(angle(i))} r={5} className="fill-accent" />
+          )}
         </svg>
       )}
       <div aria-hidden className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent" />
       {options.map((o, n) => {
+        if (n % labelEvery !== 0) return null;
         const active = o === value;
         return (
           <button
@@ -145,7 +163,7 @@ function ClockRing({ options, value, onChange, ariaLabel, size }: {
 
 /** The clock-face pair behind the desktop popover — click a position on each
  *  ring instead of scrolling a column: a 12-hour face with AM/PM beside the
- *  readout, and the minutes in 5-minute steps. */
+ *  readout, and every minute on the minute face. */
 function ClockPicker({ hour, minute, onPick }: { hour: string; minute: string; onPick: (h: string, m: string) => void }) {
   const size = 168;
   const period = periodOf(hour);
@@ -166,7 +184,7 @@ function ClockPicker({ hour, minute, onPick }: { hour: string; minute: string; o
           <span className="kicker text-ink-faint">Hour</span>
         </div>
         <div className="flex flex-col items-center gap-1">
-          <ClockRing options={MINUTES} value={minute} onChange={(v) => onPick(hour, v)} ariaLabel="Minute" size={size} />
+          <ClockRing options={MINUTES} labelEvery={5} value={minute} onChange={(v) => onPick(hour, v)} ariaLabel="Minute" size={size} />
           <span className="kicker text-ink-faint">Minute</span>
         </div>
       </div>
@@ -181,7 +199,7 @@ function ClockPicker({ hour, minute, onPick }: { hour: string; minute: string; o
  *  it. Values commit live as each wheel settles; "Done" just dismisses. The
  *  wide popover swaps the wheel for a clickable clock face (`ClockPicker`) —
  *  a mouse picks a position in one click far faster than scrolling 12 hours
- *  or 12 five-minute steps; touch keeps the familiar wheel. */
+ *  or 60 minutes; touch keeps the familiar wheel. */
 export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, onPick, onClear }: {
   open: boolean;
   onClose: () => void;
