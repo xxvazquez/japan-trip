@@ -96,7 +96,7 @@ Linked from a day, or the *getting around* tab. A journey is one or more **hops*
 
 - Each hop is a card, tinted by mode (rail, air/sea, road, on foot), reading top to bottom: mode → route → the two times joined by a rule with the duration on it → the details (carrier, platform, seat, booking ref, fare) as label-and-value rows.
 - Between hops, a note on the connection time flags a tight or overnight change.
-- The **total fare** at the top adds itself up from the hops' fares; type a figure into it to override with a single ticket price.
+- The **total fare** at the top adds itself up from the hops' fares as you price them. Only a journey with no priced hop takes a figure of its own (one ticket for the whole trip).
 - It's the same number Expenses uses, counted once — split by each hop's mode if a category claims it. A manual override total follows the same rule when every hop shares one mode (a single flight, say); only a genuinely mixed-mode journey falls to the generic Transport category.
 
 ## Map
@@ -200,7 +200,7 @@ Totals every price in the trip (a stay's price, a journey's fare, a day's spendi
 
 - Name the **travellers** (used for packing assignment).
 - **Time zones**: *Home* is taken from the device; *On the trip* starts on `UTC` and fills itself in from the first hotel that has coordinates, so calendar exports and hop times land at the right hour. It only does this while the zone is still `UTC` — pick one by hand and it's never changed. Tapping a zone opens a picker that lists cities with their UTC offset ("Tokyo · GMT+9"): tap a region chip and scroll, or search by city, offset or abbreviation ("kolkata", "+5:30", "JST").
-- List the **currencies** the trip uses — the first is the default (a new trip starts on `PLN`), so every price field shows its symbol and a bare `100` counts as it; add a second currency and a price field's symbol turns tappable to pick another. A price reads the same while you edit it as everywhere else ("zł 1,946", "€18").
+- List the **currencies** the trip uses — the first is the default (a new trip starts on `PLN`), so every price field shows its symbol and a bare `100` counts as it; tapping a price opens an amount pad (a keypad, no typing), with a currency switch on it once the trip lists a second currency. A price reads the same while you edit it as everywhere else ("zł 1,946", "€18").
 - Edit the **expense categories**: rename, add, and reorder or remove from each row's **⋯** — the list can't be emptied, and removing one moves its spending to the next category rather than leaving it uncategorised. A category can also claim specific hop modes so fares split further than one lump "Transport". Each one's **icon** is guessed from that mode/role or the name — tap the icon itself to pick your own instead, from a searchable grid of 130+ icons grouped into categories.
 - **Local-script font** (under Map & format) sets the typeface for a hotel/stay's local-script name — paste a CSS font stack, e.g. `Hiragino Sans, Yu Gothic, sans-serif` for Japanese, or `Noto Sans KR, sans-serif` for Korean. Leave it blank to use the app's regular font.
 - Hide the Logbook sections you don't need, from the same Setup tab.

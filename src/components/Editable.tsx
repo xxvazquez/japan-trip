@@ -7,6 +7,7 @@ import { fmtDate } from "@/lib/dates";
 import { linkLabel } from "@/lib/linkLabel";
 import { Icon } from "./Icon";
 import { TimeWheelSheet } from "./TimeWheel";
+import { AmountSheet } from "./AmountSheet";
 
 type Base = {
   value: string;
@@ -88,7 +89,7 @@ function hrefFor(kind: Kind, v: string): string | null {
 }
 
 const inputType = (kind: Kind) =>
-  kind === "number" ? "number" : kind === "tel" ? "tel" : kind === "email" ? "email" : "text";
+  kind === "tel" ? "tel" : kind === "email" ? "email" : "text";
 
 /**
  * Inline editing. Shows the value; click / Enter turns it into a field in place;
@@ -113,8 +114,8 @@ export function Editable(props: Props) {
   const [draft, setDraft] = useState(value);
   const ref = useRef<HTMLInputElement & HTMLTextAreaElement & HTMLSelectElement>(null);
   const id = useId();
-  const [timeSheetOpen, setTimeSheetOpen] = useState(false);
-  const timeAnchorRef = useRef<HTMLButtonElement>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const sheetAnchorRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => setDraft(value), [value]);
   useEffect(() => {
@@ -200,22 +201,48 @@ export function Editable(props: Props) {
     return (
       <>
         <button
-          ref={timeAnchorRef}
+          ref={sheetAnchorRef}
           type="button"
-          onClick={() => setTimeSheetOpen(true)}
+          onClick={() => setSheetOpen(true)}
           aria-label={`Edit ${label}`}
           className={`editable inline bg-transparent text-left tabular-nums ${!value ? "italic text-ink-faint" : ""} ${className}`}
         >
           {value || emptyContent || placeholder}
         </button>
         <TimeWheelSheet
-          open={timeSheetOpen}
-          onClose={() => setTimeSheetOpen(false)}
-          anchorRef={timeAnchorRef}
+          open={sheetOpen}
+          onClose={() => setSheetOpen(false)}
+          anchorRef={sheetAnchorRef}
           hour={h}
           minute={m}
           onPick={(nh, nm) => onCommit(`${nh}:${nm}`)}
-          onClear={() => { onCommit(""); setTimeSheetOpen(false); }}
+          onClear={() => { onCommit(""); setSheetOpen(false); }}
+        />
+      </>
+    );
+  }
+
+  // a number is keyed on `AmountSheet`'s pad, never the browser's number
+  // field (spinner arrows on desktop, a full keyboard on some Android builds)
+  if (as === "number") {
+    return (
+      <>
+        <button
+          ref={sheetAnchorRef}
+          type="button"
+          onClick={() => setSheetOpen(true)}
+          aria-label={`Edit ${label}`}
+          className={`editable inline text-left tabular-nums ${!value ? "italic text-ink-faint" : ""} ${className}`}
+        >
+          {value ? displayValue : placeholder}
+        </button>
+        <AmountSheet
+          open={sheetOpen}
+          onClose={() => setSheetOpen(false)}
+          anchorRef={sheetAnchorRef}
+          label={label}
+          amount={value}
+          onCommit={(v) => v !== value && onCommit(v)}
         />
       </>
     );
@@ -283,7 +310,7 @@ export function Editable(props: Props) {
     <input
       {...shared}
       type={inputType(as)}
-      inputMode={as === "number" ? "decimal" : as === "tel" ? "tel" : undefined}
+      inputMode={as === "tel" ? "tel" : undefined}
       onChange={(e) => setDraft(e.target.value)}
       onKeyDown={(e) => {
         if (e.key === "Escape") cancel();

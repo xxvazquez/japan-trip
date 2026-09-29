@@ -50,11 +50,11 @@ export function parseMoney(s: string, fallbackCurrency = ""): Money | null {
   return { amount, currency: currency || fallbackCurrency };
 }
 
-/** Coerce a free-text amount / fare to a whole-number string in the trip
- *  currency — strips symbols, separators and stray text, rounds to a whole
- *  unit. Empty when there's no number in it. */
+/** Coerce a free-text amount / fare to a plain number string — strips
+ *  symbols, separators and stray text, keeps at most two decimals. Empty when
+ *  there's no number in it. */
 export function cleanAmount(v: string): string {
-  const n = Math.round(Number(v.replace(/[^0-9.-]/g, "")));
+  const n = Math.round(Number(v.replace(/[^0-9.-]/g, "")) * 100) / 100;
   return Number.isFinite(n) && n !== 0 ? String(n) : "";
 }
 
@@ -100,13 +100,19 @@ export interface CostSummary {
 
 const emptyBucket = (): CurrencyBucket => ({ byCategory: {}, uncategorised: 0, total: 0 });
 
+/** True once any hop carries its own fare — from then on the journey's total
+ *  is their sum, and a manual `journey.fare` is ignored. */
+export const hopsPriced = (journey: Journey): boolean =>
+  journey.segments.some((s) => !!s.fare?.trim());
+
 /**
- * A journey's effective fare, per currency. `journey.fare` (a manual total)
- * wins when set — otherwise the hops' own `fare`s are summed. A journey is
+ * A journey's effective fare, per currency. The hops' own `fare`s are summed
+ * whenever any hop is priced; `journey.fare` (a manual total, for a single
+ * ticket bought for the whole journey) only counts when none is. A journey is
  * therefore counted **once**: never the manual total *and* the hops.
  */
 export function journeyFare(journey: Journey, fallbackCurrency = ""): Money[] {
-  if (journey.fare?.trim()) {
+  if (!hopsPriced(journey) && journey.fare?.trim()) {
     // a symbol in the text still wins; otherwise the picked fareCurrency, then
     // the trip primary
     const m = parseMoney(journey.fare, journey.fareCurrency || fallbackCurrency);
@@ -164,7 +170,7 @@ export function tripCost(data: TripData): CostSummary {
   // that mode, same as a per-hop fare would. Only a genuinely mixed-mode
   // journey (or one with no segments yet) falls to the transport catch-all.
   for (const journey of data.journeys) {
-    if (journey.fare?.trim()) {
+    if (!hopsPriced(journey) && journey.fare?.trim()) {
       const m = parseMoney(journey.fare, journey.fareCurrency || fallback);
       if (!m) { unparsed.push(`${journey.label || "Journey"} — "${journey.fare}"`); continue; }
       const modes = new Set(journey.segments.map((s) => s.mode));

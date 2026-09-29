@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
@@ -18,7 +18,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { fmtDate, journeyDepartDate, plural, segEndpoints } from "@/lib/dates";
 import { clockOf, fmtDuration, fmtMinutes, localMinutes } from "@/lib/time";
 import { MODE_LABEL, MODE_ICON, MODE_TONE } from "@/lib/transport";
-import { journeyFare, fmtMoney, cleanAmount, fmtFare } from "@/lib/cost";
+import { journeyFare, hopsPriced, fmtMoney, cleanAmount, fmtFare } from "@/lib/cost";
 import { splitRoute, joinRoute, JOURNEY_KIND_LABEL } from "@/lib/journey";
 import { Arrow, RouteLabel } from "@/components/RouteLabel";
 import type { Journey as JourneyT, JourneyKind, Segment, TransportMode } from "@/core/types";
@@ -26,43 +26,6 @@ import type { Journey as JourneyT, JourneyKind, Segment, TransportMode } from "@
 const MODES: TransportMode[] = ["flight", "train", "bus", "ferry", "car", "taxi", "subway", "walk"];
 const KINDS: JourneyKind[] = ["arrival", "transfer", "departure"];
 const rid = () => Math.random().toString(36).slice(2, 8);
-
-/** In edit mode, a fare calculated from the hops showed a blank input with no
- *  hint of the total behind it. Show the derived sum (same as read-only) until
- *  tapped; only then does it drop to a real, editable amount. Once the trip
- *  fare's overridden by hand, the field just stays a normal MoneyField. */
-function TotalFareField({
-  j,
-  fareDerived,
-  fareText,
-  onAmount,
-  onCurrency,
-}: {
-  j: JourneyT;
-  fareDerived: boolean;
-  fareText: string;
-  onAmount: (v: string) => void;
-  onCurrency: (c: string | undefined) => void;
-}) {
-  const [overriding, setOverriding] = useState(false);
-  if (fareDerived && !overriding) {
-    return (
-      <button type="button" onClick={() => setOverriding(true)} className="value text-right tabular-nums">
-        {fareText}
-        <span className="ml-2 font-normal text-ink-faint">from hops</span>
-      </button>
-    );
-  }
-  return (
-    <MoneyField
-      label="Total fare"
-      amount={j.fare ?? ""}
-      currency={j.fareCurrency}
-      onAmount={onAmount}
-      onCurrency={onCurrency}
-    />
-  );
-}
 
 export default function Journey() {
   const data = useData();
@@ -91,10 +54,11 @@ export default function Journey() {
   const total = fmtDuration(first?.depart, last?.arrive ?? last?.depart);
   const changes = Math.max(0, j.segments.length - 1);
 
-  // the fare adds up on its own — a manual `j.fare` wins, otherwise the hops
+  // the total adds itself up from the hops' fares; only a journey with no
+  // priced hop takes a hand-entered total (one ticket for the whole trip)
   const fareLines = journeyFare(j, primary);
   const fareText = fareLines.map((m) => fmtMoney(m.amount, m.currency)).join("  +  ");
-  const fareDerived = !j.fare?.trim() && fareLines.length > 0;
+  const fareDerived = hopsPriced(j);
 
   return (
     <Page>
@@ -150,16 +114,16 @@ export default function Journey() {
             )}
             {(fareText || !ro) && (
               <InsetRow label="Total fare">
-                {ro ? (
-                  <>
+                {ro || fareDerived ? (
+                  <span className="tabular-nums">
                     {fareText || "—"}
-                    {fareDerived && <span className="ml-2 font-normal text-ink-faint">from hops</span>}
-                  </>
+                    {fareDerived && <span className="ml-2 text-ink-faint">from hops</span>}
+                  </span>
                 ) : (
-                  <TotalFareField
-                    j={j}
-                    fareDerived={fareDerived}
-                    fareText={fareText}
+                  <MoneyField
+                    label="Total fare"
+                    amount={j.fare ?? ""}
+                    currency={j.fareCurrency}
                     onAmount={(v) => patch({ fare: cleanAmount(v) || undefined })}
                     onCurrency={(c) => patch({ fareCurrency: c })}
                   />

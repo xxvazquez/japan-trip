@@ -1,8 +1,19 @@
 import { useEffect, useLayoutEffect, useRef, type KeyboardEvent, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { useSheetDrag } from "./useSheetDrag";
+import { SegmentedControl } from "./SegmentedControl";
 
-const HOURS = Array.from({ length: 24 }, (_, h) => String(h).padStart(2, "0"));
+/* The pickers work on a 12-hour dial plus AM/PM, the way a clock (and the iOS
+ * wheel) reads; the stored value stays 24-hour "HH:MM". */
+const WHEEL_HOURS = Array.from({ length: 12 }, (_, i) => String(i + 1));
+// clock face order — 12 at the top, then round
+const FACE_HOURS = ["12", ...WHEEL_HOURS.slice(0, 11)];
+const PERIODS = ["AM", "PM"] as const;
+type Period = (typeof PERIODS)[number];
+const to12 = (h24: string) => String(Number(h24) % 12 || 12);
+const periodOf = (h24: string): Period => (Number(h24) < 12 ? "AM" : "PM");
+const to24 = (h12: string, p: Period) =>
+  String((Number(h12) % 12) + (p === "PM" ? 12 : 0)).padStart(2, "0");
 const MINUTES = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, "0"));
 
 const ITEM_H = 44;
@@ -133,16 +144,25 @@ function ClockRing({ options, value, onChange, ariaLabel, size }: {
 }
 
 /** The clock-face pair behind the desktop popover — click a position on each
- *  ring instead of scrolling a column. Same values/granularity as the wheel
- *  (24 hours, 5-minute steps), just a faster pick with a mouse. */
+ *  ring instead of scrolling a column: a 12-hour face with AM/PM beside the
+ *  readout, and the minutes in 5-minute steps. */
 function ClockPicker({ hour, minute, onPick }: { hour: string; minute: string; onPick: (h: string, m: string) => void }) {
   const size = 168;
+  const period = periodOf(hour);
   return (
     <div className="flex flex-col items-center gap-2 p-2">
-      <div className="text-[22px] font-medium tabular-nums text-ink">{hour}:{minute}</div>
+      <div className="flex items-center gap-3">
+        <span className="text-[22px] font-medium tabular-nums text-ink">{to12(hour)}:{minute}</span>
+        <SegmentedControl
+          className="w-[6.5rem]"
+          value={period}
+          onChange={(p) => onPick(to24(to12(hour), p), minute)}
+          options={PERIODS.map((p) => ({ value: p, label: p }))}
+        />
+      </div>
       <div className="flex items-start gap-4">
         <div className="flex flex-col items-center gap-1">
-          <ClockRing options={HOURS} value={hour} onChange={(v) => onPick(v, minute)} ariaLabel="Hour" size={size} />
+          <ClockRing options={FACE_HOURS} value={to12(hour)} onChange={(v) => onPick(to24(v, period), minute)} ariaLabel="Hour" size={size} />
           <span className="kicker text-ink-faint">Hour</span>
         </div>
         <div className="flex flex-col items-center gap-1">
@@ -160,7 +180,7 @@ function ClockPicker({ hour, minute, onPick }: { hour: string; minute: string; o
  *  through a scroll or a tap, where `ActionSheet` closes on any click inside
  *  it. Values commit live as each wheel settles; "Done" just dismisses. The
  *  wide popover swaps the wheel for a clickable clock face (`ClockPicker`) —
- *  a mouse picks a position in one click far faster than scrolling 24 hours
+ *  a mouse picks a position in one click far faster than scrolling 12 hours
  *  or 12 five-minute steps; touch keeps the familiar wheel. */
 export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, onPick, onClear }: {
   open: boolean;
@@ -186,9 +206,10 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, onPick,
   const wheels = (
     <div className="relative flex items-center justify-center gap-1">
       <span aria-hidden className="pointer-events-none absolute inset-x-2 top-1/2 h-11 -translate-y-1/2 rounded-[10px] bg-surface-2" />
-      <WheelColumn options={HOURS} value={h} onChange={(v) => onPick(v, m)} ariaLabel="Hour" />
+      <WheelColumn options={WHEEL_HOURS} value={to12(h)} onChange={(v) => onPick(to24(v, periodOf(h)), m)} ariaLabel="Hour" />
       <span aria-hidden className="text-[22px] text-ink-faint">:</span>
       <WheelColumn options={MINUTES} value={m} onChange={(v) => onPick(h, v)} ariaLabel="Minute" />
+      <WheelColumn options={[...PERIODS]} value={periodOf(h)} onChange={(p) => onPick(to24(to12(h), p as Period), m)} ariaLabel="AM or PM" />
     </div>
   );
 

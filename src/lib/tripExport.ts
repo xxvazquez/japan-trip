@@ -22,7 +22,7 @@ import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import { localMinutes, fmtMinutes } from "@/lib/time";
 import { gmapsLink } from "@/lib/maps";
 import { MODE_LABEL } from "@/lib/transport";
-import { fmtFare, isMoneyLabel } from "@/lib/cost";
+import { fmtFare, fmtMoney, isMoneyLabel, journeyFare } from "@/lib/cost";
 import { APP_NAME } from "@/lib/app";
 
 export interface ExportOptions {
@@ -220,6 +220,7 @@ function journeysSection(data: TripData, opts: ExportOptions): string {
   const currency = data.config.currency ?? "";
   const blocks = ordered.map((j: Journey) => {
     const day = journeyDepartDate(j);
+    const fare = journeyFare(j, currency).map((m) => fmtMoney(m.amount, m.currency)).join(" + ");
     const when = day ? fmtDate(day, loc, { weekday: "long", day: "numeric", month: "long" }) : "";
     const dir = j.gmapsDirections
       ? `<p class="seg-meta"><a href="${safeHref(j.gmapsDirections)}">Directions in Google Maps</a></p>`
@@ -228,7 +229,7 @@ function journeysSection(data: TripData, opts: ExportOptions): string {
       <h3>${esc(j.label)}</h3>
       ${when ? `<p class="leg-range">${esc(when)}</p>` : ""}
       ${j.segments.map((s, i) => segmentBlock(s, j.segments[i + 1], opts, day, loc, currency)).join("\n") || `<p class="empty">No hops yet.</p>`}
-      ${j.fare ? `<p class="seg-meta">Total fare: ${esc(fmtFare(j.fare, j.fareCurrency || currency))}</p>` : ""}
+      ${fare ? `<p class="seg-meta">Total fare: ${esc(fare)}</p>` : ""}
       ${dir}
       ${j.notes?.trim() ? `<div class="note">${mdToHtml(j.notes)}</div>` : ""}
     </section>`;
