@@ -8,6 +8,7 @@ import { Loader } from "./Loader";
 import { Icon } from "./Icon";
 import { NavProvider, NavLeft, NavTitle } from "./NavBar";
 import { UndoToast } from "./UndoToast";
+import { AccountButton } from "./Account";
 import { SafetyBanner } from "./SafetyBanner";
 import { SplitMap, useSplit, useSplitPane } from "./SplitMap";
 import { useReadOnly } from "@/lib/readonly";
@@ -86,13 +87,7 @@ export function AppShell() {
             >
               <Icon name="search" size={19} />
             </button>
-            <Link
-              to="/manage"
-              className="grid h-11 w-11 place-items-center transition-colors hover:text-accent md:hidden"
-              aria-label="Manage trips & settings"
-            >
-              <Icon name="settings" size={19} />
-            </Link>
+            <AccountButton />
           </div>
         </div>
       </header>

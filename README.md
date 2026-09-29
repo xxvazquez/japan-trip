@@ -277,7 +277,7 @@ When you're signed in, a small label next to the header search icon shows what's
 
 Every account has a read-only **Demo** trip — a made-up example with notes explaining how each screen works. You can't edit it; it's just there to look at. Delete it whenever from Manage → Trips (and re-add it from the same place).
 
-**Manage** (the gear icon, top right — or its own spot at the foot of the sidebar on a wider screen) is only for bigger structural changes — adding or removing days, changing trip dates, theme, sharing.
+**Manage** (your account picture, top right on every screen — or its own spot at the foot of the sidebar on a wider screen) is only for bigger structural changes — adding or removing days, changing trip dates, theme, sharing. Its first card is your account: who's signed in and whether it's synced, with Sign out — or, when you're not signed in, **Sign in with Google** (the picture carries a small dot until you do).
 
 ## Offline
 

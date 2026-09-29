@@ -55,7 +55,8 @@ export type IconName =
   | "temple"
   | "locate"
   | "calendar"
-  | "backspace";
+  | "backspace"
+  | "person";
 
 const P: Record<IconName, JSX.Element> = {
   itinerary: (
@@ -284,6 +285,12 @@ const P: Record<IconName, JSX.Element> = {
     <>
       <path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2 1.6 1.6 0 0 0 0 3v2a1.6 1.6 0 0 0 0 3 2 2 0 0 1-2 2H6a2 2 0 0 1-2-2 1.6 1.6 0 0 0 0-3v-2a1.6 1.6 0 0 0 0-3Z" />
       <path d="M13 6v2M13 11v2M13 16v2" />
+    </>
+  ),
+  person: (
+    <>
+      <circle cx="12" cy="8.5" r="3.75" />
+      <path d="M4.5 20c.9-3.6 3.9-5.6 7.5-5.6s6.6 2 7.5 5.6" />
     </>
   ),
   backspace: (

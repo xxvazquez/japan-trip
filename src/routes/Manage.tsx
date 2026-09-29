@@ -16,6 +16,7 @@ import { THEME_PRESETS, DEFAULT_ACCENT } from "@/lib/themePresets";
 import { GlyphPicker } from "@/components/GlyphPicker";
 import { ColorSwatch } from "@/components/ColorSwatch";
 import { ActionRow } from "@/components/ActionRow";
+import { AccountCard } from "@/components/Account";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { TimeZonePicker } from "@/components/TimeZonePicker";
@@ -27,8 +28,7 @@ import { ActionSheet, useActionSheet, ConfirmMenuItem } from "@/components/Actio
 import { fileToMediaItem, pickImage } from "@/lib/media";
 import { supabaseEnabled } from "@/lib/supabase";
 import { driveEnabled } from "@/lib/drive";
-import { useAuth, signOut } from "@/lib/auth";
-import { isLocalOnly, setLocalOnly } from "@/lib/localMode";
+import { useAuth } from "@/lib/auth";
 import { RowMenu } from "@/components/RowMenu";
 import { MODE_LABEL } from "@/lib/transport";
 import { fallbackCategoryId } from "@/lib/hydrate";
@@ -128,7 +128,6 @@ function Trips() {
   const live = trips.filter((t) => !t.archived);
   const archived = trips.filter((t) => t.archived);
   const hasDemo = trips.some((t) => t.templateId === "demo");
-  const auth = useAuth();
 
   const addDemo = () =>
     run(async () => {
@@ -153,22 +152,9 @@ function Trips() {
 
   return (
     <div className="space-y-6">
-      {supabaseEnabled && auth.user && (
-        <Section>
-          <ul>
-            <InsetRow label="Signed in"><span className="break-words">{auth.user.email}</span></InsetRow>
-            <ActionRow label="Sign out" onClick={() => signOut()} />
-          </ul>
-        </Section>
-      )}
-      {supabaseEnabled && !auth.user && isLocalOnly() && (
-        <Section>
-          <ul>
-            <InsetRow label="Storage">On this device only</InsetRow>
-            <ActionRow label="Sign in to sync" onClick={() => { setLocalOnly(false); location.reload(); }} />
-          </ul>
-        </Section>
-      )}
+      <Section>
+        <AccountCard />
+      </Section>
       {!creating ? (
         <Section>
           <ul>
