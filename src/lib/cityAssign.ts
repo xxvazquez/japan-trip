@@ -79,3 +79,20 @@ export function areaLeg(area: Area, placeLeg: Map<string, string>): string | und
   for (const [lg, n] of tally) if (n > bn) { bn = n; best = lg; }
   return best;
 }
+
+/** Stays in the same city are one city on the Map, however many there are —
+ *  Tokyo at both ends of a trip, or four hotels in one city: leg id → the id
+ *  of the first leg with the same city name (case, accents and spacing
+ *  ignored, so "Kyōto" is "Kyoto"), which stands for all of them — one pill,
+ *  one list group. A leg with no name is its own. */
+export function canonicalLegs(data: TripData): Map<string, string> {
+  const first = new Map<string, string>();
+  const m = new Map<string, string>();
+  for (const leg of data.legs) {
+    const key = leg.base?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+    if (!key) { m.set(leg.id, leg.id); continue; }
+    if (!first.has(key)) first.set(key, leg.id);
+    m.set(leg.id, first.get(key)!);
+  }
+  return m;
+}

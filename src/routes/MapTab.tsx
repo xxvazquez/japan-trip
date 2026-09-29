@@ -27,7 +27,7 @@ import { WalkLine } from "@/components/WalkLine";
 import { ChipStrip } from "@/components/ChipStrip";
 import { glyphPath } from "@/lib/mapGlyphs";
 import { toneForPlaceCategory, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
-import { placeLegMap } from "@/lib/cityAssign";
+import { placeLegMap, canonicalLegs } from "@/lib/cityAssign";
 import { useCityAnchors } from "@/lib/cityCoords";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import type { Area, Day, PlanItem, Place, TripData } from "@/core/types";
@@ -205,7 +205,7 @@ function defaultScope(data: TripData): string {
   else if (c.phase === "before") day = days[0];
   else if (c.phase === "after") day = days.at(-1);
   const legId = day?.legId ?? data.legs[0]?.id;
-  return legId ? `leg:${legId}` : "all";
+  return legId ? `leg:${canonicalLegs(data).get(legId) ?? legId}` : "all";
 }
 
 /** the mobile sheet's handle: a real drag (not just a tap-to-cycle button),
@@ -674,7 +674,15 @@ export default function MapTab() {
    *  (or overridden by hand). Lets a whole city's imported pins sit under
    *  its pill even before they're linked to a day. */
   const cityAnchors = useCityAnchors(data);
-  const placeLeg = useMemo(() => (data ? placeLegMap(data, cityAnchors) : new Map<string, string>()), [data, cityAnchors]);
+  /** leg → the leg standing for its city (two Tokyo stays are one Tokyo) */
+  const cityLeg = useMemo(() => (data ? canonicalLegs(data) : new Map<string, string>()), [data]);
+  // each place's city, as the leg that stands for it — so a pill, the list
+  // groups and the counts all treat same-named stays as one city
+  const placeLeg = useMemo(() => {
+    const m = data ? placeLegMap(data, cityAnchors) : new Map<string, string>();
+    for (const [p, l] of m) m.set(p, cityLeg.get(l) ?? l);
+    return m;
+  }, [data, cityAnchors, cityLeg]);
 
   /** ids in the current scope, before the category / area chips narrow it —
    *  the area chips derive from this so ticking one can't make its own chip
@@ -696,14 +704,14 @@ export default function MapTab() {
     }
     // a stay / city
     const legId = scope.slice(4);
-    for (const d of data.days.filter((d) => d.legId === legId)) {
+    for (const d of data.days.filter((d) => d.legId && (cityLeg.get(d.legId) ?? d.legId) === legId)) {
       const s = dayIds(d);
       s.all.forEach((id) => all.add(id));
       s.explicit.forEach((id) => explicit.add(id));
     }
     for (const p of places) if (placeLeg.get(p.id) === legId) all.add(p.id);
     return { inScopeIds: all, derivedIds: new Set([...all].filter((id) => !explicit.has(id) && !placeLeg.has(id))) };
-  }, [data, places, scope, placeLeg]);
+  }, [data, places, scope, placeLeg, cityLeg]);
 
   /** the scope, narrowed by category only — area groups build their headers
    *  and counts from this, so soloing one area can't make its own header
@@ -1074,7 +1082,13 @@ export default function MapTab() {
                 : []),
               { id: "all", label: `All · ${places.length}`, hex: "" },
               ...data.legs
-                .filter((l) => (legCounts.get(l.id) ?? 0) > 0 || anchoredLegIds.has(l.id) || scope === `leg:${l.id}`)
+                // one pill per city: the first stay there stands for every
+                // stay with the same name, and earns its pill if any of them would
+                .filter((l) => cityLeg.get(l.id) === l.id)
+                .filter((l) => {
+                  const same = data.legs.filter((o) => cityLeg.get(o.id) === l.id);
+                  return same.some((o) => (legCounts.get(o.id) ?? 0) > 0 || anchoredLegIds.has(o.id)) || scope === `leg:${l.id}`;
+                })
                 .map((l) => ({ id: `leg:${l.id}`, label: l.base || "Stay", hex: legHex(l.color) })),
             ].map((city) => {
               const active = (scope ?? "all") === city.id;
