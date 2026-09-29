@@ -105,7 +105,7 @@ Your Google **My Map** pins, on a clean map. It reads **city → filters → pla
 
 ### Cities
 
-- **City pills** — **All** plus one per stay (and **Today** while the trip is running), coloured to match the trip. Pick a city and the map and the list both narrow to it straight away; the app opens on wherever you are (or the first stay).
+- **City pills** — **All** plus one per stay (and **Today** while the trip is running), coloured to match the trip. Pick a city and the map and the list both narrow to it straight away; the app opens on wherever you are (or the first stay). A place counts as in a city by its distance from that stay's hotel — or, while the hotel has no location yet, from the city itself, found by its name.
 - A city's pins are the ones planned on its days, plus any imported pins that fall nearest to it, within about 60 km — "nearest" measured from the stay's **hotel** (coordinates worked out automatically from its Maps link or, failing that, geocoded from the address) or, failing that, the places its days already use.
 - A pin farther than that from every stay belongs to no city and shows only on **All** — or if a stay has no hotel and no days yet, it has nothing to measure from and can't claim any pins at all. Either way, open the pin's card and set **City** by hand (**Auto** or a specific stay) to fix it.
 - A stay gets a pill once its hotel has coordinates, or once it has a pin to show.

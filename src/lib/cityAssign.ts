@@ -12,9 +12,10 @@ export const MAX_ANCHOR_KM = 60;
  *  set when the guess below is wrong or has nothing to go on) first, else
  *  whichever stay's anchor sits nearest, within `MAX_ANCHOR_KM`. A leg is
  *  anchored on its hotel's coordinates or, failing that, the centroid of
- *  the places its days already pull in; a leg with neither has no anchor
- *  and claims nothing. */
-export function placeLegMap(data: TripData): Map<string, string> {
+ *  the places its days already pull in, or, failing both, its city's centre
+ *  (`cityAnchors`, from `useCityAnchors`); a leg with none has no anchor and
+ *  claims nothing. */
+export function placeLegMap(data: TripData, cityAnchors?: Map<string, { lat: number; lng: number }>): Map<string, string> {
   const m = new Map<string, string>();
   const places = data.places;
   const legIds = new Set(data.legs.map((l) => l.id));
@@ -47,7 +48,10 @@ export function placeLegMap(data: TripData): Map<string, string> {
         lat: pts.reduce((s, p) => s + p.lat, 0) / pts.length,
         lng: pts.reduce((s, p) => s + p.lng, 0) / pts.length,
       });
+      continue;
     }
+    const city = cityAnchors?.get(leg.id);
+    if (city) anchors.push({ legId: leg.id, ...city });
   }
   if (anchors.length === 0) return m;
   for (const p of places) {

@@ -28,6 +28,7 @@ import { ChipStrip } from "@/components/ChipStrip";
 import { glyphPath } from "@/lib/mapGlyphs";
 import { toneForPlaceCategory, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
 import { placeLegMap } from "@/lib/cityAssign";
+import { useCityAnchors } from "@/lib/cityCoords";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import type { Area, Day, PlanItem, Place, TripData } from "@/core/types";
 
@@ -672,7 +673,8 @@ export default function MapTab() {
   /** each place's "home city" (leg) — see `placeLegMap` for how it's guessed
    *  (or overridden by hand). Lets a whole city's imported pins sit under
    *  its pill even before they're linked to a day. */
-  const placeLeg = useMemo(() => (data ? placeLegMap(data) : new Map<string, string>()), [data]);
+  const cityAnchors = useCityAnchors(data);
+  const placeLeg = useMemo(() => (data ? placeLegMap(data, cityAnchors) : new Map<string, string>()), [data, cityAnchors]);
 
   /** ids in the current scope, before the category / area chips narrow it —
    *  the area chips derive from this so ticking one can't make its own chip
@@ -837,10 +839,10 @@ export default function MapTab() {
     if (!data) return s;
     for (const leg of data.legs) {
       const h = data.hotels.find((x) => x.id === leg.hotelId);
-      if ((h && Number.isFinite(h.lat) && Number.isFinite(h.lng)) || mapUrlCoords(h?.mapUrl)) s.add(leg.id);
+      if ((h && Number.isFinite(h.lat) && Number.isFinite(h.lng)) || mapUrlCoords(h?.mapUrl) || cityAnchors.has(leg.id)) s.add(leg.id);
     }
     return s;
-  }, [data]);
+  }, [data, cityAnchors]);
 
   /** how many places each stay would show — so a stay with nothing to show
    *  doesn't get a dead city pill */

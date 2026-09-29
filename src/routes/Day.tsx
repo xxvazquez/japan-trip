@@ -32,6 +32,7 @@ import { IconTile } from "@/components/IconTile";
 import { useSplit } from "@/components/SplitMap";
 import { toneForPlaceCategory } from "@/lib/tones";
 import { placeLegMap, areaLeg } from "@/lib/cityAssign";
+import { useCityAnchors } from "@/lib/cityCoords";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
@@ -111,11 +112,12 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   // multi-city trip doesn't dump every area in the trip into one list; falls
   // back to the whole list if none resolve to a city yet (an unlinked hotel,
   // say) so the picker is never left with nothing to offer
+  const cityAnchors = useCityAnchors(data);
   const cityAreas = useMemo(() => {
-    const placeLeg = placeLegMap(data);
+    const placeLeg = placeLegMap(data, cityAnchors);
     const inCity = data.areas.filter((a) => areaLeg(a, placeLeg) === day.legId);
     return inCity.length > 0 ? inCity : data.areas;
-  }, [data, day.legId]);
+  }, [data, day.legId, cityAnchors]);
 
   // places available to a plan step's picker — drawn only from this day's own
   // linked areas (see the Areas section below), not every place in the trip
