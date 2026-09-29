@@ -22,7 +22,7 @@ export function UndoToast() {
 
   if (!toast) return null;
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--sab)+4.75rem)] z-[60] flex justify-center px-4 md:bottom-6 md:pl-[72px]">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[var(--tabbar-clear)] z-[60] flex justify-center px-4 md:bottom-6 md:pl-[72px]">
       <div
         role="status"
         className="pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-[12px] bg-ink py-2.5 pl-4 pr-2 text-sm text-bg shadow-md motion-safe:animate-fade-in"

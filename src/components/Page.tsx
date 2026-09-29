@@ -15,7 +15,7 @@ export function Page({
   return (
     <div
       className={[
-        "relative z-10 mx-auto w-full px-5 pb-28 pt-6 sm:px-7 md:pb-14",
+        "relative z-10 mx-auto w-full px-5 pb-[calc(var(--tabbar-clear)+2rem)] pt-6 sm:px-7 md:pb-14",
         width === "reading" ? "max-w-reading" : "max-w-form",
         className,
       ].join(" ")}

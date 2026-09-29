@@ -28,6 +28,12 @@ If someone signs in before being added to the trip, they'll just see the Demo �
 
 Open the link in Safari / Chrome → **Share → Add to Home Screen**. It then opens like a normal app, full screen. Do this on both phones.
 
+Getting around works like an iOS 26 app:
+- The **tab bar** floats at the bottom (Plan · Map · Logbook), with **Search** as its own round button beside it. On a wider screen the sections are a rail down the left and Search sits top right (⌘K / Ctrl+K anywhere).
+- The **trip name** top left is a menu: tap it to jump to another trip, or to Manage trips.
+- A detail page's **‹ Back** button names where it goes back to. On a day's page, **‹ ›** top right step to the day before or after (← → on a keyboard).
+- Your **account picture** top right opens Manage.
+
 ## Plan
 
 The trip as a list of days, grouped by where you're staying. Each day carries a tag — **Arrive**, **Travel**, **Depart**, **Day trip** — worked out automatically from what you set on the day itself, never chosen by hand.
@@ -269,7 +275,7 @@ Tap almost any piece of text and it becomes editable on the spot. Type, tap away
 - Once confirmed, removing a plan step, an expense, a packing item, a list item, a journey hop or a detail — or deleting a whole day, stay, journey, place, area, document or note — brings up an **Undo** bar above the tab bar for a few seconds. Tap it and exactly what was removed comes back, in its old spot; anything else you edited in the meantime is left alone.
 - It covers the last delete only, and deleting a whole trip or a file attachment isn't undoable.
 
-When you're signed in, a small label next to the header search icon shows what's happening: **Saving…** (grey, while it's in flight), **Saved** (green, flashes briefly once it lands), or **Offline** (amber, stays up for as long as you're disconnected — edits keep queuing and send the moment you're back). On-device-only trips save instantly and show nothing.
+When you're signed in, a small label beside the buttons top right shows what's happening: **Saving…** (grey, while it's in flight), **Saved** (green, flashes briefly once it lands), or **Offline** (amber, stays up for as long as you're disconnected — edits keep queuing and send the moment you're back). On-device-only trips save instantly and show nothing.
 
 **Notes** fields (a day's General notes and Getting there/back, a stay's notes and directions, a journey, a luggage note's detail, a map place's note, and each of the Logbook Scratchpad's notes) take light Markdown — `**bold**`, `*italic*`, `++underline++`, `~~strikethrough~~`, `##` headings, `>` quotes, `-` bullet lists, `- [ ]` checklists and `[links](https://…)`. A slim B / I / U / S / H / " / • / ☑ / link toolbar covers all of it without needing to know the syntax, plus the usual ⌘/Ctrl-B · ⌘/Ctrl-I · ⌘/Ctrl-U · ⌘/Ctrl-Shift-X shortcuts; bullets continue on Enter. A checklist item's box is tappable straight from the read view — ticking it off doesn't open the editor.
 

@@ -63,10 +63,10 @@ export function AccountButton() {
     <Link
       to="/manage"
       aria-label={user ? `Account and settings — signed in as ${email}` : canSignIn ? "Account and settings — not signed in" : "Trips and settings"}
-      className="relative grid h-11 w-11 place-items-center rounded-full transition-opacity hover:opacity-80"
+      className="relative grid h-10 w-10 place-items-center rounded-full transition-opacity hover:opacity-80"
     >
       <Avatar size={28} />
-      {canSignIn && <span aria-hidden className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full border-2 border-bg bg-accent" />}
+      {canSignIn && <span aria-hidden className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full border-2 border-surface bg-accent" />}
     </Link>
   );
 }

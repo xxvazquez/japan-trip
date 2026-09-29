@@ -1505,7 +1505,7 @@ export default function MapTab() {
     <div
       ref={shellRef}
       style={{ "--panel-w": `${panelWidth}px` } as CSSProperties}
-      className="fixed inset-x-0 bottom-[calc(49px+var(--sab))] top-[calc(var(--sat)+var(--nav-h)+var(--demo-h,0px))] z-20 md:bottom-0 md:left-[72px]"
+      className="fixed inset-x-0 bottom-[var(--tabbar-clear)] top-[calc(var(--sat)+var(--nav-h)+var(--demo-h,0px))] z-20 md:bottom-0 md:left-[72px]"
     >
       {/* map — hidden, not unmounted, in list-only view: keeps its instance
           (viewport, loaded tiles) alive for an instant toggle back */}

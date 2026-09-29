@@ -71,23 +71,30 @@ export function AppShell() {
         } as Record<string, string>
       }
     >
-      <header className="sticky top-0 z-30 material border-b border-line pt-[var(--sat)]">
-        <div className="flex h-[var(--nav-h)] items-center gap-2 px-4 sm:px-6">
+      <header className="sticky top-0 z-30 pt-[var(--sat)]">
+        {/* iOS 26: no bar and no hairline — content scrolls up under a soft
+            blurred edge, and the controls float on it as glass */}
+        <div aria-hidden className="scroll-edge pointer-events-none absolute inset-x-0 top-0 -bottom-4" />
+        <div className="relative flex h-[var(--nav-h)] items-center gap-2 px-3 sm:px-5">
           <div className="flex min-w-0 flex-1 items-center justify-start">
             <NavLeft />
           </div>
           <NavTitle />
-          <div className="flex min-w-0 flex-1 items-center justify-end text-ink-soft">
+          <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
             <SyncStatus />
-            <button
-              type="button"
-              onClick={() => setSearchOpen(true)}
-              className="grid h-11 w-11 place-items-center transition-colors hover:text-accent"
-              aria-label="Search"
-            >
-              <Icon name="search" size={19} />
-            </button>
-            <AccountButton />
+            <div id="nav-actions" className="contents" />
+            <div className="glass flex h-11 items-center rounded-full px-0.5 text-ink">
+              {/* on a phone Search lives beside the tab bar, iOS 26-style */}
+              <button
+                type="button"
+                onClick={() => setSearchOpen(true)}
+                className="hidden h-10 w-10 place-items-center rounded-full transition-colors hover:text-accent md:grid"
+                aria-label="Search"
+              >
+                <Icon name="search" size={19} />
+              </button>
+              <AccountButton />
+            </div>
           </div>
         </div>
       </header>
@@ -108,7 +115,7 @@ export function AppShell() {
         </Suspense>
       </main>
 
-      <TabBarOrRail />
+      <TabBarOrRail onSearch={() => setSearchOpen(true)} />
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
       <SplitMap pane={pane} />
       <UndoToast />

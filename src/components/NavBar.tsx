@@ -1,9 +1,11 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Icon } from "./Icon";
 import { Wordmark } from "./Wordmark";
 import { useData } from "@/lib/data";
 import { PARENT_LABEL } from "./BackBar";
+import { ActionSheet } from "./ActionSheet";
+import { useApp } from "@/store/useApp";
 
 /**
  * The state behind the iOS-style navigation bar. A page's `<PageHeader>`
@@ -46,28 +48,67 @@ export function NavProvider({ children }: { children: ReactNode }) {
 
 export const useNavBar = () => useContext(Ctx);
 
+/** The trip's brand, which is also the way to another trip — the iOS title
+ *  menu: tap it for every trip, the current one ticked, and Manage trips. */
+function TripSwitcher() {
+  const data = useData();
+  const trips = useApp((s) => s.trips);
+  const activeId = useApp((s) => s.activeId);
+  const switchTrip = useApp((s) => s.switchTrip);
+  const go = useNavigate();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLButtonElement>(null);
+  const live = trips.filter((t) => !t.archived);
+  return (
+    <>
+      <button
+        ref={ref}
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-haspopup="menu"
+        aria-label={`${data?.config.branding || "Trip"} — switch trip`}
+        className="flex min-h-11 min-w-0 items-center gap-1.5 rounded-full pr-1 transition-opacity active:opacity-60"
+      >
+        <Wordmark />
+        <Icon name="down" size={14} className="shrink-0 text-ink-soft" />
+        {data?.config.tagline && <span className="hidden text-2xs text-ink-faint sm:inline">· {data.config.tagline}</span>}
+      </button>
+      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={ref} title="Trips">
+        {live.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            className="menu-item"
+            onClick={() => { if (t.id !== activeId) void switchTrip(t.id).then(() => go("/")); }}
+          >
+            <span className="min-w-0 flex-1 break-words">{t.name}</span>
+            {t.id === activeId && <Icon name="check" size={16} className="shrink-0 text-accent" />}
+          </button>
+        ))}
+        <button type="button" className="menu-item text-accent" onClick={() => go("/manage")}>
+          Manage trips…
+        </button>
+      </ActionSheet>
+    </>
+  );
+}
+
 /** Left slot: a `‹ Parent` back button on a detail page, else the trip's brand. */
 export function NavLeft() {
   const nav = useNavBar();
   const go = useNavigate();
   const loc = useLocation();
-  const data = useData();
   const back = nav?.state.back;
-  if (!back) {
-    return (
-      <Link to="/" className="flex min-h-11 items-center gap-2" aria-label={data?.config.branding || "Home"}>
-        <Wordmark />
-        {data?.config.tagline && <span className="hidden text-2xs text-ink-faint sm:inline">· {data.config.tagline}</span>}
-      </Link>
-    );
-  }
+  if (!back) return <TripSwitcher />;
   const to = back.to ?? "/";
   // "default" = a cold load (deep link, reload): there's no history to pop
   const canGoBack = loc.key !== "default";
   return (
+    // iOS 26 glass capsule — the chevron plus where it goes back to, kept as a
+    // word so it's always clear which screen you're leaving for
     <button
       onClick={() => (canGoBack ? go(-1) : go(to))}
-      className="-ml-2 flex min-h-11 items-center gap-0.5 pr-2 text-[17px] text-accent transition-opacity hover:opacity-70"
+      className="glass flex h-11 min-w-11 items-center gap-0.5 rounded-full pl-2 pr-3.5 text-[17px] text-ink transition-transform active:scale-95"
     >
       <Icon name="back" size={22} />
       {PARENT_LABEL[to] ?? "Back"}

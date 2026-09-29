@@ -24,9 +24,12 @@ function currentModuleId(modules: ModuleConfig[], pathname: string, hub: ModuleK
   return hub ? (modules.find((m) => m.kind === hub)?.id ?? null) : null;
 }
 
-/** Bottom tab bar on mobile; a quiet left rail from md up. Driven by the active
- *  trip's section config — reorder / rename / hide them in Manage. On a phone the current tab is
- *  just tinted (translucent bar, like iOS); the rail gives it a soft accent pill.
+/** The iOS 26 tab bar on a phone — a floating Liquid Glass capsule inset
+ *  from the edges, the current tab sitting on a soft lozenge, and Search as
+ *  its own round glass button beside it (iOS 26 moved search to the bottom,
+ *  within thumb reach). From md up it's a quiet left rail instead, with Search
+ *  staying in the header. Driven by the active trip's section config —
+ *  reorder / rename / hide them in Manage.
  *
  *  A day/hotel/journey/leg page has no tab of its own — it stays highlighted
  *  on whichever tab pushed it (Plan, Map, Logbook, or a pinned Logbook-section
@@ -34,7 +37,7 @@ function currentModuleId(modules: ModuleConfig[], pathname: string, hub: ModuleK
  *  the shared page instead of the tab bar guessing from the URL — remembering
  *  a module id rather than just its coarse kind means this still works if the
  *  visitor got there from a pinned tab whose own hub tab is disabled. */
-export function TabBarOrRail() {
+export function TabBarOrRail({ onSearch }: { onSearch: () => void }) {
   const { pathname } = useLocation();
   const data = useData();
   const modules = enabledModules(data?.config.modules ?? []);
@@ -49,56 +52,78 @@ export function TabBarOrRail() {
   // no trip loaded yet — nothing to list, and the 3-tab fallback would flash
   // a wrong bar (the trip may have six) before its real config arrives
   if (!data) return null;
-
-  const cell = (current: boolean, label: string, icon: IconName) => (
-    <span
-      className={[
-        // phone: iOS tab bar — icon over label, only the tint changes; the
-        // left rail (md+) keeps the soft pill behind the current item
-        "flex flex-col items-center justify-center gap-0.5 text-2xs tracking-normal transition-colors group-active:opacity-60 md:gap-1 md:rounded-[10px] md:px-3.5 md:py-1.5",
-        current ? "text-accent md:bg-accent/[0.14]" : "text-ink-faint group-hover:text-ink-soft",
-      ].join(" ")}
-    >
-      <Icon name={icon} size={24} filled={current} />
-      {label}
-    </span>
-  );
+  const iconOf = (s: ModuleConfig): IconName => (s.icon && isIconName(s.icon) ? s.icon : "vault");
 
   return (
-    <nav
-      aria-label="Sections"
-      className={[
-        // translucent material (see .material) where the browser can blur what scrolls beneath
-        "material fixed z-40",
-        "inset-x-0 bottom-0 border-t border-line pb-[var(--sab)]",
-        "md:inset-x-auto md:bottom-0 md:left-0 md:top-0 md:h-full md:w-[72px] md:border-r md:border-t-0 md:pb-0",
-      ].join(" ")}
-    >
-      <ul className="flex h-[49px] justify-around px-1 md:h-full md:flex-col md:items-center md:justify-start md:gap-1.5 md:px-0 md:py-5">
-        {modules.map((s) => {
-          const current = s.id === activeId;
-          return (
-            <li key={s.id} className="flex-1 md:flex-none">
-              <NavLink
-                to={moduleTo(s)}
-                aria-current={current ? "page" : undefined}
-                className="group flex h-full w-full items-center justify-center"
-              >
-                {cell(current, s.label, s.icon && isIconName(s.icon) ? s.icon : "vault")}
-              </NavLink>
-            </li>
-          );
-        })}
-        {/* Manage — parked at the foot of the desktop rail, where it's had a
-            spare slot all along; on mobile a 4-item bar it competes with the
-            actual sections, so it lives as a header gear icon instead (see
-            AppShell) — the rail has room, the bar doesn't. */}
-        <li className="hidden md:mt-auto md:block">
-          <NavLink to="/manage" aria-label="Manage" className="group flex">
-            {({ isActive }) => cell(isActive, "Manage", "settings")}
-          </NavLink>
-        </li>
-      </ul>
-    </nav>
+    <>
+      <nav
+        aria-label="Sections"
+        className="fixed inset-x-3 bottom-[var(--tabbar-bottom)] z-40 flex items-center gap-2 md:hidden"
+      >
+        <ul className="glass flex h-[var(--tabbar-h)] min-w-0 flex-1 items-stretch rounded-full p-1">
+          {modules.map((s) => {
+            const current = s.id === activeId;
+            return (
+              <li key={s.id} className="min-w-0 flex-1">
+                <NavLink
+                  to={moduleTo(s)}
+                  aria-current={current ? "page" : undefined}
+                  className={`flex h-full flex-col items-center justify-center gap-0.5 rounded-full text-[10px] font-medium transition-colors duration-200 active:scale-95 ${
+                    current ? "bg-ink/[0.07] text-accent" : "text-ink"
+                  }`}
+                >
+                  <Icon name={iconOf(s)} size={24} filled={current} />
+                  <span className="max-w-full px-1 leading-tight">{s.label}</span>
+                </NavLink>
+              </li>
+            );
+          })}
+        </ul>
+        <button
+          type="button"
+          onClick={onSearch}
+          aria-label="Search"
+          className="glass grid h-[var(--tabbar-h)] w-[var(--tabbar-h)] shrink-0 place-items-center rounded-full text-ink transition-transform active:scale-95"
+        >
+          <Icon name="search" size={22} />
+        </button>
+      </nav>
+
+      <nav
+        aria-label="Sections"
+        className="material fixed bottom-0 left-0 top-0 z-40 hidden h-full w-[72px] border-r border-line md:block"
+      >
+        <ul className="flex h-full flex-col items-center gap-1.5 py-5">
+          {modules.map((s) => {
+            const current = s.id === activeId;
+            return (
+              <li key={s.id}>
+                <NavLink to={moduleTo(s)} aria-current={current ? "page" : undefined} className="group flex">
+                  {railCell(current, s.label, iconOf(s))}
+                </NavLink>
+              </li>
+            );
+          })}
+          {/* Manage at the foot of the rail, where there's room; on a phone
+              it's the account picture in the header (see AppShell) */}
+          <li className="mt-auto">
+            <NavLink to="/manage" aria-label="Manage" className="group flex">
+              {({ isActive }) => railCell(isActive, "Manage", "settings")}
+            </NavLink>
+          </li>
+        </ul>
+      </nav>
+    </>
   );
 }
+
+const railCell = (current: boolean, label: string, icon: IconName) => (
+  <span
+    className={`flex flex-col items-center justify-center gap-1 rounded-[10px] px-3.5 py-1.5 text-2xs tracking-normal transition-colors group-active:opacity-60 ${
+      current ? "bg-accent/[0.14] text-accent" : "text-ink-faint group-hover:text-ink-soft"
+    }`}
+  >
+    <Icon name={icon} size={24} filled={current} />
+    {label}
+  </span>
+);

@@ -33,6 +33,7 @@ import { useSplit } from "@/components/SplitMap";
 import { toneForPlaceCategory } from "@/lib/tones";
 import { placeLegMap, areaLeg } from "@/lib/cityAssign";
 import { useCityAnchors } from "@/lib/cityCoords";
+import { DayStepper } from "@/components/DayStepper";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
@@ -214,6 +215,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   return (
     <Page>
       {/* IDENTITY — date, title, and where you're based / how you move */}
+      <DayStepper days={data.days} current={day.id} locale={loc} />
       <PageHeader
         back="/"
         dotColor={legHex(leg?.color)}

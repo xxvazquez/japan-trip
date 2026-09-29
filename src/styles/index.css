@@ -34,9 +34,16 @@
   /* a separator: one device pixel on a 2x+ screen (iOS's 0.5pt hairline), a
      full px where a half would blur away */
   --hair: 1px;
-  --nav-h: 2.75rem; /* the navigation bar, below the safe area — iOS's 44pt */
+  --nav-h: 3.25rem; /* the navigation bar, below the safe area — iOS 26's taller bar for its 44pt glass buttons */
   --sat: env(safe-area-inset-top, 0px);
   --sab: env(safe-area-inset-bottom, 0px);
+  /* the phone's floating tab bar: 62px of glass sitting just above the home
+     indicator (or 12px off the bottom where there's none). --tabbar-clear is
+     how much of the screen's foot it covers, for anything that must stay
+     visible above it (the Undo toast, the Map sheet). */
+  --tabbar-h: 62px;
+  --tabbar-bottom: max(var(--sab), 0.75rem);
+  --tabbar-clear: calc(var(--tabbar-bottom) + var(--tabbar-h) + 0.5rem);
 }
 
 @media (min-resolution: 2dppx) {
@@ -330,6 +337,50 @@ html.dark {
     .material {
       background: rgb(var(--c-bg) / 0.8);
       backdrop-filter: saturate(180%) blur(20px);
+    }
+  }
+
+  /* iOS 26 Liquid Glass — the floating bars and their buttons: translucent
+   * over whatever scrolls beneath, a bright rim and a soft lift. Tokens only,
+   * so it follows light / dark and every palette. Falls back to a plain
+   * surface where the browser can't blur. */
+  .glass {
+    background: rgb(var(--c-surface));
+    border: 0.5px solid rgb(var(--c-ink) / 0.08);
+    box-shadow:
+      0 8px 28px rgb(var(--c-ink) / 0.1),
+      0 1px 3px rgb(var(--c-ink) / 0.06);
+  }
+  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass {
+      background: rgb(var(--c-surface) / 0.62);
+      -webkit-backdrop-filter: blur(22px) saturate(190%);
+      backdrop-filter: blur(22px) saturate(190%);
+      box-shadow:
+        inset 0 0.5px 0 rgb(var(--c-surface) / 0.9),
+        0 8px 28px rgb(var(--c-ink) / 0.1),
+        0 1px 3px rgb(var(--c-ink) / 0.06);
+    }
+    html.dark .glass {
+      background: rgb(var(--c-surface) / 0.55);
+      border-color: rgb(var(--c-ink) / 0.12);
+      box-shadow:
+        inset 0 0.5px 0 rgb(var(--c-ink) / 0.14),
+        0 8px 28px rgb(var(--c-bg) / 0.6);
+    }
+  }
+  /* the nav bar's scroll edge: no hairline — content fades softly under a
+   * blur that thins out toward the bar's foot, as on iOS 26 */
+  .scroll-edge {
+    background: linear-gradient(rgb(var(--c-bg) / 0.92), rgb(var(--c-bg) / 0));
+  }
+  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .scroll-edge {
+      background: linear-gradient(rgb(var(--c-bg) / 0.75), rgb(var(--c-bg) / 0));
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      -webkit-mask-image: linear-gradient(black 55%, transparent);
+      mask-image: linear-gradient(black 55%, transparent);
     }
   }
 
