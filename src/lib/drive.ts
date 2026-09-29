@@ -81,48 +81,69 @@ async function ensureClient() {
       pending = null;
     },
     error_callback: (e) => {
-      pending?.fail(new Error(e?.type === "popup_closed" ? "Sign-in was cancelled." : "Google sign-in failed."));
+      pending?.fail(new Error(
+        e?.type === "popup_closed" ? "Google sign-in was closed before it finished."
+          : e?.type === "popup_failed_to_open" ? "Your browser blocked Google’s sign-in window. Allow pop-ups for this site, then tap Connect Google Drive again."
+          : "Google sign-in failed.",
+      ));
       pending = null;
     },
   });
 }
 
-/** A usable access token. `interactive` permits a popup — needed the first time
- *  and whenever the silent path fails. */
-export async function getToken(interactive = false): Promise<string> {
-  if (token && token.exp > Date.now()) return token.value;
-  await ensureClient();
-  const request = (prompt: string) =>
-    new Promise<string>((ok, fail) => {
-      const timer = setTimeout(() => {
-        if (pending) { pending = null; fail(new Error("Google didn’t respond — try again.")); }
-      }, 90_000);
-      pending = {
-        ok: (t) => { clearTimeout(timer); ok(t); },
-        fail: (e) => { clearTimeout(timer); fail(e); },
-      };
-      client!.requestAccessToken({ prompt });
-    });
-  try {
-    return await request("none");
-  } catch (e) {
-    if (!interactive) throw e;
-    return await request(""); // account chooser / consent
-  }
+/** Load Google's sign-in script and set up the token client ahead of time.
+ *  Browsers (iOS above all) only let a popup open inside the tap that asked
+ *  for it, so by the time someone taps "Connect", everything must be ready
+ *  for `connectDrive` to open it without an await in between. */
+export const prepareDrive = (): Promise<void> => ensureClient();
+
+/** True while a Drive access token is held and unexpired (~1h, memory only). */
+export const driveConnected = (): boolean => !!token && token.exp > Date.now();
+
+function request(): Promise<string> {
+  return new Promise<string>((ok, fail) => {
+    const timer = setTimeout(() => {
+      if (pending) { pending = null; fail(new Error("Google didn’t respond — try again.")); }
+    }, 90_000);
+    pending = {
+      ok: (t) => { clearTimeout(timer); ok(t); },
+      fail: (e) => { clearTimeout(timer); fail(e); },
+    };
+    // "" = the consent screen only the first time; after that the popup just
+    // picks the account and closes
+    client!.requestAccessToken({ prompt: "" });
+  });
+}
+
+/** Ask Google for Drive access. Call it straight from a tap handler, after
+ *  `prepareDrive` has resolved — any await before this point and the browser
+ *  blocks the popup. */
+export function connectDrive(): Promise<string> {
+  if (driveConnected()) return Promise.resolve(token!.value);
+  return client ? request() : ensureClient().then(request);
+}
+
+export const DRIVE_DISCONNECTED = "Google Drive access has run out — tap Connect Google Drive, then attach again.";
+
+/** The held token. No popup from here: an upload runs after the file picker,
+ *  outside any tap, so a missing token means connecting again first. */
+function getToken(): string {
+  if (!driveConnected()) throw new Error(DRIVE_DISCONNECTED);
+  return token!.value;
 }
 
 /* -------------------------------------------------------------------- calls */
 
-async function api<T = unknown>(url: string, init: RequestInit = {}, interactive = false): Promise<T> {
+async function api<T = unknown>(url: string, init: RequestInit = {}): Promise<T> {
   const call = async (t: string) =>
     fetch(url.startsWith("http") ? url : API + url, {
       ...init,
       headers: { ...(init.headers as Record<string, string>), Authorization: `Bearer ${t}` },
     });
-  let res = await call(await getToken(interactive));
+  const res = await call(getToken());
   if (res.status === 401) {
     token = null;
-    res = await call(await getToken(true));
+    throw new Error(DRIVE_DISCONNECTED);
   }
   if (!res.ok) throw new Error(`Drive ${res.status}: ${(await res.text()).slice(0, 200)}`);
   return (res.status === 204 ? null : await res.json()) as T;
@@ -136,8 +157,6 @@ export async function ensureFolder(name: string): Promise<string> {
   const q = `mimeType='application/vnd.google-apps.folder' and name='${name.replace(/['\\]/g, "\\$&")}' and trashed=false and 'root' in parents`;
   const found = await api<{ files?: { id: string }[] }>(
     `/files?q=${encodeURIComponent(q)}&fields=files(id)&spaces=drive`,
-    {},
-    true,
   );
   let id = found.files?.[0]?.id;
   if (!id) {
@@ -169,7 +188,6 @@ export async function uploadToDrive(blob: Blob, name: string, folderId: string):
   const r = await api<{ id: string; name: string; size?: string; mimeType?: string }>(
     `${UPLOAD}?uploadType=multipart&fields=id,name,size,mimeType`,
     { method: "POST", headers: { "Content-Type": `multipart/related; boundary=${boundary}` }, body },
-    true,
   );
   return { id: r.id, name: r.name, size: r.size ? Number(r.size) : blob.size, mime: r.mimeType || blob.type };
 }

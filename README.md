@@ -163,7 +163,7 @@ Text in the app isn't selectable (as in a native app), so values you'd want to p
 
 A list of documents; tap one to open its own page. Name it ("Travel insurance"), attach the PDF / photo, add whatever fields you want, add a note. Rename it from its title, delete it at the bottom of its page, and add more from the list — a new one opens straight onto its page. A row shows how many files it has.
 
-- Signed in, attachments are saved to your account (private, shared with everyone on the trip; 25 MB per file) — or to a shared Google Drive folder when Drive is connected.
+- Signed in, attachments are saved to your account (private, shared with everyone on the trip; 25 MB per file) — or to a shared Google Drive folder when Drive is set up. Drive asks for access with its own **Connect Google Drive** tap first (browsers only let Google's sign-in window open straight from a tap); the access lasts about an hour, then it asks again.
 - Signed out / "this device only", they stay on the device. Files added on a device earlier are uploaded to your account automatically the next time the trip opens, and the device copy is kept.
 - Removing an attachment only removes it from the document; the file itself is never deleted.
 
@@ -240,7 +240,7 @@ Every edit saves as you make it. On top of that the app keeps **restore points**
 
 - **When they're taken.** Automatically while you edit (at most every few minutes; the newest 12 are kept), and always *before* something risky: deleting a trip, restoring over one, syncing offline edits onto the server, and — for a device-only trip — an app update that reshapes your data or a save that would remove more than half the trip. Those "before…" ones are kept separately (newest 10) so a burst of edits can't push them out.
 - **Where they live.** In your account (Supabase, so they survive losing the phone — needs migration `0026`) and on the device (works offline, and is the only kind a device-only trip has).
-- **Get one back.** **Manage → Sharing → Data safety** lists them: *Restore over this trip* puts it back exactly as it was (what was there is kept as a restore point first), *Restore as a new trip* adds it alongside and touches nothing. **Recently deleted** lists trips you deleted, with a Restore. **Back up now** takes one on demand.
+- **Get one back.** **Manage → Sharing → Data safety** lists them: *Restore over this trip* puts it back exactly as it was, after a second tap to confirm (what was there is kept as a restore point first), *Restore as a new trip* adds it alongside and touches nothing. **Recently deleted** lists trips you deleted, with a Restore. **Back up now** takes one on demand.
 - **Deleting a trip** first makes a restore point that outlives it; if one can't be made, the trip is not deleted. Restore points of a deleted trip are kept for 90 days, then cleared.
 - **If a trip's data is damaged** the app opens a recovery screen instead of an empty trip: it keeps a copy of the damaged data, offers the newest good restore point, and lets you open another trip. It never replaces your data with a blank or default trip.
 - **Closing the tab right after an edit** (device-only trips): as the page hides, a synchronous copy of anything not yet saved is stashed, and the next open adopts it if it's exactly the next version of what's stored — the version it replaces is kept as a restore point.

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
@@ -17,7 +17,7 @@ import { uploadFile, signedFileUrl, MAX_FILE_BYTES } from "@/lib/cloudFiles";
 import { useReadOnly } from "@/lib/readonly";
 import { APP_NAME } from "@/lib/app";
 import { putFile, fileUrl } from "@/lib/fileStore";
-import { driveEnabled, ensureFolder, uploadToDrive, shareFile, driveViewUrl, driveImageUrl } from "@/lib/drive";
+import { driveEnabled, driveConnected, prepareDrive, connectDrive, ensureFolder, uploadToDrive, shareFile, driveViewUrl, driveImageUrl } from "@/lib/drive";
 import type { Doc, DocFile } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 8);
@@ -118,6 +118,19 @@ function Attachments({
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [broken, setBroken] = useState<Set<string>>(new Set());
+  // Drive access comes from a Google popup, which the browser only allows
+  // straight from a tap — so it's its own step before the file picker, not
+  // something the upload asks for halfway through
+  const [connected, setConnected] = useState(driveConnected);
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    if (!cloud || ro) return;
+    prepareDrive().then(() => setReady(true), (e) => setErr(e instanceof Error ? e.message : "Couldn’t reach Google."));
+  }, [cloud, ro]);
+  const connect = () => {
+    setErr("");
+    connectDrive().then(() => setConnected(true), (e) => setErr(e instanceof Error ? e.message : "Google sign-in failed."));
+  };
 
   const add = async (fileList: FileList | null) => {
     if (!fileList?.length) return;
@@ -137,6 +150,7 @@ function Attachments({
         setErr(e instanceof Error ? e.message : "Upload failed.");
       } finally {
         setBusy(false);
+        setConnected(driveConnected());
       }
     } else if (tripId) {
       setBusy(true);
@@ -211,7 +225,19 @@ function Attachments({
             </li>
           );
         })}
-        {!ro && (
+        {!ro && cloud && !connected && (
+          <li className={INSET_DIVIDER}>
+            <button
+              type="button"
+              onClick={connect}
+              disabled={!ready}
+              className="action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07] disabled:opacity-50"
+            >
+              <Icon name="link" size={14} /> Connect Google Drive to attach
+            </button>
+          </li>
+        )}
+        {!ro && (!cloud || connected) && (
           <li className={INSET_DIVIDER}>
             <label className={`action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07] ${busy ? "pointer-events-none opacity-50" : "cursor-pointer"}`}>
               <Icon name="plus" size={14} /> {busy ? "Uploading…" : files.length ? "Attach another file" : "Attach a file"}

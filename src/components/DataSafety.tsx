@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Section } from "./Section";
 import { InsetRow, INSET_DIVIDER } from "./InsetRow";
 import { RowMenu } from "./RowMenu";
+import { ConfirmMenuItem } from "./ActionSheet";
 import { useApp } from "@/store/useApp";
 import { pickBackend } from "@/lib/backend";
 import { useAsyncAction } from "@/lib/useAsyncAction";
@@ -39,8 +40,8 @@ export function useRestorePoints(tripId?: string) {
 export function PointLabel({ p }: { p: SnapshotMeta }) {
   return (
     <span className="min-w-0 flex-1">
-      <span className="lead block truncate">{when(p.at)}</span>
-      <span className="meta block truncate">
+      <span className="lead block break-words">{when(p.at)}</span>
+      <span className="meta block break-words">
         {reasonLabel(p.reason)} · {p.stats.total} item{p.stats.total === 1 ? "" : "s"} · {p.source === "cloud" ? "in your account" : "on this device"}
       </span>
     </span>
@@ -120,7 +121,12 @@ export function DataSafety() {
               <li key={p.id} className={`${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-3`}>
                 <PointLabel p={p} />
                 <RowMenu>
-                  <button onClick={() => restore(p, "replace")} disabled={busy} className="menu-item">Restore over this trip</button>
+                  {/* replaces the open trip — a second tap, so a stray one can't */}
+                  <ConfirmMenuItem
+                    label="Restore over this trip"
+                    confirmLabel={`Tap again to put the trip back to ${when(p.at)}`}
+                    onConfirm={() => !busy && restore(p, "replace")}
+                  />
                   <button onClick={() => restore(p, "copy")} disabled={busy} className="menu-item">Restore as a new trip</button>
                 </RowMenu>
               </li>
@@ -135,8 +141,8 @@ export function DataSafety() {
             {[...deleted.values()].map((p) => (
               <li key={p.tripId} className={`${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-3`}>
                 <span className="min-w-0 flex-1">
-                  <span className="lead block truncate">{p.tripName}</span>
-                  <span className="meta block truncate">Last saved {when(p.at)} · {p.stats.total} items</span>
+                  <span className="lead block break-words">{p.tripName}</span>
+                  <span className="meta block break-words">Last saved {when(p.at)} · {p.stats.total} items</span>
                 </span>
                 <button onClick={() => restore(p, "copy")} disabled={busy} className="action">Restore</button>
               </li>
