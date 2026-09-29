@@ -132,6 +132,14 @@ function ClockRing({ options, value, onChange, ariaLabel, size, labelEvery = 1 }
             x2={cx + (r - 6) * 0.6 * Math.cos(angle(i))} y2={cy + (r - 6) * 0.6 * Math.sin(angle(i))}
             className="stroke-accent" strokeWidth={2} strokeLinecap="round"
           />
+          {labelEvery > 1 && options.map((_, n) => n % labelEvery !== 0 && (
+            <line
+              key={n}
+              x1={cx + (r - 3) * Math.cos(angle(n))} y1={cy + (r - 3) * Math.sin(angle(n))}
+              x2={cx + (r + 3) * Math.cos(angle(n))} y2={cy + (r + 3) * Math.sin(angle(n))}
+              className="stroke-ink-faint" strokeWidth={1} strokeLinecap="round"
+            />
+          ))}
           {i % labelEvery !== 0 && (
             <circle cx={cx + r * Math.cos(angle(i))} cy={cy + r * Math.sin(angle(i))} r={5} className="fill-accent" />
           )}
@@ -147,7 +155,10 @@ function ClockRing({ options, value, onChange, ariaLabel, size, labelEvery = 1 }
             type="button"
             role="option"
             aria-selected={active}
-            onClick={() => onChange(o)}
+            // a pointer already picked by angle on pointerdown — only a
+            // keyboard press (detail 0) should pick the label itself, or a
+            // click just beside "25" would snap 27 back to 25
+            onClick={(e) => e.detail === 0 && onChange(o)}
             style={{ left: cx + r * Math.cos(angle(n)), top: cy + r * Math.sin(angle(n)) }}
             className={`absolute flex h-6 w-6 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-[10px] tabular-nums transition-colors ${
               active ? "bg-accent text-white" : "text-ink-soft hover:bg-surface-2"
