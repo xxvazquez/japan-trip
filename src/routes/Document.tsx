@@ -132,15 +132,15 @@ function Attachments({
     connectDrive().then(() => setConnected(true), (e) => setErr(e instanceof Error ? e.message : "Google sign-in failed."));
   };
 
-  const add = async (fileList: FileList | null) => {
-    if (!fileList?.length) return;
+  const add = async (fileList: File[]) => {
+    if (!fileList.length) return;
     setErr("");
     if (cloud) {
       setBusy(true);
       try {
         const folderId = await ensureFolder(folderName);
         const added: DocFile[] = [];
-        for (const f of Array.from(fileList)) {
+        for (const f of fileList) {
           const up = await uploadToDrive(f, f.name, folderId);
           if (shareWith.length) await shareFile(up.id, shareWith);
           added.push({ id: rid(), name: up.name, size: up.size, driveId: up.id, mime: up.mime });
@@ -156,7 +156,7 @@ function Attachments({
       setBusy(true);
       try {
         const added: DocFile[] = [];
-        for (const f of Array.from(fileList)) {
+        for (const f of fileList) {
           if (f.size > MAX_FILE_BYTES) throw new Error(`“${f.name}” is over ${MAX_FILE_BYTES / 1048576} MB, which is the most one file can be.`);
           const id = crypto.randomUUID();
           const storagePath = `${tripId}/${id}`;
@@ -171,7 +171,7 @@ function Attachments({
       }
     } else {
       const added: DocFile[] = [];
-      for (const f of Array.from(fileList)) added.push({ id: await putFile(f), name: f.name, size: f.size, mime: f.type });
+      for (const f of fileList) added.push({ id: await putFile(f), name: f.name, size: f.size, mime: f.type });
       onChange([...files, ...added]);
     }
   };
@@ -241,7 +241,13 @@ function Attachments({
           <li className={INSET_DIVIDER}>
             <label className={`action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07] ${busy ? "pointer-events-none opacity-50" : "cursor-pointer"}`}>
               <Icon name="plus" size={14} /> {busy ? "Uploading…" : files.length ? "Attach another file" : "Attach a file"}
-              <input type="file" accept=".pdf,image/*" multiple className="hidden" disabled={busy} onChange={(e) => { void add(e.target.files); e.target.value = ""; }} />
+              <input type="file" accept=".pdf,image/*" multiple className="hidden" disabled={busy} onChange={(e) => {
+                  // copy first: the input's FileList is live, and clearing the
+                  // value (so the same file can be picked again) empties it —
+                  // before the Drive path, which awaits its folder, reads it
+                  void add(Array.from(e.target.files ?? []));
+                  e.target.value = "";
+                }} />
             </label>
           </li>
         )}
