@@ -43,7 +43,7 @@ export const OPTIONAL_LOGBOOK_SECTIONS: LogbookSection[] = [
 
 const LABELS: Record<LogbookSection, string> = {
   stays: "Stays",
-  "getting around": "Getting around",
+  "getting around": "Trips",
   luggage: "Luggage",
   emergency: "Emergency",
   documents: "Documents",
