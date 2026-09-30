@@ -258,7 +258,20 @@ function ListSection({ list }: { list: CustomList }) {
 function Stays() {
   const data = useData()!;
   const loc = data.config.locale;
-  if (data.hotels.length === 0) return <Empty what="No stays" />;
+  const ro = useReadOnly();
+  const addEntity = useApp((s) => s.addEntity);
+  const nav = useNavigate();
+
+  // same as "Add a journey": make it, then open its page to fill in
+  const add = () => {
+    const id = crypto.randomUUID?.() ?? `hotels-${rid()}`;
+    addEntity("hotels", { id, name: "New stay" } as never);
+    nav(`/hotel/${id}`);
+  };
+
+  if (data.hotels.length === 0) {
+    return <Empty what="No stays" onAdd={ro ? undefined : add} addLabel="Add a stay" />;
+  }
   return (
     <Section>
       <ul>
@@ -277,6 +290,7 @@ function Stays() {
             />
           );
         })}
+        {!ro && <ActionRow icon="plus" label="Add a stay" onClick={add} />}
       </ul>
     </Section>
   );

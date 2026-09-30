@@ -196,6 +196,11 @@ The reference drawer: stays · journeys · luggage · documents · emergency num
 
 Text isn't selectable (as in a native app), so values you might paste elsewhere have a **copy** icon.
 
+### Stays and journeys
+
+- Each list has an **Add a stay** / **Add a journey** row at the foot. The new one opens on its own page to fill in.
+- Stays show their check-in to check-out dates; journeys are listed by when they leave.
+
 ### Documents
 
 Tap a document to open its page: name it, attach PDFs or photos, add fields and a note.
