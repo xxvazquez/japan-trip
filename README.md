@@ -5,389 +5,411 @@
   </picture>
   <h1>Zuknesst Atlas</h1>
   <p><em>A private, offline-first travel workspace. One app, many trips.</em></p>
+  <p><strong><a href="https://japan-trip.lauramaestuv.workers.dev">japan-trip.lauramaestuv.workers.dev</a></strong></p>
 </div>
+
+---
+
+Everything for a trip in one place: the plan, the map, the stays, the journeys, the luggage and the documents. It works offline, syncs between the people on the trip, and installs to a phone like a normal app.
+
+**Contents**
+
+- **Using the app** — [Getting started](#getting-started) · [Getting around](#getting-around) · [Plan](#plan) · [A day](#a-day) · [Journeys](#journeys) · [Map](#map) · [Areas and categories](#areas-and-categories) · [Logbook](#logbook) · [Manage](#manage) · [Editing](#editing) · [Sharing and backups](#sharing-and-backups) · [Data safety](#data-safety) · [Offline](#offline) · [Troubleshooting](#troubleshooting)
+- **Technical** — [Stack](#stack) · [Running locally](#running-locally) · [How data is stored](#how-data-is-stored) · [Supabase](#supabase) · [Deploy](#deploy) · [The map background](#the-map-background) · [Project layout](#project-layout) · [Branding](#branding)
 
 ---
 
 # Using the app
 
-Everything for the trip in one place — the plan, the map, the hotels, the luggage, the documents. It lives at:
+## Getting started
 
-**https://japan-trip.lauramaestuv.workers.dev**
+1. **Open the link and sign in with Google.** Each person uses their own Google account.
+   Don't want an account? Tap **Use on this device only** — the trip stays on that device and doesn't sync. You can switch later with **Sign in to sync** at the top of Manage.
+2. **Create your trip.** New accounts only have the read-only **Demo**. Go to **Manage → New trip → Empty template**.
+3. **Share it.** The owner opens **Manage → Sharing** and adds the other person's email. You both then edit the same trip, and changes appear on the other device within a second or two.
 
-## Getting in
+> If someone signs in before they've been added, they'll only see the Demo. Share the trip with their email and it appears on their next reload.
 
-1. Open the link. Sign in with **Google** — each person uses their **own** Google account.
-   - Or tap **Use on this device only** to skip the account entirely: the trip stays on that one device and doesn't sync. **Sign in to sync** at the top of Manage switches back later.
-2. New accounts start with just the read-only **Demo** trip. Make your real one from **Manage → New trip → Empty template**.
-3. One account owns that trip. From it, go to **Manage → Sharing** and add the other person's email — then you both see and edit the **same trip**, and changes show up on the other device within a second or two.
+### Install it on your phone
 
-If someone signs in before being added to the trip, they'll just see the Demo — share the trip with that email and it appears on their next reload.
+Open the link in Safari or Chrome → **Share → Add to Home Screen**. It then opens full screen like any other app. Do this on each phone.
 
-## On your phone
+### The demo trip
 
-Open the link in Safari / Chrome → **Share → Add to Home Screen**. It then opens like a normal app, full screen. Do this on both phones.
+Every account has a read-only **Demo** trip: a made-up example to look around in. Delete it from **Manage → Trips** whenever you like, and re-add it from the same place.
 
-Getting around works like an iOS 26 app:
-- The **tab bar** floats at the bottom (Plan · Map · Logbook), with **Search** as its own round button beside it. On a wider screen the sections are a rail down the left and Search sits top right (⌘K / Ctrl+K anywhere).
-- The **trip name** top left is a menu: tap it to jump to another trip, or to Manage trips.
-- A detail page's **‹ Back** button names the screen you came from (a stay opened from *Stays* says **‹ Stays**; a long title just says **‹ Back**). A Logbook page pinned to the tab bar is a tab of its own, with no back button. On a day's page, **‹ ›** top right step to the day before or after (← → on a keyboard).
-- Your **account picture** top right opens Manage.
+## Getting around
+
+The app is laid out like an iOS 26 app.
+
+| Where | What it does |
+|---|---|
+| **Tab bar** (bottom) | Plan · Map · Logbook. **Search** is the round button beside it. On a wider screen the tabs become a rail down the left and Search sits top right (⌘K / Ctrl+K). |
+| **Trip name** (top left) | A menu to jump to another trip, or to manage trips. |
+| **‹ Back** | Names the screen you came from (*‹ Stays*); long titles just say *‹ Back*. You can also swipe in from the left edge. |
+| **‹ ›** on a day | Step to the previous or next day (← → on a keyboard). |
+| **Account picture** (top right) | Opens Manage. |
+
+A Logbook page pinned to the tab bar is a tab of its own, so it has no back button.
 
 ## Plan
 
-The trip as a list of days, grouped by where you're staying. Each day carries a tag — **Arrive**, **Travel**, **Depart**, **Day trip** — worked out automatically from what you set on the day itself, never chosen by hand.
+The trip as a list of days, grouped by where you're staying.
 
-- Drag a day up or down to **reorder** it (the dates shuffle with it).
-- **Labels** — give a day your own labels ("Chill day", "Walking", anything) with **+ Add a label** under its title; they show beside the day on Plan. The + offers the labels you've already used in the trip, so reusing one is a tap; **New label…** is for a new one. Remove one with its ✕ (undoable). Needs migration `0032`.
-- The days set the dates: each stay runs from its first day to its last, and the trip from the first day to the last. **Add a day** fills the earliest empty date in the trip (one left by a deleted day), otherwise goes after the last day. **Delete day** leaves the other days where they are — only a first or last day shortens its stay or the trip. A stay's start and end show on its page but aren't edited there once it has days.
-- A hotel's page and the Logbook's Stays list show its real dates — check-in to check-out, the morning you leave, not the stay's last night — with the nights count; its check-in/out rows pair each date with the time.
-- **Pin a day** that's fixed to its date (a public holiday, a booked tour) from the foot of its page: on Plan its drag handle becomes a pin, and reordering the other days flows around it without moving it. **Unpin this day** in the same place undoes it.
-- Tap a day to open it. At the top: **Staying at** (which hotel) and **Journey** (link an existing one, or ＋ new — you then pick its type on the journey page).
-- If that day's hotel has coordinates, its header line shows the day's forecast (e.g. "Showers, 19–24°C") — free, no key needed (Open-Meteo). Forecasts only exist for the next ~16 days, so a day further out just shows nothing yet rather than a guess; it starts appearing on its own as the trip gets closer.
-- A **day trip** leads with a **Getting there** and a **Getting back** card (free text, the last way home folded into the back one).
-- Below the itinerary: **Areas** (drop a whole neighbourhood's pins onto the map), a **Spending** list, and free-text **General notes**.
-- Every section on the day page folds away from its header.
+- **Tags.** Each day shows **Arrive**, **Travel**, **Depart** or **Day trip**. These are worked out from the day itself, never chosen by hand.
+- **Reorder** by dragging a day up or down. The dates shuffle with it.
+- **Pin a day** that's fixed to its date (a public holiday, a booked tour) from the foot of its page. Its drag handle becomes a pin and other days flow around it. **Unpin this day** undoes it.
+- **Labels.** Add your own labels to a day ("Chill day", "Walking") with **+ Add a label** under its title. Labels you've already used are offered first; **New label…** makes a new one; ✕ removes one (undoable).
 
-### The wide-screen map pane
+### How dates work
 
-On a laptop, or a tablet held sideways (1024px and up), a **day's page** gets a **map beside it**:
+The days set the dates — you don't edit them separately.
 
-- Shows that day's own places — the ones its steps are tied to, the places of its areas (drawn more quietly), and the hotel you're staying at — and it moves as you go between days.
-- Tap a pin for its name and a **Directions** link.
-- A step's **⋯ → Show on map** jumps the pane straight to its pin, already zoomed in.
-- Drag its left edge to **resize** it, or tap the **✕** to hide it and get the page back to full width — a small tab on the edge brings it back. Both are remembered next time.
-- On a phone or a narrower window nothing changes: the map isn't even downloaded. There, **Show on map** opens the Map tab instead, centred on that pin.
+- A stay runs from its first day to its last; the trip runs from the first day to the last.
+- **Add a day** fills the earliest empty date in the trip (a gap left by a deleted day), otherwise it goes after the last day.
+- **Delete day** leaves the other days alone. Only removing a first or last day shortens its stay or the trip.
+- A hotel's page and the Stays list show the real check-in and check-out dates (the morning you leave, not the last night), the number of nights, and the times.
 
-### A day's steps
+## A day
 
-Each step in the day's itinerary has:
+Tap a day on Plan to open it. From top to bottom:
 
-- A leading tile (the linked place's category, or a plain pin).
-- A time on a quiet line first (optional — a single time or a `14:00–15:15` range; an empty one is just a small clock to tap).
-- The step itself: its own text, or a place from the Areas you've added to this day — tap the grey pin to link one (past 2 linked areas, each option in the picker shows which area it's from). A linked step's name reopens the picker; **Custom…** there unlinks it.
-- **Drag to reorder**, and one **⋯** menu with: show on map, add to Google Calendar, mark/unmark as **overwhelming** (a small ⚠ next to the tile — a sensory heads-up, e.g. for autism — with the day's total shown at a glance on the Plan section header), **add a note**, **duplicate** (dropped right after the original), add an expense, and remove.
-- Its own quiet note line underneath (bold, bullets, links) — tap to expand and edit. Empty fields stay hidden, so a step without a note is just its time and name.
-- A link to the map, if the step is tied to a place.
-- **+ Add a step** at the foot of the list, so a long day's plan doesn't need a scroll back to the top.
+1. **Staying at** (which hotel) and **Journey** (link an existing one, or ＋ to make a new one).
+2. **Weather** — if the hotel has coordinates, the header shows the forecast ("Showers, 19–24°C"). Forecasts only reach ~16 days ahead, so later days show nothing until they're close enough.
+3. **Getting there / Getting back** — day trips only; free text.
+4. **The itinerary** — the day's steps (below).
+5. **Areas** — drop a whole neighbourhood's places onto the day's map.
+6. **Spending** and **General notes**.
 
-#### Walking and transit estimates
+Every section folds away from its header.
 
-If a step is tied to a place, one quiet line shows two walks side by side:
+### Steps
 
-- 🚶 **Walk to next stop** ≈ 9 min · 0.8 km (when that one is tied to a place too).
-- 🚆 **Walk to &lt;station&gt;** ≈ 3 min · 195 m — the nearest metro/train station, using the same station lookup the Map tab uses.
+Each step shows a tile, an optional time, the step itself and a short note.
 
-Both figures show together: a straight-line estimate first, replaced by an actual walking route once that comes back (or kept if there's no routing key). On a narrow phone the two wrap as whole pieces rather than clip.
+- **Time** — a single time or a range like `14:00–15:15`. An empty time is just a small clock to tap.
+- **Link a place** — tap the grey pin to pick a place from the day's Areas. Tap a linked name to change it; **Custom…** unlinks it.
+- **Reorder** by dragging.
+- **The ⋯ menu** — show on map, add to Google Calendar, mark as **overwhelming** (a ⚠ sensory heads-up; the day's count shows on Plan), add a note, duplicate, add an expense, remove.
+- **Notes** support bold, bullets and links. Tap to expand and edit. Empty fields stay hidden.
+- **+ Add a step** sits at the foot of the list.
 
-- The station comes from OpenStreetMap (Overpass, then Nominatim if that fails); a miss is retried once, and a found station is remembered on the device.
-- A step that isn't tied to a place has no position to measure from, so it shows neither figure.
-- Once the walk to the next step passes 20 minutes, a third piece appears: "Train: Ueno → Uguisudani · ≈ 24 min total" — a link that opens Google Maps transit directions between the nearest station at each end, labelled with a rough door-to-door estimate (both walks plus a straight-line guess at the ride, since there's no free keyless transit-routing API to ask instead). The **Back to &lt;hotel&gt;** row below does the same swap.
+### Helpers on a step
 
-#### Opening hours
+These appear automatically when a step is linked to a place.
 
-If the linked place has opening hours tagged on OpenStreetMap, the hours **for that day** sit at the right end of the tile/time row (e.g. "09:00–17:00") — always in the same spot.
+**Walking and transit.** One line shows two walks:
 
-- The app reads the place's tagged schedule (Overpass, or a Nominatim search by name when Overpass fails) and picks the rule that covers the day's date (month + weekday) — so a seasonal or weekday-only schedule shows just what applies, "Closed" on an explicit closed date, and nothing when no rule covers that date.
-- Anything it can't read reliably (holiday rules aside, which are skipped) shows the tagged text as-is instead.
-- This is an FYI to replan by eye, not a warning — nothing is flagged as a conflict, and plenty of places simply aren't tagged.
+- 🚶 to the next step (if it's linked too), e.g. *≈ 9 min · 0.8 km*
+- 🚆 to the nearest station, e.g. *≈ 3 min · 195 m to Ueno*
 
-#### Back to hotel
+A straight-line estimate shows first and is replaced by a real walking route when one comes back (needs `VITE_ORS_API_KEY`). When the walk to the next step is over 20 minutes, a train link is added — *"Train: Ueno → Uguisudani · ≈ 24 min total"* — which opens Google Maps transit directions. The total is a rough door-to-door guess, since there's no free transit-routing API.
 
-The day closes with a **Back to &lt;hotel&gt;** row under the last step — the way home to wherever you're staying that day (the day's own hotel, else its stay's), left off on a departure day.
+**Opening hours.** If the place has hours on OpenStreetMap, that day's hours show at the right of the row ("09:00–17:00", or "Closed"). Seasonal and weekday rules are applied; anything the app can't read is shown as written. It's for information only — nothing is flagged as a conflict.
 
-- When the last step is tied to a place it shows the walk there (time and distance, e.g. "≈ 1h 37min · 7.7 km") and, once that's a long walk, the two stations to head between ("Tsukiji → Asakusa"). The hotel's coordinates come from its address automatically.
-- Tapping the row opens Google Maps directions — transit for a long way, walking for a short one.
-- If the last step is a free-text one, the row still shows and opens directions from wherever you are.
+**Back to hotel.** The last row of the day is the way home to that night's hotel (left off on a departure day). It shows the walk, or the stations to travel between for a long way, and opens Google Maps directions when tapped.
+
+Stations and hours come from OpenStreetMap (Overpass, with Nominatim as a fallback). Results are remembered on the device.
+
+### The map beside a day (wide screens)
+
+At 1024px and up (a laptop, or a tablet held sideways), a day's page gets a map pane on the right.
+
+- It shows the day's places, its areas' places (drawn more quietly) and the hotel, and follows you between days.
+- Tap a pin for its name and a **Directions** link. A step's **⋯ → Show on map** zooms straight to it.
+- Drag the left edge to resize; **✕** hides it and a small tab brings it back. Both are remembered.
+
+On a phone the pane isn't downloaded at all, and **Show on map** opens the Map tab instead.
 
 ## Journeys
 
-Linked from a day, or the Logbook's *Journeys* list. A journey is one or more **hops**.
+Open one from a day, or from **Logbook → Journeys**. A journey is one or more **hops**.
 
-- Each hop is a card, tinted by mode (rail, air/sea, road, on foot), reading top to bottom: mode → route → the two times joined by a rule with the real duration on it (each end counted in its own time zone, so a Beijing → Warsaw flight reads 10h, not 3h), each with its date under it (the arrival's only when it's a different day) → the details (carrier, platform, seat, booking ref, fare) as label-and-value rows.
-- Between hops, a note on the connection time flags a tight or overnight change.
-- Tap a hop's date to change it (a date picker, no typing). Moving the departure day moves the arrival with it; a hop with no date yet takes the day the one before it arrives. A hop that would land before it leaves (time zones counted) shows its arrival date in red with a note to check it.
-- The **total fare** at the top adds itself up from the hops' fares as you price them. Only a journey with no priced hop takes a figure of its own (one ticket for the whole trip).
-- It's the same number Expenses uses, counted once — split by each hop's mode if a category claims it. A manual override total follows the same rule when every hop shares one mode (a single flight, say); only a genuinely mixed-mode journey falls to the generic Transport category.
+- **Each hop** is a card tinted by mode (rail, air/sea, road, on foot): route, departure and arrival times with the real duration between them, dates, and details (carrier, platform, seat, booking ref, fare).
+- **Time zones are counted**, so a Beijing → Warsaw flight reads 10h, not 3h.
+- **Dates** open a date picker. Moving the departure moves the arrival with it; a new hop takes the arrival date of the one before. An arrival that lands before its departure is shown in red.
+- **Connections** between hops are flagged when tight or overnight.
+- **Total fare** adds up the hops' fares. A journey-level fare is only used when no hop is priced (one ticket for the whole trip).
 
 ## Map
 
-Your Google **My Map** pins, on a clean map. It reads **city → filters → places**, top to bottom — places grouped and foldable by area once a city's picked.
+Your places on a clean map, read top to bottom: **city → filters → places**.
 
 ### Cities
 
-- **City pills** — **All** plus one per city — several stays in the same city (Tokyo at both ends, or four hotels in one city) share one pill, matched by the stay's city name (and **Today** while the trip is running), coloured to match the trip. Pick a city and the map and the list both narrow to it straight away; the app opens on wherever you are (or the first stay). A place counts as in a city by its distance from that stay's hotel — or, while the hotel has no location yet, from the city itself, found by its name.
-- A city's pins are the ones planned on its days, plus any imported pins that fall nearest to it, within about 60 km — "nearest" measured from the stay's **hotel** (coordinates worked out automatically from its Maps link or, failing that, geocoded from the address) or, failing that, the places its days already use.
-- A pin farther than that from every stay belongs to no city and shows only on **All** — or if a stay has no hotel and no days yet, it has nothing to measure from and can't claim any pins at all. Either way, open the pin's card and set **City** by hand (**Auto** or a specific stay) to fix it.
-- A stay gets a pill once its hotel has coordinates, or once it has a pin to show.
-- A **day trip to another city** gets its own pill right after its stay's — Nara after Kyoto — named after the day, with the places around that town moved out of the stay's pill. It needs the day marked *day trip*, and the town is found by the day's name (the part before any "→", ignoring a note in brackets) or by the places the day links. A day trip inside the stay's own city (Arashiyama in Kyoto) stays under that city. A day-trip pill shows once there's a place to show in it.
+- **City pills** — **All**, one per city, and **Today** while the trip is running. Picking one narrows both the map and the list. The map opens on where you are, or the first stay.
+- **One pill per city.** Several stays in the same city share a pill (matched by city name).
+- **Which city a place belongs to** — the nearest stay within about 60 km, measured from the stay's hotel, else the places its days use, else the city found by name. Places further out only show under **All**. Override it on the place's card with **City**.
+- **Day trips to another town** (Nara from Kyoto) get their own pill right after their stay, with that town's places moved into it. The day must be marked as a day trip; the town comes from the day's name or its places.
 
-### Places and areas on the map
+### Places
 
-- **＋ Add place** sits next to the pills, always one tap — search for somewhere, or tap the map to drop a pin.
-- Once a city is picked, its areas list below as their own rows — tap a row to fold or unfold its places, tap the **colour dot** to show only that area on the map and in the list; no dot picked shows all. On **All** the list nests instead — **city → area → places**, each level collapsible. Areas **start collapsed**; what you've opened is remembered per trip, and picking a pin on the map never springs an area open.
-- Tapping a place — in the list or on the map — puts it in a **card at the top of the list**: its name, a note, the **Areas** it belongs to (tap for a checklist), its **City** (**Auto** by default, or pick a stay to override), Open in Google Maps, the day it's on (or **Add to a day**), and Remove. Rows in the list stay two lines: the name and how far it is to the nearest station.
-- The map's resize handles are visible: a grabber on the phone sheet (drag it, or tap to step through the three heights) and a grip on the divider of the desktop panel.
+- **＋ Add place** — search for somewhere, or tap the map to drop a pin.
+- **The list** — once a city is picked, places are grouped by area (plus *No area*). On **All** it nests **city → area → place**. Groups start collapsed and remember what you opened.
+- **A place's card** — name, note, areas, city, Open in Google Maps, the day it's on (or **Add to a day**), and Remove.
+- **List rows** show the name and the walk to the nearest station.
+- **Place names** on the map are in English / Latin script where available.
 
-### Filters and areas panel
+### Filters
 
-- **Filters** opens a sheet with **category** and **transit** — real filtering, so it overlays the list instead of shrinking it:
-  - **Category** — the coloured dots; none selected shows everything, tap some to narrow. Give a category its own **pin icon** in **Manage → Content → Category pins** — those places draw as a coloured disc with the icon. Switch **Always show** on for a category (your hotel's, say) and its pins stay on the map when you zoom far out, instead of being folded into a numbered cluster — it holds in every city while you're browsing that city (about zoom 9 and closer), and goes away when you zoom out to a region or country.
-  - **Transit** — **Train** and **Metro** are laid over the map by default; tap to add **Tram**, **Bus**, **Ferry** or **Airport**, or to turn any off. Read straight from the basemap, works in any city with no setup, and the choice is remembered.
-- **Areas**, next to Filters, is its own disclosure — area upkeep (add, suggest, rename, delete) is separate from filtering, so it folds away on its own.
-- Tap a pin or a list row — they select each other and the map flies there.
+**Filters** opens a sheet:
 
-### Today mode and layout
+- **Category** — tap the coloured dots to narrow; none selected shows everything. Give a category its own pin icon in **Manage → Content → Category pins**. **Always show** keeps its pins visible when zoomed out instead of clustering them (down to about city level).
+- **Transit** — Train and Metro lines are on by default; add Tram, Bus, Ferry or Airport. Works in any city with no setup.
 
-- While **Today** is picked, a **crosshair icon** turns the list into what's actually close by — asks for your location once, then sorts by distance and narrows to within 1.5 km if that leaves anything (a place's row shows its distance in place of the category dot). Nothing within range, no fix yet, or location denied — you still see today's full list, nearest-first once a fix arrives. Never asks until you tap it, and doesn't remember being on for next time.
-- The small list/map icon next to **＋ Add place** switches to a **full-screen list** — no map, just the list at full width (desktop) or full height (phone). Tap it again for the map back. Remembered next time you open the tab.
-- **Sync** only ever adds — any pin already imported (its notes, city, area membership) is left exactly as it is, and nothing already in the trip is removed even if it's gone from the My Map itself. Re-run it after adding new pins and only the new ones come in.
-- Place names on the map are shown in English / Latin script (falling back to the local name only when there's no other), so it reads the same in any country.
+### Other controls
 
-## Areas vs. categories
+- **Today → crosshair** sorts the list by distance from you and narrows it to 1.5 km when that leaves anything. It asks for your location only when tapped.
+- **List/map icon** switches to a full-screen list. Remembered.
+- **Resize** by dragging the grabber on the phone sheet (or tap it to cycle three heights), or the divider on desktop.
+- **Sync from My Maps** only ever adds new pins. Nothing you've edited is overwritten, and nothing is removed.
 
-A **category** is *what* a place is (coffee, see, food…). An **area** is *where* it is (Gion, Higashiyama, a neighbourhood you name). A place can sit in several areas.
+## Areas and categories
 
-- Create an area under **Areas → Add area** (name it and it's made).
-- Assign places to it from a pin's detail panel on the Map.
-- Rename or delete an area with *Edit areas* in that same place — that's also where place-by-place membership for a whole area is edited. Manage → Content doesn't list areas, since the Map's own editor already covers it.
-- Once a city's picked, the list splits into a collapsible section per area (plus a *No area* group). Tap a section's **colour dot** to show just that area on the map and in the list — no dot picked shows all; tap the rest of the row to fold it away instead.
-- Add an area to a **day** (on the day page) and every place in it shows on that day's map — a live link, so editing the area later updates the day too. Area places show slightly faded and aren't added to your plan unless you tap the **+** on the area to drop one in as a step. The day page offers the areas in that day's own city, the same city the Map puts it under — a day trip to another town (Nara from Kyoto) gets that town's areas, not its stay's.
-- Zoom out and each area gets a faint labelled ring so you can see its rough extent at a glance.
-- An area's section header shows roughly how far it stretches on foot (e.g. "≈ 12 min · 0.9 km walk across") between its two farthest-apart places — a straight-line estimate at first, swapped for a real walking route (via OpenRouteService, see `VITE_ORS_API_KEY` below) when that comes back.
-- Each place in the list shows its nearest metro/train station with walking time and distance (e.g. "≈ 3 min · 195 m to Ueno"), read straight from the map's own tiles — no extra request. A place whose map tile hasn't loaded yet falls back to a network lookup (Overpass — on a day's plan, Nominatim too if Overpass is down), and the answer, "no station nearby" included, is remembered on the device. Every Nominatim request in the app goes through one queue at one a second, and if Nominatim refuses, background lookups pause for a minute or more rather than keep asking. Nothing shows if there's genuinely no station within a kilometre. A place's distance from you (the Nearby list) reads the same way.
+- A **category** is *what* a place is (coffee, sights, food).
+- An **area** is *where* it is (Gion, a neighbourhood you name). A place can be in several areas.
+
+**Managing areas** (all on the Map):
+
+- **Add** — *Areas → Add area*.
+- **Assign places** — from a place's card.
+- **Rename, delete, or edit an area's members** — *Edit areas*.
+- **Show one area** — tap its colour dot; tap the rest of the row to fold it.
+
+**Areas on a day.** Add an area on a day's page and all its places appear on that day's map (faded). It's a live link, so later edits show up. Tap **+** to turn one into a step. The day offers areas from its own city — a day trip gets its town's areas.
+
+**What else areas show:**
+
+- A faint labelled ring on the map when zoomed out.
+- How far the area stretches on foot ("≈ 12 min · 0.9 km walk across").
+- Each place's nearest station, read from the map tiles (with a network fallback). Nothing shows if there's no station within 1 km.
 
 ### Suggest areas
 
-When places that aren't in any area sit close enough together to group, a *Suggest N areas* link joins the Areas controls — it only shows when there's actually a group to offer, so scattered places don't bring it up.
-
-- It groups them by how close together they are (the "close enough" distance is worked out from your own places, so it fits a tight city or a spread-out road trip, but never past roughly a 15–20 min walk end to end) and names each group after the neighbourhood it sits in.
-- You review the groups — rename, untick, drop a place — and only the ones you keep become real areas.
-- It never changes an area you already have.
+When unassigned places sit close together, a **Suggest N areas** link appears. It groups them (never more than a 15–20 minute walk across), names each group after its neighbourhood, and lets you rename, untick or drop places before anything is saved. Existing areas are never changed.
 
 ## Logbook
 
-The reference drawer. A menu of sections, each its own page: stays · journeys · luggage · documents · emergency numbers · packing · stamps · expenses · a scratchpad, plus any lists you've added yourself. Each row shows at a glance how much is in it — a count, packing progress ("3/8"), or the total spent — and nothing when it's empty.
+The reference drawer: stays · journeys · luggage · documents · emergency numbers · packing · stamps · expenses · scratchpad, plus any lists you add. Each row shows a count, progress ("3/8") or a total.
 
-Text in the app isn't selectable (as in a native app), so values you'd want to paste elsewhere have a small **copy** icon beside them. Tap it and the icon turns to a tick for a moment.
+Text isn't selectable (as in a native app), so values you might paste elsewhere have a **copy** icon.
 
 ### Documents
 
-A list of documents; tap one to open its own page. Name it ("Travel insurance"), attach the PDF / photo, add whatever fields you want, add a note. Rename it from its title, delete it at the bottom of its page, and add more from the list — a new one opens straight onto its page. A row shows how many files it has.
+Tap a document to open its page: name it, attach PDFs or photos, add fields and a note.
 
-- Signed in, attachments are saved to your account (private, shared with everyone on the trip; 25 MB per file) — or to a shared Google Drive folder when Drive is set up. Drive asks for access with its own **Connect Google Drive** tap first (browsers only let Google's sign-in window open straight from a tap); the access lasts about an hour, then it asks again.
-- Signed out / "this device only", they stay on the device. Files added on a device earlier are uploaded to your account automatically the next time the trip opens, and the device copy is kept.
-- Removing an attachment only removes it from the document; the file itself is never deleted.
+- **Signed in** — files go to your account (private to the trip, 25 MB each), or to a shared Google Drive folder if set up. Drive needs its own **Connect Google Drive** tap, which lasts about an hour.
+- **On this device only** — files stay on the device, and upload automatically once you sign in.
+- **Removing** an attachment never deletes the file itself.
 
 ### Packing
 
-Build the checklist right there: add a category, add items, tick them off. Categories fold away; with two or more travellers set (Manage → Setup) each item gets an **assign** pill (a traveller's initial, **Shared**, or **—**).
+Add categories and items, tick them off. With two or more travellers (Manage → Setup), each item can be assigned to a person or **Shared**.
 
-**Copy from another trip** brings over another trip's categories and items (archived trips included), all unticked. Anything already on the list is skipped, so copying twice doesn't double it; an assignee carries over only when this trip has a traveller of the same name.
+**Copy from another trip** brings over its list, unticked, skipping anything already there.
 
 ### Stamps
 
-A checklist of stamps to collect (station stamps, temple seals, castle stamps), laid out like a wallet: each section is a coloured card, stacked so every card peeks out with its name and "4 / 6", and the last one shows whole, a dot per stamp (filled = collected).
+A checklist of stamps to collect (station stamps, temple seals), laid out like a stack of wallet cards — one card per section, showing "4 / 6".
 
-- A "12 of 78 collected" line sits above, and **Sort** switches the sections and their stamps between your own order and A–Z (a per-device setting).
-- The search field filters by name, local-script name, note or section, and lists the matches flat.
-- Tap a card to open that section: the card pins to the top and its stamps list below it — tap a section's name to rename it, add a name in the local script under it (shown ghosted behind the card, here and in the stack), its ⋯ menu adds a stamp or deletes the section, and **‹ Stamps** (or swipe back) returns to the stack.
-- Each stamp has a name, a note for where to find it and what it costs, and a circle you tap to collect it (it stays in place).
-- The **Collected** row under the stack opens every collected stamp across sections, showing which section each came from; tapping one there puts it back.
-- **New section** adds a section, and a stamp's ⋯ menu moves it to another section (or out of any); stamps with no section sit on an **Ungrouped** card.
-- **Select** lets you tick many stamps and move or delete them together.
-- A stamp can be marked as a **station** or a **temple** (from its ⋯ menu) and shows that icon at the start of its row, and can also carry a name in the local script, shown beside the English one.
-- Stamps are part of the trip, so anyone the trip is shared with sees the same list and the same ticks. Nothing is looked up for you.
+- **Open a card** to see its stamps. Tap a stamp's circle to collect it.
+- **Sections** — rename, add a local-script name, add stamps or delete from its ⋯. **New section** adds one; stamps without one sit under **Ungrouped**.
+- **Each stamp** has a name, an optional local-script name, a note, and a station or temple icon.
+- **Search** filters across all sections. **Sort** switches between your order and A–Z.
+- **Collected** lists everything you've collected. **Select** moves or deletes many at once.
 
 ### Expenses
 
-Totals every price in the trip (a stay's price, a journey's fare, a day's spending), **grouped by category** and then by currency (nothing is summed across currencies, except the **Combined** total). Nothing is entered on this tab — it's read-only.
+A read-only total of every price in the trip — stays, fares and day spending — grouped by category, then by currency.
 
-- Stay prices land under Accommodation.
-- A fare lands under whichever category claims its hop's mode (Train, Flights…), or under Transport if none does.
-- Each day-spending row lands under the category you picked.
-- A journey with a total *and* per-hop fares counts once, not twice.
-- If the trip uses two or more currencies, a **Combined** section at the top adds them all together in the primary one, using an exchange rate fetched automatically when you're online (and cached for when you're not), rounded to whole units since the rate is only an estimate. A currency the rate source doesn't cover is left out of the blend, and a line under the total says so.
-- A proportional bar above each currency's list shows the category split at a glance, coloured to match each category's own icon.
+- Stays count as Accommodation. Fares go to the category that claims their mode (Train, Flights…), else Transport. Day spending goes where you put it.
+- A journey's fare is counted once, never twice.
+- With more than one currency, **Combined** adds everything up in the main currency using a live exchange rate (cached offline, rounded). Unsupported currencies are left out and noted.
+- A bar above each currency shows the split by category.
 
-## Manage → Setup
+## Manage
 
-- Name the **travellers** (used for packing assignment).
-- **Time zones**: *Home* is taken from the device; *On the trip* starts on `UTC` and fills itself in from the first hotel that has coordinates, so calendar exports and hop times land at the right hour. It only does this while the zone is still `UTC` — pick one by hand and it's never changed. Tapping a zone opens a picker that lists cities with their UTC offset ("Tokyo · GMT+9"): tap a region chip and scroll, or search by city, offset or abbreviation ("kolkata", "+5:30", "JST").
-- List the **currencies** the trip uses — the first is the default (a new trip starts on `PLN`), so every price field shows its symbol and a bare `100` counts as it; tapping a price opens an amount pad (a keypad, no typing), with a currency switch on it once the trip lists a second currency. A price reads the same while you edit it as everywhere else ("zł 1,946", "€18").
-- Edit the **expense categories**: rename, add, and reorder or remove from each row's **⋯** — the list can't be emptied, and removing one moves its spending to the next category rather than leaving it uncategorised. A category can also claim specific hop modes so fares split further than one lump "Transport". Each one's **icon** is guessed from that mode/role or the name — tap the icon itself to pick your own instead, from a searchable grid of 130+ icons grouped into categories.
-- **Local-script font** (under Map & format) sets the typeface for a hotel/stay's local-script name — paste a CSS font stack, e.g. `Hiragino Sans, Yu Gothic, sans-serif` for Japanese, or `Noto Sans KR, sans-serif` for Korean. Leave it blank to use the app's regular font.
-- Hide the Logbook sections you don't need, from the same Setup page.
-- The **Tabs** panel above it reorders, renames or hides the three main tabs (Plan, Map, Logbook) — and **Add tab** lets you pin any Logbook page (Packing, say) straight onto the main nav as its own tab; hiding a pinned page's Logbook section disables its tab too, so there's never a dead link.
-- A **Help & FAQ** row sits at the bottom of the Manage list — plain-language answers to the non-obvious bits ("modes", Custom vs. a place in Plan, Areas vs. categories, My Maps sync…).
+Open it from your account picture (or the foot of the sidebar on a wide screen). It starts with your account — who's signed in, sync status, Sign out or **Sign in with Google** — then a Settings-style list: **Trips**, **Setup**, **Content**, **Look**, **Sharing**, and **Help & FAQ** at the bottom.
 
-**Light or dark** is set per device under *Manage → Look → Appearance* — *Automatic* follows the phone's own setting. It works on the demo trip too, since it isn't part of any trip.
+### Setup
 
-## Sharing a copy
+- **Travellers** — used for packing assignments.
+- **Time zones** — *Home* comes from the device. *On the trip* fills itself in from the first hotel with coordinates, unless you've picked one. The picker lists cities with offsets; search by city, offset or abbreviation ("kolkata", "+5:30", "JST").
+- **Currencies** — the first is the default (a new trip starts on `PLN`). Prices open a keypad, with a currency switch once there's a second currency.
+- **Expense categories** — rename, add, reorder or remove from ⋯. Removing one moves its spending to the next. A category can claim hop modes (so Train and Flights split out of Transport). Tap its icon to pick another from 130+.
+- **Local-script font** (under Map & format) — a CSS font stack for local-script names, e.g. `Hiragino Sans, Yu Gothic, sans-serif`. Blank uses the app font.
+- **Logbook sections** — hide the ones you don't need.
+- **Tabs** — rename, reorder or hide Plan / Map / Logbook, and **Add tab** to pin a Logbook page (Packing, say) to the tab bar.
 
-**Download web page** (Manage → Sharing) builds the whole trip as one self-contained `.html` file — itinerary, journeys, stays and the place list, all styled, no internet needed. Open it in any browser, or print it (print-to-PDF for a PDF). Send it to whoever you're travelling with.
+### Look
 
-- Leave **Include private details** off for anything you share: a stay's own reference fields (door codes, wifi, booking refs…), a segment's booking ref and the whole documents section are held back. Turn it on for your own copy.
-- Document *attachments* are never included, either way.
+Theme and trip logo. **Appearance** (light, dark or *Automatic*) is per device, not per trip.
 
-**Add to calendar (.ics)** sits right below it — every plan step and travel hop as a standard calendar event, so the trip lands on your phone's own calendar next to everything else.
+## Editing
 
-- Import the whole trip from **Manage → Sharing**, or just one day from the **Add to calendar** button at the top of that Day page.
-- A step's time ("11:34", a "14:00–15:15" range) becomes a timed event; anything looser ("Around 18:00", or blank) becomes an all-day event instead, with the original text kept in the description.
-- A day's linked journey adds its own hop events from the segment's real departure / arrival times.
-- The per-day button always includes booking references — it's building an event for your own calendar, not something you're handing to someone else.
-- Each individual plan step and journey hop also has its own small calendar icon (tap to reveal it on a plan row) that opens Google Calendar directly with just that one event. Google-only; the `.ics` buttons above still cover Apple Calendar, Outlook, and everything else.
+**Tap text to edit it.** There's no edit mode. Dates and times open pickers; links, phone numbers and emails become tappable once filled in. In a list of details (a document, a stay's reference, Emergency), edit from the row's **⋯ → Edit**.
 
-### Backup and restore
+**Notes** take light formatting — `**bold**`, `*italic*`, `++underline++`, `~~strike~~`, `##` headings, `>` quotes, `-` bullets, `- [ ]` checklists, `[links](https://…)` — with a toolbar for all of it and the usual keyboard shortcuts. Checklist boxes can be ticked without opening the editor.
 
-**Download backup (.json)** (Manage → Sharing → Backup) saves the whole trip as one file — unlike the web page it's lossless: every stay, day, place and setting, *including* private details, so keep it somewhere you trust. It's the way to keep a safe copy of a trip that lives only on this device, or to move one to another device.
+**Deleting.** Every delete asks first (a confirm sheet, or a second tap on a swiped row). After that, an **Undo** bar appears for a few seconds and puts back exactly what was removed. Only the last delete can be undone, and deleting a whole trip or a file can't be.
 
-**Restore from backup** (Manage → Trips) reads that file back in as a **new trip** and opens it.
+**Save status** (signed in only), top right:
 
-- It never overwrites a trip you already have; if the name is taken the copy is called "… (restored)".
-- A file that isn't a backup, is empty, was cut off or edited after it was saved (each backup carries a checksum), or was made by a newer version of the app, is refused with a message — a backup is read back and checked before the download is offered, so you never get a file that can't be restored.
-- Attached document files aren't inside the backup: ones in your account or Google Drive still open from anywhere, ones saved only on a device stay on that device.
+| Label | Meaning |
+|---|---|
+| **Saving…** (grey) | An edit is on its way. |
+| **Saved** (green) | It landed. |
+| **Offline** (amber) | No connection. Edits queue and send when you're back. |
 
-### Data safety
+## Sharing and backups
 
-Every edit saves as you make it. On top of that the app keeps **restore points** — complete, checksummed copies of a trip — so a crash, a bad save or a wrong tap never costs you the trip.
+All under **Manage → Sharing** unless noted.
 
-- **When they're taken.** Automatically while you edit (at most every few minutes; the newest 12 are kept), and always *before* something risky: deleting a trip, restoring over one, syncing offline edits onto the server, and — for a device-only trip — an app update that reshapes your data or a save that would remove more than half the trip. Those "before…" ones are kept separately (newest 10) so a burst of edits can't push them out.
-- **Where they live.** In your account (Supabase, so they survive losing the phone — needs migration `0026`) and on the device (works offline, and is the only kind a device-only trip has).
-- **Get one back.** **Manage → Sharing → Data safety** lists them: *Restore over this trip* puts it back exactly as it was, after a second tap to confirm (what was there is kept as a restore point first), *Restore as a new trip* adds it alongside and touches nothing. **Recently deleted** lists trips you deleted, with a Restore. **Back up now** takes one on demand.
-- **Deleting a trip** first makes a restore point that outlives it; if one can't be made, the trip is not deleted. Restore points of a deleted trip are kept for 90 days, then cleared.
-- **If a trip's data is damaged** the app opens a recovery screen instead of an empty trip: it keeps a copy of the damaged data, offers the newest good restore point, and lets you open another trip. It never replaces your data with a blank or default trip.
-- **Closing the tab right after an edit** (device-only trips): as the page hides, a synchronous copy of anything not yet saved is stashed, and the next open adopts it if it's exactly the next version of what's stored — the version it replaces is kept as a restore point.
-- **If a save fails** (out of storage, a dropped connection) your changes stay on screen and a banner or the header says so; the app keeps retrying, and edits that hadn't reached the server survive a reload or a closed tab.
-- **A save that would wipe a device-only trip entirely is refused outright**, not just flagged — a copy of the last good version is kept and the banner offers **Save anyway** if that's really what you meant.
-- **Two devices editing the same trip's settings** (theme, currencies, tabs, photos…): each save is merged with what the other device saved instead of replacing it. (Days, stays, places and the rest are saved row by row and already didn't clash.)
-- **Newer data, older app.** An older version of the app refuses to open a trip a newer one has written ("reload to update") rather than rewriting it in a shape it doesn't understand.
+| Option | What you get |
+|---|---|
+| **Download web page** | The whole trip as one `.html` file — itinerary, journeys, stays, places — that opens offline in any browser or prints to PDF. Keep **Include private details** off when sharing it (it hides door codes, booking refs and documents). Attachments are never included. |
+| **Add to calendar (.ics)** | Every step and hop as calendar events. Exact times become timed events; loose ones ("Around 18:00") become all-day. Also available per day on the day's page (always with booking refs). Each step and hop also has a quick Google Calendar button. |
+| **Download backup (.json)** | A complete, lossless copy of the trip, private details included — keep it somewhere safe. |
+| **Restore from backup** (Manage → Trips) | Loads a backup as a **new** trip; never overwrites. Damaged, edited or newer-version files are refused. Attachments aren't inside backups. |
 
-Before applying a migration that rewrites existing data, use **Back up now** on each trip.
+## Data safety
 
-### Offline and installing
+Every edit saves as you make it. On top of that, the app keeps **restore points** — complete, checksummed copies of a trip.
 
-**Manage → Trips → This device** shows two things:
+**When they're taken**
 
-- **Works offline** turns to *Ready* once the service worker has saved the whole app on the device — from then on it opens with no signal (it reads *Getting ready…* for the first moments of a first visit, and *Not available here* in development, where there's no service worker). A trip kept on this device is fully offline; if you sign in to sync, open the trip once while online before travelling. Map areas you've already looked at are saved too.
-- Installing to the home screen: where the browser offers it (Android, desktop Chrome) there's an **Install app** button that opens the browser's own install dialog. On iPhone there's no such dialog, so the row says *Share → Add to Home Screen*. Once it's running installed, the row reads *Installed*.
+- Every few minutes while you edit (newest 12 kept).
+- Before anything risky: deleting a trip, restoring, syncing offline edits, a data-reshaping update, or a save that would remove over half a device-only trip (newest 10 kept, separately).
 
-The same answers are in **Help & FAQ** under "Offline & installing".
+**Where they live** — in your account (needs migration `0026`) and on the device.
 
-## Editing anything
+**Getting one back** — **Manage → Sharing → Data safety**:
 
-Tap almost any piece of text and it becomes editable on the spot. Type, tap away, done. There's no separate "edit mode". Dates and times open a picker; once a link, phone or email is filled in it turns into the real clickable thing (tap a phone number to call it). In a list of details (a document, a stay's reference, Emergency) you edit it from the row's **⋯ → Edit**; elsewhere a small pencil sits on the right of the row.
+- *Restore over this trip* (asks twice; the current version is kept first) or *Restore as a new trip*.
+- **Recently deleted** brings back deleted trips (kept 90 days).
+- **Back up now** takes one on demand. Do this on each trip before applying a migration that rewrites data.
 
-**Deleted something by mistake?** Every delete asks first — a confirm sheet, or on a swipe-to-delete row, a second tap on the red Delete before anything happens.
+**Other safeguards**
 
-- Once confirmed, removing a plan step, an expense, a packing item, a list item, a journey hop or a detail — or deleting a whole day, stay, journey, place, area, document or note — brings up an **Undo** bar above the tab bar for a few seconds. Tap it and exactly what was removed comes back, in its old spot; anything else you edited in the meantime is left alone.
-- It covers the last delete only, and deleting a whole trip or a file attachment isn't undoable.
-
-When you're signed in, a small label beside the buttons top right shows what's happening: **Saving…** (grey, while it's in flight), **Saved** (green, flashes briefly once it lands), or **Offline** (amber, stays up for as long as you're disconnected — edits keep queuing and send the moment you're back). On-device-only trips save instantly and show nothing.
-
-**Notes** fields (a day's General notes and Getting there/back, a stay's notes and directions, a journey, a luggage note's detail, a map place's note, and each of the Logbook Scratchpad's notes) take light Markdown — `**bold**`, `*italic*`, `++underline++`, `~~strikethrough~~`, `##` headings, `>` quotes, `-` bullet lists, `- [ ]` checklists and `[links](https://…)`. A slim B / I / U / S / H / " / • / ☑ / link toolbar covers all of it without needing to know the syntax, plus the usual ⌘/Ctrl-B · ⌘/Ctrl-I · ⌘/Ctrl-U · ⌘/Ctrl-Shift-X shortcuts; bullets continue on Enter. A checklist item's box is tappable straight from the read view — ticking it off doesn't open the editor.
-
-## The demo trip
-
-Every account has a read-only **Demo** trip — a made-up example with notes explaining how each screen works. You can't edit it; it's just there to look at. Delete it whenever from Manage → Trips (and re-add it from the same place).
-
-**Manage** (your account picture, top right on every screen — or its own spot at the foot of the sidebar on a wider screen) is only for bigger structural changes — adding or removing days, changing trip dates, theme, sharing. Its first card is your account: who's signed in and whether it's synced, with Sign out — or, when you're not signed in, **Sign in with Google** (the picture carries a small dot until you do). Below it, Manage is a Settings-style list — **Trips**, then **Setup**, **Content**, **Look** and **Sharing** for the open trip — each row opening its own page.
+- A trip is never deleted unless a restore point was made first.
+- Damaged data opens a recovery screen, never a blank trip.
+- A failed save keeps your changes on screen, says so, and keeps retrying — even across a reload.
+- A save that would wipe a device-only trip is refused (with a **Save anyway** option).
+- Two devices changing trip settings at once are merged, not overwritten.
+- An older app version refuses to open data written by a newer one.
 
 ## Offline
 
-Once the app has loaded on the plane / hotel wifi, it keeps working with no signal — on the flight, on the metro, inside temples. The one thing that needs data is the **map background** itself; your pins and the whole plan work offline.
+Once the app has loaded, it works with no signal — the whole plan, your places, and map areas you've already viewed.
 
-- Map areas you've already looked at are cached, so they still draw with no signal; open a fresh area offline and the map says so and offers a retry (which fires automatically the moment you're back online).
-- Edits you make while offline (or during a dropped connection) are held and retried automatically once you're back on signal, as long as the tab stays open. When the connection returns, the app also re-pulls the trip so a travel companion's changes made in the meantime show up.
-- Once a trip has opened on a device while signed in, that device keeps a copy of it (and the trip list), so the app opens with no signal at all — and edits made that way are held and sent when you're back. The copy is cleared when you sign out, and another account on the same device never sees it.
-- Opening the app for the very first time on a device with no signal (before anything's been opened there) shows a plain "you're offline" screen instead of hanging on the loading spinner — it retries on its own once you're back on signal, or tap Try again.
+- **Edits made offline** are queued and sent when you're back. The app also re-pulls the trip to pick up your companion's changes.
+- **Signed-in trips** are kept on the device once opened, so the app starts with no signal. The copy is cleared when you sign out.
+- **Save maps ahead** — a day's Areas section has **Download offline maps**, and **Manage → Trips → This device → Save trip maps for offline** does the whole trip.
+- **New map areas** opened offline show a retry that fires automatically when you reconnect.
+- **First visit with no signal** shows a plain "you're offline" screen that retries on its own.
 
-## If something looks out of date
+**Manage → Trips → This device** shows:
 
-After an update the app can briefly show an old version. Close the tab (or the installed app) fully and reopen it, or pull down from the top of any page to re-pull the trip. It'll catch up. To tell whether a device has the latest deploy, the foot of **Manage** shows the build it's running — the app version (which goes up with every commit), the short commit and the date it was built — to compare against the commit you pushed.
+- **Works offline** — *Ready* once the app is fully saved on the device.
+- **Install** — an **Install app** button where the browser supports it; on iPhone, a reminder to use *Share → Add to Home Screen*. Reads *Installed* once installed.
+
+## Troubleshooting
+
+**Something looks out of date.** Fully close the tab or app and reopen it, or pull down from the top of any page.
+
+**Is this device on the latest version?** The foot of **Manage** shows the version, commit and build date. Compare the commit with the one you pushed.
+
+**The Help & FAQ page** (bottom of Manage) answers the less obvious questions in plain language.
 
 ---
 
 # Technical
 
-A trip-agnostic React PWA. Nothing in the code assumes Japan — a future trip is a new template folder, no source changes.
+A trip-agnostic React PWA. Nothing in the code assumes a particular country, city or currency — real trips are created and edited in the app and live in Supabase. `src/templates/` only holds two generic seeds: `blank` (every new trip) and `demo` (the read-only tour).
 
 ## Stack
 
-Vite + React + TypeScript · Tailwind · React Router · Zustand · vite-plugin-pwa (Workbox) · Supabase (Postgres + Auth + RLS + Realtime) · MapLibre GL + Protomaps vector tiles · dnd-kit · idb-keyval.
+Vite · React · TypeScript · Tailwind · React Router · Zustand · vite-plugin-pwa (Workbox) · Supabase (Postgres, Auth, RLS, Realtime) · MapLibre GL + Protomaps · dnd-kit · idb-keyval · Vitest
+
+## Running locally
+
+```bash
+npm install
+npm run dev
+```
+
+| Script | What it does |
+|---|---|
+| `npm run dev` | Dev server at http://localhost:5173 |
+| `npm run dev:demo` | Dev server, local-only, seeded with an editable Sandbox trip. No Supabase or sign-in needed. |
+| `npm run build` | Production build → `dist/` |
+| `npm run build:demo` | Build for the public demo site |
+| `npm run preview` | Serve the build (use this to test the service worker) |
+| `npm run typecheck` | `tsc --noEmit` — the main check; there's no linter |
+| `npm test` | Unit tests (Vitest), mainly the data-safety layer |
+
+### Environment (`.env.local`)
+
+All optional — with nothing set, the app runs fully on the device.
+
+```ini
+VITE_SUPABASE_URL=https://<project-ref>.supabase.co
+VITE_SUPABASE_ANON_KEY=<anon / public key>
+VITE_PROTOMAPS_API_KEY=<Protomaps hosted API key>
+VITE_ORS_API_KEY=<OpenRouteService key>
+```
+
+| Variable | Purpose |
+|---|---|
+| `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` | Accounts, sync and sharing. The URL must be the **full https URL**. |
+| `VITE_PROTOMAPS_API_KEY` / `VITE_MAP_TILES_URL` | Map tiles — see [The map background](#the-map-background). |
+| `VITE_ORS_API_KEY` | Real walking routes. Free, no card, 2,000 requests/day from [openrouteservice.org](https://openrouteservice.org/dev/#/signup). Without it, walks use straight-line estimates. Requests are throttled and cached per device. |
+
+`VITE_*` values are baked in at build time — a change only takes effect on the next build.
 
 ## How data is stored
 
 ```
 edit in the UI  →  TripData (in memory)  →  backend
                                             ├─ Supabase   (signed in)
-                                            └─ IndexedDB  (local, offline)
+                                            └─ IndexedDB  (on this device)
 ```
 
-- **With Supabase** (`VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` set): every entity — legs, days, hotels, journeys (+ segments), luggage, docs, packing, places, areas (+ area_places), scratchpad notes — is its own row, private to your account (RLS), synced across devices and shareable with another account. Schema: [`supabase/migrations/`](supabase/migrations/).
-- **Without it**: everything stays in the browser. No sign-in.
-- **With it, but "Use on this device only"** (the link on the sign-in screen): same local browser storage as above, no account — a per-device `localStorage["za.localOnly"]` flag that `needsAuth()` honours. **Manage → Trips** has the way back.
-
-The Supabase client is code-split — never downloaded unless a project is configured. So is the MapLibre bundle (only the Map section pulls it in).
+- **Supabase** (configured and signed in) — every entity (legs, days, hotels, journeys and segments, luggage, docs, packing, places, areas, notes…) is its own row, private via RLS, synced in real time and shareable. Schema in [`supabase/migrations/`](supabase/migrations/).
+- **IndexedDB** — used when Supabase isn't configured, or when the user picks **Use on this device only** (`localStorage["za.localOnly"]`, honoured by `needsAuth()`).
+- **Code splitting** — the Supabase client and the MapLibre bundle are separate chunks, only loaded when needed.
 
 ### Data-safety layer (`src/lib/safety/`)
 
-Used by the store and both backends:
-
-- `validate.ts` — shape checks at every trust boundary (before a save, after a load, on a backup file, on a restore point), item counts, a content hash.
-- `snapshots.ts` — restore points: a device ring in IndexedDB and cloud rows in `trip_snapshots` (migration `0026`, no foreign key to `trips` so they outlive a deleted trip). Also `ensureBackedUp`, the "no delete without a backup" gate.
-- `quarantine.ts` — anything that fails validation is copied here before it's touched; a load never deletes or overwrites the original.
-- `errors.ts` — typed failures. A backend's `loadTrip` throws `TripLoadError` (`unavailable` / `corrupt` / `missing` / `newer`) instead of returning `null` or a default, so "couldn't read it" can never look like "empty" and trigger seeding over real data.
-- `storage.ts` — `get` returns `undefined` only when a key is truly absent; a failed or unparseable read, or a failed write (quota), throws. The device backend validates every save, refuses to replace a trip with nothing, reads each write back, serialises saves per trip, and keeps a restore point of anything it's about to replace that another tab changed.
-- The Supabase outbox (unconfirmed edits, mirrored to IndexedDB) covers batches *in flight* as well as queued ones, and its writes are ordered so a stale write can't resurrect synced ops. Only one batch goes to the server at a time, so an older save can't land after a newer one; a batch that hasn't answered in 20 s stops holding the next one back. Each open tab keeps its own outbox; edits left behind by a tab that closed or died are picked up by the next tab that opens the trip (Web Locks tell a dead tab from a live one, with a heartbeat as the fallback).
-
-## Getting started
-
-```bash
-npm install
-npm run dev            # http://localhost:5173
-```
-
-| Script | |
+| File | Role |
 |---|---|
-| `npm run dev` | dev server |
-| `npm run dev:demo` | dev server, local-only, seeded with an editable Sandbox trip — no Supabase project or sign-in needed |
-| `npm run build` | production build → `dist/` |
-| `npm run preview` | serve the build |
-| `npm run typecheck` | `tsc --noEmit` |
-| `npm test` | `vitest run` — unit tests for the data-safety layer (`src/lib/safety/`) |
+| `validate.ts` | Shape checks at every trust boundary (save, load, backup file, restore point), item counts, content hash. |
+| `snapshots.ts` | Restore points: a device ring in IndexedDB plus cloud rows in `trip_snapshots` (migration `0026`, no foreign key so they outlive a deleted trip). `ensureBackedUp` gates every delete. |
+| `quarantine.ts` | Anything that fails validation is copied here first; the original is never overwritten. |
+| `errors.ts` | Typed failures. `loadTrip` throws `TripLoadError` (`unavailable` / `corrupt` / `missing` / `newer`) rather than returning empty, so a failed read can't trigger seeding over real data. |
+| `../storage.ts` | `get` returns `undefined` only for a truly missing key; failed reads and writes throw. The device backend validates, reads back and serialises every save, and refuses to replace a trip with nothing. |
 
-### `.env.local`
+**Supabase outbox.** Unconfirmed edits (queued and in flight) are mirrored to IndexedDB. One batch goes to the server at a time, so an older save can't land after a newer one; a batch silent for 20 s stops blocking the next. Each tab has its own outbox, and a tab that died leaves its edits for the next tab to pick up (Web Locks, with a heartbeat fallback).
 
-```ini
-VITE_SUPABASE_URL=https://<project-ref>.supabase.co
-VITE_SUPABASE_ANON_KEY=<the anon / public key>
-VITE_PROTOMAPS_API_KEY=<a Protomaps hosted-API key>
-VITE_ORS_API_KEY=<an OpenRouteService key>
-```
+## Supabase
 
-All optional — with nothing set the app runs fully local.
-
-- `VITE_SUPABASE_URL` must be the **full https URL**, not just the project ref.
-- The map tile settings (`VITE_PROTOMAPS_API_KEY`, `VITE_MAP_TILES_URL`) are covered under [The map background](#the-map-background).
-- `VITE_ORS_API_KEY` is a free key (no card) from [openrouteservice.org/dev/#/signup](https://openrouteservice.org/dev/#/signup) — 2,000 requests/day — that powers the real walking-route estimates (an area's width on the Map, a plan step's walk to the next one). Without it, those two features fall back to a straight-line estimate; everything else works the same. Requests are spaced out to stay under the free per-minute limit, pause for a minute if the service pushes back, and every route is remembered on the device.
-
-## Setting up Supabase
+### Setting up a project
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. **SQL Editor** → run every file in `supabase/migrations/` **in order** (`0001` → `0032`).
-3. **Authentication → Providers → Google** → enable, paste a Google Cloud OAuth client id / secret, redirect `https://<project-ref>.supabase.co/auth/v1/callback`.
-4. **Authentication → URL Configuration → Redirect URLs** → add `http://localhost:5173` and the deployed URL.
-5. Put the Project URL + anon key (**Project Settings → API**) in `.env.local`.
+2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0032`).
+3. **Authentication → Providers → Google** — enable it with a Google Cloud OAuth client id and secret. Redirect: `https://<project-ref>.supabase.co/auth/v1/callback`.
+4. **Authentication → URL Configuration → Redirect URLs** — add `http://localhost:5173` and the deployed URL.
+5. Copy the Project URL and anon key (**Project Settings → API**) into `.env.local`.
 
-On first sign-in the app seeds your first trip automatically. After a schema change, delete the trip and reload to re-seed from the template.
+A new account gets the Demo trip on first sign-in; real trips are made from Manage. After a schema change, the Demo re-seeds itself on reload, and real trips are migrated by the SQL or backfilled on load (`normalizeTrip`).
 
 ### Restricting who can sign in
 
-Google sign-in has no built-in allowlist, so anyone who finds the deployed URL can otherwise create their own account (they'd only ever see their own empty trip, thanks to RLS — but it's still worth locking down).
+Google sign-in has no allowlist of its own. Strangers would only ever see their own empty trip (RLS), but it's worth locking down:
 
-- **Quick option** — in Google Cloud Console → **APIs & Services → OAuth consent screen**, keep **Publishing status = Testing** and list only the allowed emails under **Test users**. Anyone else is blocked at Google's own sign-in screen.
-- **Durable option** — migration `0030` adds an `allowed_signup_emails` table plus a `restrict_signup` function; wire the function as **Authentication → Hooks → Before user created**. The table starts empty (no emails checked into the repo) — add the allowed addresses yourself in the SQL Editor:
+- **Quick** — in Google Cloud Console → **OAuth consent screen**, keep the app in **Testing** and list the allowed emails as **Test users**.
+- **Durable** — migration `0030` adds an `allowed_signup_emails` table and a `restrict_signup` function. Set the function as **Authentication → Hooks → Before user created**, then add emails in the SQL Editor:
+
   ```sql
   insert into public.allowed_signup_emails (email) values
     (lower('you@example.com')),
@@ -395,126 +417,112 @@ Google sign-in has no built-in allowlist, so anyone who finds the deployed URL c
   on conflict do nothing;
   ```
 
+### Useful extras
+
+- `supabase/dump_trip.sql` — read-only query that returns one trip's content as JSON, for diffing.
+
 ## Deploy
 
-Runs on **Cloudflare Workers** (static assets) via the Git integration.
+Hosted on **Cloudflare Workers** (static assets), deployed through the Git integration on every push to `main`.
 
-- [`wrangler.jsonc`](wrangler.jsonc) points the Worker at `./dist` and turns on SPA routing (`not_found_handling: "single-page-application"`).
-- There is **no `public/_redirects`** — the Workers asset pipeline rejects the usual `/*  /index.html  200` catch-all as a redirect loop, and `wrangler.jsonc` already covers it. `public/_headers` (cache rules) still applies.
+### Main site
 
-**Cloudflare dashboard → Workers & Pages → Create → import `xxvazquez/japan-trip`:**
+**Cloudflare → Workers & Pages → Create → import `xxvazquez/japan-trip`:**
 
 | Setting | Value |
 |---|---|
 | Build command | `npm run build` |
 | Deploy command | `npx wrangler deploy` |
-| Build variables | `NODE_VERSION` = `22`<br>`VITE_SUPABASE_URL` = `https://<project-ref>.supabase.co` (full URL, **no quotes**)<br>`VITE_SUPABASE_ANON_KEY` = the anon key |
+| Build variables | `NODE_VERSION` = `22`<br>`VITE_SUPABASE_URL` = full https URL (**no quotes**)<br>`VITE_SUPABASE_ANON_KEY` = anon key<br>plus any map / ORS keys |
 
-`VITE_*` values are inlined by Vite at build time, so a changed build variable **only takes effect on the next build** — editing a variable does not redeploy on its own.
+After the first deploy:
 
-After the first deploy: add the `*.workers.dev` URL to the Supabase Redirect URLs (step 4 above), or Google sign-in fails. Optionally gate the site with **Cloudflare Access** (Zero Trust → Access → self-hosted app → allow your emails).
+- Add the `*.workers.dev` URL to Supabase's Redirect URLs, or Google sign-in fails.
+- Optionally put the site behind **Cloudflare Access** (Zero Trust → Access → self-hosted app).
+
+> **Don't add `public/_redirects`.** Workers treats the usual `/* /index.html 200` catch-all as a redirect loop. SPA routing is already handled by `not_found_handling` in [`wrangler.jsonc`](wrangler.jsonc). `public/_headers` (cache rules) still applies.
 
 ### Public demo (no login)
 
-A second, separate Workers project that boots straight into an editable **Sandbox** trip — no Google sign-in, no Supabase project touched. Good for sharing the app with people who shouldn't need an account.
-
-It works by setting `VITE_PUBLIC_DEMO=1` (via [`.env.demo-public`](.env.demo-public)), which turns off Supabase the same way `dev:demo` does locally, just without the dev-only guard — see `publicDemoMode` in [`src/lib/supabase.ts`](src/lib/supabase.ts). Each visitor gets their own local copy in their browser's IndexedDB; nothing is shared between visitors and nothing reaches Supabase.
-
-**Cloudflare dashboard → Workers & Pages → Create → import `xxvazquez/japan-trip` again, as a separate project:**
+A second, separate Workers project that boots straight into an editable Sandbox trip. Each visitor gets their own copy in their browser; nothing touches Supabase.
 
 | Setting | Value |
 |---|---|
 | Build command | `npm run build:demo` |
 | Deploy command | `npx wrangler deploy -c wrangler.demo.jsonc` |
-| Build variables | `NODE_VERSION` = `22` (no Supabase variables — leave them unset) |
+| Build variables | `NODE_VERSION` = `22` — no Supabase variables |
 
-The separate [`wrangler.demo.jsonc`](wrangler.demo.jsonc) (name `japan-trip-demo`) keeps this on its own `*.workers.dev` URL, distinct from the real site — don't point it at the main `wrangler.jsonc` or it'll overwrite the production deploy.
+This works via `VITE_PUBLIC_DEMO=1` in [`.env.demo-public`](.env.demo-public) (`publicDemoMode` in [`src/lib/supabase.ts`](src/lib/supabase.ts)). [`wrangler.demo.jsonc`](wrangler.demo.jsonc) gives it its own name and URL — never point it at `wrangler.jsonc`, or it will overwrite the real site.
+
+## The map background
+
+[MapLibre GL](https://maplibre.org) with [Protomaps](https://protomaps.com) vector tiles (OpenStreetMap data).
+
+> `maplibre-gl` is pinned to **5.x** — 6.x breaks pmtiles loading.
+
+The tile source is picked at build time, first match wins:
+
+| Priority | Source | Notes |
+|---|---|---|
+| 1 | `VITE_PROTOMAPS_API_KEY` | **Recommended.** Whole planet, fast everywhere, free for non-commercial use up to 1M requests/month. Tiles are cached by the service worker, so viewed areas work offline, and the offline-map downloads are available. |
+| 2 | `VITE_MAP_TILES_URL` | A `.pmtiles` file you host. Covers only the region you extracted; not cached offline. |
+| 3 | Nothing set | Protomaps' planet archive on Source Cooperative. Works, but first paint takes 20–30 s. |
+
+### Hosted API setup
+
+1. Get a key at [protomaps.com/account](https://protomaps.com/account).
+2. Add `VITE_PROTOMAPS_API_KEY` to `.env.local` and to the Cloudflare build variables, then redeploy.
+
+Tiles and label fonts are cached as `map-tiles` and `map-glyphs` (`runtimeCaching` in [`vite.config.ts`](vite.config.ts)). The offline downloads ([`src/lib/offlineTiles.ts`](src/lib/offlineTiles.ts)) cap at 4,000 tiles so they never push other areas out of the 6,000-tile cache.
+
+### Self-hosted extract
+
+Build one with the [`pmtiles`](https://github.com/protomaps/go-pmtiles) CLI:
+
+```bash
+pmtiles extract https://data.source.coop/protomaps/openstreetmap/v4.pmtiles japan.pmtiles --region=tiles-region.geojson --maxzoom=14
+```
+
+- `tiles-region.geojson` (repo root) is a `MultiPolygon` of the boxes to keep; `--bbox=minLon,minLat,maxLon,maxLat` also works.
+- `--maxzoom=15` adds building detail at about 2.5× the size.
+- The host must support **HTTP range requests** and **CORS**. Netlify works for free: deploy a folder with the file and a `_headers` file containing `/*` followed by an indented `Access-Control-Allow-Origin: *`.
 
 ## Project layout
 
 ```
 src/
-  core/types.ts        domain types — trip-agnostic
-  lib/                 backend · db · auth · storage · dates · maps ·
-                       mapStyle · mymaps (KML import) · geocode (Nominatim)
-  store/useApp.ts      trips + active trip + every mutation
-  components/          shell + primitives (Editable, MapView, BackBar, Icon…)
-  routes/              one file per page (Plan, Day, Leg, Journey, MapTab,
-                       Logbook, Hotel, Manage)
-  templates/           seed data for a new trip (blank, or a worked example)
-supabase/migrations/   database schema, applied in order
-supabase/dump_trip.sql read-only: one trip's whole content as JSON, for diffing
-scripts/make_icons.py  regenerates icons from logo.png
+  core/types.ts         domain types (trip-agnostic)
+  store/useApp.ts       Zustand store: trips, active trip, every mutation, sync queue
+  lib/                  backend, db, auth, realtime, hydrate, storage, maps,
+                        geocode, mymaps, cost, ics, offlineTiles…
+  lib/safety/           data-safety layer (validation, restore points, quarantine)
+  components/           app shell and shared UI (Editable, Section, MapView, Icon…)
+  routes/               one file per page (Plan, Day, Journey, MapTab, Logbook,
+                        Hotel, Document, Manage, Help…)
+  templates/            blank + demo seed trips
+  styles/index.css      colour tokens and type scale
+supabase/migrations/    database schema, applied in order
+supabase/dump_trip.sql  read-only trip export for diffing
+scripts/make_icons.py   regenerates app icons from the logo files
 ```
-
-## The map background
-
-The map uses [MapLibre GL](https://maplibre.org) with [Protomaps](https://protomaps.com) vector tiles (OpenStreetMap data). `maplibre-gl` is pinned to 5.x (6.x breaks pmtiles tile loading).
-
-The tile source is chosen at build time, in this priority order:
-
-### 1. Protomaps hosted API — `VITE_PROTOMAPS_API_KEY` (recommended)
-
-The **whole planet**, CDN-cached, fast to first paint anywhere on Earth — so a future trip to anywhere just works, no rebuild. Free for non-commercial use up to 1M tile requests/month; a personal trip app uses a tiny fraction of that.
-
-1. Sign up at [protomaps.com/account](https://protomaps.com/account) and issue a key.
-2. Put it in `.env.local` as `VITE_PROTOMAPS_API_KEY=` (just the key) and in the Cloudflare project's build variables, then redeploy.
-
-Tiles come back as plain `200`s, so the service worker caches them ([`vite.config.ts`](vite.config.ts) → `runtimeCaching` → `map-tiles`): an area you've opened once then paints instantly and works fully offline. Only brand-new regions touch the network. Label fonts are cached the same way (`map-glyphs`).
-
-A day page's **Areas** section has a **Download offline maps** action that walks every tile the day's places (its areas, its own plan steps, its hotel) cover — padded ~700m, at the zoom levels the map actually renders — so that corner of the map works offline before you've ever panned around it ([`src/lib/offlineTiles.ts`](src/lib/offlineTiles.ts)). **Manage → Trips → This device → Save trip maps for offline** does the same for the whole trip in one go — every day, area, stay and place, each saved as its own small patch rather than one box spanning the whole country, with a progress count while it runs. It stops at 4,000 tiles so it can never push other saved map areas out of the offline cache (which keeps 6,000). Only shows up with the hosted API configured: the self-hosted/fallback pmtiles sources read byte ranges out of one archive, not separate cacheable requests, so there's nothing to pre-fetch.
-
-### 2. Self-hosted extract — `VITE_MAP_TILES_URL`
-
-A single `.pmtiles` file you host yourself. Only covers the geographic box you extracted, and range requests (`206`) aren't service-worker cached — but needs no third-party account. The host must support **HTTP range requests** and send permissive **CORS**.
-
-Build one with the [`pmtiles`](https://github.com/protomaps/go-pmtiles) CLI:
-
-```bash
-pmtiles extract https://data.source.coop/protomaps/openstreetmap/v4.pmtiles japan.pmtiles \
-  --region=tiles-region.geojson --maxzoom=14
-```
-
-`tiles-region.geojson` (repo root) is a GeoJSON `MultiPolygon` of the boxes to keep; a single `--bbox=minLon,minLat,maxLon,maxLat` also works. `--maxzoom=15` gives building-level detail at ~2.5× the size. **Netlify** hosts it free with no payment card (deploy a folder containing the file plus a `_headers` file whose body is `/*` then an indented `Access-Control-Allow-Origin: *`). Cloudflare R2 also works but needs a card on file to activate.
-
-### 3. Nothing set
-
-Falls back to Protomaps' entire-planet archive on Source Cooperative. Works everywhere, but first paint takes 20–30 s — every tile walks a directory inside a 130 GB file on a bucket with no edge cache. The Map screen shows the loading spinner meanwhile.
 
 ## Branding
 
-Two source files at the repo root, both full-bleed squares, regenerated into everything under `public/icons` and `public/brand` with `python3 scripts/make_icons.py`.
+Run `python3 scripts/make_icons.py` to regenerate everything in `public/icons` and `public/brand` from two square source files at the repo root.
 
-### `logo.png` — opaque
+| Source | Background | Produces |
+|---|---|---|
+| `logo.png` | Solid dark teal | `apple-touch-icon.png` and `icon-maskable-512.png` — the two icons that need a solid backing (iOS adds a black one otherwise; maskable icons show holes). |
+| `logo-mark.png` | Transparent | `favicon.png`, `icon-192.png`, `icon-512.png`, and the in-app marks (wordmark, sign-in / offline / error screens). |
 
-One flat dark-teal background. Drives only the two icon outputs that genuinely need a solid background:
+Notes:
 
-- `apple-touch-icon.png` (iOS forces an ugly black one behind a transparent touch icon)
-- `icon-maskable-512.png` (the OS crops it to its own shape but never adds a backing, so a transparent one shows through as holes — that's what "maskable" means in the manifest spec)
-
-There's only one — not a light/dark pair — since a manifest icon can't react to the OS theme anyway.
-
-The raw dark render this comes from has a rounded, lighter "card" sitting on a visibly darker square — a vignette baked in by whatever generated it, not a flat colour. Left as-is, that reads as a second background layer behind the real one. Rather than a hard cutout (unreliable on this file — its background gradient overlaps the beetle's own dark shading too closely for a clean separation), `logo.png` is background-corrected: fit a smooth low-order surface to the border area only, then blend every pixel toward one flat tone in proportion to how well it matches that fitted surface — the beetle's own sharper, higher-contrast shading doesn't fit the smooth model and survives untouched, only the slow vignette gets ironed out.
-
-### `logo-mark.png` — transparent
-
-The glyph only, no background at all. Drives everything that can safely stay transparent:
-
-- `favicon.png`
-- the `"any"`-purpose PWA icons (`icon-192.png` / `icon-512.png` — a browser tab or a launcher just shows whatever's behind them)
-- the in-app themed marks (`Wordmark`, sign-in/offline/error screens), which already sit inside the app's own rounded, coloured container — a baked-in background there doubled up one rounded shape inside another
-
-`favicon.png` alone gets an extra contrast/saturation/sharpen pass (`bolden_for_favicon` in the script, applied after the resize, not before — sharpening the full-res source and then shrinking just blurs it straight back out) since a browser tab shrinks it further still, to ~16px, where the mark's fine topographic wing lines would otherwise average into soft grey-green mush. Every other output stays a plain resize; the topo detail is fine at every size it's actually shown.
-
-### Light/dark in-app marks
-
-The current mark (a beetle carrying a topographic map) doesn't need a different in-app rendering per theme — being background-less, `logo-mark.png` already reads fine on both a light and a dark surface — so both in-app filenames (`logo-{size}-dark/light.png`) currently render from that one file. Swap in a genuinely different per-theme pair later if the mark ever needs one and each will pick up its own split automatically (`useIsDark()`, `src/lib/mode.ts`).
-
-### Notes
-
-- `logo.png` and `logo-mark.png` come from two separate renders (a light-bg one and a dark-bg one), not the same art with the background swapped — pulling a clean background-less cutout out of the dark one wasn't reliable (its background gradient overlaps the beetle's own dark shading too closely), so `logo-mark.png` still comes from the light render. The two are close enough in style that this doesn't show in practice, but if a from-scratch redo of either ever happens, keep both renders from the same generation so they truly match.
-- `logo-wordmark.png` / `logo-wordmark-light.png` are reference art with the "ZUKNESST ATLAS" wordmark baked in — not consumed anywhere yet, kept for a future banner/share-image use.
-- Per-trip logos are uploaded in the app (*Manage → Look*).
+- `logo.png` has been background-corrected to remove a vignette baked into the original render, so it reads as one flat colour.
+- `favicon.png` gets an extra contrast and sharpening pass after resizing (`bolden_for_favicon`), so the detail survives at 16px.
+- The in-app marks use the same file for light and dark (`logo-{size}-dark/light.png`). A separate per-theme pair can be dropped in later; `useIsDark()` in `src/lib/mode.ts` already picks between them.
+- The two source files come from separate renders. If either is ever redone, redo both from the same generation so they match.
+- `logo-wordmark.png` / `logo-wordmark-light.png` are reference art with the name baked in, not used yet.
+- Per-trip logos are uploaded in the app (**Manage → Look**).
 
 ---
 
