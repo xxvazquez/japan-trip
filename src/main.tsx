@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./router";
 import { initApp, useApp } from "./store/useApp";
-import { applyMode, applyPalette, useMode } from "./lib/mode";
+import { applyMode, applyPalette, useIsDark, useMode } from "./lib/mode";
 import { useAuth } from "./lib/auth";
 import { THEME_PRESETS } from "./lib/themePresets";
 import { BootScreen } from "./components/Loader";
@@ -33,6 +33,8 @@ if ("serviceWorker" in navigator) {
 
 function ThemeVars() {
   const [mode] = useMode();
+  // re-apply when the phone itself flips light/dark under "Automatic"
+  const dark = useIsDark();
   const stored = useApp((s) => s.data?.config.theme);
   const presetId = useApp((s) => s.data?.config.themePreset);
   // a trip on a named preset always shows that preset's current colours, so a
@@ -42,7 +44,7 @@ function ThemeVars() {
   useEffect(() => {
     applyMode(mode);
     if (theme) applyPalette(theme.light, theme.dark, mode);
-  }, [mode, theme]);
+  }, [mode, dark, theme]);
   return null;
 }
 

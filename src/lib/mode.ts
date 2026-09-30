@@ -55,10 +55,18 @@ export function useMode(): [Mode, (m: Mode) => void] {
   return [m, setMode];
 }
 
-/** Whether dark mode is actually in effect right now (resolves "system"). */
+/** Whether dark mode is actually in effect right now (resolves "system").
+ *  Its own snapshot, so a phone switching appearance while the setting stays
+ *  "system" still re-renders (the mode string alone doesn't change). */
 export function useIsDark(): boolean {
-  const [m] = useMode();
-  return isDark(m);
+  return useSyncExternalStore(
+    (cb) => {
+      listeners.add(cb);
+      return () => listeners.delete(cb);
+    },
+    () => isDark(),
+    () => false,
+  );
 }
 
 /** Write a trip's palette to CSS custom properties for the current mode. */
