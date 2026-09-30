@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useNavigationType } from "react-router-dom";
 import { Icon } from "./Icon";
 import { Wordmark } from "./Wordmark";
 import { useData } from "@/lib/data";
@@ -17,6 +17,8 @@ import { useApp } from "@/store/useApp";
 type NavState = { back?: { to?: string }; title: string; collapsed: boolean };
 type Api = {
   state: NavState;
+  /** the title of the page this one was opened from, if it had one */
+  backTitle?: string;
   register: (v: { back?: { to?: string }; title: string }) => void;
   setCollapsed: (v: boolean) => void;
   clear: () => void;
@@ -27,22 +29,44 @@ const Ctx = createContext<Api | null>(null);
 
 export function NavProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<NavState>(EMPTY);
+  // iOS labels the back button with the screen you came from, so remember
+  // each history entry's page title and which entry it was opened from
+  const loc = useLocation();
+  const navType = useNavigationType();
+  const titles = useRef(new Map<string, string>());
+  const openedFrom = useRef(new Map<string, string>());
+  const lastKey = useRef<string | null>(null);
+  const keyRef = useRef(loc.key);
+  keyRef.current = loc.key;
+  useEffect(() => {
+    const prev = lastKey.current;
+    if (prev && prev !== loc.key) {
+      if (navType === "PUSH") openedFrom.current.set(loc.key, prev);
+      // a replace (the day stepper) keeps the page it stands in for's origin
+      else if (navType === "REPLACE" && openedFrom.current.has(prev)) openedFrom.current.set(loc.key, openedFrom.current.get(prev)!);
+    }
+    lastKey.current = loc.key;
+  }, [loc.key, navType]);
   // the actions are created once, so a page's effects that list them as
   // dependencies don't re-run (and clear the bar) every time the state changes
   const actions = useMemo(
     () => ({
-      register: (v: { back?: { to?: string }; title: string }) =>
+      register: (v: { back?: { to?: string }; title: string }) => {
+        if (v.title) titles.current.set(keyRef.current, v.title);
         setState((s) =>
           s.title === v.title && s.back?.to === v.back?.to && !!s.back === !!v.back
             ? s
             : { collapsed: s.collapsed, title: v.title, ...(v.back ? { back: v.back } : {}) },
-        ),
+        );
+      },
       setCollapsed: (collapsed: boolean) => setState((s) => (s.collapsed === collapsed ? s : { ...s, collapsed })),
       clear: () => setState(EMPTY),
     }),
     [],
   );
-  const api = useMemo<Api>(() => ({ state, ...actions }), [state, actions]);
+  const from = openedFrom.current.get(loc.key);
+  const backTitle = from ? titles.current.get(from) : undefined;
+  const api = useMemo<Api>(() => ({ state, backTitle, ...actions }), [state, backTitle, actions]);
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>;
 }
 
@@ -93,6 +117,14 @@ function TripSwitcher() {
   );
 }
 
+/** The back button's word: the screen you came from (iOS's own rule), or
+ *  plain "Back" when that title is too long to sit in the bar; on a cold
+ *  load, where going back means going to `to`, that page's name. */
+function backLabel(prevTitle: string | undefined, to: string): string {
+  if (prevTitle) return prevTitle.length <= 14 ? prevTitle : "Back";
+  return PARENT_LABEL[to] ?? "Back";
+}
+
 /** Left slot: a `‹ Parent` back button on a detail page, else the trip's brand. */
 export function NavLeft() {
   const nav = useNavBar();
@@ -111,7 +143,7 @@ export function NavLeft() {
       className="glass flex h-11 min-w-11 items-center gap-0.5 rounded-full pl-2 pr-3.5 text-[17px] text-ink transition-transform active:scale-95"
     >
       <Icon name="back" size={22} />
-      {PARENT_LABEL[to] ?? "Back"}
+      {backLabel(canGoBack ? nav?.backTitle : undefined, to)}
     </button>
   );
 }

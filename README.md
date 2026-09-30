@@ -31,7 +31,7 @@ Open the link in Safari / Chrome → **Share → Add to Home Screen**. It then o
 Getting around works like an iOS 26 app:
 - The **tab bar** floats at the bottom (Plan · Map · Logbook), with **Search** as its own round button beside it. On a wider screen the sections are a rail down the left and Search sits top right (⌘K / Ctrl+K anywhere).
 - The **trip name** top left is a menu: tap it to jump to another trip, or to Manage trips.
-- A detail page's **‹ Back** button names where it goes back to. On a day's page, **‹ ›** top right step to the day before or after (← → on a keyboard).
+- A detail page's **‹ Back** button names the screen you came from (a stay opened from *Stays* says **‹ Stays**; a long title just says **‹ Back**). A Logbook page pinned to the tab bar is a tab of its own, with no back button. On a day's page, **‹ ›** top right step to the day before or after (← → on a keyboard).
 - Your **account picture** top right opens Manage.
 
 ## Plan
@@ -271,7 +271,7 @@ The same answers are in **Help & FAQ** under "Offline & installing".
 
 ## Editing anything
 
-Tap almost any piece of text and it becomes editable on the spot. Type, tap away, done. There's no separate "edit mode". Dates and times open a picker; once a link, phone or email is filled in it turns into the real clickable thing, with a small pencil on the right of the row to edit it.
+Tap almost any piece of text and it becomes editable on the spot. Type, tap away, done. There's no separate "edit mode". Dates and times open a picker; once a link, phone or email is filled in it turns into the real clickable thing (tap a phone number to call it). In a list of details (a document, a stay's reference, Emergency) you edit it from the row's **⋯ → Edit**; elsewhere a small pencil sits on the right of the row.
 
 **Deleted something by mistake?** Every delete asks first — a confirm sheet, or on a swipe-to-delete row, a second tap on the red Delete before anything happens.
 

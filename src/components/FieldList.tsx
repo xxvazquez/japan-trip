@@ -1,4 +1,5 @@
-import { Editable } from "./Editable";
+import { useState } from "react";
+import { Editable, isLinkValue } from "./Editable";
 import { CopyButton } from "./CopyButton";
 import { undoable } from "@/store/useApp";
 import { MoneyField } from "./MoneyField";
@@ -39,6 +40,9 @@ export function FieldList({
   inset?: boolean;
 }) {
   const ro = useReadOnly();
+  // a phone / link / email row taps through, so its value is edited from the
+  // row's ⋯ menu (no pencil on every row); bumping this opens that field
+  const [editReq, setEditReq] = useState<{ id: string; n: number } | null>(null);
   const primary = (useData()?.config.currencies ?? []).filter(Boolean)[0] ?? "";
 
   // a field whose name reads as money ("Price", "Entry fee") shows the trip
@@ -139,6 +143,7 @@ export function FieldList({
             placeholder="—"
             className="row-value text-right"
             onCommit={(v) => setAt(i, { value: v })}
+            editSignal={editReq?.id === f.id ? editReq.n : 0}
           />
         )}
       </span>
@@ -146,6 +151,11 @@ export function FieldList({
           ⋯ on every row was three controls where one does */}
       <span className="flex shrink-0 items-center self-start">
       <RowMenu label="Field options">
+        {!isMoneyLabel(f.label) && isLinkValue(f.label || "Field", f.value) && (
+          <button type="button" className="menu-item" onClick={() => setEditReq((r) => ({ id: f.id, n: (r?.n ?? 0) + 1 }))}>
+            <Icon name="pencil" size={16} /> Edit
+          </button>
+        )}
         {f.value.trim() && !isMoneyLabel(f.label) && (
           <button type="button" className="menu-item" onClick={() => void copyText(f.value)}>
             <Icon name="copy" size={16} /> Copy

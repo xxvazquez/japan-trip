@@ -144,11 +144,15 @@ export function LogbookSection() {
     return <Missing title="No such section" body="That part of the Logbook isn’t here." to="/logbook" cta="Back to Logbook" />;
   }
 
+  // pinned to the tab bar, this page is a tab of its own — a root, with no
+  // back button, titled the way its tab is
+  const tab = data.config.modules.find((m) => m.enabled && m.kind === "logbook-section" && sectionSlug(m.target ?? "") === raw);
+
   return (
     <Page>
       <PageHeader
-        back="/logbook"
-        title={list ? list.title : logbookLabel(builtin!)}
+        back={tab ? undefined : "/logbook"}
+        title={tab?.label || (list ? list.title : logbookLabel(builtin!))}
         info={
           builtin === "notes" ? "A scratchpad of separate notes — shopping lists, things you keep forgetting, a phrase you want to remember. Shared with anyone the trip is shared with."
             : builtin === "documents" ? <DocumentsInfo />

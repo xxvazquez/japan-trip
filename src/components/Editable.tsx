@@ -20,6 +20,9 @@ type Base = {
   /** how a filled value reads when not being edited ("1945.64" → "1,945.64");
    *  the input itself still edits the raw value */
   format?: (v: string) => string;
+  /** a filled link / phone / email is edited from its row's menu instead of
+   *  a pencil beside it (the iOS way): bump this to open the field */
+  editSignal?: number;
 };
 
 /** `auto` inspects the value and renders it as a date picker / phone / email /
@@ -76,6 +79,13 @@ function looksLikePhone(s: string): boolean {
   return (s.match(/\d/g)?.length ?? 0) >= 7;
 }
 
+/** Whether `as: "auto"` would show this value as a tappable link / phone /
+ *  email — the rows whose edit lives in a menu, since a tap opens the link. */
+export function isLinkValue(label: string, value: string): boolean {
+  const k = resolveKind(label, value);
+  return !!value.trim() && (k === "link" || k === "tel" || k === "email");
+}
+
 /** The href a filled value links to, or null when it's not a link at all. */
 function hrefFor(kind: Kind, v: string): string | null {
   if (!v) return null;
@@ -98,7 +108,7 @@ const inputType = (kind: Kind) =>
  * links / phones / emails render as the real thing with a pencil to edit.
  */
 export function Editable(props: Props) {
-  const { value, onCommit, placeholder = "Add…", label, className = "", emptyContent } = props;
+  const { value, onCommit, placeholder = "Add…", label, className = "", emptyContent, editSignal } = props;
   const rawAs = props.as ?? "text";
   const as: Kind =
     rawAs === "auto" ? resolveKind(label, value)
@@ -118,6 +128,9 @@ export function Editable(props: Props) {
   const sheetAnchorRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => setDraft(value), [value]);
+  useEffect(() => {
+    if (editSignal) setEditing(true);
+  }, [editSignal]);
   useEffect(() => {
     if (editing && ref.current) {
       ref.current.focus();
@@ -166,14 +179,16 @@ export function Editable(props: Props) {
         >
           {as === "link" ? linkLabel(value) : value}
         </a>
-        <button
-          type="button"
-          onClick={() => setEditing(true)}
-          aria-label={`Edit ${label}`}
-          className="-my-1 shrink-0 rounded p-1 text-ink-faint hover:text-accent"
-        >
-          <Icon name="pencil" size={15} />
-        </button>
+        {editSignal === undefined && (
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            aria-label={`Edit ${label}`}
+            className="-my-1 shrink-0 rounded p-1 text-ink-faint hover:text-accent"
+          >
+            <Icon name="pencil" size={15} />
+          </button>
+        )}
       </span>
     );
   }
