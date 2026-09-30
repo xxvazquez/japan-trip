@@ -335,8 +335,9 @@ function GettingAround() {
                 to={`/journey/${j.id}`}
                 tile={<IconTile size="sm" name={MODE_ICON[mode]} tone={toneForSegmentMode(mode)} />}
                 title={<RouteLabel label={j.label || "Journey"} />}
-                meta={[times, changes > 0 && plural(changes, "change")].filter(Boolean).join(" · ") || undefined}
-                right={when && fmtDate(when, loc, { day: "numeric", month: "short" })}
+                // the date leads the sub-line rather than taking a column, so a
+                // long route ("Lake Kawaguchiko → Kyoto") gets the full width
+                meta={[when && fmtDate(when, loc, { weekday: "short", day: "numeric", month: "short" }), times, changes > 0 && plural(changes, "change")].filter(Boolean).join(" · ") || undefined}
               />
             );
           })}

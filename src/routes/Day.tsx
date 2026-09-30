@@ -937,11 +937,30 @@ function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }
       ? toStation.min + estimateTransit(haversineKm(station.lat, station.lng, nextStation.lat, nextStation.lng)) + fromNextStation.min
       : null;
   const piece = "flex min-w-0 items-start gap-1";
+  // past a long walk with a train to take, the train is the answer — lead
+  // with it and drop the hour-plus walk figure rather than stacking both
+  const showTrain = long && !!nextPlace && !!station && !!nextStation && station.name !== nextStation.name;
+  const train = showTrain && (
+    <a
+      href={gmapsRoute(`${place.lat},${place.lng}`, `${nextPlace!.lat},${nextPlace!.lng}`, "transit")}
+      target="_blank"
+      rel="noopener"
+      className={`${piece} text-accent`}
+      aria-label={`Transit directions from ${station!.name} to ${nextStation!.name}${transitTotal ? `, about ${fmtMinutes(transitTotal)} door to door` : ""}`}
+    >
+      <Icon name="train" size={12} className="mt-[3px] shrink-0" />
+      <span className="min-w-0">
+        Train: {station!.name} → {nextStation!.name}
+        {transitTotal && <> · ≈ {fmtMinutes(transitTotal)} total</>}
+      </span>
+    </a>
+  );
   return (
     <>
       {(next || (station && toStation)) && (
         <span className="meta flex flex-wrap gap-x-3 gap-y-0.5 text-[0.8125rem] text-ink-faint">
-          {next && nextPlace && (
+          {train}
+          {next && nextPlace && !showTrain && (
             <span className={piece}>
               <Icon name="walk" size={12} className="mt-[3px] shrink-0" />
               <span className="min-w-0">Walk to next stop {fmtWalk(next)}</span>
@@ -952,21 +971,6 @@ function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }
               <Icon name="train" size={12} className="mt-[3px] shrink-0" />
               <span className="min-w-0">Walk to {station.name} {fmtWalk(toStation)}</span>
             </span>
-          )}
-          {long && nextPlace && station && nextStation && station.name !== nextStation.name && (
-            <a
-              href={gmapsRoute(`${place.lat},${place.lng}`, `${nextPlace.lat},${nextPlace.lng}`, "transit")}
-              target="_blank"
-              rel="noopener"
-              className={`${piece} text-accent`}
-              aria-label={`Transit directions from ${station.name} to ${nextStation.name}${transitTotal ? `, about ${fmtMinutes(transitTotal)} door to door` : ""}`}
-            >
-              <Icon name="train" size={12} className="mt-[3px] shrink-0" />
-              <span className="min-w-0">
-                Train: {station.name} → {nextStation.name}
-                {transitTotal && <> · ≈ {fmtMinutes(transitTotal)} total</>}
-              </span>
-            </a>
           )}
         </span>
       )}
