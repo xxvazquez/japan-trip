@@ -67,7 +67,7 @@ export default function Plan() {
             <p className="lead">No travel dates yet</p>
             <p className="meta mt-2">
               Set the start and end in{" "}
-              <Link to="/manage?tab=setup" className="text-accent hover:opacity-70">Setup</Link>
+              <Link to="/manage/setup" className="text-accent hover:opacity-70">Setup</Link>
               {" "}— then the countdown and the day-by-day fill in.
             </p>
           </>
@@ -102,7 +102,7 @@ export default function Plan() {
         <Empty
           what="No stays yet"
           hint="Add where you’re based, and the days slot underneath."
-          to="/manage"
+          to="/manage/content?section=legs"
           cta="Set up stays"
         />
       ) : (

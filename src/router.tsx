@@ -31,6 +31,7 @@ export const router = createBrowserRouter([
       { path: "logbook/documents/:id", element: <Document /> },
       { path: "hotel/:id", element: <Hotel /> },
       { path: "manage", element: <Manage /> },
+      { path: "manage/:panel", element: <Manage /> },
       { path: "help", element: <Help /> },
       { path: "*", element: <NotFound /> },
     ],

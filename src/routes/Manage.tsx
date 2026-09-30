@@ -1,9 +1,12 @@
 import { useRef, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
-import { Icon } from "@/components/Icon";
+import { Icon, type IconName } from "@/components/Icon";
+import { IconTile } from "@/components/IconTile";
+import { TileRow } from "@/components/TileRow";
+import type { Tone } from "@/lib/tones";
 import { useApp, undoable } from "@/store/useApp";
 import { useData } from "@/lib/data";
 import { useAsyncAction } from "@/lib/useAsyncAction";
@@ -43,35 +46,78 @@ import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
 import { useEffect } from "react";
 import type { Day, EntityType, ExpenseCategory, TripData } from "@/core/types";
 
-type TabId = "trips" | "setup" | "content" | "appearance" | "sharing";
-const TABS: TabId[] = ["trips", "setup", "content", "appearance", "sharing"];
-const TAB_LABEL: Record<TabId, string> = {
-  trips: "Trips",
-  setup: "Setup",
-  content: "Content",
-  appearance: "Look",
-  sharing: "Sharing",
-};
+type PanelId = "trips" | "setup" | "content" | "appearance" | "sharing";
+const PANELS: { id: PanelId; label: string; icon: IconName; tone: Tone }[] = [
+  { id: "trips", label: "Trips", icon: "itinerary", tone: "accent" },
+  { id: "setup", label: "Setup", icon: "calendar", tone: "ai" },
+  { id: "content", label: "Content", icon: "list", tone: "gold" },
+  { id: "appearance", label: "Look", icon: "sun", tone: "matcha" },
+  { id: "sharing", label: "Sharing", icon: "person", tone: "accent" },
+];
 
+/** Manage is an iOS Settings list: the account on top, then one row per
+ *  panel, each opening on its own page (`/manage/<panel>`). An old
+ *  `?tab=<panel>` link lands on that panel's page. */
 export default function Manage() {
+  const { panel } = useParams();
   const [params] = useSearchParams();
-  const wanted = params.get("tab") as TabId | null;
-  const [tab, setTab] = useState<TabId>(wanted && TABS.includes(wanted) ? wanted : "trips");
+  const legacy = params.get("tab");
+  if (!panel && legacy && PANELS.some((p) => p.id === legacy)) {
+    const rest = new URLSearchParams(params);
+    rest.delete("tab");
+    const q = rest.toString();
+    return <Navigate to={`/manage/${legacy}${q ? `?${q}` : ""}`} replace />;
+  }
+  if (!panel) return <ManageIndex />;
+  const meta = PANELS.find((p) => p.id === panel);
+  if (!meta) return <Navigate to="/manage" replace />;
   return (
     <Page width="form">
-      <PageHeader title="Manage" className="mb-4" />
-      <SegmentedControl
-        className="mb-6"
-        value={tab}
-        onChange={setTab}
-        options={TABS.map((t) => ({ value: t, label: TAB_LABEL[t] }))}
-      />
-      {tab === "trips" && <Trips />}
-      {tab === "setup" && <Setup />}
-      {tab === "content" && <Content />}
-      {tab === "appearance" && <Appearance />}
-      {tab === "sharing" && <SharingTab />}
+      <PageHeader back="/manage" title={meta.label} className="mb-6" />
+      {panel === "trips" && <Trips />}
+      {panel === "setup" && <Setup />}
+      {panel === "content" && <Content />}
+      {panel === "appearance" && <Appearance />}
+      {panel === "sharing" && <SharingTab />}
+    </Page>
+  );
+}
 
+function ManageIndex() {
+  const trips = useApp((s) => s.trips);
+  const live = trips.filter((t) => !t.archived).length;
+  const tripPanels = PANELS.filter((p) => p.id !== "trips");
+  const trip = PANELS[0];
+  return (
+    <Page width="form">
+      <PageHeader title="Manage" className="mb-6" />
+      <div className="space-y-6">
+        <Section>
+          <AccountCard />
+        </Section>
+        <Section>
+          <ul>
+            <TileRow to="/manage/trips" tile={<IconTile name={trip.icon} tone={trip.tone} />} title={trip.label} right={live || undefined} />
+          </ul>
+        </Section>
+        <Section>
+          <ul>
+            {tripPanels.map((p) => (
+              <TileRow
+                key={p.id}
+                to={`/manage/${p.id}`}
+                tile={<IconTile name={p.icon} tone={p.tone} />}
+                title={p.label}
+              />
+            ))}
+          </ul>
+        </Section>
+        <Section>
+          <ul>
+            <TileRow to="/help" tile={<IconTile name="info" tone="ink-faint" />} title="Help & FAQ" />
+          </ul>
+        </Section>
+      </div>
       <AppFooter />
     </Page>
   );
@@ -94,7 +140,7 @@ function AppFooter() {
         <span className="font-display text-sm font-medium tracking-tight text-ink-soft">{APP_NAME}</span>
       </div>
       <p className="mt-1 text-2xs">
-        {APP_TAGLINE} · <Link to="/help" className="text-accent">Help &amp; FAQ</Link>
+        {APP_TAGLINE}
       </p>
       <p className="mt-1 text-2xs tabular-nums" title="The build this device is running">
         Version {APP_BUILD.version} · Build {APP_BUILD.commit} · {new Date(APP_BUILD.built).toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
@@ -152,9 +198,6 @@ function Trips() {
 
   return (
     <div className="space-y-6">
-      <Section>
-        <AccountCard />
-      </Section>
       {!creating ? (
         <Section>
           <ul>

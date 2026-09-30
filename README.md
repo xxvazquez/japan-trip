@@ -18,7 +18,7 @@ Everything for the trip in one place — the plan, the map, the hotels, the lugg
 ## Getting in
 
 1. Open the link. Sign in with **Google** — each person uses their **own** Google account.
-   - Or tap **Use on this device only** to skip the account entirely: the trip stays on that one device and doesn't sync. **Manage → Trips → Sign in to sync** switches back later.
+   - Or tap **Use on this device only** to skip the account entirely: the trip stays on that one device and doesn't sync. **Sign in to sync** at the top of Manage switches back later.
 2. New accounts start with just the read-only **Demo** trip. Make your real one from **Manage → New trip → Empty template**.
 3. One account owns that trip. From it, go to **Manage → Sharing** and add the other person's email — then you both see and edit the **same trip**, and changes show up on the other device within a second or two.
 
@@ -211,9 +211,9 @@ Totals every price in the trip (a stay's price, a journey's fare, a day's spendi
 - List the **currencies** the trip uses — the first is the default (a new trip starts on `PLN`), so every price field shows its symbol and a bare `100` counts as it; tapping a price opens an amount pad (a keypad, no typing), with a currency switch on it once the trip lists a second currency. A price reads the same while you edit it as everywhere else ("zł 1,946", "€18").
 - Edit the **expense categories**: rename, add, and reorder or remove from each row's **⋯** — the list can't be emptied, and removing one moves its spending to the next category rather than leaving it uncategorised. A category can also claim specific hop modes so fares split further than one lump "Transport". Each one's **icon** is guessed from that mode/role or the name — tap the icon itself to pick your own instead, from a searchable grid of 130+ icons grouped into categories.
 - **Local-script font** (under Map & format) sets the typeface for a hotel/stay's local-script name — paste a CSS font stack, e.g. `Hiragino Sans, Yu Gothic, sans-serif` for Japanese, or `Noto Sans KR, sans-serif` for Korean. Leave it blank to use the app's regular font.
-- Hide the Logbook sections you don't need, from the same Setup tab.
+- Hide the Logbook sections you don't need, from the same Setup page.
 - The **Tabs** panel above it reorders, renames or hides the three main tabs (Plan, Map, Logbook) — and **Add tab** lets you pin any Logbook page (Packing, say) straight onto the main nav as its own tab; hiding a pinned page's Logbook section disables its tab too, so there's never a dead link.
-- A **Help & FAQ** link sits at the bottom of every Manage tab — plain-language answers to the non-obvious bits ("modes", Custom vs. a place in Plan, Areas vs. categories, My Maps sync…).
+- A **Help & FAQ** row sits at the bottom of the Manage list — plain-language answers to the non-obvious bits ("modes", Custom vs. a place in Plan, Areas vs. categories, My Maps sync…).
 
 **Light or dark** is set per device under *Manage → Look → Appearance* — *Automatic* follows the phone's own setting. It works on the demo trip too, since it isn't part of any trip.
 
@@ -285,7 +285,7 @@ When you're signed in, a small label beside the buttons top right shows what's h
 
 Every account has a read-only **Demo** trip — a made-up example with notes explaining how each screen works. You can't edit it; it's just there to look at. Delete it whenever from Manage → Trips (and re-add it from the same place).
 
-**Manage** (your account picture, top right on every screen — or its own spot at the foot of the sidebar on a wider screen) is only for bigger structural changes — adding or removing days, changing trip dates, theme, sharing. Its first card is your account: who's signed in and whether it's synced, with Sign out — or, when you're not signed in, **Sign in with Google** (the picture carries a small dot until you do).
+**Manage** (your account picture, top right on every screen — or its own spot at the foot of the sidebar on a wider screen) is only for bigger structural changes — adding or removing days, changing trip dates, theme, sharing. Its first card is your account: who's signed in and whether it's synced, with Sign out — or, when you're not signed in, **Sign in with Google** (the picture carries a small dot until you do). Below it, Manage is a Settings-style list — **Trips**, then **Setup**, **Content**, **Look** and **Sharing** for the open trip — each row opening its own page.
 
 ## Offline
 
