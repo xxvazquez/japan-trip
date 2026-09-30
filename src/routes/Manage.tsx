@@ -24,7 +24,6 @@ import { SegmentedControl } from "@/components/SegmentedControl";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { TimeZonePicker } from "@/components/TimeZonePicker";
 import { RowSelect } from "@/components/RowSelect";
-import { ConfirmButton } from "@/components/ConfirmButton";
 import { entityLink } from "@/lib/entityLink";
 import { OPTIONAL_LOGBOOK_SECTIONS, LOGBOOK_SECTIONS, LOGBOOK_NAV_ICON, logbookLabel } from "@/lib/logbook";
 import { ActionSheet, useActionSheet, ConfirmMenuItem } from "@/components/ActionSheet";
@@ -443,13 +442,9 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
               {m.userId !== me && m.name && m.email && <span className="meta block break-all">{m.email}</span>}
             </span>
             {iAmOwner && m.role !== "owner" && (
-              <ConfirmButton
-                label="Remove access"
-                onConfirm={() => removeMember(tripId, m.userId).then(reload)}
-                className="shrink-0 text-xs text-ink-faint hover:text-accent"
-              >
-                <Icon name="trash" size={13} />
-              </ConfirmButton>
+              <RowMenu label="Member options">
+                <ConfirmMenuItem onConfirm={() => void removeMember(tripId, m.userId).then(reload)} label="Remove access" />
+              </RowMenu>
             )}
           </li>
         ))}
@@ -991,9 +986,9 @@ function LogbookSectionsPanel() {
               <Editable label="List name" value={l.title} onCommit={(v) => mutate((d) => { const x = d.config.lists?.[i]; if (x) x.title = v || "List"; })} />
             </span>
             <span className="value shrink-0 tabular-nums text-ink-soft">{l.items.length}</span>
-            <ConfirmButton onConfirm={() => undoable("List deleted", () => mutate((d) => { d.config.lists = (d.config.lists ?? []).filter((x) => x.id !== l.id); }))} className="text-ink-faint hover:text-accent">
-              <Icon name="trash" size={14} />
-            </ConfirmButton>
+            <RowMenu label="List options">
+              <ConfirmMenuItem onConfirm={() => undoable("List deleted", () => mutate((d) => { d.config.lists = (d.config.lists ?? []).filter((x) => x.id !== l.id); }))} label="Delete list" />
+            </RowMenu>
           </li>
         ))}
       </ul>
@@ -1295,13 +1290,16 @@ function Content() {
                 return (
                   <li key={x.id} className="border-b border-line py-2 text-sm last:border-b-0">
                     <div className="flex items-center gap-2">
-                      <button disabled={i === 0} onClick={() => moveEntity(type, x.id, -1)} className="text-ink-faint disabled:opacity-25" aria-label="Up"><Icon name="up" size={14} /></button>
-                      <button disabled={i === list.length - 1} onClick={() => moveEntity(type, x.id, 1)} className="text-ink-faint disabled:opacity-25" aria-label="Down"><Icon name="down" size={14} /></button>
                       <span className="min-w-0 flex-1 break-words">
                         {href ? <Link to={href} className="hover:text-accent">{nameOf(rec)}</Link> : nameOf(rec)}
                       </span>
-                      <button onClick={() => addEntity(type, { ...structuredClone(rec), id: crypto.randomUUID?.() ?? `${type}-${rid()}` } as { id: string })} className="text-ink-faint hover:text-ink-soft" aria-label="Duplicate"><Icon name="copy" size={14} /></button>
-                      <ConfirmButton onConfirm={() => undoable("Deleted", () => removeEntity(type, x.id))} className="text-ink-faint hover:text-accent"><Icon name="trash" size={14} /></ConfirmButton>
+                      {/* one ⋯ per row instead of four bare icons */}
+                      <RowMenu label="Options">
+                        <button type="button" className="menu-item" disabled={i === 0} onClick={() => moveEntity(type, x.id, -1)}>Move up</button>
+                        <button type="button" className="menu-item" disabled={i === list.length - 1} onClick={() => moveEntity(type, x.id, 1)}>Move down</button>
+                        <button type="button" className="menu-item" onClick={() => addEntity(type, { ...structuredClone(rec), id: crypto.randomUUID?.() ?? `${type}-${rid()}` } as { id: string })}>Duplicate</button>
+                        <ConfirmMenuItem onConfirm={() => undoable("Deleted", () => removeEntity(type, x.id))} label="Delete" />
+                      </RowMenu>
                     </div>
                     {links && <p className="mt-1 pl-[3.25rem] text-2xs text-ink-faint">{links}</p>}
                   </li>

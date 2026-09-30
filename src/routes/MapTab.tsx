@@ -7,7 +7,8 @@ import { Icon } from "@/components/Icon";
 import { IconTile } from "@/components/IconTile";
 import { InfoNote } from "@/components/InfoNote";
 import { ConfirmButton } from "@/components/ConfirmButton";
-import { ActionSheet, useActionSheet } from "@/components/ActionSheet";
+import { ActionSheet, ConfirmMenuItem, useActionSheet } from "@/components/ActionSheet";
+import { RowMenu } from "@/components/RowMenu";
 import { INSET_DIVIDER } from "@/components/InsetRow";
 import { RowSelect } from "@/components/RowSelect";
 import { useData } from "@/lib/data";
@@ -1278,9 +1279,9 @@ export default function MapTab() {
                         <Editable label="Area name" value={a.name} placeholder="Area name" onCommit={(v) => updateEntity<Area>("areas", a.id, { name: v.trim() || "Untitled" })} />
                       </span>
                       <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{plural(a.placeIds.length, "place")}</span>
-                      <ConfirmButton onConfirm={() => undoable("Area deleted", () => removeEntity("areas", a.id))} className="shrink-0 text-ink-faint hover:text-accent">
-                        <Icon name="trash" size={13} />
-                      </ConfirmButton>
+                      <RowMenu label="Area options">
+                        <ConfirmMenuItem onConfirm={() => undoable("Area deleted", () => removeEntity("areas", a.id))} label="Delete area" />
+                      </RowMenu>
                     </li>
                   ))}
               </ul>
