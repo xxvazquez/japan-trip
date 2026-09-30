@@ -92,6 +92,10 @@ export interface TripConfig {
   /** place categories whose pins stay on the map when zoomed far out — drawn
    *  on top and never folded into a numbered cluster (e.g. the hotel) */
   pinnedCategories?: string[];
+  /** days fixed to their date (a holiday, a booked tour): Plan shows a pin
+   *  instead of a drag handle, and reordering the other days flows around
+   *  them without moving them */
+  pinnedDays?: ID[];
   /** a public Google "My Maps" link — its pins are imported into `places` */
   mapSourceUrl?: string;
   /** ISO timestamp of the last My Maps import */

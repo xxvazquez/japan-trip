@@ -42,6 +42,7 @@ export type IconName =
   | "link"
   | "download"
   | "grip"
+  | "pushpin"
   | "more"
   | "seat"
   | "door"
@@ -229,6 +230,12 @@ const P: Record<IconName, JSX.Element> = {
     <>
       <path d="M12 4v11M8 11l4 4 4-4" />
       <path d="M5 19h14" />
+    </>
+  ),
+  pushpin: (
+    <>
+      <path d="M14.2 3.8 20.2 9.8l-1.9.7-3.4 3.4.3 3.8-1.4 1.4-8.9-8.9 1.4-1.4 3.8.3 3.4-3.4.7-1.9Z" />
+      <path d="m9.3 14.7-4.8 4.8" />
     </>
   ),
   grip: (

@@ -238,3 +238,26 @@ describe("trips: delete, restore, import", () => {
     expect(reasons).toContain("before-restore");
   });
 });
+
+describe("plan: pinned days", () => {
+  it("reordering the other days flows around a pinned day, which keeps its date", async () => {
+    const a = await boot();
+    a.s().mutate((d) => { d.config.demo = false; });
+    const days = [...a.s().data!.days].sort((x, y) => x.date.localeCompare(y.date));
+    expect(days.length).toBeGreaterThanOrEqual(3);
+    const [first, mid, third] = days;
+    const firstDate = first.date, midDate = mid.date;
+    a.s().mutateTrip((d) => { d.config.pinnedDays = [mid.id]; });
+    // drag the first day to the very end of the trip
+    const legs = a.s().data!.legs;
+    const arrangement = legs.map((l, li) => {
+      const ids = days.filter((d) => d.legId === l.id).map((d) => d.id).filter((id) => id !== first.id);
+      return { legId: l.id, dayIds: li === legs.length - 1 ? [...ids, first.id] : ids };
+    });
+    a.s().reorderDays(arrangement);
+    const after = (id: string) => a.s().data!.days.find((d) => d.id === id)!.date;
+    expect(after(mid.id)).toBe(midDate); // pinned: untouched
+    expect(after(third.id)).toBe(firstDate); // took the first free date
+    expect(after(first.id)).toBe(days[days.length - 1].date); // now last
+  });
+});

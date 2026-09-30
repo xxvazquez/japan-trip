@@ -330,14 +330,21 @@ const DAY_ROW_LI =
   "relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
 
 function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day: Day; today: boolean; loc: string; readOnly: boolean; hex: string }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: day.id, disabled: readOnly });
+  const pinned = (data.config.pinnedDays ?? []).includes(day.id);
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: day.id, disabled: readOnly || pinned });
   return (
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={`${DAY_ROW_LI} flex items-center ${isDragging ? "z-10 bg-surface opacity-70 shadow-sm" : ""}`}
     >
-      {!readOnly && (
+      {!readOnly && (pinned ? (
+        // fixed to its date — a pin where the handle was; unpin on the day's page
+        <span className="shrink-0 py-3 pl-3 pr-1 text-ink-faint" title="Pinned to its date">
+          <Icon name="pushpin" size={14} />
+          <span className="sr-only">Pinned to its date</span>
+        </span>
+      ) : (
         <button
           {...attributes}
           {...listeners}
@@ -346,7 +353,7 @@ function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day:
         >
           <Icon name="grip" size={14} />
         </button>
-      )}
+      ))}
       <Link
         to={`/day/${day.id}`}
         className={`group flex min-w-0 flex-1 items-center gap-3 py-3 pr-3.5 ${readOnly ? "pl-3.5" : "pl-1"}`}

@@ -95,6 +95,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const updateEntity = useApp((s) => s.updateEntity);
   const addEntity = useApp((s) => s.addEntity);
   const removeEntity = useApp((s) => s.removeEntity);
+  const mutateTrip = useApp((s) => s.mutateTrip);
   const nav = useNavigate();
   const [, setParams] = useSearchParams();
   const { active: splitActive } = useSplit();
@@ -104,6 +105,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
 
   const L = lookups(data);
   const patch = (p: Partial<DayT>) => updateEntity<DayT>("days", day.id, p);
+  const pinned = (data.config.pinnedDays ?? []).includes(day.id);
   const leg = L.leg(day.legId);
   const hotel = L.hotel(day.hotelId);
   const journey = L.journey(day.journeyId);
@@ -450,6 +452,16 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         <Section className="mt-8">
           <ul>
             {!day.dayTrip && <ActionRow icon="plus" label="Make this a day trip" onClick={() => patch({ dayTrip: true })} />}
+            <ActionRow
+              icon="pushpin"
+              label={pinned ? "Unpin this day" : "Pin this day"}
+              hint={pinned ? undefined : "keeps it on its date when others move"}
+              onClick={() => mutateTrip((d) => {
+                const ids = new Set(d.config.pinnedDays ?? []);
+                if (ids.has(day.id)) ids.delete(day.id); else ids.add(day.id);
+                d.config.pinnedDays = ids.size ? [...ids] : undefined;
+              })}
+            />
             <li className={INSET_DIVIDER}>
               <ConfirmButton
                 label="Delete day"

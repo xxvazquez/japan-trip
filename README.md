@@ -39,6 +39,7 @@ Getting around works like an iOS 26 app:
 The trip as a list of days, grouped by where you're staying. Each day carries a tag — **Arrive**, **Travel**, **Depart**, **Day trip** — worked out automatically from what you set on the day itself, never chosen by hand.
 
 - Drag a day up or down to **reorder** it (the dates shuffle with it).
+- **Pin a day** that's fixed to its date (a public holiday, a booked tour) from the foot of its page: on Plan its drag handle becomes a pin, and reordering the other days flows around it without moving it. **Unpin this day** in the same place undoes it.
 - Tap a day to open it. At the top: **Staying at** (which hotel) and **Journey** (link an existing one, or ＋ new — you then pick its type on the journey page).
 - If that day's hotel has coordinates, its header line shows the day's forecast (e.g. "Showers, 19–24°C") — free, no key needed (Open-Meteo). Forecasts only exist for the next ~16 days, so a day further out just shows nothing yet rather than a guess; it starts appearing on its own as the trip gets closer.
 - A **day trip** leads with a **Getting there** and a **Getting back** card (free text, the last way home folded into the back one).

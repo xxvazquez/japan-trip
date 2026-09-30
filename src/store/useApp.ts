@@ -1544,10 +1544,16 @@ export const useApp = create<AppStore>((set, get) => {
         }
         if (flat.length !== d.days.length) { valid = false; return; } // arrangement must cover every day exactly once
 
-        // keep the trip's span fixed — re-use the same pool of dates, in order
-        const dates = d.days.map((x) => x.date).sort();
-        flat.forEach(({ day, legId }, i) => {
-          if (day.date !== dates[i]) { day.date = dates[i]; mark(day.id); }
+        // keep the trip's span fixed — re-use the same pool of dates, in order.
+        // A pinned day keeps its own date; the others fill the dates around it
+        const pinned = new Set(d.config.pinnedDays ?? []);
+        const dates = d.days.filter((x) => !pinned.has(x.id)).map((x) => x.date).sort();
+        let next = 0;
+        flat.forEach(({ day, legId }) => {
+          if (!pinned.has(day.id)) {
+            const date = dates[next++];
+            if (day.date !== date) { day.date = date; mark(day.id); }
+          }
           if (day.legId !== legId) {
             day.legId = legId;
             const destHotel = d.legs.find((l) => l.id === legId)?.hotelId;
