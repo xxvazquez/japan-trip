@@ -34,6 +34,7 @@ import { toneForPlaceCategory } from "@/lib/tones";
 import { areaLeg } from "@/lib/cityAssign";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { DayStepper } from "@/components/DayStepper";
+import { DayLabels, tripLabels } from "@/components/DayLabels";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
@@ -111,6 +112,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const journey = L.journey(day.journeyId);
   const loc = data.config.locale;
   const setPlan = (next: PlanItem[]) => patch({ plan: next.length ? next : undefined });
+  const usedLabels = useMemo(() => tripLabels(data.days), [data.days]);
   // areas offered by "+ Add area" — scoped to this day's own city, the way
   // the Map draws it (a day trip to Nara offers Nara's areas, not the base
   // city's), so a multi-city trip doesn't dump every area into one list;
@@ -240,6 +242,13 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             <span className="sr-only">{icsBusy ? "Building calendar file…" : "Add to calendar"}</span>
           </button>
         }
+      />
+
+      <DayLabels
+        labels={day.labels ?? []}
+        used={usedLabels}
+        readOnly={ro}
+        onChange={(next) => patch({ labels: next.length ? next : undefined })}
       />
 
       {ro ? (

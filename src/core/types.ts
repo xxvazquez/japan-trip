@@ -325,6 +325,9 @@ export interface Day {
    *  Each row picks an `ExpenseCategory`; the amount rolls up under it in the
    *  Expenses view. */
   costs?: DayCost[];
+  /** the day's own free-text labels ("chill day", "walking"), shown on its
+   *  row in Plan. Absent when it has none. */
+  labels?: string[];
 }
 
 export interface DayCost {

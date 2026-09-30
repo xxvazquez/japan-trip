@@ -39,6 +39,7 @@ Getting around works like an iOS 26 app:
 The trip as a list of days, grouped by where you're staying. Each day carries a tag — **Arrive**, **Travel**, **Depart**, **Day trip** — worked out automatically from what you set on the day itself, never chosen by hand.
 
 - Drag a day up or down to **reorder** it (the dates shuffle with it).
+- **Labels** — give a day your own labels ("Chill day", "Walking", anything) with **+ Add a label** under its title; they show beside the day on Plan. The + offers the labels you've already used in the trip, so reusing one is a tap; **New label…** is for a new one. Remove one with its ✕ (undoable). Needs migration `0032`.
 - The days set the dates: each stay runs from its first day to its last, and the trip from the first day to the last. **Add a day** fills the earliest empty date in the trip (one left by a deleted day), otherwise goes after the last day. **Delete day** leaves the other days where they are — only a first or last day shortens its stay or the trip. A stay's start and end show on its page but aren't edited there once it has days.
 - A hotel's page and the Logbook's Stays list show its real dates — check-in to check-out, the morning you leave, not the stay's last night — with the nights count; its check-in/out rows pair each date with the time.
 - **Pin a day** that's fixed to its date (a public holiday, a booked tour) from the foot of its page: on Plan its drag handle becomes a pin, and reordering the other days flows around it without moving it. **Unpin this day** in the same place undoes it.
@@ -374,7 +375,7 @@ All optional — with nothing set the app runs fully local.
 ## Setting up Supabase
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. **SQL Editor** → run every file in `supabase/migrations/` **in order** (`0001` → `0031`).
+2. **SQL Editor** → run every file in `supabase/migrations/` **in order** (`0001` → `0032`).
 3. **Authentication → Providers → Google** → enable, paste a Google Cloud OAuth client id / secret, redirect `https://<project-ref>.supabase.co/auth/v1/callback`.
 4. **Authentication → URL Configuration → Redirect URLs** → add `http://localhost:5173` and the deployed URL.
 5. Put the Project URL + anon key (**Project Settings → API**) in `.env.local`.

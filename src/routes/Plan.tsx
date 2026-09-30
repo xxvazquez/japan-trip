@@ -304,10 +304,19 @@ function DayDate({ date, loc, strong }: { date: string; loc: string; strong?: bo
  *  narrow phone. Identical in the live row and the drag overlay. */
 function DayKindTag({ day, data }: { day: Day; data: TripData }) {
   const k = KIND[dayKind(day, data)];
-  if (!k) return null;
+  const labels = day.labels ?? [];
+  if (!k && labels.length === 0) return null;
   return (
-    <span className="mt-0.5 flex items-center gap-1 text-xs text-ink-soft">
-      <Icon name={k.icon} size={12} /> {k.label}
+    <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-soft">
+      {k && (
+        <span className="flex items-center gap-1">
+          <Icon name={k.icon} size={12} /> {k.label}
+        </span>
+      )}
+      {/* the day's own labels ("chill day") — quiet chips beside the kind */}
+      {labels.map((l) => (
+        <span key={l} className="break-words rounded-[6px] bg-surface-2 px-1.5 py-px">{l}</span>
+      ))}
     </span>
   );
 }

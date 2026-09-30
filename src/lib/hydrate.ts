@@ -3,7 +3,7 @@ import { mapUrlCoords } from "./maps";
 import type { Day, Doc, DocField, ExpenseCategory, Hotel, ModuleConfig, PlanItem, ThemeTokens, TripData } from "@/core/types";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
-export const SCHEMA_VERSION = 10;
+export const SCHEMA_VERSION = 11;
 
 /** Seed expense categories for a new trip. `role: "transport"` is the catch-all
  *  for any fare whose mode isn't claimed below (ferry, car, walk, or a manual
@@ -311,6 +311,13 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
           ...(c.currency ? { currency: c.currency } : {}),
         }))
       : [];
+    // v11: labels — trimmed, no blanks or repeats; the key is dropped when
+    // there are none, so a day without labels never writes the column
+    const labels = Array.isArray(day.labels)
+      ? [...new Set(day.labels.filter((l): l is string => typeof l === "string").map((l) => l.trim()).filter(Boolean))]
+      : [];
+    if (labels.length) day.labels = labels;
+    else delete day.labels;
   }
 
   // every doc has a `fields` array, and every field a stable id (older rows and

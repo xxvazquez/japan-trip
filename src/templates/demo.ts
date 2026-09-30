@@ -89,6 +89,7 @@ export function buildDemo(): TripData {
         legId: "leg-river",
         hotelId: "h-river",
         title: "A full day",
+        labels: ["Walking"],
         plan: [
           { id: "d2-p1", time: "08:30", text: "Coffee before anything else", placeId: "pl-1" },
           { id: "d2-p2", time: "10:00", text: "Museum when it opens", placeId: "pl-2", note: "Free on the first Sunday." },

@@ -88,3 +88,14 @@ describe("normalizeTrip migrations", () => {
     expect(d.config.theme.dark.accent).toBe("#123456");
   });
 });
+
+describe("day labels", () => {
+  it("are trimmed and de-duplicated, and dropped when there are none", () => {
+    const raw = legacy();
+    (raw.days as Record<string, unknown>[])[0].labels = [" Walking ", "", "Walking", "Chill day", 5];
+    (raw.days as Record<string, unknown>[])[1].labels = [];
+    const t = normalizeTrip(raw as never) as TripData;
+    expect(t.days[0].labels).toEqual(["Walking", "Chill day"]);
+    expect("labels" in t.days[1]).toBe(false);
+  });
+});
