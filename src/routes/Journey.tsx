@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
@@ -15,8 +15,8 @@ import { ConfirmButton } from "@/components/ConfirmButton";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { fmtDate, journeyDepartDate, plural, segEndpoints } from "@/lib/dates";
-import { clockOf, fmtDuration, fmtMinutes, localMinutes } from "@/lib/time";
+import { addDays, daysBetween, fmtDate, journeyDepartDate, plural, segEndpoints } from "@/lib/dates";
+import { clockOf, fmtDuration, fmtMinutes, localMinutes, parseLocal } from "@/lib/time";
 import { MODE_LABEL, MODE_ICON, MODE_TONE } from "@/lib/transport";
 import { journeyFare, hopsPriced, fmtMoney, cleanAmount, fmtFare } from "@/lib/cost";
 import { splitRoute, joinRoute, JOURNEY_KIND_LABEL } from "@/lib/journey";
@@ -157,19 +157,35 @@ export default function Journey() {
         {j.segments.length === 0 && <p className="text-sm text-ink-faint">No hops yet.</p>}
         {j.segments.map((s, i) => {
           const next = j.segments[i + 1];
-          const rawGap = next && s.arrive && next.depart ? localMinutes(next.depart)! - localMinutes(s.arrive)! : null;
+          const rawGap = next && clockOf(s.arrive) && clockOf(next.depart) ? localMinutes(next.depart)! - localMinutes(s.arrive)! : null;
           // A negative gap means the change runs past midnight (times often lack a
           // date and get merged onto the journey day). Wrap into the next day.
           const overnight = rawGap != null && rawGap < 0;
           const gap = rawGap == null ? null : overnight ? rawGap + 1440 : rawGap;
           const dur = fmtDuration(s.depart, s.arrive);
           const ep = segEndpoints(s, day, loc);
-          const offDay = [
-            ep.depart.date && `departs ${ep.depart.date}`,
-            ep.arrive.date && `arrives ${ep.arrive.date}`,
-          ]
-            .filter(Boolean)
-            .join("  ·  ");
+          // the date each end falls on: a hop's own, else carried from the hop
+          // before it (or the journey's day) so a new time lands on the right day
+          const prevDate = parseLocal(j.segments[i - 1]?.arrive)?.date ?? parseLocal(j.segments[i - 1]?.depart)?.date;
+          const departDate = parseLocal(s.depart)?.date;
+          const arriveDate = parseLocal(s.arrive)?.date;
+          const departFallback = departDate ?? prevDate ?? day ?? j.date;
+          const arriveFallback = arriveDate ?? departFallback;
+          // moving the departure day moves the arrival with it, so the hop keeps its length
+          const setDepartDate = (v: string) => {
+            if (!v) return;
+            const delta = departDate ? daysBetween(departDate, v) : 0;
+            setSeg(i, {
+              depart: `${v}${clockOf(s.depart) ? `T${clockOf(s.depart)}` : ""}`,
+              ...(arriveDate && delta ? { arrive: `${addDays(arriveDate, delta)}${clockOf(s.arrive) ? `T${clockOf(s.arrive)}` : ""}` } : {}),
+            });
+          };
+          const setArriveDate = (v: string) => {
+            if (v) setSeg(i, { arrive: `${v}${clockOf(s.arrive) ? `T${clockOf(s.arrive)}` : ""}` });
+          };
+          // the arrival day only shows when it isn't the departure day (an
+          // overnight hop), or while editing a hop that already has an arrival
+          const showArriveDate = !!arriveDate && (arriveDate !== departDate || !ro);
           const foot = s.mode === "walk";
           // which fields are worth offering for this mode when editing — an
           // already-filled value always shows regardless
@@ -275,7 +291,7 @@ export default function Journey() {
                   )}
                   {(s.depart || !ro) && (
                     <div className="flex shrink-0 items-center gap-0.5">
-                      {s.depart && (
+                      {clockOf(s.depart) && (
                         <button
                           type="button"
                           onClick={() => {
@@ -308,10 +324,13 @@ export default function Journey() {
                       {ro ? (
                         clockOf(s.depart) || "--:--"
                       ) : (
-                        <Editable as="time" label="Depart time" value={clockOf(s.depart)} placeholder="--:--" onCommit={(v) => setSeg(i, { depart: mergeTime(s.depart, j.date, v) })} />
+                        <Editable as="time" label="Depart time" value={clockOf(s.depart)} placeholder="--:--" onCommit={(v) => setSeg(i, { depart: mergeTime(s.depart, departFallback, v) })} />
                       )}
                       {ep.depart.zone && <span className="ml-1 align-middle text-xs text-ink-faint">{ep.depart.zone}</span>}
                     </span>
+                    {(departDate || !ro) && (
+                      <HopDate label="Departure date" value={departDate ?? ""} fallback={departFallback} loc={loc} ro={ro} onCommit={setDepartDate} />
+                    )}
                     {ro && s.from && <p className="meta mt-1 text-ink-faint">{s.from}</p>}
                   </div>
                   <div className="relative mt-[0.6rem] h-2 flex-1">
@@ -329,14 +348,16 @@ export default function Journey() {
                       {ro ? (
                         clockOf(s.arrive) || "--:--"
                       ) : (
-                        <Editable as="time" label="Arrive time" value={clockOf(s.arrive)} placeholder="--:--" onCommit={(v) => setSeg(i, { arrive: mergeTime(s.arrive, j.date, v) })} />
+                        <Editable as="time" label="Arrive time" value={clockOf(s.arrive)} placeholder="--:--" onCommit={(v) => setSeg(i, { arrive: mergeTime(s.arrive, arriveFallback, v) })} />
                       )}
                       {ep.arrive.zone && <span className="ml-1 align-middle text-xs text-ink-faint">{ep.arrive.zone}</span>}
                     </span>
+                    {showArriveDate && (
+                      <HopDate label="Arrival date" value={arriveDate} fallback={arriveDate} loc={loc} ro={ro} onCommit={setArriveDate} align="right" />
+                    )}
                     {ro && s.to && <p className="meta mt-1 text-ink-faint">{s.to}</p>}
                   </div>
                 </div>
-                {offDay && <p className="meta mt-1.5 text-center text-ink-faint">{offDay}</p>}
 
                 {/* details — an icon strip read-only, editable rows when editing */}
                 {ro
@@ -399,6 +420,38 @@ export default function Journey() {
       )}
       </div>
     </Page>
+  );
+}
+
+/** A hop end's date under its time — "Fri 30 Oct". Editing opens the native
+ *  date picker (a transparent input over the label), never a text field. */
+function HopDate({ label, value, fallback, loc, ro, onCommit, align = "left" }: {
+  label: string;
+  value: string;
+  fallback?: string;
+  loc: string;
+  ro: boolean;
+  onCommit: (v: string) => void;
+  align?: "left" | "right";
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+  const shown = value || fallback;
+  const text = shown ? fmtDate(shown, loc, { weekday: "short", day: "numeric", month: "short" }) : "Add date";
+  const cls = `meta mt-1 block tabular-nums ${align === "right" ? "text-right" : ""}`;
+  if (ro) return <span className={cls}>{text}</span>;
+  return (
+    <span className={`${cls} relative ${value ? "" : "text-ink-faint"}`}>
+      {text}
+      <input
+        ref={ref}
+        type="date"
+        aria-label={label}
+        value={value || fallback || ""}
+        onClick={() => { try { ref.current?.showPicker?.(); } catch { /* the tap itself opens it where showPicker isn't allowed */ } }}
+        onChange={(e) => e.target.value !== value && onCommit(e.target.value)}
+        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+      />
+    </span>
   );
 }
 

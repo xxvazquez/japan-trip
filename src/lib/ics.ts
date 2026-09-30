@@ -131,7 +131,8 @@ function planItemTiming(item: PlanItem, day: Day, tz: string): EventTiming {
 
 /** `null` when the hop has no departure time to build an event from. */
 function segmentTiming(seg: Segment, tripTz: string): EventTiming | null {
-  if (!seg.depart) return null;
+  // a hop with only a date set (no clock time yet) isn't an event
+  if (!seg.depart?.split("T")[1]) return null;
   const fromTz = safeTz(seg.fromTz || tripTz);
   const toTz = safeTz(seg.toTz || seg.fromTz || tripTz);
   const [depDate, depTime] = seg.depart.split("T");

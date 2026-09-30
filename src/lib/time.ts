@@ -18,6 +18,7 @@ export function localMinutes(s?: string): number | null {
 
 /** "1h 40min", "40 min", "2h" — from two LocalDateTimes (ignores timezone shift). */
 export function fmtDuration(from?: string, to?: string): string | null {
+  if (!clockOf(from) || !clockOf(to)) return null; // a date alone has no duration
   const a = localMinutes(from);
   const b = localMinutes(to);
   if (a == null || b == null || b <= a) return null;
