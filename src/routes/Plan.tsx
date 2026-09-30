@@ -16,7 +16,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Page } from "@/components/Page";
+import { Page, PageHeader } from "@/components/Page";
 import { Section } from "@/components/Section";
 import { Empty } from "@/components/Empty";
 import { Icon, type IconName } from "@/components/Icon";
@@ -55,9 +55,11 @@ export default function Plan() {
   // ("Day 1 of 1", "Home — the trip's all here") makes no sense until real
   // dates are set
   const noDates = !!data.meta.start && data.meta.start === data.meta.end;
+  const moduleLabel = data.config.modules.find((m) => m.kind === "plan")?.label ?? "Plan";
 
   return (
     <Page>
+      <PageHeader title={moduleLabel} className="mb-4" />
       {/* NOW — the one thing to know on opening */}
       <header className="mb-8">
         {noDates && (
