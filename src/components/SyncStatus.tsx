@@ -6,7 +6,7 @@ import { entityLink } from "@/lib/entityLink";
 import { ActionSheet, useActionSheet } from "./ActionSheet";
 import { Icon } from "./Icon";
 
-function useOnline(): boolean {
+export function useOnline(): boolean {
   const [online, setOnline] = useState(() => navigator.onLine);
   useEffect(() => {
     const on = () => setOnline(true);
@@ -55,7 +55,9 @@ export function SyncStatus() {
 
   if (!label) return null;
 
-  const tone = !online || state === "error" ? "bg-gold"
+  // gold for offline (expected, nothing wrong), red for a real failure
+  const tone = !online ? "bg-gold"
+    : state === "error" ? "bg-danger"
     : state === "saving" ? "animate-pulse bg-ink-faint"
     : "bg-matcha";
 

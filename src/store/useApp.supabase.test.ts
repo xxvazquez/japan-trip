@@ -636,3 +636,17 @@ describe("signed-in: two devices editing the trip's settings", () => {
     expect(rows("trips")[0].name).toBe("After");
   });
 });
+
+describe("signed-in: a change the database can never accept", () => {
+  it("is named in droppedChanges, not dropped silently", async () => {
+    await seedTrip();
+    const a = await boot();
+    fake.current.ctl.fail = (op, table) => (op === "upsert" && table === "places" ? { message: "invalid input syntax for type uuid", code: "22P02" } : null);
+    a.s().addEntity("places", place("bad-id"));
+    await a.settlePending(1000);
+    await sleep(60);
+    expect(a.s().droppedChanges).toEqual(["Place bad-id"]);
+    a.s().dismissDropped();
+    expect(a.s().droppedChanges).toEqual([]);
+  });
+});

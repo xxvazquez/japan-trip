@@ -80,6 +80,11 @@ interface AppStore {
   /** what's stuck in the queue, set alongside syncState "error" — lets
    *  <SyncStatus> show what hasn't saved yet, with a way to retry or drop it. */
   syncErrorItems: SyncIssue[];
+  /** changes the sync gave up on for good (a write the database can never
+   *  accept) — named in a banner until dismissed, never dropped silently.
+   *  A copy of each is kept in the device's quarantine. */
+  droppedChanges: string[];
+  dismissDropped: () => void;
   /** signed in, but the very first trip list couldn't be fetched (offline)
    *  and there was no mirrored outbox to fall back to — nothing to show yet */
   bootError: boolean;
@@ -848,6 +853,7 @@ async function flush(get: () => AppStore) {
       const entity = op.t === "row" ? (data[op.type] as WithId[]).find((x) => x.id === op.id) : undefined;
       void quarantine("dropped-op", { op, entity }, "id was never valid for the database");
       console.error("[sync] dropping an un-syncable op — its id is invalid and can't be retried:", op);
+      useApp.setState({ droppedChanges: [...get().droppedChanges, labelOf(op, data)] });
     }
   }
 
@@ -1056,6 +1062,7 @@ export const useApp = create<AppStore>((set, get) => {
     authRequired: false,
     syncState: "idle",
     syncErrorItems: [],
+    droppedChanges: [],
     bootError: false,
     trips: [],
     activeId: null,
@@ -1385,6 +1392,8 @@ export const useApp = create<AppStore>((set, get) => {
       if (!activeId) return;
       await resyncTrip(get, activeId);
     },
+
+    dismissDropped: () => set({ droppedChanges: [] }),
 
     retrySyncNow: () => {
       retryDelay = 0;

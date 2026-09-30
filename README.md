@@ -261,6 +261,9 @@ Theme and trip logo. **Appearance** (light, dark or *Automatic*) is per device, 
 | **Saving…** (grey) | An edit is on its way. |
 | **Saved** (green) | It landed. |
 | **Offline** (amber) | No connection. Edits queue and send when you're back. |
+| **Couldn't save — retrying** (red) | You're online but the account didn't take the edit. Tap it for the list of what's waiting, Retry now, or discard one. |
+
+If saving has kept failing for 30 seconds, a banner under the header says how many changes haven't reached your account and names them. They stay safe on the device and keep retrying, and the banner has **Retry now**. A change the database can never accept (so the app stops retrying it) gets its own red banner naming it until you dismiss it; a copy is kept on the device, never dropped silently.
 
 ## Sharing and backups
 
