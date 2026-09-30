@@ -95,20 +95,33 @@ async function stationsFromNominatim(lat: number, lng: number): Promise<NearbySt
   return out;
 }
 
+/** a lookup that failed isn't asked again for this long, so rows that
+ *  re-mount (scrolling, switching pills) don't queue it over and over */
+const FAIL_TTL_MS = 5 * 60_000;
+const failedAt = new Map<string, number>();
+
 /** Nearest metro/train station to a point, from the network — for a place
  *  whose map tile isn't loaded (and everywhere on the Plan pages, which never
- *  load a map). Asks Overpass first, falls back to Nominatim when that fails
- *  outright; a found station is remembered on the device. A failure is never
- *  cached, so it's tried again later — `null` then means "couldn't tell", the
- *  same as "no station within a kilometre" to the caller. */
-export async function nearestStationLookup(lat: number, lng: number): Promise<NearbyStation | null> {
+ *  load a map). Asks Overpass first; `fallback` (on unless turned off) then
+ *  tries Nominatim when Overpass fails outright — the Map list, which could
+ *  ask about a hundred places at once, leaves that off so it can't flood
+ *  Nominatim. The answer is remembered on the device, "no station within a
+ *  kilometre" included; a failure isn't, and is only retried after a while.
+ *  `null` means "none nearby" or "couldn't tell" alike to the caller. */
+export async function nearestStationLookup(
+  lat: number,
+  lng: number,
+  { fallback = true }: { fallback?: boolean } = {},
+): Promise<NearbyStation | null> {
   const key = `${lat.toFixed(4)},${lng.toFixed(4)}`;
   if (lookupCache.has(key)) return lookupCache.get(key)!;
-  const stored = readPersisted<NearbyStation>(`station.${key}`);
+  const stored = readPersisted<NearbyStation | { none: true }>(`station.${key}`);
   if (stored) {
-    lookupCache.set(key, stored);
-    return stored;
+    const hit = "none" in stored ? null : stored;
+    lookupCache.set(key, hit);
+    return hit;
   }
+  if (Date.now() - (failedAt.get(key) ?? 0) < FAIL_TTL_MS) return null;
   let candidates: NearbyStation[] | null = null;
   try {
     const radius = SEARCH_RADIUS_KM * 1000;
@@ -121,13 +134,15 @@ export async function nearestStationLookup(lat: number, lng: number): Promise<Ne
     }
   } catch {
     try {
+      if (!fallback) throw new Error("no fallback");
       candidates = await stationsFromNominatim(lat, lng);
     } catch {
+      failedAt.set(key, Date.now());
       return null;
     }
   }
   const result = closest(candidates);
   lookupCache.set(key, result);
-  if (result) writePersisted(`station.${key}`, result);
+  writePersisted(`station.${key}`, result ?? { none: true });
   return result;
 }

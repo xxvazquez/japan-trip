@@ -1,6 +1,9 @@
+import { nominatimGet } from "./nominatim";
+
 /**
- * Place search via Nominatim (OpenStreetMap). Free, no key, CORS-open.
- * Low volume only — one lookup when the user adds a place. Debounce callers.
+ * Place search via Nominatim (OpenStreetMap). Free, no key, CORS-open —
+ * every call goes through the shared, rate-limited queue in `nominatim.ts`.
+ * Debounce callers.
  */
 export interface GeoResult {
   name: string;
@@ -9,7 +12,9 @@ export interface GeoResult {
   lng: number;
 }
 
-export async function geocode(query: string, near?: { lat: number; lng: number }): Promise<GeoResult[]> {
+/** `high` for a search the user is waiting on (it jumps the queue); a
+ *  background lookup (a hotel's or a city's position) leaves it off. */
+export async function geocode(query: string, near?: { lat: number; lng: number }, { high = false }: { high?: boolean } = {}): Promise<GeoResult[]> {
   const q = query.trim();
   if (q.length < 3) return [];
   const p = new URLSearchParams({ q, format: "jsonv2", limit: "6", addressdetails: "0" });
@@ -18,11 +23,15 @@ export async function geocode(query: string, near?: { lat: number; lng: number }
     p.set("viewbox", `${near.lng - d},${near.lat + d},${near.lng + d},${near.lat - d}`);
     p.set("bounded", "0");
   }
-  const res = await fetch(`https://nominatim.openstreetmap.org/search?${p}`, {
-    headers: { "Accept-Language": "en" },
-  });
-  if (!res.ok) return [];
-  const rows = (await res.json()) as { name?: string; display_name: string; lat: string; lon: string }[];
+  let rows: { name?: string; display_name: string; lat: string; lon: string }[];
+  try {
+    rows = await nominatimGet("search", Object.fromEntries(p), { high });
+  } catch (e) {
+    // the search box just shows no results; a background lookup needs to
+    // know it failed, so it doesn't remember "nothing there"
+    if (high) return [];
+    throw e;
+  }
   return rows.map((r) => ({
     name: r.name || r.display_name.split(",")[0],
     detail: r.display_name.split(",").slice(1, 4).join(",").trim(),
@@ -46,9 +55,8 @@ export async function geocodeTown(query: string, near?: { lat: number; lng: numb
     p.set("viewbox", `${near.lng - d},${near.lat + d},${near.lng + d},${near.lat - d}`);
     p.set("bounded", "0");
   }
-  const res = await fetch(`https://nominatim.openstreetmap.org/search?${p}`, { headers: { "Accept-Language": "en" } });
-  if (!res.ok) throw new Error(`geocode ${res.status}`);
-  const [r] = (await res.json()) as { lat: string; lon: string; address?: Record<string, string> }[];
+  // throws when Nominatim can't be reached, so the caller doesn't cache a miss
+  const [r] = await nominatimGet<{ lat: string; lon: string; address?: Record<string, string> }[]>("search", Object.fromEntries(p));
   if (!r) return null;
   const a = r.address ?? {};
   return { lat: Number(r.lat), lng: Number(r.lon), city: a.city || a.town || a.village || a.municipality || a.county || "" };
@@ -68,11 +76,7 @@ export async function reverseGeocode(lat: number, lng: number): Promise<string |
     addressdetails: "1",
   });
   try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?${p}`, {
-      headers: { "Accept-Language": "en" },
-    });
-    if (!res.ok) return null;
-    const a = ((await res.json()) as { address?: Record<string, string> }).address ?? {};
+    const a = (await nominatimGet<{ address?: Record<string, string> }>("reverse", Object.fromEntries(p))).address ?? {};
     const raw =
       a.neighbourhood || a.quarter || a.suburb || a.city_district || a.borough ||
       a.town || a.village || a.municipality || a.city || a.county;

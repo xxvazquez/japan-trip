@@ -388,7 +388,7 @@ function useMapEditing(
     if (!adding || pending) return;
     const t = setTimeout(async () => {
       const c = mapRef.current?.getCenter();
-      setResults(await geocode(q, c ? { lat: c.lat, lng: c.lng } : undefined));
+      setResults(await geocode(q, c ? { lat: c.lat, lng: c.lng } : undefined, { high: true }));
     }, 400);
     return () => clearTimeout(t);
   }, [q, adding, pending, mapRef]);
@@ -1721,7 +1721,8 @@ function PlaceRow({
       return true;
     };
     const tryOverpass = () => {
-      void nearestStationLookup(place.lat, place.lng).then((hit) => {
+      // Overpass only: a list of a hundred rows mustn't fall through to Nominatim
+      void nearestStationLookup(place.lat, place.lng, { fallback: false }).then((hit) => {
         if (!cancelled) setStation(hit);
       });
     };

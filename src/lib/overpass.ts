@@ -67,7 +67,8 @@ export function overpass<T>(query: string, { low = false }: { low?: boolean } = 
 /** Successful lookups are stable (a station or an opening-hours tag doesn't
  *  move week to week), so they're kept across reloads — a refresh then shows
  *  every line at once instead of re-queueing the whole page behind a flaky
- *  public server. Failures and "nothing found" are never stored. */
+ *  public server. Failures are never stored; a station lookup does keep
+ *  "nothing within a kilometre", since that doesn't change either. */
 export function readPersisted<T>(key: string): T | undefined {
   try {
     const raw = localStorage.getItem(`za.osm.${key}`);
