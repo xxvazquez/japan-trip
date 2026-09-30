@@ -82,6 +82,7 @@ Tap a day on Plan to open it. From top to bottom:
 4. **The itinerary** — the day's steps (below).
 5. **Areas** — drop a whole neighbourhood's places onto the day's map.
 6. **Spending** and **General notes**.
+7. **The day's actions** — **Make this a day trip** (or **Not a day trip**), **Pin this day**, and **Delete day**.
 
 Every section folds away from its header.
 

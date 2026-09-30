@@ -305,7 +305,6 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
           icon="explore"
           title="Day trip"
           info="Out-of-town days get extra fields: how to get there and back, and the last train home."
-          action={!ro && <button onClick={() => patch({ dayTrip: false })} className="link-quiet text-xs">not a day trip</button>}
         >
           <div className="space-y-3 px-3.5 py-3">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -463,7 +462,9 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       {!ro && (
         <Section className="mt-8">
           <ul>
-            {!day.dayTrip && <ActionRow icon="plus" label="Make this a day trip" onClick={() => patch({ dayTrip: true })} />}
+            {day.dayTrip
+              ? <ActionRow icon="close" label="Not a day trip" onClick={() => patch({ dayTrip: false })} />
+              : <ActionRow icon="plus" label="Make this a day trip" onClick={() => patch({ dayTrip: true })} />}
             <ActionRow
               icon="pushpin"
               label={pinned ? "Unpin this day" : "Pin this day"}
