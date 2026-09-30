@@ -32,6 +32,19 @@ export function legNights(leg: Leg, legs: Leg[]): number {
   return next ? Math.min(span + 1, Math.max(0, daysBetween(leg.start, next))) : span;
 }
 
+/** A hotel's actual nights: one entry per stay that uses it, with the
+ *  check-out date as the morning you leave (check-in + nights) — not the
+ *  stay's last day, which is the last night's date. */
+export function hotelStays(data: TripData, hotelId: string): { leg: Leg; checkIn: ISODate; checkOut: ISODate; nights: number }[] {
+  return data.legs
+    .filter((l) => l.hotelId === hotelId && l.start)
+    .sort((a, b) => a.start.localeCompare(b.start))
+    .map((leg) => {
+      const nights = legNights(leg, data.legs);
+      return { leg, checkIn: leg.start, checkOut: addDays(leg.start, nights), nights };
+    });
+}
+
 export function addDays(d: ISODate, n: number): ISODate {
   const dt = parseISO(d);
   dt.setDate(dt.getDate() + n);

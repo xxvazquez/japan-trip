@@ -15,7 +15,7 @@ import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { gmapsLink } from "@/lib/maps";
 import { fmtFare } from "@/lib/cost";
-import { fmtDate } from "@/lib/dates";
+import { fmtDate, hotelStays, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import type { Hotel as HotelT } from "@/core/types";
 
@@ -33,18 +33,28 @@ export default function Hotel() {
   if (!hotel)
     return <Missing title="No stay here" body="That stay isn’t part of this trip." to="/logbook" cta="Back to Logbook" />;
   const p = (patch: Partial<HotelT>) => updateEntity<HotelT>("hotels", hotel.id, patch);
-  const leg = data.legs.find((l) => l.hotelId === hotel.id);
-  const map = gmapsLink(hotel.mapUrl || hotel.address);
   const loc = data.config.locale;
+  // the nights actually spent here — check-out is the morning you leave,
+  // one date on from the stay's last night
+  const stays = hotelStays(data, hotel.id);
+  const leg = stays[0]?.leg;
+  const only = stays.length === 1 ? stays[0] : undefined;
+  const short = (d: string) => fmtDate(d, loc, { day: "numeric", month: "short" });
+  const eyebrow = stays.length
+    ? stays.map((x) => `${short(x.checkIn)} – ${short(x.checkOut)}`).join(" · ") + (only ? ` · ${plural(only.nights, "night")}` : "")
+    : undefined;
+  const map = gmapsLink(hotel.mapUrl || hotel.address);
   const primary = (data.config.currencies ?? []).filter(Boolean)[0] ?? "";
   const fields = hotel.fields ?? [];
 
   // Check-in / -out: a fixed, useful pair (not a calc field, but not free-form).
-  const door: [string, string | undefined, ((v: string) => void)][] = [
-    ["Check-in", hotel.checkIn, (v) => p({ checkIn: v || undefined })],
-    ["Check-out", hotel.checkOut, (v) => p({ checkOut: v || undefined })],
+  // With one stay here, each row also carries its date; with several, the
+  // dates are all in the header and the rows are just the times.
+  const door: [string, string | undefined, string | undefined, ((v: string) => void)][] = [
+    ["Check-in", only?.checkIn, hotel.checkIn, (v) => p({ checkIn: v || undefined })],
+    ["Check-out", only?.checkOut, hotel.checkOut, (v) => p({ checkOut: v || undefined })],
   ];
-  const doorShown = ro ? door.filter(([, v]) => v) : door;
+  const doorShown = ro ? door.filter(([, date, time]) => date || time) : door;
 
   const showRefSection = !ro || !!hotel.price || fields.length > 0;
   const showAddress = !!(hotel.address || hotel.addressAlt || !ro);
@@ -55,7 +65,7 @@ export default function Hotel() {
       <PageHeader
         back="/logbook"
         dotColor={leg ? legHex(leg.color) : undefined}
-        eyebrow={leg ? `${fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – ${fmtDate(leg.end, loc, { day: "numeric", month: "short" })}` : undefined}
+        eyebrow={eyebrow}
         title={<Editable label="Name" value={hotel.name} onCommit={(v) => p({ name: v || hotel.name })} />}
       />
 
@@ -103,9 +113,13 @@ export default function Hotel() {
                   )}
                 </li>
               )}
-              {doorShown.map(([label, value, onCommit]) => (
+              {doorShown.map(([label, date, time, onCommit]) => (
                 <InsetRow key={label} label={label}>
-                  <Editable as="time" label={label} value={value ?? ""} placeholder="—" onCommit={onCommit} />
+                  <span className="flex flex-wrap items-baseline justify-end gap-x-1.5">
+                    {date && <span>{fmtDate(date, loc)}</span>}
+                    {date && (time || !ro) && <span className="text-ink-faint">·</span>}
+                    {(time || !ro) && <Editable as="time" label={`${label} time`} value={time ?? ""} placeholder="—" onCommit={onCommit} />}
+                  </span>
                 </InsetRow>
               ))}
             </ul>

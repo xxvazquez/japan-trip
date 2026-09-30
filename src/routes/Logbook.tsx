@@ -30,7 +30,7 @@ import { supabaseEnabled } from "@/lib/supabase";
 import { driveEnabled } from "@/lib/drive";
 import { useReadOnly } from "@/lib/readonly";
 import { pickBackend } from "@/lib/backend";
-import { fmtDate, fmtSpan, journeyDepartDate, plural } from "@/lib/dates";
+import { fmtDate, fmtSpan, hotelStays, journeyDepartDate, plural } from "@/lib/dates";
 import { MODE_ICON } from "@/lib/transport";
 import { toneForSegmentMode, logbookSectionTile, customListColor, TONE_BG, type Tone } from "@/lib/tones";
 import { LOGBOOK_SECTIONS, logbookLabel, sectionSlug, sectionFromSlug, type LogbookSection } from "@/lib/logbook";
@@ -263,7 +263,9 @@ function Stays() {
     <Section>
       <ul>
         {data.hotels.map((h) => {
-          const leg = data.legs.find((l) => l.hotelId === h.id);
+          // check-in to check-out, per stay that uses this hotel
+          const short = (d: string) => fmtDate(d, loc, { day: "numeric", month: "short" });
+          const when = hotelStays(data, h.id).map((x) => `${short(x.checkIn)} – ${short(x.checkOut)}`).join(", ");
           return (
             <TileRow
               key={h.id}
@@ -271,7 +273,7 @@ function Stays() {
               tile={<IconTile size="sm" glyph="hotel" tone="ink-faint" />}
               title={h.name}
               meta={h.address || undefined}
-              right={leg && fmtDate(leg.start, loc, { day: "numeric", month: "short" })}
+              right={when || undefined}
             />
           );
         })}
