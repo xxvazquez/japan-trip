@@ -22,7 +22,9 @@ export function RouteLabel({ label }: { label: string }) {
     <>
       {stops.map((s, i) => (
         <span key={i}>
-          {i > 0 && <Arrow className="mx-1.5" />}
+          {/* real spaces round the arrow, so copied or read-out text (the
+              nav bar's small title) says "Tokyo → Warsaw", not "Tokyo→Warsaw" */}
+          {i > 0 && <>{" "}<Arrow />{" "}</>}
           {s}
         </span>
       ))}

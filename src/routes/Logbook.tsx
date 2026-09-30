@@ -328,14 +328,14 @@ function GettingAround() {
                 { depart: first?.depart, arrive: last?.arrive ?? last?.depart, fromTz: first?.fromTz, toTz: last?.toTz },
                 when,
                 loc,
-              ) || "—";
+              );
             return (
               <TileRow
                 key={j.id}
                 to={`/journey/${j.id}`}
                 tile={<IconTile size="sm" name={MODE_ICON[mode]} tone={toneForSegmentMode(mode)} />}
                 title={<RouteLabel label={j.label || "Journey"} />}
-                meta={changes > 0 ? `${times} · ${plural(changes, "change")}` : times}
+                meta={[times, changes > 0 && plural(changes, "change")].filter(Boolean).join(" · ") || undefined}
                 right={when && fmtDate(when, loc, { day: "numeric", month: "short" })}
               />
             );

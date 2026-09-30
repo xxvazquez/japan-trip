@@ -462,6 +462,13 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
                 d.config.pinnedDays = ids.size ? [...ids] : undefined;
               })}
             />
+          </ul>
+        </Section>
+      )}
+      {/* destructive on its own, as iOS sets Delete apart from other actions */}
+      {!ro && (
+        <Section className="mt-6">
+          <ul>
             <li className={INSET_DIVIDER}>
               <ConfirmButton
                 label="Delete day"

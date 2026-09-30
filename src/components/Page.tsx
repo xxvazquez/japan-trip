@@ -74,7 +74,8 @@ export function PageHeader({
   // render behind); an <Editable> mid-edit has no text, so keep the last one
   const [titleText, setTitleText] = useState("");
   useEffect(() => {
-    const t = h1?.textContent?.trim();
+    // a route title's arrow is its own styled span with no spaces in the text
+    const t = h1?.textContent?.replace(/\s*→\s*/g, " → ").trim();
     if (t && t !== titleText) setTitleText(t);
   });
   useNavRegistration(h1, back ? { to: typeof back === "string" ? back : undefined } : undefined, titleText);
