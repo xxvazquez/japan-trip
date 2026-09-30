@@ -44,7 +44,8 @@ export function InsetRow({
   const inner = (
     <>
       <span className="row-label">{label}</span>
-      <span className="row-value">
+      {/* with a chevron after it, `justify-between` alone would centre the value */}
+      <span className={`row-value ${to ? "ml-auto" : ""}`}>
         {children}
       </span>
       {to && <Icon name="chevron" size={14} className="-mr-1 shrink-0 text-ink-faint" />}

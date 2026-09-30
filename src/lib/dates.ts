@@ -233,3 +233,19 @@ export function journeyDepartDate(j: Pick<Journey, "date" | "segments">): ISODat
   const d = j.segments[0]?.depart?.slice(0, 10);
   return d && /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : j.date;
 }
+
+/** The dates a journey runs over: its first hop's departure to its last
+ *  hop's arrival (an overnight flight spans two). `to` falls back to `from`. */
+export function journeySpan(j: Pick<Journey, "date" | "segments">): { from?: ISODate; to?: ISODate } {
+  const from = journeyDepartDate(j);
+  const arr = [...j.segments].reverse().find((s) => s.arrive)?.arrive?.slice(0, 10);
+  return { from, to: arr && /^\d{4}-\d{2}-\d{2}$/.test(arr) && (!from || arr >= from) ? arr : from };
+}
+
+/** Is a journey linked to a day it doesn't actually happen on? Any date from
+ *  its departure to its arrival counts (an overnight flight can sit on its
+ *  arrival day); a journey with no date yet is never "off". */
+export function journeyOffDay(j: Pick<Journey, "date" | "segments">, date: ISODate): boolean {
+  const { from, to } = journeySpan(j);
+  return !!from && (date < from || date > (to ?? from));
+}

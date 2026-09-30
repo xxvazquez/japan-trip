@@ -15,14 +15,14 @@ import { ConfirmButton } from "@/components/ConfirmButton";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { addDays, daysBetween, fmtDate, journeyDepartDate, plural, segEndpoints } from "@/lib/dates";
+import { addDays, daysBetween, fmtDate, journeyDepartDate, journeyOffDay, plural, segEndpoints } from "@/lib/dates";
 import { clockOf, fmtDuration, fmtMinutes, minutesBetween, parseLocal } from "@/lib/time";
 import { MODE_LABEL, MODE_ICON, MODE_TONE } from "@/lib/transport";
 import { arrivesBeforeDeparture } from "@/lib/ics";
 import { journeyFare, hopsPriced, fmtMoney, cleanAmount, fmtFare } from "@/lib/cost";
 import { splitRoute, joinRoute, JOURNEY_KIND_LABEL } from "@/lib/journey";
 import { Arrow, RouteLabel } from "@/components/RouteLabel";
-import type { Journey as JourneyT, JourneyKind, Segment, TransportMode } from "@/core/types";
+import type { Day, Journey as JourneyT, JourneyKind, Segment, TransportMode } from "@/core/types";
 
 const MODES: TransportMode[] = ["flight", "train", "bus", "ferry", "car", "taxi", "subway", "walk"];
 const KINDS: JourneyKind[] = ["arrival", "transfer", "departure"];
@@ -60,6 +60,8 @@ export default function Journey() {
   const fareLines = journeyFare(j, primary);
   const fareText = fareLines.map((m) => fmtMoney(m.amount, m.currency)).join("  +  ");
   const fareDerived = hopsPriced(j);
+  const onDays = data.days.filter((d) => d.journeyId === j.id);
+  const departDay = day ? data.days.find((d) => d.date === day) : undefined;
 
   return (
     <Page>
@@ -100,9 +102,34 @@ export default function Journey() {
         }
       />
 
-      {(j.gmapsDirections || fareText || !ro) && (
+      {(j.gmapsDirections || fareText || !ro || onDays.length > 0) && (
         <Section className="mt-5">
           <ul>
+            {/* which day on Plan this journey sits on — and whether that
+                matches when it actually runs */}
+            {onDays.map((d) => (
+              <InsetRow key={d.id} label="On Plan" to={`/day/${d.id}`}>
+                <span className={journeyOffDay(j, d.date) ? "text-danger" : undefined}>
+                  {fmtDate(d.date, loc)}
+                  {journeyOffDay(j, d.date) && " · not its date"}
+                </span>
+              </InsetRow>
+            ))}
+            {onDays.length === 0 && !ro && (
+              <InsetRow label="On Plan">
+                {departDay && !departDay.journeyId ? (
+                  <button
+                    type="button"
+                    onClick={() => updateEntity<Day>("days", departDay.id, { journeyId: j.id })}
+                    className="text-accent"
+                  >
+                    Add to {fmtDate(departDay.date, loc)}
+                  </button>
+                ) : (
+                  <span className="text-ink-faint">Not on any day</span>
+                )}
+              </InsetRow>
+            )}
             {j.gmapsDirections && (
               <li className={INSET_DIVIDER}>
                 <a href={j.gmapsDirections} target="_blank" rel="noopener" className="flex items-center justify-between gap-3 px-3.5 py-3">

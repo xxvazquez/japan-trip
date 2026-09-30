@@ -75,7 +75,7 @@ The days set the dates — you don't edit them separately.
 
 Tap a day on Plan to open it. From top to bottom:
 
-1. **Staying at** (which hotel) and **Journey** (link an existing one, or ＋ to make a new one).
+1. **Staying at** (which hotel) and **Journey** (link an existing one, or ＋ to make a new one). If the linked journey doesn't run on this day (anything from its departure to its arrival counts, so an overnight flight can sit on its arrival day), a warning says when it leaves and offers to move it to that day. A journey's own page shows which day it's on (**On Plan**), or offers to add it to its departure day.
 2. **Weather** — if the hotel has coordinates, the header shows the forecast ("Showers, 19–24°C"). Forecasts only reach ~16 days ahead, so later days show nothing until they're close enough.
 3. **Getting there / Getting back** — day trips only; free text.
 4. **The itinerary** — the day's steps (below).

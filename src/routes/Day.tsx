@@ -38,7 +38,7 @@ import { DayLabels, tripLabels } from "@/components/DayLabels";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { dayKind, fmtDate, plural } from "@/lib/dates";
+import { dayKind, fmtDate, journeyOffDay, journeySpan, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink, gmapsRoute, mapUrlCoords } from "@/lib/maps";
 import { fmtWalk, haversineKm } from "@/lib/geo";
@@ -51,7 +51,7 @@ import { fetchDayWeather, weatherLabel, type DayWeather } from "@/lib/weather";
 import { prefetchTiles, canPrefetchTiles, dayOfflinePoints } from "@/lib/offlineTiles";
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
-import type { Day as DayT, DayCost, ExpenseCategory, Hotel, PlanItem, Place, TripData } from "@/core/types";
+import type { Day as DayT, DayCost, ExpenseCategory, Hotel, Journey, PlanItem, Place, TripData } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 9);
 
@@ -293,6 +293,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
                 <option value="__new">＋ New journey…</option>
               </RowSelect>
             </InsetRow>
+            {journey && journeyOffDay(journey, day.date) && <JourneyOffDay day={day} journey={journey} data={data} />}
           </ul>
         </Section>
       )}
@@ -495,6 +496,35 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     </Page>
   );
 
+}
+
+/** The day links a journey that runs on other dates (a flight moved to the
+ *  next day, say): say when it actually leaves, and offer to move the link to
+ *  that day when it's free — never onto a day that has a journey already. */
+function JourneyOffDay({ day, journey, data }: { day: DayT; journey: Journey; data: TripData }) {
+  const updateEntity = useApp((s) => s.updateEntity);
+  const loc = data.config.locale;
+  const when = journeySpan(journey).from!;
+  const target = data.days.find((d) => d.date === when && d.id !== day.id);
+  const free = target && !target.journeyId;
+  const move = () => {
+    updateEntity<DayT>("days", day.id, { journeyId: undefined });
+    updateEntity<DayT>("days", target!.id, { journeyId: journey.id });
+  };
+  return (
+    <li className={`${INSET_DIVIDER} px-3.5 py-3`}>
+      <p className="flex items-start gap-2 text-[0.9375rem] leading-snug text-ink">
+        <Icon name="alert" size={15} className="mt-0.5 shrink-0 text-danger" />
+        <span>This journey leaves {fmtDate(when, loc, { weekday: "short", day: "numeric", month: "short" })}, not on this day.</span>
+      </p>
+      {free && (
+        <button type="button" onClick={move} className="action mt-2 pl-[23px] text-[0.9375rem]">
+          Move it to {fmtDate(target.date, loc, { weekday: "short", day: "numeric", month: "short" })}
+          {target.title ? ` · ${target.title}` : ""}
+        </button>
+      )}
+    </li>
+  );
 }
 
 /* ------------------------------------------------------------------ plan */
