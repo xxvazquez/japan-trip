@@ -12,17 +12,44 @@ let current: AuthState = { ready: !supabaseEnabled, user: null, session: null };
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
 
-if (supabaseEnabled) {
-  void getSupabase().then(async (sb) => {
-    if (!sb) return;
-    const { data } = await sb.auth.getSession();
-    current = { ready: true, user: data.session?.user ?? null, session: data.session };
-    emit();
-    sb.auth.onAuthStateChange((_e, session) => {
-      current = { ready: true, user: session?.user ?? null, session };
+/** The client library couldn't be loaded (no signal on a first open, or a
+ *  bad copy of the file) — boot shows the retry screen rather than waiting
+ *  on a session that will never arrive. */
+let loadFailed = false;
+let subscribed = false;
+
+function loadAuth() {
+  void getSupabase()
+    .then(async (sb) => {
+      if (!sb) return;
+      const { data } = await sb.auth.getSession();
+      current = { ready: true, user: data.session?.user ?? null, session: data.session };
+      emit();
+      if (subscribed) return;
+      subscribed = true;
+      sb.auth.onAuthStateChange((_e, session) => {
+        current = { ready: true, user: session?.user ?? null, session };
+        emit();
+      });
+    })
+    .catch((e) => {
+      console.error("[auth] couldn't load the sign-in library", e);
+      loadFailed = true;
+      current = { ready: true, user: null, session: null };
       emit();
     });
-  });
+}
+
+if (supabaseEnabled) loadAuth();
+
+export const authLoadFailed = (): boolean => loadFailed;
+
+/** Try loading the sign-in library again (the retry screen's button). */
+export function retryAuth() {
+  loadFailed = false;
+  current = { ready: false, user: null, session: null };
+  emit();
+  loadAuth();
 }
 
 const subscribe = (cb: () => void) => {

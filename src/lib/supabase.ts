@@ -25,10 +25,15 @@ let clientPromise: Promise<SupabaseClient | null> | null = null;
 /** Lazily loads @supabase/supabase-js only when a project is configured. */
 export function getSupabase(): Promise<SupabaseClient | null> {
   if (!supabaseEnabled) return Promise.resolve(null);
-  clientPromise ??= import("@supabase/supabase-js").then(({ createClient }) =>
-    createClient(url!, anon!, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
-    }),
-  );
+  clientPromise ??= import("@supabase/supabase-js")
+    .then(({ createClient }) =>
+      createClient(url!, anon!, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+      }),
+    )
+    .catch((e) => {
+      clientPromise = null; // a failed download mustn't stick — the next call tries again
+      throw e;
+    });
   return clientPromise;
 }

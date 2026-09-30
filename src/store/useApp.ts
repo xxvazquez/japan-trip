@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { buildFromTemplate, buildDemo, buildSandbox } from "@/templates/registry";
 import { sandboxMode, publicDemoMode } from "@/lib/supabase";
 import { pickBackend, needsAuth, remapIds, saveDraftSync, type Backend } from "@/lib/backend";
-import { isAuthReady, getUserId } from "@/lib/auth";
+import { isAuthReady, getUserId, authLoadFailed, retryAuth } from "@/lib/auth";
 import { subscribeTrip, unsubscribeTrip, markWritten } from "@/lib/realtime";
 import { store as kv } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/app";
@@ -1048,6 +1048,12 @@ export const useApp = create<AppStore>((set, get) => {
         // mark the app hydrated with no trip loaded (a blank shell with only the
         // 3 default tabs) until Root's re-init lands; wait for auth instead.
         if (!isAuthReady()) return;
+        // the sign-in library never loaded, so whether anyone's signed in is
+        // unknown — not "signed out"; offer the retry instead of the sign-in wall
+        if (authLoadFailed()) {
+          set({ hydrated: true, bootError: true });
+          return;
+        }
         if (needsAuth()) {
           // signed out: nothing in memory may follow into the next account.
           // (Unconfirmed edits are already mirrored to disk under their trip's id.)
@@ -1146,7 +1152,9 @@ export const useApp = create<AppStore>((set, get) => {
 
     retryBoot: () => {
       set({ hydrated: false, bootError: false });
-      void get().init();
+      // reloading the library brings auth back to ready, which re-runs init
+      if (authLoadFailed()) retryAuth();
+      else void get().init();
     },
 
     dismissNotice: () => set({ notice: null }),

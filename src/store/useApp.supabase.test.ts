@@ -11,10 +11,13 @@ vi.mock("@/lib/supabase", () => ({
   publicDemoMode: false,
   getSupabase: () => Promise.resolve(fake.current.client),
 }));
+const authLib = vi.hoisted(() => ({ failed: false, retried: 0 }));
 vi.mock("@/lib/auth", () => ({
   isAuthReady: () => true,
   getUserId: () => "user-1",
   useAuth: () => ({ ready: true, user: { id: "user-1" }, session: null }),
+  authLoadFailed: () => authLib.failed,
+  retryAuth: () => { authLib.retried++; authLib.failed = false; },
 }));
 vi.mock("@/lib/realtime", () => ({ subscribeTrip: () => {}, unsubscribeTrip: () => {}, markWritten: () => {}, TABLE_OF: {} }));
 
@@ -510,6 +513,21 @@ describe("signed-in: opening with no connection", () => {
     await a.clearDeviceMirrors();
     expect(await a.kv.get(STORAGE_KEYS.mirror(id))).toBeUndefined();
     expect(await a.kv.get(STORAGE_KEYS.mirrorTrips)).toBeUndefined();
+  });
+
+  it("a sign-in library that never loaded shows the retry screen, not the sign-in wall, and Try again reloads it", async () => {
+    await seedTrip();
+    authLib.failed = true;
+    authLib.retried = 0;
+    try {
+      const b = await boot();
+      expect(b.s().bootError).toBe(true);
+      expect(b.s().authRequired).toBe(false);
+      b.s().retryBoot();
+      expect(authLib.retried).toBe(1);
+    } finally {
+      authLib.failed = false;
+    }
   });
 
   it("a damaged mirror is not opened", async () => {

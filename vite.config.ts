@@ -120,7 +120,18 @@ export default defineConfig(({ command }) => ({
           {
             urlPattern: /\/assets\/supabase-.*\.js$/,
             handler: "StaleWhileRevalidate",
-            options: { cacheName: "supabase-lib" },
+            options: {
+              cacheName: "supabase-lib",
+              plugins: [
+                {
+                  // only keep real JavaScript: a missing file answered with the
+                  // app's HTML page (an SPA fallback) would otherwise be cached
+                  // as the library and leave sign-in stuck on the loader for good
+                  cacheWillUpdate: async ({ response }) =>
+                    response.status === 200 && /javascript/.test(response.headers.get("content-type") ?? "") ? response : null,
+                },
+              ],
+            },
           },
           {
             urlPattern: ({ url }) => url.hostname.endsWith(".supabase.co"),
