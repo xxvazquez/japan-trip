@@ -485,7 +485,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
               <ConfirmButton
                 label="Delete day"
                 onConfirm={() => undoable("Day deleted", () => { removeEntity("days", day.id); nav("/"); })}
-                className="w-full justify-center px-3.5 py-3 text-sm text-danger active:bg-ink/[0.07]"
+                className="w-full justify-center px-3.5 py-2.5 text-xs text-danger active:bg-ink/[0.07]"
               >
                 Delete day
               </ConfirmButton>
@@ -611,10 +611,9 @@ function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByP
         </SortableContext>
       </DndContext>
       {backRow}
-      {/* a second "add" affordance down here too — the one up in the Section
-       *  header (see Day()) means a long plan otherwise needs a scroll back
-       *  to the top just to add the next step */}
-      <button onClick={() => onChange([...items, { id: rid(), text: "" }])} className="action w-full border-t border-line px-3.5 py-3 text-sm">
+      {/* the add lives at the foot, next to where the new step lands, so a
+       *  long plan doesn't need a scroll back to the top */}
+      <button onClick={() => onChange([...items, { id: rid(), text: "" }])} className="action w-full border-t border-line px-3.5 py-2.5 text-xs">
         <Icon name="plus" size={14} /> Add a step
       </button>
     </>
