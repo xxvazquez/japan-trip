@@ -28,8 +28,8 @@ import { WalkLine } from "@/components/WalkLine";
 import { ChipStrip } from "@/components/ChipStrip";
 import { glyphPath } from "@/lib/mapGlyphs";
 import { toneForPlaceCategory, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
-import { placeCityMap, canonicalLegs, dayTripCities } from "@/lib/cityAssign";
-import { useCityAnchors, useDayTripAnchors } from "@/lib/cityCoords";
+import { canonicalLegs } from "@/lib/cityAssign";
+import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import type { Area, Day, PlanItem, Place, TripData } from "@/core/types";
 
@@ -681,27 +681,10 @@ export default function MapTab() {
    *  (or overridden by hand). Lets a whole city's imported pins sit under
    *  its pill even before they're linked to a day. */
   const cityAnchors = useCityAnchors(data);
-  /** leg → the leg standing for its city (two Tokyo stays are one Tokyo) */
-  const cityLeg = useMemo(() => (data ? canonicalLegs(data) : new Map<string, string>()), [data]);
-  /** day trips are towns of their own (Nara from Kyoto): each gets a pill,
-   *  keyed by its first day's id, placed by its linked places or its name */
-  const allTrips = useMemo(() => (data ? dayTripCities(data) : []), [data]);
-  const tripGeo = useDayTripAnchors(data, allTrips);
-  // only a day trip to another city is a town of its own (Nara, not Arashiyama)
-  const tripCities = useMemo(() => allTrips.filter((t) => tripGeo.has(t.id)), [allTrips, tripGeo]);
-  /** day id → the city it shows under: its day-trip town, else its stay */
-  const dayCity = useMemo(() => {
-    const m = new Map<string, string>();
-    for (const c of tripCities) for (const id of c.dayIds) m.set(id, c.id);
-    for (const d of data?.days ?? []) if (!m.has(d.id) && d.legId) m.set(d.id, cityLeg.get(d.legId) ?? d.legId);
-    return m;
-  }, [data, tripCities, cityLeg]);
-  // each place's city — the leg standing for its stay, or a day-trip town —
-  // so a pill, the list groups and the counts all agree
-  const placeLeg = useMemo(
-    () => (data ? placeCityMap(data, cityAnchors, tripGeo, tripCities) : new Map<string, string>()),
-    [data, cityAnchors, tripGeo, tripCities],
-  );
+  /** the trip's cities as pills: stays by city (two Tokyo stays are one
+   *  Tokyo) plus day trips to other towns (Nara from Kyoto) — each place's
+   *  city and each day's, so a pill, the list groups and the counts agree */
+  const { cityLeg, tripCities, dayCity, placeCity: placeLeg } = useTripCities(data, cityAnchors);
 
   /** ids in the current scope, before the category / area chips narrow it —
    *  the area chips derive from this so ticking one can't make its own chip

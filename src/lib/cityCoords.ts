@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { geocode, geocodeTown } from "./geocode";
 import { mapUrlCoords } from "./maps";
 import type { TripData } from "@/core/types";
-import { dayTripCities, dayTripQuery, type TripCity } from "./cityAssign";
+import { canonicalLegs, dayTripCities, dayTripQuery, placeCityMap, type TripCity } from "./cityAssign";
 import { haversineKm } from "./geo";
 
 /**
@@ -171,4 +171,31 @@ export function useDayTripAnchors(data: TripData | null | undefined, cities?: Tr
   }, [want]);
   const sig = JSON.stringify([...out]);
   return useMemo(() => out, [sig]);
+}
+
+/**
+ * The trip's cities, the way the Map draws them: one per city across its
+ * stays (two Tokyo stays are one Tokyo, keyed by the first), plus each day
+ * trip to another town. `dayCity` is the city a day belongs to, `placeCity`
+ * a place's. Shared so a day's page and the Map never disagree about where
+ * something is.
+ */
+export function useTripCities(data: TripData | null | undefined, cityAnchors: Map<string, LatLng>) {
+  /** leg → the leg standing for its city */
+  const cityLeg = useMemo(() => (data ? canonicalLegs(data) : new Map<string, string>()), [data]);
+  const allTrips = useMemo(() => (data ? dayTripCities(data) : []), [data]);
+  const tripGeo = useDayTripAnchors(data, allTrips);
+  // only a day trip to another city is a town of its own (Nara, not Arashiyama)
+  const tripCities = useMemo(() => allTrips.filter((t) => tripGeo.has(t.id)), [allTrips, tripGeo]);
+  const dayCity = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const c of tripCities) for (const id of c.dayIds) m.set(id, c.id);
+    for (const d of data?.days ?? []) if (!m.has(d.id) && d.legId) m.set(d.id, cityLeg.get(d.legId) ?? d.legId);
+    return m;
+  }, [data, tripCities, cityLeg]);
+  const placeCity = useMemo(
+    () => (data ? placeCityMap(data, cityAnchors, tripGeo, tripCities) : new Map<string, string>()),
+    [data, cityAnchors, tripGeo, tripCities],
+  );
+  return { cityLeg, tripCities, dayCity, placeCity };
 }

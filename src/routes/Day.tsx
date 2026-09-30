@@ -31,8 +31,8 @@ import { RouteLabel } from "@/components/RouteLabel";
 import { IconTile } from "@/components/IconTile";
 import { useSplit } from "@/components/SplitMap";
 import { toneForPlaceCategory } from "@/lib/tones";
-import { placeLegMap, areaLeg } from "@/lib/cityAssign";
-import { useCityAnchors } from "@/lib/cityCoords";
+import { areaLeg } from "@/lib/cityAssign";
+import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { DayStepper } from "@/components/DayStepper";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
@@ -111,16 +111,18 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const journey = L.journey(day.journeyId);
   const loc = data.config.locale;
   const setPlan = (next: PlanItem[]) => patch({ plan: next.length ? next : undefined });
-  // areas offered by "+ Add area" — scoped to this day's own city so a
-  // multi-city trip doesn't dump every area in the trip into one list; falls
-  // back to the whole list if none resolve to a city yet (an unlinked hotel,
-  // say) so the picker is never left with nothing to offer
+  // areas offered by "+ Add area" — scoped to this day's own city, the way
+  // the Map draws it (a day trip to Nara offers Nara's areas, not the base
+  // city's), so a multi-city trip doesn't dump every area into one list;
+  // falls back to the whole list if none resolve to that city yet (an
+  // unlinked hotel, say) so the picker is never left with nothing to offer
   const cityAnchors = useCityAnchors(data);
+  const { dayCity, placeCity } = useTripCities(data, cityAnchors);
   const cityAreas = useMemo(() => {
-    const placeLeg = placeLegMap(data, cityAnchors);
-    const inCity = data.areas.filter((a) => areaLeg(a, placeLeg) === day.legId);
+    const city = dayCity.get(day.id);
+    const inCity = data.areas.filter((a) => areaLeg(a, placeCity) === city);
     return inCity.length > 0 ? inCity : data.areas;
-  }, [data, day.legId, cityAnchors]);
+  }, [data, day.id, dayCity, placeCity]);
 
   // places available to a plan step's picker — drawn only from this day's own
   // linked areas (see the Areas section below), not every place in the trip
