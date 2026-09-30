@@ -473,7 +473,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
               <ConfirmButton
                 label="Delete day"
                 onConfirm={() => undoable("Day deleted", () => { removeEntity("days", day.id); nav("/"); })}
-                className="w-full px-3.5 py-2.5 text-left text-xs text-danger active:bg-ink/[0.07]"
+                className="w-full justify-center px-3.5 py-3 text-sm text-danger active:bg-ink/[0.07]"
               >
                 Delete day
               </ConfirmButton>

@@ -8,6 +8,8 @@ import { Editable } from "@/components/Editable";
 import { FieldList } from "@/components/FieldList";
 import { RichNote } from "@/components/RichNote";
 import { ConfirmButton } from "@/components/ConfirmButton";
+import { RowMenu } from "@/components/RowMenu";
+import { ConfirmMenuItem } from "@/components/ActionSheet";
 import { Icon } from "@/components/Icon";
 import { useData } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
@@ -19,6 +21,10 @@ import { APP_NAME } from "@/lib/app";
 import { putFile, fileUrl } from "@/lib/fileStore";
 import { driveEnabled, driveConnected, prepareDrive, connectDrive, ensureFolder, uploadToDrive, shareFile, driveViewUrl, driveImageUrl } from "@/lib/drive";
 import type { Doc, DocFile } from "@/core/types";
+
+/** "840 KB", "2.4 MB" — the way Files sizes a document; never "0.0 MB". */
+const fmtBytes = (b: number) =>
+  b < 1024 * 1024 ? `${Math.max(1, Math.round(b / 1024))} KB` : `${(b / 1048576).toFixed(1)} MB`;
 
 const rid = () => Math.random().toString(36).slice(2, 8);
 
@@ -204,11 +210,13 @@ function Attachments({
               <div className="flex items-center gap-2.5">
                 <Icon name="vault" size={16} className="shrink-0 text-ink-soft" />
                 <button onClick={() => open(f)} className="value min-w-0 flex-1 break-words text-left text-accent">{f.name}</button>
-                {f.size ? <span className="meta shrink-0 tabular-nums">{(f.size / 1048576).toFixed(1)} MB</span> : null}
+                {f.size ? <span className="meta shrink-0 tabular-nums">{fmtBytes(f.size)}</span> : null}
+                {/* one quiet ⋯ like every other list row, not a bin on each file */}
                 {!ro && (
-                  <ConfirmButton onConfirm={() => remove(f)} label="Remove file" className="tap shrink-0 text-ink-faint hover:text-danger">
-                    <Icon name="trash" size={15} />
-                  </ConfirmButton>
+                  <RowMenu label="File options">
+                    <button type="button" className="menu-item" onClick={() => open(f)}>Open</button>
+                    <ConfirmMenuItem onConfirm={() => remove(f)} label="Remove file" confirmLabel="Tap again to remove" />
+                  </RowMenu>
                 )}
               </div>
               {img && (

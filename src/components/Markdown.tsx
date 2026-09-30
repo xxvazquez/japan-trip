@@ -198,7 +198,7 @@ function inline(text: string): ReactNode {
 function Anchor({ href, children }: { href: string; children: ReactNode }) {
   const safe = /^https?:\/\//i.test(href) ? href : `https://${href}`;
   return (
-    <a href={safe} target="_blank" rel="noopener noreferrer" className="text-accent underline underline-offset-2">
+    <a href={safe} target="_blank" rel="noopener noreferrer" className="text-accent">
       {children}
     </a>
   );
