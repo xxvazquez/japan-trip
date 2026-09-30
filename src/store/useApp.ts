@@ -638,6 +638,12 @@ function enqueue(get: () => AppStore, op: Op) {
   flushTimer = setTimeout(() => void flush(get), 500);
 }
 
+/** days are kept in date order — the day stepper, search and exports walk
+ *  the list as it's stored. Stable, so days sharing a date keep their order. */
+function sortDays(d: TripData) {
+  d.days.sort((a, b) => (a.date ?? "").localeCompare(b.date ?? ""));
+}
+
 /** save the stays and trip dates `fitSpans` just changed */
 function enqueueSpans(get: () => AppStore, { legIds, meta }: ReturnType<typeof fitSpans>) {
   for (const id of legIds) enqueue(get, { t: "row", type: "legs", id });
@@ -1502,9 +1508,13 @@ export const useApp = create<AppStore>((set, get) => {
         const i = list.findIndex((x) => x.id === id);
         const was = moved && i >= 0 ? (list[i] as unknown as Day).date : undefined;
         if (i >= 0) list[i] = { ...list[i], ...patch };
-        if (moved) spans = fitSpans(d, was ? [was] : []);
+        if (moved) {
+          sortDays(d);
+          spans = fitSpans(d, was ? [was] : []);
+        }
       })) return;
       enqueue(get, { t: "row", type, id });
+      if (moved) enqueue(get, { t: "pos", type: "days" });
       if (spans) enqueueSpans(get, spans);
       if (type === "journeys" && (patch as { segments?: unknown }).segments) enqueue(get, { t: "seg", journeyId: id });
       if (type === "areas" && (patch as { placeIds?: unknown }).placeIds) enqueue(get, { t: "areaPlaces", areaId: id });
@@ -1514,9 +1524,13 @@ export const useApp = create<AppStore>((set, get) => {
       let spans: ReturnType<typeof fitSpans> | null = null;
       if (local((d) => {
         (d[type] as WithId[]).push(obj);
-        if (type === "days") spans = fitSpans(d);
+        if (type === "days") {
+          sortDays(d); // a day slotted into a gap belongs among the others, not at the end
+          spans = fitSpans(d);
+        }
       })) {
         enqueue(get, { t: "row", type, id: obj.id });
+        if (type === "days") enqueue(get, { t: "pos", type: "days" });
         if (spans) enqueueSpans(get, spans);
         if (type === "areas" && (obj as { placeIds?: string[] }).placeIds?.length) enqueue(get, { t: "areaPlaces", areaId: obj.id });
         if (type === "journeys" && (obj as { segments?: unknown[] }).segments?.length) enqueue(get, { t: "seg", journeyId: obj.id });

@@ -289,6 +289,13 @@ describe("days shape the stays and the trip", () => {
     expect(a.s().data!.meta.end).toBe("2026-10-03");
   });
 
+  it("a day added into a gap sits in date order, not at the end", async () => {
+    const a = await setup();
+    a.s().removeEntity("days", "x2");
+    a.s().addEntity("days", { id: "x2b", date: "2026-10-02", legId: "L" } as never);
+    expect(a.s().data!.days.map((d) => d.id)).toEqual(["x1", "x2b", "x3"]);
+  });
+
   it("adding a day after the last one extends the stay and the trip", async () => {
     const a = await setup();
     a.s().addEntity("days", { id: "x4", date: "2026-10-04", legId: "L" } as never);
