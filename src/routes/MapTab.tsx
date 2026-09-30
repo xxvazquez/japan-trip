@@ -358,6 +358,12 @@ function useMapEditing(
     const inArea = new Set(data?.areas.flatMap((a) => a.placeIds) ?? []);
     return places.filter((p) => !inArea.has(p.id));
   }, [places, data?.areas]);
+  /** the groups "Suggest areas" would offer, worked out up front so the link
+   *  only shows when there's something to suggest (four scattered places
+   *  can still form no group). Keyed on ids + coordinates, so renaming a
+   *  place doesn't re-run the clustering. */
+  const ungroupedKey = ungrouped.map((p) => `${p.id}:${p.lat},${p.lng}`).join("|");
+  const suggestions = useMemo(() => suggestAreas(ungrouped), [ungroupedKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [adding, setAdding] = useState(false);
   const [q, setQ] = useState("");
@@ -421,7 +427,7 @@ function useMapEditing(
   };
 
   const startSuggest = () => {
-    const found = suggestAreas(ungrouped);
+    const found = suggestions;
     onSelect(null);
     setAdding(false);
     setNamingArea(false);
@@ -478,7 +484,7 @@ function useMapEditing(
   };
 
   return {
-    ungrouped,
+    suggestions,
     adding, q, setQ, results, pending, setPending,
     startAdd, cancelAdd, commitPlace, onMapClick, onLongPress,
     review, setReview, naming,
@@ -571,7 +577,7 @@ export default function MapTab() {
   const [msg, setMsg] = useState("");
 
   const {
-    ungrouped,
+    suggestions,
     adding, q, setQ, results, pending, setPending,
     startAdd, cancelAdd, commitPlace, onMapClick, onLongPress,
     review, setReview, naming,
@@ -1236,9 +1242,9 @@ export default function MapTab() {
                 <button onClick={() => setNamingArea(true)} className="inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70">
                   <Icon name="plus" size={12} className="align-[-1px]" /> Add area
                 </button>
-                {ungrouped.length >= 4 && (
+                {suggestions.length > 0 && (
                   <button onClick={startSuggest} className="inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70">
-                    <Icon name="explore" size={12} className="align-[-1px]" /> Suggest from {ungrouped.length}
+                    <Icon name="explore" size={12} className="align-[-1px]" /> Suggest {plural(suggestions.length, "area")}
                   </button>
                 )}
                 {data.areas.length > 0 && (
@@ -1919,7 +1925,7 @@ function SuggestReview({
     <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-3">
       {groups.length === 0 ? (
         <p className="meta py-4">
-          Couldn’t spot any clear groups — the places are too spread out or too few. Add areas by hand in Manage.
+          Couldn’t spot any clear groups — the places are too spread out or too few. Use Add area to make one by hand.
         </p>
       ) : (
         <>

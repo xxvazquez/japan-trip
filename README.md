@@ -153,7 +153,7 @@ A **category** is *what* a place is (coffee, see, food…). An **area** is *wher
 
 ### Suggest areas
 
-When four or more places aren't in any area, a *Suggest areas* link joins the Areas controls.
+When places that aren't in any area sit close enough together to group, a *Suggest N areas* link joins the Areas controls — it only shows when there's actually a group to offer, so scattered places don't bring it up.
 
 - It groups them by how close together they are (the "close enough" distance is worked out from your own places, so it fits a tight city or a spread-out road trip, but never past roughly a 15–20 min walk end to end) and names each group after the neighbourhood it sits in.
 - You review the groups — rename, untick, drop a place — and only the ones you keep become real areas.
