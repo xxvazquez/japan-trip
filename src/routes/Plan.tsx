@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import {
   DndContext,
@@ -107,22 +107,26 @@ export default function Plan() {
           cta="Set up stays"
         />
       ) : (
-        <LegList data={data} todayISO={c.todayISO} readOnly={readOnly} />
-      )}
-
-      {data.legs.length > 0 && !readOnly && (
-        <button
-          onClick={() => {
-            // fills a deleted day's empty date first, else goes after the last day
-            const slot = nextDaySlot(data);
-            if (!slot) return;
-            const hotelId = data.legs.find((l) => l.id === slot.legId)?.hotelId || undefined;
-            addEntity("days", { id: crypto.randomUUID?.() ?? `day-${Math.random().toString(36).slice(2, 8)}`, date: slot.date, legId: slot.legId, hotelId, title: "New day" } as never);
-          }}
-          className="action mt-8"
-        >
-          <Icon name="plus" size={15} /> Add a day
-        </button>
+        <LegList
+          data={data}
+          todayISO={c.todayISO}
+          readOnly={readOnly}
+          splitPast={!noDates && c.phase === "during"}
+          addDay={!readOnly && (
+            <button
+              onClick={() => {
+                // fills a deleted day's empty date first, else goes after the last day
+                const slot = nextDaySlot(data);
+                if (!slot) return;
+                const hotelId = data.legs.find((l) => l.id === slot.legId)?.hotelId || undefined;
+                addEntity("days", { id: crypto.randomUUID?.() ?? `day-${Math.random().toString(36).slice(2, 8)}`, date: slot.date, legId: slot.legId, hotelId, title: "New day" } as never);
+              }}
+              className="action mt-8"
+            >
+              <Icon name="plus" size={15} /> Add a day
+            </button>
+          )}
+        />
       )}
     </Page>
   );
@@ -131,7 +135,14 @@ export default function Plan() {
 /** All the stays, with drag-to-reorder that also moves a day into another stay.
  *  One DndContext spans every stay; each stay is its own sortable list + a drop
  *  target so an empty stay still accepts a day. */
-function LegList({ data, todayISO, readOnly }: { data: TripData; todayISO: string; readOnly: boolean }) {
+function LegList({ data, todayISO, readOnly, splitPast, addDay }: {
+  data: TripData;
+  todayISO: string;
+  readOnly: boolean;
+  splitPast: boolean;
+  /** "Add a day" — under the upcoming days, above Past days */
+  addDay?: ReactNode;
+}) {
   const reorderDays = useApp((s) => s.reorderDays);
   const loc = data.config.locale;
   const legIds = data.legs.map((l) => l.id);
@@ -145,6 +156,16 @@ function LegList({ data, todayISO, readOnly }: { data: TripData; todayISO: strin
       .map((d) => d.id);
   }
   const snapshot = () => Object.fromEntries(legIds.map((id) => [id, [...derived[id]]]));
+  // during the trip, days before today drop to a Past days section at the
+  // foot of the page, so the list opens on today. They keep their place in
+  // the full order underneath, so a drag among today's-and-later days still
+  // reorders correctly; past days themselves aren't draggable.
+  const isPast = (id: string) => splitPast && (data.days.find((d) => d.id === id)?.date ?? "") < todayISO;
+  const pastByLeg = splitPast
+    ? data.legs
+        .map((leg) => ({ leg, days: derived[leg.id].filter(isPast).map((id) => data.days.find((d) => d.id === id)!) }))
+        .filter((g) => g.days.length > 0)
+    : [];
 
   const [working, setWorking] = useState<Record<string, string[]> | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -219,19 +240,41 @@ function LegList({ data, todayISO, readOnly }: { data: TripData; todayISO: strin
       onDragCancel={() => { setWorking(null); setActiveId(null); }}
     >
       <div className="space-y-8">
-        {data.legs.map((leg) => (
-          <LegBlock
-            key={leg.id}
-            leg={leg}
-            loc={loc}
-            nights={legNights(leg, data.legs)}
-            dayIds={cols[leg.id] ?? []}
-            days={data}
-            todayISO={todayISO}
-            readOnly={readOnly}
-          />
-        ))}
+        {data.legs.map((leg) => {
+          const shown = (cols[leg.id] ?? []).filter((id) => !isPast(id));
+          // a stay whose days have all gone by lives under Past days only
+          if (splitPast && !working && derived[leg.id].length > 0 && shown.length === 0) return null;
+          return (
+            <LegBlock
+              key={leg.id}
+              leg={leg}
+              loc={loc}
+              nights={legNights(leg, data.legs)}
+              dayIds={shown}
+              days={data}
+              todayISO={todayISO}
+              readOnly={readOnly}
+            />
+          );
+        })}
       </div>
+      {addDay}
+      {splitPast && pastByLeg.length > 0 && (
+        <Section title="Past days" id="plan-past-days" defaultOpen={false} className="mt-10">
+          <ul>
+            {pastByLeg.map(({ leg, days }) => (
+              <Fragment key={leg.id}>
+                <li className={`${DAY_ROW_LI} kicker px-3.5 pb-1 pt-3`}>{leg.base}</li>
+                {days.map((d) => (
+                  <li key={d.id} className={`${DAY_ROW_LI} flex`}>
+                    <DayLink data={data} day={d} today={false} loc={loc} hex={legHex(leg.color)} className="pl-3.5" />
+                  </li>
+                ))}
+              </Fragment>
+            ))}
+          </ul>
+        </Section>
+      )}
       <DragOverlay>
         {activeDay ? <DayCard day={activeDay} loc={loc} data={data} /> : null}
       </DragOverlay>
@@ -341,6 +384,29 @@ function DayCard({ day, loc, data }: { day: Day; loc: string; data: TripData }) 
 const DAY_ROW_LI =
   "relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
 
+/** A day's tappable row body — date, title, kind + labels, chevron. */
+function DayLink({ data, day, today, loc, hex, className }: { data: TripData; day: Day; today: boolean; loc: string; hex: string; className: string }) {
+  return (
+    <Link
+      to={`/day/${day.id}`}
+      className={`group flex min-w-0 flex-1 items-baseline gap-3 py-3 pr-3.5 ${className}`}
+    >
+      <span className="flex shrink-0 items-center gap-1.5">
+        <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: hex }} />
+        <DayDate date={day.date} loc={loc} strong={today} />
+      </span>
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className={`break-words leading-snug ${day.title ? "text-ink" : "text-ink-faint"} group-hover:underline`}>
+          {day.title || "Untitled day"}
+        </span>
+        <DayKindTag day={day} data={data} />
+      </span>
+      {today && <span className="eyebrow shrink-0 text-ink">Today</span>}
+      <Icon name="chevron" size={14} className="shrink-0 self-center text-ink-faint" />
+    </Link>
+  );
+}
+
 function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day: Day; today: boolean; loc: string; readOnly: boolean; hex: string }) {
   const pinned = (data.config.pinnedDays ?? []).includes(day.id);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: day.id, disabled: readOnly || pinned });
@@ -366,23 +432,7 @@ function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day:
           <Icon name="grip" size={14} />
         </button>
       ))}
-      <Link
-        to={`/day/${day.id}`}
-        className={`group flex min-w-0 flex-1 items-baseline gap-3 py-3 pr-3.5 ${readOnly ? "pl-3.5" : "pl-1"}`}
-      >
-        <span className="flex shrink-0 items-center gap-1.5">
-          <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: hex }} />
-          <DayDate date={day.date} loc={loc} strong={today} />
-        </span>
-        <span className="flex min-w-0 flex-1 flex-col">
-          <span className={`break-words leading-snug ${day.title ? "text-ink" : "text-ink-faint"} group-hover:underline`}>
-            {day.title || "Untitled day"}
-          </span>
-          <DayKindTag day={day} data={data} />
-        </span>
-        {today && <span className="eyebrow shrink-0 text-ink">Today</span>}
-        <Icon name="chevron" size={14} className="shrink-0 self-center text-ink-faint" />
-      </Link>
+      <DayLink data={data} day={day} today={today} loc={loc} hex={hex} className={readOnly ? "pl-3.5" : "pl-1"} />
     </li>
   );
 }

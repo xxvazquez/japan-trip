@@ -59,6 +59,7 @@ The trip as a list of days, grouped by where you're staying.
 - **Tags.** Each day shows **Arrive**, **Travel**, **Depart** or **Day trip**. These are worked out from the day itself, never chosen by hand.
 - **Reorder** by dragging a day up or down. The dates shuffle with it.
 - **Pin a day** that's fixed to its date (a public holiday, a booked tour) from the foot of its page. Its drag handle becomes a pin and other days flow around it. **Unpin this day** undoes it.
+- **During the trip** the list opens on today: every earlier day moves to a **Past days** section at the bottom (closed until you open it), grouped by stay, and a stay that's fully over drops off the top list. Past days can still be opened, not dragged.
 - **Labels.** Add your own labels to a day ("Chill day", "Walking") with **+ Add a label** under its title. Labels you've already used are offered first; **New label…** makes a new one; ✕ removes one (undoable).
 
 ### How dates work
