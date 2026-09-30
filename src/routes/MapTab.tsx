@@ -28,8 +28,8 @@ import { WalkLine } from "@/components/WalkLine";
 import { ChipStrip } from "@/components/ChipStrip";
 import { glyphPath } from "@/lib/mapGlyphs";
 import { toneForPlaceCategory, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
-import { placeLegMap, canonicalLegs } from "@/lib/cityAssign";
-import { useCityAnchors } from "@/lib/cityCoords";
+import { placeCityMap, canonicalLegs, dayTripCities } from "@/lib/cityAssign";
+import { useCityAnchors, useDayTripAnchors } from "@/lib/cityCoords";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import type { Area, Day, PlanItem, Place, TripData } from "@/core/types";
 
@@ -683,13 +683,25 @@ export default function MapTab() {
   const cityAnchors = useCityAnchors(data);
   /** leg → the leg standing for its city (two Tokyo stays are one Tokyo) */
   const cityLeg = useMemo(() => (data ? canonicalLegs(data) : new Map<string, string>()), [data]);
-  // each place's city, as the leg that stands for it — so a pill, the list
-  // groups and the counts all treat same-named stays as one city
-  const placeLeg = useMemo(() => {
-    const m = data ? placeLegMap(data, cityAnchors) : new Map<string, string>();
-    for (const [p, l] of m) m.set(p, cityLeg.get(l) ?? l);
+  /** day trips are towns of their own (Nara from Kyoto): each gets a pill,
+   *  keyed by its first day's id, placed by its linked places or its name */
+  const allTrips = useMemo(() => (data ? dayTripCities(data) : []), [data]);
+  const tripGeo = useDayTripAnchors(data, allTrips);
+  // only a day trip to another city is a town of its own (Nara, not Arashiyama)
+  const tripCities = useMemo(() => allTrips.filter((t) => tripGeo.has(t.id)), [allTrips, tripGeo]);
+  /** day id → the city it shows under: its day-trip town, else its stay */
+  const dayCity = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const c of tripCities) for (const id of c.dayIds) m.set(id, c.id);
+    for (const d of data?.days ?? []) if (!m.has(d.id) && d.legId) m.set(d.id, cityLeg.get(d.legId) ?? d.legId);
     return m;
-  }, [data, cityAnchors, cityLeg]);
+  }, [data, tripCities, cityLeg]);
+  // each place's city — the leg standing for its stay, or a day-trip town —
+  // so a pill, the list groups and the counts all agree
+  const placeLeg = useMemo(
+    () => (data ? placeCityMap(data, cityAnchors, tripGeo, tripCities) : new Map<string, string>()),
+    [data, cityAnchors, tripGeo, tripCities],
+  );
 
   /** ids in the current scope, before the category / area chips narrow it —
    *  the area chips derive from this so ticking one can't make its own chip
@@ -711,14 +723,14 @@ export default function MapTab() {
     }
     // a stay / city
     const legId = scope.slice(4);
-    for (const d of data.days.filter((d) => d.legId && (cityLeg.get(d.legId) ?? d.legId) === legId)) {
+    for (const d of data.days.filter((d) => dayCity.get(d.id) === legId)) {
       const s = dayIds(d);
       s.all.forEach((id) => all.add(id));
       s.explicit.forEach((id) => explicit.add(id));
     }
     for (const p of places) if (placeLeg.get(p.id) === legId) all.add(p.id);
     return { inScopeIds: all, derivedIds: new Set([...all].filter((id) => !explicit.has(id) && !placeLeg.has(id))) };
-  }, [data, places, scope, placeLeg, cityLeg]);
+  }, [data, places, scope, placeLeg, dayCity]);
 
   /** the scope, narrowed by category only — area groups build their headers
    *  and counts from this, so soloing one area can't make its own header
@@ -800,7 +812,9 @@ export default function MapTab() {
     if (!data || (scope && scope !== "all") || data.areas.length === 0) return null;
     const byId = new Map(scoped.map((p) => [p.id, p] as const));
     const tone = new Map(data.areas.map((a, i) => [a.id, AREA_TONES[i % AREA_TONES.length]] as const));
-    const order = new Map(data.legs.map((l, i) => [l.id, i] as const));
+    // a day-trip town sorts just after its stay
+    const order = new Map<string, number>(data.legs.map((l, i) => [l.id, i] as const));
+    for (const t of tripCities) order.set(t.id, (order.get(cityLeg.get(t.legId) ?? t.legId) ?? 99) + 0.5);
 
     // an area's city = where the plurality of its in-view pins sit
     const areaCity = (a: Area) => {
@@ -820,8 +834,9 @@ export default function MapTab() {
     const bucket = (legId: string) => {
       let c = cities.get(legId);
       if (!c) {
-        const leg = data.legs.find((l) => l.id === legId);
-        c = { legId, name: leg?.base || "No city", hex: leg ? legHex(leg.color) : NEUTRAL_TONE, areas: [], loose: [] };
+        const trip = tripCities.find((t) => t.id === legId);
+        const leg = data.legs.find((l) => l.id === (trip?.legId ?? legId));
+        c = { legId, name: trip?.name || leg?.base || "No city", hex: leg ? legHex(leg.color) : NEUTRAL_TONE, areas: [], loose: [] };
         cities.set(legId, c);
       }
       return c;
@@ -845,7 +860,7 @@ export default function MapTab() {
       .sort((x, y) => (order.get(x.legId) ?? 99) - (order.get(y.legId) ?? 99));
 
     return groups.length > 1 ? groups : null;
-  }, [data, scope, scoped, placeLeg]);
+  }, [data, scope, scoped, placeLeg, tripCities, cityLeg]);
 
   /** legs whose hotel has coordinates — enough to earn a city pill even before
    *  any pin sits under it, so linking a hotel is all it takes to see the city */
@@ -866,12 +881,18 @@ export default function MapTab() {
     if (!data) return m;
     for (const leg of data.legs) {
       const ids = new Set<string>();
-      for (const d of data.days.filter((d) => d.legId === leg.id)) dayIds(d).all.forEach((id) => ids.add(id));
+      for (const d of data.days.filter((d) => d.legId === leg.id && dayCity.get(d.id) === (cityLeg.get(leg.id) ?? leg.id))) dayIds(d).all.forEach((id) => ids.add(id));
       for (const p of places) if (placeLeg.get(p.id) === leg.id) ids.add(p.id);
       m.set(leg.id, ids.size);
     }
+    for (const t of tripCities) {
+      const ids = new Set<string>();
+      for (const id of t.dayIds) dayIds(data.days.find((d) => d.id === id)).all.forEach((x) => ids.add(x));
+      for (const p of places) if (placeLeg.get(p.id) === t.id) ids.add(p.id);
+      m.set(t.id, ids.size);
+    }
     return m;
-  }, [data, places, placeLeg]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [data, places, placeLeg, tripCities, dayCity, cityLeg]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /** faint outline + label per area, for the "zoomed out" overview.
    *  Shown on All / By-area scopes; hidden when scoped to a day/stay. */
@@ -1096,7 +1117,14 @@ export default function MapTab() {
                   const same = data.legs.filter((o) => cityLeg.get(o.id) === l.id);
                   return same.some((o) => (legCounts.get(o.id) ?? 0) > 0 || anchoredLegIds.has(o.id)) || scope === `leg:${l.id}`;
                 })
-                .map((l) => ({ id: `leg:${l.id}`, label: l.base || "Stay", hex: legHex(l.color) })),
+                // each stay's pill, then its day-trip towns (Nara after Kyoto)
+                .flatMap((l) => [
+                  { id: `leg:${l.id}`, label: l.base || "Stay", hex: legHex(l.color) },
+                  ...tripCities
+                    .filter((t) => (cityLeg.get(t.legId) ?? t.legId) === l.id)
+                    .filter((t) => (legCounts.get(t.id) ?? 0) > 0 || scope === `leg:${t.id}`)
+                    .map((t) => ({ id: `leg:${t.id}`, label: t.name, hex: legHex(l.color) })),
+                ]),
             ].map((city) => {
               const active = (scope ?? "all") === city.id;
               return (

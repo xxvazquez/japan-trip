@@ -117,6 +117,7 @@ Your Google **My Map** pins, on a clean map. It reads **city → filters → pla
 - A city's pins are the ones planned on its days, plus any imported pins that fall nearest to it, within about 60 km — "nearest" measured from the stay's **hotel** (coordinates worked out automatically from its Maps link or, failing that, geocoded from the address) or, failing that, the places its days already use.
 - A pin farther than that from every stay belongs to no city and shows only on **All** — or if a stay has no hotel and no days yet, it has nothing to measure from and can't claim any pins at all. Either way, open the pin's card and set **City** by hand (**Auto** or a specific stay) to fix it.
 - A stay gets a pill once its hotel has coordinates, or once it has a pin to show.
+- A **day trip to another city** gets its own pill right after its stay's — Nara after Kyoto — named after the day, with the places around that town moved out of the stay's pill. It needs the day marked *day trip*, and the town is found by the day's name (the part before any "→", ignoring a note in brackets) or by the places the day links. A day trip inside the stay's own city (Arashiyama in Kyoto) stays under that city. A day-trip pill shows once there's a place to show in it.
 
 ### Places and areas on the map
 

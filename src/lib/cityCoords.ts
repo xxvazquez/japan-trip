@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { geocode } from "./geocode";
+import { geocode, geocodeTown } from "./geocode";
 import { mapUrlCoords } from "./maps";
 import type { TripData } from "@/core/types";
+import { dayTripCities, dayTripQuery, type TripCity } from "./cityAssign";
+import { haversineKm } from "./geo";
 
 /**
  * The last-resort anchor for a stay: its city name ("Kyoto") looked up once.
@@ -82,6 +84,91 @@ export function useCityAnchors(data: TripData | null | undefined): Map<string, L
     if (want) want.split("|").forEach(lookup);
   }, [want]);
   // a stable Map while nothing changed, so callers can memo on it
+  const sig = JSON.stringify([...out]);
+  return useMemo(() => out, [sig]);
+}
+
+/** A day trip's town, looked up once per name on this device: where it is
+ *  and which city it belongs to. Its own cache — the stay-city one above
+ *  stores bare coordinates. */
+const TOWN_KEY = "za.tripTowns";
+type Town = LatLng & { city: string };
+const towns: Record<string, Town | null> = (() => {
+  try { return JSON.parse(localStorage.getItem(TOWN_KEY) ?? "{}") as Record<string, Town | null>; } catch { return {}; }
+})();
+const townsInFlight = new Set<string>();
+
+function lookupTown(query: string, near?: LatLng) {
+  const k = norm(query);
+  if (k in towns || townsInFlight.has(k)) return;
+  townsInFlight.add(k);
+  queue = queue.then(async () => {
+    try {
+      towns[k] = await geocodeTown(query, near);
+      try { localStorage.setItem(TOWN_KEY, JSON.stringify(towns)); } catch { /* only a cache */ }
+      listeners.forEach((f) => f());
+    } catch {
+      /* offline — retried on a later visit */
+    } finally {
+      townsInFlight.delete(k);
+    }
+    await new Promise((r) => setTimeout(r, 1200));
+  });
+}
+
+/** with no lookup to go on, how far a day trip's places must be from the
+ *  stay to count as another town */
+const FAR_TOWN_KM = 12;
+
+/** accents, case and a trailing "City"/"-shi" don't make a different city */
+const sameCity = (a: string, b: string) => {
+  const n = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/(\s+city|-shi)$/, "").trim();
+  return !!a && !!b && n(a) === n(b);
+};
+
+/** day-trip town id → its centre, for each day trip in a *different city*
+ *  from its stay (Nara from Kyoto) — a day trip within the stay's own city
+ *  (Arashiyama) isn't a town of its own and gets nothing here */
+export function useDayTripAnchors(data: TripData | null | undefined, cities?: TripCity[]): Map<string, LatLng> {
+  const [, bump] = useState(0);
+  useEffect(() => {
+    const f = () => bump((n) => n + 1);
+    listeners.add(f);
+    return () => { listeners.delete(f); };
+  }, []);
+
+  const out = new Map<string, LatLng>();
+  const wanted: { q: string; near?: LatLng }[] = [];
+  for (const c of cities ?? (data ? dayTripCities(data) : [])) {
+    const q = dayTripQuery(c.name);
+    if (!q) continue;
+    const leg = data?.legs.find((l) => l.id === c.legId);
+    const hotel = data?.hotels.find((h) => h.id === leg?.hotelId);
+    const near = hotel && Number.isFinite(hotel.lat) && Number.isFinite(hotel.lng) ? { lat: hotel.lat!, lng: hotel.lng! } : undefined;
+    const hit = towns[norm(q)];
+    if (hit === undefined) wanted.push({ q, near });
+    if (hit) {
+      if (!sameCity(hit.city, leg?.base ?? "")) out.set(c.id, { lat: hit.lat, lng: hit.lng });
+      continue;
+    }
+    // no answer (lookup down, or nothing found): judge by distance instead —
+    // a day whose own places sit well away from the stay is another town
+    const linked = new Set<string>();
+    for (const id of c.dayIds) {
+      const d = data?.days.find((x) => x.id === id);
+      for (const it of d?.plan ?? []) if (it.placeId) linked.add(it.placeId);
+      for (const aid of d?.areaIds ?? []) data?.areas.find((a) => a.id === aid)?.placeIds.forEach((x) => linked.add(x));
+    }
+    const pts = [...linked].map((id) => data?.places.find((p) => p.id === id)).filter((p): p is NonNullable<typeof p> => !!p);
+    if (near && pts.length) {
+      const at = { lat: pts.reduce((s, p) => s + p.lat, 0) / pts.length, lng: pts.reduce((s, p) => s + p.lng, 0) / pts.length };
+      if (haversineKm(at.lat, at.lng, near.lat, near.lng) > FAR_TOWN_KM) out.set(c.id, at);
+    }
+  }
+  const want = JSON.stringify(wanted);
+  useEffect(() => {
+    for (const w of JSON.parse(want) as { q: string; near?: LatLng }[]) lookupTown(w.q, w.near);
+  }, [want]);
   const sig = JSON.stringify([...out]);
   return useMemo(() => out, [sig]);
 }

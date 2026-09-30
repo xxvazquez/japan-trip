@@ -32,6 +32,29 @@ export async function geocode(query: string, near?: { lat: number; lng: number }
 }
 
 /**
+ * A town by name, with the city it belongs to — so a day trip can tell a
+ * different city (Nara) from a district of the one you're staying in
+ * (Arashiyama is in Kyoto). `near` biases the match toward the stay.
+ */
+export async function geocodeTown(query: string, near?: { lat: number; lng: number }): Promise<{ lat: number; lng: number; city: string } | null> {
+  const q = query.trim();
+  if (q.length < 2) return null;
+  // a settlement, never the prefecture/region of the same name ("Nara")
+  const p = new URLSearchParams({ q, format: "jsonv2", limit: "1", addressdetails: "1", featureType: "settlement" });
+  if (near) {
+    const d = 1.5;
+    p.set("viewbox", `${near.lng - d},${near.lat + d},${near.lng + d},${near.lat - d}`);
+    p.set("bounded", "0");
+  }
+  const res = await fetch(`https://nominatim.openstreetmap.org/search?${p}`, { headers: { "Accept-Language": "en" } });
+  if (!res.ok) throw new Error(`geocode ${res.status}`);
+  const [r] = (await res.json()) as { lat: string; lon: string; address?: Record<string, string> }[];
+  if (!r) return null;
+  const a = r.address ?? {};
+  return { lat: Number(r.lat), lng: Number(r.lon), city: a.city || a.town || a.village || a.municipality || a.county || "" };
+}
+
+/**
  * The neighbourhood a coordinate sits in, via Nominatim reverse geocoding.
  * One request per call — callers must space them out (Nominatim allows ~1/sec).
  * Returns null on any failure so the caller can keep its own fallback name.
