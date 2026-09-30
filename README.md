@@ -177,6 +177,8 @@ A list of documents; tap one to open its own page. Name it ("Travel insurance"),
 
 Build the checklist right there: add a category, add items, tick them off. Categories fold away; with two or more travellers set (Manage → Setup) each item gets an **assign** pill (a traveller's initial, **Shared**, or **—**).
 
+**Copy from another trip** brings over another trip's categories and items (archived trips included), all unticked. Anything already on the list is skipped, so copying twice doesn't double it; an assignee carries over only when this trip has a traveller of the same name.
+
 ### Stamps
 
 A checklist of stamps to collect (station stamps, temple seals, castle stamps), laid out like a wallet: each section is a coloured card, stacked so every card peeks out with its name and "4 / 6", and the last one shows whole, a dot per stamp (filled = collected).

@@ -14,7 +14,7 @@ import { AccordionRow } from "@/components/AccordionRow";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { SwipeToDelete } from "@/components/SwipeToDelete";
 import { RowMenu } from "@/components/RowMenu";
-import { ConfirmMenuItem } from "@/components/ActionSheet";
+import { ActionSheet, ConfirmMenuItem, useActionSheet } from "@/components/ActionSheet";
 import { Editable } from "@/components/Editable";
 import { Stamps } from "@/components/Stamps";
 import { FieldList } from "@/components/FieldList";
@@ -29,6 +29,7 @@ import { useAuth } from "@/lib/auth";
 import { supabaseEnabled } from "@/lib/supabase";
 import { driveEnabled } from "@/lib/drive";
 import { useReadOnly } from "@/lib/readonly";
+import { pickBackend } from "@/lib/backend";
 import { fmtDate, fmtSpan, journeyDepartDate, plural } from "@/lib/dates";
 import { MODE_ICON } from "@/lib/transport";
 import { toneForSegmentMode, logbookSectionTile, customListColor, TONE_BG, type Tone } from "@/lib/tones";
@@ -737,10 +738,88 @@ function Packing() {
         <Section>
           <ul>
             <ActionRow icon="plus" label="Add a category" onClick={addCategory} />
+            <CopyPackingRow />
           </ul>
         </Section>
       )}
     </div>
+  );
+}
+
+/** "Copy from another trip" — brings another trip's packing categories and
+ *  items into this one, all unticked. An item already here (same category +
+ *  name) is skipped, so copying twice doesn't double the list. People are
+ *  per-trip, so an assignee carries over only when this trip has someone of
+ *  the same name; "shared" always does. */
+function CopyPackingRow() {
+  const data = useData()!;
+  const activeId = useApp((s) => s.activeId);
+  const trips = useApp((s) => s.trips);
+  const addEntity = useApp((s) => s.addEntity);
+  const sheet = useActionSheet();
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+
+  const sources = trips.filter((t) => t.id !== activeId && t.templateId !== "demo");
+  if (!sources.length) return null;
+
+  const copyFrom = async (id: string, name: string) => {
+    setBusy(true);
+    setMsg("");
+    try {
+      const src = await pickBackend().loadTrip(id);
+      if (useApp.getState().activeId !== activeId) return;
+      const cur = useApp.getState().data ?? data;
+      const key = (i: PackingItem) => `${i.group.trim().toLowerCase()}\u0000${i.label.trim().toLowerCase()}`;
+      const have = new Set(cur.packing.map(key));
+      const nameOf = new Map((src.config.people ?? []).map((p) => [p.id, p.name.trim().toLowerCase()] as const));
+      const here = new Map((cur.config.people ?? []).map((p) => [p.name.trim().toLowerCase(), p.id] as const));
+      let added = 0;
+      for (const it of src.packing) {
+        if (!it.label.trim() || have.has(key(it))) continue;
+        have.add(key(it));
+        const assignee = it.assignee === "shared" ? "shared" : it.assignee ? here.get(nameOf.get(it.assignee) ?? "") : undefined;
+        addEntity("packing", {
+          id: crypto.randomUUID?.() ?? `packing-${rid()}`,
+          label: it.label,
+          phase: it.phase,
+          group: it.group,
+          ...(assignee ? { assignee } : {}),
+        } as PackingItem);
+        added++;
+      }
+      setMsg(
+        added ? `Copied ${plural(added, "item")} from ${name}.`
+        : src.packing.length ? `Everything on ${name}’s list is already here.`
+        : `${name} has no packing list.`,
+      );
+    } catch {
+      setMsg(`Couldn’t open ${name} just now.`);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <li className={INSET_DIVIDER}>
+      <button
+        ref={sheet.anchorRef}
+        onClick={() => sheet.setOpen(true)}
+        disabled={busy}
+        className="action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07] active:opacity-100 disabled:opacity-50"
+      >
+        <Icon name="copy" size={14} /> {busy ? "Copying…" : "Copy from another trip"}
+      </button>
+      {msg && <p className="meta px-3.5 pb-2.5">{msg}</p>}
+      <ActionSheet open={sheet.open} onClose={() => sheet.setOpen(false)} anchorRef={sheet.anchorRef} title="Copy packing list from">
+        {sources.map((t) => (
+          <button key={t.id} className="menu-item" onClick={() => void copyFrom(t.id, t.name)}>
+            {t.name}
+            {t.archived && <span className="meta ml-auto">Archived</span>}
+          </button>
+        ))}
+      </ActionSheet>
+    </li>
   );
 }
 
