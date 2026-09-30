@@ -68,11 +68,13 @@ export function TabBarOrRail({ onSearch }: { onSearch: () => void }) {
                 <NavLink
                   to={moduleTo(s)}
                   aria-current={current ? "page" : undefined}
-                  className={`flex h-full flex-col items-center justify-center gap-0.5 rounded-full text-[10px] font-medium transition-colors duration-200 active:scale-95 ${
+                  className={`flex h-full flex-col items-center justify-center gap-[3px] rounded-full text-[10px] font-normal tracking-[0.01em] transition-colors duration-200 active:scale-95 ${
                     current ? "bg-ink/[0.07] text-accent" : "text-ink"
                   }`}
                 >
-                  <Icon name={iconOf(s)} size={24} filled={current} />
+                  {/* SF-weight glyphs: a light 1.5 stroke, as the system's regular
+                      tab symbols draw — the default 1.9 read as bold here */}
+                  <Icon name={iconOf(s)} size={23} strokeWidth={1.5} filled={current} />
                   <span className="max-w-full px-1 leading-tight">{s.label}</span>
                 </NavLink>
               </li>
@@ -85,7 +87,7 @@ export function TabBarOrRail({ onSearch }: { onSearch: () => void }) {
           aria-label="Search"
           className="glass grid h-[var(--tabbar-h)] w-[var(--tabbar-h)] shrink-0 place-items-center rounded-full text-ink transition-transform active:scale-95"
         >
-          <Icon name="search" size={22} />
+          <Icon name="search" size={22} strokeWidth={1.5} />
         </button>
       </nav>
 
@@ -123,7 +125,7 @@ const railCell = (current: boolean, label: string, icon: IconName) => (
       current ? "bg-accent/[0.14] text-accent" : "text-ink-faint group-hover:text-ink-soft"
     }`}
   >
-    <Icon name={icon} size={24} filled={current} />
+    <Icon name={icon} size={23} strokeWidth={1.5} filled={current} />
     {label}
   </span>
 );

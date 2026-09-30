@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Page } from "@/components/Page";
+import { Icon } from "@/components/Icon";
 
 /**
  * The "this link points at nothing" screen — one centred block shared by the
@@ -8,13 +9,11 @@ import { Page } from "@/components/Page";
  * thing, or a trip that's been switched underneath it).
  */
 export function Missing({
-  glyph = "迷",
   title = "Off the map",
   body = "This page doesn’t exist.",
   to = "/",
   cta = "Back to Today",
 }: {
-  glyph?: string;
   title?: string;
   body?: string;
   to?: string;
@@ -23,9 +22,10 @@ export function Missing({
   return (
     <Page>
       <div className="py-16 text-center">
-        <p className="font-display text-display-lg text-ink-faint">{glyph}</p>
-        <h1 className="mt-4 text-2xl">{title}</h1>
-        <p className="mt-2 text-ink-soft">{body}</p>
+        {/* iOS's "content unavailable" shape: a large quiet symbol, a title, a line */}
+        <Icon name="map" size={48} strokeWidth={1.3} className="mx-auto text-ink-faint" />
+        <h1 className="mt-4 text-[1.375rem] font-medium">{title}</h1>
+        <p className="mt-1.5 text-ink-soft">{body}</p>
         <Link to={to} className="btn mt-6">{cta}</Link>
       </div>
     </Page>
