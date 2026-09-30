@@ -402,7 +402,8 @@ function DayLink({ data, day, today, loc, hex, className }: { data: TripData; da
         <DayKindTag day={day} data={data} />
       </span>
       {today && <span className="eyebrow shrink-0 text-ink">Today</span>}
-      <Icon name="chevron" size={14} className="shrink-0 self-center text-ink-faint" />
+      {/* on the title's first line, like the date — not centred on a tall row */}
+      <Icon name="chevron" size={14} className="mt-[5px] shrink-0 self-start text-ink-faint" />
     </Link>
   );
 }
