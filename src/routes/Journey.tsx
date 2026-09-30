@@ -145,7 +145,7 @@ export default function Journey() {
                 {ro || fareDerived ? (
                   <span className="tabular-nums">
                     {fareText || "—"}
-                    {fareDerived && <span className="ml-2 text-ink-faint">from hops</span>}
+                    {fareDerived && <span className="ml-2 text-ink-soft">from hops</span>}
                   </span>
                 ) : (
                   <MoneyField
@@ -292,7 +292,7 @@ export default function Journey() {
                   <IconTile size="md" name={MODE_ICON[s.mode]} tone={MODE_TONE[s.mode]} />
                   <div className="min-w-0 flex-1">
                     {ro ? (
-                      <p className="eyebrow text-ink-faint">{MODE_LABEL[s.mode]}</p>
+                      <p className="eyebrow text-ink-soft">{MODE_LABEL[s.mode]}</p>
                     ) : (
                       <Editable
                         as="select"
@@ -355,12 +355,12 @@ export default function Journey() {
                       ) : (
                         <Editable as="time" label="Depart time" value={clockOf(s.depart)} placeholder="--:--" onCommit={(v) => setSeg(i, { depart: mergeTime(s.depart, departFallback, v) })} />
                       )}
-                      {ep.depart.zone && <span className="ml-1 align-middle text-xs text-ink-faint">{ep.depart.zone}</span>}
+                      {ep.depart.zone && <span className="ml-1 align-middle text-xs text-ink-soft">{ep.depart.zone}</span>}
                     </span>
                     {(departDate || !ro) && (
                       <HopDate label="Departure date" value={departDate ?? ""} fallback={departFallback} loc={loc} ro={ro} onCommit={setDepartDate} />
                     )}
-                    {ro && s.from && <p className="meta mt-1 text-ink-faint">{s.from}</p>}
+                    {ro && s.from && <p className="meta mt-1 text-ink-soft">{s.from}</p>}
                   </div>
                   <div className="relative mt-[0.6rem] h-2 flex-1">
                     <span className="absolute inset-x-[3px] top-1/2 h-px -translate-y-1/2 bg-line" />
@@ -379,12 +379,12 @@ export default function Journey() {
                       ) : (
                         <Editable as="time" label="Arrive time" value={clockOf(s.arrive)} placeholder="--:--" onCommit={(v) => setSeg(i, { arrive: mergeTime(s.arrive, arriveFallback, v) })} />
                       )}
-                      {ep.arrive.zone && <span className="ml-1 align-middle text-xs text-ink-faint">{ep.arrive.zone}</span>}
+                      {ep.arrive.zone && <span className="ml-1 align-middle text-xs text-ink-soft">{ep.arrive.zone}</span>}
                     </span>
                     {showArriveDate && (
                       <HopDate label="Arrival date" value={arriveDate} fallback={arriveDate} loc={loc} ro={ro} onCommit={setArriveDate} align="right" danger={backwards} />
                     )}
-                    {ro && s.to && <p className="meta mt-1 text-ink-faint">{s.to}</p>}
+                    {ro && s.to && <p className="meta mt-1 text-ink-soft">{s.to}</p>}
                   </div>
                 </div>
 
@@ -401,7 +401,7 @@ export default function Journey() {
                               className={`relative flex-1 px-1.5 py-3 text-center ${ci > 0 ? "before:absolute before:left-0 before:top-[22%] before:bottom-[22%] before:w-px before:bg-line before:content-['']" : ""}`}
                             >
                               <IconTile ghost size="sm" name={c.icon} className="mx-auto mb-1.5" />
-                              <div className="eyebrow text-ink-faint">{c.label}</div>
+                              <div className="eyebrow text-ink-soft">{c.label}</div>
                               <div className="value mt-0.5 text-sm leading-tight [overflow-wrap:anywhere]">{c.value}</div>
                             </div>
                           ))}

@@ -71,7 +71,7 @@ export function ActionSheet({
           {/* the grabber + title strip — drag it down to dismiss */}
           <div {...handleProps} className="shrink-0 cursor-grab touch-none">
             <span aria-hidden className="mx-auto mb-1.5 block h-1 w-9 rounded-full bg-ink/20" />
-            {title && <p className="px-4 pb-1 pt-1 text-xs text-ink-faint">{title}</p>}
+            {title && <p className="px-4 pb-1 pt-1 text-xs text-ink-soft">{title}</p>}
           </div>
           <div className="flex-1 overflow-y-auto overscroll-contain [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-4 [&_.menu-item]:py-3.5 [&_.menu-item]:text-left [&_.menu-item]:text-[17px] [&_.menu-item:disabled]:opacity-40 [&_.menu-item:active]:bg-ink/[0.07]">
             {children}

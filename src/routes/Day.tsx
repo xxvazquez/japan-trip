@@ -376,7 +376,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
               return (
                 <span key={id} className="chip pr-2.5">
                   {a.name || "Untitled"}
-                  <span className="text-ink-faint">{a.placeIds.length}</span>
+                  <span className="text-ink-soft">{a.placeIds.length}</span>
                   {!ro && newPlaces.length > 0 && (
                     <button
                       onClick={() => setPlan([...(day.plan ?? []), ...newPlaces.map((p) => ({ id: rid(), text: p.name, placeId: p.id }))])}
@@ -788,7 +788,7 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
                 value={item.note ?? ""}
                 onCommit={(v) => onPatch({ note: v || undefined })}
                 placeholder="Add a note…"
-                className="block text-xs leading-relaxed text-ink-faint [&_strong]:text-ink-soft"
+                className="block text-xs leading-relaxed text-ink-soft [&_strong]:text-ink"
                 collapsible
                 autoEdit={noteOpen}
                 onEditEnd={() => setNoteOpen(false)}
@@ -922,7 +922,7 @@ function PlaceHoursLine({ place, date }: { place: Place; date?: string }) {
   const text = hours ? (date ? hoursForDate(hours.hours, date) : hours.hours) : null;
   if (!text) return null;
   return (
-    <span className="meta flex min-w-0 items-center gap-1 text-right text-ink-faint">
+    <span className="meta flex min-w-0 items-center gap-1 text-right text-ink-soft">
       <Icon name="clock" size={12} className="shrink-0" />
       <span className="min-w-0">{text}</span>
     </span>
@@ -999,7 +999,7 @@ function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }
   return (
     <>
       {(next || (station && toStation)) && (
-        <span className="meta flex flex-wrap gap-x-3 gap-y-0.5 text-[0.8125rem] text-ink-faint">
+        <span className="meta flex flex-wrap gap-x-3 gap-y-0.5 text-[0.8125rem] text-ink-soft">
           {train}
           {next && nextPlace && !showTrain && (
             <span className={piece}>
@@ -1086,7 +1086,7 @@ function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, onPick, 
                   tone={toneForPlaceCategory(p.category, categoryIcons)}
                 />
                 <span className="min-w-0 flex-1 break-words">{p.name}</span>
-                {areaName && <span className="shrink-0 text-2xs text-ink-faint">{areaName}</span>}
+                {areaName && <span className="shrink-0 text-2xs text-ink-soft">{areaName}</span>}
               </button>
             );
           })}

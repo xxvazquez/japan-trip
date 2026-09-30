@@ -308,7 +308,7 @@ function LegBlock({
         <span className="h-3 w-3 shrink-0 translate-y-[1px] rounded-full" style={{ background: hex }} />
         <h2 className="subhead group-hover:underline">{leg.base}</h2>
         {leg.nameAlt && (
-          <span className="text-sm text-ink-faint" style={days.config.localScriptFont ? { fontFamily: days.config.localScriptFont } : undefined}>
+          <span className="text-sm text-ink-soft" style={days.config.localScriptFont ? { fontFamily: days.config.localScriptFont } : undefined}>
             {leg.nameAlt}
           </span>
         )}

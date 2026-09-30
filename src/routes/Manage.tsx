@@ -1305,7 +1305,7 @@ function Content() {
                         <ConfirmMenuItem onConfirm={() => undoable("Deleted", () => removeEntity(type, x.id))} label="Delete" />
                       </RowMenu>
                     </div>
-                    {links && <p className="mt-1 pl-[3.25rem] text-2xs text-ink-faint">{links}</p>}
+                    {links && <p className="mt-1 pl-[3.25rem] text-2xs text-ink-soft">{links}</p>}
                   </li>
                 );
               })}

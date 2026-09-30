@@ -297,7 +297,7 @@ export function Stamps() {
             </span>
             {s.local && (
               <span
-                className="meta shrink-0 text-ink-faint"
+                className="meta shrink-0 text-ink-soft"
                 style={data.config.localScriptFont ? { fontFamily: data.config.localScriptFont } : undefined}
               >
                 {s.local}
@@ -311,7 +311,7 @@ export function Stamps() {
               )}
             </span>
           )}
-          {showGroup && s.group && <span className="meta mt-0.5 block text-ink-faint">{s.group}</span>}
+          {showGroup && s.group && <span className="meta mt-0.5 block text-ink-soft">{s.group}</span>}
         </span>
         {!plain && (
           <RowMenu label="Stamp options">

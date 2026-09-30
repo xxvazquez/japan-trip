@@ -65,7 +65,7 @@ function AreaWalkSpan({ items }: { items: Place[] }) {
   const pair = farthestPair(items);
   const route = useWalk(pair?.[0] ?? { lat: 0, lng: 0 }, pair?.[1]);
   if (!pair || !route) return null;
-  return <span className="block text-2xs text-ink-faint">{fmtWalk(route)} walk across</span>;
+  return <span className="block text-2xs text-ink-soft">{fmtWalk(route)} walk across</span>;
 }
 
 /** the legend mark for a category chip — a mini filled tile echoing the place
@@ -1289,7 +1289,7 @@ export default function MapTab() {
                       <span className="min-w-0 flex-1 break-words">
                         <Editable label="Area name" value={a.name} placeholder="Area name" onCommit={(v) => updateEntity<Area>("areas", a.id, { name: v.trim() || "Untitled" })} />
                       </span>
-                      <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{plural(a.placeIds.length, "place")}</span>
+                      <span className="shrink-0 text-2xs tabular-nums text-ink-soft">{plural(a.placeIds.length, "place")}</span>
                       <RowMenu label="Area options">
                         <ConfirmMenuItem onConfirm={() => undoable("Area deleted", () => removeEntity("areas", a.id))} label="Delete area" />
                       </RowMenu>
@@ -1402,7 +1402,7 @@ export default function MapTab() {
                 >
                   <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: c.hex }} />
                   <span className="lead min-w-0 flex-1 break-words">{c.name}</span>
-                  <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{c.count}</span>
+                  <span className="shrink-0 text-2xs tabular-nums text-ink-soft">{c.count}</span>
                   <Icon name="chevron" size={13} className={`shrink-0 text-ink-faint transition-transform ${cityShut ? "" : "rotate-90"}`} />
                 </button>
                 {!cityShut && (
@@ -1420,7 +1420,7 @@ export default function MapTab() {
                               <span className="block break-words text-[0.9375rem] leading-snug text-ink">{a.name}</span>
                               <AreaWalkSpan items={a.items} />
                             </span>
-                            <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{a.items.length}</span>
+                            <span className="shrink-0 text-2xs tabular-nums text-ink-soft">{a.items.length}</span>
                             <Icon name="chevron" size={12} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />
                           </button>
                           {!shut && <ul className="pl-8 pr-4">{a.items.map((p) => renderRow(p))}</ul>}
@@ -1478,7 +1478,7 @@ export default function MapTab() {
                       <span className="block break-words text-[0.9375rem] leading-snug text-ink">{g.name}</span>
                       {isArea && <AreaWalkSpan items={g.items} />}
                     </span>
-                    <span className="shrink-0 text-2xs tabular-nums text-ink-faint">{g.items.length}</span>
+                    <span className="shrink-0 text-2xs tabular-nums text-ink-soft">{g.items.length}</span>
                     <Icon name="chevron" size={12} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />
                   </button>
                 </div>

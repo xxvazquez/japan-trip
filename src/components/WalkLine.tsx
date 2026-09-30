@@ -20,7 +20,7 @@ export function WalkLine({ icon, from, to, children }: {
   const walk = useWalk(from, to);
   if (!walk) return null;
   return (
-    <span className="meta flex items-start gap-1 text-ink-faint">
+    <span className="meta flex items-start gap-1 text-ink-soft">
       <Icon name={icon} size={12} className="mt-[3px] shrink-0" />
       <span className="min-w-0">{fmtWalk(walk)} {children}</span>
     </span>
