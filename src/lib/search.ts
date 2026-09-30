@@ -1,5 +1,5 @@
 import type { TripData } from "@/core/types";
-import { fmtDate, journeyDepartDate } from "./dates";
+import { fmtDate, journeyDepartDate, plural } from "./dates";
 import { JOURNEY_KIND_LABEL } from "./journey";
 
 export type SearchKind = "day" | "leg" | "hotel" | "place" | "transfer" | "area" | "luggage" | "doc" | "packing" | "list" | "note";
@@ -75,7 +75,7 @@ function build(d: TripData): SearchHit[] {
     hits.push({
       kind: "area",
       label: a.name || "Untitled",
-      sub: a.placeIds.length ? `${a.placeIds.length} places` : undefined,
+      sub: a.placeIds.length ? plural(a.placeIds.length, "place") : undefined,
       to: `/map?area=${a.id}`,
       terms: (a.name ?? "").toLowerCase(),
     });
@@ -142,25 +142,46 @@ function build(d: TripData): SearchHit[] {
   return hits;
 }
 
-function score(hit: SearchHit, q: string): number {
-  const label = hit.label.toLowerCase();
-  if (label === q) return 100;
-  if (label.startsWith(q)) return 80;
-  if (label.includes(q)) return 60;
-  if (hit.terms.includes(q)) return 30;
+/** Lower-case with Latin accents dropped, so "sensō-ji" matches "senso-ji"
+ *  (only the combining accents — Japanese dakuten are left alone). */
+const fold = (s: string) => s.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").normalize("NFC").toLowerCase();
+/** …and with spaces and punctuation gone too, so "sensoji" matches "Sensō-ji". */
+const compact = (s: string) => s.replace(/[^\p{L}\p{N}]/gu, "");
+
+/** a hit's label and terms, folded once when the index is built */
+type Indexed = { h: SearchHit; label: string; terms: string; cLabel: string; cTerms: string };
+
+function score(x: Indexed, q: string, cq: string): number {
+  if (x.label === q) return 100;
+  if (x.label.startsWith(q)) return 80;
+  if (x.label.includes(q)) return 60;
+  if (x.terms.includes(q)) return 30;
+  if (!cq) return 0;
+  if (x.cLabel.includes(cq)) return 50;
+  if (x.cTerms.includes(cq)) return 20;
   return 0;
 }
 
 const KIND_ORDER: SearchKind[] = ["day", "leg", "hotel", "place", "transfer", "area", "doc", "luggage", "list", "note", "packing"];
 
-let cache: { data: TripData; index: SearchHit[] } | null = null;
+let cache: { data: TripData; index: Indexed[] } | null = null;
 
 export function search(data: TripData, query: string, limit = 12): SearchHit[] {
-  const q = query.trim().toLowerCase();
+  const q = fold(query.trim());
   if (!q) return [];
-  if (!cache || cache.data !== data) cache = { data, index: build(data) };
+  if (!cache || cache.data !== data) {
+    cache = {
+      data,
+      index: build(data).map((h) => {
+        const label = fold(h.label);
+        const terms = fold(h.terms);
+        return { h, label, terms, cLabel: compact(label), cTerms: compact(terms) };
+      }),
+    };
+  }
+  const cq = compact(q);
   return cache.index
-    .map((h) => ({ h, s: score(h, q) }))
+    .map((x) => ({ h: x.h, s: score(x, q, cq) }))
     .filter((x) => x.s > 0)
     .sort((a, b) => b.s - a.s || KIND_ORDER.indexOf(a.h.kind) - KIND_ORDER.indexOf(b.h.kind))
     .slice(0, limit)
