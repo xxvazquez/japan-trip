@@ -8,6 +8,7 @@ import { store as kv } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/app";
 import { normalizeTrip } from "@/lib/hydrate";
 import { fmtDate, rangeText, shiftDate } from "@/lib/dates";
+import { fitSpans } from "@/lib/spans";
 import { TripLoadError, SaveBlockedError, StorageError, type LoadFailure } from "@/lib/safety/errors";
 import { validateTrip, describeProblems } from "@/lib/safety/validate";
 import { takeSnapshot, ensureBackedUp, readSnapshot, purgeDeletedTripSnapshots, type SnapshotMeta } from "@/lib/safety/snapshots";
@@ -630,6 +631,12 @@ function enqueue(get: () => AppStore, op: Op) {
   saveOutboxSoon(get);
   clearTimeout(flushTimer);
   flushTimer = setTimeout(() => void flush(get), 500);
+}
+
+/** save the stays and trip dates `fitSpans` just changed */
+function enqueueSpans(get: () => AppStore, { legIds, meta }: ReturnType<typeof fitSpans>) {
+  for (const id of legIds) enqueue(get, { t: "row", type: "legs", id });
+  if (meta) enqueue(get, { t: "fields", keys: ["meta", "config"] });
 }
 
 /** Persist whatever's pending right now — call before the active trip changes
@@ -1478,19 +1485,29 @@ export const useApp = create<AppStore>((set, get) => {
     },
 
     updateEntity: (type, id, patch) => {
+      // a day moving date or stay reshapes the stays' and trip's dates
+      const moved = type === "days" && ("date" in patch || "legId" in patch);
+      let spans: ReturnType<typeof fitSpans> | null = null;
       if (!local((d) => {
         const list = d[type] as WithId[];
         const i = list.findIndex((x) => x.id === id);
         if (i >= 0) list[i] = { ...list[i], ...patch };
+        if (moved) spans = fitSpans(d);
       })) return;
       enqueue(get, { t: "row", type, id });
+      if (spans) enqueueSpans(get, spans);
       if (type === "journeys" && (patch as { segments?: unknown }).segments) enqueue(get, { t: "seg", journeyId: id });
       if (type === "areas" && (patch as { placeIds?: unknown }).placeIds) enqueue(get, { t: "areaPlaces", areaId: id });
     },
 
     addEntity: (type, obj) => {
-      if (local((d) => { (d[type] as WithId[]).push(obj); })) {
+      let spans: ReturnType<typeof fitSpans> | null = null;
+      if (local((d) => {
+        (d[type] as WithId[]).push(obj);
+        if (type === "days") spans = fitSpans(d);
+      })) {
         enqueue(get, { t: "row", type, id: obj.id });
+        if (spans) enqueueSpans(get, spans);
         if (type === "areas" && (obj as { placeIds?: string[] }).placeIds?.length) enqueue(get, { t: "areaPlaces", areaId: obj.id });
         if (type === "journeys" && (obj as { segments?: unknown[] }).segments?.length) enqueue(get, { t: "seg", journeyId: obj.id });
       }
@@ -1504,8 +1521,12 @@ export const useApp = create<AppStore>((set, get) => {
       // area merge tool don't filter, so they'd quietly drift high forever
       const touchedAreas: string[] = [];
       const touchedDays: string[] = [];
+      let spans: ReturnType<typeof fitSpans> | null = null;
       const next = local((d) => {
         d[type] = (d[type] as WithId[]).filter((x) => x.id !== id) as never;
+        // the other days stay on their dates; the stays and the trip just
+        // stop covering a first or last day that's gone
+        if (type === "days") spans = fitSpans(d);
         if (type === "places") {
           for (const a of d.areas) {
             if (!a.placeIds.includes(id)) continue;
@@ -1528,6 +1549,7 @@ export const useApp = create<AppStore>((set, get) => {
         enqueue(get, { t: "pos", type });
         for (const areaId of touchedAreas) enqueue(get, { t: "areaPlaces", areaId });
         for (const dayId of touchedDays) enqueue(get, { t: "row", type: "days", id: dayId });
+        if (spans) enqueueSpans(get, spans);
       }
     },
 

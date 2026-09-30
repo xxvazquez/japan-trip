@@ -261,3 +261,41 @@ describe("plan: pinned days", () => {
     expect(after(first.id)).toBe(days[days.length - 1].date); // now last
   });
 });
+
+describe("days shape the stays and the trip", () => {
+  const setup = async () => {
+    const a = await boot();
+    a.s().mutate((d) => {
+      d.meta.start = "2026-10-01";
+      d.meta.end = "2026-10-03";
+      d.legs = [{ id: "L", base: "L", start: "2026-10-01", end: "2026-10-03", hotelId: "", color: "blue" }] as never;
+      d.days = [
+        { id: "x1", date: "2026-10-01", legId: "L" },
+        { id: "x2", date: "2026-10-02", legId: "L" },
+        { id: "x3", date: "2026-10-03", legId: "L" },
+      ] as never;
+    });
+    return a;
+  };
+
+  it("deleting the last day shortens the stay and the trip; the others keep their dates; undo puts it all back", async () => {
+    const a = await setup();
+    a.s().undoable("Day deleted", () => a.s().removeEntity("days", "x3"));
+    expect(a.s().data!.days.map((d) => d.date)).toEqual(["2026-10-01", "2026-10-02"]);
+    expect(a.s().data!.legs[0].end).toBe("2026-10-02");
+    expect(a.s().data!.meta.end).toBe("2026-10-02");
+    a.s().undo();
+    expect(a.s().data!.legs[0].end).toBe("2026-10-03");
+    expect(a.s().data!.meta.end).toBe("2026-10-03");
+  });
+
+  it("adding a day after the last one extends the stay and the trip", async () => {
+    const a = await setup();
+    a.s().addEntity("days", { id: "x4", date: "2026-10-04", legId: "L" } as never);
+    expect(a.s().data!.legs[0].end).toBe("2026-10-04");
+    expect(a.s().data!.meta.end).toBe("2026-10-04");
+    await a.settlePending();
+    const b = await boot();
+    expect(b.s().data!.meta.end).toBe("2026-10-04");
+  });
+});

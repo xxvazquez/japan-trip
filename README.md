@@ -39,6 +39,7 @@ Getting around works like an iOS 26 app:
 The trip as a list of days, grouped by where you're staying. Each day carries a tag — **Arrive**, **Travel**, **Depart**, **Day trip** — worked out automatically from what you set on the day itself, never chosen by hand.
 
 - Drag a day up or down to **reorder** it (the dates shuffle with it).
+- The days set the dates: each stay runs from its first day to its last, and the trip from the first day to the last. **Add a day** fills the earliest empty date in the trip (one left by a deleted day), otherwise goes after the last day. **Delete day** leaves the other days where they are — only a first or last day shortens its stay or the trip. A stay's start and end show on its page but aren't edited there once it has days.
 - **Pin a day** that's fixed to its date (a public holiday, a booked tour) from the foot of its page: on Plan its drag handle becomes a pin, and reordering the other days flows around it without moving it. **Unpin this day** in the same place undoes it.
 - Tap a day to open it. At the top: **Staying at** (which hotel) and **Journey** (link an existing one, or ＋ new — you then pick its type on the journey page).
 - If that day's hotel has coordinates, its header line shows the day's forecast (e.g. "Showers, 19–24°C") — free, no key needed (Open-Meteo). Forecasts only exist for the next ~16 days, so a day further out just shows nothing yet rather than a guess; it starts appearing on its own as the trip gets closer.

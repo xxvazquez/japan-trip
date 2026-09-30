@@ -14,6 +14,7 @@ import { useIsDark, useMode, type Mode } from "@/lib/mode";
 import { APP_BUILD, APP_NAME, APP_TAGLINE } from "@/lib/app";
 import { tripLogoSrc } from "@/components/Wordmark";
 import { daysBetween, plural, rangeText } from "@/lib/dates";
+import { nextDaySlot } from "@/lib/spans";
 import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
 import { THEME_PRESETS, DEFAULT_ACCENT } from "@/lib/themePresets";
 import { GlyphPicker } from "@/components/GlyphPicker";
@@ -1228,7 +1229,10 @@ function Content() {
   const blankFor = (type: EntityType): Record<string, unknown> => {
     const id = crypto.randomUUID?.() ?? `${type}-${rid()}`;
     switch (type) {
-      case "days": return { id, date: data.meta.start, legId: data.legs[0]?.id ?? "", title: "New day" };
+      case "days": {
+        const slot = nextDaySlot(data);
+        return { id, date: slot?.date ?? data.meta.start, legId: slot?.legId ?? data.legs[0]?.id ?? "", title: "New day" };
+      }
       case "legs": return { id, base: "New stay", start: data.meta.start, end: data.meta.end, hotelId: "", color: "blue" };
       case "hotels": return { id, name: "New hotel" };
       case "journeys": return { id, label: "New journey", kind: "transfer", date: data.meta.start, segments: [] };

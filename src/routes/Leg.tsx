@@ -10,6 +10,7 @@ import { Icon } from "@/components/Icon";
 import { useData, lookups } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
+import { fmtDate } from "@/lib/dates";
 import { LEG_COLORS, legHex, type LegColorId } from "@/lib/legColors";
 import type { Leg as LegT } from "@/core/types";
 
@@ -28,6 +29,8 @@ export default function Leg() {
   const p = (patch: Partial<LegT>) => updateEntity<LegT>("legs", leg.id, patch);
   const hotel = data.hotels.find((h) => h.id === leg.hotelId);
   const hotelDangling = !!leg.hotelId && !hotel;
+  const hasDays = data.days.some((d) => d.legId === leg.id);
+  const loc = data.config.locale;
 
   return (
     <Page>
@@ -35,6 +38,7 @@ export default function Leg() {
         back="/"
         dotColor={legHex(leg.color)}
         eyebrow="Stay"
+        info={hasDays ? "The stay runs from its first day to its last. To change it, add or delete days in Plan, or drag a day between stays." : undefined}
         title={<Editable label="Stay name" value={leg.base} onCommit={(v) => p({ base: v || leg.base })} />}
       />
 
@@ -53,11 +57,13 @@ export default function Leg() {
                 </span>
               </InsetRow>
             )}
+            {/* a stay with days runs from its first to its last day — set by
+                the days themselves (Plan: add, delete, drag between stays) */}
             <InsetRow label="Start">
-              <Editable as="date" label="Start date" value={leg.start} onCommit={(v) => v && p({ start: v })} />
+              {hasDays ? fmtDate(leg.start, loc) : <Editable as="date" label="Start date" value={leg.start} onCommit={(v) => v && p({ start: v })} />}
             </InsetRow>
             <InsetRow label="End">
-              <Editable as="date" label="End date" value={leg.end} onCommit={(v) => v && p({ end: v })} />
+              {hasDays ? fmtDate(leg.end, loc) : <Editable as="date" label="End date" value={leg.end} onCommit={(v) => v && p({ end: v })} />}
             </InsetRow>
 
             {ro ? (

@@ -23,7 +23,8 @@ import { Icon, type IconName } from "@/components/Icon";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { tripClock, fmtDate, dayKind, legForDate, addDays, legNights, plural } from "@/lib/dates";
+import { tripClock, fmtDate, dayKind, legForDate, legNights, plural } from "@/lib/dates";
+import { nextDaySlot } from "@/lib/spans";
 import { legHex } from "@/lib/legColors";
 import type { Day, Leg, TripData } from "@/core/types";
 
@@ -112,10 +113,11 @@ export default function Plan() {
       {data.legs.length > 0 && !readOnly && (
         <button
           onClick={() => {
-            const lastLeg = data.legs.at(-1)!;
-            const legDays = data.days.filter((d) => d.legId === lastLeg.id);
-            const nextDate = legDays.length ? addDays(legDays.at(-1)!.date, 1) : lastLeg.start;
-            addEntity("days", { id: crypto.randomUUID?.() ?? `day-${Math.random().toString(36).slice(2, 8)}`, date: nextDate, legId: lastLeg.id, hotelId: lastLeg.hotelId, title: "New day" } as never);
+            // fills a deleted day's empty date first, else goes after the last day
+            const slot = nextDaySlot(data);
+            if (!slot) return;
+            const hotelId = data.legs.find((l) => l.id === slot.legId)?.hotelId || undefined;
+            addEntity("days", { id: crypto.randomUUID?.() ?? `day-${Math.random().toString(36).slice(2, 8)}`, date: slot.date, legId: slot.legId, hotelId, title: "New day" } as never);
           }}
           className="action mt-8"
         >
@@ -269,7 +271,8 @@ function LegBlock({
         )}
       </Link>
       <p className="eyebrow mb-2 pl-5">
-        {fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – {fmtDate(leg.end, loc, { day: "numeric", month: "short" })} · {plural(nights, "night")}
+        {fmtDate(leg.start, loc, { day: "numeric", month: "short" })}
+        {leg.end && leg.end !== leg.start && <> – {fmtDate(leg.end, loc, { day: "numeric", month: "short" })}</>} · {plural(nights, "night")}
       </p>
 
       <Section>
