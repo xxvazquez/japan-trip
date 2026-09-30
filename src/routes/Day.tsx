@@ -390,7 +390,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
                   {!ro && (
                     <ConfirmButton
                       label={`Remove ${a.name || "this area"}`}
-                      onConfirm={() => patch({ areaIds: (day.areaIds ?? []).filter((x) => x !== id) })}
+                      onConfirm={() => undoable("Area removed", () => patch({ areaIds: (day.areaIds ?? []).filter((x) => x !== id) }))}
                       className="text-ink-faint hover:text-accent"
                     >
                       <Icon name="close" size={11} />
