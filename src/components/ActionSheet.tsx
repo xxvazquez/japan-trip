@@ -61,10 +61,10 @@ export function ActionSheet({
   if (isNarrow()) {
     return createPortal(
       <>
-        <div className="fixed inset-0 z-50 bg-black/40 motion-safe:animate-fade-in" onClick={onClose} />
+        <div className="fixed inset-0 z-50 bg-black/25 motion-safe:animate-fade-in" onClick={onClose} />
         <div
           ref={sheetRef}
-          className="fixed inset-x-0 bottom-0 z-[55] flex max-h-[85vh] flex-col rounded-t-[16px] border-t border-line bg-surface pb-[max(0.75rem,var(--sab))] pt-2 motion-safe:animate-sheet-up"
+          className="sheet-float glass-panel z-[55] flex max-h-[85vh] flex-col overflow-hidden pb-1 pt-2 motion-safe:animate-sheet-up"
           onClick={onClose}
           role="menu"
         >
@@ -73,10 +73,10 @@ export function ActionSheet({
             <span aria-hidden className="mx-auto mb-1.5 block h-1 w-9 rounded-full bg-ink/20" />
             {title && <p className="px-4 pb-1 pt-1 text-xs text-ink-faint">{title}</p>}
           </div>
-          <div className="flex-1 overflow-y-auto overscroll-contain [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-4 [&_.menu-item]:py-3.5 [&_.menu-item]:text-left [&_.menu-item]:text-[17px] [&_.menu-item:disabled]:opacity-40 [&_.menu-item:active]:bg-surface-2">
+          <div className="flex-1 overflow-y-auto overscroll-contain [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-4 [&_.menu-item]:py-3.5 [&_.menu-item]:text-left [&_.menu-item]:text-[17px] [&_.menu-item:disabled]:opacity-40 [&_.menu-item:active]:bg-ink/[0.07]">
             {children}
           </div>
-          <button onClick={onClose} className="mt-1 w-full shrink-0 border-t border-line px-4 py-3.5 text-[17px] font-medium text-accent">
+          <button onClick={onClose} className="mt-1 w-full shrink-0 border-t border-ink/10 px-4 py-3.5 text-[17px] font-medium text-accent">
             {doneLabel}
           </button>
         </div>
@@ -102,7 +102,7 @@ export function ActionSheet({
           top,
           left,
         }}
-        className="fixed z-[55] flex max-h-[70vh] min-w-[10rem] max-w-[22rem] flex-col overflow-y-auto rounded-[10px] border border-line bg-surface py-1 text-sm shadow-md motion-safe:animate-fade-in [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-3 [&_.menu-item]:py-1.5 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 [&_.menu-item:hover]:bg-surface-2"
+        className="glass-panel fixed z-[55] flex max-h-[70vh] min-w-[12rem] max-w-[22rem] flex-col overflow-y-auto rounded-[16px] py-1.5 text-sm motion-safe:animate-fade-in [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-3.5 [&_.menu-item]:py-2 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 [&_.menu-item:hover]:bg-ink/[0.06]"
       >
         {children}
       </div>

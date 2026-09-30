@@ -461,20 +461,20 @@ export function MapView({
     <div className="relative h-full w-full">
       <div ref={el} className="h-full w-full" />
       {status === "ok" && (
-        <div className="absolute right-3 top-3 flex flex-col overflow-hidden rounded border border-line bg-surface text-ink-soft">
+        <div className="glass absolute right-3 top-3 flex flex-col overflow-hidden rounded-full text-ink">
           <button
             onClick={() => map.current?.zoomIn()}
             aria-label="Zoom in"
-            className="grid h-8 w-8 place-items-center transition-colors hover:bg-surface-2 hover:text-ink"
+            className="grid h-11 w-11 place-items-center transition-colors active:bg-ink/[0.07]"
           >
-            <Icon name="plus" size={15} />
+            <Icon name="plus" size={17} />
           </button>
           <button
             onClick={() => map.current?.zoomOut()}
             aria-label="Zoom out"
-            className="grid h-8 w-8 place-items-center border-t border-line transition-colors hover:bg-surface-2 hover:text-ink"
+            className="grid h-11 w-11 place-items-center transition-colors active:bg-ink/[0.07]"
           >
-            <Icon name="minus" size={15} />
+            <Icon name="minus" size={17} />
           </button>
         </div>
       )}

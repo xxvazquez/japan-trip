@@ -245,8 +245,8 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, onPick,
   if (isNarrow()) {
     return createPortal(
       <>
-        <div className="fixed inset-0 z-50 bg-black/40 motion-safe:animate-fade-in" onClick={onClose} />
-        <div ref={sheetRef} className="fixed inset-x-0 bottom-0 z-[55] flex flex-col rounded-t-[16px] border-t border-line bg-surface pb-[max(0.75rem,var(--sab))] pt-2 motion-safe:animate-sheet-up">
+        <div className="fixed inset-0 z-50 bg-black/25 motion-safe:animate-fade-in" onClick={onClose} />
+        <div ref={sheetRef} className="sheet-float glass-panel z-[55] flex flex-col pb-2 pt-2 motion-safe:animate-sheet-up">
           <div {...handleProps} className="shrink-0 cursor-grab touch-none pb-1">
             <span aria-hidden className="mx-auto mb-1.5 block h-1 w-9 rounded-full bg-ink/20" />
           </div>
@@ -268,7 +268,7 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, onPick,
       <div className="fixed inset-0 z-50" onClick={onClose} />
       <div
         style={{ top: (r?.bottom ?? 0) + 4, left }}
-        className="fixed z-[55] flex flex-col rounded-[12px] border border-line bg-surface p-2 shadow-md motion-safe:animate-fade-in"
+        className="glass-panel fixed z-[55] flex flex-col rounded-[18px] p-2 motion-safe:animate-fade-in"
       >
         <ClockPicker hour={h} minute={m} onPick={onPick} />
         <div className="flex items-center justify-between px-2 pb-1">

@@ -369,6 +369,46 @@ html.dark {
         0 8px 28px rgb(var(--c-bg) / 0.6);
     }
   }
+  /* iOS 26 sheets and popovers: the same glass, thicker so a menu or a
+   * keypad stays legible over busy content. `.sheet-float` is the phone
+   * bottom sheet — inset from the screen edges, floating above the home
+   * indicator, with the device-like corner radius iOS 26 gives sheets. */
+  .glass-panel {
+    background: rgb(var(--c-surface));
+    border: 0.5px solid rgb(var(--c-ink) / 0.08);
+    box-shadow:
+      0 12px 40px rgb(var(--c-ink) / 0.16),
+      0 1px 3px rgb(var(--c-ink) / 0.08);
+  }
+  /* dark: one step lighter than a card, as iOS lifts its sheets off black */
+  html.dark .glass-panel {
+    background: rgb(var(--c-surface-2));
+  }
+  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass-panel {
+      background: rgb(var(--c-surface) / 0.82);
+      -webkit-backdrop-filter: blur(30px) saturate(180%);
+      backdrop-filter: blur(30px) saturate(180%);
+      box-shadow:
+        inset 0 0.5px 0 rgb(var(--c-surface) / 0.9),
+        0 12px 40px rgb(var(--c-ink) / 0.16),
+        0 1px 3px rgb(var(--c-ink) / 0.08);
+    }
+    html.dark .glass-panel {
+      background: rgb(var(--c-surface-2) / 0.82);
+      border-color: rgb(var(--c-ink) / 0.12);
+      box-shadow:
+        inset 0 0.5px 0 rgb(var(--c-ink) / 0.14),
+        0 12px 40px rgb(0 0 0 / 0.5);
+    }
+  }
+  .sheet-float {
+    position: fixed;
+    left: 0.5rem;
+    right: 0.5rem;
+    bottom: max(0.5rem, var(--sab));
+    border-radius: 28px;
+  }
   /* the nav bar's scroll edge: no hairline — content fades softly under a
    * blur that thins out toward the bar's foot, as on iOS 26 */
   .scroll-edge {

@@ -1586,7 +1586,7 @@ export default function MapTab() {
       <div
         ref={sheetRef}
         style={listOnly ? undefined : { height: `${sheetHeight}px` }}
-        className={`absolute inset-x-0 z-10 flex flex-col border-t border-line bg-bg md:hidden ${listOnly ? "inset-y-0" : "bottom-0"} ${dragging ? "" : "transition-[height] duration-200 ease-paper"}`}
+        className={`absolute inset-x-0 z-10 flex flex-col bg-bg md:hidden ${listOnly ? "inset-y-0" : "bottom-0 overflow-hidden rounded-t-[28px] shadow-[0_-6px_24px_rgb(var(--c-ink)/0.12)]"} ${dragging ? "" : "transition-[height] duration-200 ease-paper"}`}
       >
         {!listOnly && (
           <button
