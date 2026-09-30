@@ -89,6 +89,17 @@ function zonedTimeToUtc(dateISO: string, hhmm: string, tz: string): Date | null 
   return new Date(utc);
 }
 
+/** True when a hop's arrival, read in its own zone, is before its departure —
+ *  a date typed onto the wrong day. Needs both ends to have a date and time. */
+export function arrivesBeforeDeparture(seg: Segment, tripTz: string): boolean {
+  const [dd, dt] = (seg.depart ?? "").split("T");
+  const [ad, at] = (seg.arrive ?? "").split("T");
+  if (!dt || !at) return false;
+  const start = zonedTimeToUtc(dd, dt, safeTz(seg.fromTz || tripTz));
+  const end = zonedTimeToUtc(ad, at, safeTz(seg.toTz || seg.fromTz || tripTz));
+  return !!start && !!end && end.getTime() < start.getTime();
+}
+
 const fmtUtcStamp = (d: Date): string => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
 const fmtDateStamp = (iso: string): string => iso.replace(/-/g, "");
 

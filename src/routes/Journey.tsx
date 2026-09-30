@@ -18,6 +18,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { addDays, daysBetween, fmtDate, journeyDepartDate, plural, segEndpoints } from "@/lib/dates";
 import { clockOf, fmtDuration, fmtMinutes, localMinutes, parseLocal } from "@/lib/time";
 import { MODE_LABEL, MODE_ICON, MODE_TONE } from "@/lib/transport";
+import { arrivesBeforeDeparture } from "@/lib/ics";
 import { journeyFare, hopsPriced, fmtMoney, cleanAmount, fmtFare } from "@/lib/cost";
 import { splitRoute, joinRoute, JOURNEY_KIND_LABEL } from "@/lib/journey";
 import { Arrow, RouteLabel } from "@/components/RouteLabel";
@@ -185,7 +186,8 @@ export default function Journey() {
           };
           // the arrival day only shows when it isn't the departure day (an
           // overnight hop), or while editing a hop that already has an arrival
-          const showArriveDate = !!arriveDate && (arriveDate !== departDate || !ro);
+          const backwards = arrivesBeforeDeparture(s, data.config.tripTimeZone);
+          const showArriveDate = !!arriveDate && (arriveDate !== departDate || !ro || backwards);
           const foot = s.mode === "walk";
           // which fields are worth offering for this mode when editing — an
           // already-filled value always shows regardless
@@ -353,11 +355,13 @@ export default function Journey() {
                       {ep.arrive.zone && <span className="ml-1 align-middle text-xs text-ink-faint">{ep.arrive.zone}</span>}
                     </span>
                     {showArriveDate && (
-                      <HopDate label="Arrival date" value={arriveDate} fallback={arriveDate} loc={loc} ro={ro} onCommit={setArriveDate} align="right" />
+                      <HopDate label="Arrival date" value={arriveDate} fallback={arriveDate} loc={loc} ro={ro} onCommit={setArriveDate} align="right" danger={backwards} />
                     )}
                     {ro && s.to && <p className="meta mt-1 text-ink-faint">{s.to}</p>}
                   </div>
                 </div>
+
+                {backwards && <p className="meta mt-1.5 text-right text-danger">Arrives before it leaves — check the date</p>}
 
                 {/* details — an icon strip read-only, editable rows when editing */}
                 {ro
@@ -425,7 +429,7 @@ export default function Journey() {
 
 /** A hop end's date under its time — "Fri 30 Oct". Editing opens the native
  *  date picker (a transparent input over the label), never a text field. */
-function HopDate({ label, value, fallback, loc, ro, onCommit, align = "left" }: {
+function HopDate({ label, value, fallback, loc, ro, onCommit, align = "left", danger = false }: {
   label: string;
   value: string;
   fallback?: string;
@@ -433,11 +437,12 @@ function HopDate({ label, value, fallback, loc, ro, onCommit, align = "left" }: 
   ro: boolean;
   onCommit: (v: string) => void;
   align?: "left" | "right";
+  danger?: boolean;
 }) {
   const ref = useRef<HTMLInputElement>(null);
   const shown = value || fallback;
   const text = shown ? fmtDate(shown, loc, { weekday: "short", day: "numeric", month: "short" }) : "Add date";
-  const cls = `meta mt-1 block tabular-nums ${align === "right" ? "text-right" : ""}`;
+  const cls = `meta mt-1 block tabular-nums ${align === "right" ? "text-right" : ""} ${danger ? "!text-danger" : ""}`;
   if (ro) return <span className={cls}>{text}</span>;
   return (
     <span className={`${cls} relative ${value ? "" : "text-ink-faint"}`}>

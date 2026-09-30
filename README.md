@@ -102,7 +102,7 @@ Linked from a day, or the Logbook's *Journeys* list. A journey is one or more **
 
 - Each hop is a card, tinted by mode (rail, air/sea, road, on foot), reading top to bottom: mode → route → the two times joined by a rule with the duration on it, each with its date under it (the arrival's only when it's a different day) → the details (carrier, platform, seat, booking ref, fare) as label-and-value rows.
 - Between hops, a note on the connection time flags a tight or overnight change.
-- Tap a hop's date to change it (a date picker, no typing). Moving the departure day moves the arrival with it; a hop with no date yet takes the day the one before it arrives.
+- Tap a hop's date to change it (a date picker, no typing). Moving the departure day moves the arrival with it; a hop with no date yet takes the day the one before it arrives. A hop that would land before it leaves (time zones counted) shows its arrival date in red with a note to check it.
 - The **total fare** at the top adds itself up from the hops' fares as you price them. Only a journey with no priced hop takes a figure of its own (one ticket for the whole trip).
 - It's the same number Expenses uses, counted once — split by each hop's mode if a category claims it. A manual override total follows the same rule when every hop shares one mode (a single flight, say); only a genuinely mixed-mode journey falls to the generic Transport category.
 
