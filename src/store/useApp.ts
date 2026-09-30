@@ -1491,8 +1491,9 @@ export const useApp = create<AppStore>((set, get) => {
       if (!local((d) => {
         const list = d[type] as WithId[];
         const i = list.findIndex((x) => x.id === id);
+        const was = moved && i >= 0 ? (list[i] as unknown as Day).date : undefined;
         if (i >= 0) list[i] = { ...list[i], ...patch };
-        if (moved) spans = fitSpans(d);
+        if (moved) spans = fitSpans(d, was ? [was] : []);
       })) return;
       enqueue(get, { t: "row", type, id });
       if (spans) enqueueSpans(get, spans);
@@ -1523,10 +1524,11 @@ export const useApp = create<AppStore>((set, get) => {
       const touchedDays: string[] = [];
       let spans: ReturnType<typeof fitSpans> | null = null;
       const next = local((d) => {
+        const was = type === "days" ? (d.days.find((x) => x.id === id)?.date) : undefined;
         d[type] = (d[type] as WithId[]).filter((x) => x.id !== id) as never;
         // the other days stay on their dates; the stays and the trip just
         // stop covering a first or last day that's gone
-        if (type === "days") spans = fitSpans(d);
+        if (type === "days") spans = fitSpans(d, was ? [was] : []);
         if (type === "places") {
           for (const a of d.areas) {
             if (!a.placeIds.includes(id)) continue;

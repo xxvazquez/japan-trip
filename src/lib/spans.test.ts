@@ -37,7 +37,7 @@ describe("fitSpans", () => {
   it("deleting a middle day moves nothing: the date is just left empty", () => {
     const d = trip();
     d.days = d.days.filter((x) => x.id !== "d2");
-    fitSpans(d);
+    fitSpans(d, ["2026-10-02"]);
     expect(d.days.map((x) => x.date)).toEqual(["2026-10-01", "2026-10-03", "2026-10-04"]);
     expect([d.legs[0].start, d.legs[0].end]).toEqual(["2026-10-01", "2026-10-01"]);
     expect([d.meta.start, d.meta.end]).toEqual(["2026-10-01", "2026-10-04"]);
@@ -46,9 +46,29 @@ describe("fitSpans", () => {
   it("deleting the last day shortens the trip", () => {
     const d = trip();
     d.days = d.days.filter((x) => x.id !== "d4");
-    fitSpans(d);
+    fitSpans(d, ["2026-10-04"]);
     expect(d.legs[1].end).toBe("2026-10-03");
     expect(d.meta.end).toBe("2026-10-03");
+  });
+
+  it("a trip that starts before its first day (a flight out the evening before) keeps that start", () => {
+    const d = trip();
+    d.meta.start = "2026-09-30";
+    d.days.push({ id: "d5", date: "2026-10-05", legId: "B" } as never);
+    fitSpans(d);
+    expect(d.meta.start).toBe("2026-09-30");
+    d.days = d.days.filter((x) => x.id !== "d1");
+    fitSpans(d, ["2026-10-01"]);
+    expect(d.meta.start).toBe("2026-09-30");
+    expect(d.meta.end).toBe("2026-10-05");
+  });
+
+  it("a day added before the trip's start pulls the start back", () => {
+    const d = trip();
+    d.days.push({ id: "d0", date: "2026-09-30", legId: "A" } as never);
+    fitSpans(d);
+    expect(d.meta.start).toBe("2026-09-30");
+    expect(d.legs[0].start).toBe("2026-09-30");
   });
 
   it("a stay left with no days keeps its dates; no days at all keeps the trip's", () => {
