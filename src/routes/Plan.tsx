@@ -348,11 +348,11 @@ function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day:
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`${DAY_ROW_LI} flex items-center ${isDragging ? "z-10 bg-surface opacity-70 shadow-sm" : ""}`}
+      className={`${DAY_ROW_LI} flex items-start ${isDragging ? "z-10 bg-surface opacity-70 shadow-sm" : ""}`}
     >
       {!readOnly && (pinned ? (
         // fixed to its date — a pin where the handle was; unpin on the day's page
-        <span className="shrink-0 py-3 pl-3 pr-1 text-ink-faint" title="Pinned to its date">
+        <span className="shrink-0 pb-3 pl-3 pr-1 pt-[18px] text-ink-faint" title="Pinned to its date">
           <Icon name="pushpin" size={14} />
           <span className="sr-only">Pinned to its date</span>
         </span>
@@ -360,7 +360,7 @@ function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day:
         <button
           {...attributes}
           {...listeners}
-          className="tap shrink-0 cursor-grab touch-none py-3 pl-3 pr-1 text-ink-faint active:cursor-grabbing"
+          className="tap shrink-0 cursor-grab touch-none pb-3 pl-3 pr-1 pt-[18px] text-ink-faint active:cursor-grabbing"
           aria-label="Drag to reorder"
         >
           <Icon name="grip" size={14} />
@@ -368,7 +368,7 @@ function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day:
       ))}
       <Link
         to={`/day/${day.id}`}
-        className={`group flex min-w-0 flex-1 items-center gap-3 py-3 pr-3.5 ${readOnly ? "pl-3.5" : "pl-1"}`}
+        className={`group flex min-w-0 flex-1 items-baseline gap-3 py-3 pr-3.5 ${readOnly ? "pl-3.5" : "pl-1"}`}
       >
         <span className="flex shrink-0 items-center gap-1.5">
           <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: hex }} />
@@ -381,7 +381,7 @@ function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day:
           <DayKindTag day={day} data={data} />
         </span>
         {today && <span className="eyebrow shrink-0 text-ink">Today</span>}
-        <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
+        <Icon name="chevron" size={14} className="shrink-0 self-center text-ink-faint" />
       </Link>
     </li>
   );
