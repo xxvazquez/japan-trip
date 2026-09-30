@@ -185,7 +185,10 @@ function hasPendingFields() {
 
 interface Outbox { ops: Op[]; data: TripData; user?: string | null; /** when it was written — orders outboxes from several tabs */ at?: number }
 /** one batch of ops handed to the server and not yet answered */
-interface Flight { tripId: string; ops: Op[] }
+interface Flight { tripId: string; ops: Op[]; at: number }
+/** past this, a batch that still hasn't answered no longer holds the next one
+ *  back — a request that hangs forever mustn't stall every later save */
+const FLIGHT_STALL_MS = 20_000;
 const flights = new Set<Flight>();
 let outboxTimer: ReturnType<typeof setTimeout> | undefined;
 /** every outbox write/delete runs in call order, so a slow `set` can't land
@@ -694,6 +697,15 @@ async function flush(get: () => AppStore) {
   const { activeId, data } = get();
   if (!activeId || !data || be.kind !== "supabase") return;
   if (!queue.length) return;
+  // one save at a time: a second batch sent while the first is still out
+  // could reach the server first, and the older write would then win. The
+  // batch in flight picks up whatever queued meanwhile when it finishes.
+  const waiting = [...flights].filter((f) => Date.now() - f.at < FLIGHT_STALL_MS);
+  if (waiting.length) {
+    clearTimeout(flushTimer);
+    flushTimer = setTimeout(() => void flush(get), FLIGHT_STALL_MS - (Date.now() - Math.min(...waiting.map((f) => f.at))));
+    return;
+  }
   const ops = queue;
   queue = [];
 
@@ -736,7 +748,7 @@ async function flush(get: () => AppStore) {
     return;
   }
 
-  const flight: Flight = { tripId: activeId, ops };
+  const flight: Flight = { tripId: activeId, ops, at: Date.now() };
   flights.add(flight);
 
   const tasks: Promise<unknown>[] = [];
@@ -817,6 +829,7 @@ async function flush(get: () => AppStore) {
   if (get().activeId !== activeId) {
     const left = [...failed, ...pendingOps(activeId, null)];
     writeOutbox(activeId, left, left.length ? data : null);
+    if (queue.length) void flush(get); // the new trip's edits waited on this batch
     return;
   }
 

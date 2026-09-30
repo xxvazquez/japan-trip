@@ -12,6 +12,9 @@ export interface FakeControls {
   gate: Promise<void> | null;
   /** return an error to fail that request */
   fail: ((op: string, table: string) => Err) | null;
+  /** hold one request back until the returned promise settles — a slow
+   *  request that answers after later ones */
+  hold: ((op: string, table: string, payload: unknown) => Promise<void> | null) | null;
   /** tables that don't exist (migration not applied) */
   missing: Set<string>;
   requests: { op: string; table: string }[];
@@ -24,7 +27,7 @@ let tick = 0;
 const stamp = () => new Date(Date.UTC(2026, 0, 1) + ++tick * 1000).toISOString();
 
 export function createFakeSupabase() {
-  const ctl: FakeControls = { tables: {}, gate: null, fail: null, missing: new Set(), requests: [] };
+  const ctl: FakeControls = { tables: {}, gate: null, fail: null, hold: null, missing: new Set(), requests: [] };
   const t = (name: string) => (ctl.tables[name] ??= []);
 
   class Q implements PromiseLike<{ data: unknown; error: Err }> {
@@ -63,6 +66,8 @@ export function createFakeSupabase() {
 
     private async run(): Promise<{ data: unknown; error: Err }> {
       if (ctl.gate) await ctl.gate;
+      const held = ctl.hold?.(this.op, this.table, this.payload);
+      if (held) await held;
       ctl.requests.push({ op: this.op, table: this.table });
       if (ctl.missing.has(this.table)) return { data: null, error: { message: `relation "${this.table}" does not exist`, code: "42P01" } };
       const injected = ctl.fail?.(this.op, this.table);

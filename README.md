@@ -336,7 +336,7 @@ Used by the store and both backends:
 - `quarantine.ts` — anything that fails validation is copied here before it's touched; a load never deletes or overwrites the original.
 - `errors.ts` — typed failures. A backend's `loadTrip` throws `TripLoadError` (`unavailable` / `corrupt` / `missing` / `newer`) instead of returning `null` or a default, so "couldn't read it" can never look like "empty" and trigger seeding over real data.
 - `storage.ts` — `get` returns `undefined` only when a key is truly absent; a failed or unparseable read, or a failed write (quota), throws. The device backend validates every save, refuses to replace a trip with nothing, reads each write back, serialises saves per trip, and keeps a restore point of anything it's about to replace that another tab changed.
-- The Supabase outbox (unconfirmed edits, mirrored to IndexedDB) covers batches *in flight* as well as queued ones, and its writes are ordered so a stale write can't resurrect synced ops. Each open tab keeps its own outbox; edits left behind by a tab that closed or died are picked up by the next tab that opens the trip (Web Locks tell a dead tab from a live one, with a heartbeat as the fallback).
+- The Supabase outbox (unconfirmed edits, mirrored to IndexedDB) covers batches *in flight* as well as queued ones, and its writes are ordered so a stale write can't resurrect synced ops. Only one batch goes to the server at a time, so an older save can't land after a newer one; a batch that hasn't answered in 20 s stops holding the next one back. Each open tab keeps its own outbox; edits left behind by a tab that closed or died are picked up by the next tab that opens the trip (Web Locks tell a dead tab from a live one, with a heartbeat as the fallback).
 
 ## Getting started
 

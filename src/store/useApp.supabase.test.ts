@@ -202,6 +202,27 @@ describe("signed-in: saving and the outbox", () => {
     expect(a.s().syncState).toBe("error");
   });
 
+  it("a slow save can't land after a newer one and leave the server with the older value", async () => {
+    await seedTrip();
+    const a = await boot();
+    a.s().addEntity("places", place("q1"));
+    await a.settlePending();
+    let release!: () => void;
+    const slow = new Promise<void>((r) => { release = r; });
+    const named = (p: unknown, name: string) => (Array.isArray(p) ? p : [p]).some((r) => (r as { name?: string })?.name === name);
+    fake.current.ctl.hold = (op, table, payload) => (op === "upsert" && table === "places" && named(payload, "Old") ? slow : null);
+    a.s().updateEntity("places", "q1", { name: "Old" } as never);
+    a.flushPendingNow(); // this save hangs on a slow connection…
+    await sleep(20);
+    a.s().updateEntity("places", "q1", { name: "New" } as never);
+    await sleep(700); // …while the next edit's debounce fires
+    release();
+    await a.settlePending(3000);
+    await sleep(60);
+    expect(rows("places").find((r) => r.id === "q1")?.name).toBe("New");
+    expect(a.s().data!.places.find((p) => p.id === "q1")?.name).toBe("New");
+  });
+
   it("a corrupt mirror is set aside and never replayed onto the trip", async () => {
     const id = await seedTrip();
     const kv = (await import("@/lib/storage")).store;
