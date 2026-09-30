@@ -234,7 +234,7 @@ function journeysSection(data: TripData, opts: ExportOptions): string {
       ${j.notes?.trim() ? `<div class="note">${mdToHtml(j.notes)}</div>` : ""}
     </section>`;
   });
-  return `<section class="group"><h2>Trips</h2>${blocks.join("\n")}</section>`;
+  return `<section class="group"><h2>Journeys</h2>${blocks.join("\n")}</section>`;
 }
 
 function staysSection(data: TripData, opts: ExportOptions): string {

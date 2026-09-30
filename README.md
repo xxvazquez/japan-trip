@@ -98,7 +98,7 @@ The day closes with a **Back to &lt;hotel&gt;** row under the last step — the 
 
 ## Journeys
 
-Linked from a day, or the Logbook's *Trips* list. A journey is one or more **hops**.
+Linked from a day, or the Logbook's *Journeys* list. A journey is one or more **hops**.
 
 - Each hop is a card, tinted by mode (rail, air/sea, road, on foot), reading top to bottom: mode → route → the two times joined by a rule with the duration on it, each with its date under it (the arrival's only when it's a different day) → the details (carrier, platform, seat, booking ref, fare) as label-and-value rows.
 - Between hops, a note on the connection time flags a tight or overnight change.
@@ -162,7 +162,7 @@ When places that aren't in any area sit close enough together to group, a *Sugge
 
 ## Logbook
 
-The reference drawer. A menu of sections, each its own page: stays · trips · luggage · documents · emergency numbers · packing · stamps · expenses · a scratchpad, plus any lists you've added yourself. Each row shows at a glance how much is in it — a count, packing progress ("3/8"), or the total spent — and nothing when it's empty.
+The reference drawer. A menu of sections, each its own page: stays · journeys · luggage · documents · emergency numbers · packing · stamps · expenses · a scratchpad, plus any lists you've added yourself. Each row shows at a glance how much is in it — a count, packing progress ("3/8"), or the total spent — and nothing when it's empty.
 
 Text in the app isn't selectable (as in a native app), so values you'd want to paste elsewhere have a small **copy** icon beside them. Tap it and the icon turns to a tick for a moment.
 

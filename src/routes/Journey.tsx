@@ -48,7 +48,7 @@ export default function Journey() {
 
   const first = j.segments[0];
   const last = j.segments.at(-1);
-  // dated by when it leaves, same as the Trips list — an overnight
+  // dated by when it leaves, same as the Journeys list — an overnight
   // flight is attached to the day it lands
   const day = journeyDepartDate(j);
   const total = fmtDuration(first?.depart, last?.arrive ?? last?.depart);
