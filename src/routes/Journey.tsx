@@ -16,7 +16,7 @@ import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { addDays, daysBetween, fmtDate, journeyDepartDate, plural, segEndpoints } from "@/lib/dates";
-import { clockOf, fmtDuration, fmtMinutes, localMinutes, parseLocal } from "@/lib/time";
+import { clockOf, fmtDuration, fmtMinutes, minutesBetween, parseLocal } from "@/lib/time";
 import { MODE_LABEL, MODE_ICON, MODE_TONE } from "@/lib/transport";
 import { arrivesBeforeDeparture } from "@/lib/ics";
 import { journeyFare, hopsPriced, fmtMoney, cleanAmount, fmtFare } from "@/lib/cost";
@@ -52,7 +52,7 @@ export default function Journey() {
   // dated by when it leaves, same as the Journeys list — an overnight
   // flight is attached to the day it lands
   const day = journeyDepartDate(j);
-  const total = fmtDuration(first?.depart, last?.arrive ?? last?.depart);
+  const total = fmtDuration(first?.depart, last?.arrive ?? last?.depart, first?.fromTz, last?.arrive ? last?.toTz : last?.fromTz);
   const changes = Math.max(0, j.segments.length - 1);
 
   // the total adds itself up from the hops' fares; only a journey with no
@@ -158,12 +158,12 @@ export default function Journey() {
         {j.segments.length === 0 && <p className="text-sm text-ink-faint">No hops yet.</p>}
         {j.segments.map((s, i) => {
           const next = j.segments[i + 1];
-          const rawGap = next && clockOf(s.arrive) && clockOf(next.depart) ? localMinutes(next.depart)! - localMinutes(s.arrive)! : null;
+          const rawGap = next ? minutesBetween(s.arrive, next.depart, s.toTz, next.fromTz) : null;
           // A negative gap means the change runs past midnight (times often lack a
           // date and get merged onto the journey day). Wrap into the next day.
           const overnight = rawGap != null && rawGap < 0;
           const gap = rawGap == null ? null : overnight ? rawGap + 1440 : rawGap;
-          const dur = fmtDuration(s.depart, s.arrive);
+          const dur = fmtDuration(s.depart, s.arrive, s.fromTz, s.toTz);
           const ep = segEndpoints(s, day, loc);
           // the date each end falls on: a hop's own, else carried from the hop
           // before it (or the journey's day) so a new time lands on the right day

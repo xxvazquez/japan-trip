@@ -1,3 +1,5 @@
+import { safeTz, zonedTimeToUtc } from "./tz";
+
 /** Parsing + formatting for LocalDateTime (`YYYY-MM-DDTHH:MM`) and durations.
  *  Country-agnostic. */
 
@@ -16,13 +18,26 @@ export function localMinutes(s?: string): number | null {
   return Date.UTC(y, m - 1, d, hh, mm) / 60000;
 }
 
-/** "1h 40min", "40 min", "2h" — from two LocalDateTimes (ignores timezone shift). */
-export function fmtDuration(from?: string, to?: string): string | null {
+/** Minutes between two LocalDateTimes, each read in its own zone (a flight
+ *  from Beijing to Warsaw crosses seven hours of clock). A missing zone takes
+ *  the other end's; with neither, both are the same clock. Null without times. */
+export function minutesBetween(from?: string, to?: string, fromTz?: string, toTz?: string): number | null {
   if (!clockOf(from) || !clockOf(to)) return null; // a date alone has no duration
-  const a = localMinutes(from);
-  const b = localMinutes(to);
-  if (a == null || b == null || b <= a) return null;
-  return fmtMinutes(b - a);
+  const fz = fromTz || toTz;
+  const tzTo = toTz || fromTz;
+  if (!fz || !tzTo) return localMinutes(to)! - localMinutes(from)!;
+  const a = parseLocal(from)!, b = parseLocal(to)!;
+  const ua = zonedTimeToUtc(a.date, a.time, safeTz(fz));
+  const ub = zonedTimeToUtc(b.date, b.time, safeTz(tzTo));
+  if (!ua || !ub) return localMinutes(to)! - localMinutes(from)!;
+  return Math.round((ub.getTime() - ua.getTime()) / 60000);
+}
+
+/** "1h 40min", "40 min", "2h" — the real time between two LocalDateTimes. */
+export function fmtDuration(from?: string, to?: string, fromTz?: string, toTz?: string): string | null {
+  const m = minutesBetween(from, to, fromTz, toTz);
+  if (m == null || m <= 0) return null;
+  return fmtMinutes(m);
 }
 
 /** The one duration format — journeys, changes, walks, transit alike: "12 min"

@@ -15,6 +15,7 @@
  */
 import type { Day, Journey, Place, PlanItem, Segment, TripData } from "@/core/types";
 import { addDays } from "@/lib/dates";
+import { safeTz, zonedTimeToUtc } from "@/lib/tz";
 import { MODE_LABEL } from "@/lib/transport";
 
 export interface IcsOptions {
@@ -51,42 +52,6 @@ function foldLine(line: string): string {
   }
   out.push((first ? "" : " ") + rest);
   return out.join("\r\n");
-}
-
-const isValidTz = (tz: string): boolean => {
-  try {
-    Intl.DateTimeFormat(undefined, { timeZone: tz });
-    return true;
-  } catch {
-    return false;
-  }
-};
-const safeTz = (tz: string | undefined): string => (tz && isValidTz(tz) ? tz : "UTC");
-
-/** the real UTC offset (minutes, east positive) `tz` is at a given instant. */
-function tzOffsetMinutes(instantMs: number, tz: string): number {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: tz,
-    hourCycle: "h23",
-    year: "numeric", month: "2-digit", day: "2-digit",
-    hour: "2-digit", minute: "2-digit", second: "2-digit",
-  }).formatToParts(new Date(instantMs));
-  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value ?? 0);
-  const asUtc = Date.UTC(get("year"), get("month") - 1, get("day"), get("hour"), get("minute"), get("second"));
-  return (asUtc - instantMs) / 60_000;
-}
-
-/** a wall time in `tz` → the real UTC instant it names, DST included. Two
- *  passes: the first pins down the offset, the second corrects for it landing
- *  on the wrong side of a DST transition. */
-function zonedTimeToUtc(dateISO: string, hhmm: string, tz: string): Date | null {
-  const dm = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateISO);
-  const tm = /^(\d{1,2}):(\d{2})$/.exec(hhmm);
-  if (!dm || !tm) return null;
-  const target = Date.UTC(+dm[1], +dm[2] - 1, +dm[3], +tm[1], +tm[2]);
-  let utc = target - tzOffsetMinutes(target, tz) * 60_000;
-  utc = target - tzOffsetMinutes(utc, tz) * 60_000;
-  return new Date(utc);
 }
 
 /** True when a hop's arrival, read in its own zone, is before its departure —

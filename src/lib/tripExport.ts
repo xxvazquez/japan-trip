@@ -19,7 +19,7 @@ import type {
 } from "@/core/types";
 import { fmtDate, fmtSpan, journeyDepartDate, legNights, plural, todayISO } from "@/lib/dates";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
-import { localMinutes, fmtMinutes } from "@/lib/time";
+import { minutesBetween, fmtMinutes } from "@/lib/time";
 import { gmapsLink } from "@/lib/maps";
 import { MODE_LABEL } from "@/lib/transport";
 import { fmtFare, fmtMoney, isMoneyLabel, journeyFare } from "@/lib/cost";
@@ -199,8 +199,8 @@ function segmentBlock(s: Segment, next: Segment | undefined, opts: ExportOptions
   ]);
 
   let gapLine = "";
-  if (next && s.arrive && next.depart) {
-    const raw = localMinutes(next.depart)! - localMinutes(s.arrive)!;
+  const raw = next ? minutesBetween(s.arrive, next.depart, s.toTz, next.fromTz) : null;
+  if (next && raw != null) {
     const overnight = raw < 0;
     const gap = overnight ? raw + 1440 : raw;
     gapLine = `<p class="change">${esc(fmtMinutes(gap))} to change${s.to ? ` at ${esc(s.to)}` : ""}${overnight ? " — overnight" : ""}</p>`;
