@@ -131,7 +131,6 @@ export function buildDemo(): TripData {
         title: "Travel + departure",
         plan: [
           { id: "d4-p1", time: "08:30", text: "Last coffee before the train", placeId: "pl-5" },
-          { id: "d4-p2", time: "09:10", text: "Airport train" },
         ],
         notes: "Leave the hotel with plenty of time — the security line looked long online.",
       },

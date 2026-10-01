@@ -1,4 +1,4 @@
-import type { Day, ISODate, Journey, Leg, TripData } from "@/core/types";
+import type { Day, ISODate, Journey, Leg, Segment, TripData } from "@/core/types";
 
 const MS_DAY = 86_400_000;
 
@@ -248,4 +248,24 @@ export function journeySpan(j: Pick<Journey, "date" | "segments">): { from?: ISO
 export function journeyOffDay(j: Pick<Journey, "date" | "segments">, date: ISODate): boolean {
   const { from, to } = journeySpan(j);
   return !!from && (date < from || date > (to ?? from));
+}
+
+/** A journey's own moments on a given day, for the day's plan: leaving from
+ *  its first hop's start and arriving at its last hop's end, each only when
+ *  that time falls on `date` (an overnight flight shows its arrival on the
+ *  next day). Times are "HH:MM". */
+export function journeyStops(j: Pick<Journey, "segments">, date: ISODate): { kind: "leave" | "arrive"; time: string; place: string; seg: Segment }[] {
+  const first = j.segments[0];
+  const last = j.segments[j.segments.length - 1];
+  const at = (v?: string) => {
+    const [d, t = ""] = (v ?? "").split("T");
+    const m = /^(\d{1,2}):(\d{2})$/.exec(t);
+    return d === date && m ? `${m[1].padStart(2, "0")}:${m[2]}` : null;
+  };
+  const out: { kind: "leave" | "arrive"; time: string; place: string; seg: Segment }[] = [];
+  const leave = at(first?.depart);
+  if (first && leave) out.push({ kind: "leave", time: leave, place: first.from, seg: first });
+  const arrive = at(last?.arrive);
+  if (last && arrive) out.push({ kind: "arrive", time: arrive, place: last.to, seg: last });
+  return out;
 }

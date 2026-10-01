@@ -98,6 +98,7 @@ Each step shows a tile, an optional time, the step itself and a short note.
 - **The ⋯ menu** — show on map, add to Google Calendar, mark as **overwhelming** (a ⚠ sensory heads-up; the day's count shows on Plan), add a note, duplicate, add an expense, remove.
 - **Notes** support bold, bullets and links. Tap to expand and edit. Empty fields stay hidden.
 - **+ Add a step** sits at the foot of the list and opens the new step ready to type.
+- **The day's journey** shows as two rows of its own: **Leave** (first departure) and **Arrive** (last arrival), slotted in by time. They follow the journey live — edit the times on the journey, tap a row to open it.
 
 ### Helpers on a step
 

@@ -39,11 +39,12 @@ import { DayLabels, tripLabels } from "@/components/DayLabels";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { dayKind, fmtDate, journeyOffDay, journeySpan, plural } from "@/lib/dates";
+import { dayKind, fmtDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink, gmapsRoute, mapUrlCoords } from "@/lib/maps";
 import { fmtWalk, haversineKm } from "@/lib/geo";
-import { fmtMinutes } from "@/lib/time";
+import { fmtDuration, fmtMinutes } from "@/lib/time";
+import { MODE_ICON, MODE_LABEL, MODE_TONE } from "@/lib/transport";
 import { useWalk, estimateTransit } from "@/lib/walkRoute";
 import { nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
 import { nearestOpeningHours, type PlaceHours } from "@/lib/placeHours";
@@ -312,7 +313,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             </span>
           )}
         >
-          <PlanList day={day} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
+          <PlanList day={day} journey={journey} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
         </Section>
       )}
 
@@ -487,8 +488,10 @@ function JourneyOffDay({ day, journey, data }: { day: DayT; journey: Journey; da
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onChange, onQuickAddCost, onShowOnMap }: {
+function PlanList({ day, journey, returnHotel, tz, items, places, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onChange, onQuickAddCost, onShowOnMap }: {
   day: DayT;
+  /** the day's journey — its leave / arrive times show as rows of their own */
+  journey?: Journey;
   /** where the day ends — the hotel you're staying at (see `ReturnToHotel`) */
   returnHotel?: Hotel;
   tz?: string;
@@ -529,7 +532,22 @@ function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByP
     });
   };
 
-  if (items.length === 0) {
+  // the journey's own rows, live from the journey (never stored as steps):
+  // each sits before the first step timed later than it, else at the end
+  const stops = journey ? journeyStops(journey, day.date) : [];
+  const stopRow = (st: (typeof stops)[number]) => (
+    <JourneyStopRow key={`journey-${st.kind}`} journey={journey!} stop={st} indent={!readOnly} />
+  );
+  const stopAt = (time: string) => {
+    const i = items.findIndex((it) => {
+      const t = splitRange(it.time)?.[0] ?? it.time;
+      return !!t && /^\d{1,2}:\d{2}$/.test(t) && t.padStart(5, "0") > time;
+    });
+    return i < 0 ? items.length : i;
+  };
+  const stopsBefore = (i: number) => stops.filter((st) => stopAt(st.time) === i).map(stopRow);
+
+  if (items.length === 0 && stops.length === 0) {
     return readOnly ? (
       <p className="px-3.5 py-3 text-sm text-ink-faint">Nothing planned yet.</p>
     ) : (
@@ -539,7 +557,8 @@ function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByP
     );
   }
 
-  const rows = items.map((it, i) => (
+  const rows = items.flatMap((it, i) => [
+    ...stopsBefore(i),
     <PlanRow
       key={it.id}
       day={day}
@@ -558,12 +577,12 @@ function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByP
       onDuplicate={() => duplicateItem(it.id)}
       onQuickAddCost={onQuickAddCost}
       onShowOnMap={onShowOnMap}
-    />
-  ));
+    />,
+  ]).concat(stopsBefore(items.length));
 
   // the day closes with the way back to the hotel; its walk figures need the
   // last step to be tied to a real place, the directions link doesn't
-  const lastPlace = items[items.length - 1].placeId ? places.find((p) => p.id === items[items.length - 1].placeId) : undefined;
+  const lastPlace = items[items.length - 1]?.placeId ? places.find((p) => p.id === items[items.length - 1].placeId) : undefined;
   const backRow = returnHotel ? <ReturnToHotel from={lastPlace} hotel={returnHotel} indent={!readOnly} /> : null;
 
   if (readOnly) return <><ul>{rows}</ul>{backRow}</>;
@@ -837,6 +856,34 @@ const LONG_WALK_MIN = 20;
  *  Google's to work out, there's no free keyless API for it here. When the
  *  last step isn't tied to a place there's no start point to measure from,
  *  so the row just opens directions from wherever you are. */
+/** One end of the day's journey as a plan row — "Leave Kyoto" at its first
+ *  departure, "Arrive Kurama" at its last arrival. Read-only here; it opens
+ *  the journey, where the times are edited. */
+function JourneyStopRow({ journey, stop, indent }: { journey: Journey; stop: ReturnType<typeof journeyStops>[number]; indent: boolean }) {
+  const { seg } = stop;
+  const segs = journey.segments;
+  const meta = stop.kind === "leave"
+    ? [MODE_LABEL[seg.mode], seg.carrier, seg.service, segs.length > 1 && plural(segs.length - 1, "change")]
+    : [fmtDuration(segs[0]?.depart, seg.arrive, segs[0]?.fromTz, seg.toTz)];
+  return (
+    <li className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
+      <Link to={`/journey/${journey.id}`} className={`flex items-start gap-2.5 py-3 pr-3.5 text-sm active:bg-ink/[0.07] ${indent ? "pl-9" : "pl-3.5"}`}>
+        <span className="min-w-0 flex-1 space-y-1 pt-px">
+          <span className="flex items-center gap-1.5">
+            <IconTile size="sm" name={MODE_ICON[seg.mode]} tone={MODE_TONE[seg.mode]} />
+            <span className="meta flex h-[22px] shrink-0 items-center rounded-[7px] bg-surface-2 px-1.5 tabular-nums">{stop.time}</span>
+          </span>
+          <span className="block break-words leading-snug text-ink">
+            {stop.kind === "leave" ? "Leave" : "Arrive"} {stop.place || (stop.kind === "leave" ? "from start" : "at destination")}
+          </span>
+          {meta.some(Boolean) && <span className="meta block text-ink-soft">{meta.filter(Boolean).join(" · ")}</span>}
+        </span>
+        <Icon name="chevron" size={14} className="mt-1 shrink-0 text-ink-faint" />
+      </Link>
+    </li>
+  );
+}
+
 function ReturnToHotel({ from, hotel, indent }: { from?: Place; hotel: Hotel; indent: boolean }) {
   const linkCoords = mapUrlCoords(hotel.mapUrl);
   const to =
