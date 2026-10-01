@@ -31,7 +31,7 @@ import { Icon } from "@/components/Icon";
 import { RouteLabel } from "@/components/RouteLabel";
 import { IconTile } from "@/components/IconTile";
 import { useSplit } from "@/components/SplitMap";
-import { toneForPlaceCategory } from "@/lib/tones";
+import { glyphForStepText, toneForGlyph, toneForPlaceCategory } from "@/lib/tones";
 import { areaLeg } from "@/lib/cityAssign";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { DayStepper } from "@/components/DayStepper";
@@ -742,14 +742,17 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
   const timeText = range ? `${range[0]} – ${range[1]}` : item.time;
   const plainTime = !item.time || /^\d{1,2}:\d{2}$/.test(item.time);
   const catGlyph = place?.category ? categoryIcons?.[place.category] : undefined;
+  // a custom step has no category to go on, so guess from its own text
+  const textGlyph = place ? undefined : glyphForStepText(item.text);
+  const glyph = place ? catGlyph : textGlyph;
   const tile = (
     <IconTile
       size="sm"
-      glyph={place ? catGlyph : undefined}
-      name={place && catGlyph ? undefined : "pin"}
+      glyph={glyph}
+      name={glyph ? undefined : "pin"}
       color={place?.source === "mymap" ? place.color : undefined}
-      tone={place ? toneForPlaceCategory(place.category, categoryIcons) : "ink-faint"}
-      className={`relative z-10 ${place ? "" : "opacity-70"}`}
+      tone={place ? toneForPlaceCategory(place.category, categoryIcons) : textGlyph ? toneForGlyph(textGlyph) : "ink-faint"}
+      className={`relative z-10 ${place || textGlyph ? "" : "opacity-70"}`}
     />
   );
 

@@ -105,6 +105,17 @@ export function customListColor(index: number): string {
   return AREA_TONES[(7 + index) % AREA_TONES.length];
 }
 
+/** A custom (unlinked) plan step's glyph, guessed from its own text — so a
+ *  "Lunch" or "Coffee break" step reads as food at a glance instead of the
+ *  generic pin. Undefined when nothing matches. */
+export function glyphForStepText(text: string | undefined): MapGlyphId | undefined {
+  const t = (text ?? "").toLowerCase();
+  if (/\b(coffee|caf[eé]s?|tea)\b/.test(t)) return "coffee";
+  if (/\b(drinks?|bars?|beers?|cocktails?|wine|pub)\b/.test(t)) return "drink";
+  if (/\b(breakfast|brunch|lunch|dinner|supper|meals?|food|eat|snacks?|restaurants?|picnic)\b/.test(t)) return "food";
+  return undefined;
+}
+
 /** a place's free-text category → tone: its mapped glyph if it has one, else a
  *  keyword guess, else the generic accent. */
 export function toneForPlaceCategory(
