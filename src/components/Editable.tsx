@@ -17,6 +17,8 @@ type Base = {
   className?: string;
   /** what an empty time shows instead of the placeholder text (e.g. a clock glyph) */
   emptyContent?: React.ReactNode;
+  /** where an empty time's wheels start ("HH:MM", default 09:00) — Done saves it */
+  timeStart?: string;
   /** how a filled value reads when not being edited ("1945.64" → "1,945.64");
    *  the input itself still edits the raw value */
   format?: (v: string) => string;
@@ -108,7 +110,7 @@ const inputType = (kind: Kind) =>
  * links / phones / emails render as the real thing with a pencil to edit.
  */
 export function Editable(props: Props) {
-  const { value, onCommit, placeholder = "Add…", label, className = "", emptyContent, editSignal } = props;
+  const { value, onCommit, placeholder = "Add…", label, className = "", emptyContent, editSignal, timeStart } = props;
   const rawAs = props.as ?? "text";
   const as: Kind =
     rawAs === "auto" ? resolveKind(label, value)
@@ -206,13 +208,12 @@ export function Editable(props: Props) {
     );
   }
 
-  // time is two plain native <select>s, not `input type="time"` — that
-  // control's own picker is a one-tap wheel on iOS but drops to a typable
-  // keypad by default on Android, which is exactly the "type a time" ask
-  // this app never wants. A <select> can only ever be chosen from, on any
-  // platform, so hour and minute stay tap-only everywhere.
+  // time opens `TimeWheelSheet`, not `input type="time"` — that control's
+  // own picker is a one-tap wheel on iOS but drops to a typable keypad by
+  // default on Android, which is exactly the "type a time" ask this app
+  // never wants. The wheels are plain scrollable lists on every platform.
   if (as === "time") {
-    const [h, m] = value ? value.split(":") : ["", ""];
+    const [h, m] = (value || timeStart || "09:00").split(":");
     return (
       <>
         <button
@@ -228,8 +229,9 @@ export function Editable(props: Props) {
           open={sheetOpen}
           onClose={() => setSheetOpen(false)}
           anchorRef={sheetAnchorRef}
-          hour={h}
+          hour={h.padStart(2, "0")}
           minute={m}
+          unset={!value}
           onPick={(nh, nm) => onCommit(`${nh}:${nm}`)}
           onClear={() => { onCommit(""); setSheetOpen(false); }}
         />

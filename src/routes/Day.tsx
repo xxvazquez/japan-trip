@@ -576,6 +576,7 @@ function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByP
       day={day}
       tz={tz}
       item={it}
+      timeStart={timeBefore(items, i)}
       place={it.placeId ? places.find((p) => p.id === it.placeId) : undefined}
       nextPlace={items[i + 1]?.placeId ? places.find((p) => p.id === items[i + 1].placeId) : undefined}
       areaPlaces={areaPlaces}
@@ -621,10 +622,24 @@ function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByP
   );
 }
 
-function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onPatch, onRemove, onDuplicate, onQuickAddCost, onShowOnMap }: {
+/** where an empty step's time wheel starts: the latest time set on an
+ *  earlier step (a range's end), so a new step follows on from the last */
+function timeBefore(items: PlanItem[], i: number): string | undefined {
+  for (let j = i - 1; j >= 0; j--) {
+    const t = items[j].time;
+    const r = splitRange(t);
+    if (r) return r[1];
+    if (t && /^\d{1,2}:\d{2}$/.test(t)) return t;
+  }
+  return undefined;
+}
+
+function PlanRow({ day, tz, item, timeStart, place, nextPlace, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onPatch, onRemove, onDuplicate, onQuickAddCost, onShowOnMap }: {
   day: DayT;
   tz?: string;
   item: PlanItem;
+  /** where its time wheel starts while it has no time (see `timeBefore`) */
+  timeStart?: string;
   place?: Place;
   /** the next step's linked place, if both it and this step have one — for
    *  the real walking time shown at the foot of this card (see `StepWalkLines`) */
@@ -750,6 +765,7 @@ function PlanRow({ day, tz, item, place, nextPlace, areaPlaces, areaNameByPlaceI
                       label="Time"
                       value={item.time ?? ""}
                       onCommit={(v) => onPatch({ time: v || undefined })}
+                      timeStart={timeStart}
                       emptyContent={<Icon name="clock" size={12} className="inline-block align-[-1px] not-italic" />}
                     />
                   ) : (

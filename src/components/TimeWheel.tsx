@@ -224,13 +224,17 @@ function TimeField({ hour, minute, onPick, onDone }: {
  *  `ActionSheet`, but not built on it, since a wheel needs to stay open
  *  through a scroll or a tap, where `ActionSheet` closes on any click inside
  *  it. The phone gets wheels, the popover a Mac-style `TimeField`; values
- *  commit live as they change, "Done" just dismisses. */
-export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, onPick, onClear }: {
+ *  commit live as they change. With no time set yet the wheels show `hour` /
+ *  `minute` as a starting point (`unset`), and "Done" saves that — what's on
+ *  screen is what you get; otherwise "Done" just dismisses. */
+export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, unset, onPick, onClear }: {
   open: boolean;
   onClose: () => void;
   anchorRef: RefObject<HTMLElement>;
   hour: string;
   minute: string;
+  /** no time stored yet — `hour`/`minute` are only where the wheels start */
+  unset?: boolean;
   onPick: (h: string, m: string) => void;
   onClear: () => void;
 }) {
@@ -263,6 +267,10 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, onPick,
 
   const h = hour || "00";
   const m = minute || "00";
+  const done = () => {
+    if (unset) onPick(h, m);
+    onClose();
+  };
   const wheels = (
     <div className="relative flex items-center justify-center gap-1">
       <span aria-hidden className="pointer-events-none absolute inset-x-2 top-1/2 h-11 -translate-y-1/2 rounded-[10px] bg-surface-2" />
@@ -283,7 +291,7 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, onPick,
           </div>
           <div className="flex items-center justify-between px-4 pb-2">
             <button type="button" onClick={onClear} className="text-[17px] text-danger">Clear</button>
-            <button type="button" onClick={onClose} className="text-[17px] font-medium text-accent">Done</button>
+            <button type="button" onClick={done} className="text-[17px] font-medium text-accent">Done</button>
           </div>
           <div className="pb-2">{wheels}</div>
         </div>
@@ -300,9 +308,9 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, onPick,
         style={{ top: 0, left: 0, visibility: "hidden" }}
         className="glass-panel fixed z-[55] flex items-center gap-4 rounded-[14px] py-2 pl-2 pr-3 motion-safe:animate-fade-in"
       >
-        <TimeField hour={h} minute={m} onPick={onPick} onDone={onClose} />
+        <TimeField hour={h} minute={m} onPick={onPick} onDone={done} />
         <button type="button" onClick={onClear} className="text-xs text-danger">Clear</button>
-        <button type="button" onClick={onClose} className="text-xs font-medium text-accent">Done</button>
+        <button type="button" onClick={done} className="text-xs font-medium text-accent">Done</button>
       </div>
     </>,
     document.body,
