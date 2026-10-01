@@ -238,6 +238,7 @@ Add categories and items, tick them off. With two or more travellers (Manage →
 
 - Categories keep their place: deleting or renaming items never reshuffles them. A new category goes at the bottom.
 - **Add item** opens the new item ready to type. Leave it blank and it disappears; clear an item's name to remove it (undoable). Your own lists work the same way.
+- **On your own lists**, an item's note and link only show once filled in. Add them from the item's **⋯**, which also deletes it.
 
 **Copy from another trip** brings over its list, unticked, skipping anything already there.
 

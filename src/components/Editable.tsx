@@ -204,8 +204,25 @@ export function Editable(props: Props) {
     );
   }
 
-  // dates are always a one-tap native picker — no two-step editing
+  // dates are always a one-tap native picker — no two-step editing. An empty
+  // one shows a quiet placeholder instead of the browser's "dd/mm/yyyy" mask,
+  // with the real input laid invisibly over it so a tap still opens the picker
   if (as === "date") {
+    if (!value) {
+      return (
+        <span className={`editable relative inline-block italic text-ink-faint ${className}`}>
+          {emptyContent || (props.placeholder ?? "Add a date")}
+          <input
+            type="date"
+            aria-label={label}
+            value=""
+            onClick={(e) => { try { e.currentTarget.showPicker?.(); } catch { /* the tap itself opens it where showPicker isn't allowed */ } }}
+            onChange={(e) => e.target.value && onCommit(e.target.value)}
+            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+          />
+        </span>
+      );
+    }
     return (
       <input
         type="date"

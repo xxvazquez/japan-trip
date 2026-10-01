@@ -214,6 +214,11 @@ function ListSection({ list }: { list: CustomList }) {
   // by id, so a second blur arriving late can't take a neighbour with it
   const removeId = (id: string) => set((l) => { l.items = l.items.filter((x) => x.id !== id); });
   const blank = (id: string, label: string) => (label ? undoable("Item removed", () => removeId(id)) : removeId(id));
+  // an item's note and link stay hidden until they have something in them —
+  // the row's ⋯ opens one, ready to type (inside the tap, for the iPhone keyboard)
+  const [reveal, setReveal] = useState<{ id: string; field: "note" | "url" } | null>(null);
+  const open = (id: string, field: "note" | "url") => flushSync(() => setReveal({ id, field }));
+  const opened = (id: string, field: "note" | "url") => reveal?.id === id && reveal.field === field;
 
   if (list.items.length === 0) {
     return (
@@ -242,20 +247,51 @@ function ListSection({ list }: { list: CustomList }) {
                     ? (it.label || "Untitled")
                     : <Editable label="Item" value={it.label} placeholder="Name" autoEdit={it.id === fresh} onBlank={() => blank(it.id, it.label)} onCommit={(v) => set((l) => { l.items[i].label = v; })} />}
                 </span>
-                {(it.note || !ro) && (
+                {(it.note || opened(it.id, "note")) && (
                   <span className="meta mt-0.5 block text-ink-soft">
                     {ro ? it.note : (
-                      <Editable label="Note" value={it.note ?? ""} placeholder="Add a note…" onCommit={(v) => set((l) => { l.items[i].note = v || undefined; })} />
+                      <Editable
+                        label="Note"
+                        value={it.note ?? ""}
+                        placeholder="Add a note…"
+                        autoEdit={opened(it.id, "note")}
+                        onBlank={() => { setReveal(null); if (it.note) set((l) => { l.items[i].note = undefined; }); }}
+                        onCommit={(v) => { setReveal(null); set((l) => { l.items[i].note = v || undefined; }); }}
+                      />
                     )}
                   </span>
                 )}
-                {(it.url || !ro) && (
+                {(it.url || opened(it.id, "url")) && (
                   <span className="mt-1 block text-xs">
-                    <Editable as="link" label="Link" value={it.url ?? ""} placeholder="＋ Maps or web link" onCommit={(v) => set((l) => { l.items[i].url = v || undefined; })} />
+                    <Editable
+                      as="link"
+                      label="Link"
+                      value={it.url ?? ""}
+                      placeholder="Maps or web link"
+                      autoEdit={opened(it.id, "url")}
+                      onBlank={() => { setReveal(null); if (it.url) set((l) => { l.items[i].url = undefined; }); }}
+                      onCommit={(v) => { setReveal(null); set((l) => { l.items[i].url = v || undefined; }); }}
+                    />
                   </span>
                 )}
               </span>
-              {!ro && <RowDeleteButton undoLabel="Item removed" onClick={() => set((l) => { l.items.splice(i, 1); })} />}
+              {!ro && (
+                <RowMenu label={`More — ${it.label || "item"}`}>
+                  {!it.note && (
+                    <button type="button" className="menu-item" onClick={() => open(it.id, "note")}>
+                      <Icon name="pencil" size={16} /> Add a note
+                    </button>
+                  )}
+                  {!it.url && (
+                    <button type="button" className="menu-item" onClick={() => open(it.id, "url")}>
+                      <Icon name="link" size={16} /> Add a link
+                    </button>
+                  )}
+                  <button type="button" className="menu-item text-danger" onClick={() => undoable("Item removed", () => removeId(it.id))}>
+                    <Icon name="trash" size={16} /> Delete
+                  </button>
+                </RowMenu>
+              )}
             </div>
             </SwipeToDelete>
           </li>
@@ -422,7 +458,7 @@ function Luggage() {
                   <ul className={hasDetail ? "border-t border-line" : ""}>
                     {(n.date || !ro) && (
                       <InsetRow label="When">
-                        <Editable as="date" label="Date" value={n.date ?? ""} placeholder="—" onCommit={(v) => p({ date: v || undefined })} />
+                        <Editable as="date" label="Date" value={n.date ?? ""} onCommit={(v) => p({ date: v || undefined })} />
                       </InsetRow>
                     )}
                     {(n.url || !ro) && (
