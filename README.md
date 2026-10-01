@@ -263,6 +263,7 @@ A read-only total of every price in the trip â€” stays, fares and day spending â
 - A journey's fare is counted once, never twice.
 - With more than one currency, **Combined** adds everything up in the main currency using a live exchange rate (cached offline, rounded). Unsupported currencies are left out and noted.
 - A bar above each currency shows the split by category.
+- The Logbook row shows the same total in the main currency. Before the rates have loaded once, it lists each currency instead.
 
 ## Manage
 

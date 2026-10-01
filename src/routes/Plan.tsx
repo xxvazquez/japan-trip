@@ -26,8 +26,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { tripClock, fmtDate, dayKind, legForDate, legNights, plural, addDays } from "@/lib/dates";
 import { nextDaySlot } from "@/lib/spans";
 import { canonicalLegs } from "@/lib/cityAssign";
-import { tripCost, fmtMoney } from "@/lib/cost";
-import { useFxRates } from "@/lib/fx";
+import { useTripSpent } from "@/lib/fx";
 import { legHex, LEG_COLORS, type LegColorId } from "@/lib/legColors";
 import type { Day, Leg, TripData } from "@/core/types";
 
@@ -40,22 +39,13 @@ function Wrap({ to, children }: { to: string | false | undefined; children: Reac
 }
 
 /** After the trip: how long it was, then a derived recap — cities (two stays
- *  in one city count once), what was spent — one total in the trip's main
- *  currency, converted with Expenses' rates — and stamps collected. A part
- *  that comes to nothing is left out, and so is the total while a currency
- *  has no rate yet (offline before the first fetch): a part-sum would lie. */
+ *  in one city count once), what was spent (one total in the trip's main
+ *  currency, `useTripSpent`) and stamps collected. A part that comes to
+ *  nothing is left out. */
 function TripRecap({ data, totalDays }: { data: TripData; totalDays: number }) {
   const loc = data.config.locale;
   const cities = new Set(canonicalLegs(data).values()).size;
-  const { byCurrency } = tripCost(data);
-  const currencies = Object.keys(byCurrency).filter((c) => c && byCurrency[c].total > 0);
-  const primary = data.config.currency || currencies[0] || "";
-  const others = currencies.filter((c) => c !== primary);
-  const { rates } = useFxRates(primary, others);
-  const total = others.every((c) => rates[c])
-    ? currencies.reduce((sum, c) => sum + byCurrency[c].total / (c === primary ? 1 : rates[c]), 0)
-    : 0;
-  const spent = total > 0 ? fmtMoney(Math.round(total), primary) : "";
+  const spent = useTripSpent(data);
   const stamps = (data.config.stamps ?? []).filter((s) => s.done).length;
   const parts: ReactNode[] = [
     cities > 0 && plural(cities, "city", "cities"),

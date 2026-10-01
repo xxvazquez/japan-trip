@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import type { TripData } from "@/core/types";
+import { tripCost, fmtMoney } from "./cost";
 
 /**
  * Exchange rates for the Expenses "combined" total — free, no-key, via
@@ -88,4 +90,19 @@ export function useFxRates(primary: string, others: string[]): FxRates {
     ready: !!snap,
     stale: !snap || Date.now() - snap.fetchedAt >= STALE_MS,
   };
+}
+
+/** Everything spent on the trip as one rounded total in its main currency
+ *  ("2 840 zł"), converted with the same rates as Expenses. Empty when
+ *  nothing is priced, or while a currency has no rate yet (offline before
+ *  the first fetch) — a part-sum would lie. */
+export function useTripSpent(data: TripData | null | undefined): string {
+  const byCurrency = data ? tripCost(data).byCurrency : {};
+  const currencies = Object.keys(byCurrency).filter((c) => c && byCurrency[c].total > 0);
+  const primary = data?.config.currency || currencies[0] || "";
+  const others = currencies.filter((c) => c !== primary);
+  const { rates } = useFxRates(primary, others);
+  if (!others.every((c) => rates[c])) return "";
+  const total = currencies.reduce((sum, c) => sum + byCurrency[c].total / (c === primary ? 1 : rates[c]), 0);
+  return total > 0 ? fmtMoney(Math.round(total), primary) : "";
 }

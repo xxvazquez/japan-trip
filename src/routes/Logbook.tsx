@@ -36,7 +36,7 @@ import { MODE_ICON } from "@/lib/transport";
 import { toneForSegmentMode, logbookSectionTile, customListColor, TONE_BG, type Tone } from "@/lib/tones";
 import { LOGBOOK_SECTIONS, logbookLabel, packingGroups, sectionSlug, sectionFromSlug, type LogbookSection } from "@/lib/logbook";
 import { tripCost, fmtMoney, combineCurrencies, expenseCategoryIcon } from "@/lib/cost";
-import { useFxRates } from "@/lib/fx";
+import { useFxRates, useTripSpent } from "@/lib/fx";
 import { useBackToClose } from "@/lib/backClose";
 import type { CustomList, Doc, LuggageNote, PackingItem, ScratchNote, TripData } from "@/core/types";
 
@@ -56,7 +56,7 @@ const SECTION_TILE: Record<LogbookSection, { name?: IconName; glyph?: MapGlyphId
 
 /** The quiet trailing value on a Logbook menu row — how much is in the section,
  *  or how far along it is (packing, spending). Nothing when it's empty. */
-function sectionSummary(s: LogbookSection, data: TripData): string | undefined {
+function sectionSummary(s: LogbookSection, data: TripData, spent: string): string | undefined {
   const n = (count: number) => (count > 0 ? String(count) : undefined);
   switch (s) {
     case "stays": return n(data.hotels.length);
@@ -73,6 +73,8 @@ function sectionSummary(s: LogbookSection, data: TripData): string | undefined {
       return stamps.length ? `${stamps.filter((i) => i.done).length}/${stamps.length}` : undefined;
     }
     case "budget": {
+      if (spent) return spent;
+      // no rate yet for some currency — show each one rather than nothing
       const totals = Object.entries(tripCost(data).byCurrency).filter(([, b]) => b.total > 0);
       return totals.length ? totals.map(([cur, b]) => fmtMoney(b.total, cur)).join(" · ") : undefined;
     }
@@ -85,6 +87,7 @@ function sectionSummary(s: LogbookSection, data: TripData): string | undefined {
  *  come straight from trip config, same as the old tab strip did. */
 export function LogbookIndex() {
   const data = useData();
+  const spent = useTripSpent(data);
   if (!data) return null;
 
   const hidden = data.config.hiddenLogbook ?? [];
@@ -103,7 +106,7 @@ export function LogbookIndex() {
               to={`/logbook/${sectionSlug(s)}`}
               tile={<IconTile size="sm" {...logbookSectionTile(s)} {...SECTION_TILE[s]} />}
               title={logbookLabel(s)}
-              right={sectionSummary(s, data)}
+              right={sectionSummary(s, data, spent)}
             />
           ))}
         </ul>
