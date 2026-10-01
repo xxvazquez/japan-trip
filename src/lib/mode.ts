@@ -88,3 +88,15 @@ export function applyPalette(light: Palette, dark: Palette, m: Mode = read()) {
     root.style.setProperty(`--c-${token}`, toChannels(value));
   }
 }
+
+/** Point the browser chrome — Android's status bar, an installed desktop
+ *  app's title bar — at the page background actually showing, so it follows
+ *  the app's own light/dark choice and the trip's palette, not just the
+ *  system setting the static `theme-color` tags in index.html assume. Both
+ *  tags get the same value, whichever media query matches. */
+export function syncThemeColor() {
+  const bg = getComputedStyle(document.documentElement).getPropertyValue("--c-bg").trim();
+  if (!bg) return;
+  const color = `rgb(${bg.split(/\s+/).join(", ")})`;
+  document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute("content", color));
+}

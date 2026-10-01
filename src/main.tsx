@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./router";
 import { initApp, useApp } from "./store/useApp";
-import { applyMode, applyPalette, useIsDark, useMode } from "./lib/mode";
+import { applyMode, applyPalette, syncThemeColor, useIsDark, useMode } from "./lib/mode";
 import { useAuth } from "./lib/auth";
 import { THEME_PRESETS } from "./lib/themePresets";
 import { BootScreen } from "./components/Loader";
@@ -44,6 +44,7 @@ function ThemeVars() {
   useEffect(() => {
     applyMode(mode);
     if (theme) applyPalette(theme.light, theme.dark, mode);
+    syncThemeColor();
   }, [mode, dark, theme]);
   return null;
 }
