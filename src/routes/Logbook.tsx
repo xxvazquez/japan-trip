@@ -34,7 +34,7 @@ import { pickBackend } from "@/lib/backend";
 import { fmtDate, fmtSpan, hotelStays, journeyDepartDate, plural } from "@/lib/dates";
 import { MODE_ICON } from "@/lib/transport";
 import { toneForSegmentMode, logbookSectionTile, customListColor, TONE_BG, type Tone } from "@/lib/tones";
-import { LOGBOOK_SECTIONS, logbookLabel, sectionSlug, sectionFromSlug, type LogbookSection } from "@/lib/logbook";
+import { LOGBOOK_SECTIONS, logbookLabel, packingGroups, sectionSlug, sectionFromSlug, type LogbookSection } from "@/lib/logbook";
 import { tripCost, fmtMoney, combineCurrencies, expenseCategoryIcon } from "@/lib/cost";
 import { useFxRates } from "@/lib/fx";
 import type { CustomList, Doc, LuggageNote, PackingItem, ScratchNote, TripData } from "@/core/types";
@@ -680,13 +680,25 @@ function Documents() {
 function Packing() {
   const data = useData()!;
   const ro = useReadOnly();
-  const { updateEntity, addEntity, removeEntity } = useApp();
+  const { updateEntity, addEntity, removeEntity, mutateTrip } = useApp();
 
   const people = data.config.people ?? [];
   const tagged = withInitials(people);
 
   const items = data.packing;
-  const groups = groupBy(items, (p) => p.group);
+  const groups = packingGroups(items, data.config);
+  const order = groups.map(([g]) => g);
+  const listOf = (group: string) => groups.find(([g]) => g === group)?.[1] ?? [];
+  // categories keep their place: the order on screen is saved before any
+  // change that could otherwise shuffle it (deleting a category's first item
+  // used to send the whole category to the bottom)
+  const keepOrder = (next: string[] = order) => {
+    const want = [...new Set(next)];
+    const cur = data.config.packingOrder ?? [];
+    if (want.length === cur.length && want.every((g, i) => g === cur[i])) return;
+    mutateTrip((d) => { d.config.packingOrder = want.length ? want : undefined; });
+  };
+  const removeItem = (id: string) => { keepOrder(); removeEntity("packing", id); };
   const total = items.length;
   const done = items.filter((p) => p.done).length;
 
@@ -702,20 +714,23 @@ function Packing() {
   };
   // left blank, it goes; one that had a name goes undoably
   const blank = (it: PackingItem) =>
-    it.label ? undoable("Packing item removed", () => removeEntity("packing", it.id)) : removeEntity("packing", it.id);
+    it.label ? undoable("Packing item removed", () => removeItem(it.id)) : removeItem(it.id);
   const addCategory = () => {
     let name = "New category";
-    for (let n = 2; groups[name]; n++) name = `New category ${n}`;
+    for (let n = 2; order.includes(name); n++) name = `New category ${n}`;
+    keepOrder([...order, name]);
     addEntity("packing", newItem(name));
   };
   const renameGroup = (from: string, to: string) => {
     const target = to.trim() || "Other";
     if (target === from) return;
-    for (const it of groups[from] ?? []) updateEntity<PackingItem>("packing", it.id, { group: target });
+    keepOrder(order.map((g) => (g === from ? target : g)));
+    for (const it of listOf(from)) updateEntity<PackingItem>("packing", it.id, { group: target });
   };
   const removeGroup = (group: string) => {
     undoable("Category deleted", () => {
-      for (const it of groups[group] ?? []) removeEntity("packing", it.id);
+      keepOrder(order.filter((g) => g !== group));
+      for (const it of listOf(group)) removeEntity("packing", it.id);
     });
   };
 
@@ -742,7 +757,7 @@ function Packing() {
           Start with a category — Clothes, Tech, Toiletries… — then add what goes in it.
         </p>
       )}
-      {Object.entries(groups).map(([group, list]) => {
+      {groups.map(([group, list]) => {
         const g = list.filter((i) => i.done).length;
         return (
           <Section
@@ -771,7 +786,7 @@ function Packing() {
                   onToggle={(v) => updateEntity<PackingItem>("packing", it.id, { done: v })}
                   onLabel={(v) => updateEntity<PackingItem>("packing", it.id, { label: v })}
                   onAssign={(v) => updateEntity<PackingItem>("packing", it.id, { assignee: v })}
-                  onRemove={() => removeEntity("packing", it.id)}
+                  onRemove={() => removeItem(it.id)}
                   autoEdit={it.id === fresh}
                   onBlank={() => blank(it)}
                 />
@@ -1008,9 +1023,3 @@ function Notes() {
   );
 }
 
-function groupBy<T>(list: T[], key: (x: T) => string): Record<string, T[]> {
-  return list.reduce<Record<string, T[]>>((acc, x) => {
-    (acc[key(x)] ??= []).push(x);
-    return acc;
-  }, {});
-}

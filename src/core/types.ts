@@ -96,6 +96,9 @@ export interface TripConfig {
    *  instead of a drag handle, and reordering the other days flows around
    *  them without moving them */
   pinnedDays?: ID[];
+  /** packing categories in the order they're listed. A category not in it
+   *  (older trips, a copied list) follows, in order of its first item */
+  packingOrder?: string[];
   /** a public Google "My Maps" link — its pins are imported into `places` */
   mapSourceUrl?: string;
   /** ISO timestamp of the last My Maps import */

@@ -17,6 +17,22 @@
  * thing — model it on `budget`, don't give it the entity plumbing the tabs
  * around it have.
  */
+import type { PackingItem, TripConfig } from "@/core/types";
+
+/** Packing items grouped by category, categories in their kept order
+ *  (`config.packingOrder`), then any others in order of their first item. */
+export function packingGroups(items: PackingItem[], config: Pick<TripConfig, "packingOrder">): [string, PackingItem[]][] {
+  const by = new Map<string, PackingItem[]>();
+  for (const it of items) {
+    const arr = by.get(it.group) ?? [];
+    arr.push(it);
+    by.set(it.group, arr);
+  }
+  const kept = (config.packingOrder ?? []).filter((g) => by.has(g));
+  const rest = [...by.keys()].filter((g) => !kept.includes(g));
+  return [...kept, ...rest].map((g) => [g, by.get(g)!]);
+}
+
 export const LOGBOOK_SECTIONS = [
   "stays",
   "getting around",

@@ -22,6 +22,7 @@ import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import { minutesBetween, fmtMinutes } from "@/lib/time";
 import { gmapsLink } from "@/lib/maps";
 import { MODE_LABEL } from "@/lib/transport";
+import { packingGroups } from "@/lib/logbook";
 import { fmtFare, fmtMoney, isMoneyLabel, journeyFare } from "@/lib/cost";
 import { APP_NAME } from "@/lib/app";
 
@@ -310,13 +311,7 @@ function logbookSection(data: TripData, opts: ExportOptions): string {
   }
 
   if (data.packing.length) {
-    const groups = new Map<string, typeof data.packing>();
-    for (const it of data.packing) {
-      const arr = groups.get(it.group) ?? [];
-      arr.push(it);
-      groups.set(it.group, arr);
-    }
-    const blocks = [...groups].map(([group, items]) => `<div class="pack-group">
+    const blocks = packingGroups(data.packing, data.config).map(([group, items]) => `<div class="pack-group">
       <p class="label">${esc(group)}</p>
       <ul class="checklist">${items.map((it) => `<li>${it.done ? "☑" : "☐"} ${esc(it.label)}</li>`).join("")}</ul>
     </div>`);
