@@ -72,7 +72,7 @@ export function DayLabels({ labels, used, readOnly, onChange }: {
             ref={sheet.anchorRef}
             type="button"
             onClick={() => (offer.length ? sheet.setOpen(true) : setNaming(true))}
-            className="action text-sm"
+            className="action tap text-sm"
           >
             <Icon name="plus" size={12} /> {labels.length ? "Label" : "Add a label"}
           </button>

@@ -1257,7 +1257,7 @@ export default function MapTab() {
               </div>
             ) : (
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-                <button onClick={() => setNamingArea(true)} className="inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70">
+                <button onClick={() => setNamingArea(true)} className="tap inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70">
                   <Icon name="plus" size={12} className="align-[-1px]" /> Add area
                 </button>
                 {suggestions.length > 0 && (

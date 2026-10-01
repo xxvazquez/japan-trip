@@ -253,7 +253,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
           <button
             onClick={downloadDayCalendar}
             disabled={icsBusy}
-            className="-m-1 p-1 text-ink-faint transition-colors hover:text-ink-soft disabled:opacity-50"
+            className="tap -m-1 p-1 text-ink-faint transition-colors hover:text-ink-soft disabled:opacity-50"
           >
             <Icon name="calendar" size={17} />
             <span className="sr-only">{icsBusy ? "Building calendar file…" : "Add to calendar"}</span>
@@ -390,7 +390,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             })}
             {!ro && cityAreas.some((a) => !(day.areaIds ?? []).includes(a.id)) && (
               <>
-                <button ref={areaSheet.anchorRef} onClick={() => areaSheet.setOpen(true)} className="action">
+                <button ref={areaSheet.anchorRef} onClick={() => areaSheet.setOpen(true)} className="action tap">
                   <Icon name="plus" size={12} /> Add area
                 </button>
                 <ActionSheet open={areaSheet.open} onClose={() => areaSheet.setOpen(false)} anchorRef={areaSheet.anchorRef} title="Add an area">
@@ -410,7 +410,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
               </>
             )}
             {canPrefetchTiles && offlinePoints.length > 0 && (
-              <button onClick={downloadOfflineMaps} disabled={offlineBusy} className="action">
+              <button onClick={downloadOfflineMaps} disabled={offlineBusy} className="action tap">
                 <Icon name="download" size={12} /> {offlineBusy ? "Caching…" : "Download offline maps"}
               </button>
             )}
@@ -776,7 +776,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
               <button
                 {...attributes}
                 {...listeners}
-                className="grid h-4 w-3 shrink-0 cursor-grab touch-none place-items-center text-ink-faint/50 active:cursor-grabbing"
+                className="tap grid h-4 w-3 shrink-0 cursor-grab touch-none place-items-center text-ink-faint/50 active:cursor-grabbing"
                 aria-label="Drag to reorder"
               >
                 <Icon name="grip" size={13} />
@@ -821,6 +821,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
                       value={item.time ?? ""}
                       onCommit={(v) => onPatch({ time: v || undefined })}
                       timeStart={timeStart}
+                      className="tap"
                       emptyContent={<Icon name="clock" size={12} className="inline-block align-[-1px] not-italic" />}
                     />
                   ) : (

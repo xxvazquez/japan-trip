@@ -300,7 +300,7 @@ export default function Journey() {
                         value={s.mode}
                         options={MODES.map((m) => ({ value: m, label: MODE_LABEL[m] }))}
                         onCommit={(v) => setSeg(i, v === "flight" ? { mode: "flight", platform: undefined } : { mode: v as TransportMode })}
-                        className="eyebrow"
+                        className="eyebrow tap"
                       />
                     )}
                     <p className="mt-0.5 font-display text-sm leading-snug text-ink">
