@@ -175,7 +175,8 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
 
 - **Category** — tap the coloured dots to narrow; none selected shows everything.
 - **Category pins** (**Manage → Content**) set each category's icon and colour once, for every pin in it — no need to style pins one by one in My Maps.
-  - Both win over whatever the pin had in My Maps. **Colour from My Maps** goes back to the pin's own colour; **Dot** drops the icon.
+  - A My Maps layer gets an icon guessed from its name on sync ("Coffee" → cup, "Temples" → landmark). Pick another, or **Dot** for none; a sync never overrides your pick.
+  - A category colour wins over the pin's My Maps colour. **Colour from My Maps** goes back to it.
   - **Always show** keeps its pins visible when zoomed out instead of clustering them (down to about city level).
 - **Transit** — Train and Metro lines are on by default; add Tram, Bus, Ferry or Airport. Works in any city with no setup.
 

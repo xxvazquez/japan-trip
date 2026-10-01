@@ -1294,12 +1294,11 @@ function Content() {
     const colors = data.config.categoryColors ?? {};
     const ownColorOf = (name: string) => data.places.find((p) => p.category === name)?.color || DEFAULT_ACCENT;
     const colorOf = (name: string) => colors[name] || ownColorOf(name);
+    // a cleared icon is kept as "" (a plain dot, chosen) so a My Maps sync
+    // doesn't guess one back
     const setIcon = (name: string, glyph: string) =>
       mutate((d) => {
-        const next = { ...(d.config.categoryIcons ?? {}) };
-        if (glyph) next[name] = glyph;
-        else delete next[name];
-        d.config.categoryIcons = next;
+        d.config.categoryIcons = { ...(d.config.categoryIcons ?? {}), [name]: glyph };
       });
     const setColor = (name: string, hex: string | undefined) =>
       mutate((d) => {
@@ -1319,7 +1318,7 @@ function Content() {
     return (
       <Section
         title="Category pins"
-        info="Pick a colour and icon for a category once here and every pin in it takes them, whatever it had in My Maps. Categories with no icon show a plain dot. “Always show” keeps a category's pins on the map when you zoom far out, on top of everything, instead of folding them into a numbered cluster — handy for your hotel, or anything you need to find at a glance."
+        info="Each category's colour and icon apply to all its pins, whatever they had in My Maps — set them once here. A My Maps layer gets an icon guessed from its name; tap it to pick another, or “Dot” for none. “Always show” keeps a category's pins on the map when you zoom far out, on top of everything, instead of folding them into a numbered cluster — handy for your hotel, or anything you need to find at a glance."
       >
         <ul>
           {names.map((name) => (
