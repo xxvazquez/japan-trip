@@ -1545,6 +1545,7 @@ export const useApp = create<AppStore>((set, get) => {
       // area merge tool don't filter, so they'd quietly drift high forever
       const touchedAreas: string[] = [];
       const touchedDays: string[] = [];
+      const goneDays: string[] = [];
       let spans: ReturnType<typeof fitSpans> | null = null;
       const next = local((d) => {
         const was = type === "days" ? (d.days.find((x) => x.id === id)?.date) : undefined;
@@ -1552,6 +1553,16 @@ export const useApp = create<AppStore>((set, get) => {
         // the other days stay on their dates; the stays and the trip just
         // stop covering a first or last day that's gone
         if (type === "days") spans = fitSpans(d, was ? [was] : []);
+        // a base's days go with it — left behind they'd still count in the
+        // trip but show nowhere on Plan, since Plan lists days under a base
+        if (type === "legs") {
+          const mine = d.days.filter((x) => x.legId === id);
+          if (mine.length) {
+            goneDays.push(...mine.map((x) => x.id));
+            d.days = d.days.filter((x) => x.legId !== id);
+            spans = fitSpans(d, mine.map((x) => x.date));
+          }
+        }
         if (type === "places") {
           for (const a of d.areas) {
             if (!a.placeIds.includes(id)) continue;
@@ -1572,6 +1583,8 @@ export const useApp = create<AppStore>((set, get) => {
         // close the gap, or the next single-row save lands on a position a
         // later row still holds and the two swap places on reload
         enqueue(get, { t: "pos", type });
+        for (const dayId of goneDays) enqueue(get, { t: "del", type: "days", id: dayId });
+        if (goneDays.length) enqueue(get, { t: "pos", type: "days" });
         for (const areaId of touchedAreas) enqueue(get, { t: "areaPlaces", areaId });
         for (const dayId of touchedDays) enqueue(get, { t: "row", type: "days", id: dayId });
         if (spans) enqueueSpans(get, spans);

@@ -13,7 +13,7 @@ import { useAsyncAction } from "@/lib/useAsyncAction";
 import { useIsDark, useMode, type Mode } from "@/lib/mode";
 import { APP_BUILD, APP_NAME, APP_TAGLINE } from "@/lib/app";
 import { tripLogoSrc } from "@/components/Wordmark";
-import { daysBetween, plural, rangeText } from "@/lib/dates";
+import { daysBetween, fmtDate, plural, rangeText } from "@/lib/dates";
 import { nextDaySlot } from "@/lib/spans";
 import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
 import { THEME_PRESETS, DEFAULT_ACCENT } from "@/lib/themePresets";
@@ -1271,6 +1271,16 @@ function Content() {
     return `${bits.join(" and ")} link here — delete clears the link`;
   };
 
+  /** a base takes its days with it — say so, and which, before the second tap */
+  const deleteConfirm = (type: EntityType, id: string): string | undefined => {
+    if (type !== "legs") return undefined;
+    const days = data.days.filter((d) => d.legId === id).sort((a, b) => a.date.localeCompare(b.date));
+    if (!days.length) return undefined;
+    const loc = data.config.locale;
+    const span = days.length === 1 ? fmtDate(days[0].date, loc) : `${fmtDate(days[0].date, loc)} – ${fmtDate(days.at(-1)!.date, loc)}`;
+    return `Tap again to delete it and its ${plural(days.length, "day")} (${span})`;
+  };
+
   const Rows = ({ type }: { type: EntityType }) => {
     const list = data[type] as { id: string }[];
     const isOpen = open === type;
@@ -1302,7 +1312,7 @@ function Content() {
                         <button type="button" className="menu-item" disabled={i === 0} onClick={() => moveEntity(type, x.id, -1)}>Move up</button>
                         <button type="button" className="menu-item" disabled={i === list.length - 1} onClick={() => moveEntity(type, x.id, 1)}>Move down</button>
                         <button type="button" className="menu-item" onClick={() => addEntity(type, { ...structuredClone(rec), id: crypto.randomUUID?.() ?? `${type}-${rid()}` } as { id: string })}>Duplicate</button>
-                        <ConfirmMenuItem onConfirm={() => undoable("Deleted", () => removeEntity(type, x.id))} label="Delete" />
+                        <ConfirmMenuItem onConfirm={() => undoable("Deleted", () => removeEntity(type, x.id))} label="Delete" confirmLabel={deleteConfirm(type, x.id)} />
                       </RowMenu>
                     </div>
                     {links && <p className="mt-1 pl-[3.25rem] text-2xs text-ink-soft">{links}</p>}

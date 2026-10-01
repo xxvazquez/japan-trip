@@ -70,6 +70,7 @@ The days set the dates — you don't edit them separately.
 - The trip can start or end outside its days (a flight out the evening before day one). Its dates stretch to cover a day added outside them, and only shrink when the day on the trip's first or last date is deleted.
 - **Add a day** fills the earliest empty date in the trip (a gap left by a deleted day), otherwise it goes after the last day.
 - **Delete day** leaves the other days alone. Only removing a base's first or last day shortens it.
+- **Deleting a base** (Manage → Content) deletes its days with it. The confirm names how many and which dates; **Undo** brings them all back.
 - A stay's page and the Stays list show the real check-in and check-out dates (the morning you leave, not the last night), the number of nights, and the times.
 
 ## A day
