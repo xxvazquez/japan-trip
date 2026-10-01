@@ -36,7 +36,6 @@ import { toneForSegmentMode, logbookSectionTile, customListColor, TONE_BG, type 
 import { LOGBOOK_SECTIONS, logbookLabel, packingGroups, sectionSlug, sectionFromSlug, type LogbookSection } from "@/lib/logbook";
 import { tripCost, fmtMoney, combineCurrencies, expenseCategoryIcon } from "@/lib/cost";
 import { useFxRates, useTripSpent } from "@/lib/fx";
-import { useBackToClose } from "@/lib/backClose";
 import type { CustomList, Doc, LuggageNote, PackingItem, ScratchNote, TripData } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 8);
@@ -969,8 +968,7 @@ function AssignPill({ value, people, tagged, readOnly, onChange }: {
   readOnly: boolean;
   onChange: (v: string | undefined) => void;
 }) {
-  const [open, setOpen] = useState(false);
-  useBackToClose(open, () => setOpen(false));
+  const sheet = useActionSheet();
   const label = assigneeTag(value, tagged);
   const chip = (
     <span
@@ -982,26 +980,24 @@ function AssignPill({ value, people, tagged, readOnly, onChange }: {
     </span>
   );
   if (readOnly) return <span className="shrink-0">{chip}</span>;
+  // an iOS menu: the current choice carries the checkmark, the rest keep its
+  // space so the names line up
+  const choice = (id: string | undefined, name: string) => (
+    <button key={id ?? "none"} type="button" className="menu-item" onClick={() => onChange(id)}>
+      <Icon name="check" size={14} className={`shrink-0 text-accent ${value === id ? "" : "invisible"}`} />
+      {name}
+    </button>
+  );
   return (
-    <span className="relative shrink-0">
-      <button type="button" onClick={() => setOpen((v) => !v)} aria-label="Assign to" aria-expanded={open} className="tap">
+    <span className="shrink-0">
+      <button ref={sheet.anchorRef} type="button" onClick={() => sheet.setOpen(true)} aria-label="Assign to" aria-haspopup="menu" className="tap">
         {chip}
       </button>
-      {open && (
-        <>
-          <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
-          <div
-            className="absolute right-0 z-30 mt-1 flex min-w-[8rem] flex-col border border-line bg-bg py-1 text-sm shadow-sm [&>button]:px-3 [&>button]:py-1.5 [&>button]:text-left [&>button:hover]:bg-surface-2"
-            onClick={() => setOpen(false)}
-          >
-            {people.map((p) => (
-              <button key={p.id} type="button" onClick={() => onChange(p.id)}>{p.name || "—"}</button>
-            ))}
-            <button type="button" onClick={() => onChange("shared")}>Shared</button>
-            <button type="button" onClick={() => onChange(undefined)}>Unassigned</button>
-          </div>
-        </>
-      )}
+      <ActionSheet open={sheet.open} onClose={() => sheet.setOpen(false)} anchorRef={sheet.anchorRef} title="Assign to">
+        {people.map((p, i) => choice(p.id, p.name || `Traveller ${i + 1}`))}
+        {choice("shared", "Shared")}
+        {choice(undefined, "Unassigned")}
+      </ActionSheet>
     </span>
   );
 }

@@ -31,7 +31,7 @@ import { Icon } from "@/components/Icon";
 import { RouteLabel } from "@/components/RouteLabel";
 import { IconTile } from "@/components/IconTile";
 import { useSplit } from "@/components/SplitMap";
-import { glyphForStepText, toneForGlyph, toneForPlaceCategory } from "@/lib/tones";
+import { glyphForStepText, placeTile, toneForGlyph, toneForPlaceCategory } from "@/lib/tones";
 import { areaLeg } from "@/lib/cityAssign";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { DayStepper } from "@/components/DayStepper";
@@ -360,7 +360,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             </span>
           )}
         >
-          <PlanList day={day} journeys={journeys} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
+          <PlanList day={day} journeys={journeys} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} onChange={setPlan} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
         </Section>
       )}
 
@@ -562,7 +562,7 @@ function DayJourneyRow({ day, journey, data, onRemove }: { day: DayT; journey: J
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onChange, onQuickAddCost, onShowOnMap }: {
+function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, onChange, onQuickAddCost, onShowOnMap }: {
   day: DayT;
   /** the day's journeys — their leave / arrive times show as rows of their own */
   journeys: Journey[];
@@ -574,6 +574,7 @@ function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, a
   areaPlaces: Place[];
   areaNameByPlaceId: Map<string, string>;
   categoryIcons?: Record<string, string>;
+  categoryColors?: Record<string, string>;
   readOnly: boolean;
   onChange: (next: PlanItem[]) => void;
   onQuickAddCost: (label: string) => void;
@@ -646,6 +647,7 @@ function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, a
       areaPlaces={areaPlaces}
       areaNameByPlaceId={areaNameByPlaceId}
       categoryIcons={categoryIcons}
+      categoryColors={categoryColors}
       readOnly={readOnly}
       onPatch={(p) => patchItem(it.id, p)}
       onRemove={() => removeItem(it.id)}
@@ -698,7 +700,7 @@ function timeBefore(items: PlanItem[], i: number): string | undefined {
   return undefined;
 }
 
-function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onPatch, onRemove, onDuplicate, onQuickAddCost, onShowOnMap }: {
+function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, onPatch, onRemove, onDuplicate, onQuickAddCost, onShowOnMap }: {
   day: DayT;
   tz?: string;
   item: PlanItem;
@@ -713,6 +715,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
   areaPlaces: Place[];
   areaNameByPlaceId: Map<string, string>;
   categoryIcons?: Record<string, string>;
+  categoryColors?: Record<string, string>;
   readOnly: boolean;
   onPatch: (p: Partial<PlanItem>) => void;
   onRemove: () => void;
@@ -764,7 +767,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
       size="sm"
       glyph={glyph}
       name={glyph ? undefined : "pin"}
-      color={place?.source === "mymap" ? place.color : undefined}
+      color={place ? placeTile(place, categoryIcons, categoryColors).color : undefined}
       tone={place ? toneForPlaceCategory(place.category, categoryIcons) : textGlyph ? toneForGlyph(textGlyph) : "ink-faint"}
       className={`relative z-10 ${place || textGlyph ? "" : "opacity-70"}`}
     />
@@ -814,6 +817,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
                   places={sortedPickable}
                   areaNameByPlaceId={areaNameByPlaceId}
                   categoryIcons={categoryIcons}
+                  categoryColors={categoryColors}
                   onPick={pick}
                   trigger={tile}
                 />
@@ -864,6 +868,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
                 places={sortedPickable}
                 areaNameByPlaceId={areaNameByPlaceId}
                 categoryIcons={categoryIcons}
+                categoryColors={categoryColors}
                 onPick={pick}
               />
             ) : (
@@ -1138,11 +1143,12 @@ function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }
  *  in `Day`) and a place name alone stops being enough to tell rows apart, this
  *  renders as an iOS-style sheet list instead, with the area as trailing quiet
  *  text on the same line (same idiom as a place's category in Manage). */
-function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, onPick, trigger }: {
+function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, categoryColors, onPick, trigger }: {
   value?: string;
   places: Place[];
   areaNameByPlaceId: Map<string, string>;
   categoryIcons?: Record<string, string>;
+  categoryColors?: Record<string, string>;
   onPick: (id?: string) => void;
   /** what to tap instead of the name line — an unlinked step's pin tile */
   trigger?: React.ReactNode;
@@ -1181,7 +1187,7 @@ function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, onPick, 
       <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="What this step is">
         <div className="max-h-[60dvh] overflow-y-auto">
           <button type="button" onClick={() => onPick(undefined)} className="menu-item flex w-full items-center gap-2">
-            <Icon name="check" size={13} className={`shrink-0 ${!value ? "text-accent" : "text-ink-faint/30"}`} />
+            <Icon name="check" size={13} className={`shrink-0 ${!value ? "text-accent" : "invisible"}`} />
             <IconTile size="sm" name="pin" tone="ink-faint" className="opacity-70" />
             <span className="min-w-0 flex-1 break-words">Custom…</span>
           </button>
@@ -1191,12 +1197,12 @@ function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, onPick, 
             const glyph = p.category ? categoryIcons?.[p.category] : undefined;
             return (
               <button key={p.id} type="button" onClick={() => onPick(p.id)} className="menu-item flex w-full items-center gap-2">
-                <Icon name="check" size={13} className={`shrink-0 ${on ? "text-accent" : "text-ink-faint/30"}`} />
+                <Icon name="check" size={13} className={`shrink-0 ${on ? "text-accent" : "invisible"}`} />
                 <IconTile
                   size="sm"
                   glyph={glyph}
                   name={glyph ? undefined : "pin"}
-                  color={p.source === "mymap" ? p.color : undefined}
+                  color={placeTile(p, categoryIcons, categoryColors).color}
                   tone={toneForPlaceCategory(p.category, categoryIcons)}
                 />
                 <span className="min-w-0 flex-1 break-words">{p.name}</span>
