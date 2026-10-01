@@ -139,7 +139,7 @@ export default function Leg() {
         )}
 
         {(leg.blurb || !ro) && (
-          <Section icon="pin" title="About this base">
+          <Section title="About this base">
             <div className="note px-3.5 py-3">
               <RichNote value={leg.blurb ?? ""} onCommit={(v) => p({ blurb: v || undefined })} placeholder="A line or two about this base…" />
             </div>

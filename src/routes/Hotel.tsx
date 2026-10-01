@@ -126,7 +126,7 @@ export default function Hotel() {
         )}
 
         {(hotel.directions || !ro) && (
-          <Section icon="map" title="Getting here">
+          <Section title="Getting here">
             <div className="note px-3.5 py-3">
               <RichNote value={hotel.directions ?? ""} placeholder="From the station…" onCommit={(v) => p({ directions: v || undefined })} />
             </div>
@@ -134,7 +134,7 @@ export default function Hotel() {
         )}
 
         {showRefSection && (
-          <Section icon="vault" title="Reference" info="Reference is your own — rename a row, add a field, remove one.">
+          <Section title="Reference" info="Reference is your own — rename a row, add a field, remove one.">
             <ul>
               {(!ro || hotel.price) && (
                 <InsetRow label="Price">
@@ -158,7 +158,7 @@ export default function Hotel() {
         )}
 
         {(hotel.notes || !ro) && (
-          <Section icon="list" title="Notes">
+          <Section title="Notes">
             <div className="note px-3.5 py-3">
               <RichNote value={hotel.notes ?? ""} onCommit={(v) => p({ notes: v || undefined })} placeholder="Anything about this stay" />
             </div>

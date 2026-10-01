@@ -318,7 +318,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
 
       {/* JOURNEYS — every way you're carried today, in the order they leave */}
       {!ro && (
-        <Section title="Journeys" id="day-journeys" icon="train" className="mb-8">
+        <Section title="Journeys" id="day-journeys" className="mb-8">
           <ul>
             {journeys.map((j) => (
               <DayJourneyRow key={j.id} day={day} journey={j} data={data} onRemove={() => unlinkJourney(j.id)} />
@@ -352,7 +352,6 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       {/* PLAN — the day's itinerary: time + step, drag to reorder */}
       {((day.plan ?? []).length > 0 || !ro) && (
         <Section
-          icon="itinerary"
           title="Plan"
           info="Drag to reorder. Tap a step's grey pin to link it to a place from an Area you've added below; notes are under ⋯."
           action={overwhelmingCount > 0 && (
@@ -368,7 +367,6 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       {/* AREAS — pull an area's places onto this day's map, without touching the plan */}
       {((day.areaIds ?? []).length > 0 || (!ro && cityAreas.length > 0)) && (
         <Section
-          icon="pin"
           title="Areas"
           info={`Places in an area you add here show on the day’s map — they don’t change the plan above${ro ? "." : ", unless you tap + on a chip to add one as a step."}`}
         >
@@ -437,7 +435,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
 
       {/* SPENDING — what the day cost; feeds the Expenses roll-up */}
       {((day.costs ?? []).length > 0 || !ro) && (
-        <Section icon="vault" title="Spending" info="Tag each amount with a category — the Expenses tab in Logbook adds them up.">
+        <Section title="Spending" info="Tag each amount with a category — the Expenses tab in Logbook adds them up.">
           <CostList
             costs={day.costs ?? []}
             categories={data.config.expenseCategories ?? []}
@@ -452,7 +450,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
 
       {/* GENERAL NOTES — free-form catch-all, after the day's actual plan */}
       {(day.notes || !ro) && (
-        <Section icon="list" title="General notes" info="Supports bold, italic, bullet lists, checklists, and links — tap a note to see the formatting toolbar.">
+        <Section title="General notes" info="Supports bold, italic, bullet lists, checklists, and links — tap a note to see the formatting toolbar.">
           <div className="note px-3.5 py-3">
             <RichNote
               value={day.notes ?? ""}

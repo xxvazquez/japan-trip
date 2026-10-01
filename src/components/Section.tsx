@@ -1,5 +1,5 @@
 import { useId, useState, type ReactNode } from "react";
-import { Icon, type IconName } from "./Icon";
+import { Icon } from "./Icon";
 import { usePersistedOpen, slug } from "@/lib/collapse";
 
 /**
@@ -23,7 +23,6 @@ import { usePersistedOpen, slug } from "@/lib/collapse";
  */
 export function Section({
   title,
-  icon,
   action,
   info,
   id,
@@ -32,7 +31,6 @@ export function Section({
   className = "",
 }: {
   title?: ReactNode;
-  icon?: IconName;
   action?: ReactNode;
   info?: ReactNode;
   id?: string;
@@ -67,7 +65,6 @@ export function Section({
                 <span className="sr-only">{open ? "Collapse" : "Expand"} section</span>
               </button>
             )}
-            {icon && <Icon name={icon} size={13} className="shrink-0 -translate-y-px text-ink-soft" />}
             <span className="min-w-0 break-words">{title}</span>
           </h2>
           {(action || info) && (

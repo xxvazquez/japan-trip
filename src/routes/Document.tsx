@@ -65,7 +65,7 @@ export default function Document() {
 
       <div className="space-y-6">
         {(!ro || files.length > 0) && (
-          <Section icon="vault" title="Files">
+          <Section title="Files">
             <Attachments
               files={files}
               cloud={cloud}
@@ -78,7 +78,7 @@ export default function Document() {
         )}
 
         {(!ro || doc.fields.length > 0) && (
-          <Section icon="list" title="Details">
+          <Section title="Details">
             <ul>
               <FieldList inset fields={doc.fields} onChange={(next) => p({ fields: next })} />
             </ul>
@@ -86,7 +86,7 @@ export default function Document() {
         )}
 
         {(doc.note?.trim() || !ro) && (
-          <Section icon="list" title="Notes">
+          <Section title="Notes">
             <div className="note px-3.5 py-3">
               <RichNote value={doc.note ?? ""} onCommit={(v) => p({ note: v || undefined })} placeholder="Add a note…" />
             </div>
