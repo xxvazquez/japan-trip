@@ -1,6 +1,7 @@
-import { useEffect, useLayoutEffect, useRef, type KeyboardEvent, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { useSheetDrag } from "./useSheetDrag";
+import { Icon } from "./Icon";
 
 /* The pickers work on a 12-hour dial plus AM/PM, the way a clock (and the iOS
  * wheel) reads; the stored value stays 24-hour "HH:MM". */
@@ -88,12 +89,142 @@ function WheelColumn({ options, value, onChange, ariaLabel }: {
   );
 }
 
+type Seg = "h" | "m" | "p";
+const SEGS: Seg[] = ["h", "m", "p"];
+
+/** The desktop editor, after the Mac's own time field (Calendar, System
+ *  Settings): the time as three segments — hour, minute, AM/PM — beside a
+ *  small up/down stepper. Click a segment to select it, then step it with the
+ *  stepper, the arrow keys or the scroll wheel, or just type digits ("9",
+ *  "37", "p"). A scroll wheel suits a touchscreen; a mouse and keyboard are
+ *  faster at this. */
+function TimeField({ hour, minute, onPick, onDone }: {
+  hour: string;
+  minute: string;
+  onPick: (h: string, m: string) => void;
+  onDone: () => void;
+}) {
+  const [seg, setSeg] = useState<Seg>("h");
+  const ref = useRef<HTMLDivElement>(null);
+  const typed = useRef({ seg: "h" as Seg, text: "", at: 0 });
+  const wheelAcc = useRef(0);
+  const h12 = Number(to12(hour));
+  const period = periodOf(hour);
+
+  // latest values for the native wheel listener below
+  const live = useRef({ hour, minute, seg, onPick });
+  live.current = { hour, minute, seg, onPick };
+
+  const step = (s: Seg, d: number, cur = live.current) => {
+    const h = Number(to12(cur.hour)), p = periodOf(cur.hour);
+    const onPick = cur.onPick;
+    if (s === "h") onPick(to24(String(((h - 1 + d + 1200) % 12) + 1), p), cur.minute);
+    if (s === "m") onPick(cur.hour, String((Number(cur.minute) + d + 6000) % 60).padStart(2, "0"));
+    if (s === "p") onPick(to24(String(h), p === "AM" ? "PM" : "AM"), cur.minute);
+  };
+
+  useEffect(() => {
+    ref.current?.focus();
+    const el = ref.current;
+    if (!el) return;
+    // React's onWheel is passive and can't stop the page scrolling behind
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      wheelAcc.current += e.deltaY;
+      while (Math.abs(wheelAcc.current) >= 24) {
+        const d = wheelAcc.current > 0 ? 1 : -1;
+        wheelAcc.current -= d * 24;
+        step(live.current.seg, -d);
+      }
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
+
+  const move = (d: number) => setSeg(SEGS[Math.min(2, Math.max(0, SEGS.indexOf(seg) + d))]);
+
+  const typeDigit = (n: number) => {
+    const now = Date.now();
+    const t = typed.current;
+    const fresh = t.seg !== seg || now - t.at > 1200;
+    const text = (fresh ? "" : t.text) + n;
+    typed.current = { seg, text, at: now };
+    if (seg === "h") {
+      const v = Number(text);
+      if (text.length === 2 && v >= 1 && v <= 12) { onPick(to24(String(v), period), minute); setSeg("m"); typed.current.text = ""; }
+      else if (text.length === 2) { typed.current.text = String(n); if (n) onPick(to24(String(n), period), minute); if (n > 1) setSeg("m"); }
+      else { if (n) onPick(to24(String(n), period), minute); if (n > 1) setSeg("m"); }
+    } else if (seg === "m") {
+      onPick(hour, text.padStart(2, "0").slice(-2));
+      if (text.length === 2 || n > 5) { setSeg("p"); typed.current.text = ""; }
+    }
+  };
+
+  const onKeyDown = (e: KeyboardEvent) => {
+    const k = e.key;
+    if (k === "ArrowUp" || k === "ArrowDown") { e.preventDefault(); step(seg, k === "ArrowUp" ? 1 : -1); }
+    else if (k === "ArrowLeft") { e.preventDefault(); move(-1); }
+    else if (k === "ArrowRight" || k === ":") { e.preventDefault(); move(1); }
+    else if (k === "Tab" && !(e.shiftKey ? seg === "h" : seg === "p")) { e.preventDefault(); move(e.shiftKey ? -1 : 1); }
+    else if (k === "Enter") { e.preventDefault(); onDone(); }
+    else if (/^[0-9]$/.test(k)) { e.preventDefault(); typeDigit(Number(k)); }
+    else if (/^[ap]$/i.test(k)) { e.preventDefault(); onPick(to24(String(h12), k.toLowerCase() === "a" ? "AM" : "PM"), minute); }
+  };
+
+  const segment = (s: Seg, text: string, label: string) => (
+    <span
+      role="spinbutton"
+      aria-label={label}
+      aria-valuetext={text}
+      onPointerDown={(e) => { e.preventDefault(); ref.current?.focus(); if (s === seg && s === "p") step("p", 1); setSeg(s); }}
+      className={`cursor-default rounded-[6px] px-1 tabular-nums transition-colors ${
+        s === seg ? "bg-accent text-white" : "hover:bg-ink/[0.06]"
+      }`}
+    >
+      {text}
+    </span>
+  );
+
+  return (
+    <div className="flex items-center gap-2">
+      <div
+        ref={ref}
+        tabIndex={0}
+        onKeyDown={onKeyDown}
+        aria-label="Time"
+        className="flex select-none items-baseline rounded-[8px] bg-surface-2 px-1.5 py-1 text-[22px] text-ink focus:outline-none"
+      >
+        {segment("h", String(h12), "Hour")}
+        <span aria-hidden className="px-px text-ink-faint">:</span>
+        {segment("m", minute, "Minute")}
+        <span className="w-1.5" />
+        {segment("p", period, "AM or PM")}
+      </div>
+      <div className="flex flex-col overflow-hidden rounded-[7px] bg-surface-2">
+        {[1, -1].map((d) => (
+          <button
+            key={d}
+            type="button"
+            tabIndex={-1}
+            aria-label={d > 0 ? "Increase" : "Decrease"}
+            onPointerDown={(e) => e.preventDefault()}
+            onClick={() => step(seg, d)}
+            className="flex h-[17px] w-6 items-center justify-center text-ink-soft hover:bg-ink/[0.06] active:bg-ink/[0.12]"
+          >
+            <Icon name="chevron" size={11} className={d > 0 ? "-rotate-90" : "rotate-90"} />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /** The iOS-style scroll-wheel time picker: a bottom sheet on phone widths, a
  *  small anchored popover on wider ones — the same narrow/wide split as
  *  `ActionSheet`, but not built on it, since a wheel needs to stay open
  *  through a scroll or a tap, where `ActionSheet` closes on any click inside
- *  it. Both show the same wheels (scroll, click a row, or arrow keys); values
- *  commit live as each wheel settles, "Done" just dismisses. */
+ *  it. The phone gets wheels, the popover a Mac-style `TimeField`; values
+ *  commit live as they change, "Done" just dismisses. */
 export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, onPick, onClear }: {
   open: boolean;
   onClose: () => void;
@@ -167,13 +298,11 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, onPick,
       <div
         ref={popRef}
         style={{ top: 0, left: 0, visibility: "hidden" }}
-        className="glass-panel fixed z-[55] flex flex-col rounded-[18px] p-2 motion-safe:animate-fade-in"
+        className="glass-panel fixed z-[55] flex items-center gap-4 rounded-[14px] py-2 pl-2 pr-3 motion-safe:animate-fade-in"
       >
-        <div className="px-2 pt-1">{wheels}</div>
-        <div className="flex items-center justify-between px-2 pb-1">
-          <button type="button" onClick={onClear} className="text-xs text-danger">Clear</button>
-          <button type="button" onClick={onClose} className="text-xs font-medium text-accent">Done</button>
-        </div>
+        <TimeField hour={h} minute={m} onPick={onPick} onDone={onClose} />
+        <button type="button" onClick={onClear} className="text-xs text-danger">Clear</button>
+        <button type="button" onClick={onClose} className="text-xs font-medium text-accent">Done</button>
       </div>
     </>,
     document.body,
