@@ -11,6 +11,7 @@ import { SignIn } from "./routes/SignIn";
 import { Offline } from "./routes/Offline";
 import { Recovery } from "./routes/Recovery";
 import "./lib/pwa"; // starts listening for the install prompt before anything can miss it
+import "./lib/keyboard"; // tracks the on-screen keyboard for the tab bar and sheets
 import "./styles/index.css";
 
 void initApp();

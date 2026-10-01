@@ -66,7 +66,7 @@ export function ActionSheet({
         <div className="fixed inset-0 z-50 bg-black/25 motion-safe:animate-fade-in" onClick={onClose} />
         <div
           ref={sheetRef}
-          className="sheet-float glass-panel z-[55] flex max-h-[85vh] flex-col overflow-hidden pb-1 pt-2 motion-safe:animate-sheet-up"
+          className="sheet-float glass-panel z-[55] flex max-h-[calc(var(--vvh,100dvh)*0.85)] flex-col overflow-hidden pb-1 pt-2 motion-safe:animate-sheet-up"
           onClick={onClose}
           role="menu"
         >

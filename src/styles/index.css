@@ -406,8 +406,19 @@ html.dark {
     position: fixed;
     left: 0.5rem;
     right: 0.5rem;
-    bottom: max(0.5rem, var(--sab));
+    /* rides up above the on-screen keyboard (--kb, src/lib/keyboard.ts) */
+    bottom: max(0.5rem, var(--sab), calc(var(--kb, 0px) + 0.5rem));
     border-radius: 28px;
+    transition: bottom 250ms var(--ease-paper);
+  }
+  /* the floating tab bar goes under the keyboard while you type, as on iOS */
+  .tabbar-float {
+    transition: transform 300ms var(--ease-paper), opacity 200ms;
+  }
+  html.kb-open .tabbar-float {
+    transform: translateY(calc(100% + var(--tabbar-bottom)));
+    opacity: 0;
+    pointer-events: none;
   }
   /* the nav bar's scroll edge: no hairline — content fades softly under a
    * blur that thins out toward the bar's foot, as on iOS 26 */

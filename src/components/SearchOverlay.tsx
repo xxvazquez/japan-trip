@@ -89,7 +89,7 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
       aria-label="Search"
     >
       <div
-        className="flex h-full w-full flex-col bg-bg md:h-auto md:border md:border-line md:shadow-xl md:max-h-[80vh] md:max-w-reading md:overflow-hidden md:rounded-[18px] md:bg-bg motion-safe:animate-fade-up"
+        className="flex h-[var(--vvh,100%)] w-full translate-y-[var(--vvt,0px)] flex-col bg-bg md:h-auto md:translate-y-0 md:border md:border-line md:shadow-xl md:max-h-[80vh] md:max-w-reading md:overflow-hidden md:rounded-[18px] md:bg-bg motion-safe:animate-fade-up"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={onKey}
       >
