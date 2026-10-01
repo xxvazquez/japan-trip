@@ -25,6 +25,9 @@ import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { tripClock, fmtDate, dayKind, legForDate, legNights, plural, addDays } from "@/lib/dates";
 import { nextDaySlot } from "@/lib/spans";
+import { canonicalLegs } from "@/lib/cityAssign";
+import { tripCost, fmtMoney } from "@/lib/cost";
+import { useFxRates } from "@/lib/fx";
 import { legHex, LEG_COLORS, type LegColorId } from "@/lib/legColors";
 import type { Day, Leg, TripData } from "@/core/types";
 
@@ -34,6 +37,47 @@ import type { Day, Leg, TripData } from "@/core/types";
  *  a plain block (no link, no hover styling) if today has no Day yet. */
 function Wrap({ to, children }: { to: string | false | undefined; children: ReactNode }) {
   return to ? <Link to={to} className="group block">{children}</Link> : <div>{children}</div>;
+}
+
+/** After the trip: how long it was, then a derived recap — cities (two stays
+ *  in one city count once), what was spent — one total in the trip's main
+ *  currency, converted with Expenses' rates — and stamps collected. A part
+ *  that comes to nothing is left out, and so is the total while a currency
+ *  has no rate yet (offline before the first fetch): a part-sum would lie. */
+function TripRecap({ data, totalDays }: { data: TripData; totalDays: number }) {
+  const loc = data.config.locale;
+  const cities = new Set(canonicalLegs(data).values()).size;
+  const { byCurrency } = tripCost(data);
+  const currencies = Object.keys(byCurrency).filter((c) => c && byCurrency[c].total > 0);
+  const primary = data.config.currency || currencies[0] || "";
+  const others = currencies.filter((c) => c !== primary);
+  const { rates } = useFxRates(primary, others);
+  const total = others.every((c) => rates[c])
+    ? currencies.reduce((sum, c) => sum + byCurrency[c].total / (c === primary ? 1 : rates[c]), 0)
+    : 0;
+  const spent = total > 0 ? fmtMoney(Math.round(total), primary) : "";
+  const stamps = (data.config.stamps ?? []).filter((s) => s.done).length;
+  const parts: ReactNode[] = [
+    cities > 0 && plural(cities, "city", "cities"),
+    spent && <Link to="/logbook/budget" className="text-accent">{spent} spent</Link>,
+    stamps > 0 && plural(stamps, "stamp"),
+  ].filter(Boolean);
+  return (
+    <>
+      <p className="flex items-baseline gap-2">
+        <span className="font-display text-display">{totalDays}</span>
+        <span className="text-lg text-ink-soft">{totalDays === 1 ? "day" : "days"} away</span>
+      </p>
+      {parts.length > 0 && (
+        <p className="mt-2 text-sm">
+          {parts.map((p, i) => <Fragment key={i}>{i > 0 && " · "}{p}</Fragment>)}
+        </p>
+      )}
+      <p className="meta mt-1">
+        {fmtDate(data.meta.start, loc, { day: "numeric", month: "short" })} – {fmtDate(data.meta.end, loc, { day: "numeric", month: "short", year: "numeric" })}
+      </p>
+    </>
+  );
 }
 
 const KIND: Record<string, { label: string; icon: IconName }> = {
@@ -113,7 +157,7 @@ export default function Plan() {
             </p>
           </Wrap>
         )}
-        {!noDates && c.phase === "after" && <p className="lead">Home — the trip’s all here.</p>}
+        {!noDates && c.phase === "after" && <TripRecap data={data} totalDays={c.totalDays} />}
       </header>
 
       {data.legs.length === 0 ? (
