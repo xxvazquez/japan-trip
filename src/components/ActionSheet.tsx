@@ -104,7 +104,7 @@ export function ActionSheet({
           top,
           left,
         }}
-        className="glass-panel fixed z-[55] flex max-h-[70vh] min-w-[12rem] max-w-[22rem] flex-col overflow-y-auto rounded-[16px] py-1.5 text-sm motion-safe:animate-fade-in [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-3.5 [&_.menu-item]:py-2 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 [&_.menu-item:hover]:bg-ink/[0.06]"
+        className="glass-panel fixed z-[55] flex max-h-[70dvh] min-w-[12rem] max-w-[22rem] flex-col overflow-y-auto rounded-[16px] py-1.5 text-sm motion-safe:animate-fade-in [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-3.5 [&_.menu-item]:py-2 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 [&_.menu-item:hover]:bg-ink/[0.06]"
       >
         {children}
       </div>

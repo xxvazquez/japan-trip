@@ -1179,7 +1179,7 @@ function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, onPick, 
       </button>
       )}
       <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="What this step is">
-        <div className="max-h-[60vh] overflow-y-auto">
+        <div className="max-h-[60dvh] overflow-y-auto">
           <button type="button" onClick={() => onPick(undefined)} className="menu-item flex w-full items-center gap-2">
             <Icon name="check" size={13} className={`shrink-0 ${!value ? "text-accent" : "text-ink-faint/30"}`} />
             <IconTile size="sm" name="pin" tone="ink-faint" className="opacity-70" />
