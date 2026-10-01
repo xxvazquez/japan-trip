@@ -2,6 +2,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { STORAGE_KEYS } from "@/lib/app";
 import type { TripData } from "@/core/types";
 
+const myMap = vi.hoisted(() => ({ places: [] as { name: string; lat: number; lng: number; category?: string; color?: string }[] }));
+vi.mock("@/lib/mymaps", () => ({
+  myMapId: (url?: string) => url?.match(/[?&]mid=([^&#]+)/)?.[1],
+  fetchMyMap: async () => ({ mapName: "Test map", places: myMap.places }),
+}));
+
 /** a fresh "page load": new module instances, same device storage */
 async function boot() {
   vi.resetModules();
@@ -304,5 +310,40 @@ describe("days shape the stays and the trip", () => {
     await a.settlePending();
     const b = await boot();
     expect(b.s().data!.meta.end).toBe("2026-10-04");
+  });
+});
+
+describe("My Maps sync", () => {
+  const URL = "https://www.google.com/maps/d/edit?mid=abc";
+  const pin = (name: string, color = "#0288d1") => ({ name, lat: 1, lng: 2, category: "Food", color });
+
+  it("adds new pins, refreshes a recoloured one, removes ones deleted on the map, and undo brings them back", async () => {
+    const a = await boot();
+    myMap.places = [pin("Cafe"), pin("Temple"), pin("Old pin")];
+    expect(await a.s().syncMyMap(URL)).toMatchObject({ count: 3, updated: 0, removed: 0 });
+    const cafe = a.s().data!.places.find((p) => p.name === "Cafe")!;
+    a.s().updateEntity("places", cafe.id, { note: "Try the soft serve" });
+
+    myMap.places = [pin("Cafe", "#795548"), pin("Temple")];
+    expect(await a.s().syncMyMap(URL)).toMatchObject({ count: 0, updated: 1, removed: 1 });
+    const names = () => a.s().data!.places.filter((p) => p.source === "mymap").map((p) => p.name).sort();
+    expect(names()).toEqual(["Cafe", "Temple"]);
+    const after = a.s().data!.places.find((p) => p.id === cafe.id)!;
+    expect(after.color).toBe("#795548");
+    expect(after.note).toBe("Try the soft serve");
+
+    a.s().undo();
+    expect(names()).toEqual(["Cafe", "Old pin", "Temple"]);
+  });
+
+  it("never removes pins when syncing a different map or an empty export", async () => {
+    const a = await boot();
+    myMap.places = [pin("Cafe")];
+    await a.s().syncMyMap(URL);
+    myMap.places = [];
+    expect((await a.s().syncMyMap(URL)).removed).toBe(0);
+    myMap.places = [pin("Elsewhere")];
+    expect((await a.s().syncMyMap("https://www.google.com/maps/d/edit?mid=other")).removed).toBe(0);
+    expect(a.s().data!.places.some((p) => p.name === "Cafe")).toBe(true);
   });
 });

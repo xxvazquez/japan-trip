@@ -1018,7 +1018,9 @@ export default function MapTab() {
     setMsg("");
     try {
       const r = await syncMyMap(url);
-      setMsg(r.count > 0 ? `Added ${r.count} new pin${r.count === 1 ? "" : "s"} from “${r.mapName}”.` : `No new pins in “${r.mapName}”.`);
+      const pins = (n: number) => `${n} pin${n === 1 ? "" : "s"}`;
+      const bits = [r.count > 0 && `added ${pins(r.count)}`, r.updated > 0 && `updated ${pins(r.updated)}`, r.removed > 0 && `removed ${pins(r.removed)} deleted there`].filter(Boolean);
+      setMsg(bits.length ? `“${r.mapName}”: ${bits.join(", ")}.` : `“${r.mapName}” is up to date.`);
     } catch (e) {
       setMsg(e instanceof Error ? e.message : "Sync failed.");
     } finally {

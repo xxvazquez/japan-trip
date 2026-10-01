@@ -144,7 +144,7 @@ interface AppStore {
    *  length is unchanged. Backs the trip start / end date pickers. */
   shiftDates: (deltaDays: number) => void;
 
-  syncMyMap: (url: string) => Promise<{ mapName: string; count: number }>;
+  syncMyMap: (url: string) => Promise<{ mapName: string; count: number; updated: number; removed: number }>;
   setMedia: (slot: "logo", item: MediaItem | undefined) => void;
   addGalleryMedia: (item: MediaItem) => void;
   removeGalleryMedia: (id: string) => void;
@@ -1699,42 +1699,68 @@ export const useApp = create<AppStore>((set, get) => {
       for (const n of d.luggage) if (n.date) enqueue(get, { t: "row", type: "luggage", id: n.id });
     },
 
-    /** Add any pin in `url`'s My Map that isn't already synced. Existing
-     *  pins — their notes, links, city override, Area membership, even ones
-     *  since removed from the My Map itself — are never touched or removed;
-     *  a sync only ever adds. */
+    /** Bring the trip in line with `url`'s My Map: add any pin that isn't
+     *  here yet, refresh the colour / position / layer of ones that are, and
+     *  remove imported pins that are gone from the map (one Undo brings them
+     *  back). Notes, links, city override and Area membership stay. Removal
+     *  only runs when re-syncing the same map, so pointing the trip at a
+     *  different map never wipes the old one's pins. */
     syncMyMap: async (url) => {
-      const { fetchMyMap } = await import("@/lib/mymaps");
+      const { fetchMyMap, myMapId } = await import("@/lib/mymaps");
       const rid = () => (crypto?.randomUUID ? crypto.randomUUID() : `p-${Math.random().toString(36).slice(2)}`);
       const { mapName, places } = await fetchMyMap(url);
+      const prevUrl = get().data?.config.mapSourceUrl;
+      const sameMap = !!prevUrl && myMapId(prevUrl) === myMapId(url);
       const added: string[] = [];
+      const changed: string[] = [];
+      const gone: string[] = [];
       if (!local((d) => {
-        // No stable id in the KML export, so a pin already here (by name) is
-        // left alone rather than matched and rewritten. Duplicate names are
-        // matched by count, so a second same-named pin still comes in as new.
+        // No stable id in the KML export, so pins are matched by name.
+        // Duplicate names pair up in order, so a second same-named pin still
+        // comes in as new. A matched pin takes the map's colour, position and
+        // layer (nothing in the app edits those on an imported pin) and keeps
+        // everything else.
         const norm = (s: string) => s.trim().toLowerCase();
-        const already = new Map<string, number>();
+        const mine = new Map<string, Place[]>();
         for (const p of d.places) {
           if (p.source !== "mymap") continue;
           const key = norm(p.name);
-          already.set(key, (already.get(key) ?? 0) + 1);
+          mine.set(key, [...(mine.get(key) ?? []), p]);
         }
         const next: Place[] = [];
         for (const p of places) {
-          const key = norm(p.name);
-          const n = already.get(key) ?? 0;
-          if (n > 0) { already.set(key, n - 1); continue; }
+          const match = mine.get(norm(p.name))?.shift();
+          if (match) {
+            if (match.color !== p.color || match.lat !== p.lat || match.lng !== p.lng || match.category !== p.category) {
+              match.color = p.color;
+              match.lat = p.lat;
+              match.lng = p.lng;
+              match.category = p.category;
+              changed.push(match.id);
+            }
+            continue;
+          }
           const id = rid();
           added.push(id);
           next.push({ id, name: p.name, lat: p.lat, lng: p.lng, category: p.category, color: p.color, source: "mymap" });
         }
+        // whatever's left unmatched was deleted on the map. An empty export
+        // is never taken as "delete everything".
+        if (sameMap && places.length > 0) {
+          for (const left of mine.values()) for (const p of left) gone.push(p.id);
+        }
         d.places = [...d.places, ...next];
         d.config.mapSourceUrl = url;
         d.config.mapSyncedAt = now();
-      })) return { mapName, count: 0 };
-      for (const id of added) enqueue(get, { t: "row", type: "places", id });
+      })) return { mapName, count: 0, updated: 0, removed: 0 };
+      for (const id of [...added, ...changed]) enqueue(get, { t: "row", type: "places", id });
       enqueue(get, { t: "fields", keys: ["config"] });
-      return { mapName, count: added.length };
+      if (gone.length) {
+        get().undoable(`${gone.length} pin${gone.length === 1 ? "" : "s"} removed`, () => {
+          for (const id of gone) get().removeEntity("places", id);
+        });
+      }
+      return { mapName, count: added.length, updated: changed.length, removed: gone.length };
     },
     setMedia: (slot, item) => {
       if (local((d) => { d.media[slot] = item; })) enqueue(get, { t: "fields", keys: ["media"] });
