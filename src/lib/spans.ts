@@ -45,6 +45,19 @@ export function fitSpans(d: TripData, vacated: string[] = []): { legIds: string[
 }
 
 /**
+ * Bases always run in date order — there's no separate order to keep in
+ * step with the dates. A base with no start yet goes last. Mutates `d`;
+ * true when the order changed.
+ */
+export function sortLegs(d: Pick<TripData, "legs">): boolean {
+  const key = (s?: string) => s || "\uffff";
+  const sorted = [...d.legs].sort((a, b) => (key(a.start) < key(b.start) ? -1 : key(a.start) > key(b.start) ? 1 : 0));
+  if (sorted.every((l, i) => l === d.legs[i])) return false;
+  d.legs = sorted;
+  return true;
+}
+
+/**
  * Where "Add a day" puts the next day: the earliest date inside the trip
  * that has no day (a deleted day's gap), in the stay of the day before it;
  * otherwise the day after the last day, in that day's stay. With no days

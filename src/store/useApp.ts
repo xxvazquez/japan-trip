@@ -8,7 +8,7 @@ import { store as kv } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/app";
 import { normalizeTrip } from "@/lib/hydrate";
 import { fmtDate, rangeText, shiftDate } from "@/lib/dates";
-import { fitSpans } from "@/lib/spans";
+import { fitSpans, sortLegs } from "@/lib/spans";
 import { TripLoadError, SaveBlockedError, StorageError, type LoadFailure } from "@/lib/safety/errors";
 import { validateTrip, describeProblems } from "@/lib/safety/validate";
 import { takeSnapshot, ensureBackedUp, readSnapshot, purgeDeletedTripSnapshots, type SnapshotMeta } from "@/lib/safety/snapshots";
@@ -1053,10 +1053,12 @@ export const useApp = create<AppStore>((set, get) => {
     if (!cur) return null;
     const next = structuredClone(cur);
     fn(next);
+    const resorted = sortLegs(next);
     const trips = get().trips.map((t) =>
       t.id === get().activeId ? { ...t, updatedAt: now(), name: next.meta.title || t.name } : t,
     );
     set({ data: next, trips });
+    if (resorted) enqueue(get, { t: "pos", type: "legs" });
     return next;
   };
 

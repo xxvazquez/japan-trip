@@ -1,5 +1,6 @@
 import { THEME_PRESETS } from "./themePresets";
 import { mapUrlCoords } from "./maps";
+import { sortLegs } from "./spans";
 import type { Day, Doc, DocField, ExpenseCategory, Hotel, ModuleConfig, PlanItem, ThemeTokens, TripData } from "@/core/types";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
@@ -241,6 +242,8 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
       if (r && typeof r === "object" && (typeof r.id !== "string" || !r.id)) r.id = `${k}-${fieldId()}`;
     }
   }
+  // bases run in date order; an older trip may have them stored otherwise
+  if ((d.legs as unknown[]).every((l) => l && typeof l === "object")) sortLegs(d as TripData);
   for (const j of d.journeys as { segments?: unknown }[]) {
     if (j && typeof j === "object" && !Array.isArray(j.segments)) j.segments = [];
   }

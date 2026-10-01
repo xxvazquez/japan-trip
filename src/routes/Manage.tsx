@@ -1309,8 +1309,13 @@ function Content() {
                       </span>
                       {/* one ⋯ per row instead of four bare icons */}
                       <RowMenu label="Options">
-                        <button type="button" className="menu-item" disabled={i === 0} onClick={() => moveEntity(type, x.id, -1)}>Move up</button>
-                        <button type="button" className="menu-item" disabled={i === list.length - 1} onClick={() => moveEntity(type, x.id, 1)}>Move down</button>
+                        {/* bases and days follow their dates — moving one here would only shuffle the list */}
+                        {type !== "legs" && type !== "days" && (
+                          <>
+                            <button type="button" className="menu-item" disabled={i === 0} onClick={() => moveEntity(type, x.id, -1)}>Move up</button>
+                            <button type="button" className="menu-item" disabled={i === list.length - 1} onClick={() => moveEntity(type, x.id, 1)}>Move down</button>
+                          </>
+                        )}
                         <button type="button" className="menu-item" onClick={() => addEntity(type, { ...structuredClone(rec), id: crypto.randomUUID?.() ?? `${type}-${rid()}` } as { id: string })}>Duplicate</button>
                         <ConfirmMenuItem onConfirm={() => undoable("Deleted", () => removeEntity(type, x.id))} label="Delete" confirmLabel={deleteConfirm(type, x.id)} />
                       </RowMenu>
