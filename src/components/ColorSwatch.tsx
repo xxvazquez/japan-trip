@@ -30,7 +30,19 @@ const PALETTE = [
  * browser's `<input type="color">`, which looks and behaves differently on
  * every platform.
  */
-export function ColorSwatch({ value, onChange, label }: { value: string; onChange: (hex: string) => void; label: string }) {
+export function ColorSwatch({
+  value,
+  onChange,
+  label,
+  reset,
+}: {
+  value: string;
+  onChange: (hex: string) => void;
+  label: string;
+  /** an optional first row that drops the chosen colour, e.g. back to the
+   *  colour a pin came with. `active` while nothing is chosen. */
+  reset?: { label: string; active: boolean; onReset: () => void };
+}) {
   const [open, setOpen] = useState(false);
   const anchor = useRef<HTMLButtonElement>(null);
   return (
@@ -45,9 +57,15 @@ export function ColorSwatch({ value, onChange, label }: { value: string; onChang
         style={{ background: value }}
       />
       <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchor} title={label}>
+        {reset && (
+          <button type="button" className="menu-item" onClick={reset.onReset}>
+            <Icon name="check" size={15} className={`shrink-0 text-accent ${reset.active ? "" : "invisible"}`} />
+            {reset.label}
+          </button>
+        )}
         <div className="grid grid-cols-8 gap-2 p-3">
           {PALETTE.map((c) => {
-            const on = c.toLowerCase() === value.toLowerCase();
+            const on = !reset?.active && c.toLowerCase() === value.toLowerCase();
             return (
               <button
                 key={c}

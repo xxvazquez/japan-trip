@@ -89,6 +89,9 @@ export interface TripConfig {
   /** map a place `category` to a marker glyph id (see `MAP_GLYPHS`). Categories
    *  not listed here draw the plain coloured dot. */
   categoryIcons?: Record<string, string>;
+  /** a place `category` → pin colour (hex), set in Manage. Overrides the
+   *  colour a pin came in with from My Maps; unlisted categories keep it. */
+  categoryColors?: Record<string, string>;
   /** place categories whose pins stay on the map when zoomed far out — drawn
    *  on top and never folded into a numbered cluster (e.g. the hotel) */
   pinnedCategories?: string[];

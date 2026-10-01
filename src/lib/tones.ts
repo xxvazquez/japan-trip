@@ -156,11 +156,23 @@ export function toneForPlaceCategory(
  *  an imported pin and is kept. */
 export const DEFAULT_PIN_COLORS = new Set([DEFAULT_ACCENT, "#5f7f9c"]);
 
+/** A pin's colour: its category's colour from Manage when one is set, else
+ *  the colour it came with (My Maps), else undefined. */
+export function placeColor(place: Place, categoryColors?: Record<string, string>): string | undefined {
+  return (place.category && categoryColors?.[place.category]) || place.color || undefined;
+}
+
 /** A place's row tile, the same as its Map list row: its category's glyph
- *  (else a pin), in the imported pin's own colour or the category's tone. */
-export function placeTile(place: Place, categoryIcons?: Record<string, string>): LogbookTile & { glyph?: string } {
+ *  (else a pin), in the category's or imported pin's colour, else the
+ *  category's tone. */
+export function placeTile(
+  place: Place,
+  categoryIcons?: Record<string, string>,
+  categoryColors?: Record<string, string>,
+): LogbookTile & { glyph?: string } {
   const glyph = place.category ? categoryIcons?.[place.category] : undefined;
-  const own = place.color && !DEFAULT_PIN_COLORS.has(place.color) ? place.color : undefined;
+  const color = placeColor(place, categoryColors);
+  const own = color && !DEFAULT_PIN_COLORS.has(color) ? color : undefined;
   return {
     glyph: glyph as MapGlyphId | undefined,
     name: glyph ? undefined : "pin",

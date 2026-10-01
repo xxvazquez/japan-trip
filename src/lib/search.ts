@@ -60,7 +60,7 @@ function build(d: TripData): SearchHit[] {
   for (const p of d.places) {
     hits.push({
       kind: "place",
-      tile: placeTile(p, d.config.categoryIcons),
+      tile: placeTile(p, d.config.categoryIcons, d.config.categoryColors),
       label: p.name,
       sub: p.category || undefined,
       to: `/map?sel=${p.id}`,

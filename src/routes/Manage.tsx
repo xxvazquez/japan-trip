@@ -1291,14 +1291,23 @@ function Content() {
     const names = [...new Set(data.places.map((p) => p.category).filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b));
     if (names.length === 0) return null;
     const icons = data.config.categoryIcons ?? {};
-    const colorOf = (name: string) => data.places.find((p) => p.category === name)?.color || DEFAULT_ACCENT;
+    const colors = data.config.categoryColors ?? {};
+    const ownColorOf = (name: string) => data.places.find((p) => p.category === name)?.color || DEFAULT_ACCENT;
+    const colorOf = (name: string) => colors[name] || ownColorOf(name);
+    // a cleared icon is kept as "" (a plain dot, chosen) so a My Maps sync
+    // doesn't guess one back
     const setIcon = (name: string, glyph: string) =>
       mutate((d) => {
-        const next = { ...(d.config.categoryIcons ?? {}) };
-        if (glyph) next[name] = glyph;
-        else delete next[name];
-        d.config.categoryIcons = next;
+        d.config.categoryIcons = { ...(d.config.categoryIcons ?? {}), [name]: glyph };
       });
+    const setColor = (name: string, hex: string | undefined) =>
+      mutate((d) => {
+        const next = { ...(d.config.categoryColors ?? {}) };
+        if (hex) next[name] = hex;
+        else delete next[name];
+        d.config.categoryColors = Object.keys(next).length ? next : undefined;
+      });
+    const imported = (name: string) => data.places.some((p) => p.category === name && p.source === "mymap");
     const pinned = data.config.pinnedCategories ?? [];
     const togglePinned = (name: string) =>
       mutate((d) => {
@@ -1309,12 +1318,21 @@ function Content() {
     return (
       <Section
         title="Category pins"
-        info="Give a place category its own map marker — others show a plain dot. “Always show” keeps a category's pins on the map when you zoom far out, on top of everything, instead of folding them into a numbered cluster — handy for your hotel, or anything you need to find at a glance."
+        info="Each category's colour and icon apply to all its pins, whatever they had in My Maps — set them once here. A My Maps layer gets an icon guessed from its name; tap it to pick another, or “Dot” for none. “Always show” keeps a category's pins on the map when you zoom far out, on top of everything, instead of folding them into a numbered cluster — handy for your hotel, or anything you need to find at a glance."
       >
         <ul>
           {names.map((name) => (
             <li key={name} className={`${MLI} text-sm`}>
-              <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: colorOf(name) }} />
+              <ColorSwatch
+                label={name}
+                value={colorOf(name)}
+                onChange={(hex) => setColor(name, hex)}
+                reset={{
+                  label: imported(name) ? "Colour from My Maps" : "Default colour",
+                  active: !colors[name],
+                  onReset: () => setColor(name, undefined),
+                }}
+              />
               <span className="min-w-0 flex-1 break-words">{name}</span>
               <button type="button" className="chip" aria-pressed={pinned.includes(name)} onClick={() => togglePinned(name)}>
                 Always show
@@ -1352,7 +1370,7 @@ function Content() {
         </Section>
       ))}
 
-      <CategoryIcons />
+      {CategoryIcons()}
     </div>
   );
 }

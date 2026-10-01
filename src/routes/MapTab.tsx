@@ -27,7 +27,7 @@ import { estimateWalk, useWalk } from "@/lib/walkRoute";
 import { WalkLine } from "@/components/WalkLine";
 import { ChipStrip } from "@/components/ChipStrip";
 import { glyphPath } from "@/lib/mapGlyphs";
-import { placeTile, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
+import { placeColor, placeTile, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
 import { canonicalLegs } from "@/lib/cityAssign";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
@@ -670,9 +670,10 @@ export default function MapTab() {
 
   const cats = useMemo(() => {
     const m = new Map<string, string>();
-    for (const p of places) if (p.category && !m.has(p.category)) m.set(p.category, p.color || FALLBACK);
+    const colors = data?.config.categoryColors;
+    for (const p of places) if (p.category && !m.has(p.category)) m.set(p.category, placeColor(p, colors) || FALLBACK);
     return [...m].sort((a, b) => a[0].localeCompare(b[0]));
-  }, [places]);
+  }, [places, data?.config.categoryColors]);
 
   const dayOfPlace = useMemo(() => {
     const m = new Map<string, string>();
@@ -1059,6 +1060,7 @@ export default function MapTab() {
       areas={data.areas}
       legs={data.legs}
       categoryIcons={data.config.categoryIcons}
+      categoryColors={data.config.categoryColors}
       loc={loc}
       map={map}
       mapReady={mapReady}
@@ -1565,6 +1567,7 @@ export default function MapTab() {
           areaShapes={areaShapes}
           transit={transit}
           categoryIcons={data.config.categoryIcons}
+          categoryColors={data.config.categoryColors}
           pinnedCategories={data.config.pinnedCategories}
           dark={dark}
           onSelect={setSelected}
@@ -1648,6 +1651,7 @@ function PlaceRow({
   areas,
   legs,
   categoryIcons,
+  categoryColors,
   loc,
   map,
   mapReady,
@@ -1672,6 +1676,7 @@ function PlaceRow({
   areas: Area[];
   legs: TripData["legs"];
   categoryIcons?: Record<string, string>;
+  categoryColors?: Record<string, string>;
   loc: string;
   /** for the nearest-station lookup — read-only, never used to mutate the map */
   map: RefObject<MLMap | null>;
@@ -1746,7 +1751,7 @@ function PlaceRow({
   const rowCls = "flex items-center gap-3 px-3.5 py-3 text-sm";
   const sortedDays = [...days].sort((a, b) => a.date.localeCompare(b.date));
   const tile = (
-    <IconTile size="md" {...placeTile(place, categoryIcons)} />
+    <IconTile size="md" {...placeTile(place, categoryIcons, categoryColors)} />
   );
   const details = (
     <>

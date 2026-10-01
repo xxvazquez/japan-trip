@@ -23,17 +23,21 @@ const FALLBACK = DEFAULT_ACCENT;
 let protocolRegistered = false;
 
 type CatIcons = Record<string, string> | undefined;
+type CatColors = Record<string, string> | undefined;
 type Props = { id: string; name: string; color: string; derived: boolean; glyph: string; icon: string };
 
 /** the marker glyph id for a place, or "" if its category has none */
 const glyphFor = (p: Place, catIcons: CatIcons) => (p.category && catIcons?.[p.category]) || "";
 
-function toFC(places: Place[], derivedIds: Set<string> | undefined, catIcons: CatIcons): FeatureCollection<Point, Props> {
+/** a place's pin colour: its category's colour from Manage, else its own */
+const colorFor = (p: Place, catColors: CatColors) => (p.category && catColors?.[p.category]) || p.color || FALLBACK;
+
+function toFC(places: Place[], derivedIds: Set<string> | undefined, catIcons: CatIcons, catColors: CatColors): FeatureCollection<Point, Props> {
   return {
     type: "FeatureCollection",
     features: places.map((p) => {
       const glyph = glyphFor(p, catIcons);
-      const color = p.color || FALLBACK;
+      const color = colorFor(p, catColors);
       return {
         type: "Feature",
         id: p.id,
@@ -52,12 +56,12 @@ function toFC(places: Place[], derivedIds: Set<string> | undefined, catIcons: Ca
 }
 
 /** make sure every (glyph, colour) pair on screen has a registered marker bitmap */
-function ensureMarkerImages(m: MLMap, places: Place[], catIcons: CatIcons, dark: boolean) {
+function ensureMarkerImages(m: MLMap, places: Place[], catIcons: CatIcons, catColors: CatColors, dark: boolean) {
   if (!catIcons) return;
   for (const p of places) {
     const glyph = glyphFor(p, catIcons);
     if (!glyph) continue;
-    const color = p.color || FALLBACK;
+    const color = colorFor(p, catColors);
     const key = markerKey(glyph, color);
     if (m.hasImage(key)) continue;
     m.addImage(key, buildMarkerImage(glyph, color, dark), { pixelRatio: 2 });
@@ -135,6 +139,7 @@ export function MapView({
   areaShapes,
   transit,
   categoryIcons,
+  categoryColors,
   pinnedCategories,
   dark,
   onSelect,
@@ -148,6 +153,8 @@ export function MapView({
   derivedIds?: Set<string>;
   /** place-category → marker glyph id (`config.categoryIcons`) */
   categoryIcons?: Record<string, string>;
+  /** place-category → pin colour (`config.categoryColors`), over a pin's own */
+  categoryColors?: Record<string, string>;
   /** categories drawn on top, unclustered, and kept visible when zoomed out */
   pinnedCategories?: string[];
   /** area outlines to draw under the pins (visible when zoomed out) */
@@ -168,8 +175,8 @@ export function MapView({
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
   const [retryKey, setRetryKey] = useState(0);
   const [online, setOnline] = useState(() => (typeof navigator === "undefined" ? true : navigator.onLine));
-  const state = useRef({ places, selectedId, derivedIds, areaShapes, transit, categoryIcons, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onReady });
-  state.current = { places, selectedId, derivedIds, areaShapes, transit, categoryIcons, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onReady };
+  const state = useRef({ places, selectedId, derivedIds, areaShapes, transit, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onReady });
+  state.current = { places, selectedId, derivedIds, areaShapes, transit, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onReady };
 
   /* show/hide transit layers to match the current filter */
   const applyTransit = (m: MLMap, enabled: Set<string> | undefined) => {
@@ -182,7 +189,7 @@ export function MapView({
 
   /* add our source + layers on top of the basemap (re-run after a style swap) */
   const addLayers = (m: MLMap) => {
-    const { places: p, selectedId: s, derivedIds: di, areaShapes: sh, transit: tr, categoryIcons: ci, pinnedCategories: pc, dark: d } = state.current;
+    const { places: p, selectedId: s, derivedIds: di, areaShapes: sh, transit: tr, categoryIcons: ci, categoryColors: cc, pinnedCategories: pc, dark: d } = state.current;
     const { pinned, rest } = splitPinned(p, pc);
     const halo = d ? "#14181c" : "#f2efe8";
     const ink = d ? "#e7ebee" : "#1a2026";
@@ -212,8 +219,8 @@ export function MapView({
       paint: { "text-color": ["get", "color"], "text-opacity": areaFade(0.95) as number, "text-halo-color": halo, "text-halo-width": 2 },
     });
 
-    ensureMarkerImages(m, p, ci, d);
-    m.addSource("places", { type: "geojson", data: toFC(rest, di, ci), cluster: true, clusterRadius: 46, clusterMaxZoom: 13 });
+    ensureMarkerImages(m, p, ci, cc, d);
+    m.addSource("places", { type: "geojson", data: toFC(rest, di, ci, cc), cluster: true, clusterRadius: 46, clusterMaxZoom: 13 });
 
     m.addLayer({
       id: "clusters", type: "circle", source: "places", filter: ["has", "point_count"],
@@ -274,7 +281,7 @@ export function MapView({
 
     // pinned categories: their own source, so nothing folds them into a cluster,
     // and drawn last, so they sit above every cluster, area outline and pin
-    m.addSource("pinned", { type: "geojson", data: toFC(pinned, di, ci) });
+    m.addSource("pinned", { type: "geojson", data: toFC(pinned, di, ci, cc) });
     m.addLayer({
       id: "pinned-dot", type: "circle", source: "pinned", minzoom: PINNED_MINZOOM,
       filter: ["==", ["get", "glyph"], ""],
@@ -404,11 +411,11 @@ export function MapView({
   useEffect(() => {
     const m = map.current;
     if (!ready.current || !m) return;
-    ensureMarkerImages(m, places, categoryIcons, state.current.dark);
+    ensureMarkerImages(m, places, categoryIcons, categoryColors, state.current.dark);
     const { pinned, rest } = splitPinned(places, pinnedCategories);
-    (m.getSource("places") as GeoJSONSource | undefined)?.setData(toFC(rest, derivedIds, categoryIcons));
-    (m.getSource("pinned") as GeoJSONSource | undefined)?.setData(toFC(pinned, derivedIds, categoryIcons));
-  }, [places, derivedIds, categoryIcons, pinnedCategories]);
+    (m.getSource("places") as GeoJSONSource | undefined)?.setData(toFC(rest, derivedIds, categoryIcons, categoryColors));
+    (m.getSource("pinned") as GeoJSONSource | undefined)?.setData(toFC(pinned, derivedIds, categoryIcons, categoryColors));
+  }, [places, derivedIds, categoryIcons, categoryColors, pinnedCategories]);
 
   useEffect(() => {
     if (ready.current) (map.current!.getSource("areas") as GeoJSONSource | undefined)?.setData(areaShapes ?? EMPTY_FC);

@@ -1745,6 +1745,7 @@ export const useApp = create<AppStore>((set, get) => {
      *  different map never wipes the old one's pins. */
     syncMyMap: async (url) => {
       const { fetchMyMap, myMapId } = await import("@/lib/mymaps");
+      const { glyphForCategoryName } = await import("@/lib/mapGlyphs");
       const rid = () => (crypto?.randomUUID ? crypto.randomUUID() : `p-${Math.random().toString(36).slice(2)}`);
       const { mapName, places } = await fetchMyMap(url);
       const prevUrl = get().data?.config.mapSourceUrl;
@@ -1788,6 +1789,20 @@ export const useApp = create<AppStore>((set, get) => {
           for (const left of mine.values()) for (const p of left) gone.push(p.id);
         }
         d.places = [...d.places, ...next];
+        // a layer with no icon yet gets one guessed from its name, so a
+        // "Coffee" layer shows a cup without anyone picking it. Only unset
+        // categories — one cleared to a plain dot in Manage is stored as "".
+        const icons = { ...(d.config.categoryIcons ?? {}) };
+        let guessed = false;
+        for (const p of places) {
+          if (!p.category || icons[p.category] !== undefined) continue;
+          const glyph = glyphForCategoryName(p.category);
+          if (glyph) {
+            icons[p.category] = glyph;
+            guessed = true;
+          }
+        }
+        if (guessed) d.config.categoryIcons = icons;
         d.config.mapSourceUrl = url;
         d.config.mapSyncedAt = now();
       })) return { mapName, count: 0, updated: 0, removed: 0 };
