@@ -1,5 +1,5 @@
 import { Fragment, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   DndContext,
   DragOverlay,
@@ -23,9 +23,9 @@ import { Icon, type IconName } from "@/components/Icon";
 import { useData } from "@/lib/data";
 import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { tripClock, fmtDate, dayKind, legForDate, legNights, plural } from "@/lib/dates";
+import { tripClock, fmtDate, dayKind, legForDate, legNights, plural, addDays } from "@/lib/dates";
 import { nextDaySlot } from "@/lib/spans";
-import { legHex } from "@/lib/legColors";
+import { legHex, LEG_COLORS, type LegColorId } from "@/lib/legColors";
 import type { Day, Leg, TripData } from "@/core/types";
 
 /** Makes the "Day X of Y" header itself the shortcut to today's Day page
@@ -47,7 +47,24 @@ export default function Plan() {
   const data = useData();
   const addEntity = useApp((s) => s.addEntity);
   const readOnly = useReadOnly();
+  const nav = useNavigate();
   if (!data) return null;
+
+  const newId = (kind: string) => crypto.randomUUID?.() ?? `${kind}-${Math.random().toString(36).slice(2, 8)}`;
+  // a new base starts the day after the last day, with that day already in
+  // it — so "Add a day" carries on in the new base — then opens to be named
+  // and given its stay
+  const addBase = () => {
+    const last = data.days.map((d) => d.date).filter(Boolean).sort().at(-1);
+    const date = last ? addDays(last, 1) : data.meta.start;
+    const used = new Set(data.legs.map((l) => l.color));
+    const ids = Object.keys(LEG_COLORS) as LegColorId[];
+    const color = ids.find((c) => !used.has(c)) ?? ids[data.legs.length % ids.length];
+    const legId = newId("leg");
+    addEntity("legs", { id: legId, base: "New base", start: date, end: date, color } as never);
+    addEntity("days", { id: newId("day"), date, legId, title: "New day" } as never);
+    nav(`/leg/${legId}`);
+  };
 
   const c = tripClock(data);
   const loc = data.config.locale;
@@ -103,8 +120,8 @@ export default function Plan() {
         <Empty
           what="No bases yet"
           hint="Add where you’re based, and the days slot underneath."
-          to="/manage/content?section=legs"
-          cta="Set up bases"
+          onAdd={readOnly ? undefined : addBase}
+          addLabel="Add a base"
         />
       ) : (
         <LegList
@@ -113,18 +130,23 @@ export default function Plan() {
           readOnly={readOnly}
           splitPast={!noDates && c.phase === "during"}
           addDay={!readOnly && (
-            <button
-              onClick={() => {
-                // fills a deleted day's empty date first, else goes after the last day
-                const slot = nextDaySlot(data);
-                if (!slot) return;
-                const hotelId = data.legs.find((l) => l.id === slot.legId)?.hotelId || undefined;
-                addEntity("days", { id: crypto.randomUUID?.() ?? `day-${Math.random().toString(36).slice(2, 8)}`, date: slot.date, legId: slot.legId, hotelId, title: "New day" } as never);
-              }}
-              className="action mt-8"
-            >
-              <Icon name="plus" size={15} /> Add a day
-            </button>
+            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3">
+              <button
+                onClick={() => {
+                  // fills a deleted day's empty date first, else goes after the last day
+                  const slot = nextDaySlot(data);
+                  if (!slot) return;
+                  const hotelId = data.legs.find((l) => l.id === slot.legId)?.hotelId || undefined;
+                  addEntity("days", { id: newId("day"), date: slot.date, legId: slot.legId, hotelId, title: "New day" } as never);
+                }}
+                className="action"
+              >
+                <Icon name="plus" size={15} /> Add a day
+              </button>
+              <button onClick={addBase} className="action">
+                <Icon name="plus" size={15} /> Add a base
+              </button>
+            </div>
           )}
         />
       )}

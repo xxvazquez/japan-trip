@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
@@ -7,17 +7,24 @@ import { RowSelect } from "@/components/RowSelect";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
+import { ConfirmButton } from "@/components/ConfirmButton";
 import { useData, lookups } from "@/lib/data";
-import { useApp } from "@/store/useApp";
+import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { fmtDate } from "@/lib/dates";
+import { fmtDate, plural } from "@/lib/dates";
 import { LEG_COLORS, legHex, type LegColorId } from "@/lib/legColors";
-import type { Leg as LegT } from "@/core/types";
+import type { Day as DayT, Leg as LegT } from "@/core/types";
+
+/** the stay picker's "make a new one" choice — never a real id */
+const NEW_STAY = "__new_stay";
 
 export default function Leg() {
   const data = useData();
   const { id } = useParams();
   const updateEntity = useApp((s) => s.updateEntity);
+  const removeEntity = useApp((s) => s.removeEntity);
+  const addEntity = useApp((s) => s.addEntity);
+  const nav = useNavigate();
   const ro = useReadOnly();
   if (!data) return null;
 
@@ -27,9 +34,18 @@ export default function Leg() {
     return <Missing title="No base here" body="That base isn’t part of this trip." to="/" cta="Back to Plan" />;
 
   const p = (patch: Partial<LegT>) => updateEntity<LegT>("legs", leg.id, patch);
+  // the base's days follow it onto the new stay, unless one was given a
+  // different stay of its own (a night elsewhere)
+  const setStay = (hotelId: string) => {
+    for (const d of data.days) {
+      if (d.legId === leg.id && (!d.hotelId || d.hotelId === leg.hotelId)) updateEntity<DayT>("days", d.id, { hotelId });
+    }
+    p({ hotelId });
+  };
   const hotel = data.hotels.find((h) => h.id === leg.hotelId);
   const hotelDangling = !!leg.hotelId && !hotel;
-  const hasDays = data.days.some((d) => d.legId === leg.id);
+  const dayCount = data.days.filter((d) => d.legId === leg.id).length;
+  const hasDays = dayCount > 0;
   const loc = data.config.locale;
 
   return (
@@ -76,14 +92,22 @@ export default function Leg() {
               <InsetRow label="Stay">
                 <RowSelect
                   value={hotel ? leg.hotelId : ""}
-                  onChange={(e) => e.target.value && p({ hotelId: e.target.value })}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (v === NEW_STAY) {
+                      // a stay of its own, named after the base, ready to fill in on its page
+                      const hid = crypto.randomUUID?.() ?? `hotel-${Math.random().toString(36).slice(2, 8)}`;
+                      addEntity("hotels", { id: hid, name: leg.base } as never);
+                      setStay(hid);
+                    } else if (v) setStay(v);
+                  }}
                 >
                   {hotelDangling && <option value="" disabled>Unknown — pick one</option>}
                   {!hotel && !hotelDangling && <option value="">— none —</option>}
-                  {data.hotels.length === 0 && <option value="" disabled>No stays yet — add one in Logbook</option>}
                   {data.hotels.map((h) => (
                     <option key={h.id} value={h.id}>{h.name}</option>
                   ))}
+                  <option value={NEW_STAY}>New stay…</option>
                 </RowSelect>
               </InsetRow>
             )}
@@ -119,6 +143,23 @@ export default function Leg() {
             <div className="note px-3.5 py-3">
               <RichNote value={leg.blurb ?? ""} onCommit={(v) => p({ blurb: v || undefined })} placeholder="A line or two about this base…" />
             </div>
+          </Section>
+        )}
+
+        {/* a base takes its days with it — left behind they'd show nowhere on Plan */}
+        {!ro && (
+          <Section>
+            <ul>
+              <li>
+                <ConfirmButton
+                  label={hasDays ? `Delete base and its ${plural(dayCount, "day")}` : "Delete base"}
+                  onConfirm={() => undoable("Base deleted", () => { removeEntity("legs", leg.id); nav("/"); })}
+                  className="w-full justify-center px-3.5 py-2.5 text-xs text-danger active:bg-ink/[0.07]"
+                >
+                  Delete base
+                </ConfirmButton>
+              </li>
+            </ul>
           </Section>
         )}
       </div>

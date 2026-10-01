@@ -13,8 +13,7 @@ import { useAsyncAction } from "@/lib/useAsyncAction";
 import { useIsDark, useMode, type Mode } from "@/lib/mode";
 import { APP_BUILD, APP_NAME, APP_TAGLINE } from "@/lib/app";
 import { tripLogoSrc } from "@/components/Wordmark";
-import { daysBetween, fmtDate, plural, rangeText } from "@/lib/dates";
-import { nextDaySlot } from "@/lib/spans";
+import { daysBetween, rangeText } from "@/lib/dates";
 import { TEMPLATES, buildFromTemplate } from "@/templates/registry";
 import { THEME_PRESETS, DEFAULT_ACCENT } from "@/lib/themePresets";
 import { GlyphPicker } from "@/components/GlyphPicker";
@@ -1200,13 +1199,12 @@ const ENTITY_LABELS: Record<EntityType, string> = {
   scratchNotes: "Scratchpad notes",
 };
 
-// `docs` is intentionally absent — documents are created and managed on the
-// Logbook › Documents tab, not here. `areas` is intentionally absent too —
-// name + membership editing is already on the Map's own area editor, with
-// no unique capability here. `scratchNotes` likewise — added/edited/removed
-// on the Logbook › Scratchpad tab, same as documents.
+// Only what has no better home. Bases and days are added on Plan and deleted
+// on their own pages; stays and journeys added in the Logbook (or a day) and
+// deleted on their pages — a second, rougher list of them here only invited
+// bugs (a duplicated day landed on the same date). `docs`, `areas` and
+// `scratchNotes` are likewise managed where they're shown.
 const CONTENT_GROUPS: { title: string; types: EntityType[] }[] = [
-  { title: "Itinerary", types: ["legs", "days", "hotels", "journeys"] },
   { title: "Reference", types: ["places", "luggage", "packing"] },
 ];
 
@@ -1226,13 +1224,6 @@ function Content() {
   const blankFor = (type: EntityType): Record<string, unknown> => {
     const id = crypto.randomUUID?.() ?? `${type}-${rid()}`;
     switch (type) {
-      case "days": {
-        const slot = nextDaySlot(data);
-        return { id, date: slot?.date ?? data.meta.start, legId: slot?.legId ?? data.legs[0]?.id ?? "", title: "New day" };
-      }
-      case "legs": return { id, base: "New base", start: data.meta.start, end: data.meta.end, hotelId: "", color: "blue" };
-      case "hotels": return { id, name: "New hotel" };
-      case "journeys": return { id, label: "New journey", kind: "transfer", date: data.meta.start, segments: [] };
       case "luggage": return { id, title: "New note" };
       case "packing": return { id, label: "New item", phase: "bring", group: "Other" };
       case "docs": return { id, title: "New document", kind: "other", fields: [] };
@@ -1250,38 +1241,9 @@ function Content() {
   const nameOf = (x: Record<string, unknown>): string =>
     (x.title as string) || (x.name as string) || (x.label as string) || (x.base as string) || (x.date as string) || (x.id as string);
 
-  /** a leg/day created with no hotel/stay to attach to would fail to sync
-   *  (an empty id isn't a valid foreign key) and have no way to fix it after —
-   *  so block "Add" until there's something valid for it to point at. */
-  const addBlockedReason = (type: EntityType): string | null => {
-    if (type === "legs" && data.hotels.length === 0) return "Add a stay first";
-    if (type === "days" && data.legs.length === 0) return "Add a base first";
-    return null;
-  };
-
-  /** hotels: how many stays/days still point here — deleting nulls those links */
-  const hotelLinks = (id: string): string | null => {
-    const bases = data.legs.filter((l) => l.hotelId === id).length;
-    const days = data.days.filter((d) => d.hotelId === id).length;
-    if (!bases && !days) return null;
-    const bits = [bases && plural(bases, "base"), days && plural(days, "day")].filter(Boolean);
-    return `${bits.join(" and ")} link here — delete clears the link`;
-  };
-
-  /** a base takes its days with it — say so, and which, before the second tap */
-  const deleteConfirm = (type: EntityType, id: string): string | undefined => {
-    if (type !== "legs") return undefined;
-    const days = data.days.filter((d) => d.legId === id).sort((a, b) => a.date.localeCompare(b.date));
-    if (!days.length) return undefined;
-    const loc = data.config.locale;
-    const span = days.length === 1 ? fmtDate(days[0].date, loc) : `${fmtDate(days[0].date, loc)} – ${fmtDate(days.at(-1)!.date, loc)}`;
-    return `Tap again to delete it and its ${plural(days.length, "day")} (${span})`;
-  };
-
   const Rows = ({ type }: { type: EntityType }) => {
     const list = data[type] as { id: string }[];
     const isOpen = open === type;
-    const blocked = addBlockedReason(type);
     return (
       <div className="relative px-3.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
         <button onClick={() => setOpen(isOpen ? null : type)} className="flex w-full items-baseline justify-between gap-3 py-3 text-left">
@@ -1297,7 +1259,6 @@ function Content() {
               {list.map((x, i) => {
                 const rec = x as Record<string, unknown>;
                 const href = entityLink(type, x.id);
-                const links = type === "hotels" ? hotelLinks(x.id) : null;
                 return (
                   <li key={x.id} className="border-b border-line py-2 text-sm last:border-b-0">
                     <div className="flex items-center gap-2">
@@ -1306,30 +1267,20 @@ function Content() {
                       </span>
                       {/* one ⋯ per row instead of four bare icons */}
                       <RowMenu label="Options">
-                        {/* bases and days follow their dates — moving one here would only shuffle the list */}
-                        {type !== "legs" && type !== "days" && (
-                          <>
-                            <button type="button" className="menu-item" disabled={i === 0} onClick={() => moveEntity(type, x.id, -1)}>Move up</button>
-                            <button type="button" className="menu-item" disabled={i === list.length - 1} onClick={() => moveEntity(type, x.id, 1)}>Move down</button>
-                          </>
-                        )}
+                        <button type="button" className="menu-item" disabled={i === 0} onClick={() => moveEntity(type, x.id, -1)}>Move up</button>
+                        <button type="button" className="menu-item" disabled={i === list.length - 1} onClick={() => moveEntity(type, x.id, 1)}>Move down</button>
                         <button type="button" className="menu-item" onClick={() => addEntity(type, { ...structuredClone(rec), id: crypto.randomUUID?.() ?? `${type}-${rid()}` } as { id: string })}>Duplicate</button>
-                        <ConfirmMenuItem onConfirm={() => undoable("Deleted", () => removeEntity(type, x.id))} label="Delete" confirmLabel={deleteConfirm(type, x.id)} />
+                        <ConfirmMenuItem onConfirm={() => undoable("Deleted", () => removeEntity(type, x.id))} label="Delete" />
                       </RowMenu>
                     </div>
-                    {links && <p className="mt-1 pl-[3.25rem] text-2xs text-ink-soft">{links}</p>}
                   </li>
                 );
               })}
               {list.length === 0 && <li className="py-2 text-sm text-ink-faint">None yet.</li>}
             </ul>
-            {blocked ? (
-              <p className="mt-3 text-xs text-ink-faint">{blocked}</p>
-            ) : (
-              <button onClick={() => addEntity(type, blankFor(type) as { id: string })} className="action mt-3 text-xs">
-                <Icon name="plus" size={13} /> Add
-              </button>
-            )}
+            <button onClick={() => addEntity(type, blankFor(type) as { id: string })} className="action mt-3 text-xs">
+              <Icon name="plus" size={13} /> Add
+            </button>
           </div>
         )}
       </div>
@@ -1384,18 +1335,18 @@ function Content() {
 
   return (
     <div className="space-y-6">
-      {CONTENT_GROUPS.map((grp, i) => (
+      {CONTENT_GROUPS.map((grp) => (
         <Section
           key={grp.title}
           title={grp.title}
-          info={i === 0 ? (
+          info={
             <>
               Add, duplicate, remove and reorder items here. To fill in the details, open the item:
-              stays, days, hotels and journeys each have their own page; luggage, packing and
-              documents are edited on the <Link to="/logbook" className="text-accent">Logbook</Link>;
-              pins and areas on the <Link to="/map" className="text-accent">Map</Link>.
+              luggage and packing on the <Link to="/logbook" className="text-accent">Logbook</Link>,
+              pins on the <Link to="/map" className="text-accent">Map</Link>. Bases and days are added
+              on Plan, stays and journeys in the Logbook.
             </>
-          ) : undefined}
+          }
         >
           {grp.types.map((type) => <Rows key={type} type={type} />)}
         </Section>

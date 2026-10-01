@@ -26,7 +26,7 @@ export function remapIds(data: TripData): TripData {
 
   const R = (v?: string) => (v && map.has(v) ? map.get(v)! : v);
 
-  for (const l of d.legs) l.hotelId = R(l.hotelId)!;
+  for (const l of d.legs) l.hotelId = R(l.hotelId);
   for (const day of d.days) {
     day.legId = R(day.legId)!;
     day.hotelId = R(day.hotelId);

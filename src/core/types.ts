@@ -240,7 +240,8 @@ export interface Leg {
   nameAlt?: string;
   start: ISODate;
   end: ISODate;
-  hotelId: ID;
+  /** where you sleep — absent until a stay is picked (a new base starts without one) */
+  hotelId?: ID;
   /** a LEG_COLORS id */
   color: string;
   blurb?: string;

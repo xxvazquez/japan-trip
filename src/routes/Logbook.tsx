@@ -321,10 +321,13 @@ function Stays() {
   if (data.hotels.length === 0) {
     return <Empty what="No stays" onAdd={ro ? undefined : add} addLabel="Add a stay" />;
   }
+  // in the order you sleep in them; a stay no base uses yet goes last
+  const firstNight = (id: string) => hotelStays(data, id).map((x) => x.checkIn).sort()[0] ?? "\uffff";
+  const hotels = [...data.hotels].sort((a, b) => firstNight(a.id).localeCompare(firstNight(b.id)));
   return (
     <Section>
       <ul>
-        {data.hotels.map((h) => {
+        {hotels.map((h) => {
           // check-in to check-out, per stay that uses this hotel
           const short = (d: string) => fmtDate(d, loc, { day: "numeric", month: "short" });
           const when = hotelStays(data, h.id).map((x) => `${short(x.checkIn)} – ${short(x.checkOut)}`).join(", ");

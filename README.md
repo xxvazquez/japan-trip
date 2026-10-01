@@ -70,8 +70,10 @@ The days set the dates — you don't edit them separately.
 - Bases are always listed in date order. To change the order, move the days (drag them to another base).
 - The trip can start or end outside its days (a flight out the evening before day one). Its dates stretch to cover a day added outside them, and only shrink when the day on the trip's first or last date is deleted.
 - **Add a day** fills the earliest empty date in the trip (a gap left by a deleted day), otherwise it goes after the last day.
+- **Add a base** (next to Add a day) starts a new base on the day after the last day, with that day already in it, and opens it to name. Pick its stay there, or **New stay…** to make one named after the base.
+- **Changing a base's stay** moves its days onto the new stay too, except a day you gave a different stay of its own.
 - **Delete day** leaves the other days alone. Only removing a base's first or last day shortens it.
-- **Deleting a base** (Manage → Content) deletes its days with it. The confirm names how many and which dates; **Undo** brings them all back.
+- **Delete base** at the foot of a base's page deletes its days with it. The confirm says how many; **Undo** brings them all back.
 - A stay's page and the Stays list show the real check-in and check-out dates (the morning you leave, not the last night), the number of nights, and the times.
 
 ## A day
@@ -222,7 +224,7 @@ Text isn't selectable (as in a native app), so values you might paste elsewhere 
 ### Stays and journeys
 
 - Each list has an **Add a stay** / **Add a journey** row at the foot. The new one opens on its own page to fill in.
-- Stays show their check-in to check-out dates; journeys are listed by when they leave.
+- Stays are listed in the order you sleep in them, with their check-in to check-out dates (a stay no base uses yet goes last); journeys are listed by when they leave.
 
 ### Documents
 
