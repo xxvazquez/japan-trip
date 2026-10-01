@@ -32,6 +32,8 @@ import { supabaseEnabled } from "@/lib/supabase";
 import { driveEnabled } from "@/lib/drive";
 import { useAuth } from "@/lib/auth";
 import { RowMenu } from "@/components/RowMenu";
+import { TextPrompt } from "@/components/TextPrompt";
+import { primeKeyboard } from "@/lib/keyboard";
 import { MODE_LABEL } from "@/lib/transport";
 import { fallbackCategoryId } from "@/lib/hydrate";
 import { BackupError, downloadBackup, parseBackup } from "@/lib/tripBackup";
@@ -417,17 +419,16 @@ function BackupTrip() {
 
 function Sharing({ tripId, me }: { tripId: string; me: string }) {
   const [members, setMembers] = useState<Member[]>([]);
-  const [email, setEmail] = useState("");
+  const [inviting, setInviting] = useState(false);
   const { busy, msg, run } = useAsyncAction("Couldn’t add them.");
   const reload = () => listMembers(tripId).then(setMembers).catch(() => {});
   useEffect(() => { reload(); }, [tripId]);
   const iAmOwner = members.find((m) => m.userId === me)?.role === "owner";
 
-  const invite = () => {
-    if (!email.trim()) return;
+  const invite = (email: string) => {
     run(async () => {
       const r = await inviteMember(tripId, email);
-      if (r === "ok") { setEmail(""); reload(); }
+      if (r === "ok") reload();
       return r === "ok" ? "Added." : "No account with that email yet — they need to sign in once first.";
     });
   };
@@ -449,20 +450,20 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
           </li>
         ))}
         {iAmOwner && (
-          <li className="p-3.5">
-            <div className="flex gap-2">
-              <input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Invite by email"
-                className="min-w-0 flex-1 rounded border border-line bg-surface px-2.5 py-1.5 text-sm outline-none"
-              />
-              <button onClick={invite} disabled={busy} className="btn-sm shrink-0">Invite</button>
-            </div>
-            {msg && <p className="mt-1.5 text-xs text-ink-soft">{msg}</p>}
-          </li>
+          <ActionRow icon="plus" label="Invite by email" onClick={() => { primeKeyboard(); setInviting(true); }} disabled={busy} />
         )}
       </ul>
+      {msg && <p className="px-3.5 pb-2.5 text-xs text-ink-soft" role="status">{msg}</p>}
+      <TextPrompt
+        open={inviting}
+        title="Invite to This Trip"
+        message="They need to have signed in once."
+        placeholder="Email"
+        type="email"
+        action="Invite"
+        onSubmit={invite}
+        onClose={() => setInviting(false)}
+      />
     </Section>
   );
 }

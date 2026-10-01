@@ -18,6 +18,7 @@ export function TextPrompt({
   message,
   initial = "",
   placeholder,
+  type = "text",
   action,
   onSubmit,
   onClose,
@@ -27,6 +28,8 @@ export function TextPrompt({
   message?: string;
   initial?: string;
   placeholder?: string;
+  /** "email" brings up the email keyboard, with no auto-capitalising */
+  type?: "text" | "email";
   /** the confirming button — "Add", "Save", "Create" */
   action: string;
   onSubmit: (text: string) => void;
@@ -78,8 +81,10 @@ export function TextPrompt({
             onChange={(e) => setText(e.target.value)}
             onFocus={(e) => e.target.select()}
             placeholder={placeholder}
+            type={type}
             enterKeyHint="done"
-            autoCapitalize="sentences"
+            autoCapitalize={type === "email" ? "none" : "sentences"}
+            autoCorrect={type === "email" ? "off" : undefined}
             className="mt-4 w-full rounded-[7px] border border-ink/15 bg-surface px-2 py-1.5 text-left text-[13px] text-ink outline-none placeholder:text-ink-faint focus:border-accent"
           />
         </div>

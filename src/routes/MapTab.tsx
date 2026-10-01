@@ -11,6 +11,8 @@ import { ActionSheet, ConfirmMenuItem, useActionSheet } from "@/components/Actio
 import { RowMenu } from "@/components/RowMenu";
 import { INSET_DIVIDER } from "@/components/InsetRow";
 import { RowSelect } from "@/components/RowSelect";
+import { TextPrompt } from "@/components/TextPrompt";
+import { SearchField } from "@/components/SearchField";
 import { useData } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
@@ -21,6 +23,7 @@ import { legHex } from "@/lib/legColors";
 import { suggestAreas, type AreaSuggestion } from "@/lib/cluster";
 import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
+import { primeKeyboard } from "@/lib/keyboard";
 import { TRANSIT_KINDS, TRANSIT_META } from "@/lib/transitLayers";
 import { nearestStationFromMap, nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
 import { estimateWalk, useWalk } from "@/lib/walkRoute";
@@ -382,9 +385,8 @@ function useMapEditing(
   const [naming, setNaming] = useState(false);
   /** bumped whenever a suggestion run starts or ends, so a stale naming loop bails */
   const suggestRun = useRef(0);
-  /** inline "name a new area" field — true while it's open */
+  /** the "New Area" alert — true while it's open */
   const [namingArea, setNamingArea] = useState(false);
-  const [areaName, setAreaName] = useState("");
   /** inline area list open for rename / delete */
   const [editingAreas, setEditingAreas] = useState(false);
 
@@ -422,8 +424,10 @@ function useMapEditing(
   };
 
   const onMapClick = (lat: number, lng: number) => {
-    if (adding) setPending({ lat, lng, name: "" });
-    else onSelect(null);
+    if (adding) {
+      primeKeyboard(); // the map tap raises the naming alert's keyboard on iPhone
+      setPending({ lat, lng, name: "" });
+    } else onSelect(null);
   };
   const onLongPress = (lat: number, lng: number) => {
     if (readOnly) return;
@@ -485,14 +489,10 @@ function useMapEditing(
     }
     endSuggest();
   };
-  const createArea = () => {
+  const createArea = (name: string) => {
     if (!data) return;
-    const name = areaName.trim();
-    if (!name) return;
     const dup = data.areas.find((a) => (a.name || "").trim().toLowerCase() === name.toLowerCase());
     if (!dup) addEntity("areas", { id: crypto.randomUUID?.() ?? rid(), name, placeIds: [] } as never);
-    setAreaName("");
-    setNamingArea(false);
   };
 
   return {
@@ -500,7 +500,7 @@ function useMapEditing(
     adding, q, setQ, results, pending, setPending,
     startAdd, cancelAdd, commitPlace, onMapClick, onLongPress,
     review, setReview, naming,
-    namingArea, setNamingArea, areaName, setAreaName, editingAreas, setEditingAreas,
+    namingArea, setNamingArea, editingAreas, setEditingAreas,
     startSuggest, endSuggest, applyReview, createArea,
   };
 }
@@ -602,7 +602,7 @@ export default function MapTab() {
     adding, q, setQ, results, pending, setPending,
     startAdd, cancelAdd, commitPlace, onMapClick, onLongPress,
     review, setReview, naming,
-    namingArea, setNamingArea, areaName, setAreaName, editingAreas, setEditingAreas,
+    namingArea, setNamingArea, editingAreas, setEditingAreas,
     startSuggest, endSuggest, applyReview, createArea,
   } = useMapEditing(map, setSelected, () => setSnap((s) => (s === "peek" ? "half" : s)), placeLeg, dayCity);
 
@@ -1250,40 +1250,30 @@ export default function MapTab() {
 
         {areasOpen && !adding && !readOnly && review === null && (
           <div className="space-y-2 border-t border-line pb-1 pt-2">
-            {namingArea ? (
-              <div className="flex items-center gap-3">
-                <input
-                  autoFocus
-                  value={areaName}
-                  onChange={(e) => setAreaName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") createArea();
-                    if (e.key === "Escape") { setNamingArea(false); setAreaName(""); }
-                  }}
-                  placeholder="Area name — e.g. Asakusa"
-                  className="min-w-0 flex-1 border-b border-ink bg-transparent pb-1 text-sm focus:outline-none"
-                />
-                <button onClick={createArea} className="shrink-0 text-accent">Add</button>
-                <button onClick={() => { setNamingArea(false); setAreaName(""); }} className="shrink-0 text-ink-faint hover:text-ink-soft">Cancel</button>
-              </div>
-            ) : (
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-                <button onClick={() => setNamingArea(true)} className="tap inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70">
-                  <Icon name="plus" size={12} className="align-[-1px]" /> Add area
+            <TextPrompt
+              open={namingArea}
+              title="New Area"
+              placeholder="Name"
+              action="Add"
+              onSubmit={createArea}
+              onClose={() => setNamingArea(false)}
+            />
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+              <button onClick={() => { primeKeyboard(); setNamingArea(true); }} className="tap inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70">
+                <Icon name="plus" size={12} className="align-[-1px]" /> Add area
+              </button>
+              {suggestions.length > 0 && (
+                <button onClick={startSuggest} className="inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70">
+                  <Icon name="explore" size={12} className="align-[-1px]" />{" "}
+                  {suggestions.some((g) => g.areaId) ? "Suggest areas" : `Suggest ${plural(suggestions.length, "area")}`}
                 </button>
-                {suggestions.length > 0 && (
-                  <button onClick={startSuggest} className="inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70">
-                    <Icon name="explore" size={12} className="align-[-1px]" />{" "}
-                    {suggestions.some((g) => g.areaId) ? "Suggest areas" : `Suggest ${plural(suggestions.length, "area")}`}
-                  </button>
-                )}
-                {data.areas.length > 0 && (
-                  <button onClick={() => setEditingAreas((v) => !v)} className="link-quiet ml-auto">
-                    {editingAreas ? "Done" : "Edit areas"}
-                  </button>
-                )}
-              </div>
-            )}
+              )}
+              {data.areas.length > 0 && (
+                <button onClick={() => setEditingAreas((v) => !v)} className="link-quiet ml-auto">
+                  {editingAreas ? "Done" : "Edit areas"}
+                </button>
+              )}
+            </div>
             {editingAreas && duplicateAreaGroups.length > 0 && (
               <div className="flex items-center justify-between gap-2 rounded-[8px] bg-accent/10 px-2.5 py-1.5 text-xs">
                 <span className="text-ink-soft">
@@ -1322,55 +1312,35 @@ export default function MapTab() {
       {/* add flow */}
       {adding && (
         <div className="shrink-0 border-b border-line px-4 py-3">
-          {pending ? (
-            <div>
-              <p className="meta mb-2">
-                Pin at {pending.lat.toFixed(4)}, {pending.lng.toFixed(4)}
-              </p>
-              <input
-                autoFocus
-                value={pending.name}
-                onChange={(e) => setPending({ ...pending, name: e.target.value })}
-                onKeyDown={(e) => e.key === "Enter" && commitPlace(pending.name, pending.lat, pending.lng)}
-                placeholder="Name this place"
-                className="w-full border-b border-ink bg-transparent pb-1 text-sm focus:outline-none"
-              />
-              <div className="mt-3 flex gap-4 text-sm">
-                <button onClick={() => commitPlace(pending.name, pending.lat, pending.lng)} className="text-accent">
-                  Save place
-                </button>
-                <button onClick={() => setPending(null)} className="text-ink-faint hover:text-ink-soft">
-                  Pick again
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div>
-              <input
-                autoFocus
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Search for a place…"
-                className="w-full border-b border-ink bg-transparent pb-1 text-sm focus:outline-none"
-              />
-              <p className="meta mt-1.5">…or tap the map to drop a pin.</p>
-              {results.length > 0 && (
-                <ul className="mt-2">
-                  {results.map((r, i) => (
-                    <li key={i} className={INSET_DIVIDER}>
-                      <button
-                        onClick={() => commitPlace(r.name, r.lat, r.lng)}
-                        className="block w-full py-2 text-left"
-                      >
-                        <span className="block text-sm">{r.name}</span>
-                        <span className="meta block break-words">{r.detail}</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
+          {/* a dropped pin is named in an alert over the map, as Photos
+              names a new album; Cancel goes back to searching or tapping */}
+          <TextPrompt
+            open={!!pending}
+            title="New Place"
+            message={pending ? `Pin at ${pending.lat.toFixed(4)}, ${pending.lng.toFixed(4)}` : undefined}
+            placeholder="Name"
+            action="Save"
+            onSubmit={(name) => pending && commitPlace(name, pending.lat, pending.lng)}
+            onClose={() => setPending(null)}
+          />
+          <div>
+            <SearchField value={q} onChange={setQ} placeholder="Search for a place" autoFocus />
+            {results.length > 0 && (
+              <ul className="mt-2">
+                {results.map((r, i) => (
+                  <li key={i} className={INSET_DIVIDER}>
+                    <button
+                      onClick={() => commitPlace(r.name, r.lat, r.lng)}
+                      className="block w-full py-2 text-left"
+                    >
+                      <span className="block text-sm">{r.name}</span>
+                      <span className="meta block break-words">{r.detail}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       )}
 

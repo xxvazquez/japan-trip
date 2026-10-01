@@ -3,6 +3,7 @@ import { ChipStrip } from "./ChipStrip";
 import { ActionSheet, useActionSheet } from "./ActionSheet";
 import { Icon } from "./Icon";
 import { zoneAbbr } from "@/lib/dates";
+import { SearchField } from "./SearchField";
 
 const ALL_ZONES: string[] = (() => {
   try {
@@ -156,20 +157,14 @@ export function TimeZonePicker({ value, onChange, label }: { value: string; onCh
         <span className="break-words">{zoneLabel(value)}</span>
         <Icon name="chevron" size={11} className="rotate-90 shrink-0 text-ink-faint" />
       </button>
-      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title={label}>
-        <div className="sm:w-[22rem]">
-          {/* stopPropagation — typing or tapping a chip must not trip ActionSheet's "close on any click inside" */}
-          <div className="sticky top-0 z-10 space-y-2 bg-surface px-3 pb-2 pt-1" onClick={(e) => e.stopPropagation()}>
-            <div className="relative">
-              <Icon name="search" size={14} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-faint" />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search a city, offset or abbreviation"
-                className="w-full rounded-[8px] border border-line bg-surface-2 py-1.5 pl-8 pr-3 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
-              />
-            </div>
+      <ActionSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        anchorRef={anchorRef}
+        title={label}
+        header={
+          <div className="space-y-2">
+            <SearchField value={query} onChange={setQuery} placeholder="Search a city, offset or abbreviation" />
             {!tokens.length && (
               <ChipStrip className="pb-0.5">
                 <button type="button" className="chip" aria-pressed={!region} onClick={() => setRegion(null)}>All</button>
@@ -179,7 +174,9 @@ export function TimeZonePicker({ value, onChange, label }: { value: string; onCh
               </ChipStrip>
             )}
           </div>
-
+        }
+      >
+        <div className="sm:w-[22rem]">
           {showDevice && (
             <div>
               <p className="kicker px-4 pb-0.5 pt-2 text-ink-faint">This device</p>

@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { ChipStrip } from "./ChipStrip";
 import { ActionSheet, useActionSheet } from "./ActionSheet";
 import { IconTile } from "./IconTile";
-import { Icon, type IconName } from "./Icon";
+import type { IconName } from "./Icon";
 import { MAP_GLYPH_CATEGORIES } from "@/lib/mapGlyphs";
 import type { Tone } from "@/lib/tones";
+import { SearchField } from "./SearchField";
 
 /**
  * A tappable icon — press it to swap for any `MAP_GLYPH_CATEGORIES` marker via
@@ -90,31 +91,26 @@ export function GlyphPicker({
       >
         <IconTile size={size} glyph={glyphShown} name={glyphShown ? undefined : displayName} color={color} tone={tone} ghost={!shown} />
       </button>
-      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title={`${label} icon`}>
-        {/* search + category chips — stopPropagation so typing/tapping here
-            doesn't trigger ActionSheet's "close on any click inside" */}
-        <div className="sticky top-0 z-10 space-y-2 bg-surface px-3 pb-2 pt-1" onClick={(e) => e.stopPropagation()}>
-          <div className="relative">
-            <Icon name="search" size={14} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-faint" />
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search icons"
-              className="w-full rounded-[8px] border border-line bg-surface-2 py-1.5 pl-8 pr-3 text-sm focus:outline-none focus:ring-1 focus:ring-accent"
-            />
-          </div>
-          {!q && (
-            <ChipStrip className="pb-0.5">
-              <CategoryChip label="All" active={!category} onSelect={() => setCategory(null)} />
-              {MAP_GLYPH_CATEGORIES.map((c) => (
-                <CategoryChip key={c.category} label={c.category} active={category === c.category} onSelect={() => setCategory(c.category)} />
-              ))}
-            </ChipStrip>
-          )}
-        </div>
-
-        <div className="grid grid-cols-5 gap-2 px-3 pb-1 sm:grid-cols-6">
+      <ActionSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        anchorRef={anchorRef}
+        title={`${label} icon`}
+        header={
+          <>
+            <SearchField value={query} onChange={setQuery} placeholder="Search icons" />
+            {!q && (
+              <ChipStrip className="pb-0.5">
+                <CategoryChip label="All" active={!category} onSelect={() => setCategory(null)} />
+                {MAP_GLYPH_CATEGORIES.map((c) => (
+                  <CategoryChip key={c.category} label={c.category} active={category === c.category} onSelect={() => setCategory(c.category)} />
+                ))}
+              </ChipStrip>
+            )}
+          </>
+        }
+      >
+        <div className="grid grid-cols-5 gap-2 px-3 pb-1 pt-1 sm:grid-cols-6">
           <GlyphOption label={clearLabel} selected={!value} onSelect={() => onChange("")} />
         </div>
 

@@ -18,6 +18,7 @@ import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { plural } from "@/lib/dates";
 import type { StampItem, StampKind } from "@/core/types";
+import { SearchField } from "./SearchField";
 
 const rid = () => Math.random().toString(36).slice(2, 8);
 const NEW_SECTION = "New section";
@@ -411,24 +412,12 @@ export function Stamps() {
       {sortSheet}
 
       {!inGroup && !inCollected && (
-        <div className="relative mb-6">
-          <Icon name="search" size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint" />
-          <input
-            type="text"
-            inputMode="search"
-            enterKeyHint="search"
-            autoComplete="off"
+        <div className="mb-6">
+          <SearchField
             value={query}
-            onChange={(e) => { setQuery(e.target.value); if (!e.target.value.trim()) stopSelecting(); }}
-            placeholder="Search"
-            aria-label="Search stamps"
-            className="w-full rounded-[10px] bg-ink/[0.06] py-2 pl-9 pr-9 text-sm text-ink outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-accent/40"
+            onChange={(v) => { setQuery(v); if (!v.trim()) stopSelecting(); }}
+            label="Search stamps"
           />
-          {query && (
-            <button onClick={() => { setQuery(""); stopSelecting(); }} aria-label="Clear search" className="tap absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint hover:text-ink-soft">
-              <Icon name="close" size={14} />
-            </button>
-          )}
         </div>
       )}
 

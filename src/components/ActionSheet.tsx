@@ -12,7 +12,9 @@ const isNarrow = () =>
  * on a wider screen. Used by `RowMenu` (a ⋯ menu) and `ConfirmButton` (a
  * destructive confirm). Children are `<button className="menu-item">…</button>`;
  * on the sheet they render as tall rows, in the popover as compact ones.
- * The whole panel closes on any click inside it (an item or the backdrop).
+ * The whole panel closes on any click inside it (an item or the backdrop) —
+ * except `header`, which stays put above the scrolling list (a search field,
+ * filter chips) and swallows its own clicks.
  */
 export function ActionSheet({
   open,
@@ -20,6 +22,7 @@ export function ActionSheet({
   anchorRef,
   title,
   doneLabel = "Cancel",
+  header,
   children,
 }: {
   open: boolean;
@@ -28,6 +31,8 @@ export function ActionSheet({
   title?: string;
   /** the bottom button on the phone sheet — "Done" for a multi-select that stays open */
   doneLabel?: string;
+  /** fixed above the list, outside its scroll — a search field, filter chips */
+  header?: ReactNode;
   children: ReactNode;
 }) {
   const [, bump] = useReducer((n: number) => n + 1, 0);
@@ -75,6 +80,7 @@ export function ActionSheet({
             <span aria-hidden className="mx-auto mb-1.5 block h-1 w-9 rounded-full bg-ink/20" />
             {title && <p className="px-4 pb-1 pt-1 text-xs text-ink-soft">{title}</p>}
           </div>
+          {header && <div className="shrink-0 space-y-2 px-3 pb-2 pt-1" onClick={(e) => e.stopPropagation()}>{header}</div>}
           <div className="flex-1 overflow-y-auto overscroll-contain [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-4 [&_.menu-item]:py-3.5 [&_.menu-item]:text-left [&_.menu-item]:text-[17px] [&_.menu-item:disabled]:opacity-40 [&_.menu-item:active]:bg-ink/[0.07]">
             {children}
           </div>
@@ -104,9 +110,10 @@ export function ActionSheet({
           top,
           left,
         }}
-        className="glass-panel fixed z-[55] flex max-h-[70dvh] min-w-[12rem] max-w-[22rem] flex-col overflow-y-auto rounded-[16px] py-1.5 text-sm motion-safe:animate-fade-in [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-3.5 [&_.menu-item]:py-2 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 [&_.menu-item:hover]:bg-ink/[0.06]"
+        className="glass-panel fixed z-[55] flex max-h-[70dvh] min-w-[12rem] max-w-[22rem] flex-col overflow-hidden rounded-[16px] text-sm motion-safe:animate-fade-in [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-3.5 [&_.menu-item]:py-2 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 [&_.menu-item:hover]:bg-ink/[0.06]"
       >
-        {children}
+        {header && <div className="shrink-0 space-y-2 px-3 pb-2 pt-3" onClick={(e) => e.stopPropagation()}>{header}</div>}
+        <div className={`min-h-0 flex-1 overflow-y-auto pb-1.5 ${header ? "" : "pt-1.5"}`}>{children}</div>
       </div>
     </>,
     document.body,
