@@ -98,7 +98,7 @@ Each step shows a tile, an optional time, the step itself and a short note.
 - **Reorder** by dragging.
 - **The ⋯ menu** — show on map, add to Google Calendar, mark as **overwhelming** (a ⚠ sensory heads-up; the day's count shows on Plan), add a note, duplicate, add an expense, remove.
 - **Notes** support bold, bullets and links. Tap to expand and edit. Empty fields stay hidden.
-- **+ Add a step** sits at the foot of the list.
+- **+ Add a step** sits at the foot of the list and opens the new step ready to type.
 
 ### Helpers on a step
 

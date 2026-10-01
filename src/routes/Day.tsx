@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { flushSync } from "react-dom";
 import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import {
   DndContext,
@@ -560,11 +561,23 @@ function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByP
     onChange([...items.slice(0, i + 1), { ...items[i], id: rid() }, ...items.slice(i + 1)]);
   };
 
+  // the step just added opens straight into its text. Rendered synchronously
+  // inside the tap, so its field is focused there and the iPhone keyboard
+  // comes up (it won't for a focus that happens after the tap)
+  const [fresh, setFresh] = useState<string | null>(null);
+  const addStep = () => {
+    const id = rid();
+    flushSync(() => {
+      setFresh(id);
+      onChange([...items, { id, text: "" }]);
+    });
+  };
+
   if (items.length === 0) {
     return readOnly ? (
       <p className="px-3.5 py-3 text-sm text-ink-faint">Nothing planned yet.</p>
     ) : (
-      <button onClick={() => onChange([{ id: rid(), text: "" }])} className="action w-full px-3.5 py-3 text-sm">
+      <button onClick={addStep} className="action w-full px-3.5 py-3 text-sm">
         <Icon name="plus" size={14} /> Add a step
       </button>
     );
@@ -576,6 +589,7 @@ function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByP
       day={day}
       tz={tz}
       item={it}
+      fresh={it.id === fresh}
       timeStart={timeBefore(items, i)}
       place={it.placeId ? places.find((p) => p.id === it.placeId) : undefined}
       nextPlace={items[i + 1]?.placeId ? places.find((p) => p.id === items[i + 1].placeId) : undefined}
@@ -615,7 +629,7 @@ function PlanList({ day, returnHotel, tz, items, places, areaPlaces, areaNameByP
       {backRow}
       {/* the add lives at the foot, next to where the new step lands, so a
        *  long plan doesn't need a scroll back to the top */}
-      <button onClick={() => onChange([...items, { id: rid(), text: "" }])} className="action w-full border-t border-line px-3.5 py-2.5 text-xs">
+      <button onClick={addStep} className="action w-full border-t border-line px-3.5 py-2.5 text-xs">
         <Icon name="plus" size={14} /> Add a step
       </button>
     </>
@@ -634,10 +648,12 @@ function timeBefore(items: PlanItem[], i: number): string | undefined {
   return undefined;
 }
 
-function PlanRow({ day, tz, item, timeStart, place, nextPlace, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onPatch, onRemove, onDuplicate, onQuickAddCost, onShowOnMap }: {
+function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onPatch, onRemove, onDuplicate, onQuickAddCost, onShowOnMap }: {
   day: DayT;
   tz?: string;
   item: PlanItem;
+  /** just added — open its text for typing */
+  fresh?: boolean;
   /** where its time wheel starts while it has no time (see `timeBefore`) */
   timeStart?: string;
   place?: Place;
@@ -797,7 +813,7 @@ function PlanRow({ day, tz, item, timeStart, place, nextPlace, areaPlaces, areaN
                 onPick={pick}
               />
             ) : (
-              <Editable label="Step" value={item.text} placeholder="What is it?" onCommit={(v) => onPatch({ text: v })} className="block text-sm leading-snug text-ink" />
+              <Editable label="Step" value={item.text} placeholder="What is it?" autoEdit={fresh} onCommit={(v) => onPatch({ text: v })} className="block text-sm leading-snug text-ink" />
             )}
             {(readOnly || item.note || noteOpen) && (
               <RichNote

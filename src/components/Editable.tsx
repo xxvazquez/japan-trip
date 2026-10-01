@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { useReadOnly } from "@/lib/readonly";
 import { gmapsLink } from "@/lib/maps";
 import { isMoneyLabel } from "@/lib/cost";
@@ -19,6 +19,8 @@ type Base = {
   emptyContent?: React.ReactNode;
   /** where an empty time's wheels start ("HH:MM", default 09:00) — Done saves it */
   timeStart?: string;
+  /** open straight into editing on mount (a row just added) */
+  autoEdit?: boolean;
   /** how a filled value reads when not being edited ("1945.64" → "1,945.64");
    *  the input itself still edits the raw value */
   format?: (v: string) => string;
@@ -110,7 +112,7 @@ const inputType = (kind: Kind) =>
  * links / phones / emails render as the real thing with a pencil to edit.
  */
 export function Editable(props: Props) {
-  const { value, onCommit, placeholder = "Add…", label, className = "", emptyContent, editSignal, timeStart } = props;
+  const { value, onCommit, placeholder = "Add…", label, className = "", emptyContent, editSignal, timeStart, autoEdit } = props;
   const rawAs = props.as ?? "text";
   const as: Kind =
     rawAs === "auto" ? resolveKind(label, value)
@@ -122,7 +124,7 @@ export function Editable(props: Props) {
       : props.format && value ? props.format(value)
       : value;
   const readOnly = useReadOnly();
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(!!autoEdit);
   const [draft, setDraft] = useState(value);
   const ref = useRef<HTMLInputElement & HTMLTextAreaElement & HTMLSelectElement>(null);
   const id = useId();
@@ -133,7 +135,9 @@ export function Editable(props: Props) {
   useEffect(() => {
     if (editSignal) setEditing(true);
   }, [editSignal]);
-  useEffect(() => {
+  // a layout effect, so a field opened from a tap (see `autoEdit`) is focused
+  // inside that tap — iPhone only raises the keyboard for a focus it makes
+  useLayoutEffect(() => {
     if (editing && ref.current) {
       ref.current.focus();
       if ("select" in ref.current && props.as !== "select") ref.current.select();
