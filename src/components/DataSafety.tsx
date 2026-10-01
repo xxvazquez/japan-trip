@@ -19,7 +19,7 @@ const REASONS: Record<string, string> = {
   "before-shrink": "Before a large removal",
   crash: "After an unexpected error",
 };
-export const reasonLabel = (r: string) => REASONS[r] ?? r;
+export const reasonLabel = (r: string) => (r.startsWith("deleted:") ? `Before deleting ${r.slice(8)}` : REASONS[r] ?? r);
 
 export const when = (iso: string) =>
   new Date(iso).toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });

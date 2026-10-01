@@ -315,6 +315,7 @@ Every edit saves as you make it. On top of that, the app keeps **restore points*
 **When they're taken**
 
 - Every few minutes while you edit (newest 12 kept).
+- Just before every delete you make, named after what went ("Before deleting Riverton and 2 days"). These share the newest-12 list with the automatic ones.
 - Before anything risky: deleting a trip, restoring, syncing offline edits, a data-reshaping update, or a save that would remove over half a device-only trip (newest 10 kept, separately).
 
 **Where they live** — in your account (needs migration `0026`) and on the device.

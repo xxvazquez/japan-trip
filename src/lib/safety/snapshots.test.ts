@@ -90,6 +90,28 @@ describe("pruning", () => {
   });
 });
 
+describe("delete restore points", () => {
+  it("are written even right after an automatic one of the same content, and keep their label", async () => {
+    const trip = buildBlank("Test trip");
+    await takeDeviceSnapshot("trip-1", trip, "auto");
+    const meta = await takeDeviceSnapshot("trip-1", trip, "deleted:Riverton and 2 days");
+    expect(meta?.reason).toBe("deleted:Riverton and 2 days");
+    const again = await takeDeviceSnapshot("trip-1", trip, "deleted:Riverton and 2 days");
+    expect(again?.id).toBe(meta?.id); // the same point twice isn't written twice
+  });
+
+  it("rotate with the automatic ones, so a run of deletes can't push out an event point", async () => {
+    await takeDeviceSnapshot("trip-1", buildBlank("Test trip"), "pre-migration");
+    for (let i = 0; i < LIMITS.autoKeep + LIMITS.eventKeep; i++) {
+      const trip = { ...buildBlank("Test trip"), meta: { ...buildBlank().meta, title: `v${i}` } };
+      await takeDeviceSnapshot("trip-1", trip, `deleted:item ${i}`);
+    }
+    const list = await listDeviceSnapshots("trip-1");
+    expect(list.some((s) => s.reason === "pre-migration")).toBe(true);
+    expect(list.filter((s) => s.reason.startsWith("deleted:"))).toHaveLength(LIMITS.autoKeep);
+  });
+});
+
 describe("readSnapshot", () => {
   it("throws if the stored envelope has been tampered with", async () => {
     const trip = buildBlank("Test trip");

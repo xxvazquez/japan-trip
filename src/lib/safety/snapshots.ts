@@ -30,7 +30,9 @@ export type SnapshotReason =
   | "pre-migration"
   | "external-change"
   | "before-shrink"
-  | "crash";
+  | "crash"
+  /** just before a delete you made in the app — what went, e.g. "Riverton and 2 days" */
+  | `deleted:${string}`;
 
 export interface SnapshotMeta {
   /** device: the storage key suffix. cloud: the row uuid */
@@ -65,7 +67,10 @@ const KEY_RE = /^snap:(.+):(\d{13}):([ae]):([a-z0-9]+)$/;
 const snapKey = (tripId: string, ts: number, cls: "a" | "e", rand: string) =>
   `snap:${tripId}:${String(ts).padStart(13, "0")}:${cls}:${rand}`;
 const rid = () => Math.random().toString(36).slice(2, 10);
-const classOf = (reason: string): "a" | "e" => (reason === "auto" ? "a" : "e");
+// a delete's restore point rotates with the automatic ones, so a run of small
+// deletes can't push out the rare event points (before an update, a crash…)
+const classOf = (reason: string): "a" | "e" => (reason === "auto" || reason.startsWith("deleted:") ? "a" : "e");
+const isAuto = (reason: string) => reason === "auto";
 const nameOf = (d: Partial<TripData>) => (d.meta?.title || d.config?.branding || "Trip") as string;
 
 /* ------------------------------------------------------------------ device ring */
@@ -128,10 +133,10 @@ export async function takeDeviceSnapshot(
   // an automatic snapshot is skipped when nothing changed or one is recent; an
   // event snapshot always writes — it lives in its own ring so autos can't evict it
   if (last && last.hash === hash) {
-    if (cls === "a") return null;
+    if (isAuto(reason)) return null;
     if (last.reason === reason) return last.meta; // this exact restore point already exists
   }
-  if (cls === "a" && !opts.force && last && now - last.at < LIMITS.deviceAutoEveryMs) return null;
+  if (isAuto(reason) && !opts.force && last && now - last.at < LIMITS.deviceAutoEveryMs) return null;
 
   const meta: SnapshotMeta = {
     id: "",
@@ -197,10 +202,9 @@ export async function takeCloudSnapshot(
 ): Promise<SnapshotMeta | null> {
   const v = validateTrip(data);
   if (v.fatal) throw new SaveBlockedError("invalid", `Not backing up broken data (${describeProblems(v)})`);
-  const cls = classOf(reason);
   const now = Date.now();
 
-  if (cls === "a" && !opts.force) {
+  if (isAuto(reason) && !opts.force) {
     let last = lastCloud.get(tripId);
     if (last === undefined) {
       last = (await db.newestCloudSnapshotAt(tripId).catch(() => null)) ?? 0;

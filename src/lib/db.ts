@@ -462,8 +462,9 @@ export async function pruneCloudSnapshots(tripId: string, keepAuto: number, keep
     await sb.from("trip_snapshots").select("id,reason,created_at").eq("trip_id", tripId).order("created_at", { ascending: false }),
   ) ?? []) as { id: string; reason: string }[];
   const drop = [
-    ...rows.filter((r) => r.reason === "auto").slice(keepAuto),
-    ...rows.filter((r) => r.reason !== "auto").slice(keepEvent),
+    // a delete's restore point rotates with the automatic ones (see `classOf`)
+    ...rows.filter((r) => r.reason === "auto" || r.reason.startsWith("deleted:")).slice(keepAuto),
+    ...rows.filter((r) => r.reason !== "auto" && !r.reason.startsWith("deleted:")).slice(keepEvent),
   ].map((r) => r.id);
   for (let i = 0; i < drop.length; i += 50) {
     check(await sb.from("trip_snapshots").delete().in("id", drop.slice(i, i + 50)));

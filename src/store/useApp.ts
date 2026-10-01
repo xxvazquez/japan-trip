@@ -1024,6 +1024,38 @@ function diffForUndo(tripId: string, before: TripData, after: TripData): UndoRec
   return { tripId, rows, config, meta: metaChanged ? before.meta : undefined, media: mediaChanged ? before.media : undefined };
 }
 
+const ENTITY_NOUN: Record<EntityType, [string, string]> = {
+  legs: ["base", "bases"], days: ["day", "days"], hotels: ["stay", "stays"], journeys: ["journey", "journeys"],
+  luggage: ["luggage note", "luggage notes"], docs: ["document", "documents"], packing: ["packing item", "packing items"],
+  places: ["place", "places"], areas: ["area", "areas"], scratchNotes: ["note", "notes"],
+};
+
+/** What a delete removed, in a few words for its restore point: "Riverton and
+ *  2 days", "Passport", "a step from Sun 1 Nov". Null when the change wasn't
+ *  a delete (a rename, say). */
+function deletedSummary(rec: UndoRecord, before: TripData, after: TripData, label: string): string | null {
+  const removed = rec.rows.filter((r) => r.before && !(after[r.type] as WithId[]).some((x) => x.id === r.id));
+  let text: string;
+  if (removed.length) {
+    const byType = ENTITY_TYPES.map((t) => removed.filter((r) => r.type === t)).filter((g) => g.length);
+    const [lead, ...others] = byType;
+    const names = lead.map((r) => nameOfRow(r.type, r.id, before));
+    const leadText = names.length <= 2 ? names.join(" and ") : `${names.slice(0, 2).join(", ")} and ${names.length - 2} more`;
+    const counts = others.map((g) => `${g.length} ${ENTITY_NOUN[g[0].type][g.length === 1 ? 0 : 1]}`);
+    text = [leadText, ...counts].join(counts.length ? (counts.length > 1 ? ", " : " and ") : "");
+    if (counts.length > 1) text = text.replace(/, ([^,]+)$/, " and $1");
+  } else {
+    // a part of something removed (a step, a hop, a list item): the label names it
+    const m = /^(.*?)\s+(?:removed|deleted)\b/i.exec(label);
+    if (!m && !/^(removed|deleted)$/i.test(label)) return null;
+    const noun = m?.[1].toLowerCase() || "something";
+    const what = /s$/.test(noun) || noun === "something" ? noun : `a${/^[aeiou]/.test(noun) ? "n" : ""} ${noun}`;
+    const owners = rec.rows.filter((r) => r.before);
+    text = owners.length === 1 ? `${what} from ${nameOfRow(owners[0].type, owners[0].id, before)}` : what;
+  }
+  return text.length > 80 ? `${text.slice(0, 79).trimEnd()}…` : text;
+}
+
 /** The trip list (device-only atlas / active-trip pointer) failed to write. The
  *  trips themselves are safe and the list is rebuilt from them on next load, so
  *  this is a heads-up, not an emergency. */
@@ -1438,6 +1470,12 @@ export const useApp = create<AppStore>((set, get) => {
       if (!before || !after || !tripId || get().activeId !== tripId) return;
       const rec = diffForUndo(tripId, before, after);
       if (!rec) return;
+      // a restore point of the trip as it was, named after what went — so a
+      // delete regretted after the Undo toast has gone can still be found
+      const gone = deletedSummary(rec, before, after, label);
+      if (gone && !before.config.demo) {
+        void takeSnapshot(tripId, before, `deleted:${gone}`, { force: true, cloud: pickBackend().kind === "supabase" });
+      }
       undoRecord = rec;
       set({ undoToast: { key: ++undoKey, label } });
     },
