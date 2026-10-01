@@ -2,8 +2,8 @@
  * Export a whole trip as one self-contained HTML file — every style inlined,
  * images kept as the data URIs they already are, no external references. Opens
  * in any browser, prints cleanly; a local-script name (`.local-name`) uses
- * `config.localScriptFont` if set, else falls back to the reader's OS font
- * (no webfont is bundled, same as the app).
+ * the reader's OS font, which picks the right script itself (no webfont is
+ * bundled, same as the app).
  *
  * Trip-agnostic: this walks the generic `TripData` shape and nothing here knows
  * about any one trip. Loaded on demand (dynamic import) so it stays out of the
@@ -46,7 +46,6 @@ const safeHref = (url: string): string => {
  *  strip anything that could break out of the declaration (braces, quotes
  *  used to close early, `;`, `<`), rather than HTML-escape it (`esc` would
  *  leave those CSS-special characters untouched). */
-const safeFontFamily = (v: string): string => v.replace(/[{}<>;`\\]/g, "").trim();
 
 /** A deliberately tiny Markdown → HTML pass: **bold**, *italic*, `code`,
  *  [text](url), bare URLs, `- ` bullet lists, blank-line paragraphs. Everything
@@ -364,7 +363,7 @@ function styles(data: TripData): string {
     color: var(--ink);
     font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
-  .local-name { font-family: ${data.config.localScriptFont ? safeFontFamily(data.config.localScriptFont) : "inherit"}; color: var(--ink-faint); font-weight: normal; }
+  .local-name { color: var(--ink-faint); font-weight: normal; }
   main { max-width: 44rem; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
   h1, h2, h3, h4 { font-family: Georgia, "Times New Roman", serif; font-weight: 600; line-height: 1.25; color: var(--ink); }
   h1 { font-size: 2.1rem; margin: 0 0 .3rem; }

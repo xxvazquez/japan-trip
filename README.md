@@ -270,7 +270,6 @@ Open it from your account picture (or the foot of the sidebar on a wide screen).
 - **Time zones** — *Home* comes from the device. *On the trip* fills itself in from the first hotel with coordinates, unless you've picked one. The picker lists cities with offsets; search by city, offset or abbreviation ("kolkata", "+5:30", "JST").
 - **Currencies** — the first is the default (a new trip starts on `PLN`). Prices open a keypad, with a currency switch once there's a second currency.
 - **Expense categories** — rename, add, reorder or remove from ⋯. Removing one moves its spending to the next. A category can claim hop modes (so Train and Flights split out of Transport). Tap its icon to pick another from 130+.
-- **Local-script font** (under Map & format) — a CSS font stack for local-script names, e.g. `Hiragino Sans, Yu Gothic, sans-serif`. Blank uses the app font.
 - **Logbook sections** — hide the ones you don't need.
 - **Tabs** — rename, reorder or hide Plan / Map / Logbook, and **Add tab** to pin a Logbook page (Packing, say) to the tab bar.
 

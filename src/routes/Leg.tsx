@@ -47,7 +47,7 @@ export default function Leg() {
           <ul>
             {(leg.nameAlt || !ro) && (
               <InsetRow label="Local name">
-                <span style={data.config.localScriptFont ? { fontFamily: data.config.localScriptFont } : undefined}>
+                <span>
                   <Editable
                     label="Local name"
                     value={leg.nameAlt ?? ""}

@@ -73,13 +73,12 @@ function MoveRow({ count, children }: { count: number; children: ReactNode }) {
  *  under the next so only its top strip — name and count — peeks out; the last
  *  card shows whole, with a dot per stamp (filled = collected). Pinned above a
  *  section's list it's a plain `div`, so its title can be an `<Editable>`. */
-function StampCard({ title, sub, local, font, done, total, tone, dots, onClick, stacked }: {
+function StampCard({ title, sub, local, done, total, tone, dots, onClick, stacked }: {
   title: ReactNode;
   /** a line under the title (the section's local-script name, editable) */
   sub?: ReactNode;
   /** the section's local-script name, ghosted behind the card */
   local?: string;
-  font?: string;
   done: number;
   total: number;
   tone: string;
@@ -96,7 +95,6 @@ function StampCard({ title, sub, local, font, done, total, tone, dots, onClick, 
         <span
           aria-hidden
           className="pointer-events-none absolute -bottom-3 right-3 select-none text-[5.25rem] font-medium leading-none opacity-20"
-          style={font ? { fontFamily: font } : undefined}
         >
           {local}
         </span>
@@ -298,7 +296,6 @@ export function Stamps() {
             {s.local && (
               <span
                 className="meta shrink-0 text-ink-soft"
-                style={data.config.localScriptFont ? { fontFamily: data.config.localScriptFont } : undefined}
               >
                 {s.local}
               </span>
@@ -476,7 +473,6 @@ export function Stamps() {
                 tone={toneFor(g)}
                 title={g || "Ungrouped"}
                 local={localOf(g)}
-                font={data.config.localScriptFont}
                 done={list.filter((r) => r.item.done).length}
                 total={list.length}
                 dots={list.map((r) => !!r.item.done)}
@@ -518,7 +514,6 @@ export function Stamps() {
                   : <Editable label="Local name" value={localOf(openGroup) ?? ""} placeholder="＋ local name" onCommit={(v) => setLocal(openGroup, v.trim())} />)
               : undefined}
             local={openGroup ? localOf(openGroup) : undefined}
-            font={data.config.localScriptFont}
             done={rows!.filter((r) => r.item.done).length}
             total={rows!.length}
             dots={groups.get(openGroup!)!.map((r) => !!r.item.done)}

@@ -76,7 +76,7 @@ export default function Hotel() {
             <ul>
               {(hotel.nameAlt || !ro) && (
                 <InsetRow label="Local name">
-                  <span style={data.config.localScriptFont ? { fontFamily: data.config.localScriptFont } : undefined}>
+                  <span>
                     <Editable
                       label="Local name"
                       value={hotel.nameAlt ?? ""}
@@ -98,7 +98,6 @@ export default function Hotel() {
                   {(hotel.addressAlt || !ro) && (
                     <span
                       className="mt-1 flex items-start justify-between gap-2 text-xs leading-snug text-ink-soft"
-                      style={data.config.localScriptFont ? { fontFamily: data.config.localScriptFont } : undefined}
                     >
                       <Editable label="Local address" value={hotel.addressAlt ?? ""} placeholder="Local-script address, for taxis" onCommit={(v) => p({ addressAlt: v || undefined })} />
                       <CopyButton value={hotel.addressAlt ?? ""} label="local address" />

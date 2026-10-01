@@ -586,7 +586,7 @@ function Setup() {
 
       <Section
         title="Map & format"
-        info="Google My Map takes a share link from a Google My Maps map — paste it here and the Map tab can import and sync its pins. Local-script font sets the typeface for a base's or a stay's local name (set on its own page) — paste a CSS font stack, e.g. Hiragino Sans, Yu Gothic, sans-serif for Japanese, or Noto Sans KR, sans-serif for Korean. Leave blank to use the app's regular font."
+        info="Google My Map takes a share link from a Google My Maps map — paste it here and the Map tab can import and sync its pins."
       >
         <ul>
         <Row label="Date format">
@@ -600,9 +600,6 @@ function Setup() {
         </Row>
         <Row label="Google My Map">
           <Editable as="link" label="Google My Map link" value={config.mapSourceUrl ?? ""} placeholder="paste the share link" onCommit={(v) => mutate((d) => { d.config.mapSourceUrl = v; })} />
-        </Row>
-        <Row label="Local-script font">
-          <Editable label="Local-script font" value={config.localScriptFont ?? ""} placeholder="app default" onCommit={(v) => mutate((d) => { d.config.localScriptFont = v || undefined; })} />
         </Row>
         </ul>
       </Section>
