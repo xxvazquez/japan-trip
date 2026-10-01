@@ -60,7 +60,7 @@ export default function Journey() {
   const fareLines = journeyFare(j, primary);
   const fareText = fareLines.map((m) => fmtMoney(m.amount, m.currency)).join("  +  ");
   const fareDerived = hopsPriced(j);
-  const onDays = data.days.filter((d) => d.journeyId === j.id);
+  const onDays = data.days.filter((d) => d.journeyIds?.includes(j.id));
   const departDay = day ? data.days.find((d) => d.date === day) : undefined;
 
   return (
@@ -117,10 +117,10 @@ export default function Journey() {
             ))}
             {onDays.length === 0 && !ro && (
               <InsetRow label="On Plan">
-                {departDay && !departDay.journeyId ? (
+                {departDay ? (
                   <button
                     type="button"
-                    onClick={() => updateEntity<Day>("days", departDay.id, { journeyId: j.id })}
+                    onClick={() => updateEntity<Day>("days", departDay.id, { journeyIds: [...(departDay.journeyIds ?? []), j.id] })}
                     className="text-accent"
                   >
                     Add to {fmtDate(departDay.date, loc)}

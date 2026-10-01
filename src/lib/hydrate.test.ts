@@ -25,6 +25,18 @@ function legacy(): Record<string, unknown> {
 }
 
 describe("normalizeTrip migrations", () => {
+  it("folds the old single journey link into the day's list, dropping gone journeys", () => {
+    const raw = legacy();
+    raw.journeys = [{ id: "j1", label: "A → B", kind: "transfer", segments: [] }];
+    const days = raw.days as Record<string, unknown>[];
+    Object.assign(days[0], { journeyId: "j1", journeyIds: ["j1"] });
+    Object.assign(days[1], { journeyId: "gone" });
+    const d = normalizeTrip(raw as unknown as TripData);
+    expect(d.days[0].journeyIds).toEqual(["j1"]);
+    expect("journeyId" in d.days[0]).toBe(false);
+    expect(d.days[1].journeyIds).toBeUndefined();
+  });
+
   it("moves the retired Day trip fields into the day's notes, once", () => {
     const raw = legacy();
     const days = raw.days as Record<string, unknown>[];

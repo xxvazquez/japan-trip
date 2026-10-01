@@ -189,8 +189,9 @@ function dayEvents(day: Day, journeys: Map<string, Journey>, places: Map<string,
   for (const item of day.plan ?? []) {
     lines.push(...planItemEvent(item, day, tz, item.placeId ? places.get(item.placeId) : undefined));
   }
-  const journey = day.journeyId ? journeys.get(day.journeyId) : undefined;
-  if (journey) {
+  for (const id of day.journeyIds ?? []) {
+    const journey = journeys.get(id);
+    if (!journey) continue;
     for (const seg of journey.segments) {
       const evt = segmentEvent(seg, tz, opts);
       if (evt) lines.push(...evt);

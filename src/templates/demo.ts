@@ -127,7 +127,7 @@ export function buildDemo(): TripData {
         date: D4,
         legId: "leg-old",
         hotelId: "h-old",
-        journeyId: "j-home",
+        journeyIds: ["j-home"],
         title: "Travel + departure",
         plan: [
           { id: "d4-p1", time: "08:30", text: "Last coffee before the train", placeId: "pl-5" },

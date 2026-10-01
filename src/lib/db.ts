@@ -28,7 +28,10 @@ const SPECS: Record<EntityType, Spec> = {
   hotels: { table: "hotels" },
   journeys: { table: "journeys" },
   luggage: { table: "luggage" },
-  days: { table: "days" },
+  // `journey_id` is the old single link, read into `journeyIds` on load
+  // (`normalizeTrip`); every save empties it so an unlinked journey can't
+  // come back from it
+  days: { table: "days", toRow: (_e, row) => { row.journey_id = null; } },
   packing: { table: "packing", rename: { group: "group_name" } },
   docs: { table: "docs" },
   places: { table: "places" },
@@ -49,7 +52,7 @@ const SEG_RENAME: Record<string, string> = { from: "from_place", to: "to_place" 
 // jsonb columns declared NOT NULL DEFAULT '[]' — a cleared one must upsert as an
 // empty array so the delete sticks: null is rejected, and dropping the key lets
 // the stale rows survive the reload. Every other cleared field upserts as null.
-const JSON_ARRAY_KEYS = new Set(["plan", "areaIds", "costs", "fields", "labels"]);
+const JSON_ARRAY_KEYS = new Set(["plan", "areaIds", "costs", "fields", "labels", "journeyIds"]);
 
 function entityToRow(spec: Spec, e: Record<string, unknown>, tripId: string, position: number) {
   const row: Record<string, unknown> = { id: e.id, trip_id: tripId, position };
@@ -63,8 +66,8 @@ function entityToRow(spec: Spec, e: Record<string, unknown>, tripId: string, pos
 }
 
 // columns that carry row plumbing, not entity fields. `journey_id` is NOT here:
-// on the `days` table it's the day→journey link (`Day.journeyId`), and dropping
-// it left travel days looking like ordinary days after a reload / realtime echo.
+// on the `days` table it's the old single day→journey link, still read so
+// `normalizeTrip` can fold it into `journeyIds`.
 const PLUMBING = ["id", "trip_id", "position", "created_at", "updated_at"];
 
 function rowToEntity(spec: Spec, r: Record<string, unknown>) {

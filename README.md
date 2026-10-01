@@ -56,7 +56,7 @@ A Logbook page pinned to the tab bar is a tab of its own, so it has no back butt
 
 The trip as a list of days, grouped by **base** — where you're based for a run of nights (Tokyo, Kyoto). A **stay** is the place you sleep there: a hotel, an Airbnb, anything. Day trips go out from a base and back.
 
-- **Tags.** Each day shows **Arrive**, **Travel**, **Depart** or **Day trip**. These are worked out from the day itself, never chosen by hand.
+- **Tags.** Each day shows **Arrive**, **Travel**, **Depart** or **Day trip**. These are worked out from the day itself, never chosen by hand. A day trip stays **Day trip** with its trains on it; an arrival or departure journey still wins.
 - **Reorder** by dragging a day up or down. The dates shuffle with it.
 - **Pin a day** that's fixed to its date (a public holiday, a booked tour) from the foot of its page. Its drag handle becomes a pin and other days flow around it. **Unpin this day** undoes it.
 - **During the trip** the list opens on today: every earlier day moves to a **Past days** section at the bottom (closed until you open it), grouped by base, and a base that's fully over drops off the top list. Past days can still be opened, not dragged.
@@ -78,14 +78,23 @@ The days set the dates — you don't edit them separately.
 
 Tap a day on Plan to open it. From top to bottom:
 
-1. **Staying at** (which hotel) and **Journey** (link an existing one, or ＋ to make a new one). If the linked journey doesn't run on this day (anything from its departure to its arrival counts, so an overnight flight can sit on its arrival day), a warning says when it leaves and offers to move it to that day. A journey's own page shows which day it's on (**On Plan**), or offers to add it to its departure day.
-2. **Weather** — if the hotel has coordinates, the header shows the forecast ("Showers, 19–24°C"). Forecasts only reach ~16 days ahead, so later days show nothing until they're close enough.
-3. **The itinerary** — the day's steps (below).
-4. **Areas** — drop a whole neighbourhood's places onto the day's map.
-5. **Spending** and **General notes**.
-6. **The day's actions** — **Make this a day trip** (or **Not a day trip**), **Pin this day**, and **Delete day**.
+1. **Staying at** — which hotel.
+2. **Journeys** — every journey on the day (a bus, a train, a flight), in the order they leave. See [Journeys on a day](#journeys-on-a-day).
+3. **Weather** — if the hotel has coordinates, the header shows the forecast ("Showers, 19–24°C"). Forecasts only reach ~16 days ahead, so later days show nothing until they're close enough.
+4. **The itinerary** — the day's steps (below).
+5. **Areas** — drop a whole neighbourhood's places onto the day's map.
+6. **Spending** and **General notes**.
+7. **The day's actions** — **Make this a day trip** (or **Not a day trip**), **Pin this day**, and **Delete day**.
 
 Every section folds away from its header.
+
+### Journeys on a day
+
+- Each row shows the route, its times and the mode. Tap it to open the journey.
+- **Add a journey** links an existing one (that day's first) or makes a new one.
+- Swipe a row (✕ on desktop) to take it off the day. The journey itself stays.
+- A journey that runs on another date says so in red and offers to move it there.
+- A journey's own page lists the days it's on (**On Plan**), or offers to add it to its departure day.
 
 ### Steps
 
@@ -98,7 +107,7 @@ Each step shows a tile, an optional time, the step itself and a short note.
 - **The ⋯ menu** — show on map, add to Google Calendar, mark as **overwhelming** (a ⚠ sensory heads-up; the day's count shows on Plan), add a note, duplicate, add an expense, remove.
 - **Notes** support bold, bullets and links. Tap to expand and edit. Empty fields stay hidden.
 - **+ Add a step** sits at the foot of the list and opens the new step ready to type.
-- **The day's journey** shows as two rows of its own: **Leave** (first departure) and **Arrive** (last arrival), slotted in by time. They follow the journey live — edit the times on the journey, tap a row to open it.
+- **Each journey on the day** shows as two rows of its own: **Leave** (first departure) and **Arrive** (last arrival), slotted in by time. They follow the journey live — edit the times on the journey, tap a row to open it.
 
 ### Helpers on a step
 
@@ -412,7 +421,7 @@ edit in the UI  →  TripData (in memory)  →  backend
 ### Setting up a project
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0033`). `0033` moves old day-trip text (getting there / back, last way back) into each day's notes — take a backup first.
+2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0034`). `0033` moves old day-trip text (getting there / back, last way back) into each day's notes — take a backup first.
 3. **Authentication → Providers → Google** — enable it with a Google Cloud OAuth client id and secret. Redirect: `https://<project-ref>.supabase.co/auth/v1/callback`.
 4. **Authentication → URL Configuration → Redirect URLs** — add `http://localhost:5173` and the deployed URL.
 5. Copy the Project URL and anon key (**Project Settings → API**) into `.env.local`.

@@ -132,15 +132,23 @@ export function legForDate(d: TripData, iso: ISODate) {
 
 /** The shape of a day, derived from its links / flag. */
 export type DerivedDayKind = "arrival" | "departure" | "travel" | "daytrip" | "base";
-export function dayKind(d: Pick<Day, "journeyId" | "dayTrip">, data: TripData): DerivedDayKind {
-  if (d.journeyId) {
-    const j = data.journeys.find((x) => x.id === d.journeyId);
-    if (j?.kind === "arrival") return "arrival";
-    if (j?.kind === "departure") return "departure";
-    return "travel";
-  }
+export function dayKind(d: Pick<Day, "journeyIds" | "dayTrip">, data: TripData): DerivedDayKind {
+  const js = dayJourneys(d, data);
+  if (js.some((j) => j.kind === "arrival")) return "arrival";
+  if (js.some((j) => j.kind === "departure")) return "departure";
+  // a day trip's trains out and back don't make it a travel day
   if (d.dayTrip) return "daytrip";
-  return "base";
+  return js.length ? "travel" : "base";
+}
+
+/** A day's journeys that still exist, in the order they leave. */
+export function dayJourneys(d: Pick<Day, "journeyIds">, data: Pick<TripData, "journeys">): Journey[] {
+  // one with no departure time yet goes after its date's timed ones
+  const key = (j: Journey) => j.segments[0]?.depart || `${j.date ?? "~"}T~`;
+  return (d.journeyIds ?? [])
+    .map((id) => data.journeys.find((j) => j.id === id))
+    .filter((j): j is Journey => !!j)
+    .sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0)); // code order: "~" after digits
 }
 
 export function fmtDate(

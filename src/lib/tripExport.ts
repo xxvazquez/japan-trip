@@ -17,7 +17,7 @@
 import type {
   Day, Doc, Hotel, Journey, Leg, Place, Segment, TripData,
 } from "@/core/types";
-import { fmtDate, fmtSpan, journeyDepartDate, legNights, plural, todayISO } from "@/lib/dates";
+import { dayJourneys, fmtDate, fmtSpan, journeyDepartDate, legNights, plural, todayISO } from "@/lib/dates";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import { minutesBetween, fmtMinutes } from "@/lib/time";
 import { gmapsLink } from "@/lib/maps";
@@ -117,13 +117,12 @@ function coverSection(data: TripData): string {
 }
 
 function dayBlock(day: Day, data: TripData, loc: string): string {
-  const journey = day.journeyId ? data.journeys.find((j) => j.id === day.journeyId) : undefined;
   const heading = fmtDate(day.date, loc, { weekday: "long", day: "numeric", month: "long" });
   const parts: string[] = [];
 
   parts.push(`<h4>${esc(heading)}${day.title ? ` — ${esc(day.title)}` : ""}</h4>`);
 
-  if (journey) {
+  for (const journey of dayJourneys(day, data)) {
     const first = journey.segments[0];
     const last = journey.segments.at(-1);
     const span = fmtSpan(

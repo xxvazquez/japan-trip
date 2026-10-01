@@ -314,8 +314,9 @@ export interface Day {
   /** areas the day pulls in — their places show on the day's map (live), but
    *  are never copied into the plan; the written steps stay explicit. */
   areaIds?: ID[];
-  /** set when this is a travel day */
-  journeyId?: ID;
+  /** the journeys on this day — any number (a bus, then a train, then a
+   *  flight); absent when there are none */
+  journeyIds?: ID[];
   /** flagged as an out-of-town day */
   dayTrip?: boolean;
   /** what you spent on the day — one row per amount (a museum, lunch, a taxi).

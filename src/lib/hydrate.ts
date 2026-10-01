@@ -4,7 +4,7 @@ import { sortLegs } from "./spans";
 import type { Day, Doc, DocField, ExpenseCategory, Hotel, ModuleConfig, PlanItem, ThemeTokens, TripData } from "@/core/types";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
-export const SCHEMA_VERSION = 12;
+export const SCHEMA_VERSION = 13;
 
 /** Seed expense categories for a new trip. `role: "transport"` is the catch-all
  *  for any fare whose mode isn't claimed below (ferry, car, walk, or a manual
@@ -385,6 +385,19 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
   // exactly one, or the tab is a permanent dead end.
   if (!(d.docs as Doc[]).some((doc) => doc.kind === "contact")) {
     (d.docs as Doc[]).push({ id: `docs-${fieldId()}`, title: "Emergency contacts", kind: "contact", fields: [] });
+  }
+
+  // v13: a day holds any number of journeys (`journeyIds`) instead of one
+  // `journeyId`. The old link (also still the `journey_id` column a pre-v13
+  // build writes) folds into the list; ids of deleted journeys drop out.
+  const journeyIdSet = new Set((d.journeys as { id?: string }[]).map((j) => j?.id));
+  for (const day of d.days as Day[]) {
+    const old = day as unknown as { journeyId?: unknown };
+    const ids = [...(Array.isArray(day.journeyIds) ? day.journeyIds : []), ...(typeof old.journeyId === "string" ? [old.journeyId] : [])];
+    delete old.journeyId;
+    const kept = [...new Set(ids)].filter((id) => typeof id === "string" && journeyIdSet.has(id));
+    if (kept.length) day.journeyIds = kept;
+    else delete day.journeyIds;
   }
 
   // v12: the Day trip box (getting there / getting back / last way back) is

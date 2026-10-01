@@ -1582,8 +1582,9 @@ export const useApp = create<AppStore>((set, get) => {
         // a day still pointing at a deleted journey would keep its Travel tag
         if (type === "journeys") {
           for (const day of d.days) {
-            if (day.journeyId !== id) continue;
-            day.journeyId = undefined;
+            if (!day.journeyIds?.includes(id)) continue;
+            const rest = day.journeyIds.filter((x) => x !== id);
+            day.journeyIds = rest.length ? rest : undefined;
             touchedDays.push(day.id);
           }
         }

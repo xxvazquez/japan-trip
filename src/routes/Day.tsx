@@ -39,11 +39,11 @@ import { DayLabels, tripLabels } from "@/components/DayLabels";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { dayKind, fmtDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
+import { dayJourneys, dayKind, fmtDate, journeyDepartDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink, gmapsRoute, mapUrlCoords } from "@/lib/maps";
 import { fmtWalk, haversineKm } from "@/lib/geo";
-import { fmtDuration, fmtMinutes } from "@/lib/time";
+import { clockOf, fmtDuration, fmtMinutes } from "@/lib/time";
 import { MODE_ICON, MODE_LABEL, MODE_TONE } from "@/lib/transport";
 import { useWalk, estimateTransit } from "@/lib/walkRoute";
 import { nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
@@ -111,7 +111,22 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const pinned = (data.config.pinnedDays ?? []).includes(day.id);
   const leg = L.leg(day.legId);
   const hotel = L.hotel(day.hotelId);
-  const journey = L.journey(day.journeyId);
+  const journeys = dayJourneys(day, data);
+  const journeySheet = useActionSheet();
+  const linkJourney = (id: string) => patch({ journeyIds: [...(day.journeyIds ?? []), id] });
+  const unlinkJourney = (id: string) => {
+    const rest = (day.journeyIds ?? []).filter((x) => x !== id);
+    patch({ journeyIds: rest.length ? rest : undefined });
+  };
+  // offered by "Add Journey": the ones not on this day yet, this day's own
+  // date first (the likely pick), then by when they leave
+  const addable = data.journeys
+    .filter((j) => !(day.journeyIds ?? []).includes(j.id))
+    .sort((a, b) => {
+      const onDay = (j: Journey) => (journeyOffDay(j, day.date) || !journeySpan(j).from ? 1 : 0);
+      const da = journeyDepartDate(a) ?? "~", db = journeyDepartDate(b) ?? "~"; // code order: undated last
+      return onDay(a) - onDay(b) || (da < db ? -1 : da > db ? 1 : 0);
+    });
   const loc = data.config.locale;
   const setPlan = (next: PlanItem[]) => patch({ plan: next.length ? next : undefined });
   const usedLabels = useMemo(() => tripLabels(data.days), [data.days]);
@@ -210,7 +225,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const newJourney = () => {
     const jid = crypto.randomUUID?.() ?? `journeys-${rid()}`;
     addEntity("journeys", { id: jid, label: "", kind: "transfer", date: day.date, segments: [] } as never);
-    patch({ journeyId: jid });
+    linkJourney(jid);
     nav(`/journey/${jid}`);
   };
 
@@ -254,18 +269,18 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       />
 
       {ro ? (
-        (hotel || journey) && (
+        (hotel || journeys.length > 0) && (
           <div className="mb-8 flex flex-wrap gap-2">
             {hotel && (
               <Link to={`/hotel/${hotel.id}`} className="btn-sm">
                 <Icon name="bed" size={14} className="text-ink-soft" /> {hotel.name}
               </Link>
             )}
-            {journey && (
-              <Link to={`/journey/${journey.id}`} className="btn-sm">
-                <Icon name="train" size={14} className="text-ink-soft" /> <RouteLabel label={journey.label || "Journey"} />
+            {journeys.map((j) => (
+              <Link key={j.id} to={`/journey/${j.id}`} className="btn-sm">
+                <Icon name={j.segments[0] ? MODE_ICON[j.segments[0].mode] : "train"} size={14} className="text-ink-soft" /> <RouteLabel label={j.label || "New journey"} />
               </Link>
-            )}
+            ))}
           </div>
         )
       ) : (
@@ -281,21 +296,38 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
                 {data.hotels.map((h) => <option key={h.id} value={h.id}>{h.name || "Stay"}</option>)}
               </RowSelect>
             </InsetRow>
-            <InsetRow label="Journey">
-              <RowSelect
-                value={day.journeyId ?? ""}
-                onChange={(e) => {
-                  if (e.target.value === "__new") newJourney();
-                  else patch({ journeyId: e.target.value || undefined });
-                }}
-                aria-label="A journey on this day"
+          </ul>
+        </Section>
+      )}
+
+      {/* JOURNEYS — every way you're carried today, in the order they leave */}
+      {!ro && (
+        <Section title="Journeys" id="day-journeys" icon="train" className="mb-8">
+          <ul>
+            {journeys.map((j) => (
+              <DayJourneyRow key={j.id} day={day} journey={j} data={data} onRemove={() => unlinkJourney(j.id)} />
+            ))}
+            <li className={INSET_DIVIDER}>
+              <button
+                ref={journeySheet.anchorRef}
+                type="button"
+                onClick={() => journeySheet.setOpen(true)}
+                className="action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07]"
               >
-                <option value="">None</option>
-                {data.journeys.map((j) => <option key={j.id} value={j.id}>{j.label || "Journey"}</option>)}
-                <option value="__new">＋ New journey…</option>
-              </RowSelect>
-            </InsetRow>
-            {journey && journeyOffDay(journey, day.date) && <JourneyOffDay day={day} journey={journey} data={data} />}
+                <Icon name="plus" size={14} /> Add a journey
+              </button>
+              <ActionSheet open={journeySheet.open} onClose={() => journeySheet.setOpen(false)} anchorRef={journeySheet.anchorRef} title="Add a journey">
+                <button type="button" className="menu-item" onClick={() => { journeySheet.setOpen(false); newJourney(); }}>
+                  New journey…
+                </button>
+                {addable.map((j) => (
+                  <button key={j.id} type="button" className="menu-item" onClick={() => { journeySheet.setOpen(false); linkJourney(j.id); }}>
+                    <span><RouteLabel label={j.label || "New journey"} /></span>
+                    {journeySpan(j).from && <span className="text-ink-soft">&nbsp;· {fmtDate(journeySpan(j).from!, loc, { weekday: "short", day: "numeric", month: "short" })}</span>}
+                  </button>
+                ))}
+              </ActionSheet>
+            </li>
           </ul>
         </Section>
       )}
@@ -313,7 +345,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             </span>
           )}
         >
-          <PlanList day={day} journey={journey} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
+          <PlanList day={day} journeys={journeys} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} readOnly={ro} onChange={setPlan} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
         </Section>
       )}
 
@@ -457,29 +489,57 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
 
 }
 
-/** The day links a journey that runs on other dates (a flight moved to the
- *  next day, say): say when it actually leaves, and offer to move the link to
- *  that day when it's free — never onto a day that has a journey already. */
-function JourneyOffDay({ day, journey, data }: { day: DayT; journey: Journey; data: TripData }) {
+/** One journey on the day, as an iOS list row: the first hop's mode tile,
+ *  the route, its times underneath, a chevron into the journey. If it runs
+ *  on another date (a flight moved to the next day), the sub-line says so in
+ *  red and offers to move it there. Swipe (phone) or ✕ (desktop) takes it off
+ *  this day — the journey itself stays. */
+function DayJourneyRow({ day, journey, data, onRemove }: { day: DayT; journey: Journey; data: TripData; onRemove: () => void }) {
   const updateEntity = useApp((s) => s.updateEntity);
   const loc = data.config.locale;
-  const when = journeySpan(journey).from!;
-  const target = data.days.find((d) => d.date === when && d.id !== day.id);
-  const free = target && !target.journeyId;
+  const segs = journey.segments;
+  const first = segs[0];
+  const last = segs[segs.length - 1];
+  const short = (d: string) => fmtDate(d, loc, { weekday: "short", day: "numeric", month: "short" });
+
+  const leave = clockOf(first?.depart);
+  const arrive = clockOf(last?.arrive);
+  const times = leave && arrive ? `${leave} – ${arrive}` : leave || (arrive && `arrives ${arrive}`);
+  const meta = [times, first && MODE_LABEL[first.mode], segs.length > 1 && plural(segs.length - 1, "change")].filter(Boolean).join(" · ");
+
+  const off = journeyOffDay(journey, day.date);
+  const when = journeySpan(journey).from;
+  const target = off && when ? data.days.find((d) => d.date === when && d.id !== day.id) : undefined;
   const move = () => {
-    updateEntity<DayT>("days", day.id, { journeyId: undefined });
-    updateEntity<DayT>("days", target!.id, { journeyId: journey.id });
+    const rest = (day.journeyIds ?? []).filter((x) => x !== journey.id);
+    updateEntity<DayT>("days", day.id, { journeyIds: rest.length ? rest : undefined });
+    if (target && !target.journeyIds?.includes(journey.id)) {
+      updateEntity<DayT>("days", target.id, { journeyIds: [...(target.journeyIds ?? []), journey.id] });
+    }
   };
+
   return (
-    <li className={`${INSET_DIVIDER} px-3.5 py-3`}>
-      <p className="flex items-start gap-2 text-[0.9375rem] leading-snug text-ink">
-        <Icon name="alert" size={15} className="mt-0.5 shrink-0 text-danger" />
-        <span>This journey leaves {fmtDate(when, loc, { weekday: "short", day: "numeric", month: "short" })}, not on this day.</span>
-      </p>
-      {free && (
-        <button type="button" onClick={move} className="action mt-2 pl-[23px] text-[0.9375rem]">
-          Move it to {fmtDate(target.date, loc, { weekday: "short", day: "numeric", month: "short" })}
-          {target.title ? ` · ${target.title}` : ""}
+    <li className="group relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
+      <SwipeToDelete label="Remove" undoLabel="Journey removed from day" onDelete={onRemove}>
+        <div className="flex items-center gap-1 pr-2">
+          <Link to={`/journey/${journey.id}`} className="flex min-w-0 flex-1 items-center gap-3 py-3 pl-3.5 pr-1 text-left active:bg-ink/[0.07]">
+            <IconTile size="sm" name={first ? MODE_ICON[first.mode] : "train"} tone={first ? MODE_TONE[first.mode] : "ai"} />
+            <span className="min-w-0 flex-1">
+              <span className="block break-words text-sm leading-snug text-ink"><RouteLabel label={journey.label || "New journey"} /></span>
+              {off && when ? (
+                <span className="meta mt-0.5 block text-danger">Leaves {short(when)}, not this day</span>
+              ) : (
+                <span className={`meta mt-0.5 block ${meta ? "" : "text-ink-faint"}`}>{meta || "Add its times"}</span>
+              )}
+            </span>
+            <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
+          </Link>
+          <RowDeleteButton label="Remove from Day" undoLabel="Journey removed from day" onClick={onRemove} />
+        </div>
+      </SwipeToDelete>
+      {target && !target.journeyIds?.includes(journey.id) && (
+        <button type="button" onClick={move} className="action -mt-1 block pb-3 pl-12 text-xs">
+          Move to {short(target.date)}{target.title ? ` · ${target.title}` : ""}
         </button>
       )}
     </li>
@@ -488,10 +548,10 @@ function JourneyOffDay({ day, journey, data }: { day: DayT; journey: Journey; da
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanList({ day, journey, returnHotel, tz, items, places, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onChange, onQuickAddCost, onShowOnMap }: {
+function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, areaNameByPlaceId, categoryIcons, readOnly, onChange, onQuickAddCost, onShowOnMap }: {
   day: DayT;
-  /** the day's journey — its leave / arrive times show as rows of their own */
-  journey?: Journey;
+  /** the day's journeys — their leave / arrive times show as rows of their own */
+  journeys: Journey[];
   /** where the day ends — the hotel you're staying at (see `ReturnToHotel`) */
   returnHotel?: Hotel;
   tz?: string;
@@ -534,9 +594,9 @@ function PlanList({ day, journey, returnHotel, tz, items, places, areaPlaces, ar
 
   // the journey's own rows, live from the journey (never stored as steps):
   // each sits before the first step timed later than it, else at the end
-  const stops = journey ? journeyStops(journey, day.date) : [];
+  const stops = journeys.flatMap((journey) => journeyStops(journey, day.date).map((st) => ({ ...st, journey })));
   const stopRow = (st: (typeof stops)[number]) => (
-    <JourneyStopRow key={`journey-${st.kind}`} journey={journey!} stop={st} indent={!readOnly} />
+    <JourneyStopRow key={`journey-${st.journey.id}-${st.kind}`} journey={st.journey} stop={st} indent={!readOnly} />
   );
   const stopAt = (time: string) => {
     const i = items.findIndex((it) => {
@@ -545,7 +605,8 @@ function PlanList({ day, journey, returnHotel, tz, items, places, areaPlaces, ar
     });
     return i < 0 ? items.length : i;
   };
-  const stopsBefore = (i: number) => stops.filter((st) => stopAt(st.time) === i).map(stopRow);
+  const stopsBefore = (i: number) =>
+    stops.filter((st) => stopAt(st.time) === i).sort((a, b) => a.time.localeCompare(b.time)).map(stopRow);
 
   if (items.length === 0 && stops.length === 0) {
     return readOnly ? (

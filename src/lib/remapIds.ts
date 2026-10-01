@@ -30,7 +30,7 @@ export function remapIds(data: TripData): TripData {
   for (const day of d.days) {
     day.legId = R(day.legId)!;
     day.hotelId = R(day.hotelId);
-    day.journeyId = R(day.journeyId);
+    day.journeyIds = day.journeyIds?.map((id) => R(id)!);
     day.areaIds = day.areaIds?.map((id) => R(id)!);
     for (const it of day.plan ?? []) {
       it.id = fresh(it.id)!;
