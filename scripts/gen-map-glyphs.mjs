@@ -182,7 +182,7 @@ const GLYPHS = [
 
 function attrs(tag) {
   const out = {};
-  const re = /([a-zA-Z-]+)="([^"]*)"/g;
+  const re = /([a-zA-Z][a-zA-Z0-9-]*)="([^"]*)"/g;
   let m;
   while ((m = re.exec(tag))) out[m[1]] = m[2];
   return out;

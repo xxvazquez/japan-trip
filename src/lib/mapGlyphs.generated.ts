@@ -209,7 +209,7 @@ export const GENERATED_GLYPHS: GeneratedGlyph[] = [
     "id": "post-office",
     "label": "Post office",
     "category": "Shopping & services",
-    "path": "M22 17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9.5C2 7 4 5 6.5 5H18c2.2 0 4 1.8 4 4v8Z M15 9 L18 9 L18 11 M6.5 5C9 5 11 7 11 9.5V17a2 2 0 0 1-2 2 Mundefined,undefined Lundefined,undefined"
+    "path": "M22 17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9.5C2 7 4 5 6.5 5H18c2.2 0 4 1.8 4 4v8Z M15 9 L18 9 L18 11 M6.5 5C9 5 11 7 11 9.5V17a2 2 0 0 1-2 2 M6,10 L7,10"
   },
   {
     "id": "laundry",
@@ -605,7 +605,7 @@ export const GENERATED_GLYPHS: GeneratedGlyph[] = [
     "id": "arcade",
     "label": "Arcade",
     "category": "Nightlife & entertainment",
-    "path": "Mundefined,undefined Lundefined,undefined Mundefined,undefined Lundefined,undefined Mundefined,undefined Lundefined,undefined Mundefined,undefined Lundefined,undefined M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"
+    "path": "M6,11 L10,11 M8,9 L8,13 M15,12 L15.01,12 M18,10 L18.01,10 M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"
   },
   {
     "id": "casino",
