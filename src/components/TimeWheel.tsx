@@ -228,6 +228,23 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, onPick,
     return () => document.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
+  // Place the desktop popover from its measured size: below the field when it
+  // fits, else above it, always kept inside the viewport.
+  const popRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const pop = popRef.current;
+    if (!open || !pop) return;
+    const r = anchorRef.current?.getBoundingClientRect();
+    const { width, height } = pop.getBoundingClientRect();
+    const m = 8;
+    const below = (r?.bottom ?? 0) + 4;
+    const above = (r?.top ?? 0) - 4 - height;
+    const top = below + height <= window.innerHeight - m || above < m ? below : above;
+    pop.style.top = `${Math.max(m, Math.min(top, window.innerHeight - m - height))}px`;
+    pop.style.left = `${Math.max(m, Math.min(r?.left ?? 0, window.innerWidth - m - width))}px`;
+    pop.style.visibility = "visible";
+  }, [open, anchorRef]);
+
   if (!open) return null;
 
   const h = hour || "00";
@@ -261,13 +278,12 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, onPick,
     );
   }
 
-  const r = anchorRef.current?.getBoundingClientRect();
-  const left = Math.min(Math.max(r?.left ?? 0, 8), window.innerWidth - 380);
   return createPortal(
     <>
       <div className="fixed inset-0 z-50" onClick={onClose} />
       <div
-        style={{ top: (r?.bottom ?? 0) + 4, left }}
+        ref={popRef}
+        style={{ top: 0, left: 0, visibility: "hidden" }}
         className="glass-panel fixed z-[55] flex flex-col rounded-[18px] p-2 motion-safe:animate-fade-in"
       >
         <ClockPicker hour={h} minute={m} onPick={onPick} />
