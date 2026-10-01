@@ -11,7 +11,7 @@ const GROUP_LABEL: Record<SearchKind, string> = {
   leg: "Bases",
   hotel: "Stays",
   place: "Places",
-  transfer: "Getting around",
+  transfer: "Journeys",
   area: "Areas",
   luggage: "Luggage",
   doc: "Documents",
@@ -21,7 +21,7 @@ const GROUP_LABEL: Record<SearchKind, string> = {
 };
 
 /** A transfer's chip is its kind (Train, Flight) — a detail under its own
- *  "Getting around" header; any other chip names the list it sits in. */
+ *  "Journeys" header; any other chip names the list it sits in. */
 function groupOf(hit: SearchHit): string {
   return hit.kind === "transfer" ? GROUP_LABEL.transfer : hit.chip ?? GROUP_LABEL[hit.kind];
 }
