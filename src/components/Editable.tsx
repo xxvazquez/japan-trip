@@ -21,6 +21,9 @@ type Base = {
   timeStart?: string;
   /** open straight into editing on mount (a row just added) */
   autoEdit?: boolean;
+  /** an edit that ends empty calls this instead of `onCommit("")` — a list
+   *  row left blank removes itself, the way Reminders does */
+  onBlank?: () => void;
   /** how a filled value reads when not being edited ("1945.64" → "1,945.64");
    *  the input itself still edits the raw value */
   format?: (v: string) => string;
@@ -112,7 +115,7 @@ const inputType = (kind: Kind) =>
  * links / phones / emails render as the real thing with a pencil to edit.
  */
 export function Editable(props: Props) {
-  const { value, onCommit, placeholder = "Add…", label, className = "", emptyContent, editSignal, timeStart, autoEdit } = props;
+  const { value, onCommit, placeholder = "Add…", label, className = "", emptyContent, editSignal, timeStart, autoEdit, onBlank } = props;
   const rawAs = props.as ?? "text";
   const as: Kind =
     rawAs === "auto" ? resolveKind(label, value)
@@ -146,11 +149,13 @@ export function Editable(props: Props) {
 
   const commit = () => {
     setEditing(false);
-    if (draft !== value) onCommit(draft.trim());
+    if (onBlank && !draft.trim()) onBlank();
+    else if (draft !== value) onCommit(draft.trim());
   };
   const cancel = () => {
     setDraft(value);
     setEditing(false);
+    if (onBlank && !value.trim()) onBlank();
   };
 
   const href = hrefFor(as, value);

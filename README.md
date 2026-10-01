@@ -217,6 +217,8 @@ Tap a document to open its page: name it, attach PDFs or photos, add fields and 
 
 Add categories and items, tick them off. With two or more travellers (Manage → Setup), each item can be assigned to a person or **Shared**.
 
+- **Add item** opens the new item ready to type. Leave it blank and it disappears; clear an item's name to remove it (undoable). Your own lists work the same way.
+
 **Copy from another trip** brings over its list, unticked, skipping anything already there.
 
 ### Stamps

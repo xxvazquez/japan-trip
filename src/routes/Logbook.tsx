@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { flushSync } from "react-dom";
 import { useParams, useNavigate } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
@@ -200,7 +201,19 @@ function ListSection({ list }: { list: CustomList }) {
       const l = d.config.lists?.find((x) => x.id === list.id);
       if (l) fn(l);
     });
-  const add = () => set((l) => { l.items.push({ id: rid(), label: "" }); });
+  // the new item opens ready to type, inside the tap (see `addStep` in Day.tsx)
+  const [fresh, setFresh] = useState<string | null>(null);
+  const add = () => {
+    const id = rid();
+    flushSync(() => {
+      setFresh(id);
+      set((l) => { l.items.push({ id, label: "" }); });
+    });
+  };
+  // left blank, it goes; one that had a name goes undoably
+  // by id, so a second blur arriving late can't take a neighbour with it
+  const removeId = (id: string) => set((l) => { l.items = l.items.filter((x) => x.id !== id); });
+  const blank = (id: string, label: string) => (label ? undoable("Item removed", () => removeId(id)) : removeId(id));
 
   if (list.items.length === 0) {
     return (
@@ -227,7 +240,7 @@ function ListSection({ list }: { list: CustomList }) {
                 <span className="block text-sm leading-snug text-ink">
                   {ro
                     ? (it.label || "Untitled")
-                    : <Editable label="Item" value={it.label} placeholder="Name" onCommit={(v) => set((l) => { l.items[i].label = v; })} />}
+                    : <Editable label="Item" value={it.label} placeholder="Name" autoEdit={it.id === fresh} onBlank={() => blank(it.id, it.label)} onCommit={(v) => set((l) => { l.items[i].label = v; })} />}
                 </span>
                 {(it.note || !ro) && (
                   <span className="meta mt-0.5 block text-ink-soft">
@@ -678,7 +691,18 @@ function Packing() {
   const done = items.filter((p) => p.done).length;
 
   const newItem = (group: string): PackingItem => ({ id: crypto.randomUUID?.() ?? `packing-${rid()}`, label: "", phase: "bring", group });
-  const addItem = (group: string) => addEntity("packing", newItem(group));
+  // the new item opens ready to type, inside the tap (see `addStep` in Day.tsx)
+  const [fresh, setFresh] = useState<string | null>(null);
+  const addItem = (group: string) => {
+    const it = newItem(group);
+    flushSync(() => {
+      setFresh(it.id);
+      addEntity("packing", it);
+    });
+  };
+  // left blank, it goes; one that had a name goes undoably
+  const blank = (it: PackingItem) =>
+    it.label ? undoable("Packing item removed", () => removeEntity("packing", it.id)) : removeEntity("packing", it.id);
   const addCategory = () => {
     let name = "New category";
     for (let n = 2; groups[name]; n++) name = `New category ${n}`;
@@ -748,6 +772,8 @@ function Packing() {
                   onLabel={(v) => updateEntity<PackingItem>("packing", it.id, { label: v })}
                   onAssign={(v) => updateEntity<PackingItem>("packing", it.id, { assignee: v })}
                   onRemove={() => removeEntity("packing", it.id)}
+                  autoEdit={it.id === fresh}
+                  onBlank={() => blank(it)}
                 />
               ))}
               {!ro && <ActionRow icon="plus" label="Add item" onClick={() => addItem(group)} />}
@@ -844,7 +870,7 @@ function CopyPackingRow() {
   );
 }
 
-function PackRow({ item, ro, people, tagged, onToggle, onLabel, onAssign, onRemove }: {
+function PackRow({ item, ro, people, tagged, onToggle, onLabel, onAssign, onRemove, autoEdit, onBlank }: {
   item: PackingItem;
   ro: boolean;
   people: Person[];
@@ -853,6 +879,8 @@ function PackRow({ item, ro, people, tagged, onToggle, onLabel, onAssign, onRemo
   onLabel: (v: string) => void;
   onAssign: (v: string | undefined) => void;
   onRemove: () => void;
+  autoEdit?: boolean;
+  onBlank?: () => void;
 }) {
   const box = (
     <CheckCircle checked={!!item.done} disabled={ro} onChange={onToggle} label={`Pack ${item.label || "item"}`} />
@@ -877,7 +905,7 @@ function PackRow({ item, ro, people, tagged, onToggle, onLabel, onAssign, onRemo
         <div className={rowInner}>
           {box}
           <span className="min-w-0 flex-1">
-            <Editable label="Item" value={item.label} placeholder="Item" className={item.done ? "text-ink-faint line-through" : "text-ink"} onCommit={onLabel} />
+            <Editable label="Item" value={item.label} placeholder="Item" autoEdit={autoEdit} onBlank={onBlank} className={item.done ? "text-ink-faint line-through" : "text-ink"} onCommit={onLabel} />
           </span>
           {pill}
           <RowDeleteButton undoLabel="Packing item removed" onClick={onRemove} />
