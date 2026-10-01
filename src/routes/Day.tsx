@@ -130,6 +130,20 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const loc = data.config.locale;
   const setPlan = (next: PlanItem[]) => patch({ plan: next.length ? next : undefined });
   const usedLabels = useMemo(() => tripLabels(data.days), [data.days]);
+  // rename a label (or with no `to`, drop it) on every day that carries it;
+  // a rename onto a label a day already has merges the two
+  const relabel = (from: string, to?: string) => {
+    const same = (a: string, b: string) => a.toLocaleLowerCase() === b.toLocaleLowerCase();
+    for (const d of data.days) {
+      if (!d.labels?.some((l) => same(l, from))) continue;
+      const next: string[] = [];
+      for (const l of d.labels) {
+        const v = same(l, from) ? to : l;
+        if (v && !next.some((x) => same(x, v))) next.push(v);
+      }
+      updateEntity<DayT>("days", d.id, { labels: next.length ? next : undefined });
+    }
+  };
   // areas offered by "+ Add area" — scoped to this day's own city, the way
   // the Map draws it (a day trip to Nara offers Nara's areas, not the base
   // city's), so a multi-city trip doesn't dump every area into one list;
@@ -266,6 +280,8 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         used={usedLabels}
         readOnly={ro}
         onChange={(next) => patch({ labels: next.length ? next : undefined })}
+        onRenameAll={(from, to) => undoable("Label renamed", () => relabel(from, to))}
+        onDeleteAll={(l) => undoable("Label deleted", () => relabel(l))}
       />
 
       {ro ? (
