@@ -179,6 +179,7 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
 - **List/map icon** switches to a full-screen list. Remembered.
 - **Resize** by dragging the grabber on the phone sheet (or tap it to cycle three heights), or the divider on desktop.
 - **Sync from My Maps** only ever adds new pins. Nothing you've edited is overwritten, and nothing is removed.
+- **A pin you deleted in My Maps** stays in the app. Remove it from its card (**Remove place**). A pin still on the My Map comes back on the next sync.
 
 ## Areas and categories
 

@@ -1839,7 +1839,7 @@ function PlaceRow({
               </li>
             )
           )}
-          {!place.source && !readOnly && (
+          {!readOnly && (
             <li className={INSET_DIVIDER}>
               <ConfirmButton onConfirm={onRemove} label="Remove place" className={`${rowCls} w-full text-left text-danger`}>
                 <Icon name="trash" size={15} className="shrink-0" /> Remove place
