@@ -400,7 +400,7 @@ function BackupTrip() {
   return (
     <Section
       title="Backup"
-      info="A complete copy of this trip as a .json file — every stay, day, place and setting, including private details like booking references and wifi, so keep it somewhere you trust. To bring it back (on this device or another), use Restore from backup on the Trips tab; it's added as a new trip and never overwrites one you have. Attached document files aren't inside the backup: ones stored in Google Drive still open from anywhere, ones saved only on this device stay on this device."
+      info="A complete copy of this trip as a .json file — every base, stay, day, place and setting, including private details like booking references and wifi, so keep it somewhere you trust. To bring it back (on this device or another), use Restore from backup on the Trips tab; it's added as a new trip and never overwrites one you have. Attached document files aren't inside the backup: ones stored in Google Drive still open from anywhere, ones saved only on this device stay on this device."
     >
       <ul>
         <ActionRow
@@ -569,7 +569,7 @@ function Setup() {
 
       <Section
         title="Dates"
-        info="Moving either date slides the whole itinerary — days, stays and journeys shift with it. To change the length, add or remove days in Plan."
+        info="Moving either date slides the whole itinerary — days, bases and journeys shift with it. To change the length, add or remove days in Plan."
       >
         <ul>
           <Row label="Start"><Editable as="date" label="Start date" value={meta.start} onCommit={(v) => moveTrip(meta.start, v)} /></Row>
@@ -586,7 +586,7 @@ function Setup() {
 
       <Section
         title="Map & format"
-        info="Google My Map takes a share link from a Google My Maps map — paste it here and the Map tab can import and sync its pins. Local-script font sets the typeface for a hotel/stay's local name (Manage → Content, or the hotel/stay page itself) — paste a CSS font stack, e.g. Hiragino Sans, Yu Gothic, sans-serif for Japanese, or Noto Sans KR, sans-serif for Korean. Leave blank to use the app's regular font."
+        info="Google My Map takes a share link from a Google My Maps map — paste it here and the Map tab can import and sync its pins. Local-script font sets the typeface for a base's or a stay's local name (set on its own page) — paste a CSS font stack, e.g. Hiragino Sans, Yu Gothic, sans-serif for Japanese, or Noto Sans KR, sans-serif for Korean. Leave blank to use the app's regular font."
       >
         <ul>
         <Row label="Date format">
@@ -1191,9 +1191,9 @@ function SharingTab() {
 /* -------------------------------------------------------------- Content */
 
 const ENTITY_LABELS: Record<EntityType, string> = {
-  legs: "Stays",
+  legs: "Bases",
   days: "Days",
-  hotels: "Hotels",
+  hotels: "Stays",
   journeys: "Transport",
   luggage: "Luggage notes",
   packing: "Packing items",
@@ -1233,7 +1233,7 @@ function Content() {
         const slot = nextDaySlot(data);
         return { id, date: slot?.date ?? data.meta.start, legId: slot?.legId ?? data.legs[0]?.id ?? "", title: "New day" };
       }
-      case "legs": return { id, base: "New stay", start: data.meta.start, end: data.meta.end, hotelId: "", color: "blue" };
+      case "legs": return { id, base: "New base", start: data.meta.start, end: data.meta.end, hotelId: "", color: "blue" };
       case "hotels": return { id, name: "New hotel" };
       case "journeys": return { id, label: "New journey", kind: "transfer", date: data.meta.start, segments: [] };
       case "luggage": return { id, title: "New note" };
@@ -1257,17 +1257,17 @@ function Content() {
    *  (an empty id isn't a valid foreign key) and have no way to fix it after —
    *  so block "Add" until there's something valid for it to point at. */
   const addBlockedReason = (type: EntityType): string | null => {
-    if (type === "legs" && data.hotels.length === 0) return "Add a hotel first";
-    if (type === "days" && data.legs.length === 0) return "Add a stay first";
+    if (type === "legs" && data.hotels.length === 0) return "Add a stay first";
+    if (type === "days" && data.legs.length === 0) return "Add a base first";
     return null;
   };
 
   /** hotels: how many stays/days still point here — deleting nulls those links */
   const hotelLinks = (id: string): string | null => {
-    const stays = data.legs.filter((l) => l.hotelId === id).length;
+    const bases = data.legs.filter((l) => l.hotelId === id).length;
     const days = data.days.filter((d) => d.hotelId === id).length;
-    if (!stays && !days) return null;
-    const bits = [stays && plural(stays, "stay"), days && plural(days, "day")].filter(Boolean);
+    if (!bases && !days) return null;
+    const bits = [bases && plural(bases, "base"), days && plural(days, "day")].filter(Boolean);
     return `${bits.join(" and ")} link here — delete clears the link`;
   };
 

@@ -160,7 +160,7 @@ export function tripCost(data: TripData): CostSummary {
     addMoney(money, categoryId);
   };
 
-  for (const hotel of data.hotels) add(hotel.price, lodgingId, hotel.name || "Hotel", hotel.priceCurrency);
+  for (const hotel of data.hotels) add(hotel.price, lodgingId, hotel.name || "Stay", hotel.priceCurrency);
 
   // one value per journey — a manual total and the hop sum are never both
   // counted (journeyFare's own rule), so a journey can never be double-counted.

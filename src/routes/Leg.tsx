@@ -24,7 +24,7 @@ export default function Leg() {
   const L = lookups(data);
   const leg = L.leg(id);
   if (!leg)
-    return <Missing title="No stay here" body="That stay isn’t part of this trip." to="/" cta="Back to Plan" />;
+    return <Missing title="No base here" body="That base isn’t part of this trip." to="/" cta="Back to Plan" />;
 
   const p = (patch: Partial<LegT>) => updateEntity<LegT>("legs", leg.id, patch);
   const hotel = data.hotels.find((h) => h.id === leg.hotelId);
@@ -37,9 +37,9 @@ export default function Leg() {
       <PageHeader
         back="/"
         dotColor={legHex(leg.color)}
-        eyebrow="Stay"
-        info={hasDays ? "The stay runs from its first day to its last. To change it, add or delete days in Plan, or drag a day between stays." : undefined}
-        title={<Editable label="Stay name" value={leg.base} onCommit={(v) => p({ base: v || leg.base })} />}
+        eyebrow="Base"
+        info={hasDays ? "A base runs from its first day to its last. To change it, add or delete days in Plan, or drag a day between bases." : undefined}
+        title={<Editable label="Base name" value={leg.base} onCommit={(v) => p({ base: v || leg.base })} />}
       />
 
       <div className="mt-5 space-y-6">
@@ -68,19 +68,19 @@ export default function Leg() {
 
             {ro ? (
               hotel ? (
-                <InsetRow label="Hotel" to={`/hotel/${hotel.id}`}>{hotel.name}</InsetRow>
+                <InsetRow label="Stay" to={`/hotel/${hotel.id}`}>{hotel.name}</InsetRow>
               ) : (
-                <InsetRow label="Hotel"><span className="text-ink-faint">None</span></InsetRow>
+                <InsetRow label="Stay"><span className="text-ink-faint">None</span></InsetRow>
               )
             ) : (
-              <InsetRow label="Hotel">
+              <InsetRow label="Stay">
                 <RowSelect
                   value={hotel ? leg.hotelId : ""}
                   onChange={(e) => e.target.value && p({ hotelId: e.target.value })}
                 >
                   {hotelDangling && <option value="" disabled>Unknown — pick one</option>}
                   {!hotel && !hotelDangling && <option value="">— none —</option>}
-                  {data.hotels.length === 0 && <option value="" disabled>No hotels yet — add one in Manage</option>}
+                  {data.hotels.length === 0 && <option value="" disabled>No stays yet — add one in Logbook</option>}
                   {data.hotels.map((h) => (
                     <option key={h.id} value={h.id}>{h.name}</option>
                   ))}
@@ -115,9 +115,9 @@ export default function Leg() {
         )}
 
         {(leg.blurb || !ro) && (
-          <Section icon="bed" title="About this stay">
+          <Section icon="pin" title="About this base">
             <div className="note px-3.5 py-3">
-              <RichNote value={leg.blurb ?? ""} onCommit={(v) => p({ blurb: v || undefined })} placeholder="A line or two about this stay…" />
+              <RichNote value={leg.blurb ?? ""} onCommit={(v) => p({ blurb: v || undefined })} placeholder="A line or two about this base…" />
             </div>
           </Section>
         )}

@@ -54,23 +54,23 @@ A Logbook page pinned to the tab bar is a tab of its own, so it has no back butt
 
 ## Plan
 
-The trip as a list of days, grouped by where you're staying.
+The trip as a list of days, grouped by **base** — where you're based for a run of nights (Tokyo, Kyoto). A **stay** is the place you sleep there: a hotel, an Airbnb, anything. Day trips go out from a base and back.
 
 - **Tags.** Each day shows **Arrive**, **Travel**, **Depart** or **Day trip**. These are worked out from the day itself, never chosen by hand.
 - **Reorder** by dragging a day up or down. The dates shuffle with it.
 - **Pin a day** that's fixed to its date (a public holiday, a booked tour) from the foot of its page. Its drag handle becomes a pin and other days flow around it. **Unpin this day** undoes it.
-- **During the trip** the list opens on today: every earlier day moves to a **Past days** section at the bottom (closed until you open it), grouped by stay, and a stay that's fully over drops off the top list. Past days can still be opened, not dragged.
+- **During the trip** the list opens on today: every earlier day moves to a **Past days** section at the bottom (closed until you open it), grouped by base, and a base that's fully over drops off the top list. Past days can still be opened, not dragged.
 - **Labels.** Add your own labels to a day ("Chill day", "Walking") with **+ Add a label** under its title. Labels you've already used are offered first; **New label…** makes a new one; ✕ removes one (undoable).
 
 ### How dates work
 
 The days set the dates — you don't edit them separately.
 
-- A stay runs from its first day to its last.
+- A base runs from its first day to its last.
 - The trip can start or end outside its days (a flight out the evening before day one). Its dates stretch to cover a day added outside them, and only shrink when the day on the trip's first or last date is deleted.
 - **Add a day** fills the earliest empty date in the trip (a gap left by a deleted day), otherwise it goes after the last day.
-- **Delete day** leaves the other days alone. Only removing a stay's first or last day shortens it.
-- A hotel's page and the Stays list show the real check-in and check-out dates (the morning you leave, not the last night), the number of nights, and the times.
+- **Delete day** leaves the other days alone. Only removing a base's first or last day shortens it.
+- A stay's page and the Stays list show the real check-in and check-out dates (the morning you leave, not the last night), the number of nights, and the times.
 
 ## A day
 
@@ -140,10 +140,10 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
 
 ### Cities
 
-- **City pills** — **All**, one per city, and **Today** while the trip is running. Picking one narrows both the map and the list. The map opens on where you are, or the first stay.
-- **One pill per city.** Several stays in the same city share a pill (matched by city name).
-- **Which city a place belongs to** — the nearest stay within about 60 km, measured from the stay's hotel, else the places its days use, else the city found by name. Places further out only show under **All**. Override it on the place's card with **City**.
-- **Day trips to another town** (Nara from Kyoto) get their own pill right after their stay, with that town's places moved into it. The day must be marked as a day trip; the town comes from the day's name or its places.
+- **City pills** — **All**, one per city, and **Today** while the trip is running. Picking one narrows both the map and the list. The map opens on where you are, or the first base.
+- **One pill per city.** Several bases in the same city share a pill (matched by city name).
+- **Which city a place belongs to** — the nearest base within about 60 km, measured from where you're staying there, else the places its days use, else the city found by name. Places further out only show under **All**. Override it on the place's card with **City**.
+- **Day trips to another town** (Nara from Kyoto) get their own pill right after their base, with that town's places moved into it. The day must be marked as a day trip; the town comes from the day's name or its places.
 
 ### Places
 

@@ -273,10 +273,10 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
               <RowSelect
                 value={day.hotelId ?? ""}
                 onChange={(e) => patch({ hotelId: e.target.value || undefined })}
-                aria-label="Which hotel you're staying at"
+                aria-label="Where you're staying"
               >
                 <option value="">— none —</option>
-                {data.hotels.map((h) => <option key={h.id} value={h.id}>{h.name || "Hotel"}</option>)}
+                {data.hotels.map((h) => <option key={h.id} value={h.id}>{h.name || "Stay"}</option>)}
               </RowSelect>
             </InsetRow>
             <InsetRow label="Journey">
@@ -878,12 +878,12 @@ function ReturnToHotel({ from, hotel, indent }: { from?: Place; hotel: Hotel; in
       href={href}
       target="_blank"
       rel="noopener"
-      aria-label={`Directions back to ${hotel.name || "the hotel"}`}
+      aria-label={`Directions back to ${hotel.name || "your stay"}`}
       className={`flex items-start gap-2.5 border-t border-line py-3 pr-3.5 active:bg-surface-2 ${indent ? "pl-9" : "pl-3.5"}`}
     >
       <IconTile size="sm" name="bed" tone="accent" className="mt-px" />
       <span className="min-w-0 flex-1 space-y-1">
-        <span className="block text-sm leading-snug text-ink">Back to {hotel.name || "the hotel"}</span>
+        <span className="block text-sm leading-snug text-ink">Back to {hotel.name || "your stay"}</span>
         {(walk || (fromStation && hotelStation && fromStation.name !== hotelStation.name)) && (
           <span className="meta flex flex-wrap gap-x-3 gap-y-0.5 text-[0.8125rem] text-accent">
             {walk && (

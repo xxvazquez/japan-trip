@@ -1102,7 +1102,7 @@ export default function MapTab() {
                 })
                 // each stay's pill, then its day-trip towns (Nara after Kyoto)
                 .flatMap((l) => [
-                  { id: `leg:${l.id}`, label: l.base || "Stay", hex: legHex(l.color) },
+                  { id: `leg:${l.id}`, label: l.base || "Base", hex: legHex(l.color) },
                   ...tripCities
                     .filter((t) => (cityLeg.get(t.legId) ?? t.legId) === l.id)
                     .filter((t) => (legCounts.get(t.id) ?? 0) > 0 || scope === `leg:${t.id}`)
@@ -1793,7 +1793,7 @@ function PlaceRow({
                   >
                     <option value="">Auto</option>
                     {legs.map((l) => (
-                      <option key={l.id} value={l.id}>{l.base || "Stay"}</option>
+                      <option key={l.id} value={l.id}>{l.base || "Base"}</option>
                     ))}
                   </RowSelect>
                 </label>

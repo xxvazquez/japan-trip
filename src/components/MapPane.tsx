@@ -33,7 +33,7 @@ function dayPlaces(data: TripData, dayId: string): { places: Place[]; derived: S
   const hotel = data.hotels.find((h) => h.id === hotelId);
   const coords = hotel && (hotel.lat !== undefined && hotel.lng !== undefined ? [hotel.lat, hotel.lng] : mapUrlCoords(hotel.mapUrl));
   if (hotel && coords) {
-    places.push({ id: `hotel:${hotel.id}`, name: hotel.name || "Hotel", lat: coords[0], lng: coords[1], color: DEFAULT_ACCENT });
+    places.push({ id: `hotel:${hotel.id}`, name: hotel.name || "Stay", lat: coords[0], lng: coords[1], color: DEFAULT_ACCENT });
   }
   return { places, derived: viaAreas };
 }

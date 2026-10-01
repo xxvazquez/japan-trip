@@ -408,7 +408,7 @@ function applyOutbox(fresh: TripData, ob: Outbox): TripData {
 }
 
 const ENTITY_LABELS: Record<EntityType, string> = {
-  legs: "Stay", days: "Day", hotels: "Hotel", journeys: "Journey",
+  legs: "Base", days: "Day", hotels: "Stay", journeys: "Journey",
   luggage: "Luggage note", docs: "Document", packing: "Packing item",
   places: "Place", areas: "Area", scratchNotes: "Scratchpad note",
 };

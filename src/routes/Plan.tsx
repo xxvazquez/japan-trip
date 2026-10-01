@@ -101,10 +101,10 @@ export default function Plan() {
 
       {data.legs.length === 0 ? (
         <Empty
-          what="No stays yet"
+          what="No bases yet"
           hint="Add where you’re based, and the days slot underneath."
           to="/manage/content?section=legs"
-          cta="Set up stays"
+          cta="Set up bases"
         />
       ) : (
         <LegList
@@ -323,7 +323,7 @@ function LegBlock({
           <SortableContext items={dayIds} strategy={verticalListSortingStrategy} disabled={readOnly}>
             {rows}
             {dayIds.length === 0 && (
-              <li className="meta px-3.5 py-3">{readOnly ? "No days in this stay yet." : "Drop a day here."}</li>
+              <li className="meta px-3.5 py-3">{readOnly ? "No days in this base yet." : "Drop a day here."}</li>
             )}
           </SortableContext>
         </ul>
