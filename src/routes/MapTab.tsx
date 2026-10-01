@@ -347,6 +347,8 @@ function useMapEditing(
   mapRef: RefObject<MLMap | null>,
   onSelect: (id: string | null) => void,
   bumpSheetOpen: () => void,
+  placeCity: Map<string, string>,
+  dayCity: Map<string, string>,
 ) {
   const data = useData();
   const readOnly = useReadOnly();
@@ -358,11 +360,19 @@ function useMapEditing(
   /** the groups "Suggest areas" would offer — new areas, and places to add
    *  to existing ones — worked out up front so the link only shows when
    *  there's something to suggest (scattered places can still form no
-   *  group). Keyed on ids, coordinates and area membership, so renaming a
-   *  place doesn't re-run the clustering. */
-  const suggestKey =
-    places.map((p) => `${p.id}:${p.lat},${p.lng}`).join("|") + "#" + areas.map((a) => `${a.id}:${a.placeIds.join(",")}`).join("|");
-  const suggestions = useMemo(() => suggestAreas(places, areas), [suggestKey]); // eslint-disable-line react-hooks/exhaustive-deps
+   *  group). Grouped city by city, sized to the days spent in each. Keyed on
+   *  ids, coordinates, area membership and cities, so renaming a place
+   *  doesn't re-run the clustering. */
+  const suggestKey = [
+    places.map((p) => `${p.id}:${p.lat},${p.lng}:${placeCity.get(p.id) ?? ""}`).join("|"),
+    areas.map((a) => `${a.id}:${a.placeIds.join(",")}`).join("|"),
+    [...dayCity.values()].sort().join("|"),
+  ].join("#");
+  const suggestions = useMemo(() => {
+    const daysInCity = new Map<string, number>();
+    for (const c of dayCity.values()) daysInCity.set(c, (daysInCity.get(c) ?? 0) + 1);
+    return suggestAreas(places, areas, { placeCity, daysInCity });
+  }, [suggestKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [adding, setAdding] = useState(false);
   const [q, setQ] = useState("");
@@ -581,6 +591,15 @@ export default function MapTab() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
 
+  /** each place's "home city" (leg) — see `placeLegMap` for how it's guessed
+   *  (or overridden by hand). Lets a whole city's imported pins sit under
+   *  its pill even before they're linked to a day. */
+  const cityAnchors = useCityAnchors(data);
+  /** the trip's cities as pills: stays by city (two Tokyo stays are one
+   *  Tokyo) plus day trips to other towns (Nara from Kyoto) — each place's
+   *  city and each day's, so a pill, the list groups and the counts agree */
+  const { cityLeg, tripCities, dayCity, placeCity: placeLeg } = useTripCities(data, cityAnchors);
+
   const {
     suggestions,
     adding, q, setQ, results, pending, setPending,
@@ -588,7 +607,7 @@ export default function MapTab() {
     review, setReview, naming,
     namingArea, setNamingArea, areaName, setAreaName, editingAreas, setEditingAreas,
     startSuggest, endSuggest, applyReview, createArea,
-  } = useMapEditing(map, setSelected, () => setSnap((s) => (s === "peek" ? "half" : s)));
+  } = useMapEditing(map, setSelected, () => setSnap((s) => (s === "peek" ? "half" : s)), placeLeg, dayCity);
 
   const places = useMemo(() => data?.places ?? [], [data]);
 
@@ -681,14 +700,6 @@ export default function MapTab() {
     return ids;
   }, [data, areaFilter]);
 
-  /** each place's "home city" (leg) — see `placeLegMap` for how it's guessed
-   *  (or overridden by hand). Lets a whole city's imported pins sit under
-   *  its pill even before they're linked to a day. */
-  const cityAnchors = useCityAnchors(data);
-  /** the trip's cities as pills: stays by city (two Tokyo stays are one
-   *  Tokyo) plus day trips to other towns (Nara from Kyoto) — each place's
-   *  city and each day's, so a pill, the list groups and the counts agree */
-  const { cityLeg, tripCities, dayCity, placeCity: placeLeg } = useTripCities(data, cityAnchors);
 
   /** ids in the current scope, before the category / area chips narrow it —
    *  the area chips derive from this so ticking one can't make its own chip
@@ -1036,13 +1047,14 @@ export default function MapTab() {
   // bare to `.map()` elsewhere: Array.map's own (item, index) callback shape
   // silently satisfies `(p, distanceKm?)` and the row index gets typeset as a
   // distance ("row 2" → "2.0 km"). Always wrap it: `.map((p) => renderRow(p))`.
-  const renderRow = (p: Place, distanceKm?: number, card = false) => (
+  // the selected place lives in its card at the top, so its own list row
+  // steps aside instead of repeating it underneath
+  const renderRow = (p: Place, distanceKm?: number, card = false) => !card && selected === p.id ? null : (
     <PlaceRow
       key={p.id}
       place={p}
       card={card}
       open={card}
-      active={!card && selected === p.id}
       dayId={dayOfPlace.get(p.id)}
       derived={derived.has(p.id)}
       distanceKm={distanceKm}
@@ -1632,7 +1644,6 @@ function PlaceRow({
   place,
   card = false,
   open,
-  active = false,
   dayId,
   derived,
   distanceKm,
@@ -1656,8 +1667,6 @@ function PlaceRow({
   card?: boolean;
   /** show the place's details under its header (only ever true in the card) */
   open: boolean;
-  /** this row's place is the selected one — highlighted, details are in the card */
-  active?: boolean;
   dayId?: string;
   derived?: boolean;
   /** shown ahead of the usual category/day meta when the "Nearby" toggle is on */
@@ -1740,43 +1749,55 @@ function PlaceRow({
   // grouped-inset rows, iOS Settings style: a quiet label left, the value right
   const rowCls = "flex items-center gap-3 px-3.5 py-3 text-sm";
   const sortedDays = [...days].sort((a, b) => a.date.localeCompare(b.date));
+  const tile = (
+    <IconTile
+      size="md"
+      glyph={catGlyph}
+      name={catGlyph ? undefined : "pin"}
+      color={ownColour}
+      tone={toneForPlaceCategory(place.category, categoryIcons)}
+    />
+  );
+  const details = (
+    <>
+      {(metaBits || derived) && (
+        <span className="meta block break-words">{[derived && "from area", metaBits].filter(Boolean).join(" · ")}</span>
+      )}
+      {station && <WalkLine icon="train" from={place} to={station}>to {station.name}</WalkLine>}
+    </>
+  );
   return (
     <>
       <li ref={li} className={card ? INSET_DIVIDER : "scroll-my-3 border-b border-line last:border-b-0"}>
-        <button
-          onClick={onToggle}
-          className={`flex w-full items-center gap-3 text-left ${
-            card ? "px-3.5 py-3" : `py-2 ${active ? "-mx-2 rounded-[8px] bg-accent/[0.10] px-2" : ""}`
-          } ${derived ? "opacity-60" : ""}`}
-        >
-          <IconTile
-            size="md"
-            glyph={catGlyph}
-            name={catGlyph ? undefined : "pin"}
-            color={ownColour}
-            tone={toneForPlaceCategory(place.category, categoryIcons)}
-          />
-          <span className="min-w-0 flex-1">
-            <span className={`block break-words ${card ? "lead" : "text-sm leading-snug text-ink"}`}>{place.name}</span>
-            {(metaBits || derived) && (
-              <span className="meta block break-words">{[derived && "from area", metaBits].filter(Boolean).join(" · ")}</span>
-            )}
-            {station && <WalkLine icon="train" from={place} to={station}>to {station.name}</WalkLine>}
-          </span>
-          <Icon name={card ? "close" : "chevron"} size={card ? 14 : 13} className="shrink-0 text-ink-faint" />
-        </button>
+        {card ? (
+          // the card's title is the name itself, editable in place — no
+          // separate Name row repeating it; closing is the ✕ on its own
+          <div className={`flex items-center gap-3 px-3.5 py-3 ${derived ? "opacity-60" : ""}`}>
+            {tile}
+            <span className="min-w-0 flex-1">
+              <span className="lead block break-words">
+                <Editable label="Name" value={place.name} onCommit={onName} />
+              </span>
+              {details}
+            </span>
+            <button onClick={onToggle} aria-label="Close" className="tap shrink-0 p-1 text-ink-faint">
+              <Icon name="close" size={14} />
+            </button>
+          </div>
+        ) : (
+          <button onClick={onToggle} className={`flex w-full items-center gap-3 py-2 text-left ${derived ? "opacity-60" : ""}`}>
+            {tile}
+            <span className="min-w-0 flex-1">
+              <span className="block break-words text-sm leading-snug text-ink">{place.name}</span>
+              {details}
+            </span>
+            <Icon name="chevron" size={13} className="shrink-0 text-ink-faint" />
+          </button>
+        )}
       </li>
 
       {open && (
         <>
-          {!readOnly && (
-            <li className={`${INSET_DIVIDER} ${rowCls}`}>
-              <span className="row-label">Name</span>
-              <span className="row-value min-w-0 flex-1 text-right">
-                <Editable label="Name" value={place.name} onCommit={onName} />
-              </span>
-            </li>
-          )}
           {(!readOnly || place.note?.trim()) && (
             <li className={`${INSET_DIVIDER} px-3.5 py-3`}>
               <RichNote value={place.note ?? ""} onCommit={onNote} placeholder="Add a note" className="text-xs leading-snug text-ink-soft" />

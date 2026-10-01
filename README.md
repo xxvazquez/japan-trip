@@ -206,7 +206,9 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
 
 When unassigned places sit close together, a **Suggest areas** link appears. Nothing is saved until you tap Create.
 
-- **Each group is a day out on foot** — up to about a 45 minute walk across, so neighbouring districts share one area instead of splitting into many small ones.
+- **Each group is a day out.** Places within about a 45 minute walk always share an area, in any city.
+- **Each city is grouped on its own**, never across two stays, into about as many areas as you spend days there. A spread-out city's areas grow up to a day by local transport (10 km across) to fit; a compact one isn't lumped together just to hit the count.
+- **Places with no city yet** are only grouped at walking size.
 - **New groups** are named after their neighbourhood. Rename, untick or drop places before saving.
 - **A loose place that fits an existing area** is offered to it as "Add to …" instead of starting a new one.
 - **Existing areas** only ever gain places — nothing is renamed or taken out.
