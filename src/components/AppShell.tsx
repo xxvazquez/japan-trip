@@ -1,3 +1,4 @@
+import { primeKeyboard } from "@/lib/keyboard";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { TabBarOrRail } from "./TabBarOrRail";
@@ -90,7 +91,7 @@ export function AppShell() {
               {/* on a phone Search lives beside the tab bar, iOS 26-style */}
               <button
                 type="button"
-                onClick={() => setSearchOpen(true)}
+                onClick={() => { primeKeyboard(); setSearchOpen(true); }}
                 className="hidden h-10 w-10 place-items-center rounded-full transition-colors hover:text-accent md:grid"
                 aria-label="Search"
               >
@@ -119,7 +120,7 @@ export function AppShell() {
         </Suspense>
       </main>
 
-      <TabBarOrRail onSearch={() => setSearchOpen(true)} />
+      <TabBarOrRail onSearch={() => { primeKeyboard(); setSearchOpen(true); }} />
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
       <SplitMap pane={pane} />
       <UndoToast />

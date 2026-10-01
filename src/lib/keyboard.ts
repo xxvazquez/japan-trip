@@ -52,3 +52,23 @@ function syncViewport() {
 vv?.addEventListener("resize", syncViewport);
 vv?.addEventListener("scroll", syncViewport);
 syncViewport();
+
+/** iOS only raises the keyboard when focus happens inside the tap itself —
+ *  a field focused a frame later (after the sheet or alert renders) gets
+ *  focus but no keyboard. Call this in the tap that opens a text field: it
+ *  focuses a hidden field right away so the keyboard comes up, and the real
+ *  field takes focus from it once it's on screen (iOS keeps the keyboard
+ *  when focus moves field to field). */
+let primer: HTMLInputElement | null = null;
+export function primeKeyboard() {
+  if (!coarse.matches) return;
+  if (!primer) {
+    primer = document.createElement("input");
+    primer.setAttribute("aria-hidden", "true");
+    primer.tabIndex = -1;
+    // 16px so iOS doesn't zoom; off-screen but still focusable
+    primer.style.cssText = "position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;font-size:16px;pointer-events:none;";
+    document.body.appendChild(primer);
+  }
+  primer.focus({ preventScroll: true });
+}

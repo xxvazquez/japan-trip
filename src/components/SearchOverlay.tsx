@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { search, type SearchHit, type SearchKind } from "@/lib/search";
 import { useData } from "@/lib/data";
@@ -80,13 +80,14 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
   }, [q, open, data]);
   const results = useMemo(() => groups.flatMap(([, hits]) => hits), [groups]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!open) return;
     setQ("");
     setActive(0);
     setRecents(readRecents(tripId));
-    const id = requestAnimationFrame(() => inputRef.current?.focus());
-    return () => cancelAnimationFrame(id);
+    // focus straight away, taking over from `primeKeyboard` (the opening
+    // tap) so the iOS keyboard stays up
+    inputRef.current?.focus({ preventScroll: true });
   }, [open, tripId]);
   useEffect(() => setActive(0), [q]);
   useBackToClose(open, onClose);
