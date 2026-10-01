@@ -111,9 +111,6 @@ export function buildDemo(): TripData {
         hotelId: "h-old",
         title: "A day out",
         dayTrip: true,
-        getThere: "Train from Fenwick, about 40 min",
-        getBack: "Same line back",
-        lastTrainBack: "Last train ~23:15",
         plan: [
           { id: "d3-p1", text: "Buy the return ticket in the morning" },
           { id: "d3-p2", text: "Pack water + a layer" },

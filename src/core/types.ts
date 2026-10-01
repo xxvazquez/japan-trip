@@ -318,9 +318,6 @@ export interface Day {
   journeyId?: ID;
   /** flagged as an out-of-town day */
   dayTrip?: boolean;
-  getThere?: string;
-  getBack?: string;
-  lastTrainBack?: string;
   /** what you spent on the day — one row per amount (a museum, lunch, a taxi).
    *  Each row picks an `ExpenseCategory`; the amount rolls up under it in the
    *  Expenses view. */

@@ -76,9 +76,9 @@ export default function Help() {
               day pulls every place in it onto that day's map at once.
             </QA>
             <QA q="What does the “day trip” toggle do?">
-              It's for a day where you leave your base and come back the same night. It adds a
-              getting‑there / getting‑back card, a packing‑style checklist, and a “last train back”
-              field — extra fields a normal day doesn't need.
+              It's for a day where you leave your base and come back the same night. The day is
+              tagged “Day trip” on Plan, and the Map gives that town its own pill with its places.
+              How you get there and back goes in the plan or the day's notes.
             </QA>
           </ul>
         </Section>

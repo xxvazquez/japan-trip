@@ -80,11 +80,10 @@ Tap a day on Plan to open it. From top to bottom:
 
 1. **Staying at** (which hotel) and **Journey** (link an existing one, or ＋ to make a new one). If the linked journey doesn't run on this day (anything from its departure to its arrival counts, so an overnight flight can sit on its arrival day), a warning says when it leaves and offers to move it to that day. A journey's own page shows which day it's on (**On Plan**), or offers to add it to its departure day.
 2. **Weather** — if the hotel has coordinates, the header shows the forecast ("Showers, 19–24°C"). Forecasts only reach ~16 days ahead, so later days show nothing until they're close enough.
-3. **Getting there / Getting back** — day trips only; free text.
-4. **The itinerary** — the day's steps (below).
-5. **Areas** — drop a whole neighbourhood's places onto the day's map.
-6. **Spending** and **General notes**.
-7. **The day's actions** — **Make this a day trip** (or **Not a day trip**), **Pin this day**, and **Delete day**.
+3. **The itinerary** — the day's steps (below).
+4. **Areas** — drop a whole neighbourhood's places onto the day's map.
+5. **Spending** and **General notes**.
+6. **The day's actions** — **Make this a day trip** (or **Not a day trip**), **Pin this day**, and **Delete day**.
 
 Every section folds away from its header.
 
@@ -412,7 +411,7 @@ edit in the UI  →  TripData (in memory)  →  backend
 ### Setting up a project
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0032`).
+2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0033`). `0033` moves old day-trip text (getting there / back, last way back) into each day's notes — take a backup first.
 3. **Authentication → Providers → Google** — enable it with a Google Cloud OAuth client id and secret. Redirect: `https://<project-ref>.supabase.co/auth/v1/callback`.
 4. **Authentication → URL Configuration → Redirect URLs** — add `http://localhost:5173` and the deployed URL.
 5. Copy the Project URL and anon key (**Project Settings → API**) into `.env.local`.

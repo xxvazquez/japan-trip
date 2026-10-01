@@ -25,6 +25,20 @@ function legacy(): Record<string, unknown> {
 }
 
 describe("normalizeTrip migrations", () => {
+  it("moves the retired Day trip fields into the day's notes, once", () => {
+    const raw = legacy();
+    const days = raw.days as Record<string, unknown>[];
+    Object.assign(days[0], { dayTrip: true, getThere: " Eizan line, ~30 min\n", lastTrainBack: "~21:00" });
+    Object.assign(days[1], { notes: "Bring cash", getBack: "Same way" });
+    const d = normalizeTrip(raw as unknown as TripData);
+    expect(d.days[0].notes).toBe("**Getting there:** Eizan line, ~30 min\n\n**Last way back:** ~21:00");
+    expect(d.days[1].notes).toBe("Bring cash\n\n**Getting back:** Same way");
+    expect("getThere" in d.days[0]).toBe(false);
+    // a DB row still carrying the old column (migration not run yet) doesn't double it
+    Object.assign(d.days[1], { getBack: "Same way" });
+    expect(normalizeTrip(d).days[1].notes).toBe("Bring cash\n\n**Getting back:** Same way");
+  });
+
   it("brings an old trip to the current shape without losing any row", () => {
     const raw = legacy();
     const before = tripStats(raw);

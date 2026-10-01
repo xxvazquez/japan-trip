@@ -4,7 +4,7 @@ import { sortLegs } from "./spans";
 import type { Day, Doc, DocField, ExpenseCategory, Hotel, ModuleConfig, PlanItem, ThemeTokens, TripData } from "@/core/types";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
-export const SCHEMA_VERSION = 11;
+export const SCHEMA_VERSION = 12;
 
 /** Seed expense categories for a new trip. `role: "transport"` is the catch-all
  *  for any fare whose mode isn't claimed below (ferry, car, walk, or a manual
@@ -75,6 +75,15 @@ function fixTheme(t: Partial<ThemeTokens> | undefined): ThemeTokens {
     light: { ...base.light, ...(t?.light ?? {}) },
     dark: { ...base.dark, ...(t?.dark ?? {}) },
   };
+}
+
+/** the retired Day trip fields as one notes paragraph per filled field */
+function dayTripBlock(...[there, back, last]: unknown[]): string {
+  const clean = (v: unknown) => (typeof v === "string" ? v.replace(/^[ \t\r\n]+|[ \t\r\n]+$/g, "") : "");
+  return [["Getting there", there], ["Getting back", back], ["Last way back", last]]
+    .map(([label, v]) => (clean(v) ? `**${label}:** ${clean(v)}` : ""))
+    .filter(Boolean)
+    .join("\n\n");
 }
 
 /**
@@ -376,6 +385,20 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
   // exactly one, or the tab is a permanent dead end.
   if (!(d.docs as Doc[]).some((doc) => doc.kind === "contact")) {
     (d.docs as Doc[]).push({ id: `docs-${fieldId()}`, title: "Emergency contacts", kind: "contact", fields: [] });
+  }
+
+  // v12: the Day trip box (getting there / getting back / last way back) is
+  // gone — the day's journey and plan cover it. Whatever was written there
+  // moves into the day's notes once. Same text and layout as migration 0033,
+  // so whichever runs first, the other finds it already there and skips it.
+  for (const day of d.days as Day[]) {
+    const old = day as unknown as Record<string, unknown>;
+    const block = dayTripBlock(old.getThere, old.getBack, old.lastTrainBack);
+    delete old.getThere;
+    delete old.getBack;
+    delete old.lastTrainBack;
+    if (!block || (day.notes ?? "").includes(block)) continue;
+    day.notes = (day.notes ?? "").trim() ? `${day.notes}\n\n${block}` : block;
   }
 
   // migrated: from here on this is current-shape data (callers that want a

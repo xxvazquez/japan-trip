@@ -300,50 +300,6 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       )}
 
       <div className="space-y-6">
-      {/* DAY TRIP — the logistics you opened the page for; first when it applies */}
-      {day.dayTrip && (
-        <Section
-          icon="explore"
-          title="Day trip"
-          info="Out-of-town days get extra fields: how to get there and back, and the last train home."
-        >
-          <div className="space-y-3 px-3.5 py-3">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {/* out */}
-              <div className="rounded-[12px] bg-accent/[0.07] p-3">
-                <p className="flex items-center gap-1.5 text-accent">
-                  <Icon name="chevron" size={13} className="shrink-0" />
-                  <span className="eyebrow text-accent">Getting there</span>
-                </p>
-                <div className="note mt-1.5 text-ink">
-                  <RichNote value={day.getThere ?? ""} placeholder="The route out — train, bus, how long" onCommit={(v) => patch({ getThere: v || undefined })} />
-                </div>
-              </div>
-
-              {/* back */}
-              <div className="rounded-[12px] bg-gold/[0.08] p-3">
-                <p className="flex items-center gap-1.5 text-gold">
-                  <Icon name="chevron" size={13} className="shrink-0 rotate-180" />
-                  <span className="eyebrow text-gold">Getting back</span>
-                </p>
-                <div className="note mt-1.5 text-ink">
-                  <RichNote value={day.getBack ?? ""} placeholder="The route back" onCommit={(v) => patch({ getBack: v || undefined })} />
-                </div>
-                {(day.lastTrainBack || !ro) && (
-                  <p className="mt-2.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 border-t border-gold/25 pt-2 text-sm">
-                    <Icon name="clock" size={13} className="shrink-0 translate-y-0.5 text-gold" />
-                    <span className="eyebrow text-gold">Last way back</span>
-                    <span className="value">
-                      <Editable label="Last way back" value={day.lastTrainBack ?? ""} placeholder="e.g. last train ~23:00" onCommit={(v) => patch({ lastTrainBack: v || undefined })} />
-                    </span>
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        </Section>
-      )}
-
       {/* PLAN — the day's itinerary: time + step, drag to reorder */}
       {((day.plan ?? []).length > 0 || !ro) && (
         <Section
