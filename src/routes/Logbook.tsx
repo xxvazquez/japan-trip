@@ -37,6 +37,7 @@ import { toneForSegmentMode, logbookSectionTile, customListColor, TONE_BG, type 
 import { LOGBOOK_SECTIONS, logbookLabel, packingGroups, sectionSlug, sectionFromSlug, type LogbookSection } from "@/lib/logbook";
 import { tripCost, fmtMoney, combineCurrencies, expenseCategoryIcon } from "@/lib/cost";
 import { useFxRates } from "@/lib/fx";
+import { useBackToClose } from "@/lib/backClose";
 import type { CustomList, Doc, LuggageNote, PackingItem, ScratchNote, TripData } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 8);
@@ -979,6 +980,7 @@ function AssignPill({ value, people, tagged, readOnly, onChange }: {
   onChange: (v: string | undefined) => void;
 }) {
   const [open, setOpen] = useState(false);
+  useBackToClose(open, () => setOpen(false));
   const label = assigneeTag(value, tagged);
   const chip = (
     <span

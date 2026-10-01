@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { search, type SearchHit, type SearchKind } from "@/lib/search";
 import { useData } from "@/lib/data";
+import { useBackToClose } from "@/lib/backClose";
 import { Icon } from "./Icon";
 import { INSET_DIVIDER } from "./InsetRow";
 
@@ -57,6 +58,7 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
     return () => cancelAnimationFrame(id);
   }, [open]);
   useEffect(() => setActive(0), [q]);
+  useBackToClose(open, onClose);
 
   if (!open) return null;
 

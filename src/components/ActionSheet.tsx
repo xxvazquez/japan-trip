@@ -1,3 +1,4 @@
+import { useBackToClose } from "@/lib/backClose";
 import { useEffect, useReducer, useRef, useState, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { useSheetDrag } from "./useSheetDrag";
@@ -34,6 +35,7 @@ export function ActionSheet({
   const [menuWidth, setMenuWidth] = useState(0);
   const [menuHeight, setMenuHeight] = useState(0);
   const { sheetRef, handleProps } = useSheetDrag(onClose);
+  useBackToClose(open, onClose);
 
   useEffect(() => {
     if (!open) return;

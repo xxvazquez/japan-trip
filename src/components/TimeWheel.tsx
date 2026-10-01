@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { useSheetDrag } from "./useSheetDrag";
+import { useBackToClose } from "@/lib/backClose";
 import { Icon } from "./Icon";
 
 /* The pickers work on a 12-hour dial plus AM/PM, the way a clock (and the iOS
@@ -239,6 +240,7 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, unset, 
   onClear: () => void;
 }) {
   const { sheetRef, handleProps } = useSheetDrag(onClose);
+  useBackToClose(open, onClose);
   useEffect(() => {
     if (!open) return;
     const onKey = (e: globalThis.KeyboardEvent) => e.key === "Escape" && onClose();

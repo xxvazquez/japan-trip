@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
+import { useBackToClose } from "@/lib/backClose";
 import { createPortal } from "react-dom";
 import { currencySymbol, moneyParts } from "@/lib/cost";
 import { Icon } from "./Icon";
@@ -79,6 +80,7 @@ export function AmountSheet({
     if (c !== currency) onCurrency?.(c);
   };
   const popRef = useRef<HTMLDivElement>(null);
+  useBackToClose(open, onClose);
 
   useEffect(() => {
     if (open) {
