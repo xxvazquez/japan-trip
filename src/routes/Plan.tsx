@@ -337,7 +337,9 @@ function LegBlock({
       </Link>
       <p className="eyebrow mb-2 pl-5">
         {fmtDate(leg.start, loc, { day: "numeric", month: "short" })}
-        {leg.end && leg.end !== leg.start && <> – {fmtDate(leg.end, loc, { day: "numeric", month: "short" })}</>} · {plural(nights, "night")}
+        {leg.end && leg.end !== leg.start && <> – {fmtDate(leg.end, loc, { day: "numeric", month: "short" })}</>}
+        {/* a one-day last base has no night yet: its only day is the day you leave */}
+        {nights > 0 && <> · {plural(nights, "night")}</>}
       </p>
 
       <Section>

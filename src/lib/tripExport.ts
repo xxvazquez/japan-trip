@@ -163,7 +163,7 @@ function itinerarySection(data: TripData): string {
       .sort((a, b) => a.date.localeCompare(b.date));
     const nights = legNights(leg, data.legs);
     const range = leg.start && leg.end
-      ? `${fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – ${fmtDate(leg.end, loc, { day: "numeric", month: "short" })} · ${plural(nights, "night")}`
+      ? `${fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – ${fmtDate(leg.end, loc, { day: "numeric", month: "short" })}${nights > 0 ? ` · ${plural(nights, "night")}` : ""}`
       : "";
     return `<section class="leg">
       <h3>${esc(leg.base)}${leg.nameAlt ? ` <span class="local-name">${esc(leg.nameAlt)}</span>` : ""}</h3>
