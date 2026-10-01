@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { STORAGE_KEYS } from "@/lib/app";
-import type { TripData } from "@/core/types";
+import type { Place, TripData } from "@/core/types";
 
 const myMap = vi.hoisted(() => ({ places: [] as { name: string; lat: number; lng: number; category?: string; color?: string }[] }));
 vi.mock("@/lib/mymaps", () => ({
@@ -322,7 +322,7 @@ describe("My Maps sync", () => {
     myMap.places = [pin("Cafe"), pin("Temple"), pin("Old pin")];
     expect(await a.s().syncMyMap(URL)).toMatchObject({ count: 3, updated: 0, removed: 0 });
     const cafe = a.s().data!.places.find((p) => p.name === "Cafe")!;
-    a.s().updateEntity("places", cafe.id, { note: "Try the soft serve" });
+    a.s().updateEntity<Place>("places", cafe.id, { note: "Try the soft serve" });
 
     myMap.places = [pin("Cafe", "#795548"), pin("Temple")];
     expect(await a.s().syncMyMap(URL)).toMatchObject({ count: 0, updated: 1, removed: 1 });
