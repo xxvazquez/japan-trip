@@ -1,7 +1,10 @@
 import type { TransportMode } from "@/core/types";
 import type { MapGlyphId } from "@/lib/mapGlyphs";
 import type { LogbookSection } from "@/lib/logbook";
+import type { IconName } from "@/components/Icon";
 import { MODE_TONE } from "@/lib/transport";
+import { DEFAULT_ACCENT } from "@/lib/themePresets";
+import type { Place } from "@/core/types";
 
 /**
  * One place that maps a *kind of thing* to a palette role, so the leading
@@ -91,11 +94,27 @@ const LOGBOOK_SECTION_COLOR: Partial<Record<LogbookSection, string>> = {
  *  content with no particular "kind" — each still gets its own fixed colour
  *  instead of collapsing onto one shared default, so the list reads at a
  *  glance instead of by icon shape alone. */
-export function logbookSectionTile(section: LogbookSection): { tone?: Tone; color?: string } {
-  if (section === "stays") return { tone: "ink-faint" };
-  if (section === "getting around") return { tone: "ai" };
-  return { color: LOGBOOK_SECTION_COLOR[section] };
+export function logbookSectionTile(section: LogbookSection): LogbookTile {
+  const mark = LOGBOOK_SECTION_GLYPH[section];
+  if (section === "stays") return { ...mark, tone: "ink-faint" };
+  if (section === "getting around") return { ...mark, tone: "ai" };
+  return { ...mark, color: LOGBOOK_SECTION_COLOR[section] };
 }
+
+export type LogbookTile = { name?: IconName; glyph?: MapGlyphId; tone?: Tone; color?: string };
+
+/** each built-in section's glyph — an `Icon` name or a map glyph */
+const LOGBOOK_SECTION_GLYPH: Record<LogbookSection, { name?: IconName; glyph?: MapGlyphId }> = {
+  stays: { glyph: "hotel" },
+  "getting around": { name: "train" },
+  luggage: { glyph: "luggage" },
+  documents: { name: "vault" },
+  emergency: { name: "alert" },
+  packing: { name: "check" },
+  stamps: { name: "pin" },
+  budget: { name: "wallet" },
+  notes: { name: "list" },
+};
 
 /** A trip's own custom Logbook lists, by position — continues the same
  *  colour cycle `logbookSectionTile` uses for the built-ins, starting past
@@ -130,4 +149,22 @@ export function toneForPlaceCategory(
   if (/coffee|caf[eé]|food|eat|restaurant|drink|bar|izakaya|bakery|lunch|dinner|market|onsen|bath|spa/.test(c)) return "gold";
   if (/hotel|hostel|ryokan|stay|lodg|accommodation|guesthouse/.test(c)) return "ink-faint";
   return "accent";
+}
+
+/** Colours an app-native pin may carry that aren't its own — the current
+ *  accent fallback and the default it replaced. Any other colour came with
+ *  an imported pin and is kept. */
+export const DEFAULT_PIN_COLORS = new Set([DEFAULT_ACCENT, "#5f7f9c"]);
+
+/** A place's row tile, the same as its Map list row: its category's glyph
+ *  (else a pin), in the imported pin's own colour or the category's tone. */
+export function placeTile(place: Place, categoryIcons?: Record<string, string>): LogbookTile & { glyph?: string } {
+  const glyph = place.category ? categoryIcons?.[place.category] : undefined;
+  const own = place.color && !DEFAULT_PIN_COLORS.has(place.color) ? place.color : undefined;
+  return {
+    glyph: glyph as MapGlyphId | undefined,
+    name: glyph ? undefined : "pin",
+    color: own,
+    tone: toneForPlaceCategory(place.category, categoryIcons),
+  };
 }

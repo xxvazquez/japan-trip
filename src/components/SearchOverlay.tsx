@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { search, type SearchHit, type SearchKind } from "@/lib/search";
 import { useData } from "@/lib/data";
 import { useBackToClose } from "@/lib/backClose";
+import { useApp } from "@/store/useApp";
 import { Icon } from "./Icon";
-import { INSET_DIVIDER } from "./InsetRow";
+import { IconTile } from "./IconTile";
+import { TileRow } from "./TileRow";
 
 /** the section header a hit is listed under — Logbook's own list names */
 const GROUP_LABEL: Record<SearchKind, string> = {
@@ -30,12 +32,40 @@ function subOf(hit: SearchHit): string | undefined {
   return hit.kind === "transfer" && hit.chip ? [hit.chip, hit.sub].filter(Boolean).join(" · ") : hit.sub;
 }
 
+/* Recent searches, as iOS keeps them (Files, Maps, Settings): the words you
+ * searched when you opened a result, newest first, per trip and per device. */
+const RECENT_MAX = 8;
+const recentKey = (tripId: string) => `za.recentSearches.${tripId}`;
+function readRecents(tripId: string | null): string[] {
+  if (!tripId) return [];
+  try {
+    const v = JSON.parse(localStorage.getItem(recentKey(tripId)) ?? "[]");
+    return Array.isArray(v) ? v.filter((x) => typeof x === "string") : [];
+  } catch {
+    return [];
+  }
+}
+function writeRecents(tripId: string | null, list: string[]) {
+  if (!tripId) return;
+  try {
+    localStorage.setItem(recentKey(tripId), JSON.stringify(list));
+  } catch {
+    /* private window — recents just don't stick */
+  }
+}
+
 export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const data = useData();
+  const tripId = useApp((st) => st.activeId);
+  const [recents, setRecents] = useState<string[]>([]);
+  const saveRecents = (list: string[]) => {
+    setRecents(list);
+    writeRecents(tripId, list);
+  };
 
   // grouped by section, sections in order of their best hit; `results` is
   // the same hits flattened in display order, for arrow-key navigation
@@ -54,15 +84,18 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
     if (!open) return;
     setQ("");
     setActive(0);
+    setRecents(readRecents(tripId));
     const id = requestAnimationFrame(() => inputRef.current?.focus());
     return () => cancelAnimationFrame(id);
-  }, [open]);
+  }, [open, tripId]);
   useEffect(() => setActive(0), [q]);
   useBackToClose(open, onClose);
 
   if (!open) return null;
 
   const go = (hit: SearchHit) => {
+    const words = q.trim();
+    if (words) saveRecents([words, ...recents.filter((r) => r.toLowerCase() !== words.toLowerCase())].slice(0, RECENT_MAX));
     onClose();
     navigate(hit.to);
   };
@@ -120,8 +153,35 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-[calc(var(--sab)+1.5rem)] pt-2 md:pb-4">
-          {!q && <p className="meta px-1 py-3">Try a place, a stay, or a date like “5 Nov”.</p>}
-          {q && results.length === 0 && <p className="meta px-1 py-3">No matches for “{q}”.</p>}
+          {!q && recents.length > 0 && (
+            <section>
+              <div className="mb-1.5 flex items-baseline justify-between gap-3 px-1">
+                <h2 className="kicker">Recent searches</h2>
+                <button type="button" onClick={() => saveRecents([])} className="tap text-xs text-accent">
+                  Clear
+                </button>
+              </div>
+              <ul className="overflow-hidden rounded-[12px] border border-line bg-surface dark:border-ink/10">
+                {recents.map((r) => (
+                  <TileRow
+                    key={r}
+                    tile={<Icon name="search" size={17} className="w-[22px] shrink-0 text-ink-faint" />}
+                    title={r}
+                    chevron={false}
+                    onClick={() => { setQ(r); inputRef.current?.focus(); }}
+                    className="hover:bg-ink/[0.04]"
+                  />
+                ))}
+              </ul>
+            </section>
+          )}
+          {!q && recents.length === 0 && <p className="meta px-1 py-3">Search places, stays, days, documents and lists.</p>}
+          {q && results.length === 0 && (
+            <div className="px-6 pt-16 text-center">
+              <p className="text-lg text-ink">No Results</p>
+              <p className="meta mt-1 break-words">for “{q.trim()}”</p>
+            </div>
+          )}
           <div className="space-y-6">
             {groups.map(([group, hits]) => (
               <section key={group}>
@@ -129,22 +189,15 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
                 <ul className="overflow-hidden rounded-[12px] border border-line bg-surface dark:border-ink/10">
                   {hits.map((hit) => {
                     const i = n++;
-                    const sub = subOf(hit);
                     return (
-                      <li key={hit.to + hit.label} className={INSET_DIVIDER}>
-                        <button
-                          type="button"
-                          onMouseEnter={() => setActive(i)}
-                          onClick={() => go(hit)}
-                          className={`flex w-full items-center gap-3 px-3.5 py-2.5 text-left active:bg-ink/[0.07] ${i === active ? "md:bg-ink/[0.05]" : ""}`}
-                        >
-                          <span className="min-w-0 flex-1">
-                            <span className="value block break-words">{hit.label}</span>
-                            {sub && <span className="meta block break-words">{sub}</span>}
-                          </span>
-                          <Icon name="chevron" size={15} className="shrink-0 text-ink-faint" />
-                        </button>
-                      </li>
+                      <TileRow
+                        key={hit.to + hit.label}
+                        tile={<IconTile size="sm" {...hit.tile} />}
+                        title={hit.label}
+                        meta={subOf(hit)}
+                        onClick={() => go(hit)}
+                        className={`hover:bg-ink/[0.04] ${i === active ? "md:bg-ink/[0.05]" : ""}`}
+                      />
                     );
                   })}
                 </ul>

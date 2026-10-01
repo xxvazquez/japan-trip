@@ -22,8 +22,7 @@ import { FieldList } from "@/components/FieldList";
 import { RichNote } from "@/components/RichNote";
 import { withInitials, assigneeTag } from "@/lib/people";
 import type { Person } from "@/core/types";
-import { Icon, type IconName } from "@/components/Icon";
-import type { MapGlyphId } from "@/lib/mapGlyphs";
+import { Icon } from "@/components/Icon";
 import { useData } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useAuth } from "@/lib/auth";
@@ -41,18 +40,6 @@ import { useBackToClose } from "@/lib/backClose";
 import type { CustomList, Doc, LuggageNote, PackingItem, ScratchNote, TripData } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 8);
-
-const SECTION_TILE: Record<LogbookSection, { name?: IconName; glyph?: MapGlyphId }> = {
-  stays: { glyph: "hotel" },
-  "getting around": { name: "train" },
-  luggage: { glyph: "luggage" },
-  documents: { name: "vault" },
-  emergency: { name: "alert" },
-  packing: { name: "check" },
-  stamps: { name: "pin" },
-  budget: { name: "wallet" },
-  notes: { name: "list" },
-};
 
 /** The quiet trailing value on a Logbook menu row — how much is in the section,
  *  or how far along it is (packing, spending). Nothing when it's empty. */
@@ -104,7 +91,7 @@ export function LogbookIndex() {
             <TileRow
               key={s}
               to={`/logbook/${sectionSlug(s)}`}
-              tile={<IconTile size="sm" {...logbookSectionTile(s)} {...SECTION_TILE[s]} />}
+              tile={<IconTile size="sm" {...logbookSectionTile(s)} />}
               title={logbookLabel(s)}
               right={sectionSummary(s, data, spent)}
             />

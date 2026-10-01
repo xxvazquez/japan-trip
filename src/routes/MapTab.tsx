@@ -27,17 +27,14 @@ import { estimateWalk, useWalk } from "@/lib/walkRoute";
 import { WalkLine } from "@/components/WalkLine";
 import { ChipStrip } from "@/components/ChipStrip";
 import { glyphPath } from "@/lib/mapGlyphs";
-import { toneForPlaceCategory, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
+import { placeTile, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
 import { canonicalLegs } from "@/lib/cityAssign";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import type { Area, Day, PlanItem, Place, TripData } from "@/core/types";
 
 const FALLBACK = DEFAULT_ACCENT;
-// colours an app-native pin may carry that aren't a real "own" colour — the
-// current accent fallback and the prior default it replaced. An imported pin's
-// colour is anything else.
-const DEFAULT_PIN_COLORS = new Set([FALLBACK, "#5f7f9c"]);
+
 
 /** an area's two farthest-apart places (its "width", not a tour of everywhere
  *  in it) — cheap local haversine just to find *which* pair, real walking
@@ -1745,18 +1742,11 @@ function PlaceRow({
   ].filter(Boolean).join(" · ");
   // an imported pin keeps its own colour (matches its map marker); an app-native
   // pin has no real colour, so tint it by category instead
-  const ownColour = place.color && !DEFAULT_PIN_COLORS.has(place.color) ? place.color : undefined;
   // grouped-inset rows, iOS Settings style: a quiet label left, the value right
   const rowCls = "flex items-center gap-3 px-3.5 py-3 text-sm";
   const sortedDays = [...days].sort((a, b) => a.date.localeCompare(b.date));
   const tile = (
-    <IconTile
-      size="md"
-      glyph={catGlyph}
-      name={catGlyph ? undefined : "pin"}
-      color={ownColour}
-      tone={toneForPlaceCategory(place.category, categoryIcons)}
-    />
+    <IconTile size="md" {...placeTile(place, categoryIcons)} />
   );
   const details = (
     <>
