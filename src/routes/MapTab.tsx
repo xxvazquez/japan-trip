@@ -354,17 +354,15 @@ function useMapEditing(
   const addEntity = useApp((s) => s.addEntity);
 
   const places = data?.places ?? [];
-  /** places not yet in any area — the ones worth auto-grouping */
-  const ungrouped = useMemo(() => {
-    const inArea = new Set(data?.areas.flatMap((a) => a.placeIds) ?? []);
-    return places.filter((p) => !inArea.has(p.id));
-  }, [places, data?.areas]);
-  /** the groups "Suggest areas" would offer, worked out up front so the link
-   *  only shows when there's something to suggest (four scattered places
-   *  can still form no group). Keyed on ids + coordinates, so renaming a
+  const areas = data?.areas ?? [];
+  /** the groups "Suggest areas" would offer — new areas, and places to add
+   *  to existing ones — worked out up front so the link only shows when
+   *  there's something to suggest (scattered places can still form no
+   *  group). Keyed on ids, coordinates and area membership, so renaming a
    *  place doesn't re-run the clustering. */
-  const ungroupedKey = ungrouped.map((p) => `${p.id}:${p.lat},${p.lng}`).join("|");
-  const suggestions = useMemo(() => suggestAreas(ungrouped), [ungroupedKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  const suggestKey =
+    places.map((p) => `${p.id}:${p.lat},${p.lng}`).join("|") + "#" + areas.map((a) => `${a.id}:${a.placeIds.join(",")}`).join("|");
+  const suggestions = useMemo(() => suggestAreas(places, areas), [suggestKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [adding, setAdding] = useState(false);
   const [q, setQ] = useState("");
@@ -433,7 +431,8 @@ function useMapEditing(
     setAdding(false);
     setNamingArea(false);
     bumpSheetOpen();
-    const groups: ReviewGroup[] = found.map((s) => ({ ...s, keep: true, auto: true }));
+    // a group joining an existing area keeps that area's name — nothing to look up
+    const groups: ReviewGroup[] = found.map((s) => ({ ...s, keep: true, auto: !s.areaId }));
     setReview(groups);
     const run = ++suggestRun.current;
     if (groups.length) void nameGroups(run, groups);
@@ -463,7 +462,12 @@ function useMapEditing(
   const applyReview = () => {
     if (!data) return;
     for (const g of review ?? []) {
-      if (!g.keep || g.placeIds.length < 2) continue;
+      if (!g.keep || g.placeIds.length < (g.areaId ? 1 : 2)) continue;
+      const into = g.areaId && data.areas.find((a) => a.id === g.areaId);
+      if (into) {
+        updateEntity<Area>("areas", into.id, { placeIds: [...new Set([...into.placeIds, ...g.placeIds])] });
+        continue;
+      }
       const name = g.name || "Area";
       const dup = data.areas.find((a) => (a.name || "").trim().toLowerCase() === name.trim().toLowerCase());
       if (dup) {
@@ -1258,7 +1262,8 @@ export default function MapTab() {
                 </button>
                 {suggestions.length > 0 && (
                   <button onClick={startSuggest} className="inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70">
-                    <Icon name="explore" size={12} className="align-[-1px]" /> Suggest {plural(suggestions.length, "area")}
+                    <Icon name="explore" size={12} className="align-[-1px]" />{" "}
+                    {suggestions.some((g) => g.areaId) ? "Suggest areas" : `Suggest ${plural(suggestions.length, "area")}`}
                   </button>
                 )}
                 {data.areas.length > 0 && (
@@ -1934,7 +1939,10 @@ function SuggestReview({
   const [expanded, setExpanded] = useState<number | null>(null);
   const nameById = new Map(places.map((p) => [p.id, p.name] as const));
   const set = (i: number, patch: Partial<ReviewGroup>) => onChange(groups.map((g, j) => (j === i ? { ...g, ...patch } : g)));
-  const keptCount = groups.filter((g) => g.keep && g.placeIds.length >= 2).length;
+  const enough = (g: ReviewGroup) => g.placeIds.length >= (g.areaId ? 1 : 2);
+  const kept = groups.filter((g) => g.keep && enough(g));
+  const keptNew = kept.filter((g) => !g.areaId).length;
+  const keptJoin = kept.length - keptNew;
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-3">
@@ -1956,12 +1964,19 @@ function SuggestReview({
                   <button onClick={() => set(i, { keep: !g.keep })} aria-label={g.keep ? "Skip this group" : "Keep this group"} className="shrink-0">
                     <Icon name="check" size={14} className={g.keep ? "text-accent" : "text-ink-faint/30"} />
                   </button>
-                  <input
-                    value={g.name}
-                    onChange={(e) => set(i, { name: e.target.value, auto: false })}
-                    aria-label="Area name"
-                    className="min-w-0 flex-1 border-b border-transparent bg-transparent pb-0.5 text-sm focus:border-line focus:outline-none"
-                  />
+                  {g.areaId ? (
+                    <span className="min-w-0 flex-1 break-words pb-0.5 text-sm">
+                      <span className="text-ink-soft">Add to </span>
+                      {g.name}
+                    </span>
+                  ) : (
+                    <input
+                      value={g.name}
+                      onChange={(e) => set(i, { name: e.target.value, auto: false })}
+                      aria-label="Area name"
+                      className="min-w-0 flex-1 border-b border-transparent bg-transparent pb-0.5 text-sm focus:border-line focus:outline-none"
+                    />
+                  )}
                   <button onClick={() => setExpanded(expanded === i ? null : i)} className="shrink-0 text-xs text-ink-soft hover:text-ink">
                     {plural(g.placeIds.length, "place")}
                     <Icon name="chevron" size={12} className={`ml-1 inline align-[-1px] transition-transform ${expanded === i ? "rotate-90" : ""}`} />
@@ -1980,7 +1995,7 @@ function SuggestReview({
                         </button>
                       </li>
                     ))}
-                    {g.placeIds.length < 2 && <li className="py-1 text-2xs text-ink-faint">needs at least 2 places</li>}
+                    {!enough(g) && <li className="py-1 text-2xs text-ink-faint">{g.areaId ? "no places left to add" : "needs at least 2 places"}</li>}
                   </ul>
                 )}
               </li>
@@ -1989,9 +2004,10 @@ function SuggestReview({
         </>
       )}
       <div className="sticky bottom-0 mt-3 flex items-center gap-4 bg-bg py-2 text-sm">
-        {keptCount > 0 && (
+        {kept.length > 0 && (
           <button onClick={onApply} className="text-accent hover:opacity-70">
-            Create {plural(keptCount, "area")}
+            {keptNew > 0 ? `Create ${plural(keptNew, "area")}` : `Update ${plural(keptJoin, "area")}`}
+            {keptNew > 0 && keptJoin > 0 && `, update ${keptJoin}`}
           </button>
         )}
         <button onClick={onCancel} className="link-quiet">Cancel</button>

@@ -204,7 +204,12 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
 
 ### Suggest areas
 
-When unassigned places sit close together, a **Suggest N areas** link appears. It groups them (never more than a 15–20 minute walk across), names each group after its neighbourhood, and lets you rename, untick or drop places before anything is saved. Existing areas are never changed.
+When unassigned places sit close together, a **Suggest areas** link appears. Nothing is saved until you tap Create.
+
+- **Each group is a day out on foot** — up to about a 45 minute walk across, so neighbouring districts share one area instead of splitting into many small ones.
+- **New groups** are named after their neighbourhood. Rename, untick or drop places before saving.
+- **A loose place that fits an existing area** is offered to it as "Add to …" instead of starting a new one.
+- **Existing areas** only ever gain places — nothing is renamed or taken out.
 
 ## Logbook
 
