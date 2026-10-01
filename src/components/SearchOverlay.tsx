@@ -3,20 +3,31 @@ import { useNavigate } from "react-router-dom";
 import { search, type SearchHit, type SearchKind } from "@/lib/search";
 import { useData } from "@/lib/data";
 import { Icon } from "./Icon";
+import { INSET_DIVIDER } from "./InsetRow";
 
-const KIND_LABEL: Record<SearchKind, string> = {
-  day: "Day",
-  leg: "Base",
-  hotel: "Stay",
-  place: "Place",
-  transfer: "Transfer",
-  area: "Area",
+/** the section header a hit is listed under — Logbook's own list names */
+const GROUP_LABEL: Record<SearchKind, string> = {
+  day: "Days",
+  leg: "Bases",
+  hotel: "Stays",
+  place: "Places",
+  transfer: "Getting around",
+  area: "Areas",
   luggage: "Luggage",
-  doc: "Document",
+  doc: "Documents",
   packing: "Packing",
-  list: "List",
-  note: "Note",
+  list: "Lists",
+  note: "Scratchpad",
 };
+
+/** A transfer's chip is its kind (Train, Flight) — a detail under its own
+ *  "Getting around" header; any other chip names the list it sits in. */
+function groupOf(hit: SearchHit): string {
+  return hit.kind === "transfer" ? GROUP_LABEL.transfer : hit.chip ?? GROUP_LABEL[hit.kind];
+}
+function subOf(hit: SearchHit): string | undefined {
+  return hit.kind === "transfer" && hit.chip ? [hit.chip, hit.sub].filter(Boolean).join(" · ") : hit.sub;
+}
 
 export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [q, setQ] = useState("");
@@ -25,7 +36,18 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
   const navigate = useNavigate();
   const data = useData();
 
-  const results = useMemo(() => (open && data ? search(data, q) : []), [q, open, data]);
+  // grouped by section, sections in order of their best hit; `results` is
+  // the same hits flattened in display order, for arrow-key navigation
+  const groups = useMemo(() => {
+    const hits = open && data ? search(data, q, 60) : [];
+    const by = new Map<string, SearchHit[]>();
+    for (const h of hits) {
+      const g = groupOf(h);
+      by.set(g, [...(by.get(g) ?? []), h]);
+    }
+    return [...by.entries()];
+  }, [q, open, data]);
+  const results = useMemo(() => groups.flatMap(([, hits]) => hits), [groups]);
 
   useEffect(() => {
     if (!open) return;
@@ -55,62 +77,79 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
     if (e.key === "Enter" && results[active]) go(results[active]);
   };
 
+  let n = 0;
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col items-center bg-ink/40 sm:px-4 sm:pt-[8vh]"
+      className="fixed inset-0 z-50 flex flex-col items-center bg-ink/40 md:px-4 md:pt-[8vh]"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-label="Search"
     >
       <div
-        className="flex w-full max-w-reading flex-col overflow-hidden border-b border-line bg-bg shadow-xl motion-safe:animate-fade-up sm:rounded sm:border"
+        className="flex h-full w-full flex-col bg-bg md:h-auto md:border md:border-line md:shadow-xl md:max-h-[80vh] md:max-w-reading md:overflow-hidden md:rounded-[18px] md:bg-bg motion-safe:animate-fade-up"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={onKey}
       >
-        <div className="flex items-center gap-3 border-b border-line px-4">
-          <Icon name="search" size={20} className="shrink-0 text-ink-faint" />
-          <input
-            ref={inputRef}
-            type="text"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search everything in your trip…"
-            className="w-full bg-transparent py-4 text-base outline-none placeholder:text-ink-faint"
-            autoComplete="off"
-            spellCheck={false}
-          />
+        <div className="flex items-center gap-3 px-4 pb-2 pt-[calc(var(--sat)+0.75rem)] md:pt-3">
+          <label className="flex min-w-0 flex-1 items-center gap-2 rounded-[10px] bg-ink/[0.07] px-2.5">
+            <Icon name="search" size={17} className="shrink-0 text-ink-faint" />
+            <input
+              ref={inputRef}
+              type="search"
+              enterKeyHint="search"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search your trip"
+              className="w-full min-w-0 bg-transparent py-2 text-sm outline-none placeholder:text-ink-faint [&::-webkit-search-cancel-button]:hidden"
+              autoComplete="off"
+              spellCheck={false}
+            />
+            {q && (
+              <button type="button" onClick={() => { setQ(""); inputRef.current?.focus(); }} className="tap shrink-0 text-ink-faint">
+                <Icon name="close" size={15} />
+                <span className="sr-only">Clear</span>
+              </button>
+            )}
+          </label>
           <button type="button" onClick={onClose} className="shrink-0 whitespace-nowrap text-sm text-accent">
             Cancel
           </button>
-          <kbd className="hidden rounded border border-line px-1.5 py-0.5 text-2xs text-ink-faint sm:block">esc</kbd>
         </div>
 
-        {q && results.length === 0 && <p className="px-4 py-6 text-sm text-ink-faint">No matches for “{q}”.</p>}
-
-        {results.length > 0 && (
-          <ul className="max-h-[52vh] overflow-y-auto py-1">
-            {results.map((hit, i) => (
-              <li key={hit.to + hit.label}>
-                <button
-                  type="button"
-                  onMouseEnter={() => setActive(i)}
-                  onClick={() => go(hit)}
-                  className={`flex w-full items-center gap-3 px-4 py-2.5 text-left ${i === active ? "bg-surface-2" : ""}`}
-                >
-                  <span className="eyebrow w-[5.5rem] shrink-0 break-words">{hit.chip ?? KIND_LABEL[hit.kind]}</span>
-                  <span className="min-w-0 flex-1">
-                    <span className="lead block break-words">{hit.label}</span>
-                    {hit.sub && <span className="block break-words text-xs text-ink-soft">{hit.sub}</span>}
-                  </span>
-                  <Icon name="chevron" size={15} className="shrink-0 text-ink-faint" />
-                </button>
-              </li>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-[calc(var(--sab)+1.5rem)] pt-2 md:pb-4">
+          {!q && <p className="meta px-1 py-3">Try a place, a stay, or a date like “5 Nov”.</p>}
+          {q && results.length === 0 && <p className="meta px-1 py-3">No matches for “{q}”.</p>}
+          <div className="space-y-6">
+            {groups.map(([group, hits]) => (
+              <section key={group}>
+                <h2 className="kicker mb-1.5 break-words px-1">{group}</h2>
+                <ul className="overflow-hidden rounded-[12px] border border-line bg-surface dark:border-ink/10">
+                  {hits.map((hit) => {
+                    const i = n++;
+                    const sub = subOf(hit);
+                    return (
+                      <li key={hit.to + hit.label} className={INSET_DIVIDER}>
+                        <button
+                          type="button"
+                          onMouseEnter={() => setActive(i)}
+                          onClick={() => go(hit)}
+                          className={`flex w-full items-center gap-3 px-3.5 py-2.5 text-left active:bg-ink/[0.07] ${i === active ? "md:bg-ink/[0.05]" : ""}`}
+                        >
+                          <span className="min-w-0 flex-1">
+                            <span className="value block break-words">{hit.label}</span>
+                            {sub && <span className="meta block break-words">{sub}</span>}
+                          </span>
+                          <Icon name="chevron" size={15} className="shrink-0 text-ink-faint" />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
             ))}
-          </ul>
-        )}
-
-        {!q && <p className="px-4 py-5 text-sm text-ink-faint">Try a place, a stay, or a date like “5 Nov”.</p>}
+          </div>
+        </div>
       </div>
     </div>
   );

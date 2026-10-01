@@ -44,7 +44,7 @@ The app is laid out like an iOS 26 app.
 
 | Where | What it does |
 |---|---|
-| **Tab bar** (bottom) | Plan · Map · Logbook. **Search** is the round button beside it. On a wider screen the tabs become a rail down the left and Search sits top right (⌘K / Ctrl+K). |
+| **Tab bar** (bottom) | Plan · Map · Logbook. **Search** is the round button beside it. On a wider screen the tabs become a rail down the left and Search sits top right (⌘K / Ctrl+K). Results are grouped under headers — Days, Places, Stays, Getting around… |
 | **Trip name** (top left) | A menu to jump to another trip, or to manage trips. |
 | **‹ Back** | Names the screen you came from (*‹ Stays*); long titles just say *‹ Back*. You can also swipe in from the left edge. |
 | **‹ ›** on a day | Step to the previous or next day (← → on a keyboard). |

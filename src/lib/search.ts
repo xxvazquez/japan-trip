@@ -6,7 +6,7 @@ export type SearchKind = "day" | "leg" | "hotel" | "place" | "transfer" | "area"
 
 export interface SearchHit {
   kind: SearchKind;
-  /** the left-column category chip; defaults to the kind's own label */
+  /** the list a hit sits in when its kind alone doesn't say (a custom list, Emergency), or a transfer's mode */
   chip?: string;
   label: string;
   sub?: string;
