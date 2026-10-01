@@ -7,6 +7,9 @@ const FADE = 40;
  * fades out only while there's more to scroll that way, so a chip running
  * under the edge reads as "keep going", not as a clipped label — and a row
  * that fits (or has been scrolled to its end) shows every chip crisp.
+ * Whenever the pressed chip (`aria-pressed="true"`) changes, the row scrolls
+ * just enough to show it whole, clear of the fades — so a selection never
+ * sits half off the end.
  */
 export function ChipStrip({ className = "", children }: { className?: string; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -15,7 +18,25 @@ export function ChipStrip({ className = "", children }: { className?: string; ch
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // scroll the pressed chip fully into view, once each time it changes —
+    // not on every resize, so it never fights a hand scroll. Waits for the
+    // strip to have a width (it can mount inside a sheet not laid out yet).
+    let shown: Element | null = null;
+    const reveal = (smooth: boolean) => {
+      const on = el.querySelector(':scope > [aria-pressed="true"]');
+      if (!on || on === shown || el.clientWidth === 0) return;
+      shown = on;
+      const box = el.getBoundingClientRect(), chip = on.getBoundingClientRect();
+      const left = chip.left - box.left + el.scrollLeft;
+      const right = left + chip.width;
+      const pad = FADE / 2;
+      let to = el.scrollLeft;
+      if (right > to + el.clientWidth - pad) to = right - el.clientWidth + pad;
+      if (left < to + pad) to = left - pad;
+      if (Math.abs(to - el.scrollLeft) > 1) el.scrollTo({ left: Math.max(0, to), behavior: smooth ? "smooth" : "auto" });
+    };
     const update = () => {
+      reveal(false);
       const left = el.scrollLeft > 1;
       const right = el.scrollLeft + el.clientWidth < el.scrollWidth - 1;
       setMore((m) => (m.left === left && m.right === right ? m : { left, right }));
@@ -31,8 +52,11 @@ export function ChipStrip({ className = "", children }: { className?: string; ch
       update();
     };
     watch();
-    const mo = new MutationObserver(watch);
-    mo.observe(el, { childList: true });
+    const mo = new MutationObserver((records) => {
+      if (records.some((r) => r.type === "childList")) watch();
+      reveal(true);
+    });
+    mo.observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ["aria-pressed"] });
     return () => {
       el.removeEventListener("scroll", update);
       ro.disconnect();
