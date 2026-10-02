@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { flushSync } from "react-dom";
-import { useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
@@ -680,12 +680,6 @@ export function ExpenseCategory() {
     .filter((it) => (cat ? it.categoryId === cat.id : !it.categoryId))
     .sort((a, b) => (a.date ?? "\uffff").localeCompare(b.date ?? "\uffff"));
   const currencies = [...new Set(mine.map((it) => it.currency))];
-  const tile = cat ? expenseCategoryIcon(cat, categories.indexOf(cat)) : null;
-  const rowTile = (it: (typeof mine)[number]) =>
-    it.mode ? <IconTile size="sm" name={MODE_ICON[it.mode]} tone={toneForSegmentMode(it.mode)} />
-      : it.what === "Stay" ? <IconTile size="sm" glyph="hotel" tone="ink-faint" />
-      : tile ? <IconTile size="sm" name={tile.name} glyph={tile.glyph} tone={tile.tone} color={tile.color} />
-      : <IconTile size="sm" name="list" tone="ink-faint" />;
   const short = (d: string) => fmtDate(d, loc, { weekday: "short", day: "numeric", month: "short" });
 
   return (
@@ -701,15 +695,19 @@ export function ExpenseCategory() {
             return (
               <Section key={cur || "—"} title={currencies.length > 1 ? cur || "Unspecified currency" : undefined}>
                 <ul>
+                  {/* Wallet's transaction row: what, the date under it, the
+                      amount — no icon, the page title already says what kind */}
                   {rows.map((it, i) => (
-                    <TileRow
-                      key={`${it.to}-${i}`}
-                      to={it.to}
-                      tile={rowTile(it)}
-                      title={<RouteLabel label={it.title} />}
-                      meta={[it.date && short(it.date), it.what !== it.title && it.what].filter(Boolean).join(" · ") || undefined}
-                      right={fmtMoney(it.amount, cur)}
-                    />
+                    <li key={`${it.to}-${i}`} className={INSET_DIVIDER}>
+                      <Link to={it.to} className="flex items-center gap-3 px-3.5 py-3 transition-colors duration-150 active:bg-ink/[0.07]">
+                        <span className="min-w-0 flex-1">
+                          <span className="block break-words text-sm leading-snug text-ink"><RouteLabel label={it.title} /></span>
+                          <span className="meta mt-0.5 block">{[it.date && short(it.date), it.what].filter(Boolean).join(" · ")}</span>
+                        </span>
+                        <span className="shrink-0 text-sm tabular-nums text-ink">{fmtMoney(it.amount, cur)}</span>
+                        <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
+                      </Link>
+                    </li>
                   ))}
                   <InsetRow label={<span className="font-medium text-ink">Total</span>}>
                     <span className="font-medium">{fmtMoney(total, cur)}</span>
