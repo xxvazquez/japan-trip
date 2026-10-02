@@ -359,6 +359,7 @@ Once the app has loaded, it works with no signal — the whole plan, your places
 
 - **Edits made offline** are queued and sent when you're back. The app also re-pulls the trip to pick up your companion's changes.
 - **Signed-in trips** are kept on the device once opened, so the app starts with no signal. The copy is cleared when you sign out.
+- **You stay signed in with no signal**, even after days away. The login renews itself once you're back, then any waiting edits go out.
 - **Save maps ahead** — a day's Areas section has **Download offline maps**, and **Manage → Trips → This device → Save trip maps for offline** does the whole trip.
 - **New map areas** opened offline show a retry that fires automatically when you reconnect.
 - **First visit with no signal** shows a plain "you're offline" screen that retries on its own.

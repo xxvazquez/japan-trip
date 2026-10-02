@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import type { Session, User } from "@supabase/supabase-js";
+import type { Session, SupabaseClient, User } from "@supabase/supabase-js";
 import { getSupabase, supabaseEnabled } from "./supabase";
 
 export interface AuthState {
@@ -18,18 +18,54 @@ const emit = () => listeners.forEach((l) => l());
 let loadFailed = false;
 let subscribed = false;
 
+/** The session saved on this device, read straight from storage. With no
+ *  signal and an access token past its hour, `getSession()` tries to renew
+ *  it, can't, and reports no session — while keeping it on disk, since a
+ *  network failure isn't a sign-out. Taken at its word, opening the app on
+ *  a plane or in the metro would land on Sign in, which can't work offline,
+ *  instead of the trip saved on the device. The library renews the token by
+ *  itself once the connection is back. */
+function storedSession(sb: SupabaseClient): Session | null {
+  try {
+    const key = (sb.auth as unknown as { storageKey?: string }).storageKey;
+    const raw = key ? localStorage.getItem(key) : null;
+    const s = raw ? (JSON.parse(raw) as Session) : null;
+    return s?.user?.id && s.refresh_token ? s : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The signed-in user comes from the device copy, not a session the server
+ *  has confirmed — requests go out without it until it's renewed. */
+let stale = false;
+
+function setSession(session: Session | null, fromDevice = false) {
+  const renewed = stale && !fromDevice && !!session;
+  stale = fromDevice && !!session;
+  if (renewed) queueMicrotask(() => window.dispatchEvent(new Event("za:session-renewed")));
+  current = { ready: true, user: session?.user ?? null, session };
+  emit();
+}
+
 function loadAuth() {
   void getSupabase()
     .then(async (sb) => {
       if (!sb) return;
-      const { data } = await sb.auth.getSession();
-      current = { ready: true, user: data.session?.user ?? null, session: data.session };
-      emit();
+      const { data, error } = await sb.auth.getSession();
+      if (data.session || !error) setSession(data.session);
+      else setSession(storedSession(sb), true);
       if (subscribed) return;
       subscribed = true;
-      sb.auth.onAuthStateChange((_e, session) => {
-        current = { ready: true, user: session?.user ?? null, session };
-        emit();
+      sb.auth.onAuthStateChange((event, session) => {
+        // only a real sign-out (or a refresh token the server rejected, which
+        // also clears the device copy) ends the session — not a failed renewal
+        if (session || event === "SIGNED_OUT") setSession(session);
+        else setSession(storedSession(sb), true);
+      });
+      // back online after opening without a connection: renew straight away
+      window.addEventListener("online", () => {
+        if (current.user) void sb.auth.getSession();
       });
     })
     .catch((e) => {
@@ -67,6 +103,8 @@ export function useAuth(): AuthState {
 }
 
 export const isAuthReady = (): boolean => current.ready;
+/** see `stale` — an empty answer from the server then means "not allowed yet", not "no trips" */
+export const isSessionStale = (): boolean => stale;
 export const getUserId = (): string | null => current.user?.id ?? null;
 
 export async function signInWithGoogle() {

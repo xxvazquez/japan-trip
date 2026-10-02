@@ -11,12 +11,13 @@ vi.mock("@/lib/supabase", () => ({
   publicDemoMode: false,
   getSupabase: () => Promise.resolve(fake.current.client),
 }));
-const authLib = vi.hoisted(() => ({ failed: false, retried: 0 }));
+const authLib = vi.hoisted(() => ({ failed: false, retried: 0, stale: false }));
 vi.mock("@/lib/auth", () => ({
   isAuthReady: () => true,
   getUserId: () => "user-1",
   useAuth: () => ({ ready: true, user: { id: "user-1" }, session: null }),
   authLoadFailed: () => authLib.failed,
+  isSessionStale: () => authLib.stale,
   retryAuth: () => { authLib.retried++; authLib.failed = false; },
 }));
 vi.mock("@/lib/realtime", () => ({ subscribeTrip: () => {}, unsubscribeTrip: () => {}, markWritten: () => {}, TABLE_OF: {} }));
@@ -534,6 +535,35 @@ describe("signed-in: opening with no connection", () => {
     await a.clearDeviceMirrors();
     expect(await a.kv.get(STORAGE_KEYS.mirror(id))).toBeUndefined();
     expect(await a.kv.get(STORAGE_KEYS.mirrorTrips)).toBeUndefined();
+  });
+
+  it("signed in only from the device copy: an empty answer opens the saved trip, seeds nothing, and holds edits", async () => {
+    const id = await seedTrip("Saved trip");
+    await boot();
+    await sleep(80);
+    // without the session the server shows nothing — as it would a stranger
+    const tables = fake.current.ctl.tables;
+    const hidden = Object.fromEntries(Object.keys(tables).map((k) => [k, tables[k]]));
+    for (const k of Object.keys(tables)) tables[k] = [];
+    authLib.stale = true;
+    try {
+      const b = await boot();
+      expect(b.s().activeId).toBe(id);
+      expect(b.s().data!.meta.title).toBe("Saved trip");
+      expect(rows("trips")).toHaveLength(0); // no demo trip was created
+      b.s().addEntity("places", place("heldEdit"));
+      await sleep(600);
+      expect(rows("places")).toHaveLength(0); // nothing sent without the session
+      expect((await outbox(b.kv, id))!.ops.map((o) => o.id)).toContain("heldEdit");
+      Object.assign(tables, hidden);
+      authLib.stale = false;
+      await b.s().refreshTrip(); // what the renewal triggers
+      await b.settlePending();
+      await sleep(80);
+      expect(rows("places").map((r) => r.id)).toContain("heldEdit");
+    } finally {
+      authLib.stale = false;
+    }
   });
 
   it("a sign-in library that never loaded shows the retry screen, not the sign-in wall, and Try again reloads it", async () => {

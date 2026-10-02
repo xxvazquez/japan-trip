@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { buildFromTemplate, buildDemo, buildSandbox } from "@/templates/registry";
 import { sandboxMode, publicDemoMode } from "@/lib/supabase";
 import { pickBackend, needsAuth, remapIds, saveDraftSync, type Backend } from "@/lib/backend";
-import { isAuthReady, getUserId, authLoadFailed, retryAuth } from "@/lib/auth";
+import { isAuthReady, isSessionStale, getUserId, authLoadFailed, retryAuth } from "@/lib/auth";
 import { subscribeTrip, unsubscribeTrip, markWritten } from "@/lib/realtime";
 import { store as kv } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/app";
@@ -537,13 +537,16 @@ function setupSyncListeners(get: () => AppStore) {
     if (document.visibilityState === "hidden") flushNow(get);
   });
   window.addEventListener("pagehide", () => flushNow(get));
-  window.addEventListener("online", () => {
+  const reconnected = () => {
     retryDelay = 0;
     void flush(get);
     void persistLocal(get);
     if (get().bootError) get().retryBoot();
     else if (bootedFromOutbox && get().activeId) void resyncTrip(get, get().activeId!);
-  });
+  };
+  window.addEventListener("online", reconnected);
+  // the login was renewed after opening without a connection — what waited on it can go now
+  window.addEventListener("za:session-renewed", reconnected);
   // an unexpected exception anywhere: get whatever is pending onto disk first
   window.addEventListener("error", () => flushNow(get));
   window.addEventListener("unhandledrejection", () => flushNow(get));
@@ -718,6 +721,10 @@ async function flush(get: () => AppStore) {
   const { activeId, data } = get();
   if (!activeId || !data || be.kind !== "supabase") return;
   if (!queue.length) return;
+  // signed in only from the device copy (no signal when the login was due
+  // for renewal): the writes would go out without it. They stay queued and
+  // on disk; the renewal sends them (`za:session-renewed` below).
+  if (isSessionStale()) return;
   // one save at a time: a second batch sent while the first is still out
   // could reach the server first, and the older write would then win. The
   // batch in flight picks up whatever queued meanwhile when it finishes.
@@ -950,7 +957,7 @@ async function recoverFromOutbox(get: () => AppStore, listen: (id: string) => vo
  *  nothing is clobbered. */
 async function resyncTrip(get: () => AppStore, tripId: string) {
   const be = pickBackend();
-  if (be.kind !== "supabase") return;
+  if (be.kind !== "supabase" || isSessionStale()) return;
   await flush(get);
   if (queue.length || flights.size || get().activeId !== tripId) return;
   try {
@@ -1193,6 +1200,15 @@ export const useApp = create<AppStore>((set, get) => {
             if (queue.length) void flush(get);
             void syncDeviceFiles(get, id);
           }
+          return;
+        }
+
+        // signed in only from the device copy: the server answered without the
+        // session, so "no trips" is just what it shows a stranger — open the
+        // trip saved on this device, never seed a new one over it
+        if (isSessionStale()) {
+          if (await recoverFromOutbox(get, listen)) return;
+          set({ hydrated: true, bootError: true });
           return;
         }
 
