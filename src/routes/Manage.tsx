@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Section } from "@/components/Section";
@@ -336,7 +336,7 @@ function ThisDevice() {
     <Section
       title="This device"
       className="mt-8"
-      info="Ready means the app itself is saved on this device and opens with no signal. A trip kept on this device works fully offline; if you sign in to sync, open your trip once while you're online before you travel. Map areas you've already looked at are saved too — Save trip maps saves the area around every day, stay and place in this trip in one go, so do it on wifi before you leave. Installing puts the app on your home screen and opens it full-screen like any other. On iPhone: tap the Share button, then “Add to Home Screen”."
+      info="Ready means the app itself is saved on this device and opens with no signal. A trip kept on this device works fully offline; if you sign in to sync, open your trip once while you're online before you travel. Map areas you've already looked at are saved too — Save trip maps saves the area around every day, stay and place in this trip in one go, so do it on wifi before you leave. Installing puts the app on your home screen and opens it full-screen like any other."
     >
       <ul>
         <Row label="Works offline">
@@ -357,7 +357,7 @@ function ThisDevice() {
           />
         )}
         {install.kind === "installed" && <Row label="Home screen">Installed</Row>}
-        {install.kind === "ios" && <Row label="Home screen">Share → Add to Home Screen</Row>}
+        {install.kind === "ios" && <AddToHomeScreen />}
         {install.kind === "prompt" && (
           <ActionRow
             icon="download"
@@ -369,6 +369,33 @@ function ThisDevice() {
       </ul>
       {mapMsg && <p className="meta px-3.5 pb-3">{mapMsg}</p>}
     </Section>
+  );
+}
+
+/** iPhone has no install prompt to call, so the row is the action itself —
+ *  "Add to Home Screen", the same words the Share sheet uses — and the two
+ *  steps it takes come up in a sheet, instead of instructions squeezed into
+ *  a value slot. */
+function AddToHomeScreen() {
+  const { open, setOpen, anchorRef } = useActionSheet();
+  const step = (n: number, text: ReactNode) => (
+    <li className="flex items-start gap-3 px-4 py-2.5 text-[15px] leading-snug text-ink">
+      <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-surface-2 text-[13px] tabular-nums text-ink-soft">{n}</span>
+      <span className="min-w-0 pt-0.5">{text}</span>
+    </li>
+  );
+  return (
+    <li className={INSET_DIVIDER}>
+      <button ref={anchorRef as never} onClick={() => setOpen(true)} className="action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07]">
+        <Icon name="plus" size={14} /> Add to Home Screen
+      </button>
+      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="Add to Home Screen" doneLabel="Done">
+        <ol className="py-2">
+          {step(1, <>Tap <b className="font-medium">Share</b> in the address bar.</>)}
+          {step(2, <>Choose <b className="font-medium">Add to Home Screen</b>.</>)}
+        </ol>
+      </ActionSheet>
+    </li>
   );
 }
 

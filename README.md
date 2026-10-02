@@ -365,7 +365,7 @@ Once the app has loaded, it works with no signal — the whole plan, your places
 **Manage → Trips → This device** shows:
 
 - **Works offline** — *Ready* once the app is fully saved on the device.
-- **Install** — an **Install app** button where the browser supports it; on iPhone, a reminder to use *Share → Add to Home Screen*. Reads *Installed* once installed.
+- **Install** — an **Install app** button where the browser supports it; on iPhone, an **Add to Home Screen** row that shows the two steps. Reads *Installed* once installed.
 
 ## Troubleshooting
 
