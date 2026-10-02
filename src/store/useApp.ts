@@ -1090,7 +1090,9 @@ export const useApp = create<AppStore>((set, get) => {
     fn(next);
     const resorted = sortLegs(next);
     const trips = get().trips.map((t) =>
-      t.id === get().activeId ? { ...t, updatedAt: now(), name: next.meta.title || t.name } : t,
+      t.id === get().activeId
+        ? { ...t, updatedAt: now(), name: next.meta.title || t.name, subtitle: tripRangeText(next.meta, next.config.locale) || undefined }
+        : t,
     );
     set({ data: next, trips });
     if (resorted) enqueue(get, { t: "pos", type: "legs" });
