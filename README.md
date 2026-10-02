@@ -110,7 +110,7 @@ Each step shows a tile, an optional time, the step itself and a short note.
 - **Reorder** by dragging.
 - **The ⋯ menu** — show on map, add to Google Calendar, mark as **overwhelming** (a ⚠ sensory heads-up; the day's count shows on Plan), add a note, duplicate, add an expense, remove.
 - **Notes** support bold, bullets and links. Tap to expand and edit. Empty fields stay hidden.
-- **+ Add a step** sits at the foot of the list and opens the new step ready to type.
+- **+ Add a step** sits at the foot of the list and opens the new step ready to type. Leave it blank and it goes away.
 - **Each journey on the day** shows as two rows of its own: **Leave** (first departure) and **Arrive** (last arrival), slotted in by time. They follow the journey live — edit the times on the journey, tap a row to open it.
 
 ### Helpers on a step
@@ -289,7 +289,7 @@ Theme and trip logo. **Appearance** (light, dark or *Automatic*) is per device, 
 
 ## Editing
 
-**Tap text to edit it.** There's no edit mode. Dates and times open pickers; links, phone numbers and emails become tappable once filled in. In a list of details (a document, a stay's reference, Emergency), edit from the row's **⋯ → Edit**.
+**Tap text to edit it.** There's no edit mode — the text stays where it is and a cursor appears. Dates and times open pickers; links, phone numbers and emails become tappable once filled in. In a list of details (a document, a stay's reference, Emergency), edit from the row's **⋯ → Edit**.
 
 **Row menus.** Press and hold a row (right-click on desktop) to open its actions beside it — the same ones as its **⋯**. Days, stays, journeys, documents and Map places have one too:
 

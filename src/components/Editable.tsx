@@ -311,8 +311,13 @@ export function Editable(props: Props) {
     "aria-label": label,
     value: draft,
     onBlur: commit,
+    // edited in place, the iOS way (Reminders, Calendar's title): same font,
+    // size and position as the text it replaces, just a caret — no box, and
+    // nothing shifts or shrinks under your finger. The -mx-1/px-1 mirror the
+    // `.editable` button so the first letter stays exactly where it was.
     className:
-      "w-full rounded border border-gold/60 bg-surface px-2 py-1 text-[0.95em] outline-none focus:border-gold " +
+      "-mx-1 block w-[calc(100%+0.5rem)] rounded border-0 bg-transparent px-1 py-0 outline-none caret-accent " +
+      "[font:inherit] [letter-spacing:inherit] [text-align:inherit] [text-transform:inherit] " +
       className,
   };
 

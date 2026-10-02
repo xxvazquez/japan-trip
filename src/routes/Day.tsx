@@ -628,7 +628,7 @@ function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, a
     return readOnly ? (
       <p className="px-3.5 py-3 text-sm text-ink-faint">Nothing planned yet.</p>
     ) : (
-      <button onClick={addStep} className="action w-full px-3.5 py-3 text-sm">
+      <button onClick={addStep} className="action w-full px-3.5 py-2.5 text-xs active:bg-ink/[0.07]">
         <Icon name="plus" size={14} /> Add a step
       </button>
     );
@@ -873,7 +873,18 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
                 onPick={pick}
               />
             ) : (
-              <Editable label="Step" value={item.text} placeholder="What is it?" autoEdit={fresh} onCommit={(v) => onPatch({ text: v })} className="block text-sm leading-snug text-ink" />
+              <Editable
+                label="Step"
+                value={item.text}
+                placeholder="What is it?"
+                autoEdit={fresh}
+                onCommit={(v) => onPatch({ text: v })}
+                // like a new reminder left blank: a step with nothing in it at
+                // all goes away (never stored, so no Undo); one with a time,
+                // place or note just loses its text
+                onBlank={() => (item.time || item.placeId || item.note ? item.text && onPatch({ text: "" }) : onRemove())}
+                className="block text-sm leading-snug text-ink"
+              />
             )}
             {(readOnly || item.note || noteOpen) && (
               <RichNote
