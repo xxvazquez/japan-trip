@@ -14,7 +14,7 @@ Everything for a trip in one place: the plan, the map, the stays, the journeys, 
 
 **Contents**
 
-- **Using the app** — [Getting started](#getting-started) · [Getting around](#getting-around) · [Plan](#plan) · [A day](#a-day) · [Journeys](#journeys) · [Map](#map) · [Areas and categories](#areas-and-categories) · [Logbook](#logbook) · [Manage](#manage) · [Editing](#editing) · [Sharing and backups](#sharing-and-backups) · [Data safety](#data-safety) · [Offline](#offline) · [Troubleshooting](#troubleshooting)
+- **Using the app** — [Getting started](#getting-started) · [Before you travel](#before-you-travel) · [Getting around](#getting-around) · [Search](#search) · [Plan](#plan) · [A day](#a-day) · [Journeys](#journeys) · [Map](#map) · [Areas and categories](#areas-and-categories) · [Logbook](#logbook) · [Manage](#manage) · [Editing](#editing) · [Sharing and backups](#sharing-and-backups) · [Data safety](#data-safety) · [Offline](#offline) · [Troubleshooting](#troubleshooting)
 - **Technical** — [Stack](#stack) · [Running locally](#running-locally) · [How data is stored](#how-data-is-stored) · [Supabase](#supabase) · [Deploy](#deploy) · [The map background](#the-map-background) · [Project layout](#project-layout) · [Branding](#branding)
 
 ---
@@ -32,11 +32,28 @@ Everything for a trip in one place: the plan, the map, the stays, the journeys, 
 
 ### Install it on your phone
 
-Open the link in Safari or Chrome → **Share → Add to Home Screen**. It then opens full screen like any other app. Do this on each phone.
+| Phone | Steps |
+|---|---|
+| **iPhone** (Chrome) | Open the link → **Share** in the address bar → **Add to Home Screen** |
+| **Android** (Chrome) | Open the link → **Install app** (or ⋮ → **Add to Home screen**) |
+
+It then opens full screen like any other app. Do this on each phone. **Manage → Trips → This device** walks you through it too.
 
 ### The demo trip
 
 Every account has a read-only **Demo** trip: a made-up example to look around in. Delete it from **Manage → Trips** whenever you like, and re-add it from the same place.
+
+## Before you travel
+
+Do these on each phone, on wifi, a few days before you leave:
+
+- [ ] **Install the app** on the home screen (above) and open it once.
+- [ ] **Open the trip** while online, so a copy is kept on the phone.
+- [ ] **Manage → Trips → This device** — check *Works offline* says **Ready**.
+- [ ] **Save trip maps for offline** (same screen) — every city's map, in one go.
+- [ ] **Save attachments for offline** (same screen) — tickets and bookings open with no signal.
+- [ ] **Map → location arrow** — allow location once, so the blue dot works later.
+- [ ] **Manage → Sharing → Download backup** — keep the file somewhere safe.
 
 ## Getting around
 
@@ -44,13 +61,24 @@ The app is laid out like an iOS 26 app.
 
 | Where | What it does |
 |---|---|
-| **Tab bar** (bottom) | Plan · Map · Logbook. **Search** is the round button beside it. It slides away while you type, and sheets rise above the keyboard. On a wider screen the tabs become a rail down the left and Search sits top right (⌘K / Ctrl+K). It searches everything in the trip — names, plan steps, spending, notes, addresses, booking refs, document fields, file names. Every word you type must appear somewhere, in any order ("ueno museum"); accents, spaces and dashes are ignored ("sensoji"). When the match isn't in the name, the line it was found in shows under it. Results are grouped under headers — Days, Places, Stays, Journeys… — each with the same icon it has in its own list. Opening a result saves what you typed under **Recent searches** (per trip, on this device; **Clear** empties it). |
+| **Tab bar** (bottom) | Plan · Map · Logbook, with the round **Search** button beside it. It slides away while you type, and sheets rise above the keyboard. On a wide screen the tabs become a rail down the left. |
 | **Trip name** (top left) | A menu to jump to another trip, or to manage trips. |
 | **‹ Back** | Names the screen you came from (*‹ Stays*); long titles just say *‹ Back*. You can also swipe in from the left edge. With a sheet, menu or Search open, Android's back gesture (or the browser's Back) closes that first. |
 | **‹ ›** on a day | Step to the previous or next day (← → on a keyboard). |
 | **Account picture** (top right) | Opens Manage. |
 
 A Logbook page pinned to the tab bar is a tab of its own, so it has no back button.
+
+## Search
+
+The round button beside the tab bar (top right on a wide screen, or ⌘K / Ctrl+K).
+
+- **Searches everything in the trip** — names, plan steps, spending, notes, addresses, booking refs, document fields and file names.
+- **Every word counts, in any order.** "ueno museum" finds a museum whose note mentions Ueno.
+- **Accents, spaces and dashes are ignored.** "sensoji" finds *Sensō-ji*.
+- **Shows why it matched.** When the words aren't in the name, the line they were found in shows under it, words highlighted.
+- **Grouped** under Days, Places, Stays, Journeys… — each with the icon it has in its own list.
+- **Recent searches** — opening a result saves what you typed (per trip, on this device). **Clear** empties the list.
 
 ## Plan
 
@@ -59,9 +87,12 @@ The trip as a list of days, grouped by **base** — where you're based for a run
 - **Tags.** Each day shows **Arrive**, **Travel**, **Depart** or **Day trip**. These are worked out from the day itself, never chosen by hand. A day trip stays **Day trip** with its trains on it; an arrival or departure journey still wins.
 - **Reorder** by dragging a day up or down. The dates shuffle with it.
 - **Pin a day** that's fixed to its date (a public holiday, a booked tour) from the foot of its page. Its drag handle becomes a pin and other days flow around it. **Unpin this day** undoes it.
-- **During the trip** the list opens on today: every earlier day moves to a **Past days** section at the bottom (closed until you open it), grouped by base, and a base that's fully over drops off the top list. Past days can still be opened, not dragged.
+- **During the trip** the list opens on today. Earlier days move to **Past days** at the bottom (closed until you open it), grouped by base. Past days can be opened, not dragged. It moves on to the new day by itself, even if the app was left open overnight.
 - **After the trip** the top of Plan becomes a recap: how many days away, cities, total spent in the trip's main currency (tap it for Expenses) and stamps collected.
-- **Labels.** Add your own labels to a day ("Chill day", "Walking") with **+ Add a label** under its title. Labels you've already used are offered first; **New label…** makes a new one; ✕ removes one (undoable). Tap a label to **rename** it or **delete** it on every day that has it (also undoable).
+- **Labels** — your own tags for a day ("Chill day", "Walking"):
+  - **+ Add a label** under the day's title offers labels you've used, or **New label…**.
+  - ✕ removes one from the day. Tap a label to rename or delete it on every day at once.
+  - All of it can be undone.
 
 ### How dates work
 
@@ -87,10 +118,17 @@ Tap a day on Plan to open it. From top to bottom:
 3. **Weather** — if the hotel has coordinates, the header shows the forecast ("Showers, 19–24°C"). Forecasts only reach ~16 days ahead, so later days show nothing until they're close enough.
 4. **The itinerary** — the day's steps (below).
 5. **Areas** — drop a whole neighbourhood's places onto the day's map.
-6. **Spending** and **General notes**. **Add an amount** offers the day's steps to pick from, then opens the keypad, in the currency you last spent in. Close it without an amount and the row goes away. **Custom…** opens the name instead — Return moves on to the keypad, and a typed name is kept even with no amount yet. A new row left with no name or amount goes away.
-7. **The day's actions** — **Make this a day trip** (or **Not a day trip**), **Pin this day**, and **Delete day**.
+6. **Spending** — see [Spending on a day](#spending-on-a-day).
+7. **General notes.**
+8. **The day's actions** — **Make this a day trip** (or **Not a day trip**), **Pin this day**, and **Delete day**.
 
 Every section folds away from its header.
+
+### Spending on a day
+
+- **Add an amount** offers the day's steps to pick from, then opens the keypad in the currency you last spent in.
+- **Custom…** asks for a name first; Return moves on to the keypad.
+- A row left with no name and no amount goes away. A typed name is kept even with no amount yet.
 
 ### Journeys on a day
 
@@ -169,7 +207,6 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
 - **A place's card** — name, note, areas, city, Open in Google Maps, the day it's on (or **Add to a day**), and Remove.
 - **List rows** show the name and the walk to the nearest station.
 - **Place names** on the map are in English / Latin script where available.
-- **Your location** — the arrow under the zoom buttons shows where you are and follows you; drag the map to stop following, tap again to come back. GPS works with no signal. Once allowed, the dot comes back by itself next time.
 
 ### Filters
 
@@ -185,6 +222,7 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
 
 ### Other controls
 
+- **Location arrow** (under the zoom buttons) — shows where you are and follows you. Drag the map to stop following; tap again to come back. Once allowed, the dot returns by itself next time.
 - **Today → crosshair** sorts the list by distance from you and narrows it to 1.5 km when that leaves anything. It asks for your location only when tapped.
 - **List/map icon** switches to a full-screen list. Remembered.
 - **Resize** by dragging the grabber on the phone sheet (or tap it to cycle three heights), or the divider on desktop.
@@ -242,7 +280,8 @@ Tap a document to open its page: name it, attach PDFs or photos, add fields and 
 - **Signed in** — files go to your account (private to the trip, 25 MB each), or to a shared Google Drive folder if set up. Drive needs its own **Connect Google Drive** tap, which lasts about an hour.
 - **On this device only** — files stay on the device, and upload automatically once you sign in.
 - **Opening** a file shows it inside the app, like Quick Look: PDFs page by page, photos full width. Double-tap or pinch to zoom; **Share** saves or sends it on.
-- **Offline** — every attachment is kept on the device once the trip opens, so it opens with no signal. A ⇣ cloud beside a file means it isn't on this device yet. Drive files download while Drive is connected, or all at once from **Manage → Trips → This device → Save attachments for offline**.
+- **Offline** — every attachment is kept on the device once the trip opens. A cloud with a ⇣ beside a file means it isn't on this device yet.
+- **Drive files** download while Drive is connected, or all at once from **Manage → Trips → This device → Save attachments for offline**.
 - **Removing** an attachment never deletes the file itself.
 
 ### Packing
@@ -317,7 +356,10 @@ Theme and trip logo. **Appearance** (light, dark or *Automatic*) is per device, 
 | **Offline** (amber) | No connection. Edits queue and send when you're back. |
 | **Couldn't save — retrying** (red) | You're online but the account didn't take the edit. Tap it for the list of what's waiting, Retry now, or discard one. |
 
-If saving has kept failing for 30 seconds, a banner under the header says how many changes haven't reached your account and names them. They stay safe on the device and keep retrying, and the banner has **Retry now**. A change the database can never accept (so the app stops retrying it) gets its own red banner naming it until you dismiss it; a copy is kept on the device, never dropped silently.
+If saving keeps failing:
+
+- **After 30 seconds**, a banner under the header names the changes that haven't reached your account, with **Retry now**. They stay safe on the device and keep retrying.
+- **A change the database can never accept** gets its own red banner until you dismiss it. A copy is kept on the device — nothing is dropped silently.
 
 ## Sharing and backups
 
@@ -359,21 +401,27 @@ Every edit saves as you make it. On top of that, the app keeps **restore points*
 
 ## Offline
 
-Once the app has loaded, it works with no signal — the whole plan, your places, and map areas you've already viewed.
+Once the app has loaded, it works with no signal. See [Before you travel](#before-you-travel) for the one-time setup.
 
-- **Edits made offline** are queued and sent when you're back. The app also re-pulls the trip to pick up your companion's changes.
-- **Signed-in trips** are kept on the device once opened, so the app starts with no signal. The copy is cleared when you sign out.
-- **Weak signal** — if the server hasn't answered within 5 seconds, the app opens the copy on the device and updates once it gets through.
-- **You stay signed in with no signal**, even after days away. The login renews itself once you're back, then any waiting edits go out.
-- **Attachments** are kept on the device — see [Documents](#documents).
-- **Save maps ahead** — a day's Areas section has **Download offline maps**, and **Manage → Trips → This device → Save trip maps for offline** does the whole trip.
-- **New map areas** opened offline show a retry that fires automatically when you reconnect.
-- **First visit with no signal** shows a plain "you're offline" screen that retries on its own.
+| What | With no signal |
+|---|---|
+| **The trip** | Kept on the device once opened, so the app starts with no signal. Cleared when you sign out. |
+| **Edits** | Queued on the device and sent when you're back. The app then re-pulls the trip to pick up your companion's changes. |
+| **Signing in** | You stay signed in, even after days away. The login renews itself once you're back. |
+| **Weak signal** | If the server hasn't answered in 5 seconds, the app opens the device copy and updates once it gets through. |
+| **Maps** | Areas you've viewed are kept. Save more ahead from a day's **Download offline maps**, or the whole trip from **This device**. A new area opened offline retries when you reconnect. |
+| **Attachments** | Kept on the device — see [Documents](#documents). |
+| **Your location** | GPS works without data; the blue dot shows on saved maps. |
+| **First visit ever** | A plain "you're offline" screen that retries on its own. |
 
-**Manage → Trips → This device** shows:
+**Manage → Trips → This device**
 
-- **Works offline** — *Ready* once the app is fully saved on the device.
-- **Install** — an **Install app** button where the browser supports it; on iPhone, an **Add to Home Screen** row that shows the two steps. Reads *Installed* once installed.
+| Row | Shows |
+|---|---|
+| **Works offline** | *Ready* once the app is fully saved on the device. |
+| **Save trip maps for offline** | Saves the area around every day, stay and place, with progress. |
+| **Save attachments for offline** | Downloads every file not on the device yet; reads *On this device* when done. |
+| **Install app** / **Add to Home Screen** | Installs, or shows the two iPhone steps. Reads *Installed* once done. |
 
 ## Troubleshooting
 
@@ -391,7 +439,13 @@ A trip-agnostic React PWA. Nothing in the code assumes a particular country, cit
 
 ## Stack
 
-Vite · React · TypeScript · Tailwind · React Router · Zustand · vite-plugin-pwa (Workbox) · Supabase (Postgres, Auth, RLS, Realtime) · MapLibre GL + Protomaps · dnd-kit · idb-keyval · Vitest
+| Area | Tools |
+|---|---|
+| App | Vite · React · TypeScript · Tailwind · React Router · Zustand |
+| Offline | vite-plugin-pwa (Workbox) · idb-keyval (IndexedDB) |
+| Backend | Supabase — Postgres, Auth, RLS, Realtime, Storage |
+| Map | MapLibre GL + Protomaps |
+| Other | dnd-kit (drag) · pdf.js (attachment viewer) · Vitest |
 
 ## Running locally
 
@@ -408,7 +462,7 @@ npm run dev
 | `npm run build:demo` | Build for the public demo site |
 | `npm run preview` | Serve the build (use this to test the service worker) |
 | `npm run typecheck` | `tsc --noEmit` — the main check; there's no linter |
-| `npm test` | Unit tests (Vitest), mainly the data-safety layer |
+| `npm test` | Unit tests (Vitest) — data safety, storage, sync, search and a few helpers |
 
 ### Environment (`.env.local`)
 
@@ -419,12 +473,14 @@ VITE_SUPABASE_URL=https://<project-ref>.supabase.co
 VITE_SUPABASE_ANON_KEY=<anon / public key>
 VITE_PROTOMAPS_API_KEY=<Protomaps hosted API key>
 VITE_ORS_API_KEY=<OpenRouteService key>
+VITE_GOOGLE_CLIENT_ID=<Google OAuth web client id>
 ```
 
 | Variable | Purpose |
 |---|---|
 | `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` | Accounts, sync and sharing. The URL must be the **full https URL**. |
 | `VITE_PROTOMAPS_API_KEY` / `VITE_MAP_TILES_URL` | Map tiles — see [The map background](#the-map-background). |
+| `VITE_GOOGLE_CLIENT_ID` | Google Drive for attachments. Without it, signed-in files go to the account's own storage. |
 | `VITE_ORS_API_KEY` | Real walking routes. Free, no card, 2,000 requests/day from [openrouteservice.org](https://openrouteservice.org/dev/#/signup). Without it, walks use straight-line estimates. Requests are throttled and cached per device. |
 
 `VITE_*` values are baked in at build time — a change only takes effect on the next build.
@@ -439,7 +495,16 @@ edit in the UI  →  TripData (in memory)  →  backend
 
 - **Supabase** (configured and signed in) — every entity (legs, days, hotels, journeys and segments, luggage, docs, packing, places, areas, notes…) is its own row, private via RLS, synced in real time and shareable. Schema in [`supabase/migrations/`](supabase/migrations/).
 - **IndexedDB** — used when Supabase isn't configured, or when the user picks **Use on this device only** (`localStorage["za.localOnly"]`, honoured by `needsAuth()`).
-- **Code splitting** — the Supabase client and the MapLibre bundle are separate chunks, only loaded when needed.
+- **Code splitting** — the Supabase client, MapLibre and the PDF viewer are separate chunks, only loaded when needed.
+
+### What's kept on the device
+
+| What | Where | Notes |
+|---|---|---|
+| The app itself | Service worker precache | Includes the PDF viewer's fonts and character maps (`/pdfjs/`, ~4 MB). |
+| Trip copy + unsent edits | IndexedDB (`mirror:*`, outbox) | Cleared on sign-out. |
+| Attachments | IndexedDB (`file:*`) | Copies of cloud files are listed under `file-copies` and cleared on sign-out; device-only files are kept. |
+| Map tiles, fonts, icons | `map-tiles`, `map-glyphs` caches | Server answers from Supabase are never cached — the trip copy covers offline. |
 
 ### Data-safety layer (`src/lib/safety/`)
 
@@ -535,7 +600,7 @@ The tile source is picked at build time, first match wins:
 1. Get a key at [protomaps.com/account](https://protomaps.com/account).
 2. Add `VITE_PROTOMAPS_API_KEY` to `.env.local` and to the Cloudflare build variables, then redeploy.
 
-Tiles and label fonts are cached as `map-tiles` and `map-glyphs` (`runtimeCaching` in [`vite.config.ts`](vite.config.ts)). The offline downloads ([`src/lib/offlineTiles.ts`](src/lib/offlineTiles.ts)) cap at 4,000 tiles so they never push other areas out of the 6,000-tile cache.
+Tiles are cached as `map-tiles`; label fonts and the base map's icons as `map-glyphs` (`runtimeCaching` in [`vite.config.ts`](vite.config.ts)). The offline downloads ([`src/lib/offlineTiles.ts`](src/lib/offlineTiles.ts)) cap at 4,000 tiles so they never push other areas out of the 6,000-tile cache.
 
 ### Self-hosted extract
 
@@ -555,10 +620,12 @@ pmtiles extract https://data.source.coop/protomaps/openstreetmap/v4.pmtiles japa
 src/
   core/types.ts         domain types (trip-agnostic)
   store/useApp.ts       Zustand store: trips, active trip, every mutation, sync queue
-  lib/                  backend, db, auth, realtime, hydrate, storage, maps,
-                        geocode, mymaps, cost, ics, offlineTiles…
+  lib/                  backend, db, auth, realtime, hydrate, storage, search,
+                        maps, geocode, mymaps, cost, ics, offlineTiles,
+                        offlineFiles…
   lib/safety/           data-safety layer (validation, restore points, quarantine)
-  components/           app shell and shared UI (Editable, Section, MapView, Icon…)
+  components/           app shell and shared UI (Editable, Section, MapView,
+                        FileViewer, Icon…)
   routes/               one file per page (Plan, Day, Journey, MapTab, Logbook,
                         Hotel, Document, Manage, Help…)
   templates/            blank + demo seed trips
