@@ -11,7 +11,7 @@ import {
 import { Protocol } from "pmtiles";
 import type { FeatureCollection, Point, Polygon } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { buildMapStyle } from "@/lib/mapStyle";
+import { buildMapStyle, BASE_POIS_LAYER } from "@/lib/mapStyle";
 import { Icon } from "@/components/Icon";
 import { Loader } from "@/components/Loader";
 import { LocateControl } from "@/components/LocateControl";
@@ -139,6 +139,7 @@ export function MapView({
   derivedIds,
   areaShapes,
   transit,
+  basePois = true,
   categoryIcons,
   categoryColors,
   pinnedCategories,
@@ -162,6 +163,8 @@ export function MapView({
   areaShapes?: AreaShapes | null;
   /** enabled transit categories ("train" | "metro" | "tram" | "bus" | "airport") */
   transit?: Set<string>;
+  /** the base map's own places (stations, parks, shops) — off leaves only your pins */
+  basePois?: boolean;
   dark: boolean;
   onSelect: (id: string | null) => void;
   onMapClick?: (lat: number, lng: number) => void;
@@ -176,8 +179,12 @@ export function MapView({
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
   const [retryKey, setRetryKey] = useState(0);
   const [online, setOnline] = useState(() => (typeof navigator === "undefined" ? true : navigator.onLine));
-  const state = useRef({ places, selectedId, derivedIds, areaShapes, transit, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onReady });
-  state.current = { places, selectedId, derivedIds, areaShapes, transit, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onReady };
+  const state = useRef({ places, selectedId, derivedIds, areaShapes, transit, basePois, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onReady });
+  state.current = { places, selectedId, derivedIds, areaShapes, transit, basePois, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onReady };
+
+  const applyBasePois = (m: MLMap, on: boolean) => {
+    if (m.getLayer(BASE_POIS_LAYER)) m.setLayoutProperty(BASE_POIS_LAYER, "visibility", on ? "visible" : "none");
+  };
 
   /* show/hide transit layers to match the current filter */
   const applyTransit = (m: MLMap, enabled: Set<string> | undefined) => {
@@ -198,6 +205,7 @@ export function MapView({
     // transit overlay sits ABOVE the basemap but under our areas + pins
     for (const layer of transitLayers(d)) m.addLayer(layer);
     applyTransit(m, tr);
+    applyBasePois(m, state.current.basePois);
 
     // area outlines sit UNDERNEATH the pins
     m.addSource("areas", { type: "geojson", data: sh ?? EMPTY_FC });
@@ -426,6 +434,10 @@ export function MapView({
   useEffect(() => {
     if (ready.current && map.current) applyTransit(map.current, transit);
   }, [transit]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (ready.current && map.current) applyBasePois(map.current, basePois);
+  }, [basePois]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* selection */
   useEffect(() => {

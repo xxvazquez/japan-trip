@@ -16,6 +16,8 @@ import { TextPrompt } from "@/components/TextPrompt";
 import { SearchField } from "@/components/SearchField";
 import { useData } from "@/lib/data";
 import { useToday } from "@/lib/useToday";
+import { loadBasePois, saveBasePois } from "@/lib/mapStyle";
+import { Switch } from "@/components/Switch";
 import { useApp, undoable } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
 import { gmapsLink, mapUrlCoords } from "@/lib/maps";
@@ -554,6 +556,9 @@ export default function MapTab() {
     });
   /** transit overlay — empty means nothing shown (opt-in). Persisted across trips. */
   const [transit, setTransit] = useState<Set<string>>(loadTransit);
+  /** the base map's own places (stations, parks, shops) — off to see only yours */
+  const [basePois, setBasePois] = useState(loadBasePois);
+  const toggleBasePois = (on: boolean) => { setBasePois(on); saveBasePois(on); };
   const [selected, setSelected] = useState<string | null>(null);
   /** the "Areas" disclosure (add/suggest/edit/merge — area upkeep, not filtering) */
   const [areasOpen, setAreasOpen] = useState(false);
@@ -1248,6 +1253,14 @@ export default function MapTab() {
                 })}
               </div>
             </div>
+
+            <div>
+              <p className="eyebrow mb-1.5 text-ink-faint">Map</p>
+              <label className="flex items-center justify-between gap-3">
+                <span className="text-[17px] text-ink">Points of interest</span>
+                <Switch checked={basePois} onChange={toggleBasePois} label="Points of interest" />
+              </label>
+            </div>
           </div>
         </ActionSheet>
 
@@ -1539,6 +1552,7 @@ export default function MapTab() {
           derivedIds={derived}
           areaShapes={areaShapes}
           transit={transit}
+          basePois={basePois}
           categoryIcons={data.config.categoryIcons}
           categoryColors={data.config.categoryColors}
           pinnedCategories={data.config.pinnedCategories}

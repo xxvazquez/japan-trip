@@ -23,6 +23,28 @@ export { HOSTED_TILES };
 export const PMTILES = `pmtiles://${configured || DEFAULT_PMTILES}`;
 const ATTRIB = '<a href="https://protomaps.com">Protomaps</a> · <a href="https://openstreetmap.org">OpenStreetMap</a>';
 const GLYPHS = "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf";
+/** the base map's own icons (stations, parks, museums…) — same host as the
+ *  fonts, so the service worker keeps them for offline too */
+const SPRITES = "https://protomaps.github.io/basemaps-assets/sprites/v4/";
+
+/** The base map's own places (stations, parks, shops) — shown unless turned
+ *  off in the Map's Filters, so only your pins are left. Per device. */
+export const BASE_POIS_KEY = "za.map.basePois";
+export const BASE_POIS_LAYER = "pois";
+export function loadBasePois(): boolean {
+  try {
+    return localStorage.getItem(BASE_POIS_KEY) !== "0";
+  } catch {
+    return true;
+  }
+}
+export function saveBasePois(on: boolean) {
+  try {
+    localStorage.setItem(BASE_POIS_KEY, on ? "1" : "0");
+  } catch {
+    /* private window */
+  }
+}
 
 const LIGHT: Partial<Flavor> = {
   background: "#f2efe8",
@@ -94,6 +116,7 @@ export function buildMapStyle(dark: boolean): StyleSpecification {
   return {
     version: 8,
     glyphs: GLYPHS,
+    sprite: SPRITES + (dark ? "dark" : "light"),
     sources: {
       protomaps: HOSTED_TILES
         ? { type: "vector", tiles: [HOSTED_TILES], maxzoom: 15, attribution: ATTRIB }

@@ -181,6 +181,7 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
   - A category colour wins over the pin's My Maps colour. **Colour from My Maps** goes back to it.
   - **Always show** keeps its pins visible when zoomed out instead of clustering them (down to about city level).
 - **Transit** — Train and Metro lines are on by default; add Tram, Bus, Ferry or Airport. Works in any city with no setup.
+- **Points of interest** — the map's own stations, parks, museums and shops, with their icons. Turn it off to see only your pins. Remembered on this device.
 
 ### Other controls
 

@@ -6,6 +6,7 @@ import { useData } from "@/lib/data";
 import { useIsDark } from "@/lib/mode";
 import { gmapsRoute, mapUrlCoords } from "@/lib/maps";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
+import { loadBasePois } from "@/lib/mapStyle";
 import type { Place, TripData } from "@/core/types";
 
 /**
@@ -87,6 +88,7 @@ export default function MapPane({ dayId }: { dayId: string }) {
         categoryColors={data.config.categoryColors}
         pinnedCategories={data.config.pinnedCategories}
         dark={dark}
+        basePois={loadBasePois()}
         onSelect={setSelected}
         onReady={(m) => {
           map.current = m;
