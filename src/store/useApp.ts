@@ -8,7 +8,7 @@ import { store as kv } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/app";
 import { normalizeTrip } from "@/lib/hydrate";
 import { fmtDate, rangeText, shiftDate, tripRangeText } from "@/lib/dates";
-import { fitSpans, sortLegs } from "@/lib/spans";
+import { fitSpans, resizeLeg, sortLegs, type LegResize } from "@/lib/spans";
 import { TripLoadError, SaveBlockedError, StorageError, type LoadFailure } from "@/lib/safety/errors";
 import { validateTrip, describeProblems } from "@/lib/safety/validate";
 import { takeSnapshot, ensureBackedUp, readSnapshot, purgeDeletedTripSnapshots, type SnapshotMeta } from "@/lib/safety/snapshots";
@@ -143,6 +143,9 @@ interface AppStore {
    *  segment and luggage date, plus the trip's own start / end. The trip's
    *  length is unchanged. Backs the trip start / end date pickers. */
   shiftDates: (deltaDays: number) => void;
+  /** Add (+) or remove (−) days at the end of one stay, sliding everything
+   *  after it (`resizeLeg`). Backs the base page's Days stepper. */
+  resizeBase: (legId: string, delta: number) => void;
 
   syncMyMap: (url: string) => Promise<{ mapName: string; count: number; updated: number; removed: number }>;
   setMedia: (slot: "logo", item: MediaItem | undefined) => void;
@@ -1735,6 +1738,23 @@ export const useApp = create<AppStore>((set, get) => {
         if (j.segments.length) enqueue(get, { t: "seg", journeyId: j.id });
       }
       for (const n of d.luggage) if (n.date) enqueue(get, { t: "row", type: "luggage", id: n.id });
+    },
+
+    resizeBase: (legId, delta) => {
+      let r: LegResize | null = null;
+      const newId = () => crypto.randomUUID?.() ?? `day-${Math.random().toString(36).slice(2, 10)}`;
+      if (!local((d) => { r = resizeLeg(d, legId, delta, newId); }) || !r) return;
+      const { added, removed, days, legs, journeys, luggage, meta } = r as LegResize;
+      for (const id of removed) enqueue(get, { t: "del", type: "days", id });
+      for (const id of [...added, ...days]) enqueue(get, { t: "row", type: "days", id });
+      enqueue(get, { t: "pos", type: "days" });
+      for (const id of legs) enqueue(get, { t: "row", type: "legs", id });
+      for (const id of journeys) {
+        enqueue(get, { t: "row", type: "journeys", id });
+        enqueue(get, { t: "seg", journeyId: id });
+      }
+      for (const id of luggage) enqueue(get, { t: "row", type: "luggage", id });
+      if (meta) enqueue(get, { t: "fields", keys: ["meta", "config"] });
     },
 
     /** Bring the trip in line with `url`'s My Map: add any pin that isn't

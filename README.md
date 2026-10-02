@@ -68,6 +68,7 @@ The trip as a list of days, grouped by **base** — where you're based for a run
 The days set the dates — you don't edit them separately.
 
 - A base runs from its first day to its last.
+- **Days − / +** on a base's page adds or takes off a day at its end. Everything later in the trip — days, bases, journeys, luggage dates — moves along with it. Taking a day off can be undone.
 - Bases are always listed in date order. To change the order, move the days (drag them to another base).
 - The trip can start or end outside its days (a flight out the evening before day one). Its dates stretch to cover a day added outside them, and only shrink when the day on the trip's first or last date is deleted.
 - **Add a day** fills the earliest empty date in the trip (a gap left by a deleted day), otherwise it goes after the last day.

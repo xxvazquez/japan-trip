@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { buildBlank } from "@/templates/blank";
-import { fitSpans, nextDaySlot } from "@/lib/spans";
+import { fitSpans, nextDaySlot, resizeLeg } from "@/lib/spans";
 import type { TripData } from "@/core/types";
 
 /** two stays: A on 1–2 Oct, B on 3–4 Oct */
@@ -101,5 +101,47 @@ describe("nextDaySlot", () => {
     const d = trip();
     d.legs = [];
     expect(nextDaySlot(d)).toBeNull();
+  });
+});
+
+describe("resizeLeg", () => {
+  let n = 0;
+  const id = () => `new${++n}`;
+
+  it("adding a day to an earlier stay slides everything after it", () => {
+    const d = trip();
+    d.journeys = [{ id: "j", label: "A → B", kind: "transfer", date: "2026-10-03", segments: [{ mode: "train", from: "A", to: "B", depart: "2026-10-03T09:00", arrive: "2026-10-03T11:00" }] }] as never;
+    d.luggage = [{ id: "l", title: "Bags", date: "2026-10-04" }] as never;
+    const r = resizeLeg(d, "A", 1, id)!;
+    expect(d.days.map((x) => [x.legId, x.date])).toEqual([
+      ["A", "2026-10-01"], ["A", "2026-10-02"], ["A", "2026-10-03"], ["B", "2026-10-04"], ["B", "2026-10-05"],
+    ]);
+    expect([d.legs[0].end, d.legs[1].start, d.legs[1].end]).toEqual(["2026-10-03", "2026-10-04", "2026-10-05"]);
+    expect(d.journeys[0].date).toBe("2026-10-04");
+    expect(d.journeys[0].segments[0].depart).toBe("2026-10-04T09:00");
+    expect(d.luggage[0].date).toBe("2026-10-05");
+    expect(d.meta.end).toBe("2026-10-05");
+    expect(r.added).toHaveLength(1);
+    expect(r.journeys).toEqual(["j"]);
+  });
+
+  it("removing takes the stay's last days and closes the gap", () => {
+    const d = trip();
+    const r = resizeLeg(d, "A", -1, id)!;
+    expect(r.removed).toEqual(["d2"]);
+    expect(d.days.map((x) => [x.id, x.date])).toEqual([["d1", "2026-10-01"], ["d3", "2026-10-02"], ["d4", "2026-10-03"]]);
+    expect([d.legs[0].end, d.legs[1].start, d.meta.end]).toEqual(["2026-10-01", "2026-10-02", "2026-10-03"]);
+  });
+
+  it("never removes a stay's first day", () => {
+    const d = trip();
+    expect(resizeLeg(d, "A", -5, id)!.removed).toEqual(["d2"]);
+    expect(resizeLeg(d, "A", -1, id)).toBeNull();
+  });
+
+  it("growing the last stay extends the trip", () => {
+    const d = trip();
+    resizeLeg(d, "B", 2, id);
+    expect([d.legs[1].end, d.meta.end]).toEqual(["2026-10-06", "2026-10-06"]);
   });
 });

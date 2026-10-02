@@ -2,12 +2,13 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
-import { InsetRow } from "@/components/InsetRow";
+import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { RowSelect } from "@/components/RowSelect";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
 import { ConfirmButton } from "@/components/ConfirmButton";
+import { Stepper } from "@/components/Stepper";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
@@ -24,6 +25,7 @@ export default function Leg() {
   const updateEntity = useApp((s) => s.updateEntity);
   const removeEntity = useApp((s) => s.removeEntity);
   const addEntity = useApp((s) => s.addEntity);
+  const resizeBase = useApp((s) => s.resizeBase);
   const nav = useNavigate();
   const ro = useReadOnly();
   if (!data) return null;
@@ -54,7 +56,7 @@ export default function Leg() {
         back="/"
         dotColor={legHex(leg.color)}
         eyebrow="Base"
-        info={hasDays ? "A base runs from its first day to its last. To change it, add or delete days in Plan, or drag a day between bases." : undefined}
+        info={hasDays ? "A base runs from its first day to its last. Days − / + adds or takes off a day at its end, and everything after it in the trip moves along with it. You can also drag a day between bases in Plan." : undefined}
         title={<Editable label="Base name" value={leg.base} onCommit={(v) => p({ base: v || leg.base })} />}
       />
 
@@ -81,6 +83,18 @@ export default function Leg() {
             <InsetRow label="End">
               {hasDays ? fmtDate(leg.end, loc) : <Editable as="date" label="End date" value={leg.end} onCommit={(v) => v && p({ end: v })} />}
             </InsetRow>
+            {hasDays && !ro && (
+              <li className={`${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-2`}>
+                <span className="row-label">Days</span>
+                <span className="row-value ml-auto tabular-nums">{dayCount}</span>
+                <Stepper
+                  label="days"
+                  canDec={dayCount > 1}
+                  onDec={() => undoable("Day removed", () => resizeBase(leg.id, -1))}
+                  onInc={() => resizeBase(leg.id, 1)}
+                />
+              </li>
+            )}
 
             {ro ? (
               hotel ? (
