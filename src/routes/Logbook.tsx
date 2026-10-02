@@ -240,7 +240,7 @@ function ListSection({ list }: { list: CustomList }) {
             key={it.id}
             className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden"
           >
-            <SwipeToDelete undoLabel="Item removed" onDelete={ro ? undefined : () => set((l) => { l.items.splice(i, 1); })}>
+            <SwipeToDelete undoLabel="Item removed" onDelete={ro ? undefined : () => removeId(it.id)}>
             <ContextMenu className="flex items-start gap-2 px-3.5 py-3">
               <span className="min-w-0 flex-1">
                 <span className="block text-sm leading-snug text-ink">
