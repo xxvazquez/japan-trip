@@ -25,6 +25,7 @@ import { ConfirmMenuItem } from "@/components/ActionSheet";
 import { TextPrompt } from "@/components/TextPrompt";
 import { primeKeyboard } from "@/lib/keyboard";
 import { useData } from "@/lib/data";
+import { useToday } from "@/lib/useToday";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { tripClock, fmtDate, dayKind, legForDate, legNights, plural, addDays } from "@/lib/dates";
@@ -87,6 +88,7 @@ export default function Plan() {
   const readOnly = useReadOnly();
   const nav = useNavigate();
   const [namingBase, setNamingBase] = useState(false);
+  useToday(); // re-render when the date turns over, so the list opens on the new today
   if (!data) return null;
 
   const newId = (kind: string) => crypto.randomUUID?.() ?? `${kind}-${Math.random().toString(36).slice(2, 8)}`;

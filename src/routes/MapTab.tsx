@@ -15,6 +15,7 @@ import { RowSelect } from "@/components/RowSelect";
 import { TextPrompt } from "@/components/TextPrompt";
 import { SearchField } from "@/components/SearchField";
 import { useData } from "@/lib/data";
+import { useToday } from "@/lib/useToday";
 import { useApp, undoable } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
 import { gmapsLink, mapUrlCoords } from "@/lib/maps";
@@ -567,12 +568,13 @@ export default function MapTab() {
   /** "Nearby now" toggle on the Today list — not persisted, so it never asks
    *  for location on its own next time the trip opens. */
   const [nearbyOn, setNearbyOn] = useState(false);
+  const today = useToday();
   /** the "Today" pill's own scope id, so the toggle only ever applies there */
   const todayScopeId = useMemo(() => {
     if (!data) return null;
     const c = tripClock(data);
     return c.phase === "during" && c.today ? `day:${c.today.id}` : null;
-  }, [data]);
+  }, [data, today]);
   const nearbyActive = nearbyOn && !!todayScopeId && scope === todayScopeId;
   const geo = useGeolocation(nearbyActive);
 
