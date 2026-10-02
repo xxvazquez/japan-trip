@@ -118,7 +118,7 @@ function ManageIndex() {
         </Section>
         <Section>
           <ul>
-            <TileRow to="/help" tile={<IconTile name="info" tone="ink-faint" />} title="Help & FAQ" />
+            <TileRow to="/help" tile={<IconTile name="info" tone="ink-faint" />} title="Help" />
           </ul>
         </Section>
       </div>

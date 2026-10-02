@@ -2,10 +2,11 @@ import type { TripData } from "@/core/types";
 import { fmtDate, journeyDepartDate, plural } from "./dates";
 import { JOURNEY_KIND_LABEL } from "./journey";
 import { legHex } from "./legColors";
+import { HELP, helpKey } from "./help";
 import { MODE_ICON } from "./transport";
 import { customListColor, logbookSectionTile, placeTile, toneForSegmentMode, type LogbookTile } from "./tones";
 
-export type SearchKind = "day" | "leg" | "hotel" | "place" | "transfer" | "area" | "luggage" | "doc" | "packing" | "list" | "note";
+export type SearchKind = "day" | "leg" | "hotel" | "place" | "transfer" | "area" | "luggage" | "doc" | "packing" | "list" | "note" | "help";
 
 /** one searchable piece of an item, with the name it goes by in a snippet */
 type Field = { label?: string; text: string | undefined | null };
@@ -203,6 +204,19 @@ function build(d: TripData): SearchHit[] {
       });
     }
   }
+  // how-to answers, so "offline" or "undo" finds the answer as well as the trip's own things
+  for (const t of HELP) {
+    for (const i of t.items) {
+      hits.push({
+        kind: "help",
+        tile: { name: t.icon, tone: t.tone, color: t.color },
+        label: i.q,
+        sub: t.title,
+        to: `/help?open=${helpKey(t, i)}`,
+        fields: [{ text: i.a.replace(/\*\*|[*_`#>]/g, "").replace(/^\s*(\d+\.|-)\s+/gm, "") }],
+      });
+    }
+  }
   return hits;
 }
 
@@ -273,7 +287,7 @@ function snippet(fl: IndexedField, words: string[]): SearchResult["snippet"] {
   return { label: fl.label, text, marks: marks.sort((a, b) => a[0] - b[0]) };
 }
 
-const KIND_ORDER: SearchKind[] = ["day", "leg", "hotel", "place", "transfer", "area", "doc", "luggage", "list", "note", "packing"];
+const KIND_ORDER: SearchKind[] = ["day", "leg", "hotel", "place", "transfer", "area", "doc", "luggage", "list", "note", "packing", "help"];
 
 let cache: { data: TripData; index: Indexed[] } | null = null;
 
@@ -301,7 +315,9 @@ export function search(data: TripData, query: string, limit = 12): SearchResult[
   for (const x of indexOf(data)) {
     const m = match(x, words, phrase);
     if (!m) continue;
-    found.push({ r: { hit: x.h, snippet: m.field ? snippet(m.field, words) : undefined }, s: m.score });
+    // the trip's own things first; how-to answers after them
+    const s = m.score - (x.h.kind === "help" ? 40 : 0);
+    found.push({ r: { hit: x.h, snippet: m.field ? snippet(m.field, words) : undefined }, s });
   }
   return found
     .sort((a, b) => b.s - a.s || KIND_ORDER.indexOf(a.r.hit.kind) - KIND_ORDER.indexOf(b.r.hit.kind))

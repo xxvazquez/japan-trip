@@ -73,7 +73,7 @@ A Logbook page pinned to the tab bar is a tab of its own, so it has no back butt
 
 The round button beside the tab bar (top right on a wide screen, or ⌘K / Ctrl+K).
 
-- **Searches everything in the trip** — names, plan steps, spending, notes, addresses, booking refs, document fields and file names.
+- **Searches everything in the trip** — names, plan steps, spending, notes, addresses, booking refs, document fields and file names — plus the **Help** answers, listed last.
 - **Every word counts, in any order.** "ueno museum" finds a museum whose note mentions Ueno.
 - **Accents, spaces and dashes are ignored.** "sensoji" finds *Sensō-ji*.
 - **Shows why it matched.** When the words aren't in the name, the line they were found in shows under it, words highlighted.
@@ -317,7 +317,7 @@ A read-only total of every price in the trip — stays, fares and day spending �
 
 ## Manage
 
-Open it from your account picture (or the foot of the sidebar on a wide screen). It starts with your account — who's signed in, sync status, Sign out or **Sign in with Google** — then a Settings-style list: **Trips**, **Setup**, **Content**, **Look**, **Sharing**, and **Help & FAQ** at the bottom.
+Open it from your account picture (or the foot of the sidebar on a wide screen). It starts with your account — who's signed in, sync status, Sign out or **Sign in with Google** — then a Settings-style list: **Trips**, **Setup**, **Content**, **Look**, **Sharing**, and **Help** at the bottom.
 
 ### Setup
 
@@ -429,7 +429,7 @@ Once the app has loaded, it works with no signal. See [Before you travel](#befor
 
 **Is this device on the latest version?** The foot of **Manage** shows the version, commit and build date. Compare the commit with the one you pushed.
 
-**The Help & FAQ page** (bottom of Manage) answers the less obvious questions in plain language.
+**Help** (bottom of Manage) answers the common "how do I…" questions in short steps, grouped by topic, with its own search. The app's main Search finds those answers too.
 
 ---
 
@@ -621,6 +621,7 @@ src/
   core/types.ts         domain types (trip-agnostic)
   store/useApp.ts       Zustand store: trips, active trip, every mutation, sync queue
   lib/                  backend, db, auth, realtime, hydrate, storage, search,
+                        help (the Help page's questions and answers),
                         maps, geocode, mymaps, cost, ics, offlineTiles,
                         offlineFiles…
   lib/safety/           data-safety layer (validation, restore points, quarantine)

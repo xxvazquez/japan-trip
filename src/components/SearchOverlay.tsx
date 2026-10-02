@@ -21,6 +21,7 @@ const GROUP_LABEL: Record<SearchKind, string> = {
   packing: "Packing",
   list: "Lists",
   note: "Scratchpad",
+  help: "Help",
 };
 
 /** A transfer's chip is its kind (Train, Flight) — a detail under its own
