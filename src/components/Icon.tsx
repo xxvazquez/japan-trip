@@ -57,7 +57,10 @@ export type IconName =
   | "locate"
   | "calendar"
   | "backspace"
-  | "person";
+  | "person"
+  | "share"
+  | "location"
+  | "cloud-down";
 
 const P: Record<IconName, JSX.Element> = {
   itinerary: (
@@ -343,6 +346,22 @@ const P: Record<IconName, JSX.Element> = {
       <path d="M4 10h16M8 3.5v4M16 3.5v4" />
     </>
   ),
+  // iOS square.and.arrow.up
+  share: (
+    <>
+      <path d="M12 3.5v11M8.5 7 12 3.5 15.5 7" />
+      <path d="M8.5 10H7a1.5 1.5 0 0 0-1.5 1.5v7.5A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5v-7.5A1.5 1.5 0 0 0 17 10h-1.5" />
+    </>
+  ),
+  // iOS location — the arrow the Maps button draws
+  location: <path d="M20 4 4.5 10.6l6.6 2.3 2.3 6.6L20 4Z" />,
+  // iOS icloud.and.arrow.down — a file that isn't on the device yet
+  "cloud-down": (
+    <>
+      <path d="M7.5 18.5H7a4 4 0 0 1-.6-8 5.5 5.5 0 0 1 10.6-1.3A4.2 4.2 0 0 1 17 18.5h-.5" />
+      <path d="M12 11.5v8M9.3 16.9 12 19.6l2.7-2.7" />
+    </>
+  ),
 };
 
 export const isIconName = (x: string): x is IconName => x in P;
@@ -374,6 +393,7 @@ const FILLED: Partial<Record<IconName, JSX.Element>> = {
       d="M6.5 3H14.2a1 1 0 0 1 .7.3l3.8 3.8a1 1 0 0 1 .3.7V20a1 1 0 0 1-1 1H6.5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1ZM9 7.25a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5H9Zm0 4a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5H9Zm0 4a.75.75 0 0 0 0 1.5h4a.75.75 0 0 0 0-1.5H9Z"
     />
   ),
+  location: <path d="M20 4 4.5 10.6l6.6 2.3 2.3 6.6L20 4Z" />,
   settings: (
     <path
       fillRule="evenodd"

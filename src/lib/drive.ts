@@ -192,6 +192,17 @@ export async function uploadToDrive(blob: Blob, name: string, folderId: string):
   return { id: r.id, name: r.name, size: r.size ? Number(r.size) : blob.size, mime: r.mimeType || blob.type };
 }
 
+/** The file's bytes, to keep a copy on the device. Needs a connected token. */
+export async function downloadFromDrive(fileId: string): Promise<Blob> {
+  const res = await fetch(`${API}/files/${fileId}?alt=media`, { headers: { Authorization: `Bearer ${getToken()}` } });
+  if (res.status === 401) {
+    token = null;
+    throw new Error(DRIVE_DISCONNECTED);
+  }
+  if (!res.ok) throw new Error(`Drive ${res.status}`);
+  return res.blob();
+}
+
 /** Grant read access to each email. Failures (already shared, bad address) are
  *  swallowed — the file still uploaded. */
 export async function shareFile(fileId: string, emails: string[]): Promise<void> {

@@ -239,6 +239,8 @@ Tap a document to open its page: name it, attach PDFs or photos, add fields and 
 - **Add a field** (also a stay's details and Emergency contacts) opens the new field ready to type. Leave both its name and value blank and it goes away.
 - **Signed in** — files go to your account (private to the trip, 25 MB each), or to a shared Google Drive folder if set up. Drive needs its own **Connect Google Drive** tap, which lasts about an hour.
 - **On this device only** — files stay on the device, and upload automatically once you sign in.
+- **Opening** a file shows it inside the app, like Quick Look: PDFs page by page, photos full width. Double-tap or pinch to zoom; **Share** saves or sends it on.
+- **Offline** — every attachment is kept on the device once the trip opens, so it opens with no signal. A ⇣ cloud beside a file means it isn't on this device yet. Drive files download while Drive is connected, or all at once from **Manage → Trips → This device → Save attachments for offline**.
 - **Removing** an attachment never deletes the file itself.
 
 ### Packing
@@ -361,6 +363,7 @@ Once the app has loaded, it works with no signal — the whole plan, your places
 - **Signed-in trips** are kept on the device once opened, so the app starts with no signal. The copy is cleared when you sign out.
 - **Weak signal** — if the server hasn't answered within 5 seconds, the app opens the copy on the device and updates once it gets through.
 - **You stay signed in with no signal**, even after days away. The login renews itself once you're back, then any waiting edits go out.
+- **Attachments** are kept on the device — see [Documents](#documents).
 - **Save maps ahead** — a day's Areas section has **Download offline maps**, and **Manage → Trips → This device → Save trip maps for offline** does the whole trip.
 - **New map areas** opened offline show a retry that fires automatically when you reconnect.
 - **First visit with no signal** shows a plain "you're offline" screen that retries on its own.

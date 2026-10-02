@@ -543,6 +543,7 @@ function setupSyncListeners(get: () => AppStore) {
     void persistLocal(get);
     if (get().bootError) get().retryBoot();
     else if (bootedFromOutbox && get().activeId) void resyncTrip(get, get().activeId!);
+    if (get().activeId) void syncDeviceFiles(get, get().activeId!); // copies that couldn't download offline
   };
   window.addEventListener("online", reconnected);
   // the login was renewed after opening without a connection — what waited on it can go now
@@ -908,6 +909,10 @@ async function syncDeviceFiles(get: () => AppStore, tripId: string) {
         get().updateEntity<Doc>("docs", docId, { files: (doc.files ?? []).map((f) => (f.id === fileId ? { ...f, storagePath: path } : f)) });
       },
     });
+    // and the other way: keep a copy of every attachment on this device, so
+    // they open with no signal (Drive ones only while Drive is connected)
+    const [{ saveFilesToDevice, remoteFiles }, { driveConnected }] = await Promise.all([import("@/lib/offlineFiles"), import("@/lib/drive")]);
+    if (get().activeId === tripId) await saveFilesToDevice(remoteFiles(get().data?.docs ?? []), { drive: driveConnected() });
   } catch (e) {
     console.error("[files]", e);
   } finally {

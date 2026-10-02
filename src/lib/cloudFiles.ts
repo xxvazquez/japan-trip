@@ -28,6 +28,13 @@ export async function uploadFile(path: string, blob: Blob): Promise<void> {
   throw new Error(/size|too large|413/i.test(error.message) ? "That file is too big to upload." : "Upload failed — check your connection and try again.");
 }
 
+/** The file itself, to keep a copy on the device. */
+export async function downloadFile(path: string): Promise<Blob> {
+  const { data, error } = await (await bucket()).download(path);
+  if (error || !data) throw error ?? new Error("no file");
+  return data;
+}
+
 /** A temporary link to a stored file (valid an hour). */
 export async function signedFileUrl(path: string): Promise<string> {
   const { data, error } = await (await bucket()).createSignedUrl(path, 3600);

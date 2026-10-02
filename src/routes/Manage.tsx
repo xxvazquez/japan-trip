@@ -29,7 +29,9 @@ import { OPTIONAL_LOGBOOK_SECTIONS, LOGBOOK_SECTIONS, LOGBOOK_NAV_ICON, logbookL
 import { ActionSheet, useActionSheet, ConfirmMenuItem } from "@/components/ActionSheet";
 import { fileToMediaItem, pickImage } from "@/lib/media";
 import { supabaseEnabled } from "@/lib/supabase";
-import { driveEnabled } from "@/lib/drive";
+import { driveEnabled, driveConnected, prepareDrive, connectDrive } from "@/lib/drive";
+import { remoteFiles, saveFilesToDevice, sourceOf, useOnDevice } from "@/lib/offlineFiles";
+import { plural } from "@/lib/dates";
 import { useAuth } from "@/lib/auth";
 import { RowMenu } from "@/components/RowMenu";
 import { ContextMenu } from "@/components/ContextMenu";
@@ -332,11 +334,38 @@ function ThisDevice() {
       setMapProgress(null);
     }
   };
+  // attachments kept here so they open with no signal (the trip's own files
+  // only — device-only files are here already)
+  const remote = data ? remoteFiles(data.docs) : [];
+  const onDevice = useOnDevice(remote);
+  const missing = onDevice ? remote.filter((f) => !onDevice.has(f.id)) : [];
+  const needsDrive = driveEnabled && missing.some((f) => sourceOf(f) === "drive");
+  const [fileProgress, setFileProgress] = useState<{ done: number; total: number } | null>(null);
+  const [fileMsg, setFileMsg] = useState("");
+  useEffect(() => {
+    if (needsDrive) void prepareDrive().catch(() => {});
+  }, [needsDrive]);
+  const saveFiles = () => {
+    setFileMsg("");
+    const go = () => {
+      setFileProgress({ done: 0, total: missing.length });
+      return saveFilesToDevice(missing, { drive: driveConnected(), onProgress: (done, total) => setFileProgress({ done, total }) })
+        .then(({ saved, failed }) =>
+          setFileMsg(
+            failed && !saved ? "Couldn’t download the attachments — try again with a connection."
+              : `Saved ${plural(saved, "attachment")} on this device${failed ? `; ${failed} couldn’t be downloaded, try again to retry ${failed === 1 ? "it" : "them"}` : ""}.`,
+          ))
+        .finally(() => setFileProgress(null));
+    };
+    // Drive files need Google's go-ahead, and its window only opens straight from the tap
+    if (needsDrive && !driveConnected()) connectDrive().then(go, (e) => setFileMsg(e instanceof Error ? e.message : "Google sign-in failed."));
+    else void go();
+  };
   return (
     <Section
       title="This device"
       className="mt-8"
-      info="Ready means the app itself is saved on this device and opens with no signal. A trip kept on this device works fully offline; if you sign in to sync, open your trip once while you're online before you travel. Map areas you've already looked at are saved too — Save trip maps saves the area around every day, stay and place in this trip in one go, so do it on wifi before you leave. Installing puts the app on your home screen and opens it full-screen like any other."
+      info="Ready means the app itself is saved on this device and opens with no signal. A trip kept on this device works fully offline; if you sign in to sync, open your trip once while you're online before you travel. Map areas you've already looked at are saved too — Save trip maps saves the area around every day, stay and place in this trip in one go, so do it on wifi before you leave. Attachments are kept on the device as you open them; Save attachments gets them all at once. Installing puts the app on your home screen and opens it full-screen like any other."
     >
       <ul>
         <Row label="Works offline">
@@ -356,6 +385,18 @@ function ThisDevice() {
             onClick={() => void saveMaps()}
           />
         )}
+        {remote.length > 0 && onDevice && (missing.length || fileProgress ? (
+          <ActionRow
+            icon="cloud-down"
+            label={fileProgress ? `Saving attachments… ${fileProgress.done} of ${fileProgress.total}` : `Save ${plural(missing.length, "attachment")} for offline`}
+            disabled={!!fileProgress}
+            onClick={saveFiles}
+          />
+        ) : (
+          <Row label="Attachments">
+            <span className="inline-flex items-center gap-1 text-matcha"><Icon name="check" size={13} /> On this device</span>
+          </Row>
+        ))}
         {install.kind === "installed" && <Row label="Home screen">Installed</Row>}
         {install.kind === "ios" && <AddToHomeScreen />}
         {install.kind === "prompt" && (
@@ -368,6 +409,7 @@ function ThisDevice() {
         )}
       </ul>
       {mapMsg && <p className="meta px-3.5 pb-3">{mapMsg}</p>}
+      {fileMsg && <p className="meta px-3.5 pb-3">{fileMsg}</p>}
     </Section>
   );
 }

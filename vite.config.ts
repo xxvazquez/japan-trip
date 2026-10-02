@@ -1,9 +1,9 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import { fileURLToPath, URL } from "node:url";
 import { execSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 /** which commit this bundle was built from — Cloudflare's build sets the SHA;
  *  locally it's read from git. Shown in Manage so it's easy to tell whether a
@@ -41,6 +41,37 @@ function buildVersion(): string {
   }
 }
 
+/** The files the PDF viewer reads as it needs them — character maps for
+ *  Japanese/Chinese/Korean text, the standard fonts a PDF can name without
+ *  embedding, the image decoders, a colour profile. Served at `/pdfjs/` and
+ *  precached, so an attachment renders the same with no signal. */
+const PDFJS_DIR = fileURLToPath(new URL("./node_modules/pdfjs-dist/", import.meta.url));
+const PDFJS_ASSETS: Record<string, RegExp> = {
+  cmaps: /\.bcmap$|^LICENSE/,
+  standard_fonts: /\.(pfb|ttf)$|^LICENSE/,
+  wasm: /^(openjpeg|jbig2|qcms_bg)\.wasm$|^LICENSE/,
+  iccs: /\.icc$|^LICENSE/,
+};
+function pdfjsAssets(): Plugin {
+  const files = () =>
+    Object.entries(PDFJS_ASSETS).flatMap(([dir, keep]) =>
+      readdirSync(PDFJS_DIR + dir).filter((f) => keep.test(f)).map((f) => `${dir}/${f}`),
+    );
+  return {
+    name: "pdfjs-assets",
+    configureServer(server) {
+      server.middlewares.use("/pdfjs/", (req, res, next) => {
+        const rel = decodeURIComponent((req.url ?? "").split("?")[0].replace(/^\//, ""));
+        if (!files().includes(rel)) return next();
+        res.end(readFileSync(PDFJS_DIR + rel));
+      });
+    },
+    generateBundle() {
+      for (const rel of files()) this.emitFile({ type: "asset", fileName: `pdfjs/${rel}`, source: readFileSync(PDFJS_DIR + rel) });
+    },
+  };
+}
+
 export default defineConfig(({ command }) => ({
   define: {
     __APP_VERSION__: JSON.stringify(buildVersion()),
@@ -69,6 +100,7 @@ export default defineConfig(({ command }) => ({
   },
   plugins: [
     react(),
+    pdfjsAssets(),
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.png", "icons/*.png", "textures/*", "brand/*.png"],
@@ -90,8 +122,9 @@ export default defineConfig(({ command }) => ({
         ],
       },
       workbox: {
-        globPatterns: ["**/*.{js,css,html,woff2,svg}"],
-        globIgnores: ["**/supabase-*.js"], // fetched on demand, runtime-cached below
+        // `mjs` is the PDF viewer's worker; `pdfjs/` its fonts and character maps
+        globPatterns: ["**/*.{js,mjs,css,html,woff2,svg}", "pdfjs/**/*"],
+        globIgnores: ["**/supabase-*.js", "pdfjs/**/LICENSE*"], // supabase: fetched on demand, runtime-cached below
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         navigateFallback: "/index.html",
         runtimeCaching: [

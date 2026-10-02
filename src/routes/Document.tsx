@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
@@ -16,12 +16,16 @@ import { useData } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useAuth } from "@/lib/auth";
 import { supabaseEnabled } from "@/lib/supabase";
-import { uploadFile, signedFileUrl, MAX_FILE_BYTES } from "@/lib/cloudFiles";
+import { uploadFile, MAX_FILE_BYTES } from "@/lib/cloudFiles";
 import { useReadOnly } from "@/lib/readonly";
 import { APP_NAME } from "@/lib/app";
-import { putFile, fileUrl } from "@/lib/fileStore";
+import { putFile, putFileAs } from "@/lib/fileStore";
+import { loadFile, saveFilesToDevice, sourceOf, useOnDevice } from "@/lib/offlineFiles";
+import type { ViewerFile } from "@/components/FileViewer";
 import { driveEnabled, driveConnected, prepareDrive, connectDrive, ensureFolder, uploadToDrive, shareFile, driveViewUrl, driveImageUrl } from "@/lib/drive";
 import type { Doc, DocFile } from "@/core/types";
+
+const FileViewer = lazy(() => import("@/components/FileViewer"));
 
 /** "840 KB", "2.4 MB" — the way Files sizes a document; never "0.0 MB". */
 const fmtBytes = (b: number) =>
@@ -138,6 +142,12 @@ function Attachments({
     setErr("");
     connectDrive().then(() => setConnected(true), (e) => setErr(e instanceof Error ? e.message : "Google sign-in failed."));
   };
+  // keep a copy of each file on this device, so it opens with no signal
+  const onDevice = useOnDevice(files);
+  useEffect(() => {
+    void saveFilesToDevice(files, { drive: connected });
+  }, [files, connected]);
+  const [viewing, setViewing] = useState<ViewerFile | null>(null);
 
   const add = async (fileList: File[]) => {
     if (!fileList.length) return;
@@ -150,7 +160,9 @@ function Attachments({
         for (const f of fileList) {
           const up = await uploadToDrive(f, f.name, folderId);
           if (shareWith.length) await shareFile(up.id, shareWith);
-          added.push({ id: rid(), name: up.name, size: up.size, driveId: up.id, mime: up.mime });
+          const id = rid();
+          await putFileAs(id, f, { copy: true }).catch(() => {}); // opens offline from the start
+          added.push({ id, name: up.name, size: up.size, driveId: up.id, mime: up.mime });
         }
         onChange([...files, ...added]);
       } catch (e) {
@@ -168,6 +180,7 @@ function Attachments({
           const id = crypto.randomUUID();
           const storagePath = `${tripId}/${id}`;
           await uploadFile(storagePath, f);
+          await putFileAs(id, f, { copy: true }).catch(() => {}); // opens offline from the start
           added.push({ id, name: f.name, size: f.size, mime: f.type, storagePath });
         }
         onChange([...files, ...added]);
@@ -183,18 +196,15 @@ function Attachments({
     }
   };
 
-  const open = async (f: DocFile) => {
-    if (f.driveId) window.open(driveViewUrl(f.driveId), "_blank", "noopener");
-    else if (f.storagePath) {
-      // open the tab first (a popup blocker only allows it inside the tap), then point it at the signed link
-      const w = window.open("", "_blank");
-      const url = await signedFileUrl(f.storagePath).catch(() => null);
-      if (url && w) w.location.href = url;
-      else { w?.close(); setErr("Couldn’t open that file right now — check your connection and try again."); }
-    } else {
-      const url = await fileUrl(f.id);
-      if (url) window.open(url, "_blank");
+  // opens inside the app, from the copy on this device (fetched first if it
+  // isn't here yet). A Drive file this device has no copy of, with Drive not
+  // connected, can only be shown by Google — online, in a new tab.
+  const open = (f: DocFile) => {
+    if (sourceOf(f) === "drive" && !onDevice?.has(f.id) && !driveConnected() && navigator.onLine) {
+      window.open(driveViewUrl(f.driveId!), "_blank", "noopener");
+      return;
     }
+    setViewing({ name: f.name, mime: f.mime, load: () => loadFile(f) });
   };
   // Only the reference goes. The bytes (device or Drive) are deliberately left
   // where they are: removing a row can be undone from the toast or a restore
@@ -211,6 +221,12 @@ function Attachments({
               <div className="flex items-center gap-2.5">
                 <Icon name="vault" size={16} className="shrink-0 text-ink-soft" />
                 <button onClick={() => open(f)} className="value min-w-0 flex-1 break-words text-left text-accent">{f.name}</button>
+                {/* Files' iCloud badge: not on this device yet */}
+                {onDevice && sourceOf(f) && !onDevice.has(f.id) && (
+                  <span className="shrink-0 text-ink-faint" aria-label="Not saved on this device">
+                    <Icon name="cloud-down" size={16} />
+                  </span>
+                )}
                 {f.size ? <span className="meta shrink-0 tabular-nums">{fmtBytes(f.size)}</span> : null}
                 {/* one quiet ⋯ like every other list row, not a bin on each file */}
                 {!ro && (
@@ -262,6 +278,11 @@ function Attachments({
         )}
       </ul>
       {err && <p className="meta px-3.5 pb-3 text-danger">{err}</p>}
+      {viewing && (
+        <Suspense fallback={null}>
+          <FileViewer file={viewing} onClose={() => setViewing(null)} />
+        </Suspense>
+      )}
     </>
   );
 }

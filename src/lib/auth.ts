@@ -119,6 +119,7 @@ export async function signOut() {
     const { settlePending, clearDeviceMirrors } = await import("@/store/useApp");
     await settlePending(4000);
     await clearDeviceMirrors(); // the next account on this device must not inherit these trips
+    await (await import("@/lib/fileStore")).clearFileCopies(); // …or their attachments
   } catch { /* never let this block signing out */ }
   const sb = await getSupabase();
   await sb?.auth.signOut();
