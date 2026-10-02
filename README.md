@@ -229,7 +229,7 @@ Text isn't selectable (as in a native app), so values you might paste elsewhere 
 ### Stays and journeys
 
 - Each list has an **Add a stay** / **Add a journey** row at the foot. The new one opens on its own page to fill in.
-- Stays are listed in the order you sleep in them, with their check-in to check-out dates (a stay no base uses yet goes last); journeys are listed by when they leave.
+- Stays are listed in the order you sleep in them, with their check-in to check-out dates and nights under the name (a stay no base uses yet goes last); journeys are listed by when they leave.
 
 ### Documents
 

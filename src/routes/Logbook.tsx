@@ -323,7 +323,7 @@ function Stays() {
         {hotels.map((h) => {
           // check-in to check-out, per stay that uses this hotel
           const short = (d: string) => fmtDate(d, loc, { day: "numeric", month: "short" });
-          const when = hotelStays(data, h.id).map((x) => `${short(x.checkIn)} – ${short(x.checkOut)}`).join(", ");
+          const when = hotelStays(data, h.id).map((x) => `${short(x.checkIn)} – ${short(x.checkOut)} · ${plural(x.nights, "night")}`).join(", ");
           const map = gmapsLink(h.mapUrl || h.address);
           return (
             <TileRow
@@ -341,8 +341,10 @@ function Stays() {
               }
               tile={<IconTile size="sm" glyph="hotel" tone="ink-faint" />}
               title={h.name}
-              meta={h.address || undefined}
-              right={when || undefined}
+              // dates under the name, like Journeys — a trailing column
+              // squeezed name + address into a narrow, many-line stack; the
+              // address is one tap away on the stay itself
+              meta={when || undefined}
             />
           );
         })}
