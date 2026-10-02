@@ -979,6 +979,16 @@ async function resyncTrip(get: () => AppStore, tripId: string) {
 
 /** Open a trip without ever throwing: either its data, or an issue describing
  *  why it couldn't be opened. `null` is not a possible answer. */
+/** How long a cold boot waits on the server before opening the device copy. */
+const BOOT_WAIT_MS = 5000;
+const SLOW = Symbol("slow");
+const orSlow = <T,>(p: Promise<T>): Promise<T | typeof SLOW> =>
+  Promise.race([p, new Promise<typeof SLOW>((r) => setTimeout(() => r(SLOW), BOOT_WAIT_MS))]);
+const slowIssue = (tripId: string) => ({
+  data: null,
+  issue: { kind: "unavailable" as const, message: "The server is taking too long to answer.", tripId },
+});
+
 async function tryLoad(be: Backend, id: string): Promise<{ data: TripData; issue: null } | { data: null; issue: LoadIssue }> {
   try {
     return { data: await be.loadTrip(id), issue: null };
@@ -1088,7 +1098,10 @@ async function flushForSwitch(get: () => AppStore) {
 
 export const useApp = create<AppStore>((set, get) => {
   const listen = (id: string) =>
-    subscribeTrip(id, () => get().applyRemote, hasPendingFor, () => void resyncTrip(get, id), hasPendingFields);
+    subscribeTrip(id, () => get().applyRemote, hasPendingFor, () => void resyncTrip(get, id), hasPendingFields, () => {
+      // opened from the device copy: the live connection is the first sign the server answers again
+      if (bootedFromOutbox) void resyncTrip(get, id);
+    });
 
   const local = (fn: (d: TripData) => void): TripData | null => {
     const cur = get().data;
@@ -1150,7 +1163,16 @@ export const useApp = create<AppStore>((set, get) => {
         let trips: TripSummary[];
         let activeId: string | null;
         try {
-          ({ trips, activeId } = await be.listTrips());
+          // a weak signal (bars, but nothing gets through) can hold a request
+          // for a minute — open the device copy instead of the loader, and
+          // re-pull once the server answers
+          const listing = be.listTrips();
+          let listed = be.kind === "supabase" ? await orSlow(listing) : await listing;
+          if (listed === SLOW) {
+            if (await recoverFromOutbox(get, listen)) return;
+            listed = await listing; // nothing saved on the device — keep waiting
+          }
+          ({ trips, activeId } = listed);
         } catch (e) {
           // offline / transient: recover from a mirrored outbox so unsynced edits
           // aren't stranded and the trip stays usable until the connection returns
@@ -1171,7 +1193,10 @@ export const useApp = create<AppStore>((set, get) => {
           const id = activeId && trips.some((t) => t.id === activeId)
             ? activeId
             : (trips.find((t) => !t.archived)?.id ?? trips[0].id);
-          const loaded = await tryLoad(be, id);
+          const loading = tryLoad(be, id);
+          let loaded = be.kind === "supabase" ? await orSlow(loading) : await loading;
+          // slow to arrive: treat as unreachable if there's a device copy to open
+          if (loaded === SLOW) loaded = (await readMirror(id)) ? slowIssue(id) : await loading;
           let data = loaded.data;
           let issue = loaded.issue;
           if (be.kind === "supabase") {

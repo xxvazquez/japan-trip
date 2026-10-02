@@ -134,11 +134,6 @@ export default defineConfig(({ command }) => ({
             },
           },
           {
-            urlPattern: ({ url }) => url.hostname.endsWith(".supabase.co"),
-            handler: "NetworkFirst",
-            options: { cacheName: "supabase-api", networkTimeoutSeconds: 5, expiration: { maxEntries: 200 } },
-          },
-          {
             urlPattern: ({ request }) => request.destination === "image",
             handler: "CacheFirst",
             options: {

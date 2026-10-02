@@ -566,6 +566,61 @@ describe("signed-in: opening with no connection", () => {
     }
   });
 
+  it("a server that never answers opens the device copy after a few seconds, not an endless loader", async () => {
+    const id = await seedTrip("Saved trip");
+    await boot();
+    await sleep(80);
+    let answer!: () => void;
+    fake.current.ctl.gate = new Promise((r) => { answer = r; });
+    vi.resetModules();
+    const app = await import("@/store/useApp");
+    const started = app.useApp.getState().init();
+    await sleep(5300);
+    expect(app.useApp.getState().activeId).toBe(id);
+    expect(app.useApp.getState().data!.meta.title).toBe("Saved trip");
+    expect(app.useApp.getState().bootError).toBe(false);
+    fake.current.ctl.gate = null;
+    answer();
+    await started;
+    expect(app.useApp.getState().activeId).toBe(id);
+  }, 15000);
+
+  it("a trip that's slow to load opens from the device copy; with no copy it waits for the server", async () => {
+    const id = await seedTrip("Saved trip");
+    await boot();
+    await sleep(80);
+    let answer!: () => void;
+    const slow = new Promise<void>((r) => { answer = r; });
+    fake.current.ctl.hold = (op, table) => (op === "select" && table === "days" ? slow : null);
+    const b = await (async () => {
+      vi.resetModules();
+      const app = await import("@/store/useApp");
+      const started = app.useApp.getState().init();
+      await sleep(5300);
+      return { app, started };
+    })();
+    expect(b.app.useApp.getState().data!.meta.title).toBe("Saved trip");
+    expect(b.app.useApp.getState().loadIssue).toBeNull();
+    answer();
+    await b.started;
+
+    // no device copy: nothing to open instead, so it keeps waiting for the answer
+    const kv = (await import("@/lib/storage")).store;
+    await kv.del(STORAGE_KEYS.mirror(id));
+    let answer2!: () => void;
+    const slow2 = new Promise<void>((r) => { answer2 = r; });
+    fake.current.ctl.hold = (op, table) => (op === "select" && table === "days" ? slow2 : null);
+    vi.resetModules();
+    const app2 = await import("@/store/useApp");
+    const started2 = app2.useApp.getState().init();
+    await sleep(5300);
+    expect(app2.useApp.getState().hydrated).toBe(false);
+    answer2();
+    await started2;
+    expect(app2.useApp.getState().data!.meta.title).toBe("Saved trip");
+    expect(app2.useApp.getState().loadIssue).toBeNull();
+  }, 20000);
+
   it("a sign-in library that never loaded shows the retry screen, not the sign-in wall, and Try again reloads it", async () => {
     await seedTrip();
     authLib.failed = true;

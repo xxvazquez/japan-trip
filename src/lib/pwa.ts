@@ -21,6 +21,12 @@ let installedNow = false;
 const listeners = new Set<() => void>();
 const emit = () => listeners.forEach((l) => l());
 
+// Server answers used to be cached by the service worker. A slow connection
+// then got days-old rows back as if they were current (and another account's,
+// after switching). The device copy of the trip covers offline now — drop the
+// old cache on devices that still have it.
+if (typeof caches !== "undefined") void caches.delete("supabase-api").catch(() => {});
+
 if (typeof window !== "undefined") {
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault(); // hold it back; the Install button fires it on a tap

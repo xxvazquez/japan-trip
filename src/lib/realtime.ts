@@ -28,6 +28,8 @@ export function subscribeTrip(
    *  (config/meta/media/scratch) — the `trips` table's equivalent of
    *  `hasPendingFor` for an entity row. */
   hasPendingFields?: () => boolean,
+  /** fired on the first successful subscribe */
+  onJoin?: () => void,
 ) {
   unsubscribeTrip();
   // an area/journey and its members are written as separate ops with no
@@ -70,6 +72,7 @@ export function subscribeTrip(
     ch.subscribe((status) => {
       if (status !== "SUBSCRIBED") return;
       if (established) onResync?.(); // a rejoin, not the first subscribe
+      else onJoin?.();
       established = true;
     });
     channel = ch;
