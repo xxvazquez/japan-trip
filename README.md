@@ -169,6 +169,7 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
 - **A place's card** — name, note, areas, city, Open in Google Maps, the day it's on (or **Add to a day**), and Remove.
 - **List rows** show the name and the walk to the nearest station.
 - **Place names** on the map are in English / Latin script where available.
+- **Your location** — the arrow under the zoom buttons shows where you are and follows you; drag the map to stop following, tap again to come back. GPS works with no signal. Once allowed, the dot comes back by itself next time.
 
 ### Filters
 

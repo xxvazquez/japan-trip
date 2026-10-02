@@ -14,6 +14,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { buildMapStyle } from "@/lib/mapStyle";
 import { Icon } from "@/components/Icon";
 import { Loader } from "@/components/Loader";
+import { LocateControl } from "@/components/LocateControl";
 import { transitLayers, TRANSIT_CONTROLS } from "@/lib/transitLayers";
 import { buildMarkerImage, markerKey } from "@/lib/mapGlyphs";
 import type { Place } from "@/core/types";
@@ -485,6 +486,7 @@ export function MapView({
           </button>
         </div>
       )}
+      {status === "ok" && <LocateControl getMap={() => map.current} mapKey={retryKey} />}
       {status === "loading" && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center bg-bg">
           <Loader label="Loading the map" />

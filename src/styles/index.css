@@ -534,3 +534,33 @@ html.dark {
 .maplibregl-ctrl-attrib-button {
   background-color: rgb(var(--c-ink-faint)) !important;
 }
+
+/* your location on the map (LocateControl) — the Maps dot: accent core in a
+   white ring (white in dark mode too, as iOS draws it), and an accuracy halo
+   sized in JS */
+.user-dot {
+  position: relative;
+  width: 0;
+  height: 0;
+}
+.user-dot-halo,
+.user-dot-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 9999px;
+  pointer-events: none;
+}
+.user-dot-halo {
+  background: rgb(var(--c-accent) / 0.14);
+  border: 1px solid rgb(var(--c-accent) / 0.3);
+  transition: width 0.3s var(--ease-paper), height 0.3s var(--ease-paper);
+}
+.user-dot-core {
+  width: 18px;
+  height: 18px;
+  background: rgb(var(--c-accent));
+  border: 3px solid rgb(255 255 255);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.3);
+}
