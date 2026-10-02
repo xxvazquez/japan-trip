@@ -78,9 +78,14 @@ export function LogbookIndex() {
   const spent = useTripSpent(data);
   if (!data) return null;
 
+  // a page pinned to the tab bar is a tab of its own, one tap away — listing
+  // it here as well just repeats the tab bar (iOS never shows one place twice)
+  const pinned = new Set(
+    data.config.modules.filter((m) => m.enabled && m.kind === "logbook-section" && m.target).map((m) => sectionSlug(m.target!)),
+  );
   const hidden = data.config.hiddenLogbook ?? [];
-  const lists = data.config.lists ?? [];
-  const builtins = LOGBOOK_SECTIONS.filter((s) => !hidden.includes(s));
+  const lists = (data.config.lists ?? []).filter((l) => !pinned.has(sectionSlug(l.id)));
+  const builtins = LOGBOOK_SECTIONS.filter((s) => !hidden.includes(s) && !pinned.has(sectionSlug(s)));
   const moduleLabel = data.config.modules.find((m) => m.kind === "logbook")?.label ?? "Logbook";
 
   return (

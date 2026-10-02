@@ -282,7 +282,7 @@ Open it from your account picture (or the foot of the sidebar on a wide screen).
 - **Currencies** — the first is the default (a new trip starts on `PLN`). Prices open a keypad, with a currency switch once there's a second currency.
 - **Expense categories** — rename, add, reorder or remove from ⋯. Removing one moves its spending to the next. A category can claim hop modes (so Train and Flights split out of Transport). Tap its icon to pick another from 130+.
 - **Logbook sections** — hide the ones you don't need.
-- **Tabs** — rename, reorder or hide Plan / Map / Logbook, and **Add tab** to pin a Logbook page (Packing, say) to the tab bar.
+- **Tabs** — rename, reorder or hide Plan / Map / Logbook, and **Add tab** to pin a Logbook page (Packing, say) to the tab bar. A pinned page leaves the Logbook list, so it isn't shown twice.
 
 ### Look
 
