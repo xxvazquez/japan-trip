@@ -28,6 +28,9 @@ type Base = {
    *  ⋯, a tick, a picker, beside a thin text line): still working on that
    *  row, so it should stay */
   onBlank?: (onRow: boolean) => void;
+  /** Return pressed on a filled single-line field, after it's saved — the
+   *  cue to move on to what the row still needs (a quick-entry flow) */
+  onReturn?: () => void;
   /** how a filled value reads when not being edited ("1945.64" → "1,945.64");
    *  the input itself still edits the raw value */
   format?: (v: string) => string;
@@ -121,7 +124,7 @@ const inputType = (kind: Kind) =>
 const DATE_SHOWN: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short" };
 
 export function Editable(props: Props) {
-  const { value, onCommit, placeholder = "Add…", label, className = "", emptyContent, editSignal, timeStart, autoEdit, onBlank } = props;
+  const { value, onCommit, placeholder = "Add…", label, className = "", emptyContent, editSignal, timeStart, autoEdit, onBlank, onReturn } = props;
   const rawAs = props.as ?? "text";
   const as: Kind =
     rawAs === "auto" ? resolveKind(label, value)
@@ -393,7 +396,15 @@ export function Editable(props: Props) {
       onChange={(e) => setDraft(e.target.value)}
       onKeyDown={(e) => {
         if (e.key === "Escape") cancel();
-        if (e.key === "Enter") commit();
+        if (e.key === "Enter") {
+          commit();
+          if (draft.trim() && onReturn) {
+            // whatever it opens may itself take Return (a keypad's Done) —
+            // this press is spent, so it mustn't reach that too
+            e.stopPropagation();
+            onReturn();
+          }
+        }
       }}
     />
   );

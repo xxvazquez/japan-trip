@@ -87,7 +87,7 @@ Tap a day on Plan to open it. From top to bottom:
 3. **Weather** — if the hotel has coordinates, the header shows the forecast ("Showers, 19–24°C"). Forecasts only reach ~16 days ahead, so later days show nothing until they're close enough.
 4. **The itinerary** — the day's steps (below).
 5. **Areas** — drop a whole neighbourhood's places onto the day's map.
-6. **Spending** and **General notes**. **Add an amount** offers the day's steps to pick from, then opens the keypad, in the currency you last spent in. Close it without an amount, or leave a new row with no name or amount, and the row goes away.
+6. **Spending** and **General notes**. **Add an amount** offers the day's steps to pick from, then opens the keypad, in the currency you last spent in. Close it without an amount and the row goes away. **Custom…** opens the name instead — Return moves on to the keypad, and a typed name is kept even with no amount yet. A new row left with no name or amount goes away.
 7. **The day's actions** — **Make this a day trip** (or **Not a day trip**), **Pin this day**, and **Delete day**.
 
 Every section folds away from its header.

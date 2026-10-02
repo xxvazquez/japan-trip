@@ -1265,11 +1265,19 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
   // it's named (picked off the plan), else its name. Rendered inside the tap
   // so the iPhone keyboard comes up for the name.
   const [fresh, setFresh] = useState<string | null>(null);
+  // picked off the plan = nothing typed, so closing its keypad empty can
+  // simply drop the row; a typed name is kept
+  const [picked, setPicked] = useState(false);
+  // a custom row's name entered with Return moves straight on to its amount
+  // (remounting its field open), the way a quick-entry flow advances; tapping
+  // away just stops there
+  const [keypadFor, setKeypadFor] = useState<string | null>(null);
   const addWithLabel = (label: string) => {
     const id = rid();
     flushSync(() => {
       setOpen(false);
       setFresh(id);
+      setPicked(!!label);
       const currency = defaultCurrency && currencies.includes(defaultCurrency) && defaultCurrency !== primary ? defaultCurrency : undefined;
       onChange([...costs, { id, label, amount: "", ...(currency && { currency }) }]);
     });
@@ -1330,6 +1338,7 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
                         <span className="text-sm text-ink">{c.label.trim() || catLabel(c.categoryId)}</span>
                       ) : (
                         <Editable label="What was it?" value={c.label} placeholder="What was it?" autoEdit={c.id === fresh && !c.label} className="text-sm text-ink" onCommit={(v) => setAt(i, { label: v })}
+                          onReturn={c.id === fresh && !c.amount ? () => setKeypadFor(c.id) : undefined}
                           // a row with no amount left without a name goes,
                           // like a step left blank (undoably if it had a name
                           // or category); one with an amount just loses its name
@@ -1347,11 +1356,12 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
                     ) : (
                       <span className="shrink-0 text-right text-sm text-ink tabular-nums">
                         <MoneyField
+                          key={keypadFor === c.id ? `${c.id}-keypad` : c.id}
                           label="Amount"
                           autoOpen={c.id === fresh && !!c.label}
-                          // a row just added for this amount and left without
-                          // one goes away, like a new step left blank
-                          onLeftEmpty={c.id === fresh ? () => onChange(costs.filter((x) => x.id !== c.id)) : undefined}
+                          // a row just added from the plan and left without an
+                          // amount goes away, like a new step left blank
+                          onLeftEmpty={c.id === fresh && picked ? () => onChange(costs.filter((x) => x.id !== c.id)) : undefined}
                           amount={c.amount}
                           currency={c.currency}
                           onAmount={(v) => setAt(i, { amount: cleanAmount(v) })}
