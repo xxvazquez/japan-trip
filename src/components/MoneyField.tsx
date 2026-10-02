@@ -22,6 +22,8 @@ export function MoneyField({
   onCurrency,
   label = "Amount",
   trailing = false,
+  autoOpen = false,
+  onLeftEmpty,
 }: {
   amount: string;
   currency?: string;
@@ -32,13 +34,18 @@ export function MoneyField({
   /** leave room after the amount so it ends where the values of the list rows
    *  beside it end (those rows keep their copy icon and ⋯ menu there) */
   trailing?: boolean;
+  /** open the keypad as soon as the field appears — a row just added for it */
+  autoOpen?: boolean;
+  /** the keypad closed with still no amount — lets a row added just for it go */
+  onLeftEmpty?: () => void;
 }) {
   const currencies = (useData()?.config.currencies ?? []).filter(Boolean);
   const primary = currencies[0] ?? "";
   const cur = currency || primary;
   const multi = currencies.length >= 2 && !!onCurrency;
   const bare = !amount || /^[\d.,]+$/.test(amount);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(autoOpen);
+  const committed = useRef("");
   const ref = useRef<HTMLButtonElement>(null);
 
   // two listed currencies drawing the same narrow symbol (USD and AUD are both
@@ -67,13 +74,17 @@ export function MoneyField({
       </button>
       <AmountSheet
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={() => {
+          setOpen(false);
+          if (!amount && !committed.current) onLeftEmpty?.();
+          committed.current = "";
+        }}
         anchorRef={ref}
         label={label}
         amount={amount}
         currency={cur}
         currencies={multi ? currencies : []}
-        onCommit={(a) => a !== amount && onAmount(a)}
+        onCommit={(a) => { committed.current = a; if (a !== amount) onAmount(a); }}
         onCurrency={multi ? (c) => onCurrency!(c === primary ? undefined : c) : undefined}
       />
     </>

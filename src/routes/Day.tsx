@@ -182,6 +182,21 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     const p = data.places.find((pl) => pl.id === it.placeId);
     if (p) { dayPlaceIds.add(it.placeId); dayPlaces.push(p); }
   }
+  // what an amount can be picked as: each step in plan order — its place's
+  // name, else its own text ("Lunch" is as likely a spend as a museum)
+  const spendChoices = [...new Set(
+    (day.plan ?? [])
+      .map((it) => (it.placeId ? data.places.find((pl) => pl.id === it.placeId)?.name : undefined) ?? it.text)
+      .map((t) => t?.trim())
+      .filter((t): t is string => !!t),
+  )];
+  // a new amount starts in the currency last used for day spending — on a
+  // trip abroad that's the local one, not the home currency listed first
+  const lastSpendCurrency = [...data.days]
+    .filter((x) => x.date <= day.date && x.costs?.some((c) => c.amount))
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .flatMap((x) => (x.costs ?? []).filter((c) => c.amount))
+    .at(-1)?.currency;
   const overwhelmingCount = dayPlaces.filter((p) => p.overwhelming).length;
   // the day's forecast — anchored to wherever you're staying that day (an
   // override, else the leg's own hotel), since a day has no coordinates of
@@ -441,7 +456,8 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             costs={day.costs ?? []}
             categories={data.config.expenseCategories ?? []}
             currencies={(data.config.currencies ?? []).filter(Boolean)}
-            places={dayPlaces}
+            choices={spendChoices}
+            defaultCurrency={lastSpendCurrency}
             highlightId={justAddedCostId}
             readOnly={ro}
             onChange={setCosts}
@@ -1231,23 +1247,37 @@ function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, category
 /** The day's spend — a category + a whole-number amount per row, with an
  *  optional free-text note. The amounts feed `tripCost`; the category drives
  *  the Expenses grouping. */
-function CostList({ costs, categories, currencies, places, highlightId, readOnly, onChange }: {
+function CostList({ costs, categories, currencies, choices, defaultCurrency, highlightId, readOnly, onChange }: {
   costs: DayCost[];
+  /** the currency a new row starts in; absent = the trip's primary */
+  defaultCurrency?: string;
   categories: ExpenseCategory[];
   currencies: string[];
-  places: Place[];
+  choices: string[];
   highlightId?: string | null;
   readOnly: boolean;
   onChange: (next: DayCost[]) => void;
 }) {
   const primary = currencies[0] ?? "";
   const setAt = (i: number, patch: Partial<DayCost>) => onChange(costs.map((c, j) => (j === i ? { ...c, ...patch } : c)));
-  const addWithLabel = (label: string) => onChange([...costs, { id: rid(), label, amount: "" }]);
+  // the row just added opens straight onto what's missing: the keypad once
+  // it's named (picked off the plan), else its name. Rendered inside the tap
+  // so the iPhone keyboard comes up for the name.
+  const [fresh, setFresh] = useState<string | null>(null);
+  const addWithLabel = (label: string) => {
+    const id = rid();
+    flushSync(() => {
+      setOpen(false);
+      setFresh(id);
+      const currency = defaultCurrency && currencies.includes(defaultCurrency) && defaultCurrency !== primary ? defaultCurrency : undefined;
+      onChange([...costs, { id, label, amount: "", ...(currency && { currency }) }]);
+    });
+  };
   const { open, setOpen, anchorRef } = useActionSheet();
-  // a place already on the day's plan can be picked straight off, so its name
+  // a step already on the day's plan can be picked straight off, so its name
   // doesn't need retyping — otherwise there's nothing to pick from, so skip
   // straight to a blank row like before
-  const add = () => (places.length > 0 ? setOpen(true) : addWithLabel(""));
+  const add = () => (choices.length > 0 ? setOpen(true) : addWithLabel(""));
   const catLabel = (id?: string) => categories.find((c) => c.id === id)?.label ?? "Uncategorised";
 
   const addButton = (className: string, iconSize: number) => (
@@ -1255,8 +1285,8 @@ function CostList({ costs, categories, currencies, places, highlightId, readOnly
       <button ref={anchorRef} onClick={add} className={className}><Icon name="plus" size={iconSize} /> Add an amount</button>
       <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="What was it?">
         <button type="button" onClick={() => addWithLabel("")} className="menu-item">Custom…</button>
-        {places.map((p) => (
-          <button key={p.id} type="button" onClick={() => addWithLabel(p.name)} className="menu-item">{p.name}</button>
+        {choices.map((name) => (
+          <button key={name} type="button" onClick={() => addWithLabel(name)} className="menu-item">{name}</button>
         ))}
       </ActionSheet>
     </>
@@ -1298,7 +1328,7 @@ function CostList({ costs, categories, currencies, places, highlightId, readOnly
                       {readOnly ? (
                         <span className="text-sm text-ink">{c.label.trim() || catLabel(c.categoryId)}</span>
                       ) : (
-                        <Editable label="What was it?" value={c.label} placeholder="What was it?" className="text-sm text-ink" onCommit={(v) => setAt(i, { label: v })} />
+                        <Editable label="What was it?" value={c.label} placeholder="What was it?" autoEdit={c.id === fresh && !c.label} className="text-sm text-ink" onCommit={(v) => setAt(i, { label: v })} />
                       )}
                     </span>
                     {readOnly ? (
@@ -1307,6 +1337,10 @@ function CostList({ costs, categories, currencies, places, highlightId, readOnly
                       <span className="shrink-0 text-right text-sm text-ink tabular-nums">
                         <MoneyField
                           label="Amount"
+                          autoOpen={c.id === fresh && !!c.label}
+                          // a row just added for this amount and left without
+                          // one goes away, like a new step left blank
+                          onLeftEmpty={c.id === fresh ? () => onChange(costs.filter((x) => x.id !== c.id)) : undefined}
                           amount={c.amount}
                           currency={c.currency}
                           onAmount={(v) => setAt(i, { amount: cleanAmount(v) })}
