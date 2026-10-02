@@ -147,7 +147,7 @@ Each step shows a tile, an optional time, the step itself and a short note.
 - **Link a place** — tap the grey pin to pick a place from the day's Areas. Tap a linked name to change it; **Custom…** unlinks it.
 - **Meal steps** — an unlinked step whose text mentions a meal (lunch, dinner, breakfast…), coffee or drinks gets a gold food, coffee or drink tile instead of the grey pin.
 - **Reorder** by dragging.
-- **The ⋯ menu** — show on map, add to Google Calendar, mark as **overwhelming** (a ⚠ sensory heads-up; the day's count shows on Plan), add a note, duplicate, add an expense, remove.
+- **The ⋯ menu** — show on map, Tabelog (restaurants in Japan), add to Google Calendar, mark as **overwhelming** (a ⚠ sensory heads-up; the day's count shows on Plan), add a note, duplicate, add an expense, remove.
 - **Notes** support bold, bullets and links. Tap to expand and edit. Empty fields stay hidden.
 - **+ Add a step** sits at the foot of the list and opens the new step ready to type. Leave it blank and it goes away.
 - **Each journey on the day** shows as two rows of its own: **Leave** (first departure) and **Arrive** (last arrival), slotted in by time. They follow the journey live — edit the times on the journey, tap a row to open it.
@@ -164,6 +164,15 @@ These appear automatically when a step is linked to a place.
 A straight-line estimate shows first and is replaced by a real walking route when one comes back (needs `VITE_ORS_API_KEY`). When the walk to the next step is over 20 minutes, a train link is added — *"Train: Ueno → Uguisudani · ≈ 24 min total"* — which opens Google Maps transit directions. The total is a rough door-to-door guess, since there's no free transit-routing API.
 
 **Opening hours.** If the place itself has hours on OpenStreetMap (matched by its name, or tagged right on its pin — never a neighbour's), that day's hours show at the right of the row ("09:00–17:00", or "Closed"). Seasonal and weekday rules are applied; anything the app can't read is shown as written. It's for information only — nothing is flagged as a conflict.
+
+**Tabelog link.** A restaurant or café in Japan gets its Tabelog page found automatically:
+
+- It happens the first time the step shows, or its card opens on the Map. Online only; the link is then saved with the place.
+- A match needs the same name (English or Japanese) and a pin within about 250 m — a wrong branch is never saved.
+- Found: a small **Tabelog** link under the step, and **Open in Tabelog** in its ⋯ menu.
+- Not found: the ⋯ menu offers **Search Tabelog** instead. A miss isn't retried on that device for 30 days, unless the name or pin changes.
+- "Restaurant" means the category's icon is from *Food & drink* (or its name says food, café, bar…).
+- **Manage → Content → Tabelog links** finds them for every restaurant at once.
 
 **Back to hotel.** The last row of the day is the way home to that night's hotel (left off on a departure day). It shows the walk, or the stations to travel between for a long way, and opens Google Maps directions when tapped.
 
@@ -204,7 +213,7 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
 
 - **＋ Add place** — search for somewhere, or tap the map to drop a pin.
 - **The list** — once a city is picked, places are grouped by area (plus *No area*). On **All** it nests **city → area → place**. Groups start collapsed and remember what you opened.
-- **A place's card** — name, note, areas, city, Open in Google Maps, the day it's on (or **Add to a day**), and Remove.
+- **A place's card** — name, note, areas, city, Open in Google Maps, Tabelog for a restaurant in Japan (see [Helpers on a step](#helpers-on-a-step)), the day it's on (or **Add to a day**), and Remove.
 - **List rows** show the name and the walk to the nearest station.
 - **Place names** on the map are in English / Latin script where available.
 
@@ -523,7 +532,7 @@ edit in the UI  →  TripData (in memory)  →  backend
 ### Setting up a project
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0036`).
+2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0037`).
    - `0033` moves old day-trip text (getting there / back, last way back) into each day's notes — take a backup first.
    - `0035` drops the retired day columns. On an existing project, run it only once the build with it is live — an older build still writes `journey_id`, and its day saves would fail.
 3. **Authentication → Providers → Google** — enable it with a Google Cloud OAuth client id and secret. Redirect: `https://<project-ref>.supabase.co/auth/v1/callback`.
@@ -553,6 +562,10 @@ Google sign-in has no allowlist of its own. Strangers would only ever see their 
 ## Deploy
 
 Hosted on **Cloudflare Workers** (static assets), deployed through the Git integration on every push to `main`.
+
+- A small Worker script ([`worker/index.ts`](worker/index.ts)) answers `/api/*` only — today just `/api/tabelog`, the restaurant lookup. Everything else is served as static files without touching it (`run_worker_first` in [`wrangler.jsonc`](wrangler.jsonc)).
+- In `npm run dev` / `preview` the same handler runs as Vite middleware, so the lookup works locally too.
+- The public demo has no Worker script; there the Tabelog row just opens a search.
 
 ### Main site
 
@@ -633,6 +646,7 @@ src/
                         Hotel, Document, Manage, Help…)
   templates/            blank + demo seed trips
   styles/index.css      colour tokens and type scale
+worker/                 the Worker script — /api/* only (Tabelog lookup)
 supabase/migrations/    database schema, applied in order
 supabase/dump_trip.sql  read-only trip export for diffing
 scripts/make_icons.py   regenerates app icons from the logo files

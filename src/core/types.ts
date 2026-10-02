@@ -292,6 +292,9 @@ export interface Place {
   note?: string;
   /** pasted Google Maps link */
   url?: string;
+  /** the place's page on a restaurant guide (see `reviewSite.ts`) — found
+   *  by the app's own lookup, or pasted */
+  reviewUrl?: string;
   /** "mymap" for imported pins; unset for app-native ones */
   source?: "mymap";
   /** manual override of the computed "home city" (leg) — set when the

@@ -27,6 +27,7 @@ import { legHex } from "@/lib/legColors";
 import { suggestAreas, type AreaSuggestion } from "@/lib/cluster";
 import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
+import { reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
 import { primeKeyboard } from "@/lib/keyboard";
 import { TRANSIT_KINDS, TRANSIT_META } from "@/lib/transitLayers";
 import { nearestStationFromMap, nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
@@ -1683,6 +1684,9 @@ function PlaceRow({
 }) {
   const readOnly = useReadOnly();
   const link = gmapsLink(place.url || place.name);
+  // a restaurant's guide page (Tabelog in Japan) — looked up once it's opened
+  const reviewSite = reviewSiteFor(place, categoryIcons);
+  useAutoReviewLink(place, categoryIcons, open && !readOnly);
   const day = dayId ? days.find((d) => d.id === dayId) : undefined;
   const li = useRef<HTMLLIElement>(null);
   useEffect(() => {
@@ -1779,6 +1783,11 @@ function PlaceRow({
                     <Icon name="map" size={16} /> Open in Google Maps
                   </a>
                 )}
+                {reviewSite && (
+                  <a href={reviewHref(reviewSite, place)} target="_blank" rel="noopener" className="menu-item">
+                    <Icon name="link" size={16} /> {place.reviewUrl ? `Open in ${reviewSite.label}` : `Search ${reviewSite.label}`}
+                  </a>
+                )}
                 {!readOnly && <ConfirmMenuItem onConfirm={onRemove} label="Delete place" icon={<Icon name="trash" size={16} />} />}
               </>
             )}
@@ -1832,6 +1841,15 @@ function PlaceRow({
               <a href={link} target="_blank" rel="noopener" className={`${rowCls} text-accent active:bg-surface-2`}>
                 <Icon name="map" size={15} className="shrink-0" />
                 <span className="min-w-0 flex-1">Open in Google Maps</span>
+                <Icon name="chevron" size={13} className="shrink-0 text-ink-faint" />
+              </a>
+            </li>
+          )}
+          {reviewSite && (
+            <li className={INSET_DIVIDER}>
+              <a href={reviewHref(reviewSite, place)} target="_blank" rel="noopener" className={`${rowCls} text-accent active:bg-surface-2`}>
+                <Icon name="link" size={15} className="shrink-0" />
+                <span className="min-w-0 flex-1">{place.reviewUrl ? `Open in ${reviewSite.label}` : `Search ${reviewSite.label}`}</span>
                 <Icon name="chevron" size={13} className="shrink-0 text-ink-faint" />
               </a>
             </li>

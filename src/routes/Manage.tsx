@@ -9,6 +9,7 @@ import { TileRow } from "@/components/TileRow";
 import type { Tone } from "@/lib/tones";
 import { useApp, undoable } from "@/store/useApp";
 import { useData } from "@/lib/data";
+import { findReviewLink, reviewSiteFor, saveReviewLink } from "@/lib/reviewSite";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import { useIsDark, useMode, type Mode } from "@/lib/mode";
 import { APP_BUILD, APP_NAME, APP_TAGLINE } from "@/lib/app";
@@ -1472,7 +1473,67 @@ function Content() {
       ))}
 
       {CategoryIcons()}
+      <ReviewLinksPanel />
     </div>
+  );
+}
+
+/** Finds every restaurant's guide page (Tabelog in Japan) in one go — the
+ *  lookup a Plan step or Map card runs when it's shown, for the places not
+ *  opened yet. One place at a time; leaving the page doesn't stop it. */
+function ReviewLinksPanel() {
+  const data = useData();
+  const [run, setRun] = useState<{ done: number; total: number; found: number; failed: number; running: boolean } | null>(null);
+  if (!data) return null;
+  const icons = data.config.categoryIcons;
+  const places = data.places.filter((p) => reviewSiteFor(p, icons));
+  if (places.length === 0) return null;
+  const labels = [...new Set(places.map((p) => reviewSiteFor(p, icons)!.label))];
+  const label = labels.length === 1 ? labels[0] : "guide";
+  const missing = places.filter((p) => !p.reviewUrl);
+
+  const findAll = async () => {
+    const total = missing.length;
+    let found = 0;
+    let failed = 0;
+    setRun({ done: 0, total, found, failed, running: true });
+    for (const [i, p] of missing.entries()) {
+      const url = await findReviewLink(reviewSiteFor(p, icons)!, p, true);
+      if (url) {
+        saveReviewLink(p.id, url);
+        found++;
+      } else if (url === undefined) failed++;
+      setRun({ done: i + 1, total, found, failed, running: true });
+      // the lookup itself is down (offline, or the site turning it away) —
+      // no point asking for the rest
+      if (failed >= 3 && found === 0 && failed === i + 1) break;
+    }
+    setRun((r) => r && { ...r, running: false });
+  };
+
+  const summary = run && !run.running
+    ? run.failed === run.done && run.done > 0
+      ? `Couldn’t reach ${label} — try again later`
+      : `Found ${run.found} of ${run.total}${run.failed ? ` · ${run.failed} couldn’t be checked` : ""}`
+    : null;
+
+  return (
+    <Section
+      title={`${label} links`}
+      info={`Restaurants and cafés get a link to their ${label} page — found by name and map position, and saved with the place. It happens by itself when you open one on Plan or the Map; this finds them all at once. Any it can’t find open a ${label} search instead.`}
+    >
+      <ul>
+        <InsetRow label="Linked">
+          <span className="tabular-nums">{places.length - missing.length} of {places.length}</span>
+        </InsetRow>
+        {summary && <InsetRow label="Last check">{summary}</InsetRow>}
+        {run?.running ? (
+          <ActionRow label={`Finding links… ${run.done} of ${run.total}`} onClick={() => {}} disabled />
+        ) : (
+          missing.length > 0 && <ActionRow icon="link" label={`Find ${label} links`} onClick={() => void findAll()} />
+        )}
+      </ul>
+    </Section>
   );
 }
 

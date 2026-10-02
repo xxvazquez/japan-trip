@@ -1,9 +1,10 @@
-import { defineConfig, type Plugin } from "vite";
+import { defineConfig, type Connect, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import { fileURLToPath, URL } from "node:url";
 import { execSync } from "node:child_process";
 import { readFileSync, readdirSync } from "node:fs";
+import { handleTabelog } from "./worker/tabelog";
 
 /** which commit this bundle was built from — Cloudflare's build sets the SHA;
  *  locally it's read from git. Shown in Manage so it's easy to tell whether a
@@ -72,6 +73,26 @@ function pdfjsAssets(): Plugin {
   };
 }
 
+/** `/api/*` is the Worker's in production (worker/index.ts); in dev and
+ *  preview the same handlers answer from here, so the app can be driven
+ *  end to end locally. */
+function workerApi(): Plugin {
+  const api: Connect.NextHandleFunction = (req, res, next) => {
+    const url = new URL(req.url ?? "/", "http://localhost");
+    if (url.pathname !== "/api/tabelog") return next();
+    handleTabelog(url).then(async (r) => {
+      res.statusCode = r.status;
+      res.setHeader("Content-Type", "application/json");
+      res.end(await r.text());
+    }, next);
+  };
+  return {
+    name: "worker-api",
+    configureServer: (server) => void server.middlewares.use(api),
+    configurePreviewServer: (server) => void server.middlewares.use(api),
+  };
+}
+
 export default defineConfig(({ command }) => ({
   define: {
     __APP_VERSION__: JSON.stringify(buildVersion()),
@@ -101,6 +122,7 @@ export default defineConfig(({ command }) => ({
   plugins: [
     react(),
     pdfjsAssets(),
+    workerApi(),
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.png", "icons/*.png", "textures/*", "brand/*.png"],

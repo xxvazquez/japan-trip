@@ -40,6 +40,7 @@ import { DayLabels, tripLabels } from "@/components/DayLabels";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
+import { reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
 import { dayJourneys, dayKind, fmtDate, journeyDepartDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink, gmapsRoute, mapUrlCoords } from "@/lib/maps";
@@ -745,6 +746,9 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
   // an empty note stays out of the card until "Add a note" asks for it
   const [noteOpen, setNoteOpen] = useState(false);
   const mapHref = gmapsLink(item.url || place?.url || place?.name);
+  // a restaurant's guide page (Tabelog in Japan) — looked up as the step shows
+  const reviewSite = place ? reviewSiteFor(place, categoryIcons) : undefined;
+  useAutoReviewLink(place, categoryIcons, !readOnly);
   const toggleOverwhelming = () => {
     if (!place) return;
     updateEntity<Place>("places", place.id, { overwhelming: !place.overwhelming || undefined });
@@ -914,6 +918,11 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
                 onEditEnd={() => setNoteOpen(false)}
               />
             )}
+            {place?.reviewUrl && reviewSite && (
+              <a href={place.reviewUrl} target="_blank" rel="noopener" className="meta flex w-fit items-center gap-1 text-accent">
+                <Icon name="link" size={12} className="shrink-0" /> {reviewSite.label}
+              </a>
+            )}
             {place && <StepWalkLines place={place} nextPlace={nextPlace} />}
           </div>
 
@@ -924,6 +933,11 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
               <button type="button" className="menu-item" onClick={() => onShowOnMap(place)}>
                 <Icon name="locate" size={16} /> Show on map
               </button>
+            )}
+            {place && reviewSite && (
+              <a href={reviewHref(reviewSite, place)} target="_blank" rel="noopener" className="menu-item">
+                <Icon name="link" size={16} /> {place.reviewUrl ? `Open in ${reviewSite.label}` : `Search ${reviewSite.label}`}
+              </a>
             )}
             <button type="button" className="menu-item" onClick={addToGoogleCalendar}>
               <Icon name="calendar" size={16} /> Add to Google Calendar
