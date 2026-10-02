@@ -143,7 +143,7 @@ export function DataSafety() {
               <li key={p.tripId} className={`${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-3`}>
                 <span className="min-w-0 flex-1">
                   <span className="lead block break-words">{p.tripName}</span>
-                  <span className="meta block break-words">Last saved {when(p.at)} · {p.stats.total} items</span>
+                  <span className="meta block break-words">Last saved {when(p.at)} · {p.stats.total} item{p.stats.total === 1 ? "" : "s"}</span>
                 </span>
                 <button onClick={() => restore(p, "copy")} disabled={busy} className="action">Restore</button>
               </li>
