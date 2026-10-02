@@ -1352,13 +1352,16 @@ function Content() {
           </span>
         </button>
         {isOpen && (
-          <div className="pb-3">
+          // the group's entries sit one indent in, like an expanded outline
+          // row in Files or Reminders — so the heading above reads as the
+          // group, not as one more entry
+          <div className="pb-3 pl-4">
             <ul>
               {list.map((x, i) => {
                 const rec = x as Record<string, unknown>;
                 const href = entityLink(type, x.id);
                 return (
-                  <ContextMenu as="li" key={x.id} className="border-b border-line py-2 text-sm last:border-b-0">
+                  <ContextMenu as="li" key={x.id} className="border-b border-line py-2 text-sm text-ink-soft last:border-b-0">
                     <div className="flex items-center gap-2">
                       <span className="min-w-0 flex-1 break-words">
                         {href ? <Link to={href} className="hover:text-accent">{nameOf(rec)}</Link> : nameOf(rec)}

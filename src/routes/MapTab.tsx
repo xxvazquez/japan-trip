@@ -1308,11 +1308,11 @@ export default function MapTab() {
               </div>
             )}
             {editingAreas && data.areas.length > 0 && (
-              <ul className="max-h-64 overflow-y-auto border-t border-line pt-1.5">
+              <ul className="isolate max-h-64 overflow-y-auto rounded-[12px] bg-surface">
                 {[...data.areas]
                   .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
                   .map((a) => (
-                    <ContextMenu as="li" key={a.id} className="flex items-center gap-2 border-b border-line py-1.5 text-sm last:border-b-0">
+                    <ContextMenu as="li" key={a.id} className={`flex items-center gap-2 px-3.5 py-2 text-sm ${INSET_DIVIDER}`}>
                       <span className="min-w-0 flex-1 break-words">
                         <Editable label="Area name" value={a.name} placeholder="Area name" onCommit={(v) => updateEntity<Area>("areas", a.id, { name: v.trim() || "Untitled" })} />
                       </span>
@@ -1345,12 +1345,12 @@ export default function MapTab() {
           <div>
             <SearchField value={q} onChange={setQ} placeholder="Search for a place" autoFocus />
             {results.length > 0 && (
-              <ul className="mt-2">
+              <ul className="isolate mt-2 overflow-hidden rounded-[12px] bg-surface">
                 {results.map((r, i) => (
                   <li key={i} className={INSET_DIVIDER}>
                     <button
                       onClick={() => commitPlace(r.name, r.lat, r.lng)}
-                      className="block w-full py-2 text-left"
+                      className="block w-full px-3.5 py-2 text-left active:bg-ink/[0.07]"
                     >
                       <span className="block text-sm">{r.name}</span>
                       <span className="meta block break-words">{r.detail}</span>
@@ -1977,9 +1977,9 @@ function SuggestReview({
             {naming ? ", naming them by neighbourhood…" : ". "}
             {!naming && "Untick any you don’t want, rename them, or open one to drop a place."}
           </p>
-          <ul>
+          <ul className="isolate overflow-hidden rounded-[12px] bg-surface">
             {groups.map((g, i) => (
-              <li key={i} className="border-b border-line py-2 last:border-b-0">
+              <li key={i} className={`px-3.5 py-2.5 ${INSET_DIVIDER}`}>
                 <div className="flex items-center gap-2">
                   <button onClick={() => set(i, { keep: !g.keep })} aria-label={g.keep ? "Skip this group" : "Keep this group"} className="shrink-0">
                     <Icon name="check" size={14} className={g.keep ? "text-accent" : "text-ink-faint/30"} />
@@ -2008,7 +2008,7 @@ function SuggestReview({
                       <li key={id}>
                         <button
                           onClick={() => set(i, { placeIds: g.placeIds.filter((x) => x !== id) })}
-                          className="link-quiet flex w-full items-center gap-2 py-1 text-left text-sm"
+                          className="flex w-full items-center gap-2 py-1 text-left text-sm text-ink-soft hover:text-ink"
                         >
                           <Icon name="close" size={11} className="shrink-0 text-ink-faint" />
                           <span className="break-words">{nameById.get(id) ?? "place"}</span>
