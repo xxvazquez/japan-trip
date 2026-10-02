@@ -389,8 +389,9 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
   }
 
   // v13: a day holds any number of journeys (`journeyIds`) instead of one
-  // `journeyId`. The old link (also still the `journey_id` column a pre-v13
-  // build writes) folds into the list; ids of deleted journeys drop out.
+  // `journeyId`. The old link (from a backup or local trip saved before v13 —
+  // the `journey_id` column itself is gone, 0035) folds into the list; ids of
+  // deleted journeys drop out.
   const journeyIdSet = new Set((d.journeys as { id?: string }[]).map((j) => j?.id));
   for (const day of d.days as Day[]) {
     const old = day as unknown as { journeyId?: unknown };

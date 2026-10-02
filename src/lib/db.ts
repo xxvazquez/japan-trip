@@ -28,10 +28,7 @@ const SPECS: Record<EntityType, Spec> = {
   hotels: { table: "hotels" },
   journeys: { table: "journeys" },
   luggage: { table: "luggage" },
-  // `journey_id` is the old single link, read into `journeyIds` on load
-  // (`normalizeTrip`); every save empties it so an unlinked journey can't
-  // come back from it
-  days: { table: "days", toRow: (_e, row) => { row.journey_id = null; } },
+  days: { table: "days" },
   packing: { table: "packing", rename: { group: "group_name" } },
   docs: { table: "docs" },
   places: { table: "places" },
@@ -65,9 +62,7 @@ function entityToRow(spec: Spec, e: Record<string, unknown>, tripId: string, pos
   return row;
 }
 
-// columns that carry row plumbing, not entity fields. `journey_id` is NOT here:
-// on the `days` table it's the old single day→journey link, still read so
-// `normalizeTrip` can fold it into `journeyIds`.
+// columns that carry row plumbing, not entity fields
 const PLUMBING = ["id", "trip_id", "position", "created_at", "updated_at"];
 
 function rowToEntity(spec: Spec, r: Record<string, unknown>) {
