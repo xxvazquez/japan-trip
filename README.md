@@ -124,7 +124,7 @@ These appear automatically when a step is linked to a place.
 
 A straight-line estimate shows first and is replaced by a real walking route when one comes back (needs `VITE_ORS_API_KEY`). When the walk to the next step is over 20 minutes, a train link is added — *"Train: Ueno → Uguisudani · ≈ 24 min total"* — which opens Google Maps transit directions. The total is a rough door-to-door guess, since there's no free transit-routing API.
 
-**Opening hours.** If the place has hours on OpenStreetMap, that day's hours show at the right of the row ("09:00–17:00", or "Closed"). Seasonal and weekday rules are applied; anything the app can't read is shown as written. It's for information only — nothing is flagged as a conflict.
+**Opening hours.** If the place itself has hours on OpenStreetMap (matched by its name, or tagged right on its pin — never a neighbour's), that day's hours show at the right of the row ("09:00–17:00", or "Closed"). Seasonal and weekday rules are applied; anything the app can't read is shown as written. It's for information only — nothing is flagged as a conflict.
 
 **Back to hotel.** The last row of the day is the way home to that night's hotel (left off on a departure day). It shows the walk, or the stations to travel between for a long way, and opens Google Maps directions when tapped.
 

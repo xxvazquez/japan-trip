@@ -16,16 +16,58 @@ export interface PlaceHours {
 }
 
 const SEARCH_RADIUS_KM = 0.2;
+/** without a name to go on, only something tagged this close to the pin is
+ *  taken to be the place itself. In a dense city the nearest tagged thing
+ *  20 m away is as likely the konbini next door — wrong hours are worse
+ *  than none. */
+const AT_PIN_KM = 0.03;
+
+/** lowercase, accents off, punctuation and spaces gone — "Kōffee  Mameya!" and
+ *  "koffee mameya" compare equal; CJK is kept as it is */
+const norm = (s: string) =>
+  s.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
+
+const NAME_TAGS = ["name", "name:en", "name:ja-Latn", "name:ja_rm", "alt_name", "official_name", "official_name:en", "short_name", "brand"];
+
+/** does an OSM feature's name match the place's own? Either one containing
+ *  the other is enough ("Meiji Jingu" ~ "Meiji Jingu Shrine"), once both are
+ *  long enough not to match by accident. */
+export function namesMatch(place: string, tags: Record<string, string> = {}): boolean {
+  const a = norm(place);
+  if (a.length < 3) return false;
+  return NAME_TAGS.some((k) => {
+    const b = tags[k] ? norm(tags[k]) : "";
+    return b.length >= 3 && (a.includes(b) || b.includes(a));
+  });
+}
+
+type OsmElement = { lat?: number; lon?: number; center?: { lat: number; lon: number }; tags?: Record<string, string> };
+
+/** the place's own hours out of everything tagged nearby: the nearest feature
+ *  whose name matches, else one sitting right on the pin, else nothing */
+export function pickHours(elements: OsmElement[], lat: number, lng: number, name?: string): PlaceHours | null {
+  let named: PlaceHours | null = null;
+  let atPin: PlaceHours | null = null;
+  for (const el of elements) {
+    const hours = el.tags?.opening_hours;
+    const elat = el.lat ?? el.center?.lat;
+    const elon = el.lon ?? el.center?.lon;
+    if (!hours || elat === undefined || elon === undefined) continue;
+    const km = haversineKm(lat, lng, elat, elon);
+    if (name && namesMatch(name, el.tags) && (!named || km < named.km)) named = { hours, km };
+    if (km <= AT_PIN_KM && (!atPin || km < atPin.km)) atPin = { hours, km };
+  }
+  return named ?? atPin;
+}
 
 const cache = new Map<string, PlaceHours | null>();
 
 /** the same place asked twice at once (two lines of one step) shares one request */
 const inFlight = new Map<string, Promise<PlaceHours | null>>();
 
-/** `name` is only used by the Nominatim fallback, which finds a place by name
- *  inside a small box around its pin. */
+/** `name` is what tells the place apart from its neighbours — see `pickHours`. */
 export function nearestOpeningHours(lat: number, lng: number, name?: string): Promise<PlaceHours | null> {
-  const key = `${lat.toFixed(4)},${lng.toFixed(4)}`;
+  const key = cacheKey(lat, lng, name);
   let p = inFlight.get(key);
   if (!p) {
     p = fetchOpeningHours(lat, lng, name).finally(() => inFlight.delete(key));
@@ -49,6 +91,8 @@ async function hoursFromNominatim(lat: number, lng: number, name?: string): Prom
     }
     return best;
   };
+  // a name search is already about this place; the reverse lookup below is
+  // just "whatever's at these coordinates", so it has to be right on the pin
   const q = name?.trim();
   if (q) {
     const dLat = 0.0035;
@@ -73,32 +117,30 @@ async function hoursFromNominatim(lat: number, lng: number, name?: string): Prom
     extratags: "1",
     addressdetails: "0",
   }, { low: true });
-  return pick(at && at.lat ? [at] : [], SEARCH_RADIUS_KM);
+  return pick(at && at.lat ? [at] : [], AT_PIN_KM);
 }
 
+/** per pin *and* name — two places on one pin can have different hours.
+ *  "hours2": answers stored under the old "hours." key were picked by
+ *  distance alone, often a neighbour's, so they're left behind. */
+const cacheKey = (lat: number, lng: number, name?: string) => `${lat.toFixed(4)},${lng.toFixed(4)},${name ? norm(name) : ""}`;
+
 async function fetchOpeningHours(lat: number, lng: number, name?: string): Promise<PlaceHours | null> {
-  const key = `${lat.toFixed(4)},${lng.toFixed(4)}`;
+  const key = cacheKey(lat, lng, name);
   if (cache.has(key)) return cache.get(key)!;
-  const stored = readPersisted<PlaceHours>(`hours.${key}`);
+  const stored = readPersisted<PlaceHours>(`hours2.${key}`);
   if (stored) {
     cache.set(key, stored);
     return stored;
   }
   const radius = SEARCH_RADIUS_KM * 1000;
-  const query = `[out:json][timeout:10];(node(around:${radius},${lat},${lng})["opening_hours"];way(around:${radius},${lat},${lng})["opening_hours"];);out center 5;`;
+  // enough rows to hold the venue itself in a dense block — Overpass returns
+  // them in no particular order, so a small cap could leave it out
+  const query = `[out:json][timeout:10];(node(around:${radius},${lat},${lng})["opening_hours"];way(around:${radius},${lat},${lng})["opening_hours"];);out center 100;`;
   let best: PlaceHours | null = null;
   try {
-    const json = await overpass<{
-      elements?: { lat?: number; lon?: number; center?: { lat: number; lon: number }; tags?: Record<string, string> }[];
-    }>(query, { low: true });
-    for (const el of json.elements ?? []) {
-      const hours = el.tags?.opening_hours;
-      const elat = el.lat ?? el.center?.lat;
-      const elon = el.lon ?? el.center?.lon;
-      if (!hours || elat === undefined || elon === undefined) continue;
-      const km = haversineKm(lat, lng, elat, elon);
-      if (!best || km < best.km) best = { hours, km };
-    }
+    const json = await overpass<{ elements?: OsmElement[] }>(query, { low: true });
+    best = pickHours(json.elements ?? [], lat, lng, name);
   } catch {
     try {
       best = await hoursFromNominatim(lat, lng, name);
@@ -110,6 +152,6 @@ async function fetchOpeningHours(lat: number, lng: number, name?: string): Promi
   // cached even when null — "nothing tagged nearby" is a stable answer,
   // same as `transitStation.ts`'s own lookup cache
   cache.set(key, best);
-  if (best) writePersisted(`hours.${key}`, best);
+  if (best) writePersisted(`hours2.${key}`, best);
   return best;
 }
