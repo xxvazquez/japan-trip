@@ -1417,14 +1417,16 @@ function Content() {
         const next = cur.includes(name) ? cur.filter((c) => c !== name) : [...cur, name];
         d.config.pinnedCategories = next.length ? next : undefined;
       });
+    const merges = data.config.categoryMerges ?? {};
+    const mergedInto = (name: string) => Object.keys(merges).filter((k) => merges[k] === name).sort((a, b) => a.localeCompare(b));
     return (
       <Section
         title="Category pins"
-        info="Each category's colour and icon apply to all its pins, whatever they had in My Maps — set them once here. A My Maps layer gets an icon guessed from its name; tap it to pick another, or “Dot” for none. “Always show” keeps a category's pins on the map when you zoom far out, on top of everything, instead of folding them into a numbered cluster — handy for your hotel, or anything you need to find at a glance."
+        info="Each category's colour and icon apply to all its pins, whatever they had in My Maps — set them once here. A My Maps layer gets an icon guessed from its name; tap it to pick another, or “Dot” for none. “Merge into…” in a category's ⋯ menu files its pins under another category — a My Maps layer then keeps landing there on every sync. “Always show” keeps a category's pins on the map when you zoom far out, on top of everything, instead of folding them into a numbered cluster — handy for your hotel, or anything you need to find at a glance."
       >
         <ul>
           {names.map((name) => (
-            <li key={name} className={`${MLI} text-sm`}>
+            <ContextMenu as="li" key={name} className={`${MLI} text-sm`}>
               <ColorSwatch
                 label={name}
                 value={colorOf(name)}
@@ -1435,7 +1437,12 @@ function Content() {
                   onReset: () => setColor(name, undefined),
                 }}
               />
-              <span className="min-w-0 flex-1 break-words">{name}</span>
+              <span className="min-w-0 flex-1 break-words">
+                {name}
+                {mergedInto(name).length > 0 && (
+                  <span className="meta block">Also {mergedInto(name).map((m) => `“${m}”`).join(", ")}</span>
+                )}
+              </span>
               <button type="button" className="chip" aria-pressed={pinned.includes(name)} onClick={() => togglePinned(name)}>
                 Always show
               </button>
@@ -1446,7 +1453,12 @@ function Content() {
                 label={name}
                 onChange={(glyph) => setIcon(name, glyph)}
               />
-            </li>
+              <CategoryMenu
+                name={name}
+                others={names.filter((n) => n !== name).map((n) => ({ name: n, color: colorOf(n), glyph: icons[n] }))}
+                merged={mergedInto(name)}
+              />
+            </ContextMenu>
           ))}
         </ul>
       </Section>
@@ -1475,6 +1487,48 @@ function Content() {
       {CategoryIcons()}
       <ReviewLinksPanel />
     </div>
+  );
+}
+
+/** A category row's ⋯: merge it into another category (a sheet listing the
+ *  rest, Photos' "Move to Album" shape), or undo an earlier merge. */
+function CategoryMenu({ name, others, merged }: {
+  name: string;
+  others: { name: string; color: string; glyph?: string }[];
+  merged: string[];
+}) {
+  const mergeCategory = useApp((s) => s.mergeCategory);
+  const unmergeCategory = useApp((s) => s.unmergeCategory);
+  const syncMyMap = useApp((s) => s.syncMyMap);
+  const mapUrl = useData()?.config.mapSourceUrl;
+  const sheet = useActionSheet();
+  // a re-sync is what puts a separated layer's pins back under their own name
+  const separate = (m: string) => {
+    unmergeCategory(m);
+    if (mapUrl) void syncMyMap(mapUrl).catch(() => undefined);
+  };
+  if (others.length === 0 && merged.length === 0) return null;
+  return (
+    <span ref={sheet.anchorRef} className="shrink-0">
+      <RowMenu label={`${name} options`}>
+        {others.length > 0 && (
+          <button type="button" className="menu-item" onClick={() => sheet.setOpen(true)}>Merge into…</button>
+        )}
+        {merged.map((m) => (
+          <button key={m} type="button" className="menu-item" onClick={() => separate(m)}>
+            Separate “{m}”
+          </button>
+        ))}
+      </RowMenu>
+      <ActionSheet open={sheet.open} onClose={() => sheet.setOpen(false)} anchorRef={sheet.anchorRef} title={`Merge “${name}” into`}>
+        {others.map((o) => (
+          <button key={o.name} type="button" className="menu-item" onClick={() => mergeCategory(name, o.name)}>
+            <IconTile size="sm" color={o.color} glyph={o.glyph} name={o.glyph ? undefined : "pin"} />
+            <span className="min-w-0 break-words">{o.name}</span>
+          </button>
+        ))}
+      </ActionSheet>
+    </span>
   );
 }
 

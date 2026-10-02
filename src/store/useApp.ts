@@ -148,6 +148,12 @@ interface AppStore {
   resizeBase: (legId: string, delta: number) => void;
 
   syncMyMap: (url: string) => Promise<{ mapName: string; count: number; updated: number; removed: number }>;
+  /** fold category `from` into `to`: its pins move over and take `to`'s
+   *  colour and icon, and a later My Maps sync files that layer under `to` */
+  mergeCategory: (from: string, to: string) => void;
+  /** stop filing `from` under its merge target; its pins go back to their
+   *  own layer on the next sync */
+  unmergeCategory: (from: string) => void;
   setMedia: (slot: "logo", item: MediaItem | undefined) => void;
   addGalleryMedia: (item: MediaItem) => void;
   removeGalleryMedia: (id: string) => void;
@@ -1827,7 +1833,26 @@ export const useApp = create<AppStore>((set, get) => {
         // comes in as new. A matched pin takes the map's colour, position and
         // layer (nothing in the app edits those on an imported pin) and keeps
         // everything else.
-        const norm = (s: string) => s.trim().toLowerCase();
+        const norm = (s: string) => s.normalize("NFKC").replace(/\s+/g, " ").trim().toLowerCase();
+        // A layer takes the spelling of the category already in the trip
+        // ("food" joins "Food"), so it picks up the colour and icon set for
+        // it in Manage instead of starting a look-alike category of its own.
+        const known = new Map<string, string>();
+        for (const name of [
+          ...Object.keys(d.config.categoryColors ?? {}),
+          ...Object.keys(d.config.categoryIcons ?? {}),
+          ...d.places.filter((p) => p.source !== "mymap").map((p) => p.category),
+        ]) {
+          if (name && !known.has(norm(name))) known.set(norm(name), name);
+        }
+        const merged = new Map(Object.entries(d.config.categoryMerges ?? {}).map(([from, to]) => [norm(from), to]));
+        const catOf = (raw?: string) => {
+          if (!raw) return raw;
+          const c = merged.get(norm(raw)) ?? raw;
+          const key = norm(c);
+          if (!known.has(key)) known.set(key, c);
+          return known.get(key);
+        };
         const mine = new Map<string, Place[]>();
         for (const p of d.places) {
           if (p.source !== "mymap") continue;
@@ -1835,7 +1860,8 @@ export const useApp = create<AppStore>((set, get) => {
           mine.set(key, [...(mine.get(key) ?? []), p]);
         }
         const next: Place[] = [];
-        for (const p of places) {
+        for (const raw of places) {
+          const p = { ...raw, category: catOf(raw.category) };
           const match = mine.get(norm(p.name))?.shift();
           if (match) {
             if (match.color !== p.color || match.lat !== p.lat || match.lng !== p.lng || match.category !== p.category) {
@@ -1862,11 +1888,12 @@ export const useApp = create<AppStore>((set, get) => {
         // categories — one cleared to a plain dot in Manage is stored as "".
         const icons = { ...(d.config.categoryIcons ?? {}) };
         let guessed = false;
-        for (const p of places) {
-          if (!p.category || icons[p.category] !== undefined) continue;
-          const glyph = glyphForCategoryName(p.category);
+        for (const raw of places) {
+          const category = catOf(raw.category);
+          if (!category || icons[category] !== undefined) continue;
+          const glyph = glyphForCategoryName(category);
           if (glyph) {
-            icons[p.category] = glyph;
+            icons[category] = glyph;
             guessed = true;
           }
         }
@@ -1882,6 +1909,39 @@ export const useApp = create<AppStore>((set, get) => {
         });
       }
       return { mapName, count: added.length, updated: changed.length, removed: gone.length };
+    },
+    mergeCategory: (from, to) => {
+      if (!from || !to || from === to) return;
+      get().undoable(`Merged into ${to}`, () => {
+        for (const p of get().data?.places ?? []) {
+          if (p.category === from) get().updateEntity<Place>("places", p.id, { category: to });
+        }
+        get().mutateTrip((d) => {
+          const merges = { ...(d.config.categoryMerges ?? {}) };
+          // anything already merged into `from` follows it to `to`
+          for (const k of Object.keys(merges)) if (merges[k] === from) merges[k] = to;
+          merges[from] = to;
+          delete merges[to];
+          d.config.categoryMerges = merges;
+          const drop = (r?: Record<string, string>) => {
+            if (!r || !(from in r)) return r;
+            const next = { ...r };
+            delete next[from];
+            return Object.keys(next).length ? next : undefined;
+          };
+          d.config.categoryColors = drop(d.config.categoryColors);
+          d.config.categoryIcons = drop(d.config.categoryIcons);
+          const pinned = d.config.pinnedCategories?.filter((c) => c !== from);
+          d.config.pinnedCategories = pinned?.length ? pinned : undefined;
+        });
+      });
+    },
+    unmergeCategory: (from) => {
+      get().mutateTrip((d) => {
+        const merges = { ...(d.config.categoryMerges ?? {}) };
+        delete merges[from];
+        d.config.categoryMerges = Object.keys(merges).length ? merges : undefined;
+      });
     },
     setMedia: (slot, item) => {
       if (local((d) => { d.media[slot] = item; })) enqueue(get, { t: "fields", keys: ["media"] });

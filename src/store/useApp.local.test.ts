@@ -336,6 +336,44 @@ describe("My Maps sync", () => {
     expect(names()).toEqual(["Cafe", "Old pin", "Temple"]);
   });
 
+  it("a layer spelled differently joins the category already set up, colour and icon included", async () => {
+    const a = await boot();
+    myMap.places = [pin("Cafe")];
+    await a.s().syncMyMap(URL);
+    a.s().mutateTrip((d) => {
+      d.config.categoryColors = { Food: "#c0392b" };
+      d.config.categoryIcons = { Food: "noodles" };
+    });
+
+    myMap.places = [pin("Cafe"), { ...pin("Ramen"), category: " food " }];
+    await a.s().syncMyMap(URL);
+    const ramen = a.s().data!.places.find((p) => p.name === "Ramen")!;
+    expect(ramen.category).toBe("Food");
+    expect(a.s().data!.config.categoryIcons).toEqual({ Food: "noodles" });
+  });
+
+  it("a merged layer's pins move under the target, stay there on sync, and come back when separated", async () => {
+    const a = await boot();
+    myMap.places = [pin("Cafe"), { ...pin("Ramen"), category: "Eats" }];
+    await a.s().syncMyMap(URL);
+    a.s().mutateTrip((d) => {
+      d.config.categoryColors = { Food: "#c0392b", Eats: "#123456" };
+    });
+    const cat = (name: string) => a.s().data!.places.find((p) => p.name === name)!.category;
+
+    a.s().mergeCategory("Eats", "Food");
+    expect(cat("Ramen")).toBe("Food");
+    expect(a.s().data!.config.categoryColors).toEqual({ Food: "#c0392b" });
+
+    myMap.places = [pin("Cafe"), { ...pin("Ramen"), category: "Eats" }, { ...pin("Udon"), category: "eats" }];
+    await a.s().syncMyMap(URL);
+    expect([cat("Ramen"), cat("Udon")]).toEqual(["Food", "Food"]);
+
+    a.s().unmergeCategory("Eats");
+    await a.s().syncMyMap(URL);
+    expect([cat("Ramen"), cat("Udon")]).toEqual(["Eats", "Eats"]);
+  });
+
   it("never removes pins when syncing a different map or an empty export", async () => {
     const a = await boot();
     myMap.places = [pin("Cafe")];
