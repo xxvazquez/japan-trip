@@ -6,7 +6,7 @@ import { isLocalOnly } from "./localMode";
 import * as db from "./db";
 import { remapIds } from "./remapIds";
 import { normalizeTrip, SCHEMA_VERSION } from "./hydrate";
-import { rangeText } from "./dates";
+import { tripRangeText } from "./dates";
 import { StorageError, SaveBlockedError, TripLoadError } from "./safety/errors";
 import { validateTrip, describeProblems, tripStats, wouldErase, shrinksALot, hashOf } from "./safety/validate";
 import { takeSnapshot } from "./safety/snapshots";
@@ -182,9 +182,7 @@ const localBackend: Backend = {
     // still listed — opening it is what reports the problem.
     const withSubtitle = await Promise.all(trips.map(async (t) => {
       const d = await kv.get<TripData>(STORAGE_KEYS.trip(t.id)).catch(() => undefined);
-      return d?.meta?.start && d?.meta?.end
-        ? { ...t, subtitle: rangeText(d.meta.start, d.meta.end, d.config?.locale) }
-        : t;
+      return d?.meta ? { ...t, subtitle: tripRangeText(d.meta, d.config?.locale) || undefined } : t;
     }));
     return { trips: withSubtitle, activeId: activeTripId };
   },

@@ -7,7 +7,7 @@ import { subscribeTrip, unsubscribeTrip, markWritten } from "@/lib/realtime";
 import { store as kv } from "@/lib/storage";
 import { STORAGE_KEYS } from "@/lib/app";
 import { normalizeTrip } from "@/lib/hydrate";
-import { fmtDate, rangeText, shiftDate } from "@/lib/dates";
+import { fmtDate, rangeText, shiftDate, tripRangeText } from "@/lib/dates";
 import { fitSpans, sortLegs } from "@/lib/spans";
 import { TripLoadError, SaveBlockedError, StorageError, type LoadFailure } from "@/lib/safety/errors";
 import { validateTrip, describeProblems } from "@/lib/safety/validate";
@@ -153,7 +153,7 @@ interface AppStore {
 const summarise = (id: string, name: string, data: TripData, templateId?: string): TripSummary => ({
   id,
   name,
-  subtitle: data.meta.start && data.meta.end ? rangeText(data.meta.start, data.meta.end, data.config.locale) : undefined,
+  subtitle: tripRangeText(data.meta, data.config.locale) || undefined,
   archived: false,
   templateId,
   createdAt: now(),
@@ -814,7 +814,7 @@ async function flush(get: () => AppStore) {
       const cfg = (m.config ?? data.config) as TripData["config"];
       return {
         name: meta.title || cfg.branding,
-        subtitle: meta.start && meta.end ? rangeText(meta.start, meta.end, cfg.locale) : null,
+        subtitle: tripRangeText(meta, cfg.locale) || null,
       };
     };
     markWritten([activeId]); // the trip row's own id — see realtime.ts's `trips` subscription

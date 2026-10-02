@@ -22,6 +22,8 @@ import { Empty } from "@/components/Empty";
 import { Icon, type IconName } from "@/components/Icon";
 import { ContextMenu } from "@/components/ContextMenu";
 import { ConfirmMenuItem } from "@/components/ActionSheet";
+import { TextPrompt } from "@/components/TextPrompt";
+import { primeKeyboard } from "@/lib/keyboard";
 import { useData } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
@@ -84,20 +86,22 @@ export default function Plan() {
   const addEntity = useApp((s) => s.addEntity);
   const readOnly = useReadOnly();
   const nav = useNavigate();
+  const [namingBase, setNamingBase] = useState(false);
   if (!data) return null;
 
   const newId = (kind: string) => crypto.randomUUID?.() ?? `${kind}-${Math.random().toString(36).slice(2, 8)}`;
   // a new base starts the day after the last day, with that day already in
   // it — so "Add a day" carries on in the new base — then opens to be named
-  // and given its stay
-  const addBase = () => {
+  // and given its stay. Named first, in the iOS "New Album" alert.
+  const askBase = () => { primeKeyboard(); setNamingBase(true); };
+  const addBase = (name: string) => {
     const last = data.days.map((d) => d.date).filter(Boolean).sort().at(-1);
     const date = last ? addDays(last, 1) : data.meta.start;
     const used = new Set(data.legs.map((l) => l.color));
     const ids = Object.keys(LEG_COLORS) as LegColorId[];
     const color = ids.find((c) => !used.has(c)) ?? ids[data.legs.length % ids.length];
     const legId = newId("leg");
-    addEntity("legs", { id: legId, base: "New base", start: date, end: date, color } as never);
+    addEntity("legs", { id: legId, base: name, start: date, end: date, color } as never);
     addEntity("days", { id: newId("day"), date, legId, title: "New day" } as never);
     nav(`/leg/${legId}`);
   };
@@ -156,7 +160,7 @@ export default function Plan() {
         <Empty
           what="No bases yet"
           hint="Add where you’re based, and the days slot underneath."
-          onAdd={readOnly ? undefined : addBase}
+          onAdd={readOnly ? undefined : askBase}
           addLabel="Add a base"
         />
       ) : (
@@ -179,13 +183,22 @@ export default function Plan() {
               >
                 <Icon name="plus" size={15} /> Add a day
               </button>
-              <button onClick={addBase} className="action">
+              <button onClick={askBase} className="action">
                 <Icon name="plus" size={15} /> Add a base
               </button>
             </div>
           )}
         />
       )}
+      <TextPrompt
+        open={namingBase}
+        title="New Base"
+        message="The city or area you’re staying in."
+        placeholder="Name"
+        action="Add"
+        onSubmit={addBase}
+        onClose={() => setNamingBase(false)}
+      />
     </Page>
   );
 }

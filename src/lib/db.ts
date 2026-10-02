@@ -3,7 +3,7 @@ import { getUserId } from "./auth";
 import { SCHEMA_VERSION } from "./hydrate";
 import { TripLoadError, UserFacingError } from "./safety/errors";
 import { mergeJson } from "./safety/merge";
-import { rangeText } from "@/lib/dates";
+import { tripRangeText } from "@/lib/dates";
 import type { SnapshotMeta } from "./safety/snapshots";
 import type { EntityType, Segment, TripData, TripSummary } from "@/core/types";
 
@@ -126,13 +126,11 @@ export async function listTrips(): Promise<TripSummary[]> {
     // Recompute the date range from meta so the list matches the formatted
     // dates shown everywhere else, even for trips whose stored `subtitle`
     // predates this (it was once written as raw ISO).
-    const range = r.meta?.start && r.meta?.end
-      ? rangeText(r.meta.start, r.meta.end, r.config?.locale)
-      : undefined;
+    const range = r.meta ? tripRangeText(r.meta, r.config?.locale) : undefined;
     return {
       id: r.id,
       name: r.name,
-      subtitle: range ?? r.subtitle ?? undefined,
+      subtitle: r.meta ? range || undefined : r.subtitle ?? undefined,
       archived: r.archived,
       templateId: r.template_id ?? undefined,
       createdAt: r.created_at,

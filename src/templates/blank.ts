@@ -1,10 +1,11 @@
 import type { TripData } from "@/core/types";
 import { THEME_PRESETS } from "@/lib/themePresets";
 import { DEFAULT_EXPENSE_CATEGORIES, SCHEMA_VERSION } from "@/lib/hydrate";
+import { todayISO } from "@/lib/dates";
 
 /** A minimal, empty trip. Everything is added from the UI afterwards. */
 export function buildBlank(name = "New trip"): TripData {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayISO(); // local date — toISOString() is UTC, a day early after midnight east of it
   const preset = THEME_PRESETS[0];
   return structuredClone<TripData>({
     v: SCHEMA_VERSION,

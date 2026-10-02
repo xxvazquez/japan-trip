@@ -159,19 +159,23 @@ function Trips() {
   const { busy, msg, run } = useAsyncAction();
   const fileRef = useRef<HTMLInputElement>(null);
   const [creating, setCreating] = useState(false);
+  // an empty trip is named first, in the iOS "New Album" alert — landing on
+  // a trip called "New trip" and hunting for where to rename it isn't a start
+  const [naming, setNaming] = useState(false);
+  const askName = () => { primeKeyboard(); setNaming(true); };
 
-  const make = (templateId?: string) =>
+  const make = (templateId?: string, typedName?: string) =>
     run(async () => {
-      const name = templateId ? (buildFromTemplate(templateId).config.branding || "New trip") : "New trip";
+      const name = typedName?.trim() || (templateId ? (buildFromTemplate(templateId).config.branding || "New trip") : "New trip");
       const id = await createTrip({ name, templateId });
       await switchTrip(id);
       nav("/");
     });
 
   // no registered templates beyond the always-blank default → skip the
-  // "Start from" picker (a single-option menu isn't a choice) and create
-  // straight away; rename inline once you land on the trip
-  const newTrip = () => (TEMPLATES.length === 0 ? make() : setCreating(true));
+  // "Start from" picker (a single-option menu isn't a choice) and go
+  // straight to naming it
+  const newTrip = () => (TEMPLATES.length === 0 ? askName() : setCreating(true));
 
   const live = trips.filter((t) => !t.archived);
   const archived = trips.filter((t) => t.archived);
@@ -223,7 +227,7 @@ function Trips() {
       ) : (
         <Section title="Start from">
           <ul>
-            <ActionRow icon="plus" label="Empty template" hint="blank; add days, hide sections you don’t want" onClick={() => make()} disabled={busy} />
+            <ActionRow icon="plus" label="Empty template" hint="blank; add days, hide sections you don’t want" onClick={askName} disabled={busy} />
             {TEMPLATES.map((t) => (
               <ActionRow key={t.id} icon="copy" label={t.name} hint={t.subtitle} onClick={() => make(t.id)} disabled={busy} />
             ))}
@@ -288,6 +292,16 @@ function Trips() {
           </ul>
         </Section>
       )}
+
+      <TextPrompt
+        open={naming}
+        title="New Trip"
+        message="Enter a name for this trip."
+        placeholder="Name"
+        action="Create"
+        onSubmit={(name) => { setNaming(false); setCreating(false); void make(undefined, name); }}
+        onClose={() => setNaming(false)}
+      />
 
       <ThisDevice />
     </div>
@@ -552,9 +566,22 @@ function Setup() {
     </Row>
   );
 
-  // moving either end slides the whole itinerary — the length is set by the days
-  const moveTrip = (from: string, to: string) => {
-    const delta = daysBetween(from, to);
+  // moving either end slides the whole itinerary — the length is set by the
+  // days. Before there are any days there's nothing to slide, so each date
+  // is just set (the other one follows only if they'd cross) — otherwise a
+  // new trip, created as a single day, could never be given a length here.
+  const noDays = data.days.length === 0;
+  const moveTrip = (which: "start" | "end", to: string) => {
+    if (!to) return;
+    if (noDays) {
+      mutate((d) => {
+        d.meta[which] = to;
+        if (d.meta.start > d.meta.end) d.meta[which === "start" ? "end" : "start"] = to;
+        d.config.tagline = rangeText(d.meta.start, d.meta.end, d.config.locale);
+      });
+      return;
+    }
+    const delta = daysBetween(meta[which], to);
     if (Number.isFinite(delta) && delta !== 0) shiftDates(delta);
   };
 
@@ -570,11 +597,11 @@ function Setup() {
 
       <Section
         title="Dates"
-        info="Moving either date slides the whole itinerary — days, bases and journeys shift with it. To change the length, add or remove days in Plan."
+        info={noDays ? "Set when the trip starts and ends. Once it has days, moving either date slides the whole itinerary instead." : "Moving either date slides the whole itinerary — days, bases and journeys shift with it. To change the length, add or remove days in Plan."}
       >
         <ul>
-          <Row label="Start"><Editable as="date" label="Start date" value={meta.start} onCommit={(v) => moveTrip(meta.start, v)} /></Row>
-          <Row label="End"><Editable as="date" label="End date" value={meta.end} onCommit={(v) => moveTrip(meta.end, v)} /></Row>
+          <Row label="Start"><Editable as="date" label="Start date" value={meta.start} onCommit={(v) => moveTrip("start", v)} /></Row>
+          <Row label="End"><Editable as="date" label="End date" value={meta.end} onCommit={(v) => moveTrip("end", v)} /></Row>
         </ul>
       </Section>
 

@@ -25,7 +25,7 @@ Everything for a trip in one place: the plan, the map, the stays, the journeys, 
 
 1. **Open the link and sign in with Google.** Each person uses their own Google account.
    Don't want an account? Tap **Use on this device only** — the trip stays on that device and doesn't sync. You can switch later with **Sign in to sync** at the top of Manage.
-2. **Create your trip.** New accounts only have the read-only **Demo**. Go to **Manage → New trip → Empty template**.
+2. **Create your trip.** New accounts only have the read-only **Demo**. Go to **Manage → Trips → New trip** and give it a name. Then set its dates in **Manage → Setup**.
 3. **Share it.** The owner opens **Manage → Sharing** and adds the other person's email. You both then edit the same trip, and changes appear on the other device within a second or two.
 
 > If someone signs in before they've been added, they'll only see the Demo. Share the trip with their email and it appears on their next reload.
@@ -71,7 +71,7 @@ The days set the dates — you don't edit them separately.
 - Bases are always listed in date order. To change the order, move the days (drag them to another base).
 - The trip can start or end outside its days (a flight out the evening before day one). Its dates stretch to cover a day added outside them, and only shrink when the day on the trip's first or last date is deleted.
 - **Add a day** fills the earliest empty date in the trip (a gap left by a deleted day), otherwise it goes after the last day.
-- **Add a base** (next to Add a day) starts a new base on the day after the last day, with that day already in it, and opens it to name. Pick its stay there, or **New stay…** to make one named after the base.
+- **Add a base** (next to Add a day) asks for the base's name, then starts it on the day after the last day, with that day already in it, and opens it. Pick its stay there, or **New stay…** to make one named after the base.
 - **Changing a base's stay** moves its days onto the new stay too, except a day you gave a different stay of its own.
 - **Delete day** leaves the other days alone. Only removing a base's first or last day shortens it.
 - **Delete base** at the foot of a base's page deletes its days with it. The confirm says how many; **Undo** brings them all back.
@@ -275,6 +275,7 @@ Open it from your account picture (or the foot of the sidebar on a wide screen).
 
 ### Setup
 
+- **Dates** — on a trip with no days yet, set the start and end directly. Once it has days, moving either date slides the whole itinerary.
 - **Travellers** — used for packing assignments.
 - **Time zones** — *Home* comes from the device. *On the trip* fills itself in from the first hotel with coordinates, unless you've picked one. The picker lists cities with offsets; search by city, offset or abbreviation ("kolkata", "+5:30", "JST").
 - **Currencies** — the first is the default (a new trip starts on `PLN`). Prices open a keypad, with a currency switch once there's a second currency.

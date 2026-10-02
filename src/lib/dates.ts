@@ -72,6 +72,14 @@ export function rangeText(start: string, end: string, locale: string): string {
   }
 }
 
+/** The trip list's date line — empty while the dates are still unset. A new
+ *  trip starts with start = end = the day it was made, which is a
+ *  placeholder (Plan reads it as "No travel dates yet"), not a real range. */
+export function tripRangeText(meta: { start?: string; end?: string }, locale: string): string {
+  if (!meta.start || !meta.end || meta.start === meta.end) return "";
+  return rangeText(meta.start, meta.end, locale);
+}
+
 export type TripPhase = "before" | "during" | "after";
 
 export interface TripClock {
