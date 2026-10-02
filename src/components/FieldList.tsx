@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { flushSync } from "react-dom";
 import { Editable, isLinkValue } from "./Editable";
 import { CopyButton } from "./CopyButton";
 import { undoable } from "@/store/useApp";
@@ -71,7 +72,16 @@ export function FieldList({
     [next[i], next[j]] = [next[j], next[i]];
     onChange(next);
   };
-  const add = () => onChange([...fields, { id: rid(), label: "", value: "" }]);
+  // the field just added opens straight into its name, inside the tap so the
+  // iPhone keyboard comes up (see `addStep` in Day.tsx)
+  const [fresh, setFresh] = useState<string | null>(null);
+  const add = () => {
+    const id = rid();
+    flushSync(() => {
+      setFresh(id);
+      onChange([...fields, { id, label: "", value: "" }]);
+    });
+  };
 
   // `inset` mode emits a fragment of padded `<li>`s (each with its own inset
   // hairline) — the caller owns the plain `<ul>`, so a fixed system row (a
@@ -124,7 +134,16 @@ export function FieldList({
           value={f.label}
           placeholder="Label"
           className="row-label"
+          autoEdit={f.id === fresh}
           onCommit={(v) => setAt(i, { label: v })}
+          // a field with no name and no value goes, like a new step left
+          // blank; tapping its own value or ⋯ instead keeps it
+          onBlank={(onRow) => {
+            if (f.value || f.currency || onRow) return void (f.label && setAt(i, { label: "" }));
+            const drop = () => onChange(fields.filter((x) => x.id !== f.id));
+            if (f.label) undoable("Removed", drop);
+            else drop();
+          }}
         />
       </span>
       <span className="max-w-[60%] break-words text-right [&_.row-value]:[overflow-wrap:normal]">
@@ -144,6 +163,12 @@ export function FieldList({
             placeholder="—"
             className="row-value text-right"
             onCommit={(v) => setAt(i, { value: v })}
+            onBlank={(onRow) => {
+              if (f.label || onRow) return void (f.value && setAt(i, { value: "" }));
+              const drop = () => onChange(fields.filter((x) => x.id !== f.id));
+              if (f.value) undoable("Removed", drop);
+              else drop();
+            }}
             editSignal={editReq?.id === f.id ? editReq.n : 0}
           />
         )}

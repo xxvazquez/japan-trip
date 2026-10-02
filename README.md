@@ -236,6 +236,7 @@ Text isn't selectable (as in a native app), so values you might paste elsewhere 
 
 Tap a document to open its page: name it, attach PDFs or photos, add fields and a note.
 
+- **Add a field** (also a stay's details and Emergency contacts) opens the new field ready to type. Leave both its name and value blank and it goes away.
 - **Signed in** — files go to your account (private to the trip, 25 MB each), or to a shared Google Drive folder if set up. Drive needs its own **Connect Google Drive** tap, which lasts about an hour.
 - **On this device only** — files stay on the device, and upload automatically once you sign in.
 - **Removing** an attachment never deletes the file itself.
