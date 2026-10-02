@@ -1,6 +1,6 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { memo, useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { search, type SearchHit, type SearchKind } from "@/lib/search";
+import { search, type SearchHit, type SearchKind, type SearchResult } from "@/lib/search";
 import { useData } from "@/lib/data";
 import { useBackToClose } from "@/lib/backClose";
 import { useApp } from "@/store/useApp";
@@ -69,16 +69,19 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
 
   // grouped by section, sections in order of their best hit; `results` is
   // the same hits flattened in display order, for arrow-key navigation
+  // typing never waits on the results: the field updates at once, the list
+  // catches up a moment later
+  const query = useDeferredValue(q);
   const groups = useMemo(() => {
-    const hits = open && data ? search(data, q, 60) : [];
-    const by = new Map<string, SearchHit[]>();
-    for (const h of hits) {
-      const g = groupOf(h);
-      by.set(g, [...(by.get(g) ?? []), h]);
+    const found = open && data ? search(data, query, 80) : [];
+    const by = new Map<string, SearchResult[]>();
+    for (const r of found) {
+      const g = groupOf(r.hit);
+      by.set(g, [...(by.get(g) ?? []), r]);
     }
     return [...by.entries()];
-  }, [q, open, data]);
-  const results = useMemo(() => groups.flatMap(([, hits]) => hits), [groups]);
+  }, [query, open, data]);
+  const results = useMemo(() => groups.flatMap(([, rs]) => rs.map((r) => r.hit)), [groups]);
 
   useLayoutEffect(() => {
     if (!open) return;
@@ -177,29 +180,20 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
             </section>
           )}
           {!q && recents.length === 0 && <p className="meta px-1 py-3">Search places, stays, days, documents and lists.</p>}
-          {q && results.length === 0 && (
+          {q && query === q && results.length === 0 && (
             <div className="px-6 pt-16 text-center">
               <p className="text-lg text-ink">No Results</p>
               <p className="meta mt-1 break-words">for “{q.trim()}”</p>
             </div>
           )}
           <div className="space-y-6">
-            {groups.map(([group, hits]) => (
+            {groups.map(([group, rs]) => (
               <section key={group}>
                 <h2 className="kicker mb-1.5 break-words px-1">{group}</h2>
                 <ul className="overflow-hidden rounded-[12px] border border-line bg-surface dark:border-ink/10">
-                  {hits.map((hit) => {
+                  {rs.map((r) => {
                     const i = n++;
-                    return (
-                      <TileRow
-                        key={hit.to + hit.label}
-                        tile={<IconTile size="sm" {...hit.tile} />}
-                        title={hit.label}
-                        meta={subOf(hit)}
-                        onClick={() => go(hit)}
-                        className={`hover:bg-ink/[0.04] ${i === active ? "md:bg-ink/[0.05]" : ""}`}
-                      />
-                    );
+                    return <ResultRow key={r.hit.to + r.hit.label} r={r} active={i === active} go={go} />;
                   })}
                 </ul>
               </section>
@@ -210,3 +204,41 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
     </div>
   );
 }
+
+/** the matched words in a snippet, set in the text's own colour like Mail does */
+function Marked({ text, marks }: { text: string; marks: [number, number][] }) {
+  const out: ReactNode[] = [];
+  let at = 0;
+  for (const [a, b] of marks) {
+    if (a < at) continue; // overlapping words: the first one wins
+    if (a > at) out.push(text.slice(at, a));
+    out.push(<span key={a} className="text-ink">{text.slice(a, b)}</span>);
+    at = b;
+  }
+  out.push(text.slice(at));
+  return <>{out}</>;
+}
+
+const ResultRow = memo(function ResultRow({ r, active, go }: { r: SearchResult; active: boolean; go: (h: SearchHit) => void }) {
+  const sub = subOf(r.hit);
+  const sn = r.snippet;
+  return (
+    <TileRow
+      tile={<IconTile size="sm" {...r.hit.tile} />}
+      title={r.hit.label}
+      meta={
+        sn ? (
+          <>
+            {sub && <span className="block">{sub}</span>}
+            <span className="block">
+              {sn.label && `${sn.label}: `}
+              <Marked text={sn.text} marks={sn.marks} />
+            </span>
+          </>
+        ) : sub
+      }
+      onClick={() => go(r.hit)}
+      className={`hover:bg-ink/[0.04] ${active ? "md:bg-ink/[0.05]" : ""}`}
+    />
+  );
+});

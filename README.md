@@ -44,7 +44,7 @@ The app is laid out like an iOS 26 app.
 
 | Where | What it does |
 |---|---|
-| **Tab bar** (bottom) | Plan · Map · Logbook. **Search** is the round button beside it. It slides away while you type, and sheets rise above the keyboard. On a wider screen the tabs become a rail down the left and Search sits top right (⌘K / Ctrl+K). Results are grouped under headers — Days, Places, Stays, Journeys… — each with the same icon it has in its own list. Opening a result saves what you typed under **Recent searches** (per trip, on this device; **Clear** empties it). |
+| **Tab bar** (bottom) | Plan · Map · Logbook. **Search** is the round button beside it. It slides away while you type, and sheets rise above the keyboard. On a wider screen the tabs become a rail down the left and Search sits top right (⌘K / Ctrl+K). It searches everything in the trip — names, plan steps, spending, notes, addresses, booking refs, document fields, file names. Every word you type must appear somewhere, in any order ("ueno museum"); accents, spaces and dashes are ignored ("sensoji"). When the match isn't in the name, the line it was found in shows under it. Results are grouped under headers — Days, Places, Stays, Journeys… — each with the same icon it has in its own list. Opening a result saves what you typed under **Recent searches** (per trip, on this device; **Clear** empties it). |
 | **Trip name** (top left) | A menu to jump to another trip, or to manage trips. |
 | **‹ Back** | Names the screen you came from (*‹ Stays*); long titles just say *‹ Back*. You can also swipe in from the left edge. With a sheet, menu or Search open, Android's back gesture (or the browser's Back) closes that first. |
 | **‹ ›** on a day | Step to the previous or next day (← → on a keyboard). |
