@@ -1329,7 +1329,17 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
                       {readOnly ? (
                         <span className="text-sm text-ink">{c.label.trim() || catLabel(c.categoryId)}</span>
                       ) : (
-                        <Editable label="What was it?" value={c.label} placeholder="What was it?" autoEdit={c.id === fresh && !c.label} className="text-sm text-ink" onCommit={(v) => setAt(i, { label: v })} />
+                        <Editable label="What was it?" value={c.label} placeholder="What was it?" autoEdit={c.id === fresh && !c.label} className="text-sm text-ink" onCommit={(v) => setAt(i, { label: v })}
+                          // a row with no amount left without a name goes,
+                          // like a step left blank (undoably if it had a name
+                          // or category); one with an amount just loses its name
+                          onBlank={(onRow) => {
+                            if (c.amount || onRow) return void (c.label && setAt(i, { label: "" }));
+                            const drop = () => onChange(costs.filter((x) => x.id !== c.id));
+                            if (c.label || c.categoryId) undoable("Amount removed", drop);
+                            else drop();
+                          }}
+                        />
                       )}
                     </span>
                     {readOnly ? (
