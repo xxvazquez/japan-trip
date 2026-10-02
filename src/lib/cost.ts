@@ -96,6 +96,26 @@ export interface CostSummary {
   categories: ExpenseCategory[];
   /** "<what> — <raw value>" for every price that had text but no readable number */
   unparsed: string[];
+  /** every amount behind the totals, one per stay price, fare (manual total
+   *  or hop) and day-spending row — what an Expenses category opens onto */
+  items: CostItem[];
+}
+
+/** One amount behind an Expenses total, with where it came from. */
+export interface CostItem {
+  /** a `config.expenseCategories` id; undefined = Uncategorised */
+  categoryId?: string;
+  amount: number;
+  currency: string;
+  /** the stay's name, the hop's "from → to", or the day row's own label */
+  title: string;
+  /** the day it belongs to, for ordering and the sub-line */
+  date?: string;
+  /** what it is: "Stay", a hop's mode, or the day's title */
+  what: string;
+  mode?: TransportMode;
+  /** the page it's edited on */
+  to: string;
 }
 
 const emptyBucket = (): CurrencyBucket => ({ byCategory: {}, uncategorised: 0, total: 0 });
@@ -144,23 +164,32 @@ export function tripCost(data: TripData): CostSummary {
   const modeCategory = new Map<TransportMode, string>();
   for (const c of categories) for (const m of c.modes ?? []) if (!modeCategory.has(m)) modeCategory.set(m, c.id);
 
-  const addMoney = (m: Money, categoryId: string | undefined) => {
+  const items: CostItem[] = [];
+  type Source = Omit<CostItem, "categoryId" | "amount" | "currency">;
+  const addMoney = (m: Money, categoryId: string | undefined, source: Source) => {
     const bucket = (byCurrency[m.currency] ??= emptyBucket());
-    if (categoryId && known.has(categoryId)) {
-      bucket.byCategory[categoryId] = (bucket.byCategory[categoryId] ?? 0) + m.amount;
+    const cat = categoryId && known.has(categoryId) ? categoryId : undefined;
+    if (cat) {
+      bucket.byCategory[cat] = (bucket.byCategory[cat] ?? 0) + m.amount;
     } else {
       bucket.uncategorised += m.amount;
     }
     bucket.total += m.amount;
+    items.push({ ...source, categoryId: cat, amount: m.amount, currency: m.currency });
   };
-  const add = (raw: string | undefined, categoryId: string | undefined, what: string, currency?: string) => {
+  const add = (raw: string | undefined, categoryId: string | undefined, what: string, currency: string | undefined, source: Source) => {
     if (!raw?.trim()) return;
     const money = parseMoney(raw, currency || fallback);
     if (!money) { unparsed.push(`${what} — "${raw}"`); return; }
-    addMoney(money, categoryId);
+    addMoney(money, categoryId, source);
   };
 
-  for (const hotel of data.hotels) add(hotel.price, lodgingId, hotel.name || "Stay", hotel.priceCurrency);
+  const firstNight = (hotelId: string) => data.legs.filter((l) => l.hotelId === hotelId && l.start).map((l) => l.start).sort()[0];
+  for (const hotel of data.hotels) {
+    add(hotel.price, lodgingId, hotel.name || "Stay", hotel.priceCurrency, {
+      title: hotel.name || "Stay", what: "Stay", date: firstNight(hotel.id), to: `/hotel/${hotel.id}`,
+    });
+  }
 
   // one value per journey — a manual total and the hop sum are never both
   // counted (journeyFare's own rule), so a journey can never be double-counted.
@@ -175,25 +204,32 @@ export function tripCost(data: TripData): CostSummary {
       if (!m) { unparsed.push(`${journey.label || "Journey"} — "${journey.fare}"`); continue; }
       const modes = new Set(journey.segments.map((s) => s.mode));
       const soleMode = modes.size === 1 ? [...modes][0] : undefined;
-      addMoney(m, (soleMode && modeCategory.get(soleMode)) ?? transportId);
+      addMoney(m, (soleMode && modeCategory.get(soleMode)) ?? transportId, {
+        title: journey.label || "Journey", what: "Journey", mode: soleMode, date: journey.segments[0]?.depart?.slice(0, 10) || journey.date, to: `/journey/${journey.id}`,
+      });
       continue;
     }
     for (const seg of journey.segments) {
       if (!seg.fare?.trim()) continue;
       const m = parseMoney(seg.fare, seg.fareCurrency || fallback);
       if (!m) { unparsed.push(`${journey.label || "Journey"} — "${seg.fare}"`); continue; }
-      addMoney(m, modeCategory.get(seg.mode) ?? transportId);
+      addMoney(m, modeCategory.get(seg.mode) ?? transportId, {
+        title: [seg.from, seg.to].filter(Boolean).join(" → ") || journey.label || "Journey",
+        what: journey.label || "Journey", mode: seg.mode, date: seg.depart?.slice(0, 10) || journey.date, to: `/journey/${journey.id}`,
+      });
     }
   }
 
   // per-day spending
   for (const day of data.days) {
     for (const c of day.costs ?? []) {
-      add(c.amount, c.categoryId, `${day.title || day.date} — ${c.label || "spending"}`, c.currency);
+      add(c.amount, c.categoryId, `${day.title || day.date} — ${c.label || "spending"}`, c.currency, {
+        title: c.label || day.title || "Spending", what: day.title || "Day", date: day.date, to: `/day/${day.id}`,
+      });
     }
   }
 
-  return { byCurrency, categories, unparsed };
+  return { byCurrency, categories, unparsed, items };
 }
 
 /** Blends every currency in `byCurrency` into one bucket, in `primary` units,

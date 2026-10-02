@@ -615,10 +615,10 @@ function Expenses() {
             {categories
               .filter((c) => (combined.byCategory[c.id] ?? 0) > 0)
               .map((c) => (
-                <InsetRow key={c.id} label={catLabel(c)}>{fmtMoney(Math.round(combined.byCategory[c.id]), primary)}</InsetRow>
+                <InsetRow key={c.id} label={catLabel(c)} to={`/logbook/budget/${c.id}`}>{fmtMoney(Math.round(combined.byCategory[c.id]), primary)}</InsetRow>
               ))}
             {combined.uncategorised > 0 && (
-              <InsetRow label="Uncategorised">{fmtMoney(Math.round(combined.uncategorised), primary)}</InsetRow>
+              <InsetRow label="Uncategorised" to={`/logbook/budget/${UNCATEGORISED}`}>{fmtMoney(Math.round(combined.uncategorised), primary)}</InsetRow>
             )}
             <InsetRow label={<span className="font-medium text-ink">Total</span>}>
               <span className="font-medium">{fmtMoney(Math.round(combined.total), primary)}</span>
@@ -638,10 +638,10 @@ function Expenses() {
               {categories
                 .filter((c) => (b.byCategory[c.id] ?? 0) > 0)
                 .map((c) => (
-                  <InsetRow key={c.id} label={catLabel(c)}>{fmtMoney(b.byCategory[c.id], cur)}</InsetRow>
+                  <InsetRow key={c.id} label={catLabel(c)} to={`/logbook/budget/${c.id}`}>{fmtMoney(b.byCategory[c.id], cur)}</InsetRow>
                 ))}
               {b.uncategorised > 0 && (
-                <InsetRow label="Uncategorised">{fmtMoney(b.uncategorised, cur)}</InsetRow>
+                <InsetRow label="Uncategorised" to={`/logbook/budget/${UNCATEGORISED}`}>{fmtMoney(b.uncategorised, cur)}</InsetRow>
               )}
               <InsetRow label={<span className="font-medium text-ink">Total</span>}>
                 <span className="font-medium">{fmtMoney(b.total, cur)}</span>
@@ -656,6 +656,71 @@ function Expenses() {
         </p>
       )}
     </div>
+  );
+}
+
+/** the path segment for amounts with no (known) category */
+const UNCATEGORISED = "uncategorised";
+
+/** One Expenses category opened: every amount behind its total — each stay
+ *  price, fare and day-spending row — newest-last by date, one group per
+ *  currency, each row opening the page it's edited on. Read-only, like the
+ *  totals: amounts are changed where they live. */
+export function ExpenseCategory() {
+  const data = useData();
+  const { category } = useParams();
+  if (!data) return null;
+  const loc = data.config.locale;
+  const { categories, items } = tripCost(data);
+  const cat = categories.find((c) => c.id === category);
+  if (!cat && category !== UNCATEGORISED) {
+    return <Missing title="No such category" body="That expense category isn’t part of this trip." to="/logbook/budget" cta="Back to Expenses" />;
+  }
+  const mine = items
+    .filter((it) => (cat ? it.categoryId === cat.id : !it.categoryId))
+    .sort((a, b) => (a.date ?? "\uffff").localeCompare(b.date ?? "\uffff"));
+  const currencies = [...new Set(mine.map((it) => it.currency))];
+  const tile = cat ? expenseCategoryIcon(cat, categories.indexOf(cat)) : null;
+  const rowTile = (it: (typeof mine)[number]) =>
+    it.mode ? <IconTile size="sm" name={MODE_ICON[it.mode]} tone={toneForSegmentMode(it.mode)} />
+      : it.what === "Stay" ? <IconTile size="sm" glyph="hotel" tone="ink-faint" />
+      : tile ? <IconTile size="sm" name={tile.name} glyph={tile.glyph} tone={tile.tone} color={tile.color} />
+      : <IconTile size="sm" name="list" tone="ink-faint" />;
+  const short = (d: string) => fmtDate(d, loc, { weekday: "short", day: "numeric", month: "short" });
+
+  return (
+    <Page>
+      <PageHeader back="/logbook/budget" title={cat?.label ?? "Uncategorised"} className="mb-6" />
+      {mine.length === 0 ? (
+        <Empty what="Nothing here yet" hint="Prices on stays and journeys, and a day’s spending, show up here once they’re in this category." />
+      ) : (
+        <div className="space-y-6">
+          {currencies.map((cur) => {
+            const rows = mine.filter((it) => it.currency === cur);
+            const total = rows.reduce((sum, it) => sum + it.amount, 0);
+            return (
+              <Section key={cur || "—"} title={currencies.length > 1 ? cur || "Unspecified currency" : undefined}>
+                <ul>
+                  {rows.map((it, i) => (
+                    <TileRow
+                      key={`${it.to}-${i}`}
+                      to={it.to}
+                      tile={rowTile(it)}
+                      title={<RouteLabel label={it.title} />}
+                      meta={[it.date && short(it.date), it.what !== it.title && it.what].filter(Boolean).join(" · ") || undefined}
+                      right={fmtMoney(it.amount, cur)}
+                    />
+                  ))}
+                  <InsetRow label={<span className="font-medium text-ink">Total</span>}>
+                    <span className="font-medium">{fmtMoney(total, cur)}</span>
+                  </InsetRow>
+                </ul>
+              </Section>
+            );
+          })}
+        </div>
+      )}
+    </Page>
   );
 }
 

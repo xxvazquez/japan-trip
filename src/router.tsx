@@ -10,6 +10,7 @@ const Journey = lazy(() => import("@/routes/Journey"));
 const MapTab = lazy(() => import("@/routes/MapTab"));
 const LogbookIndex = lazy(() => import("@/routes/Logbook").then((m) => ({ default: m.LogbookIndex })));
 const LogbookSection = lazy(() => import("@/routes/Logbook").then((m) => ({ default: m.LogbookSection })));
+const ExpenseCategory = lazy(() => import("@/routes/Logbook").then((m) => ({ default: m.ExpenseCategory })));
 const Hotel = lazy(() => import("@/routes/Hotel"));
 const Document = lazy(() => import("@/routes/Document"));
 const Manage = lazy(() => import("@/routes/Manage"));
@@ -29,6 +30,7 @@ export const router = createBrowserRouter([
       { path: "logbook", element: <LogbookIndex /> },
       { path: "logbook/:section", element: <LogbookSection /> },
       { path: "logbook/documents/:id", element: <Document /> },
+      { path: "logbook/budget/:category", element: <ExpenseCategory /> },
       { path: "hotel/:id", element: <Hotel /> },
       { path: "manage", element: <Manage /> },
       { path: "manage/:panel", element: <Manage /> },

@@ -5,6 +5,7 @@ export const PARENT_LABEL: Record<string, string> = {
   "/": "Plan",
   "/logbook": "Logbook",
   "/logbook/documents": "Documents",
+  "/logbook/budget": "Expenses",
   "/map": "Map",
   "/manage": "Manage",
 };
