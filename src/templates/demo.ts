@@ -1,7 +1,7 @@
 import type { TripData } from "@/core/types";
 import { THEME_PRESETS } from "@/lib/themePresets";
 import { DEFAULT_EXPENSE_CATEGORIES, SCHEMA_VERSION } from "@/lib/hydrate";
-import { rangeText } from "@/lib/dates";
+import { rangeText, todayISO } from "@/lib/dates";
 
 /**
  * The built-in read-only tour. Not tied to any destination — it exists to show
@@ -14,7 +14,7 @@ import { rangeText } from "@/lib/dates";
 const iso = (offsetDays: number) => {
   const d = new Date();
   d.setDate(d.getDate() + offsetDays);
-  return d.toISOString().slice(0, 10);
+  return todayISO(d); // local — toISOString() is UTC, a day behind just after midnight east of it
 };
 const at = (offsetDays: number, hhmm: string) => `${iso(offsetDays)}T${hhmm}`;
 

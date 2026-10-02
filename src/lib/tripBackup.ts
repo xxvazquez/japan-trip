@@ -1,6 +1,7 @@
 import { SCHEMA_VERSION, normalizeTrip } from "./hydrate";
 import { validateTrip, describeProblems, tripStats, hashOf } from "./safety/validate";
 import type { TripData } from "@/core/types";
+import { todayISO } from "@/lib/dates";
 
 /**
  * A whole trip as one `.json` file, and back again. Unlike the web-page and
@@ -58,7 +59,7 @@ export function buildBackup(data: TripData): string {
 
 export function downloadBackup(data: TripData): void {
   const name = slug(data.meta.title || data.config.branding || "trip");
-  const day = new Date().toISOString().slice(0, 10);
+  const day = todayISO();
   const blob = new Blob([buildBackup(data)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");

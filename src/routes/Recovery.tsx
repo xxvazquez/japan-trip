@@ -5,6 +5,7 @@ import { useApp } from "@/store/useApp";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import { PointLabel, useRestorePoints } from "@/components/DataSafety";
 import { listQuarantine } from "@/lib/safety/quarantine";
+import { todayISO } from "@/lib/dates";
 
 const HEADLINE = {
   corrupt: "This trip’s data is damaged",
@@ -39,7 +40,7 @@ export function Recovery() {
       const url = URL.createObjectURL(new Blob([JSON.stringify(q.raw, null, 2)], { type: "application/json" }));
       const a = document.createElement("a");
       a.href = url;
-      a.download = `damaged-trip-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `damaged-trip-${todayISO()}.json`;
       document.body.appendChild(a);
       a.click();
       a.remove();

@@ -2,6 +2,7 @@ import { THEME_PRESETS } from "./themePresets";
 import { mapUrlCoords } from "./maps";
 import { sortLegs } from "./spans";
 import type { Day, Doc, DocField, ExpenseCategory, Hotel, ModuleConfig, PlanItem, ThemeTokens, TripData } from "@/core/types";
+import { todayISO } from "@/lib/dates";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
 export const SCHEMA_VERSION = 13;
@@ -59,7 +60,7 @@ function guessCategoryId(label: string, cats: ExpenseCategory[]): string | undef
 export const fallbackCategoryId = (cats: ExpenseCategory[]): string | undefined =>
   (cats.find((c) => /other|misc/.test(c.label.toLowerCase())) ?? cats.find((c) => !c.role) ?? cats[cats.length - 1])?.id;
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => todayISO();
 
 const DEFAULT_MODULES: ModuleConfig[] = [
   { id: "plan", kind: "plan", label: "Plan", icon: "itinerary", enabled: true },

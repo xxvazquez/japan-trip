@@ -15,7 +15,7 @@ import { ConfirmButton } from "@/components/ConfirmButton";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { addDays, daysBetween, fmtDate, journeyDepartDate, journeyOffDay, plural, segEndpoints } from "@/lib/dates";
+import { addDays, daysBetween, fmtDate, journeyDepartDate, journeyOffDay, plural, segEndpoints, todayISO } from "@/lib/dates";
 import { clockOf, fmtDuration, fmtMinutes, minutesBetween, parseLocal } from "@/lib/time";
 import { MODE_LABEL, MODE_ICON, MODE_TONE } from "@/lib/transport";
 import { arrivesBeforeDeparture } from "@/lib/ics";
@@ -489,6 +489,6 @@ function HopDate({ label, value, fallback, loc, ro, onCommit, align = "left", da
 
 function mergeTime(existing: string | undefined, fallbackDate: string | undefined, hhmm: string): string | undefined {
   if (!hhmm) return undefined;
-  const date = existing?.split("T")[0] || fallbackDate || new Date().toISOString().slice(0, 10);
+  const date = existing?.split("T")[0] || fallbackDate || todayISO();
   return `${date}T${hhmm}`;
 }
