@@ -207,10 +207,14 @@ function ListSection({ list }: { list: CustomList }) {
       set((l) => { l.items.push({ id, label: "" }); });
     });
   };
-  // left blank, it goes; one that had a name goes undoably
-  // by id, so a second blur arriving late can't take a neighbour with it
+  // left blank, it goes; one that had a name goes undoably. Left by a tap
+  // elsewhere on its own row (its ⋯), it stays and just loses its name.
+  // By id, so a second blur arriving late can't take a neighbour with it
   const removeId = (id: string) => set((l) => { l.items = l.items.filter((x) => x.id !== id); });
-  const blank = (id: string, label: string) => (label ? undoable("Item removed", () => removeId(id)) : removeId(id));
+  const blank = (id: string, label: string, onRow: boolean) =>
+    onRow ? label && set((l) => { const x = l.items.find((y) => y.id === id); if (x) x.label = ""; })
+      : label ? undoable("Item removed", () => removeId(id))
+      : removeId(id);
   // an item's note and link stay hidden until they have something in them —
   // the row's ⋯ opens one, ready to type (inside the tap, for the iPhone keyboard)
   const [reveal, setReveal] = useState<{ id: string; field: "note" | "url" } | null>(null);
@@ -242,7 +246,7 @@ function ListSection({ list }: { list: CustomList }) {
                 <span className="block text-sm leading-snug text-ink">
                   {ro
                     ? (it.label || "Untitled")
-                    : <Editable label="Item" value={it.label} placeholder="Name" autoEdit={it.id === fresh} onBlank={() => blank(it.id, it.label)} onCommit={(v) => set((l) => { l.items[i].label = v; })} />}
+                    : <Editable label="Item" value={it.label} placeholder="Name" autoEdit={it.id === fresh} onBlank={(onRow) => blank(it.id, it.label, onRow)} onCommit={(v) => set((l) => { l.items[i].label = v; })} />}
                 </span>
                 {(it.note || opened(it.id, "note")) && (
                   <span className="meta mt-0.5 block text-ink-soft">
@@ -829,9 +833,12 @@ function Packing() {
       addEntity("packing", it);
     });
   };
-  // left blank, it goes; one that had a name goes undoably
-  const blank = (it: PackingItem) =>
-    it.label ? undoable("Packing item removed", () => removeItem(it.id)) : removeItem(it.id);
+  // left blank, it goes; one that had a name goes undoably. Left by a tap
+  // elsewhere on its own row (its tick or assign pill), it stays
+  const blank = (it: PackingItem, onRow: boolean) =>
+    onRow ? it.label && updateEntity<PackingItem>("packing", it.id, { label: "" })
+      : it.label ? undoable("Packing item removed", () => removeItem(it.id))
+      : removeItem(it.id);
   const addCategory = () => {
     let name = "New category";
     for (let n = 2; order.includes(name); n++) name = `New category ${n}`;
@@ -905,7 +912,7 @@ function Packing() {
                   onAssign={(v) => updateEntity<PackingItem>("packing", it.id, { assignee: v })}
                   onRemove={() => removeItem(it.id)}
                   autoEdit={it.id === fresh}
-                  onBlank={() => blank(it)}
+                  onBlank={(onRow) => blank(it, onRow)}
                 />
               ))}
               {!ro && <ActionRow icon="plus" label="Add item" onClick={() => addItem(group)} />}
@@ -1012,7 +1019,7 @@ function PackRow({ item, ro, people, tagged, onToggle, onLabel, onAssign, onRemo
   onAssign: (v: string | undefined) => void;
   onRemove: () => void;
   autoEdit?: boolean;
-  onBlank?: () => void;
+  onBlank?: (onRow: boolean) => void;
 }) {
   const box = (
     <CheckCircle checked={!!item.done} disabled={ro} onChange={onToggle} label={`Pack ${item.label || "item"}`} />

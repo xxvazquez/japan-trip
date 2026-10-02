@@ -23,8 +23,11 @@ type Base = {
   /** open straight into editing on mount (a row just added) */
   autoEdit?: boolean;
   /** an edit that ends empty calls this instead of `onCommit("")` — a list
-   *  row left blank removes itself, the way Reminders does */
-  onBlank?: () => void;
+   *  row left blank removes itself, the way Reminders does. `onRow` is true
+   *  when it ended because of a tap elsewhere on the field's own row (its
+   *  ⋯, a tick, a picker, beside a thin text line): still working on that
+   *  row, so it should stay */
+  onBlank?: (onRow: boolean) => void;
   /** how a filled value reads when not being edited ("1945.64" → "1,945.64");
    *  the input itself still edits the raw value */
   format?: (v: string) => string;
@@ -151,15 +154,32 @@ export function Editable(props: Props) {
     }
   }, [editing, as]);
 
+  // where the last tap while editing landed, so a blank edit can tell
+  // "tapped off the row" from "tapped another control on the same row"
+  const lastTap = useRef<EventTarget | null>(null);
+  const watchTaps = editing && !!onBlank;
+  useEffect(() => {
+    if (!watchTaps) return;
+    lastTap.current = null;
+    const onDown = (e: PointerEvent) => { lastTap.current = e.target; };
+    document.addEventListener("pointerdown", onDown, true);
+    return () => document.removeEventListener("pointerdown", onDown, true);
+  }, [watchTaps]);
+  const tappedOwnRow = () => {
+    const t = lastTap.current;
+    const row = ref.current?.closest("li");
+    return !!row && t instanceof Node && row.contains(t) && !ref.current?.contains(t);
+  };
+
   const commit = () => {
     setEditing(false);
-    if (onBlank && !draft.trim()) onBlank();
+    if (onBlank && !draft.trim()) onBlank(tappedOwnRow());
     else if (draft !== value) onCommit(draft.trim());
   };
   const cancel = () => {
     setDraft(value);
     setEditing(false);
-    if (onBlank && !value.trim()) onBlank();
+    if (onBlank && !value.trim()) onBlank(false);
   };
 
   const href = hrefFor(as, value);
