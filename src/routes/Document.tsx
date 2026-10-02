@@ -9,6 +9,7 @@ import { FieldList } from "@/components/FieldList";
 import { RichNote } from "@/components/RichNote";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { RowMenu } from "@/components/RowMenu";
+import { ContextMenu } from "@/components/ContextMenu";
 import { ConfirmMenuItem } from "@/components/ActionSheet";
 import { Icon } from "@/components/Icon";
 import { useData } from "@/lib/data";
@@ -206,7 +207,7 @@ function Attachments({
         {files.map((f) => {
           const img = f.driveId && f.mime?.startsWith("image/") && !broken.has(f.id);
           return (
-            <li key={f.id} className={`${INSET_DIVIDER} px-3.5 py-3`}>
+            <ContextMenu as="li" key={f.id} className={`${INSET_DIVIDER} px-3.5 py-3`}>
               <div className="flex items-center gap-2.5">
                 <Icon name="vault" size={16} className="shrink-0 text-ink-soft" />
                 <button onClick={() => open(f)} className="value min-w-0 flex-1 break-words text-left text-accent">{f.name}</button>
@@ -230,7 +231,7 @@ function Attachments({
                   />
                 </button>
               )}
-            </li>
+            </ContextMenu>
           );
         })}
         {!ro && cloud && !connected && (

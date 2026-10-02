@@ -32,6 +32,7 @@ import { supabaseEnabled } from "@/lib/supabase";
 import { driveEnabled } from "@/lib/drive";
 import { useAuth } from "@/lib/auth";
 import { RowMenu } from "@/components/RowMenu";
+import { ContextMenu } from "@/components/ContextMenu";
 import { TextPrompt } from "@/components/TextPrompt";
 import { primeKeyboard } from "@/lib/keyboard";
 import { MODE_LABEL } from "@/lib/transport";
@@ -236,7 +237,7 @@ function Trips() {
         {live.map((t) => {
           const isDemo = t.templateId === "demo";
           return (
-            <li key={t.id} className="relative flex items-baseline gap-3 px-3.5 py-3 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
+            <ContextMenu as="li" key={t.id} className="relative flex items-baseline gap-3 px-3.5 py-3 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
               <span className="min-w-0 flex-1">
                 {isDemo ? (
                   <span className="lead">{t.name}</span>
@@ -264,7 +265,7 @@ function Trips() {
                   <ConfirmMenuItem onConfirm={() => deleteTrip(t.id)} label="Delete" confirmLabel="Tap again to delete this trip" />
                 </RowMenu>
               </span>
-            </li>
+            </ContextMenu>
           );
         })}
       </ul>
@@ -274,7 +275,7 @@ function Trips() {
         <Section title="Archived" className="mt-8">
           <ul>
             {archived.map((t) => (
-              <li key={t.id} className={`${INSET_DIVIDER} flex items-baseline justify-between gap-3 px-3.5 py-3`}>
+              <ContextMenu as="li" key={t.id} className={`${INSET_DIVIDER} flex items-baseline justify-between gap-3 px-3.5 py-3`}>
                 <span className="lead min-w-0 flex-1 break-words text-ink-soft">{t.name}</span>
                 <span className="flex shrink-0 items-center gap-1">
                   <button onClick={() => archiveTrip(t.id, false)} className="action">Restore</button>
@@ -282,7 +283,7 @@ function Trips() {
                     <ConfirmMenuItem onConfirm={() => deleteTrip(t.id)} label="Delete" confirmLabel="Tap again to delete this trip" />
                   </RowMenu>
                 </span>
-              </li>
+              </ContextMenu>
             ))}
           </ul>
         </Section>
@@ -437,7 +438,7 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
     <Section title="Shared with">
       <ul>
         {members.map((m) => (
-          <li key={m.userId} className={`${MLI} justify-between text-sm`}>
+          <ContextMenu as="li" key={m.userId} className={`${MLI} justify-between text-sm`}>
             <span className="min-w-0 break-words">
               {m.userId === me ? "You" : m.name || m.email || "Someone on this trip"} <span className="text-ink-soft">· {m.role}</span>
               {m.userId !== me && m.name && m.email && <span className="meta block break-all">{m.email}</span>}
@@ -447,7 +448,7 @@ function Sharing({ tripId, me }: { tripId: string; me: string }) {
                 <ConfirmMenuItem onConfirm={() => void removeMember(tripId, m.userId).then(reload)} label="Remove access" />
               </RowMenu>
             )}
-          </li>
+          </ContextMenu>
         ))}
         {iAmOwner && (
           <ActionRow icon="plus" label="Invite by email" onClick={() => { primeKeyboard(); setInviting(true); }} disabled={busy} />
@@ -636,7 +637,7 @@ function TravellersPanel() {
     <Section title="Travellers" info="Who's on this trip — used for packing assignment.">
       <ul>
         {people.map((p, i) => (
-          <li key={p.id} className={MLI}>
+          <ContextMenu as="li" key={p.id} className={MLI}>
             <span className="min-w-0 flex-1">
               <Editable label="Name" value={p.name} placeholder="Name" onCommit={(v) => setName(i, v)} />
             </span>
@@ -649,7 +650,7 @@ function TravellersPanel() {
               removeLabel="Remove person"
               undoLabel="Traveller removed"
             />
-          </li>
+          </ContextMenu>
         ))}
         <AddRow label="Add a traveller" onClick={add} />
       </ul>
@@ -685,13 +686,13 @@ function CurrenciesPanel() {
     >
       <ul>
         {list.map((c, i) => (
-          <li key={`${c}-${i}`} className={MLI}>
+          <ContextMenu as="li" key={`${c}-${i}`} className={MLI}>
             <span className="min-w-0 flex-1">
               <Editable label="Currency code" value={c} placeholder="e.g. JPY" onCommit={(v) => setAt(i, v)} />
               {i === 0 && c && <span className="eyebrow ml-2">default</span>}
             </span>
             <ReorderMenu label={c} index={i} count={list.length} onMove={(dir) => move(i, dir)} onRemove={() => remove(i)} removeLabel="Remove currency" undoLabel="Currency removed" />
-          </li>
+          </ContextMenu>
         ))}
         <AddRow label="Add a currency" onClick={add} />
       </ul>
@@ -766,7 +767,7 @@ function ExpenseCategoriesPanel() {
     >
       <ul>
         {cats.map((c, i) => (
-          <li key={c.id} className={MLI}>
+          <ContextMenu as="li" key={c.id} className={MLI}>
             <GlyphPicker
               value={c.icon}
               displayGlyph={expenseCategoryIcon(c, i).glyph}
@@ -833,7 +834,7 @@ function ExpenseCategoriesPanel() {
               removeLabel="Remove category"
               undoLabel="Category removed"
             />
-          </li>
+          </ContextMenu>
         ))}
         <AddRow label="Add a category" onClick={() => mutate((d) => { (d.config.expenseCategories ??= []).push({ id: `cat-${rid()}`, label: "New category" }); })} />
       </ul>
@@ -905,7 +906,7 @@ function ModulesPanel() {
             x.kind === "logbook-section" ? logbookLabel(x.target ?? "") : x.kind.charAt(0).toUpperCase() + x.kind.slice(1);
           const renamed = (x: typeof m) => tabTarget(x).toLowerCase() !== x.label.trim().toLowerCase();
           return (
-          <li key={m.id} className={MLI}>
+          <ContextMenu as="li" key={m.id} className={MLI}>
             <span className="flex-1">
               <Editable label="Section label" value={m.label} onCommit={(v) => mutate((d) => { d.config.modules[i].label = v || m.label; })} />
               {/* what the tab opens — only worth saying once it's been renamed
@@ -933,7 +934,7 @@ function ModulesPanel() {
               removeLabel="Remove tab"
               undoLabel="Tab removed"
             />
-          </li>
+          </ContextMenu>
           );
         })}
         <AddTabButton />
@@ -979,7 +980,7 @@ function LogbookSectionsPanel() {
           </li>
         ))}
         {lists.map((l, i) => (
-          <li key={l.id} className={`${MLI} text-sm`}>
+          <ContextMenu as="li" key={l.id} className={`${MLI} text-sm`}>
             <span className="min-w-0 flex-1">
               <Editable label="List name" value={l.title} onCommit={(v) => mutate((d) => { const x = d.config.lists?.[i]; if (x) x.title = v || "List"; })} />
             </span>
@@ -987,7 +988,7 @@ function LogbookSectionsPanel() {
             <RowMenu label="List options">
               <ConfirmMenuItem onConfirm={() => undoable("List deleted", () => mutate((d) => { d.config.lists = (d.config.lists ?? []).filter((x) => x.id !== l.id); }))} label="Delete list" />
             </RowMenu>
-          </li>
+          </ContextMenu>
         ))}
       </ul>
     </Section>
@@ -1261,7 +1262,7 @@ function Content() {
                 const rec = x as Record<string, unknown>;
                 const href = entityLink(type, x.id);
                 return (
-                  <li key={x.id} className="border-b border-line py-2 text-sm last:border-b-0">
+                  <ContextMenu as="li" key={x.id} className="border-b border-line py-2 text-sm last:border-b-0">
                     <div className="flex items-center gap-2">
                       <span className="min-w-0 flex-1 break-words">
                         {href ? <Link to={href} className="hover:text-accent">{nameOf(rec)}</Link> : nameOf(rec)}
@@ -1274,7 +1275,7 @@ function Content() {
                         <ConfirmMenuItem onConfirm={() => undoable("Deleted", () => removeEntity(type, x.id))} label="Delete" />
                       </RowMenu>
                     </div>
-                  </li>
+                  </ContextMenu>
                 );
               })}
               {list.length === 0 && <li className="py-2 text-sm text-ink-faint">None yet.</li>}

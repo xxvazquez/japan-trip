@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Section } from "./Section";
 import { InsetRow, INSET_DIVIDER } from "./InsetRow";
 import { RowMenu } from "./RowMenu";
+import { ContextMenu } from "./ContextMenu";
 import { ConfirmMenuItem } from "./ActionSheet";
 import { useApp } from "@/store/useApp";
 import { pickBackend } from "@/lib/backend";
@@ -118,7 +119,7 @@ export function DataSafety() {
         ) : (
           <ul>
             {mine.slice(0, 12).map((p) => (
-              <li key={p.id} className={`${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-3`}>
+              <ContextMenu as="li" key={p.id} className={`${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-3`}>
                 <PointLabel p={p} />
                 <RowMenu>
                   {/* replaces the open trip — a second tap, so a stray one can't */}
@@ -129,7 +130,7 @@ export function DataSafety() {
                   />
                   <button onClick={() => restore(p, "copy")} disabled={busy} className="menu-item">Restore as a new trip</button>
                 </RowMenu>
-              </li>
+              </ContextMenu>
             ))}
           </ul>
         )}

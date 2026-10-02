@@ -77,6 +77,8 @@ export default {
         "fade-in": { from: { opacity: "0" }, to: { opacity: "1" } },
         // the iOS alert: grows in from slightly larger as it fades up
         "alert-in": { from: { opacity: "0", transform: "scale(1.12)" }, to: { opacity: "1", transform: "scale(1)" } },
+        // a context menu: grows out of the spot it was opened from
+        "menu-pop": { from: { opacity: "0", transform: "scale(0.85)" }, to: { opacity: "1", transform: "scale(1)" } },
         "sheet-up": {
           from: { opacity: "0", transform: "translateY(100%)" },
           to: { opacity: "1", transform: "translateY(0)" },
@@ -94,6 +96,7 @@ export default {
         "fade-up": "fade-up 0.32s var(--ease-paper) both",
         "fade-in": "fade-in 0.15s ease-out both",
         "alert-in": "alert-in 0.25s var(--ease-paper) both",
+        "menu-pop": "menu-pop 0.3s var(--ease-spring) both",
         // `backwards`, not `both`: after it ends the sheet must be free to follow a drag
         "sheet-up": "sheet-up 0.36s var(--ease-paper) backwards",
         "enso-spin": "enso-spin 1.1s linear infinite",

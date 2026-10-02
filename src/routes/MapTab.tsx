@@ -9,6 +9,7 @@ import { InfoNote } from "@/components/InfoNote";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { ActionSheet, ConfirmMenuItem, useActionSheet } from "@/components/ActionSheet";
 import { RowMenu } from "@/components/RowMenu";
+import { ContextMenu } from "@/components/ContextMenu";
 import { INSET_DIVIDER } from "@/components/InsetRow";
 import { RowSelect } from "@/components/RowSelect";
 import { TextPrompt } from "@/components/TextPrompt";
@@ -1293,7 +1294,7 @@ export default function MapTab() {
                 {[...data.areas]
                   .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
                   .map((a) => (
-                    <li key={a.id} className="flex items-center gap-2 border-b border-line py-1.5 text-sm last:border-b-0">
+                    <ContextMenu as="li" key={a.id} className="flex items-center gap-2 border-b border-line py-1.5 text-sm last:border-b-0">
                       <span className="min-w-0 flex-1 break-words">
                         <Editable label="Area name" value={a.name} placeholder="Area name" onCommit={(v) => updateEntity<Area>("areas", a.id, { name: v.trim() || "Untitled" })} />
                       </span>
@@ -1301,7 +1302,7 @@ export default function MapTab() {
                       <RowMenu label="Area options">
                         <ConfirmMenuItem onConfirm={() => undoable("Area deleted", () => removeEntity("areas", a.id))} label="Delete area" />
                       </RowMenu>
-                    </li>
+                    </ContextMenu>
                   ))}
               </ul>
             )}
@@ -1750,14 +1751,27 @@ function PlaceRow({
             </button>
           </div>
         ) : (
-          <button onClick={onToggle} className={`flex w-full items-center gap-3 py-2 text-left ${derived ? "opacity-60" : ""}`}>
-            {tile}
-            <span className="min-w-0 flex-1">
-              <span className="block break-words text-sm leading-snug text-ink">{place.name}</span>
-              {details}
-            </span>
-            <Icon name="chevron" size={13} className="shrink-0 text-ink-faint" />
-          </button>
+          <ContextMenu
+            menu={(link || !readOnly) && (
+              <>
+                {link && (
+                  <a href={link} target="_blank" rel="noopener" className="menu-item">
+                    <Icon name="map" size={16} /> Open in Google Maps
+                  </a>
+                )}
+                {!readOnly && <ConfirmMenuItem onConfirm={onRemove} label="Delete place" icon={<Icon name="trash" size={16} />} />}
+              </>
+            )}
+          >
+            <button onClick={onToggle} className={`flex w-full items-center gap-3 py-2 text-left ${derived ? "opacity-60" : ""}`}>
+              {tile}
+              <span className="min-w-0 flex-1">
+                <span className="block break-words text-sm leading-snug text-ink">{place.name}</span>
+                {details}
+              </span>
+              <Icon name="chevron" size={13} className="shrink-0 text-ink-faint" />
+            </button>
+          </ContextMenu>
         )}
       </li>
 

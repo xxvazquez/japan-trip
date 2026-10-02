@@ -5,6 +5,7 @@ import { undoable } from "@/store/useApp";
 import { MoneyField } from "./MoneyField";
 import { Icon } from "./Icon";
 import { RowMenu } from "./RowMenu";
+import { ContextMenu } from "./ContextMenu";
 import { ConfirmMenuItem } from "./ActionSheet";
 import { useReadOnly } from "@/lib/readonly";
 import { useData } from "@/lib/data";
@@ -173,7 +174,7 @@ export function FieldList({
     return (
       <>
         {fields.map((f, i) => (
-          <li key={f.id} className={`${insetLi} flex items-start gap-2 px-3.5 py-3`}>{editRow(f, i)}</li>
+          <ContextMenu as="li" key={f.id} className={`${insetLi} flex items-start gap-2 px-3.5 py-3`}>{editRow(f, i)}</ContextMenu>
         ))}
         <li>{addBtn}</li>
       </>
@@ -182,9 +183,9 @@ export function FieldList({
   return (
     <div>
       {fields.map((f, i) => (
-        <div key={f.id} className="flex items-start gap-2 border-b border-line py-2 last:border-b-0">
+        <ContextMenu key={f.id} className="flex items-start gap-2 border-b border-line py-2 last:border-b-0">
           {editRow(f, i)}
-        </div>
+        </ContextMenu>
       ))}
       {addBtn}
     </div>

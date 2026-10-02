@@ -24,6 +24,7 @@ import { Editable } from "@/components/Editable";
 import { MoneyField } from "@/components/MoneyField";
 import { RichNote } from "@/components/RichNote";
 import { RowMenu } from "@/components/RowMenu";
+import { ContextMenu } from "@/components/ContextMenu";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { SwipeToDelete } from "@/components/SwipeToDelete";
 import { ConfirmButton } from "@/components/ConfirmButton";
@@ -780,7 +781,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
       className={`group relative text-sm after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden ${isDragging ? "z-10 bg-surface opacity-80" : ""}`}
     >
       <SwipeToDelete undoLabel="Step removed" onDelete={readOnly ? undefined : onRemove}>
-      <div className="px-3.5 py-3">
+      <ContextMenu className="px-3.5 py-3">
         <div className="flex items-start gap-2.5">
           {/* leading column — just the drag handle now; tile + hour moved
               into the content column's own meta line below, so the row
@@ -922,7 +923,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
             )}
           </RowMenu>
         </div>
-      </div>
+      </ContextMenu>
       </SwipeToDelete>
     </li>
   );

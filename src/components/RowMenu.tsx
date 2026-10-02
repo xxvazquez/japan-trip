@@ -1,6 +1,7 @@
-import { type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { Icon } from "./Icon";
 import { ActionSheet, useActionSheet } from "./ActionSheet";
+import { useRowContextMenu } from "./ContextMenu";
 
 /**
  * A ⋯ overflow menu for a row — the low-noise home for secondary actions
@@ -8,14 +9,21 @@ import { ActionSheet, useActionSheet } from "./ActionSheet";
  * `<button className="menu-item">…</button>` (or `<ConfirmButton>`). Presents
  * as an iOS bottom sheet on a phone, a popover on a wider screen (see
  * `ActionSheet`).
+ *
+ * Inside a `ContextMenu` row, the same items also open on a long-press or
+ * right-click of the row — one menu, two ways in.
  */
 export function RowMenu({ children, label = "More" }: { children: ReactNode; label?: string }) {
-  const { open, setOpen, anchorRef } = useActionSheet();
+  const own = useActionSheet();
+  const row = useRowContextMenu();
+  const claim = row?.claim;
+  useEffect(() => claim?.(), [claim]);
+  const open = row ? row.open : own.open;
   return (
     <span className="shrink-0">
       <button
-        ref={anchorRef}
-        onClick={() => setOpen(true)}
+        ref={own.anchorRef}
+        onClick={() => (row ? row.openAt(null) : own.setOpen(true))}
         aria-label={label}
         aria-expanded={open}
         aria-haspopup="menu"
@@ -23,7 +31,12 @@ export function RowMenu({ children, label = "More" }: { children: ReactNode; lab
       >
         <Icon name="more" size={16} />
       </button>
-      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef}>
+      <ActionSheet
+        open={open}
+        onClose={() => (row ? row.close() : own.setOpen(false))}
+        anchorRef={own.anchorRef}
+        point={row?.point}
+      >
         {children}
       </ActionSheet>
     </span>

@@ -20,8 +20,10 @@ import { Page, PageHeader } from "@/components/Page";
 import { Section } from "@/components/Section";
 import { Empty } from "@/components/Empty";
 import { Icon, type IconName } from "@/components/Icon";
+import { ContextMenu } from "@/components/ContextMenu";
+import { ConfirmMenuItem } from "@/components/ActionSheet";
 import { useData } from "@/lib/data";
-import { useApp } from "@/store/useApp";
+import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { tripClock, fmtDate, dayKind, legForDate, legNights, plural, addDays } from "@/lib/dates";
 import { nextDaySlot } from "@/lib/spans";
@@ -473,8 +475,9 @@ function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day:
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`${DAY_ROW_LI} flex items-start ${isDragging ? "z-10 bg-surface opacity-70 shadow-sm" : ""}`}
+      className={`${DAY_ROW_LI} ${isDragging ? "z-10 bg-surface opacity-70 shadow-sm" : ""}`}
     >
+      <ContextMenu menu={readOnly ? undefined : <DayMenu day={day} pinned={pinned} />} className="flex items-start">
       {!readOnly && (pinned ? (
         // fixed to its date — a pin where the handle was; unpin on the day's page
         <span className="shrink-0 pb-3 pl-3 pr-1 pt-[18px] text-ink-faint" title="Pinned to its date">
@@ -492,6 +495,34 @@ function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day:
         </button>
       ))}
       <DayLink data={data} day={day} today={today} loc={loc} hex={hex} className={readOnly ? "pl-3.5" : "pl-1"} />
+      </ContextMenu>
     </li>
+  );
+}
+
+/** A day row's long-press / right-click actions — the same ones its page
+ *  keeps at the bottom, without opening it. */
+function DayMenu({ day, pinned }: { day: Day; pinned: boolean }) {
+  const updateEntity = useApp((s) => s.updateEntity);
+  const removeEntity = useApp((s) => s.removeEntity);
+  const mutateTrip = useApp((s) => s.mutateTrip);
+  return (
+    <>
+      <button type="button" className="menu-item" onClick={() => updateEntity<Day>("days", day.id, { dayTrip: !day.dayTrip })}>
+        <Icon name={day.dayTrip ? "close" : "plus"} size={16} /> {day.dayTrip ? "Not a day trip" : "Make this a day trip"}
+      </button>
+      <button
+        type="button"
+        className="menu-item"
+        onClick={() => mutateTrip((d) => {
+          const ids = new Set(d.config.pinnedDays ?? []);
+          if (ids.has(day.id)) ids.delete(day.id); else ids.add(day.id);
+          d.config.pinnedDays = ids.size ? [...ids] : undefined;
+        })}
+      >
+        <Icon name="pushpin" size={16} /> {pinned ? "Unpin this day" : "Pin this day"}
+      </button>
+      <ConfirmMenuItem onConfirm={() => undoable("Day deleted", () => removeEntity("days", day.id))} label="Delete day" icon={<Icon name="trash" size={16} />} />
+    </>
   );
 }

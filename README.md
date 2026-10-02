@@ -290,6 +290,12 @@ Theme and trip logo. **Appearance** (light, dark or *Automatic*) is per device, 
 
 **Tap text to edit it.** There's no edit mode. Dates and times open pickers; links, phone numbers and emails become tappable once filled in. In a list of details (a document, a stay's reference, Emergency), edit from the row's **⋯ → Edit**.
 
+**Row menus.** Press and hold a row (right-click on desktop) to open its actions beside it — the same ones as its **⋯**. Days, stays, journeys, documents and Map places have one too:
+
+- **Day** — make it a day trip, pin it, delete it.
+- **Stay** / **Map place** — open in Google Maps, delete.
+- **Journey** / **Document** — delete.
+
 **Notes** take light formatting — `**bold**`, `*italic*`, `++underline++`, `~~strike~~`, `##` headings, `>` quotes, `-` bullets, `- [ ]` checklists, `[links](https://…)` — with a toolbar for all of it and the usual keyboard shortcuts. Checklist boxes can be ticked without opening the editor.
 
 **Deleting.** Every delete asks first (a confirm sheet, or a second tap on a swiped row). After that, an **Undo** bar appears for a few seconds and puts back exactly what was removed. Only the last delete can be undone, and deleting a whole trip or a file can't be.

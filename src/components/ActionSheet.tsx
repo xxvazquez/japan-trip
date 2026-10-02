@@ -15,6 +15,10 @@ const isNarrow = () =>
  * The whole panel closes on any click inside it (an item or the backdrop) —
  * except `header`, which stays put above the scrolling list (a search field,
  * filter chips) and swallows its own clicks.
+ *
+ * With `point` it's a context menu instead (`ContextMenu`, a long-press or
+ * right-click): a popover at that spot on every width — iOS shows a held
+ * row's menu beside the row, not as a sheet from the bottom.
  */
 export function ActionSheet({
   open,
@@ -23,6 +27,7 @@ export function ActionSheet({
   title,
   doneLabel = "Cancel",
   header,
+  point,
   children,
 }: {
   open: boolean;
@@ -33,6 +38,8 @@ export function ActionSheet({
   doneLabel?: string;
   /** fixed above the list, outside its scroll — a search field, filter chips */
   header?: ReactNode;
+  /** open as a context menu here — see `MenuPoint` */
+  point?: MenuPoint | null;
   children: ReactNode;
 }) {
   const [, bump] = useReducer((n: number) => n + 1, 0);
@@ -64,6 +71,8 @@ export function ActionSheet({
   }, [open]);
 
   if (!open) return null;
+
+  if (point) return <ContextPopover point={point} onClose={onClose} menuRef={menuRef} w={menuWidth} h={menuHeight}>{children}</ContextPopover>;
 
   if (isNarrow()) {
     return createPortal(
@@ -114,6 +123,73 @@ export function ActionSheet({
       >
         {header && <div className="shrink-0 space-y-2 px-3 pb-2 pt-3" onClick={(e) => e.stopPropagation()}>{header}</div>}
         <div className={`min-h-0 flex-1 overflow-y-auto pb-1.5 ${header ? "" : "pt-1.5"}`}>{children}</div>
+      </div>
+    </>,
+    document.body,
+  );
+}
+
+/**
+ * Where a context menu opens. `x`/`y` is the spot; `align` "center" centres
+ * the menu on `x` (a held row: the menu drops under the finger), "start" puts
+ * its corner there (a right-click, as on a Mac). `flipY` is where its bottom
+ * edge goes instead when there's no room below — the row's top edge, so the
+ * menu never covers the row it belongs to.
+ */
+export type MenuPoint = { x: number; y: number; flipY?: number; align?: "start" | "center" };
+
+/** Room the phone's floating tab bar takes at the bottom (8px where there's
+ *  none) — a context menu stays above it rather than covering it. */
+function tabBarClear() {
+  if (!window.matchMedia("(max-width: 767px)").matches) return 8;
+  const probe = document.createElement("div");
+  probe.style.cssText = "position:fixed;visibility:hidden;height:var(--tabbar-clear)";
+  document.body.append(probe);
+  const h = probe.offsetHeight;
+  probe.remove();
+  return h || 8;
+}
+
+function ContextPopover({
+  point,
+  onClose,
+  menuRef,
+  w: measuredW,
+  h,
+  children,
+}: {
+  point: MenuPoint;
+  onClose: () => void;
+  menuRef: RefObject<HTMLDivElement>;
+  w: number;
+  h: number;
+  children: ReactNode;
+}) {
+  const narrow = isNarrow();
+  const w = measuredW || (narrow ? 250 : 200);
+  const vw = window.innerWidth;
+  const floor = window.innerHeight - tabBarClear();
+  const left = Math.min(Math.max(point.align === "start" ? point.x : point.x - w / 2, 8), vw - w - 8);
+  const below = point.y + h <= floor;
+  const top = below ? point.y : Math.max(8, (point.flipY ?? point.y) - h);
+  // grows out of the spot it was opened from
+  const origin = `${Math.round(point.x - left)}px ${below ? "0" : "100%"}`;
+  return createPortal(
+    <>
+      {/* a held row dims the page behind its menu (iOS); a right-click doesn't (macOS) */}
+      <div className={`fixed inset-0 z-50 ${narrow ? "bg-black/15 motion-safe:animate-fade-in" : ""}`} onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
+      <div
+        ref={menuRef}
+        role="menu"
+        onClick={onClose}
+        style={{ top, left, transformOrigin: origin }}
+        className={`glass-panel fixed z-[55] flex max-h-[70dvh] flex-col overflow-y-auto overscroll-contain py-1.5 motion-safe:animate-menu-pop [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 ${
+          narrow
+            ? "w-[min(16rem,calc(100vw-16px))] rounded-[22px] [&_.menu-item]:px-4 [&_.menu-item]:py-3 [&_.menu-item]:text-[17px] [&_.menu-item:active]:bg-ink/[0.07]"
+            : "min-w-[12rem] max-w-[22rem] rounded-[14px] text-sm [&_.menu-item]:px-3.5 [&_.menu-item]:py-1.5 [&_.menu-item:hover]:bg-ink/[0.06]"
+        }`}
+      >
+        {children}
       </div>
     </>,
     document.body,

@@ -7,6 +7,7 @@ import { INSET_DIVIDER } from "./InsetRow";
 import { Editable } from "./Editable";
 import { SwipeToDelete } from "./SwipeToDelete";
 import { RowMenu } from "./RowMenu";
+import { ContextMenu } from "./ContextMenu";
 import { ConfirmButton } from "./ConfirmButton";
 import { ActionSheet, useActionSheet, ConfirmMenuItem } from "./ActionSheet";
 import { CheckCircle } from "./CheckCircle";
@@ -331,7 +332,7 @@ export function Stamps() {
     );
     return (
       <li key={s.id} className={ROW}>
-        {plain ? body : <SwipeToDelete undoLabel="Stamp removed" onDelete={remove}>{body}</SwipeToDelete>}
+        {plain ? body : <SwipeToDelete undoLabel="Stamp removed" onDelete={remove}><ContextMenu>{body}</ContextMenu></SwipeToDelete>}
       </li>
     );
   };

@@ -15,6 +15,7 @@ import { AccordionRow } from "@/components/AccordionRow";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { SwipeToDelete } from "@/components/SwipeToDelete";
 import { RowMenu } from "@/components/RowMenu";
+import { ContextMenu } from "@/components/ContextMenu";
 import { ActionSheet, ConfirmMenuItem, useActionSheet } from "@/components/ActionSheet";
 import { Editable } from "@/components/Editable";
 import { Stamps } from "@/components/Stamps";
@@ -29,6 +30,7 @@ import { useAuth } from "@/lib/auth";
 import { supabaseEnabled } from "@/lib/supabase";
 import { driveEnabled } from "@/lib/drive";
 import { useReadOnly } from "@/lib/readonly";
+import { gmapsLink } from "@/lib/maps";
 import { pickBackend } from "@/lib/backend";
 import { fmtDate, fmtSpan, hotelStays, journeyDepartDate, plural } from "@/lib/dates";
 import { MODE_ICON } from "@/lib/transport";
@@ -230,7 +232,7 @@ function ListSection({ list }: { list: CustomList }) {
             className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden"
           >
             <SwipeToDelete undoLabel="Item removed" onDelete={ro ? undefined : () => set((l) => { l.items.splice(i, 1); })}>
-            <div className="flex items-start gap-2 px-3.5 py-3">
+            <ContextMenu className="flex items-start gap-2 px-3.5 py-3">
               <span className="min-w-0 flex-1">
                 <span className="block text-sm leading-snug text-ink">
                   {ro
@@ -282,7 +284,7 @@ function ListSection({ list }: { list: CustomList }) {
                   </button>
                 </RowMenu>
               )}
-            </div>
+            </ContextMenu>
             </SwipeToDelete>
           </li>
         ))}
@@ -299,6 +301,7 @@ function Stays() {
   const loc = data.config.locale;
   const ro = useReadOnly();
   const addEntity = useApp((s) => s.addEntity);
+  const removeEntity = useApp((s) => s.removeEntity);
   const nav = useNavigate();
 
   // same as "Add a journey": make it, then open its page to fill in
@@ -321,10 +324,21 @@ function Stays() {
           // check-in to check-out, per stay that uses this hotel
           const short = (d: string) => fmtDate(d, loc, { day: "numeric", month: "short" });
           const when = hotelStays(data, h.id).map((x) => `${short(x.checkIn)} – ${short(x.checkOut)}`).join(", ");
+          const map = gmapsLink(h.mapUrl || h.address);
           return (
             <TileRow
               key={h.id}
               to={`/hotel/${h.id}`}
+              menu={
+                (map || !ro) && <>
+                  {map && (
+                    <a href={map} target="_blank" rel="noopener" className="menu-item">
+                      <Icon name="map" size={16} /> Open in Google Maps
+                    </a>
+                  )}
+                  {!ro && <ConfirmMenuItem onConfirm={() => undoable("Stay deleted", () => removeEntity("hotels", h.id))} label="Delete stay" icon={<Icon name="trash" size={16} />} />}
+                </>
+              }
               tile={<IconTile size="sm" glyph="hotel" tone="ink-faint" />}
               title={h.name}
               meta={h.address || undefined}
@@ -344,6 +358,7 @@ function GettingAround() {
   const ro = useReadOnly();
   const addEntity = useApp((s) => s.addEntity);
   const nav = useNavigate();
+  const removeEntity = useApp((s) => s.removeEntity);
   // listed and labelled by when it leaves, not the day it's attached to — an
   // overnight flight sits on its arrival day but departs the evening before
   const journeys = useMemo(
@@ -391,6 +406,7 @@ function GettingAround() {
               <TileRow
                 key={j.id}
                 to={`/journey/${j.id}`}
+                menu={ro ? undefined : <ConfirmMenuItem onConfirm={() => undoable("Journey deleted", () => removeEntity("journeys", j.id))} label="Delete journey" icon={<Icon name="trash" size={16} />} />}
                 tile={<IconTile size="sm" name={MODE_ICON[mode]} tone={toneForSegmentMode(mode)} />}
                 title={<RouteLabel label={j.label || "Journey"} />}
                 // the date leads the sub-line rather than taking a column, so a
@@ -662,6 +678,7 @@ function Documents() {
   const data = useData()!;
   const ro = useReadOnly();
   const addEntity = useApp((s) => s.addEntity);
+  const removeEntity = useApp((s) => s.removeEntity);
   const nav = useNavigate();
   const docs = data.docs.filter((d) => d.kind !== "contact");
 
@@ -692,6 +709,7 @@ function Documents() {
             <TileRow
               key={d.id}
               to={`/logbook/documents/${d.id}`}
+              menu={ro ? undefined : <ConfirmMenuItem onConfirm={() => undoable("Document deleted", () => removeEntity("docs", d.id))} label="Delete document" icon={<Icon name="trash" size={16} />} />}
               tile={<IconTile size="sm" name="vault" tone="ink-faint" />}
               title={d.title}
               meta={n ? plural(n, "file") : undefined}
