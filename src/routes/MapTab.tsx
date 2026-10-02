@@ -43,6 +43,16 @@ import type { Area, Day, PlanItem, Place, TripData } from "@/core/types";
 const FALLBACK = DEFAULT_ACCENT;
 
 
+/** the white grouped-inset card a run of place rows sits in, on the sheet's
+ *  grey ground — what separates "an area" (a header on the ground) from "a
+ *  place" (a row in a card), the way Settings and Reminders group a list */
+const PLACE_CARD = "mx-4 isolate overflow-hidden rounded-[12px] bg-surface";
+/** an area's name above its card — 17px Medium, one step above the 15px rows */
+const AREA_TITLE = "block break-words text-[1.0625rem] font-medium leading-snug text-ink";
+/** a place row's hairline, inset past its 28px tile (14px pad + 28 + 12 gap) */
+const TILE_DIVIDER =
+  "relative after:pointer-events-none after:absolute after:bottom-0 after:left-[3.375rem] after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
+
 /** an area's two farthest-apart places (its "width", not a tour of everywhere
  *  in it) — cheap local haversine just to find *which* pair, real walking
  *  time for that one pair comes from `useWalk` (see `AreaWalkSpan`).
@@ -69,7 +79,7 @@ function AreaWalkSpan({ items }: { items: Place[] }) {
   const pair = farthestPair(items);
   const route = useWalk(pair?.[0] ?? { lat: 0, lng: 0 }, pair?.[1]);
   if (!pair || !route) return null;
-  return <span className="block text-2xs text-ink-soft">{fmtWalk(route)} walk across</span>;
+  return <span className="block text-xs text-ink-soft">{fmtWalk(route)} walk across</span>;
 }
 
 /** the legend mark for a category chip — a mini filled tile echoing the place
@@ -1087,17 +1097,10 @@ export default function MapTab() {
 
   // The selected place shows as a card at the top of whichever list is up —
   // its details live there, so a shut area or city never has to spring open to
-  // reveal it. `asItem` for the <ul> lists, plain block for the <div> ones.
+  // reveal it.
   const selectedPlace = selected ? data.places.find((p) => p.id === selected) : undefined;
-  const selectedCard = (asItem: boolean) => {
-    if (!selectedPlace) return null;
-    const card = (
-      <ul className="mx-4 mb-1 mt-3 overflow-hidden rounded-[12px] border border-line bg-surface">
-        {renderRow(selectedPlace, undefined, true)}
-      </ul>
-    );
-    return asItem ? <li key="selected" className="-mx-4 list-none">{card}</li> : card;
-  };
+  const selectedCard = () =>
+    selectedPlace ? <ul className={`${PLACE_CARD} mb-1 mt-3`}>{renderRow(selectedPlace, undefined, true)}</ul> : null;
 
   // a function, not a plain element — rendered once for the desktop column
   // and once for the mobile sheet (below), so `forMobile` can gate the
@@ -1385,29 +1388,30 @@ export default function MapTab() {
           onCancel={endSuggest}
         />
       ) : nearby ? (
-        <ul ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto px-4">
-          {selectedCard(true)}
-          {nearby.list.map((p) => renderRow(p, nearby.distances.get(p.id)))}
-          {nearby.list.length === 0 && (
-            <li className="meta py-6">Nothing on the map for today. Pick “All”, or add a place above.</li>
+        <div ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto">
+          {selectedCard()}
+          {nearby.list.length > 0 ? (
+            <ul className={`${PLACE_CARD} mt-3`}>{nearby.list.map((p) => renderRow(p, nearby.distances.get(p.id)))}</ul>
+          ) : (
+            <p className="meta px-4 py-6">Nothing on the map for today. Pick “All”, or add a place above.</p>
           )}
-          <li className="h-4" />
-        </ul>
+          <div className="h-4" />
+        </div>
       ) : cityGroups ? (
         <div ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto">
-          {selectedCard(false)}
+          {selectedCard()}
           {cityGroups.map((c) => {
             const cityShut = collapsedCities.has(c.legId);
             return (
               <section key={c.legId || "none"}>
                 <button
                   onClick={() => toggleCityCollapsed(c.legId)}
-                  className="sticky top-0 z-[2] flex w-full items-center gap-2 border-b border-line bg-bg px-4 py-2 text-left"
+                  className="sticky top-0 z-[2] flex w-full items-center gap-2.5 bg-bg px-5 pb-1 pt-5 text-left"
                 >
-                  <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: c.hex }} />
-                  <span className="lead min-w-0 flex-1 break-words">{c.name}</span>
-                  <span className="shrink-0 text-2xs tabular-nums text-ink-soft">{c.count}</span>
-                  <Icon name="chevron" size={13} className={`shrink-0 text-ink-faint transition-transform ${cityShut ? "" : "rotate-90"}`} />
+                  <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: c.hex }} />
+                  <span className="subhead min-w-0 flex-1 break-words">{c.name}</span>
+                  <span className="shrink-0 text-xs tabular-nums text-ink-soft">{c.count}</span>
+                  <Icon name="chevron" size={14} className={`shrink-0 text-ink-faint transition-transform ${cityShut ? "" : "rotate-90"}`} />
                 </button>
                 {!cityShut && (
                   <>
@@ -1417,26 +1421,26 @@ export default function MapTab() {
                         <div key={a.id}>
                           <button
                             onClick={() => toggleAreaCollapsed(a.id)}
-                            className="flex w-full items-center gap-2 border-b border-line py-1.5 pl-8 pr-4 text-left"
+                            className="flex w-full items-center gap-2.5 px-5 pb-1.5 pt-3 text-left"
                           >
-                            <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: a.tone }} />
+                            <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: a.tone }} />
                             <span className="min-w-0 flex-1">
-                              <span className="block break-words text-[0.9375rem] leading-snug text-ink">{a.name}</span>
+                              <span className={AREA_TITLE}>{a.name}</span>
                               <AreaWalkSpan items={a.items} />
                             </span>
-                            <span className="shrink-0 text-2xs tabular-nums text-ink-soft">{a.items.length}</span>
-                            <Icon name="chevron" size={12} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />
+                            <span className="shrink-0 text-xs tabular-nums text-ink-soft">{a.items.length}</span>
+                            <Icon name="chevron" size={13} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />
                           </button>
-                          {!shut && <ul className="pl-8 pr-4">{a.items.map((p) => renderRow(p))}</ul>}
+                          {!shut && <ul className={PLACE_CARD}>{a.items.map((p) => renderRow(p))}</ul>}
                         </div>
                       );
                     })}
                     {c.loose.length > 0 && (
                       <>
                         {c.areas.length > 0 && (
-                          <p className="eyebrow border-b border-line py-1.5 pl-8 pr-4 text-ink-faint">No area</p>
+                          <p className="kicker px-5 pb-1.5 pt-4">Not in an area</p>
                         )}
-                        <ul className="pl-8 pr-4">{c.loose.map((p) => renderRow(p))}</ul>
+                        <ul className={`${PLACE_CARD} ${c.areas.length > 0 ? "" : "mt-2"}`}>{c.loose.map((p) => renderRow(p))}</ul>
                       </>
                     )}
                   </>
@@ -1448,7 +1452,7 @@ export default function MapTab() {
         </div>
       ) : areaGroups ? (
         <div ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto">
-          {selectedCard(false)}
+          {selectedCard()}
           {areaGroups.map((g) => {
             const isArea = g.id !== "";
             // the dot doubles as the old area-pill filter — soloed areas dim
@@ -1460,7 +1464,7 @@ export default function MapTab() {
             return (
               <section key={g.id || "none"}>
                 <div
-                  className={`sticky top-0 z-[1] flex items-center gap-2 border-b border-line bg-bg px-4 py-1.5 transition-opacity ${filteredOut ? "opacity-40" : ""}`}
+                  className={`sticky top-0 z-[1] flex items-center gap-2.5 bg-bg px-5 pb-1.5 pt-4 transition-opacity ${filteredOut ? "opacity-40" : ""}`}
                 >
                   {isArea ? (
                     <button
@@ -1469,24 +1473,24 @@ export default function MapTab() {
                       aria-pressed={!filteredOut}
                       className="-m-1.5 shrink-0 rounded-full p-1.5"
                     >
-                      <span className="block h-2 w-2 rounded-full" style={{ background: g.tone }} />
+                      <span className="block h-2.5 w-2.5 rounded-full" style={{ background: g.tone }} />
                     </button>
                   ) : (
-                    <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: g.tone }} />
+                    <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: g.tone }} />
                   )}
                   <button
                     onClick={() => toggleAreaCollapsed(g.id)}
                     className="flex min-w-0 flex-1 items-center gap-2 text-left"
                   >
                     <span className="min-w-0 flex-1">
-                      <span className="block break-words text-[0.9375rem] leading-snug text-ink">{g.name}</span>
+                      <span className={AREA_TITLE}>{g.name}</span>
                       {isArea && <AreaWalkSpan items={g.items} />}
                     </span>
-                    <span className="shrink-0 text-2xs tabular-nums text-ink-soft">{g.items.length}</span>
-                    <Icon name="chevron" size={12} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />
+                    <span className="shrink-0 text-xs tabular-nums text-ink-soft">{g.items.length}</span>
+                    <Icon name="chevron" size={13} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />
                   </button>
                 </div>
-                {!shut && <ul className="px-4">{g.items.map((p) => renderRow(p))}</ul>}
+                {!shut && <ul className={PLACE_CARD}>{g.items.map((p) => renderRow(p))}</ul>}
               </section>
             );
           })}
@@ -1500,20 +1504,20 @@ export default function MapTab() {
           <div className="h-4" />
         </div>
       ) : (
-        <ul ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto px-4">
-          {selectedCard(true)}
-          {scoped.map((p) => renderRow(p))}
+        <div ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto">
+          {selectedCard()}
+          {scoped.length > 0 && <ul className={`${PLACE_CARD} mt-3`}>{scoped.map((p) => renderRow(p))}</ul>}
           {scoped.length === 0 && (
-            <li className="meta py-6">
+            <p className="meta px-4 py-6">
               {places.length === 0
                 ? "No places yet. Add one above, or paste a Google My Maps link in Manage to import your pins."
                 : scope?.startsWith("day:")
                   ? "Nothing on the map for today. Pick “All”, or add a place above."
                   : "No places in this city yet. Pick “All”, or add one above."}
-            </li>
+            </p>
           )}
-          <li className="h-4" />
-        </ul>
+          <div className="h-4" />
+        </div>
       )}
 
       {/* sync footer — only once a My Maps link is actually configured; the
@@ -1750,7 +1754,7 @@ function PlaceRow({
   );
   return (
     <>
-      <li ref={li} className={card ? INSET_DIVIDER : "scroll-my-3 border-b border-line last:border-b-0"}>
+      <li ref={li} className={card ? INSET_DIVIDER : `scroll-my-3 ${TILE_DIVIDER}`}>
         {card ? (
           // the card's title is the name itself, editable in place — no
           // separate Name row repeating it; closing is the ✕ on its own
@@ -1779,7 +1783,7 @@ function PlaceRow({
               </>
             )}
           >
-            <button onClick={onToggle} className={`flex w-full items-center gap-3 py-2 text-left ${derived ? "opacity-60" : ""}`}>
+            <button onClick={onToggle} className={`flex w-full items-center gap-3 px-3.5 py-2 text-left active:bg-ink/[0.07] ${derived ? "opacity-60" : ""}`}>
               {tile}
               <span className="min-w-0 flex-1">
                 <span className="block break-words text-sm leading-snug text-ink">{place.name}</span>
