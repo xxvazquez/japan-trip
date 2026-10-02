@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import {
@@ -744,6 +744,19 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
   const updateEntity = useApp((s) => s.updateEntity);
   // an empty note stays out of the card until "Add a note" asks for it
   const [noteOpen, setNoteOpen] = useState(false);
+  // a blank step only goes away when you tap off it, like a new reminder —
+  // a tap anywhere on its own row (beside the thin text line, its pin, time
+  // or ⋯) blurs the field too, but means you're still working on it
+  const liRef = useRef<HTMLLIElement | null>(null);
+  const tappedInRow = useRef(false);
+  useEffect(() => {
+    if (readOnly || item.text) return;
+    const onDown = (e: PointerEvent) => {
+      tappedInRow.current = !!liRef.current?.contains(e.target as Node);
+    };
+    document.addEventListener("pointerdown", onDown, true);
+    return () => document.removeEventListener("pointerdown", onDown, true);
+  }, [readOnly, item.text]);
   const mapHref = gmapsLink(item.url || place?.url || place?.name);
   const toggleOverwhelming = () => {
     if (!place) return;
@@ -792,7 +805,10 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
 
   return (
     <li
-      ref={setNodeRef}
+      ref={(el) => {
+        setNodeRef(el);
+        liRef.current = el;
+      }}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={`group relative text-sm after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden ${isDragging ? "z-10 bg-surface opacity-80" : ""}`}
     >
@@ -897,8 +913,8 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
                 onCommit={(v) => onPatch({ text: v })}
                 // like a new reminder left blank: a step with nothing in it at
                 // all goes away (never stored, so no Undo); one with a time,
-                // place or note just loses its text
-                onBlank={() => (item.time || item.placeId || item.note ? item.text && onPatch({ text: "" }) : onRemove())}
+                // place or note, or tapped on its own row, just loses its text
+                onBlank={() => (item.time || item.placeId || item.note || tappedInRow.current ? item.text && onPatch({ text: "" }) : onRemove())}
                 className="block text-sm leading-snug text-ink"
               />
             )}
