@@ -1,6 +1,7 @@
 import type React from "react";
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { useReadOnly } from "@/lib/readonly";
+import { useData } from "@/lib/data";
 import { gmapsLink } from "@/lib/maps";
 import { isMoneyLabel } from "@/lib/cost";
 import { fmtDate } from "@/lib/dates";
@@ -114,6 +115,8 @@ const inputType = (kind: Kind) =>
  * placeholder in a muted "add…" style. Dates and times are a one-tap picker;
  * links / phones / emails render as the real thing with a pencil to edit.
  */
+const DATE_SHOWN: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short" };
+
 export function Editable(props: Props) {
   const { value, onCommit, placeholder = "Add…", label, className = "", emptyContent, editSignal, timeStart, autoEdit, onBlank } = props;
   const rawAs = props.as ?? "text";
@@ -127,6 +130,7 @@ export function Editable(props: Props) {
       : props.format && value ? props.format(value)
       : value;
   const readOnly = useReadOnly();
+  const locale = useData()?.config.locale ?? "en-GB";
   const [editing, setEditing] = useState(!!autoEdit);
   const [draft, setDraft] = useState(value);
   const ref = useRef<HTMLInputElement & HTMLTextAreaElement & HTMLSelectElement>(null);
@@ -174,7 +178,7 @@ export function Editable(props: Props) {
         </a>
       );
     }
-    const text = as === "date" ? fmtDate(value, "en-GB", { day: "numeric", month: "short", year: "numeric" }) : displayValue;
+    const text = as === "date" ? fmtDate(value, locale, DATE_SHOWN) : displayValue;
     return <span className={`inline whitespace-pre-wrap ${className}`}>{text}</span>;
   }
 
@@ -223,14 +227,21 @@ export function Editable(props: Props) {
         </span>
       );
     }
+    // set: the date written out the way the rest of the app writes it
+    // ("Tue 20 Oct", like Calendar's own rows), not the browser's
+    // numeric field with its calendar glyph — the picker still opens on tap
     return (
-      <input
-        type="date"
-        aria-label={label}
-        value={value}
-        onChange={(e) => e.target.value !== value && onCommit(e.target.value)}
-        className={`editable inline bg-transparent tabular-nums ${className}`}
-      />
+      <span className={`editable relative inline-block tabular-nums ${className}`}>
+        {fmtDate(value, locale, DATE_SHOWN)}
+        <input
+          type="date"
+          aria-label={label}
+          value={value}
+          onClick={(e) => { try { e.currentTarget.showPicker?.(); } catch { /* the tap itself opens it where showPicker isn't allowed */ } }}
+          onChange={(e) => e.target.value && e.target.value !== value && onCommit(e.target.value)}
+          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+        />
+      </span>
     );
   }
 
