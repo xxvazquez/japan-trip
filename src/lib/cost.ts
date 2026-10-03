@@ -265,10 +265,31 @@ export function combineCurrencies(
   return out;
 }
 
+/** Whether a currency's home country writes its symbol after the number —
+ *  "15 zł", "200 Kč", "1 000 ₫" — learned from the locale of the country in
+ *  the code's first two letters. Undefined when that tells us nothing (the
+ *  euro has no single home), so the device's own convention stands. */
+const symbolAfterCache = new Map<string, boolean | undefined>();
+function homeSymbolAfter(currency: string): boolean | undefined {
+  if (symbolAfterCache.has(currency)) return symbolAfterCache.get(currency);
+  let after: boolean | undefined;
+  try {
+    const home = new Intl.Locale(`und-${currency.slice(0, 2)}`).maximize();
+    if (home.language !== "und" && currency !== "EUR") {
+      const parts = new Intl.NumberFormat(home.baseName, { style: "currency", currency, currencyDisplay: "narrowSymbol" }).formatToParts(1);
+      after = parts.findIndex((p) => p.type === "currency") > parts.findIndex((p) => p.type === "integer");
+    }
+  } catch {
+    after = undefined;
+  }
+  symbolAfterCache.set(currency, after);
+  return after;
+}
+
 /** `fmtMoney` split around its symbol, so an editable amount can sit where the
- *  number goes: (1945.64, "PLN") → { before: "zł\u00a0", number: "1,945.64",
- *  after: "" }; (18, "EUR") → { before: "€", number: "18", after: "" }. The
- *  symbol side keeps whatever spacing the currency formats with. */
+ *  number goes — digits grouped the device's way, the symbol on the side its
+ *  own country puts it: (1945.64, "PLN") → { before: "", number: "1,945.64",
+ *  after: "\u00a0zł" }; (18, "EUR") → { before: "€", number: "18", after: "" }. */
 export function moneyParts(amount: number, currency: string): { before: string; number: string; after: string } {
   const plain = { before: "", number: amount.toLocaleString(undefined, { maximumFractionDigits: 2 }), after: "" };
   if (!currency) return plain;
@@ -285,28 +306,27 @@ export function moneyParts(amount: number, currency: string): { before: string; 
     const first = parts.findIndex((p) => isNum(p.type));
     const last = parts.length - 1 - [...parts].reverse().findIndex((p) => isNum(p.type));
     const join = (a: number, b: number) => parts.slice(a, b).map((p) => p.value).join("");
+    const symbol = parts[at].value;
+    const number = join(first, last + 1);
+    const after = homeSymbolAfter(currency);
+    // a letter symbol ("CHF", "zł") needs a space from the digits; "€" doesn't
+    const gap = /\p{L}/u.test(symbol) ? "\u00a0" : "";
+    if (after === true) return { before: "", number, after: `\u00a0${symbol}` };
+    if (after === false) return { before: `${symbol}${gap}`, number, after: "" };
     return at < first
-      ? { before: join(0, first), number: join(first, last + 1), after: "" }
+      ? { before: join(0, first), number, after: "" }
       : { before: "", number: join(0, last + 1), after: join(last + 1, parts.length) };
   } catch {
     return { ...plain, after: ` ${currency}` };
   }
 }
 
-/** e.g. (42000, "JPY") -> "¥42,000"; falls back to a plain number when the
- *  currency is unknown or Intl doesn't recognise the code. */
+/** e.g. (42000, "JPY") -> "¥42,000", (15, "PLN") -> "15 zł"; a plain number
+ *  with the code when Intl doesn't recognise it. */
 export function fmtMoney(amount: number, currency: string): string {
   if (!currency) return amount.toLocaleString();
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency,
-      currencyDisplay: "narrowSymbol",
-      maximumFractionDigits: Number.isInteger(amount) ? 0 : 2,
-    }).format(amount);
-  } catch {
-    return `${amount.toLocaleString()} ${currency}`;
-  }
+  const { before, number, after } = moneyParts(amount, currency);
+  return `${before}${number}${after}`;
 }
 
 export interface CategoryTile {
