@@ -43,7 +43,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
 import { dayJourneys, dayKind, fmtDate, journeyDepartDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
-import { gmapsLink, gmapsRoute, mapUrlCoords } from "@/lib/maps";
+import { gmapsLink, gmapsRoute, mapUrlCoords, placeMapLink } from "@/lib/maps";
 import { fmtWalk, haversineKm } from "@/lib/geo";
 import { clockOf, fmtDuration, fmtMinutes } from "@/lib/time";
 import { MODE_ICON, MODE_LABEL, MODE_TONE } from "@/lib/transport";
@@ -745,7 +745,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
   const updateEntity = useApp((s) => s.updateEntity);
   // an empty note stays out of the card until "Add a note" asks for it
   const [noteOpen, setNoteOpen] = useState(false);
-  const mapHref = gmapsLink(item.url || place?.url || place?.name);
+  const mapHref = item.url ? gmapsLink(item.url) : placeMapLink(place);
   // a restaurant's guide page (Tabelog in Japan) — looked up as the step shows
   const reviewSite = place ? reviewSiteFor(place, categoryIcons) : undefined;
   useAutoReviewLink(place, categoryIcons, !readOnly);

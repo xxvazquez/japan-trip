@@ -20,7 +20,7 @@ import type {
 import { dayJourneys, fmtDate, fmtSpan, journeyDepartDate, legNights, plural, todayISO } from "@/lib/dates";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import { minutesBetween, fmtMinutes } from "@/lib/time";
-import { gmapsLink } from "@/lib/maps";
+import { gmapsLink, placeMapLink } from "@/lib/maps";
 import { MODE_LABEL } from "@/lib/transport";
 import { packingGroups } from "@/lib/logbook";
 import { fmtFare, fmtMoney, isMoneyLabel, journeyFare } from "@/lib/cost";
@@ -85,10 +85,9 @@ function mdToHtml(src: string): string {
  * small render helpers
  * ------------------------------------------------------------------ */
 
-const link = (url: string | undefined, label: string): string => {
-  const href = gmapsLink(url);
-  return href ? `<a href="${safeHref(href)}">${esc(label)}</a>` : esc(label);
-};
+const linkTo = (href: string | undefined, label: string): string =>
+  href ? `<a href="${safeHref(href)}">${esc(label)}</a>` : esc(label);
+const link = (url: string | undefined, label: string): string => linkTo(gmapsLink(url), label);
 
 /** `<dt>/<dd>` rows, skipping empties. */
 const rows = (pairs: [string, string | undefined][]): string => {
@@ -141,7 +140,7 @@ function dayBlock(day: Day, data: TripData, loc: string): string {
       .map((it) => {
         const time = it.time?.trim() ? `<span class="pi-time">${esc(it.time.trim())}</span> ` : "";
         const pl = it.placeId ? placeById.get(it.placeId) : undefined;
-        const body = it.url || pl ? link(it.url || pl?.url || pl?.name || it.text, it.text) : esc(it.text);
+        const body = it.url ? link(it.url, it.text) : pl ? linkTo(placeMapLink(pl), it.text) : esc(it.text);
         const note = it.note?.trim() ? `<div class="pi-note">${mdToHtml(it.note)}</div>` : "";
         return `<li>${time}${body}${note}</li>`;
       })
@@ -260,7 +259,7 @@ function placesSection(data: TripData): string {
   if (!data.places.length) return "";
   const placeRow = (p: Place): string => {
     const meta = [p.category, p.note].filter(Boolean).map((x) => esc(x!.trim())).join(" — ");
-    return `<li>${link(p.url || p.name, p.name)}${meta ? ` <span class="place-meta">${meta}</span>` : ""}</li>`;
+    return `<li>${linkTo(placeMapLink(p), p.name)}${meta ? ` <span class="place-meta">${meta}</span>` : ""}</li>`;
   };
   const byId = new Map(data.places.map((p) => [p.id, p] as const));
   const grouped = data.areas

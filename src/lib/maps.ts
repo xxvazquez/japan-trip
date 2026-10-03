@@ -7,6 +7,18 @@ export function gmapsLink(input?: string): string | undefined {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s)}`;
 }
 
+/** A map pin's Google Maps link: its own pasted link when it has one, else
+ *  its name searched around its coordinates — a name alone opens whichever
+ *  branch of a chain is nearest the phone, not the one on the trip. */
+export function placeMapLink(place?: { name: string; lat: number; lng: number; url?: string }): string | undefined {
+  if (!place) return undefined;
+  if (place.url?.trim()) return gmapsLink(place.url);
+  const located = Number.isFinite(place.lat) && Number.isFinite(place.lng) && !(place.lat === 0 && place.lng === 0);
+  const name = place.name.trim();
+  if (!located) return gmapsLink(name);
+  return `https://www.google.com/maps/search/${encodeURIComponent(name || `${place.lat},${place.lng}`)}/@${place.lat},${place.lng},17z`;
+}
+
 export function gmapsDirections(from: string, to: string): string {
   return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(from)}&destination=${encodeURIComponent(to)}`;
 }

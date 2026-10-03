@@ -20,7 +20,7 @@ import { loadBasePois, saveBasePois } from "@/lib/mapStyle";
 import { Switch } from "@/components/Switch";
 import { useApp, undoable } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
-import { gmapsLink, mapUrlCoords } from "@/lib/maps";
+import { mapUrlCoords, placeMapLink } from "@/lib/maps";
 import { geocode, reverseGeocode, type GeoResult } from "@/lib/geocode";
 import { haversineKm, fmtDistanceKm, fmtWalk, useGeolocation } from "@/lib/geo";
 import { legHex } from "@/lib/legColors";
@@ -1693,7 +1693,7 @@ function PlaceRow({
   onRemove: () => void;
 }) {
   const readOnly = useReadOnly();
-  const link = gmapsLink(place.url || place.name);
+  const link = placeMapLink(place);
   // a restaurant's guide page (Tabelog in Japan) — looked up once it's opened
   const reviewSite = reviewSiteFor(place, categoryIcons);
   useAutoReviewLink(place, categoryIcons, open && !readOnly);
