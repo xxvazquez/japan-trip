@@ -1,11 +1,16 @@
 import { handleTabelog } from "./tabelog";
 
+interface Env {
+  /** Brave Search API key — a secret on the Worker (see README) */
+  BRAVE_SEARCH_KEY?: string;
+}
+
 /** The app is static files; this script only answers `/api/*` (see
  *  `run_worker_first` in wrangler.jsonc) — everything else never reaches it. */
 export default {
-  async fetch(request: Request): Promise<Response> {
+  async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
-    if (request.method === "GET" && url.pathname === "/api/tabelog") return handleTabelog(url);
+    if (request.method === "GET" && url.pathname === "/api/tabelog") return handleTabelog(url, env.BRAVE_SEARCH_KEY);
     return new Response("Not found", { status: 404 });
   },
 };

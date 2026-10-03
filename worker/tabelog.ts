@@ -1,48 +1,27 @@
 /** Finds a restaurant's Tabelog page from its name and map position.
  *
- *  Tabelog has no API, and its pages can't be read from the browser, so this
- *  runs on the server (the Worker in production, a Vite middleware in dev).
- *  It searches the English site by name within the nearest prefectures,
- *  opens the best-named results and keeps the first one whose own map pin
- *  sits within `MAX_METRES` of ours — a name alone picks the wrong branch of
- *  a chain far too often. */
+ *  Tabelog has no API and turns away requests from Cloudflare's servers, so
+ *  this asks Brave Search for tabelog.com pages instead (the Worker in
+ *  production, a Vite middleware in dev; the key is `BRAVE_SEARCH_KEY`).
+ *  A result is kept only when its page is in one of the two prefectures
+ *  nearest our pin and its title names our place — by our name, or by the
+ *  local name OpenStreetMap has for the place at the pin. */
 
 const SITE = "https://tabelog.com";
-/** how far a result's pin may sit from ours and still be the same place */
-export const MAX_METRES = 250;
-/** result pages opened per lookup */
-const MAX_CANDIDATES = 8;
-const HEADERS = {
-  "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36",
-  Accept: "text/html",
-  "Accept-Language": "en,ja;q=0.8",
-};
+const BRAVE = "https://api.search.brave.com/res/v1/web/search";
+/** searches per lookup — most are found by the first */
+const MAX_SEARCHES = 3;
+/** Brave's free plan answers one search a second */
+const SEARCH_GAP_MS = 1100;
 
 type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
-
-/** restaurant page links from a search results page, in rank order */
-export function parseResults(html: string): string[] {
-  const out: string[] = [];
-  const re = /class="list-rst__rst-name-target[^"]*"[^>]*href="(https:\/\/tabelog\.com\/en\/[a-z]+\/A\d+\/A\d+\/\d+\/)"/g;
-  for (const m of html.matchAll(re)) if (!out.includes(m[1])) out.push(m[1]);
-  return out;
+type At = { lat: number; lng: number };
+export interface LookupDeps {
+  fetchImpl?: Fetch;
+  wait?: (ms: number) => Promise<void>;
 }
 
-/** a restaurant page's own map pin, from its structured data */
-export function parseGeo(html: string): { lat: number; lng: number } | null {
-  const m = /"geo":\{"@type":"GeoCoordinates","latitude":(-?[\d.]+),"longitude":(-?[\d.]+)\}/.exec(html);
-  return m ? { lat: Number(m[1]), lng: Number(m[2]) } : null;
-}
-
-/** every name a restaurant page goes by: the English one and, in brackets
- *  under it, the Japanese one */
-export function parseNames(html: string): string {
-  const en = /"@type":"Restaurant","@id":"[^"]*","name":"([^"]*)"/.exec(html)?.[1] ?? "";
-  const ja = /<span class="alias">\(([^<]*)\)<\/span>/.exec(html)?.[1] ?? "";
-  return `${en} ${ja}`;
-}
-
-export function metresBetween(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+export function metresBetween(a: At, b: At): number {
   const rad = Math.PI / 180;
   const dLat = (b.lat - a.lat) * rad;
   const dLng = (b.lng - a.lng) * rad;
@@ -128,39 +107,10 @@ export function sameName(ours: string, theirs: string): boolean {
   return [...a].filter((x) => b.has(x)).length / a.size >= 0.5;
 }
 
-/** at most this many searches and result pages per lookup */
-const MAX_SEARCHES = 6;
-
-type At = { lat: number; lng: number };
-type Get = (url: string) => Promise<string>;
-
-/** one Tabelog search, ranked against `name`; returns the first result whose
- *  pin is within `maxMetres` of `at` and whose names match every one of
- *  `mustMatch`, opening at most `MAX_CANDIDATES` pages across a lookup */
-async function searchAndCheck(get: Get, scope: string, q: string, name: string, at: At, maxMetres: number, checked: Set<string>, mustMatch = [name]): Promise<string | null> {
-  const html = await get(`${SITE}${scope}/rstLst/?sw=${encodeURIComponent(q)}`);
-  const names = new Map([...html.matchAll(/list-rst__rst-name-target[^>]*href="([^"]+)"[^>]*>([^<]*)/g)].map((m) => [m[1], m[2]]));
-  const ranked = parseResults(html)
-    .filter((u) => !checked.has(u))
-    .map((u, i) => ({ u, i, score: nameScore(name, names.get(u) ?? "") }))
-    .sort((a, b) => b.score - a.score || a.i - b.i)
-    // results sharing a word with our name, plus Tabelog's own top two
-    // (a Japanese name, or a different romanisation, shares no words)
-    .filter((c, k) => c.score > 0 || k < 2);
-  for (const { u } of ranked) {
-    if (checked.size >= MAX_CANDIDATES) return null;
-    checked.add(u);
-    const page = await get(u);
-    const geo = parseGeo(page);
-    if (geo && metresBetween(geo, at) <= maxMetres && mustMatch.every((n) => sameName(n, parseNames(page)))) return u;
-  }
-  return null;
-}
-
 /** OpenStreetMap's food places right at our pin, as `{ name, at }` — their
  *  `name` is the local (Japanese) one, which Tabelog's search knows far
  *  better than an English spelling. Only ones whose names share a word with
- *  ours, or failing that the single place within `ALONE_METRES`. */
+ *  ours (a distinctive one, not just "sushi"), or failing that the single place within `ALONE_METRES`. */
 const OSM_METRES = 60;
 const ALONE_METRES = 35;
 export function pickOsmPlaces(name: string, at: At, elements: { lat?: number; lon?: number; center?: { lat: number; lon: number }; tags?: Record<string, string> }[]): { name: string; at: At }[] {
@@ -171,13 +121,12 @@ export function pickOsmPlaces(name: string, at: At, elements: { lat?: number; lo
       const tags = e.tags ?? {};
       if (lat === undefined || lng === undefined || !tags.name) return null;
       const spellings = [tags.name, tags["name:en"], tags["name:ja-Latn"], tags["name:ja_rm"]].filter(Boolean).join(" ");
-      return { name: tags.name, at: { lat, lng }, score: nameScore(name, spellings), d: metresBetween(at, { lat, lng }) };
+      return { name: tags.name, spellings, at: { lat, lng }, score: nameScore(name, spellings), d: metresBetween(at, { lat, lng }) };
     })
     .filter((x): x is NonNullable<typeof x> => !!x);
-  const named = all.filter((x) => x.score > 0).sort((a, b) => b.score - a.score || a.d - b.d);
-  if (named.length) return named.slice(0, 2);
+  const named = all.filter((x) => sameName(name, x.spellings)).sort((a, b) => b.score - a.score || a.d - b.d);
   const near = all.filter((x) => x.d <= ALONE_METRES);
-  return near.length === 1 ? near : [];
+  return (named.length ? named.slice(0, 2) : near.length === 1 ? near : []).map(({ name, at }) => ({ name, at }));
 }
 
 /** public Overpass servers — the main one turns requests away when busy */
@@ -201,50 +150,88 @@ export async function osmPlaces(name: string, at: At, fetchImpl: Fetch): Promise
   return [];
 }
 
-/** the page's link, or null when no result is close enough. Throws when
- *  Tabelog can't be reached or turns the request away, so a caller can tell
- *  "not on Tabelog" from "couldn't ask". */
-export async function findTabelog(name: string, at: At, fetchImpl: Fetch = fetch): Promise<string | null> {
-  const get: Get = async (url) => {
-    const res = await fetchImpl(url, { headers: HEADERS, redirect: "follow", signal: AbortSignal.timeout(8000) });
-    if (!res.ok) throw new Error(`Tabelog answered ${res.status}`);
-    return res.text();
-  };
-  const checked = new Set<string>();
-  const prefs = nearestPrefectures(at).map((p) => `/en/${p}`);
+/** a restaurant's own page, from any of the links search finds for it (the
+ *  Japanese or another language's page, its reviews or photos) — as its
+ *  English page, plus the prefecture it's filed under */
+export function parsePage(url: string): { pref: string; href: string } | null {
+  const m = /^https:\/\/tabelog\.com\/(?:(?:en|ko|zh-CN|zh-TW)\/)?([a-z]+)\/(A\d{4})\/(A\d{6})\/(\d+)(?:\/|$)/.exec(url);
+  return m ? { pref: m[1], href: `${SITE}/en/${m[1]}/${m[2]}/${m[3]}/${m[4]}/` } : null;
+}
+
+/** a result's title as plain text — search marks the matched words up */
+const plain = (s: string) =>
+  s
+    .replace(/<[^>]*>/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&#x27;/g, "'");
+
+export type SearchResult = { url: string; title: string };
+
+/** the best result for a place: a restaurant page in one of `prefs` whose
+ *  title names it under one of `names`, the closest name first */
+export function pickResult(results: SearchResult[], names: string[], prefs: string[]): string | null {
+  const best = results
+    .map((r, i) => ({ page: parsePage(r.url), title: plain(r.title), i }))
+    .filter((c) => c.page && prefs.includes(c.page.pref) && names.some((n) => sameName(n, c.title)))
+    .map((c) => ({ ...c, score: Math.max(...names.map((n) => nameScore(n, c.title))) }))
+    .sort((a, b) => b.score - a.score || a.i - b.i)[0];
+  return best?.page?.href ?? null;
+}
+
+/** one Brave search. Throws when it can't be asked (no key, quota used up,
+ *  offline), so a caller can tell "not on Tabelog" from "couldn't ask". */
+async function braveSearch(q: string, key: string, fetchImpl: Fetch, wait: (ms: number) => Promise<void>): Promise<SearchResult[]> {
+  const url = `${BRAVE}?${new URLSearchParams({ q, count: "10" })}`;
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetchImpl(url, {
+      headers: { Accept: "application/json", "X-Subscription-Token": key },
+      signal: AbortSignal.timeout(8000),
+    });
+    // the previous lookup's last search may have been under a second ago
+    if (res.status === 429 && attempt === 0) {
+      await wait(SEARCH_GAP_MS);
+      continue;
+    }
+    if (!res.ok) throw new Error(`Brave Search answered ${res.status}`);
+    const body = (await res.json()) as { web?: { results?: SearchResult[] } };
+    return body.web?.results ?? [];
+  }
+}
+
+/** the page's link, or null when no result names the place nearby */
+export async function findTabelog(name: string, at: At, key: string, deps: LookupDeps = {}): Promise<string | null> {
+  const fetchImpl = deps.fetchImpl ?? fetch;
+  const wait = deps.wait ?? ((ms) => new Promise<void>((r) => setTimeout(r, ms)));
+  const prefs = nearestPrefectures(at);
   let searches = 0;
-  const search = async (scope: string, q: string) => {
-    if (searches >= MAX_SEARCHES || checked.size >= MAX_CANDIDATES) return null;
-    searches++;
-    return searchAndCheck(get, scope, q, name, at, MAX_METRES, checked);
+  const search = async (q: string, names: string[]) => {
+    if (searches >= MAX_SEARCHES) return null;
+    if (searches++) await wait(SEARCH_GAP_MS);
+    return pickResult(await braveSearch(`${q} site:tabelog.com`, key, fetchImpl, wait), names, prefs);
   };
 
-  // 1. our own name, in the nearest prefecture and then its neighbour
-  for (const scope of prefs) {
-    const hit = await search(scope, name);
-    if (hit) return hit;
-  }
-
-  // 2. the local name OpenStreetMap has for the place at our pin — the
-  //    result must then sit close to *that* place, and still share a word
-  //    with our own name (the OSM place may be the shop next door)
-  for (const osm of await osmPlaces(name, at, fetchImpl)) {
-    const hit = await searchAndCheck(get, prefs[0], osm.name, osm.name, osm.at, 120, new Set(), [osm.name, name]);
-    if (hit) return hit;
-  }
-
-  // 3. all of Japan, then shorter forms of our name nearby
-  const hit = await search("/en", name);
+  // 1. our own name
+  const hit = await search(name, [name]);
   if (hit) return hit;
+
+  // 2. the local name OpenStreetMap has for the place at our pin — Japanese
+  //    pages are titled in Japanese, which our English name won't match
+  for (const osm of await osmPlaces(name, at, fetchImpl)) {
+    const hit = await search(osm.name, [name, osm.name]);
+    if (hit) return hit;
+  }
+
+  // 3. shorter forms of our name
   for (const q of queries(name).slice(1)) {
-    const hit = await search(prefs[0], q);
+    const hit = await search(q, [name]);
     if (hit) return hit;
   }
   return null;
 }
 
 /** `GET /api/tabelog?name=…&lat=…&lng=…` → `{ url: string | null }` */
-export async function handleTabelog(url: URL, fetchImpl: Fetch = fetch): Promise<Response> {
+export async function handleTabelog(url: URL, key: string | undefined, deps: LookupDeps = {}): Promise<Response> {
   const name = url.searchParams.get("name")?.trim();
   // Number(null) is 0, so a missing coordinate has to be caught first
   const lat = Number(url.searchParams.get("lat") || NaN);
@@ -252,8 +239,9 @@ export async function handleTabelog(url: URL, fetchImpl: Fetch = fetch): Promise
   const json = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
   if (!name || !Number.isFinite(lat) || !Number.isFinite(lng)) return json({ error: "name, lat and lng are required" }, 400);
+  if (!key) return json({ error: "BRAVE_SEARCH_KEY isn't set" }, 503);
   try {
-    return json({ url: await findTabelog(name.slice(0, 120), { lat, lng }, fetchImpl) });
+    return json({ url: await findTabelog(name.slice(0, 120), { lat, lng }, key, deps) });
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : "lookup failed" }, 502);
   }

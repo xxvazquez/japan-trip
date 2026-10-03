@@ -1,23 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { findTabelog, handleTabelog, nearestPrefectures, parseGeo, parseNames, parseResults, pickOsmPlaces, queries, sameName } from "./tabelog";
-
-const result = (url: string, name: string) =>
-  `<a class="list-rst__rst-name-target cpy-rst-name" target="_blank" rel="noopener" data-list-dest="item_top" href="${url}">${name}</a>`;
-const page = (url: string, en: string, ja: string, lat: number, lng: number) =>
-  `{"@type":"Restaurant","@id":"${url}","name":"${en}","image":""} <span class="alias">(${ja})</span>` +
-  ` "geo":{"@type":"GeoCoordinates","latitude":${lat},"longitude":${lng}}`;
+import { findTabelog, handleTabelog, nearestPrefectures, parsePage, pickOsmPlaces, pickResult, queries, sameName } from "./tabelog";
 
 const A = "https://tabelog.com/en/aichi/A2301/A230101/23001424/";
 const B = "https://tabelog.com/en/aichi/A2301/A230101/23000001/";
 
 describe("parsing", () => {
-  it("reads result links in order, once each", () => {
-    expect(parseResults(result(A, "Inou") + result(B, "Other") + result(A, "Inou"))).toEqual([A, B]);
-  });
-  it("reads a page's pin and both names", () => {
-    const html = page(A, "Inou Hitsumabushi ESCA Branch", "ひつまぶし 稲生 エスカ店", 35.17, 136.88);
-    expect(parseGeo(html)).toEqual({ lat: 35.17, lng: 136.88 });
-    expect(parseNames(html)).toBe("Inou Hitsumabushi ESCA Branch ひつまぶし 稲生 エスカ店");
+  it("reads any link to a restaurant as its English page", () => {
+    expect(parsePage("https://tabelog.com/aichi/A2301/A230101/23001424/dtlrvwlst/")).toEqual({ pref: "aichi", href: A });
+    expect(parsePage("https://tabelog.com/zh-TW/aichi/A2301/A230101/23001424/")?.href).toBe(A);
+    expect(parsePage("https://tabelog.com/en/aichi/rstLst/")).toBeNull();
   });
 });
 
@@ -59,49 +50,65 @@ describe("OpenStreetMap places", () => {
   });
 });
 
-/** a fake Tabelog: search pages by query, restaurant pages by url */
-function fakeFetch(searches: Record<string, string>, pages: Record<string, string>) {
+describe("pickResult", () => {
+  const r = (url: string, title: string) => ({ url, title });
+  it("takes the closest-named page in a nearby prefecture", () => {
+    const results = [r(B, "Inou - Nagoya/Unagi | Tabelog"), r(A, "<strong>Inou Hitsumabushi</strong> ESCA - Nagoya | Tabelog")];
+    expect(pickResult(results, ["Inou Hitsumabushi ESCA"], ["aichi", "gifu"])).toBe(A);
+  });
+  it("skips pages in other prefectures and other names", () => {
+    const far = "https://tabelog.com/en/tokyo/A1303/A130301/13000001/";
+    expect(pickResult([r(far, "Inou Hitsumabushi | Tabelog")], ["Inou Hitsumabushi"], ["aichi", "gifu"])).toBeNull();
+    expect(pickResult([r(A, "Sushi Zanmai | Tabelog")], ["Sushi Dai"], ["aichi"])).toBeNull();
+  });
+  it("matches a Japanese page by the local name", () => {
+    expect(pickResult([r(A, "ひつまぶし稲生 エスカ店 (名古屋/うなぎ) - 食べログ")], ["Inou ESCA", "ひつまぶし稲生 エスカ店"], ["aichi"])).toBe(A);
+  });
+});
+
+/** a fake Brave Search: results by query (without the site: part) */
+function fakeBrave(byQuery: Record<string, { url: string; title: string }[]>, status = 200) {
   const seen: string[] = [];
-  const impl = async (url: string) => {
-    seen.push(url);
+  const fetchImpl = async (url: string) => {
     if (url.includes("overpass")) return new Response(JSON.stringify({ elements: [] }));
-    const q = new URL(url).searchParams.get("sw");
-    const body = q !== null ? (searches[q] ?? "") : pages[url];
-    return body === undefined ? new Response("", { status: 404 }) : new Response(body);
+    const q = new URL(url).searchParams.get("q")!.replace(" site:tabelog.com", "");
+    seen.push(q);
+    return new Response(JSON.stringify({ web: { results: byQuery[q] ?? [] } }), { status });
   };
-  return { impl, seen };
+  return { deps: { fetchImpl, wait: async () => {} }, seen };
 }
 
 describe("findTabelog", () => {
   const at = { lat: 35.1709, lng: 136.8803 };
-  it("returns the result that is both nearby and the same name", async () => {
-    const { impl } = fakeFetch(
-      { "Inou Hitsumabushi": result(B, "Inou Hitsumabushi Far") + result(A, "Inou Hitsumabushi ESCA") },
-      { [B]: page(B, "Inou Hitsumabushi Far", "", 35.3, 136.9), [A]: page(A, "Inou Hitsumabushi ESCA Branch", "", 35.1711, 136.8803) },
-    );
-    expect(await findTabelog("Inou Hitsumabushi", at, impl)).toBe(A);
+  it("finds the page by name", async () => {
+    const { deps } = fakeBrave({ "Inou Hitsumabushi": [{ url: A, title: "Inou Hitsumabushi ESCA | Tabelog" }] });
+    expect(await findTabelog("Inou Hitsumabushi", at, "key", deps)).toBe(A);
   });
-  it("rejects a nearby restaurant with a different name", async () => {
-    const { impl } = fakeFetch({ "Kyoto Gogyo": result(B, "OLIO STAGNO") }, { [B]: page(B, "OLIO STAGNO", "", at.lat, at.lng) });
-    expect(await findTabelog("Kyoto Gogyo", at, impl)).toBeNull();
+  it("tries a shorter name when the full one finds nothing", async () => {
+    const { deps, seen } = fakeBrave({ "Inou Hitsumabushi": [{ url: A, title: "Inou Hitsumabushi | Tabelog" }] });
+    expect(await findTabelog("Inou Hitsumabushi ESCA Branch", at, "key", deps)).toBe(A);
+    expect(seen).toEqual(["Inou Hitsumabushi ESCA Branch", "Inou Hitsumabushi"]);
   });
-  it("throws when Tabelog turns the request away", async () => {
-    const impl = async () => new Response("Just a moment", { status: 403 });
-    await expect(findTabelog("Anything", at, impl)).rejects.toThrow("403");
+  it("keeps to its search budget", async () => {
+    const { deps, seen } = fakeBrave({});
+    expect(await findTabelog("One Two Three Four", at, "key", deps)).toBeNull();
+    expect(seen.length).toBeLessThanOrEqual(3);
   });
-  it("keeps to its request budget", async () => {
-    const { impl, seen } = fakeFetch({}, {});
-    expect(await findTabelog("One Two Three Four", at, impl)).toBeNull();
-    expect(seen.filter((u) => u.includes("tabelog")).length).toBeLessThanOrEqual(6);
+  it("throws when search can't be asked", async () => {
+    const { deps } = fakeBrave({}, 401);
+    await expect(findTabelog("Anything", at, "key", deps)).rejects.toThrow("401");
   });
 });
 
 describe("handleTabelog", () => {
   it("rejects a request without a name or position", async () => {
-    expect((await handleTabelog(new URL("https://x/api/tabelog?name=a"))).status).toBe(400);
+    expect((await handleTabelog(new URL("https://x/api/tabelog?name=a"), "key")).status).toBe(400);
+  });
+  it("says so when there's no search key", async () => {
+    expect((await handleTabelog(new URL("https://x/api/tabelog?name=a&lat=35&lng=136"), undefined)).status).toBe(503);
   });
   it("reports a failed lookup as 502", async () => {
-    const res = await handleTabelog(new URL("https://x/api/tabelog?name=a&lat=35&lng=136"), async () => new Response("", { status: 403 }));
+    const res = await handleTabelog(new URL("https://x/api/tabelog?name=a&lat=35&lng=136"), "key", fakeBrave({}, 429).deps);
     expect(res.status).toBe(502);
   });
 });

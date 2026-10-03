@@ -1,4 +1,4 @@
-import { defineConfig, type Connect, type Plugin } from "vite";
+import { defineConfig, loadEnv, type Connect, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import { fileURLToPath, URL } from "node:url";
@@ -76,11 +76,11 @@ function pdfjsAssets(): Plugin {
 /** `/api/*` is the Worker's in production (worker/index.ts); in dev and
  *  preview the same handlers answer from here, so the app can be driven
  *  end to end locally. */
-function workerApi(): Plugin {
+function workerApi(braveKey: string | undefined): Plugin {
   const api: Connect.NextHandleFunction = (req, res, next) => {
     const url = new URL(req.url ?? "/", "http://localhost");
     if (url.pathname !== "/api/tabelog") return next();
-    handleTabelog(url).then(async (r) => {
+    handleTabelog(url, braveKey).then(async (r) => {
       res.statusCode = r.status;
       res.setHeader("Content-Type", "application/json");
       res.end(await r.text());
@@ -93,7 +93,7 @@ function workerApi(): Plugin {
   };
 }
 
-export default defineConfig(({ command }) => ({
+export default defineConfig(({ command, mode }) => ({
   define: {
     __APP_VERSION__: JSON.stringify(buildVersion()),
     __APP_COMMIT__: JSON.stringify(command === "serve" ? `${buildCommit()} (dev)` : buildCommit()),
@@ -122,7 +122,8 @@ export default defineConfig(({ command }) => ({
   plugins: [
     react(),
     pdfjsAssets(),
-    workerApi(),
+    // the search key stays on the server — no VITE_ prefix, so never in the bundle
+    workerApi(loadEnv(mode, process.cwd(), "").BRAVE_SEARCH_KEY),
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.png", "icons/*.png", "textures/*", "brand/*.png"],
