@@ -225,7 +225,7 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
 
 - **＋ Add place** — search for somewhere, or tap the map to drop a pin.
 - **The list** — once a city is picked, places are grouped by area (plus *No area*). On **All** it nests **city → area → place**. Groups start collapsed and remember what you opened.
-- **A place's card** — name, note, areas, city, Open in Google Maps (searched at the pin, so a chain opens the right branch), Tabelog for a restaurant in Japan and its Good to know (see [Helpers on a step](#helpers-on-a-step)), the day it's on (or **Add to a day**), and Remove.
+- **A place's card** — name, note, areas, category (a pin added in the app can be moved into any category, taking on its colour; a My Maps pin's comes from its layer), city, Open in Google Maps (searched at the pin, so a chain opens the right branch), Tabelog for a restaurant in Japan and its Good to know (see [Helpers on a step](#helpers-on-a-step)), the day it's on (or **Add to a day**), and Remove.
 - **List rows** show the name and the walk to the nearest station.
 - **Place names** on the map are in English / Latin script where available.
 

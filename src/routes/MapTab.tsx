@@ -1095,6 +1095,11 @@ export default function MapTab() {
       onAddToDay={(d) => addToDay(p, d)}
       onToggleArea={(areaId) => toggleAreaPlace(areaId, p.id)}
       onLeg={(legId) => updateEntity<Place>("places", p.id, { legId })}
+      // takes on the colour its new category's pins already have
+      onCategory={(category) => updateEntity<Place>("places", p.id, {
+        category,
+        color: data.places.find((x) => x.category === category && x.id !== p.id)?.color ?? p.color,
+      })}
       onRemove={() => undoable("Place deleted", () => {
         removeEntity("places", p.id);
         if (selected === p.id) setSelected(null);
@@ -1665,6 +1670,7 @@ function PlaceRow({
   onAddToDay,
   onToggleArea,
   onLeg,
+  onCategory,
   onRemove,
 }: {
   place: Place;
@@ -1692,6 +1698,7 @@ function PlaceRow({
   onAddToDay: (dayId: string) => void;
   onToggleArea: (areaId: string) => void;
   onLeg: (legId: string | undefined) => void;
+  onCategory: (category: string) => void;
   onRemove: () => void;
 }) {
   const readOnly = useReadOnly();
@@ -1702,6 +1709,12 @@ function PlaceRow({
   // its "Good to know" (hours, reservations, queue…) — looked up the same way
   const tripData = useData();
   const area = placeArea(place, tripData);
+  // every category in use, for moving a pin added here into one — a My Maps
+  // pin's comes from its layer (set in Manage), so it's shown, not picked
+  const categories = [...new Set([
+    ...(tripData?.places.map((p) => p.category) ?? []),
+    ...Object.values(tripData?.config.layerCategories ?? {}),
+  ].filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b));
   useAutoPlaceFacts(place, categoryIcons, area, open && !readOnly);
   const day = dayId ? days.find((d) => d.id === dayId) : undefined;
   const li = useRef<HTMLLIElement>(null);
@@ -1828,6 +1841,27 @@ function PlaceRow({
             </li>
           )}
           <AreasRow place={place} areas={areas} readOnly={readOnly} onToggleArea={onToggleArea} rowCls={rowCls} />
+          {place.category && (
+            <li className={`${INSET_DIVIDER} ${rowCls}`}>
+              <span className="row-label">Category</span>
+              {readOnly || place.source === "mymap" ? (
+                <span className="row-value min-w-0 flex-1 break-words text-right">{place.category}</span>
+              ) : (
+                <label className="flex min-w-0 flex-1 cursor-pointer justify-end">
+                  <RowSelect
+                    value={place.category}
+                    onChange={(e) => onCategory(e.target.value)}
+                    aria-label="Category"
+                    className="max-w-[12rem] truncate"
+                  >
+                    {categories.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </RowSelect>
+                </label>
+              )}
+            </li>
+          )}
           {legs.length > 0 && (
             <li className={`${INSET_DIVIDER} ${rowCls}`}>
               <span className="row-label">City</span>
