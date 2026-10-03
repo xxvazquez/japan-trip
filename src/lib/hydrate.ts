@@ -99,6 +99,11 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
 
   d.v = typeof d.v === "number" ? d.v : SCHEMA_VERSION;
 
+  // a trip from before expense categories existed — its spending rows are
+  // free text, filed by keyword below; a newer trip's row with no category
+  // was left that way on purpose
+  const legacyCosts = !(Array.isArray(cfg.expenseCategories) && (cfg.expenseCategories as unknown[]).length);
+
   d.config = {
     branding: "",
     tagline: "",
@@ -318,7 +323,7 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
     day.costs = Array.isArray(day.costs)
       ? day.costs.map((c) => ({
           id: c.id || fieldId(),
-          categoryId: c.categoryId || guessCategoryId(c.label ?? "", cats),
+          categoryId: c.categoryId || (legacyCosts ? guessCategoryId(c.label ?? "", cats) : undefined),
           label: c.label ?? "",
           amount: c.amount ?? "",
           ...(c.currency ? { currency: c.currency } : {}),

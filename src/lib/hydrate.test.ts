@@ -25,6 +25,18 @@ function legacy(): Record<string, unknown> {
 }
 
 describe("normalizeTrip migrations", () => {
+  it("files a legacy trip's spending by keyword, but leaves a current trip's uncategorised row alone", () => {
+    const raw = legacy();
+    (raw.days as Record<string, unknown>[])[0].costs = [{ id: "c1", label: "Museum entry", amount: "12" }];
+    expect(normalizeTrip(raw as unknown as TripData).days[0].costs?.[0]?.categoryId).toBe("cat-activities");
+
+    const current = normalizeTrip(buildDemo() as TripData);
+    current.days[0].costs = [{ id: "c2", label: "Museum entry", amount: "12" }];
+    const row = normalizeTrip(current).days[0].costs?.[0];
+    expect(row?.id).toBe("c2");
+    expect(row?.categoryId).toBeUndefined();
+  });
+
   it("folds the old single journey link into the day's list, dropping gone journeys", () => {
     const raw = legacy();
     raw.journeys = [{ id: "j1", label: "A → B", kind: "transfer", segments: [] }];
