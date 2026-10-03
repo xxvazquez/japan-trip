@@ -147,13 +147,9 @@ interface AppStore {
    *  after it (`resizeLeg`). Backs the base page's Days stepper. */
   resizeBase: (legId: string, delta: number) => void;
 
-  syncMyMap: (url: string) => Promise<{ mapName: string; count: number; updated: number; removed: number }>;
-  /** fold category `from` into `to`: its pins move over and take `to`'s
-   *  colour and icon, and a later My Maps sync files that layer under `to` */
-  mergeCategory: (from: string, to: string) => void;
-  /** stop filing `from` under its merge target; its pins go back to their
-   *  own layer on the next sync */
-  unmergeCategory: (from: string) => void;
+  syncMyMap: (url: string) => Promise<{ mapName: string; count: number; updated: number; removed: number; newLayers: string[] }>;
+  /** file My Maps layer `layer`'s pins under `category` from now on */
+  setLayerCategory: (layer: string, category: string) => void;
   setMedia: (slot: "logo", item: MediaItem | undefined) => void;
   addGalleryMedia: (item: MediaItem) => void;
   removeGalleryMedia: (id: string) => void;
@@ -1827,6 +1823,7 @@ export const useApp = create<AppStore>((set, get) => {
       const added: string[] = [];
       const changed: string[] = [];
       const gone: string[] = [];
+      let newLayers: string[] = [];
       if (!local((d) => {
         // No stable id in the KML export, so pins are matched by name.
         // Duplicate names pair up in order, so a second same-named pin still
@@ -1834,25 +1831,10 @@ export const useApp = create<AppStore>((set, get) => {
         // layer (nothing in the app edits those on an imported pin) and keeps
         // everything else.
         const norm = (s: string) => s.normalize("NFKC").replace(/\s+/g, " ").trim().toLowerCase();
-        // A layer takes the spelling of the category already in the trip
-        // ("food" joins "Food"), so it picks up the colour and icon set for
-        // it in Manage instead of starting a look-alike category of its own.
-        const known = new Map<string, string>();
-        for (const name of [
-          ...Object.keys(d.config.categoryColors ?? {}),
-          ...Object.keys(d.config.categoryIcons ?? {}),
-          ...d.places.filter((p) => p.source !== "mymap").map((p) => p.category),
-        ]) {
-          if (name && !known.has(norm(name))) known.set(norm(name), name);
-        }
-        const merged = new Map(Object.entries(d.config.categoryMerges ?? {}).map(([from, to]) => [norm(from), to]));
-        const catOf = (raw?: string) => {
-          if (!raw) return raw;
-          const c = merged.get(norm(raw)) ?? raw;
-          const key = norm(c);
-          if (!known.has(key)) known.set(key, c);
-          return known.get(key);
-        };
+        // each layer goes into the category it was set up with in Manage;
+        // one not set up yet keeps its own name until it is
+        const layerCats = d.config.layerCategories ?? {};
+        const catOf = (layer?: string) => (layer ? layerCats[layer] ?? layer : undefined);
         const mine = new Map<string, Place[]>();
         for (const p of d.places) {
           if (p.source !== "mymap") continue;
@@ -1898,9 +1880,12 @@ export const useApp = create<AppStore>((set, get) => {
           }
         }
         if (guessed) d.config.categoryIcons = icons;
+        const layers = [...new Set(places.map((p) => p.category).filter((c): c is string => !!c))];
+        newLayers = layers.filter((l) => !(l in layerCats));
+        d.config.mapLayers = layers.length ? layers : undefined;
         d.config.mapSourceUrl = url;
         d.config.mapSyncedAt = now();
-      })) return { mapName, count: 0, updated: 0, removed: 0 };
+      })) return { mapName, count: 0, updated: 0, removed: 0, newLayers: [] };
       for (const id of [...added, ...changed]) enqueue(get, { t: "row", type: "places", id });
       enqueue(get, { t: "fields", keys: ["config"] });
       if (gone.length) {
@@ -1908,39 +1893,26 @@ export const useApp = create<AppStore>((set, get) => {
           for (const id of gone) get().removeEntity("places", id);
         });
       }
-      return { mapName, count: added.length, updated: changed.length, removed: gone.length };
+      return { mapName, count: added.length, updated: changed.length, removed: gone.length, newLayers };
     },
-    mergeCategory: (from, to) => {
-      if (!from || !to || from === to) return;
-      get().undoable(`Merged into ${to}`, () => {
-        for (const p of get().data?.places ?? []) {
-          if (p.category === from) get().updateEntity<Place>("places", p.id, { category: to });
+    setLayerCategory: (layer, category) => {
+      const name = category.trim();
+      const d = get().data;
+      if (!layer || !name || !d) return;
+      const layerCats = d.config.layerCategories ?? {};
+      const was = layerCats[layer] ?? layer;
+      // the layer's pins move over now when they can be told apart: nothing
+      // else files into the category they're in. Otherwise the re-sync that
+      // follows a change sorts them.
+      const shared = Object.entries(layerCats).some(([l, c]) => l !== layer && c === was) ||
+        d.places.some((p) => p.category === was && p.source !== "mymap");
+      if (!shared && was !== name) {
+        for (const p of d.places) {
+          if (p.source === "mymap" && p.category === was) get().updateEntity<Place>("places", p.id, { category: name });
         }
-        get().mutateTrip((d) => {
-          const merges = { ...(d.config.categoryMerges ?? {}) };
-          // anything already merged into `from` follows it to `to`
-          for (const k of Object.keys(merges)) if (merges[k] === from) merges[k] = to;
-          merges[from] = to;
-          delete merges[to];
-          d.config.categoryMerges = merges;
-          const drop = (r?: Record<string, string>) => {
-            if (!r || !(from in r)) return r;
-            const next = { ...r };
-            delete next[from];
-            return Object.keys(next).length ? next : undefined;
-          };
-          d.config.categoryColors = drop(d.config.categoryColors);
-          d.config.categoryIcons = drop(d.config.categoryIcons);
-          const pinned = d.config.pinnedCategories?.filter((c) => c !== from);
-          d.config.pinnedCategories = pinned?.length ? pinned : undefined;
-        });
-      });
-    },
-    unmergeCategory: (from) => {
-      get().mutateTrip((d) => {
-        const merges = { ...(d.config.categoryMerges ?? {}) };
-        delete merges[from];
-        d.config.categoryMerges = Object.keys(merges).length ? merges : undefined;
+      }
+      get().mutateTrip((t) => {
+        t.config.layerCategories = { ...(t.config.layerCategories ?? {}), [layer]: name };
       });
     },
     setMedia: (slot, item) => {

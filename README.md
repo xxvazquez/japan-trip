@@ -222,11 +222,12 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
 **Filters** opens a sheet:
 
 - **Category** — tap the coloured dots to narrow; none selected shows everything.
+- **My Maps layers** (**Manage → Content**) — pick which category each layer goes into ("Coffee & tea" → coffee), or **New Category…**. Every sync then files that layer's pins there, with that category's colour and icon.
+  - A new layer shows **Not set up** (and the Map's sync line names it) until you choose; meanwhile its pins come in under the layer's own name.
+  - Names are matched exactly — nothing is guessed between look-alike names.
 - **Category pins** (**Manage → Content**) set each category's icon and colour once, for every pin in it — no need to style pins one by one in My Maps.
-  - A My Maps layer gets an icon guessed from its name on sync ("Coffee" → cup, "Temples" → landmark). Pick another, or **Dot** for none; a sync never overrides your pick.
+  - A new category gets an icon guessed from its name on sync ("Coffee" → cup, "Temples" → landmark). Pick another, or **Dot** for none; a sync never overrides your pick.
   - A category colour wins over the pin's My Maps colour. **Colour from My Maps** goes back to it.
-  - A layer named like an existing category ("food" vs "Food") joins it and takes its colour and icon.
-  - **⋯ → Merge into…** files a category's pins under another one; that My Maps layer keeps landing there on every sync. **Separate** undoes it.
   - **Always show** keeps its pins visible when zoomed out instead of clustering them (down to about city level).
 - **Transit** — Train and Metro lines are on by default; add Tram, Bus, Ferry or Airport. Works in any city with no setup.
 - **Points of interest** — the map's own stations, parks, museums and shops, with their icons. Turn it off to see only your pins. Remembered on this device.

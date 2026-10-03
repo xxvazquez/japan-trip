@@ -606,6 +606,8 @@ export default function MapTab() {
 
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  /** layers the last sync found with no category chosen yet */
+  const [newLayers, setNewLayers] = useState<string[]>([]);
 
   /** each place's "home city" (leg) — see `placeLegMap` for how it's guessed
    *  (or overridden by hand). Lets a whole city's imported pins sit under
@@ -1048,8 +1050,10 @@ export default function MapTab() {
     if (!url) return;
     setBusy(true);
     setMsg("");
+    setNewLayers([]);
     try {
       const r = await syncMyMap(url);
+      setNewLayers(r.newLayers);
       const pins = (n: number) => `${n} pin${n === 1 ? "" : "s"}`;
       const bits = [r.count > 0 && `added ${pins(r.count)}`, r.updated > 0 && `updated ${pins(r.updated)}`, r.removed > 0 && `removed ${pins(r.removed)} deleted there`].filter(Boolean);
       setMsg(bits.length ? `“${r.mapName}”: ${bits.join(", ")}.` : `“${r.mapName}” is up to date.`);
@@ -1534,9 +1538,15 @@ export default function MapTab() {
             <button onClick={runSync} disabled={busy} className="shrink-0 text-accent disabled:opacity-50">
               {busy ? "syncing…" : "Sync"}
             </button>
-            {imported > 0 && <InfoNote className="shrink-0">Syncing only adds new pins from My Maps — nothing already here is changed or removed.</InfoNote>}
+            {imported > 0 && <InfoNote className="shrink-0">Syncing adds new pins from My Maps, updates the ones still there and removes ones deleted there (Undo brings them back). Each layer goes into the category chosen for it in Manage.</InfoNote>}
           </div>
           {msg && <p className="mt-1 text-accent">{msg}</p>}
+          {newLayers.length > 0 && (
+            <p className="mt-1 break-words">
+              {newLayers.length === 1 ? "New layer" : "New layers"} {newLayers.map((l) => `“${l}”`).join(", ")} —{" "}
+              <Link to="/manage/content" className="text-accent">choose a category</Link>
+            </p>
+          )}
         </div>
       )}
     </div>

@@ -92,10 +92,12 @@ export interface TripConfig {
   /** a place `category` → pin colour (hex), set in Manage. Overrides the
    *  colour a pin came in with from My Maps; unlisted categories keep it. */
   categoryColors?: Record<string, string>;
-  /** a category merged into another in Manage (e.g. a My Maps layer → the
-   *  category styled for it). A sync files that layer's pins straight under
-   *  the target. */
-  categoryMerges?: Record<string, string>;
+  /** a My Maps layer → the category its pins are filed under, set per layer
+   *  in Manage. A layer with no entry here hasn't been set up yet; its pins
+   *  come in under the layer's own name. */
+  layerCategories?: Record<string, string>;
+  /** the layers the linked My Map had at its last sync, in map order */
+  mapLayers?: string[];
   /** place categories whose pins stay on the map when zoomed far out — drawn
    *  on top and never folded into a numbered cluster (e.g. the hotel) */
   pinnedCategories?: string[];

@@ -1390,7 +1390,10 @@ function Content() {
   };
 
   const CategoryIcons = () => {
-    const names = [...new Set(data.places.map((p) => p.category).filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b));
+    const names = [...new Set([
+      ...data.places.map((p) => p.category),
+      ...Object.values(data.config.layerCategories ?? {}),
+    ].filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b));
     if (names.length === 0) return null;
     const icons = data.config.categoryIcons ?? {};
     const colors = data.config.categoryColors ?? {};
@@ -1417,16 +1420,16 @@ function Content() {
         const next = cur.includes(name) ? cur.filter((c) => c !== name) : [...cur, name];
         d.config.pinnedCategories = next.length ? next : undefined;
       });
-    const merges = data.config.categoryMerges ?? {};
-    const mergedInto = (name: string) => Object.keys(merges).filter((k) => merges[k] === name).sort((a, b) => a.localeCompare(b));
     return (
+      <>
+      <MapLayers names={names} colorOf={colorOf} icons={icons} />
       <Section
         title="Category pins"
-        info="Each category's colour and icon apply to all its pins, whatever they had in My Maps — set them once here. A My Maps layer gets an icon guessed from its name; tap it to pick another, or “Dot” for none. “Merge into…” in a category's ⋯ menu files its pins under another category — a My Maps layer then keeps landing there on every sync. “Always show” keeps a category's pins on the map when you zoom far out, on top of everything, instead of folding them into a numbered cluster — handy for your hotel, or anything you need to find at a glance."
+        info="Each category's colour and icon apply to all its pins, whatever they had in My Maps — set them once here. A new category gets an icon guessed from its name; tap it to pick another, or “Dot” for none. “Always show” keeps a category's pins on the map when you zoom far out, on top of everything, instead of folding them into a numbered cluster — handy for your hotel, or anything you need to find at a glance."
       >
         <ul>
           {names.map((name) => (
-            <ContextMenu as="li" key={name} className={`${MLI} text-sm`}>
+            <li key={name} className={`${MLI} text-sm`}>
               <ColorSwatch
                 label={name}
                 value={colorOf(name)}
@@ -1437,12 +1440,7 @@ function Content() {
                   onReset: () => setColor(name, undefined),
                 }}
               />
-              <span className="min-w-0 flex-1 break-words">
-                {name}
-                {mergedInto(name).length > 0 && (
-                  <span className="meta block">Also {mergedInto(name).map((m) => `“${m}”`).join(", ")}</span>
-                )}
-              </span>
+              <span className="min-w-0 flex-1 break-words">{name}</span>
               <button type="button" className="chip" aria-pressed={pinned.includes(name)} onClick={() => togglePinned(name)}>
                 Always show
               </button>
@@ -1453,15 +1451,11 @@ function Content() {
                 label={name}
                 onChange={(glyph) => setIcon(name, glyph)}
               />
-              <CategoryMenu
-                name={name}
-                others={names.filter((n) => n !== name).map((n) => ({ name: n, color: colorOf(n), glyph: icons[n] }))}
-                merged={mergedInto(name)}
-              />
-            </ContextMenu>
+            </li>
           ))}
         </ul>
       </Section>
+      </>
     );
   };
 
@@ -1490,45 +1484,97 @@ function Content() {
   );
 }
 
-/** A category row's ⋯: merge it into another category (a sheet listing the
- *  rest, Photos' "Move to Album" shape), or undo an earlier merge. */
-function CategoryMenu({ name, others, merged }: {
-  name: string;
-  others: { name: string; color: string; glyph?: string }[];
-  merged: string[];
+/** Which category each My Maps layer's pins go into — one row per layer
+ *  from the last sync. A layer not set up yet says so; tapping a row picks
+ *  an existing category or names a new one (Photos' "Add to Album" sheet). */
+function MapLayers({ names, colorOf, icons }: {
+  names: string[];
+  colorOf: (name: string) => string;
+  icons: Record<string, string>;
 }) {
-  const mergeCategory = useApp((s) => s.mergeCategory);
-  const unmergeCategory = useApp((s) => s.unmergeCategory);
+  const data = useData();
+  const setLayerCategory = useApp((s) => s.setLayerCategory);
   const syncMyMap = useApp((s) => s.syncMyMap);
-  const mapUrl = useData()?.config.mapSourceUrl;
-  const sheet = useActionSheet();
-  // a re-sync is what puts a separated layer's pins back under their own name
-  const separate = (m: string) => {
-    unmergeCategory(m);
-    if (mapUrl) void syncMyMap(mapUrl).catch(() => undefined);
+  const [picking, setPicking] = useState<string | null>(null);
+  const [naming, setNaming] = useState<string | null>(null);
+  const anchorRef = useRef<HTMLButtonElement | null>(null);
+  const layers = data?.config.mapLayers ?? [];
+  if (!data || layers.length === 0) return null;
+  const layerCats = data.config.layerCategories ?? {};
+  const choose = (layer: string, category: string) => {
+    setLayerCategory(layer, category);
+    // re-file pins the move above couldn't tell apart
+    const url = data.config.mapSourceUrl;
+    if (url) void syncMyMap(url).catch(() => undefined);
   };
-  if (others.length === 0 && merged.length === 0) return null;
+  const tile = (name: string) => (
+    <IconTile size="sm" color={colorOf(name)} glyph={icons[name] || undefined} name={icons[name] ? undefined : "pin"} />
+  );
   return (
-    <span ref={sheet.anchorRef} className="shrink-0">
-      <RowMenu label={`${name} options`}>
-        {others.length > 0 && (
-          <button type="button" className="menu-item" onClick={() => sheet.setOpen(true)}>Merge into…</button>
-        )}
-        {merged.map((m) => (
-          <button key={m} type="button" className="menu-item" onClick={() => separate(m)}>
-            Separate “{m}”
-          </button>
-        ))}
-      </RowMenu>
-      <ActionSheet open={sheet.open} onClose={() => sheet.setOpen(false)} anchorRef={sheet.anchorRef} title={`Merge “${name}” into`}>
-        {others.map((o) => (
-          <button key={o.name} type="button" className="menu-item" onClick={() => mergeCategory(name, o.name)}>
-            <IconTile size="sm" color={o.color} glyph={o.glyph} name={o.glyph ? undefined : "pin"} />
-            <span className="min-w-0 break-words">{o.name}</span>
+    <Section
+      title="My Maps layers"
+      info="Pick the category each layer of your My Map goes into — its pins then always come in with that category's colour and icon. A new layer shows “Not set up” until you choose; its pins come in under the layer's own name meanwhile."
+    >
+      <ul>
+        {layers.map((layer) => {
+          const cat = layerCats[layer];
+          return (
+            <li key={layer} className={INSET_DIVIDER}>
+              <button
+                type="button"
+                onClick={(e) => {
+                  anchorRef.current = e.currentTarget;
+                  setPicking(layer);
+                }}
+                className="flex w-full items-center gap-3 px-3.5 py-3 text-left text-sm active:bg-ink/[0.07]"
+              >
+                <span className="min-w-0 flex-1 break-words text-ink">{layer}</span>
+                {cat ? (
+                  <span className="flex min-w-0 items-center gap-2 text-ink-soft">
+                    {tile(cat)}
+                    <span className="break-words">{cat}</span>
+                  </span>
+                ) : (
+                  <span className="text-gold">Not set up</span>
+                )}
+                <Icon name="chevron" size={14} className="-mr-1 shrink-0 text-ink-faint" />
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      <ActionSheet
+        open={picking !== null}
+        onClose={() => setPicking(null)}
+        anchorRef={anchorRef}
+        title={picking ? `“${picking}” goes into` : undefined}
+      >
+        <button type="button" className="menu-item text-accent" onClick={() => setNaming(picking)}>
+          <Icon name="plus" size={16} /> New Category…
+        </button>
+        {names.map((n) => (
+          <button key={n} type="button" className="menu-item" onClick={() => picking && choose(picking, n)}>
+            {tile(n)}
+            <span className="min-w-0 flex-1 break-words">{n}</span>
+            {picking && layerCats[picking] === n && <Icon name="check" size={14} className="text-accent" />}
           </button>
         ))}
       </ActionSheet>
-    </span>
+      <TextPrompt
+        key={naming ?? ""}
+        open={naming !== null}
+        title="New Category"
+        message={naming ? `Pins in “${naming}” will go into it. Set its colour and icon under Category pins.` : undefined}
+        initial={naming ?? ""}
+        placeholder="Name"
+        action="Create"
+        onSubmit={(name) => {
+          if (naming && name.trim()) choose(naming, name);
+          setNaming(null);
+        }}
+        onClose={() => setNaming(null)}
+      />
+    </Section>
   );
 }
 
