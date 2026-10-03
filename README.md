@@ -127,6 +127,7 @@ Every section folds away from its header.
 ### Spending on a day
 
 - **Add an amount** offers the day's steps to pick from, then opens the keypad in the currency you last spent in.
+- A step picked there (or **Add an expense** in its ⋯) starts in the category its icon suggests — a café under Food & drink, a museum under Activities.
 - **Custom…** asks for a name first; Return moves on to the keypad.
 - A row left with no name and no amount goes away. A typed name is kept even with no amount yet.
 

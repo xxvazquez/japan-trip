@@ -2,6 +2,7 @@ import type { ExpenseCategory, Journey, TransportMode, TripData } from "@/core/t
 import type { IconName } from "@/components/Icon";
 import { MODE_ICON } from "@/lib/transport";
 import { AREA_TONES, toneForGlyph, toneForSegmentMode, type Tone } from "@/lib/tones";
+import { glyphGroup } from "@/lib/mapGlyphs";
 
 const SYMBOL_CURRENCY: Record<string, string> = {
   "¥": "JPY", "$": "USD", "€": "EUR", "£": "GBP", "₩": "KRW", "₹": "INR",
@@ -363,4 +364,27 @@ export function expenseCategoryIcon(cat: ExpenseCategory, index: number): Catego
   if (/shop|souvenir|gift|market/.test(t)) return { glyph: "shop", ...categoryGlyphTile("shop", index) };
   if (/activit|sight|museum|see|do|tour|ticket|onsen|bath/.test(t)) return { glyph: "sight", ...categoryGlyphTile("sight", index) };
   return { name: "wallet", color: categoryColor(index) };
+}
+
+/** what a place's icon says it's for → the kind of spend it is */
+const SPEND_FOR_GROUP: Record<string, "food" | "sight" | "shop" | "lodging"> = {
+  "Food & drink": "food",
+  "Sights & culture": "sight",
+  "Nature & outdoors": "sight",
+  "Sports & recreation": "sight",
+  "Nightlife & entertainment": "sight",
+  "Animals": "sight",
+  "Shopping & services": "shop",
+  "Lodging": "lodging",
+};
+
+/** The expense category a spend at a place with this glyph most likely
+ *  belongs in — a café's coffee under Food & drink, a museum ticket under
+ *  Activities — matched through the same icon each category shows in
+ *  Expenses. Undefined when the glyph says nothing or no category fits. */
+export function expenseCategoryForGlyph(glyph: string | undefined, categories: ExpenseCategory[]): string | undefined {
+  const kind = SPEND_FOR_GROUP[glyphGroup(glyph) ?? ""];
+  if (!kind) return undefined;
+  if (kind === "lodging") return categories.find((c) => c.role === "lodging")?.id;
+  return categories.find((c, i) => expenseCategoryIcon(c, i).glyph === kind)?.id;
 }

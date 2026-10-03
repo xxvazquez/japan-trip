@@ -33,6 +33,7 @@ import { RouteLabel } from "@/components/RouteLabel";
 import { IconTile } from "@/components/IconTile";
 import { useSplit } from "@/components/SplitMap";
 import { glyphForStepText, placeTile, toneForGlyph, toneForPlaceCategory } from "@/lib/tones";
+import { glyphForCategoryName } from "@/lib/mapGlyphs";
 import { areaLeg } from "@/lib/cityAssign";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { DayStepper } from "@/components/DayStepper";
@@ -53,7 +54,7 @@ import { nearestOpeningHours, type PlaceHours } from "@/lib/placeHours";
 import { hoursForDate } from "@/lib/openingHours";
 import { fetchDayWeather, weatherLabel, type DayWeather } from "@/lib/weather";
 import { prefetchTiles, canPrefetchTiles, dayOfflinePoints } from "@/lib/offlineTiles";
-import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon } from "@/lib/cost";
+import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon, expenseCategoryForGlyph } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import type { Day as DayT, DayCost, ExpenseCategory, Hotel, Journey, PlanItem, Place, TripData } from "@/core/types";
 
@@ -183,14 +184,25 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     const p = data.places.find((pl) => pl.id === it.placeId);
     if (p) { dayPlaceIds.add(it.placeId); dayPlaces.push(p); }
   }
+  // a step's spend starts in the category its icon points to — a café under
+  // Food & drink, a museum under Activities — the same icon the step shows
+  const stepSpend = (it: PlanItem): SpendChoice => {
+    const place = it.placeId ? data.places.find((pl) => pl.id === it.placeId) : undefined;
+    const glyph = place
+      ? (place.category ? data.config.categoryIcons?.[place.category] || glyphForCategoryName(place.category) : undefined)
+      : glyphForStepText(it.text);
+    return {
+      label: (place?.name ?? it.text ?? "").trim(),
+      categoryId: expenseCategoryForGlyph(glyph, data.config.expenseCategories ?? []),
+    };
+  };
   // what an amount can be picked as: each step in plan order — its place's
   // name, else its own text ("Lunch" is as likely a spend as a museum)
-  const spendChoices = [...new Set(
-    (day.plan ?? [])
-      .map((it) => (it.placeId ? data.places.find((pl) => pl.id === it.placeId)?.name : undefined) ?? it.text)
-      .map((t) => t?.trim())
-      .filter((t): t is string => !!t),
-  )];
+  const spendChoices: SpendChoice[] = [];
+  for (const it of day.plan ?? []) {
+    const c = stepSpend(it);
+    if (c.label && !spendChoices.some((x) => x.label === c.label)) spendChoices.push(c);
+  }
   // a new amount starts in the currency last used for day spending — on a
   // trip abroad that's the local one, not the home currency listed first
   const lastSpendCurrency = [...data.days]
@@ -237,9 +249,10 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     const t = setTimeout(() => setJustAddedCostId(null), 1600);
     return () => clearTimeout(t);
   }, [justAddedCostId]);
-  const quickAddCost = (label: string) => {
+  const quickAddCost = (item: PlanItem) => {
     const id = rid();
-    setCosts([...(day.costs ?? []), { id, label, amount: "" }]);
+    const { label, categoryId } = stepSpend(item);
+    setCosts([...(day.costs ?? []), { id, label, amount: "", ...(categoryId && { categoryId }) }]);
     setJustAddedCostId(id);
   };
 
@@ -595,7 +608,7 @@ function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, a
   categoryColors?: Record<string, string>;
   readOnly: boolean;
   onChange: (next: PlanItem[]) => void;
-  onQuickAddCost: (label: string) => void;
+  onQuickAddCost: (item: PlanItem) => void;
   onShowOnMap: (place: Place) => void;
 }) {
   const sensors = useSensors(
@@ -738,7 +751,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
   onPatch: (p: Partial<PlanItem>) => void;
   onRemove: () => void;
   onDuplicate: () => void;
-  onQuickAddCost: (label: string) => void;
+  onQuickAddCost: (item: PlanItem) => void;
   onShowOnMap: (place: Place) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id, disabled: readOnly });
@@ -957,7 +970,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
                 <button type="button" className="menu-item" onClick={onDuplicate}>
                   <Icon name="copy" size={16} /> Duplicate
                 </button>
-                <button type="button" className="menu-item" onClick={() => onQuickAddCost(place?.name || item.text || "")}>
+                <button type="button" className="menu-item" onClick={() => onQuickAddCost(item)}>
                   <Icon name="wallet" size={16} /> Add an expense
                 </button>
                 <ConfirmMenuItem onConfirm={() => undoable("Step removed", onRemove)} label="Remove" icon={<Icon name="close" size={16} />} />
@@ -1259,6 +1272,10 @@ function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, category
   );
 }
 
+/** a plan step offered under "Add an amount", with the category its icon
+ *  suggests */
+type SpendChoice = { label: string; categoryId?: string };
+
 /** The day's spend — a category + a whole-number amount per row, with an
  *  optional free-text note. The amounts feed `tripCost`; the category drives
  *  the Expenses grouping. */
@@ -1268,7 +1285,7 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
   defaultCurrency?: string;
   categories: ExpenseCategory[];
   currencies: string[];
-  choices: string[];
+  choices: SpendChoice[];
   highlightId?: string | null;
   readOnly: boolean;
   onChange: (next: DayCost[]) => void;
@@ -1286,14 +1303,14 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
   // (remounting its field open), the way a quick-entry flow advances; tapping
   // away just stops there
   const [keypadFor, setKeypadFor] = useState<string | null>(null);
-  const addWithLabel = (label: string) => {
+  const addWithLabel = (label: string, categoryId?: string) => {
     const id = rid();
     flushSync(() => {
       setOpen(false);
       setFresh(id);
       setPicked(!!label);
       const currency = defaultCurrency && currencies.includes(defaultCurrency) && defaultCurrency !== primary ? defaultCurrency : undefined;
-      onChange([...costs, { id, label, amount: "", ...(currency && { currency }) }]);
+      onChange([...costs, { id, label, amount: "", ...(categoryId && { categoryId }), ...(currency && { currency }) }]);
     });
   };
   const { open, setOpen, anchorRef } = useActionSheet();
@@ -1308,8 +1325,8 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
       <button ref={anchorRef} onClick={add} className={className}><Icon name="plus" size={iconSize} /> Add an amount</button>
       <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="What was it?">
         <button type="button" onClick={() => addWithLabel("")} className="menu-item">Custom…</button>
-        {choices.map((name) => (
-          <button key={name} type="button" onClick={() => addWithLabel(name)} className="menu-item">{name}</button>
+        {choices.map((c) => (
+          <button key={c.label} type="button" onClick={() => addWithLabel(c.label, c.categoryId)} className="menu-item">{c.label}</button>
         ))}
       </ActionSheet>
     </>
