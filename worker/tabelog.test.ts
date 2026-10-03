@@ -66,37 +66,37 @@ describe("pickResult", () => {
   });
 });
 
-/** a fake Brave Search: results by query (without the site: part) */
-function fakeBrave(byQuery: Record<string, { url: string; title: string }[]>, status = 200) {
+/** a fake search: results by query */
+function fakeSearch(byQuery: Record<string, { url: string; title: string }[]>, status = 200) {
   const seen: string[] = [];
-  const fetchImpl = async (url: string) => {
+  const fetchImpl = async (url: string, init?: RequestInit) => {
     if (url.includes("overpass")) return new Response(JSON.stringify({ elements: [] }));
-    const q = new URL(url).searchParams.get("q")!.replace(" site:tabelog.com", "");
-    seen.push(q);
-    return new Response(JSON.stringify({ web: { results: byQuery[q] ?? [] } }), { status });
+    const { query } = JSON.parse(String(init?.body)) as { query: string };
+    seen.push(query);
+    return new Response(JSON.stringify({ results: byQuery[query] ?? [] }), { status });
   };
-  return { deps: { fetchImpl, wait: async () => {} }, seen };
+  return { fetchImpl, seen };
 }
 
 describe("findTabelog", () => {
   const at = { lat: 35.1709, lng: 136.8803 };
   it("finds the page by name", async () => {
-    const { deps } = fakeBrave({ "Inou Hitsumabushi": [{ url: A, title: "Inou Hitsumabushi ESCA | Tabelog" }] });
-    expect(await findTabelog("Inou Hitsumabushi", at, "key", deps)).toBe(A);
+    const { fetchImpl } = fakeSearch({ "Inou Hitsumabushi": [{ url: A, title: "Inou Hitsumabushi ESCA | Tabelog" }] });
+    expect(await findTabelog("Inou Hitsumabushi", at, "key", fetchImpl)).toBe(A);
   });
   it("tries a shorter name when the full one finds nothing", async () => {
-    const { deps, seen } = fakeBrave({ "Inou Hitsumabushi": [{ url: A, title: "Inou Hitsumabushi | Tabelog" }] });
-    expect(await findTabelog("Inou Hitsumabushi ESCA Branch", at, "key", deps)).toBe(A);
+    const { fetchImpl, seen } = fakeSearch({ "Inou Hitsumabushi": [{ url: A, title: "Inou Hitsumabushi | Tabelog" }] });
+    expect(await findTabelog("Inou Hitsumabushi ESCA Branch", at, "key", fetchImpl)).toBe(A);
     expect(seen).toEqual(["Inou Hitsumabushi ESCA Branch", "Inou Hitsumabushi"]);
   });
   it("keeps to its search budget", async () => {
-    const { deps, seen } = fakeBrave({});
-    expect(await findTabelog("One Two Three Four", at, "key", deps)).toBeNull();
+    const { fetchImpl, seen } = fakeSearch({});
+    expect(await findTabelog("One Two Three Four", at, "key", fetchImpl)).toBeNull();
     expect(seen.length).toBeLessThanOrEqual(3);
   });
   it("throws when search can't be asked", async () => {
-    const { deps } = fakeBrave({}, 401);
-    await expect(findTabelog("Anything", at, "key", deps)).rejects.toThrow("401");
+    const { fetchImpl } = fakeSearch({}, 401);
+    await expect(findTabelog("Anything", at, "key", fetchImpl)).rejects.toThrow("401");
   });
 });
 
@@ -108,7 +108,7 @@ describe("handleTabelog", () => {
     expect((await handleTabelog(new URL("https://x/api/tabelog?name=a&lat=35&lng=136"), undefined)).status).toBe(503);
   });
   it("reports a failed lookup as 502", async () => {
-    const res = await handleTabelog(new URL("https://x/api/tabelog?name=a&lat=35&lng=136"), "key", fakeBrave({}, 429).deps);
+    const res = await handleTabelog(new URL("https://x/api/tabelog?name=a&lat=35&lng=136"), "key", fakeSearch({}, 432).fetchImpl);
     expect(res.status).toBe(502);
   });
 });

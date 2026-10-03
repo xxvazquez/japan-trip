@@ -76,11 +76,11 @@ function pdfjsAssets(): Plugin {
 /** `/api/*` is the Worker's in production (worker/index.ts); in dev and
  *  preview the same handlers answer from here, so the app can be driven
  *  end to end locally. */
-function workerApi(braveKey: string | undefined): Plugin {
+function workerApi(searchKey: string | undefined): Plugin {
   const api: Connect.NextHandleFunction = (req, res, next) => {
     const url = new URL(req.url ?? "/", "http://localhost");
     if (url.pathname !== "/api/tabelog") return next();
-    handleTabelog(url, braveKey).then(async (r) => {
+    handleTabelog(url, searchKey).then(async (r) => {
       res.statusCode = r.status;
       res.setHeader("Content-Type", "application/json");
       res.end(await r.text());
@@ -123,7 +123,7 @@ export default defineConfig(({ command, mode }) => ({
     react(),
     pdfjsAssets(),
     // the search key stays on the server — no VITE_ prefix, so never in the bundle
-    workerApi(loadEnv(mode, process.cwd(), "").BRAVE_SEARCH_KEY),
+    workerApi(loadEnv(mode, process.cwd(), "").TAVILY_API_KEY),
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.png", "icons/*.png", "textures/*", "brand/*.png"],

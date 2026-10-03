@@ -1,8 +1,8 @@
 import { handleTabelog } from "./tabelog";
 
 interface Env {
-  /** Brave Search API key — a secret on the Worker (see README) */
-  BRAVE_SEARCH_KEY?: string;
+  /** Tavily search API key — a secret on the Worker (see README) */
+  TAVILY_API_KEY?: string;
 }
 
 /** The app is static files; this script only answers `/api/*` (see
@@ -10,7 +10,7 @@ interface Env {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
-    if (request.method === "GET" && url.pathname === "/api/tabelog") return handleTabelog(url, env.BRAVE_SEARCH_KEY);
+    if (request.method === "GET" && url.pathname === "/api/tabelog") return handleTabelog(url, env.TAVILY_API_KEY);
     return new Response("Not found", { status: 404 });
   },
 };

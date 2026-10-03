@@ -1,25 +1,20 @@
 /** Finds a restaurant's Tabelog page from its name and map position.
  *
  *  Tabelog has no API and turns away requests from Cloudflare's servers, so
- *  this asks Brave Search for tabelog.com pages instead (the Worker in
- *  production, a Vite middleware in dev; the key is `BRAVE_SEARCH_KEY`).
+ *  this asks Tavily's search for tabelog.com pages instead (the Worker in
+ *  production, a Vite middleware in dev; the key is `TAVILY_API_KEY`).
  *  A result is kept only when its page is in one of the two prefectures
  *  nearest our pin and its title names our place — by our name, or by the
  *  local name OpenStreetMap has for the place at the pin. */
 
 const SITE = "https://tabelog.com";
-const BRAVE = "https://api.search.brave.com/res/v1/web/search";
-/** searches per lookup — most are found by the first */
+const TAVILY = "https://api.tavily.com/search";
+/** searches per lookup — most are found by the first, and the free plan
+ *  has 1,000 a month */
 const MAX_SEARCHES = 3;
-/** Brave's free plan answers one search a second */
-const SEARCH_GAP_MS = 1100;
 
 type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
 type At = { lat: number; lng: number };
-export interface LookupDeps {
-  fetchImpl?: Fetch;
-  wait?: (ms: number) => Promise<void>;
-}
 
 export function metresBetween(a: At, b: At): number {
   const rad = Math.PI / 180;
@@ -179,36 +174,27 @@ export function pickResult(results: SearchResult[], names: string[], prefs: stri
   return best?.page?.href ?? null;
 }
 
-/** one Brave search. Throws when it can't be asked (no key, quota used up,
- *  offline), so a caller can tell "not on Tabelog" from "couldn't ask". */
-async function braveSearch(q: string, key: string, fetchImpl: Fetch, wait: (ms: number) => Promise<void>): Promise<SearchResult[]> {
-  const url = `${BRAVE}?${new URLSearchParams({ q, count: "10" })}`;
-  for (let attempt = 0; ; attempt++) {
-    const res = await fetchImpl(url, {
-      headers: { Accept: "application/json", "X-Subscription-Token": key },
-      signal: AbortSignal.timeout(8000),
-    });
-    // the previous lookup's last search may have been under a second ago
-    if (res.status === 429 && attempt === 0) {
-      await wait(SEARCH_GAP_MS);
-      continue;
-    }
-    if (!res.ok) throw new Error(`Brave Search answered ${res.status}`);
-    const body = (await res.json()) as { web?: { results?: SearchResult[] } };
-    return body.web?.results ?? [];
-  }
+/** one search of tabelog.com. Throws when it can't be asked (no key,
+ *  the month's searches used up, offline), so a caller can tell "not on
+ *  Tabelog" from "couldn't ask". */
+async function searchTabelog(query: string, key: string, fetchImpl: Fetch): Promise<SearchResult[]> {
+  const res = await fetchImpl(TAVILY, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+    body: JSON.stringify({ query, include_domains: ["tabelog.com"], max_results: 10, search_depth: "basic" }),
+    signal: AbortSignal.timeout(10000),
+  });
+  if (!res.ok) throw new Error(`Search answered ${res.status}`);
+  return ((await res.json()) as { results?: SearchResult[] }).results ?? [];
 }
 
 /** the page's link, or null when no result names the place nearby */
-export async function findTabelog(name: string, at: At, key: string, deps: LookupDeps = {}): Promise<string | null> {
-  const fetchImpl = deps.fetchImpl ?? fetch;
-  const wait = deps.wait ?? ((ms) => new Promise<void>((r) => setTimeout(r, ms)));
+export async function findTabelog(name: string, at: At, key: string, fetchImpl: Fetch = fetch): Promise<string | null> {
   const prefs = nearestPrefectures(at);
   let searches = 0;
   const search = async (q: string, names: string[]) => {
-    if (searches >= MAX_SEARCHES) return null;
-    if (searches++) await wait(SEARCH_GAP_MS);
-    return pickResult(await braveSearch(`${q} site:tabelog.com`, key, fetchImpl, wait), names, prefs);
+    if (searches++ >= MAX_SEARCHES) return null;
+    return pickResult(await searchTabelog(q, key, fetchImpl), names, prefs);
   };
 
   // 1. our own name
@@ -231,7 +217,7 @@ export async function findTabelog(name: string, at: At, key: string, deps: Looku
 }
 
 /** `GET /api/tabelog?name=…&lat=…&lng=…` → `{ url: string | null }` */
-export async function handleTabelog(url: URL, key: string | undefined, deps: LookupDeps = {}): Promise<Response> {
+export async function handleTabelog(url: URL, key: string | undefined, fetchImpl: Fetch = fetch): Promise<Response> {
   const name = url.searchParams.get("name")?.trim();
   // Number(null) is 0, so a missing coordinate has to be caught first
   const lat = Number(url.searchParams.get("lat") || NaN);
@@ -239,9 +225,9 @@ export async function handleTabelog(url: URL, key: string | undefined, deps: Loo
   const json = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
   if (!name || !Number.isFinite(lat) || !Number.isFinite(lng)) return json({ error: "name, lat and lng are required" }, 400);
-  if (!key) return json({ error: "BRAVE_SEARCH_KEY isn't set" }, 503);
+  if (!key) return json({ error: "TAVILY_API_KEY isn't set" }, 503);
   try {
-    return json({ url: await findTabelog(name.slice(0, 120), { lat, lng }, key, deps) });
+    return json({ url: await findTabelog(name.slice(0, 120), { lat, lng }, key, fetchImpl) });
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : "lookup failed" }, 502);
   }

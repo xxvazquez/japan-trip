@@ -90,9 +90,8 @@ function rememberMiss(p: Place, missed: boolean) {
  *  site turned the server away) → undefined, so it's tried again later */
 export type LookupResult = string | null | undefined;
 
-// one lookup at a time — each is up to three searches on the server, and the
-// search plan answers one a second, so a day of restaurants opening at once
-// mustn't fire them all together
+// one lookup at a time — each is up to three searches on the server, and a
+// day of restaurants opening at once mustn't fire them all together
 let queue: Promise<unknown> = Promise.resolve();
 const inFlight = new Map<string, Promise<LookupResult>>();
 

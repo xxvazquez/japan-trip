@@ -168,8 +168,8 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 **Tabelog link.** A restaurant or café in Japan gets its Tabelog page found automatically:
 
 - It happens the first time the step shows, or its card opens on the Map. Online only; the link is then saved with the place.
-- It's found through Brave Search: a Tabelog page in the same or a neighbouring prefecture whose title has the same name (English, or the Japanese name OpenStreetMap has for the pin).
-- Needs `BRAVE_SEARCH_KEY` on the server (see [Deploy](#deploy)); without it, every restaurant just gets **Search Tabelog**.
+- It's found through a web search (Tavily): a Tabelog page in the same or a neighbouring prefecture whose title has the same name (English, or the Japanese name OpenStreetMap has for the pin).
+- Needs `TAVILY_API_KEY` on the server (see [Deploy](#deploy)); without it, every restaurant just gets **Search Tabelog**.
 - Found: a small **Tabelog** link under the step, and **Open in Tabelog** in its ⋯ menu.
 - Not found: the ⋯ menu offers **Search Tabelog** instead. A miss isn't retried on that device for 30 days, unless the name or pin changes.
 - "Restaurant" means the category's icon is from *Food & drink* (or its name says food, café, bar…).
@@ -487,7 +487,7 @@ VITE_SUPABASE_ANON_KEY=<anon / public key>
 VITE_PROTOMAPS_API_KEY=<Protomaps hosted API key>
 VITE_ORS_API_KEY=<OpenRouteService key>
 VITE_GOOGLE_CLIENT_ID=<Google OAuth web client id>
-BRAVE_SEARCH_KEY=<Brave Search API key>
+TAVILY_API_KEY=<Tavily API key>
 ```
 
 | Variable | Purpose |
@@ -496,7 +496,7 @@ BRAVE_SEARCH_KEY=<Brave Search API key>
 | `VITE_PROTOMAPS_API_KEY` / `VITE_MAP_TILES_URL` | Map tiles — see [The map background](#the-map-background). |
 | `VITE_GOOGLE_CLIENT_ID` | Google Drive for attachments. Without it, signed-in files go to the account's own storage. |
 | `VITE_ORS_API_KEY` | Real walking routes. Free, no card, 2,000 requests/day from [openrouteservice.org](https://openrouteservice.org/dev/#/signup). Without it, walks use straight-line estimates. Requests are throttled and cached per device. |
-| `BRAVE_SEARCH_KEY` | Tabelog links, in `npm run dev` / `preview`. Server-side only (no `VITE_` prefix), so it never reaches the bundle. In production it's a Worker secret — see [Deploy](#deploy). |
+| `TAVILY_API_KEY` | Tabelog links, in `npm run dev` / `preview`. Free, no card, 1,000 searches/month from [tavily.com](https://app.tavily.com). Server-side only (no `VITE_` prefix), so it never reaches the bundle. In production it's a Worker secret — see [Deploy](#deploy). |
 
 `VITE_*` values are baked in at build time — a change only takes effect on the next build.
 
@@ -571,7 +571,7 @@ Hosted on **Cloudflare Workers** (static assets), deployed through the Git integ
 
 - A small Worker script ([`worker/index.ts`](worker/index.ts)) answers `/api/*` only — today just `/api/tabelog`, the restaurant lookup. Everything else is served as static files without touching it (`run_worker_first` in [`wrangler.jsonc`](wrangler.jsonc)).
 - In `npm run dev` / `preview` the same handler runs as Vite middleware, so the lookup works locally too.
-- The lookup searches with the [Brave Search API](https://api-dashboard.search.brave.com) (Tabelog blocks requests from Cloudflare's servers, so it can't be read directly). Its key goes in **Worker → Settings → Variables and Secrets → Add → Secret**, named `BRAVE_SEARCH_KEY`. Takes effect without a rebuild.
+- The lookup searches with [Tavily](https://app.tavily.com) (Tabelog blocks requests from Cloudflare's servers, so it can't be read directly). Its key goes in **Worker → Settings → Variables and Secrets → Add → Secret**, named `TAVILY_API_KEY`. Takes effect without a rebuild.
 - The public demo has no Worker script; there the Tabelog row just opens a search.
 
 ### Main site
