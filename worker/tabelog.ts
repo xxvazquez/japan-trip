@@ -146,10 +146,10 @@ export async function osmPlaces(name: string, at: At, fetchImpl: Fetch): Promise
 }
 
 /** a restaurant's own page, from any of the links search finds for it (the
- *  Japanese or another language's page, its reviews or photos) — as its
+ *  Japanese, mobile or another language's page, its reviews or photos) — as its
  *  English page, plus the prefecture it's filed under */
 export function parsePage(url: string): { pref: string; href: string } | null {
-  const m = /^https:\/\/tabelog\.com\/(?:(?:en|ko|zh-CN|zh-TW)\/)?([a-z]+)\/(A\d{4})\/(A\d{6})\/(\d+)(?:\/|$)/.exec(url);
+  const m = /^https:\/\/(?:s\.)?tabelog\.com\/(?:(?:en|ko|zh-CN|zh-TW)\/)?([a-z]+)\/(A\d{4})\/(A\d{6})\/(\d+)(?:\/|$)/.exec(url);
   return m ? { pref: m[1], href: `${SITE}/en/${m[1]}/${m[2]}/${m[3]}/${m[4]}/` } : null;
 }
 

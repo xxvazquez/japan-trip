@@ -8,6 +8,7 @@ describe("parsing", () => {
   it("reads any link to a restaurant as its English page", () => {
     expect(parsePage("https://tabelog.com/aichi/A2301/A230101/23001424/dtlrvwlst/")).toEqual({ pref: "aichi", href: A });
     expect(parsePage("https://tabelog.com/zh-TW/aichi/A2301/A230101/23001424/")?.href).toBe(A);
+    expect(parsePage("https://s.tabelog.com/en/aichi/A2301/A230101/23001424/dtlmenu")?.href).toBe(A);
     expect(parsePage("https://tabelog.com/en/aichi/rstLst/")).toBeNull();
   });
 });
