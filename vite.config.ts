@@ -5,6 +5,7 @@ import { fileURLToPath, URL } from "node:url";
 import { execSync } from "node:child_process";
 import { readFileSync, readdirSync } from "node:fs";
 import { handleTabelog } from "./worker/tabelog";
+import { handlePlaceFacts } from "./worker/placeFacts";
 
 /** which commit this bundle was built from — Cloudflare's build sets the SHA;
  *  locally it's read from git. Shown in Manage so it's easy to tell whether a
@@ -79,8 +80,9 @@ function pdfjsAssets(): Plugin {
 function workerApi(searchKey: string | undefined): Plugin {
   const api: Connect.NextHandleFunction = (req, res, next) => {
     const url = new URL(req.url ?? "/", "http://localhost");
-    if (url.pathname !== "/api/tabelog") return next();
-    handleTabelog(url, searchKey).then(async (r) => {
+    const handle = { "/api/tabelog": handleTabelog, "/api/place-facts": handlePlaceFacts }[url.pathname];
+    if (!handle) return next();
+    handle(url, searchKey).then(async (r) => {
       res.statusCode = r.status;
       res.setHeader("Content-Type", "application/json");
       res.end(await r.text());

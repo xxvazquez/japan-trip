@@ -28,6 +28,8 @@ import { suggestAreas, type AreaSuggestion } from "@/lib/cluster";
 import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
 import { reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
+import { placeArea, useAutoPlaceFacts } from "@/lib/placeFacts";
+import { PlaceFactRows } from "@/components/PlaceFacts";
 import { primeKeyboard } from "@/lib/keyboard";
 import { TRANSIT_KINDS, TRANSIT_META } from "@/lib/transitLayers";
 import { nearestStationFromMap, nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
@@ -1697,6 +1699,10 @@ function PlaceRow({
   // a restaurant's guide page (Tabelog in Japan) — looked up once it's opened
   const reviewSite = reviewSiteFor(place, categoryIcons);
   useAutoReviewLink(place, categoryIcons, open && !readOnly);
+  // its "Good to know" (hours, reservations, queue…) — looked up the same way
+  const tripData = useData();
+  const area = placeArea(place, tripData);
+  useAutoPlaceFacts(place, categoryIcons, area, open && !readOnly);
   const day = dayId ? days.find((d) => d.id === dayId) : undefined;
   const li = useRef<HTMLLIElement>(null);
   useEffect(() => {
@@ -1846,6 +1852,7 @@ function PlaceRow({
               )}
             </li>
           )}
+          <PlaceFactRows place={place} area={area} />
           {link && (
             <li className={INSET_DIVIDER}>
               <a href={link} target="_blank" rel="noopener" className={`${rowCls} text-accent active:bg-surface-2`}>

@@ -9,7 +9,8 @@ import { TileRow } from "@/components/TileRow";
 import type { Tone } from "@/lib/tones";
 import { useApp, undoable } from "@/store/useApp";
 import { useData } from "@/lib/data";
-import { findReviewLink, reviewSiteFor, saveReviewLink } from "@/lib/reviewSite";
+import { findReviewLink, isFoodPlace, reviewSiteFor, saveReviewLink } from "@/lib/reviewSite";
+import { factsDue, hasFacts, placeArea, refreshFacts } from "@/lib/placeFacts";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import { useIsDark, useMode, type Mode } from "@/lib/mode";
 import { APP_BUILD, APP_NAME, APP_TAGLINE } from "@/lib/app";
@@ -1480,6 +1481,7 @@ function Content() {
 
       {CategoryIcons()}
       <ReviewLinksPanel />
+      <PlaceFactsPanel />
     </div>
   );
 }
@@ -1631,6 +1633,58 @@ function ReviewLinksPanel() {
           <ActionRow label={`Finding links… ${run.done} of ${run.total}`} onClick={() => {}} disabled />
         ) : (
           missing.length > 0 && <ActionRow icon="link" label={`Find ${label} links`} onClick={() => void findAll()} />
+        )}
+      </ul>
+    </Section>
+  );
+}
+
+/** Fills in every restaurant's "Good to know" in one go — the lookup a Plan
+ *  step or Map card runs when it's shown — for the ones never checked or
+ *  checked too long ago. One place at a time; leaving the page doesn't stop it. */
+function PlaceFactsPanel() {
+  const data = useData();
+  const [run, setRun] = useState<{ done: number; total: number; failed: number; running: boolean } | null>(null);
+  if (!data) return null;
+  const icons = data.config.categoryIcons;
+  const places = data.places.filter((p) => isFoodPlace(p, icons));
+  if (places.length === 0) return null;
+  const due = places.filter((p) => factsDue(p, icons));
+  const known = places.filter((p) => hasFacts(p.facts)).length;
+
+  const checkAll = async () => {
+    const total = due.length;
+    let failed = 0;
+    setRun({ done: 0, total, failed, running: true });
+    for (const [i, p] of due.entries()) {
+      if (!(await refreshFacts(p, placeArea(p, data)))) failed++;
+      setRun({ done: i + 1, total, failed, running: true });
+      // search itself is down (offline, out of searches) — stop asking
+      if (failed >= 3 && failed === i + 1) break;
+    }
+    setRun((r) => r && { ...r, running: false });
+  };
+
+  const summary = run && !run.running
+    ? run.failed === run.done && run.done > 0
+      ? "Couldn’t search — try again later"
+      : `Checked ${run.done - run.failed} of ${run.total}${run.failed ? ` · ${run.failed} couldn’t be checked` : ""}`
+    : null;
+
+  return (
+    <Section
+      title="Good to know"
+      info="Restaurants and cafés get a short summary of what guides and review sites say — what it’s known for, hours, closed days, reservations, queues and price. It’s looked up when you open one on Plan or the Map, and again once it’s a month old; this does them all at once. Each place shows when it was checked, and can be refreshed by hand."
+    >
+      <ul>
+        <InsetRow label="Filled in">
+          <span className="tabular-nums">{known} of {places.length}</span>
+        </InsetRow>
+        {summary && <InsetRow label="Last check">{summary}</InsetRow>}
+        {run?.running ? (
+          <ActionRow label={`Checking… ${run.done} of ${run.total}`} onClick={() => {}} disabled />
+        ) : (
+          due.length > 0 && <ActionRow icon="info" label={`Check ${plural(due.length, "restaurant")}`} onClick={() => void checkAll()} />
         )}
       </ul>
     </Section>

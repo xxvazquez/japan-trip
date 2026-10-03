@@ -1,3 +1,4 @@
+import { handlePlaceFacts } from "./placeFacts";
 import { handleTabelog } from "./tabelog";
 
 interface Env {
@@ -11,6 +12,7 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     if (request.method === "GET" && url.pathname === "/api/tabelog") return handleTabelog(url, env.TAVILY_API_KEY);
+    if (request.method === "GET" && url.pathname === "/api/place-facts") return handlePlaceFacts(url, env.TAVILY_API_KEY);
     return new Response("Not found", { status: 404 });
   },
 };

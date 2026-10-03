@@ -301,6 +301,9 @@ export interface Place {
   /** the place's page on a restaurant guide (see `reviewSite.ts`) — found
    *  by the app's own lookup, or pasted */
   reviewUrl?: string;
+  /** "Good to know" for somewhere to eat — looked up by the app (see
+   *  `placeFacts.ts`); one with only `checkedAt` means nothing was found */
+  facts?: PlaceFacts;
   /** "mymap" for imported pins; unset for app-native ones */
   source?: "mymap";
   /** manual override of the computed "home city" (leg) — set when the
@@ -310,6 +313,22 @@ export interface Place {
   /** sensory-overwhelming (crowds, noise, light) — flagged so a day's plan
    *  can show at a glance how many of its stops are like that */
   overwhelming?: boolean;
+}
+
+/** What guides and review sites say about a place, each a short phrase. */
+export interface PlaceFacts {
+  knownFor?: string;
+  hours?: string;
+  closed?: string;
+  reservations?: string;
+  queue?: string;
+  price?: string;
+  /** ISO date of the lookup */
+  checkedAt: ISODate;
+  /** the place's name when it was looked up — a rename looks it up again */
+  name?: string;
+  /** the sites it was drawn from */
+  sources?: string[];
 }
 
 export interface Day {

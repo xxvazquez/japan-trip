@@ -5,7 +5,7 @@ import type { Day, Doc, DocField, ExpenseCategory, Hotel, ModuleConfig, PlanItem
 import { todayISO } from "@/lib/dates";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
-export const SCHEMA_VERSION = 14;
+export const SCHEMA_VERSION = 15;
 
 /** Seed expense categories for a new trip. `role: "transport"` is the catch-all
  *  for any fare whose mode isn't claimed below (ferry, car, walk, or a manual

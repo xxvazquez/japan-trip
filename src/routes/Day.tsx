@@ -42,6 +42,8 @@ import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
+import { hasFacts, placeArea, useAutoPlaceFacts } from "@/lib/placeFacts";
+import { PlaceFactRows } from "@/components/PlaceFacts";
 import { dayJourneys, dayKind, fmtDate, journeyDepartDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink, gmapsRoute, mapUrlCoords, placeMapLink } from "@/lib/maps";
@@ -762,6 +764,11 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
   // a restaurant's guide page (Tabelog in Japan) — looked up as the step shows
   const reviewSite = place ? reviewSiteFor(place, categoryIcons) : undefined;
   useAutoReviewLink(place, categoryIcons, !readOnly);
+  // its "Good to know" (hours, reservations, queue…), behind a line under the step
+  const tripData = useData();
+  const area = place && placeArea(place, tripData);
+  useAutoPlaceFacts(place, categoryIcons, area, !readOnly);
+  const factsSheet = useActionSheet();
   const toggleOverwhelming = () => {
     if (!place) return;
     updateEntity<Place>("places", place.id, { overwhelming: !place.overwhelming || undefined });
@@ -931,10 +938,26 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
                 onEditEnd={() => setNoteOpen(false)}
               />
             )}
-            {place?.reviewUrl && reviewSite && (
-              <a href={place.reviewUrl} target="_blank" rel="noopener" className="meta flex w-fit items-center gap-1 text-accent">
-                <Icon name="link" size={12} className="shrink-0" /> {reviewSite.label}
-              </a>
+            {place && ((place.reviewUrl && reviewSite) || hasFacts(place.facts)) && (
+              <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                {place.reviewUrl && reviewSite && (
+                  <a href={place.reviewUrl} target="_blank" rel="noopener" className="meta flex w-fit items-center gap-1 text-accent">
+                    <Icon name="link" size={12} className="shrink-0" /> {reviewSite.label}
+                  </a>
+                )}
+                {hasFacts(place.facts) && (
+                  <button type="button" ref={factsSheet.anchorRef} onClick={() => factsSheet.setOpen(true)} className="meta flex w-fit items-center gap-1 text-accent">
+                    <Icon name="info" size={12} className="shrink-0" /> Good to know
+                  </button>
+                )}
+              </span>
+            )}
+            {place && (
+              <ActionSheet open={factsSheet.open} onClose={() => factsSheet.setOpen(false)} anchorRef={factsSheet.anchorRef} title={place.name} doneLabel="Done">
+                <ul onClick={(e) => e.stopPropagation()}>
+                  <PlaceFactRows place={place} area={area} />
+                </ul>
+              </ActionSheet>
             )}
             {place && <StepWalkLines place={place} nextPlace={nextPlace} />}
           </div>

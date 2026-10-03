@@ -176,6 +176,16 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 - "Restaurant" means the category's icon is from *Food & drink* (or its name says food, café, bar…).
 - **Manage → Content → Tabelog links** finds them for every restaurant at once.
 
+**Good to know.** A restaurant or café (anywhere, not just Japan) gets a short summary of what guides and review sites say about it:
+
+- **Known for**, **Hours**, **Closed**, **Reservations**, **Queue** and **Price**, each a short phrase. Anything the sources don't mention is left out.
+- On Plan, a **Good to know** link under the step opens it; on the Map it's part of the place's card.
+- Looked up the first time the place shows, again once it's a month old, and again after a rename. Saved with the place, so it works offline.
+- It shows when it was checked and which sites it came from, with **Refresh** to check again now.
+- A result only counts if its pages name the place and mention its city — so a namesake elsewhere isn't picked up.
+- It can be out of date. Check hours and closed days with the restaurant before a long trip across town.
+- **Manage → Content → Good to know** checks every restaurant at once. Uses the same `TAVILY_API_KEY`, one search per place.
+
 **Back to hotel.** The last row of the day is the way home to that night's hotel (left off on a departure day). It shows the walk, or the stations to travel between for a long way, and opens Google Maps directions when tapped.
 
 Stations and hours come from OpenStreetMap (Overpass, with Nominatim as a fallback). Results are remembered on the device.
@@ -215,7 +225,7 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
 
 - **＋ Add place** — search for somewhere, or tap the map to drop a pin.
 - **The list** — once a city is picked, places are grouped by area (plus *No area*). On **All** it nests **city → area → place**. Groups start collapsed and remember what you opened.
-- **A place's card** — name, note, areas, city, Open in Google Maps (searched at the pin, so a chain opens the right branch), Tabelog for a restaurant in Japan (see [Helpers on a step](#helpers-on-a-step)), the day it's on (or **Add to a day**), and Remove.
+- **A place's card** — name, note, areas, city, Open in Google Maps (searched at the pin, so a chain opens the right branch), Tabelog for a restaurant in Japan and its Good to know (see [Helpers on a step](#helpers-on-a-step)), the day it's on (or **Add to a day**), and Remove.
 - **List rows** show the name and the walk to the nearest station.
 - **Place names** on the map are in English / Latin script where available.
 
@@ -497,7 +507,7 @@ TAVILY_API_KEY=<Tavily API key>
 | `VITE_PROTOMAPS_API_KEY` / `VITE_MAP_TILES_URL` | Map tiles — see [The map background](#the-map-background). |
 | `VITE_GOOGLE_CLIENT_ID` | Google Drive for attachments. Without it, signed-in files go to the account's own storage. |
 | `VITE_ORS_API_KEY` | Real walking routes. Free, no card, 2,000 requests/day from [openrouteservice.org](https://openrouteservice.org/dev/#/signup). Without it, walks use straight-line estimates. Requests are throttled and cached per device. |
-| `TAVILY_API_KEY` | Tabelog links, in `npm run dev` / `preview`. Free, no card, 1,000 searches/month from [tavily.com](https://app.tavily.com). Server-side only (no `VITE_` prefix), so it never reaches the bundle. In production it's a Worker secret — see [Deploy](#deploy). |
+| `TAVILY_API_KEY` | Tabelog links and Good to know, in `npm run dev` / `preview`. Free, no card, 1,000 searches/month from [tavily.com](https://app.tavily.com). Server-side only (no `VITE_` prefix), so it never reaches the bundle. In production it's a Worker secret — see [Deploy](#deploy). |
 
 `VITE_*` values are baked in at build time — a change only takes effect on the next build.
 
@@ -539,7 +549,7 @@ edit in the UI  →  TripData (in memory)  →  backend
 ### Setting up a project
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0037`).
+2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0038`).
    - `0033` moves old day-trip text (getting there / back, last way back) into each day's notes — take a backup first.
    - `0035` drops the retired day columns. On an existing project, run it only once the build with it is live — an older build still writes `journey_id`, and its day saves would fail.
 3. **Authentication → Providers → Google** — enable it with a Google Cloud OAuth client id and secret. Redirect: `https://<project-ref>.supabase.co/auth/v1/callback`.
@@ -570,7 +580,7 @@ Google sign-in has no allowlist of its own. Strangers would only ever see their 
 
 Hosted on **Cloudflare Workers** (static assets), deployed through the Git integration on every push to `main`.
 
-- A small Worker script ([`worker/index.ts`](worker/index.ts)) answers `/api/*` only — today just `/api/tabelog`, the restaurant lookup. Everything else is served as static files without touching it (`run_worker_first` in [`wrangler.jsonc`](wrangler.jsonc)).
+- A small Worker script ([`worker/index.ts`](worker/index.ts)) answers `/api/*` only — today `/api/tabelog` and `/api/place-facts`, the restaurant lookups. Everything else is served as static files without touching it (`run_worker_first` in [`wrangler.jsonc`](wrangler.jsonc)).
 - In `npm run dev` / `preview` the same handler runs as Vite middleware, so the lookup works locally too.
 - The lookup searches with [Tavily](https://app.tavily.com) (Tabelog blocks requests from Cloudflare's servers, so it can't be read directly). Its key goes in **Worker → Settings → Variables and Secrets → Add → Secret**, named `TAVILY_API_KEY`. Takes effect without a rebuild.
 - The public demo has no Worker script; there the Tabelog row just opens a search.
@@ -654,7 +664,7 @@ src/
                         Hotel, Document, Manage, Help…)
   templates/            blank + demo seed trips
   styles/index.css      colour tokens and type scale
-worker/                 the Worker script — /api/* only (Tabelog lookup)
+worker/                 the Worker script — /api/* only (Tabelog link, Good to know)
 supabase/migrations/    database schema, applied in order
 supabase/dump_trip.sql  read-only trip export for diffing
 scripts/make_icons.py   regenerates app icons from the logo files
