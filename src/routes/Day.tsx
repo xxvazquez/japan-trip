@@ -1325,7 +1325,7 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
     return readOnly ? (
       <p className="px-3.5 py-3 text-sm text-ink-faint">Nothing logged.</p>
     ) : (
-      addButton("action w-full px-3.5 py-3 text-sm", 14)
+      addButton("action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07] active:opacity-100", 14)
     );
   }
 
@@ -1417,7 +1417,7 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
             : "—"}
         </span>
       </li>
-      {!readOnly && <li>{addButton("action w-full px-3.5 py-3 text-sm", 14)}</li>}
+      {!readOnly && <li>{addButton("action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07] active:opacity-100", 14)}</li>}
     </ul>
   );
 }

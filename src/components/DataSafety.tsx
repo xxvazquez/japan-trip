@@ -105,7 +105,7 @@ export function DataSafety() {
             </InsetRow>
           )}
           <li className={INSET_DIVIDER}>
-            <button onClick={backup} disabled={busy || !activeId} className="action w-full px-3.5 py-3 text-sm disabled:opacity-50">
+            <button onClick={backup} disabled={busy || !activeId} className="action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07] active:opacity-100 disabled:opacity-50">
               Back up now
             </button>
           </li>

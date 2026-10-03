@@ -615,7 +615,7 @@ function ReorderMenu({ label, index, count, onMove, onRemove, removeLabel = "Rem
 function AddRow({ label, onClick }: { label: string; onClick: () => void }) {
   return (
     <li>
-      <button onClick={onClick} className="action w-full px-3.5 py-3 text-sm">
+      <button onClick={onClick} className="action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07] active:opacity-100">
         <Icon name="plus" size={14} /> {label}
       </button>
     </li>
