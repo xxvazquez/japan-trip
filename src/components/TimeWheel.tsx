@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { useSheetDrag } from "./useSheetDrag";
+import { useRevealAboveSheet } from "./useRevealAboveSheet";
 import { useBackToClose } from "@/lib/backClose";
 import { Icon } from "./Icon";
 
@@ -240,6 +241,7 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, unset, 
   onClear: () => void;
 }) {
   const { sheetRef, handleProps } = useSheetDrag(onClose);
+  useRevealAboveSheet(open, anchorRef, sheetRef);
   useBackToClose(open, onClose);
   useEffect(() => {
     if (!open) return;

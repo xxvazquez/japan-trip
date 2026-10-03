@@ -5,6 +5,7 @@ import { currencySymbol, moneyParts } from "@/lib/cost";
 import { Icon } from "./Icon";
 import { SegmentedControl } from "./SegmentedControl";
 import { useSheetDrag } from "./useSheetDrag";
+import { useRevealAboveSheet } from "./useRevealAboveSheet";
 
 const isNarrow = () =>
   typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches;
@@ -113,6 +114,7 @@ export function AmountSheet({
     });
 
   const { sheetRef, handleProps } = useSheetDrag(done);
+  useRevealAboveSheet(open, anchorRef, sheetRef);
 
   useEffect(() => {
     if (!open) return;
