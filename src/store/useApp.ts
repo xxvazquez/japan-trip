@@ -1904,7 +1904,9 @@ export const useApp = create<AppStore>((set, get) => {
       // the layer's pins move over now when they can be told apart: nothing
       // else files into the category they're in. Otherwise the re-sync that
       // follows a change sorts them.
+      // A layer not set up yet files under its own name, so it counts too.
       const shared = Object.entries(layerCats).some(([l, c]) => l !== layer && c === was) ||
+        (d.config.mapLayers ?? []).some((l) => l !== layer && !(l in layerCats) && l === was) ||
         d.places.some((p) => p.category === was && p.source !== "mymap");
       if (!shared && was !== name) {
         for (const p of d.places) {
