@@ -949,6 +949,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
   // "Change place" on the card swaps the step's place from the same list a
   // custom step's icon opens
   const changePlace = useActionSheet();
+  const toggleOptional = () => onPatch({ optional: item.optional ? undefined : true });
   const toggleOverwhelming = () => {
     if (!place) return;
     updateEntity<Place>("places", place.id, { overwhelming: !place.overwhelming || undefined });
@@ -1092,6 +1093,9 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                       <button type="button" className="menu-item" onClick={() => onPatch({ pinned: item.pinned ? undefined : true })}>
                         <Icon name="pushpin" size={16} /> {item.pinned ? "Unpin this step" : "Pin this step"}
                       </button>
+                      <button type="button" className="menu-item" onClick={toggleOptional}>
+                        <Icon name="optional" size={16} /> {item.optional ? "Make this a must" : "Mark as optional"}
+                      </button>
                       <button type="button" className="menu-item" onClick={onDuplicate}>
                         <Icon name="copy" size={16} /> Duplicate
                       </button>
@@ -1159,6 +1163,13 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
               />
             )}
             </div>
+            {/* a plain grey caption, as Calendar marks an invitee
+                "Optional" — information, not a warning */}
+            {item.optional && (
+              <span className={`${STOP_META} mt-0.5`}>
+                <Icon name="optional" size={12} className="mr-1 inline-block align-[-2px]" />Optional
+              </span>
+            )}
             {(conflict || place?.overwhelming) && (
               <span className="block break-words text-xs text-danger">
                 {conflict}
@@ -1263,6 +1274,10 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                       {/* an on/off fact about the place, so a switch, as
                           Settings sets one — not an action that flips its
                           label; sized with the action rows under it */}
+                      <li className={`${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-2`}>
+                        <span className="min-w-0 flex-1 text-xs text-ink">Optional</span>
+                        <Switch size="sm" checked={!!item.optional} onChange={toggleOptional} label="Optional" />
+                      </li>
                       <li className={`${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-2`}>
                         <span className="min-w-0 flex-1 text-xs text-ink">Overwhelming</span>
                         <Switch size="sm" checked={!!place.overwhelming} onChange={toggleOverwhelming} label="Overwhelming" />

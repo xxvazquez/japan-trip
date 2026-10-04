@@ -299,6 +299,7 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
         placeId: it.placeId || undefined,
         url: it.url || undefined,
         pinned: it.pinned ? true : undefined,
+        optional: it.optional ? true : undefined,
       }));
     } else {
       const fromStrings = (Array.isArray(raw.plan) ? (raw.plan as unknown[]) : [])

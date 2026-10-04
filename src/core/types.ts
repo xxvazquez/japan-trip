@@ -278,6 +278,8 @@ export interface PlanItem {
   /** fixed to its place in the day (a booking, a timed ticket): it can't be
    *  dragged, and moving the other steps flows around it */
   pinned?: true;
+  /** nice to do, not a must — skipped first if the day runs out */
+  optional?: true;
 }
 
 /** A named geographic grouping of places — "where", orthogonal to a place's

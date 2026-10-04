@@ -69,7 +69,8 @@ export type IconName =
   | "shield"
   | "medical"
   | "flag"
-  | "stamp";
+  | "stamp"
+  | "optional";
 
 const P: Record<IconName, JSX.Element> = {
   itinerary: (
@@ -388,6 +389,8 @@ const P: Record<IconName, JSX.Element> = {
   // a rounded medical cross
   medical: <path d="M9.5 4h5v5.5H20v5h-5.5V20h-5v-5.5H4v-5h5.5V4Z" />,
   flag: <path d="M5 21V4M5 4.5c4-2 7 2 14 0v9c-7 2-10-2-14 0" />,
+  // a dashed ring (SF's circle.dashed) — a step you may skip
+  optional: <circle cx="12" cy="12" r="8.5" strokeDasharray="3.2 3.5" />,
   // a rubber stamp: handle, body, the inked base
   stamp: (
     <>

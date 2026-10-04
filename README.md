@@ -158,10 +158,11 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 - **Time order** — steps keep themselves in time order. Set or change a step's time and it moves to its place in the day.
 - **Untimed steps** — drag the small ≡ on the right (shown on hover on a computer) to place one. It then stays with the step above it. A loose time ("Around noon") counts as untimed.
 - **Pin a step** from its menu (**Pin this step**) to keep it exactly where it is: it shows a pin, can't be dragged, and isn't re-sorted by time. **Unpin this step** undoes it.
-- **The place card** — tap a linked step anywhere on its row (icon, name or note), as you'd tap a place in Maps: the name (with any clash with its hours), a button row pinned under it (**Google Maps** filled, Tabelog for restaurants in Japan, **Map**, **Calendar**), then the step's note, Good to know, and last the step itself: an **Overwhelming** switch, Change place, Add an expense, Duplicate step, Remove step. ✕ or a drag down closes it.
+- **Mark as optional** from a step's menu, or the **Optional** switch on its place card, for something nice to do but not a must: a grey ◌ Optional line shows under its name. **Make this a must** undoes it.
+- **The place card** — tap a linked step anywhere on its row (icon, name or note), as you'd tap a place in Maps: the name (with any clash with its hours), a button row pinned under it (**Google Maps** filled, Tabelog for restaurants in Japan, **Map**, **Calendar**), then the step's note, Good to know, and last the step itself: **Optional** and **Overwhelming** switches, Change place, Add an expense, Duplicate step, Remove step. ✕ or a drag down closes it.
 - **Walk and train lines** under a step open Google Maps directions; only a tap on the line itself does.
 - **Open in Google Maps** is also the first item when you hold a step (or right-click it on a computer).
-- **The step's menu** — long-press a step on a phone, or right-click it on a computer (an unlinked step also has a ⋯ on hover there): add to Google Calendar, mark as **overwhelming** (a ⚠ on its grey line; the day's count shows on Plan), add a note, pin, duplicate, add an expense, remove.
+- **The step's menu** — long-press a step on a phone, or right-click it on a computer (an unlinked step also has a ⋯ on hover there): add to Google Calendar, mark as **overwhelming** (a ⚠ on its grey line; the day's count shows on Plan), add a note, pin, mark as optional, duplicate, add an expense, remove.
 - **Delete** — swipe a step left on a phone.
 - **Notes** support bold, bullets and links. Tap to edit. Empty fields stay hidden.
 - **+ Add a step** sits at the foot of the list and opens the new step ready to type. Leave it blank and it goes away.
