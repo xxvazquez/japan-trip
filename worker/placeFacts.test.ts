@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { findFacts, handlePlaceFacts, parseFacts } from "./placeFacts";
+import { findFacts, handlePlaceFacts, parseFacts, pickWebsite } from "./placeFacts";
 
 describe("parseFacts", () => {
   it("reads one fact per line", () => {
@@ -32,8 +32,36 @@ describe("parseFacts", () => {
       price: "Free",
     });
   });
+  it("ends a fact at a website line the summary adds unasked", () => {
+    expect(parseFacts("Closed: Mondays Website: https://example.jp\nEntry: Free", "sight")).toEqual({ closed: "Mondays", price: "Free" });
+    expect(parseFacts("Price: ¥1,000, Official website: https://x.jp")).toEqual({ price: "¥1,000" });
+  });
   it("drops facts the sources didn't give", () => {
     expect(parseFacts("Hours: unknown\nPrice: not stated in sources\nQueue: Often a line")).toEqual({ queue: "Often a line" });
+  });
+});
+
+describe("pickWebsite", () => {
+  const r = (url: string, title = "") => ({ url, title });
+  it("takes the site named like the place in its address, at its home page", () => {
+    expect(pickWebsite("Kiyomizu-dera", "Kyoto", [r("https://www.japan-guide.com/e/e3901.html"), r("https://www.kiyomizudera.or.jp/en/location?lang=en#top")])).toBe(
+      "https://www.kiyomizudera.or.jp/en/",
+    );
+  });
+  it("folds long vowels in the address the way names are", () => {
+    expect(pickWebsite("Tōfuku-ji", "Kyoto", [r("https://tofukuji.jp/access/map.html")])).toBe("https://tofukuji.jp/");
+  });
+  it("doesn't take a page only because it calls itself official", () => {
+    expect(pickWebsite("Nakamise Shopping Street", "Tokyo", [r("https://hoteltavinos.com/en/asakusa", "Official site | Hotel near Nakamise")])).toBeUndefined();
+  });
+  it("never takes a listing or guide site, even one calling itself official", () => {
+    expect(pickWebsite("Ichiran", "Tokyo", [r("https://tabelog.com/ichiran", "Ichiran official"), r("https://ichiran-travel-blog.com/")])).toBeUndefined();
+  });
+  it("isn't fooled by the city's name or a kind of sight in the place's name", () => {
+    expect(pickWebsite("Kyoto Tower", "Kyoto", [r("https://kyoto.jp/"), r("https://www.towerrecords.jp/")])).toBeUndefined();
+  });
+  it("finds nothing when no page is the place's own", () => {
+    expect(pickWebsite("Fushimi Inari", "Kyoto", [r("https://example.com/kyoto-sights", "Best sights")])).toBeUndefined();
   });
 });
 
@@ -49,6 +77,17 @@ describe("findFacts", () => {
   it("marks a sight's facts as such", async () => {
     const facts = await findFacts("Fushimi Inari", "Kyoto", "key", fake("Entry: Free", ["Fushimi Inari Taisha, Kyoto"]), today, "sight");
     expect(facts).toEqual({ price: "Free", checkedAt: "2026-10-03", sources: ["site0.com"], kind: "sight" });
+  });
+  it("returns the place's own website among the pages", async () => {
+    const res = async () =>
+      new Response(JSON.stringify({ answer: "Entry: Free", results: [{ url: "https://inari.jp/en/", title: "Fushimi Inari Taisha, Kyoto", content: "" }] }));
+    const facts = await findFacts("Fushimi Inari", "Kyoto", "key", res, today, "sight");
+    expect(facts).toMatchObject({ price: "Free", website: "https://inari.jp/en/" });
+  });
+  it("keeps the website when the summary gave no facts", async () => {
+    const res = async () =>
+      new Response(JSON.stringify({ answer: "Hours: unknown", results: [{ url: "https://inari.jp/", title: "Fushimi Inari Taisha, Kyoto", content: "" }] }));
+    expect(await findFacts("Fushimi Inari", "Kyoto", "key", res, today, "sight")).toMatchObject({ website: "https://inari.jp/" });
   });
   it("finds nothing when the pages are about a namesake in another city", async () => {
     expect(await findFacts("Corner Coffee", "Kyoto", "key", fake("Hours: 7-15", ["Corner Coffee - Portland"]), today)).toBeNull();

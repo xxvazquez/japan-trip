@@ -6,6 +6,7 @@ import { isFoodPlace } from "./reviewSite";
 import { glyphForCategoryName, glyphGroup } from "./mapGlyphs";
 import { haversineKm } from "./geo";
 import { apiGet } from "./api";
+import { osmWebsite } from "./placeWebsite";
 
 /** the facts in the order they're shown, with their labels */
 export const FACT_ROWS = [
@@ -53,8 +54,13 @@ export const wantsFacts = (p: Place, data: TripData | null) =>
  *  hours and closed days change */
 const STALE_DAYS = 30;
 
-export const hasFacts = (f: PlaceFacts | undefined): f is PlaceFacts => !!f && FACT_ROWS.some(([k]) => f[k]);
-const stale = (f: PlaceFacts) => Date.now() - Date.parse(f.checkedAt) > STALE_DAYS * 864e5;
+/** bumped when the lookup learns something new, so places checked before
+ *  are asked again — 4 added the place's website */
+const FACTS_VERSION = 4;
+
+export const hasFacts = (f: PlaceFacts | undefined): f is PlaceFacts => !!f && (!!f.website || FACT_ROWS.some(([k]) => f[k]));
+const stale = (f: PlaceFacts) =>
+  (f.version ?? 1) < FACTS_VERSION || Date.now() - Date.parse(f.checkedAt) > STALE_DAYS * 864e5;
 
 /** the city a place is in, to tell the search which one is meant: its own
  *  stay, else the stay of the first day it's planned on */
@@ -84,7 +90,12 @@ async function ask(p: Place, area: string | undefined, kind: "food" | "sight"): 
     if (kind === "sight") q.set("kind", kind);
     const res = await apiGet(`/api/place-facts?${q}`);
     if (!res.ok || !res.headers.get("Content-Type")?.includes("json")) return undefined;
-    return ((await res.json()) as { facts?: PlaceFacts | null }).facts;
+    const facts = ((await res.json()) as { facts?: PlaceFacts | null }).facts;
+    if (facts === undefined) return undefined;
+    // OSM's own tag at the pin beats a site picked out of the search's pages
+    const website = await osmWebsite(p.lat, p.lng, p.name).catch(() => undefined);
+    if (!website) return facts;
+    return { ...(facts ?? { checkedAt: todayISO() }), website };
   } catch {
     return undefined;
   }
@@ -121,7 +132,7 @@ export async function refreshFacts(p: Place, area: string | undefined): Promise<
   // what it had is only worth keeping if it was asked the same way
   const kept = now.facts?.name === p.name && (now.facts.kind ?? "food") === kind ? now.facts : undefined;
   updateEntity<Place>("places", p.id, {
-    facts: { ...(found ?? { ...kept, checkedAt: todayISO() }), name: p.name, kind: kind === "sight" ? kind : undefined },
+    facts: { ...(found ?? { ...kept, checkedAt: todayISO() }), name: p.name, kind: kind === "sight" ? kind : undefined, version: FACTS_VERSION },
   });
   return true;
 }
@@ -129,7 +140,7 @@ export async function refreshFacts(p: Place, area: string | undefined): Promise<
 /** whether a place's facts are due a lookup: one that gets them (see
  *  `wantsFacts`) with none yet, ones about a name it's since been renamed
  *  from or asked as the other kind (its category changed), or ones past
- *  `STALE_DAYS` */
+ *  `STALE_DAYS` or from an older `FACTS_VERSION` */
 export const factsDue = (p: Place, data: TripData | null) =>
   wantsFacts(p, data) &&
   (!p.facts || p.facts.name !== p.name || (p.facts.kind ?? "food") !== kindOf(p, data?.config.categoryIcons) || stale(p.facts));

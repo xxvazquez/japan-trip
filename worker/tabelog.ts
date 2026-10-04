@@ -86,6 +86,11 @@ const GENERIC = new Set(
   "the and of de no ya tei restaurant cafe coffee bar kitchen dining house shop store branch main ten honten bakery ramen sushi soba udon izakaya yakitori yakiniku tempura tonkatsu unagi kissa".split(" "),
 );
 const CJK = /[\u3040-\u30ff\u3400-\u9fff]/;
+
+/** the words of a name that say which place it is — long-vowel folded,
+ *  generic and Japanese-script words left out */
+export const distinctiveWords = (name: string) => words(name).filter((w) => w.length >= 2 && !GENERIC.has(w) && !CJK.test(w));
+
 const bigrams = (s: string) => {
   const chars = [...s].filter((c) => CJK.test(c));
   return new Set(chars.slice(1).map((c, i) => chars[i] + c));
@@ -95,7 +100,7 @@ const bigrams = (s: string) => {
  *  common, or most of our Japanese name's character pairs */
 export function sameName(ours: string, theirs: string): boolean {
   const theirWords = new Set(words(theirs));
-  if (words(ours).some((w) => w.length >= 2 && !GENERIC.has(w) && !CJK.test(w) && theirWords.has(w))) return true;
+  if (distinctiveWords(ours).some((w) => theirWords.has(w))) return true;
   const a = bigrams(ours);
   if (!a.size) return false;
   const b = bigrams(theirs);

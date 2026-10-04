@@ -334,6 +334,11 @@ export interface PlaceFacts {
   name?: string;
   /** the sites it was drawn from */
   sources?: string[];
+  /** the place's own website, when one of those sites was it */
+  website?: string;
+  /** which version of the lookup found these — an older one is asked again
+   *  (see `FACTS_VERSION` in `placeFacts.ts`) */
+  version?: number;
 }
 
 export interface Day {

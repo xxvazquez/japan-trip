@@ -192,7 +192,8 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 | Anything else on a plan | **Known for**, **Hours**, **Closed**, **Tickets**, **Crowds**, **Entry** |
 
 - Each is a short phrase. Anything the sources don't mention is left out.
-- **Website** — the place's own site, when one of the pages read is it: named like the place in its address, or calling itself official. Never a listing or guide site (Tabelog, Tripadvisor, japan-guide…). Hidden when none is found; small viewpoints and street spots often have none.
+- **Website** — the place's own site, tapped to open. Taken from OpenStreetMap's tag for the place at its pin; else a search page whose address is named like the place. Never a listing or guide site (Tabelog, Tripadvisor, japan-guide…).
+- No Website row when neither has one — common for small cafés, viewpoints and streets.
 - A place that changes category (sight ↔ restaurant) is looked up again the new way.
 - Not for your own hotel, or a place filed as lodging or transport (a hot spring still counts).
 - On Plan it's in the step's place card (tap its icon), under the button row, so the step itself stays short; on the Map it's part of the place's card, after its links.
