@@ -222,6 +222,7 @@ What to expect:
 **From the hotel.** The first stop of the day is the hotel you slept at the night before, so a moving day starts from the old one. Left off on the trip's first day and on an arrival day. The way to the first step sits under it.
 
 - Its time (when you leave) is set on the same wheel as a step's (needs migration `0040`), and opens the day under its own Morning / Afternoon band.
+- The wheel starts at a suggestion: the first step's time less the way there (the walk, or the train past a 30-minute walk), rounded down to 5 minutes.
 - Tapping the name opens the hotel.
 
 **Back to hotel.** The last stop of the day is that night's hotel (left off on a departure day). The way there sits on the line above it, with the same pills as between steps.

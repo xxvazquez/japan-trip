@@ -786,8 +786,9 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
       <StartFromHotel
         key="from-hotel"
         hotel={startHotel}
+        to={startConnector.length ? firstPlace : undefined}
+        firstTime={splitRange(items[0]?.time)?.[0] ?? items[0]?.time}
         time={day.leaveAt}
-        timeStart={timeBefore(items, 0)}
         readOnly={readOnly}
         onTime={onLeaveAt}
       />
@@ -1356,16 +1357,29 @@ function hotelCoords(hotel: Hotel): { lat: number; lng: number } | null {
 }
 
 /** The day's first stop: the hotel you woke up at, mirroring `ReturnToHotel`
- *  at the foot. Its time (when you leave) is set on the wheel like a step's;
- *  the way on to the first step sits under it, and its name opens the
- *  hotel's own page. */
-function StartFromHotel({ hotel, time, timeStart, readOnly, onTime }: {
+ *  at the foot. Its time (when you leave) is set on the wheel like a step's,
+ *  which opens on a suggestion: the first step's time less the way there
+ *  (`leaveBy`); the way on sits under it, and its name opens the hotel's own
+ *  page. */
+function StartFromHotel({ hotel, to, firstTime, time, readOnly, onTime }: {
   hotel: Hotel;
+  /** the first step's place, when the way there starts at the hotel */
+  to?: Place;
+  /** the first step's (start) time */
+  firstTime?: string;
   time?: string;
-  timeStart?: string;
   readOnly: boolean;
   onTime: (time: string | undefined) => void;
 }) {
+  // the same way TravelConnector shows: the walk, or past a long walk the
+  // train (walk in, ride, walk out)
+  const from = hotelCoords(hotel);
+  const walk = useWalk(from ?? { lat: 0, lng: 0 }, from && to ? to : null);
+  const train = useTrainOption(from, to ?? null, !!walk && walk.min > LONG_WALK_MIN);
+  const way = walk && walk.min > LONG_WALK_MIN && train
+    ? (train.walkIn ?? 0) + train.ride + (train.walkOut ?? 0)
+    : walk?.min;
+  const timeStart = leaveBy(firstTime, way);
   return (
     <li>
       <TimelineStop
@@ -1378,6 +1392,15 @@ function StartFromHotel({ hotel, time, timeStart, readOnly, onTime }: {
       </TimelineStop>
     </li>
   );
+}
+
+/** when to leave to be at a step for its time: `minutes` before it, rounded
+ *  down to 5 minutes as you'd plan it. Nothing without both. */
+function leaveBy(time: string | undefined, minutes: number | undefined): string | undefined {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(time ?? "");
+  if (!m || minutes == null) return undefined;
+  const at = Math.max(0, Math.floor((+m[1] * 60 + +m[2] - minutes) / 5) * 5);
+  return `${String(Math.floor(at / 60)).padStart(2, "0")}:${String(at % 60).padStart(2, "0")}`;
 }
 
 /** the time on a hotel row (leaving, back) — the same wheel as a step's */
