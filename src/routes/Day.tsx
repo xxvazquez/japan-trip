@@ -1261,7 +1261,10 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
           >
             <Icon name="train" size={12} className="shrink-0" />
             <span className="min-w-0 break-words">
-              {train ? `${train.a.name} → ${train.b.name}${train.total ? ` · ${fmtMinutes(train.total)}` : ""}` : "By train"}
+              {/* a line breaks between stations, never inside one
+                  ("Omote-sando") or before the minutes */}
+              {train ? <><span className="whitespace-nowrap">{train.a.name} →</span> <span className="whitespace-nowrap">{train.b.name}</span></> : "By train"}
+              {train?.total ? <span className="whitespace-nowrap"> · {fmtMinutes(train.total)}</span> : null}
             </span>
           </a>
         )}

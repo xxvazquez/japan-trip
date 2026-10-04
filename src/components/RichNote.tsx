@@ -66,8 +66,17 @@ export function RichNote({
     }
   }, [editing]);
 
+  // folded, "more" sits at the end of the second line over a fade, as the
+  // App Store folds a description, so it costs no line of its own; open,
+  // "less" follows the note
   const ShowToggle = ({ onClick }: { onClick: (e: React.MouseEvent) => void }) => (
-    <button type="button" onClick={onClick} className="tap mt-0.5 block text-xs text-accent">
+    <button
+      type="button"
+      onClick={onClick}
+      className={expanded
+        ? "tap mt-0.5 block text-accent"
+        : "tap absolute bottom-0 right-1 bg-gradient-to-r from-transparent via-surface via-30% to-surface pl-8 text-accent"}
+    >
       {expanded ? "less" : "more"}
     </button>
   );
@@ -76,7 +85,7 @@ export function RichNote({
     if (!value.trim()) return null;
     if (!collapsible) return <Markdown text={value} className={className} />;
     return (
-      <div className={className}>
+      <div className={`relative ${className}`}>
         <div ref={clampRef} className={expanded ? "" : "line-clamp-2 overflow-hidden"}>
           <Markdown text={value} />
         </div>
@@ -112,7 +121,7 @@ export function RichNote({
         onClick={() => setEditing(true)}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setEditing(true); } }}
         aria-label="Edit note"
-        className={`editable block w-full text-left ${className}`}
+        className={`editable relative block w-full text-left ${className}`}
       >
         {collapsible ? (
           <>
