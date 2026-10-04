@@ -54,6 +54,7 @@ export function PageHeader({
   meta,
   info,
   action,
+  navSubtitle,
   className = "",
 }: {
   /** show a back control: a path is the cold-load fallback, `true` uses Plan */
@@ -64,6 +65,9 @@ export function PageHeader({
   meta?: ReactNode;
   info?: ReactNode;
   action?: ReactNode;
+  /** a small second line under the nav bar's title once the large title has
+   *  scrolled away — what the page's header said that you'd lose with it */
+  navSubtitle?: string;
   className?: string;
 }) {
   const [showInfo, setShowInfo] = useState(false);
@@ -78,7 +82,7 @@ export function PageHeader({
     const t = h1?.textContent?.replace(/\s*→\s*/g, " → ").trim();
     if (t && t !== titleText) setTitleText(t);
   });
-  useNavRegistration(h1, back ? { to: typeof back === "string" ? back : undefined } : undefined, titleText);
+  useNavRegistration(h1, back ? { to: typeof back === "string" ? back : undefined } : undefined, titleText, navSubtitle);
   return (
     <header className={`mb-8 ${className}`}>
       {eyebrow ? (

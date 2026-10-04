@@ -123,7 +123,7 @@ Tap a day on Plan to open it. From top to bottom:
 7. **General notes.**
 8. **The day's actions** — **Make this a day trip** (or **Not a day trip**), **Pin this day**, and **Delete day**.
 
-Every section folds away from its header.
+Every section folds away from its header. Scroll down and the bar at the top keeps the day's title with its date under it.
 
 ### Spending on a day
 

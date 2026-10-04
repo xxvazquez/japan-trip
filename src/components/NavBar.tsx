@@ -14,12 +14,12 @@ import { sheetEntries } from "@/lib/backClose";
  * under the bar, at which point the bar fades the small centred title in.
  * Pages that don't register (Plan, Map) leave the bar as brand + actions.
  */
-type NavState = { back?: { to?: string }; title: string; collapsed: boolean };
+type NavState = { back?: { to?: string }; title: string; subtitle?: string; collapsed: boolean };
 type Api = {
   state: NavState;
   /** the title of the page this one was opened from, if it had one */
   backTitle?: string;
-  register: (v: { back?: { to?: string }; title: string }) => void;
+  register: (v: { back?: { to?: string }; title: string; subtitle?: string }) => void;
   setCollapsed: (v: boolean) => void;
   clear: () => void;
 };
@@ -63,12 +63,12 @@ export function NavProvider({ children }: { children: ReactNode }) {
   // dependencies don't re-run (and clear the bar) every time the state changes
   const actions = useMemo(
     () => ({
-      register: (v: { back?: { to?: string }; title: string }) => {
+      register: (v: { back?: { to?: string }; title: string; subtitle?: string }) => {
         if (v.title) titles.current.set(keyRef.current, v.title);
         setState((s) =>
-          s.title === v.title && s.back?.to === v.back?.to && !!s.back === !!v.back
+          s.title === v.title && s.subtitle === v.subtitle && s.back?.to === v.back?.to && !!s.back === !!v.back
             ? s
-            : { collapsed: s.collapsed, title: v.title, ...(v.back ? { back: v.back } : {}) },
+            : { collapsed: s.collapsed, title: v.title, ...(v.subtitle ? { subtitle: v.subtitle } : {}), ...(v.back ? { back: v.back } : {}) },
         );
       },
       setCollapsed: (collapsed: boolean) => setState((s) => (s.collapsed === collapsed ? s : { ...s, collapsed })),
@@ -165,30 +165,38 @@ export function NavLeft() {
   const to = back.to ?? "/";
   // "default" = a cold load (deep link, reload): there's no history to pop
   const canGoBack = loc.key !== "default";
+  const crowded = !!nav?.state.subtitle && nav.state.collapsed;
   return (
     // iOS 26 glass capsule — the chevron plus where it goes back to, kept as a
     // word so it's always clear which screen you're leaving for
     <button
       onClick={() => (canGoBack ? go(-1) : go(to))}
-      className="glass flex h-11 min-w-11 items-center gap-0.5 rounded-full pl-2 pr-3.5 text-[17px] text-ink transition-transform active:scale-95"
+      className={`glass flex h-11 min-w-11 items-center gap-0.5 rounded-full pl-2 text-[17px] ${crowded ? "pr-3.5 max-sm:justify-center max-sm:pl-0 max-sm:pr-0.5" : "pr-3.5"} text-ink transition-transform active:scale-95`}
     >
       <Icon name="back" size={22} />
-      {backLabel(canGoBack ? nav?.backTitle : undefined, to)}
+      {/* iOS drops the word for a bare chevron when the bar runs out of room
+          — here, a phone once a two-line title (a day's date) is showing */}
+      <span className={crowded ? "max-sm:sr-only" : undefined}>{backLabel(canGoBack ? nav?.backTitle : undefined, to)}</span>
     </button>
   );
 }
 
-/** Centre slot: the page title, faded in once the large title has scrolled away.
+/** Centre slot: the page title, faded in once the large title has scrolled
+ *  away, with an optional small grey line under it — Calendar's two-line
+ *  title, for what scrolled away with the large title (a day's date).
  *  (Truncates — the full title is on the page itself, so nothing is lost.) */
 export function NavTitle() {
   const nav = useNavBar();
   const show = !!nav?.state.title && nav.state.collapsed;
+  const subtitle = nav?.state.subtitle;
   return (
     <span
       aria-hidden={!show}
-      className={`min-w-0 flex-1 truncate text-center text-[17px] font-medium transition-opacity duration-150 ${show ? "opacity-100" : "opacity-0"}`}
+      className={`flex min-w-0 flex-1 flex-col items-center text-center transition-opacity duration-150 ${show ? "opacity-100" : "opacity-0"}`}
     >
-      {nav?.state.title}
+      <span className="max-w-full truncate text-[17px] font-medium leading-tight">{nav?.state.title}</span>
+      {/* never cut: on a crowded phone bar the title gives way first */}
+      {subtitle && <span className="whitespace-nowrap text-xs leading-tight text-ink-faint">{subtitle}</span>}
     </span>
   );
 }
@@ -198,6 +206,7 @@ export function useNavRegistration(
   el: HTMLElement | null,
   back: { to?: string } | undefined,
   title: string,
+  subtitle?: string,
 ) {
   const nav = useNavBar();
   const register = nav?.register;
@@ -207,8 +216,8 @@ export function useNavRegistration(
   const hasBack = !!back;
 
   useEffect(() => {
-    register?.({ ...(hasBack ? { back: { to: backTo } } : {}), title });
-  }, [register, hasBack, backTo, title]);
+    register?.({ ...(hasBack ? { back: { to: backTo } } : {}), title, subtitle });
+  }, [register, hasBack, backTo, title, subtitle]);
 
   useEffect(() => () => clear?.(), [clear]);
 
