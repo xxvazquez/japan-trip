@@ -994,7 +994,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                 value={item.note ?? ""}
                 onCommit={(v) => onPatch({ note: v || undefined })}
                 placeholder="Add a note…"
-                className="mt-0.5 block text-sm leading-snug text-ink-faint [&_p]:leading-snug [&_strong]:font-medium [&_strong]:text-ink-soft"
+                className="mt-0.5 block text-xs leading-snug text-ink-faint [&_p]:leading-snug [&_strong]:font-medium [&_strong]:text-ink-soft"
                 collapsible
                 autoEdit={noteOpen}
                 onEditEnd={() => setNoteOpen(false)}
@@ -1072,7 +1072,7 @@ function PlaceAction({ href, onClick, icon, label, primary }: { href?: string; o
 
 /** a timeline stop's type, the way Reminders sets a list: the stop itself in
  *  regular 17px primary ink — it leads by colour and size, not weight — and
- *  anything under it a step down in both (13px caption, 15px note), in the
+ *  anything under it a clear step down in both (13px caption and note), in the
  *  secondary grey */
 const STOP_TITLE = "block break-words text-[17px] leading-snug text-ink";
 const STOP_META = "block break-words text-xs text-ink-faint";

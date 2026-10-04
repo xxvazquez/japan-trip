@@ -143,7 +143,7 @@ Every section folds away from its header.
 
 The day reads as one route, like a route's stops in Maps: times in a column on the left, a thin line joining every stop, each stop's icon sitting on it. Steps, journeys and the way back to the hotel all sit on that line. No hairlines between rows.
 
-Each step shows its name, then its note in lighter grey (folded after 2 lines, with **more**). A red line under the name only appears when it changes the plan: **Closed this day** or **Overwhelming**.
+Each step shows its name, then its note in smaller, lighter grey (folded after 2 lines, with **more**). A red line under the name only appears when it changes the plan: **Closed this day** or **Overwhelming**.
 
 - **Time** — a single time, or a range like `14:00–15:15` stacked as 14:00 over 15:15. An empty time is just a small clock to tap.
 - **Setting a time** — the wheels start at the last time set on an earlier step (else 9:00). **Done** saves what's showing; tapping outside or swiping the sheet down cancels.
