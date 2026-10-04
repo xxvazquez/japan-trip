@@ -70,7 +70,8 @@ export type IconName =
   | "medical"
   | "flag"
   | "stamp"
-  | "optional";
+  | "optional"
+  | "move";
 
 const P: Record<IconName, JSX.Element> = {
   itinerary: (
@@ -370,6 +371,13 @@ const P: Record<IconName, JSX.Element> = {
     <>
       <rect x="4" y="5.5" width="16" height="15" rx="2.5" />
       <path d="M4 10h16M8 3.5v4M16 3.5v4" />
+    </>
+  ),
+  // a calendar with an arrow out of it — moving something to another day
+  move: (
+    <>
+      <path d="M20 11.5V8a2.5 2.5 0 0 0-2.5-2.5h-11A2.5 2.5 0 0 0 4 8v10a2.5 2.5 0 0 0 2.5 2.5H12" />
+      <path d="M4 10h16M8 3.5v4M16 3.5v4M15 17.5h6M18.5 15l2.5 2.5-2.5 2.5" />
     </>
   ),
   // iOS square.and.arrow.up

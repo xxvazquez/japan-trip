@@ -1091,6 +1091,21 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
   // "Change place" on the card swaps the step's place from the same list a
   // custom step's icon opens
   const changePlace = useActionSheet();
+  // "Move to another day": off this day, onto the end of the picked one —
+  // a timed step then sorts itself into place there, pin and all
+  const moveSheet = useActionSheet();
+  const dayOpts = { weekday: "short", day: "numeric", month: "short" } as const;
+  const tripDays = useMemo(
+    () => [...(tripData?.days ?? [])].sort((a, b) => a.date.localeCompare(b.date)),
+    [tripData?.days],
+  );
+  const moveTo = (target: DayT) => {
+    moveSheet.setOpen(false);
+    undoable(`Moved to ${fmtDate(target.date, tripData?.config.locale, dayOpts)}`, () => {
+      onRemove();
+      updateEntity<DayT>("days", target.id, { plan: [...(target.plan ?? []), { ...item }] });
+    });
+  };
   const toggleOptional = () => onPatch({ optional: item.optional ? undefined : true });
   const toggleOverwhelming = () => {
     if (!place) return;
@@ -1267,6 +1282,11 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                       <button type="button" className="menu-item" onClick={onDuplicate}>
                         <Icon name="copy" size={16} /> Duplicate
                       </button>
+                      {tripDays.length > 1 && (
+                        <button type="button" className="menu-item" onClick={() => moveSheet.setOpen(true)}>
+                          <Icon name="move" size={16} /> Move to another day
+                        </button>
+                      )}
                       <button type="button" className="menu-item" onClick={() => onQuickAddCost(item)}>
                         <Icon name="wallet" size={16} /> Add an expense
                       </button>
@@ -1478,6 +1498,9 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                       )}
                       <ActionRow icon="wallet" label="Add an expense" onClick={() => { placeCard.setOpen(false); onQuickAddCost(item); }} />
                       <ActionRow icon="copy" label="Duplicate step" onClick={() => { placeCard.setOpen(false); onDuplicate(); }} />
+                      {tripDays.length > 1 && (
+                        <ActionRow icon="move" label="Move to another day" onClick={() => { placeCard.setOpen(false); moveSheet.setOpen(true); }} />
+                      )}
                       <li className={INSET_DIVIDER}>
                         <button
                           type="button"
@@ -1490,6 +1513,24 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                     </ul>
                   )}
                 </div>
+              </ActionSheet>
+            )}
+            {!readOnly && (
+              <ActionSheet open={moveSheet.open} onClose={() => moveSheet.setOpen(false)} anchorRef={placeCardAnchor} title="Move to">
+                {tripDays.map((d) => {
+                  const here = d.id === day.id;
+                  const city = tripData?.legs.find((l) => l.id === d.legId)?.base;
+                  const sub = [d.title, city].filter(Boolean).join(" · ");
+                  return (
+                    <button key={d.id} type="button" className="menu-item" aria-current={here || undefined} onClick={() => (here ? moveSheet.setOpen(false) : moveTo(d))}>
+                      <span className="min-w-0 flex-1">
+                        <span className="block">{fmtDate(d.date, tripData?.config.locale, dayOpts)}</span>
+                        {sub && <span className="block break-words text-[13px] leading-snug text-ink-faint">{sub}</span>}
+                      </span>
+                      {here && <Icon name="check" size={16} className="shrink-0 text-accent" />}
+                    </button>
+                  );
+                })}
               </ActionSheet>
             )}
             {place && !readOnly && (
