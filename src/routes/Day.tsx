@@ -1130,6 +1130,13 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
   const placeCard = useActionSheet();
   const placeCardAnchor = useRef<HTMLDivElement>(null);
   const nearby = useStepNearby(item.id);
+  // the card's Nearby group starts shut every time the card opens
+  const [nearbyShown, setNearbyShown] = useState(false);
+  const [cardWasOpen, setCardWasOpen] = useState(false);
+  if (placeCard.open !== cardWasOpen) {
+    setCardWasOpen(placeCard.open);
+    if (placeCard.open) setNearbyShown(false);
+  }
   // "Change place" on the card swaps the step's place from the same list a
   // custom step's icon opens
   const changePlace = useActionSheet();
@@ -1512,7 +1519,18 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                       Nearby section shows under this stop */}
                   {nearby.group && (
                     <div>
-                      <p className="kicker px-4 pb-1.5 pt-1">Nearby</p>
+                      <button
+                        type="button"
+                        onClick={() => setNearbyShown((v) => !v)}
+                        aria-expanded={nearbyShown}
+                        className="kicker flex w-full items-center gap-1.5 px-4 pb-1.5 pt-1 text-left"
+                      >
+                        <Icon name="chevron" size={13} className={`shrink-0 text-ink-faint transition-transform ${nearbyShown ? "rotate-90" : ""}`} />
+                        <span className="min-w-0 flex-1">Nearby</span>
+                        {!nearbyShown && <span className="shrink-0 normal-case text-ink-faint">{nearby.group.items.length}</span>}
+                      </button>
+                      <div className={`grid transition-[grid-template-rows] duration-300 ease-paper ${nearbyShown ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+                      <div className="min-h-0 overflow-hidden">
                       <ul className="overflow-hidden rounded-[12px] bg-surface">
                         {nearby.group.items.map((n, i) => (
                           <NearbyRow
@@ -1529,6 +1547,8 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                           />
                         ))}
                       </ul>
+                      </div>
+                      </div>
                     </div>
                   )}
                   {!readOnly && (

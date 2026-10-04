@@ -136,7 +136,7 @@ Suggestions from the trip's own saved places — nothing is looked up from outsi
 - **Meals** — around a lunch (11:30–14:30) or dinner (18:00–21:00) the plan leaves open, somewhere to eat comes first, marked **For lunch** / **For dinner**. One that's known to be shut then isn't moved up.
 - **＋** adds a place right after its stop (Undo on the toast takes it back).
 - **Tap a row** for its card: the walk from the stop and that day's hours, **Google Maps**, Tabelog for a restaurant in Japan, **Map**, its note and Good to know, then **Add after …** and, if another day has it, **Move here from …** (takes it off that day) and a link to that day.
-- **On a stop's place card** — the same short list sits under Good to know, as **Nearby**.
+- **On a stop's place card** — the same short list sits under Good to know, as **Nearby** — shut each time the card opens; tap it to show the places.
 
 ### Spending on a day
 
