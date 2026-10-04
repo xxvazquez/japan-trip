@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Doc, DocFile } from "@/core/types";
 import { FILES_CHANGED, fileIdsOnDevice, getFileBlob, putFileAs } from "./fileStore";
-import { isPdfFile, keepPdfViewer } from "./pdfViewerCache";
 
 /**
  * Attachments kept on the device so they open with no signal — a boarding
@@ -49,8 +48,6 @@ export async function saveFilesToDevice(
   files: DocFile[],
   { drive, onProgress }: { drive: boolean; onProgress?: (done: number, total: number) => void },
 ): Promise<{ saved: number; failed: number }> {
-  // a PDF on the device is no use offline without the viewer to open it
-  if (files.some(isPdfFile)) void keepPdfViewer();
   const here = await fileIdsOnDevice();
   const todo = files.filter((f) => !here.has(f.id) && (sourceOf(f) === "storage" || (drive && sourceOf(f) === "drive")));
   let saved = 0;
