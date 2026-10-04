@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { MapView, type MLMap } from "@/components/MapView";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
@@ -29,7 +29,9 @@ import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
 import { reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
 import { glyphForCategoryName } from "@/lib/mapGlyphs";
-import { placeArea, useAutoPlaceFacts } from "@/lib/placeFacts";
+import { placeArea, useAutoPlaceFacts, wantsFacts } from "@/lib/placeFacts";
+import { PlaceAction } from "@/components/PlaceAction";
+import { ActionRow } from "@/components/ActionRow";
 import { PlaceFactRows } from "@/components/PlaceFacts";
 import { primeKeyboard } from "@/lib/keyboard";
 import { TRANSIT_KINDS, TRANSIT_META } from "@/lib/transitLayers";
@@ -1120,7 +1122,7 @@ export default function MapTab() {
   // reveal it.
   const selectedPlace = selected ? data.places.find((p) => p.id === selected) : undefined;
   const selectedCard = () =>
-    selectedPlace ? <ul className={`${PLACE_CARD} mb-1 mt-3`}>{renderRow(selectedPlace, undefined, true)}</ul> : null;
+    selectedPlace ? renderRow(selectedPlace, undefined, true) : null;
 
   // a function, not a plain element — rendered once for the desktop column
   // and once for the mobile sheet (below), so `forMobile` can gate the
@@ -1785,7 +1787,8 @@ function PlaceRow({
   const metaBits = [
     distanceKm !== undefined && fmtWalk({ min: estimateWalk(distanceKm).min, km: distanceKm }),
     !catGlyph && place.category,
-    day && `on ${fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}`,
+    // the card has its day as a button instead
+    !card && day && `on ${fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}`,
   ].filter(Boolean).join(" · ");
   // an imported pin keeps its own colour (matches its map marker); an app-native
   // pin has no real colour, so tint it by category instead
@@ -1803,61 +1806,9 @@ function PlaceRow({
       {station && <WalkLine icon="train" from={place} to={station}>to {station.name}</WalkLine>}
     </>
   );
-  return (
+  // how the place is filed — its areas, category and city
+  const filing = (
     <>
-      <li ref={li} className={card ? INSET_DIVIDER : `scroll-my-3 ${TILE_DIVIDER}`}>
-        {card ? (
-          // the card's title is the name itself, editable in place — no
-          // separate Name row repeating it; closing is the ✕ on its own
-          <div className={`flex items-center gap-3 px-3.5 py-3 ${derived ? "opacity-60" : ""}`}>
-            {tile}
-            <span className="min-w-0 flex-1">
-              <span className="lead block break-words">
-                <Editable label="Name" value={place.name} onCommit={onName} />
-              </span>
-              {details}
-            </span>
-            <button onClick={onToggle} aria-label="Close" className="tap shrink-0 p-1 text-ink-faint">
-              <Icon name="close" size={14} />
-            </button>
-          </div>
-        ) : (
-          <ContextMenu
-            menu={(link || !readOnly) && (
-              <>
-                {link && (
-                  <a href={link} target="_blank" rel="noopener" className="menu-item">
-                    <Icon name="map" size={16} /> Open in Google Maps
-                  </a>
-                )}
-                {reviewSite && (
-                  <a href={reviewHref(reviewSite, place)} target="_blank" rel="noopener" className="menu-item">
-                    <Icon name="link" size={16} /> {place.reviewUrl ? `Open in ${reviewSite.label}` : `Search ${reviewSite.label}`}
-                  </a>
-                )}
-                {!readOnly && <ConfirmMenuItem onConfirm={onRemove} label="Delete place" icon={<Icon name="trash" size={16} />} />}
-              </>
-            )}
-          >
-            <button onClick={onToggle} className={`flex w-full items-center gap-3 px-3.5 py-2 text-left active:bg-ink/[0.07] ${derived ? "opacity-60" : ""}`}>
-              {tile}
-              <span className="min-w-0 flex-1">
-                <span className="block break-words text-sm leading-snug text-ink">{place.name}</span>
-                {details}
-              </span>
-              <Icon name="chevron" size={13} className="shrink-0 text-ink-faint" />
-            </button>
-          </ContextMenu>
-        )}
-      </li>
-
-      {open && (
-        <>
-          {(!readOnly || place.note?.trim()) && (
-            <li className={`${INSET_DIVIDER} px-3.5 py-3`}>
-              <RichNote value={place.note ?? ""} onCommit={onNote} placeholder="Add a note" className="text-xs leading-snug text-ink-soft" />
-            </li>
-          )}
           <AreasRow place={place} areas={areas} readOnly={readOnly} onToggleArea={onToggleArea} rowCls={rowCls} />
           {place.category && (
             <li className={`${INSET_DIVIDER} ${rowCls}`}>
@@ -1917,26 +1868,68 @@ function PlaceRow({
               )}
             </li>
           )}
-          {link && (
-            <li className={INSET_DIVIDER}>
-              <a href={link} target="_blank" rel="noopener" className={`${rowCls} text-accent active:bg-surface-2`}>
-                <Icon name="map" size={15} className="shrink-0" />
-                <span className="min-w-0 flex-1">Open in Google Maps</span>
-                <Icon name="chevron" size={13} className="shrink-0 text-ink-faint" />
-              </a>
-            </li>
-          )}
-          {reviewSite && (
-            <li className={INSET_DIVIDER}>
-              <a href={reviewHref(reviewSite, place)} target="_blank" rel="noopener" className={`${rowCls} text-accent active:bg-surface-2`}>
-                <Icon name="link" size={15} className="shrink-0" />
-                <span className="min-w-0 flex-1">{place.reviewUrl ? `Open in ${reviewSite.label}` : `Search ${reviewSite.label}`}</span>
-                <Icon name="chevron" size={13} className="shrink-0 text-ink-faint" />
-              </a>
-            </li>
-          )}
-          {/* Good to know after the links, so Google Maps stays near the top */}
-          <PlaceFactRows place={place} area={area} />
+    </>
+  );
+  const nav = useNavigate();
+  const [noteOpen, setNoteOpen] = useState(false);
+
+  // the selected place's card, laid out as a Maps place card (and as a plan
+  // step's): name and where it sits, the button row, then grouped — your
+  // note, Good to know, how it's filed, and last Remove
+  if (card) {
+    const groupLabel = "kicker px-4 pb-1.5";
+    return (
+      <div className="mx-4 mb-1 mt-3 space-y-4">
+        <div className={`space-y-3 rounded-[12px] bg-surface px-3.5 py-3 ${derived ? "opacity-60" : ""}`}>
+          <div className="flex items-start gap-3">
+            {tile}
+            <span className="min-w-0 flex-1">
+              <span className="subhead block break-words">
+                <Editable label="Name" value={place.name} onCommit={onName} />
+              </span>
+              {details}
+            </span>
+            <button
+              type="button"
+              onClick={onToggle}
+              aria-label="Close"
+              className="tap grid h-[30px] w-[30px] shrink-0 place-items-center rounded-full bg-ink/[0.08] text-ink-soft"
+            >
+              <Icon name="close" size={13} />
+            </button>
+          </div>
+          <div className="flex gap-2">
+            {link && <PlaceAction href={link} icon="map" label="Google Maps" primary />}
+            {reviewSite && <PlaceAction href={reviewHref(reviewSite, place)} icon="link" label={place.reviewUrl ? reviewSite.label : `Search ${reviewSite.label}`} />}
+            {day && <PlaceAction icon="calendar" label={fmtDate(day.date, loc, { weekday: "short", day: "numeric" })} onClick={() => nav(`/day/${day.id}`)} />}
+          </div>
+        </div>
+
+        {(!readOnly || place.note?.trim()) && (
+          <div>
+            <p className={groupLabel}>Note</p>
+            {place.note?.trim() || noteOpen ? (
+              <div className="rounded-[12px] bg-surface px-3.5 py-3">
+                <RichNote value={place.note ?? ""} onCommit={onNote} placeholder="Add a note…" className="note" autoEdit={noteOpen} onEditEnd={() => setNoteOpen(false)} />
+              </div>
+            ) : (
+              <ul className="overflow-hidden rounded-[12px] bg-surface">
+                <ActionRow icon="pencil" label="Add a note" onClick={() => setNoteOpen(true)} />
+              </ul>
+            )}
+          </div>
+        )}
+
+        {place.facts && wantsFacts(place, tripData) && (
+          <div>
+            <p className={groupLabel}>Good to know</p>
+            <ul className="isolate overflow-hidden rounded-[12px] bg-surface">
+              <PlaceFactRows place={place} area={area} />
+            </ul>
+          </div>
+        )}
+
+        <ul className="isolate overflow-hidden rounded-[12px] bg-surface">
           {day ? (
             <li className={INSET_DIVIDER}>
               <Link to={`/day/${day.id}`} className={`${rowCls} active:bg-surface-2`}>
@@ -1967,16 +1960,51 @@ function PlaceRow({
               </li>
             )
           )}
-          {!readOnly && (
-            <li className={INSET_DIVIDER}>
+          {filing}
+        </ul>
+
+        {!readOnly && (
+          <ul className="overflow-hidden rounded-[12px] bg-surface">
+            <li>
               <ConfirmButton onConfirm={onRemove} label="Remove place" className={`${rowCls} w-full text-left text-danger`}>
                 <Icon name="trash" size={15} className="shrink-0" /> Remove place
               </ConfirmButton>
             </li>
+          </ul>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <li ref={li} className={`scroll-my-3 ${TILE_DIVIDER}`}>
+        <ContextMenu
+          menu={(link || !readOnly) && (
+            <>
+              {link && (
+                <a href={link} target="_blank" rel="noopener" className="menu-item">
+                  <Icon name="map" size={16} /> Open in Google Maps
+                </a>
+              )}
+              {reviewSite && (
+                <a href={reviewHref(reviewSite, place)} target="_blank" rel="noopener" className="menu-item">
+                  <Icon name="link" size={16} /> {place.reviewUrl ? `Open in ${reviewSite.label}` : `Search ${reviewSite.label}`}
+                </a>
+              )}
+              {!readOnly && <ConfirmMenuItem onConfirm={onRemove} label="Delete place" icon={<Icon name="trash" size={16} />} />}
+            </>
           )}
-        </>
-      )}
-    </>
+        >
+          <button onClick={onToggle} className={`flex w-full items-center gap-3 px-3.5 py-2 text-left active:bg-ink/[0.07] ${derived ? "opacity-60" : ""}`}>
+            {tile}
+            <span className="min-w-0 flex-1">
+              <span className="block break-words text-sm leading-snug text-ink">{place.name}</span>
+              {details}
+            </span>
+            <Icon name="chevron" size={13} className="shrink-0 text-ink-faint" />
+          </button>
+        </ContextMenu>
+    </li>
   );
 }
 

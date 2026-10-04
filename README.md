@@ -186,7 +186,7 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 - It's found through a web search (Tavily): a Tabelog page in the same or a neighbouring prefecture whose title has the same name (English, or the Japanese name OpenStreetMap has for the pin).
 - Needs `TAVILY_API_KEY` on the server (see [Deploy](#deploy)); without it, every restaurant just gets **Search Tabelog**.
 - Signed in only — on *Use on this device only* the lookup isn't available.
-- Found: **Tabelog** in the step's place card button row, **Open in Tabelog** on the Map card.
+- Found: **Tabelog** in the step's place card button row, the same on the Map card.
 - Not found: the same button offers **Search Tabelog** instead. A miss isn't retried on that device for 30 days, unless the name or pin changes.
 - "Restaurant" means the category's icon is from *Food & drink* (or its name says food, café, bar…).
 - **Manage → Content → Tabelog links** finds them for every restaurant at once.
@@ -200,7 +200,7 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 
 Where to find it:
 - **Plan** — tap a step's name; it's in the place card, under the buttons.
-- **Map** — in the place's card, after its links.
+- **Map** — in the place's card, under the note.
 
 How it fills in:
 - **By itself** — the first time a place shows, again once it's a month old, and after a rename or a category change. Nothing to run.
@@ -257,7 +257,7 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
 
 - **＋ Add place** — search for somewhere, or tap the map to drop a pin.
 - **The list** — once a city is picked, places are grouped by area (plus *No area*). On **All** it nests **city → area → place**. Groups start collapsed and remember what you opened.
-- **A place's card** — name, note, areas, category (a pin added in the app can be moved into any category, taking on its colour; a My Maps pin's comes from its layer), city, Open in Google Maps (searched at the pin, so a chain opens the right branch), Tabelog for a restaurant in Japan and its Good to know (see [Helpers on a step](#helpers-on-a-step)), the day it's on (or **Add to a day**), and Remove.
+- **A place's card** — laid out like a step's place card: the name (tap to rename) and the walk to the nearest station; a button row (**Google Maps** filled — searched at the pin, so a chain opens the right branch — Tabelog for a restaurant in Japan, and the day it's on); then **Note**, **Good to know** (see [Helpers on a step](#helpers-on-a-step)), a group with the day (or **Add to a day**), areas, category (a pin added in the app can be moved into any category, taking on its colour; a My Maps pin's comes from its layer) and city, and last Remove.
 - **List rows** show the name and the walk to the nearest station.
 - **Place names** on the map are in English / Latin script where available.
 
