@@ -746,10 +746,11 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
   // last step to be tied to a real place, the directions link doesn't
   const lastPlace = items[items.length - 1]?.placeId ? places.find((p) => p.id === items[items.length - 1].placeId) : undefined;
   const backRow = returnHotel ? <ReturnToHotel key="back-to-hotel" from={lastPlace} hotel={returnHotel} /> : null;
-  // one timeline for the whole day — steps, journeys and the way home
-  // and opens at the hotel you woke up at
-  const startRow = startHotel ? <StartFromHotel key="from-hotel" hotel={startHotel} /> : null;
-  const timeline = <ul className="timeline pb-1.5">{startRow}{rows}{backRow}</ul>;
+  // and opens at the hotel you woke up at — under the first part-of-day
+  // label when the day starts with one, since leaving is part of the morning
+  if (startHotel) rows.splice(multiPart && parts[0] ? 1 : 0, 0, <StartFromHotel key="from-hotel" hotel={startHotel} />);
+  // one timeline for the whole day — the hotel, steps, journeys and the way home
+  const timeline = <ul className="timeline pb-1.5">{rows}{backRow}</ul>;
 
   if (readOnly) return timeline;
 
@@ -1385,9 +1386,14 @@ function usePlaceHours(place: Place | undefined, date?: string): string | null {
  *  from the station. Each line opens its own Google Maps directions
  *  — the real route with lines and changes is Google's to work out (no free
  *  keyless transit API). Stations come from OpenStreetMap (`transitStation.ts`). */
+/** closer than this, two stops count as one place — no travel row */
+const SAME_SPOT_KM = 0.05;
+
 function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to: { lat: number; lng: number } }) {
   const walk = useWalk(from, to);
   const train = useTrainOption(from, to, !walk || walk.min > TRAIN_TOO_MIN);
+  // two stops at the same spot (breakfast at the hotel) have no way between
+  if (haversineKm(from.lat, from.lng, to.lat, to.lng) < SAME_SPOT_KM) return null;
 
   // plain quiet text, no fill — as Calendar sets travel time — a shade
   // fainter than a step's note (iOS's tertiary grey under the secondary), so
