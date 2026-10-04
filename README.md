@@ -252,6 +252,7 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
 - **List/map icon** switches to a full-screen list. Remembered.
 - **Resize** by dragging the grabber on the phone sheet (or tap it to cycle three heights), or the divider on desktop.
 - **Sync from My Maps** adds new pins and removes pins you deleted there (**Undo** brings them back). Pins still on the map pick up their new position, layer and colour (unless their category has its own), and keep everything you've edited.
+- **One pin per place.** A place saved twice on the map (same name, within 150 m) comes in once; a chain's branches further apart stay separate. A pin you added in the app for the same place becomes the map's pin, keeping its steps, areas, note and links.
 - **Renaming a pin in My Maps** counts as delete + add: the old one (with its notes) goes, the new one comes in.
 - **Remove place** on a pin's card deletes it in the app only — if it's still on the My Map, the next sync brings it back.
 

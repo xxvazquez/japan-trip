@@ -1814,6 +1814,8 @@ export const useApp = create<AppStore>((set, get) => {
      *  only runs when re-syncing the same map, so pointing the trip at a
      *  different map never wipes the old one's pins. */
     syncMyMap: async (url) => {
+      /** how close two same-named pins must be to count as one place */
+      const SAME_PLACE_M = 150;
       const { fetchMyMap, myMapId } = await import("@/lib/mymaps");
       const { glyphForCategoryName } = await import("@/lib/mapGlyphs");
       const rid = () => (crypto?.randomUUID ? crypto.randomUUID() : `p-${Math.random().toString(36).slice(2)}`);
@@ -1823,6 +1825,11 @@ export const useApp = create<AppStore>((set, get) => {
       const added: string[] = [];
       const changed: string[] = [];
       const gone: string[] = [];
+      // pins added in the app that turned out to be the same place as a map
+      // pin — folded into it, and the days and areas that used them
+      const folded: string[] = [];
+      const touchedDays = new Set<string>();
+      const touchedAreas = new Set<string>();
       let newLayers: string[] = [];
       if (!local((d) => {
         // No stable id in the KML export, so pins are matched by name.
@@ -1841,8 +1848,18 @@ export const useApp = create<AppStore>((set, get) => {
           const key = norm(p.name);
           mine.set(key, [...(mine.get(key) ?? []), p]);
         }
+        // the same place is one pin: same name, within a short walk. Two
+        // same-named pins further apart (a chain's branches) stay two.
+        const metres = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) => {
+          const x = (b.lng - a.lng) * Math.cos(((a.lat + b.lat) / 2) * (Math.PI / 180));
+          return Math.hypot(x, b.lat - a.lat) * 111320;
+        };
+        const samePlace = (a: { name: string; lat: number; lng: number }, b: { name: string; lat: number; lng: number }) =>
+          norm(a.name) === norm(b.name) && metres(a, b) < SAME_PLACE_M;
+        // a place saved twice on the map (in two layers, say) comes in once
+        const unique = places.filter((p, i) => !places.slice(0, i).some((q) => samePlace(p, q)));
         const next: Place[] = [];
-        for (const raw of places) {
+        for (const raw of unique) {
           const p = { ...raw, category: catOf(raw.category) };
           const match = mine.get(norm(p.name))?.shift();
           if (match) {
@@ -1855,6 +1872,14 @@ export const useApp = create<AppStore>((set, get) => {
             }
             continue;
           }
+          // a pin added in the app for the same place becomes the map's pin,
+          // keeping its id — and so its plan steps, areas, note and links
+          const own = d.places.find((x) => x.source !== "mymap" && samePlace(x, p));
+          if (own) {
+            Object.assign(own, { source: "mymap", color: p.color, lat: p.lat, lng: p.lng, category: p.category });
+            changed.push(own.id);
+            continue;
+          }
           const id = rid();
           added.push(id);
           next.push({ id, name: p.name, lat: p.lat, lng: p.lng, category: p.category, color: p.color, source: "mymap" });
@@ -1865,6 +1890,30 @@ export const useApp = create<AppStore>((set, get) => {
           for (const left of mine.values()) for (const p of left) gone.push(p.id);
         }
         d.places = [...d.places, ...next];
+        // an app pin already sitting beside the map's own pin for the same
+        // place folds into it: its steps and areas point at the map pin, and
+        // its note and links carry over where the map pin has none
+        for (const x of d.places.filter((p) => p.source !== "mymap")) {
+          const twin = d.places.find((m) => m.source === "mymap" && !gone.includes(m.id) && samePlace(m, x));
+          if (!twin) continue;
+          for (const day of d.days) {
+            if (!day.plan?.some((it) => it.placeId === x.id)) continue;
+            day.plan = day.plan.map((it) => (it.placeId === x.id ? { ...it, placeId: twin.id } : it));
+            touchedDays.add(day.id);
+          }
+          for (const area of d.areas) {
+            if (!area.placeIds.includes(x.id)) continue;
+            area.placeIds = [...new Set(area.placeIds.map((id) => (id === x.id ? twin.id : id)))];
+            touchedAreas.add(area.id);
+          }
+          twin.note ??= x.note;
+          twin.reviewUrl ??= x.reviewUrl;
+          twin.facts ??= x.facts;
+          twin.overwhelming ??= x.overwhelming;
+          if (!changed.includes(twin.id)) changed.push(twin.id);
+          folded.push(x.id);
+        }
+        d.places = d.places.filter((p) => !folded.includes(p.id));
         // a layer with no icon yet gets one guessed from its name, so a
         // "Coffee" layer shows a cup without anyone picking it. Only unset
         // categories — one cleared to a plain dot in Manage is stored as "".
@@ -1887,6 +1936,9 @@ export const useApp = create<AppStore>((set, get) => {
         d.config.mapSyncedAt = now();
       })) return { mapName, count: 0, updated: 0, removed: 0, newLayers: [] };
       for (const id of [...added, ...changed]) enqueue(get, { t: "row", type: "places", id });
+      for (const id of touchedDays) enqueue(get, { t: "row", type: "days", id });
+      for (const id of touchedAreas) enqueue(get, { t: "areaPlaces", areaId: id });
+      for (const id of folded) enqueue(get, { t: "del", type: "places", id });
       enqueue(get, { t: "fields", keys: ["config"] });
       if (gone.length) {
         get().undoable(`${gone.length} pin${gone.length === 1 ? "" : "s"} removed`, () => {

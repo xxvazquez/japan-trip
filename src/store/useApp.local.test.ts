@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { STORAGE_KEYS } from "@/lib/app";
-import type { Place, TripData } from "@/core/types";
+import type { Day, Place, TripData } from "@/core/types";
 
 const myMap = vi.hoisted(() => ({ places: [] as { name: string; lat: number; lng: number; category?: string; color?: string }[] }));
 vi.mock("@/lib/mymaps", () => ({
@@ -364,6 +364,41 @@ describe("My Maps sync", () => {
     myMap.places = [pin("Ramen"), { ...pin("Udon"), category: "food" }];
     await a.s().syncMyMap(URL);
     expect(a.s().data!.places.find((p) => p.name === "Udon")!.category).toBe("food");
+  });
+
+  it("keeps one pin for a place saved twice on the map, but two for a chain's far-apart branches", async () => {
+    const a = await boot();
+    myMap.places = [pin("Hie Shrine"), { ...pin("Hie Shrine"), lat: 1.0004, category: "Sights" }, { ...pin("Ichiran"), lat: 1 }, { ...pin("Ichiran"), lat: 1.05 }];
+    await a.s().syncMyMap(URL);
+    const named = (n: string) => a.s().data!.places.filter((p) => p.name === n);
+    expect(named("Hie Shrine")).toHaveLength(1);
+    expect(named("Ichiran")).toHaveLength(2);
+  });
+
+  it("a pin added in the app for the same place becomes the map's pin, keeping its steps", async () => {
+    const a = await boot();
+    const day = a.s().data!.days[0];
+    a.s().addEntity("places", { id: "own", name: "Hie Shrine", lat: 1.0003, lng: 2, category: "My places" } as Place);
+    a.s().updateEntity<Day>("days", day.id, { plan: [{ id: "s1", text: "Hie Shrine", placeId: "own" }] });
+    myMap.places = [pin("Hie Shrine")];
+    await a.s().syncMyMap(URL);
+    const pins = a.s().data!.places.filter((p) => p.name === "Hie Shrine");
+    expect(pins).toHaveLength(1);
+    expect(pins[0]).toMatchObject({ id: "own", source: "mymap", category: "Food" });
+  });
+
+  it("an app pin beside the map's own pin for the same place folds into it", async () => {
+    const a = await boot();
+    myMap.places = [pin("Hie Shrine")];
+    await a.s().syncMyMap(URL);
+    const mapPin = a.s().data!.places.find((p) => p.name === "Hie Shrine")!;
+    const day = a.s().data!.days[0];
+    a.s().addEntity("places", { id: "own", name: "Hie Shrine", lat: 1.0002, lng: 2, note: "Go early" } as Place);
+    a.s().updateEntity<Day>("days", day.id, { plan: [{ id: "s1", text: "Hie Shrine", placeId: "own" }] });
+    await a.s().syncMyMap(URL);
+    expect(a.s().data!.places.filter((p) => p.name === "Hie Shrine").map((p) => p.id)).toEqual([mapPin.id]);
+    expect(a.s().data!.places.find((p) => p.id === mapPin.id)!.note).toBe("Go early");
+    expect(a.s().data!.days.find((d) => d.id === day.id)!.plan![0].placeId).toBe(mapPin.id);
   });
 
   it("never removes pins when syncing a different map or an empty export", async () => {
