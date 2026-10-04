@@ -125,6 +125,14 @@ async function hoursFromNominatim(lat: number, lng: number, name?: string): Prom
  *  distance alone, often a neighbour's, so they're left behind. */
 const cacheKey = (lat: number, lng: number, name?: string) => `${lat.toFixed(4)},${lng.toFixed(4)},${name ? norm(name) : ""}`;
 
+/** what's already known without asking — this session's answer or one
+ *  stored from before; undefined when it hasn't been looked up yet */
+export function cachedOpeningHours(lat: number, lng: number, name?: string): PlaceHours | null | undefined {
+  const key = cacheKey(lat, lng, name);
+  if (cache.has(key)) return cache.get(key)!;
+  return readPersisted<PlaceHours>(`hours2.${key}`);
+}
+
 async function fetchOpeningHours(lat: number, lng: number, name?: string): Promise<PlaceHours | null> {
   const key = cacheKey(lat, lng, name);
   if (cache.has(key)) return cache.get(key)!;

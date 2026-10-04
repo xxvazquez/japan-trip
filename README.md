@@ -118,12 +118,25 @@ Tap a day on Plan to open it. From top to bottom:
 2. **Journeys** — every journey on the day (a bus, a train, a flight), in the order they leave. See [Journeys on a day](#journeys-on-a-day).
 3. **Weather** — if the hotel has coordinates, the header shows the forecast ("Showers, 19–24°C"). Forecasts only reach ~16 days ahead, so later days show nothing until they're close enough.
 4. **The itinerary** — the day's steps (below).
-5. **Areas** — drop a whole neighbourhood's places onto the day's map.
-6. **Spending** — see [Spending on a day](#spending-on-a-day).
-7. **General notes.**
-8. **The day's actions** — **Make this a day trip** (or **Not a day trip**), **Pin this day**, and **Delete day**.
+5. **Nearby** — saved places close to the day's stops, kept out of the plan. See [Nearby on a day](#nearby-on-a-day).
+6. **Areas** — drop a whole neighbourhood's places onto the day's map.
+7. **Spending** — see [Spending on a day](#spending-on-a-day).
+8. **General notes.**
+9. **The day's actions** — **Make this a day trip** (or **Not a day trip**), **Pin this day**, and **Delete day**.
 
 Every section folds away from its header. Scroll down and the bar at the top keeps the day's title with its date under it.
+
+### Nearby on a day
+
+Suggestions from the trip's own saved places — nothing is looked up from outside, so it works offline. They never go into the plan until you add one.
+
+- **What shows** — places within about 10 minutes' walk of a linked step, under the stop they're closest to ("Near Sensō-ji"), up to 4 per stop, nearest first.
+- **Left out** — anything already on the day's plan, the trip's stays, stations and other transport, and a place closed that day.
+- **Planned elsewhere** — a place on another day's plan still shows, marked **Planned Wed 14 Oct**, so you can spot a better fit.
+- **Meals** — around a lunch (11:30–14:30) or dinner (18:00–21:00) the plan leaves open, somewhere to eat comes first, marked **For lunch** / **For dinner**. One that's known to be shut then isn't moved up.
+- **＋** adds a place right after its stop (Undo on the toast takes it back).
+- **Tap a row** for its card: the walk from the stop and that day's hours, **Google Maps**, Tabelog for a restaurant in Japan, **Map**, its note and Good to know, then **Add after …** and, if another day has it, **Move here from …** (takes it off that day) and a link to that day.
+- **On a stop's place card** — the same short list sits under Good to know, as **Nearby**.
 
 ### Spending on a day
 
@@ -159,7 +172,7 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 - **Untimed steps** — drag the small ≡ on the right (shown on hover on a computer) to place one. It then stays with the step above it. A loose time ("Around noon") counts as untimed.
 - **Pin a step** from its menu (**Pin this step**) to lock its time, e.g. a booking — it shows a pin, and tapping its time offers **Unpin and change time**. It still sits where its time puts it. **Unpin this step** unlocks it. Only a step with a time can be pinned.
 - **Mark as optional** from a step's menu, or the **Optional** switch on its place card, for something nice to do but not a must: an ochre ◌ Optional tag shows under its name. **Make this a must** undoes it.
-- **The place card** — tap a linked step anywhere on its row (icon, name or note), as you'd tap a place in Maps: the name (with any clash with its hours), a button row pinned under it (**Google Maps** filled, Tabelog for restaurants in Japan, **Map**, **Calendar**), then the step's note, Good to know, and last the step itself: **Optional** and **Overwhelming** switches, Change place, Add an expense, Duplicate step, Remove step. ✕ or a drag down closes it.
+- **The place card** — tap a linked step anywhere on its row (icon, name or note), as you'd tap a place in Maps: the name (with any clash with its hours), a button row pinned under it (**Google Maps** filled, Tabelog for restaurants in Japan, **Map**, **Calendar**), then the step's note, Good to know, **Nearby** (see [Nearby on a day](#nearby-on-a-day)), and last the step itself: **Optional** and **Overwhelming** switches, Change place, Add an expense, Duplicate step, Remove step. ✕ or a drag down closes it.
 - **Walk and train lines** under a step open Google Maps directions; only a tap on the line itself does.
 - **Open in Google Maps** is also the first item when you hold a step (or right-click it on a computer).
 - **The step's menu** — long-press a step on a phone, or right-click it on a computer (an unlinked step also has a ⋯ on hover there): add to Google Calendar, mark as **overwhelming** (a ⚠ on its grey line; the day's count shows on Plan), add a note, pin, mark as optional, duplicate, add an expense, remove.

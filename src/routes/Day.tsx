@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import {
@@ -48,8 +48,8 @@ import { DayLabels, tripLabels } from "@/components/DayLabels";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { menuHref, reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
-import { factValue, hasFacts, placeArea, useAutoPlaceFacts, useFactsFailure, wantsFacts } from "@/lib/placeFacts";
+import { isFoodPlace, menuHref, reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
+import { factValue, hasFacts, notASight, placeArea, useAutoPlaceFacts, useFactsFailure, wantsFacts } from "@/lib/placeFacts";
 import { FactsRefresh, PlaceFactRows } from "@/components/PlaceFacts";
 import { addDays, dayJourneys, dayKind, fmtDate, journeyDepartDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
@@ -59,8 +59,10 @@ import { clockOf, fmtDuration, fmtMinutes } from "@/lib/time";
 import { MODE_ICON, MODE_LABEL, MODE_TONE } from "@/lib/transport";
 import { useWalk, estimateTransit } from "@/lib/walkRoute";
 import { nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
-import { nearestOpeningHours, type PlaceHours } from "@/lib/placeHours";
+import { cachedOpeningHours, nearestOpeningHours } from "@/lib/placeHours";
 import { factsHoursForDate, hoursConflict, hoursForDate } from "@/lib/openingHours";
+import { NEARBY_WALK_MIN, nearbyForDay, type NearbyGroup, type NearbyItem } from "@/lib/nearby";
+import { NearbyCard, NearbyGroupRows, NearbyProvider, NearbyRow, usePlaceHours, useStepNearby } from "@/components/Nearby";
 import { fetchDayWeather, weatherLabel, type DayWeather } from "@/lib/weather";
 import { prefetchTiles, canPrefetchTiles, dayOfflinePoints } from "@/lib/offlineTiles";
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon, expenseCategoryForGlyph } from "@/lib/cost";
@@ -294,6 +296,82 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     else nav(`/map?sel=${place.id}`);
   };
 
+  // NEARBY — the trip's saved places close to the plan's stops, offered in
+  // their own section (and on each stop's card), never written into the plan
+  // until one is added. Hours come from what's already known (Good to know,
+  // or a cached OSM answer); the shown ones are looked up below, and the
+  // list re-sorts as they land
+  const [hoursTick, bumpHours] = useReducer((n: number) => n + 1, 0);
+  const icons = data.config.categoryIcons;
+  const nearby = useMemo(() => {
+    const plan = sortByTime(day.plan ?? [], () => false);
+    const plannedOn = new Map<string, string>();
+    for (const d of [...data.days].sort((a, b) => a.date.localeCompare(b.date))) {
+      if (d.id === day.id) continue;
+      for (const it of d.plan ?? []) if (it.placeId && !plannedOn.has(it.placeId)) plannedOn.set(it.placeId, d.date);
+    }
+    // a café isn't lunch, and doesn't stand in for one
+    const glyphOf = (p: Place) => (p.category ? icons?.[p.category] || glyphForCategoryName(p.category) : undefined);
+    const isMeal = (p: Place) => isFoodPlace(p, icons) && glyphOf(p) !== "coffee";
+    return nearbyForDay({
+      plan,
+      places: data.places,
+      plannedOn,
+      skip: (p) => !Number.isFinite(p.lat) || !Number.isFinite(p.lng) || (p.lat === 0 && p.lng === 0) || notASight(p, data),
+      isFood: isMeal,
+      isMealStep: (it, p) => (p ? isMeal(p) : glyphForStepText(it.text) === "food"),
+      hoursOn: (p) => nearbyHours(p, day.date),
+    });
+    // hoursTick: a lookup below has landed in the hours cache
+  }, [data, day.id, day.plan, day.date, icons, hoursTick]);
+  const nearbyKey = nearby.map((g) => g.items.map((i) => i.place.id).join(",")).join("|");
+  useEffect(() => {
+    let live = true;
+    for (const g of nearby) {
+      for (const { place: p } of g.items) {
+        if (nearbyHours(p, day.date) !== undefined || cachedOpeningHours(p.lat, p.lng, p.name) !== undefined) continue;
+        // a failed lookup isn't cached, so only an answer re-sorts the list
+        void nearestOpeningHours(p.lat, p.lng, p.name).then((h) => { if (live && h) bumpHours(); });
+      }
+    }
+    return () => { live = false; };
+  }, [nearbyKey, day.date]);
+  const nearbyByStep = useMemo(() => new Map(nearby.map((g) => [g.stepId, g])), [nearby]);
+  // a pick goes in right after the stop it's near, untimed — it then rides
+  // with that stop wherever its time takes it
+  const withNearby = (stepId: string, place: Place) => {
+    const plan = sortByTime(day.plan ?? [], () => false);
+    const i = plan.findIndex((x) => x.id === stepId);
+    return [...plan.slice(0, i + 1), { id: rid(), text: place.name, placeId: place.id }, ...plan.slice(i + 1)];
+  };
+  const addNearby = (group: NearbyGroup, place: Place) =>
+    undoable(`Added after ${group.stop.name}`, () => setPlan(withNearby(group.stepId, place)));
+  // "Move here": off the day that has it, onto this one after the stop
+  const moveNearby = (group: NearbyGroup, place: Place) => {
+    const from = data.days.find((d) => d.id !== day.id && d.plan?.some((it) => it.placeId === place.id));
+    if (!from) { addNearby(group, place); return; }
+    undoable(`Moved from ${fmtDate(from.date, loc, { weekday: "short", day: "numeric", month: "short" })}`, () => {
+      const rest = (from.plan ?? []).filter((it) => it.placeId !== place.id);
+      updateEntity<DayT>("days", from.id, { plan: rest.length ? rest : undefined });
+      setPlan(withNearby(group.stepId, place));
+    });
+  };
+  const [nearbyOpen, setNearbyOpen] = useState<{ item: NearbyItem; group: NearbyGroup } | null>(null);
+  // the card keeps showing the place it opened with while it slides away
+  const nearbyLast = useRef<{ item: NearbyItem; group: NearbyGroup } | null>(null);
+  if (nearbyOpen) nearbyLast.current = nearbyOpen;
+  const nearbyCard = nearbyOpen ?? nearbyLast.current;
+  const nearbyAnchor = useRef<HTMLElement | null>(null);
+  const openNearby = (item: NearbyItem, group: NearbyGroup, anchor: HTMLElement | null) => {
+    nearbyAnchor.current = anchor;
+    setNearbyOpen({ item, group });
+  };
+  const nearbyCtx = {
+    byStep: nearbyByStep,
+    open: ({ item, group, anchor }: { item: NearbyItem; group: NearbyGroup; anchor: HTMLElement | null }) => openNearby(item, group, anchor),
+    add: addNearby,
+  };
+
   // "＋ New journey" — a blank journey, its type chosen on the journey page (never
   // guessed from the day's date: you can arrive, transfer or leave at any point).
   const newJourney = () => {
@@ -310,6 +388,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     });
 
   return (
+    <NearbyProvider value={nearbyCtx}>
     <Page>
       {/* IDENTITY — date, title, and where you're based / how you move */}
       <DayStepper days={data.days} current={day.id} locale={loc} />
@@ -425,6 +504,30 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
           )}
         >
           <PlanList day={day} journeys={journeys} startHotel={startHotel} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} fresh={freshStep} onAdd={addStep} onChange={setPlan} onBackAt={(t) => patch({ backAt: t })} onLeaveAt={(t) => patch({ leaveAt: t })} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
+        </Section>
+      )}
+
+      {/* NEARBY — saved places close to the plan's stops, kept out of the plan */}
+      {nearby.length > 0 && (
+        <Section
+          title="Nearby"
+          info={`Places you've saved that aren't on this day's plan, each under the stop it's closest to — up to about ${NEARBY_WALK_MIN} minutes' walk. Around a lunch or dinner the plan leaves open, somewhere to eat comes first.${ro ? "" : " Tap ＋ to add one after its stop."}`}
+        >
+          <ul className="pb-1">
+            {nearby.map((g, i) => (
+              <NearbyGroupRows
+                key={g.stepId}
+                group={g}
+                first={i === 0}
+                locale={loc}
+                categoryIcons={icons}
+                categoryColors={data.config.categoryColors}
+                readOnly={ro}
+                onOpen={(item, anchor) => openNearby(item, g, anchor)}
+                onAdd={(item) => addNearby(g, item.place)}
+              />
+            ))}
+          </ul>
         </Section>
       )}
 
@@ -572,9 +675,34 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
           </ul>
         </Section>
       )}
+      <NearbyCard
+        open={!!nearbyOpen}
+        onClose={() => setNearbyOpen(null)}
+        anchorRef={nearbyAnchor as React.RefObject<HTMLElement>}
+        item={nearbyCard?.item}
+        group={nearbyCard?.group}
+        date={day.date}
+        locale={loc}
+        categoryIcons={icons}
+        readOnly={ro}
+        plannedDayId={(() => { const d = nearbyCard?.item.plannedOn; return d ? data.days.find((x) => x.date === d)?.id : undefined; })()}
+        onAdd={() => nearbyCard && addNearby(nearbyCard.group, nearbyCard.item.place)}
+        onMove={() => nearbyCard && moveNearby(nearbyCard.group, nearbyCard.item.place)}
+        onShowOnMap={showOnMap}
+      />
     </Page>
+    </NearbyProvider>
   );
 
+}
+
+/** what's already known of a place's hours on `date`, without asking:
+ *  its Good to know lines, else a cached OpenStreetMap answer */
+function nearbyHours(p: Place, date: string): string | undefined {
+  const fromFacts = p.facts ? factsHoursForDate(factValue(p.facts, "hours"), factValue(p.facts, "closed"), date) : undefined;
+  if (fromFacts) return fromFacts;
+  const cached = cachedOpeningHours(p.lat, p.lng, p.name);
+  return cached ? hoursForDate(cached.hours, date) ?? "Closed" : undefined;
 }
 
 /** One journey on the day, as an iOS list row: the first hop's mode tile,
@@ -959,6 +1087,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
   // the place card the step's icon opens; on desktop it hangs off the step
   const placeCard = useActionSheet();
   const placeCardAnchor = useRef<HTMLDivElement>(null);
+  const nearby = useStepNearby(item.id);
   // "Change place" on the card swaps the step's place from the same list a
   // custom step's icon opens
   const changePlace = useActionSheet();
@@ -1308,6 +1437,29 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                       </ul>
                     </div>
                   )}
+                  {/* what else is close by — the same short list the day's
+                      Nearby section shows under this stop */}
+                  {nearby.group && (
+                    <div>
+                      <p className="kicker px-4 pb-1.5 pt-1">Nearby</p>
+                      <ul className="overflow-hidden rounded-[12px] bg-surface">
+                        {nearby.group.items.map((n, i) => (
+                          <NearbyRow
+                            key={n.place.id}
+                            item={n}
+                            group={nearby.group!}
+                            locale={tripData?.config.locale}
+                            categoryIcons={categoryIcons}
+                            categoryColors={categoryColors}
+                            readOnly={readOnly}
+                            divider={i < nearby.group!.items.length - 1}
+                            onOpen={() => { placeCard.setOpen(false); nearby.open?.({ item: n, group: nearby.group!, anchor: placeCardAnchor.current }); }}
+                            onAdd={() => nearby.add?.(nearby.group!, n.place)}
+                          />
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   {!readOnly && (
                     <ul className="overflow-hidden rounded-[12px] bg-surface">
                       {/* an on/off fact about the place, so a switch, as
@@ -1608,26 +1760,6 @@ function ReturnToHotel({ from, hotel, band, time, timeStart, readOnly, onTime }:
       </li>
     </>
   );
-}
-
-/** the step's own opening hours on the day's own date, the rule for that
- *  month and weekday rather than the whole year's schedule. Read first from
- *  the place's "Good to know" Hours and Closed lines — what its place card
- *  shows — else from OpenStreetMap's tag (`hoursForDate`; a date no rule
- *  covers is a closed one). Never shown as such — only checked against the
- *  step's time (`hoursConflict`). Null when neither has anything. */
-function usePlaceHours(place: Place | undefined, date?: string): string | null {
-  const [hours, setHours] = useState<PlaceHours | null>(null);
-  useEffect(() => {
-    setHours(null);
-    if (!place) return;
-    let cancelled = false;
-    void nearestOpeningHours(place.lat, place.lng, place.name).then((h) => { if (!cancelled) setHours(h); });
-    return () => { cancelled = true; };
-  }, [place?.id, place?.lat, place?.lng]);
-  const fromFacts = place?.facts && date ? factsHoursForDate(factValue(place.facts, "hours"), factValue(place.facts, "closed"), date) : undefined;
-  if (fromFacts) return fromFacts;
-  return hours ? (date ? hoursForDate(hours.hours, date) ?? "Closed" : hours.hours) : null;
 }
 
 /** The way from one step to the next, as a slim row between them — the

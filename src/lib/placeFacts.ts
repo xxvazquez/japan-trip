@@ -42,7 +42,7 @@ const fold = (s: string) => s.normalize("NFKD").replace(/[\u0300-\u036f\s-]/g, "
 /** somewhere you sleep or pass through rather than visit — one of the trip's
  *  own stays (by name or pin), or a place filed as lodging (a hot spring
  *  aside) or transport */
-function notASight(p: Place, data: TripData): boolean {
+export function notASight(p: Place, data: TripData): boolean {
   const glyph = p.category ? data.config.categoryIcons?.[p.category] || glyphForCategoryName(p.category) : undefined;
   const group = glyphGroup(glyph);
   if ((group === "Lodging" && glyph !== "bath") || group === "Transport") return true;
