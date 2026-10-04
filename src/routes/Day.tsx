@@ -944,11 +944,12 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
             </span>
           }
         >
-          {/* name, then the place's hours that day, then the note */}
+          {/* name, then the place's hours that day, then the note — three
+              steps down in size and colour so the name always leads */}
           <div ref={placeCardAnchor} className="space-y-0.5">
             <div className={readOnly ? "[@media(hover:hover)]:pr-7" : "pr-6 [@media(hover:hover)]:pr-[3.25rem]"}>
             {readOnly ? (
-              <span className="block break-words text-sm leading-snug text-ink">{item.text}</span>
+              <span className={STOP_TITLE}>{item.text}</span>
             ) : item.placeId && sortedPickable.length > 0 ? (
               <PlacePicker
                 value={item.placeId}
@@ -970,12 +971,12 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                 // place or note, or left by a tap elsewhere on its own row
                 // (its pin, time or ⋯), just loses its text
                 onBlank={(onRow) => (item.time || item.placeId || item.note || onRow ? item.text && onPatch({ text: "" }) : onRemove())}
-                className="block text-sm leading-snug text-ink"
+                className={STOP_TITLE}
               />
             )}
             </div>
             {(hours || place?.overwhelming) && (
-              <span className="meta block break-words">
+              <span className={STOP_META}>
                 {hours && (/^\d/.test(hours) ? `Open ${hours}` : hours)}
                 {hours && place?.overwhelming && " · "}
                 {place?.overwhelming && (
@@ -990,7 +991,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                 value={item.note ?? ""}
                 onCommit={(v) => onPatch({ note: v || undefined })}
                 placeholder="Add a note…"
-                className="block text-xs leading-relaxed text-ink-soft [&_strong]:text-ink"
+                className="mt-1.5 block text-sm leading-snug text-ink-soft [&_strong]:text-ink"
                 collapsible
                 autoEdit={noteOpen}
                 onEditEnd={() => setNoteOpen(false)}
@@ -1065,6 +1066,12 @@ function PlaceAction({ href, onClick, icon, label, primary }: { href?: string; o
     <button type="button" onClick={onClick} className={cls}>{body}</button>
   );
 }
+
+/** a timeline stop's type, largest to quietest: the stop itself (17px medium,
+ *  the Calendar event-title weight, so it leads over everything around it),
+ *  then a small grey caption under it (hours, platform) */
+const STOP_TITLE = "block break-words text-[17px] font-medium leading-snug text-ink";
+const STOP_META = "block break-words text-xs text-ink-soft";
 
 /** One stop on a day's timeline, the way Maps lays out a route: the time
  *  in its own column on the left, the stop's icon sitting on the rail that
@@ -1149,10 +1156,10 @@ function JourneyStopRow({ journey, stop }: { journey: Journey; stop: ReturnType<
           tile={<IconTile size="sm" name={MODE_ICON[seg.mode]} tone={MODE_TONE[seg.mode]} />}
           trailing={<Icon name="chevron" size={14} className="mt-[15px] shrink-0 text-ink-faint" />}
         >
-          <span className="block break-words text-sm leading-snug text-ink">
+          <span className={STOP_TITLE}>
             {stop.kind === "leave" ? "Leave" : "Arrive"} {stop.place || (stop.kind === "leave" ? "from start" : "at destination")}
           </span>
-          {meta.some(Boolean) && <span className="meta mt-0.5 block">{meta.filter(Boolean).join(" · ")}</span>}
+          {meta.some(Boolean) && <span className={`${STOP_META} mt-0.5`}>{meta.filter(Boolean).join(" · ")}</span>}
         </TimelineStop>
       </Link>
     </li>
@@ -1179,7 +1186,7 @@ function ReturnToHotel({ from, hotel }: { from?: Place; hotel: Hotel }) {
       <li>
         <a href={href} target="_blank" rel="noopener" aria-label={`Directions back to ${hotel.name || "your stay"}`} className="block active:bg-ink/[0.07]">
           <TimelineStop tile={<IconTile size="sm" name="bed" tone="accent" />}>
-            <span className="block break-words text-sm leading-snug text-ink">Back to {hotel.name || "your stay"}</span>
+            <span className={STOP_TITLE}>Back to {hotel.name || "your stay"}</span>
           </TimelineStop>
         </a>
       </li>
@@ -1296,7 +1303,7 @@ function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, category
         aria-label="What this step is"
         aria-haspopup="menu"
         className={`editable block w-full max-w-full cursor-pointer bg-transparent text-left leading-snug focus:outline-none ${
-          current ? "text-sm text-ink" : "text-xs text-ink-soft"
+          current ? STOP_TITLE : "text-xs text-ink-soft"
         }`}
       >
         {current ? current.name : (
