@@ -112,6 +112,10 @@ export interface TripConfig {
   mapSourceUrl?: string;
   /** ISO timestamp of the last My Maps import */
   mapSyncedAt?: string;
+  /** My Maps pins deleted in the app. A My Map can't be edited from here,
+   *  so the sync skips these rather than bringing them back; enough of the
+   *  pin is kept to restore it from Manage. */
+  hiddenPins?: HiddenPin[];
   /** the built-in read-only tour trip — every screen locks editing */
   demo?: boolean;
   /** optional Logbook sections turned off for this trip
@@ -284,6 +288,16 @@ export interface Area {
   id: ID;
   name: string;
   placeIds: ID[];
+}
+
+/** a My Maps pin deleted in the app — matched on the next sync the same
+ *  way pins are (name, within a short walk) */
+export interface HiddenPin {
+  name: string;
+  lat: number;
+  lng: number;
+  category?: string;
+  color?: string;
 }
 
 /** A pin on the trip map. Either imported from a Google My Map

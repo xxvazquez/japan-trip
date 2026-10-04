@@ -306,7 +306,8 @@ Your places on a clean map, read top to bottom: **city pills → places**. Every
 - **⋯ → Sync with My Maps** adds new pins and removes pins you deleted there (**Undo** brings them back). Pins still on the map pick up their new position, layer and colour (unless their category has its own), and keep everything you've edited.
 - **One pin per place.** A place saved twice on the map (same name, within 150 m) comes in once; a chain's branches further apart stay separate. A pin you added in the app for the same place becomes the map's pin, keeping its steps, areas, note and links.
 - **Renaming a pin in My Maps** counts as delete + add: the old one (with its notes) goes, the new one comes in.
-- **Remove place** on a pin's card deletes it in the app only — if it's still on the My Map, the next sync brings it back.
+- **Remove place** on a My Maps pin hides it from every sync, even though it's still on the My Map (the app can't edit the map itself). **Undo** brings it straight back.
+- **Hidden pins** (**Manage → Content → My Maps layers**) lists them; tap one to show it again. A hidden pin you then delete from the My Map drops off the list, so adding it there again brings it back.
 - **The foot of the list** shows when it last synced and how many pins came from My Maps.
 
 ## Areas and categories

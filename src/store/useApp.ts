@@ -1873,7 +1873,16 @@ export const useApp = create<AppStore>((set, get) => {
         const samePlace = (a: { name: string; lat: number; lng: number }, b: { name: string; lat: number; lng: number }) =>
           norm(a.name) === norm(b.name) && metres(a, b) < SAME_PLACE_M;
         // a place saved twice on the map (in two layers, say) comes in once
-        const unique = places.filter((p, i) => !places.slice(0, i).some((q) => samePlace(p, q)));
+        const once = places.filter((p, i) => !places.slice(0, i).some((q) => samePlace(p, q)));
+        // pins deleted in the app stay away — the map itself can't be edited
+        // from here. One gone from the map too drops off the list, so adding
+        // it there again brings it back.
+        const hidden = d.config.hiddenPins ?? [];
+        const unique = once.filter((p) => !hidden.some((h) => samePlace(h, p)));
+        if (sameMap && places.length > 0 && hidden.length) {
+          const still = hidden.filter((h) => once.some((p) => samePlace(h, p)));
+          if (still.length !== hidden.length) d.config.hiddenPins = still.length ? still : undefined;
+        }
         const next: Place[] = [];
         for (const raw of unique) {
           const p = { ...raw, category: catOf(raw.category) };
@@ -2005,3 +2014,15 @@ export const initApp = () => useApp.getState().init();
 /** `undoable` for call sites outside a component — a ConfirmButton's onConfirm,
  *  a menu item — where there's no hook to hang the store selector on. */
 export const undoable = (label: string, fn: () => void) => useApp.getState().undoable(label, fn);
+
+/** deletes a place the person chose to delete. A My Maps pin is still on
+ *  the map, which can't be edited from here, so it goes on the trip's hidden
+ *  list too and the next sync leaves it out (Undo takes it back off). */
+export function deletePlace(id: string) {
+  const { data, mutateTrip, removeEntity } = useApp.getState();
+  const p = data?.places.find((x) => x.id === id);
+  if (p?.source === "mymap") mutateTrip((d) => {
+    d.config.hiddenPins = [...(d.config.hiddenPins ?? []), { name: p.name, lat: p.lat, lng: p.lng, category: p.category, color: p.color }];
+  });
+  removeEntity("places", id);
+}

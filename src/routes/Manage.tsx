@@ -51,7 +51,7 @@ import type { TransportMode } from "@/core/types";
 import { Switch } from "@/components/Switch";
 import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
 import { useEffect } from "react";
-import type { Day, EntityType, ExpenseCategory, TripData } from "@/core/types";
+import type { Day, EntityType, ExpenseCategory, Place, TripData } from "@/core/types";
 
 type PanelId = "trips" | "setup" | "content" | "appearance" | "sharing";
 const PANELS: { id: PanelId; label: string; icon: IconName; tone: Tone }[] = [
@@ -1546,7 +1546,9 @@ function MapLayers({ names, colorOf, icons }: {
   const [picking, setPicking] = useState<string | null>(null);
   const [naming, setNaming] = useState<string | null>(null);
   const anchorRef = useRef<HTMLButtonElement | null>(null);
+  const hiddenSheet = useActionSheet();
   const layers = data?.config.mapLayers ?? [];
+  const hidden = data?.config.hiddenPins ?? [];
   if (!data || layers.length === 0) return null;
   const layerCats = data.config.layerCategories ?? {};
   const choose = (layer: string, category: string) => {
@@ -1554,6 +1556,17 @@ function MapLayers({ names, colorOf, icons }: {
     // re-file pins the move above couldn't tell apart
     const url = data.config.mapSourceUrl;
     if (url) void syncMyMap(url).catch(() => undefined);
+  };
+  /** puts a hidden pin back as it was, and off the hidden list */
+  const showPin = (i: number) => {
+    const h = hidden[i];
+    if (!h) return;
+    const { mutateTrip, addEntity } = useApp.getState();
+    mutateTrip((d) => {
+      const left = (d.config.hiddenPins ?? []).filter((_, j) => j !== i);
+      d.config.hiddenPins = left.length ? left : undefined;
+    });
+    addEntity("places", { id: crypto.randomUUID(), name: h.name, lat: h.lat, lng: h.lng, category: h.category, color: h.color, source: "mymap" } as Place);
   };
   const tile = (name: string) => (
     <IconTile size="sm" color={colorOf(name)} glyph={icons[name] || undefined} name={icons[name] ? undefined : "pin"} />
@@ -1588,7 +1601,31 @@ function MapLayers({ names, colorOf, icons }: {
             </li>
           );
         })}
+        {/* pins deleted in the app, which a sync would otherwise bring back */}
+        {hidden.length > 0 && (
+          <li className={TILE_DIVIDER}>
+            <button
+              ref={hiddenSheet.anchorRef}
+              type="button"
+              onClick={() => hiddenSheet.setOpen(true)}
+              className="flex w-full items-center gap-3 px-3.5 py-3 text-left text-sm active:bg-ink/[0.07]"
+            >
+              <IconTile size="sm" name="eye-off" tone="ink-faint" />
+              <span className="min-w-0 flex-1 break-words text-ink">Hidden pins</span>
+              <span className="shrink-0 tabular-nums text-ink-soft">{hidden.length}</span>
+              <Icon name="chevron" size={14} className="-mr-1 shrink-0 text-ink-faint" />
+            </button>
+          </li>
+        )}
       </ul>
+      <ActionSheet open={hiddenSheet.open} onClose={() => hiddenSheet.setOpen(false)} anchorRef={hiddenSheet.anchorRef} title="Show Again on the Map">
+        {hidden.map((h, i) => (
+          <button key={`${h.name}-${i}`} type="button" className="menu-item" onClick={() => showPin(i)}>
+            {h.category ? tile(h.category) : <IconTile size="sm" ghost name="pin" />}
+            <span className="min-w-0 flex-1 break-words">{h.name}</span>
+          </button>
+        ))}
+      </ActionSheet>
       <ActionSheet
         open={picking !== null}
         onClose={() => setPicking(null)}

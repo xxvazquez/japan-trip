@@ -346,6 +346,39 @@ describe("My Maps sync", () => {
     expect(names()).toEqual(["Cafe", "Old pin", "Temple"]);
   });
 
+  it("a pin deleted in the app stays away on the next sync; undo brings it back", async () => {
+    const a = await boot();
+    myMap.places = [pin("Cafe"), pin("Temple")];
+    await a.s().syncMyMap(URL);
+    const names = () => a.s().data!.places.filter((p) => p.source === "mymap").map((p) => p.name).sort();
+    const temple = a.s().data!.places.find((p) => p.name === "Temple")!;
+    a.s().undoable("Place deleted", () => a.deletePlace(temple.id));
+    expect(a.s().data!.config.hiddenPins).toMatchObject([{ name: "Temple" }]);
+
+    expect(await a.s().syncMyMap(URL)).toMatchObject({ count: 0, removed: 0 });
+    expect(names()).toEqual(["Cafe"]);
+
+    // gone from the map too: it drops off the list, so adding it there again
+    // brings it back
+    myMap.places = [pin("Cafe")];
+    await a.s().syncMyMap(URL);
+    expect(a.s().data!.config.hiddenPins).toBeUndefined();
+    myMap.places = [pin("Cafe"), pin("Temple")];
+    await a.s().syncMyMap(URL);
+    expect(names()).toEqual(["Cafe", "Temple"]);
+  });
+
+  it("undoing a pin's delete takes it off the hidden list", async () => {
+    const a = await boot();
+    myMap.places = [pin("Cafe")];
+    await a.s().syncMyMap(URL);
+    const cafe = a.s().data!.places.find((p) => p.name === "Cafe")!;
+    a.s().undoable("Place deleted", () => a.deletePlace(cafe.id));
+    a.s().undo();
+    expect(a.s().data!.config.hiddenPins).toBeUndefined();
+    expect(a.s().data!.places.some((p) => p.id === cafe.id)).toBe(true);
+  });
+
   it("a layer set up in Manage always comes in under its category; a new one is flagged", async () => {
     const a = await boot();
     const tea = (name: string) => ({ ...pin(name), category: "Coffee & tea" });

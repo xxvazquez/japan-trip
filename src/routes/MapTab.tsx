@@ -17,7 +17,7 @@ import { useData } from "@/lib/data";
 import { useToday } from "@/lib/useToday";
 import { loadBasePois, saveBasePois } from "@/lib/mapStyle";
 import { Switch } from "@/components/Switch";
-import { useApp, undoable } from "@/store/useApp";
+import { useApp, undoable, deletePlace } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
 import { mapUrlCoords, placeMapLink } from "@/lib/maps";
 import { geocode, reverseGeocode, type GeoResult } from "@/lib/geocode";
@@ -1175,7 +1175,7 @@ export default function MapTab() {
         });
       }}
       onRemove={() => undoable("Place deleted", () => {
-        removeEntity("places", p.id);
+        deletePlace(p.id);
         if (selected === p.id) setSelected(null);
       })}
     />
