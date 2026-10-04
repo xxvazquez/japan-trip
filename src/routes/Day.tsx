@@ -867,8 +867,10 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
             )
           }
           tile={
-            !readOnly && !item.placeId && sortedPickable.length > 0 ? (
-              // an unlinked step's grey pin is where you link it to a place
+            !readOnly && sortedPickable.length > 0 ? (
+              // the step's icon is what it is — tap it to pick the place
+              // from the day's areas (or make it a custom step); the name
+              // beside it opens the place itself
               <PlacePicker
                 value={item.placeId}
                 places={sortedPickable}
@@ -879,8 +881,6 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                 trigger={tile}
               />
             ) : place ? (
-              // the place's icon opens its place card, as tapping a place
-              // does in Maps — what's good to know, then where to go next
               <button type="button" onClick={() => placeCard.setOpen(true)} className="tap block" aria-label={`About ${place.name}`}>
                 {tile}
               </button>
@@ -951,17 +951,19 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
               the place card, not repeated here. */}
           <div ref={placeCardAnchor} className="space-y-0.5">
             <div className={readOnly ? "[@media(hover:hover)]:pr-7" : "pr-6 [@media(hover:hover)]:pr-[3.25rem]"}>
-            {readOnly ? (
+            {place ? (
+              // tapping a place's name opens its place card, as tapping a
+              // result does in Maps — the info, then where to go next
+              <button
+                type="button"
+                onClick={() => placeCard.setOpen(true)}
+                aria-label={`About ${place.name}`}
+                className={`${STOP_TITLE} w-full text-left active:opacity-60`}
+              >
+                {place.name}
+              </button>
+            ) : readOnly ? (
               <span className={STOP_TITLE}>{item.text}</span>
-            ) : item.placeId && sortedPickable.length > 0 ? (
-              <PlacePicker
-                value={item.placeId}
-                places={sortedPickable}
-                areaNameByPlaceId={areaNameByPlaceId}
-                categoryIcons={categoryIcons}
-                categoryColors={categoryColors}
-                onPick={pick}
-              />
             ) : (
               <Editable
                 label="Step"
@@ -1288,7 +1290,7 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
   );
 }
 
-/** the plan step's "what" picker — a native `<select>` can't style part of an
+/** the plan step's "what" picker, opened from its icon — a native `<select>` can't style part of an
  *  option's text, so once a day has more than 2 Areas (see `areaNameByPlaceId`
  *  in `Day`) and a place name alone stops being enough to tell rows apart, this
  *  renders as an iOS-style sheet list instead, with the area as trailing quiet
@@ -1300,40 +1302,22 @@ function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, category
   categoryIcons?: Record<string, string>;
   categoryColors?: Record<string, string>;
   onPick: (id?: string) => void;
-  /** what to tap instead of the name line — an unlinked step's pin tile */
-  trigger?: React.ReactNode;
+  /** what opens it — the step's icon tile */
+  trigger: React.ReactNode;
 }) {
   const { open, setOpen, anchorRef } = useActionSheet();
-  const current = value ? places.find((p) => p.id === value) : undefined;
   return (
     <>
-      {trigger ? (
-        <button
-          ref={anchorRef}
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-label="Link this step to a place"
-          aria-haspopup="menu"
-          className="tap relative shrink-0"
-        >
-          {trigger}
-        </button>
-      ) : (
       <button
         ref={anchorRef}
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="What this step is"
+        aria-label={value ? "Change the place" : "Link this step to a place"}
         aria-haspopup="menu"
-        className={`editable block w-full max-w-full cursor-pointer bg-transparent text-left leading-snug focus:outline-none ${
-          current ? STOP_TITLE : "text-xs text-ink-soft"
-        }`}
+        className="tap relative shrink-0"
       >
-        {current ? current.name : (
-          <>Custom… <Icon name="down" size={11} className="inline-block align-[1px] text-ink-faint" /></>
-        )}
+        {trigger}
       </button>
-      )}
       <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="What this step is">
         <div className="max-h-[60dvh] overflow-y-auto">
           <button type="button" onClick={() => onPick(undefined)} className="menu-item flex w-full items-center gap-2">

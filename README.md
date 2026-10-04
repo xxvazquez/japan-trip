@@ -147,10 +147,10 @@ Each step shows its name, then its note in smaller, lighter grey (folded after 2
 
 - **Time** — a single time, or a range like `14:00–15:15` stacked as 14:00 over 15:15. An empty time is just a small clock to tap.
 - **Setting a time** — the wheels start at the last time set on an earlier step (else 9:00). **Done** saves what's showing; tapping outside or swiping the sheet down cancels.
-- **Link a place** — tap the grey pin to pick a place from the day's Areas. Tap a linked name to change it; **Custom…** unlinks it.
+- **Link a place** — tap the step's icon to pick a place from the day's Areas, or to change it later; **Custom…** unlinks it.
 - **Meal steps** — an unlinked step whose text mentions a meal (lunch, dinner, breakfast…), coffee or drinks gets a gold food, coffee or drink tile instead of the grey pin.
 - **Reorder** by dragging the small ≡ on the right (shown on hover on a computer).
-- **The place card** — tap a linked step's icon, as you'd tap a place in Maps: the name with that day's hours, a button row pinned under it (**Google Maps** filled, Tabelog for restaurants in Japan, Show on map), then Good to know. ✕ or a drag down closes it.
+- **The place card** — tap a linked step's name, as you'd tap a place in Maps: the name with that day's hours, a button row pinned under it (**Google Maps** filled, Tabelog for restaurants in Japan, Show on map), then Good to know. ✕ or a drag down closes it.
 - **Open in Google Maps** is also the first item when you hold a step (⋯ on a computer).
 - **The step's menu** — long-press a step on a phone (or right-click it, or its ⋯ on hover on a computer): add to Google Calendar, mark as **overwhelming** (a ⚠ on its grey line; the day's count shows on Plan), add a note, duplicate, add an expense, remove.
 - **Delete** — swipe a step left on a phone.
@@ -184,24 +184,30 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 - "Restaurant" means the category's icon is from *Food & drink* (or its name says food, café, bar…).
 - **Manage → Content → Tabelog links** finds them for every restaurant at once.
 
-**Good to know.** Every restaurant or café, and every other place on a day's plan (a shrine, a museum, a garden), gets a short summary of what guides and review sites say about it — anywhere, not just Japan:
+**Good to know.** A short summary of a place from guides and review sites, plus its own website — anywhere, not just Japan.
 
-| Place | Facts |
+| Place | Shows |
 | --- | --- |
-| Somewhere to eat | **Known for**, **Hours**, **Closed**, **Reservations**, **Queue**, **Price** |
-| Anything else on a plan | **Known for**, **Hours**, **Closed**, **Tickets**, **Crowds**, **Entry** |
+| Restaurant or café | **Known for**, **Hours**, **Closed**, **Reservations**, **Queue**, **Price**, **Website** |
+| Anything else on a day's plan | **Known for**, **Hours**, **Closed**, **Tickets**, **Crowds**, **Entry**, **Website** |
 
-- Each is a short phrase. Anything the sources don't mention is left out.
-- **Website** — the place's own site, tapped to open. Taken from OpenStreetMap's tag for the place at its pin; else a search page whose address is named like the place. Never a listing or guide site (Tabelog, Tripadvisor, japan-guide…).
-- No Website row when neither has one — common for small cafés, viewpoints and streets.
-- A place that changes category (sight ↔ restaurant) is looked up again the new way.
-- Not for your own hotel, or a place filed as lodging or transport (a hot spring still counts).
-- On Plan it's in the step's place card (tap its icon), under the button row, so the step itself stays short; on the Map it's part of the place's card, after its links.
-- Looked up the first time the place shows, again once it's a month old, and again after a rename. Saved with the place, so it works offline.
-- It shows when it was checked and which sites it came from, with **Refresh** to check again now.
-- A result only counts if its pages name the place and mention its city — so a namesake elsewhere isn't picked up.
-- It can be out of date. Check hours and closed days with the place before a long trip across town.
-- **Manage → Content → Good to know** checks every restaurant and planned place at once. Uses the same `TAVILY_API_KEY`, one search per place.
+Where to find it:
+- **Plan** — tap a step's icon; it's in the place card, under the buttons.
+- **Map** — in the place's card, after its links.
+
+How it fills in:
+- **By itself** — the first time a place shows, again once it's a month old, and after a rename or a category change. Nothing to run.
+- **Refresh** on the card checks again now. **Manage → Content → Good to know** does every place at once (one search each).
+- Saved with the place, so it works offline.
+- Not for your own hotel, or places filed as lodging or transport (a hot spring still counts).
+
+What to expect:
+- Each fact is a short phrase; anything the sources don't mention is left out.
+- **Website** comes from OpenStreetMap's tag for the place at its pin, else a search result whose address carries the place's name. Never a listing or guide site (Tabelog, Tripadvisor…). No row when none is found — common for small cafés, viewpoints and streets.
+- A result only counts if its pages name the place and its city, so a namesake elsewhere isn't picked up.
+- The card shows when it was checked and which sites it came from.
+- It can be out of date — check hours with the place before a long trip across town.
+- Needs `TAVILY_API_KEY` (see [Environment variables](#environment-variables)).
 
 **Back to hotel.** The last stop of the day is that night's hotel (left off on a departure day). The way there sits on the line above it, with the same pills as between steps. Tapping the row opens Google Maps directions.
 
