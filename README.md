@@ -220,6 +220,7 @@ What to expect:
 - **Website** comes from OpenStreetMap's tag for the place at its pin, else a search result whose address carries the place's name. Never a listing or guide site (Tabelog, Tripadvisor…). No row when none is found — common for small cafés, viewpoints and streets.
 - **Menu** is the place's own menu page when OpenStreetMap has one tagged, else the menu tab of its Tabelog page. No row without either. Google Maps menus aren't available without a paid API.
 - A result only counts if its pages name the place and its city, so a namesake elsewhere isn't picked up.
+- The city is the stay's ("Kawaguchiko" is enough for "Lake Kawaguchiko"). A place over 30 km from that stay's hotel is a day trip, so it's searched by name alone.
 - When it was checked and which sites it came from are on the ↻ icon's tooltip, not a row of their own.
 - It can be out of date — check hours with the place before a long trip across town.
 - Needs `TAVILY_API_KEY` (see [Environment variables](#environment-envlocal)).

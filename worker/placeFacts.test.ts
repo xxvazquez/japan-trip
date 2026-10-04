@@ -92,6 +92,10 @@ describe("findFacts", () => {
   it("finds nothing when the pages are about a namesake in another city", async () => {
     expect(await findFacts("Corner Coffee", "Kyoto", "key", fake("Hours: 7-15", ["Corner Coffee - Portland"]), today)).toBeNull();
   });
+  it("takes a page naming the stay's city by its own word, not the whole phrase", async () => {
+    const res = fake("Hours: 24 hours", ["Chureito Pagoda - a short walk from Kawaguchiko"]);
+    expect(await findFacts("Chureito Pagoda", "Lake Kawaguchiko", "key", res, today, "sight")).toMatchObject({ hours: "24 hours" });
+  });
   it("finds nothing when no page is about the place", async () => {
     expect(await findFacts("Menya Inoichi", "Kyoto", "key", fake("Queue: 45 min", ["Ichiran Shibuya"]), today)).toBeNull();
   });

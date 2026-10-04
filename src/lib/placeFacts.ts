@@ -62,12 +62,20 @@ export const hasFacts = (f: PlaceFacts | undefined): f is PlaceFacts => !!f && (
 const stale = (f: PlaceFacts) =>
   (f.version ?? 1) < FACTS_VERSION || Date.now() - Date.parse(f.checkedAt) > STALE_DAYS * 864e5;
 
+/** past this from the stay's hotel, a place is a day trip out of that city
+ *  (Osaka from a Kyoto stay), not in it */
+const AREA_KM = 30;
+
 /** the city a place is in, to tell the search which one is meant: its own
- *  stay, else the stay of the first day it's planned on */
+ *  stay, else the stay of the first day it's planned on — unless it's a day
+ *  trip away from that stay's hotel, when a wrong city would only mislead */
 export function placeArea(place: Place, data: TripData | null): string | undefined {
   if (!data) return undefined;
   const legId = place.legId ?? data.days.find((d) => d.plan?.some((i) => i.placeId === place.id))?.legId;
-  return data.legs.find((l) => l.id === legId)?.base || undefined;
+  const leg = data.legs.find((l) => l.id === legId);
+  const hotel = leg?.hotelId ? data.hotels.find((h) => h.id === leg.hotelId) : undefined;
+  if (hotel?.lat != null && hotel.lng != null && haversineKm(hotel.lat, hotel.lng, place.lat, place.lng) > AREA_KM) return undefined;
+  return leg?.base || undefined;
 }
 
 /** found → the facts; nothing found → null; couldn't ask (offline, no key,

@@ -113,6 +113,15 @@ export function pickWebsite(name: string, area: string | undefined, results: { u
   return undefined;
 }
 
+/** whether a page is in the stay's city — by the city's own words, so
+ *  "Lake Kawaguchiko" is matched by a page that only says "Kawaguchiko" */
+function inArea(area: string, text: string): boolean {
+  const own = distinctiveWords(area).filter((w) => !SIGHT_WORDS.has(w));
+  if (!own.length) return fold(text).includes(fold(area));
+  const theirs = new Set(distinctiveWords(text));
+  return own.some((w) => theirs.has(w));
+}
+
 /** the place's facts, or null when search found nothing about it. Throws
  *  when it can't be asked (no key, the month's searches used up, offline). */
 export async function findFacts(name: string, area: string | undefined, key: string, fetchImpl: Fetch = fetch, today = new Date(), kind: FactKind = "food"): Promise<Facts | null> {
@@ -129,7 +138,7 @@ export async function findFacts(name: string, area: string | undefined, key: str
   // back about a namesake somewhere else entirely
   const about = (body.results ?? []).filter((r) => {
     const text = `${r.title} ${r.content ?? ""} ${r.url}`;
-    return sameName(name, text) && (!area || fold(text).includes(fold(area)));
+    return sameName(name, text) && (!area || inArea(area, text));
   });
   if (!about.length) return null;
   const facts = body.answer ? parseFacts(body.answer, kind) : {};
