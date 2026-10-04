@@ -178,9 +178,10 @@ These appear automatically when a step is linked to a place.
 
 A straight-line estimate shows first and is replaced by a real walking route when one comes back (needs `VITE_ORS_API_KEY`). The train time is a guess, since there's no free transit-routing API.
 
-**Opening hours.** The hours to read are the **Hours** row in Good to know. Separately, if the place has hours on OpenStreetMap (matched by its name, or tagged right on its pin — never a neighbour's), the step's time is checked against that day's hours, with seasonal and weekday rules applied:
+**Opening hours.** The hours to read are the **Hours** row in Good to know. A step's time is checked against that day's hours, with seasonal and weekday rules applied:
 
-- **Closed this day** — the place doesn't open that date.
+- The hours come from Good to know's **Hours** and **Closed** rows first ("Tue–Sun 11am–3pm", "Mondays"), else from OpenStreetMap (matched by the place's name, or tagged right on its pin — never a neighbour's).
+- **Closed this day** — the place doesn't open that date (a closed weekday, or a day its hours don't cover).
 - **Not open yet · opens 10:00** / **Closed then · reopens 17:00** / **Closed by then · closes 17:00** — the start time falls outside the hours.
 - **Closes at 17:00** — a time range runs past closing.
 - Nothing shows when it fits, or when the hours or the time (e.g. "Around noon") can't be read.

@@ -57,7 +57,7 @@ import { MODE_ICON, MODE_LABEL, MODE_TONE } from "@/lib/transport";
 import { useWalk, estimateTransit } from "@/lib/walkRoute";
 import { nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
 import { nearestOpeningHours, type PlaceHours } from "@/lib/placeHours";
-import { hoursConflict, hoursForDate } from "@/lib/openingHours";
+import { factsHoursForDate, hoursConflict, hoursForDate } from "@/lib/openingHours";
 import { fetchDayWeather, weatherLabel, type DayWeather } from "@/lib/weather";
 import { prefetchTiles, canPrefetchTiles, dayOfflinePoints } from "@/lib/offlineTiles";
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon, expenseCategoryForGlyph } from "@/lib/cost";
@@ -1518,7 +1518,9 @@ function usePlaceHours(place: Place | undefined, date?: string): string | null {
     void nearestOpeningHours(place.lat, place.lng, place.name).then((h) => { if (!cancelled) setHours(h); });
     return () => { cancelled = true; };
   }, [place?.id, place?.lat, place?.lng]);
-  return hours ? (date ? hoursForDate(hours.hours, date) : hours.hours) : null;
+  const fromFacts = place?.facts && date ? factsHoursForDate(place.facts.hours, place.facts.closed, date) : undefined;
+  if (fromFacts) return fromFacts;
+  return hours ? (date ? hoursForDate(hours.hours, date) ?? "Closed" : hours.hours) : null;
 }
 
 /** The way from one step to the next, as a slim row between them — the

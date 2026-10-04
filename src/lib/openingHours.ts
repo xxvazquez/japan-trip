@@ -125,3 +125,99 @@ export function hoursConflict(day: string, start?: string, end?: string): string
   if (!next) return `Closed by then · closes ${ranges[ranges.length - 1].b}`;
   return next === ranges[0] ? `Not open yet · opens ${next.a}` : `Closed then · reopens ${next.a}`;
 }
+
+/* ---------------------------------------------- "Good to know" phrases */
+
+const DAY_NAMES: [RegExp, string][] = [
+  [/\bmon(?:day)?s?\b\.?/gi, "Mo"],
+  [/\btue(?:s(?:day)?)?s?\b\.?/gi, "Tu"],
+  [/\bwed(?:nesday)?s?\b\.?/gi, "We"],
+  [/\bthu(?:r(?:s(?:day)?)?)?s?\b\.?/gi, "Th"],
+  [/\bfri(?:day)?s?\b\.?/gi, "Fr"],
+  [/\bsat(?:urday)?s?\b\.?/gi, "Sa"],
+  [/\bsun(?:day)?s?\b\.?/gi, "Su"],
+  [/\bweekdays?\b/gi, "Mo-Fr"],
+  [/\bweekends?\b/gi, "Sa-Su"],
+];
+
+/** weekday names, "Mon to Fri", "Sat & Sun" → OSM's "Mo-Fr", "Sa,Su" */
+function osmDays(s: string): string {
+  for (const [re, to] of DAY_NAMES) s = s.replace(re, to);
+  return s
+    .replace(new RegExp(`\\b(${D})\\s*(?:-|–|—|~|to|through|thru|until)\\s*(${D})\\b`, "gi"), "$1-$2")
+    .replace(new RegExp(`\\b(${D})\\s*(?:,|&|\\band\\b)\\s*(?=(?:${D})\\b)`, "g"), "$1,");
+}
+
+const T12 = String.raw`(\d{1,2})(?:[:.](\d{2}))?(?:\s*([ap])\.?\s?m\b\.?)?`;
+const RANGE_12 = new RegExp(`(?<![\\d:])${T12}\\s*(?:-|–|—|~|\\bto\\b|\\buntil\\b)\\s*${T12}`, "gi");
+
+/** "11am–3pm", "5–10 p.m.", "11:30 – 22:00" → "11:00-15:00"… A pair with
+ *  neither a colon nor an am/pm ("2–3") is left alone — it could be anything. */
+function osmTimes(s: string): string {
+  return s.replace(RANGE_12, (all, h1: string, m1 = "", p1 = "", h2: string, m2 = "", p2 = "") => {
+    if (!m1 && !m2 && !p1 && !p2) return all;
+    let a = p1.toLowerCase(), b = p2.toLowerCase();
+    const to24 = (h: number, p: string) => (p === "a" ? h % 12 : p === "p" ? (h % 12) + 12 : h);
+    if (b && !a) a = to24(+h1, b) > to24(+h2, b) ? "a" : b; // "11–3pm" is 11am
+    if (a && !b) b = to24(+h2, a) <= to24(+h1, a) ? "p" : a;
+    const fmt = (h: number, m: string) => `${String(h).padStart(2, "0")}:${m || "00"}`;
+    return `${fmt(to24(+h1, a), m1)}-${fmt(to24(+h2, b), m2)}`;
+  });
+}
+
+/** what a guide's phrase can't be read as a weekly pattern from — "2nd and
+ *  4th Wednesdays", "Mondays in winter" */
+const NOT_WEEKLY = new RegExp(
+  `\\b(\\d+(st|nd|rd|th)|first|second|third|fourth|fifth|last|alternate|every other|some|occasional\\w*|irregular\\w*|varies|winter|summer|spring|autumn|fall|season\\w*|january|february|march|april|june|july|august|september|october|november|december|${MONTHS.join("|")})\\b`,
+  "i",
+);
+
+/** Whether a "Closed" phrase ("Mondays", "Tue & Wed (open on holidays)")
+ *  names that weekday (Mo = 0). Undefined when it can't be told. */
+function closedOn(text: string, weekday: number): boolean | undefined {
+  if (/^\s*(unknown|n\/a|not stated)/i.test(text) || NOT_WEEKLY.test(text)) return undefined;
+  const t = text.replace(/\([^)]*\)/g, " ");
+  let hit = false, any = false;
+  osmDays(t).replace(DAY_RE, (_all, d1: string, d2?: string) => {
+    any = true;
+    const a = DAYS.indexOf(d1), b = d2 ? DAYS.indexOf(d2) : a;
+    if (a <= b ? weekday >= a && weekday <= b : weekday >= a || weekday <= b) hit = true;
+    return "";
+  });
+  return any ? hit : undefined;
+}
+
+/** The place's "Good to know" Hours and Closed lines, read for `iso` the
+ *  way `hoursForDate` reads OSM's tag: "Closed" when the closed days name
+ *  that weekday, else the hours that apply that day. Undefined when the
+ *  phrases can't be read reliably — never a guess. */
+export function factsHoursForDate(hours: string | undefined, closed: string | undefined, iso: string): string | undefined {
+  const parts = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  if (!parts) return undefined;
+  const weekday = (new Date(Date.UTC(+parts[1], +parts[2] - 1, +parts[3])).getUTCDay() + 6) % 7;
+  if (closed && closedOn(closed, weekday)) return "Closed";
+  if (!hours || /^\s*(unknown|n\/a|not stated)/i.test(hours)) return undefined;
+
+  // a last order / entry is inside the hours, not a session of its own
+  let s = hours.replace(/[,;.]?\s*\(?\s*(last (order|entry|admission)|l\.?o\.?)\b[^,;)]*\)?/gi, " ");
+  // a season in brackets still changes the hours, so it's checked first
+  if (NOT_WEEKLY.test(s)) return undefined;
+  s = s
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/\bnoon\b/gi, "12pm")
+    .replace(/\bmidnight\b/gi, "12am")
+    .replace(/\b(open )?24 ?(hours|hrs|h)\b/gi, "24/7");
+  s = osmDays(osmTimes(s))
+    .replace(/\b(open|daily|every ?day|all week|hours)\b:?/gi, " ")
+    .replace(new RegExp(`\\bclosed\\s+((?:(?:${D})[\\s,-]*)+)`, "gi"), "$1 off")
+    .replace(/\s+(?:and|&)\s+(?=\d)/gi, ", ")
+    // "Mo-Fr 11:00-22:00, Sa-Su 10:00-22:00" is two rules
+    .replace(new RegExp(`(\\d:\\d{2}|\\boff)\\s*[,;]?\\s*(?=(?:${D})\\b)`, "g"), "$1; ")
+    .replace(/[,;]\s*$/, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!s) return undefined;
+  const day = hoursForDate(s, iso);
+  if (day === s) return undefined; // couldn't be read
+  return day ?? "Closed";
+}
