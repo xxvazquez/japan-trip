@@ -145,7 +145,7 @@ The day reads as one route, like a route's stops in Maps: times in a column on t
 
 Each step shows its name, then its note in smaller, lighter grey (folded after 2 lines, with **more**). A red line under the name only appears when it changes the plan: the step's time doesn't fit the place's hours (see below) or it's marked **Overwhelming**.
 
-On a day that spans more than one part, the plan is split into **Morning** (before 12:00), **Afternoon** (until 18:00) and **Evening**, each starting with a tinted band across the timeline. A step with no exact time stays in the part before it.
+On a day that spans more than one part, the plan is split into **Morning** (before 12:00), **Afternoon** (until 18:00) and **Evening**, each starting with a tinted band across the timeline. A step with no exact time stays in the part before it. A day that ends back at the hotel always closes with an **Evening** band, even when you're back before 18:00.
 
 A stop and the way on to the next one stay together: the walk or train sits under the stop it leaves from, never under a Morning/Afternoon band.
 

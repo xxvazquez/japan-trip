@@ -735,7 +735,10 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
   // label wherever a timed entry starts a new part of the day (an untimed
   // one stays in the part before it), on a day with more than one part
   const parts = entries.map((e) => dayPart(e.time));
-  const multiPart = new Set(parts.filter(Boolean)).size > 1;
+  // a day that ends back at the hotel always closes with an Evening band,
+  // even when you're home before 18:00 — the evening is spent there
+  const endsEvening = !!returnHotel && parts.some(Boolean);
+  const multiPart = new Set([...parts.filter(Boolean), ...(endsEvening ? ["evening"] : [])]).size > 1;
   let part: DayPart | undefined;
   const rows = entries.flatMap((e, i) => {
     const p = parts[i];
@@ -747,7 +750,10 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
   // the day closes with the way back to the hotel; its walk figures need the
   // last step to be tied to a real place, the directions link doesn't
   const lastPlace = items[items.length - 1]?.placeId ? places.find((p) => p.id === items[items.length - 1].placeId) : undefined;
-  const backRow = returnHotel ? <ReturnToHotel key="back-to-hotel" from={lastPlace} hotel={returnHotel} /> : null;
+  const eveningBand = endsEvening && multiPart && parts.filter(Boolean).at(-1) !== "evening"
+    ? <DayPartRow key="part-evening" part="evening" />
+    : null;
+  const backRow = returnHotel ? <ReturnToHotel key="back-to-hotel" from={lastPlace} hotel={returnHotel} band={eveningBand} /> : null;
   // and opens at the hotel you woke up at — under the first part-of-day
   // label when the day starts with one, since leaving is part of the morning
   if (startHotel) rows.splice(multiPart && parts[0] ? 1 : 0, 0, <StartFromHotel key="from-hotel" hotel={startHotel} />, ...startConnector);
@@ -1326,7 +1332,7 @@ function StartFromHotel({ hotel }: { hotel: Hotel }) {
  *  sits on the rail above it like any other travel (`TravelConnector`),
  *  measured from the last step's place; the row itself opens Google Maps
  *  directions (from wherever you are when the last step has no place). */
-function ReturnToHotel({ from, hotel }: { from?: Place; hotel: Hotel }) {
+function ReturnToHotel({ from, hotel, band }: { from?: Place; hotel: Hotel; band?: React.ReactNode }) {
   const to = hotelCoords(hotel);
   const walk = useWalk(from ?? { lat: 0, lng: 0 }, from ? to : null);
   const long = !walk || walk.min > LONG_WALK_MIN;
@@ -1335,6 +1341,9 @@ function ReturnToHotel({ from, hotel }: { from?: Place; hotel: Hotel }) {
   return (
     <>
       {from && to && <TravelConnector from={from} to={to} />}
+      {/* the Evening band goes after the way back, never between a stop
+          and its travel */}
+      {band}
       <li>
         <a href={href} target="_blank" rel="noopener" aria-label={`Directions back to ${hotel.name || "your stay"}`} className="block active:bg-ink/[0.07]">
           <TimelineStop tile={<IconTile size="sm" name="bed" tone="accent" />}>
