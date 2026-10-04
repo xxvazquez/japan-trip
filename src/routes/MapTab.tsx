@@ -60,6 +60,11 @@ const AREA_TITLE = "block break-words text-[17px] leading-snug text-ink";
 const SM_TILE_DIVIDER = INSET_DIVIDER.replace("after:left-3.5", "after:left-12");
 const TILE_DIVIDER =
   "relative after:pointer-events-none after:absolute after:bottom-0 after:left-[3.375rem] after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
+/** a place inside an open area — indented one level, the Files outline
+ *  view, so its tile lines up under the area's name. Hairlines between
+ *  siblings start at the nested text; the group's last row draws the
+ *  area-level hairline, closing the group before the next area. */
+const NESTED_DIVIDER = TILE_DIVIDER.replace("after:left-[3.375rem]", "after:left-[5.875rem]");
 
 /** an area's two farthest-apart places (its "width", not a tour of everywhere
  *  in it) — cheap local haversine just to find *which* pair, real walking
@@ -1139,11 +1144,12 @@ export default function MapTab() {
   // distance ("row 2" → "2.0 km"). Always wrap it: `.map((p) => renderRow(p))`.
   // the selected place lives in its card at the top, so its own list row
   // steps aside instead of repeating it underneath
-  const renderRow = (p: Place, distanceKm?: number, card = false) => !card && selected === p.id ? null : (
+  const renderRow = (p: Place, distanceKm?: number, card = false, nest?: "mid" | "end") => !card && selected === p.id ? null : (
     <PlaceRow
       key={p.id}
       place={p}
       card={card}
+      nest={nest}
       open={card}
       dayId={dayOfPlace.get(p.id)}
       derived={derived.has(p.id)}
@@ -1180,6 +1186,13 @@ export default function MapTab() {
       })}
     />
   );
+
+  // an open area's places, indented under it; the selected one is lifted out
+  // as the card, so "end" goes to the last row actually drawn
+  const nested = (items: Place[]) => {
+    const shown = items.filter((p) => p.id !== selected);
+    return shown.map((p, i) => renderRow(p, undefined, false, i === shown.length - 1 ? "end" : "mid"));
+  };
 
   // The selected place shows as a card at the top of whichever list is up —
   // its details live there, so a shut area or city never has to spring open to
@@ -1512,7 +1525,7 @@ export default function MapTab() {
                           const shut = !openAreas.has(a.id);
                           return [
                             <AreaRow key={a.id} name={a.name} tone={a.tone} items={a.items} open={!shut} onToggle={() => toggleAreaCollapsed(a.id)} />,
-                            ...(!shut ? a.items.map((p) => renderRow(p)) : []),
+                            ...(!shut ? nested(a.items) : []),
                           ];
                         })}
                       </ul>
@@ -1556,7 +1569,7 @@ export default function MapTab() {
                     onToggle={() => toggleAreaCollapsed(g.id)}
                     onSolo={isArea ? () => toggleAreaFilter(g.id) : undefined}
                   />,
-                  ...(!shut ? g.items.map((p) => renderRow(p)) : []),
+                  ...(!shut ? nested(g.items) : []),
                 ];
               })}
             </ul>
@@ -1705,6 +1718,7 @@ const NEW_CATEGORY = "\u0000new";
 function PlaceRow({
   place,
   card = false,
+  nest,
   open,
   dayId,
   derived,
@@ -1729,6 +1743,8 @@ function PlaceRow({
   place: Place;
   /** drawn as the selected place's card at the top of the list, not as a list row */
   card?: boolean;
+  /** a row inside an open area: indented; "end" is the area's last place */
+  nest?: "mid" | "end";
   /** show the place's details under its header (only ever true in the card) */
   open: boolean;
   dayId?: string;
@@ -2022,7 +2038,7 @@ function PlaceRow({
   }
 
   return (
-    <li ref={li} className={`scroll-my-3 ${TILE_DIVIDER}`}>
+    <li ref={li} className={`scroll-my-3 ${nest === "mid" ? NESTED_DIVIDER : TILE_DIVIDER}`}>
         <ContextMenu
           menu={(link || !readOnly) && (
             <>
@@ -2040,7 +2056,7 @@ function PlaceRow({
             </>
           )}
         >
-          <button onClick={onToggle} className={`flex w-full items-center gap-3 px-3.5 py-2 text-left active:bg-ink/[0.07] ${derived ? "opacity-60" : ""}`}>
+          <button onClick={onToggle} className={`flex w-full items-center gap-3 py-2 pr-3.5 text-left ${nest ? "pl-[3.375rem]" : "pl-3.5"} active:bg-ink/[0.07] ${derived ? "opacity-60" : ""}`}>
             {tile}
             <span className="min-w-0 flex-1">
               <span className="block break-words text-sm leading-snug text-ink">{place.name}</span>
