@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useApp } from "@/store/useApp";
+import { holdDragActive } from "@/lib/holdDrag";
 
 const THRESHOLD = 64;
 const MAX_PULL = 88;
@@ -34,7 +35,8 @@ export function PullToRefresh() {
     const onMove = (e: PointerEvent) => {
       if (startY.current == null) return;
       const dy = e.clientY - startY.current;
-      if (dy <= 0 || window.scrollY > 0) {
+      // a held row being dragged down isn't a pull
+      if (dy <= 0 || window.scrollY > 0 || holdDragActive()) {
         startY.current = null;
         pullingRef.current = false;
         pullRef.current = 0;

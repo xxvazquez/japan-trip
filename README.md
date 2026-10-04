@@ -85,8 +85,8 @@ The round button beside the tab bar (top right on a wide screen, or ⌘K / Ctrl+
 The trip as a list of days, grouped by **base** — where you're based for a run of nights (Tokyo, Kyoto). A **stay** is the place you sleep there: a hotel, an Airbnb, anything. Day trips go out from a base and back.
 
 - **Tags.** Each day shows **Arrive**, **Travel**, **Depart** or **Day trip**. These are worked out from the day itself, never chosen by hand. A day trip stays **Day trip** with its trains on it; an arrival or departure journey still wins.
-- **Reorder** by dragging a day up or down. The dates shuffle with it.
-- **Pin a day** that's fixed to its date (a public holiday, a booked tour) from the foot of its page. Its drag handle becomes a pin and other days flow around it. **Unpin this day** undoes it.
+- **Reorder** — hold a day, then drag it up or down (on a computer, just drag it). The dates shuffle with it. Holding without moving opens the day's menu instead.
+- **Pin a day** that's fixed to its date (a public holiday, a booked tour) from the foot of its page. It shows a pin, can't be dragged, and other days flow around it. **Unpin this day** undoes it.
 - **During the trip** the list opens on today. Earlier days move to **Past days** at the bottom (closed until you open it), grouped by base. Past days can be opened, not dragged. It moves on to the new day by itself, even if the app was left open overnight.
 - **After the trip** the top of Plan becomes a recap: how many days away, cities, total spent in the trip's main currency (tap it for Expenses) and stamps collected.
 - **Labels** — your own tags for a day ("Chill day", "Walking"):

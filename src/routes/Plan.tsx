@@ -3,9 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   DndContext,
   DragOverlay,
-  PointerSensor,
-  TouchSensor,
-  KeyboardSensor,
+  MouseSensor,
   useSensor,
   useSensors,
   useDroppable,
@@ -16,6 +14,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { HoldDragSensor, swallowNextClick } from "@/lib/holdDrag";
 import { Page, PageHeader } from "@/components/Page";
 import { Section } from "@/components/Section";
 import { Empty } from "@/components/Empty";
@@ -246,10 +245,11 @@ function LegList({ data, todayISO, readOnly, splitPast, addDay }: {
   const dayById = (id: string) => data.days.find((d) => d.id === id);
   const activeDay = activeId ? dayById(activeId) : undefined;
 
+  // no drag handles: a mouse drags the row itself, a finger holds it first
+  // (a quick swipe is a scroll; a hold without moving is the row's menu)
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 8 } }),
-    useSensor(KeyboardSensor),
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(HoldDragSensor),
   );
 
   const legOf = (id: string, from: Record<string, string[]>) =>
@@ -295,6 +295,7 @@ function LegList({ data, todayISO, readOnly, splitPast, addDay }: {
     }
     setWorking(null);
     setActiveId(null);
+    swallowNextClick();
     const changed = legIds.some((id) => {
       const a = final[id] ?? [];
       const b = derived[id];
@@ -340,7 +341,7 @@ function LegList({ data, todayISO, readOnly, splitPast, addDay }: {
                 <li className={`${DAY_ROW_LI} kicker px-3.5 pb-1 pt-3`}>{leg.base}</li>
                 {days.map((d) => (
                   <li key={d.id} className={`${DAY_ROW_LI} flex`}>
-                    <DayLink data={data} day={d} today={false} loc={loc} className="pl-3.5" />
+                    <DayLink data={data} day={d} today={false} loc={loc} />
                   </li>
                 ))}
               </Fragment>
@@ -442,8 +443,7 @@ function DayKindTag({ day, data }: { day: Day; data: TripData }) {
 /** The little block that rides under the cursor while dragging a day. */
 function DayCard({ day, loc, data }: { day: Day; loc: string; data: TripData }) {
   return (
-    <div className="flex items-center gap-3 rounded-[12px] border border-line bg-surface px-3.5 py-3 text-sm shadow-md">
-      <span className="text-ink-faint"><Icon name="grip" size={14} /></span>
+    <div className="flex items-baseline gap-3 rounded-[12px] bg-surface px-3.5 py-3 shadow-lg">
       <DayDate date={day.date} loc={loc} />
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="break-words leading-snug text-ink">{day.title || "Untitled day"}</span>
@@ -453,18 +453,19 @@ function DayCard({ day, loc, data }: { day: Day; loc: string; data: TripData }) 
   );
 }
 
-/** Own hairline, inset past the leading date (not the drag handle,
- *  which sits outside the link) — dropped on the last row, like every other
- *  grouped-inset list. The whole row greys while its link is pressed. */
+/** Own hairline, inset past the leading date — dropped on the last row,
+ *  like every other grouped-inset list. The whole row greys while its link
+ *  is pressed. */
 const DAY_ROW_LI =
   "relative transition-colors duration-150 has-[a:active]:bg-ink/[0.07] after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
 
 /** A day's tappable row body — date, title, kind + labels, chevron. */
-function DayLink({ data, day, today, loc, className }: { data: TripData; day: Day; today: boolean; loc: string; className: string }) {
+function DayLink({ data, day, today, loc, pinned }: { data: TripData; day: Day; today: boolean; loc: string; pinned?: boolean }) {
   return (
     <Link
       to={`/day/${day.id}`}
-      className={`flex min-w-0 flex-1 items-baseline gap-3 py-3 pr-3.5 ${className}`}
+      draggable={false}
+      className="flex min-w-0 flex-1 items-baseline gap-3 px-3.5 py-3"
     >
       {/* the stay's colour is on its header — not repeated on every day */}
       <span className="shrink-0 whitespace-nowrap">
@@ -477,6 +478,13 @@ function DayLink({ data, day, today, loc, className }: { data: TripData; day: Da
         <DayKindTag day={day} data={data} />
       </span>
       {today && <span className="eyebrow shrink-0 text-ink">Today</span>}
+      {/* fixed to its date, so it doesn't move with a drag — unpin on its page or the row's menu */}
+      {pinned && (
+        <span className="mt-[3px] shrink-0 self-start text-ink-faint" title="Pinned to its date">
+          <Icon name="pushpin" size={14} />
+          <span className="sr-only">Pinned to its date</span>
+        </span>
+      )}
       {/* on the title's first line, like the date — not centred on a tall row */}
       <Icon name="chevron" size={14} className="mt-[5px] shrink-0 self-start text-ink-faint" />
     </Link>
@@ -485,31 +493,16 @@ function DayLink({ data, day, today, loc, className }: { data: TripData; day: Da
 
 function DayRow({ data, day, today, loc, readOnly }: { data: TripData; day: Day; today: boolean; loc: string; readOnly: boolean }) {
   const pinned = (data.config.pinnedDays ?? []).includes(day.id);
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: day.id, disabled: readOnly || pinned });
+  const { listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: day.id, disabled: readOnly || pinned });
   return (
     <li
       ref={setNodeRef}
+      {...listeners}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`${DAY_ROW_LI} ${isDragging ? "z-10 bg-surface opacity-70 shadow-sm" : ""}`}
+      className={`${DAY_ROW_LI} ${isDragging ? "z-10 bg-surface opacity-40" : ""}`}
     >
-      <ContextMenu menu={readOnly ? undefined : <DayMenu day={day} pinned={pinned} />} className="flex items-start">
-      {!readOnly && (pinned ? (
-        // fixed to its date — a pin where the handle was; unpin on the day's page
-        <span className="shrink-0 pb-3 pl-3 pr-1 pt-[18px] text-ink-faint" title="Pinned to its date">
-          <Icon name="pushpin" size={14} />
-          <span className="sr-only">Pinned to its date</span>
-        </span>
-      ) : (
-        <button
-          {...attributes}
-          {...listeners}
-          className="tap shrink-0 cursor-grab touch-none pb-3 pl-3 pr-1 pt-[18px] text-ink-faint active:cursor-grabbing"
-          aria-label="Drag to reorder"
-        >
-          <Icon name="grip" size={14} />
-        </button>
-      ))}
-      <DayLink data={data} day={day} today={today} loc={loc} className={readOnly ? "pl-3.5" : "pl-1"} />
+      <ContextMenu menu={readOnly ? undefined : <DayMenu day={day} pinned={pinned} />} dismiss={isDragging} className="flex items-start">
+        <DayLink data={data} day={day} today={today} loc={loc} pinned={pinned} />
       </ContextMenu>
     </li>
   );

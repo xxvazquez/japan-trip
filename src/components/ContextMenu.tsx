@@ -37,11 +37,14 @@ export function ContextMenu({
   children,
   className = "",
   as: Tag = "div",
+  dismiss = false,
 }: {
   menu?: ReactNode;
   children: ReactNode;
   className?: string;
   as?: "div" | "li";
+  /** the held row has been picked up to reorder — put the menu away */
+  dismiss?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [point, setPoint] = useState<MenuPoint | null>(null);
@@ -74,6 +77,9 @@ export function ContextMenu({
     setPressing(false);
   };
   useEffect(() => cancel, []);
+  useEffect(() => {
+    if (dismiss) close();
+  }, [dismiss, close]);
 
   const fromRow = (x: number): MenuPoint | null => {
     const r = ref.current?.getBoundingClientRect();
