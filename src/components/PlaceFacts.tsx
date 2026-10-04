@@ -28,11 +28,24 @@ export function PlaceFactRows({ place, area }: { place: Place; area?: string }) 
 
   return (
     <>
-      {factRows(f).map(([k, label]) => f[k] && (
-        <InsetRow key={k} label={label} stacked>
-          <span className="break-words">{f[k]}</span>
-        </InsetRow>
-      ))}
+      {factGroups(factRows(f).filter(([k]) => f[k]).map(([k, label]) => ({ k, label, value: f[k] as string }))).map((g) =>
+        g.length === 2 ? (
+          // two short facts side by side, split by a hairline — the way a
+          // Maps place card sets Hours beside what it accepts
+          <li key={g[0].k} className={`${INSET_DIVIDER} grid grid-cols-2`}>
+            {g.map((c, i) => (
+              <div key={c.k} className={`min-w-0 px-3.5 py-3 ${i ? "border-l border-line" : ""}`}>
+                <span className="row-label mb-0.5 block">{c.label}</span>
+                <span className="row-value block break-words text-left">{c.value}</span>
+              </div>
+            ))}
+          </li>
+        ) : (
+          <InsetRow key={g[0].k} label={g[0].label} stacked>
+            <span className="break-words">{g[0].value}</span>
+          </InsetRow>
+        ),
+      )}
       {f.website && (
         <li className={INSET_DIVIDER}>
           <a href={f.website} target="_blank" rel="noopener" className="block px-3.5 py-3 transition-colors duration-150 hover:bg-surface-2/40 active:bg-ink/[0.07]">
@@ -63,4 +76,24 @@ function siteName(url: string): string {
   } catch {
     return url;
   }
+}
+
+/** facts that read as a pair — when it's open and when it isn't, how to get
+ *  in and how busy it gets */
+const PAIRS: [string, string][] = [["hours", "closed"], ["reservations", "queue"]];
+/** past this a value needs the full width, or a half column runs 4–5 lines */
+const PAIR_MAX = 44;
+
+/** the facts as rows of one or two: a pair shares a row when both are there
+ *  and both are short; anything else gets the row to itself */
+function factGroups<T extends { k: string; value: string }>(rows: T[]): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < rows.length; i++) {
+    const a = rows[i], b = rows[i + 1];
+    if (b && PAIRS.some(([x, y]) => a.k === x && b.k === y) && a.value.length <= PAIR_MAX && b.value.length <= PAIR_MAX) {
+      out.push([a, b]);
+      i++;
+    } else out.push([a]);
+  }
+  return out;
 }

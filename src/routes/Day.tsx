@@ -655,8 +655,9 @@ function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, a
     });
     return i < 0 ? items.length : i;
   };
-  const stopsBefore = (i: number) =>
-    stops.filter((st) => stopAt(st.time) === i).sort((a, b) => a.time.localeCompare(b.time)).map(stopRow);
+  const stopsAt = (i: number) =>
+    stops.filter((st) => stopAt(st.time) === i).sort((a, b) => a.time.localeCompare(b.time));
+  const stopsBefore = (i: number) => stopsAt(i).map(stopRow);
 
   if (items.length === 0 && stops.length === 0) {
     return readOnly ? (
@@ -678,29 +679,51 @@ function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, a
     return [<TravelConnector key={`travel-${items[i].id}`} from={from} to={to} />];
   };
 
-  const rows = items.flatMap((it, i) => [
-    ...stopsBefore(i),
-    <PlanRow
-      key={it.id}
-      day={day}
-      tz={tz}
-      item={it}
-      fresh={it.id === fresh}
-      timeStart={timeBefore(items, i)}
-      place={it.placeId ? places.find((p) => p.id === it.placeId) : undefined}
-      areaPlaces={areaPlaces}
-      areaNameByPlaceId={areaNameByPlaceId}
-      categoryIcons={categoryIcons}
-      categoryColors={categoryColors}
-      readOnly={readOnly}
-      onPatch={(p) => patchItem(it.id, p)}
-      onRemove={() => removeItem(it.id)}
-      onDuplicate={() => duplicateItem(it.id)}
-      onQuickAddCost={onQuickAddCost}
-      onShowOnMap={onShowOnMap}
-    />,
-    ...connectorAfter(i),
-  ]).concat(stopsBefore(items.length));
+  // the plan in order, each entry with the time it starts at: a journey's
+  // own rows, and each step with the way there just above it
+  const entries: { time?: string; nodes: React.ReactNode[] }[] = [];
+  items.forEach((it, i) => {
+    for (const st of stopsAt(i)) entries.push({ time: st.time, nodes: [stopRow(st)] });
+    entries.push({
+      time: splitRange(it.time)?.[0] ?? it.time,
+      nodes: [
+        ...(i > 0 ? connectorAfter(i - 1) : []),
+        <PlanRow
+          key={it.id}
+          day={day}
+          tz={tz}
+          item={it}
+          fresh={it.id === fresh}
+          timeStart={timeBefore(items, i)}
+          place={it.placeId ? places.find((p) => p.id === it.placeId) : undefined}
+          areaPlaces={areaPlaces}
+          areaNameByPlaceId={areaNameByPlaceId}
+          categoryIcons={categoryIcons}
+          categoryColors={categoryColors}
+          readOnly={readOnly}
+          onPatch={(p) => patchItem(it.id, p)}
+          onRemove={() => removeItem(it.id)}
+          onDuplicate={() => duplicateItem(it.id)}
+          onQuickAddCost={onQuickAddCost}
+          onShowOnMap={onShowOnMap}
+        />,
+      ],
+    });
+  });
+  for (const st of stopsAt(items.length)) entries.push({ time: st.time, nodes: [stopRow(st)] });
+
+  // Morning / Afternoon / Evening, as Reminders splits its Today list: a
+  // label wherever a timed entry starts a new part of the day (an untimed
+  // one stays in the part before it), on a day with more than one part
+  const parts = entries.map((e) => dayPart(e.time));
+  const multiPart = new Set(parts.filter(Boolean)).size > 1;
+  let part: DayPart | undefined;
+  const rows = entries.flatMap((e, i) => {
+    const p = parts[i];
+    if (!multiPart || !p || p === part) return e.nodes;
+    part = p;
+    return [<DayPartRow key={`part-${i}`} part={p} />, ...e.nodes];
+  });
 
   // the day closes with the way back to the hotel; its walk figures need the
   // last step to be tied to a real place, the directions link doesn't
@@ -731,6 +754,43 @@ function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, a
         <Icon name="plus" size={14} /> Add a step
       </button>
     </>
+  );
+}
+
+type DayPart = "morning" | "afternoon" | "evening";
+const DAY_PARTS: Record<DayPart, { label: string; icon: IconName }> = {
+  morning: { label: "Morning", icon: "sunrise" },
+  afternoon: { label: "Afternoon", icon: "sun" },
+  evening: { label: "Evening", icon: "moon" },
+};
+
+/** which part of the day a start time falls in — before noon, before 18:00,
+ *  or later; nothing for a loose time ("Around noon") or none */
+function dayPart(time?: string): DayPart | undefined {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(time ?? "");
+  if (!m) return undefined;
+  const h = +m[1];
+  return h < 12 ? "morning" : h < 18 ? "afternoon" : "evening";
+}
+
+/** a part-of-day label across the timeline: its small glyph sits on the
+ *  rail like a quiet milestone, the name beside it in the stop column, then
+ *  a hairline to the edge */
+function DayPartRow({ part }: { part: DayPart }) {
+  const { label, icon } = DAY_PARTS[part];
+  return (
+    <li aria-label={label} className="flex gap-2.5 pl-3.5 pr-3.5">
+      <span className="w-[2.625rem] shrink-0" />
+      <Rail>
+        <span className="relative z-10 mt-2.5 grid h-[22px] w-[22px] place-items-center rounded-full bg-surface text-ink-faint">
+          <Icon name={icon} size={14} />
+        </span>
+      </Rail>
+      <span className="flex min-w-0 flex-1 items-center gap-2 pl-0.5 pt-2.5">
+        <span className="text-xs font-medium text-ink-soft">{label}</span>
+        <span aria-hidden className="h-[var(--hair)] flex-1 bg-line" />
+      </span>
+    </li>
   );
 }
 

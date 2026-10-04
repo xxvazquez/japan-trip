@@ -145,6 +145,8 @@ The day reads as one route, like a route's stops in Maps: times in a column on t
 
 Each step shows its name, then its note in smaller, lighter grey (folded after 2 lines, with **more**). A red line under the name only appears when it changes the plan: the step's time doesn't fit the place's hours (see below) or it's marked **Overwhelming**.
 
+On a day that spans more than one part, the plan is split into **Morning** (before 12:00), **Afternoon** (until 18:00) and **Evening**, each with a small label across the timeline. A step with no exact time stays in the part before it.
+
 - **Time** — a single time, or a range like `14:00–15:15` stacked as 14:00 over 15:15. An empty time is just a small clock to tap.
 - **Setting a time** — the wheels start at the last time set on an earlier step (else 9:00). **Done** saves what's showing; tapping outside or swiping the sheet down cancels.
 - **Link a place** — tap the step's icon to pick a place from the day's Areas, or to change it later; **Custom…** unlinks it.
@@ -189,7 +191,7 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 - "Restaurant" means the category's icon is from *Food & drink* (or its name says food, café, bar…).
 - **Manage → Content → Tabelog links** finds them for every restaurant at once.
 
-**Good to know.** A short summary of a place from guides and review sites, plus its own website — anywhere, not just Japan.
+**Good to know.** A short summary of a place from guides and review sites, plus its own website — anywhere, not just Japan. Short pairs share a row in two columns — **Hours** beside **Closed**, **Reservations** beside **Queue** (or Tickets beside Crowds) — and anything longer gets the full width.
 
 | Place | Shows |
 | --- | --- |
@@ -197,7 +199,7 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 | Anything else on a day's plan | **Known for**, **Hours**, **Closed**, **Tickets**, **Crowds**, **Entry**, **Website** |
 
 Where to find it:
-- **Plan** — tap a step's icon; it's in the place card, under the buttons.
+- **Plan** — tap a step's name; it's in the place card, under the buttons.
 - **Map** — in the place's card, after its links.
 
 How it fills in:
