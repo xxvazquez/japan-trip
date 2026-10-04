@@ -1717,6 +1717,11 @@ function useTrainOption(from: { lat: number; lng: number } | null, to: { lat: nu
   return { a, b, walkIn: toA?.min ?? null, ride: estimateTransit(haversineKm(a.lat, a.lng, b.lat, b.lng)), walkOut: fromB?.min ?? null };
 }
 
+/** door to door by train: the walk in, the ride and the walk out */
+function trainMinutes(t: TrainOption): number {
+  return (t.walkIn ?? 0) + t.ride + (t.walkOut ?? 0);
+}
+
 /** One end of the day's journey as a plan row — "Leave Kyoto" at its first
  *  departure, "Arrive Kurama" at its last arrival. Read-only here; it opens
  *  the journey, where the times are edited. */
@@ -1774,7 +1779,7 @@ function StartFromHotel({ hotel, to, firstTime, time, readOnly, onTime }: {
   const walk = useWalk(from ?? { lat: 0, lng: 0 }, from && to ? to : null);
   const train = useTrainOption(from, to ?? null, !!walk && walk.min > LONG_WALK_MIN);
   const way = walk && walk.min > LONG_WALK_MIN && train
-    ? (train.walkIn ?? 0) + train.ride + (train.walkOut ?? 0)
+    ? trainMinutes(train)
     : walk?.min;
   const timeStart = leaveBy(firstTime, way);
   return (
@@ -1921,15 +1926,19 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
             {train ? (
               // a line breaks between legs, never inside a station name
               // ("Omote-sando") or before its minutes
+              // door to door first, as Maps heads a transit route with its
+              // total — a trailing walk's minutes read as the trip's otherwise
               <span className="min-w-0 break-words">
+                <span className="whitespace-nowrap">
+                  <Icon name="train" size={12} className="inline-block align-[-2px]" /> {fmtMinutes(trainMinutes(train))} ·
+                </span>{" "}
                 {train.walkIn != null && (
                   <span className="whitespace-nowrap">
                     <Icon name="walk" size={12} className="inline-block align-[-2px]" /> {fmtMinutes(train.walkIn)}{leg}
                   </span>
                 )}
-                <span className="whitespace-nowrap"><Icon name="train" size={12} className="inline-block align-[-2px]" /> {train.a.name} →</span>{" "}
-                <span className="whitespace-nowrap">{train.b.name}</span>{" "}
-                <span className="whitespace-nowrap">· {fmtMinutes(train.ride)}</span>
+                <span className="whitespace-nowrap">{train.a.name} →</span>{" "}
+                <span className="whitespace-nowrap">{train.b.name}</span>
                 {train.walkOut != null && (
                   <span className="whitespace-nowrap">
                     {leg}<Icon name="walk" size={12} className="inline-block align-[-2px]" /> {fmtMinutes(train.walkOut)}
