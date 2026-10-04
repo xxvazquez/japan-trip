@@ -1675,7 +1675,7 @@ function PlaceFactsPanel() {
   return (
     <Section
       title="Good to know"
-      info="Restaurants and cafés, and every place on a day’s plan, get a short summary of what guides and review sites say — what it’s known for, hours and closed days, then reservations, queues and price for somewhere to eat, or tickets, crowds and entry fee for a shrine, museum or other sight. It’s looked up when you open one on Plan or the Map, and again once it’s a month old; this does them all at once. Each place shows when it was checked, and can be refreshed by hand."
+      info="Restaurants and cafés, and every place on a day’s plan, get a short summary of what guides and review sites say — what it’s known for, hours and closed days, then reservations, queues and price for somewhere to eat, or tickets, crowds and entry fee for a shrine, museum or other sight — plus the place’s own website when it has one. It’s looked up when you open one on Plan or the Map, and again once it’s a month old; this does them all at once. Each place shows when it was checked, and can be refreshed by hand."
     >
       <ul>
         <InsetRow label="Filled in">

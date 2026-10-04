@@ -136,6 +136,19 @@ Nothing is lost in any of these.`,
 - **Place:** tap the grey pin and pick from the day's **Areas**. Add an area further down the day first if the list is empty.`,
       },
       {
+        id: "facts",
+        q: "What's Good to know, and where's a place's website?",
+        a: `A short summary of a place from guides and review sites, with its **Website** when it has one. Tap a step's **icon** to open its place card — it's below the buttons. On the Map, it's in the place's card.
+
+- **Restaurants and cafés:** known for, hours, closed days, reservations, queue, price.
+- **Sights on a day's plan:** known for, hours, closed days, tickets, crowds, entry.
+
+It fills in **by itself** the first time a place shows, and refreshes once a month — nothing to run. Tap **Refresh** on the card to check now, or **Manage → Content → Good to know** to do every place at once.
+
+No Website row means none was found — common for small cafés and viewpoints. Check hours with the place before a long trip across town.`,
+        go: { label: "Open Content", to: "/manage/content" },
+      },
+      {
         id: "warn",
         q: "What does the ⚠ on a step mean?",
         a: `It's marked **overwhelming** — a heads-up that a place is busy or loud. Set it from the step's **⋯**. Plan shows how many a day has.`,

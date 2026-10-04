@@ -207,7 +207,7 @@ What to expect:
 - A result only counts if its pages name the place and its city, so a namesake elsewhere isn't picked up.
 - The card shows when it was checked and which sites it came from.
 - It can be out of date — check hours with the place before a long trip across town.
-- Needs `TAVILY_API_KEY` (see [Environment variables](#environment-variables)).
+- Needs `TAVILY_API_KEY` (see [Environment variables](#environment-envlocal)).
 
 **Back to hotel.** The last stop of the day is that night's hotel (left off on a departure day). The way there sits on the line above it, with the same pills as between steps. Tapping the row opens Google Maps directions.
 
