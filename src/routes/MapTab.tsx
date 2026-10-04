@@ -1307,6 +1307,11 @@ export default function MapTab() {
                   {suggestions.some((g) => g.areaId) ? "Suggest areas" : `Suggest ${plural(suggestions.length, "area")}`}
                 </button>
               )}
+              {data.places.length > 0 && (
+                <Link to="/map/neighbourhoods" className="text-accent transition-opacity hover:opacity-70">
+                  Neighbourhoods
+                </Link>
+              )}
               {data.areas.length > 0 && (
                 <button onClick={() => setEditingAreas((v) => !v)} className="link-quiet ml-auto">
                   {editingAreas ? "Done" : "Edit areas"}

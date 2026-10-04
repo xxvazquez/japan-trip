@@ -8,6 +8,7 @@ const Day = lazy(() => import("@/routes/Day"));
 const Leg = lazy(() => import("@/routes/Leg"));
 const Journey = lazy(() => import("@/routes/Journey"));
 const MapTab = lazy(() => import("@/routes/MapTab"));
+const Neighbourhoods = lazy(() => import("@/routes/Neighbourhoods"));
 const LogbookIndex = lazy(() => import("@/routes/Logbook").then((m) => ({ default: m.LogbookIndex })));
 const LogbookSection = lazy(() => import("@/routes/Logbook").then((m) => ({ default: m.LogbookSection })));
 const ExpenseCategory = lazy(() => import("@/routes/Logbook").then((m) => ({ default: m.ExpenseCategory })));
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
       { path: "leg/:id", element: <Leg /> },
       { path: "journey/:id", element: <Journey /> },
       { path: "map", element: <MapTab /> },
+      { path: "map/neighbourhoods", element: <Neighbourhoods /> },
       { path: "logbook", element: <LogbookIndex /> },
       { path: "logbook/:section", element: <LogbookSection /> },
       { path: "logbook/documents/:id", element: <Document /> },

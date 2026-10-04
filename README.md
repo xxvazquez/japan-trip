@@ -285,6 +285,14 @@ When unassigned places sit close together, a **Suggest areas** link appears. Not
 - **A loose place that fits an existing area** is offered to it as "Add to …" instead of starting a new one.
 - **Existing areas** only ever gain places — nothing is renamed or taken out.
 
+### Neighbourhoods preview
+
+*Areas → Neighbourhoods* shows your places grouped by the neighbourhood they're in, city by city, next to how many areas each city has now. It's read-only — nothing changes.
+
+- A neighbourhood with 3 or more places is its own group; smaller ones join their district, then their ward or city.
+- Names come from OpenStreetMap, looked up once per place (about one a second) and kept on the device.
+- Open a group to see each place's current areas.
+
 ## Logbook
 
 The reference drawer: stays · journeys · luggage · documents · emergency numbers · packing · stamps · expenses · scratchpad, plus any lists you add. Each row shows a count, progress ("3/8") or a total.
