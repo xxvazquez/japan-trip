@@ -661,6 +661,7 @@ export default function MapTab() {
   /** "Nearby now" toggle on the Today list — not persisted, so it never asks
    *  for location on its own next time the trip opens. */
   const [nearbyOn, setNearbyOn] = useState(false);
+  const listScroll = useRef<Record<string, number>>({});
   /** the list's own search — typed text, and the same settled a beat later
    *  so the list and the map's fit don't jump on every keystroke */
   const [listQuery, setListQuery] = useState("");
@@ -1187,9 +1188,7 @@ export default function MapTab() {
   // bare to `.map()` elsewhere: Array.map's own (item, index) callback shape
   // silently satisfies `(p, distanceKm?)` and the row index gets typeset as a
   // distance ("row 2" → "2.0 km"). Always wrap it: `.map((p) => renderRow(p))`.
-  // the selected place lives in its card at the top, so its own list row
-  // steps aside instead of repeating it underneath
-  const renderRow = (p: Place, distanceKm?: number, card = false, nest?: "mid" | "end") => !card && selected === p.id ? null : (
+  const renderRow = (p: Place, distanceKm?: number, card = false, nest?: "mid" | "end") => (
     <PlaceRow
       key={p.id}
       place={p}
@@ -1234,17 +1233,27 @@ export default function MapTab() {
 
   // an open area's places, indented under it; the selected one is lifted out
   // as the card, so "end" goes to the last row actually drawn
-  const nested = (items: Place[]) => {
-    const shown = items.filter((p) => p.id !== selected);
-    return shown.map((p, i) => renderRow(p, undefined, false, i === shown.length - 1 ? "end" : "mid"));
-  };
+  const nested = (items: Place[]) =>
+    items.map((p, i) => renderRow(p, undefined, false, i === items.length - 1 ? "end" : "mid"));
 
-  // The selected place shows as a card at the top of whichever list is up —
-  // its details live there, so a shut area or city never has to spring open to
-  // reveal it.
+  // A selected place takes over the panel as its card, as Apple Maps swaps
+  // its list for a place card — the list stays as it was underneath, and ✕
+  // brings it back scrolled to where it was, the row still in its place.
   const selectedPlace = selected ? data.places.find((p) => p.id === selected) : undefined;
-  const selectedCard = () =>
-    selectedPlace ? renderRow(selectedPlace, undefined, true) : null;
+  // each list's scroll offset, per panel, put back when it comes back
+  const listProps = (forMobile: boolean) => {
+    const k = forMobile ? "m" : "d";
+    return {
+      ref: (el: HTMLDivElement | null) => {
+        if (forMobile) setListOuter(el);
+        if (el && !el.dataset.restored) {
+          el.dataset.restored = "1";
+          el.scrollTop = listScroll.current[k] ?? 0;
+        }
+      },
+      onScroll: (e: React.UIEvent<HTMLDivElement>) => { listScroll.current[k] = e.currentTarget.scrollTop; },
+    };
+  };
 
   // a function, not a plain element — rendered once for the desktop column
   // and once for the mobile sheet (below), so `forMobile` can gate the
@@ -1255,7 +1264,7 @@ export default function MapTab() {
     return (
     <div ref={forMobile ? setPanelRoot : undefined} className="flex h-full flex-col">
       {/* context bar — city → area → filters */}
-      <div className="shrink-0 border-b border-line px-4 pb-2 pt-2.5">
+      <div className={`shrink-0 border-b border-line px-4 pb-2 pt-2.5 ${selectedPlace && review === null ? "hidden" : ""}`}>
         {/* the list's search, at the top of the sheet as in Maps — focusing
             it on a phone pulls the sheet up so the results have room */}
         {!adding && review === null && (
@@ -1549,9 +1558,13 @@ export default function MapTab() {
           onApply={applyReview}
           onCancel={endSuggest}
         />
+      ) : selectedPlace ? (
+        <div key="card" ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto">
+          {renderRow(selectedPlace, undefined, true)}
+          <div className="h-4" />
+        </div>
       ) : searchHits ? (
-        <div ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto">
-          {selectedCard()}
+        <div key="list" {...listProps(forMobile)} className="min-h-0 flex-1 overflow-y-auto">
           {searchHits.areas.length > 0 && (
             <>
               <p className="kicker px-5 pb-1.5 pt-4">Areas</p>
@@ -1581,8 +1594,7 @@ export default function MapTab() {
           <div className="h-4" />
         </div>
       ) : nearby ? (
-        <div ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto">
-          {selectedCard()}
+        <div key="list" {...listProps(forMobile)} className="min-h-0 flex-1 overflow-y-auto">
           {nearby.list.length > 0 ? (
             <ul className={`${PLACE_CARD} mt-3`}>{nearby.list.map((p) => renderRow(p, nearby.distances.get(p.id)))}</ul>
           ) : (
@@ -1591,8 +1603,7 @@ export default function MapTab() {
           <div className="h-4" />
         </div>
       ) : cityGroups ? (
-        <div ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto">
-          {selectedCard()}
+        <div key="list" {...listProps(forMobile)} className="min-h-0 flex-1 overflow-y-auto">
           {cityGroups.map((c) => {
             const cityShut = collapsedCities.has(c.legId);
             return (
@@ -1635,8 +1646,7 @@ export default function MapTab() {
           <div className="h-4" />
         </div>
       ) : areaGroups ? (
-        <div ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto">
-          {selectedCard()}
+        <div key="list" {...listProps(forMobile)} className="min-h-0 flex-1 overflow-y-auto">
           {areaGroups.length > 0 && (
             <ul className={`${PLACE_CARD} mt-3`}>
               {areaGroups.map((g) => {
@@ -1673,8 +1683,7 @@ export default function MapTab() {
           <div className="h-4" />
         </div>
       ) : (
-        <div ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto">
-          {selectedCard()}
+        <div key="list" {...listProps(forMobile)} className="min-h-0 flex-1 overflow-y-auto">
           {scoped.length > 0 && <ul className={`${PLACE_CARD} mt-3`}>{scoped.map((p) => renderRow(p))}</ul>}
           {scoped.length === 0 && (
             <p className="meta px-4 py-6">
