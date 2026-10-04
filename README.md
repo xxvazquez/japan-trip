@@ -163,7 +163,7 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 - **Delete** — swipe a step left on a phone.
 - **Notes** support bold, bullets and links. Tap to edit. Empty fields stay hidden.
 - **+ Add a step** sits at the foot of the list and opens the new step ready to type. Leave it blank and it goes away.
-- **+ beside the Plan title** adds a step at the start of the day instead, so a long day needs no scroll. Give it a time and it moves into place.
+- **＋** at the top of the day (where Plan has its ＋) adds a step from anywhere on the page, so a long day needs no scroll. Give it a time and it moves into place.
 - **Each journey on the day** shows as two rows of its own: **Leave** (first departure) and **Arrive** (last arrival), slotted in by time. They follow the journey live — edit the times on the journey, tap a row to open it.
 
 ### Helpers on a step

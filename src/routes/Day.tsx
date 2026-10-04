@@ -42,6 +42,7 @@ import { glyphForCategoryName } from "@/lib/mapGlyphs";
 import { areaLeg } from "@/lib/cityAssign";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { DayStepper } from "@/components/DayStepper";
+import { NavAddButton } from "@/components/NavAddButton";
 import { DayLabels, tripLabels } from "@/components/DayLabels";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
@@ -145,12 +146,11 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   // inside the tap, so its field is focused there and the iPhone keyboard
   // comes up (it won't for a focus that happens after the tap)
   const [freshStep, setFreshStep] = useState<string | null>(null);
-  const addStep = (atStart: boolean) => {
+  const addStep = () => {
     const id = rid();
-    const plan = day.plan ?? [];
     flushSync(() => {
       setFreshStep(id);
-      setPlan(atStart ? [{ id, text: "" }, ...plan] : [...plan, { id, text: "" }]);
+      setPlan([...(day.plan ?? []), { id, text: "" }]);
     });
   };
   const usedLabels = useMemo(() => tripLabels(data.days), [data.days]);
@@ -310,6 +310,8 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     <Page>
       {/* IDENTITY — date, title, and where you're based / how you move */}
       <DayStepper days={data.days} current={day.id} locale={loc} />
+      {/* ＋ where Plan has it, beside the account button: the day's one new thing is a step */}
+      {!ro && <NavAddButton label="Add a step" onClick={addStep} />}
       <PageHeader
         back="/"
         dotColor={legHex(leg?.color)}
@@ -412,23 +414,13 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         <Section
           title="Plan"
           info="Steps keep themselves in time order — set a time and the step moves there. Drag ≡ to place a step without a time; it then stays with the step above it. Hold a step for its menu (⋯ on a computer), where Pin this step keeps it where it is. Tap a step's grey pin to link it to a place from an Area you've added below."
-          action={(overwhelmingCount > 0 || !ro) && (
-            <span className="flex items-center gap-3">
-              {overwhelmingCount > 0 && (
-                <span className="flex items-center gap-1 text-xs text-danger" title={`${plural(overwhelmingCount, "overwhelming place")} today`}>
-                  <Icon name="alert" size={13} /> {overwhelmingCount}
-                </span>
-              )}
-              {/* a step for the start of the day, without scrolling to the foot */}
-              {!ro && (day.plan ?? []).length > 0 && (
-                <button type="button" onClick={() => addStep(true)} className="tap text-accent" aria-label="Add a step at the start of the day" title="Add a step at the start">
-                  <Icon name="plus" size={17} />
-                </button>
-              )}
+          action={overwhelmingCount > 0 && (
+            <span className="flex items-center gap-1 text-xs text-danger" title={`${plural(overwhelmingCount, "overwhelming place")} today`}>
+              <Icon name="alert" size={13} /> {overwhelmingCount}
             </span>
           )}
         >
-          <PlanList day={day} journeys={journeys} startHotel={startHotel} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} fresh={freshStep} onAdd={() => addStep(false)} onChange={setPlan} onBackAt={(t) => patch({ backAt: t })} onLeaveAt={(t) => patch({ leaveAt: t })} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
+          <PlanList day={day} journeys={journeys} startHotel={startHotel} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} fresh={freshStep} onAdd={addStep} onChange={setPlan} onBackAt={(t) => patch({ backAt: t })} onLeaveAt={(t) => patch({ leaveAt: t })} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
         </Section>
       )}
 

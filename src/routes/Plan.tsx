@@ -1,5 +1,4 @@
-import { Fragment, useEffect, useState, type ReactNode } from "react";
-import { createPortal } from "react-dom";
+import { Fragment, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   DndContext,
@@ -21,7 +20,8 @@ import { Section } from "@/components/Section";
 import { Empty } from "@/components/Empty";
 import { Icon, type IconName } from "@/components/Icon";
 import { ContextMenu } from "@/components/ContextMenu";
-import { ActionSheet, ConfirmMenuItem, useActionSheet } from "@/components/ActionSheet";
+import { ConfirmMenuItem } from "@/components/ActionSheet";
+import { NavAddButton } from "@/components/NavAddButton";
 import { TextPrompt } from "@/components/TextPrompt";
 import { primeKeyboard } from "@/lib/keyboard";
 import { useData } from "@/lib/data";
@@ -122,15 +122,22 @@ export default function Plan() {
     <Page>
       <PageHeader title={moduleLabel} className="mb-4" />
       {!readOnly && data.legs.length > 0 && (
-        <PlanAddMenu
-          onAddDay={() => {
-            // fills a deleted day's empty date first, else goes after the last day
-            const slot = nextDaySlot(data);
-            if (!slot) return;
-            const hotelId = data.legs.find((l) => l.id === slot.legId)?.hotelId || undefined;
-            addEntity("days", { id: newId("day"), date: slot.date, legId: slot.legId, hotelId, title: "New day" } as never);
-          }}
-          onAddBase={askBase}
+        <NavAddButton
+          label="Add to the plan"
+          items={[
+            {
+              icon: "calendar",
+              label: "Add a day",
+              // fills a deleted day's empty date first, else goes after the last day
+              onClick: () => {
+                const slot = nextDaySlot(data);
+                if (!slot) return;
+                const hotelId = data.legs.find((l) => l.id === slot.legId)?.hotelId || undefined;
+                addEntity("days", { id: newId("day"), date: slot.date, legId: slot.legId, hotelId, title: "New day" } as never);
+              },
+            },
+            { icon: "pin", label: "Add a base", onClick: askBase },
+          ]}
         />
       )}
       {/* NOW — the one thing to know on opening */}
@@ -550,39 +557,5 @@ function DayMenu({ day, pinned }: { day: Day; pinned: boolean }) {
       </button>
       <ConfirmMenuItem onConfirm={() => undoable("Day deleted", () => removeEntity("days", day.id))} label="Delete day" icon={<Icon name="trash" size={16} />} />
     </>
-  );
-}
-
-/** ＋ in the navigation bar, as Reminders and Files put "new" — a small menu
- *  of what you can add to the plan. A glass circle in the bar's
- *  `#nav-actions` slot, beside the account button. */
-function PlanAddMenu({ onAddDay, onAddBase }: { onAddDay: () => void; onAddBase: () => void }) {
-  const [slot, setSlot] = useState<HTMLElement | null>(null);
-  useEffect(() => setSlot(document.getElementById("nav-actions")), []);
-  const { open, setOpen, anchorRef } = useActionSheet();
-  if (!slot) return null;
-  return createPortal(
-    <>
-      <button
-        ref={anchorRef}
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label="Add to the plan"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        className="glass grid h-11 w-11 place-items-center rounded-full text-ink transition-colors hover:text-accent"
-      >
-        <Icon name="plus" size={20} />
-      </button>
-      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef}>
-        <button type="button" className="menu-item" onClick={onAddDay}>
-          <Icon name="calendar" size={16} /> Add a day
-        </button>
-        <button type="button" className="menu-item" onClick={onAddBase}>
-          <Icon name="pin" size={16} /> Add a base
-        </button>
-      </ActionSheet>
-    </>,
-    slot,
   );
 }
