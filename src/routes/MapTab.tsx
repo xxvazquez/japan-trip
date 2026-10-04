@@ -28,6 +28,7 @@ import { suggestAreas, type AreaSuggestion } from "@/lib/cluster";
 import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
 import { reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
+import { glyphForCategoryName } from "@/lib/mapGlyphs";
 import { placeArea, useAutoPlaceFacts } from "@/lib/placeFacts";
 import { PlaceFactRows } from "@/components/PlaceFacts";
 import { primeKeyboard } from "@/lib/keyboard";
@@ -1095,11 +1096,18 @@ export default function MapTab() {
       onAddToDay={(d) => addToDay(p, d)}
       onToggleArea={(areaId) => toggleAreaPlace(areaId, p.id)}
       onLeg={(legId) => updateEntity<Place>("places", p.id, { legId })}
-      // takes on the colour its new category's pins already have
-      onCategory={(category) => updateEntity<Place>("places", p.id, {
-        category,
-        color: data.places.find((x) => x.category === category && x.id !== p.id)?.color ?? p.color,
-      })}
+      // takes on the colour its new category's pins already have; a brand-new
+      // category gets an icon guessed from its name, as a new layer does
+      onCategory={(category) => {
+        const glyph = data.config.categoryIcons?.[category] === undefined ? glyphForCategoryName(category) : undefined;
+        if (glyph) useApp.getState().mutateTrip((d) => {
+          d.config.categoryIcons = { ...(d.config.categoryIcons ?? {}), [category]: glyph };
+        });
+        updateEntity<Place>("places", p.id, {
+          category,
+          color: data.places.find((x) => x.category === category && x.id !== p.id)?.color ?? p.color,
+        });
+      }}
       onRemove={() => undoable("Place deleted", () => {
         removeEntity("places", p.id);
         if (selected === p.id) setSelected(null);
@@ -1649,6 +1657,9 @@ export default function MapTab() {
 
 type ReviewGroup = AreaSuggestion & { keep: boolean; auto: boolean };
 
+/** the Category picker's "New Category…" choice — never a real category */
+const NEW_CATEGORY = "\u0000new";
+
 function PlaceRow({
   place,
   card = false,
@@ -1715,6 +1726,7 @@ function PlaceRow({
     ...(tripData?.places.map((p) => p.category) ?? []),
     ...Object.values(tripData?.config.layerCategories ?? {}),
   ].filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b));
+  const [namingCategory, setNamingCategory] = useState(false);
   useAutoPlaceFacts(place, categoryIcons, area, open && !readOnly);
   const day = dayId ? days.find((d) => d.id === dayId) : undefined;
   const li = useRef<HTMLLIElement>(null);
@@ -1850,16 +1862,29 @@ function PlaceRow({
                 <label className="flex min-w-0 flex-1 cursor-pointer justify-end">
                   <RowSelect
                     value={place.category}
-                    onChange={(e) => onCategory(e.target.value)}
+                    onChange={(e) => (e.target.value === NEW_CATEGORY ? setNamingCategory(true) : onCategory(e.target.value))}
                     aria-label="Category"
                     className="max-w-[12rem] truncate"
                   >
                     {categories.map((c) => (
                       <option key={c} value={c}>{c}</option>
                     ))}
+                    <option value={NEW_CATEGORY}>New Category…</option>
                   </RowSelect>
                 </label>
               )}
+              <TextPrompt
+                open={namingCategory}
+                title="New Category"
+                message="Set its colour and icon under Category pins in Manage."
+                placeholder="Name"
+                action="Create"
+                onSubmit={(name) => {
+                  if (name.trim()) onCategory(name.trim());
+                  setNamingCategory(false);
+                }}
+                onClose={() => setNamingCategory(false)}
+              />
             </li>
           )}
           {legs.length > 0 && (
