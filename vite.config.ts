@@ -155,48 +155,37 @@ export default defineConfig(({ command, mode }) => ({
         ],
       },
       workbox: {
-        // `mjs` is the PDF viewer's worker; `pdfjs/` its fonts and character maps
+        // everything the app runs on is installed up front, so it works with
+        // no signal from the first launch and right after an update: `mjs` is
+        // the PDF viewer's worker, `pdfjs/` its fonts and character maps, and
+        // the supabase chunk is in too (signed in, it loads on every launch)
         globPatterns: ["**/*.{js,mjs,css,html,woff2,svg}", "pdfjs/**/*"],
-        globIgnores: ["**/supabase-*.js", "pdfjs/**/LICENSE*"], // supabase: fetched on demand, runtime-cached below
+        globIgnores: ["pdfjs/**/LICENSE*"],
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         navigateFallback: "/index.html",
         runtimeCaching: [
           {
             // Protomaps hosted basemap tiles (plain 200s — cache cleanly).
             // An area you've opened once then paints instantly and works offline;
-            // only brand-new regions hit the network.
+            // only brand-new regions hit the network. No age limit: maps saved
+            // weeks before a trip must still be there on it.
             urlPattern: ({ url }) => url.hostname === "api.protomaps.com",
             handler: "CacheFirst",
             options: {
               cacheName: "map-tiles",
-              expiration: { maxEntries: 6000, maxAgeSeconds: 60 * 60 * 24 * 90, purgeOnQuotaError: true },
+              expiration: { maxEntries: 6000, purgeOnQuotaError: true },
               cacheableResponse: { statuses: [200] },
             },
           },
           {
-            // Basemap label fonts (glyph .pbf ranges) — small, stable, needed offline.
+            // Basemap label fonts (glyph .pbf ranges) and icon sprites — small,
+            // stable, needed offline; no age limit, like the tiles.
             urlPattern: ({ url }) => url.origin === "https://protomaps.github.io",
             handler: "CacheFirst",
             options: {
               cacheName: "map-glyphs",
-              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 180, purgeOnQuotaError: true },
+              expiration: { maxEntries: 300, purgeOnQuotaError: true },
               cacheableResponse: { statuses: [200] },
-            },
-          },
-          {
-            urlPattern: /\/assets\/supabase-.*\.js$/,
-            handler: "StaleWhileRevalidate",
-            options: {
-              cacheName: "supabase-lib",
-              plugins: [
-                {
-                  // only keep real JavaScript: a missing file answered with the
-                  // app's HTML page (an SPA fallback) would otherwise be cached
-                  // as the library and leave sign-in stuck on the loader for good
-                  cacheWillUpdate: async ({ response }) =>
-                    response.status === 200 && /javascript/.test(response.headers.get("content-type") ?? "") ? response : null,
-                },
-              ],
             },
           },
           {

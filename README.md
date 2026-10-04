@@ -546,7 +546,7 @@ edit in the UI  →  TripData (in memory)  →  backend
 
 | What | Where | Notes |
 |---|---|---|
-| The app itself | Service worker precache | Includes the PDF viewer's fonts and character maps (`/pdfjs/`, ~4 MB). |
+| The app itself | Service worker precache | Everything it runs on, ~6 MB: every screen, the sign-in library, MapLibre, the PDF viewer and its fonts and character maps (`/pdfjs/`). |
 | Trip copy + unsent edits | IndexedDB (`mirror:*`, outbox) | Cleared on sign-out. |
 | Attachments | IndexedDB (`file:*`) | Copies of cloud files are listed under `file-copies` and cleared on sign-out; device-only files are kept. |
 | Map tiles, fonts, icons | `map-tiles`, `map-glyphs` caches | Server answers from Supabase are never cached — the trip copy covers offline. |
@@ -654,7 +654,7 @@ The tile source is picked at build time, first match wins:
 1. Get a key at [protomaps.com/account](https://protomaps.com/account).
 2. Add `VITE_PROTOMAPS_API_KEY` to `.env.local` and to the Cloudflare build variables, then redeploy.
 
-Tiles are cached as `map-tiles`; label fonts and the base map's icons as `map-glyphs` (`runtimeCaching` in [`vite.config.ts`](vite.config.ts)). The offline downloads ([`src/lib/offlineTiles.ts`](src/lib/offlineTiles.ts)) cap at 4,000 tiles so they never push other areas out of the 6,000-tile cache.
+Tiles are cached as `map-tiles`; label fonts and the base map's icons as `map-glyphs` (`runtimeCaching` in [`vite.config.ts`](vite.config.ts)), with no age limit so maps saved weeks ahead are still there on the trip. The offline downloads ([`src/lib/offlineTiles.ts`](src/lib/offlineTiles.ts)) cap at 4,000 tiles so they never push other areas out of the 6,000-tile cache.
 
 ### Self-hosted extract
 
