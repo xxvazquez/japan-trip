@@ -31,6 +31,7 @@ import { ConfirmButton } from "@/components/ConfirmButton";
 import { Icon } from "@/components/Icon";
 import { RouteLabel } from "@/components/RouteLabel";
 import { IconTile } from "@/components/IconTile";
+import { TitleLineTile } from "@/components/TileRow";
 import { useSplit } from "@/components/SplitMap";
 import { glyphForStepText, placeTile, toneForGlyph, toneForPlaceCategory } from "@/lib/tones";
 import { glyphForCategoryName } from "@/lib/mapGlyphs";
@@ -570,7 +571,7 @@ function DayJourneyRow({ day, journey, data, onRemove }: { day: DayT; journey: J
       <SwipeToDelete label="Remove" undoLabel="Journey removed from day" onDelete={onRemove}>
         <div className="flex items-center gap-1 pr-2">
           <Link to={`/journey/${journey.id}`} className="flex min-w-0 flex-1 items-center gap-3 py-3 pl-3.5 pr-1 text-left active:bg-ink/[0.07]">
-            <IconTile size="sm" name={first ? MODE_ICON[first.mode] : "train"} tone={first ? MODE_TONE[first.mode] : "ai"} />
+            <TitleLineTile><IconTile size="sm" name={first ? MODE_ICON[first.mode] : "train"} tone={first ? MODE_TONE[first.mode] : "ai"} /></TitleLineTile>
             <span className="min-w-0 flex-1">
               <span className="block break-words text-sm leading-snug text-ink"><RouteLabel label={journey.label || "New journey"} /></span>
               {off && when ? (

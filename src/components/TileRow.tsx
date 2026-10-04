@@ -35,12 +35,15 @@ export function TileRow({
   className?: string;
 }) {
   const showChevron = chevron ?? (!!to || !!onClick);
+  const twoLine = meta != null && meta !== "";
   const body = (
     <>
-      {tile}
+      {/* with a sub-line the tile sits on the title's line, as an iOS Label
+          does; the chevron and trailing value stay centred on the row */}
+      {twoLine ? <TitleLineTile>{tile}</TitleLineTile> : tile}
       <span className="min-w-0 flex-1">
         <span className="block break-words text-sm leading-snug text-ink">{title}</span>
-        {meta != null && meta !== "" && <span className="meta mt-0.5 block break-words">{meta}</span>}
+        {twoLine && <span className="meta mt-0.5 block break-words">{meta}</span>}
       </span>
       {right != null && right !== "" && (
         <span className="shrink-0 text-sm tabular-nums text-ink-soft">{right}</span>
@@ -64,4 +67,11 @@ export function TileRow({
     <div className={cls}>{body}</div>
   );
   return <li className={li}>{menu ? <ContextMenu menu={menu}>{row}</ContextMenu> : row}</li>;
+}
+
+/** a box exactly one `text-sm leading-snug` line tall, pinned to the top of
+ *  the row, with the tile centred in it — so a tile of any size lines up with
+ *  the first line of the title beside it */
+export function TitleLineTile({ children }: { children: ReactNode }) {
+  return <span className="flex h-[1.375em] shrink-0 items-center self-start text-sm">{children}</span>;
 }
