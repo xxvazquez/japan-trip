@@ -148,7 +148,7 @@ Each step shows a tile, an optional time, the step itself and a short note.
 - **Link a place** — tap the grey pin to pick a place from the day's Areas. Tap a linked name to change it; **Custom…** unlinks it.
 - **Meal steps** — an unlinked step whose text mentions a meal (lunch, dinner, breakfast…), coffee or drinks gets a gold food, coffee or drink tile instead of the grey pin.
 - **Reorder** by dragging.
-- **The ⋯ menu** — show on map, Tabelog (restaurants in Japan), add to Google Calendar, mark as **overwhelming** (a ⚠ sensory heads-up; the day's count shows on Plan), add a note, duplicate, add an expense, remove.
+- **The ⋯ menu** — show on map, Good to know (restaurants), Tabelog (restaurants in Japan), add to Google Calendar, mark as **overwhelming** (a ⚠ sensory heads-up; the day's count shows on Plan), add a note, duplicate, add an expense, remove.
 - **Notes** support bold, bullets and links. Tap to expand and edit. Empty fields stay hidden.
 - **+ Add a step** sits at the foot of the list and opens the new step ready to type. Leave it blank and it goes away.
 - **Each journey on the day** shows as two rows of its own: **Leave** (first departure) and **Arrive** (last arrival), slotted in by time. They follow the journey live — edit the times on the journey, tap a row to open it.
@@ -157,12 +157,13 @@ Each step shows a tile, an optional time, the step itself and a short note.
 
 These appear automatically when a step is linked to a place.
 
-**Walking and transit.** One quiet line under the step, a glyph and a figure each:
+**Getting to the next step.** Between two steps tied to places sits one slim line — travel between things you do, the way Calendar shows travel time — and tapping it opens Google Maps directions:
 
-- 🚶 the walk to the next step (if it's linked too), e.g. *9 min*
-- 🚆 the nearest station and the walk to it, e.g. *Ueno · 3 min*
+- Close by: the walk, e.g. *🚶 9 min walk*.
+- Past a 30-minute walk: the train between the nearest station at each end, with a rough door-to-door time, e.g. *🚆 Ueno → Uguisudani · 24 min* — never the long walk. *By train* when no stations are found.
+- Left out when a journey's own row already sits between the two.
 
-A straight-line estimate shows first and is replaced by a real walking route when one comes back (needs `VITE_ORS_API_KEY`). When the walk to the next step is over 30 minutes, the walk figure is dropped and the train takes its place (or a plain *By train* link when no stations are found) — *"Ueno → Uguisudani · 24 min"* — and opens Google Maps transit directions. The total is a rough door-to-door guess, since there's no free transit-routing API.
+A straight-line estimate shows first and is replaced by a real walking route when one comes back (needs `VITE_ORS_API_KEY`). The train time is a guess, since there's no free transit-routing API.
 
 **Opening hours.** If the place itself has hours on OpenStreetMap (matched by its name, or tagged right on its pin — never a neighbour's), that day's hours show at the right of the row ("09:00–17:00", or "Closed"). Seasonal and weekday rules are applied; anything the app can't read is shown as written. It's for information only — nothing is flagged as a conflict.
 
@@ -171,7 +172,7 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 - It happens the first time the step shows, or its card opens on the Map. Online only; the link is then saved with the place.
 - It's found through a web search (Tavily): a Tabelog page in the same or a neighbouring prefecture whose title has the same name (English, or the Japanese name OpenStreetMap has for the pin).
 - Needs `TAVILY_API_KEY` on the server (see [Deploy](#deploy)); without it, every restaurant just gets **Search Tabelog**.
-- Found: a small **Tabelog** link under the step, and **Open in Tabelog** in its ⋯ menu.
+- Found: **Open in Tabelog** in the step's ⋯ menu and on the Map card.
 - Not found: the ⋯ menu offers **Search Tabelog** instead. A miss isn't retried on that device for 30 days, unless the name or pin changes.
 - "Restaurant" means the category's icon is from *Food & drink* (or its name says food, café, bar…).
 - **Manage → Content → Tabelog links** finds them for every restaurant at once.
@@ -179,7 +180,7 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 **Good to know.** A restaurant or café (anywhere, not just Japan) gets a short summary of what guides and review sites say about it:
 
 - **Known for**, **Hours**, **Closed**, **Reservations**, **Queue** and **Price**, each a short phrase. Anything the sources don't mention is left out.
-- On Plan, a **Good to know** link under the step opens it; on the Map it's part of the place's card.
+- On Plan it's **Good to know** in the step's ⋯ menu, so the step itself stays short; on the Map it's part of the place's card.
 - Looked up the first time the place shows, again once it's a month old, and again after a rename. Saved with the place, so it works offline.
 - It shows when it was checked and which sites it came from, with **Refresh** to check again now.
 - A result only counts if its pages name the place and mention its city — so a namesake elsewhere isn't picked up.

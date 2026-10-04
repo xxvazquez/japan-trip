@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import {
@@ -666,6 +666,16 @@ function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, a
     );
   }
 
+  const placeOf = (it?: PlanItem) => (it?.placeId ? places.find((p) => p.id === it.placeId) : undefined);
+  // the way to the next step sits between the two — unless a journey's own
+  // row is in between, which is the travel already
+  const connectorAfter = (i: number) => {
+    const from = placeOf(items[i]);
+    const to = placeOf(items[i + 1]);
+    if (!from || !to || stopsBefore(i + 1).length) return [];
+    return [<TravelConnector key={`travel-${items[i].id}`} from={from} to={to} indent={!readOnly} />];
+  };
+
   const rows = items.flatMap((it, i) => [
     ...stopsBefore(i),
     <PlanRow
@@ -676,7 +686,6 @@ function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, a
       fresh={it.id === fresh}
       timeStart={timeBefore(items, i)}
       place={it.placeId ? places.find((p) => p.id === it.placeId) : undefined}
-      nextPlace={items[i + 1]?.placeId ? places.find((p) => p.id === items[i + 1].placeId) : undefined}
       areaPlaces={areaPlaces}
       areaNameByPlaceId={areaNameByPlaceId}
       categoryIcons={categoryIcons}
@@ -688,6 +697,7 @@ function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, a
       onQuickAddCost={onQuickAddCost}
       onShowOnMap={onShowOnMap}
     />,
+    ...connectorAfter(i),
   ]).concat(stopsBefore(items.length));
 
   // the day closes with the way back to the hotel; its walk figures need the
@@ -733,7 +743,7 @@ function timeBefore(items: PlanItem[], i: number): string | undefined {
   return undefined;
 }
 
-function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, onPatch, onRemove, onDuplicate, onQuickAddCost, onShowOnMap }: {
+function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, onPatch, onRemove, onDuplicate, onQuickAddCost, onShowOnMap }: {
   day: DayT;
   tz?: string;
   item: PlanItem;
@@ -742,9 +752,6 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
   /** where its time wheel starts while it has no time (see `timeBefore`) */
   timeStart?: string;
   place?: Place;
-  /** the next step's linked place, if both it and this step have one — for
-   *  the real walking time shown at the foot of this card (see `StepWalkLines`) */
-  nextPlace?: Place;
   areaPlaces: Place[];
   areaNameByPlaceId: Map<string, string>;
   categoryIcons?: Record<string, string>;
@@ -769,6 +776,8 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
   const area = place && placeArea(place, tripData);
   useAutoPlaceFacts(place, categoryIcons, area, !readOnly);
   const factsSheet = useActionSheet();
+  // opened from the ⋯ menu, so the desktop popover hangs off the step itself
+  const factsAnchor = useRef<HTMLDivElement>(null);
   const toggleOverwhelming = () => {
     if (!place) return;
     updateEntity<Place>("places", place.id, { overwhelming: !place.overwhelming || undefined });
@@ -847,7 +856,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
               there's nothing to pick from yet (no Area added to the day). A
               note is its own quiet row underneath — italic placeholder when
               empty, tap to expand and edit. */}
-          <div className="min-w-0 flex-1 space-y-1 pt-px">
+          <div ref={factsAnchor} className="min-w-0 flex-1 space-y-1 pt-px">
             {/* tile + hour — one meta line, icon leading so the hour reads
                 like a caption under it rather than a column of its own */}
             <div className="flex items-center gap-1.5">
@@ -938,28 +947,13 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
                 onEditEnd={() => setNoteOpen(false)}
               />
             )}
-            {place && ((place.reviewUrl && reviewSite) || hasFacts(place.facts)) && (
-              <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                {place.reviewUrl && reviewSite && (
-                  <a href={place.reviewUrl} target="_blank" rel="noopener" className="meta flex w-fit items-center gap-1 text-accent">
-                    <Icon name="link" size={12} className="shrink-0" /> {reviewSite.label}
-                  </a>
-                )}
-                {hasFacts(place.facts) && (
-                  <button type="button" ref={factsSheet.anchorRef} onClick={() => factsSheet.setOpen(true)} className="meta flex w-fit items-center gap-1 text-accent">
-                    <Icon name="info" size={12} className="shrink-0" /> Good to know
-                  </button>
-                )}
-              </span>
-            )}
             {place && (
-              <ActionSheet open={factsSheet.open} onClose={() => factsSheet.setOpen(false)} anchorRef={factsSheet.anchorRef} title={place.name} doneLabel="Done">
+              <ActionSheet open={factsSheet.open} onClose={() => factsSheet.setOpen(false)} anchorRef={factsAnchor} title={place.name} doneLabel="Done">
                 <ul onClick={(e) => e.stopPropagation()}>
                   <PlaceFactRows place={place} area={area} />
                 </ul>
               </ActionSheet>
             )}
-            {place && <StepWalkLines place={place} nextPlace={nextPlace} />}
           </div>
 
           {/* one ⋯ instead of four loose glyphs — the step's title and lines
@@ -968,6 +962,11 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
             {place && (
               <button type="button" className="menu-item" onClick={() => onShowOnMap(place)}>
                 <Icon name="locate" size={16} /> Show on map
+              </button>
+            )}
+            {place && hasFacts(place.facts) && (
+              <button type="button" className="menu-item" onClick={() => factsSheet.setOpen(true)}>
+                <Icon name="info" size={16} /> Good to know
               </button>
             )}
             {place && reviewSite && (
@@ -1139,112 +1138,53 @@ function PlaceHoursLine({ place, date }: { place: Place; date?: string }) {
   );
 }
 
-/** one caption of the walk figures — 🚶 "Walk to next stop ≈ 2h 2min · 9.8 km" (straight
- *  to the next step) and 🚆 "Walk to Y ≈ 1 min · 84 m" (to the nearest station
- *  from here) — side by side on one line, each spelling out what it's a
- *  distance *to* rather than leaning on the icon alone (the train icon on the
- *  station figure is about the trip being transit, not about that number
- *  being a train ride — it's still a walk). Time and distance always come
- *  as a pair (`useWalk`: estimate first, real route when it lands). The
- *  station comes from OpenStreetMap (`transitStation.ts`); a lookup that
- *  came back empty is tried once more shortly after, since the public
- *  server drops the odd request. Past `LONG_WALK_MIN` to the next step, a
- *  third piece appears — the train leg between the nearest station at each
- *  end, as a link to Google Maps transit directions (same "no free keyless
- *  multi-modal API" reasoning as `ReturnToHotel`), labelled with a rough
- *  door-to-door total (`estimateTransit` for the ride itself, plus both walk
- *  legs) so the link isn't just two station names with no sense of the time
- *  they add up to. */
-function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }) {
-  const next = useWalk(place, nextPlace);
-  const [station, setStation] = useState<NearbyStation | null>(null);
+/** The way from one step to the next, as a slim row between them — the
+ *  Calendar "travel time" idiom: travel is between two things you do, not
+ *  part of either. Close by it's the walk; past `LONG_WALK_MIN` it's the
+ *  train between the nearest station at each end with a rough door-to-door
+ *  time (`estimateTransit` for the ride plus both walks), never an hour-long
+ *  walk figure. Either way the row opens Google Maps directions — the real
+ *  route with lines and changes is Google's to work out (no free keyless
+ *  transit API). Stations come from OpenStreetMap (`transitStation.ts`). */
+function TravelConnector({ from, to, indent }: { from: Place; to: Place; indent: boolean }) {
+  const walk = useWalk(from, to);
+  const long = !walk || walk.min > LONG_WALK_MIN;
+  const [stations, setStations] = useState<[NearbyStation | null, NearbyStation | null]>([null, null]);
   useEffect(() => {
-    setStation(null);
+    setStations([null, null]);
+    if (!long) return;
     let cancelled = false;
-    let retry: ReturnType<typeof setTimeout> | undefined;
-    void nearestStationLookup(place.lat, place.lng).then((s) => {
-      if (cancelled) return;
-      if (s) { setStation(s); return; }
-      retry = setTimeout(() => {
-        void nearestStationLookup(place.lat, place.lng).then((s2) => { if (!cancelled) setStation(s2); });
-      }, 6000);
+    void Promise.all([nearestStationLookup(from.lat, from.lng), nearestStationLookup(to.lat, to.lng)]).then((s) => {
+      if (!cancelled) setStations(s);
     });
-    return () => { cancelled = true; clearTimeout(retry); };
-  }, [place.id, place.lat, place.lng]);
-  const toStation = useWalk(place, station);
-
-  const long = !!nextPlace && (!next || next.min > LONG_WALK_MIN);
-  const [nextStation, setNextStation] = useState<NearbyStation | null>(null);
-  useEffect(() => {
-    setNextStation(null);
-    if (!nextPlace || !long) return;
-    let cancelled = false;
-    void nearestStationLookup(nextPlace.lat, nextPlace.lng).then((s) => { if (!cancelled) setNextStation(s); });
     return () => { cancelled = true; };
-  }, [long, nextPlace?.id, nextPlace?.lat, nextPlace?.lng]);
-  const fromNextStation = useWalk(nextPlace ?? { lat: 0, lng: 0 }, nextPlace ? nextStation : null);
-  const transitTotal =
-    station && nextStation && toStation && fromNextStation
-      ? toStation.min + estimateTransit(haversineKm(station.lat, station.lng, nextStation.lat, nextStation.lng)) + fromNextStation.min
-      : null;
-  const piece = "flex min-w-0 items-start gap-1";
-  // past a long walk with a train to take, the train is the answer — lead
-  // with it and drop the hour-plus walk figure rather than stacking both
-  const showTrain = long && !!nextPlace && !!station && !!nextStation && station.name !== nextStation.name;
-  // far, but no pair of stations to name: still point at transit, never at
-  // an hour-long walk
-  const transitOnly = long && !!nextPlace && !showTrain && (
-    <a
-      href={gmapsRoute(`${place.lat},${place.lng}`, `${nextPlace.lat},${nextPlace.lng}`, "transit")}
-      target="_blank"
-      rel="noopener"
-      className={`${piece} text-accent`}
-      title="Transit directions to the next stop"
-    >
-      <Icon name="train" size={12} className="mt-[2px] shrink-0" />
-      <span className="min-w-0">By train</span>
-    </a>
-  );
-  const train = showTrain && (
-    <a
-      href={gmapsRoute(`${place.lat},${place.lng}`, `${nextPlace!.lat},${nextPlace!.lng}`, "transit")}
-      target="_blank"
-      rel="noopener"
-      className={`${piece} text-accent`}
-      aria-label={`Train from ${station!.name} to ${nextStation!.name}${transitTotal ? `, about ${fmtMinutes(transitTotal)} door to door` : ""}`}
-      title={`Train from ${station!.name} to ${nextStation!.name}${transitTotal ? `, about ${fmtMinutes(transitTotal)} door to door` : ""}`}
-    >
-      <Icon name="train" size={12} className="mt-[2px] shrink-0" />
-      <span className="min-w-0">
-        {station!.name} → {nextStation!.name}
-        {transitTotal && <> · {fmtMinutes(transitTotal)}</>}
-      </span>
-    </a>
-  );
+  }, [long, from.lat, from.lng, to.lat, to.lng]);
+  const [a, b] = stations;
+  const toA = useWalk(from, long ? a : null);
+  const fromB = useWalk(to, long ? b : null);
+  const train = long && a && b && a.name !== b.name ? { a, b } : null;
+  const total = train && toA && fromB ? toA.min + estimateTransit(haversineKm(train.a.lat, train.a.lng, train.b.lat, train.b.lng)) + fromB.min : null;
+
+  const label = !long && walk
+    ? `${fmtMinutes(walk.min)} walk`
+    : train
+      ? `${train.a.name} → ${train.b.name}${total ? ` · ${fmtMinutes(total)}` : ""}`
+      : "By train";
+  const title = !long && walk ? `Walk ${fmtWalk(walk)}` : train ? `Train from ${train.a.name} to ${train.b.name}, door to door` : "Transit directions";
   return (
-    <>
-      {(next || (station && toStation) || long) && (
-        // a glyph and a figure, the way Maps marks a walk — quieter than the
-        // note above, since it's about the step, not something written on it;
-        // the full sentence stays for VoiceOver and the hover title
-        <span className="flex flex-wrap gap-x-4 gap-y-0.5 text-[0.75rem] leading-snug text-ink-faint">
-          {train}
-          {transitOnly}
-          {next && nextPlace && !showTrain && !long && (
-            <span className={piece} title={`Walk to next stop ${fmtWalk(next)}`} aria-label={`Walk to next stop ${fmtWalk(next)}`}>
-              <Icon name="walk" size={12} className="mt-[2px] shrink-0" />
-              <span className="min-w-0 tabular-nums">{fmtMinutes(next.min)}</span>
-            </span>
-          )}
-          {station && toStation && (
-            <span className={piece} title={`Walk to ${station.name} ${fmtWalk(toStation)}`} aria-label={`Walk to ${station.name} ${fmtWalk(toStation)}`}>
-              <Icon name="train" size={12} className="mt-[2px] shrink-0" />
-              <span className="min-w-0">{station.name} · <span className="tabular-nums">{fmtMinutes(toStation.min)}</span></span>
-            </span>
-          )}
-        </span>
-      )}
-    </>
+    <li>
+      <a
+        href={gmapsRoute(`${from.lat},${from.lng}`, `${to.lat},${to.lng}`, long ? "transit" : "walking")}
+        target="_blank"
+        rel="noopener"
+        title={title}
+        aria-label={title}
+        className={`flex items-center gap-1.5 pb-2 pr-3.5 text-[0.75rem] leading-snug text-ink-faint active:bg-ink/[0.07] ${indent ? "pl-9" : "pl-3.5"}`}
+      >
+        <Icon name={long ? "train" : "walk"} size={12} className="shrink-0 text-accent" />
+        <span className="min-w-0 tabular-nums">{label}</span>
+      </a>
+    </li>
   );
 }
 
