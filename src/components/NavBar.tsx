@@ -3,7 +3,6 @@ import { useLocation, useNavigate, useNavigationType } from "react-router-dom";
 import { Icon } from "./Icon";
 import { Wordmark } from "./Wordmark";
 import { useData } from "@/lib/data";
-import { PARENT_LABEL } from "./BackBar";
 import { ActionSheet } from "./ActionSheet";
 import { useApp } from "@/store/useApp";
 
@@ -22,6 +21,16 @@ type Api = {
   register: (v: { back?: { to?: string }; title: string }) => void;
   setCollapsed: (v: boolean) => void;
   clear: () => void;
+};
+
+/** the back button's label when there's no page title to borrow */
+const PARENT_LABEL: Record<string, string> = {
+  "/": "Plan",
+  "/logbook": "Logbook",
+  "/logbook/documents": "Documents",
+  "/logbook/budget": "Expenses",
+  "/map": "Map",
+  "/manage": "Manage",
 };
 
 const EMPTY: NavState = { title: "", collapsed: false };

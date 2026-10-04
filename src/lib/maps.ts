@@ -19,10 +19,6 @@ export function placeMapLink(place?: { name: string; lat: number; lng: number; u
   return `https://www.google.com/maps/search/${encodeURIComponent(name || `${place.lat},${place.lng}`)}/@${place.lat},${place.lng},17z`;
 }
 
-export function gmapsDirections(from: string, to: string): string {
-  return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(from)}&destination=${encodeURIComponent(to)}`;
-}
-
 /** Google Maps directions with a travel mode — the app/web picks the best
  *  route itself (lines, transfers, timings), which is the part this app has
  *  no free API for. Endpoints are `lat,lng` or a place name; without an

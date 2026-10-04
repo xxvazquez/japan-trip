@@ -34,10 +34,3 @@ export async function downloadFile(path: string): Promise<Blob> {
   if (error || !data) throw error ?? new Error("no file");
   return data;
 }
-
-/** A temporary link to a stored file (valid an hour). */
-export async function signedFileUrl(path: string): Promise<string> {
-  const { data, error } = await (await bucket()).createSignedUrl(path, 3600);
-  if (error || !data?.signedUrl) throw error ?? new Error("no link");
-  return data.signedUrl;
-}

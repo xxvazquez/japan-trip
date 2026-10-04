@@ -220,15 +220,5 @@ export async function shareFile(fileId: string, emails: string[]): Promise<void>
   }
 }
 
-/** Best-effort delete — only works on files this user uploaded; a file the other
- *  person added just gets unlinked from the doc. */
-export async function deleteFromDrive(fileId: string): Promise<void> {
-  try {
-    await api(`/files/${fileId}`, { method: "DELETE" });
-  } catch {
-    /* not ours, or already gone */
-  }
-}
-
 export const driveViewUrl = (id: string) => `https://drive.google.com/file/d/${id}/view`;
 export const driveImageUrl = (id: string) => `https://lh3.googleusercontent.com/d/${id}=w1400`;

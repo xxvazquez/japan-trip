@@ -43,12 +43,3 @@ export async function fileIdsOnDevice(): Promise<Set<string>> {
 export async function getFileBlob(id: string): Promise<Blob | undefined> {
   return get<Blob>(key(id));
 }
-
-export async function fileUrl(id: string): Promise<string | null> {
-  const blob = await get<Blob>(key(id));
-  return blob ? URL.createObjectURL(blob) : null;
-}
-
-export async function removeFile(id: string): Promise<void> {
-  await del(key(id));
-}
