@@ -435,6 +435,7 @@ Theme and trip logo. **Appearance** (light, dark or *Automatic*) is per device, 
 If saving keeps failing:
 
 - **After 30 seconds**, a banner under the header names the changes that haven't reached your account, with **Retry now**. They stay safe on the device and keep retrying.
+- **The database is missing a column** (a migration not applied yet) — the banner names the column and says retrying won't help until it's added. Run the missing migration, then **Retry now**.
 - **A change the database can never accept** gets its own red banner until you dismiss it. A copy is kept on the device — nothing is dropped silently.
 
 ## Sharing and backups

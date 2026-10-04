@@ -84,6 +84,10 @@ interface AppStore {
    *  accept) — named in a banner until dismissed, never dropped silently.
    *  A copy of each is kept in the device's quarantine. */
   droppedChanges: string[];
+  /** the last save failed because the account's database is missing a column
+   *  this app writes (a migration not applied yet) — the column's name, so the
+   *  banner can say retrying won't help until the database is updated */
+  syncSchemaGap: string | null;
   dismissDropped: () => void;
   /** signed in, but the very first trip list couldn't be fetched (offline)
    *  and there was no mirrored outbox to fall back to — nothing to show yet */
@@ -486,6 +490,15 @@ function describePendingOps(ops: Op[], data: TripData): SyncIssue[] {
 /** Postgres' "invalid input syntax" — an id that was never a valid uuid to
  *  begin with. No amount of retrying fixes that, so these are handled once
  *  instead of retried forever. */
+/** a write the database refused because a column this app sends doesn't
+ *  exist there yet — PostgREST's PGRST204 or Postgres' 42703. The column name,
+ *  or null for any other error. */
+function missingColumn(e: unknown): string | null {
+  const err = e as { code?: string; message?: string } | null | undefined;
+  if (err?.code !== "PGRST204" && err?.code !== "42703") return null;
+  return err.message?.match(/'([a-z_]+)' column|column [a-z_]+\.([a-z_]+)/)?.slice(1).find(Boolean) ?? "unknown";
+}
+
 function isUnrecoverable(e: unknown): boolean {
   return (e as { code?: string } | null | undefined)?.code === "22P02";
 }
@@ -789,9 +802,11 @@ async function flush(get: () => AppStore) {
   // forever helps no one; see `unrecoverable` below.
   const failed: Op[] = [];
   const unrecoverable: Op[] = [];
+  let schemaGap: string | null = null;
   const run = (p: Promise<unknown>, op: Op) =>
     p.catch((e) => {
       console.error("[sync]", e);
+      schemaGap = missingColumn(e) ?? schemaGap;
       (isUnrecoverable(e) ? unrecoverable : failed).push(op);
     });
   markWritten([...rows.values(), ...dels.values()].map((o) => o.id));
@@ -880,14 +895,14 @@ async function flush(get: () => AppStore) {
     queue = [...failed, ...queue];
     const cur = get().data;
     saveOutboxNow(get);
-    useApp.setState({ syncState: "error", syncErrorItems: cur ? describePendingOps(failed, cur) : [] });
+    useApp.setState({ syncState: "error", syncErrorItems: cur ? describePendingOps(failed, cur) : [], syncSchemaGap: schemaGap });
     scheduleRetry(get);
   } else if (queue.length) {
     void flush(get); // new edits landed mid-flush, or a bad id was just re-minted
   } else {
     clearRetry();
     stuckLabels.clear();
-    useApp.setState({ syncState: "saved", syncErrorItems: [] });
+    useApp.setState({ syncState: "saved", syncErrorItems: [], syncSchemaGap: null });
     saveOutboxNow(get); // nothing pending any more → this clears the mirror (ordered after any write before it)
     void afterSynced(get, activeId);
     mirrorSoon(get);
@@ -1135,6 +1150,7 @@ export const useApp = create<AppStore>((set, get) => {
     syncState: "idle",
     syncErrorItems: [],
     droppedChanges: [],
+    syncSchemaGap: null,
     bootError: false,
     trips: [],
     activeId: null,

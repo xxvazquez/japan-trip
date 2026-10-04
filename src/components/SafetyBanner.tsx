@@ -49,6 +49,7 @@ export function SyncBanner() {
   const dropped = useApp((s) => s.droppedChanges);
   const retry = useApp((s) => s.retrySyncNow);
   const dismissDropped = useApp((s) => s.dismissDropped);
+  const schemaGap = useApp((s) => s.syncSchemaGap);
   const online = useOnline();
 
   // when this run of failures began — a retry passing through "saving"
@@ -106,7 +107,9 @@ export function SyncBanner() {
                   ? <>{plural(items.length, "change")} not saved to your account yet: {named}{more}.</>
                   : <>Changes not saved to your account yet.</>}{" "}
                 <span className="text-ink-soft">
-                  {items.length === 1 ? "It’s" : "They’re"} kept safe on this device, and saving keeps retrying.
+                  {schemaGap
+                    ? <>Your account’s database is missing the “{schemaGap}” column, so retrying won’t help until it’s updated. {items.length === 1 ? "It’s" : "They’re"} kept safe on this device.</>
+                    : <>{items.length === 1 ? "It’s" : "They’re"} kept safe on this device, and saving keeps retrying.</>}
                 </span>
               </p>
               <div className="mt-2 flex gap-2">

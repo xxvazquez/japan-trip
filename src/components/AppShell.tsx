@@ -103,8 +103,10 @@ export function AppShell() {
         </div>
       </header>
 
-      <SafetyBanner />
-      <SyncBanner />
+      <div className={split.active && !pane.collapsed ? "mr-[var(--pane-w)]" : ""}>
+        <SafetyBanner />
+        <SyncBanner />
+      </div>
 
       {demo && (
         <div className="sticky top-[calc(var(--sat)+var(--nav-h))] z-20 flex h-9 items-center justify-center gap-1 border-b border-line bg-surface-2 px-4 text-center text-xs text-ink-soft sm:px-6">
