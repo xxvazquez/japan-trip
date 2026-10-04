@@ -70,6 +70,9 @@ const NESTED_DIVIDER = TILE_DIVIDER.replace("after:left-[3.375rem]", "after:left
  *  in it) — cheap local haversine just to find *which* pair, real walking
  *  time for that one pair comes from `useWalk` (see `AreaWalkSpan`).
  *  Null with fewer than two placed points to span. */
+/** case- and accent-blind text for the list's search ("Shinjuku" finds "shinjuku", "Ōsaka" finds "osaka") */
+const foldText = (s: string) => s.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
 function farthestPair(items: Place[]): [Place, Place] | null {
   const pts = items.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
   if (pts.length < 2) return null;
@@ -225,11 +228,11 @@ const saveOpenAreaIds = (tripId: string | null, ids: string[]) => {
 };
 
 type Snap = "peek" | "half" | "full";
-/** a small preview, just past the city pills; enough of "half" to be worth
+/** a small preview, just past the search field and city pills; enough of "half" to be worth
  *  defaulting to when there's a list; "full" leaves an 8px peek of map.
  *  "half" itself is capped at this ratio but shrinks to fit a short list
  *  instead — see `halfFitPx` below. */
-const PEEK_PX = 132;
+const PEEK_PX = 176;
 const HALF_RATIO = 0.58;
 const FULL_GAP_PX = 8;
 /** "half" never lands closer to "peek" than this — a short list still gets a
@@ -658,6 +661,15 @@ export default function MapTab() {
   /** "Nearby now" toggle on the Today list — not persisted, so it never asks
    *  for location on its own next time the trip opens. */
   const [nearbyOn, setNearbyOn] = useState(false);
+  /** the list's own search — typed text, and the same settled a beat later
+   *  so the list and the map's fit don't jump on every keystroke */
+  const [listQuery, setListQuery] = useState("");
+  const [settledQuery, setSettledQuery] = useState("");
+  useEffect(() => {
+    if (!listQuery.trim()) { setSettledQuery(""); return; }
+    const t = setTimeout(() => setSettledQuery(listQuery), 200);
+    return () => clearTimeout(t);
+  }, [listQuery]);
   const today = useToday();
   /** the "Today" pill's own scope id, so the toggle only ever applies there */
   const todayScopeId = useMemo(() => {
@@ -862,6 +874,41 @@ export default function MapTab() {
     };
   }, [nearbyActive, geo, scoped]);
 
+  /** what the list's search finds, across the whole trip — as Maps searches
+   *  everywhere, not just the city on screen: areas by name, then places by
+   *  name (a name that starts with it first), then by category or note.
+   *  Null while the field is empty. */
+  const searchHits = useMemo(() => {
+    const words = foldText(settledQuery).split(/\s+/).filter(Boolean);
+    if (!data || words.length === 0) return null;
+    const has = (text?: string) => { const t = foldText(text ?? ""); return words.every((w) => t.includes(w)); };
+    const areas = data.areas
+      .map((a, i) => ({
+        id: a.id,
+        name: a.name || "Untitled",
+        tone: AREA_TONES[i % AREA_TONES.length],
+        items: a.placeIds.map((id) => places.find((p) => p.id === id)).filter(Boolean) as Place[],
+      }))
+      .filter((a) => a.items.length > 0 && has(a.name))
+      .sort((x, y) => x.name.localeCompare(y.name));
+    const rank = (p: Place) => {
+      const name = foldText(p.name);
+      if (words.every((w) => name.includes(w))) return name.startsWith(words[0]) ? 0 : 1;
+      return has(p.category ? categoryName(p.category) : "") || has(p.note) ? 2 : -1;
+    };
+    const found = places
+      .map((p) => ({ p, r: rank(p) }))
+      .filter((x) => x.r >= 0)
+      .sort((a, b) => a.r - b.r || a.p.name.localeCompare(b.p.name))
+      .map((x) => x.p);
+    // the map shows the found places and every place in a found area
+    const onMap = new Map(found.map((p) => [p.id, p] as const));
+    for (const a of areas) for (const p of a.items) onMap.set(p.id, p);
+    return { areas, places: found, onMap: [...onMap.values()] };
+  }, [data, places, settledQuery]);
+  /** what the map draws: the search's finds while searching, else the scope */
+  const shown = searchHits ? searchHits.onMap : scoped;
+
   // settle the opening view once: if the default city has no places, widen to
   // "all"; then open to the half sheet if there's a list worth showing.
   const snapInit = useRef(false);
@@ -1026,15 +1073,15 @@ export default function MapTab() {
   // fit the map to the current scope when nothing is selected
   const fitScope = () => {
     const m = map.current;
-    if (!m || selected || scoped.length === 0) return;
-    const lngs = scoped.map((p) => p.lng);
-    const lats = scoped.map((p) => p.lat);
+    if (!m || selected || shown.length === 0) return;
+    const lngs = shown.map((p) => p.lng);
+    const lats = shown.map((p) => p.lat);
     m.fitBounds(
       [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
       { padding: { top: 56, right: 44, bottom: window.innerWidth < 768 ? 180 : 44, left: 44 }, maxZoom: 15, duration: 500 },
     );
   };
-  useEffect(fitScope, [scoped, selected]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(fitScope, [shown, selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!data) return null;
   const url = data.config.mapSourceUrl?.trim() ?? "";
@@ -1211,10 +1258,23 @@ export default function MapTab() {
     <div ref={forMobile ? setPanelRoot : undefined} className="flex h-full flex-col">
       {/* context bar — city → area → filters */}
       <div className="shrink-0 border-b border-line px-4 pb-2 pt-2.5">
+        {/* the list's search, at the top of the sheet as in Maps — focusing
+            it on a phone pulls the sheet up so the results have room */}
+        {!adding && review === null && (
+          <div className="mb-2">
+            <SearchField
+              value={listQuery}
+              onChange={setListQuery}
+              placeholder="Search places and areas"
+              onFocus={() => { if (forMobile && !listOnly) setSnap("full"); }}
+            />
+          </div>
+        )}
         {/* city pills. Soloing an area happens on its own row in the list
             below (areaGroups), not up here — a second row of area pills just
-            duplicated that row's colour dot + name. */}
-        <div className="flex items-center gap-2">
+            duplicated that row's colour dot + name. Put away while the
+            search is up, since it searches the whole trip, not the pill */}
+        <div className={`flex items-center gap-2 ${listQuery.trim() ? "hidden" : ""}`}>
           <ChipStrip className="min-w-0 flex-1 items-center">
             {[
               ...(clock.phase === "during" && clock.today
@@ -1491,6 +1551,37 @@ export default function MapTab() {
           onApply={applyReview}
           onCancel={endSuggest}
         />
+      ) : searchHits ? (
+        <div ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto">
+          {selectedCard()}
+          {searchHits.areas.length > 0 && (
+            <>
+              <p className="kicker px-5 pb-1.5 pt-4">Areas</p>
+              <ul className={PLACE_CARD}>
+                {searchHits.areas.map((a) => {
+                  const shut = !openAreas.has(a.id);
+                  return [
+                    <AreaRow key={a.id} name={a.name} tone={a.tone} items={a.items} open={!shut} onToggle={() => toggleAreaCollapsed(a.id)} />,
+                    ...(!shut ? nested(a.items) : []),
+                  ];
+                })}
+              </ul>
+            </>
+          )}
+          {searchHits.places.length > 0 && (
+            <>
+              <p className="kicker px-5 pb-1.5 pt-4">Places</p>
+              <ul className={PLACE_CARD}>{searchHits.places.map((p) => renderRow(p))}</ul>
+            </>
+          )}
+          {searchHits.areas.length === 0 && searchHits.places.length === 0 && (
+            <div className="px-6 py-10 text-center">
+              <p className="text-[17px] text-ink">No Results</p>
+              <p className="meta mt-1 break-words">Nothing on this trip matches “{settledQuery.trim()}”.</p>
+            </div>
+          )}
+          <div className="h-4" />
+        </div>
       ) : nearby ? (
         <div ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto">
           {selectedCard()}
@@ -1632,7 +1723,7 @@ export default function MapTab() {
           (viewport, loaded tiles) alive for an instant toggle back */}
       <div className={`absolute inset-0 md:left-[var(--panel-w)] ${listOnly ? "hidden" : ""}`}>
         <MapView
-          places={scoped}
+          places={shown}
           selectedId={selected}
           derivedIds={derived}
           areaShapes={areaShapes}

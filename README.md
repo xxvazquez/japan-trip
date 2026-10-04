@@ -288,7 +288,7 @@ Open one from a day, or from **Logbook → Journeys**. A journey is one or more 
 
 ## Map
 
-Your places on a clean map, read top to bottom: **city pills → places**. Everything else is in the **⋯** menu beside the pills.
+Your places on a clean map, read top to bottom: **search → city pills → places**. Everything else is in the **⋯** menu beside the pills.
 
 ### Cities
 
@@ -301,6 +301,7 @@ Your places on a clean map, read top to bottom: **city pills → places**. Every
 
 - **＋ Add place** — search for somewhere, or tap the map to drop a pin.
 - **The list** — once a city is picked, places are grouped by area (plus *No area*). On **All** it nests **city → area → place**.
+- **Search** — the field at the top of the list finds areas by name and places by name, category or note, across the whole trip. The map shows only what it finds; on a phone the sheet pulls up while you type.
 - **Areas fold open in place**, like folders in Files — tap an area row to show its places under it. They start collapsed and remember what you opened.
 - **A place's card** — laid out like a step's place card: the name (tap to rename) and the walk to the nearest station; a button row (**Google Maps** filled — searched at the pin, so a chain opens the right branch — Tabelog for a restaurant in Japan, and the day it's on); then **Note**, **Good to know** (folded until you tap it, so filing a place stays quick; see [Helpers on a step](#helpers-on-a-step)), a group with the day (or **Add to a day**), areas, category (a pin added in the app can be moved into any category, taking on its colour; a My Maps pin's comes from its layer) and city, and last Remove.
 - **List rows** show the name and the walk to the nearest station.

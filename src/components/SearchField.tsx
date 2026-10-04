@@ -8,6 +8,7 @@ export function SearchField({
   placeholder = "Search",
   label,
   autoFocus,
+  onFocus,
 }: {
   value: string;
   onChange: (v: string) => void;
@@ -15,6 +16,7 @@ export function SearchField({
   /** accessible name — defaults to the placeholder */
   label?: string;
   autoFocus?: boolean;
+  onFocus?: () => void;
 }) {
   return (
     <div className="relative">
@@ -25,6 +27,7 @@ export function SearchField({
         enterKeyHint="search"
         autoComplete="off"
         autoFocus={autoFocus}
+        onFocus={onFocus}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
