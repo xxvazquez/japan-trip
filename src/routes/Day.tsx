@@ -1196,6 +1196,9 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                   >
                     <Icon name="pushpin" size={16} /> Unpin and change time
                   </button>
+                  <button type="button" className="menu-item" onClick={() => { pinSheet.setOpen(false); onPatch({ pinned: undefined }); }}>
+                    <Icon name="pushpin" size={16} /> Unpin
+                  </button>
                 </ActionSheet>
               </>
             ) : plainTime ? (
@@ -1298,10 +1301,14 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
               {/* a pinned step's time is locked, so the pin shows on every
                   width, like a pinned day on Plan */}
               {pinned && !readOnly ? (
-                <span className="grid h-7 w-6 place-items-center text-ink-faint" title="Time pinned — unpin to change it">
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); pinSheet.setOpen(true); }}
+                  className="tap grid h-7 w-6 place-items-center text-ink-faint"
+                  aria-label="Time pinned — unpin to change it"
+                >
                   <Icon name="pushpin" size={14} />
-                  <span className="sr-only">Time pinned — unpin to change it</span>
-                </span>
+                </button>
               ) : !readOnly && !timed && (
                 <button
                   {...attributes}
@@ -1489,6 +1496,12 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                         <span className="min-w-0 flex-1 text-xs text-ink">Optional</span>
                         <Switch size="sm" checked={!!item.optional} onChange={toggleOptional} label="Optional" />
                       </li>
+                      {item.time && (
+                        <li className={`${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-2`}>
+                          <span className="min-w-0 flex-1 text-xs text-ink">Pin time</span>
+                          <Switch size="sm" checked={pinned} onChange={() => onPatch({ pinned: pinned ? undefined : true })} label="Pin time" />
+                        </li>
+                      )}
                       <li className={`${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-2`}>
                         <span className="min-w-0 flex-1 text-xs text-ink">Overwhelming</span>
                         <Switch size="sm" checked={!!place.overwhelming} onChange={toggleOverwhelming} label="Overwhelming" />
