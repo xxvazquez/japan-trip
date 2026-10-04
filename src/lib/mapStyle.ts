@@ -1,6 +1,6 @@
 import { layers, namedFlavor, type Flavor } from "@protomaps/basemaps";
 import type { StyleSpecification } from "maplibre-gl";
-import { HOSTED_TILES } from "./tileSource";
+import { GLYPHS, HOSTED_TILES, SPRITES } from "./tileSource";
 
 /**
  * A restrained editorial basemap: one warm land tone, hairline roads, muted
@@ -22,10 +22,6 @@ const configured = import.meta.env.VITE_MAP_TILES_URL?.trim();
 export { HOSTED_TILES };
 export const PMTILES = `pmtiles://${configured || DEFAULT_PMTILES}`;
 const ATTRIB = '<a href="https://protomaps.com">Protomaps</a> · <a href="https://openstreetmap.org">OpenStreetMap</a>';
-const GLYPHS = "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf";
-/** the base map's own icons (stations, parks, museums…) — same host as the
- *  fonts, so the service worker keeps them for offline too */
-const SPRITES = "https://protomaps.github.io/basemaps-assets/sprites/v4/";
 
 /** The base map's own places (stations, parks, shops) — shown unless turned
  *  off in the Map's Filters, so only your pins are left. Per device. */

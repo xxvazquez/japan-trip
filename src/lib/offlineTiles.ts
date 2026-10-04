@@ -1,4 +1,4 @@
-import { HOSTED_TILES } from "./tileSource";
+import { HOSTED_TILES, MAP_ASSET_URLS } from "./tileSource";
 import type { Day, TripData } from "@/core/types";
 
 export interface LatLng {
@@ -14,8 +14,13 @@ export const canPrefetchTiles = !!HOSTED_TILES;
 
 // the zoom levels the map actually renders at street/neighbourhood scale —
 // matches the source's `maxzoom: 15` in mapStyle.ts, so nothing above 15 is
-// ever separately requested (MapLibre reuses the z15 tile past that)
-const ZOOMS = [12, 13, 14, 15];
+// ever separately requested (MapLibre reuses the z15 tile past that); 11
+// keeps a city whole when you pinch out a little
+const ZOOMS = [11, 12, 13, 14, 15];
+// the zoomed-out view across the whole trip (country, then region), so
+// pinching out offline never drops to a blank screen
+const OVERVIEW_ZOOMS = [5, 6, 7, 8, 9, 10];
+const MAX_OVERVIEW_TILES = 400;
 // ~700m so the cached area doesn't crop right at a place's pin
 const PAD_METERS = 700;
 // a sane ceiling so one big, spread-out day can't queue thousands of requests
@@ -44,9 +49,9 @@ function paddedBounds(points: LatLng[]) {
   };
 }
 
-function tilesForBounds(bounds: ReturnType<typeof paddedBounds>): { z: number; x: number; y: number }[] {
+function tilesForBounds(bounds: ReturnType<typeof paddedBounds>, zooms = ZOOMS): { z: number; x: number; y: number }[] {
   const tiles: { z: number; x: number; y: number }[] = [];
-  for (const z of ZOOMS) {
+  for (const z of zooms) {
     const nw = tileIndex(bounds.west, bounds.north, z);
     const se = tileIndex(bounds.east, bounds.south, z);
     for (let x = nw.x; x <= se.x; x++) {
@@ -57,6 +62,19 @@ function tilesForBounds(bounds: ReturnType<typeof paddedBounds>): { z: number; x
 }
 
 type Tile = { z: number; x: number; y: number };
+
+/** The overview zooms over one box around everything, the most zoomed-in
+ *  levels dropped first if a far-flung trip would need too many. */
+function overviewTiles(points: LatLng[]): Tile[] {
+  const bounds = paddedBounds(points);
+  const out: Tile[] = [];
+  for (const z of OVERVIEW_ZOOMS) {
+    const level = tilesForBounds(bounds, [z]);
+    if (out.length + level.length > MAX_OVERVIEW_TILES) break;
+    out.push(...level);
+  }
+  return out;
+}
 
 /** Every tile covering one group of points, capped so a single spread-out
  *  group can't queue thousands of requests on its own. */
@@ -98,25 +116,33 @@ export async function prefetchTileGroups(
   }
   if (tiles.length > MAX_TRIP_TILES) { tiles.length = MAX_TRIP_TILES; truncated = true; }
   if (!HOSTED_TILES || tiles.length === 0) return { ok: 0, failed: 0, truncated };
+  for (const t of overviewTiles(groups.flat())) {
+    const k = `${t.z}/${t.x}/${t.y}`;
+    if (!seen.has(k)) { seen.add(k); tiles.push(t); }
+  }
+  const urls = [
+    // label fonts and icons first: small, and without them a saved map has no names
+    ...MAP_ASSET_URLS,
+    ...tiles.map((t) => HOSTED_TILES!.replace("{z}", String(t.z)).replace("{x}", String(t.x)).replace("{y}", String(t.y))),
+  ];
 
   let ok = 0;
   let failed = 0;
   let next = 0;
-  onProgress?.(0, tiles.length);
+  onProgress?.(0, urls.length);
   async function worker() {
-    while (next < tiles.length) {
-      const t = tiles[next++];
-      const url = HOSTED_TILES!.replace("{z}", String(t.z)).replace("{x}", String(t.x)).replace("{y}", String(t.y));
+    while (next < urls.length) {
+      const url = urls[next++];
       try {
         const res = await fetch(url);
         if (res.ok) ok++; else failed++;
       } catch {
         failed++;
       }
-      onProgress?.(ok + failed, tiles.length);
+      onProgress?.(ok + failed, urls.length);
     }
   }
-  await Promise.all(Array.from({ length: Math.min(CONCURRENCY, tiles.length) }, worker));
+  await Promise.all(Array.from({ length: Math.min(CONCURRENCY, urls.length) }, worker));
   return { ok, failed, truncated };
 }
 

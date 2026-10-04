@@ -462,7 +462,7 @@ Once the app has loaded, it works with no signal. See [Before you travel](#befor
 | Row | Shows |
 |---|---|
 | **Works offline** | *Ready* once the app is fully saved on the device. |
-| **Save trip maps for offline** | Saves the area around every day, stay and place, with progress. |
+| **Save trip maps for offline** | Saves the area around every day, stay and place, the zoomed-out view of the whole trip, and the map's labels and icons for light and dark mode, with progress. |
 | **Save attachments for offline** | Downloads every file not on the device yet; reads *On this device* when done. |
 | **Install app** / **Add to Home Screen** | Installs, or shows the two iPhone steps. Reads *Installed* once done. |
 
