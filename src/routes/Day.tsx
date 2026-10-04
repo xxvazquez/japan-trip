@@ -20,7 +20,6 @@ import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { ActionRow, ACTION_ROW } from "@/components/ActionRow";
-import { Switch } from "@/components/Switch";
 import { SearchField } from "@/components/SearchField";
 import { RowSelect } from "@/components/RowSelect";
 import { ActionSheet, useActionSheet, ConfirmMenuItem } from "@/components/ActionSheet";
@@ -1164,6 +1163,8 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
   // "Move to another day": off this day, onto the end of the picked one —
   // a timed step then sorts itself into place there, pin and all
   const moveSheet = useActionSheet();
+  // the place card's More — every secondary action, as Maps keeps them
+  const moreSheet = useActionSheet();
   const dayOpts = { weekday: "short", day: "numeric", month: "short" } as const;
   const tripDays = useMemo(
     () => [...(tripData?.days ?? [])].sort((a, b) => a.date.localeCompare(b.date)),
@@ -1176,6 +1177,9 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
       updateEntity<DayT>("days", target.id, { plan: [...(target.plan ?? []), { ...item }] });
     });
   };
+  // what's switched on in More, said under the card's title so it isn't hidden
+  const cardStatus = [item.optional && "Optional", pinned && "Time pinned", place?.overwhelming && "Overwhelming"]
+    .filter(Boolean).join(" · ");
   const toggleOptional = () => onPatch({ optional: item.optional ? undefined : true });
   const toggleOverwhelming = () => {
     if (!place) return;
@@ -1481,6 +1485,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                         {/* only a clash with the plan up here; the hours
                             themselves are in Good to know below */}
                         {conflict && <p className="mt-0.5 break-words text-xs text-danger">{conflict}</p>}
+                        {cardStatus && <p className="mt-0.5 break-words text-xs text-ink-faint">{cardStatus}</p>}
                       </div>
                       <button
                         type="button"
@@ -1495,8 +1500,44 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                       {mapHref && <PlaceAction href={mapHref} icon="map" label="Google Maps" primary />}
                       {reviewSite && <PlaceAction href={reviewHref(reviewSite, place)} icon="link" label={place.reviewUrl ? reviewSite.label : `Search ${reviewSite.label}`} />}
                       <PlaceAction icon="locate" label="Map" onClick={() => { placeCard.setOpen(false); onShowOnMap(place); }} />
-                      <PlaceAction icon="calendar" label="Calendar" onClick={addToGoogleCalendar} />
+                      {readOnly ? (
+                        <PlaceAction icon="calendar" label="Calendar" onClick={addToGoogleCalendar} />
+                      ) : (
+                        <PlaceAction icon="more" label="More" menu buttonRef={moreSheet.anchorRef} onClick={() => moreSheet.setOpen(true)} />
+                      )}
                     </PlaceActions>
+                    {!readOnly && (
+                      <ActionSheet open={moreSheet.open} onClose={() => moreSheet.setOpen(false)} anchorRef={moreSheet.anchorRef}>
+                        <button type="button" className="menu-item" onClick={addToGoogleCalendar}>
+                          <Icon name="calendar" size={16} /> Add to Calendar
+                        </button>
+                        <div className="my-1 h-px bg-ink/10" />
+                        <MenuCheck checked={!!item.optional} onClick={toggleOptional}>Optional</MenuCheck>
+                        {item.time && (
+                          <MenuCheck checked={pinned} onClick={() => onPatch({ pinned: pinned ? undefined : true })}>Pin Time</MenuCheck>
+                        )}
+                        <MenuCheck checked={!!place.overwhelming} onClick={toggleOverwhelming}>Overwhelming</MenuCheck>
+                        <div className="my-1 h-px bg-ink/10" />
+                        <button type="button" className="menu-item" onClick={() => { placeCard.setOpen(false); changePlace.setOpen(true); }}>
+                          <Icon name="pin" size={16} /> Change Place
+                        </button>
+                        <button type="button" className="menu-item" onClick={() => { placeCard.setOpen(false); onQuickAddCost(item); }}>
+                          <Icon name="wallet" size={16} /> Add an Expense
+                        </button>
+                        <button type="button" className="menu-item" onClick={() => { placeCard.setOpen(false); onDuplicate(); }}>
+                          <Icon name="copy" size={16} /> Duplicate
+                        </button>
+                        {tripDays.length > 1 && (
+                          <button type="button" className="menu-item" onClick={() => { placeCard.setOpen(false); moveSheet.setOpen(true); }}>
+                            <Icon name="move" size={16} /> Move to Another Day
+                          </button>
+                        )}
+                        <div className="my-1 h-px bg-ink/10" />
+                        <button type="button" className="menu-item text-danger" onClick={() => { placeCard.setOpen(false); undoable("Step removed", onRemove); }}>
+                          <Icon name="close" size={16} /> Remove Step
+                        </button>
+                      </ActionSheet>
+                    )}
                   </div>
                 }
               >
@@ -1571,42 +1612,6 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                       </div>
                       </div>
                     </div>
-                  )}
-                  {!readOnly && (
-                    <ul className="overflow-hidden rounded-[12px] bg-surface">
-                      {/* an on/off fact about the place, so a switch, as
-                          Settings sets one — not an action that flips its
-                          label; sized with the action rows under it */}
-                      <li className={`${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-2`}>
-                        <span className="min-w-0 flex-1 text-xs text-ink">Optional</span>
-                        <Switch size="sm" checked={!!item.optional} onChange={toggleOptional} label="Optional" />
-                      </li>
-                      {item.time && (
-                        <li className={`${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-2`}>
-                          <span className="min-w-0 flex-1 text-xs text-ink">Pin time</span>
-                          <Switch size="sm" checked={pinned} onChange={() => onPatch({ pinned: pinned ? undefined : true })} label="Pin time" />
-                        </li>
-                      )}
-                      <li className={`${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-2`}>
-                        <span className="min-w-0 flex-1 text-xs text-ink">Overwhelming</span>
-                        <Switch size="sm" checked={!!place.overwhelming} onChange={toggleOverwhelming} label="Overwhelming" />
-                      </li>
-                      <ActionRow icon="pin" label="Change place" onClick={() => { placeCard.setOpen(false); changePlace.setOpen(true); }} />
-                      <ActionRow icon="wallet" label="Add an expense" onClick={() => { placeCard.setOpen(false); onQuickAddCost(item); }} />
-                      <ActionRow icon="copy" label="Duplicate step" onClick={() => { placeCard.setOpen(false); onDuplicate(); }} />
-                      {tripDays.length > 1 && (
-                        <ActionRow icon="move" label="Move to another day" onClick={() => { placeCard.setOpen(false); moveSheet.setOpen(true); }} />
-                      )}
-                      <li className={INSET_DIVIDER}>
-                        <button
-                          type="button"
-                          onClick={() => { placeCard.setOpen(false); undoable("Step removed", onRemove); }}
-                          className="action w-full px-3.5 py-2.5 text-xs text-danger transition-colors duration-150 active:bg-ink/[0.07]"
-                        >
-                          <Icon name="close" size={14} /> Remove step
-                        </button>
-                      </li>
-                    </ul>
                   )}
                 </div>
               </ActionSheet>
@@ -2293,5 +2298,16 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
       </li>
       {!readOnly && <li>{addButton("action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07] active:opacity-100", 14)}</li>}
     </ul>
+  );
+}
+
+/** an on/off item in a menu — iOS menus mark the one that's on with a
+ *  leading checkmark instead of a switch */
+function MenuCheck({ checked, onClick, children }: { checked: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button type="button" role="menuitemcheckbox" aria-checked={checked} className="menu-item" onClick={onClick}>
+      <span className="grid w-4 shrink-0 place-items-center">{checked && <Icon name="check" size={16} />}</span>
+      {children}
+    </button>
   );
 }
