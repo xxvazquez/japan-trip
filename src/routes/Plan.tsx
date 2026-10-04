@@ -40,7 +40,7 @@ import type { Day, Leg, TripData } from "@/core/types";
  *  so tapping it to jump straight there needs no extra button. Falls back to
  *  a plain block (no link, no hover styling) if today has no Day yet. */
 function Wrap({ to, children }: { to: string | false | undefined; children: ReactNode }) {
-  return to ? <Link to={to} className="group block">{children}</Link> : <div>{children}</div>;
+  return to ? <Link to={to} className="block transition-opacity active:opacity-60">{children}</Link> : <div>{children}</div>;
 }
 
 /** After the trip: how long it was, then a derived recap — cities (two stays
@@ -144,7 +144,7 @@ export default function Plan() {
         {!noDates && c.phase === "during" && (
           <Wrap to={c.today && `/day/${c.today.id}`}>
             <p className="flex items-baseline gap-2">
-              <span className="font-display text-display group-hover:underline">Day {c.dayNumber}</span>
+              <span className="font-display text-display">Day {c.dayNumber}</span>
               <span className="text-lg text-ink-soft">of {c.totalDays}</span>
             </p>
             <p className="mt-2 text-sm">
@@ -377,9 +377,9 @@ function LegBlock({
 
   return (
     <section>
-      <Link to={`/leg/${leg.id}`} className="group mb-2 flex items-baseline gap-2">
+      <Link to={`/leg/${leg.id}`} className="mb-2 flex items-baseline gap-2 transition-opacity active:opacity-60">
         <span className="h-3 w-3 shrink-0 translate-y-[1px] rounded-full" style={{ background: hex }} />
-        <h2 className="subhead group-hover:underline">{leg.base}</h2>
+        <h2 className="subhead">{leg.base}</h2>
         {leg.nameAlt && (
           <span className="text-sm text-ink-soft">
             {leg.nameAlt}
@@ -455,16 +455,16 @@ function DayCard({ day, loc, data }: { day: Day; loc: string; data: TripData }) 
 
 /** Own hairline, inset past the leading dot + date (not the drag handle,
  *  which sits outside the link) — dropped on the last row, like every other
- *  grouped-inset list. */
+ *  grouped-inset list. The whole row greys while its link is pressed. */
 const DAY_ROW_LI =
-  "relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
+  "relative transition-colors duration-150 has-[a:active]:bg-ink/[0.07] after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
 
 /** A day's tappable row body — date, title, kind + labels, chevron. */
 function DayLink({ data, day, today, loc, hex, className }: { data: TripData; day: Day; today: boolean; loc: string; hex: string; className: string }) {
   return (
     <Link
       to={`/day/${day.id}`}
-      className={`group flex min-w-0 flex-1 items-baseline gap-3 py-3 pr-3.5 ${className}`}
+      className={`flex min-w-0 flex-1 items-baseline gap-3 py-3 pr-3.5 ${className}`}
     >
       {/* a plain block, not a flex row: a flex row would take its baseline
           from the dot (an empty box) and drop the date below the title's */}
@@ -473,7 +473,7 @@ function DayLink({ data, day, today, loc, hex, className }: { data: TripData; da
         <DayDate date={day.date} loc={loc} strong={today} />
       </span>
       <span className="flex min-w-0 flex-1 flex-col">
-        <span className={`break-words leading-snug ${day.title ? "text-ink" : "text-ink-faint"} group-hover:underline`}>
+        <span className={`break-words leading-snug ${day.title ? "text-ink" : "text-ink-faint"}`}>
           {day.title || "Untitled day"}
         </span>
         <DayKindTag day={day} data={data} />
