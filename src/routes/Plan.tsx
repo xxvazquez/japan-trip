@@ -417,25 +417,19 @@ function DayDate({ date, loc, strong }: { date: string; loc: string; strong?: bo
   );
 }
 
-/** The "Arrive / Travel / Day trip" tag — a quiet subtitle under the day's
- *  title, the iOS list idiom, not a column beside it: beside it, a long
- *  one-word title ("Arashiyama") couldn't wrap and ran into the tag on a
- *  narrow phone. Identical in the live row and the drag overlay. */
+/** The "Arrive / Travel / Day trip" kind and the day's own labels ("chill
+ *  day") as one quiet caption under the title — Reminders' secondary line,
+ *  the kind's symbol leading, the rest joined by " · ", never chips. Under
+ *  the title, not beside it, so a long one-word title ("Arashiyama") can
+ *  wrap on a narrow phone. Identical in the live row and the drag overlay. */
 function DayKindTag({ day, data }: { day: Day; data: TripData }) {
   const k = KIND[dayKind(day, data)];
-  const labels = day.labels ?? [];
-  if (!k && labels.length === 0) return null;
+  const parts = [...(k ? [k.label] : []), ...(day.labels ?? [])];
+  if (parts.length === 0) return null;
   return (
-    <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-soft">
-      {k && (
-        <span className="flex items-center gap-1">
-          <Icon name={k.icon} size={12} /> {k.label}
-        </span>
-      )}
-      {/* the day's own labels ("chill day") — quiet chips beside the kind */}
-      {labels.map((l) => (
-        <span key={l} className="break-words rounded-[6px] bg-surface-2 px-1.5 py-px">{l}</span>
-      ))}
+    <span className="mt-0.5 break-words text-xs leading-snug text-ink-faint">
+      {k && <Icon name={k.icon} size={12} className="mr-1 inline-block align-[-1px]" />}
+      {parts.join(" · ")}
     </span>
   );
 }
