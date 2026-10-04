@@ -28,6 +28,9 @@ type Base = {
    *  ⋯, a tick, a picker, beside a thin text line): still working on that
    *  row, so it should stay */
   onBlank?: (onRow: boolean) => void;
+  /** a name that can't be blank: an edit that ends empty puts the old text
+   *  back, the way Files and Finder treat a cleared name */
+  required?: boolean;
   /** Return pressed on a filled single-line field, after it's saved — the
    *  cue to move on to what the row still needs (a quick-entry flow) */
   onReturn?: () => void;
@@ -124,7 +127,7 @@ const inputType = (kind: Kind) =>
 const DATE_SHOWN: Intl.DateTimeFormatOptions = { weekday: "short", day: "numeric", month: "short" };
 
 export function Editable(props: Props) {
-  const { value, onCommit, placeholder = "Add…", label, className = "", emptyContent, editSignal, timeStart, autoEdit, onBlank, onReturn } = props;
+  const { value, onCommit, placeholder = "Add…", label, className = "", emptyContent, editSignal, timeStart, autoEdit, onBlank, required, onReturn } = props;
   const rawAs = props.as ?? "text";
   const as: Kind =
     rawAs === "auto" ? resolveKind(label, value)
@@ -176,7 +179,8 @@ export function Editable(props: Props) {
 
   const commit = () => {
     setEditing(false);
-    if (onBlank && !draft.trim()) onBlank(tappedOwnRow());
+    if (required && !draft.trim()) setDraft(value);
+    else if (onBlank && !draft.trim()) onBlank(tappedOwnRow());
     else if (draft !== value) onCommit(draft.trim());
   };
   const cancel = () => {

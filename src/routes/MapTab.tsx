@@ -1392,7 +1392,7 @@ export default function MapTab() {
                   .map((a) => (
                     <ContextMenu as="li" key={a.id} className={`flex items-center gap-2 px-3.5 py-2 text-sm ${INSET_DIVIDER}`}>
                       <span className="min-w-0 flex-1 break-words">
-                        <Editable label="Area name" value={a.name} placeholder="Area name" onCommit={(v) => updateEntity<Area>("areas", a.id, { name: v.trim() || "Untitled" })} />
+                        <Editable label="Area name" value={a.name} placeholder="Area name" required onCommit={(v) => updateEntity<Area>("areas", a.id, { name: v.trim() })} />
                       </span>
                       <span className="shrink-0 text-2xs tabular-nums text-ink-soft">{plural(a.placeIds.length, "place")}</span>
                       <RowMenu label="Area options">

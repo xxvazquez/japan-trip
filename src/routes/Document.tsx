@@ -66,7 +66,7 @@ export default function Document() {
     <Page>
       <PageHeader
         back="/logbook/documents"
-        title={ro ? doc.title : <Editable label="Document name" value={doc.title} placeholder="Name" onCommit={(v) => p({ title: v || "Untitled" })} />}
+        title={ro ? doc.title : <Editable label="Document name" value={doc.title} placeholder="Name" required onCommit={(v) => p({ title: v })} />}
       />
 
       <div className="space-y-6">
