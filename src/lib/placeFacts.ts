@@ -7,6 +7,7 @@ import { glyphForCategoryName, glyphGroup } from "./mapGlyphs";
 import { haversineKm } from "./geo";
 import { apiGet } from "./api";
 import { osmLinks } from "./placeWebsite";
+import { dayTripCities, placeCityMap, placeLegMap, type TripCity } from "./cityAssign";
 
 /** the facts in the order they're shown, with their labels */
 export const FACT_ROWS = [
@@ -66,16 +67,33 @@ const stale = (f: PlaceFacts) =>
  *  (Osaka from a Kyoto stay), not in it */
 const AREA_KM = 30;
 
-/** the city a place is in, to tell the search which one is meant: its own
- *  stay, else the stay of the first day it's planned on — unless it's a day
- *  trip away from that stay's hotel, when a wrong city would only mislead */
+/** each trip's place → stay and day-trip town, worked out once per version
+ *  of the trip rather than once per place */
+const cities = new WeakMap<TripData, { leg: Map<string, string>; town: Map<string, string>; towns: TripCity[] }>();
+function cityMaps(data: TripData) {
+  let c = cities.get(data);
+  if (!c) {
+    const towns = dayTripCities(data);
+    c = { leg: placeLegMap(data), town: placeCityMap(data, undefined, undefined, towns), towns };
+    cities.set(data, c);
+  }
+  return c;
+}
+
+/** the city a place is in, to tell the search which one is meant. Its stay
+ *  is the one it's filed under, else the one its first day is in, else the
+ *  nearest — the same one the Map puts it under. Away from that stay (a day
+ *  trip), it's the day trip's town, or none when it's in no town we know:
+ *  a wrong city would only mislead the search. */
 export function placeArea(place: Place, data: TripData | null): string | undefined {
   if (!data) return undefined;
-  const legId = place.legId ?? data.days.find((d) => d.plan?.some((i) => i.placeId === place.id))?.legId;
+  const { leg: nearest, town, towns } = cityMaps(data);
+  const legId = place.legId ?? data.days.find((d) => d.plan?.some((i) => i.placeId === place.id))?.legId ?? nearest.get(place.id);
   const leg = data.legs.find((l) => l.id === legId);
   const hotel = leg?.hotelId ? data.hotels.find((h) => h.id === leg.hotelId) : undefined;
-  if (hotel?.lat != null && hotel.lng != null && haversineKm(hotel.lat, hotel.lng, place.lat, place.lng) > AREA_KM) return undefined;
-  return leg?.base || undefined;
+  const away = hotel?.lat != null && hotel.lng != null && haversineKm(hotel.lat, hotel.lng, place.lat, place.lng) > AREA_KM;
+  if (!away) return leg?.base || undefined;
+  return towns.find((t) => t.id === town.get(place.id))?.name || undefined;
 }
 
 /** found → the facts; nothing found → null; couldn't ask (offline, no key,

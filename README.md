@@ -220,7 +220,8 @@ What to expect:
 - **Website** comes from OpenStreetMap's tag for the place at its pin, else a search result whose address carries the place's name. Never a listing or guide site (Tabelog, Tripadvisor…). No row when none is found — common for small cafés, viewpoints and streets.
 - **Menu** is the place's own menu page when OpenStreetMap has one tagged, else the menu tab of its Tabelog page. No row without either. Google Maps menus aren't available without a paid API.
 - A result only counts if its pages name the place and its city, so a namesake elsewhere isn't picked up.
-- The city is the stay's ("Kawaguchiko" is enough for "Lake Kawaguchiko"). A place over 30 km from that stay's hotel is a day trip, so it's searched by name alone.
+- The city is the place's stay: the one it's filed under, else its day's, else the nearest (as on the Map). "Kawaguchiko" is enough for "Lake Kawaguchiko".
+- A place over 30 km from that stay's hotel gets its day trip's town instead (Osaka, not Kyoto), or no city at all if it's in no town on the plan.
 - When it was checked and which sites it came from are on the ↻ icon's tooltip, not a row of their own.
 - It can be out of date — check hours with the place before a long trip across town.
 - Needs `TAVILY_API_KEY` (see [Environment variables](#environment-envlocal)).
@@ -260,7 +261,7 @@ Open one from a day, or from **Logbook → Journeys**. A journey is one or more 
 
 ## Map
 
-Your places on a clean map, read top to bottom: **city → filters → places**.
+Your places on a clean map, read top to bottom: **city pills → places**. Everything else is in the **⋯** menu beside the pills.
 
 ### Cities
 
@@ -272,14 +273,15 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
 ### Places
 
 - **＋ Add place** — search for somewhere, or tap the map to drop a pin.
-- **The list** — once a city is picked, places are grouped by area (plus *No area*). On **All** it nests **city → area → place**. Groups start collapsed and remember what you opened.
+- **The list** — once a city is picked, places are grouped by area (plus *No area*). On **All** it nests **city → area → place**.
+- **Areas fold open in place**, like folders in Files — tap an area row to show its places under it. They start collapsed and remember what you opened.
 - **A place's card** — laid out like a step's place card: the name (tap to rename) and the walk to the nearest station; a button row (**Google Maps** filled — searched at the pin, so a chain opens the right branch — Tabelog for a restaurant in Japan, and the day it's on); then **Note**, **Good to know** (folded until you tap it, so filing a place stays quick; see [Helpers on a step](#helpers-on-a-step)), a group with the day (or **Add to a day**), areas, category (a pin added in the app can be moved into any category, taking on its colour; a My Maps pin's comes from its layer) and city, and last Remove.
 - **List rows** show the name and the walk to the nearest station.
 - **Place names** on the map are in English / Latin script where available.
 
 ### Filters
 
-**Filters** opens a sheet:
+**⋯ → Filters** opens a sheet (the **⋯** button turns tinted while a category filter is on):
 
 - **Category** — tap the coloured dots to narrow; none selected shows everything.
 - **My Maps layers** (**Manage → Content**) — pick which category each layer goes into ("Coffee & tea" → coffee), or **New Category…**. Every sync then files that layer's pins there, with that category's colour and icon.
@@ -296,12 +298,13 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
 
 - **Location arrow** (under the zoom buttons) — shows where you are and follows you. Drag the map to stop following; tap again to come back. Once allowed, the dot returns by itself next time.
 - **Today → crosshair** sorts the list by distance from you and narrows it to 1.5 km when that leaves anything. It asks for your location only when tapped.
-- **List/map icon** switches to a full-screen list. Remembered.
+- **⋯ → Show List Only** switches to a full-screen list (**Show Map** goes back). Remembered.
 - **Resize** by dragging the grabber on the phone sheet (or tap it to cycle three heights), or the divider on desktop.
-- **Sync from My Maps** adds new pins and removes pins you deleted there (**Undo** brings them back). Pins still on the map pick up their new position, layer and colour (unless their category has its own), and keep everything you've edited.
+- **⋯ → Sync with My Maps** adds new pins and removes pins you deleted there (**Undo** brings them back). Pins still on the map pick up their new position, layer and colour (unless their category has its own), and keep everything you've edited.
 - **One pin per place.** A place saved twice on the map (same name, within 150 m) comes in once; a chain's branches further apart stay separate. A pin you added in the app for the same place becomes the map's pin, keeping its steps, areas, note and links.
 - **Renaming a pin in My Maps** counts as delete + add: the old one (with its notes) goes, the new one comes in.
 - **Remove place** on a pin's card deletes it in the app only — if it's still on the My Map, the next sync brings it back.
+- **The foot of the list** shows when it last synced and how many pins came from My Maps.
 
 ## Areas and categories
 
@@ -310,9 +313,9 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
 
 **Managing areas** (all on the Map):
 
-- **Add** — *Areas → Add area*.
+- **Add** — *⋯ → New Area*.
 - **Assign places** — from a place's card.
-- **Rename, delete, or edit an area's members** — *Edit areas*.
+- **Rename, delete, or merge duplicates** — *⋯ → Edit Areas*.
 - **Show one area** — tap its colour dot; tap the rest of the row to fold it.
 
 **Areas on a day.** Add an area on a day's page and all its places appear on that day's map (faded). It's a live link, so later edits show up. Tap **+** to turn one into a step. The day offers areas from its own city — a day trip gets its town's areas.
@@ -320,12 +323,12 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
 **What else areas show:**
 
 - A faint labelled ring on the map when zoomed out.
-- How far the area stretches on foot ("≈ 12 min · 0.9 km walk across").
+- How far the area stretches on foot ("Spans 0.9 km · 12 min walk").
 - Each place's nearest station, read from the map tiles (with a network fallback). Nothing shows if there's no station within 1 km.
 
 ### Suggest areas
 
-When unassigned places sit close together, a **Suggest areas** link appears. Nothing is saved until you tap Create.
+When unassigned places sit close together, **⋯ → Suggest Areas** appears. Nothing is saved until you tap Create.
 
 - **Each group is a day out.** Places within about a 45 minute walk always share an area, in any city.
 - **Each city is grouped on its own**, never across two stays, into about as many areas as you spend days there. A spread-out city's areas grow up to a day by local transport (10 km across) to fit; a compact one isn't lumped together just to hit the count.
