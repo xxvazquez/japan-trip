@@ -133,7 +133,7 @@ function AreaRow({
             <span className={AREA_TITLE}>{name}</span>
             {walk && <AreaWalkSpan items={items} />}
           </span>
-          <span className="shrink-0 text-[17px] tabular-nums text-ink-faint">{items.length}</span>
+          <span className="shrink-0 text-[15px] tabular-nums text-ink-faint">{items.length}</span>
           <Icon name="chevron" size={13} className={`shrink-0 text-ink-faint transition-transform ${open ? "rotate-90" : ""}`} />
         </button>
       </div>
