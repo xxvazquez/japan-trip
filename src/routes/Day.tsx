@@ -775,7 +775,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
   // its "Good to know" (hours, reservations, queue…), behind a line under the step
   const tripData = useData();
   const area = place && placeArea(place, tripData);
-  useAutoPlaceFacts(place, categoryIcons, area, !readOnly);
+  useAutoPlaceFacts(place, tripData, area, !readOnly);
   // the place card the step's icon opens; on desktop it hangs off the step
   const placeCard = useActionSheet();
   const placeCardAnchor = useRef<HTMLDivElement>(null);

@@ -148,7 +148,7 @@ Each step shows a tile, an optional time, the step itself and a short note.
 - **Link a place** — tap the grey pin to pick a place from the day's Areas. Tap a linked name to change it; **Custom…** unlinks it.
 - **Meal steps** — an unlinked step whose text mentions a meal (lunch, dinner, breakfast…), coffee or drinks gets a gold food, coffee or drink tile instead of the grey pin.
 - **Reorder** by dragging.
-- **The place card** — tap a linked step's icon, as you'd tap a place in Maps: Good to know (restaurants), then Open in Google Maps, Tabelog (restaurants in Japan) and Show on map.
+- **The place card** — tap a linked step's icon, as you'd tap a place in Maps: Good to know, then Open in Google Maps, Tabelog (restaurants in Japan) and Show on map.
 - **The ⋯ menu** — add to Google Calendar, mark as **overwhelming** (a ⚠ sensory heads-up; the day's count shows on Plan), add a note, duplicate, add an expense, remove.
 - **Notes** support bold, bullets and links. Tap to expand and edit. Empty fields stay hidden.
 - **+ Add a step** sits at the foot of the list and opens the new step ready to type. Leave it blank and it goes away.
@@ -180,15 +180,21 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 - "Restaurant" means the category's icon is from *Food & drink* (or its name says food, café, bar…).
 - **Manage → Content → Tabelog links** finds them for every restaurant at once.
 
-**Good to know.** A restaurant or café (anywhere, not just Japan) gets a short summary of what guides and review sites say about it:
+**Good to know.** Every restaurant or café, and every other place on a day's plan (a shrine, a museum, a garden), gets a short summary of what guides and review sites say about it — anywhere, not just Japan:
 
-- **Known for**, **Hours**, **Closed**, **Reservations**, **Queue** and **Price**, each a short phrase. Anything the sources don't mention is left out.
+| Place | Facts |
+| --- | --- |
+| Somewhere to eat | **Known for**, **Hours**, **Closed**, **Reservations**, **Queue**, **Price** |
+| Anything else on a plan | **Known for**, **Hours**, **Closed**, **Tickets**, **Crowds**, **Entry** |
+
+- Each is a short phrase. Anything the sources don't mention is left out.
+- A place that changes category (sight ↔ restaurant) is looked up again the new way.
 - On Plan it's at the top of the step's place card (tap its icon), so the step itself stays short; on the Map it's part of the place's card.
 - Looked up the first time the place shows, again once it's a month old, and again after a rename. Saved with the place, so it works offline.
 - It shows when it was checked and which sites it came from, with **Refresh** to check again now.
 - A result only counts if its pages name the place and mention its city — so a namesake elsewhere isn't picked up.
-- It can be out of date. Check hours and closed days with the restaurant before a long trip across town.
-- **Manage → Content → Good to know** checks every restaurant at once. Uses the same `TAVILY_API_KEY`, one search per place.
+- It can be out of date. Check hours and closed days with the place before a long trip across town.
+- **Manage → Content → Good to know** checks every restaurant and planned place at once. Uses the same `TAVILY_API_KEY`, one search per place.
 
 **Back to hotel.** The last row of the day is the way home to that night's hotel (left off on a departure day). Close by it shows the walk; past a 15-minute walk the train joins it — *"Ueno → Asakusa · 25 min"*, door to door — and past 30 minutes only the train shows, never the long walk. Tapping it opens Google Maps directions.
 
@@ -593,7 +599,7 @@ Google sign-in has no allowlist of its own. Strangers would only ever see their 
 
 Hosted on **Cloudflare Workers** (static assets), deployed through the Git integration on every push to `main`.
 
-- A small Worker script ([`worker/index.ts`](worker/index.ts)) answers `/api/*` only — today `/api/tabelog` and `/api/place-facts`, the restaurant lookups. Everything else is served as static files without touching it (`run_worker_first` in [`wrangler.jsonc`](wrangler.jsonc)).
+- A small Worker script ([`worker/index.ts`](worker/index.ts)) answers `/api/*` only — today `/api/tabelog` and `/api/place-facts`, the place lookups. Everything else is served as static files without touching it (`run_worker_first` in [`wrangler.jsonc`](wrangler.jsonc)).
 - In `npm run dev` / `preview` the same handler runs as Vite middleware, so the lookup works locally too.
 - The lookup searches with [Tavily](https://app.tavily.com) (Tabelog blocks requests from Cloudflare's servers, so it can't be read directly). Its key goes in **Worker → Settings → Variables and Secrets → Add → Secret**, named `TAVILY_API_KEY`. Takes effect without a rebuild.
 - **Only signed-in accounts can use `/api/*`** — anyone else gets *Sign in to use this*, so strangers can't spend the Tavily searches. The app sends its sign-in with each call and the Worker checks it with Supabase ([`worker/auth.ts`](worker/auth.ts)). For that the Worker needs two more entries under **Variables and Secrets**, as plain text: `SUPABASE_URL` and `SUPABASE_ANON_KEY` (the same values as `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`). Without them every lookup is refused.

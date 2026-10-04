@@ -9,8 +9,8 @@ import { TileRow } from "@/components/TileRow";
 import type { Tone } from "@/lib/tones";
 import { useApp, undoable } from "@/store/useApp";
 import { useData } from "@/lib/data";
-import { findReviewLink, isFoodPlace, reviewSiteFor, saveReviewLink } from "@/lib/reviewSite";
-import { factsDue, hasFacts, placeArea, refreshFacts } from "@/lib/placeFacts";
+import { findReviewLink, reviewSiteFor, saveReviewLink } from "@/lib/reviewSite";
+import { factsDue, hasFacts, placeArea, refreshFacts, wantsFacts } from "@/lib/placeFacts";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import { useIsDark, useMode, type Mode } from "@/lib/mode";
 import { APP_BUILD, APP_NAME, APP_TAGLINE } from "@/lib/app";
@@ -1641,17 +1641,16 @@ function ReviewLinksPanel() {
   );
 }
 
-/** Fills in every restaurant's "Good to know" in one go — the lookup a Plan
+/** Fills in every restaurant's and planned place's "Good to know" in one go — the lookup a Plan
  *  step or Map card runs when it's shown — for the ones never checked or
  *  checked too long ago. One place at a time; leaving the page doesn't stop it. */
 function PlaceFactsPanel() {
   const data = useData();
   const [run, setRun] = useState<{ done: number; total: number; failed: number; running: boolean } | null>(null);
   if (!data) return null;
-  const icons = data.config.categoryIcons;
-  const places = data.places.filter((p) => isFoodPlace(p, icons));
+  const places = data.places.filter((p) => wantsFacts(p, data));
   if (places.length === 0) return null;
-  const due = places.filter((p) => factsDue(p, icons));
+  const due = places.filter((p) => factsDue(p, data));
   const known = places.filter((p) => hasFacts(p.facts)).length;
 
   const checkAll = async () => {
@@ -1676,7 +1675,7 @@ function PlaceFactsPanel() {
   return (
     <Section
       title="Good to know"
-      info="Restaurants and cafés get a short summary of what guides and review sites say — what it’s known for, hours, closed days, reservations, queues and price. It’s looked up when you open one on Plan or the Map, and again once it’s a month old; this does them all at once. Each place shows when it was checked, and can be refreshed by hand."
+      info="Restaurants and cafés, and every place on a day’s plan, get a short summary of what guides and review sites say — what it’s known for, hours and closed days, then reservations, queues and price for somewhere to eat, or tickets, crowds and entry fee for a shrine, museum or other sight. It’s looked up when you open one on Plan or the Map, and again once it’s a month old; this does them all at once. Each place shows when it was checked, and can be refreshed by hand."
     >
       <ul>
         <InsetRow label="Filled in">
@@ -1686,7 +1685,7 @@ function PlaceFactsPanel() {
         {run?.running ? (
           <ActionRow label={`Checking… ${run.done} of ${run.total}`} onClick={() => {}} disabled />
         ) : (
-          due.length > 0 && <ActionRow icon="info" label={`Check ${plural(due.length, "restaurant")}`} onClick={() => void checkAll()} />
+          due.length > 0 && <ActionRow icon="info" label={`Check ${plural(due.length, "place")}`} onClick={() => void checkAll()} />
         )}
       </ul>
     </Section>

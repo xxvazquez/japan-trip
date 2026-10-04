@@ -15,6 +15,22 @@ export const FACT_ROWS = [
   ["price", "Price"],
 ] as const satisfies readonly (readonly [keyof PlaceFacts, string])[];
 
+/** a sight's labels for the slots that mean something else there */
+const SIGHT_LABELS: Partial<Record<keyof PlaceFacts, string>> = { reservations: "Tickets", queue: "Crowds", price: "Entry" };
+
+/** the rows to show for a set of facts, labelled for what they were asked as */
+export const factRows = (f: PlaceFacts) =>
+  FACT_ROWS.map(([k, label]) => [k, (f.kind === "sight" && SIGHT_LABELS[k]) || label] as const);
+
+/** what a place is looked up as: somewhere to eat, else a sight */
+const kindOf = (p: Place, categoryIcons?: Record<string, string>): "food" | "sight" =>
+  isFoodPlace(p, categoryIcons) ? "food" : "sight";
+
+/** whether a place gets a "Good to know": somewhere to eat anywhere on the
+ *  trip, and any place that's on a day's plan */
+export const wantsFacts = (p: Place, data: TripData | null) =>
+  isFoodPlace(p, data?.config.categoryIcons) || !!data?.days.some((d) => d.plan?.some((i) => i.placeId === p.id));
+
 /** older than this, a place's facts are looked up again when it's shown —
  *  hours and closed days change */
 const STALE_DAYS = 30;
@@ -42,11 +58,12 @@ const inFlight = new Map<string, Promise<Result>>();
  *  their own until the app is opened again */
 const failed = new Set<string>();
 
-async function ask(p: Place, area: string | undefined): Promise<Result> {
+async function ask(p: Place, area: string | undefined, kind: "food" | "sight"): Promise<Result> {
   if (typeof navigator !== "undefined" && !navigator.onLine) return undefined;
   try {
     const q = new URLSearchParams({ name: p.name });
     if (area) q.set("area", area);
+    if (kind === "sight") q.set("kind", kind);
     const res = await apiGet(`/api/place-facts?${q}`);
     if (!res.ok || !res.headers.get("Content-Type")?.includes("json")) return undefined;
     return ((await res.json()) as { facts?: PlaceFacts | null }).facts;
@@ -55,12 +72,12 @@ async function ask(p: Place, area: string | undefined): Promise<Result> {
   }
 }
 
-function lookUp(p: Place, area: string | undefined): Promise<Result> {
+function lookUp(p: Place, area: string | undefined, kind: "food" | "sight"): Promise<Result> {
   // a rename mid-lookup asks again under the new name
-  const key = `${p.id}|${p.name}`;
+  const key = `${p.id}|${p.name}|${kind}`;
   const running = inFlight.get(key);
   if (running) return running;
-  const job = queue.then(() => ask(p, area));
+  const job = queue.then(() => ask(p, area, kind));
   queue = job.catch(() => undefined);
   inFlight.set(key, job);
   void job.finally(() => inFlight.delete(key));
@@ -71,7 +88,8 @@ function lookUp(p: Place, area: string | undefined): Promise<Result> {
  *  it had (or records the check, so it isn't asked again for a while).
  *  Resolves false when it couldn't ask. */
 export async function refreshFacts(p: Place, area: string | undefined): Promise<boolean> {
-  const found = await lookUp(p, area);
+  const kind = kindOf(p, useApp.getState().data?.config.categoryIcons);
+  const found = await lookUp(p, area, kind);
   if (found === undefined) {
     failed.add(p.id);
     return false;
@@ -82,20 +100,26 @@ export async function refreshFacts(p: Place, area: string | undefined): Promise<
   if (!now || data?.config.demo) return true;
   // a place renamed since doesn't take facts about its old name
   if (now.name !== p.name) return true;
-  const kept = now.facts?.name === p.name ? now.facts : undefined;
-  updateEntity<Place>("places", p.id, { facts: { ...(found ?? { ...kept, checkedAt: todayISO() }), name: p.name } });
+  // what it had is only worth keeping if it was asked the same way
+  const kept = now.facts?.name === p.name && (now.facts.kind ?? "food") === kind ? now.facts : undefined;
+  updateEntity<Place>("places", p.id, {
+    facts: { ...(found ?? { ...kept, checkedAt: todayISO() }), name: p.name, kind: kind === "sight" ? kind : undefined },
+  });
   return true;
 }
 
-/** whether a place's facts are due a lookup: somewhere to eat with none yet,
- *  ones about a name it's since been renamed from, or ones past `STALE_DAYS` */
-export const factsDue = (p: Place, categoryIcons?: Record<string, string>) =>
-  isFoodPlace(p, categoryIcons) && (!p.facts || p.facts.name !== p.name || stale(p.facts));
+/** whether a place's facts are due a lookup: one that gets them (see
+ *  `wantsFacts`) with none yet, ones about a name it's since been renamed
+ *  from or asked as the other kind (its category changed), or ones past
+ *  `STALE_DAYS` */
+export const factsDue = (p: Place, data: TripData | null) =>
+  wantsFacts(p, data) &&
+  (!p.facts || p.facts.name !== p.name || (p.facts.kind ?? "food") !== kindOf(p, data?.config.categoryIcons) || stale(p.facts));
 
-/** looks a food place's facts up as soon as it's shown, and again once
- *  they're stale — so opening a day fills in its restaurants */
-export function useAutoPlaceFacts(place: Place | undefined, categoryIcons: Record<string, string> | undefined, area: string | undefined, enabled: boolean) {
-  const due = !!place && enabled && factsDue(place, categoryIcons) && !failed.has(place.id);
+/** looks a place's facts up as soon as it's shown, and again once they're
+ *  stale — so opening a day fills in every stop on it */
+export function useAutoPlaceFacts(place: Place | undefined, data: TripData | null, area: string | undefined, enabled: boolean) {
+  const due = !!place && enabled && factsDue(place, data) && !failed.has(place.id);
   useEffect(() => {
     if (due && place) void refreshFacts(place, area);
     // the place's identity and what the lookup goes on — not the object itself

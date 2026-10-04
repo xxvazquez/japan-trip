@@ -1,7 +1,8 @@
-/** "Good to know" for a restaurant: what it's known for, hours, closed days,
- *  reservations, queues and price, from a web search's summary of what
- *  guides, review sites and blogs say about it (Tavily, `TAVILY_API_KEY`).
- *  Generic — works for a place anywhere, not just Japan. */
+/** "Good to know" for a place: what it's known for, hours, closed days,
+ *  reservations, queues and price for somewhere to eat — or tickets, crowds
+ *  and entry fee for a sight (a shrine, a museum, a garden) — from a web
+ *  search's summary of what guides, review sites and blogs say about it
+ *  (Tavily, `TAVILY_API_KEY`). Generic — works for a place anywhere. */
 
 import { sameName } from "./tabelog";
 
@@ -12,13 +13,12 @@ type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
 /** the facts, in the order they're asked for and shown */
 export const FACT_KEYS = ["knownFor", "hours", "closed", "reservations", "queue", "price"] as const;
 export type FactKey = (typeof FACT_KEYS)[number];
-const LABELS: Record<FactKey, string> = {
-  knownFor: "Known for",
-  hours: "Hours",
-  closed: "Closed",
-  reservations: "Reservations",
-  queue: "Queue",
-  price: "Price",
+/** somewhere to eat, or anything else worth a visit */
+export type FactKind = "food" | "sight";
+const LABELS: Record<FactKind, Record<FactKey, string>> = {
+  food: { knownFor: "Known for", hours: "Hours", closed: "Closed", reservations: "Reservations", queue: "Queue", price: "Price" },
+  // same slots, asked the way they matter for a sight
+  sight: { knownFor: "Known for", hours: "Hours", closed: "Closed", reservations: "Tickets", queue: "Crowds", price: "Entry" },
 };
 
 export type Facts = Partial<Record<FactKey, string>> & {
@@ -26,6 +26,8 @@ export type Facts = Partial<Record<FactKey, string>> & {
   checkedAt: string;
   /** the sites the summary drew on */
   sources?: string[];
+  /** set for a sight; unset is somewhere to eat */
+  kind?: "sight";
 };
 
 /** lower case without accents or spacing — "Kyōto" and "kyoto" match */
@@ -36,30 +38,36 @@ const EMPTY = /^(unknown|n\/?a|none stated|not (stated|mentioned|specified|avail
 
 /** the labelled lines of a summary, however they came back — one per line
  *  or run together with commas */
-export function parseFacts(answer: string): Partial<Record<FactKey, string>> {
+export function parseFacts(answer: string, kind: FactKind = "food"): Partial<Record<FactKey, string>> {
   const out: Partial<Record<FactKey, string>> = {};
-  const labels = FACT_KEYS.map((k) => LABELS[k]).join("|");
+  const names = LABELS[kind];
+  const labels = FACT_KEYS.map((k) => names[k]).join("|");
   const re = new RegExp(`(${labels})\\s*:\\s*([\\s\\S]*?)(?=[,;]?\\s*(?:${labels})\\s*:|\\n|$)`, "gi");
   for (const m of answer.matchAll(re)) {
-    const key = FACT_KEYS.find((k) => LABELS[k].toLowerCase() === m[1].toLowerCase())!;
+    const key = FACT_KEYS.find((k) => names[k].toLowerCase() === m[1].toLowerCase())!;
     const value = m[2].replace(/\s+/g, " ").trim().replace(/[.,;]+$/, "").slice(0, 160);
     if (value && !EMPTY.test(value) && !out[key]) out[key] = value;
   }
   return out;
 }
 
-const question = (name: string, area?: string) =>
-  `${name}${area ? `, ${area}` : ""}: opening hours, closed days, reservations, queue wait, price per person, what it's known for. ` +
-  `Use the most recent information. Reply exactly as lines ${FACT_KEYS.map((k) => `"${LABELS[k]}: …"`).join(", ")}, ` +
+const ASKS: Record<FactKind, string> = {
+  food: "opening hours, closed days, reservations, queue wait, price per person, what it's known for",
+  sight: "opening hours, closed days, whether tickets must be booked ahead, how crowded it gets and the best time to go, entry fee, what it's known for",
+};
+
+const question = (name: string, area: string | undefined, kind: FactKind) =>
+  `${name}${area ? `, ${area}` : ""}: ${ASKS[kind]}. ` +
+  `Use the most recent information. Reply exactly as lines ${FACT_KEYS.map((k) => `"${LABELS[kind][k]}: …"`).join(", ")}, ` +
   `each under 15 words, "unknown" if not stated.`;
 
 /** the place's facts, or null when search found nothing about it. Throws
  *  when it can't be asked (no key, the month's searches used up, offline). */
-export async function findFacts(name: string, area: string | undefined, key: string, fetchImpl: Fetch = fetch, today = new Date()): Promise<Facts | null> {
+export async function findFacts(name: string, area: string | undefined, key: string, fetchImpl: Fetch = fetch, today = new Date(), kind: FactKind = "food"): Promise<Facts | null> {
   const res = await fetchImpl(TAVILY, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-    body: JSON.stringify({ query: question(name, area), include_answer: "advanced", search_depth: "basic", max_results: 6 }),
+    body: JSON.stringify({ query: question(name, area, kind), include_answer: "advanced", search_depth: "basic", max_results: 6 }),
     signal: AbortSignal.timeout(20000),
   });
   if (!res.ok) throw new Error(`Search answered ${res.status}`);
@@ -72,22 +80,23 @@ export async function findFacts(name: string, area: string | undefined, key: str
     return sameName(name, text) && (!area || fold(text).includes(fold(area)));
   });
   if (!about.length || !body.answer) return null;
-  const facts = parseFacts(body.answer);
+  const facts = parseFacts(body.answer, kind);
   if (!Object.keys(facts).length) return null;
   const sources = [...new Set(about.map((r) => new URL(r.url).hostname.replace(/^www\./, "")))].slice(0, 3);
-  return { ...facts, checkedAt: today.toISOString().slice(0, 10), sources };
+  return { ...facts, checkedAt: today.toISOString().slice(0, 10), sources, ...(kind === "sight" && { kind }) };
 }
 
-/** `GET /api/place-facts?name=…&area=…` → `{ facts: Facts | null }` */
+/** `GET /api/place-facts?name=…&area=…&kind=sight` → `{ facts: Facts | null }` */
 export async function handlePlaceFacts(url: URL, key: string | undefined, fetchImpl: Fetch = fetch): Promise<Response> {
   const name = url.searchParams.get("name")?.trim();
   const area = url.searchParams.get("area")?.trim() || undefined;
+  const kind: FactKind = url.searchParams.get("kind") === "sight" ? "sight" : "food";
   const json = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
   if (!name) return json({ error: "name is required" }, 400);
   if (!key) return json({ error: "TAVILY_API_KEY isn't set" }, 503);
   try {
-    return json({ facts: await findFacts(name.slice(0, 120), area?.slice(0, 80), key, fetchImpl) });
+    return json({ facts: await findFacts(name.slice(0, 120), area?.slice(0, 80), key, fetchImpl, undefined, kind) });
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : "lookup failed" }, 502);
   }

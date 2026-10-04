@@ -3,9 +3,9 @@ import type { Place } from "@/core/types";
 import { InsetRow, INSET_DIVIDER } from "./InsetRow";
 import { useReadOnly } from "@/lib/readonly";
 import { fmtDate } from "@/lib/dates";
-import { FACT_ROWS, hasFacts, refreshFacts } from "@/lib/placeFacts";
+import { factRows, hasFacts, refreshFacts } from "@/lib/placeFacts";
 
-/** A restaurant's "Good to know" as rows for a grouped list — each fact
+/** A place's "Good to know" as rows for a grouped list — each fact
  *  under its label (the Maps place-card idiom), then when it was checked,
  *  where from, and Refresh. Renders `<li>`s; the caller owns the `<ul>`. */
 export function PlaceFactRows({ place, area }: { place: Place; area?: string }) {
@@ -24,7 +24,7 @@ export function PlaceFactRows({ place, area }: { place: Place; area?: string }) 
 
   return (
     <>
-      {FACT_ROWS.map(([k, label]) => f[k] && (
+      {factRows(f).map(([k, label]) => f[k] && (
         <InsetRow key={k} label={label} stacked>
           <span className="break-words">{f[k]}</span>
         </InsetRow>

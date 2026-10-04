@@ -22,6 +22,16 @@ describe("parseFacts", () => {
       reservations: "No",
     });
   });
+  it("reads a sight's labels into the same slots", () => {
+    const answer = "Known for: thousands of torii gates\nHours: Open 24 hours\nTickets: Not needed\nCrowds: Busy midday, quiet before 8am\nEntry: Free";
+    expect(parseFacts(answer, "sight")).toEqual({
+      knownFor: "thousands of torii gates",
+      hours: "Open 24 hours",
+      reservations: "Not needed",
+      queue: "Busy midday, quiet before 8am",
+      price: "Free",
+    });
+  });
   it("drops facts the sources didn't give", () => {
     expect(parseFacts("Hours: unknown\nPrice: not stated in sources\nQueue: Often a line")).toEqual({ queue: "Often a line" });
   });
@@ -35,6 +45,10 @@ describe("findFacts", () => {
   it("returns the facts, when they were checked and where from", async () => {
     const facts = await findFacts("Menya Inoichi", "Kyoto", "key", fake("Queue: 45 min\nReservations: No", ["Menya Inoichi - Kyōto ramen", "Other"]), today);
     expect(facts).toEqual({ queue: "45 min", reservations: "No", checkedAt: "2026-10-03", sources: ["site0.com"] });
+  });
+  it("marks a sight's facts as such", async () => {
+    const facts = await findFacts("Fushimi Inari", "Kyoto", "key", fake("Entry: Free", ["Fushimi Inari Taisha, Kyoto"]), today, "sight");
+    expect(facts).toEqual({ price: "Free", checkedAt: "2026-10-03", sources: ["site0.com"], kind: "sight" });
   });
   it("finds nothing when the pages are about a namesake in another city", async () => {
     expect(await findFacts("Corner Coffee", "Kyoto", "key", fake("Hours: 7-15", ["Corner Coffee - Portland"]), today)).toBeNull();

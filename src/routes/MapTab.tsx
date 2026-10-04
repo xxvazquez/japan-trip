@@ -1722,7 +1722,8 @@ function PlaceRow({
   // a restaurant's guide page (Tabelog in Japan) — looked up once it's opened
   const reviewSite = reviewSiteFor(place, categoryIcons);
   useAutoReviewLink(place, categoryIcons, open && !readOnly);
-  // its "Good to know" (hours, reservations, queue…) — looked up the same way
+  // its "Good to know" (hours, reservations, queue…) — a restaurant's, or any
+  // place's once it's on a day — looked up the same way
   const tripData = useData();
   const area = placeArea(place, tripData);
   // every category in use, for moving a pin added here into one — a My Maps
@@ -1732,7 +1733,7 @@ function PlaceRow({
     ...Object.values(tripData?.config.layerCategories ?? {}),
   ].filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b));
   const [namingCategory, setNamingCategory] = useState(false);
-  useAutoPlaceFacts(place, categoryIcons, area, open && !readOnly);
+  useAutoPlaceFacts(place, tripData, area, open && !readOnly);
   const day = dayId ? days.find((d) => d.id === dayId) : undefined;
   const li = useRef<HTMLLIElement>(null);
   useEffect(() => {
