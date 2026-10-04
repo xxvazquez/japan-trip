@@ -1795,7 +1795,7 @@ function PlaceRow({
   // an imported pin keeps its own colour (matches its map marker); an app-native
   // pin has no real colour, so tint it by category instead
   // grouped-inset rows, iOS Settings style: a quiet label left, the value right
-  const rowCls = "flex items-center gap-3 px-3.5 py-3 text-sm";
+  const rowCls = "flex items-center gap-3 px-3.5 py-2.5 text-sm";
   const sortedDays = [...days].sort((a, b) => a.date.localeCompare(b.date));
   const tile = (
     <IconTile size="md" {...placeTile(place, categoryIcons, categoryColors)} />
