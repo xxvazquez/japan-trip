@@ -192,6 +192,7 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 
 - Each is a short phrase. Anything the sources don't mention is left out.
 - A place that changes category (sight ↔ restaurant) is looked up again the new way.
+- Not for your own hotel, or a place filed as lodging or transport (a hot spring still counts).
 - On Plan it's at the top of the step's place card (tap its icon), so the step itself stays short; on the Map it's part of the place's card.
 - Looked up the first time the place shows, again once it's a month old, and again after a rename. Saved with the place, so it works offline.
 - It shows when it was checked and which sites it came from, with **Refresh** to check again now.

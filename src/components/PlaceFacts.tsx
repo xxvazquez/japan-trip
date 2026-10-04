@@ -3,17 +3,21 @@ import type { Place } from "@/core/types";
 import { InsetRow, INSET_DIVIDER } from "./InsetRow";
 import { useReadOnly } from "@/lib/readonly";
 import { fmtDate } from "@/lib/dates";
-import { factRows, hasFacts, refreshFacts } from "@/lib/placeFacts";
+import { factRows, hasFacts, refreshFacts, wantsFacts } from "@/lib/placeFacts";
+import { useData } from "@/lib/data";
 
 /** A place's "Good to know" as rows for a grouped list — each fact
  *  under its label (the Maps place-card idiom), then when it was checked,
  *  where from, and Refresh. Renders `<li>`s; the caller owns the `<ul>`. */
 export function PlaceFactRows({ place, area }: { place: Place; area?: string }) {
   const readOnly = useReadOnly();
+  const data = useData();
   const [busy, setBusy] = useState(false);
   const [offline, setOffline] = useState(false);
   const f = place.facts;
-  if (!f) return null;
+  // facts saved before a place stopped getting them (it turned out to be the
+  // hotel) aren't shown
+  if (!f || !wantsFacts(place, data)) return null;
 
   const refresh = async () => {
     setBusy(true);

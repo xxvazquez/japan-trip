@@ -3,6 +3,8 @@ import type { Place, PlaceFacts, TripData } from "@/core/types";
 import { useApp } from "@/store/useApp";
 import { todayISO } from "./dates";
 import { isFoodPlace } from "./reviewSite";
+import { glyphForCategoryName, glyphGroup } from "./mapGlyphs";
+import { haversineKm } from "./geo";
 import { apiGet } from "./api";
 
 /** the facts in the order they're shown, with their labels */
@@ -26,10 +28,26 @@ export const factRows = (f: PlaceFacts) =>
 const kindOf = (p: Place, categoryIcons?: Record<string, string>): "food" | "sight" =>
   isFoodPlace(p, categoryIcons) ? "food" : "sight";
 
+/** lower case without accents or spacing — "Hamamatsuchō" and "hamamatsucho" match */
+const fold = (s: string) => s.normalize("NFKD").replace(/[\u0300-\u036f\s-]/g, "").toLowerCase();
+
+/** somewhere you sleep or pass through rather than visit — one of the trip's
+ *  own stays (by name or pin), or a place filed as lodging (a hot spring
+ *  aside) or transport */
+function notASight(p: Place, data: TripData): boolean {
+  const glyph = p.category ? data.config.categoryIcons?.[p.category] || glyphForCategoryName(p.category) : undefined;
+  const group = glyphGroup(glyph);
+  if ((group === "Lodging" && glyph !== "bath") || group === "Transport") return true;
+  return data.hotels.some((h) =>
+    (h.name && fold(h.name) === fold(p.name)) ||
+    (h.lat != null && h.lng != null && haversineKm(h.lat, h.lng, p.lat, p.lng) < 0.1));
+}
+
 /** whether a place gets a "Good to know": somewhere to eat anywhere on the
- *  trip, and any place that's on a day's plan */
+ *  trip, and any other place that's on a day's plan, bar the hotel */
 export const wantsFacts = (p: Place, data: TripData | null) =>
-  isFoodPlace(p, data?.config.categoryIcons) || !!data?.days.some((d) => d.plan?.some((i) => i.placeId === p.id));
+  isFoodPlace(p, data?.config.categoryIcons) ||
+  (!!data?.days.some((d) => d.plan?.some((i) => i.placeId === p.id)) && !notASight(p, data));
 
 /** older than this, a place's facts are looked up again when it's shown —
  *  hours and closed days change */
