@@ -1486,6 +1486,10 @@ function Content() {
   );
 }
 
+// hairline inset past a leading 22px tile (14px pad + tile + 12px gap), as TileRow draws it
+const TILE_DIVIDER =
+  "relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
+
 /** Which category each My Maps layer's pins go into — one row per layer
  *  from the last sync. A layer not set up yet says so; tapping a row picks
  *  an existing category or names a new one (Photos' "Add to Album" sheet). */
@@ -1521,7 +1525,9 @@ function MapLayers({ names, colorOf, icons }: {
         {layers.map((layer) => {
           const cat = layerCats[layer];
           return (
-            <li key={layer} className={INSET_DIVIDER}>
+            // the category's tile leads the row (Settings' icon column), so
+            // every tile lines up whatever the layer and category names are
+            <li key={layer} className={TILE_DIVIDER}>
               <button
                 type="button"
                 onClick={(e) => {
@@ -1530,15 +1536,11 @@ function MapLayers({ names, colorOf, icons }: {
                 }}
                 className="flex w-full items-center gap-3 px-3.5 py-3 text-left text-sm active:bg-ink/[0.07]"
               >
+                {cat ? tile(cat) : <IconTile size="sm" ghost name="pin" />}
                 <span className="min-w-0 flex-1 break-words text-ink">{layer}</span>
-                {cat ? (
-                  <span className="flex min-w-0 items-center gap-2 text-ink-soft">
-                    {tile(cat)}
-                    <span className="break-words">{cat}</span>
-                  </span>
-                ) : (
-                  <span className="text-gold">Not set up</span>
-                )}
+                <span className={`min-w-0 max-w-[45%] break-words text-right ${cat ? "text-ink-soft" : "text-gold"}`}>
+                  {cat ?? "Not set up"}
+                </span>
                 <Icon name="chevron" size={14} className="-mr-1 shrink-0 text-ink-faint" />
               </button>
             </li>
