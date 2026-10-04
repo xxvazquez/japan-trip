@@ -144,6 +144,13 @@ html.dark {
     outline-offset: 2px;
     border-radius: 3px;
   }
+  /* no ring on a link or button — left focused when a menu closes with Esc,
+   * it framed the row and got clipped by the rounded card. iOS draws none;
+   * text fields keep theirs */
+  a:focus-visible,
+  button:focus-visible {
+    outline: none;
+  }
   input,
   textarea,
   select,
