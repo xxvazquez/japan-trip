@@ -1202,11 +1202,11 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
               />
             )}
             </div>
-            {/* a plain grey caption, as Calendar marks an invitee
-                "Optional" — information, not a warning */}
+            {/* a tinted tag, as Mail tints a category: easy to spot down a
+                day, ochre rather than red — information, not a warning */}
             {item.optional && (
-              <span className={`${STOP_META} mt-0.5`}>
-                <Icon name="optional" size={12} className="mr-1 inline-block align-[-2px]" />Optional
+              <span className="mt-1 inline-flex w-fit items-center gap-1 rounded-[6px] bg-gold/15 px-1.5 py-0.5 text-xs font-medium text-gold">
+                <Icon name="optional" size={12} />Optional
               </span>
             )}
             {(conflict || place?.overwhelming) && (

@@ -60,6 +60,14 @@ describe("pickWebsite", () => {
   it("isn't fooled by the city's name or a kind of sight in the place's name", () => {
     expect(pickWebsite("Kyoto Tower", "Kyoto", [r("https://kyoto.jp/"), r("https://www.towerrecords.jp/")])).toBeUndefined();
   });
+  it("takes the site the summary names as official when it's among the pages", () => {
+    const pages = [r("https://www.gotokyo.org/en/spot/12/"), r("https://www.yokoso.metro.tokyo.lg.jp/en/tenbou/index.html")];
+    expect(pickWebsite("North Observation Deck", "Tokyo", pages, "https://www.yokoso.metro.tokyo.lg.jp/en/tenbou/")).toBe("https://www.yokoso.metro.tokyo.lg.jp/en/");
+  });
+  it("doesn't take a summary's site that no page read was from, or a listing", () => {
+    expect(pickWebsite("North Observation Deck", "Tokyo", [r("https://www.gotokyo.org/x")], "https://www.yokoso.metro.tokyo.lg.jp/")).toBeUndefined();
+    expect(pickWebsite("North Observation Deck", "Tokyo", [r("https://www.tripadvisor.com/x")], "https://www.tripadvisor.com/y")).toBeUndefined();
+  });
   it("finds nothing when no page is the place's own", () => {
     expect(pickWebsite("Fushimi Inari", "Kyoto", [r("https://example.com/kyoto-sights", "Best sights")])).toBeUndefined();
   });
@@ -88,6 +96,11 @@ describe("findFacts", () => {
     const res = async () =>
       new Response(JSON.stringify({ answer: "Hours: unknown", results: [{ url: "https://inari.jp/", title: "Fushimi Inari Taisha, Kyoto", content: "" }] }));
     expect(await findFacts("Fushimi Inari", "Kyoto", "key", res, today, "sight")).toMatchObject({ website: "https://inari.jp/" });
+  });
+  it("reads the official website the summary names", async () => {
+    const res = async () =>
+      new Response(JSON.stringify({ answer: "Entry: Free\nWebsite: https://www.yokoso.metro.tokyo.lg.jp/en/tenbou/", results: [{ url: "https://www.yokoso.metro.tokyo.lg.jp/en/tenbou/", title: "North Observation Deck, Tokyo", content: "" }] }));
+    expect(await findFacts("North Observation Deck", "Tokyo", "key", res, today, "sight")).toMatchObject({ price: "Free", website: "https://www.yokoso.metro.tokyo.lg.jp/en/" });
   });
   it("finds nothing when the pages are about a namesake in another city", async () => {
     expect(await findFacts("Corner Coffee", "Kyoto", "key", fake("Hours: 7-15", ["Corner Coffee - Portland"]), today)).toBeNull();

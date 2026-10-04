@@ -62,12 +62,13 @@ export const wantsFacts = (p: Place, data: TripData | null) =>
 const STALE_DAYS = 30;
 
 /** bumped when the lookup learns something new, so places checked before
- *  are asked again — 4 added the place's website */
-const FACTS_VERSION = 4;
+ *  are asked again — 4 added the place's website, 5 the one the summary
+ *  names as official (asked again only by places still without one) */
+const FACTS_VERSION = 5;
 
 export const hasFacts = (f: PlaceFacts | undefined): f is PlaceFacts => !!f && (!!f.website || !!f.menu || FACT_ROWS.some(([k]) => factValue(f, k)));
 const stale = (f: PlaceFacts) =>
-  (f.version ?? 1) < FACTS_VERSION || Date.now() - Date.parse(f.checkedAt) > STALE_DAYS * 864e5;
+  (f.version ?? 1) < (f.website ? 4 : FACTS_VERSION) || Date.now() - Date.parse(f.checkedAt) > STALE_DAYS * 864e5;
 
 /** past this from the stay's hotel, a place is a day trip out of that city
  *  (Osaka from a Kyoto stay), not in it */

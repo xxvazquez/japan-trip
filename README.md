@@ -158,7 +158,7 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 - **Time order** — steps keep themselves in time order. Set or change a step's time and it moves to its place in the day.
 - **Untimed steps** — drag the small ≡ on the right (shown on hover on a computer) to place one. It then stays with the step above it. A loose time ("Around noon") counts as untimed.
 - **Pin a step** from its menu (**Pin this step**) to lock its time, e.g. a booking — it shows a pin, and tapping its time offers **Unpin and change time**. It still sits where its time puts it. **Unpin this step** unlocks it. Only a step with a time can be pinned.
-- **Mark as optional** from a step's menu, or the **Optional** switch on its place card, for something nice to do but not a must: a grey ◌ Optional line shows under its name. **Make this a must** undoes it.
+- **Mark as optional** from a step's menu, or the **Optional** switch on its place card, for something nice to do but not a must: an ochre ◌ Optional tag shows under its name. **Make this a must** undoes it.
 - **The place card** — tap a linked step anywhere on its row (icon, name or note), as you'd tap a place in Maps: the name (with any clash with its hours), a button row pinned under it (**Google Maps** filled, Tabelog for restaurants in Japan, **Map**, **Calendar**), then the step's note, Good to know, and last the step itself: **Optional** and **Overwhelming** switches, Change place, Add an expense, Duplicate step, Remove step. ✕ or a drag down closes it.
 - **Walk and train lines** under a step open Google Maps directions; only a tap on the line itself does.
 - **Open in Google Maps** is also the first item when you hold a step (or right-click it on a computer).
@@ -223,7 +223,7 @@ How it fills in:
 
 What to expect:
 - Each fact is a short phrase; anything the sources don't mention is left out.
-- **Website** comes from OpenStreetMap's tag for the place at its pin, else a search result whose address carries the place's name. Never a listing or guide site (Tabelog, Tripadvisor…). No row when none is found — common for small cafés, viewpoints and streets.
+- **Website** comes from OpenStreetMap's tag for the place at its pin, else the site the search summary names as official (when it's one of the pages read), else a search result whose address carries the place's name. Never a listing or guide site (Tabelog, Tripadvisor…). No row when none is found — common for small cafés, viewpoints and streets.
 - **Menu** is the place's own menu page when OpenStreetMap has one tagged, else the menu tab of its Tabelog page. No row without either. Google Maps menus aren't available without a paid API.
 - A result only counts if its pages name the place and its city, so a namesake elsewhere isn't picked up.
 - The city is the place's stay: the one it's filed under, else its day's, else the nearest (as on the Map). "Kawaguchiko" is enough for "Lake Kawaguchiko".

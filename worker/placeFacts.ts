@@ -64,7 +64,10 @@ const ASKS: Record<FactKind, string> = {
 const question = (name: string, area: string | undefined, kind: FactKind) =>
   `${name}${area ? `, ${area}` : ""}: ${ASKS[kind]}. ` +
   `Use the most recent information. Reply exactly as lines ${FACT_KEYS.map((k) => `"${LABELS[kind][k]}: …"`).join(", ")}, ` +
-  `each under 15 words, "unknown" if not stated.`;
+  `each under 15 words, "unknown" if not stated. Then "Website: …" with the place's own official website address, "unknown" if it has none.`;
+
+/** the official website the summary names, as written */
+const summaryWebsite = (answer: string) => answer.match(/(?:official )?website\s*:\s*<?(https?:\/\/[^\s<>,;)]+)/i)?.[1];
 
 /** sites that write about places rather than being one — never taken for a
  *  place's own website */
@@ -84,31 +87,54 @@ const foldHost = (host: string) =>
   host.toLowerCase().replace(/[^a-z0-9]/g, "").replace(/ou/g, "o").replace(/([aeiou])\1/g, "$1");
 
 /** the place's own website among the pages read: not a listing or guide,
- *  and named like the place in its address ("kiyomizudera.or.jp") — a
- *  page calling itself "official" isn't enough, hotels and tourism boards
- *  do too. As its home page. Only from pages already known to be about
- *  this place in this city. */
-export function pickWebsite(name: string, area: string | undefined, results: { url: string }[]): string | undefined {
+ *  and either the one the summary names as official or named like the
+ *  place in its address ("kiyomizudera.or.jp") — a page calling itself
+ *  "official" isn't enough, hotels and tourism boards do too. As its home
+ *  page. Only from pages already known to be about this place in this city. */
+export function pickWebsite(name: string, area: string | undefined, results: { url: string }[], named?: string): string | undefined {
+  // the site the summary calls the place's official one, when it's among
+  // the pages read and not a listing: a name the address doesn't spell
+  // ("yokoso.metro.tokyo.lg.jp" for the Tokyo Government observatory)
+  const own = named && siteHome(named);
+  if (own && results.some((r) => sameHost(r.url, own))) return own;
+  return byAddress(name, area, results);
+}
+
+const hostOf = (u: string) => {
+  try {
+    return new URL(u).hostname.replace(/^www\./, "").toLowerCase();
+  } catch {
+    return undefined;
+  }
+};
+const sameHost = (a: string, b: string) => !!hostOf(a) && hostOf(a) === hostOf(b);
+
+/** a link as the site's home, as Maps links it — the page read is often its
+ *  FAQ or access page; a language folder ("/en/") stays. Undefined for a
+ *  listing, a guide or anything that isn't a web page. */
+function siteHome(raw: string): string | undefined {
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    return undefined;
+  }
+  const host = url.hostname.replace(/^www\./, "").toLowerCase();
+  if (url.protocol !== "https:" && url.protocol !== "http:") return undefined;
+  if (LISTINGS.test(`.${host}`) || GUIDE_HOST.test(host)) return undefined;
+  const lang = url.pathname.match(/^\/[a-z]{2}(?:-[a-z]{2})?\//i)?.[0] ?? "/";
+  return url.origin + lang;
+}
+
+function byAddress(name: string, area: string | undefined, results: { url: string }[]): string | undefined {
   // the city's own name in a place's name ("Kyoto Station") would take the
   // city's tourism site for the place's
   const city = new Set(area ? distinctiveWords(area) : []);
   const named = distinctiveWords(name).filter((w) => w.length >= 4 && !SIGHT_WORDS.has(w) && !city.has(w));
   if (!named.length) return undefined;
   for (const r of results) {
-    let url: URL;
-    try {
-      url = new URL(r.url);
-    } catch {
-      continue;
-    }
-    const host = url.hostname.replace(/^www\./, "").toLowerCase();
-    if (url.protocol !== "https:" && url.protocol !== "http:") continue;
-    if (LISTINGS.test(`.${host}`) || GUIDE_HOST.test(host)) continue;
-    if (!named.some((w) => foldHost(host).includes(w))) continue;
-    // the site's home, as Maps links it — the page read is often its FAQ or
-    // access page; a language folder ("/en/") stays
-    const lang = url.pathname.match(/^\/[a-z]{2}(?:-[a-z]{2})?\//i)?.[0] ?? "/";
-    return url.origin + lang;
+    const home = siteHome(r.url);
+    if (home && named.some((w) => foldHost(hostOf(home)!).includes(w))) return home;
   }
   return undefined;
 }
@@ -142,7 +168,7 @@ export async function findFacts(name: string, area: string | undefined, key: str
   });
   if (!about.length) return null;
   const facts = body.answer ? parseFacts(body.answer, kind) : {};
-  const website = pickWebsite(name, area, about);
+  const website = pickWebsite(name, area, about, body.answer && summaryWebsite(body.answer));
   if (!Object.keys(facts).length && !website) return null;
   const sources = [...new Set(about.map((r) => new URL(r.url).hostname.replace(/^www\./, "")))].slice(0, 3);
   return { ...facts, checkedAt: today.toISOString().slice(0, 10), sources, ...(website && { website }), ...(kind === "sight" && { kind }) };
