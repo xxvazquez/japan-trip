@@ -1597,8 +1597,9 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
   // fainter than a step's note (iOS's tertiary grey under the secondary), so
   // name, note and travel read as three levels; a filled chip outweighed them
   // no `.tap` here: its 44pt reach ran up into the stop above, so a tap on
-  // the stop could land on directions instead
-  const pill = "inline-flex min-w-0 max-w-full items-center gap-1 text-[0.75rem] leading-snug text-ink-faint/70 tabular-nums transition-opacity active:opacity-50";
+  // the stop could land on directions instead. `relative` keeps it painted
+  // over the stop it's tucked under
+  const pill = "relative inline-flex min-w-0 max-w-full items-center gap-1 text-[0.75rem] leading-snug text-ink-faint/70 tabular-nums transition-opacity active:opacity-50";
   const trainTitle = train ? `Train from ${train.a.name} to ${train.b.name}` : "Transit directions";
   const long = !walk || walk.min > LONG_WALK_MIN;
   // a chevron between legs, as Maps strings a transit route together
