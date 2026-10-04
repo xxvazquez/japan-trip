@@ -45,8 +45,8 @@ import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { menuHref, reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
-import { placeArea, useAutoPlaceFacts, wantsFacts } from "@/lib/placeFacts";
-import { PlaceFactRows } from "@/components/PlaceFacts";
+import { hasFacts, placeArea, useAutoPlaceFacts, wantsFacts } from "@/lib/placeFacts";
+import { FactsRefresh, PlaceFactRows } from "@/components/PlaceFacts";
 import { addDays, dayJourneys, dayKind, fmtDate, journeyDepartDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink, gmapsRoute, mapUrlCoords, placeMapLink } from "@/lib/maps";
@@ -1165,11 +1165,14 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                       )}
                     </div>
                   )}
-                  {(place.facts || menuHref(place)) && wantsFacts(place, tripData) && (
+                  {(hasFacts(place.facts) || menuHref(place)) && wantsFacts(place, tripData) && (
                     <div>
-                      <p className="kicker px-4 pb-1.5 pt-1">Good to know</p>
+                      <div className="flex items-center gap-2 px-4 pb-1.5 pt-1">
+                        <p className="kicker min-w-0 flex-1">Good to know</p>
+                        <FactsRefresh place={place} area={area} />
+                      </div>
                       <ul className="overflow-hidden rounded-[12px] bg-surface">
-                        <PlaceFactRows place={place} area={area} />
+                        <PlaceFactRows place={place} />
                       </ul>
                     </div>
                   )}

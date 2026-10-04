@@ -29,10 +29,10 @@ import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
 import { menuHref, reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
 import { glyphForCategoryName } from "@/lib/mapGlyphs";
-import { placeArea, useAutoPlaceFacts, wantsFacts } from "@/lib/placeFacts";
+import { hasFacts, placeArea, useAutoPlaceFacts, wantsFacts } from "@/lib/placeFacts";
 import { PlaceAction, PlaceActions } from "@/components/PlaceAction";
 import { ActionRow } from "@/components/ActionRow";
-import { PlaceFactRows } from "@/components/PlaceFacts";
+import { FactsRefresh, PlaceFactRows } from "@/components/PlaceFacts";
 import { primeKeyboard } from "@/lib/keyboard";
 import { TRANSIT_KINDS, TRANSIT_META } from "@/lib/transitLayers";
 import { nearestStationFromMap, nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
@@ -1925,22 +1925,25 @@ function PlaceRow({
           </div>
         )}
 
-        {(place.facts || menuHref(place)) && wantsFacts(place, tripData) && (
+        {(hasFacts(place.facts) || menuHref(place)) && wantsFacts(place, tripData) && (
           <div>
             {/* folded by default here: on the Map you're mostly filing
                 places, so the areas and category stay a short reach away */}
-            <button
-              type="button"
-              onClick={() => setFactsOpen(!factsOpen)}
-              aria-expanded={factsOpen}
-              className={`${groupLabel} tap flex w-full items-center gap-1 text-left`}
-            >
-              Good to know
-              <Icon name="chevron" size={11} className={`transition-transform duration-200 ${factsOpen ? "rotate-90" : ""}`} />
-            </button>
+            <div className={`${groupLabel} flex items-center gap-2`}>
+              <button
+                type="button"
+                onClick={() => setFactsOpen(!factsOpen)}
+                aria-expanded={factsOpen}
+                className="tap flex min-w-0 flex-1 items-center gap-1 text-left"
+              >
+                Good to know
+                <Icon name="chevron" size={11} className={`transition-transform duration-200 ${factsOpen ? "rotate-90" : ""}`} />
+              </button>
+              {factsOpen && <FactsRefresh place={place} area={area} />}
+            </div>
             {factsOpen && (
               <ul className="isolate overflow-hidden rounded-[12px] bg-surface">
-                <PlaceFactRows place={place} area={area} />
+                <PlaceFactRows place={place} />
               </ul>
             )}
           </div>

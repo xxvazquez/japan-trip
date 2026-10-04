@@ -206,7 +206,7 @@ Where to find it:
 
 How it fills in:
 - **By itself** — the first time a place shows, again once it's a month old, and after a rename or a category change. Nothing to run.
-- **Refresh** on the card checks again now. **Manage → Content → Good to know** does every place at once (one search each).
+- The ↻ icon beside **Good to know** checks again now. **Manage → Content → Good to know** does every place at once (one search each).
 - Saved with the place, so it works offline.
 - Not for your own hotel, or places filed as lodging or transport (a hot spring still counts).
 
@@ -215,7 +215,7 @@ What to expect:
 - **Website** comes from OpenStreetMap's tag for the place at its pin, else a search result whose address carries the place's name. Never a listing or guide site (Tabelog, Tripadvisor…). No row when none is found — common for small cafés, viewpoints and streets.
 - **Menu** is the place's own menu page when OpenStreetMap has one tagged, else the menu tab of its Tabelog page. No row without either. Google Maps menus aren't available without a paid API.
 - A result only counts if its pages name the place and its city, so a namesake elsewhere isn't picked up.
-- The card shows when it was checked and which sites it came from.
+- When it was checked and which sites it came from are on the ↻ icon's tooltip, not a row of their own.
 - It can be out of date — check hours with the place before a long trip across town.
 - Needs `TAVILY_API_KEY` (see [Environment variables](#environment-envlocal)).
 

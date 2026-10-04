@@ -43,6 +43,7 @@ export type IconName =
   | "checklist"
   | "link"
   | "download"
+  | "refresh"
   | "grip"
   | "reorder"
   | "pushpin"
@@ -244,6 +245,13 @@ const P: Record<IconName, JSX.Element> = {
     <>
       <path d="M12 4v11M8 11l4 4 4-4" />
       <path d="M5 19h14" />
+    </>
+  ),
+  // the iOS arrow.clockwise: an open circle with its arrowhead at the top right
+  refresh: (
+    <>
+      <path d="M19 12a7 7 0 1 1-2.05-4.95" />
+      <path d="M17.5 3.5v4h-4" />
     </>
   ),
   pushpin: (

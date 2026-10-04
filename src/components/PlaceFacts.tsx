@@ -1,24 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Place } from "@/core/types";
 import { INSET_DIVIDER } from "./InsetRow";
 import { IconTile } from "./IconTile";
-import type { IconName } from "./Icon";
+import { Icon, type IconName } from "./Icon";
 import type { Tone } from "@/lib/tones";
 import { useReadOnly } from "@/lib/readonly";
 import { fmtDate } from "@/lib/dates";
-import { factRows, hasFacts, refreshFacts, wantsFacts } from "@/lib/placeFacts";
+import { factRows, refreshFacts, wantsFacts } from "@/lib/placeFacts";
 import { useData } from "@/lib/data";
 import { menuHref } from "@/lib/reviewSite";
 
 /** A place's "Good to know" as rows for a grouped list — each fact with a
  *  coloured tile, a small label and the value under it (the Settings tile
- *  idiom, so a fact is found by its icon before it's read), its website, then when it was checked,
- *  where from, and Refresh. Renders `<li>`s; the caller owns the `<ul>`. */
-export function PlaceFactRows({ place, area }: { place: Place; area?: string }) {
-  const readOnly = useReadOnly();
+ *  idiom, so a fact is found by its icon before it's read), its website and
+ *  menu. When it was checked and where from stay out of the way, on the
+ *  refresh icon by the group's label (`FactsRefresh`). Renders `<li>`s; the
+ *  caller owns the `<ul>`. */
+export function PlaceFactRows({ place }: { place: Place }) {
   const data = useData();
-  const [busy, setBusy] = useState(false);
-  const [offline, setOffline] = useState(false);
+  const offline = useFactsOffline(place.id);
   const f = place.facts;
   const menu = menuHref(place);
   // facts saved before a place stopped getting them (it turned out to be the
@@ -27,12 +27,6 @@ export function PlaceFactRows({ place, area }: { place: Place; area?: string }) 
   // the menu link can be there before the lookup has run (from the Tabelog page)
   if (!f) return menu ? <LinkRow href={menu} label="Menu" glyph="restaurant" /> : null;
 
-  const refresh = async () => {
-    setBusy(true);
-    setOffline(!(await refreshFacts(place, area)));
-    setBusy(false);
-  };
-  const checked = fmtDate(f.checkedAt, undefined, { day: "numeric", month: "short", year: "numeric" });
 
   return (
     <>
@@ -51,18 +45,61 @@ export function PlaceFactRows({ place, area }: { place: Place; area?: string }) 
       )}
       {f.website && <LinkRow href={f.website} label="Website" icon="link" />}
       {menu && <LinkRow href={menu} label="Menu" glyph="restaurant" />}
-      <li className={`${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-2.5`}>
-        <span className="meta min-w-0 flex-1 break-words">
-          {offline ? "Couldn’t check — try again later" : `${hasFacts(f) ? "Checked" : "Nothing found ·"} ${checked}`}
-          {!offline && hasFacts(f) && f.sources?.length ? ` · ${f.sources.join(", ")}` : ""}
-        </span>
-        {!readOnly && (
-          <button type="button" onClick={() => void refresh()} disabled={busy} className="tap shrink-0 text-xs text-accent disabled:opacity-50">
-            {busy ? "Checking…" : "Refresh"}
-          </button>
-        )}
-      </li>
+      {offline && (
+        <li className={`${INSET_DIVIDER} px-3.5 py-2.5`}>
+          <span className="meta break-words">Couldn’t check — try again later</span>
+        </li>
+      )}
     </>
+  );
+}
+
+// which places' last refresh couldn't reach the lookup — shared between the
+// refresh icon (in the group's label) and the rows that say so
+const offlineIds = new Set<string>();
+const offlineListeners = new Set<() => void>();
+function setFactsOffline(id: string, off: boolean) {
+  if (off) offlineIds.add(id);
+  else offlineIds.delete(id);
+  offlineListeners.forEach((l) => l());
+}
+function useFactsOffline(id: string): boolean {
+  const [, bump] = useState(0);
+  useEffect(() => {
+    const l = () => bump((n) => n + 1);
+    offlineListeners.add(l);
+    return () => { offlineListeners.delete(l); };
+  }, []);
+  return offlineIds.has(id);
+}
+
+/** Good to know's refresh, as a small icon beside the group's label — the
+ *  arrow spins while it checks; when it last checked and where from are on
+ *  its tooltip, not taking a row */
+export function FactsRefresh({ place, area }: { place: Place; area?: string }) {
+  const readOnly = useReadOnly();
+  const [busy, setBusy] = useState(false);
+  const f = place.facts;
+  if (readOnly || !f) return null;
+  const checked = fmtDate(f.checkedAt, undefined, { day: "numeric", month: "short", year: "numeric" });
+  const about = `Checked ${checked}${f.sources?.length ? ` · ${f.sources.join(", ")}` : ""}`;
+  const refresh = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setBusy(true);
+    setFactsOffline(place.id, !(await refreshFacts(place, area)));
+    setBusy(false);
+  };
+  return (
+    <button
+      type="button"
+      onClick={(e) => void refresh(e)}
+      disabled={busy}
+      title={about}
+      aria-label={`Refresh · ${about}`}
+      className="tap grid h-5 w-5 shrink-0 place-items-center text-accent disabled:opacity-60"
+    >
+      <Icon name="refresh" size={14} className={busy ? "animate-spin" : ""} />
+    </button>
   );
 }
 
