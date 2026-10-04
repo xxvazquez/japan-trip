@@ -32,7 +32,7 @@ function QA({ item, open, onToggle, focus }: { item: HelpItem; open: boolean; on
       </button>
       {open && (
         <div className="px-3.5 pb-3.5 motion-safe:animate-fade-in">
-          <Markdown text={item.a} className="note text-ink-soft [&_strong]:font-medium [&_strong]:text-ink" />
+          <Markdown text={item.a} className="note text-ink-soft [&_p.font-semibold]:pt-1.5 [&_p.font-semibold]:font-medium [&_strong]:font-medium [&_strong]:text-ink" />
           {item.go && (
             <Link to={item.go.to} className="action mt-3 inline-flex items-center gap-1 text-[15px]">
               {item.go.label}

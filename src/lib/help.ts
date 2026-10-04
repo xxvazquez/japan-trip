@@ -137,15 +137,23 @@ Nothing is lost in any of these.`,
       },
       {
         id: "facts",
-        q: "What's Good to know, and where's a place's website?",
-        a: `A short summary of a place from guides and review sites, with its **Website** when it has one. Tap a step's **icon** to open its place card — it's below the buttons. On the Map, it's in the place's card.
+        q: "What's Good to know?",
+        a: `A quick summary of a place from guides and review sites — and its website.
 
-- **Restaurants and cafés:** known for, hours, closed days, reservations, queue, price.
-- **Sights on a day's plan:** known for, hours, closed days, tickets, crowds, entry.
+### Where to find it
+- **Plan:** tap a step's icon.
+- **Map:** tap a place.
 
-It fills in **by itself** the first time a place shows, and refreshes once a month — nothing to run. Tap **Refresh** on the card to check now, or **Manage → Content → Good to know** to do every place at once.
+### What it shows
+- Hours and closed days
+- Reservations, queue and price for food
+- Tickets, crowds and entry for sights
+- The place's **Website**, when it has one
 
-No Website row means none was found — common for small cafés and viewpoints. Check hours with the place before a long trip across town.`,
+### Keeping it current
+- Fills in on its own, and refreshes monthly.
+- **Refresh** on the card checks one place now.
+- **Manage → Content** checks every place.`,
         go: { label: "Open Content", to: "/manage/content" },
       },
       {
