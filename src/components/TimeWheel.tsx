@@ -97,8 +97,8 @@ const SEGS: Seg[] = ["h", "m", "p"];
 /** The desktop editor, after the Mac's own time field (Calendar, System
  *  Settings): the time as three segments — hour, minute, AM/PM — beside a
  *  small up/down stepper. Click a segment to select it, then step it with the
- *  stepper, the arrow keys or the scroll wheel, or just type digits ("9",
- *  "37", "p"). A scroll wheel suits a touchscreen; a mouse and keyboard are
+ *  stepper, the arrow keys or the scroll wheel (minutes in fives), or just
+ *  type digits ("9", "37", "p"). A scroll wheel suits a touchscreen; a mouse and keyboard are
  *  faster at this. */
 function TimeField({ hour, minute, onPick, onDone }: {
   hour: string;
@@ -121,7 +121,12 @@ function TimeField({ hour, minute, onPick, onDone }: {
     const h = Number(to12(cur.hour)), p = periodOf(cur.hour);
     const onPick = cur.onPick;
     if (s === "h") onPick(to24(String(((h - 1 + d + 1200) % 12) + 1), p), cur.minute);
-    if (s === "m") onPick(cur.hour, String((Number(cur.minute) + d + 6000) % 60).padStart(2, "0"));
+    if (s === "m") {
+      // steps land on the five-minute marks (32 → 35 / 30); typing stays exact
+      const m = Number(cur.minute);
+      const next = d > 0 ? Math.floor(m / 5) * 5 + 5 * d : Math.ceil(m / 5) * 5 + 5 * d;
+      onPick(cur.hour, String((next + 6000) % 60).padStart(2, "0"));
+    }
     if (s === "p") onPick(to24(String(h), p === "AM" ? "PM" : "AM"), cur.minute);
   };
 
