@@ -28,6 +28,7 @@ import { MoneyField } from "@/components/MoneyField";
 import { PlaceAction, PlaceActions } from "@/components/PlaceAction";
 import { RichNote } from "@/components/RichNote";
 import { RowMenu } from "@/components/RowMenu";
+import { Markdown } from "@/components/Markdown";
 import { ContextMenu } from "@/components/ContextMenu";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { SwipeToDelete } from "@/components/SwipeToDelete";
@@ -318,6 +319,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         back="/"
         dotColor={legHex(leg?.color)}
         eyebrow={fmtDate(day.date, loc, { weekday: "long", day: "numeric", month: "long" })}
+        navSubtitle={fmtDate(day.date, loc, { weekday: "short", day: "numeric", month: "short" })}
         title={
           <Editable label="Day title" value={day.title ?? ""} placeholder="Untitled day" onCommit={(v) => patch({ title: v || undefined })} />
         }
@@ -944,6 +946,9 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
   // the place card the step's icon opens; on desktop it hangs off the step
   const placeCard = useActionSheet();
   const placeCardAnchor = useRef<HTMLDivElement>(null);
+  // "Change place" on the card swaps the step's place from the same list a
+  // custom step's icon opens
+  const changePlace = useActionSheet();
   const toggleOverwhelming = () => {
     if (!place) return;
     updateEntity<Place>("places", place.id, { overwhelming: !place.overwhelming || undefined });
@@ -1007,6 +1012,8 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
       <SwipeToDelete undoLabel="Step removed" onDelete={readOnly ? undefined : onRemove}>
       <ContextMenu>
         <TimelineStop
+          onTap={place ? () => placeCard.setOpen(true) : undefined}
+          tapLabel={place ? `About ${place.name}` : undefined}
           time={
             readOnly ? (
               item.time && <span className="whitespace-pre-line">{stacked(item.time)}</span>
@@ -1055,10 +1062,12 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
             // pinned beside the name only, so the hours and note below run
             // the full width of the card
             <span className="absolute right-1.5 top-[7px] flex">
-              {/* desktop: ⋯ on hover. A phone holds the step for the same
-                  menu, so it isn't drawn there (still mounted — the hold
-                  opens its items) */}
-              <span className="hover-reveal touch-hidden">
+              {/* the step's menu opens on a hold (phone) or right-click
+                  (desktop). A place step's tap opens its card, which holds
+                  all of this, so it has no ⋯ at all; a custom step has no
+                  card, so desktop shows its ⋯ on hover. Mounted either way
+                  — the hold opens its items */}
+              <span className={place ? "hidden" : "hover-reveal touch-hidden"}>
                 <RowMenu label={`More for ${place?.name || item.text || "this step"}`}>
                   {mapHref && (
                     <a href={mapHref} target="_blank" rel="noopener" className="menu-item">
@@ -1076,7 +1085,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                         </button>
                       )}
                       {!item.note && (
-                        <button type="button" className="menu-item" onClick={() => setNoteOpen(true)}>
+                        <button type="button" className="menu-item" onClick={() => { if (place) { setCardNote(true); placeCard.setOpen(true); } else setNoteOpen(true); }}>
                           <Icon name="pencil" size={16} /> Add a note
                         </button>
                       )}
@@ -1126,22 +1135,12 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                 keeps a plain right padding. */}
             <div className={place ? "flow-root" : readOnly ? "[@media(hover:hover)]:pr-7" : "pr-6 [@media(hover:hover)]:pr-[3.25rem]"}>
             {place && (
-              <span aria-hidden className={`float-right h-[23px] ${readOnly ? "w-0 [@media(hover:hover)]:w-7" : "w-6 [@media(hover:hover)]:w-[3.25rem]"}`} />
+              <span aria-hidden className={`float-right h-[23px] ${readOnly || (timed && !item.pinned) ? "w-0" : "w-6"}`} />
             )}
             {place ? (
-              // tapping a place's name opens its place card, as tapping a
-              // result does in Maps — the info, then where to go next. A div,
-              // not a <button>, so its text can wrap round the float above
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={() => placeCard.setOpen(true)}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); placeCard.setOpen(true); } }}
-                aria-label={`About ${place.name}`}
-                className={`${STOP_TITLE} cursor-pointer active:opacity-60`}
-              >
-                {place.name}
-              </div>
+              // the row's tap opens the place card, as tapping a result
+              // does in Maps — the info, then where to go next
+              <div className={STOP_TITLE}>{place.name}</div>
             ) : readOnly ? (
               <span className={STOP_TITLE}>{item.text}</span>
             ) : (
@@ -1171,7 +1170,11 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                 )}
               </span>
             )}
-            {(readOnly || item.note || noteOpen) && (
+            {place ? (
+              // shown, not edited, on a place's row — its tap opens the
+              // card, where the note is edited
+              item.note && <Markdown text={item.note} className={PLACE_ROW_NOTE} />
+            ) : (readOnly || item.note || noteOpen) && (
               <RichNote
                 value={item.note ?? ""}
                 onCommit={(v) => onPatch({ note: v || undefined })}
@@ -1264,6 +1267,9 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                         <span className="min-w-0 flex-1 text-xs text-ink">Overwhelming</span>
                         <Switch size="sm" checked={!!place.overwhelming} onChange={toggleOverwhelming} label="Overwhelming" />
                       </li>
+                      {sortedPickable.length > 1 && (
+                        <ActionRow icon="pin" label="Change place" onClick={() => { placeCard.setOpen(false); changePlace.setOpen(true); }} />
+                      )}
                       <ActionRow icon="wallet" label="Add an expense" onClick={() => { placeCard.setOpen(false); onQuickAddCost(item); }} />
                       <ActionRow icon="copy" label="Duplicate step" onClick={() => { placeCard.setOpen(false); onDuplicate(); }} />
                       <li className={INSET_DIVIDER}>
@@ -1280,6 +1286,18 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                 </div>
               </ActionSheet>
             )}
+            {place && !readOnly && (
+              <PlacePicker
+                value={item.placeId}
+                places={sortedPickable}
+                areaNameByPlaceId={areaNameByPlaceId}
+                categoryIcons={categoryIcons}
+                categoryColors={categoryColors}
+                onPick={(pid) => { changePlace.setOpen(false); pick(pid); }}
+                sheet={changePlace}
+                anchor={placeCardAnchor}
+              />
+            )}
           </div>
         </TimelineStop>
       </ContextMenu>
@@ -1293,21 +1311,53 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
  *  anything under it a clear step down in both (13px caption and note), in the
  *  secondary grey */
 const STOP_TITLE = "block break-words text-[17px] leading-snug text-ink";
+const PLACE_ROW_NOTE = "mt-0.5 block break-words text-xs leading-snug text-ink-faint [&_p]:leading-snug [&_strong]:font-medium [&_strong]:text-ink-soft";
 const STOP_META = "block break-words text-xs text-ink-faint";
 
 /** One stop on a day's timeline, the way Maps lays out a route: the time
  *  in its own column on the left, the stop's icon sitting on the rail that
  *  joins every stop (`.timeline` in index.css trims it to the first and
  *  last icon), then what it is. No hairlines — the rail does the joining. */
-function TimelineStop({ time, tile, trailing, children, className = "pr-3.5" }: {
+function TimelineStop({ time, tile, trailing, children, className = "pr-3.5", onTap, tapLabel }: {
   time?: React.ReactNode;
   tile?: React.ReactNode;
   trailing?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
+  /** the whole row is one target, as a row in Maps or Calendar is — its own
+   *  controls (the time, the grip) keep their taps */
+  onTap?: () => void;
+  tapLabel?: string;
 }) {
+  if (!onTap) {
+    return (
+      <span className={`relative flex gap-2.5 pl-3.5 ${className}`}>
+        <span className="block w-[2.625rem] shrink-0 pb-2.5 pt-[15px] text-right text-xs tabular-nums text-ink-soft">{time}</span>
+        <Rail>{tile && <span className="relative z-10 block pt-2.5">{tile}</span>}</Rail>
+        <span className="block min-w-0 flex-1 pb-2.5 pl-0.5 pt-[11px]">{children}</span>
+        {trailing}
+      </span>
+    );
+  }
+  const own = (e: React.SyntheticEvent) => {
+    const t = e.target as HTMLElement;
+    // a click from a sheet it opened reaches here through the React tree,
+    // not the page — only taps on the row itself count
+    if (!e.currentTarget.contains(t)) return false;
+    const control = t.closest(ROW_OWN_CONTROLS);
+    return !control || control === e.currentTarget;
+  };
   return (
-    <span className={`relative flex gap-2.5 pl-3.5 ${className}`}>
+    <span
+      role="button"
+      tabIndex={0}
+      aria-label={tapLabel}
+      onClick={(e) => { if (own(e)) onTap(); }}
+      onKeyDown={(e) => {
+        if ((e.key === "Enter" || e.key === " ") && e.target === e.currentTarget) { e.preventDefault(); onTap(); }
+      }}
+      className={`relative flex cursor-pointer gap-2.5 pl-3.5 transition-colors duration-150 active:bg-ink/[0.07] ${className}`}
+    >
       <span className="block w-[2.625rem] shrink-0 pb-2.5 pt-[15px] text-right text-xs tabular-nums text-ink-soft">{time}</span>
       <Rail>{tile && <span className="relative z-10 block pt-2.5">{tile}</span>}</Rail>
       <span className="block min-w-0 flex-1 pb-2.5 pl-0.5 pt-[11px]">{children}</span>
@@ -1315,6 +1365,9 @@ function TimelineStop({ time, tile, trailing, children, className = "pr-3.5" }: 
     </span>
   );
 }
+
+/** what inside a tappable stop keeps its own tap */
+const ROW_OWN_CONTROLS = "button, a, input, textarea, select, [role='button'], [contenteditable='true']";
 
 /** the timeline's rail column — the line runs the row's full height */
 function Rail({ children }: { children?: React.ReactNode }) {
@@ -1543,7 +1596,9 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
   // plain quiet text, no fill — as Calendar sets travel time — a shade
   // fainter than a step's note (iOS's tertiary grey under the secondary), so
   // name, note and travel read as three levels; a filled chip outweighed them
-  const pill = "tap inline-flex min-w-0 max-w-full items-center gap-1 text-[0.75rem] leading-snug text-ink-faint/70 tabular-nums transition-opacity active:opacity-50";
+  // no `.tap` here: its 44pt reach ran up into the stop above, so a tap on
+  // the stop could land on directions instead
+  const pill = "inline-flex min-w-0 max-w-full items-center gap-1 text-[0.75rem] leading-snug text-ink-faint/70 tabular-nums transition-opacity active:opacity-50";
   const trainTitle = train ? `Train from ${train.a.name} to ${train.b.name}` : "Transit directions";
   const long = !walk || walk.min > LONG_WALK_MIN;
   // a chevron between legs, as Maps strings a transit route together
