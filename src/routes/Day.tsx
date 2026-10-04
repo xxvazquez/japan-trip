@@ -80,18 +80,9 @@ function splitRange(t?: string): [string, string] | null {
   return m ? [m[1], m[2]] : null;
 }
 
-/** the day's costs, summed per currency — for the header meta line, same
- *  math as CostList's own subtotal row. */
-function daySpentText(costs: DayCost[] | undefined, primary: string): string | undefined {
-  if (!costs?.length) return undefined;
-  const subtotals = new Map<string, number>();
-  for (const c of costs) {
-    const m = parseMoney(c.amount, c.currency || primary);
-    if (m) subtotals.set(m.currency, (subtotals.get(m.currency) ?? 0) + m.amount);
-  }
-  if (subtotals.size === 0) return undefined;
-  return `Total spent: ${[...subtotals].map(([cur, amt]) => fmtMoney(amt, cur)).join(" · ")}`;
-}
+/** an untimed step's time slot — left blank, as Calendar leaves an
+ *  all-day event's, but still a tap target that opens the time wheel */
+const UNTIMED = <span className="inline-block h-5 w-10" aria-hidden="true" />;
 
 function weatherText(w: DayWeather): string {
   const text = `${weatherLabel(w.code)}, ${w.lowC}–${w.highC}°C`;
@@ -441,18 +432,13 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         title={
           <Editable label="Day title" value={day.title ?? ""} placeholder="Untitled day" onCommit={(v) => patch({ title: v || undefined })} />
         }
-        meta={[weather && weatherText(weather), daySpentText(day.costs, (data.config.currencies ?? [])[0] ?? "")]
-          .filter(Boolean)
-          .join(" · ") || undefined}
+        meta={weather ? weatherText(weather) : undefined}
         action={
-          <button
-            onClick={downloadDayCalendar}
-            disabled={icsBusy}
-            className="tap -m-1 p-1 text-ink-faint transition-colors hover:text-ink-soft disabled:opacity-50"
-          >
-            <Icon name="calendar" size={17} />
-            <span className="sr-only">{icsBusy ? "Building calendar file…" : "Add to calendar"}</span>
-          </button>
+          <RowMenu label="Day options">
+            <button className="menu-item" onClick={downloadDayCalendar} disabled={icsBusy}>
+              <Icon name="calendar" size={16} /> {icsBusy ? "Building calendar file…" : "Add Day to Calendar"}
+            </button>
+          </RowMenu>
         }
       />
 
@@ -1255,7 +1241,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                 onCommit={(v) => onPatch({ time: v || undefined })}
                 timeStart={timeStart}
                 className="tap not-italic"
-                emptyContent={<Icon name="clock" size={13} className="inline-block align-[-2px] text-ink-faint" />}
+                emptyContent={UNTIMED}
               />
             ) : (
               // a loose time ("Around noon", a range) is typed — there's no
@@ -1822,7 +1808,7 @@ function HotelRowTime({ label, time, timeStart, readOnly, onTime }: {
       onCommit={(v) => onTime(v || undefined)}
       timeStart={timeStart}
       className="tap not-italic"
-      emptyContent={<Icon name="clock" size={13} className="inline-block align-[-2px] text-ink-faint" />}
+      emptyContent={UNTIMED}
     />
   );
 }

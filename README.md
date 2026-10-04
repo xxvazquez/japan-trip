@@ -164,7 +164,7 @@ On a day that spans more than one part, the plan is split into **Morning** (befo
 
 A stop and the way on to the next one stay together: the walk or train sits under the stop it leaves from, never under a Morning/Afternoon band.
 
-- **Time** — a single time, or a range like `14:00–15:15` stacked as 14:00 over 15:15. An empty time is just a small clock to tap.
+- **Time** — a single time, or a range like `14:00–15:15` stacked as 14:00 over 15:15. An empty time is left blank — tap the gap to set one.
 - **Setting a time** — the wheels start at the last time set on an earlier step (else 9:00). **Done** saves what's showing; tapping outside or swiping the sheet down cancels.
 - **Link a place** — tap an unlinked step's icon to pick a place: the day's Areas first, then the rest of that city, then elsewhere (search when the list is long). A linked step changes it with **Change place** on its place card; **Custom…** unlinks it.
 - **Meal steps** — an unlinked step whose text mentions a meal (lunch, dinner, breakfast…), coffee or drinks gets a gold food, coffee or drink tile instead of the grey pin.
@@ -478,7 +478,7 @@ All under **Manage → Sharing** unless noted.
 | Option | What you get |
 |---|---|
 | **Download web page** | The whole trip as one `.html` file — itinerary, journeys, stays, places — that opens offline in any browser or prints to PDF. Keep **Include private details** off when sharing it (it hides door codes, booking refs and documents). Attachments are never included. |
-| **Add to calendar (.ics)** | Every step and hop as calendar events. Exact times become timed events; loose ones ("Around 18:00") become all-day. Also available per day on the day's page (always with booking refs). Each step and hop also has a quick Google Calendar button. |
+| **Add to calendar (.ics)** | Every step and hop as calendar events. Exact times become timed events; loose ones ("Around 18:00") become all-day. Also available per day from the ⋯ beside the day's title (always with booking refs). Each step and hop also has a quick Google Calendar button. |
 | **Download backup (.json)** | A complete, lossless copy of the trip, private details included — keep it somewhere safe. |
 | **Restore from backup** (Manage → Trips) | Loads a backup as a **new** trip; never overwrites. Damaged, edited or newer-version files are refused. Attachments aren't inside backups. |
 
