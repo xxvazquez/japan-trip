@@ -39,7 +39,7 @@ import { nearestStationFromMap, nearestStationLookup, type NearbyStation } from 
 import { estimateWalk, useWalk } from "@/lib/walkRoute";
 import { WalkLine } from "@/components/WalkLine";
 import { ChipStrip } from "@/components/ChipStrip";
-import { glyphPath } from "@/lib/mapGlyphs";
+import { categoryName, glyphPath } from "@/lib/mapGlyphs";
 import { placeColor, placeTile, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
 import { canonicalLegs } from "@/lib/cityAssign";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
@@ -1327,7 +1327,7 @@ export default function MapTab() {
                         className={`chip ${on ? "" : "opacity-40"}`}
                       >
                         <CatMark color={col} glyph={data.config.categoryIcons?.[name]} />
-                        <span className="capitalize">{name}</span>
+                        <span>{categoryName(name)}</span>
                       </button>
                     );
                   })}
@@ -1837,7 +1837,7 @@ function PlaceRow({
               <IconTile size="sm" {...placeTile(place, categoryIcons, categoryColors)} />
               <span className="row-label">Category</span>
               {readOnly || place.source === "mymap" ? (
-                <span className="row-value min-w-0 flex-1 break-words text-right">{place.category}</span>
+                <span className="row-value min-w-0 flex-1 break-words text-right">{place.category && categoryName(place.category)}</span>
               ) : (
                 <label className="flex min-w-0 flex-1 cursor-pointer justify-end">
                   <RowSelect
@@ -1847,7 +1847,7 @@ function PlaceRow({
                     className="max-w-[12rem] truncate"
                   >
                     {categories.map((c) => (
-                      <option key={c} value={c}>{c}</option>
+                      <option key={c} value={c}>{categoryName(c)}</option>
                     ))}
                     <option value={NEW_CATEGORY}>New Category…</option>
                   </RowSelect>

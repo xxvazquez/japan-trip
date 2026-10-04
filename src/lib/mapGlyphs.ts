@@ -160,6 +160,12 @@ export function glyphGroup(id: string | undefined): string | undefined {
   return id ? GENERATED_GLYPHS.find((g) => g.id === id)?.category : undefined;
 }
 
+/** A place category as it's shown — always lower case ("stations", not
+ *  "Stations"), whatever case its My Maps layer or whoever named it used.
+ *  Display only: the stored name stays as it is, so a sync, its colour and
+ *  its icon still match it. */
+export const categoryName = (name: string) => name.toLocaleLowerCase();
+
 /** A best-guess marker glyph for a category name ("coffee", "Ramen spots",
  *  "Temples & shrines") — so a My Maps layer gets a fitting icon without
  *  anyone picking one. Undefined when nothing fits. */

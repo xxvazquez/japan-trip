@@ -311,7 +311,7 @@ Your places on a clean map, read top to bottom: **city pills → places**. Every
 
 ## Areas and categories
 
-- A **category** is *what* a place is (coffee, sights, food).
+- A **category** is *what* a place is (coffee, sights, food). Names always show in lower case, even when a My Maps layer is capitalised ("Stations" → stations); the stored name doesn't change.
 - An **area** is *where* it is (Gion, a neighbourhood you name). A place can be in several areas.
 
 **Managing areas** (all on the Map):

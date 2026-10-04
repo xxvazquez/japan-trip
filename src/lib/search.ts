@@ -4,6 +4,7 @@ import { JOURNEY_KIND_LABEL } from "./journey";
 import { legHex } from "./legColors";
 import { HELP, helpKey, helpText } from "./help";
 import { MODE_ICON } from "./transport";
+import { categoryName } from "./mapGlyphs";
 import { customListColor, logbookSectionTile, placeTile, toneForSegmentMode, type LogbookTile } from "./tones";
 
 export type SearchKind = "day" | "leg" | "hotel" | "place" | "transfer" | "area" | "luggage" | "doc" | "packing" | "list" | "note" | "help";
@@ -92,7 +93,7 @@ function build(d: TripData): SearchHit[] {
       kind: "place",
       tile: placeTile(p, d.config.categoryIcons, d.config.categoryColors),
       label: p.name,
-      sub: p.category || undefined,
+      sub: p.category ? categoryName(p.category) : undefined,
       to: `/map?sel=${p.id}`,
       fields: [
         { text: p.category },

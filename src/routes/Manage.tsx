@@ -7,6 +7,7 @@ import { Icon, isIconName, type IconName } from "@/components/Icon";
 import { IconTile } from "@/components/IconTile";
 import { TileRow } from "@/components/TileRow";
 import { customListColor, logbookSectionTile, type Tone } from "@/lib/tones";
+import { categoryName } from "@/lib/mapGlyphs";
 import { useApp, undoable } from "@/store/useApp";
 import { useData } from "@/lib/data";
 import { findReviewLink, reviewSiteFor, saveReviewLink } from "@/lib/reviewSite";
@@ -1482,7 +1483,7 @@ function Content() {
                   onReset: () => setColor(name, undefined),
                 }}
               />
-              <span className="min-w-0 flex-1 break-words">{name}</span>
+              <span className="min-w-0 flex-1 break-words">{categoryName(name)}</span>
               <button type="button" className="chip" aria-pressed={pinned.includes(name)} onClick={() => togglePinned(name)}>
                 Always show
               </button>
@@ -1580,7 +1581,7 @@ function MapLayers({ names, colorOf, icons }: {
                 {cat ? tile(cat) : <IconTile size="sm" ghost name="pin" />}
                 <span className="min-w-0 flex-1 break-words text-ink">{layer}</span>
                 <span className={`min-w-0 max-w-[45%] break-words text-right ${cat ? "text-ink-soft" : "text-gold"}`}>
-                  {cat ?? "Not set up"}
+                  {cat ? categoryName(cat) : "Not set up"}
                 </span>
                 <Icon name="chevron" size={14} className="-mr-1 shrink-0 text-ink-faint" />
               </button>
@@ -1600,7 +1601,7 @@ function MapLayers({ names, colorOf, icons }: {
         {names.map((n) => (
           <button key={n} type="button" className="menu-item" onClick={() => picking && choose(picking, n)}>
             {tile(n)}
-            <span className="min-w-0 flex-1 break-words">{n}</span>
+            <span className="min-w-0 flex-1 break-words">{categoryName(n)}</span>
             {picking && layerCats[picking] === n && <Icon name="check" size={14} className="text-accent" />}
           </button>
         ))}
