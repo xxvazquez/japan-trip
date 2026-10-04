@@ -191,7 +191,7 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 - "Restaurant" means the category's icon is from *Food & drink* (or its name says food, café, bar…).
 - **Manage → Content → Tabelog links** finds them for every restaurant at once.
 
-**Good to know.** A short summary of a place from guides and review sites, plus its own website — anywhere, not just Japan. Short pairs share a row in two columns — **Hours** beside **Closed**, **Reservations** beside **Queue** (or Tickets beside Crowds) — and anything longer gets the full width.
+**Good to know.** A short summary of a place from guides and review sites, plus its own website — anywhere, not just Japan. Each fact has its own coloured icon (a red one for **Closed**, whose day reads red too). Very short pairs share a row in two columns — **Hours** beside **Closed**, **Reservations** beside **Queue** (or Tickets beside Crowds) — and anything longer gets the full width.
 
 | Place | Shows |
 | --- | --- |

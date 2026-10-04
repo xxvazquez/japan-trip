@@ -12,6 +12,7 @@ export type IconName =
   | "back"
   | "sun"
   | "sunrise"
+  | "star"
   | "moon"
   | "auto"
   | "train"
@@ -100,6 +101,7 @@ const P: Record<IconName, JSX.Element> = {
     </>
   ),
   moon: <path d="M20 13a8 8 0 1 1-9-9 6.5 6.5 0 0 0 9 9Z" />,
+  star: <path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9Z" />,
   // a sun half up over the horizon
   sunrise: (
     <>

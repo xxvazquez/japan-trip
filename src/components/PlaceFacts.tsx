@@ -1,13 +1,17 @@
 import { useState } from "react";
 import type { Place } from "@/core/types";
-import { InsetRow, INSET_DIVIDER } from "./InsetRow";
+import { INSET_DIVIDER } from "./InsetRow";
+import { IconTile } from "./IconTile";
+import type { IconName } from "./Icon";
+import type { Tone } from "@/lib/tones";
 import { useReadOnly } from "@/lib/readonly";
 import { fmtDate } from "@/lib/dates";
 import { factRows, hasFacts, refreshFacts, wantsFacts } from "@/lib/placeFacts";
 import { useData } from "@/lib/data";
 
-/** A place's "Good to know" as rows for a grouped list — each fact
- *  under its label (the Maps place-card idiom), its website, then when it was checked,
+/** A place's "Good to know" as rows for a grouped list — each fact with a
+ *  coloured tile, a small label and the value under it (the Settings tile
+ *  idiom, so a fact is found by its icon before it's read), its website, then when it was checked,
  *  where from, and Refresh. Renders `<li>`s; the caller owns the `<ul>`. */
 export function PlaceFactRows({ place, area }: { place: Place; area?: string }) {
   const readOnly = useReadOnly();
@@ -32,25 +36,23 @@ export function PlaceFactRows({ place, area }: { place: Place; area?: string }) 
         g.length === 2 ? (
           // two short facts side by side, split by a hairline — the way a
           // Maps place card sets Hours beside what it accepts
-          <li key={g[0].k} className={`${INSET_DIVIDER} grid grid-cols-2`}>
-            {g.map((c, i) => (
-              <div key={c.k} className={`min-w-0 px-3.5 py-3 ${i ? "border-l border-line" : ""}`}>
-                <span className="row-label mb-0.5 block">{c.label}</span>
-                <span className="row-value block break-words text-left">{c.value}</span>
-              </div>
-            ))}
+          <li key={g[0].k} className={`${FACT_DIVIDER} grid grid-cols-2`}>
+            {g.map((c, i) => <FactCell key={c.k} k={c.k} label={c.label} value={c.value} kind={f.kind} className={i ? "border-l border-line" : ""} />)}
           </li>
         ) : (
-          <InsetRow key={g[0].k} label={g[0].label} stacked>
-            <span className="break-words">{g[0].value}</span>
-          </InsetRow>
+          <li key={g[0].k} className={FACT_DIVIDER}>
+            <FactCell k={g[0].k} label={g[0].label} value={g[0].value} kind={f.kind} />
+          </li>
         ),
       )}
       {f.website && (
-        <li className={INSET_DIVIDER}>
-          <a href={f.website} target="_blank" rel="noopener" className="block px-3.5 py-3 transition-colors duration-150 hover:bg-surface-2/40 active:bg-ink/[0.07]">
-            <span className="row-label mb-0.5 block">Website</span>
-            <span className="row-value block break-words text-left text-accent">{siteName(f.website)}</span>
+        <li className={FACT_DIVIDER}>
+          <a href={f.website} target="_blank" rel="noopener" className="flex items-start gap-3 px-3.5 py-3 transition-colors duration-150 hover:bg-surface-2/40 active:bg-ink/[0.07]">
+            <IconTile size="sm" name="link" tone="accent" className="mt-0.5" />
+            <span className="min-w-0">
+              <span className="block text-xs text-ink-soft">Website</span>
+              <span className="row-value block break-words text-left text-accent">{siteName(f.website)}</span>
+            </span>
           </a>
         </li>
       )}
@@ -81,8 +83,9 @@ function siteName(url: string): string {
 /** facts that read as a pair — when it's open and when it isn't, how to get
  *  in and how busy it gets */
 const PAIRS: [string, string][] = [["hours", "closed"], ["reservations", "queue"]];
-/** past this a value needs the full width, or a half column runs 4–5 lines */
-const PAIR_MAX = 44;
+/** past this a value needs the full width — a half column beside its tile
+ *  holds about two short lines on a phone, never more */
+const PAIR_MAX = 24;
 
 /** the facts as rows of one or two: a pair shares a row when both are there
  *  and both are short; anything else gets the row to itself */
@@ -97,3 +100,35 @@ function factGroups<T extends { k: string; value: string }>(rows: T[]): T[][] {
   }
   return out;
 }
+
+/** each fact's tile — its own glyph and colour, so Hours or Closed is spotted
+ *  at a glance; Closed is the danger red, as Maps colours "Closed" */
+const FACT_TILE: Record<string, { icon: IconName; tone?: Tone; danger?: boolean }> = {
+  knownFor: { icon: "star", tone: "gold" },
+  hours: { icon: "clock", tone: "ai" },
+  closed: { icon: "close", danger: true },
+  reservations: { icon: "calendar", tone: "accent" },
+  queue: { icon: "person", tone: "gold" },
+  price: { icon: "wallet", tone: "matcha" },
+};
+
+/** one fact: its tile, the label small above, the value at reading size.
+ *  A Closed day that's an actual closure ("Friday", not "None") reads red. */
+function FactCell({ k, label, value, kind, className = "" }: { k: string; label: string; value: string; kind?: string; className?: string }) {
+  const t = FACT_TILE[k] ?? { icon: "info" as IconName, tone: "ink-faint" as Tone };
+  // a sight's reservations slot is Tickets
+  const icon: IconName = k === "reservations" && kind === "sight" ? "ticket" : t.icon;
+  const shut = k === "closed" && !/^(none|no\b|open)/i.test(value.trim());
+  return (
+    <div className={`flex min-w-0 items-start gap-3 px-3.5 py-3 ${className}`}>
+      <IconTile size="sm" name={icon} tone={t.tone} color={t.danger ? "rgb(var(--c-danger))" : undefined} className="mt-0.5 shrink-0" />
+      <div className="min-w-0">
+        <span className="block text-xs text-ink-soft">{label}</span>
+        <span className={`row-value block break-words text-left ${shut ? "text-danger" : ""}`}>{value}</span>
+      </div>
+    </div>
+  );
+}
+
+/** the row hairline inset past the tile to the text, as Settings insets it */
+const FACT_DIVIDER = INSET_DIVIDER.replace("after:left-3.5", "after:left-12");
