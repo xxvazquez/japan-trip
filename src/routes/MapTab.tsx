@@ -1042,9 +1042,7 @@ export default function MapTab() {
       if (areaFilter.size > 0 && !areaFilter.has(a.id)) return [];
       const pts = a.placeIds.map((id) => byId.get(id)).filter((p): p is Place => !!p && inScope.has(p.id));
       if (pts.length === 0) return [];
-      const clng = pts.reduce((s, p) => s + p.lng, 0) / pts.length;
-      const clat = pts.reduce((s, p) => s + p.lat, 0) / pts.length;
-      const km = Math.max(0.3, ...pts.map((p) => haversineKm(clat, clng, p.lat, p.lng))) * 1.25;
+      const { lng: clng, lat: clat, km } = areaCircle(pts);
       return [{
         type: "Feature" as const,
         properties: { name: a.name || "Untitled", color: AREA_TONES[i % AREA_TONES.length] },
@@ -2320,6 +2318,30 @@ function SuggestReview({
 }
 
 /* ---- area outlines ------------------------------------------------ */
+
+/** centre + radius of an area's outline. Sized by its core, not its furthest
+ *  place: one stray place across town (a mis-filed pin) used to stretch the
+ *  ring over half the city. Places well beyond the typical spread are left
+ *  out, and the ring never grows past a neighbourhood's size. */
+const AREA_MIN_KM = 0.3;
+const AREA_MAX_KM = 2.5;
+function areaCircle(pts: { lat: number; lng: number }[]): { lat: number; lng: number; km: number } {
+  const median = (xs: number[]) => {
+    const s = [...xs].sort((a, b) => a - b);
+    const m = s.length >> 1;
+    return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+  };
+  // the median centre isn't dragged by an outlier the way a mean is
+  const mLat = median(pts.map((p) => p.lat));
+  const mLng = median(pts.map((p) => p.lng));
+  const typical = median(pts.map((p) => haversineKm(mLat, mLng, p.lat, p.lng)));
+  const reach = Math.max(1, typical * 3);
+  const core = pts.filter((p) => haversineKm(mLat, mLng, p.lat, p.lng) <= reach);
+  const lat = core.reduce((s, p) => s + p.lat, 0) / core.length;
+  const lng = core.reduce((s, p) => s + p.lng, 0) / core.length;
+  const far = Math.max(0, ...core.map((p) => haversineKm(lat, lng, p.lat, p.lng)));
+  return { lat, lng, km: Math.min(AREA_MAX_KM, Math.max(AREA_MIN_KM, far * 1.25)) };
+}
 
 /** a closed ring of lng/lat points approximating a circle of `km` around a centre */
 function circleRing(lng: number, lat: number, km: number, n = 56): [number, number][] {
