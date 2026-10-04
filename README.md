@@ -150,7 +150,8 @@ Each step shows its name, then one grey line with the place's hours that day, th
 - **Link a place** — tap the grey pin to pick a place from the day's Areas. Tap a linked name to change it; **Custom…** unlinks it.
 - **Meal steps** — an unlinked step whose text mentions a meal (lunch, dinner, breakfast…), coffee or drinks gets a gold food, coffee or drink tile instead of the grey pin.
 - **Reorder** by dragging the small ≡ on the right (shown on hover on a computer).
-- **The place card** — tap a linked step's icon, as you'd tap a place in Maps: Good to know, then Open in Google Maps, Tabelog (restaurants in Japan) and Show on map.
+- **The place card** — tap a linked step's icon, as you'd tap a place in Maps: a button row pinned at the top (Google Maps, Tabelog for restaurants in Japan, Show on map), then Good to know.
+- **Open in Google Maps** is also the first item when you hold a step (⋯ on a computer).
 - **The step's menu** — long-press a step on a phone (or right-click it, or its ⋯ on hover on a computer): add to Google Calendar, mark as **overwhelming** (a ⚠ on its grey line; the day's count shows on Plan), add a note, duplicate, add an expense, remove.
 - **Delete** — swipe a step left on a phone.
 - **Notes** support bold, bullets and links. Tap to edit. Empty fields stay hidden.

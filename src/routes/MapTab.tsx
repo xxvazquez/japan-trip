@@ -1917,7 +1917,6 @@ function PlaceRow({
               )}
             </li>
           )}
-          <PlaceFactRows place={place} area={area} />
           {link && (
             <li className={INSET_DIVIDER}>
               <a href={link} target="_blank" rel="noopener" className={`${rowCls} text-accent active:bg-surface-2`}>
@@ -1936,6 +1935,8 @@ function PlaceRow({
               </a>
             </li>
           )}
+          {/* Good to know after the links, so Google Maps stays near the top */}
+          <PlaceFactRows place={place} area={area} />
           {day ? (
             <li className={INSET_DIVIDER}>
               <Link to={`/day/${day.id}`} className={`${rowCls} active:bg-surface-2`}>

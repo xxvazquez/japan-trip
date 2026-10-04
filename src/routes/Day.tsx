@@ -28,7 +28,7 @@ import { ContextMenu } from "@/components/ContextMenu";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { SwipeToDelete } from "@/components/SwipeToDelete";
 import { ConfirmButton } from "@/components/ConfirmButton";
-import { Icon } from "@/components/Icon";
+import { Icon, type IconName } from "@/components/Icon";
 import { RouteLabel } from "@/components/RouteLabel";
 import { IconTile } from "@/components/IconTile";
 import { TitleLineTile } from "@/components/TileRow";
@@ -900,6 +900,11 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                   opens its items) */}
               <span className="hover-reveal touch-hidden">
                 <RowMenu label={`More for ${place?.name || item.text || "this step"}`}>
+                  {mapHref && (
+                    <a href={mapHref} target="_blank" rel="noopener" className="menu-item">
+                      <Icon name="map" size={16} /> Open in Google Maps
+                    </a>
+                  )}
                   <button type="button" className="menu-item" onClick={addToGoogleCalendar}>
                     <Icon name="calendar" size={16} /> Add to Google Calendar
                   </button>
@@ -992,25 +997,27 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
               />
             )}
             {place && (
-              <ActionSheet open={placeCard.open} onClose={() => placeCard.setOpen(false)} anchorRef={placeCardAnchor} title={place.name} doneLabel="Done">
+              <ActionSheet
+                open={placeCard.open}
+                onClose={() => placeCard.setOpen(false)}
+                anchorRef={placeCardAnchor}
+                title={place.name}
+                doneLabel="Done"
+                // the Maps place-card button row, pinned under the name so
+                // Google Maps is one tap however long Good to know runs
+                header={
+                  <div className="flex gap-2">
+                    {mapHref && <PlaceAction href={mapHref} icon="map" label="Google Maps" />}
+                    {reviewSite && <PlaceAction href={reviewHref(reviewSite, place)} icon="link" label={reviewSite.label} />}
+                    <PlaceAction icon="locate" label="Show on map" onClick={() => { placeCard.setOpen(false); onShowOnMap(place); }} />
+                  </div>
+                }
+              >
                 {place.facts && wantsFacts(place, tripData) && (
-                  <ul onClick={(e) => e.stopPropagation()} className="mb-1 border-b border-line">
+                  <ul onClick={(e) => e.stopPropagation()}>
                     <PlaceFactRows place={place} area={area} />
                   </ul>
                 )}
-                {mapHref && (
-                  <a href={mapHref} target="_blank" rel="noopener" className="menu-item">
-                    <Icon name="map" size={16} /> Open in Google Maps
-                  </a>
-                )}
-                {reviewSite && (
-                  <a href={reviewHref(reviewSite, place)} target="_blank" rel="noopener" className="menu-item">
-                    <Icon name="link" size={16} /> {place.reviewUrl ? `Open in ${reviewSite.label}` : `Search ${reviewSite.label}`}
-                  </a>
-                )}
-                <button type="button" className="menu-item" onClick={() => onShowOnMap(place)}>
-                  <Icon name="locate" size={16} /> Show on map
-                </button>
               </ActionSheet>
             )}
           </div>
@@ -1018,6 +1025,19 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
       </ContextMenu>
       </SwipeToDelete>
     </li>
+  );
+}
+
+/** A button in a place card's top row — icon over a short label on a grey
+ *  tile, sharing the row equally, as Maps lays out Directions / Call /
+ *  Website. A link when it leaves the app, else a button. */
+function PlaceAction({ href, onClick, icon, label }: { href?: string; onClick?: () => void; icon: IconName; label: string }) {
+  const cls = "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-[12px] bg-surface-2 px-1 py-2.5 text-center text-xs text-accent active:bg-ink/[0.07]";
+  const body = <><Icon name={icon} size={20} /><span className="break-words leading-tight">{label}</span></>;
+  return href ? (
+    <a href={href} target="_blank" rel="noopener" className={cls}>{body}</a>
+  ) : (
+    <button type="button" onClick={onClick} className={cls}>{body}</button>
   );
 }
 
