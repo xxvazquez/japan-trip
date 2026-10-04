@@ -148,7 +148,8 @@ Each step shows a tile, an optional time, the step itself and a short note.
 - **Link a place** — tap the grey pin to pick a place from the day's Areas. Tap a linked name to change it; **Custom…** unlinks it.
 - **Meal steps** — an unlinked step whose text mentions a meal (lunch, dinner, breakfast…), coffee or drinks gets a gold food, coffee or drink tile instead of the grey pin.
 - **Reorder** by dragging.
-- **The ⋯ menu** — show on map, Good to know (restaurants), Tabelog (restaurants in Japan), add to Google Calendar, mark as **overwhelming** (a ⚠ sensory heads-up; the day's count shows on Plan), add a note, duplicate, add an expense, remove.
+- **The place card** — tap a linked step's icon, as you'd tap a place in Maps: Good to know (restaurants), then Open in Google Maps, Tabelog (restaurants in Japan) and Show on map.
+- **The ⋯ menu** — add to Google Calendar, mark as **overwhelming** (a ⚠ sensory heads-up; the day's count shows on Plan), add a note, duplicate, add an expense, remove.
 - **Notes** support bold, bullets and links. Tap to expand and edit. Empty fields stay hidden.
 - **+ Add a step** sits at the foot of the list and opens the new step ready to type. Leave it blank and it goes away.
 - **Each journey on the day** shows as two rows of its own: **Leave** (first departure) and **Arrive** (last arrival), slotted in by time. They follow the journey live — edit the times on the journey, tap a row to open it.
@@ -172,15 +173,15 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 - It happens the first time the step shows, or its card opens on the Map. Online only; the link is then saved with the place.
 - It's found through a web search (Tavily): a Tabelog page in the same or a neighbouring prefecture whose title has the same name (English, or the Japanese name OpenStreetMap has for the pin).
 - Needs `TAVILY_API_KEY` on the server (see [Deploy](#deploy)); without it, every restaurant just gets **Search Tabelog**.
-- Found: **Open in Tabelog** in the step's ⋯ menu and on the Map card.
-- Not found: the ⋯ menu offers **Search Tabelog** instead. A miss isn't retried on that device for 30 days, unless the name or pin changes.
+- Found: **Open in Tabelog** on the step's place card and on the Map card.
+- Not found: the same row offers **Search Tabelog** instead. A miss isn't retried on that device for 30 days, unless the name or pin changes.
 - "Restaurant" means the category's icon is from *Food & drink* (or its name says food, café, bar…).
 - **Manage → Content → Tabelog links** finds them for every restaurant at once.
 
 **Good to know.** A restaurant or café (anywhere, not just Japan) gets a short summary of what guides and review sites say about it:
 
 - **Known for**, **Hours**, **Closed**, **Reservations**, **Queue** and **Price**, each a short phrase. Anything the sources don't mention is left out.
-- On Plan it's **Good to know** in the step's ⋯ menu, so the step itself stays short; on the Map it's part of the place's card.
+- On Plan it's at the top of the step's place card (tap its icon), so the step itself stays short; on the Map it's part of the place's card.
 - Looked up the first time the place shows, again once it's a month old, and again after a rename. Saved with the place, so it works offline.
 - It shows when it was checked and which sites it came from, with **Refresh** to check again now.
 - A result only counts if its pages name the place and mention its city — so a namesake elsewhere isn't picked up.

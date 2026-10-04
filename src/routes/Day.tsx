@@ -42,7 +42,7 @@ import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
-import { hasFacts, placeArea, useAutoPlaceFacts } from "@/lib/placeFacts";
+import { placeArea, useAutoPlaceFacts } from "@/lib/placeFacts";
 import { PlaceFactRows } from "@/components/PlaceFacts";
 import { dayJourneys, dayKind, fmtDate, journeyDepartDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
@@ -775,9 +775,9 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
   const tripData = useData();
   const area = place && placeArea(place, tripData);
   useAutoPlaceFacts(place, categoryIcons, area, !readOnly);
-  const factsSheet = useActionSheet();
-  // opened from the ⋯ menu, so the desktop popover hangs off the step itself
-  const factsAnchor = useRef<HTMLDivElement>(null);
+  // the place card the step's icon opens; on desktop it hangs off the step
+  const placeCard = useActionSheet();
+  const placeCardAnchor = useRef<HTMLDivElement>(null);
   const toggleOverwhelming = () => {
     if (!place) return;
     updateEntity<Place>("places", place.id, { overwhelming: !place.overwhelming || undefined });
@@ -856,7 +856,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
               there's nothing to pick from yet (no Area added to the day). A
               note is its own quiet row underneath — italic placeholder when
               empty, tap to expand and edit. */}
-          <div ref={factsAnchor} className="min-w-0 flex-1 space-y-1 pt-px">
+          <div ref={placeCardAnchor} className="min-w-0 flex-1 space-y-1 pt-px">
             {/* tile + hour — one meta line, icon leading so the hour reads
                 like a caption under it rather than a column of its own */}
             <div className="flex items-center gap-1.5">
@@ -871,8 +871,14 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                   onPick={pick}
                   trigger={tile}
                 />
+              ) : place ? (
+                // the place's icon opens its place card, as tapping a place
+                // does in Maps — what's good to know, then where to go next
+                <button type="button" onClick={() => placeCard.setOpen(true)} className="tap shrink-0" aria-label={`About ${place.name}`}>
+                  {tile}
+                </button>
               ) : mapHref ? (
-                <a href={mapHref} target="_blank" rel="noopener" className="shrink-0" aria-label={place ? `Open ${place.name} in Google Maps` : "Open in Google Maps"}>
+                <a href={mapHref} target="_blank" rel="noopener" className="shrink-0" aria-label="Open in Google Maps">
                   {tile}
                 </a>
               ) : (
@@ -910,7 +916,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
               )}
             </div>
             {readOnly ? (
-              // plain text — the tile beside the time is the Maps link
+              // plain text — the tile beside the time opens the place card
               <span className="block text-sm leading-snug text-ink">{item.text}</span>
             ) : item.placeId && sortedPickable.length > 0 ? (
               <PlacePicker
@@ -948,10 +954,25 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
               />
             )}
             {place && (
-              <ActionSheet open={factsSheet.open} onClose={() => factsSheet.setOpen(false)} anchorRef={factsAnchor} title={place.name} doneLabel="Done">
-                <ul onClick={(e) => e.stopPropagation()}>
-                  <PlaceFactRows place={place} area={area} />
-                </ul>
+              <ActionSheet open={placeCard.open} onClose={() => placeCard.setOpen(false)} anchorRef={placeCardAnchor} title={place.name} doneLabel="Done">
+                {place.facts && (
+                  <ul onClick={(e) => e.stopPropagation()} className="mb-1 border-b border-line">
+                    <PlaceFactRows place={place} area={area} />
+                  </ul>
+                )}
+                {mapHref && (
+                  <a href={mapHref} target="_blank" rel="noopener" className="menu-item">
+                    <Icon name="map" size={16} /> Open in Google Maps
+                  </a>
+                )}
+                {reviewSite && (
+                  <a href={reviewHref(reviewSite, place)} target="_blank" rel="noopener" className="menu-item">
+                    <Icon name="link" size={16} /> {place.reviewUrl ? `Open in ${reviewSite.label}` : `Search ${reviewSite.label}`}
+                  </a>
+                )}
+                <button type="button" className="menu-item" onClick={() => onShowOnMap(place)}>
+                  <Icon name="locate" size={16} /> Show on map
+                </button>
               </ActionSheet>
             )}
           </div>
@@ -959,21 +980,6 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
           {/* one ⋯ instead of four loose glyphs — the step's title and lines
               get the width, the secondary actions sit behind the sheet */}
           <RowMenu label={`More for ${place?.name || item.text || "this step"}`}>
-            {place && (
-              <button type="button" className="menu-item" onClick={() => onShowOnMap(place)}>
-                <Icon name="locate" size={16} /> Show on map
-              </button>
-            )}
-            {place && hasFacts(place.facts) && (
-              <button type="button" className="menu-item" onClick={() => factsSheet.setOpen(true)}>
-                <Icon name="info" size={16} /> Good to know
-              </button>
-            )}
-            {place && reviewSite && (
-              <a href={reviewHref(reviewSite, place)} target="_blank" rel="noopener" className="menu-item">
-                <Icon name="link" size={16} /> {place.reviewUrl ? `Open in ${reviewSite.label}` : `Search ${reviewSite.label}`}
-              </a>
-            )}
             <button type="button" className="menu-item" onClick={addToGoogleCalendar}>
               <Icon name="calendar" size={16} /> Add to Google Calendar
             </button>
