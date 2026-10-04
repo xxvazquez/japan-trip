@@ -936,6 +936,11 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
   // a pinned step's time is locked (a booking) until it's unpinned; it
   // still sits where that time puts it. With no time there's nothing to lock
   const pinned = !!item.pinned && !!item.time;
+  const pinSheet = useActionSheet();
+  // unpinned from the locked time's sheet: open the wheels straight away
+  const [retime, setRetime] = useState(false);
+  // spent once the wheels have opened (a child's mount effect runs first)
+  useEffect(() => { if (retime && !item.pinned) setRetime(false); }, [retime, item.pinned]);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id, disabled: readOnly || timed });
   const updateEntity = useApp((s) => s.updateEntity);
   // an empty note stays out of the card until "Add a note" asks for it
@@ -1024,11 +1029,35 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
           onTap={place ? () => placeCard.setOpen(true) : undefined}
           tapLabel={place ? `About ${place.name}` : undefined}
           time={
-            readOnly || pinned ? (
+            readOnly ? (
               item.time && <span className="whitespace-pre-line">{stacked(item.time)}</span>
+            ) : pinned ? (
+              // locked: a tap says why and offers the way out, as iOS does
+              // for a setting that's held by something else
+              <>
+                <button
+                  ref={pinSheet.anchorRef}
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); pinSheet.setOpen(true); }}
+                  aria-label={`${item.time} — pinned`}
+                  className="tap whitespace-pre-line text-right tabular-nums"
+                >
+                  {stacked(item.time ?? "")}
+                </button>
+                <ActionSheet open={pinSheet.open} onClose={() => pinSheet.setOpen(false)} anchorRef={pinSheet.anchorRef} title={`${item.time} is pinned. Unpin it to change the time.`}>
+                  <button
+                    type="button"
+                    className="menu-item"
+                    onClick={() => { pinSheet.setOpen(false); setRetime(plainTime); onPatch({ pinned: undefined }); }}
+                  >
+                    <Icon name="pushpin" size={16} /> Unpin and change time
+                  </button>
+                </ActionSheet>
+              </>
             ) : plainTime ? (
               <Editable
                 as="time"
+                autoEdit={retime}
                 label="Time"
                 value={item.time ?? ""}
                 onCommit={(v) => onPatch({ time: v || undefined })}

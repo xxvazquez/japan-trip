@@ -151,6 +151,11 @@ export function Editable(props: Props) {
   useEffect(() => {
     if (editSignal) setEditing(true);
   }, [editSignal]);
+  // a time asked to open on mount opens its wheels once the field is there
+  // to anchor the desktop popover
+  useEffect(() => {
+    if (autoEdit && props.as === "time") setSheetOpen(true);
+  }, []);
   // a layout effect, so a field opened from a tap (see `autoEdit`) is focused
   // inside that tap — iPhone only raises the keyboard for a focus it makes
   useLayoutEffect(() => {
