@@ -55,7 +55,7 @@ import { MODE_ICON, MODE_LABEL, MODE_TONE } from "@/lib/transport";
 import { useWalk, estimateTransit } from "@/lib/walkRoute";
 import { nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
 import { nearestOpeningHours, type PlaceHours } from "@/lib/placeHours";
-import { hoursForDate } from "@/lib/openingHours";
+import { hoursConflict, hoursForDate } from "@/lib/openingHours";
 import { fetchDayWeather, weatherLabel, type DayWeather } from "@/lib/weather";
 import { prefetchTiles, canPrefetchTiles, dayOfflinePoints } from "@/lib/offlineTiles";
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon, expenseCategoryForGlyph } from "@/lib/cost";
@@ -818,7 +818,10 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
     return r ? `${r[0]}\n${r[1]}` : t;
   };
   const hours = usePlaceHours(place, day.date);
-  const closed = hours === "Closed";
+  // the place's own hours that day, checked against when the step is
+  // planned — a red line under the name only when they don't fit
+  const stepTimes = range ?? (plainTime && item.time ? [item.time] : []);
+  const conflict = hours ? hoursConflict(hours, stepTimes[0], stepTimes[1]) : null;
   const catGlyph = place?.category ? categoryIcons?.[place.category] : undefined;
   // a custom step has no category to go on, so guess from its own text
   const textGlyph = place ? undefined : glyphForStepText(item.text);
@@ -953,18 +956,29 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
               Reminders sets a reminder's notes. The day's hours live on
               the place card, not repeated here. */}
           <div ref={placeCardAnchor} className="space-y-0.5">
-            <div className={readOnly ? "[@media(hover:hover)]:pr-7" : "pr-6 [@media(hover:hover)]:pr-[3.25rem]"}>
+            {/* the ⋯ / grip pinned top right only needs room on the name's
+                first line: a place name wraps around a small float, so its
+                later lines run the full width. A custom step's name is an
+                `Editable` (a button, which can't wrap round a float), so it
+                keeps a plain right padding. */}
+            <div className={place ? "flow-root" : readOnly ? "[@media(hover:hover)]:pr-7" : "pr-6 [@media(hover:hover)]:pr-[3.25rem]"}>
+            {place && (
+              <span aria-hidden className={`float-right h-[23px] ${readOnly ? "w-0 [@media(hover:hover)]:w-7" : "w-6 [@media(hover:hover)]:w-[3.25rem]"}`} />
+            )}
             {place ? (
               // tapping a place's name opens its place card, as tapping a
-              // result does in Maps — the info, then where to go next
-              <button
-                type="button"
+              // result does in Maps — the info, then where to go next. A div,
+              // not a <button>, so its text can wrap round the float above
+              <div
+                role="button"
+                tabIndex={0}
                 onClick={() => placeCard.setOpen(true)}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); placeCard.setOpen(true); } }}
                 aria-label={`About ${place.name}`}
-                className={`${STOP_TITLE} w-full text-left active:opacity-60`}
+                className={`${STOP_TITLE} cursor-pointer active:opacity-60`}
               >
                 {place.name}
-              </button>
+              </div>
             ) : readOnly ? (
               <span className={STOP_TITLE}>{item.text}</span>
             ) : (
@@ -983,10 +997,10 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
               />
             )}
             </div>
-            {(closed || place?.overwhelming) && (
+            {(conflict || place?.overwhelming) && (
               <span className="block break-words text-xs text-danger">
-                {closed && "Closed this day"}
-                {closed && place?.overwhelming && " · "}
+                {conflict}
+                {conflict && place?.overwhelming && " · "}
                 {place?.overwhelming && (
                   <span className="whitespace-nowrap">
                     <Icon name="alert" size={12} className="inline-block align-[-1px]" /> Overwhelming
@@ -1011,8 +1025,8 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                 onClose={() => placeCard.setOpen(false)}
                 anchorRef={placeCardAnchor}
                 doneLabel={null}
-                // laid out like a Maps place card: the name as the title, the
-                // day's hours under it, ✕ to close, then the
+                // laid out like a Maps place card: the name as the title, a
+                // clash with its hours under it, ✕ to close, then the
                 // button row — Google Maps filled, one tap however long Good
                 // to know runs below
                 header={
@@ -1020,9 +1034,9 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                     <div className="flex items-start gap-3 pl-1">
                       <div className="min-w-0 flex-1">
                         <h2 className="subhead break-words">{place.name}</h2>
-                        {/* the day's hours — not the category, which is a
-                            layer name ("see") rather than what the place is */}
-                        {hours && <p className="meta mt-0.5 break-words">{/^\d/.test(hours) ? `Open ${hours}` : hours}</p>}
+                        {/* only a clash with the plan up here; the hours
+                            themselves are in Good to know below */}
+                        {conflict && <p className="mt-0.5 break-words text-xs text-danger">{conflict}</p>}
                       </div>
                       <button
                         type="button"
@@ -1251,8 +1265,8 @@ function ReturnToHotel({ from, hotel }: { from?: Place; hotel: Hotel }) {
 /** the step's own opening hours, straight from OpenStreetMap and narrowed to
  *  the day's own date (`hoursForDate` — the rule for that month and weekday,
  *  not the whole year's schedule; nothing at all when nothing covers the
- *  date). An FYI to replan by eye, not a warning: nothing is flagged as a
- *  conflict. Null when nothing's tagged nearby. */
+ *  date). Never shown as such — only checked against the step's time
+ *  (`hoursConflict`). Null when nothing's tagged nearby. */
 function usePlaceHours(place: Place | undefined, date?: string): string | null {
   const [hours, setHours] = useState<PlaceHours | null>(null);
   useEffect(() => {
@@ -1322,7 +1336,8 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
                   </span>
                 )}
                 <span className="whitespace-nowrap"><Icon name="train" size={12} className="inline-block align-[-2px]" /> {train.a.name} →</span>{" "}
-                <span className="whitespace-nowrap">{train.b.name} · {fmtMinutes(train.ride)}</span>
+                <span className="whitespace-nowrap">{train.b.name}</span>{" "}
+                <span className="whitespace-nowrap">· {fmtMinutes(train.ride)}</span>
                 {train.walkOut != null && (
                   <span className="whitespace-nowrap">
                     {leg}<Icon name="walk" size={12} className="inline-block align-[-2px]" /> {fmtMinutes(train.walkOut)}

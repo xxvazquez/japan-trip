@@ -87,3 +87,41 @@ export function hoursForDate(raw: string, iso: string): string | null {
   }
   return result;
 }
+
+const toMin = (t: string) => {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+};
+
+/** Whether a step planned at `start` (and, for a range, until `end`) fits
+ *  the place's hours that day — `day` is what `hoursForDate` gave back. A
+ *  short warning when it doesn't ("Not open yet · opens 10:00"), else null.
+ *  Null too when the hours can't be read, rather than a guess. */
+export function hoursConflict(day: string, start?: string, end?: string): string | null {
+  if (day === "Closed") return "Closed this day";
+  if (!TIMES_RE.test(day.replace(/–/g, "-"))) return null;
+  if (!start || !/^\d{1,2}:\d{2}$/.test(start)) return null;
+  const ranges = day.split(",").map((r) => {
+    const [a, b] = r.split("–").map((t) => t.trim());
+    const from = toMin(a);
+    let to = toMin(b);
+    if (to <= from) to += 24 * 60; // closes after midnight
+    return { from, to, a, b };
+  });
+  let s = toMin(start);
+  // a small-hours step can fall in the tail of a session that opened before midnight
+  const late = ranges.find((r) => r.to > 24 * 60 && s + 24 * 60 < r.to);
+  if (late) s += 24 * 60;
+  const open = ranges.find((r) => s >= r.from && s < r.to);
+  if (open) {
+    if (end && /^\d{1,2}:\d{2}$/.test(end)) {
+      let e = toMin(end);
+      while (e <= s) e += 24 * 60;
+      if (e > open.to) return `Closes at ${open.b}`;
+    }
+    return null;
+  }
+  const next = ranges.find((r) => r.from > s);
+  if (!next) return `Closed by then · closes ${ranges[ranges.length - 1].b}`;
+  return next === ranges[0] ? `Not open yet · opens ${next.a}` : `Closed then · reopens ${next.a}`;
+}
