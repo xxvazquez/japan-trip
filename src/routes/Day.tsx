@@ -123,6 +123,8 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const hotel = L.hotel(day.hotelId);
   const journeys = dayJourneys(day, data);
   const journeySheet = useActionSheet();
+  // what the journey popover points at — the section's own row, or the nav ＋
+  const journeyAnchor = useRef<HTMLElement | null>(null);
   const linkJourney = (id: string) => patch({ journeyIds: [...(day.journeyIds ?? []), id] });
   const unlinkJourney = (id: string) => {
     const rest = (day.journeyIds ?? []).filter((x) => x !== id);
@@ -409,7 +411,15 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       {/* IDENTITY — date, title, and where you're based / how you move */}
       <DayStepper days={data.days} current={day.id} locale={loc} />
       {/* ＋ where Plan has it, beside the account button: the day's one new thing is a step */}
-      {!ro && <NavAddButton label="Add a step" onClick={addStep} />}
+      {!ro && (
+        <NavAddButton
+          label="Add"
+          items={[
+            { icon: "itinerary", label: "Add a step", onClick: (a) => addStep(a ? { currentTarget: a } : undefined) },
+            { icon: "train", label: "Add a journey", onClick: (a) => { journeyAnchor.current = a; journeySheet.setOpen(true); } },
+          ]}
+        />
+      )}
       {!ro && (
         <PlacePicker
           title="Add a step"
@@ -484,8 +494,22 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         </Section>
       )}
 
-      {/* JOURNEYS — every way you're carried today, in the order they leave */}
+      {/* JOURNEYS — every way you're carried today, in the order they leave;
+          hidden on a day with none, where the nav ＋ adds the first */}
       {!ro && (
+        <ActionSheet open={journeySheet.open} onClose={() => journeySheet.setOpen(false)} anchorRef={journeyAnchor} title="Add a journey">
+          <button type="button" className="menu-item" onClick={() => { journeySheet.setOpen(false); newJourney(); }}>
+            New journey…
+          </button>
+          {addable.map((j) => (
+            <button key={j.id} type="button" className="menu-item" onClick={() => { journeySheet.setOpen(false); linkJourney(j.id); }}>
+              <span><RouteLabel label={j.label || "New journey"} /></span>
+              {journeySpan(j).from && <span className="text-ink-soft">&nbsp;· {fmtDate(journeySpan(j).from!, loc, { weekday: "short", day: "numeric", month: "short" })}</span>}
+            </button>
+          ))}
+        </ActionSheet>
+      )}
+      {!ro && journeys.length > 0 && (
         <Section title="Journeys" id="day-journeys" className="mb-8">
           <ul>
             {journeys.map((j) => (
@@ -493,24 +517,12 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             ))}
             <li className={INSET_DIVIDER}>
               <button
-                ref={journeySheet.anchorRef}
                 type="button"
-                onClick={() => journeySheet.setOpen(true)}
+                onClick={(e) => { journeyAnchor.current = e.currentTarget; journeySheet.setOpen(true); }}
                 className="action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07]"
               >
                 <Icon name="plus" size={14} /> Add a journey
               </button>
-              <ActionSheet open={journeySheet.open} onClose={() => journeySheet.setOpen(false)} anchorRef={journeySheet.anchorRef} title="Add a journey">
-                <button type="button" className="menu-item" onClick={() => { journeySheet.setOpen(false); newJourney(); }}>
-                  New journey…
-                </button>
-                {addable.map((j) => (
-                  <button key={j.id} type="button" className="menu-item" onClick={() => { journeySheet.setOpen(false); linkJourney(j.id); }}>
-                    <span><RouteLabel label={j.label || "New journey"} /></span>
-                    {journeySpan(j).from && <span className="text-ink-soft">&nbsp;· {fmtDate(journeySpan(j).from!, loc, { weekday: "short", day: "numeric", month: "short" })}</span>}
-                  </button>
-                ))}
-              </ActionSheet>
             </li>
           </ul>
         </Section>

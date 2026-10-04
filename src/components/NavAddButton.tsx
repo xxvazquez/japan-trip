@@ -3,16 +3,17 @@ import { createPortal } from "react-dom";
 import { ActionSheet, useActionSheet } from "./ActionSheet";
 import { Icon, type IconName } from "./Icon";
 
-type Item = { icon: IconName; label: string; onClick: () => void };
+/** `onClick` gets the ＋ itself, for a popover that follows on from the menu */
+type Item = { icon: IconName; label: string; onClick: (anchor: HTMLElement | null) => void };
 
 /**
  * ＋ in the navigation bar — where a page adds something new, as Calendar,
  * Reminders and Files put it. A glass circle in the bar's `#nav-actions`
  * slot, right beside the account button on every page that has one.
  *
- * With one thing to add (a day: a step) a tap adds it straight away, inside
- * the tap, so a field it opens can raise the iPhone keyboard. With several
- * (Plan: a day or a base) it opens a short menu of them. Each group on the
+ * With one thing to add a tap adds it straight away, inside the tap, so a
+ * field it opens can raise the iPhone keyboard. With several (Plan: a day or
+ * a base; a day: a step or a journey) it opens a short menu of them. Each group on the
  * page still closes with its own "Add …" row, for adding right there.
  */
 export function NavAddButton({ label, onClick, items }: { label: string; onClick?: () => void; items?: Item[] }) {
@@ -36,7 +37,7 @@ export function NavAddButton({ label, onClick, items }: { label: string; onClick
       {items && (
         <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef}>
           {items.map((it) => (
-            <button key={it.label} type="button" className="menu-item" onClick={() => { setOpen(false); it.onClick(); }}>
+            <button key={it.label} type="button" className="menu-item" onClick={() => { setOpen(false); it.onClick(anchorRef.current); }}>
               <Icon name={it.icon} size={16} /> {it.label}
             </button>
           ))}

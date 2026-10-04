@@ -149,6 +149,7 @@ Suggestions from the trip's own saved places — nothing is looked up from outsi
 ### Journeys on a day
 
 - Each row shows the route, its times and the mode. Tap it to open the journey.
+- The section only shows on a day that has a journey. Add the first from the day's **＋** → **Add a journey**.
 - **Add a journey** links an existing one (that day's first) or makes a new one.
 - Swipe a row (✕ on desktop) to take it off the day. The journey itself stays.
 - A journey that runs on another date says so in red and offers to move it there.
@@ -181,7 +182,7 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 - **Notes** support bold, bullets and links. Tap to edit. Empty fields stay hidden.
 - **+ Add a step** sits at the foot of the list. It asks what the step is first, from the same place list: pick a place and its time wheel opens; **Custom…** opens a step ready to type. Leave that blank and it goes away.
 - **An empty day** still shows where it starts and ends (the hotel rows), so it looks like every other day.
-- **＋** at the top of the day (where Plan has its ＋) opens the same Add a step list from anywhere on the page, so a long day needs no scroll. A step with a time moves into place.
+- **＋** at the top of the day (where Plan has its ＋) offers **Add a step** — the same list, from anywhere on the page, so a long day needs no scroll — or **Add a journey**. A step with a time moves into place.
 - **Each journey on the day** shows as two rows of its own: **Leave** (first departure) and **Arrive** (last arrival), slotted in by time. They follow the journey live — edit the times on the journey, tap a row to open it.
 
 ### Helpers on a step
