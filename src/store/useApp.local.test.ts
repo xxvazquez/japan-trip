@@ -8,10 +8,14 @@ vi.mock("@/lib/mymaps", () => ({
   fetchMyMap: async () => ({ mapName: "Test map", places: myMap.places }),
 }));
 
+/** every page booted so far — `resetModules` doesn't stop the old ones */
+const pages: { useApp: { setState: (s: { activeId: null; data: null }) => void } }[] = [];
+
 /** a fresh "page load": new module instances, same device storage */
 async function boot() {
   vi.resetModules();
   const app = await import("@/store/useApp");
+  pages.push(app);
   const kv = (await import("@/lib/storage")).store;
   const snaps = await import("@/lib/safety/snapshots");
   await app.useApp.getState().init();
@@ -19,7 +23,13 @@ async function boot() {
 }
 const place = (id: string) => ({ id, name: `Place ${id}`, lat: 1, lng: 2 }) as never;
 
-beforeEach(() => vi.restoreAllMocks());
+beforeEach(() => {
+  vi.restoreAllMocks();
+  // close the earlier tests' pages: left open on the same trip, a late save
+  // retry from one of them (late on a busy machine) wrote its stale copy over
+  // this test's trip. With no trip open, their timers save nothing.
+  for (const page of pages.splice(0)) page.useApp.setState({ activeId: null, data: null });
+});
 
 describe("device-only trips: edits survive reloads", () => {
   it("first boot seeds a trip once; a reload opens the same trip, it doesn't seed again", async () => {
