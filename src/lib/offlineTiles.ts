@@ -133,7 +133,8 @@ function planFor(groups: LatLng[][]): Plan {
   overviewTiles(groups.flat()).forEach(add);
   return {
     items: [
-      ...MAP_ASSET_URLS.map((url) => ({ url, kb: ASSET_KB })),
+      // written the way the cache hands keys back (font names have spaces)
+      ...MAP_ASSET_URLS.map((url) => ({ url: new URL(url).href, kb: ASSET_KB })),
       ...tiles.map((t) => ({ url: tileUrl(t), kb: TILE_KB[t.z] ?? 90 })),
     ],
     truncated,

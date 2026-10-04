@@ -41,7 +41,7 @@ describe("saving maps for offline", () => {
     const r = await prefetchTileGroups("t1", [[TOKYO], [KYOTO]]);
     expect(r.failed).toBe(0);
     const saved = [...store.all.get("trip-maps:t1")!.keys()];
-    expect(saved).toContain("https://protomaps.github.io/basemaps-assets/fonts/Noto Sans Regular/0-255.pbf");
+    expect(saved).toContain("https://protomaps.github.io/basemaps-assets/fonts/Noto%20Sans%20Regular/0-255.pbf");
     expect(saved).toContain("https://protomaps.github.io/basemaps-assets/sprites/v4/dark@2x.png");
     const zooms = new Set(saved.filter((u) => u.includes("api.protomaps.com")).map((u) => Number(u.split("/v4/")[1].split("/")[0])));
     expect([...zooms].sort((a, b) => a - b)).toEqual([5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
@@ -54,18 +54,18 @@ describe("saving maps for offline", () => {
   it("downloads only what isn't saved, and moves browsed tiles over without the network", async () => {
     const { prefetchTileGroups } = await import("./offlineTiles");
     await prefetchTileGroups("t1", [[TOKYO]]);
-    const first = fetched.length;
+    const first = new Set(fetched);
     fetched = [];
     // a browsed tile around Kyoto, already on the device
     const { mapSaveStatus } = await import("./offlineTiles");
-    const kyotoTile = "https://api.protomaps.com/tiles/v4/15/28743/13000.mvt?key=k";
+    const kyotoTile = "https://api.protomaps.com/tiles/v4/15/28742/12978.mvt?key=k";
     await (await store.api.open("map-tiles")).put(kyotoTile, new Response("browsed"));
     const before = await mapSaveStatus("t1", [[TOKYO], [KYOTO]], [TOKYO, KYOTO]);
     expect(before.placesMissing).toBe(1);
     await prefetchTileGroups("t1", [[TOKYO], [KYOTO]]);
-    expect(fetched.some((u) => u.includes("/15/28743/13000"))).toBe(false);
+    expect(fetched.some((u) => u.includes("/15/28742/12978"))).toBe(false);
     expect(store.all.get("map-tiles")!.has(kyotoTile)).toBe(false);
-    expect(fetched.length).toBeLessThan(first);
+    expect(fetched.filter((u) => first.has(u))).toEqual([]);
     const after = await mapSaveStatus("t1", [[TOKYO], [KYOTO]], [TOKYO, KYOTO]);
     expect(after).toMatchObject({ none: false, placesMissing: 0, missing: 0 });
   });

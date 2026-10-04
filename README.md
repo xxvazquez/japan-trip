@@ -486,7 +486,8 @@ Once the app has loaded, it works with no signal. See [Before you travel](#befor
 | Row | Shows |
 |---|---|
 | **Works offline** | *Ready* once the app is fully saved on the device. |
-| **Save trip maps for offline** | Saves the area around every day, stay and place, the zoomed-out view of the whole trip, and the map's labels and icons for light and dark mode, with progress. |
+| **Save trip maps for offline** | Saves the area around every day, stay and place, the zoomed-out view of the whole trip, and the map's labels and icons for light and dark mode, with progress. Shows roughly how much it'll download — a few hundred MB for a multi-city trip, so do it on Wi-Fi. |
+| **Trip maps ✓ Saved** | Replaces the save row once everything is saved. Add places later and it reads *Save N new places for offline* with the size of just those. |
 | **Save attachments for offline** | Downloads every file not on the device yet; reads *On this device* when done. |
 | **Install app** / **Add to Home Screen** | Installs, or shows the two iPhone steps. Reads *Installed* once done. |
 
@@ -577,7 +578,8 @@ edit in the UI  →  TripData (in memory)  →  backend
 | The app itself | Service worker precache | Everything it runs on, ~6 MB: every screen, the sign-in library, MapLibre, the PDF viewer and its fonts and character maps (`/pdfjs/`). |
 | Trip copy + unsent edits | IndexedDB (`mirror:*`, outbox) | Cleared on sign-out. |
 | Attachments | IndexedDB (`file:*`) | Copies of cloud files are listed under `file-copies` and cleared on sign-out; device-only files are kept. |
-| Map tiles, fonts, icons | `map-tiles`, `map-glyphs` caches | Server answers from Supabase are never cached — the trip copy covers offline. |
+| Map tiles, fonts, icons | `map-tiles`, `map-glyphs` caches | What you've browsed; capped, oldest dropped first. Server answers from Supabase are never cached — the trip copy covers offline. |
+| Saved trip maps | `trip-maps:<trip id>` cache, one per trip | Never trimmed; dropped when the trip is gone from the account. |
 
 ### Data-safety layer (`src/lib/safety/`)
 
@@ -682,7 +684,10 @@ The tile source is picked at build time, first match wins:
 1. Get a key at [protomaps.com/account](https://protomaps.com/account).
 2. Add `VITE_PROTOMAPS_API_KEY` to `.env.local` and to the Cloudflare build variables, then redeploy.
 
-Tiles are cached as `map-tiles`; label fonts and the base map's icons as `map-glyphs` (`runtimeCaching` in [`vite.config.ts`](vite.config.ts)), with no age limit so maps saved weeks ahead are still there on the trip. The offline downloads ([`src/lib/offlineTiles.ts`](src/lib/offlineTiles.ts)) cap at 4,000 tiles so they never push other areas out of the 6,000-tile cache.
+- Browsed tiles are cached as `map-tiles` (6,000 tiles); label fonts and icons as `map-glyphs` (`runtimeCaching` in [`vite.config.ts`](vite.config.ts)). No age limit.
+- Saved trip maps ([`src/lib/offlineTiles.ts`](src/lib/offlineTiles.ts)) go in their own `trip-maps:<trip id>` cache, so browsing can never push them out. Both runtime rules fall back to it before the network.
+- A save only downloads what isn't saved yet, and moves tiles already browsed over without the network. Its requests carry `?save=1` so the service worker doesn't keep a second copy.
+- One trip's save caps at 4,000 street-level tiles plus 150 zoomed-out ones (~90 KB a tile).
 
 ### Self-hosted extract
 

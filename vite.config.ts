@@ -99,6 +99,21 @@ function workerApi(searchKey: string | undefined, auth: AuthConfig | null): Plug
   };
 }
 
+// Service-worker plugin: a map tile, font or icon sheet missing from its
+// runtime cache is answered from a trip's saved maps (`trip-maps:<id>`,
+// src/lib/offlineTiles.ts) before going to the network.
+const fromSavedTripMaps = {
+  cachedResponseWillBeUsed: async ({ request, cachedResponse }: { request: Request; cachedResponse?: Response }) => {
+    if (cachedResponse) return cachedResponse;
+    for (const name of await caches.keys()) {
+      if (!name.startsWith("trip-maps:")) continue;
+      const hit = await (await caches.open(name)).match(request);
+      if (hit) return hit;
+    }
+    return null;
+  },
+};
+
 export default defineConfig(({ command, mode }) => ({
   define: {
     __APP_VERSION__: JSON.stringify(buildVersion()),
@@ -178,30 +193,20 @@ export default defineConfig(({ command, mode }) => ({
               cacheName: "map-tiles",
               expiration: { maxEntries: 6000, purgeOnQuotaError: true },
               cacheableResponse: { statuses: [200] },
-              plugins: [
-                {
-                  cachedResponseWillBeUsed: async ({ request, cachedResponse }) => {
-                    if (cachedResponse) return cachedResponse;
-                    for (const name of await caches.keys()) {
-                      if (!name.startsWith("trip-maps:")) continue;
-                      const hit = await (await caches.open(name)).match(request);
-                      if (hit) return hit;
-                    }
-                    return null;
-                  },
-                },
-              ],
+              plugins: [fromSavedTripMaps],
             },
           },
           {
             // Basemap label fonts (glyph .pbf ranges) and icon sprites — small,
             // stable, needed offline; no age limit, like the tiles.
-            urlPattern: ({ url }) => url.origin === "https://protomaps.github.io",
+            // Saved with a trip's maps too, so read from there the same way.
+            urlPattern: ({ url }) => url.origin === "https://protomaps.github.io" && !url.searchParams.has("save"),
             handler: "CacheFirst",
             options: {
               cacheName: "map-glyphs",
               expiration: { maxEntries: 300, purgeOnQuotaError: true },
               cacheableResponse: { statuses: [200] },
+              plugins: [fromSavedTripMaps],
             },
           },
           {
