@@ -1507,10 +1507,12 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
   // a chevron between legs, as Maps strings a transit route together
   const leg = <Icon name="chevron" size={10} className="mx-0.5 inline-block shrink-0 align-[-1px] opacity-70" />;
   return (
-    <li className="flex gap-2.5 pl-3.5 pr-3.5">
+    // tucked up under the stop it leaves from, as Calendar hangs travel time
+    // off an event — the room goes after it, before the next stop
+    <li className="-mt-1.5 flex gap-2.5 pl-3.5 pr-3.5">
       <span className="w-[2.625rem] shrink-0" />
       <Rail />
-      <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5 py-1.5 pl-0.5">
+      <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5 pb-2.5 pl-0.5">
         {walk && (
           <a
             href={gmapsRoute(`${from.lat},${from.lng}`, `${to.lat},${to.lng}`, "walking")}
