@@ -27,7 +27,7 @@ import { legHex } from "@/lib/legColors";
 import { suggestAreas, type AreaSuggestion } from "@/lib/cluster";
 import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
-import { reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
+import { menuHref, reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
 import { glyphForCategoryName } from "@/lib/mapGlyphs";
 import { placeArea, useAutoPlaceFacts, wantsFacts } from "@/lib/placeFacts";
 import { PlaceAction } from "@/components/PlaceAction";
@@ -56,6 +56,8 @@ const PLACE_CARD = "mx-4 isolate overflow-hidden rounded-[12px] bg-surface";
 /** an area's name above its card — 17px Medium, one step above the 15px rows */
 const AREA_TITLE = "block break-words text-[1.0625rem] font-medium leading-snug text-ink";
 /** a place row's hairline, inset past its 28px tile (14px pad + 28 + 12 gap) */
+/** a card row with a small tile in front: the hairline starts at the text */
+const SM_TILE_DIVIDER = INSET_DIVIDER.replace("after:left-3.5", "after:left-12");
 const TILE_DIVIDER =
   "relative after:pointer-events-none after:absolute after:bottom-0 after:left-[3.375rem] after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
 
@@ -1811,7 +1813,8 @@ function PlaceRow({
     <>
           <AreasRow place={place} areas={areas} readOnly={readOnly} onToggleArea={onToggleArea} rowCls={rowCls} />
           {place.category && (
-            <li className={`${INSET_DIVIDER} ${rowCls}`}>
+            <li className={`${SM_TILE_DIVIDER} ${rowCls}`}>
+              <IconTile size="sm" {...placeTile(place, categoryIcons, categoryColors)} />
               <span className="row-label">Category</span>
               {readOnly || place.source === "mymap" ? (
                 <span className="row-value min-w-0 flex-1 break-words text-right">{place.category}</span>
@@ -1845,7 +1848,8 @@ function PlaceRow({
             </li>
           )}
           {legs.length > 0 && (
-            <li className={`${INSET_DIVIDER} ${rowCls}`}>
+            <li className={`${SM_TILE_DIVIDER} ${rowCls}`}>
+              <IconTile size="sm" name="location" tone="ai" />
               <span className="row-label">City</span>
               {readOnly ? (
                 <span className="row-value min-w-0 flex-1 text-right">
@@ -1884,7 +1888,7 @@ function PlaceRow({
           <div className="flex items-start gap-3">
             {tile}
             <span className="min-w-0 flex-1">
-              <span className="subhead block break-words">
+              <span className="block break-words text-[17px] font-medium leading-snug text-ink">
                 <Editable label="Name" value={place.name} onCommit={onName} />
               </span>
               {details}
@@ -1920,7 +1924,7 @@ function PlaceRow({
           </div>
         )}
 
-        {place.facts && wantsFacts(place, tripData) && (
+        {(place.facts || menuHref(place)) && wantsFacts(place, tripData) && (
           <div>
             <p className={groupLabel}>Good to know</p>
             <ul className="isolate overflow-hidden rounded-[12px] bg-surface">
@@ -1930,35 +1934,25 @@ function PlaceRow({
         )}
 
         <ul className="isolate overflow-hidden rounded-[12px] bg-surface">
-          {day ? (
-            <li className={INSET_DIVIDER}>
-              <Link to={`/day/${day.id}`} className={`${rowCls} active:bg-surface-2`}>
-                <span className="row-label">On</span>
-                <span className="row-value min-w-0 flex-1 break-words text-right">
-                  {fmtDate(day.date, loc, { weekday: "short", day: "numeric", month: "short" })}{day.title ? ` · ${day.title}` : ""}
+          {/* on a day already, the day is a button up top */}
+          {!day && !readOnly && (
+            <li className={SM_TILE_DIVIDER}>
+              <label className={`${rowCls} cursor-pointer`}>
+                <IconTile size="sm" name="calendar" tone="accent" />
+                <span className="row-label">Add to a day</span>
+                <span className="flex min-w-0 flex-1 justify-end">
+                  <RowSelect value="" onChange={(e) => e.target.value && onAddToDay(e.target.value)} aria-label="Add to a day" className="max-w-[12rem] truncate">
+                    <option value="">Choose…</option>
+                    {sortedDays.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {fmtDate(d.date, loc, { weekday: "short", day: "numeric", month: "short" })}
+                        {d.title ? ` · ${d.title}` : ""}
+                      </option>
+                    ))}
+                  </RowSelect>
                 </span>
-                <Icon name="chevron" size={13} className="shrink-0 text-ink-faint" />
-              </Link>
+              </label>
             </li>
-          ) : (
-            !readOnly && (
-              <li className={INSET_DIVIDER}>
-                <label className={`${rowCls} cursor-pointer`}>
-                  <span className="row-label">Add to a day</span>
-                  <span className="flex min-w-0 flex-1 justify-end">
-                    <RowSelect value="" onChange={(e) => e.target.value && onAddToDay(e.target.value)} aria-label="Add to a day" className="max-w-[12rem] truncate">
-                      <option value="">Choose…</option>
-                      {sortedDays.map((d) => (
-                        <option key={d.id} value={d.id}>
-                          {fmtDate(d.date, loc, { weekday: "short", day: "numeric", month: "short" })}
-                          {d.title ? ` · ${d.title}` : ""}
-                        </option>
-                      ))}
-                    </RowSelect>
-                  </span>
-                </label>
-              </li>
-            )
           )}
           {filing}
         </ul>
@@ -2029,15 +2023,17 @@ function AreasRow({
   const names = mine.map((a) => a.name || "Untitled").join(", ");
   if (readOnly) {
     return mine.length > 0 ? (
-      <li className={`${INSET_DIVIDER} ${rowCls}`}>
+      <li className={`${SM_TILE_DIVIDER} ${rowCls}`}>
+        <IconTile size="sm" name="pin" tone="matcha" />
         <span className="row-label">Areas</span>
         <span className="row-value min-w-0 flex-1 break-words text-right">{names}</span>
       </li>
     ) : null;
   }
   return (
-    <li className={INSET_DIVIDER}>
+    <li className={SM_TILE_DIVIDER}>
       <button ref={sheet.anchorRef} onClick={() => sheet.setOpen(true)} aria-haspopup="menu" className={`${rowCls} w-full text-left active:bg-surface-2`}>
+        <IconTile size="sm" name="pin" tone="matcha" />
         <span className="row-label">Areas</span>
         <span className={`row-value min-w-0 flex-1 break-words text-right ${mine.length ? "" : "text-ink-faint"}`}>{names || "None"}</span>
         <Icon name="chevron" size={13} className="shrink-0 text-ink-faint" />

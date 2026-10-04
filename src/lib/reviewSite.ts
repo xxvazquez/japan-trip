@@ -15,6 +15,8 @@ export interface ReviewSite {
   /** a search for the name on the site — what the link opens until (or
    *  unless) the place's own page is found */
   searchUrl: (name: string) => string;
+  /** the menu page of a place's own page on the site, when it has one */
+  menuUrl?: (pageUrl: string) => string | undefined;
 }
 
 const SITES: ReviewSite[] = [
@@ -27,6 +29,11 @@ const SITES: ReviewSite[] = [
       lat >= 24 && lat <= 45.6 && lng >= 122.9 && lng <= 146 &&
       !(lat > 33.9 && lng < 130.8) && !(lat > 32 && lng < 129) && !(lat > 41.5 && lng < 139.3),
     searchUrl: (name) => `https://tabelog.com/en/rstLst/?sw=${encodeURIComponent(name)}`,
+    // every restaurant page has its menu tab one level down
+    menuUrl: (url) => {
+      const page = /^https:\/\/(?:s\.)?tabelog\.com\/(?:(?:en|ko|zh-CN|zh-TW)\/)?[a-z]+\/A\d{4}\/A\d{6}\/\d+/.exec(url)?.[0];
+      return page ? `${page}/dtlmenu/` : undefined;
+    },
   },
 ];
 
@@ -53,6 +60,14 @@ export function reviewSiteFor(place: Place, categoryIcons?: Record<string, strin
 /** where the guide's link goes: the place's own page once found, else a
  *  search for its name */
 export const reviewHref = (site: ReviewSite, place: Place) => place.reviewUrl || site.searchUrl(place.name);
+
+/** where a place's menu is: its own menu page when OpenStreetMap has one
+ *  tagged, else the menu tab of its saved review page */
+export function menuHref(place: Place): string | undefined {
+  if (place.facts?.menu) return place.facts.menu;
+  const page = place.reviewUrl;
+  return page ? SITES.map((s) => s.menuUrl?.(page)).find(Boolean) : undefined;
+}
 
 // ---- lookups --------------------------------------------------------------
 

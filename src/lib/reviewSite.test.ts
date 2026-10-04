@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Place } from "@/core/types";
-import { isFoodPlace, reviewHref, reviewSiteFor } from "./reviewSite";
+import { isFoodPlace, menuHref, reviewHref, reviewSiteFor } from "./reviewSite";
 
 const place = (over: Partial<Place>): Place => ({ id: "p", name: "Ichiran", lat: 35.7106, lng: 139.7743, category: "food", ...over });
 
@@ -39,5 +39,17 @@ describe("reviewHref", () => {
     const site = reviewSiteFor(place({}))!;
     expect(reviewHref(site, place({ reviewUrl: "https://tabelog.com/en/a/" }))).toBe("https://tabelog.com/en/a/");
     expect(reviewHref(site, place({ name: "あつた蓬莱軒" }))).toContain("sw=%E3%81%82");
+  });
+});
+
+describe("menuHref", () => {
+  it("opens the menu tab of a saved Tabelog page", () => {
+    expect(menuHref(place({ reviewUrl: "https://tabelog.com/en/tokyo/A1303/A130302/13001898/" }))).toBe("https://tabelog.com/en/tokyo/A1303/A130302/13001898/dtlmenu/");
+    expect(menuHref(place({ reviewUrl: "https://tabelog.com/kyoto/A2601/A260201/26000001" }))).toBe("https://tabelog.com/kyoto/A2601/A260201/26000001/dtlmenu/");
+  });
+  it("prefers the place's own menu page, and has nothing without either", () => {
+    expect(menuHref(place({ reviewUrl: "https://tabelog.com/en/tokyo/A1303/A130302/13001898/", facts: { checkedAt: "2026-10-04", menu: "https://cafe.jp/menu" } }))).toBe("https://cafe.jp/menu");
+    expect(menuHref(place({}))).toBeUndefined();
+    expect(menuHref(place({ reviewUrl: "https://tabelog.com/en/rstLst/?sw=x" }))).toBeUndefined();
   });
 });

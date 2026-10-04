@@ -44,7 +44,7 @@ import { DayLabels, tripLabels } from "@/components/DayLabels";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
+import { menuHref, reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
 import { placeArea, useAutoPlaceFacts, wantsFacts } from "@/lib/placeFacts";
 import { PlaceFactRows } from "@/components/PlaceFacts";
 import { addDays, dayJourneys, dayKind, fmtDate, journeyDepartDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
@@ -1161,7 +1161,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                       )}
                     </div>
                   )}
-                  {place.facts && wantsFacts(place, tripData) && (
+                  {(place.facts || menuHref(place)) && wantsFacts(place, tripData) && (
                     <div>
                       <p className="kicker px-4 pb-1.5 pt-1">Good to know</p>
                       <ul className="overflow-hidden rounded-[12px] bg-surface">

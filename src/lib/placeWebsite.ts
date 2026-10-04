@@ -2,7 +2,7 @@ import { haversineKm } from "./geo";
 import { nominatimGet } from "./nominatim";
 
 /**
- * A place's own website from OpenStreetMap's `website` tag — searched by its
+ * A place's own website from OpenStreetMap's `website` tag (and its menu page, when tagged) — searched by its
  * name in a ~400 m box around its pin, so it's this place and not a
  * namesake. Most temples, shrines, museums and towers have one; small
  * cafés and viewpoints often don't.
@@ -37,9 +37,19 @@ export function pickOsmWebsite(rows: Row[], lat: number, lng: number): string | 
   return undefined;
 }
 
-/** the place's website, undefined when OSM has none. Throws when
- *  Nominatim can't be reached. */
-export async function osmWebsite(lat: number, lng: number, name: string): Promise<string | undefined> {
+/** the place's own menu page (`website:menu`) off the same rows — rarely
+ *  tagged, but the restaurant's own when it is */
+export function pickOsmMenu(rows: Row[], lat: number, lng: number): string | undefined {
+  for (const r of rows) {
+    const menu = cleanWebsite(r.extratags?.["website:menu"]);
+    if (menu && haversineKm(lat, lng, Number(r.lat), Number(r.lon)) <= NEAR_KM) return menu;
+  }
+  return undefined;
+}
+
+/** the place's website and menu page, each undefined when OSM has none.
+ *  Throws when Nominatim can't be reached. */
+export async function osmLinks(lat: number, lng: number, name: string): Promise<{ website?: string; menu?: string }> {
   const dLat = 0.0035;
   const dLng = dLat / Math.max(0.2, Math.cos((lat * Math.PI) / 180));
   const rows = await nominatimGet<Row[]>("search", {
@@ -51,5 +61,5 @@ export async function osmWebsite(lat: number, lng: number, name: string): Promis
     extratags: "1",
     addressdetails: "0",
   });
-  return pickOsmWebsite(rows, lat, lng);
+  return { website: pickOsmWebsite(rows, lat, lng), menu: pickOsmMenu(rows, lat, lng) };
 }

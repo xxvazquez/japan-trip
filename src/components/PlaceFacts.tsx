@@ -8,6 +8,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { fmtDate } from "@/lib/dates";
 import { factRows, hasFacts, refreshFacts, wantsFacts } from "@/lib/placeFacts";
 import { useData } from "@/lib/data";
+import { menuHref } from "@/lib/reviewSite";
 
 /** A place's "Good to know" as rows for a grouped list — each fact with a
  *  coloured tile, a small label and the value under it (the Settings tile
@@ -19,9 +20,12 @@ export function PlaceFactRows({ place, area }: { place: Place; area?: string }) 
   const [busy, setBusy] = useState(false);
   const [offline, setOffline] = useState(false);
   const f = place.facts;
+  const menu = menuHref(place);
   // facts saved before a place stopped getting them (it turned out to be the
   // hotel) aren't shown
-  if (!f || !wantsFacts(place, data)) return null;
+  if (!wantsFacts(place, data)) return null;
+  // the menu link can be there before the lookup has run (from the Tabelog page)
+  if (!f) return menu ? <LinkRow href={menu} label="Menu" glyph="restaurant" /> : null;
 
   const refresh = async () => {
     setBusy(true);
@@ -45,17 +49,8 @@ export function PlaceFactRows({ place, area }: { place: Place; area?: string }) 
           </li>
         ),
       )}
-      {f.website && (
-        <li className={FACT_DIVIDER}>
-          <a href={f.website} target="_blank" rel="noopener" className="flex items-start gap-3 px-3.5 py-3 transition-colors duration-150 hover:bg-surface-2/40 active:bg-ink/[0.07]">
-            <IconTile size="sm" name="link" tone="accent" className="mt-0.5" />
-            <span className="min-w-0">
-              <span className="block text-xs text-ink-soft">Website</span>
-              <span className="row-value block break-words text-left text-accent">{siteName(f.website)}</span>
-            </span>
-          </a>
-        </li>
-      )}
+      {f.website && <LinkRow href={f.website} label="Website" icon="link" />}
+      {menu && <LinkRow href={menu} label="Menu" glyph="restaurant" />}
       <li className={`${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-2.5`}>
         <span className="meta min-w-0 flex-1 break-words">
           {offline ? "Couldn’t check — try again later" : `${hasFacts(f) ? "Checked" : "Nothing found ·"} ${checked}`}
@@ -68,6 +63,22 @@ export function PlaceFactRows({ place, area }: { place: Place; area?: string }) 
         )}
       </li>
     </>
+  );
+}
+
+/** a link out — Website, Menu — as Maps lists them: a tile, the label small,
+ *  the site's domain in accent under it */
+function LinkRow({ href, label, icon, glyph }: { href: string; label: string; icon?: IconName; glyph?: string }) {
+  return (
+    <li className={FACT_DIVIDER}>
+      <a href={href} target="_blank" rel="noopener" className="flex items-start gap-3 px-3.5 py-3 transition-colors duration-150 hover:bg-surface-2/40 active:bg-ink/[0.07]">
+        <IconTile size="sm" name={icon} glyph={glyph} tone="accent" className="mt-0.5" />
+        <span className="min-w-0">
+          <span className="block text-xs text-ink-soft">{label}</span>
+          <span className="row-value block break-words text-left text-accent">{siteName(href)}</span>
+        </span>
+      </a>
+    </li>
   );
 }
 

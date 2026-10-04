@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cleanWebsite, pickOsmWebsite } from "./placeWebsite";
+import { cleanWebsite, pickOsmWebsite, pickOsmMenu } from "./placeWebsite";
 
 describe("cleanWebsite", () => {
   it("adds https to a site tagged without it, and takes the first of several", () => {
@@ -24,5 +24,15 @@ describe("pickOsmWebsite", () => {
   });
   it("ignores a match too far from the pin", () => {
     expect(pickOsmWebsite([at(35.02, 139, { website: "https://far.jp" })], 35, 139)).toBeUndefined();
+  });
+});
+
+describe("pickOsmMenu", () => {
+  const at = (lat: number, lon: number, extratags: Record<string, string> | null) => ({ lat: String(lat), lon: String(lon), extratags });
+  it("takes a tagged menu page near the pin", () => {
+    expect(pickOsmMenu([at(35, 139, { website: "https://cafe.jp" }), at(35, 139, { "website:menu": "cafe.jp/menu" })], 35, 139)).toBe("https://cafe.jp/menu");
+  });
+  it("has nothing when no menu is tagged", () => {
+    expect(pickOsmMenu([at(35, 139, { website: "https://cafe.jp" })], 35, 139)).toBeUndefined();
   });
 });

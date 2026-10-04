@@ -6,7 +6,7 @@ import { isFoodPlace } from "./reviewSite";
 import { glyphForCategoryName, glyphGroup } from "./mapGlyphs";
 import { haversineKm } from "./geo";
 import { apiGet } from "./api";
-import { osmWebsite } from "./placeWebsite";
+import { osmLinks } from "./placeWebsite";
 
 /** the facts in the order they're shown, with their labels */
 export const FACT_ROWS = [
@@ -58,7 +58,7 @@ const STALE_DAYS = 30;
  *  are asked again — 4 added the place's website */
 const FACTS_VERSION = 4;
 
-export const hasFacts = (f: PlaceFacts | undefined): f is PlaceFacts => !!f && (!!f.website || FACT_ROWS.some(([k]) => f[k]));
+export const hasFacts = (f: PlaceFacts | undefined): f is PlaceFacts => !!f && (!!f.website || !!f.menu || FACT_ROWS.some(([k]) => f[k]));
 const stale = (f: PlaceFacts) =>
   (f.version ?? 1) < FACTS_VERSION || Date.now() - Date.parse(f.checkedAt) > STALE_DAYS * 864e5;
 
@@ -93,9 +93,9 @@ async function ask(p: Place, area: string | undefined, kind: "food" | "sight"): 
     const facts = ((await res.json()) as { facts?: PlaceFacts | null }).facts;
     if (facts === undefined) return undefined;
     // OSM's own tag at the pin beats a site picked out of the search's pages
-    const website = await osmWebsite(p.lat, p.lng, p.name).catch(() => undefined);
-    if (!website) return facts;
-    return { ...(facts ?? { checkedAt: todayISO() }), website };
+    const { website, menu } = await osmLinks(p.lat, p.lng, p.name).catch(() => ({ website: undefined, menu: undefined }));
+    if (!website && !menu) return facts;
+    return { ...(facts ?? { checkedAt: todayISO() }), ...(website && { website }), ...(menu && { menu }) };
   } catch {
     return undefined;
   }

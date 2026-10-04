@@ -195,7 +195,7 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 
 | Place | Shows |
 | --- | --- |
-| Restaurant or café | **Known for**, **Hours**, **Closed**, **Reservations**, **Queue**, **Price**, **Website** |
+| Restaurant or café | **Known for**, **Hours**, **Closed**, **Reservations**, **Queue**, **Price**, **Website**, **Menu** |
 | Anything else on a day's plan | **Known for**, **Hours**, **Closed**, **Tickets**, **Crowds**, **Entry**, **Website** |
 
 Where to find it:
@@ -211,6 +211,7 @@ How it fills in:
 What to expect:
 - Each fact is a short phrase; anything the sources don't mention is left out.
 - **Website** comes from OpenStreetMap's tag for the place at its pin, else a search result whose address carries the place's name. Never a listing or guide site (Tabelog, Tripadvisor…). No row when none is found — common for small cafés, viewpoints and streets.
+- **Menu** is the place's own menu page when OpenStreetMap has one tagged, else the menu tab of its Tabelog page. No row without either. Google Maps menus aren't available without a paid API.
 - A result only counts if its pages name the place and its city, so a namesake elsewhere isn't picked up.
 - The card shows when it was checked and which sites it came from.
 - It can be out of date — check hours with the place before a long trip across town.

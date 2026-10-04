@@ -336,6 +336,8 @@ export interface PlaceFacts {
   sources?: string[];
   /** the place's own website, when one of those sites was it */
   website?: string;
+  /** the place's own menu page, from OpenStreetMap */
+  menu?: string;
   /** which version of the lookup found these — an older one is asked again
    *  (see `FACTS_VERSION` in `placeFacts.ts`) */
   version?: number;
