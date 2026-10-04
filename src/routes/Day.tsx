@@ -534,7 +534,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
           <ul>
             {day.dayTrip
               ? <ActionRow icon="close" label="Not a day trip" onClick={() => patch({ dayTrip: false })} />
-              : <ActionRow icon="plus" label="Make this a day trip" onClick={() => patch({ dayTrip: true })} />}
+              : <ActionRow icon="explore" label="Make this a day trip" onClick={() => patch({ dayTrip: true })} />}
             <ActionRow
               icon="pushpin"
               label={pinned ? "Unpin this day" : "Pin this day"}

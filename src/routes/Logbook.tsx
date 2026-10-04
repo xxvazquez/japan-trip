@@ -34,7 +34,7 @@ import { gmapsLink } from "@/lib/maps";
 import { pickBackend } from "@/lib/backend";
 import { fmtDate, fmtSpan, hotelStays, journeyDepartDate, plural } from "@/lib/dates";
 import { MODE_ICON } from "@/lib/transport";
-import { toneForSegmentMode, logbookSectionTile, customListColor, TONE_BG, type Tone } from "@/lib/tones";
+import { toneForSegmentMode, logbookSectionTile, customListColor, contactTile, documentTile, TONE_BG, type Tone } from "@/lib/tones";
 import { LOGBOOK_SECTIONS, logbookLabel, packingGroups, sectionSlug, sectionFromSlug, type LogbookSection } from "@/lib/logbook";
 import { tripCost, fmtMoney, combineCurrencies, expenseCategoryIcon } from "@/lib/cost";
 import { useFxRates, useTripSpent } from "@/lib/fx";
@@ -520,6 +520,7 @@ function Emergency() {
             fields={contact.fields}
             onChange={(next) => updateEntity<Doc>("docs", contact.id, { fields: next })}
             addLabel="Add a contact"
+            tile={(f) => <IconTile size="sm" {...contactTile(f.label)} />}
           />
         </ul>
       </Section>
@@ -784,7 +785,7 @@ function Documents() {
               key={d.id}
               to={`/logbook/documents/${d.id}`}
               menu={ro ? undefined : <ConfirmMenuItem onConfirm={() => undoable("Document deleted", () => removeEntity("docs", d.id))} label="Delete document" icon={<Icon name="trash" size={16} />} />}
-              tile={<IconTile size="sm" name="vault" tone="ink-faint" />}
+              tile={<IconTile size="sm" {...documentTile(d.title)} />}
               title={d.title}
               meta={n ? plural(n, "file") : undefined}
             />

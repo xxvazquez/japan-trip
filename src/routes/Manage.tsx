@@ -3,10 +3,10 @@ import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-r
 import { Page, PageHeader } from "@/components/Page";
 import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
-import { Icon, type IconName } from "@/components/Icon";
+import { Icon, isIconName, type IconName } from "@/components/Icon";
 import { IconTile } from "@/components/IconTile";
 import { TileRow } from "@/components/TileRow";
-import type { Tone } from "@/lib/tones";
+import { customListColor, logbookSectionTile, type Tone } from "@/lib/tones";
 import { useApp, undoable } from "@/store/useApp";
 import { useData } from "@/lib/data";
 import { findReviewLink, reviewSiteFor, saveReviewLink } from "@/lib/reviewSite";
@@ -27,7 +27,7 @@ import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { TimeZonePicker } from "@/components/TimeZonePicker";
 import { RowSelect } from "@/components/RowSelect";
 import { entityLink } from "@/lib/entityLink";
-import { OPTIONAL_LOGBOOK_SECTIONS, LOGBOOK_SECTIONS, LOGBOOK_NAV_ICON, logbookLabel } from "@/lib/logbook";
+import { OPTIONAL_LOGBOOK_SECTIONS, LOGBOOK_SECTIONS, LOGBOOK_NAV_ICON, logbookLabel, type LogbookSection } from "@/lib/logbook";
 import { ActionSheet, useActionSheet, ConfirmMenuItem } from "@/components/ActionSheet";
 import { fileToMediaItem, pickImage } from "@/lib/media";
 import { supabaseEnabled } from "@/lib/supabase";
@@ -613,6 +613,8 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 /** `<li>` class for a Manage grouped-list item (a traveller, a currency…):
  *  padded, `InsetRow`'s own inset hairline, gone on the last row. */
 const MLI = `${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-3`;
+/** the same row led by a small `IconTile` — its hairline starts past the tile, as `TileRow`'s does */
+const MLI_TILE = MLI.replace("after:left-3.5", "after:left-12");
 
 /** A Manage list row's ⋯ — move up / down and remove, instead of standing
  *  arrows and a trash icon on every row. `onRemove` omitted = can't remove. */
@@ -1036,7 +1038,12 @@ function ModulesPanel() {
             x.kind === "logbook-section" ? logbookLabel(x.target ?? "") : x.kind.charAt(0).toUpperCase() + x.kind.slice(1);
           const renamed = (x: typeof m) => tabTarget(x).toLowerCase() !== x.label.trim().toLowerCase();
           return (
-          <ContextMenu as="li" key={m.id} className={MLI}>
+          <ContextMenu as="li" key={m.id} className={MLI_TILE}>
+            {/* the tab's own glyph, as a Settings tile — a pinned Logbook
+                page keeps that page's tile so the two lists match */}
+            {m.kind === "logbook-section" && m.target
+              ? <IconTile size="sm" {...logbookSectionTile(m.target as LogbookSection)} />
+              : <IconTile size="sm" name={m.icon && isIconName(m.icon) ? m.icon : "vault"} />}
             <span className="flex-1">
               <Editable label="Section label" value={m.label} onCommit={(v) => mutate((d) => { d.config.modules[i].label = v || m.label; })} />
               {/* what the tab opens — only worth saying once it's been renamed
@@ -1102,15 +1109,17 @@ function LogbookSectionsPanel() {
     <Section title="Logbook sections">
       <ul>
         {OPTIONAL_LOGBOOK_SECTIONS.map((s) => (
-          <li key={s} className={`${MLI} justify-between text-sm`}>
-            <span className={hidden.includes(s) ? "text-ink-faint" : ""}>{logbookLabel(s)}</span>
+          <li key={s} className={`${MLI_TILE} justify-between text-sm`}>
+            <IconTile size="sm" {...logbookSectionTile(s)} className={hidden.includes(s) ? "opacity-40" : ""} />
+            <span className={`flex-1 ${hidden.includes(s) ? "text-ink-faint" : ""}`}>{logbookLabel(s)}</span>
             <button onClick={() => toggleSection(s)} className="text-ink-soft hover:text-ink" aria-label={hidden.includes(s) ? "Show" : "Hide"}>
               <Icon name={hidden.includes(s) ? "eye-off" : "eye"} size={17} />
             </button>
           </li>
         ))}
         {lists.map((l, i) => (
-          <ContextMenu as="li" key={l.id} className={`${MLI} text-sm`}>
+          <ContextMenu as="li" key={l.id} className={`${MLI_TILE} text-sm`}>
+            <IconTile size="sm" name="list" color={customListColor(i)} />
             <span className="min-w-0 flex-1">
               <Editable label="List name" value={l.title} onCommit={(v) => mutate((d) => { const x = d.config.lists?.[i]; if (x) x.title = v || "List"; })} />
             </span>

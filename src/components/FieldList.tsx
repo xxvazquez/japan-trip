@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { Editable, isLinkValue } from "./Editable";
 import { CopyButton } from "./CopyButton";
@@ -34,12 +34,15 @@ export function FieldList({
   onChange,
   addLabel = "Add field",
   inset = false,
+  tile,
 }: {
   fields: DocField[];
   onChange: (next: DocField[]) => void;
   addLabel?: string;
   /** render as rows of a grouped-inset list (padded `<li>`s in a divided `<ul>`) */
   inset?: boolean;
+  /** a leading `IconTile` per row (inset mode only) — an emergency contact's kind */
+  tile?: (f: DocField) => ReactNode;
 }) {
   const ro = useReadOnly();
   // a phone / link / email row taps through, so its value is edited from the
@@ -86,8 +89,11 @@ export function FieldList({
   // `inset` mode emits a fragment of padded `<li>`s (each with its own inset
   // hairline) — the caller owns the plain `<ul>`, so a fixed system row (a
   // price) can sit in the same group. Default mode is self-contained.
-  const insetLi =
-    "relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
+  // with a tile, the hairline starts past it (14px pad + 22px tile + 12px gap), as `TileRow`'s does
+  const insetLi = tile
+    ? "relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden"
+    : "relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
+  const lead = (f: DocField, cls: string) => tile && <span className={`flex shrink-0 self-start ${cls}`}>{tile(f)}</span>;
 
   if (ro) {
     if (fields.length === 0) return null;
@@ -96,7 +102,8 @@ export function FieldList({
         <>
           {fields.map((f) => (
             <li key={f.id} className={`${insetLi} flex items-start justify-between gap-4 px-3.5 py-3`}>
-              <span className="shrink-0 text-sm text-ink-soft">{f.label || "—"}</span>
+              {lead(f, "-mr-1")}
+              <span className={`shrink-0 text-sm text-ink-soft ${tile ? "flex-1" : ""}`}>{f.label || "—"}</span>
               <span className="min-w-0 text-right font-sans text-sm leading-snug text-ink">
                 {readValue(f)}
               </span>
@@ -124,55 +131,66 @@ export function FieldList({
     </button>
   );
 
-  const editRow = (f: DocField, i: number) => (
-    <>
-      {/* the name takes whatever the value leaves — a long one ("Japan
-          Visitor Hotline (24h, EN)") wraps, a phone number never splits */}
-      <span className="min-w-0 flex-1">
+  const editRow = (f: DocField, i: number) => {
+    const name = (
+      <Editable
+        label="Field name"
+        value={f.label}
+        placeholder="Label"
+        className="row-label"
+        autoEdit={f.id === fresh}
+        onCommit={(v) => setAt(i, { label: v })}
+        // a field with no name and no value goes, like a new step left
+        // blank; tapping its own value or ⋯ instead keeps it
+        onBlank={(onRow) => {
+          if (f.value || f.currency || onRow) return void (f.label && setAt(i, { label: "" }));
+          const drop = () => onChange(fields.filter((x) => x.id !== f.id));
+          if (f.label) undoable("Removed", drop);
+          else drop();
+        }}
+      />
+    );
+    const value = isMoneyLabel(f.label) ? (
+        <MoneyField
+          label={f.label || "Price"}
+          amount={f.value}
+          currency={f.currency}
+          onAmount={(v) => setAt(i, { value: v })}
+          onCurrency={(c) => setAt(i, { currency: c })}
+        />
+      ) : (
         <Editable
-          label="Field name"
-          value={f.label}
-          placeholder="Label"
-          className="row-label"
-          autoEdit={f.id === fresh}
-          onCommit={(v) => setAt(i, { label: v })}
-          // a field with no name and no value goes, like a new step left
-          // blank; tapping its own value or ⋯ instead keeps it
+          as="auto"
+          label={f.label || "Field"}
+          value={f.value}
+          placeholder="—"
+          className="row-value text-right"
+          onCommit={(v) => setAt(i, { value: v })}
           onBlank={(onRow) => {
-            if (f.value || f.currency || onRow) return void (f.label && setAt(i, { label: "" }));
+            if (f.label || onRow) return void (f.value && setAt(i, { value: "" }));
             const drop = () => onChange(fields.filter((x) => x.id !== f.id));
-            if (f.label) undoable("Removed", drop);
+            if (f.value) undoable("Removed", drop);
             else drop();
           }}
+          editSignal={editReq?.id === f.id ? editReq.n : 0}
         />
-      </span>
-      <span className="max-w-[60%] break-words text-right [&_.row-value]:[overflow-wrap:normal]">
-        {isMoneyLabel(f.label) ? (
-          <MoneyField
-            label={f.label || "Price"}
-            amount={f.value}
-            currency={f.currency}
-            onAmount={(v) => setAt(i, { value: v })}
-            onCurrency={(c) => setAt(i, { currency: c })}
-          />
-        ) : (
-          <Editable
-            as="auto"
-            label={f.label || "Field"}
-            value={f.value}
-            placeholder="—"
-            className="row-value text-right"
-            onCommit={(v) => setAt(i, { value: v })}
-            onBlank={(onRow) => {
-              if (f.label || onRow) return void (f.value && setAt(i, { value: "" }));
-              const drop = () => onChange(fields.filter((x) => x.id !== f.id));
-              if (f.value) undoable("Removed", drop);
-              else drop();
-            }}
-            editSignal={editReq?.id === f.id ? editReq.n : 0}
-          />
-        )}
-      </span>
+      );
+    return (
+    <>
+      {tile ? (
+        // with a tile it's Phone's favourites: the name, the number under it
+        <span className="min-w-0 flex-1">
+          <span className="block [&_.row-label]:text-ink">{name}</span>
+          <span className="block break-words text-left [&_.row-value]:text-left">{value}</span>
+        </span>
+      ) : (
+        <>
+          {/* the name takes whatever the value leaves — a long one ("Japan
+              Visitor Hotline (24h, EN)") wraps, a phone number never splits */}
+          <span className="min-w-0 flex-1">{name}</span>
+          <span className="max-w-[60%] break-words text-right [&_.row-value]:[overflow-wrap:normal]">{value}</span>
+        </>
+      )}
       {/* copy lives in the menu while editing — a pencil, a copy icon and a
           ⋯ on every row was three controls where one does */}
       <span className="flex shrink-0 items-center self-start">
@@ -193,13 +211,14 @@ export function FieldList({
       </RowMenu>
       </span>
     </>
-  );
+    );
+  };
 
   if (inset)
     return (
       <>
         {fields.map((f, i) => (
-          <ContextMenu as="li" key={f.id} className={`${insetLi} flex items-start gap-2 px-3.5 py-3`}>{editRow(f, i)}</ContextMenu>
+          <ContextMenu as="li" key={f.id} className={`${insetLi} flex items-start gap-2 px-3.5 py-3`}>{lead(f, "mr-1")}{editRow(f, i)}</ContextMenu>
         ))}
         <li>{addBtn}</li>
       </>

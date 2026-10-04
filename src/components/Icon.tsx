@@ -64,7 +64,12 @@ export type IconName =
   | "person"
   | "share"
   | "location"
-  | "cloud-down";
+  | "cloud-down"
+  | "phone"
+  | "shield"
+  | "medical"
+  | "flag"
+  | "stamp";
 
 const P: Record<IconName, JSX.Element> = {
   itinerary: (
@@ -375,6 +380,21 @@ const P: Record<IconName, JSX.Element> = {
   ),
   // iOS location — the arrow the Maps button draws
   location: <path d="M20 4 4.5 10.6l6.6 2.3 2.3 6.6L20 4Z" />,
+  // a handset, tilted as iOS draws it
+  phone: (
+    <path d="M8.2 3.5H6A2 2 0 0 0 4 5.6C4.4 13.6 10.4 19.6 18.4 20a2 2 0 0 0 2.1-2v-2.2a1.5 1.5 0 0 0-1.1-1.4l-2.8-.8a1.5 1.5 0 0 0-1.5.4l-1.2 1.2a12 12 0 0 1-5.1-5.1L10 8.9a1.5 1.5 0 0 0 .4-1.5l-.8-2.8a1.5 1.5 0 0 0-1.4-1.1Z" />
+  ),
+  shield: <path d="M12 3 5 5.8v5.4c0 4.4 3 8.1 7 9.8 4-1.7 7-5.4 7-9.8V5.8L12 3Z" />,
+  // a rounded medical cross
+  medical: <path d="M9.5 4h5v5.5H20v5h-5.5V20h-5v-5.5H4v-5h5.5V4Z" />,
+  flag: <path d="M5 21V4M5 4.5c4-2 7 2 14 0v9c-7 2-10-2-14 0" />,
+  // a rubber stamp: handle, body, the inked base
+  stamp: (
+    <>
+      <path d="M10 13V9.5a2.5 2.5 0 1 1 4 0V13" />
+      <path d="M5 16a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v1H5v-1ZM6 20.5h12" />
+    </>
+  ),
   // iOS icloud.and.arrow.down — a file that isn't on the device yet
   "cloud-down": (
     <>

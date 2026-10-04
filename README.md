@@ -360,6 +360,8 @@ Text isn't selectable (as in a native app), so values you might paste elsewhere 
 
 Tap a document to open its page: name it, attach PDFs or photos, add fields and a note.
 
+- **Icons** come from the name: a flight shows a plane, insurance a shield, a QR code or ticket a ticket, a hotel booking a bed, a passport or visa a person. Anything else is a plain page.
+- **Emergency** contacts show the name with the number under it, as Phone's favourites do, with an icon from the name: police, ambulance / fire, embassy. Anything else is a phone.
 - **Add a field** (also a stay's details and Emergency contacts) opens the new field ready to type. Leave both its name and value blank and it goes away.
 - **Signed in** — files go to your account (private to the trip, 25 MB each), or to a shared Google Drive folder if set up. Drive needs its own **Connect Google Drive** tap, which lasts about an hour.
 - **On this device only** — files stay on the device, and upload automatically once you sign in.

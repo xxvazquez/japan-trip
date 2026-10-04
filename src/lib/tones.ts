@@ -15,7 +15,7 @@ import type { Place } from "@/core/types";
  * outdoors · `gold` food, drink, warmth · `ink-faint` neutral (a stay) ·
  * `accent` everything else — sights, culture, shopping, generic.
  */
-export type Tone = "accent" | "matcha" | "gold" | "ai" | "ink-faint";
+export type Tone = "accent" | "matcha" | "gold" | "ai" | "ink-faint" | "danger";
 
 /** a `Tone` resolved to its solid background fill class — `IconTile`'s own
  *  fill, and anywhere else a tone needs painting directly (a proportion bar
@@ -26,6 +26,7 @@ export const TONE_BG: Record<Tone, string> = {
   gold: "bg-gold",
   ai: "bg-ai",
   "ink-faint": "bg-ink-faint",
+  danger: "bg-danger",
 };
 
 /** Muted, mutually distinguishable hex tones assigned to map areas by
@@ -111,7 +112,7 @@ const LOGBOOK_SECTION_GLYPH: Record<LogbookSection, { name?: IconName; glyph?: M
   documents: { name: "vault" },
   emergency: { name: "alert" },
   packing: { name: "check" },
-  stamps: { name: "pin" },
+  stamps: { name: "stamp" },
   budget: { name: "wallet" },
   notes: { name: "list" },
 };
@@ -179,4 +180,30 @@ export function placeTile(
     color: own,
     tone: toneForPlaceCategory(place.category, categoryIcons),
   };
+}
+
+/** An emergency contact's row tile, guessed from its name — so the police,
+ *  an ambulance and an embassy read apart at a glance, the way Phone's
+ *  favourites do. Anything else is a plain number to call. */
+export function contactTile(label: string | undefined): LogbookTile {
+  const t = (label ?? "").toLowerCase();
+  if (/ambulance|fire|hospital|medical|doctor|clinic|emergency room/.test(t)) return { name: "medical", tone: "danger" };
+  if (/police|koban/.test(t)) return { name: "shield", tone: "ai" };
+  if (/embass|consul/.test(t)) return { name: "flag", tone: "accent" };
+  if (/insur/.test(t)) return { name: "shield", tone: "gold" };
+  if (/hotel|stay|host|ryokan|hostel|airbnb/.test(t)) return { glyph: "hotel", tone: "ink-faint" };
+  return { name: "phone", tone: "matcha" };
+}
+
+/** A document's row tile, guessed from its title — a flight reads as a
+ *  plane, insurance as a shield; anything else is a plain page. */
+export function documentTile(title: string | undefined): LogbookTile {
+  const t = (title ?? "").toLowerCase();
+  if (/flight|boarding|airline|plane/.test(t)) return { name: "plane", tone: "ai" };
+  if (/train|rail|bus|ferry/.test(t)) return { name: "train", tone: "ai" };
+  if (/insur/.test(t)) return { name: "shield", tone: "gold" };
+  if (/passport|visa|\bid\b|identity|licen[cs]e|permit/.test(t)) return { name: "person", tone: "accent" };
+  if (/qr|ticket|pass\b|entry|admission|reservation/.test(t)) return { name: "ticket", tone: "accent" };
+  if (/hotel|stay|booking|airbnb|ryokan|hostel/.test(t)) return { glyph: "hotel", tone: "ink-faint" };
+  return { name: "vault", tone: "ink-faint" };
 }

@@ -92,7 +92,7 @@ export const LOGBOOK_NAV_ICON: Record<LogbookSection, string> = {
   documents: "vault",
   emergency: "alert",
   packing: "check",
-  stamps: "pin",
+  stamps: "stamp",
   budget: "wallet",
   notes: "list",
 };

@@ -165,10 +165,9 @@ export default function Journey() {
       <div className="mt-6 space-y-6">
       {(!ro || j.segments.length > 0) && (
         <section>
-        <div className="mb-2 flex items-baseline justify-between px-1">
-          <h2 className="eyebrow flex items-center gap-1.5 text-ink-faint">
-            <Icon name="itinerary" size={12} className="-translate-y-px" /> Hops
-          </h2>
+        <div className="mb-1.5 flex items-baseline justify-between px-1">
+          {/* the same quiet kicker every other section on the page uses */}
+          <h2 className="kicker">Hops</h2>
           {!ro && (
             <button
               onClick={() => {
