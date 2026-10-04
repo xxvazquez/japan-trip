@@ -18,6 +18,7 @@ import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { ActionRow } from "@/components/ActionRow";
+import { Switch } from "@/components/Switch";
 import { RowSelect } from "@/components/RowSelect";
 import { ActionSheet, useActionSheet, ConfirmMenuItem } from "@/components/ActionSheet";
 import { Editable } from "@/components/Editable";
@@ -769,6 +770,8 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
   const updateEntity = useApp((s) => s.updateEntity);
   // an empty note stays out of the card until "Add a note" asks for it
   const [noteOpen, setNoteOpen] = useState(false);
+  // the same, for the note in the step's place card
+  const [cardNote, setCardNote] = useState(false);
   const mapHref = item.url ? gmapsLink(item.url) : placeMapLink(place);
   // a restaurant's guide page (Tabelog in Japan) — looked up as the step shows
   const reviewSite = place ? reviewSiteFor(place, categoryIcons) : undefined;
@@ -1033,19 +1036,65 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                     <div className="flex gap-2">
                       {mapHref && <PlaceAction href={mapHref} icon="map" label="Google Maps" primary />}
                       {reviewSite && <PlaceAction href={reviewHref(reviewSite, place)} icon="link" label={place.reviewUrl ? reviewSite.label : `Search ${reviewSite.label}`} />}
-                      <PlaceAction icon="locate" label="Show on map" onClick={() => { placeCard.setOpen(false); onShowOnMap(place); }} />
+                      <PlaceAction icon="locate" label="Map" onClick={() => { placeCard.setOpen(false); onShowOnMap(place); }} />
+                      <PlaceAction icon="calendar" label="Calendar" onClick={addToGoogleCalendar} />
                     </div>
                   </div>
                 }
               >
-                {place.facts && wantsFacts(place, tripData) && (
-                  <div onClick={(e) => e.stopPropagation()} className="px-3 pb-2 md:w-[21.5rem]">
-                    <p className="kicker px-4 pb-1.5 pt-1">Good to know</p>
+                {/* then, as a Maps place card runs: your note, what's good to
+                    know, and last the things you do to the step itself */}
+                <div onClick={(e) => e.stopPropagation()} className="space-y-4 px-3 pb-3 md:w-[21.5rem]">
+                  {(item.note || cardNote || !readOnly) && (
+                    <div>
+                      <p className="kicker px-4 pb-1.5 pt-1">Note</p>
+                      {item.note || cardNote ? (
+                        <div className="rounded-[12px] bg-surface px-3.5 py-3">
+                          <RichNote
+                            value={item.note ?? ""}
+                            onCommit={(v) => onPatch({ note: v || undefined })}
+                            placeholder="Add a note…"
+                            className="note"
+                            autoEdit={cardNote}
+                            onEditEnd={() => setCardNote(false)}
+                          />
+                        </div>
+                      ) : (
+                        <ul className="overflow-hidden rounded-[12px] bg-surface">
+                          <ActionRow icon="pencil" label="Add a note" onClick={() => setCardNote(true)} />
+                        </ul>
+                      )}
+                    </div>
+                  )}
+                  {place.facts && wantsFacts(place, tripData) && (
+                    <div>
+                      <p className="kicker px-4 pb-1.5 pt-1">Good to know</p>
+                      <ul className="overflow-hidden rounded-[12px] bg-surface">
+                        <PlaceFactRows place={place} area={area} />
+                      </ul>
+                    </div>
+                  )}
+                  {!readOnly && (
                     <ul className="overflow-hidden rounded-[12px] bg-surface">
-                      <PlaceFactRows place={place} area={area} />
+                      {/* an on/off fact about the place, so a switch, as
+                          Settings sets one — not an action that flips its label */}
+                      <InsetRow label="Overwhelming" className="!items-center">
+                        <Switch checked={!!place.overwhelming} onChange={toggleOverwhelming} label="Overwhelming" />
+                      </InsetRow>
+                      <ActionRow icon="wallet" label="Add an expense" onClick={() => { placeCard.setOpen(false); onQuickAddCost(item); }} />
+                      <ActionRow icon="copy" label="Duplicate step" onClick={() => { placeCard.setOpen(false); onDuplicate(); }} />
+                      <li className={INSET_DIVIDER}>
+                        <button
+                          type="button"
+                          onClick={() => { placeCard.setOpen(false); undoable("Step removed", onRemove); }}
+                          className="action w-full px-3.5 py-2.5 text-xs text-danger transition-colors duration-150 active:bg-ink/[0.07]"
+                        >
+                          <Icon name="close" size={14} /> Remove step
+                        </button>
+                      </li>
                     </ul>
-                  </div>
-                )}
+                  )}
+                </div>
               </ActionSheet>
             )}
           </div>
