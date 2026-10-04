@@ -30,7 +30,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { menuHref, reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
 import { glyphForCategoryName } from "@/lib/mapGlyphs";
 import { placeArea, useAutoPlaceFacts, wantsFacts } from "@/lib/placeFacts";
-import { PlaceAction } from "@/components/PlaceAction";
+import { PlaceAction, PlaceActions } from "@/components/PlaceAction";
 import { ActionRow } from "@/components/ActionRow";
 import { PlaceFactRows } from "@/components/PlaceFacts";
 import { primeKeyboard } from "@/lib/keyboard";
@@ -1903,11 +1903,11 @@ function PlaceRow({
               <Icon name="close" size={13} />
             </button>
           </div>
-          <div className="flex gap-2">
+          <PlaceActions>
             {link && <PlaceAction href={link} icon="map" label="Google Maps" primary />}
             {reviewSite && <PlaceAction href={reviewHref(reviewSite, place)} icon="link" label={place.reviewUrl ? reviewSite.label : `Search ${reviewSite.label}`} />}
             {day && <PlaceAction icon="calendar" label={fmtDate(day.date, loc, { weekday: "short", day: "numeric" })} onClick={() => nav(`/day/${day.id}`)} />}
-          </div>
+          </PlaceActions>
         </div>
 
         {(!readOnly || place.note?.trim()) && (

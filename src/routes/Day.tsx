@@ -23,7 +23,7 @@ import { RowSelect } from "@/components/RowSelect";
 import { ActionSheet, useActionSheet, ConfirmMenuItem } from "@/components/ActionSheet";
 import { Editable } from "@/components/Editable";
 import { MoneyField } from "@/components/MoneyField";
-import { PlaceAction } from "@/components/PlaceAction";
+import { PlaceAction, PlaceActions } from "@/components/PlaceAction";
 import { RichNote } from "@/components/RichNote";
 import { RowMenu } from "@/components/RowMenu";
 import { ContextMenu } from "@/components/ContextMenu";
@@ -1126,12 +1126,12 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                         <Icon name="close" size={13} />
                       </button>
                     </div>
-                    <div className="flex gap-2">
+                    <PlaceActions>
                       {mapHref && <PlaceAction href={mapHref} icon="map" label="Google Maps" primary />}
                       {reviewSite && <PlaceAction href={reviewHref(reviewSite, place)} icon="link" label={place.reviewUrl ? reviewSite.label : `Search ${reviewSite.label}`} />}
                       <PlaceAction icon="locate" label="Map" onClick={() => { placeCard.setOpen(false); onShowOnMap(place); }} />
                       <PlaceAction icon="calendar" label="Calendar" onClick={addToGoogleCalendar} />
-                    </div>
+                    </PlaceActions>
                   </div>
                 }
               >
@@ -1170,10 +1170,12 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                   {!readOnly && (
                     <ul className="overflow-hidden rounded-[12px] bg-surface">
                       {/* an on/off fact about the place, so a switch, as
-                          Settings sets one — not an action that flips its label */}
-                      <InsetRow label="Overwhelming" className="!items-center">
-                        <Switch checked={!!place.overwhelming} onChange={toggleOverwhelming} label="Overwhelming" />
-                      </InsetRow>
+                          Settings sets one — not an action that flips its
+                          label; sized with the action rows under it */}
+                      <li className={`${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-2`}>
+                        <span className="min-w-0 flex-1 text-xs text-ink">Overwhelming</span>
+                        <Switch size="sm" checked={!!place.overwhelming} onChange={toggleOverwhelming} label="Overwhelming" />
+                      </li>
                       <ActionRow icon="wallet" label="Add an expense" onClick={() => { placeCard.setOpen(false); onQuickAddCost(item); }} />
                       <ActionRow icon="copy" label="Duplicate step" onClick={() => { placeCard.setOpen(false); onDuplicate(); }} />
                       <li className={INSET_DIVIDER}>
