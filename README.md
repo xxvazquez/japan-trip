@@ -168,14 +168,15 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 
 - **Time** — a single time, or a range like `14:00–15:15` stacked as 14:00 over 15:15. An empty time is left blank — tap the gap to set one.
 - **Setting a time** — the wheels start at the last time set on an earlier step (else 9:00). **Done** saves what's showing; tapping outside or swiping the sheet down cancels.
-- **Link a place** — tap an unlinked step's icon to pick a place: the day's Areas first, then the rest of that city, then elsewhere (search when the list is long). A linked step changes it with **More → Change Place** on its place card; **Custom…** unlinks it.
+- **Link or change a place** — tap a step's icon to pick a place: the day's Areas first, then the rest of that city, then elsewhere (search when the list is long). **More → Change Place** on its place card does the same; **Custom…** unlinks it.
 - **Meal steps** — an unlinked step whose text mentions a meal (lunch, dinner, breakfast…), coffee or drinks gets a gold food, coffee or drink tile instead of the grey pin.
 - **Time order** — steps keep themselves in time order. Set or change a step's time and it moves to its place in the day.
 - **Untimed steps** — drag the small ≡ on the right (shown on hover on a computer) to place one. It then stays with the step above it. A loose time ("Around noon") counts as untimed.
 - **Pin a step** from its menu (**Pin this step**) to lock its time, e.g. a booking — it shows a pin, and tapping its time or the pin offers **Unpin** or **Unpin and change time**. It still sits where its time puts it. **Unpin this step** in the menu, or **More → Pin Time** on its place card, unlocks it too. Only a step with a time can be pinned.
 - **Mark as optional** from a step's menu, or **More → Optional** on its place card, for something nice to do but not a must: an ochre ◌ Optional tag shows under its name. **Make this a must** undoes it.
-- **The place card** — tap a linked step anywhere on its row (icon, name or note), as you'd tap a place in Maps: the name (with any clash with its hours, and a grey line saying if it's Optional, its time is pinned or it's Overwhelming), a button row pinned under it (**Google Maps** filled, Tabelog for restaurants in Japan, **Map**, **More**), then the step's note, Good to know and **Nearby** (see [Nearby on a day](#nearby-on-a-day)). ✕ or a drag down closes it.
-- **More** on the place card holds everything else, as Maps does: Add to Calendar; **Optional**, **Pin Time** (a step with a time) and **Overwhelming**, ticked when on; Change Place, Add an Expense, Duplicate, Move to Another Day; and Remove Step.
+- **The place card** — tap a linked step's name or note, as you'd tap a place in Maps: the name (with any clash with its hours, and a grey line saying if it's Optional, its time is pinned or it's Overwhelming), a button row pinned under it (Tabelog for restaurants in Japan, **Menu** and **Website** when known, **More**), then the step's note, Good to know and **Nearby** (see [Nearby on a day](#nearby-on-a-day)). ✕ or a drag down closes it.
+- **On a computer** the card opens beside its step, and the map pane flies to the place at the same time.
+- **More** on the place card holds everything else, as Maps does: Open in Google Maps, Show on Map (phone only — on a computer the map is already beside you), Add to Calendar; **Optional**, **Pin Time** (a step with a time) and **Overwhelming**, ticked when on; Change Place, Add an Expense, Duplicate, Move to Another Day; and Remove Step.
 - **Walk and train lines** under a step open Google Maps directions; only a tap on the line itself does.
 - **Open in Google Maps** is also the first item when you hold a step (or right-click it on a computer).
 - **The step's menu** — long-press a step on a phone, or right-click it on a computer (an unlinked step also has a ⋯ on hover there): add to Google Calendar, mark as **overwhelming** (a ⚠ on its grey line; the day's count shows on Plan), add a note, pin, mark as optional, duplicate, add an expense, remove.
@@ -241,8 +242,8 @@ How it fills in:
 
 What to expect:
 - Each fact is a short phrase; anything the sources don't mention is left out.
-- **Website** comes from OpenStreetMap's tag for the place at its pin, else the site the search summary names as official (when it's one of the pages read), else a search result whose address carries the place's name. Never a listing or guide site (Tabelog, Tripadvisor…). No row when none is found — common for small cafés, viewpoints and streets.
-- **Menu** is the place's own menu page when OpenStreetMap has one tagged, else the menu tab of its Tabelog page. No row without either. Google Maps menus aren't available without a paid API.
+- **Website** comes from OpenStreetMap's tag for the place at its pin, else the site the search summary names as official (when it's one of the pages read), else a search result whose address carries the place's name. Never a listing or guide site (Tabelog, Tripadvisor…). On a step's place card it's a button up top rather than a row. None when nothing is found — common for small cafés, viewpoints and streets.
+- **Menu** is the place's own menu page when OpenStreetMap has one tagged, else the menu tab of its Tabelog page — a button on a step's place card. None without either. Google Maps menus aren't available without a paid API.
 - A result only counts if its pages name the place and its city, so a namesake elsewhere isn't picked up.
 - The city is the place's stay: the one it's filed under, else its day's, else the nearest (as on the Map). "Kawaguchiko" is enough for "Lake Kawaguchiko".
 - A place over 30 km from that stay's hotel gets its day trip's town instead (Osaka, not Kyoto), or no city at all if it's in no town on the plan.
@@ -268,10 +269,10 @@ Stations and hours come from OpenStreetMap (Overpass, with Nominatim as a fallba
 At 1024px and up (a laptop, or a tablet held sideways), a day's page gets a map pane on the right.
 
 - It shows the day's places, its areas' places (drawn more quietly) and the hotel, and follows you between days.
-- Tap a pin for its name, **Google Maps** (the place itself) and **Directions**. **Show on map** on a step's place card zooms straight to it.
+- Tap a pin for its name, **Google Maps** (the place itself) and **Directions**. Opening a step's place card zooms straight to it.
 - Drag the left edge to resize; **✕** hides it and a small tab brings it back. Both are remembered.
 
-On a phone the pane isn't downloaded at all, and **Show on map** opens the Map tab instead.
+On a phone the pane isn't downloaded at all; **More → Show on Map** on a place card opens the Map tab instead.
 
 ## Journeys
 

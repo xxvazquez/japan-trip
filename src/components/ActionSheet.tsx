@@ -1,5 +1,5 @@
 import { useBackToClose } from "@/lib/backClose";
-import { useEffect, useReducer, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useReducer, useRef, useState, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { useSheetDrag } from "./useSheetDrag";
 
@@ -28,6 +28,7 @@ export function ActionSheet({
   doneLabel = "Cancel",
   header,
   point,
+  side,
   children,
 }: {
   open: boolean;
@@ -41,6 +42,10 @@ export function ActionSheet({
   header?: ReactNode;
   /** open as a context menu here — see `MenuPoint` */
   point?: MenuPoint | null;
+  /** the desktop popover opens beside the anchor, top-aligned with it, the
+   *  way a Mac Calendar event's popover sits next to the event — for a card
+   *  that would otherwise cover the rows under its own (a place card) */
+  side?: boolean;
   children: ReactNode;
 }) {
   const [, bump] = useReducer((n: number) => n + 1, 0);
@@ -61,14 +66,24 @@ export function ActionSheet({
     };
   }, [open, onClose]);
 
-  useEffect(() => {
-    if (open && menuRef.current) {
-      setMenuWidth(menuRef.current.offsetWidth);
-      setMenuHeight(menuRef.current.offsetHeight);
-    } else {
+  // measured on open and again as the content grows (a card's facts land
+  // after it opens), so a tall popover keeps sliding up to stay on screen —
+  // before paint, so it never flashes at a guessed size first
+  useLayoutEffect(() => {
+    const el = menuRef.current;
+    if (!open || !el) {
       setMenuWidth(0);
       setMenuHeight(0);
+      return;
     }
+    const measure = () => {
+      setMenuWidth(el.offsetWidth);
+      setMenuHeight(el.offsetHeight);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
   }, [open]);
 
   if (!open) return null;
@@ -108,9 +123,21 @@ export function ActionSheet({
   const r = anchorRef.current?.getBoundingClientRect();
   const w = menuWidth || 160;
   const center = (r?.left ?? 0) + (r?.width ?? 0) / 2;
-  const left = Math.min(Math.max(center - w / 2, 8), window.innerWidth - w - 8);
+  const vw = window.innerWidth;
+  const gap = 12;
+  // beside the anchor where there's room — right first, then left — else under it
+  const sideLeft = !side || !r ? undefined
+    : r.right + gap + w <= vw - 8 ? r.right + gap
+    : r.left - gap - w >= 8 ? r.left - gap - w
+    : undefined;
+  // under it, the way an iOS / Mac pull-down menu drops from its button:
+  // lined up with the button's leading edge and growing toward the middle
+  // of the screen (its trailing edge, for a button on the right half)
+  const under = !r ? 8 : center < vw / 2 ? r.left : r.right - w;
+  const left = sideLeft ?? Math.min(Math.max(under, 8), vw - w - 8);
   // keep a tall popover on screen: slide it up rather than hang off the bottom
-  const top = Math.max(8, Math.min((r?.bottom ?? 0) + 4, window.innerHeight - menuHeight - 8));
+  const want = sideLeft !== undefined ? (r?.top ?? 0) - 8 : (r?.bottom ?? 0) + 4;
+  const top = Math.max(8, Math.min(want, window.innerHeight - menuHeight - 8));
   return createPortal(
     <>
       <div className="fixed inset-0 z-50" onClick={onClose} />

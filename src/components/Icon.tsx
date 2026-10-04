@@ -72,7 +72,9 @@ export type IconName =
   | "flag"
   | "stamp"
   | "optional"
-  | "move";
+  | "move"
+  | "globe"
+  | "menu";
 
 const P: Record<IconName, JSX.Element> = {
   itinerary: (
@@ -385,6 +387,20 @@ const P: Record<IconName, JSX.Element> = {
     <>
       <path d="M20 11.5V8a2.5 2.5 0 0 0-2.5-2.5h-11A2.5 2.5 0 0 0 4 8v10a2.5 2.5 0 0 0 2.5 2.5H12" />
       <path d="M4 10h16M8 3.5v4M16 3.5v4M15 17.5h6M18.5 15l2.5 2.5-2.5 2.5" />
+    </>
+  ),
+  // iOS globe — a place's own website
+  globe: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M3.5 12h17M12 3.5c-2.4 2.3-3.6 5.1-3.6 8.5s1.2 6.2 3.6 8.5M12 3.5c2.4 2.3 3.6 5.1 3.6 8.5s-1.2 6.2-3.6 8.5" />
+    </>
+  ),
+  // iOS fork.knife — a place's menu
+  menu: (
+    <>
+      <path d="M7 3.5v5.5a2 2 0 0 0 4 0V3.5M9 3.5v17" />
+      <path d="M17 20.5v-17c-2 1.2-3 3.6-3 6.5v4.5h3" />
     </>
   ),
   // iOS square.and.arrow.up

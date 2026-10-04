@@ -18,7 +18,9 @@ import { menuHref } from "@/lib/reviewSite";
  *  menu. When it was checked and where from stay out of the way, on the
  *  refresh icon by the group's label (`FactsRefresh`). Renders `<li>`s; the
  *  caller owns the `<ul>`. */
-export function PlaceFactRows({ place }: { place: Place }) {
+/** `links={false}` leaves out the Website / Menu rows, for a card whose
+ *  button row already carries them */
+export function PlaceFactRows({ place, links = true }: { place: Place; links?: boolean }) {
   const data = useData();
   const readOnly = useReadOnly();
   const failure = useFactsFailure(place.id);
@@ -61,8 +63,8 @@ export function PlaceFactRows({ place }: { place: Place }) {
           <FactCell k={k} label={label} value="" kind={f?.kind} onEdit={edit(k)} autoEdit={i === 0} />
         </li>
       ))}
-      {f?.website && <LinkRow href={f.website} label="Website" icon="link" />}
-      {menu && <LinkRow href={menu} label="Menu" glyph="restaurant" />}
+      {links && f?.website && <LinkRow href={f.website} label="Website" icon="link" />}
+      {links && menu && <LinkRow href={menu} label="Menu" glyph="restaurant" />}
       {failed}
       {edit && !adding && missing.length > 0 && <ActionRow icon="plus" label="Add details" onClick={() => setAdding(true)} />}
     </>

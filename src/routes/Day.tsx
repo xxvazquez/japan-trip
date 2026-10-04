@@ -49,7 +49,7 @@ import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { isFoodPlace, menuHref, reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
-import { factValue, hasFacts, notASight, placeArea, useAutoPlaceFacts, useFactsFailure, wantsFacts } from "@/lib/placeFacts";
+import { FACT_ROWS, factValue, notASight, placeArea, useAutoPlaceFacts, useFactsFailure, wantsFacts } from "@/lib/placeFacts";
 import { FactsRefresh, PlaceFactRows } from "@/components/PlaceFacts";
 import { addDays, dayJourneys, dayKind, fmtDate, journeyDepartDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
@@ -1140,6 +1140,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
   const mapHref = item.url ? gmapsLink(item.url) : placeMapLink(place);
   // a restaurant's guide page (Tabelog in Japan) — looked up as the step shows
   const reviewSite = place ? reviewSiteFor(place, categoryIcons) : undefined;
+  const placeMenu = place ? menuHref(place) : undefined;
   useAutoReviewLink(place, categoryIcons, !readOnly);
   // its "Good to know" (hours, reservations, queue…), behind a line under the step
   const tripData = useData();
@@ -1160,6 +1161,10 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
   // "Change place" on the card swaps the step's place from the same list a
   // custom step's icon opens
   const changePlace = useActionSheet();
+  // wide screens draw the day's map beside the plan: opening a place's card
+  // also flies that map to it, so the card needs no Map button there
+  const { active: mapBeside } = useSplit();
+  const openCard = place ? () => { placeCard.setOpen(true); if (mapBeside) onShowOnMap(place); } : undefined;
   // "Move to another day": off this day, onto the end of the picked one —
   // a timed step then sorts itself into place there, pin and all
   const moveSheet = useActionSheet();
@@ -1244,7 +1249,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
       <SwipeToDelete undoLabel="Step removed" onDelete={readOnly ? undefined : onRemove}>
       <ContextMenu>
         <TimelineStop
-          onTap={place ? () => placeCard.setOpen(true) : undefined}
+          onTap={openCard}
           tapLabel={place ? `About ${place.name}` : undefined}
           time={
             readOnly ? (
@@ -1301,10 +1306,10 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
             )
           }
           tile={
-            // a place's icon is just part of its row — the whole row opens
-            // the place card. A custom step's icon is how it gets linked to
-            // one of the day's places.
-            !place && !readOnly ? (
+            // the icon is the step's "what": a tap swaps it for another of
+            // the day's places (or links a custom step to one); the rest of
+            // the row opens the place card
+            !readOnly ? (
               <PlacePicker
                 value={item.placeId}
                 places={sortedPickable}
@@ -1473,10 +1478,12 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                 onClose={() => placeCard.setOpen(false)}
                 anchorRef={placeCardAnchor}
                 doneLabel={null}
+                side
                 // laid out like a Maps place card: the name as the title, a
                 // clash with its hours under it, ✕ to close, then the
-                // button row — Google Maps filled, one tap however long Good
-                // to know runs below
+                // button row — the place's own pages (Google Maps is the
+                // row's long-press and More, and the map beside the plan
+                // already shows where it is)
                 header={
                   <div className="space-y-3 md:w-[20rem]">
                     <div className="flex items-start gap-3 pl-1">
@@ -1497,20 +1504,26 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                       </button>
                     </div>
                     <PlaceActions>
-                      {mapHref && <PlaceAction href={mapHref} icon="map" label="Google Maps" primary />}
                       {reviewSite && <PlaceAction href={reviewHref(reviewSite, place)} icon="link" label={place.reviewUrl ? reviewSite.label : `Search ${reviewSite.label}`} />}
-                      <PlaceAction icon="locate" label="Map" onClick={() => { placeCard.setOpen(false); onShowOnMap(place); }} />
-                      {readOnly ? (
-                        <PlaceAction icon="calendar" label="Calendar" onClick={addToGoogleCalendar} />
-                      ) : (
-                        <PlaceAction icon="more" label="More" menu buttonRef={moreSheet.anchorRef} onClick={() => moreSheet.setOpen(true)} />
-                      )}
+                      {placeMenu && <PlaceAction href={placeMenu} icon="menu" label="Menu" />}
+                      {place.facts?.website && <PlaceAction href={place.facts.website} icon="globe" label="Website" />}
+                      <PlaceAction icon="more" label="More" menu buttonRef={moreSheet.anchorRef} onClick={() => moreSheet.setOpen(true)} />
                     </PlaceActions>
-                    {!readOnly && (
-                      <ActionSheet open={moreSheet.open} onClose={() => moreSheet.setOpen(false)} anchorRef={moreSheet.anchorRef}>
-                        <button type="button" className="menu-item" onClick={addToGoogleCalendar}>
-                          <Icon name="calendar" size={16} /> Add to Calendar
+                    <ActionSheet open={moreSheet.open} onClose={() => moreSheet.setOpen(false)} anchorRef={moreSheet.anchorRef}>
+                      {mapHref && (
+                        <a href={mapHref} target="_blank" rel="noopener" className="menu-item">
+                          <Icon name="map" size={16} /> Open in Google Maps
+                        </a>
+                      )}
+                      {!mapBeside && (
+                        <button type="button" className="menu-item" onClick={() => { placeCard.setOpen(false); onShowOnMap(place); }}>
+                          <Icon name="locate" size={16} /> Show on Map
                         </button>
+                      )}
+                      <button type="button" className="menu-item" onClick={addToGoogleCalendar}>
+                        <Icon name="calendar" size={16} /> Add to Calendar
+                      </button>
+                      {!readOnly && <>
                         <div className="my-1 h-px bg-ink/10" />
                         <MenuCheck checked={!!item.optional} onClick={toggleOptional}>Optional</MenuCheck>
                         {item.time && (
@@ -1536,8 +1549,8 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                         <button type="button" className="menu-item text-danger" onClick={() => { placeCard.setOpen(false); undoable("Step removed", onRemove); }}>
                           <Icon name="close" size={16} /> Remove Step
                         </button>
-                      </ActionSheet>
-                    )}
+                      </>}
+                    </ActionSheet>
                   </div>
                 }
               >
@@ -1566,14 +1579,15 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                     </div>
                   )}
                   {/* shown with nothing found too, so it can be filled in by hand */}
-                  {(hasFacts(place.facts) || menuHref(place) || factsFailure || !readOnly) && wantsFacts(place, tripData) && (
+                  {/* Website / Menu are buttons up top, so they don't count here */}
+                  {(FACT_ROWS.some(([k]) => factValue(place.facts, k)) || factsFailure || !readOnly) && wantsFacts(place, tripData) && (
                     <div>
                       <div className="flex items-center gap-2 px-4 pb-1.5 pt-1">
                         <p className="kicker min-w-0 flex-1">Good to know</p>
                         <FactsRefresh place={place} area={area} />
                       </div>
                       <ul className="overflow-hidden rounded-[12px] bg-surface">
-                        <PlaceFactRows place={place} />
+                        <PlaceFactRows place={place} links={false} />
                       </ul>
                     </div>
                   )}
@@ -2033,7 +2047,9 @@ function PlacePicker({ value, adding, places, more = [], title = "What this step
   const fold = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   const q = fold(query.trim());
   const match = (p: Place) => !q || fold(p.name).includes(q);
-  const groups = [{ label: "", places }, ...more]
+  // a place already in the first group isn't listed again under its city
+  const first = new Set(places.map((p) => p.id));
+  const groups = [{ label: "", places }, ...more.map((g) => ({ ...g, places: g.places.filter((p) => !first.has(p.id)) }))]
     .map((g) => ({ ...g, places: g.places.filter(match) }))
     .filter((g) => g.places.length);
   const total = places.length + more.reduce((n, g) => n + g.places.length, 0);
