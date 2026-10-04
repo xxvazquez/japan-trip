@@ -16,7 +16,7 @@ import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { gmapsLink } from "@/lib/maps";
 import { fmtFare } from "@/lib/cost";
-import { fmtDate, hotelStays, plural } from "@/lib/dates";
+import { fmtDate, fmtStay, hotelStays } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import type { Hotel as HotelT } from "@/core/types";
 
@@ -40,9 +40,8 @@ export default function Hotel() {
   const stays = hotelStays(data, hotel.id);
   const leg = stays[0]?.leg;
   const only = stays.length === 1 ? stays[0] : undefined;
-  const short = (d: string) => fmtDate(d, loc, { day: "numeric", month: "short" });
   const eyebrow = stays.length
-    ? stays.map((x) => `${short(x.checkIn)} – ${short(x.checkOut)}`).join(" · ") + (only ? ` · ${plural(only.nights, "night")}` : "")
+    ? only ? fmtStay(only, loc) : stays.map((x) => fmtStay(x, loc, false)).join(" · ")
     : undefined;
   const map = gmapsLink(hotel.mapUrl || hotel.address);
   const primary = (data.config.currencies ?? []).filter(Boolean)[0] ?? "";

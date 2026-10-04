@@ -394,9 +394,15 @@ function LegBlock({
       {/* one quiet caption, sentence case, the month said once — not a
           second spaced-out uppercase heading under the city */}
       <p className="mb-2 pl-5 text-xs text-ink-soft">
-        {fmtDateRange(leg.start, leg.end, loc)}
-        {/* a one-day last base has no night yet: its only day is the day you leave */}
-        {nights > 0 && <> · {plural(nights, "night")}</>}
+        {/* emptied of days, a base keeps its dates (its next day goes back
+            there) but has nothing to date — say so, as an empty list does */}
+        {dayIds.length === 0 && !days.days.some((d) => d.legId === leg.id) ? "No days" : (
+          <>
+            {fmtDateRange(leg.start, leg.end, loc)}
+            {/* a one-day last base has no night yet: its only day is the day you leave */}
+            {nights > 0 && <> · {plural(nights, "night")}</>}
+          </>
+        )}
       </p>
 
       <Section>

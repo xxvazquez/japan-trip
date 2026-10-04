@@ -16,7 +16,7 @@ import { usePersistedOpen, slug } from "@/lib/collapse";
  *
  * `action` — a secondary control in the header (＋ Add, a count, a delete).
  * `info` — one-off "how this works" copy, revealed by an ⓘ toggle in the header
- * rather than taking a permanent line. (`<InfoNote>` is the free-standing form.)
+ * rather than taking a permanent line. (`<PageHeader info>` is the page-wide form.)
  * `defaultOpen` — the first-ever state, before the viewer has touched the
  * chevron (default `true`). Set `false` for a section that's more useful shut
  * until asked for, e.g. one card per list entry.

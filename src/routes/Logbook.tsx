@@ -32,7 +32,7 @@ import { driveEnabled } from "@/lib/drive";
 import { useReadOnly } from "@/lib/readonly";
 import { gmapsLink } from "@/lib/maps";
 import { pickBackend } from "@/lib/backend";
-import { fmtDate, fmtSpan, hotelStays, journeyDepartDate, plural } from "@/lib/dates";
+import { fmtDate, fmtSpan, fmtStay, hotelStays, journeyDepartDate, plural } from "@/lib/dates";
 import { MODE_ICON } from "@/lib/transport";
 import { toneForSegmentMode, logbookSectionTile, customListColor, contactTile, documentTile, TONE_BG, type Tone } from "@/lib/tones";
 import { LOGBOOK_SECTIONS, logbookLabel, packingGroups, sectionSlug, sectionFromSlug, type LogbookSection } from "@/lib/logbook";
@@ -331,8 +331,7 @@ function Stays() {
       <ul>
         {hotels.map((h) => {
           // check-in to check-out, per stay that uses this hotel
-          const short = (d: string) => fmtDate(d, loc, { day: "numeric", month: "short" });
-          const when = hotelStays(data, h.id).map((x) => `${short(x.checkIn)} – ${short(x.checkOut)} · ${plural(x.nights, "night")}`).join(", ");
+          const when = hotelStays(data, h.id).map((x) => fmtStay(x, loc)).join(", ");
           const map = gmapsLink(h.mapUrl || h.address);
           return (
             <TileRow

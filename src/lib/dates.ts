@@ -37,12 +37,20 @@ export function legNights(leg: Leg, legs: Leg[]): number {
  *  stay's last day, which is the last night's date. */
 export function hotelStays(data: TripData, hotelId: string): { leg: Leg; checkIn: ISODate; checkOut: ISODate; nights: number }[] {
   return data.legs
-    .filter((l) => l.hotelId === hotelId && l.start)
+    // a base with no days left books no nights, whatever dates it still holds
+    .filter((l) => l.hotelId === hotelId && l.start && data.days.some((d) => d.legId === l.id))
     .sort((a, b) => a.start.localeCompare(b.start))
     .map((leg) => {
       const nights = legNights(leg, data.legs);
       return { leg, checkIn: leg.start, checkOut: addDays(leg.start, nights), nights };
     });
+}
+
+/** A stay's dates as one caption — "3 – 5 Nov · 2 nights"; a stay with no
+ *  night (the day you leave) is just its date, never "0 nights". */
+export function fmtStay(s: { checkIn: ISODate; checkOut: ISODate; nights: number }, locale = "en-GB", withNights = true): string {
+  const range = s.nights > 0 ? fmtDateRange(s.checkIn, s.checkOut, locale) : fmtDate(s.checkIn, locale, { day: "numeric", month: "short" });
+  return withNights && s.nights > 0 ? `${range} · ${plural(s.nights, "night")}` : range;
 }
 
 export function addDays(d: ISODate, n: number): ISODate {
