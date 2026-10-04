@@ -1227,9 +1227,10 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
   const long = !walk || walk.min > LONG_WALK_MIN;
   const train = useTrainOption(from, to, !walk || walk.min > TRAIN_TOO_MIN);
 
-  // plain quiet text, no fill — as Calendar sets travel time — so the stops
-  // either side stay what the eye lands on; a filled chip outweighed them
-  const pill = "tap inline-flex min-w-0 items-center gap-1 text-[0.75rem] leading-snug text-ink-faint tabular-nums transition-opacity active:opacity-50";
+  // plain quiet text, no fill — as Calendar sets travel time — a shade
+  // fainter than a step's note (iOS's tertiary grey under the secondary), so
+  // name, note and travel read as three levels; a filled chip outweighed them
+  const pill = "tap inline-flex min-w-0 items-center gap-1 text-[0.75rem] leading-snug text-ink-faint/70 tabular-nums transition-opacity active:opacity-50";
   const trainTitle = train ? `Train from ${train.a.name} to ${train.b.name}, door to door` : "Transit directions";
   return (
     <li className="flex gap-2.5 pl-3.5 pr-3.5">
