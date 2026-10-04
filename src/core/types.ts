@@ -361,6 +361,10 @@ export interface Day {
   journeyIds?: ID[];
   /** flagged as an out-of-town day */
   dayTrip?: boolean;
+  /** when you're back at the hotel ("HH:MM", 24-hour) — the time on the
+   *  plan's last row, which also places it in the morning / afternoon /
+   *  evening. Absent until set. */
+  backAt?: string;
   /** what you spent on the day — one row per amount (a museum, lunch, a taxi).
    *  Each row picks an `ExpenseCategory`; the amount rolls up under it in the
    *  Expenses view. */

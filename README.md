@@ -145,7 +145,7 @@ The day reads as one route, like a route's stops in Maps: times in a column on t
 
 Each step shows its name, then its note in smaller, lighter grey (folded after 2 lines, with **more**). A red line under the name only appears when it changes the plan: the step's time doesn't fit the place's hours (see below) or it's marked **Overwhelming**.
 
-On a day that spans more than one part, the plan is split into **Morning** (before 12:00), **Afternoon** (until 18:00) and **Evening**, each starting with a tinted band across the timeline. A step with no exact time stays in the part before it. A day that ends back at the hotel always closes with an **Evening** band, even when you're back before 18:00.
+On a day that spans more than one part, the plan is split into **Morning** (before 12:00), **Afternoon** (until 18:00) and **Evening**, each starting with a tinted band across the timeline. A step with no exact time stays in the part before it.
 
 A stop and the way on to the next one stay together: the walk or train sits under the stop it leaves from, never under a Morning/Afternoon band.
 
@@ -221,7 +221,10 @@ What to expect:
 
 **From the hotel.** The first stop of the day is the hotel you slept at the night before, so a moving day starts from the old one. Left off on the trip's first day and on an arrival day. The way to the first step sits under it. Tapping the row opens the hotel.
 
-**Back to hotel.** The last stop of the day is that night's hotel (left off on a departure day). The way there sits on the line above it, with the same pills as between steps. Tapping the row opens Google Maps directions.
+**Back to hotel.** The last stop of the day is that night's hotel (left off on a departure day). The way there sits on the line above it, with the same pills as between steps.
+
+- Its time is set on the same wheel as a step's (needs migration `0039`). It falls under Morning / Afternoon / Evening like any step, so back at 19:00 closes the day under **Evening**.
+- Tapping the name opens Google Maps directions.
 
 Stations and hours come from OpenStreetMap (Overpass, with Nominatim as a fallback). Results are remembered on the device.
 
@@ -601,7 +604,7 @@ edit in the UI  →  TripData (in memory)  →  backend
 ### Setting up a project
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0038`).
+2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0039`).
    - `0033` moves old day-trip text (getting there / back, last way back) into each day's notes — take a backup first.
    - `0035` drops the retired day columns. On an existing project, run it only once the build with it is live — an older build still writes `journey_id`, and its day saves would fail.
 3. **Authentication → Providers → Google** — enable it with a Google Cloud OAuth client id and secret. Redirect: `https://<project-ref>.supabase.co/auth/v1/callback`.

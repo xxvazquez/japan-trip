@@ -402,7 +402,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             </span>
           )}
         >
-          <PlanList day={day} journeys={journeys} startHotel={startHotel} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} onChange={setPlan} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
+          <PlanList day={day} journeys={journeys} startHotel={startHotel} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} onChange={setPlan} onBackAt={(t) => patch({ backAt: t })} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
         </Section>
       )}
 
@@ -605,7 +605,7 @@ function DayJourneyRow({ day, journey, data, onRemove }: { day: DayT; journey: J
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, areaPlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, onChange, onQuickAddCost, onShowOnMap }: {
+function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, areaPlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, onChange, onBackAt, onQuickAddCost, onShowOnMap }: {
   day: DayT;
   /** the day's journeys — their leave / arrive times show as rows of their own */
   journeys: Journey[];
@@ -622,6 +622,8 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
   categoryColors?: Record<string, string>;
   readOnly: boolean;
   onChange: (next: PlanItem[]) => void;
+  /** sets when you're back at the hotel (the last row's time) */
+  onBackAt: (time: string | undefined) => void;
   onQuickAddCost: (item: PlanItem) => void;
   onShowOnMap: (place: Place) => void;
 }) {
@@ -735,10 +737,14 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
   // label wherever a timed entry starts a new part of the day (an untimed
   // one stays in the part before it), on a day with more than one part
   const parts = entries.map((e) => dayPart(e.time));
-  // a day that ends back at the hotel always closes with an Evening band,
-  // even when you're home before 18:00 — the evening is spent there
-  const endsEvening = !!returnHotel && parts.some(Boolean);
-  const multiPart = new Set([...parts.filter(Boolean), ...(endsEvening ? ["evening"] : [])]).size > 1;
+  // the way back to the hotel has its own time, so it falls in its own part
+  // of the day like any step — back at 19:00 closes the day under Evening.
+  // A time earlier than the last step's part gets no band of its own, so the
+  // bands never run backwards
+  const lastPart = parts.filter(Boolean).at(-1);
+  const backAtPart = returnHotel ? dayPart(day.backAt) : undefined;
+  const backPart = backAtPart && (!lastPart || PART_ORDER.indexOf(backAtPart) > PART_ORDER.indexOf(lastPart)) ? backAtPart : undefined;
+  const multiPart = new Set([...parts.filter(Boolean), backPart].filter(Boolean)).size > 1;
   let part: DayPart | undefined;
   const rows = entries.flatMap((e, i) => {
     const p = parts[i];
@@ -750,10 +756,21 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
   // the day closes with the way back to the hotel; its walk figures need the
   // last step to be tied to a real place, the directions link doesn't
   const lastPlace = items[items.length - 1]?.placeId ? places.find((p) => p.id === items[items.length - 1].placeId) : undefined;
-  const eveningBand = endsEvening && multiPart && parts.filter(Boolean).at(-1) !== "evening"
-    ? <DayPartRow key="part-evening" part="evening" />
+  const backBand = backPart && multiPart
+    ? <DayPartRow key="part-back" part={backPart} />
     : null;
-  const backRow = returnHotel ? <ReturnToHotel key="back-to-hotel" from={lastPlace} hotel={returnHotel} band={eveningBand} /> : null;
+  const backRow = returnHotel ? (
+    <ReturnToHotel
+      key="back-to-hotel"
+      from={lastPlace}
+      hotel={returnHotel}
+      band={backBand}
+      time={day.backAt}
+      timeStart={timeBefore(items, items.length)}
+      readOnly={readOnly}
+      onTime={onBackAt}
+    />
+  ) : null;
   // and opens at the hotel you woke up at — under the first part-of-day
   // label when the day starts with one, since leaving is part of the morning
   if (startHotel) rows.splice(multiPart && parts[0] ? 1 : 0, 0, <StartFromHotel key="from-hotel" hotel={startHotel} />, ...startConnector);
@@ -786,6 +803,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
 }
 
 type DayPart = "morning" | "afternoon" | "evening";
+const PART_ORDER: DayPart[] = ["morning", "afternoon", "evening"];
 // whole class names, so Tailwind sees them: a light wash of the part's own
 // colour behind the band, the glyph in that colour at full strength
 const DAY_PARTS: Record<DayPart, { label: string; icon: IconName; band: string; glyph: string }> = {
@@ -1333,9 +1351,18 @@ function StartFromHotel({ hotel }: { hotel: Hotel }) {
 
 /** The day's last stop: back to the hotel you're staying at. The way there
  *  sits on the rail above it like any other travel (`TravelConnector`),
- *  measured from the last step's place; the row itself opens Google Maps
- *  directions (from wherever you are when the last step has no place). */
-function ReturnToHotel({ from, hotel, band }: { from?: Place; hotel: Hotel; band?: React.ReactNode }) {
+ *  measured from the last step's place; its time is set on the wheel like a
+ *  step's, and its name opens Google Maps directions (from wherever you are
+ *  when the last step has no place). */
+function ReturnToHotel({ from, hotel, band, time, timeStart, readOnly, onTime }: {
+  from?: Place;
+  hotel: Hotel;
+  band?: React.ReactNode;
+  time?: string;
+  timeStart?: string;
+  readOnly: boolean;
+  onTime: (time: string | undefined) => void;
+}) {
   const to = hotelCoords(hotel);
   const walk = useWalk(from ?? { lat: 0, lng: 0 }, from ? to : null);
   const long = !walk || walk.min > LONG_WALK_MIN;
@@ -1348,11 +1375,26 @@ function ReturnToHotel({ from, hotel, band }: { from?: Place; hotel: Hotel; band
           and its travel */}
       {band}
       <li>
-        <a href={href} target="_blank" rel="noopener" aria-label={`Directions back to ${hotel.name || "your stay"}`} className="block active:bg-ink/[0.07]">
-          <TimelineStop tile={<IconTile size="sm" name="bed" tone="accent" />}>
-            <span className={STOP_TITLE}>Back to {hotel.name || "your stay"}</span>
-          </TimelineStop>
-        </a>
+        <TimelineStop
+          tile={<IconTile size="sm" name="bed" tone="accent" />}
+          time={
+            readOnly ? time : (
+              <Editable
+                as="time"
+                label="Back at"
+                value={time ?? ""}
+                onCommit={(v) => onTime(v || undefined)}
+                timeStart={timeStart}
+                className="tap not-italic"
+                emptyContent={<Icon name="clock" size={13} className="inline-block align-[-2px] text-ink-faint" />}
+              />
+            )
+          }
+        >
+          <a href={href} target="_blank" rel="noopener" aria-label={`Directions back to ${hotel.name || "your stay"}`} className={`${STOP_TITLE} active:opacity-60`}>
+            Back to {hotel.name || "your stay"}
+          </a>
+        </TimelineStop>
       </li>
     </>
   );
