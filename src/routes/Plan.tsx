@@ -340,7 +340,7 @@ function LegList({ data, todayISO, readOnly, splitPast, addDay }: {
                 <li className={`${DAY_ROW_LI} kicker px-3.5 pb-1 pt-3`}>{leg.base}</li>
                 {days.map((d) => (
                   <li key={d.id} className={`${DAY_ROW_LI} flex`}>
-                    <DayLink data={data} day={d} today={false} loc={loc} hex={legHex(leg.color)} className="pl-3.5" />
+                    <DayLink data={data} day={d} today={false} loc={loc} className="pl-3.5" />
                   </li>
                 ))}
               </Fragment>
@@ -372,7 +372,7 @@ function LegBlock({
     .map((id) => days.days.find((d) => d.id === id))
     .filter(Boolean)
     .map((d) => (
-      <DayRow key={d!.id} data={days} day={d!} today={d!.date === todayISO} loc={loc} readOnly={readOnly} hex={hex} />
+      <DayRow key={d!.id} data={days} day={d!} today={d!.date === todayISO} loc={loc} readOnly={readOnly} />
     ));
 
   return (
@@ -453,23 +453,21 @@ function DayCard({ day, loc, data }: { day: Day; loc: string; data: TripData }) 
   );
 }
 
-/** Own hairline, inset past the leading dot + date (not the drag handle,
+/** Own hairline, inset past the leading date (not the drag handle,
  *  which sits outside the link) — dropped on the last row, like every other
  *  grouped-inset list. The whole row greys while its link is pressed. */
 const DAY_ROW_LI =
   "relative transition-colors duration-150 has-[a:active]:bg-ink/[0.07] after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
 
 /** A day's tappable row body — date, title, kind + labels, chevron. */
-function DayLink({ data, day, today, loc, hex, className }: { data: TripData; day: Day; today: boolean; loc: string; hex: string; className: string }) {
+function DayLink({ data, day, today, loc, className }: { data: TripData; day: Day; today: boolean; loc: string; className: string }) {
   return (
     <Link
       to={`/day/${day.id}`}
       className={`flex min-w-0 flex-1 items-baseline gap-3 py-3 pr-3.5 ${className}`}
     >
-      {/* a plain block, not a flex row: a flex row would take its baseline
-          from the dot (an empty box) and drop the date below the title's */}
+      {/* the stay's colour is on its header — not repeated on every day */}
       <span className="shrink-0 whitespace-nowrap">
-        <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{ background: hex }} />
         <DayDate date={day.date} loc={loc} strong={today} />
       </span>
       <span className="flex min-w-0 flex-1 flex-col">
@@ -485,7 +483,7 @@ function DayLink({ data, day, today, loc, hex, className }: { data: TripData; da
   );
 }
 
-function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day: Day; today: boolean; loc: string; readOnly: boolean; hex: string }) {
+function DayRow({ data, day, today, loc, readOnly }: { data: TripData; day: Day; today: boolean; loc: string; readOnly: boolean }) {
   const pinned = (data.config.pinnedDays ?? []).includes(day.id);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: day.id, disabled: readOnly || pinned });
   return (
@@ -511,7 +509,7 @@ function DayRow({ data, day, today, loc, readOnly, hex }: { data: TripData; day:
           <Icon name="grip" size={14} />
         </button>
       ))}
-      <DayLink data={data} day={day} today={today} loc={loc} hex={hex} className={readOnly ? "pl-3.5" : "pl-1"} />
+      <DayLink data={data} day={day} today={today} loc={loc} className={readOnly ? "pl-3.5" : "pl-1"} />
       </ContextMenu>
     </li>
   );
