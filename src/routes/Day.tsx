@@ -839,7 +839,6 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
       <SwipeToDelete undoLabel="Step removed" onDelete={readOnly ? undefined : onRemove}>
       <ContextMenu>
         <TimelineStop
-          className="pr-1.5"
           time={
             readOnly ? (
               item.time && <span className="whitespace-pre-line">{stacked(item.time)}</span>
@@ -893,7 +892,9 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
             )
           }
           trailing={
-            <span className="flex shrink-0 items-start pt-[7px]">
+            // pinned beside the name only, so the hours and note below run
+            // the full width of the card
+            <span className="absolute right-1.5 top-[7px] flex">
               {/* desktop: ⋯ on hover. A phone holds the step for the same
                   menu, so it isn't drawn there (still mounted — the hold
                   opens its items) */}
@@ -940,6 +941,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
         >
           {/* name, then the place's hours that day, then the note */}
           <div ref={placeCardAnchor} className="space-y-0.5">
+            <div className={readOnly ? "[@media(hover:hover)]:pr-7" : "pr-6 [@media(hover:hover)]:pr-[3.25rem]"}>
             {readOnly ? (
               <span className="block break-words text-sm leading-snug text-ink">{item.text}</span>
             ) : item.placeId && sortedPickable.length > 0 ? (
@@ -966,6 +968,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                 className="block text-sm leading-snug text-ink"
               />
             )}
+            </div>
             {(hours || place?.overwhelming) && (
               <span className="meta block break-words">
                 {hours && (/^\d/.test(hours) ? `Open ${hours}` : hours)}
@@ -1030,8 +1033,8 @@ function TimelineStop({ time, tile, trailing, children, className = "pr-3.5" }: 
   className?: string;
 }) {
   return (
-    <span className={`flex gap-2.5 pl-3.5 ${className}`}>
-      <span className="block w-[3.25rem] shrink-0 pb-2.5 pt-[11px] text-right text-sm leading-snug tabular-nums text-ink-soft">{time}</span>
+    <span className={`relative flex gap-2.5 pl-3.5 ${className}`}>
+      <span className="block w-[2.625rem] shrink-0 pb-2.5 pt-[13px] text-right text-xs tabular-nums text-ink-soft">{time}</span>
       <Rail>{tile && <span className="relative z-10 block pt-2.5">{tile}</span>}</Rail>
       <span className="block min-w-0 flex-1 pb-2.5 pl-0.5 pt-[11px]">{children}</span>
       {trailing}
@@ -1172,7 +1175,7 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
   const trainTitle = train ? `Train from ${train.a.name} to ${train.b.name}, door to door` : "Transit directions";
   return (
     <li className="flex gap-2.5 pl-3.5 pr-3.5">
-      <span className="w-[3.25rem] shrink-0" />
+      <span className="w-[2.625rem] shrink-0" />
       <Rail />
       <span className="flex min-w-0 flex-1 flex-wrap gap-1.5 py-1 pl-0.5">
         {!long && walk && (
