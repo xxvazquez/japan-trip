@@ -53,6 +53,7 @@ export type IconName =
   | "ticket"
   | "route"
   | "pencil"
+  | "tag"
   | "info"
   | "alert"
   | "wallet"
@@ -334,6 +335,12 @@ const P: Record<IconName, JSX.Element> = {
     <>
       <path d="M9 5h11a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9l-6-7 6-7Z" />
       <path d="m12 9.5 5 5m0-5-5 5" />
+    </>
+  ),
+  tag: (
+    <>
+      <path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9-9-9Z" />
+      <circle cx="7.5" cy="7.5" r="1.5" />
     </>
   ),
   pencil: (

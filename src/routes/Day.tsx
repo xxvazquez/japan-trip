@@ -45,7 +45,7 @@ import { areaLeg } from "@/lib/cityAssign";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { DayStepper } from "@/components/DayStepper";
 import { NavAddButton } from "@/components/NavAddButton";
-import { DayLabels, tripLabels } from "@/components/DayLabels";
+import { DayLabelsCaption, DayLabelsSheet, tripLabels } from "@/components/DayLabels";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
@@ -123,6 +123,11 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const hotel = L.hotel(day.hotelId);
   const journeys = dayJourneys(day, data);
   const journeySheet = useActionSheet();
+  // the labels sheet opens from the caption or the title's ⋯, beside either
+  const [labelsOpen, setLabelsOpen] = useState(false);
+  const labelsAnchor = useRef<HTMLElement | null>(null);
+  const dayMenuAnchor = useRef<HTMLSpanElement>(null);
+  const openLabels = (el: HTMLElement | null) => { labelsAnchor.current = el; setLabelsOpen(true); };
   // what the journey popover points at — the section's own row, or the nav ＋
   const journeyAnchor = useRef<HTMLElement | null>(null);
   const linkJourney = (id: string) => patch({ journeyIds: [...(day.journeyIds ?? []), id] });
@@ -442,24 +447,40 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         title={
           <Editable label="Day title" value={day.title ?? ""} placeholder="Untitled day" onCommit={(v) => patch({ title: v || undefined })} />
         }
-        meta={weather ? weatherText(weather) : undefined}
+        meta={(day.labels?.length || weather) ? (
+          <>
+            <DayLabelsCaption labels={day.labels ?? []} onEdit={ro ? undefined : openLabels} />
+            {weather && <span className="block">{weatherText(weather)}</span>}
+          </>
+        ) : undefined}
         action={
+          <span ref={dayMenuAnchor}>
           <RowMenu label="Day options">
+            {!ro && (
+              <button className="menu-item" onClick={() => openLabels(dayMenuAnchor.current)}>
+                <Icon name="tag" size={16} /> {day.labels?.length ? "Labels…" : "Add a Label…"}
+              </button>
+            )}
             <button className="menu-item" onClick={downloadDayCalendar} disabled={icsBusy}>
               <Icon name="calendar" size={16} /> {icsBusy ? "Building calendar file…" : "Add Day to Calendar"}
             </button>
           </RowMenu>
+          </span>
         }
       />
 
-      <DayLabels
-        labels={day.labels ?? []}
-        used={usedLabels}
-        readOnly={ro}
-        onChange={(next) => patch({ labels: next.length ? next : undefined })}
-        onRenameAll={(from, to) => undoable("Label renamed", () => relabel(from, to))}
-        onDeleteAll={(l) => undoable("Label deleted", () => relabel(l))}
-      />
+      {!ro && (
+        <DayLabelsSheet
+          open={labelsOpen}
+          onClose={() => setLabelsOpen(false)}
+          anchorRef={labelsAnchor}
+          labels={day.labels ?? []}
+          used={usedLabels}
+          onChange={(next) => patch({ labels: next.length ? next : undefined })}
+          onRenameAll={(from, to) => undoable("Label renamed", () => relabel(from, to))}
+          onDeleteAll={(l) => undoable("Label deleted", () => relabel(l))}
+        />
+      )}
 
       {ro ? (
         (hotel || journeys.length > 0) && (

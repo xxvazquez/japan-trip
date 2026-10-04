@@ -1,75 +1,80 @@
-import { useState } from "react";
-import { ActionSheet, ConfirmMenuItem, useActionSheet } from "./ActionSheet";
+import { useEffect, useState, type RefObject } from "react";
+import { ActionSheet, ConfirmMenuItem } from "./ActionSheet";
+import { ContextMenu } from "./ContextMenu";
 import { Icon } from "./Icon";
 import { TextPrompt } from "./TextPrompt";
 import { primeKeyboard } from "@/lib/keyboard";
-import { undoable } from "@/store/useApp";
 
 const same = (a: string, b: string) => a.toLocaleLowerCase() === b.toLocaleLowerCase();
 
 /**
- * A day's own labels ("chill day", "walking") as chips under its title. The
- * + offers the labels already used elsewhere in the trip as one tap each,
- * so reusing one never means retyping it; "New label…" is the only place to
- * type (an iOS text-field alert), since a label is whatever you want it to be. Tapping a chip offers
- * Rename (on every day that has it) and Delete (from this day or all of
- * them); every removal can be undone. Read-only shows the chips alone, or
- * nothing when there are none.
+ * A day's own labels ("chill day", "walking"), edited in one checklist sheet
+ * — the way Map's "Areas for…" picks several. The page shows them as a quiet
+ * caption under the title (`DayLabelsCaption`), like Plan's rows, never as
+ * chips. Every label used anywhere in the trip is one tap to put on or take
+ * off this day, so reusing one never means retyping it; "New Label…" is the
+ * only place to type (an iOS text-field alert). Hold a label (right-click on
+ * a computer) to rename it or delete it on every day (undoable). Unticking
+ * needs no Undo — ticking it again is one.
  */
-export function DayLabels({ labels, used, readOnly, onChange, onRenameAll, onDeleteAll }: {
+export function DayLabelsSheet({ open, onClose, anchorRef, labels, used, onChange, onRenameAll, onDeleteAll }: {
+  open: boolean;
+  onClose: () => void;
+  anchorRef: RefObject<HTMLElement>;
   labels: string[];
   /** every label in the trip, most used first */
   used: string[];
-  readOnly: boolean;
   onChange: (next: string[]) => void;
   /** rename a label on every day of the trip that has it */
   onRenameAll: (from: string, to: string) => void;
   /** take a label off every day of the trip */
   onDeleteAll: (label: string) => void;
 }) {
-  const sheet = useActionSheet();
   const [naming, setNaming] = useState(false);
-  if (readOnly && labels.length === 0) return null;
-
-  const offer = used.filter((l) => !labels.some((x) => same(x, l)));
+  const [renaming, setRenaming] = useState<string | null>(null);
+  // a label unticked here that no other day has drops out of `used` — keep
+  // it in the list until the sheet closes, so the row doesn't vanish mid-tap
+  const [kept, setKept] = useState<string[]>([]);
+  const listed = [...used, ...labels.filter((l) => !used.some((u) => same(u, l)))];
+  useEffect(() => { if (open) setKept(listed); }, [open]);
+  const all = [...listed, ...kept.filter((k) => !listed.some((l) => same(l, k)))];
+  const has = (l: string) => labels.some((x) => same(x, l));
+  const toggle = (l: string) =>
+    onChange(has(l) ? labels.filter((x) => !same(x, l)) : [...labels, l]);
   const add = (raw: string) => {
     const l = raw.trim();
-    if (l && !labels.some((x) => same(x, l))) onChange([...labels, l]);
+    if (l && !has(l)) onChange([...labels, l]);
   };
 
   return (
-    <div className="mb-6 flex flex-wrap items-center gap-2">
-      {labels.map((l) => readOnly ? (
-        <span key={l} className="chip h-auto min-h-[32px] whitespace-normal break-words py-1.5 text-left font-normal">{l}</span>
-      ) : (
-        <LabelChip
-          key={l}
-          label={l}
-          onRemove={() => undoable("Label removed", () => onChange(labels.filter((x) => x !== l)))}
-          onRename={(to) => onRenameAll(l, to)}
-          onDeleteAll={() => onDeleteAll(l)}
-        />
-      ))}
-      {!readOnly && (
-        <>
-          <button
-            ref={sheet.anchorRef}
-            type="button"
-            onClick={() => { if (offer.length) sheet.setOpen(true); else { primeKeyboard(); setNaming(true); } }}
-            className="action tap text-sm"
-          >
-            <Icon name="plus" size={12} /> {labels.length ? "Label" : "Add a label"}
+    <>
+      <ActionSheet open={open} onClose={onClose} anchorRef={anchorRef} title="Labels" doneLabel="Done">
+        {/* toggles stay open until dismissed — stopPropagation so a tap
+            doesn't trigger ActionSheet's "close on any click inside" */}
+        <div onClick={(e) => e.stopPropagation()}>
+          {all.map((l) => (
+            <ContextMenu
+              key={l}
+              menu={
+                <>
+                  <button type="button" className="menu-item" onClick={() => { primeKeyboard(); setRenaming(l); }}>
+                    <Icon name="pencil" size={16} /> Rename on every day
+                  </button>
+                  <ConfirmMenuItem onConfirm={() => onDeleteAll(l)} label="Delete from every day" icon={<Icon name="trash" size={16} />} />
+                </>
+              }
+            >
+              <button type="button" className="menu-item flex w-full items-center gap-2" onClick={() => toggle(l)}>
+                <span className="min-w-0 flex-1 break-words text-left">{l}</span>
+                <span className="w-4 shrink-0 text-accent">{has(l) && <Icon name="check" size={14} />}</span>
+              </button>
+            </ContextMenu>
+          ))}
+          <button type="button" className="menu-item text-accent" onClick={() => { primeKeyboard(); setNaming(true); }}>
+            <Icon name="plus" size={16} /> New Label…
           </button>
-          <ActionSheet open={sheet.open} onClose={() => sheet.setOpen(false)} anchorRef={sheet.anchorRef} title="Add a label">
-            {offer.map((l) => (
-              <button key={l} type="button" className="menu-item" onClick={() => add(l)}>{l}</button>
-            ))}
-            <button type="button" className="menu-item" onClick={() => { primeKeyboard(); setNaming(true); }}>
-              <Icon name="plus" size={16} /> New label…
-            </button>
-          </ActionSheet>
-        </>
-      )}
+        </div>
+      </ActionSheet>
       <TextPrompt
         open={naming}
         title="New Label"
@@ -79,7 +84,30 @@ export function DayLabels({ labels, used, readOnly, onChange, onRenameAll, onDel
         onSubmit={add}
         onClose={() => setNaming(false)}
       />
-    </div>
+      <TextPrompt
+        open={renaming !== null}
+        title="Rename Label"
+        message="Renames it on every day that has it."
+        initial={renaming ?? ""}
+        action="Save"
+        onSubmit={(to) => renaming && onRenameAll(renaming, to)}
+        onClose={() => setRenaming(null)}
+      />
+    </>
+  );
+}
+
+/** the day's labels as one caption line — " · " joined, wrapping, never
+ *  truncated. Editable, it's a button that opens the labels sheet. */
+export function DayLabelsCaption({ labels, onEdit }: { labels: string[]; onEdit?: (el: HTMLElement) => void }) {
+  if (labels.length === 0) return null;
+  const text = labels.join(" · ");
+  return onEdit ? (
+    <button type="button" onClick={(e) => onEdit(e.currentTarget)} className="block break-words text-left active:opacity-60">
+      {text}
+    </button>
+  ) : (
+    <span className="block break-words">{text}</span>
   );
 }
 
@@ -96,43 +124,4 @@ export function tripLabels(days: { labels?: string[] }[]): string[] {
     }
   }
   return [...count.values()].sort((a, b) => b.n - a.n || a.first - b.first).map((c) => c.label);
-}
-
-/** One of the day's labels: tap it for Rename / Remove / Delete everywhere,
- *  or its ✕ to just take it off this day. Rename opens the same text-field
- *  alert "New label…" uses. */
-function LabelChip({ label, onRemove, onRename, onDeleteAll }: {
-  label: string;
-  onRemove: () => void;
-  onRename: (to: string) => void;
-  onDeleteAll: () => void;
-}) {
-  const sheet = useActionSheet();
-  const [renaming, setRenaming] = useState(false);
-  return (
-    <span className="chip h-auto min-h-[32px] whitespace-normal break-words py-1.5 text-left font-normal">
-      <button ref={sheet.anchorRef} type="button" onClick={() => sheet.setOpen(true)} className="text-left">
-        {label}
-      </button>
-      <button type="button" onClick={onRemove} aria-label={`Remove the label ${label}`} className="tap -mr-1 shrink-0 text-ink-faint hover:text-ink-soft">
-        <Icon name="close" size={11} />
-      </button>
-      <ActionSheet open={sheet.open} onClose={() => sheet.setOpen(false)} anchorRef={sheet.anchorRef} title={label}>
-        <button type="button" className="menu-item" onClick={() => { primeKeyboard(); setRenaming(true); }}>
-          Rename on every day
-        </button>
-        <button type="button" className="menu-item" onClick={onRemove}>Remove from this day</button>
-        <ConfirmMenuItem onConfirm={onDeleteAll} label="Delete from every day" />
-      </ActionSheet>
-      <TextPrompt
-        open={renaming}
-        title="Rename Label"
-        message="Renames it on every day that has it."
-        initial={label}
-        action="Save"
-        onSubmit={onRename}
-        onClose={() => setRenaming(false)}
-      />
-    </span>
-  );
 }

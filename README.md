@@ -90,8 +90,9 @@ The trip as a list of days, grouped by **base** — where you're based for a run
 - **During the trip** the list opens on today. Earlier days move to **Past days** at the bottom (closed until you open it), grouped by base. Past days can be opened, not dragged. It moves on to the new day by itself, even if the app was left open overnight.
 - **After the trip** the top of Plan becomes a recap: how many days away, cities, total spent in the trip's main currency (tap it for Expenses) and stamps collected.
 - **Labels** — your own tags for a day ("Chill day", "Walking"):
-  - **+ Add a label** under the day's title offers labels you've used, or **New label…**.
-  - ✕ removes one from the day. Tap a label to rename or delete it on every day at once.
+  - They show as one grey line under the day's title, like on Plan.
+  - Tap that line, or ⋯ → **Labels…**, for a checklist of every label in the trip. Tap one to put it on or take it off the day; **New Label…** makes another.
+  - Hold a label in that list (right-click on a computer) to rename or delete it on every day at once.
   - All of it can be undone.
 
 ### How dates work
