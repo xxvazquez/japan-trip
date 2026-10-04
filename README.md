@@ -368,11 +368,14 @@ When unassigned places sit close together, **⋯ → Suggest Areas** appears. No
 
 ### Neighbourhoods preview
 
-*⋯ → Neighbourhoods* shows your places grouped by the neighbourhood they're in, city by city, next to how many areas each city has now. It's read-only — nothing changes.
+*⋯ → Neighbourhoods* sorts your places into the neighbourhoods OpenStreetMap puts them in, city by city — to compare with the areas you made yourself. It's read-only — nothing changes.
 
+- **Areas vs neighbourhoods** — areas are yours (you name them and pick their places); neighbourhoods are the official names, worked out for you.
 - A neighbourhood with 3 or more places is its own group; smaller ones join their district, then their ward or city.
-- Names come from OpenStreetMap, looked up once per place (about one a second) and kept on the device.
-- Open a group to see each place's current areas.
+- Names come from OpenStreetMap, looked up once per place (about one a second) and kept on the device. The lookup keeps going while the app is open, even after you leave the page.
+- **Search** neighbourhoods and places, and sort by **Most places** or **A–Z**.
+- Open a neighbourhood to see its places; a place shows its area only when that's named differently. Tap a place to see it on the Map.
+- Under each city: how many neighbourhoods it has, how many areas you made, and how many places aren't in one.
 
 ## Logbook
 

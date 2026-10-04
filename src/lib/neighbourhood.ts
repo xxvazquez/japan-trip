@@ -106,6 +106,35 @@ async function lookup(p: { lat: number; lng: number }): Promise<Levels> {
 /** lookups that got no answer this session — not cached, so a later visit retries */
 const failedKeys = new Set<string>();
 
+/* The lookups run in one queue for the whole app, not inside the page —
+ * so leaving the page doesn't stop them; they carry on while the app is
+ * open and the page picks up wherever they've got to when it's back. */
+const listeners = new Set<() => void>();
+const queue: string[] = [];
+let running = false;
+
+async function drain() {
+  running = true;
+  while (queue.length) {
+    const k = queue.shift()!;
+    if (k in cache || failedKeys.has(k)) continue;
+    const [lat, lng] = k.split(",").map(Number);
+    try {
+      cache[k] = await lookup({ lat, lng });
+      save();
+    } catch {
+      failedKeys.add(k);
+    }
+    listeners.forEach((f) => f());
+  }
+  running = false;
+}
+
+function enqueue(keys: string[]) {
+  for (const k of keys) if (!queue.includes(k)) queue.push(k);
+  if (!running && queue.length) void drain();
+}
+
 /**
  * Each place's levels, looking up the ones this device hasn't seen yet one
  * at a time (Nominatim allows ~1 a second, so a few hundred pins take a few
@@ -116,31 +145,18 @@ export function usePlaceLevels(places: Place[]) {
   const [, bump] = useState(0);
   const located = places.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
   const keys = [...new Set(located.map(coordKey))];
-  const todo = keys.filter((k) => !(k in cache) && !failedKeys.has(k));
-  const want = todo.join("|");
+  const want = keys.filter((k) => !(k in cache) && !failedKeys.has(k)).join("|");
 
   useEffect(() => {
-    if (!want) return;
-    let live = true;
-    void (async () => {
-      for (const k of want.split("|")) {
-        if (!live) return;
-        if (k in cache || failedKeys.has(k)) continue;
-        const [lat, lng] = k.split(",").map(Number);
-        try {
-          cache[k] = await lookup({ lat, lng });
-          save();
-        } catch {
-          failedKeys.add(k);
-        }
-        if (live) bump((n) => n + 1);
-      }
-    })();
+    const f = () => bump((n) => n + 1);
+    listeners.add(f);
     return () => {
-      live = false;
+      listeners.delete(f);
     };
-    // only restart when the set of places changes, not on every answer
-  }, [keys.join("|")]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (want) enqueue(want.split("|"));
+  }, [want]);
 
   const levels = new Map<string, Levels>();
   for (const p of located) {
