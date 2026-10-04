@@ -145,7 +145,7 @@ The day reads as one route, like a route's stops in Maps: times in a column on t
 
 Each step shows its name, then its note in smaller, lighter grey (folded after 2 lines, with **more**). A red line under the name only appears when it changes the plan: the step's time doesn't fit the place's hours (see below) or it's marked **Overwhelming**.
 
-On a day that spans more than one part, the plan is split into **Morning** (before 12:00), **Afternoon** (until 18:00) and **Evening**, each starting with a tinted band across the timeline. A step with no exact time stays in the part before it.
+On a day that spans more than one part, the plan is split into **Morning** (before 12:00), **Afternoon** (until 18:00) and **Evening**, each starting with a tinted band across the timeline. A step with no exact time stays in the part before it. Bands only move forward through the day — never an earlier one twice.
 
 A stop and the way on to the next one stay together: the walk or train sits under the stop it leaves from, never under a Morning/Afternoon band.
 
@@ -153,13 +153,16 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 - **Setting a time** — the wheels start at the last time set on an earlier step (else 9:00). **Done** saves what's showing; tapping outside or swiping the sheet down cancels.
 - **Link a place** — tap the step's icon to pick a place from the day's Areas, or to change it later; **Custom…** unlinks it.
 - **Meal steps** — an unlinked step whose text mentions a meal (lunch, dinner, breakfast…), coffee or drinks gets a gold food, coffee or drink tile instead of the grey pin.
-- **Reorder** by dragging the small ≡ on the right (shown on hover on a computer).
+- **Time order** — steps keep themselves in time order. Set or change a step's time and it moves to its place in the day.
+- **Untimed steps** — drag the small ≡ on the right (shown on hover on a computer) to place one. It then stays with the step above it. A loose time ("Around noon") counts as untimed.
+- **Pin a step** from its menu (**Pin this step**) to keep it exactly where it is: it shows a pin, can't be dragged, and isn't re-sorted by time. **Unpin this step** undoes it.
 - **The place card** — tap a linked step's name, as you'd tap a place in Maps: the name (with any clash with its hours), a button row pinned under it (**Google Maps** filled, Tabelog for restaurants in Japan, **Map**, **Calendar**), then the step's note, Good to know, and last the step itself: an **Overwhelming** switch, Add an expense, Duplicate step, Remove step. ✕ or a drag down closes it.
 - **Open in Google Maps** is also the first item when you hold a step (⋯ on a computer).
-- **The step's menu** — long-press a step on a phone (or right-click it, or its ⋯ on hover on a computer): add to Google Calendar, mark as **overwhelming** (a ⚠ on its grey line; the day's count shows on Plan), add a note, duplicate, add an expense, remove.
+- **The step's menu** — long-press a step on a phone (or right-click it, or its ⋯ on hover on a computer): add to Google Calendar, mark as **overwhelming** (a ⚠ on its grey line; the day's count shows on Plan), add a note, pin, duplicate, add an expense, remove.
 - **Delete** — swipe a step left on a phone.
 - **Notes** support bold, bullets and links. Tap to edit. Empty fields stay hidden.
 - **+ Add a step** sits at the foot of the list and opens the new step ready to type. Leave it blank and it goes away.
+- **+ beside the Plan title** adds a step at the start of the day instead, so a long day needs no scroll. Give it a time and it moves into place.
 - **Each journey on the day** shows as two rows of its own: **Leave** (first departure) and **Arrive** (last arrival), slotted in by time. They follow the journey live — edit the times on the journey, tap a row to open it.
 
 ### Helpers on a step

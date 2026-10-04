@@ -5,7 +5,7 @@ import type { Day, Doc, DocField, ExpenseCategory, Hotel, ModuleConfig, PlanItem
 import { todayISO } from "@/lib/dates";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
-export const SCHEMA_VERSION = 16;
+export const SCHEMA_VERSION = 17;
 
 /** Seed expense categories for a new trip. `role: "transport"` is the catch-all
  *  for any fare whose mode isn't claimed below (ferry, car, walk, or a manual
@@ -298,6 +298,7 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
         note: it.note || undefined,
         placeId: it.placeId || undefined,
         url: it.url || undefined,
+        pinned: it.pinned ? true : undefined,
       }));
     } else {
       const fromStrings = (Array.isArray(raw.plan) ? (raw.plan as unknown[]) : [])

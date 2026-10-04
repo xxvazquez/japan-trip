@@ -11,7 +11,8 @@ import {
   closestCenter,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
+import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { moveAroundPinned, sortByTime, startMinutes } from "@/lib/planOrder";
 import { CSS } from "@dnd-kit/utilities";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
@@ -138,6 +139,18 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     });
   const loc = data.config.locale;
   const setPlan = (next: PlanItem[]) => patch({ plan: next.length ? next : undefined });
+  // the step just added opens straight into its text. Rendered synchronously
+  // inside the tap, so its field is focused there and the iPhone keyboard
+  // comes up (it won't for a focus that happens after the tap)
+  const [freshStep, setFreshStep] = useState<string | null>(null);
+  const addStep = (atStart: boolean) => {
+    const id = rid();
+    const plan = day.plan ?? [];
+    flushSync(() => {
+      setFreshStep(id);
+      setPlan(atStart ? [{ id, text: "" }, ...plan] : [...plan, { id, text: "" }]);
+    });
+  };
   const usedLabels = useMemo(() => tripLabels(data.days), [data.days]);
   // rename a label (or with no `to`, drop it) on every day that carries it;
   // a rename onto a label a day already has merges the two
@@ -395,14 +408,24 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       {((day.plan ?? []).length > 0 || !ro) && (
         <Section
           title="Plan"
-          info="Drag ≡ to reorder; hold a step for its menu (⋯ on a computer). Tap a step's grey pin to link it to a place from an Area you've added below."
-          action={overwhelmingCount > 0 && (
-            <span className="flex items-center gap-1 text-xs text-danger" title={`${plural(overwhelmingCount, "overwhelming place")} today`}>
-              <Icon name="alert" size={13} /> {overwhelmingCount}
+          info="Steps keep themselves in time order — set a time and the step moves there. Drag ≡ to place a step without a time; it then stays with the step above it. Hold a step for its menu (⋯ on a computer), where Pin this step keeps it where it is. Tap a step's grey pin to link it to a place from an Area you've added below."
+          action={(overwhelmingCount > 0 || !ro) && (
+            <span className="flex items-center gap-3">
+              {overwhelmingCount > 0 && (
+                <span className="flex items-center gap-1 text-xs text-danger" title={`${plural(overwhelmingCount, "overwhelming place")} today`}>
+                  <Icon name="alert" size={13} /> {overwhelmingCount}
+                </span>
+              )}
+              {/* a step for the start of the day, without scrolling to the foot */}
+              {!ro && (day.plan ?? []).length > 0 && (
+                <button type="button" onClick={() => addStep(true)} className="tap text-accent" aria-label="Add a step at the start of the day" title="Add a step at the start">
+                  <Icon name="plus" size={17} />
+                </button>
+              )}
             </span>
           )}
         >
-          <PlanList day={day} journeys={journeys} startHotel={startHotel} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} onChange={setPlan} onBackAt={(t) => patch({ backAt: t })} onLeaveAt={(t) => patch({ leaveAt: t })} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
+          <PlanList day={day} journeys={journeys} startHotel={startHotel} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} fresh={freshStep} onAdd={() => addStep(false)} onChange={setPlan} onBackAt={(t) => patch({ backAt: t })} onLeaveAt={(t) => patch({ leaveAt: t })} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
         </Section>
       )}
 
@@ -605,7 +628,7 @@ function DayJourneyRow({ day, journey, data, onRemove }: { day: DayT; journey: J
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, areaPlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, onChange, onBackAt, onLeaveAt, onQuickAddCost, onShowOnMap }: {
+function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, areaPlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, fresh, onAdd, onChange, onBackAt, onLeaveAt, onQuickAddCost, onShowOnMap }: {
   day: DayT;
   /** the day's journeys — their leave / arrive times show as rows of their own */
   journeys: Journey[];
@@ -621,6 +644,10 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
   categoryIcons?: Record<string, string>;
   categoryColors?: Record<string, string>;
   readOnly: boolean;
+  /** the step just added — opens its text for typing */
+  fresh: string | null;
+  /** adds an empty step at the end */
+  onAdd: () => void;
   onChange: (next: PlanItem[]) => void;
   /** sets when you're back at the hotel (the last row's time) */
   onBackAt: (time: string | undefined) => void;
@@ -634,27 +661,21 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
     useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 8 } }),
     useSensor(KeyboardSensor),
   );
-  const patchItem = (id: string, p: Partial<PlanItem>) => onChange(items.map((x) => (x.id === id ? { ...x, ...p } : x)));
+  const isPinned = (x: PlanItem) => !!x.pinned;
+  // a new or changed time moves the step to its place in the day
+  const patchItem = (id: string, p: Partial<PlanItem>) => {
+    const next = items.map((x) => (x.id === id ? { ...x, ...p } : x));
+    onChange("time" in p ? sortByTime(next, isPinned) : next);
+  };
   const removeItem = (id: string) => onChange(items.filter((x) => x.id !== id));
   // dropped right after the original — a copied step usually belongs right
   // next to it (e.g. the same coffee stop, twice on a long day), not at the end
   const duplicateItem = (id: string) => {
     const i = items.findIndex((x) => x.id === id);
     if (i === -1) return;
-    onChange([...items.slice(0, i + 1), { ...items[i], id: rid() }, ...items.slice(i + 1)]);
+    onChange([...items.slice(0, i + 1), { ...items[i], id: rid(), pinned: undefined }, ...items.slice(i + 1)]);
   };
 
-  // the step just added opens straight into its text. Rendered synchronously
-  // inside the tap, so its field is focused there and the iPhone keyboard
-  // comes up (it won't for a focus that happens after the tap)
-  const [fresh, setFresh] = useState<string | null>(null);
-  const addStep = () => {
-    const id = rid();
-    flushSync(() => {
-      setFresh(id);
-      onChange([...items, { id, text: "" }]);
-    });
-  };
 
   // the journey's own rows, live from the journey (never stored as steps):
   // each sits before the first step timed later than it, else at the end
@@ -677,7 +698,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
     return readOnly ? (
       <p className="px-3.5 py-3 text-sm text-ink-faint">Nothing planned yet.</p>
     ) : (
-      <button onClick={addStep} className="action w-full px-3.5 py-2.5 text-xs active:bg-ink/[0.07]">
+      <button onClick={onAdd} className="action w-full px-3.5 py-2.5 text-xs active:bg-ink/[0.07]">
         <Icon name="plus" size={14} /> Add a step
       </button>
     );
@@ -752,13 +773,17 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
   const leaveAtPart = startHotel ? dayPart(day.leaveAt) : undefined;
   const leavePart = leaveAtPart && (!firstPart || PART_ORDER.indexOf(leaveAtPart) <= PART_ORDER.indexOf(firstPart)) ? leaveAtPart : undefined;
   const multiPart = new Set([leavePart, ...parts.filter(Boolean), backPart].filter(Boolean)).size > 1;
-  // a band the hotel row already opened isn't repeated by the first step
+  // a band the hotel row already opened isn't repeated by the first step,
+  // and bands only ever move forward through the day — a pinned step held
+  // out of time order stays under the band it sits in, never opens an
+  // earlier one again. Keyed by the part, so a band stays itself while the
+  // steps under it change
   let part: DayPart | undefined = multiPart ? leavePart : undefined;
   const rows = entries.flatMap((e, i) => {
     const p = parts[i];
-    if (!multiPart || !p || p === part) return e.nodes;
+    if (!multiPart || !p || (part && PART_ORDER.indexOf(p) <= PART_ORDER.indexOf(part))) return e.nodes;
     part = p;
-    return [<DayPartRow key={`part-${i}`} part={p} />, ...e.nodes];
+    return [<DayPartRow key={`part-${p}`} part={p} />, ...e.nodes];
   });
 
   // the day closes with the way back to the hotel; its walk figures need the
@@ -805,7 +830,9 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
     if (!over || active.id === over.id) return;
     const from = items.findIndex((x) => x.id === active.id);
     const to = items.findIndex((x) => x.id === over.id);
-    if (from >= 0 && to >= 0) onChange(arrayMove(items, from, to));
+    // an untimed step lands where it's dropped, then rides with the timed
+    // step above it — the timed ones stay in time order
+    if (from >= 0 && to >= 0) onChange(sortByTime(moveAroundPinned(items, from, to, isPinned), isPinned));
   };
 
   return (
@@ -817,7 +844,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
       </DndContext>
       {/* the add lives at the foot, next to where the new step lands, so a
        *  long plan doesn't need a scroll back to the top */}
-      <button onClick={addStep} className="action w-full px-3.5 py-2.5 text-xs active:bg-ink/[0.07]">
+      <button onClick={onAdd} className="action w-full px-3.5 py-2.5 text-xs active:bg-ink/[0.07]">
         <Icon name="plus" size={14} /> Add a step
       </button>
     </>
@@ -891,7 +918,9 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
   onQuickAddCost: (item: PlanItem) => void;
   onShowOnMap: (place: Place) => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id, disabled: readOnly });
+  // a step with a clock time is placed by its time, not by hand
+  const timed = startMinutes(item.time) !== undefined;
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id, disabled: readOnly || !!item.pinned || timed });
   const updateEntity = useApp((s) => s.updateEntity);
   // an empty note stays out of the card until "Add a note" asks for it
   const [noteOpen, setNoteOpen] = useState(false);
@@ -1052,6 +1081,9 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                           <Icon name="pencil" size={16} /> Add a note
                         </button>
                       )}
+                      <button type="button" className="menu-item" onClick={() => onPatch({ pinned: item.pinned ? undefined : true })}>
+                        <Icon name="pushpin" size={16} /> {item.pinned ? "Unpin this step" : "Pin this step"}
+                      </button>
                       <button type="button" className="menu-item" onClick={onDuplicate}>
                         <Icon name="copy" size={16} /> Duplicate
                       </button>
@@ -1063,7 +1095,14 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                   )}
                 </RowMenu>
               </span>
-              {!readOnly && (
+              {/* fixed in its place, so the grip gives way to a pin — on
+                  every width, like a pinned day on Plan */}
+              {item.pinned && !readOnly ? (
+                <span className="grid h-7 w-6 place-items-center text-ink-faint" title="Pinned to its place">
+                  <Icon name="pushpin" size={14} />
+                  <span className="sr-only">Pinned to its place</span>
+                </span>
+              ) : !readOnly && !timed && (
                 <button
                   {...attributes}
                   {...listeners}
@@ -1464,11 +1503,12 @@ function ReturnToHotel({ from, hotel, band, time, timeStart, readOnly, onTime }:
   );
 }
 
-/** the step's own opening hours, straight from OpenStreetMap and narrowed to
- *  the day's own date (`hoursForDate` — the rule for that month and weekday,
- *  not the whole year's schedule; nothing at all when nothing covers the
- *  date). Never shown as such — only checked against the step's time
- *  (`hoursConflict`). Null when nothing's tagged nearby. */
+/** the step's own opening hours on the day's own date, the rule for that
+ *  month and weekday rather than the whole year's schedule. Read first from
+ *  the place's "Good to know" Hours and Closed lines — what its place card
+ *  shows — else from OpenStreetMap's tag (`hoursForDate`; a date no rule
+ *  covers is a closed one). Never shown as such — only checked against the
+ *  step's time (`hoursConflict`). Null when neither has anything. */
 function usePlaceHours(place: Place | undefined, date?: string): string | null {
   const [hours, setHours] = useState<PlaceHours | null>(null);
   useEffect(() => {

@@ -271,6 +271,9 @@ export interface PlanItem {
   placeId?: ID;
   /** a plain link when the step isn't a map pin (kept from the old model) */
   url?: string;
+  /** fixed to its place in the day (a booking, a timed ticket): it can't be
+   *  dragged, and moving the other steps flows around it */
+  pinned?: true;
 }
 
 /** A named geographic grouping of places — "where", orthogonal to a place's
