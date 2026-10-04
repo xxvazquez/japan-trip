@@ -21,6 +21,7 @@ import { Section } from "@/components/Section";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { ActionRow, ACTION_ROW } from "@/components/ActionRow";
 import { Switch } from "@/components/Switch";
+import { SearchField } from "@/components/SearchField";
 import { RowSelect } from "@/components/RowSelect";
 import { ActionSheet, useActionSheet, ConfirmMenuItem } from "@/components/ActionSheet";
 import { Editable } from "@/components/Editable";
@@ -151,11 +152,21 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   // inside the tap, so its field is focused there and the iPhone keyboard
   // comes up (it won't for a focus that happens after the tap)
   const [freshStep, setFreshStep] = useState<string | null>(null);
-  const addStep = () => {
+  // a new step starts with what it is, as Maps' "Add a stop" does: one of
+  // the trip's places (then its time), or Custom… for a step to type
+  const addSheet = useActionSheet();
+  const addAnchor = useRef<HTMLElement | null>(null);
+  const addStep = (e?: { currentTarget: HTMLElement }) => {
+    addAnchor.current = e?.currentTarget ?? null;
+    addSheet.setOpen(true);
+  };
+  const addPicked = (pid?: string) => {
+    addSheet.setOpen(false);
     const id = rid();
+    const p = pid ? data.places.find((x) => x.id === pid) : undefined;
     flushSync(() => {
       setFreshStep(id);
-      setPlan([...(day.plan ?? []), { id, text: "" }]);
+      setPlan([...(day.plan ?? []), p ? { id, text: p.name, placeId: p.id } : { id, text: "" }]);
     });
   };
   const usedLabels = useMemo(() => tripLabels(data.days), [data.days]);
@@ -179,7 +190,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   // falls back to the whole list if none resolve to that city yet (an
   // unlinked hotel, say) so the picker is never left with nothing to offer
   const cityAnchors = useCityAnchors(data);
-  const { dayCity, placeCity } = useTripCities(data, cityAnchors);
+  const { dayCity, placeCity, tripCities } = useTripCities(data, cityAnchors);
   const cityAreas = useMemo(() => {
     const city = dayCity.get(day.id);
     const inCity = data.areas.filter((a) => areaLeg(a, placeCity) === city);
@@ -190,6 +201,20 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   // linked areas (see the Areas section below), not every place in the trip
   const areaPlaceIds = new Set((day.areaIds ?? []).flatMap((aid) => data.areas.find((a) => a.id === aid)?.placeIds ?? []));
   const areaPlaces = data.places.filter((p) => areaPlaceIds.has(p.id));
+  // and after them, the rest of the day's city, then everywhere else — so a
+  // day with no areas yet still picks from the trip's places
+  const morePlaces = useMemo<PlaceGroup[]>(() => {
+    const byName = (a: Place, b: Place) => a.name.localeCompare(b.name);
+    const city = dayCity.get(day.id);
+    const cityName = city ? data.legs.find((l) => l.id === city)?.base ?? tripCities.find((c) => c.id === city)?.name : undefined;
+    const rest = data.places.filter((p) => !areaPlaceIds.has(p.id)).sort(byName);
+    const here = city ? rest.filter((p) => placeCity.get(p.id) === city) : [];
+    const hereIds = new Set(here.map((p) => p.id));
+    return [
+      { label: cityName ? `In ${cityName}` : "In this city", places: here },
+      { label: here.length || areaPlaceIds.size ? "Elsewhere" : "Places", places: rest.filter((p) => !hereIds.has(p.id)) },
+    ];
+  }, [data.places, data.legs, day.id, day.areaIds, data.areas, dayCity, placeCity, tripCities]);
   // once a day spans more than 2 areas, the picker shows which area each
   // place is from (first area wins for a place linked to more than one)
   const areaNameByPlaceId = new Map<string, string>();
@@ -394,6 +419,20 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       <DayStepper days={data.days} current={day.id} locale={loc} />
       {/* ＋ where Plan has it, beside the account button: the day's one new thing is a step */}
       {!ro && <NavAddButton label="Add a step" onClick={addStep} />}
+      {!ro && (
+        <PlacePicker
+          title="Add a step"
+          adding
+          places={[...areaPlaces].sort((a, b) => a.name.localeCompare(b.name))}
+          more={morePlaces}
+          areaNameByPlaceId={areaNameByPlaceId}
+          categoryIcons={data.config.categoryIcons}
+          categoryColors={data.config.categoryColors}
+          onPick={addPicked}
+          sheet={addSheet}
+          anchor={addAnchor}
+        />
+      )}
       <PageHeader
         back="/"
         dotColor={legHex(leg?.color)}
@@ -503,7 +542,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             </span>
           )}
         >
-          <PlanList day={day} journeys={journeys} startHotel={startHotel} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} fresh={freshStep} onAdd={addStep} onChange={setPlan} onBackAt={(t) => patch({ backAt: t })} onLeaveAt={(t) => patch({ leaveAt: t })} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
+          <PlanList day={day} journeys={journeys} startHotel={startHotel} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} morePlaces={morePlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} fresh={freshStep} onAdd={addStep} onChange={setPlan} onBackAt={(t) => patch({ backAt: t })} onLeaveAt={(t) => patch({ leaveAt: t })} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
         </Section>
       )}
 
@@ -764,7 +803,7 @@ function DayJourneyRow({ day, journey, data, onRemove }: { day: DayT; journey: J
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedItems, places, areaPlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, fresh, onAdd, onChange, onBackAt, onLeaveAt, onQuickAddCost, onShowOnMap }: {
+function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedItems, places, areaPlaces, morePlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, fresh, onAdd, onChange, onBackAt, onLeaveAt, onQuickAddCost, onShowOnMap }: {
   day: DayT;
   /** the day's journeys — their leave / arrive times show as rows of their own */
   journeys: Journey[];
@@ -776,14 +815,15 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   items: PlanItem[];
   places: Place[];
   areaPlaces: Place[];
+  morePlaces: PlaceGroup[];
   areaNameByPlaceId: Map<string, string>;
   categoryIcons?: Record<string, string>;
   categoryColors?: Record<string, string>;
   readOnly: boolean;
   /** the step just added — opens its text for typing */
   fresh: string | null;
-  /** adds an empty step at the end */
-  onAdd: () => void;
+  /** adds a step at the end — opens what it is first */
+  onAdd: (e?: { currentTarget: HTMLElement }) => void;
   onChange: (next: PlanItem[]) => void;
   /** sets when you're back at the hotel (the last row's time) */
   onBackAt: (time: string | undefined) => void;
@@ -835,7 +875,9 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
     stops.filter((st) => stopAt(st.time) === i).sort((a, b) => a.time.localeCompare(b.time));
   const stopsBefore = (i: number) => stopsAt(i).map(stopRow);
 
-  if (items.length === 0 && stops.length === 0) {
+  // nothing planned and no hotel to start or end at — on any other empty
+  // day the hotel rows still draw, so it looks like every other day
+  if (items.length === 0 && stops.length === 0 && !startHotel && !returnHotel) {
     return readOnly ? (
       <p className="px-3.5 py-3 text-sm text-ink-faint">Nothing planned yet.</p>
     ) : (
@@ -881,6 +923,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
           timeStart={timeBefore(items, i)}
           place={it.placeId ? places.find((p) => p.id === it.placeId) : undefined}
           areaPlaces={areaPlaces}
+          morePlaces={morePlaces}
           areaNameByPlaceId={areaNameByPlaceId}
           categoryIcons={categoryIcons}
           categoryColors={categoryColors}
@@ -1039,7 +1082,7 @@ function timeBefore(items: PlanItem[], i: number): string | undefined {
   return undefined;
 }
 
-function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, onPatch, onRemove, onDuplicate, onQuickAddCost, onShowOnMap }: {
+function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, onPatch, onRemove, onDuplicate, onQuickAddCost, onShowOnMap }: {
   day: DayT;
   tz?: string;
   item: PlanItem;
@@ -1049,6 +1092,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
   timeStart?: string;
   place?: Place;
   areaPlaces: Place[];
+  morePlaces: PlaceGroup[];
   areaNameByPlaceId: Map<string, string>;
   categoryIcons?: Record<string, string>;
   categoryColors?: Record<string, string>;
@@ -1130,7 +1174,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
   const sortedPickable = [...pickable].sort((a, b) => a.name.localeCompare(b.name));
   const pick = (pid?: string) => {
     if (!pid) { onPatch({ placeId: undefined }); return; }
-    const p = sortedPickable.find((x) => x.id === pid);
+    const p = sortedPickable.find((x) => x.id === pid) ?? morePlaces.flatMap((g) => g.places).find((x) => x.id === pid);
     onPatch({ placeId: pid, text: p?.name ?? item.text });
   };
 
@@ -1204,7 +1248,8 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
             ) : plainTime ? (
               <Editable
                 as="time"
-                autoEdit={retime}
+                // a step just added from a place goes straight on to its time
+                autoEdit={retime || (!!fresh && !!place)}
                 label="Time"
                 value={item.time ?? ""}
                 onCommit={(v) => onPatch({ time: v || undefined })}
@@ -1229,10 +1274,11 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
             // a place's icon is just part of its row — the whole row opens
             // the place card. A custom step's icon is how it gets linked to
             // one of the day's places.
-            !place && !readOnly && sortedPickable.length > 0 ? (
+            !place && !readOnly ? (
               <PlacePicker
                 value={item.placeId}
                 places={sortedPickable}
+                more={morePlaces}
                 areaNameByPlaceId={areaNameByPlaceId}
                 categoryIcons={categoryIcons}
                 categoryColors={categoryColors}
@@ -1506,9 +1552,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                         <span className="min-w-0 flex-1 text-xs text-ink">Overwhelming</span>
                         <Switch size="sm" checked={!!place.overwhelming} onChange={toggleOverwhelming} label="Overwhelming" />
                       </li>
-                      {sortedPickable.length > 1 && (
-                        <ActionRow icon="pin" label="Change place" onClick={() => { placeCard.setOpen(false); changePlace.setOpen(true); }} />
-                      )}
+                      <ActionRow icon="pin" label="Change place" onClick={() => { placeCard.setOpen(false); changePlace.setOpen(true); }} />
                       <ActionRow icon="wallet" label="Add an expense" onClick={() => { placeCard.setOpen(false); onQuickAddCost(item); }} />
                       <ActionRow icon="copy" label="Duplicate step" onClick={() => { placeCard.setOpen(false); onDuplicate(); }} />
                       {tripDays.length > 1 && (
@@ -1550,6 +1594,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
               <PlacePicker
                 value={item.placeId}
                 places={sortedPickable}
+                more={morePlaces}
                 areaNameByPlaceId={areaNameByPlaceId}
                 categoryIcons={categoryIcons}
                 categoryColors={categoryColors}
@@ -1906,15 +1951,23 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
  *  in `Day`) and a place name alone stops being enough to tell rows apart, this
  *  renders as an iOS-style sheet list instead, with the area as trailing quiet
  *  text on the same line (same idiom as a place's category in Manage). */
-function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, categoryColors, onPick, trigger, sheet, anchor }: {
+type PlaceGroup = { label: string; places: Place[] };
+
+function PlacePicker({ value, adding, places, more = [], title = "What this step is", areaNameByPlaceId, categoryIcons, categoryColors, onPick, trigger, sheet, anchor }: {
   value?: string;
+  /** picking for a new step — nothing to tick yet */
+  adding?: boolean;
+  /** the day's own area places — first, with no heading */
   places: Place[];
+  /** then the rest of the trip's places, in groups ("In Tokyo", "Elsewhere") */
+  more?: PlaceGroup[];
+  title?: string;
   areaNameByPlaceId: Map<string, string>;
   categoryIcons?: Record<string, string>;
   categoryColors?: Record<string, string>;
   onPick: (id?: string) => void;
   /** what opens it — a custom step's icon tile. Without one it's opened
-   *  from elsewhere (a place card's "Change place") through `sheet` */
+   *  from elsewhere (a place card's "Change place", the day's ＋) through `sheet` */
   trigger?: React.ReactNode;
   sheet?: ReturnType<typeof useActionSheet>;
   /** where its desktop popover hangs when there's no trigger */
@@ -1922,6 +1975,34 @@ function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, category
 }) {
   const own = useActionSheet();
   const { open, setOpen, anchorRef } = sheet ?? own;
+  const [query, setQuery] = useState("");
+  useEffect(() => { if (!open) setQuery(""); }, [open]);
+  const fold = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const q = fold(query.trim());
+  const match = (p: Place) => !q || fold(p.name).includes(q);
+  const groups = [{ label: "", places }, ...more]
+    .map((g) => ({ ...g, places: g.places.filter(match) }))
+    .filter((g) => g.places.length);
+  const total = places.length + more.reduce((n, g) => n + g.places.length, 0);
+  const row = (p: Place) => {
+    const areaName = areaNameByPlaceId.get(p.id);
+    const on = p.id === value;
+    const glyph = p.category ? categoryIcons?.[p.category] : undefined;
+    return (
+      <button key={p.id} type="button" onClick={() => onPick(p.id)} className="menu-item flex w-full items-center gap-2">
+        {!adding && <Icon name="check" size={13} className={`shrink-0 ${on ? "text-accent" : "invisible"}`} />}
+        <IconTile
+          size="sm"
+          glyph={glyph}
+          name={glyph ? undefined : "pin"}
+          color={placeTile(p, categoryIcons, categoryColors).color}
+          tone={toneForPlaceCategory(p.category, categoryIcons)}
+        />
+        <span className="min-w-0 flex-1 break-words">{p.name}</span>
+        {areaName && <span className="shrink-0 text-2xs text-ink-soft">{areaName}</span>}
+      </button>
+    );
+  };
   return (
     <>
       {trigger && (
@@ -1936,32 +2017,28 @@ function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, category
           {trigger}
         </button>
       )}
-      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={trigger ? anchorRef : anchor ?? anchorRef} title="What this step is">
-        <div className="max-h-[60dvh] overflow-y-auto">
-          <button type="button" onClick={() => onPick(undefined)} className="menu-item flex w-full items-center gap-2">
-            <Icon name="check" size={13} className={`shrink-0 ${!value ? "text-accent" : "invisible"}`} />
-            <IconTile size="sm" name="pin" tone="ink-faint" className="opacity-70" />
-            <span className="min-w-0 flex-1 break-words">Custom…</span>
-          </button>
-          {places.map((p) => {
-            const areaName = areaNameByPlaceId.get(p.id);
-            const on = p.id === value;
-            const glyph = p.category ? categoryIcons?.[p.category] : undefined;
-            return (
-              <button key={p.id} type="button" onClick={() => onPick(p.id)} className="menu-item flex w-full items-center gap-2">
-                <Icon name="check" size={13} className={`shrink-0 ${on ? "text-accent" : "invisible"}`} />
-                <IconTile
-                  size="sm"
-                  glyph={glyph}
-                  name={glyph ? undefined : "pin"}
-                  color={placeTile(p, categoryIcons, categoryColors).color}
-                  tone={toneForPlaceCategory(p.category, categoryIcons)}
-                />
-                <span className="min-w-0 flex-1 break-words">{p.name}</span>
-                {areaName && <span className="shrink-0 text-2xs text-ink-soft">{areaName}</span>}
-              </button>
-            );
-          })}
+      <ActionSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        anchorRef={trigger ? anchorRef : anchor ?? anchorRef}
+        title={title}
+        header={total > 8 ? <SearchField value={query} onChange={setQuery} placeholder="Search places" /> : undefined}
+      >
+        <div className="md:w-[20rem]">
+          {!q && (
+            <button type="button" onClick={() => onPick(undefined)} className="menu-item flex w-full items-center gap-2">
+              {!adding && <Icon name="check" size={13} className={`shrink-0 ${!value ? "text-accent" : "invisible"}`} />}
+              <IconTile size="sm" name="pencil" tone="ink-faint" className="opacity-70" />
+              <span className="min-w-0 flex-1 break-words">Custom…</span>
+            </button>
+          )}
+          {groups.map((g) => (
+            <div key={g.label || "day"}>
+              {g.label && <p className="kicker px-4 pb-0.5 pt-3 text-ink-faint">{g.label}</p>}
+              {g.places.map(row)}
+            </div>
+          ))}
+          {q && !groups.length && <p className="meta px-4 pb-4 pt-2 text-center">No place matches &ldquo;{query.trim()}&rdquo;</p>}
         </div>
       </ActionSheet>
     </>

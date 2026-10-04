@@ -166,7 +166,7 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 
 - **Time** — a single time, or a range like `14:00–15:15` stacked as 14:00 over 15:15. An empty time is just a small clock to tap.
 - **Setting a time** — the wheels start at the last time set on an earlier step (else 9:00). **Done** saves what's showing; tapping outside or swiping the sheet down cancels.
-- **Link a place** — tap an unlinked step's icon to pick a place from the day's Areas. A linked step changes it with **Change place** on its place card; **Custom…** unlinks it.
+- **Link a place** — tap an unlinked step's icon to pick a place: the day's Areas first, then the rest of that city, then elsewhere (search when the list is long). A linked step changes it with **Change place** on its place card; **Custom…** unlinks it.
 - **Meal steps** — an unlinked step whose text mentions a meal (lunch, dinner, breakfast…), coffee or drinks gets a gold food, coffee or drink tile instead of the grey pin.
 - **Time order** — steps keep themselves in time order. Set or change a step's time and it moves to its place in the day.
 - **Untimed steps** — drag the small ≡ on the right (shown on hover on a computer) to place one. It then stays with the step above it. A loose time ("Around noon") counts as untimed.
@@ -179,8 +179,9 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 - **Move to another day** — from a step's menu or its place card: pick the day and the step leaves this one, keeping its time, pin and note. Undo brings it back.
 - **Delete** — swipe a step left on a phone.
 - **Notes** support bold, bullets and links. Tap to edit. Empty fields stay hidden.
-- **+ Add a step** sits at the foot of the list and opens the new step ready to type. Leave it blank and it goes away.
-- **＋** at the top of the day (where Plan has its ＋) adds a step from anywhere on the page, so a long day needs no scroll. Give it a time and it moves into place.
+- **+ Add a step** sits at the foot of the list. It asks what the step is first, from the same place list: pick a place and its time wheel opens; **Custom…** opens a step ready to type. Leave that blank and it goes away.
+- **An empty day** still shows where it starts and ends (the hotel rows), so it looks like every other day.
+- **＋** at the top of the day (where Plan has its ＋) opens the same Add a step list from anywhere on the page, so a long day needs no scroll. A step with a time moves into place.
 - **Each journey on the day** shows as two rows of its own: **Leave** (first departure) and **Arrive** (last arrival), slotted in by time. They follow the journey live — edit the times on the journey, tap a row to open it.
 
 ### Helpers on a step
