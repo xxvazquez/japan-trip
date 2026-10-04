@@ -166,23 +166,10 @@ export default function Journey() {
       <div className="mt-6 space-y-6">
       {(!ro || j.segments.length > 0) && (
         <section>
-        <div className="mb-1.5 flex items-baseline justify-between px-1">
-          {/* the same quiet kicker every other section on the page uses */}
-          <h2 className="kicker">Hops</h2>
-          {!ro && (
-            <button
-              onClick={() => {
-                const l = j.segments.at(-1);
-                patch({ segments: [...j.segments, { id: crypto.randomUUID?.() ?? `seg-${rid()}`, mode: l?.mode ?? "train", from: l?.to ?? "", to: "", fromTz: l?.toTz, toTz: l?.toTz }] });
-              }}
-              className="action text-xs"
-            >
-              <Icon name="plus" size={13} /> Add
-            </button>
-          )}
-        </div>
+        {/* the same quiet kicker every other section on the page uses; adding
+            sits under the last hop, as a group's closing "Add …" row does */}
+        <h2 className="kicker mb-1.5 px-1">Hops</h2>
         <div className="space-y-2.5">
-        {j.segments.length === 0 && <p className="text-sm text-ink-faint">No hops yet.</p>}
         {j.segments.map((s, i) => {
           const next = j.segments[i + 1];
           const rawGap = next ? minutesBetween(s.arrive, next.depart, s.toTz, next.fromTz) : null;
@@ -426,6 +413,21 @@ export default function Journey() {
             </div>
           );
         })}
+        {!ro && (
+          <div className="overflow-hidden rounded-[12px] bg-surface">
+            <button
+              type="button"
+              onClick={() => {
+                // a new hop starts where the last one ended, by the same mode
+                const l = j.segments.at(-1);
+                patch({ segments: [...j.segments, { id: crypto.randomUUID?.() ?? `seg-${rid()}`, mode: l?.mode ?? "train", from: l?.to ?? "", to: "", fromTz: l?.toTz, toTz: l?.toTz }] });
+              }}
+              className="action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07]"
+            >
+              <Icon name="plus" size={14} /> Add a hop
+            </button>
+          </div>
+        )}
         </div>
         </section>
       )}
