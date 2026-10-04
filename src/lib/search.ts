@@ -212,7 +212,7 @@ function build(d: TripData): SearchHit[] {
         tile: { name: t.icon, tone: t.tone, color: t.color },
         label: i.q,
         sub: t.title,
-        to: `/help?open=${helpKey(t, i)}`,
+        to: `/help/${helpKey(t, i)}`,
         fields: [{ text: helpText(i) }],
       });
     }

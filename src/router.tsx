@@ -37,6 +37,7 @@ export const router = createBrowserRouter([
       { path: "manage", element: <Manage /> },
       { path: "manage/:panel", element: <Manage /> },
       { path: "help", element: <Help /> },
+      { path: "help/:topic/:item", element: <Help /> },
       { path: "*", element: <NotFound /> },
     ],
   },

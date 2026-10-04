@@ -44,7 +44,7 @@ describe("search", () => {
   it("finds Help answers too, after the trip's own things", () => {
     const r = search(trip(), "ticket", 80);
     expect(r[0].hit.kind).toBe("day");
-    expect(r.some((x) => x.hit.kind === "help" && x.hit.to.startsWith("/help?open="))).toBe(true);
+    expect(r.some((x) => x.hit.kind === "help" && x.hit.to.startsWith("/help/"))).toBe(true);
     expect(search(trip(), "undo deleted")[0].hit.kind).toBe("help");
   });
 

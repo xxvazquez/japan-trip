@@ -494,7 +494,11 @@ Once the app has loaded, it works with no signal. See [Before you travel](#befor
 
 **Is this device on the latest version?** The foot of **Manage** shows the version, commit and build date. Compare the commit with the one you pushed.
 
-**Help** (bottom of Manage) answers the common "how do I…" questions in short steps, grouped by topic, with its own search. The app's main Search finds those answers too.
+**Help** (bottom of Manage) answers the common "how do I…" questions:
+- Questions are grouped by topic, with their own search. The app's main Search finds them too.
+- Each answer opens on its own page: a line or two, a picture of the real screen with the part to tap ringed, then steps or short rows.
+- **More in…** at the foot lists the topic's other questions.
+- Content lives in `src/lib/help.ts`; the pictures are in `src/components/HelpPreview.tsx`.
 
 ---
 
