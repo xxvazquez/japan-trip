@@ -1009,7 +1009,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, nextPlace, areaPlaces
 
 /** past this, a walk stops being the plan — the row points at the train (and
  *  Google Maps' own transit directions) instead of a walking route. */
-const LONG_WALK_MIN = 20;
+const LONG_WALK_MIN = 30;
 
 /** The day's closing row: how to get from the last stop back to the hotel
  *  you're staying at. Walking time and distance when the hotel has
