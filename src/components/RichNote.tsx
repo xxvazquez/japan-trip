@@ -66,16 +66,17 @@ export function RichNote({
     }
   }, [editing]);
 
-  // folded, "more" sits at the end of the second line over a fade, as the
-  // App Store folds a description, so it costs no line of its own; open,
-  // "less" follows the note
+  // folded, "more" sits at the end of the second line where the text fades
+  // out (as the App Store folds a description), so it costs no line of its
+  // own; the fade is a mask on the text, not a painted gradient, so it holds
+  // on any ground (a card, the page, the hover wash); open, "less" follows
   const ShowToggle = ({ onClick }: { onClick: (e: React.MouseEvent) => void }) => (
     <button
       type="button"
       onClick={onClick}
       className={expanded
         ? "tap mt-0.5 block text-accent"
-        : "tap absolute bottom-0 right-1 bg-gradient-to-r from-transparent via-surface via-30% to-surface pl-8 text-accent"}
+        : "tap absolute bottom-0 right-1 text-accent"}
     >
       {expanded ? "less" : "more"}
     </button>
@@ -86,7 +87,7 @@ export function RichNote({
     if (!collapsible) return <Markdown text={value} className={className} />;
     return (
       <div className={`relative ${className}`}>
-        <div ref={clampRef} className={expanded ? "" : "line-clamp-2 overflow-hidden"}>
+        <div ref={clampRef} className={expanded ? "" : `line-clamp-2 overflow-hidden ${long ? "fold-fade" : ""}`}>
           <Markdown text={value} />
         </div>
         {long && <ShowToggle onClick={() => setExpanded(!expanded)} />}
@@ -125,7 +126,7 @@ export function RichNote({
       >
         {collapsible ? (
           <>
-            <div ref={clampRef} className={expanded ? "" : "line-clamp-2 overflow-hidden"}>
+            <div ref={clampRef} className={expanded ? "" : `line-clamp-2 overflow-hidden ${long ? "fold-fade" : ""}`}>
               <Markdown text={value} onToggleCheck={toggleCheck} />
             </div>
             {long && <ShowToggle onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }} />}

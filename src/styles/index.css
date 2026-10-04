@@ -222,6 +222,15 @@ html.dark {
     opacity: 0.8;
   }
 
+  /* a folded note's last line fades out under its "more" (RichNote) — a mask,
+     so it works on whatever the note sits on, unlike a painted gradient */
+  .fold-fade {
+    --fold-mask: linear-gradient(#000, #000) top / 100% calc(100% - 1lh) no-repeat,
+      linear-gradient(to left, transparent 3em, #000 6em) bottom / 100% 1lh no-repeat;
+    -webkit-mask: var(--fold-mask);
+    mask: var(--fold-mask);
+  }
+
   /* ---- typography hierarchy — one ladder, small steps ------------ *
    * Hierarchy is size + weight + colour + spacing, never a size cliff.
    *
