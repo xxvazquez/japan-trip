@@ -103,7 +103,7 @@ export default function MapPane({ dayId }: { dayId: string }) {
       )}
 
       {picked && (
-        <div className="absolute inset-x-4 bottom-4 flex items-center gap-3 rounded-[12px] border border-line bg-surface px-3.5 py-3 shadow-md">
+        <div className="absolute inset-x-4 bottom-4 z-10 flex items-center gap-3 rounded-[12px] border border-line bg-surface px-3.5 py-3 shadow-md">
           <span className="min-w-0 flex-1 break-words text-sm text-ink">{picked.name}</span>
           {/* the place itself in Google Maps — its photos, reviews, hours */}
           <a
