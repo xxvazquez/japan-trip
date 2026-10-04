@@ -1185,30 +1185,34 @@ function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }
       target="_blank"
       rel="noopener"
       className={`${piece} text-accent`}
-      aria-label={`Transit directions from ${station!.name} to ${nextStation!.name}${transitTotal ? `, about ${fmtMinutes(transitTotal)} door to door` : ""}`}
+      aria-label={`Train from ${station!.name} to ${nextStation!.name}${transitTotal ? `, about ${fmtMinutes(transitTotal)} door to door` : ""}`}
+      title={`Train from ${station!.name} to ${nextStation!.name}${transitTotal ? `, about ${fmtMinutes(transitTotal)} door to door` : ""}`}
     >
-      <Icon name="train" size={12} className="mt-[3px] shrink-0" />
+      <Icon name="train" size={12} className="mt-[2px] shrink-0" />
       <span className="min-w-0">
-        Train: {station!.name} → {nextStation!.name}
-        {transitTotal && <> · ≈ {fmtMinutes(transitTotal)} total</>}
+        {station!.name} → {nextStation!.name}
+        {transitTotal && <> · {fmtMinutes(transitTotal)}</>}
       </span>
     </a>
   );
   return (
     <>
       {(next || (station && toStation)) && (
-        <span className="meta flex flex-wrap gap-x-3 gap-y-0.5 text-[0.8125rem] text-ink-soft">
+        // a glyph and a figure, the way Maps marks a walk — quieter than the
+        // note above, since it's about the step, not something written on it;
+        // the full sentence stays for VoiceOver and the hover title
+        <span className="flex flex-wrap gap-x-4 gap-y-0.5 text-[0.75rem] leading-snug text-ink-faint">
           {train}
           {next && nextPlace && !showTrain && (
-            <span className={piece}>
-              <Icon name="walk" size={12} className="mt-[3px] shrink-0" />
-              <span className="min-w-0">Walk to next stop {fmtWalk(next)}</span>
+            <span className={piece} title={`Walk to next stop ${fmtWalk(next)}`} aria-label={`Walk to next stop ${fmtWalk(next)}`}>
+              <Icon name="walk" size={12} className="mt-[2px] shrink-0" />
+              <span className="min-w-0 tabular-nums">{fmtMinutes(next.min)}</span>
             </span>
           )}
           {station && toStation && (
-            <span className={piece}>
-              <Icon name="train" size={12} className="mt-[3px] shrink-0" />
-              <span className="min-w-0">Walk to {station.name} {fmtWalk(toStation)}</span>
+            <span className={piece} title={`Walk to ${station.name} ${fmtWalk(toStation)}`} aria-label={`Walk to ${station.name} ${fmtWalk(toStation)}`}>
+              <Icon name="train" size={12} className="mt-[2px] shrink-0" />
+              <span className="min-w-0">{station.name} · <span className="tabular-nums">{fmtMinutes(toStation.min)}</span></span>
             </span>
           )}
         </span>

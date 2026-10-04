@@ -157,12 +157,12 @@ Each step shows a tile, an optional time, the step itself and a short note.
 
 These appear automatically when a step is linked to a place.
 
-**Walking and transit.** One line shows two walks:
+**Walking and transit.** One quiet line under the step, a glyph and a figure each:
 
-- 🚶 to the next step (if it's linked too), e.g. *≈ 9 min · 0.8 km*
-- 🚆 to the nearest station, e.g. *≈ 3 min · 195 m to Ueno*
+- 🚶 the walk to the next step (if it's linked too), e.g. *9 min*
+- 🚆 the nearest station and the walk to it, e.g. *Ueno · 3 min*
 
-A straight-line estimate shows first and is replaced by a real walking route when one comes back (needs `VITE_ORS_API_KEY`). When the walk to the next step is over 20 minutes, a train link is added — *"Train: Ueno → Uguisudani · ≈ 24 min total"* — which opens Google Maps transit directions. The total is a rough door-to-door guess, since there's no free transit-routing API.
+A straight-line estimate shows first and is replaced by a real walking route when one comes back (needs `VITE_ORS_API_KEY`). When the walk to the next step is over 20 minutes, the train takes its place — *"Ueno → Uguisudani · 24 min"* — and opens Google Maps transit directions. The total is a rough door-to-door guess, since there's no free transit-routing API.
 
 **Opening hours.** If the place itself has hours on OpenStreetMap (matched by its name, or tagged right on its pin — never a neighbour's), that day's hours show at the right of the row ("09:00–17:00", or "Closed"). Seasonal and weekday rules are applied; anything the app can't read is shown as written. It's for information only — nothing is flagged as a conflict.
 
