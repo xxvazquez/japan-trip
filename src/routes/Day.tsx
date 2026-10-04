@@ -698,14 +698,14 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
     : [];
 
   // the plan in order, each entry with the time it starts at: a journey's
-  // own rows, and each step with the way there just above it
+  // own rows, and each step with the way on to the next just under it — a
+  // stop and its travel are one chunk, never split by a part-of-day label
   const entries: { time?: string; nodes: React.ReactNode[] }[] = [];
   items.forEach((it, i) => {
     for (const st of stopsAt(i)) entries.push({ time: st.time, nodes: [stopRow(st)] });
     entries.push({
       time: splitRange(it.time)?.[0] ?? it.time,
       nodes: [
-        ...(i > 0 ? connectorAfter(i - 1) : startConnector),
         <PlanRow
           key={it.id}
           day={day}
@@ -725,6 +725,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
           onQuickAddCost={onQuickAddCost}
           onShowOnMap={onShowOnMap}
         />,
+        ...(i < items.length - 1 ? connectorAfter(i) : []),
       ],
     });
   });
@@ -749,7 +750,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
   const backRow = returnHotel ? <ReturnToHotel key="back-to-hotel" from={lastPlace} hotel={returnHotel} /> : null;
   // and opens at the hotel you woke up at — under the first part-of-day
   // label when the day starts with one, since leaving is part of the morning
-  if (startHotel) rows.splice(multiPart && parts[0] ? 1 : 0, 0, <StartFromHotel key="from-hotel" hotel={startHotel} />);
+  if (startHotel) rows.splice(multiPart && parts[0] ? 1 : 0, 0, <StartFromHotel key="from-hotel" hotel={startHotel} />, ...startConnector);
   // one timeline for the whole day — the hotel, steps, journeys and the way home
   const timeline = <ul className="timeline pb-1.5">{rows}{backRow}</ul>;
 
@@ -779,10 +780,12 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
 }
 
 type DayPart = "morning" | "afternoon" | "evening";
-const DAY_PARTS: Record<DayPart, { label: string; icon: IconName }> = {
-  morning: { label: "Morning", icon: "sunrise" },
-  afternoon: { label: "Afternoon", icon: "sun" },
-  evening: { label: "Evening", icon: "moon" },
+// whole class names, so Tailwind sees them: a light wash of the part's own
+// colour behind the band, the glyph in that colour at full strength
+const DAY_PARTS: Record<DayPart, { label: string; icon: IconName; band: string; glyph: string }> = {
+  morning: { label: "Morning", icon: "sunrise", band: "bg-gold/[0.14]", glyph: "text-gold" },
+  afternoon: { label: "Afternoon", icon: "sun", band: "bg-ai/[0.14]", glyph: "text-ai" },
+  evening: { label: "Evening", icon: "moon", band: "bg-accent/[0.12]", glyph: "text-accent" },
 };
 
 /** which part of the day a start time falls in — before noon, before 18:00,
@@ -794,22 +797,17 @@ function dayPart(time?: string): DayPart | undefined {
   return h < 12 ? "morning" : h < 18 ? "afternoon" : "evening";
 }
 
-/** a part-of-day label across the timeline: its small glyph sits on the
- *  rail like a quiet milestone, the name beside it in the stop column, then
- *  a hairline to the edge */
+/** a part-of-day header: a tinted band across the whole timeline, like the
+ *  section bands in Calendar's list view — it breaks the rail, so where the
+ *  morning ends and the afternoon starts is plain at a glance and never
+ *  mistaken for a stop */
 function DayPartRow({ part }: { part: DayPart }) {
-  const { label, icon } = DAY_PARTS[part];
+  const { label, icon, band, glyph } = DAY_PARTS[part];
   return (
-    <li aria-label={label} className="flex gap-2.5 pl-3.5 pr-3.5">
-      <span className="w-[2.625rem] shrink-0" />
-      <Rail>
-        <span className="relative z-10 mt-2.5 grid h-[22px] w-[22px] place-items-center rounded-full bg-surface text-ink-faint">
-          <Icon name={icon} size={14} />
-        </span>
-      </Rail>
-      <span className="flex min-w-0 flex-1 items-center gap-2 pl-0.5 pt-2.5">
-        <span className="text-xs font-medium text-ink-soft">{label}</span>
-        <span aria-hidden className="h-[var(--hair)] flex-1 bg-line" />
+    <li aria-label={label} className="px-2.5 py-1.5">
+      <span className={`flex items-center gap-2 rounded-[10px] px-3 py-1.5 ${band}`}>
+        <Icon name={icon} size={15} className={`shrink-0 ${glyph}`} />
+        <span className="text-[15px] font-medium leading-snug text-ink">{label}</span>
       </span>
     </li>
   );
