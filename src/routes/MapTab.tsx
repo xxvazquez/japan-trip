@@ -631,6 +631,17 @@ export default function MapTab() {
   const [selected, setSelected] = useState<string | null>(null);
   /** the header's ⋯ menu — list/map, filters, area upkeep, sync */
   const moreSheet = useActionSheet();
+  /** md and up, where the side column shows the list instead of the sheet.
+   *  The list renders in both (one hidden by CSS), but its sheets and alerts
+   *  are portals that escape that hiding — only the visible copy draws them,
+   *  or every menu would open twice, stacked. */
+  const [wide, setWide] = useState(() => window.matchMedia("(min-width: 768px)").matches);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const on = () => setWide(mq.matches);
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
   /** the "Filters" (category, transit) sheet — real filtering, split out from area upkeep above */
   const filterSheet = useActionSheet();
   /** hides the map, list fills the screen — see LIST_ONLY_KEY above */
@@ -1181,7 +1192,9 @@ export default function MapTab() {
   // and once for the mobile sheet (below), so `forMobile` can gate the
   // content-height measurement ref to the one instance that actually needs
   // it, rather than racing two instances for a single shared ref
-  const renderPanel = (forMobile: boolean) => (
+  const renderPanel = (forMobile: boolean) => {
+    const overlays = forMobile !== wide;
+    return (
     <div ref={forMobile ? setPanelRoot : undefined} className="flex h-full flex-col">
       {/* context bar — city → area → filters */}
       <div className="shrink-0 border-b border-line px-4 pb-2 pt-2.5">
@@ -1237,7 +1250,7 @@ export default function MapTab() {
             </button>
           )}
           <button
-            ref={moreSheet.anchorRef}
+            ref={overlays ? moreSheet.anchorRef : undefined}
             onClick={() => moreSheet.setOpen(true)}
             aria-label="More"
             aria-haspopup="menu"
@@ -1263,7 +1276,7 @@ export default function MapTab() {
             the My Maps sync — Apple Maps keeps all of this a tap away rather
             than on a row of its own above the list. Tinted while a category
             filter is on, so a narrowed list never looks like a short one. */}
-        <ActionSheet open={moreSheet.open} onClose={() => moreSheet.setOpen(false)} anchorRef={moreSheet.anchorRef}>
+        {overlays && <ActionSheet open={moreSheet.open} onClose={() => moreSheet.setOpen(false)} anchorRef={moreSheet.anchorRef}>
           <button onClick={() => setListOnlyPersist(!listOnly)} className="menu-item">
             <Icon name={listOnly ? "map" : "list"} size={16} /> {listOnly ? "Show Map" : "Show List Only"}
           </button>
@@ -1299,18 +1312,18 @@ export default function MapTab() {
               <Icon name="refresh" size={16} /> Sync with My Maps
             </button>
           )}
-        </ActionSheet>
+        </ActionSheet>}
 
-        <TextPrompt
+        {overlays && <TextPrompt
           open={namingArea}
           title="New Area"
           placeholder="Name"
           action="Add"
           onSubmit={createArea}
           onClose={() => setNamingArea(false)}
-        />
+        />}
 
-        <ActionSheet open={filterSheet.open && !adding} onClose={() => filterSheet.setOpen(false)} anchorRef={moreSheet.anchorRef} title="Filters" doneLabel="Done">
+        {overlays && <ActionSheet open={filterSheet.open && !adding} onClose={() => filterSheet.setOpen(false)} anchorRef={moreSheet.anchorRef} title="Filters" doneLabel="Done">
           {/* toggles stay open until dismissed — stopPropagation so a chip
               tap doesn't trigger ActionSheet's "close on any click inside" */}
           <div onClick={(e) => e.stopPropagation()} className="space-y-4 px-4 pb-3 pt-1">
@@ -1363,7 +1376,7 @@ export default function MapTab() {
               </label>
             </div>
           </div>
-        </ActionSheet>
+        </ActionSheet>}
 
         {editingAreas && !adding && !readOnly && review === null && (
           <div className="space-y-2 pb-1 pt-3">
@@ -1411,7 +1424,7 @@ export default function MapTab() {
         <div className="shrink-0 border-b border-line px-4 py-3">
           {/* a dropped pin is named in an alert over the map, as Photos
               names a new album; Cancel goes back to searching or tapping */}
-          <TextPrompt
+          {overlays && <TextPrompt
             open={!!pending}
             title="New Place"
             message={pending ? `Pin at ${pending.lat.toFixed(4)}, ${pending.lng.toFixed(4)}` : undefined}
@@ -1419,7 +1432,7 @@ export default function MapTab() {
             action="Save"
             onSubmit={(name) => pending && commitPlace(name, pending.lat, pending.lng)}
             onClose={() => setPending(null)}
-          />
+          />}
           <div>
             <SearchField value={q} onChange={setQ} placeholder="Search for a place" autoFocus />
             {results.length > 0 && (
@@ -1593,7 +1606,8 @@ export default function MapTab() {
         </div>
       )}
     </div>
-  );
+    );
+  };
 
   return (
     <div
