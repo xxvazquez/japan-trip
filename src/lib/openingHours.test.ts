@@ -38,6 +38,11 @@ describe("factsHoursForDate", () => {
     expect(factsHoursForDate("11:00–22:00", "Mondays", "2026-10-20")).toBe("11:00–22:00");
     expect(factsHoursForDate(undefined, "Tue & Wed (open on holidays)", "2026-10-20")).toBe("Closed");
     expect(factsHoursForDate(undefined, "Sun–Tue", "2026-10-19")).toBe("Closed");
+    // the open days in the same line don't count as closed
+    expect(factsHoursForDate(undefined, "Usually closed Monday; most shops open Tuesday–Sunday", "2026-10-22")).toBeUndefined();
+    expect(factsHoursForDate(undefined, "Usually closed Monday; most shops open Tuesday–Sunday", "2026-10-19")).toBe("Closed");
+    expect(factsHoursForDate(undefined, "Open Tue–Sun, closed Mon", "2026-10-19")).toBe("Closed");
+    expect(factsHoursForDate(undefined, "Open Tue–Sun, closed Mon", "2026-10-21")).toBeUndefined();
     expect(factsHoursForDate("9:00–17:00", "None", "2026-10-19")).toBe("09:00–17:00");
   });
   it("reads 12-hour times, split sessions and last orders", () => {

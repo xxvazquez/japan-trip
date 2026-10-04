@@ -176,7 +176,11 @@ const NOT_WEEKLY = new RegExp(
  *  names that weekday (Mo = 0). Undefined when it can't be told. */
 function closedOn(text: string, weekday: number): boolean | undefined {
   if (/^\s*(unknown|n\/a|not stated)/i.test(text) || NOT_WEEKLY.test(text)) return undefined;
-  const t = text.replace(/\([^)]*\)/g, " ");
+  // only the days it's closed: "Closed Monday; open Tuesday–Sunday" names
+  // the open days too, up to the next clause or "closed"
+  const t = text
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/\bopen(?:s|ed)?\b(?:(?!\bclosed\b)[^;.])*/gi, " ");
   let hit = false, any = false;
   osmDays(t).replace(DAY_RE, (_all, d1: string, d2?: string) => {
     any = true;
