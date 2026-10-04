@@ -648,6 +648,7 @@ Hosted on **Cloudflare Workers** (static assets), deployed through the Git integ
 - In `npm run dev` / `preview` the same handler runs as Vite middleware, so the lookup works locally too.
 - The lookup searches with [Tavily](https://app.tavily.com) (Tabelog blocks requests from Cloudflare's servers, so it can't be read directly). Its key goes in **Worker → Settings → Variables and Secrets → Add → Secret**, named `TAVILY_API_KEY`. Takes effect without a rebuild.
 - **Only signed-in accounts can use `/api/*`** — anyone else gets *Sign in to use this*, so strangers can't spend the Tavily searches. The app sends its sign-in with each call and the Worker checks it with Supabase ([`worker/auth.ts`](worker/auth.ts)). For that the Worker needs two more entries under **Variables and Secrets**, as plain text: `SUPABASE_URL` and `SUPABASE_ANON_KEY` (the same values as `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`). Without them every lookup is refused.
+- `keep_vars` in `wrangler.jsonc` keeps those dashboard variables across deploys. Without it every push wiped them, and Good to know silently stopped looking anything up.
 - In `npm run dev` the check uses `.env.local`'s Supabase values; `npm run dev:demo` skips it (no sign-in there).
 - The public demo has no Worker script; there the Tabelog row just opens a search.
 
