@@ -417,7 +417,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       {((day.plan ?? []).length > 0 || !ro) && (
         <Section
           title="Plan"
-          info="Steps keep themselves in time order — set a time and the step moves there. Drag ≡ to place a step without a time; it then stays with the step above it. Hold a step for its menu (⋯ on a computer), where Pin this step keeps it where it is. Tap a step's grey pin to link it to a place from an Area you've added below."
+          info="Steps keep themselves in time order — set a time and the step moves there. Drag ≡ to place a step without a time; it then stays with the step above it. Hold a step for its menu (⋯ on a computer), where Pin this step locks a step's time (a booking) until you unpin it. Tap a step's grey pin to link it to a place from an Area you've added below."
           action={overwhelmingCount > 0 && (
             <span className="flex items-center gap-1 text-xs text-danger" title={`${plural(overwhelmingCount, "overwhelming place")} today`}>
               <Icon name="alert" size={13} /> {overwhelmingCount}
@@ -636,7 +636,7 @@ function DayJourneyRow({ day, journey, data, onRemove }: { day: DayT; journey: J
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, areaPlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, fresh, onAdd, onChange, onBackAt, onLeaveAt, onQuickAddCost, onShowOnMap }: {
+function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedItems, places, areaPlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, fresh, onAdd, onChange, onBackAt, onLeaveAt, onQuickAddCost, onShowOnMap }: {
   day: DayT;
   /** the day's journeys — their leave / arrive times show as rows of their own */
   journeys: Journey[];
@@ -669,7 +669,12 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
     useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 8 } }),
     useSensor(KeyboardSensor),
   );
-  const isPinned = (x: PlanItem) => !!x.pinned;
+  // every step goes where its time puts it — a pin only locks a step's time
+  // (a booking), it never holds a step out of order
+  const isPinned = () => false;
+  // shown (and edited) in time order even if stored out of it — a plan from
+  // before steps sorted themselves, or from when a pin held a slot
+  const items = useMemo(() => sortByTime(storedItems, isPinned), [storedItems]);
   // a new or changed time moves the step to its place in the day
   const patchItem = (id: string, p: Partial<PlanItem>) => {
     const next = items.map((x) => (x.id === id ? { ...x, ...p } : x));
@@ -782,7 +787,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, a
   const leavePart = leaveAtPart && (!firstPart || PART_ORDER.indexOf(leaveAtPart) <= PART_ORDER.indexOf(firstPart)) ? leaveAtPart : undefined;
   const multiPart = new Set([leavePart, ...parts.filter(Boolean), backPart].filter(Boolean)).size > 1;
   // a band the hotel row already opened isn't repeated by the first step,
-  // and bands only ever move forward through the day — a pinned step held
+  // and bands only ever move forward through the day — a row that sits
   // out of time order stays under the band it sits in, never opens an
   // earlier one again. Keyed by the part, so a band stays itself while the
   // steps under it change
@@ -928,7 +933,10 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
 }) {
   // a step with a clock time is placed by its time, not by hand
   const timed = startMinutes(item.time) !== undefined;
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id, disabled: readOnly || !!item.pinned || timed });
+  // a pinned step's time is locked (a booking) until it's unpinned; it
+  // still sits where that time puts it. With no time there's nothing to lock
+  const pinned = !!item.pinned && !!item.time;
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id, disabled: readOnly || timed });
   const updateEntity = useApp((s) => s.updateEntity);
   // an empty note stays out of the card until "Add a note" asks for it
   const [noteOpen, setNoteOpen] = useState(false);
@@ -1016,7 +1024,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
           onTap={place ? () => placeCard.setOpen(true) : undefined}
           tapLabel={place ? `About ${place.name}` : undefined}
           time={
-            readOnly ? (
+            readOnly || pinned ? (
               item.time && <span className="whitespace-pre-line">{stacked(item.time)}</span>
             ) : plainTime ? (
               <Editable
@@ -1090,9 +1098,11 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                           <Icon name="pencil" size={16} /> Add a note
                         </button>
                       )}
-                      <button type="button" className="menu-item" onClick={() => onPatch({ pinned: item.pinned ? undefined : true })}>
-                        <Icon name="pushpin" size={16} /> {item.pinned ? "Unpin this step" : "Pin this step"}
-                      </button>
+                      {item.time && (
+                        <button type="button" className="menu-item" onClick={() => onPatch({ pinned: pinned ? undefined : true })}>
+                          <Icon name="pushpin" size={16} /> {pinned ? "Unpin this step" : "Pin this step"}
+                        </button>
+                      )}
                       <button type="button" className="menu-item" onClick={toggleOptional}>
                         <Icon name="optional" size={16} /> {item.optional ? "Make this a must" : "Mark as optional"}
                       </button>
@@ -1107,12 +1117,12 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                   )}
                 </RowMenu>
               </span>
-              {/* fixed in its place, so the grip gives way to a pin — on
-                  every width, like a pinned day on Plan */}
-              {item.pinned && !readOnly ? (
-                <span className="grid h-7 w-6 place-items-center text-ink-faint" title="Pinned to its place">
+              {/* a pinned step's time is locked, so the pin shows on every
+                  width, like a pinned day on Plan */}
+              {pinned && !readOnly ? (
+                <span className="grid h-7 w-6 place-items-center text-ink-faint" title="Time pinned — unpin to change it">
                   <Icon name="pushpin" size={14} />
-                  <span className="sr-only">Pinned to its place</span>
+                  <span className="sr-only">Time pinned — unpin to change it</span>
                 </span>
               ) : !readOnly && !timed && (
                 <button
@@ -1139,7 +1149,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                 keeps a plain right padding. */}
             <div className={place ? "flow-root" : readOnly ? "[@media(hover:hover)]:pr-7" : "pr-6 [@media(hover:hover)]:pr-[3.25rem]"}>
             {place && (
-              <span aria-hidden className={`float-right h-[23px] ${readOnly || (timed && !item.pinned) ? "w-0" : "w-6"}`} />
+              <span aria-hidden className={`float-right h-[23px] ${readOnly || (timed && !pinned) ? "w-0" : "w-6"}`} />
             )}
             {place ? (
               // the row's tap opens the place card, as tapping a result

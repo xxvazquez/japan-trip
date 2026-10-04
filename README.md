@@ -157,7 +157,7 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 - **Meal steps** — an unlinked step whose text mentions a meal (lunch, dinner, breakfast…), coffee or drinks gets a gold food, coffee or drink tile instead of the grey pin.
 - **Time order** — steps keep themselves in time order. Set or change a step's time and it moves to its place in the day.
 - **Untimed steps** — drag the small ≡ on the right (shown on hover on a computer) to place one. It then stays with the step above it. A loose time ("Around noon") counts as untimed.
-- **Pin a step** from its menu (**Pin this step**) to keep it exactly where it is: it shows a pin, can't be dragged, and isn't re-sorted by time. **Unpin this step** undoes it.
+- **Pin a step** from its menu (**Pin this step**) to lock its time, e.g. a booking — it shows a pin and its time can't be changed. It still sits where its time puts it. **Unpin this step** unlocks it. Only a step with a time can be pinned.
 - **Mark as optional** from a step's menu, or the **Optional** switch on its place card, for something nice to do but not a must: a grey ◌ Optional line shows under its name. **Make this a must** undoes it.
 - **The place card** — tap a linked step anywhere on its row (icon, name or note), as you'd tap a place in Maps: the name (with any clash with its hours), a button row pinned under it (**Google Maps** filled, Tabelog for restaurants in Japan, **Map**, **Calendar**), then the step's note, Good to know, and last the step itself: **Optional** and **Overwhelming** switches, Change place, Add an expense, Duplicate step, Remove step. ✕ or a drag down closes it.
 - **Walk and train lines** under a step open Google Maps directions; only a tap on the line itself does.
