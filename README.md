@@ -164,9 +164,9 @@ These appear automatically when a step is linked to a place.
 
 **Getting to the next step.** Between two steps tied to places, quiet grey captions sit on the line — travel between things you do, the way Calendar shows travel time. Each opens its own Google Maps directions:
 
-- Up to a 15-minute walk: the walk, e.g. *🚶 9 min*.
-- 15–30 minutes: the walk and the train side by side, e.g. *🚶 22 min* and *🚆 Shibuya → Harajuku · 14 min*.
-- Past a 30-minute walk: only the train, with a rough door-to-door time — never the long walk. *By train* when no stations are found.
+- Always the walk all the way, e.g. *🚶 22 min*.
+- Past a 15-minute walk, a train line under it, read like a Maps transit route: walk to the station › ride › walk from the station, e.g. *🚶 6 min › 🚆 Shibuya → Harajuku · 4 min › 🚶 5 min*.
+- *By train* past a 30-minute walk when no stations are found.
 - Left out when a journey's own row already sits between the two.
 
 A straight-line estimate shows first and is replaced by a real walking route when one comes back (needs `VITE_ORS_API_KEY`). The train time is a guess, since there's no free transit-routing API.
@@ -192,6 +192,7 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 | Anything else on a plan | **Known for**, **Hours**, **Closed**, **Tickets**, **Crowds**, **Entry** |
 
 - Each is a short phrase. Anything the sources don't mention is left out.
+- **Website** — the place's own site, when one of the pages read is it: named like the place in its address, or calling itself official. Never a listing or guide site (Tabelog, Tripadvisor, japan-guide…). Hidden when none is found; small viewpoints and street spots often have none.
 - A place that changes category (sight ↔ restaurant) is looked up again the new way.
 - Not for your own hotel, or a place filed as lodging or transport (a hot spring still counts).
 - On Plan it's in the step's place card (tap its icon), under the button row, so the step itself stays short; on the Map it's part of the place's card, after its links.

@@ -1115,10 +1115,10 @@ const LONG_WALK_MIN = 30;
  *  a real choice, so both show and either opens its own directions. */
 const TRAIN_TOO_MIN = 15;
 
-type TrainOption = { a: NearbyStation; b: NearbyStation; total: number | null };
+type TrainOption = { a: NearbyStation; b: NearbyStation; walkIn: number | null; ride: number; walkOut: number | null };
 
-/** The train between the nearest station at each end, with a rough
- *  door-to-door time (walk in, `estimateTransit` for the ride, walk out).
+/** The train between the nearest station at each end: the walk to the first
+ *  station, a rough ride time (`estimateTransit`) and the walk from the last.
  *  Null until both stations are found, or when they're the same station. */
 function useTrainOption(from: { lat: number; lng: number } | null, to: { lat: number; lng: number } | null, enabled: boolean): TrainOption | null {
   const [stations, setStations] = useState<[NearbyStation | null, NearbyStation | null]>([null, null]);
@@ -1138,8 +1138,7 @@ function useTrainOption(from: { lat: number; lng: number } | null, to: { lat: nu
   const toA = useWalk(origin, from ? a : null);
   const fromB = useWalk(dest, to ? b : null);
   if (!a || !b || a.name === b.name) return null;
-  const total = toA && fromB ? toA.min + estimateTransit(haversineKm(a.lat, a.lng, b.lat, b.lng)) + fromB.min : null;
-  return { a, b, total };
+  return { a, b, walkIn: toA?.min ?? null, ride: estimateTransit(haversineKm(a.lat, a.lng, b.lat, b.lng)), walkOut: fromB?.min ?? null };
 }
 
 /** One end of the day's journey as a plan row — "Leave Kyoto" at its first
@@ -1217,27 +1216,30 @@ function usePlaceHours(place: Place | undefined, date?: string): string | null {
 
 /** The way from one step to the next, as a slim row between them — the
  *  Calendar "travel time" idiom: travel is between two things you do, not
- *  part of either. Close by it's the walk; past `TRAIN_TOO_MIN` the train
- *  (`useTrainOption`) shows beside it; past `LONG_WALK_MIN` only the train,
- *  never an hour-long walk figure. Each opens its own Google Maps directions
+ *  part of either. The walk all the way is always there; past
+ *  `TRAIN_TOO_MIN` the train (`useTrainOption`) gets a line under it, read
+ *  like an Apple Maps transit summary: walk to the station › ride › walk
+ *  from the station. Each line opens its own Google Maps directions
  *  — the real route with lines and changes is Google's to work out (no free
  *  keyless transit API). Stations come from OpenStreetMap (`transitStation.ts`). */
 function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to: { lat: number; lng: number } }) {
   const walk = useWalk(from, to);
-  const long = !walk || walk.min > LONG_WALK_MIN;
   const train = useTrainOption(from, to, !walk || walk.min > TRAIN_TOO_MIN);
 
   // plain quiet text, no fill — as Calendar sets travel time — a shade
   // fainter than a step's note (iOS's tertiary grey under the secondary), so
   // name, note and travel read as three levels; a filled chip outweighed them
-  const pill = "tap inline-flex min-w-0 items-center gap-1 text-[0.75rem] leading-snug text-ink-faint/70 tabular-nums transition-opacity active:opacity-50";
-  const trainTitle = train ? `Train from ${train.a.name} to ${train.b.name}, door to door` : "Transit directions";
+  const pill = "tap inline-flex min-w-0 max-w-full items-center gap-1 text-[0.75rem] leading-snug text-ink-faint/70 tabular-nums transition-opacity active:opacity-50";
+  const trainTitle = train ? `Train from ${train.a.name} to ${train.b.name}` : "Transit directions";
+  const long = !walk || walk.min > LONG_WALK_MIN;
+  // a chevron between legs, as Maps strings a transit route together
+  const leg = <Icon name="chevron" size={10} className="mx-0.5 inline-block shrink-0 align-[-1px] opacity-70" />;
   return (
     <li className="flex gap-2.5 pl-3.5 pr-3.5">
       <span className="w-[2.625rem] shrink-0" />
       <Rail />
-      <span className="flex min-w-0 flex-1 flex-wrap gap-x-3 gap-y-1 py-1.5 pl-0.5">
-        {!long && walk && (
+      <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5 py-1.5 pl-0.5">
+        {walk && (
           <a
             href={gmapsRoute(`${from.lat},${from.lng}`, `${to.lat},${to.lng}`, "walking")}
             target="_blank"
@@ -1259,13 +1261,26 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
             aria-label={trainTitle}
             className={pill}
           >
-            <Icon name="train" size={12} className="shrink-0" />
-            <span className="min-w-0 break-words">
-              {/* a line breaks between stations, never inside one
-                  ("Omote-sando") or before the minutes */}
-              {train ? <><span className="whitespace-nowrap">{train.a.name} →</span> <span className="whitespace-nowrap">{train.b.name}</span></> : "By train"}
-              {train?.total ? <span className="whitespace-nowrap"> · {fmtMinutes(train.total)}</span> : null}
-            </span>
+            {train ? (
+              // a line breaks between legs, never inside a station name
+              // ("Omote-sando") or before its minutes
+              <span className="min-w-0 break-words">
+                {train.walkIn != null && (
+                  <span className="whitespace-nowrap">
+                    <Icon name="walk" size={12} className="inline-block align-[-2px]" /> {fmtMinutes(train.walkIn)}{leg}
+                  </span>
+                )}
+                <span className="whitespace-nowrap"><Icon name="train" size={12} className="inline-block align-[-2px]" /> {train.a.name} →</span>{" "}
+                <span className="whitespace-nowrap">{train.b.name} · {fmtMinutes(train.ride)}</span>
+                {train.walkOut != null && (
+                  <span className="whitespace-nowrap">
+                    {leg}<Icon name="walk" size={12} className="inline-block align-[-2px]" /> {fmtMinutes(train.walkOut)}
+                  </span>
+                )}
+              </span>
+            ) : (
+              <><Icon name="train" size={12} className="shrink-0" /> By train</>
+            )}
           </a>
         )}
       </span>
