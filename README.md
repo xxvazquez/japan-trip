@@ -162,7 +162,7 @@ Each step shows its name, then one grey line with the place's hours that day, th
 
 These appear automatically when a step is linked to a place.
 
-**Getting to the next step.** Between two steps tied to places, small grey pills sit on the line — travel between things you do, the way Calendar shows travel time. Each opens its own Google Maps directions:
+**Getting to the next step.** Between two steps tied to places, quiet grey captions sit on the line — travel between things you do, the way Calendar shows travel time. Each opens its own Google Maps directions:
 
 - Up to a 15-minute walk: the walk, e.g. *🚶 9 min*.
 - 15–30 minutes: the walk and the train side by side, e.g. *🚶 22 min* and *🚆 Shibuya → Harajuku · 14 min*.

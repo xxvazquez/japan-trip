@@ -1216,13 +1216,15 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
   const long = !walk || walk.min > LONG_WALK_MIN;
   const train = useTrainOption(from, to, !walk || walk.min > TRAIN_TOO_MIN);
 
-  const pill = "tap inline-flex min-w-0 items-center gap-1 rounded-[7px] bg-surface-2 px-1.5 py-[3px] text-[0.75rem] leading-snug text-ink-soft tabular-nums transition-colors active:bg-ink/[0.1]";
+  // plain quiet text, no fill — as Calendar sets travel time — so the stops
+  // either side stay what the eye lands on; a filled chip outweighed them
+  const pill = "tap inline-flex min-w-0 items-center gap-1 text-[0.75rem] leading-snug text-ink-faint tabular-nums transition-opacity active:opacity-50";
   const trainTitle = train ? `Train from ${train.a.name} to ${train.b.name}, door to door` : "Transit directions";
   return (
     <li className="flex gap-2.5 pl-3.5 pr-3.5">
       <span className="w-[2.625rem] shrink-0" />
       <Rail />
-      <span className="flex min-w-0 flex-1 flex-wrap gap-1.5 py-1 pl-0.5">
+      <span className="flex min-w-0 flex-1 flex-wrap gap-x-3 gap-y-1 py-1.5 pl-0.5">
         {!long && walk && (
           <a
             href={gmapsRoute(`${from.lat},${from.lng}`, `${to.lat},${to.lng}`, "walking")}
