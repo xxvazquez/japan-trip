@@ -131,11 +131,14 @@ export function tripClock(d: TripData, now = new Date()): TripClock {
   };
 }
 
+/** The stay a date falls in. `leg.end` is the stay's last day, so it counts;
+ *  a date between stays (a deleted day's gap) or after the trip stays with
+ *  the last stay that had begun, and one before the trip takes the first. */
 export function legForDate(d: TripData, iso: ISODate) {
-  return (
-    d.legs.find((l) => iso >= l.start && iso < l.end) ??
-    (iso >= d.meta.end ? d.legs.at(-1) : d.legs[0])
-  );
+  const begun = d.legs.filter((l) => l.start && l.start <= iso);
+  if (!begun.length) return d.legs[0];
+  const on = begun.filter((l) => iso <= (l.end || l.start));
+  return (on.length ? on : begun).reduce((a, b) => (b.start > a.start ? b : a));
 }
 
 /** The shape of a day, derived from its links / flag. */

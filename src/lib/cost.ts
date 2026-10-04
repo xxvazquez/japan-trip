@@ -45,8 +45,9 @@ export function parseMoney(s: string, fallbackCurrency = ""): Money | null {
     if (trimmed.includes(sym)) { currency = code; break; }
   }
   if (!currency) {
-    const code = trimmed.match(/\b[A-Za-z]{3}\b/)?.[0].toUpperCase();
-    if (code && ISO_CODES.has(code)) currency = code;
+    // every three-letter word, not just the first — "18 for two EUR"
+    const code = [...trimmed.matchAll(/\b[A-Za-z]{3}\b/g)].map((m) => m[0].toUpperCase()).find((c) => ISO_CODES.has(c));
+    if (code) currency = code;
   }
   return { amount, currency: currency || fallbackCurrency };
 }
@@ -376,13 +377,13 @@ export function expenseCategoryIcon(cat: ExpenseCategory, index: number): Catego
   if (cat.role === "transport") return { glyph: "station", tone: toneForGlyph("station") };
 
   const t = cat.label.toLowerCase();
-  if (/food|drink|coffee|caf[eé]|eat|meal|restaurant|bar|izakaya|bakery/.test(t)) return { glyph: "food", tone: toneForGlyph("food") };
+  if (/food|drink|coffee|caf[eé]|\beat|meal|restaurant|\bbars?\b|izakaya|bakery/.test(t)) return { glyph: "food", tone: toneForGlyph("food") };
   if (/train|rail/.test(t)) return { glyph: "train", tone: toneForGlyph("train") };
   if (/flight|plane|air/.test(t)) return { glyph: "plane", tone: toneForGlyph("plane") };
   if (/\bbus\b|coach/.test(t)) return { glyph: "bus", tone: toneForGlyph("bus") };
   if (/taxi|cab|rideshare|\buber\b/.test(t)) return { glyph: "car", tone: toneForGlyph("car") };
   if (/shop|souvenir|gift|market/.test(t)) return { glyph: "shop", ...categoryGlyphTile("shop", index) };
-  if (/activit|sight|museum|see|do|tour|ticket|onsen|bath/.test(t)) return { glyph: "sight", ...categoryGlyphTile("sight", index) };
+  if (/activit|sight|museum|\bsee\b|\bdo\b|tour|ticket|onsen|bath|theat/.test(t)) return { glyph: "sight", ...categoryGlyphTile("sight", index) };
   return { name: "wallet", color: categoryColor(index) };
 }
 

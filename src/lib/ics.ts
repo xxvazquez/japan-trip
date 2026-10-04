@@ -119,6 +119,9 @@ function segmentTiming(seg: Segment, tripTz: string): EventTiming | null {
     const [arrDate, arrTime] = seg.arrive.split("T");
     end = zonedTimeToUtc(arrDate, arrTime, toTz);
   }
+  // an arrival typed before the departure would make an event that ends
+  // before it starts, which calendars reject — keep the default hour instead
+  if (end && end <= start) end = null;
   return { allDay: false, start, end: end ?? new Date(start.getTime() + 60 * 60_000) };
 }
 
@@ -156,7 +159,8 @@ function planItemEvent(item: PlanItem, day: Day, tz: string, place: Place | unde
   if (desc.length) lines.push(`DESCRIPTION:${escText(desc.join("\n"))}`);
   if (place) {
     lines.push(`LOCATION:${escText(place.name)}`);
-    if (Number.isFinite(place.lat) && Number.isFinite(place.lng)) lines.push(`GEO:${place.lat};${place.lng}`);
+    // 0,0 is a place that hasn't been located yet, not a spot off West Africa
+    if (Number.isFinite(place.lat) && Number.isFinite(place.lng) && !(place.lat === 0 && place.lng === 0)) lines.push(`GEO:${place.lat};${place.lng}`);
     if (place.url) lines.push(`URL:${uriValue(place.url)}`);
   } else if (item.url) {
     lines.push(`URL:${uriValue(item.url)}`);
@@ -184,14 +188,17 @@ function segmentEvent(seg: Segment, tripTz: string, opts: IcsOptions): string[] 
   return lines;
 }
 
-function dayEvents(day: Day, journeys: Map<string, Journey>, places: Map<string, Place>, tz: string, opts: IcsOptions): string[] {
+/** `seen` is shared across a whole-trip export: a journey linked to both its
+ *  departure and arrival day must still land on the calendar once. */
+function dayEvents(day: Day, journeys: Map<string, Journey>, places: Map<string, Place>, tz: string, opts: IcsOptions, seen = new Set<string>()): string[] {
   const lines: string[] = [];
   for (const item of day.plan ?? []) {
     lines.push(...planItemEvent(item, day, tz, item.placeId ? places.get(item.placeId) : undefined));
   }
   for (const id of day.journeyIds ?? []) {
     const journey = journeys.get(id);
-    if (!journey) continue;
+    if (!journey || seen.has(id)) continue;
+    seen.add(id);
     for (const seg of journey.segments) {
       const evt = segmentEvent(seg, tz, opts);
       if (evt) lines.push(...evt);
@@ -230,7 +237,8 @@ export function buildTripIcs(trip: TripData, opts: IcsOptions): string {
   const tz = safeTz(trip.config.tripTimeZone);
   const journeys = new Map(trip.journeys.map((j) => [j.id, j] as const));
   const places = new Map(trip.places.map((p) => [p.id, p] as const));
-  const lines = trip.days.flatMap((d) => dayEvents(d, journeys, places, tz, opts));
+  const seen = new Set<string>();
+  const lines = trip.days.flatMap((d) => dayEvents(d, journeys, places, tz, opts, seen));
   return wrapCalendar(trip.meta.title || "Trip", lines);
 }
 

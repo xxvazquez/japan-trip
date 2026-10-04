@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { expenseCategoryForGlyph, fmtMoney, moneyParts } from "./cost";
+import { expenseCategoryForGlyph, fmtMoney, moneyParts, parseMoney } from "./cost";
 import { normalizeTrip } from "./hydrate";
 import { buildBlank } from "@/templates/blank";
 
@@ -34,5 +34,12 @@ describe("fmtMoney", () => {
   it("splits the same way for an editable amount", () => {
     expect(moneyParts(15, "PLN")).toEqual({ before: "", number: "15", after: " zł" });
     expect(moneyParts(0, "EUR")).toEqual({ before: "€", number: "0", after: "" });
+  });
+});
+
+describe("parseMoney", () => {
+  it("finds a currency code anywhere in the text, not just the first word", () => {
+    expect(parseMoney("18 for two EUR")).toEqual({ amount: 18, currency: "EUR" });
+    expect(parseMoney("18 for two", "PLN")).toEqual({ amount: 18, currency: "PLN" });
   });
 });

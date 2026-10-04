@@ -42,11 +42,6 @@ const safeHref = (url: string): string => {
   return /^(https?:|mailto:|tel:)/i.test(u) ? esc(u) : "#";
 };
 
-/** a free-text `font-family` value going straight into a `<style>` block —
- *  strip anything that could break out of the declaration (braces, quotes
- *  used to close early, `;`, `<`), rather than HTML-escape it (`esc` would
- *  leave those CSS-special characters untouched). */
-
 /** A deliberately tiny Markdown → HTML pass: **bold**, *italic*, `code`,
  *  [text](url), bare URLs, `- ` bullet lists, blank-line paragraphs. Everything
  *  is HTML-escaped first, so there is no raw-HTML path. */
@@ -54,9 +49,12 @@ function mdToHtml(src: string): string {
   const text = src.replace(/\r\n?/g, "\n").trim();
   if (!text) return "";
   const inline = (raw: string): string => {
+    // the text is escaped once up front, so a URL caught below is already
+    // attribute-safe — going through safeHref again would turn `&` into
+    // `&amp;amp;` and break every link with a query string
     let s = esc(raw);
-    s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (_m, t, u) => `<a href="${safeHref(u)}">${t}</a>`);
-    s = s.replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, (_m, pre, u) => `${pre}<a href="${safeHref(u)}">${u.replace(/^https?:\/\/(www\.)?/, "")}</a>`);
+    s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (_m, t, u) => `<a href="${u}">${t}</a>`);
+    s = s.replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, (_m, pre, u) => `${pre}<a href="${u}">${u.replace(/^https?:\/\/(www\.)?/, "")}</a>`);
     s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
     s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>");
     s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
