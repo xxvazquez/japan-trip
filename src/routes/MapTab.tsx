@@ -40,6 +40,7 @@ import { estimateWalk, useWalk } from "@/lib/walkRoute";
 import { WalkLine } from "@/components/WalkLine";
 import { ChipStrip } from "@/components/ChipStrip";
 import { categoryName, glyphPath } from "@/lib/mapGlyphs";
+import { neighbourhoodAreas, usePlaceLevels } from "@/lib/neighbourhood";
 import { placeColor, placeTile, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
 import { canonicalLegs } from "@/lib/cityAssign";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
@@ -72,6 +73,8 @@ const NESTED_DIVIDER = TILE_DIVIDER.replace("after:left-[3.375rem]", "after:left
  *  Null with fewer than two placed points to span. */
 /** case- and accent-blind text for the list's search ("Shinjuku" finds "shinjuku", "Ōsaka" finds "osaka") */
 const foldText = (s: string) => s.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+const NO_PLACES: Place[] = [];
 
 function farthestPair(items: Place[]): [Place, Place] | null {
   const pts = items.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
@@ -716,6 +719,22 @@ export default function MapTab() {
 
   const places = useMemo(() => data?.places ?? [], [data]);
 
+  // the list groups by the areas you made, or — switched in the ⋯ menu or on
+  // the Neighbourhoods page — by neighbourhood. Only the grouping changes:
+  // the areas themselves (and a place's Areas row) are never touched, so
+  // switching back finds them exactly as you left them
+  const byNeighbourhood = data?.config.mapGroupBy === "neighbourhoods";
+  const nbh = usePlaceLevels(byNeighbourhood ? places : NO_PLACES);
+  const listAreas = useMemo(
+    () => (byNeighbourhood ? neighbourhoodAreas(places, nbh.levels) : data?.areas ?? []),
+    // the levels map is rebuilt every render; its size is what changes
+    [byNeighbourhood, places, nbh.levels.size, data?.areas], // eslint-disable-line react-hooks/exhaustive-deps
+  );
+  const setGroupBy = (next: "neighbourhoods" | undefined) => {
+    setAreaFilter(new Set());
+    useApp.getState().mutateTrip((d) => { d.config.mapGroupBy = next; });
+  };
+
   // set the contextual default scope once the trip is loaded
   useEffect(() => {
     if (data && scope === null) setScope(defaultScope(data));
@@ -802,9 +821,9 @@ export default function MapTab() {
   const areaAllowed = useMemo(() => {
     if (!data || areaFilter.size === 0) return null;
     const ids = new Set<string>();
-    for (const a of data.areas) if (areaFilter.has(a.id)) a.placeIds.forEach((id) => ids.add(id));
+    for (const a of listAreas) if (areaFilter.has(a.id)) a.placeIds.forEach((id) => ids.add(id));
     return ids;
-  }, [data, areaFilter]);
+  }, [data, listAreas, areaFilter]);
 
 
   /** ids in the current scope, before the category / area chips narrow it —
@@ -883,7 +902,7 @@ export default function MapTab() {
     const words = foldText(settledQuery).split(/\s+/).filter(Boolean);
     if (!data || words.length === 0) return null;
     const has = (text?: string) => { const t = foldText(text ?? ""); return words.every((w) => t.includes(w)); };
-    const areas = data.areas
+    const areas = listAreas
       .map((a, i) => ({
         id: a.id,
         name: a.name || "Untitled",
@@ -906,7 +925,7 @@ export default function MapTab() {
     const onMap = new Map(found.map((p) => [p.id, p] as const));
     for (const a of areas) for (const p of a.items) onMap.set(p.id, p);
     return { areas, places: found, onMap: [...onMap.values()] };
-  }, [data, places, settledQuery]);
+  }, [data, listAreas, places, settledQuery]);
   /** what the map draws: the search's finds while searching, else the scope */
   const shown = searchHits ? searchHits.onMap : scoped;
 
@@ -926,9 +945,9 @@ export default function MapTab() {
   /** the list split into collapsible area sections. Shown whenever areas exist
    *  and more than one is represented in the current view; null → flat list. */
   const areaGroups = useMemo(() => {
-    if (!data || data.areas.length === 0) return null;
+    if (!data || listAreas.length === 0) return null;
     const byId = new Map(preAreaScoped.map((p) => [p.id, p] as const));
-    const groups = data.areas
+    const groups = listAreas
       .map((a, i) => ({
         id: a.id,
         name: a.name || "Untitled",
@@ -937,20 +956,20 @@ export default function MapTab() {
       }))
       .filter((g) => g.items.length > 0)
       .sort((x, y) => x.name.localeCompare(y.name));
-    const inArea = new Set(data.areas.flatMap((a) => a.placeIds));
+    const inArea = new Set(listAreas.flatMap((a) => a.placeIds));
     const loose = preAreaScoped.filter((p) => !inArea.has(p.id));
     if (loose.length) groups.push({ id: "", name: "No area", tone: NEUTRAL_TONE, items: loose });
     // one group only → not worth the section chrome, render flat
     return groups.length > 1 ? groups : null;
-  }, [data, preAreaScoped]);
+  }, [data, listAreas, preAreaScoped]);
 
   /** the "All" list nested city → area → places. Each area sits under the city
    *  most of its pins fall in. Null unless more than one city actually shows —
    *  then `areaGroups` (flat) or the plain list takes over. */
   const cityGroups = useMemo(() => {
-    if (!data || (scope && scope !== "all") || data.areas.length === 0) return null;
+    if (!data || (scope && scope !== "all") || listAreas.length === 0) return null;
     const byId = new Map(scoped.map((p) => [p.id, p] as const));
-    const tone = new Map(data.areas.map((a, i) => [a.id, AREA_TONES[i % AREA_TONES.length]] as const));
+    const tone = new Map(listAreas.map((a, i) => [a.id, AREA_TONES[i % AREA_TONES.length]] as const));
     // a day-trip town sorts just after its stay
     const order = new Map<string, number>(data.legs.map((l, i) => [l.id, i] as const));
     for (const t of tripCities) order.set(t.id, (order.get(cityLeg.get(t.legId) ?? t.legId) ?? 99) + 0.5);
@@ -981,12 +1000,12 @@ export default function MapTab() {
       return c;
     };
 
-    for (const a of data.areas) {
+    for (const a of listAreas) {
       const items = a.placeIds.map((id) => byId.get(id)).filter(Boolean) as Place[];
       if (items.length === 0) continue;
       bucket(areaCity(a)).areas.push({ id: a.id, name: a.name || "Untitled", tone: tone.get(a.id)!, items });
     }
-    const inArea = new Set(data.areas.flatMap((a) => a.placeIds));
+    const inArea = new Set(listAreas.flatMap((a) => a.placeIds));
     for (const p of scoped) if (!inArea.has(p.id)) bucket(placeLeg.get(p.id) ?? "").loose.push(p);
 
     const groups = [...cities.values()]
@@ -999,7 +1018,7 @@ export default function MapTab() {
       .sort((x, y) => (order.get(x.legId) ?? 99) - (order.get(y.legId) ?? 99));
 
     return groups.length > 1 ? groups : null;
-  }, [data, scope, scoped, placeLeg, tripCities, cityLeg]);
+  }, [data, listAreas, scope, scoped, placeLeg, tripCities, cityLeg]);
 
   /** legs whose hotel has coordinates — enough to earn a city pill even before
    *  any pin sits under it, so linking a hotel is all it takes to see the city */
@@ -1039,7 +1058,7 @@ export default function MapTab() {
     if (!data) return null;
     const byId = new Map(places.map((p) => [p.id, p]));
     const inScope = inScopeIds;
-    const features = data.areas.flatMap((a, i) => {
+    const features = listAreas.flatMap((a, i) => {
       if (areaFilter.size > 0 && !areaFilter.has(a.id)) return [];
       const pts = a.placeIds.map((id) => byId.get(id)).filter((p): p is Place => !!p && inScope.has(p.id));
       if (pts.length === 0) return [];
@@ -1051,7 +1070,7 @@ export default function MapTab() {
       }];
     });
     return { type: "FeatureCollection" as const, features };
-  }, [data, places, inScopeIds, areaFilter]);
+  }, [data, listAreas, places, inScopeIds, areaFilter]);
 
   const imported = useMemo(() => places.filter((p) => p.source === "mymap").length, [places]);
 
@@ -1367,15 +1386,24 @@ export default function MapTab() {
           )}
           {!readOnly && !adding && review === null && (
             <>
+              {data.places.length > 0 && (
+                <button onClick={() => setGroupBy(byNeighbourhood ? undefined : "neighbourhoods")} className="menu-item">
+                  <Icon name={byNeighbourhood ? "map" : "pin"} size={16} /> {byNeighbourhood ? "Group by My Areas" : "Group by Neighbourhood"}
+                </button>
+              )}
+              {/* area upkeep is for the areas you made — put away while the
+                  list shows neighbourhoods, where a new area wouldn't show */}
+              {!byNeighbourhood && (
               <button onClick={() => { primeKeyboard(); setNamingArea(true); }} className="menu-item">
                 <Icon name="plus" size={16} /> New Area
               </button>
-              {suggestions.length > 0 && (
+              )}
+              {!byNeighbourhood && suggestions.length > 0 && (
                 <button onClick={startSuggest} className="menu-item">
                   <Icon name="explore" size={16} /> Suggest Areas
                 </button>
               )}
-              {data.areas.length > 0 && (
+              {!byNeighbourhood && data.areas.length > 0 && (
                 <button onClick={() => setEditingAreas(true)} className="menu-item">
                   <Icon name="pencil" size={16} /> Edit Areas
                 </button>
@@ -1532,6 +1560,14 @@ export default function MapTab() {
             )}
           </div>
         </div>
+      )}
+
+      {/* grouped by neighbourhood while some places are still being looked
+          up — those sit under "No area" until their answer comes in */}
+      {byNeighbourhood && nbh.pending > 0 && review === null && !selectedPlace && (
+        <p className="meta shrink-0 border-b border-line px-4 py-1.5">
+          Finding neighbourhoods — {nbh.total - nbh.pending} of {nbh.total}
+        </p>
       )}
 
       {/* "Nearby" status — pinned above the list so it stays visible while

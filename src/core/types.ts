@@ -101,6 +101,10 @@ export interface TripConfig {
   /** place categories whose pins stay on the map when zoomed far out — drawn
    *  on top and never folded into a numbered cluster (e.g. the hotel) */
   pinnedCategories?: string[];
+  /** how the Map list and its outlines group places: the areas you made
+   *  (unset), or the neighbourhoods OpenStreetMap puts them in. A view only —
+   *  switching never changes the areas themselves */
+  mapGroupBy?: "neighbourhoods";
   /** days fixed to their date (a holiday, a booked tour): Plan shows a pin
    *  instead of a drag handle, and reordering the other days flows around
    *  them without moving them */

@@ -6,6 +6,10 @@ import { IconTile } from "@/components/IconTile";
 import { Icon } from "@/components/Icon";
 import { SearchField } from "@/components/SearchField";
 import { SegmentedControl } from "@/components/SegmentedControl";
+import { Switch } from "@/components/Switch";
+import { InsetRow } from "@/components/InsetRow";
+import { useApp } from "@/store/useApp";
+import { useReadOnly } from "@/lib/readonly";
 import { useData } from "@/lib/data";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { groupByLevels, usePlaceLevels } from "@/lib/neighbourhood";
@@ -38,6 +42,7 @@ export default function Neighbourhoods() {
   const { levels, total, pending, failed } = usePlaceLevels(places);
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<Sort>("size");
+  const readOnly = useReadOnly();
 
   const cities = useMemo(() => {
     if (!data) return [];
@@ -100,7 +105,7 @@ export default function Neighbourhoods() {
       <PageHeader
         back="/map"
         title="Neighbourhoods"
-        info="Your places sorted into the neighbourhoods OpenStreetMap puts them in, so you can compare them with the areas you made yourself. Areas are yours — you name them and pick their places. Neighbourhoods are the official names, worked out for you. A neighbourhood with fewer than 3 places joins its district. Looked up once per place and kept on this device; nothing here changes your trip."
+        info="Your places sorted into the neighbourhoods OpenStreetMap puts them in, so you can compare them with the areas you made yourself. Areas are yours — you name them and pick their places. Neighbourhoods are the official names, worked out for you. A neighbourhood with fewer than 3 places joins its district. Looked up once per place and kept on this device. Grouping the Map by neighbourhood only changes how the Map lists places — your areas stay as they are, and a place keeps the areas you gave it."
       />
 
       <div className="mt-5 space-y-6">
@@ -120,6 +125,26 @@ export default function Neighbourhoods() {
         )}
         {pending === 0 && failed > 0 && (
           <p className="px-4 text-[15px] text-ink-faint">{plural(failed, "place")} couldn’t be looked up. Open this page again later to try them again.</p>
+        )}
+
+        {/* the switch the page exists for: group the Map by these instead of
+            your areas. A view only — the areas stay as they are, so turning
+            it off brings back every one exactly as you left it */}
+        {!readOnly && total > 0 && (
+          <div>
+            <Section>
+              <ul>
+                <InsetRow label="Group the Map by neighbourhood" className="!items-center">
+                  <Switch
+                    checked={data.config.mapGroupBy === "neighbourhoods"}
+                    onChange={(on) => useApp.getState().mutateTrip((d) => { d.config.mapGroupBy = on ? "neighbourhoods" : undefined; })}
+                    label="Group the Map by neighbourhood"
+                  />
+                </InsetRow>
+              </ul>
+            </Section>
+            <p className="px-4 pt-1.5 text-[13px] leading-snug text-ink-faint">Your areas aren’t changed — turn this off to get them back as they were.</p>
+          </div>
         )}
 
         {cities.length > 0 && (

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { nominatimGet } from "./nominatim";
-import type { Place } from "@/core/types";
+import type { Area, Place } from "@/core/types";
 
 /**
  * Grouping places by the neighbourhood they're in, the way Photos groups by
@@ -72,6 +72,23 @@ export function groupByLevels(items: { id: string; levels: Levels }[], min = 3):
   return [...groups]
     .map(([name, ids]) => ({ name, ids }))
     .sort((a, b) => b.ids.length - a.ids.length || a.name.localeCompare(b.name));
+}
+
+/**
+ * The trip's places as neighbourhood "areas" — the shape the Map list
+ * already draws, so it can group by neighbourhood instead of by the areas
+ * you made. Grouped across the whole trip, since a neighbourhood's name is
+ * a place on the map: a day trip's pins in Taito join the city's Taito
+ * rather than making a second one. Ids are `nbh:<name>`, never a real
+ * area's. A place not looked up yet (or with nothing found) is left out, so
+ * it shows under "No area" until its answer comes in.
+ */
+export function neighbourhoodAreas(places: Place[], levels: Map<string, Levels>): Area[] {
+  const items = places.flatMap((p) => {
+    const lv = levels.get(p.id);
+    return lv?.length ? [{ id: p.id, levels: lv }] : [];
+  });
+  return groupByLevels(items).map((g) => ({ id: `nbh:${g.name}`, name: g.name, placeIds: g.ids }));
 }
 
 const KEY = "za.placeAddr";

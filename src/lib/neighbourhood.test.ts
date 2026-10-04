@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { addressLevels, groupByLevels, stripBlock } from "./neighbourhood";
+import { addressLevels, groupByLevels, neighbourhoodAreas, stripBlock } from "./neighbourhood";
+import type { Place } from "@/core/types";
 
 describe("stripBlock", () => {
   it("drops block numbers", () => {
@@ -39,5 +40,19 @@ describe("groupByLevels", () => {
   it("leaves a lone place at its broadest name", () => {
     expect(groupByLevels([item("a", "Gion", "Kyoto")])).toEqual([{ name: "Kyoto", ids: ["a"] }]);
     expect(groupByLevels([item("a")])).toEqual([{ name: "Unknown", ids: ["a"] }]);
+  });
+});
+
+describe("neighbourhoodAreas", () => {
+  const p = (id: string): Place => ({ id, name: id, lat: 0, lng: 0 });
+  it("groups the whole trip and leaves unknown places out", () => {
+    const levels = new Map([
+      ["a", ["Gion", "Kyoto"]], ["b", ["Gion", "Kyoto"]], ["c", ["Gion", "Kyoto"]],
+      ["d", ["Ginza", "Tokyo"]], ["e", []],
+    ]);
+    expect(neighbourhoodAreas(["a", "b", "c", "d", "e", "f"].map(p), levels)).toEqual([
+      { id: "nbh:Gion", name: "Gion", placeIds: ["a", "b", "c"] },
+      { id: "nbh:Tokyo", name: "Tokyo", placeIds: ["d"] },
+    ]);
   });
 });
