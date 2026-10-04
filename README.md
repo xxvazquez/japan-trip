@@ -179,8 +179,8 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 - It's found through a web search (Tavily): a Tabelog page in the same or a neighbouring prefecture whose title has the same name (English, or the Japanese name OpenStreetMap has for the pin).
 - Needs `TAVILY_API_KEY` on the server (see [Deploy](#deploy)); without it, every restaurant just gets **Search Tabelog**.
 - Signed in only — on *Use on this device only* the lookup isn't available.
-- Found: **Open in Tabelog** on the step's place card and on the Map card.
-- Not found: the same row offers **Search Tabelog** instead. A miss isn't retried on that device for 30 days, unless the name or pin changes.
+- Found: **Tabelog** in the step's place card button row, **Open in Tabelog** on the Map card.
+- Not found: the same button offers **Search Tabelog** instead. A miss isn't retried on that device for 30 days, unless the name or pin changes.
 - "Restaurant" means the category's icon is from *Food & drink* (or its name says food, café, bar…).
 - **Manage → Content → Tabelog links** finds them for every restaurant at once.
 
@@ -194,7 +194,7 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 - Each is a short phrase. Anything the sources don't mention is left out.
 - A place that changes category (sight ↔ restaurant) is looked up again the new way.
 - Not for your own hotel, or a place filed as lodging or transport (a hot spring still counts).
-- On Plan it's at the top of the step's place card (tap its icon), so the step itself stays short; on the Map it's part of the place's card.
+- On Plan it's in the step's place card (tap its icon), under the button row, so the step itself stays short; on the Map it's part of the place's card, after its links.
 - Looked up the first time the place shows, again once it's a month old, and again after a rename. Saved with the place, so it works offline.
 - It shows when it was checked and which sites it came from, with **Refresh** to check again now.
 - A result only counts if its pages name the place and mention its city — so a namesake elsewhere isn't picked up.

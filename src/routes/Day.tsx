@@ -1008,7 +1008,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                 header={
                   <div className="flex gap-2">
                     {mapHref && <PlaceAction href={mapHref} icon="map" label="Google Maps" />}
-                    {reviewSite && <PlaceAction href={reviewHref(reviewSite, place)} icon="link" label={reviewSite.label} />}
+                    {reviewSite && <PlaceAction href={reviewHref(reviewSite, place)} icon="link" label={place.reviewUrl ? reviewSite.label : `Search ${reviewSite.label}`} />}
                     <PlaceAction icon="locate" label="Show on map" onClick={() => { placeCard.setOpen(false); onShowOnMap(place); }} />
                   </div>
                 }
