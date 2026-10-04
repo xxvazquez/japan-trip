@@ -316,7 +316,7 @@ Your places on a clean map, read top to bottom: **city pills → places**. Every
 - **Add** — *⋯ → New Area*.
 - **Assign places** — from a place's card.
 - **Rename, delete, or merge duplicates** — *⋯ → Edit Areas*.
-- **Show one area** — tap its colour dot; tap the rest of the row to fold it.
+- **Show one area** — tap its icon; tap the rest of the row to fold it.
 
 **Areas on a day.** Add an area on a day's page and all its places appear on that day's map (faded). It's a live link, so later edits show up. Tap **+** to turn one into a step. The day offers areas from its own city — a day trip gets its town's areas.
 
@@ -339,7 +339,7 @@ When unassigned places sit close together, **⋯ → Suggest Areas** appears. No
 
 ### Neighbourhoods preview
 
-*Areas → Neighbourhoods* shows your places grouped by the neighbourhood they're in, city by city, next to how many areas each city has now. It's read-only — nothing changes.
+*⋯ → Neighbourhoods* shows your places grouped by the neighbourhood they're in, city by city, next to how many areas each city has now. It's read-only — nothing changes.
 
 - A neighbourhood with 3 or more places is its own group; smaller ones join their district, then their ward or city.
 - Names come from OpenStreetMap, looked up once per place (about one a second) and kept on the device.

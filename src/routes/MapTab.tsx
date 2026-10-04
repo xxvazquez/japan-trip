@@ -5,7 +5,6 @@ import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
 import { Icon } from "@/components/Icon";
 import { IconTile } from "@/components/IconTile";
-import { InfoNote } from "@/components/InfoNote";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { ActionSheet, ConfirmMenuItem, useActionSheet } from "@/components/ActionSheet";
 import { RowMenu } from "@/components/RowMenu";
@@ -23,6 +22,7 @@ import { tripClock, fmtDate, plural } from "@/lib/dates";
 import { mapUrlCoords, placeMapLink } from "@/lib/maps";
 import { geocode, reverseGeocode, type GeoResult } from "@/lib/geocode";
 import { haversineKm, fmtDistanceKm, fmtWalk, useGeolocation } from "@/lib/geo";
+import { fmtMinutes } from "@/lib/time";
 import { legHex } from "@/lib/legColors";
 import { suggestAreas, type AreaSuggestion } from "@/lib/cluster";
 import { useMode, isDark } from "@/lib/mode";
@@ -54,7 +54,7 @@ const FALLBACK = DEFAULT_ACCENT;
  *  place" (a row in a card), the way Settings and Reminders group a list */
 const PLACE_CARD = "mx-4 isolate overflow-hidden rounded-[12px] bg-surface";
 /** an area's name above its card — 17px Medium, one step above the 15px rows */
-const AREA_TITLE = "block break-words text-[1.0625rem] font-medium leading-snug text-ink";
+const AREA_TITLE = "block break-words text-[17px] leading-snug text-ink";
 /** a place row's hairline, inset past its 28px tile (14px pad + 28 + 12 gap) */
 /** a card row with a small tile in front: the hairline starts at the text */
 const SM_TILE_DIVIDER = INSET_DIVIDER.replace("after:left-3.5", "after:left-12");
@@ -79,7 +79,7 @@ function farthestPair(items: Place[]): [Place, Place] | null {
   return best;
 }
 
-/** an area's section-header subtitle — walking time and distance between its
+/** an area row's subtitle — walking time and distance between its
  *  two farthest-apart places, found cheaply via `farthestPair` first so only
  *  one route request is needed per area, not one per pair. A straight-line
  *  estimate shows first (always behind a "≈"), then the real street route. */
@@ -87,7 +87,58 @@ function AreaWalkSpan({ items }: { items: Place[] }) {
   const pair = farthestPair(items);
   const route = useWalk(pair?.[0] ?? { lat: 0, lng: 0 }, pair?.[1]);
   if (!pair || !route) return null;
-  return <span className="block text-xs text-ink-soft">{fmtWalk(route)} walk across</span>;
+  return <span className="block text-[15px] leading-snug text-ink-faint">Spans {fmtDistanceKm(route.km)} · {fmtMinutes(route.min)} walk</span>;
+}
+
+/** an area as a row of its city's card — the iOS outline list (Files' list
+ *  view): a tile like its places' (a folder sits beside its files the same
+ *  way), a disclosure chevron that turns down when open, its places
+ *  following in the same card. The tile doubles as the area's map filter. */
+function AreaRow({
+  name, tone, items, open, dim, walk = true, onToggle, onSolo,
+}: {
+  name: string;
+  tone: string;
+  items: Place[];
+  open: boolean;
+  dim?: boolean;
+  /** show the walk-across subtitle — not on the "No area" bucket */
+  walk?: boolean;
+  onToggle: () => void;
+  onSolo?: () => void;
+}) {
+  return (
+    <li className={`${TILE_DIVIDER} transition-opacity ${dim ? "opacity-40" : ""}`}>
+      <div className="flex items-center">
+        {onSolo ? (
+          <button
+            onClick={onSolo}
+            aria-label={dim ? `Show ${name} on the map` : `Show only ${name} on the map`}
+            aria-pressed={!dim}
+            className="flex shrink-0 items-center self-stretch pl-3.5 pr-3"
+          >
+            <IconTile name="map" color={tone} />
+          </button>
+        ) : (
+          <span className="flex shrink-0 items-center self-stretch pl-3.5 pr-3">
+            <IconTile name="map" color={tone} ghost={!walk} />
+          </span>
+        )}
+        <button
+          onClick={onToggle}
+          aria-expanded={open}
+          className="flex min-h-[44px] min-w-0 flex-1 items-center gap-2 py-2.5 pr-3.5 text-left active:bg-ink/[0.07]"
+        >
+          <span className="min-w-0 flex-1">
+            <span className={AREA_TITLE}>{name}</span>
+            {walk && <AreaWalkSpan items={items} />}
+          </span>
+          <span className="shrink-0 text-[17px] tabular-nums text-ink-faint">{items.length}</span>
+          <Icon name="chevron" size={13} className={`shrink-0 text-ink-faint transition-transform ${open ? "rotate-90" : ""}`} />
+        </button>
+      </div>
+    </li>
+  );
 }
 
 /** the legend mark for a category chip — a mini filled tile echoing the place
@@ -578,8 +629,8 @@ export default function MapTab() {
   const [basePois, setBasePois] = useState(loadBasePois);
   const toggleBasePois = (on: boolean) => { setBasePois(on); saveBasePois(on); };
   const [selected, setSelected] = useState<string | null>(null);
-  /** the "Areas" disclosure (add/suggest/edit/merge — area upkeep, not filtering) */
-  const [areasOpen, setAreasOpen] = useState(false);
+  /** the header's ⋯ menu — list/map, filters, area upkeep, sync */
+  const moreSheet = useActionSheet();
   /** the "Filters" (category, transit) sheet — real filtering, split out from area upkeep above */
   const filterSheet = useActionSheet();
   /** hides the map, list fills the screen — see LIST_ONLY_KEY above */
@@ -1143,7 +1194,7 @@ export default function MapTab() {
               ...(clock.phase === "during" && clock.today
                 ? [{ id: `day:${clock.today.id}`, label: "Today", hex: "" }]
                 : []),
-              { id: "all", label: `All · ${places.length}`, hex: "" },
+              { id: "all", label: "All", hex: "" },
               ...data.legs
                 // one pill per city: the first stay there stands for every
                 // stay with the same name, and earns its pill if any of them would
@@ -1186,12 +1237,14 @@ export default function MapTab() {
             </button>
           )}
           <button
-            onClick={() => setListOnlyPersist(!listOnly)}
-            aria-label={listOnly ? "Show map" : "Show list only, full screen"}
-            aria-pressed={listOnly}
-            className="chip chip-icon"
+            ref={moreSheet.anchorRef}
+            onClick={() => moreSheet.setOpen(true)}
+            aria-label="More"
+            aria-haspopup="menu"
+            aria-expanded={moreSheet.open}
+            className={`chip chip-icon ${catFilter.size > 0 ? "chip-accent" : ""}`}
           >
-            <Icon name={listOnly ? "map" : "list"} size={15} />
+            <Icon name="more" size={16} />
           </button>
           {!readOnly && (adding ? (
             <button onClick={cancelAdd} className="link-quiet shrink-0 text-sm">Cancel</button>
@@ -1206,37 +1259,58 @@ export default function MapTab() {
           ))}
         </div>
 
-        {/* Filters (category, transit) open as a sheet, not an inline fold —
-            it's the frequent action and shouldn't compete with the list for
-            height. Area upkeep (add/suggest/edit/merge) is a separate fold
-            below: it's maintenance, not filtering, so it no longer shares
-            the "Filters" label or trigger. */}
-        {!adding && (
-          <div className="mt-2 flex items-center gap-4 border-t border-line pt-1.5">
-            <button
-              ref={filterSheet.anchorRef}
-              onClick={() => filterSheet.setOpen(true)}
-              aria-haspopup="menu"
-              aria-expanded={filterSheet.open}
-              className="eyebrow flex items-center gap-1 text-ink-faint transition-colors hover:text-ink-soft"
-            >
-              Filters{catFilter.size > 0 ? ` · ${catFilter.size}` : ""}
-              <Icon name="down" size={10} className="align-[-1px]" />
+        {/* the ⋯ menu: how the list shows, then filtering, area upkeep and
+            the My Maps sync — Apple Maps keeps all of this a tap away rather
+            than on a row of its own above the list. Tinted while a category
+            filter is on, so a narrowed list never looks like a short one. */}
+        <ActionSheet open={moreSheet.open} onClose={() => moreSheet.setOpen(false)} anchorRef={moreSheet.anchorRef}>
+          <button onClick={() => setListOnlyPersist(!listOnly)} className="menu-item">
+            <Icon name={listOnly ? "map" : "list"} size={16} /> {listOnly ? "Show Map" : "Show List Only"}
+          </button>
+          {!adding && (
+            <button onClick={() => filterSheet.setOpen(true)} className="menu-item">
+              <Icon name="eye" size={16} /> {catFilter.size > 0 ? `Filters (${catFilter.size} on)` : "Filters"}
             </button>
-            {!readOnly && review === null && (
-              <button
-                onClick={() => setAreasOpen((v) => !v)}
-                aria-expanded={areasOpen}
-                className="eyebrow ml-auto flex items-center gap-1 text-ink-faint transition-colors hover:text-ink-soft"
-              >
-                Areas
-                <Icon name="chevron" size={11} className={`transition-transform ${areasOpen ? "rotate-90" : ""}`} />
+          )}
+          {!readOnly && !adding && review === null && (
+            <>
+              <button onClick={() => { primeKeyboard(); setNamingArea(true); }} className="menu-item">
+                <Icon name="plus" size={16} /> New Area
               </button>
-            )}
-          </div>
-        )}
+              {suggestions.length > 0 && (
+                <button onClick={startSuggest} className="menu-item">
+                  <Icon name="explore" size={16} /> Suggest Areas
+                </button>
+              )}
+              {data.areas.length > 0 && (
+                <button onClick={() => setEditingAreas(true)} className="menu-item">
+                  <Icon name="pencil" size={16} /> Edit Areas
+                </button>
+              )}
+              {data.places.length > 0 && (
+                <Link to="/map/neighbourhoods" className="menu-item">
+                  <Icon name="pin" size={16} /> Neighbourhoods
+                </Link>
+              )}
+            </>
+          )}
+          {url && !readOnly && (
+            <button onClick={runSync} disabled={busy} className="menu-item">
+              <Icon name="refresh" size={16} /> Sync with My Maps
+            </button>
+          )}
+        </ActionSheet>
 
-        <ActionSheet open={filterSheet.open && !adding} onClose={() => filterSheet.setOpen(false)} anchorRef={filterSheet.anchorRef} title="Filters">
+        <TextPrompt
+          open={namingArea}
+          title="New Area"
+          placeholder="Name"
+          action="Add"
+          onSubmit={createArea}
+          onClose={() => setNamingArea(false)}
+        />
+
+        <ActionSheet open={filterSheet.open && !adding} onClose={() => filterSheet.setOpen(false)} anchorRef={moreSheet.anchorRef} title="Filters" doneLabel="Done">
           {/* toggles stay open until dismissed — stopPropagation so a chip
               tap doesn't trigger ActionSheet's "close on any click inside" */}
           <div onClick={(e) => e.stopPropagation()} className="space-y-4 px-4 pb-3 pt-1">
@@ -1291,38 +1365,13 @@ export default function MapTab() {
           </div>
         </ActionSheet>
 
-        {areasOpen && !adding && !readOnly && review === null && (
-          <div className="space-y-2 border-t border-line pb-1 pt-2">
-            <TextPrompt
-              open={namingArea}
-              title="New Area"
-              placeholder="Name"
-              action="Add"
-              onSubmit={createArea}
-              onClose={() => setNamingArea(false)}
-            />
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-              <button onClick={() => { primeKeyboard(); setNamingArea(true); }} className="tap inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70">
-                <Icon name="plus" size={12} className="align-[-1px]" /> Add area
-              </button>
-              {suggestions.length > 0 && (
-                <button onClick={startSuggest} className="inline-flex items-center gap-1 text-accent transition-opacity hover:opacity-70">
-                  <Icon name="explore" size={12} className="align-[-1px]" />{" "}
-                  {suggestions.some((g) => g.areaId) ? "Suggest areas" : `Suggest ${plural(suggestions.length, "area")}`}
-                </button>
-              )}
-              {data.places.length > 0 && (
-                <Link to="/map/neighbourhoods" className="text-accent transition-opacity hover:opacity-70">
-                  Neighbourhoods
-                </Link>
-              )}
-              {data.areas.length > 0 && (
-                <button onClick={() => setEditingAreas((v) => !v)} className="link-quiet ml-auto">
-                  {editingAreas ? "Done" : "Edit areas"}
-                </button>
-              )}
+        {editingAreas && !adding && !readOnly && review === null && (
+          <div className="space-y-2 pb-1 pt-3">
+            <div className="flex items-center justify-between px-1">
+              <span className="kicker">Areas</span>
+              <button onClick={() => setEditingAreas(false)} className="tap text-xs font-medium text-accent">Done</button>
             </div>
-            {editingAreas && duplicateAreaGroups.length > 0 && (
+            {duplicateAreaGroups.length > 0 && (
               <div className="flex items-center justify-between gap-2 rounded-[8px] bg-accent/10 px-2.5 py-1.5 text-xs">
                 <span className="text-ink-soft">
                   {plural(duplicateAreaGroups.length, "duplicate name")} found — merging combines their places and keeps one.
@@ -1336,7 +1385,7 @@ export default function MapTab() {
                 </ConfirmButton>
               </div>
             )}
-            {editingAreas && data.areas.length > 0 && (
+            {data.areas.length > 0 && (
               <ul className="isolate max-h-64 overflow-y-auto rounded-[12px] bg-surface">
                 {[...data.areas]
                   .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
@@ -1444,26 +1493,17 @@ export default function MapTab() {
                 </button>
                 {!cityShut && (
                   <>
-                    {c.areas.map((a) => {
-                      const shut = !openAreas.has(a.id);
-                      return (
-                        <div key={a.id}>
-                          <button
-                            onClick={() => toggleAreaCollapsed(a.id)}
-                            className="flex w-full items-center gap-2.5 px-5 pb-1.5 pt-3 text-left"
-                          >
-                            <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: a.tone }} />
-                            <span className="min-w-0 flex-1">
-                              <span className={AREA_TITLE}>{a.name}</span>
-                              <AreaWalkSpan items={a.items} />
-                            </span>
-                            <span className="shrink-0 text-xs tabular-nums text-ink-soft">{a.items.length}</span>
-                            <Icon name="chevron" size={13} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />
-                          </button>
-                          {!shut && <ul className={PLACE_CARD}>{a.items.map((p) => renderRow(p))}</ul>}
-                        </div>
-                      );
-                    })}
+                    {c.areas.length > 0 && (
+                      <ul className={`${PLACE_CARD} mt-2`}>
+                        {c.areas.map((a) => {
+                          const shut = !openAreas.has(a.id);
+                          return [
+                            <AreaRow key={a.id} name={a.name} tone={a.tone} items={a.items} open={!shut} onToggle={() => toggleAreaCollapsed(a.id)} />,
+                            ...(!shut ? a.items.map((p) => renderRow(p)) : []),
+                          ];
+                        })}
+                      </ul>
+                    )}
                     {c.loose.length > 0 && (
                       <>
                         {c.areas.length > 0 && (
@@ -1482,47 +1522,32 @@ export default function MapTab() {
       ) : areaGroups ? (
         <div ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto">
           {selectedCard()}
-          {areaGroups.map((g) => {
-            const isArea = g.id !== "";
-            // the dot doubles as the old area-pill filter — soloed areas dim
-            // out here instead of in a separate row above. "No area" has no
-            // filter of its own; it just drops out while any area's soloed.
-            const filteredOut = isArea ? areaFilter.size > 0 && !areaFilter.has(g.id) : areaFilter.size > 0;
-            const manuallyShut = !openAreas.has(g.id);
-            const shut = filteredOut || manuallyShut;
-            return (
-              <section key={g.id || "none"}>
-                <div
-                  className={`sticky top-0 z-[1] flex items-center gap-2.5 bg-bg px-5 pb-1.5 pt-4 transition-opacity ${filteredOut ? "opacity-40" : ""}`}
-                >
-                  {isArea ? (
-                    <button
-                      onClick={() => toggleAreaFilter(g.id)}
-                      aria-label={filteredOut ? `Show ${g.name} on the map` : `Show only ${g.name} on the map`}
-                      aria-pressed={!filteredOut}
-                      className="-m-1.5 shrink-0 rounded-full p-1.5"
-                    >
-                      <span className="block h-2.5 w-2.5 rounded-full" style={{ background: g.tone }} />
-                    </button>
-                  ) : (
-                    <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: g.tone }} />
-                  )}
-                  <button
-                    onClick={() => toggleAreaCollapsed(g.id)}
-                    className="flex min-w-0 flex-1 items-center gap-2 text-left"
-                  >
-                    <span className="min-w-0 flex-1">
-                      <span className={AREA_TITLE}>{g.name}</span>
-                      {isArea && <AreaWalkSpan items={g.items} />}
-                    </span>
-                    <span className="shrink-0 text-xs tabular-nums text-ink-soft">{g.items.length}</span>
-                    <Icon name="chevron" size={13} className={`shrink-0 text-ink-faint transition-transform ${shut ? "" : "rotate-90"}`} />
-                  </button>
-                </div>
-                {!shut && <ul className={PLACE_CARD}>{g.items.map((p) => renderRow(p))}</ul>}
-              </section>
-            );
-          })}
+          {areaGroups.length > 0 && (
+            <ul className={`${PLACE_CARD} mt-3`}>
+              {areaGroups.map((g) => {
+                const isArea = g.id !== "";
+                // the dot doubles as the old area-pill filter — soloed areas
+                // dim out here. "No area" has no filter of its own; it just
+                // drops out while any area's soloed.
+                const filteredOut = isArea ? areaFilter.size > 0 && !areaFilter.has(g.id) : areaFilter.size > 0;
+                const shut = filteredOut || !openAreas.has(g.id);
+                return [
+                  <AreaRow
+                    key={g.id || "none"}
+                    name={g.name}
+                    tone={g.tone}
+                    items={g.items}
+                    open={!shut}
+                    dim={filteredOut}
+                    walk={isArea}
+                    onToggle={() => toggleAreaCollapsed(g.id)}
+                    onSolo={isArea ? () => toggleAreaFilter(g.id) : undefined}
+                  />,
+                  ...(!shut ? g.items.map((p) => renderRow(p)) : []),
+                ];
+              })}
+            </ul>
+          )}
           {areaGroups.length === 0 && (
             <p className="meta px-4 py-6">
               {places.length === 0
@@ -1553,17 +1578,11 @@ export default function MapTab() {
           empty-state "add a link" guidance lives in Manage now, where the
           link itself is added, instead of taking a permanent row here */}
       {url && (
-        <div className="shrink-0 border-t border-line px-4 py-2.5 text-xs text-ink-soft">
-          <div className="flex items-center gap-x-3">
-            <span className="min-w-0 flex-1 break-words">
-              {imported > 0 ? `${imported} pins from Google My Maps` : "No My Maps pins"}
-              {syncedAt ? ` · synced ${rel(syncedAt)}` : ""}
-            </span>
-            <button onClick={runSync} disabled={busy} className="shrink-0 text-accent disabled:opacity-50">
-              {busy ? "syncing…" : "Sync"}
-            </button>
-            {imported > 0 && <InfoNote className="shrink-0">Syncing adds new pins from My Maps, updates the ones still there and removes ones deleted there (Undo brings them back). Each layer goes into the category chosen for it in Manage.</InfoNote>}
-          </div>
+        <div className="shrink-0 border-t border-line px-4 py-2 text-center text-2xs text-ink-faint">
+          <p className="text-xs text-ink-soft">
+            {busy ? "Checking for changes…" : syncedAt ? `Updated ${rel(syncedAt)}` : "Not synced yet"}
+          </p>
+          <p>{imported > 0 ? `${plural(imported, "pin")} from Google My Maps` : "No pins from Google My Maps"}</p>
           {msg && <p className="mt-1 text-accent">{msg}</p>}
           {newLayers.length > 0 && (
             <p className="mt-1 break-words">
