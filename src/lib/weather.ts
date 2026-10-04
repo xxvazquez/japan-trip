@@ -35,6 +35,27 @@ const FORECAST_DAYS = 15;
 
 const cache = new Map<string, DayWeather | null>();
 
+/** the last forecast for each day, kept on the device so a day still shows
+ *  it with no signal; days already past are dropped */
+const STORE_KEY = "za.weather";
+type Stored = Record<string, DayWeather>;
+function readStored(): Stored {
+  try {
+    return JSON.parse(localStorage.getItem(STORE_KEY) ?? "{}") as Stored;
+  } catch {
+    return {};
+  }
+}
+function keep(key: string, w: DayWeather) {
+  try {
+    const today = todayISO();
+    const next = Object.fromEntries(Object.entries({ ...readStored(), [key]: w }).filter(([k]) => k.slice(k.lastIndexOf(",") + 1) >= today));
+    localStorage.setItem(STORE_KEY, JSON.stringify(next));
+  } catch {
+    /* storage full or blocked — this session still has it in memory */
+  }
+}
+
 /** date as "YYYY-MM-DD" (an ISODate) */
 export async function fetchDayWeather(lat: number, lng: number, date: string): Promise<DayWeather | null> {
   const key = `${lat.toFixed(2)},${lng.toFixed(2)},${date}`;
@@ -42,6 +63,8 @@ export async function fetchDayWeather(lat: number, lng: number, date: string): P
   // past the forecast window there's nothing to ask for — the API would only
   // answer 400, which still shows up as a failed request in the console
   if (daysBetween(todayISO(), date) > FORECAST_DAYS) return null;
+  const stored = readStored()[key] ?? null;
+  if (typeof navigator !== "undefined" && navigator.onLine === false) return stored;
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&timezone=auto&start_date=${date}&end_date=${date}`;
     const res = await fetch(url);
@@ -67,11 +90,12 @@ export async function fetchDayWeather(lat: number, lng: number, date: string): P
     if (hi === undefined || lo === undefined || code === undefined) throw new Error("no forecast for this date");
     const result: DayWeather = { highC: Math.round(hi), lowC: Math.round(lo), precipPct: json.daily?.precipitation_probability_max?.[0] ?? 0, code };
     cache.set(key, result);
+    keep(key, result);
     return result;
   } catch {
     // not cached — a genuinely transient failure (offline, a 5xx) shouldn't
     // stick as "no forecast" forever; the 400 out-of-range case is handled,
-    // and cached, above
-    return null;
+    // and cached, above. The last forecast saved on the device stands in.
+    return stored;
   }
 }

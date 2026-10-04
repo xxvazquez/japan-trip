@@ -327,6 +327,7 @@ Tap a document to open its page: name it, attach PDFs or photos, add fields and 
 - **Signed in** — files go to your account (private to the trip, 25 MB each), or to a shared Google Drive folder if set up. Drive needs its own **Connect Google Drive** tap, which lasts about an hour.
 - **On this device only** — files stay on the device, and upload automatically once you sign in.
 - **Opening** a file shows it inside the app, like Quick Look: PDFs page by page, photos full width. Double-tap or pinch to zoom; **Share** saves or sends it on.
+- **Photos** show a preview under their name, from the copy on the device when there is one.
 - **Offline** — every attachment is kept on the device once the trip opens. A cloud with a ⇣ beside a file means it isn't on this device yet.
 - **Drive files** download while Drive is connected, or all at once from **Manage → Trips → This device → Save attachments for offline**.
 - **Removing** an attachment never deletes the file itself.
@@ -458,6 +459,7 @@ Once the app has loaded, it works with no signal. See [Before you travel](#befor
 | **Weak signal** | If the server hasn't answered in 5 seconds, the app opens the device copy and updates once it gets through. |
 | **Maps** | Areas you've viewed are kept. Save more ahead from a day's **Download offline maps**, or the whole trip from **This device**. A new area opened offline retries when you reconnect. |
 | **Attachments** | Kept on the device — see [Documents](#documents). |
+| **Weather** | A day keeps the last forecast it showed. |
 | **Your location** | GPS works without data; the blue dot shows on saved maps. |
 | **First visit ever** | A plain "you're offline" screen that retries on its own. |
 

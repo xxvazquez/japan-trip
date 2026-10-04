@@ -19,7 +19,7 @@ import { supabaseEnabled } from "@/lib/supabase";
 import { uploadFile, MAX_FILE_BYTES } from "@/lib/cloudFiles";
 import { useReadOnly } from "@/lib/readonly";
 import { APP_NAME } from "@/lib/app";
-import { putFile, putFileAs } from "@/lib/fileStore";
+import { getFileBlob, putFile, putFileAs } from "@/lib/fileStore";
 import { loadFile, saveFilesToDevice, sourceOf, useOnDevice } from "@/lib/offlineFiles";
 import type { ViewerFile } from "@/components/FileViewer";
 import { driveEnabled, driveConnected, prepareDrive, connectDrive, ensureFolder, uploadToDrive, shareFile, driveViewUrl, driveImageUrl } from "@/lib/drive";
@@ -215,7 +215,7 @@ function Attachments({
     <>
       <ul>
         {files.map((f) => {
-          const img = f.driveId && f.mime?.startsWith("image/") && !broken.has(f.id);
+          const img = f.mime?.startsWith("image/") && !broken.has(f.id) && (f.driveId || onDevice?.has(f.id));
           return (
             <ContextMenu as="li" key={f.id} className={`${INSET_DIVIDER} px-3.5 py-3`}>
               <div className="flex items-center gap-2.5">
@@ -238,12 +238,10 @@ function Attachments({
               </div>
               {img && (
                 <button onClick={() => open(f)} className="mt-2 block">
-                  <img
-                    src={driveImageUrl(f.driveId!)}
-                    alt={f.name}
-                    loading="lazy"
+                  <FilePreview
+                    file={f}
+                    local={!!onDevice?.has(f.id)}
                     onError={() => setBroken((s) => new Set(s).add(f.id))}
-                    className="max-h-40 rounded border border-line object-cover"
                   />
                 </button>
               )}
@@ -285,4 +283,27 @@ function Attachments({
       )}
     </>
   );
+}
+
+/** A photo attachment's preview — the copy on this device when there is
+ *  one, so it shows with no signal, else Drive's own thumbnail. */
+function FilePreview({ file, local, onError }: { file: DocFile; local: boolean; onError: () => void }) {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!local) return;
+    let u: string | null = null;
+    let live = true;
+    void getFileBlob(file.id).then((b) => {
+      if (!live || !b) return;
+      u = URL.createObjectURL(b);
+      setUrl(u);
+    }).catch(() => {});
+    return () => {
+      live = false;
+      if (u) URL.revokeObjectURL(u);
+    };
+  }, [file.id, local]);
+  const src = url ?? (local || !file.driveId ? null : driveImageUrl(file.driveId));
+  if (!src) return null;
+  return <img src={src} alt={file.name} loading="lazy" onError={onError} className="max-h-40 rounded border border-line object-cover" />;
 }
