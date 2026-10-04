@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import workerUrl from "pdfjs-dist/legacy/build/pdf.worker.min.mjs?url";
 import type { PDFDocumentProxy } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { useBackToClose } from "@/lib/backClose";
+import { keepPdfViewer } from "@/lib/pdfViewerCache";
 import { Icon } from "./Icon";
 
 /** What the viewer shows: a name for the bar, and the bytes, fetched once open. */
@@ -277,7 +278,11 @@ function PdfPages({ blob, width, onError }: { blob: Blob; width: number; onError
     let live = true;
     let loaded: PDFDocumentProxy | null = null;
     (async () => {
-      const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+      void keepPdfViewer();
+      const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs").catch((e) => {
+        // not copied to this device yet, and no signal to fetch it
+        throw navigator.onLine === false ? new Error("offline") : e;
+      });
       pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
       const task = pdfjs.getDocument({
         data: new Uint8Array(await blob.arrayBuffer()),
@@ -299,7 +304,11 @@ function PdfPages({ blob, width, onError }: { blob: Blob; width: number; onError
       setDoc(loaded);
     })().catch((e) => {
       console.error("[pdf]", e);
-      if (live) onError(e?.name === "PasswordException" ? "This PDF is password-protected." : "Couldn’t open this PDF.");
+      if (live) onError(
+          e?.name === "PasswordException" ? "This PDF is password-protected."
+            : e?.message === "offline" ? "PDFs can’t be opened offline on this device yet. Open one once with a connection."
+            : "Couldn’t open this PDF.",
+        );
     });
     return () => {
       live = false;

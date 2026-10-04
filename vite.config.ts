@@ -46,8 +46,10 @@ function buildVersion(): string {
 
 /** The files the PDF viewer reads as it needs them — character maps for
  *  Japanese/Chinese/Korean text, the standard fonts a PDF can name without
- *  embedding, the image decoders, a colour profile. Served at `/pdfjs/` and
- *  precached, so an attachment renders the same with no signal. */
+ *  embedding, the image decoders, a colour profile. Served at `/pdfjs/`.
+ *  Not precached (~4 MB on install): `/pdfjs/files.json` lists them plus the
+ *  viewer's own script and worker, and `src/lib/pdfViewerCache.ts` copies
+ *  that list into the `pdf-viewer` cache once a trip has a PDF. */
 const PDFJS_DIR = fileURLToPath(new URL("./node_modules/pdfjs-dist/", import.meta.url));
 const PDFJS_ASSETS: Record<string, RegExp> = {
   cmaps: /\.bcmap$|^LICENSE/,
@@ -69,8 +71,12 @@ function pdfjsAssets(): Plugin {
         res.end(readFileSync(PDFJS_DIR + rel));
       });
     },
-    generateBundle() {
+    generateBundle(_, bundle) {
       for (const rel of files()) this.emitFile({ type: "asset", fileName: `pdfjs/${rel}`, source: readFileSync(PDFJS_DIR + rel) });
+      const viewer = Object.keys(bundle).filter((f) => /^assets\/(pdfjs-.*\.js|pdf\.worker.*\.mjs)$/.test(f));
+      if (viewer.length !== 2) this.error(`pdf viewer files not found in the bundle: ${viewer.join(", ")}`);
+      const list = [...viewer, ...files().filter((rel) => !/LICENSE/.test(rel)).map((rel) => `pdfjs/${rel}`)].map((f) => `/${f}`);
+      this.emitFile({ type: "asset", fileName: "pdfjs/files.json", source: JSON.stringify(list) });
     },
   };
 }
@@ -121,6 +127,8 @@ export default defineConfig(({ command, mode }) => ({
           supabase: ["@supabase/supabase-js"],
           // heavy, only pulled in by the Map route — keep it cacheable on its own
           maplibre: ["maplibre-gl", "pmtiles", "@protomaps/basemaps"],
+          // the PDF viewer — named so the precache can leave it out
+          pdfjs: ["pdfjs-dist/legacy/build/pdf.mjs"],
         },
       },
     },
@@ -155,9 +163,10 @@ export default defineConfig(({ command, mode }) => ({
         ],
       },
       workbox: {
-        // `mjs` is the PDF viewer's worker; `pdfjs/` its fonts and character maps
-        globPatterns: ["**/*.{js,mjs,css,html,woff2,svg}", "pdfjs/**/*"],
-        globIgnores: ["**/supabase-*.js", "pdfjs/**/LICENSE*"], // supabase: fetched on demand, runtime-cached below
+        // the PDF viewer (its chunk, worker `.mjs` and `pdfjs/`) and supabase
+        // are fetched on demand and runtime-cached below
+        globPatterns: ["**/*.{js,css,html,woff2,svg}"],
+        globIgnores: ["**/supabase-*.js", "**/pdfjs-*.js"],
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         navigateFallback: "/index.html",
         runtimeCaching: [
@@ -181,6 +190,21 @@ export default defineConfig(({ command, mode }) => ({
               cacheName: "map-glyphs",
               expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 180, purgeOnQuotaError: true },
               cacheableResponse: { statuses: [200] },
+            },
+          },
+          {
+            // filled ahead of time by src/lib/pdfViewerCache.ts; anything it
+            // missed is kept the first time the viewer asks for it
+            urlPattern: ({ url }) => url.origin === self.location.origin && /^\/(pdfjs\/|assets\/pdfjs-|assets\/pdf\.worker)/.test(url.pathname) && !url.pathname.endsWith("files.json"),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "pdf-viewer",
+              plugins: [
+                {
+                  cacheWillUpdate: async ({ response }) =>
+                    response.status === 200 && !/text\/html/.test(response.headers.get("content-type") ?? "") ? response : null,
+                },
+              ],
             },
           },
           {

@@ -317,6 +317,7 @@ Tap a document to open its page: name it, attach PDFs or photos, add fields and 
 - **On this device only** — files stay on the device, and upload automatically once you sign in.
 - **Opening** a file shows it inside the app, like Quick Look: PDFs page by page, photos full width. Double-tap or pinch to zoom; **Share** saves or sends it on.
 - **Offline** — every attachment is kept on the device once the trip opens. A cloud with a ⇣ beside a file means it isn't on this device yet.
+- **PDF viewer** — downloads in the background the first time a trip with a PDF opens with a connection, so PDFs then open offline too.
 - **Drive files** download while Drive is connected, or all at once from **Manage → Trips → This device → Save attachments for offline**.
 - **Removing** an attachment never deletes the file itself.
 
@@ -539,7 +540,8 @@ edit in the UI  →  TripData (in memory)  →  backend
 
 | What | Where | Notes |
 |---|---|---|
-| The app itself | Service worker precache | Includes the PDF viewer's fonts and character maps (`/pdfjs/`, ~4 MB). |
+| The app itself | Service worker precache | ~2 MB on install. Leaves out the PDF viewer. |
+| PDF viewer | `pdf-viewer` cache | ~4 MB (pdf.js, its worker, `/pdfjs/` fonts and character maps). Copied once a trip with a PDF opens online, from the build's `/pdfjs/files.json`. |
 | Trip copy + unsent edits | IndexedDB (`mirror:*`, outbox) | Cleared on sign-out. |
 | Attachments | IndexedDB (`file:*`) | Copies of cloud files are listed under `file-copies` and cleared on sign-out; device-only files are kept. |
 | Map tiles, fonts, icons | `map-tiles`, `map-glyphs` caches | Server answers from Supabase are never cached — the trip copy covers offline. |
