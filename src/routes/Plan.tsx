@@ -410,7 +410,7 @@ function LegBlock({
 /** The fixed-width weekday+date cell at the start of a day row. */
 function DayDate({ date, loc, strong }: { date: string; loc: string; strong?: boolean }) {
   return (
-    <span className={`w-[3.75rem] shrink-0 whitespace-nowrap text-xs tabular-nums ${strong ? "text-ink" : "text-ink-soft"}`}>
+    <span className={`inline-block w-[3.75rem] shrink-0 whitespace-nowrap text-xs tabular-nums ${strong ? "text-ink" : "text-ink-soft"}`}>
       {fmtDate(date, loc, { weekday: "short", day: "numeric" })}
     </span>
   );
@@ -466,8 +466,10 @@ function DayLink({ data, day, today, loc, hex, className }: { data: TripData; da
       to={`/day/${day.id}`}
       className={`group flex min-w-0 flex-1 items-baseline gap-3 py-3 pr-3.5 ${className}`}
     >
-      <span className="flex shrink-0 items-center gap-1.5">
-        <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: hex }} />
+      {/* a plain block, not a flex row: a flex row would take its baseline
+          from the dot (an empty box) and drop the date below the title's */}
+      <span className="shrink-0 whitespace-nowrap">
+        <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full align-middle" style={{ background: hex }} />
         <DayDate date={day.date} loc={loc} strong={today} />
       </span>
       <span className="flex min-w-0 flex-1 flex-col">

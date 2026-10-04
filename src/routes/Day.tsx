@@ -815,6 +815,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
     return r ? `${r[0]}\n${r[1]}` : t;
   };
   const hours = usePlaceHours(place, day.date);
+  const closed = hours === "Closed";
   const catGlyph = place?.category ? categoryIcons?.[place.category] : undefined;
   // a custom step has no category to go on, so guess from its own text
   const textGlyph = place ? undefined : glyphForStepText(item.text);
@@ -944,8 +945,10 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
             </span>
           }
         >
-          {/* name, then the place's hours that day, then the note — three
-              steps down in size and colour so the name always leads */}
+          {/* the name leads; under it only what changes the plan (closed
+              that day, overwhelming) and the note in secondary grey, as
+              Reminders sets a reminder's notes. The day's hours live on
+              the place card, not repeated here. */}
           <div ref={placeCardAnchor} className="space-y-0.5">
             <div className={readOnly ? "[@media(hover:hover)]:pr-7" : "pr-6 [@media(hover:hover)]:pr-[3.25rem]"}>
             {readOnly ? (
@@ -975,12 +978,12 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
               />
             )}
             </div>
-            {(hours || place?.overwhelming) && (
-              <span className={STOP_META}>
-                {hours && (/^\d/.test(hours) ? `Open ${hours}` : hours)}
-                {hours && place?.overwhelming && " · "}
+            {(closed || place?.overwhelming) && (
+              <span className="block break-words text-xs text-danger">
+                {closed && "Closed this day"}
+                {closed && place?.overwhelming && " · "}
                 {place?.overwhelming && (
-                  <span className="whitespace-nowrap text-danger">
+                  <span className="whitespace-nowrap">
                     <Icon name="alert" size={12} className="inline-block align-[-1px]" /> Overwhelming
                   </span>
                 )}
@@ -991,7 +994,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                 value={item.note ?? ""}
                 onCommit={(v) => onPatch({ note: v || undefined })}
                 placeholder="Add a note…"
-                className="mt-1.5 block text-sm leading-snug text-ink-soft [&_strong]:text-ink"
+                className="mt-0.5 block text-sm leading-snug text-ink-faint [&_p]:leading-snug [&_strong]:font-medium [&_strong]:text-ink-soft"
                 collapsible
                 autoEdit={noteOpen}
                 onEditEnd={() => setNoteOpen(false)}
@@ -1067,11 +1070,12 @@ function PlaceAction({ href, onClick, icon, label, primary }: { href?: string; o
   );
 }
 
-/** a timeline stop's type, largest to quietest: the stop itself (17px medium,
- *  the Calendar event-title weight, so it leads over everything around it),
- *  then a small grey caption under it (hours, platform) */
-const STOP_TITLE = "block break-words text-[17px] font-medium leading-snug text-ink";
-const STOP_META = "block break-words text-xs text-ink-soft";
+/** a timeline stop's type, the way Reminders sets a list: the stop itself in
+ *  regular 17px primary ink — it leads by colour and size, not weight — and
+ *  anything under it a step down in both (13px caption, 15px note), in the
+ *  secondary grey */
+const STOP_TITLE = "block break-words text-[17px] leading-snug text-ink";
+const STOP_META = "block break-words text-xs text-ink-faint";
 
 /** One stop on a day's timeline, the way Maps lays out a route: the time
  *  in its own column on the left, the stop's icon sitting on the rail that
@@ -1086,7 +1090,7 @@ function TimelineStop({ time, tile, trailing, children, className = "pr-3.5" }: 
 }) {
   return (
     <span className={`relative flex gap-2.5 pl-3.5 ${className}`}>
-      <span className="block w-[2.625rem] shrink-0 pb-2.5 pt-[13px] text-right text-xs tabular-nums text-ink-soft">{time}</span>
+      <span className="block w-[2.625rem] shrink-0 pb-2.5 pt-[15px] text-right text-xs tabular-nums text-ink-soft">{time}</span>
       <Rail>{tile && <span className="relative z-10 block pt-2.5">{tile}</span>}</Rail>
       <span className="block min-w-0 flex-1 pb-2.5 pl-0.5 pt-[11px]">{children}</span>
       {trailing}

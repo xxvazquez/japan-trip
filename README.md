@@ -143,7 +143,7 @@ Every section folds away from its header.
 
 The day reads as one route, like a route's stops in Maps: times in a column on the left, a thin line joining every stop, each stop's icon sitting on it. Steps, journeys and the way back to the hotel all sit on that line. No hairlines between rows.
 
-Each step shows its name, then one grey line with the place's hours that day, then its note (folded after 2 lines, with **more**).
+Each step shows its name, then its note in lighter grey (folded after 2 lines, with **more**). A red line under the name only appears when it changes the plan: **Closed this day** or **Overwhelming**.
 
 - **Time** — a single time, or a range like `14:00–15:15` stacked as 14:00 over 15:15. An empty time is just a small clock to tap.
 - **Setting a time** — the wheels start at the last time set on an earlier step (else 9:00). **Done** saves what's showing; tapping outside or swiping the sheet down cancels.
@@ -171,7 +171,7 @@ These appear automatically when a step is linked to a place.
 
 A straight-line estimate shows first and is replaced by a real walking route when one comes back (needs `VITE_ORS_API_KEY`). The train time is a guess, since there's no free transit-routing API.
 
-**Opening hours.** If the place itself has hours on OpenStreetMap (matched by its name, or tagged right on its pin — never a neighbour's), that day's hours show at the right of the row ("09:00–17:00", or "Closed"). Seasonal and weekday rules are applied; anything the app can't read is shown as written. It's for information only — nothing is flagged as a conflict.
+**Opening hours.** If the place itself has hours on OpenStreetMap (matched by its name, or tagged right on its pin — never a neighbour's), that day's hours show on its place card ("09:00–17:00"). Seasonal and weekday rules are applied; anything the app can't read is shown as written. The step itself only says something when the place is closed that day.
 
 **Tabelog link.** A restaurant or café in Japan gets its Tabelog page found automatically:
 
