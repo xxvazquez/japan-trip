@@ -42,6 +42,7 @@ export type IconName =
   | "link"
   | "download"
   | "grip"
+  | "reorder"
   | "pushpin"
   | "more"
   | "seat"
@@ -241,6 +242,7 @@ const P: Record<IconName, JSX.Element> = {
       <path d="m9.3 14.7-4.8 4.8" />
     </>
   ),
+  reorder: <path d="M5 8.5h14M5 12h14M5 15.5h14" />,
   grip: (
     <>
       <circle cx="9" cy="6" r="1.4" fill="currentColor" stroke="none" />

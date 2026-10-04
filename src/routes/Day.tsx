@@ -43,7 +43,7 @@ import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
-import { placeArea, useAutoPlaceFacts } from "@/lib/placeFacts";
+import { placeArea, useAutoPlaceFacts, wantsFacts } from "@/lib/placeFacts";
 import { PlaceFactRows } from "@/components/PlaceFacts";
 import { dayJourneys, dayKind, fmtDate, journeyDepartDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
@@ -386,7 +386,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       {((day.plan ?? []).length > 0 || !ro) && (
         <Section
           title="Plan"
-          info="Drag to reorder. Tap a step's grey pin to link it to a place from an Area you've added below; notes are under ⋯."
+          info="Drag ≡ to reorder; hold a step for its menu (⋯ on a computer). Tap a step's grey pin to link it to a place from an Area you've added below."
           action={overwhelmingCount > 0 && (
             <span className="flex items-center gap-1 text-xs text-danger" title={`${plural(overwhelmingCount, "overwhelming place")} today`}>
               <Icon name="alert" size={13} /> {overwhelmingCount}
@@ -645,7 +645,7 @@ function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, a
   // each sits before the first step timed later than it, else at the end
   const stops = journeys.flatMap((journey) => journeyStops(journey, day.date).map((st) => ({ ...st, journey })));
   const stopRow = (st: (typeof stops)[number]) => (
-    <JourneyStopRow key={`journey-${st.journey.id}-${st.kind}`} journey={st.journey} stop={st} indent={!readOnly} />
+    <JourneyStopRow key={`journey-${st.journey.id}-${st.kind}`} journey={st.journey} stop={st} />
   );
   const stopAt = (time: string) => {
     const i = items.findIndex((it) => {
@@ -674,7 +674,7 @@ function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, a
     const from = placeOf(items[i]);
     const to = placeOf(items[i + 1]);
     if (!from || !to || stopsBefore(i + 1).length) return [];
-    return [<TravelConnector key={`travel-${items[i].id}`} from={from} to={to} indent={!readOnly} />];
+    return [<TravelConnector key={`travel-${items[i].id}`} from={from} to={to} />];
   };
 
   const rows = items.flatMap((it, i) => [
@@ -704,9 +704,11 @@ function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, a
   // the day closes with the way back to the hotel; its walk figures need the
   // last step to be tied to a real place, the directions link doesn't
   const lastPlace = items[items.length - 1]?.placeId ? places.find((p) => p.id === items[items.length - 1].placeId) : undefined;
-  const backRow = returnHotel ? <ReturnToHotel from={lastPlace} hotel={returnHotel} indent={!readOnly} /> : null;
+  const backRow = returnHotel ? <ReturnToHotel key="back-to-hotel" from={lastPlace} hotel={returnHotel} /> : null;
+  // one timeline for the whole day — steps, journeys and the way home
+  const timeline = <ul className="timeline pb-1.5">{rows}{backRow}</ul>;
 
-  if (readOnly) return <><ul>{rows}</ul>{backRow}</>;
+  if (readOnly) return timeline;
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) return;
@@ -719,13 +721,12 @@ function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, a
     <>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={items.map((x) => x.id)} strategy={verticalListSortingStrategy}>
-          <ul>{rows}</ul>
+          {timeline}
         </SortableContext>
       </DndContext>
-      {backRow}
       {/* the add lives at the foot, next to where the new step lands, so a
        *  long plan doesn't need a scroll back to the top */}
-      <button onClick={addStep} className="action w-full border-t border-line px-3.5 py-2.5 text-xs">
+      <button onClick={addStep} className="action w-full px-3.5 py-2.5 text-xs active:bg-ink/[0.07]">
         <Icon name="plus" size={14} /> Add a step
       </button>
     </>
@@ -807,8 +808,13 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
   };
 
   const range = splitRange(item.time);
-  const timeText = range ? `${range[0]} – ${range[1]}` : item.time;
   const plainTime = !item.time || /^\d{1,2}:\d{2}$/.test(item.time);
+  // a range stacks its start over its end in the time column
+  const stacked = (t: string) => {
+    const r = splitRange(t);
+    return r ? `${r[0]}\n${r[1]}` : t;
+  };
+  const hours = usePlaceHours(place, day.date);
   const catGlyph = place?.category ? categoryIcons?.[place.category] : undefined;
   // a custom step has no category to go on, so guess from its own text
   const textGlyph = place ? undefined : glyphForStepText(item.text);
@@ -820,7 +826,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
       name={glyph ? undefined : "pin"}
       color={place ? placeTile(place, categoryIcons, categoryColors).color : undefined}
       tone={place ? toneForPlaceCategory(place.category, categoryIcons) : textGlyph ? toneForGlyph(textGlyph) : "ink-faint"}
-      className={`relative z-10 ${place || textGlyph ? "" : "opacity-70"}`}
+      className={place || textGlyph ? "" : "opacity-70"}
     />
   );
 
@@ -828,97 +834,114 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`group relative text-sm after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden ${isDragging ? "z-10 bg-surface opacity-80" : ""}`}
+      className={`group relative ${isDragging ? "z-10 bg-surface opacity-80" : ""}`}
     >
       <SwipeToDelete undoLabel="Step removed" onDelete={readOnly ? undefined : onRemove}>
-      <ContextMenu className="px-3.5 py-3">
-        <div className="flex items-start gap-2.5">
-          {/* leading column — just the drag handle now; tile + hour moved
-              into the content column's own meta line below, so the row
-              shares one left margin instead of a separate icon/hour column
-              sitting empty once the title/note grow past it. Omitted
-              entirely when read-only (nothing left to put there), which is
-              also why the stem's left offset (below) differs by mode. */}
-          {!readOnly && (
-            <div className="flex shrink-0 items-center">
-              <button
-                {...attributes}
-                {...listeners}
-                className="tap grid h-4 w-3 shrink-0 cursor-grab touch-none place-items-center text-ink-faint/50 active:cursor-grabbing"
-                aria-label="Drag to reorder"
-              >
-                <Icon name="grip" size={13} />
+      <ContextMenu>
+        <TimelineStop
+          className="pr-1.5"
+          time={
+            readOnly ? (
+              item.time && <span className="whitespace-pre-line">{stacked(item.time)}</span>
+            ) : plainTime ? (
+              <Editable
+                as="time"
+                label="Time"
+                value={item.time ?? ""}
+                onCommit={(v) => onPatch({ time: v || undefined })}
+                timeStart={timeStart}
+                className="tap not-italic"
+                emptyContent={<Icon name="clock" size={13} className="inline-block align-[-2px] text-ink-faint" />}
+              />
+            ) : (
+              // a loose time ("Around noon", a range) is typed — there's no
+              // wheel for it
+              <Editable
+                label="Time"
+                value={item.time ?? ""}
+                placeholder="Add a time"
+                format={range ? stacked : undefined}
+                onCommit={(v) => onPatch({ time: v.trim() || undefined })}
+                className="w-full whitespace-pre-line text-right"
+              />
+            )
+          }
+          tile={
+            !readOnly && !item.placeId && sortedPickable.length > 0 ? (
+              // an unlinked step's grey pin is where you link it to a place
+              <PlacePicker
+                value={item.placeId}
+                places={sortedPickable}
+                areaNameByPlaceId={areaNameByPlaceId}
+                categoryIcons={categoryIcons}
+                categoryColors={categoryColors}
+                onPick={pick}
+                trigger={tile}
+              />
+            ) : place ? (
+              // the place's icon opens its place card, as tapping a place
+              // does in Maps — what's good to know, then where to go next
+              <button type="button" onClick={() => placeCard.setOpen(true)} className="tap block" aria-label={`About ${place.name}`}>
+                {tile}
               </button>
-            </div>
-          )}
-
-          {/* what the step is — a place from one of this day's Areas, or
-              Custom text below it; falls back to a plain text field when
-              there's nothing to pick from yet (no Area added to the day). A
-              note is its own quiet row underneath — italic placeholder when
-              empty, tap to expand and edit. */}
-          <div ref={placeCardAnchor} className="min-w-0 flex-1 space-y-1 pt-px">
-            {/* tile + hour — one meta line, icon leading so the hour reads
-                like a caption under it rather than a column of its own */}
-            <div className="flex items-center gap-1.5">
-              {!readOnly && !item.placeId && sortedPickable.length > 0 ? (
-                // an unlinked step's grey pin is where you link it to a place
-                <PlacePicker
-                  value={item.placeId}
-                  places={sortedPickable}
-                  areaNameByPlaceId={areaNameByPlaceId}
-                  categoryIcons={categoryIcons}
-                  categoryColors={categoryColors}
-                  onPick={pick}
-                  trigger={tile}
-                />
-              ) : place ? (
-                // the place's icon opens its place card, as tapping a place
-                // does in Maps — what's good to know, then where to go next
-                <button type="button" onClick={() => placeCard.setOpen(true)} className="tap shrink-0" aria-label={`About ${place.name}`}>
-                  {tile}
+            ) : mapHref ? (
+              <a href={mapHref} target="_blank" rel="noopener" className="tap block" aria-label="Open in Google Maps">
+                {tile}
+              </a>
+            ) : (
+              tile
+            )
+          }
+          trailing={
+            <span className="flex shrink-0 items-start pt-[7px]">
+              {/* desktop: ⋯ on hover. A phone holds the step for the same
+                  menu, so it isn't drawn there (still mounted — the hold
+                  opens its items) */}
+              <span className="hover-reveal touch-hidden">
+                <RowMenu label={`More for ${place?.name || item.text || "this step"}`}>
+                  <button type="button" className="menu-item" onClick={addToGoogleCalendar}>
+                    <Icon name="calendar" size={16} /> Add to Google Calendar
+                  </button>
+                  {!readOnly && (
+                    <>
+                      {place && (
+                        <button type="button" className="menu-item" onClick={toggleOverwhelming}>
+                          <Icon name="alert" size={16} /> {place.overwhelming ? "Unmark as overwhelming" : "Mark as overwhelming"}
+                        </button>
+                      )}
+                      {!item.note && (
+                        <button type="button" className="menu-item" onClick={() => setNoteOpen(true)}>
+                          <Icon name="pencil" size={16} /> Add a note
+                        </button>
+                      )}
+                      <button type="button" className="menu-item" onClick={onDuplicate}>
+                        <Icon name="copy" size={16} /> Duplicate
+                      </button>
+                      <button type="button" className="menu-item" onClick={() => onQuickAddCost(item)}>
+                        <Icon name="wallet" size={16} /> Add an expense
+                      </button>
+                      <ConfirmMenuItem onConfirm={() => undoable("Step removed", onRemove)} label="Remove" icon={<Icon name="close" size={16} />} />
+                    </>
+                  )}
+                </RowMenu>
+              </span>
+              {!readOnly && (
+                <button
+                  {...attributes}
+                  {...listeners}
+                  className="hover-reveal tap grid h-7 w-6 cursor-grab touch-none place-items-center text-ink-faint active:cursor-grabbing"
+                  aria-label="Drag to reorder"
+                >
+                  <Icon name="reorder" size={16} />
                 </button>
-              ) : mapHref ? (
-                <a href={mapHref} target="_blank" rel="noopener" className="shrink-0" aria-label="Open in Google Maps">
-                  {tile}
-                </a>
-              ) : (
-                tile
               )}
-              {(readOnly ? !!timeText : true) && (
-                <span className="meta flex h-[22px] shrink-0 items-center rounded-[7px] bg-surface-2 px-1.5 tabular-nums">
-                  {readOnly ? (
-                    timeText
-                  ) : plainTime ? (
-                    <Editable
-                      as="time"
-                      label="Time"
-                      value={item.time ?? ""}
-                      onCommit={(v) => onPatch({ time: v || undefined })}
-                      timeStart={timeStart}
-                      className="tap"
-                      emptyContent={<Icon name="clock" size={12} className="inline-block align-[-1px] not-italic" />}
-                    />
-                  ) : (
-                    <Editable label="Time" value={item.time ?? ""} placeholder="Add a time" onCommit={(v) => onPatch({ time: v.trim() || undefined })} />
-                  )}
-                </span>
-              )}
-              {place && (
-                <span className="ml-auto flex min-w-0 shrink-0 items-center gap-1.5">
-                  <PlaceHoursLine place={place} date={day.date} />
-                  {place.overwhelming && (
-                    <span className="shrink-0 text-danger" title="Can be overwhelming">
-                      <Icon name="alert" size={13} />
-                      <span className="sr-only">Can be overwhelming</span>
-                    </span>
-                  )}
-                </span>
-              )}
-            </div>
+            </span>
+          }
+        >
+          {/* name, then the place's hours that day, then the note */}
+          <div ref={placeCardAnchor} className="space-y-0.5">
             {readOnly ? (
-              // plain text — the tile beside the time opens the place card
-              <span className="block text-sm leading-snug text-ink">{item.text}</span>
+              <span className="block break-words text-sm leading-snug text-ink">{item.text}</span>
             ) : item.placeId && sortedPickable.length > 0 ? (
               <PlacePicker
                 value={item.placeId}
@@ -943,6 +966,17 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                 className="block text-sm leading-snug text-ink"
               />
             )}
+            {(hours || place?.overwhelming) && (
+              <span className="meta block break-words">
+                {hours && (/^\d/.test(hours) ? `Open ${hours}` : hours)}
+                {hours && place?.overwhelming && " · "}
+                {place?.overwhelming && (
+                  <span className="whitespace-nowrap text-danger">
+                    <Icon name="alert" size={12} className="inline-block align-[-1px]" /> Overwhelming
+                  </span>
+                )}
+              </span>
+            )}
             {(readOnly || item.note || noteOpen) && (
               <RichNote
                 value={item.note ?? ""}
@@ -956,7 +990,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
             )}
             {place && (
               <ActionSheet open={placeCard.open} onClose={() => placeCard.setOpen(false)} anchorRef={placeCardAnchor} title={place.name} doneLabel="Done">
-                {place.facts && (
+                {place.facts && wantsFacts(place, tripData) && (
                   <ul onClick={(e) => e.stopPropagation()} className="mb-1 border-b border-line">
                     <PlaceFactRows place={place} area={area} />
                   </ul>
@@ -977,39 +1011,41 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
               </ActionSheet>
             )}
           </div>
-
-          {/* one ⋯ instead of four loose glyphs — the step's title and lines
-              get the width, the secondary actions sit behind the sheet */}
-          <RowMenu label={`More for ${place?.name || item.text || "this step"}`}>
-            <button type="button" className="menu-item" onClick={addToGoogleCalendar}>
-              <Icon name="calendar" size={16} /> Add to Google Calendar
-            </button>
-            {!readOnly && (
-              <>
-                {place && (
-                  <button type="button" className="menu-item" onClick={toggleOverwhelming}>
-                    <Icon name="alert" size={16} /> {place.overwhelming ? "Unmark as overwhelming" : "Mark as overwhelming"}
-                  </button>
-                )}
-                {!item.note && (
-                  <button type="button" className="menu-item" onClick={() => setNoteOpen(true)}>
-                    <Icon name="pencil" size={16} /> Add a note
-                  </button>
-                )}
-                <button type="button" className="menu-item" onClick={onDuplicate}>
-                  <Icon name="copy" size={16} /> Duplicate
-                </button>
-                <button type="button" className="menu-item" onClick={() => onQuickAddCost(item)}>
-                  <Icon name="wallet" size={16} /> Add an expense
-                </button>
-                <ConfirmMenuItem onConfirm={() => undoable("Step removed", onRemove)} label="Remove" icon={<Icon name="close" size={16} />} />
-              </>
-            )}
-          </RowMenu>
-        </div>
+        </TimelineStop>
       </ContextMenu>
       </SwipeToDelete>
     </li>
+  );
+}
+
+/** One stop on a day's timeline, the way Maps lays out a route: the time
+ *  in its own column on the left, the stop's icon sitting on the rail that
+ *  joins every stop (`.timeline` in index.css trims it to the first and
+ *  last icon), then what it is. No hairlines — the rail does the joining. */
+function TimelineStop({ time, tile, trailing, children, className = "pr-3.5" }: {
+  time?: React.ReactNode;
+  tile?: React.ReactNode;
+  trailing?: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <span className={`flex gap-2.5 pl-3.5 ${className}`}>
+      <span className="block w-[3.25rem] shrink-0 pb-2.5 pt-[11px] text-right text-sm leading-snug tabular-nums text-ink-soft">{time}</span>
+      <Rail>{tile && <span className="relative z-10 block pt-2.5">{tile}</span>}</Rail>
+      <span className="block min-w-0 flex-1 pb-2.5 pl-0.5 pt-[11px]">{children}</span>
+      {trailing}
+    </span>
+  );
+}
+
+/** the timeline's rail column — the line runs the row's full height */
+function Rail({ children }: { children?: React.ReactNode }) {
+  return (
+    <span className="relative flex w-[22px] shrink-0 justify-center">
+      <span aria-hidden className="rail-line absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 bg-line" />
+      {children}
+    </span>
   );
 }
 
@@ -1047,43 +1083,39 @@ function useTrainOption(from: { lat: number; lng: number } | null, to: { lat: nu
   return { a, b, total };
 }
 
-/** The day's closing row: how to get from the last stop back to the hotel
- *  you're staying at. Walking time and distance when the hotel has
- *  coordinates, plus — once the walk is long — the station to head for at
- *  each end. The whole row opens Google Maps directions (transit when far,
- *  walking when close): the best route with the actual lines and transfers is
- *  Google's to work out, there's no free keyless API for it here. When the
- *  last step isn't tied to a place there's no start point to measure from,
- *  so the row just opens directions from wherever you are. */
 /** One end of the day's journey as a plan row — "Leave Kyoto" at its first
  *  departure, "Arrive Kurama" at its last arrival. Read-only here; it opens
  *  the journey, where the times are edited. */
-function JourneyStopRow({ journey, stop, indent }: { journey: Journey; stop: ReturnType<typeof journeyStops>[number]; indent: boolean }) {
+function JourneyStopRow({ journey, stop }: { journey: Journey; stop: ReturnType<typeof journeyStops>[number] }) {
   const { seg } = stop;
   const segs = journey.segments;
   const meta = stop.kind === "leave"
     ? [MODE_LABEL[seg.mode], seg.carrier, seg.service, segs.length > 1 && plural(segs.length - 1, "change")]
     : [fmtDuration(segs[0]?.depart, seg.arrive, segs[0]?.fromTz, seg.toTz)];
   return (
-    <li className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
-      <Link to={`/journey/${journey.id}`} className={`flex items-start gap-2.5 py-3 pr-3.5 text-sm active:bg-ink/[0.07] ${indent ? "pl-9" : "pl-3.5"}`}>
-        <span className="min-w-0 flex-1 space-y-1 pt-px">
-          <span className="flex items-center gap-1.5">
-            <IconTile size="sm" name={MODE_ICON[seg.mode]} tone={MODE_TONE[seg.mode]} />
-            <span className="meta flex h-[22px] shrink-0 items-center rounded-[7px] bg-surface-2 px-1.5 tabular-nums">{stop.time}</span>
-          </span>
-          <span className="block break-words leading-snug text-ink">
+    <li>
+      <Link to={`/journey/${journey.id}`} className="block active:bg-ink/[0.07]">
+        <TimelineStop
+          className="pr-3"
+          time={stop.time}
+          tile={<IconTile size="sm" name={MODE_ICON[seg.mode]} tone={MODE_TONE[seg.mode]} />}
+          trailing={<Icon name="chevron" size={14} className="mt-[15px] shrink-0 text-ink-faint" />}
+        >
+          <span className="block break-words text-sm leading-snug text-ink">
             {stop.kind === "leave" ? "Leave" : "Arrive"} {stop.place || (stop.kind === "leave" ? "from start" : "at destination")}
           </span>
-          {meta.some(Boolean) && <span className="meta block text-ink-soft">{meta.filter(Boolean).join(" · ")}</span>}
-        </span>
-        <Icon name="chevron" size={14} className="mt-1 shrink-0 text-ink-faint" />
+          {meta.some(Boolean) && <span className="meta mt-0.5 block">{meta.filter(Boolean).join(" · ")}</span>}
+        </TimelineStop>
       </Link>
     </li>
   );
 }
 
-function ReturnToHotel({ from, hotel, indent }: { from?: Place; hotel: Hotel; indent: boolean }) {
+/** The day's last stop: back to the hotel you're staying at. The way there
+ *  sits on the rail above it like any other travel (`TravelConnector`),
+ *  measured from the last step's place; the row itself opens Google Maps
+ *  directions (from wherever you are when the last step has no place). */
+function ReturnToHotel({ from, hotel }: { from?: Place; hotel: Hotel }) {
   const linkCoords = mapUrlCoords(hotel.mapUrl);
   const to =
     hotel.lat !== undefined && hotel.lng !== undefined ? { lat: hotel.lat, lng: hotel.lng }
@@ -1091,47 +1123,19 @@ function ReturnToHotel({ from, hotel, indent }: { from?: Place; hotel: Hotel; in
     : null;
   const walk = useWalk(from ?? { lat: 0, lng: 0 }, from ? to : null);
   const long = !walk || walk.min > LONG_WALK_MIN;
-  const offerTrain = !walk || walk.min > TRAIN_TOO_MIN;
-  // door to door by train: the walk to the nearest station, the ride, and
-  // the walk from the hotel's station
-  const train = useTrainOption(from ?? null, to, offerTrain);
-
   const dest = to ? `${to.lat},${to.lng}` : [hotel.name, hotel.address].filter(Boolean).join(" ");
   const href = gmapsRoute(from && `${from.lat},${from.lng}`, dest, long ? "transit" : "walking");
-  const piece = "flex min-w-0 items-start gap-1";
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener"
-      aria-label={`Directions back to ${hotel.name || "your stay"}`}
-      className={`flex items-start gap-2.5 border-t border-line py-3 pr-3.5 active:bg-surface-2 ${indent ? "pl-9" : "pl-3.5"}`}
-    >
-      <IconTile size="sm" name="bed" tone="accent" className="mt-px" />
-      <span className="min-w-0 flex-1 space-y-1">
-        <span className="block text-sm leading-snug text-ink">Back to {hotel.name || "your stay"}</span>
-        {/* close: the walk; middling: the walk and the train; far: the
-            train alone, never an hour-long walk figure */}
-        {(walk || (long && from && to)) && (
-          <span className="flex flex-wrap gap-x-4 gap-y-0.5 text-[0.75rem] leading-snug text-accent">
-            {!long && walk && (
-              <span className={piece} title={`Walk ${fmtWalk(walk)}`}>
-                <Icon name="walk" size={12} className="mt-[2px] shrink-0" />
-                <span className="min-w-0 tabular-nums">{fmtMinutes(walk.min)}</span>
-              </span>
-            )}
-            {(long || train) && (
-              <span className={piece} title={train ? `Train from ${train.a.name} to ${train.b.name}` : "Transit directions"}>
-                <Icon name="train" size={12} className="mt-[2px] shrink-0" />
-                <span className="min-w-0">
-                  {train ? <>{train.a.name} → {train.b.name}{train.total && <> · <span className="tabular-nums">{fmtMinutes(train.total)}</span></>}</> : "By train"}
-                </span>
-              </span>
-            )}
-          </span>
-        )}
-      </span>
-    </a>
+    <>
+      {from && to && <TravelConnector from={from} to={to} />}
+      <li>
+        <a href={href} target="_blank" rel="noopener" aria-label={`Directions back to ${hotel.name || "your stay"}`} className="block active:bg-ink/[0.07]">
+          <TimelineStop tile={<IconTile size="sm" name="bed" tone="accent" />}>
+            <span className="block break-words text-sm leading-snug text-ink">Back to {hotel.name || "your stay"}</span>
+          </TimelineStop>
+        </a>
+      </li>
+    </>
   );
 }
 
@@ -1139,24 +1143,17 @@ function ReturnToHotel({ from, hotel, indent }: { from?: Place; hotel: Hotel; in
  *  the day's own date (`hoursForDate` — the rule for that month and weekday,
  *  not the whole year's schedule; nothing at all when nothing covers the
  *  date). An FYI to replan by eye, not a warning: nothing is flagged as a
- *  conflict. Always the same spot — right end of the tile/time row — however
- *  long the text. Silent when nothing's tagged nearby. */
-function PlaceHoursLine({ place, date }: { place: Place; date?: string }) {
+ *  conflict. Null when nothing's tagged nearby. */
+function usePlaceHours(place: Place | undefined, date?: string): string | null {
   const [hours, setHours] = useState<PlaceHours | null>(null);
   useEffect(() => {
     setHours(null);
+    if (!place) return;
     let cancelled = false;
     void nearestOpeningHours(place.lat, place.lng, place.name).then((h) => { if (!cancelled) setHours(h); });
     return () => { cancelled = true; };
-  }, [place.id, place.lat, place.lng]);
-  const text = hours ? (date ? hoursForDate(hours.hours, date) : hours.hours) : null;
-  if (!text) return null;
-  return (
-    <span className="meta flex min-w-0 items-center gap-1 text-right text-ink-soft">
-      <Icon name="clock" size={12} className="shrink-0" />
-      <span className="min-w-0">{text}</span>
-    </span>
-  );
+  }, [place?.id, place?.lat, place?.lng]);
+  return hours ? (date ? hoursForDate(hours.hours, date) : hours.hours) : null;
 }
 
 /** The way from one step to the next, as a slim row between them — the
@@ -1166,44 +1163,47 @@ function PlaceHoursLine({ place, date }: { place: Place; date?: string }) {
  *  never an hour-long walk figure. Each opens its own Google Maps directions
  *  — the real route with lines and changes is Google's to work out (no free
  *  keyless transit API). Stations come from OpenStreetMap (`transitStation.ts`). */
-function TravelConnector({ from, to, indent }: { from: Place; to: Place; indent: boolean }) {
+function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to: { lat: number; lng: number } }) {
   const walk = useWalk(from, to);
   const long = !walk || walk.min > LONG_WALK_MIN;
   const train = useTrainOption(from, to, !walk || walk.min > TRAIN_TOO_MIN);
 
-  const pad = indent ? "pl-9" : "pl-3.5";
-  const link = "flex min-w-0 items-center gap-1.5 active:bg-ink/[0.07]";
+  const pill = "tap inline-flex min-w-0 items-center gap-1 rounded-[7px] bg-surface-2 px-1.5 py-[3px] text-[0.75rem] leading-snug text-ink-soft tabular-nums transition-colors active:bg-ink/[0.1]";
   const trainTitle = train ? `Train from ${train.a.name} to ${train.b.name}, door to door` : "Transit directions";
   return (
-    <li className={`flex flex-wrap gap-x-4 gap-y-1 pb-2 pr-3.5 text-[0.75rem] leading-snug text-ink-faint ${pad}`}>
-      {!long && walk && (
-        <a
-          href={gmapsRoute(`${from.lat},${from.lng}`, `${to.lat},${to.lng}`, "walking")}
-          target="_blank"
-          rel="noopener"
-          title={`Walk ${fmtWalk(walk)}`}
-          aria-label={`Walk ${fmtWalk(walk)}`}
-          className={link}
-        >
-          <Icon name="walk" size={12} className="shrink-0 text-accent" />
-          <span className="min-w-0 tabular-nums">{fmtMinutes(walk.min)} walk</span>
-        </a>
-      )}
-      {(long || train) && (
-        <a
-          href={gmapsRoute(`${from.lat},${from.lng}`, `${to.lat},${to.lng}`, "transit")}
-          target="_blank"
-          rel="noopener"
-          title={trainTitle}
-          aria-label={trainTitle}
-          className={link}
-        >
-          <Icon name="train" size={12} className="shrink-0 text-accent" />
-          <span className="min-w-0 tabular-nums">
-            {train ? `${train.a.name} → ${train.b.name}${train.total ? ` · ${fmtMinutes(train.total)}` : ""}` : "By train"}
-          </span>
-        </a>
-      )}
+    <li className="flex gap-2.5 pl-3.5 pr-3.5">
+      <span className="w-[3.25rem] shrink-0" />
+      <Rail />
+      <span className="flex min-w-0 flex-1 flex-wrap gap-1.5 py-1 pl-0.5">
+        {!long && walk && (
+          <a
+            href={gmapsRoute(`${from.lat},${from.lng}`, `${to.lat},${to.lng}`, "walking")}
+            target="_blank"
+            rel="noopener"
+            title={`Walk ${fmtWalk(walk)}`}
+            aria-label={`Walk ${fmtWalk(walk)}`}
+            className={pill}
+          >
+            <Icon name="walk" size={12} className="shrink-0" />
+            {fmtMinutes(walk.min)}
+          </a>
+        )}
+        {(long || train) && (
+          <a
+            href={gmapsRoute(`${from.lat},${from.lng}`, `${to.lat},${to.lng}`, "transit")}
+            target="_blank"
+            rel="noopener"
+            title={trainTitle}
+            aria-label={trainTitle}
+            className={pill}
+          >
+            <Icon name="train" size={12} className="shrink-0" />
+            <span className="min-w-0 break-words">
+              {train ? `${train.a.name} → ${train.b.name}${train.total ? ` · ${fmtMinutes(train.total)}` : ""}` : "By train"}
+            </span>
+          </a>
+        )}
+      </span>
     </li>
   );
 }

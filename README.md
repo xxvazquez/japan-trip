@@ -141,16 +141,19 @@ Every section folds away from its header.
 
 ### Steps
 
-Each step shows a tile, an optional time, the step itself and a short note.
+The day reads as one route, like a route's stops in Maps: times in a column on the left, a thin line joining every stop, each stop's icon sitting on it. Steps, journeys and the way back to the hotel all sit on that line. No hairlines between rows.
 
-- **Time** — a single time or a range like `14:00–15:15`. An empty time is just a small clock to tap.
+Each step shows its name, then one grey line with the place's hours that day, then its note (folded after 2 lines, with **more**).
+
+- **Time** — a single time, or a range like `14:00–15:15` stacked as 14:00 over 15:15. An empty time is just a small clock to tap.
 - **Setting a time** — the wheels start at the last time set on an earlier step (else 9:00). **Done** saves what's showing; tapping outside or swiping the sheet down cancels.
 - **Link a place** — tap the grey pin to pick a place from the day's Areas. Tap a linked name to change it; **Custom…** unlinks it.
 - **Meal steps** — an unlinked step whose text mentions a meal (lunch, dinner, breakfast…), coffee or drinks gets a gold food, coffee or drink tile instead of the grey pin.
-- **Reorder** by dragging.
+- **Reorder** by dragging the small ≡ on the right (shown on hover on a computer).
 - **The place card** — tap a linked step's icon, as you'd tap a place in Maps: Good to know, then Open in Google Maps, Tabelog (restaurants in Japan) and Show on map.
-- **The ⋯ menu** — add to Google Calendar, mark as **overwhelming** (a ⚠ sensory heads-up; the day's count shows on Plan), add a note, duplicate, add an expense, remove.
-- **Notes** support bold, bullets and links. Tap to expand and edit. Empty fields stay hidden.
+- **The step's menu** — long-press a step on a phone (or right-click it, or its ⋯ on hover on a computer): add to Google Calendar, mark as **overwhelming** (a ⚠ on its grey line; the day's count shows on Plan), add a note, duplicate, add an expense, remove.
+- **Delete** — swipe a step left on a phone.
+- **Notes** support bold, bullets and links. Tap to edit. Empty fields stay hidden.
 - **+ Add a step** sits at the foot of the list and opens the new step ready to type. Leave it blank and it goes away.
 - **Each journey on the day** shows as two rows of its own: **Leave** (first departure) and **Arrive** (last arrival), slotted in by time. They follow the journey live — edit the times on the journey, tap a row to open it.
 
@@ -158,10 +161,10 @@ Each step shows a tile, an optional time, the step itself and a short note.
 
 These appear automatically when a step is linked to a place.
 
-**Getting to the next step.** Between two steps tied to places sits one slim line — travel between things you do, the way Calendar shows travel time — and tapping it opens Google Maps directions:
+**Getting to the next step.** Between two steps tied to places, small grey pills sit on the line — travel between things you do, the way Calendar shows travel time. Each opens its own Google Maps directions:
 
-- Up to a 15-minute walk: the walk, e.g. *🚶 9 min walk*.
-- 15–30 minutes: the walk and the train side by side, e.g. *🚶 26 min walk  🚆 Ueno → Uguisudani · 24 min*. Each opens its own directions.
+- Up to a 15-minute walk: the walk, e.g. *🚶 9 min*.
+- 15–30 minutes: the walk and the train side by side, e.g. *🚶 22 min* and *🚆 Shibuya → Harajuku · 14 min*.
 - Past a 30-minute walk: only the train, with a rough door-to-door time — never the long walk. *By train* when no stations are found.
 - Left out when a journey's own row already sits between the two.
 
@@ -196,7 +199,7 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 - It can be out of date. Check hours and closed days with the place before a long trip across town.
 - **Manage → Content → Good to know** checks every restaurant and planned place at once. Uses the same `TAVILY_API_KEY`, one search per place.
 
-**Back to hotel.** The last row of the day is the way home to that night's hotel (left off on a departure day). Close by it shows the walk; past a 15-minute walk the train joins it — *"Ueno → Asakusa · 25 min"*, door to door — and past 30 minutes only the train shows, never the long walk. Tapping it opens Google Maps directions.
+**Back to hotel.** The last stop of the day is that night's hotel (left off on a departure day). The way there sits on the line above it, with the same pills as between steps. Tapping the row opens Google Maps directions.
 
 Stations and hours come from OpenStreetMap (Overpass, with Nominatim as a fallback). Results are remembered on the device.
 

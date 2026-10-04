@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useReadOnly } from "@/lib/readonly";
 import { Markdown } from "./Markdown";
 import { Icon } from "./Icon";
@@ -14,9 +14,6 @@ import { Icon } from "./Icon";
  * Edits go through document.execCommand("insertText"), which keeps the native
  * caret position and undo history and fires a normal input event.
  */
-/** notes past this length collapse behind "Show more" when `collapsible` */
-const COLLAPSE_AT = 160;
-
 export function RichNote({
   value,
   onCommit,
@@ -30,7 +27,7 @@ export function RichNote({
   onCommit: (next: string) => void;
   placeholder?: string;
   className?: string;
-  /** clamp to 3 lines behind a "Show more" toggle when the note is long —
+  /** fold to 2 lines behind a "more" toggle when the note runs longer —
    *  for a note that's one entry among many (e.g. a plan step), not a page's
    *  single free-text field (Scratchpad, a doc field) that's fine to show in full */
   collapsible?: boolean;
@@ -44,7 +41,20 @@ export function RichNote({
   const [draft, setDraft] = useState(value);
   const [expanded, setExpanded] = useState(false);
   const ta = useRef<HTMLTextAreaElement>(null);
-  const long = collapsible && value.trim().length > COLLAPSE_AT;
+  // folded only when the note really runs past 2 lines at this width —
+  // measured on the clamped box, so a short note never gets a "more"
+  const clampRef = useRef<HTMLDivElement>(null);
+  const [overflows, setOverflows] = useState(false);
+  useLayoutEffect(() => {
+    const el = clampRef.current;
+    if (!collapsible || expanded || !el) return;
+    const measure = () => setOverflows(el.scrollHeight > el.clientHeight + 1);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [collapsible, expanded, editing, value]);
+  const long = collapsible && (overflows || expanded);
 
   useEffect(() => setDraft(value), [value]);
   useEffect(() => {
@@ -57,20 +67,20 @@ export function RichNote({
   }, [editing]);
 
   const ShowToggle = ({ onClick }: { onClick: (e: React.MouseEvent) => void }) => (
-    <button type="button" onClick={onClick} className="mt-1 block text-2xs text-accent">
-      {expanded ? "Show less" : "Show more"}
+    <button type="button" onClick={onClick} className="tap mt-0.5 block text-xs text-accent">
+      {expanded ? "less" : "more"}
     </button>
   );
 
   if (readOnly) {
     if (!value.trim()) return null;
-    if (!long || expanded) return <Markdown text={value} className={className} />;
+    if (!collapsible) return <Markdown text={value} className={className} />;
     return (
       <div className={className}>
-        <div className="line-clamp-3 overflow-hidden">
+        <div ref={clampRef} className={expanded ? "" : "line-clamp-2 overflow-hidden"}>
           <Markdown text={value} />
         </div>
-        <ShowToggle onClick={() => setExpanded(true)} />
+        {long && <ShowToggle onClick={() => setExpanded(!expanded)} />}
       </div>
     );
   }
@@ -104,18 +114,15 @@ export function RichNote({
         aria-label="Edit note"
         className={`editable block w-full text-left ${className}`}
       >
-        {long && !expanded ? (
+        {collapsible ? (
           <>
-            <div className="line-clamp-3 overflow-hidden">
+            <div ref={clampRef} className={expanded ? "" : "line-clamp-2 overflow-hidden"}>
               <Markdown text={value} onToggleCheck={toggleCheck} />
             </div>
-            <ShowToggle onClick={(e) => { e.stopPropagation(); setExpanded(true); }} />
+            {long && <ShowToggle onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }} />}
           </>
         ) : (
-          <>
-            <Markdown text={value} onToggleCheck={toggleCheck} />
-            {long && <ShowToggle onClick={(e) => { e.stopPropagation(); setExpanded(false); }} />}
-          </>
+          <Markdown text={value} onToggleCheck={toggleCheck} />
         )}
       </div>
     ) : (

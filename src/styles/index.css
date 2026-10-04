@@ -311,6 +311,33 @@ html.dark {
   .tap {
     position: relative;
   }
+
+  /* a day's timeline: one rail joins the steps, starting at the first
+   * stop's icon and ending at the last (10px row top + half the 22px tile) */
+  .timeline > li:first-child .rail-line {
+    top: 21px;
+  }
+  .timeline > li:last-child .rail-line {
+    bottom: auto;
+    height: 21px;
+  }
+  /* row controls a mouse finds on hover (⋯, the drag grip); a touch screen
+   * gets the long-press menu instead, so `.touch-hidden` drops them there */
+  @media (hover: hover) {
+    .hover-reveal {
+      opacity: 0;
+      transition: opacity 150ms;
+    }
+    .group:hover .hover-reveal,
+    .hover-reveal:focus-within {
+      opacity: 1;
+    }
+  }
+  @media (hover: none) {
+    .touch-hidden {
+      display: none;
+    }
+  }
   .tap::before {
     content: "";
     position: absolute;
