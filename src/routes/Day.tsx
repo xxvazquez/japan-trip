@@ -19,7 +19,7 @@ import { useLeavePage } from "@/components/NavBar";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
-import { ActionRow } from "@/components/ActionRow";
+import { ActionRow, ACTION_ROW } from "@/components/ActionRow";
 import { Switch } from "@/components/Switch";
 import { RowSelect } from "@/components/RowSelect";
 import { ActionSheet, useActionSheet, ConfirmMenuItem } from "@/components/ActionSheet";
@@ -37,7 +37,7 @@ import { RouteLabel } from "@/components/RouteLabel";
 import { IconTile } from "@/components/IconTile";
 import { TitleLineTile } from "@/components/TileRow";
 import { useSplit } from "@/components/SplitMap";
-import { glyphForStepText, placeTile, toneForGlyph, toneForPlaceCategory } from "@/lib/tones";
+import { AREA_TONES, glyphForStepText, placeTile, toneForGlyph, toneForPlaceCategory } from "@/lib/tones";
 import { glyphForCategoryName } from "@/lib/mapGlyphs";
 import { areaLeg } from "@/lib/cityAssign";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
@@ -67,6 +67,8 @@ import { useAsyncAction } from "@/lib/useAsyncAction";
 import type { Day as DayT, DayCost, ExpenseCategory, Hotel, Journey, PlanItem, Place, TripData } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 9);
+/** an area row's hairline, inset past its small tile like a `TileRow`'s */
+const AREA_ROW_LI = INSET_DIVIDER.replace("after:left-3.5", "after:left-12");
 
 /** "14:00–15:15" (any dash, any spacing) → ["14:00", "15:15"]; else null */
 function splitRange(t?: string): [string, string] | null {
@@ -428,44 +430,55 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       {((day.areaIds ?? []).length > 0 || (!ro && cityAreas.length > 0)) && (
         <Section
           title="Areas"
-          info={`Places in an area you add here show on the day’s map — they don’t change the plan above${ro ? "." : ", unless you tap + on a chip to add one as a step."}`}
+          info={`Places in an area you add here show on the day’s map — they don’t change the plan above${ro ? "." : ", unless you add its places from the row’s ⋯ menu."}`}
         >
-          <div className="flex flex-wrap gap-2 px-3.5 py-3">
+          {/* one row per area (Files' list view: the same map tile the Map
+              list gives it, its place count trailing), then the section's
+              actions as accent rows */}
+          <ul>
             {(day.areaIds ?? []).map((id) => {
-              const a = data.areas.find((x) => x.id === id);
+              const index = data.areas.findIndex((x) => x.id === id);
+              const a = data.areas[index];
               if (!a) return null;
               const linked = new Set((day.plan ?? []).map((it) => it.placeId).filter(Boolean));
               const newPlaces = a.placeIds.filter((pid) => !linked.has(pid)).map((pid) => data.places.find((p) => p.id === pid)).filter((p): p is NonNullable<typeof p> => !!p);
+              const name = a.name || "Untitled";
               return (
-                <span key={id} className="chip pr-2.5">
-                  {a.name || "Untitled"}
-                  <span className="text-ink-soft">{a.placeIds.length}</span>
-                  {!ro && newPlaces.length > 0 && (
-                    <button
-                      onClick={() => setPlan([...(day.plan ?? []), ...newPlaces.map((p) => ({ id: rid(), text: p.name, placeId: p.id }))])}
-                      aria-label={`Add ${a.name}'s places to the plan`}
-                      title="Add these places to the plan"
-                      className="text-ink-faint hover:text-accent"
-                    >
-                      <Icon name="plus" size={11} />
-                    </button>
-                  )}
-                  {!ro && (
-                    <ConfirmButton
-                      label={`Remove ${a.name || "this area"}`}
-                      onConfirm={() => undoable("Area removed", () => patch({ areaIds: (day.areaIds ?? []).filter((x) => x !== id) }))}
-                      className="text-ink-faint hover:text-accent"
-                    >
-                      <Icon name="close" size={11} />
-                    </ConfirmButton>
-                  )}
-                </span>
+                <li key={id} className={AREA_ROW_LI}>
+                  <ContextMenu>
+                    <div className="flex items-center gap-3 px-3.5 py-2.5">
+                      <IconTile size="sm" name="map" color={AREA_TONES[index % AREA_TONES.length]} className="shrink-0" />
+                      <span className="min-w-0 flex-1 break-words text-sm leading-snug text-ink">{name}</span>
+                      <span className="shrink-0 text-[15px] tabular-nums text-ink-faint">{plural(a.placeIds.length, "place")}</span>
+                      {!ro && (
+                        <RowMenu label={`More for ${name}`}>
+                          {newPlaces.length > 0 && (
+                            <button
+                              type="button"
+                              className="menu-item"
+                              onClick={() => setPlan([...(day.plan ?? []), ...newPlaces.map((p) => ({ id: rid(), text: p.name, placeId: p.id }))])}
+                            >
+                              <Icon name="plus" size={16} /> Add {newPlaces.length === a.placeIds.length ? "its places" : plural(newPlaces.length, "more place")} to the plan
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            className="menu-item text-danger"
+                            onClick={() => undoable("Area removed", () => patch({ areaIds: (day.areaIds ?? []).filter((x) => x !== id) }))}
+                          >
+                            <Icon name="close" size={16} /> Remove from this day
+                          </button>
+                        </RowMenu>
+                      )}
+                    </div>
+                  </ContextMenu>
+                </li>
               );
             })}
             {!ro && cityAreas.some((a) => !(day.areaIds ?? []).includes(a.id)) && (
-              <>
-                <button ref={areaSheet.anchorRef} onClick={() => areaSheet.setOpen(true)} className="action tap">
-                  <Icon name="plus" size={12} /> Add area
+              <li className={INSET_DIVIDER}>
+                <button ref={areaSheet.anchorRef} onClick={() => areaSheet.setOpen(true)} className={ACTION_ROW}>
+                  <Icon name="plus" size={14} /> Add area
                 </button>
                 <ActionSheet open={areaSheet.open} onClose={() => areaSheet.setOpen(false)} anchorRef={areaSheet.anchorRef} title="Add an area">
                   {cityAreas
@@ -481,14 +494,12 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
                       </button>
                     ))}
                 </ActionSheet>
-              </>
+              </li>
             )}
             {canPrefetchTiles && offlinePoints.length > 0 && (
-              <button onClick={downloadOfflineMaps} disabled={offlineBusy} className="action tap">
-                <Icon name="download" size={12} /> {offlineBusy ? "Caching…" : "Download offline maps"}
-              </button>
+              <ActionRow icon="download" label={offlineBusy ? "Caching…" : "Download offline maps"} onClick={downloadOfflineMaps} disabled={offlineBusy} />
             )}
-          </div>
+          </ul>
           {offlineMsg && <p className="meta px-3.5 pb-3">{offlineMsg}</p>}
         </Section>
       )}
@@ -1023,10 +1034,10 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
             )
           }
           tile={
-            !readOnly && sortedPickable.length > 0 ? (
-              // the step's icon is what it is — tap it to pick the place
-              // from the day's areas (or make it a custom step); the name
-              // beside it opens the place itself
+            // a place's icon is just part of its row — the whole row opens
+            // the place card. A custom step's icon is how it gets linked to
+            // one of the day's places.
+            !place && !readOnly && sortedPickable.length > 0 ? (
               <PlacePicker
                 value={item.placeId}
                 places={sortedPickable}
@@ -1036,14 +1047,6 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                 onPick={pick}
                 trigger={tile}
               />
-            ) : place ? (
-              <button type="button" onClick={() => placeCard.setOpen(true)} className="tap block" aria-label={`About ${place.name}`}>
-                {tile}
-              </button>
-            ) : mapHref ? (
-              <a href={mapHref} target="_blank" rel="noopener" className="tap block" aria-label="Open in Google Maps">
-                {tile}
-              </a>
             ) : (
               tile
             )
@@ -1607,30 +1610,37 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
  *  in `Day`) and a place name alone stops being enough to tell rows apart, this
  *  renders as an iOS-style sheet list instead, with the area as trailing quiet
  *  text on the same line (same idiom as a place's category in Manage). */
-function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, categoryColors, onPick, trigger }: {
+function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, categoryColors, onPick, trigger, sheet, anchor }: {
   value?: string;
   places: Place[];
   areaNameByPlaceId: Map<string, string>;
   categoryIcons?: Record<string, string>;
   categoryColors?: Record<string, string>;
   onPick: (id?: string) => void;
-  /** what opens it — the step's icon tile */
-  trigger: React.ReactNode;
+  /** what opens it — a custom step's icon tile. Without one it's opened
+   *  from elsewhere (a place card's "Change place") through `sheet` */
+  trigger?: React.ReactNode;
+  sheet?: ReturnType<typeof useActionSheet>;
+  /** where its desktop popover hangs when there's no trigger */
+  anchor?: React.RefObject<HTMLElement>;
 }) {
-  const { open, setOpen, anchorRef } = useActionSheet();
+  const own = useActionSheet();
+  const { open, setOpen, anchorRef } = sheet ?? own;
   return (
     <>
-      <button
-        ref={anchorRef}
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label={value ? "Change the place" : "Link this step to a place"}
-        aria-haspopup="menu"
-        className="tap relative shrink-0"
-      >
-        {trigger}
-      </button>
-      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="What this step is">
+      {trigger && (
+        <button
+          ref={anchorRef}
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label={value ? "Change the place" : "Link this step to a place"}
+          aria-haspopup="menu"
+          className="tap relative shrink-0"
+        >
+          {trigger}
+        </button>
+      )}
+      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={trigger ? anchorRef : anchor ?? anchorRef} title="What this step is">
         <div className="max-h-[60dvh] overflow-y-auto">
           <button type="button" onClick={() => onPick(undefined)} className="menu-item flex w-full items-center gap-2">
             <Icon name="check" size={13} className={`shrink-0 ${!value ? "text-accent" : "invisible"}`} />
@@ -1657,6 +1667,45 @@ function PlacePicker({ value, places, areaNameByPlaceId, categoryIcons, category
             );
           })}
         </div>
+      </ActionSheet>
+    </>
+  );
+}
+
+/** a spend row's category as its grey caption (Wallet's second line) — tap
+ *  it for the list to change it, the current one ticked */
+function CategoryCaption({ value, categories, onChange }: {
+  value?: string;
+  categories: ExpenseCategory[];
+  onChange: (id: string | undefined) => void;
+}) {
+  const sheet = useActionSheet();
+  const current = categories.find((c) => c.id === value);
+  return (
+    <>
+      <button
+        ref={sheet.anchorRef}
+        type="button"
+        onClick={() => sheet.setOpen(true)}
+        aria-haspopup="menu"
+        aria-label={`Category: ${current?.label ?? "none"}`}
+        className="meta tap mt-0.5 block break-words text-left"
+      >
+        {current?.label ?? "Add a category"}
+      </button>
+      <ActionSheet open={sheet.open} onClose={() => sheet.setOpen(false)} anchorRef={sheet.anchorRef} title="Category">
+        {categories.map((cat) => (
+          <button key={cat.id} type="button" className="menu-item" onClick={() => { onChange(cat.id); sheet.setOpen(false); }}>
+            <Icon name="check" size={14} className={`shrink-0 text-accent ${cat.id === value ? "" : "invisible"}`} />
+            {cat.label}
+          </button>
+        ))}
+        {value && (
+          <button type="button" className="menu-item" onClick={() => { onChange(undefined); sheet.setOpen(false); }}>
+            <Icon name="check" size={14} className="invisible shrink-0" />
+            No category
+          </button>
+        )}
       </ActionSheet>
     </>
   );
@@ -1796,17 +1845,11 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
                   {readOnly ? (
                     c.label.trim() && <div className="meta mt-0.5">{catLabel(c.categoryId)}</div>
                   ) : (
-                    <select
-                      value={c.categoryId ?? ""}
-                      onChange={(e) => setAt(i, { categoryId: e.target.value || undefined })}
-                      aria-label="Category"
-                      className="meta mt-0.5 -ml-0.5 block max-w-full cursor-pointer bg-transparent focus:outline-none"
-                    >
-                      {(!c.categoryId || !known) && <option value={c.categoryId ?? ""}>{c.categoryId ? "Uncategorised" : "Category…"}</option>}
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={cat.id}>{cat.label}</option>
-                      ))}
-                    </select>
+<CategoryCaption
+                      value={known ? c.categoryId : undefined}
+                      categories={categories}
+                      onChange={(id) => setAt(i, { categoryId: id })}
+                    />
                   )}
                 </div>
                 {!readOnly && <RowDeleteButton undoLabel="Expense removed" onClick={() => onChange(costs.filter((_, j) => j !== i))} />}
@@ -1817,12 +1860,15 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
           );
         })}
       <li className="relative flex items-baseline justify-between gap-4 px-3.5 py-3 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
-        <span className="value font-medium">Total spent</span>
+        <span className="value flex-1 font-medium">Total spent</span>
         <span className="value flex flex-wrap justify-end gap-x-3 font-medium tabular-nums">
           {subtotals.size > 0
             ? [...subtotals].map(([cur, amt]) => <span key={cur || "—"}>{fmtMoney(amt, cur)}</span>)
             : "—"}
         </span>
+        {/* holds the slot of the rows' ✕ (pointer devices only), so the
+            total lines up under their amounts */}
+        {!readOnly && <span aria-hidden className="-ml-1 w-[21px] shrink-0 [@media(hover:none)_and_(pointer:coarse)]:hidden" />}
       </li>
       {!readOnly && <li>{addButton("action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07] active:opacity-100", 14)}</li>}
     </ul>

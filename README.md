@@ -131,6 +131,7 @@ Every section folds away from its header.
 - A step picked there (or **Add an expense** in its ⋯) starts in the category its icon suggests — a café under Food & drink, a museum under Activities.
 - **Custom…** asks for a name first; Return moves on to the keypad.
 - A row left with no name and no amount goes away. A typed name is kept even with no amount yet.
+- **Tap the grey category** under an amount to change it.
 
 ### Journeys on a day
 
@@ -322,7 +323,7 @@ Your places on a clean map, read top to bottom: **city pills → places**. Every
 - **Rename, delete, or merge duplicates** — *⋯ → Edit Areas*.
 - **Show one area** — tap its icon; tap the rest of the row to fold it.
 
-**Areas on a day.** Add an area on a day's page and all its places appear on that day's map (faded). It's a live link, so later edits show up. Tap **+** to turn one into a step. The day offers areas from its own city — a day trip gets its town's areas.
+**Areas on a day.** Add an area on a day's page and all its places appear on that day's map (faded). It's a live link, so later edits show up. Its row's ⋯ (or a long-press) adds its places to the plan or removes it from the day. The day offers areas from its own city — a day trip gets its town's areas.
 
 **What else areas show:**
 
