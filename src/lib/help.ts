@@ -10,8 +10,34 @@ import type { Tone } from "./tones";
 export interface HelpItem {
   id: string;
   q: string;
+  /** the answer — a line or two of light Markdown, above any `blocks` */
   a: string;
+  /** the rest of the answer as something to look at rather than read */
+  blocks?: HelpBlock[];
   go?: { label: string; to: string };
+}
+
+/** one thing to know, as a Settings-style row: a coloured tile, a short
+ *  title and an optional line under it */
+export interface HelpRow {
+  icon: IconName;
+  tone?: Tone;
+  title: string;
+  detail?: string;
+}
+
+/** a titled group of rows, or numbered steps (inline Markdown each) */
+export type HelpBlock = { title?: string; rows: HelpRow[] } | { title?: string; steps: string[] };
+
+/** everything an answer says, as plain text — for search */
+export function helpText(i: HelpItem): string {
+  const parts = [i.a];
+  for (const b of i.blocks ?? []) {
+    if (b.title) parts.push(b.title);
+    if ("rows" in b) for (const r of b.rows) parts.push(r.title, r.detail ?? "");
+    else parts.push(...b.steps);
+  }
+  return parts.join(" ").replace(/\*\*|[*_`#>]/g, "").replace(/^\s*(\d+\.|-)\s+/gm, "");
 }
 export interface HelpTopic {
   id: string;
@@ -68,14 +94,19 @@ It then opens full screen, like any other app.`,
       {
         id: "checklist",
         q: "What should we do before we leave?",
-        a: `On **each phone**, on wifi:
-
-1. Install the app and open the trip once.
-2. **Manage → Trips → This device** — check **Works offline** says *Ready*.
-3. Tap **Save trip maps for offline**.
-4. Tap **Save attachments for offline**.
-5. On the **Map**, tap the location arrow once and allow it.
-6. **Manage → Sharing → Download backup**, and keep the file safe.`,
+        a: `On **each phone**, on wifi:`,
+        blocks: [
+          {
+            steps: [
+              "Install the app and open the trip once.",
+              "**Manage → Trips → This device** — check **Works offline** says *Ready*.",
+              "Tap **Save trip maps for offline**.",
+              "Tap **Save attachments for offline**.",
+              "On the **Map**, tap the location arrow once and allow it.",
+              "**Manage → Sharing → Download backup**, and keep the file safe.",
+            ],
+          },
+        ],
         go: { label: "Open This device", to: "/manage/trips" },
       },
       {
@@ -138,22 +169,33 @@ Nothing is lost in any of these.`,
       {
         id: "facts",
         q: "What's Good to know?",
-        a: `A quick summary of a place from guides and review sites — and its website.
-
-### Where to find it
-- **Plan:** tap a step's icon.
-- **Map:** tap a place.
-
-### What it shows
-- Hours and closed days
-- Reservations, queue and price for food
-- Tickets, crowds and entry for sights
-- The place's **Website**, when it has one
-
-### Keeping it current
-- Fills in on its own, and refreshes monthly.
-- **Refresh** on the card checks one place now.
-- **Manage → Content** checks every place.`,
+        a: `A quick summary of a place from guides and review sites, with its website.`,
+        blocks: [
+          {
+            title: "Where to find it",
+            rows: [
+              { icon: "itinerary", tone: "accent", title: "Plan", detail: "Tap a step's icon" },
+              { icon: "map", tone: "matcha", title: "Map", detail: "Tap a place" },
+            ],
+          },
+          {
+            title: "What it shows",
+            rows: [
+              { icon: "clock", tone: "gold", title: "Hours and closed days" },
+              { icon: "wallet", tone: "gold", title: "Reservations, queue, price", detail: "Restaurants and cafés" },
+              { icon: "ticket", tone: "ai", title: "Tickets, crowds, entry", detail: "Sights" },
+              { icon: "link", tone: "accent", title: "Website", detail: "When the place has one" },
+            ],
+          },
+          {
+            title: "Keeping it current",
+            rows: [
+              { icon: "auto", tone: "matcha", title: "Fills in by itself", detail: "And refreshes every month" },
+              { icon: "cloud-down", tone: "accent", title: "Refresh", detail: "On the card — checks one place now" },
+              { icon: "checklist", tone: "ink-faint", title: "Check every place", detail: "Manage → Content → Good to know" },
+            ],
+          },
+        ],
         go: { label: "Open Content", to: "/manage/content" },
       },
       {

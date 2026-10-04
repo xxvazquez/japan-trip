@@ -7,7 +7,7 @@ import { IconTile } from "@/components/IconTile";
 import { INSET_DIVIDER } from "@/components/InsetRow";
 import { Markdown } from "@/components/Markdown";
 import { SearchField } from "@/components/SearchField";
-import { HELP, helpKey, type HelpItem, type HelpTopic } from "@/lib/help";
+import { HELP, helpKey, helpText, type HelpBlock, type HelpItem, type HelpTopic } from "@/lib/help";
 
 /** lower-case, accents dropped — "cafe" finds "café" */
 const fold = (s: string) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase();
@@ -32,9 +32,10 @@ function QA({ item, open, onToggle, focus }: { item: HelpItem; open: boolean; on
       </button>
       {open && (
         <div className="px-3.5 pb-3.5 motion-safe:animate-fade-in">
-          <Markdown text={item.a} className="note text-ink-soft [&_p.font-semibold]:pt-1.5 [&_p.font-semibold]:font-medium [&_strong]:font-medium [&_strong]:text-ink" />
+          <Markdown text={item.a} className={ANSWER} />
+          {item.blocks?.map((b, n) => <Block key={n} block={b} />)}
           {item.go && (
-            <Link to={item.go.to} className="action mt-3 inline-flex items-center gap-1 text-[15px]">
+            <Link to={item.go.to} className="action mt-4 inline-flex items-center gap-1 text-[15px]">
               {item.go.label}
               <Icon name="chevron" size={12} />
             </Link>
@@ -42,6 +43,42 @@ function QA({ item, open, onToggle, focus }: { item: HelpItem; open: boolean; on
         </div>
       )}
     </li>
+  );
+}
+
+const ANSWER = "note text-ink-soft [&_strong]:font-medium [&_strong]:text-ink";
+
+/** part of an answer to look at: rows behind coloured tiles, the Tips-app
+ *  way, or numbered steps */
+function Block({ block }: { block: HelpBlock }) {
+  return (
+    <div className="mt-4">
+      {block.title && <p className="kicker mb-2 text-ink-faint">{block.title}</p>}
+      {"rows" in block ? (
+        <ul className="space-y-3">
+          {block.rows.map((r) => (
+            <li key={r.title} className="flex items-center gap-3">
+              <IconTile name={r.icon} tone={r.tone} />
+              <span className="min-w-0 flex-1">
+                <span className="block break-words text-[17px] leading-snug text-ink">{r.title}</span>
+                {r.detail && <span className="meta block break-words leading-snug text-ink-faint">{r.detail}</span>}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <ol className="space-y-3">
+          {block.steps.map((step, n) => (
+            <li key={n} className="flex items-start gap-3">
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-accent text-[15px] font-medium tabular-nums text-white">
+                {n + 1}
+              </span>
+              <Markdown text={step} className={`${ANSWER} min-w-0 flex-1 pt-0.5 !text-ink`} />
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
   );
 }
 
@@ -70,7 +107,7 @@ export default function Help() {
     return HELP.map((t) => ({
       ...t,
       items: t.items.filter((i) => {
-        const text = fold(`${i.q} ${i.a}`);
+        const text = fold(`${i.q} ${helpText(i)}`);
         return words.every((w) => text.includes(w));
       }),
     })).filter((t) => t.items.length);

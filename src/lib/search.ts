@@ -2,7 +2,7 @@ import type { TripData } from "@/core/types";
 import { fmtDate, journeyDepartDate, plural } from "./dates";
 import { JOURNEY_KIND_LABEL } from "./journey";
 import { legHex } from "./legColors";
-import { HELP, helpKey } from "./help";
+import { HELP, helpKey, helpText } from "./help";
 import { MODE_ICON } from "./transport";
 import { customListColor, logbookSectionTile, placeTile, toneForSegmentMode, type LogbookTile } from "./tones";
 
@@ -213,7 +213,7 @@ function build(d: TripData): SearchHit[] {
         label: i.q,
         sub: t.title,
         to: `/help?open=${helpKey(t, i)}`,
-        fields: [{ text: i.a.replace(/\*\*|[*_`#>]/g, "").replace(/^\s*(\d+\.|-)\s+/gm, "") }],
+        fields: [{ text: helpText(i) }],
       });
     }
   }
