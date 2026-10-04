@@ -625,7 +625,7 @@ function Expenses() {
               <InsetRow label="Uncategorised" to={`/logbook/budget/${UNCATEGORISED}`}>{fmtMoney(Math.round(combined.uncategorised), primary)}</InsetRow>
             )}
             <InsetRow label={<span className="font-medium text-ink">Total</span>}>
-              <span className="font-medium">{fmtMoney(Math.round(combined.total), primary)}</span>
+              <span className="font-medium text-ink">{fmtMoney(Math.round(combined.total), primary)}</span>
             </InsetRow>
           </ul>
           {unconverted.length > 0 && (
@@ -648,7 +648,7 @@ function Expenses() {
                 <InsetRow label="Uncategorised" to={`/logbook/budget/${UNCATEGORISED}`}>{fmtMoney(b.uncategorised, cur)}</InsetRow>
               )}
               <InsetRow label={<span className="font-medium text-ink">Total</span>}>
-                <span className="font-medium">{fmtMoney(b.total, cur)}</span>
+                <span className="font-medium text-ink">{fmtMoney(b.total, cur)}</span>
               </InsetRow>
             </ul>
           </Section>
@@ -714,7 +714,7 @@ export function ExpenseCategory() {
                     </li>
                   ))}
                   <InsetRow label={<span className="font-medium text-ink">Total</span>}>
-                    <span className="font-medium">{fmtMoney(total, cur)}</span>
+                    <span className="font-medium text-ink">{fmtMoney(total, cur)}</span>
                   </InsetRow>
                 </ul>
               </Section>

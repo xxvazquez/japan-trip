@@ -135,7 +135,7 @@ function FactCell({ k, label, value, kind, className = "" }: { k: string; label:
       <IconTile size="sm" name={icon} tone={t.tone} color={t.danger ? "rgb(var(--c-danger))" : undefined} className="mt-0.5 shrink-0" />
       <div className="min-w-0">
         <span className="block text-xs text-ink-soft">{label}</span>
-        <span className={`row-value block break-words text-left ${shut ? "text-danger" : ""}`}>{value}</span>
+        <span className={`row-value block break-words text-left ${shut ? "text-danger" : "text-ink"}`}>{value}</span>
       </div>
     </div>
   );

@@ -35,8 +35,10 @@ export function InsetRow({
   if (stacked) {
     return (
       <li className={`${LI} px-3.5 py-3 ${className}`}>
-        <span className="row-label mb-0.5 block">{label}</span>
-        <span className="row-value block text-left">{children}</span>
+        {/* stacked, it's Contacts' order instead: a small grey caption
+            over the value in primary ink */}
+        <span className="mb-0.5 block text-xs text-ink-soft">{label}</span>
+        <span className="row-value block text-left text-ink">{children}</span>
       </li>
     );
   }
