@@ -100,7 +100,7 @@ export function Recovery() {
               {others.map((t) => (
                 <li key={t.id} className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
                   <button onClick={() => run(() => switchTrip(t.id))} className="action w-full justify-between px-3.5 py-3 text-left">
-                    <span className="truncate">{t.name}</span>
+                    <span className="min-w-0 break-words">{t.name}</span>
                   </button>
                 </li>
               ))}

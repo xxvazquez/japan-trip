@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from "react";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
+import { useLeavePage } from "@/components/NavBar";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { INSET_DIVIDER } from "@/components/InsetRow";
@@ -38,7 +39,7 @@ const rid = () => Math.random().toString(36).slice(2, 8);
 export default function Document() {
   const data = useData();
   const { id } = useParams();
-  const navigate = useNavigate();
+  const leave = useLeavePage();
   const updateEntity = useApp((s) => s.updateEntity);
   const removeEntity = useApp((s) => s.removeEntity);
   const tripId = useApp((s) => s.activeId);
@@ -101,7 +102,7 @@ export default function Document() {
         {!ro && (
           <Section>
             <ConfirmButton
-              onConfirm={() => undoable("Document deleted", () => { removeEntity("docs", doc.id); navigate("/logbook/documents"); })}
+              onConfirm={() => undoable("Document deleted", () => { removeEntity("docs", doc.id); leave("/logbook/documents"); })}
               label="Delete document"
               className="w-full justify-center px-3.5 py-3 text-sm text-danger"
             >

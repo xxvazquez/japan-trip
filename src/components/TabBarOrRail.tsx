@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useData } from "@/lib/data";
-import { enabledModules, hubForPath, isSharedDetail, moduleTo } from "@/lib/modules";
+import { enabledModules, homeHubForDetail, hubForPath, isSharedDetail, moduleTo } from "@/lib/modules";
 import { Icon, isIconName, type IconName } from "./Icon";
 import type { ModuleConfig, ModuleKind } from "@/core/types";
 
@@ -43,7 +43,10 @@ export function TabBarOrRail({ onSearch }: { onSearch: () => void }) {
   const modules = enabledModules(data?.config.modules ?? []);
   const hub = hubForPath(pathname);
   const matchedId = currentModuleId(modules, pathname, hub);
-  const lastActiveId = useRef<string | null>(modules.find((m) => m.kind === "plan")?.id ?? null);
+  const lastActiveId = useRef<string | null>(null);
+  // opened cold on a shared page, there's no tab it came from yet (picked
+  // once the trip's own tabs are known, not the placeholder set)
+  if (data) lastActiveId.current ??= modules.find((m) => m.kind === homeHubForDetail(pathname))?.id ?? modules.find((m) => m.kind === "plan")?.id ?? null;
   useEffect(() => {
     if (matchedId) lastActiveId.current = matchedId;
   }, [matchedId]);

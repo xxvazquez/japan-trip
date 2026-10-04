@@ -5,6 +5,7 @@ import { Wordmark } from "./Wordmark";
 import { useData } from "@/lib/data";
 import { ActionSheet } from "./ActionSheet";
 import { useApp } from "@/store/useApp";
+import { sheetEntries } from "@/lib/backClose";
 
 /**
  * The state behind the iOS-style navigation bar. A page's `<PageHeader>`
@@ -27,6 +28,8 @@ type Api = {
 const PARENT_LABEL: Record<string, string> = {
   "/": "Plan",
   "/logbook": "Logbook",
+  "/logbook/stays": "Stays",
+  "/logbook/getting-around": "Journeys",
   "/logbook/documents": "Documents",
   "/logbook/budget": "Expenses",
   "/map": "Map",
@@ -132,6 +135,24 @@ function TripSwitcher() {
 function backLabel(prevTitle: string | undefined, to: string): string {
   if (prevTitle) return prevTitle.length <= 14 ? prevTitle : "Back";
   return PARENT_LABEL[to] ?? "Back";
+}
+
+/** Leave a detail page the way its back button does — pop it — so a page
+ *  that's just been deleted isn't left in the history for back or the edge
+ *  swipe to land on. A confirm sheet still open on top has entries of its
+ *  own, popped along with it. On a cold load there's nothing under the page
+ *  to pop to, so `fallback` takes its place instead. */
+export function useLeavePage() {
+  const go = useNavigate();
+  const loc = useLocation();
+  return (fallback: string) => {
+    const sheets = sheetEntries();
+    if (loc.key !== "default") return go(-1 - sheets);
+    if (!sheets) return go(fallback, { replace: true });
+    // step off the sheets' entries first, then stand the list in for the page
+    window.addEventListener("popstate", () => setTimeout(() => go(fallback, { replace: true }), 0), { once: true });
+    go(-sheets);
+  };
 }
 
 /** Left slot: a `‹ Parent` back button on a detail page, else the trip's brand. */

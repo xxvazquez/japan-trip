@@ -12,7 +12,7 @@ export function Missing({
   title = "Off the map",
   body = "This page doesn’t exist.",
   to = "/",
-  cta = "Back to Today",
+  cta = "Back to Plan",
 }: {
   title?: string;
   body?: string;

@@ -1,12 +1,13 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
+import { useLeavePage } from "@/components/NavBar";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { RowSelect } from "@/components/RowSelect";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
-import { Icon } from "@/components/Icon";
+import { ActionRow } from "@/components/ActionRow";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { Stepper } from "@/components/Stepper";
 import { useData, lookups } from "@/lib/data";
@@ -26,7 +27,7 @@ export default function Leg() {
   const removeEntity = useApp((s) => s.removeEntity);
   const addEntity = useApp((s) => s.addEntity);
   const resizeBase = useApp((s) => s.resizeBase);
-  const nav = useNavigate();
+  const leave = useLeavePage();
   const ro = useReadOnly();
   if (!data) return null;
 
@@ -125,6 +126,7 @@ export default function Leg() {
                 </RowSelect>
               </InsetRow>
             )}
+            {!ro && hotel && <ActionRow icon="bed" label={`Open ${hotel.name || "stay"}`} to={`/hotel/${hotel.id}`} />}
 
             {!ro && (
               <InsetRow label="Colour" stacked>
@@ -146,12 +148,6 @@ export default function Leg() {
           </ul>
         </Section>
 
-        {!ro && hotel && (
-          <Link to={`/hotel/${hotel.id}`} className="action -mt-2 text-xs">
-            <Icon name="bed" size={13} /> Open {hotel.name}
-          </Link>
-        )}
-
         {(leg.blurb || !ro) && (
           <Section title="About this base">
             <div className="note px-3.5 py-3">
@@ -167,7 +163,7 @@ export default function Leg() {
               <li>
                 <ConfirmButton
                   label={hasDays ? `Delete base and its ${plural(dayCount, "day")}` : "Delete base"}
-                  onConfirm={() => undoable("Base deleted", () => { removeEntity("legs", leg.id); nav("/"); })}
+                  onConfirm={() => undoable("Base deleted", () => { removeEntity("legs", leg.id); leave("/"); })}
                   className="w-full justify-center px-3.5 py-2.5 text-xs text-danger active:bg-ink/[0.07]"
                 >
                   Delete base

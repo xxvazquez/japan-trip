@@ -37,6 +37,14 @@ export function isSharedDetail(pathname: string): boolean {
   return SHARED_DETAIL_PREFIXES.some((p) => pathname.startsWith(p));
 }
 
+/** The hub a shared detail page belongs to when it's opened cold (a deep
+ *  link, a fresh launch) and there's no tab it was pushed from — the same
+ *  list its back button falls back to: a stay or journey is a Logbook page,
+ *  a day or base a Plan one. */
+export function homeHubForDetail(pathname: string): ModuleKind {
+  return pathname.startsWith("/hotel/") || pathname.startsWith("/journey/") ? "logbook" : "plan";
+}
+
 const DEFAULTS: ModuleConfig[] = [
   { id: "plan", kind: "plan", label: "Plan", icon: "itinerary", enabled: true },
   { id: "map", kind: "map", label: "Map", icon: "map", enabled: true },

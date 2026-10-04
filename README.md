@@ -114,7 +114,7 @@ The days set the dates — you don't edit them separately.
 
 Tap a day on Plan to open it. From top to bottom:
 
-1. **Staying at** — which hotel.
+1. **Staying at** — which hotel, with a row under it to open that stay.
 2. **Journeys** — every journey on the day (a bus, a train, a flight), in the order they leave. See [Journeys on a day](#journeys-on-a-day).
 3. **Weather** — if the hotel has coordinates, the header shows the forecast ("Showers, 19–24°C"). Forecasts only reach ~16 days ahead, so later days show nothing until they're close enough.
 4. **The itinerary** — the day's steps (below).

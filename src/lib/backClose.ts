@@ -37,6 +37,10 @@ if (typeof window !== "undefined") {
   });
 }
 
+/** history entries the open sheets have stacked on the page's own — what a
+ *  page that leaves from inside a sheet (a confirmed Delete) has to pop too */
+export const sheetEntries = () => live.size;
+
 export function useBackToClose(open: boolean, onClose: () => void) {
   const close = useRef(onClose);
   close.current = onClose;

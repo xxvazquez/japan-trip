@@ -1,5 +1,6 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
+import { useLeavePage } from "@/components/NavBar";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { InsetRow } from "@/components/InsetRow";
@@ -22,7 +23,7 @@ import type { Hotel as HotelT } from "@/core/types";
 export default function Hotel() {
   const data = useData();
   const { id } = useParams();
-  const navigate = useNavigate();
+  const leave = useLeavePage();
   const updateEntity = useApp((s) => s.updateEntity);
   const removeEntity = useApp((s) => s.removeEntity);
   const ro = useReadOnly();
@@ -31,7 +32,7 @@ export default function Hotel() {
   const L = lookups(data);
   const hotel = L.hotel(id);
   if (!hotel)
-    return <Missing title="No stay here" body="That stay isn’t part of this trip." to="/logbook" cta="Back to Logbook" />;
+    return <Missing title="No stay here" body="That stay isn’t part of this trip." to="/logbook/stays" cta="See all stays" />;
   const p = (patch: Partial<HotelT>) => updateEntity<HotelT>("hotels", hotel.id, patch);
   const loc = data.config.locale;
   // the nights actually spent here — check-out is the morning you leave,
@@ -63,7 +64,7 @@ export default function Hotel() {
   return (
     <Page>
       <PageHeader
-        back="/logbook"
+        back="/logbook/stays"
         dotColor={leg ? legHex(leg.color) : undefined}
         eyebrow={eyebrow}
         title={<Editable label="Name" value={hotel.name} onCommit={(v) => p({ name: v || hotel.name })} />}
@@ -168,7 +169,7 @@ export default function Hotel() {
         {!ro && (
           <Section>
             <ConfirmButton
-              onConfirm={() => undoable("Stay deleted", () => { removeEntity("hotels", hotel.id); navigate("/logbook"); })}
+              onConfirm={() => undoable("Stay deleted", () => { removeEntity("hotels", hotel.id); leave("/logbook/stays"); })}
               label="Delete stay"
               className="w-full justify-center px-3.5 py-3 text-sm text-danger"
             >

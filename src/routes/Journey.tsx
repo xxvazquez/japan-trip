@@ -1,6 +1,7 @@
 import { useRef, type ReactNode } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
+import { useLeavePage } from "@/components/NavBar";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
@@ -31,7 +32,7 @@ const rid = () => Math.random().toString(36).slice(2, 8);
 export default function Journey() {
   const data = useData();
   const { id } = useParams();
-  const navigate = useNavigate();
+  const leave = useLeavePage();
   const updateEntity = useApp((s) => s.updateEntity);
   const removeEntity = useApp((s) => s.removeEntity);
   const ro = useReadOnly();
@@ -66,7 +67,7 @@ export default function Journey() {
   return (
     <Page>
       <PageHeader
-        back="/logbook"
+        back="/logbook/getting-around"
         eyebrow={
           <span className="flex items-center gap-1.5">
             {ro ? (
@@ -440,7 +441,7 @@ export default function Journey() {
       {!ro && (
         <Section>
           <ConfirmButton
-            onConfirm={() => undoable("Journey deleted", () => { removeEntity("journeys", j.id); navigate("/logbook"); })}
+            onConfirm={() => undoable("Journey deleted", () => { removeEntity("journeys", j.id); leave("/logbook/getting-around"); })}
             label="Delete journey"
             className="w-full justify-center px-3.5 py-3 text-sm text-danger"
           >

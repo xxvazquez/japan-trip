@@ -111,10 +111,11 @@ export default function Plan() {
   const c = tripClock(data);
   const loc = data.config.locale;
   const currentLeg = data.legs.find((l) => l.id === c.currentLegId) ?? legForDate(data, c.todayISO);
-  // a fresh trip is created with start === end (today); the phase copy
-  // ("Day 1 of 1", "Home — the trip's all here") makes no sense until real
-  // dates are set
-  const noDates = !!data.meta.start && data.meta.start === data.meta.end;
+  // a fresh trip is created with start === end (today) and no days; the
+  // phase copy ("Day 1 of 1", "Home — the trip's all here") makes no sense
+  // until real dates are set. Once there are days the dates follow them, so
+  // a trip that's down to one day is a real one-day trip, not an unset one
+  const noDates = !!data.meta.start && data.meta.start === data.meta.end && data.days.length === 0;
   const moduleLabel = data.config.modules.find((m) => m.kind === "plan")?.label ?? "Plan";
 
   return (

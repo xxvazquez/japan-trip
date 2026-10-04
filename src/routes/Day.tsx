@@ -15,6 +15,7 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-
 import { moveAroundPinned, sortByTime, startMinutes } from "@/lib/planOrder";
 import { CSS } from "@dnd-kit/utilities";
 import { Page, PageHeader } from "@/components/Page";
+import { useLeavePage } from "@/components/NavBar";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
@@ -110,6 +111,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const mutateTrip = useApp((s) => s.mutateTrip);
   const activeId = useApp((s) => s.activeId);
   const nav = useNavigate();
+  const leave = useLeavePage();
   const [, setParams] = useSearchParams();
   const { active: splitActive } = useSplit();
   const ro = useReadOnly();
@@ -367,6 +369,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
                 {data.hotels.map((h) => <option key={h.id} value={h.id}>{h.name || "Stay"}</option>)}
               </RowSelect>
             </InsetRow>
+            {hotel && <ActionRow icon="bed" label={`Open ${hotel.name || "stay"}`} to={`/hotel/${hotel.id}`} />}
           </ul>
         </Section>
       )}
@@ -555,7 +558,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             <li className={INSET_DIVIDER}>
               <ConfirmButton
                 label="Delete day"
-                onConfirm={() => undoable("Day deleted", () => { removeEntity("days", day.id); nav("/"); })}
+                onConfirm={() => undoable("Day deleted", () => { removeEntity("days", day.id); leave("/"); })}
                 className="w-full justify-center px-3.5 py-2.5 text-xs text-danger active:bg-ink/[0.07]"
               >
                 Delete day
