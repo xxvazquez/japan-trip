@@ -1015,6 +1015,36 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
 /** past this, a walk stops being the plan — the row points at the train (and
  *  Google Maps' own transit directions) instead of a walking route. */
 const LONG_WALK_MIN = 30;
+/** past this, the train is offered beside the walk — a 20-odd-minute walk is
+ *  a real choice, so both show and either opens its own directions. */
+const TRAIN_TOO_MIN = 15;
+
+type TrainOption = { a: NearbyStation; b: NearbyStation; total: number | null };
+
+/** The train between the nearest station at each end, with a rough
+ *  door-to-door time (walk in, `estimateTransit` for the ride, walk out).
+ *  Null until both stations are found, or when they're the same station. */
+function useTrainOption(from: { lat: number; lng: number } | null, to: { lat: number; lng: number } | null, enabled: boolean): TrainOption | null {
+  const [stations, setStations] = useState<[NearbyStation | null, NearbyStation | null]>([null, null]);
+  const on = enabled && !!from && !!to;
+  useEffect(() => {
+    setStations([null, null]);
+    if (!on || !from || !to) return;
+    let cancelled = false;
+    void Promise.all([nearestStationLookup(from.lat, from.lng), nearestStationLookup(to.lat, to.lng)]).then((s) => {
+      if (!cancelled) setStations(s);
+    });
+    return () => { cancelled = true; };
+  }, [on, from?.lat, from?.lng, to?.lat, to?.lng]);
+  const [a, b] = on ? stations : [null, null];
+  const origin = from ?? { lat: 0, lng: 0 };
+  const dest = to ?? { lat: 0, lng: 0 };
+  const toA = useWalk(origin, from ? a : null);
+  const fromB = useWalk(dest, to ? b : null);
+  if (!a || !b || a.name === b.name) return null;
+  const total = toA && fromB ? toA.min + estimateTransit(haversineKm(a.lat, a.lng, b.lat, b.lng)) + fromB.min : null;
+  return { a, b, total };
+}
 
 /** The day's closing row: how to get from the last stop back to the hotel
  *  you're staying at. Walking time and distance when the hotel has
@@ -1060,27 +1090,10 @@ function ReturnToHotel({ from, hotel, indent }: { from?: Place; hotel: Hotel; in
     : null;
   const walk = useWalk(from ?? { lat: 0, lng: 0 }, from ? to : null);
   const long = !walk || walk.min > LONG_WALK_MIN;
-
-  const [fromStation, setFromStation] = useState<NearbyStation | null>(null);
-  const [hotelStation, setHotelStation] = useState<NearbyStation | null>(null);
-  useEffect(() => {
-    setFromStation(null);
-    setHotelStation(null);
-    if (!from || !to || !long) return;
-    let cancelled = false;
-    void nearestStationLookup(from.lat, from.lng).then((s) => { if (!cancelled) setFromStation(s); });
-    void nearestStationLookup(to.lat, to.lng).then((s) => { if (!cancelled) setHotelStation(s); });
-    return () => { cancelled = true; };
-  }, [long, from?.lat, from?.lng, to?.lat, to?.lng]);
-
+  const offerTrain = !walk || walk.min > TRAIN_TOO_MIN;
   // door to door by train: the walk to the nearest station, the ride, and
-  // the walk from the hotel's station — the figure that matters once it's far
-  const toFromStation = useWalk(from ?? { lat: 0, lng: 0 }, from ? fromStation : null);
-  const fromHotelStation = useWalk(to ?? { lat: 0, lng: 0 }, to ? hotelStation : null);
-  const train = long && fromStation && hotelStation && fromStation.name !== hotelStation.name ? { from: fromStation, to: hotelStation } : null;
-  const trainTotal = train && toFromStation && fromHotelStation
-    ? toFromStation.min + estimateTransit(haversineKm(train.from.lat, train.from.lng, train.to.lat, train.to.lng)) + fromHotelStation.min
-    : null;
+  // the walk from the hotel's station
+  const train = useTrainOption(from ?? null, to, offerTrain);
 
   const dest = to ? `${to.lat},${to.lng}` : [hotel.name, hotel.address].filter(Boolean).join(" ");
   const href = gmapsRoute(from && `${from.lat},${from.lng}`, dest, long ? "transit" : "walking");
@@ -1096,20 +1109,21 @@ function ReturnToHotel({ from, hotel, indent }: { from?: Place; hotel: Hotel; in
       <IconTile size="sm" name="bed" tone="accent" className="mt-px" />
       <span className="min-w-0 flex-1 space-y-1">
         <span className="block text-sm leading-snug text-ink">Back to {hotel.name || "your stay"}</span>
-        {/* close: the walk; far: the train and its door-to-door time, never
-            an hour-long walk figure */}
+        {/* close: the walk; middling: the walk and the train; far: the
+            train alone, never an hour-long walk figure */}
         {(walk || (long && from && to)) && (
           <span className="flex flex-wrap gap-x-4 gap-y-0.5 text-[0.75rem] leading-snug text-accent">
-            {!long && walk ? (
+            {!long && walk && (
               <span className={piece} title={`Walk ${fmtWalk(walk)}`}>
                 <Icon name="walk" size={12} className="mt-[2px] shrink-0" />
                 <span className="min-w-0 tabular-nums">{fmtMinutes(walk.min)}</span>
               </span>
-            ) : (
-              <span className={piece} title={train ? `Train from ${train.from.name} to ${train.to.name}` : "Transit directions"}>
+            )}
+            {(long || train) && (
+              <span className={piece} title={train ? `Train from ${train.a.name} to ${train.b.name}` : "Transit directions"}>
                 <Icon name="train" size={12} className="mt-[2px] shrink-0" />
                 <span className="min-w-0">
-                  {train ? <>{train.from.name} → {train.to.name}{trainTotal && <> · <span className="tabular-nums">{fmtMinutes(trainTotal)}</span></>}</> : "By train"}
+                  {train ? <>{train.a.name} → {train.b.name}{train.total && <> · <span className="tabular-nums">{fmtMinutes(train.total)}</span></>}</> : "By train"}
                 </span>
               </span>
             )}
@@ -1146,50 +1160,49 @@ function PlaceHoursLine({ place, date }: { place: Place; date?: string }) {
 
 /** The way from one step to the next, as a slim row between them — the
  *  Calendar "travel time" idiom: travel is between two things you do, not
- *  part of either. Close by it's the walk; past `LONG_WALK_MIN` it's the
- *  train between the nearest station at each end with a rough door-to-door
- *  time (`estimateTransit` for the ride plus both walks), never an hour-long
- *  walk figure. Either way the row opens Google Maps directions — the real
- *  route with lines and changes is Google's to work out (no free keyless
- *  transit API). Stations come from OpenStreetMap (`transitStation.ts`). */
+ *  part of either. Close by it's the walk; past `TRAIN_TOO_MIN` the train
+ *  (`useTrainOption`) shows beside it; past `LONG_WALK_MIN` only the train,
+ *  never an hour-long walk figure. Each opens its own Google Maps directions
+ *  — the real route with lines and changes is Google's to work out (no free
+ *  keyless transit API). Stations come from OpenStreetMap (`transitStation.ts`). */
 function TravelConnector({ from, to, indent }: { from: Place; to: Place; indent: boolean }) {
   const walk = useWalk(from, to);
   const long = !walk || walk.min > LONG_WALK_MIN;
-  const [stations, setStations] = useState<[NearbyStation | null, NearbyStation | null]>([null, null]);
-  useEffect(() => {
-    setStations([null, null]);
-    if (!long) return;
-    let cancelled = false;
-    void Promise.all([nearestStationLookup(from.lat, from.lng), nearestStationLookup(to.lat, to.lng)]).then((s) => {
-      if (!cancelled) setStations(s);
-    });
-    return () => { cancelled = true; };
-  }, [long, from.lat, from.lng, to.lat, to.lng]);
-  const [a, b] = stations;
-  const toA = useWalk(from, long ? a : null);
-  const fromB = useWalk(to, long ? b : null);
-  const train = long && a && b && a.name !== b.name ? { a, b } : null;
-  const total = train && toA && fromB ? toA.min + estimateTransit(haversineKm(train.a.lat, train.a.lng, train.b.lat, train.b.lng)) + fromB.min : null;
+  const train = useTrainOption(from, to, !walk || walk.min > TRAIN_TOO_MIN);
 
-  const label = !long && walk
-    ? `${fmtMinutes(walk.min)} walk`
-    : train
-      ? `${train.a.name} → ${train.b.name}${total ? ` · ${fmtMinutes(total)}` : ""}`
-      : "By train";
-  const title = !long && walk ? `Walk ${fmtWalk(walk)}` : train ? `Train from ${train.a.name} to ${train.b.name}, door to door` : "Transit directions";
+  const pad = indent ? "pl-9" : "pl-3.5";
+  const link = "flex min-w-0 items-center gap-1.5 active:bg-ink/[0.07]";
+  const trainTitle = train ? `Train from ${train.a.name} to ${train.b.name}, door to door` : "Transit directions";
   return (
-    <li>
-      <a
-        href={gmapsRoute(`${from.lat},${from.lng}`, `${to.lat},${to.lng}`, long ? "transit" : "walking")}
-        target="_blank"
-        rel="noopener"
-        title={title}
-        aria-label={title}
-        className={`flex items-center gap-1.5 pb-2 pr-3.5 text-[0.75rem] leading-snug text-ink-faint active:bg-ink/[0.07] ${indent ? "pl-9" : "pl-3.5"}`}
-      >
-        <Icon name={long ? "train" : "walk"} size={12} className="shrink-0 text-accent" />
-        <span className="min-w-0 tabular-nums">{label}</span>
-      </a>
+    <li className={`flex flex-wrap gap-x-4 gap-y-1 pb-2 pr-3.5 text-[0.75rem] leading-snug text-ink-faint ${pad}`}>
+      {!long && walk && (
+        <a
+          href={gmapsRoute(`${from.lat},${from.lng}`, `${to.lat},${to.lng}`, "walking")}
+          target="_blank"
+          rel="noopener"
+          title={`Walk ${fmtWalk(walk)}`}
+          aria-label={`Walk ${fmtWalk(walk)}`}
+          className={link}
+        >
+          <Icon name="walk" size={12} className="shrink-0 text-accent" />
+          <span className="min-w-0 tabular-nums">{fmtMinutes(walk.min)} walk</span>
+        </a>
+      )}
+      {(long || train) && (
+        <a
+          href={gmapsRoute(`${from.lat},${from.lng}`, `${to.lat},${to.lng}`, "transit")}
+          target="_blank"
+          rel="noopener"
+          title={trainTitle}
+          aria-label={trainTitle}
+          className={link}
+        >
+          <Icon name="train" size={12} className="shrink-0 text-accent" />
+          <span className="min-w-0 tabular-nums">
+            {train ? `${train.a.name} → ${train.b.name}${train.total ? ` · ${fmtMinutes(train.total)}` : ""}` : "By train"}
+          </span>
+        </a>
+      )}
     </li>
   );
 }

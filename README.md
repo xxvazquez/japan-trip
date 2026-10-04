@@ -160,8 +160,9 @@ These appear automatically when a step is linked to a place.
 
 **Getting to the next step.** Between two steps tied to places sits one slim line — travel between things you do, the way Calendar shows travel time — and tapping it opens Google Maps directions:
 
-- Close by: the walk, e.g. *🚶 9 min walk*.
-- Past a 30-minute walk: the train between the nearest station at each end, with a rough door-to-door time, e.g. *🚆 Ueno → Uguisudani · 24 min* — never the long walk. *By train* when no stations are found.
+- Up to a 15-minute walk: the walk, e.g. *🚶 9 min walk*.
+- 15–30 minutes: the walk and the train side by side, e.g. *🚶 26 min walk  🚆 Ueno → Uguisudani · 24 min*. Each opens its own directions.
+- Past a 30-minute walk: only the train, with a rough door-to-door time — never the long walk. *By train* when no stations are found.
 - Left out when a journey's own row already sits between the two.
 
 A straight-line estimate shows first and is replaced by a real walking route when one comes back (needs `VITE_ORS_API_KEY`). The train time is a guess, since there's no free transit-routing API.
@@ -189,7 +190,7 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 - It can be out of date. Check hours and closed days with the restaurant before a long trip across town.
 - **Manage → Content → Good to know** checks every restaurant at once. Uses the same `TAVILY_API_KEY`, one search per place.
 
-**Back to hotel.** The last row of the day is the way home to that night's hotel (left off on a departure day). Close by it shows the walk; past a 30-minute walk it shows the train instead — *"Ueno → Asakusa · 25 min"*, door to door — and never the long walk. Tapping it opens Google Maps directions.
+**Back to hotel.** The last row of the day is the way home to that night's hotel (left off on a departure day). Close by it shows the walk; past a 15-minute walk the train joins it — *"Ueno → Asakusa · 25 min"*, door to door — and past 30 minutes only the train shows, never the long walk. Tapping it opens Google Maps directions.
 
 Stations and hours come from OpenStreetMap (Overpass, with Nominatim as a fallback). Results are remembered on the device.
 
