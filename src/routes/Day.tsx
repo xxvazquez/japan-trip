@@ -46,7 +46,7 @@ import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { menuHref, reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
-import { hasFacts, placeArea, useAutoPlaceFacts, useFactsFailure, wantsFacts } from "@/lib/placeFacts";
+import { factValue, hasFacts, placeArea, useAutoPlaceFacts, useFactsFailure, wantsFacts } from "@/lib/placeFacts";
 import { FactsRefresh, PlaceFactRows } from "@/components/PlaceFacts";
 import { addDays, dayJourneys, dayKind, fmtDate, journeyDepartDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
@@ -1245,7 +1245,8 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                       )}
                     </div>
                   )}
-                  {(hasFacts(place.facts) || menuHref(place) || factsFailure) && wantsFacts(place, tripData) && (
+                  {/* shown with nothing found too, so it can be filled in by hand */}
+                  {(hasFacts(place.facts) || menuHref(place) || factsFailure || !readOnly) && wantsFacts(place, tripData) && (
                     <div>
                       <div className="flex items-center gap-2 px-4 pb-1.5 pt-1">
                         <p className="kicker min-w-0 flex-1">Good to know</p>
@@ -1519,7 +1520,7 @@ function usePlaceHours(place: Place | undefined, date?: string): string | null {
     void nearestOpeningHours(place.lat, place.lng, place.name).then((h) => { if (!cancelled) setHours(h); });
     return () => { cancelled = true; };
   }, [place?.id, place?.lat, place?.lng]);
-  const fromFacts = place?.facts && date ? factsHoursForDate(place.facts.hours, place.facts.closed, date) : undefined;
+  const fromFacts = place?.facts && date ? factsHoursForDate(factValue(place.facts, "hours"), factValue(place.facts, "closed"), date) : undefined;
   if (fromFacts) return fromFacts;
   return hours ? (date ? hoursForDate(hours.hours, date) ?? "Closed" : hours.hours) : null;
 }

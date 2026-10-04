@@ -19,6 +19,12 @@ export const FACT_ROWS = [
   ["price", "Price"],
 ] as const satisfies readonly (readonly [keyof PlaceFacts, string])[];
 
+export type FactKey = (typeof FACT_ROWS)[number][0];
+
+/** a fact as shown: one typed in by hand wins over the lookup's */
+export const factValue = (f: PlaceFacts | undefined, k: FactKey): string | undefined =>
+  (f?.edited && k in f.edited ? f.edited[k] : f?.[k]) || undefined;
+
 /** a sight's labels for the slots that mean something else there */
 const SIGHT_LABELS: Partial<Record<keyof PlaceFacts, string>> = { reservations: "Tickets", queue: "Crowds", price: "Entry" };
 
@@ -27,7 +33,7 @@ export const factRows = (f: PlaceFacts) =>
   FACT_ROWS.map(([k, label]) => [k, (f.kind === "sight" && SIGHT_LABELS[k]) || label] as const);
 
 /** what a place is looked up as: somewhere to eat, else a sight */
-const kindOf = (p: Place, categoryIcons?: Record<string, string>): "food" | "sight" =>
+export const kindOf = (p: Place, categoryIcons?: Record<string, string>): "food" | "sight" =>
   isFoodPlace(p, categoryIcons) ? "food" : "sight";
 
 /** lower case without accents or spacing — "Hamamatsuchō" and "hamamatsucho" match */
@@ -59,7 +65,7 @@ const STALE_DAYS = 30;
  *  are asked again — 4 added the place's website */
 const FACTS_VERSION = 4;
 
-export const hasFacts = (f: PlaceFacts | undefined): f is PlaceFacts => !!f && (!!f.website || !!f.menu || FACT_ROWS.some(([k]) => f[k]));
+export const hasFacts = (f: PlaceFacts | undefined): f is PlaceFacts => !!f && (!!f.website || !!f.menu || FACT_ROWS.some(([k]) => factValue(f, k)));
 const stale = (f: PlaceFacts) =>
   (f.version ?? 1) < FACTS_VERSION || Date.now() - Date.parse(f.checkedAt) > STALE_DAYS * 864e5;
 
@@ -200,9 +206,29 @@ export async function refreshFacts(p: Place, area: string | undefined): Promise<
   // what it had is only worth keeping if it was asked the same way
   const kept = now.facts?.name === p.name && (now.facts.kind ?? "food") === kind ? now.facts : undefined;
   updateEntity<Place>("places", p.id, {
-    facts: { ...(found ?? { ...kept, checkedAt: todayISO() }), name: p.name, kind: kind === "sight" ? kind : undefined, version: FACTS_VERSION },
+    facts: {
+      ...(found ?? { ...kept, checkedAt: todayISO() }),
+      name: p.name,
+      kind: kind === "sight" ? kind : undefined,
+      version: FACTS_VERSION,
+      // what was typed in by hand outlives every lookup, a rename included
+      edited: now.facts?.edited,
+    },
   });
   return null;
+}
+
+/** sets one fact by hand. Typing back exactly what the lookup found drops
+ *  the override; clearing one the lookup found keeps it cleared. */
+export function editFact(place: Place, k: FactKey, value: string) {
+  const v = value.trim();
+  const f = place.facts;
+  const edited = { ...f?.edited };
+  if (v === (f?.[k] ?? "")) delete edited[k];
+  else edited[k] = v;
+  useApp.getState().updateEntity<Place>("places", place.id, {
+    facts: { ...(f ?? { checkedAt: "" }), edited: Object.keys(edited).length ? edited : undefined },
+  });
 }
 
 /** whether a place's facts are due a lookup: one that gets them (see

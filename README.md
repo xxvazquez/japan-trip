@@ -213,6 +213,8 @@ How it fills in:
 - **By itself** — the first time a place shows, again once it's a month old, and after a rename or a category change. Nothing to run.
 - The ↻ icon beside **Good to know** checks again now. **Manage → Content → Good to know** does every place at once (one search each).
 - **When it can't check, it says why** — offline, the server refused it (signed out, or the Worker's sign-in variables are missing), lookups not set up (no search key), or the search service failing. The card and Manage's **Last check** both show it.
+- **By hand** — tap any fact to correct it; **Add details** opens the empty ones to fill in. Works when the search found nothing or the wrong place. Clear a wrong one to hide it.
+- What you type always wins: a later lookup (automatic, ↻ or Manage) never overwrites it. Typing back what the lookup found drops your version.
 - Saved with the place, so it works offline.
 - Not for your own hotel, or places filed as lodging or transport (a hot spring still counts).
 

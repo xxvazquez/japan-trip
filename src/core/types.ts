@@ -331,8 +331,11 @@ export interface PlaceFacts {
   /** set when it was looked up as a sight (a shrine, a museum…); unset is
    *  somewhere to eat */
   kind?: "sight";
-  /** ISO date of the lookup */
+  /** ISO date of the lookup — "" when it's only been filled in by hand */
   checkedAt: ISODate;
+  /** typed in by hand — wins over the lookup's value and is never touched
+   *  by one ("" = cleared by hand, so a wrong lookup stays hidden) */
+  edited?: Partial<Record<"knownFor" | "hours" | "closed" | "reservations" | "queue" | "price", string>>;
   /** the place's name when it was looked up — a rename looks it up again */
   name?: string;
   /** the sites it was drawn from */

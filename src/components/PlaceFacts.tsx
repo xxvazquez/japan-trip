@@ -6,7 +6,9 @@ import { Icon, type IconName } from "./Icon";
 import type { Tone } from "@/lib/tones";
 import { useReadOnly } from "@/lib/readonly";
 import { fmtDate } from "@/lib/dates";
-import { FAILURE_TEXT, factRows, refreshFacts, useFactsFailure, wantsFacts } from "@/lib/placeFacts";
+import { FAILURE_TEXT, editFact, factRows, factValue, kindOf, refreshFacts, useFactsFailure, wantsFacts, type FactKey } from "@/lib/placeFacts";
+import { Editable } from "./Editable";
+import { ActionRow } from "./ActionRow";
 import { useData } from "@/lib/data";
 import { menuHref } from "@/lib/reviewSite";
 
@@ -18,7 +20,11 @@ import { menuHref } from "@/lib/reviewSite";
  *  caller owns the `<ul>`. */
 export function PlaceFactRows({ place }: { place: Place }) {
   const data = useData();
+  const readOnly = useReadOnly();
   const failure = useFactsFailure(place.id);
+  // "Add details" lays the empty slots out as blank rows to fill in, the way
+  // Contacts shows its empty fields while editing
+  const [adding, setAdding] = useState(false);
   const f = place.facts;
   const menu = menuHref(place);
   // facts saved before a place stopped getting them (it turned out to be the
@@ -29,29 +35,36 @@ export function PlaceFactRows({ place }: { place: Place }) {
       <span className="meta break-words">Couldn’t check. {FAILURE_TEXT[failure]}.</span>
     </li>
   );
-  // the menu link can be there before the lookup has run (from the Tabelog
-  // page); a lookup that couldn't be asked says why rather than staying blank
-  if (!f) return menu || failed ? <>{menu && <LinkRow href={menu} label="Menu" glyph="restaurant" />}{failed}</> : null;
-
+  // labelled for what the place is, even before its first lookup
+  const rows = factRows(f ?? { checkedAt: "", kind: kindOf(place, data?.config.categoryIcons) === "sight" ? "sight" : undefined });
+  const filled = rows.filter(([k]) => factValue(f, k)).map(([k, label]) => ({ k, label, value: factValue(f, k)! }));
+  const missing = rows.filter(([k]) => !factValue(f, k));
+  const edit = readOnly ? undefined : (k: FactKey) => (v: string) => editFact(place, k, v);
 
   return (
     <>
-      {factGroups(factRows(f).filter(([k]) => f[k]).map(([k, label]) => ({ k, label, value: f[k] as string }))).map((g) =>
+      {factGroups(filled).map((g) =>
         g.length === 2 ? (
           // two short facts side by side, split by a hairline — the way a
           // Maps place card sets Hours beside what it accepts
           <li key={g[0].k} className={`${FACT_DIVIDER} grid grid-cols-2`}>
-            {g.map((c, i) => <FactCell key={c.k} k={c.k} label={c.label} value={c.value} kind={f.kind} className={i ? "border-l border-line" : ""} />)}
+            {g.map((c, i) => <FactCell key={c.k} k={c.k} label={c.label} value={c.value} kind={f?.kind} onEdit={edit?.(c.k)} className={i ? "border-l border-line" : ""} />)}
           </li>
         ) : (
           <li key={g[0].k} className={FACT_DIVIDER}>
-            <FactCell k={g[0].k} label={g[0].label} value={g[0].value} kind={f.kind} />
+            <FactCell k={g[0].k} label={g[0].label} value={g[0].value} kind={f?.kind} onEdit={edit?.(g[0].k)} />
           </li>
         ),
       )}
-      {f.website && <LinkRow href={f.website} label="Website" icon="link" />}
+      {edit && adding && missing.map(([k, label], i) => (
+        <li key={k} className={FACT_DIVIDER}>
+          <FactCell k={k} label={label} value="" kind={f?.kind} onEdit={edit(k)} autoEdit={i === 0} />
+        </li>
+      ))}
+      {f?.website && <LinkRow href={f.website} label="Website" icon="link" />}
       {menu && <LinkRow href={menu} label="Menu" glyph="restaurant" />}
       {failed}
+      {edit && !adding && missing.length > 0 && <ActionRow icon="plus" label="Add details" onClick={() => setAdding(true)} />}
     </>
   );
 }
@@ -66,8 +79,9 @@ export function FactsRefresh({ place, area }: { place: Place; area?: string }) {
   const f = place.facts;
   // a lookup that couldn't be asked can be tried again from here too
   if (readOnly || (!f && !failure)) return null;
-  const checked = f && fmtDate(f.checkedAt, undefined, { day: "numeric", month: "short", year: "numeric" });
-  const about = f ? `Checked ${checked}${f.sources?.length ? ` · ${f.sources.join(", ")}` : ""}` : "Try again";
+  // filled in by hand before any lookup: nothing checked yet
+  const checked = f?.checkedAt && fmtDate(f.checkedAt, undefined, { day: "numeric", month: "short", year: "numeric" });
+  const about = checked ? `Checked ${checked}${f?.sources?.length ? ` · ${f.sources.join(", ")}` : ""}` : "Look it up";
   const refresh = async (e: React.MouseEvent) => {
     e.stopPropagation();
     setBusy(true);
@@ -147,7 +161,16 @@ const FACT_TILE: Record<string, { icon: IconName; tone?: Tone; danger?: boolean 
 
 /** one fact: its tile, the label small above, the value at reading size.
  *  A Closed day that's an actual closure ("Friday", not "None") reads red. */
-function FactCell({ k, label, value, kind, className = "" }: { k: string; label: string; value: string; kind?: string; className?: string }) {
+function FactCell({ k, label, value, kind, onEdit, autoEdit, className = "" }: {
+  k: string;
+  label: string;
+  value: string;
+  kind?: string;
+  /** set when the fact can be typed in by hand — tap the value to edit it */
+  onEdit?: (v: string) => void;
+  autoEdit?: boolean;
+  className?: string;
+}) {
   const t = FACT_TILE[k] ?? { icon: "info" as IconName, tone: "ink-faint" as Tone };
   // a sight's reservations slot is Tickets
   const icon: IconName = k === "reservations" && kind === "sight" ? "ticket" : t.icon;
@@ -155,9 +178,20 @@ function FactCell({ k, label, value, kind, className = "" }: { k: string; label:
   return (
     <div className={`flex min-w-0 items-start gap-3 px-3.5 py-3 ${className}`}>
       <IconTile size="sm" name={icon} tone={t.tone} color={t.danger ? "rgb(var(--c-danger))" : undefined} className="mt-0.5 shrink-0" />
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <span className="block text-xs text-ink-soft">{label}</span>
-        <span className={`row-value block break-words text-left ${shut ? "text-danger" : "text-ink"}`}>{value}</span>
+        {onEdit ? (
+          <Editable
+            label={label}
+            value={value}
+            placeholder="Add"
+            autoEdit={autoEdit}
+            onCommit={onEdit}
+            className={`row-value block break-words text-left ${shut ? "text-danger" : "text-ink"}`}
+          />
+        ) : (
+          <span className={`row-value block break-words text-left ${shut ? "text-danger" : "text-ink"}`}>{value}</span>
+        )}
       </div>
     </div>
   );

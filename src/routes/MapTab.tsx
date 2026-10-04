@@ -1945,7 +1945,8 @@ function PlaceRow({
           </div>
         )}
 
-        {(hasFacts(place.facts) || menuHref(place) || factsFailure) && wantsFacts(place, tripData) && (
+        {/* shown with nothing found too, so it can be filled in by hand */}
+        {(hasFacts(place.facts) || menuHref(place) || factsFailure || !readOnly) && wantsFacts(place, tripData) && (
           <div>
             {/* folded by default here: on the Map you're mostly filing
                 places, so the areas and category stay a short reach away */}

@@ -1,5 +1,6 @@
 import { afterEach, describe, it, expect, vi } from "vitest";
-import { placeArea, refreshFacts } from "./placeFacts";
+import { editFact, factValue, placeArea, refreshFacts } from "./placeFacts";
+import { useApp } from "@/store/useApp";
 import { buildBlank } from "@/templates/blank";
 import type { Place, TripData } from "@/core/types";
 
@@ -70,5 +71,44 @@ describe("refreshFacts", () => {
   it("resolves null once it could ask", async () => {
     answer(200, { facts: null });
     expect(await refreshFacts(place("e", 35, 135), undefined)).toBeNull();
+  });
+});
+
+describe("facts typed in by hand", () => {
+  afterEach(() => vi.unstubAllGlobals());
+  /** a trip holding one place, with saves caught instead of persisted */
+  function withPlace(p: Place) {
+    const data = { ...trip(), places: [p] } as TripData;
+    const updateEntity = vi.fn((_t: string, _id: string, patch: Partial<Place>) => Object.assign(p, patch));
+    useApp.setState({ data, updateEntity: updateEntity as never });
+    return updateEntity;
+  }
+
+  it("win over the lookup, and clearing one keeps it hidden", () => {
+    const p = { ...place("ramen", 35, 135), facts: { checkedAt: "2026-10-01", hours: "Wrong place's hours", price: "¥1,000" } } as Place;
+    withPlace(p);
+    editFact(p, "hours", "11:00–15:00");
+    editFact(p, "price", "");
+    expect(factValue(p.facts, "hours")).toBe("11:00–15:00");
+    expect(factValue(p.facts, "price")).toBeUndefined();
+    editFact(p, "hours", "Wrong place's hours"); // typed back what the lookup said
+    expect(p.facts!.edited).toEqual({ price: "" });
+  });
+
+  it("can be filled in before anything was found", () => {
+    const p = place("nothing-found", 35, 135);
+    withPlace(p);
+    editFact(p, "closed", "Mondays");
+    expect(factValue(p.facts, "closed")).toBe("Mondays");
+  });
+
+  it("are never overwritten by the next lookup", async () => {
+    const p = { ...place("kept", 35, 135), facts: { checkedAt: "2026-01-01", hours: "old", edited: { hours: "10:00–18:00" } } } as Place;
+    withPlace(p);
+    vi.stubGlobal("navigator", { onLine: true });
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ facts: { checkedAt: "2026-10-04", hours: "9:00–17:00" } }), { headers: { "Content-Type": "application/json" } })));
+    expect(await refreshFacts(p, undefined)).toBeNull();
+    expect(p.facts!.hours).toBe("9:00–17:00");
+    expect(factValue(p.facts, "hours")).toBe("10:00–18:00");
   });
 });
