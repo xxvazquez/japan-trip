@@ -20,7 +20,8 @@ const ZOOMS = [11, 12, 13, 14, 15];
 // the zoomed-out view across the whole trip (country, then region), so
 // pinching out offline never drops to a blank screen
 const OVERVIEW_ZOOMS = [5, 6, 7, 8, 9, 10];
-const MAX_OVERVIEW_TILES = 400;
+// ~100 KB a tile out here, so kept to roughly 15 MB
+const MAX_OVERVIEW_TILES = 150;
 // ~700m so the cached area doesn't crop right at a place's pin
 const PAD_METERS = 700;
 // a sane ceiling so one big, spread-out day can't queue thousands of requests
@@ -83,71 +84,168 @@ function tilesForGroup(points: LatLng[]): { tiles: Tile[]; truncated: boolean } 
   return all.length > MAX_TILES ? { tiles: all.slice(0, MAX_TILES), truncated: true } : { tiles: all, truncated: false };
 }
 
-// the whole-trip download stays well under the service worker's
-// `map-tiles` maxEntries (6000, vite.config.ts), so it can't evict what it
-// just saved — or everything you'd browsed before it
+// a ceiling on one whole-trip download, so a trip spread across a
+// continent can't quietly turn into gigabytes
 const MAX_TRIP_TILES = 4000;
 
-/**
- * Fetches every basemap tile covering each group of points (padded ~700m)
- * across the zoom range the map renders at, so those areas work offline
- * before you've actually panned around them. Each group gets its own box —
- * one box around a whole multi-city trip would be mostly countryside — and
- * tiles shared between groups are fetched once. The service worker's
- * `map-tiles` CacheFirst rule (vite.config.ts) does the real caching — this
- * just visits every tile once; a tile already cached resolves instantly, so
- * running it again is cheap.
- */
-export async function prefetchTileGroups(
-  groups: LatLng[][],
-  onProgress?: (done: number, total: number) => void,
-): Promise<{ ok: number; failed: number; truncated: boolean }> {
+/** Saved maps live in their own cache per trip, apart from the `map-tiles`
+ *  cache that holds whatever you browse. Browsing can push old tiles out of
+ *  `map-tiles` (it's capped), never out of this one. The service worker
+ *  looks here before the network (vite.config.ts). */
+export const TRIP_MAPS_PREFIX = "trip-maps:";
+export const tripMapsCache = (tripId: string) => TRIP_MAPS_PREFIX + tripId;
+/** Added to a download's request so the service worker lets it straight
+ *  through instead of also keeping a copy in `map-tiles`; stored without it,
+ *  under the URL the map itself asks for. */
+const SAVE_PARAM = "save";
+
+/** Average transfer size of one tile per zoom, measured on Japanese cities
+ *  (2026-10-04, compressed) — enough for an honest "about N MB". */
+const TILE_KB: Record<number, number> = { 5: 25, 6: 45, 7: 135, 8: 110, 9: 160, 10: 95, 11: 70, 12: 105, 13: 85, 14: 65, 15: 95 };
+const ASSET_KB = 40;
+
+const tileUrl = (t: Tile) =>
+  HOSTED_TILES!.replace("{z}", String(t.z)).replace("{x}", String(t.x)).replace("{y}", String(t.y));
+
+interface Plan {
+  /** label fonts and icons first, then tiles; each with its estimated size */
+  items: { url: string; kb: number }[];
+  truncated: boolean;
+}
+
+/** Everything a download of these groups would save. */
+function planFor(groups: LatLng[][]): Plan {
   const seen = new Set<string>();
   const tiles: Tile[] = [];
   let truncated = false;
+  const add = (t: Tile) => {
+    const k = `${t.z}/${t.x}/${t.y}`;
+    if (!seen.has(k)) { seen.add(k); tiles.push(t); }
+  };
   for (const g of groups) {
     if (g.length === 0) continue;
     const r = tilesForGroup(g);
     truncated ||= r.truncated;
-    for (const t of r.tiles) {
-      const k = `${t.z}/${t.x}/${t.y}`;
-      if (!seen.has(k)) { seen.add(k); tiles.push(t); }
-    }
+    r.tiles.forEach(add);
   }
   if (tiles.length > MAX_TRIP_TILES) { tiles.length = MAX_TRIP_TILES; truncated = true; }
-  if (!HOSTED_TILES || tiles.length === 0) return { ok: 0, failed: 0, truncated };
-  for (const t of overviewTiles(groups.flat())) {
-    const k = `${t.z}/${t.x}/${t.y}`;
-    if (!seen.has(k)) { seen.add(k); tiles.push(t); }
-  }
-  const urls = [
-    // label fonts and icons first: small, and without them a saved map has no names
-    ...MAP_ASSET_URLS,
-    ...tiles.map((t) => HOSTED_TILES!.replace("{z}", String(t.z)).replace("{x}", String(t.x)).replace("{y}", String(t.y))),
-  ];
+  if (!HOSTED_TILES || tiles.length === 0) return { items: [], truncated };
+  overviewTiles(groups.flat()).forEach(add);
+  return {
+    items: [
+      ...MAP_ASSET_URLS.map((url) => ({ url, kb: ASSET_KB })),
+      ...tiles.map((t) => ({ url: tileUrl(t), kb: TILE_KB[t.z] ?? 90 })),
+    ],
+    truncated,
+  };
+}
 
-  let ok = 0;
+async function savedUrls(tripId: string): Promise<Set<string>> {
+  if (typeof caches === "undefined") return new Set();
+  const cache = await caches.open(tripMapsCache(tripId));
+  return new Set((await cache.keys()).map((r) => r.url));
+}
+
+export interface MapSaveStatus {
+  /** nothing saved for this trip on this device yet */
+  none: boolean;
+  /** places (and stays) whose street-level map isn't saved */
+  placesMissing: number;
+  /** anything at all left to save, and roughly how much it'd download */
+  missing: number;
+  missingMB: number;
+}
+
+/** What's saved of this trip's map on this device, and what a save would
+ *  still download. Reads the cache only — no network. */
+export async function mapSaveStatus(tripId: string, groups: LatLng[][], points: LatLng[]): Promise<MapSaveStatus> {
+  const plan = planFor(groups);
+  const saved = await savedUrls(tripId);
+  const todo = plan.items.filter((i) => !saved.has(i.url));
+  const planned = new Set(plan.items.map((i) => i.url));
+  const placesMissing = points.filter((p) => {
+    const u = tileUrl({ z: 15, ...tileIndex(p.lng, p.lat, 15) });
+    return planned.has(u) && !saved.has(u);
+  }).length;
+  return {
+    none: !plan.items.some((i) => saved.has(i.url)),
+    placesMissing,
+    missing: todo.length,
+    missingMB: Math.max(1, Math.round(todo.reduce((n, i) => n + i.kb, 0) / 1024)),
+  };
+}
+
+/**
+ * Saves every basemap tile covering each group of points (padded ~700m)
+ * across the zoom range the map renders at, the trip's zoomed-out view, and
+ * the labels' fonts and icons — so those areas work offline before you've
+ * ever panned around them. Each group gets its own box (one box around a
+ * whole multi-city trip would be mostly countryside) and shared tiles are
+ * fetched once. Only what isn't saved yet is downloaded; a tile already in
+ * `map-tiles` from browsing is moved over without touching the network.
+ * `prune` (the whole-trip save) drops saved tiles the trip no longer covers.
+ */
+export async function prefetchTileGroups(
+  tripId: string,
+  groups: LatLng[][],
+  onProgress?: (done: number, total: number) => void,
+  { prune = false }: { prune?: boolean } = {},
+): Promise<{ ok: number; failed: number; truncated: boolean }> {
+  const { items, truncated } = planFor(groups);
+  if (items.length === 0 || typeof caches === "undefined") return { ok: 0, failed: 0, truncated };
+  const cache = await caches.open(tripMapsCache(tripId));
+  const saved = new Set((await cache.keys()).map((r) => r.url));
+  if (prune) {
+    const want = new Set(items.map((i) => i.url));
+    for (const u of saved) if (!want.has(u)) await cache.delete(u);
+  }
+  const todo = items.map((i) => i.url).filter((u) => !saved.has(u));
+  const browsed = await caches.open("map-tiles");
+
+  let ok = items.length - todo.length;
   let failed = 0;
   let next = 0;
-  onProgress?.(0, urls.length);
+  const total = items.length;
+  onProgress?.(ok, total);
   async function worker() {
-    while (next < urls.length) {
-      const url = urls[next++];
+    while (next < todo.length) {
+      const url = todo[next++];
       try {
-        const res = await fetch(url);
-        if (res.ok) ok++; else failed++;
+        const have = await browsed.match(url);
+        if (have) {
+          await cache.put(url, have);
+          await browsed.delete(url);
+          ok++;
+        } else {
+          const u = new URL(url);
+          u.searchParams.set(SAVE_PARAM, "1");
+          const res = await fetch(u.href);
+          if (res.ok) { await cache.put(url, res); ok++; } else failed++;
+        }
       } catch {
         failed++;
       }
-      onProgress?.(ok + failed, urls.length);
+      onProgress?.(ok + failed, total);
     }
   }
-  await Promise.all(Array.from({ length: Math.min(CONCURRENCY, urls.length) }, worker));
+  await Promise.all(Array.from({ length: Math.min(CONCURRENCY, todo.length) }, worker));
   return { ok, failed, truncated };
 }
 
+/** Drop the saved maps of trips that are gone from this account. */
+export async function pruneTripMaps(keepTripIds: string[]): Promise<void> {
+  if (typeof caches === "undefined") return;
+  const keep = new Set(keepTripIds.map(tripMapsCache));
+  for (const name of await caches.keys()) if (name.startsWith(TRIP_MAPS_PREFIX) && !keep.has(name)) await caches.delete(name);
+}
+
 /** One group of points, as a day page's own download. */
-export const prefetchTiles = (points: LatLng[]) => prefetchTileGroups([points]);
+export const prefetchTiles = (tripId: string, points: LatLng[]) => prefetchTileGroups(tripId, [points]);
+
+/** Every pinned point of the trip — places and stays — for the status row. */
+export function tripMapPoints(data: TripData): LatLng[] {
+  return [...data.places, ...data.hotels].flatMap((p) => ll(p));
+}
 
 const ll = (p: { lat?: number; lng?: number } | undefined): LatLng[] =>
   p?.lat !== undefined && p?.lng !== undefined ? [{ lat: p.lat, lng: p.lng }] : [];

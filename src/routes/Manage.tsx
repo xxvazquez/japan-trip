@@ -44,7 +44,7 @@ import { fallbackCategoryId } from "@/lib/hydrate";
 import { BackupError, downloadBackup, parseBackup } from "@/lib/tripBackup";
 import { DataSafety } from "@/components/DataSafety";
 import { useInstallState, useOfflineState } from "@/lib/pwa";
-import { canPrefetchTiles, prefetchTileGroups, tripOfflineGroups } from "@/lib/offlineTiles";
+import { canPrefetchTiles, mapSaveStatus, prefetchTileGroups, pruneTripMaps, tripMapPoints, tripOfflineGroups, type MapSaveStatus } from "@/lib/offlineTiles";
 import { expenseCategoryIcon, categoryGlyphTile } from "@/lib/cost";
 import type { TransportMode } from "@/core/types";
 import { Switch } from "@/components/Switch";
@@ -319,23 +319,49 @@ function ThisDevice() {
   const offline = useOfflineState();
   const install = useInstallState();
   const [installing, setInstalling] = useState(false);
-  // saving the whole trip's map: progress while it runs, a summary after
+  // saving the whole trip's map: progress while it runs, a summary after,
+  // and what's saved on this device (read from the cache, no network)
+  const activeId = useApp((s) => s.activeId);
+  const tripIds = useApp((s) => s.trips).map((t) => t.id);
   const [mapProgress, setMapProgress] = useState<{ done: number; total: number } | null>(null);
   const [mapMsg, setMapMsg] = useState("");
+  const [mapStatus, setMapStatus] = useState<MapSaveStatus | null>(null);
+  const [mapCheck, setMapCheck] = useState(0);
   const mapGroups = data && canPrefetchTiles ? tripOfflineGroups(data) : [];
+  const mapSig = JSON.stringify(mapGroups);
+  useEffect(() => {
+    if (!activeId || !data || mapSig === "[]") return;
+    let live = true;
+    // every edit changes the trip; wait for a pause before re-reading the cache
+    const t = setTimeout(() => {
+      void mapSaveStatus(activeId, mapGroups, tripMapPoints(data)).then((st) => live && setMapStatus(st), () => {});
+    }, 400);
+    return () => { live = false; clearTimeout(t); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeId, mapSig, mapCheck]);
   const saveMaps = async () => {
+    if (!activeId) return;
     setMapMsg("");
     setMapProgress({ done: 0, total: 0 });
     try {
-      const { ok, failed, truncated } = await prefetchTileGroups(mapGroups, (done, total) => setMapProgress({ done, total }));
+      const { ok, failed, truncated } = await prefetchTileGroups(activeId, mapGroups, (done, total) => setMapProgress({ done, total }), { prune: true });
+      void pruneTripMaps(tripIds);
       setMapMsg(
         failed && !ok ? "Couldn’t reach the map server — try again once you have a connection."
-          : `Saved ${ok} map tiles for offline use${failed ? `; ${failed} didn’t load, run it again to retry them` : ""}.${truncated ? " The trip covers a lot of ground, so some outer edges were left out." : ""}`,
+          : failed ? `${failed} map ${failed === 1 ? "piece" : "pieces"} didn’t load — tap again to retry.`
+          : truncated ? "The trip covers a lot of ground, so some outer edges were left out."
+          : "",
       );
     } finally {
       setMapProgress(null);
+      setMapCheck((n) => n + 1);
     }
   };
+  const mapLabel = !mapStatus || mapStatus.none
+    ? "Save trip maps for offline"
+    : mapStatus.placesMissing
+      ? `Save ${plural(mapStatus.placesMissing, "new place")} for offline`
+      : "Finish saving trip maps";
   // attachments kept here so they open with no signal (the trip's own files
   // only — device-only files are here already)
   const remote = data ? remoteFiles(data.docs) : [];
@@ -367,7 +393,7 @@ function ThisDevice() {
     <Section
       title="This device"
       className="mt-8"
-      info="Ready means the app itself is saved on this device and opens with no signal. A trip kept on this device works fully offline; if you sign in to sync, open your trip once while you're online before you travel. Map areas you've already looked at are saved too — Save trip maps saves the area around every day, stay and place in this trip in one go, so do it on wifi before you leave. Attachments are kept on the device as you open them; Save attachments gets them all at once. Installing puts the app on your home screen and opens it full-screen like any other."
+      info="Ready means the app itself is saved on this device and opens with no signal. A trip kept on this device works fully offline; if you sign in to sync, open your trip once while you're online before you travel. Map areas you've already looked at are saved too — Save trip maps saves the area around every day, stay and place in this trip in one go, so do it on wifi before you leave. Saved maps are never cleared to make room, and once they're saved the row says so; add places later and it shows how many aren't saved yet, and roughly how much saving them would download. Attachments are kept on the device as you open them; Save attachments gets them all at once. Installing puts the app on your home screen and opens it full-screen like any other."
     >
       <ul>
         <Row label="Works offline">
@@ -379,14 +405,20 @@ function ThisDevice() {
             "Not available here"
           )}
         </Row>
-        {mapGroups.length > 0 && (
+        {mapGroups.length > 0 && (mapProgress || !mapStatus || mapStatus.missing ? (
           <ActionRow
             icon="download"
-            label={mapProgress ? `Saving maps… ${mapProgress.total ? `${Math.round((mapProgress.done / mapProgress.total) * 100)}%` : ""}` : "Save trip maps for offline"}
+            label={mapProgress
+              ? `Saving maps… ${mapProgress.total ? `${Math.round((mapProgress.done / mapProgress.total) * 100)}%` : ""}`
+              : `${mapLabel}${mapStatus ? ` · about ${mapStatus.missingMB} MB` : ""}`}
             disabled={!!mapProgress}
             onClick={() => void saveMaps()}
           />
-        )}
+        ) : (
+          <Row label="Trip maps">
+            <span className="inline-flex items-center gap-1 text-matcha"><Icon name="check" size={13} /> Saved</span>
+          </Row>
+        ))}
         {remote.length > 0 && onDevice && (missing.length || fileProgress ? (
           <ActionRow
             icon="cloud-down"

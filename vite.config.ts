@@ -168,13 +168,29 @@ export default defineConfig(({ command, mode }) => ({
             // Protomaps hosted basemap tiles (plain 200s — cache cleanly).
             // An area you've opened once then paints instantly and works offline;
             // only brand-new regions hit the network. No age limit: maps saved
-            // weeks before a trip must still be there on it.
-            urlPattern: ({ url }) => url.hostname === "api.protomaps.com",
+            // weeks before a trip must still be there on it. A tile saved with
+            // the trip (its own `trip-maps:<id>` cache, never trimmed — see
+            // src/lib/offlineTiles.ts) is answered from there; the save's own
+            // downloads (`?save=1`) skip this rule so they aren't kept twice.
+            urlPattern: ({ url }) => url.hostname === "api.protomaps.com" && !url.searchParams.has("save"),
             handler: "CacheFirst",
             options: {
               cacheName: "map-tiles",
               expiration: { maxEntries: 6000, purgeOnQuotaError: true },
               cacheableResponse: { statuses: [200] },
+              plugins: [
+                {
+                  cachedResponseWillBeUsed: async ({ request, cachedResponse }) => {
+                    if (cachedResponse) return cachedResponse;
+                    for (const name of await caches.keys()) {
+                      if (!name.startsWith("trip-maps:")) continue;
+                      const hit = await (await caches.open(name)).match(request);
+                      if (hit) return hit;
+                    }
+                    return null;
+                  },
+                },
+              ],
             },
           },
           {

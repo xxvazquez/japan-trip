@@ -46,10 +46,10 @@ import { useReadOnly } from "@/lib/readonly";
 import { reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
 import { placeArea, useAutoPlaceFacts, wantsFacts } from "@/lib/placeFacts";
 import { PlaceFactRows } from "@/components/PlaceFacts";
-import { dayJourneys, dayKind, fmtDate, journeyDepartDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
+import { addDays, dayJourneys, dayKind, fmtDate, journeyDepartDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink, gmapsRoute, mapUrlCoords, placeMapLink } from "@/lib/maps";
-import { fmtWalk, haversineKm } from "@/lib/geo";
+import { fmtDistanceKm, fmtWalk, haversineKm } from "@/lib/geo";
 import { clockOf, fmtDuration, fmtMinutes } from "@/lib/time";
 import { MODE_ICON, MODE_LABEL, MODE_TONE } from "@/lib/transport";
 import { useWalk, estimateTransit } from "@/lib/walkRoute";
@@ -106,6 +106,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const addEntity = useApp((s) => s.addEntity);
   const removeEntity = useApp((s) => s.removeEntity);
   const mutateTrip = useApp((s) => s.mutateTrip);
+  const activeId = useApp((s) => s.activeId);
   const nav = useNavigate();
   const [, setParams] = useSearchParams();
   const { active: splitActive } = useSplit();
@@ -220,6 +221,12 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   // its own. Silent when that hotel has no coordinates yet or the date is
   // too far out for the free forecast window.
   const weatherHotel = hotel ?? L.hotel(leg?.hotelId);
+  // where the day starts from: the night before's stay (on a moving day
+  // that's the old hotel, not the new one). None on the trip's first day or
+  // an arrival — that day starts off the journey
+  const prevDay = data.days.find((x) => x.date === addDays(day.date, -1));
+  const startHotel = !prevDay || dayKind(day, data) === "arrival" ? undefined
+    : L.hotel(prevDay.hotelId) ?? L.hotel(L.leg(prevDay.legId)?.hotelId);
   const [weather, setWeather] = useState<DayWeather | null>(null);
   useEffect(() => {
     setWeather(null);
@@ -236,7 +243,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const { busy: offlineBusy, msg: offlineMsg, run: runOffline } = useAsyncAction("Couldn't cache the map tiles.");
   const downloadOfflineMaps = () =>
     runOffline(async () => {
-      const { ok, truncated } = await prefetchTiles(offlinePoints);
+      const { ok, truncated } = activeId ? await prefetchTiles(activeId, offlinePoints) : { ok: 0, truncated: false };
       return truncated
         ? `Cached ${ok} tiles — this area is large, so the far edges were left out.`
         : `Cached ${ok} map tiles for offline use.`;
@@ -394,7 +401,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             </span>
           )}
         >
-          <PlanList day={day} journeys={journeys} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} onChange={setPlan} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
+          <PlanList day={day} journeys={journeys} startHotel={startHotel} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} onChange={setPlan} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
         </Section>
       )}
 
@@ -597,10 +604,12 @@ function DayJourneyRow({ day, journey, data, onRemove }: { day: DayT; journey: J
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, onChange, onQuickAddCost, onShowOnMap }: {
+function PlanList({ day, journeys, startHotel, returnHotel, tz, items, places, areaPlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, onChange, onQuickAddCost, onShowOnMap }: {
   day: DayT;
   /** the day's journeys — their leave / arrive times show as rows of their own */
   journeys: Journey[];
+  /** where the day starts — the night before's stay (see `StartFromHotel`) */
+  startHotel?: Hotel;
   /** where the day ends — the hotel you're staying at (see `ReturnToHotel`) */
   returnHotel?: Hotel;
   tz?: string;
@@ -679,6 +688,14 @@ function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, a
     return [<TravelConnector key={`travel-${items[i].id}`} from={from} to={to} />];
   };
 
+  // the way out from the night's hotel to the first step — unless a journey
+  // leaves before it, which is the way out already
+  const startFrom = startHotel && hotelCoords(startHotel);
+  const firstPlace = placeOf(items[0]);
+  const startConnector = startFrom && firstPlace && !stopsAt(0).length
+    ? [<TravelConnector key="travel-from-hotel" from={startFrom} to={firstPlace} />]
+    : [];
+
   // the plan in order, each entry with the time it starts at: a journey's
   // own rows, and each step with the way there just above it
   const entries: { time?: string; nodes: React.ReactNode[] }[] = [];
@@ -687,7 +704,7 @@ function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, a
     entries.push({
       time: splitRange(it.time)?.[0] ?? it.time,
       nodes: [
-        ...(i > 0 ? connectorAfter(i - 1) : []),
+        ...(i > 0 ? connectorAfter(i - 1) : startConnector),
         <PlanRow
           key={it.id}
           day={day}
@@ -730,7 +747,9 @@ function PlanList({ day, journeys, returnHotel, tz, items, places, areaPlaces, a
   const lastPlace = items[items.length - 1]?.placeId ? places.find((p) => p.id === items[items.length - 1].placeId) : undefined;
   const backRow = returnHotel ? <ReturnToHotel key="back-to-hotel" from={lastPlace} hotel={returnHotel} /> : null;
   // one timeline for the whole day — steps, journeys and the way home
-  const timeline = <ul className="timeline pb-1.5">{rows}{backRow}</ul>;
+  // and opens at the hotel you woke up at
+  const startRow = startHotel ? <StartFromHotel key="from-hotel" hotel={startHotel} /> : null;
+  const timeline = <ul className="timeline pb-1.5">{startRow}{rows}{backRow}</ul>;
 
   if (readOnly) return timeline;
 
@@ -1294,16 +1313,35 @@ function JourneyStopRow({ journey, stop }: { journey: Journey; stop: ReturnType<
   );
 }
 
+/** a hotel's coordinates — its own, else the ones in its map link */
+function hotelCoords(hotel: Hotel): { lat: number; lng: number } | null {
+  const linkCoords = mapUrlCoords(hotel.mapUrl);
+  return hotel.lat !== undefined && hotel.lng !== undefined ? { lat: hotel.lat, lng: hotel.lng }
+    : linkCoords ? { lat: linkCoords[0], lng: linkCoords[1] }
+    : null;
+}
+
+/** The day's first stop: the hotel you woke up at, mirroring `ReturnToHotel`
+ *  at the foot. The way on to the first step sits just above that step, like
+ *  any other travel; the row opens the hotel's own page. */
+function StartFromHotel({ hotel }: { hotel: Hotel }) {
+  return (
+    <li>
+      <Link to={`/hotel/${hotel.id}`} className="block active:bg-ink/[0.07]">
+        <TimelineStop tile={<IconTile size="sm" name="bed" tone="accent" />}>
+          <span className={STOP_TITLE}>From {hotel.name || "your stay"}</span>
+        </TimelineStop>
+      </Link>
+    </li>
+  );
+}
+
 /** The day's last stop: back to the hotel you're staying at. The way there
  *  sits on the rail above it like any other travel (`TravelConnector`),
  *  measured from the last step's place; the row itself opens Google Maps
  *  directions (from wherever you are when the last step has no place). */
 function ReturnToHotel({ from, hotel }: { from?: Place; hotel: Hotel }) {
-  const linkCoords = mapUrlCoords(hotel.mapUrl);
-  const to =
-    hotel.lat !== undefined && hotel.lng !== undefined ? { lat: hotel.lat, lng: hotel.lng }
-    : linkCoords ? { lat: linkCoords[0], lng: linkCoords[1] }
-    : null;
+  const to = hotelCoords(hotel);
   const walk = useWalk(from ?? { lat: 0, lng: 0 }, from ? to : null);
   const long = !walk || walk.min > LONG_WALK_MIN;
   const dest = to ? `${to.lat},${to.lng}` : [hotel.name, hotel.address].filter(Boolean).join(" ");
@@ -1374,7 +1412,7 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
             className={pill}
           >
             <Icon name="walk" size={12} className="shrink-0" />
-            {fmtMinutes(walk.min)}
+            {fmtMinutes(walk.min)} · {fmtDistanceKm(walk.km)}
           </a>
         )}
         {(long || train) && (

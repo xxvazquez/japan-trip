@@ -141,7 +141,7 @@ Every section folds away from its header.
 
 ### Steps
 
-The day reads as one route, like a route's stops in Maps: times in a column on the left, a thin line joining every stop, each stop's icon sitting on it. Steps, journeys and the way back to the hotel all sit on that line. No hairlines between rows.
+The day reads as one route, like a route's stops in Maps: times in a column on the left, a thin line joining every stop, each stop's icon sitting on it. The hotel you start from, steps, journeys and the way back to the hotel all sit on that line. No hairlines between rows.
 
 Each step shows its name, then its note in smaller, lighter grey (folded after 2 lines, with **more**). A red line under the name only appears when it changes the plan: the step's time doesn't fit the place's hours (see below) or it's marked **Overwhelming**.
 
@@ -166,7 +166,7 @@ These appear automatically when a step is linked to a place.
 
 **Getting to the next step.** Between two steps tied to places, quiet grey captions sit on the line — travel between things you do, the way Calendar shows travel time. Each opens its own Google Maps directions:
 
-- Always the walk all the way, e.g. *🚶 22 min*.
+- Always the walk all the way, with its distance, e.g. *🚶 22 min · 1.8 km*.
 - Past a 15-minute walk, a train line under it, read like a Maps transit route: walk to the station › ride › walk from the station, e.g. *🚶 6 min › 🚆 Shibuya → Harajuku · 4 min › 🚶 5 min*.
 - *By train* past a 30-minute walk when no stations are found.
 - Left out when a journey's own row already sits between the two.
@@ -215,6 +215,8 @@ What to expect:
 - The card shows when it was checked and which sites it came from.
 - It can be out of date — check hours with the place before a long trip across town.
 - Needs `TAVILY_API_KEY` (see [Environment variables](#environment-envlocal)).
+
+**From the hotel.** The first stop of the day is the hotel you slept at the night before, so a moving day starts from the old one. Left off on the trip's first day and on an arrival day. The way to the first step sits above that step. Tapping the row opens the hotel.
 
 **Back to hotel.** The last stop of the day is that night's hotel (left off on a departure day). The way there sits on the line above it, with the same pills as between steps. Tapping the row opens Google Maps directions.
 
