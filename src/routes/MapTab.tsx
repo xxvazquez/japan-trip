@@ -1876,6 +1876,7 @@ function PlaceRow({
   );
   const nav = useNavigate();
   const [noteOpen, setNoteOpen] = useState(false);
+  const [factsOpen, setFactsOpen] = useState(false);
 
   // the selected place's card, laid out as a Maps place card (and as a plan
   // step's): name and where it sits, the button row, then grouped — your
@@ -1926,10 +1927,22 @@ function PlaceRow({
 
         {(place.facts || menuHref(place)) && wantsFacts(place, tripData) && (
           <div>
-            <p className={groupLabel}>Good to know</p>
-            <ul className="isolate overflow-hidden rounded-[12px] bg-surface">
-              <PlaceFactRows place={place} area={area} />
-            </ul>
+            {/* folded by default here: on the Map you're mostly filing
+                places, so the areas and category stay a short reach away */}
+            <button
+              type="button"
+              onClick={() => setFactsOpen(!factsOpen)}
+              aria-expanded={factsOpen}
+              className={`${groupLabel} tap flex w-full items-center gap-1 text-left`}
+            >
+              Good to know
+              <Icon name="chevron" size={11} className={`transition-transform duration-200 ${factsOpen ? "rotate-90" : ""}`} />
+            </button>
+            {factsOpen && (
+              <ul className="isolate overflow-hidden rounded-[12px] bg-surface">
+                <PlaceFactRows place={place} area={area} />
+              </ul>
+            )}
           </div>
         )}
 

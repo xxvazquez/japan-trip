@@ -258,7 +258,7 @@ Your places on a clean map, read top to bottom: **city → filters → places**.
 
 - **＋ Add place** — search for somewhere, or tap the map to drop a pin.
 - **The list** — once a city is picked, places are grouped by area (plus *No area*). On **All** it nests **city → area → place**. Groups start collapsed and remember what you opened.
-- **A place's card** — laid out like a step's place card: the name (tap to rename) and the walk to the nearest station; a button row (**Google Maps** filled — searched at the pin, so a chain opens the right branch — Tabelog for a restaurant in Japan, and the day it's on); then **Note**, **Good to know** (see [Helpers on a step](#helpers-on-a-step)), a group with the day (or **Add to a day**), areas, category (a pin added in the app can be moved into any category, taking on its colour; a My Maps pin's comes from its layer) and city, and last Remove.
+- **A place's card** — laid out like a step's place card: the name (tap to rename) and the walk to the nearest station; a button row (**Google Maps** filled — searched at the pin, so a chain opens the right branch — Tabelog for a restaurant in Japan, and the day it's on); then **Note**, **Good to know** (folded until you tap it, so filing a place stays quick; see [Helpers on a step](#helpers-on-a-step)), a group with the day (or **Add to a day**), areas, category (a pin added in the app can be moved into any category, taking on its colour; a My Maps pin's comes from its layer) and city, and last Remove.
 - **List rows** show the name and the walk to the nearest station.
 - **Place names** on the map are in English / Latin script where available.
 
