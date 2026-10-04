@@ -6,6 +6,7 @@ import { execSync } from "node:child_process";
 import { readFileSync, readdirSync } from "node:fs";
 import { handleTabelog } from "./worker/tabelog";
 import { handlePlaceFacts } from "./worker/placeFacts";
+import { signedIn, unauthorized, type AuthConfig } from "./worker/auth";
 
 /** which commit this bundle was built from — Cloudflare's build sets the SHA;
  *  locally it's read from git. Shown in Manage so it's easy to tell whether a
@@ -77,12 +78,15 @@ function pdfjsAssets(): Plugin {
 /** `/api/*` is the Worker's in production (worker/index.ts); in dev and
  *  preview the same handlers answer from here, so the app can be driven
  *  end to end locally. */
-function workerApi(searchKey: string | undefined): Plugin {
+/** `auth` is the Supabase project to check a caller's session against
+ *  (`worker/auth.ts`), or null in the sandbox, which has no sign-in */
+function workerApi(searchKey: string | undefined, auth: AuthConfig | null): Plugin {
   const api: Connect.NextHandleFunction = (req, res, next) => {
     const url = new URL(req.url ?? "/", "http://localhost");
     const handle = { "/api/tabelog": handleTabelog, "/api/place-facts": handlePlaceFacts }[url.pathname];
     if (!handle) return next();
-    handle(url, searchKey).then(async (r) => {
+    const allowed = auth ? signedIn({ headers: new Headers({ Authorization: req.headers.authorization ?? "" }) }, auth) : Promise.resolve(true);
+    allowed.then((ok) => (ok ? handle(url, searchKey) : unauthorized())).then(async (r) => {
       res.statusCode = r.status;
       res.setHeader("Content-Type", "application/json");
       res.end(await r.text());
@@ -125,7 +129,11 @@ export default defineConfig(({ command, mode }) => ({
     react(),
     pdfjsAssets(),
     // the search key stays on the server — no VITE_ prefix, so never in the bundle
-    workerApi(loadEnv(mode, process.cwd(), "").TAVILY_API_KEY),
+    workerApi(
+      loadEnv(mode, process.cwd(), "").TAVILY_API_KEY,
+      (({ VITE_SANDBOX, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY }) =>
+        VITE_SANDBOX === "1" ? null : { supabaseUrl: VITE_SUPABASE_URL, anonKey: VITE_SUPABASE_ANON_KEY })(loadEnv(mode, process.cwd(), "VITE_")),
+    ),
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.png", "icons/*.png", "textures/*", "brand/*.png"],

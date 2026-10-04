@@ -3,6 +3,7 @@ import type { Place, PlaceFacts, TripData } from "@/core/types";
 import { useApp } from "@/store/useApp";
 import { todayISO } from "./dates";
 import { isFoodPlace } from "./reviewSite";
+import { apiGet } from "./api";
 
 /** the facts in the order they're shown, with their labels */
 export const FACT_ROWS = [
@@ -46,7 +47,7 @@ async function ask(p: Place, area: string | undefined): Promise<Result> {
   try {
     const q = new URLSearchParams({ name: p.name });
     if (area) q.set("area", area);
-    const res = await fetch(`/api/place-facts?${q}`);
+    const res = await apiGet(`/api/place-facts?${q}`);
     if (!res.ok || !res.headers.get("Content-Type")?.includes("json")) return undefined;
     return ((await res.json()) as { facts?: PlaceFacts | null }).facts;
   } catch {

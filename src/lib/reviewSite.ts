@@ -3,6 +3,7 @@ import type { Place } from "@/core/types";
 import { useApp } from "@/store/useApp";
 import { GENERATED_GLYPHS } from "./mapGlyphs.generated";
 import { glyphForCategoryName } from "./mapGlyphs";
+import { apiGet } from "./api";
 
 /** A restaurant guide whose page for a place the app can find by itself
  *  (through the server's `/api/<id>` lookup). Each covers one region. */
@@ -99,7 +100,7 @@ async function ask(site: ReviewSite, p: Place): Promise<LookupResult> {
   if (typeof navigator !== "undefined" && !navigator.onLine) return undefined;
   try {
     const q = new URLSearchParams({ name: p.name, lat: String(p.lat), lng: String(p.lng) });
-    const res = await fetch(`/api/${site.id}?${q}`);
+    const res = await apiGet(`/api/${site.id}?${q}`);
     if (!res.ok || !res.headers.get("Content-Type")?.includes("json")) return undefined;
     const { url } = (await res.json()) as { url?: string | null };
     if (url === undefined) return undefined;

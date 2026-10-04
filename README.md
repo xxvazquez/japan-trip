@@ -173,6 +173,7 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 - It happens the first time the step shows, or its card opens on the Map. Online only; the link is then saved with the place.
 - It's found through a web search (Tavily): a Tabelog page in the same or a neighbouring prefecture whose title has the same name (English, or the Japanese name OpenStreetMap has for the pin).
 - Needs `TAVILY_API_KEY` on the server (see [Deploy](#deploy)); without it, every restaurant just gets **Search Tabelog**.
+- Signed in only — on *Use on this device only* the lookup isn't available.
 - Found: **Open in Tabelog** on the step's place card and on the Map card.
 - Not found: the same row offers **Search Tabelog** instead. A miss isn't retried on that device for 30 days, unless the name or pin changes.
 - "Restaurant" means the category's icon is from *Food & drink* (or its name says food, café, bar…).
@@ -594,6 +595,8 @@ Hosted on **Cloudflare Workers** (static assets), deployed through the Git integ
 - A small Worker script ([`worker/index.ts`](worker/index.ts)) answers `/api/*` only — today `/api/tabelog` and `/api/place-facts`, the restaurant lookups. Everything else is served as static files without touching it (`run_worker_first` in [`wrangler.jsonc`](wrangler.jsonc)).
 - In `npm run dev` / `preview` the same handler runs as Vite middleware, so the lookup works locally too.
 - The lookup searches with [Tavily](https://app.tavily.com) (Tabelog blocks requests from Cloudflare's servers, so it can't be read directly). Its key goes in **Worker → Settings → Variables and Secrets → Add → Secret**, named `TAVILY_API_KEY`. Takes effect without a rebuild.
+- **Only signed-in accounts can use `/api/*`** — anyone else gets *Sign in to use this*, so strangers can't spend the Tavily searches. The app sends its sign-in with each call and the Worker checks it with Supabase ([`worker/auth.ts`](worker/auth.ts)). For that the Worker needs two more entries under **Variables and Secrets**, as plain text: `SUPABASE_URL` and `SUPABASE_ANON_KEY` (the same values as `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`). Without them every lookup is refused.
+- In `npm run dev` the check uses `.env.local`'s Supabase values; `npm run dev:demo` skips it (no sign-in there).
 - The public demo has no Worker script; there the Tabelog row just opens a search.
 
 ### Main site
