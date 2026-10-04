@@ -162,7 +162,7 @@ These appear automatically when a step is linked to a place.
 - 🚶 the walk to the next step (if it's linked too), e.g. *9 min*
 - 🚆 the nearest station and the walk to it, e.g. *Ueno · 3 min*
 
-A straight-line estimate shows first and is replaced by a real walking route when one comes back (needs `VITE_ORS_API_KEY`). When the walk to the next step is over 20 minutes, the train takes its place — *"Ueno → Uguisudani · 24 min"* — and opens Google Maps transit directions. The total is a rough door-to-door guess, since there's no free transit-routing API.
+A straight-line estimate shows first and is replaced by a real walking route when one comes back (needs `VITE_ORS_API_KEY`). When the walk to the next step is over 20 minutes, the walk figure is dropped and the train takes its place (or a plain *By train* link when no stations are found) — *"Ueno → Uguisudani · 24 min"* — and opens Google Maps transit directions. The total is a rough door-to-door guess, since there's no free transit-routing API.
 
 **Opening hours.** If the place itself has hours on OpenStreetMap (matched by its name, or tagged right on its pin — never a neighbour's), that day's hours show at the right of the row ("09:00–17:00", or "Closed"). Seasonal and weekday rules are applied; anything the app can't read is shown as written. It's for information only — nothing is flagged as a conflict.
 
@@ -186,7 +186,7 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 - It can be out of date. Check hours and closed days with the restaurant before a long trip across town.
 - **Manage → Content → Good to know** checks every restaurant at once. Uses the same `TAVILY_API_KEY`, one search per place.
 
-**Back to hotel.** The last row of the day is the way home to that night's hotel (left off on a departure day). It shows the walk, or the stations to travel between for a long way, and opens Google Maps directions when tapped.
+**Back to hotel.** The last row of the day is the way home to that night's hotel (left off on a departure day). Close by it shows the walk; past a 20-minute walk it shows the train instead — *"Ueno → Asakusa · 25 min"*, door to door — and never the long walk. Tapping it opens Google Maps directions.
 
 Stations and hours come from OpenStreetMap (Overpass, with Nominatim as a fallback). Results are remembered on the device.
 

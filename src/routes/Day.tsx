@@ -1068,6 +1068,15 @@ function ReturnToHotel({ from, hotel, indent }: { from?: Place; hotel: Hotel; in
     return () => { cancelled = true; };
   }, [long, from?.lat, from?.lng, to?.lat, to?.lng]);
 
+  // door to door by train: the walk to the nearest station, the ride, and
+  // the walk from the hotel's station — the figure that matters once it's far
+  const toFromStation = useWalk(from ?? { lat: 0, lng: 0 }, from ? fromStation : null);
+  const fromHotelStation = useWalk(to ?? { lat: 0, lng: 0 }, to ? hotelStation : null);
+  const train = long && fromStation && hotelStation && fromStation.name !== hotelStation.name ? { from: fromStation, to: hotelStation } : null;
+  const trainTotal = train && toFromStation && fromHotelStation
+    ? toFromStation.min + estimateTransit(haversineKm(train.from.lat, train.from.lng, train.to.lat, train.to.lng)) + fromHotelStation.min
+    : null;
+
   const dest = to ? `${to.lat},${to.lng}` : [hotel.name, hotel.address].filter(Boolean).join(" ");
   const href = gmapsRoute(from && `${from.lat},${from.lng}`, dest, long ? "transit" : "walking");
   const piece = "flex min-w-0 items-start gap-1";
@@ -1082,18 +1091,21 @@ function ReturnToHotel({ from, hotel, indent }: { from?: Place; hotel: Hotel; in
       <IconTile size="sm" name="bed" tone="accent" className="mt-px" />
       <span className="min-w-0 flex-1 space-y-1">
         <span className="block text-sm leading-snug text-ink">Back to {hotel.name || "your stay"}</span>
-        {(walk || (fromStation && hotelStation && fromStation.name !== hotelStation.name)) && (
-          <span className="meta flex flex-wrap gap-x-3 gap-y-0.5 text-[0.8125rem] text-accent">
-            {walk && (
-              <span className={piece}>
-                <Icon name="walk" size={12} className="mt-[3px] shrink-0" />
-                <span className="min-w-0">{fmtWalk(walk)}</span>
+        {/* close: the walk; far: the train and its door-to-door time, never
+            an hour-long walk figure */}
+        {(walk || (long && from && to)) && (
+          <span className="flex flex-wrap gap-x-4 gap-y-0.5 text-[0.75rem] leading-snug text-accent">
+            {!long && walk ? (
+              <span className={piece} title={`Walk ${fmtWalk(walk)}`}>
+                <Icon name="walk" size={12} className="mt-[2px] shrink-0" />
+                <span className="min-w-0 tabular-nums">{fmtMinutes(walk.min)}</span>
               </span>
-            )}
-            {long && fromStation && hotelStation && fromStation.name !== hotelStation.name && (
-              <span className={piece}>
-                <Icon name="train" size={12} className="mt-[3px] shrink-0" />
-                <span className="min-w-0">{fromStation.name} → {hotelStation.name}</span>
+            ) : (
+              <span className={piece} title={train ? `Train from ${train.from.name} to ${train.to.name}` : "Transit directions"}>
+                <Icon name="train" size={12} className="mt-[2px] shrink-0" />
+                <span className="min-w-0">
+                  {train ? <>{train.from.name} → {train.to.name}{trainTotal && <> · <span className="tabular-nums">{fmtMinutes(trainTotal)}</span></>}</> : "By train"}
+                </span>
               </span>
             )}
           </span>
@@ -1179,6 +1191,20 @@ function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }
   // past a long walk with a train to take, the train is the answer — lead
   // with it and drop the hour-plus walk figure rather than stacking both
   const showTrain = long && !!nextPlace && !!station && !!nextStation && station.name !== nextStation.name;
+  // far, but no pair of stations to name: still point at transit, never at
+  // an hour-long walk
+  const transitOnly = long && !!nextPlace && !showTrain && (
+    <a
+      href={gmapsRoute(`${place.lat},${place.lng}`, `${nextPlace.lat},${nextPlace.lng}`, "transit")}
+      target="_blank"
+      rel="noopener"
+      className={`${piece} text-accent`}
+      title="Transit directions to the next stop"
+    >
+      <Icon name="train" size={12} className="mt-[2px] shrink-0" />
+      <span className="min-w-0">By train</span>
+    </a>
+  );
   const train = showTrain && (
     <a
       href={gmapsRoute(`${place.lat},${place.lng}`, `${nextPlace!.lat},${nextPlace!.lng}`, "transit")}
@@ -1197,13 +1223,14 @@ function StepWalkLines({ place, nextPlace }: { place: Place; nextPlace?: Place }
   );
   return (
     <>
-      {(next || (station && toStation)) && (
+      {(next || (station && toStation) || long) && (
         // a glyph and a figure, the way Maps marks a walk — quieter than the
         // note above, since it's about the step, not something written on it;
         // the full sentence stays for VoiceOver and the hover title
         <span className="flex flex-wrap gap-x-4 gap-y-0.5 text-[0.75rem] leading-snug text-ink-faint">
           {train}
-          {next && nextPlace && !showTrain && (
+          {transitOnly}
+          {next && nextPlace && !showTrain && !long && (
             <span className={piece} title={`Walk to next stop ${fmtWalk(next)}`} aria-label={`Walk to next stop ${fmtWalk(next)}`}>
               <Icon name="walk" size={12} className="mt-[2px] shrink-0" />
               <span className="min-w-0 tabular-nums">{fmtMinutes(next.min)}</span>
