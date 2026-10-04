@@ -10,7 +10,7 @@ import { customListColor, logbookSectionTile, type Tone } from "@/lib/tones";
 import { useApp, undoable } from "@/store/useApp";
 import { useData } from "@/lib/data";
 import { findReviewLink, reviewSiteFor, saveReviewLink } from "@/lib/reviewSite";
-import { factsDue, hasFacts, placeArea, refreshFacts, wantsFacts } from "@/lib/placeFacts";
+import { FAILURE_TEXT, factsDue, hasFacts, placeArea, refreshFacts, wantsFacts, type FactsFailure } from "@/lib/placeFacts";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import { useIsDark, useMode, type Mode } from "@/lib/mode";
 import { APP_BUILD, APP_NAME, APP_TAGLINE } from "@/lib/app";
@@ -1687,7 +1687,7 @@ function ReviewLinksPanel() {
  *  checked too long ago. One place at a time; leaving the page doesn't stop it. */
 function PlaceFactsPanel() {
   const data = useData();
-  const [run, setRun] = useState<{ done: number; total: number; failed: number; running: boolean } | null>(null);
+  const [run, setRun] = useState<{ done: number; total: number; failed: number; why?: FactsFailure; running: boolean } | null>(null);
   if (!data) return null;
   const places = data.places.filter((p) => wantsFacts(p, data));
   if (places.length === 0) return null;
@@ -1697,19 +1697,23 @@ function PlaceFactsPanel() {
   const checkAll = async () => {
     const total = due.length;
     let failed = 0;
+    let why: FactsFailure | undefined;
     setRun({ done: 0, total, failed, running: true });
     for (const [i, p] of due.entries()) {
-      if (!(await refreshFacts(p, placeArea(p, data)))) failed++;
-      setRun({ done: i + 1, total, failed, running: true });
-      // search itself is down (offline, out of searches) — stop asking
+      const failure = await refreshFacts(p, placeArea(p, data));
+      if (failure) { failed++; why = failure; }
+      setRun({ done: i + 1, total, failed, why, running: true });
+      // offline, refused or not set up won't change by asking again; the
+      // search itself being down gets a few tries first
+      if (failure && failure !== "search") break;
       if (failed >= 3 && failed === i + 1) break;
     }
     setRun((r) => r && { ...r, running: false });
   };
 
   const summary = run && !run.running
-    ? run.failed === run.done && run.done > 0
-      ? "Couldn’t search — try again later"
+    ? run.why && (run.why !== "search" || run.failed === run.done)
+      ? FAILURE_TEXT[run.why]
       : `Checked ${run.done - run.failed} of ${run.total}${run.failed ? ` · ${run.failed} couldn’t be checked` : ""}`
     : null;
 

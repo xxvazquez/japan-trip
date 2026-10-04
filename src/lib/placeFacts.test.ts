@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { placeArea } from "./placeFacts";
+import { afterEach, describe, it, expect, vi } from "vitest";
+import { placeArea, refreshFacts } from "./placeFacts";
 import { buildBlank } from "@/templates/blank";
 import type { Place, TripData } from "@/core/types";
 
@@ -44,5 +44,31 @@ describe("placeArea", () => {
   it("leaves the city out when the place is near no stay or town", () => {
     expect(area("nowhere")).toBeUndefined();
     expect(area("kobe")).toBeUndefined();
+  });
+});
+
+describe("refreshFacts", () => {
+  // Node has a navigator but no onLine; the app reads a missing one as offline
+  const answer = (status: number, body: unknown = {}) =>
+    vi.stubGlobal("navigator", { onLine: true }) &&
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } })));
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("tells a refusal, a missing key and a failed search apart from being offline", async () => {
+    answer(401);
+    expect(await refreshFacts(place("a", 35, 135), undefined)).toBe("refused");
+    answer(503);
+    expect(await refreshFacts(place("b", 35, 135), undefined)).toBe("setup");
+    answer(502);
+    expect(await refreshFacts(place("c", 35, 135), undefined)).toBe("search");
+    vi.stubGlobal("fetch", vi.fn(async () => { throw new TypeError("Failed to fetch"); }));
+    expect(await refreshFacts(place("d", 35, 135), undefined)).toBe("offline");
+    vi.stubGlobal("navigator", { onLine: false });
+    expect(await refreshFacts(place("f", 35, 135), undefined)).toBe("offline");
+  });
+
+  it("resolves null once it could ask", async () => {
+    answer(200, { facts: null });
+    expect(await refreshFacts(place("e", 35, 135), undefined)).toBeNull();
   });
 });

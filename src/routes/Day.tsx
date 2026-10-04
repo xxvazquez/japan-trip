@@ -46,7 +46,7 @@ import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { menuHref, reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
-import { hasFacts, placeArea, useAutoPlaceFacts, wantsFacts } from "@/lib/placeFacts";
+import { hasFacts, placeArea, useAutoPlaceFacts, useFactsFailure, wantsFacts } from "@/lib/placeFacts";
 import { FactsRefresh, PlaceFactRows } from "@/components/PlaceFacts";
 import { addDays, dayJourneys, dayKind, fmtDate, journeyDepartDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
@@ -934,6 +934,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
   const tripData = useData();
   const area = place && placeArea(place, tripData);
   useAutoPlaceFacts(place, tripData, area, !readOnly);
+  const factsFailure = useFactsFailure(place?.id ?? "");
   // the place card the step's icon opens; on desktop it hangs off the step
   const placeCard = useActionSheet();
   const placeCardAnchor = useRef<HTMLDivElement>(null);
@@ -1244,7 +1245,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                       )}
                     </div>
                   )}
-                  {(hasFacts(place.facts) || menuHref(place)) && wantsFacts(place, tripData) && (
+                  {(hasFacts(place.facts) || menuHref(place) || factsFailure) && wantsFacts(place, tripData) && (
                     <div>
                       <div className="flex items-center gap-2 px-4 pb-1.5 pt-1">
                         <p className="kicker min-w-0 flex-1">Good to know</p>

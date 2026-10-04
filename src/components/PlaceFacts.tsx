@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { Place } from "@/core/types";
 import { INSET_DIVIDER } from "./InsetRow";
 import { IconTile } from "./IconTile";
@@ -6,7 +6,7 @@ import { Icon, type IconName } from "./Icon";
 import type { Tone } from "@/lib/tones";
 import { useReadOnly } from "@/lib/readonly";
 import { fmtDate } from "@/lib/dates";
-import { factRows, refreshFacts, wantsFacts } from "@/lib/placeFacts";
+import { FAILURE_TEXT, factRows, refreshFacts, useFactsFailure, wantsFacts } from "@/lib/placeFacts";
 import { useData } from "@/lib/data";
 import { menuHref } from "@/lib/reviewSite";
 
@@ -18,14 +18,20 @@ import { menuHref } from "@/lib/reviewSite";
  *  caller owns the `<ul>`. */
 export function PlaceFactRows({ place }: { place: Place }) {
   const data = useData();
-  const offline = useFactsOffline(place.id);
+  const failure = useFactsFailure(place.id);
   const f = place.facts;
   const menu = menuHref(place);
   // facts saved before a place stopped getting them (it turned out to be the
   // hotel) aren't shown
   if (!wantsFacts(place, data)) return null;
-  // the menu link can be there before the lookup has run (from the Tabelog page)
-  if (!f) return menu ? <LinkRow href={menu} label="Menu" glyph="restaurant" /> : null;
+  const failed = failure && (
+    <li className={`${INSET_DIVIDER} px-3.5 py-2.5`}>
+      <span className="meta break-words">Couldn’t check. {FAILURE_TEXT[failure]}.</span>
+    </li>
+  );
+  // the menu link can be there before the lookup has run (from the Tabelog
+  // page); a lookup that couldn't be asked says why rather than staying blank
+  if (!f) return menu || failed ? <>{menu && <LinkRow href={menu} label="Menu" glyph="restaurant" />}{failed}</> : null;
 
 
   return (
@@ -45,32 +51,9 @@ export function PlaceFactRows({ place }: { place: Place }) {
       )}
       {f.website && <LinkRow href={f.website} label="Website" icon="link" />}
       {menu && <LinkRow href={menu} label="Menu" glyph="restaurant" />}
-      {offline && (
-        <li className={`${INSET_DIVIDER} px-3.5 py-2.5`}>
-          <span className="meta break-words">Couldn’t check — try again later</span>
-        </li>
-      )}
+      {failed}
     </>
   );
-}
-
-// which places' last refresh couldn't reach the lookup — shared between the
-// refresh icon (in the group's label) and the rows that say so
-const offlineIds = new Set<string>();
-const offlineListeners = new Set<() => void>();
-function setFactsOffline(id: string, off: boolean) {
-  if (off) offlineIds.add(id);
-  else offlineIds.delete(id);
-  offlineListeners.forEach((l) => l());
-}
-function useFactsOffline(id: string): boolean {
-  const [, bump] = useState(0);
-  useEffect(() => {
-    const l = () => bump((n) => n + 1);
-    offlineListeners.add(l);
-    return () => { offlineListeners.delete(l); };
-  }, []);
-  return offlineIds.has(id);
 }
 
 /** Good to know's refresh, as a small icon beside the group's label — the
@@ -79,14 +62,16 @@ function useFactsOffline(id: string): boolean {
 export function FactsRefresh({ place, area }: { place: Place; area?: string }) {
   const readOnly = useReadOnly();
   const [busy, setBusy] = useState(false);
+  const failure = useFactsFailure(place.id);
   const f = place.facts;
-  if (readOnly || !f) return null;
-  const checked = fmtDate(f.checkedAt, undefined, { day: "numeric", month: "short", year: "numeric" });
-  const about = `Checked ${checked}${f.sources?.length ? ` · ${f.sources.join(", ")}` : ""}`;
+  // a lookup that couldn't be asked can be tried again from here too
+  if (readOnly || (!f && !failure)) return null;
+  const checked = f && fmtDate(f.checkedAt, undefined, { day: "numeric", month: "short", year: "numeric" });
+  const about = f ? `Checked ${checked}${f.sources?.length ? ` · ${f.sources.join(", ")}` : ""}` : "Try again";
   const refresh = async (e: React.MouseEvent) => {
     e.stopPropagation();
     setBusy(true);
-    setFactsOffline(place.id, !(await refreshFacts(place, area)));
+    await refreshFacts(place, area);
     setBusy(false);
   };
   return (

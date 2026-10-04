@@ -29,7 +29,7 @@ import { useMode, isDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
 import { menuHref, reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
 import { glyphForCategoryName } from "@/lib/mapGlyphs";
-import { hasFacts, placeArea, useAutoPlaceFacts, wantsFacts } from "@/lib/placeFacts";
+import { hasFacts, placeArea, useAutoPlaceFacts, useFactsFailure, wantsFacts } from "@/lib/placeFacts";
 import { PlaceAction, PlaceActions } from "@/components/PlaceAction";
 import { ActionRow } from "@/components/ActionRow";
 import { FactsRefresh, PlaceFactRows } from "@/components/PlaceFacts";
@@ -1757,6 +1757,7 @@ function PlaceRow({
   ].filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b));
   const [namingCategory, setNamingCategory] = useState(false);
   useAutoPlaceFacts(place, tripData, area, open && !readOnly);
+  const factsFailure = useFactsFailure(place.id);
   const day = dayId ? days.find((d) => d.id === dayId) : undefined;
   const li = useRef<HTMLLIElement>(null);
   useEffect(() => {
@@ -1944,7 +1945,7 @@ function PlaceRow({
           </div>
         )}
 
-        {(hasFacts(place.facts) || menuHref(place)) && wantsFacts(place, tripData) && (
+        {(hasFacts(place.facts) || menuHref(place) || factsFailure) && wantsFacts(place, tripData) && (
           <div>
             {/* folded by default here: on the Map you're mostly filing
                 places, so the areas and category stay a short reach away */}
