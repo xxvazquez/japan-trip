@@ -1,4 +1,5 @@
-import { Fragment, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import {
   DndContext,
@@ -20,7 +21,7 @@ import { Section } from "@/components/Section";
 import { Empty } from "@/components/Empty";
 import { Icon, type IconName } from "@/components/Icon";
 import { ContextMenu } from "@/components/ContextMenu";
-import { ConfirmMenuItem } from "@/components/ActionSheet";
+import { ActionSheet, ConfirmMenuItem, useActionSheet } from "@/components/ActionSheet";
 import { TextPrompt } from "@/components/TextPrompt";
 import { primeKeyboard } from "@/lib/keyboard";
 import { useData } from "@/lib/data";
@@ -119,6 +120,18 @@ export default function Plan() {
   return (
     <Page>
       <PageHeader title={moduleLabel} className="mb-4" />
+      {!readOnly && data.legs.length > 0 && (
+        <PlanAddMenu
+          onAddDay={() => {
+            // fills a deleted day's empty date first, else goes after the last day
+            const slot = nextDaySlot(data);
+            if (!slot) return;
+            const hotelId = data.legs.find((l) => l.id === slot.legId)?.hotelId || undefined;
+            addEntity("days", { id: newId("day"), date: slot.date, legId: slot.legId, hotelId, title: "New day" } as never);
+          }}
+          onAddBase={askBase}
+        />
+      )}
       {/* NOW — the one thing to know on opening */}
       <header className="mb-8">
         {noDates && (
@@ -170,25 +183,6 @@ export default function Plan() {
           todayISO={c.todayISO}
           readOnly={readOnly}
           splitPast={!noDates && c.phase === "during"}
-          addDay={!readOnly && (
-            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3">
-              <button
-                onClick={() => {
-                  // fills a deleted day's empty date first, else goes after the last day
-                  const slot = nextDaySlot(data);
-                  if (!slot) return;
-                  const hotelId = data.legs.find((l) => l.id === slot.legId)?.hotelId || undefined;
-                  addEntity("days", { id: newId("day"), date: slot.date, legId: slot.legId, hotelId, title: "New day" } as never);
-                }}
-                className="action"
-              >
-                <Icon name="plus" size={15} /> Add a day
-              </button>
-              <button onClick={askBase} className="action">
-                <Icon name="plus" size={15} /> Add a base
-              </button>
-            </div>
-          )}
         />
       )}
       <TextPrompt
@@ -207,13 +201,11 @@ export default function Plan() {
 /** All the stays, with drag-to-reorder that also moves a day into another stay.
  *  One DndContext spans every stay; each stay is its own sortable list + a drop
  *  target so an empty stay still accepts a day. */
-function LegList({ data, todayISO, readOnly, splitPast, addDay }: {
+function LegList({ data, todayISO, readOnly, splitPast }: {
   data: TripData;
   todayISO: string;
   readOnly: boolean;
   splitPast: boolean;
-  /** "Add a day" — under the upcoming days, above Past days */
-  addDay?: ReactNode;
 }) {
   const reorderDays = useApp((s) => s.reorderDays);
   const loc = data.config.locale;
@@ -332,7 +324,6 @@ function LegList({ data, todayISO, readOnly, splitPast, addDay }: {
           );
         })}
       </div>
-      {addDay}
       {splitPast && pastByLeg.length > 0 && (
         <Section title="Past days" id="plan-past-days" defaultOpen={false} className="mt-10">
           <ul>
@@ -369,6 +360,15 @@ function LegBlock({
 }) {
   const hex = legHex(leg.color);
   const { setNodeRef, isOver } = useDroppable({ id: leg.id, disabled: readOnly });
+  const resizeBase = useApp((s) => s.resizeBase);
+  const addEntity = useApp((s) => s.addEntity);
+  // a day at the base's end, everything after it moving along (the base
+  // page's Days +); an empty base gets its first day on its start date
+  const addDay = () => {
+    if (days.days.some((d) => d.legId === leg.id && d.date)) return resizeBase(leg.id, 1);
+    const id = crypto.randomUUID?.() ?? `day-${Math.random().toString(36).slice(2, 8)}`;
+    addEntity("days", { id, date: leg.start || days.meta.start, legId: leg.id, hotelId: leg.hotelId || undefined, title: "New day" } as never);
+  };
   const rows = dayIds
     .map((id) => days.days.find((d) => d.id === id))
     .filter(Boolean)
@@ -386,6 +386,9 @@ function LegBlock({
             {leg.nameAlt}
           </span>
         )}
+        {/* the header opens the base's page — a chevron says so, as Music
+            and Health mark a header that goes somewhere */}
+        <Icon name="chevron" size={15} className="shrink-0 translate-y-[1px] text-ink-faint" />
       </Link>
       {/* one quiet caption, sentence case, the month said once — not a
           second spaced-out uppercase heading under the city */}
@@ -399,10 +402,19 @@ function LegBlock({
         <ul ref={setNodeRef} className={`transition-colors ${isOver && !readOnly ? "bg-surface-2/60" : ""}`}>
           <SortableContext items={dayIds} strategy={verticalListSortingStrategy} disabled={readOnly}>
             {rows}
-            {dayIds.length === 0 && (
-              <li className="meta px-3.5 py-3">{readOnly ? "No days in this base yet." : "Drop a day here."}</li>
+            {dayIds.length === 0 && readOnly && (
+              <li className="meta px-3.5 py-3">No days in this base yet.</li>
             )}
           </SortableContext>
+          {/* the Settings "Add …" row closing the group, so a day goes
+              straight into this base */}
+          {!readOnly && (
+            <li>
+              <button type="button" onClick={addDay} className="action w-full px-3.5 py-2.5 text-xs active:bg-ink/[0.07]">
+                <Icon name="plus" size={14} /> Add a day
+              </button>
+            </li>
+          )}
         </ul>
       </Section>
     </section>
@@ -531,5 +543,39 @@ function DayMenu({ day, pinned }: { day: Day; pinned: boolean }) {
       </button>
       <ConfirmMenuItem onConfirm={() => undoable("Day deleted", () => removeEntity("days", day.id))} label="Delete day" icon={<Icon name="trash" size={16} />} />
     </>
+  );
+}
+
+/** ＋ in the navigation bar, as Reminders and Files put "new" — a small menu
+ *  of what you can add to the plan. A glass circle in the bar's
+ *  `#nav-actions` slot, beside the account button. */
+function PlanAddMenu({ onAddDay, onAddBase }: { onAddDay: () => void; onAddBase: () => void }) {
+  const [slot, setSlot] = useState<HTMLElement | null>(null);
+  useEffect(() => setSlot(document.getElementById("nav-actions")), []);
+  const { open, setOpen, anchorRef } = useActionSheet();
+  if (!slot) return null;
+  return createPortal(
+    <>
+      <button
+        ref={anchorRef}
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="Add to the plan"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="glass grid h-11 w-11 place-items-center rounded-full text-ink transition-colors hover:text-accent"
+      >
+        <Icon name="plus" size={20} />
+      </button>
+      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef}>
+        <button type="button" className="menu-item" onClick={onAddDay}>
+          <Icon name="calendar" size={16} /> Add a day
+        </button>
+        <button type="button" className="menu-item" onClick={onAddBase}>
+          <Icon name="pin" size={16} /> Add a base
+        </button>
+      </ActionSheet>
+    </>,
+    slot,
   );
 }
