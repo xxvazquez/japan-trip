@@ -1150,6 +1150,8 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
   // the place card the step's icon opens; on desktop it hangs off the step
   const placeCard = useActionSheet();
   const placeCardAnchor = useRef<HTMLDivElement>(null);
+  // the place's name itself — the desktop card's arrow points at it
+  const nameRef = useRef<HTMLSpanElement>(null);
   const nearby = useStepNearby(item.id);
   // the card's Nearby group starts shut every time the card opens
   const [nearbyShown, setNearbyShown] = useState(false);
@@ -1420,7 +1422,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
             {place ? (
               // the row's tap opens the place card, as tapping a result
               // does in Maps — the info, then where to go next
-              <div className={STOP_TITLE}>{place.name}</div>
+              <div className={STOP_TITLE}><span ref={nameRef}>{place.name}</span></div>
             ) : readOnly ? (
               <span className={STOP_TITLE}>{item.text}</span>
             ) : (
@@ -1476,7 +1478,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
               <ActionSheet
                 open={placeCard.open}
                 onClose={() => placeCard.setOpen(false)}
-                anchorRef={placeCardAnchor}
+                anchorRef={nameRef}
                 doneLabel={null}
                 side
                 // laid out like a Maps place card: the name as the title, a

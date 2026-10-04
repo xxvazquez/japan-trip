@@ -42,9 +42,10 @@ export function ActionSheet({
   header?: ReactNode;
   /** open as a context menu here — see `MenuPoint` */
   point?: MenuPoint | null;
-  /** the desktop popover opens beside the anchor, top-aligned with it, the
-   *  way a Mac Calendar event's popover sits next to the event — for a card
-   *  that would otherwise cover the rows under its own (a place card) */
+  /** the desktop popover is a Mac popover with an arrow at the anchor: beside
+   *  its text where there's room (as Calendar opens an event beside it), else
+   *  under or over it — never across the anchor itself. For a card (a place
+   *  card); the anchor can be inline text that wraps */
   side?: boolean;
   children: ReactNode;
 }) {
@@ -120,24 +121,26 @@ export function ActionSheet({
     );
   }
 
+  if (side) {
+    return createPortal(
+      <SidePopover anchor={anchorRef.current} onClose={onClose} menuRef={menuRef} w={menuWidth || 352} h={menuHeight} header={header}>
+        {children}
+      </SidePopover>,
+      document.body,
+    );
+  }
+
   const r = anchorRef.current?.getBoundingClientRect();
   const w = menuWidth || 160;
   const center = (r?.left ?? 0) + (r?.width ?? 0) / 2;
   const vw = window.innerWidth;
-  const gap = 12;
-  // beside the anchor where there's room — right first, then left — else under it
-  const sideLeft = !side || !r ? undefined
-    : r.right + gap + w <= vw - 8 ? r.right + gap
-    : r.left - gap - w >= 8 ? r.left - gap - w
-    : undefined;
   // under it, the way an iOS / Mac pull-down menu drops from its button:
   // lined up with the button's leading edge and growing toward the middle
   // of the screen (its trailing edge, for a button on the right half)
   const under = !r ? 8 : center < vw / 2 ? r.left : r.right - w;
-  const left = sideLeft ?? Math.min(Math.max(under, 8), vw - w - 8);
+  const left = Math.min(Math.max(under, 8), vw - w - 8);
   // keep a tall popover on screen: slide it up rather than hang off the bottom
-  const want = sideLeft !== undefined ? (r?.top ?? 0) - 8 : (r?.bottom ?? 0) + 4;
-  const top = Math.max(8, Math.min(want, window.innerHeight - menuHeight - 8));
+  const top = Math.max(8, Math.min((r?.bottom ?? 0) + 4, window.innerHeight - menuHeight - 8));
   return createPortal(
     <>
       <div className="fixed inset-0 z-50" onClick={onClose} />
@@ -156,6 +159,69 @@ export function ActionSheet({
       </div>
     </>,
     document.body,
+  );
+}
+
+const ARROW = 10; // how far the popover's arrow reaches out
+const EDGE = 8; // the gap kept from the window's edges
+
+/** `side`'s popover: placed against the anchor's actual text (the lines it
+ *  wraps to, not its whole box), with an arrow at its first line */
+function SidePopover({ anchor, onClose, menuRef, w, h, header, children }: {
+  anchor: HTMLElement | null;
+  onClose: () => void;
+  menuRef: RefObject<HTMLDivElement>;
+  w: number;
+  h: number;
+  header?: ReactNode;
+  children: ReactNode;
+}) {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const rects = anchor ? [...anchor.getClientRects()] : [];
+  const line = rects[0] ?? anchor?.getBoundingClientRect() ?? new DOMRect(vw / 2, vh / 2, 0, 0);
+  const textLeft = Math.min(...rects.map((x) => x.left), line.left);
+  const textRight = Math.max(...rects.map((x) => x.right), line.right);
+  const textBottom = Math.max(...rects.map((x) => x.bottom), line.bottom);
+  const lineMid = line.top + line.height / 2;
+  const gap = ARROW + 4;
+  const room = { right: vw - EDGE - (textRight + gap), left: textLeft - gap - EDGE, below: vh - EDGE - (textBottom + gap), above: line.top - gap - EDGE };
+  const where = room.right >= w ? "right" : room.left >= w ? "left" : room.below >= Math.min(h, 320) || room.below >= room.above ? "below" : "above";
+
+  let left: number, top: number, maxHeight: number, arrow: { x: number; y: number };
+  if (where === "right" || where === "left") {
+    left = where === "right" ? textRight + gap : textLeft - gap - w;
+    maxHeight = vh - 2 * EDGE;
+    // the arrow at the name's first line, the card hung from just above it
+    top = Math.max(EDGE, Math.min(lineMid - 28, vh - EDGE - Math.min(h, maxHeight)));
+    arrow = { x: where === "right" ? left : left + w, y: lineMid };
+  } else {
+    // the arrow at the start of the name, the card lined up under it
+    left = Math.max(EDGE, Math.min(textLeft - 20, vw - EDGE - w));
+    maxHeight = where === "below" ? room.below : room.above;
+    top = where === "below" ? textBottom + gap : line.top - gap - Math.min(h, maxHeight);
+    arrow = { x: Math.max(left + 20, Math.min(textLeft + 16, left + w - 20)), y: where === "below" ? top : top + Math.min(h, maxHeight) };
+  }
+  return (
+    <>
+      <div className="fixed inset-0 z-50" onClick={onClose} />
+      {/* the arrow sits under the panel's edge, only its point showing */}
+      <span
+        aria-hidden
+        className="glass-panel pointer-events-none fixed z-[54] h-[15px] w-[15px] rotate-45 !shadow-none motion-safe:animate-fade-in"
+        style={{ left: arrow.x - 7.5 + (where === "right" ? 2 : where === "left" ? -2 : 0), top: arrow.y - 7.5 + (where === "below" ? 2 : where === "above" ? -2 : 0) }}
+      />
+      <div
+        ref={menuRef}
+        role="menu"
+        onClick={onClose}
+        style={{ top, left, maxHeight }}
+        className="glass-panel fixed z-[55] flex w-max min-w-[12rem] max-w-[22rem] flex-col overflow-hidden rounded-[16px] text-sm motion-safe:animate-fade-in [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-3.5 [&_.menu-item]:py-2 [&_.menu-item]:text-left [&_.menu-item:hover]:bg-ink/[0.06]"
+      >
+        {header && <div className="shrink-0 space-y-2 px-3 pb-2 pt-3" onClick={(e) => e.stopPropagation()}>{header}</div>}
+        <div className={`min-h-0 flex-1 overflow-y-auto pb-1.5 ${header ? "" : "pt-1.5"}`}>{children}</div>
+      </div>
+    </>
   );
 }
 
