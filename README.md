@@ -119,7 +119,7 @@ Tap a day on Plan to open it. From top to bottom:
 2. **Journeys** — every journey on the day (a bus, a train, a flight), in the order they leave. See [Journeys on a day](#journeys-on-a-day).
 3. **Weather** — if the hotel has coordinates, the header shows the forecast ("Showers, 19–24°C"). Forecasts only reach ~16 days ahead, so later days show nothing until they're close enough.
 4. **The itinerary** — the day's steps (below).
-5. **Nearby** — saved places close to the day's stops, kept out of the plan. See [Nearby on a day](#nearby-on-a-day).
+5. **Nearby** — saved places close to the day's stops, kept out of the plan. Starts shut, like Areas; open or shut, it stays that way on every day. See [Nearby on a day](#nearby-on-a-day).
 6. **Areas** — drop a whole neighbourhood's places onto the day's map.
 7. **Spending** — see [Spending on a day](#spending-on-a-day).
 8. **General notes.**
@@ -257,9 +257,10 @@ What to expect:
 - The wheel starts at a suggestion: the first step's time less the way there (the walk, or the train past a 30-minute walk), rounded down to 5 minutes.
 - Tapping the name opens the hotel.
 
-**Back to hotel.** The last stop of the day is that night's hotel (left off on a departure day). The way there sits on the line above it, with the same pills as between steps.
+**Back to hotel.** That night's hotel closes the day (left off on a departure day). The way there sits on the line above it, with the same pills as between steps.
 
 - Its time is set on the same wheel as a step's (needs migration `0039`). It falls under Morning / Afternoon / Evening like any step, so back at 19:00 closes the day under **Evening**.
+- It sits where its time puts it: a step timed later (a drink near the hotel) follows it, with the walk from the hotel above it. With no time set, it stays last.
 - Tapping the name opens Google Maps directions.
 
 Stations and hours come from OpenStreetMap (Overpass, with Nominatim as a fallback). Results are remembered on the device.

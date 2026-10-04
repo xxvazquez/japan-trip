@@ -564,10 +564,13 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         </Section>
       )}
 
-      {/* NEARBY — saved places close to the plan's stops, kept out of the plan */}
+      {/* NEARBY — saved places close to the plan's stops, kept out of the plan.
+          It and Areas start shut on every day, one open/closed state for all */}
       {nearby.length > 0 && (
         <Section
           title="Nearby"
+          id="day-nearby"
+          defaultOpen={false}
           info={`Places you've saved that aren't on this day's plan, each under the stop it's closest to — up to about ${NEARBY_WALK_MIN} minutes' walk. Around a lunch or dinner the plan leaves open, somewhere to eat comes first.${ro ? "" : " Tap ＋ to add one after its stop."}`}
         >
           <ul className="pb-1">
@@ -592,6 +595,8 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       {((day.areaIds ?? []).length > 0 || (!ro && cityAreas.length > 0)) && (
         <Section
           title="Areas"
+          id="day-areas"
+          defaultOpen={false}
           info={`Places in an area you add here show on the day’s map — they don’t change the plan above${ro ? "." : ", unless you add its places from the row’s ⋯ menu."}`}
         >
           {/* one row per area (Files' list view: the same map tile the Map
@@ -906,20 +911,25 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   }
 
   const placeOf = (it?: PlanItem) => (it?.placeId ? places.find((p) => p.id === it.placeId) : undefined);
+  // the way back to the hotel sits where its time puts it, like a journey's
+  // rows — a step timed later (a late drink near the hotel) follows it.
+  // With no time set it closes the day
+  const backAt = returnHotel && /^\d{1,2}:\d{2}$/.test(day.backAt ?? "") ? day.backAt!.padStart(5, "0") : undefined;
+  const backIdx = !returnHotel ? -1 : backAt ? stopAt(backAt) : items.length;
   // the way to the next step sits between the two — unless a journey's own
-  // row is in between, which is the travel already
+  // row or the way back to the hotel is in between, which is the travel already
   const connectorAfter = (i: number) => {
     const from = placeOf(items[i]);
     const to = placeOf(items[i + 1]);
-    if (!from || !to || stopsBefore(i + 1).length) return [];
+    if (!from || !to || i + 1 === backIdx || stopsBefore(i + 1).length) return [];
     return [<TravelConnector key={`travel-${items[i].id}`} from={from} to={to} />];
   };
 
   // the way out from the night's hotel to the first step — unless a journey
-  // leaves before it, which is the way out already
+  // or the way back to the hotel comes before it
   const startFrom = startHotel && hotelCoords(startHotel);
   const firstPlace = placeOf(items[0]);
-  const startConnector = startFrom && firstPlace && !stopsAt(0).length
+  const startConnector = startFrom && firstPlace && !stopsAt(0).length && backIdx !== 0
     ? [<TravelConnector key="travel-from-hotel" from={startFrom} to={firstPlace} />]
     : [];
 
@@ -927,8 +937,44 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   // own rows, and each step with the way on to the next just under it — a
   // stop and its travel are one chunk, never split by a part-of-day label
   const entries: { time?: string; nodes: React.ReactNode[] }[] = [];
+  const pushStops = (sts: typeof stops) => {
+    for (const st of sts) entries.push({ time: st.time, nodes: [stopRow(st)] });
+  };
+  // the journey rows due at slot i, with the way back to the hotel among
+  // them in time order when it falls there too
+  const pushSlot = (i: number) => {
+    const sts = stopsAt(i);
+    if (i !== backIdx || !returnHotel) return pushStops(sts);
+    const before = sts.filter((st) => !backAt || st.time <= backAt);
+    const after = sts.filter((st) => !before.includes(st));
+    pushStops(before);
+    // the way there hangs off the stop before it, untimed, so a part-of-day
+    // band falls after it — never between a stop and its travel. Measured
+    // from the step before, unless a journey's row is the travel already
+    const from = before.length ? undefined : placeOf(items[i - 1]);
+    const to = hotelCoords(returnHotel);
+    if (from && to) entries.push({ nodes: [<TravelConnector key="travel-to-hotel" from={from} to={to} />] });
+    const next = placeOf(items[i]);
+    entries.push({
+      time: backAt,
+      nodes: [
+        <ReturnToHotel
+          key="back-to-hotel"
+          from={from}
+          hotel={returnHotel}
+          time={day.backAt}
+          timeStart={timeBefore(items, i)}
+          readOnly={readOnly}
+          onTime={onBackAt}
+        />,
+        // and on from the hotel to a step after it
+        ...(to && next && !after.length ? [<TravelConnector key="travel-from-hotel-back" from={to} to={next} />] : []),
+      ],
+    });
+    pushStops(after);
+  };
   items.forEach((it, i) => {
-    for (const st of stopsAt(i)) entries.push({ time: st.time, nodes: [stopRow(st)] });
+    pushSlot(i);
     entries.push({
       time: splitRange(it.time)?.[0] ?? it.time,
       nodes: [
@@ -956,25 +1002,20 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
       ],
     });
   });
-  for (const st of stopsAt(items.length)) entries.push({ time: st.time, nodes: [stopRow(st)] });
+  pushSlot(items.length);
 
   // Morning / Afternoon / Evening, as Reminders splits its Today list: a
   // label wherever a timed entry starts a new part of the day (an untimed
   // one stays in the part before it), on a day with more than one part
+  // the way back to the hotel is one of them, so it falls in its own part
+  // of the day like any step — back at 19:00 closes the day under Evening
   const parts = entries.map((e) => dayPart(e.time));
-  // the way back to the hotel has its own time, so it falls in its own part
-  // of the day like any step — back at 19:00 closes the day under Evening.
-  // A time earlier than the last step's part gets no band of its own, so the
-  // bands never run backwards
-  const lastPart = parts.filter(Boolean).at(-1);
-  const backAtPart = returnHotel ? dayPart(day.backAt) : undefined;
-  const backPart = backAtPart && (!lastPart || PART_ORDER.indexOf(backAtPart) > PART_ORDER.indexOf(lastPart)) ? backAtPart : undefined;
   // the same at the top: the time you leave the hotel opens the day under
   // its own part, unless it's later than the first step's
   const firstPart = parts.find(Boolean);
   const leaveAtPart = startHotel ? dayPart(day.leaveAt) : undefined;
   const leavePart = leaveAtPart && (!firstPart || PART_ORDER.indexOf(leaveAtPart) <= PART_ORDER.indexOf(firstPart)) ? leaveAtPart : undefined;
-  const multiPart = new Set([leavePart, ...parts.filter(Boolean), backPart].filter(Boolean)).size > 1;
+  const multiPart = new Set([leavePart, ...parts.filter(Boolean)].filter(Boolean)).size > 1;
   // a band the hotel row already opened isn't repeated by the first step,
   // and bands only ever move forward through the day — a row that sits
   // out of time order stays under the band it sits in, never opens an
@@ -988,24 +1029,6 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
     return [<DayPartRow key={`part-${p}`} part={p} />, ...e.nodes];
   });
 
-  // the day closes with the way back to the hotel; its walk figures need the
-  // last step to be tied to a real place, the directions link doesn't
-  const lastPlace = items[items.length - 1]?.placeId ? places.find((p) => p.id === items[items.length - 1].placeId) : undefined;
-  const backBand = backPart && multiPart
-    ? <DayPartRow key="part-back" part={backPart} />
-    : null;
-  const backRow = returnHotel ? (
-    <ReturnToHotel
-      key="back-to-hotel"
-      from={lastPlace}
-      hotel={returnHotel}
-      band={backBand}
-      time={day.backAt}
-      timeStart={timeBefore(items, items.length)}
-      readOnly={readOnly}
-      onTime={onBackAt}
-    />
-  ) : null;
   // and opens at the hotel you woke up at — under its own band when its time
   // sets one, else under the first step's, since leaving is part of it
   if (startHotel) {
@@ -1024,7 +1047,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
     else rows.splice(multiPart && parts[0] ? 1 : 0, 0, fromRow, ...startConnector);
   }
   // one timeline for the whole day — the hotel, steps, journeys and the way home
-  const timeline = <ul className="timeline pb-1.5">{rows}{backRow}</ul>;
+  const timeline = <ul className="timeline pb-1.5">{rows}</ul>;
 
   if (readOnly) return timeline;
 
@@ -1887,15 +1910,14 @@ function HotelRowTime({ label, time, timeStart, readOnly, onTime }: {
   );
 }
 
-/** The day's last stop: back to the hotel you're staying at. The way there
- *  sits on the rail above it like any other travel (`TravelConnector`),
- *  measured from the last step's place; its time is set on the wheel like a
+/** Back to the hotel you're staying at — the day's last stop, unless a step
+ *  is timed later. The way there sits on the rail above it like any other
+ *  travel (`TravelConnector`, drawn by the plan); its time is set on the wheel like a
  *  step's, and its name opens Google Maps directions (from wherever you are
  *  when the last step has no place). */
-function ReturnToHotel({ from, hotel, band, time, timeStart, readOnly, onTime }: {
+function ReturnToHotel({ from, hotel, time, timeStart, readOnly, onTime }: {
   from?: Place;
   hotel: Hotel;
-  band?: React.ReactNode;
   time?: string;
   timeStart?: string;
   readOnly: boolean;
@@ -1907,22 +1929,16 @@ function ReturnToHotel({ from, hotel, band, time, timeStart, readOnly, onTime }:
   const dest = to ? `${to.lat},${to.lng}` : [hotel.name, hotel.address].filter(Boolean).join(" ");
   const href = gmapsRoute(from && `${from.lat},${from.lng}`, dest, long ? "transit" : "walking");
   return (
-    <>
-      {from && to && <TravelConnector from={from} to={to} />}
-      {/* the Evening band goes after the way back, never between a stop
-          and its travel */}
-      {band}
-      <li>
-        <TimelineStop
-          tile={<IconTile size="sm" name="bed" tone="accent" />}
-          time={<HotelRowTime label="Back at" time={time} timeStart={timeStart} readOnly={readOnly} onTime={onTime} />}
-        >
-          <a href={href} target="_blank" rel="noopener" aria-label={`Directions back to ${hotel.name || "your stay"}`} className={`${STOP_TITLE} active:opacity-60`}>
-            Back to {hotel.name || "your stay"}
-          </a>
-        </TimelineStop>
-      </li>
-    </>
+    <li>
+      <TimelineStop
+        tile={<IconTile size="sm" name="bed" tone="accent" />}
+        time={<HotelRowTime label="Back at" time={time} timeStart={timeStart} readOnly={readOnly} onTime={onTime} />}
+      >
+        <a href={href} target="_blank" rel="noopener" aria-label={`Directions back to ${hotel.name || "your stay"}`} className={`${STOP_TITLE} active:opacity-60`}>
+          Back to {hotel.name || "your stay"}
+        </a>
+      </TimelineStop>
+    </li>
   );
 }
 
