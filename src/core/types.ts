@@ -365,6 +365,9 @@ export interface Day {
    *  plan's last row, which also places it in the morning / afternoon /
    *  evening. Absent until set. */
   backAt?: string;
+  /** when you leave the hotel ("HH:MM", 24-hour) — the time on the plan's
+   *  first row. Absent until set. */
+  leaveAt?: string;
   /** what you spent on the day — one row per amount (a museum, lunch, a taxi).
    *  Each row picks an `ExpenseCategory`; the amount rolls up under it in the
    *  Expenses view. */

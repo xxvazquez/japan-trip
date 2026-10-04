@@ -219,7 +219,10 @@ What to expect:
 - It can be out of date — check hours with the place before a long trip across town.
 - Needs `TAVILY_API_KEY` (see [Environment variables](#environment-envlocal)).
 
-**From the hotel.** The first stop of the day is the hotel you slept at the night before, so a moving day starts from the old one. Left off on the trip's first day and on an arrival day. The way to the first step sits under it. Tapping the row opens the hotel.
+**From the hotel.** The first stop of the day is the hotel you slept at the night before, so a moving day starts from the old one. Left off on the trip's first day and on an arrival day. The way to the first step sits under it.
+
+- Its time (when you leave) is set on the same wheel as a step's (needs migration `0040`), and opens the day under its own Morning / Afternoon band.
+- Tapping the name opens the hotel.
 
 **Back to hotel.** The last stop of the day is that night's hotel (left off on a departure day). The way there sits on the line above it, with the same pills as between steps.
 
@@ -604,7 +607,7 @@ edit in the UI  →  TripData (in memory)  →  backend
 ### Setting up a project
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0039`).
+2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0040`).
    - `0033` moves old day-trip text (getting there / back, last way back) into each day's notes — take a backup first.
    - `0035` drops the retired day columns. On an existing project, run it only once the build with it is live — an older build still writes `journey_id`, and its day saves would fail.
 3. **Authentication → Providers → Google** — enable it with a Google Cloud OAuth client id and secret. Redirect: `https://<project-ref>.supabase.co/auth/v1/callback`.
