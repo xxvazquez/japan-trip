@@ -27,7 +27,7 @@ import { useData } from "@/lib/data";
 import { useToday } from "@/lib/useToday";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { tripClock, fmtDate, dayKind, legForDate, legNights, plural, addDays } from "@/lib/dates";
+import { tripClock, fmtDate, fmtDateRange, dayKind, legForDate, legNights, plural, addDays } from "@/lib/dates";
 import { nextDaySlot } from "@/lib/spans";
 import { canonicalLegs } from "@/lib/cityAssign";
 import { useTripSpent } from "@/lib/fx";
@@ -387,9 +387,10 @@ function LegBlock({
           </span>
         )}
       </Link>
-      <p className="eyebrow mb-2 pl-5">
-        {fmtDate(leg.start, loc, { day: "numeric", month: "short" })}
-        {leg.end && leg.end !== leg.start && <> – {fmtDate(leg.end, loc, { day: "numeric", month: "short" })}</>}
+      {/* one quiet caption, sentence case, the month said once — not a
+          second spaced-out uppercase heading under the city */}
+      <p className="mb-2 pl-5 text-xs text-ink-soft">
+        {fmtDateRange(leg.start, leg.end, loc)}
         {/* a one-day last base has no night yet: its only day is the day you leave */}
         {nights > 0 && <> · {plural(nights, "night")}</>}
       </p>
@@ -408,11 +409,18 @@ function LegBlock({
   );
 }
 
-/** The fixed-width weekday+date cell at the start of a day row. */
+/** The date at the start of a day row, stacked as Calendar draws it: the
+ *  weekday small over a big day number, in a narrow fixed column. Today's
+ *  number takes the accent. */
 function DayDate({ date, loc, strong }: { date: string; loc: string; strong?: boolean }) {
   return (
-    <span className={`inline-block w-[3.75rem] shrink-0 whitespace-nowrap text-xs tabular-nums ${strong ? "text-ink" : "text-ink-soft"}`}>
-      {fmtDate(date, loc, { weekday: "short", day: "numeric" })}
+    <span className="flex w-8 shrink-0 flex-col items-center tabular-nums">
+      <span className={`text-[11px] uppercase leading-[13px] ${strong ? "text-accent" : "text-ink-faint"}`}>
+        {fmtDate(date, loc, { weekday: "short" })}
+      </span>
+      <span className={`text-[22px] font-light leading-[26px] ${strong ? "text-accent" : "text-ink"}`}>
+        {fmtDate(date, loc, { day: "numeric" })}
+      </span>
     </span>
   );
 }
@@ -437,7 +445,7 @@ function DayKindTag({ day, data }: { day: Day; data: TripData }) {
 /** The little block that rides under the cursor while dragging a day. */
 function DayCard({ day, loc, data }: { day: Day; loc: string; data: TripData }) {
   return (
-    <div className="flex items-baseline gap-3 rounded-[12px] bg-surface px-3.5 py-3 shadow-lg">
+    <div className="flex items-center gap-3.5 rounded-[12px] bg-surface px-3.5 py-2.5 shadow-lg">
       <DayDate date={day.date} loc={loc} />
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="break-words leading-snug text-ink">{day.title || "Untitled day"}</span>
@@ -447,11 +455,11 @@ function DayCard({ day, loc, data }: { day: Day; loc: string; data: TripData }) 
   );
 }
 
-/** Own hairline, inset past the leading date — dropped on the last row,
+/** Own hairline, inset past the leading date block — dropped on the last row,
  *  like every other grouped-inset list. The whole row greys while its link
  *  is pressed. */
 const DAY_ROW_LI =
-  "relative transition-colors duration-150 has-[a:active]:bg-ink/[0.07] after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
+  "relative transition-colors duration-150 has-[a:active]:bg-ink/[0.07] after:pointer-events-none after:absolute after:bottom-0 after:left-[3.75rem] after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
 
 /** A day's tappable row body — date, title, kind + labels, chevron. */
 function DayLink({ data, day, today, loc, pinned }: { data: TripData; day: Day; today: boolean; loc: string; pinned?: boolean }) {
@@ -459,28 +467,25 @@ function DayLink({ data, day, today, loc, pinned }: { data: TripData; day: Day; 
     <Link
       to={`/day/${day.id}`}
       draggable={false}
-      className="flex min-w-0 flex-1 items-baseline gap-3 px-3.5 py-3"
+      className="flex min-w-0 flex-1 items-center gap-3.5 px-3.5 py-2.5"
     >
       {/* the stay's colour is on its header — not repeated on every day */}
-      <span className="shrink-0 whitespace-nowrap">
-        <DayDate date={day.date} loc={loc} strong={today} />
-      </span>
+      <DayDate date={day.date} loc={loc} strong={today} />
       <span className="flex min-w-0 flex-1 flex-col">
         <span className={`break-words leading-snug ${day.title ? "text-ink" : "text-ink-faint"}`}>
           {day.title || "Untitled day"}
         </span>
         <DayKindTag day={day} data={data} />
       </span>
-      {today && <span className="eyebrow shrink-0 text-ink">Today</span>}
+      {today && <span className="shrink-0 text-xs text-accent">Today</span>}
       {/* fixed to its date, so it doesn't move with a drag — unpin on its page or the row's menu */}
       {pinned && (
-        <span className="mt-[3px] shrink-0 self-start text-ink-faint" title="Pinned to its date">
+        <span className="shrink-0 text-ink-faint" title="Pinned to its date">
           <Icon name="pushpin" size={14} />
           <span className="sr-only">Pinned to its date</span>
         </span>
       )}
-      {/* on the title's first line, like the date — not centred on a tall row */}
-      <Icon name="chevron" size={14} className="mt-[5px] shrink-0 self-start text-ink-faint" />
+      <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
     </Link>
   );
 }

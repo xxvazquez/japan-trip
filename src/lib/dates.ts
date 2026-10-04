@@ -171,6 +171,18 @@ export function fmtDate(
   return parseISO(iso).toLocaleDateString(locale, opts);
 }
 
+/** A start–end span as people write it, the shared month said once
+ *  ("3–4 Nov", "30 Nov – 2 Dec"); a single date when the two are the same. */
+export function fmtDateRange(
+  start: ISODate,
+  end: ISODate | undefined,
+  locale = "en-GB",
+  opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" },
+) {
+  if (!end || end === start) return fmtDate(start, locale, opts);
+  return new Intl.DateTimeFormat(locale, opts).formatRange(parseISO(start), parseISO(end));
+}
+
 /* ---- timezone-aware datetime labels for transport segments ---- */
 
 /** Zones where Intl's "GMT+9" is a poorer label than the real abbreviation and
