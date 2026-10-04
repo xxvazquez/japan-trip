@@ -4,7 +4,7 @@ import { MapView, type MLMap } from "./MapView";
 import { Icon } from "./Icon";
 import { useData } from "@/lib/data";
 import { useIsDark } from "@/lib/mode";
-import { gmapsRoute, mapUrlCoords } from "@/lib/maps";
+import { gmapsRoute, mapUrlCoords, placeMapLink } from "@/lib/maps";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import { loadBasePois } from "@/lib/mapStyle";
 import type { Place, TripData } from "@/core/types";
@@ -105,6 +105,15 @@ export default function MapPane({ dayId }: { dayId: string }) {
       {picked && (
         <div className="absolute inset-x-4 bottom-4 flex items-center gap-3 rounded-[12px] border border-line bg-surface px-3.5 py-3 shadow-md">
           <span className="min-w-0 flex-1 break-words text-sm text-ink">{picked.name}</span>
+          {/* the place itself in Google Maps — its photos, reviews, hours */}
+          <a
+            href={placeMapLink(picked)}
+            target="_blank"
+            rel="noopener"
+            className="flex shrink-0 items-center gap-0.5 text-xs text-accent"
+          >
+            Google Maps <Icon name="chevron" size={12} />
+          </a>
           <a
             href={gmapsRoute(undefined, `${picked.lat},${picked.lng}`, "walking")}
             target="_blank"

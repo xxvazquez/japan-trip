@@ -198,7 +198,7 @@ Stations and hours come from OpenStreetMap (Overpass, with Nominatim as a fallba
 At 1024px and up (a laptop, or a tablet held sideways), a day's page gets a map pane on the right.
 
 - It shows the day's places, its areas' places (drawn more quietly) and the hotel, and follows you between days.
-- Tap a pin for its name and a **Directions** link. A step's **⋯ → Show on map** zooms straight to it.
+- Tap a pin for its name, **Google Maps** (the place itself) and **Directions**. **Show on map** on a step's place card zooms straight to it.
 - Drag the left edge to resize; **✕** hides it and a small tab brings it back. Both are remembered.
 
 On a phone the pane isn't downloaded at all, and **Show on map** opens the Map tab instead.
