@@ -34,8 +34,9 @@ export function ActionSheet({
   onClose: () => void;
   anchorRef: RefObject<HTMLElement>;
   title?: string;
-  /** the bottom button on the phone sheet — "Done" for a multi-select that stays open */
-  doneLabel?: string;
+  /** the bottom button on the phone sheet — "Done" for a multi-select that
+   *  stays open; null for none, when `header` carries its own ✕ (a place card) */
+  doneLabel?: string | null;
   /** fixed above the list, outside its scroll — a search field, filter chips */
   header?: ReactNode;
   /** open as a context menu here — see `MenuPoint` */
@@ -93,9 +94,11 @@ export function ActionSheet({
           <div className="flex-1 overflow-y-auto overscroll-contain [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-4 [&_.menu-item]:py-3.5 [&_.menu-item]:text-left [&_.menu-item]:text-[17px] [&_.menu-item:disabled]:opacity-40 [&_.menu-item:active]:bg-ink/[0.07]">
             {children}
           </div>
-          <button onClick={onClose} className="mt-1 w-full shrink-0 border-t border-ink/10 px-4 py-3.5 text-[17px] font-medium text-accent">
-            {doneLabel}
-          </button>
+          {doneLabel !== null && (
+            <button onClick={onClose} className="mt-1 w-full shrink-0 border-t border-ink/10 px-4 py-3.5 text-[17px] font-medium text-accent">
+              {doneLabel}
+            </button>
+          )}
         </div>
       </>,
       document.body,

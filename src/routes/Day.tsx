@@ -1001,22 +1001,44 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
                 open={placeCard.open}
                 onClose={() => placeCard.setOpen(false)}
                 anchorRef={placeCardAnchor}
-                title={place.name}
-                doneLabel="Done"
-                // the Maps place-card button row, pinned under the name so
-                // Google Maps is one tap however long Good to know runs
+                doneLabel={null}
+                // laid out like a Maps place card: the name as the title, the
+                // day's hours under it, ✕ to close, then the
+                // button row — Google Maps filled, one tap however long Good
+                // to know runs below
                 header={
-                  <div className="flex gap-2">
-                    {mapHref && <PlaceAction href={mapHref} icon="map" label="Google Maps" />}
-                    {reviewSite && <PlaceAction href={reviewHref(reviewSite, place)} icon="link" label={place.reviewUrl ? reviewSite.label : `Search ${reviewSite.label}`} />}
-                    <PlaceAction icon="locate" label="Show on map" onClick={() => { placeCard.setOpen(false); onShowOnMap(place); }} />
+                  <div className="space-y-3 md:w-[20rem]">
+                    <div className="flex items-start gap-3 pl-1">
+                      <div className="min-w-0 flex-1">
+                        <h2 className="subhead break-words">{place.name}</h2>
+                        {/* the day's hours — not the category, which is a
+                            layer name ("see") rather than what the place is */}
+                        {hours && <p className="meta mt-0.5 break-words">{/^\d/.test(hours) ? `Open ${hours}` : hours}</p>}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => placeCard.setOpen(false)}
+                        className="tap grid h-[30px] w-[30px] shrink-0 place-items-center rounded-full bg-ink/[0.08] text-ink-soft"
+                        aria-label="Close"
+                      >
+                        <Icon name="close" size={13} />
+                      </button>
+                    </div>
+                    <div className="flex gap-2">
+                      {mapHref && <PlaceAction href={mapHref} icon="map" label="Google Maps" primary />}
+                      {reviewSite && <PlaceAction href={reviewHref(reviewSite, place)} icon="link" label={place.reviewUrl ? reviewSite.label : `Search ${reviewSite.label}`} />}
+                      <PlaceAction icon="locate" label="Show on map" onClick={() => { placeCard.setOpen(false); onShowOnMap(place); }} />
+                    </div>
                   </div>
                 }
               >
                 {place.facts && wantsFacts(place, tripData) && (
-                  <ul onClick={(e) => e.stopPropagation()}>
-                    <PlaceFactRows place={place} area={area} />
-                  </ul>
+                  <div onClick={(e) => e.stopPropagation()} className="px-3 pb-2 md:w-[21.5rem]">
+                    <p className="kicker px-4 pb-1.5 pt-1">Good to know</p>
+                    <ul className="overflow-hidden rounded-[12px] bg-surface">
+                      <PlaceFactRows place={place} area={area} />
+                    </ul>
+                  </div>
                 )}
               </ActionSheet>
             )}
@@ -1030,9 +1052,12 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, areaNameB
 
 /** A button in a place card's top row — icon over a short label on a grey
  *  tile, sharing the row equally, as Maps lays out Directions / Call /
- *  Website. A link when it leaves the app, else a button. */
-function PlaceAction({ href, onClick, icon, label }: { href?: string; onClick?: () => void; icon: IconName; label: string }) {
-  const cls = "flex min-w-0 flex-1 flex-col items-center gap-1 rounded-[12px] bg-surface-2 px-1 py-2.5 text-center text-xs text-accent active:bg-ink/[0.07]";
+ *  Website; `primary` is the filled one. A link when it leaves the app,
+ *  else a button. */
+function PlaceAction({ href, onClick, icon, label, primary }: { href?: string; onClick?: () => void; icon: IconName; label: string; primary?: boolean }) {
+  // the card's main action is filled, as Maps fills Directions; the rest grey
+  const tone = primary ? "bg-accent text-white active:opacity-80" : "bg-ink/[0.06] text-accent active:bg-ink/[0.1]";
+  const cls = `flex min-w-0 flex-1 flex-col items-center gap-1 rounded-[12px] px-1 py-2.5 text-center text-xs ${tone}`;
   const body = <><Icon name={icon} size={20} /><span className="break-words leading-tight">{label}</span></>;
   return href ? (
     <a href={href} target="_blank" rel="noopener" className={cls}>{body}</a>
