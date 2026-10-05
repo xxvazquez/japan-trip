@@ -1164,6 +1164,12 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
   // a restaurant's guide page (Tabelog in Japan) — looked up as the step shows
   const reviewSite = place ? reviewSiteFor(place, categoryIcons) : undefined;
   const placeMenu = place ? menuHref(place) : undefined;
+  // the card's row holds four on a phone: Google Maps, Tabelog, Menu, More —
+  // Website takes a button only when one of the first three is missing
+  const website = place?.facts?.website;
+  const websiteFits = [mapHref, reviewSite, placeMenu].filter(Boolean).length < 3;
+  const websiteButton = websiteFits ? website : undefined;
+  const websiteInMore = websiteFits ? undefined : website;
   useAutoReviewLink(place, categoryIcons, !readOnly);
   // its "Good to know" (hours, reservations, queue…), behind a line under the step
   const tripData = useData();
@@ -1528,16 +1534,20 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                         <Icon name="close" size={13} />
                       </button>
                     </div>
+                    {/* Google Maps leads, filled, as Maps leads with Directions;
+                        then the place's own pages. Four fit a phone, so when
+                        Tabelog and Menu are both there, Website moves into More. */}
                     <PlaceActions>
+                      {mapHref && <PlaceAction href={mapHref} icon="map" label="Google Maps" primary />}
                       {reviewSite && <PlaceAction href={reviewHref(reviewSite, place)} icon="link" label={place.reviewUrl ? reviewSite.label : `Search ${reviewSite.label}`} />}
                       {placeMenu && <PlaceAction href={placeMenu} icon="menu" label="Menu" />}
-                      {place.facts?.website && <PlaceAction href={place.facts.website} icon="globe" label="Website" />}
+                      {websiteButton && <PlaceAction href={websiteButton} icon="globe" label="Website" />}
                       <PlaceAction icon="more" label="More" menu buttonRef={moreSheet.anchorRef} onClick={() => moreSheet.setOpen(true)} />
                     </PlaceActions>
                     <ActionSheet open={moreSheet.open} onClose={() => moreSheet.setOpen(false)} anchorRef={moreSheet.anchorRef}>
-                      {mapHref && (
-                        <a href={mapHref} target="_blank" rel="noopener" className="menu-item">
-                          <Icon name="map" size={16} /> Open in Google Maps
+                      {websiteInMore && (
+                        <a href={websiteInMore} target="_blank" rel="noopener" className="menu-item">
+                          <Icon name="globe" size={16} /> Website
                         </a>
                       )}
                       {!mapBeside && (
