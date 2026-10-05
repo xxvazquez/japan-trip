@@ -6,7 +6,7 @@ import { Editable } from "@/components/Editable";
 import { Icon, isIconName, type IconName } from "@/components/Icon";
 import { IconTile } from "@/components/IconTile";
 import { TileRow } from "@/components/TileRow";
-import { customListColor, logbookSectionTile, type Tone } from "@/lib/tones";
+import { customListColor, logbookSectionTile, type LogbookTile, type Tone } from "@/lib/tones";
 import { categoryName } from "@/lib/mapGlyphs";
 import { useApp, undoable } from "@/store/useApp";
 import { useData } from "@/lib/data";
@@ -1346,6 +1346,14 @@ const ENTITY_LABELS: Record<EntityType, string> = {
 // deleted on their pages — a second, rougher list of them here only invited
 // bugs (a duplicated day landed on the same date). `docs`, `areas` and
 // `scratchNotes` are likewise managed where they're shown.
+/** each Reference row's tile — the same one its list wears in the Logbook,
+ *  and the Map's pin for places */
+const CONTENT_TILE: Partial<Record<EntityType, LogbookTile>> = {
+  places: { name: "pin", tone: "accent" },
+  luggage: logbookSectionTile("luggage"),
+  packing: logbookSectionTile("packing"),
+};
+
 const CONTENT_GROUPS: { title: string; types: EntityType[] }[] = [
   { title: "Reference", types: ["places", "luggage", "packing"] },
 ];
@@ -1387,9 +1395,10 @@ function Content() {
     const list = data[type] as { id: string }[];
     const isOpen = open === type;
     return (
-      <div className="relative px-3.5 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
-        <button onClick={() => setOpen(isOpen ? null : type)} className="flex w-full items-baseline justify-between gap-3 py-3 text-left">
-          <span className="text-sm leading-snug text-ink">{ENTITY_LABELS[type]}</span>
+      <div className="relative px-3.5 after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
+        <button onClick={() => setOpen(isOpen ? null : type)} className="flex w-full items-center gap-3 py-3 text-left">
+          <IconTile size="sm" {...CONTENT_TILE[type]} />
+          <span className="min-w-0 flex-1 text-sm leading-snug text-ink">{ENTITY_LABELS[type]}</span>
           <span className="flex items-center gap-2">
             <span className="value tabular-nums text-ink-soft">{list.length}</span>
             <Icon name={isOpen ? "up" : "down"} size={15} className="text-ink-faint" />
@@ -1399,7 +1408,7 @@ function Content() {
           // the group's entries sit one indent in, like an expanded outline
           // row in Files or Reminders — so the heading above reads as the
           // group, not as one more entry
-          <div className="pb-3 pl-4">
+          <div className="pb-3 pl-[34px]">
             <ul>
               {list.map((x, i) => {
                 const rec = x as Record<string, unknown>;

@@ -34,6 +34,12 @@ export const TONE_BG: Record<Tone, string> = {
  *  "kind" of area). No colour picker; `MapTab.tsx` cycles through these. */
 export const AREA_TONES = ["#6f83a0", "#7e947a", "#a2856a", "#94788e", "#6f9494", "#9e9772", "#8a8fa8", "#a08674"];
 
+/** `AREA_TONES`' hues taken down to the palette tones' depth, for an
+ *  `IconTile` fill on a list row. The area tones are pale on purpose (they
+ *  tint a map), which left a white glyph washed out next to Manage's
+ *  accent / ochre / moss tiles; same index, same hue, just deeper. */
+const TILE_TONES = ["#516a8f", "#658160", "#936f4d", "#825f7a", "#5a8787", "#8c8354", "#5a6186", "#8d6b54"];
+
 /** the muted grey used wherever a place/area has no real colour of its own
  *  (an ungrouped place, a leg with no assigned colour) — named once so it's
  *  not retyped at every call site. */
@@ -74,17 +80,17 @@ export function toneForGlyph(glyph: MapGlyphId | string | undefined): Tone {
 /** Fixed hex per built-in Logbook section with no natural semantic tone of
  *  its own (see `logbookSectionTile`) — assigned by the section's own key,
  *  not its position in the visible list, so hiding one never shifts another's
- *  colour. Skips `AREA_TONES[0]` except for stamps, which sits well below
+ *  colour. Skips `TILE_TONES[0]` except for stamps, which sits well below
  *  "Getting around" in the list (too close to `ai` if adjacent) and reserves `[7]` as where a
  *  trip's own custom lists start cycling, so the two runs don't collide. */
 const LOGBOOK_SECTION_COLOR: Partial<Record<LogbookSection, string>> = {
-  luggage: AREA_TONES[1],
-  documents: AREA_TONES[2],
-  emergency: AREA_TONES[3],
-  packing: AREA_TONES[4],
-  stamps: AREA_TONES[0],
-  budget: AREA_TONES[5],
-  notes: AREA_TONES[6],
+  luggage: TILE_TONES[1],
+  documents: TILE_TONES[2],
+  emergency: TILE_TONES[3],
+  packing: TILE_TONES[4],
+  stamps: TILE_TONES[0],
+  budget: TILE_TONES[5],
+  notes: TILE_TONES[6],
 };
 
 /** The Logbook home's own index tile per section: `stays` (a hotel —
@@ -122,7 +128,7 @@ const LOGBOOK_SECTION_GLYPH: Record<LogbookSection, { name?: IconName; glyph?: M
  *  the slots those already claim (see `LOGBOOK_SECTION_COLOR`) so a list
  *  right below them doesn't repeat a colour that's still on screen. */
 export function customListColor(index: number): string {
-  return AREA_TONES[(7 + index) % AREA_TONES.length];
+  return TILE_TONES[(7 + index) % TILE_TONES.length];
 }
 
 /** A custom (unlinked) plan step's glyph, guessed from its own text — so a
