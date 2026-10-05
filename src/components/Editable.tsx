@@ -103,6 +103,16 @@ export function isLinkValue(label: string, value: string): boolean {
   return !!value.trim() && (k === "link" || k === "tel" || k === "email");
 }
 
+/** What a free-text field links to when tapped — its kind and href — or null
+ *  when it's plain text. Lets a page lift a phone or website out of the
+ *  traveller's own fields into a button. */
+export function fieldLink(label: string, value: string): { kind: "link" | "tel" | "email"; href: string } | null {
+  if (!isLinkValue(label, value)) return null;
+  const kind = resolveKind(label, value) as "link" | "tel" | "email";
+  const href = hrefFor(kind, value.trim());
+  return href ? { kind, href } : null;
+}
+
 /** The href a filled value links to, or null when it's not a link at all. */
 function hrefFor(kind: Kind, v: string): string | null {
   if (!v) return null;

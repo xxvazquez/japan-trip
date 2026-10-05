@@ -22,10 +22,12 @@ export function placeMapLink(place?: { name: string; lat: number; lng: number; u
 /** Google Maps directions with a travel mode — the app/web picks the best
  *  route itself (lines, transfers, timings), which is the part this app has
  *  no free API for. Endpoints are `lat,lng` or a place name; without an
- *  `origin`, Google starts from wherever you are. */
-export function gmapsRoute(origin: string | undefined, destination: string, mode: "transit" | "walking"): string {
+ *  `origin`, Google starts from wherever you are; without a `mode`, Google
+ *  picks the traveller's usual one. */
+export function gmapsRoute(origin: string | undefined, destination: string, mode?: "transit" | "walking"): string {
   const from = origin ? `&origin=${encodeURIComponent(origin)}` : "";
-  return `https://www.google.com/maps/dir/?api=1${from}&destination=${encodeURIComponent(destination)}&travelmode=${mode}`;
+  const by = mode ? `&travelmode=${mode}` : "";
+  return `https://www.google.com/maps/dir/?api=1${from}&destination=${encodeURIComponent(destination)}${by}`;
 }
 
 /** Pull a `[lat, lng]` out of a pasted Google Maps URL, if it carries one.

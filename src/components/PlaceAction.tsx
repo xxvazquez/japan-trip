@@ -31,7 +31,9 @@ export function PlaceAction({ href, onClick, icon, label, primary, buttonRef, me
   const cls = `flex min-w-0 max-w-[calc((100%-0.75rem)/3)] flex-1 basis-0 flex-col items-center justify-center gap-0.5 rounded-[10px] px-1 py-1.5 text-center text-[12px] ${tone}`;
   const body = <><Icon name={icon} size={16} className="shrink-0" /><span className="leading-tight">{label}</span></>;
   return href ? (
-    <a href={href} target="_blank" rel="noopener" className={cls}>{body}</a>
+    // a tel:/mailto: hands off to the dialler in place — a new tab would
+    // leave a blank window behind in the installed app
+    <a href={href} {...(/^https?:/i.test(href) ? { target: "_blank", rel: "noopener" } : {})} className={cls}>{body}</a>
   ) : (
     <button ref={buttonRef} type="button" onClick={onClick} aria-haspopup={menu ? "menu" : undefined} className={cls}>{body}</button>
   );

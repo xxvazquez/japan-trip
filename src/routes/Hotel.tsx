@@ -4,7 +4,8 @@ import { useLeavePage } from "@/components/NavBar";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
 import { InsetRow } from "@/components/InsetRow";
-import { Editable } from "@/components/Editable";
+import { Editable, fieldLink } from "@/components/Editable";
+import { PlaceAction, PlaceActions } from "@/components/PlaceAction";
 import { MoneyField } from "@/components/MoneyField";
 import { FieldList } from "@/components/FieldList";
 import { RichNote } from "@/components/RichNote";
@@ -14,7 +15,7 @@ import { CopyButton } from "@/components/CopyButton";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { gmapsLink } from "@/lib/maps";
+import { gmapsLink, gmapsRoute } from "@/lib/maps";
 import { fmtFare } from "@/lib/cost";
 import { fmtDate, fmtStay, hotelStays } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
@@ -47,6 +48,18 @@ export default function Hotel() {
   const primary = (data.config.currencies ?? []).filter(Boolean)[0] ?? "";
   const fields = hotel.fields ?? [];
 
+  // Maps' button row under the title: Directions from where you are, then
+  // the stay's phone and website lifted out of its own reference fields —
+  // "get me to the hotel" is one tap. A booking site's link isn't the
+  // hotel's website, but it's still the page you'd want, so any link counts
+  // bar a Google Maps one (that's what Directions is for).
+  const located = Number.isFinite(hotel.lat) && Number.isFinite(hotel.lng);
+  const dest = located ? `${hotel.lat},${hotel.lng}` : hotel.address?.trim();
+  const directions = dest ? gmapsRoute(undefined, dest) : undefined;
+  const links = fields.map((f) => fieldLink(f.label, f.value)).filter((l) => l !== null);
+  const call = links.find((l) => l.kind === "tel")?.href;
+  const website = links.find((l) => l.kind === "link" && !/google\.[^/]+\/maps|maps\.app\.goo\.gl|goo\.gl\/maps/i.test(l.href))?.href;
+
   // Check-in / -out: a fixed, useful pair (not a calc field, but not free-form).
   // With one stay here, each row also carries its date; with several, the
   // dates are all in the header and the rows are just the times.
@@ -70,6 +83,14 @@ export default function Hotel() {
       />
 
       <div className="mt-5 space-y-6">
+        {(directions || call || website) && (
+          <PlaceActions>
+            {directions && <PlaceAction href={directions} icon="route" label="Directions" primary />}
+            {call && <PlaceAction href={call} icon="phone" label="Call" />}
+            {website && <PlaceAction href={website} icon="globe" label="Website" />}
+          </PlaceActions>
+        )}
+
         {/* arrival — where it is and how you get in */}
         {showArrival && (
           <Section>
