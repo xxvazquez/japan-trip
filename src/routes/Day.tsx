@@ -1178,12 +1178,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
   // only the place's own menu page — the guide's menu tab is one tap from
   // its own button already
   const placeMenu = place?.facts?.menu;
-  // the card's row holds four on a phone: Google Maps, Tabelog, Menu, More —
-  // Website takes a button only when one of the first three is missing
   const website = place?.facts?.website;
-  const websiteFits = [mapHref, reviewSite, placeMenu].filter(Boolean).length < 3;
-  const websiteButton = websiteFits ? website : undefined;
-  const websiteInMore = websiteFits ? undefined : website;
   useAutoReviewLink(place, categoryIcons, !readOnly);
   // its "Good to know" (hours, reservations, queue…), behind a line under the step
   const tripData = useData();
@@ -1209,6 +1204,13 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
   // wide screens draw the day's map beside the plan: opening a place's card
   // also flies that map to it, so the card needs no Map button there
   const { active: mapBeside } = useSplit();
+  // the card's button row is always three, filling the card: Google Maps,
+  // the best of the place's own pages (else Show on Map / Add to Calendar),
+  // and More — whatever doesn't get a button is in More
+  const slot = (["review", "menu", "website", "map", "calendar"] as const).filter((k) =>
+    k === "review" ? !!reviewSite : k === "menu" ? !!placeMenu : k === "website" ? !!website : k === "map" ? !mapBeside : true,
+  ).slice(0, mapHref ? 1 : 2);
+  const inRow = (k: (typeof slot)[number]) => slot.includes(k);
   const openCard = place ? () => { placeCard.setOpen(true); if (mapBeside) onShowOnMap(place); } : undefined;
   // "Move to another day": off this day, onto the end of the picked one —
   // a timed step then sorts itself into place there, pin and all
@@ -1549,29 +1551,42 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                       </button>
                     </div>
                     {/* Google Maps leads, filled, as Maps leads with Directions;
-                        then the place's own pages. Four fit a phone, so when
-                        Tabelog and Menu are both there, Website moves into More. */}
+                        then one more, and More — always three across */}
                     <PlaceActions>
                       {mapHref && <PlaceAction href={mapHref} icon="map" label="Google Maps" primary />}
-                      {reviewSite && <PlaceAction href={reviewHref(reviewSite, place)} icon="link" label={place.reviewUrl ? reviewSite.label : `Search ${reviewSite.label}`} />}
-                      {placeMenu && <PlaceAction href={placeMenu} icon="menu" label="Menu" />}
-                      {websiteButton && <PlaceAction href={websiteButton} icon="globe" label="Website" />}
+                      {inRow("review") && reviewSite && <PlaceAction href={reviewHref(reviewSite, place)} icon="link" label={place.reviewUrl ? reviewSite.label : `Search ${reviewSite.label}`} />}
+                      {inRow("menu") && placeMenu && <PlaceAction href={placeMenu} icon="menu" label="Menu" />}
+                      {inRow("website") && website && <PlaceAction href={website} icon="globe" label="Website" />}
+                      {inRow("map") && <PlaceAction icon="locate" label="Show on Map" onClick={() => { placeCard.setOpen(false); onShowOnMap(place); }} />}
+                      {inRow("calendar") && <PlaceAction icon="calendar" label="Calendar" onClick={addToGoogleCalendar} />}
                       <PlaceAction icon="more" label="More" menu buttonRef={moreSheet.anchorRef} onClick={() => moreSheet.setOpen(true)} />
                     </PlaceActions>
                     <ActionSheet open={moreSheet.open} onClose={() => moreSheet.setOpen(false)} anchorRef={moreSheet.anchorRef}>
-                      {websiteInMore && (
-                        <a href={websiteInMore} target="_blank" rel="noopener" className="menu-item">
+                      {!inRow("review") && reviewSite && (
+                        <a href={reviewHref(reviewSite, place)} target="_blank" rel="noopener" className="menu-item">
+                          <Icon name="link" size={16} /> {place.reviewUrl ? reviewSite.label : `Search ${reviewSite.label}`}
+                        </a>
+                      )}
+                      {!inRow("menu") && placeMenu && (
+                        <a href={placeMenu} target="_blank" rel="noopener" className="menu-item">
+                          <Icon name="menu" size={16} /> Menu
+                        </a>
+                      )}
+                      {!inRow("website") && website && (
+                        <a href={website} target="_blank" rel="noopener" className="menu-item">
                           <Icon name="globe" size={16} /> Website
                         </a>
                       )}
-                      {!mapBeside && (
+                      {!mapBeside && !inRow("map") && (
                         <button type="button" className="menu-item" onClick={() => { placeCard.setOpen(false); onShowOnMap(place); }}>
                           <Icon name="locate" size={16} /> Show on Map
                         </button>
                       )}
-                      <button type="button" className="menu-item" onClick={addToGoogleCalendar}>
-                        <Icon name="calendar" size={16} /> Add to Calendar
-                      </button>
+                      {!inRow("calendar") && (
+                        <button type="button" className="menu-item" onClick={addToGoogleCalendar}>
+                          <Icon name="calendar" size={16} /> Add to Calendar
+                        </button>
+                      )}
                       {!readOnly && <>
                         <div className="my-1 h-px bg-ink/10" />
                         <MenuCheck checked={!!item.optional} onClick={toggleOptional}>Optional</MenuCheck>
