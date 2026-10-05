@@ -916,10 +916,22 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   // With no time set it closes the day
   const backAt = returnHotel && /^\d{1,2}:\d{2}$/.test(day.backAt ?? "") ? day.backAt!.padStart(5, "0") : undefined;
   const backIdx = !returnHotel ? -1 : backAt ? stopAt(backAt) : items.length;
-  // the way to the next step sits between the two — unless a journey's own
-  // row or the way back to the hotel is in between, which is the travel already
+  // where the plan last stood before step i, looking past steps with no
+  // place of their own (a snack, a rest) — unless a journey's own row or the
+  // way back to the hotel falls among them, which is the travel already
+  const placeBefore = (i: number) => {
+    for (let k = i - 1; k >= 0; k--) {
+      if (k + 1 < i && (k + 1 === backIdx || stopsAt(k + 1).length)) return undefined;
+      const p = placeOf(items[k]);
+      if (p) return p;
+    }
+    return undefined;
+  };
+  // the way to the next place sits just above it, measured from the last
+  // place before it — unless a journey's own row or the way back to the
+  // hotel is in between, which is the travel already
   const connectorAfter = (i: number) => {
-    const from = placeOf(items[i]);
+    const from = placeBefore(i + 1);
     const to = placeOf(items[i + 1]);
     if (!from || !to || i + 1 === backIdx || stopsBefore(i + 1).length) return [];
     return [<TravelConnector key={`travel-${items[i].id}`} from={from} to={to} />];
@@ -951,7 +963,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
     // the way there hangs off the stop before it, untimed, so a part-of-day
     // band falls after it — never between a stop and its travel. Measured
     // from the step before, unless a journey's row is the travel already
-    const from = before.length ? undefined : placeOf(items[i - 1]);
+    const from = before.length ? undefined : placeBefore(i);
     const to = hotelCoords(returnHotel);
     if (from && to) entries.push({ nodes: [<TravelConnector key="travel-to-hotel" from={from} to={to} />] });
     const next = placeOf(items[i]);
