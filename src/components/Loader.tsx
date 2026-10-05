@@ -34,3 +34,23 @@ export function BootScreen({ label = "Opening your atlas" }: { label?: string })
     </div>
   );
 }
+
+/** The small inline spinner — a pill's or a row's "working on it". */
+export function Spinner({ size = 14, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 56 56" aria-hidden className={`shrink-0 ${className}`}>
+      <circle
+        cx="28"
+        cy="28"
+        r="21"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="5"
+        strokeLinecap="round"
+        strokeDasharray="112 40"
+        className="motion-safe:animate-enso-spin"
+        style={{ transformOrigin: "center" }}
+      />
+    </svg>
+  );
+}

@@ -22,6 +22,7 @@ import { THEME_PRESETS, DEFAULT_ACCENT } from "@/lib/themePresets";
 import { GlyphPicker } from "@/components/GlyphPicker";
 import { ColorSwatch } from "@/components/ColorSwatch";
 import { ActionRow } from "@/components/ActionRow";
+import { Spinner } from "@/components/Loader";
 import { AccountCard } from "@/components/Account";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
@@ -44,7 +45,7 @@ import { MODE_LABEL } from "@/lib/transport";
 import { fallbackCategoryId } from "@/lib/hydrate";
 import { BackupError, downloadBackup, parseBackup } from "@/lib/tripBackup";
 import { DataSafety } from "@/components/DataSafety";
-import { useInstallState, useOfflineState } from "@/lib/pwa";
+import { checkForUpdate, useInstallState, useOfflineState, useUpdateState } from "@/lib/pwa";
 import { canPrefetchTiles, mapSaveStatus, prefetchTileGroups, pruneTripMaps, tripMapPoints, tripOfflineGroups, type MapSaveStatus } from "@/lib/offlineTiles";
 import { expenseCategoryIcon, categoryGlyphTile } from "@/lib/cost";
 import type { TransportMode } from "@/core/types";
@@ -122,11 +123,41 @@ function ManageIndex() {
         <Section>
           <ul>
             <TileRow to="/help" tile={<IconTile name="info" tone="ink-faint" />} title="Help" />
+            <UpdateRow />
           </ul>
         </Section>
       </div>
       <AppFooter />
     </Page>
+  );
+}
+
+/** Settings' Software Update, as one row: tap to look for a newer version of
+ *  the app; if there is one it downloads (spinner) and the app restarts into it. */
+function UpdateRow() {
+  const state = useUpdateState();
+  const busy = state === "checking" || state === "downloading" || state === "restarting";
+  const status =
+    state === "checking" ? "Checking…"
+    : state === "downloading" ? "Downloading…"
+    : state === "restarting" ? "Restarting…"
+    : state === "ready" ? "Ready"
+    : state === "current" ? "Up to date"
+    : state === "offline" ? "No connection"
+    : undefined;
+  return (
+    <TileRow
+      tile={<IconTile name="refresh" tone="ink-faint" />}
+      title="Check for Updates"
+      right={status && (
+        <span className="flex items-center gap-1.5">
+          {busy && <Spinner className="text-ink-faint" />}
+          {status}
+        </span>
+      )}
+      chevron={false}
+      onClick={busy ? undefined : () => void checkForUpdate({ manual: true })}
+    />
   );
 }
 

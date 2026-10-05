@@ -2,14 +2,27 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useApp } from "@/store/useApp";
 import { holdDragActive } from "@/lib/holdDrag";
+import { checkForUpdate, stopWaitingForUpdate } from "@/lib/pwa";
 
 const THRESHOLD = 64;
 const MAX_PULL = 88;
+/** how long the spinner waits on a new version of the app before letting it finish in the background */
+const UPDATE_WAIT_MS = 20_000;
+
+/** Re-pull the trip and look for a new version of the app at the same time.
+ *  If one is coming, keep spinning until it's in — the page restarts into it. */
+async function refreshAll(refreshTrip: () => Promise<void>) {
+  const [, update] = await Promise.all([refreshTrip(), checkForUpdate({ manual: true })]);
+  if (update === "downloading" || update === "restarting") {
+    await new Promise((r) => setTimeout(r, UPDATE_WAIT_MS));
+    stopWaitingForUpdate();
+  }
+}
 
 /**
  * iOS-style pull-to-refresh: drag down from the very top of the page to
  * re-pull the active trip (a no-op on the local backend — nothing remote to
- * be behind — but the gesture still feels the same). Touch only (checks
+ * be behind) and pick up a new version of the app if there is one. Touch only (checks
  * `pointerType`), so a mouse drag on desktop doesn't trigger it. Skipped on
  * Map: its panel is a fixed-height sheet with its own drag handle, not a page
  * that scrolls, so there's no "top of the page" to pull from there.
@@ -56,7 +69,7 @@ export function PullToRefresh() {
       if (pullingRef.current && pullRef.current >= THRESHOLD) {
         setRefreshing(true);
         setPull(THRESHOLD);
-        void refreshTrip().finally(() => {
+        void refreshAll(refreshTrip).finally(() => {
           setRefreshing(false);
           pullRef.current = 0;
           setPull(0);

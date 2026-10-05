@@ -9,6 +9,7 @@ import { Loader } from "./Loader";
 import { Icon } from "./Icon";
 import { NavProvider, NavLeft, NavTitle } from "./NavBar";
 import { UndoToast } from "./UndoToast";
+import { UpdatePill } from "./UpdatePill";
 import { AccountButton } from "./Account";
 import { SafetyBanner, SyncBanner } from "./SafetyBanner";
 import { SplitMap, useSplit, useSplitPane } from "./SplitMap";
@@ -126,6 +127,7 @@ export function AppShell() {
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
       <SplitMap pane={pane} />
       <UndoToast />
+      <UpdatePill />
     </div>
     </NavProvider>
   );

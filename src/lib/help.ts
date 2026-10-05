@@ -594,10 +594,13 @@ export const HELP: HelpTopic[] = [
       {
         id: "version",
         q: "Is my phone on the latest version?",
-        a: "The foot of **Manage** shows the version and build.",
+        a: "The app updates itself — it checks when you open it or come back to it. The foot of **Manage** shows the version and build.",
         blocks: [
           {
-            rows: [{ icon: "download", title: "Get the newest", detail: "Close the app and open it again" }],
+            rows: [
+              { icon: "refresh", title: "Check now", detail: "Manage → Check for Updates, or pull down from the top of any page" },
+              { icon: "download", title: "New version mid-use", detail: "Tap Restart on the note at the top, or it restarts next time you leave the app" },
+            ],
           },
         ],
       },
