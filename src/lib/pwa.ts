@@ -253,6 +253,59 @@ export async function checkForUpdate({ manual = false } = {}): Promise<UpdateSta
   return updateState;
 }
 
+/** What the full-screen Refresh is doing, for its loading screen; null when it isn't running. */
+let refreshLabel: string | null = null;
+const refreshListeners = new Set<() => void>();
+function setRefresh(label: string | null) {
+  refreshLabel = label;
+  refreshListeners.forEach((l) => l());
+}
+export function useAppRefresh(): string | null {
+  return useSyncExternalStore(
+    (cb) => {
+      refreshListeners.add(cb);
+      return () => refreshListeners.delete(cb);
+    },
+    () => refreshLabel,
+    () => null,
+  );
+}
+
+/** How long Refresh waits for a new version to download before opening
+ *  without it (it then finishes in the background and offers Restart) */
+const REFRESH_WAIT_MS = 45_000;
+
+/**
+ * Manage → Refresh: the app's own "close and reopen", without leaving it.
+ * The logo loading screen covers everything while it asks the server for a
+ * new version, downloads it if there is one, saves any pending edit and
+ * reloads — the app then opens on the newest version with the trip re-read.
+ */
+export async function refreshApp() {
+  if (refreshLabel) return;
+  setRefresh("Checking for updates");
+  // let the loading screen paint before the work starts
+  await new Promise((r) => setTimeout(r, 50));
+  if (swSupported && updateState !== "ready") {
+    restartWanted = true;
+    const reg = await registration().catch(() => undefined);
+    if (reg) {
+      lastCheck = Date.now();
+      await reg.update().catch(() => {}); // no signal: reopen on what's here
+      if (reg.installing && navigator.serviceWorker.controller) {
+        setRefresh("Downloading the new version");
+        // the controllerchange handler reloads as soon as it's in
+        await new Promise((r) => setTimeout(r, REFRESH_WAIT_MS));
+        restartWanted = false;
+      }
+    }
+  }
+  setRefresh("Opening your atlas");
+  setUpdate("restarting");
+  await settlePending(3000).catch(() => false);
+  window.location.reload();
+}
+
 /** Stop waiting on an update you asked for — it carries on in the background
  *  and offers Restart when it's in, instead of reloading the page later out of nowhere. */
 export function stopWaitingForUpdate() {

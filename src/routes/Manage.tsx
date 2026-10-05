@@ -22,7 +22,6 @@ import { THEME_PRESETS, DEFAULT_ACCENT } from "@/lib/themePresets";
 import { GlyphPicker } from "@/components/GlyphPicker";
 import { ColorSwatch } from "@/components/ColorSwatch";
 import { ActionRow } from "@/components/ActionRow";
-import { Spinner } from "@/components/Loader";
 import { AccountCard } from "@/components/Account";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
@@ -45,7 +44,7 @@ import { MODE_LABEL } from "@/lib/transport";
 import { fallbackCategoryId } from "@/lib/hydrate";
 import { BackupError, downloadBackup, parseBackup } from "@/lib/tripBackup";
 import { DataSafety } from "@/components/DataSafety";
-import { checkForUpdate, useInstallState, useOfflineState, useUpdateState } from "@/lib/pwa";
+import { refreshApp, useInstallState, useOfflineState } from "@/lib/pwa";
 import { canPrefetchTiles, mapSaveStatus, prefetchTileGroups, pruneTripMaps, tripMapPoints, tripOfflineGroups, type MapSaveStatus } from "@/lib/offlineTiles";
 import { expenseCategoryIcon, categoryGlyphTile } from "@/lib/cost";
 import type { TransportMode } from "@/core/types";
@@ -123,7 +122,7 @@ function ManageIndex() {
         <Section>
           <ul>
             <TileRow to="/help" tile={<IconTile name="info" tone="ink-faint" />} title="Help" />
-            <UpdateRow />
+            <RefreshRow />
           </ul>
         </Section>
       </div>
@@ -132,33 +131,10 @@ function ManageIndex() {
   );
 }
 
-/** Settings' Software Update, as one row: tap to look for a newer version of
- *  the app; if there is one it downloads (spinner) and the app restarts into it. */
-function UpdateRow() {
-  const state = useUpdateState();
-  const busy = state === "checking" || state === "downloading" || state === "restarting";
-  const status =
-    state === "checking" ? "Checking…"
-    : state === "downloading" ? "Downloading…"
-    : state === "restarting" ? "Restarting…"
-    : state === "ready" ? "Ready"
-    : state === "current" ? "Up to date"
-    : state === "offline" ? "No connection"
-    : undefined;
-  return (
-    <TileRow
-      tile={<IconTile name="refresh" tone="ink-faint" />}
-      title="Check for Updates"
-      right={status && (
-        <span className="flex items-center gap-1.5">
-          {busy && <Spinner className="text-ink-faint" />}
-          {status}
-        </span>
-      )}
-      chevron={false}
-      onClick={busy ? undefined : () => void checkForUpdate({ manual: true })}
-    />
-  );
+/** The app's own "close and reopen": the launch screen comes up while it
+ *  picks up the newest version (if there is one) and re-reads the trip. */
+function RefreshRow() {
+  return <TileRow tile={<IconTile name="refresh" tone="ink-faint" />} title="Refresh" chevron={false} onClick={() => void refreshApp()} />;
 }
 
 /** The product's quiet home — Manage is the "about the app" surface, so the

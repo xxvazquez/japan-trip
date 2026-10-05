@@ -7,6 +7,7 @@ import { applyMode, applyPalette, syncThemeColor, useIsDark, useMode } from "./l
 import { useAuth } from "./lib/auth";
 import { THEME_PRESETS } from "./lib/themePresets";
 import { BootScreen } from "./components/Loader";
+import { RefreshScreen } from "./components/RefreshScreen";
 import { SignIn } from "./routes/SignIn";
 import { Offline } from "./routes/Offline";
 import { Recovery } from "./routes/Recovery";
@@ -49,6 +50,7 @@ function Root() {
   return (
     <>
       <ThemeVars />
+      <RefreshScreen />
       {!auth.ready || (!hydrated && !bootError) ? (
         <BootScreen />
       ) : bootError ? (

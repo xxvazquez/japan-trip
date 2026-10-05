@@ -42,7 +42,7 @@ It then opens full screen like any other app. Do this on each phone. **Manage �
 **Updates install themselves** — no need to reinstall:
 - The app looks for a new version when it opens, when you come back to it (at most every 5 minutes), and every half hour while it's open.
 - Found at launch: it restarts into it straight away. Found mid-use: an *Updating…* note shows at the top, then **New version · Restart**. It also restarts on its own next time you leave the app.
-- To check now: **Manage → Check for Updates** (*Checking… → Downloading… →* restart, or *Up to date*), or pull down from the top of any page.
+- To get it now: **Manage → Refresh**. The launch screen (logo and spinner) covers the app while it fetches the newest version, saves any pending edit and reopens. Pulling down from the top of any page also checks.
 
 ### The demo trip
 
@@ -446,7 +446,7 @@ A read-only total of every price in the trip — stays, fares and day spending �
 
 ## Manage
 
-Open it from your account picture (or the foot of the sidebar on a wide screen). It starts with your account — who's signed in, sync status, Sign out or **Sign in with Google** — then a Settings-style list: **Trips**, **Setup**, **Content**, **Look**, **Sharing**, and **Help** and **Check for Updates** at the bottom.
+Open it from your account picture (or the foot of the sidebar on a wide screen). It starts with your account — who's signed in, sync status, Sign out or **Sign in with Google** — then a Settings-style list: **Trips**, **Setup**, **Content**, **Look**, **Sharing**, and **Help** and **Refresh** at the bottom.
 
 ### Setup
 
@@ -560,7 +560,7 @@ Once the app has loaded, it works with no signal. See [Before you travel](#befor
 
 ## Troubleshooting
 
-**Something looks out of date.** Pull down from the top of any page — it re-pulls the trip and picks up a new version of the app if there is one. Or **Manage → Check for Updates**.
+**Something looks out of date.** Pull down from the top of any page — it re-pulls the trip and picks up a new version of the app if there is one. Or **Manage → Refresh**.
 
 **Is this device on the latest version?** The foot of **Manage** shows the version, commit and build date. Compare the commit with the one you pushed.
 

@@ -598,7 +598,7 @@ export const HELP: HelpTopic[] = [
         blocks: [
           {
             rows: [
-              { icon: "refresh", title: "Check now", detail: "Manage → Check for Updates, or pull down from the top of any page" },
+              { icon: "refresh", title: "Get it now", detail: "Manage → Refresh — the app reopens on the newest version" },
               { icon: "download", title: "New version mid-use", detail: "Tap Restart on the note at the top, or it restarts next time you leave the app" },
             ],
           },
