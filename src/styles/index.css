@@ -76,6 +76,8 @@ html.dark {
   }
   html {
     scrollbar-gutter: stable;
+    /* on the root too: WebKit reads the page's bounce from html, not body */
+    overscroll-behavior-y: none;
   }
   /* Android Chrome's text autosizer inflates font size in narrow flex
    * columns to keep small text legible when the page is pinch-zoomed out —
@@ -99,7 +101,11 @@ html.dark {
     line-height: 1.5;
     font-feature-settings: "kern", "liga";
     overscroll-behavior-y: none;
-    min-height: 100svh;
+    /* dvh, not svh: in an iOS 26 home-screen app svh is off from the real
+     * screen by the status bar (62px), so every page scrolled a little
+     * even when it fit and the tab bar drifted with it. dvh is the real
+     * layout height on every target. */
+    min-height: 100dvh;
     /* app-like touch: no double-tap-zoom, no 300ms tap delay. The
      * `maximum-scale=1, user-scalable=no` viewport (index.html) is what stops
      * the focus-zoom on small inputs in the standalone PWA. */

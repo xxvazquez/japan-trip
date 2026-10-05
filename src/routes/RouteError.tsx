@@ -63,7 +63,7 @@ export default function RouteError() {
   if (willReload) return <BootScreen label="Loading" />;
 
   return (
-    <div className="washi grid min-h-svh place-items-center px-6">
+    <div className="washi grid min-h-dvh place-items-center px-6">
       <div className="w-full max-w-sm text-center">
         <img src={dark ? "/brand/logo-256-dark.png" : "/brand/logo-256-light.png"} width={64} height={64} alt="" className="mx-auto rounded-[22%]" />
         <h1 className="mt-5 font-display text-2xl">Something went wrong</h1>

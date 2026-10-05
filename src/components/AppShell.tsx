@@ -64,7 +64,7 @@ export function AppShell() {
     <NavProvider>
     <div
       ref={rootRef}
-      className="washi min-h-svh md:pl-[72px]"
+      className="washi min-h-dvh md:pl-[72px]"
       style={
         {
           "--pane-w": `${pane.paneWidth}px`, // the map half of the wide-screen split — resizable, see SplitMap
@@ -115,7 +115,7 @@ export function AppShell() {
         </div>
       )}
 
-      <main className={`min-h-[calc(100svh-var(--nav-h)-var(--sat))] ${split.active && !pane.collapsed ? "mr-[var(--pane-w)]" : ""}`}>
+      <main className={`min-h-[calc(100dvh-var(--nav-h)-var(--sat))] ${split.active && !pane.collapsed ? "mr-[var(--pane-w)]" : ""}`}>
         <PullToRefresh />
         <Suspense fallback={<Loader />}>
           <Outlet />
