@@ -26,6 +26,8 @@ import { ActionSheet, useActionSheet, ConfirmMenuItem } from "@/components/Actio
 import { Editable } from "@/components/Editable";
 import { MoneyField } from "@/components/MoneyField";
 import { PlaceAction, PlaceActions } from "@/components/PlaceAction";
+import type { Tip } from "@/components/InfoTips";
+import { touchDevice } from "@/lib/device";
 import { RichNote } from "@/components/RichNote";
 import { RowMenu } from "@/components/RowMenu";
 import { Markdown } from "@/components/Markdown";
@@ -100,6 +102,20 @@ export default function Day() {
   // realtime change) would otherwise change the hook count and crash
   return <DayPage data={data} day={day} />;
 }
+
+/** The Plan section's ⓘ, worded for the device in hand */
+const PLAN_TIPS_TOUCH: Tip[] = [
+  { icon: "clock", title: "Steps sort by time", text: "Set a time and the step moves into place." },
+  { icon: "reorder", title: "Move an untimed step", text: "Touch and hold ≡, then drag the step where you want it. It stays with the step above it." },
+  { icon: "pushpin", title: "Pin a booking", text: "Touch and hold a step, then tap Pin this step. Its time stays locked until you unpin it." },
+  { icon: "pin", title: "Link a place", text: "Tap a step's grey pin and pick a place from an area added below." },
+];
+const PLAN_TIPS_POINTER: Tip[] = [
+  { icon: "clock", title: "Steps sort by time", text: "Set a time and the step moves into place." },
+  { icon: "reorder", title: "Move an untimed step", text: "Point at the step and drag its ≡ where you want it. It stays with the step above it." },
+  { icon: "pushpin", title: "Pin a booking", text: "Right-click a step and choose Pin this step. Its time stays locked until you unpin it." },
+  { icon: "pin", title: "Link a place", text: "Click a step's grey pin and pick a place from an area added below." },
+];
 
 function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const updateEntity = useApp((s) => s.updateEntity);
@@ -553,12 +569,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       {((day.plan ?? []).length > 0 || !ro) && (
         <Section
           title="Plan"
-          info={[
-            { icon: "clock", title: "Steps sort by time", text: "Set a time and the step moves into place." },
-            { icon: "reorder", title: "Drag to place untimed steps", text: "Drag ≡ to put a step without a time where you want it. It then stays with the step above it." },
-            { icon: "pushpin", title: "Pin a booking", text: "Hold a step (⋯ on a computer) and choose Pin this step to lock its time until you unpin it." },
-            { icon: "pin", title: "Link a place", text: "Tap a step's grey pin to link it to a place from an area added below." },
-          ]}
+          info={touchDevice ? PLAN_TIPS_TOUCH : PLAN_TIPS_POINTER}
           action={overwhelmingCount > 0 && (
             <span className="flex items-center gap-1 text-xs text-danger" title={`${plural(overwhelmingCount, "overwhelming place")} today`}>
               <Icon name="alert" size={13} /> {overwhelmingCount}
