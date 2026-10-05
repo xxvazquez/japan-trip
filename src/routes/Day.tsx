@@ -896,7 +896,6 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   };
   const stopsAt = (i: number) =>
     stops.filter((st) => stopAt(st.time) === i).sort((a, b) => a.time.localeCompare(b.time));
-  const stopsBefore = (i: number) => stopsAt(i).map(stopRow);
 
   // nothing planned and no hotel to start or end at — on any other empty
   // day the hotel rows still draw, so it looks like every other day
@@ -916,25 +915,31 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   // With no time set it closes the day
   const backAt = returnHotel && /^\d{1,2}:\d{2}$/.test(day.backAt ?? "") ? day.backAt!.padStart(5, "0") : undefined;
   const backIdx = !returnHotel ? -1 : backAt ? stopAt(backAt) : items.length;
-  // where the plan last stood before step i, looking past steps with no
-  // place of their own (a snack, a rest) — unless a journey's own row or the
-  // way back to the hotel falls among them, which is the travel already
+  // where the plan last stood before step i, and at which step, looking
+  // past steps with no place of their own (a snack, a rest) — unless a
+  // journey's own row or the way back to the hotel falls among them, which
+  // is the travel already
   const placeBefore = (i: number) => {
     for (let k = i - 1; k >= 0; k--) {
       if (k + 1 < i && (k + 1 === backIdx || stopsAt(k + 1).length)) return undefined;
       const p = placeOf(items[k]);
-      if (p) return p;
+      if (p) return { place: p, at: k };
     }
     return undefined;
   };
-  // the way to the next place sits just above it, measured from the last
-  // place before it — unless a journey's own row or the way back to the
-  // hotel is in between, which is the travel already
+  // the way to the next place hangs off the place it leaves from, looking
+  // past steps with no place of their own (a snack, a rest) — unless a
+  // journey's own row or the way back to the hotel is in between, which is
+  // the travel already
   const connectorAfter = (i: number) => {
-    const from = placeBefore(i + 1);
-    const to = placeOf(items[i + 1]);
-    if (!from || !to || i + 1 === backIdx || stopsBefore(i + 1).length) return [];
-    return [<TravelConnector key={`travel-${items[i].id}`} from={from} to={to} />];
+    const from = placeOf(items[i]);
+    if (!from) return [];
+    for (let j = i + 1; j < items.length; j++) {
+      if (j === backIdx || stopsAt(j).length) return [];
+      const to = placeOf(items[j]);
+      if (to) return [<TravelConnector key={`travel-${items[i].id}`} from={from} to={to} />];
+    }
+    return [];
   };
 
   // the way out from the night's hotel to the first step — unless a journey
@@ -949,6 +954,8 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   // own rows, and each step with the way on to the next just under it — a
   // stop and its travel are one chunk, never split by a part-of-day label
   const entries: { time?: string; nodes: React.ReactNode[] }[] = [];
+  // each step's own entry, so the way back to the hotel can hang off it
+  const itemEntries: (typeof entries)[number][] = [];
   const pushStops = (sts: typeof stops) => {
     for (const st of sts) entries.push({ time: st.time, nodes: [stopRow(st)] });
   };
@@ -960,12 +967,13 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
     const before = sts.filter((st) => !backAt || st.time <= backAt);
     const after = sts.filter((st) => !before.includes(st));
     pushStops(before);
-    // the way there hangs off the stop before it, untimed, so a part-of-day
-    // band falls after it — never between a stop and its travel. Measured
-    // from the step before, unless a journey's row is the travel already
-    const from = before.length ? undefined : placeBefore(i);
+    // the way there hangs off the place it leaves from, in that step's own
+    // chunk, so a part-of-day band never falls between a step and its
+    // travel — unless a journey's row is the travel already
+    const last = before.length ? undefined : placeBefore(i);
+    const from = last?.place;
     const to = hotelCoords(returnHotel);
-    if (from && to) entries.push({ nodes: [<TravelConnector key="travel-to-hotel" from={from} to={to} />] });
+    if (last && to) itemEntries[last.at].nodes.push(<TravelConnector key="travel-to-hotel" from={last.place} to={to} />);
     const next = placeOf(items[i]);
     entries.push({
       time: backAt,
@@ -987,7 +995,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   };
   items.forEach((it, i) => {
     pushSlot(i);
-    entries.push({
+    entries.push(itemEntries[i] = {
       time: splitRange(it.time)?.[0] ?? it.time,
       nodes: [
         <PlanRow
