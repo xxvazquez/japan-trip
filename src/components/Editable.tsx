@@ -175,6 +175,14 @@ export function Editable(props: Props) {
     }
   }, [editing, as]);
 
+  // a wrapping text field is as tall as its lines, never a scroll box
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!editing || as !== "text" || !el || el.tagName !== "TEXTAREA") return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [editing, as, draft]);
+
   // where the last tap while editing landed, so a blank edit can tell
   // "tapped off the row" from "tapped another control on the same row"
   const lastTap = useRef<EventTarget | null>(null);
@@ -402,6 +410,33 @@ export function Editable(props: Props) {
         onKeyDown={(e) => {
           if (e.key === "Escape") cancel();
           if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) commit();
+        }}
+      />
+    );
+  }
+
+  // plain text edits in a one-line-at-a-time textarea that grows with the
+  // text, so a long value wraps exactly as it read before the tap instead of
+  // scrolling sideways under a single-line field (Reminders' own titles do
+  // this). Return still saves — a newline never makes it in.
+  if (as === "text") {
+    return (
+      <textarea
+        {...shared}
+        rows={1}
+        enterKeyHint="done"
+        className={`${shared.className} resize-none overflow-hidden`}
+        onChange={(e) => setDraft(e.target.value.replace(/\s*\n\s*/g, " "))}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") cancel();
+          if (e.key === "Enter") {
+            e.preventDefault();
+            commit();
+            if (draft.trim() && onReturn) {
+              e.stopPropagation();
+              onReturn();
+            }
+          }
         }}
       />
     );

@@ -93,7 +93,7 @@ export function PageHeader({
         </p>
       ) : null}
       <div className="flex items-center justify-between gap-3">
-        <h1 ref={setH1} className="text-title min-w-0">{title}</h1>
+        <h1 ref={setH1} className="text-title min-w-0 flex-1">{title}</h1>
         {(action || info) && (
           <div className="flex shrink-0 items-center gap-1">
             {action}
