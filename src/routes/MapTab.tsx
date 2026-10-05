@@ -352,33 +352,80 @@ function useSheetSnap(shellRef: RefObject<HTMLDivElement | null>) {
   const stopPx = (s: Snap): number => (s === "half" ? halfStopPx : snapPx(s, availH));
   const sheetHeight = stopPx(snap);
 
+  // The drag moves the sheet with a transform, never its height: a height
+  // change lays out the whole list on every finger move (and every frame of
+  // the settle), which is what made it step in chunks on a phone. For the
+  // gesture the sheet is made full height and slid down to where it was;
+  // once it has settled on a stop it takes that stop's height again.
+  const fullPx = availH - FULL_GAP_PX;
+  const shownH = useRef(0);
+  const frame = useRef(0);
+  const settleTimer = useRef(0);
+  const liftForGesture = () => {
+    const el = sheetRef.current;
+    if (!el) return false;
+    window.clearTimeout(settleTimer.current);
+    shownH.current = el.getBoundingClientRect().height;
+    el.style.transition = "none";
+    el.style.height = `${fullPx}px`;
+    el.style.transform = `translate3d(0, ${fullPx - shownH.current}px, 0)`;
+    setDragging(true);
+    return true;
+  };
+  const settleTo = (target: Snap) => {
+    const el = sheetRef.current;
+    if (!el) return;
+    cancelAnimationFrame(frame.current);
+    const h = stopPx(target);
+    void el.offsetHeight; // start the slide from where the finger left it
+    el.style.transition = "transform 0.42s var(--ease-paper)";
+    el.style.transform = `translate3d(0, ${fullPx - h}px, 0)`;
+    const done = () => {
+      el.removeEventListener("transitionend", done);
+      window.clearTimeout(settleTimer.current);
+      el.style.transition = "none";
+      el.style.transform = "";
+      el.style.height = `${h}px`;
+      void el.offsetHeight;
+      el.style.transition = "";
+      setSnap(target);
+      setDragging(false);
+    };
+    el.addEventListener("transitionend", done);
+    settleTimer.current = window.setTimeout(done, 480); // no transitionend when nothing moved
+  };
+
   const onHandlePointerDown = (e: ReactPointerEvent) => {
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
-    dragStart.current = { y: e.clientY, h: sheetRef.current?.getBoundingClientRect().height ?? sheetHeight };
-    setDragging(true);
+    if (!liftForGesture()) return;
+    dragStart.current = { y: e.clientY, h: shownH.current };
   };
   const onHandlePointerMove = (e: ReactPointerEvent) => {
     if (!dragStart.current || !sheetRef.current) return;
-    const next = Math.min(Math.max(dragStart.current.h + (dragStart.current.y - e.clientY), PEEK_PX), availH - FULL_GAP_PX);
-    sheetRef.current.style.height = `${next}px`;
+    const next = Math.min(Math.max(dragStart.current.h + (dragStart.current.y - e.clientY), PEEK_PX), fullPx);
+    shownH.current = next;
+    cancelAnimationFrame(frame.current);
+    frame.current = requestAnimationFrame(() => {
+      if (sheetRef.current) sheetRef.current.style.transform = `translate3d(0, ${fullPx - next}px, 0)`;
+    });
   };
   const onHandlePointerUp = (e: ReactPointerEvent) => {
     if (!dragStart.current || !sheetRef.current) return;
     const moved = Math.abs(e.clientY - dragStart.current.y);
-    setDragging(false);
     suppressClick.current = true;
-    if (moved < TAP_SLOP_PX) {
-      setSnap(NEXT[snap]);
-    } else {
-      const finalH = sheetRef.current.getBoundingClientRect().height;
-      const stops: Snap[] = ["peek", "half", "full"];
-      setSnap(stops.reduce((best, s) => (Math.abs(stopPx(s) - finalH) < Math.abs(stopPx(best) - finalH) ? s : best)));
-    }
     dragStart.current = null;
+    if (moved < TAP_SLOP_PX) {
+      settleTo(NEXT[snap]);
+    } else {
+      const finalH = shownH.current;
+      const stops: Snap[] = ["peek", "half", "full"];
+      settleTo(stops.reduce((best, s) => (Math.abs(stopPx(s) - finalH) < Math.abs(stopPx(best) - finalH) ? s : best)));
+    }
   };
   const onHandleClick = () => {
     if (suppressClick.current) { suppressClick.current = false; return; }
-    setSnap(NEXT[snap]); // keyboard activation — no pointer sequence to read a drag from
+    // keyboard activation — no pointer sequence to read a drag from
+    if (liftForGesture()) settleTo(NEXT[snap]);
   };
 
   return {
@@ -1760,7 +1807,7 @@ export default function MapTab() {
     <div
       ref={shellRef}
       style={{ "--panel-w": `${panelWidth}px` } as CSSProperties}
-      className="fixed inset-x-0 bottom-[max(var(--tabbar-clear),var(--kb,0px))] top-[max(calc(var(--sat)+var(--nav-h)+var(--demo-h,0px)),calc(var(--vvt,0px)+var(--sat)))] z-20 md:bottom-0 md:left-[72px]"
+      className="fixed inset-x-0 bottom-[max(var(--tabbar-clear),var(--kb,0px))] overflow-hidden md:overflow-visible top-[max(calc(var(--sat)+var(--nav-h)+var(--demo-h,0px)),calc(var(--vvt,0px)+var(--sat)))] z-20 md:bottom-0 md:left-[72px]"
     >
       {/* map — hidden, not unmounted, in list-only view: keeps its instance
           (viewport, loaded tiles) alive for an instant toggle back */}
