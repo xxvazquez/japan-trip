@@ -1,6 +1,7 @@
 import { useEffect, useId, useState, type ReactNode } from "react";
 import { useNavRegistration } from "./NavBar";
 import { Icon } from "./Icon";
+import { InfoCard, type Tip } from "./InfoTips";
 
 /** Standard reading column for a route's content. */
 export function Page({
@@ -63,7 +64,7 @@ export function PageHeader({
   dotColor?: string;
   title: ReactNode;
   meta?: ReactNode;
-  info?: ReactNode;
+  info?: ReactNode | Tip[];
   action?: ReactNode;
   /** a small second line under the nav bar's title once the large title has
    *  scrolled away — what the page's header said that you'd lose with it */
@@ -111,7 +112,7 @@ export function PageHeader({
           </div>
         )}
       </div>
-      {info && showInfo && <p id={infoId} className="meta mt-1.5">{info}</p>}
+      {info && showInfo && <InfoCard id={infoId} info={info} className="mt-3" />}
       {meta ? <p className="meta mt-2">{meta}</p> : null}
     </header>
   );

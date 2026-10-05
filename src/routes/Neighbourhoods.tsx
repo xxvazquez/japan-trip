@@ -105,7 +105,12 @@ export default function Neighbourhoods() {
       <PageHeader
         back="/map"
         title="Neighbourhoods"
-        info="Your places sorted into the neighbourhoods OpenStreetMap puts them in, so you can compare them with the areas you made yourself. Areas are yours — you name them and pick their places. Neighbourhoods are the official names, worked out for you. A neighbourhood with fewer than 3 places joins its district. Looked up once per place and kept on this device. Grouping the Map by neighbourhood only changes how the Map lists places — your areas stay as they are, and a place keeps the areas you gave it."
+        info={[
+          { icon: "map", title: "Official names", text: "Your places sorted into the neighbourhoods OpenStreetMap puts them in, to compare with the areas you made." },
+          { icon: "tag", title: "Areas are yours", text: "You name areas and pick their places. Neighbourhoods are worked out for you." },
+          { icon: "list", title: "Small ones fold in", text: "A neighbourhood with fewer than 3 places joins its district. Each place is looked up once and kept on this device." },
+          { icon: "eye", title: "Grouping is a view", text: "Grouping the Map by neighbourhood only changes how the Map lists places. Your areas, and each place's areas, stay as they are." },
+        ]}
       />
 
       <div className="mt-5 space-y-6">

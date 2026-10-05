@@ -553,7 +553,12 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       {((day.plan ?? []).length > 0 || !ro) && (
         <Section
           title="Plan"
-          info="Steps keep themselves in time order — set a time and the step moves there. Drag ≡ to place a step without a time; it then stays with the step above it. Hold a step for its menu (⋯ on a computer), where Pin this step locks a step's time (a booking) until you unpin it. Tap a step's grey pin to link it to a place from an Area you've added below."
+          info={[
+            { icon: "clock", title: "Steps sort by time", text: "Set a time and the step moves into place." },
+            { icon: "reorder", title: "Drag to place untimed steps", text: "Drag ≡ to put a step without a time where you want it. It then stays with the step above it." },
+            { icon: "pushpin", title: "Pin a booking", text: "Hold a step (⋯ on a computer) and choose Pin this step to lock its time until you unpin it." },
+            { icon: "pin", title: "Link a place", text: "Tap a step's grey pin to link it to a place from an area added below." },
+          ]}
           action={overwhelmingCount > 0 && (
             <span className="flex items-center gap-1 text-xs text-danger" title={`${plural(overwhelmingCount, "overwhelming place")} today`}>
               <Icon name="alert" size={13} /> {overwhelmingCount}

@@ -401,7 +401,13 @@ function ThisDevice() {
     <Section
       title="This device"
       className="mt-8"
-      info="Ready means the app itself is saved on this device and opens with no signal. A trip kept on this device works fully offline; if you sign in to sync, open your trip once while you're online before you travel. Map areas you've already looked at are saved too — Save trip maps saves the area around every day, stay and place in this trip in one go, so do it on wifi before you leave. Saved maps are never cleared to make room, and once they're saved the row says so; add places later and it shows how many aren't saved yet, and roughly how much saving them would download. Attachments are kept on the device as you open them; Save attachments gets them all at once. Installing puts the app on your home screen and opens it full-screen like any other."
+      info={[
+        { icon: "check", title: "Ready", text: "The app is saved on this device and opens with no signal." },
+        { icon: "cloud-down", title: "Your trip", text: "A trip kept on this device works fully offline. If you sync, open your trip once while online before you travel." },
+        { icon: "map", title: "Save trip maps", text: "Saves the map around every day, stay and place in one go — do it on wifi before you leave. Saved maps are never cleared, and the row shows how much new places would add." },
+        { icon: "download", title: "Attachments", text: "Kept on the device as you open them; Save attachments gets them all at once." },
+        { icon: "plus", title: "Install", text: "Puts the app on your home screen, opening full-screen like any other." },
+      ]}
     >
       <ul>
         <Row label="Works offline">
@@ -506,7 +512,12 @@ function ExportTrip() {
   return (
     <Section
       title="Export"
-      info="A single web-page file of the whole trip — itinerary, journeys, stays and places. Opens in any browser, prints cleanly, works offline; the recipient can print it to PDF. “Add to calendar” instead makes a .ics file — every plan step and travel hop as a calendar event, import it into your phone's own calendar. “Include private details” adds door codes, wifi, phone numbers and booking references — leave it off for anything you send someone. Document files are never included either way."
+      info={[
+        { icon: "globe", title: "Web page", text: "The whole trip — itinerary, journeys, stays and places — in one file. Opens in any browser, works offline and prints cleanly, including to PDF." },
+        { icon: "calendar", title: "Add to calendar", text: "Makes a .ics file with every plan step and travel hop as an event, to import into your phone's calendar." },
+        { icon: "shield", title: "Private details", text: "Adds door codes, wifi, phone numbers and booking references. Leave it off for anything you send someone." },
+        { icon: "info", title: "Not included", text: "Document files, either way." },
+      ]}
     >
       <ul>
         <InsetRow label="Include private details" className="!items-center">
@@ -527,7 +538,11 @@ function BackupTrip() {
   return (
     <Section
       title="Backup"
-      info="A complete copy of this trip as a .json file — every base, stay, day, place and setting, including private details like booking references and wifi, so keep it somewhere you trust. To bring it back (on this device or another), use Restore from backup on the Trips tab; it's added as a new trip and never overwrites one you have. Attached document files aren't inside the backup: ones stored in Google Drive still open from anywhere, ones saved only on this device stay on this device."
+      info={[
+        { icon: "download", title: "Everything in one file", text: "A .json copy of every base, stay, day, place and setting — including booking references and wifi, so keep it somewhere you trust." },
+        { icon: "refresh", title: "Bringing it back", text: "Use Restore from backup on the Trips tab, on this device or another. It comes in as a new trip and never overwrites one you have." },
+        { icon: "link", title: "Attached files", text: "Not inside the backup. Ones in Google Drive still open from anywhere; ones saved only on this device stay there." },
+      ]}
     >
       <ul>
         <ActionRow
@@ -903,7 +918,12 @@ function ExpenseCategoriesPanel() {
   return (
     <Section
       title="Expense categories"
-      info="The buckets your spending groups into on the Expenses tab. A mode is how you travelled — train, bus, taxi, flight… Tap “+ modes” on a category to make it claim one or more, so a journey's fare lands there automatically instead of one big “Transport”. “Accommodation” already does this for every stay's price. A mode nobody's claimed falls to whichever category is marked “auto: fares”. Each category's icon is guessed from all this, or its name — override it with “Auto icon”."
+      info={[
+        { icon: "wallet", title: "Categories", text: "The buckets your spending groups into on the Expenses tab." },
+        { icon: "train", title: "Modes", text: "How you travelled — train, bus, taxi, flight… Tap “+ modes” on a category so a journey's fare lands there by itself. “Accommodation” already takes every stay's price." },
+        { icon: "list", title: "Unclaimed modes", text: "Fall to the category marked “auto: fares”." },
+        { icon: "tag", title: "Icons", text: "Guessed from the modes or the name — override with “Auto icon”." },
+      ]}
     >
       <ul>
         {cats.map((c, i) => (
@@ -1484,7 +1504,11 @@ function Content() {
       <MapLayers names={names} colorOf={colorOf} icons={icons} />
       <Section
         title="Category pins"
-        info="Each category's colour and icon apply to all its pins, whatever they had in My Maps — set them once here. A new category gets an icon guessed from its name; tap it to pick another, or “Dot” for none. “Always show” keeps a category's pins on the map when you zoom far out, on top of everything, instead of folding them into a numbered cluster — handy for your hotel, or anything you need to find at a glance."
+        info={[
+          { icon: "tag", title: "Colour and icon", text: "Apply to all of a category's pins, whatever they had in My Maps — set them once here." },
+          { icon: "star", title: "Icons", text: "A new category gets one guessed from its name; tap it to pick another, or “Dot” for none." },
+          { icon: "eye", title: "Always show", text: "Keeps a category's pins on the map when zoomed far out, on top of everything — handy for your hotel." },
+        ]}
       >
         <ul>
           {names.map((name) => (
@@ -1774,7 +1798,12 @@ function PlaceFactsPanel() {
   return (
     <Section
       title="Good to know"
-      info="Restaurants and cafés, and every place on a day’s plan, get a short summary of what guides and review sites say — what it’s known for, hours and closed days, then reservations, queues and price for somewhere to eat, or tickets, crowds and entry fee for a shrine, museum or other sight — plus the place’s own website when it has one. It’s looked up when you open one on Plan or the Map, and again once it’s a month old; this does them all at once. Each place shows when it was checked, and can be refreshed by hand."
+      info={[
+        { icon: "info", title: "What you get", text: "For restaurants, cafés and every place on a day's plan: what it's known for, hours and closed days, the place's own website." },
+        { icon: "wallet", title: "To eat or to see", text: "Reservations, queues and price for somewhere to eat; tickets, crowds and entry fee for a sight." },
+        { icon: "refresh", title: "When it's looked up", text: "When you open a place on Plan or the Map, and again once it's a month old. This does them all at once." },
+        { icon: "clock", title: "Checked date", text: "Each place shows when it was checked, and can be refreshed by hand." },
+      ]}
     >
       <ul>
         <InsetRow label="Filled in">

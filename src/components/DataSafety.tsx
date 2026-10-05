@@ -95,7 +95,12 @@ export function DataSafety() {
     <div className="space-y-6">
       <Section
         title="Data safety"
-        info="Every change saves as you go. On top of that the app keeps restore points — automatically while you edit, and always before something risky, like deleting a trip or restoring an older copy. Ones in your account survive losing this device; ones on this device also work offline. Restoring over a trip keeps what was there as a restore point first."
+        info={[
+          { icon: "check", title: "Saved as you go", text: "Every change saves straight away." },
+          { icon: "refresh", title: "Restore points", text: "Kept automatically while you edit, and always before something risky, like deleting a trip or restoring an older copy." },
+          { icon: "cloud-down", title: "Account or device", text: "Ones in your account survive losing this device; ones on this device also work offline." },
+          { icon: "shield", title: "Nothing is lost", text: "Restoring over a trip keeps what was there as a restore point first." },
+        ]}
       >
         <ul>
           <InsetRow label="Status">{status}</InsetRow>

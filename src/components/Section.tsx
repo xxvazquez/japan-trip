@@ -1,5 +1,6 @@
 import { useId, useState, type ReactNode } from "react";
 import { Icon } from "./Icon";
+import { InfoCard, type Tip } from "./InfoTips";
 import { usePersistedOpen, slug } from "@/lib/collapse";
 
 /**
@@ -16,7 +17,8 @@ import { usePersistedOpen, slug } from "@/lib/collapse";
  *
  * `action` — a secondary control in the header (＋ Add, a count, a delete).
  * `info` — one-off "how this works" copy, revealed by an ⓘ toggle in the header
- * rather than taking a permanent line. (`<PageHeader info>` is the page-wide form.)
+ * rather than taking a permanent line — a sentence or two, or a list of `Tip`s
+ * when it explains several things. (`<PageHeader info>` is the page-wide form.)
  * `defaultOpen` — the first-ever state, before the viewer has touched the
  * chevron (default `true`). Set `false` for a section that's more useful shut
  * until asked for, e.g. one card per list entry.
@@ -32,7 +34,7 @@ export function Section({
 }: {
   title?: ReactNode;
   action?: ReactNode;
-  info?: ReactNode;
+  info?: ReactNode | Tip[];
   id?: string;
   defaultOpen?: boolean;
   children: ReactNode;
@@ -86,7 +88,7 @@ export function Section({
           )}
         </div>
       )}
-      {info && showInfo && <p id={infoId} className="meta -mt-0.5 mb-2 px-1">{info}</p>}
+      {info && showInfo && <InfoCard id={infoId} info={info} className="mb-2" />}
       <div id={bodyId} className={`grid transition-[grid-template-rows] duration-300 ease-paper ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
         <div className="min-h-0 overflow-hidden">
           {/* isolate: makes the rounded overflow clip a swiped row's translated
