@@ -116,7 +116,7 @@ export default function Hotel() {
                   <span className="block font-sans text-sm leading-snug text-ink">
                     <Editable label="Address" value={hotel.address ?? ""} placeholder="Add the address" onCommit={(v) => p({ address: v || undefined, lat: undefined, lng: undefined })} />
                   </span>
-                  {(hotel.addressAlt || !ro) && (
+                  {hotel.addressAlt && (
                     <span
                       className="mt-1 flex items-start justify-between gap-2 text-xs leading-snug text-ink-soft"
                     >
