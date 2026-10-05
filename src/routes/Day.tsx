@@ -169,8 +169,12 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   // the trip's places (then its time), or Custom… for a step to type
   const addSheet = useActionSheet();
   const addAnchor = useRef<HTMLElement | null>(null);
-  const addStep = (e?: { currentTarget: HTMLElement }) => {
+  // where the new step goes: at the end, or (from a part-of-day band or a
+  // step's Add Step Below) at that spot — untimed, so it stays there
+  const addAt = useRef<number | undefined>(undefined);
+  const addStep = (e?: { currentTarget: HTMLElement }, at?: number) => {
     addAnchor.current = e?.currentTarget ?? null;
+    addAt.current = at;
     addSheet.setOpen(true);
   };
   const addPicked = (pid?: string) => {
@@ -179,7 +183,11 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     const p = pid ? data.places.find((x) => x.id === pid) : undefined;
     flushSync(() => {
       setFreshStep(id);
-      setPlan([...(day.plan ?? []), p ? { id, text: p.name, placeId: p.id } : { id, text: "" }]);
+      const step: PlanItem = p ? { id, text: p.name, placeId: p.id } : { id, text: "" };
+      // the plan as shown (time order), so the index is the spot tapped
+      const plan = sortByTime(day.plan ?? [], () => false);
+      const at = Math.min(addAt.current ?? plan.length, plan.length);
+      setPlan([...plan.slice(0, at), step, ...plan.slice(at)]);
     });
   };
   const usedLabels = useMemo(() => tripLabels(data.days), [data.days]);
@@ -861,12 +869,12 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   readOnly: boolean;
   /** the step just added — opens its text for typing */
   fresh: string | null;
-  /** adds a step at the end — opens what it is first */
-  onAdd: (e?: { currentTarget: HTMLElement }) => void;
+  /** adds a step at the end, or at index `at` — opens what it is first */
+  onAdd: (e?: { currentTarget: HTMLElement }, at?: number) => void;
   onChange: (next: PlanItem[]) => void;
   /** sets when you're back at the hotel (the last row's time) */
   onBackAt: (time: string | undefined) => void;
-  /** sets when you leave the hotel (the first row's time) */
+  /** sets when you leave the hotel (that row's time) */
   onLeaveAt: (time: string | undefined) => void;
   onQuickAddCost: (item: PlanItem) => void;
   onShowOnMap: (place: Place) => void;
@@ -931,12 +939,26 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   // With no time set it closes the day
   const backAt = returnHotel && /^\d{1,2}:\d{2}$/.test(day.backAt ?? "") ? day.backAt!.padStart(5, "0") : undefined;
   const backIdx = !returnHotel ? -1 : backAt ? stopAt(backAt) : items.length;
+  // the hotel you woke up at sits where the time you leave puts it: a step
+  // timed earlier (getting up, breakfast in the room) comes above it, with
+  // the untimed steps that follow it. Without a time it opens the day
+  const leaveAt = startHotel && /^\d{1,2}:\d{2}$/.test(day.leaveAt ?? "") ? day.leaveAt!.padStart(5, "0") : undefined;
+  let leaveIdx = startHotel ? 0 : -1;
+  if (leaveAt) {
+    for (let k = 0; k < items.length; k++) {
+      const t = splitRange(items[k].time)?.[0] ?? items[k].time;
+      const timed = !!t && /^\d{1,2}:\d{2}$/.test(t);
+      if (timed && t.padStart(5, "0") >= leaveAt) break;
+      if (timed || leaveIdx > 0) leaveIdx = k + 1;
+    }
+  }
   // where the plan last stood before step i, and at which step, looking
   // past steps with no place of their own (a snack, a rest) — unless a
   // journey's own row or the way back to the hotel falls among them, which
   // is the travel already
   const placeBefore = (i: number) => {
     for (let k = i - 1; k >= 0; k--) {
+      if (k + 1 === leaveIdx) return undefined;
       if (k + 1 < i && (k + 1 === backIdx || stopsAt(k + 1).length)) return undefined;
       const p = placeOf(items[k]);
       if (p) return { place: p, at: k };
@@ -951,25 +973,25 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
     const from = placeOf(items[i]);
     if (!from) return [];
     for (let j = i + 1; j < items.length; j++) {
-      if (j === backIdx || stopsAt(j).length) return [];
+      if (j === backIdx || j === leaveIdx || stopsAt(j).length) return [];
       const to = placeOf(items[j]);
       if (to) return [<TravelConnector key={`travel-${items[i].id}`} from={from} to={to} />];
     }
     return [];
   };
 
-  // the way out from the night's hotel to the first step — unless a journey
-  // or the way back to the hotel comes before it
+  // the way out from the night's hotel to the step after it — unless a
+  // journey or the way back to the hotel comes first
   const startFrom = startHotel && hotelCoords(startHotel);
-  const firstPlace = placeOf(items[0]);
-  const startConnector = startFrom && firstPlace && !stopsAt(0).length && backIdx !== 0
+  const firstPlace = placeOf(items[leaveIdx]);
+  const startConnector = startFrom && firstPlace && !stopsAt(leaveIdx).length && backIdx !== leaveIdx
     ? [<TravelConnector key="travel-from-hotel" from={startFrom} to={firstPlace} />]
     : [];
 
   // the plan in order, each entry with the time it starts at: a journey's
   // own rows, and each step with the way on to the next just under it — a
   // stop and its travel are one chunk, never split by a part-of-day label
-  const entries: { time?: string; nodes: React.ReactNode[] }[] = [];
+  const entries: { time?: string; nodes: React.ReactNode[]; item?: number; hotel?: boolean }[] = [];
   // each step's own entry, so the way back to the hotel can hang off it
   const itemEntries: (typeof entries)[number][] = [];
   const pushStops = (sts: typeof stops) => {
@@ -1009,9 +1031,30 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
     });
     pushStops(after);
   };
+  const pushLeave = () => {
+    if (!startHotel) return;
+    entries.push({
+      time: day.leaveAt,
+      hotel: true,
+      nodes: [
+        <StartFromHotel
+          key="from-hotel"
+          hotel={startHotel}
+          to={startConnector.length ? firstPlace : undefined}
+          firstTime={splitRange(items[leaveIdx]?.time)?.[0] ?? items[leaveIdx]?.time}
+          time={day.leaveAt}
+          readOnly={readOnly}
+          onTime={onLeaveAt}
+        />,
+        ...startConnector,
+      ],
+    });
+  };
   items.forEach((it, i) => {
+    if (i === leaveIdx) pushLeave();
     pushSlot(i);
     entries.push(itemEntries[i] = {
+      item: i,
       time: splitRange(it.time)?.[0] ?? it.time,
       nodes: [
         <PlanRow
@@ -1031,6 +1074,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
           onPatch={(p) => patchItem(it.id, p)}
           onRemove={() => removeItem(it.id)}
           onDuplicate={() => duplicateItem(it.id)}
+          onAddBelow={(el) => onAdd(el ? { currentTarget: el } : undefined, i + 1)}
           onQuickAddCost={onQuickAddCost}
           onShowOnMap={onShowOnMap}
         />,
@@ -1038,6 +1082,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
       ],
     });
   });
+  if (leaveIdx === items.length) pushLeave();
   pushSlot(items.length);
 
   // Morning / Afternoon / Evening, as Reminders splits its Today list: a
@@ -1046,42 +1091,38 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   // the way back to the hotel is one of them, so it falls in its own part
   // of the day like any step — back at 19:00 closes the day under Evening
   const parts = entries.map((e) => dayPart(e.time));
-  // the same at the top: the time you leave the hotel opens the day under
-  // its own part, unless it's later than the first step's
-  const firstPart = parts.find(Boolean);
-  const leaveAtPart = startHotel ? dayPart(day.leaveAt) : undefined;
-  const leavePart = leaveAtPart && (!firstPart || PART_ORDER.indexOf(leaveAtPart) <= PART_ORDER.indexOf(firstPart)) ? leaveAtPart : undefined;
-  const multiPart = new Set([leavePart, ...parts.filter(Boolean)].filter(Boolean)).size > 1;
-  // a band the hotel row already opened isn't repeated by the first step,
-  // and bands only ever move forward through the day — a row that sits
-  // out of time order stays under the band it sits in, never opens an
-  // earlier one again. Keyed by the part, so a band stays itself while the
-  // steps under it change
-  let part: DayPart | undefined = multiPart ? leavePart : undefined;
-  const rows = entries.flatMap((e, i) => {
-    const p = parts[i];
-    if (!multiPart || !p || (part && PART_ORDER.indexOf(p) <= PART_ORDER.indexOf(part))) return e.nodes;
+  // the hotel with no time to leave sits under the first step's part, since
+  // leaving is part of it
+  const leaveEntry = entries.findIndex((e) => e.hotel);
+  if (leaveEntry >= 0 && !parts[leaveEntry]) parts[leaveEntry] = parts.find(Boolean);
+  const multiPart = new Set(parts.filter(Boolean)).size > 1;
+  // bands only ever move forward through the day — a row that sits out of
+  // time order stays under the band it sits in, never opens an earlier one
+  // again. Keyed by the part, so a band stays itself while the steps under
+  // it change
+  const bandAt: number[] = [];
+  let part: DayPart | undefined;
+  parts.forEach((p, i) => {
+    if (!multiPart || !p || (part && PART_ORDER.indexOf(p) <= PART_ORDER.indexOf(part))) return;
     part = p;
-    return [<DayPartRow key={`part-${p}`} part={p} />, ...e.nodes];
+    bandAt.push(i);
+  });
+  // a band's ＋ adds a step at the end of its part: after the last step
+  // under it (counted in entries, which hold the steps in order)
+  const endOfBand = (b: number) => {
+    const stop = bandAt[b + 1] ?? entries.length;
+    return entries.slice(0, stop).filter((e) => e.item != null).length;
+  };
+  const rows = entries.flatMap((e, i) => {
+    const b = bandAt.indexOf(i);
+    if (b < 0) return e.nodes;
+    const p = parts[i]!;
+    return [
+      <DayPartRow key={`part-${p}`} part={p} onAdd={readOnly ? undefined : (el) => onAdd({ currentTarget: el }, endOfBand(b))} />,
+      ...e.nodes,
+    ];
   });
 
-  // and opens at the hotel you woke up at — under its own band when its time
-  // sets one, else under the first step's, since leaving is part of it
-  if (startHotel) {
-    const fromRow = (
-      <StartFromHotel
-        key="from-hotel"
-        hotel={startHotel}
-        to={startConnector.length ? firstPlace : undefined}
-        firstTime={splitRange(items[0]?.time)?.[0] ?? items[0]?.time}
-        time={day.leaveAt}
-        readOnly={readOnly}
-        onTime={onLeaveAt}
-      />
-    );
-    if (multiPart && leavePart) rows.unshift(<DayPartRow key="part-leave" part={leavePart} />, fromRow, ...startConnector);
-    else rows.splice(multiPart && parts[0] ? 1 : 0, 0, fromRow, ...startConnector);
-  }
   // one timeline for the whole day — the hotel, steps, journeys and the way home
   const timeline = <ul className="timeline pb-1.5">{rows}</ul>;
 
@@ -1134,14 +1175,25 @@ function dayPart(time?: string): DayPart | undefined {
 /** a part-of-day header: a tinted band across the whole timeline, like the
  *  section bands in Calendar's list view — it breaks the rail, so where the
  *  morning ends and the afternoon starts is plain at a glance and never
- *  mistaken for a stop */
-function DayPartRow({ part }: { part: DayPart }) {
+ *  mistaken for a stop. Its ＋ adds a step at the end of that part, as
+ *  Reminders' Today sections take a new reminder where you tap */
+function DayPartRow({ part, onAdd }: { part: DayPart; onAdd?: (el: HTMLElement) => void }) {
   const { label, icon, band, glyph } = DAY_PARTS[part];
   return (
     <li aria-label={label} className="px-2.5 py-1.5">
-      <span className={`flex items-center gap-2 rounded-[10px] px-3 py-1.5 ${band}`}>
+      <span className={`flex items-center gap-2 rounded-[10px] py-1.5 pl-3 ${onAdd ? "pr-1.5" : "pr-3"} ${band}`}>
         <Icon name={icon} size={15} className={`shrink-0 ${glyph}`} />
-        <span className="text-[15px] font-medium leading-snug text-ink">{label}</span>
+        <span className="min-w-0 flex-1 text-[15px] font-medium leading-snug text-ink">{label}</span>
+        {onAdd && (
+          <button
+            type="button"
+            aria-label={`Add a step to the ${label.toLowerCase()}`}
+            onClick={(e) => onAdd(e.currentTarget)}
+            className={`tap grid h-6 w-6 shrink-0 place-items-center rounded-full ${glyph} active:opacity-60`}
+          >
+            <Icon name="plus" size={16} />
+          </button>
+        )}
       </span>
     </li>
   );
@@ -1159,7 +1211,7 @@ function timeBefore(items: PlanItem[], i: number): string | undefined {
   return undefined;
 }
 
-function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, onPatch, onRemove, onDuplicate, onQuickAddCost, onShowOnMap }: {
+function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, onPatch, onRemove, onDuplicate, onAddBelow, onQuickAddCost, onShowOnMap }: {
   day: DayT;
   tz?: string;
   item: PlanItem;
@@ -1177,9 +1229,12 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
   onPatch: (p: Partial<PlanItem>) => void;
   onRemove: () => void;
   onDuplicate: () => void;
+  /** adds a new step right under this one (opens what it is first) */
+  onAddBelow: (row: HTMLElement | null) => void;
   onQuickAddCost: (item: PlanItem) => void;
   onShowOnMap: (place: Place) => void;
 }) {
+  const rowRef = useRef<HTMLLIElement | null>(null);
   // a step with a clock time is placed by its time, not by hand
   const timed = startMinutes(item.time) !== undefined;
   // a pinned step's time is locked (a booking) until it's unpinned; it
@@ -1313,7 +1368,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
 
   return (
     <li
-      ref={setNodeRef}
+      ref={(el) => { setNodeRef(el); rowRef.current = el; }}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={`group relative ${isDragging ? "z-10 bg-surface opacity-80" : ""}`}
     >
@@ -1433,6 +1488,9 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                       )}
                       <button type="button" className="menu-item" onClick={toggleOptional}>
                         <Icon name="optional" size={16} /> {item.optional ? "Make this a must" : "Mark as optional"}
+                      </button>
+                      <button type="button" className="menu-item" onClick={() => onAddBelow(rowRef.current)}>
+                        <Icon name="plus" size={16} /> Add a step below
                       </button>
                       <button type="button" className="menu-item" onClick={onDuplicate}>
                         <Icon name="copy" size={16} /> Duplicate
@@ -1621,6 +1679,9 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                         </button>
                         <button type="button" className="menu-item" onClick={() => { placeCard.setOpen(false); onQuickAddCost(item); }}>
                           <Icon name="wallet" size={16} /> Add an Expense
+                        </button>
+                        <button type="button" className="menu-item" onClick={() => { placeCard.setOpen(false); onAddBelow(rowRef.current); }}>
+                          <Icon name="plus" size={16} /> Add Step Below
                         </button>
                         <button type="button" className="menu-item" onClick={() => { placeCard.setOpen(false); onDuplicate(); }}>
                           <Icon name="copy" size={16} /> Duplicate

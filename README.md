@@ -184,11 +184,12 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 - **More** on the place card holds everything else, as Maps does: whatever didn't fit in the row (Show on Map is phone only — on a computer the map is already beside you), Add to Calendar; **Optional**, **Pin Time** (a step with a time) and **Overwhelming**, ticked when on; Change Place, Add an Expense, Duplicate, Move to Another Day; and Remove Step.
 - **Walk and train lines** under a step open Google Maps directions; only a tap on the line itself does.
 - **Open in Google Maps** is also the first item when you hold a step (or right-click it on a computer).
-- **The step's menu** — long-press a step on a phone, or right-click it on a computer (an unlinked step also has a ⋯ on hover there): add to Google Calendar, mark as **overwhelming** (a ⚠ on its grey line; the day's count shows on Plan), add a note, pin, mark as optional, duplicate, add an expense, remove.
+- **The step's menu** — long-press a step on a phone, or right-click it on a computer (an unlinked step also has a ⋯ on hover there): add to Google Calendar, mark as **overwhelming** (a ⚠ on its grey line; the day's count shows on Plan), add a note, pin, mark as optional, **add a step below**, duplicate, add an expense, remove.
 - **Move to another day** — from a step's menu or its place card: pick the day and the step leaves this one, keeping its time, pin and note. Undo brings it back.
 - **Delete** — swipe a step left on a phone.
 - **Notes** support bold, bullets and links. Tap to edit. Empty fields stay hidden.
 - **+ Add a step** sits at the foot of the list. It asks what the step is first, from the same place list: pick a place and its time wheel opens; **Custom…** opens a step ready to type. Leave that blank and it goes away.
+- **＋ on a Morning / Afternoon / Evening band** adds a step at the end of that part of the day.
 - **An empty day** still shows where it starts and ends (the hotel rows), so it looks like every other day.
 - **＋** at the top of the day (where Plan has its ＋) offers **Add a step** — the same list, from anywhere on the page, so a long day needs no scroll — or **Add a journey**. A step with a time moves into place.
 - **Each journey on the day** shows as two rows of its own: **Leave** (first departure) and **Arrive** (last arrival), slotted in by time. They follow the journey live — edit the times on the journey, tap a row to open it.
@@ -256,9 +257,10 @@ What to expect:
 - It can be out of date — check hours with the place before a long trip across town.
 - Needs `TAVILY_API_KEY` (see [Environment variables](#environment-envlocal)).
 
-**From the hotel.** The first stop of the day is the hotel you slept at the night before, so a moving day starts from the old one. Left off on the trip's first day and on an arrival day. The way to the first step sits under it.
+**From the hotel.** The day starts from the hotel you slept at the night before, so a moving day starts from the old one. Left off on the trip's first day and on an arrival day. The way to the next step sits under it.
 
-- Its time (when you leave) is set on the same wheel as a step's (needs migration `0040`), and opens the day under its own Morning / Afternoon band.
+- Its time (when you leave) is set on the same wheel as a step's (needs migration `0040`), and falls under Morning / Afternoon like any step.
+- It sits where that time puts it: a step timed earlier (getting up, breakfast in the room) comes above it. With no time set, it opens the day.
 - The wheel starts at a suggestion: the first step's time less the way there (the walk, or the train past a 30-minute walk), rounded down to 5 minutes.
 - Tapping the name opens the hotel.
 
