@@ -469,6 +469,9 @@ Theme and trip logo. **Appearance** (light, dark or *Automatic*) is per device, 
 
 **Notes** take light formatting — `**bold**`, `*italic*`, `++underline++`, `~~strike~~`, `##` headings, `>` quotes, `-` bullets, `- [ ]` checklists, `[links](https://…)` — with a toolbar for all of it and the usual keyboard shortcuts. Checklist boxes can be ticked without opening the editor.
 
+- **Nested lists**: indent a line to nest it under the item above.
+- Bullets written straight under a numbered step nest under that step, no indent needed.
+
 **Deleting.** Every delete asks first (a confirm sheet, or a second tap on a swiped row). After that, an **Undo** bar appears for a few seconds and puts back exactly what was removed. Only the last delete can be undone, and deleting a whole trip or a file can't be.
 
 **Save status** (signed in only), top right:

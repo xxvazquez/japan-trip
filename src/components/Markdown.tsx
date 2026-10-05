@@ -28,15 +28,51 @@ export function Markdown({
   return <div className={`selectable space-y-2.5 ${className}`}>{blocks.map((b, i) => renderBlock(b, i, onToggleCheck))}</div>;
 }
 
-type ListItem = { text: string; line: number; checked?: boolean };
+type ListItem = { text: string; line: number; checked?: boolean; sub?: List };
+type List = { t: "ul" | "ol"; start: number; items: ListItem[] };
 
 type Block =
   | { t: "h"; level: number; text: string }
   | { t: "p"; text: string }
   | { t: "quote"; lines: string[] }
-  | { t: "ul"; items: ListItem[] }
-  | { t: "ol"; items: string[] }
+  | List
   | { t: "hr" };
+
+const LIST_ITEM = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/;
+const indentOf = (ws: string) => ws.replace(/\t/g, "    ").length;
+
+/** One list from line `i`, with its nested lists. An item indented past its
+ *  list's own indent nests under the item above it, as in Markdown. So do
+ *  bullets written straight under a numbered step with no indent at all
+ *  (`2. Try a snack` then `- Senbei`) — the way a step's sub-points get
+ *  typed on a phone, where indenting means typing spaces. A blank line or
+ *  a line that isn't a list item ends it. */
+function parseList(lines: string[], i: number, sameIndentBullets = false): { list: List; next: number } {
+  const first = lines[i].match(LIST_ITEM)!;
+  const indent = indentOf(first[1]);
+  const t = /\d/.test(first[2]) ? "ol" : "ul";
+  const list: List = { t, start: t === "ol" ? parseInt(first[2], 10) || 1 : 1, items: [] };
+  while (i < lines.length) {
+    const m = lines[i].match(LIST_ITEM);
+    if (!m) break;
+    const ind = indentOf(m[1]);
+    const kind = /\d/.test(m[2]) ? "ol" : "ul";
+    const last = list.items[list.items.length - 1];
+    if (ind < indent) break;
+    if (last && !last.sub && (ind > indent || (t === "ol" && kind === "ul" && !sameIndentBullets))) {
+      const nested = parseList(lines, i, ind === indent);
+      last.sub = nested.list;
+      i = nested.next;
+      continue;
+    }
+    if (ind > indent || kind !== t) break;
+    const raw = m[3];
+    const box = t === "ul" ? raw.match(/^\[([ xX])\]\s*(.*)$/) : null;
+    list.items.push(box ? { text: box[2], line: i, checked: /x/i.test(box[1]) } : { text: raw, line: i });
+    i++;
+  }
+  return { list, next: i };
+}
 
 function parseBlocks(src: string): Block[] {
   const lines = src.split("\n");
@@ -60,22 +96,10 @@ function parseBlocks(src: string): Block[] {
       continue;
     }
 
-    if (/^\s*[-*+]\s+/.test(line)) {
-      const items: ListItem[] = [];
-      while (i < lines.length && /^\s*[-*+]\s+/.test(lines[i])) {
-        const raw = lines[i].replace(/^\s*[-*+]\s+/, "");
-        const box = raw.match(/^\[([ xX])\]\s*(.*)$/);
-        items.push(box ? { text: box[2], line: i, checked: /x/i.test(box[1]) } : { text: raw, line: i });
-        i++;
-      }
-      out.push({ t: "ul", items });
-      continue;
-    }
-
-    if (/^\s*\d+[.)]\s+/.test(line)) {
-      const items: string[] = [];
-      while (i < lines.length && /^\s*\d+[.)]\s+/.test(lines[i])) { items.push(lines[i].replace(/^\s*\d+[.)]\s+/, "")); i++; }
-      out.push({ t: "ol", items });
+    if (LIST_ITEM.test(line)) {
+      const { list, next } = parseList(lines, i);
+      out.push(list);
+      i = next;
       continue;
     }
 
@@ -112,44 +136,55 @@ function renderBlock(b: Block, key: number, onToggleCheck?: (line: number, check
         </blockquote>
       );
     case "ul":
-      return (
-        <ul key={key} className="space-y-1">
-          {b.items.map((it) => (
-            <li key={it.line} className={`flex gap-2 ${it.checked !== undefined ? "items-center" : ""}`}>
-              {it.checked === undefined ? (
-                <span className="mt-[0.5em] h-1 w-1 shrink-0 rounded-full bg-ink-faint" />
-              ) : onToggleCheck ? (
-                <span onClick={(e) => e.stopPropagation()} className="shrink-0">
-                  <CheckCircle checked={it.checked} onChange={(v) => onToggleCheck(it.line, v)} label={it.text || "Checklist item"} />
-                </span>
-              ) : (
-                <span
-                  className={`grid h-4 w-4 shrink-0 place-items-center rounded-full border-2 ${
-                    it.checked ? "border-accent bg-accent text-white" : "border-line text-transparent"
-                  }`}
-                >
-                  <Icon name="check" size={10} strokeWidth={3} />
-                </span>
-              )}
-              <span className={`min-w-0 flex-1 ${it.checked ? "text-ink-faint line-through" : ""}`}>{inline(it.text)}</span>
-            </li>
-          ))}
-        </ul>
-      );
     case "ol":
-      return (
-        <ol key={key} className="space-y-1">
-          {b.items.map((it, j) => (
-            <li key={j} className="flex gap-2">
-              <span className="shrink-0 tabular-nums text-ink-faint">{j + 1}.</span>
-              <span className="min-w-0 flex-1">{inline(it)}</span>
-            </li>
-          ))}
-        </ol>
-      );
+      return renderList(b, key, 0, onToggleCheck);
     default:
       return <p key={key} className="leading-relaxed">{withBreaks(b.text)}</p>;
   }
+}
+
+/** A list and its nested lists. A nested list sits in its parent item's
+ *  text column, so it indents under the words, not the marker; nested
+ *  bullets are hollow, as Notes draws a second level. */
+function renderList(b: List, key: number, depth: number, onToggleCheck?: (line: number, checked: boolean) => void): ReactNode {
+  const nested = depth > 0 ? "mt-1" : "";
+  const sub = (it: ListItem) => it.sub && renderList(it.sub, 0, depth + 1, onToggleCheck);
+  if (b.t === "ol") {
+    return (
+      <ol key={key} className={`space-y-1 ${nested}`}>
+        {b.items.map((it, j) => (
+          <li key={it.line} className="flex gap-2">
+            <span className="shrink-0 tabular-nums text-ink-faint">{b.start + j}.</span>
+            <div className="min-w-0 flex-1">{inline(it.text)}{sub(it)}</div>
+          </li>
+        ))}
+      </ol>
+    );
+  }
+  return (
+    <ul key={key} className={`space-y-1 ${nested}`}>
+      {b.items.map((it) => (
+        <li key={it.line} className={`flex gap-2 ${it.checked !== undefined && !it.sub ? "items-center" : ""}`}>
+          {it.checked === undefined ? (
+            <span className={`mt-[0.5em] h-[5px] w-[5px] shrink-0 rounded-full ${depth > 0 ? "border border-ink-faint" : "bg-ink-faint"}`} />
+          ) : onToggleCheck ? (
+            <span onClick={(e) => e.stopPropagation()} className="shrink-0">
+              <CheckCircle checked={it.checked} onChange={(v) => onToggleCheck(it.line, v)} label={it.text || "Checklist item"} />
+            </span>
+          ) : (
+            <span
+              className={`grid h-4 w-4 shrink-0 place-items-center rounded-full border-2 ${
+                it.checked ? "border-accent bg-accent text-white" : "border-line text-transparent"
+              }`}
+            >
+              <Icon name="check" size={10} strokeWidth={3} />
+            </span>
+          )}
+          <div className={`min-w-0 flex-1 ${it.checked ? "text-ink-faint line-through" : ""}`}>{inline(it.text)}{sub(it)}</div>
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 function withBreaks(text: string): ReactNode {
