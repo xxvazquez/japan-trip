@@ -48,7 +48,7 @@ import { DayLabelsCaption, DayLabelsSheet, tripLabels } from "@/components/DayLa
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { isFoodPlace, menuHref, reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
+import { isFoodPlace, reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
 import { FACT_ROWS, factValue, notASight, placeArea, useAutoPlaceFacts, useFactsFailure, wantsFacts } from "@/lib/placeFacts";
 import { FactsRefresh, PlaceFactRows } from "@/components/PlaceFacts";
 import { addDays, dayJourneys, dayKind, fmtDate, journeyDepartDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
@@ -1163,7 +1163,9 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
   const mapHref = item.url ? gmapsLink(item.url) : placeMapLink(place);
   // a restaurant's guide page (Tabelog in Japan) — looked up as the step shows
   const reviewSite = place ? reviewSiteFor(place, categoryIcons) : undefined;
-  const placeMenu = place ? menuHref(place) : undefined;
+  // only the place's own menu page — the guide's menu tab is one tap from
+  // its own button already
+  const placeMenu = place?.facts?.menu;
   // the card's row holds four on a phone: Google Maps, Tabelog, Menu, More —
   // Website takes a button only when one of the first three is missing
   const website = place?.facts?.website;
