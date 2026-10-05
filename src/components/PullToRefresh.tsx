@@ -107,7 +107,7 @@ export function PullToRefresh() {
         width="22"
         height="22"
         viewBox="0 0 56 56"
-        className="mt-2 text-ink-faint"
+        className={`mt-2 text-ink-faint ${refreshing ? "spin" : ""}`}
         style={refreshing ? undefined : { transform: `rotate(${progress * 360}deg)`, opacity: progress }}
       >
         <circle
@@ -119,7 +119,6 @@ export function PullToRefresh() {
           strokeWidth="4"
           strokeLinecap="round"
           strokeDasharray="112 40"
-          className={refreshing ? "motion-safe:animate-enso-spin" : ""}
         />
       </svg>
     </div>

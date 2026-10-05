@@ -562,6 +562,25 @@ html.dark {
   }
 }
 
+/* A spinner turns the whole <svg> box, not a shape inside it: WebKit runs a
+   transform on an element box off the main thread, so it keeps turning while
+   the app is busy loading — a shape inside an SVG froze. Like iOS's activity
+   indicator it spins with Reduce Motion on too: it says "working", not decor. */
+.spin {
+  animation: enso-spin 1.1s linear infinite;
+  will-change: transform;
+}
+@keyframes enso-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation-duration: 1.1s !important;
+  }
+}
+
 /* ------------------------------------------------------------------ *
  * MapLibre chrome — the vendor stylesheet loads with the map chunk, so
  * this needs to sit outside @layer to win. The zoom control is our own

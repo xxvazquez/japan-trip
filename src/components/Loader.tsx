@@ -4,7 +4,7 @@ import { Wordmark } from "./Wordmark";
 export function Loader({ label = "Loading", className = "min-h-[40vh]" }: { label?: string; className?: string }) {
   return (
     <div className={`grid place-items-center ${className}`} role="status" aria-live="polite">
-      <svg width="56" height="56" viewBox="0 0 56 56" className="text-ink-faint">
+      <svg width="56" height="56" viewBox="0 0 56 56" className="spin text-ink-faint">
         <circle
           cx="28"
           cy="28"
@@ -14,8 +14,6 @@ export function Loader({ label = "Loading", className = "min-h-[40vh]" }: { labe
           strokeWidth="3.5"
           strokeLinecap="round"
           strokeDasharray="112 40"
-          className="motion-safe:animate-enso-spin"
-          style={{ transformOrigin: "center" }}
         />
       </svg>
       <span className="sr-only">{label}</span>
@@ -38,7 +36,7 @@ export function BootScreen({ label = "Opening your atlas" }: { label?: string })
 /** The small inline spinner — a pill's or a row's "working on it". */
 export function Spinner({ size = 14, className = "" }: { size?: number; className?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 56 56" aria-hidden className={`shrink-0 ${className}`}>
+    <svg width={size} height={size} viewBox="0 0 56 56" aria-hidden className={`spin shrink-0 ${className}`}>
       <circle
         cx="28"
         cy="28"
@@ -48,8 +46,6 @@ export function Spinner({ size = 14, className = "" }: { size?: number; classNam
         strokeWidth="5"
         strokeLinecap="round"
         strokeDasharray="112 40"
-        className="motion-safe:animate-enso-spin"
-        style={{ transformOrigin: "center" }}
       />
     </svg>
   );

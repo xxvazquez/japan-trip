@@ -83,9 +83,6 @@ export default {
           from: { opacity: "0", transform: "translateY(100%)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
-        "enso-spin": {
-          to: { transform: "rotate(360deg)" },
-        },
         "stamp-press": {
           "0%": { transform: "scale(0.6)" },
           "60%": { transform: "scale(1.15)" },
@@ -99,7 +96,6 @@ export default {
         "menu-pop": "menu-pop 0.3s var(--ease-spring) both",
         // `backwards`, not `both`: after it ends the sheet must be free to follow a drag
         "sheet-up": "sheet-up 0.36s var(--ease-paper) backwards",
-        "enso-spin": "enso-spin 1.1s linear infinite",
         "stamp-press": "stamp-press 0.28s var(--ease-paper) both",
       },
     },
