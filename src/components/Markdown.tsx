@@ -45,14 +45,31 @@ const indentOf = (ws: string) => ws.replace(/\t/g, "    ").length;
  *  list's own indent nests under the item above it, as in Markdown. So do
  *  bullets written straight under a numbered step with no indent at all
  *  (`2. Try a snack` then `- Senbei`) — the way a step's sub-points get
- *  typed on a phone, where indenting means typing spaces. A blank line or
- *  a line that isn't a list item ends it. */
+ *  typed on a phone, where indenting means typing spaces. A line that
+ *  isn't a list item ends it, as does a blank line not followed by more of
+ *  the list. */
 function parseList(lines: string[], i: number, sameIndentBullets = false): { list: List; next: number } {
   const first = lines[i].match(LIST_ITEM)!;
   const indent = indentOf(first[1]);
   const t = /\d/.test(first[2]) ? "ol" : "ul";
   const list: List = { t, start: t === "ol" ? parseInt(first[2], 10) || 1 : 1, items: [] };
+  // whether a list line belongs to this list (or nests in it)
+  const continues = (m: RegExpMatchArray) => {
+    const ind = indentOf(m[1]);
+    const kind = /\d/.test(m[2]) ? "ol" : "ul";
+    return ind > indent || (ind === indent && (kind === t || (t === "ol" && !sameIndentBullets)));
+  };
   while (i < lines.length) {
+    // a blank line only ends the list if what follows doesn't carry it on —
+    // so steps 1–2, a few bullets, then 3–4 stay one list however spaced
+    if (/^\s*$/.test(lines[i])) {
+      let j = i;
+      while (j < lines.length && /^\s*$/.test(lines[j])) j++;
+      const after = j < lines.length ? lines[j].match(LIST_ITEM) : null;
+      if (!list.items.length || !after || !continues(after)) break;
+      i = j;
+      continue;
+    }
     const m = lines[i].match(LIST_ITEM);
     if (!m) break;
     const ind = indentOf(m[1]);
