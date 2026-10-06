@@ -17,7 +17,7 @@
 import type {
   Day, Doc, Hotel, Journey, Leg, Place, Segment, TripData,
 } from "@/core/types";
-import { dayJourneys, fmtDate, fmtSpan, journeyDepartDate, legNights, plural, todayISO } from "@/lib/dates";
+import { dayJourneys, fmtDate, fmtSpan, journeyDepartDate, legCheckOut, legNights, plural, todayISO } from "@/lib/dates";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import { minutesBetween, fmtMinutes, fmtClocksIn } from "@/lib/time";
 import { gmapsLink, placeMapLink } from "@/lib/maps";
@@ -161,7 +161,7 @@ function itinerarySection(data: TripData): string {
       .sort((a, b) => a.date.localeCompare(b.date));
     const nights = legNights(leg, data.legs);
     const range = leg.start && leg.end && days.length
-      ? `${fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – ${fmtDate(leg.end, loc, { day: "numeric", month: "short" })}${nights > 0 ? ` · ${plural(nights, "night")}` : ""}`
+      ? `${fmtDate(leg.start, loc, { day: "numeric", month: "short" })} – ${fmtDate(legCheckOut(leg, data.legs), loc, { day: "numeric", month: "short" })}${nights > 0 ? ` · ${plural(nights, "night")}` : ""}`
       : "";
     return `<section class="leg">
       <h3>${esc(leg.base)}${leg.nameAlt ? ` <span class="local-name">${esc(leg.nameAlt)}</span>` : ""}</h3>

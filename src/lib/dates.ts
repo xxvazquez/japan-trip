@@ -22,6 +22,13 @@ export function daysBetween(a: ISODate, b: ISODate): number {
   return Math.round((parseISO(b).getTime() - parseISO(a).getTime()) / MS_DAY);
 }
 
+/** The day a stay's nights run to — the morning you leave, as a booking
+ *  reads (5 – 7 Nov · 2 nights). A stay with no night ends on its own day. */
+export function legCheckOut(leg: Leg, legs: Leg[]): ISODate {
+  const nights = legNights(leg, legs);
+  return nights > 0 && leg.start ? addDays(leg.start, nights) : leg.end;
+}
+
 /** Nights spent at a stay. `leg.end` is the stay's last day, not the morning
  *  after — so a stay followed by another one also sleeps its last day there
  *  (up to the next stay's start), while the trip's final stay ends the night

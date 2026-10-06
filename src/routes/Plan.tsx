@@ -28,7 +28,7 @@ import { useData } from "@/lib/data";
 import { useToday } from "@/lib/useToday";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { tripClock, fmtDate, fmtDateRange, dayKind, legForDate, legNights, plural, addDays } from "@/lib/dates";
+import { tripClock, fmtDate, fmtDateRange, dayKind, legCheckOut, legForDate, legNights, plural, addDays } from "@/lib/dates";
 import { nextDaySlot } from "@/lib/spans";
 import { canonicalLegs } from "@/lib/cityAssign";
 import { useTripSpent } from "@/lib/fx";
@@ -405,7 +405,7 @@ function LegBlock({
             there) but has nothing to date — say so, as an empty list does */}
         {dayIds.length === 0 && !days.days.some((d) => d.legId === leg.id) ? "No days" : (
           <>
-            {fmtDateRange(leg.start, leg.end, loc)}
+            {fmtDateRange(leg.start, legCheckOut(leg, days.legs), loc)}
             {/* a one-day last base has no night yet: its only day is the day you leave */}
             {nights > 0 && <> · {plural(nights, "night")}</>}
           </>
