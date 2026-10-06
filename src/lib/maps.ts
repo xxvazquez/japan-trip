@@ -56,13 +56,14 @@ export function mapUrlCoords(url?: string): [number, number] | null {
 /** Send a place to someone (or yourself): the Share sheet where the browser
  *  has one, else its name and map link onto the clipboard. Resolves true
  *  only when it was copied, so the button can say so. */
-export async function sharePlace(name: string, url?: string): Promise<boolean> {
+export async function sharePlace(name: string, url?: string, detail?: string): Promise<boolean> {
+  const text = [name, detail].filter(Boolean).join("\n");
   if (navigator.share) {
-    try { await navigator.share({ title: name, text: name, url }); } catch { /* closed the sheet */ }
+    try { await navigator.share({ title: name, text, url }); } catch { /* closed the sheet */ }
     return false;
   }
   const { copyText } = await import("./clipboard");
-  return copyText([name, url].filter(Boolean).join("\n"));
+  return copyText([text, url].filter(Boolean).join("\n"));
 }
 
 /** A web search for a place with no website of its own — for its hours,

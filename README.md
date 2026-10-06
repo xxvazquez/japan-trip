@@ -400,7 +400,8 @@ Text isn't selectable (as in a native app), so values you might paste elsewhere 
 
 - Each list has an **Add a stay** / **Add a journey** row at the foot. The new one opens on its own page to fill in.
 - Stays are listed in the order you sleep in them, with their check-in to check-out dates and nights under the name (a stay no base uses yet goes last); journeys are listed by when they leave.
-- A stay's page opens with a button row, as Apple Maps does: **Directions** (Google Maps, from where you are), **Call** and **Website**. Call and Website appear once the stay has a detail named Phone / Website (or a value that's a phone number or a link).
+- A stay's page opens with the same four buttons every time, as a contact card does: **Directions** (Google Maps, from where you are), **Call**, **Website** and **Share** (its name, address — the local one when set — and pin).
+- Call and Website stay grey until the stay has a detail named Phone / Website (or a value that's a phone number or a link).
 
 ### Documents
 

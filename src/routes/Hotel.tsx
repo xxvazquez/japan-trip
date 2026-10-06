@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { useLeavePage } from "@/components/NavBar";
@@ -15,7 +16,7 @@ import { CopyButton } from "@/components/CopyButton";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { gmapsLink, gmapsRoute } from "@/lib/maps";
+import { gmapsLink, gmapsRoute, sharePlace } from "@/lib/maps";
 import { fmtFare } from "@/lib/cost";
 import { fmtDate, fmtStay, hotelStays } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
@@ -28,6 +29,7 @@ export default function Hotel() {
   const updateEntity = useApp((s) => s.updateEntity);
   const removeEntity = useApp((s) => s.removeEntity);
   const ro = useReadOnly();
+  const [copied, setCopied] = useState(false);
   if (!data) return null;
 
   const L = lookups(data);
@@ -59,6 +61,13 @@ export default function Hotel() {
   const links = fields.map((f) => fieldLink(f.label, f.value)).filter((l) => l !== null);
   const call = links.find((l) => l.kind === "tel")?.href;
   const website = links.find((l) => l.kind === "link" && !/google\.[^/]+\/maps|maps\.app\.goo\.gl|goo\.gl\/maps/i.test(l.href))?.href;
+  // the stay to someone (a taxi app, a companion): its name, address and pin
+  const share = async () => {
+    if (await sharePlace(hotel.name, map || undefined, hotel.addressAlt || hotel.address)) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
+  };
 
   // Check-in / -out: a fixed, useful pair (not a calc field, but not free-form).
   // With one stay here, each row also carries its date; with several, the
@@ -83,13 +92,14 @@ export default function Hotel() {
       />
 
       <div className="mt-5 space-y-6">
-        {(directions || call || website) && (
-          <PlaceActions>
-            {directions && <PlaceAction href={directions} icon="route" label="Directions" primary />}
-            {call && <PlaceAction href={call} icon="phone" label="Call" />}
-            {website && <PlaceAction href={website} icon="globe" label="Website" />}
-          </PlaceActions>
-        )}
+        {/* the same four on every stay, as a contact card keeps its row:
+            Call and Website grey until the stay has a phone or link */}
+        <PlaceActions>
+          <PlaceAction href={directions} icon="route" label="Directions" primary disabled={!directions} />
+          <PlaceAction href={call} icon="phone" label="Call" disabled={!call} />
+          <PlaceAction href={website} icon="globe" label="Website" disabled={!website} />
+          <PlaceAction icon="share" label={copied ? "Copied" : "Share"} onClick={() => void share()} />
+        </PlaceActions>
 
         {/* arrival — where it is and how you get in */}
         {showArrival && (
