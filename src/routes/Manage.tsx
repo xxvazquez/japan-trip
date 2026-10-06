@@ -716,7 +716,8 @@ function Setup() {
       return;
     }
     const delta = daysBetween(meta[which], to);
-    if (Number.isFinite(delta) && delta !== 0) shiftDates(delta);
+    // the whole trip moves at once, so one Undo puts it all back
+    if (Number.isFinite(delta) && delta !== 0) undoable("Trip dates moved", () => shiftDates(delta));
   };
 
   return (
