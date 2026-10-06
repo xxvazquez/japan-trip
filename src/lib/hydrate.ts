@@ -273,7 +273,7 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
   // into the first note rather than silently losing it.
   const legacyScratch = (d as { scratch?: unknown }).scratch;
   if ((d.scratchNotes as unknown[]).length === 0 && typeof legacyScratch === "string" && legacyScratch.trim()) {
-    d.scratchNotes = [{ id: `note-${fieldId()}`, title: "", text: legacyScratch }];
+    d.scratchNotes = [{ id: fieldId(), title: "", text: legacyScratch }];
   }
   delete (d as { scratch?: unknown }).scratch;
   // a note with no title used to be saved as the literal "Untitled" (and
@@ -395,7 +395,9 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
   // singleton), so there's no way to create one by hand. Every trip needs
   // exactly one, or the tab is a permanent dead end.
   if (!(d.docs as Doc[]).some((doc) => doc.kind === "contact")) {
-    (d.docs as Doc[]).push({ id: `docs-${fieldId()}`, title: "Emergency contacts", kind: "contact", fields: [] });
+    // a plain uuid: a signed-in trip saves it to a uuid column the first time
+    // a contact is added, and any other shape is refused there
+    (d.docs as Doc[]).push({ id: fieldId(), title: "Emergency contacts", kind: "contact", fields: [] });
   }
 
   // v13: a day holds any number of journeys (`journeyIds`) instead of one

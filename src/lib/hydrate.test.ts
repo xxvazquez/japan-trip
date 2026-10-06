@@ -137,3 +137,9 @@ describe("day labels", () => {
     expect("labels" in t.days[1]).toBe(false);
   });
 });
+
+it("the Emergency contacts card it adds has an id the database accepts", () => {
+  const t = normalizeTrip({ docs: [] } as Partial<TripData>) as TripData;
+  const contact = t.docs.find((d) => d.kind === "contact");
+  expect(contact?.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+});
