@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useNavigationType } from "react-router-dom";
 import { Icon } from "./Icon";
 import { Wordmark } from "./Wordmark";
 import { useData } from "@/lib/data";
+import { tripRangeText } from "@/lib/dates";
 import { ActionSheet } from "./ActionSheet";
 import { useApp } from "@/store/useApp";
 import { sheetEntries } from "@/lib/backClose";
@@ -107,7 +108,9 @@ function TripSwitcher() {
       >
         <Wordmark />
         <Icon name="down" size={14} className="shrink-0 text-ink-soft" />
-        {data?.config.tagline && <span className="hidden text-2xs text-ink-faint sm:inline">· {data.config.tagline}</span>}
+        {data && tripRangeText(data.meta, data.config.locale) && (
+          <span className="hidden text-2xs text-ink-faint sm:inline">· {tripRangeText(data.meta, data.config.locale)}</span>
+        )}
       </button>
       <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={ref} title="Trips">
         {live.map((t) => (

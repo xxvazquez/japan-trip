@@ -80,9 +80,9 @@ export function shiftDate(value: string, days: number): string {
 /** "20 Oct – 14 Nov" in the given locale — the trip's tagline under the wordmark. */
 export function rangeText(start: string, end: string, locale: string): string {
   if (!start || !end) return "";
-  const o: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
+  // the one range format — "5 – 8 Nov", "30 Oct – 2 Nov" — as Plan's bases use
   try {
-    return `${parseISO(start).toLocaleDateString(locale, o)} – ${parseISO(end).toLocaleDateString(locale, o)}`;
+    return fmtDateRange(start, end, locale);
   } catch {
     return `${start} – ${end}`;
   }
