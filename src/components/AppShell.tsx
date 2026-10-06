@@ -126,8 +126,8 @@ export function AppShell() {
       <TabBarOrRail onSearch={() => { primeKeyboard(); setSearchOpen(true); }} />
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
       <SplitMap pane={pane} />
-      <UndoToast />
-      <UpdatePill />
+      <UndoToast besidePane={split.active && !pane.collapsed} />
+      <UpdatePill besidePane={split.active && !pane.collapsed} />
     </div>
     </NavProvider>
   );
