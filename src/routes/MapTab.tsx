@@ -19,7 +19,7 @@ import { loadBasePois, saveBasePois } from "@/lib/mapStyle";
 import { Switch } from "@/components/Switch";
 import { useApp, undoable, deletePlace } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
-import { mapUrlCoords, placeMapLink } from "@/lib/maps";
+import { mapUrlCoords, placeMapLink, sharePlace, webSearchHref } from "@/lib/maps";
 import { geocode, reverseGeocode, type GeoResult } from "@/lib/geocode";
 import { haversineKm, fmtDistanceKm, fmtWalk, useGeolocation } from "@/lib/geo";
 import { fmtMinutes } from "@/lib/time";
@@ -34,7 +34,6 @@ import { PlaceAction, PlaceActions } from "@/components/PlaceAction";
 import { ActionRow } from "@/components/ActionRow";
 import { FactsRefresh, PlaceFactRows } from "@/components/PlaceFacts";
 import { primeKeyboard } from "@/lib/keyboard";
-import { copyText } from "@/lib/clipboard";
 import { TRANSIT_KINDS, TRANSIT_META } from "@/lib/transitLayers";
 import { nearestStationFromMap, nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
 import { estimateWalk, useWalk } from "@/lib/walkRoute";
@@ -2135,21 +2134,13 @@ function PlaceRow({
   const menu = menuHref(place);
   const website = place.facts?.website;
   const [copied, setCopied] = useState(false);
-  // send the place to someone (or yourself): the Share sheet where there is
-  // one, else its name and map link onto the clipboard
   const share = async () => {
-    const url = link || undefined;
-    if (navigator.share) {
-      try { await navigator.share({ title: place.name, text: place.name, url }); } catch { /* closed the sheet */ }
-      return;
-    }
-    if (await copyText([place.name, url].filter(Boolean).join("\n"))) {
+    if (await sharePlace(place.name, link || undefined)) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     }
   };
-  // a sight with no website of its own: the web, for its hours and tickets
-  const searchHref = `https://www.google.com/search?q=${encodeURIComponent([place.name, area].filter(Boolean).join(" "))}`;
+  const searchHref = webSearchHref(place.name, area);
 
   // the selected place's card, laid out as a Maps place card (and as a plan
   // step's): name and where it sits, the button row, then grouped — your

@@ -55,7 +55,7 @@ import { FACT_ROWS, factValue, notASight, placeArea, useAutoPlaceFacts, useFacts
 import { FactsRefresh, PlaceFactRows } from "@/components/PlaceFacts";
 import { addDays, dayJourneys, dayKind, fmtDate, journeyDepartDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
-import { gmapsLink, gmapsRoute, mapUrlCoords, placeMapLink } from "@/lib/maps";
+import { gmapsLink, gmapsRoute, mapUrlCoords, placeMapLink, sharePlace, webSearchHref } from "@/lib/maps";
 import { fmtDistanceKm, fmtWalk, haversineKm } from "@/lib/geo";
 import { clock24, clockOf, fmtClock, fmtClocksIn, fmtDuration, fmtMinutes } from "@/lib/time";
 
@@ -1289,10 +1289,18 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
   // the card's button row, as Maps lays it out: up to five equal buttons —
   // Google Maps, then every page the place has and Show on Map, then More,
   // which takes whatever doesn't fit (and Add to Calendar)
-  const slot = (["review", "menu", "website", "map"] as const).filter((k) =>
-    k === "review" ? !!reviewSite : k === "menu" ? !!placeMenu : k === "website" ? !!website : !mapBeside,
+  const slot = (["review", "menu", "website", "map", "share", "search"] as const).filter((k) =>
+    k === "review" ? !!reviewSite : k === "menu" ? !!placeMenu : k === "website" ? !!website
+      : k === "map" ? !mapBeside : k === "share" ? true : !website,
   ).slice(0, mapHref ? 3 : 4);
   const inRow = (k: (typeof slot)[number]) => slot.includes(k);
+  const [copied, setCopied] = useState(false);
+  const share = async () => {
+    if (place && await sharePlace(place.name, mapHref || undefined)) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
+  };
   const openCard = place ? () => { placeCard.setOpen(true); if (mapBeside) onShowOnMap(place); } : undefined;
   // "Move to another day": off this day, onto the end of the picked one —
   // a timed step then sorts itself into place there, pin and all
@@ -1644,6 +1652,8 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                       {inRow("menu") && placeMenu && <PlaceAction href={placeMenu} icon="menu" label="Menu" />}
                       {inRow("website") && website && <PlaceAction href={website} icon="globe" label="Website" />}
                       {inRow("map") && <PlaceAction icon="locate" label="Show on Map" onClick={() => { placeCard.setOpen(false); onShowOnMap(place); }} />}
+                      {inRow("share") && <PlaceAction icon="share" label={copied ? "Copied" : "Share"} onClick={() => void share()} />}
+                      {inRow("search") && <PlaceAction href={webSearchHref(place.name, area)} icon="search" label="Search Web" />}
                       <PlaceAction icon="more" label="More" menu buttonRef={moreSheet.anchorRef} onClick={() => moreSheet.setOpen(true)} />
                     </PlaceActions>
                     <ActionSheet open={moreSheet.open} onClose={() => moreSheet.setOpen(false)} anchorRef={moreSheet.anchorRef}>
@@ -1666,6 +1676,16 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                         <button type="button" className="menu-item" onClick={() => { placeCard.setOpen(false); onShowOnMap(place); }}>
                           <Icon name="locate" size={16} /> Show on Map
                         </button>
+                      )}
+                      {!inRow("share") && (
+                        <button type="button" className="menu-item" onClick={() => void share()}>
+                          <Icon name="share" size={16} /> {copied ? "Copied" : "Share"}
+                        </button>
+                      )}
+                      {!inRow("search") && !website && (
+                        <a href={webSearchHref(place.name, area)} target="_blank" rel="noopener" className="menu-item">
+                          <Icon name="search" size={16} /> Search Web
+                        </a>
                       )}
                       <button type="button" className="menu-item" onClick={addToGoogleCalendar}>
                         <Icon name="calendar" size={16} /> Add to Calendar
