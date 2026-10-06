@@ -53,10 +53,11 @@ describe("search", () => {
     for (let i = 0; i < 3000; i++)
       d.places.push({ id: `x${i}`, name: `Place number ${i}`, lat: 0, lng: 0, note: "a long note about ramen, temples and trains ".repeat(5) } as never);
     search(d, "x"); // builds the index once
-    // the fastest of a few rounds, so a busy machine (another test run, a
-    // build) stealing the CPU mid-round doesn't read as a slow search
+    // the fastest of many rounds, so a busy machine (the rest of the suite
+    // running alongside, a build) stealing the CPU doesn't read as a slow
+    // search — it runs ~3 ms a keystroke, so twenty rounds cost well under a second
     let best = Infinity;
-    for (let round = 0; round < 5; round++) {
+    for (let round = 0; round < 20; round++) {
       const t = performance.now();
       for (const q of ["r", "ra", "ram", "rame", "ramen", "ramen t", "ramen te", "ramen tem"]) search(d, q, 80);
       best = Math.min(best, (performance.now() - t) / 8);
