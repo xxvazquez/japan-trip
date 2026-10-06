@@ -324,6 +324,18 @@ describe("signed-in: clearing a field", () => {
     expect(rows("segments").find((r) => r.id === seg.id)?.booking_ref ?? null).toBeNull();
   });
 
+  it("a stay's old phone column doesn't bring back a phone detail you deleted", async () => {
+    const id = await seedTrip();
+    fake.current.ctl.tables.hotels = [...rows("hotels"), { id: "h-old", trip_id: id, position: 0, name: "Old inn", phone: "+81 3 0000", fields: [] }];
+    const a = await boot();
+    const hotel = a.s().data!.hotels.find((h) => h.id === "h-old")!;
+    expect(hotel.fields?.map((f) => f.label)).toContain("Phone"); // folded in from the old column
+    a.s().updateEntity("hotels", "h-old", { fields: [] } as never); // the detail is deleted
+    await a.settlePending();
+    const b = await boot();
+    expect(b.s().data!.hotels.find((h) => h.id === "h-old")!.fields ?? []).toEqual([]);
+  });
+
   it("undoing an edit that added a note takes the note off the server too", async () => {
     await seedTrip();
     const a = await boot();

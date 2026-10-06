@@ -370,7 +370,10 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
       if (typeof v === "string" && v.trim() && !hotel.fields.some((f) => f.label === label)) {
         hotel.fields.push({ id: fieldId(), label, value: v });
       }
-      delete (hotel as unknown as Record<string, unknown>)[key];
+      // kept as a cleared key, not deleted: the next save of this stay then
+      // empties the old column too — left there, a detail deleted or renamed
+      // here would be folded back in on the next load
+      if (key in hotel) (hotel as unknown as Record<string, unknown>)[key] = undefined;
     }
     // coords anchor the Map's city pills — keep a valid explicit pair, else lift
     // one out of the pasted Maps link; the address geocode (Map tab) fills the
