@@ -57,7 +57,10 @@ import { addDays, dayJourneys, dayKind, fmtDate, journeyDepartDate, journeyOffDa
 import { legHex } from "@/lib/legColors";
 import { gmapsLink, gmapsRoute, mapUrlCoords, placeMapLink } from "@/lib/maps";
 import { fmtDistanceKm, fmtWalk, haversineKm } from "@/lib/geo";
-import { clockOf, fmtDuration, fmtMinutes } from "@/lib/time";
+import { clock24, clockOf, fmtClock, fmtClocksIn, fmtDuration, fmtMinutes } from "@/lib/time";
+
+/** the timeline's time column — wide enough for "10:30 PM" on a 12-hour device */
+const TIME_COL = clock24 ? "w-[2.625rem]" : "w-[3.75rem]";
 import { MODE_ICON, MODE_LABEL, MODE_TONE } from "@/lib/transport";
 import { useWalk, estimateTransit } from "@/lib/walkRoute";
 import { nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
@@ -804,8 +807,8 @@ function DayJourneyRow({ day, journey, data, onRemove }: { day: DayT; journey: J
   const last = segs[segs.length - 1];
   const short = (d: string) => fmtDate(d, loc, { weekday: "short", day: "numeric", month: "short" });
 
-  const leave = clockOf(first?.depart);
-  const arrive = clockOf(last?.arrive);
+  const leave = fmtClock(clockOf(first?.depart));
+  const arrive = fmtClock(clockOf(last?.arrive));
   const times = leave && arrive ? `${leave} – ${arrive}` : leave || (arrive && `arrives ${arrive}`);
   const meta = [times, first && MODE_LABEL[first.mode], segs.length > 1 && plural(segs.length - 1, "change")].filter(Boolean).join(" · ");
 
@@ -1342,9 +1345,10 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
   const range = splitRange(item.time);
   const plainTime = !item.time || /^\d{1,2}:\d{2}$/.test(item.time);
   // a range stacks its start over its end in the time column
+  // in the device's own clock format; a range stacks start over end
   const stacked = (t: string) => {
     const r = splitRange(t);
-    return r ? `${r[0]}\n${r[1]}` : t;
+    return fmtClocksIn(r ? `${r[0]}\n${r[1]}` : t);
   };
   const hours = usePlaceHours(place, day.date);
   // the place's own hours that day, checked against when the step is
@@ -1388,12 +1392,12 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                   ref={pinSheet.anchorRef}
                   type="button"
                   onClick={(e) => { e.stopPropagation(); pinSheet.setOpen(true); }}
-                  aria-label={`${item.time} — pinned`}
+                  aria-label={`${fmtClocksIn(item.time)} — pinned`}
                   className="tap whitespace-pre-line text-right tabular-nums"
                 >
                   {stacked(item.time ?? "")}
                 </button>
-                <ActionSheet open={pinSheet.open} onClose={() => pinSheet.setOpen(false)} anchorRef={pinSheet.anchorRef} title={`${item.time} is pinned. Unpin it to change the time.`}>
+                <ActionSheet open={pinSheet.open} onClose={() => pinSheet.setOpen(false)} anchorRef={pinSheet.anchorRef} title={`${fmtClocksIn(item.time)} is pinned. Unpin it to change the time.`}>
                   <button
                     type="button"
                     className="menu-item"
@@ -1425,7 +1429,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                 label="Time"
                 value={item.time ?? ""}
                 placeholder="Add a time"
-                format={range ? stacked : undefined}
+                format={stacked}
                 onCommit={(v) => onPatch({ time: v.trim() || undefined })}
                 className="w-full whitespace-pre-line text-right"
               />
@@ -1841,7 +1845,7 @@ function TimelineStop({ time, tile, trailing, children, className = "pr-3.5", on
   if (!onTap) {
     return (
       <span className={`relative flex gap-2.5 pl-3.5 ${className}`}>
-        <span className="block w-[2.625rem] shrink-0 pb-2.5 pt-[15px] text-right text-xs tabular-nums text-ink-soft">{time}</span>
+        <span className={`block ${TIME_COL} shrink-0 pb-2.5 pt-[15px] text-right text-xs tabular-nums text-ink-soft`}>{time}</span>
         <Rail>{tile && <span className="relative z-10 block pt-2.5">{tile}</span>}</Rail>
         <span className="block min-w-0 flex-1 pb-2.5 pl-0.5 pt-[11px]">{children}</span>
         {trailing}
@@ -1867,7 +1871,7 @@ function TimelineStop({ time, tile, trailing, children, className = "pr-3.5", on
       }}
       className={`relative flex cursor-pointer gap-2.5 pl-3.5 transition-colors duration-150 active:bg-ink/[0.07] ${className}`}
     >
-      <span className="block w-[2.625rem] shrink-0 pb-2.5 pt-[15px] text-right text-xs tabular-nums text-ink-soft">{time}</span>
+      <span className={`block ${TIME_COL} shrink-0 pb-2.5 pt-[15px] text-right text-xs tabular-nums text-ink-soft`}>{time}</span>
       <Rail>{tile && <span className="relative z-10 block pt-2.5">{tile}</span>}</Rail>
       <span className="block min-w-0 flex-1 pb-2.5 pl-0.5 pt-[11px]">{children}</span>
       {trailing}
@@ -1940,7 +1944,7 @@ function JourneyStopRow({ journey, stop }: { journey: Journey; stop: ReturnType<
       <Link to={`/journey/${journey.id}`} className="block active:bg-ink/[0.07]">
         <TimelineStop
           className="pr-3"
-          time={stop.time}
+          time={fmtClock(stop.time)}
           tile={<IconTile size="sm" name={MODE_ICON[seg.mode]} tone={MODE_TONE[seg.mode]} />}
           trailing={<Icon name="chevron" size={14} className="mt-[15px] shrink-0 text-ink-faint" />}
         >
@@ -2017,7 +2021,7 @@ function HotelRowTime({ label, time, timeStart, readOnly, onTime }: {
   readOnly: boolean;
   onTime: (time: string | undefined) => void;
 }) {
-  if (readOnly) return <>{time}</>;
+  if (readOnly) return <>{fmtClock(time)}</>;
   return (
     <Editable
       as="time"
@@ -2095,7 +2099,7 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
     // tucked up under the stop it leaves from, as Calendar hangs travel time
     // off an event — the room goes after it, before the next stop
     <li className="-mt-1.5 flex gap-2.5 pl-3.5 pr-3.5">
-      <span className="w-[2.625rem] shrink-0" />
+      <span className={`${TIME_COL} shrink-0`} />
       <Rail />
       <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5 pb-2.5 pl-0.5">
         {walk && (

@@ -19,7 +19,7 @@ import type {
 } from "@/core/types";
 import { dayJourneys, fmtDate, fmtSpan, journeyDepartDate, legNights, plural, todayISO } from "@/lib/dates";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
-import { minutesBetween, fmtMinutes } from "@/lib/time";
+import { minutesBetween, fmtMinutes, fmtClocksIn } from "@/lib/time";
 import { gmapsLink, placeMapLink } from "@/lib/maps";
 import { MODE_LABEL } from "@/lib/transport";
 import { saveFile } from "@/lib/device";
@@ -137,7 +137,7 @@ function dayBlock(day: Day, data: TripData, loc: string): string {
     const placeById = new Map(data.places.map((p) => [p.id, p] as const));
     const li = steps
       .map((it) => {
-        const time = it.time?.trim() ? `<span class="pi-time">${esc(it.time.trim())}</span> ` : "";
+        const time = it.time?.trim() ? `<span class="pi-time">${esc(fmtClocksIn(it.time.trim()))}</span> ` : "";
         const pl = it.placeId ? placeById.get(it.placeId) : undefined;
         const body = it.url ? link(it.url, it.text) : pl ? linkTo(placeMapLink(pl), it.text) : esc(it.text);
         const note = it.note?.trim() ? `<div class="pi-note">${mdToHtml(it.note)}</div>` : "";
@@ -240,8 +240,8 @@ function staysSection(data: TripData, opts: ExportOptions): string {
       ${h.addressAlt ? `<p class="stay-address jp">${esc(h.addressAlt)}</p>` : ""}
       ${mapHref ? `<p class="seg-meta"><a href="${safeHref(mapHref)}">Open in Google Maps</a></p>` : ""}
       ${rows([
-        ["Check-in", h.checkIn],
-        ["Check-out", h.checkOut],
+        ["Check-in", h.checkIn && fmtClocksIn(h.checkIn)],
+        ["Check-out", h.checkOut && fmtClocksIn(h.checkOut)],
         ["Price", fmtFare(h.price, h.priceCurrency || currency)],
         // the traveller's own reference fields (booking ref, wifi, door code…)
         // are held back unless this is a personal copy

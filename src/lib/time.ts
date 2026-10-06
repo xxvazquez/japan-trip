@@ -55,3 +55,31 @@ export function fmtMinutes(total: number): string {
 export function clockOf(s?: string): string {
   return parseLocal(s)?.time ?? "";
 }
+
+/** Whether this device shows a 24-hour clock, as the phone's own Clock and
+ *  Calendar do — read from its region and time settings, never a choice the
+ *  app makes. Times are always stored 24-hour ("HH:MM"); this is display only. */
+export const clock24 = (() => {
+  try {
+    const o = new Intl.DateTimeFormat(undefined, { hour: "numeric" }).resolvedOptions();
+    return o.hourCycle ? o.hourCycle === "h23" || o.hourCycle === "h24" : o.hour12 === false;
+  } catch {
+    return true;
+  }
+})();
+
+/** "HH:MM" as this device writes the time: "18:30", or "6:30 PM". */
+export function fmtClock(hhmm?: string): string {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(hhmm?.trim() ?? "");
+  if (!m) return hhmm ?? "";
+  const h = Number(m[1]);
+  if (clock24 || h > 23) return `${m[1].padStart(2, "0")}:${m[2]}`;
+  return new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit", hour12: true }).format(new Date(2000, 0, 1, h, Number(m[2])));
+}
+
+/** Every clock time inside a line of text in the device's format — a range
+ *  ("09:00–11:00") or a loose phrase ("Around 18:00") as much as a bare time. */
+export function fmtClocksIn(text?: string): string {
+  if (!text || clock24) return text ?? "";
+  return text.replace(/\b([01]?\d|2[0-3]):([0-5]\d)\b/g, (t) => fmtClock(t));
+}

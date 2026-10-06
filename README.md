@@ -173,6 +173,7 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 
 - **Time** — a single time, or a range like `14:00–15:15` stacked as 14:00 over 15:15. An empty time is left blank — tap the gap to set one.
 - **Setting a time** — the wheels start at the last time set on an earlier step (else 9:00). **Done** saves what's showing; tapping outside or swiping the sheet down cancels.
+- **12- or 24-hour** — times show, and the wheels turn, the way the device's own clock does (00–23, or 1–12 with AM/PM), as iOS follows the phone's setting.
 - **Link or change a place** — tap a step's icon to pick a place: the day's Areas first, then the rest of that city, then elsewhere (search when the list is long). **More → Change Place** on its place card does the same; **Custom…** unlinks it.
 - **Meal steps** — an unlinked step whose text mentions a meal (lunch, dinner, breakfast…), coffee or drinks gets a gold food, coffee or drink tile instead of the grey pin.
 - **Time order** — steps keep themselves in time order. Set or change a step's time and it moves to its place in the day.

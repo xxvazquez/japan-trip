@@ -4,10 +4,14 @@ import { useSheetDrag } from "./useSheetDrag";
 import { useRevealAboveSheet } from "./useRevealAboveSheet";
 import { useBackToClose } from "@/lib/backClose";
 import { Icon } from "./Icon";
+import { clock24 } from "@/lib/time";
 
-/* The pickers work on a 12-hour dial plus AM/PM, the way a clock (and the iOS
- * wheel) reads; the stored value stays 24-hour "HH:MM". */
-const WHEEL_HOURS = Array.from({ length: 12 }, (_, i) => String(i + 1));
+/* The pickers read the way the device's own clock does, as iOS's wheel
+ * follows the phone's 24-Hour Time setting: 00–23, or 1–12 plus AM/PM. The
+ * stored value stays 24-hour "HH:MM" either way. */
+const WHEEL_HOURS = clock24
+  ? Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"))
+  : Array.from({ length: 12 }, (_, i) => String(i + 1));
 const PERIODS = ["AM", "PM"] as const;
 type Period = (typeof PERIODS)[number];
 const to12 = (h24: string) => String(Number(h24) % 12 || 12);
@@ -92,10 +96,12 @@ function WheelColumn({ options, value, onChange, ariaLabel }: {
 }
 
 type Seg = "h" | "m" | "p";
-const SEGS: Seg[] = ["h", "m", "p"];
+const SEGS: Seg[] = clock24 ? ["h", "m"] : ["h", "m", "p"];
+const LAST = SEGS[SEGS.length - 1];
 
 /** The desktop editor, after the Mac's own time field (Calendar, System
- *  Settings): the time as three segments — hour, minute, AM/PM — beside a
+ *  Settings): the time as segments — hour, minute and, on a 12-hour
+ *  device, AM/PM — beside a
  *  small up/down stepper. Click a segment to select it, then step it with the
  *  stepper, the arrow keys or the scroll wheel (minutes in fives), or just
  *  type digits ("9", "37", "p"). A scroll wheel suits a touchscreen; a mouse and keyboard are
@@ -120,7 +126,10 @@ function TimeField({ hour, minute, onPick, onDone }: {
   const step = (s: Seg, d: number, cur = live.current) => {
     const h = Number(to12(cur.hour)), p = periodOf(cur.hour);
     const onPick = cur.onPick;
-    if (s === "h") onPick(to24(String(((h - 1 + d + 1200) % 12) + 1), p), cur.minute);
+    if (s === "h") {
+      if (clock24) onPick(String((Number(cur.hour) + d + 2400) % 24).padStart(2, "0"), cur.minute);
+      else onPick(to24(String(((h - 1 + d + 1200) % 12) + 1), p), cur.minute);
+    }
     if (s === "m") {
       // steps land on the five-minute marks (32 → 35 / 30); typing stays exact
       const m = Number(cur.minute);
@@ -148,7 +157,7 @@ function TimeField({ hour, minute, onPick, onDone }: {
     return () => el.removeEventListener("wheel", onWheel);
   }, []);
 
-  const move = (d: number) => setSeg(SEGS[Math.min(2, Math.max(0, SEGS.indexOf(seg) + d))]);
+  const move = (d: number) => setSeg(SEGS[Math.min(SEGS.length - 1, Math.max(0, SEGS.indexOf(seg) + d))]);
 
   const typeDigit = (n: number) => {
     const now = Date.now();
@@ -156,14 +165,19 @@ function TimeField({ hour, minute, onPick, onDone }: {
     const fresh = t.seg !== seg || now - t.at > 1200;
     const text = (fresh ? "" : t.text) + n;
     typed.current = { seg, text, at: now };
-    if (seg === "h") {
+    if (seg === "h" && clock24) {
+      const v = Number(text);
+      if (text.length === 2 && v <= 23) { onPick(text, minute); setSeg("m"); typed.current.text = ""; }
+      else if (text.length === 2) { typed.current.text = String(n); onPick(String(n).padStart(2, "0"), minute); if (n > 2) setSeg("m"); }
+      else { onPick(String(n).padStart(2, "0"), minute); if (n > 2) setSeg("m"); }
+    } else if (seg === "h") {
       const v = Number(text);
       if (text.length === 2 && v >= 1 && v <= 12) { onPick(to24(String(v), period), minute); setSeg("m"); typed.current.text = ""; }
       else if (text.length === 2) { typed.current.text = String(n); if (n) onPick(to24(String(n), period), minute); if (n > 1) setSeg("m"); }
       else { if (n) onPick(to24(String(n), period), minute); if (n > 1) setSeg("m"); }
     } else if (seg === "m") {
       onPick(hour, text.padStart(2, "0").slice(-2));
-      if (text.length === 2 || n > 5) { setSeg("p"); typed.current.text = ""; }
+      if (text.length === 2 || n > 5) { setSeg(LAST); typed.current.text = ""; }
     }
   };
 
@@ -172,10 +186,10 @@ function TimeField({ hour, minute, onPick, onDone }: {
     if (k === "ArrowUp" || k === "ArrowDown") { e.preventDefault(); step(seg, k === "ArrowUp" ? 1 : -1); }
     else if (k === "ArrowLeft") { e.preventDefault(); move(-1); }
     else if (k === "ArrowRight" || k === ":") { e.preventDefault(); move(1); }
-    else if (k === "Tab" && !(e.shiftKey ? seg === "h" : seg === "p")) { e.preventDefault(); move(e.shiftKey ? -1 : 1); }
+    else if (k === "Tab" && !(e.shiftKey ? seg === "h" : seg === LAST)) { e.preventDefault(); move(e.shiftKey ? -1 : 1); }
     else if (k === "Enter") { e.preventDefault(); onDone(); }
     else if (/^[0-9]$/.test(k)) { e.preventDefault(); typeDigit(Number(k)); }
-    else if (/^[ap]$/i.test(k)) { e.preventDefault(); onPick(to24(String(h12), k.toLowerCase() === "a" ? "AM" : "PM"), minute); }
+    else if (!clock24 && /^[ap]$/i.test(k)) { e.preventDefault(); onPick(to24(String(h12), k.toLowerCase() === "a" ? "AM" : "PM"), minute); }
   };
 
   const segment = (s: Seg, text: string, label: string) => (
@@ -201,11 +215,13 @@ function TimeField({ hour, minute, onPick, onDone }: {
         aria-label="Time"
         className="flex select-none items-baseline rounded-[8px] bg-surface-2 px-1.5 py-1 text-[22px] text-ink focus:outline-none"
       >
-        {segment("h", String(h12), "Hour")}
+        {segment("h", clock24 ? hour : String(h12), "Hour")}
         <span aria-hidden className="px-px text-ink-faint">:</span>
         {segment("m", minute, "Minute")}
-        <span className="w-1.5" />
-        {segment("p", period, "AM or PM")}
+        {!clock24 && <>
+          <span className="w-1.5" />
+          {segment("p", period, "AM or PM")}
+        </>}
       </div>
       <div className="flex flex-col overflow-hidden rounded-[7px] bg-surface-2">
         {[1, -1].map((d) => (
@@ -283,10 +299,12 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, unset, 
   const wheels = (
     <div className="relative flex items-center justify-center gap-1">
       <span aria-hidden className="pointer-events-none absolute inset-x-2 top-1/2 h-11 -translate-y-1/2 rounded-[10px] bg-surface-2" />
-      <WheelColumn options={WHEEL_HOURS} value={to12(h)} onChange={(v) => onPick(to24(v, periodOf(h)), m)} ariaLabel="Hour" />
+      {clock24
+        ? <WheelColumn options={WHEEL_HOURS} value={h} onChange={(v) => onPick(v, m)} ariaLabel="Hour" />
+        : <WheelColumn options={WHEEL_HOURS} value={to12(h)} onChange={(v) => onPick(to24(v, periodOf(h)), m)} ariaLabel="Hour" />}
       <span aria-hidden className="text-[22px] text-ink-faint">:</span>
       <WheelColumn options={MINUTES} value={m} onChange={(v) => onPick(h, v)} ariaLabel="Minute" />
-      <WheelColumn options={[...PERIODS]} value={periodOf(h)} onChange={(p) => onPick(to24(to12(h), p as Period), m)} ariaLabel="AM or PM" />
+      {!clock24 && <WheelColumn options={[...PERIODS]} value={periodOf(h)} onChange={(p) => onPick(to24(to12(h), p as Period), m)} ariaLabel="AM or PM" />}
     </div>
   );
 

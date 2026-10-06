@@ -1,4 +1,5 @@
 import type { Day, ISODate, Journey, Leg, Segment, TripData } from "@/core/types";
+import { fmtClock } from "./time";
 
 const MS_DAY = 86_400_000;
 
@@ -252,7 +253,7 @@ export function segEndpoints(s: SegLike, journeyDate: string | undefined, locale
 /** One endpoint as text: "21 Oct 02:05 JST". */
 export function fmtEndpoint(e: SegEndpoint): string {
   if (!e.time) return "";
-  return [e.date, e.time].filter(Boolean).join(" ") + (e.zone ? ` ${e.zone}` : "");
+  return [e.date, fmtClock(e.time)].filter(Boolean).join(" ") + (e.zone ? ` ${e.zone}` : "");
 }
 
 /** "13:30 CEST → 21 Oct 02:05 JST" — depart-to-arrive across a segment or a

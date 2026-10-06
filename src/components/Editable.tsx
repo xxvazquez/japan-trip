@@ -9,6 +9,7 @@ import { linkLabel } from "@/lib/linkLabel";
 import { Icon } from "./Icon";
 import { TimeWheelSheet } from "./TimeWheel";
 import { AmountSheet } from "./AmountSheet";
+import { fmtClock } from "@/lib/time";
 
 type Base = {
   value: string;
@@ -228,7 +229,7 @@ export function Editable(props: Props) {
         </a>
       );
     }
-    const text = as === "date" ? fmtDate(value, locale, DATE_SHOWN) : displayValue;
+    const text = as === "date" ? fmtDate(value, locale, DATE_SHOWN) : as === "time" ? fmtClock(value) : displayValue;
     return <span className={`inline whitespace-pre-wrap ${className}`}>{text}</span>;
   }
 
@@ -310,7 +311,7 @@ export function Editable(props: Props) {
           aria-label={`Edit ${label}`}
           className={`editable inline bg-transparent text-left tabular-nums ${!value ? "italic text-ink-faint" : ""} ${className}`}
         >
-          {value || emptyContent || placeholder}
+          {value ? fmtClock(value) : emptyContent || placeholder}
         </button>
         <TimeWheelSheet
           open={sheetOpen}

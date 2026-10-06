@@ -17,7 +17,7 @@ import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { addDays, daysBetween, fmtDate, journeyDepartDate, journeyOffDay, plural, segEndpoints, todayISO } from "@/lib/dates";
-import { clockOf, fmtDuration, fmtMinutes, minutesBetween, parseLocal } from "@/lib/time";
+import { clockOf, fmtClock, fmtDuration, fmtMinutes, minutesBetween, parseLocal } from "@/lib/time";
 import { MODE_LABEL, MODE_ICON, MODE_TONE } from "@/lib/transport";
 import { arrivesBeforeDeparture } from "@/lib/ics";
 import { journeyFare, hopsPriced, fmtMoney, cleanAmount, fmtFare } from "@/lib/cost";
@@ -338,7 +338,7 @@ export default function Journey() {
                   <div className="shrink-0">
                     <span className="font-display text-[1.3125rem] font-medium tabular-nums leading-none">
                       {ro ? (
-                        clockOf(s.depart) || "--:--"
+                        fmtClock(clockOf(s.depart)) || "--:--"
                       ) : (
                         <Editable as="time" label="Depart time" value={clockOf(s.depart)} placeholder="--:--" onCommit={(v) => setSeg(i, { depart: mergeTime(s.depart, departFallback, v) })} />
                       )}
@@ -362,7 +362,7 @@ export default function Journey() {
                   <div className="shrink-0 text-right">
                     <span className="font-display text-[1.3125rem] font-medium tabular-nums leading-none">
                       {ro ? (
-                        clockOf(s.arrive) || "--:--"
+                        fmtClock(clockOf(s.arrive)) || "--:--"
                       ) : (
                         <Editable as="time" label="Arrive time" value={clockOf(s.arrive)} placeholder="--:--" onCommit={(v) => setSeg(i, { arrive: mergeTime(s.arrive, arriveFallback, v) })} />
                       )}
