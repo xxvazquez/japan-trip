@@ -210,7 +210,7 @@ function Attachments({
   // Only the reference goes. The bytes (device or Drive) are deliberately left
   // where they are: removing a row can be undone from the toast or a restore
   // point, and an undo pointing at a deleted file would restore a dead link.
-  const remove = (f: DocFile) => onChange(files.filter((x) => x.id !== f.id));
+  const remove = (f: DocFile) => undoable("File removed", () => onChange(files.filter((x) => x.id !== f.id)));
 
   return (
     <>

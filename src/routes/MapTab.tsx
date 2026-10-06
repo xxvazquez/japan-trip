@@ -1546,7 +1546,7 @@ export default function MapTab() {
                 </span>
                 <ConfirmButton
                   label="Merge duplicate areas"
-                  onConfirm={mergeDuplicateAreas}
+                  onConfirm={() => undoable("Duplicate areas merged", mergeDuplicateAreas)}
                   className="shrink-0 text-accent"
                 >
                   Merge

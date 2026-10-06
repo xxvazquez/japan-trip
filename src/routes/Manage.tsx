@@ -1274,7 +1274,7 @@ function Appearance() {
           </span>
           <div className="flex gap-2">
             <button disabled={busy} onClick={() => upload((item) => setMedia("logo", item))} className="btn-sm">Upload</button>
-            {media.logo && <button onClick={() => setMedia("logo", undefined)} className="btn-sm text-accent">Remove</button>}
+            {media.logo && <button onClick={() => undoable("Logo removed", () => setMedia("logo", undefined))} className="btn-sm text-accent">Remove</button>}
           </div>
         </div>
       </Section>
