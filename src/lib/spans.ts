@@ -98,8 +98,9 @@ export interface LegResize {
  * its last days off (never the first one). Everything dated after the stay —
  * later days and stays, journeys and their hops, luggage notes, the trip's
  * end — slides by the same amount, so the rest of the trip keeps its shape
- * instead of overlapping or leaving a gap. Mutates `d`; null when there's
- * nothing to do.
+ * instead of overlapping or leaving a gap. A pinned day is the exception: it
+ * keeps its date and the others flow around it. Mutates `d`; null when
+ * there's nothing to do.
  */
 export function resizeLeg(d: TripData, legId: string, delta: number, newId: () => string): LegResize | null {
   const leg = d.legs.find((l) => l.id === legId);
@@ -117,32 +118,61 @@ export function resizeLeg(d: TripData, legId: string, delta: number, newId: () =
   }
 
   const after = (date?: string) => !!date && date.slice(0, 10) > last;
-  for (const day of d.days) {
-    if (after(day.date)) { day.date = shiftDate(day.date, delta); out.days.push(day.id); }
+  // a pinned day keeps its date: the days around it flow past it, as a drag
+  // does (`reorderDays`), and whatever is dated that day stays with it
+  const pinned = new Set(d.config.pinnedDays ?? []);
+  const held = new Set(d.days.filter((x) => pinned.has(x.id) && after(x.date)).map((x) => x.date));
+  const taken = new Set<string>();
+  const free = (date: string) => {
+    let c = date;
+    while (held.has(c) || taken.has(c)) c = addDays(c, 1);
+    taken.add(c);
+    return c;
+  };
+  const newDates: string[] = [];
+  for (let i = 0; i < delta; i++) newDates.push(free(addDays(newDates.at(-1) ?? last, 1)));
+  /** old date → new date for every unpinned day after the stay */
+  const moved = new Map<string, string>();
+  const later = d.days.filter((x) => after(x.date) && !pinned.has(x.id)).sort((a, b) => a.date.localeCompare(b.date));
+  // never at or before the stay's (new) last day, nor before the day ahead
+  let floor = newDates.at(-1) ?? (delta < 0 ? addDays(last, delta) : last);
+  for (const day of later) {
+    const want = shiftDate(day.date, delta);
+    const to = free(want > floor ? want : addDays(floor, 1));
+    floor = to;
+    moved.set(day.date, to);
+    if (to !== day.date) { day.date = to; out.days.push(day.id); }
   }
+  // anything else dated after the stay goes where its day went; on a pinned
+  // day's date it stays put, and between days it slides by the same amount
+  const move = (v: string) => {
+    const date = v.slice(0, 10);
+    const to = held.has(date) ? date : moved.get(date) ?? shiftDate(date, delta);
+    return to + v.slice(10);
+  };
   for (const l of d.legs) {
     if (l.id === legId || !after(l.start)) continue;
-    l.start = shiftDate(l.start, delta);
-    if (l.end) l.end = shiftDate(l.end, delta);
+    l.start = move(l.start);
+    if (l.end) l.end = move(l.end);
     out.legs.push(l.id);
   }
   for (const j of d.journeys) {
     let moved = false;
-    if (after(j.date)) { j.date = shiftDate(j.date!, delta); moved = true; }
+    if (after(j.date) && move(j.date!) !== j.date) { j.date = move(j.date!); moved = true; }
     for (const s of j.segments) {
-      if (after(s.depart)) { s.depart = shiftDate(s.depart!, delta); moved = true; }
-      if (after(s.arrive)) { s.arrive = shiftDate(s.arrive!, delta); moved = true; }
+      if (after(s.depart) && move(s.depart!) !== s.depart) { s.depart = move(s.depart!); moved = true; }
+      if (after(s.arrive) && move(s.arrive!) !== s.arrive) { s.arrive = move(s.arrive!); moved = true; }
     }
     if (moved) out.journeys.push(j.id);
   }
   for (const n of d.luggage) {
-    if (after(n.date)) { n.date = shiftDate(n.date!, delta); out.luggage.push(n.id); }
+    if (after(n.date) && move(n.date!) !== n.date) { n.date = move(n.date!); out.luggage.push(n.id); }
   }
-  if (after(d.meta.end)) { d.meta.end = shiftDate(d.meta.end, delta); out.meta = true; }
+  if (after(d.meta.end)) { d.meta.end = move(d.meta.end); out.meta = true; }
 
-  for (let i = 1; i <= delta; i++) {
+  for (const date of newDates) {
     const id = newId();
-    d.days.push({ id, date: addDays(last, i), legId, hotelId: leg.hotelId || undefined, title: "New day" });
+    d.days.push({ id, date, legId, hotelId: leg.hotelId || undefined, title: "New day" });
     out.added.push(id);
   }
   d.days.sort((a, b) => a.date.localeCompare(b.date));

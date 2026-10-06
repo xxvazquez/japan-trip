@@ -139,6 +139,27 @@ describe("resizeLeg", () => {
     expect(resizeLeg(d, "A", -1, id)).toBeNull();
   });
 
+  it("a pinned day keeps its date; the days around it flow past", () => {
+    const d = trip();
+    d.config.pinnedDays = ["d4"];
+    d.journeys = [{ id: "j", label: "Show", kind: "transfer", date: "2026-10-04", segments: [] }] as never;
+    resizeLeg(d, "A", 1, id);
+    const byId = Object.fromEntries(d.days.map((x) => [x.id, x.date]));
+    expect(byId.d4).toBe("2026-10-04"); // pinned: unmoved
+    expect(byId.d3).toBe("2026-10-05"); // stepped past it
+    expect(d.days.filter((x) => x.legId === "A").map((x) => x.date)).toEqual(["2026-10-01", "2026-10-02", "2026-10-03"]);
+    expect(d.journeys[0].date).toBe("2026-10-04"); // stays with the pinned day
+    expect(new Set(d.days.map((x) => x.date)).size).toBe(d.days.length); // no two days share a date
+  });
+
+  it("shrinking a stay leaves a pinned day where it is", () => {
+    const d = trip();
+    d.config.pinnedDays = ["d4"];
+    resizeLeg(d, "A", -1, id);
+    const byId = Object.fromEntries(d.days.map((x) => [x.id, x.date]));
+    expect([byId.d3, byId.d4]).toEqual(["2026-10-02", "2026-10-04"]);
+  });
+
   it("growing the last stay extends the trip", () => {
     const d = trip();
     resizeLeg(d, "B", 2, id);
