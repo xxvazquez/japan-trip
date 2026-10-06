@@ -219,37 +219,6 @@ function Trips() {
 
   return (
     <div className="space-y-6">
-      {!creating ? (
-        <Section>
-          <ul>
-            <ActionRow icon="plus" label="New trip" onClick={newTrip} disabled={busy} />
-            {!hasDemo && <ActionRow icon="copy" label="Add the demo tour" onClick={addDemo} disabled={busy} />}
-            <ActionRow icon="download" label="Restore from backup" onClick={() => fileRef.current?.click()} disabled={busy} />
-          </ul>
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".json,application/json"
-            className="hidden"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              e.target.value = ""; // picking the same file again should still fire
-              if (f) void restore(f);
-            }}
-          />
-          {msg && <p className="px-3.5 pb-2.5 text-sm text-danger" role="alert">{msg}</p>}
-        </Section>
-      ) : (
-        <Section title="Start from">
-          <ul>
-            <ActionRow icon="plus" label="Empty template" hint="blank; add days, hide sections you don’t want" onClick={askName} disabled={busy} />
-            {TEMPLATES.map((t) => (
-              <ActionRow key={t.id} icon="copy" label={t.name} hint={t.subtitle} onClick={() => make(t.id)} disabled={busy} />
-            ))}
-            <ActionRow label="Cancel" onClick={() => setCreating(false)} />
-          </ul>
-        </Section>
-      )}
 
       <Section>
       <ul>
@@ -289,6 +258,40 @@ function Trips() {
         })}
       </ul>
       </Section>
+
+      {/* your trips first, then adding one — as Mail lists its accounts
+          and closes with Add Account */}
+      {!creating ? (
+        <Section>
+          <ul>
+            <ActionRow icon="plus" label="New trip" onClick={newTrip} disabled={busy} />
+            {!hasDemo && <ActionRow icon="copy" label="Add the demo tour" onClick={addDemo} disabled={busy} />}
+            <ActionRow icon="download" label="Restore from backup" onClick={() => fileRef.current?.click()} disabled={busy} />
+          </ul>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".json,application/json"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              e.target.value = ""; // picking the same file again should still fire
+              if (f) void restore(f);
+            }}
+          />
+          {msg && <p className="px-3.5 pb-2.5 text-sm text-danger" role="alert">{msg}</p>}
+        </Section>
+      ) : (
+        <Section title="Start from">
+          <ul>
+            <ActionRow icon="plus" label="Empty template" hint="blank; add days, hide sections you don’t want" onClick={askName} disabled={busy} />
+            {TEMPLATES.map((t) => (
+              <ActionRow key={t.id} icon="copy" label={t.name} hint={t.subtitle} onClick={() => make(t.id)} disabled={busy} />
+            ))}
+            <ActionRow label="Cancel" onClick={() => setCreating(false)} />
+          </ul>
+        </Section>
+      )}
 
       {archived.length > 0 && (
         <Section title="Archived" className="mt-8">
