@@ -2442,9 +2442,9 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
         })}
       <li className="relative flex items-baseline justify-between gap-4 px-3.5 py-3 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
         <span className="value flex-1 font-medium">Total spent</span>
-        <span className="value flex flex-wrap justify-end gap-x-3 font-medium tabular-nums">
+        <span className="value flex flex-wrap justify-end gap-x-1.5 font-medium tabular-nums">
           {subtotals.size > 0
-            ? [...subtotals].map(([cur, amt]) => <span key={cur || "—"}>{fmtMoney(amt, cur)}</span>)
+            ? [...subtotals].map(([cur, amt], i) => <span key={cur || "—"} className="whitespace-nowrap">{i > 0 && "+ "}{fmtMoney(amt, cur)}</span>)
             : "—"}
         </span>
         {/* holds the slot of the rows' ✕ (pointer devices only), so the

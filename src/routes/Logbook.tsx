@@ -64,7 +64,7 @@ function sectionSummary(s: LogbookSection, data: TripData, spent: string): strin
       if (spent) return spent;
       // no rate yet for some currency — show each one rather than nothing
       const totals = Object.entries(tripCost(data).byCurrency).filter(([, b]) => b.total > 0);
-      return totals.length ? totals.map(([cur, b]) => fmtMoney(b.total, cur)).join(" · ") : undefined;
+      return totals.length ? totals.map(([cur, b]) => fmtMoney(b.total, cur)).join(" + ") : undefined;
     }
     case "notes": return n(data.scratchNotes.length);
   }

@@ -59,7 +59,7 @@ export default function Journey() {
   // the total adds itself up from the hops' fares; only a journey with no
   // priced hop takes a hand-entered total (one ticket for the whole trip)
   const fareLines = journeyFare(j, primary);
-  const fareText = fareLines.map((m) => fmtMoney(m.amount, m.currency)).join("  +  ");
+  const fareText = fareLines.map((m) => fmtMoney(m.amount, m.currency)).join(" + ");
   const fareDerived = hopsPriced(j);
   const onDays = data.days.filter((d) => d.journeyIds?.includes(j.id));
   const departDay = day ? data.days.find((d) => d.date === day) : undefined;
