@@ -512,6 +512,7 @@ function Emergency() {
 
   return (
     <div className="space-y-6">
+      <div>
       <Section>
         <ul>
           <FieldList
@@ -523,6 +524,11 @@ function Emergency() {
           />
         </ul>
       </Section>
+      {/* empty, the group says what goes in it — a Settings group footer */}
+      {contact.fields.length === 0 && (
+        <p className="mt-1.5 px-4 text-xs leading-snug text-ink-soft">Embassy, insurance, a number to call — kept here for when there's no signal.</p>
+      )}
+      </div>
       {(contact.note?.trim() || !ro) && (
         <Section title="Notes">
           <div className="note px-3.5 py-3">
