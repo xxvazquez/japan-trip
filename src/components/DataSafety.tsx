@@ -8,6 +8,7 @@ import { useApp } from "@/store/useApp";
 import { pickBackend } from "@/lib/backend";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import { listSnapshots, cloudBackupsAvailable, type SnapshotMeta } from "@/lib/safety/snapshots";
+import { TAP } from "@/lib/device";
 
 const REASONS: Record<string, string> = {
   auto: "Automatic",
@@ -130,7 +131,7 @@ export function DataSafety() {
                   {/* replaces the open trip — a second tap, so a stray one can't */}
                   <ConfirmMenuItem
                     label="Restore over this trip"
-                    confirmLabel={`Tap again to put the trip back to ${when(p.at)}`}
+                    confirmLabel={`${TAP} again to put the trip back to ${when(p.at)}`}
                     onConfirm={() => !busy && restore(p, "replace")}
                   />
                   <button onClick={() => restore(p, "copy")} disabled={busy} className="menu-item">Restore as a new trip</button>

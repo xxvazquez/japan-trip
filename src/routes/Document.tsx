@@ -25,6 +25,7 @@ import { loadFile, saveFilesToDevice, sourceOf, useOnDevice } from "@/lib/offlin
 import type { ViewerFile } from "@/components/FileViewer";
 import { driveEnabled, driveConnected, prepareDrive, connectDrive, ensureFolder, uploadToDrive, shareFile, driveViewUrl, driveImageUrl } from "@/lib/drive";
 import type { Doc, DocFile } from "@/core/types";
+import { TAP } from "@/lib/device";
 
 const FileViewer = lazy(() => import("@/components/FileViewer"));
 
@@ -233,7 +234,7 @@ function Attachments({
                 {!ro && (
                   <RowMenu label="File options">
                     <button type="button" className="menu-item" onClick={() => open(f)}>Open</button>
-                    <ConfirmMenuItem onConfirm={() => remove(f)} label="Remove file" confirmLabel="Tap again to remove" />
+                    <ConfirmMenuItem onConfirm={() => remove(f)} label="Remove file" confirmLabel={`${TAP} again to remove`} />
                   </RowMenu>
                 )}
               </div>

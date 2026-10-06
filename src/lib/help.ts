@@ -1,5 +1,6 @@
 import type { IconName } from "@/components/Icon";
 import type { Tone } from "./tones";
+import { touchDevice } from "@/lib/device";
 
 /**
  * The Help content — the iPhone User Guide idea: topics, short questions,
@@ -580,7 +581,7 @@ export const HELP: HelpTopic[] = [
       {
         id: "search",
         q: "How do I find something fast?",
-        a: "Tap {search} beside the tabs. It looks through everything.",
+        a: touchDevice ? "Tap {search} beside the tabs. It looks through everything." : "Click {search} at the top right. It looks through everything.",
         preview: "searchButton",
         blocks: [
           {

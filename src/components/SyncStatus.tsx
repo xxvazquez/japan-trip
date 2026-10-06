@@ -5,6 +5,7 @@ import { pickBackend } from "@/lib/backend";
 import { entityLink } from "@/lib/entityLink";
 import { ActionSheet, useActionSheet } from "./ActionSheet";
 import { Icon } from "./Icon";
+import { TAP } from "@/lib/device";
 
 export function useOnline(): boolean {
   const [online, setOnline] = useState(() => navigator.onLine);
@@ -106,10 +107,10 @@ export function SyncStatus() {
                   }
                   discardSyncIssue(item.key);
                 }}
-                aria-label={armedKey === item.key ? "Tap again to discard this change" : "Discard this change"}
+                aria-label={armedKey === item.key ? `${TAP} again to discard this change` : "Discard this change"}
                 className="shrink-0 text-danger"
               >
-                {armedKey === item.key ? <span className="text-2xs">Tap again</span> : <Icon name="trash" size={14} />}
+                {armedKey === item.key ? <span className="text-2xs">{TAP} again</span> : <Icon name="trash" size={14} />}
               </button>
             </div>
           );

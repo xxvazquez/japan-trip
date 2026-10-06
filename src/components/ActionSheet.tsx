@@ -2,6 +2,7 @@ import { useBackToClose } from "@/lib/backClose";
 import { useEffect, useLayoutEffect, useReducer, useRef, useState, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { useSheetDrag } from "./useSheetDrag";
+import { TAP } from "@/lib/device";
 
 const isNarrow = () =>
   typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches;
@@ -323,7 +324,7 @@ export function ConfirmMenuItem({ onConfirm, label = "Remove", confirmLabel, ico
       }}
     >
       {!armed && icon}
-      {armed ? confirmLabel ?? `Tap again to ${label.toLowerCase()}` : label}
+      {armed ? confirmLabel ?? `${TAP} again to ${label.toLowerCase()}` : label}
     </button>
   );
 }

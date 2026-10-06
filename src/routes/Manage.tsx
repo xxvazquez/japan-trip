@@ -52,6 +52,7 @@ import { Switch } from "@/components/Switch";
 import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
 import { useEffect } from "react";
 import type { Day, EntityType, ExpenseCategory, Place, TripData } from "@/core/types";
+import { TAP } from "@/lib/device";
 
 type PanelId = "trips" | "setup" | "content" | "appearance" | "sharing";
 const PANELS: { id: PanelId; label: string; icon: IconName; tone: Tone }[] = [
@@ -157,7 +158,9 @@ function AppFooter() {
         {APP_TAGLINE}
       </p>
       <p className="mt-1 text-2xs tabular-nums" title="The build this device is running">
-        Version {APP_BUILD.version} · Build {APP_BUILD.commit} · {new Date(APP_BUILD.built).toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+        {/* each part stays whole, so a narrow screen breaks the line at a · */}
+        <span className="whitespace-nowrap">Version {APP_BUILD.version}</span> · <span className="whitespace-nowrap">Build {APP_BUILD.commit}</span> ·{" "}
+        <span className="whitespace-nowrap">{new Date(APP_BUILD.built).toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
       </p>
     </footer>
   );
@@ -278,7 +281,7 @@ function Trips() {
                 <RowMenu>
                   {!isDemo && <button onClick={() => duplicateTrip(t.id, `${t.name} copy`)} className="menu-item">Duplicate</button>}
                   <button onClick={() => archiveTrip(t.id, true)} className="menu-item">Archive</button>
-                  <ConfirmMenuItem onConfirm={() => deleteTrip(t.id)} label="Delete" confirmLabel="Tap again to delete this trip" />
+                  <ConfirmMenuItem onConfirm={() => deleteTrip(t.id)} label="Delete" confirmLabel={`${TAP} again to delete this trip`} />
                 </RowMenu>
               </span>
             </ContextMenu>
@@ -296,7 +299,7 @@ function Trips() {
                 <span className="flex shrink-0 items-center gap-1">
                   <button onClick={() => archiveTrip(t.id, false)} className="action">Restore</button>
                   <RowMenu>
-                    <ConfirmMenuItem onConfirm={() => deleteTrip(t.id)} label="Delete" confirmLabel="Tap again to delete this trip" />
+                    <ConfirmMenuItem onConfirm={() => deleteTrip(t.id)} label="Delete" confirmLabel={`${TAP} again to delete this trip`} />
                   </RowMenu>
                 </span>
               </ContextMenu>
@@ -356,7 +359,7 @@ function ThisDevice() {
       void pruneTripMaps(tripIds);
       setMapMsg(
         failed && !ok ? "Couldn’t reach the map server — try again once you have a connection."
-          : failed ? `${failed} map ${failed === 1 ? "piece" : "pieces"} didn’t load — tap again to retry.`
+          : failed ? `${failed} map ${failed === 1 ? "piece" : "pieces"} didn’t load — ${TAP.toLowerCase()} again to retry.`
           : truncated ? "The trip covers a lot of ground, so some outer edges were left out."
           : "",
       );

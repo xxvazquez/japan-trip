@@ -4,6 +4,9 @@
 export const touchDevice =
   typeof window !== "undefined" && window.matchMedia("(hover: none) and (pointer: coarse)").matches;
 
+/** "Tap" on a touch screen, "Click" with a mouse — for "Tap again to delete". */
+export const TAP = touchDevice ? "Tap" : "Click";
+
 /** iPhone / iPad — every browser there is WebKit. (iPadOS reports itself as
  *  a Mac, hence the touch check.) */
 export const isIOS = () =>
