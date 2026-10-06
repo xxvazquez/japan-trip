@@ -6,6 +6,7 @@ import { HELP, helpKey, helpText } from "./help";
 import { MODE_ICON } from "./transport";
 import { categoryName } from "./mapGlyphs";
 import { noteToPlain } from "./noteFormat";
+import { fmtClocksIn } from "./time";
 import { customListColor, logbookSectionTile, placeTile, toneForSegmentMode, type LogbookTile } from "./tones";
 
 export type SearchKind = "day" | "leg" | "hotel" | "place" | "transfer" | "area" | "luggage" | "doc" | "packing" | "list" | "note" | "help";
@@ -50,7 +51,7 @@ function build(d: TripData): SearchHit[] {
         { text: fmtDate(day.date, loc, { weekday: "long", day: "numeric", month: "long" }) },
         ...(day.labels ?? []).map((t) => ({ label: "Label", text: t })),
         ...(day.plan ?? []).flatMap((p) => [
-          { label: "Plan", text: [p.time, p.text].filter(Boolean).join(" ") },
+          { label: "Plan", text: [p.time && fmtClocksIn(p.time), p.text].filter(Boolean).join(" ") },
           { label: "Plan", text: p.note },
           { label: "Plan", text: p.placeId ? d.places.find((x) => x.id === p.placeId)?.name : undefined },
         ]),

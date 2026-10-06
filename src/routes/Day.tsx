@@ -1362,7 +1362,8 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
   // the place's own hours that day, checked against when the step is
   // planned — a red line under the name only when they don't fit
   const stepTimes = range ?? (plainTime && item.time ? [item.time] : []);
-  const conflict = hours ? hoursConflict(hours, stepTimes[0], stepTimes[1]) : null;
+  const clash = hours ? hoursConflict(hours, stepTimes[0], stepTimes[1]) : null;
+  const conflict = clash && fmtClocksIn(clash);
   const catGlyph = place?.category ? categoryIcons?.[place.category] : undefined;
   // a custom step has no category to go on, so guess from its own text
   const textGlyph = place ? undefined : glyphForStepText(item.text);

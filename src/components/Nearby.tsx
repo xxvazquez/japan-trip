@@ -19,6 +19,7 @@ import { menuHref, reviewHref, reviewSiteFor } from "@/lib/reviewSite";
 import { placeTile } from "@/lib/tones";
 import type { NearbyGroup, NearbyItem } from "@/lib/nearby";
 import type { Place } from "@/core/types";
+import { fmtClocksIn } from "@/lib/time";
 
 /** A place's opening hours on `date`, the rule for that month and weekday
  *  rather than the whole year's schedule. Read first from the place's "Good
@@ -225,7 +226,7 @@ export function NearbyCard({ open, onClose, anchorRef, item, group, date, locale
               <h2 className="subhead break-words">{place.name}</h2>
               <p className={`mt-0.5 break-words text-xs ${hours === "Closed" ? "text-danger" : "text-ink-soft"}`}>
                 {item.min} min walk from {group.stop.name}
-                {hours && <> · {hours === "Closed" ? "Closed this day" : hours.replace(/-/g, "–")}</>}
+                {hours && <> · {hours === "Closed" ? "Closed this day" : fmtClocksIn(hours.replace(/-/g, "–"))}</>}
               </p>
             </div>
             <button

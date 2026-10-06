@@ -11,6 +11,7 @@ import { Editable } from "./Editable";
 import { ActionRow } from "./ActionRow";
 import { useData } from "@/lib/data";
 import { menuHref } from "@/lib/reviewSite";
+import { fmtClocksIn } from "@/lib/time";
 
 /** A place's "Good to know" as rows for a grouped list — each fact with a
  *  coloured tile, a small label and the value under it (the Settings tile
@@ -189,10 +190,11 @@ function FactCell({ k, label, value, kind, onEdit, autoEdit, className = "" }: {
             placeholder="Add"
             autoEdit={autoEdit}
             onCommit={onEdit}
+            format={fmtClocksIn}
             className={`row-value block break-words text-left ${shut ? "text-danger" : "text-ink"}`}
           />
         ) : (
-          <span className={`row-value block break-words text-left ${shut ? "text-danger" : "text-ink"}`}>{value}</span>
+          <span className={`row-value block break-words text-left ${shut ? "text-danger" : "text-ink"}`}>{fmtClocksIn(value)}</span>
         )}
       </div>
     </div>
