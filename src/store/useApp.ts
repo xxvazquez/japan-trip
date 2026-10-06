@@ -220,10 +220,27 @@ let bootedFromOutbox = false;
  *  retryBoot) always starts fresh rather than awaiting a stale result. */
 let initInFlight: Promise<void> | null = null;
 
+/** edits still queued for a trip that's no longer open — they were waiting
+ *  behind a batch in flight when the trip changed. Held (with the trip as it
+ *  was) until that batch answers, so its outbox write keeps them on disk. */
+const parked = new Map<string, { ops: Op[]; data: TripData }>();
+
 const pendingOps = (tripId: string, activeId: string | null): Op[] => [
   ...[...flights].filter((f) => f.tripId === tripId).flatMap((f) => f.ops),
+  ...(parked.get(tripId)?.ops ?? []),
   ...(tripId === activeId ? queue : []),
 ];
+
+/** The open trip is about to change: anything still queued (held back by a
+ *  batch in flight) is parked under its own trip rather than dropped. */
+function parkQueue(get: () => AppStore) {
+  const { activeId, data } = get();
+  if (activeId && data && queue.length) {
+    const was = parked.get(activeId);
+    parked.set(activeId, { ops: [...(was?.ops ?? []), ...queue], data });
+  }
+  queue = [];
+}
 
 function writeOutbox(tripId: string, ops: Op[], data: TripData | null) {
   const key = STORAGE_KEYS.outbox(tripId, TAB_ID);
@@ -707,6 +724,7 @@ function discardPending(tripId?: string) {
   queue = [];
   stuckLabels.clear();
   if (tripId) {
+    parked.delete(tripId);
     for (const f of [...flights]) if (f.tripId === tripId) flights.delete(f);
     writeOutbox(tripId, [], null);
   }
@@ -874,7 +892,8 @@ async function flush(get: () => AppStore) {
   // exactly the ops that didn't land.
   if (get().activeId !== activeId) {
     const left = [...failed, ...pendingOps(activeId, null)];
-    writeOutbox(activeId, left, left.length ? data : null);
+    writeOutbox(activeId, left, left.length ? parked.get(activeId)?.data ?? data : null);
+    if (![...flights].some((f) => f.tripId === activeId)) parked.delete(activeId);
     if (queue.length) void flush(get); // the new trip's edits waited on this batch
     return;
   }
@@ -1174,6 +1193,7 @@ export const useApp = create<AppStore>((set, get) => {
           // (Unconfirmed edits are already mirrored to disk under their trip's id.)
           queue = [];
           flights.clear();
+          parked.clear();
           set({ authRequired: true, hydrated: true, trips: [], activeId: null, data: null, loadIssue: null });
           return;
         }
@@ -1324,6 +1344,9 @@ export const useApp = create<AppStore>((set, get) => {
       }
       const tripId = meta.tripId;
       if (tripId !== get().activeId) await get().switchTrip(tripId);
+      // let a save already on its way land first — arriving after the restore,
+      // it would write the replaced version back over it
+      await settlePending();
       // whatever is being replaced is kept first — a restore is itself undoable
       const current = get().activeId === tripId ? get().data : null;
       if (current) await ensureBackedUp(tripId, current, "before-restore", { cloud: be.kind === "supabase" });
@@ -1399,7 +1422,7 @@ export const useApp = create<AppStore>((set, get) => {
       let { activeId } = get();
       if (archived && activeId === id) {
         await flushForSwitch(get);
-        queue = [];
+        parkQueue(get);
         unsubscribeTrip();
         activeId = trips.find((t) => !t.archived)?.id ?? null;
         const next = activeId ? await tryLoad(be, activeId) : { data: null, issue: null };
@@ -1462,7 +1485,7 @@ export const useApp = create<AppStore>((set, get) => {
     switchTrip: async (id) => {
       if (id === get().activeId && !get().loadIssue) return;
       await flushForSwitch(get);
-      queue = []; // the old trip's unconfirmed ops are safe in its mirror; none may follow us to the next trip
+      parkQueue(get); // the old trip's unconfirmed ops stay in its mirror; none may follow us to the next trip
       const be = pickBackend();
       unsubscribeTrip();
       const loaded = await tryLoad(be, id);
@@ -1474,6 +1497,7 @@ export const useApp = create<AppStore>((set, get) => {
       if (be.kind === "supabase") {
         if (data) { writeMirror(id, data, get().trips); setFieldBase(data); }
         const ob = await readOutbox(id);
+        parked.delete(id); // whatever was parked is in that outbox, and is the queue again below
         const offline = !data && issue?.kind === "unavailable" ? await offlineData(id, ob) : null;
         if (offline) {
           queue = ob?.ops.length ? [...ob.ops] : [];

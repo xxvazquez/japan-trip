@@ -224,6 +224,31 @@ describe("signed-in: saving and the outbox", () => {
     expect(a.s().data!.places.find((p) => p.id === "q1")?.name).toBe("New");
   });
 
+  it("an edit waiting behind a slow save isn't lost when the trip is switched", async () => {
+    const id = await seedTrip("First");
+    const a = await boot();
+    const other = await a.s().createTrip({ name: "Second" });
+    a.s().addEntity("places", place("w1"));
+    await a.settlePending();
+    let release!: () => void;
+    const slow = new Promise<void>((r) => { release = r; });
+    fake.current.ctl.hold = (op, table) => (op === "upsert" && table === "places" ? slow : null);
+    a.s().updateEntity("places", "w1", { name: "Sent" } as never);
+    a.flushPendingNow(); // this save hangs…
+    await sleep(20);
+    a.s().addEntity("scratchNotes", { id: "n-wait", title: "Waiting", body: "" } as never); // …so this one waits behind it
+    await a.s().switchTrip(other);
+    fake.current.ctl.hold = null;
+    release();
+    await sleep(100);
+    const left = await outbox(a.kv, id);
+    expect(left?.ops.some((o) => o.id === "n-wait")).toBe(true); // still held for the first trip
+    await a.s().switchTrip(id);
+    await a.settlePending(3000);
+    await sleep(60);
+    expect(rows("scratch_notes").map((r) => r.id)).toContain("n-wait");
+  });
+
   it("a corrupt mirror is set aside and never replayed onto the trip", async () => {
     const id = await seedTrip();
     const kv = (await import("@/lib/storage")).store;
