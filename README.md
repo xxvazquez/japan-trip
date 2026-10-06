@@ -105,7 +105,7 @@ The trip as a list of days, grouped by **base** — where you're based for a run
 The days set the dates — you don't edit them separately.
 
 - A base runs from its first day to its last.
-- **Days − / +** on a base's page adds or takes off a day at its end. Everything later in the trip — days, bases, journeys, luggage dates — moves along with it. Taking a day off can be undone.
+- **Days − / +** on a base's page adds or takes off a day at its end. Everything later in the trip — days, bases, journeys, luggage dates — moves along with it, except a pinned day, which keeps its date. Taking a day off can be undone.
 - Bases are always listed in date order. To change the order, move the days (drag them to another base).
 - The trip can start or end outside its days (a flight out the evening before day one). Its dates stretch to cover a day added outside them, and only shrink when the day on the trip's first or last date is deleted.
 - **Add a day** at the foot of a base's list adds a day at that base's end, like its **Days +**.
@@ -455,7 +455,7 @@ Open it from your account picture (or the foot of the sidebar on a wide screen).
 
 ### Setup
 
-- **Dates** — on a trip with no days yet, set the start and end directly. Once it has days, moving either date slides the whole itinerary.
+- **Dates** — on a trip with no days yet, set the start and end directly. Once it has days, moving either date slides the whole itinerary — Undo puts it back.
 - **Travellers** — used for packing assignments.
 - **Time zones** — *Home* comes from the device. *On the trip* fills itself in from the first hotel with coordinates, unless you've picked one. The picker lists cities with offsets; search by city, offset or abbreviation ("kolkata", "+5:30", "JST").
 - **Currencies** — the first is the default (a new trip starts on `PLN`). Prices open a keypad, with a currency switch once there's a second currency.
