@@ -1,5 +1,6 @@
 import { useEffect, useSyncExternalStore, useState } from "react";
 import { settlePending } from "@/store/useApp";
+import { isIOS } from "@/lib/device";
 
 /**
  * What the installed-app side of the PWA looks like right now: is it running
@@ -46,11 +47,6 @@ const isStandalone = () =>
   (window.matchMedia("(display-mode: standalone)").matches ||
     (navigator as unknown as { standalone?: boolean }).standalone === true);
 
-/** iPhone / iPad — where there's no prompt event and installing means the Share sheet.
- *  (iPadOS reports itself as a Mac, hence the touch check.) */
-const isIOS = () =>
-  typeof navigator !== "undefined" &&
-  (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
 
 export type InstallState =
   | { kind: "installed" }

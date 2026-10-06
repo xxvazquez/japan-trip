@@ -6,6 +6,7 @@ import { useAsyncAction } from "@/lib/useAsyncAction";
 import { PointLabel, useRestorePoints } from "@/components/DataSafety";
 import { listQuarantine } from "@/lib/safety/quarantine";
 import { todayISO } from "@/lib/dates";
+import { saveFile } from "@/lib/device";
 
 const HEADLINE = {
   corrupt: "This trip’s data is damaged",
@@ -37,14 +38,7 @@ export function Recovery() {
     run(async () => {
       const [q] = await listQuarantine(`trip-${issue.tripId}`);
       if (!q) return "No damaged copy was kept for this trip.";
-      const url = URL.createObjectURL(new Blob([JSON.stringify(q.raw, null, 2)], { type: "application/json" }));
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `damaged-trip-${todayISO()}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      saveFile(new Blob([JSON.stringify(q.raw, null, 2)], { type: "application/json" }), `damaged-trip-${todayISO()}.json`);
     });
 
   return (

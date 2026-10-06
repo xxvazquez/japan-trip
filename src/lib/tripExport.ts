@@ -22,6 +22,7 @@ import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import { minutesBetween, fmtMinutes } from "@/lib/time";
 import { gmapsLink, placeMapLink } from "@/lib/maps";
 import { MODE_LABEL } from "@/lib/transport";
+import { saveFile } from "@/lib/device";
 import { packingGroups } from "@/lib/logbook";
 import { fmtFare, fmtMoney, isMoneyLabel, journeyFare } from "@/lib/cost";
 import { APP_NAME } from "@/lib/app";
@@ -451,12 +452,5 @@ const slug = (s: string): string =>
 export function downloadTripHtml(data: TripData, opts: ExportOptions): void {
   const html = buildTripHtml(data, opts);
   const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${slug(data.meta.title || data.config.branding || "trip")}.html`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  saveFile(blob, `${slug(data.meta.title || data.config.branding || "trip")}.html`);
 }

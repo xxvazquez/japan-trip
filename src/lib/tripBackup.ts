@@ -2,6 +2,7 @@ import { SCHEMA_VERSION, normalizeTrip } from "./hydrate";
 import { validateTrip, describeProblems, tripStats, hashOf } from "./safety/validate";
 import type { TripData } from "@/core/types";
 import { todayISO } from "@/lib/dates";
+import { saveFile } from "@/lib/device";
 
 /**
  * A whole trip as one `.json` file, and back again. Unlike the web-page and
@@ -61,14 +62,7 @@ export function downloadBackup(data: TripData): void {
   const name = slug(data.meta.title || data.config.branding || "trip");
   const day = todayISO();
   const blob = new Blob([buildBackup(data)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${name}-backup-${day}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  saveFile(blob, `${name}-backup-${day}.json`);
 }
 
 const isObject = (x: unknown): x is Record<string, unknown> => !!x && typeof x === "object" && !Array.isArray(x);

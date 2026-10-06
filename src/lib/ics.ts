@@ -17,6 +17,7 @@ import type { Day, Journey, Place, PlanItem, Segment, TripData } from "@/core/ty
 import { addDays } from "@/lib/dates";
 import { safeTz, zonedTimeToUtc } from "@/lib/tz";
 import { MODE_LABEL } from "@/lib/transport";
+import { download } from "@/lib/device";
 
 export interface IcsOptions {
   includePrivate: boolean;
@@ -245,14 +246,7 @@ export function buildTripIcs(trip: TripData, opts: IcsOptions): string {
 /** Build the file and hand it to the browser as a download. */
 export function downloadIcs(filename: string, content: string): void {
   const blob = new Blob([content], { type: "text/calendar;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename.endsWith(".ics") ? filename : `${slug(filename)}.ics`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  download(blob, filename.endsWith(".ics") ? filename : `${slug(filename)}.ics`);
 }
 
 /* ------------------------------------------------------------------ *

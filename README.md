@@ -519,6 +519,8 @@ All under **Manage → Sharing** unless noted.
 | **Download backup (.json)** | A complete, lossless copy of the trip, private details included — keep it somewhere safe. |
 | **Restore from backup** (Manage → Trips) | Loads a backup as a **new** trip; never overwrites. Damaged, edited or newer-version files are refused. Attachments aren't inside backups. |
 
+- On the iPhone, the web page and backup open the Share sheet — pick **Save to Files**. Android and desktop download them.
+
 ## Data safety
 
 Every edit saves as you make it. On top of that, the app keeps **restore points** — complete, checksummed copies of a trip.
