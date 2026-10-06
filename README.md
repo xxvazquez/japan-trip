@@ -91,7 +91,11 @@ The trip as a list of days, grouped by **base** — where you're based for a run
 
 - **Tags.** Each day shows **Arrive**, **Travel**, **Depart** or **Day trip**. These are worked out from the day itself, never chosen by hand. A day trip stays **Day trip** with its trains on it; an arrival or departure journey still wins.
 - **Reorder** — hold a day, then drag it up or down (on a computer, just drag it). The dates shuffle with it. Holding without moving opens the day's menu instead.
-- **Pin a day** that's fixed to its date (a public holiday, a booked tour) from the foot of its page. It shows a pin, can't be dragged, and other days flow around it — when you drag, and when a base earlier in the trip gains or loses a day. A journey or luggage note on that date stays with it. **Unpin this day** undoes it.
+- **Pin a day** that's fixed to its date (a public holiday, a booked tour) from the foot of its page:
+  - It shows a pin and can't be dragged.
+  - Other days flow around it — when you drag, and when an earlier base gains or loses a day.
+  - A journey or luggage note on that date stays with it.
+  - **Unpin this day** undoes it.
 - **During the trip** the list opens on today. Earlier days move to **Past days** at the bottom (closed until you open it), grouped by base. Past days can be opened, not dragged. It moves on to the new day by itself, even if the app was left open overnight.
 - **After the trip** the top of Plan becomes a recap: how many days away, cities, total spent in the trip's main currency (tap it for Expenses) and stamps collected.
 - **Labels** — your own tags for a day ("Chill day", "Walking"):
@@ -105,7 +109,10 @@ The trip as a list of days, grouped by **base** — where you're based for a run
 The days set the dates — you don't edit them separately.
 
 - A base runs from its first day to its last.
-- **Days − / +** on a base's page adds or takes off a day at its end. Everything later in the trip — days, bases, journeys, luggage dates — moves along with it, except a pinned day, which keeps its date. Taking a day off can be undone.
+- **Days − / +** on a base's page adds or takes off a day at its end:
+  - Everything later in the trip — days, bases, journeys, luggage dates — moves along with it.
+  - A pinned day keeps its date.
+  - Taking a day off can be undone.
 - Bases are always listed in date order. To change the order, move the days (drag them to another base).
 - The trip can start or end outside its days (a flight out the evening before day one). Its dates stretch to cover a day added outside them, and only shrink when the day on the trip's first or last date is deleted.
 - **Add a day** at the foot of a base's list adds a day at that base's end, like its **Days +**.
@@ -114,7 +121,7 @@ The days set the dates — you don't edit them separately.
 - **Changing a base's stay** moves its days onto the new stay too, except a day you gave a different stay of its own.
 - **Delete day** leaves the other days alone. Only removing a base's first or last day shortens it.
 - **Delete base** at the foot of a base's page deletes its days with it. The confirm says how many; **Undo** brings them all back.
-- A stay's page and the Stays list show the real check-in and check-out dates (the morning you leave, not the last night), the number of nights, and the times.
+- A stay's page, the Stays list and each base's header on Plan show the real check-in and check-out dates (the morning you leave, not the last night), the number of nights, and the times.
 
 ## A day
 
@@ -173,16 +180,24 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 
 - **Time** — a single time, or a range like `14:00–15:15` stacked as 14:00 over 15:15. An empty time is left blank — tap the gap to set one.
 - **Setting a time** — the wheels start at the last time set on an earlier step (else 9:00). **Done** saves what's showing; tapping outside or swiping the sheet down cancels.
-- **12- or 24-hour** — times show, and the wheels turn, the way the device's own clock does (00–23, or 1–12 with AM/PM), as iOS follows the phone's setting.
+- **12- or 24-hour** — follows the phone's own clock setting, for the times shown and for the wheels.
 - **Link or change a place** — tap a step's icon to pick a place: the day's Areas first, then the rest of that city, then elsewhere (search when the list is long). **More → Change Place** on its place card does the same; **Custom…** unlinks it.
 - **Meal steps** — an unlinked step whose text mentions a meal (lunch, dinner, breakfast…), coffee or drinks gets a gold food, coffee or drink tile instead of the grey pin.
 - **Time order** — steps keep themselves in time order. Set or change a step's time and it moves to its place in the day.
 - **Untimed steps** — drag the small ≡ on the right (shown on hover on a computer) to place one. It then stays with the step above it. A loose time ("Around noon") counts as untimed.
 - **Pin a step** from its menu (**Pin this step**) to lock its time, e.g. a booking — it shows a pin, and tapping its time or the pin offers **Unpin** or **Unpin and change time**. It still sits where its time puts it. **Unpin this step** in the menu, or **More → Pin Time** on its place card, unlocks it too. Only a step with a time can be pinned.
 - **Mark as optional** from a step's menu, or **More → Optional** on its place card, for something nice to do but not a must: an ochre ◌ Optional tag shows under its name. **Make this a must** undoes it.
-- **The place card** — tap a linked step's name or note, as you'd tap a place in Maps: the name (with any clash with its hours, and a grey line saying if it's Optional, its time is pinned or it's Overwhelming), a button row pinned under it, up to five across: **Google Maps** (filled, first), then Tabelog (restaurants in Japan), **Menu** (the place's own menu page), **Website** and **Show on Map** (phone) when the place has them, **Share** (the Share sheet, else copies its name and map link) and **Search Web** (when it has no website), then **More**, then the step's note, Good to know and **Nearby** (see [Nearby on a day](#nearby-on-a-day)). ✕ or a drag down closes it.
+- **The place card** — tap a linked step's name or note, as you'd tap a place in Maps. ✕ or a drag down closes it.
+  - **Top:** the name, a red line if it clashes with the place's hours, and a grey line if it's Optional, pinned or Overwhelming.
+  - **Buttons**, up to five across: **Google Maps** (filled), Tabelog (restaurants in Japan), **Menu**, **Website**, **Show on Map** (phone), **Share** and **Search Web** (when there's no website). What doesn't fit goes under **More**.
+  - **Share** opens the Share sheet; where there isn't one, it copies the name and map link.
+  - **Below:** the step's note, Good to know and **Nearby** (see [Nearby on a day](#nearby-on-a-day)).
 - **On a computer** the card opens as a popover with its arrow on the place's name — beside the name, or under it when a long name leaves no room — and the map pane flies to the place at the same time.
-- **More** on the place card holds everything else, as Maps does: whatever didn't fit in the row (Show on Map is phone only — on a computer the map is already beside you), Add to Calendar; **Optional**, **Pin Time** (a step with a time) and **Overwhelming**, ticked when on; Change Place, Add an Expense, Duplicate, Move to Another Day; and Remove Step.
+- **More** on the place card holds everything else, as Maps does:
+  - Whatever didn't fit in the row, and **Add to Calendar**. Show on Map is phone only — on a computer the map is already beside you.
+  - **Optional**, **Pin Time** (a step with a time) and **Overwhelming**, ticked when on.
+  - **Change Place**, **Add an Expense**, **Duplicate** and **Move to Another Day**.
+  - **Remove Step**, last.
 - **Walk and train lines** under a step open Google Maps directions; only a tap on the line itself does.
 - **Open in Google Maps** is also the first item when you hold a step (or right-click it on a computer).
 - **The step's menu** — long-press a step on a phone, or right-click it on a computer (an unlinked step also has a ⋯ on hover there): add to Google Calendar, mark as **overwhelming** (a ⚠ on its grey line; the day's count shows on Plan), add a note, pin, mark as optional, **add a step below**, duplicate, add an expense, remove.
@@ -311,9 +326,14 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 - **The list** — once a city is picked, places are grouped by area (plus *No area*). On **All** it nests **city → area → place**.
 - **Search** — the field at the top of the list finds areas by name and places by name, category or note, across the whole trip. The map shows only what it finds; on a phone the sheet pulls up while you type.
 - **Areas fold open in place**, like folders in Files — tap an area row to show its places under it, and the map moves to show them. They start collapsed and remember what you opened.
-- **The map frames what's listed** in the part left showing above the sheet, and a tapped place is centred there too.
+- **The map frames what's listed** in the part showing above the sheet. A tapped place is centred there too.
 - **Tapping a place** swaps the list for its card, as Apple Maps does; ✕ goes back to the list where you left it.
-- **A place's card** — laid out like a step's place card: the name (tap to rename) and the walk to the nearest station; a button row, up to five across (**Google Maps** filled — searched at the pin, so a chain opens the right branch — then Tabelog for a restaurant in Japan, **Menu**, **Website**, **Share**, **Search Web** when it has no website, and the day it's on or **Add to Day**; whatever doesn't fit goes under **More**); then **Note**, **Good to know** (folded until you tap it, so filing a place stays quick; see [Helpers on a step](#helpers-on-a-step)), a group with its areas, category (a pin added in the app can be moved into any category, taking on its colour; a My Maps pin's comes from its layer) and city, and last Remove.
+- **A place's card** — laid out like a step's place card:
+  - **Top:** the name (tap to rename) and the walk to the nearest station.
+  - **Buttons**, up to five across: **Google Maps** (filled), Tabelog (restaurants in Japan), **Menu**, **Website**, **Share**, **Search Web** (when there's no website), and the day it's on or **Add to Day**. What doesn't fit goes under **More**.
+  - Google Maps searches at the pin, so a chain opens the right branch.
+  - **Below:** **Note**, then **Good to know** — folded until you tap it, so filing a place stays quick (see [Helpers on a step](#helpers-on-a-step)) — then its areas, category and city, and last **Remove**.
+  - **Category:** a pin added in the app can move into any category and takes on its colour; a My Maps pin's comes from its layer.
 - **List rows** show the name and the walk to the nearest station.
 - **Place names** on the map are in English / Latin script where available.
 
@@ -400,7 +420,8 @@ Text isn't selectable (as in a native app), so values you might paste elsewhere 
 
 - Each list has an **Add a stay** / **Add a journey** row at the foot. The new one opens on its own page to fill in.
 - Stays are listed in the order you sleep in them, with their check-in to check-out dates and nights under the name (a stay no base uses yet goes last); journeys are listed by when they leave.
-- A stay's page opens with the same four buttons every time, as a contact card does: **Directions** (Google Maps, from where you are), **Call**, **Website** and **Share** (its name, address — the local one when set — and pin).
+- A stay's page opens with the same four buttons every time, as a contact card does: **Directions** (Google Maps, from where you are), **Call**, **Website** and **Share**.
+- **Share** sends its name, address (the local one when set) and pin.
 - Call and Website stay grey until the stay has a detail named Phone / Website (or a value that's a phone number or a link).
 
 ### Documents
