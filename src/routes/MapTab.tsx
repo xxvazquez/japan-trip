@@ -17,6 +17,7 @@ import { useData } from "@/lib/data";
 import { useToday } from "@/lib/useToday";
 import { loadBasePois, saveBasePois } from "@/lib/mapStyle";
 import { Switch } from "@/components/Switch";
+import { CheckCircle } from "@/components/CheckCircle";
 import { useApp, undoable, deletePlace } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
 import { mapUrlCoords, placeMapLink, sharePlace, webSearchHref } from "@/lib/maps";
@@ -1449,14 +1450,14 @@ export default function MapTab() {
           </button>
           {!adding && (
             <button onClick={() => filterSheet.setOpen(true)} className="menu-item">
-              <Icon name="eye" size={16} /> {catFilter.size > 0 ? `Filters (${catFilter.size} on)` : "Filters"}
+              <Icon name="filter" size={16} /> {catFilter.size > 0 ? `Filters (${catFilter.size} on)` : "Filters"}
             </button>
           )}
           {!readOnly && !adding && review === null && (
             <>
               {data.places.length > 0 && (
                 <button onClick={() => setGroupBy(byNeighbourhood ? undefined : "neighbourhoods")} className="menu-item">
-                  <Icon name={byNeighbourhood ? "map" : "pin"} size={16} /> {byNeighbourhood ? "Group by My Areas" : "Group by Neighbourhood"}
+                  <Icon name={byNeighbourhood ? "explore" : "location"} size={16} /> {byNeighbourhood ? "Group by My Areas" : "Group by Neighbourhood"}
                 </button>
               )}
               {/* area upkeep is for the areas you made — put away while the
@@ -1478,7 +1479,7 @@ export default function MapTab() {
               )}
               {data.places.length > 0 && (
                 <Link to="/map/neighbourhoods" className="menu-item">
-                  <Icon name="pin" size={16} /> Neighbourhoods
+                  <Icon name="info" size={16} /> Neighbourhoods
                 </Link>
               )}
             </>
@@ -2414,21 +2415,17 @@ function SuggestReview({
             {groups.map((g, i) => (
               <li key={i} className={`px-3.5 py-2.5 ${INSET_DIVIDER}`}>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => set(i, { keep: !g.keep })} aria-label={g.keep ? "Skip this group" : "Keep this group"} className="shrink-0">
-                    <Icon name="check" size={14} className={g.keep ? "text-accent" : "text-ink-faint/30"} />
-                  </button>
+                  <CheckCircle checked={g.keep} onChange={(v) => set(i, { keep: v })} label={g.keep ? "Skip this group" : "Keep this group"} />
                   {g.areaId ? (
                     <span className="min-w-0 flex-1 break-words pb-0.5 text-sm">
                       <span className="text-ink-soft">Add to </span>
                       {g.name}
                     </span>
                   ) : (
-                    <input
-                      value={g.name}
-                      onChange={(e) => set(i, { name: e.target.value, auto: false })}
-                      aria-label="Area name"
-                      className="min-w-0 flex-1 border-b border-transparent bg-transparent pb-0.5 text-sm focus:border-line focus:outline-none"
-                    />
+                    // tap the suggested name to change it, as every name in the app edits
+                    <span className="min-w-0 flex-1 break-words pb-0.5 text-sm">
+                      <Editable label="Area name" value={g.name} onCommit={(v) => v.trim() && set(i, { name: v.trim(), auto: false })} />
+                    </span>
                   )}
                   <button onClick={() => setExpanded(expanded === i ? null : i)} className="shrink-0 text-xs text-ink-soft hover:text-ink">
                     {plural(g.placeIds.length, "place")}

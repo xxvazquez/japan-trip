@@ -78,7 +78,8 @@ export type IconName =
   | "optional"
   | "move"
   | "globe"
-  | "menu";
+  | "menu"
+  | "filter";
 
 const P: Record<IconName, JSX.Element> = {
   itinerary: (
@@ -428,6 +429,8 @@ const P: Record<IconName, JSX.Element> = {
       <path d="M3.5 12h17M12 3.5c-2.4 2.3-3.6 5.1-3.6 8.5s1.2 6.2 3.6 8.5M12 3.5c2.4 2.3 3.6 5.1 3.6 8.5s-1.2 6.2-3.6 8.5" />
     </>
   ),
+  // iOS line.3.horizontal.decrease — filters
+  filter: <path d="M4 7h16M7 12h10M10 17h4" />,
   // iOS fork.knife — a place's menu
   menu: (
     <>
