@@ -474,10 +474,22 @@ Theme and trip logo. **Appearance** (light, dark or *Automatic*) is per device, 
 - **Stay** / **Map place** — open in Google Maps, delete.
 - **Journey** / **Document** — delete.
 
-**Notes** take light formatting — `**bold**`, `*italic*`, `++underline++`, `~~strike~~`, `##` headings, `>` quotes, `-` bullets, `- [ ]` checklists, `[links](https://…)` — with a toolbar for all of it and the usual keyboard shortcuts. Checklist boxes can be ticked without opening the editor.
+**Notes** edit in place and show their formatting as you type, like Apple Notes. The toolbar above a note:
 
-- **Nested lists**: indent a line to nest it under the item above.
-- Bullets written straight under a numbered step nest under that step, no indent needed.
+| Button | What it does |
+| --- | --- |
+| **Aa** | Title / Heading / Subheading / Body, bold, italic, underline, strikethrough, and five text colours |
+| Checklist · bullets · numbers | Lists; indent nests them |
+| Callout | A tinted box to make one line stand out |
+| ☺ | A short set of travel emoji (the keyboard has the rest) |
+| Link | Add a link, or remove the one under the cursor |
+| **Done** | Save (tapping away saves too; Esc cancels) |
+
+- Markdown typed by hand still works: `- ` starts a list, `## ` a heading, `> ` a callout, `[ ] ` a checklist item.
+- A heading with anything under it gets a chevron that folds the section away. The fold is saved with the note.
+- Checklist rings can be ticked without opening the editor.
+- Bullets written straight under a numbered step nest under that step.
+- Under the hood a note is still plain text (Markdown plus `{orange}…{/}` for colour and `{folded}` on a folded heading), so sync, backups and search are unchanged.
 
 **Deleting.** Every delete asks first (a confirm sheet, or a second tap on a swiped row). After that, an **Undo** bar appears for a few seconds and puts back exactly what was removed. Only the last delete can be undone, and deleting a whole trip or a file can't be.
 

@@ -41,6 +41,10 @@ export type IconName =
   | "clock"
   | "list"
   | "checklist"
+  | "list-ordered"
+  | "callout"
+  | "smile"
+  | "palette"
   | "link"
   | "download"
   | "refresh"
@@ -243,6 +247,34 @@ const P: Record<IconName, JSX.Element> = {
       <path d="M12 13h8.5" />
       <rect x="3.5" y="17" width="4" height="4" rx="1" />
       <path d="M12 19h8.5" />
+    </>
+  ),
+  "list-ordered": (
+    <>
+      <path d="M11 6h9M11 12h9M11 18h9" />
+      <path d="M4 4h1v5M4 9h2" />
+      <path d="M6.5 20H3.4c0-1 2.6-1.9 2.6-3.5a1.5 1.5 0 0 0-2.6-1" />
+    </>
+  ),
+  callout: (
+    <>
+      <rect x="3" y="5" width="18" height="14" rx="3" />
+      <path d="M7.5 10h9M7.5 14h5.5" />
+    </>
+  ),
+  smile: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M8.5 14.5a4.5 4.5 0 0 0 7 0" />
+      <path d="M9.5 9.5v.5M14.5 9.5v.5" />
+    </>
+  ),
+  palette: (
+    <>
+      <path d="M12 21a9 9 0 1 1 9-9c0 2.2-1.8 3.5-4 3.5h-1.8a1.6 1.6 0 0 0-1.2 2.7l.2.2A1.6 1.6 0 0 1 12 21Z" />
+      <circle cx="7.5" cy="11.5" r="1" fill="currentColor" stroke="none" />
+      <circle cx="10" cy="7.5" r="1" fill="currentColor" stroke="none" />
+      <circle cx="14.5" cy="7.5" r="1" fill="currentColor" stroke="none" />
     </>
   ),
   link: (

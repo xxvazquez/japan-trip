@@ -1,0 +1,118 @@
+/* ------------------------------------------------------------------ *
+ * A note's body — shared by the reading view (<Markdown>) and the note
+ * editor (<NoteEditor>), so a note looks the same the moment you tap
+ * into it. Sizes are in em: a note takes its size from where it sits
+ * (.note on a page, the smaller caption on a step).
+ * ------------------------------------------------------------------ */
+
+/* Apple Notes' five text colours, deepened a little in light mode so they
+   read on a white card */
+:root {
+  --note-purple: 160 70 205;
+  --note-pink: 230 40 90;
+  --note-orange: 215 110 0;
+  --note-mint: 0 150 140;
+  --note-blue: 0 112 235;
+}
+html.dark {
+  --note-purple: 191 90 242;
+  --note-pink: 255 85 120;
+  --note-orange: 255 159 10;
+  --note-mint: 99 220 210;
+  --note-blue: 64 156 255;
+}
+.note-c-purple { color: rgb(var(--note-purple)); }
+.note-c-pink { color: rgb(var(--note-pink)); }
+.note-c-orange { color: rgb(var(--note-orange)); }
+.note-c-mint { color: rgb(var(--note-mint)); }
+.note-c-blue { color: rgb(var(--note-blue)); }
+
+.note-doc { overflow-wrap: anywhere; }
+.note-doc > * + *,
+.note-fold > * + * { margin-top: 0.625em; }
+.note-doc p { margin: 0; }
+
+.note-doc strong { font-weight: 600; color: rgb(var(--c-ink)); }
+.note-doc s { color: rgb(var(--c-ink-faint)); }
+.note-doc u { text-underline-offset: 2px; }
+/* a colour wins over bold's ink, wherever it sits */
+.note-doc [data-note-color] :is(strong, s, em, u) { color: inherit; }
+.note-doc code {
+  border-radius: 6px;
+  background: rgb(var(--c-surface-2));
+  padding: 0.1em 0.3em;
+  font-size: 0.9em;
+}
+.note-doc a { color: rgb(var(--c-accent)); text-decoration: none; }
+
+/* headings — Notes' Title / Heading / Subheading, scaled to the note */
+.note-doc :is(h1, h2, h3, .note-h) {
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.3;
+  color: rgb(var(--c-ink));
+}
+.note-doc :is(h1, .note-h1) { font-size: 1.2em; }
+.note-doc :is(h2, .note-h2) { font-size: 1.07em; }
+.note-doc :is(h3, .note-h3) { font-size: 1em; }
+
+/* lists: real markers, numbers and second-level bullets in the quiet grey */
+.note-doc :is(ul, ol) { margin: 0; padding-left: 1.3em; }
+.note-doc ul { list-style: disc; }
+.note-doc ol { list-style: decimal; }
+.note-doc :is(ul, ol) :is(ul, ol) { margin-top: 0.25em; }
+.note-doc :is(ul, ol) ul { list-style: circle; }
+.note-doc li + li { margin-top: 0.25em; }
+.note-doc li::marker { color: rgb(var(--c-ink-faint)); font-variant-numeric: tabular-nums; }
+
+/* checklist — the Reminders ring, in the reader and the editor alike */
+.note-doc ul:is([data-type="taskList"], .note-tasks) { list-style: none; padding-left: 0; }
+.note-doc li:is([data-type="taskList"] > li, .note-task) { display: flex; align-items: flex-start; gap: 0.55em; }
+.note-doc li:is([data-type="taskList"] > li, .note-task) > :last-child { min-width: 0; flex: 1; }
+.note-doc [data-type="taskList"] > li > label { display: flex; flex-shrink: 0; padding-top: 0.12em; }
+.note-doc [data-type="taskList"] > li input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  width: 1.25em;
+  height: 1.25em;
+  border-radius: 9999px;
+  border: 2px solid rgb(var(--c-line));
+  background: transparent center / 70% no-repeat;
+  cursor: pointer;
+}
+.note-doc [data-type="taskList"] > li input[type="checkbox"]:checked {
+  border-color: rgb(var(--c-accent));
+  background-color: rgb(var(--c-accent));
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 13l4 4L19 7'/%3E%3C/svg%3E");
+}
+.note-doc li:is([data-type="taskList"] > li[data-checked="true"], .note-task.is-done) > :last-child {
+  color: rgb(var(--c-ink-faint));
+  text-decoration: line-through;
+}
+.note-doc li:is([data-type="taskList"] > li[data-checked="true"], .note-task.is-done) > :last-child :is(strong, [data-note-color]) {
+  color: inherit;
+}
+
+/* callout — a tinted box to make one thing stand out down a day */
+.note-doc :is(blockquote, .note-callout) {
+  margin: 0;
+  border-radius: 10px;
+  background: rgb(var(--c-gold) / 0.2);
+  padding: 0.5em 0.75em;
+  color: rgb(var(--c-ink));
+}
+.note-doc :is(blockquote, .note-callout) > * + * { margin-top: 0.4em; }
+
+.note-doc hr { border: 0; border-top: var(--hair, 1px) solid rgb(var(--c-line)); margin: 0.875em 0; }
+
+/* the editor itself */
+.note-doc.ProseMirror { outline: none; white-space: pre-wrap; }
+.note-doc.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: rgb(var(--c-ink-faint));
+  font-style: italic;
+}

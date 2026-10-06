@@ -1,19 +1,27 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useReadOnly } from "@/lib/readonly";
+import { primeKeyboard } from "@/lib/keyboard";
+import { docFromNote, noteFromDoc } from "@/lib/noteFormat";
 import { Markdown } from "./Markdown";
-import { Icon } from "./Icon";
+import type { NoteEditor as NoteEditorType } from "./NoteEditor";
 
 /**
- * A free-text note that supports a small slice of Markdown (see <Markdown>).
- * Reads as formatted text; tap to edit in a plain textarea with a slim
- * B / I / U / S / H / quote / list / checklist / link toolbar — so the common
- * formatting doesn't require knowing the Markdown syntax for it — and the
- * usual Cmd/Ctrl-B · Cmd/Ctrl-I · Cmd/Ctrl-U · Cmd/Ctrl-Shift-X shortcuts.
- * Bullets continue on Enter; Enter on an empty bullet ends the list.
- *
- * Edits go through document.execCommand("insertText"), which keeps the native
- * caret position and undo history and fires a normal input event.
+ * A free-text note (the format is in `src/lib/noteFormat.ts`). Reads as
+ * formatted text; tap to edit it in place in <NoteEditor>, formatted as you
+ * type with a toolbar for marks, headings, lists, checklists, callouts,
+ * colours, emoji and links. Checklist rings and heading chevrons work
+ * without opening the editor; each flip is saved into the note.
  */
+
+// the editor is its own chunk, fetched once an editable note is on screen
+// so the first tap opens it at once (inside the tap, as iOS needs for the
+// keyboard)
+let Editor: typeof NoteEditorType | null = null;
+let loading: Promise<typeof NoteEditorType> | null = null;
+function loadEditor() {
+  return (loading ??= import("./NoteEditor").then((m) => (Editor = m.NoteEditor)));
+}
+
 export function RichNote({
   value,
   onCommit,
@@ -38,9 +46,8 @@ export function RichNote({
 }) {
   const readOnly = useReadOnly();
   const [editing, setEditing] = useState(autoEdit);
-  const [draft, setDraft] = useState(value);
   const [expanded, setExpanded] = useState(false);
-  const ta = useRef<HTMLTextAreaElement>(null);
+  const [, setLoaded] = useState(!!Editor);
   // folded only when the note really runs past 2 lines at this width —
   // measured on the clamped box, so a short note never gets a "more"
   const clampRef = useRef<HTMLDivElement>(null);
@@ -56,15 +63,25 @@ export function RichNote({
   }, [collapsible, expanded, editing, value]);
   const long = collapsible && (overflows || expanded);
 
-  useEffect(() => setDraft(value), [value]);
   useEffect(() => {
-    if (editing && ta.current) {
-      const el = ta.current;
-      el.focus();
-      el.setSelectionRange(el.value.length, el.value.length);
-      autosize(el);
-    }
-  }, [editing]);
+    if (readOnly || Editor) return;
+    // soon after the note shows, not in the way of the page's first paint
+    const t = setTimeout(() => loadEditor().then(() => setLoaded(true)), autoEdit ? 0 : 1200);
+    return () => clearTimeout(t);
+  }, [readOnly, autoEdit]);
+
+  // opened already editing (after a tap on "Add note"): same keyboard prime
+  useLayoutEffect(() => {
+    if (autoEdit && !readOnly && !Editor) primeKeyboard();
+  }, []);
+
+  const startEditing = () => {
+    // focuses a stand-in field inside the tap so the keyboard comes up even
+    // if the editor needs a moment; the editor takes the focus from it
+    primeKeyboard();
+    if (!Editor) loadEditor().then(() => setLoaded(true));
+    setEditing(true);
+  };
 
   // folded, "more" sits at the end of the second line where the text fades
   // out (as the App Store folds a description), so it costs no line of its
@@ -95,16 +112,23 @@ export function RichNote({
     );
   }
 
-  const commit = () => {
+  const done = (text: string) => {
     setEditing(false);
-    const next = draft.trim();
-    if (next !== value) onCommit(next);
+    // the editor writes the note in its own tidy form; only save a real change
+    if (text !== value.trim() && text !== noteFromDoc(docFromNote(value))) onCommit(text);
     onEditEnd?.();
   };
   const cancel = () => {
-    setDraft(value);
     setEditing(false);
     onEditEnd?.();
+  };
+
+  /** fold or unfold a heading's section, saved into its line */
+  const toggleFold = (line: number, folded: boolean) => {
+    const lines = value.replace(/\r\n?/g, "\n").split("\n");
+    const bare = lines[line].replace(/\s+\{folded\}\s*$/, "");
+    lines[line] = folded ? `${bare} {folded}` : bare;
+    onCommit(lines.join("\n"));
   };
 
   /** flip a single checklist line's `[ ]`/`[x]` and commit, without opening edit mode */
@@ -119,199 +143,32 @@ export function RichNote({
       <div
         role="button"
         tabIndex={0}
-        onClick={() => setEditing(true)}
-        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setEditing(true); } }}
+        onClick={startEditing}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); startEditing(); } }}
         aria-label="Edit note"
         className={`editable relative block w-full text-left ${className}`}
       >
         {collapsible ? (
           <>
             <div ref={clampRef} className={expanded ? "" : `line-clamp-2 overflow-hidden ${long ? "fold-fade" : ""}`}>
-              <Markdown text={value} onToggleCheck={toggleCheck} />
+              <Markdown text={value} onToggleCheck={toggleCheck} onToggleFold={toggleFold} />
             </div>
             {long && <ShowToggle onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }} />}
           </>
         ) : (
-          <Markdown text={value} onToggleCheck={toggleCheck} />
+          <Markdown text={value} onToggleCheck={toggleCheck} onToggleFold={toggleFold} />
         )}
       </div>
     ) : (
-      <button type="button" onClick={() => setEditing(true)} aria-label="Add a note" className={`editable block text-left italic text-ink-faint ${className}`}>
+      <button type="button" onClick={startEditing} aria-label="Add a note" className={`editable block text-left italic text-ink-faint ${className}`}>
         {placeholder}
       </button>
     );
   }
 
-  const insert = (text: string) => {
-    ta.current?.focus();
-    document.execCommand("insertText", false, text);
-  };
-
-  /** wrap the selection in `mark` (or drop the empty pair around the caret) */
-  const wrap = (mark: string) => {
-    const el = ta.current;
-    if (!el) return;
-    el.focus();
-    const { selectionStart: s, selectionEnd: e, value: v } = el;
-    const sel = v.slice(s, e);
-    if (sel && v.slice(s - mark.length, s) === mark && v.slice(e, e + mark.length) === mark) {
-      el.setSelectionRange(s - mark.length, e + mark.length);
-      insert(sel);
-      el.setSelectionRange(s - mark.length, e - mark.length);
-    } else {
-      insert(mark + sel + mark);
-      el.setSelectionRange(s + mark.length, s + mark.length + sel.length);
-    }
-  };
-
-  /** toggle "- " in front of every line the selection touches */
-  const listify = () => {
-    const el = ta.current;
-    if (!el) return;
-    el.focus();
-    const { selectionStart: s, selectionEnd: e, value: v } = el;
-    const from = v.lastIndexOf("\n", s - 1) + 1;
-    let to = v.indexOf("\n", e);
-    if (to === -1) to = v.length;
-    const rows = v.slice(from, to).split("\n");
-    const allBullets = rows.every((l) => l.trim() === "" || /^\s*[-*+]\s+/.test(l));
-    const next = rows
-      .map((l) => (l.trim() === "" ? l : allBullets ? l.replace(/^(\s*)[-*+]\s+/, "$1") : `- ${l}`))
-      .join("\n");
-    el.setSelectionRange(from, to);
-    insert(next);
-  };
-
-  /** toggle "- [ ] " in front of every line the selection touches */
-  const checklistify = () => {
-    const el = ta.current;
-    if (!el) return;
-    el.focus();
-    const { selectionStart: s, selectionEnd: e, value: v } = el;
-    const from = v.lastIndexOf("\n", s - 1) + 1;
-    let to = v.indexOf("\n", e);
-    if (to === -1) to = v.length;
-    const rows = v.slice(from, to).split("\n");
-    const stripPrefix = (l: string) => l.replace(/^(\s*)[-*+]\s+(?:\[[ xX]\]\s*)?/, "$1");
-    const allChecks = rows.every((l) => l.trim() === "" || /^\s*[-*+]\s+\[[ xX]\]\s+/.test(l));
-    const next = rows
-      .map((l) => (l.trim() === "" ? l : allChecks ? stripPrefix(l) : `- [ ] ${stripPrefix(l)}`))
-      .join("\n");
-    el.setSelectionRange(from, to);
-    insert(next);
-  };
-
-  /** toggle "> " in front of every line the selection touches */
-  const quotify = () => {
-    const el = ta.current;
-    if (!el) return;
-    el.focus();
-    const { selectionStart: s, selectionEnd: e, value: v } = el;
-    const from = v.lastIndexOf("\n", s - 1) + 1;
-    let to = v.indexOf("\n", e);
-    if (to === -1) to = v.length;
-    const rows = v.slice(from, to).split("\n");
-    const allQuoted = rows.every((l) => l.trim() === "" || /^\s*>\s?/.test(l));
-    const next = rows
-      .map((l) => (l.trim() === "" ? l : allQuoted ? l.replace(/^(\s*)>\s?/, "$1") : `> ${l}`))
-      .join("\n");
-    el.setSelectionRange(from, to);
-    insert(next);
-  };
-
-  /** toggle "## " in front of the caret's own line */
-  const headingify = () => {
-    const el = ta.current;
-    if (!el) return;
-    el.focus();
-    const { selectionStart: s, value: v } = el;
-    const from = v.lastIndexOf("\n", s - 1) + 1;
-    let to = v.indexOf("\n", s);
-    if (to === -1) to = v.length;
-    const line = v.slice(from, to);
-    const isHeading = /^\s*#{1,3}\s+/.test(line);
-    const next = isHeading ? line.replace(/^(\s*)#{1,3}\s+/, "$1") : `## ${line}`;
-    el.setSelectionRange(from, to);
-    insert(next);
-  };
-
-  const addLink = () => {
-    const el = ta.current;
-    if (!el) return;
-    el.focus();
-    const { selectionStart: s, selectionEnd: e, value: v } = el;
-    const sel = v.slice(s, e) || "link";
-    insert(`[${sel}](url)`);
-    const urlAt = s + sel.length + 3;
-    el.setSelectionRange(urlAt, urlAt + 3);
-  };
-
-  const onKeyDown = (ev: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    const cmd = ev.metaKey || ev.ctrlKey;
-    if (ev.key === "Escape") return cancel();
-    if (cmd && ev.key === "Enter") { ev.preventDefault(); return commit(); }
-    if (cmd && ev.key.toLowerCase() === "b") { ev.preventDefault(); return wrap("**"); }
-    if (cmd && ev.key.toLowerCase() === "i") { ev.preventDefault(); return wrap("*"); }
-    if (cmd && ev.key.toLowerCase() === "u") { ev.preventDefault(); return wrap("++"); }
-    if (cmd && ev.shiftKey && ev.key.toLowerCase() === "x") { ev.preventDefault(); return wrap("~~"); }
-    if (ev.key === "Enter" && !ev.shiftKey && !cmd) {
-      const el = ev.currentTarget;
-      const { selectionStart: s, value: v } = el;
-      const from = v.lastIndexOf("\n", s - 1) + 1;
-      const m = v.slice(from, s).match(/^(\s*)([-*+]|\d+[.)])(\s+)(.*)$/);
-      if (!m) return;
-      ev.preventDefault();
-      if (m[4].trim() === "") {
-        el.setSelectionRange(from, s);
-        insert("\n");
-      } else {
-        const marker = /\d/.test(m[2]) ? `${parseInt(m[2], 10) + 1}.` : m[2];
-        insert(`\n${m[1]}${marker}${m[3]}`);
-      }
-    }
-  };
-
-  const Tool = ({ label, on, children }: { label: string; on: () => void; children: React.ReactNode }) => (
-    <button
-      type="button"
-      aria-label={label}
-      onMouseDown={(e) => e.preventDefault()}
-      onClick={on}
-      className="tap grid h-7 w-7 place-items-center rounded text-ink-soft hover:bg-surface-2 hover:text-ink"
-    >
-      {children}
-    </button>
-  );
-
-  return (
-    <div className={className}>
-      <div className="mb-1 flex items-center gap-0.5 border-b border-line pb-1">
-        <Tool label="Bold" on={() => wrap("**")}><span className="text-[0.9rem] font-bold">B</span></Tool>
-        <Tool label="Italic" on={() => wrap("*")}><span className="font-serif text-[0.9rem] italic">I</span></Tool>
-        <Tool label="Underline" on={() => wrap("++")}><span className="text-[0.9rem] underline underline-offset-2">U</span></Tool>
-        <Tool label="Strikethrough" on={() => wrap("~~")}><span className="text-[0.9rem] line-through">S</span></Tool>
-        <Tool label="Heading" on={headingify}><span className="text-[0.8rem] font-bold">H</span></Tool>
-        <Tool label="Quote" on={quotify}><span className="text-[0.95rem] font-serif font-bold">”</span></Tool>
-        <Tool label="Bullet list" on={listify}><Icon name="list" size={15} /></Tool>
-        <Tool label="Checklist" on={checklistify}><Icon name="checklist" size={15} /></Tool>
-        <Tool label="Link" on={addLink}><Icon name="link" size={15} /></Tool>
-      </div>
-      <textarea
-        ref={ta}
-        aria-label="Note"
-        value={draft}
-        onChange={(e) => { setDraft(e.target.value); autosize(e.target); }}
-        onBlur={commit}
-        onKeyDown={onKeyDown}
-        rows={3}
-        className="w-full resize-none rounded border border-gold/60 bg-surface px-2.5 py-2 text-sm leading-[1.6] outline-none focus:border-gold"
-      />
-      <p className="mt-1 text-2xs text-ink-faint">⌘/Ctrl-Enter saves, Esc cancels</p>
-    </div>
-  );
-}
-
-function autosize(el: HTMLTextAreaElement) {
-  el.style.height = "auto";
-  el.style.height = `${el.scrollHeight + 2}px`;
+  if (!Editor) {
+    // the editor's code is still on its way — hold the note as it reads
+    return <div className={className}><Markdown text={value} /></div>;
+  }
+  return <Editor value={value} placeholder={placeholder} className={className} onDone={done} onCancel={cancel} />;
 }

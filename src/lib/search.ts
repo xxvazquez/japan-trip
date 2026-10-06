@@ -5,6 +5,7 @@ import { legHex } from "./legColors";
 import { HELP, helpKey, helpText } from "./help";
 import { MODE_ICON } from "./transport";
 import { categoryName } from "./mapGlyphs";
+import { noteToPlain } from "./noteFormat";
 import { customListColor, logbookSectionTile, placeTile, toneForSegmentMode, type LogbookTile } from "./tones";
 
 export type SearchKind = "day" | "leg" | "hotel" | "place" | "transfer" | "area" | "luggage" | "doc" | "packing" | "list" | "note" | "help";
@@ -223,6 +224,7 @@ function build(d: TripData): SearchHit[] {
 
 /** Lower-case with Latin accents dropped, so "sensō-ji" matches "senso-ji"
  *  (only the combining accents — Japanese dakuten are left alone). */
+const NOTE_MARKUP = /[*_~+`{[\\#>]|^\s*(?:[-+]|\d+[.)])\s/m;
 const fold = (s: string) => s.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").normalize("NFC").toLowerCase();
 /** …and with spaces and punctuation gone too, so "sensoji" matches "Sensō-ji". */
 const compact = (s: string) => s.replace(/[^\p{L}\p{N}]/gu, "");
@@ -299,8 +301,10 @@ function indexOf(data: TripData): Indexed[] {
     const fields = h.fields
       .filter((x): x is { label?: string; text: string } => !!x.text?.trim())
       .map((x) => {
-        const f = fold(x.text);
-        return { label: x.label, raw: x.text.trim(), f, c: compact(f) };
+        // a note is searched (and quoted) as its words, not its markup
+        const text = NOTE_MARKUP.test(x.text) ? noteToPlain(x.text) : x.text;
+        const f = fold(text);
+        return { label: x.label, raw: text.trim(), f, c: compact(f) };
       });
     return { h, label, cLabel: compact(label), fields };
   });

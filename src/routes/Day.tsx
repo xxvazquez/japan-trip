@@ -713,7 +713,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
 
       {/* GENERAL NOTES — free-form catch-all, after the day's actual plan */}
       {(day.notes || !ro) && (
-        <Section title="General notes" info="Supports bold, italic, bullet lists, checklists, and links — tap a note to see the formatting toolbar.">
+        <Section title="General notes" info="Tap the note to edit it. Aa sets headings, bold and colours; a heading's chevron folds its section away.">
           <div className="note px-3.5 py-3">
             <RichNote
               value={day.notes ?? ""}
