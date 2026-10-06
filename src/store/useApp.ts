@@ -1590,7 +1590,12 @@ export const useApp = create<AppStore>((set, get) => {
           const i = list.findIndex((x) => x.id === r.id);
           if (!r.before) { if (i >= 0) list.splice(i, 1); continue; } // added by the delete → take it out again
           const row = structuredClone(r.before);
-          if (i >= 0) list[i] = row;
+          // a field the edit added (absent before) must go as cleared, not be
+          // left out — the save writes only the fields it's given
+          if (i >= 0) {
+            for (const k of Object.keys(list[i])) if (!(k in row)) (row as Record<string, unknown>)[k] = undefined;
+            list[i] = row;
+          }
           else { list.splice(Math.min(r.index, list.length), 0, row); reinserted.add(r.type); }
         }
         const cfg = d.config as unknown as Record<string, unknown>;

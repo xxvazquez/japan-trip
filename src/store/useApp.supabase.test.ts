@@ -311,6 +311,32 @@ describe("signed-in: saving and the outbox", () => {
   });
 });
 
+describe("signed-in: clearing a field", () => {
+  it("a hop's cleared booking ref is cleared on the server too", async () => {
+    await seedTrip();
+    const a = await boot();
+    const seg = { id: crypto.randomUUID(), mode: "train", from: "A", to: "B", bookingRef: "XK12" };
+    a.s().addEntity("journeys", { id: "j-clear", label: "A to B", kind: "transfer", segments: [seg] } as never);
+    await a.settlePending();
+    expect(rows("segments").find((r) => r.id === seg.id)?.booking_ref).toBe("XK12");
+    a.s().updateEntity("journeys", "j-clear", { segments: [{ ...seg, bookingRef: undefined }] } as never);
+    await a.settlePending();
+    expect(rows("segments").find((r) => r.id === seg.id)?.booking_ref ?? null).toBeNull();
+  });
+
+  it("undoing an edit that added a note takes the note off the server too", async () => {
+    await seedTrip();
+    const a = await boot();
+    a.s().addEntity("places", place("u1"));
+    await a.settlePending();
+    a.s().undoable("Note added", () => a.s().updateEntity("places", "u1", { note: "Added" } as never));
+    await a.settlePending();
+    a.s().undo();
+    await a.settlePending();
+    expect(rows("places").find((r) => r.id === "u1")?.note ?? null).toBeNull();
+  });
+});
+
 describe("signed-in: deleting, restoring, creating", () => {
   it("deleting a trip first stores a restore point that outlives it", async () => {
     await seedTrip("Keep me");

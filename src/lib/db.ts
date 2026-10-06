@@ -77,8 +77,18 @@ function rowToEntity(spec: Spec, r: Record<string, unknown>) {
   return e;
 }
 
+/** every optional field a hop can have. An upsert only writes the columns
+ *  it's given, so a field cleared on an existing hop has to go as an explicit
+ *  null — left out, the server keeps the old value and it comes back. Typed
+ *  against `Segment`, so a new field can't be forgotten here. */
+const SEG_OPTIONAL = {
+  fromTz: 1, toTz: 1, depart: 1, arrive: 1, carrier: 1, service: 1, seat: 1, platform: 1,
+  fare: 1, fareCurrency: 1, bookingRef: 1, reserved: 1, note: 1,
+} satisfies Record<Exclude<keyof Segment, "id" | "mode" | "from" | "to">, 1>;
+
 function segToRow(seg: Segment, tripId: string, journeyId: string, position: number) {
   const row: Record<string, unknown> = { id: seg.id, trip_id: tripId, journey_id: journeyId, position };
+  for (const k of Object.keys(SEG_OPTIONAL)) row[camelToSnake(k)] = null;
   for (const [k, v] of Object.entries(seg)) {
     if (k === "id" || v === undefined) continue;
     row[SEG_RENAME[k] ?? camelToSnake(k)] = v;
