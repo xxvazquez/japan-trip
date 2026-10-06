@@ -504,12 +504,13 @@ export function MapView({
       )}
       {status === "ok" && <LocateControl getMap={() => map.current} mapKey={retryKey} />}
       {status === "loading" && (
-        <div className="pointer-events-none absolute inset-0 grid place-items-center bg-bg">
+        // centred in what a bottom sheet leaves showing, like the message below
+        <div className="pointer-events-none absolute inset-0 grid place-items-center bg-bg" style={{ paddingBottom: coverBottom }}>
           <Loader label="Loading the map" />
         </div>
       )}
       {status === "error" && (
-        <div className="absolute inset-0 grid place-items-center bg-bg px-6">
+        <div className="absolute inset-0 grid place-items-center bg-bg px-6" style={{ paddingBottom: coverBottom }}>
           <div className="max-w-xs text-center">
             <Icon name="map" size={30} className="mx-auto text-ink-faint" />
             <h2 className="mt-3 font-display text-lg">{online ? "Map didn’t load" : "You’re offline"}</h2>
