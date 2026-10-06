@@ -45,7 +45,7 @@ function Avatar({ size }: { size: number }) {
   return (
     <span
       aria-hidden
-      className={`grid shrink-0 place-items-center rounded-full ${user ? "bg-accent text-white" : "bg-ink/[0.08] text-ink-soft"}`}
+      className={`grid shrink-0 place-items-center rounded-full ${user ? "bg-accent text-white dark:text-bg" : "bg-ink/[0.08] text-ink-soft"}`}
       style={{ width: size, height: size, fontSize: size * 0.45 }}
     >
       {user && letter ? letter : <Icon name="person" size={Math.round(size * 0.6)} />}

@@ -185,7 +185,7 @@ function TimeField({ hour, minute, onPick, onDone }: {
       aria-valuetext={text}
       onPointerDown={(e) => { e.preventDefault(); ref.current?.focus(); if (s === seg && s === "p") step("p", 1); setSeg(s); }}
       className={`cursor-default rounded-[6px] px-1 tabular-nums transition-colors ${
-        s === seg ? "bg-accent text-white" : "hover:bg-ink/[0.06]"
+        s === seg ? "bg-accent text-white dark:text-bg" : "hover:bg-ink/[0.06]"
       }`}
     >
       {text}

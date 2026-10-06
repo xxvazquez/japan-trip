@@ -73,7 +73,7 @@ function PlaceCard() {
 }
 
 const PlaceButton = ({ icon, label, primary = false }: { icon: IconName; label: string; primary?: boolean }) => (
-  <span className={`flex flex-1 flex-col items-center gap-0.5 rounded-[10px] py-2 text-[11px] ${primary ? "bg-accent text-white" : "bg-ink/[0.06] text-accent"}`}>
+  <span className={`flex flex-1 flex-col items-center gap-0.5 rounded-[10px] py-2 text-[11px] ${primary ? "bg-accent text-white dark:text-bg" : "bg-ink/[0.06] text-accent"}`}>
     <Icon name={icon} size={16} />
     {label}
   </span>
