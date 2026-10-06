@@ -1,6 +1,16 @@
 import { Icon, type IconName } from "./Icon";
 import { glyphPath, type MapGlyphId } from "@/lib/mapGlyphs";
-import { TONE_BG, type Tone } from "@/lib/tones";
+import type { Tone } from "@/lib/tones";
+
+/** a tone's tile fill — the light-mode colour in either mode (`--c-tile-*`) */
+const TILE_BG: Record<Tone, string> = {
+  accent: "bg-[rgb(var(--c-tile-accent))]",
+  matcha: "bg-[rgb(var(--c-tile-matcha))]",
+  gold: "bg-[rgb(var(--c-tile-gold))]",
+  ai: "bg-[rgb(var(--c-tile-ai))]",
+  "ink-faint": "bg-[rgb(var(--c-tile-ink-faint))]",
+  danger: "bg-[rgb(var(--c-tile-danger))]",
+};
 
 /**
  * The leading mark on a grouped-list row: a filled rounded square with a white
@@ -37,7 +47,7 @@ export function IconTile({
   const d = glyph ? glyphPath(glyph) : undefined;
   const fill = ghost
     ? "bg-ink-faint/[0.14] text-ink-soft"
-    : `text-white ${color ? "" : TONE_BG[tone ?? "accent"]}`;
+    : `text-white ${color ? "" : TILE_BG[tone ?? "accent"]}`;
 
   return (
     <span

@@ -87,6 +87,11 @@ export function applyPalette(light: Palette, dark: Palette, m: Mode = read()) {
   for (const [token, value] of Object.entries(p)) {
     root.style.setProperty(`--c-${token}`, toChannels(value));
   }
+  // icon tiles: the light colours in both modes (see `--c-tile-*` in index.css)
+  for (const token of ["accent", "gold", "matcha", "ai", "danger", "ink-faint"] as const) {
+    const value = (light as Record<string, string | undefined>)[token];
+    if (value) root.style.setProperty(`--c-tile-${token}`, toChannels(value));
+  }
 }
 
 /** Point the browser chrome — Android's status bar, an installed desktop
