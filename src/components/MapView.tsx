@@ -77,7 +77,7 @@ const sel = (id: string | null) => id ?? "__none__";
  *  already set (e.g. arriving via a `?sel=` deep link) needs this applied
  *  once ready, not just on a later change, or the camera is left on its
  *  neutral whole-world starting view. */
-function applySelection(m: MLMap, selectedId: string | null, places: Place[], animate: boolean) {
+function applySelection(m: MLMap, selectedId: string | null, places: Place[], animate: boolean, coverBottom = 140) {
   if (!m.getLayer("pins")) return;
   const s = sel(selectedId);
   m.setFilter("pin-halo", ["all", ["!", ["has", "point_count"]], ["==", ["get", "id"], s]]);
@@ -88,7 +88,7 @@ function applySelection(m: MLMap, selectedId: string | null, places: Place[], an
   if (m.getLayer("pinned-icon")) m.setLayoutProperty("pinned-icon", "icon-size", pinnedIconSize(s));
   if (m.getLayer("pinned-dot")) m.setPaintProperty("pinned-dot", "circle-stroke-width", ["case", ["==", ["get", "id"], s], 5, 3]);
   const p = selectedId ? places.find((x) => x.id === selectedId) : undefined;
-  if (p) m.easeTo({ center: [p.lng, p.lat], zoom: Math.max(m.getZoom(), 14), duration: animate ? 500 : 0, offset: [0, -70] });
+  if (p) m.easeTo({ center: [p.lng, p.lat], zoom: Math.max(m.getZoom(), 14), duration: animate ? 500 : 0, offset: [0, -coverBottom / 2] }); // centred in the map a bottom sheet leaves showing
 }
 
 /** categories the trip wants kept on screen when zoomed out (`config.pinnedCategories`) */
@@ -148,6 +148,7 @@ export function MapView({
   onMapClick,
   onLongPress,
   onReady,
+  coverBottom,
 }: {
   places: Place[];
   selectedId: string | null;
@@ -170,6 +171,9 @@ export function MapView({
   onMapClick?: (lat: number, lng: number) => void;
   onLongPress?: (lat: number, lng: number) => void;
   onReady?: (map: MLMap) => void;
+  /** how much of the map's foot a sheet covers (px), so a picked place is
+   *  centred in what's left showing */
+  coverBottom?: number;
 }) {
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<MLMap | null>(null);
@@ -179,8 +183,8 @@ export function MapView({
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
   const [retryKey, setRetryKey] = useState(0);
   const [online, setOnline] = useState(() => (typeof navigator === "undefined" ? true : navigator.onLine));
-  const state = useRef({ places, selectedId, derivedIds, areaShapes, transit, basePois, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onReady });
-  state.current = { places, selectedId, derivedIds, areaShapes, transit, basePois, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onReady };
+  const state = useRef({ places, selectedId, derivedIds, areaShapes, transit, basePois, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onReady, coverBottom });
+  state.current = { places, selectedId, derivedIds, areaShapes, transit, basePois, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onReady, coverBottom };
 
   const applyBasePois = (m: MLMap, on: boolean) => {
     if (m.getLayer(BASE_POIS_LAYER)) m.setLayoutProperty(BASE_POIS_LAYER, "visibility", on ? "visible" : "none");
@@ -360,7 +364,7 @@ export function MapView({
 
     m.on("load", () => {
       addLayers(m);
-      applySelection(m, state.current.selectedId, state.current.places, false);
+      applySelection(m, state.current.selectedId, state.current.places, false, state.current.coverBottom);
       const pointer = () => (m.getCanvas().style.cursor = "pointer");
       const noPointer = () => (m.getCanvas().style.cursor = "");
       for (const l of ["pins", "pins-icon", "clusters", "pinned-icon", "pinned-dot"]) { m.on("mouseenter", l, pointer); m.on("mouseleave", l, noPointer); }
@@ -443,7 +447,7 @@ export function MapView({
   useEffect(() => {
     const m = map.current;
     if (!m || !ready.current) return;
-    applySelection(m, selectedId, places, true);
+    applySelection(m, selectedId, places, true, state.current.coverBottom);
   }, [selectedId, places]);
 
   /* theme */

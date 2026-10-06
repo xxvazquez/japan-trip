@@ -310,9 +310,10 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 - **＋ Add place** — search for somewhere, or tap the map to drop a pin.
 - **The list** — once a city is picked, places are grouped by area (plus *No area*). On **All** it nests **city → area → place**.
 - **Search** — the field at the top of the list finds areas by name and places by name, category or note, across the whole trip. The map shows only what it finds; on a phone the sheet pulls up while you type.
-- **Areas fold open in place**, like folders in Files — tap an area row to show its places under it. They start collapsed and remember what you opened.
+- **Areas fold open in place**, like folders in Files — tap an area row to show its places under it, and the map moves to show them. They start collapsed and remember what you opened.
+- **The map frames what's listed** in the part left showing above the sheet, and a tapped place is centred there too.
 - **Tapping a place** swaps the list for its card, as Apple Maps does; ✕ goes back to the list where you left it.
-- **A place's card** — laid out like a step's place card: the name (tap to rename) and the walk to the nearest station; a button row (**Google Maps** filled — searched at the pin, so a chain opens the right branch — Tabelog for a restaurant in Japan, and the day it's on); then **Note**, **Good to know** (folded until you tap it, so filing a place stays quick; see [Helpers on a step](#helpers-on-a-step)), a group with the day (or **Add to a day**), areas, category (a pin added in the app can be moved into any category, taking on its colour; a My Maps pin's comes from its layer) and city, and last Remove.
+- **A place's card** — laid out like a step's place card: the name (tap to rename) and the walk to the nearest station; a button row, up to five across (**Google Maps** filled — searched at the pin, so a chain opens the right branch — then Tabelog for a restaurant in Japan, **Menu**, **Website**, **Share**, **Search Web** when it has no website, and the day it's on or **Add to Day**; whatever doesn't fit goes under **More**); then **Note**, **Good to know** (folded until you tap it, so filing a place stays quick; see [Helpers on a step](#helpers-on-a-step)), a group with its areas, category (a pin added in the app can be moved into any category, taking on its colour; a My Maps pin's comes from its layer) and city, and last Remove.
 - **List rows** show the name and the walk to the nearest station.
 - **Place names** on the map are in English / Latin script where available.
 

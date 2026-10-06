@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { MapView, type MLMap } from "@/components/MapView";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
-import { Icon } from "@/components/Icon";
+import { Icon, type IconName } from "@/components/Icon";
 import { IconTile } from "@/components/IconTile";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { ActionSheet, ConfirmMenuItem, useActionSheet } from "@/components/ActionSheet";
@@ -34,6 +34,7 @@ import { PlaceAction, PlaceActions } from "@/components/PlaceAction";
 import { ActionRow } from "@/components/ActionRow";
 import { FactsRefresh, PlaceFactRows } from "@/components/PlaceFacts";
 import { primeKeyboard } from "@/lib/keyboard";
+import { copyText } from "@/lib/clipboard";
 import { TRANSIT_KINDS, TRANSIT_META } from "@/lib/transitLayers";
 import { nearestStationFromMap, nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
 import { estimateWalk, useWalk } from "@/lib/walkRoute";
@@ -429,7 +430,7 @@ function useSheetSnap(shellRef: RefObject<HTMLDivElement | null>) {
   };
 
   return {
-    sheetRef, snap, setSnap, sheetHeight, dragging, setPanelRoot, setListOuter,
+    sheetRef, snap, setSnap, sheetHeight, halfStopPx, dragging, setPanelRoot, setListOuter,
     onHandlePointerDown, onHandlePointerMove, onHandlePointerUp, onHandleClick,
   };
 }
@@ -733,7 +734,7 @@ export default function MapTab() {
 
   const shellRef = useRef<HTMLDivElement | null>(null);
   const {
-    sheetRef, snap, setSnap, sheetHeight, dragging, setPanelRoot, setListOuter,
+    sheetRef, snap, setSnap, sheetHeight, halfStopPx, dragging, setPanelRoot, setListOuter,
     onHandlePointerDown, onHandlePointerMove, onHandlePointerUp, onHandleClick,
   } = useSheetSnap(shellRef);
   const {
@@ -1135,18 +1136,22 @@ export default function MapTab() {
     return [...byName.values()].filter((g) => g.length > 1);
   }, [data]);
 
-  // fit the map to the current scope when nothing is selected
+  // fit the map to the current scope when nothing is selected. On a phone the
+  // pins are framed in the map left showing above the half sheet — the stop
+  // the list opens at — so none sit hidden behind it.
   const fitScope = () => {
     const m = map.current;
     if (!m || selected || shown.length === 0) return;
     const lngs = shown.map((p) => p.lng);
     const lats = shown.map((p) => p.lat);
+    const bottom = wide || listOnly ? 44 : halfStopPx + 24;
     m.fitBounds(
       [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
-      { padding: { top: 56, right: 44, bottom: window.innerWidth < 768 ? 180 : 44, left: 44 }, maxZoom: 15, duration: 500 },
+      { padding: { top: 56, right: 44, bottom, left: 44 }, maxZoom: 15, duration: 500 },
     );
   };
-  useEffect(fitScope, [shown, selected]); // eslint-disable-line react-hooks/exhaustive-deps
+  // the map can finish loading after the scope settles: fit again once it has
+  useEffect(fitScope, [shown, selected, mapReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!data) return null;
   const url = data.config.mapSourceUrl?.trim() ?? "";
@@ -1175,12 +1180,29 @@ export default function MapTab() {
       return n;
     });
 
-  const toggleAreaCollapsed = (id: string) =>
+  const toggleAreaCollapsed = (id: string) => {
+    const opening = !openAreas.has(id);
     setOpenAreas((s) => {
       const n = new Set(s);
       n.has(id) ? n.delete(id) : n.add(id);
       return n;
     });
+    // opening an area shows where it is, as a Maps guide does; shutting it
+    // leaves the map where you had it
+    if (opening && !selected) {
+      const inArea = new Set(id ? listAreas.find((a) => a.id === id)?.placeIds ?? [] : []);
+      const inGroups = new Set(listAreas.flatMap((a) => a.placeIds));
+      const pts = shown.filter((p) => (id ? inArea.has(p.id) : !inGroups.has(p.id)));
+      const m = map.current;
+      if (m && pts.length) {
+        const lngs = pts.map((p) => p.lng), lats = pts.map((p) => p.lat);
+        m.fitBounds(
+          [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
+          { padding: { top: 56, right: 44, bottom: wide || listOnly ? 44 : halfStopPx + 24, left: 44 }, maxZoom: 16, duration: 500 },
+        );
+      }
+    }
+  };
 
   const toggleCityCollapsed = (id: string) =>
     setCollapsedCities((s) => {
@@ -1826,10 +1848,10 @@ export default function MapTab() {
           onSelect={setSelected}
           onMapClick={onMapClick}
           onLongPress={onLongPress}
+          coverBottom={wide || listOnly ? 0 : halfStopPx}
           onReady={(m) => {
             map.current = m;
-            fitScope();
-            setMapReady(true);
+            setMapReady(true); // fits the scope (the effect above) with this render's values, not the mount's
           }}
         />
         {adding && (
@@ -2108,6 +2130,26 @@ function PlaceRow({
   const nav = useNavigate();
   const [noteOpen, setNoteOpen] = useState(false);
   const [factsOpen, setFactsOpen] = useState(false);
+  const addSheet = useActionSheet();
+  const moreSheet = useActionSheet();
+  const menu = menuHref(place);
+  const website = place.facts?.website;
+  const [copied, setCopied] = useState(false);
+  // send the place to someone (or yourself): the Share sheet where there is
+  // one, else its name and map link onto the clipboard
+  const share = async () => {
+    const url = link || undefined;
+    if (navigator.share) {
+      try { await navigator.share({ title: place.name, text: place.name, url }); } catch { /* closed the sheet */ }
+      return;
+    }
+    if (await copyText([place.name, url].filter(Boolean).join("\n"))) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
+  };
+  // a sight with no website of its own: the web, for its hours and tickets
+  const searchHref = `https://www.google.com/search?q=${encodeURIComponent([place.name, area].filter(Boolean).join(" "))}`;
 
   // the selected place's card, laid out as a Maps place card (and as a plan
   // step's): name and where it sits, the button row, then grouped — your
@@ -2134,11 +2176,57 @@ function PlaceRow({
               <Icon name="close" size={13} />
             </button>
           </div>
-          <PlaceActions>
-            {link && <PlaceAction href={link} icon="map" label="Google Maps" primary />}
-            {reviewSite && <PlaceAction href={reviewHref(reviewSite, place)} icon="link" label={place.reviewUrl ? reviewSite.label : `Search ${reviewSite.label}`} />}
-            {day && <PlaceAction icon="calendar" label={fmtDate(day.date, loc, { weekday: "short", day: "numeric" })} onClick={() => nav(`/day/${day.id}`)} />}
-          </PlaceActions>
+          {/* Google Maps leads, filled, then the place's own pages, its day
+              and sharing — up to five across, the rest under More, as Maps
+              lays out its row */}
+          {(() => {
+            type Act = { key: string; icon: IconName; label: string; href?: string; run?: () => void };
+            const extras: Act[] = [
+              reviewSite && { key: "review", icon: "link", label: place.reviewUrl ? reviewSite.label : `Search ${reviewSite.label}`, href: reviewHref(reviewSite, place) },
+              menu && { key: "menu", icon: "menu", label: "Menu", href: menu },
+              website && { key: "website", icon: "globe", label: "Website", href: website },
+              { key: "share", icon: "share", label: copied ? "Copied" : "Share", run: () => void share() },
+              !website && { key: "search", icon: "search", label: "Search Web", href: searchHref },
+            ].filter(Boolean) as Act[];
+            const dayBtn = !!day || (!readOnly && sortedDays.length > 0);
+            // five across: Google Maps, the day, More, and what's left between
+            const room = 5 - (link ? 1 : 0) - (dayBtn ? 1 : 0);
+            const fits = extras.length <= room ? extras : extras.slice(0, room - 1);
+            const over = extras.slice(fits.length);
+            const ext = { target: "_blank", rel: "noopener" };
+            return (
+              <>
+                <PlaceActions>
+                  {link && <PlaceAction href={link} icon="map" label="Google Maps" primary />}
+                  {fits.map((a) => <PlaceAction key={a.key} href={a.href} onClick={a.run} icon={a.icon} label={a.label} />)}
+                  {day ? (
+                    <PlaceAction icon="calendar" label={fmtDate(day.date, loc, { weekday: "short", day: "numeric" })} onClick={() => nav(`/day/${day.id}`)} />
+                  ) : dayBtn && (
+                    <PlaceAction icon="calendar" label="Add to Day" menu buttonRef={addSheet.anchorRef} onClick={() => addSheet.setOpen(true)} />
+                  )}
+                  {over.length > 0 && <PlaceAction icon="more" label="More" menu buttonRef={moreSheet.anchorRef} onClick={() => moreSheet.setOpen(true)} />}
+                </PlaceActions>
+                <ActionSheet open={moreSheet.open} onClose={() => moreSheet.setOpen(false)} anchorRef={moreSheet.anchorRef}>
+                  {over.map((a) => a.href ? (
+                    <a key={a.key} href={a.href} {...ext} className="menu-item"><Icon name={a.icon} size={16} /> {a.label}</a>
+                  ) : (
+                    <button key={a.key} type="button" className="menu-item" onClick={a.run}><Icon name={a.icon} size={16} /> {a.label}</button>
+                  ))}
+                </ActionSheet>
+              </>
+            );
+          })()}
+          <ActionSheet open={addSheet.open} onClose={() => addSheet.setOpen(false)} anchorRef={addSheet.anchorRef} title="Add to a day">
+            {sortedDays.map((d) => (
+              <button key={d.id} type="button" className="menu-item" onClick={() => { addSheet.setOpen(false); onAddToDay(d.id); }}>
+                <Icon name="calendar" size={16} />
+                <span className="min-w-0 break-words">
+                  {fmtDate(d.date, loc, { weekday: "short", day: "numeric", month: "short" })}
+                  {d.title ? ` · ${d.title}` : ""}
+                </span>
+              </button>
+            ))}
+          </ActionSheet>
         </div>
 
         {(!readOnly || place.note?.trim()) && (
@@ -2182,26 +2270,7 @@ function PlaceRow({
         )}
 
         <ul className="isolate overflow-hidden rounded-[12px] bg-surface">
-          {/* on a day already, the day is a button up top */}
-          {!day && !readOnly && (
-            <li className={SM_TILE_DIVIDER}>
-              <label className={`${rowCls} cursor-pointer`}>
-                <IconTile size="sm" name="calendar" tone="accent" />
-                <span className="row-label">Add to a day</span>
-                <span className="flex min-w-0 flex-1 justify-end">
-                  <RowSelect value="" onChange={(e) => e.target.value && onAddToDay(e.target.value)} aria-label="Add to a day" className="max-w-[12rem] truncate">
-                    <option value="">Choose…</option>
-                    {sortedDays.map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {fmtDate(d.date, loc, { weekday: "short", day: "numeric", month: "short" })}
-                        {d.title ? ` · ${d.title}` : ""}
-                      </option>
-                    ))}
-                  </RowSelect>
-                </span>
-              </label>
-            </li>
-          )}
+          {/* its day, or adding it to one, is a button up top */}
           {filing}
         </ul>
 
