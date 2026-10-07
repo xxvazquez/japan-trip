@@ -68,7 +68,7 @@ import { cachedOpeningHours, nearestOpeningHours } from "@/lib/placeHours";
 import { hoursConflict, hoursForDate } from "@/lib/openingHours";
 import { NEARBY_WALK_MIN, nearbyForDay, type NearbyGroup, type NearbyItem } from "@/lib/nearby";
 import { NearbyCard, NearbyGroupRows, NearbyProvider, NearbyRow, usePlaceHours, useStepNearby } from "@/components/Nearby";
-import { fetchDayWeather, weatherLabel, type DayWeather } from "@/lib/weather";
+import { fetchDayWeather, forecastSpot, weatherLabel, type DayWeather } from "@/lib/weather";
 import { prefetchTiles, canPrefetchTiles, dayOfflinePoints } from "@/lib/offlineTiles";
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon, expenseCategoryForGlyph } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
@@ -93,9 +93,11 @@ function splitRange(t?: string): [string, string] | null {
  *  all-day event's, but still a tap target that opens the time wheel */
 const UNTIMED = <span className="inline-block h-5 w-10" aria-hidden="true" />;
 
-function weatherText(w: DayWeather): string {
+function weatherText(w: DayWeather, locale?: string): string {
   const text = `${weatherLabel(w.code)}, ${w.lowC}–${w.highC}°C`;
-  return w.precipPct >= 30 ? `${text} · ${w.precipPct}% rain` : text;
+  const rain = w.precipPct >= 30 ? `${text} · ${w.precipPct}% rain` : text;
+  // an old forecast kept on the device, shown with no signal
+  return w.asOf ? `${rain} · as of ${fmtDate(w.asOf, locale, { day: "numeric", month: "short" })}` : rain;
 }
 
 export default function Day() {
@@ -314,13 +316,16 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const startHotel = !prevDay || dayKind(day, data) === "arrival" ? undefined
     : L.hotel(prevDay.hotelId) ?? L.hotel(L.leg(prevDay.legId)?.hotelId);
   const [weather, setWeather] = useState<DayWeather | null>(null);
+  // a day trip's forecast is for where it goes, not the hotel's city
+  const spot = forecastSpot(weatherHotel, dayPlaces, day.dayTrip);
+  const spotKey = spot && `${spot.lat.toFixed(2)},${spot.lng.toFixed(2)}`;
   useEffect(() => {
     setWeather(null);
-    if (weatherHotel?.lat === undefined || weatherHotel?.lng === undefined) return;
+    if (!spot) return;
     let cancelled = false;
-    void fetchDayWeather(weatherHotel.lat, weatherHotel.lng, day.date).then((w) => { if (!cancelled) setWeather(w); });
+    void fetchDayWeather(spot.lat, spot.lng, day.date).then((w) => { if (!cancelled) setWeather(w); });
     return () => { cancelled = true; };
-  }, [weatherHotel?.lat, weatherHotel?.lng, day.date]);
+  }, [spotKey, day.date]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // offline pre-fetch — every place this day's map shows (its areas, its own
   // plan steps, the hotel it's anchored to), so the day's corner of the map
@@ -550,7 +555,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         meta={(day.labels?.length || weather) ? (
           <>
             <DayLabelsCaption labels={day.labels ?? []} onEdit={ro ? undefined : openLabels} />
-            {weather && <span className="block">{weatherText(weather)}</span>}
+            {weather && <span className="block">{weatherText(weather, loc)}</span>}
           </>
         ) : undefined}
         action={
