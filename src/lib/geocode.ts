@@ -12,32 +12,98 @@ export interface GeoResult {
   lng: number;
 }
 
-/** `high` for a search the user is waiting on (it jumps the queue); a
- *  background lookup (a hotel's or a city's position) leaves it off. */
-export async function geocode(query: string, near?: { lat: number; lng: number }, { high = false }: { high?: boolean } = {}): Promise<GeoResult[]> {
+/** A background lookup (a hotel's or a city's position) — throws when
+ *  Nominatim can't be reached, so the caller doesn't remember "nothing there".
+ *  The search the user types into is `searchPlaces`. */
+export async function geocode(query: string, near?: { lat: number; lng: number }): Promise<GeoResult[]> {
   const q = query.trim();
   if (q.length < 3) return [];
+  return nominatimSearch(q, near);
+}
+
+async function nominatimSearch(q: string, near?: { lat: number; lng: number }, high = false): Promise<GeoResult[]> {
   const p = new URLSearchParams({ q, format: "jsonv2", limit: "6", addressdetails: "0" });
   if (near) {
     const d = 0.5;
     p.set("viewbox", `${near.lng - d},${near.lat + d},${near.lng + d},${near.lat - d}`);
     p.set("bounded", "0");
   }
-  let rows: { name?: string; display_name: string; lat: string; lon: string }[];
-  try {
-    rows = await nominatimGet("search", Object.fromEntries(p), { high });
-  } catch (e) {
-    // the search box just shows no results; a background lookup needs to
-    // know it failed, so it doesn't remember "nothing there"
-    if (high) return [];
-    throw e;
-  }
+  const rows = await nominatimGet<{ name?: string; display_name: string; lat: string; lon: string }[]>("search", Object.fromEntries(p), { high });
   return rows.map((r) => ({
     name: r.name || r.display_name.split(",")[0],
     detail: r.display_name.split(",").slice(1, 4).join(",").trim(),
     lat: Number(r.lat),
     lng: Number(r.lon),
   }));
+}
+
+/**
+ * The place search the user types into. Nominatim first (its exact matches
+ * are the best), then Photon — also OpenStreetMap, free and keyless — when
+ * Nominatim finds nothing or can't be reached: Photon forgives a typo
+ * ("shinkuju station") that Nominatim answers with an empty list. Throws
+ * only when neither could be asked, so the caller can tell "no matches"
+ * from "couldn't search".
+ */
+export async function searchPlaces(query: string, near?: { lat: number; lng: number }): Promise<GeoResult[]> {
+  const q = query.trim();
+  if (q.length < 3) return [];
+  let failed = false;
+  try {
+    const found = await nominatimSearch(q, near, true);
+    if (found.length) return found;
+  } catch {
+    failed = true;
+  }
+  try {
+    return await photonSearch(q, near);
+  } catch (e) {
+    if (failed) throw e;
+    return [];
+  }
+}
+
+async function photonSearch(q: string, near?: { lat: number; lng: number }): Promise<GeoResult[]> {
+  // OSM names a station "Shinjuku", not "Shinjuku Station" — for a station
+  // search, look up the bare name among stations first
+  const bare = q.replace(/\s*(station|stn\.?|駅)$/i, "").trim();
+  if (bare.length >= 3 && bare !== q) {
+    const stations = await photonQuery(bare, near, "railway:station");
+    if (stations.length) return stations;
+  }
+  return photonQuery(q, near);
+}
+
+async function photonQuery(q: string, near?: { lat: number; lng: number }, osmTag?: string): Promise<GeoResult[]> {
+  const p = new URLSearchParams({ q, limit: "10", lang: "en" });
+  if (osmTag) p.set("osm_tag", osmTag);
+  if (near) {
+    p.set("lat", String(near.lat));
+    p.set("lon", String(near.lng));
+  }
+  const res = await fetch(`https://photon.komoot.io/api/?${p}`, { signal: AbortSignal.timeout(10_000) });
+  if (!res.ok) throw new Error(String(res.status));
+  const { features } = (await res.json()) as {
+    features: { geometry: { coordinates: [number, number] }; properties: Record<string, string | undefined> }[];
+  };
+  const seen = new Set<string>();
+  const out: GeoResult[] = [];
+  for (const f of features) {
+    const pr = f.properties;
+    const name = pr.name || pr.street;
+    if (!name) continue;
+    const detail = [pr.street !== name ? pr.street : undefined, pr.district, pr.city, pr.country]
+      .filter((s, i, a) => s && a.indexOf(s) === i)
+      .join(", ");
+    // a station comes back once per platform node — one row is enough
+    const key = `${name}|${detail}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const [lng, lat] = f.geometry.coordinates;
+    out.push({ name, detail, lat, lng });
+    if (out.length === 6) break;
+  }
+  return out;
 }
 
 /**

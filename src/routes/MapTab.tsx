@@ -21,7 +21,7 @@ import { CheckCircle } from "@/components/CheckCircle";
 import { useApp, undoable, deletePlace } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
 import { mapUrlCoords, placeMapLink, sharePlace, webSearchHref } from "@/lib/maps";
-import { geocode, reverseGeocode, type GeoResult } from "@/lib/geocode";
+import { searchPlaces, reverseGeocode, type GeoResult } from "@/lib/geocode";
 import { haversineKm, fmtDistanceKm, fmtWalk, useGeolocation } from "@/lib/geo";
 import { fmtMinutes } from "@/lib/time";
 import { legHex } from "@/lib/legColors";
@@ -509,6 +509,8 @@ function useMapEditing(
   const [adding, setAdding] = useState(false);
   const [q, setQ] = useState("");
   const [results, setResults] = useState<GeoResult[]>([]);
+  /** what the search box has to say while there's no list to show */
+  const [searchState, setSearchState] = useState<"idle" | "searching" | "empty" | "failed">("idle");
   const [pending, setPending] = useState<{ lat: number; lng: number; name: string } | null>(null);
 
   /** review state for "Suggest areas" — null when not suggesting */
@@ -522,14 +524,30 @@ function useMapEditing(
   /** inline area list open for rename / delete */
   const [editingAreas, setEditingAreas] = useState(false);
 
-  // debounced place search (Nominatim)
+  // debounced place search; a reply to an older query is dropped
   useEffect(() => {
     if (!adding || pending) return;
+    if (q.trim().length < 3) {
+      setResults([]);
+      setSearchState("idle");
+      return;
+    }
+    let stale = false;
+    setSearchState("searching");
     const t = setTimeout(async () => {
       const c = mapRef.current?.getCenter();
-      setResults(await geocode(q, c ? { lat: c.lat, lng: c.lng } : undefined, { high: true }));
+      try {
+        const found = await searchPlaces(q, c ? { lat: c.lat, lng: c.lng } : undefined);
+        if (stale) return;
+        setResults(found);
+        setSearchState(found.length ? "idle" : "empty");
+      } catch {
+        if (stale) return;
+        setResults([]);
+        setSearchState("failed");
+      }
     }, 400);
-    return () => clearTimeout(t);
+    return () => { stale = true; clearTimeout(t); };
   }, [q, adding, pending, mapRef]);
 
   const startAdd = () => {
@@ -545,6 +563,7 @@ function useMapEditing(
     setAdding(false);
     setQ("");
     setResults([]);
+    setSearchState("idle");
     setPending(null);
   };
   const commitPlace = (name: string, lat: number, lng: number) => {
@@ -629,7 +648,7 @@ function useMapEditing(
 
   return {
     suggestions,
-    adding, q, setQ, results, pending, setPending,
+    adding, q, setQ, results, searchState, pending, setPending,
     startAdd, cancelAdd, commitPlace, onMapClick, onLongPress,
     review, setReview, naming,
     namingArea, setNamingArea, editingAreas, setEditingAreas,
@@ -758,7 +777,7 @@ export default function MapTab() {
 
   const {
     suggestions,
-    adding, q, setQ, results, pending, setPending,
+    adding, q, setQ, results, searchState, pending, setPending,
     startAdd, cancelAdd, commitPlace, onMapClick, onLongPress,
     review, setReview, naming,
     namingArea, setNamingArea, editingAreas, setEditingAreas,
@@ -1612,6 +1631,13 @@ export default function MapTab() {
           />}
           <div>
             <SearchField value={q} onChange={setQ} placeholder="Search for a place" autoFocus />
+            {searchState !== "idle" && (
+              <p className="meta px-1 pt-2">
+                {searchState === "searching" && "Searching…"}
+                {searchState === "empty" && `No results for \u201c${q.trim()}\u201d. Check the spelling, or tap the map to drop a pin.`}
+                {searchState === "failed" && "Couldn\u2019t search right now. Check your connection, or tap the map to drop a pin."}
+              </p>
+            )}
             {results.length > 0 && (
               <ul className="isolate mt-2 overflow-hidden rounded-[12px] bg-surface">
                 {results.map((r, i) => (
