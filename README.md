@@ -236,7 +236,7 @@ A straight-line estimate shows first and is replaced by a real walking route whe
 
 **Opening hours.** The hours to read are the **Hours** row in Good to know. A step's time is checked against that day's hours, with seasonal and weekday rules applied:
 
-- The hours come from Good to know's **Hours** and **Closed** rows first ("Tue–Sun 11am–3pm", "Mondays"), else from OpenStreetMap (matched by the place's name, or tagged right on its pin — never a neighbour's).
+- The hours come from Good to know's **Hours** and **Closed** rows first ("Tue–Sun 11am–3pm", "Mondays"), else from OpenStreetMap (matched by the place's name, or tagged right on its pin — never a neighbour's). When Good to know's hours are OpenStreetMap's own, each day is read straight from its tag.
 - **Closed this day** — the place doesn't open that date (a closed weekday, or a day its hours don't cover).
 - **Not open yet · opens 10:00** / **Closed then · reopens 17:00** / **Closed by then · closes 17:00** — the start time falls outside the hours.
 - **Closes at 17:00** — a time range runs past closing.
@@ -264,9 +264,20 @@ Where to find it:
 - **Plan** — tap a step's name; it's in the place card, under the buttons.
 - **Map** — in the place's card, under the note.
 
+Where each fact comes from — shown small beside its label:
+
+| Label | Means |
+| --- | --- |
+| **OpenStreetMap** | Hours and Closed, from the place's own OpenStreetMap tag. Used whenever it has one; the same every time. |
+| **Web** | Two differently worded web searches both said it. Only kept when they agree. |
+| **Varies by source** (as the value) | The two searches said different things — check the place's website. |
+| **Edited** | You typed it. |
+| **Unconfirmed** | Found by an older single search; replaced as soon as both searches agree. |
+
 How it fills in:
 - **By itself** — the first time a place shows, again once it's a month old, and after a rename or a category change. Nothing to run.
-- The ↻ icon beside **Good to know** checks again now. **Manage → Content → Good to know** does every place at once (one search each).
+- The ↻ icon beside **Good to know** checks again now. A fact this check doesn't settle keeps what it had — a refresh never wipes an answer.
+- **Manage → Content → Good to know** does every place at once (two searches each, out of Tavily's 1,000 a month).
 - **When it can't check, it says why** — offline, the server refused it (signed out, or the Worker's sign-in variables are missing), lookups not set up (no search key), or the search service failing. The card and Manage's **Last check** both show it.
 - **By hand** — tap any fact to correct it; **Add details** opens the empty ones to fill in. Works when the search found nothing or the wrong place. Clear a wrong one to hide it.
 - What you type always wins: a later lookup (automatic, ↻ or Manage) never overwrites it. Typing back what the lookup found drops your version.

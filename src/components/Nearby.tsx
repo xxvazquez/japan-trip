@@ -12,9 +12,9 @@ import { PlaceFactRows } from "./PlaceFacts";
 import { TitleLineTile } from "./TileRow";
 import { fmtDate } from "@/lib/dates";
 import { placeMapLink } from "@/lib/maps";
-import { factValue, hasFacts } from "@/lib/placeFacts";
+import { factsDayHours, hasFacts } from "@/lib/placeFacts";
 import { nearestOpeningHours, type PlaceHours } from "@/lib/placeHours";
-import { factsHoursForDate, hoursForDate } from "@/lib/openingHours";
+import { hoursForDate } from "@/lib/openingHours";
 import { menuHref, reviewHref, reviewSiteFor } from "@/lib/reviewSite";
 import { placeTile } from "@/lib/tones";
 import type { NearbyGroup, NearbyItem } from "@/lib/nearby";
@@ -35,7 +35,7 @@ export function usePlaceHours(place: Place | undefined, date?: string): string |
     void nearestOpeningHours(place.lat, place.lng, place.name).then((h) => { if (!cancelled) setHours(h); });
     return () => { cancelled = true; };
   }, [place?.id, place?.lat, place?.lng]);
-  const fromFacts = place?.facts && date ? factsHoursForDate(factValue(place.facts, "hours"), factValue(place.facts, "closed"), date) : undefined;
+  const fromFacts = date ? factsDayHours(place?.facts, date) : undefined;
   if (fromFacts) return fromFacts;
   return hours ? (date ? hoursForDate(hours.hours, date) ?? "Closed" : hours.hours) : null;
 }

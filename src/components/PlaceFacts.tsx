@@ -6,7 +6,8 @@ import { Icon, type IconName } from "./Icon";
 import type { Tone } from "@/lib/tones";
 import { useReadOnly } from "@/lib/readonly";
 import { fmtDate } from "@/lib/dates";
-import { FAILURE_TEXT, editFact, factRows, factValue, kindOf, refreshFacts, useFactsFailure, wantsFacts, type FactKey } from "@/lib/placeFacts";
+import { FAILURE_TEXT, VARIES, editFact, factRows, factValue, kindOf, refreshFacts, useFactsFailure, wantsFacts, type FactKey } from "@/lib/placeFacts";
+import type { PlaceFacts } from "@/core/types";
 import { Editable } from "./Editable";
 import { ActionRow } from "./ActionRow";
 import { useData } from "@/lib/data";
@@ -40,7 +41,7 @@ export function PlaceFactRows({ place, links = true }: { place: Place; links?: b
   );
   // labelled for what the place is, even before its first lookup
   const rows = factRows(f ?? { checkedAt: "", kind: kindOf(place, data?.config.categoryIcons) === "sight" ? "sight" : undefined });
-  const filled = rows.filter(([k]) => factValue(f, k)).map(([k, label]) => ({ k, label, value: factValue(f, k)! }));
+  const filled = rows.filter(([k]) => factValue(f, k)).map(([k, label]) => ({ k, label, value: factValue(f, k)!, source: sourceOf(f, k) }));
   const missing = rows.filter(([k]) => !factValue(f, k));
   const edit = readOnly ? undefined : (k: FactKey) => (v: string) => editFact(place, k, v);
 
@@ -51,11 +52,11 @@ export function PlaceFactRows({ place, links = true }: { place: Place; links?: b
           // two short facts side by side, split by a hairline — the way a
           // Maps place card sets Hours beside what it accepts
           <li key={g[0].k} className={`${FACT_DIVIDER} grid grid-cols-2`}>
-            {g.map((c, i) => <FactCell key={c.k} k={c.k} label={c.label} value={c.value} kind={f?.kind} onEdit={edit?.(c.k)} className={i ? "border-l border-line" : ""} />)}
+            {g.map((c, i) => <FactCell key={c.k} k={c.k} label={c.label} source={c.source} value={c.value} kind={f?.kind} onEdit={edit?.(c.k)} className={i ? "border-l border-line" : ""} />)}
           </li>
         ) : (
           <li key={g[0].k} className={FACT_DIVIDER}>
-            <FactCell k={g[0].k} label={g[0].label} value={g[0].value} kind={f?.kind} onEdit={edit?.(g[0].k)} />
+            <FactCell k={g[0].k} label={g[0].label} source={g[0].source} value={g[0].value} kind={f?.kind} onEdit={edit?.(g[0].k)} />
           </li>
         ),
       )}
@@ -103,6 +104,16 @@ export function FactsRefresh({ place, area }: { place: Place; area?: string }) {
       <Icon name="refresh" size={14} className={busy ? "animate-spin" : ""} />
     </button>
   );
+}
+
+/** where a fact came from, as a word beside its label: typed in by hand,
+ *  OpenStreetMap's own tag, two web searches that agreed — or, for one
+ *  found before lookups were checked, not confirmed */
+function sourceOf(f: PlaceFacts | undefined, k: FactKey): string | undefined {
+  if (f?.edited && k in f.edited) return "Edited";
+  if (f?.from?.[k] === "osm") return "OpenStreetMap";
+  if (f?.from?.[k] === "web") return "Web";
+  return f?.checkedAt ? "Unconfirmed" : undefined;
 }
 
 /** a link out — Website, Menu — as Maps lists them: a tile, the label small,
@@ -164,9 +175,11 @@ const FACT_TILE: Record<string, { icon: IconName; tone?: Tone; danger?: boolean 
 
 /** one fact: its tile, the label small above, the value at reading size.
  *  A Closed day that's an actual closure ("Friday", not "None") reads red. */
-function FactCell({ k, label, value, kind, onEdit, autoEdit, className = "" }: {
+function FactCell({ k, label, source, value, kind, onEdit, autoEdit, className = "" }: {
   k: string;
   label: string;
+  /** where it came from, faint beside the label */
+  source?: string;
   value: string;
   kind?: string;
   /** set when the fact can be typed in by hand — tap the value to edit it */
@@ -177,12 +190,17 @@ function FactCell({ k, label, value, kind, onEdit, autoEdit, className = "" }: {
   const t = FACT_TILE[k] ?? { icon: "info" as IconName, tone: "ink-faint" as Tone };
   // a sight's reservations slot is Tickets
   const icon: IconName = k === "reservations" && kind === "sight" ? "ticket" : t.icon;
-  const shut = k === "closed" && !/^(none|no\b|open)/i.test(value.trim());
+  const varies = value === VARIES;
+  const shut = k === "closed" && !varies && !/^(none|no\b|open)/i.test(value.trim());
+  const tone = varies ? "text-ink-faint" : shut ? "text-danger" : "text-ink";
   return (
     <div className={`flex min-w-0 items-start gap-3 px-3.5 py-3 ${className}`}>
       <IconTile size="sm" name={icon} tone={t.tone} color={t.danger ? "rgb(var(--c-danger))" : undefined} className="mt-0.5 shrink-0" />
       <div className="min-w-0 flex-1">
-        <span className="block text-xs text-ink-soft">{label}</span>
+        <span className="block break-words text-xs text-ink-soft">
+          {label}
+          {source && <span className="text-ink-faint"> · {source}</span>}
+        </span>
         {onEdit ? (
           <Editable
             label={label}
@@ -191,10 +209,10 @@ function FactCell({ k, label, value, kind, onEdit, autoEdit, className = "" }: {
             autoEdit={autoEdit}
             onCommit={onEdit}
             format={fmtClocksIn}
-            className={`row-value block break-words text-left ${shut ? "text-danger" : "text-ink"}`}
+            className={`row-value block break-words text-left ${tone}`}
           />
         ) : (
-          <span className={`row-value block break-words text-left ${shut ? "text-danger" : "text-ink"}`}>{fmtClocksIn(value)}</span>
+          <span className={`row-value block break-words text-left ${tone}`}>{fmtClocksIn(value)}</span>
         )}
       </div>
     </div>

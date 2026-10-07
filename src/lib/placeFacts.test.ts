@@ -1,5 +1,5 @@
 import { afterEach, describe, it, expect, vi } from "vitest";
-import { editFact, factValue, placeArea, refreshFacts } from "./placeFacts";
+import { editFact, factValue, factsDayHours, osmFacts, placeArea, refreshFacts } from "./placeFacts";
 import { useApp } from "@/store/useApp";
 import { buildBlank } from "@/templates/blank";
 import type { Place, TripData } from "@/core/types";
@@ -110,5 +110,38 @@ describe("facts typed in by hand", () => {
     expect(await refreshFacts(p, undefined)).toBeNull();
     expect(p.facts!.hours).toBe("9:00–17:00");
     expect(factValue(p.facts, "hours")).toBe("10:00–18:00");
+  });
+});
+
+describe("hours from OpenStreetMap", () => {
+  it("reads the tag as Hours and Closed lines", () => {
+    expect(osmFacts("Mo-Fr 10:00-18:00; Sa 11:00-17:00", "2026-10-21")).toEqual({ hours: "Mon–Fri 10:00–18:00 · Sat 11:00–17:00", closed: "Sundays" });
+    expect(osmFacts("10:00-18:00", "2026-10-21")).toEqual({ hours: "Daily 10:00–18:00", closed: "None" });
+    expect(osmFacts("Tu-Su 09:00-17:00", "2026-10-21")).toEqual({ hours: "Tue–Sun 09:00–17:00", closed: "Mondays" });
+  });
+  it("shows a tag it can't read as it is, with no Closed line", () => {
+    expect(osmFacts("sunrise-sunset", "2026-10-21")).toEqual({ hours: "sunrise-sunset" });
+  });
+  it("reads the plan's day straight from the tag", () => {
+    const f = { checkedAt: "2026-10-08", osm: "Tu-Su 09:00-17:00", hours: "Tue–Sun 09:00–17:00" };
+    expect(factsDayHours(f, "2026-10-26")).toBe("Closed"); // a Monday
+    expect(factsDayHours(f, "2026-10-27")).toBe("09:00–17:00");
+    // unless the hours were typed in by hand
+    expect(factsDayHours({ ...f, edited: { hours: "10:00-16:00" } }, "2026-10-27")).toBe("10:00–16:00");
+  });
+});
+
+describe("a refresh", () => {
+  afterEach(() => vi.unstubAllGlobals());
+  it("keeps what it had for a fact the new lookup left blank", async () => {
+    const p = { ...place("cafe", 35, 135), name: "cafe", category: "coffee", facts: { checkedAt: "2026-09-01", name: "cafe", price: "¥800", queue: "Long", from: { price: "web", queue: "web" } } } as Place;
+    useApp.setState({ data: { ...trip(), places: [p] } as TripData, updateEntity: vi.fn((_t: string, _id: string, patch: Partial<Place>) => Object.assign(p, patch)) as never });
+    vi.stubGlobal("navigator", { onLine: true });
+    vi.stubGlobal("fetch", vi.fn(async (u: string) =>
+      String(u).includes("/api/place-facts")
+        ? new Response(JSON.stringify({ facts: { checkedAt: "2026-10-08", price: "¥900", reservations: "No" } }), { headers: { "Content-Type": "application/json" } })
+        : new Response("{}", { status: 500 })));
+    expect(await refreshFacts(p, undefined)).toBeNull();
+    expect(p.facts).toMatchObject({ price: "¥900", reservations: "No", queue: "Long", from: { price: "web", reservations: "web", queue: "web" } });
   });
 });

@@ -61,10 +61,134 @@ const ASKS: Record<FactKind, string> = {
   sight: "opening hours, closed days, whether tickets must be booked ahead, how crowded it gets and the best time to go, entry fee, what it's known for",
 };
 
-const question = (name: string, area: string | undefined, kind: FactKind) =>
-  `${name}${area ? `, ${area}` : ""}: ${ASKS[kind]}. ` +
-  `Use the most recent information. Reply exactly as lines ${FACT_KEYS.map((k) => `"${LABELS[kind][k]}: …"`).join(", ")}, ` +
+const reply = (kind: FactKind) =>
+  `Reply exactly as lines ${FACT_KEYS.map((k) => `"${LABELS[kind][k]}: …"`).join(", ")}, ` +
   `each under 15 words, "unknown" if not stated. Then "Website: …" with the place's own official website address, "unknown" if it has none.`;
+
+/** the same ask in two wordings — each finds its own pages, so two answers
+ *  that agree are two readings of the web, not one said twice */
+const QUESTIONS: ((name: string, area: string | undefined, kind: FactKind) => string)[] = [
+  (name, area, kind) => `${name}${area ? `, ${area}` : ""}: ${ASKS[kind]}. Use the most recent information. ${reply(kind)}`,
+  (name, area, kind) =>
+    `What should a visitor know about ${name}${area ? ` in ${area}` : ""} — ${ASKS[kind]}? Prefer its official website and recent reviews. ${reply(kind)}`,
+];
+
+/** shown in place of a fact the two searches answered differently */
+export const VARIES = "Varies by source";
+
+const STOP = new Set("the and for with from that this are its it's but not per about very more most some only also open".split(" "));
+/** the words that carry meaning, accents and case aside */
+const words = (s: string) =>
+  new Set(s.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().split(/[^\p{L}\p{N}]+/u).filter((w) => w.length >= 4 && !STOP.has(w)));
+
+/** the clock times in a phrase, as 24-hour "HH:MM" */
+function times(s: string): string[] {
+  const out = new Set<string>();
+  for (const m of s.matchAll(/\b(\d{1,2})(?::|\.|h)(\d{2})\s*(am|pm)?|\b(\d{1,2})\s*(am|pm)\b/gi)) {
+    let h = Number(m[1] ?? m[4]);
+    const min = m[2] ?? "00";
+    const ap = (m[3] ?? m[5])?.toLowerCase();
+    if (ap === "pm" && h < 12) h += 12;
+    if (ap === "am" && h === 12) h = 0;
+    if (h <= 24) out.add(`${String(h).padStart(2, "0")}:${min}`);
+  }
+  if (/\b24 ?(hours|hrs|h)\b|24\/7|around the clock/i.test(s)) out.add("24h");
+  return [...out].sort();
+}
+
+const DAY_NAMES = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+/** the weekdays a phrase names, ranges and "weekends" spelled out */
+function days(s: string): string[] {
+  const t = s.toLowerCase().replace(/\bweekdays?\b/g, "mon-fri").replace(/\bweekends?\b/g, "sat-sun");
+  const out = new Set<string>();
+  const re = /\b(mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?(?:\s*(?:-|–|to|through)\s*(mon|tue|wed|thu|fri|sat|sun)[a-z]*)?/g;
+  for (const m of t.matchAll(re)) {
+    const a = DAY_NAMES.indexOf(m[1]);
+    const b = m[2] ? DAY_NAMES.indexOf(m[2]) : a;
+    for (let i = a; ; i = (i + 1) % 7) {
+      out.add(DAY_NAMES[i]);
+      if (i === b) break;
+    }
+  }
+  return [...out].sort();
+}
+
+/** the amounts in a price, ignoring separators and currency */
+function amounts(s: string): number[] {
+  return [...s.replace(/(\d),(\d{3})/g, "$1$2").matchAll(/\d+(?:\.\d+)?/g)].map((m) => Number(m[0])).filter((n) => n > 0);
+}
+
+const same = (a: string[], b: string[]) => a.length === b.length && a.every((x, i) => x === b[i]);
+const shareWord = (a: string, b: string) => { const wb = words(b); return [...words(a)].some((w) => wb.has(w)); };
+
+/** what a reservations / queue answer comes down to */
+function stance(k: FactKey, s: string): string | undefined {
+  const t = s.toLowerCase();
+  if (k === "reservations") {
+    if (/\b(not (needed|required|necessary|accepted|taken)|no (reservations?|booking)|walk[- ]?in|first[- ]come|none)\b|^no\b/.test(t)) return "no";
+    if (/\b(recommend|advis|suggest)/.test(t)) return "recommended";
+    if (/\b(required|must|essential|necessary|only by|book(ed)? (ahead|in advance)|advance)\b/.test(t)) return "needed";
+    if (/^yes\b|\b(accepted|possible|available)\b/.test(t)) return "accepted";
+  }
+  if (k === "queue") {
+    if (/\b(no (queue|wait|line)|short|little|minimal|quiet|rarely|none)\b/.test(t)) return "light";
+    if (/\b(long|busy|crowded|packed|very|hour|heavy)\b/.test(t)) return "busy";
+    if (/\b(moderate|varies|some)\b/.test(t)) return "moderate";
+  }
+  return undefined;
+}
+
+const NONE = /\b(none|no (regular )?(closing|closed|holidays?|days?)|open (daily|every ?day|all year|year[- ]round|7 days)|never|irregular)\b/i;
+
+/** whether two answers for the same fact say the same thing — the same
+ *  times, days, prices or stance, however they're worded */
+export function agree(k: FactKey, a: string, b: string): boolean {
+  if (fold(a) === fold(b)) return true;
+  switch (k) {
+    case "hours": {
+      const [ta, tb] = [times(a), times(b)];
+      if (ta.length && tb.length) return same(ta, tb);
+      return false;
+    }
+    case "closed": {
+      const [na, nb] = [NONE.test(a) && !/irregular/i.test(a), NONE.test(b) && !/irregular/i.test(b)];
+      if (/irregular/i.test(a) && /irregular/i.test(b)) return true;
+      const [da, db] = [days(a), days(b)];
+      if (da.length && db.length) return same(da, db);
+      return na && nb;
+    }
+    case "price": {
+      const free = (s: string) => /\bfree\b/i.test(s);
+      if (free(a) || free(b)) return free(a) && free(b);
+      const [pa, pb] = [amounts(a), amounts(b)];
+      if (!pa.length || !pb.length) return false;
+      // ranges that overlap ("¥1,000–2,000" and "about ¥1,500")
+      return Math.min(...pa) <= Math.max(...pb) && Math.min(...pb) <= Math.max(...pa);
+    }
+    case "reservations":
+    case "queue": {
+      const [sa, sb] = [stance(k, a), stance(k, b)];
+      return sa && sb ? sa === sb : shareWord(a, b);
+    }
+    case "knownFor":
+      return shareWord(a, b);
+  }
+}
+
+/** the facts both answers give and agree on; the ones they answer
+ *  differently say so ("Known for" just drops out — two wordings of a
+ *  dish list aren't a contradiction worth showing) */
+export function agreed(a: Partial<Record<FactKey, string>>, b: Partial<Record<FactKey, string>>): Partial<Record<FactKey, string>> {
+  const out: Partial<Record<FactKey, string>> = {};
+  for (const k of FACT_KEYS) {
+    const [x, y] = [a[k], b[k]];
+    if (!x || !y) continue;
+    // in the first wording, so the same facts read the same each time
+    if (agree(k, x, y)) out[k] = x;
+    else if (k !== "knownFor") out[k] = VARIES;
+  }
+  return out;
+}
 
 /** the official website the summary names, as written */
 const summaryWebsite = (answer: string) => answer.match(/(?:official )?website\s*:\s*<?(https?:\/\/[^\s<>,;)]+)/i)?.[1];
@@ -151,24 +275,30 @@ function inArea(area: string, text: string): boolean {
 /** the place's facts, or null when search found nothing about it. Throws
  *  when it can't be asked (no key, the month's searches used up, offline). */
 export async function findFacts(name: string, area: string | undefined, key: string, fetchImpl: Fetch = fetch, today = new Date(), kind: FactKind = "food"): Promise<Facts | null> {
-  const res = await fetchImpl(TAVILY, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-    body: JSON.stringify({ query: question(name, area, kind), include_answer: "advanced", search_depth: "basic", max_results: 8 }),
-    signal: AbortSignal.timeout(20000),
-  });
-  if (!res.ok) throw new Error(`Search answered ${res.status}`);
-  const body = (await res.json()) as { answer?: string; results?: { url: string; title: string; content?: string }[] };
-  // the summary is only about our place if the pages it read are — named
-  // like it and, when we know its city, in that city: a name search can come
-  // back about a namesake somewhere else entirely
-  const about = (body.results ?? []).filter((r) => {
-    const text = `${r.title} ${r.content ?? ""} ${r.url}`;
-    return sameName(name, text) && (!area || inArea(area, text));
-  });
+  const search = async (query: string) => {
+    const res = await fetchImpl(TAVILY, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      body: JSON.stringify({ query, include_answer: "advanced", search_depth: "basic", max_results: 8 }),
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!res.ok) throw new Error(`Search answered ${res.status}`);
+    const body = (await res.json()) as { answer?: string; results?: { url: string; title: string; content?: string }[] };
+    // the summary is only about our place if the pages it read are — named
+    // like it and, when we know its city, in that city: a name search can
+    // come back about a namesake somewhere else entirely
+    const about = (body.results ?? []).filter((r) => {
+      const text = `${r.title} ${r.content ?? ""} ${r.url}`;
+      return sameName(name, text) && (!area || inArea(area, text));
+    });
+    return { answer: body.answer, about, facts: about.length && body.answer ? parseFacts(body.answer, kind) : {} };
+  };
+  const [one, two] = await Promise.all(QUESTIONS.map((q) => search(q(name, area, kind))));
+  const about = [...one.about, ...two.about];
   if (!about.length) return null;
-  const facts = body.answer ? parseFacts(body.answer, kind) : {};
-  const website = pickWebsite(name, area, about, body.answer && summaryWebsite(body.answer));
+  // a fact counts only when both searches found it and say the same thing
+  const facts = one.about.length && two.about.length ? agreed(one.facts, two.facts) : {};
+  const website = pickWebsite(name, area, about, (one.answer && summaryWebsite(one.answer)) || (two.answer && summaryWebsite(two.answer)) || undefined);
   if (!Object.keys(facts).length && !website) return null;
   const sources = [...new Set(about.map((r) => new URL(r.url).hostname.replace(/^www\./, "")))].slice(0, 3);
   return { ...facts, checkedAt: today.toISOString().slice(0, 10), sources, ...(website && { website }), ...(kind === "sight" && { kind }) };

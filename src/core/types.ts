@@ -367,6 +367,12 @@ export interface PlaceFacts {
   /** which version of the lookup found these — an older one is asked again
    *  (see `FACTS_VERSION` in `placeFacts.ts`) */
   version?: number;
+  /** where each fact came from: OpenStreetMap's own tags, or two web
+   *  searches that agreed */
+  from?: Partial<Record<"knownFor" | "hours" | "closed" | "reservations" | "queue" | "price", "osm" | "web">>;
+  /** OpenStreetMap's `opening_hours` as tagged — read day by day for the
+   *  plan, Hours and Closed are written from it */
+  osm?: string;
 }
 
 export interface Day {

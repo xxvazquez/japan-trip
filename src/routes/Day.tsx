@@ -51,7 +51,7 @@ import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { isFoodPlace, reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
-import { FACT_ROWS, factValue, notASight, placeArea, useAutoPlaceFacts, useFactsFailure, wantsFacts } from "@/lib/placeFacts";
+import { FACT_ROWS, factsDayHours, factValue, notASight, placeArea, useAutoPlaceFacts, useFactsFailure, wantsFacts } from "@/lib/placeFacts";
 import { FactsRefresh, PlaceFactRows } from "@/components/PlaceFacts";
 import { addDays, dayJourneys, dayKind, fmtDate, journeyDepartDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
@@ -65,7 +65,7 @@ import { MODE_ICON, MODE_LABEL, MODE_TONE } from "@/lib/transport";
 import { useWalk, estimateTransit } from "@/lib/walkRoute";
 import { nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
 import { cachedOpeningHours, nearestOpeningHours } from "@/lib/placeHours";
-import { factsHoursForDate, hoursConflict, hoursForDate } from "@/lib/openingHours";
+import { hoursConflict, hoursForDate } from "@/lib/openingHours";
 import { NEARBY_WALK_MIN, nearbyForDay, type NearbyGroup, type NearbyItem } from "@/lib/nearby";
 import { NearbyCard, NearbyGroupRows, NearbyProvider, NearbyRow, usePlaceHours, useStepNearby } from "@/components/Nearby";
 import { fetchDayWeather, weatherLabel, type DayWeather } from "@/lib/weather";
@@ -455,7 +455,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       const hoursOf = async (placeId?: string) => {
         const p = placeId ? data.places.find((x) => x.id === placeId) : undefined;
         if (!p) return undefined;
-        const facts = p.facts && factsHoursForDate(factValue(p.facts, "hours"), factValue(p.facts, "closed"), day.date);
+        const facts = factsDayHours(p.facts, day.date);
         if (facts) return facts;
         const osm = await Promise.race([
           nearestOpeningHours(p.lat, p.lng, p.name).catch(() => null),
@@ -859,7 +859,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
 /** what's already known of a place's hours on `date`, without asking:
  *  its Good to know lines, else a cached OpenStreetMap answer */
 function nearbyHours(p: Place, date: string): string | undefined {
-  const fromFacts = p.facts ? factsHoursForDate(factValue(p.facts, "hours"), factValue(p.facts, "closed"), date) : undefined;
+  const fromFacts = factsDayHours(p.facts, date);
   if (fromFacts) return fromFacts;
   const cached = cachedOpeningHours(p.lat, p.lng, p.name);
   return cached ? hoursForDate(cached.hours, date) ?? "Closed" : undefined;

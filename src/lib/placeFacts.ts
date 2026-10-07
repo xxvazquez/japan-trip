@@ -7,6 +7,8 @@ import { glyphForCategoryName, glyphGroup } from "./mapGlyphs";
 import { haversineKm } from "./geo";
 import { apiGet } from "./api";
 import { osmLinks } from "./placeWebsite";
+import { nearestOpeningHours } from "./placeHours";
+import { factsHoursForDate, hoursForDate } from "./openingHours";
 import { dayTripCities, placeCityMap, placeLegMap, type TripCity } from "./cityAssign";
 
 /** the facts in the order they're shown, with their labels */
@@ -63,12 +65,57 @@ const STALE_DAYS = 30;
 
 /** bumped when the lookup learns something new, so places checked before
  *  are asked again — 4 added the place's website, 5 the one the summary
- *  names as official (asked again only by places still without one) */
-const FACTS_VERSION = 5;
+ *  names as official, 6 hours from OpenStreetMap and only what two
+ *  searches agree on */
+const FACTS_VERSION = 6;
 
 export const hasFacts = (f: PlaceFacts | undefined): f is PlaceFacts => !!f && (!!f.website || !!f.menu || FACT_ROWS.some(([k]) => factValue(f, k)));
 const stale = (f: PlaceFacts) =>
-  (f.version ?? 1) < (f.website ? 4 : FACTS_VERSION) || Date.now() - Date.parse(f.checkedAt) > STALE_DAYS * 864e5;
+  (f.version ?? 1) < FACTS_VERSION || Date.now() - Date.parse(f.checkedAt) > STALE_DAYS * 864e5;
+
+const DAY_SHORT = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DAY_LONG = ["Mondays", "Tuesdays", "Wednesdays", "Thursdays", "Fridays", "Saturdays", "Sundays"];
+
+/** OpenStreetMap's `opening_hours` as Good to know's Hours and Closed lines,
+ *  read for the week of `ref` (the trip's own, so a seasonal rule applies as
+ *  it will then): "Mon–Fri 10:00–18:00 · Sat 11:00–17:00", "Mondays". A tag
+ *  that can't be read day by day is shown as tagged, with no Closed line. */
+export function osmFacts(raw: string, ref: string): { hours: string; closed?: string } {
+  const pretty = (v: string) => v.replace(/(\d)-(\d)/g, "$1–$2").replace(/\s*,\s*/g, ", ");
+  const base = new Date(`${ref}T00:00:00Z`);
+  const monday = new Date(base.getTime() - ((base.getUTCDay() + 6) % 7) * 864e5);
+  const week = DAY_SHORT.map((_, i) => hoursForDate(raw, new Date(monday.getTime() + i * 864e5).toISOString().slice(0, 10)));
+  // a tag it can't read comes back as it is
+  if (week.some((v) => v === raw && /[a-z;]/i.test(raw))) return { hours: pretty(raw) };
+  // runs of days with the same hours
+  const runs: { from: number; to: number; v: string | null }[] = [];
+  week.forEach((v, i) => {
+    const last = runs[runs.length - 1];
+    if (last && last.v === v) last.to = i;
+    else runs.push({ from: i, to: i, v });
+  });
+  const span = (r: { from: number; to: number }) => (r.from === r.to ? DAY_SHORT[r.from] : `${DAY_SHORT[r.from]}–${DAY_SHORT[r.to]}`);
+  const open = runs.filter((r) => r.v);
+  const shut = runs.filter((r) => !r.v);
+  const hours = open.length === 1 && open[0].from === 0 && open[0].to === 6 ? `Daily ${pretty(open[0].v!)}` : open.map((r) => `${span(r)} ${pretty(r.v!)}`).join(" · ");
+  const closed = !shut.length ? "None" : shut.length === 1 && shut[0].from === shut[0].to ? DAY_LONG[shut[0].from] : shut.map(span).join(", ");
+  return { hours: hours || "Closed all week", closed };
+}
+
+/** a place's hours on `iso` from its Good to know: OpenStreetMap's tag read
+ *  for that day when the hours came from it, else the looked-up or typed
+ *  phrases — "Closed", the hours, or undefined when it can't be told */
+export function factsDayHours(f: PlaceFacts | undefined, iso: string): string | undefined {
+  if (!f) return undefined;
+  const typed = f.edited && ("hours" in f.edited || "closed" in f.edited);
+  if (f.osm && !typed) return hoursForDate(f.osm, iso) ?? "Closed";
+  const hours = factValue(f, "hours");
+  return factsHoursForDate(hours === VARIES ? undefined : hours, factValue(f, "closed") === VARIES ? undefined : factValue(f, "closed"), iso);
+}
+
+/** shown in place of a fact two searches answered differently (the
+ *  server's own word for it) */
+export const VARIES = "Varies by source";
 
 /** past this from the stay's hotel, a place is a day trip out of that city
  *  (Osaka from a Kyoto stay), not in it */
@@ -167,10 +214,26 @@ async function ask(p: Place, area: string | undefined, kind: "food" | "sight"): 
     if (!res.ok || !res.headers.get("Content-Type")?.includes("json")) return "search";
     const facts = ((await res.json()) as { facts?: PlaceFacts | null }).facts;
     if (facts === undefined) return "search";
-    // OSM's own tag at the pin beats a site picked out of the search's pages
-    const { website, menu } = await osmLinks(p.lat, p.lng, p.name).catch(() => ({ website: undefined, menu: undefined }));
-    if (!website && !menu) return facts;
-    return { ...(facts ?? { checkedAt: todayISO() }), ...(website && { website }), ...(menu && { menu }) };
+    // OSM's own tags at the pin beat what was read off the web: its website
+    // and menu over a site picked out of the search's pages, its opening
+    // hours over the searches' — a tag says the same thing every time
+    const [{ website, menu }, osm] = await Promise.all([
+      osmLinks(p.lat, p.lng, p.name).catch(() => ({ website: undefined, menu: undefined })),
+      nearestOpeningHours(p.lat, p.lng, p.name).catch(() => null),
+    ]);
+    const from: PlaceFacts["from"] = {};
+    for (const [k] of FACT_ROWS) if (facts?.[k]) from[k] = "web";
+    const out: PlaceFacts = { ...(facts ?? { checkedAt: todayISO() }), ...(website && { website }), ...(menu && { menu }) };
+    if (osm) {
+      const ref = useApp.getState().data?.meta.start || todayISO();
+      const read = osmFacts(osm.hours, ref);
+      out.osm = osm.hours;
+      out.hours = read.hours;
+      from.hours = "osm";
+      if (read.closed) { out.closed = read.closed; from.closed = "osm"; }
+    }
+    if (!facts && !website && !menu && !osm) return null;
+    return { ...out, from };
   } catch {
     return "search";
   }
@@ -206,9 +269,21 @@ export async function refreshFacts(p: Place, area: string | undefined): Promise<
   if (now.name !== p.name) return null;
   // what it had is only worth keeping if it was asked the same way
   const kept = now.facts?.name === p.name && (now.facts.kind ?? "food") === kind ? now.facts : undefined;
+  // a fact this lookup didn't settle keeps what it had, so a refresh never
+  // wipes an answer just because this time the search came back blank
+  const merged: PlaceFacts | undefined = found ? { ...found, from: { ...found.from } } : undefined;
+  if (merged && kept) {
+    for (const [k] of FACT_ROWS) {
+      if (merged[k] || !kept[k]) continue;
+      merged[k] = kept[k];
+      if (kept.from?.[k]) merged.from![k] = kept.from[k];
+    }
+    // hours kept from OpenStreetMap keep reading day by day
+    if (!found!.osm && kept.osm && merged.from?.hours === "osm") merged.osm = kept.osm;
+  }
   updateEntity<Place>("places", p.id, {
     facts: {
-      ...(found ?? { ...kept, checkedAt: todayISO() }),
+      ...(merged ?? { ...kept, checkedAt: todayISO() }),
       name: p.name,
       kind: kind === "sight" ? kind : undefined,
       version: FACTS_VERSION,

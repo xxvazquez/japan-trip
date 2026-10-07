@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { findFacts, handlePlaceFacts, parseFacts, pickWebsite } from "./placeFacts";
+import { agree, agreed, findFacts, handlePlaceFacts, parseFacts, pickWebsite, VARIES } from "./placeFacts";
 
 describe("parseFacts", () => {
   it("reads one fact per line", () => {
@@ -121,5 +121,51 @@ describe("handlePlaceFacts", () => {
   it("needs a name and a key", async () => {
     expect((await handlePlaceFacts(new URL("https://x/api/place-facts"), "key")).status).toBe(400);
     expect((await handlePlaceFacts(new URL("https://x/api/place-facts?name=a"), undefined)).status).toBe(503);
+  });
+});
+
+describe("agree", () => {
+  it("matches the same hours however they're written", () => {
+    expect(agree("hours", "10:00-18:00", "10am to 6pm daily")).toBe(true);
+    expect(agree("hours", "10:00-18:00", "9:00-17:00")).toBe(false);
+  });
+  it("matches closed days by the days named", () => {
+    expect(agree("closed", "Mondays", "Closed on Monday")).toBe(true);
+    expect(agree("closed", "Tue-Thu", "Tuesday, Wednesday and Thursday")).toBe(true);
+    expect(agree("closed", "Mondays", "Wednesdays")).toBe(false);
+    expect(agree("closed", "None", "Open every day")).toBe(true);
+  });
+  it("matches prices that overlap", () => {
+    expect(agree("price", "¥1,000–¥2,000", "about ¥1,500 per person")).toBe(true);
+    expect(agree("price", "¥1,000", "¥3,000–¥4,000")).toBe(false);
+    expect(agree("price", "Free", "Free entry")).toBe(true);
+  });
+  it("matches what a reservation or queue answer comes down to", () => {
+    expect(agree("reservations", "Not needed", "No reservations, walk-in only")).toBe(true);
+    expect(agree("reservations", "Required", "Not accepted")).toBe(false);
+    expect(agree("queue", "Long, up to an hour", "Very busy at lunch")).toBe(true);
+  });
+});
+
+describe("agreed", () => {
+  it("keeps what both say, flags what they don't, drops what one lacks", () => {
+    expect(agreed(
+      { hours: "11:00-21:00", closed: "Mondays", price: "¥1,000", knownFor: "tonkatsu" },
+      { hours: "11am-9pm", closed: "Tuesdays", queue: "Long" },
+    )).toEqual({ hours: "11:00-21:00", closed: VARIES });
+  });
+});
+
+describe("findFacts asks twice", () => {
+  it("keeps only what both searches agree on", async () => {
+    const answers = ["Hours: 10:00-18:00\nPrice: ¥800\nQueue: short", "Hours: 10am-6pm\nPrice: ¥2,000\nReservations: No"];
+    let n = 0;
+    const res = async () => new Response(JSON.stringify({ answer: answers[n++], results: [{ url: "https://a.com/x", title: "Cafe Kitsune Kyoto", content: "" }] }));
+    expect(await findFacts("Cafe Kitsune", "Kyoto", "key", res, new Date("2026-10-08T00:00:00Z"))).toEqual({
+      hours: "10:00-18:00",
+      price: VARIES,
+      checkedAt: "2026-10-08",
+      sources: ["a.com"],
+    });
   });
 });
