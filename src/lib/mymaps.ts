@@ -31,7 +31,9 @@ export function kmlUrl(mid: string): string {
 export async function fetchMyMap(url: string): Promise<MyMapImport> {
   const mid = myMapId(url);
   if (!mid) throw new Error("That doesn’t look like a Google My Maps link (no mid=).");
-  const res = await fetch(kmlUrl(mid));
+  // a sync is a tap asking for the map as it is now: never a copy kept by
+  // the browser or along the way, or a pin just added wouldn't come in
+  const res = await fetch(`${kmlUrl(mid)}&_=${Date.now()}`, { cache: "no-store" });
   if (!res.ok) throw new Error(`Couldn’t fetch the map (${res.status}). Is it public?`);
   return parseKml(await res.text());
 }
