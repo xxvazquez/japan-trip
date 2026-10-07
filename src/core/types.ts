@@ -394,6 +394,12 @@ export interface Day {
   /** when you leave the hotel ("HH:MM", 24-hour) — the time on the plan's
    *  first row. Absent until set. */
   leaveAt?: string;
+  /** when you get up ("HH:MM", 24-hour) — the plan's Wake up row, above the
+   *  hotel. Absent until set. */
+  wakeAt?: string;
+  /** when you have breakfast ("HH:MM", 24-hour) — the plan's Breakfast row,
+   *  under Wake up. Absent until set. */
+  breakfastAt?: string;
   /** what you spent on the day — one row per amount (a museum, lunch, a taxi).
    *  Each row picks an `ExpenseCategory`; the amount rolls up under it in the
    *  Expenses view. */

@@ -273,10 +273,15 @@ What to expect:
 - It can be out of date — check hours with the place before a long trip across town.
 - Needs `TAVILY_API_KEY` (see [Environment variables](#environment-envlocal)).
 
+**Wake up and Breakfast.** Every day opens with these two rows, above the hotel you leave from.
+
+- Each has its own time on the same wheel as a step's (needs migration `0041`). The wheel starts at 07:00 for Wake up, and at the wake-up time (else 07:30) for Breakfast.
+- They sit in time order with any step timed before you leave, and always under Morning.
+
 **From the hotel.** The day starts from the hotel you slept at the night before, so a moving day starts from the old one. Left off on the trip's first day and on an arrival day. The way to the next step sits under it.
 
 - Its time (when you leave) is set on the same wheel as a step's (needs migration `0040`), and falls under Morning / Afternoon like any step.
-- It sits where that time puts it: a step timed earlier (getting up, breakfast in the room) comes above it. With no time set, it opens the day.
+- It sits where that time puts it: a step timed earlier comes above it. With no time set, it opens the day.
 - The wheel starts at a suggestion: the first step's time less the way there (the walk, or the train past a 30-minute walk), rounded down to 5 minutes.
 - Tapping the name opens the hotel.
 
@@ -705,7 +710,7 @@ edit in the UI  →  TripData (in memory)  →  backend
 ### Setting up a project
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0040`).
+2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0041`).
    - `0033` moves old day-trip text (getting there / back, last way back) into each day's notes — take a backup first.
    - `0035` drops the retired day columns. On an existing project, run it only once the build with it is live — an older build still writes `journey_id`, and its day saves would fail.
 3. **Authentication → Providers → Google** — enable it with a Google Cloud OAuth client id and secret. Redirect: `https://<project-ref>.supabase.co/auth/v1/callback`.

@@ -61,6 +61,7 @@ export function toneForGlyph(glyph: MapGlyphId | string | undefined): Tone {
       return "matcha";
     case "coffee":
     case "food":
+    case "breakfast":
     case "drink":
     case "bath":
       return "gold";

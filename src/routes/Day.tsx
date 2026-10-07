@@ -41,7 +41,7 @@ import { IconTile } from "@/components/IconTile";
 import { TitleLineTile } from "@/components/TileRow";
 import { useSplit } from "@/components/SplitMap";
 import { AREA_TONES, glyphForStepText, placeTile, toneForGlyph, toneForPlaceCategory } from "@/lib/tones";
-import { glyphForCategoryName } from "@/lib/mapGlyphs";
+import { glyphForCategoryName, type MapGlyphId } from "@/lib/mapGlyphs";
 import { areaLeg } from "@/lib/cityAssign";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { DayStepper } from "@/components/DayStepper";
@@ -587,7 +587,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             </span>
           )}
         >
-          <PlanList day={day} journeys={journeys} startHotel={startHotel} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} morePlaces={morePlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} fresh={freshStep} onAdd={addStep} onChange={setPlan} onBackAt={(t) => patch({ backAt: t })} onLeaveAt={(t) => patch({ leaveAt: t })} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
+          <PlanList day={day} journeys={journeys} startHotel={startHotel} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} morePlaces={morePlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} fresh={freshStep} onAdd={addStep} onChange={setPlan} onBackAt={(t) => patch({ backAt: t })} onLeaveAt={(t) => patch({ leaveAt: t })} onWakeAt={(t) => patch({ wakeAt: t })} onBreakfastAt={(t) => patch({ breakfastAt: t })} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
         </Section>
       )}
 
@@ -853,7 +853,7 @@ function DayJourneyRow({ day, journey, data, onRemove }: { day: DayT; journey: J
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedItems, places, areaPlaces, morePlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, fresh, onAdd, onChange, onBackAt, onLeaveAt, onQuickAddCost, onShowOnMap }: {
+function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedItems, places, areaPlaces, morePlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, fresh, onAdd, onChange, onBackAt, onLeaveAt, onWakeAt, onBreakfastAt, onQuickAddCost, onShowOnMap }: {
   day: DayT;
   /** the day's journeys — their leave / arrive times show as rows of their own */
   journeys: Journey[];
@@ -879,6 +879,8 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   onBackAt: (time: string | undefined) => void;
   /** sets when you leave the hotel (that row's time) */
   onLeaveAt: (time: string | undefined) => void;
+  onWakeAt: (time: string | undefined) => void;
+  onBreakfastAt: (time: string | undefined) => void;
   onQuickAddCost: (item: PlanItem) => void;
   onShowOnMap: (place: Place) => void;
 }) {
@@ -994,7 +996,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   // the plan in order, each entry with the time it starts at: a journey's
   // own rows, and each step with the way on to the next just under it — a
   // stop and its travel are one chunk, never split by a part-of-day label
-  const entries: { time?: string; nodes: React.ReactNode[]; item?: number; hotel?: boolean }[] = [];
+  const entries: { time?: string; nodes: React.ReactNode[]; item?: number; hotel?: boolean; morning?: boolean }[] = [];
   // each step's own entry, so the way back to the hotel can hang off it
   const itemEntries: (typeof entries)[number][] = [];
   const pushStops = (sts: typeof stops) => {
@@ -1034,7 +1036,28 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
     });
     pushStops(after);
   };
+  // Wake up and Breakfast open every day, above the hotel you leave from:
+  // in time order among the steps before it, an untimed one first
+  const clock = (t?: string) => (t && /^\d{1,2}:\d{2}$/.test(t) ? t.padStart(5, "0") : undefined);
+  const morning = [
+    { key: "wake", label: "Wake up", glyph: "sunrise" as MapGlyphId, time: day.wakeAt, timeStart: "07:00", onTime: onWakeAt },
+    { key: "breakfast", label: "Breakfast", glyph: "breakfast" as MapGlyphId, time: day.breakfastAt, timeStart: clock(day.wakeAt) ?? "07:30", onTime: onBreakfastAt },
+  ];
+  const pushMorning = (before?: string) => {
+    while (morning.length) {
+      const m = morning[0];
+      const at = clock(m.time);
+      if (before && at && at > before) return;
+      morning.shift();
+      entries.push({
+        time: m.time,
+        morning: true,
+        nodes: [<MorningRow key={m.key} label={m.label} glyph={m.glyph} time={m.time} timeStart={m.timeStart} readOnly={readOnly} onTime={m.onTime} />],
+      });
+    }
+  };
   const pushLeave = () => {
+    pushMorning();
     if (!startHotel) return;
     entries.push({
       time: day.leaveAt,
@@ -1055,6 +1078,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   };
   items.forEach((it, i) => {
     if (i === leaveIdx) pushLeave();
+    else if (!startHotel || i < leaveIdx) pushMorning(clock(splitRange(it.time)?.[0] ?? it.time) ?? "");
     pushSlot(i);
     entries.push(itemEntries[i] = {
       item: i,
@@ -1086,6 +1110,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
     });
   });
   if (leaveIdx === items.length) pushLeave();
+  pushMorning();
   pushSlot(items.length);
 
   // Morning / Afternoon / Evening, as Reminders splits its Today list: a
@@ -1098,6 +1123,8 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   // leaving is part of it
   const leaveEntry = entries.findIndex((e) => e.hotel);
   if (leaveEntry >= 0 && !parts[leaveEntry]) parts[leaveEntry] = parts.find(Boolean);
+  // getting up and breakfast are the morning, whatever the clock says
+  entries.forEach((e, i) => { if (e.morning && !parts[i]) parts[i] = "morning"; });
   const multiPart = new Set(parts.filter(Boolean)).size > 1;
   // bands only ever move forward through the day — a row that sits out of
   // time order stays under the band it sits in, never opens an earlier one
@@ -2020,6 +2047,28 @@ function StartFromHotel({ hotel, to, firstTime, time, readOnly, onTime }: {
         <Link to={`/hotel/${hotel.id}`} className={`${STOP_TITLE} active:opacity-60`}>
           From {hotel.name || "your stay"}
         </Link>
+      </TimelineStop>
+    </li>
+  );
+}
+
+/** Wake up / Breakfast — fixed rows that open every day, each with its own
+ *  time on the same wheel as a step's */
+function MorningRow({ label, glyph, time, timeStart, readOnly, onTime }: {
+  label: string;
+  glyph: MapGlyphId;
+  time?: string;
+  timeStart?: string;
+  readOnly: boolean;
+  onTime: (time: string | undefined) => void;
+}) {
+  return (
+    <li>
+      <TimelineStop
+        tile={<IconTile size="sm" glyph={glyph} tone={toneForGlyph(glyph)} />}
+        time={<HotelRowTime label={label} time={time} timeStart={timeStart} readOnly={readOnly} onTime={onTime} />}
+      >
+        <span className={STOP_TITLE}>{label}</span>
       </TimelineStop>
     </li>
   );
