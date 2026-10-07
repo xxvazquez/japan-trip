@@ -69,3 +69,12 @@ describe("factsHoursForDate", () => {
     expect(factsHoursForDate("9:00–17:00 (Apr–Oct), 9:00–16:30 (Nov–Mar)", undefined, "2026-10-19")).toBeUndefined();
   });
 });
+
+describe("factsHoursForDate, with the dashes web summaries write", () => {
+  // 2026-10-26 is a Monday
+  it("reads a non-breaking hyphen like a plain one", () => {
+    expect(factsHoursForDate("10:00‑18:00", "Tuesdays", "2026-10-26")).toBe("10:00–18:00");
+    expect(factsHoursForDate("Mon‑Fri 10:00‑18:00", undefined, "2026-10-26")).toBe("10:00–18:00");
+    expect(factsHoursForDate("10am‑6pm daily", "Mon", "2026-10-26")).toBe("Closed");
+  });
+});

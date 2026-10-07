@@ -169,3 +169,28 @@ describe("findFacts asks twice", () => {
     });
   });
 });
+
+describe("agree, on answers the searches really gave", () => {
+  it("Ichiran Shibuya", () => {
+    expect(agree("closed", "Open year‑round; no regular closed days", "Open 365 days (no closed days)")).toBe(true);
+    expect(agree("hours", "Open 24 hours (24 / 7)", "Open 24 hours")).toBe(true);
+    expect(agree("price", "≈¥1,500‑¥2,000 per person; basic ramen ¥1,080", "Basic ramen ¥1,080 (10 % surcharge 22:00‑06:00)")).toBe(true);
+    expect(agree("queue", "40‑80 min peak, 10‑15 min off‑peak", "Can be long line‑ups; wait may be notable")).toBe(true);
+  });
+  it("Sensō-ji", () => {
+    expect(agree("hours", "Main Hall 6:00‑5:00 PM (6:30 AM Oct‑Mar); grounds open 24 h", "Grounds 24 h; main hall 6 am‑5 pm")).toBe(true);
+    expect(agree("reservations", "No tickets needed; free entry", "no tickets required")).toBe(true);
+    expect(agree("queue", "Busy weekends/festivals; peak 10:30‑3 PM", "Very crowded during Golden Week; less crowded in fall/winter")).toBe(true);
+  });
+  it("still tells real differences apart", () => {
+    expect(agree("hours", "10:00-18:00", "10:00-20:00")).toBe(false);
+    expect(agree("queue", "Up to 90 min", "Rarely a wait, under 10 min")).toBe(false);
+  });
+});
+
+describe("agree, more real phrasings", () => {
+  it("reads 'no advance booking' and free entry as not needed", () => {
+    expect(agree("reservations", "free entry, no advance booking mentioned", "Free entry; no advance booking required")).toBe(true);
+    expect(agree("reservations", "No tickets needed; free entry", "Free admission, just walk in")).toBe(true);
+  });
+});

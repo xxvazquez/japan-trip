@@ -115,7 +115,8 @@ function days(s: string): string[] {
 
 /** the amounts in a price, ignoring separators and currency */
 function amounts(s: string): number[] {
-  return [...s.replace(/(\d),(\d{3})/g, "$1$2").matchAll(/\d+(?:\.\d+)?/g)].map((m) => Number(m[0])).filter((n) => n > 0);
+  const t = s.replace(/\b\d{1,2}:\d{2}\b/g, " ").replace(/\d+(?:\.\d+)?\s*%/g, " ").replace(/(\d),(\d{3})/g, "$1$2");
+  return [...t.matchAll(/\d+(?:\.\d+)?/g)].map((m) => Number(m[0])).filter((n) => n > 0);
 }
 
 const same = (a: string[], b: string[]) => a.length === b.length && a.every((x, i) => x === b[i]);
@@ -125,12 +126,16 @@ const shareWord = (a: string, b: string) => { const wb = words(b); return [...wo
 function stance(k: FactKey, s: string): string | undefined {
   const t = s.toLowerCase();
   if (k === "reservations") {
-    if (/\b(not (needed|required|necessary|accepted|taken)|no (reservations?|booking)|walk[- ]?in|first[- ]come|none)\b|^no\b/.test(t)) return "no";
+    if (/\b(not (needed|required|necessary|accepted|taken)|no (\w+ )?(reservations?|booking|tickets?)|walk[- ]?in|first[- ]come|none)\b|^no\b|\bfree (entry|admission)\b/.test(t)) return "no";
     if (/\b(recommend|advis|suggest)/.test(t)) return "recommended";
     if (/\b(required|must|essential|necessary|only by|book(ed)? (ahead|in advance)|advance)\b/.test(t)) return "needed";
     if (/^yes\b|\b(accepted|possible|available)\b/.test(t)) return "accepted";
   }
   if (k === "queue") {
+    // a wait given in minutes says it on its own
+    const mins = [...t.matchAll(/(\d+)\s*(?:-\s*(\d+)\s*)?min/g)].map((m) => Number(m[2] ?? m[1]));
+    if (mins.length) return Math.max(...mins) >= 30 ? "busy" : Math.max(...mins) <= 10 ? "light" : "moderate";
+    if (/\bline-?ups?\b|\bqueues? (form|build)/.test(t) && !/\b(no|short|little)\b/.test(t)) return "busy";
     if (/\b(no (queue|wait|line)|short|little|minimal|quiet|rarely|none)\b/.test(t)) return "light";
     if (/\b(long|busy|crowded|packed|very|hour|heavy)\b/.test(t)) return "busy";
     if (/\b(moderate|varies|some)\b/.test(t)) return "moderate";
@@ -138,17 +143,23 @@ function stance(k: FactKey, s: string): string | undefined {
   return undefined;
 }
 
-const NONE = /\b(none|no (regular )?(closing|closed|holidays?|days?)|open (daily|every ?day|all year|year[- ]round|7 days)|never|irregular)\b/i;
+const NONE = /\b(none|no (regular )?(closing|closed|holidays?|days?)|open (daily|every ?day|all year|year[- ]round|7 days|365 days)|365 days|year[- ]round|never|irregular)\b/i;
 
 /** whether two answers for the same fact say the same thing — the same
  *  times, days, prices or stance, however they're worded */
 export function agree(k: FactKey, a: string, b: string): boolean {
+  // summaries write every kind of dash and space ("year‑round", "6:00‑17:00")
+  const plain = (s: string) => s.replace(/[\u2010-\u2015\u2212\uFE63\uFF0D]/g, "-").replace(/[\u00a0\u202f]/g, " ");
+  [a, b] = [plain(a), plain(b)];
   if (fold(a) === fold(b)) return true;
   switch (k) {
     case "hours": {
       const [ta, tb] = [times(a), times(b)];
-      if (ta.length && tb.length) return same(ta, tb);
-      return false;
+      // one answer may leave out a season or a second session the other
+      // gives; the times it does give must all be in the other
+      if (!ta.length || !tb.length) return false;
+      const [small, big] = ta.length <= tb.length ? [ta, tb] : [tb, ta];
+      return small.every((x) => big.includes(x));
     }
     case "closed": {
       const [na, nb] = [NONE.test(a) && !/irregular/i.test(a), NONE.test(b) && !/irregular/i.test(b)];

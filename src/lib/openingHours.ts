@@ -196,6 +196,10 @@ function closedOn(text: string, weekday: number): boolean | undefined {
  *  that weekday, else the hours that apply that day. Undefined when the
  *  phrases can't be read reliably — never a guess. */
 export function factsHoursForDate(hours: string | undefined, closed: string | undefined, iso: string): string | undefined {
+  // web summaries write every kind of dash and space ("10:00‑18:00" with a
+  // non-breaking hyphen): one plain hyphen, or nothing below would read them
+  const plain = (s?: string) => s?.replace(/[\u2010-\u2012\u2212\uFE63\uFF0D]/g, "-").replace(/[\u00a0\u202f]/g, " ");
+  [hours, closed] = [plain(hours), plain(closed)];
   const parts = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
   if (!parts) return undefined;
   const weekday = (new Date(Date.UTC(+parts[1], +parts[2] - 1, +parts[3])).getUTCDay() + 6) % 7;
