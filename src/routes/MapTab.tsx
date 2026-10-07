@@ -763,6 +763,8 @@ export default function MapTab() {
 
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  // pins on the My Map that sync keeps out, because they were removed here
+  const [hiddenOnMap, setHiddenOnMap] = useState(0);
   /** layers the last sync found with no category chosen yet */
   const [newLayers, setNewLayers] = useState<string[]>([]);
 
@@ -1277,6 +1279,7 @@ export default function MapTab() {
     if (!url) return;
     setBusy(true);
     setMsg("");
+    setHiddenOnMap(0);
     setNewLayers([]);
     try {
       const r = await syncMyMap(url);
@@ -1284,6 +1287,7 @@ export default function MapTab() {
       const pins = (n: number) => `${n} pin${n === 1 ? "" : "s"}`;
       const bits = [r.count > 0 && `added ${pins(r.count)}`, r.updated > 0 && `updated ${pins(r.updated)}`, r.removed > 0 && `removed ${pins(r.removed)} deleted there`].filter(Boolean);
       setMsg(bits.length ? `“${r.mapName}”: ${bits.join(", ")}.` : `“${r.mapName}” is up to date.`);
+      setHiddenOnMap(r.hidden);
     } catch (e) {
       setMsg(e instanceof Error ? e.message : "Sync failed.");
     } finally {
@@ -1839,6 +1843,14 @@ export default function MapTab() {
           </p>
           <p>{imported > 0 ? `${plural(imported, "pin")} from Google My Maps` : "No pins from Google My Maps"}</p>
           {msg && <p className="mt-1 text-accent">{msg}</p>}
+          {/* a pin removed here and added to the My Map again stays out —
+              say so, or "up to date" reads as the sync not working */}
+          {msg && hiddenOnMap > 0 && (
+            <p className="mt-1 break-words">
+              {hiddenOnMap === 1 ? "1 pin on the map stays hidden" : `${hiddenOnMap} pins on the map stay hidden`}, removed here before —{" "}
+              <Link to="/manage/content" className="text-accent">show them again</Link>
+            </p>
+          )}
           {newLayers.length > 0 && (
             <p className="mt-1 break-words">
               {newLayers.length === 1 ? "New layer" : "New layers"} {newLayers.map((l) => `“${l}”`).join(", ")} —{" "}

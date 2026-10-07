@@ -390,6 +390,7 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 - **Renaming a pin in My Maps** counts as delete + add: the old one (with its notes) goes, the new one comes in.
 - **Remove place** on a My Maps pin hides it from every sync, even though it's still on the My Map (the app can't edit the map itself). **Undo** brings it straight back.
 - **Hidden pins** (**Manage → Content → My Maps layers**) lists them; tap one to show it again. A hidden pin you then delete from the My Map drops off the list, so adding it there again brings it back.
+- **Sync says when it keeps one out** — *N pins on the map stay hidden, removed here before — show them again*. Adding a pin you'd removed here back to the My Map doesn't bring it back on its own; this is the way.
 - **The foot of the list** shows when it last synced and how many pins came from My Maps.
 
 ## Areas and categories

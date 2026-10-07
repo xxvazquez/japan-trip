@@ -355,7 +355,8 @@ describe("My Maps sync", () => {
     a.s().undoable("Place deleted", () => a.deletePlace(temple.id));
     expect(a.s().data!.config.hiddenPins).toMatchObject([{ name: "Temple" }]);
 
-    expect(await a.s().syncMyMap(URL)).toMatchObject({ count: 0, removed: 0 });
+    // and the sync says it's keeping one out, not just "up to date"
+    expect(await a.s().syncMyMap(URL)).toMatchObject({ count: 0, removed: 0, hidden: 1 });
     expect(names()).toEqual(["Cafe"]);
 
     // gone from the map too: it drops off the list, so adding it there again

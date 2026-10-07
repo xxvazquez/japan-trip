@@ -151,7 +151,7 @@ interface AppStore {
    *  after it (`resizeLeg`). Backs the base page's Days stepper. */
   resizeBase: (legId: string, delta: number) => void;
 
-  syncMyMap: (url: string) => Promise<{ mapName: string; count: number; updated: number; removed: number; newLayers: string[] }>;
+  syncMyMap: (url: string) => Promise<{ mapName: string; count: number; updated: number; removed: number; newLayers: string[]; hidden: number }>;
   /** file My Maps layer `layer`'s pins under `category` from now on */
   setLayerCategory: (layer: string, category: string) => void;
   setMedia: (slot: "logo", item: MediaItem | undefined) => void;
@@ -1876,6 +1876,8 @@ export const useApp = create<AppStore>((set, get) => {
       const touchedDays = new Set<string>();
       const touchedAreas = new Set<string>();
       let newLayers: string[] = [];
+      // pins on the map that stay out because they were removed in the app
+      let hiddenOnMap = 0;
       if (!local((d) => {
         // No stable id in the KML export, so pins are matched by name.
         // Duplicate names pair up in order, so a second same-named pin still
@@ -1908,6 +1910,7 @@ export const useApp = create<AppStore>((set, get) => {
         // it there again brings it back.
         const hidden = d.config.hiddenPins ?? [];
         const unique = once.filter((p) => !hidden.some((h) => samePlace(h, p)));
+        hiddenOnMap = once.length - unique.length;
         if (sameMap && places.length > 0 && hidden.length) {
           const still = hidden.filter((h) => once.some((p) => samePlace(h, p)));
           if (still.length !== hidden.length) d.config.hiddenPins = still.length ? still : undefined;
@@ -1988,7 +1991,7 @@ export const useApp = create<AppStore>((set, get) => {
         d.config.mapLayers = layers.length ? layers : undefined;
         d.config.mapSourceUrl = url;
         d.config.mapSyncedAt = now();
-      })) return { mapName, count: 0, updated: 0, removed: 0, newLayers: [] };
+      })) return { mapName, count: 0, updated: 0, removed: 0, newLayers: [], hidden: 0 };
       for (const id of [...added, ...changed]) enqueue(get, { t: "row", type: "places", id });
       for (const id of touchedDays) enqueue(get, { t: "row", type: "days", id });
       for (const id of touchedAreas) enqueue(get, { t: "areaPlaces", areaId: id });
@@ -1999,7 +2002,7 @@ export const useApp = create<AppStore>((set, get) => {
           for (const id of gone) get().removeEntity("places", id);
         });
       }
-      return { mapName, count: added.length, updated: changed.length, removed: gone.length, newLayers };
+      return { mapName, count: added.length, updated: changed.length, removed: gone.length, newLayers, hidden: hiddenOnMap };
     },
     setLayerCategory: (layer, category) => {
       const name = category.trim();
