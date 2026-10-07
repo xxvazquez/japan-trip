@@ -73,7 +73,10 @@ import { prefetchTiles, canPrefetchTiles, dayOfflinePoints } from "@/lib/offline
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon, expenseCategoryForGlyph } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import { selectInSplit } from "@/lib/splitSelect";
-import { buildDayPdf, mdToPlain, type DayPdfRow } from "@/lib/dayPdf";
+import { buildDayPdf, buildPagePdf, mdToPlain, PDF_HREF, PDF_HIDE, type DayPdfRow } from "@/lib/dayPdf";
+import { setExpandAll } from "@/lib/collapse";
+import { applyPalette } from "@/lib/mode";
+import { THEME_PRESETS } from "@/lib/themePresets";
 import type { Day as DayT, DayCost, ExpenseCategory, Hotel, Journey, PlanItem, Place, TripData } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 9);
@@ -440,27 +443,67 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       downloadIcs(day.title || fmtDate(day.date, loc), buildDayIcs(data, day, { includePrivate: true }));
     });
 
-  const downloadDayPdf = () =>
+  const pdfDate = fmtDate(day.date, loc, { weekday: "long", day: "numeric", month: "long" });
+  const pdfName = `${day.date} ${day.title || pdfDate}`.replace(/[\\/:*?"<>|]+/g, " ").replace(/\s+/g, " ").trim();
+
+  // the plan, for printing: times, places with their hours that day, notes
+  const downloadPlanPdf = () =>
     runPdf(async () => {
       const accent = getComputedStyle(document.documentElement).getPropertyValue("--c-accent").trim();
-      const date = fmtDate(day.date, loc, { weekday: "long", day: "numeric", month: "long" });
+      // a place's hours that day: what Good to know found, else OpenStreetMap
+      // (remembered on the device; a short wait at most when offline)
+      const hoursOf = async (placeId?: string) => {
+        const p = placeId ? data.places.find((x) => x.id === placeId) : undefined;
+        if (!p) return undefined;
+        const facts = p.facts && factsHoursForDate(factValue(p.facts, "hours"), factValue(p.facts, "closed"), day.date);
+        if (facts) return facts;
+        const osm = await Promise.race([
+          nearestOpeningHours(p.lat, p.lng, p.name).catch(() => null),
+          new Promise<null>((r) => setTimeout(() => r(null), 4000)),
+        ]);
+        return osm ? hoursForDate(osm.hours, day.date) ?? "Closed" : undefined;
+      };
+      const rows = await Promise.all(outline.current.map(async (row) => {
+        const hours = await hoursOf(row.placeId);
+        if (!hours) return row;
+        return hours === "Closed"
+          ? { ...row, warning: [row.warning, "Closed this day"].filter(Boolean).join(" · ") }
+          : { ...row, meta: [`Open ${fmtClocksIn(hours)}`, row.meta].filter(Boolean).join(" · ") };
+      }));
       const blob = await buildDayPdf({
-        date,
+        date: pdfDate,
         title: day.title,
         labels: day.labels,
         stay: weatherHotel && { name: weatherHotel.name || "your stay", address: weatherHotel.address, href: gmapsLink(weatherHotel.mapUrl || weatherHotel.address || weatherHotel.name) },
-        rows: outline.current,
+        rows,
         notes: day.notes?.trim() ? mdToPlain(day.notes) : undefined,
         trip: data.meta.title,
         accent: accent && `rgb(${accent})`,
       });
-      const name = `${day.date} ${day.title || date}`.replace(/[\\/:*?"<>|]+/g, " ").replace(/\s+/g, " ").trim();
-      saveFile(blob, `${name}.pdf`);
+      saveFile(blob, `${pdfName}.pdf`);
+    });
+
+  // the whole page as it is, every section open, in light mode
+  const downloadPagePdf = () =>
+    runPdf(async () => {
+      const root = document.querySelector<HTMLElement>(".day-pdf-root");
+      if (!root) return;
+      const theme = THEME_PRESETS.find((t) => t.id === data.config.themePreset)?.tokens ?? data.config.theme;
+      const blob = await buildPagePdf(root, {
+        date: pdfDate,
+        trip: data.meta.title,
+        open: setExpandAll,
+        prepare: (copy) => {
+          copy.documentElement.classList.remove("dark");
+          if (theme) applyPalette(theme.light, theme.dark, "light", copy.documentElement);
+        },
+      });
+      saveFile(blob, `${pdfName} (full).pdf`);
     });
 
   return (
     <NearbyProvider value={nearbyCtx}>
-    <Page>
+    <Page className="day-pdf-root">
       {/* IDENTITY — date, title, and where you're based / how you move */}
       <DayStepper days={data.days} current={day.id} locale={loc} />
       {/* ＋ where Plan has it, beside the account button: the day's one new thing is a step */}
@@ -502,7 +545,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
           </>
         ) : undefined}
         action={
-          <span ref={dayMenuAnchor}>
+          <span ref={dayMenuAnchor} {...{ [PDF_HIDE]: "" }}>
           <RowMenu label="Day options">
             {!ro && (
               <button className="menu-item" onClick={() => openLabels(dayMenuAnchor.current)}>
@@ -512,8 +555,11 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             <button className="menu-item" onClick={downloadDayCalendar} disabled={icsBusy}>
               <Icon name="calendar" size={16} /> {icsBusy ? "Building calendar file…" : "Add Day to Calendar"}
             </button>
-            <button className="menu-item" onClick={downloadDayPdf} disabled={pdfBusy}>
-              <Icon name="download" size={16} /> {pdfBusy ? "Making PDF…" : "Download PDF"}
+            <button className="menu-item" onClick={downloadPlanPdf} disabled={pdfBusy}>
+              <Icon name="download" size={16} /> {pdfBusy ? "Making PDF…" : "Download Plan (PDF)"}
+            </button>
+            <button className="menu-item" onClick={downloadPagePdf} disabled={pdfBusy}>
+              <Icon name="download" size={16} /> {pdfBusy ? "Making PDF…" : "Download Full Day (PDF)"}
             </button>
           </RowMenu>
           </span>
@@ -755,7 +801,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
 
       {/* the day's own actions, one grouped list like an iOS settings footer */}
       {!ro && (
-        <Section className="mt-8">
+        <div {...{ [PDF_HIDE]: "" }}><Section className="mt-8">
           <ul>
             {day.dayTrip
               ? <ActionRow icon="close" label="Not a day trip" onClick={() => patch({ dayTrip: false })} />
@@ -771,11 +817,11 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
               })}
             />
           </ul>
-        </Section>
+        </Section></div>
       )}
       {/* destructive on its own, as iOS sets Delete apart from other actions */}
       {!ro && (
-        <Section className="mt-6">
+        <div {...{ [PDF_HIDE]: "" }}><Section className="mt-6">
           <ul>
             <li className={INSET_DIVIDER}>
               <ConfirmButton
@@ -787,7 +833,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
               </ConfirmButton>
             </li>
           </ul>
-        </Section>
+        </Section></div>
       )}
       <NearbyCard
         open={!!nearbyOpen}
@@ -1122,6 +1168,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
         warning: place?.overwhelming ? "Overwhelming" : undefined,
         note: it.note ? mdToPlain(it.note) : undefined,
         href: placeMapLink(place),
+        placeId: place?.id,
       },
       nodes: [
         <PlanRow
@@ -1643,7 +1690,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
             {place ? (
               // the row's tap opens the place card, as tapping a result
               // does in Maps — the info, then where to go next
-              <div className={STOP_TITLE}><span ref={nameRef}>{place.name}</span></div>
+              <div className={STOP_TITLE}><span ref={nameRef} {...{ [PDF_HREF]: placeMapLink(place) }}>{place.name}</span></div>
             ) : readOnly ? (
               <span className={STOP_TITLE}>{item.text}</span>
             ) : (

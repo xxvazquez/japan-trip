@@ -24,6 +24,8 @@ export interface DayPdfRow {
   quiet?: boolean;
   /** a red line under the title (closed, overwhelming) */
   warning?: string;
+  /** the step's place, to look up its hours for the day */
+  placeId?: string;
 }
 
 export interface DayPdf {
@@ -294,8 +296,10 @@ export function pdf(pages: { img: Uint8Array; px: [number, number]; links: Link[
     length += b.length;
   };
   const n = (v: number) => (Math.round(v * 100) / 100).toString();
-  // PDF strings: ASCII only, with ( ) \ escaped — a URL is percent-encoded first
-  const str = (s: string) => `(${encodeURI(decodeURI(s)).replace(/[()\\]/g, (c) => `\\${c}`)})`;
+  // PDF strings: ASCII only, with ( ) \ escaped — so anything else in a URL
+  // (a space, an accent) is percent-encoded, and what's already encoded stays
+  const str = (s: string) =>
+    `(${s.replace(/[^\x21-\x7e]/gu, (c) => encodeURIComponent(c)).replace(/[()\\]/g, (c) => `\\${c}`)})`;
 
   // object numbers: 1 catalog, 2 pages, then per page: page, image, content,
   // and one per link
@@ -336,4 +340,129 @@ export function pdf(pages: { img: Uint8Array; px: [number, number]; links: Link[
   for (let i = 1; i < next; i++) put(`${String(offsets[i]).padStart(10, "0")} 00000 n \n`);
   put(`trailer\n<< /Size ${next} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
   return new Blob(parts as BlobPart[], { type: "application/pdf" });
+}
+
+/* ---------------------------------------------------------------- the page */
+
+/** marks what the page copy leaves out: controls, not content */
+export const PDF_HIDE = "data-pdf-hide";
+/** the link a non-link element stands for in the PDF (a place's name opens
+ *  its card in the app; on paper it opens Google Maps) */
+export const PDF_HREF = "data-pdf-href";
+
+const CONTROLS = [
+  `[${PDF_HIDE}]`,
+  ".action",
+  "li:has(> .action)",
+  "button:has(> .sr-only)",
+  '[aria-haspopup="menu"]',
+  'button[aria-label^="Add "]',
+  '[aria-label="Drag to reorder"]',
+  // a turned chevron (a picker's ⌄, an open fold) — html2canvas draws it
+  // unturned, pointing the wrong way, and on paper it's no use anyway
+  "svg.rotate-90",
+].join(", ");
+
+// what the copy lays out at: about a phone's width and a half, so the page
+// reads at its own proportions and the type lands near 13 pt on A4
+const PAGE_PX = 600;
+const PX_SCALE = 2.5;
+
+/**
+ * The day's page as it is, every folded section and note opened — copied
+ * into A4 pages in light mode, broken between rows, never through one.
+ * `prepare` sets the light colours on the copy (the page itself stays as
+ * it is on screen).
+ */
+export async function buildPagePdf(root: HTMLElement, opts: {
+  date: string;
+  trip?: string;
+  prepare: (copy: Document) => void;
+  open: (on: boolean) => void;
+}): Promise<Blob> {
+  const { default: html2canvas } = await import("html2canvas");
+  opts.open(true);
+  // html2canvas finds each font's baseline with an image in a hidden box on
+  // this page, which Tailwind's block-level images knock off the line — so
+  // all text would land a few pixels low. Only that box is touched.
+  const metrics = document.createElement("style");
+  metrics.textContent = 'body > div[style*="visibility: hidden"] > img { display: inline !important; }';
+  document.head.appendChild(metrics);
+  try {
+    // the opened sections and notes draw, then settle
+    await new Promise((r) => setTimeout(r, 450));
+    await document.fonts?.ready;
+    let breaks: number[] = [];
+    let links: Link[] = [];
+    const canvas = await html2canvas(root, {
+      scale: PX_SCALE,
+      windowWidth: PAGE_PX,
+      width: PAGE_PX,
+      backgroundColor: null,
+      logging: false,
+      useCORS: true,
+      onclone: (doc, copy) => {
+        opts.prepare(doc);
+        copy.style.width = `${PAGE_PX}px`;
+        copy.style.margin = "0";
+        copy.style.maxWidth = "none";
+        copy.style.paddingBottom = "8px";
+        // controls aren't content: add / ⋯ / ⓘ / fold buttons, drag grips,
+        // accent action rows, and anything the page marks itself
+        doc.querySelectorAll(CONTROLS).forEach((e) => ((e as HTMLElement).style.display = "none"));
+        const top = copy.getBoundingClientRect().top;
+        // a page may end under any row or block
+        breaks = [...copy.querySelectorAll("li, section, p, h1, h2, h3")]
+          .map((e) => e.getBoundingClientRect().bottom - top)
+          .filter((y) => y > 0)
+          .sort((a, b) => a - b);
+        links = [...copy.querySelectorAll<HTMLElement>(`a[href^="http"], [${PDF_HREF}]`)].flatMap((e) => {
+          const href = e.getAttribute(PDF_HREF) ?? (e as HTMLAnchorElement).href;
+          const r = e.getBoundingClientRect();
+          return href && r.width && r.height ? [{ x: r.left - copy.getBoundingClientRect().left, y: r.top - top, w: r.width, h: r.height, href }] : [];
+        });
+      },
+    });
+
+    // the copy's own pixels per CSS pixel, and what a page holds in CSS pixels
+    const k = canvas.width / PAGE_PX;
+    const pt = (W - 2 * M) / PAGE_PX;
+    const pageH = (H - 2 * M - FOOT) / pt;
+    const total = canvas.height / k;
+    const slices: [number, number][] = [];
+    for (let at = 0; at < total - 1;) {
+      const limit = at + pageH;
+      if (limit >= total) { slices.push([at, total]); break; }
+      // the lowest row end that fits, if it leaves the page at least half full
+      const end = [...breaks].reverse().find((y) => y <= limit && y > at + pageH / 2) ?? limit;
+      slices.push([at, end]);
+      at = end;
+    }
+
+    const pages = await Promise.all(slices.map(async ([from, to], i) => {
+      const page = document.createElement("canvas");
+      page.width = Math.round(W * SCALE);
+      page.height = Math.round(H * SCALE);
+      const ctx = page.getContext("2d")!;
+      ctx.scale(SCALE, SCALE);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, W, H);
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(canvas, 0, from * k, canvas.width, (to - from) * k, M, M, W - 2 * M, (to - from) * pt);
+      setFont(ctx, { size: 8.5, color: FAINT });
+      ctx.fillText([opts.trip, opts.date].filter(Boolean).join(" · "), M, H - M + 10);
+      if (slices.length > 1) {
+        ctx.textAlign = "right";
+        ctx.fillText(`${i + 1} of ${slices.length}`, W - M, H - M + 10);
+      }
+      const pageLinks = links
+        .filter((l) => l.y >= from && l.y + l.h <= to)
+        .map((l) => ({ x: M + l.x * pt, y: M + (l.y - from) * pt, w: l.w * pt, h: l.h * pt, href: l.href }));
+      return { img: await jpeg(page), px: [page.width, page.height] as [number, number], links: pageLinks };
+    }));
+    return pdf(pages);
+  } finally {
+    metrics.remove();
+    opts.open(false);
+  }
 }

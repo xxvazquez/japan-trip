@@ -70,9 +70,8 @@ export function useIsDark(): boolean {
 }
 
 /** Write a trip's palette to CSS custom properties for the current mode. */
-export function applyPalette(light: Palette, dark: Palette, m: Mode = read()) {
+export function applyPalette(light: Palette, dark: Palette, m: Mode = read(), root = document.documentElement) {
   const p = isDark(m) ? dark : light;
-  const root = document.documentElement;
   const toChannels = (c: string) => {
     // accept #rrggbb / #rgb / "r g b" / rgb(...)
     if (c.startsWith("#")) {

@@ -3,6 +3,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { primeKeyboard } from "@/lib/keyboard";
 import { docFromNote, noteFromDoc } from "@/lib/noteFormat";
 import { Markdown } from "./Markdown";
+import { useExpandAll } from "@/lib/collapse";
 import type { NoteEditor as NoteEditorType } from "./NoteEditor";
 
 /**
@@ -46,7 +47,9 @@ export function RichNote({
 }) {
   const readOnly = useReadOnly();
   const [editing, setEditing] = useState(autoEdit);
-  const [expanded, setExpanded] = useState(false);
+  const [unfolded, setExpanded] = useState(false);
+  const all = useExpandAll();
+  const expanded = unfolded || all;
   const [, setLoaded] = useState(!!Editor);
   // folded only when the note really runs past 2 lines at this width —
   // measured on the clamped box, so a short note never gets a "more"

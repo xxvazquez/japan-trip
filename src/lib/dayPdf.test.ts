@@ -11,7 +11,7 @@ describe("pdf", () => {
   it("writes a PDF any reader opens, a page per image, with its links", async () => {
     const blob = pdf([
       { img: JPEG, px: [1, 1], links: [{ x: 10, y: 20, w: 100, h: 14, href: "https://www.google.com/maps/search/?api=1&query=Caf%C3%A9 (main)" }] },
-      { img: JPEG, px: [1, 1], links: [] },
+      { img: JPEG, px: [1, 1], links: [{ x: 0, y: 0, w: 1, h: 1, href: "https://www.google.com/maps/dir/?api=1&origin=35.7%2C139.7" }] },
     ]);
     const doc = await getDocument({ data: new Uint8Array(await blob.arrayBuffer()) }).promise;
     expect(doc.numPages).toBe(2);
@@ -19,6 +19,9 @@ describe("pdf", () => {
     expect(link.url).toBe("https://www.google.com/maps/search/?api=1&query=Caf%C3%A9%20(main)");
     // top-left origin in, bottom-left out: the link sits near the page's top
     expect(link.rect[3]).toBeCloseTo(841.89 - 20, 1);
+    // already encoded stays as it is
+    const [dir] = await (await doc.getPage(2)).getAnnotations();
+    expect(dir.url).toBe("https://www.google.com/maps/dir/?api=1&origin=35.7%2C139.7");
   });
 });
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useApp } from "@/store/useApp";
 
 const KEY_PREFIX = "za.section.";
@@ -22,12 +22,30 @@ function writeOpen(key: string, open: boolean) {
   }
 }
 
+/* Everything open at once, for a moment — while a day is copied into a
+ * PDF, so every folded section and note is in it. Never stored. */
+let expandAll = false;
+const listeners = new Set<() => void>();
+
+export function setExpandAll(on: boolean) {
+  expandAll = on;
+  listeners.forEach((f) => f());
+}
+
+export function useExpandAll(): boolean {
+  return useSyncExternalStore(
+    (f) => { listeners.add(f); return () => { listeners.delete(f); }; },
+    () => expandAll,
+  );
+}
+
 /** Shared open/closed state for a collapsible block (`Section`, `AccordionRow`),
  *  persisted per trip + key so it stays the way you left it. `key` is usually
  *  an entity id, or the slugged title for a one-off section. */
 export function usePersistedOpen(key: string | undefined, defaultOpen: boolean) {
   const tripId = useApp((s) => s.activeId);
   const storageKey = tripId && key ? `${KEY_PREFIX}${tripId}.${key}` : undefined;
+  const all = useExpandAll();
   const [open, setOpenRaw] = useState(() => (storageKey ? readOpen(storageKey, defaultOpen) : defaultOpen));
   const setOpen = (next: boolean | ((was: boolean) => boolean)) =>
     setOpenRaw((was) => {
@@ -35,5 +53,5 @@ export function usePersistedOpen(key: string | undefined, defaultOpen: boolean) 
       if (storageKey) writeOpen(storageKey, v);
       return v;
     });
-  return [open, setOpen] as const;
+  return [open || all, setOpen] as const;
 }
