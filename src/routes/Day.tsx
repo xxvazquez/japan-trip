@@ -27,7 +27,7 @@ import { Editable } from "@/components/Editable";
 import { MoneyField } from "@/components/MoneyField";
 import { PlaceAction, PlaceActions } from "@/components/PlaceAction";
 import type { Tip } from "@/components/InfoTips";
-import { touchDevice } from "@/lib/device";
+import { saveFile, touchDevice } from "@/lib/device";
 import { RichNote } from "@/components/RichNote";
 import { RowMenu } from "@/components/RowMenu";
 import { Markdown } from "@/components/Markdown";
@@ -73,6 +73,7 @@ import { prefetchTiles, canPrefetchTiles, dayOfflinePoints } from "@/lib/offline
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon, expenseCategoryForGlyph } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import { selectInSplit } from "@/lib/splitSelect";
+import { buildDayPdf, mdToPlain, type DayPdfRow } from "@/lib/dayPdf";
 import type { Day as DayT, DayCost, ExpenseCategory, Hotel, Journey, PlanItem, Place, TripData } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 9);
@@ -132,6 +133,9 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const { active: splitActive } = useSplit();
   const ro = useReadOnly();
   const { busy: icsBusy, run: runIcs } = useAsyncAction();
+  const { busy: pdfBusy, run: runPdf } = useAsyncAction();
+  // the timeline as plain rows, kept by the plan as it draws — what the PDF prints
+  const outline = useRef<DayPdfRow[]>([]);
   const areaSheet = useActionSheet();
 
   const L = lookups(data);
@@ -436,6 +440,24 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       downloadIcs(day.title || fmtDate(day.date, loc), buildDayIcs(data, day, { includePrivate: true }));
     });
 
+  const downloadDayPdf = () =>
+    runPdf(async () => {
+      const accent = getComputedStyle(document.documentElement).getPropertyValue("--c-accent").trim();
+      const date = fmtDate(day.date, loc, { weekday: "long", day: "numeric", month: "long" });
+      const blob = await buildDayPdf({
+        date,
+        title: day.title,
+        labels: day.labels,
+        stay: weatherHotel && { name: weatherHotel.name || "your stay", address: weatherHotel.address, href: gmapsLink(weatherHotel.mapUrl || weatherHotel.address || weatherHotel.name) },
+        rows: outline.current,
+        notes: day.notes?.trim() ? mdToPlain(day.notes) : undefined,
+        trip: data.meta.title,
+        accent: accent && `rgb(${accent})`,
+      });
+      const name = `${day.date} ${day.title || date}`.replace(/[\\/:*?"<>|]+/g, " ").replace(/\s+/g, " ").trim();
+      saveFile(blob, `${name}.pdf`);
+    });
+
   return (
     <NearbyProvider value={nearbyCtx}>
     <Page>
@@ -489,6 +511,9 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             )}
             <button className="menu-item" onClick={downloadDayCalendar} disabled={icsBusy}>
               <Icon name="calendar" size={16} /> {icsBusy ? "Building calendar file…" : "Add Day to Calendar"}
+            </button>
+            <button className="menu-item" onClick={downloadDayPdf} disabled={pdfBusy}>
+              <Icon name="download" size={16} /> {pdfBusy ? "Making PDF…" : "Download PDF"}
             </button>
           </RowMenu>
           </span>
@@ -587,7 +612,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             </span>
           )}
         >
-          <PlanList day={day} journeys={journeys} startHotel={startHotel} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} morePlaces={morePlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} fresh={freshStep} onAdd={addStep} onChange={setPlan} onBackAt={(t) => patch({ backAt: t })} onLeaveAt={(t) => patch({ leaveAt: t })} onWakeAt={(t) => patch({ wakeAt: t })} onBreakfastAt={(t) => patch({ breakfastAt: t })} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} />
+          <PlanList day={day} journeys={journeys} startHotel={startHotel} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} morePlaces={morePlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} fresh={freshStep} onAdd={addStep} onChange={setPlan} onBackAt={(t) => patch({ backAt: t })} onLeaveAt={(t) => patch({ leaveAt: t })} onWakeAt={(t) => patch({ wakeAt: t })} onBreakfastAt={(t) => patch({ breakfastAt: t })} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} outline={outline} />
         </Section>
       )}
 
@@ -853,7 +878,7 @@ function DayJourneyRow({ day, journey, data, onRemove }: { day: DayT; journey: J
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedItems, places, areaPlaces, morePlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, fresh, onAdd, onChange, onBackAt, onLeaveAt, onWakeAt, onBreakfastAt, onQuickAddCost, onShowOnMap }: {
+function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedItems, places, areaPlaces, morePlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, fresh, onAdd, onChange, onBackAt, onLeaveAt, onWakeAt, onBreakfastAt, onQuickAddCost, onShowOnMap, outline }: {
   day: DayT;
   /** the day's journeys — their leave / arrive times show as rows of their own */
   journeys: Journey[];
@@ -880,6 +905,9 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   /** sets when you leave the hotel (that row's time) */
   onLeaveAt: (time: string | undefined) => void;
   onWakeAt: (time: string | undefined) => void;
+  /** filled with the timeline as plain rows, in the order shown — what the
+   *  day's PDF prints */
+  outline?: { current: DayPdfRow[] };
   onBreakfastAt: (time: string | undefined) => void;
   onQuickAddCost: (item: PlanItem) => void;
   onShowOnMap: (place: Place) => void;
@@ -996,11 +1024,11 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   // the plan in order, each entry with the time it starts at: a journey's
   // own rows, and each step with the way on to the next just under it — a
   // stop and its travel are one chunk, never split by a part-of-day label
-  const entries: { time?: string; nodes: React.ReactNode[]; item?: number; hotel?: boolean; morning?: boolean }[] = [];
+  const entries: { time?: string; nodes: React.ReactNode[]; item?: number; hotel?: boolean; morning?: boolean; print?: DayPdfRow }[] = [];
   // each step's own entry, so the way back to the hotel can hang off it
   const itemEntries: (typeof entries)[number][] = [];
   const pushStops = (sts: typeof stops) => {
-    for (const st of sts) entries.push({ time: st.time, nodes: [stopRow(st)] });
+    for (const st of sts) entries.push({ time: st.time, nodes: [stopRow(st)], print: journeyPrint(st) });
   };
   // the journey rows due at slot i, with the way back to the hotel among
   // them in time order when it falls there too
@@ -1020,6 +1048,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
     const next = placeOf(items[i]);
     entries.push({
       time: backAt,
+      print: { time: fmtClock(day.backAt) || undefined, title: `Back to ${returnHotel.name || "your stay"}`, href: hotelHref(returnHotel), quiet: true },
       nodes: [
         <ReturnToHotel
           key="back-to-hotel"
@@ -1052,6 +1081,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
       entries.push({
         time: m.time,
         morning: true,
+        print: m.time ? { time: fmtClock(m.time), title: m.label, quiet: true } : undefined,
         nodes: [<MorningRow key={m.key} label={m.label} glyph={m.glyph} time={m.time} timeStart={m.timeStart} readOnly={readOnly} onTime={m.onTime} />],
       });
     }
@@ -1062,6 +1092,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
     entries.push({
       time: day.leaveAt,
       hotel: true,
+      print: { time: fmtClock(day.leaveAt) || undefined, title: `From ${startHotel.name || "your stay"}`, href: hotelHref(startHotel), quiet: true },
       nodes: [
         <StartFromHotel
           key="from-hotel"
@@ -1080,9 +1111,18 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
     if (i === leaveIdx) pushLeave();
     else if (!startHotel || i < leaveIdx) pushMorning(clock(splitRange(it.time)?.[0] ?? it.time) ?? "");
     pushSlot(i);
+    const place = placeOf(it);
     entries.push(itemEntries[i] = {
       item: i,
       time: splitRange(it.time)?.[0] ?? it.time,
+      print: {
+        time: fmtClocksIn(it.time) || undefined,
+        title: place?.name || it.text || "Step",
+        meta: it.optional ? "Optional" : undefined,
+        warning: place?.overwhelming ? "Overwhelming" : undefined,
+        note: it.note ? mdToPlain(it.note) : undefined,
+        href: placeMapLink(place),
+      },
       nodes: [
         <PlanRow
           key={it.id}
@@ -1143,6 +1183,17 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
     const stop = bandAt[b + 1] ?? entries.length;
     return entries.slice(0, stop).filter((e) => e.item != null).length;
   };
+  if (outline) {
+    // a part's heading goes on the first printed row under it
+    let heading: string | undefined;
+    outline.current = entries.flatMap((e, i) => {
+      if (bandAt.includes(i)) heading = DAY_PARTS[parts[i]!].label;
+      if (!e.print) return [];
+      const row = { ...e.print, ...(heading && { part: heading }) };
+      heading = undefined;
+      return [row];
+    });
+  }
   const rows = entries.flatMap((e, i) => {
     const b = bandAt.indexOf(i);
     if (b < 0) return e.nodes;
@@ -2020,6 +2071,24 @@ function JourneyStopRow({ journey, stop }: { journey: Journey; stop: ReturnType<
       </Link>
     </li>
   );
+}
+
+/** where a hotel row links to in the PDF: its own map link, else its address */
+const hotelHref = (hotel: Hotel) => gmapsLink(hotel.mapUrl || hotel.address || hotel.name);
+
+/** a journey's row as the PDF prints it — what `JourneyStopRow` shows */
+function journeyPrint(stop: ReturnType<typeof journeyStops>[number] & { journey: Journey }): DayPdfRow {
+  const { seg, journey } = stop;
+  const segs = journey.segments;
+  const meta = stop.kind === "leave"
+    ? [MODE_LABEL[seg.mode], seg.carrier, seg.service, segs.length > 1 && plural(segs.length - 1, "change")]
+    : [fmtDuration(segs[0]?.depart, seg.arrive, segs[0]?.fromTz, seg.toTz)];
+  return {
+    time: fmtClock(stop.time),
+    title: `${stop.kind === "leave" ? "Leave" : "Arrive"} ${stop.place || (stop.kind === "leave" ? "from start" : "at destination")}`,
+    meta: meta.filter(Boolean).join(" · ") || undefined,
+    quiet: true,
+  };
 }
 
 /** a hotel's coordinates — its own, else the ones in its map link */
