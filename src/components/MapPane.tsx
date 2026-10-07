@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import { MapView, type MLMap } from "./MapView";
 import { Icon } from "./Icon";
 import { useData } from "@/lib/data";
@@ -7,6 +6,7 @@ import { useIsDark } from "@/lib/mode";
 import { gmapsRoute, mapUrlCoords, placeMapLink } from "@/lib/maps";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import { loadBasePois } from "@/lib/mapStyle";
+import { clearSplitSelect, onSplitSelect } from "@/lib/splitSelect";
 import type { Place, TripData } from "@/core/types";
 
 /**
@@ -51,15 +51,14 @@ export default function MapPane({ dayId }: { dayId: string }) {
 
   useEffect(() => setSelected(null), [dayId]);
 
-  // a plan row's "Show on map" sets ?sel= on the day's own URL — pick it up,
-  // select + zoom to that place (MapView does the zoom), then drop the param
-  const [params, setParams] = useSearchParams();
-  useEffect(() => {
-    const sel = params.get("sel");
-    if (!sel) return;
-    if (ctx.places.some((p) => p.id === sel)) setSelected(sel);
-    setParams((p) => { p.delete("sel"); return p; }, { replace: true });
-  }, [params, ctx.places, setParams]);
+  // a plan row's "Show on map" — select + zoom to that place (MapView does
+  // the zoom); handed over directly, never through the URL or history
+  const placesRef = useRef(ctx.places);
+  placesRef.current = ctx.places;
+  useEffect(() => onSplitSelect((sel) => {
+    if (placesRef.current.some((p) => p.id === sel)) setSelected(sel);
+    clearSplitSelect();
+  }), []);
 
   // fit to whatever is on the map now — again whenever that set changes
   const first = useRef(true);

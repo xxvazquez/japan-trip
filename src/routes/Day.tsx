@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { flushSync } from "react-dom";
-import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   DndContext,
   PointerSensor,
@@ -72,6 +72,7 @@ import { fetchDayWeather, weatherLabel, type DayWeather } from "@/lib/weather";
 import { prefetchTiles, canPrefetchTiles, dayOfflinePoints } from "@/lib/offlineTiles";
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon, expenseCategoryForGlyph } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
+import { selectInSplit } from "@/lib/splitSelect";
 import type { Day as DayT, DayCost, ExpenseCategory, Hotel, Journey, PlanItem, Place, TripData } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 9);
@@ -128,7 +129,6 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const activeId = useApp((s) => s.activeId);
   const nav = useNavigate();
   const leave = useLeavePage();
-  const [, setParams] = useSearchParams();
   const { active: splitActive } = useSplit();
   const ro = useReadOnly();
   const { busy: icsBusy, run: runIcs } = useAsyncAction();
@@ -341,7 +341,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   // (SplitMap), so just select the place in it; on phone there's no pane, so
   // jump to the Map tab instead (same ?sel= deep link the search already uses)
   const showOnMap = (place: Place) => {
-    if (splitActive) setParams((p) => { p.set("sel", place.id); return p; }, { replace: true });
+    if (splitActive) selectInSplit(place.id);
     else nav(`/map?sel=${place.id}`);
   };
 
