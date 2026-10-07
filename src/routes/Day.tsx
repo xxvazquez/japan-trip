@@ -218,7 +218,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   // areas offered by "+ Add area", one group per city the way the Map
   // draws it (a day trip to Nara puts Nara's areas first): this day's city,
   // then the one it set off from (a travel day still reaches the city it
-  // leaves), then the rest of the trip's cities in order
+  // leaves), then the rest of the trip's cities in order; A–Z within each
   const cityAnchors = useCityAnchors(data);
   const { dayCity, placeCity, tripCities } = useTripCities(data, cityAnchors);
   const areaGroups = useMemo(() => {
@@ -234,7 +234,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     }
     return [...groups]
       .sort(([a], [b]) => rank(a) - rank(b))
-      .map(([c, areas]) => ({ label: c ? nameOf(c) : "Other", areas }));
+      .map(([c, areas]) => ({ label: c ? nameOf(c) : "Other", areas: areas.sort((a, b) => a.name.localeCompare(b.name)) }));
   }, [data, day.id, day.areaIds, dayCity, placeCity, tripCities]);
 
   // places available to a plan step's picker — drawn only from this day's own
