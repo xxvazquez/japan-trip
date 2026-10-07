@@ -77,7 +77,7 @@ import { buildDayPdf, buildPagePdf, mdToPlain, PDF_HREF, PDF_HIDE, PDF_KEEP, typ
 import { setExpandAll } from "@/lib/collapse";
 import { applyPalette } from "@/lib/mode";
 import { THEME_PRESETS } from "@/lib/themePresets";
-import type { Day as DayT, DayCost, ExpenseCategory, Hotel, Journey, PlanItem, Place, TripData } from "@/core/types";
+import type { Area, Day as DayT, DayCost, ExpenseCategory, Hotel, Journey, PlanItem, Place, TripData } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 9);
 /** an area row's hairline, inset past its small tile like a `TileRow`'s */
@@ -215,18 +215,27 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       updateEntity<DayT>("days", d.id, { labels: next.length ? next : undefined });
     }
   };
-  // areas offered by "+ Add area" — scoped to this day's own city, the way
-  // the Map draws it (a day trip to Nara offers Nara's areas, not the base
-  // city's), so a multi-city trip doesn't dump every area into one list;
-  // falls back to the whole list if none resolve to that city yet (an
-  // unlinked hotel, say) so the picker is never left with nothing to offer
+  // areas offered by "+ Add area", one group per city the way the Map
+  // draws it (a day trip to Nara puts Nara's areas first): this day's city,
+  // then the one it set off from (a travel day still reaches the city it
+  // leaves), then the rest of the trip's cities in order
   const cityAnchors = useCityAnchors(data);
   const { dayCity, placeCity, tripCities } = useTripCities(data, cityAnchors);
-  const cityAreas = useMemo(() => {
-    const city = dayCity.get(day.id);
-    const inCity = data.areas.filter((a) => areaLeg(a, placeCity) === city);
-    return inCity.length > 0 ? inCity : data.areas;
-  }, [data, day.id, dayCity, placeCity]);
+  const areaGroups = useMemo(() => {
+    const nameOf = (c: string) => data.legs.find((l) => l.id === c)?.base || tripCities.find((t) => t.id === c)?.name || "";
+    const at = data.days.findIndex((d) => d.id === day.id);
+    const order = [dayCity.get(day.id), at > 0 ? dayCity.get(data.days[at - 1].id) : undefined, ...data.days.map((d) => dayCity.get(d.id))];
+    const rank = (c?: string) => { const i = c ? order.indexOf(c) : -1; return i < 0 ? order.length : i; };
+    const groups = new Map<string | undefined, Area[]>();
+    for (const a of data.areas) {
+      if ((day.areaIds ?? []).includes(a.id)) continue;
+      const c = areaLeg(a, placeCity);
+      groups.set(c, [...(groups.get(c) ?? []), a]);
+    }
+    return [...groups]
+      .sort(([a], [b]) => rank(a) - rank(b))
+      .map(([c, areas]) => ({ label: c ? nameOf(c) : "Other", areas }));
+  }, [data, day.id, day.areaIds, dayCity, placeCity, tripCities]);
 
   // places available to a plan step's picker — drawn only from this day's own
   // linked areas (see the Areas section below), not every place in the trip
@@ -690,7 +699,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       )}
 
       {/* AREAS — pull an area's places onto this day's map, without touching the plan */}
-      {((day.areaIds ?? []).length > 0 || (!ro && cityAreas.length > 0)) && (
+      {((day.areaIds ?? []).length > 0 || (!ro && data.areas.length > 0)) && (
         <Section
           title="Areas"
           id="day-areas"
@@ -740,24 +749,28 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
                 </li>
               );
             })}
-            {!ro && cityAreas.some((a) => !(day.areaIds ?? []).includes(a.id)) && (
+            {!ro && areaGroups.length > 0 && (
               <li className={INSET_DIVIDER}>
                 <button ref={areaSheet.anchorRef} onClick={() => areaSheet.setOpen(true)} className={ACTION_ROW}>
                   <Icon name="plus" size={14} /> Add area
                 </button>
                 <ActionSheet open={areaSheet.open} onClose={() => areaSheet.setOpen(false)} anchorRef={areaSheet.anchorRef} title="Add an area">
-                  {cityAreas
-                    .filter((a) => !(day.areaIds ?? []).includes(a.id))
-                    .map((a) => (
-                      <button
-                        key={a.id}
-                        type="button"
-                        onClick={() => { patch({ areaIds: [...(day.areaIds ?? []), a.id] }); areaSheet.setOpen(false); }}
-                        className="menu-item"
-                      >
-                        {a.name || "Untitled"} · {plural(a.placeIds.length, "place")}
-                      </button>
-                    ))}
+                  {areaGroups.map((g) => (
+                    <div key={g.label}>
+                      {/* a lone group needs no city heading */}
+                      {areaGroups.length > 1 && <p className="kicker px-4 pb-0.5 pt-3 text-ink-faint">{g.label}</p>}
+                      {g.areas.map((a) => (
+                        <button
+                          key={a.id}
+                          type="button"
+                          onClick={() => { patch({ areaIds: [...(day.areaIds ?? []), a.id] }); areaSheet.setOpen(false); }}
+                          className="menu-item"
+                        >
+                          {a.name || "Untitled"} · {plural(a.placeIds.length, "place")}
+                        </button>
+                      ))}
+                    </div>
+                  ))}
                 </ActionSheet>
               </li>
             )}
