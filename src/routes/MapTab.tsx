@@ -539,7 +539,8 @@ function useMapEditing(
       try {
         const found = await searchPlaces(q, c ? { lat: c.lat, lng: c.lng } : undefined);
         if (stale) return;
-        setResults(found);
+        // A–Z, so a run of same-named stations reads as one list
+        setResults([...found].sort((a, b) => a.name.localeCompare(b.name) || a.detail.localeCompare(b.detail)));
         setSearchState(found.length ? "idle" : "empty");
       } catch {
         if (stale) return;
