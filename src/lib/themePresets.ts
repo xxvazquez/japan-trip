@@ -18,7 +18,7 @@ export interface ThemePreset {
  * accent can still be overridden separately in Manage → Look.
  *
  * `gold`, `matcha`, `ai` and `danger` are shared across all six — the same
- * muted amber, moss green, transit blue-grey and house red as Ink & Moss —
+ * amber, leaf green, transit cerulean and house red as Ink & Moss —
  * so only the neutral ramp and the accent change from one preset to the next.
  *
  * `gold` doubles as the app's only keyboard focus-ring colour (`:focus-visible`
@@ -38,11 +38,14 @@ export interface ThemePreset {
  */
 export const DEFAULT_ACCENT = "#3f66a6";
 
-/** Shared across every preset — the house destructive red, muted amber, moss
- *  green and transit blue-grey. Only the neutral ramp and accent differ. */
-const GOLD = { light: "#877044", dark: "#b89e73" };
-const MATCHA = { light: "#6f826c", dark: "#8b9d86" };
-const AI = { light: "#71869a", dark: "#90a3b6" };
+/** Shared across every preset — the house destructive red, amber, leaf
+ *  green and transit cerulean. Muted, but each a clearly different hue, so a
+ *  train, a park and a meal read apart on the plan at a glance (the old
+ *  blue-grey / moss / ochre all looked alike). Only the neutral ramp and
+ *  accent differ. */
+const GOLD = { light: "#b5802f", dark: "#d6a55e" };
+const MATCHA = { light: "#55894a", dark: "#86b47a" };
+const AI = { light: "#2f84a8", dark: "#6fb0cf" };
 const DANGER = { light: "#c8443e", dark: "#e06b66" };
 
 /** Dark neutrals, shared by every preset: the iOS dark ramp — true black page,

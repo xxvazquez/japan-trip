@@ -171,6 +171,20 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
   const goldNow = d.config.theme.light.gold?.toLowerCase();
   if (goldNow && goldNow in GOLD_FIX) d.config.theme.light.gold = GOLD_FIX[goldNow];
 
+  // the shared transit / nature / food tones moved from blue-grey / moss /
+  // ochre to cerulean / leaf green / amber, so they read apart on the plan.
+  // Exact old values only — a hand-picked custom colour is left alone.
+  const ROLE_FIX: Record<"light" | "dark", Record<"gold" | "matcha" | "ai", [string, string]>> = {
+    light: { gold: ["#877044", "#b5802f"], matcha: ["#6f826c", "#55894a"], ai: ["#71869a", "#2f84a8"] },
+    dark: { gold: ["#b89e73", "#d6a55e"], matcha: ["#8b9d86", "#86b47a"], ai: ["#90a3b6", "#6fb0cf"] },
+  };
+  for (const mode of ["light", "dark"] as const) {
+    for (const key of ["gold", "matcha", "ai"] as const) {
+      const [from, to] = ROLE_FIX[mode][key];
+      if (d.config.theme[mode][key]?.toLowerCase() === from) d.config.theme[mode][key] = to;
+    }
+  }
+
   // Mist's light ink / ink-soft / ink-faint / line had drifted from the values
   // in index.css they're supposed to mirror exactly — ink-faint measured
   // 2.80:1 against its own bg, under WCAG's 3:1 non-text minimum. Remap the

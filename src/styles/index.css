@@ -22,19 +22,19 @@
   --c-line: 210 216 222;
 
   --c-accent: 63 102 166; /* indigo blue */
-  --c-gold: 135 112 68; /* warm ochre, darkened from #9b8254 so the
+  --c-gold: 181 128 47; /* warm amber — dark enough that the
     focus-visible ring clears WCAG's 3:1 non-text contrast against --c-bg */
-  --c-matcha: 111 130 108; /* moss */
-  --c-ai: 113 134 154; /* transit blue-grey */
+  --c-matcha: 85 137 74; /* leaf green */
+  --c-ai: 47 132 168; /* transit cerulean */
   --c-danger: 200 68 62; /* destructive — swipe-to-delete, "Delete" in a sheet */
 
   /* a list row's icon tile keeps its light-mode colour in dark mode too, as
      iOS's Settings icons do — the paler dark tones wash a white glyph out.
      Not redefined under html.dark; applyPalette writes the trip's own. */
   --c-tile-accent: 63 102 166;
-  --c-tile-gold: 135 112 68;
-  --c-tile-matcha: 111 130 108;
-  --c-tile-ai: 113 134 154;
+  --c-tile-gold: 181 128 47;
+  --c-tile-matcha: 85 137 74;
+  --c-tile-ai: 47 132 168;
   --c-tile-danger: 200 68 62;
   --c-tile-ink-faint: 116 126 134;
 
@@ -72,9 +72,9 @@ html.dark {
   --c-line: 56 56 58;
 
   --c-accent: 134 167 222; /* indigo blue */
-  --c-gold: 184 158 115;
-  --c-matcha: 139 157 134; /* moss */
-  --c-ai: 144 163 182; /* transit blue-grey */
+  --c-gold: 214 165 94;
+  --c-matcha: 134 180 122; /* leaf green */
+  --c-ai: 111 176 207; /* transit cerulean */
   --c-danger: 224 107 102; /* destructive */
 
   --tex-opacity: 0.045;

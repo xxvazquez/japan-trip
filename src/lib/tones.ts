@@ -11,7 +11,7 @@ import type { Place } from "@/core/types";
  * `IconTile` on a grouped-list row is coloured consistently wherever it appears.
  * Returns a token name; `IconTile` resolves it to a background + white glyph.
  *
- * Roles (see the Ink & Moss palette): `ai` transit blue-grey · `matcha` moss /
+ * Roles (see the Ink & Moss palette): `ai` transit cerulean · `matcha` green /
  * outdoors · `gold` food, drink, warmth · `ink-faint` neutral (a stay) ·
  * `accent` everything else — sights, culture, shopping, generic.
  */
@@ -37,7 +37,7 @@ export const AREA_TONES = ["#6f83a0", "#7e947a", "#a2856a", "#94788e", "#6f9494"
 /** `AREA_TONES`' hues taken down to the palette tones' depth, for an
  *  `IconTile` fill on a list row. The area tones are pale on purpose (they
  *  tint a map), which left a white glyph washed out next to Manage's
- *  accent / ochre / moss tiles; same index, same hue, just deeper. */
+ *  accent / amber / green tiles; same index, same hue, just deeper. */
 const TILE_TONES = ["#516a8f", "#658160", "#936f4d", "#825f7a", "#5a8787", "#8c8354", "#5a6186", "#8d6b54"];
 
 /** the muted grey used wherever a place/area has no real colour of its own
@@ -45,7 +45,7 @@ const TILE_TONES = ["#516a8f", "#658160", "#936f4d", "#825f7a", "#5a8787", "#8c8
  *  not retyped at every call site. */
 export const NEUTRAL_TONE = "#9aa3ad";
 
-/** train / bus / subway / ferry / plane / car / taxi → transit; on foot → moss.
+/** train / bus / subway / ferry / plane / car / taxi → transit; on foot → green.
  *  `MODE_TONE` in `lib/transport.ts` is the source of truth (the Journey hop
  *  cards read it directly). */
 export function toneForSegmentMode(mode: TransportMode): Tone {
