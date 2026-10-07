@@ -1279,6 +1279,9 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
   const updateEntity = useApp((s) => s.updateEntity);
   // an empty note stays out of the card until "Add a note" asks for it
   const [noteOpen, setNoteOpen] = useState(false);
+  // while its text is being edited, a step with no note offers one right
+  // under it, as Reminders does
+  const [titleEditing, setTitleEditing] = useState(false);
   // the same, for the note in the step's place card
   const [cardNote, setCardNote] = useState(false);
   const mapHref = item.url ? gmapsLink(item.url) : placeMapLink(place);
@@ -1604,6 +1607,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                 // place or note, or left by a tap elsewhere on its own row
                 // (its pin, time or ⋯), just loses its text
                 onBlank={(onRow) => (item.time || item.placeId || item.note || onRow ? item.text && onPatch({ text: "" }) : onRemove())}
+                onEditingChange={setTitleEditing}
                 className={STOP_TITLE}
               />
             )}
@@ -1630,6 +1634,18 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
               // shown, not edited, on a place's row — its tap opens the
               // card, where the note is edited
               item.note && <Markdown text={item.note} className={PLACE_ROW_NOTE} />
+            ) : !readOnly && !item.note && !noteOpen && titleEditing ? (
+              // keeps the title's focus on the way down, so the line is
+              // still here for the tap to land on
+              <button
+                type="button"
+                onPointerDown={(e) => e.preventDefault()}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => setNoteOpen(true)}
+                className="tap mt-0.5 block text-left text-xs leading-snug text-ink-faint"
+              >
+                Add a note
+              </button>
             ) : (readOnly || item.note || noteOpen) && (
               <RichNote
                 value={item.note ?? ""}

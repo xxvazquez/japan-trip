@@ -41,6 +41,9 @@ type Base = {
   /** a filled link / phone / email is edited from its row's menu instead of
    *  a pencil beside it (the iOS way): bump this to open the field */
   editSignal?: number;
+  /** the field opened or closed — for a row that shows more while its
+   *  text is being edited (Reminders' Add Note line) */
+  onEditingChange?: (editing: boolean) => void;
 };
 
 /** `auto` inspects the value and renders it as a date picker / phone / email /
@@ -159,6 +162,8 @@ export function Editable(props: Props) {
   const sheetAnchorRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => setDraft(value), [value]);
+  const onEditingChange = props.onEditingChange;
+  useEffect(() => onEditingChange?.(editing), [editing]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (editSignal) setEditing(true);
   }, [editSignal]);

@@ -182,6 +182,7 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 - **Setting a time** — the wheels start at the last time set on an earlier step (else 9:00). **Done** saves what's showing; tapping outside or swiping the sheet down cancels.
 - **12- or 24-hour** — follows the phone's own clock setting, for the times shown and for the wheels.
 - **Link or change a place** — tap a step's icon to pick a place: the day's Areas first, then the rest of that city, then elsewhere (search when the list is long). **More → Change Place** on its place card does the same; **Custom…** unlinks it.
+- **Note on an unlinked step** — tap its name to edit it and an **Add a note** line shows under it, as in Reminders. A linked step's note is on its place card.
 - **Meal steps** — an unlinked step whose text mentions a meal (lunch, dinner, breakfast…), coffee or drinks gets a gold food, coffee or drink tile instead of the grey pin.
 - **Time order** — steps keep themselves in time order. Set or change a step's time and it moves to its place in the day.
 - **Untimed steps** — drag the small ≡ on the right (shown on hover on a computer) to place one. It then stays with the step above it. A loose time ("Around noon") counts as untimed.
