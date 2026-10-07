@@ -2007,7 +2007,7 @@ function TimelineStop({ time, tile, trailing, children, className = "pr-3.5", on
   if (!onTap) {
     return (
       <span className={`relative flex gap-2.5 pl-3.5 ${className}`}>
-        <span className={`block ${TIME_COL} shrink-0 pb-2.5 pt-[15px] text-right text-xs tabular-nums text-ink-soft`}>{time}</span>
+        <span className={`block ${TIME_COL} shrink-0 pb-2.5 pt-[13.5px] text-right text-xs tabular-nums text-ink-soft`}>{time}</span>
         <Rail>{tile && <span className="relative z-10 block pt-2.5">{tile}</span>}</Rail>
         <span className="block min-w-0 flex-1 pb-2.5 pl-0.5 pt-[11px]">{children}</span>
         {trailing}
@@ -2033,7 +2033,7 @@ function TimelineStop({ time, tile, trailing, children, className = "pr-3.5", on
       }}
       className={`relative flex cursor-pointer gap-2.5 pl-3.5 transition-colors duration-150 active:bg-ink/[0.07] ${className}`}
     >
-      <span className={`block ${TIME_COL} shrink-0 pb-2.5 pt-[15px] text-right text-xs tabular-nums text-ink-soft`}>{time}</span>
+      <span className={`block ${TIME_COL} shrink-0 pb-2.5 pt-[13.5px] text-right text-xs tabular-nums text-ink-soft`}>{time}</span>
       <Rail>{tile && <span className="relative z-10 block pt-2.5">{tile}</span>}</Rail>
       <span className="block min-w-0 flex-1 pb-2.5 pl-0.5 pt-[11px]">{children}</span>
       {trailing}
