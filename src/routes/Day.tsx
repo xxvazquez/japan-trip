@@ -1575,14 +1575,16 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
             ) : range ? (
               // a range is two clock times, so each end opens its own wheel
               // (Calendar's Starts / Ends) instead of a text field squeezed
-              // into the time column; clearing one end leaves the other
+              // into the time column; clearing one end leaves the other. The
+              // start's tap area grows up and the end's down, so the two
+              // stacked times never steal each other's taps
               <span className="flex flex-col items-end">
                 <Editable
                   as="time"
                   label="Start time"
                   value={range[0]}
                   onCommit={(v) => onPatch({ time: v ? `${v}–${range[1]}` : range[1] })}
-                  className="tap not-italic"
+                  className="-mt-3 block pt-3 not-italic"
                 />
                 <Editable
                   as="time"
@@ -1590,7 +1592,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                   value={range[1]}
                   timeStart={range[0]}
                   onCommit={(v) => onPatch({ time: v ? `${range[0]}–${v}` : range[0] })}
-                  className="tap not-italic"
+                  className="-mb-3 block pb-3 not-italic"
                 />
               </span>
             ) : (

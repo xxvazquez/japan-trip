@@ -188,7 +188,7 @@ On a day that spans more than one part, the plan is split into **Morning** (befo
 
 A stop and the way on to the next one stay together: the walk or train sits under the stop it leaves from, never under a Morning/Afternoon band.
 
-- **Time** — a single time, or a range like `14:00–15:15` stacked as 14:00 over 15:15. An empty time is left blank — tap the gap to set one.
+- **Time** — a single time, or a range like `14:00–15:15` stacked as 14:00 over 15:15. Tap either end of a range to change it on the time wheel. An empty time is left blank — tap the gap to set one.
 - **Setting a time** — the wheels start at the last time set on an earlier step (else 9:00). **Done** saves what's showing; tapping outside or swiping the sheet down cancels.
 - **12- or 24-hour** — follows the phone's own clock setting, for the times shown and for the wheels.
 - **Link or change a place** — tap a step's icon to pick a place: the day's Areas first, then the rest of that city, then elsewhere (search when the list is long). **More → Change Place** on its place card does the same; **Custom…** unlinks it.
