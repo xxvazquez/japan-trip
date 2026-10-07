@@ -77,7 +77,7 @@ function NearbyMeta({ item, locale }: { item: NearbyItem; locale?: string }) {
     <span className="mt-0.5 block break-words text-xs leading-snug text-ink-faint">
       <span className="whitespace-nowrap">
         <Icon name="walk" size={12} className="mr-0.5 inline-block align-[-2px]" />
-        {item.min} min
+        ≈&nbsp;{item.min} min
       </span>
       {item.meal && <> · For {item.meal}</>}
       {item.plannedOn && (
@@ -225,7 +225,7 @@ export function NearbyCard({ open, onClose, anchorRef, item, group, date, locale
             <div className="min-w-0 flex-1">
               <h2 className="subhead break-words">{place.name}</h2>
               <p className={`mt-0.5 break-words text-xs ${hours === "Closed" ? "text-danger" : "text-ink-soft"}`}>
-                {item.min} min walk from {group.stop.name}
+                ≈&nbsp;{item.min} min walk from {group.stop.name}
                 {hours && <> · {hours === "Closed" ? "Closed this day" : fmtClocksIn(hours.replace(/-/g, "–"))}</>}
               </p>
             </div>

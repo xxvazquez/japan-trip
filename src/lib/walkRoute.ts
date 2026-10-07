@@ -12,6 +12,8 @@ import { haversineKm } from "./geo";
 export interface WalkRoute {
   min: number;
   km: number;
+  /** false for a real street route; anything else is a guess, shown with "≈" */
+  estimated?: boolean;
 }
 
 /** A rough stand-in until (or without) a real route: straight-line distance
@@ -20,7 +22,7 @@ export interface WalkRoute {
  *  first paint instead of one waiting on the routing API. */
 export function estimateWalk(straightKm: number): WalkRoute {
   const km = straightKm * 1.3;
-  return { min: Math.max(1, Math.round((km / 4.8) * 60)), km };
+  return { min: Math.max(1, Math.round((km / 4.8) * 60)), km, estimated: true };
 }
 
 /** A rough stand-in for the ride itself, between two stations: straight-line
@@ -52,7 +54,7 @@ const STORE_KEY = "za.walk.v1";
 const STORE_MAX = 400;
 try {
   const raw = localStorage.getItem(STORE_KEY);
-  if (raw) for (const [k, v] of Object.entries(JSON.parse(raw) as Record<string, WalkRoute>)) cache.set(k, v);
+  if (raw) for (const [k, v] of Object.entries(JSON.parse(raw) as Record<string, WalkRoute>)) cache.set(k, { ...v, estimated: false });
 } catch { /* private window or corrupt entry — start empty */ }
 
 function persist() {
@@ -90,7 +92,7 @@ async function fetchRoute(key: string, a: LatLng, b: LatLng): Promise<WalkRoute 
     const json = (await res.json()) as { routes?: { summary?: { distance: number; duration: number } }[] };
     const summary = json.routes?.[0]?.summary;
     if (!summary) throw new Error("no route");
-    const result: WalkRoute = { min: Math.max(1, Math.round(summary.duration / 60)), km: summary.distance / 1000 };
+    const result: WalkRoute = { min: Math.max(1, Math.round(summary.duration / 60)), km: summary.distance / 1000, estimated: false };
     cache.set(key, result);
     persist();
     return result;

@@ -2358,7 +2358,7 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
             className={pill}
           >
             <Icon name="walk" size={12} className="shrink-0" />
-            {fmtMinutes(walk.min)} · {fmtDistanceKm(walk.km)}
+            {walk.estimated !== false && "≈\u00a0"}{fmtMinutes(walk.min)} · {fmtDistanceKm(walk.km)}
           </a>
         )}
         {(long || train) && (
@@ -2377,7 +2377,8 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
               // total — a trailing walk's minutes read as the trip's otherwise
               <span className="min-w-0 break-words">
                 <span className="whitespace-nowrap">
-                  <Icon name="train" size={12} className="inline-block align-[-2px]" /> {fmtMinutes(trainMinutes(train))} ·
+                  {/* the ride itself is always a guess — no free source has the timetable */}
+                  <Icon name="train" size={12} className="inline-block align-[-2px]" /> ≈&nbsp;{fmtMinutes(trainMinutes(train))} ·
                 </span>{" "}
                 {train.walkIn != null && (
                   <span className="whitespace-nowrap">

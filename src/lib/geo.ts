@@ -20,8 +20,9 @@ export function fmtDistanceKm(km: number): string {
 }
 
 /** "≈ 6 min · 450 m" — a walk always reads as time and distance together. */
-export function fmtWalk(w: { min: number; km: number }): string {
-  return `≈\u00a0${fmtMinutes(w.min)} · ${fmtDistanceKm(w.km)}`;
+export function fmtWalk(w: { min: number; km: number; estimated?: boolean }): string {
+  // a real street route is said as it is; anything else is a guess
+  return `${w.estimated === false ? "" : "≈\u00a0"}${fmtMinutes(w.min)} · ${fmtDistanceKm(w.km)}`;
 }
 
 export type GeoState =

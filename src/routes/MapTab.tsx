@@ -99,7 +99,7 @@ function AreaWalkSpan({ items }: { items: Place[] }) {
   const pair = farthestPair(items);
   const route = useWalk(pair?.[0] ?? { lat: 0, lng: 0 }, pair?.[1]);
   if (!pair || !route) return null;
-  return <span className="block text-[15px] leading-snug text-ink-faint">Spans {fmtDistanceKm(route.km)} · {fmtMinutes(route.min)} walk</span>;
+  return <span className="block text-[15px] leading-snug text-ink-faint">Spans {fmtDistanceKm(route.km)} · {route.estimated !== false && "≈\u00a0"}{fmtMinutes(route.min)} walk</span>;
 }
 
 /** an area as a row of its city's card — the iOS outline list (Files' list
