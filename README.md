@@ -219,7 +219,7 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 - **＋ on a Morning / Afternoon / Evening band** adds a step at the end of that part of the day.
 - **An empty day** still shows where it starts and ends (the hotel rows), so it looks like every other day.
 - **＋** at the top of the day (where Plan has its ＋) offers **Add a step** — the same list, from anywhere on the page, so a long day needs no scroll — or **Add a journey**. A step with a time moves into place.
-- **Each journey on the day** shows as two rows of its own: **Leave** (first departure) and **Arrive** (last arrival), slotted in by time. They follow the journey live — edit the times on the journey, tap a row to open it.
+- **Each journey on the day** shows as two rows of its own: **Leave** (first departure) and **Arrive** (last arrival), slotted in by time. Leave carries how long the whole trip takes, the mode, carrier and changes, so you see it before you go. They follow the journey live — edit the times on the journey, tap a row to open it.
 
 ### Helpers on a step
 

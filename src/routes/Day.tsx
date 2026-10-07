@@ -1572,9 +1572,29 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                 className="tap not-italic"
                 emptyContent={UNTIMED}
               />
+            ) : range ? (
+              // a range is two clock times, so each end opens its own wheel
+              // (Calendar's Starts / Ends) instead of a text field squeezed
+              // into the time column; clearing one end leaves the other
+              <span className="flex flex-col items-end">
+                <Editable
+                  as="time"
+                  label="Start time"
+                  value={range[0]}
+                  onCommit={(v) => onPatch({ time: v ? `${v}–${range[1]}` : range[1] })}
+                  className="tap not-italic"
+                />
+                <Editable
+                  as="time"
+                  label="End time"
+                  value={range[1]}
+                  timeStart={range[0]}
+                  onCommit={(v) => onPatch({ time: v ? `${range[0]}–${v}` : range[0] })}
+                  className="tap not-italic"
+                />
+              </span>
             ) : (
-              // a loose time ("Around noon", a range) is typed — there's no
-              // wheel for it
+              // a loose time ("Around noon") is typed — there's no wheel for it
               <Editable
                 label="Time"
                 value={item.time ?? ""}
@@ -2105,15 +2125,27 @@ function trainMinutes(t: TrainOption): number {
   return (t.walkIn ?? 0) + t.ride + (t.walkOut ?? 0);
 }
 
+/** the caption under a journey's plan row — the whole trip's length, mode,
+ *  carrier and changes on the Leave row, where you plan from; nothing under
+ *  Arrive, its time says it all */
+function journeyStopMeta(journey: Journey, stop: ReturnType<typeof journeyStops>[number]): (string | false | null | undefined)[] {
+  if (stop.kind !== "leave") return [];
+  const { seg } = stop;
+  const segs = journey.segments;
+  const last = segs[segs.length - 1];
+  return [
+    fmtDuration(segs[0]?.depart, last?.arrive, segs[0]?.fromTz, last?.toTz),
+    MODE_LABEL[seg.mode], seg.carrier, seg.service,
+    segs.length > 1 && plural(segs.length - 1, "change"),
+  ];
+}
+
 /** One end of the day's journey as a plan row — "Leave Kyoto" at its first
  *  departure, "Arrive Kurama" at its last arrival. Read-only here; it opens
  *  the journey, where the times are edited. */
 function JourneyStopRow({ journey, stop }: { journey: Journey; stop: ReturnType<typeof journeyStops>[number] }) {
   const { seg } = stop;
-  const segs = journey.segments;
-  const meta = stop.kind === "leave"
-    ? [MODE_LABEL[seg.mode], seg.carrier, seg.service, segs.length > 1 && plural(segs.length - 1, "change")]
-    : [fmtDuration(segs[0]?.depart, seg.arrive, segs[0]?.fromTz, seg.toTz)];
+  const meta = journeyStopMeta(journey, stop);
   return (
     <li>
       <Link to={`/journey/${journey.id}`} className="block active:bg-ink/[0.07]">
@@ -2138,11 +2170,8 @@ const hotelHref = (hotel: Hotel) => gmapsLink(hotel.mapUrl || hotel.address || h
 
 /** a journey's row as the PDF prints it — what `JourneyStopRow` shows */
 function journeyPrint(stop: ReturnType<typeof journeyStops>[number] & { journey: Journey }): DayPdfRow {
-  const { seg, journey } = stop;
-  const segs = journey.segments;
-  const meta = stop.kind === "leave"
-    ? [MODE_LABEL[seg.mode], seg.carrier, seg.service, segs.length > 1 && plural(segs.length - 1, "change")]
-    : [fmtDuration(segs[0]?.depart, seg.arrive, segs[0]?.fromTz, seg.toTz)];
+  const { journey } = stop;
+  const meta = journeyStopMeta(journey, stop);
   return {
     time: fmtClock(stop.time),
     title: `${stop.kind === "leave" ? "Leave" : "Arrive"} ${stop.place || (stop.kind === "leave" ? "from start" : "at destination")}`,
