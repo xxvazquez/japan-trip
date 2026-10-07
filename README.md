@@ -144,7 +144,7 @@ Every section folds away from its header. Scroll down and the bar at the top kee
 | | What's in it |
 |---|---|
 | **Download Plan (PDF)** | Print-friendly: the date, title, labels and where you're staying, then the plan in order — times, places with their hours that day (or **Closed this day**), notes — then the day's notes. Wake up and Breakfast print once they have a time. |
-| **Download Full Day (PDF)** | A copy of the whole page as it looks, in light mode, with every section and note opened: travel between steps, Nearby, Areas, Spending, notes. Buttons are left out. Breaks between rows across A4 pages. |
+| **Download Full Day (PDF)** | A copy of the whole page as it looks, in light mode, with every section and note opened: travel between steps, Nearby, Areas, Spending, notes. Buttons and empty sections are left out. Pages break between rows: a step keeps its travel line, a Morning / Afternoon band and a section title keep their first row, a list's last row isn't left alone. |
 
 - Place and hotel names (and travel lines on the full copy) are links to Google Maps.
 - iPhone: opens the Share sheet (Save to Files, Print, AirDrop). Android and computer: downloads. Both work offline; the Plan's hours need to have been looked up once.

@@ -73,7 +73,7 @@ import { prefetchTiles, canPrefetchTiles, dayOfflinePoints } from "@/lib/offline
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon, expenseCategoryForGlyph } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import { selectInSplit } from "@/lib/splitSelect";
-import { buildDayPdf, buildPagePdf, mdToPlain, PDF_HREF, PDF_HIDE, type DayPdfRow } from "@/lib/dayPdf";
+import { buildDayPdf, buildPagePdf, mdToPlain, PDF_HREF, PDF_HIDE, PDF_KEEP, type DayPdfRow } from "@/lib/dayPdf";
 import { setExpandAll } from "@/lib/collapse";
 import { applyPalette } from "@/lib/mode";
 import { THEME_PRESETS } from "@/lib/themePresets";
@@ -1308,7 +1308,7 @@ function dayPart(time?: string): DayPart | undefined {
 function DayPartRow({ part, onAdd }: { part: DayPart; onAdd?: (el: HTMLElement) => void }) {
   const { label, icon, band, glyph } = DAY_PARTS[part];
   return (
-    <li aria-label={label} className="px-2.5 py-1.5">
+    <li aria-label={label} className="px-2.5 py-1.5" {...{ [PDF_KEEP]: "next" }}>
       <span className={`flex items-center gap-2 rounded-[10px] py-1.5 pl-3 ${onAdd ? "pr-1.5" : "pr-3"} ${band}`}>
         <Icon name={icon} size={15} className={`shrink-0 ${glyph}`} />
         <span className="min-w-0 flex-1 text-[15px] font-medium leading-snug text-ink">{label}</span>
@@ -2300,7 +2300,7 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
   return (
     // tucked up under the stop it leaves from, as Calendar hangs travel time
     // off an event — the room goes after it, before the next stop
-    <li className="-mt-1.5 flex gap-2.5 pl-3.5 pr-3.5">
+    <li className="-mt-1.5 flex gap-2.5 pl-3.5 pr-3.5" {...{ [PDF_KEEP]: "prev" }}>
       <span className={`${TIME_COL} shrink-0`} />
       <Rail />
       <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5 pb-2.5 pl-0.5">

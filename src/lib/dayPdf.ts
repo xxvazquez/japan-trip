@@ -349,6 +349,9 @@ export const PDF_HIDE = "data-pdf-hide";
 /** the link a non-link element stands for in the PDF (a place's name opens
  *  its card in the app; on paper it opens Google Maps) */
 export const PDF_HREF = "data-pdf-href";
+/** a row that mustn't be parted from its neighbour by a page break: "prev"
+ *  (a step's travel line) or "next" (a Morning / Afternoon band) */
+export const PDF_KEEP = "data-pdf-keep";
 
 const CONTROLS = [
   `[${PDF_HIDE}]`,
@@ -392,6 +395,9 @@ export async function buildPagePdf(root: HTMLElement, opts: {
     // the opened sections and notes draw, then settle
     await new Promise((r) => setTimeout(r, 450));
     await document.fonts?.ready;
+    // what a page holds, in the copy's CSS pixels
+    const pt = (W - 2 * M) / PAGE_PX;
+    const pageH = (H - 2 * M - FOOT) / pt;
     let breaks: number[] = [];
     let links: Link[] = [];
     const canvas = await html2canvas(root, {
@@ -410,11 +416,43 @@ export async function buildPagePdf(root: HTMLElement, opts: {
         // controls aren't content: add / ⋯ / ⓘ / fold buttons, drag grips,
         // accent action rows, and anything the page marks itself
         doc.querySelectorAll(CONTROLS).forEach((e) => ((e as HTMLElement).style.display = "none"));
+        // a section left empty once its buttons are gone (no spending yet,
+        // no notes) isn't printed at all
+        copy.querySelectorAll("section").forEach((sec) => {
+          const head = (sec.querySelector("h2") as HTMLElement | null)?.innerText ?? "";
+          if (!(sec as HTMLElement).innerText.replace(head, "").trim()) (sec as HTMLElement).style.display = "none";
+        });
         const top = copy.getBoundingClientRect().top;
-        // a page may end under any row or block
+        const box = (e: Element) => { const r = e.getBoundingClientRect(); return { top: r.top - top, bottom: r.bottom - top }; };
+        const shown = (e: Element) => (e as HTMLElement).offsetParent !== null;
+        // what a page break must not go through: each row, glued to the
+        // rows it belongs with, and each section's title with its first row
+        const keep: { top: number; bottom: number }[] = [];
+        let prev: { top: number; bottom: number } | undefined;
+        let glueNext = false;
+        for (const li of copy.querySelectorAll("li")) {
+          if (!shown(li) || li.parentElement?.closest("li")) continue;
+          const b = box(li);
+          const mode = li.getAttribute(PDF_KEEP);
+          // and a list's last row never sits alone at the top of a page
+          const last = ![...li.parentElement!.children].slice([...li.parentElement!.children].indexOf(li) + 1).some(shown);
+          if ((mode === "prev" || glueNext || last) && prev && b.top - prev.bottom < 24) prev.bottom = Math.max(prev.bottom, b.bottom);
+          else keep.push((prev = { ...b }));
+          glueNext = mode === "next";
+        }
+        copy.querySelectorAll("section").forEach((sec) => {
+          const first = [...sec.querySelectorAll("li, p")].find(shown);
+          if (shown(sec) && first) keep.push({ top: box(sec).top, bottom: box(first).bottom });
+        });
+        // where a page may end: under any row, line of a note, or block —
+        // as long as that doesn't cut through something kept whole. A row
+        // taller than most of a page can't be kept whole; it may break
+        // between its own paragraphs.
+        const whole = keep.filter((k) => k.bottom - k.top < pageH * 0.8);
         breaks = [...copy.querySelectorAll("li, section, p, h1, h2, h3")]
-          .map((e) => e.getBoundingClientRect().bottom - top)
-          .filter((y) => y > 0)
+          .filter(shown)
+          .map((e) => box(e).bottom)
+          .filter((y) => y > 0 && !whole.some((k) => y > k.top + 1 && y < k.bottom - 1))
           .sort((a, b) => a - b);
         links = [...copy.querySelectorAll<HTMLElement>(`a[href^="http"], [${PDF_HREF}]`)].flatMap((e) => {
           const href = e.getAttribute(PDF_HREF) ?? (e as HTMLAnchorElement).href;
@@ -424,17 +462,16 @@ export async function buildPagePdf(root: HTMLElement, opts: {
       },
     });
 
-    // the copy's own pixels per CSS pixel, and what a page holds in CSS pixels
+    // the copy's own pixels per CSS pixel
     const k = canvas.width / PAGE_PX;
-    const pt = (W - 2 * M) / PAGE_PX;
-    const pageH = (H - 2 * M - FOOT) / pt;
     const total = canvas.height / k;
     const slices: [number, number][] = [];
     for (let at = 0; at < total - 1;) {
       const limit = at + pageH;
       if (limit >= total) { slices.push([at, total]); break; }
-      // the lowest row end that fits, if it leaves the page at least half full
-      const end = [...breaks].reverse().find((y) => y <= limit && y > at + pageH / 2) ?? limit;
+      // the lowest clean break that fits, if it leaves the page at least a
+      // third full — else (one block taller than a page) cut where it must
+      const end = [...breaks].reverse().find((y) => y <= limit && y > at + pageH / 3) ?? limit;
       slices.push([at, end]);
       at = end;
     }
