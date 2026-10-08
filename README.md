@@ -558,7 +558,7 @@ Theme and trip logo. **Appearance** (light, dark or *Automatic*) is per device, 
 - Bullets written straight under a numbered step nest under that step.
 - Under the hood a note is still plain text (Markdown plus `{orange}…{/}` for colour and `{folded}` on a folded heading), so sync, backups and search are unchanged.
 
-**Deleting.** Every delete asks first (a confirm sheet that says what goes — "This day and its plan will be deleted." — or a second tap on a swiped row). After that, an **Undo** bar appears for a few seconds and puts back exactly what was removed. Only the last delete can be undone, and deleting a whole trip or a file can't be.
+**Deleting.** Every delete asks first (a confirm sheet that says what goes — "This day and its plan will be deleted." — or a second tap on a swiped row). After that, an **Undo** bar appears for 8 seconds (the clock stops while you're in another app) and puts back exactly what was removed. Only the last delete can be undone, and deleting a whole trip or a file can't be.
 
 **Save status** (signed in only), top right:
 

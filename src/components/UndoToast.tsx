@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useApp } from "@/store/useApp";
 
-const SHOW_MS = 6000;
+const SHOW_MS = 8000;
 
 /**
  * The "Day deleted · Undo" bar. Shows after any delete that went through
@@ -14,10 +14,21 @@ export function UndoToast({ besidePane }: { besidePane?: boolean }) {
   const undo = useApp((s) => s.undo);
   const dismiss = useApp((s) => s.dismissUndo);
 
+  // the countdown only runs while the app is on screen: a delete followed
+  // by a switch to another app still has its Undo waiting on the way back
   useEffect(() => {
     if (!toast) return;
-    const t = setTimeout(dismiss, SHOW_MS);
-    return () => clearTimeout(t);
+    let left = SHOW_MS;
+    let started = Date.now();
+    let t: ReturnType<typeof setTimeout> | undefined;
+    const run = () => { started = Date.now(); t = setTimeout(dismiss, left); };
+    const onVisibility = () => {
+      if (document.hidden) { clearTimeout(t); left -= Date.now() - started; }
+      else run();
+    };
+    if (!document.hidden) run();
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => { clearTimeout(t); document.removeEventListener("visibilitychange", onVisibility); };
   }, [toast?.key, dismiss]);
 
   if (!toast) return null;
