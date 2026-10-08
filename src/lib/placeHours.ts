@@ -41,10 +41,14 @@ export function namesMatch(place: string, tags: Record<string, string> = {}): bo
   });
 }
 
+const named_ = (tags: Record<string, string> = {}) => NAME_TAGS.some((k) => !!tags[k]?.trim());
+
 type OsmElement = { lat?: number; lon?: number; center?: { lat: number; lon: number }; tags?: Record<string, string> };
 
 /** the place's own hours out of everything tagged nearby: the nearest feature
- *  whose name matches, else one sitting right on the pin, else nothing */
+ *  whose name matches, else an unnamed one sitting right on the pin, else
+ *  nothing. A named feature that doesn't match is another business sharing
+ *  the building (a bar under a workshop), not the place under another name */
 export function pickHours(elements: OsmElement[], lat: number, lng: number, name?: string): PlaceHours | null {
   let named: PlaceHours | null = null;
   let atPin: PlaceHours | null = null;
@@ -55,7 +59,7 @@ export function pickHours(elements: OsmElement[], lat: number, lng: number, name
     if (!hours || elat === undefined || elon === undefined) continue;
     const km = haversineKm(lat, lng, elat, elon);
     if (name && namesMatch(name, el.tags) && (!named || km < named.km)) named = { hours, km };
-    if (km <= AT_PIN_KM && (!atPin || km < atPin.km)) atPin = { hours, km };
+    if (km <= AT_PIN_KM && !named_(el.tags) && (!atPin || km < atPin.km)) atPin = { hours, km };
   }
   return named ?? atPin;
 }
@@ -76,7 +80,7 @@ export function nearestOpeningHours(lat: number, lng: number, name?: string): Pr
   return p;
 }
 
-type NominatimRow = { lat: string; lon: string; extratags?: Record<string, string> };
+type NominatimRow = { lat: string; lon: string; name?: string; extratags?: Record<string, string> };
 
 /** Nominatim's take: search the place's name inside a ~400 m box around its
  *  pin (that finds the actual venue, with its tags), else whatever's at the pin. */
@@ -117,12 +121,13 @@ async function hoursFromNominatim(lat: number, lng: number, name?: string): Prom
     extratags: "1",
     addressdetails: "0",
   }, { low: true });
-  return pick(at && at.lat ? [at] : [], AT_PIN_KM);
+  // the same rule as `pickHours`: something named that isn't this place is a neighbour
+  return pick(at && at.lat && !at.name?.trim() ? [at] : [], AT_PIN_KM);
 }
 
 /** per pin *and* name — two places on one pin can have different hours.
- *  "hours2": answers stored under the old "hours." key were picked by
- *  distance alone, often a neighbour's, so they're left behind. */
+ *  "hours3": answers stored under older keys could be a named neighbour's
+ *  at the pin, so they're left behind. */
 const cacheKey = (lat: number, lng: number, name?: string) => `${lat.toFixed(4)},${lng.toFixed(4)},${name ? norm(name) : ""}`;
 
 /** what's already known without asking — this session's answer or one
@@ -130,13 +135,13 @@ const cacheKey = (lat: number, lng: number, name?: string) => `${lat.toFixed(4)}
 export function cachedOpeningHours(lat: number, lng: number, name?: string): PlaceHours | null | undefined {
   const key = cacheKey(lat, lng, name);
   if (cache.has(key)) return cache.get(key)!;
-  return readPersisted<PlaceHours>(`hours2.${key}`);
+  return readPersisted<PlaceHours>(`hours3.${key}`);
 }
 
 async function fetchOpeningHours(lat: number, lng: number, name?: string): Promise<PlaceHours | null> {
   const key = cacheKey(lat, lng, name);
   if (cache.has(key)) return cache.get(key)!;
-  const stored = readPersisted<PlaceHours>(`hours2.${key}`);
+  const stored = readPersisted<PlaceHours>(`hours3.${key}`);
   if (stored) {
     cache.set(key, stored);
     return stored;
@@ -152,14 +157,15 @@ async function fetchOpeningHours(lat: number, lng: number, name?: string): Promi
   } catch {
     try {
       best = await hoursFromNominatim(lat, lng, name);
-    } catch {
-      // not cached — a transient failure shouldn't stick as "no hours" forever
-      return null;
+    } catch (e) {
+      // not cached, and thrown rather than null — a transient failure isn't
+      // "no hours", and shouldn't stick or wipe an answer saved before
+      throw e;
     }
   }
   // cached even when null — "nothing tagged nearby" is a stable answer,
   // same as `transitStation.ts`'s own lookup cache
   cache.set(key, best);
-  if (best) writePersisted(`hours2.${key}`, best);
+  if (best) writePersisted(`hours3.${key}`, best);
   return best;
 }

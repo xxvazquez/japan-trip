@@ -28,5 +28,6 @@ describe("pickHours", () => {
   it("takes an unnamed match only when it sits on the pin", () => {
     expect(pickHours([at(0.0001, { opening_hours: "09:00-17:00" })], 35.0, 139.0, "Somewhere")?.hours).toBe("09:00-17:00");
     expect(pickHours([at(0.0005, { name: "Lawson", opening_hours: "24/7" })], 35.0, 139.0, "Section L Hamamatsucho")).toBeNull();
+    expect(pickHours([at(0.0001, { name: "Bar Ginza", opening_hours: "11:00-04:00" })], 35.0, 139.0, "Chopsticks Studio Ginza")).toBeNull();
   });
 });

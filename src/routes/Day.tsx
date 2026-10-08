@@ -436,7 +436,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       for (const { place: p } of g.items) {
         if (nearbyHours(p, day.date) !== undefined || cachedOpeningHours(p.lat, p.lng, p.name) !== undefined) continue;
         // a failed lookup isn't cached, so only an answer re-sorts the list
-        void nearestOpeningHours(p.lat, p.lng, p.name).then((h) => { if (live && h) bumpHours(); });
+        void nearestOpeningHours(p.lat, p.lng, p.name).then((h) => { if (live && h) bumpHours(); }, () => {});
       }
     }
     return () => { live = false; };

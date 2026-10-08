@@ -66,12 +66,15 @@ const STALE_DAYS = 30;
 /** bumped when the lookup learns something new, so places checked before
  *  are asked again — 4 added the place's website, 5 the one the summary
  *  names as official, 6 hours from OpenStreetMap and only what two
- *  searches agree on */
-const FACTS_VERSION = 6;
+ *  searches agree on, 7 never a neighbour's OpenStreetMap hours (asked
+ *  again only where the hours came from it) */
+const FACTS_VERSION = 7;
 
 export const hasFacts = (f: PlaceFacts | undefined): f is PlaceFacts => !!f && (!!f.website || !!f.menu || FACT_ROWS.some(([k]) => factValue(f, k)));
 const stale = (f: PlaceFacts) =>
-  (f.version ?? 1) < FACTS_VERSION || Date.now() - Date.parse(f.checkedAt) > STALE_DAYS * 864e5 ||
+  (f.version ?? 1) < 6 ||
+  ((f.version ?? 1) < FACTS_VERSION && (f.from?.hours === "osm" || f.from?.closed === "osm")) ||
+  Date.now() - Date.parse(f.checkedAt) > STALE_DAYS * 864e5 ||
   // a tag that only lists closed days was once read as closed all the others
   (f.from?.closed === "osm" && !!f.osm && onlyClosedDays(f.osm) && f.closed !== osmFacts(f.osm, f.checkedAt).closed);
 
@@ -235,19 +238,23 @@ async function ask(p: Place, area: string | undefined, kind: "food" | "sight"): 
     // hours over the searches' — a tag says the same thing every time
     const [{ website, menu }, osm] = await Promise.all([
       osmLinks(p.lat, p.lng, p.name).catch(() => ({ website: undefined, menu: undefined })),
-      nearestOpeningHours(p.lat, p.lng, p.name).catch(() => null),
+      // undefined when OpenStreetMap couldn't be asked, null when it has nothing
+      nearestOpeningHours(p.lat, p.lng, p.name).catch(() => undefined),
     ]);
     const from: PlaceFacts["from"] = {};
     for (const [k] of FACT_ROWS) if (facts?.[k]) from[k] = "web";
     const out: PlaceFacts = { ...(facts ?? { checkedAt: todayISO() }), ...(website && { website }), ...(menu && { menu }) };
-    if (osm) {
+    // hours read off OpenStreetMap before keep reading day by day when it
+    // can't be asked now — but not when it answered without them
+    const tag = osm ? osm.hours : osm === undefined && p.facts?.from?.hours === "osm" ? p.facts.osm : undefined;
+    if (tag) {
       const ref = useApp.getState().data?.meta.start || todayISO();
-      const read = osmFacts(osm.hours, ref);
-      out.osm = osm.hours;
+      const read = osmFacts(tag, ref);
+      out.osm = tag;
       if (read.hours) { out.hours = read.hours; from.hours = "osm"; }
       if (read.closed) { out.closed = read.closed; from.closed = "osm"; }
     }
-    if (!facts && !website && !menu && !osm) return null;
+    if (!facts && !website && !menu && !tag) return null;
     return { ...out, from };
   } catch {
     return "search";
@@ -290,11 +297,11 @@ export async function refreshFacts(p: Place, area: string | undefined): Promise<
   if (merged && kept) {
     for (const [k] of FACT_ROWS) {
       if (merged[k] || !kept[k]) continue;
+      // hours OpenStreetMap no longer gives this place (a neighbour's, once) aren't kept
+      if (kept.from?.[k] === "osm") continue;
       merged[k] = kept[k];
       if (kept.from?.[k]) merged.from![k] = kept.from[k];
     }
-    // hours kept from OpenStreetMap keep reading day by day
-    if (!found!.osm && kept.osm && merged.from?.hours === "osm") merged.osm = kept.osm;
   }
   updateEntity<Place>("places", p.id, {
     facts: {
