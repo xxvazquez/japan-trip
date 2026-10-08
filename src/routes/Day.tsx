@@ -3,8 +3,7 @@ import { flushSync } from "react-dom";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   DndContext,
-  PointerSensor,
-  TouchSensor,
+  MouseSensor,
   KeyboardSensor,
   useSensor,
   useSensors,
@@ -12,6 +11,7 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { HoldDragSensor, swallowNextClick } from "@/lib/holdDrag";
 import { moveAroundPinned, sortByTime, startMinutes } from "@/lib/planOrder";
 import { CSS } from "@dnd-kit/utilities";
 import { Page, PageHeader } from "@/components/Page";
@@ -1016,8 +1016,10 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   onShowOnMap: (place: Place) => void;
 }) {
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 8 } }),
+    // a mouse drags by the grip; a finger holds the row still, then moves —
+    // no grip on a touch screen, as Plan's days and iOS lists reorder
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(HoldDragSensor),
     useSensor(KeyboardSensor),
   );
   // every step goes where its time puts it — a pin only locks a step's time
@@ -1342,6 +1344,8 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   if (readOnly) return timeline;
 
   const onDragEnd = ({ active, over }: DragEndEvent) => {
+    // the finger lifting off a dropped row isn't a tap on it
+    swallowNextClick();
     if (!over || active.id === over.id) return;
     const from = items.findIndex((x) => x.id === active.id);
     const to = items.findIndex((x) => x.id === over.id);
@@ -1598,9 +1602,11 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
       ref={(el) => { setNodeRef(el); rowRef.current = el; }}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={`group relative ${isDragging ? "z-10 bg-surface opacity-80" : ""}`}
+      // held on a touch screen, the whole row lifts (the grip is mouse-only)
+      onTouchStart={readOnly || timed || pinned ? undefined : (listeners?.onTouchStart as React.TouchEventHandler | undefined)}
     >
       <SwipeToDelete undoLabel="Step removed" onDelete={readOnly ? undefined : onRemove}>
-      <ContextMenu>
+      <ContextMenu dismiss={isDragging}>
         <TimelineStop
           onTap={openCard}
           tapLabel={place ? `About ${place.name}` : undefined}
@@ -1771,8 +1777,9 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
               ) : !readOnly && !timed && (
                 <button
                   {...attributes}
-                  {...listeners}
-                  className="hover-reveal tap grid h-7 w-6 cursor-grab touch-none place-items-center text-ink-faint active:cursor-grabbing"
+                  onMouseDown={listeners?.onMouseDown as React.MouseEventHandler | undefined}
+                  onKeyDown={listeners?.onKeyDown as React.KeyboardEventHandler | undefined}
+                  className="hover-reveal tap grid h-7 w-6 [@media(hover:none)]:hidden cursor-grab touch-none place-items-center text-ink-faint active:cursor-grabbing"
                   aria-label="Drag to reorder"
                 >
                   <Icon name="reorder" size={16} />

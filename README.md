@@ -209,7 +209,7 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 - **Note on an unlinked step** — tap its name to edit it and an **Add a note** line shows under it, as in Reminders. A linked step's note is on its place card.
 - **Meal steps** — an unlinked step whose text mentions a meal (lunch, dinner, breakfast…), coffee or drinks gets a gold food, coffee or drink tile instead of the grey pin.
 - **Time order** — steps keep themselves in time order. Set or change a step's time and it moves to its place in the day.
-- **Untimed steps** — drag the small ≡ on the right (shown on hover on a computer) to place one. It then stays with the step above it. A loose time ("Around noon") counts as untimed.
+- **Untimed steps** — hold one, then drag it up or down (on a computer, drag the small ≡ that shows on hover). Holding without moving opens its menu instead. It then stays with the step above it. A loose time ("Around noon") counts as untimed.
 - **Pin a step** from its menu (**Pin this step**) to lock its time, e.g. a booking — it shows a pin, and tapping its time or the pin offers **Unpin** or **Unpin and change time**. It still sits where its time puts it. **Unpin this step** in the menu, or **More → Pin Time** on its place card, unlocks it too. Only a step with a time can be pinned.
 - **Mark as optional** from a step's menu, or **More → Optional** on its place card, for something nice to do but not a must: an ochre ◌ Optional tag shows under its name. **Make this a must** undoes it.
 - **The place card** — tap a linked step's name or note, as you'd tap a place in Maps. ✕ or a drag down closes it.
