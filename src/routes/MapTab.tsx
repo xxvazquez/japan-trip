@@ -43,7 +43,7 @@ import { ChipStrip } from "@/components/ChipStrip";
 import { categoryName, glyphPath } from "@/lib/mapGlyphs";
 import { neighbourhoodAreas, usePlaceLevels } from "@/lib/neighbourhood";
 import { placeColor, placeTile, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
-import { canonicalLegs } from "@/lib/cityAssign";
+import { canonicalLegs, cityNear } from "@/lib/cityAssign";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import { dayStay, stayIdOfPin, stayPins, withStayCategory } from "@/lib/stayPins";
@@ -841,9 +841,44 @@ export default function MapTab() {
   };
 
   // set the contextual default scope once the trip is loaded
+  /** the scope the map picked by itself — while it's still showing, finding
+   *  where you are may move it; once you pick a pill, it's yours */
+  const autoScope = useRef<string | null>(null);
   useEffect(() => {
-    if (data && scope === null) setScope(defaultScope(data));
+    if (data && scope === null) {
+      autoScope.current = defaultScope(data);
+      setScope(autoScope.current);
+    }
   }, [data, scope]);
+
+  // then open on the city you're actually in, if you're near one of the
+  // trip's places — the date only guesses (it says Tokyo before the trip
+  // starts, and nothing about which town you went to today). Silent: no
+  // location, or nowhere near the trip, keeps the date's guess.
+  const [here, setHere] = useState<{ lat: number; lng: number } | null>(null);
+  useEffect(() => {
+    if (!("geolocation" in navigator)) return;
+    let cancelled = false;
+    const locate = () =>
+      navigator.geolocation.getCurrentPosition(
+        (pos) => { if (!cancelled) setHere({ lat: pos.coords.latitude, lng: pos.coords.longitude }); },
+        () => {},
+        { enableHighAccuracy: false, timeout: 10_000, maximumAge: 5 * 60_000 },
+      );
+    // never re-ask once location has been refused
+    const perms = navigator.permissions?.query({ name: "geolocation" });
+    if (perms) perms.then((s) => { if (s.state !== "denied") locate(); }, locate);
+    else locate();
+    return () => { cancelled = true; };
+  }, []);
+  useEffect(() => {
+    if (!here || scope === null || scope !== autoScope.current) return;
+    const city = cityNear(here.lat, here.lng, places, placeLeg);
+    if (!city) return;
+    const next = `leg:${city}`;
+    autoScope.current = next;
+    if (next !== scope) setScope(next);
+  }, [here, scope, places, placeLeg]);
 
   // arrived from search with ?sel=<placeId>: widen to all places so the pin is
   // on the map, select it, then drop the param
@@ -1479,7 +1514,7 @@ export default function MapTab() {
               return (
                 <button
                   key={city.id}
-                  onClick={() => { setScope(city.id); setSelected(null); setAreaFilter(new Set()); setCatFilter(new Set()); }}
+                  onClick={() => { autoScope.current = null; setScope(city.id); setSelected(null); setAreaFilter(new Set()); setCatFilter(new Set()); }}
                   className="chip"
                   aria-pressed={active}
                 >

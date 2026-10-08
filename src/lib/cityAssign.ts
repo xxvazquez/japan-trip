@@ -189,3 +189,18 @@ export function placeCityMap(
   }
   return m;
 }
+
+/** The city you're in right now: the city of the trip place nearest to
+ *  you, if it's within `MAX_ANCHOR_KM` — so Osaka opens on Osaka (or Kyoto,
+ *  if that's what's closest) whatever the date. Undefined when you're far
+ *  from every place (at home before the trip). */
+export function cityNear(lat: number, lng: number, places: Place[], placeCity: Map<string, string>): string | undefined {
+  let best: string | undefined, bd = MAX_ANCHOR_KM;
+  for (const p of places) {
+    const city = placeCity.get(p.id);
+    if (!city) continue;
+    const d = haversineKm(lat, lng, p.lat, p.lng);
+    if (d <= bd) { bd = d; best = city; }
+  }
+  return best;
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { placeCityMap, dayTripCities, dayTripLabel, dayTripQuery } from "./cityAssign";
+import { placeCityMap, dayTripCities, dayTripLabel, dayTripQuery, cityNear } from "./cityAssign";
 import type { TripData } from "@/core/types";
 
 const place = (id: string, lat: number, lng: number) => ({ id, name: id, lat, lng });
@@ -37,5 +37,19 @@ describe("day trips are cities of their own", () => {
     // no anchor passed: the lookup said Arashiyama is in Kyoto
     const m = placeCityMap(d, undefined, new Map(), []);
     expect(m.get("bamboo")).toBe("kyoto");
+  });
+});
+
+describe("the city you're in", () => {
+  const places = [place("dotonbori", 34.669, 135.501), place("kinkakuji", 35.039, 135.729), place("sensoji", 35.715, 139.797)];
+  const city = new Map([["dotonbori", "osaka"], ["kinkakuji", "kyoto"], ["sensoji", "tokyo"]]);
+
+  it("is the city of the nearest place", () => {
+    expect(cityNear(34.702, 135.496, places, city)).toBe("osaka"); // Umeda
+    expect(cityNear(35.0, 135.77, places, city)).toBe("kyoto");
+  });
+
+  it("is nothing when every place is far away", () => {
+    expect(cityNear(51.5, -0.12, places, city)).toBeUndefined();
   });
 });
