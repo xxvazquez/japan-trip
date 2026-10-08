@@ -125,15 +125,15 @@ export default function Day() {
 /** The Plan section's ⓘ, worded for the device in hand */
 const PLAN_TIPS_TOUCH: Tip[] = [
   { icon: "clock", title: "Steps sort by time", text: "Set a time and the step moves into place." },
-  { icon: "reorder", title: "Move an untimed step", text: "Touch and hold ≡, then drag the step where you want it. It stays with the step above it." },
+  { icon: "reorder", title: "Move an untimed step", text: "Touch and hold the step, then drag it where you want it. It stays with the step above it." },
   { icon: "pushpin", title: "Pin a booking", text: "Touch and hold a step, then tap Pin this step. Its time stays locked until you unpin it." },
-  { icon: "pin", title: "Link a place", text: "Tap a step's grey pin and pick a place from an area added below." },
+  { icon: "pin", title: "Link a place", text: "Tap a step's icon and pick one of your saved places — the day's areas come first." },
 ];
 const PLAN_TIPS_POINTER: Tip[] = [
   { icon: "clock", title: "Steps sort by time", text: "Set a time and the step moves into place." },
   { icon: "reorder", title: "Move an untimed step", text: "Point at the step and drag its ≡ where you want it. It stays with the step above it." },
   { icon: "pushpin", title: "Pin a booking", text: "Right-click a step and choose Pin this step. Its time stays locked until you unpin it." },
-  { icon: "pin", title: "Link a place", text: "Click a step's grey pin and pick a place from an area added below." },
+  { icon: "pin", title: "Link a place", text: "Click a step's icon and pick one of your saved places — the day's areas come first." },
 ];
 
 function DayPage({ data, day }: { data: TripData; day: DayT }) {
