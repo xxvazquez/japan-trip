@@ -1728,10 +1728,7 @@ export default function MapTab() {
             </>
           )}
           {searchHits.areas.length === 0 && searchHits.places.length === 0 && (
-            <div className="px-6 py-10 text-center">
-              <p className="text-[17px] text-ink">No Results</p>
-              <p className="meta mt-1 break-words">Nothing on this trip matches “{settledQuery.trim()}”.</p>
-            </div>
+            <ListEmpty title="No Results" text={`Nothing on this trip matches “${settledQuery.trim()}”.`} />
           )}
           <div className="h-4" />
         </div>
@@ -1740,7 +1737,7 @@ export default function MapTab() {
           {nearby.list.length > 0 ? (
             <ul className={`${PLACE_CARD} mt-3`}>{nearby.list.map((p) => renderRow(p, nearby.distances.get(p.id)))}</ul>
           ) : (
-            <p className="meta px-4 py-6">Nothing on the map for today. Pick “All”, or add a place above.</p>
+            <ListEmpty title="No Places Today" text="Pick All to see the whole trip, or add a place with +." />
           )}
           <div className="h-4" />
         </div>
@@ -1816,11 +1813,9 @@ export default function MapTab() {
             </ul>
           )}
           {areaGroups.length === 0 && (
-            <p className="meta px-4 py-6">
-              {places.length === 0
-                ? "No places yet. Add one above, or paste a Google My Maps link in Manage to import your pins."
-                : "No places in this view. Clear the area or category filter."}
-            </p>
+            places.length === 0
+              ? <ListEmpty title="No Places" text="Add one with +, or paste a Google My Maps link in Manage to bring in your pins." />
+              : <ListEmpty title="No Places in This View" text="Clear the area or category filter." />
           )}
           <div className="h-4" />
         </div>
@@ -1828,13 +1823,11 @@ export default function MapTab() {
         <div key="list" {...listProps(forMobile)} className="min-h-0 flex-1 overflow-y-auto">
           {scoped.length > 0 && <ul className={`${PLACE_CARD} mt-3`}>{scoped.map((p) => renderRow(p))}</ul>}
           {scoped.length === 0 && (
-            <p className="meta px-4 py-6">
-              {places.length === 0
-                ? "No places yet. Add one above, or paste a Google My Maps link in Manage to import your pins."
-                : scope?.startsWith("day:")
-                  ? "Nothing on the map for today. Pick “All”, or add a place above."
-                  : "No places in this city yet. Pick “All”, or add one above."}
-            </p>
+            places.length === 0
+              ? <ListEmpty title="No Places" text="Add one with +, or paste a Google My Maps link in Manage to bring in your pins." />
+              : scope?.startsWith("day:")
+                ? <ListEmpty title="No Places Today" text="Pick All to see the whole trip, or add a place with +." />
+                : <ListEmpty title="No Places in This City" text="Pick All, or add one with +." />
           )}
           <div className="h-4" />
         </div>
@@ -2547,4 +2540,15 @@ function circleRing(lng: number, lat: number, km: number, n = 56): [number, numb
     ring.push([lng + dLng * Math.cos(t), lat + dLat * Math.sin(t)]);
   }
   return ring;
+}
+
+/** An empty list, as Maps and Photos draw one: a short title centred over a
+ *  line saying what to do next. */
+function ListEmpty({ title, text }: { title: string; text: string }) {
+  return (
+    <div className="px-6 py-10 text-center">
+      <p className="text-[17px] text-ink">{title}</p>
+      <p className="meta mt-1 break-words">{text}</p>
+    </div>
+  );
 }
