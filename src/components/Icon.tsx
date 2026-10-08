@@ -12,8 +12,6 @@ export type IconName =
   | "back"
   | "sun"
   | "sunrise"
-  | "sunup"
-  | "sundown"
   | "star"
   | "moon"
   | "auto"
@@ -125,17 +123,6 @@ const P: Record<IconName, JSX.Element> = {
     <>
       <path d="M7 17a5 5 0 0 1 10 0" />
       <path d="M3 17h18M12 5v3M4.9 9.9l1.4 1.4M19.1 9.9l-1.4 1.4M3 21h18" />
-    </>
-  ),
-  // sunrise and sunset times: the sun on the horizon, an arrow up or down
-  sunup: (
-    <>
-      <path d="M7 20.5a5 5 0 0 1 10 0M2.5 20.5h19M12 2v10M7.5 6.5 12 2l4.5 4.5" />
-    </>
-  ),
-  sundown: (
-    <>
-      <path d="M7 20.5a5 5 0 0 1 10 0M2.5 20.5h19M12 2v10M7.5 7.5 12 12l4.5-4.5" />
     </>
   ),
   auto: (
