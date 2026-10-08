@@ -66,7 +66,7 @@ export function MoneyField({
         type="button"
         onClick={() => setOpen(true)}
         aria-label={`Edit ${label}`}
-        className={`editable inline text-right tabular-nums ${bare ? "whitespace-nowrap" : "break-words"} ${!amount ? "italic text-ink-faint" : ""} ${trailing ? "mr-[36px]" : ""}`}
+        className={`editable inline text-right tabular-nums ${bare ? "whitespace-nowrap" : "break-words"} ${!amount ? "text-ink-faint" : ""} ${trailing ? "mr-[36px]" : ""}`}
       >
         {!amount ? "—"
           : bare ? `${before}${shape.number}${after || code}`

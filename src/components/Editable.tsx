@@ -289,7 +289,7 @@ export function Editable(props: Props) {
   if (as === "date") {
     if (!value) {
       return (
-        <span className={`editable relative inline-block italic text-ink-faint ${className}`}>
+        <span className={`editable relative inline-block text-ink-faint ${className}`}>
           {emptyContent || (props.placeholder ?? "Add a date")}
           <input
             type="date"
@@ -333,7 +333,7 @@ export function Editable(props: Props) {
           type="button"
           onClick={() => setSheetOpen(true)}
           aria-label={`Edit ${label}`}
-          className={`editable inline bg-transparent text-left tabular-nums ${!value ? "italic text-ink-faint" : ""} ${className}`}
+          className={`editable inline bg-transparent text-left tabular-nums ${!value ? "text-ink-faint" : ""} ${className}`}
         >
           {value ? fmtClock(value) : emptyContent || placeholder}
         </button>
@@ -361,7 +361,7 @@ export function Editable(props: Props) {
           type="button"
           onClick={() => setSheetOpen(true)}
           aria-label={`Edit ${label}`}
-          className={`editable inline text-left tabular-nums ${!value ? "italic text-ink-faint" : ""} ${className}`}
+          className={`editable inline text-left tabular-nums ${!value ? "text-ink-faint" : ""} ${className}`}
         >
           {value ? displayValue : placeholder}
         </button>
@@ -384,7 +384,7 @@ export function Editable(props: Props) {
         type="button"
         onClick={() => setEditing(true)}
         aria-label={`Edit ${label}`}
-        className={`editable inline text-left ${empty ? "italic text-ink-faint" : ""} ${className}`}
+        className={`editable inline text-left ${empty ? "text-ink-faint" : ""} ${className}`}
       >
         {empty ? placeholder : displayValue}
       </button>

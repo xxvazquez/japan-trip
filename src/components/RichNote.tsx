@@ -170,7 +170,7 @@ export function RichNote({
         )}
       </div>
     ) : (
-      <button type="button" onClick={startEditing} aria-label="Add a note" className={`editable block text-left italic text-ink-faint ${className}`}>
+      <button type="button" onClick={startEditing} aria-label="Add a note" className={`editable block text-left text-ink-faint ${className}`}>
         {placeholder}
       </button>
     );

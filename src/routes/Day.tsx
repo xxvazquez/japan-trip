@@ -1647,7 +1647,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                 value={item.time ?? ""}
                 onCommit={(v) => onPatch({ time: v || undefined })}
                 timeStart={timeStart}
-                className="tap not-italic"
+                className="tap"
                 emptyContent={UNTIMED}
               />
             ) : range ? (
@@ -1662,7 +1662,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                   label="Start time"
                   value={range[0]}
                   onCommit={(v) => onPatch({ time: v ? `${v}–${range[1]}` : range[1] })}
-                  className="-mt-3 block pt-3 not-italic"
+                  className="-mt-3 block pt-3"
                 />
                 <Editable
                   as="time"
@@ -1670,7 +1670,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                   value={range[1]}
                   timeStart={range[0]}
                   onCommit={(v) => onPatch({ time: v ? `${range[0]}–${v}` : range[0] })}
-                  className="-mb-3 block pb-3 not-italic"
+                  className="-mb-3 block pb-3"
                 />
               </span>
             ) : (
@@ -2413,7 +2413,7 @@ function HotelRowTime({ label, time, timeStart, readOnly, onTime }: {
       value={time ?? ""}
       onCommit={(v) => onTime(v || undefined)}
       timeStart={timeStart}
-      className="tap not-italic"
+      className="tap"
       emptyContent={UNTIMED}
     />
   );
