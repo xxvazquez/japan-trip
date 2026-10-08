@@ -72,6 +72,7 @@ import { NEARBY_WALK_MIN, nearbyForDay, type NearbyGroup, type NearbyItem } from
 import { NearbyCard, NearbyGroupRows, NearbyProvider, NearbyRow, usePlaceHours, useStepNearby } from "@/components/Nearby";
 import { fetchDayWeather, forecastSpot, weatherLabel, type DayWeather } from "@/lib/weather";
 import { sunTimes } from "@/lib/sun";
+import { useZoneAt } from "@/lib/zoneAt";
 import { safeTz } from "@/lib/tz";
 import { prefetchTiles, canPrefetchTiles, dayOfflinePoints } from "@/lib/offlineTiles";
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon, expenseCategoryForGlyph } from "@/lib/cost";
@@ -344,9 +345,11 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     return () => { cancelled = true; };
   }, [spotKey, day.date]); // eslint-disable-line react-hooks/exhaustive-deps
   // sunrise and sunset for that same spot (else the middle of the day's
-  // places), worked out on the device — every date, offline too
+  // places), worked out on the device — every date, offline too — on that
+  // spot's own clock; the trip's zone stands in until it's been looked up
   const sunSpot = spot ?? forecastSpot(undefined, dayPlaces, true);
-  const sun = sunSpot ? sunTimes(sunSpot.lat, sunSpot.lng, day.date, safeTz(data.config.tripTimeZone)) : {};
+  const sunZone = useZoneAt(sunSpot) ?? safeTz(data.config.tripTimeZone);
+  const sun = sunSpot ? sunTimes(sunSpot.lat, sunSpot.lng, day.date, sunZone) : {};
   const sunText = [sun.rise && `Sunrise ${fmtClock(sun.rise)}`, sun.set && `Sunset ${fmtClock(sun.set)}`].filter(Boolean).join(" · ");
 
   // offline pre-fetch — every place this day's map shows (its areas, its own

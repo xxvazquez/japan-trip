@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { geocode } from "./geocode";
 import { mapUrlCoords } from "./maps";
+import { zoneAt } from "./zoneAt";
 import { useApp } from "@/store/useApp";
 import type { Hotel } from "@/core/types";
 
@@ -61,21 +62,6 @@ export function useAutoHotelCoords(enabled: boolean) {
     })();
     return () => { stop = true; };
   }, [enabled, hotels, updateEntity]);
-}
-
-/** The IANA zone at a point, from Open-Meteo (the same keyless service the
- *  forecast uses — `timezone=auto` names the zone for any coordinates). */
-async function zoneAt(lat: number, lng: number): Promise<string | null> {
-  try {
-    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weathercode&forecast_days=1&timezone=auto`);
-    if (!res.ok) return null;
-    const tz = ((await res.json()) as { timezone?: string }).timezone;
-    if (!tz) return null;
-    Intl.DateTimeFormat(undefined, { timeZone: tz }); // throws on a name the browser doesn't know
-    return tz;
-  } catch {
-    return null;
-  }
 }
 
 /**

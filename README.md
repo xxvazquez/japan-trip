@@ -137,7 +137,8 @@ Tap a day on Plan to open it. From top to bottom:
 1. **Staying at** — which hotel, with a row under it to open that stay.
 2. **Journeys** — every journey on the day (a bus, a train, a flight), in the order they leave. See [Journeys on a day](#journeys-on-a-day).
 3. **Weather** — the header shows the forecast ("Showers, 19–24°C"): at the hotel, or on a day trip at the day's own places away from it (Nara, not Kyoto). Forecasts only reach ~16 days ahead, so later days show nothing until they're close enough. Offline, the last saved one shows with *as of 6 Oct* when it's from an earlier day.
-   - Under it, **Sunrise and Sunset** for that same spot on that exact date, in the trip time zone. Worked out on the device, so every day has them, offline too.
+   - Under it, **Sunrise and Sunset** for that same spot on that exact date, on that place's own clock. Worked out on the device, so every day has them, offline too.
+   - The place's time zone is looked up once and saved on the device. Until then (offline, never opened) the trip time zone stands in.
 4. **The itinerary** — the day's steps (below).
 5. **Nearby** — saved places close to the day's stops, kept out of the plan. Starts shut, like Areas; open or shut, it stays that way on every day. See [Nearby on a day](#nearby-on-a-day).
 6. **Areas** — drop a whole neighbourhood's places onto the day's map.
