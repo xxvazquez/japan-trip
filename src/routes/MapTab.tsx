@@ -657,6 +657,9 @@ function useMapEditing(
   };
 }
 
+/** room a fitted map leaves on its right for the zoom / location buttons */
+const CONTROLS_CLEAR = 72;
+
 export default function MapTab() {
   const data = useData();
   const updateEntity = useApp((s) => s.updateEntity);
@@ -1158,9 +1161,11 @@ export default function MapTab() {
     return [...byName.values()].filter((g) => g.length > 1);
   }, [data]);
 
-  // fit the map to the current scope when nothing is selected. On a phone the
-  // pins are framed in the map left showing above the half sheet — the stop
-  // the list opens at — so none sit hidden behind it.
+  // fit the map to the current scope when nothing is selected. The right
+  // edge leaves room for the zoom and location buttons, so no pin hides
+  // under them. On a phone the pins are framed in the map left showing
+  // above the half sheet — the stop the list opens at — so none sit hidden
+  // behind it.
   const fitScope = () => {
     const m = map.current;
     if (!m || selected || shown.length === 0) return;
@@ -1169,7 +1174,7 @@ export default function MapTab() {
     const bottom = wide || listOnly ? 44 : halfStopPx + 24;
     m.fitBounds(
       [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
-      { padding: { top: 56, right: 44, bottom, left: 44 }, maxZoom: 15, duration: 500 },
+      { padding: { top: 56, right: CONTROLS_CLEAR, bottom, left: 44 }, maxZoom: 15, duration: 500 },
     );
   };
   // the map can finish loading after the scope settles: fit again once it has
@@ -1220,7 +1225,7 @@ export default function MapTab() {
         const lngs = pts.map((p) => p.lng), lats = pts.map((p) => p.lat);
         m.fitBounds(
           [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
-          { padding: { top: 56, right: 44, bottom: wide || listOnly ? 44 : halfStopPx + 24, left: 44 }, maxZoom: 16, duration: 500 },
+          { padding: { top: 56, right: CONTROLS_CLEAR, bottom: wide || listOnly ? 44 : halfStopPx + 24, left: 44 }, maxZoom: 16, duration: 500 },
         );
       }
     }

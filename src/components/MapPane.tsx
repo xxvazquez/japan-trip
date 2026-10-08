@@ -69,7 +69,8 @@ export default function MapPane({ dayId }: { dayId: string }) {
     const lats = ctx.places.map((p) => p.lat);
     m.fitBounds(
       [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
-      { padding: 56, maxZoom: 15, duration: first.current ? 0 : 450 },
+      // the right edge clears the zoom / location buttons
+      { padding: { top: 56, right: 72, bottom: 56, left: 56 }, maxZoom: 15, duration: first.current ? 0 : 450 },
     );
     first.current = false;
   }, [fitKey, ready]); // eslint-disable-line react-hooks/exhaustive-deps
