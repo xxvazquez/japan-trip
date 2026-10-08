@@ -1,6 +1,7 @@
 import React, { useEffect, useSyncExternalStore } from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
+import "./lib/resume"; // before the router reads the URL: a relaunch reopens the last screen
 import { router } from "./router";
 import { initApp, useApp } from "./store/useApp";
 import { applyMode, applyPalette, syncThemeColor, useIsDark, useMode } from "./lib/mode";

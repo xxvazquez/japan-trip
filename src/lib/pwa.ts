@@ -1,5 +1,5 @@
 import { useEffect, useSyncExternalStore, useState } from "react";
-import { settlePending } from "@/store/useApp";
+import { settlePending, useApp } from "@/store/useApp";
 import { isIOS } from "@/lib/device";
 
 /**
@@ -308,18 +308,22 @@ export function stopWaitingForUpdate() {
   restartWanted = false;
 }
 
+/** a delete's Undo is still on offer — restarting now would take it away,
+ *  even in the background, since the toast waits for you to come back */
+const undoWaiting = () => !!useApp.getState().undoToast;
+
 if (swSupported) {
   const hadController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     // the first install claiming the page: it's already running this version
     if (!hadController) return;
     const quiet = document.visibilityState === "hidden" || Date.now() - bootedAt < LAUNCH_GRACE_MS;
-    if (restartWanted || quiet) void restartIntoUpdate();
+    if (restartWanted || (quiet && !undoWaiting())) void restartIntoUpdate();
     else setUpdate("ready");
   });
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
-      if (updateState === "ready") void restartIntoUpdate();
+      if (updateState === "ready" && !undoWaiting()) void restartIntoUpdate();
     } else if (Date.now() - lastCheck > RECHECK_MS) {
       void checkForUpdate();
     }

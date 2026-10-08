@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useReadOnly } from "@/lib/readonly";
 import { primeKeyboard } from "@/lib/keyboard";
 import { docFromNote, noteFromDoc } from "@/lib/noteFormat";
+import { flushPendingNow } from "@/store/useApp";
 import { Markdown } from "./Markdown";
 import { useExpandAll } from "@/lib/collapse";
 import type { NoteEditor as NoteEditorType } from "./NoteEditor";
@@ -125,6 +126,12 @@ export function RichNote({
     setEditing(false);
     onEditEnd?.();
   };
+  // saved without closing the editor (the app going to the background)
+  const saveSoFar = (text: string) => {
+    if (text === value.trim() || text === noteFromDoc(docFromNote(value))) return;
+    onCommit(text);
+    flushPendingNow();
+  };
 
   /** fold or unfold a heading's section, saved into its line */
   const toggleFold = (line: number, folded: boolean) => {
@@ -173,5 +180,5 @@ export function RichNote({
     // the editor's code is still on its way — hold the note as it reads
     return <div className={className}><Markdown text={value} /></div>;
   }
-  return <Editor value={value} placeholder={placeholder} className={className} onDone={done} onCancel={cancel} />;
+  return <Editor value={value} placeholder={placeholder} className={className} onDone={done} onSave={saveSoFar} onCancel={cancel} />;
 }

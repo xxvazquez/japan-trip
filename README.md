@@ -41,7 +41,7 @@ It then opens full screen like any other app. Do this on each phone. **Manage �
 
 **Updates install themselves** — no need to reinstall:
 - The app looks for a new version when it opens, when you come back to it (at most every 5 minutes), and every half hour while it's open.
-- Found at launch: it restarts into it straight away. Found mid-use: an *Updating…* note shows at the top, then **New version · Restart**. It also restarts on its own next time you leave the app.
+- Found at launch: it restarts into it straight away. Found mid-use: an *Updating…* note shows at the top, then **New version · Restart**. It also restarts on its own next time you leave the app (not while a delete's **Undo** is still waiting), and reopens on the same screen.
 - To get it now: **Manage → Refresh**. The launch screen (logo and spinner) covers the app while it fetches the newest version, saves any pending edit and reopens. Pulling down from the top of any page also checks.
 
 ### The demo trip
@@ -560,6 +560,11 @@ Theme and trip logo. **Appearance** (light, dark or *Automatic*) is per device, 
 
 **Deleting.** Every delete asks first (a confirm sheet that says what goes — "This day and its plan will be deleted." — or a second tap on a swiped row). After that, an **Undo** bar appears for 8 seconds (the clock stops while you're in another app) and puts back exactly what was removed. Only the last delete can be undone, and deleting a whole trip or a file can't be.
 
+**Switching apps.** Leaving the app mid-task loses nothing:
+
+- Text you're typing is saved the moment you switch away; the field stays open with what you wrote.
+- The phone may close the app in the background. Opening it again goes back to the same screen, scrolled to where you were — unless another trip has been opened since, then it starts on that trip's Plan.
+
 **Save status** (signed in only), top right:
 
 | Label | Meaning |
@@ -732,6 +737,7 @@ edit in the UI  →  TripData (in memory)  →  backend
 | Attachments | IndexedDB (`file:*`) | Copies of cloud files are listed under `file-copies` and cleared on sign-out; device-only files are kept. |
 | Map tiles, fonts, icons | `map-tiles`, `map-glyphs` caches | What you've browsed; capped, oldest dropped first. Server answers from Supabase are never cached — the trip copy covers offline. |
 | Saved trip maps | `trip-maps:<trip id>` cache, one per trip | Never trimmed; dropped when the trip is gone from the account. |
+| Last screen | `localStorage["za.resume"]` | Path, trip and scroll position, so a relaunch of the installed app reopens where you left it (`src/lib/resume.ts`). |
 
 ### Data-safety layer (`src/lib/safety/`)
 

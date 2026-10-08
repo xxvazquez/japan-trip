@@ -10,6 +10,7 @@ import { Icon } from "./Icon";
 import { TimeWheelSheet } from "./TimeWheel";
 import { AmountSheet } from "./AmountSheet";
 import { fmtClock } from "@/lib/time";
+import { flushPendingNow } from "@/store/useApp";
 
 type Base = {
   value: string;
@@ -161,7 +162,25 @@ export function Editable(props: Props) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const sheetAnchorRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => setDraft(value), [value]);
+  // a draft that only differs by the spaces a save trims keeps them, so
+  // typing carries on where it was after the save below
+  useEffect(() => setDraft((d) => (d.trim() === value ? d : value)), [value]);
+  // switching to another app saves what's typed so far: the phone may close
+  // the app in the background, and the words shouldn't go with it. The field
+  // stays open with its keyboard for when you come back.
+  const latest = useRef({ draft, value, onCommit });
+  latest.current = { draft, value, onCommit };
+  useEffect(() => {
+    if (!editing) return;
+    const save = () => {
+      const { draft: d, value: v, onCommit: commitNow } = latest.current;
+      if (!document.hidden || !d.trim() || d.trim() === v) return;
+      commitNow(d.trim());
+      flushPendingNow();
+    };
+    document.addEventListener("visibilitychange", save);
+    return () => document.removeEventListener("visibilitychange", save);
+  }, [editing]);
   const onEditingChange = props.onEditingChange;
   useEffect(() => onEditingChange?.(editing), [editing]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {

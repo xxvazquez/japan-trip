@@ -15,6 +15,7 @@ import { SafetyBanner, SyncBanner } from "./SafetyBanner";
 import { SplitMap, useSplit, useSplitPane } from "./SplitMap";
 import { useReadOnly } from "@/lib/readonly";
 import { useAutoHotelCoords, useAutoTripTimeZone } from "@/lib/hotelCoords";
+import { useResumeWhereLeft } from "@/lib/resume";
 
 export function AppShell() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -25,6 +26,7 @@ export function AppShell() {
   const pane = useSplitPane(rootRef);
   useAutoHotelCoords(!demo);
   useAutoTripTimeZone(!demo);
+  useResumeWhereLeft();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

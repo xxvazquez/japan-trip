@@ -76,6 +76,7 @@ export function NoteEditor({
   placeholder,
   className = "",
   onDone,
+  onSave,
   onCancel,
 }: {
   value: string;
@@ -83,6 +84,8 @@ export function NoteEditor({
   className?: string;
   /** editing ended with a save — the note's new text (maybe unchanged) */
   onDone: (text: string) => void;
+  /** the text so far, saved while editing carries on */
+  onSave?: (text: string) => void;
   onCancel: () => void;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -96,8 +99,8 @@ export function NoteEditor({
   const [linkPrompt, setLinkPrompt] = useState(false);
 
   // the editor's own handlers are set up once; read the latest props here
-  const props = useRef({ onDone, onCancel });
-  props.current = { onDone, onCancel };
+  const props = useRef({ onDone, onSave, onCancel });
+  props.current = { onDone, onSave, onCancel };
   const finish = (save: boolean) => {
     if (ended.current || !editor) return;
     ended.current = true;
@@ -161,6 +164,16 @@ export function NoteEditor({
         else props.current.onCancel();
       }, 0);
     };
+  }, []);
+
+  // switching to another app saves what's typed so far — the phone may close
+  // the app in the background — and leaves the note open for coming back
+  useEffect(() => {
+    const save = () => {
+      if (document.hidden && !ended.current && lastDoc.current) props.current.onSave?.(noteFromDoc(lastDoc.current));
+    };
+    document.addEventListener("visibilitychange", save);
+    return () => document.removeEventListener("visibilitychange", save);
   }, []);
 
   const s = useEditorState({
