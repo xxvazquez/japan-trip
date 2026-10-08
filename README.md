@@ -118,6 +118,7 @@ The days set the dates — you don't edit them separately.
 - Bases are always listed in date order. To change the order, move the days (drag them to another base).
 - The trip can start or end outside its days (a flight out the evening before day one). Its dates stretch to cover a day added outside them, and only shrink when the day on the trip's first or last date is deleted.
 - **Add a day** at the foot of a base's list adds a day at that base's end, like its **Days +**.
+- If the date right after that base is a gap a deleted day left, the new day fills it and nothing else moves.
 - The **＋** at the top of Plan offers **Add a day** and **Add a base**. Its Add a day fills the earliest empty date in the trip (a gap left by a deleted day), otherwise it goes after the last day.
 - **Add a base** asks for the base's name, then starts it on the day after the last day, with that day already in it, and opens it. Pick its stay there, or **New stay…** to make one named after the base.
 - **Changing a base's stay** moves its days onto the new stay too, except a day you gave a different stay of its own.

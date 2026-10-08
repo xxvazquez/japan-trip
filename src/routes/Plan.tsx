@@ -407,11 +407,16 @@ function LegBlock({
   const resizeBase = useApp((s) => s.resizeBase);
   const addEntity = useApp((s) => s.addEntity);
   // a day at the base's end, everything after it moving along (the base
-  // page's Days +); an empty base gets its first day on its start date
+  // page's Days +) — unless the date after its last day is a gap a deleted
+  // day left, which the new day fills without moving anything. An empty
+  // base gets its first day on its start date.
   const addDay = () => {
-    if (days.days.some((d) => d.legId === leg.id && d.date)) return resizeBase(leg.id, 1);
+    const mine = days.days.filter((d) => d.legId === leg.id && d.date).map((d) => d.date).sort();
+    const next = mine.length ? addDays(mine[mine.length - 1], 1) : leg.start || days.meta.start;
+    const gap = mine.length > 0 && !days.days.some((d) => d.date === next) && days.days.some((d) => d.date > next);
+    if (mine.length && !gap) return resizeBase(leg.id, 1);
     const id = crypto.randomUUID?.() ?? `day-${Math.random().toString(36).slice(2, 8)}`;
-    addEntity("days", { id, date: leg.start || days.meta.start, legId: leg.id, hotelId: leg.hotelId || undefined, title: "New day" } as never);
+    addEntity("days", { id, date: next, legId: leg.id, hotelId: leg.hotelId || undefined, title: "New day" } as never);
   };
   const rows = dayIds
     .map((id) => days.days.find((d) => d.id === id))
