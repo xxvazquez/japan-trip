@@ -137,6 +137,7 @@ Tap a day on Plan to open it. From top to bottom:
 1. **Staying at** — which hotel, with a row under it to open that stay.
 2. **Journeys** — every journey on the day (a bus, a train, a flight), in the order they leave. See [Journeys on a day](#journeys-on-a-day).
 3. **Weather** — the header shows the forecast ("Showers, 19–24°C"): at the hotel, or on a day trip at the day's own places away from it (Nara, not Kyoto). Forecasts only reach ~16 days ahead, so later days show nothing until they're close enough. Offline, the last saved one shows with *as of 6 Oct* when it's from an earlier day.
+   - Under it, **Sunrise and Sunset** for that same spot on that exact date, in the trip time zone. Worked out on the device, so every day has them, offline too.
 4. **The itinerary** — the day's steps (below).
 5. **Nearby** — saved places close to the day's stops, kept out of the plan. Starts shut, like Areas; open or shut, it stays that way on every day. See [Nearby on a day](#nearby-on-a-day).
 6. **Areas** — drop a whole neighbourhood's places onto the day's map.
@@ -640,7 +641,7 @@ Once the app has loaded, it works with no signal. See [Before you travel](#befor
 | **Weak signal** | If the server hasn't answered in 5 seconds, the app opens the device copy and updates once it gets through. |
 | **Maps** | Areas you've viewed are kept. Save more ahead from a day's **Download offline maps**, or the whole trip from **This device**. A new area opened offline retries when you reconnect. |
 | **Attachments** | Kept on the device — see [Documents](#documents). |
-| **Weather** | A day keeps the last forecast it showed. |
+| **Weather** | A day keeps the last forecast it showed. Sunrise and sunset need no signal. |
 | **Your location** | GPS works without data; the blue dot shows on saved maps. |
 | **First visit ever** | A plain "you're offline" screen that retries on its own. |
 
