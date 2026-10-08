@@ -21,6 +21,8 @@ async function boot() {
   await app.useApp.getState().init();
   return { ...app, kv, snaps, s: () => app.useApp.getState() };
 }
+/** wait only as long as it takes for `check` to pass */
+const until = (check: () => unknown) => vi.waitFor(check, { timeout: 3000, interval: 20 });
 const place = (id: string) => ({ id, name: `Place ${id}`, lat: 1, lng: 2 }) as never;
 
 beforeEach(() => {
@@ -76,7 +78,7 @@ describe("device-only trips: the page dies right after an edit", () => {
     const { StorageError } = await import("@/lib/safety/errors");
     vi.spyOn(a.kv, "set").mockRejectedValue(new StorageError("write", "process killed"));
     a.flushPendingNow();
-    await a.settlePending(300); // …which never lands
+    await until(() => expect(a.s().syncState).toBe("error")); // …which never lands
     vi.restoreAllMocks();
 
     const b = await boot(); // next open
@@ -161,8 +163,8 @@ describe("device-only trips: a failed save is loud, keeps the edit, and retries"
     const { StorageError } = await import("@/lib/safety/errors");
     const spy = vi.spyOn(a.kv, "set").mockRejectedValue(new StorageError("quota", "full"));
     a.s().addEntity("places", place("q1"));
-    await a.settlePending(500);
-    expect(a.s().syncState).toBe("error");
+    a.flushPendingNow();
+    await until(() => expect(a.s().syncState).toBe("error"));
     expect(a.s().notice?.text).toMatch(/storage space/);
     expect(a.s().data!.places.map((p) => p.id)).toContain("q1");
 
@@ -183,7 +185,8 @@ describe("device-only trips: a failed save is loud, keeps the edit, and retries"
     const { StorageError } = await import("@/lib/safety/errors");
     vi.spyOn(a.kv, "set").mockRejectedValue(new StorageError("write", "cut off"));
     a.s().addEntity("places", place("lost-for-now"));
-    await a.settlePending(500);
+    a.flushPendingNow();
+    await until(() => expect(a.s().syncState).toBe("error"));
     vi.restoreAllMocks();
     const blob = await a.kv.get<TripData>(STORAGE_KEYS.trip(id));
     const ids = blob!.places.map((p) => p.id);

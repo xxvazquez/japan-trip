@@ -23,6 +23,8 @@ vi.mock("@/lib/auth", () => ({
 vi.mock("@/lib/realtime", () => ({ subscribeTrip: () => {}, unsubscribeTrip: () => {}, markWritten: () => {}, TABLE_OF: {} }));
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+/** wait only as long as it takes for `check` to pass */
+const until = (check: () => unknown) => vi.waitFor(check, { timeout: 3000, interval: 20 });
 const place = (id: string) => ({ id, name: `Place ${id}`, lat: 1, lng: 2 }) as never;
 const rows = (table: string) => fake.current.ctl.tables[table] ?? [];
 
@@ -176,11 +178,12 @@ describe("signed-in: saving and the outbox", () => {
     const a = await boot();
     fake.current.ctl.fail = (op, table) => (op === "upsert" && table === "places" ? { message: "Failed to fetch" } : null);
     a.s().addEntity("places", place("r1"));
-    await a.settlePending(300);
-    await sleep(60);
-    expect(a.s().syncState).toBe("error");
+    a.flushPendingNow();
+    await until(async () => {
+      expect(a.s().syncState).toBe("error");
+      expect((await outbox(a.kv, id))?.ops.map((o) => o.id)).toContain("r1");
+    });
     expect(a.s().syncErrorItems.length).toBeGreaterThan(0);
-    expect((await outbox(a.kv, id))!.ops.map((o) => o.id)).toContain("r1");
     expect(a.s().data!.places.map((p) => p.id)).toContain("r1"); // still on screen
 
     fake.current.ctl.fail = null;
@@ -199,8 +202,8 @@ describe("signed-in: saving and the outbox", () => {
     await a.settlePending();
     fake.current.ctl.fail = (op, table) => (op === "update" && table === "places" ? { message: "Failed to fetch" } : null);
     a.s().moveEntity("places", "o2", -1);
-    await a.settlePending(300);
-    expect(a.s().syncState).toBe("error");
+    a.flushPendingNow();
+    await until(() => expect(a.s().syncState).toBe("error"));
   });
 
   it("a slow save can't land after a newer one and leave the server with the older value", async () => {
@@ -264,8 +267,8 @@ describe("signed-in: saving and the outbox", () => {
     const a = await boot();
     fake.current.ctl.fail = () => ({ message: "Failed to fetch" });
     a.s().addEntity("places", place("rp1"));
-    await a.settlePending(200);
-    await sleep(60);
+    a.flushPendingNow();
+    await until(async () => expect((await outbox(a.kv, id))?.ops.map((o) => o.id)).toContain("rp1"));
     fake.current.ctl.fail = null;
     fake.current.ctl.tables.trip_snapshots = [];
     const b = await boot();
@@ -474,11 +477,13 @@ describe("signed-in: several tabs", () => {
     const t = await boot();
     fake.current.ctl.fail = (op, table) => (op === "upsert" && table === "places" ? { message: "Failed to fetch" } : null);
     t.s().addEntity("places", place(placeId));
-    await t.settlePending(200);
-    await sleep(60);
-    fake.current.ctl.fail = null;
+    t.flushPendingNow();
     const { TAB_ID } = await import("@/lib/safety/crossTab");
-    expect(await outboxKeys(t.kv, id)).toContain(STORAGE_KEYS.outbox(id, TAB_ID));
+    await until(async () => {
+      expect(t.s().syncState).toBe("error");
+      expect(await outboxKeys(t.kv, id)).toContain(STORAGE_KEYS.outbox(id, TAB_ID));
+    });
+    fake.current.ctl.fail = null;
     return { t, tab: TAB_ID };
   }
   const alive = (tab: string) => localStorage.setItem(`za.beat.${tab}`, String(Date.now()));
@@ -555,6 +560,25 @@ describe("signed-in: several tabs", () => {
 describe("signed-in: opening with no connection", () => {
   const offline = () => { fake.current.ctl.fail = () => ({ message: "Failed to fetch" }); };
   const online = () => { fake.current.ctl.fail = null; };
+  /** a cold boot left waiting on the server past the app's few-second limit —
+   *  on a fake clock, so the test doesn't sit through the real wait */
+  async function bootPastWait() {
+    vi.resetModules();
+    const app = await import("@/store/useApp");
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      const started = app.useApp.getState().init();
+      // the clock moves in steps, with device storage (real setImmediate)
+      // answering in between, until the trip opens or the wait is over
+      for (let t = 0; t < 5300 && !app.useApp.getState().hydrated; t += 100) {
+        await vi.advanceTimersByTimeAsync(100);
+        await new Promise((r) => setImmediate(r));
+      }
+      return { app, started };
+    } finally {
+      vi.useRealTimers();
+    }
+  }
 
   it("a device that has opened the trip before opens it with no connection at all, even with nothing pending", async () => {
     const id = await seedTrip("Offline trip");
@@ -658,10 +682,7 @@ describe("signed-in: opening with no connection", () => {
     await sleep(80);
     let answer!: () => void;
     fake.current.ctl.gate = new Promise((r) => { answer = r; });
-    vi.resetModules();
-    const app = await import("@/store/useApp");
-    const started = app.useApp.getState().init();
-    await sleep(5300);
+    const { app, started } = await bootPastWait();
     expect(app.useApp.getState().activeId).toBe(id);
     expect(app.useApp.getState().data!.meta.title).toBe("Saved trip");
     expect(app.useApp.getState().bootError).toBe(false);
@@ -669,7 +690,7 @@ describe("signed-in: opening with no connection", () => {
     answer();
     await started;
     expect(app.useApp.getState().activeId).toBe(id);
-  }, 15000);
+  });
 
   it("a trip that's slow to load opens from the device copy; with no copy it waits for the server", async () => {
     const id = await seedTrip("Saved trip");
@@ -678,13 +699,7 @@ describe("signed-in: opening with no connection", () => {
     let answer!: () => void;
     const slow = new Promise<void>((r) => { answer = r; });
     fake.current.ctl.hold = (op, table) => (op === "select" && table === "days" ? slow : null);
-    const b = await (async () => {
-      vi.resetModules();
-      const app = await import("@/store/useApp");
-      const started = app.useApp.getState().init();
-      await sleep(5300);
-      return { app, started };
-    })();
+    const b = await bootPastWait();
     expect(b.app.useApp.getState().data!.meta.title).toBe("Saved trip");
     expect(b.app.useApp.getState().loadIssue).toBeNull();
     answer();
@@ -696,16 +711,13 @@ describe("signed-in: opening with no connection", () => {
     let answer2!: () => void;
     const slow2 = new Promise<void>((r) => { answer2 = r; });
     fake.current.ctl.hold = (op, table) => (op === "select" && table === "days" ? slow2 : null);
-    vi.resetModules();
-    const app2 = await import("@/store/useApp");
-    const started2 = app2.useApp.getState().init();
-    await sleep(5300);
+    const { app: app2, started: started2 } = await bootPastWait();
     expect(app2.useApp.getState().hydrated).toBe(false);
     answer2();
     await started2;
     expect(app2.useApp.getState().data!.meta.title).toBe("Saved trip");
     expect(app2.useApp.getState().loadIssue).toBeNull();
-  }, 20000);
+  });
 
   it("a sign-in library that never loaded shows the retry screen, not the sign-in wall, and Try again reloads it", async () => {
     await seedTrip();
@@ -814,9 +826,8 @@ describe("signed-in: a change the database can never accept", () => {
     const a = await boot();
     fake.current.ctl.fail = (op, table) => (op === "upsert" && table === "places" ? { message: "invalid input syntax for type uuid", code: "22P02" } : null);
     a.s().addEntity("places", place("bad-id"));
-    await a.settlePending(1000);
-    await sleep(60);
-    expect(a.s().droppedChanges).toEqual(["Place bad-id"]);
+    a.flushPendingNow();
+    await until(() => expect(a.s().droppedChanges).toEqual(["Place bad-id"]));
     a.s().dismissDropped();
     expect(a.s().droppedChanges).toEqual([]);
   });
