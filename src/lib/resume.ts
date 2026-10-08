@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useApp } from "@/store/useApp";
+import { todayISO } from "./dates";
 
 /**
  * Coming back to the app puts you back where you were, the way an iPhone app
@@ -8,8 +9,10 @@ import { useApp } from "@/store/useApp";
  * close it to free memory; the installed app then starts again at its start
  * URL (the Plan), at the top. So the screen you're on and how far down it you
  * were are remembered on the device, and a fresh launch on the Plan reopens
- * that screen and scroll position instead. An update restart (a reload) keeps
- * its URL already and only needs the scroll back.
+ * that screen and scroll position instead — on the same day only: the first
+ * launch of a new day starts fresh, so during the trip it opens on today, as
+ * Calendar does. An update restart (a reload) keeps its URL already and only
+ * needs the scroll back.
  */
 
 const KEY = "za.resume";
@@ -18,6 +21,8 @@ interface Spot {
   path: string;
   tripId: string | null;
   y: number;
+  /** the local date it was saved on */
+  day?: string;
 }
 
 function read(): Spot | null {
@@ -43,6 +48,11 @@ const here = () => window.location.pathname + window.location.search;
  *  reads the URL (this module is imported ahead of it in `main.tsx`) */
 let restoring: Spot | null = null;
 
+/** this launch opened on the Plan by itself — not a restored screen, a reload
+ *  or a link — so it's the moment to go straight to today */
+let freshOnPlan = false;
+export const launchedFresh = () => freshOnPlan;
+
 if (typeof window !== "undefined") {
   const saved = read();
   const nav = performance.getEntriesByType?.("navigation")[0] as PerformanceNavigationTiming | undefined;
@@ -51,13 +61,15 @@ if (typeof window !== "undefined") {
     // a cold launch of the installed app opens the start URL; anything else in
     // the address (a sign-in returning, a shared link) is where it meant to go
     const launchedAtStart = window.location.pathname === "/" && !window.location.search && !window.location.hash;
-    if (standalone && launchedAtStart && saved.path !== "/") {
+    const sameDay = saved.day === todayISO();
+    if (standalone && launchedAtStart && saved.path !== "/" && sameDay) {
       window.history.replaceState(null, "", saved.path);
       restoring = saved;
-    } else if (saved.path === here() && (standalone || nav?.type === "reload")) {
+    } else if (saved.path === here() && (nav?.type === "reload" || (standalone && sameDay))) {
       restoring = saved;
     }
   }
+  freshOnPlan = window.location.pathname === "/" && !window.location.search && !restoring && nav?.type !== "reload";
 }
 
 /** Remember the current screen as you move around and the scroll position as
@@ -111,7 +123,7 @@ export function useResumeWhereLeft() {
 
   const path = loc.pathname + loc.search;
   useEffect(() => {
-    const save = (y: number) => write({ path, tripId: useApp.getState().activeId, y });
+    const save = (y: number) => write({ path, tripId: useApp.getState().activeId, y, day: todayISO() });
     save(0);
     const onHide = () => { if (document.hidden) save(Math.round(window.scrollY)); };
     const onPageHide = () => save(Math.round(window.scrollY));

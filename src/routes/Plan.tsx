@@ -34,6 +34,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { tripClock, fmtDate, fmtDateRange, dayKind, legCheckOut, legForDate, legNights, plural, addDays } from "@/lib/dates";
 import { nextDaySlot } from "@/lib/spans";
 import { canonicalLegs } from "@/lib/cityAssign";
+import { launchedFresh } from "@/lib/resume";
 import { useTripSpent } from "@/lib/fx";
 import { legHex, LEG_COLORS, type LegColorId } from "@/lib/legColors";
 import type { Day, Leg, TripData } from "@/core/types";
@@ -116,13 +117,14 @@ export default function Plan() {
   const [namingBase, setNamingBase] = useState(false);
   const today = useToday(); // re-render when the date turns over, so the list opens on the new today
   // opened during the trip, the app goes straight to today, as Calendar
-  // opens on Today — only on a fresh launch landing here, so the Plan tab
-  // and "‹ Plan" still show the list
+  // opens on Today — only when the launch itself landed here, so the Plan
+  // tab and "‹ Plan" still show the list, even on a launch that restored
+  // another screen
   const todayId = data?.days.find((d) => d.date === today)?.id;
   useEffect(() => {
     if (launched || !data) return;
     launched = true;
-    if (todayId && (window.history.state?.idx ?? 0) === 0) nav(`/day/${todayId}`);
+    if (todayId && launchedFresh() && (window.history.state?.idx ?? 0) === 0) nav(`/day/${todayId}`);
   }, [data, todayId, nav]);
   if (!data) return null;
 

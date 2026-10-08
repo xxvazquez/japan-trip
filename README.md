@@ -158,7 +158,7 @@ Every section folds away from its header. Scroll down and the bar at the top kee
 
 During the trip the app works like Calendar's Today:
 
-- **Opening the app goes straight to today's day.** Only on a fresh launch — the Plan tab and **‹ Plan** still show the list.
+- **Opening the app goes straight to today's day.** Only on a fresh launch — the Plan tab and **‹ Plan** still show the list, even when the launch reopened another screen.
 - **Up next** heads today's plan: the next stop and how long until it starts (*in 25 min*), and when to leave for it — *Leave by 09:45 · 15 min walk*, or *≈ 32 min by train* past a long walk (≈ marks a guess). *Leave now* in red once that time's come. For a journey it shows the hop's details instead.
 - **A red line** across the timeline marks the time now, with the time beside it, and moves as the day goes on.
 - **＋ → Add an amount** logs a spend at the till: the keypad first (in the currency you last spent in, else the trip's second), then its category — **Skip** keeps it uncategorised. It lands in the day's Spending.
@@ -565,6 +565,7 @@ Theme and trip logo. **Appearance** (light, dark or *Automatic*) is per device, 
 
 - Text you're typing is saved the moment you switch away; the field stays open with what you wrote.
 - The phone may close the app in the background. Opening it again goes back to the same screen, scrolled to where you were — unless another trip has been opened since, then it starts on that trip's Plan.
+- The first launch of a new day starts fresh instead — on today's day during the trip.
 
 **Save status** (signed in only), top right:
 
@@ -738,7 +739,7 @@ edit in the UI  →  TripData (in memory)  →  backend
 | Attachments | IndexedDB (`file:*`) | Copies of cloud files are listed under `file-copies` and cleared on sign-out; device-only files are kept. |
 | Map tiles, fonts, icons | `map-tiles`, `map-glyphs` caches | What you've browsed; capped, oldest dropped first. Server answers from Supabase are never cached — the trip copy covers offline. |
 | Saved trip maps | `trip-maps:<trip id>` cache, one per trip | Never trimmed; dropped when the trip is gone from the account. |
-| Last screen | `localStorage["za.resume"]` | Path, trip and scroll position, so a relaunch of the installed app reopens where you left it (`src/lib/resume.ts`). |
+| Last screen | `localStorage["za.resume"]` | Path, trip, scroll position and the day it was saved, so a same-day relaunch of the installed app reopens where you left it (`src/lib/resume.ts`). |
 
 ### Data-safety layer (`src/lib/safety/`)
 
