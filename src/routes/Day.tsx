@@ -2344,7 +2344,7 @@ function StartFromHotel({ hotel, to, firstTime, time, readOnly, onTime }: {
   return (
     <li>
       <TimelineStop
-        tile={<IconTile size="sm" name="bed" tone="accent" />}
+        tile={<IconTile size="sm" glyph="hotel" tone="ink-faint" />}
         time={<HotelRowTime label="Leave at" time={time} timeStart={timeStart} readOnly={readOnly} onTime={onTime} />}
       >
         <Link to={`/hotel/${hotel.id}`} className={`${STOP_TITLE} active:opacity-60`}>
@@ -2429,7 +2429,7 @@ function ReturnToHotel({ from, hotel, time, timeStart, readOnly, onTime }: {
   return (
     <li>
       <TimelineStop
-        tile={<IconTile size="sm" name="bed" tone="accent" />}
+        tile={<IconTile size="sm" glyph="hotel" tone="ink-faint" />}
         time={<HotelRowTime label="Back at" time={time} timeStart={timeStart} readOnly={readOnly} onTime={onTime} />}
       >
         <a href={href} target="_blank" rel="noopener" aria-label={`Directions back to ${hotel.name || "your stay"}`} className={`${STOP_TITLE} active:opacity-60`}>
