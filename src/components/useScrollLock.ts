@@ -2,6 +2,9 @@ import { useEffect } from "react";
 
 let locks = 0;
 
+/** a sheet or alert is holding the page — nothing behind it should react to a drag */
+export const scrollLocked = () => locks > 0;
+
 /**
  * Holds the page still while a sheet or alert is up — iOS never lets the
  * screen behind a sheet scroll. `overflow: hidden` on the root is honoured

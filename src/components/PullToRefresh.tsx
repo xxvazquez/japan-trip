@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useApp } from "@/store/useApp";
 import { holdDragActive } from "@/lib/holdDrag";
+import { scrollLocked } from "./useScrollLock";
 import { checkForUpdate, stopWaitingForUpdate } from "@/lib/pwa";
 
 const THRESHOLD = 64;
@@ -41,7 +42,8 @@ export function PullToRefresh() {
   useEffect(() => {
     if (skip) return;
     const onDown = (e: PointerEvent) => {
-      if (e.pointerType !== "touch" || refreshing || window.scrollY > 0) { startY.current = null; return; }
+      // a drag on an open sheet (pulling it down to close) isn't a pull on the page
+      if (e.pointerType !== "touch" || refreshing || window.scrollY > 0 || scrollLocked()) { startY.current = null; return; }
       startY.current = e.clientY;
       pullingRef.current = false;
     };
