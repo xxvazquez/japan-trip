@@ -100,6 +100,9 @@ The trip as a list of days, grouped by **base** — where you're based for a run
   - Other days flow around it — when you drag, and when an earlier base gains or loses a day.
   - A journey or luggage note on that date stays with it.
   - **Unpin this day** undoes it.
+- **Mark a day as planned** once its plan is settled — hold its row (right-click on a computer) or use ⋯ on its page → **Mark as Planned**:
+  - Plan shows a green check on the row, and the day's page says **Planned** under the title.
+  - It changes nothing else. **Mark as Not Planned** takes it off.
 - When the month changes between two days in a base, the day's date shows the month under it (**1 DEC**).
 - **During the trip** the top of Plan reads **Day 2 of 14**, with the city you're in and when you leave it: *2 nights left*, *Leaving tomorrow*, *Leaving today*. Moving hotels within the same city doesn't count as leaving.
 - **During the trip** the list opens on today. Earlier days move to **Past days** at the bottom (closed until you open it), grouped by base. Past days can be opened, not dragged. It moves on to the new day by itself, even if the app was left open overnight.
@@ -144,7 +147,7 @@ Tap a day on Plan to open it. From top to bottom:
 6. **Areas** — drop a whole neighbourhood's places onto the day's map.
 7. **Spending** — see [Spending on a day](#spending-on-a-day).
 8. **General notes.**
-9. **The day's actions** — **Make this a day trip** (or **Not a day trip**), **Pin this day**, and **Delete day**.
+9. **The day's actions** — **Mark as Planned**, **Make this a day trip** (or **Not a day trip**), **Pin this day**, and **Delete day**.
 
 Every section folds away from its header. Scroll down and the bar at the top keeps the day's title with its date under it.
 

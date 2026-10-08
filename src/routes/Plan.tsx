@@ -408,7 +408,7 @@ function LegList({ data, todayISO, readOnly, splitPast }: {
                 <li className={`${DAY_ROW_LI} kicker px-3.5 pb-1 pt-3`}>{leg.base}</li>
                 {days.map((d) => (
                   <li key={d.id} className={`${DAY_ROW_LI} flex`}>
-                    <DayLink data={data} day={d} today={false} loc={loc} />
+                    <DayLink data={data} day={d} today={false} loc={loc} planned={(data.config.plannedDays ?? []).includes(d.id)} />
                   </li>
                 ))}
               </Fragment>
@@ -574,7 +574,7 @@ const DAY_ROW_LI =
   "relative transition-colors duration-150 has-[a:active]:bg-ink/[0.07] after:pointer-events-none after:absolute after:bottom-0 after:left-[3.75rem] after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
 
 /** A day's tappable row body — date, title, kind + labels, chevron. */
-function DayLink({ data, day, today, loc, pinned, newMonth }: { data: TripData; day: Day; today: boolean; loc: string; pinned?: boolean; newMonth?: boolean }) {
+function DayLink({ data, day, today, loc, pinned, planned, newMonth }: { data: TripData; day: Day; today: boolean; loc: string; pinned?: boolean; planned?: boolean; newMonth?: boolean }) {
   return (
     <Link
       to={`/day/${day.id}`}
@@ -590,6 +590,13 @@ function DayLink({ data, day, today, loc, pinned, newMonth }: { data: TripData; 
         <DayKindTag day={day} data={data} />
       </span>
       {today && <span className="shrink-0 text-xs text-accent">Today</span>}
+      {/* checkmark.circle.fill, as Reminders marks a thing done */}
+      {planned && (
+        <span className="shrink-0 text-matcha" title="Planned">
+          <Icon name="check-circle" size={20} filled />
+          <span className="sr-only">Planned</span>
+        </span>
+      )}
       {/* fixed to its date, so it doesn't move with a drag — unpin on its page or the row's menu */}
       {pinned && (
         <span className="shrink-0 text-ink-faint" title="Pinned to its date">
@@ -604,6 +611,7 @@ function DayLink({ data, day, today, loc, pinned, newMonth }: { data: TripData; 
 
 function DayRow({ data, day, today, loc, readOnly, newMonth }: { data: TripData; day: Day; today: boolean; loc: string; readOnly: boolean; newMonth?: boolean }) {
   const pinned = (data.config.pinnedDays ?? []).includes(day.id);
+  const planned = (data.config.plannedDays ?? []).includes(day.id);
   const { listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: day.id, disabled: readOnly || pinned });
   return (
     <li
@@ -612,8 +620,8 @@ function DayRow({ data, day, today, loc, readOnly, newMonth }: { data: TripData;
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={`${DAY_ROW_LI} ${isDragging ? "z-10 bg-surface opacity-40" : ""}`}
     >
-      <ContextMenu menu={readOnly ? undefined : <DayMenu day={day} pinned={pinned} />} dismiss={isDragging} className="flex items-start">
-        <DayLink data={data} day={day} today={today} loc={loc} pinned={pinned} newMonth={newMonth} />
+      <ContextMenu menu={readOnly ? undefined : <DayMenu day={day} pinned={pinned} planned={planned} />} dismiss={isDragging} className="flex items-start">
+        <DayLink data={data} day={day} today={today} loc={loc} pinned={pinned} planned={planned} newMonth={newMonth} />
       </ContextMenu>
     </li>
   );
@@ -621,12 +629,19 @@ function DayRow({ data, day, today, loc, readOnly, newMonth }: { data: TripData;
 
 /** A day row's long-press / right-click actions — the same ones its page
  *  keeps at the bottom, without opening it. */
-function DayMenu({ day, pinned }: { day: Day; pinned: boolean }) {
+function DayMenu({ day, pinned, planned }: { day: Day; pinned: boolean; planned: boolean }) {
   const updateEntity = useApp((s) => s.updateEntity);
   const removeEntity = useApp((s) => s.removeEntity);
   const mutateTrip = useApp((s) => s.mutateTrip);
   return (
     <>
+      <button type="button" className="menu-item" onClick={() => mutateTrip((d) => {
+          const ids = new Set(d.config.plannedDays ?? []);
+          if (ids.has(day.id)) ids.delete(day.id); else ids.add(day.id);
+          d.config.plannedDays = ids.size ? [...ids] : undefined;
+        })}>
+        <Icon name="check-circle" size={16} /> {planned ? "Mark as Not Planned" : "Mark as Planned"}
+      </button>
       <button type="button" className="menu-item" onClick={() => updateEntity<Day>("days", day.id, { dayTrip: !day.dayTrip })}>
         <Icon name={day.dayTrip ? "close" : "plus"} size={16} /> {day.dayTrip ? "Not a day trip" : "Make this a day trip"}
       </button>

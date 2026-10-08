@@ -20,6 +20,7 @@ export type IconName =
   | "map"
   | "pin"
   | "check"
+  | "check-circle"
   | "plus"
   | "minus"
   | "chevron"
@@ -159,6 +160,12 @@ const P: Record<IconName, JSX.Element> = {
     </>
   ),
   check: <path d="M5 13l4 4L19 7" />,
+  "check-circle": (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M7.9 12.4l2.7 2.7 5.5-5.7" />
+    </>
+  ),
   plus: <path d="M12 5v14M5 12h14" />,
   minus: <path d="M5 12h14" />,
   settings: (
@@ -501,6 +508,14 @@ const FILLED: Partial<Record<IconName, JSX.Element>> = {
       fillRule="evenodd"
       clipRule="evenodd"
       d="M6.5 3H14.2a1 1 0 0 1 .7.3l3.8 3.8a1 1 0 0 1 .3.7V20a1 1 0 0 1-1 1H6.5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1ZM9 7.25a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5H9Zm0 4a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5H9Zm0 4a.75.75 0 0 0 0 1.5h4a.75.75 0 0 0 0-1.5H9Z"
+    />
+  ),
+  // checkmark.circle.fill — a day marked planned
+  "check-circle": (
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17Z M6.96 13.04L10.62 16.7L17.06 10.03L15.54 8.57L10.58 13.7L8.44 11.56Z"
     />
   ),
   location: <path d="M20 4 4.5 10.6l6.6 2.3 2.3 6.6L20 4Z" />,

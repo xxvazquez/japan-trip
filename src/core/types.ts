@@ -109,6 +109,9 @@ export interface TripConfig {
    *  instead of a drag handle, and reordering the other days flows around
    *  them without moving them */
   pinnedDays?: ID[];
+  /** days marked planned — the plan is settled. Plan shows a green check on
+   *  the row; it changes nothing else */
+  plannedDays?: ID[];
   /** packing categories in the order they're listed. A category not in it
    *  (older trips, a copied list) follows, in order of its first item */
   packingOrder?: string[];

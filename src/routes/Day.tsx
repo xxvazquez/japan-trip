@@ -153,6 +153,12 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const L = lookups(data);
   const patch = (p: Partial<DayT>) => updateEntity<DayT>("days", day.id, p);
   const pinned = (data.config.pinnedDays ?? []).includes(day.id);
+  const planned = (data.config.plannedDays ?? []).includes(day.id);
+  const togglePlanned = () => mutateTrip((d) => {
+    const ids = new Set(d.config.plannedDays ?? []);
+    if (ids.has(day.id)) ids.delete(day.id); else ids.add(day.id);
+    d.config.plannedDays = ids.size ? [...ids] : undefined;
+  });
   const leg = L.leg(day.legId);
   const hotel = L.hotel(day.hotelId);
   const journeys = dayJourneys(day, data);
@@ -594,8 +600,13 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         title={
           <Editable label="Day title" value={day.title ?? ""} placeholder="Untitled day" onCommit={(v) => patch({ title: v || undefined })} />
         }
-        meta={(day.labels?.length || weather || sunText) ? (
+        meta={(planned || day.labels?.length || weather || sunText) ? (
           <>
+            {planned && (
+              <span className="block">
+                <Icon name="check-circle" size={15} filled className="mr-1 inline-block align-[-2px] text-matcha" />Planned
+              </span>
+            )}
             <DayLabelsCaption labels={day.labels ?? []} onEdit={ro ? undefined : openLabels} />
             {weather && <span className="block">{weatherText(weather, loc)}</span>}
             {sunText && <span className="block">{sunText}</span>}
@@ -604,6 +615,11 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         action={
           <span ref={dayMenuAnchor} {...{ [PDF_HIDE]: "" }}>
           <RowMenu label="Day options">
+            {!ro && (
+              <button className="menu-item" onClick={togglePlanned}>
+                <Icon name="check-circle" size={16} /> {planned ? "Mark as Not Planned" : "Mark as Planned"}
+              </button>
+            )}
             {!ro && (
               <button className="menu-item" onClick={() => openLabels(dayMenuAnchor.current)}>
                 <Icon name="tag" size={16} /> {day.labels?.length ? "Labels…" : "Add a Label…"}
@@ -885,6 +901,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       {!ro && (
         <div {...{ [PDF_HIDE]: "" }}><Section className="mt-8">
           <ul>
+            <ActionRow icon="check-circle" label={planned ? "Mark as Not Planned" : "Mark as Planned"} onClick={togglePlanned} />
             {day.dayTrip
               ? <ActionRow icon="close" label="Not a day trip" onClick={() => patch({ dayTrip: false })} />
               : <ActionRow icon="explore" label="Make this a day trip" onClick={() => patch({ dayTrip: true })} />}
