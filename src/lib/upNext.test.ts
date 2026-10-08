@@ -27,9 +27,9 @@ describe("nowInDay", () => {
 describe("countdown", () => {
   it("counts down like Maps", () => {
     expect(minutesUntil("10:40", "10:15")).toBe(25);
-    expect(fmtIn(25)).toBe("in 25 min");
-    expect(fmtIn(70)).toBe("in 1h 10min");
-    expect(fmtIn(120)).toBe("in 2h");
+    expect(fmtIn(25)).toBe("in 25\u00a0min");
+    expect(fmtIn(70)).toBe("in 1\u00a0hr 10\u00a0min");
+    expect(fmtIn(120)).toBe("in 2\u00a0hr");
     expect(fmtIn(0)).toBe("now");
   });
 });

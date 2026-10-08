@@ -33,7 +33,7 @@ export function minutesBetween(from?: string, to?: string, fromTz?: string, toTz
   return Math.round((ub.getTime() - ua.getTime()) / 60000);
 }
 
-/** "1h 40min", "40 min", "2h" — the real time between two LocalDateTimes. */
+/** "1 hr 40 min", "40 min", "2 hr" — the real time between two LocalDateTimes. */
 export function fmtDuration(from?: string, to?: string, fromTz?: string, toTz?: string): string | null {
   const m = minutesBetween(from, to, fromTz, toTz);
   if (m == null || m <= 0) return null;
@@ -41,13 +41,14 @@ export function fmtDuration(from?: string, to?: string, fromTz?: string, toTz?: 
 }
 
 /** The one duration format — journeys, changes, walks, transit alike: "12 min"
- *  under an hour, "1h 30min" / "2h" past it. Never a bare "m", which next to
- *  a walk's "450 m" reads as metres. No-break space keeps "12 min" together. */
+ *  under an hour, "1 hr 30 min" / "2 hr" past it, as Maps writes them. Never
+ *  a bare "m", which next to a walk's "450 m" reads as metres. No-break
+ *  spaces keep each number with its unit. */
 export function fmtMinutes(total: number): string {
   const h = Math.floor(total / 60);
   const m = Math.round(total % 60);
-  if (h && m) return `${h}h ${m}min`;
-  if (h) return `${h}h`;
+  if (h && m) return `${h}\u00a0hr ${m}\u00a0min`;
+  if (h) return `${h}\u00a0hr`;
   return `${m}\u00a0min`;
 }
 

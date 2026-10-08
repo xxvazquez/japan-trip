@@ -2,6 +2,7 @@
  * Today's place in the day's plan: where the "now" line falls and which row
  * is up next. Pure, so the plan and the tests share it.
  */
+import { fmtMinutes } from "./time";
 
 /** a row's start as "HH:MM", or undefined when it has no exact time */
 const clock = (t?: string) => {
@@ -39,7 +40,5 @@ export function minutesUntil(at: string, now: string): number {
 /** "in 25 min", "in 1h 10min", "now" — how Maps counts down a departure */
 export function fmtIn(min: number): string {
   if (min <= 0) return "now";
-  if (min < 60) return `in ${min} min`;
-  const h = Math.floor(min / 60), m = min % 60;
-  return m ? `in ${h}h ${m}min` : `in ${h}h`;
+  return `in ${fmtMinutes(min)}`;
 }

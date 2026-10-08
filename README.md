@@ -346,7 +346,7 @@ Open one from a day, or from **Logbook → Journeys**. A journey is one or more 
 
 - **Each hop** is a card tinted by mode (rail, air/sea, road, on foot): route, departure and arrival times with the real duration between them, dates, and details (carrier, platform, seat, booking ref, fare).
 - **Add a hop** under the last one starts from where it ended, by the same mode.
-- **Time zones are counted**, so a Beijing → Warsaw flight reads 10h, not 3h.
+- **Time zones are counted**, so a Beijing → Warsaw flight reads 10 hr, not 3 hr.
 - **Dates** open a date picker. Moving the departure moves the arrival with it; a new hop takes the arrival date of the one before. An arrival that lands before its departure is shown in red.
 - **Connections** between hops are flagged when tight or overnight.
 - **Total fare** adds up the hops' fares. A journey-level fare is only used when no hop is priced (one ticket for the whole trip).
