@@ -1604,6 +1604,8 @@ export const useApp = create<AppStore>((set, get) => {
         }
         if (rec.meta) d.meta = structuredClone(rec.meta);
         if (rec.media) d.media = structuredClone(rec.media);
+        // a day put back on its old date goes back to its old place in the list
+        if (rec.rows.some((r) => r.type === "days")) { sortDays(d); reinserted.add("days"); }
       });
       if (!next) return;
       for (const r of rec.rows) {

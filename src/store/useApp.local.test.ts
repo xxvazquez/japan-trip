@@ -305,6 +305,15 @@ describe("days shape the stays and the trip", () => {
     expect(a.s().data!.meta.end).toBe("2026-10-03");
   });
 
+  it("undoing a day drag puts the days back in date order", async () => {
+    const a = await setup();
+    a.s().undoable("Day moved", () => a.s().reorderDays([{ legId: "L", dayIds: ["x3", "x1", "x2"] }]));
+    expect(a.s().data!.days.map((d) => d.id)).toEqual(["x3", "x1", "x2"]);
+    a.s().undo();
+    expect(a.s().data!.days.map((d) => d.id)).toEqual(["x1", "x2", "x3"]);
+    expect(a.s().data!.days.map((d) => d.date)).toEqual(["2026-10-01", "2026-10-02", "2026-10-03"]);
+  });
+
   it("a day added into a gap sits in date order, not at the end", async () => {
     const a = await setup();
     a.s().removeEntity("days", "x2");
