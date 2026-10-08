@@ -1006,7 +1006,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   // each sits before the first step timed later than it, else at the end
   const stops = journeys.flatMap((journey) => journeyStops(journey, day.date).map((st) => ({ ...st, journey })));
   const stopRow = (st: (typeof stops)[number]) => (
-    <JourneyStopRow key={`journey-${st.journey.id}-${st.kind}`} journey={st.journey} stop={st} />
+    <JourneyStopRow key={`journey-${st.journey.id}-${st.hop}-${st.kind}`} journey={st.journey} stop={st} />
   );
   const stopAt = (time: string) => {
     const i = items.findIndex((it) => {
@@ -2132,19 +2132,23 @@ function trainMinutes(t: TrainOption): number {
   return (t.walkIn ?? 0) + t.ride + (t.walkOut ?? 0);
 }
 
-/** the caption under a journey's plan row — the whole trip's length, mode,
- *  carrier and changes on the Leave row, where you plan from; nothing under
- *  Arrive, its time says it all */
+/** the caption under a journey's plan row, hop by hop as Maps lays out a
+ *  transit route: a Leave row has that ride's length, mode, carrier and
+ *  service (and its platform); an Arrive where you change has the wait
+ *  until the next one leaves; the last Arrive needs nothing, its time says it */
 function journeyStopMeta(journey: Journey, stop: ReturnType<typeof journeyStops>[number]): (string | false | null | undefined)[] {
-  if (stop.kind !== "leave") return [];
-  const { seg } = stop;
-  const segs = journey.segments;
-  const last = segs[segs.length - 1];
-  return [
-    fmtDuration(segs[0]?.depart, last?.arrive, segs[0]?.fromTz, last?.toTz),
-    MODE_LABEL[seg.mode], seg.carrier, seg.service,
-    segs.length > 1 && plural(segs.length - 1, "change"),
-  ];
+  const { seg, hop } = stop;
+  if (stop.kind === "leave") {
+    return [
+      fmtDuration(seg.depart, seg.arrive, seg.fromTz, seg.toTz),
+      MODE_LABEL[seg.mode], seg.carrier, seg.service,
+      seg.platform && `Platform ${seg.platform}`,
+    ];
+  }
+  const next = journey.segments[hop + 1];
+  if (!next) return [];
+  const wait = fmtDuration(seg.arrive, next.depart, seg.toTz, next.fromTz);
+  return [wait ? `${wait} to change` : "Change here"];
 }
 
 /** One end of the day's journey as a plan row — "Leave Kyoto" at its first

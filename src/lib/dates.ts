@@ -297,22 +297,22 @@ export function journeyOffDay(j: Pick<Journey, "date" | "segments">, date: ISODa
   return !!from && (date < from || date > (to ?? from));
 }
 
-/** A journey's own moments on a given day, for the day's plan: leaving from
- *  its first hop's start and arriving at its last hop's end, each only when
- *  that time falls on `date` (an overnight flight shows its arrival on the
- *  next day). Times are "HH:MM". */
-export function journeyStops(j: Pick<Journey, "segments">, date: ISODate): { kind: "leave" | "arrive"; time: string; place: string; seg: Segment }[] {
-  const first = j.segments[0];
-  const last = j.segments[j.segments.length - 1];
+/** A journey's own moments on a given day, for the day's plan: every hop
+ *  leaving and arriving — the bus to Mishima, then the train on to Kyoto —
+ *  each only when that time falls on `date` (an overnight flight shows its
+ *  arrival on the next day). Times are "HH:MM"; `hop` is the hop's index. */
+export function journeyStops(j: Pick<Journey, "segments">, date: ISODate): { kind: "leave" | "arrive"; time: string; place: string; seg: Segment; hop: number }[] {
   const at = (v?: string) => {
     const [d, t = ""] = (v ?? "").split("T");
     const m = /^(\d{1,2}):(\d{2})$/.exec(t);
     return d === date && m ? `${m[1].padStart(2, "0")}:${m[2]}` : null;
   };
-  const out: { kind: "leave" | "arrive"; time: string; place: string; seg: Segment }[] = [];
-  const leave = at(first?.depart);
-  if (first && leave) out.push({ kind: "leave", time: leave, place: first.from, seg: first });
-  const arrive = at(last?.arrive);
-  if (last && arrive) out.push({ kind: "arrive", time: arrive, place: last.to, seg: last });
+  const out: { kind: "leave" | "arrive"; time: string; place: string; seg: Segment; hop: number }[] = [];
+  j.segments.forEach((seg, hop) => {
+    const leave = at(seg.depart);
+    if (leave) out.push({ kind: "leave", time: leave, place: seg.from, seg, hop });
+    const arrive = at(seg.arrive);
+    if (arrive) out.push({ kind: "arrive", time: arrive, place: seg.to, seg, hop });
+  });
   return out;
 }
