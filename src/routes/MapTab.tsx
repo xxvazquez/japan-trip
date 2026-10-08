@@ -625,20 +625,30 @@ function useMapEditing(
   };
   const applyReview = () => {
     if (!data) return;
+    // each area's places as the whole run leaves them, written once at the
+    // end: two groups can land in one area (two clusters given the same
+    // neighbourhood name), and a write per group from this render's
+    // snapshot would undo the first's places, or make the name twice
+    const next = new Map<string, string[]>();
+    const created = new Map<string, { id: string; name: string }>();
+    const key = (name: string) => name.trim().toLowerCase();
     for (const g of review ?? []) {
       if (!g.keep || g.placeIds.length < (g.areaId ? 1 : 2)) continue;
-      const into = g.areaId && data.areas.find((a) => a.id === g.areaId);
-      if (into) {
-        updateEntity<Area>("areas", into.id, { placeIds: [...new Set([...into.placeIds, ...g.placeIds])] });
-        continue;
-      }
       const name = g.name || "Area";
-      const dup = data.areas.find((a) => (a.name || "").trim().toLowerCase() === name.trim().toLowerCase());
-      if (dup) {
-        updateEntity<Area>("areas", dup.id, { placeIds: [...new Set([...dup.placeIds, ...g.placeIds])] });
-      } else {
-        addEntity("areas", { id: crypto.randomUUID?.() ?? rid(), name, placeIds: g.placeIds } as never);
+      let id = g.areaId && data.areas.some((a) => a.id === g.areaId) ? g.areaId
+        : data.areas.find((a) => key(a.name || "") === key(name))?.id ?? created.get(key(name))?.id;
+      if (!id) {
+        id = crypto.randomUUID?.() ?? rid();
+        created.set(key(name), { id, name });
       }
+      const had = next.get(id) ?? data.areas.find((a) => a.id === id)?.placeIds ?? [];
+      next.set(id, [...new Set([...had, ...g.placeIds])]);
+    }
+    const isNew = new Map([...created.values()].map((c) => [c.id, c.name] as const));
+    for (const [id, placeIds] of next) {
+      const name = isNew.get(id);
+      if (name !== undefined) addEntity("areas", { id, name, placeIds } as never);
+      else updateEntity<Area>("areas", id, { placeIds });
     }
     endSuggest();
   };
@@ -2107,7 +2117,7 @@ function PlaceRow({
   // as text only made the row a line taller
   const metaBits = [
     distanceKm !== undefined && fmtWalk({ min: estimateWalk(distanceKm).min, km: distanceKm }),
-    !catGlyph && place.category,
+    !catGlyph && place.category && categoryName(place.category),
     // the card has its day as a button instead
     !card && day && `on ${fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}`,
   ].filter(Boolean).join(" · ");
