@@ -72,8 +72,10 @@ export function SwipeToDelete({
     const ddx = t.clientX - s.x;
     const ddy = t.clientY - s.y;
     if (s.axis === "?") {
-      if (Math.abs(ddx) < 6 && Math.abs(ddy) < 6) return;
-      s.axis = Math.abs(ddx) > Math.abs(ddy) ? "x" : "y";
+      if (Math.abs(ddx) < 10 && Math.abs(ddy) < 10) return;
+      // only a clearly sideways drag swipes — a slightly slanted scroll
+      // must never nudge the row off its timeline rail
+      s.axis = Math.abs(ddx) > Math.abs(ddy) * 1.5 ? "x" : "y";
     }
     if (s.axis !== "x") return;
     dragging.current = true;
@@ -93,6 +95,13 @@ export function SwipeToDelete({
       setOpen(false);
       setDx(0);
     }
+  };
+  // the system took the touch over (a scroll, a hold's menu, an edge
+  // gesture): no touchend follows, so put the row back where it was
+  const onCancel = () => {
+    g.current = null;
+    dragging.current = false;
+    setDx(open ? -REVEAL : 0);
   };
   const closeAnd = (fn?: () => void) => {
     setOpen(false);
@@ -136,6 +145,7 @@ export function SwipeToDelete({
         onTouchStart={onStart}
         onTouchMove={onMove}
         onTouchEnd={onEnd}
+        onTouchCancel={onCancel}
         className={`relative ${bg}`}
         style={{
           transform: `translateX(${dx}px)`,
