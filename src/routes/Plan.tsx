@@ -33,6 +33,8 @@ import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { tripClock, fmtDate, fmtDateRange, dayKind, legCheckOut, legForDate, legNights, plural, addDays, daysBetween } from "@/lib/dates";
 import { nextDaySlot } from "@/lib/spans";
+import { useDaySun } from "@/lib/daySun";
+import { fmtClock } from "@/lib/time";
 import { canonicalLegs } from "@/lib/cityAssign";
 import { launchedFresh } from "@/lib/resume";
 import { useTripSpent } from "@/lib/fx";
@@ -554,6 +556,21 @@ function DayKindTag({ day, data }: { day: Day; data: TripData }) {
   );
 }
 
+/** The day's sunrise and sunset, on that place's own clock — a quiet line
+ *  under the caption, each time led by its sun-on-the-horizon glyph, as
+ *  Weather's detail tiles draw them. Nothing when the day has no place. */
+function DaySunTimes({ day, data }: { day: Day; data: TripData }) {
+  const { rise, set } = useDaySun(data, day);
+  if (!rise && !set) return null;
+  const glyph = "mr-1 inline-block align-[-2px]";
+  return (
+    <span className="mt-0.5 text-xs leading-snug text-ink-faint tabular-nums">
+      {rise && <span className="mr-2.5 inline-block"><Icon name="sunup" size={13} strokeWidth={2} className={glyph} /><span className="sr-only">Sunrise </span>{fmtClock(rise)}</span>}
+      {set && <span className="inline-block"><Icon name="sundown" size={13} strokeWidth={2} className={glyph} /><span className="sr-only">Sunset </span>{fmtClock(set)}</span>}
+    </span>
+  );
+}
+
 /** The little block that rides under the cursor while dragging a day. */
 function DayCard({ day, loc, data }: { day: Day; loc: string; data: TripData }) {
   return (
@@ -562,6 +579,7 @@ function DayCard({ day, loc, data }: { day: Day; loc: string; data: TripData }) 
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="break-words leading-snug text-ink">{day.title || "Untitled day"}</span>
         <DayKindTag day={day} data={data} />
+        <DaySunTimes day={day} data={data} />
       </span>
     </div>
   );
@@ -588,6 +606,7 @@ function DayLink({ data, day, today, loc, pinned, newMonth }: { data: TripData; 
           {day.title || "Untitled day"}
         </span>
         <DayKindTag day={day} data={data} />
+        <DaySunTimes day={day} data={data} />
       </span>
       {today && <span className="shrink-0 text-xs text-accent">Today</span>}
       {/* fixed to its date, so it doesn't move with a drag — unpin on its page or the row's menu */}
