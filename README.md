@@ -93,7 +93,7 @@ The round button beside the tab bar (top right on a wide screen, or ⌘K / Ctrl+
 The trip as a list of days, grouped by **base** — where you're based for a run of nights (Tokyo, Kyoto). A **stay** is the place you sleep there: a hotel, an Airbnb, anything. Day trips go out from a base and back.
 
 - **Tags.** Each day shows **Arrive**, **Travel**, **Depart** or **Day trip**. These are worked out from the day itself, never chosen by hand. A day trip stays **Day trip** with its trains on it; an arrival or departure journey still wins.
-- **Reorder** — hold a day, then drag it up or down (on a computer, just drag it). The dates shuffle with it. Holding without moving opens the day's menu instead.
+- **Reorder** — hold a day, then drag it up or down (on a computer, just drag it). The dates shuffle with it, and **Undo** puts them back. Holding without moving opens the day's menu instead.
 - **Pin a day** that's fixed to its date (a public holiday, a booked tour) from the foot of its page:
   - It shows a pin and can't be dragged.
   - Other days flow around it — when you drag, and when an earlier base gains or loses a day.

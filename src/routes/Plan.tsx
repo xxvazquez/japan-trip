@@ -337,7 +337,8 @@ function LegList({ data, todayISO, readOnly, splitPast }: {
       const b = derived[id];
       return a.length !== b.length || a.some((x, i) => x !== b[i]);
     });
-    if (changed) reorderDays(data.legs.map((l) => ({ legId: l.id, dayIds: final[l.id] ?? [] })));
+    // a drag re-dates days, so a slip of the finger can be taken back
+    if (changed) undoable("Day moved", () => reorderDays(data.legs.map((l) => ({ legId: l.id, dayIds: final[l.id] ?? [] }))));
   };
 
   return (
