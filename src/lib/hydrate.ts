@@ -5,7 +5,7 @@ import type { Day, Doc, DocField, ExpenseCategory, Hotel, Leg, ModuleConfig, Pla
 import { todayISO } from "@/lib/dates";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
-export const SCHEMA_VERSION = 18;
+export const SCHEMA_VERSION = 19;
 
 /** Seed expense categories for a new trip. `role: "transport"` is the catch-all
  *  for any fare whose mode isn't claimed below (ferry, car, walk, or a manual
@@ -25,6 +25,11 @@ export const DEFAULT_EXPENSE_CATEGORIES: ExpenseCategory[] = [
   { id: "cat-shopping", label: "Shopping" },
   { id: "cat-other", label: "Other" },
 ];
+
+/** trimmed strings, no blanks or repeats */
+const cleanLabels = (x: unknown): string[] => Array.isArray(x)
+  ? [...new Set(x.filter((l): l is string => typeof l === "string").map((l) => l.trim()).filter(Boolean))]
+  : [];
 
 const fieldId = () =>
   (globalThis.crypto?.randomUUID?.() ?? `f-${Math.random().toString(36).slice(2, 10)}`);
@@ -305,16 +310,21 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
     const raw = day as unknown as { plan?: unknown; places?: unknown[] };
     const planIsNew = Array.isArray(raw.plan) && typeof raw.plan[0] === "object" && raw.plan[0] !== null;
     if (planIsNew) {
-      day.plan = (raw.plan as Partial<PlanItem>[]).map((it): PlanItem => ({
-        id: it.id || `pi-${fieldId()}`,
-        text: it.text ?? "",
-        time: it.time || undefined,
-        note: it.note || undefined,
-        placeId: it.placeId || undefined,
-        url: it.url || undefined,
-        pinned: it.pinned ? true : undefined,
-        optional: it.optional ? true : undefined,
-      }));
+      day.plan = (raw.plan as Partial<PlanItem>[]).map((it): PlanItem => {
+        // v19: a step's flags — trimmed, no blanks or repeats, dropped when none
+        const flags = cleanLabels(it.flags);
+        return {
+          id: it.id || `pi-${fieldId()}`,
+          text: it.text ?? "",
+          time: it.time || undefined,
+          note: it.note || undefined,
+          placeId: it.placeId || undefined,
+          url: it.url || undefined,
+          pinned: it.pinned ? true : undefined,
+          optional: it.optional ? true : undefined,
+          ...(flags.length ? { flags } : {}),
+        };
+      });
     } else {
       const fromStrings = (Array.isArray(raw.plan) ? (raw.plan as unknown[]) : [])
         .filter((s): s is string => typeof s === "string")
@@ -347,9 +357,7 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
       : [];
     // v11: labels — trimmed, no blanks or repeats; the key is dropped when
     // there are none, so a day without labels never writes the column
-    const labels = Array.isArray(day.labels)
-      ? [...new Set(day.labels.filter((l): l is string => typeof l === "string").map((l) => l.trim()).filter(Boolean))]
-      : [];
+    const labels = cleanLabels(day.labels);
     if (labels.length) day.labels = labels;
     else delete day.labels;
   }

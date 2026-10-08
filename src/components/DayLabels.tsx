@@ -16,8 +16,11 @@ const same = (a: string, b: string) => a.toLocaleLowerCase() === b.toLocaleLower
  * only place to type (an iOS text-field alert). Hold a label (right-click on
  * a computer) to rename it or delete it on every day (undoable). Unticking
  * needs no Undo — ticking it again is one.
+ *
+ * The same sheet edits a step's flags ("Remember to book") with `noun`
+ * "Flag" and `scope` "step" — its own vocabulary, shown in red on the step.
  */
-export function DayLabelsSheet({ open, onClose, anchorRef, labels, used, onChange, onRenameAll, onDeleteAll }: {
+export function DayLabelsSheet({ open, onClose, anchorRef, labels, used, onChange, onRenameAll, onDeleteAll, noun = "Label", scope = "day", example = "Chill day" }: {
   open: boolean;
   onClose: () => void;
   anchorRef: RefObject<HTMLElement>;
@@ -29,6 +32,9 @@ export function DayLabelsSheet({ open, onClose, anchorRef, labels, used, onChang
   onRenameAll: (from: string, to: string) => void;
   /** take a label off every day of the trip */
   onDeleteAll: (label: string) => void;
+  noun?: string;
+  scope?: string;
+  example?: string;
 }) {
   const [naming, setNaming] = useState(false);
   const [renaming, setRenaming] = useState<string | null>(null);
@@ -48,7 +54,7 @@ export function DayLabelsSheet({ open, onClose, anchorRef, labels, used, onChang
 
   return (
     <>
-      <ActionSheet open={open} onClose={onClose} anchorRef={anchorRef} title="Labels" doneLabel="Done">
+      <ActionSheet open={open} onClose={onClose} anchorRef={anchorRef} title={`${noun}s`} doneLabel="Done">
         {/* toggles stay open until dismissed — stopPropagation so a tap
             doesn't trigger ActionSheet's "close on any click inside" */}
         <div onClick={(e) => e.stopPropagation()}>
@@ -58,9 +64,9 @@ export function DayLabelsSheet({ open, onClose, anchorRef, labels, used, onChang
               menu={
                 <>
                   <button type="button" className="menu-item" onClick={() => { primeKeyboard(); setRenaming(l); }}>
-                    <Icon name="pencil" size={16} /> Rename on every day
+                    <Icon name="pencil" size={16} /> Rename on every {scope}
                   </button>
-                  <ConfirmMenuItem onConfirm={() => onDeleteAll(l)} label="Delete from every day" icon={<Icon name="trash" size={16} />} />
+                  <ConfirmMenuItem onConfirm={() => onDeleteAll(l)} label={`Delete from every ${scope}`} icon={<Icon name="trash" size={16} />} />
                 </>
               }
             >
@@ -71,23 +77,23 @@ export function DayLabelsSheet({ open, onClose, anchorRef, labels, used, onChang
             </ContextMenu>
           ))}
           <button type="button" className="menu-item text-accent" onClick={() => { primeKeyboard(); setNaming(true); }}>
-            <Icon name="plus" size={16} /> New Label…
+            <Icon name="plus" size={16} /> New {noun}…
           </button>
         </div>
       </ActionSheet>
       <TextPrompt
         open={naming}
-        title="New Label"
-        message="Add a label of your own to this day."
-        placeholder="e.g. Chill day"
+        title={`New ${noun}`}
+        message={`Add a ${noun.toLowerCase()} of your own to this ${scope}.`}
+        placeholder={`e.g. ${example}`}
         action="Add"
         onSubmit={add}
         onClose={() => setNaming(false)}
       />
       <TextPrompt
         open={renaming !== null}
-        title="Rename Label"
-        message="Renames it on every day that has it."
+        title={`Rename ${noun}`}
+        message={`Renames it on every ${scope} that has it.`}
         initial={renaming ?? ""}
         action="Save"
         onSubmit={(to) => renaming && onRenameAll(renaming, to)}
@@ -124,4 +130,9 @@ export function tripLabels(days: { labels?: string[] }[]): string[] {
     }
   }
   return [...count.values()].sort((a, b) => b.n - a.n || a.first - b.first).map((c) => c.label);
+}
+
+/** every flag on the trip's steps, most used first */
+export function tripStepFlags(days: { plan?: { flags?: string[] }[] }[]): string[] {
+  return tripLabels(days.flatMap((d) => (d.plan ?? []).map((p) => ({ labels: p.flags }))));
 }

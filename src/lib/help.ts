@@ -325,6 +325,19 @@ export const HELP: HelpTopic[] = [
           },
         ],
       },
+      {
+        id: "flags",
+        q: "Can I add my own red reminder to a step?",
+        a: "Yes — a flag, like \u201cRemember to book\u201d.",
+        blocks: [
+          {
+            rows: [
+              { icon: "flag", title: "Add a flag", detail: "From the step's menu or its place card's More" },
+              { icon: "tag", title: "Reuse it", detail: "Every flag in the trip is one tap away" },
+            ],
+          },
+        ],
+      },
     ],
   },
   {

@@ -154,6 +154,19 @@ describe("day labels", () => {
   });
 });
 
+describe("step flags", () => {
+  it("are trimmed and de-duplicated, and dropped when there are none", () => {
+    const raw = legacy();
+    (raw.days as Record<string, unknown>[])[0].plan = [
+      { id: "a", text: "Museum", flags: [" Remember to book ", "Remember to book", "", 3] },
+      { id: "b", text: "Lunch", flags: [] },
+    ];
+    const t = normalizeTrip(raw as never) as TripData;
+    expect(t.days[0].plan?.[0].flags).toEqual(["Remember to book"]);
+    expect("flags" in (t.days[0].plan?.[1] ?? {})).toBe(false);
+  });
+});
+
 it("the Emergency contacts card it adds has an id the database accepts", () => {
   const t = normalizeTrip({ docs: [] } as Partial<TripData>) as TripData;
   const contact = t.docs.find((d) => d.kind === "contact");
