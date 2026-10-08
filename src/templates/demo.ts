@@ -270,5 +270,8 @@ export function buildSandbox(): TripData {
   data.config.demo = false;
   data.config.currency = "EUR";
   data.config.currencies = ["EUR", "PLN"];
+  // the demo's second-currency spend follows the swap, so nothing is left
+  // in a currency the trip doesn't use
+  for (const day of data.days) for (const c of day.costs ?? []) if (c.currency === "GBP") c.currency = "PLN";
   return data;
 }
