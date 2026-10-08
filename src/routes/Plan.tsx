@@ -37,7 +37,7 @@ import { canonicalLegs } from "@/lib/cityAssign";
 import { launchedFresh } from "@/lib/resume";
 import { useTripSpent } from "@/lib/fx";
 import { legHex, LEG_COLORS, type LegColorId } from "@/lib/legColors";
-import type { Day, Leg, TripData } from "@/core/types";
+import type { Day, ISODate, Leg, TripData } from "@/core/types";
 
 /** Makes the "Day X of Y" header itself the shortcut to today's Day page
  *  while the trip is live — the whole point of the header is "here's today,"
@@ -110,6 +110,20 @@ function OfflineReminder({ data, show }: { data: TripData; show: boolean }) {
  *  there, then "leaving tomorrow" and, on check-out day, "leaving today" */
 const leavingIn = (nights: number) =>
   nights >= 2 ? `${nights} nights left` : nights === 1 ? "leaving tomorrow" : "leaving today";
+
+/** the morning you leave a stay's city — a hotel change within the same
+ *  city (the next stay starts that morning, same name) isn't leaving it */
+function cityCheckOut(leg: Leg, data: TripData): ISODate {
+  const city = canonicalLegs(data);
+  let out = legCheckOut(leg, data.legs);
+  for (;;) {
+    const next = data.legs.find((l) => l.id !== leg.id && l.start === out && city.get(l.id) === city.get(leg.id));
+    if (!next) return out;
+    const nextOut = legCheckOut(next, data.legs);
+    if (nextOut <= out) return out;
+    out = nextOut;
+  }
+}
 
 /** the app has had its launch: opening on today happens once a session */
 let launched = false;
@@ -215,7 +229,7 @@ export default function Plan() {
               {currentLeg?.base ? (
                 <>
                   <span style={{ color: legHex(currentLeg.color) }}>{currentLeg.base} · </span>
-                  <span className="meta">{leavingIn(daysBetween(c.todayISO, legCheckOut(currentLeg, data.legs)))}</span>
+                  <span className="meta">{leavingIn(daysBetween(c.todayISO, cityCheckOut(currentLeg, data)))}</span>
                 </>
               ) : (
                 <span className="meta">{plural(c.daysRemaining, "day")} left</span>
