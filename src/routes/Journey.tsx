@@ -9,6 +9,7 @@ import { Editable } from "@/components/Editable";
 import { MoneyField } from "@/components/MoneyField";
 import { RichNote } from "@/components/RichNote";
 import { Icon, type IconName } from "@/components/Icon";
+import { usePersistedOpen } from "@/lib/collapse";
 import { IconTile } from "@/components/IconTile";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
 import { SwipeToDelete } from "@/components/SwipeToDelete";
@@ -36,6 +37,9 @@ export default function Journey() {
   const updateEntity = useApp((s) => s.updateEntity);
   const removeEntity = useApp((s) => s.removeEntity);
   const ro = useReadOnly();
+  // Hops folds like every other titled section (its hops are separate
+  // cards, so it can't be a `Section` itself)
+  const [hopsOpen, setHopsOpen] = usePersistedOpen("hops", true);
   if (!data) return null;
 
   const j = lookups(data).journey(id);
@@ -168,7 +172,20 @@ export default function Journey() {
         <section>
         {/* the same quiet kicker every other section on the page uses; adding
             sits under the last hop, as a group's closing "Add …" row does */}
-        <h2 className="kicker mb-1.5 px-1">Hops</h2>
+        <h2 className={`kicker flex items-center gap-1.5 px-1 ${hopsOpen ? "mb-1.5" : ""}`}>
+          <button
+            type="button"
+            onClick={() => setHopsOpen((was) => !was)}
+            aria-expanded={hopsOpen}
+            className="tap -m-1 shrink-0 p-1 text-ink-faint transition-colors hover:text-ink-soft"
+          >
+            <Icon name="chevron" size={13} className={`transition-transform ${hopsOpen ? "rotate-90" : ""}`} />
+            <span className="sr-only">{hopsOpen ? "Collapse" : "Expand"} section</span>
+          </button>
+          Hops
+        </h2>
+        <div className={`grid transition-[grid-template-rows] duration-300 ease-paper ${hopsOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+        <div className="min-h-0 overflow-hidden">
         <div className="space-y-2.5">
         {j.segments.map((s, i) => {
           const next = j.segments[i + 1];
@@ -428,6 +445,8 @@ export default function Journey() {
             </button>
           </div>
         )}
+        </div>
+        </div>
         </div>
         </section>
       )}
