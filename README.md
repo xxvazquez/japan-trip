@@ -369,6 +369,7 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 - **Search** — the field at the top of the list finds areas by name and places by name, category or note, across the whole trip. The map shows only what it finds; on a phone the sheet pulls up while you type.
 - **Areas fold open in place**, like folders in Files — tap an area row to show its places under it, and the map moves to show them. They start collapsed and remember what you opened.
 - **The map frames what's listed** in the part showing above the sheet. A tapped place is centred there too.
+- **Your stays** show as a grey hotel pin: every stay on **All**, the city's on a city pill, the night's own on **Today**. They aren't in the list; tap one to open the stay.
 - **Tapping a place** swaps the list for its card, as Apple Maps does; ✕ goes back to the list where you left it.
 - **A place's card** — laid out like a step's place card:
   - **Top:** the name (tap to rename) and the walk to the nearest station.

@@ -3,8 +3,8 @@ import { MapView, type MLMap } from "./MapView";
 import { Icon } from "./Icon";
 import { useData } from "@/lib/data";
 import { useIsDark } from "@/lib/mode";
-import { gmapsRoute, mapUrlCoords, placeMapLink } from "@/lib/maps";
-import { DEFAULT_ACCENT } from "@/lib/themePresets";
+import { gmapsRoute, placeMapLink } from "@/lib/maps";
+import { dayStay, stayPins, withStayCategory } from "@/lib/stayPins";
 import { loadBasePois } from "@/lib/mapStyle";
 import { clearSplitSelect, onSplitSelect } from "@/lib/splitSelect";
 import type { Place, TripData } from "@/core/types";
@@ -29,13 +29,8 @@ function dayPlaces(data: TripData, dayId: string): { places: Place[]; derived: S
   }
   const places = [...direct, ...viaAreas].map((id) => byId.get(id)).filter((p): p is Place => !!p);
 
-  // the hotel isn't a Place, so give it a pin of its own
-  const hotelId = day.hotelId ?? data.legs.find((l) => l.id === day.legId)?.hotelId;
-  const hotel = data.hotels.find((h) => h.id === hotelId);
-  const coords = hotel && (hotel.lat !== undefined && hotel.lng !== undefined ? [hotel.lat, hotel.lng] : mapUrlCoords(hotel.mapUrl));
-  if (hotel && coords) {
-    places.push({ id: `hotel:${hotel.id}`, name: hotel.name || "Stay", lat: coords[0], lng: coords[1], color: DEFAULT_ACCENT });
-  }
+  // the hotel isn't a Place, so it gets a stay pin of its own
+  places.push(...stayPins([dayStay(data, dayId)]));
   return { places, derived: viaAreas };
 }
 
@@ -46,7 +41,9 @@ export default function MapPane({ dayId }: { dayId: string }) {
   const [ready, setReady] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
 
-  const ctx = useMemo(() => (data ? dayPlaces(data, dayId) : { places: [], derived: new Set<string>() }), [data, dayId]);
+  // the stay pin's colour is read from the palette, so a light/dark flip redraws it
+  const ctx = useMemo(() => (data ? dayPlaces(data, dayId) : { places: [], derived: new Set<string>() }), [data, dayId, dark]);
+  const cats = useMemo(() => withStayCategory(data?.config ?? ({} as never)), [data?.config]);
   const fitKey = ctx.places.map((p) => `${p.id}@${p.lat},${p.lng}`).join("|");
 
   useEffect(() => setSelected(null), [dayId]);
@@ -84,9 +81,8 @@ export default function MapPane({ dayId }: { dayId: string }) {
         places={ctx.places}
         selectedId={selected}
         derivedIds={ctx.derived}
-        categoryIcons={data.config.categoryIcons}
+        {...cats}
         categoryColors={data.config.categoryColors}
-        pinnedCategories={data.config.pinnedCategories}
         dark={dark}
         basePois={loadBasePois()}
         onSelect={setSelected}

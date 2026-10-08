@@ -46,6 +46,7 @@ import { placeColor, placeTile, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
 import { canonicalLegs } from "@/lib/cityAssign";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
+import { dayStay, stayIdOfPin, stayPins, withStayCategory } from "@/lib/stayPins";
 import type { Area, Day, PlanItem, Place, TripData } from "@/core/types";
 
 const FALLBACK = DEFAULT_ACCENT;
@@ -668,6 +669,7 @@ export default function MapTab() {
   const readOnly = useReadOnly();
   const [mode] = useMode();
   const dark = isDark(mode);
+  const nav = useNavigate();
 
   const map = useRef<MLMap | null>(null);
   /** flips once on the map's first load — a place row's nearest-station
@@ -1001,6 +1003,23 @@ export default function MapTab() {
   }, [data, listAreas, places, settledQuery]);
   /** what the map draws: the search's finds while searching, else the scope */
   const shown = searchHits ? searchHits.onMap : scoped;
+  /** the stays in the scope, a pin each — drawn and framed with the places
+   *  but kept out of the list. Not while searching or filtering by category
+   *  or area, which ask for places only. */
+  const stays = useMemo(() => {
+    if (!data || searchHits || catFilter.size || areaFilter.size) return [];
+    if (!scope || scope === "all") return stayPins(data.hotels);
+    if (scope.startsWith("day:")) return stayPins([dayStay(data, scope.slice(4))]);
+    const legId = scope.slice(4);
+    const inCity = (l: string) => (cityLeg.get(l) ?? l) === legId;
+    return stayPins([
+      ...data.legs.filter((l) => inCity(l.id)).map((l) => data.hotels.find((h) => h.id === l.hotelId)),
+      // a second booking in the same city, set on the day itself
+      ...data.days.filter((d) => inCity(d.legId) && dayCity.get(d.id) === legId).map((d) => dayStay(data, d.id)),
+    ]);
+  }, [data, scope, searchHits, catFilter, areaFilter, cityLeg, dayCity, dark]);
+  const onMap = useMemo(() => (stays.length ? [...shown, ...stays] : shown), [shown, stays]);
+  const mapCats = useMemo(() => withStayCategory(data?.config ?? ({} as never)), [data?.config]);
 
   // settle the opening view once: if the default city has no places, widen to
   // "all"; then open to the half sheet if there's a list worth showing.
@@ -1168,9 +1187,9 @@ export default function MapTab() {
   // behind it.
   const fitScope = () => {
     const m = map.current;
-    if (!m || selected || shown.length === 0) return;
-    const lngs = shown.map((p) => p.lng);
-    const lats = shown.map((p) => p.lat);
+    if (!m || selected || onMap.length === 0) return;
+    const lngs = onMap.map((p) => p.lng);
+    const lats = onMap.map((p) => p.lat);
     const bottom = wide || listOnly ? 44 : halfStopPx + 24;
     m.fitBounds(
       [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
@@ -1178,7 +1197,7 @@ export default function MapTab() {
     );
   };
   // the map can finish loading after the scope settles: fit again once it has
-  useEffect(fitScope, [shown, selected, mapReady]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(fitScope, [onMap, selected, mapReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!data) return null;
   const url = data.config.mapSourceUrl?.trim() ?? "";
@@ -1873,17 +1892,17 @@ export default function MapTab() {
           (viewport, loaded tiles) alive for an instant toggle back */}
       <div className={`absolute inset-0 md:left-[var(--panel-w)] ${listOnly ? "hidden" : ""}`}>
         <MapView
-          places={shown}
+          places={onMap}
           selectedId={selected}
           derivedIds={derived}
           areaShapes={areaShapes}
           transit={transit}
           basePois={basePois}
-          categoryIcons={data.config.categoryIcons}
+          {...mapCats}
           categoryColors={data.config.categoryColors}
-          pinnedCategories={data.config.pinnedCategories}
           dark={dark}
-          onSelect={setSelected}
+          // a stay's pin opens the stay, as its row does on the Plan
+          onSelect={(id) => { const stay = stayIdOfPin(id); if (stay) nav(`/hotel/${stay}`); else setSelected(id); }}
           onMapClick={onMapClick}
           onLongPress={onLongPress}
           coverBottom={wide || listOnly ? 0 : halfStopPx}
