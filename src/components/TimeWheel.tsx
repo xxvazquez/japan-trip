@@ -5,7 +5,7 @@ import { useRevealAboveSheet } from "./useRevealAboveSheet";
 import { useScrollLock } from "./useScrollLock";
 import { useBackToClose } from "@/lib/backClose";
 import { Icon } from "./Icon";
-import { clock24 } from "@/lib/time";
+import { clock24, fmtClock } from "@/lib/time";
 
 /* The pickers read the way the device's own clock does, as iOS's wheel
  * follows the phone's 24-Hour Time setting: 00–23, or 1–12 plus AM/PM. The
@@ -243,11 +243,65 @@ function TimeField({ hour, minute, onPick, onDone }: {
   );
 }
 
+/** Every quarter hour of the day, "HH:MM" */
+const QUARTERS = Array.from({ length: 96 }, (_, i) =>
+  `${String(Math.floor(i / 4)).padStart(2, "0")}:${String((i % 4) * 15).padStart(2, "0")}`);
+const LIST_ROW_H = 30;
+
+/** The desktop popover's quick list, as Calendar on the Mac drops one under
+ *  its time field: every quarter hour, held with the nearest one to the
+ *  field's time in the middle (following it as the field is typed or
+ *  stepped), the exact match ticked. One click sets that time and closes. */
+function QuarterList({ hour, minute, onChoose }: {
+  hour: string;
+  minute: string;
+  onChoose: (h: string, m: string) => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const current = `${hour}:${minute}`;
+  const nearest = Math.round((Number(hour) * 60 + Number(minute)) / 15) % 96;
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.scrollTop = nearest * LIST_ROW_H - (el.clientHeight - LIST_ROW_H) / 2;
+  }, [nearest]);
+
+  return (
+    <div
+      ref={ref}
+      role="listbox"
+      aria-label="Times"
+      className="-mx-1 h-[180px] overflow-y-auto overscroll-contain"
+    >
+      {QUARTERS.map((t) => (
+        <button
+          key={t}
+          type="button"
+          role="option"
+          aria-selected={t === current}
+          tabIndex={-1}
+          onPointerDown={(e) => e.preventDefault()}
+          onClick={() => { const [h, m] = t.split(":"); onChoose(h, m); }}
+          className="flex w-full items-center gap-1.5 rounded-[6px] px-1.5 text-left text-xs tabular-nums text-ink hover:bg-accent hover:text-white dark:hover:text-bg"
+          style={{ height: LIST_ROW_H }}
+        >
+          <span className="flex w-3.5 shrink-0 justify-center">
+            {t === current && <Icon name="check" size={13} />}
+          </span>
+          {fmtClock(t)}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 /** The iOS-style scroll-wheel time picker: a bottom sheet on phone widths, a
  *  small anchored popover on wider ones — the same narrow/wide split as
  *  `ActionSheet`, but not built on it, since a wheel needs to stay open
  *  through a scroll or a tap, where `ActionSheet` closes on any click inside
- *  it. The phone gets wheels, the popover a Mac-style `TimeField`; values
+ *  it. The phone gets wheels, the popover a Mac-style `TimeField` over a
+ *  quarter-hour list (`QuarterList`); values
  *  commit live as they change. With no time set yet the wheels show `hour` /
  *  `minute` as a starting point (`unset`), and "Done" saves that — what's on
  *  screen is what you get; otherwise "Done" just dismisses. */
@@ -335,11 +389,15 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, unset, 
       <div
         ref={popRef}
         style={{ top: 0, left: 0, visibility: "hidden" }}
-        className="glass-panel fixed z-[55] flex items-center gap-4 rounded-[14px] py-2 pl-2 pr-3 motion-safe:animate-fade-in"
+        className="glass-panel fixed z-[55] flex flex-col gap-2 rounded-[14px] p-2 motion-safe:animate-fade-in"
       >
-        <TimeField hour={h} minute={m} onPick={onPick} onDone={done} />
-        <button type="button" onClick={onClear} className="text-xs text-danger">Clear</button>
-        <button type="button" onClick={done} className="text-xs font-medium text-accent">Done</button>
+        <div className="flex items-center gap-4 pr-1">
+          <TimeField hour={h} minute={m} onPick={onPick} onDone={done} />
+          <button type="button" onClick={onClear} className="text-xs text-danger">Clear</button>
+          <button type="button" onClick={done} className="text-xs font-medium text-accent">Done</button>
+        </div>
+        <div className="h-[var(--hair)] bg-line" />
+        <QuarterList hour={h} minute={m} onChoose={(hh, mm) => { onPick(hh, mm); onClose(); }} />
       </div>
     </>,
     document.body,
