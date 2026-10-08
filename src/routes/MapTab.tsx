@@ -736,6 +736,26 @@ export default function MapTab() {
     mq.addEventListener("change", on);
     return () => mq.removeEventListener("change", on);
   }, []);
+  // The map is a fixed screen, never a page that scrolls — but WebKit
+  // scrolls the page up to lift a focused search field over the keyboard and
+  // can leave it there once the keyboard closes, the whole screen (tab bar
+  // too) sitting high over a blank strip. Put it back whenever the keyboard
+  // goes or focus leaves a field.
+  useEffect(() => {
+    const vv = window.visualViewport;
+    const settle = () => {
+      // not while the keyboard is still up — that lift is WebKit's to keep
+      if (vv && window.innerHeight - vv.height > 80) return;
+      if (window.scrollY) window.scrollTo(0, 0);
+    };
+    const later = () => setTimeout(settle, 50);
+    vv?.addEventListener("resize", settle);
+    document.addEventListener("focusout", later);
+    return () => {
+      vv?.removeEventListener("resize", settle);
+      document.removeEventListener("focusout", later);
+    };
+  }, []);
   /** the "Filters" (category, transit) sheet — real filtering, split out from area upkeep above */
   const filterSheet = useActionSheet();
   /** hides the map, list fills the screen — see LIST_ONLY_KEY above */
