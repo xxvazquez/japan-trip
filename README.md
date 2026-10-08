@@ -661,6 +661,8 @@ Once the app has loaded, it works with no signal. See [Before you travel](#befor
 
 **Something looks out of date.** Pull down from the top of any page — it re-pulls the trip and picks up a new version of the app if there is one. Or **Manage → Refresh**.
 
+**The app won't open.** Instead of a blank page it shows *Atlas couldn't open* with the error under it. **Reopen** clears the installed copy of the app and loads it fresh — your trips and saved maps stay. If the app's own files failed to load, it does this once by itself.
+
 **Is this device on the latest version?** The foot of **Manage** shows the version, commit and build date. Compare the commit with the one you pushed.
 
 **Help** (bottom of Manage) answers the common "how do I…" questions:

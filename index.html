@@ -22,6 +22,111 @@
         } catch (e) {}
       })();
     </script>
+    <script>
+      // If the app never draws (its code didn't load, or crashed before any
+      // screen), show a plain "couldn't open" screen instead of a blank page.
+      // Reopening clears the installed copy of the app (never the trip, never
+      // saved maps) and loads it fresh; a code file that failed to load gets
+      // that once on its own.
+      (function () {
+        var KEEP = /^(trip-maps:|map-tiles|map-glyphs|images)/;
+        var TRIED = "za.boot-reset";
+        var lastError = "";
+        var shown = null;
+
+        function root() { return document.getElementById("root"); }
+        function drawn() { var r = root(); return !!(r && r.firstElementChild); }
+
+        function freshStart() {
+          try { sessionStorage.setItem(TRIED, String(Date.now())); } catch (e) {}
+          var jobs = [];
+          if (navigator.onLine !== false) {
+            if (navigator.serviceWorker) {
+              jobs.push(navigator.serviceWorker.getRegistrations().then(function (regs) {
+                return Promise.all(regs.map(function (r) { return r.unregister(); }));
+              }));
+            }
+            if (window.caches) {
+              jobs.push(caches.keys().then(function (keys) {
+                return Promise.all(keys.filter(function (k) { return !KEEP.test(k); }).map(function (k) { return caches.delete(k); }));
+              }));
+            }
+          }
+          Promise.all(jobs).catch(function () {}).then(function () { location.reload(); });
+        }
+
+        function recentlyTried() {
+          try { return Date.now() - Number(sessionStorage.getItem(TRIED) || 0) < 60000; } catch (e) { return true; }
+        }
+
+        function show() {
+          if (shown || drawn()) return;
+          var dark = document.documentElement.classList.contains("dark");
+          shown = document.createElement("div");
+          shown.setAttribute("style",
+            "position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:24px;text-align:center;" +
+            "font:17px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" +
+            "background:rgb(var(--c-bg," + (dark ? "0 0 0" : "242 244 246") + "));color:rgb(var(--c-ink," + (dark ? "255 255 255" : "0 0 0") + "));");
+          var box = document.createElement("div");
+          box.setAttribute("style", "max-width:320px;width:100%");
+          var title = document.createElement("div");
+          title.setAttribute("style", "font-weight:600;font-size:20px");
+          title.textContent = "Atlas couldn’t open";
+          var text = document.createElement("div");
+          text.setAttribute("style", "margin-top:8px;font-size:15px;color:rgb(var(--c-ink-soft," + (dark ? "152 152 159" : "107 112 120") + "))");
+          text.textContent = "Reopening loads it fresh. Your trips and saved maps stay as they are.";
+          var btn = document.createElement("button");
+          btn.textContent = "Reopen";
+          btn.setAttribute("style",
+            "margin-top:24px;width:100%;padding:12px;border:0;border-radius:10px;font:inherit;font-weight:500;" +
+            "background:rgb(var(--c-ink," + (dark ? "255 255 255" : "0 0 0") + "));color:rgb(var(--c-bg," + (dark ? "0 0 0" : "242 244 246") + "));");
+          btn.onclick = function () { btn.disabled = true; btn.textContent = "Reopening…"; freshStart(); };
+          box.appendChild(title);
+          box.appendChild(text);
+          box.appendChild(btn);
+          if (lastError) {
+            var err = document.createElement("div");
+            err.setAttribute("style", "margin-top:20px;font-size:12px;word-break:break-word;color:rgb(var(--c-ink-faint," + (dark ? "99 99 102" : "154 160 166") + "))");
+            err.textContent = lastError;
+            box.appendChild(err);
+          }
+          shown.appendChild(box);
+          document.body.appendChild(shown);
+        }
+
+        function hide() { if (shown && drawn()) { shown.remove(); shown = null; } }
+
+        window.addEventListener("error", function (e) {
+          var t = e.target;
+          if (t && (t.tagName === "SCRIPT" || t.tagName === "LINK")) {
+            // the app's own code didn't load — a stale installed copy
+            lastError = "Couldn’t load " + (t.src || t.href || "the app");
+            if (!drawn() && !recentlyTried() && navigator.onLine !== false) { freshStart(); return; }
+          } else if (e.message) {
+            lastError = e.message;
+          } else {
+            return; // an image or the like — not the app failing
+          }
+          setTimeout(show, 1500);
+        }, true);
+        window.addEventListener("unhandledrejection", function (e) {
+          var r = e.reason;
+          if (!drawn()) lastError = (r && r.message) || String(r);
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+          var r = root();
+          if (!r) return;
+          // the app drew, then its whole screen went (a crash above every page)
+          new MutationObserver(function () {
+            if (drawn()) hide();
+            else setTimeout(show, 1500);
+          }).observe(r, { childList: true });
+          // the app never drew at all
+          setTimeout(show, 12000);
+        });
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
