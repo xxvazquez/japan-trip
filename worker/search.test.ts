@@ -37,6 +37,23 @@ describe("webSearch", () => {
   it("throws when Tavily fails and there's no Exa key", async () => {
     await expect(webSearch(req, { tavily: "t" }, fakeApis(432).fetchImpl)).rejects.toThrow("432");
   });
+  it("asks Linkup when Tavily and Exa are both used up", async () => {
+    const asked: string[] = [];
+    const fetchImpl = async (url: string) => {
+      asked.push(new URL(url).hostname);
+      if (url.includes("linkup"))
+        return new Response(JSON.stringify({ answer: "Hours: 11-19", sources: [{ url: "https://c.com", name: "Linkup page", snippet: "s" }] }));
+      return new Response("{}", { status: url.includes("tavily") ? 432 : 402 });
+    };
+    const out = await webSearch(req, { tavily: "t", exa: "e", linkup: "l" }, fetchImpl);
+    expect(out.answer).toBe("Hours: 11-19");
+    expect(out.results[0]).toMatchObject({ url: "https://c.com", title: "Linkup page", content: "s" });
+    expect(asked).toEqual(["api.tavily.com", "api.exa.ai", "api.linkup.so"]);
+  });
+  it("throws the last one's error when every search is used up", async () => {
+    const fetchImpl = async (url: string) => new Response("{}", { status: url.includes("linkup") ? 429 : 432 });
+    await expect(webSearch(req, { tavily: "t", linkup: "l" }, fetchImpl)).rejects.toThrow("429");
+  });
   it("throws with no key at all", async () => {
     await expect(webSearch(req, {}, fakeApis(200).fetchImpl)).rejects.toThrow("No search key");
   });

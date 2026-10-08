@@ -146,7 +146,7 @@ export default defineConfig(({ command, mode }) => ({
     pdfjsAssets(),
     // the search keys stay on the server — no VITE_ prefix, so never in the bundle
     workerApi(
-      (({ TAVILY_API_KEY, EXA_API_KEY }) => ({ tavily: TAVILY_API_KEY, exa: EXA_API_KEY }))(loadEnv(mode, process.cwd(), "")),
+      (({ TAVILY_API_KEY, EXA_API_KEY, LINKUP_API_KEY }) => ({ tavily: TAVILY_API_KEY, exa: EXA_API_KEY, linkup: LINKUP_API_KEY }))(loadEnv(mode, process.cwd(), "")),
       (({ VITE_SANDBOX, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY }) =>
         VITE_SANDBOX === "1" ? null : { supabaseUrl: VITE_SUPABASE_URL, anonKey: VITE_SUPABASE_ANON_KEY })(loadEnv(mode, process.cwd(), "VITE_")),
     ),
