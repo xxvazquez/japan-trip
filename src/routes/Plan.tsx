@@ -31,7 +31,7 @@ import { TileRow } from "@/components/TileRow";
 import { IconTile } from "@/components/IconTile";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { tripClock, fmtDate, fmtDateRange, dayKind, legCheckOut, legForDate, legNights, plural, addDays } from "@/lib/dates";
+import { tripClock, fmtDate, fmtDateRange, dayKind, legCheckOut, legForDate, legNights, plural, addDays, daysBetween } from "@/lib/dates";
 import { nextDaySlot } from "@/lib/spans";
 import { canonicalLegs } from "@/lib/cityAssign";
 import { launchedFresh } from "@/lib/resume";
@@ -105,6 +105,11 @@ function OfflineReminder({ data, show }: { data: TripData; show: boolean }) {
     </Section>
   );
 }
+
+/** how long until you leave the city you're in: nights still to sleep
+ *  there, then "leaving tomorrow" and, on check-out day, "leaving today" */
+const leavingIn = (nights: number) =>
+  nights >= 2 ? `${nights} nights left` : nights === 1 ? "leaving tomorrow" : "leaving today";
 
 /** the app has had its launch: opening on today happens once a session */
 let launched = false;
@@ -204,11 +209,17 @@ export default function Plan() {
               <span className="font-display text-display">Day {c.dayNumber}</span>
               <span className="text-lg text-ink-soft">of {c.totalDays}</span>
             </p>
+            {/* "Day 2 of 4" already counts the trip; this line is the city
+                you're in and when you leave it, as a hotel booking reads */}
             <p className="mt-2 text-sm">
-              {currentLeg?.base && (
-                <span style={{ color: legHex(currentLeg.color) }}>{currentLeg.base} · </span>
+              {currentLeg?.base ? (
+                <>
+                  <span style={{ color: legHex(currentLeg.color) }}>{currentLeg.base} · </span>
+                  <span className="meta">{leavingIn(daysBetween(c.todayISO, legCheckOut(currentLeg, data.legs)))}</span>
+                </>
+              ) : (
+                <span className="meta">{plural(c.daysRemaining, "day")} left</span>
               )}
-              <span className="meta">{plural(c.daysRemaining, "day")} left</span>
             </p>
           </Wrap>
         )}
