@@ -152,7 +152,7 @@ export default defineConfig(({ command, mode }) => ({
     ),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.png", "icons/*.png", "textures/*", "brand/*.png"],
+      includeAssets: ["favicon.png", "icons/*.png", "brand/*.png"],
       manifest: {
         name: "Zuknesst Atlas",
         short_name: "Atlas",

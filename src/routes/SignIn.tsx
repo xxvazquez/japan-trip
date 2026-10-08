@@ -10,7 +10,7 @@ import { initApp } from "@/store/useApp";
 export function SignIn() {
   const dark = useIsDark();
   return (
-    <div className="washi grid min-h-dvh place-items-center px-6">
+    <div className="grid min-h-dvh place-items-center px-6">
       <div className="w-full max-w-sm text-center">
         <img
           src={dark ? "/brand/logo-256-dark.png" : "/brand/logo-256-light.png"}

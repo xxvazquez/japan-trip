@@ -40,7 +40,6 @@
 
   --ease-paper: cubic-bezier(0.32, 0.72, 0, 1); /* iOS's own push / sheet curve */
   --ease-spring: cubic-bezier(0.34, 1.45, 0.64, 1); /* a small overshoot — toggles, snap-backs */
-  --tex-opacity: 0.03;
   /* a separator: one device pixel on a 2x+ screen (iOS's 0.5pt hairline), a
      full px where a half would blur away */
   --hair: 1px;
@@ -76,8 +75,6 @@ html.dark {
   --c-matcha: 134 180 122; /* leaf green */
   --c-ai: 111 176 207; /* transit cerulean */
   --c-danger: 224 107 102; /* destructive */
-
-  --tex-opacity: 0.045;
 }
 
 @layer base {
@@ -177,22 +174,6 @@ html.dark {
 }
 
 @layer components {
-  /* Washi paper grain — one fixed, cheap overlay. */
-  .washi::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    opacity: var(--tex-opacity);
-    background-image: url("/textures/washi.svg");
-    background-size: 220px 220px;
-    mix-blend-mode: multiply;
-  }
-  html.dark .washi::before {
-    mix-blend-mode: screen;
-  }
-
   .hairline {
     @apply border-line;
   }

@@ -26,7 +26,7 @@ export function Loader({ label = "Loading", className = "min-h-[40vh]" }: { labe
  *  steady screen instead of a half-built shell. */
 export function BootScreen({ label = "Opening your atlas" }: { label?: string }) {
   return (
-    <div className="washi grid min-h-dvh place-content-center justify-items-center gap-6 bg-bg" role="status" aria-live="polite">
+    <div className="grid min-h-dvh place-content-center justify-items-center gap-6 bg-bg" role="status" aria-live="polite">
       <Wordmark size={44} />
       <Loader label={label} className="" />
     </div>

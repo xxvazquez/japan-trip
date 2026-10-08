@@ -67,7 +67,7 @@ export function AppShell() {
     <NavProvider>
     <div
       ref={rootRef}
-      className="washi min-h-dvh md:pl-[72px]"
+      className="min-h-dvh md:pl-[72px]"
       style={
         {
           "--pane-w": `${pane.paneWidth}px`, // the map half of the wide-screen split — resizable, see SplitMap

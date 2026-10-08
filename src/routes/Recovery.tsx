@@ -42,7 +42,7 @@ export function Recovery() {
     });
 
   return (
-    <div className="washi grid min-h-dvh place-items-center px-6 py-10">
+    <div className="grid min-h-dvh place-items-center px-6 py-10">
       <div className="w-full max-w-md">
         <img src={dark ? "/brand/logo-256-dark.png" : "/brand/logo-256-light.png"} width={64} height={64} alt="" className="mx-auto rounded-[22%]" />
         <h1 className="mt-5 text-center font-display text-2xl">{HEADLINE[issue.kind]}</h1>
