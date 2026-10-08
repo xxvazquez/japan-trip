@@ -58,7 +58,7 @@ Do these on each phone, on wifi, a few days before you leave:
 - [ ] **Save trip maps for offline** (same screen) — every city's map, in one go.
 - [ ] **Save attachments for offline** (same screen) — tickets and bookings open with no signal.
 - [ ] **Map → location arrow** — allow location once, so the blue dot works later.
-- [ ] **Manage → Sharing → Download backup** — keep the file somewhere safe.
+- [ ] **Manage → Sharing → Download everything** — keep the zip somewhere safe.
 
 **Plan reminds you.** From three weeks out and through the trip, a **Ready for offline** list heads Plan with whatever this phone still lacks — trip maps, attachments, Good to know for places never looked up, the app on the home screen. Each row opens where it's done and drops off once it is; the list goes when everything's ready.
 
@@ -599,10 +599,12 @@ All under **Manage → Sharing** unless noted.
 |---|---|
 | **Download web page** | The whole trip as one `.html` file — itinerary, journeys, stays, places — that opens offline in any browser or prints to PDF. Keep **Include private details** off when sharing it (it hides door codes, booking refs and documents). Attachments are never included. |
 | **Add to calendar (.ics)** | Every step and hop as calendar events. Exact times become timed events; loose ones ("Around 18:00") become all-day. Also available per day from the ⋯ beside the day's title (always with booking refs). Each step and hop also has a quick Google Calendar button. |
+| **Download everything (.zip)** | A complete offline copy that needs no app, account or signal: the web page (private details included, each document's files linked), every attachment in `files/`, and the backup. Files not on this device are fetched first; Drive ones need Drive connected. Any it can't get are counted, not fatal. |
 | **Download backup (.json)** | A complete, lossless copy of the trip, private details included — keep it somewhere safe. |
 | **Restore from backup** (Manage → Trips) | Loads a backup as a **new** trip; never overwrites. Damaged, edited or newer-version files are refused. Attachments aren't inside backups. |
 
 - On the iPhone, the web page and backup open the Share sheet — pick **Save to Files**. Android and desktop download them.
+- The zip takes a moment to gather, so on the iPhone it then shows **Save copy to Files** — tap it for the Share sheet. In Files, tap the zip to unpack it.
 
 ## Data safety
 

@@ -52,7 +52,7 @@ import { Switch } from "@/components/Switch";
 import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
 import { useEffect } from "react";
 import type { Day, EntityType, ExpenseCategory, Place, TripData } from "@/core/types";
-import { TAP } from "@/lib/device";
+import { TAP, isIOS, saveFile } from "@/lib/device";
 
 type PanelId = "trips" | "setup" | "content" | "appearance" | "sharing";
 const PANELS: { id: PanelId; label: string; icon: IconName; tone: Tone }[] = [
@@ -555,6 +555,7 @@ function ExportTrip() {
  *  or to move a trip to another device. Restoring lives on the Trips tab. */
 function BackupTrip() {
   const data = useData();
+  const copy = useTripCopy();
   if (!data) return null;
   return (
     <Section
@@ -563,9 +564,15 @@ function BackupTrip() {
         { icon: "download", title: "Everything in one file", text: "A .json copy of every base, stay, day, place and setting — including booking references and wifi, so keep it somewhere you trust." },
         { icon: "refresh", title: "Bringing it back", text: "Use Restore from backup on the Trips tab, on this device or another. It comes in as a new trip and never overwrites one you have." },
         { icon: "link", title: "Attached files", text: "Not inside the backup. Ones in Google Drive still open from anywhere; ones saved only on this device stay there." },
+        { icon: "cloud-down", title: "Download everything", text: "One .zip with the trip as a web page, every attached file and the backup — a complete copy that opens with no app, no account and no signal." },
       ]}
     >
       <ul>
+        {copy.ready ? (
+          <ActionRow icon="download" label="Save copy to Files" onClick={copy.save} />
+        ) : (
+          <ActionRow icon="download" label={copy.progress ?? "Download everything (.zip)"} onClick={() => void copy.build(data)} disabled={!!copy.progress} />
+        )}
         <ActionRow
           icon="download"
           label="Download backup (.json)"
@@ -575,8 +582,55 @@ function BackupTrip() {
           }}
         />
       </ul>
+      {copy.msg && <p className="meta px-3.5 pb-3" role="status">{copy.msg}</p>}
     </Section>
   );
+}
+
+const fmtSize = (b: number) =>
+  b < 1024 * 1024 ? `${Math.max(1, Math.round(b / 1024))} KB` : `${(b / 1048576).toFixed(1)} MB`;
+
+/** Builds the "everything" zip. The iPhone's Share sheet only opens inside a
+ *  tap, and gathering the files outlasts the one that started it — so there
+ *  the finished copy waits on its own Save row, the way Drive's sign-in gets
+ *  its own Connect tap. Elsewhere it downloads as soon as it's ready. */
+function useTripCopy() {
+  const [progress, setProgress] = useState<string | null>(null);
+  const [ready, setReady] = useState<File | null>(null);
+  const [msg, setMsg] = useState("");
+
+  const build = async (data: TripData) => {
+    setMsg("");
+    setProgress("Preparing…");
+    try {
+      const { buildTripArchive } = await import("@/lib/tripArchive");
+      const { file, missing, missingDrive } = await buildTripArchive(data, {
+        drive: driveConnected(),
+        onProgress: (done, total) => total && setProgress(`Gathering files… ${done} of ${total}`),
+      });
+      const ios = isIOS();
+      const notes = [`${ios ? "Ready" : "Downloaded"} · ${fmtSize(file.size)}`];
+      if (missing)
+        notes.push(
+          `${plural(missing, "file")} couldn’t be included${missingDrive ? " — connect Google Drive on This device and try again" : " — open the trip with a connection and try again"}.`,
+        );
+      setMsg(notes.join(". "));
+      if (ios) setReady(file);
+      else saveFile(file, file.name);
+    } catch (e) {
+      setMsg(e instanceof Error && e.message ? e.message : "Couldn’t make the copy.");
+    } finally {
+      setProgress(null);
+    }
+  };
+
+  const save = () => {
+    if (!ready) return;
+    saveFile(ready, ready.name);
+    setReady(null);
+  };
+
+  return { progress, ready, msg, build, save };
 }
 
 function Sharing({ tripId, me }: { tripId: string; me: string }) {

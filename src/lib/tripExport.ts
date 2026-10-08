@@ -12,7 +12,8 @@
  * `includePrivate` (default off) is the difference between a version safe to
  * send someone and a personal copy: with it off, door codes, wifi, phone
  * numbers, booking references and the whole documents section are left out.
- * Document *attachments* are never included either way.
+ * Document *attachments* are only listed when `attachments` maps them to
+ * files shipped beside the page (`tripArchive.ts`).
  */
 import type {
   Day, Doc, Hotel, Journey, Leg, Place, Segment, TripData,
@@ -29,6 +30,9 @@ import { APP_NAME } from "@/lib/app";
 
 export interface ExportOptions {
   includePrivate: boolean;
+  /** attachment id → relative link, for a copy that ships the files beside
+   *  the page (the offline copy's zip). Without it attachments aren't listed. */
+  attachments?: Map<string, string>;
 }
 
 /* ------------------------------------------------------------------ *
@@ -321,6 +325,10 @@ function logbookSection(data: TripData, opts: ExportOptions): string {
         <p class="label">${esc(d.title)}</p>
         ${rows(d.fields.map((f) => [f.label, f.value] as [string, string]))}
         ${d.note?.trim() ? `<div class="note">${mdToHtml(d.note)}</div>` : ""}
+        ${opts.attachments && d.files?.length ? `<ul class="files">${d.files.map((f) => {
+          const href = opts.attachments!.get(f.id);
+          return `<li>${href ? `<a href="${esc(href)}">${esc(f.name)}</a>` : `${esc(f.name)} <span class="place-meta">not in this copy</span>`}</li>`;
+        }).join("")}</ul>` : ""}
       </div>`).join("")}</div>`);
   }
 
@@ -402,6 +410,7 @@ function styles(data: TripData): string {
   .place-meta { color: var(--ink-faint); font-size: .85rem; }
   .checklist { list-style: none; padding-left: 0; }
   .lb-item { margin: .6rem 0; }
+  .files { list-style: none; padding-left: 0; font-size: .9rem; }
   .empty { color: var(--ink-faint); font-style: italic; }
   footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line); color: var(--ink-faint); font-size: .8rem; text-align: center; }
   @media print {
