@@ -476,8 +476,9 @@ const P: Record<IconName, JSX.Element> = {
 export const isIconName = (x: string): x is IconName => x in P;
 
 /** Solid silhouettes for the handful of icons that need a filled state — the
- *  bottom-nav / rail set, where the current tab reads as filled. Any icon
- *  without an entry here falls back to its stroked glyph. */
+ *  bottom-nav / rail set, where the current tab reads as filled, and the ⓘ
+ *  while it's open. Any icon without an entry here falls back to its stroked
+ *  glyph. */
 const FILLED: Partial<Record<IconName, JSX.Element>> = {
   itinerary: (
     <>
@@ -503,6 +504,14 @@ const FILLED: Partial<Record<IconName, JSX.Element>> = {
     />
   ),
   location: <path d="M20 4 4.5 10.6l6.6 2.3 2.3 6.6L20 4Z" />,
+  // info.circle.fill — the ⓘ while its tip card is showing
+  info: (
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17Z M11.15 11.55a.85.85 0 0 1 1.7 0v4.1a.85.85 0 0 1-1.7 0Z M12 7.05a1.05 1.05 0 1 0 0 2.1a1.05 1.05 0 1 0 0-2.1Z"
+    />
+  ),
   settings: (
     <path
       fillRule="evenodd"

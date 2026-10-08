@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type 
 import { createPortal } from "react-dom";
 import { useSheetDrag } from "./useSheetDrag";
 import { useRevealAboveSheet } from "./useRevealAboveSheet";
+import { useScrollLock } from "./useScrollLock";
 import { useBackToClose } from "@/lib/backClose";
 import { Icon } from "./Icon";
 import { clock24 } from "@/lib/time";
@@ -264,6 +265,7 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, unset, 
   const { sheetRef, handleProps } = useSheetDrag(onClose);
   useRevealAboveSheet(open, anchorRef, sheetRef);
   useBackToClose(open, onClose);
+  useScrollLock(open && isNarrow());
   useEffect(() => {
     if (!open) return;
     const onKey = (e: globalThis.KeyboardEvent) => e.key === "Escape" && onClose();

@@ -1,6 +1,6 @@
 import { useId, useState, type ReactNode } from "react";
 import { Icon } from "./Icon";
-import { InfoCard, type Tip } from "./InfoTips";
+import { InfoButton, InfoCard, type Tip } from "./InfoTips";
 import { usePersistedOpen, slug } from "@/lib/collapse";
 
 /**
@@ -53,7 +53,7 @@ export function Section({
   return (
     <section className={className}>
       {hasHeader && (
-        <div className={`flex items-baseline justify-between gap-3 px-1 ${open ? "mb-1.5" : ""}`}>
+        <div className={`flex items-center justify-between gap-3 px-1 ${open ? "mb-1.5" : ""}`}>
           <h2 className="kicker flex min-w-0 items-center gap-1.5">
             {collapsible && (
               <button
@@ -73,16 +73,7 @@ export function Section({
             <div className="flex shrink-0 items-center gap-2">
               {action}
               {info && (
-                <button
-                  type="button"
-                  onClick={() => setShowInfo((v) => !v)}
-                  aria-expanded={showInfo}
-                  aria-controls={infoId}
-                  className="tap -m-1 p-1 text-ink-faint transition-colors hover:text-ink-soft"
-                >
-                  <Icon name="info" size={15} className={showInfo ? "text-accent" : undefined} />
-                  <span className="sr-only">About this section</span>
-                </button>
+                <InfoButton open={showInfo} onToggle={() => setShowInfo((v) => !v)} controls={infoId} label="About this section" />
               )}
             </div>
           )}

@@ -2,6 +2,7 @@ import { useBackToClose } from "@/lib/backClose";
 import { useEffect, useLayoutEffect, useReducer, useRef, useState, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { useSheetDrag } from "./useSheetDrag";
+import { useScrollLock } from "./useScrollLock";
 import { TAP } from "@/lib/device";
 
 const isNarrow = () =>
@@ -60,6 +61,8 @@ export function ActionSheet({
   const [menuHeight, setMenuHeight] = useState(0);
   const { sheetRef, handleProps } = useSheetDrag(onClose);
   useBackToClose(open, onClose);
+  // a phone sheet, or a held row's menu on any width, holds the page still
+  useScrollLock(open && (!!point || isNarrow()));
 
   useEffect(() => {
     if (!open) return;

@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useBackToClose } from "@/lib/backClose";
+import { useScrollLock } from "./useScrollLock";
 
 /**
  * The iOS alert with a text field — Photos' "New Album", Notes' "New
@@ -38,6 +39,7 @@ export function TextPrompt({
   const [text, setText] = useState(initial);
   const inputRef = useRef<HTMLInputElement>(null);
   useBackToClose(open, onClose);
+  useScrollLock(open);
 
   // focus as soon as the field exists — taking over from `primeKeyboard`
   // (called by the opening tap) keeps the iOS keyboard up

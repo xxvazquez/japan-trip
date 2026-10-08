@@ -7,6 +7,7 @@ import { Icon } from "./Icon";
 import { SegmentedControl } from "./SegmentedControl";
 import { useSheetDrag } from "./useSheetDrag";
 import { useRevealAboveSheet } from "./useRevealAboveSheet";
+import { useScrollLock } from "./useScrollLock";
 
 const isNarrow = () =>
   typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches;
@@ -89,6 +90,7 @@ export function AmountSheet({
   const { rates } = useFxRates(home ?? "", home && cur && cur !== home ? [cur] : []);
   const popRef = useRef<HTMLDivElement>(null);
   useBackToClose(open, onClose);
+  useScrollLock(open && isNarrow());
 
   useEffect(() => {
     if (open) {

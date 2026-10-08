@@ -1,7 +1,6 @@
 import { useEffect, useId, useState, type ReactNode } from "react";
 import { useNavRegistration } from "./NavBar";
-import { Icon } from "./Icon";
-import { InfoCard, type Tip } from "./InfoTips";
+import { InfoButton, InfoCard, type Tip } from "./InfoTips";
 
 /** Standard reading column for a route's content. */
 export function Page({
@@ -98,16 +97,14 @@ export function PageHeader({
           <div className="flex shrink-0 items-center gap-1">
             {action}
             {info && (
-              <button
-                type="button"
-                onClick={() => setShowInfo((v) => !v)}
-                aria-expanded={showInfo}
-                aria-controls={infoId}
-                className="-m-1 p-1 text-ink-faint transition-colors hover:text-ink-soft"
-              >
-                <Icon name="info" size={17} className={showInfo ? "text-accent" : undefined} />
-                <span className="sr-only">About this page</span>
-              </button>
+              <InfoButton
+                open={showInfo}
+                onToggle={() => setShowInfo((v) => !v)}
+                controls={infoId}
+                label="About this page"
+                // lines its glyph up with the section ⓘs below, which sit inside the header's inset
+                className="mr-0"
+              />
             )}
           </div>
         )}

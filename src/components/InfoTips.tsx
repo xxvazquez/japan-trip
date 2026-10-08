@@ -1,6 +1,39 @@
 import type { ReactNode } from "react";
 import { Icon, type IconName } from "./Icon";
 
+/**
+ * The ⓘ that opens an `InfoCard` — one button for every section and page
+ * header, the way iOS draws its info button: `info.circle` in the tint
+ * colour (it's a control, not decoration), filled while its card is open,
+ * the same 20px glyph with a 44pt tap area wherever it sits.
+ */
+export function InfoButton({
+  open,
+  onToggle,
+  controls,
+  label,
+  className = "",
+}: {
+  open: boolean;
+  onToggle: () => void;
+  controls: string;
+  label: string;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-expanded={open}
+      aria-controls={controls}
+      className={`tap -mx-1 -my-1.5 flex shrink-0 p-1 text-accent transition-opacity active:opacity-50 ${className}`}
+    >
+      <Icon name="info" size={20} filled={open} />
+      <span className="sr-only">{label}</span>
+    </button>
+  );
+}
+
 /** One point of a section's or page's ⓘ help: a glyph, a short bold lead and a line or two under it. */
 export type Tip = { icon: IconName; title: string; text: ReactNode };
 
