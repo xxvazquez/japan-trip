@@ -705,7 +705,11 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
           title="Nearby"
           id="day-nearby"
           defaultOpen={false}
-          info={`Places you've saved that aren't on this day's plan, each under the stop it's closest to — up to about ${NEARBY_WALK_MIN} minutes' walk. Around a lunch or dinner the plan leaves open, somewhere to eat comes first.${ro ? "" : " Tap ＋ to add one after its stop."}`}
+          info={[
+            { icon: "walk", title: "Close to your stops", text: `Saved places not on this day's plan, under the stop they're nearest — up to about ${NEARBY_WALK_MIN} minutes' walk.` },
+            { icon: "clock", title: "Food when it's time", text: "Around a lunch or dinner the plan leaves open, somewhere to eat comes first." },
+            ...(ro ? [] : [{ icon: "plus" as const, title: "Add one", text: "Tap ＋ to add it after its stop." }]),
+          ]}
         >
           <ul className="pb-1">
             {nearby.map((g, i) => (
@@ -731,7 +735,10 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
           title="Areas"
           id="day-areas"
           defaultOpen={false}
-          info={`Places in an area you add here show on the day’s map — they don’t change the plan above${ro ? "." : ", unless you add its places from the row’s ⋯ menu."}`}
+          info={[
+            { icon: "map", title: "On the day's map", text: "Places in an area you add here show on the day's map." },
+            { icon: "list", title: "Plan stays as it is", text: ro ? "They don't change the plan above." : "They don't change the plan above — unless you add them from the row's ⋯ menu." },
+          ]}
         >
           {/* one row per area (Files' list view: the same map tile the Map
               list gives it, its place count trailing), then the section's
@@ -817,7 +824,10 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
 
       {/* SPENDING — what the day cost; feeds the Expenses roll-up */}
       {((day.costs ?? []).length > 0 || !ro) && (
-        <Section title="Spending" info="Tag each amount with a category — the Expenses tab in Logbook adds them up.">
+        <Section title="Spending" info={[
+          { icon: "tag", title: "Pick a category", text: "Tag each amount so it's counted in the right place." },
+          { icon: "wallet", title: "Added up for you", text: "Expenses in the Logbook totals them across the trip." },
+        ]}>
           <CostList
             costs={day.costs ?? []}
             categories={data.config.expenseCategories ?? []}
@@ -833,7 +843,10 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
 
       {/* GENERAL NOTES — free-form catch-all, after the day's actual plan */}
       {(day.notes || !ro) && (
-        <Section title="General notes" info="Tap the note to edit it. Aa sets headings, bold and colours; a heading's chevron folds its section away.">
+        <Section title="General notes" info={[
+          { icon: "pencil", title: "Tap to edit", text: "Aa sets headings, bold and colours." },
+          { icon: "chevron", title: "Fold a heading", text: "A heading's chevron folds its section away." },
+        ]}>
           <div className="note px-3.5 py-3">
             <RichNote
               value={day.notes ?? ""}

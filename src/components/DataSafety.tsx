@@ -119,7 +119,11 @@ export function DataSafety() {
         </ul>
       </Section>
 
-      <Section title="Restore points" id="restore-points" info="Newest first. ‘Restore over this trip’ puts the trip back exactly as it was then; ‘Restore as a new trip’ adds it alongside and touches nothing that exists.">
+      <Section title="Restore points" id="restore-points" info={[
+        { icon: "list", title: "Newest first", text: "Each point is the whole trip as it was at that moment." },
+        { icon: "refresh", title: "Restore over this trip", text: "Puts the trip back exactly as it was then." },
+        { icon: "copy", title: "Restore as a new trip", text: "Adds it alongside and touches nothing that exists." },
+      ]}>
         {mine.length === 0 ? (
           <p className="note px-1 text-ink-soft">None yet — the first is taken as you edit.</p>
         ) : (
@@ -143,7 +147,10 @@ export function DataSafety() {
       </Section>
 
       {deleted.size > 0 && (
-        <Section title="Recently deleted" id="recently-deleted" info="Trips you deleted still have restore points. Restoring adds the trip back as a new one.">
+        <Section title="Recently deleted" id="recently-deleted" info={[
+          { icon: "trash", title: "Still recoverable", text: "Trips you deleted keep their restore points." },
+          { icon: "copy", title: "Comes back as new", text: "Restoring adds the trip back as a new one." },
+        ]}>
           <ul>
             {[...deleted.values()].map((p) => (
               <li key={p.tripId} className={`${INSET_DIVIDER} flex items-center gap-3 px-3.5 py-3`}>

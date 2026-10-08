@@ -752,7 +752,13 @@ function Setup() {
 
       <Section
         title="Dates"
-        info={noDays ? "Set when the trip starts and ends. Once it has days, moving either date slides the whole itinerary instead." : "Moving either date slides the whole itinerary — days, bases and journeys shift with it. To change the length, add or remove days in Plan."}
+        info={noDays ? [
+          { icon: "calendar", title: "Start and end", text: "Set when the trip starts and ends." },
+          { icon: "move", title: "Later, they slide", text: "Once it has days, moving either date slides the whole itinerary instead." },
+        ] : [
+          { icon: "move", title: "Slides the itinerary", text: "Moving either date shifts every day, base and journey with it." },
+          { icon: "plus", title: "Change the length", text: "Add or remove days in Plan." },
+        ]}
       >
         <ul>
           <Row label="Start"><Editable as="date" label="Start date" value={meta.start} onCommit={(v) => moveTrip("start", v)} /></Row>
@@ -769,7 +775,7 @@ function Setup() {
 
       <Section
         title="Map & format"
-        info="Google My Map takes a share link from a Google My Maps map — paste it here and the Map tab can import and sync its pins."
+        info={[{ icon: "link", title: "Google My Map", text: "Paste a My Maps share link and the Map tab can import and sync its pins." }]}
       >
         <ul>
         <Row label="Date format">
@@ -816,7 +822,7 @@ function TravellersPanel() {
     mutate((d) => sync(d, [...people, { id: `p-${Math.random().toString(36).slice(2, 8)}`, name: "" }]));
 
   return (
-    <Section title="Travellers" info="Who's on this trip — used for packing assignment.">
+    <Section title="Travellers" info={[{ icon: "person", title: "Who's going", text: "Used to assign packing to each person." }]}>
       <ul>
         {people.map((p, i) => (
           <ContextMenu as="li" key={p.id} className={MLI}>
@@ -864,7 +870,10 @@ function CurrenciesPanel() {
   return (
     <Section
       title="Currencies"
-      info="Every currency this trip uses. The first is the default — a price typed as a bare number counts as it; one with its own symbol is left alone. Add a second and each spending row and fare gets a currency picker."
+      info={[
+        { icon: "wallet", title: "Every currency used", text: "The first is the default — a bare number counts as it; one with its own symbol is left alone." },
+        { icon: "list", title: "Add a second", text: "Each spending row and fare then gets a currency picker." },
+      ]}
     >
       <ul>
         {list.map((c, i) => (
@@ -1082,7 +1091,10 @@ function ModulesPanel() {
   const hidden = data.config.hiddenLogbook ?? [];
 
   return (
-    <Section title="Tabs" info="Reorder, rename, or turn the main tabs off for this trip. Pin a Logbook page (like Packing) to add it as its own tab.">
+    <Section title="Tabs" info={[
+      { icon: "reorder", title: "Make them yours", text: "Reorder, rename, or turn the main tabs off for this trip." },
+      { icon: "pushpin", title: "Pin a Logbook page", text: "Like Packing — it gets a tab of its own." },
+    ]}>
       <ul>
         {modules.map((m, i) => {
           // a pinned tab whose target section is hidden would dead-end
@@ -1306,7 +1318,7 @@ function Appearance() {
         </div>
       </Section>
 
-      <Section title="Gallery" info="Images are resized to ~1600px and stored on this device with the trip.">
+      <Section title="Gallery" info={[{ icon: "download", title: "Kept on this device", text: "Images are resized to about 1600px and stored with the trip." }]}>
         <div className="p-3.5">
         <button disabled={busy} onClick={() => upload((item) => addGalleryMedia(item))} className="btn-sm mb-3">
           <Icon name="plus" size={14} /> Add image
@@ -1357,7 +1369,10 @@ function SharingTab() {
       {driveEnabled && !isDemo && (
         <Section
           title="Document files"
-          info="Attachments upload to the adder’s Google Drive; these accounts are given read access. List both travellers."
+          info={[
+            { icon: "cloud-down", title: "In the adder's Drive", text: "Attachments upload to the Google Drive of whoever adds them." },
+            { icon: "person", title: "Read access", text: "These accounts can open them. List both travellers." },
+          ]}
         >
           <ul>
             {/* stacked — an email list is too long to sit beside its label */}
@@ -1578,14 +1593,20 @@ function Content() {
         <Section
           key={grp.title}
           title={grp.title}
-          info={
-            <>
-              Add, duplicate, remove and reorder items here. To fill in the details, open the item:
-              luggage and packing on the <Link to="/logbook" className="text-accent">Logbook</Link>,
-              pins on the <Link to="/map" className="text-accent">Map</Link>. Bases and days are added
-              on Plan, stays and journeys in the Logbook.
-            </>
-          }
+          info={[
+            { icon: "list", title: "Manage the lists", text: "Add, duplicate, remove and reorder items here." },
+            {
+              icon: "pencil",
+              title: "Details live elsewhere",
+              text: (
+                <>
+                  Luggage and packing on the <Link to="/logbook" className="text-accent">Logbook</Link>, pins on
+                  the <Link to="/map" className="text-accent">Map</Link>.
+                </>
+              ),
+            },
+            { icon: "plus", title: "Adding the rest", text: "Bases and days on Plan; stays and journeys in the Logbook." },
+          ]}
         >
           {grp.types.map((type) => rows(type))}
         </Section>
@@ -1644,7 +1665,10 @@ function MapLayers({ names, colorOf, icons }: {
   return (
     <Section
       title="My Maps layers"
-      info="Pick the category each layer of your My Map goes into — its pins then always come in with that category's colour and icon. A new layer shows “Not set up” until you choose; its pins come in under the layer's own name meanwhile."
+      info={[
+        { icon: "tag", title: "One category per layer", text: "A layer's pins always come in with its category's colour and icon." },
+        { icon: "alert", title: "Not set up", text: "A new layer shows this until you choose; its pins use the layer's own name meanwhile." },
+      ]}
     >
       <ul>
         {layers.map((layer) => {
@@ -1773,7 +1797,11 @@ function ReviewLinksPanel() {
   return (
     <Section
       title={`${label} links`}
-      info={`Restaurants and cafés get a link to their ${label} page — found by name and map position, and saved with the place. It happens by itself when you open one on Plan or the Map; this finds them all at once. Any it can’t find open a ${label} search instead.`}
+      info={[
+        { icon: "link", title: `${label} pages`, text: "Restaurants and cafés get a link — found by name and map position, saved with the place." },
+        { icon: "refresh", title: "Found as you go", text: "It happens when you open one on Plan or the Map; this finds them all at once." },
+        { icon: "search", title: "Not found", text: `Opens a ${label} search instead.` },
+      ]}
     >
       <ul>
         <InsetRow label="Linked">

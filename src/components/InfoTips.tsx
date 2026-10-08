@@ -38,16 +38,16 @@ export function InfoButton({
 export type Tip = { icon: IconName; title: string; text: ReactNode };
 
 /**
- * What an ⓘ opens: an inline tip card, the way iOS's own tips sit in a list —
- * a rounded card under the header, not loose grey text. A sentence or two
- * reads as a short paragraph; anything that explains several things passes a
- * list of `Tip`s instead, laid out like an iOS feature list (glyph, bold lead,
- * one line), so it scans instead of reading as a wall.
+ * What an ⓘ opens, the same everywhere: an iOS feature list (the "What's
+ * New" / TipKit layout) in a rounded card under the header — a glyph, a
+ * short bold lead, one line under it — so every ⓘ scans the same way
+ * instead of some reading as a paragraph. Always a list of `Tip`s, even a
+ * single one.
  */
-export function InfoCard({ id, info, className = "" }: { id: string; info: ReactNode | Tip[]; className?: string }) {
+export function InfoCard({ id, info, className = "" }: { id: string; info: Tip[]; className?: string }) {
   return (
     <div id={id} className={`motion-safe:animate-fade-in rounded-[12px] bg-surface px-3.5 py-3 text-xs leading-normal text-ink-soft ${className}`}>
-      {Array.isArray(info) ? <Tips items={info as Tip[]} /> : <p>{info}</p>}
+      <Tips items={info} />
     </div>
   );
 }

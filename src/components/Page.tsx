@@ -63,7 +63,7 @@ export function PageHeader({
   dotColor?: string;
   title: ReactNode;
   meta?: ReactNode;
-  info?: ReactNode | Tip[];
+  info?: Tip[];
   action?: ReactNode;
   /** a small second line under the nav bar's title once the large title has
    *  scrolled away — what the page's header said that you'd lose with it */

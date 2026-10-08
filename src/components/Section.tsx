@@ -34,7 +34,7 @@ export function Section({
 }: {
   title?: ReactNode;
   action?: ReactNode;
-  info?: ReactNode | Tip[];
+  info?: Tip[];
   id?: string;
   defaultOpen?: boolean;
   children: ReactNode;

@@ -57,7 +57,11 @@ export default function Leg() {
         back="/"
         dotColor={legHex(leg.color)}
         eyebrow="Base"
-        info={hasDays ? "A base runs from its first day to its last. Days − / + adds or takes off a day at its end, and everything after it in the trip moves along with it. You can also drag a day between bases in Plan." : undefined}
+        info={hasDays ? [
+          { icon: "calendar", title: "First day to last", text: "A base runs from its first day to its last." },
+          { icon: "plus", title: "Days − / +", text: "Adds or takes off a day at its end. Everything after it in the trip moves along." },
+          { icon: "reorder", title: "Move a day", text: "Drag a day between bases in Plan." },
+        ] : undefined}
         title={<Editable label="Base name" value={leg.base} onCommit={(v) => p({ base: v || leg.base })} />}
       />
 

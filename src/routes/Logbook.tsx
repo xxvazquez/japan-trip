@@ -24,6 +24,7 @@ import { RichNote } from "@/components/RichNote";
 import { withInitials, assigneeTag } from "@/lib/people";
 import type { Person } from "@/core/types";
 import { Icon } from "@/components/Icon";
+import type { Tip } from "@/components/InfoTips";
 import { useData } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useAuth } from "@/lib/auth";
@@ -128,6 +129,7 @@ export function LogbookIndex() {
 export function LogbookSection() {
   const data = useData();
   const { section: raw } = useParams();
+  const documentsTips = useDocumentsTips();
   if (!data) return null;
 
   const hidden = data.config.hiddenLogbook ?? [];
@@ -152,8 +154,8 @@ export function LogbookSection() {
         back={tab ? undefined : "/logbook"}
         title={tab?.label || (list ? list.title : logbookLabel(builtin!))}
         info={
-          builtin === "notes" ? "A scratchpad of separate notes — shopping lists, things you keep forgetting, a phrase you want to remember. Shared with anyone the trip is shared with."
-            : builtin === "documents" ? <DocumentsInfo />
+          builtin === "notes" ? NOTES_TIPS
+            : builtin === "documents" ? documentsTips
             : undefined
         }
         className="mb-6"
@@ -616,9 +618,16 @@ function Expenses() {
       {combined && (
         <Section
           title={`Combined · ${primary}`}
-          info={`Every currency converted into ${primary} and added together — each still gets its own section below, unconverted. Exchange rate ${
-            date ? `as of ${fmtDate(date, data.config.locale, { day: "numeric", month: "short", year: "numeric" })}` : "unavailable"
-          }${stale ? ", the last one fetched — offline, or due to refresh" : ", fetched automatically"}.`}
+          info={[
+            { icon: "wallet", title: `All in ${primary}`, text: "Every currency converted and added together. Each still has its own section below." },
+            {
+              icon: "refresh",
+              title: "Exchange rate",
+              text: date
+                ? `As of ${fmtDate(date, data.config.locale, { day: "numeric", month: "short", year: "numeric" })}${stale ? " — the last one fetched; offline, or due to refresh." : ", fetched automatically."}`
+                : "Unavailable right now.",
+            },
+          ]}
         >
           <ProportionBar segments={segmentsFor(combined.byCategory, combined.uncategorised)} />
           <ul>
@@ -737,21 +746,25 @@ export function ExpenseCategory() {
 /** Documents are plain titled reference cards — one per document. Rename it,
  *  attach the file, add whatever fields you want, add a note. Every card is
  *  editable, removable, and you add more from the tab. */
+/** The Scratchpad page's ⓘ */
+const NOTES_TIPS: Tip[] = [
+  { icon: "list", title: "Separate notes", text: "Shopping lists, things you keep forgetting, a phrase you want to remember." },
+  { icon: "share", title: "Shared", text: "With anyone the trip is shared with." },
+];
+
 /** The Documents page's ⓘ — where attachments end up depends on how you're signed in. */
-function DocumentsInfo() {
+function useDocumentsTips(): Tip[] {
   const { user } = useAuth();
   const cloud = driveEnabled && !!user;
   const stored = !cloud && supabaseEnabled && !!user;
-  return (
-    <>
-      One page per document — rename it, add your own fields, attach a file, add a note.{" "}
-      {cloud
-        ? "Attachments upload to a Google Drive folder shared with the people on this trip. Still — think twice before a full passport scan."
-        : stored
-          ? "Attachments are saved to your account and shared with the people on this trip. Still — think twice before a full passport scan."
-          : "Attachments stay only on the device they’re added on — passport numbers don’t belong here."}
-    </>
-  );
+  return [
+    { icon: "vault", title: "One page each", text: "Rename it, add your own fields, attach a file, add a note." },
+    cloud
+      ? { icon: "cloud-down", title: "Attachments", text: "Upload to a Google Drive folder shared with the people on this trip. Think twice before a full passport scan." }
+      : stored
+        ? { icon: "cloud-down", title: "Attachments", text: "Saved to your account and shared with the people on this trip. Think twice before a full passport scan." }
+        : { icon: "shield", title: "Attachments", text: "Stay only on the device they're added on — passport numbers don't belong here." },
+  ];
 }
 
 function Documents() {

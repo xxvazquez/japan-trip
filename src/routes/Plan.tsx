@@ -96,7 +96,10 @@ function OfflineReminder({ data, show }: { data: TripData; show: boolean }) {
   const todo = useOfflineReadiness(show ? data : null);
   if (!show || !todo?.length) return null;
   return (
-    <Section title="Ready for offline" id="plan-offline" className="mb-6" info="What this phone still needs so the trip works with no signal — do it on wifi before you leave. Each row goes to where it's done, and drops off once it is.">
+    <Section title="Ready for offline" id="plan-offline" className="mb-6" info={[
+      { icon: "cloud-down", title: "Before you leave", text: "What this phone still needs to work with no signal — do it on wifi." },
+      { icon: "check", title: "Drops off when done", text: "Each row goes to where it's done." },
+    ]}>
       <ul>
         {todo.map((t) => (
           <TileRow key={t.key} to={t.to} tile={<IconTile name={t.icon} tone={t.key === "install" ? "accent" : "gold"} />} title={t.title} meta={t.detail} />
