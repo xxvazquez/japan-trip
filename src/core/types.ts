@@ -286,7 +286,7 @@ export interface PlanItem {
   optional?: true;
   /** the step's own reminders ("Remember to book"), shown in red under its
    *  name and reusable across the trip. Absent when it has none. */
-  flags?: string[];
+  labels?: string[];
 }
 
 /** A named geographic grouping of places — "where", orthogonal to a place's

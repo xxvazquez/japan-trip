@@ -61,7 +61,7 @@ function build(d: TripData, areaCity?: Map<string, string>): SearchHit[] {
         ...(day.plan ?? []).flatMap((p) => [
           { label: "Plan", text: [p.time && fmtClocksIn(p.time), (p.placeId && d.places.find((x) => x.id === p.placeId)?.name) || p.text].filter(Boolean).join(" ") },
           { label: "Plan", text: p.note },
-          ...(p.flags ?? []).map((t) => ({ label: "Flag", text: t })),
+          ...(p.labels ?? []).map((t) => ({ label: "Label", text: t })),
         ]),
         ...(day.costs ?? []).map((c) => ({ label: "Spent", text: c.label })),
         ...(day.areaIds ?? []).map((id) => ({ label: "Area", text: d.areas.find((a) => a.id === id)?.name })),

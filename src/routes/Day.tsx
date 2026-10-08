@@ -47,7 +47,7 @@ import { areaLeg, byAreaName } from "@/lib/cityAssign";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { DayStepper } from "@/components/DayStepper";
 import { NavAddButton } from "@/components/NavAddButton";
-import { DayLabelsCaption, DayLabelsSheet, tripLabels, tripStepFlags } from "@/components/DayLabels";
+import { DayLabelsCaption, DayLabelsSheet, tripLabels, tripStepLabels } from "@/components/DayLabels";
 import { useData, lookups } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
@@ -1254,7 +1254,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
         time: fmtClocksIn(it.time) || undefined,
         title: place?.name || it.text || "Step",
         meta: it.optional ? "Optional" : undefined,
-        warning: [place?.overwhelming && "Overwhelming", ...(it.flags ?? [])].filter(Boolean).join(" · ") || undefined,
+        warning: [place?.overwhelming && "Overwhelming", ...(it.labels ?? [])].filter(Boolean).join(" · ") || undefined,
         note: it.note ? mdToPlain(it.note) : undefined,
         href: placeMapLink(place),
         placeId: place?.id,
@@ -1446,21 +1446,21 @@ function DayPartRow({ part, onAdd }: { part: DayPart; onAdd?: (el: HTMLElement) 
   );
 }
 
-/** rename a step flag (or with no `to`, drop it) on every step of the trip
- *  that carries it; a rename onto a flag a step already has merges the two */
-function reflagSteps(days: DayT[], update: (t: "days", id: string, p: Partial<DayT>) => void, from: string, to?: string) {
+/** rename a step label (or with no `to`, drop it) on every step of the trip
+ *  that carries it; a rename onto a label a step already has merges the two */
+function relabelSteps(days: DayT[], update: (t: "days", id: string, p: Partial<DayT>) => void, from: string, to?: string) {
   const same = (a: string, b: string) => a.toLocaleLowerCase() === b.toLocaleLowerCase();
   for (const d of days) {
-    if (!d.plan?.some((p) => p.flags?.some((f) => same(f, from)))) continue;
+    if (!d.plan?.some((p) => p.labels?.some((l) => same(l, from)))) continue;
     const plan = d.plan.map((p) => {
-      if (!p.flags?.some((f) => same(f, from))) return p;
+      if (!p.labels?.some((l) => same(l, from))) return p;
       const next: string[] = [];
-      for (const f of p.flags) {
-        const v = same(f, from) ? to : f;
+      for (const l of p.labels) {
+        const v = same(l, from) ? to : l;
         if (v && !next.some((x) => same(x, v))) next.push(v);
       }
-      const { flags: _, ...rest } = p;
-      return next.length ? { ...rest, flags: next } : rest;
+      const { labels: _, ...rest } = p;
+      return next.length ? { ...rest, labels: next } : rest;
     });
     update("days", d.id, { plan });
   }
@@ -1588,13 +1588,13 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
     });
   };
   // what's switched on in More, said under the card's title so it isn't hidden
-  const cardStatus = [item.optional && "Optional", pinned && "Time pinned", place?.overwhelming && "Overwhelming", ...(item.flags ?? [])]
+  const cardStatus = [item.optional && "Optional", pinned && "Time pinned", place?.overwhelming && "Overwhelming", ...(item.labels ?? [])]
     .filter(Boolean).join(" · ");
-  // the step's own flags ("Remember to book"), picked from every flag in
+  // the step's own labels ("Remember to book"), picked from every label in
   // the trip in the labels sheet — red under the name, like Overwhelming
-  const [flagsOpen, setFlagsOpen] = useState(false);
-  const flags = item.flags ?? [];
-  const usedFlags = useMemo(() => tripStepFlags(tripData?.days ?? []), [tripData?.days]);
+  const [labelsOpen, setLabelsOpen] = useState(false);
+  const labels = item.labels ?? [];
+  const usedLabels = useMemo(() => tripStepLabels(tripData?.days ?? []), [tripData?.days]);
 
   const toggleOptional = () => onPatch({ optional: item.optional ? undefined : true });
   const toggleOverwhelming = () => {
@@ -1787,8 +1787,8 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                           <Icon name="alert" size={16} /> {place.overwhelming ? "Unmark as overwhelming" : "Mark as overwhelming"}
                         </button>
                       )}
-                      <button type="button" className="menu-item" onClick={() => setFlagsOpen(true)}>
-                        <Icon name="flag" size={16} /> {flags.length ? "Flags…" : "Add a flag…"}
+                      <button type="button" className="menu-item" onClick={() => setLabelsOpen(true)}>
+                        <Icon name="tag" size={16} /> {labels.length ? "Labels…" : "Add a label…"}
                       </button>
                       {!item.note && (
                         <button type="button" className="menu-item" onClick={() => { if (place) { setCardNote(true); placeCard.setOpen(true); } else setNoteOpen(true); }}>
@@ -1894,7 +1894,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                 <Icon name="optional" size={12} />Optional
               </span>
             )}
-            {(conflict || place?.overwhelming || flags.length > 0) && (
+            {(conflict || place?.overwhelming || labels.length > 0) && (
               <span className="block break-words text-xs text-danger">
                 {[
                   conflict,
@@ -1903,9 +1903,9 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                       <Icon name="alert" size={12} className="inline-block align-[-1px]" /> Overwhelming
                     </span>
                   ),
-                  ...flags.map((f) => (
-                    <span key={f}>
-                      <Icon name="flag" size={12} className="inline-block align-[-1px]" /> {f}
+                  ...labels.map((l) => (
+                    <span key={l}>
+                      <Icon name="tag" size={12} className="inline-block align-[-1px]" /> {l}
                     </span>
                   )),
                 ].filter(Boolean).map((n, i) => <Fragment key={i}>{i > 0 && " · "}{n}</Fragment>)}
@@ -2022,8 +2022,8 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                           <MenuCheck checked={pinned} onClick={() => onPatch({ pinned: pinned ? undefined : true })}>Pin Time</MenuCheck>
                         )}
                         <MenuCheck checked={!!place.overwhelming} onClick={toggleOverwhelming}>Overwhelming</MenuCheck>
-                        <button type="button" className="menu-item" onClick={() => { placeCard.setOpen(false); setFlagsOpen(true); }}>
-                          <Icon name="flag" size={16} /> {flags.length ? "Flags…" : "Add a Flag…"}
+                        <button type="button" className="menu-item" onClick={() => { placeCard.setOpen(false); setLabelsOpen(true); }}>
+                          <Icon name="tag" size={16} /> {labels.length ? "Labels…" : "Add a Label…"}
                         </button>
                         <div className="my-1 h-px bg-ink/10" />
                         <button type="button" className="menu-item" onClick={() => { placeCard.setOpen(false); changePlace.setOpen(true); }}>
@@ -2148,15 +2148,14 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
             )}
             {!readOnly && (
               <DayLabelsSheet
-                open={flagsOpen}
-                onClose={() => setFlagsOpen(false)}
+                open={labelsOpen}
+                onClose={() => setLabelsOpen(false)}
                 anchorRef={placeCardAnchor}
-                labels={flags}
-                used={usedFlags}
-                onChange={(next) => onPatch({ flags: next.length ? next : undefined })}
-                onRenameAll={(from, to) => undoable("Flag renamed", () => reflagSteps(tripData?.days ?? [], updateEntity, from, to))}
-                onDeleteAll={(f) => undoable("Flag deleted", () => reflagSteps(tripData?.days ?? [], updateEntity, f))}
-                noun="Flag"
+                labels={labels}
+                used={usedLabels}
+                onChange={(next) => onPatch({ labels: next.length ? next : undefined })}
+                onRenameAll={(from, to) => undoable("Label renamed", () => relabelSteps(tripData?.days ?? [], updateEntity, from, to))}
+                onDeleteAll={(f) => undoable("Label deleted", () => relabelSteps(tripData?.days ?? [], updateEntity, f))}
                 scope="step"
                 example="Remember to book"
               />

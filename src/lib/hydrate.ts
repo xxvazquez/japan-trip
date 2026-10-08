@@ -311,8 +311,9 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
     const planIsNew = Array.isArray(raw.plan) && typeof raw.plan[0] === "object" && raw.plan[0] !== null;
     if (planIsNew) {
       day.plan = (raw.plan as Partial<PlanItem>[]).map((it): PlanItem => {
-        // v19: a step's flags — trimmed, no blanks or repeats, dropped when none
-        const flags = cleanLabels(it.flags);
+        // v19: a step's labels — trimmed, no blanks or repeats, dropped when
+        // none (briefly called `flags`, read for any step saved then)
+        const labels = cleanLabels(it.labels ?? (it as { flags?: unknown }).flags);
         return {
           id: it.id || `pi-${fieldId()}`,
           text: it.text ?? "",
@@ -322,7 +323,7 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
           url: it.url || undefined,
           pinned: it.pinned ? true : undefined,
           optional: it.optional ? true : undefined,
-          ...(flags.length ? { flags } : {}),
+          ...(labels.length ? { labels } : {}),
         };
       });
     } else {

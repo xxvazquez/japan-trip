@@ -200,7 +200,7 @@ Suggestions from the trip's own saved places — nothing is looked up from outsi
 
 The day reads as one route, like a route's stops in Maps: times in a column on the left, a thin line joining every stop, each stop's icon sitting on it. The hotel you start from, steps, journeys and the way back to the hotel all sit on that line. No hairlines between rows.
 
-Each step shows its name, then its note in smaller, lighter grey (folded after 2 lines, with **more**). A red line under the name only appears when it changes the plan: the step's time doesn't fit the place's hours (see below), it's marked **Overwhelming**, or it has a flag of your own.
+Each step shows its name, then its note in smaller, lighter grey (folded after 2 lines, with **more**). A red line under the name only appears when it changes the plan: the step's time doesn't fit the place's hours (see below), it's marked **Overwhelming**, or it has a label of your own.
 
 On a day that spans more than one part, the plan is split into **Morning** (before 12:00), **Afternoon** (until 18:00) and **Evening**, each starting with a tinted band across the timeline. A step with no exact time stays in the part before it. Bands only move forward through the day — never an earlier one twice.
 
@@ -215,22 +215,22 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 - **Time order** — steps keep themselves in time order. Set or change a step's time and it moves to its place in the day.
 - **Untimed steps** — hold one, then drag it up or down (on a computer, drag the small ≡ that shows on hover). Holding without moving opens its menu instead. It then stays with the step above it. A loose time ("Around noon") counts as untimed.
 - **Pin a step** from its menu (**Pin this step**) to lock its time, e.g. a booking — it shows a pin, and tapping its time or the pin offers **Unpin** or **Unpin and change time**. It still sits where its time puts it. **Unpin this step** in the menu, or **More → Pin Time** on its place card, unlocks it too. Only a step with a time can be pinned.
-- **Flags** — your own red reminders on a step, like "Remember to book". **Add a flag…** in the step's menu (or **More → Add a Flag…** on its place card) opens the trip's flags: tap one to put it on or take it off, or **New Flag…** to name one. Hold a flag in that list to rename it or delete it on every step.
+- **Labels** — your own red reminders on a step, like "Remember to book". **Add a label…** in the step's menu (or **More → Add a Label…** on its place card) opens the trip's step labels: tap one to put it on or take it off, or **New Label…** to name one. Hold a label in that list to rename it or delete it on every step. They're a separate list from the day's labels.
 - **Mark as optional** from a step's menu, or **More → Optional** on its place card, for something nice to do but not a must: an ochre ◌ Optional tag shows under its name. **Make this a must** undoes it.
 - **The place card** — tap a linked step's name or note, as you'd tap a place in Maps. ✕ or a drag down closes it.
-  - **Top:** the name, a red line if it clashes with the place's hours, and a grey line if it's Optional, pinned, Overwhelming or flagged.
+  - **Top:** the name, a red line if it clashes with the place's hours, and a grey line if it's Optional, pinned, Overwhelming or labelled.
   - **Buttons**, four across: **Google Maps** (filled), Tabelog (restaurants in Japan), **Menu**, **Website**, **Show on Map** (phone), **Share** and **Search Web** (when there's no website). What doesn't fit goes under **More**.
   - **Share** opens the Share sheet; where there isn't one, it copies the name and map link.
   - **Below:** the step's note, Good to know and **Nearby** (see [Nearby on a day](#nearby-on-a-day)).
 - **On a computer** the card opens as a popover with its arrow on the place's name — beside the name, or under it when a long name leaves no room — and the map pane flies to the place at the same time.
 - **More** on the place card holds everything else, as Maps does:
   - Whatever didn't fit in the row, and **Add to Calendar**. Show on Map is phone only — on a computer the map is already beside you.
-  - **Optional**, **Pin Time** (a step with a time) and **Overwhelming**, ticked when on, then **Flags**.
+  - **Optional**, **Pin Time** (a step with a time) and **Overwhelming**, ticked when on, then **Labels**.
   - **Change Place**, **Add an Expense**, **Duplicate** and **Move to Another Day**.
   - **Remove Step**, last.
 - **Walk and train lines** under a step open Google Maps directions; only a tap on the line itself does.
 - **Open in Google Maps** is also the first item when you hold a step (or right-click it on a computer).
-- **The step's menu** — long-press a step on a phone, or right-click it on a computer (an unlinked step also has a ⋯ on hover there): add to Google Calendar, mark as **overwhelming** (a ⚠ on its grey line; the day's count shows on Plan), add a flag, add a note, pin, mark as optional, **add a step below**, duplicate, add an expense, remove.
+- **The step's menu** — long-press a step on a phone, or right-click it on a computer (an unlinked step also has a ⋯ on hover there): add to Google Calendar, mark as **overwhelming** (a ⚠ on its grey line; the day's count shows on Plan), add a label, add a note, pin, mark as optional, **add a step below**, duplicate, add an expense, remove.
 - **Move to another day** — from a step's menu or its place card: pick the day and the step leaves this one, keeping its time, pin and note. Undo brings it back.
 - **Delete** — swipe a step left on a phone.
 - **Notes** support bold, bullets and links. Tap to edit. Empty fields stay hidden.

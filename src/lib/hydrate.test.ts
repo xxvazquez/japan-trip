@@ -154,16 +154,18 @@ describe("day labels", () => {
   });
 });
 
-describe("step flags", () => {
+describe("step labels", () => {
   it("are trimmed and de-duplicated, and dropped when there are none", () => {
     const raw = legacy();
     (raw.days as Record<string, unknown>[])[0].plan = [
-      { id: "a", text: "Museum", flags: [" Remember to book ", "Remember to book", "", 3] },
-      { id: "b", text: "Lunch", flags: [] },
+      { id: "a", text: "Museum", labels: [" Remember to book ", "Remember to book", "", 3] },
+      { id: "b", text: "Lunch", labels: [] },
+      { id: "c", text: "Tea", flags: ["Old name"] },
     ];
     const t = normalizeTrip(raw as never) as TripData;
-    expect(t.days[0].plan?.[0].flags).toEqual(["Remember to book"]);
-    expect("flags" in (t.days[0].plan?.[1] ?? {})).toBe(false);
+    expect(t.days[0].plan?.[0].labels).toEqual(["Remember to book"]);
+    expect("labels" in (t.days[0].plan?.[1] ?? {})).toBe(false);
+    expect(t.days[0].plan?.[2].labels).toEqual(["Old name"]);
   });
 });
 
