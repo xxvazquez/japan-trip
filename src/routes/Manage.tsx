@@ -171,9 +171,11 @@ function AppFooter() {
         {APP_TAGLINE}
       </p>
       <p className="mt-1 text-2xs tabular-nums" title="The build this device is running">
-        {/* each part stays whole, so a narrow screen breaks the line at a · */}
-        <span className="whitespace-nowrap">Version {APP_BUILD.version}</span> · <span className="whitespace-nowrap">Build {APP_BUILD.commit}</span> ·{" "}
-        <span className="whitespace-nowrap">{new Date(APP_BUILD.built).toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+        {/* each part stays whole; the date wraps under the rest with its
+            separator dropped, never leaving a "·" hanging at a line's end */}
+        <span className="whitespace-nowrap">Version {APP_BUILD.version}</span> · <span className="whitespace-nowrap">Build {APP_BUILD.commit}</span>
+        <span className="hidden sm:inline"> · </span>
+        <span className="block whitespace-nowrap sm:inline">{new Date(APP_BUILD.built).toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
       </p>
     </footer>
   );
@@ -297,7 +299,7 @@ function Trips() {
       ) : (
         <Section title="Start from">
           <ul>
-            <ActionRow icon="plus" label="Empty template" hint="blank; add days, hide sections you don’t want" onClick={askName} disabled={busy} />
+            <ActionRow icon="plus" label="Empty template" onClick={askName} disabled={busy} />
             {TEMPLATES.map((t) => (
               <ActionRow key={t.id} icon="copy" label={t.name} hint={t.subtitle} onClick={() => make(t.id)} disabled={busy} />
             ))}

@@ -111,7 +111,7 @@ export default function Hotel() {
                     <Editable
                       label="Local name"
                       value={hotel.nameAlt ?? ""}
-                      placeholder="Name in the local script"
+                      placeholder="—"
                       onCommit={(v) => p({ nameAlt: v || undefined })}
                     />
                   </span>

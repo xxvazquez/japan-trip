@@ -862,7 +862,6 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             <ActionRow
               icon="pushpin"
               label={pinned ? "Unpin this day" : "Pin this day"}
-              hint={pinned ? undefined : "keeps it on its date when others move"}
               onClick={() => mutateTrip((d) => {
                 const ids = new Set(d.config.pinnedDays ?? []);
                 if (ids.has(day.id)) ids.delete(day.id); else ids.add(day.id);
