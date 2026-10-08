@@ -79,48 +79,48 @@ const fake = (answer: string, titles: string[], status = 200) => async () =>
 describe("findFacts", () => {
   const today = new Date("2026-10-03T12:00:00Z");
   it("returns the facts, when they were checked and where from", async () => {
-    const facts = await findFacts("Menya Inoichi", "Kyoto", "key", fake("Queue: 45 min\nReservations: No", ["Menya Inoichi - Kyōto ramen", "Other"]), today);
+    const facts = await findFacts("Menya Inoichi", "Kyoto", { tavily: "key" }, fake("Queue: 45 min\nReservations: No", ["Menya Inoichi - Kyōto ramen", "Other"]), today);
     expect(facts).toEqual({ queue: "45 min", reservations: "No", checkedAt: "2026-10-03", sources: ["site0.com"] });
   });
   it("marks a sight's facts as such", async () => {
-    const facts = await findFacts("Fushimi Inari", "Kyoto", "key", fake("Entry: Free", ["Fushimi Inari Taisha, Kyoto"]), today, "sight");
+    const facts = await findFacts("Fushimi Inari", "Kyoto", { tavily: "key" }, fake("Entry: Free", ["Fushimi Inari Taisha, Kyoto"]), today, "sight");
     expect(facts).toEqual({ price: "Free", checkedAt: "2026-10-03", sources: ["site0.com"], kind: "sight" });
   });
   it("returns the place's own website among the pages", async () => {
     const res = async () =>
       new Response(JSON.stringify({ answer: "Entry: Free", results: [{ url: "https://inari.jp/en/", title: "Fushimi Inari Taisha, Kyoto", content: "" }] }));
-    const facts = await findFacts("Fushimi Inari", "Kyoto", "key", res, today, "sight");
+    const facts = await findFacts("Fushimi Inari", "Kyoto", { tavily: "key" }, res, today, "sight");
     expect(facts).toMatchObject({ price: "Free", website: "https://inari.jp/en/" });
   });
   it("keeps the website when the summary gave no facts", async () => {
     const res = async () =>
       new Response(JSON.stringify({ answer: "Hours: unknown", results: [{ url: "https://inari.jp/", title: "Fushimi Inari Taisha, Kyoto", content: "" }] }));
-    expect(await findFacts("Fushimi Inari", "Kyoto", "key", res, today, "sight")).toMatchObject({ website: "https://inari.jp/" });
+    expect(await findFacts("Fushimi Inari", "Kyoto", { tavily: "key" }, res, today, "sight")).toMatchObject({ website: "https://inari.jp/" });
   });
   it("reads the official website the summary names", async () => {
     const res = async () =>
       new Response(JSON.stringify({ answer: "Entry: Free\nWebsite: https://www.yokoso.metro.tokyo.lg.jp/en/tenbou/", results: [{ url: "https://www.yokoso.metro.tokyo.lg.jp/en/tenbou/", title: "North Observation Deck, Tokyo", content: "" }] }));
-    expect(await findFacts("North Observation Deck", "Tokyo", "key", res, today, "sight")).toMatchObject({ price: "Free", website: "https://www.yokoso.metro.tokyo.lg.jp/en/" });
+    expect(await findFacts("North Observation Deck", "Tokyo", { tavily: "key" }, res, today, "sight")).toMatchObject({ price: "Free", website: "https://www.yokoso.metro.tokyo.lg.jp/en/" });
   });
   it("finds nothing when the pages are about a namesake in another city", async () => {
-    expect(await findFacts("Corner Coffee", "Kyoto", "key", fake("Hours: 7-15", ["Corner Coffee - Portland"]), today)).toBeNull();
+    expect(await findFacts("Corner Coffee", "Kyoto", { tavily: "key" }, fake("Hours: 7-15", ["Corner Coffee - Portland"]), today)).toBeNull();
   });
   it("takes a page naming the stay's city by its own word, not the whole phrase", async () => {
     const res = fake("Hours: 24 hours", ["Chureito Pagoda - a short walk from Kawaguchiko"]);
-    expect(await findFacts("Chureito Pagoda", "Lake Kawaguchiko", "key", res, today, "sight")).toMatchObject({ hours: "24 hours" });
+    expect(await findFacts("Chureito Pagoda", "Lake Kawaguchiko", { tavily: "key" }, res, today, "sight")).toMatchObject({ hours: "24 hours" });
   });
   it("finds nothing when no page is about the place", async () => {
-    expect(await findFacts("Menya Inoichi", "Kyoto", "key", fake("Queue: 45 min", ["Ichiran Shibuya"]), today)).toBeNull();
+    expect(await findFacts("Menya Inoichi", "Kyoto", { tavily: "key" }, fake("Queue: 45 min", ["Ichiran Shibuya"]), today)).toBeNull();
   });
   it("throws when search can't be asked", async () => {
-    await expect(findFacts("A place", undefined, "key", fake("", [], 432))).rejects.toThrow("432");
+    await expect(findFacts("A place", undefined, { tavily: "key" }, fake("", [], 432))).rejects.toThrow("432");
   });
 });
 
 describe("handlePlaceFacts", () => {
   it("needs a name and a key", async () => {
-    expect((await handlePlaceFacts(new URL("https://x/api/place-facts"), "key")).status).toBe(400);
-    expect((await handlePlaceFacts(new URL("https://x/api/place-facts?name=a"), undefined)).status).toBe(503);
+    expect((await handlePlaceFacts(new URL("https://x/api/place-facts"), { tavily: "key" })).status).toBe(400);
+    expect((await handlePlaceFacts(new URL("https://x/api/place-facts?name=a"), {})).status).toBe(503);
   });
 });
 
@@ -161,7 +161,7 @@ describe("findFacts asks twice", () => {
     const answers = ["Hours: 10:00-18:00\nPrice: ¥800\nQueue: short", "Hours: 10am-6pm\nPrice: ¥2,000\nReservations: No"];
     let n = 0;
     const res = async () => new Response(JSON.stringify({ answer: answers[n++], results: [{ url: "https://a.com/x", title: "Cafe Kitsune Kyoto", content: "" }] }));
-    expect(await findFacts("Cafe Kitsune", "Kyoto", "key", res, new Date("2026-10-08T00:00:00Z"))).toEqual({
+    expect(await findFacts("Cafe Kitsune", "Kyoto", { tavily: "key" }, res, new Date("2026-10-08T00:00:00Z"))).toEqual({
       hours: "10:00-18:00",
       price: VARIES,
       checkedAt: "2026-10-08",

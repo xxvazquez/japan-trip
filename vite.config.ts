@@ -7,6 +7,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { handleTabelog } from "./worker/tabelog";
 import { handlePlaceFacts } from "./worker/placeFacts";
 import { signedIn, unauthorized, type AuthConfig } from "./worker/auth";
+import type { SearchKeys } from "./worker/search";
 
 /** which commit this bundle was built from — Cloudflare's build sets the SHA;
  *  locally it's read from git. Shown in Manage so it's easy to tell whether a
@@ -80,13 +81,13 @@ function pdfjsAssets(): Plugin {
  *  end to end locally. */
 /** `auth` is the Supabase project to check a caller's session against
  *  (`worker/auth.ts`), or null in the sandbox, which has no sign-in */
-function workerApi(searchKey: string | undefined, auth: AuthConfig | null): Plugin {
+function workerApi(searchKeys: SearchKeys, auth: AuthConfig | null): Plugin {
   const api: Connect.NextHandleFunction = (req, res, next) => {
     const url = new URL(req.url ?? "/", "http://localhost");
     const handle = { "/api/tabelog": handleTabelog, "/api/place-facts": handlePlaceFacts }[url.pathname];
     if (!handle) return next();
     const allowed = auth ? signedIn({ headers: new Headers({ Authorization: req.headers.authorization ?? "" }) }, auth) : Promise.resolve(true);
-    allowed.then((ok) => (ok ? handle(url, searchKey) : unauthorized())).then(async (r) => {
+    allowed.then((ok) => (ok ? handle(url, searchKeys) : unauthorized())).then(async (r) => {
       res.statusCode = r.status;
       res.setHeader("Content-Type", "application/json");
       res.end(await r.text());
@@ -143,9 +144,9 @@ export default defineConfig(({ command, mode }) => ({
   plugins: [
     react(),
     pdfjsAssets(),
-    // the search key stays on the server — no VITE_ prefix, so never in the bundle
+    // the search keys stay on the server — no VITE_ prefix, so never in the bundle
     workerApi(
-      loadEnv(mode, process.cwd(), "").TAVILY_API_KEY,
+      (({ TAVILY_API_KEY, EXA_API_KEY }) => ({ tavily: TAVILY_API_KEY, exa: EXA_API_KEY }))(loadEnv(mode, process.cwd(), "")),
       (({ VITE_SANDBOX, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY }) =>
         VITE_SANDBOX === "1" ? null : { supabaseUrl: VITE_SUPABASE_URL, anonKey: VITE_SUPABASE_ANON_KEY })(loadEnv(mode, process.cwd(), "VITE_")),
     ),

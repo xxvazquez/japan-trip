@@ -83,33 +83,33 @@ describe("findTabelog", () => {
   const at = { lat: 35.1709, lng: 136.8803 };
   it("finds the page by name", async () => {
     const { fetchImpl } = fakeSearch({ "Inou Hitsumabushi": [{ url: A, title: "Inou Hitsumabushi ESCA | Tabelog" }] });
-    expect(await findTabelog("Inou Hitsumabushi", at, "key", fetchImpl)).toBe(A);
+    expect(await findTabelog("Inou Hitsumabushi", at, { tavily: "key" }, fetchImpl)).toBe(A);
   });
   it("tries a shorter name when the full one finds nothing", async () => {
     const { fetchImpl, seen } = fakeSearch({ "Inou Hitsumabushi": [{ url: A, title: "Inou Hitsumabushi | Tabelog" }] });
-    expect(await findTabelog("Inou Hitsumabushi ESCA Branch", at, "key", fetchImpl)).toBe(A);
+    expect(await findTabelog("Inou Hitsumabushi ESCA Branch", at, { tavily: "key" }, fetchImpl)).toBe(A);
     expect(seen).toEqual(["Inou Hitsumabushi ESCA Branch", "Inou Hitsumabushi"]);
   });
   it("keeps to its search budget", async () => {
     const { fetchImpl, seen } = fakeSearch({});
-    expect(await findTabelog("One Two Three Four", at, "key", fetchImpl)).toBeNull();
+    expect(await findTabelog("One Two Three Four", at, { tavily: "key" }, fetchImpl)).toBeNull();
     expect(seen.length).toBeLessThanOrEqual(3);
   });
   it("throws when search can't be asked", async () => {
     const { fetchImpl } = fakeSearch({}, 401);
-    await expect(findTabelog("Anything", at, "key", fetchImpl)).rejects.toThrow("401");
+    await expect(findTabelog("Anything", at, { tavily: "key" }, fetchImpl)).rejects.toThrow("401");
   });
 });
 
 describe("handleTabelog", () => {
   it("rejects a request without a name or position", async () => {
-    expect((await handleTabelog(new URL("https://x/api/tabelog?name=a"), "key")).status).toBe(400);
+    expect((await handleTabelog(new URL("https://x/api/tabelog?name=a"), { tavily: "key" })).status).toBe(400);
   });
   it("says so when there's no search key", async () => {
-    expect((await handleTabelog(new URL("https://x/api/tabelog?name=a&lat=35&lng=136"), undefined)).status).toBe(503);
+    expect((await handleTabelog(new URL("https://x/api/tabelog?name=a&lat=35&lng=136"), {})).status).toBe(503);
   });
   it("reports a failed lookup as 502", async () => {
-    const res = await handleTabelog(new URL("https://x/api/tabelog?name=a&lat=35&lng=136"), "key", fakeSearch({}, 432).fetchImpl);
+    const res = await handleTabelog(new URL("https://x/api/tabelog?name=a&lat=35&lng=136"), { tavily: "key" }, fakeSearch({}, 432).fetchImpl);
     expect(res.status).toBe(502);
   });
 });

@@ -2,12 +2,11 @@
  *  reservations, queues and price for somewhere to eat — or tickets, crowds
  *  and entry fee for a sight (a shrine, a museum, a garden) — from a web
  *  search's summary of what guides, review sites and blogs say about it
- *  (Tavily, `TAVILY_API_KEY`) — plus the place's own website when one of
+ *  (`search.ts`: Tavily, else Exa) — plus the place's own website when one of
  *  the pages is it (the app asks OpenStreetMap first, see `placeWebsite.ts`). Generic — works for a place anywhere. */
 
+import { hasSearchKey, webSearch, type SearchKeys } from "./search";
 import { distinctiveWords, sameName } from "./tabelog";
-
-const TAVILY = "https://api.tavily.com/search";
 
 type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
 
@@ -285,20 +284,13 @@ function inArea(area: string, text: string): boolean {
 
 /** the place's facts, or null when search found nothing about it. Throws
  *  when it can't be asked (no key, the month's searches used up, offline). */
-export async function findFacts(name: string, area: string | undefined, key: string, fetchImpl: Fetch = fetch, today = new Date(), kind: FactKind = "food"): Promise<Facts | null> {
+export async function findFacts(name: string, area: string | undefined, keys: SearchKeys, fetchImpl: Fetch = fetch, today = new Date(), kind: FactKind = "food"): Promise<Facts | null> {
   const search = async (query: string) => {
-    const res = await fetchImpl(TAVILY, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-      body: JSON.stringify({ query, include_answer: "advanced", search_depth: "basic", max_results: 8 }),
-      signal: AbortSignal.timeout(20000),
-    });
-    if (!res.ok) throw new Error(`Search answered ${res.status}`);
-    const body = (await res.json()) as { answer?: string; results?: { url: string; title: string; content?: string }[] };
+    const body = await webSearch({ query, answer: true, max: 8, timeout: 20000 }, keys, fetchImpl);
     // the summary is only about our place if the pages it read are — named
     // like it and, when we know its city, in that city: a name search can
     // come back about a namesake somewhere else entirely
-    const about = (body.results ?? []).filter((r) => {
+    const about = body.results.filter((r) => {
       const text = `${r.title} ${r.content ?? ""} ${r.url}`;
       return sameName(name, text) && (!area || inArea(area, text));
     });
@@ -316,16 +308,16 @@ export async function findFacts(name: string, area: string | undefined, key: str
 }
 
 /** `GET /api/place-facts?name=…&area=…&kind=sight` → `{ facts: Facts | null }` */
-export async function handlePlaceFacts(url: URL, key: string | undefined, fetchImpl: Fetch = fetch): Promise<Response> {
+export async function handlePlaceFacts(url: URL, keys: SearchKeys, fetchImpl: Fetch = fetch): Promise<Response> {
   const name = url.searchParams.get("name")?.trim();
   const area = url.searchParams.get("area")?.trim() || undefined;
   const kind: FactKind = url.searchParams.get("kind") === "sight" ? "sight" : "food";
   const json = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
   if (!name) return json({ error: "name is required" }, 400);
-  if (!key) return json({ error: "TAVILY_API_KEY isn't set" }, 503);
+  if (!hasSearchKey(keys)) return json({ error: "No search key is set" }, 503);
   try {
-    return json({ facts: await findFacts(name.slice(0, 120), area?.slice(0, 80), key, fetchImpl, undefined, kind) });
+    return json({ facts: await findFacts(name.slice(0, 120), area?.slice(0, 80), keys, fetchImpl, undefined, kind) });
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : "lookup failed" }, 502);
   }

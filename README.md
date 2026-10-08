@@ -259,8 +259,8 @@ These appear automatically when a step is linked to a place.
 **Tabelog link.** A restaurant or café in Japan gets its Tabelog page found automatically:
 
 - It happens the first time the step shows, or its card opens on the Map. Online only; the link is then saved with the place.
-- It's found through a web search (Tavily): a Tabelog page in the same or a neighbouring prefecture whose title has the same name (English, or the Japanese name OpenStreetMap has for the pin).
-- Needs `TAVILY_API_KEY` on the server (see [Deploy](#deploy)); without it, every restaurant just gets **Search Tabelog**.
+- It's found through a web search (Tavily, or Exa once Tavily's month is used up): a Tabelog page in the same or a neighbouring prefecture whose title has the same name (English, or the Japanese name OpenStreetMap has for the pin).
+- Needs `TAVILY_API_KEY` or `EXA_API_KEY` on the server (see [Deploy](#deploy)); without either, every restaurant just gets **Search Tabelog**.
 - Signed in only — on *Use on this device only* the lookup isn't available.
 - Found: **Tabelog** in the step's place card button row, the same on the Map card.
 - Not found: the same button offers **Search Tabelog** instead. A miss isn't retried on that device for 30 days, unless the name or pin changes.
@@ -291,7 +291,7 @@ Where each fact comes from — shown small beside its label:
 How it fills in:
 - **By itself** — the first time a place shows, again once it's a month old, and after a rename or a category change. Nothing to run.
 - The ↻ icon beside **Good to know** checks again now. A fact this check doesn't settle keeps what it had — a refresh never wipes an answer.
-- **Manage → Content → Good to know** does every place at once (two searches each, out of Tavily's 1,000 a month).
+- **Manage → Content → Good to know** does every place at once (two searches each, out of Tavily's 1,000 a month, then Exa's).
 - **When it can't check, it says why** — offline, the server refused it (signed out, or the Worker's sign-in variables are missing), lookups not set up (no search key), or the search service failing. The card and Manage's **Last check** both show it.
 - **By hand** — tap any fact to correct it; **Add details** opens the empty ones to fill in. Works when the search found nothing or the wrong place. Clear a wrong one to hide it.
 - What you type always wins: a later lookup (automatic, ↻ or Manage) never overwrites it. Typing back what the lookup found drops your version.
@@ -307,7 +307,7 @@ What to expect:
 - A place over 30 km from that stay's hotel gets its day trip's town instead (Osaka, not Kyoto), or no city at all if it's in no town on the plan.
 - When it was checked and which sites it came from are on the ↻ icon's tooltip, not a row of their own.
 - It can be out of date — check hours with the place before a long trip across town.
-- Needs `TAVILY_API_KEY` (see [Environment variables](#environment-envlocal)).
+- Needs `TAVILY_API_KEY` or `EXA_API_KEY` (see [Environment variables](#environment-envlocal)).
 
 **Wake up and Breakfast.** Every day opens with these two rows, above the hotel you leave from.
 
@@ -696,6 +696,7 @@ VITE_PROTOMAPS_API_KEY=<Protomaps hosted API key>
 VITE_ORS_API_KEY=<OpenRouteService key>
 VITE_GOOGLE_CLIENT_ID=<Google OAuth web client id>
 TAVILY_API_KEY=<Tavily API key>
+EXA_API_KEY=<Exa API key>
 ```
 
 | Variable | Purpose |
@@ -705,6 +706,7 @@ TAVILY_API_KEY=<Tavily API key>
 | `VITE_GOOGLE_CLIENT_ID` | Google Drive for attachments. Without it, signed-in files go to the account's own storage. |
 | `VITE_ORS_API_KEY` | Real walking routes. Free, no card, 2,000 requests/day from [openrouteservice.org](https://openrouteservice.org/dev/#/signup). Without it, walks use straight-line estimates. Requests are throttled and cached per device. |
 | `TAVILY_API_KEY` | Tabelog links and Good to know, in `npm run dev` / `preview`. Free, no card, 1,000 searches/month from [tavily.com](https://app.tavily.com). Server-side only (no `VITE_` prefix), so it never reaches the bundle. In production it's a Worker secret — see [Deploy](#deploy). |
+| `EXA_API_KEY` | The fallback search, used when Tavily's month is used up (or there's no Tavily key). Free, no card, $10 of searches a month (about 1,400) from [exa.ai](https://dashboard.exa.ai). Server-side only, like Tavily's. |
 
 `VITE_*` values are baked in at build time — a change only takes effect on the next build.
 
@@ -781,7 +783,8 @@ Hosted on **Cloudflare Workers** (static assets), deployed through the Git integ
 - A small Worker script ([`worker/index.ts`](worker/index.ts)) answers `/api/*` only — today `/api/tabelog` and `/api/place-facts`, the place lookups. Everything else is served as static files without touching it (`run_worker_first` in [`wrangler.jsonc`](wrangler.jsonc)).
 - In `npm run dev` / `preview` the same handler runs as Vite middleware, so the lookup works locally too.
 - The lookup searches with [Tavily](https://app.tavily.com) (Tabelog blocks requests from Cloudflare's servers, so it can't be read directly). Its key goes in **Worker → Settings → Variables and Secrets → Add → Secret**, named `TAVILY_API_KEY`. Takes effect without a rebuild.
-- **Only signed-in accounts can use `/api/*`** — anyone else gets *Sign in to use this*, so strangers can't spend the Tavily searches. The app sends its sign-in with each call and the Worker checks it with Supabase ([`worker/auth.ts`](worker/auth.ts)). For that the Worker needs two more entries under **Variables and Secrets**, as plain text: `SUPABASE_URL` and `SUPABASE_ANON_KEY` (the same values as `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`). Without them every lookup is refused.
+- When Tavily can't answer (its free month is used up), the same search goes to [Exa](https://dashboard.exa.ai) instead ([`worker/search.ts`](worker/search.ts)). Its key is a second secret, `EXA_API_KEY`. Without it, lookups just stop until Tavily's month resets.
+- **Only signed-in accounts can use `/api/*`** — anyone else gets *Sign in to use this*, so strangers can't spend the searches. The app sends its sign-in with each call and the Worker checks it with Supabase ([`worker/auth.ts`](worker/auth.ts)). For that the Worker needs two more entries under **Variables and Secrets**, as plain text: `SUPABASE_URL` and `SUPABASE_ANON_KEY` (the same values as `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`). Without them every lookup is refused.
 - `keep_vars` in `wrangler.jsonc` keeps those dashboard variables across deploys. Without it every push wiped them, and Good to know silently stopped looking anything up.
 - In `npm run dev` the check uses `.env.local`'s Supabase values; `npm run dev:demo` skips it (no sign-in there).
 - The public demo has no Worker script; there the Tabelog row just opens a search.

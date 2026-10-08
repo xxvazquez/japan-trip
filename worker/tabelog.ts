@@ -1,14 +1,15 @@
 /** Finds a restaurant's Tabelog page from its name and map position.
  *
  *  Tabelog has no API and turns away requests from Cloudflare's servers, so
- *  this asks Tavily's search for tabelog.com pages instead (the Worker in
- *  production, a Vite middleware in dev; the key is `TAVILY_API_KEY`).
+ *  this asks a web search for tabelog.com pages instead (the Worker in
+ *  production, a Vite middleware in dev; see `search.ts` for the keys).
  *  A result is kept only when its page is in one of the two prefectures
  *  nearest our pin and its title names our place — by our name, or by the
  *  local name OpenStreetMap has for the place at the pin. */
 
+import { hasSearchKey, webSearch, type SearchKeys } from "./search";
+
 const SITE = "https://tabelog.com";
-const TAVILY = "https://api.tavily.com/search";
 /** searches per lookup — most are found by the first, and the free plan
  *  has 1,000 a month */
 const MAX_SEARCHES = 3;
@@ -182,24 +183,17 @@ export function pickResult(results: SearchResult[], names: string[], prefs: stri
 /** one search of tabelog.com. Throws when it can't be asked (no key,
  *  the month's searches used up, offline), so a caller can tell "not on
  *  Tabelog" from "couldn't ask". */
-async function searchTabelog(query: string, key: string, fetchImpl: Fetch): Promise<SearchResult[]> {
-  const res = await fetchImpl(TAVILY, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-    body: JSON.stringify({ query, include_domains: ["tabelog.com"], max_results: 10, search_depth: "basic" }),
-    signal: AbortSignal.timeout(10000),
-  });
-  if (!res.ok) throw new Error(`Search answered ${res.status}`);
-  return ((await res.json()) as { results?: SearchResult[] }).results ?? [];
+async function searchTabelog(query: string, keys: SearchKeys, fetchImpl: Fetch): Promise<SearchResult[]> {
+  return (await webSearch({ query, domains: ["tabelog.com"], max: 10, timeout: 10000 }, keys, fetchImpl)).results;
 }
 
 /** the page's link, or null when no result names the place nearby */
-export async function findTabelog(name: string, at: At, key: string, fetchImpl: Fetch = fetch): Promise<string | null> {
+export async function findTabelog(name: string, at: At, keys: SearchKeys, fetchImpl: Fetch = fetch): Promise<string | null> {
   const prefs = nearestPrefectures(at);
   let searches = 0;
   const search = async (q: string, names: string[]) => {
     if (searches++ >= MAX_SEARCHES) return null;
-    return pickResult(await searchTabelog(q, key, fetchImpl), names, prefs);
+    return pickResult(await searchTabelog(q, keys, fetchImpl), names, prefs);
   };
 
   // 1. our own name
@@ -222,7 +216,7 @@ export async function findTabelog(name: string, at: At, key: string, fetchImpl: 
 }
 
 /** `GET /api/tabelog?name=…&lat=…&lng=…` → `{ url: string | null }` */
-export async function handleTabelog(url: URL, key: string | undefined, fetchImpl: Fetch = fetch): Promise<Response> {
+export async function handleTabelog(url: URL, keys: SearchKeys, fetchImpl: Fetch = fetch): Promise<Response> {
   const name = url.searchParams.get("name")?.trim();
   // Number(null) is 0, so a missing coordinate has to be caught first
   const lat = Number(url.searchParams.get("lat") || NaN);
@@ -230,9 +224,9 @@ export async function handleTabelog(url: URL, key: string | undefined, fetchImpl
   const json = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
   if (!name || !Number.isFinite(lat) || !Number.isFinite(lng)) return json({ error: "name, lat and lng are required" }, 400);
-  if (!key) return json({ error: "TAVILY_API_KEY isn't set" }, 503);
+  if (!hasSearchKey(keys)) return json({ error: "No search key is set" }, 503);
   try {
-    return json({ url: await findTabelog(name.slice(0, 120), { lat, lng }, key, fetchImpl) });
+    return json({ url: await findTabelog(name.slice(0, 120), { lat, lng }, keys, fetchImpl) });
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : "lookup failed" }, 502);
   }
