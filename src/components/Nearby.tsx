@@ -12,7 +12,7 @@ import { PlaceFactRows } from "./PlaceFacts";
 import { TitleLineTile } from "./TileRow";
 import { fmtDate } from "@/lib/dates";
 import { placeMapLink } from "@/lib/maps";
-import { factsDayHours, hasFacts } from "@/lib/placeFacts";
+import { factsDayHours, hasFacts, notASight } from "@/lib/placeFacts";
 import { nearestOpeningHours, type PlaceHours } from "@/lib/placeHours";
 import { hoursForDate } from "@/lib/openingHours";
 import { menuHref, reviewHref, reviewSiteFor } from "@/lib/reviewSite";
@@ -20,21 +20,27 @@ import { placeTile } from "@/lib/tones";
 import type { NearbyGroup, NearbyItem } from "@/lib/nearby";
 import type { Place } from "@/core/types";
 import { fmtClocksIn } from "@/lib/time";
+import { useApp } from "@/store/useApp";
 
 /** A place's opening hours on `date`, the rule for that month and weekday
  *  rather than the whole year's schedule. Read first from the place's "Good
  *  to know" Hours and Closed lines — what its place card shows — else from
  *  OpenStreetMap's tag (`hoursForDate`; a date no rule covers is a closed
- *  one). Null when neither has anything. */
+ *  one). Null when neither has anything, and always for somewhere you pass
+ *  through or sleep (`notASight`) — a station's tag nearby is a ticket
+ *  counter's or a kiosk's, not when the trains stop. */
 export function usePlaceHours(place: Place | undefined, date?: string): string | null {
+  const data = useApp((s) => s.data);
+  const skip = !place || !data || notASight(place, data);
   const [hours, setHours] = useState<PlaceHours | null>(null);
   useEffect(() => {
     setHours(null);
-    if (!place) return;
+    if (!place || skip) return;
     let cancelled = false;
     void nearestOpeningHours(place.lat, place.lng, place.name).then((h) => { if (!cancelled) setHours(h); });
     return () => { cancelled = true; };
-  }, [place?.id, place?.lat, place?.lng]);
+  }, [place?.id, place?.lat, place?.lng, skip]);
+  if (skip) return null;
   const fromFacts = date ? factsDayHours(place?.facts, date) : undefined;
   if (fromFacts) return fromFacts;
   return hours ? (date ? hoursForDate(hours.hours, date) ?? "Closed" : hours.hours) : null;
