@@ -1,5 +1,5 @@
 import { useRef, useState, type ReactNode } from "react";
-import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
@@ -82,6 +82,7 @@ export default function Manage() {
   return (
     <Page width="form">
       <PageHeader back="/manage" title={meta.label} className="mb-6" />
+      <ScrollToHash />
       {panel === "trips" && <Trips />}
       {panel === "setup" && <Setup />}
       {panel === "content" && <Content />}
@@ -89,6 +90,18 @@ export default function Manage() {
       {panel === "sharing" && <SharingTab />}
     </Page>
   );
+}
+
+/** a link to one section of a panel ("/manage/trips#this-device", from the
+ *  Plan's offline reminder) scrolls it into view once the page has drawn */
+function ScrollToHash() {
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (!hash) return;
+    const t = setTimeout(() => document.getElementById(hash.slice(1))?.scrollIntoView({ block: "start", behavior: "smooth" }), 250);
+    return () => clearTimeout(t);
+  }, [hash]);
+  return null;
 }
 
 function ManageIndex() {
@@ -321,7 +334,7 @@ function Trips() {
         onClose={() => setNaming(false)}
       />
 
-      <ThisDevice />
+      <div id="this-device" className="scroll-mt-[calc(var(--sat)+var(--nav-h)+0.5rem)]"><ThisDevice /></div>
     </div>
   );
 }
@@ -1570,7 +1583,7 @@ function Content() {
 
       {CategoryIcons()}
       <ReviewLinksPanel />
-      <PlaceFactsPanel />
+      <div id="good-to-know" className="scroll-mt-[calc(var(--sat)+var(--nav-h)+0.5rem)]"><PlaceFactsPanel /></div>
     </div>
   );
 }

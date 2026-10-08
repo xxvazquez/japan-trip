@@ -26,6 +26,9 @@ import { TextPrompt } from "@/components/TextPrompt";
 import { primeKeyboard } from "@/lib/keyboard";
 import { useData } from "@/lib/data";
 import { useToday } from "@/lib/useToday";
+import { useOfflineReadiness } from "@/lib/offlineReady";
+import { TileRow } from "@/components/TileRow";
+import { IconTile } from "@/components/IconTile";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { tripClock, fmtDate, fmtDateRange, dayKind, legCheckOut, legForDate, legNights, plural, addDays } from "@/lib/dates";
@@ -81,6 +84,26 @@ const KIND: Record<string, { label: string; icon: IconName }> = {
   travel: { label: "Travel", icon: "train" },
   daytrip: { label: "Day trip", icon: "explore" },
 };
+
+/** this close to leaving, Plan starts reminding what isn't saved for offline */
+const READY_DAYS = 21;
+
+/** What still isn't ready for a trip with no signal, as rows at the head of
+ *  Plan — the way Settings heads its list with "Finish Setting Up" — each
+ *  opening where it's done. Gone once everything is. */
+function OfflineReminder({ data, show }: { data: TripData; show: boolean }) {
+  const todo = useOfflineReadiness(show ? data : null);
+  if (!show || !todo?.length) return null;
+  return (
+    <Section title="Ready for offline" id="plan-offline" className="mb-6" info="What this phone still needs so the trip works with no signal — do it on wifi before you leave. Each row goes to where it's done, and drops off once it is.">
+      <ul>
+        {todo.map((t) => (
+          <TileRow key={t.key} to={t.to} tile={<IconTile name={t.icon} tone={t.key === "install" ? "accent" : "gold"} />} title={t.title} meta={t.detail} />
+        ))}
+      </ul>
+    </Section>
+  );
+}
 
 /** the app has had its launch: opening on today happens once a session */
 let launched = false;
@@ -190,6 +213,7 @@ export default function Plan() {
         {!noDates && c.phase === "after" && <TripRecap data={data} totalDays={c.totalDays} />}
       </header>
 
+      <OfflineReminder data={data} show={!readOnly && !data.config.demo && !noDates && (c.phase === "during" || (c.phase === "before" && c.daysUntilStart <= READY_DAYS))} />
       {data.legs.length === 0 ? (
         <Empty
           what="No bases yet"
