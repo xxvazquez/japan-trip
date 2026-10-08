@@ -2209,7 +2209,7 @@ function PlaceRow({
             </button>
           </div>
           {/* Google Maps leads, filled, then the place's own pages, its day
-              and sharing — up to five across, the rest under More, as Maps
+              and sharing — four across, the rest under More, as Maps
               lays out its row */}
           {(() => {
             type Act = { key: string; icon: IconName; label: string; href?: string; run?: () => void };
@@ -2221,8 +2221,8 @@ function PlaceRow({
               !website && { key: "search", icon: "search", label: "Search Web", href: searchHref },
             ].filter(Boolean) as Act[];
             const dayBtn = !!day || (!readOnly && sortedDays.length > 0);
-            // five across: Google Maps, the day, More, and what's left between
-            const room = 5 - (link ? 1 : 0) - (dayBtn ? 1 : 0);
+            // four across: Google Maps, the day, More, and what's left between
+            const room = 4 - (link ? 1 : 0) - (dayBtn ? 1 : 0);
             const fits = extras.length <= room ? extras : extras.slice(0, room - 1);
             const over = extras.slice(fits.length);
             const ext = { target: "_blank", rel: "noopener" };

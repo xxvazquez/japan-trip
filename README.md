@@ -214,7 +214,7 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 - **Mark as optional** from a step's menu, or **More → Optional** on its place card, for something nice to do but not a must: an ochre ◌ Optional tag shows under its name. **Make this a must** undoes it.
 - **The place card** — tap a linked step's name or note, as you'd tap a place in Maps. ✕ or a drag down closes it.
   - **Top:** the name, a red line if it clashes with the place's hours, and a grey line if it's Optional, pinned or Overwhelming.
-  - **Buttons**, up to five across: **Google Maps** (filled), Tabelog (restaurants in Japan), **Menu**, **Website**, **Show on Map** (phone), **Share** and **Search Web** (when there's no website). What doesn't fit goes under **More**.
+  - **Buttons**, four across: **Google Maps** (filled), Tabelog (restaurants in Japan), **Menu**, **Website**, **Show on Map** (phone), **Share** and **Search Web** (when there's no website). What doesn't fit goes under **More**.
   - **Share** opens the Share sheet; where there isn't one, it copies the name and map link.
   - **Below:** the step's note, Good to know and **Nearby** (see [Nearby on a day](#nearby-on-a-day)).
 - **On a computer** the card opens as a popover with its arrow on the place's name — beside the name, or under it when a long name leaves no room — and the map pane flies to the place at the same time.
@@ -372,7 +372,7 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 - **Tapping a place** swaps the list for its card, as Apple Maps does; ✕ goes back to the list where you left it.
 - **A place's card** — laid out like a step's place card:
   - **Top:** the name (tap to rename) and the walk to the nearest station.
-  - **Buttons**, up to five across: **Google Maps** (filled), Tabelog (restaurants in Japan), **Menu**, **Website**, **Share**, **Search Web** (when there's no website), and the day it's on or **Add to Day**. What doesn't fit goes under **More**.
+  - **Buttons**, four across: **Google Maps** (filled), Tabelog (restaurants in Japan), **Menu**, **Website**, **Share**, **Search Web** (when there's no website), and the day it's on or **Add to Day**. What doesn't fit goes under **More**.
   - Google Maps searches at the pin, so a chain opens the right branch.
   - **Below:** **Note**, then **Good to know** — folded until you tap it, so filing a place stays quick (see [Helpers on a step](#helpers-on-a-step)) — then its areas, category and city, and last **Remove**.
   - **Category:** a pin added in the app can move into any category and takes on its colour; a My Maps pin's comes from its layer.

@@ -1499,13 +1499,14 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
   // wide screens draw the day's map beside the plan: opening a place's card
   // also flies that map to it, so the card needs no Map button there
   const { active: mapBeside } = useSplit();
-  // the card's button row, as Maps lays it out: up to five equal buttons —
-  // Google Maps, then every page the place has and Show on Map, then More,
-  // which takes whatever doesn't fit (and Add to Calendar)
+  // the card's button row, as Maps lays it out: four equal buttons —
+  // Google Maps, then the place's own pages and Show on Map, then More,
+  // which takes whatever doesn't fit (and Add to Calendar). Five left two
+  // labels wrapping on a phone.
   const slot = (["review", "menu", "website", "map", "share", "search"] as const).filter((k) =>
     k === "review" ? !!reviewSite : k === "menu" ? !!placeMenu : k === "website" ? !!website
       : k === "map" ? !mapBeside : k === "share" ? true : !website,
-  ).slice(0, mapHref ? 3 : 4);
+  ).slice(0, mapHref ? 2 : 3);
   const inRow = (k: (typeof slot)[number]) => slot.includes(k);
   const [copied, setCopied] = useState(false);
   const share = async () => {
