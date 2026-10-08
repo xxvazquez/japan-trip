@@ -418,12 +418,20 @@ function LegBlock({
     const id = crypto.randomUUID?.() ?? `day-${Math.random().toString(36).slice(2, 8)}`;
     addEntity("days", { id, date: next, legId: leg.id, hotelId: leg.hotelId || undefined, title: "New day" } as never);
   };
-  const rows = dayIds
-    .map((id) => days.days.find((d) => d.id === id))
-    .filter(Boolean)
-    .map((d) => (
-      <DayRow key={d!.id} data={days} day={d!} today={d!.date === todayISO} loc={loc} readOnly={readOnly} />
-    ));
+  const listed = dayIds.map((id) => days.days.find((d) => d.id === id)).filter((d): d is Day => !!d);
+  const rows = listed.map((d, i) => (
+    <DayRow
+      key={d.id}
+      data={days}
+      day={d}
+      today={d.date === todayISO}
+      loc={loc}
+      readOnly={readOnly}
+      // the month under the number when it turns over, as Calendar marks a
+      // new month — "7" after "31" (or after a gap) isn't left to guess
+      newMonth={i > 0 && !!d.date && d.date.slice(0, 7) !== listed[i - 1].date?.slice(0, 7)}
+    />
+  ));
 
   return (
     <section>
@@ -479,7 +487,7 @@ function LegBlock({
 /** The date at the start of a day row, stacked as Calendar draws it: the
  *  weekday small over a big day number, in a narrow fixed column. Today's
  *  number takes the accent. */
-function DayDate({ date, loc, strong }: { date: string; loc: string; strong?: boolean }) {
+function DayDate({ date, loc, strong, month }: { date: string; loc: string; strong?: boolean; month?: boolean }) {
   return (
     <span className="flex w-8 shrink-0 flex-col items-center tabular-nums">
       <span className={`text-[11px] uppercase leading-[13px] ${strong ? "text-accent" : "text-ink-faint"}`}>
@@ -488,6 +496,11 @@ function DayDate({ date, loc, strong }: { date: string; loc: string; strong?: bo
       <span className={`text-[22px] font-light leading-[26px] ${strong ? "text-accent" : "text-ink"}`}>
         {fmtDate(date, loc, { day: "numeric" })}
       </span>
+      {month && (
+        <span className="text-[11px] font-medium uppercase leading-[13px] text-accent">
+          {fmtDate(date, loc, { month: "short" })}
+        </span>
+      )}
     </span>
   );
 }
@@ -529,7 +542,7 @@ const DAY_ROW_LI =
   "relative transition-colors duration-150 has-[a:active]:bg-ink/[0.07] after:pointer-events-none after:absolute after:bottom-0 after:left-[3.75rem] after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
 
 /** A day's tappable row body — date, title, kind + labels, chevron. */
-function DayLink({ data, day, today, loc, pinned }: { data: TripData; day: Day; today: boolean; loc: string; pinned?: boolean }) {
+function DayLink({ data, day, today, loc, pinned, newMonth }: { data: TripData; day: Day; today: boolean; loc: string; pinned?: boolean; newMonth?: boolean }) {
   return (
     <Link
       to={`/day/${day.id}`}
@@ -537,7 +550,7 @@ function DayLink({ data, day, today, loc, pinned }: { data: TripData; day: Day; 
       className="flex min-w-0 flex-1 items-center gap-3.5 px-3.5 py-2.5"
     >
       {/* the stay's colour is on its header — not repeated on every day */}
-      <DayDate date={day.date} loc={loc} strong={today} />
+      <DayDate date={day.date} loc={loc} strong={today} month={newMonth} />
       <span className="flex min-w-0 flex-1 flex-col">
         <span className={`break-words leading-snug ${day.title ? "text-ink" : "text-ink-faint"}`}>
           {day.title || "Untitled day"}
@@ -557,7 +570,7 @@ function DayLink({ data, day, today, loc, pinned }: { data: TripData; day: Day; 
   );
 }
 
-function DayRow({ data, day, today, loc, readOnly }: { data: TripData; day: Day; today: boolean; loc: string; readOnly: boolean }) {
+function DayRow({ data, day, today, loc, readOnly, newMonth }: { data: TripData; day: Day; today: boolean; loc: string; readOnly: boolean; newMonth?: boolean }) {
   const pinned = (data.config.pinnedDays ?? []).includes(day.id);
   const { listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: day.id, disabled: readOnly || pinned });
   return (
@@ -568,7 +581,7 @@ function DayRow({ data, day, today, loc, readOnly }: { data: TripData; day: Day;
       className={`${DAY_ROW_LI} ${isDragging ? "z-10 bg-surface opacity-40" : ""}`}
     >
       <ContextMenu menu={readOnly ? undefined : <DayMenu day={day} pinned={pinned} />} dismiss={isDragging} className="flex items-start">
-        <DayLink data={data} day={day} today={today} loc={loc} pinned={pinned} />
+        <DayLink data={data} day={day} today={today} loc={loc} pinned={pinned} newMonth={newMonth} />
       </ContextMenu>
     </li>
   );
