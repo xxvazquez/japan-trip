@@ -1814,11 +1814,14 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                 placeholder="What is it?"
                 autoEdit={fresh}
                 onCommit={(v) => onPatch({ text: v })}
-                // like a new reminder left blank: a step with nothing in it at
-                // all goes away (never stored, so no Undo); one with a time,
+                // like a reminder left blank: a step with nothing else in it
+                // goes away — undoably when it had a name, since clearing an
+                // old step's text is easy to do by mistake. One with a time,
                 // place or note, or left by a tap elsewhere on its own row
                 // (its pin, time or ⋯), just loses its text
-                onBlank={(onRow) => (item.time || item.placeId || item.note || onRow ? item.text && onPatch({ text: "" }) : onRemove())}
+                onBlank={(onRow) => (item.time || item.placeId || item.note || onRow
+                  ? item.text && onPatch({ text: "" })
+                  : item.text ? undoable("Step removed", onRemove) : onRemove())}
                 onEditingChange={setTitleEditing}
                 className={STOP_TITLE}
               />
