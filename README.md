@@ -149,6 +149,14 @@ Every section folds away from its header. Scroll down and the bar at the top kee
 - Place and hotel names (and travel lines on the full copy) are links to Google Maps.
 - iPhone: opens the Share sheet (Save to Files, Print, AirDrop). Android and computer: downloads. Both work offline; the Plan's hours need to have been looked up once.
 
+### Today
+
+During the trip the app works like Calendar's Today:
+
+- **Opening the app goes straight to today's day.** Only on a fresh launch — the Plan tab and **‹ Plan** still show the list.
+- **Up next** heads today's plan: the next stop and how long until it starts (*in 25 min*), and when to leave for it — *Leave by 09:45 · 15 min walk*, or *≈ 32 min by train* past a long walk (≈ marks a guess). *Leave now* in red once that time's come. For a journey it shows the hop's details instead.
+- **A red line** across the timeline marks the time now, with the time beside it, and moves as the day goes on.
+
 ### Nearby on a day
 
 Suggestions from the trip's own saved places — nothing is looked up from outside, so it works offline. They never go into the plan until you add one.

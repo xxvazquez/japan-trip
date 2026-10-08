@@ -27,3 +27,25 @@ export function useToday(): string {
   }, []);
   return today;
 }
+
+/** the time now as "HH:MM", ticking over each minute while `on` (and when
+ *  the app comes back to the front) — for today's "now" line and Up next */
+export function useClock(on: boolean): string {
+  const read = () => {
+    const d = new Date();
+    return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  };
+  const [now, setNow] = useState(read);
+  useEffect(() => {
+    if (!on) return;
+    setNow(read());
+    const tick = setInterval(() => setNow(read()), 20_000);
+    const onVisible = () => { if (document.visibilityState === "visible") setNow(read()); };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearInterval(tick);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [on]);
+  return now;
+}

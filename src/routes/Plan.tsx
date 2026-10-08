@@ -1,4 +1,4 @@
-import { Fragment, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   DndContext,
@@ -82,13 +82,25 @@ const KIND: Record<string, { label: string; icon: IconName }> = {
   daytrip: { label: "Day trip", icon: "explore" },
 };
 
+/** the app has had its launch: opening on today happens once a session */
+let launched = false;
+
 export default function Plan() {
   const data = useData();
   const addEntity = useApp((s) => s.addEntity);
   const readOnly = useReadOnly();
   const nav = useNavigate();
   const [namingBase, setNamingBase] = useState(false);
-  useToday(); // re-render when the date turns over, so the list opens on the new today
+  const today = useToday(); // re-render when the date turns over, so the list opens on the new today
+  // opened during the trip, the app goes straight to today, as Calendar
+  // opens on Today — only on a fresh launch landing here, so the Plan tab
+  // and "‹ Plan" still show the list
+  const todayId = data?.days.find((d) => d.date === today)?.id;
+  useEffect(() => {
+    if (launched || !data) return;
+    launched = true;
+    if (todayId && (window.history.state?.idx ?? 0) === 0) nav(`/day/${todayId}`);
+  }, [data, todayId, nav]);
   if (!data) return null;
 
   const newId = (kind: string) => crypto.randomUUID?.() ?? `${kind}-${Math.random().toString(36).slice(2, 8)}`;

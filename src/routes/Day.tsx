@@ -73,6 +73,8 @@ import { prefetchTiles, canPrefetchTiles, dayOfflinePoints } from "@/lib/offline
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon, expenseCategoryForGlyph } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import { selectInSplit } from "@/lib/splitSelect";
+import { fmtIn, minutesUntil, nowInDay } from "@/lib/upNext";
+import { useClock, useToday } from "@/lib/useToday";
 import { buildDayPdf, buildPagePdf, mdToPlain, PDF_HREF, PDF_HIDE, PDF_KEEP, type DayPdfRow } from "@/lib/dayPdf";
 import { setExpandAll } from "@/lib/collapse";
 import { applyPalette } from "@/lib/mode";
@@ -315,6 +317,9 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const prevDay = data.days.find((x) => x.date === addDays(day.date, -1));
   const startHotel = !prevDay || dayKind(day, data) === "arrival" ? undefined
     : L.hotel(prevDay.hotelId) ?? L.hotel(L.leg(prevDay.legId)?.hotelId);
+  // today: the plan shows where now is and what's up next
+  const isToday = day.date === useToday();
+  const clockNow = useClock(isToday);
   const [weather, setWeather] = useState<DayWeather | null>(null);
   // a day trip's forecast is for where it goes, not the hotel's city
   const spot = forecastSpot(weatherHotel, dayPlaces, day.dayTrip);
@@ -672,7 +677,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             </span>
           )}
         >
-          <PlanList day={day} journeys={journeys} startHotel={startHotel} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} morePlaces={morePlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} fresh={freshStep} onAdd={addStep} onChange={setPlan} onBackAt={(t) => patch({ backAt: t })} onLeaveAt={(t) => patch({ leaveAt: t })} onWakeAt={(t) => patch({ wakeAt: t })} onBreakfastAt={(t) => patch({ breakfastAt: t })} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} outline={outline} />
+          <PlanList day={day} journeys={journeys} startHotel={startHotel} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} morePlaces={morePlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} fresh={freshStep} onAdd={addStep} onChange={setPlan} onBackAt={(t) => patch({ backAt: t })} onLeaveAt={(t) => patch({ leaveAt: t })} onWakeAt={(t) => patch({ wakeAt: t })} onBreakfastAt={(t) => patch({ breakfastAt: t })} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} outline={outline} now={isToday ? clockNow : undefined} />
         </Section>
       )}
 
@@ -942,7 +947,7 @@ function DayJourneyRow({ day, journey, data, onRemove }: { day: DayT; journey: J
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedItems, places, areaPlaces, morePlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, fresh, onAdd, onChange, onBackAt, onLeaveAt, onWakeAt, onBreakfastAt, onQuickAddCost, onShowOnMap, outline }: {
+function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedItems, places, areaPlaces, morePlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, fresh, onAdd, onChange, onBackAt, onLeaveAt, onWakeAt, onBreakfastAt, onQuickAddCost, onShowOnMap, outline, now }: {
   day: DayT;
   /** the day's journeys — their leave / arrive times show as rows of their own */
   journeys: Journey[];
@@ -972,6 +977,9 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   /** filled with the timeline as plain rows, in the order shown — what the
    *  day's PDF prints */
   outline?: { current: DayPdfRow[] };
+  /** the time now ("HH:MM") when this day is today — draws the now line
+   *  and Up next; unset on any other day */
+  now?: string;
   onBreakfastAt: (time: string | undefined) => void;
   onQuickAddCost: (item: PlanItem) => void;
   onShowOnMap: (place: Place) => void;
@@ -1259,18 +1267,46 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
       return [row];
     });
   }
+  // today: a red line where now falls, as Calendar draws it, and the row
+  // that's up next — a row with nothing to print (an untimed Wake up) is
+  // passed over for the one after it
+  const nowAt = now ? nowInDay(entries.map((e) => e.time), now) : null;
+  let nextIdx = nowAt ? nowAt.next : -1;
+  while (nextIdx >= 0 && nextIdx < entries.length && !entries[nextIdx].print) nextIdx++;
+  const nextEntry = nextIdx >= 0 && nextIdx < entries.length ? entries[nextIdx] : undefined;
+  // where the next row is, and where you'd be setting off from
+  let nextTo: { lat: number; lng: number } | null = null;
+  let nextFrom: { lat: number; lng: number } | null = null;
+  if (nextEntry?.item != null) {
+    nextTo = placeOf(items[nextEntry.item]) ?? null;
+    nextFrom = placeBefore(nextEntry.item)?.place ?? (startHotel && nextEntry.item <= leaveIdx ? hotelCoords(startHotel) : null);
+  } else if (nextEntry && returnHotel && nextEntry.print?.title.startsWith("Back to")) {
+    nextTo = hotelCoords(returnHotel);
+    nextFrom = placeBefore(backIdx)?.place ?? null;
+  }
+  const nowLine = (key: string) => now && <NowLine key={key} now={now} />;
+
   const rows = entries.flatMap((e, i) => {
+    const line = nowAt?.line === i ? [nowLine("now")] : [];
     const b = bandAt.indexOf(i);
-    if (b < 0) return e.nodes;
+    if (b < 0) return [...line, ...e.nodes];
     const p = parts[i]!;
     return [
+      ...line,
       <DayPartRow key={`part-${p}`} part={p} onAdd={readOnly ? undefined : (el) => onAdd({ currentTarget: el }, endOfBand(b))} />,
       ...e.nodes,
     ];
   });
+  if (nowAt?.line === entries.length) rows.push(nowLine("now"));
 
-  // one timeline for the whole day — the hotel, steps, journeys and the way home
-  const timeline = <ul className="timeline pb-1.5">{rows}</ul>;
+  // one timeline for the whole day — the hotel, steps, journeys and the way
+  // home — with what's up next above it on today
+  const timeline = (
+    <>
+      {now && nextEntry?.print && <UpNext row={nextEntry.print} start={nextEntry.time} now={now} from={nextFrom} to={nextTo} />}
+      <ul className="timeline pb-1.5">{rows}</ul>
+    </>
+  );
 
   if (readOnly) return timeline;
 
@@ -2173,6 +2209,58 @@ function JourneyStopRow({ journey, stop }: { journey: Journey; stop: ReturnType<
         </TimelineStop>
       </Link>
     </li>
+  );
+}
+
+/** Calendar's red "now" line across today's timeline: the time in red in
+ *  the time column, a dot on the rail, a hairline to the edge */
+function NowLine({ now }: { now: string }) {
+  return (
+    <li aria-label={`Now, ${fmtClock(now)}`} className="relative flex h-4 items-center gap-2.5 pl-3.5 pr-3.5">
+      <span className={`${TIME_COL} shrink-0 text-right text-[11px] font-medium leading-none tabular-nums text-danger`}>{fmtClock(now)}</span>
+      {/* the grey rail runs on through it */}
+      <Rail>
+        <span className="relative z-10 my-auto h-2 w-2 rounded-full bg-danger" />
+      </Rail>
+      <span className="h-px flex-1 bg-danger" />
+    </li>
+  );
+}
+
+/** What's up next today, at the head of the plan — the next stop and when
+ *  it starts, and when to leave for it: the walk there, or past a long walk
+ *  the train (as the travel line under the stop before it works it out) */
+function UpNext({ row, start, now, from, to }: {
+  row: DayPdfRow;
+  start?: string;
+  now: string;
+  from: { lat: number; lng: number } | null;
+  to: { lat: number; lng: number } | null;
+}) {
+  const walk = useWalk(from ?? { lat: 0, lng: 0 }, from && to ? to : null);
+  const train = useTrainOption(from, to, !!walk && walk.min > LONG_WALK_MIN);
+  const byTrain = !!walk && walk.min > LONG_WALK_MIN && !!train;
+  const way = byTrain ? trainMinutes(train!) : walk?.min;
+  const at = start && /^\d{1,2}:\d{2}/.test(start) ? start : undefined;
+  const leave = leaveBy(at, way);
+  const late = leave !== undefined && minutesUntil(leave, now) <= 0;
+  // a train ride is always a guess; a walk only until its real route is in
+  const guess = byTrain || walk?.estimated !== false;
+  const how = way !== undefined && `${guess ? "≈\u00a0" : ""}${fmtMinutes(way)} ${byTrain ? "by train" : "walk"}`;
+  return (
+    <div className="mx-2.5 mb-1 mt-2.5 rounded-[10px] bg-accent/[0.08] px-3 py-2.5">
+      <span className="kicker block text-accent">
+        Up next{at && <> · {fmtIn(minutesUntil(at, now))}</>}
+      </span>
+      <span className={`${STOP_TITLE} mt-0.5`}>{row.time && <span className="tabular-nums text-ink-soft">{row.time} </span>}{row.title}</span>
+      {leave ? (
+        <span className={`block text-[15px] leading-snug ${late ? "text-danger" : "text-ink-soft"}`}>
+          {late ? "Leave now" : `Leave by ${fmtClock(leave)}`} · {how}
+        </span>
+      ) : (
+        row.meta && <span className="block text-[15px] leading-snug text-ink-soft">{row.meta}</span>
+      )}
+    </div>
   );
 }
 
