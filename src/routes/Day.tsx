@@ -25,6 +25,7 @@ import { RowSelect } from "@/components/RowSelect";
 import { ActionSheet, useActionSheet, ConfirmMenuItem } from "@/components/ActionSheet";
 import { Editable } from "@/components/Editable";
 import { MoneyField } from "@/components/MoneyField";
+import { AmountSheet } from "@/components/AmountSheet";
 import { PlaceAction, PlaceActions } from "@/components/PlaceAction";
 import type { Tip } from "@/components/InfoTips";
 import { saveFile, touchDevice } from "@/lib/device";
@@ -363,6 +364,15 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     const t = setTimeout(() => setJustAddedCostId(null), 1600);
     return () => clearTimeout(t);
   }, [justAddedCostId]);
+  // today's ＋ → Amount: the keypad straight away, then its category — a
+  // spend logged at the till, landing in Spending like any other row
+  const [quickSpend, setQuickSpend] = useState(false);
+  const quickSpendAnchor = useRef<HTMLElement | null>(null);
+  const addSpend = (cost: Omit<DayCost, "id">) => {
+    const id = rid();
+    setCosts([...(day.costs ?? []), { id, ...cost }]);
+    setJustAddedCostId(id);
+  };
   const quickAddCost = (item: PlanItem) => {
     const id = rid();
     const { label, categoryId } = stepSpend(item);
@@ -539,7 +549,20 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
           items={[
             { icon: "itinerary", label: "Add a step", onClick: (a) => addStep(a ? { currentTarget: a } : undefined) },
             { icon: "train", label: "Add a journey", onClick: (a) => { journeyAnchor.current = a; journeySheet.setOpen(true); } },
+            // during the trip, today's spending is a tap away
+            ...(isToday ? [{ icon: "wallet" as const, label: "Add an amount", onClick: (a: HTMLElement | null) => { quickSpendAnchor.current = a; setQuickSpend(true); } }] : []),
           ]}
+        />
+      )}
+      {!ro && isToday && (
+        <QuickSpend
+          open={quickSpend}
+          onClose={() => setQuickSpend(false)}
+          anchorRef={quickSpendAnchor as React.RefObject<HTMLElement>}
+          currencies={(data.config.currencies ?? []).filter(Boolean)}
+          defaultCurrency={lastSpendCurrency}
+          categories={data.config.expenseCategories ?? []}
+          onAdd={addSpend}
         />
       )}
       {!ro && (
@@ -2650,6 +2673,81 @@ function CategoryCaption({ value, categories, onChange }: {
 /** a plan step offered under "Add an amount", with the category its icon
  *  suggests */
 type SpendChoice = { label: string; categoryId?: string };
+
+/** A spend logged in two taps, as Wallet takes a payment: the keypad first,
+ *  in the currency last spent in (else the trip's second, the local one,
+ *  with what it comes to at home under it), then which category it was.
+ *  Skipping the category still keeps the amount; what it was can be named
+ *  later on its row in Spending. */
+function QuickSpend({ open, onClose, anchorRef, currencies, defaultCurrency, categories, onAdd }: {
+  open: boolean;
+  onClose: () => void;
+  anchorRef: React.RefObject<HTMLElement>;
+  currencies: string[];
+  defaultCurrency?: string;
+  categories: ExpenseCategory[];
+  onAdd: (cost: Omit<DayCost, "id">) => void;
+}) {
+  const primary = currencies[0] ?? "";
+  const start = defaultCurrency && currencies.includes(defaultCurrency) ? defaultCurrency : currencies[1] ?? primary;
+  const [currency, setCurrency] = useState(start);
+  const [picking, setPicking] = useState(false);
+  // the keypad commits, then closes — read the amount through a ref so the
+  // close sees what was just committed
+  const amount = useRef("");
+  // a tapped category closes the sheet too, and closing it means "skip" —
+  // the spend is added once, by whichever comes first
+  const added = useRef(false);
+  useEffect(() => {
+    if (!open) return;
+    amount.current = "";
+    added.current = false;
+    setCurrency(start);
+    setPicking(false);
+  }, [open]);
+  const add = (categoryId?: string) => {
+    if (added.current) return;
+    added.current = true;
+    onAdd({
+      label: "",
+      amount: amount.current,
+      ...(categoryId && { categoryId }),
+      ...(currency && currency !== primary && { currency }),
+    });
+    onClose();
+  };
+  return (
+    <>
+      <AmountSheet
+        open={open && !picking}
+        onClose={() => {
+          if (!amount.current) onClose();
+          else if (categories.length) setPicking(true);
+          else add();
+        }}
+        anchorRef={anchorRef}
+        label="Spent today"
+        amount=""
+        currency={currency}
+        currencies={currencies.length >= 2 ? currencies : []}
+        onCommit={(a) => { amount.current = a; }}
+        onCurrency={setCurrency}
+        home={currencies.length >= 2 ? primary : undefined}
+      />
+      <ActionSheet open={open && picking} onClose={() => add()} anchorRef={anchorRef} title={`${fmtFare(amount.current, currency || primary)} — what for?`} doneLabel="Skip">
+        {categories.map((cat, i) => {
+          const tile = expenseCategoryIcon(cat, i);
+          return (
+            <button key={cat.id} type="button" className="menu-item" onClick={() => add(cat.id)}>
+              <IconTile size="sm" name={tile.name} glyph={tile.glyph} tone={tile.tone} color={tile.color} className="shrink-0" />
+              {cat.label}
+            </button>
+          );
+        })}
+      </ActionSheet>
+    </>
+  );
+}
 
 /** The day's spend — a category + a whole-number amount per row, with an
  *  optional free-text note. The amounts feed `tripCost`; the category drives

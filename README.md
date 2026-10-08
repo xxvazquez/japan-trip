@@ -158,6 +158,7 @@ During the trip the app works like Calendar's Today:
 - **Opening the app goes straight to today's day.** Only on a fresh launch — the Plan tab and **‹ Plan** still show the list.
 - **Up next** heads today's plan: the next stop and how long until it starts (*in 25 min*), and when to leave for it — *Leave by 09:45 · 15 min walk*, or *≈ 32 min by train* past a long walk (≈ marks a guess). *Leave now* in red once that time's come. For a journey it shows the hop's details instead.
 - **A red line** across the timeline marks the time now, with the time beside it, and moves as the day goes on.
+- **＋ → Add an amount** logs a spend at the till: the keypad first (in the currency you last spent in, else the trip's second), then its category — **Skip** keeps it uncategorised. It lands in the day's Spending.
 
 ### Nearby on a day
 
@@ -517,7 +518,7 @@ Open it from your account picture (or the foot of the sidebar on a wide screen).
 - **Dates** — on a trip with no days yet, set the start and end directly. Once it has days, moving either date slides the whole itinerary — Undo puts it back.
 - **Travellers** — used for packing assignments.
 - **Time zones** — *Home* comes from the device. *On the trip* fills itself in from the first hotel with coordinates, unless you've picked one. The picker lists cities with offsets; search by city, offset or abbreviation ("kolkata", "+5:30", "JST").
-- **Currencies** — the first is the default (a new trip starts on `PLN`). Prices open a keypad, with a currency switch once there's a second currency.
+- **Currencies** — the first is the default (a new trip starts on `PLN`). Prices open a keypad, with a currency switch once there's a second currency. An amount in another currency shows what it comes to in the first (*≈ €27.40*) as you type.
 - **Expense categories** — rename, add, reorder or remove from ⋯. Removing one moves its spending to the next. A category can claim hop modes (so Train and Flights split out of Transport). Tap its icon to pick another from 130+.
 - **Logbook sections** — hide the ones you don't need.
 - **Tabs** — rename, reorder or hide Plan / Map / Logbook, and **Add tab** to pin a Logbook page (Packing, say) to the tab bar. A pinned page leaves the Logbook list, so it isn't shown twice.

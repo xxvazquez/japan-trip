@@ -86,6 +86,7 @@ export function MoneyField({
         currencies={multi ? currencies : []}
         onCommit={(a) => { committed.current = a; if (a !== amount) onAmount(a); }}
         onCurrency={multi ? (c) => onCurrency!(c === primary ? undefined : c) : undefined}
+        home={multi ? primary : undefined}
       />
     </>
   );

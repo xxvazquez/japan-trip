@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { useBackToClose } from "@/lib/backClose";
 import { createPortal } from "react-dom";
-import { currencySymbol, moneyParts } from "@/lib/cost";
+import { currencySymbol, fmtMoney, moneyParts } from "@/lib/cost";
+import { useFxRates } from "@/lib/fx";
 import { Icon } from "./Icon";
 import { SegmentedControl } from "./SegmentedControl";
 import { useSheetDrag } from "./useSheetDrag";
@@ -45,7 +46,9 @@ const MAX_WHOLE = 9;
  * A bottom sheet on phone widths, a popover anchored to the value above that
  * (same split as `TimeWheelSheet`); a hardware keyboard works in both. Every
  * way out keeps what was keyed — Done, the backdrop, a drag down — except
- * Escape, which walks away from the edit.
+ * Escape, which walks away from the edit. Given the trip's `home` currency,
+ * an amount keyed in another one shows what it comes to at home under it,
+ * as Wallet shows a foreign charge.
  */
 export function AmountSheet({
   open,
@@ -57,6 +60,7 @@ export function AmountSheet({
   currencies = [],
   onCommit,
   onCurrency,
+  home,
 }: {
   open: boolean;
   onClose: () => void;
@@ -71,6 +75,8 @@ export function AmountSheet({
   /** a currency switch commits on tap, on its own — folding it into the
    *  amount's commit would have both land on the same stale entity */
   onCurrency?: (currency: string) => void;
+  /** the trip's home currency — what an amount in another comes to there */
+  home?: string;
 }) {
   const bare = /^[\d.,]+$/.test(amount);
   const start = bare ? amount.replace(/,/g, "") : "";
@@ -80,6 +86,7 @@ export function AmountSheet({
     setCurState(c);
     if (c !== currency) onCurrency?.(c);
   };
+  const { rates } = useFxRates(home ?? "", home && cur && cur !== home ? [cur] : []);
   const popRef = useRef<HTMLDivElement>(null);
   useBackToClose(open, onClose);
 
@@ -167,6 +174,13 @@ export function AmountSheet({
         {(after || showCode) && <span className="text-ink-soft">{after || ` ${cur}`}</span>}
       </div>
       {!bare && amount && <p className="meta mt-1 break-words">Was “{amount}”</p>}
+      {/* what it comes to at home — the line keeps its height either way, so
+          the pad doesn't jump when the first digit brings it in */}
+      {home && cur && cur !== home && (
+        <p className="meta mt-0.5 tabular-nums">
+          {draft && Number(draft) > 0 && rates[cur] ? `≈ ${fmtMoney(Math.round((Number(draft) / rates[cur]) * 100) / 100, home)}` : "\u00a0"}
+        </p>
+      )}
       {options.length >= 2 && (
         options.length <= 5 ? (
           <SegmentedControl
