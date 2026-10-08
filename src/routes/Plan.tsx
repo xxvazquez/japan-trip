@@ -107,9 +107,9 @@ function OfflineReminder({ data, show }: { data: TripData; show: boolean }) {
 }
 
 /** how long until you leave the city you're in: nights still to sleep
- *  there, then "leaving tomorrow" and, on check-out day, "leaving today" */
+ *  there, then "Leaving tomorrow" and, on check-out day, "Leaving today" */
 const leavingIn = (nights: number) =>
-  nights >= 2 ? `${nights} nights left` : nights === 1 ? "leaving tomorrow" : "leaving today";
+  nights >= 2 ? `${nights} nights left` : nights === 1 ? "Leaving tomorrow" : "Leaving today";
 
 /** the morning you leave a stay's city — a hotel change within the same
  *  city (the next stay starts that morning, same name) isn't leaving it */
@@ -214,7 +214,7 @@ export default function Plan() {
               <span className="font-display text-display">{c.daysUntilStart}</span>
               <span className="text-lg text-ink-soft">{c.daysUntilStart === 1 ? "day" : "days"} to go</span>
             </p>
-            <p className="meta mt-2">Leaving {fmtDate(data.meta.start, loc, { weekday: "long", day: "numeric", month: "long" })}</p>
+            <p className="mt-2 text-sm text-ink-soft">Leaving {fmtDate(data.meta.start, loc, { weekday: "long", day: "numeric", month: "long" })}</p>
           </>
         )}
         {!noDates && c.phase === "during" && (
@@ -225,14 +225,15 @@ export default function Plan() {
             </p>
             {/* "Day 2 of 4" already counts the trip; this line is the city
                 you're in and when you leave it, as a hotel booking reads */}
-            <p className="mt-2 text-sm">
+            <p className="mt-2 text-sm text-ink-soft">
               {currentLeg?.base ? (
                 <>
-                  <span style={{ color: legHex(currentLeg.color) }}>{currentLeg.base} · </span>
-                  <span className="meta">{leavingIn(daysBetween(c.todayISO, cityCheckOut(currentLeg, data)))}</span>
+                  <span style={{ color: legHex(currentLeg.color) }}>{currentLeg.base}</span>
+                  {" · "}
+                  {leavingIn(daysBetween(c.todayISO, cityCheckOut(currentLeg, data)))}
                 </>
               ) : (
-                <span className="meta">{plural(c.daysRemaining, "day")} left</span>
+                `${plural(c.daysRemaining, "day")} left`
               )}
             </p>
           </Wrap>

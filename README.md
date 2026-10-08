@@ -101,7 +101,7 @@ The trip as a list of days, grouped by **base** — where you're based for a run
   - A journey or luggage note on that date stays with it.
   - **Unpin this day** undoes it.
 - When the month changes between two days in a base, the day's date shows the month under it (**1 DEC**).
-- **During the trip** the top of Plan reads **Day 2 of 14**, with the city you're in and when you leave it: *2 nights left*, *leaving tomorrow*, *leaving today*. Moving hotels within the same city doesn't count as leaving.
+- **During the trip** the top of Plan reads **Day 2 of 14**, with the city you're in and when you leave it: *2 nights left*, *Leaving tomorrow*, *Leaving today*. Moving hotels within the same city doesn't count as leaving.
 - **During the trip** the list opens on today. Earlier days move to **Past days** at the bottom (closed until you open it), grouped by base. Past days can be opened, not dragged. It moves on to the new day by itself, even if the app was left open overnight.
 - **After the trip** the top of Plan becomes a recap: how many days away, cities, total spent in the trip's main currency (tap it for Expenses) and stamps collected.
 - **Labels** — your own tags for a day ("Chill day", "Walking"):
