@@ -1,9 +1,17 @@
 import { useBackToClose } from "@/lib/backClose";
-import { useEffect, useLayoutEffect, useReducer, useRef, useState, type ReactNode, type RefObject } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useReducer, useRef, useState, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { useSheetDrag } from "./useSheetDrag";
-import { useScrollLock } from "./useScrollLock";
 import { TAP } from "@/lib/device";
+
+/** How deep a sheet sits — one opened from inside another (a place card's
+ *  More) stacks above its parent, backdrop included, so a tap anywhere
+ *  outside it closes just that one, as iOS dismisses the top sheet */
+const SheetLevel = createContext(0);
+
+/** z-index for a sheet's backdrop, popover arrow and panel at `level` */
+const layers = (level: number) =>
+  level === 0 ? { backdrop: 50, arrow: 54, panel: 55 } : { backdrop: 52 + level * 4, arrow: 53 + level * 4, panel: 54 + level * 4 };
 
 const isNarrow = () =>
   typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches;
@@ -60,9 +68,9 @@ export function ActionSheet({
   const [menuWidth, setMenuWidth] = useState(0);
   const [menuHeight, setMenuHeight] = useState(0);
   const { sheetRef, handleProps } = useSheetDrag(onClose);
+  const level = useContext(SheetLevel);
+  const z = layers(level);
   useBackToClose(open, onClose);
-  // a phone sheet, or a held row's menu on any width, holds the page still
-  useScrollLock(open && (!!point || isNarrow()));
 
   useEffect(() => {
     if (!open) return;
@@ -97,15 +105,19 @@ export function ActionSheet({
 
   if (!open) return null;
 
-  if (point) return <ContextPopover point={point} onClose={onClose} menuRef={menuRef} w={menuWidth} h={menuHeight}>{children}</ContextPopover>;
+  children = <SheetLevel.Provider value={level + 1}>{children}</SheetLevel.Provider>;
+  if (header) header = <SheetLevel.Provider value={level + 1}>{header}</SheetLevel.Provider>;
+
+  if (point) return <ContextPopover point={point} onClose={onClose} menuRef={menuRef} z={z} w={menuWidth} h={menuHeight}>{children}</ContextPopover>;
 
   if (isNarrow()) {
     return createPortal(
       <>
-        <div className="fixed inset-0 z-50 bg-black/25 motion-safe:animate-fade-in" onClick={onClose} />
+        <div className="fixed inset-0 bg-black/25 motion-safe:animate-fade-in" style={{ zIndex: z.backdrop }} onClick={onClose} />
         <div
           ref={sheetRef}
-          className="sheet-float glass-panel z-[55] flex max-h-[calc(var(--vvh,100dvh)*0.85)] flex-col overflow-hidden pb-1 pt-2 motion-safe:animate-sheet-up"
+          style={{ zIndex: z.panel }}
+          className="sheet-float glass-panel flex max-h-[calc(var(--vvh,100dvh)*0.85)] flex-col overflow-hidden pb-1 pt-2 motion-safe:animate-sheet-up"
           onClick={onClose}
           role="menu"
         >
@@ -131,7 +143,7 @@ export function ActionSheet({
 
   if (side) {
     return createPortal(
-      <SidePopover anchor={anchorRef.current} onClose={onClose} menuRef={menuRef} w={menuWidth || 352} h={menuHeight} header={header}>
+      <SidePopover anchor={anchorRef.current} onClose={onClose} menuRef={menuRef} z={z} w={menuWidth || 352} h={menuHeight} header={header}>
         {children}
       </SidePopover>,
       document.body,
@@ -151,7 +163,7 @@ export function ActionSheet({
   const top = Math.max(8, Math.min((r?.bottom ?? 0) + 4, window.innerHeight - menuHeight - 8));
   return createPortal(
     <>
-      <div className="fixed inset-0 z-50" onClick={onClose} />
+      <div className="fixed inset-0" style={{ zIndex: z.backdrop }} onClick={onClose} />
       <div
         ref={menuRef}
         role="menu"
@@ -159,8 +171,9 @@ export function ActionSheet({
         style={{
           top,
           left,
+          zIndex: z.panel,
         }}
-        className="glass-panel fixed z-[55] flex max-h-[70dvh] min-w-[12rem] max-w-[22rem] flex-col overflow-hidden rounded-[16px] text-sm motion-safe:animate-fade-in [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-3.5 [&_.menu-item]:py-2 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 [&_.menu-item:hover]:bg-ink/[0.06]"
+        className="glass-panel fixed flex max-h-[70dvh] min-w-[12rem] max-w-[22rem] flex-col overflow-hidden rounded-[16px] text-sm motion-safe:animate-fade-in [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-3.5 [&_.menu-item]:py-2 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 [&_.menu-item:hover]:bg-ink/[0.06]"
       >
         {header && <div className="shrink-0 space-y-2 px-3 pb-2 pt-3" onClick={(e) => e.stopPropagation()}>{header}</div>}
         {/* a confirmation says what goes above its button, as a Mac alert does */}
@@ -177,8 +190,9 @@ const EDGE = 8; // the gap kept from the window's edges
 
 /** `side`'s popover: placed against the anchor's actual text (the lines it
  *  wraps to, not its whole box), with an arrow at its first line */
-function SidePopover({ anchor, onClose, menuRef, w, h, header, children }: {
+function SidePopover({ anchor, onClose, menuRef, z, w, h, header, children }: {
   anchor: HTMLElement | null;
+  z: ReturnType<typeof layers>;
   onClose: () => void;
   menuRef: RefObject<HTMLDivElement>;
   w: number;
@@ -214,19 +228,19 @@ function SidePopover({ anchor, onClose, menuRef, w, h, header, children }: {
   }
   return (
     <>
-      <div className="fixed inset-0 z-50" onClick={onClose} />
+      <div className="fixed inset-0" style={{ zIndex: z.backdrop }} onClick={onClose} />
       {/* the arrow sits under the panel's edge, only its point showing */}
       <span
         aria-hidden
-        className="glass-panel pointer-events-none fixed z-[54] h-[15px] w-[15px] rotate-45 !shadow-none motion-safe:animate-fade-in"
-        style={{ left: arrow.x - 7.5 + (where === "right" ? 2 : where === "left" ? -2 : 0), top: arrow.y - 7.5 + (where === "below" ? 2 : where === "above" ? -2 : 0) }}
+        className="glass-panel pointer-events-none fixed h-[15px] w-[15px] rotate-45 !shadow-none motion-safe:animate-fade-in"
+        style={{ zIndex: z.arrow, left: arrow.x - 7.5 + (where === "right" ? 2 : where === "left" ? -2 : 0), top: arrow.y - 7.5 + (where === "below" ? 2 : where === "above" ? -2 : 0) }}
       />
       <div
         ref={menuRef}
         role="menu"
         onClick={onClose}
-        style={{ top, left, maxHeight }}
-        className="glass-panel fixed z-[55] flex w-max min-w-[12rem] max-w-[22rem] flex-col overflow-hidden rounded-[16px] text-sm motion-safe:animate-fade-in [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-3.5 [&_.menu-item]:py-2 [&_.menu-item]:text-left [&_.menu-item:hover]:bg-ink/[0.06]"
+        style={{ top, left, maxHeight, zIndex: z.panel }}
+        className="glass-panel fixed flex w-max min-w-[12rem] max-w-[22rem] flex-col overflow-hidden rounded-[16px] text-sm motion-safe:animate-fade-in [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-3.5 [&_.menu-item]:py-2 [&_.menu-item]:text-left [&_.menu-item:hover]:bg-ink/[0.06]"
       >
         {header && <div className="shrink-0 space-y-2 px-3 pb-2 pt-3" onClick={(e) => e.stopPropagation()}>{header}</div>}
         <div className={`min-h-0 flex-1 overflow-y-auto pb-1.5 ${header ? "" : "pt-1.5"}`}>{children}</div>
@@ -260,6 +274,7 @@ function ContextPopover({
   point,
   onClose,
   menuRef,
+  z,
   w: measuredW,
   h,
   children,
@@ -267,6 +282,7 @@ function ContextPopover({
   point: MenuPoint;
   onClose: () => void;
   menuRef: RefObject<HTMLDivElement>;
+  z: ReturnType<typeof layers>;
   w: number;
   h: number;
   children: ReactNode;
@@ -283,13 +299,13 @@ function ContextPopover({
   return createPortal(
     <>
       {/* a held row dims the page behind its menu (iOS); a right-click doesn't (macOS) */}
-      <div className={`fixed inset-0 z-50 ${narrow ? "bg-black/15 motion-safe:animate-fade-in" : ""}`} onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
+      <div style={{ zIndex: z.backdrop }} className={`fixed inset-0 ${narrow ? "bg-black/15 motion-safe:animate-fade-in" : ""}`} onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }} />
       <div
         ref={menuRef}
         role="menu"
         onClick={onClose}
-        style={{ top, left, transformOrigin: origin }}
-        className={`glass-panel fixed z-[55] flex max-h-[70dvh] flex-col overflow-y-auto overscroll-contain py-1.5 motion-safe:animate-menu-pop [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 ${
+        style={{ top, left, transformOrigin: origin, zIndex: z.panel }}
+        className={`glass-panel fixed flex max-h-[70dvh] flex-col overflow-y-auto overscroll-contain py-1.5 motion-safe:animate-menu-pop [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 ${
           narrow
             ? "w-[min(16rem,calc(100vw-16px))] rounded-[22px] [&_.menu-item]:px-4 [&_.menu-item]:py-3 [&_.menu-item]:text-[17px] [&_.menu-item:active]:bg-ink/[0.07]"
             : "min-w-[12rem] max-w-[22rem] rounded-[14px] text-sm [&_.menu-item]:px-3.5 [&_.menu-item]:py-1.5 [&_.menu-item:hover]:bg-ink/[0.06]"

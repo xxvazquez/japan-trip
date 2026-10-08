@@ -71,6 +71,8 @@ import { hoursConflict, osmHoursOn } from "@/lib/openingHours";
 import { NEARBY_WALK_MIN, nearbyForDay, type NearbyGroup, type NearbyItem } from "@/lib/nearby";
 import { NearbyCard, NearbyGroupRows, NearbyProvider, NearbyRow, usePlaceHours, useStepNearby } from "@/components/Nearby";
 import { fetchDayWeather, forecastSpot, weatherLabel, type DayWeather } from "@/lib/weather";
+import { sunTimes } from "@/lib/sun";
+import { safeTz } from "@/lib/tz";
 import { prefetchTiles, canPrefetchTiles, dayOfflinePoints } from "@/lib/offlineTiles";
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon, expenseCategoryForGlyph } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
@@ -341,6 +343,11 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     void fetchDayWeather(spot.lat, spot.lng, day.date).then((w) => { if (!cancelled) setWeather(w); });
     return () => { cancelled = true; };
   }, [spotKey, day.date]); // eslint-disable-line react-hooks/exhaustive-deps
+  // sunrise and sunset for that same spot (else the middle of the day's
+  // places), worked out on the device — every date, offline too
+  const sunSpot = spot ?? forecastSpot(undefined, dayPlaces, true);
+  const sun = sunSpot ? sunTimes(sunSpot.lat, sunSpot.lng, day.date, safeTz(data.config.tripTimeZone)) : {};
+  const sunText = [sun.rise && `Sunrise ${fmtClock(sun.rise)}`, sun.set && `Sunset ${fmtClock(sun.set)}`].filter(Boolean).join(" · ");
 
   // offline pre-fetch — every place this day's map shows (its areas, its own
   // plan steps, the hotel it's anchored to), so the day's corner of the map
@@ -589,10 +596,11 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         title={
           <Editable label="Day title" value={day.title ?? ""} placeholder="Untitled day" onCommit={(v) => patch({ title: v || undefined })} />
         }
-        meta={(day.labels?.length || weather) ? (
+        meta={(day.labels?.length || weather || sunText) ? (
           <>
             <DayLabelsCaption labels={day.labels ?? []} onEdit={ro ? undefined : openLabels} />
             {weather && <span className="block">{weatherText(weather, loc)}</span>}
+            {sunText && <span className="block">{sunText}</span>}
           </>
         ) : undefined}
         action={
@@ -630,37 +638,14 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         />
       )}
 
-      {ro ? (
-        (hotel || journeys.length > 0) && (
-          <div className="mb-8 flex flex-wrap gap-2">
-            {hotel && (
-              <Link to={`/hotel/${hotel.id}`} className="btn-sm">
-                <Icon name="bed" size={14} className="text-ink-soft" /> {hotel.name}
-              </Link>
-            )}
-            {journeys.map((j) => (
-              <Link key={j.id} to={`/journey/${j.id}`} className="btn-sm">
-                <Icon name={j.segments[0] ? MODE_ICON[j.segments[0].mode] : "train"} size={14} className="text-ink-soft" /> <RouteLabel label={j.label || "New journey"} />
-              </Link>
-            ))}
-          </div>
-        )
-      ) : (
-        <Section className="mb-8">
-          <ul>
-            <InsetRow label="Staying at">
-              <RowSelect
-                value={day.hotelId ?? ""}
-                onChange={(e) => patch({ hotelId: e.target.value || undefined })}
-                aria-label="Where you're staying"
-              >
-                <option value="">— none —</option>
-                {data.hotels.map((h) => <option key={h.id} value={h.id}>{h.name || "Stay"}</option>)}
-              </RowSelect>
-            </InsetRow>
-            {hotel && <ActionRow icon="bed" label={`Open ${hotel.name || "stay"}`} to={`/hotel/${hotel.id}`} />}
-          </ul>
-        </Section>
+      {ro && journeys.length > 0 && (
+        <div className="mb-8 flex flex-wrap gap-2">
+          {journeys.map((j) => (
+            <Link key={j.id} to={`/journey/${j.id}`} className="btn-sm">
+              <Icon name={j.segments[0] ? MODE_ICON[j.segments[0].mode] : "train"} size={14} className="text-ink-soft" /> <RouteLabel label={j.label || "New journey"} />
+            </Link>
+          ))}
+        </div>
       )}
 
       {/* JOURNEYS — every way you're carried today, in the order they leave;
@@ -856,6 +841,31 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
               placeholder="Anything else — ideas, reminders, links…"
             />
           </div>
+        </Section>
+      )}
+
+      {/* STAY — last: you know where you're sleeping, the plan comes first */}
+      {(hotel || !ro) && (
+        <Section>
+          <ul>
+            {ro ? (
+              hotel && <InsetRow label="Staying at" to={`/hotel/${hotel.id}`}>{hotel.name || "Stay"}</InsetRow>
+            ) : (
+              <>
+                <InsetRow label="Staying at">
+                  <RowSelect
+                    value={day.hotelId ?? ""}
+                    onChange={(e) => patch({ hotelId: e.target.value || undefined })}
+                    aria-label="Where you're staying"
+                  >
+                    <option value="">— none —</option>
+                    {data.hotels.map((h) => <option key={h.id} value={h.id}>{h.name || "Stay"}</option>)}
+                  </RowSelect>
+                </InsetRow>
+                {hotel && <ActionRow icon="bed" label={`Open ${hotel.name || "stay"}`} to={`/hotel/${hotel.id}`} />}
+              </>
+            )}
+          </ul>
         </Section>
       )}
       </div>
