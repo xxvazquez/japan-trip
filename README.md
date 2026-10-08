@@ -302,8 +302,10 @@ Where each fact comes from — shown small beside its label:
 
 How it fills in:
 - **By itself** — the first time a place shows, again once it's a month old, and after a rename or a category change. Nothing to run.
-- The ↻ icon beside **Good to know** checks again now. A fact this check doesn't settle keeps what it had — a refresh never wipes an answer.
+- The ↻ icon beside **Good to know** checks again now. A fact this check doesn't settle keeps what it had — a refresh never wipes an answer, except hours OpenStreetMap no longer gives the place.
 - **Manage → Content → Good to know** does every place at once (two searches each, out of Tavily's 1,000 a month, then Exa's).
+  - **Filled in** counts places with any Good to know; **Out of date** the filled-in ones due another look (over a month old, or from an older lookup).
+  - The button (**Update N places**) covers both those and the ones never looked up.
 - **When it can't check, it says why** — offline, the server refused it (signed out, or the Worker's sign-in variables are missing), lookups not set up (no search key), or the search service failing. The card and Manage's **Last check** both show it.
 - **By hand** — tap any fact to correct it; **Add details** opens the empty ones to fill in. Works when the search found nothing or the wrong place. Clear a wrong one to hide it.
 - What you type always wins: a later lookup (automatic, ↻ or Manage) never overwrites it. Typing back what the lookup found drops your version.

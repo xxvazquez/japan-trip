@@ -1927,6 +1927,9 @@ function PlaceFactsPanel() {
   if (places.length === 0) return null;
   const due = places.filter((p) => factsDue(p, data));
   const known = places.filter((p) => hasFacts(p.facts)).length;
+  // due but already filled in: looked up before, by an older lookup or
+  // over a month ago — why the button's count is bigger than the gap
+  const outdated = due.filter((p) => hasFacts(p.facts)).length;
 
   const checkAll = async () => {
     const total = due.length;
@@ -1965,11 +1968,16 @@ function PlaceFactsPanel() {
         <InsetRow label="Filled in">
           <span className="tabular-nums">{known} of {places.length}</span>
         </InsetRow>
+        {outdated > 0 && !run?.running && (
+          <InsetRow label="Out of date">
+            <span className="tabular-nums">{outdated}</span>
+          </InsetRow>
+        )}
         {summary && <InsetRow label="Last check">{summary}</InsetRow>}
         {run?.running ? (
           <ActionRow label={`Checking… ${run.done} of ${run.total}`} onClick={() => {}} disabled />
         ) : (
-          due.length > 0 && <ActionRow icon="info" label={`Check ${plural(due.length, "place")}`} onClick={() => void checkAll()} />
+          due.length > 0 && <ActionRow icon="info" label={outdated ? `Update ${plural(due.length, "place")}` : `Look up ${plural(due.length, "place")}`} onClick={() => void checkAll()} />
         )}
       </ul>
     </Section>
