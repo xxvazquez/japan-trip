@@ -64,6 +64,7 @@ const TIME_COL = clock24 ? "w-[2.625rem]" : "w-[3.75rem]";
 import { MODE_ICON, MODE_LABEL, MODE_TONE } from "@/lib/transport";
 import { useWalk, estimateTransit } from "@/lib/walkRoute";
 import { nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
+import { stayCoords } from "@/lib/hotelCoords";
 import { cachedOpeningHours, nearestOpeningHours } from "@/lib/placeHours";
 import { hoursConflict, hoursForDate } from "@/lib/openingHours";
 import { NEARBY_WALK_MIN, nearbyForDay, type NearbyGroup, type NearbyItem } from "@/lib/nearby";
@@ -310,13 +311,19 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   // override, else the leg's own hotel), since a day has no coordinates of
   // its own. Silent when that hotel has no coordinates yet or the date is
   // too far out for the free forecast window.
-  const weatherHotel = hotel ?? L.hotel(leg?.hotelId);
+  // a stay with no coordinates of its own (a second booking of the same
+  // hotel) borrows them, so the way to and from it still shows
+  const locate = (h?: Hotel) => {
+    const at = h && stayCoords(h, data.hotels, data.places);
+    return h && at ? { ...h, ...at } : h;
+  };
+  const weatherHotel = locate(hotel ?? L.hotel(leg?.hotelId));
   // where the day starts from: the night before's stay (on a moving day
   // that's the old hotel, not the new one). None on the trip's first day or
   // an arrival — that day starts off the journey
   const prevDay = data.days.find((x) => x.date === addDays(day.date, -1));
   const startHotel = !prevDay || dayKind(day, data) === "arrival" ? undefined
-    : L.hotel(prevDay.hotelId) ?? L.hotel(L.leg(prevDay.legId)?.hotelId);
+    : locate(L.hotel(prevDay.hotelId) ?? L.hotel(L.leg(prevDay.legId)?.hotelId));
   // today: the plan shows where now is and what's up next
   const isToday = day.date === useToday();
   const clockNow = useClock(isToday);
