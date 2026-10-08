@@ -469,7 +469,7 @@ function LegBlock({
     <section>
       <Link to={`/leg/${leg.id}`} className="mb-2 flex items-baseline gap-2 transition-opacity active:opacity-60">
         <span className="h-3 w-3 shrink-0 translate-y-[1px] rounded-full" style={{ background: hex }} />
-        <h2 className="subhead">{leg.base}</h2>
+        <h2 className="subhead font-semibold">{leg.base}</h2>
         {leg.nameAlt && (
           <span className="text-sm text-ink-soft">
             {leg.nameAlt}
@@ -477,7 +477,7 @@ function LegBlock({
         )}
         {/* the header opens the base's page — a chevron says so, as Music
             and Health mark a header that goes somewhere */}
-        <Icon name="chevron" size={15} className="shrink-0 translate-y-[1px] text-ink-faint" />
+        <Icon name="chevron" size={15} strokeWidth={2.4} className="shrink-0 translate-y-[1px] text-ink-faint" />
       </Link>
       {/* one quiet caption, sentence case, the month said once — not a
           second spaced-out uppercase heading under the city */}
@@ -505,8 +505,8 @@ function LegBlock({
               straight into this base */}
           {!readOnly && (
             <li>
-              <button type="button" onClick={addDay} className="action w-full px-3.5 py-2.5 text-xs active:bg-ink/[0.07]">
-                <Icon name="plus" size={14} /> Add a day
+              <button type="button" onClick={addDay} className="action w-full gap-2 px-3.5 py-2.5 text-[17px] leading-snug active:bg-ink/[0.07]">
+                <Icon name="plus" size={17} /> Add a day
               </button>
             </li>
           )}
@@ -525,7 +525,7 @@ function DayDate({ date, loc, strong, month }: { date: string; loc: string; stro
       <span className={`text-[11px] uppercase leading-[13px] ${strong ? "text-accent" : "text-ink-faint"}`}>
         {fmtDate(date, loc, { weekday: "short" })}
       </span>
-      <span className={`text-[22px] font-light leading-[26px] ${strong ? "text-accent" : "text-ink"}`}>
+      <span className={`text-[22px] font-normal leading-[26px] ${strong ? "text-accent" : "text-ink"}`}>
         {fmtDate(date, loc, { day: "numeric" })}
       </span>
       {month && (
