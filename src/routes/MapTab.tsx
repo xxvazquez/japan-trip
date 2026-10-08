@@ -1320,6 +1320,9 @@ export default function MapTab() {
     }
   };
 
+  const cityOf = canonicalLegs(data);
+  const cityLegs = data.legs.filter((l) => cityOf.get(l.id) === l.id);
+
   // `distanceKm` is only ever real for the "Nearby" list — never pass this
   // bare to `.map()` elsewhere: Array.map's own (item, index) callback shape
   // silently satisfies `(p, distanceKm?)` and the row index gets typeset as a
@@ -1336,7 +1339,8 @@ export default function MapTab() {
       distanceKm={distanceKm}
       days={data.days}
       areas={data.areas}
-      legs={data.legs}
+      legs={cityLegs}
+      cityOf={cityOf}
       categoryIcons={data.config.categoryIcons}
       categoryColors={data.config.categoryColors}
       loc={loc}
@@ -1986,6 +1990,7 @@ function PlaceRow({
   days,
   areas,
   legs,
+  cityOf,
   categoryIcons,
   categoryColors,
   loc,
@@ -2013,7 +2018,10 @@ function PlaceRow({
   distanceKm?: number;
   days: TripData["days"];
   areas: Area[];
+  /** one stay per city — two stays in the same city are one choice */
   legs: TripData["legs"];
+  /** a stay's id → the id of its city's first stay (`canonicalLegs`) */
+  cityOf: Map<string, string>;
   categoryIcons?: Record<string, string>;
   categoryColors?: Record<string, string>;
   loc: string;
@@ -2030,6 +2038,7 @@ function PlaceRow({
   onCategory: (category: string) => void;
   onRemove: () => void;
 }) {
+  const city = place.legId ? cityOf.get(place.legId) ?? place.legId : "";
   const readOnly = useReadOnly();
   const link = placeMapLink(place);
   // a restaurant's guide page (Tabelog in Japan) — looked up once it's opened
@@ -2163,12 +2172,12 @@ function PlaceRow({
               <span className="row-label">City</span>
               {readOnly ? (
                 <span className="row-value min-w-0 flex-1 text-right">
-                  {legs.find((l) => l.id === place.legId)?.base || "Auto"}
+                  {legs.find((l) => l.id === city)?.base || "Auto"}
                 </span>
               ) : (
                 <label className="flex min-w-0 flex-1 cursor-pointer justify-end">
                   <RowSelect
-                    value={place.legId ?? ""}
+                    value={city}
                     onChange={(e) => onLeg(e.target.value || undefined)}
                     aria-label="City"
                     className="max-w-[12rem] truncate"
