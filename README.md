@@ -69,6 +69,7 @@ The app is laid out like an iOS 26 app.
 | Where | What it does |
 |---|---|
 | **Tab bar** (bottom) | Plan · Map · Logbook, with the round **Search** button beside it. It slides away while you type, and sheets rise above the keyboard. On a wide screen the tabs become a rail down the left. |
+| **Each tab remembers** | Switching tabs and back returns to the screen you left, scrolled where you were — a day stays open while you check the Map. Tap the tab you're on to go back to its list (or to the top). |
 | **Trip name** (top left) | A menu to jump to another trip, or to manage trips. |
 | **‹ Back** | Names the screen you came from (*‹ Stays*); long titles just say *‹ Back*. You can also swipe in from the left edge. With a sheet, menu or Search open, Android's back gesture (or the browser's Back) closes that first. |
 | **‹ ›** on a day | Step to the previous or next day (← → on a keyboard). |
