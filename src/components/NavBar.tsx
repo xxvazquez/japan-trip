@@ -47,6 +47,10 @@ export function NavProvider({ children }: { children: ReactNode }) {
   const loc = useLocation();
   const navType = useNavigationType();
   const titles = useRef(new Map<string, string>());
+  // and its path, so a screen with no title of its own (the Map) still names
+  // the back button by what it returns to
+  const paths = useRef(new Map<string, string>());
+  paths.current.set(loc.key, loc.pathname);
   const openedFrom = useRef(new Map<string, string>());
   const lastKey = useRef<string | null>(null);
   const keyRef = useRef(loc.key);
@@ -78,7 +82,7 @@ export function NavProvider({ children }: { children: ReactNode }) {
     [],
   );
   const from = openedFrom.current.get(loc.key);
-  const backTitle = from ? titles.current.get(from) : undefined;
+  const backTitle = from ? titles.current.get(from) ?? PARENT_LABEL[paths.current.get(from) ?? ""] : undefined;
   const api = useMemo<Api>(() => ({ state, backTitle, ...actions }), [state, backTitle, actions]);
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>;
 }
