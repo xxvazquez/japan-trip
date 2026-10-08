@@ -1,6 +1,7 @@
 import { useRef, useState, type ReactNode } from "react";
 import { Link, Navigate, useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
+import type { Tip } from "@/components/InfoTips";
 import { Section } from "@/components/Section";
 import { Editable } from "@/components/Editable";
 import { Icon, isIconName, type IconName } from "@/components/Icon";
@@ -81,7 +82,7 @@ export default function Manage() {
   if (!meta) return <Navigate to="/manage" replace />;
   return (
     <Page width="form">
-      <PageHeader back="/manage" title={meta.label} className="mb-6" />
+      <PageHeader back="/manage" title={meta.label} info={panel === "trips" ? TRIPS_TIPS : undefined} className="mb-6" />
       <ScrollToHash />
       {panel === "trips" && <Trips />}
       {panel === "setup" && <Setup />}
@@ -91,6 +92,15 @@ export default function Manage() {
     </Page>
   );
 }
+
+/** the Trips page's ⓘ — mostly where a backup comes from, since Restore
+ *  sits here but making one lives with the trip's other copies in Sharing */
+const TRIPS_TIPS: Tip[] = [
+  { icon: "plus", title: "New trip", text: "Starts empty, or from the demo tour." },
+  { icon: "download", title: "Back up this trip", text: "Saves the open trip as one .json file (Manage → Sharing → Backup). Keep it in Files or Drive." },
+  { icon: "refresh", title: "Restore from backup", text: "Pick a backup file and it comes back as a new trip — it never overwrites one you have." },
+  { icon: "cloud-down", title: "Your trips are safe without one", text: "Signed in, every trip lives on the server. A backup is an extra copy you hold yourself." },
+];
 
 /** a link to one section of a panel ("/manage/trips#this-device", from the
  *  Plan's offline reminder) scrolls it into view once the page has drawn */
@@ -281,7 +291,8 @@ function Trips() {
           <ul>
             <ActionRow icon="plus" label="New trip" onClick={newTrip} disabled={busy} />
             {!hasDemo && <ActionRow icon="copy" label="Add the demo tour" onClick={addDemo} disabled={busy} />}
-            <ActionRow icon="download" label="Restore from backup" onClick={() => fileRef.current?.click()} disabled={busy} />
+            <ActionRow icon="download" label="Back up this trip" to="/manage/sharing#backup" />
+            <ActionRow icon="refresh" label="Restore from backup" onClick={() => fileRef.current?.click()} disabled={busy} />
           </ul>
           <input
             ref={fileRef}
@@ -1443,7 +1454,7 @@ function SharingTab() {
       )}
 
       <ExportTrip />
-      <BackupTrip />
+      <div id="backup" className="scroll-mt-[calc(var(--sat)+var(--nav-h)+0.5rem)]"><BackupTrip /></div>
       <DataSafety />
     </div>
   );

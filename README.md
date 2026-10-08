@@ -600,7 +600,7 @@ All under **Manage → Sharing** unless noted.
 | **Download web page** | The whole trip as one `.html` file — itinerary, journeys, stays, places — that opens offline in any browser or prints to PDF. Keep **Include private details** off when sharing it (it hides door codes, booking refs and documents). Attachments are never included. |
 | **Add to calendar (.ics)** | Every step and hop as calendar events. Exact times become timed events; loose ones ("Around 18:00") become all-day. Also available per day from the ⋯ beside the day's title (always with booking refs). Each step and hop also has a quick Google Calendar button. |
 | **Download everything (.zip)** | A complete offline copy that needs no app, account or signal: the web page (private details included, each document's files linked), every attachment in `files/`, and the backup. Files not on this device are fetched first; Drive ones need Drive connected. Any it can't get are counted, not fatal. |
-| **Download backup (.json)** | A complete, lossless copy of the trip, private details included — keep it somewhere safe. |
+| **Download backup (.json)** | A complete, lossless copy of the trip, private details included — keep it somewhere safe. **Manage → Trips → Back up this trip** jumps here. |
 | **Restore from backup** (Manage → Trips) | Loads a backup as a **new** trip; never overwrites. Damaged, edited or newer-version files are refused. Attachments aren't inside backups. |
 
 - On the iPhone, the web page and backup open the Share sheet — pick **Save to Files**. Android and desktop download them.
