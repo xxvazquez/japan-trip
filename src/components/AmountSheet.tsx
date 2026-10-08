@@ -226,7 +226,10 @@ export function AmountSheet({
 
   const header = (small: boolean) => (
     <div className="flex items-center justify-between gap-3 px-4 pb-2">
-      <button type="button" onClick={clear} className={`${small ? "text-[15px]" : "text-[17px]"} text-danger`}>Clear</button>
+      {/* nothing stored yet: there's nothing to clear, so the way out is Cancel */}
+      {amount
+        ? <button type="button" onClick={clear} className={`${small ? "text-[15px]" : "text-[17px]"} text-danger`}>Clear</button>
+        : <button type="button" onClick={onClose} className={`${small ? "text-[15px]" : "text-[17px]"} text-accent`}>Cancel</button>}
       <span className="min-w-0 break-words text-center text-[15px] text-ink-soft">{label}</span>
       <button type="button" onClick={done} className={`${small ? "text-[15px]" : "text-[17px]"} font-medium text-accent`}>Done</button>
     </div>
