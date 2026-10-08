@@ -1,3 +1,4 @@
+import { haversineKm } from "./geo";
 import { nominatimGet } from "./nominatim";
 
 /**
@@ -21,12 +22,12 @@ export async function geocode(query: string, near?: { lat: number; lng: number }
   return nominatimSearch(q, near);
 }
 
-async function nominatimSearch(q: string, near?: { lat: number; lng: number }, high = false): Promise<GeoResult[]> {
+async function nominatimSearch(q: string, near?: { lat: number; lng: number }, high = false, bounded = false): Promise<GeoResult[]> {
   const p = new URLSearchParams({ q, format: "jsonv2", limit: "6", addressdetails: "0" });
   if (near) {
     const d = 0.5;
     p.set("viewbox", `${near.lng - d},${near.lat + d},${near.lng + d},${near.lat - d}`);
-    p.set("bounded", "0");
+    p.set("bounded", bounded ? "1" : "0");
   }
   const rows = await nominatimGet<{ name?: string; display_name: string; lat: string; lon: string }[]>("search", Object.fromEntries(p), { high });
   return rows.map((r) => ({
@@ -37,8 +38,13 @@ async function nominatimSearch(q: string, near?: { lat: number; lng: number }, h
   }));
 }
 
+/** how far from `near` a search looks before it widens to anywhere */
+const NEAR_KM = 50;
+
 /**
- * The place search the user types into. Nominatim first (its exact matches
+ * The place search the user types into, nearest first. Around `near` (the
+ * map's centre) before anywhere else — searching "Daimaru" in Osaka
+ * shouldn't lead with Fukuoka's. Nominatim first (its exact matches
  * are the best), then Photon — also OpenStreetMap, free and keyless — when
  * Nominatim finds nothing or can't be reached: Photon forgives a typo
  * ("shinkuju station") that Nominatim answers with an empty list. Throws
@@ -48,15 +54,23 @@ async function nominatimSearch(q: string, near?: { lat: number; lng: number }, h
 export async function searchPlaces(query: string, near?: { lat: number; lng: number }): Promise<GeoResult[]> {
   const q = query.trim();
   if (q.length < 3) return [];
+  const nearest = (rows: GeoResult[]) => {
+    if (!near) return rows;
+    const km = (r: GeoResult) => haversineKm(near.lat, near.lng, r.lat, r.lng);
+    const close = rows.filter((r) => km(r) <= NEAR_KM);
+    return (close.length ? close : rows).sort((a, b) => km(a) - km(b));
+  };
   let failed = false;
   try {
-    const found = await nominatimSearch(q, near, true);
-    if (found.length) return found;
+    // in the area first, then anywhere
+    let found = near ? await nominatimSearch(q, near, true, true) : [];
+    if (!found.length) found = await nominatimSearch(q, near, true);
+    if (found.length) return nearest(found);
   } catch {
     failed = true;
   }
   try {
-    return await photonSearch(q, near);
+    return nearest(await photonSearch(q, near));
   } catch (e) {
     if (failed) throw e;
     return [];
