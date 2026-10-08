@@ -4,7 +4,6 @@ import { JOURNEY_KIND_LABEL } from "./journey";
 import { legHex } from "./legColors";
 import { HELP, helpKey, helpText } from "./help";
 import { MODE_ICON } from "./transport";
-import { categoryName } from "./mapGlyphs";
 import { noteToPlain } from "./noteFormat";
 import { fmtClocksIn } from "./time";
 import { customListColor, logbookSectionTile, placeTile, toneForSegmentMode, type LogbookTile } from "./tones";
@@ -34,6 +33,13 @@ export interface SearchResult {
   snippet?: { label?: string; text: string; marks: [number, number][] };
 }
 
+/** "Sun 8 Nov · Riverton": the first day a place is planned on and its city */
+function placeSub(d: TripData, placeId: string, legId?: string): string | undefined {
+  const day = d.days.filter((x) => x.plan?.some((i) => i.placeId === placeId)).sort((a, b) => a.date.localeCompare(b.date))[0];
+  const leg = d.legs.find((l) => l.id === (legId || day?.legId));
+  return [day && fmtDate(day.date, d.config.locale), leg?.base].filter(Boolean).join(" · ") || undefined;
+}
+
 function build(d: TripData): SearchHit[] {
   const hits: SearchHit[] = [];
   const loc = d.config.locale;
@@ -50,10 +56,11 @@ function build(d: TripData): SearchHit[] {
         { text: leg?.base },
         { text: fmtDate(day.date, loc, { weekday: "long", day: "numeric", month: "long" }) },
         ...(day.labels ?? []).map((t) => ({ label: "Label", text: t })),
+        // a step on a place reads as the place's name, as the day shows it —
+        // its own text can be a stale name from before the place was picked
         ...(day.plan ?? []).flatMap((p) => [
-          { label: "Plan", text: [p.time && fmtClocksIn(p.time), p.text].filter(Boolean).join(" ") },
+          { label: "Plan", text: [p.time && fmtClocksIn(p.time), (p.placeId && d.places.find((x) => x.id === p.placeId)?.name) || p.text].filter(Boolean).join(" ") },
           { label: "Plan", text: p.note },
-          { label: "Plan", text: p.placeId ? d.places.find((x) => x.id === p.placeId)?.name : undefined },
         ]),
         ...(day.costs ?? []).map((c) => ({ label: "Spent", text: c.label })),
         ...(day.areaIds ?? []).map((id) => ({ label: "Area", text: d.areas.find((a) => a.id === id)?.name })),
@@ -95,7 +102,8 @@ function build(d: TripData): SearchHit[] {
       kind: "place",
       tile: placeTile(p, d.config.categoryIcons, d.config.categoryColors),
       label: p.name,
-      sub: p.category ? categoryName(p.category) : undefined,
+      // where it is and when it's planned, not its layer name ("see")
+      sub: placeSub(d, p.id, p.legId),
       to: `/map?sel=${p.id}`,
       fields: [
         { text: p.category },

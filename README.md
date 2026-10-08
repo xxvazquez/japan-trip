@@ -85,6 +85,7 @@ The round button beside the tab bar (top right on a wide screen, or ⌘K / Ctrl+
 - **Accents, spaces and dashes are ignored.** "sensoji" finds *Sensō-ji*.
 - **Shows why it matched.** When the words aren't in the name, the line they were found in shows under it, words highlighted.
 - **Grouped** under Days, Places, Stays, Journeys… — each with the icon it has in its own list.
+- **A place** shows the first day it's planned and its city. A plan step on a place matches by the place's name, as the day shows it.
 - **Recent searches** — opening a result saves what you typed (per trip, on this device). **Clear** empties the list.
 
 ## Plan
