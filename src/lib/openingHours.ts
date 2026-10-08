@@ -88,6 +88,22 @@ export function hoursForDate(raw: string, iso: string): string | null {
   return result;
 }
 
+/** Whether every rule in the tag only closes ("Su off"; "Mo off; PH off") —
+ *  a tag that names the closed days and says nothing about the others. */
+export function onlyClosedDays(raw: string): boolean {
+  const rules = raw.split(";").map((r) => r.trim()).filter(Boolean);
+  return rules.length > 0 && rules.every((r) => /^(off|closed)$/i.test(RULE_RE.exec(r)?.[2].trim() ?? ""));
+}
+
+/** `hoursForDate`, with a date no rule covers read as closed — OpenStreetMap's
+ *  own rule — except in a tag that only lists closed days: "Su off" says a
+ *  Thursday is open, at hours it doesn't give. Undefined then. */
+export function osmHoursOn(raw: string, iso: string): string | undefined {
+  const day = hoursForDate(raw, iso);
+  if (day !== null) return day;
+  return onlyClosedDays(raw) ? undefined : "Closed";
+}
+
 const toMin = (t: string) => {
   const [h, m] = t.split(":").map(Number);
   return h * 60 + m;

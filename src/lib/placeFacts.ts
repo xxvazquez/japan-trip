@@ -8,7 +8,7 @@ import { haversineKm } from "./geo";
 import { apiGet } from "./api";
 import { osmLinks } from "./placeWebsite";
 import { nearestOpeningHours } from "./placeHours";
-import { factsHoursForDate, hoursForDate } from "./openingHours";
+import { factsHoursForDate, hoursForDate, onlyClosedDays, osmHoursOn } from "./openingHours";
 import { dayTripCities, placeCityMap, placeLegMap, type TripCity } from "./cityAssign";
 
 /** the facts in the order they're shown, with their labels */
@@ -71,7 +71,9 @@ const FACTS_VERSION = 6;
 
 export const hasFacts = (f: PlaceFacts | undefined): f is PlaceFacts => !!f && (!!f.website || !!f.menu || FACT_ROWS.some(([k]) => factValue(f, k)));
 const stale = (f: PlaceFacts) =>
-  (f.version ?? 1) < FACTS_VERSION || Date.now() - Date.parse(f.checkedAt) > STALE_DAYS * 864e5;
+  (f.version ?? 1) < FACTS_VERSION || Date.now() - Date.parse(f.checkedAt) > STALE_DAYS * 864e5 ||
+  // a tag that only lists closed days was once read as closed all the others
+  (f.from?.closed === "osm" && !!f.osm && onlyClosedDays(f.osm) && f.closed !== osmFacts(f.osm, f.checkedAt).closed);
 
 const DAY_SHORT = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const DAY_LONG = ["Mondays", "Tuesdays", "Wednesdays", "Thursdays", "Fridays", "Saturdays", "Sundays"];
@@ -80,23 +82,30 @@ const DAY_LONG = ["Mondays", "Tuesdays", "Wednesdays", "Thursdays", "Fridays", "
  *  read for the week of `ref` (the trip's own, so a seasonal rule applies as
  *  it will then): "Mon–Fri 10:00–18:00 · Sat 11:00–17:00", "Mondays". A tag
  *  that can't be read day by day is shown as tagged, with no Closed line. */
-export function osmFacts(raw: string, ref: string): { hours: string; closed?: string } {
+export function osmFacts(raw: string, ref: string): { hours?: string; closed?: string } {
   const pretty = (v: string) => v.replace(/(\d)-(\d)/g, "$1–$2").replace(/\s*,\s*/g, ", ");
   const base = new Date(`${ref}T00:00:00Z`);
   const monday = new Date(base.getTime() - ((base.getUTCDay() + 6) % 7) * 864e5);
-  const week = DAY_SHORT.map((_, i) => hoursForDate(raw, new Date(monday.getTime() + i * 864e5).toISOString().slice(0, 10)));
+  const days = DAY_SHORT.map((_, i) => new Date(monday.getTime() + i * 864e5).toISOString().slice(0, 10));
   // a tag it can't read comes back as it is
-  if (week.some((v) => v === raw && /[a-z;]/i.test(raw))) return { hours: pretty(raw) };
+  if (days.some((d) => { const v = hoursForDate(raw, d); return v === raw && /[a-z;]/i.test(raw); })) return { hours: pretty(raw) };
+  // "Closed" or null is a shut day; undefined, an open one at hours the tag
+  // doesn't give ("Su off" names Sunday and nothing else)
+  const week = days.map((d) => osmHoursOn(raw, d));
+  if (week.some((v) => v === undefined)) {
+    const shut = DAY_LONG.filter((_, i) => week[i] === "Closed");
+    return shut.length ? { closed: shut.join(", ") } : {};
+  }
   // runs of days with the same hours
-  const runs: { from: number; to: number; v: string | null }[] = [];
+  const runs: { from: number; to: number; v: string | undefined }[] = [];
   week.forEach((v, i) => {
     const last = runs[runs.length - 1];
     if (last && last.v === v) last.to = i;
     else runs.push({ from: i, to: i, v });
   });
   const span = (r: { from: number; to: number }) => (r.from === r.to ? DAY_SHORT[r.from] : `${DAY_SHORT[r.from]}–${DAY_SHORT[r.to]}`);
-  const open = runs.filter((r) => r.v);
-  const shut = runs.filter((r) => !r.v);
+  const open = runs.filter((r) => r.v !== "Closed");
+  const shut = runs.filter((r) => r.v === "Closed");
   const hours = open.length === 1 && open[0].from === 0 && open[0].to === 6 ? `Daily ${pretty(open[0].v!)}` : open.map((r) => `${span(r)} ${pretty(r.v!)}`).join(" · ");
   const closed = !shut.length ? "None" : shut.length === 1 && shut[0].from === shut[0].to ? DAY_LONG[shut[0].from] : shut.map(span).join(", ");
   return { hours: hours || "Closed all week", closed };
@@ -108,7 +117,14 @@ export function osmFacts(raw: string, ref: string): { hours: string; closed?: st
 export function factsDayHours(f: PlaceFacts | undefined, iso: string): string | undefined {
   if (!f) return undefined;
   const typed = f.edited && ("hours" in f.edited || "closed" in f.edited);
-  if (f.osm && !typed) return hoursForDate(f.osm, iso) ?? "Closed";
+  if (f.osm && !typed) {
+    const day = osmHoursOn(f.osm, iso);
+    if (day !== undefined) return day;
+    // a tag that only lists closed days, and this isn't one: open, at the
+    // hours the searches found — never lines once read off the tag itself
+    const hours = f.from?.hours === "osm" ? undefined : factValue(f, "hours");
+    return hours && hours !== VARIES ? factsHoursForDate(hours, undefined, iso) : undefined;
+  }
   const hours = factValue(f, "hours");
   return factsHoursForDate(hours === VARIES ? undefined : hours, factValue(f, "closed") === VARIES ? undefined : factValue(f, "closed"), iso);
 }
@@ -228,8 +244,7 @@ async function ask(p: Place, area: string | undefined, kind: "food" | "sight"): 
       const ref = useApp.getState().data?.meta.start || todayISO();
       const read = osmFacts(osm.hours, ref);
       out.osm = osm.hours;
-      out.hours = read.hours;
-      from.hours = "osm";
+      if (read.hours) { out.hours = read.hours; from.hours = "osm"; }
       if (read.closed) { out.closed = read.closed; from.closed = "osm"; }
     }
     if (!facts && !website && !menu && !osm) return null;

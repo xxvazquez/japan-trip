@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { factsHoursForDate, hoursConflict } from "./openingHours";
+import { factsHoursForDate, hoursConflict, osmHoursOn } from "./openingHours";
 
 describe("hoursConflict", () => {
   it("passes a step inside the hours", () => {
@@ -76,5 +76,13 @@ describe("factsHoursForDate, with the dashes web summaries write", () => {
     expect(factsHoursForDate("10:00‑18:00", "Tuesdays", "2026-10-26")).toBe("10:00–18:00");
     expect(factsHoursForDate("Mon‑Fri 10:00‑18:00", undefined, "2026-10-26")).toBe("10:00–18:00");
     expect(factsHoursForDate("10am‑6pm daily", "Mon", "2026-10-26")).toBe("Closed");
+  });
+});
+
+describe("osmHoursOn", () => {
+  it("reads a day no rule covers as closed, unless the tag only lists closed days", () => {
+    expect(osmHoursOn("Tu-Su 09:00-17:00", "2026-10-26")).toBe("Closed"); // a Monday
+    expect(osmHoursOn("Su off", "2026-10-29")).toBeUndefined(); // a Thursday
+    expect(osmHoursOn("Su off", "2026-11-01")).toBe("Closed");
   });
 });

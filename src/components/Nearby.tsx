@@ -14,7 +14,7 @@ import { fmtDate } from "@/lib/dates";
 import { placeMapLink } from "@/lib/maps";
 import { factsDayHours, hasFacts, notASight } from "@/lib/placeFacts";
 import { nearestOpeningHours, type PlaceHours } from "@/lib/placeHours";
-import { hoursForDate } from "@/lib/openingHours";
+import { osmHoursOn } from "@/lib/openingHours";
 import { menuHref, reviewHref, reviewSiteFor } from "@/lib/reviewSite";
 import { placeTile } from "@/lib/tones";
 import type { NearbyGroup, NearbyItem } from "@/lib/nearby";
@@ -25,8 +25,8 @@ import { useApp } from "@/store/useApp";
 /** A place's opening hours on `date`, the rule for that month and weekday
  *  rather than the whole year's schedule. Read first from the place's "Good
  *  to know" Hours and Closed lines — what its place card shows — else from
- *  OpenStreetMap's tag (`hoursForDate`; a date no rule covers is a closed
- *  one). Null when neither has anything, and always for somewhere you pass
+ *  OpenStreetMap's tag (`osmHoursOn`; a date no rule covers is a closed
+ *  one, unless the tag only lists closed days). Null when neither has anything, and always for somewhere you pass
  *  through or sleep (`notASight`) — a station's tag nearby is a ticket
  *  counter's or a kiosk's, not when the trains stop. */
 export function usePlaceHours(place: Place | undefined, date?: string): string | null {
@@ -43,7 +43,7 @@ export function usePlaceHours(place: Place | undefined, date?: string): string |
   if (skip) return null;
   const fromFacts = date ? factsDayHours(place?.facts, date) : undefined;
   if (fromFacts) return fromFacts;
-  return hours ? (date ? hoursForDate(hours.hours, date) ?? "Closed" : hours.hours) : null;
+  return hours ? (date ? osmHoursOn(hours.hours, date) ?? null : hours.hours) : null;
 }
 
 /** what a suggestion's card is opened with: the place, the stop it's near

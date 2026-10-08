@@ -255,6 +255,7 @@ These appear automatically when a step is linked to a place.
 
 - The hours come from Good to know's **Hours** and **Closed** rows first ("Tue–Sun 11am–3pm", "Mondays"), else from OpenStreetMap (matched by the place's name, or tagged right on its pin — never a neighbour's). When Good to know's hours are OpenStreetMap's own, each day is read straight from its tag.
 - **Closed this day** — the place doesn't open that date (a closed weekday, or a day its hours don't cover).
+- A tag that only lists closed days ("Su off") counts every other day as open, at whatever hours the web search found.
 - **Not open yet · opens 10:00** / **Closed then · reopens 17:00** / **Closed by then · closes 17:00** — the start time falls outside the hours.
 - **Closes at 17:00** — a time range runs past closing.
 - Nothing shows when it fits, or when the hours or the time (e.g. "Around noon") can't be read.

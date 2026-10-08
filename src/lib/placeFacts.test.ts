@@ -119,6 +119,16 @@ describe("hours from OpenStreetMap", () => {
     expect(osmFacts("10:00-18:00", "2026-10-21")).toEqual({ hours: "Daily 10:00–18:00", closed: "None" });
     expect(osmFacts("Tu-Su 09:00-17:00", "2026-10-21")).toEqual({ hours: "Tue–Sun 09:00–17:00", closed: "Mondays" });
   });
+  it("reads a tag that only lists closed days as open the rest of the week", () => {
+    expect(osmFacts("Su off", "2026-10-21")).toEqual({ closed: "Sundays" });
+    expect(osmFacts("10:00-18:00; Su off", "2026-10-21")).toEqual({ hours: "Mon–Sat 10:00–18:00", closed: "Sundays" });
+    const f = { checkedAt: "2026-10-08", osm: "Su off", hours: "09:00–18:00" };
+    expect(factsDayHours(f, "2026-10-29")).toBe("09:00–18:00"); // a Thursday
+    expect(factsDayHours(f, "2026-11-01")).toBe("Closed"); // a Sunday
+    // lines an older read of the same tag wrote are never taken as the answer
+    const old = { ...f, hours: "Sun Closed", closed: "Mon–Sat", from: { hours: "osm" as const, closed: "osm" as const } };
+    expect(factsDayHours(old, "2026-10-29")).toBeUndefined();
+  });
   it("shows a tag it can't read as it is, with no Closed line", () => {
     expect(osmFacts("sunrise-sunset", "2026-10-21")).toEqual({ hours: "sunrise-sunset" });
   });

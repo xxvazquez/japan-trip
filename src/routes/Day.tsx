@@ -67,7 +67,7 @@ import { useWalk, estimateTransit } from "@/lib/walkRoute";
 import { nearestStationLookup, type NearbyStation } from "@/lib/transitStation";
 import { stayCoords } from "@/lib/hotelCoords";
 import { cachedOpeningHours, nearestOpeningHours } from "@/lib/placeHours";
-import { hoursConflict, hoursForDate } from "@/lib/openingHours";
+import { hoursConflict, osmHoursOn } from "@/lib/openingHours";
 import { NEARBY_WALK_MIN, nearbyForDay, type NearbyGroup, type NearbyItem } from "@/lib/nearby";
 import { NearbyCard, NearbyGroupRows, NearbyProvider, NearbyRow, usePlaceHours, useStepNearby } from "@/components/Nearby";
 import { fetchDayWeather, forecastSpot, weatherLabel, type DayWeather } from "@/lib/weather";
@@ -499,7 +499,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
           nearestOpeningHours(p.lat, p.lng, p.name).catch(() => null),
           new Promise<null>((r) => setTimeout(() => r(null), 4000)),
         ]);
-        return osm ? hoursForDate(osm.hours, day.date) ?? "Closed" : undefined;
+        return osm ? osmHoursOn(osm.hours, day.date) : undefined;
       };
       const rows = await Promise.all(outline.current.map(async (row) => {
         const hours = await hoursOf(row.placeId);
@@ -917,7 +917,7 @@ function nearbyHours(p: Place, date: string): string | undefined {
   const fromFacts = factsDayHours(p.facts, date);
   if (fromFacts) return fromFacts;
   const cached = cachedOpeningHours(p.lat, p.lng, p.name);
-  return cached ? hoursForDate(cached.hours, date) ?? "Closed" : undefined;
+  return cached ? osmHoursOn(cached.hours, date) : undefined;
 }
 
 /** One journey on the day, as an iOS list row: the first hop's mode tile,
