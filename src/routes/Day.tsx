@@ -113,8 +113,10 @@ export default function Day() {
     return <Missing title="No day here" body="That day isn’t part of this trip." to="/" cta="Back to Plan" />;
   // the page proper is its own component so its hooks never sit behind the
   // early returns above — a day deleted while it's open (a shared trip's
-  // realtime change) would otherwise change the hook count and crash
-  return <DayPage data={data} day={day} />;
+  // realtime change) would otherwise change the hook count and crash.
+  // Keyed by the day: the stepper keeps this route mounted, and a step or
+  // amount just added (opened for typing) mustn't open again on coming back
+  return <DayPage key={day.id} data={data} day={day} />;
 }
 
 /** The Plan section's ⓘ, worded for the device in hand */
@@ -770,7 +772,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
                             <button
                               type="button"
                               className="menu-item"
-                              onClick={() => setPlan([...(day.plan ?? []), ...newPlaces.map((p) => ({ id: rid(), text: p.name, placeId: p.id }))])}
+                              onClick={() => undoable(`Added ${plural(newPlaces.length, "place")}`, () => setPlan([...(day.plan ?? []), ...newPlaces.map((p) => ({ id: rid(), text: p.name, placeId: p.id }))]))}
                             >
                               <Icon name="plus" size={16} /> Add {newPlaces.length === a.placeIds.length ? "its places" : plural(newPlaces.length, "more place")} to the plan
                             </button>
@@ -1061,6 +1063,8 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   // nothing planned and no hotel to start or end at — on any other empty
   // day the hotel rows still draw, so it looks like every other day
   if (items.length === 0 && stops.length === 0 && !startHotel && !returnHotel) {
+    // nothing to print — not the steps there were before the last one went
+    if (outline) outline.current = [];
     return readOnly ? (
       <p className="px-3.5 py-3 text-sm text-ink-faint">Nothing planned yet.</p>
     ) : (
@@ -2177,6 +2181,15 @@ const LONG_WALK_MIN = 30;
 /** past this, the train is offered beside the walk — a 20-odd-minute walk is
  *  a real choice, so both show and either opens its own directions. */
 const TRAIN_TOO_MIN = 15;
+/** past this, two stops are a journey apart (a moving day, a stop left in
+ *  another city): no walk and no guessed ride — a 100-hour walk or a
+ *  13-hour "train" helps nobody; Google's own transit directions do */
+const FAR_KM = 50;
+
+/** `to`, unless it's too far from `from` to walk or guess a ride to */
+function inReach<T extends { lat: number; lng: number }>(from: { lat: number; lng: number } | null | undefined, to: T | null | undefined): T | null {
+  return from && to && haversineKm(from.lat, from.lng, to.lat, to.lng) <= FAR_KM ? to : null;
+}
 
 type TrainOption = { a: NearbyStation; b: NearbyStation; walkIn: number | null; ride: number; walkOut: number | null };
 
@@ -2278,7 +2291,7 @@ function UpNext({ row, start, now, from, to }: {
   from: { lat: number; lng: number } | null;
   to: { lat: number; lng: number } | null;
 }) {
-  const walk = useWalk(from ?? { lat: 0, lng: 0 }, from && to ? to : null);
+  const walk = useWalk(from ?? { lat: 0, lng: 0 }, inReach(from, to));
   const train = useTrainOption(from, to, !!walk && walk.min > LONG_WALK_MIN);
   const byTrain = !!walk && walk.min > LONG_WALK_MIN && !!train;
   const way = byTrain ? trainMinutes(train!) : walk?.min;
@@ -2346,7 +2359,7 @@ function StartFromHotel({ hotel, to, firstTime, time, readOnly, onTime }: {
   // the same way TravelConnector shows: the walk, or past a long walk the
   // train (walk in, ride, walk out)
   const from = hotelCoords(hotel);
-  const walk = useWalk(from ?? { lat: 0, lng: 0 }, from && to ? to : null);
+  const walk = useWalk(from ?? { lat: 0, lng: 0 }, inReach(from, to));
   const train = useTrainOption(from, to ?? null, !!walk && walk.min > LONG_WALK_MIN);
   const way = walk && walk.min > LONG_WALK_MIN && train
     ? trainMinutes(train)
@@ -2433,7 +2446,7 @@ function ReturnToHotel({ from, hotel, time, timeStart, readOnly, onTime }: {
   onTime: (time: string | undefined) => void;
 }) {
   const to = hotelCoords(hotel);
-  const walk = useWalk(from ?? { lat: 0, lng: 0 }, from ? to : null);
+  const walk = useWalk(from ?? { lat: 0, lng: 0 }, inReach(from, to));
   const long = !walk || walk.min > LONG_WALK_MIN;
   const dest = to ? `${to.lat},${to.lng}` : [hotel.name, hotel.address].filter(Boolean).join(" ");
   const href = gmapsRoute(from && `${from.lat},${from.lng}`, dest, long ? "transit" : "walking");
@@ -2463,8 +2476,9 @@ function ReturnToHotel({ from, hotel, time, timeStart, readOnly, onTime }: {
 const SAME_SPOT_KM = 0.05;
 
 function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to: { lat: number; lng: number } }) {
-  const walk = useWalk(from, to);
-  const train = useTrainOption(from, to, !walk || walk.min > TRAIN_TOO_MIN);
+  const near = inReach(from, to);
+  const walk = useWalk(from, near);
+  const train = useTrainOption(from, to, !!near && (!walk || walk.min > TRAIN_TOO_MIN));
   // two stops at the same spot (breakfast at the hotel) have no way between
   if (haversineKm(from.lat, from.lng, to.lat, to.lng) < SAME_SPOT_KM) return null;
 

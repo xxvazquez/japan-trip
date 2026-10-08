@@ -243,9 +243,10 @@ These appear automatically when a step is linked to a place.
 
 **Getting to the next step.** Between two steps tied to places, quiet grey captions sit on the line — travel between things you do, the way Calendar shows travel time. Each opens its own Google Maps directions:
 
-- Always the walk all the way, with its distance, e.g. *🚶 22 min · 1.8 km*.
+- The walk all the way, with its distance, e.g. *🚶 22 min · 1.8 km*.
 - Past a 15-minute walk, a train line under it, read like a Maps transit route: the door-to-door time first, then walk to the station › ride › walk from the station, e.g. *🚆 ≈ 15 min · 🚶 6 min › Shibuya → Harajuku › 🚶 5 min*.
 - *By train* past a 30-minute walk when no stations are found.
+- Only *By train* for two stops more than 50 km apart (a stop left in another city) — no walk or guessed ride.
 - Left out when a journey's own row already sits between the two.
 
 - **≈ means a guess.** A walk shows a straight-line estimate with ≈ until the real street route comes back (needs `VITE_ORS_API_KEY`), then drops the ≈. The train time always has ≈ — no free source has the timetable. Nearby's walking minutes are guesses too.
