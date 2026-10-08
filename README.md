@@ -264,6 +264,7 @@ These appear automatically when a step is linked to a place.
 - A tag that only lists closed days ("Su off") counts every other day as open, at whatever hours the web search found.
 - **Not open yet · opens 10:00** / **Closed then · reopens 17:00** / **Closed by then · closes 17:00** — the start time falls outside the hours.
 - **Closes at 17:00** — a time range runs past closing.
+- A pinned step (a booking) skips the time check — the place set that time. Only **Closed this day** still shows.
 - Nothing shows when it fits, or when the hours or the time (e.g. "Around noon") can't be read.
 - Stations, other transport and your own stays never get hours — what's tagged there is a ticket counter's or a kiosk's, not the place's.
 

@@ -1651,9 +1651,11 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
   };
   const hours = usePlaceHours(place, day.date);
   // the place's own hours that day, checked against when the step is
-  // planned — a red line under the name only when they don't fit
+  // planned — a red line under the name only when they don't fit. A pinned
+  // time is a booking the place made, so its public hours don't overrule
+  // it; only a day it's closed altogether is still worth a warning
   const stepTimes = range ?? (plainTime && item.time ? [item.time] : []);
-  const clash = hours ? hoursConflict(hours, stepTimes[0], stepTimes[1]) : null;
+  const clash = !hours ? null : pinned ? hoursConflict(hours) : hoursConflict(hours, stepTimes[0], stepTimes[1]);
   const conflict = clash && fmtClocksIn(clash);
   const catGlyph = place?.category ? categoryIcons?.[place.category] : undefined;
   // a custom step has no category to go on, so guess from its own text
