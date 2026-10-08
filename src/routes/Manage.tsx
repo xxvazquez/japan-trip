@@ -229,18 +229,29 @@ function Trips() {
     });
 
   // a backup file → a new trip (never touches an existing one), then open it
-  const restore = (file: File) =>
+  // restoring asks twice, as iOS does before anything that adds a lot at
+  // once: first whether to restore at all, then — once the file is read —
+  // which trip it holds, before anything is written
+  const restoreAsk = useActionSheet();
+  const restoreAnchor = useRef<HTMLUListElement>(null);
+  const [picked, setPicked] = useState<TripData | null>(null);
+  const read = (file: File) =>
     run(async () => {
-      let data;
       try {
-        data = parseBackup(await file.text());
+        setPicked(parseBackup(await file.text()));
       } catch (e) {
         return e instanceof BackupError ? e.message : "Couldn’t read that file.";
       }
+    });
+  const restore = (data: TripData) =>
+    run(async () => {
+      setPicked(null);
       const id = await importTrip(data);
       await switchTrip(id);
       nav("/");
     });
+  const pickedName = picked ? picked.meta.title || picked.config.branding || "Untitled trip" : "";
+  const pickedDays = picked?.days.length ?? 0;
 
   return (
     <div className="space-y-6">
@@ -288,12 +299,34 @@ function Trips() {
           and closes with Add Account */}
       {!creating ? (
         <Section>
-          <ul>
+          <ul ref={restoreAnchor}>
             <ActionRow icon="plus" label="New trip" onClick={newTrip} disabled={busy} />
             {!hasDemo && <ActionRow icon="copy" label="Add the demo tour" onClick={addDemo} disabled={busy} />}
             <ActionRow icon="download" label="Back up this trip" to="/manage/sharing#backup" />
-            <ActionRow icon="refresh" label="Restore from backup" onClick={() => fileRef.current?.click()} disabled={busy} />
+            <ActionRow icon="refresh" label="Restore from backup" onClick={() => restoreAsk.setOpen(true)} disabled={busy} />
           </ul>
+          <ActionSheet
+            open={restoreAsk.open}
+            onClose={() => restoreAsk.setOpen(false)}
+            anchorRef={restoreAnchor}
+            title="Restore a trip from a backup file? It comes in as a new trip — nothing you have now changes."
+            confirm
+          >
+            <button type="button" className="menu-item text-accent" onClick={() => fileRef.current?.click()}>
+              Choose Backup File…
+            </button>
+          </ActionSheet>
+          <ActionSheet
+            open={!!picked}
+            onClose={() => setPicked(null)}
+            anchorRef={restoreAnchor}
+            title={`Restore “${pickedName}”${pickedDays ? ` (${pickedDays} ${pickedDays === 1 ? "day" : "days"})` : ""}? It’s added beside your other trips and opens.`}
+            confirm
+          >
+            <button type="button" className="menu-item text-accent" onClick={() => picked && void restore(picked)}>
+              Restore Trip
+            </button>
+          </ActionSheet>
           <input
             ref={fileRef}
             type="file"
@@ -302,7 +335,7 @@ function Trips() {
             onChange={(e) => {
               const f = e.target.files?.[0];
               e.target.value = ""; // picking the same file again should still fire
-              if (f) void restore(f);
+              if (f) void read(f);
             }}
           />
           {msg && <p className="px-3.5 pb-2.5 text-sm text-danger" role="alert">{msg}</p>}
