@@ -2,6 +2,7 @@ import { memo, useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, us
 import { useNavigate } from "react-router-dom";
 import { search, type SearchHit, type SearchKind, type SearchResult } from "@/lib/search";
 import { useData } from "@/lib/data";
+import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { useBackToClose } from "@/lib/backClose";
 import { useApp } from "@/store/useApp";
 import { Icon } from "./Icon";
@@ -73,15 +74,18 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
   // typing never waits on the results: the field updates at once, the list
   // catches up a moment later
   const query = useDeferredValue(q);
+  // each area's city — only worked out while search is open
+  const cityData = open ? data : null;
+  const { areaCity } = useTripCities(cityData, useCityAnchors(cityData));
   const groups = useMemo(() => {
-    const found = open && data ? search(data, query, 80) : [];
+    const found = open && data ? search(data, query, 80, areaCity) : [];
     const by = new Map<string, SearchResult[]>();
     for (const r of found) {
       const g = groupOf(r.hit);
       by.set(g, [...(by.get(g) ?? []), r]);
     }
     return [...by.entries()];
-  }, [query, open, data]);
+  }, [query, open, data, areaCity]);
   const results = useMemo(() => groups.flatMap(([, rs]) => rs.map((r) => r.hit)), [groups]);
 
   useLayoutEffect(() => {

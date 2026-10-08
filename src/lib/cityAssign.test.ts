@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { placeCityMap, dayTripCities, dayTripLabel, dayTripQuery, cityNear } from "./cityAssign";
+import { placeCityMap, dayTripCities, dayTripLabel, dayTripQuery, cityNear, areaCityNames, byAreaName } from "./cityAssign";
 import type { TripData } from "@/core/types";
 
 const place = (id: string, lat: number, lng: number) => ({ id, name: id, lat, lng });
@@ -51,5 +51,19 @@ describe("the city you're in", () => {
 
   it("is nothing when every place is far away", () => {
     expect(cityNear(51.5, -0.12, places, city)).toBeUndefined();
+  });
+});
+
+describe("areas in lists", () => {
+  it("sort A–Z, ignoring case, numbers in order", () => {
+    const names = ["gion", "Arashiyama", "Area 10", "Area 2", ""].map((name) => ({ name }));
+    expect(names.sort(byAreaName).map((a) => a.name)).toEqual(["Arashiyama", "Area 2", "Area 10", "gion", ""]);
+  });
+
+  it("carry the city most of their places sit in", () => {
+    const d = { ...trip([], []), areas: [{ id: "a", name: "Gion", placeIds: ["p1", "p2", "p3"] }, { id: "b", name: "Empty", placeIds: [] }] } as unknown as TripData;
+    const m = areaCityNames(d, new Map([["p1", "kyoto"], ["p2", "kyoto"], ["p3", "nara-day"]]), [{ id: "nara-day", name: "Nara", legId: "kyoto", dayIds: [] }]);
+    expect(m.get("a")).toBe("Kyoto");
+    expect(m.has("b")).toBe(false);
   });
 });

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { geocode, geocodeTown } from "./geocode";
 import { mapUrlCoords } from "./maps";
 import type { TripData } from "@/core/types";
-import { canonicalLegs, dayTripCities, dayTripQuery, placeCityMap, type TripCity } from "./cityAssign";
+import { areaCityNames, canonicalLegs, dayTripCities, dayTripQuery, placeCityMap, type TripCity } from "./cityAssign";
 import { haversineKm } from "./geo";
 
 /**
@@ -197,5 +197,10 @@ export function useTripCities(data: TripData | null | undefined, cityAnchors: Ma
     () => (data ? placeCityMap(data, cityAnchors, tripGeo, tripCities) : new Map<string, string>()),
     [data, cityAnchors, tripGeo, tripCities],
   );
-  return { cityLeg, tripCities, dayCity, placeCity };
+  /** area id → its city's name */
+  const areaCity = useMemo(
+    () => (data ? areaCityNames(data, placeCity, tripCities) : new Map<string, string>()),
+    [data, placeCity, tripCities],
+  );
+  return { cityLeg, tripCities, dayCity, placeCity, areaCity };
 }

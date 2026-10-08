@@ -43,7 +43,7 @@ import { TitleLineTile } from "@/components/TileRow";
 import { useSplit } from "@/components/SplitMap";
 import { AREA_TONES, glyphForStepText, placeTile, toneForGlyph, toneForPlaceCategory } from "@/lib/tones";
 import { glyphForCategoryName, type MapGlyphId } from "@/lib/mapGlyphs";
-import { areaLeg } from "@/lib/cityAssign";
+import { areaLeg, byAreaName } from "@/lib/cityAssign";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { DayStepper } from "@/components/DayStepper";
 import { NavAddButton } from "@/components/NavAddButton";
@@ -228,7 +228,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   // then the one it set off from (a travel day still reaches the city it
   // leaves), then the rest of the trip's cities in order; A–Z within each
   const cityAnchors = useCityAnchors(data);
-  const { dayCity, placeCity, tripCities } = useTripCities(data, cityAnchors);
+  const { dayCity, placeCity, tripCities, areaCity } = useTripCities(data, cityAnchors);
   const areaGroups = useMemo(() => {
     const nameOf = (c: string) => data.legs.find((l) => l.id === c)?.base || tripCities.find((t) => t.id === c)?.name || "";
     const at = data.days.findIndex((d) => d.id === day.id);
@@ -242,7 +242,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     }
     return [...groups]
       .sort(([a], [b]) => rank(a) - rank(b))
-      .map(([c, areas]) => ({ label: c ? nameOf(c) : "Other", areas: areas.sort((a, b) => a.name.localeCompare(b.name)) }));
+      .map(([c, areas]) => ({ label: c ? nameOf(c) : "Other", areas: areas.sort(byAreaName) }));
   }, [data, day.id, day.areaIds, dayCity, placeCity, tripCities]);
 
   // places available to a plan step's picker — drawn only from this day's own
@@ -752,45 +752,51 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
               list gives it, its place count trailing), then the section's
               actions as accent rows */}
           <ul>
-            {(day.areaIds ?? []).map((id) => {
-              const index = data.areas.findIndex((x) => x.id === id);
-              const a = data.areas[index];
-              if (!a) return null;
-              const linked = new Set((day.plan ?? []).map((it) => it.placeId).filter(Boolean));
-              const newPlaces = a.placeIds.filter((pid) => !linked.has(pid)).map((pid) => data.places.find((p) => p.id === pid)).filter((p): p is NonNullable<typeof p> => !!p);
-              const name = a.name || "Untitled";
-              return (
-                <li key={id} className={AREA_ROW_LI}>
-                  <ContextMenu>
-                    <div className="flex items-center gap-3 px-3.5 py-2.5">
-                      <IconTile size="sm" name="map" color={AREA_TONES[index % AREA_TONES.length]} className="shrink-0" />
-                      <span className="min-w-0 flex-1 break-words text-sm leading-snug text-ink">{name}</span>
-                      <span className="shrink-0 text-[15px] tabular-nums text-ink-faint">{plural(a.placeIds.length, "place")}</span>
-                      {!ro && (
-                        <RowMenu label={`More for ${name}`}>
-                          {newPlaces.length > 0 && (
+            {(day.areaIds ?? [])
+              .map((id) => data.areas.find((x) => x.id === id))
+              .filter((a): a is Area => !!a)
+              .sort(byAreaName)
+              .map((a) => {
+                const id = a.id;
+                const index = data.areas.indexOf(a);
+                const linked = new Set((day.plan ?? []).map((it) => it.placeId).filter(Boolean));
+                const newPlaces = a.placeIds.filter((pid) => !linked.has(pid)).map((pid) => data.places.find((p) => p.id === pid)).filter((p): p is NonNullable<typeof p> => !!p);
+                const name = a.name || "Untitled";
+                return (
+                  <li key={id} className={AREA_ROW_LI}>
+                    <ContextMenu>
+                      <div className="flex items-center gap-3 px-3.5 py-2.5">
+                        <IconTile size="sm" name="map" color={AREA_TONES[index % AREA_TONES.length]} className="shrink-0" />
+                        <span className="min-w-0 flex-1 break-words text-sm leading-snug text-ink">
+                          {name}
+                          {areaCity.has(id) && <span className="block text-xs text-ink-faint">{areaCity.get(id)}</span>}
+                        </span>
+                        <span className="shrink-0 text-[15px] tabular-nums text-ink-faint">{plural(a.placeIds.length, "place")}</span>
+                        {!ro && (
+                          <RowMenu label={`More for ${name}`}>
+                            {newPlaces.length > 0 && (
+                              <button
+                                type="button"
+                                className="menu-item"
+                                onClick={() => undoable(`Added ${plural(newPlaces.length, "place")}`, () => setPlan([...(day.plan ?? []), ...newPlaces.map((p) => ({ id: rid(), text: p.name, placeId: p.id }))]))}
+                              >
+                                <Icon name="plus" size={16} /> Add {newPlaces.length === a.placeIds.length ? "its places" : plural(newPlaces.length, "more place")} to the plan
+                              </button>
+                            )}
                             <button
                               type="button"
-                              className="menu-item"
-                              onClick={() => undoable(`Added ${plural(newPlaces.length, "place")}`, () => setPlan([...(day.plan ?? []), ...newPlaces.map((p) => ({ id: rid(), text: p.name, placeId: p.id }))]))}
+                              className="menu-item text-danger"
+                              onClick={() => undoable("Area removed", () => patch({ areaIds: (day.areaIds ?? []).filter((x) => x !== id) }))}
                             >
-                              <Icon name="plus" size={16} /> Add {newPlaces.length === a.placeIds.length ? "its places" : plural(newPlaces.length, "more place")} to the plan
+                              <Icon name="close" size={16} /> Remove from this day
                             </button>
-                          )}
-                          <button
-                            type="button"
-                            className="menu-item text-danger"
-                            onClick={() => undoable("Area removed", () => patch({ areaIds: (day.areaIds ?? []).filter((x) => x !== id) }))}
-                          >
-                            <Icon name="close" size={16} /> Remove from this day
-                          </button>
-                        </RowMenu>
-                      )}
-                    </div>
-                  </ContextMenu>
-                </li>
-              );
-            })}
+                          </RowMenu>
+                        )}
+                      </div>
+                    </ContextMenu>
+                  </li>
+                );
+              })}
             {!ro && areaGroups.length > 0 && (
               <li className={INSET_DIVIDER}>
                 <button ref={areaSheet.anchorRef} onClick={() => areaSheet.setOpen(true)} className={ACTION_ROW}>
@@ -799,8 +805,8 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
                 <ActionSheet open={areaSheet.open} onClose={() => areaSheet.setOpen(false)} anchorRef={areaSheet.anchorRef} title="Add an area">
                   {areaGroups.map((g) => (
                     <div key={g.label}>
-                      {/* a lone group needs no city heading */}
-                      {areaGroups.length > 1 && <p className="kicker px-4 pb-0.5 pt-3 text-ink-faint">{g.label}</p>}
+                      {/* every area sits under its city; only a lone "Other" goes bare */}
+                      {(areaGroups.length > 1 || g.label !== "Other") && <p className="kicker px-4 pb-0.5 pt-3 text-ink-faint">{g.label}</p>}
                       {g.areas.map((a) => (
                         <button
                           key={a.id}

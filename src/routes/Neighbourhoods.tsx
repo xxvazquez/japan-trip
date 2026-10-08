@@ -12,6 +12,7 @@ import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { useData } from "@/lib/data";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
+import { byAreaName } from "@/lib/cityAssign";
 import { groupByLevels, usePlaceLevels } from "@/lib/neighbourhood";
 import { usePersistedOpen } from "@/lib/collapse";
 import { AREA_TONES, placeTile } from "@/lib/tones";
@@ -76,7 +77,7 @@ export default function Neighbourhoods() {
         groups: groupByLevels(ps.map((p) => ({ id: p.id, levels: levels.get(p.id)! }))).map((g) => ({
           name: g.name,
           places: g.ids
-            .map((pid) => ({ place: byId.get(pid)!, areas: (areasOf.get(pid) ?? []).map((a) => a.name || "Untitled") }))
+            .map((pid) => ({ place: byId.get(pid)!, areas: [...(areasOf.get(pid) ?? [])].sort(byAreaName).map((a) => a.name || "Untitled") }))
             .sort((a, b) => a.place.name.localeCompare(b.place.name)),
         })),
       }))

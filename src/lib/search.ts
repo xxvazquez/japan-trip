@@ -40,7 +40,7 @@ function placeSub(d: TripData, placeId: string, legId?: string): string | undefi
   return [day && fmtDate(day.date, d.config.locale), leg?.base].filter(Boolean).join(" · ") || undefined;
 }
 
-function build(d: TripData): SearchHit[] {
+function build(d: TripData, areaCity?: Map<string, string>): SearchHit[] {
   const hits: SearchHit[] = [];
   const loc = d.config.locale;
 
@@ -141,7 +141,8 @@ function build(d: TripData): SearchHit[] {
       kind: "area",
       tile: { name: "explore", tone: "matcha" },
       label: a.name || "Untitled",
-      sub: a.placeIds.length ? plural(a.placeIds.length, "place") : undefined,
+      // its city first, so two "Old town"s in different cities tell apart
+      sub: [areaCity?.get(a.id), a.placeIds.length ? plural(a.placeIds.length, "place") : ""].filter(Boolean).join(" · ") || undefined,
       to: `/map?area=${a.id}`,
       fields: a.placeIds.map((id) => ({ label: "Place", text: d.places.find((p) => p.id === id)?.name })),
     });
@@ -301,11 +302,11 @@ function snippet(fl: IndexedField, words: string[]): SearchResult["snippet"] {
 
 const KIND_ORDER: SearchKind[] = ["day", "leg", "hotel", "place", "transfer", "area", "doc", "luggage", "list", "note", "packing", "help"];
 
-let cache: { data: TripData; index: Indexed[] } | null = null;
+let cache: { data: TripData; areaCity?: Map<string, string>; index: Indexed[] } | null = null;
 
-function indexOf(data: TripData): Indexed[] {
-  if (cache?.data === data) return cache.index;
-  const index = build(data).map((h) => {
+function indexOf(data: TripData, areaCity?: Map<string, string>): Indexed[] {
+  if (cache?.data === data && cache.areaCity === areaCity) return cache.index;
+  const index = build(data, areaCity).map((h) => {
     const label = fold(h.label);
     const fields = h.fields
       .filter((x): x is { label?: string; text: string } => !!x.text?.trim())
@@ -317,16 +318,18 @@ function indexOf(data: TripData): Indexed[] {
       });
     return { h, label, cLabel: compact(label), fields };
   });
-  cache = { data, index };
+  cache = { data, areaCity, index };
   return index;
 }
 
-export function search(data: TripData, query: string, limit = 12): SearchResult[] {
+/** `areaCity` (area id → city name, from `useTripCities`) labels each area
+ *  with its city. */
+export function search(data: TripData, query: string, limit = 12, areaCity?: Map<string, string>): SearchResult[] {
   const phrase = fold(query.trim()).replace(/\s+/g, " ");
   if (!phrase) return [];
   const words = [...new Set(phrase.split(" "))].sort((a, b) => b.length - a.length);
   const found: { r: SearchResult; s: number }[] = [];
-  for (const x of indexOf(data)) {
+  for (const x of indexOf(data, areaCity)) {
     const m = match(x, words, phrase);
     if (!m) continue;
     // the trip's own things first; how-to answers after them

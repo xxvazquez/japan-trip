@@ -204,3 +204,20 @@ export function cityNear(lat: number, lng: number, places: Place[], placeCity: M
   }
   return best;
 }
+
+/** Each area's city, by name — the city most of its places sit in (see
+ *  `areaLeg`), shown beside the area wherever it's listed. An area with no
+ *  placed pins has none. */
+export function areaCityNames(data: TripData, placeCity: Map<string, string>, tripCities: TripCity[]): Map<string, string> {
+  const m = new Map<string, string>();
+  for (const a of data.areas) {
+    const c = areaLeg(a, placeCity);
+    const name = c && (tripCities.find((t) => t.id === c)?.name || data.legs.find((l) => l.id === c)?.base);
+    if (name) m.set(a.id, name);
+  }
+  return m;
+}
+
+/** Areas A–Z by name, as every list of them reads. */
+export const byAreaName = (a: Pick<Area, "name">, b: Pick<Area, "name">) =>
+  (a.name || "Untitled").localeCompare(b.name || "Untitled", undefined, { numeric: true, sensitivity: "base" });

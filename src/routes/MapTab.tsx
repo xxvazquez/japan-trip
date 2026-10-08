@@ -43,7 +43,7 @@ import { ChipStrip } from "@/components/ChipStrip";
 import { categoryName, glyphPath } from "@/lib/mapGlyphs";
 import { neighbourhoodAreas, usePlaceLevels } from "@/lib/neighbourhood";
 import { placeColor, placeTile, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
-import { canonicalLegs, cityNear } from "@/lib/cityAssign";
+import { byAreaName, canonicalLegs, cityNear } from "@/lib/cityAssign";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import { dayStay, stayIdOfPin, stayPins, withStayCategory } from "@/lib/stayPins";
@@ -96,11 +96,17 @@ function farthestPair(items: Place[]): [Place, Place] | null {
  *  two farthest-apart places, found cheaply via `farthestPair` first so only
  *  one route request is needed per area, not one per pair. A straight-line
  *  estimate shows first (always behind a "≈"), then the real street route. */
-function AreaWalkSpan({ items }: { items: Place[] }) {
+function AreaWalkSpan({ items, city }: { items: Place[]; city?: string }) {
   const pair = farthestPair(items);
   const route = useWalk(pair?.[0] ?? { lat: 0, lng: 0 }, pair?.[1]);
-  if (!pair || !route) return null;
-  return <span className="block text-[15px] leading-snug text-ink-faint">Spans {fmtDistanceKm(route.km)} · {route.estimated !== false && "≈\u00a0"}{fmtMinutes(route.min)} walk</span>;
+  if (!city && (!pair || !route)) return null;
+  return (
+    <span className="block text-[15px] leading-snug text-ink-faint">
+      {city}
+      {city && pair && route && " · "}
+      {pair && route && <>Spans {fmtDistanceKm(route.km)} · {route.estimated !== false && "≈\u00a0"}{fmtMinutes(route.min)} walk</>}
+    </span>
+  );
 }
 
 /** an area as a row of its city's card — the iOS outline list (Files' list
@@ -108,9 +114,11 @@ function AreaWalkSpan({ items }: { items: Place[] }) {
  *  way), a disclosure chevron that turns down when open, its places
  *  following in the same card. The tile doubles as the area's map filter. */
 function AreaRow({
-  name, tone, items, open, dim, walk = true, onToggle, onSolo,
+  name, city, tone, items, open, dim, walk = true, onToggle, onSolo,
 }: {
   name: string;
+  /** the area's city — only where the list isn't already under a city */
+  city?: string;
   tone: string;
   items: Place[];
   open: boolean;
@@ -144,7 +152,7 @@ function AreaRow({
         >
           <span className="min-w-0 flex-1">
             <span className={AREA_TITLE}>{name}</span>
-            {walk && <AreaWalkSpan items={items} />}
+            {walk && <AreaWalkSpan items={items} city={city} />}
           </span>
           <span className="shrink-0 text-[15px] tabular-nums text-ink-faint">{items.length}</span>
           <Icon name="chevron" size={13} className={`shrink-0 text-ink-faint transition-transform ${open ? "rotate-90" : ""}`} />
@@ -811,7 +819,7 @@ export default function MapTab() {
   /** the trip's cities as pills: stays by city (two Tokyo stays are one
    *  Tokyo) plus day trips to other towns (Nara from Kyoto) — each place's
    *  city and each day's, so a pill, the list groups and the counts agree */
-  const { cityLeg, tripCities, dayCity, placeCity: placeLeg } = useTripCities(data, cityAnchors);
+  const { cityLeg, tripCities, dayCity, placeCity: placeLeg, areaCity } = useTripCities(data, cityAnchors);
 
   const {
     suggestions,
@@ -1050,7 +1058,7 @@ export default function MapTab() {
         items: a.placeIds.map((id) => places.find((p) => p.id === id)).filter(Boolean) as Place[],
       }))
       .filter((a) => a.items.length > 0 && has(a.name))
-      .sort((x, y) => x.name.localeCompare(y.name));
+      .sort(byAreaName);
     const rank = (p: Place) => {
       const name = foldText(p.name);
       if (words.every((w) => name.includes(w))) return name.startsWith(words[0]) ? 0 : 1;
@@ -1112,7 +1120,7 @@ export default function MapTab() {
         items: a.placeIds.map((id) => byId.get(id)).filter(Boolean) as Place[],
       }))
       .filter((g) => g.items.length > 0)
-      .sort((x, y) => x.name.localeCompare(y.name));
+      .sort(byAreaName);
     const inArea = new Set(listAreas.flatMap((a) => a.placeIds));
     const loose = preAreaScoped.filter((p) => !inArea.has(p.id));
     if (loose.length) groups.push({ id: "", name: "No area", tone: NEUTRAL_TONE, items: loose });
@@ -1169,7 +1177,7 @@ export default function MapTab() {
       .filter((c) => c.areas.length > 0 || c.loose.length > 0)
       .map((c) => ({
         ...c,
-        areas: c.areas.sort((x, y) => x.name.localeCompare(y.name)),
+        areas: c.areas.sort(byAreaName),
         count: c.areas.reduce((s, a) => s + a.items.length, 0) + c.loose.length,
       }))
       .sort((x, y) => (order.get(x.legId) ?? 99) - (order.get(y.legId) ?? 99));
@@ -1404,6 +1412,7 @@ export default function MapTab() {
       distanceKm={distanceKm}
       days={data.days}
       areas={data.areas}
+      areaCity={areaCity}
       legs={cityLegs}
       cityOf={cityOf}
       categoryIcons={data.config.categoryIcons}
@@ -1696,11 +1705,12 @@ export default function MapTab() {
             {data.areas.length > 0 && (
               <ul className="isolate max-h-64 overflow-y-auto rounded-[12px] bg-surface">
                 {[...data.areas]
-                  .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
+                  .sort(byAreaName)
                   .map((a) => (
                     <ContextMenu as="li" key={a.id} className={`flex items-center gap-2 px-3.5 py-2 text-sm ${INSET_DIVIDER}`}>
                       <span className="min-w-0 flex-1 break-words">
                         <Editable label="Area name" value={a.name} placeholder="Area name" required onCommit={(v) => updateEntity<Area>("areas", a.id, { name: v.trim() })} />
+                        {areaCity.has(a.id) && <span className="block text-xs text-ink-faint">{areaCity.get(a.id)}</span>}
                       </span>
                       <span className="shrink-0 text-2xs tabular-nums text-ink-soft">{plural(a.placeIds.length, "place")}</span>
                       <RowMenu label="Area options">
@@ -1802,7 +1812,7 @@ export default function MapTab() {
                 {searchHits.areas.map((a) => {
                   const shut = !openAreas.has(a.id);
                   return [
-                    <AreaRow key={a.id} name={a.name} tone={a.tone} items={a.items} open={!shut} onToggle={() => toggleAreaCollapsed(a.id)} />,
+                    <AreaRow key={a.id} name={a.name} city={areaCity.get(a.id)} tone={a.tone} items={a.items} open={!shut} onToggle={() => toggleAreaCollapsed(a.id)} />,
                     ...(!shut ? nested(a.items) : []),
                   ];
                 })}
@@ -2054,6 +2064,7 @@ function PlaceRow({
   distanceKm,
   days,
   areas,
+  areaCity,
   legs,
   cityOf,
   categoryIcons,
@@ -2083,6 +2094,8 @@ function PlaceRow({
   distanceKm?: number;
   days: TripData["days"];
   areas: Area[];
+  /** area id → its city's name */
+  areaCity: Map<string, string>;
   /** one stay per city — two stays in the same city are one choice */
   legs: TripData["legs"];
   /** a stay's id → the id of its city's first stay (`canonicalLegs`) */
@@ -2195,7 +2208,7 @@ function PlaceRow({
   // how the place is filed — its areas, category and city
   const filing = (
     <>
-          <AreasRow place={place} areas={areas} readOnly={readOnly} onToggleArea={onToggleArea} rowCls={rowCls} />
+          <AreasRow place={place} areas={areas} areaCity={areaCity} readOnly={readOnly} onToggleArea={onToggleArea} rowCls={rowCls} />
           {place.category && (
             <li className={`${SM_TILE_DIVIDER} ${rowCls}`}>
               <IconTile size="sm" {...placeTile(place, categoryIcons, categoryColors)} />
@@ -2447,12 +2460,14 @@ function PlaceRow({
 function AreasRow({
   place,
   areas,
+  areaCity,
   readOnly,
   onToggleArea,
   rowCls,
 }: {
   place: Place;
   areas: Area[];
+  areaCity: Map<string, string>;
   readOnly: boolean;
   onToggleArea: (areaId: string) => void;
   rowCls: string;
@@ -2483,10 +2498,13 @@ function AreasRow({
             doesn't trigger ActionSheet's "close on any click inside" */}
         <div onClick={(e) => e.stopPropagation()}>
           {[...areas]
-            .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
+            .sort(byAreaName)
             .map((a) => (
               <button key={a.id} type="button" className="menu-item flex w-full items-center gap-2" onClick={() => onToggleArea(a.id)}>
-                <span className="min-w-0 flex-1 break-words text-left">{a.name || "Untitled"}</span>
+                <span className="min-w-0 flex-1 break-words text-left">
+                  {a.name || "Untitled"}
+                  {areaCity.has(a.id) && <span className="block text-xs text-ink-faint">{areaCity.get(a.id)}</span>}
+                </span>
                 <span className="w-4 shrink-0 text-accent">{a.placeIds.includes(place.id) && <Icon name="check" size={14} />}</span>
               </button>
             ))}

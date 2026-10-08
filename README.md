@@ -430,6 +430,7 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 
 **What else areas show:**
 
+- **A–Z everywhere** they're listed, each with its city (where most of its places are) unless it already sits under a city heading.
 - A faint labelled ring on the map when zoomed out.
 - How far the area stretches on foot ("Spans 0.9 km · 12 min walk").
 - Each place's nearest station, read from the map tiles (with a network fallback). Nothing shows if there's no station within 1 km.
