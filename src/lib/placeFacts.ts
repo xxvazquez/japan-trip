@@ -176,7 +176,7 @@ export function placeArea(place: Place, data: TripData | null): string | undefin
  *    Worker can't check sign-ins)
  *  - `setup`: the server has no search key (503)
  *  - `search`: the search service failed or answered nonsense */
-export type FactsFailure = "offline" | "refused" | "setup" | "search";
+export type FactsFailure = "offline" | "refused" | "setup" | "used-up" | "search";
 
 /** found → the facts; nothing found → null; couldn't ask → why */
 type Result = PlaceFacts | null | FactsFailure;
@@ -187,6 +187,7 @@ export const FAILURE_TEXT: Record<FactsFailure, string> = {
   offline: "You’re offline — try again with a connection",
   refused: "The server refused the lookup — try signing in again",
   setup: "Lookups aren’t set up on the server",
+  "used-up": "This month’s free searches are used up — lookups start again next month",
   search: "The search service didn’t answer — try again later",
 };
 
@@ -230,6 +231,7 @@ async function ask(p: Place, area: string | undefined, kind: "food" | "sight"): 
     }
     if (res.status === 401 || res.status === 403) return "refused";
     if (res.status === 503) return "setup";
+    if (res.status === 429) return "used-up";
     if (!res.ok || !res.headers.get("Content-Type")?.includes("json")) return "search";
     const facts = ((await res.json()) as { facts?: PlaceFacts | null }).facts;
     if (facts === undefined) return "search";

@@ -306,7 +306,7 @@ How it fills in:
 - **Manage → Content → Good to know** does every place at once (two searches each, out of Tavily's 1,000 a month, then Exa's).
   - **Filled in** counts places with any Good to know; **Out of date** the filled-in ones due another look (over a month old, or from an older lookup).
   - The button (**Update N places**) covers both those and the ones never looked up.
-- **When it can't check, it says why** — offline, the server refused it (signed out, or the Worker's sign-in variables are missing), lookups not set up (no search key), or the search service failing. The card and Manage's **Last check** both show it.
+- **When it can't check, it says why** — offline, the server refused it (signed out, or the Worker's sign-in variables are missing), lookups not set up (no search key), the month's free searches used up (Tavily's, and Exa's too when it's set), or the search service failing. The card and Manage's **Last check** both show it.
 - **By hand** — tap any fact to correct it; **Add details** opens the empty ones to fill in. Works when the search found nothing or the wrong place. Clear a wrong one to hide it.
 - What you type always wins: a later lookup (automatic, ↻ or Manage) never overwrites it. Typing back what the lookup found drops your version.
 - Saved with the place, so it works offline.

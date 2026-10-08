@@ -319,6 +319,9 @@ export async function handlePlaceFacts(url: URL, keys: SearchKeys, fetchImpl: Fe
   try {
     return json({ facts: await findFacts(name.slice(0, 120), area?.slice(0, 80), keys, fetchImpl, undefined, kind) });
   } catch (e) {
-    return json({ error: e instanceof Error ? e.message : "lookup failed" }, 502);
+    const message = e instanceof Error ? e.message : "lookup failed";
+    // Tavily's 432/433 (and a 429) mean the month's searches are used up —
+    // told apart so the app can say so instead of "try again later"
+    return json({ error: message }, /answered (429|432|433)\b/.test(message) ? 429 : 502);
   }
 }

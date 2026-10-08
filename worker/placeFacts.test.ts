@@ -114,6 +114,8 @@ describe("findFacts", () => {
   });
   it("throws when search can't be asked", async () => {
     await expect(findFacts("A place", undefined, { tavily: "key" }, fake("", [], 432))).rejects.toThrow("432");
+    const res = await handlePlaceFacts(new URL("https://x/api/place-facts?name=A%20place"), { tavily: "key" }, fake("", [], 432));
+    expect(res.status).toBe(429);
   });
 });
 
