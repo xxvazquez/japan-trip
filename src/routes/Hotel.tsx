@@ -201,6 +201,7 @@ export default function Hotel() {
             <ConfirmButton
               onConfirm={() => undoable("Stay deleted", () => { removeEntity("hotels", hotel.id); leave("/logbook/stays"); })}
               label="Delete stay"
+              message="This stay and its details will be deleted."
               className="w-full justify-center px-3.5 py-3 text-sm text-danger"
             >
               Delete stay

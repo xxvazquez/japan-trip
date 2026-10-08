@@ -105,6 +105,7 @@ export default function Document() {
             <ConfirmButton
               onConfirm={() => undoable("Document deleted", () => { removeEntity("docs", doc.id); leave("/logbook/documents"); })}
               label="Delete document"
+              message="This document and its fields will be deleted."
               className="w-full justify-center px-3.5 py-3 text-sm text-danger"
             >
               Delete document

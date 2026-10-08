@@ -445,6 +445,7 @@ export default function Journey() {
           <ConfirmButton
             onConfirm={() => undoable("Journey deleted", () => { removeEntity("journeys", j.id); leave("/logbook/getting-around"); })}
             label="Delete journey"
+            message="This journey and its hops will be deleted."
             className="w-full justify-center px-3.5 py-3 text-sm text-danger"
           >
             Delete journey

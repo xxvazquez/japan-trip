@@ -163,6 +163,7 @@ export default function Leg() {
               <li>
                 <ConfirmButton
                   label={hasDays ? `Delete base and its ${plural(dayCount, "day")}` : "Delete base"}
+                  message={hasDays ? `This base and its ${plural(dayCount, "day")} will be deleted, with their plans.` : "This base will be deleted."}
                   onConfirm={() => undoable("Base deleted", () => { removeEntity("legs", leg.id); leave("/"); })}
                   className="w-full justify-center px-3.5 py-2.5 text-xs text-danger active:bg-ink/[0.07]"
                 >

@@ -30,6 +30,7 @@ export function ActionSheet({
   header,
   point,
   side,
+  confirm,
   children,
 }: {
   open: boolean;
@@ -48,6 +49,9 @@ export function ActionSheet({
    *  under or over it — never across the anchor itself. For a card (a place
    *  card); the anchor can be inline text that wraps */
   side?: boolean;
+  /** a destructive confirmation (iOS's confirmation dialog): on the phone
+   *  sheet the message and the button are centred, as iOS sets them */
+  confirm?: boolean;
   children: ReactNode;
 }) {
   const [, bump] = useReducer((n: number) => n + 1, 0);
@@ -105,10 +109,10 @@ export function ActionSheet({
           {/* the grabber + title strip — drag it down to dismiss */}
           <div {...handleProps} className="shrink-0 cursor-grab touch-none">
             <span aria-hidden className="mx-auto mb-1.5 block h-1 w-9 rounded-full bg-ink/20" />
-            {title && <p className="px-4 pb-1 pt-1 text-xs text-ink-soft">{title}</p>}
+            {title && <p className={`px-4 pb-1 pt-1 text-xs text-ink-soft ${confirm ? "pb-2.5 text-center" : ""}`}>{title}</p>}
           </div>
           {header && <div className="shrink-0 space-y-2 px-3 pb-2 pt-1" onClick={(e) => e.stopPropagation()}>{header}</div>}
-          <div className="flex-1 overflow-y-auto overscroll-contain [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-4 [&_.menu-item]:py-3.5 [&_.menu-item]:text-left [&_.menu-item]:text-[17px] [&_.menu-item:disabled]:opacity-40 [&_.menu-item:active]:bg-ink/[0.07]">
+          <div className={`flex-1 overflow-y-auto overscroll-contain ${confirm ? "border-t border-ink/10 [&_.menu-item]:justify-center" : ""} [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-4 [&_.menu-item]:py-3.5 [&_.menu-item]:text-left [&_.menu-item]:text-[17px] [&_.menu-item:disabled]:opacity-40 [&_.menu-item:active]:bg-ink/[0.07]`}>
             {children}
           </div>
           {doneLabel !== null && (
@@ -156,7 +160,9 @@ export function ActionSheet({
         className="glass-panel fixed z-[55] flex max-h-[70dvh] min-w-[12rem] max-w-[22rem] flex-col overflow-hidden rounded-[16px] text-sm motion-safe:animate-fade-in [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-3.5 [&_.menu-item]:py-2 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 [&_.menu-item:hover]:bg-ink/[0.06]"
       >
         {header && <div className="shrink-0 space-y-2 px-3 pb-2 pt-3" onClick={(e) => e.stopPropagation()}>{header}</div>}
-        <div className={`min-h-0 flex-1 overflow-y-auto pb-1.5 ${header ? "" : "pt-1.5"}`}>{children}</div>
+        {/* a confirmation says what goes above its button, as a Mac alert does */}
+        {confirm && title && <p className="max-w-[16rem] px-3.5 pb-0.5 pt-2.5 text-xs text-ink-soft" onClick={(e) => e.stopPropagation()}>{title}</p>}
+        <div className={`min-h-0 flex-1 overflow-y-auto pb-1.5 ${header || (confirm && title) ? "" : "pt-1.5"}`}>{children}</div>
       </div>
     </>,
     document.body,

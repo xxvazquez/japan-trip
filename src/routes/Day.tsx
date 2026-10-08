@@ -879,6 +879,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             <li className={INSET_DIVIDER}>
               <ConfirmButton
                 label="Delete day"
+                message="This day and its plan will be deleted."
                 onConfirm={() => undoable("Day deleted", () => { removeEntity("days", day.id); leave("/"); })}
                 className="w-full justify-center px-3.5 py-2.5 text-xs text-danger active:bg-ink/[0.07]"
               >

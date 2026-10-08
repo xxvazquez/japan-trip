@@ -1592,6 +1592,7 @@ export default function MapTab() {
                 </span>
                 <ConfirmButton
                   label="Merge duplicate areas"
+                  message="Areas with the same name become one, with all their places."
                   onConfirm={() => undoable("Duplicate areas merged", mergeDuplicateAreas)}
                   className="shrink-0 text-accent"
                 >
@@ -2308,7 +2309,7 @@ function PlaceRow({
         {!readOnly && (
           <ul className="overflow-hidden rounded-[12px] bg-surface">
             <li>
-              <ConfirmButton onConfirm={onRemove} label="Remove place" className={`${rowCls} w-full text-left text-danger`}>
+              <ConfirmButton onConfirm={onRemove} label="Remove place" message="This place will be removed from the trip and its areas. Steps on it keep their name." className={`${rowCls} w-full text-left text-danger`}>
                 <Icon name="trash" size={15} className="shrink-0" /> Remove place
               </ConfirmButton>
             </li>

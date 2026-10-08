@@ -13,11 +13,15 @@ export function ConfirmButton({
   children,
   className = "",
   label = "Delete",
+  message,
 }: {
   onConfirm: () => void;
   children: ReactNode;
   className?: string;
   label?: string;
+  /** what goes, said above the button ("This day and its plan will be
+   *  deleted.") — iOS's confirmation message; else just "Delete day?" */
+  message?: string;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLButtonElement>(null);
@@ -32,8 +36,8 @@ export function ConfirmButton({
       >
         {children}
       </button>
-      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={ref} title={`${label}?`}>
-        <button type="button" className="menu-item text-danger" onClick={onConfirm}>
+      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={ref} title={message ?? `${label}?`} confirm>
+        <button type="button" className="menu-item justify-center text-danger" onClick={onConfirm}>
           {label}
         </button>
       </ActionSheet>
