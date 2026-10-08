@@ -701,6 +701,17 @@ function AddRow({ label, onClick }: { label: string; onClick: () => void }) {
   );
 }
 
+/** a label/value row whose value is typed — its own component, not one made
+ *  inside a panel's render, which remounts on every change to the trip and
+ *  drops whatever was being typed into it */
+function EditRow({ label, value, onCommit, placeholder }: { label: string; value: string; onCommit: (v: string) => void; placeholder?: string }) {
+  return (
+    <Row label={label}>
+      <Editable label={label} value={value} onCommit={onCommit} placeholder={placeholder ?? "Add"} />
+    </Row>
+  );
+}
+
 function Setup() {
   const data = useData();
   const mutate = useApp((s) => s.mutateTrip);
@@ -708,12 +719,6 @@ function Setup() {
   if (!data) return null;
   if (data.config.demo) return <DemoNotice />;
   const { config, meta } = data;
-
-  const EditRow = ({ label, value, onCommit, placeholder }: { label: string; value: string; onCommit: (v: string) => void; placeholder?: string }) => (
-    <Row label={label}>
-      <Editable label={label} value={value} onCommit={onCommit} placeholder={placeholder ?? "Add"} />
-    </Row>
-  );
 
   // moving either end slides the whole itinerary — the length is set by the
   // days. Before there are any days there's nothing to slide, so each date
@@ -1440,11 +1445,14 @@ function Content() {
   const nameOf = (x: Record<string, unknown>): string =>
     (x.title as string) || (x.name as string) || (x.label as string) || (x.base as string) || (x.date as string) || (x.id as string);
 
-  const Rows = ({ type }: { type: EntityType }) => {
+  // called, not mounted as <Rows/>: a component made inside this render is a
+  // new one every render, so any change to the trip remounted every row and
+  // shut a menu that was open on one
+  const rows = (type: EntityType) => {
     const list = data[type] as { id: string }[];
     const isOpen = open === type;
     return (
-      <div className="relative px-3.5 after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
+      <div key={type} className="relative px-3.5 after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
         <button onClick={() => setOpen(isOpen ? null : type)} className="flex w-full items-center gap-3 py-3 text-left">
           <IconTile size="sm" {...CONTENT_TILE[type]} />
           <span className="min-w-0 flex-1 text-sm leading-snug text-ink">{ENTITY_LABELS[type]}</span>
@@ -1579,7 +1587,7 @@ function Content() {
             </>
           }
         >
-          {grp.types.map((type) => <Rows key={type} type={type} />)}
+          {grp.types.map((type) => rows(type))}
         </Section>
       ))}
 
@@ -1714,7 +1722,7 @@ function MapLayers({ names, colorOf, icons }: {
         placeholder="Name"
         action="Create"
         onSubmit={(name) => {
-          if (naming && name.trim()) choose(naming, name);
+          if (naming && name.trim()) choose(naming, name.trim());
           setNaming(null);
         }}
         onClose={() => setNaming(null)}
