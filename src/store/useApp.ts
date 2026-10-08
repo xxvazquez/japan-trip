@@ -829,11 +829,21 @@ async function flush(get: () => AppStore) {
     });
   markWritten([...rows.values(), ...dels.values()].map((o) => o.id));
 
-  for (const { type, id } of rows.values()) {
+  // rows other rows point at go first — stays (a day's or base's hotel_id),
+  // then bases (a place's leg_id) — so a new stay and the day linked to it in
+  // the same batch don't race, and the server never sees the link first
+  const upsert = ({ type, id }: { type: EntityType; id: string }) => {
     const list = data[type] as WithId[];
     const i = list.findIndex((x) => x.id === id);
-    if (i >= 0) tasks.push(run(be.upsertRow(activeId, type, list[i] as never, i), { t: "row", type, id }));
-  }
+    return i >= 0 ? run(be.upsertRow(activeId, type, list[i] as never, i), { t: "row", type, id }) : Promise.resolve();
+  };
+  const allRows = [...rows.values()];
+  const parents = (type: EntityType) => Promise.all(allRows.filter((r) => r.type === type).map(upsert));
+  tasks.push(
+    parents("hotels")
+      .then(() => parents("legs"))
+      .then(() => Promise.all(allRows.filter((r) => r.type !== "hotels" && r.type !== "legs").map(upsert))),
+  );
   for (const { type, id } of dels.values()) tasks.push(run(be.deleteRow(activeId, type, id), { t: "del", type, id }));
   for (const type of positions) {
     const list = data[type] as WithId[];
@@ -1685,6 +1695,8 @@ export const useApp = create<AppStore>((set, get) => {
       // area merge tool don't filter, so they'd quietly drift high forever
       const touchedAreas: string[] = [];
       const touchedDays: string[] = [];
+      const touchedLegs: string[] = [];
+      const touchedPlaces: string[] = [];
       const goneDays: string[] = [];
       let spans: ReturnType<typeof fitSpans> | null = null;
       const next = local((d) => {
@@ -1717,6 +1729,25 @@ export const useApp = create<AppStore>((set, get) => {
             if (changed) touchedDays.push(day.id);
           }
         }
+        // links to the row go with it, as the database's `on delete set null`
+        // does on its side — left here, the next save of that day / base /
+        // place would point at a row the server no longer has and be refused.
+        // Cleared rather than deleted, so the save writes the column empty.
+        if (type === "hotels") {
+          for (const day of d.days) if (day.hotelId === id) { day.hotelId = undefined; touchedDays.push(day.id); }
+          for (const leg of d.legs) if (leg.hotelId === id) { leg.hotelId = undefined; touchedLegs.push(leg.id); }
+        }
+        if (type === "legs") {
+          for (const p of d.places) if (p.legId === id) { p.legId = undefined; touchedPlaces.push(p.id); }
+        }
+        if (type === "areas") {
+          for (const day of d.days) {
+            if (!day.areaIds?.includes(id)) continue;
+            const rest = day.areaIds.filter((x) => x !== id);
+            day.areaIds = rest.length ? rest : undefined;
+            touchedDays.push(day.id);
+          }
+        }
         // a day still pointing at a deleted journey would keep its Travel tag
         if (type === "journeys") {
           for (const day of d.days) {
@@ -1736,6 +1767,8 @@ export const useApp = create<AppStore>((set, get) => {
         if (goneDays.length) enqueue(get, { t: "pos", type: "days" });
         for (const areaId of touchedAreas) enqueue(get, { t: "areaPlaces", areaId });
         for (const dayId of touchedDays) enqueue(get, { t: "row", type: "days", id: dayId });
+        for (const legId of touchedLegs) enqueue(get, { t: "row", type: "legs", id: legId });
+        for (const placeId of touchedPlaces) enqueue(get, { t: "row", type: "places", id: placeId });
         if (spans) enqueueSpans(get, spans);
       }
     },

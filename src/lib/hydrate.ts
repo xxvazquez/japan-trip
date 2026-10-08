@@ -1,7 +1,7 @@
 import { THEME_PRESETS } from "./themePresets";
 import { mapUrlCoords } from "./maps";
 import { sortLegs } from "./spans";
-import type { Day, Doc, DocField, ExpenseCategory, Hotel, ModuleConfig, PlanItem, ThemeTokens, TripData } from "@/core/types";
+import type { Day, Doc, DocField, ExpenseCategory, Hotel, Leg, ModuleConfig, Place, PlanItem, ThemeTokens, TripData } from "@/core/types";
 import { todayISO } from "@/lib/dates";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
@@ -426,6 +426,26 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
     const kept = [...new Set(ids)].filter((id) => typeof id === "string" && journeyIdSet.has(id));
     if (kept.length) day.journeyIds = kept;
     else delete day.journeyIds;
+  }
+
+  // a link to a stay, base or area that's since been deleted goes, as the
+  // database's own `on delete set null` does — left in, the next save of
+  // that day / base / place would point at a row that isn't there, and the
+  // server refuses it
+  const ids = (k: "hotels" | "legs" | "areas") => new Set((d[k] as { id?: string }[]).map((x) => x?.id));
+  const hotelIds = ids("hotels");
+  const legIds = ids("legs");
+  const areaIds = ids("areas");
+  for (const row of [...(d.days as Day[]), ...(d.legs as Leg[])]) {
+    if (row && typeof row === "object" && row.hotelId && !hotelIds.has(row.hotelId)) delete row.hotelId;
+  }
+  for (const p of d.places as Place[]) {
+    if (p && typeof p === "object" && p.legId && !legIds.has(p.legId)) delete p.legId;
+  }
+  for (const day of d.days as Day[]) {
+    if (!day || typeof day !== "object" || !Array.isArray(day.areaIds)) continue;
+    const kept = day.areaIds.filter((id) => areaIds.has(id));
+    if (kept.length !== day.areaIds.length) day.areaIds = kept.length ? kept : undefined;
   }
 
   // v12: the Day trip box (getting there / getting back / last way back) is

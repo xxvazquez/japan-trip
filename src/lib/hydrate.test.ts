@@ -49,6 +49,22 @@ describe("normalizeTrip migrations", () => {
     expect(d.days[1].journeyIds).toBeUndefined();
   });
 
+  it("drops links to a stay, base or area that's been deleted", () => {
+    const t = normalizeTrip({
+      hotels: [{ id: "h1", name: "Inn" }],
+      legs: [{ id: "l1", base: "Town", start: "2026-11-01", end: "2026-11-02", color: "ai", hotelId: "gone" }],
+      areas: [{ id: "a1", name: "Old town", placeIds: [] }],
+      days: [
+        { id: "d1", date: "2026-11-01", legId: "l1", hotelId: "h1", areaIds: ["a1", "gone"] },
+        { id: "d2", date: "2026-11-02", legId: "l1", hotelId: "gone", areaIds: ["gone"] },
+      ],
+      places: [{ id: "p1", name: "Cafe", lat: 1, lng: 2, legId: "gone" }, { id: "p2", name: "Park", lat: 1, lng: 2, legId: "l1" }],
+    } as never) as TripData;
+    expect(t.legs[0].hotelId).toBeUndefined();
+    expect(t.days.map((d) => [d.hotelId, d.areaIds])).toEqual([["h1", ["a1"]], [undefined, undefined]]);
+    expect(t.places.map((p) => p.legId)).toEqual([undefined, "l1"]);
+  });
+
   it("moves the retired Day trip fields into the day's notes, once", () => {
     const raw = legacy();
     const days = raw.days as Record<string, unknown>[];

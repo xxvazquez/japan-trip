@@ -336,6 +336,29 @@ describe("signed-in: clearing a field", () => {
     expect(b.s().data!.hotels.find((h) => h.id === "h-old")!.fields ?? []).toEqual([]);
   });
 
+  it("deleting a stay unlinks its days and base on the server, and Undo links them again", async () => {
+    await seedTrip();
+    const a = await boot();
+    const [hotelId, legId, dayId] = [crypto.randomUUID(), crypto.randomUUID(), crypto.randomUUID()];
+    a.s().addEntity("hotels", { id: hotelId, name: "Inn", fields: [] } as never);
+    a.s().addEntity("legs", { id: legId, base: "Town", start: "2026-11-01", end: "2026-11-02", color: "ai", hotelId } as never);
+    a.s().addEntity("days", { id: dayId, date: "2026-11-01", legId, hotelId, title: "Day" } as never);
+    await a.settlePending();
+    expect(rows("days").find((r) => r.id === dayId)?.hotel_id).toBe(hotelId);
+
+    a.s().undoable("Stay deleted", () => a.s().removeEntity("hotels", hotelId));
+    expect(a.s().data!.days.find((d) => d.id === dayId)?.hotelId).toBeUndefined();
+    await a.settlePending();
+    expect(rows("days").find((r) => r.id === dayId)?.hotel_id ?? null).toBeNull();
+    expect(rows("legs").find((r) => r.id === legId)?.hotel_id ?? null).toBeNull();
+
+    a.s().undo();
+    await a.settlePending();
+    expect(rows("hotels").some((r) => r.id === hotelId)).toBe(true);
+    expect(rows("days").find((r) => r.id === dayId)?.hotel_id).toBe(hotelId);
+    expect(rows("legs").find((r) => r.id === legId)?.hotel_id).toBe(hotelId);
+  });
+
   it("undoing an edit that added a note takes the note off the server too", async () => {
     await seedTrip();
     const a = await boot();
