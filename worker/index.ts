@@ -1,4 +1,5 @@
 import { signedIn, unauthorized } from "./auth";
+import { handleGoogleToken } from "./google";
 import { handlePlaceFacts } from "./placeFacts";
 import { handleTabelog } from "./tabelog";
 
@@ -12,6 +13,9 @@ interface Env {
    *  (Worker variables, see README) */
   SUPABASE_URL?: string;
   SUPABASE_ANON_KEY?: string;
+  /** the Google OAuth client's secret, so Drive stays connected (secret,
+   *  see README) */
+  GOOGLE_CLIENT_SECRET?: string;
 }
 
 const routes = { "/api/tabelog": handleTabelog, "/api/place-facts": handlePlaceFacts };
@@ -21,9 +25,14 @@ const routes = { "/api/tabelog": handleTabelog, "/api/place-facts": handlePlaceF
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+    const auth = { supabaseUrl: env.SUPABASE_URL, anonKey: env.SUPABASE_ANON_KEY };
+    if (url.pathname === "/api/google-token") {
+      if (!(await signedIn(request, auth))) return unauthorized();
+      return handleGoogleToken(request.method, await request.text(), env.GOOGLE_CLIENT_SECRET);
+    }
     const handle = routes[url.pathname as keyof typeof routes];
     if (request.method !== "GET" || !handle) return new Response("Not found", { status: 404 });
-    if (!(await signedIn(request, { supabaseUrl: env.SUPABASE_URL, anonKey: env.SUPABASE_ANON_KEY }))) return unauthorized();
+    if (!(await signedIn(request, auth))) return unauthorized();
     return handle(url, { tavily: env.TAVILY_API_KEY, exa: env.EXA_API_KEY, linkup: env.LINKUP_API_KEY });
   },
 };

@@ -106,6 +106,7 @@ export const isAuthReady = (): boolean => current.ready;
 /** see `stale` — an empty answer from the server then means "not allowed yet", not "no trips" */
 export const isSessionStale = (): boolean => stale;
 export const getUserId = (): string | null => current.user?.id ?? null;
+export const getUserEmail = (): string | undefined => current.user?.email ?? undefined;
 
 export async function signInWithGoogle() {
   const sb = await getSupabase();
@@ -120,6 +121,7 @@ export async function signOut() {
     await settlePending(4000);
     await clearDeviceMirrors(); // the next account on this device must not inherit these trips
     await (await import("@/lib/fileStore")).clearFileCopies(); // …or their attachments
+    (await import("@/lib/drive")).forgetDrive(); // …or their Google Drive
   } catch { /* never let this block signing out */ }
   const sb = await getSupabase();
   await sb?.auth.signOut();

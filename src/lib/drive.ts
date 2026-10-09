@@ -8,40 +8,52 @@
  * The `Doc` entry stores the Drive file id, which syncs like any other field, so
  * both people resolve the same file.
  *
- * Browser-only OAuth via Google Identity Services: an access token (~1h, held in
- * memory only), scope `drive.file` — the app can see nothing in Drive except the
- * files it created here. Reuses the project's existing Web OAuth client.
+ * Browser OAuth via Google Identity Services, scope `drive.file` — the app can
+ * see nothing in Drive except the files it created here. Reuses the project's
+ * existing Web OAuth client. With the client's secret on the server
+ * (`worker/google.ts`), Google's window returns a code the server swaps for a
+ * refresh token kept on this device, so Drive stays connected across launches
+ * and an expired hour-long access token is renewed with no window at all.
+ * Without it, the window hands out that one hour-long token, held in memory.
  */
+
+import { apiFetch } from "./api";
+import { getUserEmail } from "./auth";
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim();
 const SCOPE = "https://www.googleapis.com/auth/drive.file";
 const API = "https://www.googleapis.com/drive/v3";
 const UPLOAD = "https://www.googleapis.com/upload/drive/v3/files";
+const EXCHANGE = "/api/google-token";
+const STORE = "za.drive";
 
 /** True when a Google client id is configured — otherwise attachments fall back
  *  to the on-device blob store. */
 export const driveEnabled = Boolean(CLIENT_ID);
 
-/* ------------------------------------------------------------ GIS token flow */
+/* ------------------------------------------------------------ GIS sign-in */
 
-interface TokenClient {
-  requestAccessToken(opts?: { prompt?: string }): void;
-}
 interface TokenResponse {
   access_token?: string;
   expires_in?: number;
+  refresh_token?: string;
+  code?: string;
   error?: string;
   error_description?: string;
+}
+interface ClientConfig {
+  client_id: string;
+  scope: string;
+  login_hint?: string;
+  ux_mode?: "popup";
+  callback: (r: TokenResponse) => void;
+  error_callback?: (e: { type?: string }) => void;
 }
 type Gis = {
   accounts: {
     oauth2: {
-      initTokenClient(cfg: {
-        client_id: string;
-        scope: string;
-        callback: (r: TokenResponse) => void;
-        error_callback?: (e: { type?: string }) => void;
-      }): TokenClient;
+      initTokenClient(cfg: ClientConfig): { requestAccessToken(opts?: { prompt?: string }): void };
+      initCodeClient(cfg: ClientConfig): { requestCode(): void };
     };
   };
 };
@@ -61,25 +73,62 @@ function loadGis(): Promise<void> {
   return scriptReady;
 }
 
-let client: TokenClient | null = null;
-let pending: { ok: (t: string) => void; fail: (e: Error) => void } | null = null;
+/* What this device holds: the access token (about an hour) and, when the
+ * server can renew it, the refresh token that outlives it. */
 let token: { value: string; exp: number } | null = null;
+let refresh: string | null = null;
+try {
+  const saved = JSON.parse(localStorage.getItem(STORE) ?? "null") as { refresh?: string; access?: string; exp?: number } | null;
+  refresh = saved?.refresh ?? null;
+  if (saved?.access && saved.exp) token = { value: saved.access, exp: saved.exp };
+} catch { /* nothing saved */ }
+
+function keep(r: TokenResponse): string {
+  token = { value: r.access_token!, exp: Date.now() + ((r.expires_in ?? 3600) - 60) * 1000 };
+  if (r.refresh_token) refresh = r.refresh_token;
+  // only worth keeping across launches alongside a refresh token
+  try { if (refresh) localStorage.setItem(STORE, JSON.stringify({ refresh, access: token.value, exp: token.exp })); } catch { /* storage full or blocked */ }
+  return token.value;
+}
+
+/** Drop this device's Drive access — signing out must not leave it for the
+ *  next account. */
+export function forgetDrive() {
+  token = null;
+  refresh = null;
+  try { localStorage.removeItem(STORE); } catch { /* nothing to drop */ }
+}
+
+/** Ask the server to swap a code or the refresh token for an access token. */
+async function exchange(body: { code: string } | { refresh: string }): Promise<string> {
+  let res: Response;
+  try {
+    res = await apiFetch(EXCHANGE, { method: "POST", body: JSON.stringify({ clientId: CLIENT_ID, ...body }) });
+  } catch {
+    throw new Error("Couldn’t reach Google Drive — try again with a connection.");
+  }
+  const r = (await res.json().catch(() => ({}))) as TokenResponse;
+  if (res.ok && r.access_token) return keep(r);
+  // Google no longer takes this refresh token (revoked, or a test app's week ran out)
+  if (res.status === 400 && "refresh" in body) forgetDrive();
+  throw new Error(res.status === 400 ? DRIVE_DISCONNECTED : "Couldn’t reach Google Drive — try again with a connection.");
+}
+
+let client: { open(): void } | null = null;
+let pending: { ok: (t: string) => void; fail: (e: Error) => void } | null = null;
 
 async function ensureClient() {
-  await loadGis();
   if (client) return;
-  client = gis()!.accounts.oauth2.initTokenClient({
+  const [, lasting] = await Promise.all([
+    loadGis(),
+    apiFetch(EXCHANGE).then((r) => (r.ok ? r.json() : {})).then((r: { configured?: boolean }) => !!r.configured, () => false),
+  ]);
+  if (client) return;
+  const oauth = gis()!.accounts.oauth2;
+  const cfg: Omit<ClientConfig, "callback"> = {
     client_id: CLIENT_ID!,
     scope: SCOPE,
-    callback: (r) => {
-      if (r.access_token) {
-        token = { value: r.access_token, exp: Date.now() + ((r.expires_in ?? 3600) - 60) * 1000 };
-        pending?.ok(r.access_token);
-      } else {
-        pending?.fail(new Error(r.error_description || r.error || "Google sign-in failed."));
-      }
-      pending = null;
-    },
+    login_hint: getUserEmail(), // goes straight to the signed-in account
     error_callback: (e) => {
       pending?.fail(new Error(
         e?.type === "popup_closed" ? "Google sign-in was closed before it finished."
@@ -88,17 +137,44 @@ async function ensureClient() {
       ));
       pending = null;
     },
-  });
+  };
+  const failed = (r: TokenResponse) => new Error(r.error_description || r.error || "Google sign-in failed.");
+  if (lasting) {
+    const c = oauth.initCodeClient({
+      ...cfg,
+      ux_mode: "popup",
+      callback: (r) => {
+        const p = pending;
+        pending = null;
+        if (r.code) exchange({ code: r.code }).then(p?.ok, p?.fail);
+        else p?.fail(failed(r));
+      },
+    });
+    client = { open: () => c.requestCode() };
+  } else {
+    const c = oauth.initTokenClient({
+      ...cfg,
+      callback: (r) => {
+        if (r.access_token) pending?.ok(keep(r));
+        else pending?.fail(failed(r));
+        pending = null;
+      },
+    });
+    // "" = the consent screen only the first time; after that the popup just
+    // picks the account and closes
+    client = { open: () => c.requestAccessToken({ prompt: "" }) };
+  }
 }
 
-/** Load Google's sign-in script and set up the token client ahead of time.
+/** Load Google's sign-in script and set up the sign-in client ahead of time.
  *  Browsers (iOS above all) only let a popup open inside the tap that asked
  *  for it, so by the time someone taps "Connect", everything must be ready
  *  for `connectDrive` to open it without an await in between. */
 export const prepareDrive = (): Promise<void> => ensureClient();
 
-/** True while a Drive access token is held and unexpired (~1h, memory only). */
-export const driveConnected = (): boolean => !!token && token.exp > Date.now();
+/** True while this device can reach Drive without a sign-in window: an
+ *  unexpired access token, or a refresh token to renew one with. */
+export const driveConnected = (): boolean => !!refresh || (!!token && token.exp > Date.now());
 
 function request(): Promise<string> {
   return new Promise<string>((ok, fail) => {
@@ -109,9 +185,7 @@ function request(): Promise<string> {
       ok: (t) => { clearTimeout(timer); ok(t); },
       fail: (e) => { clearTimeout(timer); fail(e); },
     };
-    // "" = the consent screen only the first time; after that the popup just
-    // picks the account and closes
-    client!.requestAccessToken({ prompt: "" });
+    client!.open();
   });
 }
 
@@ -119,17 +193,26 @@ function request(): Promise<string> {
  *  `prepareDrive` has resolved — any await before this point and the browser
  *  blocks the popup. */
 export function connectDrive(): Promise<string> {
-  if (driveConnected()) return Promise.resolve(token!.value);
+  if (driveConnected()) return getToken();
   return client ? request() : ensureClient().then(request);
 }
 
 export const DRIVE_DISCONNECTED = "Google Drive access has run out — tap Connect Google Drive, then attach again.";
 
-/** The held token. No popup from here: an upload runs after the file picker,
- *  outside any tap, so a missing token means connecting again first. */
-function getToken(): string {
-  if (!driveConnected()) throw new Error(DRIVE_DISCONNECTED);
-  return token!.value;
+let renewing: Promise<string> | null = null;
+
+/** A live access token, renewed from the refresh token when it's run out. No
+ *  window from here: an upload runs after the file picker, outside any tap,
+ *  so with nothing to renew from it means connecting again first. */
+function getToken(): Promise<string> {
+  if (token && token.exp > Date.now()) return Promise.resolve(token.value);
+  if (!refresh) return Promise.reject(new Error(DRIVE_DISCONNECTED));
+  return (renewing ??= exchange({ refresh }).finally(() => { renewing = null; }));
+}
+
+/** Drive turned the access token down — let the next call renew it. */
+function expire() {
+  token = null;
 }
 
 /* -------------------------------------------------------------------- calls */
@@ -140,9 +223,13 @@ async function api<T = unknown>(url: string, init: RequestInit = {}): Promise<T>
       ...init,
       headers: { ...(init.headers as Record<string, string>), Authorization: `Bearer ${t}` },
     });
-  const res = await call(getToken());
+  let res = await call(await getToken());
+  if (res.status === 401 && refresh) {
+    expire();
+    res = await call(await getToken());
+  }
   if (res.status === 401) {
-    token = null;
+    expire();
     throw new Error(DRIVE_DISCONNECTED);
   }
   if (!res.ok) throw new Error(`Drive ${res.status}: ${(await res.text()).slice(0, 200)}`);
@@ -194,9 +281,14 @@ export async function uploadToDrive(blob: Blob, name: string, folderId: string):
 
 /** The file's bytes, to keep a copy on the device. Needs a connected token. */
 export async function downloadFromDrive(fileId: string): Promise<Blob> {
-  const res = await fetch(`${API}/files/${fileId}?alt=media`, { headers: { Authorization: `Bearer ${getToken()}` } });
+  const get = async () => fetch(`${API}/files/${fileId}?alt=media`, { headers: { Authorization: `Bearer ${await getToken()}` } });
+  let res = await get();
+  if (res.status === 401 && refresh) {
+    expire();
+    res = await get();
+  }
   if (res.status === 401) {
-    token = null;
+    expire();
     throw new Error(DRIVE_DISCONNECTED);
   }
   if (!res.ok) throw new Error(`Drive ${res.status}`);

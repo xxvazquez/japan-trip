@@ -6,6 +6,7 @@ import { execSync } from "node:child_process";
 import { readFileSync, readdirSync } from "node:fs";
 import { handleTabelog } from "./worker/tabelog";
 import { handlePlaceFacts } from "./worker/placeFacts";
+import { handleGoogleToken } from "./worker/google";
 import { signedIn, unauthorized, type AuthConfig } from "./worker/auth";
 import type { SearchKeys } from "./worker/search";
 
@@ -81,10 +82,20 @@ function pdfjsAssets(): Plugin {
  *  end to end locally. */
 /** `auth` is the Supabase project to check a caller's session against
  *  (`worker/auth.ts`), or null in the sandbox, which has no sign-in */
-function workerApi(searchKeys: SearchKeys, auth: AuthConfig | null): Plugin {
+function workerApi(searchKeys: SearchKeys, auth: AuthConfig | null, googleSecret: string | undefined): Plugin {
+  const readBody = (req: Connect.IncomingMessage) =>
+    new Promise<string>((ok, fail) => {
+      let body = "";
+      req.on("data", (c) => (body += c));
+      req.on("end", () => ok(body));
+      req.on("error", fail);
+    });
   const api: Connect.NextHandleFunction = (req, res, next) => {
     const url = new URL(req.url ?? "/", "http://localhost");
-    const handle = { "/api/tabelog": handleTabelog, "/api/place-facts": handlePlaceFacts }[url.pathname];
+    const handle =
+      url.pathname === "/api/google-token"
+        ? () => readBody(req).then((body) => handleGoogleToken(req.method ?? "GET", body, googleSecret))
+        : { "/api/tabelog": handleTabelog, "/api/place-facts": handlePlaceFacts }[url.pathname];
     if (!handle) return next();
     const allowed = auth ? signedIn({ headers: new Headers({ Authorization: req.headers.authorization ?? "" }) }, auth) : Promise.resolve(true);
     allowed.then((ok) => (ok ? handle(url, searchKeys) : unauthorized())).then(async (r) => {
@@ -149,6 +160,7 @@ export default defineConfig(({ command, mode }) => ({
       (({ TAVILY_API_KEY, EXA_API_KEY, LINKUP_API_KEY }) => ({ tavily: TAVILY_API_KEY, exa: EXA_API_KEY, linkup: LINKUP_API_KEY }))(loadEnv(mode, process.cwd(), "")),
       (({ VITE_SANDBOX, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY }) =>
         VITE_SANDBOX === "1" ? null : { supabaseUrl: VITE_SUPABASE_URL, anonKey: VITE_SUPABASE_ANON_KEY })(loadEnv(mode, process.cwd(), "VITE_")),
+      loadEnv(mode, process.cwd(), "").GOOGLE_CLIENT_SECRET,
     ),
     VitePWA({
       registerType: "autoUpdate",
