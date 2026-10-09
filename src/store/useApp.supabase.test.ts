@@ -41,9 +41,13 @@ async function seedTrip(name = "Server trip"): Promise<string> {
   return id;
 }
 
+/** every page booted so far — `resetModules` doesn't stop the old ones */
+const pages: { useApp: { setState: (s: { activeId: null; data: null }) => void } }[] = [];
+
 async function boot() {
   vi.resetModules();
   const app = await import("@/store/useApp");
+  pages.push(app);
   const kv = (await import("@/lib/storage")).store;
   const snaps = await import("@/lib/safety/snapshots");
   await app.useApp.getState().init();
@@ -58,6 +62,9 @@ const outbox = async (kv: { get: <T>(k: string) => Promise<T | undefined>; keys:
 };
 
 beforeEach(() => {
+  // close the earlier tests' pages: one left retrying a save it couldn't
+  // send (the offline test's) would send it to this test's server instead
+  for (const page of pages.splice(0)) page.useApp.setState({ activeId: null, data: null });
   fake.current = createFakeSupabase();
   vi.restoreAllMocks();
 });
