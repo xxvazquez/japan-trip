@@ -25,7 +25,7 @@ import { isMapsShortLink, mapUrlCoords, mapsLinkPlace, placeMapLink, sharePlace,
 import { apiGet } from "@/lib/api";
 import { osmVenueAt, searchPlaces, reverseGeocode, type GeoResult } from "@/lib/geocode";
 import { haversineKm, fmtDistanceKm, fmtWalk, useGeolocation } from "@/lib/geo";
-import { fmtMinutes } from "@/lib/time";
+import { fmtClocksIn, fmtMinutes } from "@/lib/time";
 import { legHex } from "@/lib/legColors";
 import { suggestAreas, type AreaSuggestion } from "@/lib/cluster";
 import { useIsDark } from "@/lib/mode";
@@ -70,6 +70,8 @@ const TILE_DIVIDER =
  *  siblings start at the nested text; the group's last row draws the
  *  area-level hairline, closing the group before the next area. */
 const NESTED_DIVIDER = TILE_DIVIDER.replace("after:left-[3.375rem]", "after:left-[5.875rem]");
+/** a stop of the day: its number ahead of the tile, the hairline at the text */
+const STOP_DIVIDER = TILE_DIVIDER.replace("after:left-[3.375rem]", "after:left-[5.375rem]");
 
 /** case- and accent-blind text for the list's search ("Shinjuku" finds "shinjuku", "Ōsaka" finds "osaka") */
 const foldText = (s: string) => s.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -360,7 +362,9 @@ function useSheetSnap(shellRef: RefObject<HTMLDivElement | null>) {
   });
 
   const availH = containerH || window.innerHeight - 112;
-  const halfStopPx = Math.min(Math.max(halfFitPx ?? Infinity, HALF_MIN_PX), Math.round(availH * HALF_RATIO));
+  /** the tallest "half" can be, whatever the list */
+  const halfCapPx = Math.round(availH * HALF_RATIO);
+  const halfStopPx = Math.min(Math.max(halfFitPx ?? Infinity, HALF_MIN_PX), halfCapPx);
   const stopPx = (s: Snap): number => (s === "half" ? halfStopPx : snapPx(s, availH));
   const sheetHeight = stopPx(snap);
 
@@ -441,7 +445,7 @@ function useSheetSnap(shellRef: RefObject<HTMLDivElement | null>) {
   };
 
   return {
-    sheetRef, snap, setSnap, sheetHeight, halfStopPx, dragging, setPanelRoot, setListOuter,
+    sheetRef, snap, setSnap, sheetHeight, halfStopPx, halfCapPx, dragging, setPanelRoot, setListOuter,
     onHandlePointerDown, onHandlePointerMove, onHandlePointerUp, onHandleClick,
   };
 }
@@ -851,7 +855,7 @@ export default function MapTab() {
 
   const shellRef = useRef<HTMLDivElement | null>(null);
   const {
-    sheetRef, setSnap, sheetHeight, halfStopPx, dragging, setPanelRoot, setListOuter,
+    sheetRef, setSnap, sheetHeight, halfStopPx, halfCapPx, dragging, setPanelRoot, setListOuter,
     onHandlePointerDown, onHandlePointerMove, onHandlePointerUp, onHandleClick,
   } = useSheetSnap(shellRef);
   const {
@@ -1158,6 +1162,24 @@ export default function MapTab() {
     // `dark`: a stay pin's colour is read from the palette, so a flip redraws it
   }, [data, scope, searchHits, catFilter, areaFilter, cityLeg, dayCity, dark]);
   const onMap = useMemo(() => (stays.length ? [...shown, ...stays] : shown), [shown, stays]);
+
+  /** the Today pill's day in plan order: the places its steps visit,
+   *  numbered on the map (joined by a dotted line) and in the list. Not
+   *  while searching or filtering, which ask for a different set. */
+  const dayRoute = useMemo(() => {
+    if (!data || !scope?.startsWith("day:") || searchHits || catFilter.size || areaFilter.size) return null;
+    const day = data.days.find((d) => d.id === scope.slice(4));
+    const here = new Set(scoped.map((p) => p.id));
+    const steps = (day?.plan ?? []).filter((it) => it.placeId && here.has(it.placeId));
+    const ids = steps.map((it) => it.placeId!);
+    const num = new Map<string, number>();
+    const time = new Map<string, string>();
+    for (const it of steps) {
+      if (!num.has(it.placeId!)) num.set(it.placeId!, num.size + 1);
+      if (it.time?.trim() && !time.has(it.placeId!)) time.set(it.placeId!, fmtClocksIn(it.time.trim()));
+    }
+    return num.size >= 2 ? { ids, num, time } : null;
+  }, [data, scope, scoped, searchHits, catFilter, areaFilter]);
   const mapCats = useMemo(() => withStayCategory(data?.config ?? ({} as never)), [data?.config]);
 
   // settle the opening view once: if the default city has no places, widen to
@@ -1319,12 +1341,12 @@ export default function MapTab() {
     return [...byName.values()].filter((g) => g.length > 1);
   }, [data]);
 
-  /** the half sheet's height as of the latest render — the stop the list
-   *  opens at, so on a phone pins are framed in the map left showing above
-   *  it. Read a frame after a change: "half" fits its list, and only knows
-   *  the new list's height once that has rendered. */
+  /** what the half sheet can cover — the stop the list opens at, so on a
+   *  phone pins are framed in the map left showing above it. Its tallest,
+   *  not its height now: "half" fits its list, and a list that grows after
+   *  the fit (a row's station walk arriving) mustn't slide over a pin. */
   const coverRef = useRef(0);
-  coverRef.current = wide || listOnly ? 0 : halfStopPx;
+  coverRef.current = wide || listOnly ? 0 : halfCapPx;
   /** frame points in the map the list leaves showing; the right edge leaves
    *  room for the zoom and location buttons, so no pin hides under them */
   const fitPoints = (pts: { lat: number; lng: number }[], maxZoom: number) => {
@@ -1448,12 +1470,14 @@ export default function MapTab() {
   // bare to `.map()` elsewhere: Array.map's own (item, index) callback shape
   // silently satisfies `(p, distanceKm?)` and the row index gets typeset as a
   // distance ("row 2" → "2.0 km"). Always wrap it: `.map((p) => renderRow(p))`.
-  const renderRow = (p: Place, distanceKm?: number, card = false, nest?: "mid" | "end") => (
+  const renderRow = (p: Place, distanceKm?: number, card = false, nest?: "mid" | "end", stop?: number) => (
     <PlaceRow
       key={p.id}
       place={p}
       card={card}
       nest={nest}
+      stop={stop}
+      stopTime={stop ? dayRoute?.time.get(p.id) : undefined}
       dayId={dayOfPlace.get(p.id)}
       derived={derivedIds.has(p.id)}
       distanceKm={distanceKm}
@@ -1890,6 +1914,24 @@ export default function MapTab() {
           )}
           <div className="h-4" />
         </div>
+      ) : dayRoute ? (
+        // the day as its plan runs, numbered like the map's pins — then any
+        // place its areas bring in, which isn't a stop of its own
+        <div key="list" {...listProps(forMobile)} className="min-h-0 flex-1 overflow-y-auto">
+          <ul className={`${PLACE_CARD} mt-3`}>
+            {[...dayRoute.num].map(([id, n]) => {
+              const p = scoped.find((x) => x.id === id);
+              return p && renderRow(p, undefined, false, undefined, n);
+            })}
+          </ul>
+          {scoped.some((p) => !dayRoute.num.has(p.id)) && (
+            <>
+              <p className="kicker px-5 pb-1.5 pt-4">In Today’s Areas</p>
+              <ul className={PLACE_CARD}>{scoped.filter((p) => !dayRoute.num.has(p.id)).map((p) => renderRow(p))}</ul>
+            </>
+          )}
+          <div className="h-4" />
+        </div>
       ) : cityGroups ? (
         <div key="list" {...listProps(forMobile)} className="min-h-0 flex-1 overflow-y-auto">
           {cityGroups.filter((c) => areaFilter.size === 0 || c.areas.length > 0).map((c) => {
@@ -2001,6 +2043,7 @@ export default function MapTab() {
           places={onMap}
           selectedId={selected}
           derivedIds={derivedIds}
+          route={dayRoute?.ids}
           areaShapes={areaShapes}
           transit={transit}
           basePois={basePois}
@@ -2132,6 +2175,8 @@ function PlaceRow({
   place,
   card = false,
   nest,
+  stop,
+  stopTime,
   dayId,
   derived,
   distanceKm,
@@ -2159,6 +2204,10 @@ function PlaceRow({
   card?: boolean;
   /** a row inside an open area: indented; "end" is the area's last place */
   nest?: "mid" | "end";
+  /** its number in the day's plan, on the Today list — shown ahead of the tile */
+  stop?: number;
+  /** that step's time, in place of the day (it's today) */
+  stopTime?: string;
   dayId?: string;
   derived?: boolean;
   /** shown ahead of the usual category/day meta when the "Nearby" toggle is on */
@@ -2247,8 +2296,8 @@ function PlaceRow({
   const metaBits = [
     distanceKm !== undefined && fmtWalk({ min: estimateWalk(distanceKm).min, km: distanceKm }),
     !catGlyph && place.category && categoryName(place.category),
-    // the card has its day as a button instead
-    !card && day && `on ${fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}`,
+    // the card has its day as a button instead; a stop of today, its time
+    stop ? stopTime : !card && day && `on ${fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}`,
   ].filter(Boolean).join(" · ");
   // grouped-inset rows, iOS Settings style: a quiet label left, the value right
   const rowCls = "flex items-center gap-3 px-3.5 py-2.5 text-sm";
@@ -2483,7 +2532,7 @@ function PlaceRow({
   }
 
   return (
-    <li className={nest === "mid" ? NESTED_DIVIDER : TILE_DIVIDER}>
+    <li className={stop ? STOP_DIVIDER : nest === "mid" ? NESTED_DIVIDER : TILE_DIVIDER}>
         <ContextMenu
           menu={(link || !readOnly) && (
             <>
@@ -2502,6 +2551,8 @@ function PlaceRow({
           )}
         >
           <button onClick={onToggle} className={`flex w-full items-center gap-3 py-2 pr-3.5 text-left ${nest ? "pl-[3.375rem]" : "pl-3.5"} active:bg-ink/[0.07] ${derived ? "opacity-60" : ""}`}>
+            {/* a track number, as Music lists an album */}
+            {stop && <span className="w-5 shrink-0 text-right text-[15px] tabular-nums text-ink-faint">{stop}</span>}
             {tile}
             <span className="min-w-0 flex-1">
               <span className="block break-words text-sm leading-snug text-ink">{place.name}</span>

@@ -11,7 +11,7 @@ import {
   type MapTouchEvent,
 } from "maplibre-gl";
 import { Protocol } from "pmtiles";
-import type { FeatureCollection, Geometry, Point, Polygon } from "geojson";
+import type { FeatureCollection, Geometry, LineString, Point, Polygon } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { buildMapStyle, BASE_POIS_LAYER, kindLabel, labelName } from "@/lib/mapStyle";
 import { Icon } from "@/components/Icon";
@@ -26,7 +26,7 @@ import { DEFAULT_ACCENT } from "@/lib/themePresets";
 export type BasePoi = { name: string; kind?: string; lat: number; lng: number; x: number; y: number };
 
 /** the trip's own pins — a click there picks the pin, never the map */
-const PIN_LAYERS = ["pins", "pins-icon", "clusters", "pinned-icon", "pinned-dot"];
+const PIN_LAYERS = ["pins", "pins-icon", "clusters", "pinned-icon", "pinned-dot", "stop-dot", "stop-num"];
 /** the base map's spots: points of interest, the transit overlay's stops,
  *  named water and islands, and neighbourhood and town names — Maps opens
  *  each of these */
@@ -121,11 +121,74 @@ function applySelection(m: MLMap, selectedId: string | null) {
   if (m.getLayer("pins-icon")) m.setLayoutProperty("pins-icon", "icon-size", iconSize(s));
   if (m.getLayer("pinned-icon")) m.setLayoutProperty("pinned-icon", "icon-size", pinnedIconSize(s));
   if (m.getLayer("pinned-dot")) m.setPaintProperty("pinned-dot", "circle-stroke-width", ["case", ["==", ["get", "id"], s], 5, 3]);
+  if (m.getLayer("stop-dot")) {
+    m.setFilter("stop-halo", ["==", ["get", "id"], s]);
+    m.setPaintProperty("stop-dot", "circle-radius", stopRadius(s));
+    m.setLayoutProperty("stop-num", "text-size", ["case", ["==", ["get", "id"], s], 15, 13]);
+  }
 }
+
+/** a stop's numbered disc, a touch bigger when it's the pick */
+const stopRadius = (selId: string): unknown => ["case", ["==", ["get", "id"], selId], 14.5, 12];
 
 /** move the camera to a picked place, centred in the map a bottom sheet leaves showing */
 function flyToPlace(m: MLMap, p: Place, animate: boolean, coverBottom = 140) {
   m.easeTo({ center: [p.lng, p.lat], zoom: Math.max(m.getZoom(), 14), duration: animate ? 500 : 0, offset: [0, -coverBottom / 2] });
+}
+
+/** a day's stops: each place's number in the day (its first visit), and
+ *  the rest of the places, which stay ordinary pins */
+function splitStops(places: Place[], route: string[] | undefined): { stops: Place[]; others: Place[]; num: Map<string, number> } {
+  const num = new Map<string, number>();
+  for (const id of route ?? []) if (!num.has(id)) num.set(id, num.size + 1);
+  if (num.size < 2) return { stops: [], others: places, num: new Map() };
+  return { stops: places.filter((p) => num.has(p.id)), others: places.filter((p) => !num.has(p.id)), num };
+}
+
+/** the day's stops as numbered features, in the place's own colour */
+function stopsFC(stops: Place[], num: Map<string, number>, catColors: CatColors): FeatureCollection<Point> {
+  return {
+    type: "FeatureCollection",
+    features: stops.map((p) => ({
+      type: "Feature",
+      id: p.id,
+      geometry: { type: "Point", coordinates: [p.lng, p.lat] },
+      properties: { id: p.id, name: p.name, color: colorFor(p, catColors), n: num.get(p.id) ?? 0 },
+    })),
+  };
+}
+
+/** the line joining a day's stops in order. Each hop bows gently to one
+ *  side (a quadratic curve, a fifth of its length) so it reads as "then
+ *  here", never as the street route — between stations it would be a lie. */
+function routeLine(places: Place[], route: string[] | undefined): FeatureCollection<LineString> {
+  const byId = new Map(places.map((p) => [p.id, p] as const));
+  const pts = (route ?? []).map((id) => byId.get(id)).filter((p): p is Place => !!p)
+    .filter((p, i, all) => i === 0 || p.id !== all[i - 1].id);
+  if (pts.length < 2) return { type: "FeatureCollection", features: [] };
+  const k = Math.cos((pts[0].lat * Math.PI) / 180);
+  const coords: [number, number][] = [[pts[0].lng, pts[0].lat]];
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1], b = pts[i];
+    // work in a locally square plane so the bow is round at any latitude
+    const ax = a.lng * k, bx = b.lng * k;
+    const dx = bx - ax, dy = b.lat - a.lat;
+    const cx = (ax + bx) / 2 - dy * 0.2, cy = (a.lat + b.lat) / 2 + dx * 0.2;
+    for (let t = 1 / 24; t <= 1.0001; t += 1 / 24) {
+      const u = 1 - t;
+      const x = u * u * ax + 2 * u * t * cx + t * t * bx;
+      const y = u * u * a.lat + 2 * u * t * cy + t * t * b.lat;
+      coords.push([x / k, y]);
+    }
+  }
+  return { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: coords } }] };
+}
+
+/** the trip's accent as a colour the map can paint, read from the live
+ *  palette so it follows light/dark and the trip's theme */
+function accentColor(): string {
+  const v = getComputedStyle(document.documentElement).getPropertyValue("--c-accent").trim();
+  return v ? `rgb(${v.split(/\s+/).join(",")})` : FALLBACK;
 }
 
 /** categories the trip wants kept on screen when zoomed out (`config.pinnedCategories`) */
@@ -182,6 +245,7 @@ export function MapView({
   categoryIcons,
   categoryColors,
   pinnedCategories,
+  route,
   dark,
   onSelect,
   onMapClick,
@@ -201,6 +265,9 @@ export function MapView({
   categoryColors?: Record<string, string>;
   /** categories drawn on top, unclustered, and kept visible when zoomed out */
   pinnedCategories?: string[];
+  /** a day's places in plan order (ids, repeats allowed): numbered pins
+   *  joined by a dotted line. Two stops or more, else ordinary pins. */
+  route?: string[];
   /** area outlines to draw under the pins (visible when zoomed out) */
   areaShapes?: AreaShapes | null;
   /** enabled transit categories ("train" | "metro" | "tram" | "bus" | "airport") */
@@ -232,8 +299,8 @@ export function MapView({
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
   const [retryKey, setRetryKey] = useState(0);
   const [online, setOnline] = useState(() => (typeof navigator === "undefined" ? true : navigator.onLine));
-  const state = useRef({ places, selectedId, derivedIds, areaShapes, transit, basePois, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onPoiClick, onContextMenu, onReady, coverBottom });
-  state.current = { places, selectedId, derivedIds, areaShapes, transit, basePois, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onPoiClick, onContextMenu, onReady, coverBottom };
+  const state = useRef({ places, selectedId, derivedIds, areaShapes, transit, basePois, categoryIcons, categoryColors, pinnedCategories, route, dark, onSelect, onMapClick, onLongPress, onPoiClick, onContextMenu, onReady, coverBottom });
+  state.current = { places, selectedId, derivedIds, areaShapes, transit, basePois, categoryIcons, categoryColors, pinnedCategories, route, dark, onSelect, onMapClick, onLongPress, onPoiClick, onContextMenu, onReady, coverBottom };
 
   const applyBasePois = (m: MLMap, on: boolean) => {
     if (m.getLayer(BASE_POIS_LAYER)) m.setLayoutProperty(BASE_POIS_LAYER, "visibility", on ? "visible" : "none");
@@ -250,7 +317,8 @@ export function MapView({
 
   /* add our source + layers on top of the basemap (re-run after a style swap) */
   const addLayers = (m: MLMap) => {
-    const { places: p, selectedId: s, derivedIds: di, areaShapes: sh, transit: tr, categoryIcons: ci, categoryColors: cc, pinnedCategories: pc, dark: d } = state.current;
+    const { places: all, selectedId: s, derivedIds: di, areaShapes: sh, transit: tr, categoryIcons: ci, categoryColors: cc, pinnedCategories: pc, route: rt, dark: d } = state.current;
+    const { stops, others: p, num } = splitStops(all, rt);
     const { pinned, rest } = splitPinned(p, pc);
     const halo = d ? "#14181c" : "#f2efe8";
     const ink = d ? "#e7ebee" : "#1a2026";
@@ -279,6 +347,30 @@ export function MapView({
         "text-offset": [0, -0.9], "text-anchor": "bottom",
       },
       paint: { "text-color": ["get", "color"], "text-opacity": areaFade(0.95) as number, "text-halo-color": halo, "text-halo-width": 2 },
+    });
+
+    // the day's route: a dotted line under every pin, as Maps draws a walk
+    m.addSource("route", { type: "geojson", data: routeLine(all, rt) });
+    // a pale ribbon under the dots, so they read over rail lines of the
+    // same blue and any street colour
+    m.addLayer({
+      id: "route-casing", type: "line", source: "route",
+      layout: { "line-cap": "round", "line-join": "round" },
+      paint: {
+        "line-color": halo,
+        "line-width": ["interpolate", ["linear"], ["zoom"], 10, 7, 15, 11],
+        "line-opacity": 0.85,
+      },
+    });
+    m.addLayer({
+      id: "route-line", type: "line", source: "route",
+      layout: { "line-cap": "round", "line-join": "round" },
+      paint: {
+        "line-color": accentColor(),
+        "line-width": ["interpolate", ["linear"], ["zoom"], 10, 3, 15, 5],
+        "line-dasharray": [0, 1.7],
+        "line-opacity": 0.9,
+      },
     });
 
     ensureMarkerImages(m, p, ci, cc, d);
@@ -364,6 +456,39 @@ export function MapView({
         "icon-ignore-placement": true,
       },
     });
+    // the day's stops: numbered discs over everything else, never clustered
+    m.addSource("stops", { type: "geojson", data: stopsFC(stops, num, cc) });
+    m.addLayer({
+      id: "stop-halo", type: "circle", source: "stops", filter: ["==", ["get", "id"], sel(s)],
+      paint: { "circle-radius": 24, "circle-color": ["get", "color"], "circle-opacity": 0.22 },
+    });
+    m.addLayer({
+      id: "stop-dot", type: "circle", source: "stops",
+      paint: {
+        "circle-color": ["get", "color"],
+        "circle-radius": stopRadius(sel(s)) as number,
+        "circle-stroke-width": 2.5,
+        "circle-stroke-color": d ? "#14181c" : "#ffffff",
+      },
+    });
+    m.addLayer({
+      id: "stop-num", type: "symbol", source: "stops",
+      layout: {
+        "text-field": ["to-string", ["get", "n"]], "text-font": ["Noto Sans Medium"],
+        "text-size": ["case", ["==", ["get", "id"], sel(s)], 15, 13],
+        "text-allow-overlap": true, "text-ignore-placement": true,
+      },
+      paint: { "text-color": "#ffffff" },
+    });
+    m.addLayer({
+      id: "stop-label", type: "symbol", source: "stops",
+      layout: {
+        "text-field": ["get", "name"], "text-font": ["Noto Sans Medium"], "text-size": 12,
+        "text-offset": [0, 1.5], "text-anchor": "top", "text-max-width": 9, "text-optional": true,
+      },
+      paint: { "text-color": ink, "text-halo-color": halo, "text-halo-width": 2 },
+    });
+
     m.addLayer({
       id: "pinned-label", type: "symbol", source: "pinned", minzoom: 11,
       layout: {
@@ -429,6 +554,7 @@ export function MapView({
       m.on("click", "pins-icon", pickPin);
       m.on("click", "pinned-icon", pickPin);
       m.on("click", "pinned-dot", pickPin);
+      m.on("click", "stop-dot", pickPin);
       m.on("click", "clusters", async (e: MapLayerMouseEvent) => {
         const f = e.features?.[0];
         const cid = f?.properties?.cluster_id;
@@ -547,11 +673,14 @@ export function MapView({
   useEffect(() => {
     const m = map.current;
     if (!ready.current || !m) return;
-    ensureMarkerImages(m, places, categoryIcons, categoryColors, state.current.dark);
-    const { pinned, rest } = splitPinned(places, pinnedCategories);
+    const { stops, others, num } = splitStops(places, route);
+    ensureMarkerImages(m, others, categoryIcons, categoryColors, state.current.dark);
+    const { pinned, rest } = splitPinned(others, pinnedCategories);
+    (m.getSource("stops") as GeoJSONSource | undefined)?.setData(stopsFC(stops, num, categoryColors));
+    (m.getSource("route") as GeoJSONSource | undefined)?.setData(routeLine(places, route));
     (m.getSource("places") as GeoJSONSource | undefined)?.setData(toFC(rest, derivedIds, categoryIcons, categoryColors, state.current.dark));
     (m.getSource("pinned") as GeoJSONSource | undefined)?.setData(toFC(pinned, derivedIds, categoryIcons, categoryColors, state.current.dark));
-  }, [places, derivedIds, categoryIcons, categoryColors, pinnedCategories]);
+  }, [places, derivedIds, categoryIcons, categoryColors, pinnedCategories, route]);
 
   useEffect(() => {
     if (ready.current) (map.current!.getSource("areas") as GeoJSONSource | undefined)?.setData(areaShapes ?? EMPTY_FC);

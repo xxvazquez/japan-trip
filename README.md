@@ -385,6 +385,7 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 ### Cities
 
 - **City pills** — **All**, one per city, and **Today** while the trip is running. Picking one narrows both the map and the list.
+- **Today shows the day's route** — its stops are numbered on the map in plan order and joined by a dotted line, and the list runs in the same order with each step's time. Places its areas bring in follow under *In Today's Areas*. The line shows the order, not the streets.
 - **Opens on the city you're in** — the city of the trip place nearest your location (within about 60 km), once location is allowed; opening the Map never asks for it. Away from the trip, or with location off, it goes by date: today's base, else the first base before the trip, the last after. Once you pick a pill it stays.
 - **One pill per city.** Several bases in the same city share a pill (matched by city name).
 - **Which city a place belongs to** — the nearest base within about 60 km, measured from where you're staying there, else the places its days use, else the city found by name. Places further out only show under **All**. Override it on the place's card with **City**.
