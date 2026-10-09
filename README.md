@@ -362,6 +362,7 @@ At 1024px and up (a laptop, or a tablet held sideways), a day's page gets a map 
 
 - It shows the day's places, its areas' places (drawn more quietly) and the hotel, and follows you between days.
 - Tap a pin for its name, **Google Maps** (the place itself) and **Directions**. Opening a step's place card zooms straight to it.
+- Tap any place the map itself draws (a café, shop, temple) for a card with **Add to day** — it saves the place and adds it as the last step of that day — and **Google Maps**.
 - Drag the left edge to resize; **✕** hides it and a small tab brings it back. Both are remembered.
 
 On a phone the pane isn't downloaded at all; **More → Show on Map** on a place card opens the Map tab instead.
