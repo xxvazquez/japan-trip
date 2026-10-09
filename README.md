@@ -591,6 +591,7 @@ Theme and trip logo. **Appearance** (light, dark or *Automatic*) is per device, 
 | Link | Add a link, or remove the one under the cursor |
 | **Done** | Save (tapping away saves too; Esc cancels) |
 
+- With nothing selected, a style or colour applies to the word under the cursor; turning one off clears it from the whole styled run around the cursor.
 - Markdown typed by hand still works: `- ` starts a list, `## ` a heading, `> ` a callout, `[ ] ` a checklist item.
 - A heading with anything under it gets a chevron that folds the section away. The fold is saved with the note.
 - Checklist rings can be ticked without opening the editor.

@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import { Extension, Mark } from "@tiptap/core";
+import type { ResolvedPos } from "@tiptap/pm/model";
 import StarterKit from "@tiptap/starter-kit";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
 import { Placeholder } from "@tiptap/extensions";
@@ -196,6 +197,24 @@ export function NoteEditor({
   if (!editor || !s) return null;
   const chain = () => editor.chain().focus();
 
+  // with nothing selected, Notes formats the word the caret sits in, and
+  // taking a style off takes it off the whole run around the caret. At a
+  // word's edge it only changes what's typed next
+  const format = (name: string, op: "toggle" | "set" | "unset", attrs?: Record<string, unknown>) => {
+    const apply = (c: ReturnType<typeof chain>) =>
+      op === "toggle" ? c.toggleMark(name, attrs) : op === "set" ? c.setMark(name, attrs) : c.unsetMark(name);
+    const sel = editor.state.selection;
+    if (!sel.empty) return apply(chain()).run();
+    const $at = sel.$from;
+    const type = editor.schema.marks[name];
+    const inRun = !!($at.nodeBefore && $at.nodeAfter && type.isInSet($at.nodeBefore.marks) && type.isInSet($at.nodeAfter.marks));
+    const removing = op === "unset" || (op === "toggle" && editor.isActive(name));
+    if (removing && inRun) return chain().extendMarkRange(name).unsetMark(name).setTextSelection(sel.from).run();
+    const word = wordAround($at);
+    if (word) return apply(chain().setTextSelection(word)).setTextSelection(sel.from).run();
+    return apply(chain()).run();
+  };
+
   const onLink = () => {
     if (s.link) { chain().extendMarkRange("link").unsetLink().run(); return; }
     holdBlur.current = true;
@@ -258,16 +277,16 @@ export function NoteEditor({
             ))}
           </div>
           <div className="mt-1.5 flex flex-wrap items-center gap-x-0.5 gap-y-2">
-            <Tool label="Bold" on={() => chain().toggleBold().run()} active={s.bold}><span className="text-[0.95rem] font-bold">B</span></Tool>
-            <Tool label="Italic" on={() => chain().toggleItalic().run()} active={s.italic}><span className="font-serif text-[0.95rem] italic">I</span></Tool>
-            <Tool label="Underline" on={() => chain().toggleUnderline().run()} active={s.underline}><span className="text-[0.95rem] underline underline-offset-2">U</span></Tool>
-            <Tool label="Strikethrough" on={() => chain().toggleStrike().run()} active={s.strike}><span className="text-[0.95rem] line-through">S</span></Tool>
+            <Tool label="Bold" on={() => format("bold", "toggle")} active={s.bold}><span className="text-[0.95rem] font-bold">B</span></Tool>
+            <Tool label="Italic" on={() => format("italic", "toggle")} active={s.italic}><span className="font-serif text-[0.95rem] italic">I</span></Tool>
+            <Tool label="Underline" on={() => format("underline", "toggle")} active={s.underline}><span className="text-[0.95rem] underline underline-offset-2">U</span></Tool>
+            <Tool label="Strikethrough" on={() => format("strike", "toggle")} active={s.strike}><span className="text-[0.95rem] line-through">S</span></Tool>
             <div className="flex w-full items-center gap-1.5">
-              <Swatch label="Default colour" active={!s.color} on={() => chain().unsetMark("noteColor").run()}>
+              <Swatch label="Default colour" active={!s.color} on={() => format("noteColor", "unset")}>
                 <span className="h-full w-full rounded-full bg-ink" />
               </Swatch>
               {NOTE_COLORS.map((c) => (
-                <Swatch key={c} label={COLOR_NAME[c]} active={s.color === c} on={() => chain().setMark("noteColor", { color: c }).run()}>
+                <Swatch key={c} label={COLOR_NAME[c]} active={s.color === c} on={() => format("noteColor", "set", { color: c })}>
                   <span className={`h-full w-full rounded-full bg-current note-c-${c}`} />
                 </Swatch>
               ))}
@@ -306,6 +325,21 @@ export function NoteEditor({
       />
     </div>
   );
+}
+
+const WORD = /[\p{L}\p{N}'’_-]/u;
+
+/** The word the caret is inside (not at either edge of), as a range. */
+function wordAround($at: ResolvedPos): { from: number; to: number } | null {
+  const block = $at.parent;
+  // one character per leaf, so offsets in this text match the block's own
+  const text = block.textBetween(0, block.content.size, undefined, "\n");
+  let a = $at.parentOffset;
+  let b = a;
+  if (!WORD.test(text[a - 1] ?? "") || !WORD.test(text[b] ?? "")) return null;
+  while (a > 0 && WORD.test(text[a - 1])) a--;
+  while (b < text.length && WORD.test(text[b])) b++;
+  return { from: $at.start() + a, to: $at.start() + b };
 }
 
 function Toolbar({ children }: { children: ReactNode }) {
