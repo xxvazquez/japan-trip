@@ -4,6 +4,7 @@ import { useApp } from "@/store/useApp";
 import { GENERATED_GLYPHS } from "./mapGlyphs.generated";
 import { glyphForCategoryName } from "./mapGlyphs";
 import { apiGet } from "./api";
+import { inJapan } from "./regions";
 
 /** A restaurant guide whose page for a place the app can find by itself
  *  (through the server's `/api/<id>` lookup). Each covers one region. */
@@ -23,11 +24,7 @@ const SITES: ReviewSite[] = [
   {
     id: "tabelog",
     label: "Tabelog",
-    // Japan, without the stretches of Korea, China and Russia a plain box
-    // would take in
-    covers: (lat, lng) =>
-      lat >= 24 && lat <= 45.6 && lng >= 122.9 && lng <= 146 &&
-      !(lat > 33.9 && lng < 130.8) && !(lat > 32 && lng < 129) && !(lat > 41.5 && lng < 139.3),
+    covers: inJapan,
     searchUrl: (name) => `https://tabelog.com/en/rstLst/?sw=${encodeURIComponent(name)}`,
     // every restaurant page has its menu tab one level down
     menuUrl: (url) => {

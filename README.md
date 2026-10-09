@@ -476,6 +476,16 @@ The reference drawer: stays · journeys · luggage · documents · emergency num
 
 Text isn't selectable (as in a native app), so values you might paste elsewhere have a **copy** icon.
 
+### Country guide
+
+When a trip has stays or pins in a country the app has a guide for (Japan today), a row for it sits below the sections.
+
+- **At a glance** — capital, currency, time zone, plugs, emergency numbers (tap to call).
+- **Where you're staying / Also on your trip** — a page per city or town the trip touches, matched from its stays, bases and pins (a day trip to Uji or Kurama shows up without a stay there).
+- **Understand** — history, belief, stamps, school, work, politics, culture and a page of fun facts.
+- **Before you go** — customs, money, getting around, food, health, seasons, phrases, arriving.
+- It's built into the app (`src/guides/`), read-only and works offline. Adding a country is one content file plus a `GUIDES` entry.
+
 ### Stays and journeys
 
 - Each list has an **Add a stay** / **Add a journey** row at the foot. The new one opens on its own page to fill in.
@@ -900,6 +910,7 @@ src/
                         FileViewer, Icon…)
   routes/               one file per page (Plan, Day, Journey, MapTab, Logbook,
                         Hotel, Document, Manage, Help…)
+  guides/               country guides (Japan) — reference content, not trip data
   templates/            blank + demo seed trips
   styles/index.css      colour tokens and type scale
 worker/                 the Worker script — /api/* only (Tabelog link, Good to know)

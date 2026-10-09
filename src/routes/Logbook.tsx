@@ -39,6 +39,7 @@ import { toneForSegmentMode, logbookSectionTile, customListColor, contactTile, d
 import { LOGBOOK_SECTIONS, logbookLabel, packingGroups, sectionSlug, sectionFromSlug, type LogbookSection } from "@/lib/logbook";
 import { tripCost, fmtMoney, combineCurrencies, expenseCategoryIcon } from "@/lib/cost";
 import { useFxRates, useTripSpent } from "@/lib/fx";
+import { tripGuides } from "@/guides";
 import type { CustomList, Doc, LuggageNote, PackingItem, ScratchNote, TripData } from "@/core/types";
 
 const rid = () => Math.random().toString(36).slice(2, 8);
@@ -88,6 +89,7 @@ export function LogbookIndex() {
   const lists = (data.config.lists ?? []).filter((l) => !pinned.has(sectionSlug(l.id)));
   const builtins = LOGBOOK_SECTIONS.filter((s) => !hidden.includes(s) && !pinned.has(sectionSlug(s)));
   const moduleLabel = data.config.modules.find((m) => m.kind === "logbook")?.label ?? "Logbook";
+  const guides = tripGuides(data);
 
   return (
     <Page>
@@ -105,6 +107,21 @@ export function LogbookIndex() {
           ))}
         </ul>
       </Section>
+      {guides.length > 0 && (
+        <Section className="mt-6">
+          <ul>
+            {guides.map((g) => (
+              <TileRow
+                key={g.id}
+                to={`/logbook/guide/${g.id}`}
+                tile={<IconTile size="sm" name="globe" tone="accent" />}
+                title={g.name}
+                meta="History, culture and what to know"
+              />
+            ))}
+          </ul>
+        </Section>
+      )}
       {lists.length > 0 && (
         <Section title="Your lists" className="mt-6">
           <ul>

@@ -132,6 +132,12 @@ export function customListColor(index: number): string {
   return TILE_TONES[(7 + index) % TILE_TONES.length];
 }
 
+/** A country guide's topic rows, by position — the same muted cycle, from
+ *  the start, so each topic on the guide's home reads apart at a glance. */
+export function guideTopicColor(index: number): string {
+  return TILE_TONES[index % TILE_TONES.length];
+}
+
 /** A custom (unlinked) plan step's glyph, guessed from its own text — so a
  *  "Lunch" or "Coffee break" step reads as food at a glance instead of the
  *  generic pin. Undefined when nothing matches. */
