@@ -28,7 +28,7 @@ import { MoneyField } from "@/components/MoneyField";
 import { AmountSheet } from "@/components/AmountSheet";
 import { PlaceAction, PlaceActions } from "@/components/PlaceAction";
 import type { Tip } from "@/components/InfoTips";
-import { saveFile, touchDevice } from "@/lib/device";
+import { saveFile, TAP, touchDevice } from "@/lib/device";
 import { RichNote } from "@/components/RichNote";
 import { RowMenu } from "@/components/RowMenu";
 import { Markdown } from "@/components/Markdown";
@@ -657,7 +657,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
               </button>
             )}
             {!ro && hasAltPlan && (
-              <ConfirmMenuItem onConfirm={deletePlanB} label="Delete Plan B" icon={<Icon name="trash" size={16} />} />
+              <ConfirmMenuItem onConfirm={deletePlanB} label="Delete Plan B" confirmLabel={`${TAP} again to delete Plan B`} icon={<Icon name="trash" size={16} />} />
             )}
             <button className="menu-item" onClick={downloadDayCalendar} disabled={icsBusy}>
               <Icon name="calendar" size={16} /> {icsBusy ? "Building calendar file…" : "Add Day to Calendar"}
@@ -733,13 +733,20 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       <div className="space-y-6">
       {/* the day's two plans — only once it has a Plan B (the day's ⋯ adds one) */}
       {hasAltPlan && !ro && (
+        // its own ⋯ (and a hold / right-click on the switch) deletes Plan B
+        // right where it's switched, not only from the day's menu
         <div {...{ [PDF_HIDE]: "" }}>
-          <SegmentedControl
-            options={[{ value: "a", label: "Plan A" }, { value: "b", label: "Plan B" }]}
-            value={onPlanB ? "b" : "a"}
-            onChange={(v) => switchPlan(v === "b")}
-            className="md:max-w-[20rem]"
-          />
+          <ContextMenu className="flex items-center gap-2 md:max-w-[22rem]">
+            <SegmentedControl
+              options={[{ value: "a", label: "Plan A" }, { value: "b", label: "Plan B" }]}
+              value={onPlanB ? "b" : "a"}
+              onChange={(v) => switchPlan(v === "b")}
+              className="min-w-0 flex-1"
+            />
+            <RowMenu label="Plan B options">
+              <ConfirmMenuItem onConfirm={deletePlanB} label="Delete Plan B" confirmLabel={`${TAP} again to delete Plan B`} icon={<Icon name="trash" size={16} />} />
+            </RowMenu>
+          </ContextMenu>
         </div>
       )}
       {/* PLAN — the day's itinerary: time + step, drag to reorder */}

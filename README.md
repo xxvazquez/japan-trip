@@ -168,7 +168,7 @@ A second plan for a day — the indoor version for a rainy day, say.
 1. ⋯ beside the day's title → **Add Plan B**. It starts as a copy of the plan and opens straight away, so you only change the stops that differ.
 2. **Plan A / Plan B** at the top of the itinerary switches between them.
 3. The day remembers the one that's on: the day's map, the map beside it, the PDFs and Plan all follow it, and Plan shows **Plan B** under the day while it's on.
-4. ⋯ → **Delete Plan B** removes it and goes back to Plan A (Undo brings it back).
+4. **Delete Plan B** is in the ⋯ beside the switch (or hold / right-click the switch), and in the day's ⋯. It goes back to Plan A; Undo brings it back.
 
 Needs migration `0042`. Days without a Plan B look as before.
 
