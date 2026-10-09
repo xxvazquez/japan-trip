@@ -7,7 +7,7 @@ import { Editable } from "@/components/Editable";
 import { Icon, isIconName, type IconName } from "@/components/Icon";
 import { IconTile } from "@/components/IconTile";
 import { TileRow } from "@/components/TileRow";
-import { customListColor, logbookSectionTile, type LogbookTile, type Tone } from "@/lib/tones";
+import { customListColor, logbookSectionTile, placeTile, type Tone } from "@/lib/tones";
 import { categoryName } from "@/lib/mapGlyphs";
 import { useApp, undoable } from "@/store/useApp";
 import { useData } from "@/lib/data";
@@ -28,7 +28,6 @@ import { SegmentedControl } from "@/components/SegmentedControl";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { TimeZonePicker } from "@/components/TimeZonePicker";
 import { RowSelect } from "@/components/RowSelect";
-import { entityLink } from "@/lib/entityLink";
 import { OPTIONAL_LOGBOOK_SECTIONS, LOGBOOK_SECTIONS, LOGBOOK_NAV_ICON, logbookLabel, type LogbookSection } from "@/lib/logbook";
 import { ActionSheet, useActionSheet, ConfirmMenuItem } from "@/components/ActionSheet";
 import { fileToMediaItem, pickImage } from "@/lib/media";
@@ -52,14 +51,16 @@ import type { TransportMode } from "@/core/types";
 import { Switch } from "@/components/Switch";
 import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
 import { useEffect } from "react";
-import type { Day, EntityType, ExpenseCategory, TripData } from "@/core/types";
+import type { Day, ExpenseCategory, Place, TripData } from "@/core/types";
 import { TAP, isIOS, saveFile } from "@/lib/device";
 
-type PanelId = "trips" | "setup" | "content" | "appearance" | "sharing";
+type PanelId = "trips" | "setup" | "map" | "appearance" | "sharing";
+/** panels that were renamed — an old link still lands on the new page */
+const PANEL_ALIASES: Record<string, PanelId> = { content: "map" };
 const PANELS: { id: PanelId; label: string; icon: IconName; tone: Tone }[] = [
   { id: "trips", label: "Trips", icon: "itinerary", tone: "accent" },
   { id: "setup", label: "Setup", icon: "calendar", tone: "ai" },
-  { id: "content", label: "Content", icon: "list", tone: "gold" },
+  { id: "map", label: "Map", icon: "map", tone: "gold" },
   { id: "appearance", label: "Look", icon: "sun", tone: "matcha" },
   { id: "sharing", label: "Sharing", icon: "person", tone: "accent" },
 ];
@@ -68,25 +69,33 @@ const PANELS: { id: PanelId; label: string; icon: IconName; tone: Tone }[] = [
  *  panel, each opening on its own page (`/manage/<panel>`). An old
  *  `?tab=<panel>` link lands on that panel's page. */
 export default function Manage() {
-  const { panel } = useParams();
+  const { panel, item } = useParams();
   const [params] = useSearchParams();
+  const { hash } = useLocation();
   const legacy = params.get("tab");
-  if (!panel && legacy && PANELS.some((p) => p.id === legacy)) {
+  const known = (id: string | null | undefined) => (id ? PANEL_ALIASES[id] ?? (PANELS.some((p) => p.id === id) ? id : undefined) : undefined);
+  if (!panel && known(legacy)) {
     const rest = new URLSearchParams(params);
     rest.delete("tab");
     const q = rest.toString();
-    return <Navigate to={`/manage/${legacy}${q ? `?${q}` : ""}`} replace />;
+    return <Navigate to={`/manage/${known(legacy)}${q ? `?${q}` : ""}${hash}`} replace />;
   }
   if (!panel) return <ManageIndex />;
+  if (panel in PANEL_ALIASES) return <Navigate to={`/manage/${PANEL_ALIASES[panel]}${hash}`} replace />;
   const meta = PANELS.find((p) => p.id === panel);
   if (!meta) return <Navigate to="/manage" replace />;
+  if (item) {
+    return panel === "map"
+      ? <Page width="form"><PlaceCategory key={item} name={item} /></Page>
+      : <Navigate to={`/manage/${panel}`} replace />;
+  }
   return (
     <Page width="form">
       <PageHeader back="/manage" title={meta.label} info={panel === "trips" ? TRIPS_TIPS : undefined} className="mb-6" />
       <ScrollToHash />
       {panel === "trips" && <Trips />}
       {panel === "setup" && <Setup />}
-      {panel === "content" && <Content />}
+      {panel === "map" && <MapSettings />}
       {panel === "appearance" && <Appearance />}
       {panel === "sharing" && <SharingTab />}
     </Page>
@@ -1487,220 +1496,194 @@ function SharingTab() {
   );
 }
 
-/* -------------------------------------------------------------- Content */
+/* ------------------------------------------------------------------ Map */
 
-const ENTITY_LABELS: Record<EntityType, string> = {
-  legs: "Bases",
-  days: "Days",
-  hotels: "Stays",
-  journeys: "Transport",
-  luggage: "Luggage notes",
-  packing: "Packing items",
-  docs: "Documents",
-  places: "Map places",
-  areas: "Areas",
-  scratchNotes: "Scratchpad notes",
+/** the trip's place categories, A–Z — a category is simply what its places
+ *  are filed under, so one with no places left is gone */
+const placeCategories = (data: TripData) =>
+  [...new Set(data.places.map((p) => p.category).filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b));
+
+/** a category's pin colour: the one set here, else its first place's own
+ *  colour, else the accent */
+const categoryColorOf = (data: TripData, name: string) =>
+  data.config.categoryColors?.[name] || data.places.find((p) => p.category === name)?.color || DEFAULT_ACCENT;
+
+const categoryTile = (data: TripData, name: string) => {
+  const glyph = data.config.categoryIcons?.[name];
+  return <IconTile color={categoryColorOf(data, name)} glyph={glyph || undefined} name={glyph ? undefined : "pin"} />;
 };
 
-// Only what has no better home. Bases and days are added on Plan and deleted
-// on their own pages; stays and journeys added in the Logbook (or a day) and
-// deleted on their pages — a second, rougher list of them here only invited
-// bugs (a duplicated day landed on the same date). `docs`, `areas` and
-// `scratchNotes` are likewise managed where they're shown.
-/** each Reference row's tile — the same one its list wears in the Logbook,
- *  and the Map's pin for places */
-const CONTENT_TILE: Partial<Record<EntityType, LogbookTile>> = {
-  places: { name: "pin", tone: "accent" },
-  luggage: logbookSectionTile("luggage"),
-  packing: logbookSectionTile("packing"),
-};
-
-const CONTENT_GROUPS: { title: string; types: EntityType[] }[] = [
-  { title: "Reference", types: ["places", "luggage", "packing"] },
-];
-
-function Content() {
+/** Manage → Map: the trip's place categories (each opens its own page, the
+ *  Settings drill-down), then the restaurant guide links and Good to know. */
+function MapSettings() {
   const data = useData();
-  const { removeEntity, moveEntity, addEntity } = useApp();
-  const mutate = useApp((s) => s.mutateTrip);
-  const [params] = useSearchParams();
-  const wantedSection = params.get("section") as EntityType | null;
-  const [open, setOpen] = useState<EntityType | null>(
-    wantedSection && wantedSection in ENTITY_LABELS ? wantedSection : null,
-  );
   if (!data) return null;
   if (data.config.demo) return <DemoNotice />;
-
-  const rid = () => Math.random().toString(36).slice(2, 9);
-  const blankFor = (type: EntityType): Record<string, unknown> => {
-    const id = crypto.randomUUID?.() ?? `${type}-${rid()}`;
-    switch (type) {
-      case "luggage": return { id, title: "New note" };
-      case "packing": return { id, label: "New item", phase: "bring", group: "Other" };
-      case "docs": return { id, title: "New document", kind: "other", fields: [] };
-      case "places": {
-        // drop the pin among the trip's own places, not a fixed coordinate
-        const pts = data.places;
-        const lat = pts.length ? pts.reduce((s, p) => s + p.lat, 0) / pts.length : 20;
-        const lng = pts.length ? pts.reduce((s, p) => s + p.lng, 0) / pts.length : 0;
-        return { id, name: "New place", lat, lng, category: "My places" };
-      }
-      default: return { id };
-    }
-  };
-
-  const nameOf = (x: Record<string, unknown>): string =>
-    (x.title as string) || (x.name as string) || (x.label as string) || (x.base as string) || (x.date as string) || (x.id as string);
-
-  // called, not mounted as <Rows/>: a component made inside this render is a
-  // new one every render, so any change to the trip remounted every row and
-  // shut a menu that was open on one
-  const rows = (type: EntityType) => {
-    const list = data[type] as { id: string }[];
-    const isOpen = open === type;
-    return (
-      <div key={type} className="relative px-3.5 after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
-        <button onClick={() => setOpen(isOpen ? null : type)} className="flex w-full items-center gap-3 py-3 text-left">
-          <IconTile size="sm" {...CONTENT_TILE[type]} />
-          <span className="min-w-0 flex-1 text-sm leading-snug text-ink">{ENTITY_LABELS[type]}</span>
-          <span className="flex items-center gap-2">
-            <span className="value tabular-nums text-ink-soft">{list.length}</span>
-            <Icon name={isOpen ? "up" : "down"} size={15} className="text-ink-faint" />
-          </span>
-        </button>
-        {isOpen && (
-          // the group's entries sit one indent in, like an expanded outline
-          // row in Files or Reminders — so the heading above reads as the
-          // group, not as one more entry
-          <div className="pb-3 pl-[34px]">
-            <ul>
-              {list.map((x, i) => {
-                const rec = x as Record<string, unknown>;
-                const href = entityLink(type, x.id);
-                return (
-                  <ContextMenu as="li" key={x.id} className="border-b border-line py-2 text-sm text-ink-soft last:border-b-0">
-                    <div className="flex items-center gap-2">
-                      <span className="min-w-0 flex-1 break-words">
-                        {href ? <Link to={href} className="hover:text-accent">{nameOf(rec)}</Link> : nameOf(rec)}
-                      </span>
-                      {/* one ⋯ per row instead of four bare icons */}
-                      <RowMenu label="Options">
-                        <button type="button" className="menu-item" disabled={i === 0} onClick={() => moveEntity(type, x.id, -1)}>Move up</button>
-                        <button type="button" className="menu-item" disabled={i === list.length - 1} onClick={() => moveEntity(type, x.id, 1)}>Move down</button>
-                        <button type="button" className="menu-item" onClick={() => addEntity(type, { ...structuredClone(rec), id: crypto.randomUUID?.() ?? `${type}-${rid()}` } as { id: string })}>Duplicate</button>
-                        <ConfirmMenuItem onConfirm={() => undoable("Deleted", () => removeEntity(type, x.id))} label="Delete" />
-                      </RowMenu>
-                    </div>
-                  </ContextMenu>
-                );
-              })}
-              {list.length === 0 && <li className="py-2 text-sm text-ink-faint">None yet.</li>}
-            </ul>
-            <button onClick={() => addEntity(type, blankFor(type) as { id: string })} className="action mt-3 text-xs">
-              <Icon name="plus" size={13} /> Add
-            </button>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const CategoryIcons = () => {
-    const names = [...new Set(data.places.map((p) => p.category).filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b));
-    if (names.length === 0) return null;
-    const icons = data.config.categoryIcons ?? {};
-    const colors = data.config.categoryColors ?? {};
-    const ownColorOf = (name: string) => data.places.find((p) => p.category === name)?.color || DEFAULT_ACCENT;
-    const colorOf = (name: string) => colors[name] || ownColorOf(name);
-    // a cleared icon is kept as "" (a plain dot, chosen) so one isn't
-    // guessed back from the name
-    const setIcon = (name: string, glyph: string) =>
-      mutate((d) => {
-        d.config.categoryIcons = { ...(d.config.categoryIcons ?? {}), [name]: glyph };
-      });
-    const setColor = (name: string, hex: string | undefined) =>
-      mutate((d) => {
-        const next = { ...(d.config.categoryColors ?? {}) };
-        if (hex) next[name] = hex;
-        else delete next[name];
-        d.config.categoryColors = Object.keys(next).length ? next : undefined;
-      });
-    const pinned = data.config.pinnedCategories ?? [];
-    const togglePinned = (name: string) =>
-      mutate((d) => {
-        const cur = d.config.pinnedCategories ?? [];
-        const next = cur.includes(name) ? cur.filter((c) => c !== name) : [...cur, name];
-        d.config.pinnedCategories = next.length ? next : undefined;
-      });
-    return (
-      <Section
-        title="Category pins"
-        info={[
-          { icon: "tag", title: "Colour and icon", text: "Apply to all of a category's pins — set them once here." },
-          { icon: "star", title: "Icons", text: "A new category gets one guessed from its name; tap it to pick another, or “Dot” for none." },
-          { icon: "eye", title: "Always show", text: "Keeps a category's pins on the map when zoomed far out, on top of everything — handy for your hotel." },
-        ]}
-      >
-        <ul>
-          {names.map((name) => (
-            <li key={name} className={`${MLI} text-sm`}>
-              <ColorSwatch
-                label={name}
-                value={colorOf(name)}
-                onChange={(hex) => setColor(name, hex)}
-                reset={{
-                  label: "Default colour",
-                  active: !colors[name],
-                  onReset: () => setColor(name, undefined),
-                }}
-              />
-              <span className="min-w-0 flex-1 break-words">{categoryName(name)}</span>
-              <button type="button" className="chip" aria-pressed={pinned.includes(name)} onClick={() => togglePinned(name)}>
-                Always show
-              </button>
-              <GlyphPicker
-                value={icons[name]}
-                color={colorOf(name)}
-                clearLabel="Dot"
-                label={name}
-                onChange={(glyph) => setIcon(name, glyph)}
-              />
-            </li>
-          ))}
-        </ul>
-      </Section>
-    );
-  };
-
+  const names = placeCategories(data);
+  const count = (name: string) => data.places.filter((p) => p.category === name).length;
   return (
     <div className="space-y-6">
-      {CONTENT_GROUPS.map((grp) => (
-        <Section
-          key={grp.title}
-          title={grp.title}
-          info={[
-            { icon: "list", title: "Manage the lists", text: "Add, duplicate, remove and reorder items here." },
-            {
-              icon: "pencil",
-              title: "Details live elsewhere",
-              text: (
-                <>
-                  Luggage and packing on the <Link to="/logbook" className="text-accent">Logbook</Link>, pins on
-                  the <Link to="/map" className="text-accent">Map</Link>.
-                </>
-              ),
-            },
-            { icon: "plus", title: "Adding the rest", text: "Bases and days on Plan; stays and journeys in the Logbook." },
-          ]}
-        >
-          {grp.types.map((type) => rows(type))}
-        </Section>
-      ))}
-
-      {CategoryIcons()}
+      <Section
+        title="Categories"
+        info={[
+          { icon: "tag", title: "What a place is", text: "Coffee, sights, food — every place on the Map is in one. Pick it on the place's card." },
+          { icon: "pencil", title: "Colour, icon and name", text: "Set once here, for every pin in the category." },
+          { icon: "star", title: "Icons", text: "A new category gets one guessed from its name." },
+        ]}
+      >
+        {names.length > 0 ? (
+          <ul>
+            {names.map((name) => (
+              <TileRow
+                key={name}
+                to={`/manage/map/${encodeURIComponent(name)}`}
+                tile={categoryTile(data, name)}
+                title={categoryName(name)}
+                right={count(name)}
+              />
+            ))}
+          </ul>
+        ) : (
+          <p className="px-3.5 py-3 text-sm text-ink-faint">
+            None yet — add a place on the <Link to="/map" className="text-accent">Map</Link> and its category shows here.
+          </p>
+        )}
+      </Section>
       <ReviewLinksPanel />
       <div id="good-to-know" className="scroll-mt-[calc(var(--sat)+var(--nav-h)+0.5rem)]"><PlaceFactsPanel /></div>
     </div>
+  );
+}
+
+/** One place category's own page: its pin colour, icon and "Always show",
+ *  its places, and Rename — which also merges it into a category that
+ *  already has the new name. */
+function PlaceCategory({ name }: { name: string }) {
+  const data = useData();
+  const mutate = useApp((s) => s.mutateTrip);
+  const updateEntity = useApp((s) => s.updateEntity);
+  const [renaming, setRenaming] = useState(false);
+  // where a rename went — its places have left this name by the next render
+  const [movedTo, setMovedTo] = useState<string | null>(null);
+  if (!data) return null;
+  if (data.config.demo) return <Navigate to="/manage/map" replace />;
+  const places = data.places.filter((p) => p.category === name).sort((a, b) => a.name.localeCompare(b.name));
+  if (places.length === 0) return <Navigate to={movedTo ? `/manage/map/${encodeURIComponent(movedTo)}` : "/manage/map"} replace />;
+  const icon = data.config.categoryIcons?.[name];
+  const chosenColor = data.config.categoryColors?.[name];
+  const pinned = (data.config.pinnedCategories ?? []).includes(name);
+
+  const setColor = (hex: string | undefined) =>
+    mutate((d) => {
+      const next = { ...(d.config.categoryColors ?? {}) };
+      if (hex) next[name] = hex;
+      else delete next[name];
+      d.config.categoryColors = Object.keys(next).length ? next : undefined;
+    });
+  // a cleared icon is kept as "" (a plain dot, chosen) so one isn't guessed
+  // back from the name
+  const setIcon = (glyph: string) =>
+    mutate((d) => {
+      d.config.categoryIcons = { ...(d.config.categoryIcons ?? {}), [name]: glyph };
+    });
+  const setPinned = (on: boolean) =>
+    mutate((d) => {
+      const cur = (d.config.pinnedCategories ?? []).filter((c) => c !== name);
+      const next = on ? [...cur, name] : cur;
+      d.config.pinnedCategories = next.length ? next : undefined;
+    });
+  // every place moves over; the colour, icon and Always show go with them
+  // unless the name is already a category, whose own settings then win
+  const rename = (raw: string) => {
+    const to = raw.trim();
+    setRenaming(false);
+    if (!to || to === name) return;
+    const exists = data.places.some((p) => p.category === to);
+    // merged in, they take on the pins already there's colour — as moving
+    // one place on its card does — so one category never shows two
+    const color = exists ? categoryColorOf(data, to) : undefined;
+    for (const p of places) updateEntity<Place>("places", p.id, color ? { category: to, color } : { category: to });
+    mutate((d) => {
+      const move = (rec: Record<string, string> | undefined) => {
+        if (!rec || !(name in rec)) return rec;
+        const next = { ...rec };
+        if (!exists && !(to in next)) next[to] = next[name];
+        delete next[name];
+        return Object.keys(next).length ? next : undefined;
+      };
+      d.config.categoryIcons = move(d.config.categoryIcons);
+      d.config.categoryColors = move(d.config.categoryColors);
+      const pins = d.config.pinnedCategories ?? [];
+      if (pins.includes(name)) {
+        const next = [...new Set(pins.filter((c) => c !== name).concat(exists ? [] : [to]))];
+        d.config.pinnedCategories = next.length ? next : undefined;
+      }
+    });
+    setMovedTo(to);
+  };
+
+  return (
+    <>
+      <PageHeader
+        back="/manage/map"
+        title={categoryName(name)}
+        info={[
+          { icon: "tag", title: "For every pin in it", text: "Colour and icon apply to all of this category's places, on the Map and in your plans." },
+          { icon: "eye", title: "Always show", text: "Keeps its pins on the map when zoomed far out, on top of everything — handy for your hotel." },
+          { icon: "pencil", title: "Rename", text: "Renaming to a category you already have moves these places into it." },
+        ]}
+        className="mb-6"
+      />
+      <div className="space-y-6">
+        <Section>
+          <ul>
+            <li className={`${MLI} justify-between`}>
+              <span className="row-label">Colour</span>
+              <ColorSwatch
+                label={name}
+                value={categoryColorOf(data, name)}
+                onChange={(hex) => setColor(hex)}
+                reset={{ label: "Default colour", active: !chosenColor, onReset: () => setColor(undefined) }}
+              />
+            </li>
+            <li className={`${MLI} justify-between`}>
+              <span className="row-label">Icon</span>
+              <GlyphPicker value={icon} color={categoryColorOf(data, name)} clearLabel="Dot" label={name} onChange={setIcon} />
+            </li>
+            <li className={`${MLI} justify-between`}>
+              <span className="row-label">Always show</span>
+              <Switch checked={pinned} onChange={setPinned} label="Always show" />
+            </li>
+          </ul>
+        </Section>
+        <Section title="Places" id="category-places">
+          <ul>
+            {places.map((p) => (
+              <TileRow
+                key={p.id}
+                to={`/map?sel=${p.id}`}
+                tile={<IconTile {...placeTile(p, data.config.categoryIcons, data.config.categoryColors)} />}
+                title={p.name}
+              />
+            ))}
+          </ul>
+        </Section>
+        <Section>
+          <ul>
+            <ActionRow label="Rename Category" onClick={() => { primeKeyboard(); setRenaming(true); }} />
+          </ul>
+        </Section>
+      </div>
+      <TextPrompt
+        open={renaming}
+        title="Rename Category"
+        initial={name}
+        placeholder="Name"
+        action="Rename"
+        onSubmit={rename}
+        onClose={() => setRenaming(false)}
+      />
+    </>
   );
 }
 

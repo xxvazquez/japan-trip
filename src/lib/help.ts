@@ -305,11 +305,11 @@ export const HELP: HelpTopic[] = [
             rows: [
               { icon: "auto", title: "Fills in by itself", detail: "And refreshes every month" },
               { icon: "cloud-down", title: "Refresh", detail: "On the card — checks one place now" },
-              { icon: "checklist", title: "Check every place", detail: "Manage → Content → Good to know" },
+              { icon: "checklist", title: "Check every place", detail: "Manage → Map → Good to know" },
             ],
           },
         ],
-        go: { label: "Open Content", to: "/manage/content" },
+        go: { label: "Open Map settings", to: "/manage/map#good-to-know" },
       },
       {
         id: "warn",

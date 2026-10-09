@@ -289,7 +289,7 @@ These appear automatically when a step is linked to a place.
 - Found: **Tabelog** in the step's place card button row, the same on the Map card.
 - Not found: the same button offers **Search Tabelog** instead. A miss isn't retried on that device for 30 days, unless the name or pin changes.
 - "Restaurant" means the category's icon is from *Food & drink* (or its name says food, café, bar…).
-- **Manage → Content → Tabelog links** finds them for every restaurant at once.
+- **Manage → Map → Tabelog links** finds them for every restaurant at once.
 
 **Good to know.** A short summary of a place from guides and review sites, plus its own website — anywhere, not just Japan. Each fact has its own coloured icon (a red one for **Closed**, whose day reads red too). Very short pairs share a row in two columns — **Hours** beside **Closed**, **Reservations** beside **Queue** (or Tickets beside Crowds) — and anything longer gets the full width.
 
@@ -315,7 +315,7 @@ Where each fact comes from — shown small beside its label:
 How it fills in:
 - **By itself** — the first time a place shows, again once it's a month old, and after a rename or a category change. Nothing to run.
 - The ↻ icon beside **Good to know** checks again now. A fact this check doesn't settle keeps what it had — a refresh never wipes an answer, except hours OpenStreetMap no longer gives the place.
-- **Manage → Content → Good to know** does every place at once (two searches each, out of Tavily's 1,000 a month, then Exa's, then Linkup's).
+- **Manage → Map → Good to know** does every place at once (two searches each, out of Tavily's 1,000 a month, then Exa's, then Linkup's).
 - Lookups go one at a time, 1.5 s apart. When a search service says it's being asked too fast, the app waits (15 s, then 45 s) and asks again before giving up.
   - **Filled in** counts places with any Good to know; **Out of date** the filled-in ones due another look (over a month old, or from an older lookup).
   - The button (**Update N places**) covers both those and the ones never looked up.
@@ -413,10 +413,6 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 **⋯ → Filters** opens a sheet (the **⋯** button turns tinted while a category filter is on):
 
 - **Category** — tap the coloured dots to narrow; none selected shows everything.
-- **Category pins** (**Manage → Content**) set each category's icon and colour once, for every pin in it.
-  - A new category gets an icon guessed from its name ("Coffee" → cup, "Temples" → landmark). Pick another, or **Dot** for none.
-  - A category colour wins over a pin's own colour. **Default colour** goes back to it.
-  - **Always show** keeps its pins visible when zoomed out instead of clustering them (down to about city level).
 - **Transit** — Train and Metro lines are on by default; add Tram, Bus, Ferry or Airport. Works in any city with no setup.
 - **Points of interest** — the map's own stations, parks, museums and shops, with their icons. Turn it off to see only your pins. Remembered on this device.
 
@@ -547,7 +543,7 @@ A read-only total of every price in the trip — stays, fares and day spending �
 
 ## Manage
 
-Open it from your account picture (or the foot of the sidebar on a wide screen). It starts with your account — who's signed in, sync status, Sign out or **Sign in with Google** — then a Settings-style list: **Trips**, **Setup**, **Content**, **Look**, **Sharing**, and **Help** and **Refresh** at the bottom.
+Open it from your account picture (or the foot of the sidebar on a wide screen). It starts with your account — who's signed in, sync status, Sign out or **Sign in with Google** — then a Settings-style list: **Trips**, **Setup**, **Map**, **Look**, **Sharing**, and **Help** and **Refresh** at the bottom.
 
 ### Setup
 
@@ -558,6 +554,16 @@ Open it from your account picture (or the foot of the sidebar on a wide screen).
 - **Expense categories** — rename, add, reorder or remove from ⋯. Removing one moves its spending to the next. A category can claim hop modes (so Train and Flights split out of Transport). Tap its icon to pick another from 130+.
 - **Logbook sections** — hide the ones you don't need.
 - **Tabs** — rename, reorder or hide Plan / Map / Logbook, and **Add tab** to pin a Logbook page (Packing, say) to the tab bar. A pinned page leaves the Logbook list, so it isn't shown twice.
+
+### Map
+
+- **Categories** — every category your places are in, with its pin count. Tap one for its own page:
+  - **Colour** and **Icon** apply to every pin in it. A new category gets an icon guessed from its name ("Coffee" → cup); **Dot** for none. **Default colour** goes back to the pins' own.
+  - **Always show** keeps its pins visible when zoomed out instead of clustering them (down to about city level).
+  - **Places** lists what's in it; tap one to open it on the Map.
+  - **Rename Category** renames it for every place. Renaming to a category you already have merges them.
+- **Tabelog links** and **Good to know** — fill in every place at once (see above).
+- A category exists while a place is in it; pick a place's category on its card on the Map.
 
 ### Look
 

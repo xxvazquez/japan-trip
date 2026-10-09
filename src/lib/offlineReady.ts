@@ -60,7 +60,7 @@ export function useOfflineReadiness(data: TripData | null): NotReady[] | null {
   }
   const noFacts = data.places.filter((p) => wantsFacts(p, data) && !hasFacts(p.facts)).length;
   if (noFacts) {
-    out.push({ key: "facts", icon: "info", title: `Look up ${plural(noFacts, "place")}`, detail: "Good to know isn’t filled in yet", to: "/manage/content#good-to-know" });
+    out.push({ key: "facts", icon: "info", title: `Look up ${plural(noFacts, "place")}`, detail: "Good to know isn’t filled in yet", to: "/manage/map#good-to-know" });
   }
   // the home-screen app is the one that opens offline; only asked on a phone
   if (touchDevice && (install.kind === "ios" || install.kind === "prompt")) {
