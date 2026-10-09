@@ -460,9 +460,9 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     let live = true;
     for (const g of nearby) {
       for (const { place: p } of g.items) {
-        if (nearbyHours(p, day.date) !== undefined || cachedOpeningHours(p.lat, p.lng, p.name) !== undefined) continue;
+        if (nearbyHours(p, day.date) !== undefined || cachedOpeningHours(p.lat, p.lng, p.name, p.osm) !== undefined) continue;
         // a failed lookup isn't cached, so only an answer re-sorts the list
-        void nearestOpeningHours(p.lat, p.lng, p.name).then((h) => { if (live && h) bumpHours(); }, () => {});
+        void nearestOpeningHours(p.lat, p.lng, p.name, p.osm).then((h) => { if (live && h) bumpHours(); }, () => {});
       }
     }
     return () => { live = false; };
@@ -533,7 +533,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         const facts = factsDayHours(p.facts, day.date);
         if (facts) return facts;
         const osm = await Promise.race([
-          nearestOpeningHours(p.lat, p.lng, p.name).catch(() => null),
+          nearestOpeningHours(p.lat, p.lng, p.name, p.osm).catch(() => null),
           new Promise<null>((r) => setTimeout(() => r(null), 4000)),
         ]);
         return osm ? osmHoursOn(osm.hours, day.date) : undefined;
@@ -1012,7 +1012,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
 function nearbyHours(p: Place, date: string): string | undefined {
   const fromFacts = factsDayHours(p.facts, date);
   if (fromFacts) return fromFacts;
-  const cached = cachedOpeningHours(p.lat, p.lng, p.name);
+  const cached = cachedOpeningHours(p.lat, p.lng, p.name, p.osm);
   return cached ? osmHoursOn(cached.hours, date) : undefined;
 }
 

@@ -1,5 +1,6 @@
 import { haversineKm } from "./geo";
 import { nominatimGet } from "./nominatim";
+import { nameScore, sameName } from "../../worker/tabelog";
 
 /**
  * Place search via Nominatim (OpenStreetMap). Free, no key, CORS-open —
@@ -13,6 +14,8 @@ export interface GeoResult {
   lng: number;
   /** the Google Maps link it was read from, kept as the place's own link */
   url?: string;
+  /** the OpenStreetMap feature it is (`node/123`) */
+  osm?: string;
 }
 
 /** A background lookup (a hotel's or a city's position) — throws when
@@ -32,12 +35,13 @@ async function nominatimSearch(q: string, near?: { lat: number; lng: number }, h
     p.set("viewbox", `${near.lng - d},${near.lat + d},${near.lng + d},${near.lat - d}`);
     p.set("bounded", bounded ? "1" : "0");
   }
-  const rows = await nominatimGet<{ name?: string; display_name: string; lat: string; lon: string }[]>("search", Object.fromEntries(p), { high });
+  const rows = await nominatimGet<{ name?: string; display_name: string; lat: string; lon: string; osm_type?: string; osm_id?: number }[]>("search", Object.fromEntries(p), { high });
   return rows.map((r) => ({
     name: r.name || r.display_name.split(",")[0],
     detail: r.display_name.split(",").slice(1, 4).join(",").trim(),
     lat: Number(r.lat),
     lng: Number(r.lon),
+    osm: r.osm_type && r.osm_id ? `${r.osm_type}/${r.osm_id}` : undefined,
   }));
 }
 
@@ -142,10 +146,57 @@ async function photonQuery(q: string, near?: { lat: number; lng: number }, count
     if (seen.has(key)) continue;
     seen.add(key);
     const [lng, lat] = f.geometry.coordinates;
-    out.push({ name, detail, lat, lng });
+    out.push({ name, detail, lat, lng, osm: photonOsm(pr) });
     if (out.length === 6) break;
   }
   return out;
+}
+
+/** Photon's `osm_type` is a letter — `N` / `W` / `R` */
+const OSM_TYPES: Record<string, string> = { N: "node", W: "way", R: "relation" };
+const photonOsm = (pr: Record<string, unknown>) =>
+  typeof pr.osm_type === "string" && OSM_TYPES[pr.osm_type] && pr.osm_id ? `${OSM_TYPES[pr.osm_type]}/${pr.osm_id}` : undefined;
+
+/** what a venue is tagged as on OpenStreetMap — not a road, a building or
+ *  a neighbourhood */
+const VENUE_KEYS = new Set(["amenity", "shop", "tourism", "leisure", "historic", "craft", "office", "club", "healthcare", "sport", "man_made"]);
+/** how far from a pasted link's pin its OSM twin may sit */
+const TWIN_METRES = 60;
+/** with no name in common, only a lone venue this close is taken to be it */
+const ALONE_METRES = 35;
+
+/**
+ * The OpenStreetMap venue at a pin from another map (a pasted Google Maps
+ * link), even when OSM calls it something else — "Indian Restaurant Taj
+ * Fuji" is OSM's "Indian Cuisine Taj", six metres away. By position first:
+ * a venue nearby whose name shares a word that says which place it is, or
+ * failing that the only venue right on the pin. Null when there's none, or
+ * when OSM can't be asked — the place is still added, just unmatched.
+ */
+export async function osmVenueAt(lat: number, lng: number, name: string): Promise<{ name: string; lat: number; lng: number; osm: string } | null> {
+  const p = new URLSearchParams({ lat: String(lat), lon: String(lng), radius: String(TWIN_METRES / 1000), limit: "15", lang: "en" });
+  try {
+    const res = await fetch(`https://photon.komoot.io/reverse?${p}`, { signal: AbortSignal.timeout(8_000) });
+    if (!res.ok) return null;
+    const { features } = (await res.json()) as {
+      features: { geometry: { coordinates: [number, number] }; properties: Record<string, string | undefined> }[];
+    };
+    const venues = features
+      .map((f) => {
+        const pr = f.properties;
+        const osm = photonOsm(pr);
+        if (!pr.name || !osm || !pr.osm_key || !VENUE_KEYS.has(pr.osm_key)) return null;
+        const [vlng, vlat] = f.geometry.coordinates;
+        return { name: pr.name, lat: vlat, lng: vlng, osm, m: haversineKm(lat, lng, vlat, vlng) * 1000 };
+      })
+      .filter((v): v is NonNullable<typeof v> => !!v && v.m <= TWIN_METRES);
+    const named = venues.filter((v) => sameName(name, v.name)).sort((a, b) => nameScore(name, b.name) - nameScore(name, a.name) || a.m - b.m);
+    const alone = venues.filter((v) => v.m <= ALONE_METRES);
+    const hit = named[0] ?? (alone.length === 1 ? alone[0] : null);
+    return hit && { name: hit.name, lat: hit.lat, lng: hit.lng, osm: hit.osm };
+  } catch {
+    return null;
+  }
 }
 
 /**

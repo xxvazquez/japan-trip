@@ -302,6 +302,10 @@ export interface Place {
   note?: string;
   /** pasted Google Maps link */
   url?: string;
+  /** the OpenStreetMap feature it is (`node/123`), when one was matched —
+   *  found by position, so it holds even when OSM names the place
+   *  differently; opening hours are read off it */
+  osm?: string;
   /** the place's page on a restaurant guide (see `reviewSite.ts`) — found
    *  by the app's own lookup, or pasted */
   reviewUrl?: string;

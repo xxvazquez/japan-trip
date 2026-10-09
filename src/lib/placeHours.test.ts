@@ -18,6 +18,13 @@ describe("namesMatch", () => {
 });
 
 describe("pickHours", () => {
+  it("takes the matched OSM feature, whatever OSM calls it", () => {
+    const els = [
+      at(0.0001, { name: "Lawson", opening_hours: "24/7" }),
+      { ...at(0.0002, { name: "Indian Cuisine Taj", opening_hours: "11:00-22:00" }), type: "node", id: 42 },
+    ];
+    expect(pickHours(els, 35.0, 139.0, "Indian Restaurant Taj Fuji", "node/42")?.hours).toBe("11:00-22:00");
+  });
   it("prefers the named venue over a closer neighbour", () => {
     const els = [
       at(0.0002, { name: "FamilyMart", opening_hours: "24/7" }),

@@ -393,6 +393,7 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 
 - **＋ Add place** — search for somewhere, or tap the map to drop a pin. The search looks within ~50 km of the map's centre first, nearest result at the top; only when nothing is there does it look further, and never outside the country the map is on.
 - **Not on OpenStreetMap?** Paste the place's Google Maps link (Share → Copy link) into the search — it adds the place with its name, position and link.
+- A pasted link is matched to the same place on OpenStreetMap by where it is, even when OSM names it differently — the row says *On OpenStreetMap as “…”*. The place keeps Google's name, and its opening hours come from that OSM entry (needs migration `0043`).
 - **Tap any place on the map** — a shop, temple, station, lake, neighbourhood or a park's green — for a card with **Add** (saves it to My places) and **Google Maps**. A place already on the trip opens its own card instead.
 - **The list** — once a city is picked, places are grouped by area (plus *No area*). On **All** it nests **city → area → place**.
 - **Search** — the field at the top of the list finds areas by name and places by name, category or note, across the whole trip. The map shows only what it finds; on a phone the sheet pulls up while you type.
@@ -807,7 +808,7 @@ edit in the UI  →  TripData (in memory)  →  backend
 ### Setting up a project
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0042`).
+2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0043`).
    - `0033` moves old day-trip text (getting there / back, last way back) into each day's notes — take a backup first.
    - `0035` drops the retired day columns. On an existing project, run it only once the build with it is live — an older build still writes `journey_id`, and its day saves would fail.
 3. **Authentication → Providers → Google** — enable it with a Google Cloud OAuth client id and secret. Redirect: `https://<project-ref>.supabase.co/auth/v1/callback`.

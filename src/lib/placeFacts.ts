@@ -256,7 +256,7 @@ async function ask(p: Place, area: string | undefined, kind: "food" | "sight"): 
     const [{ website, menu }, osm] = await Promise.all([
       osmLinks(p.lat, p.lng, p.name).catch(() => ({ website: undefined, menu: undefined })),
       // undefined when OpenStreetMap couldn't be asked, null when it has nothing
-      nearestOpeningHours(p.lat, p.lng, p.name).catch(() => undefined),
+      nearestOpeningHours(p.lat, p.lng, p.name, p.osm).catch(() => undefined),
     ]);
     const from: PlaceFacts["from"] = {};
     for (const [k] of FACT_ROWS) if (facts?.[k]) from[k] = "web";

@@ -43,13 +43,14 @@ export function namesMatch(place: string, tags: Record<string, string> = {}): bo
 
 const named_ = (tags: Record<string, string> = {}) => NAME_TAGS.some((k) => !!tags[k]?.trim());
 
-type OsmElement = { lat?: number; lon?: number; center?: { lat: number; lon: number }; tags?: Record<string, string> };
+type OsmElement = { type?: string; id?: number; lat?: number; lon?: number; center?: { lat: number; lon: number }; tags?: Record<string, string> };
 
-/** the place's own hours out of everything tagged nearby: the nearest feature
+/** the place's own hours out of everything tagged nearby: the OSM feature
+ *  it was matched to (`osm`, whatever it's called), else the nearest feature
  *  whose name matches, else an unnamed one sitting right on the pin, else
  *  nothing. A named feature that doesn't match is another business sharing
  *  the building (a bar under a workshop), not the place under another name */
-export function pickHours(elements: OsmElement[], lat: number, lng: number, name?: string): PlaceHours | null {
+export function pickHours(elements: OsmElement[], lat: number, lng: number, name?: string, osm?: string): PlaceHours | null {
   let named: PlaceHours | null = null;
   let atPin: PlaceHours | null = null;
   for (const el of elements) {
@@ -58,6 +59,7 @@ export function pickHours(elements: OsmElement[], lat: number, lng: number, name
     const elon = el.lon ?? el.center?.lon;
     if (!hours || elat === undefined || elon === undefined) continue;
     const km = haversineKm(lat, lng, elat, elon);
+    if (osm && `${el.type}/${el.id}` === osm) return { hours, km };
     if (name && namesMatch(name, el.tags) && (!named || km < named.km)) named = { hours, km };
     if (km <= AT_PIN_KM && !named_(el.tags) && (!atPin || km < atPin.km)) atPin = { hours, km };
   }
@@ -70,11 +72,11 @@ const cache = new Map<string, PlaceHours | null>();
 const inFlight = new Map<string, Promise<PlaceHours | null>>();
 
 /** `name` is what tells the place apart from its neighbours — see `pickHours`. */
-export function nearestOpeningHours(lat: number, lng: number, name?: string): Promise<PlaceHours | null> {
-  const key = cacheKey(lat, lng, name);
+export function nearestOpeningHours(lat: number, lng: number, name?: string, osm?: string): Promise<PlaceHours | null> {
+  const key = cacheKey(lat, lng, name, osm);
   let p = inFlight.get(key);
   if (!p) {
-    p = fetchOpeningHours(lat, lng, name).finally(() => inFlight.delete(key));
+    p = fetchOpeningHours(lat, lng, name, osm).finally(() => inFlight.delete(key));
     inFlight.set(key, p);
   }
   return p;
@@ -128,18 +130,19 @@ async function hoursFromNominatim(lat: number, lng: number, name?: string): Prom
 /** per pin *and* name — two places on one pin can have different hours.
  *  "hours3": answers stored under older keys could be a named neighbour's
  *  at the pin, so they're left behind. */
-const cacheKey = (lat: number, lng: number, name?: string) => `${lat.toFixed(4)},${lng.toFixed(4)},${name ? norm(name) : ""}`;
+const cacheKey = (lat: number, lng: number, name?: string, osm?: string) =>
+  `${lat.toFixed(4)},${lng.toFixed(4)},${name ? norm(name) : ""}${osm ? `,${osm}` : ""}`;
 
 /** what's already known without asking — this session's answer or one
  *  stored from before; undefined when it hasn't been looked up yet */
-export function cachedOpeningHours(lat: number, lng: number, name?: string): PlaceHours | null | undefined {
-  const key = cacheKey(lat, lng, name);
+export function cachedOpeningHours(lat: number, lng: number, name?: string, osm?: string): PlaceHours | null | undefined {
+  const key = cacheKey(lat, lng, name, osm);
   if (cache.has(key)) return cache.get(key)!;
   return readPersisted<PlaceHours>(`hours3.${key}`);
 }
 
-async function fetchOpeningHours(lat: number, lng: number, name?: string): Promise<PlaceHours | null> {
-  const key = cacheKey(lat, lng, name);
+async function fetchOpeningHours(lat: number, lng: number, name?: string, osm?: string): Promise<PlaceHours | null> {
+  const key = cacheKey(lat, lng, name, osm);
   if (cache.has(key)) return cache.get(key)!;
   const stored = readPersisted<PlaceHours>(`hours3.${key}`);
   if (stored) {
@@ -153,7 +156,7 @@ async function fetchOpeningHours(lat: number, lng: number, name?: string): Promi
   let best: PlaceHours | null = null;
   try {
     const json = await overpass<{ elements?: OsmElement[] }>(query, { low: true });
-    best = pickHours(json.elements ?? [], lat, lng, name);
+    best = pickHours(json.elements ?? [], lat, lng, name, osm);
   } catch {
     try {
       best = await hoursFromNominatim(lat, lng, name);

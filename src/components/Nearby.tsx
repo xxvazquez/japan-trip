@@ -37,7 +37,7 @@ export function usePlaceHours(place: Place | undefined, date?: string): string |
     setHours(null);
     if (!place || skip) return;
     let cancelled = false;
-    void nearestOpeningHours(place.lat, place.lng, place.name).then((h) => { if (!cancelled) setHours(h); }, () => {});
+    void nearestOpeningHours(place.lat, place.lng, place.name, place.osm).then((h) => { if (!cancelled) setHours(h); }, () => {});
     return () => { cancelled = true; };
   }, [place?.id, place?.lat, place?.lng, skip]);
   if (skip) return null;

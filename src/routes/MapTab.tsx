@@ -22,7 +22,7 @@ import { useApp, undoable } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
 import { isMapsShortLink, mapUrlCoords, mapsLinkPlace, placeMapLink, sharePlace, webSearchHref } from "@/lib/maps";
 import { apiGet } from "@/lib/api";
-import { searchPlaces, reverseGeocode, type GeoResult } from "@/lib/geocode";
+import { osmVenueAt, searchPlaces, reverseGeocode, type GeoResult } from "@/lib/geocode";
 import { haversineKm, fmtDistanceKm, fmtWalk, useGeolocation } from "@/lib/geo";
 import { fmtMinutes } from "@/lib/time";
 import { legHex } from "@/lib/legColors";
@@ -569,7 +569,17 @@ function useMapEditing(
         }
         if (stale) return;
         if (read?.at) {
-          setResults([{ name: read.name || "New place", detail: "From Google Maps", lat: read.at[0], lng: read.at[1], url: link }]);
+          const name = read.name || "New place";
+          // the same place on OpenStreetMap, found by where it is rather
+          // than what it's called — its hours come from there
+          const twin = await osmVenueAt(read.at[0], read.at[1], name);
+          if (stale) return;
+          const detail = !twin
+            ? "From Google Maps \u00b7 not on OpenStreetMap"
+            : twin.name.toLowerCase() === name.toLowerCase()
+              ? "On OpenStreetMap"
+              : `On OpenStreetMap as \u201c${twin.name}\u201d`;
+          setResults([twin ? { name, detail, lat: twin.lat, lng: twin.lng, url: link, osm: twin.osm } : { name, detail, lat: read.at[0], lng: read.at[1], url: link }]);
           setSearchState("idle");
         } else {
           setResults([]);
@@ -610,9 +620,9 @@ function useMapEditing(
     setPending(null);
     setLinkOnly(null);
   };
-  const commitPlace = (name: string, lat: number, lng: number, url?: string) => {
+  const commitPlace = (name: string, lat: number, lng: number, url?: string, osm?: string) => {
     const id = rid();
-    addEntity("places", { id, name: name || "New place", lat, lng, category: "My places", color: FALLBACK, ...(url ? { url } : {}) } as Place);
+    addEntity("places", { id, name: name || "New place", lat, lng, category: "My places", color: FALLBACK, ...(url ? { url } : {}), ...(osm ? { osm } : {}) } as Place);
     cancelAdd();
     onSelect(id);
     mapRef.current?.easeTo({ center: [lng, lat], zoom: Math.max(mapRef.current.getZoom(), 14) });
@@ -1772,7 +1782,7 @@ export default function MapTab() {
                 {results.map((r, i) => (
                   <li key={i} className={INSET_DIVIDER}>
                     <button
-                      onClick={() => commitPlace(r.name, r.lat, r.lng, r.url)}
+                      onClick={() => commitPlace(r.name, r.lat, r.lng, r.url, r.osm)}
                       className="block w-full px-3.5 py-2 text-left active:bg-ink/[0.07]"
                     >
                       <span className="block text-sm">{r.name}</span>
