@@ -3,15 +3,17 @@ import {
   Map as MLMap,
   AttributionControl,
   addProtocol,
+  LngLat,
+  type GeoJSONFeature,
   type GeoJSONSource,
   type MapMouseEvent,
   type MapLayerMouseEvent,
   type MapTouchEvent,
 } from "maplibre-gl";
 import { Protocol } from "pmtiles";
-import type { FeatureCollection, Point, Polygon } from "geojson";
+import type { FeatureCollection, Geometry, Point, Polygon } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { buildMapStyle, BASE_POIS_LAYER } from "@/lib/mapStyle";
+import { buildMapStyle, BASE_POIS_LAYER, kindLabel, labelName } from "@/lib/mapStyle";
 import { Icon } from "@/components/Icon";
 import { Loader } from "@/components/Loader";
 import { LocateControl } from "@/components/LocateControl";
@@ -19,6 +21,40 @@ import { transitLayers, TRANSIT_CONTROLS } from "@/lib/transitLayers";
 import { buildMarkerImage, markerKey } from "@/lib/mapGlyphs";
 import type { Place } from "@/core/types";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
+
+/** One of the base map's own places, as clicked */
+export type BasePoi = { name: string; kind?: string; lat: number; lng: number; x: number; y: number };
+
+/** the trip's own pins — a click there picks the pin, never the map */
+const PIN_LAYERS = ["pins", "pins-icon", "clusters", "pinned-icon", "pinned-dot"];
+/** the base map's spots: points of interest, the transit overlay's stops,
+ *  named water and islands, and neighbourhood and town names — Maps opens
+ *  each of these */
+const PLACE_LAYERS = [
+  BASE_POIS_LAYER,
+  "transit-station-label", "transit-station", "transit-bus", "transit-ferry", "transit-airport-label", "transit-airport",
+  "water_label_lakes", "earth_label_islands", "places_subplace", "places_locality",
+];
+/** whether a point falls inside a (multi)polygon — even-odd, so holes count */
+function inShape([x, y]: [number, number], g: Geometry): boolean {
+  const polys = g.type === "Polygon" ? [g.coordinates] : g.type === "MultiPolygon" ? g.coordinates : [];
+  return polys.some((rings) => {
+    let inside = false;
+    for (const ring of rings)
+      for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+        const [xi, yi] = ring[i], [xj, yj] = ring[j];
+        if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+      }
+    return inside;
+  });
+}
+/** how far from a click inside an unnamed area its name's point may sit */
+const AREA_NAME_REACH_M = 1000;
+/** the base map's areas — a park's green, a campus, a named lake */
+const AREA_LAYERS = [
+  "landuse_park", "landuse_urban_green", "landuse_zoo", "landuse_hospital", "landuse_school",
+  "landuse_beach", "landuse_aerodrome", "landuse_pedestrian", "landuse_pier", "water",
+];
 
 const FALLBACK = DEFAULT_ACCENT;
 let protocolRegistered = false;
@@ -147,6 +183,7 @@ export function MapView({
   onSelect,
   onMapClick,
   onLongPress,
+  onPoiClick,
   onReady,
   coverBottom,
 }: {
@@ -170,6 +207,9 @@ export function MapView({
   onSelect: (id: string | null) => void;
   onMapClick?: (lat: number, lng: number) => void;
   onLongPress?: (lat: number, lng: number) => void;
+  /** a click on one of the base map's own places (a park, a station, a
+   *  shop) — `x`/`y` is the click in the viewport, for a card beside it */
+  onPoiClick?: (poi: BasePoi) => void;
   onReady?: (map: MLMap) => void;
   /** how much of the map's foot a sheet covers (px), so a picked place is
    *  centred in what's left showing */
@@ -183,8 +223,8 @@ export function MapView({
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
   const [retryKey, setRetryKey] = useState(0);
   const [online, setOnline] = useState(() => (typeof navigator === "undefined" ? true : navigator.onLine));
-  const state = useRef({ places, selectedId, derivedIds, areaShapes, transit, basePois, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onReady, coverBottom });
-  state.current = { places, selectedId, derivedIds, areaShapes, transit, basePois, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onReady, coverBottom };
+  const state = useRef({ places, selectedId, derivedIds, areaShapes, transit, basePois, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onPoiClick, onReady, coverBottom });
+  state.current = { places, selectedId, derivedIds, areaShapes, transit, basePois, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onPoiClick, onReady, coverBottom };
 
   const applyBasePois = (m: MLMap, on: boolean) => {
     if (m.getLayer(BASE_POIS_LAYER)) m.setLayoutProperty(BASE_POIS_LAYER, "visibility", on ? "visible" : "none");
@@ -367,7 +407,7 @@ export function MapView({
       applySelection(m, state.current.selectedId, state.current.places, false, state.current.coverBottom);
       const pointer = () => (m.getCanvas().style.cursor = "pointer");
       const noPointer = () => (m.getCanvas().style.cursor = "");
-      for (const l of ["pins", "pins-icon", "clusters", "pinned-icon", "pinned-dot"]) { m.on("mouseenter", l, pointer); m.on("mouseleave", l, noPointer); }
+      for (const l of PIN_LAYERS) { m.on("mouseenter", l, pointer); m.on("mouseleave", l, noPointer); }
 
       const pickPin = (e: MapLayerMouseEvent) => {
         const id = e.features?.[0]?.properties?.id as string | undefined;
@@ -386,9 +426,56 @@ export function MapView({
         const coords = (f!.geometry as Point).coordinates as [number, number];
         m.easeTo({ center: coords, zoom });
       });
+      // every place the base map draws opens on a click, as Maps opens any
+      // place on its map: a labelled or iconed spot (a shop, a temple, a
+      // station, a lake), else the named area under the click (a park's
+      // green, a campus). Searched in a small box so a tap needn't land
+      // exactly on a 12px icon.
+      const placeAt = (pt: MapMouseEvent["point"]): Omit<BasePoi, "x" | "y"> | undefined => {
+        if (!state.current.onPoiClick) return undefined;
+        const kindOf = (f: GeoJSONFeature) => (typeof f.properties?.kind === "string" ? f.properties.kind : undefined);
+        const box: [[number, number], [number, number]] = [[pt.x - 8, pt.y - 8], [pt.x + 8, pt.y + 8]];
+        const spots = PLACE_LAYERS.filter((l) => m.getLayer(l));
+        const spot = spots.length ? m.queryRenderedFeatures(box, { layers: spots }).find((f) => labelName(f.properties) || kindOf(f)) : undefined;
+        if (spot) {
+          // a spot's own position, not wherever on its label the click landed
+          const [lng, lat] = spot.geometry.type === "Point" ? (spot.geometry.coordinates as [number, number]) : m.unproject(pt).toArray();
+          return { name: labelName(spot.properties) ?? kindLabel(kindOf(spot)!), kind: kindOf(spot), lat, lng };
+        }
+        const areas = AREA_LAYERS.filter((l) => m.getLayer(l));
+        const area = areas.length ? m.queryRenderedFeatures(pt, { layers: areas })[0] : undefined;
+        const kind = area && kindOf(area);
+        if (!area || !kind) return undefined;
+        const here = m.unproject(pt);
+        const named = labelName(area.properties);
+        if (named) return { name: named, kind: area.properties?.kind_detail ?? kind, lat: here.lat, lng: here.lng };
+        // an area's shape carries no name in the tiles — a park's name sits
+        // on one point of the same kind inside it, so take the nearest
+        // inside this very shape first, else the nearest close by
+        let best: { f: GeoJSONFeature; d: number } | undefined;
+        for (const f of m.querySourceFeatures("protomaps", { sourceLayer: "pois", filter: ["==", ["get", "kind"], kind] })) {
+          if (f.geometry.type !== "Point" || !labelName(f.properties)) continue;
+          const p = f.geometry.coordinates as [number, number];
+          const d = inShape(p, area.geometry) ? 0 : here.distanceTo(new LngLat(...p));
+          if (d < AREA_NAME_REACH_M && (!best || d < best.d)) best = { f, d };
+        }
+        if (!best) return undefined;
+        const [lng, lat] = (best.f.geometry as Point).coordinates;
+        return { name: labelName(best.f.properties)!, kind, lat, lng };
+      };
+      m.on("mousemove", (e: MapMouseEvent) => {
+        if (!m.queryRenderedFeatures(e.point, { layers: PIN_LAYERS }).length) m.getCanvas().style.cursor = placeAt(e.point) ? "pointer" : "";
+      });
+      // a held finger already dropped a pin; the click its lift makes isn't a tap
+      let heldDown = false;
       m.on("click", (e: MapMouseEvent) => {
-        if (m.queryRenderedFeatures(e.point, { layers: ["pins", "pins-icon", "clusters", "pinned-icon", "pinned-dot"] }).length === 0)
-          state.current.onMapClick?.(e.lngLat.lat, e.lngLat.lng);
+        if (heldDown) { heldDown = false; return; }
+        if (m.queryRenderedFeatures(e.point, { layers: PIN_LAYERS }).length) return;
+        const place = placeAt(e.point);
+        if (place) {
+          const box = m.getCanvas().getBoundingClientRect();
+          state.current.onPoiClick!({ ...place, x: box.left + e.point.x, y: box.top + e.point.y });
+        } else state.current.onMapClick?.(e.lngLat.lat, e.lngLat.lng);
       });
 
       // long-press → drop a pin (optional mobile shortcut)
@@ -396,9 +483,10 @@ export function MapView({
       const clearLp = () => { if (lpTimer) { clearTimeout(lpTimer); lpTimer = null; } };
       m.on("touchstart", (e: MapTouchEvent) => {
         clearLp();
+        heldDown = false;
         if (e.originalEvent.touches.length !== 1) return;
         const ll = e.lngLat;
-        lpTimer = setTimeout(() => state.current.onLongPress?.(ll.lat, ll.lng), 500);
+        lpTimer = setTimeout(() => { heldDown = !!state.current.onLongPress; state.current.onLongPress?.(ll.lat, ll.lng); }, 500);
       });
       m.on("touchend", clearLp);
       m.on("touchmove", clearLp);

@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { MapView, type MLMap } from "@/components/MapView";
+import { MapView, type BasePoi, type MLMap } from "@/components/MapView";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
 import { Icon, type IconName } from "@/components/Icon";
@@ -15,7 +15,7 @@ import { TextPrompt } from "@/components/TextPrompt";
 import { SearchField } from "@/components/SearchField";
 import { useData } from "@/lib/data";
 import { useToday } from "@/lib/useToday";
-import { loadBasePois, saveBasePois } from "@/lib/mapStyle";
+import { kindLabel, loadBasePois, saveBasePois } from "@/lib/mapStyle";
 import { Switch } from "@/components/Switch";
 import { CheckCircle } from "@/components/CheckCircle";
 import { useApp, undoable, deletePlace } from "@/store/useApp";
@@ -831,6 +831,25 @@ export default function MapTab() {
   } = useMapEditing(map, setSelected, () => setSnap((s) => (s === "peek" ? "half" : s)), placeLeg, dayCity);
 
   const places = useMemo(() => data?.places ?? [], [data]);
+
+  /** a place the base map draws (a shop, a temple, a station, a park's
+   *  green) opened by a click — a card to save it, as Maps opens any place
+   *  on its map */
+  const [poi, setPoi] = useState<BasePoi | null>(null);
+  const poiAnchor = useRef<HTMLSpanElement>(null);
+  const onPoiClick = (p: BasePoi) => {
+    // already one of the trip's pins: open that instead of offering it again
+    const key = p.name.trim().toLowerCase();
+    const saved = places.find((pl) => pl.name.trim().toLowerCase() === key && haversineKm(pl.lat, pl.lng, p.lat, p.lng) < 0.2);
+    if (saved) { setPoi(null); setSelected(saved.id); return; }
+    setSelected(null);
+    setPoi(p);
+  };
+  const savePoi = () => {
+    if (!poi) return;
+    commitPlace(poi.name, poi.lat, poi.lng);
+    setPoi(null);
+  };
 
   // the list groups by the areas you made, or — switched in the ⋯ menu or on
   // the Neighbourhoods page — by neighbourhood. Only the grouping changes:
@@ -1984,12 +2003,40 @@ export default function MapTab() {
           onSelect={(id) => { const stay = stayIdOfPin(id); if (stay) nav(`/hotel/${stay}`); else setSelected(id); }}
           onMapClick={onMapClick}
           onLongPress={onLongPress}
+          onPoiClick={onPoiClick}
           coverBottom={wide || listOnly ? 0 : halfStopPx}
           onReady={(m) => {
             map.current = m;
             setMapReady(true); // fits the scope (the effect above) with this render's values, not the mount's
           }}
         />
+        {/* the card's anchor: the clicked label, so the desktop popover's
+            arrow points at it */}
+        <span ref={poiAnchor} aria-hidden className="pointer-events-none fixed h-px w-px" style={poi ? { left: poi.x, top: poi.y } : undefined} />
+        <ActionSheet open={!!poi} onClose={() => setPoi(null)} anchorRef={poiAnchor} doneLabel={null} side
+          header={poi && (
+            <div className="space-y-3 md:w-[18rem]">
+              <div className="flex items-start gap-3 pl-1">
+                <div className="min-w-0 flex-1">
+                  <h2 className="subhead break-words">{poi.name}</h2>
+                  {poi.kind && kindLabel(poi.kind) !== poi.name && <p className="mt-0.5 break-words text-xs text-ink-faint">{kindLabel(poi.kind)}</p>}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPoi(null)}
+                  className="tap grid h-[30px] w-[30px] shrink-0 place-items-center rounded-full bg-ink/[0.08] text-ink-soft"
+                  aria-label="Close"
+                >
+                  <Icon name="close" size={13} />
+                </button>
+              </div>
+              <PlaceActions>
+                {!readOnly && <PlaceAction icon="plus" label="Add" primary onClick={savePoi} />}
+                <PlaceAction href={placeMapLink(poi)} icon="map" label="Google Maps" primary={readOnly} />
+              </PlaceActions>
+            </div>
+          )}
+        >{null}</ActionSheet>
         {adding && (
           <div className="pointer-events-none absolute inset-x-0 top-0 bg-accent/90 py-1.5 text-center text-xs font-medium text-white">
             Adding a place — search, or tap the map
@@ -2663,3 +2710,4 @@ function ListEmpty({ title, text }: { title: string; text: string }) {
     </div>
   );
 }
+

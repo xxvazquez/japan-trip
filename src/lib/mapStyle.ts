@@ -99,6 +99,21 @@ const DARK: Partial<Flavor> = {
  *  country — and drops the stacked "Tokyo / 東京都" dual-script labels. */
 const LATIN_NAME = ["coalesce", ["get", "name:en"], ["get", "pgf:name"], ["get", "name"]];
 
+/** The name a base-map label shows for a feature — `LATIN_NAME` read in code */
+export function labelName(props: Record<string, unknown> | null | undefined): string | undefined {
+  for (const k of ["name:en", "pgf:name", "name"]) {
+    const v = props?.[k];
+    if (typeof v === "string" && v.trim()) return v.trim();
+  }
+  return undefined;
+}
+
+/** A base-map feature's OpenStreetMap kind as words — "bus_stop" → "Bus stop" */
+export function kindLabel(kind: string): string {
+  const t = kind.replace(/_/g, " ").trim();
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}
+
 function latinizeLabels<T extends { layout?: Record<string, unknown> }>(list: T[]): T[] {
   return list.map((layer) => {
     const tf = layer.layout?.["text-field"];

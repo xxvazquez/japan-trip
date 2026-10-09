@@ -380,6 +380,7 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 ### Places
 
 - **＋ Add place** — search for somewhere, or tap the map to drop a pin. The search looks within ~50 km of the map's centre first, nearest result at the top; only when nothing is there does it look further.
+- **Tap any place on the map** — a shop, temple, station, lake, neighbourhood or a park's green — for a card with **Add** (saves it to My places) and **Google Maps**. A place already on the trip opens its own card instead.
 - **The list** — once a city is picked, places are grouped by area (plus *No area*). On **All** it nests **city → area → place**.
 - **Search** — the field at the top of the list finds areas by name and places by name, category or note, across the whole trip. The map shows only what it finds; on a phone the sheet pulls up while you type.
 - **Areas fold open in place**, like folders in Files — tap an area row to show its places under it, and the map moves to show them. They start collapsed and remember what you opened.
