@@ -9,21 +9,6 @@ export const japan: CountryGuide = {
   name: "Japan",
   local: "日本 · Nihon",
 
-  glance: [
-    { label: "Capital", value: "Tokyo" },
-    { label: "Population", value: "About 124 million" },
-    { label: "Language", value: "Japanese" },
-    { label: "Currency", value: "Yen (¥, JPY)" },
-    { label: "Time", value: "UTC+9, no daylight saving" },
-    { label: "Power", value: "100 V, two flat pins (A/B)" },
-    { label: "Driving", value: "On the left" },
-    { label: "Police", value: "110", href: "tel:110" },
-    { label: "Ambulance & fire", value: "119", href: "tel:119" },
-    { label: "Visitor hotline", value: "050-3816-2787", href: "tel:+815038162787" },
-    { label: "Tap water", value: "Safe to drink" },
-    { label: "Tipping", value: "Not done" },
-  ],
-
   understand: [
     {
       id: "history",
@@ -258,41 +243,32 @@ export const japan: CountryGuide = {
   practical: [
     {
       id: "customs",
-      title: "Customs that matter",
+      title: "Easy to get wrong",
       icon: "door",
-      summary: "Shoes, baths, trains, bins",
+      summary: "The traps worth knowing about",
       blocks: [
         {
+          title: "Manners that actually matter",
           items: [
             { title: "Shoes off", text: "In homes, ryokan rooms, many temple halls, some restaurants and fitting rooms. The sign is a step up from the entrance floor, often with slippers waiting. Toilets have their own slippers — swap and swap back." },
             { title: "Onsen", text: "Wash and rinse fully at the showers before getting in. No swimsuits, and your small towel stays out of the water. Many baths still refuse visible tattoos — look for tattoo-friendly places, use a cover sticker, or book a private bath (kashikiri)." },
-            { title: "On the train", text: "Phones on silent and calls avoided. Queue at the marked lines on the platform. In a crowd, carry your backpack on your front." },
             { title: "Escalators", text: "Stand on the left in Tokyo, on the right in Osaka. Several cities now ask everyone to stand still on both sides." },
-            { title: "No tipping", text: "It isn't done anywhere. Leave money on the table and someone may run after you with it." },
             { title: "The cash tray", text: "At the till, put your money or card in the little tray rather than handing it over." },
-            { title: "Few bins", text: "Public bins are rare. Carry a small bag for rubbish; convenience stores have bins for what you bought there." },
-            { title: "Smoking", text: "Banned on the street in much of central Tokyo and many other cities, allowed in marked smoking areas. Indoors it's mostly banned, with exceptions for some small bars." },
+            { title: "Why there are no bins", text: "Most public bins were removed after the 1995 sarin gas attack on the Tokyo subway and never came back. Carry a small bag; convenience stores take what you bought there." },
+            { title: "Smoking is the other way round", text: "Banned on the street in much of central Tokyo, yet still allowed in some small bars. Look for the marked smoking corners." },
             { title: "Chopsticks", text: "Don't stand them upright in rice or pass food from chopsticks to chopsticks — both echo funeral rites." },
-            { title: "Carry your passport", text: "Short-stay visitors are required by law to carry it at all times. Hotels will ask for it at check-in." },
             { title: "Bowing", text: "Not expected of visitors. A small nod back is perfect." },
           ],
         },
-      ],
-    },
-    {
-      id: "money",
-      title: "Money",
-      glyph: "money",
-      summary: "Cash, cards, tax-free",
-      blocks: [
         {
+          title: "Rules with teeth",
           items: [
-            { title: "Cards mostly work", text: "In cities, cards and phone payments are accepted almost everywhere. Keep cash for small restaurants, markets, temples and shrines, and rural buses." },
-            { title: "ATMs", text: "7-Eleven and Japan Post ATMs take foreign cards, most of them 24 hours. Many bank ATMs don't." },
-            { title: "Coins pile up", text: "¥1, 5, 10, 50, 100 and 500 coins; ¥1,000, 5,000 and 10,000 notes. New notes came out in 2024 — the old ones are still valid." },
-            { title: "Prices include tax", text: "By law since 2021. Consumption tax is 10%, or 8% on food to take away." },
-            { title: "Tax-free shopping", text: "Spend ¥5,000 or more in one shop on one day and show your passport. From 1 November 2026 it changes: you pay the tax at the till and get it back after customs checks the goods when you leave." },
-            { title: "The izakaya cover charge", text: "A small dish you didn't order (otoshi) arrives at many izakaya and is charged per person, usually a few hundred yen. It's the table charge, not a scam." },
+            { title: "Carry your passport", text: "Short-stay visitors are required by law to carry it at all times, and the police can ask." },
+            { title: "Check your medicines", text: "Stimulants such as Adderall are banned outright, and cold medicines with a lot of pseudoephedrine are too. Over a month's supply of prescription medicine needs an import certificate (Yakkan Shōmei) in advance." },
+            { title: "Tax-free is changing", text: "From 1 November 2026 you pay the 10% at the till and get it back after customs checks the goods when you leave — keep them unopened and with you." },
+            { title: "Not every ATM takes your card", text: "Most bank ATMs don't. 7-Eleven and Japan Post ones do." },
+            { title: "Touts", text: "In nightlife districts, ignore anyone inviting you into a bar on the street — overcharging is the classic scam in an otherwise very safe country." },
+            { title: "Earthquake alerts", text: "Small quakes are common. JNTO's Safety Tips app sends warnings and instructions in English." },
           ],
         },
       ],
@@ -301,19 +277,16 @@ export const japan: CountryGuide = {
       id: "getting-around",
       title: "Getting around",
       icon: "train",
-      summary: "IC cards, Shinkansen, luggage",
+      summary: "What catches visitors out",
       blocks: [
         {
           items: [
-            { title: "Get an IC card", text: "Suica, PASMO and ICOCA all work on trains, subways and buses in every big city, and pay at convenience stores, vending machines and lockers. On iPhone, add Suica to Apple Wallet." },
+            { title: "Suica on your iPhone", text: "Add Suica to Apple Wallet and tap through the gates without unlocking the phone. It also pays at convenience stores, vending machines and lockers." },
             { title: "Two subways in Tokyo", text: "Tokyo Metro and Toei are separate companies, so changing between them costs extra. An IC card handles it automatically." },
             { title: "The JR Pass", text: "Its price rose sharply in 2023. For a Tokyo–Kyoto–Osaka trip, single tickets often cost less — compare before buying." },
             { title: "Big bags on the Shinkansen", text: "On the Tōkaidō, San'yō and Kyūshū lines, a bag whose length, width and height add up to over 160 cm needs a seat booked with the oversized-luggage space." },
-            { title: "Send your luggage ahead", text: "Takkyūbin delivers suitcases hotel to hotel, usually next day. Hotels and convenience stores take them." },
-            { title: "Last trains", text: "Around midnight. After that it's walking or a long night." },
-            { title: "Rush hour", text: "Roughly 7:30–9:30 on weekdays in Tokyo and Osaka. Some lines have women-only cars then." },
-            { title: "Cycling", text: "Ride on the left, no phone or umbrella in hand. On-the-spot fines for cyclists began in April 2026." },
-            { title: "Driving", text: "You need an International Driving Permit under the 1949 Geneva convention, or an official translation for some licences." },
+            { title: "Send your luggage ahead", text: "Takkyūbin delivers suitcases hotel to hotel, usually next day — so you can ride trains with just a day bag." },
+            { title: "Cycling fines", text: "Ride on the left, no phone or umbrella in hand. On-the-spot fines for cyclists began in April 2026." },
           ],
         },
       ],
@@ -322,44 +295,24 @@ export const japan: CountryGuide = {
       id: "food",
       title: "Food & drink",
       glyph: "noodles",
-      summary: "Ticket machines, konbini, reservations",
+      summary: "Ticket machines, cover charges, dashi",
       blocks: [
         {
           items: [
             { title: "Ticket machines", text: "Many ramen and noodle shops have you buy a ticket at a machine by the door and hand it over. Some take only cash." },
-            { title: "Water and tea are free", text: "Brought without asking, and refilled." },
+            { title: "The dish you didn't order", text: "At many izakaya a small starter (otoshi) arrives unasked and is charged per person, usually a few hundred yen. It's the table charge, not a scam." },
             { title: "Book the popular places", text: "Well-known restaurants can be full weeks ahead. Last orders are often 30–60 minutes before closing." },
-            { title: "Slurp", text: "Noodles are meant to be slurped. It's normal, not rude." },
-            { title: "Konbini", text: "7-Eleven, FamilyMart and Lawson — over 55,000 of them. Proper meals, coffee, ATMs, tickets, and a microwave if you ask." },
-            { title: "Depachika", text: "The food halls in department-store basements. Prepared food is often discounted in the last hour before closing." },
+            { title: "Depachika at closing time", text: "Department-store basement food halls mark prepared food down in the last hour." },
             { title: "Vegetarian is hard", text: "Fish stock (dashi) is in most soups, sauces and broths, even ones that look vegetable-only. Shōjin ryōri, temple cooking, is fully plant-based." },
             { title: "Raw egg is fine", text: "Eggs are produced to be eaten raw — tamago kake gohan, egg on rice, is a classic breakfast." },
-            { title: "“Sake” means any alcohol", text: "The rice drink is nihonshu. The drinking age is 20." },
-          ],
-        },
-      ],
-    },
-    {
-      id: "safety",
-      title: "Health & safety",
-      glyph: "first-aid",
-      summary: "Medicines, earthquakes, heat",
-      blocks: [
-        {
-          items: [
-            { title: "Very safe", text: "One of the lowest crime rates anywhere. In nightlife districts, ignore street touts — overcharging bars are the usual trouble." },
-            { title: "Check your medicines", text: "Stimulants such as Adderall are banned outright, and cold medicines with a lot of pseudoephedrine are too. Over a month's supply of prescription medicine needs an import certificate (Yakkan Shōmei) in advance." },
-            { title: "Earthquakes", text: "Small ones are common. In a strong one, get under a table and away from windows; don't run outside. JNTO's Safety Tips app sends alerts in English." },
-            { title: "Summer heat", text: "July and August are hot and very humid, often over 35°C. Heatstroke alerts are taken seriously — drink and rest." },
-            { title: "Healthcare", text: "Excellent, but visitors pay the full price, sometimes upfront. Travel insurance is worth it." },
-            { title: "Pharmacies", text: "Drugstores are everywhere and sell a lot over the counter. Look for 薬 (kusuri, medicine)." },
+            { title: "“Sake” means any alcohol", text: "The rice drink is nihonshu." },
           ],
         },
       ],
     },
     {
       id: "seasons",
-      title: "Seasons & holidays",
+      title: "Seasons & crowds",
       glyph: "flower",
       summary: "When it's busy, when it's closed",
       blocks: [
@@ -377,53 +330,6 @@ export const japan: CountryGuide = {
         },
       ],
     },
-    {
-      id: "language",
-      title: "Language",
-      icon: "callout",
-      summary: "Three scripts, ten useful phrases",
-      blocks: [
-        {
-          title: "How it works",
-          items: [
-            { title: "Three scripts at once", text: "Kanji (characters from Chinese, for meaning), hiragana (for grammar) and katakana (for foreign words). A single sentence uses all three." },
-            { title: "English hides in katakana", text: "Konbini, hoteru, kōhī, depāto — sound them out and many are English." },
-            { title: "You'll manage", text: "Stations, signs and train announcements in big cities are in English. A camera translation app handles menus." },
-          ],
-        },
-        {
-          title: "Phrases",
-          items: [
-            { title: "Sumimasen", text: "Excuse me, sorry, and “could I have your attention” — the most useful word there is." },
-            { title: "Arigatō gozaimasu", text: "Thank you." },
-            { title: "Kore o kudasai", text: "This one, please — point at the menu." },
-            { title: "Daijōbu desu", text: "I'm fine / no thanks — for the bag, the receipt, the straw." },
-            { title: "Okaikei onegaishimasu", text: "The bill, please. Making a little X with your index fingers works too." },
-            { title: "Eigo no menyū wa arimasu ka?", text: "Do you have an English menu?" },
-            { title: "Toire wa doko desu ka?", text: "Where's the toilet?" },
-            { title: "Futari desu", text: "Two people (table for two)." },
-            { title: "Itadakimasu / Gochisōsama deshita", text: "Said before and after a meal — the second one is a nice thing to say to the staff on your way out." },
-            { title: "Ohayō / Konnichiwa / Konbanwa", text: "Good morning / hello / good evening." },
-          ],
-        },
-      ],
-    },
-    {
-      id: "arriving",
-      title: "Arriving",
-      icon: "plane",
-      summary: "Entry, data, plugs",
-      blocks: [
-        {
-          items: [
-            { title: "Visa-free for many", text: "Visitors from dozens of countries, including the EU, UK and US, get a short stay of up to 90 days on arrival. Check your own nationality." },
-            { title: "Visit Japan Web", text: "Fill in the immigration and customs forms online before you fly and you'll get QR codes to scan at the airport." },
-            { title: "Data", text: "An eSIM is the easiest way online. Free Wi-Fi exists but is patchy." },
-            { title: "Plugs", text: "Two flat pins, like the US, at 100 V. Phone and laptop chargers are fine; European plugs need an adapter, and hair dryers may run weakly." },
-          ],
-        },
-      ],
-    },
   ],
 
   cities: [
@@ -432,11 +338,7 @@ export const japan: CountryGuide = {
       name: "Tokyo",
       local: "東京",
       lat: 35.6812, lng: 139.7671, radiusKm: 25,
-      facts: [
-        { label: "Prefecture", value: "Tokyo Metropolis" },
-        { label: "Population", value: "About 14 million" },
-        { label: "Capital since", value: "1868" },
-      ],
+      population: "About 14 million",
       items: [
         { title: "A fishing village called Edo", text: "Tokugawa Ieyasu made it his base in 1590; by the 1700s it was one of the largest cities in the world. Renamed Tokyo, “eastern capital”, when the emperor moved here in 1868." },
         { title: "Rebuilt twice", text: "The 1923 Great Kantō earthquake and the 1945 firebombing each destroyed much of the city — which is why so little old Tokyo survives." },
@@ -450,11 +352,7 @@ export const japan: CountryGuide = {
       name: "Kyoto",
       local: "京都",
       lat: 35.0116, lng: 135.7681, radiusKm: 10,
-      facts: [
-        { label: "Prefecture", value: "Kyoto" },
-        { label: "Population", value: "About 1.4 million" },
-        { label: "Capital", value: "794–1868" },
-      ],
+      population: "About 1.4 million",
       items: [
         { title: "A thousand years as capital", text: "Founded as Heian-kyō in 794 on a grid copied from China. The emperor lived here until 1868." },
         { title: "Spared in the war", text: "Kyoto was largely left out of the bombing, so whole streets of wooden townhouses (machiya) survive." },
@@ -470,15 +368,10 @@ export const japan: CountryGuide = {
       name: "Osaka",
       local: "大阪",
       lat: 34.6937, lng: 135.5023, radiusKm: 12,
-      facts: [
-        { label: "Prefecture", value: "Osaka" },
-        { label: "Population", value: "About 2.8 million" },
-        { label: "Known for", value: "Food and comedy" },
-      ],
+      population: "About 2.8 million",
       items: [
         { title: "The nation's kitchen", text: "A merchant city in the Edo period, where rice from across Japan was traded — hence the nickname tenka no daidokoro." },
         { title: "Eat until you drop", text: "Kuidaore is the city's motto. Takoyaki and okonomiyaki are from here." },
-        { title: "Two centres", text: "Kita, around Umeda and Osaka Station, and Minami, around Namba and Dōtonbori." },
         { title: "The castle", text: "Built by Toyotomi Hideyoshi in 1583. The main tower you see is a 1931 reconstruction in concrete, with a museum inside." },
         { title: "Stand on the right", text: "Osaka stands on the right of escalators, unlike Tokyo — usually traced back to the 1970 Expo." },
         { title: "Two Expos", text: "Osaka hosted the World Expo in 1970 and again in 2025." },
@@ -489,16 +382,11 @@ export const japan: CountryGuide = {
       name: "Nara",
       local: "奈良",
       lat: 34.6851, lng: 135.8048, radiusKm: 6,
-      facts: [
-        { label: "Prefecture", value: "Nara" },
-        { label: "Population", value: "About 350,000" },
-        { label: "Capital", value: "710–784" },
-      ],
+      population: "About 350,000",
       items: [
         { title: "The first permanent capital", text: "Before Kyoto, Nara was the capital. Its temples are among the oldest in Japan." },
         { title: "The Great Buddha", text: "Tōdai-ji's bronze Buddha is about 15 m tall, inside one of the largest wooden buildings in the world." },
         { title: "The deer", text: "About 1,300 roam the park. Wild and protected — sacred messengers of the gods in Shinto. They bow for crackers (shika senbei) but will also nip, butt and chase; keep paper and maps away." },
-        { title: "Easy from Kyoto or Osaka", text: "Under an hour by train from either." },
       ],
     },
     {
@@ -506,16 +394,11 @@ export const japan: CountryGuide = {
       name: "Uji",
       local: "宇治",
       lat: 34.8844, lng: 135.7997, radiusKm: 4,
-      facts: [
-        { label: "Prefecture", value: "Kyoto" },
-        { label: "Population", value: "About 180,000" },
-        { label: "Known for", value: "Matcha" },
-      ],
+      population: "About 180,000",
       items: [
         { title: "Japan's tea town", text: "Tea has been grown here since around the 13th century. “Uji matcha” is still the benchmark for green tea." },
         { title: "The ¥10 coin", text: "Byōdō-in's Phoenix Hall (1053) is the building on the coin. It began as an aristocrat's villa turned into a temple." },
         { title: "Tale of Genji country", text: "The final chapters of the novel are set here. The Tale of Genji Museum tells the story." },
-        { title: "Getting there", text: "About 20–30 minutes from Kyoto on the JR Nara line or the Keihan Uji line." },
       ],
     },
     {
@@ -524,17 +407,11 @@ export const japan: CountryGuide = {
       local: "鞍馬・貴船",
       aliases: ["Kurama", "Kibune", "Kifune"],
       lat: 35.1180, lng: 135.7712, radiusKm: 2.5,
-      facts: [
-        { label: "Part of", value: "Kyoto (north)" },
-        { label: "From the city", value: "About 30 min by train" },
-        { label: "Known for", value: "Mountain temple hike" },
-      ],
       items: [
         { title: "Mountain temple", text: "Kurama-dera was founded in the 8th century. Legend says the mountain is home to the tengu, long-nosed mountain spirits." },
         { title: "Over the mountain", text: "A trail climbs past the temple and down to Kibune: about 1.5–2 hours, steep, with steps and tree roots. Wear proper shoes." },
         { title: "Kibune Shrine", text: "A shrine to the god of water, with a lantern-lined stone stairway. Its fortunes appear when you float the paper on water." },
         { title: "Dining over the river", text: "From May to September, Kibune's restaurants serve meals on platforms built over the stream (kawadoko)." },
-        { title: "Getting there", text: "The little Eizan line from Demachiyanagi in Kyoto, about 30 minutes. Kibune-guchi station is a short bus or walk from Kibune." },
       ],
     },
     {
@@ -542,10 +419,7 @@ export const japan: CountryGuide = {
       name: "Hakone",
       local: "箱根",
       lat: 35.2324, lng: 139.1069, radiusKm: 10,
-      facts: [
-        { label: "Prefecture", value: "Kanagawa" },
-        { label: "Known for", value: "Onsen and Fuji views" },
-      ],
+      population: "About 11,000",
       items: [
         { title: "A volcano's hot springs", text: "Hakone sits in a huge old caldera. Ōwakudani still steams; its eggs are boiled black in the sulphur springs." },
         { title: "The ropeway can stop", text: "It closes when volcanic gas levels rise or the wind is strong. Check on the day." },
@@ -558,11 +432,7 @@ export const japan: CountryGuide = {
       name: "Kamakura",
       local: "鎌倉",
       lat: 35.3192, lng: 139.5467, radiusKm: 5,
-      facts: [
-        { label: "Prefecture", value: "Kanagawa" },
-        { label: "Population", value: "About 170,000" },
-        { label: "Seat of power", value: "1185–1333" },
-      ],
+      population: "About 170,000",
       items: [
         { title: "The first samurai capital", text: "The first shogunate ruled Japan from here, while the emperor stayed in Kyoto." },
         { title: "The Great Buddha outdoors", text: "The 11 m bronze Buddha at Kōtoku-in has sat in the open since its hall was washed away in 1498." },
@@ -575,10 +445,7 @@ export const japan: CountryGuide = {
       local: "日光",
       aliases: ["Nikko"],
       lat: 36.7581, lng: 139.5986, radiusKm: 10,
-      facts: [
-        { label: "Prefecture", value: "Tochigi" },
-        { label: "Known for", value: "Tōshō-gū shrine" },
-      ],
+      population: "About 76,000",
       items: [
         { title: "A shogun's mausoleum", text: "Tōshō-gū is the shrine to Tokugawa Ieyasu — gold, lacquer and carving at full volume, the opposite of Zen restraint. Look for the three wise monkeys." },
         { title: "Cooler and earlier", text: "It's in the mountains: autumn colour arrives in October, weeks before Tokyo." },
@@ -589,10 +456,7 @@ export const japan: CountryGuide = {
       name: "Hiroshima",
       local: "広島",
       lat: 34.3853, lng: 132.4553, radiusKm: 10,
-      facts: [
-        { label: "Prefecture", value: "Hiroshima" },
-        { label: "Population", value: "About 1.2 million" },
-      ],
+      population: "About 1.2 million",
       items: [
         { title: "6 August 1945", text: "The first atomic bomb used in war killed an estimated 140,000 people by the end of that year. The Peace Memorial Museum is hard and essential." },
         { title: "The dome", text: "The A-Bomb Dome, one of the few buildings left standing near the blast, was kept as it was and is a World Heritage site." },
@@ -605,10 +469,7 @@ export const japan: CountryGuide = {
       local: "宮島",
       aliases: ["Itsukushima"],
       lat: 34.2959, lng: 132.3199, radiusKm: 4,
-      facts: [
-        { label: "Prefecture", value: "Hiroshima" },
-        { label: "Visitor tax", value: "¥100, with the ferry fare" },
-      ],
+      population: "About 1,500",
       items: [
         { title: "The floating torii", text: "Itsukushima Shrine's gate stands in the sea at high tide. At low tide you can walk out to it — check the tide times." },
         { title: "A sacred island", text: "For centuries no births or deaths were allowed on the island. Deer wander here too." },
@@ -619,13 +480,9 @@ export const japan: CountryGuide = {
       name: "Himeji",
       local: "姫路",
       lat: 34.8394, lng: 134.6939, radiusKm: 4,
-      facts: [
-        { label: "Prefecture", value: "Hyōgo" },
-        { label: "Known for", value: "The White Heron castle" },
-      ],
+      population: "About 520,000",
       items: [
         { title: "An original castle", text: "Most Japanese castle keeps are concrete rebuilds. Himeji's main keep dates from 1609 and survived wars and bombing." },
-        { title: "On the Shinkansen", text: "The castle is a straight walk up the avenue from the station." },
       ],
     },
     {
@@ -633,10 +490,7 @@ export const japan: CountryGuide = {
       name: "Kobe",
       local: "神戸",
       lat: 34.6901, lng: 135.1955, radiusKm: 8,
-      facts: [
-        { label: "Prefecture", value: "Hyōgo" },
-        { label: "Population", value: "About 1.5 million" },
-      ],
+      population: "About 1.5 million",
       items: [
         { title: "A port opened to the world", text: "Opened to foreign trade in 1868; the Western merchants' houses in Kitano are still standing." },
         { title: "1995", text: "The Great Hanshin earthquake killed over 6,000 people. A stretch of the wrecked pier is kept as a memorial." },
@@ -648,10 +502,7 @@ export const japan: CountryGuide = {
       name: "Kanazawa",
       local: "金沢",
       lat: 36.5613, lng: 136.6562, radiusKm: 8,
-      facts: [
-        { label: "Prefecture", value: "Ishikawa" },
-        { label: "Population", value: "About 460,000" },
-      ],
+      population: "About 460,000",
       items: [
         { title: "A rich castle town", text: "The Maeda clan, the wealthiest after the shogun, spent on arts and gardens. Kenroku-en is one of Japan's three great gardens." },
         { title: "Gold leaf", text: "Almost all of Japan's gold leaf is made here — you'll see it on ice cream." },
@@ -662,10 +513,7 @@ export const japan: CountryGuide = {
       name: "Takayama",
       local: "高山",
       lat: 36.1461, lng: 137.2522, radiusKm: 5,
-      facts: [
-        { label: "Prefecture", value: "Gifu" },
-        { label: "Known for", value: "Old town and Hida beef" },
-      ],
+      population: "About 83,000",
       items: [
         { title: "Edo-era streets", text: "The Sanmachi lanes of dark wooden merchant houses and sake breweries — look for the cedar ball over a brewery's door." },
         { title: "Morning markets", text: "Two of them, every morning by the river and in front of the old government house." },
@@ -677,10 +525,7 @@ export const japan: CountryGuide = {
       local: "白川郷",
       aliases: ["Shirakawago", "Shirakawa"],
       lat: 36.2577, lng: 136.9063, radiusKm: 3,
-      facts: [
-        { label: "Prefecture", value: "Gifu" },
-        { label: "Known for", value: "Thatched farmhouses" },
-      ],
+      population: "About 1,500",
       items: [
         { title: "Praying hands", text: "Gasshō-zukuri farmhouses have steep thatched roofs like hands in prayer, built to shed heavy snow. The attics raised silkworms." },
         { title: "Still lived in", text: "It's a working village, not a museum. Stay on paths and out of gardens." },
@@ -691,10 +536,7 @@ export const japan: CountryGuide = {
       name: "Nagoya",
       local: "名古屋",
       lat: 35.1815, lng: 136.9066, radiusKm: 12,
-      facts: [
-        { label: "Prefecture", value: "Aichi" },
-        { label: "Population", value: "About 2.3 million" },
-      ],
+      population: "About 2.3 million",
       items: [
         { title: "Industrial heart", text: "Home ground of Toyota. The Toyota Commemorative Museum is in a former textile mill — the company started with looms." },
         { title: "Its own food", text: "Miso katsu, tebasaki chicken wings, and a coffee-shop breakfast thrown in free with your coffee." },
@@ -706,10 +548,7 @@ export const japan: CountryGuide = {
       local: "富士五湖",
       aliases: ["Kawaguchiko", "Fujikawaguchiko"],
       lat: 35.5161, lng: 138.7519, radiusKm: 10,
-      facts: [
-        { label: "Prefecture", value: "Yamanashi" },
-        { label: "Mount Fuji", value: "3,776 m" },
-      ],
+      population: "About 27,000 (Fujikawaguchiko)",
       items: [
         { title: "Cultural, not natural, heritage", text: "Fuji is World Heritage as a sacred site and an inspiration for art — pilgrims have climbed it for centuries." },
         { title: "Climbing it", text: "The season is roughly July to early September. Since 2024 the trails charge a fee and cap daily climbers." },
@@ -722,10 +561,7 @@ export const japan: CountryGuide = {
       local: "高野山",
       aliases: ["Koyasan", "Mount Koya"],
       lat: 34.2130, lng: 135.5850, radiusKm: 4,
-      facts: [
-        { label: "Prefecture", value: "Wakayama" },
-        { label: "Founded", value: "816" },
-      ],
+      population: "About 3,000",
       items: [
         { title: "A town of temples", text: "Founded by the monk Kūkai as the centre of Shingon Buddhism — over a hundred temples on a mountaintop." },
         { title: "Sleep in a temple", text: "Many temples take guests (shukubō), with vegetarian temple food and the morning prayers." },
@@ -737,10 +573,7 @@ export const japan: CountryGuide = {
       name: "Sapporo",
       local: "札幌",
       lat: 43.0618, lng: 141.3545, radiusKm: 15,
-      facts: [
-        { label: "Prefecture", value: "Hokkaidō" },
-        { label: "Population", value: "About 2 million" },
-      ],
+      population: "About 2 million",
       items: [
         { title: "A planned city", text: "Laid out on a grid from 1869, when Japan settled Hokkaidō — homeland of the indigenous Ainu." },
         { title: "Snow Festival", text: "Giant snow and ice sculptures every February." },
@@ -751,14 +584,10 @@ export const japan: CountryGuide = {
       name: "Fukuoka",
       local: "福岡",
       lat: 33.5902, lng: 130.4017, radiusKm: 12,
-      facts: [
-        { label: "Prefecture", value: "Fukuoka" },
-        { label: "Population", value: "About 1.6 million" },
-      ],
+      population: "About 1.6 million",
       items: [
         { title: "Yatai", text: "Open-air food stalls along the river in the evenings — ramen, grilled skewers, a seat at the counter." },
         { title: "Tonkotsu ramen", text: "The rich pork-bone broth comes from the Hakata area." },
-        { title: "Airport in town", text: "The subway reaches Hakata Station from the airport in about five minutes." },
       ],
     },
     {
@@ -767,10 +596,7 @@ export const japan: CountryGuide = {
       local: "沖縄",
       aliases: ["Naha"],
       lat: 26.2124, lng: 127.6809, radiusKm: 30,
-      facts: [
-        { label: "Prefecture", value: "Okinawa" },
-        { label: "Climate", value: "Subtropical" },
-      ],
+      population: "About 1.5 million (the prefecture)",
       items: [
         { title: "Its own kingdom", text: "The Ryūkyū Kingdom traded across Asia until Japan annexed it in 1879. Language, food and music are distinct." },
         { title: "US rule until 1972", text: "After the war the islands were administered by the US for 27 years; large US bases remain." },

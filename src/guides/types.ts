@@ -32,14 +32,6 @@ export interface GuideTopic {
   blocks: GuideBlock[];
 }
 
-/** A label / value fact on the guide's home ("Currency · Yen"). */
-export interface GuideFact {
-  label: string;
-  value: string;
-  /** makes the value a link — a `tel:` for an emergency number */
-  href?: string;
-}
-
 /** A city or town the guide knows about. It shows when the trip has a stay,
  *  a base or a pin within `radiusKm` of it. */
 export interface GuideCity {
@@ -52,7 +44,8 @@ export interface GuideCity {
   lat: number;
   lng: number;
   radiusKm: number;
-  facts: GuideFact[];
+  /** rounded, as a phrase — "About 1.4 million" */
+  population?: string;
   items: GuideItem[];
 }
 
@@ -60,7 +53,6 @@ export interface CountryGuide {
   id: string;
   name: string;
   local?: string;
-  glance: GuideFact[];
   /** "Understand" — history, belief, everyday life */
   understand: GuideTopic[];
   /** "Before you go" — the practical side */

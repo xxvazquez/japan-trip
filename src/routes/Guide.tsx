@@ -9,7 +9,7 @@ import { useData } from "@/lib/data";
 import { guideTopicColor } from "@/lib/tones";
 import { GUIDE_CONTENT } from "@/guides/content";
 import { citiesOnTrip } from "@/guides/match";
-import type { CountryGuide, GuideCity, GuideEvent, GuideFact, GuideItem, GuideTopic } from "@/guides/types";
+import type { CountryGuide, GuideCity, GuideEvent, GuideItem, GuideTopic } from "@/guides/types";
 
 /** A country guide — reference content the app ships with, read-only. Laid
  *  out like Settings: a home of grouped rows, each pushing to its own page. */
@@ -62,9 +62,6 @@ export function GuideHome() {
     <Page width="form">
       <PageHeader back="/logbook" title={guide.name} meta={guide.local} className="mb-6" />
       <div className="space-y-6">
-        <Section title="At a glance" id={`guide-${guide.id}-glance`}>
-          <Facts facts={guide.glance} />
-        </Section>
         {stays.length > 0 && (
           <Section title="Where you're staying" id={`guide-${guide.id}-stays`}>{cityRows(stays, true)}</Section>
         )}
@@ -113,9 +110,13 @@ export function GuideCityPage() {
     <Page width="form">
       <PageHeader back={guidePath(guide)} title={city.name} meta={city.local} className="mb-6" />
       <div className="space-y-6">
-        <Section>
-          <Facts facts={city.facts} />
-        </Section>
+        {city.population && (
+          <Section>
+            <ul>
+              <InsetRow label="Population">{city.population}</InsetRow>
+            </ul>
+          </Section>
+        )}
         <Section title="Worth knowing" id={`guide-${guide.id}-city-items`}>
           <ul>
             {city.items.map((it) => <Item key={it.title} item={it} />)}
@@ -127,18 +128,6 @@ export function GuideCityPage() {
 }
 
 /* ------------------------------------------------------------------ rows */
-
-function Facts({ facts }: { facts: GuideFact[] }) {
-  return (
-    <ul>
-      {facts.map((f) => (
-        <InsetRow key={f.label} label={f.label}>
-          {f.href ? <a href={f.href} className="text-accent">{f.value}</a> : f.value}
-        </InsetRow>
-      ))}
-    </ul>
-  );
-}
 
 /** a lead in primary ink and the explanation under it — prose to read, so
  *  it's `ink-soft` at the body size rather than a faint caption */
