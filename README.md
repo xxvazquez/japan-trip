@@ -316,9 +316,10 @@ How it fills in:
 - **By itself** — the first time a place shows, again once it's a month old, and after a rename or a category change. Nothing to run.
 - The ↻ icon beside **Good to know** checks again now. A fact this check doesn't settle keeps what it had — a refresh never wipes an answer, except hours OpenStreetMap no longer gives the place.
 - **Manage → Content → Good to know** does every place at once (two searches each, out of Tavily's 1,000 a month, then Exa's, then Linkup's).
+- Lookups go one at a time, 1.5 s apart. When a search service says it's being asked too fast, the app waits (15 s, then 45 s) and asks again before giving up.
   - **Filled in** counts places with any Good to know; **Out of date** the filled-in ones due another look (over a month old, or from an older lookup).
   - The button (**Update N places**) covers both those and the ones never looked up.
-- **When it can't check, it says why** — offline, the server refused it (signed out, or the Worker's sign-in variables are missing), lookups not set up (no search key), the month's free searches used up (Tavily's, and Exa's too when it's set), or the search service failing. The card and Manage's **Last check** both show it.
+- **When it can't check, it says why** — offline, the server refused it (signed out, or the Worker's sign-in variables are missing), lookups not set up (no search key), the month's free searches used up (Tavily's, and Exa's too when it's set), the search still busy after waiting, or the search service failing. The card and Manage's **Last check** both show it.
 - **By hand** — tap any fact to correct it; **Add details** opens the empty ones to fill in. Works when the search found nothing or the wrong place. Clear a wrong one to hide it.
 - What you type always wins: a later lookup (automatic, ↻ or Manage) never overwrites it. Typing back what the lookup found drops your version.
 - Saved with the place, so it works offline.
@@ -752,7 +753,7 @@ GOOGLE_CLIENT_SECRET=<Google OAuth web client secret>
 | `VITE_ORS_API_KEY` | Real walking routes. Free, no card, 2,000 requests/day from [openrouteservice.org](https://openrouteservice.org/dev/#/signup). Without it, walks use straight-line estimates. Requests are throttled and cached per device. |
 | `TAVILY_API_KEY` | Tabelog links and Good to know, in `npm run dev` / `preview`. Free, no card, 1,000 searches/month from [tavily.com](https://app.tavily.com). Server-side only (no `VITE_` prefix), so it never reaches the bundle. In production it's a Worker secret — see [Deploy](#deploy). |
 | `EXA_API_KEY` | The fallback search, used when Tavily's month is used up (or there's no Tavily key). Free, no card, $10 of searches a month (about 1,400) from [exa.ai](https://dashboard.exa.ai). Server-side only, like Tavily's. |
-| `LINKUP_API_KEY` | The third search, used when Tavily and Exa are both used up. $20 of searches a month from [linkup.so](https://app.linkup.so) — check the sign-up doesn't ask for a card. Server-side only, like the others. |
+| `LINKUP_API_KEY` | The third search, used when Tavily and Exa are both used up. $20 of searches a month from [linkup.so](https://app.linkup.so), but only for a sign-up with a work email address — check it doesn't ask for a card. Server-side only, like the others. |
 
 `VITE_*` values are baked in at build time — a change only takes effect on the next build.
 

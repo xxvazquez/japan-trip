@@ -25,6 +25,24 @@ export type SearchRequest = {
 
 export const hasSearchKey = (keys: SearchKeys) => !!(keys.tavily || keys.exa || keys.linkup);
 
+/** why a search couldn't answer: its month is spent (`used-up`), it was
+ *  asked too fast and a later try will do (`busy`), or anything else */
+export type SearchLimit = "used-up" | "busy";
+export class SearchError extends Error {
+  constructor(status: number, readonly limit?: SearchLimit) {
+    super(`Search answered ${status}`);
+  }
+}
+
+/** each service says it differently: Tavily 432/433 and Exa 402 for a spent
+ *  month, 429 for too fast; Linkup answers 429 when its credit runs out */
+const LIMITS: Record<"tavily" | "exa" | "linkup", Record<number, SearchLimit>> = {
+  tavily: { 432: "used-up", 433: "used-up", 429: "busy" },
+  exa: { 402: "used-up", 429: "busy" },
+  linkup: { 429: "used-up" },
+};
+const failure = (service: keyof typeof LIMITS, status: number) => new SearchError(status, LIMITS[service][status]);
+
 async function tavily(req: SearchRequest, key: string, fetchImpl: Fetch) {
   const res = await fetchImpl(TAVILY, {
     method: "POST",
@@ -38,7 +56,7 @@ async function tavily(req: SearchRequest, key: string, fetchImpl: Fetch) {
     }),
     signal: AbortSignal.timeout(req.timeout),
   });
-  if (!res.ok) throw new Error(`Search answered ${res.status}`);
+  if (!res.ok) throw failure("tavily", res.status);
   const body = (await res.json()) as { answer?: string; results?: SearchHit[] };
   return { answer: body.answer, results: body.results ?? [] };
 }
@@ -53,7 +71,7 @@ async function exa(req: SearchRequest, key: string, fetchImpl: Fetch) {
     });
   if (req.answer) {
     const res = await post(EXA_ANSWER, { query: req.query, text: true });
-    if (!res.ok) throw new Error(`Search answered ${res.status}`);
+    if (!res.ok) throw failure("exa", res.status);
     const body = (await res.json()) as { answer?: unknown; citations?: { url: string; title?: string; text?: string }[] };
     return {
       answer: typeof body.answer === "string" ? body.answer : undefined,
@@ -63,7 +81,7 @@ async function exa(req: SearchRequest, key: string, fetchImpl: Fetch) {
     };
   }
   const res = await post(EXA_SEARCH, { query: req.query, type: "fast", numResults: req.max, ...(req.domains && { includeDomains: req.domains }) });
-  if (!res.ok) throw new Error(`Search answered ${res.status}`);
+  if (!res.ok) throw failure("exa", res.status);
   const body = (await res.json()) as { results?: { url: string; title?: string }[] };
   return { answer: undefined, results: (body.results ?? []).map((r) => ({ url: r.url, title: r.title ?? "" })) };
 }
@@ -81,7 +99,7 @@ async function linkup(req: SearchRequest, key: string, fetchImpl: Fetch) {
     }),
     signal: AbortSignal.timeout(req.timeout),
   });
-  if (!res.ok) throw new Error(`Search answered ${res.status}`);
+  if (!res.ok) throw failure("linkup", res.status);
   type Page = { url: string; name?: string; snippet?: string; content?: string };
   const body = (await res.json()) as { answer?: string; sources?: Page[]; results?: Page[] };
   const pages = (body.sources ?? body.results ?? []).slice(0, req.max);
@@ -92,8 +110,9 @@ async function linkup(req: SearchRequest, key: string, fetchImpl: Fetch) {
 }
 
 /** Throws when none can be asked, so a caller can tell "found nothing"
- *  from "couldn't ask" — with the last one's error, so a month used up
- *  everywhere still reads as used up. */
+ *  from "couldn't ask". When one was only asked too fast, that's the error
+ *  — trying again soon will work; otherwise the last one's, so a month used
+ *  up everywhere still reads as used up. */
 export async function webSearch(req: SearchRequest, keys: SearchKeys, fetchImpl: Fetch = fetch): Promise<{ answer?: string; results: SearchHit[] }> {
   const order: (() => Promise<{ answer?: string; results: SearchHit[] }>)[] = [];
   if (keys.tavily) order.push(() => tavily(req, keys.tavily!, fetchImpl));
@@ -101,12 +120,14 @@ export async function webSearch(req: SearchRequest, keys: SearchKeys, fetchImpl:
   if (keys.linkup) order.push(() => linkup(req, keys.linkup!, fetchImpl));
   if (!order.length) throw new Error("No search key is set");
   let last: unknown;
+  let busy: SearchError | undefined;
   for (const ask of order) {
     try {
       return await ask();
     } catch (e) {
       last = e;
+      if (e instanceof SearchError && e.limit === "busy") busy ??= e;
     }
   }
-  throw last;
+  throw busy ?? last;
 }

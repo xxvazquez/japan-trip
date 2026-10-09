@@ -116,6 +116,13 @@ describe("findFacts", () => {
     await expect(findFacts("A place", undefined, { tavily: "key" }, fake("", [], 432))).rejects.toThrow("432");
     const res = await handlePlaceFacts(new URL("https://x/api/place-facts?name=A%20place"), { tavily: "key" }, fake("", [], 432));
     expect(res.status).toBe(429);
+    expect(await res.json()).toMatchObject({ limit: "used-up" });
+  });
+  it("tells asking too fast from a month used up", async () => {
+    const res = await handlePlaceFacts(new URL("https://x/api/place-facts?name=A%20place"), { tavily: "key" }, fake("", [], 429));
+    expect(res.status).toBe(429);
+    expect(await res.json()).toMatchObject({ limit: "busy" });
+    expect((await handlePlaceFacts(new URL("https://x/api/place-facts?name=A%20place"), { tavily: "key" }, fake("", [], 500))).status).toBe(502);
   });
 });
 

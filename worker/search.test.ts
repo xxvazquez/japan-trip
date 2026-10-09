@@ -54,6 +54,15 @@ describe("webSearch", () => {
     const fetchImpl = async (url: string) => new Response("{}", { status: url.includes("linkup") ? 429 : 432 });
     await expect(webSearch(req, { tavily: "t", linkup: "l" }, fetchImpl)).rejects.toThrow("429");
   });
+  it("says it was asked too fast when one search was, so a retry can work", async () => {
+    const fetchImpl = async (url: string) => new Response("{}", { status: url.includes("tavily") ? 429 : 402 });
+    await expect(webSearch(req, { tavily: "t", exa: "e" }, fetchImpl)).rejects.toMatchObject({ limit: "busy" });
+  });
+  it("reads Exa's 402 and Linkup's 429 as a month used up", async () => {
+    const fetchImpl = async (url: string) => new Response("{}", { status: url.includes("exa") ? 402 : 429 });
+    await expect(webSearch(req, { exa: "e" }, fetchImpl)).rejects.toMatchObject({ limit: "used-up" });
+    await expect(webSearch(req, { linkup: "l" }, fetchImpl)).rejects.toMatchObject({ limit: "used-up" });
+  });
   it("throws with no key at all", async () => {
     await expect(webSearch(req, {}, fakeApis(200).fetchImpl)).rejects.toThrow("No search key");
   });

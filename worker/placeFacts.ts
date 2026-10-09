@@ -5,7 +5,7 @@
  *  (`search.ts`: Tavily, else Exa) — plus the place's own website when one of
  *  the pages is it (the app asks OpenStreetMap first, see `placeWebsite.ts`). Generic — works for a place anywhere. */
 
-import { hasSearchKey, webSearch, type SearchKeys } from "./search";
+import { SearchError, hasSearchKey, webSearch, type SearchKeys } from "./search";
 import { distinctiveWords, sameName } from "./tabelog";
 
 type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
@@ -320,8 +320,9 @@ export async function handlePlaceFacts(url: URL, keys: SearchKeys, fetchImpl: Fe
     return json({ facts: await findFacts(name.slice(0, 120), area?.slice(0, 80), keys, fetchImpl, undefined, kind) });
   } catch (e) {
     const message = e instanceof Error ? e.message : "lookup failed";
-    // Tavily's 432/433 (and a 429) mean the month's searches are used up —
-    // told apart so the app can say so instead of "try again later"
-    return json({ error: message }, /answered (429|432|433)\b/.test(message) ? 429 : 502);
+    // a month used up and asking too fast are both a 429, told apart by
+    // `limit` so the app can wait and retry the one and stop at the other
+    const limit = e instanceof SearchError ? e.limit : undefined;
+    return limit ? json({ error: message, limit }, 429) : json({ error: message }, 502);
   }
 }

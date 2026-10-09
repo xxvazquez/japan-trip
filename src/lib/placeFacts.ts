@@ -175,8 +175,10 @@ export function placeArea(place: Place, data: TripData | null): string | undefin
  *  - `refused`: the server turned the request down (401 — signed out, or the
  *    Worker can't check sign-ins)
  *  - `setup`: the server has no search key (503)
+ *  - `used-up`: every search's free month is spent
+ *  - `busy`: asked too fast, still, after waiting and trying again
  *  - `search`: the search service failed or answered nonsense */
-export type FactsFailure = "offline" | "refused" | "setup" | "used-up" | "search";
+export type FactsFailure = "offline" | "refused" | "setup" | "used-up" | "busy" | "search";
 
 /** found → the facts; nothing found → null; couldn't ask → why */
 type Result = PlaceFacts | null | FactsFailure;
@@ -188,11 +190,20 @@ export const FAILURE_TEXT: Record<FactsFailure, string> = {
   refused: "The server refused the lookup — try signing in again",
   setup: "Lookups aren’t set up on the server",
   "used-up": "This month’s free searches are used up — lookups start again next month",
+  busy: "The search service is busy — try again in a few minutes",
   search: "The search service didn’t answer — try again later",
 };
 
-// one lookup at a time — a day of restaurants opening at once mustn't fire
-// them all together; a place asked about already shares the running one
+// one lookup at a time, each starting a short pause after the last search
+// went out — a day of restaurants opening at once mustn't fire them all
+// together, and each lookup is two searches a search service counts
+// against how fast it may be asked; a place asked about already shares the
+// running one
+const GAP_MS = 1500;
+let lastSearch = 0;
+// asked too fast: wait this long and ask again, then longer, then give up
+const BUSY_WAITS_MS = [15_000, 45_000];
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, Math.max(0, ms)));
 let queue: Promise<unknown> = Promise.resolve();
 const inFlight = new Map<string, Promise<Result>>();
 /** places whose lookup couldn't be asked this session, and why — not
@@ -231,7 +242,11 @@ async function ask(p: Place, area: string | undefined, kind: "food" | "sight"): 
     }
     if (res.status === 401 || res.status === 403) return "refused";
     if (res.status === 503) return "setup";
-    if (res.status === 429) return "used-up";
+    if (res.status === 429) {
+      // an older server didn't say which; it only ever meant used up then
+      const limit = ((await res.json().catch(() => ({}))) as { limit?: string }).limit;
+      return limit === "busy" ? "busy" : "used-up";
+    }
     if (!res.ok || !res.headers.get("Content-Type")?.includes("json")) return "search";
     const facts = ((await res.json()) as { facts?: PlaceFacts | null }).facts;
     if (facts === undefined) return "search";
@@ -268,7 +283,22 @@ function lookUp(p: Place, area: string | undefined, kind: "food" | "sight"): Pro
   const key = `${p.id}|${p.name}|${kind}`;
   const running = inFlight.get(key);
   if (running) return running;
-  const job = queue.then(() => ask(p, area, kind));
+  const searched = async () => {
+    await sleep(lastSearch + GAP_MS - Date.now());
+    const found = await ask(p, area, kind);
+    // only a lookup that reached the search counts towards the pace
+    if (found !== "offline" && found !== "refused" && found !== "setup") lastSearch = Date.now();
+    return found;
+  };
+  const job = queue.then(async () => {
+    let found = await searched();
+    for (const wait of BUSY_WAITS_MS) {
+      if (found !== "busy") break;
+      await sleep(wait);
+      found = await searched();
+    }
+    return found;
+  });
   queue = job.catch(() => "search");
   inFlight.set(key, job);
   void job.finally(() => inFlight.delete(key));

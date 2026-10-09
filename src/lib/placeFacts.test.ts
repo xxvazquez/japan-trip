@@ -68,6 +68,37 @@ describe("refreshFacts", () => {
     expect(await refreshFacts(place("f", 35, 135), undefined)).toBe("offline");
   });
 
+  it("waits and asks again when the search was asked too fast, and stops at a month used up", async () => {
+    // the clock stays real: the pace between lookups is kept by it
+    vi.useFakeTimers({ toFake: ["setTimeout"] });
+    try {
+      const statuses = [{ limit: "busy" }, { limit: "busy" }, { facts: null }];
+      vi.stubGlobal("navigator", { onLine: true });
+      const fetchMock = vi.fn(async (u: string) => {
+        // OpenStreetMap is asked too once the search answers; it has nothing
+        if (!String(u).includes("/api/place-facts")) return new Response("{}", { status: 404 });
+        const body = statuses.shift()!;
+        return new Response(JSON.stringify(body), { status: "limit" in body ? 429 : 200, headers: { "Content-Type": "application/json" } });
+      });
+      vi.stubGlobal("fetch", fetchMock);
+      const done = refreshFacts(place("g", 35, 135), undefined);
+      await vi.advanceTimersByTimeAsync(70_000);
+      expect(await done).toBeNull();
+      expect(fetchMock.mock.calls.filter(([u]) => String(u).includes("/api/place-facts"))).toHaveLength(3);
+      answer(429, { limit: "used-up" });
+      const used = refreshFacts(place("h", 35, 135), undefined);
+      await vi.advanceTimersByTimeAsync(2_000);
+      expect(await used).toBe("used-up");
+      // an older server's bare 429 only ever meant used up
+      answer(429, {});
+      const bare = refreshFacts(place("i", 35, 135), undefined);
+      await vi.advanceTimersByTimeAsync(2_000);
+      expect(await bare).toBe("used-up");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("resolves null once it could ask", async () => {
     answer(200, { facts: null });
     expect(await refreshFacts(place("e", 35, 135), undefined)).toBeNull();
