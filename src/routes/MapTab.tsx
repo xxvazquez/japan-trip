@@ -1339,11 +1339,12 @@ export default function MapTab() {
   // fit the map to the current scope when nothing is selected — keyed on
   // which pins show and where, so an edit, a fetched fact or a synced change
   // that leaves them be never pulls the map back from where you panned it.
-  // The map can finish loading after the scope settles: fit again once it has.
+  // Closing a place card leaves the map where it is, as Maps does. The map
+  // can finish loading after the scope settles: fit again once it has.
   const fitKey = onMap.map((p) => `${p.id}:${p.lat},${p.lng}`).join("|");
   useEffect(() => {
     if (map.current && !selected) fitPoints(onMap, 15);
-  }, [fitKey, selected, mapReady]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [fitKey, mapReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!data) return null;
   const loc = data.config.locale;
