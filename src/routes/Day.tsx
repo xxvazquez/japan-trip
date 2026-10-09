@@ -187,30 +187,35 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     });
   const loc = data.config.locale;
   const setPlan = (next: PlanItem[]) => patch({ plan: next.length ? next : undefined });
+  // the step just added opens straight into its text. Rendered synchronously
+  // inside the tap, so its field is focused there and the iPhone keyboard
+  // comes up (it won't for a focus that happens after the tap)
+  const [freshStep, setFreshStep] = useState<string | null>(null);
   // Plan A / Plan B: the plan that's on always sits in `plan`, so switching
   // swaps the two lists and the map, the Plan tab and the PDFs follow it
   const hasAltPlan = Array.isArray(day.altPlan);
   const onPlanB = !!day.onAltPlan;
   const switchPlan = (toB: boolean) => {
     if (!hasAltPlan || toB === onPlanB) return;
+    // the swapped-in list mounts fresh rows, so a step added earlier would
+    // open its time (or text) all over again
+    setFreshStep(null);
     const other = day.altPlan ?? [];
     patch({ plan: other.length ? other : undefined, altPlan: day.plan ?? [], onAltPlan: toB ? true : undefined });
   };
   // Plan B starts as a copy of Plan A — on a rainy day only a few stops change
   const addPlanB = () => {
+    setFreshStep(null);
     const copy = (day.plan ?? []).map((it) => ({ ...it, id: rid() }));
     patch({ plan: copy.length ? copy : undefined, altPlan: day.plan ?? [], onAltPlan: true });
   };
   const deletePlanB = () => undoable("Plan B deleted", () => {
+    setFreshStep(null);
     if (onPlanB) {
       const a = day.altPlan ?? [];
       patch({ plan: a.length ? a : undefined, altPlan: undefined, onAltPlan: undefined });
     } else patch({ altPlan: undefined, onAltPlan: undefined });
   });
-  // the step just added opens straight into its text. Rendered synchronously
-  // inside the tap, so its field is focused there and the iPhone keyboard
-  // comes up (it won't for a focus that happens after the tap)
-  const [freshStep, setFreshStep] = useState<string | null>(null);
   // a new step starts with what it is, as Maps' "Add a stop" does: one of
   // the trip's places (then its time), or Custom… for a step to type
   const addSheet = useActionSheet();
