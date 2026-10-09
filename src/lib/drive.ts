@@ -8,9 +8,11 @@
  * The `Doc` entry stores the Drive file id, which syncs like any other field, so
  * both people resolve the same file.
  *
- * Browser OAuth via Google Identity Services, scope `drive.file` — the app can
- * see nothing in Drive except the files it created here. Reuses the project's
- * existing Web OAuth client. With the client's secret on the server
+ * Browser OAuth via Google Identity Services. Scopes: `drive.file` to write —
+ * the app can change nothing in Drive except the files it created — and
+ * `drive.readonly` to read, so a file uploaded under an earlier OAuth client
+ * (a different Google Cloud project, which `drive.file` can't see) still
+ * opens and downloads. With the client's secret on the server
  * (`worker/google.ts`), Google's window returns a code the server swaps for a
  * refresh token kept on this device, so Drive stays connected across launches
  * and an expired hour-long access token is renewed with no window at all.
@@ -21,7 +23,7 @@ import { apiFetch } from "./api";
 import { getUserEmail } from "./auth";
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim();
-const SCOPE = "https://www.googleapis.com/auth/drive.file";
+const SCOPE = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.readonly";
 const API = "https://www.googleapis.com/drive/v3";
 const UPLOAD = "https://www.googleapis.com/upload/drive/v3/files";
 const EXCHANGE = "/api/google-token";
@@ -78,7 +80,9 @@ function loadGis(): Promise<void> {
 let token: { value: string; exp: number } | null = null;
 let refresh: string | null = null;
 try {
-  const saved = JSON.parse(localStorage.getItem(STORE) ?? "null") as { refresh?: string; access?: string; exp?: number } | null;
+  const saved = JSON.parse(localStorage.getItem(STORE) ?? "null") as { refresh?: string; access?: string; exp?: number; scope?: string } | null;
+  // a token granted for fewer scopes can't read older files — connect again
+  if (saved?.scope !== SCOPE) throw 0;
   refresh = saved?.refresh ?? null;
   if (saved?.access && saved.exp) token = { value: saved.access, exp: saved.exp };
 } catch { /* nothing saved */ }
@@ -87,7 +91,7 @@ function keep(r: TokenResponse): string {
   token = { value: r.access_token!, exp: Date.now() + ((r.expires_in ?? 3600) - 60) * 1000 };
   if (r.refresh_token) refresh = r.refresh_token;
   // only worth keeping across launches alongside a refresh token
-  try { if (refresh) localStorage.setItem(STORE, JSON.stringify({ refresh, access: token.value, exp: token.exp })); } catch { /* storage full or blocked */ }
+  try { if (refresh) localStorage.setItem(STORE, JSON.stringify({ refresh, access: token.value, exp: token.exp, scope: SCOPE })); } catch { /* storage full or blocked */ }
   return token.value;
 }
 
@@ -238,10 +242,15 @@ async function api<T = unknown>(url: string, init: RequestInit = {}): Promise<T>
 
 const folderIds: Record<string, string> = {};
 
+/** Marks the folders this OAuth client made. With read access to the whole
+ *  Drive, a same-named folder from an earlier client turns up in the search
+ *  too, and `drive.file` can't add files to that one. */
+const FOLDER_TAG = "appProperties has { key='atlasFolder' and value='1' }";
+
 /** The trip's attachment folder in *this* user's Drive — found or created. */
 export async function ensureFolder(name: string): Promise<string> {
   if (folderIds[name]) return folderIds[name];
-  const q = `mimeType='application/vnd.google-apps.folder' and name='${name.replace(/['\\]/g, "\\$&")}' and trashed=false and 'root' in parents`;
+  const q = `mimeType='application/vnd.google-apps.folder' and name='${name.replace(/['\\]/g, "\\$&")}' and trashed=false and 'root' in parents and ${FOLDER_TAG}`;
   const found = await api<{ files?: { id: string }[] }>(
     `/files?q=${encodeURIComponent(q)}&fields=files(id)&spaces=drive`,
   );
@@ -250,7 +259,7 @@ export async function ensureFolder(name: string): Promise<string> {
     const made = await api<{ id: string }>("/files?fields=id", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, mimeType: "application/vnd.google-apps.folder" }),
+      body: JSON.stringify({ name, mimeType: "application/vnd.google-apps.folder", appProperties: { atlasFolder: "1" } }),
     });
     id = made.id;
   }
