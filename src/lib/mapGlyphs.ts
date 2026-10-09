@@ -42,9 +42,11 @@ export function glyphPath(id: string | undefined): string | undefined {
   return id ? PATHS[id] : undefined;
 }
 
-/** stable image key for a (glyph, colour) pair — one bitmap per distinct pair */
-export function markerKey(glyphId: string, color: string): string {
-  return `m_${glyphId}_${color.replace(/[^a-z0-9]/gi, "")}`;
+/** stable image key for a (glyph, colour) pair — one bitmap per distinct
+ *  pair. Keyed by theme too: the ring is drawn for light or dark, and a theme
+ *  switch must build fresh bitmaps rather than reuse the old theme's. */
+export function markerKey(glyphId: string, color: string, dark: boolean): string {
+  return `m_${glyphId}_${color.replace(/[^a-z0-9]/gi, "")}${dark ? "_d" : ""}`;
 }
 
 export type MarkerImage = { width: number; height: number; data: Uint8ClampedArray };

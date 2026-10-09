@@ -34,9 +34,10 @@ function closest(candidates: NearbyStation[]): NearbyStation | null {
  *  "no station here", just "can't tell from what's loaded" (the caller should
  *  try `nearestStationLookup` next). */
 export function nearestStationFromMap(map: MLMap, lat: number, lng: number): NearbyStation | null {
-  if (!map.getSource("protomaps")) return null;
   let feats;
   try {
+    // inside the try: a map torn down for a retry throws on any style read
+    if (!map.getSource("protomaps")) return null;
     feats = map.querySourceFeatures("protomaps", {
       sourceLayer: "pois",
       filter: ["==", ["get", "kind"], "station"],

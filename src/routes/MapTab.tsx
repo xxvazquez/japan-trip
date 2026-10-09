@@ -28,7 +28,7 @@ import { haversineKm, fmtDistanceKm, fmtWalk, useGeolocation } from "@/lib/geo";
 import { fmtMinutes } from "@/lib/time";
 import { legHex } from "@/lib/legColors";
 import { suggestAreas, type AreaSuggestion } from "@/lib/cluster";
-import { useMode, isDark } from "@/lib/mode";
+import { useIsDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
 import { menuHref, reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
 import { glyphForCategoryName } from "@/lib/mapGlyphs";
@@ -60,9 +60,9 @@ const FALLBACK = DEFAULT_ACCENT;
 const PLACE_CARD = "mx-4 isolate overflow-hidden rounded-[12px] bg-surface";
 /** an area's name above its card — 17px Medium, one step above the 15px rows */
 const AREA_TITLE = "block break-words text-[17px] leading-snug text-ink";
-/** a place row's hairline, inset past its 28px tile (14px pad + 28 + 12 gap) */
 /** a card row with a small tile in front: the hairline starts at the text */
 const SM_TILE_DIVIDER = INSET_DIVIDER.replace("after:left-3.5", "after:left-12");
+/** a place row's hairline, inset past its tile (14px pad + 28 + 12 gap) */
 const TILE_DIVIDER =
   "relative after:pointer-events-none after:absolute after:bottom-0 after:left-[3.375rem] after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
 /** a place inside an open area — indented one level, the Files outline
@@ -71,15 +71,15 @@ const TILE_DIVIDER =
  *  area-level hairline, closing the group before the next area. */
 const NESTED_DIVIDER = TILE_DIVIDER.replace("after:left-[3.375rem]", "after:left-[5.875rem]");
 
-/** an area's two farthest-apart places (its "width", not a tour of everywhere
- *  in it) — cheap local haversine just to find *which* pair, real walking
- *  time for that one pair comes from `useWalk` (see `AreaWalkSpan`).
- *  Null with fewer than two placed points to span. */
 /** case- and accent-blind text for the list's search ("Shinjuku" finds "shinjuku", "Ōsaka" finds "osaka") */
 const foldText = (s: string) => s.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
 const NO_PLACES: Place[] = [];
 
+/** an area's two farthest-apart places (its "width", not a tour of everywhere
+ *  in it) — cheap local haversine just to find *which* pair, real walking
+ *  time for that one pair comes from `useWalk` (see `AreaWalkSpan`).
+ *  Null with fewer than two placed points to span. */
 function farthestPair(items: Place[]): [Place, Place] | null {
   const pts = items.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
   if (pts.length < 2) return null;
@@ -637,8 +637,10 @@ function useMapEditing(
   };
   const onLongPress = (lat: number, lng: number) => {
     if (readOnly) return;
-    setAdding(true);
-    onSelect(null);
+    // the same clean start as +, so a hold mid-"Suggest areas" can't leave
+    // both modes on at once
+    startAdd();
+    setLinkOnly(null);
     setPending({ lat, lng, name: "" });
   };
 
@@ -721,8 +723,9 @@ function useMapEditing(
   };
 }
 
-/** room a fitted map leaves on its right for the zoom / location buttons */
-const CONTROLS_CLEAR = 72;
+/** room a fitted map leaves on its right for the zoom / location buttons —
+ *  their 56px plus a cluster bubble's radius, so none tucks under them */
+const CONTROLS_CLEAR = 84;
 
 /** what the add-place search says while nothing's typed */
 const ADD_PLACE_TIPS: Tip[] = [
@@ -736,8 +739,8 @@ export default function MapTab() {
   const updateEntity = useApp((s) => s.updateEntity);
   const removeEntity = useApp((s) => s.removeEntity);
   const readOnly = useReadOnly();
-  const [mode] = useMode();
-  const dark = isDark(mode);
+  // the theme in effect, not the setting — "System" flips with the phone
+  const dark = useIsDark();
   const nav = useNavigate();
 
   const map = useRef<MLMap | null>(null);
@@ -848,7 +851,7 @@ export default function MapTab() {
 
   const shellRef = useRef<HTMLDivElement | null>(null);
   const {
-    sheetRef, snap, setSnap, sheetHeight, halfStopPx, dragging, setPanelRoot, setListOuter,
+    sheetRef, setSnap, sheetHeight, halfStopPx, dragging, setPanelRoot, setListOuter,
     onHandlePointerDown, onHandlePointerMove, onHandlePointerUp, onHandleClick,
   } = useSheetSnap(shellRef);
   const {
@@ -936,10 +939,12 @@ export default function MapTab() {
         () => {},
         { enableHighAccuracy: false, timeout: 10_000, maximumAge: 5 * 60_000 },
       );
-    // never re-ask once location has been refused
-    const perms = navigator.permissions?.query({ name: "geolocation" });
-    if (perms) perms.then((s) => { if (s.state !== "denied") locate(); }, locate);
-    else locate();
+    // only once location is already allowed — opening the map never asks
+    // for it by itself; the locate button is where that's asked
+    void navigator.permissions?.query({ name: "geolocation" }).then(
+      (s) => { if (s.state === "granted") locate(); },
+      () => {},
+    );
     return () => { cancelled = true; };
   }, []);
   useEffect(() => {
@@ -985,12 +990,6 @@ export default function MapTab() {
     }
     setParams((p) => { p.delete("area"); return p; }, { replace: true });
   }, [data, params, setParams]);
-
-  // keep the map sized to the sheet / panel
-  useEffect(() => {
-    const t = setTimeout(() => map.current?.resize(), 260);
-    return () => clearTimeout(t);
-  }, [snap]);
 
   // a selection deserves at least the half sheet on mobile
   useEffect(() => {
@@ -1082,7 +1081,6 @@ export default function MapTab() {
     () => (areaAllowed ? preAreaScoped.filter((p) => areaAllowed.has(p.id)) : preAreaScoped),
     [preAreaScoped, areaAllowed],
   );
-  const derived = derivedIds;
 
   /** distance-sorted Today places once "Nearby" is on and a fix has come in —
    *  filtered to `radiusKm` when that leaves anything, otherwise the full
@@ -1153,6 +1151,7 @@ export default function MapTab() {
       // a second booking in the same city, set on the day itself
       ...data.days.filter((d) => inCity(d.legId) && dayCity.get(d.id) === legId).map((d) => dayStay(data, d.id)),
     ]);
+    // `dark`: a stay pin's colour is read from the palette, so a flip redraws it
   }, [data, scope, searchHits, catFilter, areaFilter, cityLeg, dayCity, dark]);
   const onMap = useMemo(() => (stays.length ? [...shown, ...stays] : shown), [shown, stays]);
   const mapCats = useMemo(() => withStayCategory(data?.config ?? ({} as never)), [data?.config]);
@@ -1193,10 +1192,12 @@ export default function MapTab() {
 
   /** the "All" list nested city → area → places. Each area sits under the city
    *  most of its pins fall in. Null unless more than one city actually shows —
-   *  then `areaGroups` (flat) or the plain list takes over. */
+   *  then `areaGroups` (flat) or the plain list takes over. Built before the
+   *  area filter, like `areaGroups`, so a soloed area (one opened from
+   *  search) leaves the others on the list, dimmed, to tap back on. */
   const cityGroups = useMemo(() => {
     if (!data || (scope && scope !== "all") || listAreas.length === 0) return null;
-    const byId = new Map(scoped.map((p) => [p.id, p] as const));
+    const byId = new Map(preAreaScoped.map((p) => [p.id, p] as const));
     const tone = new Map(listAreas.map((a, i) => [a.id, AREA_TONES[i % AREA_TONES.length]] as const));
     // a day-trip town sorts just after its stay
     const order = new Map<string, number>(data.legs.map((l, i) => [l.id, i] as const));
@@ -1234,7 +1235,7 @@ export default function MapTab() {
       bucket(areaCity(a)).areas.push({ id: a.id, name: a.name || "Untitled", tone: tone.get(a.id)!, items });
     }
     const inArea = new Set(listAreas.flatMap((a) => a.placeIds));
-    for (const p of scoped) if (!inArea.has(p.id)) bucket(placeLeg.get(p.id) ?? "").loose.push(p);
+    for (const p of preAreaScoped) if (!inArea.has(p.id)) bucket(placeLeg.get(p.id) ?? "").loose.push(p);
 
     const groups = [...cities.values()]
       .filter((c) => c.areas.length > 0 || c.loose.length > 0)
@@ -1246,7 +1247,7 @@ export default function MapTab() {
       .sort((x, y) => (order.get(x.legId) ?? 99) - (order.get(y.legId) ?? 99));
 
     return groups.length > 1 ? groups : null;
-  }, [data, listAreas, scope, scoped, placeLeg, tripCities, cityLeg]);
+  }, [data, listAreas, scope, preAreaScoped, placeLeg, tripCities, cityLeg]);
 
   /** legs whose hotel has coordinates — enough to earn a city pill even before
    *  any pin sits under it, so linking a hotel is all it takes to see the city */
@@ -1314,24 +1315,35 @@ export default function MapTab() {
     return [...byName.values()].filter((g) => g.length > 1);
   }, [data]);
 
-  // fit the map to the current scope when nothing is selected. The right
-  // edge leaves room for the zoom and location buttons, so no pin hides
-  // under them. On a phone the pins are framed in the map left showing
-  // above the half sheet — the stop the list opens at — so none sit hidden
-  // behind it.
-  const fitScope = () => {
-    const m = map.current;
-    if (!m || selected || onMap.length === 0) return;
-    const lngs = onMap.map((p) => p.lng);
-    const lats = onMap.map((p) => p.lat);
-    const bottom = wide || listOnly ? 44 : halfStopPx + 24;
-    m.fitBounds(
-      [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
-      { padding: { top: 56, right: CONTROLS_CLEAR, bottom, left: 44 }, maxZoom: 15, duration: 500 },
-    );
+  /** the half sheet's height as of the latest render — the stop the list
+   *  opens at, so on a phone pins are framed in the map left showing above
+   *  it. Read a frame after a change: "half" fits its list, and only knows
+   *  the new list's height once that has rendered. */
+  const coverRef = useRef(0);
+  coverRef.current = wide || listOnly ? 0 : halfStopPx;
+  /** frame points in the map the list leaves showing; the right edge leaves
+   *  room for the zoom and location buttons, so no pin hides under them */
+  const fitPoints = (pts: { lat: number; lng: number }[], maxZoom: number) => {
+    if (!pts.length) return;
+    requestAnimationFrame(() => {
+      const m = map.current;
+      if (!m) return;
+      const lngs = pts.map((p) => p.lng), lats = pts.map((p) => p.lat);
+      const bottom = coverRef.current ? coverRef.current + 24 : 44;
+      m.fitBounds(
+        [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
+        { padding: { top: 56, right: CONTROLS_CLEAR, bottom, left: 44 }, maxZoom, duration: 500 },
+      );
+    });
   };
-  // the map can finish loading after the scope settles: fit again once it has
-  useEffect(fitScope, [onMap, selected, mapReady]); // eslint-disable-line react-hooks/exhaustive-deps
+  // fit the map to the current scope when nothing is selected — keyed on
+  // which pins show and where, so an edit, a fetched fact or a synced change
+  // that leaves them be never pulls the map back from where you panned it.
+  // The map can finish loading after the scope settles: fit again once it has.
+  const fitKey = onMap.map((p) => `${p.id}:${p.lat},${p.lng}`).join("|");
+  useEffect(() => {
+    if (map.current && !selected) fitPoints(onMap, 15);
+  }, [fitKey, selected, mapReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!data) return null;
   const loc = data.config.locale;
@@ -1370,15 +1382,7 @@ export default function MapTab() {
     if (opening && !selected) {
       const inArea = new Set(id ? listAreas.find((a) => a.id === id)?.placeIds ?? [] : []);
       const inGroups = new Set(listAreas.flatMap((a) => a.placeIds));
-      const pts = shown.filter((p) => (id ? inArea.has(p.id) : !inGroups.has(p.id)));
-      const m = map.current;
-      if (m && pts.length) {
-        const lngs = pts.map((p) => p.lng), lats = pts.map((p) => p.lat);
-        m.fitBounds(
-          [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
-          { padding: { top: 56, right: CONTROLS_CLEAR, bottom: wide || listOnly ? 44 : halfStopPx + 24, left: 44 }, maxZoom: 16, duration: 500 },
-        );
-      }
+      fitPoints(shown.filter((p) => (id ? inArea.has(p.id) : !inGroups.has(p.id))), 16);
     }
   };
 
@@ -1445,9 +1449,8 @@ export default function MapTab() {
       place={p}
       card={card}
       nest={nest}
-      open={card}
       dayId={dayOfPlace.get(p.id)}
-      derived={derived.has(p.id)}
+      derived={derivedIds.has(p.id)}
       distanceKm={distanceKm}
       days={data.days}
       areas={data.areas}
@@ -1718,7 +1721,7 @@ export default function MapTab() {
           </div>
         </ActionSheet>}
 
-        {editingAreas && !adding && !readOnly && review === null && (
+        {editingAreas && !adding && !readOnly && review === null && !byNeighbourhood && (
           <div className="space-y-2 pb-1 pt-3">
             <div className="flex items-center justify-between px-1">
               <span className="kicker">Areas</span>
@@ -1751,7 +1754,7 @@ export default function MapTab() {
                       </span>
                       <span className="shrink-0 text-2xs tabular-nums text-ink-soft">{plural(a.placeIds.length, "place")}</span>
                       <RowMenu label="Area options">
-                        <ConfirmMenuItem onConfirm={() => undoable("Area deleted", () => removeEntity("areas", a.id))} label="Delete area" />
+                        <ConfirmMenuItem onConfirm={() => undoable("Area deleted", () => removeEntity("areas", a.id))} label="Delete Area" />
                       </RowMenu>
                     </ContextMenu>
                   ))}
@@ -1884,7 +1887,7 @@ export default function MapTab() {
         </div>
       ) : cityGroups ? (
         <div key="list" {...listProps(forMobile)} className="min-h-0 flex-1 overflow-y-auto">
-          {cityGroups.map((c) => {
+          {cityGroups.filter((c) => areaFilter.size === 0 || c.areas.length > 0).map((c) => {
             const cityShut = collapsedCities.has(c.legId);
             return (
               <section key={c.legId || "none"}>
@@ -1894,7 +1897,7 @@ export default function MapTab() {
                 >
                   <span className="h-3 w-3 shrink-0 rounded-full" style={{ background: c.hex }} />
                   <span className="subhead min-w-0 flex-1 break-words">{c.name}</span>
-                  <span className="shrink-0 text-xs tabular-nums text-ink-soft">{c.count}</span>
+                  <span className="shrink-0 text-[15px] tabular-nums text-ink-faint">{c.count}</span>
                   <Icon name="chevron" size={14} className={`shrink-0 text-ink-faint transition-transform ${cityShut ? "" : "rotate-90"}`} />
                 </button>
                 {!cityShut && (
@@ -1902,15 +1905,17 @@ export default function MapTab() {
                     {c.areas.length > 0 && (
                       <ul className={`${PLACE_CARD} mt-2`}>
                         {c.areas.map((a) => {
-                          const shut = !openAreas.has(a.id);
+                          const filteredOut = areaFilter.size > 0 && !areaFilter.has(a.id);
+                          const shut = filteredOut || !openAreas.has(a.id);
                           return [
-                            <AreaRow key={a.id} name={a.name} tone={a.tone} items={a.items} open={!shut} onToggle={() => toggleAreaCollapsed(a.id)} />,
+                            <AreaRow key={a.id} name={a.name} tone={a.tone} items={a.items} open={!shut} dim={filteredOut} onToggle={() => toggleAreaCollapsed(a.id)} onSolo={() => toggleAreaFilter(a.id)} />,
                             ...(!shut ? nested(a.items) : []),
                           ];
                         })}
                       </ul>
                     )}
-                    {c.loose.length > 0 && (
+                    {/* places in no area drop out while an area's soloed, as in the flat list */}
+                    {c.loose.length > 0 && areaFilter.size === 0 && (
                       <>
                         {c.areas.length > 0 && (
                           <p className="kicker px-5 pb-1.5 pt-4">Not in an area</p>
@@ -1990,7 +1995,7 @@ export default function MapTab() {
         <MapView
           places={onMap}
           selectedId={selected}
-          derivedIds={derived}
+          derivedIds={derivedIds}
           areaShapes={areaShapes}
           transit={transit}
           basePois={basePois}
@@ -2103,7 +2108,6 @@ function PlaceRow({
   place,
   card = false,
   nest,
-  open,
   dayId,
   derived,
   distanceKm,
@@ -2131,8 +2135,6 @@ function PlaceRow({
   card?: boolean;
   /** a row inside an open area: indented; "end" is the area's last place */
   nest?: "mid" | "end";
-  /** show the place's details under its header (only ever true in the card) */
-  open: boolean;
   dayId?: string;
   derived?: boolean;
   /** shown ahead of the usual category/day meta when the "Nearby" toggle is on */
@@ -2166,7 +2168,7 @@ function PlaceRow({
   const link = placeMapLink(place);
   // a restaurant's guide page (Tabelog in Japan) — looked up once it's opened
   const reviewSite = reviewSiteFor(place, categoryIcons);
-  useAutoReviewLink(place, categoryIcons, open && !readOnly);
+  useAutoReviewLink(place, categoryIcons, card && !readOnly);
   // its "Good to know" (hours, reservations, queue…) — a restaurant's, or any
   // place's once it's on a day — looked up the same way
   const tripData = useData();
@@ -2175,13 +2177,9 @@ function PlaceRow({
   const categories = [...new Set((tripData?.places.map((p) => p.category) ?? []).filter(Boolean) as string[])]
     .sort((a, b) => a.localeCompare(b));
   const [namingCategory, setNamingCategory] = useState(false);
-  useAutoPlaceFacts(place, tripData, area, open && !readOnly);
+  useAutoPlaceFacts(place, tripData, area, card && !readOnly);
   const factsFailure = useFactsFailure(place.id);
   const day = dayId ? days.find((d) => d.id === dayId) : undefined;
-  const li = useRef<HTMLLIElement>(null);
-  useEffect(() => {
-    if (open) li.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-  }, [open]);
 
   // nearest station — the map's own loaded tiles first (no request). Waits
   // for `mapReady` (the list mounts well before the map's first load) rather
@@ -2220,8 +2218,6 @@ function PlaceRow({
     }
     return () => { cancelled = true; };
   }, [map, mapReady, place.id, place.lat, place.lng]);
-  // scroll-margin below gives `block: "nearest"` a little breathing room so an
-  // opened row never lands flush against the list's top edge.
   const catGlyph = place.category ? categoryIcons?.[place.category] : undefined;
   // the category is named by the tile's own icon when it has one — repeating it
   // as text only made the row a line taller
@@ -2334,7 +2330,7 @@ function PlaceRow({
     const groupLabel = "kicker px-4 pb-1.5";
     return (
       <div className="mx-4 mb-1 mt-3 space-y-4">
-        <div className={`space-y-3 rounded-[12px] bg-surface px-3.5 py-3 ${derived ? "opacity-60" : ""}`}>
+        <div className="space-y-3 rounded-[12px] bg-surface px-3.5 py-3">
           <div className="flex items-start gap-3">
             {tile}
             <span className="min-w-0 flex-1">
@@ -2430,7 +2426,7 @@ function PlaceRow({
                 type="button"
                 onClick={() => setFactsOpen(!factsOpen)}
                 aria-expanded={factsOpen}
-                className="tap flex min-w-0 flex-1 items-center gap-1 text-left"
+                className="tap flex min-w-0 flex-1 items-center gap-1 text-left uppercase"
               >
                 Good to know
                 <Icon name="chevron" size={11} className={`transition-transform duration-200 ${factsOpen ? "rotate-90" : ""}`} />
@@ -2453,8 +2449,8 @@ function PlaceRow({
         {!readOnly && (
           <ul className="overflow-hidden rounded-[12px] bg-surface">
             <li>
-              <ConfirmButton onConfirm={onRemove} label="Remove place" message="This place will be removed from the trip and its areas. Steps on it keep their name." className={`${rowCls} w-full text-left text-danger`}>
-                <Icon name="trash" size={15} className="shrink-0" /> Remove place
+              <ConfirmButton onConfirm={onRemove} label="Delete Place" message="This place will be deleted from the trip and its areas. Steps on it keep their name." className={`${rowCls} w-full text-left text-danger`}>
+                <Icon name="trash" size={15} className="shrink-0" /> Delete Place
               </ConfirmButton>
             </li>
           </ul>
@@ -2464,7 +2460,7 @@ function PlaceRow({
   }
 
   return (
-    <li ref={li} className={`scroll-my-3 ${nest === "mid" ? NESTED_DIVIDER : TILE_DIVIDER}`}>
+    <li className={nest === "mid" ? NESTED_DIVIDER : TILE_DIVIDER}>
         <ContextMenu
           menu={(link || !readOnly) && (
             <>
@@ -2478,7 +2474,7 @@ function PlaceRow({
                   <Icon name="link" size={16} /> {place.reviewUrl ? `Open in ${reviewSite.label}` : `Search ${reviewSite.label}`}
                 </a>
               )}
-              {!readOnly && <ConfirmMenuItem onConfirm={onRemove} label="Delete place" icon={<Icon name="trash" size={16} />} />}
+              {!readOnly && <ConfirmMenuItem onConfirm={onRemove} label="Delete Place" icon={<Icon name="trash" size={16} />} />}
             </>
           )}
         >
@@ -2600,7 +2596,7 @@ function SuggestReview({
     <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-3">
       {groups.length === 0 ? (
         <p className="meta py-4">
-          Couldn’t spot any clear groups — the places are too spread out or too few. Use Add area to make one by hand.
+          Couldn’t spot any clear groups — the places are too spread out or too few. Use New Area in the ⋯ menu to make one by hand.
         </p>
       ) : (
         <>

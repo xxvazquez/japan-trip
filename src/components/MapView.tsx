@@ -69,7 +69,7 @@ const glyphFor = (p: Place, catIcons: CatIcons) => (p.category && catIcons?.[p.c
 /** a place's pin colour: its category's colour from Manage, else its own */
 const colorFor = (p: Place, catColors: CatColors) => (p.category && catColors?.[p.category]) || p.color || FALLBACK;
 
-function toFC(places: Place[], derivedIds: Set<string> | undefined, catIcons: CatIcons, catColors: CatColors): FeatureCollection<Point, Props> {
+function toFC(places: Place[], derivedIds: Set<string> | undefined, catIcons: CatIcons, catColors: CatColors, dark: boolean): FeatureCollection<Point, Props> {
   return {
     type: "FeatureCollection",
     features: places.map((p) => {
@@ -85,7 +85,7 @@ function toFC(places: Place[], derivedIds: Set<string> | undefined, catIcons: Ca
           color,
           derived: !!derivedIds?.has(p.id),
           glyph,
-          icon: glyph ? markerKey(glyph, color) : "",
+          icon: glyph ? markerKey(glyph, color, dark) : "",
         },
       };
     }),
@@ -99,7 +99,7 @@ function ensureMarkerImages(m: MLMap, places: Place[], catIcons: CatIcons, catCo
     const glyph = glyphFor(p, catIcons);
     if (!glyph) continue;
     const color = colorFor(p, catColors);
-    const key = markerKey(glyph, color);
+    const key = markerKey(glyph, color, dark);
     if (m.hasImage(key)) continue;
     m.addImage(key, buildMarkerImage(glyph, color, dark), { pixelRatio: 2 });
   }
@@ -107,13 +107,11 @@ function ensureMarkerImages(m: MLMap, places: Place[], catIcons: CatIcons, catCo
 
 const sel = (id: string | null) => id ?? "__none__";
 
-/** highlight the selected pin (halo, label, bigger icon) and, when it's tied
- *  to a place, move the camera there. Shared by the reactive selection effect
- *  and the initial `load` handler — a map that mounts with a selection
- *  already set (e.g. arriving via a `?sel=` deep link) needs this applied
- *  once ready, not just on a later change, or the camera is left on its
- *  neutral whole-world starting view. */
-function applySelection(m: MLMap, selectedId: string | null, places: Place[], animate: boolean, coverBottom = 140) {
+/** highlight the selected pin (halo, label, bigger icon). Shared by the
+ *  reactive selection effect and the initial `load` handler — a map that
+ *  mounts with a selection already set (e.g. arriving via a `?sel=` deep
+ *  link) needs this applied once ready, not just on a later change. */
+function applySelection(m: MLMap, selectedId: string | null) {
   if (!m.getLayer("pins")) return;
   const s = sel(selectedId);
   m.setFilter("pin-halo", ["all", ["!", ["has", "point_count"]], ["==", ["get", "id"], s]]);
@@ -123,8 +121,11 @@ function applySelection(m: MLMap, selectedId: string | null, places: Place[], an
   if (m.getLayer("pins-icon")) m.setLayoutProperty("pins-icon", "icon-size", iconSize(s));
   if (m.getLayer("pinned-icon")) m.setLayoutProperty("pinned-icon", "icon-size", pinnedIconSize(s));
   if (m.getLayer("pinned-dot")) m.setPaintProperty("pinned-dot", "circle-stroke-width", ["case", ["==", ["get", "id"], s], 5, 3]);
-  const p = selectedId ? places.find((x) => x.id === selectedId) : undefined;
-  if (p) m.easeTo({ center: [p.lng, p.lat], zoom: Math.max(m.getZoom(), 14), duration: animate ? 500 : 0, offset: [0, -coverBottom / 2] }); // centred in the map a bottom sheet leaves showing
+}
+
+/** move the camera to a picked place, centred in the map a bottom sheet leaves showing */
+function flyToPlace(m: MLMap, p: Place, animate: boolean, coverBottom = 140) {
+  m.easeTo({ center: [p.lng, p.lat], zoom: Math.max(m.getZoom(), 14), duration: animate ? 500 : 0, offset: [0, -coverBottom / 2] });
 }
 
 /** categories the trip wants kept on screen when zoomed out (`config.pinnedCategories`) */
@@ -165,9 +166,11 @@ const iconSize = (selId: string): unknown => {
 type AreaShapeProps = { name: string; color: string };
 type AreaShapes = FeatureCollection<Polygon, AreaShapeProps>;
 const EMPTY_FC: AreaShapes = { type: "FeatureCollection", features: [] };
-/** opacity curve that fades area outlines out once you're zoomed into streets */
+/** opacity curve for the area outlines: in once a city fills the screen (at
+ *  country scale a neighbourhood ring is a dot, and its name sat over the
+ *  pin clusters), out again once you're zoomed into streets */
 const areaFade = (peak: number): unknown =>
-  ["interpolate", ["linear"], ["zoom"], 8, peak, 12.5, peak, 14.5, 0];
+  ["interpolate", ["linear"], ["zoom"], 9, 0, 10.5, peak, 12.5, peak, 14.5, 0];
 
 export function MapView({
   places,
@@ -218,6 +221,8 @@ export function MapView({
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<MLMap | null>(null);
   const ready = useRef(false);
+  /** the pick the camera last went to — see the selection effect */
+  const flownTo = useRef<string | null>(null);
   const tileErrs = useRef(0);
   const tilesOk = useRef(0);
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
@@ -273,7 +278,7 @@ export function MapView({
     });
 
     ensureMarkerImages(m, p, ci, cc, d);
-    m.addSource("places", { type: "geojson", data: toFC(rest, di, ci, cc), cluster: true, clusterRadius: 46, clusterMaxZoom: 13 });
+    m.addSource("places", { type: "geojson", data: toFC(rest, di, ci, cc, d), cluster: true, clusterRadius: 46, clusterMaxZoom: 13 });
 
     m.addLayer({
       id: "clusters", type: "circle", source: "places", filter: ["has", "point_count"],
@@ -334,7 +339,7 @@ export function MapView({
 
     // pinned categories: their own source, so nothing folds them into a cluster,
     // and drawn last, so they sit above every cluster, area outline and pin
-    m.addSource("pinned", { type: "geojson", data: toFC(pinned, di, ci, cc) });
+    m.addSource("pinned", { type: "geojson", data: toFC(pinned, di, ci, cc, d) });
     m.addLayer({
       id: "pinned-dot", type: "circle", source: "pinned", minzoom: PINNED_MINZOOM,
       filter: ["==", ["get", "glyph"], ""],
@@ -404,7 +409,10 @@ export function MapView({
 
     m.on("load", () => {
       addLayers(m);
-      applySelection(m, state.current.selectedId, state.current.places, false, state.current.coverBottom);
+      const { selectedId: s0, places: p0 } = state.current;
+      applySelection(m, s0);
+      const picked = s0 ? p0.find((x) => x.id === s0) : undefined;
+      if (picked) { flownTo.current = s0; flyToPlace(m, picked, false, state.current.coverBottom); }
       const pointer = () => (m.getCanvas().style.cursor = "pointer");
       const noPointer = () => (m.getCanvas().style.cursor = "");
       for (const l of PIN_LAYERS) { m.on("mouseenter", l, pointer); m.on("mouseleave", l, noPointer); }
@@ -463,8 +471,18 @@ export function MapView({
         const [lng, lat] = (best.f.geometry as Point).coordinates;
         return { name: labelName(best.f.properties)!, kind, lat, lng };
       };
+      // one hit test per frame, not per mouse event — `placeAt` can walk
+      // every point of interest in the tile when the pointer's over a park
+      let hoverAt: MapMouseEvent["point"] | null = null;
       m.on("mousemove", (e: MapMouseEvent) => {
-        if (!m.queryRenderedFeatures(e.point, { layers: PIN_LAYERS }).length) m.getCanvas().style.cursor = placeAt(e.point) ? "pointer" : "";
+        if (hoverAt) { hoverAt = e.point; return; }
+        hoverAt = e.point;
+        requestAnimationFrame(() => {
+          const pt = hoverAt!;
+          hoverAt = null;
+          if (map.current !== m) return;
+          if (!m.queryRenderedFeatures(pt, { layers: PIN_LAYERS }).length) m.getCanvas().style.cursor = placeAt(pt) ? "pointer" : "";
+        });
       });
       // a held finger already dropped a pin; the click its lift makes isn't a tap
       let heldDown = false;
@@ -514,8 +532,8 @@ export function MapView({
     if (!ready.current || !m) return;
     ensureMarkerImages(m, places, categoryIcons, categoryColors, state.current.dark);
     const { pinned, rest } = splitPinned(places, pinnedCategories);
-    (m.getSource("places") as GeoJSONSource | undefined)?.setData(toFC(rest, derivedIds, categoryIcons, categoryColors));
-    (m.getSource("pinned") as GeoJSONSource | undefined)?.setData(toFC(pinned, derivedIds, categoryIcons, categoryColors));
+    (m.getSource("places") as GeoJSONSource | undefined)?.setData(toFC(rest, derivedIds, categoryIcons, categoryColors, state.current.dark));
+    (m.getSource("pinned") as GeoJSONSource | undefined)?.setData(toFC(pinned, derivedIds, categoryIcons, categoryColors, state.current.dark));
   }, [places, derivedIds, categoryIcons, categoryColors, pinnedCategories]);
 
   useEffect(() => {
@@ -531,11 +549,19 @@ export function MapView({
     if (ready.current && map.current) applyBasePois(map.current, basePois);
   }, [basePois]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* selection */
+  /* selection — the camera goes to a pin only when the pick changes (or its
+     place first turns up). A new places array alone — a fetched fact or a
+     synced edit landing while the card is open — just re-applies the
+     highlight, so it never pulls the map back from where you panned it. */
   useEffect(() => {
     const m = map.current;
     if (!m || !ready.current) return;
-    applySelection(m, selectedId, places, true, state.current.coverBottom);
+    applySelection(m, selectedId);
+    const p = selectedId ? places.find((x) => x.id === selectedId) : undefined;
+    const move = p && flownTo.current !== selectedId ? p : null;
+    flownTo.current = p ? selectedId : null;
+    // a frame later, so the sheet's height for this pick has been measured
+    if (move) requestAnimationFrame(() => { if (map.current === m) flyToPlace(m, move, true, state.current.coverBottom); });
   }, [selectedId, places]);
 
   /* theme */
