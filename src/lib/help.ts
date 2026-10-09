@@ -363,6 +363,29 @@ export const HELP: HelpTopic[] = [
         go: { label: "Open the Map", to: "/map" },
       },
       {
+        id: "add",
+        q: "How do I add a place?",
+        a: "On the **Map**, tap {plus} and search for it by name.",
+        blocks: [
+          {
+            rows: [
+              { icon: "search", title: "Search by name", detail: "Places near the map come first, then the rest of the country" },
+              { icon: "link", title: "Can't find it?", detail: "Paste its Google Maps link — in Google Maps, tap **Share**, then **Copy**" },
+              { icon: "pin", title: "Or tap the map", detail: "Drops a pin right there for you to name" },
+            ],
+          },
+          {
+            title: "Why the search misses some places",
+            rows: [
+              { icon: "map", title: "It searches OpenStreetMap", detail: "Free and open, but newer places can be missing" },
+              { icon: "pencil", title: "Names can differ", detail: "A pasted link is matched by where it is, and says *On OpenStreetMap as …*" },
+              { icon: "clock", title: "Hours come from OpenStreetMap", detail: "Not there? The place still works, just without hours" },
+            ],
+          },
+        ],
+        go: { label: "Open the Map", to: "/map" },
+      },
+      {
         id: "pois",
         q: "Can I see only our own places?",
         a: "Yes — hide the map's own shops, stations and parks.",

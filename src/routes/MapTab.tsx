@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { InfoCard, type Tip } from "@/components/InfoTips";
 import { MapView, type BasePoi, type MLMap } from "@/components/MapView";
 import { Editable } from "@/components/Editable";
 import { RichNote } from "@/components/RichNote";
@@ -722,6 +723,13 @@ function useMapEditing(
 
 /** room a fitted map leaves on its right for the zoom / location buttons */
 const CONTROLS_CLEAR = 72;
+
+/** what the add-place search says while nothing's typed */
+const ADD_PLACE_TIPS: Tip[] = [
+  { icon: "search", title: "Search by name", text: "Places near the map come first, then the rest of the country." },
+  { icon: "link", title: "Can\u2019t find it?", text: "Paste its Google Maps link \u2014 in Google Maps, tap Share, then Copy." },
+  { icon: "pin", title: "Or tap the map", text: "Drops a pin right there for you to name." },
+];
 
 export default function MapTab() {
   const data = useData();
@@ -1641,6 +1649,9 @@ export default function MapTab() {
               )}
             </>
           )}
+          <Link to="/help" className="menu-item">
+            <Icon name="info" size={16} /> Map Help
+          </Link>
         </ActionSheet>}
 
         {overlays && <TextPrompt
@@ -1768,6 +1779,8 @@ export default function MapTab() {
           />}
           <div>
             <SearchField value={q} onChange={setQ} placeholder="Search for a place" autoFocus />
+            {/* nothing typed yet: the ways in, as Maps lists them under an empty search */}
+            {!q.trim() && <InfoCard id="add-place-tips" info={ADD_PLACE_TIPS} className="mt-2" />}
             {searchState !== "idle" && (
               <p className="meta px-1 pt-2">
                 {searchState === "searching" && "Searching…"}
