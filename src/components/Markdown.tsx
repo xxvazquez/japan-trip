@@ -80,7 +80,7 @@ function renderBlocks(bs: Block[], ctx: Ctx): ReactNode[] {
           )}
           <span className="min-w-0">{inline(b.kids)}</span>
         </p>
-        {!folded && renderBlocks(body, ctx)}
+        {folded ? <span hidden data-note-len={blocksLen(body)} /> : renderBlocks(body, ctx)}
       </div>,
     );
     i = j;
@@ -169,17 +169,57 @@ function inline(ns: Inline[]): ReactNode[] {
       case "color": return <span key={k} data-note-color={n.c} className={`note-c-${n.c}`}>{inline(n.kids)}</span>;
       case "link": {
         const bare = n.kids.length === 1 && n.kids[0].t === "text" && n.kids[0].s === n.href;
-        return <Anchor key={k} href={n.href}>{bare ? linkLabel(n.href) : inline(n.kids)}</Anchor>;
+        return <Anchor key={k} href={n.href} len={bare ? n.href.length : undefined}>{bare ? linkLabel(n.href) : inline(n.kids)}</Anchor>;
       }
     }
   });
 }
 
-function Anchor({ href, children }: { href: string; children: ReactNode }) {
+function Anchor({ href, len, children }: { href: string; len?: number; children: ReactNode }) {
   const safe = /^https?:\/\//i.test(href) ? href : `https://${href}`;
   return (
-    <a href={safe} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+    <a href={safe} target="_blank" rel="noopener noreferrer" data-note-len={len} onClick={(e) => e.stopPropagation()}>
       {children}
     </a>
   );
+}
+
+/* ------------------------------------------------------------------ *
+ * Where a tap landed, so the editor can put the caret there
+ * ------------------------------------------------------------------ */
+
+/** Characters of text in blocks, counted as the editor holds them. */
+function blocksLen(bs: Block[]): number {
+  const inl = (ns: Inline[]): number =>
+    ns.reduce((n, k) => n + (k.t === "text" || k.t === "code" ? k.s.length : k.t === "br" ? 0 : inl(k.kids)), 0);
+  const list = (l: List): number => l.items.reduce((n, it) => n + inl(it.kids) + (it.sub ? list(it.sub) : 0), 0);
+  return bs.reduce((n, b) => n + (b.t === "h" || b.t === "p" ? inl(b.kids) : b.t === "quote" ? blocksLen(b.blocks) : b.t === "hr" ? 0 : list(b)), 0);
+}
+
+/**
+ * The text offset of the point (x, y) inside a rendered note — the count of
+ * characters before it, the way the editor counts them — or null when the
+ * point isn't on the note's text. A shortened bare link and a folded
+ * section stand in for their full text through `data-note-len`.
+ */
+export function noteOffsetAt(root: Element, x: number, y: number): number | null {
+  const range = document.caretRangeFromPoint?.(x, y);
+  if (!range || range.startContainer.nodeType !== Node.TEXT_NODE || !root.contains(range.startContainer)) return null;
+  const hit = range.startContainer;
+  let n = 0;
+  const walk = (node: Node): number | null => {
+    if (node === hit) return n + range.startOffset;
+    if (node.nodeType === Node.TEXT_NODE) { n += node.textContent?.length ?? 0; return null; }
+    if (node instanceof HTMLElement && node.dataset.noteLen) {
+      if (node.contains(hit)) return n;
+      n += Number(node.dataset.noteLen);
+      return null;
+    }
+    for (const c of node.childNodes) {
+      const r = walk(c);
+      if (r !== null) return r;
+    }
+    return null;
+  };
+  return walk(root);
 }

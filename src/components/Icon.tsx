@@ -43,6 +43,8 @@ export type IconName =
   | "list"
   | "checklist"
   | "list-ordered"
+  | "indent"
+  | "outdent"
   | "callout"
   | "smile"
   | "palette"
@@ -262,6 +264,18 @@ const P: Record<IconName, JSX.Element> = {
       <path d="M11 6h9M11 12h9M11 18h9" />
       <path d="M4 4h1v5M4 9h2" />
       <path d="M6.5 20H3.4c0-1 2.6-1.9 2.6-3.5a1.5 1.5 0 0 0-2.6-1" />
+    </>
+  ),
+  indent: (
+    <>
+      <path d="M4 5h16M4 19h16M12 10h8M12 14h8" />
+      <path d="M4 9l3 3-3 3" />
+    </>
+  ),
+  outdent: (
+    <>
+      <path d="M4 5h16M4 19h16M12 10h8M12 14h8" />
+      <path d="M7 9l-3 3 3 3" />
     </>
   ),
   callout: (

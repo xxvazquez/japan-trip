@@ -76,6 +76,7 @@ export function NoteEditor({
   value,
   placeholder,
   className = "",
+  caret = null,
   onDone,
   onSave,
   onCancel,
@@ -83,6 +84,9 @@ export function NoteEditor({
   value: string;
   placeholder: string;
   className?: string;
+  /** where to put the caret, as a count of characters into the text; the
+   *  end when null */
+  caret?: number | null;
   /** editing ended with a save — the note's new text (maybe unchanged) */
   onDone: (text: string) => void;
   /** the text so far, saved while editing carries on */
@@ -148,7 +152,18 @@ export function NoteEditor({
   // focus straight away, inside the tap that opened the editor — iOS only
   // raises the keyboard for that (RichNote primes it in case this is late)
   useLayoutEffect(() => {
-    editor?.commands.focus("end");
+    if (!editor) return;
+    let at: number | null = null;
+    if (caret !== null) {
+      let left = caret;
+      editor.state.doc.descendants((node, pos) => {
+        if (at !== null) return false;
+        if (!node.isText) return;
+        if (left <= node.text!.length) at = pos + left;
+        else left -= node.text!.length;
+      });
+    }
+    editor.commands.focus(at ?? "end");
   }, [editor]);
 
   // leaving the page mid-edit saves, like closing a note in Notes. Checked
@@ -191,6 +206,8 @@ export function NoteEditor({
       callout: e.isActive("blockquote"),
       link: e.isActive("link"),
       color: (e.getAttributes("noteColor").color as NoteColor | undefined) ?? null,
+      indent: e.can().sinkListItem("listItem") || e.can().sinkListItem("taskItem"),
+      outdent: e.can().liftListItem("listItem") || e.can().liftListItem("taskItem"),
     }),
   });
 
@@ -214,6 +231,9 @@ export function NoteEditor({
     if (word) return apply(chain().setTextSelection(word)).setTextSelection(sel.from).run();
     return apply(chain()).run();
   };
+
+  // a phone has no Tab key, so the Aa panel carries Notes' indent buttons
+  const item = () => (editor.isActive("taskItem") ? "taskItem" : "listItem");
 
   const onLink = () => {
     if (s.link) { chain().extendMarkRange("link").unsetLink().run(); return; }
@@ -281,6 +301,9 @@ export function NoteEditor({
             <Tool label="Italic" on={() => format("italic", "toggle")} active={s.italic}><span className="font-serif text-[0.95rem] italic">I</span></Tool>
             <Tool label="Underline" on={() => format("underline", "toggle")} active={s.underline}><span className="text-[0.95rem] underline underline-offset-2">U</span></Tool>
             <Tool label="Strikethrough" on={() => format("strike", "toggle")} active={s.strike}><span className="text-[0.95rem] line-through">S</span></Tool>
+            <span className="mx-1.5 h-5 w-px bg-line" aria-hidden />
+            <Tool label="Decrease indent" on={() => chain().liftListItem(item()).run()} disabled={!s.outdent}><Icon name="outdent" size={17} /></Tool>
+            <Tool label="Increase indent" on={() => chain().sinkListItem(item()).run()} disabled={!s.indent}><Icon name="indent" size={17} /></Tool>
             <div className="flex w-full items-center gap-1.5">
               <Swatch label="Default colour" active={!s.color} on={() => format("noteColor", "unset")}>
                 <span className="h-full w-full rounded-full bg-ink" />
@@ -356,16 +379,19 @@ function Tray({ children }: { children: ReactNode }) {
 }
 
 /** a toolbar button that never takes focus from the text */
-function Tool({ label, on, active, children }: { label: string; on: () => void; active?: boolean; children: ReactNode }) {
+function Tool({ label, on, active, disabled, children }: { label: string; on: () => void; active?: boolean; disabled?: boolean; children: ReactNode }) {
   return (
     <button
       type="button"
       aria-label={label}
       aria-pressed={active}
+      // not `disabled`: a tap on a disabled button still takes the focus
+      // from the text, which would close the editor
+      aria-disabled={disabled}
       onMouseDown={(e) => e.preventDefault()}
-      onClick={on}
+      onClick={disabled ? undefined : on}
       className={`tap grid h-8 w-8 shrink-0 place-items-center rounded-[8px] transition-colors ${
-        active ? "bg-ink/[0.08] text-ink" : "text-ink-soft hover:bg-ink/[0.05] hover:text-ink"
+        disabled ? "text-ink-faint opacity-50" : active ? "bg-ink/[0.08] text-ink" : "text-ink-soft hover:bg-ink/[0.05] hover:text-ink"
       }`}
     >
       {children}

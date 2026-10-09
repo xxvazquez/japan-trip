@@ -3,7 +3,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { primeKeyboard } from "@/lib/keyboard";
 import { docFromNote, noteFromDoc } from "@/lib/noteFormat";
 import { flushPendingNow } from "@/store/useApp";
-import { Markdown } from "./Markdown";
+import { Markdown, noteOffsetAt } from "./Markdown";
 import { useExpandAll } from "@/lib/collapse";
 import type { NoteEditor as NoteEditorType } from "./NoteEditor";
 
@@ -79,7 +79,11 @@ export function RichNote({
     if (autoEdit && !readOnly && !Editor) primeKeyboard();
   }, []);
 
-  const startEditing = () => {
+  // where in the text the tap landed — the caret opens there, as in Notes
+  const [caret, setCaret] = useState<number | null>(null);
+  const startEditing = (e?: React.MouseEvent<HTMLElement>) => {
+    const doc = e && e.detail > 0 ? e.currentTarget.querySelector(".note-doc") : null;
+    setCaret(doc ? noteOffsetAt(doc, e!.clientX, e!.clientY) : null);
     // focuses a stand-in field inside the tap so the keyboard comes up even
     // if the editor needs a moment; the editor takes the focus from it
     primeKeyboard();
@@ -170,7 +174,7 @@ export function RichNote({
         )}
       </div>
     ) : (
-      <button type="button" onClick={startEditing} aria-label="Add a note" className={`editable block text-left text-ink-faint ${className}`}>
+      <button type="button" onClick={() => startEditing()} aria-label="Add a note" className={`editable block text-left text-ink-faint ${className}`}>
         {placeholder}
       </button>
     );
@@ -180,5 +184,5 @@ export function RichNote({
     // the editor's code is still on its way — hold the note as it reads
     return <div className={className}><Markdown text={value} /></div>;
   }
-  return <Editor value={value} placeholder={placeholder} className={className} onDone={done} onSave={saveSoFar} onCancel={cancel} />;
+  return <Editor value={value} placeholder={placeholder} className={className} caret={caret} onDone={done} onSave={saveSoFar} onCancel={cancel} />;
 }

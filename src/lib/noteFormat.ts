@@ -169,7 +169,7 @@ function parseList(lines: string[], i: number, base: number, sameIndentBullets =
 /** The url part allows one level of balanced parens inside it — real links
  *  often carry them (a Wikipedia page, a "#:~:text=…(¥400)…" fragment). */
 const BALANCED_URL = "(?:[^\\s()<]|\\([^\\s()]*\\))+";
-const LINK = new RegExp(`\\[([^\\]\\n]+)\\]\\((${BALANCED_URL})\\)`, "y");
+const LINK = new RegExp(`\\[((?:\\\\.|[^\\]\\n\\\\])+)\\]\\((${BALANCED_URL})\\)`, "y");
 const BARE_URL = new RegExp(`https?:\\/\\/${BALANCED_URL}`, "y");
 const BARE_URL_G = new RegExp(`https?:\\/\\/${BALANCED_URL}`, "g");
 const COLOR_OPEN = /\{([a-z]+)\}/y;
@@ -415,9 +415,10 @@ function escapePlain(s: string, before?: string): string {
   for (let k = 0; k < s.length; k++) {
     const ch = s[k];
     const prev = k ? s[k - 1] : before;
-    if (ch === "\\" || ch === "*" || ch === "`" || ch === "[") out += "\\" + ch;
+    if (ch === "\\" || ch === "*" || ch === "`" || ch === "[" || ch === "]") out += "\\" + ch;
     else if (ch === "_" && !(alnum(prev) && alnum(s[k + 1]))) out += "\\_";
-    else if ((ch === "~" || ch === "+") && s[k + 1] === ch) out += "\\" + ch;
+    // doubled, or last — the next piece may open a `~~`/`++` right after it
+    else if ((ch === "~" || ch === "+") && (s[k + 1] === ch || k === s.length - 1)) out += "\\" + ch;
     else if (ch === "{" && /^\{(?:[a-z]+|\/)\}/.test(s.slice(k))) out += "\\{";
     else out += ch;
   }
@@ -431,13 +432,32 @@ function escapeLineStart(line: string): string {
   return line.replace(/^(\d+)([.)])(\s)/, "$1\\$2$3");
 }
 
+/** `**`, `*`, `++` and `~~` don't open before a space, so a style that
+ *  starts on a space (a selection dragged one character wide) starts after
+ *  it instead — `**bold**` rather than `** bold**`, which reads as stars. */
+const SPACE_SHY = ["bold", "italic", "underline", "strike"];
+function splitLeadingSpace(nodes: PMNode[]): PMNode[] {
+  const out: PMNode[] = [];
+  for (const n of nodes) {
+    const prev = out[out.length - 1];
+    const had = prev?.type === "text" ? (prev.marks ?? []).map((m) => m.type) : [];
+    const opening = (n.marks ?? []).filter((m) => SPACE_SHY.includes(m.type) && !had.includes(m.type));
+    const space = n.type === "text" && opening.length ? n.text!.match(/^\s+/)?.[0] : undefined;
+    if (!space) { out.push(n); continue; }
+    const rest = (n.marks ?? []).filter((m) => !opening.includes(m));
+    out.push(rest.length ? { type: "text", text: space, marks: rest } : { type: "text", text: space });
+    if (n.text!.length > space.length) out.push({ ...n, text: n.text!.slice(space.length) });
+  }
+  return out;
+}
+
 /** Inline content → text lines (a hard break starts a new line). */
 function inlineText(nodes: PMNode[] = []): string[] {
   const lines: string[] = [];
   let cur = "";
   let stack: PMMark[] = [];
   const closeAll = () => { while (stack.length) cur += closeMark(stack.pop()!); };
-  for (const n of nodes) {
+  for (const n of splitLeadingSpace(nodes)) {
     if (n.type === "hardBreak") { closeAll(); lines.push(cur); cur = ""; continue; }
     if (n.type !== "text" || !n.text) continue;
     let marks = (n.marks ?? []).filter((m) => ORDER.includes(m.type));

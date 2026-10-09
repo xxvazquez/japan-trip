@@ -117,6 +117,46 @@ describe("doc round trip", () => {
     expect(docFromNote(noteFromDoc(doc))).toEqual(doc);
   });
 
+  it("starts a style after a selected leading space", () => {
+    const doc: PMNode = {
+      type: "doc",
+      content: [{
+        type: "paragraph",
+        content: [
+          { type: "text", text: "Open" },
+          { type: "text", text: " daily", marks: [{ type: "bold" }] },
+          { type: "text", text: " except", marks: [{ type: "italic" }] },
+          { type: "text", text: " Mon", marks: [{ type: "strike" }] },
+        ],
+      }],
+    };
+    expect(noteFromDoc(doc)).toBe("Open **daily** *except* ~~Mon~~");
+  });
+
+  it("keeps a lone ~ or + next to a struck or underlined word", () => {
+    const doc: PMNode = {
+      type: "doc",
+      content: [{
+        type: "paragraph",
+        content: [
+          { type: "text", text: "~" },
+          { type: "text", text: "10 min", marks: [{ type: "strike" }] },
+          { type: "text", text: " 1+" },
+          { type: "text", text: "2", marks: [{ type: "underline" }] },
+        ],
+      }],
+    };
+    expect(docFromNote(noteFromDoc(doc))).toEqual(doc);
+  });
+
+  it("keeps a ] inside a link's text", () => {
+    const doc: PMNode = {
+      type: "doc",
+      content: [{ type: "paragraph", content: [{ type: "text", text: "Menu [EN]", marks: [{ type: "link", attrs: { href: "https://e.com/m" } }] }] }],
+    };
+    expect(docFromNote(noteFromDoc(doc))).toEqual(doc);
+  });
+
   it("keeps hard breaks in paragraphs and list items", () => {
     stable("line one\nline two");
     stable("- item\n  more of it\n- next");

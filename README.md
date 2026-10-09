@@ -584,13 +584,14 @@ Theme and trip logo. **Appearance** (light, dark or *Automatic*) is per device, 
 
 | Button | What it does |
 | --- | --- |
-| **Aa** | Title / Heading / Subheading / Body, bold, italic, underline, strikethrough, and five text colours |
+| **Aa** | Title / Heading / Subheading / Body, bold, italic, underline, strikethrough, indent / outdent for list items, and five text colours |
 | Checklist · bullets · numbers | Lists; indent nests them |
 | Callout | A tinted box to make one line stand out |
 | ☺ | A short set of travel emoji (the keyboard has the rest) |
 | Link | Add a link, or remove the one under the cursor |
 | **Done** | Save (tapping away saves too; Esc cancels) |
 
+- Tapping a note opens it with the cursor where you tapped.
 - With nothing selected, a style or colour applies to the word under the cursor; turning one off clears it from the whole styled run around the cursor.
 - Markdown typed by hand still works: `- ` starts a list, `## ` a heading, `> ` a callout, `[ ] ` a checklist item.
 - A heading with anything under it gets a chevron that folds the section away. The fold is saved with the note.
