@@ -248,15 +248,29 @@ type Snap = "peek" | "half" | "full";
 /** a small preview, just past the search field and city pills; enough of "half" to be worth
  *  defaulting to when there's a list; "full" leaves an 8px peek of map.
  *  "half" itself is capped at this ratio but shrinks to fit a short list
- *  instead — see `halfFitPx` below. */
+ *  instead — see `halfFitPx` below. All of them measured above the tab
+ *  bar: the sheet runs on under the glass, as iOS 26 sheets do, so each
+ *  stop adds the bar's room (`clear`) to what shows above it. */
 const PEEK_PX = 176;
 const HALF_RATIO = 0.58;
 const FULL_GAP_PX = 8;
 /** "half" never lands closer to "peek" than this — a short list still gets a
  *  visible bump when the handle is tapped, not a no-op. */
 const HALF_MIN_PX = PEEK_PX + 64;
-const snapPx = (s: Snap, containerH: number): number =>
-  s === "peek" ? PEEK_PX : s === "half" ? Math.round(containerH * HALF_RATIO) : containerH - FULL_GAP_PX;
+/** the room the phone's floating tab bar takes at the foot (0 on wider
+ *  screens, which have the rail instead) */
+function tabBarClearPx(): number {
+  if (!window.matchMedia("(max-width: 767px)").matches) return 0;
+  const probe = document.createElement("div");
+  probe.style.cssText = "position:fixed;visibility:hidden;height:var(--tabbar-clear)";
+  document.body.append(probe);
+  const h = probe.offsetHeight;
+  probe.remove();
+  return h;
+}
+/** the list's last bit of room: past the tab bar on a phone, so its last
+ *  row can scroll clear of the glass */
+const LIST_END = "h-[calc(var(--tabbar-clear)+1rem)] md:h-4";
 const NEXT: Record<Snap, Snap> = { peek: "half", half: "full", full: "peek" };
 /** a tap (vs. a real drag) on the handle just cycles to the next stop */
 const TAP_SLOP_PX = 6;
@@ -329,6 +343,7 @@ function defaultScope(data: TripData): string {
 function useSheetSnap(shellRef: RefObject<HTMLDivElement | null>) {
   const sheetRef = useRef<HTMLDivElement | null>(null);
   const [containerH, setContainerH] = useState(0);
+  const [clear, setClear] = useState(tabBarClearPx);
   const [snap, setSnap] = useState<Snap>("peek");
   const [dragging, setDragging] = useState(false);
   const dragStart = useRef<{ y: number; h: number } | null>(null);
@@ -337,7 +352,10 @@ function useSheetSnap(shellRef: RefObject<HTMLDivElement | null>) {
   useEffect(() => {
     const el = shellRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(([entry]) => setContainerH(entry.contentRect.height));
+    const ro = new ResizeObserver(([entry]) => {
+      setContainerH(entry.contentRect.height);
+      setClear(tabBarClearPx());
+    });
     ro.observe(el);
     return () => ro.disconnect();
   }, [shellRef]);
@@ -361,11 +379,14 @@ function useSheetSnap(shellRef: RefObject<HTMLDivElement | null>) {
     setHalfFitPx(total);
   });
 
-  const availH = containerH || window.innerHeight - 112;
-  /** the tallest "half" can be, whatever the list */
-  const halfCapPx = Math.round(availH * HALF_RATIO);
-  const halfStopPx = Math.min(Math.max(halfFitPx ?? Infinity, HALF_MIN_PX), halfCapPx);
-  const stopPx = (s: Snap): number => (s === "half" ? halfStopPx : snapPx(s, availH));
+  const availH = containerH || window.innerHeight - 56;
+  const peekPx = PEEK_PX + clear;
+  /** the tallest "half" can be, whatever the list — its share of the
+   *  screen above the tab bar, plus the bar's room under it */
+  const halfCapPx = Math.round((availH - clear) * HALF_RATIO) + clear;
+  // the measured list already ends in the bar's room (`LIST_END`)
+  const halfStopPx = Math.min(Math.max(halfFitPx ?? Infinity, HALF_MIN_PX + clear), halfCapPx);
+  const stopPx = (s: Snap): number => (s === "half" ? halfStopPx : s === "peek" ? peekPx : availH - FULL_GAP_PX);
   const sheetHeight = stopPx(snap);
 
   // The drag moves the sheet with a transform, never its height: a height
@@ -418,7 +439,7 @@ function useSheetSnap(shellRef: RefObject<HTMLDivElement | null>) {
   };
   const onHandlePointerMove = (e: ReactPointerEvent) => {
     if (!dragStart.current || !sheetRef.current) return;
-    const next = Math.min(Math.max(dragStart.current.h + (dragStart.current.y - e.clientY), PEEK_PX), fullPx);
+    const next = Math.min(Math.max(dragStart.current.h + (dragStart.current.y - e.clientY), peekPx), fullPx);
     shownH.current = next;
     cancelAnimationFrame(frame.current);
     frame.current = requestAnimationFrame(() => {
@@ -1876,7 +1897,7 @@ export default function MapTab() {
       ) : selectedPlace ? (
         <div key="card" ref={forMobile ? setListOuter : undefined} className="min-h-0 flex-1 overflow-y-auto">
           {renderRow(selectedPlace, undefined, true)}
-          <div className="h-4" />
+          <div className={LIST_END} />
         </div>
       ) : searchHits ? (
         <div key="list" {...listProps(forMobile)} className="min-h-0 flex-1 overflow-y-auto">
@@ -1903,7 +1924,7 @@ export default function MapTab() {
           {searchHits.areas.length === 0 && searchHits.places.length === 0 && (
             <ListEmpty title="No Results" text={`Nothing on this trip matches “${settledQuery.trim()}”.`} />
           )}
-          <div className="h-4" />
+          <div className={LIST_END} />
         </div>
       ) : nearby ? (
         <div key="list" {...listProps(forMobile)} className="min-h-0 flex-1 overflow-y-auto">
@@ -1912,7 +1933,7 @@ export default function MapTab() {
           ) : (
             <ListEmpty title="No Places Today" text="Pick All to see the whole trip, or add a place with +." />
           )}
-          <div className="h-4" />
+          <div className={LIST_END} />
         </div>
       ) : dayRoute ? (
         // the day as its plan runs, numbered like the map's pins — then any
@@ -1930,7 +1951,7 @@ export default function MapTab() {
               <ul className={PLACE_CARD}>{scoped.filter((p) => !dayRoute.num.has(p.id)).map((p) => renderRow(p))}</ul>
             </>
           )}
-          <div className="h-4" />
+          <div className={LIST_END} />
         </div>
       ) : cityGroups ? (
         <div key="list" {...listProps(forMobile)} className="min-h-0 flex-1 overflow-y-auto">
@@ -1975,7 +1996,7 @@ export default function MapTab() {
               </section>
             );
           })}
-          <div className="h-4" />
+          <div className={LIST_END} />
         </div>
       ) : areaGroups ? (
         <div key="list" {...listProps(forMobile)} className="min-h-0 flex-1 overflow-y-auto">
@@ -2010,7 +2031,7 @@ export default function MapTab() {
               ? <ListEmpty title="No Places" text="Add one with +, or tap a place on the map." />
               : <ListEmpty title="No Places in This View" text="Clear the area or category filter." />
           )}
-          <div className="h-4" />
+          <div className={LIST_END} />
         </div>
       ) : (
         <div key="list" {...listProps(forMobile)} className="min-h-0 flex-1 overflow-y-auto">
@@ -2022,7 +2043,7 @@ export default function MapTab() {
                 ? <ListEmpty title="No Places Today" text="Pick All to see the whole trip, or add a place with +." />
                 : <ListEmpty title="No Places in This City" text="Pick All, or add one with +." />
           )}
-          <div className="h-4" />
+          <div className={LIST_END} />
         </div>
       )}
 
@@ -2034,7 +2055,7 @@ export default function MapTab() {
     <div
       ref={shellRef}
       style={{ "--panel-w": `${panelWidth}px` } as CSSProperties}
-      className="fixed inset-x-0 bottom-[max(var(--tabbar-clear),var(--kb,0px))] overflow-hidden md:overflow-visible top-[max(calc(var(--sat)+var(--nav-h)+var(--demo-h,0px)),calc(var(--vvt,0px)+var(--sat)))] z-20 md:bottom-0 md:left-[72px]"
+      className="fixed inset-x-0 bottom-[var(--kb,0px)] overflow-hidden md:overflow-visible top-[max(calc(var(--sat)+var(--nav-h)+var(--demo-h,0px)),calc(var(--vvt,0px)+var(--sat)))] z-20 md:bottom-0 md:left-[72px]"
     >
       {/* map — hidden, not unmounted, in list-only view: keeps its instance
           (viewport, loaded tiles) alive for an instant toggle back */}
@@ -2721,7 +2742,7 @@ function SuggestReview({
           </ul>
         </>
       )}
-      <div className="sticky bottom-0 mt-3 flex items-center gap-4 bg-bg py-2 text-sm">
+      <div className="sticky bottom-0 mt-3 flex items-center gap-4 bg-bg pb-[calc(var(--tabbar-clear)+0.5rem)] pt-2 text-sm md:pb-2">
         {kept.length > 0 && (
           <button onClick={onApply} className="text-accent hover:opacity-70">
             {keptNew > 0 ? `Create ${plural(keptNew, "area")}` : `Update ${plural(keptJoin, "area")}`}

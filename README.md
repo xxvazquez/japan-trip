@@ -428,6 +428,7 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 - **Today → crosshair** sorts the list by distance from you and narrows it to 1.5 km when that leaves anything. It asks for your location only when tapped.
 - **⋯ → Show List Only** switches to a full-screen list (**Show Map** goes back). Remembered.
 - **Resize** by dragging the grabber on the phone sheet (or tap it to cycle three heights), or the divider on desktop.
+- On a phone the sheet and the map run on under the floating tab bar, as iOS sheets do; the list's last row scrolls clear of it.
 
 ## Areas and categories
 
