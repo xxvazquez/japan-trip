@@ -18,7 +18,7 @@ import { useToday } from "@/lib/useToday";
 import { kindLabel, loadBasePois, saveBasePois } from "@/lib/mapStyle";
 import { Switch } from "@/components/Switch";
 import { CheckCircle } from "@/components/CheckCircle";
-import { useApp, undoable, deletePlace } from "@/store/useApp";
+import { useApp, undoable } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
 import { mapUrlCoords, placeMapLink, sharePlace, webSearchHref } from "@/lib/maps";
 import { searchPlaces, reverseGeocode, type GeoResult } from "@/lib/geocode";
@@ -683,7 +683,6 @@ export default function MapTab() {
   const data = useData();
   const updateEntity = useApp((s) => s.updateEntity);
   const removeEntity = useApp((s) => s.removeEntity);
-  const syncMyMap = useApp((s) => s.syncMyMap);
   const readOnly = useReadOnly();
   const [mode] = useMode();
   const dark = isDark(mode);
@@ -804,13 +803,6 @@ export default function MapTab() {
     panelRef, panelWidth, panelDragging,
     onPanelHandlePointerDown, onPanelHandlePointerMove, onPanelHandlePointerUp,
   } = usePanelDrag(shellRef);
-
-  const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState("");
-  // pins on the My Map that sync keeps out, because they were removed here
-  const [hiddenOnMap, setHiddenOnMap] = useState(0);
-  /** layers the last sync found with no category chosen yet */
-  const [newLayers, setNewLayers] = useState<string[]>([]);
 
   /** each place's "home city" (leg) — see `placeLegMap` for how it's guessed
    *  (or overridden by hand). Lets a whole city's imported pins sit under
@@ -1256,8 +1248,6 @@ export default function MapTab() {
     return { type: "FeatureCollection" as const, features };
   }, [data, listAreas, places, inScopeIds, areaFilter]);
 
-  const imported = useMemo(() => places.filter((p) => p.source === "mymap").length, [places]);
-
   /** areas sharing a case-insensitive trimmed name with at least one other —
    *  left over from before duplicate creation was guarded against. */
   const duplicateAreaGroups = useMemo(() => {
@@ -1292,8 +1282,6 @@ export default function MapTab() {
   useEffect(fitScope, [onMap, selected, mapReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!data) return null;
-  const url = data.config.mapSourceUrl?.trim() ?? "";
-  const syncedAt = data.config.mapSyncedAt;
   const loc = data.config.locale;
   const clock = tripClock(data);
 
@@ -1392,26 +1380,6 @@ export default function MapTab() {
     for (const id of remap.keys()) removeEntity("areas", id);
   };
 
-  const runSync = async () => {
-    if (!url) return;
-    setBusy(true);
-    setMsg("");
-    setHiddenOnMap(0);
-    setNewLayers([]);
-    try {
-      const r = await syncMyMap(url);
-      setNewLayers(r.newLayers);
-      const pins = (n: number) => `${n} pin${n === 1 ? "" : "s"}`;
-      const bits = [r.count > 0 && `added ${pins(r.count)}`, r.updated > 0 && `updated ${pins(r.updated)}`, r.removed > 0 && `removed ${pins(r.removed)} deleted there`].filter(Boolean);
-      setMsg(bits.length ? `“${r.mapName}”: ${bits.join(", ")}.` : `“${r.mapName}” is up to date.`);
-      setHiddenOnMap(r.hidden);
-    } catch (e) {
-      setMsg(e instanceof Error ? e.message : "Sync failed.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
   const cityOf = canonicalLegs(data);
   const cityLegs = data.legs.filter((l) => cityOf.get(l.id) === l.id);
 
@@ -1446,7 +1414,7 @@ export default function MapTab() {
       onToggleArea={(areaId) => toggleAreaPlace(areaId, p.id)}
       onLeg={(legId) => updateEntity<Place>("places", p.id, { legId })}
       // takes on the colour its new category's pins already have; a brand-new
-      // category gets an icon guessed from its name, as a new layer does
+      // category gets an icon guessed from its name
       onCategory={(category) => {
         const glyph = data.config.categoryIcons?.[category] === undefined ? glyphForCategoryName(category) : undefined;
         if (glyph) useApp.getState().mutateTrip((d) => {
@@ -1458,7 +1426,7 @@ export default function MapTab() {
         });
       }}
       onRemove={() => undoable("Place deleted", () => {
-        deletePlace(p.id);
+        removeEntity("places", p.id);
         if (selected === p.id) setSelected(null);
       })}
     />
@@ -1585,8 +1553,8 @@ export default function MapTab() {
           ))}
         </div>
 
-        {/* the ⋯ menu: how the list shows, then filtering, area upkeep and
-            the My Maps sync — Apple Maps keeps all of this a tap away rather
+        {/* the ⋯ menu: how the list shows, then filtering, and area upkeep —
+            Apple Maps keeps all of this a tap away rather
             than on a row of its own above the list. Tinted while a category
             filter is on, so a narrowed list never looks like a short one. */}
         {overlays && <ActionSheet open={moreSheet.open} onClose={() => moreSheet.setOpen(false)} anchorRef={moreSheet.anchorRef}>
@@ -1628,11 +1596,6 @@ export default function MapTab() {
                 </Link>
               )}
             </>
-          )}
-          {url && !readOnly && (
-            <button onClick={runSync} disabled={busy} className="menu-item">
-              <Icon name="refresh" size={16} /> Sync with My Maps
-            </button>
           )}
         </ActionSheet>}
 
@@ -1931,7 +1894,7 @@ export default function MapTab() {
           )}
           {areaGroups.length === 0 && (
             places.length === 0
-              ? <ListEmpty title="No Places" text="Add one with +, or paste a Google My Maps link in Manage to bring in your pins." />
+              ? <ListEmpty title="No Places" text="Add one with +, or tap a place on the map." />
               : <ListEmpty title="No Places in This View" text="Clear the area or category filter." />
           )}
           <div className="h-4" />
@@ -1941,7 +1904,7 @@ export default function MapTab() {
           {scoped.length > 0 && <ul className={`${PLACE_CARD} mt-3`}>{scoped.map((p) => renderRow(p))}</ul>}
           {scoped.length === 0 && (
             places.length === 0
-              ? <ListEmpty title="No Places" text="Add one with +, or paste a Google My Maps link in Manage to bring in your pins." />
+              ? <ListEmpty title="No Places" text="Add one with +, or tap a place on the map." />
               : scope?.startsWith("day:")
                 ? <ListEmpty title="No Places Today" text="Pick All to see the whole trip, or add a place with +." />
                 : <ListEmpty title="No Places in This City" text="Pick All, or add one with +." />
@@ -1950,32 +1913,6 @@ export default function MapTab() {
         </div>
       )}
 
-      {/* sync footer — only once a My Maps link is actually configured; the
-          empty-state "add a link" guidance lives in Manage now, where the
-          link itself is added, instead of taking a permanent row here */}
-      {url && (
-        <div className="shrink-0 border-t border-line px-4 py-2 text-center text-2xs text-ink-faint">
-          <p className="text-xs text-ink-soft">
-            {busy ? "Checking for changes…" : syncedAt ? `Updated ${rel(syncedAt)}` : "Not synced yet"}
-          </p>
-          <p>{imported > 0 ? `${plural(imported, "pin")} from Google My Maps` : "No pins from Google My Maps"}</p>
-          {msg && <p className="mt-1 text-accent">{msg}</p>}
-          {/* a pin removed here and added to the My Map again stays out —
-              say so, or "up to date" reads as the sync not working */}
-          {msg && hiddenOnMap > 0 && (
-            <p className="mt-1 break-words">
-              {hiddenOnMap === 1 ? "1 pin on the map stays hidden" : `${hiddenOnMap} pins on the map stay hidden`}, removed here before —{" "}
-              <Link to="/manage/content" className="text-accent">show them again</Link>
-            </p>
-          )}
-          {newLayers.length > 0 && (
-            <p className="mt-1 break-words">
-              {newLayers.length === 1 ? "New layer" : "New layers"} {newLayers.map((l) => `“${l}”`).join(", ")} —{" "}
-              <Link to="/manage/content" className="text-accent">choose a category</Link>
-            </p>
-          )}
-        </div>
-      )}
     </div>
     );
   };
@@ -2173,12 +2110,9 @@ function PlaceRow({
   // place's once it's on a day — looked up the same way
   const tripData = useData();
   const area = placeArea(place, tripData);
-  // every category in use, for moving a pin added here into one — a My Maps
-  // pin's comes from its layer (set in Manage), so it's shown, not picked
-  const categories = [...new Set([
-    ...(tripData?.places.map((p) => p.category) ?? []),
-    ...Object.values(tripData?.config.layerCategories ?? {}),
-  ].filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b));
+  // every category in use, for moving a pin into one
+  const categories = [...new Set((tripData?.places.map((p) => p.category) ?? []).filter(Boolean) as string[])]
+    .sort((a, b) => a.localeCompare(b));
   const [namingCategory, setNamingCategory] = useState(false);
   useAutoPlaceFacts(place, tripData, area, open && !readOnly);
   const factsFailure = useFactsFailure(place.id);
@@ -2236,8 +2170,6 @@ function PlaceRow({
     // the card has its day as a button instead
     !card && day && `on ${fmtDate(day.date, loc, { weekday: "short", day: "numeric" })}`,
   ].filter(Boolean).join(" · ");
-  // an imported pin keeps its own colour (matches its map marker); an app-native
-  // pin has no real colour, so tint it by category instead
   // grouped-inset rows, iOS Settings style: a quiet label left, the value right
   const rowCls = "flex items-center gap-3 px-3.5 py-2.5 text-sm";
   const sortedDays = [...days].sort((a, b) => a.date.localeCompare(b.date));
@@ -2260,7 +2192,7 @@ function PlaceRow({
             <li className={`${SM_TILE_DIVIDER} ${rowCls}`}>
               <IconTile size="sm" {...placeTile(place, categoryIcons, categoryColors)} />
               <span className="row-label">Category</span>
-              {readOnly || place.source === "mymap" ? (
+              {readOnly ? (
                 <span className="row-value min-w-0 flex-1 break-words text-right">{place.category && categoryName(place.category)}</span>
               ) : (
                 <label className="flex min-w-0 flex-1 cursor-pointer justify-end">
@@ -2559,14 +2491,6 @@ function AreasRow({
       </ActionSheet>
     </li>
   );
-}
-
-function rel(iso: string): string {
-  const s = (Date.now() - +new Date(iso)) / 1000;
-  if (s < 90) return "just now";
-  if (s < 3600) return `${Math.round(s / 60)}m ago`;
-  if (s < 86400) return `${Math.round(s / 3600)}h ago`;
-  return `${Math.round(s / 86400)}d ago`;
 }
 
 /* ---- suggest areas review ---------------------------------------- */

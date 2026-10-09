@@ -392,7 +392,7 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
   - **Buttons**, four across: **Google Maps** (filled), Tabelog (restaurants in Japan), **Menu**, **Website**, **Share**, **Search Web** (when there's no website), and the day it's on or **Add to Day**. What doesn't fit goes under **More**.
   - Google Maps searches at the pin, so a chain opens the right branch.
   - **Below:** **Note**, then **Good to know** — folded until you tap it, so filing a place stays quick (see [Helpers on a step](#helpers-on-a-step)) — then its areas, category and city, and last **Remove**.
-  - **Category:** a pin added in the app can move into any category and takes on its colour; a My Maps pin's comes from its layer.
+  - **Category:** any place can move into any category, or **New Category…**, and takes on that category's colour.
 - **List rows** show the name and the walk to the nearest station.
 - **Place names** on the map are in English / Latin script where available.
 
@@ -401,12 +401,9 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 **⋯ → Filters** opens a sheet (the **⋯** button turns tinted while a category filter is on):
 
 - **Category** — tap the coloured dots to narrow; none selected shows everything.
-- **My Maps layers** (**Manage → Content**) — pick which category each layer goes into ("Coffee & tea" → coffee), or **New Category…**. Every sync then files that layer's pins there, with that category's colour and icon.
-  - A new layer shows **Not set up** (and the Map's sync line names it) until you choose; meanwhile its pins come in under the layer's own name.
-  - Names are matched exactly — nothing is guessed between look-alike names.
-- **Category pins** (**Manage → Content**) set each category's icon and colour once, for every pin in it — no need to style pins one by one in My Maps.
-  - A new category gets an icon guessed from its name on sync ("Coffee" → cup, "Temples" → landmark). Pick another, or **Dot** for none; a sync never overrides your pick.
-  - A category colour wins over the pin's My Maps colour. **Colour from My Maps** goes back to it.
+- **Category pins** (**Manage → Content**) set each category's icon and colour once, for every pin in it.
+  - A new category gets an icon guessed from its name ("Coffee" → cup, "Temples" → landmark). Pick another, or **Dot** for none.
+  - A category colour wins over a pin's own colour. **Default colour** goes back to it.
   - **Always show** keeps its pins visible when zoomed out instead of clustering them (down to about city level).
 - **Transit** — Train and Metro lines are on by default; add Tram, Bus, Ferry or Airport. Works in any city with no setup.
 - **Points of interest** — the map's own stations, parks, museums and shops, with their icons. Turn it off to see only your pins. Remembered on this device.
@@ -417,17 +414,10 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 - **Today → crosshair** sorts the list by distance from you and narrows it to 1.5 km when that leaves anything. It asks for your location only when tapped.
 - **⋯ → Show List Only** switches to a full-screen list (**Show Map** goes back). Remembered.
 - **Resize** by dragging the grabber on the phone sheet (or tap it to cycle three heights), or the divider on desktop.
-- **⋯ → Sync with My Maps** adds new pins and removes pins you deleted there (**Undo** brings them back). Pins still on the map pick up their new position, layer and colour (unless their category has its own), and keep everything you've edited.
-- **One pin per place.** A place saved twice on the map (same name, within 150 m) comes in once; a chain's branches further apart stay separate. A pin you added in the app for the same place becomes the map's pin, keeping its steps, areas, note and links.
-- **Renaming a pin in My Maps** counts as delete + add: the old one (with its notes) goes, the new one comes in.
-- **Remove place** on a My Maps pin hides it from every sync, even though it's still on the My Map (the app can't edit the map itself). **Undo** brings it straight back.
-- **Hidden pins** (**Manage → Content → My Maps layers**) lists them; tap one to show it again. A hidden pin you then delete from the My Map drops off the list, so adding it there again brings it back.
-- **Sync says when it keeps one out** — *N pins on the map stay hidden, removed here before — show them again*. Adding a pin you'd removed here back to the My Map doesn't bring it back on its own; this is the way.
-- **The foot of the list** shows when it last synced and how many pins came from My Maps.
 
 ## Areas and categories
 
-- A **category** is *what* a place is (coffee, sights, food). Names always show in lower case, even when a My Maps layer is capitalised ("Stations" → stations); the stored name doesn't change.
+- A **category** is *what* a place is (coffee, sights, food). Names always show in lower case, however they were typed ("Stations" → stations); the stored name doesn't change.
 - An **area** is *where* it is (Gion, a neighbourhood you name). A place can be in several areas.
 
 **Managing areas** (all on the Map):
@@ -903,7 +893,7 @@ src/
   store/useApp.ts       Zustand store: trips, active trip, every mutation, sync queue
   lib/                  backend, db, auth, realtime, hydrate, storage, search,
                         help (the Help page's questions and answers),
-                        maps, geocode, mymaps, cost, ics, offlineTiles,
+                        maps, geocode, cost, ics, offlineTiles,
                         offlineFiles…
   lib/safety/           data-safety layer (validation, restore points, quarantine)
   components/           app shell and shared UI (Editable, Section, MapView,

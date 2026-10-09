@@ -52,7 +52,7 @@ import type { TransportMode } from "@/core/types";
 import { Switch } from "@/components/Switch";
 import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
 import { useEffect } from "react";
-import type { Day, EntityType, ExpenseCategory, Place, TripData } from "@/core/types";
+import type { Day, EntityType, ExpenseCategory, TripData } from "@/core/types";
 import { TAP, isIOS, saveFile } from "@/lib/device";
 
 type PanelId = "trips" | "setup" | "content" | "appearance" | "sharing";
@@ -871,10 +871,7 @@ function Setup() {
         </ul>
       </Section>
 
-      <Section
-        title="Map & format"
-        info={[{ icon: "link", title: "Google My Map", text: "Paste a My Maps share link and the Map tab can import and sync its pins." }]}
-      >
+      <Section title="Format">
         <ul>
         <Row label="Date format">
           <RowSelect
@@ -884,9 +881,6 @@ function Setup() {
             {!DATE_FORMATS.some((f) => f.value === config.locale) && <option value={config.locale}>{config.locale}</option>}
             {DATE_FORMATS.map((f) => <option key={f.value} value={f.value}>{f.label}</option>)}
           </RowSelect>
-        </Row>
-        <Row label="Google My Map">
-          <Editable as="link" label="Google My Map link" value={config.mapSourceUrl ?? ""} placeholder="paste the share link" onCommit={(v) => mutate((d) => { d.config.mapSourceUrl = v; })} />
         </Row>
         </ul>
       </Section>
@@ -1612,17 +1606,14 @@ function Content() {
   };
 
   const CategoryIcons = () => {
-    const names = [...new Set([
-      ...data.places.map((p) => p.category),
-      ...Object.values(data.config.layerCategories ?? {}),
-    ].filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b));
+    const names = [...new Set(data.places.map((p) => p.category).filter(Boolean) as string[])].sort((a, b) => a.localeCompare(b));
     if (names.length === 0) return null;
     const icons = data.config.categoryIcons ?? {};
     const colors = data.config.categoryColors ?? {};
     const ownColorOf = (name: string) => data.places.find((p) => p.category === name)?.color || DEFAULT_ACCENT;
     const colorOf = (name: string) => colors[name] || ownColorOf(name);
-    // a cleared icon is kept as "" (a plain dot, chosen) so a My Maps sync
-    // doesn't guess one back
+    // a cleared icon is kept as "" (a plain dot, chosen) so one isn't
+    // guessed back from the name
     const setIcon = (name: string, glyph: string) =>
       mutate((d) => {
         d.config.categoryIcons = { ...(d.config.categoryIcons ?? {}), [name]: glyph };
@@ -1634,7 +1625,6 @@ function Content() {
         else delete next[name];
         d.config.categoryColors = Object.keys(next).length ? next : undefined;
       });
-    const imported = (name: string) => data.places.some((p) => p.category === name && p.source === "mymap");
     const pinned = data.config.pinnedCategories ?? [];
     const togglePinned = (name: string) =>
       mutate((d) => {
@@ -1643,12 +1633,10 @@ function Content() {
         d.config.pinnedCategories = next.length ? next : undefined;
       });
     return (
-      <>
-      <MapLayers names={names} colorOf={colorOf} icons={icons} />
       <Section
         title="Category pins"
         info={[
-          { icon: "tag", title: "Colour and icon", text: "Apply to all of a category's pins, whatever they had in My Maps — set them once here." },
+          { icon: "tag", title: "Colour and icon", text: "Apply to all of a category's pins — set them once here." },
           { icon: "star", title: "Icons", text: "A new category gets one guessed from its name; tap it to pick another, or “Dot” for none." },
           { icon: "eye", title: "Always show", text: "Keeps a category's pins on the map when zoomed far out, on top of everything — handy for your hotel." },
         ]}
@@ -1661,7 +1649,7 @@ function Content() {
                 value={colorOf(name)}
                 onChange={(hex) => setColor(name, hex)}
                 reset={{
-                  label: imported(name) ? "Colour from My Maps" : "Default colour",
+                  label: "Default colour",
                   active: !colors[name],
                   onReset: () => setColor(name, undefined),
                 }}
@@ -1681,7 +1669,6 @@ function Content() {
           ))}
         </ul>
       </Section>
-      </>
     );
   };
 
@@ -1714,142 +1701,6 @@ function Content() {
       <ReviewLinksPanel />
       <div id="good-to-know" className="scroll-mt-[calc(var(--sat)+var(--nav-h)+0.5rem)]"><PlaceFactsPanel /></div>
     </div>
-  );
-}
-
-// hairline inset past a leading 22px tile (14px pad + tile + 12px gap), as TileRow draws it
-const TILE_DIVIDER =
-  "relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
-
-/** Which category each My Maps layer's pins go into — one row per layer
- *  from the last sync. A layer not set up yet says so; tapping a row picks
- *  an existing category or names a new one (Photos' "Add to Album" sheet). */
-function MapLayers({ names, colorOf, icons }: {
-  names: string[];
-  colorOf: (name: string) => string;
-  icons: Record<string, string>;
-}) {
-  const data = useData();
-  const setLayerCategory = useApp((s) => s.setLayerCategory);
-  const syncMyMap = useApp((s) => s.syncMyMap);
-  const [picking, setPicking] = useState<string | null>(null);
-  const [naming, setNaming] = useState<string | null>(null);
-  const anchorRef = useRef<HTMLButtonElement | null>(null);
-  const hiddenSheet = useActionSheet();
-  const layers = data?.config.mapLayers ?? [];
-  const hidden = data?.config.hiddenPins ?? [];
-  if (!data || layers.length === 0) return null;
-  const layerCats = data.config.layerCategories ?? {};
-  const choose = (layer: string, category: string) => {
-    setLayerCategory(layer, category);
-    // re-file pins the move above couldn't tell apart
-    const url = data.config.mapSourceUrl;
-    if (url) void syncMyMap(url).catch(() => undefined);
-  };
-  /** puts a hidden pin back as it was, and off the hidden list */
-  const showPin = (i: number) => {
-    const h = hidden[i];
-    if (!h) return;
-    const { mutateTrip, addEntity } = useApp.getState();
-    mutateTrip((d) => {
-      const left = (d.config.hiddenPins ?? []).filter((_, j) => j !== i);
-      d.config.hiddenPins = left.length ? left : undefined;
-    });
-    addEntity("places", { id: crypto.randomUUID(), name: h.name, lat: h.lat, lng: h.lng, category: h.category, color: h.color, source: "mymap" } as Place);
-  };
-  const tile = (name: string) => (
-    <IconTile size="sm" color={colorOf(name)} glyph={icons[name] || undefined} name={icons[name] ? undefined : "pin"} />
-  );
-  return (
-    <Section
-      title="My Maps layers"
-      info={[
-        { icon: "tag", title: "One category per layer", text: "A layer's pins always come in with its category's colour and icon." },
-        { icon: "alert", title: "Not set up", text: "A new layer shows this until you choose; its pins use the layer's own name meanwhile." },
-      ]}
-    >
-      <ul>
-        {layers.map((layer) => {
-          const cat = layerCats[layer];
-          return (
-            // the category's tile leads the row (Settings' icon column), so
-            // every tile lines up whatever the layer and category names are
-            <li key={layer} className={TILE_DIVIDER}>
-              <button
-                type="button"
-                onClick={(e) => {
-                  anchorRef.current = e.currentTarget;
-                  setPicking(layer);
-                }}
-                className="flex w-full items-center gap-3 px-3.5 py-3 text-left text-sm active:bg-ink/[0.07]"
-              >
-                {cat ? tile(cat) : <IconTile size="sm" ghost name="pin" />}
-                <span className="min-w-0 flex-1 break-words text-ink">{layer}</span>
-                <span className={`min-w-0 max-w-[45%] break-words text-right ${cat ? "text-ink-soft" : "text-gold"}`}>
-                  {cat ? categoryName(cat) : "Not set up"}
-                </span>
-                <Icon name="chevron" size={14} className="-mr-1 shrink-0 text-ink-faint" />
-              </button>
-            </li>
-          );
-        })}
-        {/* pins deleted in the app, which a sync would otherwise bring back */}
-        {hidden.length > 0 && (
-          <li className={TILE_DIVIDER}>
-            <button
-              ref={hiddenSheet.anchorRef}
-              type="button"
-              onClick={() => hiddenSheet.setOpen(true)}
-              className="flex w-full items-center gap-3 px-3.5 py-3 text-left text-sm active:bg-ink/[0.07]"
-            >
-              <IconTile size="sm" name="eye-off" tone="ink-faint" />
-              <span className="min-w-0 flex-1 break-words text-ink">Hidden pins</span>
-              <span className="shrink-0 tabular-nums text-ink-soft">{hidden.length}</span>
-              <Icon name="chevron" size={14} className="-mr-1 shrink-0 text-ink-faint" />
-            </button>
-          </li>
-        )}
-      </ul>
-      <ActionSheet open={hiddenSheet.open} onClose={() => hiddenSheet.setOpen(false)} anchorRef={hiddenSheet.anchorRef} title="Show Again on the Map">
-        {hidden.map((h, i) => (
-          <button key={`${h.name}-${i}`} type="button" className="menu-item" onClick={() => showPin(i)}>
-            {h.category ? tile(h.category) : <IconTile size="sm" ghost name="pin" />}
-            <span className="min-w-0 flex-1 break-words">{h.name}</span>
-          </button>
-        ))}
-      </ActionSheet>
-      <ActionSheet
-        open={picking !== null}
-        onClose={() => setPicking(null)}
-        anchorRef={anchorRef}
-        title={picking ? `“${picking}” goes into` : undefined}
-      >
-        <button type="button" className="menu-item text-accent" onClick={() => setNaming(picking)}>
-          <Icon name="plus" size={16} /> New Category…
-        </button>
-        {names.map((n) => (
-          <button key={n} type="button" className="menu-item" onClick={() => picking && choose(picking, n)}>
-            {tile(n)}
-            <span className="min-w-0 flex-1 break-words">{categoryName(n)}</span>
-            {picking && layerCats[picking] === n && <Icon name="check" size={14} className="text-accent" />}
-          </button>
-        ))}
-      </ActionSheet>
-      <TextPrompt
-        key={naming ?? ""}
-        open={naming !== null}
-        title="New Category"
-        message={naming ? `Pins in “${naming}” will go into it. Set its colour and icon under Category pins.` : undefined}
-        initial={naming ?? ""}
-        placeholder="Name"
-        action="Create"
-        onSubmit={(name) => {
-          if (naming && name.trim()) choose(naming, name.trim());
-          setNaming(null);
-        }}
-        onClose={() => setNaming(null)}
-      />
-    </Section>
   );
 }
 

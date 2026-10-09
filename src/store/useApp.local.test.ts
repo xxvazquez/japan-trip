@@ -1,12 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { STORAGE_KEYS } from "@/lib/app";
-import type { Day, Place, TripData } from "@/core/types";
-
-const myMap = vi.hoisted(() => ({ places: [] as { name: string; lat: number; lng: number; category?: string; color?: string }[] }));
-vi.mock("@/lib/mymaps", () => ({
-  myMapId: (url?: string) => url?.match(/[?&]mid=([^&#]+)/)?.[1],
-  fetchMyMap: async () => ({ mapName: "Test map", places: myMap.places }),
-}));
+import type { Place, TripData } from "@/core/types";
 
 /** every page booted so far — `resetModules` doesn't stop the old ones */
 const pages: { useApp: { setState: (s: { activeId: null; data: null }) => void } }[] = [];
@@ -335,136 +329,18 @@ describe("days shape the stays and the trip", () => {
   });
 });
 
-describe("My Maps sync", () => {
-  const URL = "https://www.google.com/maps/d/edit?mid=abc";
-  const pin = (name: string, color = "#0288d1") => ({ name, lat: 1, lng: 2, category: "Food", color });
-
-  it("adds new pins, refreshes a recoloured one, removes ones deleted on the map, and undo brings them back", async () => {
+describe("pins brought in from Google My Maps before the sync went away", () => {
+  it("keep their colour and note, take a new category, delete and undo like any place, and survive a reload", async () => {
     const a = await boot();
-    myMap.places = [pin("Cafe"), pin("Temple"), pin("Old pin")];
-    expect(await a.s().syncMyMap(URL)).toMatchObject({ count: 3, updated: 0, removed: 0 });
-    const cafe = a.s().data!.places.find((p) => p.name === "Cafe")!;
-    a.s().updateEntity<Place>("places", cafe.id, { note: "Try the soft serve" });
-
-    myMap.places = [pin("Cafe", "#795548"), pin("Temple")];
-    expect(await a.s().syncMyMap(URL)).toMatchObject({ count: 0, updated: 1, removed: 1 });
-    const names = () => a.s().data!.places.filter((p) => p.source === "mymap").map((p) => p.name).sort();
-    expect(names()).toEqual(["Cafe", "Temple"]);
-    const after = a.s().data!.places.find((p) => p.id === cafe.id)!;
-    expect(after.color).toBe("#795548");
-    expect(after.note).toBe("Try the soft serve");
-
+    // the shape an imported pin was saved in, old sync settings included
+    a.s().addEntity("places", { id: "old", name: "Cafe", lat: 1, lng: 2, category: "Coffee", color: "#795548", note: "Soft serve", source: "mymap" } as Place);
+    a.s().mutateTrip((d) => { Object.assign(d.config, { mapSourceUrl: "https://www.google.com/maps/d/edit?mid=abc", hiddenPins: [] }); });
+    a.s().updateEntity<Place>("places", "old", { category: "Food" });
+    a.s().undoable("Place deleted", () => a.s().removeEntity("places", "old"));
+    expect(a.s().data!.places.some((p) => p.id === "old")).toBe(false);
     a.s().undo();
-    expect(names()).toEqual(["Cafe", "Old pin", "Temple"]);
-  });
-
-  it("a pin deleted in the app stays away on the next sync; undo brings it back", async () => {
-    const a = await boot();
-    myMap.places = [pin("Cafe"), pin("Temple")];
-    await a.s().syncMyMap(URL);
-    const names = () => a.s().data!.places.filter((p) => p.source === "mymap").map((p) => p.name).sort();
-    const temple = a.s().data!.places.find((p) => p.name === "Temple")!;
-    a.s().undoable("Place deleted", () => a.deletePlace(temple.id));
-    expect(a.s().data!.config.hiddenPins).toMatchObject([{ name: "Temple" }]);
-
-    // and the sync says it's keeping one out, not just "up to date"
-    expect(await a.s().syncMyMap(URL)).toMatchObject({ count: 0, removed: 0, hidden: 1 });
-    expect(names()).toEqual(["Cafe"]);
-
-    // gone from the map too: it drops off the list, so adding it there again
-    // brings it back
-    myMap.places = [pin("Cafe")];
-    await a.s().syncMyMap(URL);
-    expect(a.s().data!.config.hiddenPins).toBeUndefined();
-    myMap.places = [pin("Cafe"), pin("Temple")];
-    await a.s().syncMyMap(URL);
-    expect(names()).toEqual(["Cafe", "Temple"]);
-  });
-
-  it("undoing a pin's delete takes it off the hidden list", async () => {
-    const a = await boot();
-    myMap.places = [pin("Cafe")];
-    await a.s().syncMyMap(URL);
-    const cafe = a.s().data!.places.find((p) => p.name === "Cafe")!;
-    a.s().undoable("Place deleted", () => a.deletePlace(cafe.id));
-    a.s().undo();
-    expect(a.s().data!.config.hiddenPins).toBeUndefined();
-    expect(a.s().data!.places.some((p) => p.id === cafe.id)).toBe(true);
-  });
-
-  it("a layer set up in Manage always comes in under its category; a new one is flagged", async () => {
-    const a = await boot();
-    const tea = (name: string) => ({ ...pin(name), category: "Coffee & tea" });
-    myMap.places = [tea("Kissa"), pin("Ramen")];
-    const first = await a.s().syncMyMap(URL);
-    expect(first.newLayers).toEqual(["Coffee & tea", "Food"]);
-    expect(a.s().data!.config.mapLayers).toEqual(["Coffee & tea", "Food"]);
-    const cat = (name: string) => a.s().data!.places.find((p) => p.name === name)!.category;
-    expect(cat("Kissa")).toBe("Coffee & tea");
-
-    // mapping moves the pins already here straight away
-    a.s().setLayerCategory("Coffee & tea", "coffee");
-    a.s().setLayerCategory("Food", "Food");
-    expect(cat("Kissa")).toBe("coffee");
-
-    myMap.places = [tea("Kissa"), tea("Matcha bar"), pin("Ramen"), { ...pin("Onsen"), category: "Baths" }];
-    const next = await a.s().syncMyMap(URL);
-    expect([cat("Kissa"), cat("Matcha bar"), cat("Ramen"), cat("Onsen")]).toEqual(["coffee", "coffee", "Food", "Baths"]);
-    expect(next.newLayers).toEqual(["Baths"]);
-  });
-
-  it("no guessing between look-alike names: an unmapped “food” stays its own layer", async () => {
-    const a = await boot();
-    myMap.places = [pin("Ramen")];
-    await a.s().syncMyMap(URL);
-    myMap.places = [pin("Ramen"), { ...pin("Udon"), category: "food" }];
-    await a.s().syncMyMap(URL);
-    expect(a.s().data!.places.find((p) => p.name === "Udon")!.category).toBe("food");
-  });
-
-  it("keeps one pin for a place saved twice on the map, but two for a chain's far-apart branches", async () => {
-    const a = await boot();
-    myMap.places = [pin("Hie Shrine"), { ...pin("Hie Shrine"), lat: 1.0004, category: "Sights" }, { ...pin("Ichiran"), lat: 1 }, { ...pin("Ichiran"), lat: 1.05 }];
-    await a.s().syncMyMap(URL);
-    const named = (n: string) => a.s().data!.places.filter((p) => p.name === n);
-    expect(named("Hie Shrine")).toHaveLength(1);
-    expect(named("Ichiran")).toHaveLength(2);
-  });
-
-  it("a pin added in the app for the same place becomes the map's pin, keeping its steps", async () => {
-    const a = await boot();
-    const day = a.s().data!.days[0];
-    a.s().addEntity("places", { id: "own", name: "Hie Shrine", lat: 1.0003, lng: 2, category: "My places" } as Place);
-    a.s().updateEntity<Day>("days", day.id, { plan: [{ id: "s1", text: "Hie Shrine", placeId: "own" }] });
-    myMap.places = [pin("Hie Shrine")];
-    await a.s().syncMyMap(URL);
-    const pins = a.s().data!.places.filter((p) => p.name === "Hie Shrine");
-    expect(pins).toHaveLength(1);
-    expect(pins[0]).toMatchObject({ id: "own", source: "mymap", category: "Food" });
-  });
-
-  it("an app pin beside the map's own pin for the same place folds into it", async () => {
-    const a = await boot();
-    myMap.places = [pin("Hie Shrine")];
-    await a.s().syncMyMap(URL);
-    const mapPin = a.s().data!.places.find((p) => p.name === "Hie Shrine")!;
-    const day = a.s().data!.days[0];
-    a.s().addEntity("places", { id: "own", name: "Hie Shrine", lat: 1.0002, lng: 2, note: "Go early" } as Place);
-    a.s().updateEntity<Day>("days", day.id, { plan: [{ id: "s1", text: "Hie Shrine", placeId: "own" }] });
-    await a.s().syncMyMap(URL);
-    expect(a.s().data!.places.filter((p) => p.name === "Hie Shrine").map((p) => p.id)).toEqual([mapPin.id]);
-    expect(a.s().data!.places.find((p) => p.id === mapPin.id)!.note).toBe("Go early");
-    expect(a.s().data!.days.find((d) => d.id === day.id)!.plan![0].placeId).toBe(mapPin.id);
-  });
-
-  it("never removes pins when syncing a different map or an empty export", async () => {
-    const a = await boot();
-    myMap.places = [pin("Cafe")];
-    await a.s().syncMyMap(URL);
-    myMap.places = [];
-    expect((await a.s().syncMyMap(URL)).removed).toBe(0);
-    myMap.places = [pin("Elsewhere")];
-    expect((await a.s().syncMyMap("https://www.google.com/maps/d/edit?mid=other")).removed).toBe(0);
-    expect(a.s().data!.places.some((p) => p.name === "Cafe")).toBe(true);
+    await a.settlePending();
+    const b = await boot();
+    expect(b.s().data!.places.find((p) => p.id === "old")).toMatchObject({ name: "Cafe", category: "Food", color: "#795548", note: "Soft serve" });
   });
 });

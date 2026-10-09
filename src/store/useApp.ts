@@ -15,7 +15,7 @@ import { takeSnapshot, ensureBackedUp, readSnapshot, purgeDeletedTripSnapshots, 
 import { quarantine } from "@/lib/safety/quarantine";
 import { onSavedElsewhere, isTabAlive, TAB_ID } from "@/lib/safety/crossTab";
 import { mergeJson } from "@/lib/safety/merge";
-import type { Day, Doc, EntityType, MediaItem, Place, TripData, TripSummary } from "@/core/types";
+import type { Day, Doc, EntityType, MediaItem, TripData, TripSummary } from "@/core/types";
 
 const now = () => new Date().toISOString();
 
@@ -151,9 +151,6 @@ interface AppStore {
    *  after it (`resizeLeg`). Backs the base page's Days stepper. */
   resizeBase: (legId: string, delta: number) => void;
 
-  syncMyMap: (url: string) => Promise<{ mapName: string; count: number; updated: number; removed: number; newLayers: string[]; hidden: number }>;
-  /** file My Maps layer `layer`'s pins under `category` from now on */
-  setLayerCategory: (layer: string, category: string) => void;
   setMedia: (slot: "logo", item: MediaItem | undefined) => void;
   addGalleryMedia: (item: MediaItem) => void;
   removeGalleryMedia: (id: string) => void;
@@ -1887,180 +1884,6 @@ export const useApp = create<AppStore>((set, get) => {
       if (meta) enqueue(get, { t: "fields", keys: ["meta", "config"] });
     },
 
-    /** Bring the trip in line with `url`'s My Map: add any pin that isn't
-     *  here yet, refresh the colour / position / layer of ones that are, and
-     *  remove imported pins that are gone from the map (one Undo brings them
-     *  back). Notes, links, city override and Area membership stay. Removal
-     *  only runs when re-syncing the same map, so pointing the trip at a
-     *  different map never wipes the old one's pins. */
-    syncMyMap: async (url) => {
-      /** how close two same-named pins must be to count as one place */
-      const SAME_PLACE_M = 150;
-      const { fetchMyMap, myMapId } = await import("@/lib/mymaps");
-      const { glyphForCategoryName } = await import("@/lib/mapGlyphs");
-      const rid = () => (crypto?.randomUUID ? crypto.randomUUID() : `p-${Math.random().toString(36).slice(2)}`);
-      const { mapName, places } = await fetchMyMap(url);
-      const prevUrl = get().data?.config.mapSourceUrl;
-      const sameMap = !!prevUrl && myMapId(prevUrl) === myMapId(url);
-      const added: string[] = [];
-      const changed: string[] = [];
-      const gone: string[] = [];
-      // pins added in the app that turned out to be the same place as a map
-      // pin — folded into it, and the days and areas that used them
-      const folded: string[] = [];
-      const touchedDays = new Set<string>();
-      const touchedAreas = new Set<string>();
-      let newLayers: string[] = [];
-      // pins on the map that stay out because they were removed in the app
-      let hiddenOnMap = 0;
-      if (!local((d) => {
-        // No stable id in the KML export, so pins are matched by name.
-        // Duplicate names pair up in order, so a second same-named pin still
-        // comes in as new. A matched pin takes the map's colour, position and
-        // layer (nothing in the app edits those on an imported pin) and keeps
-        // everything else.
-        const norm = (s: string) => s.normalize("NFKC").replace(/\s+/g, " ").trim().toLowerCase();
-        // each layer goes into the category it was set up with in Manage;
-        // one not set up yet keeps its own name until it is
-        const layerCats = d.config.layerCategories ?? {};
-        const catOf = (layer?: string) => (layer ? layerCats[layer] ?? layer : undefined);
-        const mine = new Map<string, Place[]>();
-        for (const p of d.places) {
-          if (p.source !== "mymap") continue;
-          const key = norm(p.name);
-          mine.set(key, [...(mine.get(key) ?? []), p]);
-        }
-        // the same place is one pin: same name, within a short walk. Two
-        // same-named pins further apart (a chain's branches) stay two.
-        const metres = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) => {
-          const x = (b.lng - a.lng) * Math.cos(((a.lat + b.lat) / 2) * (Math.PI / 180));
-          return Math.hypot(x, b.lat - a.lat) * 111320;
-        };
-        const samePlace = (a: { name: string; lat: number; lng: number }, b: { name: string; lat: number; lng: number }) =>
-          norm(a.name) === norm(b.name) && metres(a, b) < SAME_PLACE_M;
-        // a place saved twice on the map (in two layers, say) comes in once
-        const once = places.filter((p, i) => !places.slice(0, i).some((q) => samePlace(p, q)));
-        // pins deleted in the app stay away — the map itself can't be edited
-        // from here. One gone from the map too drops off the list, so adding
-        // it there again brings it back.
-        const hidden = d.config.hiddenPins ?? [];
-        const unique = once.filter((p) => !hidden.some((h) => samePlace(h, p)));
-        hiddenOnMap = once.length - unique.length;
-        if (sameMap && places.length > 0 && hidden.length) {
-          const still = hidden.filter((h) => once.some((p) => samePlace(h, p)));
-          if (still.length !== hidden.length) d.config.hiddenPins = still.length ? still : undefined;
-        }
-        const next: Place[] = [];
-        for (const raw of unique) {
-          const p = { ...raw, category: catOf(raw.category) };
-          const match = mine.get(norm(p.name))?.shift();
-          if (match) {
-            if (match.color !== p.color || match.lat !== p.lat || match.lng !== p.lng || match.category !== p.category) {
-              match.color = p.color;
-              match.lat = p.lat;
-              match.lng = p.lng;
-              match.category = p.category;
-              changed.push(match.id);
-            }
-            continue;
-          }
-          // a pin added in the app for the same place becomes the map's pin,
-          // keeping its id — and so its plan steps, areas, note and links
-          const own = d.places.find((x) => x.source !== "mymap" && samePlace(x, p));
-          if (own) {
-            Object.assign(own, { source: "mymap", color: p.color, lat: p.lat, lng: p.lng, category: p.category });
-            changed.push(own.id);
-            continue;
-          }
-          const id = rid();
-          added.push(id);
-          next.push({ id, name: p.name, lat: p.lat, lng: p.lng, category: p.category, color: p.color, source: "mymap" });
-        }
-        // whatever's left unmatched was deleted on the map. An empty export
-        // is never taken as "delete everything".
-        if (sameMap && places.length > 0) {
-          for (const left of mine.values()) for (const p of left) gone.push(p.id);
-        }
-        d.places = [...d.places, ...next];
-        // an app pin already sitting beside the map's own pin for the same
-        // place folds into it: its steps and areas point at the map pin, and
-        // its note and links carry over where the map pin has none
-        for (const x of d.places.filter((p) => p.source !== "mymap")) {
-          const twin = d.places.find((m) => m.source === "mymap" && !gone.includes(m.id) && samePlace(m, x));
-          if (!twin) continue;
-          for (const day of d.days) {
-            if (!day.plan?.some((it) => it.placeId === x.id)) continue;
-            day.plan = day.plan.map((it) => (it.placeId === x.id ? { ...it, placeId: twin.id } : it));
-            touchedDays.add(day.id);
-          }
-          for (const area of d.areas) {
-            if (!area.placeIds.includes(x.id)) continue;
-            area.placeIds = [...new Set(area.placeIds.map((id) => (id === x.id ? twin.id : id)))];
-            touchedAreas.add(area.id);
-          }
-          twin.note ??= x.note;
-          twin.reviewUrl ??= x.reviewUrl;
-          twin.facts ??= x.facts;
-          twin.overwhelming ??= x.overwhelming;
-          if (!changed.includes(twin.id)) changed.push(twin.id);
-          folded.push(x.id);
-        }
-        d.places = d.places.filter((p) => !folded.includes(p.id));
-        // a layer with no icon yet gets one guessed from its name, so a
-        // "Coffee" layer shows a cup without anyone picking it. Only unset
-        // categories — one cleared to a plain dot in Manage is stored as "".
-        const icons = { ...(d.config.categoryIcons ?? {}) };
-        let guessed = false;
-        for (const raw of places) {
-          const category = catOf(raw.category);
-          if (!category || icons[category] !== undefined) continue;
-          const glyph = glyphForCategoryName(category);
-          if (glyph) {
-            icons[category] = glyph;
-            guessed = true;
-          }
-        }
-        if (guessed) d.config.categoryIcons = icons;
-        const layers = [...new Set(places.map((p) => p.category).filter((c): c is string => !!c))];
-        newLayers = layers.filter((l) => !(l in layerCats));
-        d.config.mapLayers = layers.length ? layers : undefined;
-        d.config.mapSourceUrl = url;
-        d.config.mapSyncedAt = now();
-      })) return { mapName, count: 0, updated: 0, removed: 0, newLayers: [], hidden: 0 };
-      for (const id of [...added, ...changed]) enqueue(get, { t: "row", type: "places", id });
-      for (const id of touchedDays) enqueue(get, { t: "row", type: "days", id });
-      for (const id of touchedAreas) enqueue(get, { t: "areaPlaces", areaId: id });
-      for (const id of folded) enqueue(get, { t: "del", type: "places", id });
-      enqueue(get, { t: "fields", keys: ["config"] });
-      if (gone.length) {
-        get().undoable(`${gone.length} pin${gone.length === 1 ? "" : "s"} removed`, () => {
-          for (const id of gone) get().removeEntity("places", id);
-        });
-      }
-      return { mapName, count: added.length, updated: changed.length, removed: gone.length, newLayers, hidden: hiddenOnMap };
-    },
-    setLayerCategory: (layer, category) => {
-      const name = category.trim();
-      const d = get().data;
-      if (!layer || !name || !d) return;
-      const layerCats = d.config.layerCategories ?? {};
-      const was = layerCats[layer] ?? layer;
-      // the layer's pins move over now when they can be told apart: nothing
-      // else files into the category they're in. Otherwise the re-sync that
-      // follows a change sorts them.
-      // A layer not set up yet files under its own name, so it counts too.
-      const shared = Object.entries(layerCats).some(([l, c]) => l !== layer && c === was) ||
-        (d.config.mapLayers ?? []).some((l) => l !== layer && !(l in layerCats) && l === was) ||
-        d.places.some((p) => p.category === was && p.source !== "mymap");
-      if (!shared && was !== name) {
-        for (const p of d.places) {
-          if (p.source === "mymap" && p.category === was) get().updateEntity<Place>("places", p.id, { category: name });
-        }
-      }
-      get().mutateTrip((t) => {
-        t.config.layerCategories = { ...(t.config.layerCategories ?? {}), [layer]: name };
-      });
-    },
     setMedia: (slot, item) => {
       if (local((d) => { d.media[slot] = item; })) enqueue(get, { t: "fields", keys: ["media"] });
     },
@@ -2081,15 +1904,3 @@ export const initApp = () => useApp.getState().init();
 /** `undoable` for call sites outside a component — a ConfirmButton's onConfirm,
  *  a menu item — where there's no hook to hang the store selector on. */
 export const undoable = (label: string, fn: () => void) => useApp.getState().undoable(label, fn);
-
-/** deletes a place the person chose to delete. A My Maps pin is still on
- *  the map, which can't be edited from here, so it goes on the trip's hidden
- *  list too and the next sync leaves it out (Undo takes it back off). */
-export function deletePlace(id: string) {
-  const { data, mutateTrip, removeEntity } = useApp.getState();
-  const p = data?.places.find((x) => x.id === id);
-  if (p?.source === "mymap") mutateTrip((d) => {
-    d.config.hiddenPins = [...(d.config.hiddenPins ?? []), { name: p.name, lat: p.lat, lng: p.lng, category: p.category, color: p.color }];
-  });
-  removeEntity("places", id);
-}

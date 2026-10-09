@@ -394,16 +394,6 @@ export const HELP: HelpTopic[] = [
           },
         ],
       },
-      {
-        id: "sync",
-        q: "I deleted a pin. Will Sync bring it back?",
-        a: "No. A pin deleted in the app stays off the map even though it's still on the Google My Map. To show it again:",
-        blocks: [
-          {
-            steps: ["Go to **Manage → Content → My Maps layers**.", "Tap **Hidden pins**, then the pin."],
-          },
-        ],
-      },
     ],
   },
   {

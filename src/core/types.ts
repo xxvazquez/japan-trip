@@ -89,15 +89,9 @@ export interface TripConfig {
   /** map a place `category` to a marker glyph id (see `MAP_GLYPHS`). Categories
    *  not listed here draw the plain coloured dot. */
   categoryIcons?: Record<string, string>;
-  /** a place `category` → pin colour (hex), set in Manage. Overrides the
-   *  colour a pin came in with from My Maps; unlisted categories keep it. */
+  /** a place `category` → pin colour (hex), set in Manage. Overrides a
+   *  pin's own colour; unlisted categories keep it. */
   categoryColors?: Record<string, string>;
-  /** a My Maps layer → the category its pins are filed under, set per layer
-   *  in Manage. A layer with no entry here hasn't been set up yet; its pins
-   *  come in under the layer's own name. */
-  layerCategories?: Record<string, string>;
-  /** the layers the linked My Map had at its last sync, in map order */
-  mapLayers?: string[];
   /** place categories whose pins stay on the map when zoomed far out — drawn
    *  on top and never folded into a numbered cluster (e.g. the hotel) */
   pinnedCategories?: string[];
@@ -115,14 +109,6 @@ export interface TripConfig {
   /** packing categories in the order they're listed. A category not in it
    *  (older trips, a copied list) follows, in order of its first item */
   packingOrder?: string[];
-  /** a public Google "My Maps" link — its pins are imported into `places` */
-  mapSourceUrl?: string;
-  /** ISO timestamp of the last My Maps import */
-  mapSyncedAt?: string;
-  /** My Maps pins deleted in the app. A My Map can't be edited from here,
-   *  so the sync skips these rather than bringing them back; enough of the
-   *  pin is kept to restore it from Manage. */
-  hiddenPins?: HiddenPin[];
   /** the built-in read-only tour trip — every screen locks editing */
   demo?: boolean;
   /** optional Logbook sections turned off for this trip
@@ -302,28 +288,17 @@ export interface Area {
   placeIds: ID[];
 }
 
-/** a My Maps pin deleted in the app — matched on the next sync the same
- *  way pins are (name, within a short walk) */
-export interface HiddenPin {
-  name: string;
-  lat: number;
-  lng: number;
-  category?: string;
-  color?: string;
-}
-
-/** A pin on the trip map. Either imported from a Google My Map
- *  (`source: "mymap"`) or added in the app (`source` unset). */
+/** A pin on the trip map. */
 export interface Place {
   id: ID;
   name: string;
   lat: number;
   lng: number;
-  /** the My Maps layer name, or a user-chosen group — free text */
+  /** a user-chosen group — free text */
   category?: string;
   /** hex like "#795548" */
   color?: string;
-  /** app-native note, kept across syncs */
+  /** free-text note */
   note?: string;
   /** pasted Google Maps link */
   url?: string;
@@ -334,8 +309,6 @@ export interface Place {
    *  looked up by the app (see `placeFacts.ts`); one with only `checkedAt`
    *  means nothing was found */
   facts?: PlaceFacts;
-  /** "mymap" for imported pins; unset for app-native ones */
-  source?: "mymap";
   /** manual override of the computed "home city" (leg) — set when the
    *  nearest-stay guess is wrong, or there's no stay anchor yet to guess
    *  from. Unset means "auto". */

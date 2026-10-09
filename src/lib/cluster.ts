@@ -73,7 +73,7 @@ const counts = (g: Group) => !!g.areaId || g.idx.length >= 2;
  *
  * The group-to-group distance matrix is updated incrementally on each merge
  * (`max(dist(A,k), dist(B,k))` — complete link's standard Lance-Williams
- * update) rather than rescanned, since a bulk My Maps import can hand this a
+ * update) rather than rescanned, since a trip with a lot of places can hand this a
  * few hundred points at once.
  */
 function clusterByDay(pts: Pt[], seeds: Group[], days: number): Group[] {

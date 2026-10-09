@@ -42,7 +42,6 @@ export function buildDemo(): TripData {
         { id: "map", kind: "map", label: "Map", icon: "map", enabled: true },
         { id: "logbook", kind: "logbook", label: "Logbook", icon: "vault", enabled: true },
       ],
-      mapSourceUrl: "",
       categoryIcons: { coffee: "coffee", food: "food", see: "sight" },
       expenseCategories: DEFAULT_EXPENSE_CATEGORIES.map((c) => ({ ...c })),
       demo: true,

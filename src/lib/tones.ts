@@ -171,7 +171,7 @@ export function toneForPlaceCategory(
 export const DEFAULT_PIN_COLORS = new Set([DEFAULT_ACCENT, "#5f7f9c"]);
 
 /** A pin's colour: its category's colour from Manage when one is set, else
- *  the colour it came with (My Maps), else undefined. */
+ *  its own colour, else undefined. */
 export function placeColor(place: Place, categoryColors?: Record<string, string>): string | undefined {
   return (place.category && categoryColors?.[place.category]) || place.color || undefined;
 }
