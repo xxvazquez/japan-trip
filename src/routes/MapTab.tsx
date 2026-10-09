@@ -20,7 +20,8 @@ import { Switch } from "@/components/Switch";
 import { CheckCircle } from "@/components/CheckCircle";
 import { useApp, undoable } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
-import { mapUrlCoords, placeMapLink, sharePlace, webSearchHref } from "@/lib/maps";
+import { isMapsShortLink, mapUrlCoords, mapsLinkPlace, placeMapLink, sharePlace, webSearchHref } from "@/lib/maps";
+import { apiGet } from "@/lib/api";
 import { searchPlaces, reverseGeocode, type GeoResult } from "@/lib/geocode";
 import { haversineKm, fmtDistanceKm, fmtWalk, useGeolocation } from "@/lib/geo";
 import { fmtMinutes } from "@/lib/time";
@@ -519,8 +520,11 @@ function useMapEditing(
   const [q, setQ] = useState("");
   const [results, setResults] = useState<GeoResult[]>([]);
   /** what the search box has to say while there's no list to show */
-  const [searchState, setSearchState] = useState<"idle" | "searching" | "empty" | "failed">("idle");
-  const [pending, setPending] = useState<{ lat: number; lng: number; name: string } | null>(null);
+  const [searchState, setSearchState] = useState<"idle" | "searching" | "empty" | "failed" | "badLink" | "noPosition">("idle");
+  const [pending, setPending] = useState<{ lat: number; lng: number; name: string; url?: string } | null>(null);
+  /** a pasted Google Maps link that names a place but not where — the map
+   *  tap that places it keeps the name and the link */
+  const [linkOnly, setLinkOnly] = useState<{ name: string; url: string } | null>(null);
 
   /** review state for "Suggest areas" — null when not suggesting */
   const [review, setReview] = useState<ReviewGroup[] | null>(null);
@@ -543,8 +547,37 @@ function useMapEditing(
     }
     let stale = false;
     setSearchState("searching");
+    setLinkOnly(null);
     const t = setTimeout(async () => {
       const c = mapRef.current?.getCenter();
+      // a pasted Google Maps link: the place it points at, even one
+      // OpenStreetMap doesn't have
+      const link = q.trim();
+      if (isMapsShortLink(link) || mapsLinkPlace(link)) {
+        let read = mapsLinkPlace(link);
+        if (!read) {
+          try {
+            const res = await apiGet(`/api/maps-link?url=${encodeURIComponent(link)}`);
+            const { url } = (await res.json()) as { url?: string };
+            read = url ? mapsLinkPlace(url) : null;
+          } catch {
+            if (stale) return;
+            setResults([]);
+            setSearchState("failed");
+            return;
+          }
+        }
+        if (stale) return;
+        if (read?.at) {
+          setResults([{ name: read.name || "New place", detail: "From Google Maps", lat: read.at[0], lng: read.at[1], url: link }]);
+          setSearchState("idle");
+        } else {
+          setResults([]);
+          setSearchState(read?.name ? "noPosition" : "badLink");
+          if (read?.name) setLinkOnly({ name: read.name, url: link });
+        }
+        return;
+      }
       try {
         const found = await searchPlaces(q, c ? { lat: c.lat, lng: c.lng } : undefined);
         if (stale) return;
@@ -575,10 +608,11 @@ function useMapEditing(
     setResults([]);
     setSearchState("idle");
     setPending(null);
+    setLinkOnly(null);
   };
-  const commitPlace = (name: string, lat: number, lng: number) => {
+  const commitPlace = (name: string, lat: number, lng: number, url?: string) => {
     const id = rid();
-    addEntity("places", { id, name: name || "New place", lat, lng, category: "My places", color: FALLBACK } as Place);
+    addEntity("places", { id, name: name || "New place", lat, lng, category: "My places", color: FALLBACK, ...(url ? { url } : {}) } as Place);
     cancelAdd();
     onSelect(id);
     mapRef.current?.easeTo({ center: [lng, lat], zoom: Math.max(mapRef.current.getZoom(), 14) });
@@ -587,7 +621,7 @@ function useMapEditing(
   const onMapClick = (lat: number, lng: number) => {
     if (adding) {
       primeKeyboard(); // the map tap raises the naming alert's keyboard on iPhone
-      setPending({ lat, lng, name: "" });
+      setPending({ lat, lng, name: linkOnly?.name ?? "", url: linkOnly?.url });
     } else onSelect(null);
   };
   const onLongPress = (lat: number, lng: number) => {
@@ -668,7 +702,7 @@ function useMapEditing(
 
   return {
     suggestions,
-    adding, q, setQ, results, searchState, pending, setPending,
+    adding, q, setQ, results, searchState, linkOnly, pending, setPending,
     startAdd, cancelAdd, commitPlace, onMapClick, onLongPress,
     review, setReview, naming,
     namingArea, setNamingArea, editingAreas, setEditingAreas,
@@ -815,7 +849,7 @@ export default function MapTab() {
 
   const {
     suggestions,
-    adding, q, setQ, results, searchState, pending, setPending,
+    adding, q, setQ, results, searchState, linkOnly, pending, setPending,
     startAdd, cancelAdd, commitPlace, onMapClick, onLongPress,
     review, setReview, naming,
     namingArea, setNamingArea, editingAreas, setEditingAreas,
@@ -1717,7 +1751,9 @@ export default function MapTab() {
             message={pending ? `Pin at ${pending.lat.toFixed(4)}, ${pending.lng.toFixed(4)}` : undefined}
             placeholder="Name"
             action="Save"
-            onSubmit={(name) => pending && commitPlace(name, pending.lat, pending.lng)}
+            initial={pending?.name}
+            requireChange={false}
+            onSubmit={(name) => pending && commitPlace(name, pending.lat, pending.lng, pending.url)}
             onClose={() => setPending(null)}
           />}
           <div>
@@ -1727,6 +1763,8 @@ export default function MapTab() {
                 {searchState === "searching" && "Searching…"}
                 {searchState === "empty" && `No results for \u201c${q.trim()}\u201d. Check the spelling, or tap the map to drop a pin.`}
                 {searchState === "failed" && "Couldn\u2019t search right now. Check your connection, or tap the map to drop a pin."}
+                {searchState === "badLink" && "That link doesn\u2019t point at a place. In Google Maps, open the place and tap Share."}
+                {searchState === "noPosition" && linkOnly && `That link doesn\u2019t say where ${linkOnly.name} is. Tap the map to put it there.`}
               </p>
             )}
             {results.length > 0 && (
@@ -1734,7 +1772,7 @@ export default function MapTab() {
                 {results.map((r, i) => (
                   <li key={i} className={INSET_DIVIDER}>
                     <button
-                      onClick={() => commitPlace(r.name, r.lat, r.lng)}
+                      onClick={() => commitPlace(r.name, r.lat, r.lng, r.url)}
                       className="block w-full px-3.5 py-2 text-left active:bg-ink/[0.07]"
                     >
                       <span className="block text-sm">{r.name}</span>

@@ -11,6 +11,8 @@ export interface GeoResult {
   detail: string;
   lat: number;
   lng: number;
+  /** the Google Maps link it was read from, kept as the place's own link */
+  url?: string;
 }
 
 /** A background lookup (a hotel's or a city's position) — throws when
@@ -22,8 +24,9 @@ export async function geocode(query: string, near?: { lat: number; lng: number }
   return nominatimSearch(q, near);
 }
 
-async function nominatimSearch(q: string, near?: { lat: number; lng: number }, high = false, bounded = false): Promise<GeoResult[]> {
+async function nominatimSearch(q: string, near?: { lat: number; lng: number }, high = false, bounded = false, country?: string | null): Promise<GeoResult[]> {
   const p = new URLSearchParams({ q, format: "jsonv2", limit: "6", addressdetails: "0" });
+  if (country) p.set("countrycodes", country);
   if (near) {
     const d = 0.5;
     p.set("viewbox", `${near.lng - d},${near.lat + d},${near.lng + d},${near.lat - d}`);
@@ -60,36 +63,61 @@ export async function searchPlaces(query: string, near?: { lat: number; lng: num
     const close = rows.filter((r) => km(r) <= NEAR_KM);
     return (close.length ? close : rows).sort((a, b) => km(a) - km(b));
   };
+  // never wider than the country being looked at — a search in Japan
+  // shouldn't offer Brisbane
+  const country = near ? countryAt(near) : Promise.resolve(null);
   let failed = false;
   try {
-    // in the area first, then anywhere
+    // in the area first, then the rest of the country
     let found = near ? await nominatimSearch(q, near, true, true) : [];
-    if (!found.length) found = await nominatimSearch(q, near, true);
+    if (!found.length) found = await nominatimSearch(q, near, true, false, await country);
     if (found.length) return nearest(found);
   } catch {
     failed = true;
   }
   try {
-    return nearest(await photonSearch(q, near));
+    return nearest(await photonSearch(q, near, await country));
   } catch (e) {
     if (failed) throw e;
     return [];
   }
 }
 
-async function photonSearch(q: string, near?: { lat: number; lng: number }): Promise<GeoResult[]> {
+const countries = new Map<string, Promise<string | null>>();
+
+/** The country code at a point (`jp`), asked of Photon once per ~10 km
+ *  square. Null when it can't tell — out at sea, or offline — and then the
+ *  search isn't narrowed. */
+function countryAt(at: { lat: number; lng: number }): Promise<string | null> {
+  const key = `${at.lat.toFixed(1)},${at.lng.toFixed(1)}`;
+  let found = countries.get(key);
+  if (!found) {
+    const p = new URLSearchParams({ lat: String(at.lat), lon: String(at.lng), limit: "1" });
+    found = fetch(`https://photon.komoot.io/reverse?${p}`, { signal: AbortSignal.timeout(5_000) })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j: { features?: { properties?: { countrycode?: string } }[] } | null) => j?.features?.[0]?.properties?.countrycode?.toLowerCase() ?? null)
+      .catch(() => null);
+    countries.set(key, found);
+    // a miss is worth asking again next time
+    void found.then((c) => c || countries.delete(key));
+  }
+  return found;
+}
+
+async function photonSearch(q: string, near?: { lat: number; lng: number }, country?: string | null): Promise<GeoResult[]> {
   // OSM names a station "Shinjuku", not "Shinjuku Station" — for a station
   // search, look up the bare name among stations first
   const bare = q.replace(/\s*(station|stn\.?|駅)$/i, "").trim();
   if (bare.length >= 3 && bare !== q) {
-    const stations = await photonQuery(bare, near, "railway:station");
+    const stations = await photonQuery(bare, near, country, "railway:station");
     if (stations.length) return stations;
   }
-  return photonQuery(q, near);
+  return photonQuery(q, near, country);
 }
 
-async function photonQuery(q: string, near?: { lat: number; lng: number }, osmTag?: string): Promise<GeoResult[]> {
-  const p = new URLSearchParams({ q, limit: "10", lang: "en" });
+async function photonQuery(q: string, near?: { lat: number; lng: number }, country?: string | null, osmTag?: string): Promise<GeoResult[]> {
+  // Photon can't be told a country, so ask for more and keep the ones in it
+  const p = new URLSearchParams({ q, limit: country ? "30" : "10", lang: "en" });
   if (osmTag) p.set("osm_tag", osmTag);
   if (near) {
     p.set("lat", String(near.lat));
@@ -105,7 +133,7 @@ async function photonQuery(q: string, near?: { lat: number; lng: number }, osmTa
   for (const f of features) {
     const pr = f.properties;
     const name = pr.name || pr.street;
-    if (!name) continue;
+    if (!name || (country && pr.countrycode?.toLowerCase() !== country)) continue;
     const detail = [pr.street !== name ? pr.street : undefined, pr.district, pr.city, pr.country]
       .filter((s, i, a) => s && a.indexOf(s) === i)
       .join(", ");

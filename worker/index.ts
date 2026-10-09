@@ -1,5 +1,6 @@
 import { signedIn, unauthorized } from "./auth";
 import { handleGoogleToken } from "./google";
+import { handleMapsLink } from "./mapsLink";
 import { handlePlaceFacts } from "./placeFacts";
 import { handleTabelog } from "./tabelog";
 
@@ -18,7 +19,7 @@ interface Env {
   GOOGLE_CLIENT_SECRET?: string;
 }
 
-const routes = { "/api/tabelog": handleTabelog, "/api/place-facts": handlePlaceFacts };
+const routes = { "/api/tabelog": handleTabelog, "/api/place-facts": handlePlaceFacts, "/api/maps-link": handleMapsLink };
 
 /** The app is static files; this script only answers `/api/*` (see
  *  `run_worker_first` in wrangler.jsonc) — everything else never reaches it. */

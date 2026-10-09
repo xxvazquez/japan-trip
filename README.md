@@ -391,7 +391,8 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 
 ### Places
 
-- **＋ Add place** — search for somewhere, or tap the map to drop a pin. The search looks within ~50 km of the map's centre first, nearest result at the top; only when nothing is there does it look further.
+- **＋ Add place** — search for somewhere, or tap the map to drop a pin. The search looks within ~50 km of the map's centre first, nearest result at the top; only when nothing is there does it look further, and never outside the country the map is on.
+- **Not on OpenStreetMap?** Paste the place's Google Maps link (Share → Copy link) into the search — it adds the place with its name, position and link.
 - **Tap any place on the map** — a shop, temple, station, lake, neighbourhood or a park's green — for a card with **Add** (saves it to My places) and **Google Maps**. A place already on the trip opens its own card instead.
 - **The list** — once a city is picked, places are grouped by area (plus *No area*). On **All** it nests **city → area → place**.
 - **Search** — the field at the top of the list finds areas by name and places by name, category or note, across the whole trip. The map shows only what it finds; on a phone the sheet pulls up while you type.
@@ -837,7 +838,7 @@ Google sign-in has no allowlist of its own. Strangers would only ever see their 
 
 Hosted on **Cloudflare Workers** (static assets), deployed through the Git integration on every push to `main`.
 
-- A small Worker script ([`worker/index.ts`](worker/index.ts)) answers `/api/*` only — today `/api/tabelog` and `/api/place-facts`, the place lookups, and `/api/google-token` for Drive. Everything else is served as static files without touching it (`run_worker_first` in [`wrangler.jsonc`](wrangler.jsonc)).
+- A small Worker script ([`worker/index.ts`](worker/index.ts)) answers `/api/*` only — today `/api/tabelog` and `/api/place-facts`, the place lookups, `/api/maps-link`, which follows a Google Maps share link to the place, and `/api/google-token` for Drive. Everything else is served as static files without touching it (`run_worker_first` in [`wrangler.jsonc`](wrangler.jsonc)).
 - In `npm run dev` / `preview` the same handler runs as Vite middleware, so the lookup works locally too.
 - The lookup searches with [Tavily](https://app.tavily.com) (Tabelog blocks requests from Cloudflare's servers, so it can't be read directly). Its key goes in **Worker → Settings → Variables and Secrets → Add → Secret**, named `TAVILY_API_KEY`. Takes effect without a rebuild.
 - When Tavily can't answer (its free month is used up), the same search goes to [Exa](https://dashboard.exa.ai) instead ([`worker/search.ts`](worker/search.ts)). Its key is a second secret, `EXA_API_KEY`. When Exa's month is used up too, it goes to [Linkup](https://app.linkup.so), a third secret `LINKUP_API_KEY`. With none left, lookups stop until a month resets, and the app says so.
@@ -932,7 +933,7 @@ src/
   guides/               country guides (Japan) — reference content, not trip data
   templates/            blank + demo seed trips
   styles/index.css      colour tokens and type scale
-worker/                 the Worker script — /api/* only (Tabelog link, Good to know)
+worker/                 the Worker script — /api/* only (Tabelog link, Good to know, Maps links)
 supabase/migrations/    database schema, applied in order
 supabase/dump_trip.sql  read-only trip export for diffing
 scripts/make_icons.py   regenerates app icons from the logo files

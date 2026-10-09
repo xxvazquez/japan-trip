@@ -5,6 +5,7 @@ import { fileURLToPath, URL } from "node:url";
 import { execSync } from "node:child_process";
 import { readFileSync, readdirSync } from "node:fs";
 import { handleTabelog } from "./worker/tabelog";
+import { handleMapsLink } from "./worker/mapsLink";
 import { handlePlaceFacts } from "./worker/placeFacts";
 import { handleGoogleToken } from "./worker/google";
 import { signedIn, unauthorized, type AuthConfig } from "./worker/auth";
@@ -95,7 +96,7 @@ function workerApi(searchKeys: SearchKeys, auth: AuthConfig | null, googleSecret
     const handle =
       url.pathname === "/api/google-token"
         ? () => readBody(req).then((body) => handleGoogleToken(req.method ?? "GET", body, googleSecret))
-        : { "/api/tabelog": handleTabelog, "/api/place-facts": handlePlaceFacts }[url.pathname];
+        : { "/api/tabelog": handleTabelog, "/api/place-facts": handlePlaceFacts, "/api/maps-link": handleMapsLink }[url.pathname];
     if (!handle) return next();
     const allowed = auth ? signedIn({ headers: new Headers({ Authorization: req.headers.authorization ?? "" }) }, auth) : Promise.resolve(true);
     allowed.then((ok) => (ok ? handle(url, searchKeys) : unauthorized())).then(async (r) => {

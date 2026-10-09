@@ -38,8 +38,9 @@ export function gmapsRoute(origin: string | undefined, destination: string, mode
 export function mapUrlCoords(url?: string): [number, number] | null {
   if (!url) return null;
   const pat = [
-    /@(-?\d{1,3}\.\d+),(-?\d{1,3}\.\d+)/,
+    // the place's own position before `@`, which is only where the map was
     /!3d(-?\d{1,3}\.\d+)!4d(-?\d{1,3}\.\d+)/,
+    /@(-?\d{1,3}\.\d+),(-?\d{1,3}\.\d+)/,
     /[?&](?:q|query|ll|destination|center)=(-?\d{1,3}\.\d+),\s*(-?\d{1,3}\.\d+)/,
   ];
   for (const re of pat) {
@@ -51,6 +52,38 @@ export function mapUrlCoords(url?: string): [number, number] | null {
     }
   }
   return null;
+}
+
+/** A Google Maps short link (the Share button's `maps.app.goo.gl/…`) —
+ *  it carries no place until it's followed (`/api/maps-link`). */
+export function isMapsShortLink(text: string): boolean {
+  return /^https?:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps)\//i.test(text.trim());
+}
+
+/** A pasted Google Maps place link read into a name and position — for a
+ *  place OpenStreetMap doesn't have. Null when the text isn't such a link;
+ *  `at` is null when the link names a place but carries no coordinates. */
+export function mapsLinkPlace(text: string): { name: string; at: [number, number] | null } | null {
+  const s = text.trim();
+  let url: URL;
+  try {
+    url = new URL(s);
+  } catch {
+    return null;
+  }
+  if (!/(^|\.)google\.[a-z.]+$/i.test(url.hostname) || !/^\/maps/.test(url.pathname)) return null;
+  const decode = (v: string) => {
+    try {
+      return decodeURIComponent(v.replace(/\+/g, " ")).trim();
+    } catch {
+      return v.trim();
+    }
+  };
+  const fromPath = url.pathname.match(/\/maps\/place\/([^/]+)/)?.[1];
+  const fromQuery = url.searchParams.get("q") ?? url.searchParams.get("query") ?? "";
+  // a `q=` that's itself a coordinate pair isn't a name
+  const name = fromPath ? decode(fromPath) : /^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/.test(fromQuery) ? "" : fromQuery.trim();
+  return { name, at: mapUrlCoords(s) };
 }
 
 /** Send a place to someone (or yourself): the Share sheet where the browser

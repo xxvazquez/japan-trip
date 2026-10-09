@@ -18,6 +18,7 @@ export function TextPrompt({
   title,
   message,
   initial = "",
+  requireChange = true,
   placeholder,
   type = "text",
   action,
@@ -28,6 +29,9 @@ export function TextPrompt({
   title: string;
   message?: string;
   initial?: string;
+  /** false when `initial` is a suggestion that can be kept as it is, not a
+   *  name being renamed */
+  requireChange?: boolean;
   placeholder?: string;
   /** "email" brings up the email keyboard, with no auto-capitalising */
   type?: "text" | "email";
@@ -51,7 +55,7 @@ export function TextPrompt({
 
   if (!open) return null;
   const value = text.trim();
-  const canSubmit = value !== "" && value !== initial.trim();
+  const canSubmit = value !== "" && (!requireChange || value !== initial.trim());
   const submit = () => {
     if (!canSubmit) return;
     onSubmit(value);
