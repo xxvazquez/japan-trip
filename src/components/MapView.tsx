@@ -187,6 +187,7 @@ export function MapView({
   onMapClick,
   onLongPress,
   onPoiClick,
+  onContextMenu,
   onReady,
   coverBottom,
 }: {
@@ -213,6 +214,9 @@ export function MapView({
   /** a click on one of the base map's own places (a park, a station, a
    *  shop) — `x`/`y` is the click in the viewport, for a card beside it */
   onPoiClick?: (poi: BasePoi) => void;
+  /** a right-click with a mouse (a touch hold is `onLongPress`) — `x`/`y`
+   *  is the click in the viewport, for a menu beside it */
+  onContextMenu?: (at: { lat: number; lng: number; x: number; y: number }) => void;
   onReady?: (map: MLMap) => void;
   /** how much of the map's foot a sheet covers (px), so a picked place is
    *  centred in what's left showing */
@@ -228,8 +232,8 @@ export function MapView({
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
   const [retryKey, setRetryKey] = useState(0);
   const [online, setOnline] = useState(() => (typeof navigator === "undefined" ? true : navigator.onLine));
-  const state = useRef({ places, selectedId, derivedIds, areaShapes, transit, basePois, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onPoiClick, onReady, coverBottom });
-  state.current = { places, selectedId, derivedIds, areaShapes, transit, basePois, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onPoiClick, onReady, coverBottom };
+  const state = useRef({ places, selectedId, derivedIds, areaShapes, transit, basePois, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onPoiClick, onContextMenu, onReady, coverBottom });
+  state.current = { places, selectedId, derivedIds, areaShapes, transit, basePois, categoryIcons, categoryColors, pinnedCategories, dark, onSelect, onMapClick, onLongPress, onPoiClick, onContextMenu, onReady, coverBottom };
 
   const applyBasePois = (m: MLMap, on: boolean) => {
     if (m.getLayer(BASE_POIS_LAYER)) m.setLayoutProperty(BASE_POIS_LAYER, "visibility", on ? "visible" : "none");
@@ -494,6 +498,19 @@ export function MapView({
           const box = m.getCanvas().getBoundingClientRect();
           state.current.onPoiClick!({ ...place, x: box.left + e.point.x, y: box.top + e.point.y });
         } else state.current.onMapClick?.(e.lngLat.lat, e.lngLat.lng);
+      });
+
+      // right-click → a menu at that spot, as Maps on a Mac. Mouse only: a
+      // touch hold fires contextmenu too on Android, and is the long-press
+      // below. Not on a pin, which has its own click.
+      m.on("contextmenu", (e: MapMouseEvent) => {
+        const oe = e.originalEvent as MouseEvent & { pointerType?: string };
+        if (!state.current.onContextMenu) return;
+        if (oe.pointerType ? oe.pointerType !== "mouse" : !matchMedia("(pointer: fine)").matches) return;
+        if (m.queryRenderedFeatures(e.point, { layers: PIN_LAYERS }).length) return;
+        e.preventDefault();
+        oe.preventDefault();
+        state.current.onContextMenu({ lat: e.lngLat.lat, lng: e.lngLat.lng, x: oe.clientX, y: oe.clientY });
       });
 
       // long-press → drop a pin (optional mobile shortcut)

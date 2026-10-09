@@ -898,6 +898,10 @@ export default function MapTab() {
     setPoi(null);
   };
 
+  /** a right-click on the map (desktop): its menu, at the click */
+  const [mapMenu, setMapMenu] = useState<{ lat: number; lng: number; x: number; y: number } | null>(null);
+  const mapMenuAnchor = useRef<HTMLSpanElement>(null);
+
   // the list groups by the areas you made, or — switched in the ⋯ menu or on
   // the Neighbourhoods page — by neighbourhood. Only the grouping changes:
   // the areas themselves (and a place's Areas row) are never touched, so
@@ -2008,6 +2012,7 @@ export default function MapTab() {
           onMapClick={onMapClick}
           onLongPress={onLongPress}
           onPoiClick={onPoiClick}
+          onContextMenu={(at) => { setPoi(null); setMapMenu(at); }}
           coverBottom={wide || listOnly ? 0 : halfStopPx}
           onReady={(m) => {
             map.current = m;
@@ -2041,6 +2046,24 @@ export default function MapTab() {
             </div>
           )}
         >{null}</ActionSheet>
+        <span ref={mapMenuAnchor} aria-hidden className="hidden" />
+        <ActionSheet
+          open={!!mapMenu}
+          onClose={() => setMapMenu(null)}
+          anchorRef={mapMenuAnchor}
+          point={mapMenu && { x: mapMenu.x, y: mapMenu.y, align: "start" }}
+        >
+          {mapMenu && !readOnly && (
+            <button type="button" className="menu-item" onClick={() => onLongPress(mapMenu.lat, mapMenu.lng)}>
+              <Icon name="pin" size={16} /> Add a Place Here
+            </button>
+          )}
+          {mapMenu && (
+            <a href={placeMapLink({ name: "", lat: mapMenu.lat, lng: mapMenu.lng })} target="_blank" rel="noopener" className="menu-item">
+              <Icon name="map" size={16} /> Open in Google Maps
+            </a>
+          )}
+        </ActionSheet>
         {adding && (
           <div className="pointer-events-none absolute inset-x-0 top-0 bg-accent/90 py-1.5 text-center text-xs font-medium text-white">
             Adding a place — search, or tap the map
