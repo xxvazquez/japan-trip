@@ -402,14 +402,14 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 - **Areas fold open in place**, like folders in Files — tap an area row to show its places under it, and the map moves to show them. They start collapsed and remember what you opened.
 - **The map frames what's listed** in the part showing above the sheet. A tapped place is centred there too.
 - **Your stays** show as a grey hotel pin: every stay on **All**, the city's on a city pill, the night's own on **Today**. They aren't in the list; tap one to open the stay.
-- **Tapping a place** swaps the list for its card, as Apple Maps does; ✕ goes back to the list where you left it.
+- **Tapping a place** swaps the list for its card, as Apple Maps does; ✕ goes back to the list where you left it, and the map stays where it is.
 - **A place's card** — laid out like a step's place card:
   - **Top:** the name (tap to rename) and the walk to the nearest station.
   - **Buttons**, four across: **Google Maps** (filled), Tabelog (restaurants in Japan), **Menu**, **Website**, **Share**, **Search Web** (when there's no website), and the day it's on or **Add to Day**. What doesn't fit goes under **More**.
   - Google Maps searches at the pin, so a chain opens the right branch.
-  - **Below:** **Note**, then **Good to know** — folded until you tap it, so filing a place stays quick (see [Helpers on a step](#helpers-on-a-step)) — then its areas, category and city, and last **Remove**.
+  - **Below:** **Note**, then **Good to know** — folded until you tap it, so filing a place stays quick (see [Helpers on a step](#helpers-on-a-step)) — then its areas, category and city, and last **Delete Place**.
   - **Category:** any place can move into any category, or **New Category…**, and takes on that category's colour.
-- **List rows** show the name and the walk to the nearest station.
+- **List rows** show the name and the walk to the nearest station, once the map or an opened card has found it.
 - **Place names** on the map are in English / Latin script where available.
 
 ### Filters
@@ -437,16 +437,16 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 - **Add** — *⋯ → New Area*.
 - **Assign places** — from a place's card.
 - **Rename, delete, or merge duplicates** — *⋯ → Edit Areas*.
-- **Show one area** — tap its icon; tap the rest of the row to fold it.
+- **Show one area** — tap its icon (on **All** too, where the others stay listed, dimmed); tap the rest of the row to fold it.
 
 **Areas on a day.** Add an area on a day's page and all its places appear on that day's map (faded). It's a live link, so later edits show up. Its row's ⋯ (or a long-press) adds its places to the plan or removes it from the day. The day offers areas from its own city — a day trip gets its town's areas.
 
 **What else areas show:**
 
 - **A–Z everywhere** they're listed, each with its city (where most of its places are) unless it already sits under a city heading.
-- A faint labelled ring on the map when zoomed out.
+- A faint labelled ring on the map at city scale (not across a whole country).
 - How far the area stretches on foot ("Spans 0.9 km · 12 min walk").
-- Each place's nearest station, read from the map tiles (with a network fallback). Nothing shows if there's no station within 1 km.
+- Each place's nearest station, read from the map tiles; an open card looks it up online when the tiles don't have it. Nothing shows if there's no station within 1 km.
 
 ### Suggest areas
 
