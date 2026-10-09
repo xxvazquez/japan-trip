@@ -5,7 +5,7 @@ import type { Day, Doc, DocField, ExpenseCategory, Hotel, Leg, ModuleConfig, Pla
 import { todayISO } from "@/lib/dates";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
-export const SCHEMA_VERSION = 19;
+export const SCHEMA_VERSION = 20;
 
 /** Seed expense categories for a new trip. `role: "transport"` is the catch-all
  *  for any fare whose mode isn't claimed below (ferry, car, walk, or a manual
@@ -90,6 +90,26 @@ function dayTripBlock(...[there, back, last]: unknown[]): string {
     .map(([label, v]) => (clean(v) ? `**${label}:** ${clean(v)}` : ""))
     .filter(Boolean)
     .join("\n\n");
+}
+
+/** A day's steps on the current shape: ids filled, blanks dropped. */
+function cleanPlan(items: Partial<PlanItem>[]): PlanItem[] {
+  return items.filter((it) => it && typeof it === "object").map((it): PlanItem => {
+    // v19: a step's labels — trimmed, no blanks or repeats, dropped when
+    // none (briefly called `flags`, read for any step saved then)
+    const labels = cleanLabels(it.labels ?? (it as { flags?: unknown }).flags);
+    return {
+      id: it.id || `pi-${fieldId()}`,
+      text: it.text ?? "",
+      time: it.time || undefined,
+      note: it.note || undefined,
+      placeId: it.placeId || undefined,
+      url: it.url || undefined,
+      pinned: it.pinned ? true : undefined,
+      optional: it.optional ? true : undefined,
+      ...(labels.length ? { labels } : {}),
+    };
+  });
 }
 
 /**
@@ -310,22 +330,7 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
     const raw = day as unknown as { plan?: unknown; places?: unknown[] };
     const planIsNew = Array.isArray(raw.plan) && typeof raw.plan[0] === "object" && raw.plan[0] !== null;
     if (planIsNew) {
-      day.plan = (raw.plan as Partial<PlanItem>[]).map((it): PlanItem => {
-        // v19: a step's labels — trimmed, no blanks or repeats, dropped when
-        // none (briefly called `flags`, read for any step saved then)
-        const labels = cleanLabels(it.labels ?? (it as { flags?: unknown }).flags);
-        return {
-          id: it.id || `pi-${fieldId()}`,
-          text: it.text ?? "",
-          time: it.time || undefined,
-          note: it.note || undefined,
-          placeId: it.placeId || undefined,
-          url: it.url || undefined,
-          pinned: it.pinned ? true : undefined,
-          optional: it.optional ? true : undefined,
-          ...(labels.length ? { labels } : {}),
-        };
-      });
+      day.plan = cleanPlan(raw.plan as Partial<PlanItem>[]);
     } else {
       const fromStrings = (Array.isArray(raw.plan) ? (raw.plan as unknown[]) : [])
         .filter((s): s is string => typeof s === "string")
@@ -346,6 +351,12 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
       day.plan = [...fromStrings, ...fromPlaces].filter((it) => it.text);
     }
     delete raw.places;
+    // v20: a day's other plan — kept only as a list of steps, and "switched
+    // over to it" only while there is one
+    if (Array.isArray(day.altPlan)) day.altPlan = cleanPlan(day.altPlan as Partial<PlanItem>[]);
+    else delete day.altPlan;
+    if (day.altPlan && day.onAltPlan) day.onAltPlan = true;
+    else delete day.onAltPlan;
     const cats = d.config.expenseCategories ?? [];
     day.costs = Array.isArray(day.costs)
       ? day.costs.map((c) => ({

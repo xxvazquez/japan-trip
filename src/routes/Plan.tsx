@@ -544,7 +544,7 @@ function DayDate({ date, loc, strong, month }: { date: string; loc: string; stro
  *  wrap on a narrow phone. Identical in the live row and the drag overlay. */
 function DayKindTag({ day, data }: { day: Day; data: TripData }) {
   const k = KIND[dayKind(day, data)];
-  const parts = [...(k ? [k.label] : []), ...(day.labels ?? [])];
+  const parts = [...(k ? [k.label] : []), ...(day.onAltPlan ? ["Plan B"] : []), ...(day.labels ?? [])];
   if (parts.length === 0) return null;
   return (
     <span className="mt-0.5 break-words text-xs leading-snug text-ink-faint">

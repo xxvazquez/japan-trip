@@ -360,8 +360,16 @@ export interface Day {
   legId: ID;
   hotelId?: ID;
   title?: string;
-  /** the day's itinerary — an ordered list of steps */
+  /** the day's itinerary — an ordered list of steps. Always the plan that's
+   *  on: switching to the other one swaps the two lists, so everything that
+   *  reads the day's plan follows the switch. */
   plan?: PlanItem[];
+  /** the day's other plan (Plan B — a rainy-day version, say). Absent when
+   *  the day has only one plan. */
+  altPlan?: PlanItem[];
+  /** true while the other plan is the one in `plan` — the day was switched
+   *  over to its Plan B */
+  onAltPlan?: true;
   /** free-form "general notes", rendered as light Markdown */
   notes?: string;
   /** areas the day pulls in — their places show on the day's map (live), but

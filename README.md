@@ -142,7 +142,7 @@ Tap a day on Plan to open it. From top to bottom:
 3. **Weather** — the header shows the forecast ("Showers, 19–24°C"): at the hotel, or on a day trip at the day's own places away from it (Nara, not Kyoto). Forecasts only reach ~16 days ahead, so later days show nothing until they're close enough. Offline, the last saved one shows with *as of 6 Oct* when it's from an earlier day.
    - Under it, **Sunrise and Sunset** for that same spot on that exact date, on that place's own clock. Worked out on the device, so every day has them, offline too.
    - The place's time zone is looked up once and saved on the device. Until then (offline, never opened) the trip time zone stands in.
-4. **The itinerary** — the day's steps (below).
+4. **The itinerary** — the day's steps (below). With a [Plan B](#plan-b), a **Plan A / Plan B** switch sits above it.
 5. **Nearby** — saved places close to the day's stops, kept out of the plan. Starts shut, like Areas; open or shut, it stays that way on every day. See [Nearby on a day](#nearby-on-a-day).
 6. **Areas** — drop a whole neighbourhood's places onto the day's map.
 7. **Spending** — see [Spending on a day](#spending-on-a-day).
@@ -160,6 +160,17 @@ Every section folds away from its header. Scroll down and the bar at the top kee
 
 - Place and hotel names (and travel lines on the full copy) are links to Google Maps.
 - iPhone: opens the Share sheet (Save to Files, Print, AirDrop). Android and computer: downloads. Both work offline; the Plan's hours need to have been looked up once.
+
+### Plan B
+
+A second plan for a day — the indoor version for a rainy day, say.
+
+1. ⋯ beside the day's title → **Add Plan B**. It starts as a copy of the plan and opens straight away, so you only change the stops that differ.
+2. **Plan A / Plan B** at the top of the itinerary switches between them.
+3. The day remembers the one that's on: the day's map, the map beside it, the PDFs and Plan all follow it, and Plan shows **Plan B** under the day while it's on.
+4. ⋯ → **Delete Plan B** removes it and goes back to Plan A (Undo brings it back).
+
+Needs migration `0042`. Days without a Plan B look as before.
 
 ### Today
 
@@ -780,7 +791,7 @@ edit in the UI  →  TripData (in memory)  →  backend
 ### Setting up a project
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0041`).
+2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0042`).
    - `0033` moves old day-trip text (getting there / back, last way back) into each day's notes — take a backup first.
    - `0035` drops the retired day columns. On an existing project, run it only once the build with it is live — an older build still writes `journey_id`, and its day saves would fail.
 3. **Authentication → Providers → Google** — enable it with a Google Cloud OAuth client id and secret. Redirect: `https://<project-ref>.supabase.co/auth/v1/callback`.

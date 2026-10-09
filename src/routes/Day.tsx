@@ -46,6 +46,7 @@ import { glyphForCategoryName, type MapGlyphId } from "@/lib/mapGlyphs";
 import { areaLeg, byAreaName } from "@/lib/cityAssign";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { DayStepper } from "@/components/DayStepper";
+import { SegmentedControl } from "@/components/SegmentedControl";
 import { NavAddButton } from "@/components/NavAddButton";
 import { DayLabelsCaption, DayLabelsSheet, tripLabels, tripStepLabels } from "@/components/DayLabels";
 import { useData, lookups } from "@/lib/data";
@@ -186,6 +187,26 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     });
   const loc = data.config.locale;
   const setPlan = (next: PlanItem[]) => patch({ plan: next.length ? next : undefined });
+  // Plan A / Plan B: the plan that's on always sits in `plan`, so switching
+  // swaps the two lists and the map, the Plan tab and the PDFs follow it
+  const hasAltPlan = Array.isArray(day.altPlan);
+  const onPlanB = !!day.onAltPlan;
+  const switchPlan = (toB: boolean) => {
+    if (!hasAltPlan || toB === onPlanB) return;
+    const other = day.altPlan ?? [];
+    patch({ plan: other.length ? other : undefined, altPlan: day.plan ?? [], onAltPlan: toB ? true : undefined });
+  };
+  // Plan B starts as a copy of Plan A — on a rainy day only a few stops change
+  const addPlanB = () => {
+    const copy = (day.plan ?? []).map((it) => ({ ...it, id: rid() }));
+    patch({ plan: copy.length ? copy : undefined, altPlan: day.plan ?? [], onAltPlan: true });
+  };
+  const deletePlanB = () => undoable("Plan B deleted", () => {
+    if (onPlanB) {
+      const a = day.altPlan ?? [];
+      patch({ plan: a.length ? a : undefined, altPlan: undefined, onAltPlan: undefined });
+    } else patch({ altPlan: undefined, onAltPlan: undefined });
+  });
   // the step just added opens straight into its text. Rendered synchronously
   // inside the tap, so its field is focused there and the iPhone keyboard
   // comes up (it won't for a focus that happens after the tap)
@@ -625,6 +646,14 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
                 <Icon name="tag" size={16} /> {day.labels?.length ? "Labels…" : "Add a Label…"}
               </button>
             )}
+            {!ro && !hasAltPlan && (
+              <button className="menu-item" onClick={addPlanB}>
+                <Icon name="copy" size={16} /> Add Plan B
+              </button>
+            )}
+            {!ro && hasAltPlan && (
+              <ConfirmMenuItem onConfirm={deletePlanB} label="Delete Plan B" icon={<Icon name="trash" size={16} />} />
+            )}
             <button className="menu-item" onClick={downloadDayCalendar} disabled={icsBusy}>
               <Icon name="calendar" size={16} /> {icsBusy ? "Building calendar file…" : "Add Day to Calendar"}
             </button>
@@ -697,6 +726,17 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       )}
 
       <div className="space-y-6">
+      {/* the day's two plans — only once it has a Plan B (the day's ⋯ adds one) */}
+      {hasAltPlan && !ro && (
+        <div {...{ [PDF_HIDE]: "" }}>
+          <SegmentedControl
+            options={[{ value: "a", label: "Plan A" }, { value: "b", label: "Plan B" }]}
+            value={onPlanB ? "b" : "a"}
+            onChange={(v) => switchPlan(v === "b")}
+            className="md:max-w-[20rem]"
+          />
+        </div>
+      )}
       {/* PLAN — the day's itinerary: time + step, drag to reorder */}
       {((day.plan ?? []).length > 0 || !ro) && (
         <Section

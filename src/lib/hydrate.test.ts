@@ -169,6 +169,30 @@ describe("step labels", () => {
   });
 });
 
+describe("a day's Plan B", () => {
+  it("keeps the other plan's steps, cleaned like the main plan's", () => {
+    const raw = legacy();
+    const day = (raw.days as Record<string, unknown>[])[0];
+    day.plan = [{ id: "a", text: "Museum" }];
+    day.altPlan = [{ text: "Aquarium", labels: [" Book "] }];
+    day.onAltPlan = true;
+    const t = normalizeTrip(raw as never) as TripData;
+    expect(t.days[0].altPlan?.[0]).toMatchObject({ text: "Aquarium", labels: ["Book"] });
+    expect(t.days[0].altPlan?.[0].id).toBeTruthy();
+    expect(t.days[0].onAltPlan).toBe(true);
+  });
+
+  it("is never 'switched on' without a Plan B to switch to", () => {
+    const raw = legacy();
+    const day = (raw.days as Record<string, unknown>[])[0];
+    day.altPlan = null; // a cleared column
+    day.onAltPlan = true;
+    const t = normalizeTrip(raw as never) as TripData;
+    expect("altPlan" in t.days[0]).toBe(false);
+    expect("onAltPlan" in t.days[0]).toBe(false);
+  });
+});
+
 it("the Emergency contacts card it adds has an id the database accepts", () => {
   const t = normalizeTrip({ docs: [] } as Partial<TripData>) as TripData;
   const contact = t.docs.find((d) => d.kind === "contact");
