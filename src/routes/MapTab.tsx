@@ -2225,7 +2225,7 @@ function PlaceRow({
   // how the place is filed — its areas, category and city
   const filing = (
     <>
-          <AreasRow place={place} areas={areas} areaCity={areaCity} readOnly={readOnly} onToggleArea={onToggleArea} rowCls={rowCls} />
+          <AreasRow place={place} areas={areas} areaCity={areaCity} cities={legs.map((l) => l.base)} readOnly={readOnly} onToggleArea={onToggleArea} rowCls={rowCls} />
           {place.category && (
             <li className={`${SM_TILE_DIVIDER} ${rowCls}`}>
               <IconTile size="sm" {...placeTile(place, categoryIcons, categoryColors)} />
@@ -2478,6 +2478,7 @@ function AreasRow({
   place,
   areas,
   areaCity,
+  cities,
   readOnly,
   onToggleArea,
   rowCls,
@@ -2485,6 +2486,8 @@ function AreasRow({
   place: Place;
   areas: Area[];
   areaCity: Map<string, string>;
+  /** the trip's cities in the order it visits them */
+  cities: string[];
   readOnly: boolean;
   onToggleArea: (areaId: string) => void;
   rowCls: string;
@@ -2493,6 +2496,19 @@ function AreasRow({
   if (areas.length === 0) return null;
   const mine = areas.filter((a) => a.placeIds.includes(place.id));
   const names = mine.map((a) => a.name || "Untitled").join(", ");
+  // one group per city, A–Z inside: the city this place's areas are in
+  // first, then the trip's cities in the order it visits them, then any
+  // others A–Z, with areas that have no city last
+  const home = mine.map((a) => areaCity.get(a.id)).find(Boolean);
+  const rank = (c: string) => (c === home ? -1 : cities.includes(c) ? cities.indexOf(c) : cities.length);
+  const byCity = new Map<string, Area[]>();
+  for (const a of areas) {
+    const c = areaCity.get(a.id) ?? "";
+    byCity.set(c, [...(byCity.get(c) ?? []), a]);
+  }
+  const groups = [...byCity]
+    .sort(([a], [b]) => (!a || !b ? Number(!a) - Number(!b) : rank(a) - rank(b) || a.localeCompare(b)))
+    .map(([c, list]) => ({ label: c || "Other", areas: list.sort(byAreaName) }));
   if (readOnly) {
     return mine.length > 0 ? (
       <li className={`${SM_TILE_DIVIDER} ${rowCls}`}>
@@ -2514,17 +2530,18 @@ function AreasRow({
         {/* toggles stay open until dismissed — stopPropagation so a tap
             doesn't trigger ActionSheet's "close on any click inside" */}
         <div onClick={(e) => e.stopPropagation()}>
-          {[...areas]
-            .sort(byAreaName)
-            .map((a) => (
-              <button key={a.id} type="button" className="menu-item flex w-full items-center gap-2" onClick={() => onToggleArea(a.id)}>
-                <span className="min-w-0 flex-1 break-words text-left">
-                  {a.name || "Untitled"}
-                  {areaCity.has(a.id) && <span className="block text-xs text-ink-faint">{areaCity.get(a.id)}</span>}
-                </span>
-                <span className="w-4 shrink-0 text-accent">{a.placeIds.includes(place.id) && <Icon name="check" size={14} />}</span>
-              </button>
-            ))}
+          {groups.map((g) => (
+            <div key={g.label}>
+              {/* every area sits under its city; only a lone "Other" goes bare */}
+              {(groups.length > 1 || g.label !== "Other") && <p className="kicker px-4 pb-0.5 pt-3 text-ink-faint">{g.label}</p>}
+              {g.areas.map((a) => (
+                <button key={a.id} type="button" className="menu-item flex w-full items-center gap-2" onClick={() => onToggleArea(a.id)}>
+                  <span className="min-w-0 flex-1 break-words text-left">{a.name || "Untitled"}</span>
+                  <span className="w-4 shrink-0 text-accent">{a.placeIds.includes(place.id) && <Icon name="check" size={14} />}</span>
+                </button>
+              ))}
+            </div>
+          ))}
         </div>
       </ActionSheet>
     </li>
