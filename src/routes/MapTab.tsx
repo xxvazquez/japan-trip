@@ -2186,11 +2186,10 @@ function PlaceRow({
   // for `mapReady` (the list mounts well before the map's first load) rather
   // than treating a not-yet-ready map as "no station"; if that first check
   // still comes up empty, gives the map one more settle cycle (e.g. the
-  // scope-fit pan/zoom pulling in new tiles) before falling back to Overpass,
-  // so a place whose tile just hasn't loaded yet doesn't hit the network for
-  // no reason. Only ever runs for a place whose row is actually mounted (a
-  // collapsed area's places never render), so this is never a batch job over
-  // the whole trip, and Overpass runs at most once per place.
+  // scope-fit pan/zoom pulling in new tiles) before looking further. A list
+  // row then takes only an answer the device already has; only the open
+  // card asks Overpass — zoomed out to a whole country the tiles carry no
+  // stations, and every row on screen asking at once would queue dozens.
   const [station, setStation] = useState<NearbyStation | null>(null);
   useEffect(() => {
     setStation(null);
@@ -2206,8 +2205,8 @@ function PlaceRow({
       return true;
     };
     const tryOverpass = () => {
-      // Overpass only: a list of a hundred rows mustn't fall through to Nominatim
-      void nearestStationLookup(place.lat, place.lng, { fallback: false }).then((hit) => {
+      // Overpass only, never on to Nominatim (the place search shares it)
+      void nearestStationLookup(place.lat, place.lng, { fallback: false, network: card }).then((hit) => {
         if (!cancelled) setStation(hit);
       });
     };
@@ -2218,7 +2217,7 @@ function PlaceRow({
       });
     }
     return () => { cancelled = true; };
-  }, [map, mapReady, place.id, place.lat, place.lng]);
+  }, [map, mapReady, place.id, place.lat, place.lng, card]);
   const catGlyph = place.category ? categoryIcons?.[place.category] : undefined;
   // the category is named by the tile's own icon when it has one — repeating it
   // as text only made the row a line taller

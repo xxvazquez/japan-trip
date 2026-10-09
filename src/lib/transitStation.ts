@@ -108,11 +108,12 @@ const failedAt = new Map<string, number>();
  *  ask about a hundred places at once, leaves that off so it can't flood
  *  Nominatim. The answer is remembered on the device, "no station within a
  *  kilometre" included; a failure isn't, and is only retried after a while.
+ *  `network: false` answers from what's remembered only, never asking.
  *  `null` means "none nearby" or "couldn't tell" alike to the caller. */
 export async function nearestStationLookup(
   lat: number,
   lng: number,
-  { fallback = true }: { fallback?: boolean } = {},
+  { fallback = true, network = true }: { fallback?: boolean; network?: boolean } = {},
 ): Promise<NearbyStation | null> {
   const key = `${lat.toFixed(4)},${lng.toFixed(4)}`;
   if (lookupCache.has(key)) return lookupCache.get(key)!;
@@ -122,7 +123,7 @@ export async function nearestStationLookup(
     lookupCache.set(key, hit);
     return hit;
   }
-  if (Date.now() - (failedAt.get(key) ?? 0) < FAIL_TTL_MS) return null;
+  if (!network || Date.now() - (failedAt.get(key) ?? 0) < FAIL_TTL_MS) return null;
   let candidates: NearbyStation[] | null = null;
   try {
     const radius = SEARCH_RADIUS_KM * 1000;
