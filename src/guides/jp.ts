@@ -114,7 +114,7 @@ export const japan: CountryGuide = {
           items: [
             { title: "Eki stamps", text: "Free rubber stamps near the ticket gates of many stations, each with a local landmark. The first is usually credited to Fukui Station in 1931; they took off with Japan National Railways' “Discover Japan” campaign in 1970, which got people travelling inside their own country." },
             { title: "Not only stations", text: "Castles, museums, roadside rest stops (michi-no-eki), lighthouses and observation decks have them too. The 100 Fine Castles of Japan even has its own stamp book." },
-            { title: "Stamp rallies", text: "Collect a set across a train line or a town, sometimes for a prize. Summer rallies with characters like Pokémon draw families across Tokyo's rail network." },
+            { title: "Stamp rallies", text: "Collect a set across a train line or a town, sometimes for a prize. JR East runs a big one across Tokyo's stations most summers." },
             { title: "Why it caught on", text: "Proof you were there, the pleasure of a complete set, and limited seasonal editions. It's the same instinct as the goshuin — travel as something you record." },
           ],
         },
@@ -210,9 +210,43 @@ export const japan: CountryGuide = {
       id: "trivia",
       title: "Did you know",
       glyph: "sparkle",
-      summary: "The fun facts",
+      summary: "Design, coffee, Japan & Poland, and more",
       blocks: [
         {
+          title: "Design & tech",
+          items: [
+            { title: "Steve Jobs' turtleneck is Japanese", text: "He loved Sony's staff uniforms by Issey Miyake and asked Miyake to make him a uniform too — the black turtleneck. He travelled to Kyoto often for its Zen gardens." },
+            { title: "The first Apple Store outside the US", text: "Ginza, Tokyo, in 2003. Apple Kyoto, on Shijō-dōri, opened in 2019." },
+            { title: "Your iPhone's shutter can't be silenced here", text: "Phones sold in Japan always make the camera sound, even on silent — a rule against secret photos. Yours won't, but it's why you'll hear clicks everywhere." },
+            { title: "Half the country uses an iPhone", text: "Japan is one of the few big markets where iPhone holds around half of all smartphones." },
+            { title: "Emoji are in MoMA", text: "The original 176 emoji, drawn by Shigetaka Kurita for NTT Docomo in 1999, were acquired by the Museum of Modern Art in 2016." },
+            { title: "Nintendo made playing cards", text: "It was founded in Kyoto in 1889 to make hanafuda flower cards, and its headquarters are still there." },
+            { title: "Muji means “no brand”", text: "Mujirushi Ryōhin — “no-brand quality goods” — started in 1980 as a Seiyu supermarket's own label." },
+            { title: "Uniqlo is a typo", text: "Short for Unique Clothing Warehouse. A 1988 Hong Kong trademark registration misread the C as a Q, and the company kept it." },
+            { title: "Pagodas taught skyscrapers", text: "Wooden pagodas sway around a free central pillar (shinbashira) and almost never fall in earthquakes. Tokyo Skytree's core column copies the idea." },
+          ],
+        },
+        {
+          title: "Coffee & food",
+          items: [
+            { title: "Canned coffee is Japanese", text: "UCC sold the first canned coffee in 1969. Vending machines sell it hot in winter." },
+            { title: "Pour-over comes from here", text: "Hario, the maker of the V60 dripper, is a Tokyo glassworks founded in 1921. Kissaten — old-school coffee houses — still hand-pour every cup." },
+            { title: "Blue Bottle and % Arabica", text: "Blue Bottle opened its first shop outside the US in Kiyosumi-Shirakawa, Tokyo, in 2015. % Arabica started in Kyoto in 2014." },
+            { title: "Kyoto loves bread", text: "Kyoto households regularly top Japan's spending on bread, and on coffee too — a surprise for the capital of tea." },
+            { title: "Conveyor-belt sushi", text: "Invented in Osaka in 1958 by a restaurant owner inspired by a beer-factory conveyor." },
+            { title: "A ¥20,000 melon", text: "Fruit is a luxury gift. Sembikiya in Tokyo, selling fruit since 1834, has perfect melons in wooden boxes." },
+          ],
+        },
+        {
+          title: "Japan & Poland",
+          items: [
+            { title: "765 Polish orphans", text: "In 1920–22 Japan's Red Cross rescued 765 Polish children stranded in Siberia, cared for them in Tokyo and Osaka, and shipped them home. In 1995–96 Poland returned the favour, inviting children who'd lost family in the Kobe earthquake." },
+            { title: "Sugihara's visas", text: "In 1940 Chiune Sugihara, Japan's consul in Kaunas, wrote thousands of transit visas for Jewish refugees — many from Poland — against orders, with help from Polish intelligence officers." },
+            { title: "Chopin is huge", text: "Japan has one of the biggest Chopin followings anywhere. Japanese pianists regularly reach the final of the Warsaw competition — Kyōhei Sorita shared second prize in 2021." },
+          ],
+        },
+        {
+          title: "Everything else",
           items: [
             { title: "14,125 islands", text: "A 2023 recount with modern maps more than doubled the official number — the coastline hadn't changed." },
             { title: "Two electricity grids", text: "Eastern Japan runs at 50 Hz and western Japan at 60 Hz, because in the 1890s Tokyo bought German generators and Osaka bought American ones. The line is around the Fuji River." },
@@ -310,26 +344,24 @@ export const japan: CountryGuide = {
         },
       ],
     },
-    {
-      id: "seasons",
-      title: "Seasons & crowds",
-      glyph: "flower",
-      summary: "When it's busy, when it's closed",
-      blocks: [
-        {
-          items: [
-            { title: "Cherry blossoms", text: "Late March to early April in Tokyo, Kyoto and Osaka; later further north. Beautiful and very crowded." },
-            { title: "Golden Week", text: "29 April to 5 May — several holidays in a row. The whole country travels; trains and hotels fill up and prices rise." },
-            { title: "Rainy season", text: "Roughly June to mid-July, everywhere except Hokkaido." },
-            { title: "Obon", text: "Mid-August. People return to their hometowns to honour ancestors — another travel peak, with festivals and fireworks." },
-            { title: "Typhoons", text: "Mostly August to October. They can stop trains and flights for a day." },
-            { title: "Autumn leaves", text: "Kyoto's peak is mid-November to early December; earlier in the mountains." },
-            { title: "New Year", text: "29 December to 3 January many shops, restaurants and museums close. Shrines are packed on the 1st." },
-            { title: "Closed on Mondays", text: "Many museums close on Monday, or on Tuesday when Monday is a holiday." },
-          ],
-        },
-      ],
-    },
+  ],
+
+  dates: [
+    { from: "10-22", to: "10-22", when: "22 October", title: "Two festivals in one night", text: "Kyoto's Jidai Matsuri parades 2,000 people in costume from every era of the city's history; that evening, Kurama's Fire Festival fills the mountain village with giant torches." },
+    { from: "10-25", to: "11-05", when: "Late October – early November", title: "Jimbōchō book festival", text: "Tokyo's old-bookshop district lines a street with half a kilometre of outdoor stalls for the Kanda Used Book Festival." },
+    { from: "10-31", to: "10-31", when: "31 October", title: "Halloween in Shibuya", text: "Street drinking is banned around the station and the ward asks people not to gather — expect police and barriers rather than a party." },
+    { from: "10-15", to: "11-30", when: "October – November weekends", title: "Shichi-Go-San", text: "Families bring children of three, five and seven to shrines in kimono to pray for their health — Meiji Jingū is full of tiny kimonos." },
+    { from: "11-03", to: "11-03", when: "3 November", title: "Culture Day", text: "A national holiday. Some museums and gardens are free, Hakone holds a daimyō procession, and it's usually one of the clearest days of the year." },
+    { from: "11-01", to: "11-30", when: "November", title: "Tori no Ichi", text: "On the Days of the Rooster, Ōtori shrines — the biggest in Asakusa — hold night fairs selling decorated bamboo rakes (kumade) that “rake in” luck for businesses." },
+    { from: "11-01", to: "11-20", when: "Early to mid November", title: "Kawaguchiko's Autumn Leaves Festival", text: "The Momiji Corridor on the north shore of Lake Kawaguchi is lit up after dark." },
+    { from: "11-01", to: "12-10", when: "November", title: "Temples open up", text: "Kyoto's autumn special openings: halls, gardens and treasures that are usually closed, many with night illuminations." },
+    { from: "11-15", to: "12-05", when: "Mid November – early December", title: "Peak maples in Kyoto", text: "Tōfuku-ji, Eikan-dō and the Philosopher's Path at their reddest. The mountains around Kurama and Ōhara turn first." },
+    { from: "11-20", to: "12-05", when: "Late November", title: "The ginkgo avenue", text: "Tokyo's Meiji Jingū Gaien ginkgo avenue turns gold — the city's tree is the ginkgo, it's on Tokyo's emblem." },
+    { from: "10-01", to: "02-28", when: "Autumn and winter", title: "Short days", text: "Japan has no daylight saving: by November the sun sets around 16:30–16:45. Plan sights for the morning." },
+    { from: "03-20", to: "04-10", when: "Late March – early April", title: "Cherry blossoms", text: "Peak bloom in Tokyo and Kyoto — and the year's biggest crowds." },
+    { from: "04-29", to: "05-05", when: "29 April – 5 May", title: "Golden Week", text: "Several holidays in a row; the whole country travels and prices rise." },
+    { from: "08-11", to: "08-17", when: "Mid August", title: "Obon", text: "People go home to honour their ancestors — trains are packed and Kyoto lights its bonfires on the mountains on 16 August." },
+    { from: "12-29", to: "01-03", when: "29 December – 3 January", title: "New Year", text: "Many shops, restaurants and museums close; shrines are packed at midnight and on the 1st." },
   ],
 
   cities: [
@@ -345,6 +377,14 @@ export const japan: CountryGuide = {
         { title: "The world's largest city", text: "Greater Tokyo is home to about 37 million people. Shinjuku is the world's busiest station, with millions passing through daily." },
         { title: "A city of villages", text: "There's no single centre. Shibuya, Shinjuku, Ginza, Asakusa and Ueno each feel like their own town." },
         { title: "Most Michelin stars", text: "More starred restaurants than any other city — and great food in station basements for a fraction of the price." },
+        { title: "Not a city", text: "Tokyo City was abolished in 1943. Tokyo is a prefecture: 23 special wards, each with its own mayor, plus suburbs, mountains and islands 1,000 km out in the Pacific." },
+        { title: "634 = Musashi", text: "Tokyo Skytree is 634 m tall because 6-3-4 can be read mu-sa-shi, the old name of the province." },
+        { title: "Tokyo Tower is made of tanks", text: "About a third of its steel came from scrapped US tanks from the Korean War. At 333 m it was built to beat the Eiffel Tower." },
+        { title: "The seven-minute miracle", text: "A Shinkansen at Tokyo Station gets about seven minutes to be cleaned top to bottom. The crew bow to the train when it arrives." },
+        { title: "The Yamanote loop", text: "30 stations in a circle in about an hour. Takanawa Gateway, opened in 2020, was its first new station in half a century, and each station has its own departure melody." },
+        { title: "Bubble land", text: "At the peak of the 1980s bubble, the Imperial Palace grounds were said to be worth more than all the land in California." },
+        { title: "Golden Gai", text: "Six narrow alleys in Shinjuku with around 200 bars, many seating fewer than ten. Some charge a seat fee." },
+        { title: "Ghibli tickets", text: "The Ghibli Museum sells only advance tickets, released on the 10th of the month before — the November batch on 10 October." },
       ],
     },
     {
@@ -361,6 +401,13 @@ export const japan: CountryGuide = {
         { title: "Buses fill up", text: "The city buses are slow and packed in season. Subway and trains plus walking are often faster." },
         { title: "Gion", text: "Some private lanes off Hanamikoji are signposted no-entry for visitors. Don't photograph geiko and maiko up close or stop them." },
         { title: "Accommodation tax", text: "Kyoto adds a per-person nightly tax on top of the room price, tiered by how much the room costs." },
+        { title: "Directions by the grid", text: "Kyoto addresses say which way to go from the nearest crossing: agaru, go north; sagaru, go south; nishi-iru and higashi-iru, west and east." },
+        { title: "10,000 gates", text: "Every torii at Fushimi Inari was donated, mostly by companies — the donor and the date are written on the back. A big one costs over a million yen." },
+        { title: "The Golden Pavilion burned", text: "A young monk set fire to Kinkaku-ji in 1950. The one you see is a 1955 rebuild — the story became Mishima's novel The Temple of the Golden Pavilion." },
+        { title: "No nails", text: "Kiyomizu-dera's wooden stage, 13 m above the slope, is held up by 18 pillars jointed without a single nail." },
+        { title: "No first-timers", text: "Gion's teahouses follow ichigen-san okotowari: no new customers without an introduction from a regular. In Kyoto they're called geiko, not geisha." },
+        { title: "A station people hated", text: "Kyoto Station (1997), a 15-storey glass-and-steel canyon by Hiroshi Hara, was fought by residents. Go up the long staircase to the rooftop for a free view." },
+        { title: "Autumn on your dates", text: "The maples usually peak from about 20 November into early December. In early November the colour starts higher up — Kurama, Ōhara, Takao — and temples open closed halls and night illuminations (tokubetsu kōkai)." },
       ],
     },
     {
@@ -399,6 +446,10 @@ export const japan: CountryGuide = {
         { title: "Japan's tea town", text: "Tea has been grown here since around the 13th century. “Uji matcha” is still the benchmark for green tea." },
         { title: "The ¥10 coin", text: "Byōdō-in's Phoenix Hall (1053) is the building on the coin. It began as an aristocrat's villa turned into a temple." },
         { title: "Tale of Genji country", text: "The final chapters of the novel are set here. The Tale of Genji Museum tells the story." },
+        { title: "The oldest shrine building", text: "Ujigami Shrine's main hall, from around 1060, is the oldest surviving shrine building in Japan." },
+        { title: "Tsūen, since 1160", text: "The tea shop at the foot of Uji Bridge has been run by the same family for over 860 years." },
+        { title: "Matcha is rationed", text: "A worldwide matcha boom has emptied shelves since 2024 — many Uji shops limit how much one person can buy." },
+        { title: "Two banknotes", text: "The old ¥10,000 note had Byōdō-in's bronze phoenix on the back." },
       ],
     },
     {
@@ -412,6 +463,10 @@ export const japan: CountryGuide = {
         { title: "Over the mountain", text: "A trail climbs past the temple and down to Kibune: about 1.5–2 hours, steep, with steps and tree roots. Wear proper shoes." },
         { title: "Kibune Shrine", text: "A shrine to the god of water, with a lantern-lined stone stairway. Its fortunes appear when you float the paper on water." },
         { title: "Dining over the river", text: "From May to September, Kibune's restaurants serve meals on platforms built over the stream (kawadoko)." },
+        { title: "Fire festival on 22 October", text: "Kurama no Hi-matsuri: villagers carry giant burning torches through the village at night. The same day as Kyoto's Jidai Matsuri parade." },
+        { title: "Where ema began", text: "Kifune Shrine is said to be the origin of ema: emperors once gave it a live black horse to pray for rain, a white one to stop it — later replaced by painted wooden horses." },
+        { title: "Kifune, not Kibune", text: "The shrine reads its name Kifune, with a clear “f” for clear water; the village is Kibune." },
+        { title: "The maple tunnel", text: "Between Ichihara and Ninose the Eizan line runs through a tunnel of maples, lit up at night in November." },
       ],
     },
     {
@@ -425,6 +480,8 @@ export const japan: CountryGuide = {
         { title: "The ropeway can stop", text: "It closes when volcanic gas levels rise or the wind is strong. Check on the day." },
         { title: "Fuji isn't guaranteed", text: "Clouds hide it more often than not, especially in summer. Winter mornings are the best chance." },
         { title: "Old highway checkpoint", text: "The Tōkaidō road from Edo to Kyoto passed here; travellers were checked at the Hakone barrier." },
+        { title: "The New Year relay", text: "Every 2–3 January, university teams run the Hakone Ekiden from Tokyo up to Lake Ashi and back — one of the most-watched TV events of the year." },
+        { title: "A daimyō parade on 3 November", text: "On Culture Day, Hakone-Yumoto stages a feudal lord's procession in Edo-era costume." },
       ],
     },
     {
@@ -449,6 +506,7 @@ export const japan: CountryGuide = {
       items: [
         { title: "A shogun's mausoleum", text: "Tōshō-gū is the shrine to Tokugawa Ieyasu — gold, lacquer and carving at full volume, the opposite of Zen restraint. Look for the three wise monkeys." },
         { title: "Cooler and earlier", text: "It's in the mountains: autumn colour arrives in October, weeks before Tokyo." },
+        { title: "Don't say kekkō", text: "“Nikkō o minai uchi wa kekkō to iu na” — don't say “splendid” until you've seen Nikkō. A pun on kekkō." },
       ],
     },
     {
@@ -553,6 +611,13 @@ export const japan: CountryGuide = {
         { title: "Cultural, not natural, heritage", text: "Fuji is World Heritage as a sacred site and an inspiration for art — pilgrims have climbed it for centuries." },
         { title: "Climbing it", text: "The season is roughly July to early September. Since 2024 the trails charge a fee and cap daily climbers." },
         { title: "Early for the view", text: "The mountain is clearest in the early morning and in winter." },
+        { title: "Fuji is a live volcano", text: "It last erupted in 1707, and ash fell on Edo, 100 km away. The lakes were formed by old lava flows damming rivers." },
+        { title: "The screen over Lawson", text: "In 2024 the town put up a black mesh screen to block the famous view of Fuji above a convenience store, after crowds of photographers spilled into the road." },
+        { title: "A record-late snowcap", text: "Fuji usually gets its first snow in early autumn. In 2024 it came on 7 November — the latest since records began in 1894." },
+        { title: "Chūrei-tō", text: "The five-storey pagoda in every Fuji photo is a 1963 memorial to the war dead, about 400 steps up from Shimoyoshida." },
+        { title: "Autumn Leaves Festival", text: "Usually early to mid November: the Momiji Corridor on Lake Kawaguchi's north shore is lit up after dark." },
+        { title: "Hōtō and wine", text: "Yamanashi's dish is hōtō, flat noodles stewed with pumpkin in miso. It's also Japan's biggest wine region, mostly from the local Kōshū grape." },
+        { title: "Direct from Shinjuku", text: "The Fuji Excursion limited express has run straight to Kawaguchiko since 2019." },
       ],
     },
     {

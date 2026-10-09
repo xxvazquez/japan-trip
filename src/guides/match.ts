@@ -1,6 +1,6 @@
 import type { TripData } from "@/core/types";
 import { haversineKm } from "@/lib/geo";
-import type { CountryGuide, GuideCity } from "./types";
+import type { CountryGuide, GuideCity, GuideDate } from "./types";
 
 /** "Kyōto", "kyoto ", "KYOTO" → "kyoto" */
 const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9　-鿿]/g, "");
@@ -33,4 +33,26 @@ export function citiesOnTrip(guide: CountryGuide, data: TripData): { stays: Guid
     .filter((c) => !firstLeg.has(c.id) && data.places.some((p) => near(c, p)))
     .sort((a, b) => a.name.localeCompare(b.name));
   return { stays, others };
+}
+
+/** the trip's dates as "MM-DD", from its days, else its stays' spans */
+function tripMonthDays(data: TripData): Set<string> {
+  const out = new Set<string>();
+  for (const d of data.days) if (d.date) out.add(d.date.slice(5, 10));
+  if (out.size) return out;
+  for (const l of data.legs) {
+    const end = new Date(`${l.end}T00:00:00Z`);
+    for (let t = new Date(`${l.start}T00:00:00Z`); t <= end && out.size < 366; t.setUTCDate(t.getUTCDate() + 1)) {
+      out.add(t.toISOString().slice(5, 10));
+    }
+  }
+  return out;
+}
+
+const within = (md: string, d: GuideDate) => (d.from <= d.to ? md >= d.from && md <= d.to : md >= d.from || md <= d.to);
+
+/** what happens while the trip is on, in the guide's own order */
+export function datesOnTrip(guide: CountryGuide, data: TripData): GuideDate[] {
+  const days = [...tripMonthDays(data)];
+  return guide.dates.filter((d) => days.some((md) => within(md, d)));
 }

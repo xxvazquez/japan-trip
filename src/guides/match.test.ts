@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { TripData } from "@/core/types";
 import { japan } from "./jp";
-import { citiesOnTrip } from "./match";
+import { citiesOnTrip, datesOnTrip } from "./match";
 import { tripGuides } from "./index";
 
 const trip = (over: Partial<TripData>): TripData =>
-  ({ legs: [], hotels: [], places: [], ...over }) as unknown as TripData;
+  ({ legs: [], days: [], hotels: [], places: [], ...over }) as unknown as TripData;
 
 describe("citiesOnTrip", () => {
   it("puts stays first in trip order, pinned day trips after", () => {
@@ -28,5 +28,18 @@ describe("citiesOnTrip", () => {
   it("finds no guide for a trip elsewhere", () => {
     expect(tripGuides(trip({ places: [{ id: "p", name: "Louvre", lat: 48.86, lng: 2.34 }] }))).toEqual([]);
     expect(tripGuides(trip({ places: [{ id: "p", name: "Shibuya", lat: 35.66, lng: 139.70 }] })).map((g) => g.id)).toEqual(["jp"]);
+  });
+});
+
+describe("datesOnTrip", () => {
+  it("lists only what falls within the trip's days, across a new year too", () => {
+    const autumn = trip({ legs: [{ id: "a", base: "Tokyo", start: "2026-10-21", end: "2026-11-13", color: "" }], days: [] });
+    const titles = datesOnTrip(japan, autumn).map((d) => d.title);
+    expect(titles).toContain("Two festivals in one night");
+    expect(titles).toContain("Culture Day");
+    expect(titles).not.toContain("Golden Week");
+    expect(titles).not.toContain("The ginkgo avenue");
+    const winter = trip({ days: [{ date: "2027-01-02" }] as TripData["days"] });
+    expect(datesOnTrip(japan, winter).map((d) => d.title)).toContain("New Year");
   });
 });

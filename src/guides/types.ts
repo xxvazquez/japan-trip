@@ -49,6 +49,18 @@ export interface GuideCity {
   items: GuideItem[];
 }
 
+/** Something that happens every year on known dates — shown on the guide
+ *  only when it falls within the trip. `from`/`to` are "MM-DD" and may
+ *  wrap the new year ("12-29" → "01-03"). */
+export interface GuideDate {
+  from: string;
+  to: string;
+  /** how the dates read on the row */
+  when: string;
+  title: string;
+  text: string;
+}
+
 export interface CountryGuide {
   id: string;
   name: string;
@@ -57,5 +69,6 @@ export interface CountryGuide {
   understand: GuideTopic[];
   /** "Before you go" — the practical side */
   practical: GuideTopic[];
+  dates: GuideDate[];
   cities: GuideCity[];
 }

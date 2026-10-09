@@ -483,8 +483,9 @@ Text isn't selectable (as in a native app), so values you might paste elsewhere 
 When a trip has stays or pins in a country the app has a guide for (Japan today), a row for it sits below the sections.
 
 - **Where you're staying / Also on your trip** — a page per city or town the trip touches, matched from its stays, bases and pins (a day trip to Uji or Kurama shows up without a stay there).
+- **While you're there** — festivals, seasons and closures that fall within the trip's own dates.
 - **Understand** — history, belief, stamps, school, work, politics, culture and a page of fun facts.
-- **Before you go** — only the non-obvious: traps and rules, getting around, food, seasons and crowds.
+- **Before you go** — only the non-obvious: traps and rules, getting around, food.
 - It's built into the app (`src/guides/`), read-only and works offline. Adding a country is one content file plus a `GUIDES` entry.
 
 ### Stays and journeys

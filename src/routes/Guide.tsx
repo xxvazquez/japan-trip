@@ -8,7 +8,7 @@ import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { useData } from "@/lib/data";
 import { guideTopicColor } from "@/lib/tones";
 import { GUIDE_CONTENT } from "@/guides/content";
-import { citiesOnTrip } from "@/guides/match";
+import { citiesOnTrip, datesOnTrip } from "@/guides/match";
 import type { CountryGuide, GuideCity, GuideEvent, GuideItem, GuideTopic } from "@/guides/types";
 
 /** A country guide — reference content the app ships with, read-only. Laid
@@ -30,6 +30,7 @@ export function GuideHome() {
   if (!guide) return noGuide;
 
   const { stays, others } = citiesOnTrip(guide, data);
+  const dates = datesOnTrip(guide, data);
   const all = [...guide.understand, ...guide.practical];
   const topicRows = (topics: GuideTopic[]) => (
     <ul>
@@ -67,6 +68,19 @@ export function GuideHome() {
         )}
         {others.length > 0 && (
           <Section title="Also on your trip" id={`guide-${guide.id}-others`}>{cityRows(others, false)}</Section>
+        )}
+        {dates.length > 0 && (
+          <Section title="While you're there" id={`guide-${guide.id}-dates`}>
+            <ul>
+              {dates.map((d) => (
+                <li key={d.title} className={`${INSET_DIVIDER} px-3.5 py-3`}>
+                  <span className="block text-xs text-ink-faint">{d.when}</span>
+                  <span className="value mt-0.5 block break-words">{d.title}</span>
+                  <span className="mt-0.5 block break-words text-sm leading-normal text-ink-soft">{d.text}</span>
+                </li>
+              ))}
+            </ul>
+          </Section>
         )}
         <Section title={`Understand ${guide.name}`} id={`guide-${guide.id}-understand`}>{topicRows(guide.understand)}</Section>
         <Section title="Before you go" id={`guide-${guide.id}-practical`}>{topicRows(guide.practical)}</Section>
