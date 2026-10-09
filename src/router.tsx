@@ -15,6 +15,7 @@ const ExpenseCategory = lazy(() => import("@/routes/Logbook").then((m) => ({ def
 const GuideHome = lazy(() => import("@/routes/Guide").then((m) => ({ default: m.GuideHome })));
 const GuideTopicPage = lazy(() => import("@/routes/Guide").then((m) => ({ default: m.GuideTopicPage })));
 const GuideCityPage = lazy(() => import("@/routes/Guide").then((m) => ({ default: m.GuideCityPage })));
+const GuideDayTripsPage = lazy(() => import("@/routes/Guide").then((m) => ({ default: m.GuideDayTripsPage })));
 const Hotel = lazy(() => import("@/routes/Hotel"));
 const Document = lazy(() => import("@/routes/Document"));
 const Manage = lazy(() => import("@/routes/Manage"));
@@ -39,6 +40,7 @@ export const router = createBrowserRouter([
       { path: "logbook/guide/:guide", element: <GuideHome /> },
       { path: "logbook/guide/:guide/:topic", element: <GuideTopicPage /> },
       { path: "logbook/guide/:guide/place/:city", element: <GuideCityPage /> },
+      { path: "logbook/guide/:guide/place/:city/day-trips", element: <GuideDayTripsPage /> },
       { path: "hotel/:id", element: <Hotel /> },
       { path: "manage", element: <Manage /> },
       { path: "manage/:panel", element: <Manage /> },

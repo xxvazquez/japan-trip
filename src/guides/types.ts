@@ -32,6 +32,15 @@ export interface GuideTopic {
   blocks: GuideBlock[];
 }
 
+/** A day out from a base — somewhere off the usual list. */
+export interface GuideDayTrip {
+  name: string;
+  local?: string;
+  /** how long and how, from the base — "About 40 min by JR" */
+  getting: string;
+  text: string;
+}
+
 /** A city or town the guide knows about. It shows when the trip has a stay,
  *  a base or a pin within `radiusKm` of it. */
 export interface GuideCity {
@@ -47,6 +56,7 @@ export interface GuideCity {
   /** rounded, as a phrase — "About 1.4 million" */
   population?: string;
   items: GuideItem[];
+  dayTrips?: GuideDayTrip[];
 }
 
 /** Something that happens every year on known dates — shown on the guide

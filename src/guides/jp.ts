@@ -133,15 +133,21 @@ export const japan: CountryGuide = {
       summary: "Walking to school at six, cleaning the classroom",
       blocks: [
         {
+          title: "School",
           items: [
             { title: "The year starts in April", text: "With the cherry blossoms — school, university and the working year all begin then. Three terms; summer break is about six weeks from late July." },
             { title: "6 – 3 – 3 – 4", text: "Six years of elementary school, three of junior high (the compulsory part), three of high school, four of university. Nearly everyone finishes high school; about six in ten go on to university." },
-            { title: "Independent early", text: "Kids walk to school or ride the train alone from the age of six, in groups or on their own, with a yellow hat and a leather backpack (randoseru) that can cost over ¥50,000." },
             { title: "Students clean the school", text: "After lunch every day, pupils sweep, mop and wipe their classrooms, corridors and often the toilets. Most public schools have no cleaners." },
             { title: "Lunch together", text: "School lunch (kyūshoku) is planned by nutritionists and eaten in the classroom. Pupils take turns serving it in white coats and caps; the teacher eats the same meal." },
             { title: "Exams decide a lot", text: "Entrance exams pick your high school and university. Many students go to cram school (juku) in the evenings and holidays." },
             { title: "Clubs", text: "After-school clubs (bukatsu) fill evenings and weekends. The national high-school baseball tournament at Kōshien, near Osaka, is shown live on national TV every summer." },
             { title: "Uniforms", text: "Most junior-high and high-school students wear one — the sailor-collar uniform has been around since the 1920s." },
+          ],
+        },
+        {
+          title: "Growing up",
+          items: [
+            { title: "Independent early", text: "Kids walk to school or ride the train alone from the age of six, in groups or on their own, with a yellow hat and a leather backpack (randoseru) that can cost over ¥50,000." },
             { title: "Becoming an adult", text: "Adulthood is 18 since 2022, but drinking and smoking stay at 20. Coming of Age Day, the second Monday of January, still celebrates 20-year-olds — many in kimono." },
             { title: "Fewer children", text: "Under 700,000 babies were born in 2024, the fewest on record. Thousands of rural schools have closed or merged." },
           ],
@@ -155,15 +161,26 @@ export const japan: CountryGuide = {
       summary: "One start date, old firms, omiyage",
       blocks: [
         {
+          title: "The job",
           items: [
             { title: "Everyone starts on 1 April", text: "Students job-hunt together in their final year (shūkatsu) in near-identical black suits, and new graduates join on the same day, often with a welcome ceremony." },
             { title: "A job for life — less so now", text: "Big companies traditionally hired for life and paid by seniority. It still exists, but changing jobs has become far more common." },
             { title: "Long hours", text: "Japanese has a word for death from overwork: karōshi. A 2019 law capped overtime for the first time; hours have been falling since." },
+            { title: "Women at work", text: "Most women now work, but few reach management — around one manager in seven is a woman." },
+          ],
+        },
+        {
+          title: "Office life",
+          items: [
             { title: "Business cards", text: "Meishi are offered and taken with both hands, read, and kept on the table during the meeting — not pocketed straight away." },
             { title: "Omiyage", text: "After a trip, you bring a box of local sweets for your colleagues. That's why every station sells boxes of individually wrapped snacks." },
+          ],
+        },
+        {
+          title: "Companies",
+          items: [
             { title: "The oldest companies anywhere", text: "Japan has more firms over 100 years old than any other country — tens of thousands. Kongō Gumi built temples from the year 578; Hōshi, an inn in Ishikawa, has been run by the same family since 718." },
             { title: "Names you know", text: "Toyota, Sony, Nintendo, Uniqlo, Canon. Even 7-Eleven is Japanese-owned now. It's one of the world's largest economies." },
-            { title: "Women at work", text: "Most women now work, but few reach management — around one manager in seven is a woman." },
           ],
         },
       ],
@@ -175,6 +192,7 @@ export const japan: CountryGuide = {
       summary: "Emperor, parliament, one dominant party",
       blocks: [
         {
+          title: "How it works",
           items: [
             { title: "An emperor with no power", text: "Emperor Naruhito is the “symbol of the State” — ceremonial only. The imperial line is the oldest continuous hereditary monarchy in the world." },
             { title: "Parliament", text: "The National Diet has two houses. Its members choose the prime minister, who runs the government." },
@@ -192,16 +210,74 @@ export const japan: CountryGuide = {
       summary: "Seasons, onsen, sumo, mascots",
       blocks: [
         {
+          title: "Everyday",
           items: [
             { title: "Obsessed with the seasons", text: "Food, sweets, packaging and even drinks change with the season (kisetsu gentei — limited editions). The news tracks the cherry blossom front north each spring." },
             { title: "Irasshaimase!", text: "The “welcome!” shouted when you walk into a shop or restaurant. No reply is expected — a nod is plenty." },
-            { title: "Onsen", text: "Around 3,000 hot-spring areas, thanks to all the volcanoes. Bathing together, naked and separated by sex, is an ordinary family outing." },
-            { title: "Sumo", text: "Six grand tournaments a year, 15 days each: Tokyo in January, May and September, Osaka in March, Nagoya in July, Fukuoka in November." },
-            { title: "Baseball", text: "The most-watched sport. Fans sing a song for every batter, and the cheering sections (ōendan) are half the show." },
-            { title: "Manga and anime", text: "Read by every age, not just kids. Manga cafés open around the clock, with private booths people sometimes sleep in." },
             { title: "Kawaii and mascots", text: "Every town, prefecture and police force has a mascot. Kumamon, a black bear from Kumamoto, earns billions of yen a year in merchandise." },
             { title: "Karaoke", text: "Invented in Japan in the early 1970s. You hire a private room with friends, by the hour." },
             { title: "Pachinko", text: "Gambling for money is mostly illegal, so pachinko pays in prizes — which you can sell at a little shop next door. Everyone knows." },
+          ],
+        },
+        {
+          title: "Baths & sport",
+          items: [
+            { title: "Onsen", text: "Around 3,000 hot-spring areas, thanks to all the volcanoes. Bathing together, naked and separated by sex, is an ordinary family outing." },
+            { title: "Sumo", text: "Six grand tournaments a year, 15 days each: Tokyo in January, May and September, Osaka in March, Nagoya in July, Fukuoka in November." },
+            { title: "Baseball", text: "The most-watched sport. Fans sing a song for every batter, and the cheering sections (ōendan) are half the show." },
+          ],
+        },
+      ],
+    },
+    {
+      id: "manga",
+      title: "Manga & anime",
+      glyph: "bookstore",
+      summary: "Doraemon, Shin-chan, Ghibli and why it's everywhere",
+      blocks: [
+        {
+          title: "Manga",
+          items: [
+            { title: "Read it backwards", text: "Right to left, from what you'd call the back cover. Mostly black and white, serialised a chapter a week in thick, cheap magazines printed on recycled paper." },
+            { title: "For every age", text: "Manga is sorted by reader, not genre: shōnen for boys, shōjo for girls, seinen for men, josei for women. Salarymen reading it on the train is completely normal." },
+            { title: "6.5 million a week", text: "Weekly Shōnen Jump, launched in 1968, peaked at 6.53 million copies a week in 1995 — the era of Dragon Ball and Slam Dunk." },
+            { title: "The god of manga", text: "Osamu Tezuka, a qualified doctor, drew Astro Boy and around 150,000 pages in his life. His film-like panels, borrowed from Disney, set the style everyone still uses." },
+            { title: "A record industry", text: "Manga sales passed ¥700 billion in 2024, a record — and most of it is now read on phones." },
+            { title: "One Piece", text: "Over 500 million copies sold — the Guinness record for a comic series by a single author." },
+            { title: "Akira Toriyama", text: "The creator of Dragon Ball also designed the characters of Dragon Quest, Japan's best-loved video game series. When Dragon Quest III came out on a weekday in 1988, children skipped school to queue for it. Later games came out at weekends — by choice, not by the law the legend talks about." },
+          ],
+        },
+        {
+          title: "Anime",
+          items: [
+            { title: "Born on a budget", text: "Tezuka's Astro Boy (1963) was the first weekly half-hour anime on TV. To afford it he cut the drawings per second — limited animation, the look anime still has." },
+            { title: "Sazae-san syndrome", text: "Sazae-san, a family comedy on every Sunday evening since 1969, is the longest-running animated series in the world. Its end credits mean the weekend's over — the Sunday-night blues are named after it." },
+            { title: "Ghibli", text: "Spirited Away won the Oscar in 2003 and was Japan's highest-grossing film for 19 years, until Demon Slayer passed it in 2020. Miyazaki won a second Oscar for The Boy and the Heron in 2024." },
+            { title: "Anime pilgrimages", text: "Fans visit the real places drawn in anime (seichi junrei). The staircase from the end of Your Name is at Suga Shrine in Yotsuya, Tokyo." },
+            { title: "Made in west Tokyo", text: "Most studios are in Tokyo's western wards, Suginami and Nerima — Nerima calls itself the birthplace of Japanese animation." },
+          ],
+        },
+        {
+          title: "Characters you'll see",
+          items: [
+            { title: "Doraemon", text: "A robot cat sent back from the 22nd century (born 3 September 2112). He was yellow until a robot mouse chewed off his ears — he cried so much the paint washed off and he turned blue, and he's terrified of mice. Japan made him its official anime ambassador in 2008." },
+            { title: "Crayon Shin-chan", text: "Shinnosuke Nohara, a cheeky five-year-old from Kasukabe, a real town in Saitama. Kasukabe registered the whole Nohara family as special residents. His bottom dances got him complaints from parents for years — and he's been on TV since 1992." },
+            { title: "Anpanman", text: "A hero whose head is a sweet bean bun: he lets hungry people eat his face, and the baker makes him a new one. His creator, Takashi Yanase, had known real hunger as a soldier in the war. He's been the favourite character of Japanese toddlers for decades." },
+            { title: "Hello Kitty", text: "Sanrio, 1974. Officially she's not a cat but a little girl, born in London, and she has no mouth so you can read your own feelings into her face." },
+            { title: "Chiikawa", text: "The big character of the 2020s: tiny, anxious, round creatures from a web comic. Expect queues at the Chiikawa shops." },
+            { title: "Gudetama", text: "A lazy egg yolk that can't be bothered, from Sanrio in 2013 — a mascot for not wanting to go to work." },
+            { title: "Godzilla", text: "Born in 1954 from the fear of nuclear tests, months after a Japanese fishing boat was caught in fallout from an American H-bomb. His head now looks over Shinjuku from the top of a hotel." },
+          ],
+        },
+        {
+          title: "Where to find it",
+          items: [
+            { title: "Nakano Broadway", text: "A 1960s shopping block in Tokyo with four floors of tiny collectors' shops — old manga, figures, toys. Quieter and odder than Akihabara." },
+            { title: "Akihabara and Ikebukuro", text: "Akihabara for electronics, games and maid cafés; Ikebukuro's Otome Road for shops aimed at women fans." },
+            { title: "Tokiwa-sō", text: "A rebuilt wooden apartment in Toshima, Tokyo, where Tezuka and the young Fujiko Fujio (Doraemon) lived and drew in the 1950s. Now a free museum." },
+            { title: "Fujiko F. Fujio Museum", text: "The Doraemon museum, in Kawasaki, just outside Tokyo. Timed tickets, booked ahead." },
+            { title: "Kyoto International Manga Museum", text: "In an old elementary school: about 300,000 items and a wall of manga you can take down and read on the lawn." },
+            { title: "Konbini shelves", text: "Every convenience store sells the weekly magazines — the cheapest way to see what Japan is reading." },
           ],
         },
       ],
@@ -246,28 +322,43 @@ export const japan: CountryGuide = {
           ],
         },
         {
-          title: "Everything else",
+          title: "Trains",
           items: [
-            { title: "14,125 islands", text: "A 2023 recount with modern maps more than doubled the official number — the coastline hadn't changed." },
-            { title: "Two electricity grids", text: "Eastern Japan runs at 50 Hz and western Japan at 60 Hz, because in the 1890s Tokyo bought German generators and Osaka bought American ones. The line is around the Fuji River." },
-            { title: "Green lights are “blue”", text: "The old word ao covered both blue and green. Traffic lights were made a bluish green so the word still fits." },
             { title: "Point and call", text: "Train staff point at signals and say them out loud (shisa kanko). It looks theatrical; studies credit it with cutting mistakes dramatically." },
             { title: "A tune for every station", text: "Many stations play their own short departure melody. Takadanobaba in Tokyo plays the Astro Boy theme — its creator's studio was nearby." },
             { title: "No Shinkansen crash deaths", text: "Billions of passengers since 1964, and not one passenger killed in a derailment or collision." },
             { title: "Kingfisher nose", text: "The 500-series bullet train's long nose was modelled on a kingfisher's beak to stop it booming out of tunnels." },
-            { title: "The top of Mount Fuji is private", text: "Above the eighth station it belongs to a Shinto shrine, Fujisan Hongū Sengen Taisha — confirmed by the Supreme Court in 1974." },
+          ],
+        },
+        {
+          title: "Luck & money",
+          items: [
             { title: "The ¥5 coin is lucky", text: "Go-en sounds like the word for fate or a good connection, so it's the coin people throw in at shrines." },
             { title: "Your ¥10 coin is in Uji", text: "The building on it is Byōdō-in's Phoenix Hall. The new ¥10,000 note shows Shibusawa Eiichi, who helped found about 500 companies." },
             { title: "Kit Kat for exams", text: "It sounds like kitto katsu, “you'll surely win”, so it's given to students before exams. There have been hundreds of flavours." },
             { title: "KFC for Christmas", text: "Since a 1974 ad campaign, fried chicken is the Christmas dinner. People order weeks ahead." },
+          ],
+        },
+        {
+          title: "The country",
+          items: [
+            { title: "14,125 islands", text: "A 2023 recount with modern maps more than doubled the official number — the coastline hadn't changed." },
+            { title: "Two electricity grids", text: "Eastern Japan runs at 50 Hz and western Japan at 60 Hz, because in the 1890s Tokyo bought German generators and Osaka bought American ones. The line is around the Fuji River." },
+            { title: "The top of Mount Fuji is private", text: "Above the eighth station it belongs to a Shinto shrine, Fujisan Hongū Sengen Taisha — confirmed by the Supreme Court in 1974." },
+            { title: "Addresses without streets", text: "Most streets have no names. An address is a district, a block and a building number — which is why everyone navigates by map." },
+            { title: "Green lights are “blue”", text: "The old word ao covered both blue and green. Traffic lights were made a bluish green so the word still fits." },
+            { title: "Around 2,000 characters", text: "Students learn 2,136 everyday kanji by the end of high school, on top of the two 46-letter syllabaries." },
+          ],
+        },
+        {
+          title: "People & things",
+          items: [
             { title: "Japanese inventions", text: "Instant noodles (1958), karaoke, the emoji (1999 — e means picture, moji means character), the QR code (1994, for tracking car parts)." },
             { title: "More pets than children", text: "There are more pet cats and dogs than children under 15." },
             { title: "Almost 100,000 centenarians", text: "Japan has one of the longest life expectancies in the world, and the number of people over 100 rises every year." },
             { title: "Close to 4 million vending machines", text: "Roughly one for every 30 people. Many sell hot drinks in winter — look for the red labels." },
-            { title: "Addresses without streets", text: "Most streets have no names. An address is a district, a block and a building number — which is why everyone navigates by map." },
             { title: "Lost things come back", text: "Tokyo's police take in millions of lost items a year, and a large share of the cash handed in is returned to its owners." },
             { title: "Toilets that play sounds", text: "Most homes have a heated, bidet-equipped toilet. In public ones, a button often plays a flushing sound or birdsong for privacy." },
-            { title: "Around 2,000 characters", text: "Students learn 2,136 everyday kanji by the end of high school, on top of the two 46-letter syllabaries." },
           ],
         },
       ],
@@ -314,10 +405,16 @@ export const japan: CountryGuide = {
       summary: "What catches visitors out",
       blocks: [
         {
+          title: "Trains",
           items: [
             { title: "Suica on your iPhone", text: "Add Suica to Apple Wallet and tap through the gates without unlocking the phone. It also pays at convenience stores, vending machines and lockers." },
             { title: "Two subways in Tokyo", text: "Tokyo Metro and Toei are separate companies, so changing between them costs extra. An IC card handles it automatically." },
             { title: "The JR Pass", text: "Its price rose sharply in 2023. For a Tokyo–Kyoto–Osaka trip, single tickets often cost less — compare before buying." },
+          ],
+        },
+        {
+          title: "Luggage & bikes",
+          items: [
             { title: "Big bags on the Shinkansen", text: "On the Tōkaidō, San'yō and Kyūshū lines, a bag whose length, width and height add up to over 160 cm needs a seat booked with the oversized-luggage space." },
             { title: "Send your luggage ahead", text: "Takkyūbin delivers suitcases hotel to hotel, usually next day — so you can ride trains with just a day bag." },
             { title: "Cycling fines", text: "Ride on the left, no phone or umbrella in hand. On-the-spot fines for cyclists began in April 2026." },
@@ -332,11 +429,17 @@ export const japan: CountryGuide = {
       summary: "Ticket machines, cover charges, dashi",
       blocks: [
         {
+          title: "Ordering",
           items: [
             { title: "Ticket machines", text: "Many ramen and noodle shops have you buy a ticket at a machine by the door and hand it over. Some take only cash." },
             { title: "The dish you didn't order", text: "At many izakaya a small starter (otoshi) arrives unasked and is charged per person, usually a few hundred yen. It's the table charge, not a scam." },
             { title: "Book the popular places", text: "Well-known restaurants can be full weeks ahead. Last orders are often 30–60 minutes before closing." },
             { title: "Depachika at closing time", text: "Department-store basement food halls mark prepared food down in the last hour." },
+          ],
+        },
+        {
+          title: "Eating",
+          items: [
             { title: "Vegetarian is hard", text: "Fish stock (dashi) is in most soups, sauces and broths, even ones that look vegetable-only. Shōjin ryōri, temple cooking, is fully plant-based." },
             { title: "Raw egg is fine", text: "Eggs are produced to be eaten raw — tamago kake gohan, egg on rice, is a classic breakfast." },
             { title: "“Sake” means any alcohol", text: "The rice drink is nihonshu." },
@@ -351,6 +454,7 @@ export const japan: CountryGuide = {
     { from: "10-25", to: "11-05", when: "Late October – early November", title: "Jimbōchō book festival", text: "Tokyo's old-bookshop district lines a street with half a kilometre of outdoor stalls for the Kanda Used Book Festival." },
     { from: "10-31", to: "10-31", when: "31 October", title: "Halloween in Shibuya", text: "Street drinking is banned around the station and the ward asks people not to gather — expect police and barriers rather than a party." },
     { from: "10-15", to: "11-30", when: "October – November weekends", title: "Shichi-Go-San", text: "Families bring children of three, five and seven to shrines in kimono to pray for their health — Meiji Jingū is full of tiny kimonos." },
+    { from: "10-31", to: "11-04", when: "Around 3 November", title: "Mashiko pottery fair", text: "The pottery town north of Tokyo fills with hundreds of potters' tents — a day trip by direct bus from Akihabara." },
     { from: "11-03", to: "11-03", when: "3 November", title: "Culture Day", text: "A national holiday. Some museums and gardens are free, Hakone holds a daimyō procession, and it's usually one of the clearest days of the year." },
     { from: "11-01", to: "11-30", when: "November", title: "Tori no Ichi", text: "On the Days of the Rooster, Ōtori shrines — the biggest in Asakusa — hold night fairs selling decorated bamboo rakes (kumade) that “rake in” luck for businesses." },
     { from: "11-01", to: "11-20", when: "Early to mid November", title: "Kawaguchiko's Autumn Leaves Festival", text: "The Momiji Corridor on the north shore of Lake Kawaguchi is lit up after dark." },
@@ -371,6 +475,16 @@ export const japan: CountryGuide = {
       local: "東京",
       lat: 35.6812, lng: 139.7671, radiusKm: 25,
       population: "About 14 million",
+      dayTrips: [
+        { name: "Sawara", local: "佐原", getting: "About 1 h 30 min by JR or highway bus", text: "A canal town of Edo-era merchant houses, with boat rides under willows. Home of Inō Tadataka, who at 55 started walking the country to survey it — some 35,000 km — and produced the first accurate map of Japan. His museum shows maps that are startlingly close to satellite ones." },
+        { name: "Ōya & Utsunomiya", local: "大谷・宇都宮", getting: "About 1 h 30 min: Shinkansen to Utsunomiya, then a 30-min bus", text: "The Ōya History Museum is an abandoned underground stone quarry as big as a cathedral — 20,000 m², 30 m down, cold all year. Frank Lloyd Wright built Tokyo's Imperial Hotel from this stone. Back in Utsunomiya, eat gyōza: the city fights Hamamatsu every year for the title of gyōza capital." },
+        { name: "Mashiko", local: "益子", getting: "About 2 h 30 min by direct bus from Akihabara", text: "The pottery town of Shōji Hamada, a founder of the mingei folk-craft movement, with hundreds of kilns and studios. Its autumn pottery fair, around 3 November, fills the town with hundreds of tents." },
+        { name: "Chichibu", local: "秩父", getting: "About 1 h 20 min by Seibu Laview from Ikebukuro", text: "The train is half the trip: Laview, designed by Kazuyo Sejima of SANAA, has a mirrored silver nose and huge windows almost down to the floor. In the mountains, Mitsumine Shrine is guarded by wolves instead of lion-dogs." },
+        { name: "Nokogiriyama", local: "鋸山", getting: "About 2 h by JR, or by ferry across Tokyo Bay from Kurihama", text: "An old quarry mountain whose cut cliffs look like a saw. Stand on Jigoku-nozoki, a ledge over the drop, and find a 31 m Buddha carved into the rock — the largest pre-modern stone Buddha in Japan — and over 1,500 stone disciples along the trail." },
+        { name: "Okutama", local: "奥多摩", getting: "About 2 h by JR Ōme line", text: "Still Tokyo, the same prefecture — but forest, a deep river gorge and the Nippara limestone cave. Trains thin out in the evening, so check the last one back." },
+        { name: "Ōyama", local: "大山", getting: "About 1 h by Odakyu to Isehara, then bus and cable car", text: "The pilgrimage mountain Edo townspeople walked to from the city — you'll see it in ukiyo-e prints. The steps up to Ōyama-dera are lined with maples lit up at night in late autumn, and the town at the bottom lives on tofu." },
+        { name: "Ashikaga", local: "足利", getting: "About 2 h by train", text: "Ashikaga Gakkō is said to be Japan's oldest school; Francis Xavier called it the most famous university in eastern Japan. Ashikaga Flower Park's winter illumination, millions of lights, starts in late October." },
+      ],
       items: [
         { title: "A fishing village called Edo", text: "Tokugawa Ieyasu made it his base in 1590; by the 1700s it was one of the largest cities in the world. Renamed Tokyo, “eastern capital”, when the emperor moved here in 1868." },
         { title: "Rebuilt twice", text: "The 1923 Great Kantō earthquake and the 1945 firebombing each destroyed much of the city — which is why so little old Tokyo survives." },
@@ -393,6 +507,16 @@ export const japan: CountryGuide = {
       local: "京都",
       lat: 35.0116, lng: 135.7681, radiusKm: 10,
       population: "About 1.4 million",
+      dayTrips: [
+        { name: "Takao", local: "高雄", getting: "About 50 min by JR bus from Kyoto Station", text: "Three mountain temples along a river gorge, where Kyoto's maples turn first — early to mid November. At Jingo-ji you throw little clay discs (kawarake) off a cliff to cast away bad luck. Kōzan-ji keeps copies of the Chōjū-giga, 12th-century scrolls of frogs and rabbits often called the first manga. Walk down the river to Kiyotaki." },
+        { name: "Ōhara", local: "大原", getting: "About 25 min by bus from Kokusaikaikan subway station", text: "A farming valley in the northern hills. At Hōsen-in you sit on the tatami with matcha and see the garden framed by the pillars like a picture, under a pine said to be 700 years old. Sanzen-in's moss garden hides little smiling stone jizō. The valley's red shiso pickles (shibazuke) are the thing to bring back." },
+        { name: "Ōmi-Hachiman", local: "近江八幡", getting: "About 35 min by JR from Kyoto", text: "An Edo-era merchant town on a canal you can tour by boat. Ōmi merchants' motto, sanpō-yoshi — good for the seller, the buyer and society — is still quoted in Japanese business schools. La Collina, a confectioner's headquarters by architect Terunobu Fujimori, has a lawn growing on its roof." },
+        { name: "Miho Museum", local: "ミホミュージアム", getting: "About 1 h: JR to Ishiyama, then a 50-min bus", text: "I. M. Pei, the Louvre pyramid's architect, built it in the Shiga mountains as a modern Shangri-La: you walk through a curving silver tunnel and over a bridge across a valley, and most of the building is underground. Open in spring and autumn seasons only, closed on Mondays." },
+        { name: "Sakamoto & Hiyoshi Taisha", local: "坂本・日吉大社", getting: "About 40 min by Keihan or JR to Sakamoto", text: "The temple town under Mount Hiei, its walls built in anō-zumi — stones stacked without mortar by the same guild of masons who built castle walls. Hiyoshi Taisha is one of the best maple spots near Kyoto and rarely crowded. Japan's longest cable car climbs from here to Enryaku-ji." },
+        { name: "Miyama", local: "美山", getting: "About 2 h: JR to Hiyoshi, then a local bus (only a few a day)", text: "Kayabuki-no-sato: nearly 40 thatched farmhouses in a valley, still lived in — Shirakawa-gō without the coaches. The Little Indigo Museum, in one of the houses, dyes everything in indigo." },
+        { name: "Ine & Amanohashidate", local: "伊根・天橋立", getting: "About 2 h by train, then 1 h by bus — a long day, better with a night", text: "Ine's 230 boathouses (funaya) sit right on the water, boats parked on the ground floor, homes above. On the way, Amanohashidate's pine-covered sandbar is one of Japan's three famous views — tradition says to look at it upside down through your legs (mata-nozoki), when it becomes a bridge to heaven." },
+        { name: "Asuka", local: "明日香", getting: "About 1 h 20 min by Kintetsu, changing at Kashiharajingū-mae", text: "Japan's capital before Nara, now rice fields. Rent a bike between burial mounds: Ishibutai, a tomb of giant bare boulders, and Asuka-dera, whose Great Buddha from 609 is the oldest in Japan." },
+      ],
       items: [
         { title: "A thousand years as capital", text: "Founded as Heian-kyō in 794 on a grid copied from China. The emperor lived here until 1868." },
         { title: "Spared in the war", text: "Kyoto was largely left out of the bombing, so whole streets of wooden townhouses (machiya) survive." },

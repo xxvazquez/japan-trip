@@ -1,4 +1,6 @@
+import { useState, type ReactNode } from "react";
 import { useParams } from "react-router-dom";
+import { Icon } from "@/components/Icon";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { Section } from "@/components/Section";
@@ -69,15 +71,36 @@ export function GuideHome() {
         {others.length > 0 && (
           <Section title="Also on your trip" id={`guide-${guide.id}-others`}>{cityRows(others, false)}</Section>
         )}
+        {stays.some((c) => c.dayTrips?.length) && (
+          <Section title="Day trips" id={`guide-${guide.id}-day-trips`}>
+            <ul>
+              {stays.filter((c) => c.dayTrips?.length).map((c) => (
+                <TileRow
+                  key={c.id}
+                  to={`${guidePath(guide)}/place/${c.id}/day-trips`}
+                  tile={<IconTile size="sm" name="train" tone="ai" />}
+                  title={`From ${c.name}`}
+                  right={String(c.dayTrips!.length)}
+                />
+              ))}
+            </ul>
+          </Section>
+        )}
         {dates.length > 0 && (
           <Section title="While you're there" id={`guide-${guide.id}-dates`}>
             <ul>
               {dates.map((d) => (
-                <li key={d.title} className={`${INSET_DIVIDER} px-3.5 py-3`}>
-                  <span className="block text-xs text-ink-faint">{d.when}</span>
-                  <span className="value mt-0.5 block break-words">{d.title}</span>
-                  <span className="mt-0.5 block break-words text-sm leading-normal text-ink-soft">{d.text}</span>
-                </li>
+                <Disclosure
+                  key={d.title}
+                  title={
+                    <>
+                      <span className="block text-xs text-ink-faint">{d.when}</span>
+                      <span className="value mt-0.5 block break-words">{d.title}</span>
+                    </>
+                  }
+                >
+                  {d.text}
+                </Disclosure>
               ))}
             </ul>
           </Section>
@@ -131,6 +154,18 @@ export function GuideCityPage() {
             </ul>
           </Section>
         )}
+        {city.dayTrips?.length ? (
+          <Section>
+            <ul>
+              <TileRow
+                to={`${guidePath(guide)}/place/${city.id}/day-trips`}
+                tile={<IconTile size="sm" name="train" tone="ai" />}
+                title="Day trips"
+                right={String(city.dayTrips.length)}
+              />
+            </ul>
+          </Section>
+        ) : null}
         <Section title="Worth knowing" id={`guide-${guide.id}-city-items`}>
           <ul>
             {city.items.map((it) => <Item key={it.title} item={it} />)}
@@ -141,15 +176,79 @@ export function GuideCityPage() {
   );
 }
 
+export function GuideDayTripsPage() {
+  const guide = useGuide();
+  const { city: id } = useParams();
+  if (!guide) return noGuide;
+  const city = guide.cities.find((c) => c.id === id);
+  if (!city?.dayTrips?.length) return <Missing title="Nothing here" body="No day trips for that place." to={guidePath(guide)} cta={`Back to ${guide.name}`} />;
+
+  return (
+    <Page>
+      <PageHeader back={`${guidePath(guide)}/place/${city.id}`} title={`Day trips from ${city.name}`} meta="Off the usual list, by train or bus" className="mb-6" />
+      <Section>
+        <ul>
+          {city.dayTrips.map((t) => (
+            <Disclosure
+              key={t.name}
+              title={
+                <>
+                  <span className="flex items-baseline justify-between gap-3">
+                    <span className="value min-w-0 break-words">{t.name}</span>
+                    {t.local && <span className="shrink-0 text-sm text-ink-faint">{t.local}</span>}
+                  </span>
+                  <span className="mt-0.5 block break-words text-xs text-ink-faint">{t.getting}</span>
+                </>
+              }
+            >
+              {t.text}
+            </Disclosure>
+          ))}
+        </ul>
+      </Section>
+    </Page>
+  );
+}
+
 /* ------------------------------------------------------------------ rows */
 
-/** a lead in primary ink and the explanation under it — prose to read, so
- *  it's `ink-soft` at the body size rather than a faint caption */
+/** A point you tap to read, the iOS disclosure row: the lead in primary
+ *  ink with a trailing chevron that turns down as the text slides open
+ *  under it. Whole row is the button, so the page scans as a list of
+ *  headlines. */
 function Item({ item }: { item: GuideItem }) {
   return (
-    <li className={`${INSET_DIVIDER} px-3.5 py-3`}>
-      <p className="value break-words">{item.title}</p>
-      <p className="mt-0.5 break-words text-sm leading-normal text-ink-soft">{item.text}</p>
+    <Disclosure title={<span className="value block break-words">{item.title}</span>}>
+      {item.text}
+    </Disclosure>
+  );
+}
+
+function Disclosure({ title, children }: { title: ReactNode; children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <li className={INSET_DIVIDER}>
+      <button
+        type="button"
+        onClick={() => setOpen((was) => !was)}
+        aria-expanded={open}
+        className="flex w-full items-start gap-3 px-3.5 py-3 text-left transition-colors duration-150 hover:bg-surface-2/40 active:bg-ink/[0.07] focus-visible:[outline-offset:-2px]"
+      >
+        <span className="min-w-0 flex-1">{title}</span>
+        <Icon
+          name="chevron"
+          size={14}
+          className={`mt-[3px] shrink-0 text-ink-faint transition-transform duration-300 [transition-timing-function:var(--ease-paper)] ${open ? "rotate-90" : ""}`}
+        />
+      </button>
+      {/* 0fr → 1fr animates to the text's own height, no measuring */}
+      <div
+        className={`grid transition-[grid-template-rows] duration-300 [transition-timing-function:var(--ease-paper)] ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+      >
+        <div className="overflow-hidden">
+          <p className="-mt-1.5 break-words px-3.5 pb-3 pr-10 text-sm leading-normal text-ink-soft">{children}</p>
+        </div>
+      </div>
     </li>
   );
 }

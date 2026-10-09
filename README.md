@@ -484,7 +484,9 @@ When a trip has stays or pins in a country the app has a guide for (Japan today)
 
 - **Where you're staying / Also on your trip** — a page per city or town the trip touches, matched from its stays, bases and pins (a day trip to Uji or Kurama shows up without a stay there).
 - **While you're there** — festivals, seasons and closures that fall within the trip's own dates.
-- **Understand** — history, belief, stamps, school, work, politics, culture and a page of fun facts.
+- **Day trips** — from each base, off the usual list, all by train or bus.
+- **Understand** — history, belief, stamps, school, work, politics, culture, manga & anime and a page of fun facts.
+- Every page is grouped into collapsible sections; tap a point to read it.
 - **Before you go** — only the non-obvious: traps and rules, getting around, food.
 - It's built into the app (`src/guides/`), read-only and works offline. Adding a country is one content file plus a `GUIDES` entry.
 
@@ -503,7 +505,7 @@ Tap a document to open its page: name it, attach PDFs or photos, add fields and 
 - **Icons** come from the name: a flight shows a plane, insurance a shield, a QR code or ticket a ticket, a hotel booking a bed, a passport or visa a person. Anything else is a plain page.
 - **Emergency** contacts show the name with the number under it, as Phone's favourites do, with an icon from the name: police, ambulance / fire, embassy. Anything else is a phone.
 - **Add a field** (also a stay's details and Emergency contacts) opens the new field ready to type. Leave both its name and value blank and it goes away.
-- **Signed in** — files go to your account (private to the trip, 25 MB each), or to a shared Google Drive folder if set up. Drive needs its own **Connect Google Drive** tap, which lasts about an hour.
+- **Signed in** — files go to your account (private to the trip, 25 MB each), or to a shared Google Drive folder if set up. Drive needs its own **Connect Google Drive** tap, once per device — it stays connected after that (about an hour only, without `GOOGLE_CLIENT_SECRET` on the server).
 - **On this device only** — files stay on the device, and upload automatically once you sign in.
 - **Opening** a file shows it inside the app, like Quick Look: PDFs page by page, photos full width. Double-tap or pinch to zoom; **Share** saves or sends it on.
 - **Photos** show a preview under their name, from the copy on the device when there is one.
@@ -738,6 +740,7 @@ VITE_GOOGLE_CLIENT_ID=<Google OAuth web client id>
 TAVILY_API_KEY=<Tavily API key>
 EXA_API_KEY=<Exa API key>
 LINKUP_API_KEY=<Linkup API key>
+GOOGLE_CLIENT_SECRET=<Google OAuth web client secret>
 ```
 
 | Variable | Purpose |
@@ -745,6 +748,7 @@ LINKUP_API_KEY=<Linkup API key>
 | `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` | Accounts, sync and sharing. The URL must be the **full https URL**. |
 | `VITE_PROTOMAPS_API_KEY` / `VITE_MAP_TILES_URL` | Map tiles — see [The map background](#the-map-background). |
 | `VITE_GOOGLE_CLIENT_ID` | Google Drive for attachments. Without it, signed-in files go to the account's own storage. |
+| `GOOGLE_CLIENT_SECRET` | Keeps Google Drive connected instead of asking again every hour or launch. The secret of the same OAuth client. Server-side only; in production it's a Worker secret — see [Deploy](#deploy). |
 | `VITE_ORS_API_KEY` | Real walking routes. Free, no card, 2,000 requests/day from [openrouteservice.org](https://openrouteservice.org/dev/#/signup). Without it, walks use straight-line estimates. Requests are throttled and cached per device. |
 | `TAVILY_API_KEY` | Tabelog links and Good to know, in `npm run dev` / `preview`. Free, no card, 1,000 searches/month from [tavily.com](https://app.tavily.com). Server-side only (no `VITE_` prefix), so it never reaches the bundle. In production it's a Worker secret — see [Deploy](#deploy). |
 | `EXA_API_KEY` | The fallback search, used when Tavily's month is used up (or there's no Tavily key). Free, no card, $10 of searches a month (about 1,400) from [exa.ai](https://dashboard.exa.ai). Server-side only, like Tavily's. |
@@ -823,11 +827,13 @@ Google sign-in has no allowlist of its own. Strangers would only ever see their 
 
 Hosted on **Cloudflare Workers** (static assets), deployed through the Git integration on every push to `main`.
 
-- A small Worker script ([`worker/index.ts`](worker/index.ts)) answers `/api/*` only — today `/api/tabelog` and `/api/place-facts`, the place lookups. Everything else is served as static files without touching it (`run_worker_first` in [`wrangler.jsonc`](wrangler.jsonc)).
+- A small Worker script ([`worker/index.ts`](worker/index.ts)) answers `/api/*` only — today `/api/tabelog` and `/api/place-facts`, the place lookups, and `/api/google-token` for Drive. Everything else is served as static files without touching it (`run_worker_first` in [`wrangler.jsonc`](wrangler.jsonc)).
 - In `npm run dev` / `preview` the same handler runs as Vite middleware, so the lookup works locally too.
 - The lookup searches with [Tavily](https://app.tavily.com) (Tabelog blocks requests from Cloudflare's servers, so it can't be read directly). Its key goes in **Worker → Settings → Variables and Secrets → Add → Secret**, named `TAVILY_API_KEY`. Takes effect without a rebuild.
 - When Tavily can't answer (its free month is used up), the same search goes to [Exa](https://dashboard.exa.ai) instead ([`worker/search.ts`](worker/search.ts)). Its key is a second secret, `EXA_API_KEY`. When Exa's month is used up too, it goes to [Linkup](https://app.linkup.so), a third secret `LINKUP_API_KEY`. With none left, lookups stop until a month resets, and the app says so.
 - **Only signed-in accounts can use `/api/*`** — anyone else gets *Sign in to use this*, so strangers can't spend the searches. The app sends its sign-in with each call and the Worker checks it with Supabase ([`worker/auth.ts`](worker/auth.ts)). For that the Worker needs two more entries under **Variables and Secrets**, as plain text: `SUPABASE_URL` and `SUPABASE_ANON_KEY` (the same values as `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`). Without them every lookup is refused.
+- **Google Drive stays connected** through `/api/google-token` ([`worker/google.ts`](worker/google.ts)): it swaps Google's sign-in code for a refresh token kept on the device, and renews Drive access with it. Add the OAuth client's secret as a Worker secret named `GOOGLE_CLIENT_SECRET`. Without it, Drive asks again every hour.
+- In Google Cloud, set the OAuth consent screen to **In production** — while it's *Testing*, Google ends the connection after 7 days.
 - `keep_vars` in `wrangler.jsonc` keeps those dashboard variables across deploys. Without it every push wiped them, and Good to know silently stopped looking anything up.
 - In `npm run dev` the check uses `.env.local`'s Supabase values; `npm run dev:demo` skips it (no sign-in there).
 - The public demo has no Worker script; there the Tabelog row just opens a search.
