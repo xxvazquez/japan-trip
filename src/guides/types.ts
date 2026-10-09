@@ -1,17 +1,28 @@
 import type { IconName } from "@/components/Icon";
 import type { MapGlyphId } from "@/lib/mapGlyphs";
 
-/** One point in a guide — a short lead and a line or two under it. */
+/** Body text: one paragraph, or several. */
+export type GuideText = string | string[];
+
+/** One point in a guide — a short lead, the text that opens under it, and
+ *  an optional short list after the text. */
 export interface GuideItem {
   title: string;
-  text: string;
+  text: GuideText;
+  points?: string[];
+  /** a small caption over `points` — "Where to see it" */
+  pointsTitle?: string;
 }
 
-/** One stop on a timeline — when, what, and why it still shows. */
+/** One stop on a timeline — when, what, a line that always shows, and the
+ *  fuller story that opens under it. */
 export interface GuideEvent {
   when: string;
   title: string;
-  text: string;
+  summary: string;
+  text: GuideText;
+  /** places where the period can still be seen */
+  see?: string[];
 }
 
 /** A group on a topic's page: a list of points, or a timeline. */
@@ -38,7 +49,7 @@ export interface GuideDayTrip {
   local?: string;
   /** how long and how, from the base — "About 40 min by JR" */
   getting: string;
-  text: string;
+  text: GuideText;
 }
 
 /** A city or town the guide knows about. It shows when the trip has a stay,
@@ -68,7 +79,7 @@ export interface GuideDate {
   /** how the dates read on the row */
   when: string;
   title: string;
-  text: string;
+  text: GuideText;
 }
 
 export interface CountryGuide {

@@ -11,7 +11,7 @@ import { useData } from "@/lib/data";
 import { guideTopicColor } from "@/lib/tones";
 import { GUIDE_CONTENT } from "@/guides/content";
 import { citiesOnTrip, datesOnTrip } from "@/guides/match";
-import type { CountryGuide, GuideCity, GuideEvent, GuideItem, GuideTopic } from "@/guides/types";
+import type { CountryGuide, GuideCity, GuideEvent, GuideItem, GuideText, GuideTopic } from "@/guides/types";
 
 /** A country guide — reference content the app ships with, read-only. Laid
  *  out like Settings: a home of grouped rows, each pushing to its own page. */
@@ -99,7 +99,7 @@ export function GuideHome() {
                     </>
                   }
                 >
-                  {d.text}
+                  <Body text={d.text} />
                 </Disclosure>
               ))}
             </ul>
@@ -201,7 +201,7 @@ export function GuideDayTripsPage() {
                 </>
               }
             >
-              {t.text}
+              <Body text={t.text} />
             </Disclosure>
           ))}
         </ul>
@@ -219,7 +219,7 @@ export function GuideDayTripsPage() {
 function Item({ item }: { item: GuideItem }) {
   return (
     <Disclosure title={<span className="value block break-words">{item.title}</span>}>
-      {item.text}
+      <Body text={item.text} points={item.points} pointsTitle={item.pointsTitle} />
     </Disclosure>
   );
 }
@@ -235,38 +235,91 @@ function Disclosure({ title, children }: { title: ReactNode; children: ReactNode
         className="flex w-full items-start gap-3 px-3.5 py-3 text-left transition-colors duration-150 hover:bg-surface-2/40 active:bg-ink/[0.07] focus-visible:[outline-offset:-2px]"
       >
         <span className="min-w-0 flex-1">{title}</span>
-        <Icon
-          name="chevron"
-          size={14}
-          className={`mt-[3px] shrink-0 text-ink-faint transition-transform duration-300 [transition-timing-function:var(--ease-paper)] ${open ? "rotate-90" : ""}`}
-        />
+        <Chevron open={open} />
       </button>
-      {/* 0fr → 1fr animates to the text's own height, no measuring */}
-      <div
-        className={`grid transition-[grid-template-rows] duration-300 [transition-timing-function:var(--ease-paper)] ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
-      >
-        <div className="overflow-hidden">
-          <p className="-mt-1.5 break-words px-3.5 pb-3 pr-10 text-sm leading-normal text-ink-soft">{children}</p>
-        </div>
-      </div>
+      <Reveal open={open}>
+        <div className="px-3.5 pb-4">{children}</div>
+      </Reveal>
     </li>
   );
 }
 
-/** one stop on a timeline: a dot on a rail down the left, the date as a
- *  small caption over the title */
-function Event({ event, last }: { event: GuideEvent; last: boolean }) {
+function Chevron({ open }: { open: boolean }) {
   return (
-    <li className="relative flex gap-3 py-3 pl-3.5 pr-3.5">
-      <span aria-hidden className="relative w-2 shrink-0">
-        {!last && <span className="absolute -bottom-3 left-1/2 top-[0.3rem] w-px -translate-x-1/2 bg-line" />}
-        <span className="absolute left-1/2 top-[0.3rem] h-2 w-2 -translate-x-1/2 rounded-full bg-accent" />
+    <Icon
+      name="chevron"
+      size={14}
+      className={`mt-[3px] shrink-0 text-ink-faint transition-transform duration-300 [transition-timing-function:var(--ease-paper)] ${open ? "rotate-90" : ""}`}
+    />
+  );
+}
+
+/** 0fr → 1fr animates to the content's own height, no measuring */
+function Reveal({ open, children }: { open: boolean; children: ReactNode }) {
+  return (
+    <div
+      className={`grid transition-[grid-template-rows] duration-300 [transition-timing-function:var(--ease-paper)] ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+    >
+      <div className="overflow-hidden">{children}</div>
+    </div>
+  );
+}
+
+/** The text that opens under a row: paragraphs with a little air between
+ *  them, then an optional bulleted list under a small caption. */
+function Body({ text, points, pointsTitle }: { text: GuideText; points?: string[]; pointsTitle?: string }) {
+  const paras = typeof text === "string" ? [text] : text;
+  return (
+    <div className="space-y-2.5 text-sm leading-[1.5] text-ink-soft">
+      {paras.map((p) => (
+        <p key={p} className="break-words">{p}</p>
+      ))}
+      {points?.length ? (
+        <div className="pt-1">
+          {pointsTitle && <p className="eyebrow mb-1.5 text-ink-faint">{pointsTitle}</p>}
+          <ul className="space-y-1.5">
+            {points.map((pt) => (
+              <li key={pt} className="flex gap-2.5">
+                <span aria-hidden className="mt-[0.55rem] h-[5px] w-[5px] shrink-0 rounded-full bg-ink-faint" />
+                <span className="min-w-0 break-words">{pt}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/** One stop on a timeline: a dot on a rail down the left, the date as a
+ *  small caption over the title and a one-line summary. Tapping opens the
+ *  fuller story and where the period can still be seen. */
+function Event({ event, last }: { event: GuideEvent; last: boolean }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <li className="relative">
+      <span aria-hidden className="pointer-events-none absolute bottom-0 left-3.5 top-0 z-[1] w-2">
+        {!last && <span className="absolute -bottom-[1.05rem] left-1/2 top-[1.05rem] w-px -translate-x-1/2 bg-line" />}
+        <span className="absolute left-1/2 top-[1.05rem] h-2 w-2 -translate-x-1/2 rounded-full bg-accent" />
       </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-xs tabular-nums text-ink-faint">{event.when}</span>
-        <span className="value mt-0.5 block break-words">{event.title}</span>
-        <span className="mt-0.5 block break-words text-sm leading-normal text-ink-soft">{event.text}</span>
-      </span>
+      <button
+        type="button"
+        onClick={() => setOpen((was) => !was)}
+        aria-expanded={open}
+        className="flex w-full items-start gap-3 py-3 pl-9 pr-3.5 text-left transition-colors duration-150 hover:bg-surface-2/40 active:bg-ink/[0.07] focus-visible:[outline-offset:-2px]"
+      >
+        <span className="min-w-0 flex-1">
+          <span className="block text-xs tabular-nums text-ink-faint">{event.when}</span>
+          <span className="value mt-0.5 block break-words">{event.title}</span>
+          <span className="mt-0.5 block break-words text-sm leading-[1.4] text-ink-soft">{event.summary}</span>
+        </span>
+        <Chevron open={open} />
+      </button>
+      <Reveal open={open}>
+        <div className="pb-4 pl-9 pr-3.5">
+          <Body text={event.text} points={event.see} pointsTitle="Where to see it" />
+        </div>
+      </Reveal>
     </li>
   );
 }

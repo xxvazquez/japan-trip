@@ -19,40 +19,273 @@ export const japan: CountryGuide = {
         {
           title: "Early Japan",
           timeline: [
-            { when: "c. 14,000 BC", title: "Jōmon", text: "Hunter-gatherers making some of the oldest pottery in the world, decorated with cord marks — jōmon means “cord pattern”." },
-            { when: "c. 300 BC", title: "Yayoi", text: "Rice paddies, bronze and iron arrive from the continent. Rice becomes the base of the economy, taxes and festivals for the next 2,000 years." },
-            { when: "250–538", title: "Kofun", text: "Rulers are buried in giant keyhole-shaped mounds. The Yamato clan emerges — the imperial family traces itself back to them." },
-            { when: "538", title: "Buddhism arrives", text: "Sent from a Korean kingdom along with writing in Chinese characters. It sits alongside the native Shinto rather than replacing it." },
+            {
+              when: "c. 14,000 BC",
+              title: "Jōmon",
+              summary: "Hunter-gatherers, and some of the oldest pottery on earth",
+              text: [
+                "For over ten thousand years people lived by hunting, fishing and gathering, in villages of sunken pit houses. They made pottery long before they farmed — among the oldest anywhere — and decorated it by pressing cord into the wet clay. Jōmon means “cord pattern”.",
+                "Later potters made wild flame-rimmed vessels and dogū, clay figures with huge goggle eyes. Several are now national treasures.",
+              ],
+              see: ["Tokyo National Museum, Ueno — the Japanese archaeology gallery"],
+            },
+            {
+              when: "c. 900 BC – AD 250",
+              title: "Yayoi",
+              summary: "Rice farming, bronze and iron arrive from the continent",
+              text: [
+                "Migrants from the Korean peninsula brought wet-rice farming, then bronze and iron. It began in northern Kyushu — radiocarbon dating keeps pushing the start earlier — and spread east over centuries.",
+                "Rice changed everything: settled villages, stored wealth, walled settlements, war. For the next two thousand years land was measured, taxes paid and samurai salaried in rice, and it's still at the heart of Shinto festivals.",
+              ],
+              see: [
+                "Tokyo National Museum — bronze bells (dōtaku)",
+                "Yayoi, a corner of Bunkyō in Tokyo, where this pottery was first found in 1884 and which gave the period its name",
+              ],
+            },
+            {
+              when: "c. 250 – 538",
+              title: "Kofun",
+              summary: "Giant keyhole-shaped tombs and the rise of Yamato",
+              text: [
+                "Rulers were buried under huge earth mounds — kofun — many keyhole-shaped and ringed by moats, with clay figures (haniwa) of warriors, houses and horses set around them.",
+                "A confederation based in the Nara basin, the Yamato, came to dominate most of the country; the imperial family traces its line back to them. The largest tomb, attributed to Emperor Nintoku, is close to 500 m long — and like every imperial tomb it can't be excavated.",
+              ],
+              see: [
+                "Mozu-Furuichi tombs, Sakai near Osaka — World Heritage since 2019; the free 21st-floor deck of Sakai City Office looks over them",
+                "Tokyo National Museum — haniwa figures",
+              ],
+            },
           ],
         },
         {
           title: "Emperors and courtiers",
           timeline: [
-            { when: "710–794", title: "Nara", text: "The first permanent capital, laid out on a grid copied from China's Chang'an. Tōdai-ji's Great Buddha is cast in 752." },
-            { when: "794–1185", title: "Heian (Kyoto)", text: "The capital moves to Kyoto and stays there for over a thousand years. Court women write in the new kana script — The Tale of Genji, around 1000, is often called the world's first novel." },
+            {
+              when: "538 – 710",
+              title: "Asuka",
+              summary: "Buddhism, Prince Shōtoku and a state on the Chinese model",
+              text: [
+                "Buddhism came from the Korean kingdom of Baekje — traditionally in 538 — and after a feud between clans the court adopted it. Writing in Chinese characters had already crossed over.",
+                "Prince Shōtoku, regent for Empress Suiko, built temples and wrote a 17-article code of conduct that opens with harmony (wa). Reforms after 645 brought land, tax and rank on the Chinese model, and by about 700 the country was calling itself Nihon, “origin of the sun”, and its ruler tennō, emperor.",
+              ],
+              see: [
+                "Hōryū-ji, near Nara — Shōtoku's temple, the oldest wooden buildings in the world",
+                "Asuka village — Asuka-dera's Great Buddha (609) and the bare boulder tomb of Ishibutai",
+              ],
+            },
+            {
+              when: "710 – 794",
+              title: "Nara",
+              summary: "The first permanent capital, and the Great Buddha",
+              text: [
+                "Heijō-kyō, today's Nara, was laid out on a grid copied from China's Tang capital, Chang'an. Before it, the court had moved with almost every new ruler.",
+                "After years of smallpox and revolt, Emperor Shōmu ordered a temple in every province and a colossal bronze Buddha for Tōdai-ji, dedicated in 752. Japan's first histories, the Kojiki (712) and Nihon Shoki (720), and its first great poetry anthology, the Man'yōshū, come from this time.",
+                "The Nara temples grew so powerful that the court moved away again.",
+              ],
+              see: [
+                "Tōdai-ji and its Great Buddha",
+                "The Shōsōin exhibition at the Nara National Museum — the emperor's 8th-century treasures, shown for a few weeks each autumn (late October to mid November)",
+                "Heijō Palace site — the rebuilt Suzaku Gate and Great Audience Hall",
+              ],
+            },
+            {
+              when: "794 – 1185",
+              title: "Heian",
+              summary: "Kyoto becomes the capital — for over a thousand years",
+              text: [
+                "Emperor Kanmu moved the court to Heian-kyō, “capital of peace”, today's Kyoto. Real power soon passed to the Fujiwara family, who married their daughters to emperors and ruled as regents.",
+                "Court life turned refined and inward-looking. The new kana scripts let women write in Japanese rather than Chinese: Murasaki Shikibu's Tale of Genji, around 1000, is often called the world's first novel, and Sei Shōnagon's Pillow Book is a list-maker's diary of the court.",
+                "Meanwhile warrior clans grew strong in the provinces. The Genpei War between the Taira and the Minamoto ended the period in 1185.",
+              ],
+              see: [
+                "Byōdō-in, Uji — a Fujiwara villa turned temple (1053)",
+                "Kyoto Imperial Palace — free, no booking needed",
+                "Tale of Genji Museum, Uji",
+              ],
+            },
           ],
         },
         {
           title: "Samurai rule",
           timeline: [
-            { when: "1185–1333", title: "Kamakura", text: "Warriors take real power. The shogun — a military ruler — governs while the emperor reigns in name only, a split that lasts almost 700 years. Two Mongol invasions are wrecked by storms: the kamikaze, “divine wind”." },
-            { when: "1336–1573", title: "Muromachi", text: "Shoguns back in Kyoto. Zen, the tea ceremony, Noh theatre and rock gardens take shape. Then a civil war in 1467 breaks the country into warring domains for a century." },
-            { when: "1543", title: "Europeans arrive", text: "Portuguese traders bring guns; Jesuit missionaries follow. Within decades Japan is producing firearms in huge numbers." },
-            { when: "1568–1600", title: "Unification", text: "Oda Nobunaga, Toyotomi Hideyoshi and Tokugawa Ieyasu fight the country back together. The Battle of Sekigahara (1600) settles it." },
-            { when: "1603–1868", title: "Edo", text: "The Tokugawa shoguns rule from Edo, today's Tokyo — 250 years without a major war. Christianity is banned and foreign trade limited to the Dutch and Chinese at Nagasaki. Kabuki, ukiyo-e prints, sushi and the onsen trip are all Edo pop culture." },
+            {
+              when: "1185 – 1333",
+              title: "Kamakura",
+              summary: "The first shogun, and the Mongols turned back",
+              text: [
+                "Minamoto no Yoritomo set up a military government in Kamakura and in 1192 took the title shōgun. The emperor stayed in Kyoto and reigned; the shogun ruled. That split lasted, in one form or another, until 1867.",
+                "Kublai Khan's Mongol fleets attacked in 1274 and 1281, and both were wrecked by storms — the kamikaze, “divine wind”. New Buddhist schools — Pure Land, Nichiren and Zen — took root among ordinary people and warriors.",
+              ],
+              see: [
+                "Kamakura — the Great Buddha (begun 1252) and Tsurugaoka Hachimangū",
+                "Sanjūsangen-dō, Kyoto — 1,001 statues of Kannon in a hall rebuilt in 1266",
+              ],
+            },
+            {
+              when: "1336 – 1573",
+              title: "Muromachi",
+              summary: "Zen, tea and Noh — then a century of civil war",
+              text: [
+                "The Ashikaga shoguns ruled from Kyoto's Muromachi district and paid for the arts that came with Zen: ink painting, rock gardens, Noh theatre, flower arranging and the first tea ceremonies.",
+                "The Ōnin War, fought in Kyoto's own streets from 1467, burned much of the city and broke the shoguns' authority. A century of Sengoku, “warring states”, followed — local lords (daimyō) fighting from their castles.",
+              ],
+              see: [
+                "Kinkaku-ji and Ginkaku-ji, Kyoto — the shoguns' retreats",
+                "Ryōan-ji's rock garden, Kyoto",
+              ],
+            },
+            {
+              when: "1543",
+              title: "Europeans arrive",
+              summary: "Portuguese guns and Jesuit missionaries",
+              text: [
+                "A Chinese junk carrying Portuguese traders landed on Tanegashima, an island off Kyushu. Local smiths copied their guns within a year, and by the 1570s battles were won with massed firearms.",
+                "The Jesuit Francis Xavier arrived in 1549, and Christianity spread fast in Kyushu — perhaps 300,000 converts at its peak. Trade brought tempura, castella cake, tobacco, and pan, the word for bread.",
+              ],
+              see: ["Kobe City Museum — nanban screens painting the Portuguese “southern barbarians”"],
+            },
+            {
+              when: "1568 – 1600",
+              title: "Unification",
+              summary: "Three warlords put the country back together",
+              text: [
+                "Oda Nobunaga took Kyoto in 1568 and crushed rival lords and the armed Buddhist temples — he burned Enryaku-ji on Mount Hiei in 1571. After his death in 1582, Toyotomi Hideyoshi finished the job, built Osaka Castle, disarmed the peasants and invaded Korea twice.",
+                "A saying sums the three up: Nobunaga pounded the rice cake, Hideyoshi kneaded it, and Tokugawa Ieyasu sat down and ate it. Ieyasu won the Battle of Sekigahara in 1600. The castles, gold screens and teahouses of these few decades are some of Japan's most lavish art.",
+              ],
+              see: [
+                "Himeji Castle — an original keep from 1609",
+                "Osaka Castle — the keep is a 1931 rebuild, the walls and moats are real",
+                "Kōdai-ji, Kyoto — the temple of Hideyoshi's widow",
+              ],
+            },
+            {
+              when: "1603 – 1868",
+              title: "Edo",
+              summary: "250 years of peace under the Tokugawa",
+              text: [
+                "Ieyasu became shogun in 1603 and ruled from Edo, today's Tokyo. Every lord had to spend alternate years there and leave his family behind (sankin-kōtai) — it kept them poor and loyal, and built the highways and post towns you can still walk.",
+                "Christianity was banned, and from the 1630s Japanese were forbidden to go abroad. Foreign trade ran through a few controlled channels — the Dutch and Chinese at Nagasaki, Korea through Tsushima. Later historians called it sakoku, the “closed country”.",
+                "Peace made the cities rich. Kabuki, bunraku puppets, ukiyo-e prints, haiku, sushi, soba and the onsen trip are all Edo popular culture.",
+              ],
+              see: [
+                "Nikkō Tōshō-gū — Ieyasu's mausoleum",
+                "Nijō Castle, Kyoto — the shoguns' Kyoto residence",
+                "Hakone — a stretch of the old Tōkaidō road and its checkpoint",
+              ],
+            },
           ],
         },
         {
           title: "Modern Japan",
           timeline: [
-            { when: "1853", title: "The black ships", text: "US warships under Commodore Perry force the country to open its ports. The shogunate never recovers." },
-            { when: "1868", title: "Meiji Restoration", text: "The emperor is put back at the centre and Edo becomes Tokyo. In one generation: railways, a parliament, conscription, Western clothes, the end of the samurai class." },
-            { when: "1894–1945", title: "Empire and war", text: "Wins against China and Russia, Taiwan and Korea taken as colonies, then war across Asia and the Pacific. It ends after the atomic bombings of Hiroshima and Nagasaki in August 1945." },
-            { when: "1945–1952", title: "Occupation", text: "US-led occupation. A new constitution (1947) makes the emperor a symbol, gives women the vote and renounces war. It has never been amended." },
-            { when: "1955–1990", title: "The economic miracle", text: "From ruins to the world's second-largest economy. The 1964 Tokyo Olympics open with the first Shinkansen." },
-            { when: "1991–", title: "The “lost decades”", text: "A property and stock bubble bursts and growth stalls for years. The population starts shrinking in the late 2000s." },
-            { when: "2011", title: "Tōhoku earthquake", text: "A magnitude 9.0 earthquake and tsunami kill nearly 20,000 people and cause the Fukushima nuclear disaster." },
-            { when: "2019", title: "Reiwa", text: "Emperor Naruhito takes the throne and a new era begins. Japan still counts years by era: 2026 is Reiwa 8 — you'll see it on receipts and forms." },
+            {
+              when: "1853 – 1868",
+              title: "The black ships",
+              summary: "American warships force Japan open",
+              text: [
+                "Commodore Matthew Perry sailed into Edo Bay with four warships in 1853 and came back the next year for a treaty. Unequal treaties with the Western powers followed, opening ports such as Yokohama and Hakodate in 1859, and later Kobe.",
+                "The shogunate's weakness split the country. Samurai from Satsuma and Chōshū in the southwest rallied around the emperor; the last shogun handed power back in 1867, and a short civil war finished the old order.",
+              ],
+              see: ["Yokohama — the old foreign settlement and the Western houses of Yamate", "Kobe — the merchants' houses of Kitano"],
+            },
+            {
+              when: "1868 – 1912",
+              title: "Meiji",
+              summary: "Japan remakes itself in one generation",
+              text: [
+                "The young Emperor Meiji was “restored”, and Edo became Tokyo, the “eastern capital”. The new government, run by former samurai, abolished the domains and the samurai class, and sent missions to study Europe and America.",
+                "Within forty years Japan had railways (Tokyo–Yokohama, 1872), schooling for all, a conscript army, a constitution (1889), a parliament and Western dress at court. Victory over Russia in 1905 made it the first Asian power to defeat a European one in modern war.",
+              ],
+              see: ["Meiji Jingū, Tokyo — the shrine to Emperor Meiji", "Tomioka Silk Mill, Gunma — World Heritage"],
+            },
+            {
+              when: "1912 – 1945",
+              title: "Empire and war",
+              summary: "A brief democracy, then militarism and defeat",
+              text: [
+                "The Taishō era (1912–26) brought party politics, jazz cafés and department stores. The Great Kantō earthquake of 1923 destroyed much of Tokyo and Yokohama and killed over 100,000 people.",
+                "In the 1930s the army took control. Japan seized Manchuria in 1931, went to full war with China in 1937 and attacked Pearl Harbor in December 1941. Millions died across Asia and the Pacific.",
+                "American firebombing levelled most Japanese cities — the March 1945 raid on Tokyo killed around 100,000 people in a night. After the atomic bombs on Hiroshima (6 August) and Nagasaki (9 August), Japan surrendered on 15 August 1945.",
+              ],
+              see: [
+                "Hiroshima Peace Memorial Museum and the A-Bomb Dome",
+                "Yokoamichō Park, Tokyo — the memorial hall for the 1923 earthquake and the 1945 air raids",
+              ],
+            },
+            {
+              when: "1945 – 1952",
+              title: "Occupation",
+              summary: "A new constitution, never amended since",
+              text: [
+                "Allied occupation, run by the US under General MacArthur. The emperor kept his throne but renounced his divinity, land reform broke up the big estates, and women voted for the first time in 1946.",
+                "The 1947 constitution makes the emperor “the symbol of the State” and, in Article 9, renounces war. It has never been amended. The occupation ended in 1952 — but Okinawa stayed under US rule until 1972.",
+              ],
+            },
+            {
+              when: "1955 – 1990",
+              title: "The economic miracle",
+              summary: "From ruins to the world's second-largest economy",
+              text: [
+                "Growth ran near 10% a year through the 1960s. The Shinkansen opened between Tokyo and Osaka in October 1964, nine days before the Tokyo Olympics, and in 1968 Japan passed West Germany as the second-largest economy.",
+                "Cars, cameras, TVs and the Walkman (1979) made Japanese brands household names. By the late 1980s land and share prices had climbed to heights that couldn't last.",
+              ],
+              see: ["Tokyo Tower (1958)", "Shin-Yokohama Ramen Museum — a rebuilt 1958 street"],
+            },
+            {
+              when: "1991 –",
+              title: "The “lost decades”",
+              summary: "The bubble bursts; the country ages",
+              text: [
+                "The bubble burst in 1990–91, leaving banks full of bad loans and two decades of slow growth and falling prices. The Kobe earthquake and the sarin attack on the Tokyo subway, both in 1995, shook the country's sense of safety.",
+                "The population peaked around 2008 and has fallen every year since. Almost three people in ten are now over 65.",
+              ],
+            },
+            {
+              when: "2011",
+              title: "Tōhoku earthquake",
+              summary: "Earthquake, tsunami and Fukushima",
+              text: [
+                "On 11 March 2011 a magnitude 9.0 earthquake off the northeast coast sent a tsunami that ran up to 40 m high. About 18,000 people died or are still missing.",
+                "It knocked out the cooling at the Fukushima Daiichi nuclear plant, and three reactors melted down. Tens of thousands were evacuated, and taking the plant apart will take decades.",
+              ],
+            },
+            {
+              when: "2019 –",
+              title: "Reiwa",
+              summary: "A new emperor and a new era — 2026 is Reiwa 8",
+              text: [
+                "Emperor Akihito became the first emperor to step down in two centuries, and his son Naruhito took the throne on 1 May 2019. Reiwa, “beautiful harmony”, was the first era name taken from Japanese poetry rather than the Chinese classics.",
+                "Tokyo held the postponed Olympics in 2021, without spectators, and Osaka hosted the World Expo in 2025.",
+                "Japan still counts years by era alongside the Western calendar: 2026 is Reiwa 8. You'll see it on receipts, tickets, forms and use-by dates, written R8 or 令和8年.",
+              ],
+            },
+          ],
+        },
+        {
+          title: "Reading the past",
+          items: [
+            {
+              title: "Most castles are rebuilt",
+              text: "Only twelve castle keeps survive from the feudal era. Most were pulled down after 1873 or burned in the war, and many you'll see are concrete rebuilds from the 1950s and 60s — often with a museum and a lift inside.",
+              pointsTitle: "Original keeps",
+              points: [
+                "Himeji, west of Kobe — the largest and finest",
+                "Hikone, about 50 min from Kyoto",
+                "Inuyama, about 30 min from Nagoya",
+                "Matsumoto, in the Nagano Alps",
+              ],
+            },
+            {
+              title: "Rebuilt on purpose",
+              text: [
+                "Wooden buildings burn, so temples have been rebuilt again and again — the date on the sign is often when the place was founded, not when the hall was built.",
+                "Ise Jingū goes further: its main shrines are rebuilt every 20 years on the plot next door, using the same techniques. The last rebuilding was in 2013; the next is due in 2033.",
+              ],
+            },
+            {
+              title: "A Kyoto joke",
+              text: "When an old Kyoto family mentions “the last war”, the joke goes, they mean the Ōnin War of 1467 — the last time the city really burned.",
+            },
           ],
         },
       ],
@@ -66,30 +299,141 @@ export const japan: CountryGuide = {
         {
           title: "Two religions at once",
           items: [
-            { title: "Not religious — and at the shrine anyway", text: "Most Japanese people tell surveys they have no religion, yet most visit a shrine at New Year and have a Buddhist funeral. The old saying: born Shinto, married Christian, die Buddhist. Religion here is something you do, not something you join." },
-            { title: "Shinto", text: "Japan's native belief. No founder, no holy book. Kami — spirits or gods — live in mountains, trees, rocks, waterfalls and ancestors. Its rituals are about purity and gratitude. There are around 80,000 shrines." },
-            { title: "Buddhism", text: "Arrived in the 6th century. Its many schools — Zen, Pure Land, Shingon — run the funerals and look after the ancestors. Many homes still have a small altar (butsudan) for the family's dead. Around 77,000 temples — more shrines and temples together than convenience stores." },
-            { title: "A thousand years mixed together", text: "For most of history shrines and temples shared grounds, priests and gods. In 1868 the Meiji government ordered them separated, and many temples were damaged or closed. You can still see the overlap — a torii inside a temple, a Buddha at a shrine." },
-            { title: "Christianity", text: "Banned in 1614 and practised in secret for over 200 years by the “hidden Christians” around Nagasaki. Today about 1% of people are Christian — but chapel-style weddings are hugely popular." },
+            {
+              title: "Not religious — and at the shrine anyway",
+              text: [
+                "Most people tell surveys they have no religion. Yet tens of millions visit a shrine in the first days of the year, and most funerals are Buddhist. The saying goes: born Shinto, married Christian, die Buddhist.",
+                "Religion here is mostly something you do — a custom tied to the seasons and to life's big moments — rather than a creed you sign up to.",
+              ],
+            },
+            {
+              title: "Shinto",
+              text: [
+                "Japan's native tradition, with no founder and no scripture. Kami — gods or spirits — live in mountains, trees, rocks, waterfalls and the ancestors. Some mountains, like Fuji and Miwa, are worshipped themselves.",
+                "Its rituals are about purity, renewal and gratitude: rinsing at the water basin, festivals that carry the god through the streets in a portable shrine (mikoshi), the New Year visit. There are around 80,000 shrines.",
+              ],
+              pointsTitle: "Signs you're at a shrine",
+              points: [
+                "A torii gate, often vermilion",
+                "Shimenawa — a thick straw rope hung with zigzag paper, marking something sacred",
+                "A pair of guardian lion-dogs (komainu) — or foxes, at an Inari shrine",
+              ],
+            },
+            {
+              title: "Buddhism",
+              text: [
+                "Arrived from Korea in the 6th century and was adopted by the court as a protector of the state. Today its temples mainly look after funerals, graves and remembering the dead.",
+                "Many homes keep a small altar (butsudan) with the family's memorial tablets, a bowl of rice and incense. There are about 77,000 temples — shrines and temples together outnumber convenience stores.",
+              ],
+              pointsTitle: "Schools you'll meet",
+              points: [
+                "Zen — meditation and rock gardens; many of Kyoto's great temples",
+                "Pure Land — chanting the name of Amida Buddha; the largest following",
+                "Shingon — esoteric rites; based at Kōyasan",
+                "Tendai — headquartered at Enryaku-ji on Mount Hiei",
+              ],
+            },
+            {
+              title: "A thousand years mixed together",
+              text: [
+                "For most of history shrines and temples shared grounds and priests, and kami were seen as local forms of buddhas.",
+                "In 1868 the Meiji government ordered the two separated, to build a state Shinto around the emperor. Buddhist statues and buildings were destroyed across the country. The overlap never fully went away — you'll still find a torii inside a temple, or a Buddha at a shrine.",
+              ],
+            },
+            {
+              title: "Christianity",
+              text: [
+                "Banned in 1614. Believers around Nagasaki kept the faith in secret for over 250 years, praying to Mary disguised as the Buddhist Kannon. When a French church opened in Nagasaki in 1865, some of them came forward to its priest.",
+                "Today only about 1% of people are Christian — yet chapel-style weddings, often with a hired minister, are the most popular kind.",
+              ],
+            },
           ],
         },
         {
           title: "Shrine or temple?",
           items: [
-            { title: "How to tell", text: "A torii gate means a shrine (jinja, or -gū, -taisha). A temple (tera, names ending -ji or -in) has a main hall with a Buddha, incense, often a pagoda." },
-            { title: "At a shrine", text: "Rinse your hands and mouth at the basin by the entrance. At the hall: coin in the box, ring the bell, bow twice, clap twice, bow once." },
-            { title: "At a temple", text: "No clapping — put your hands together quietly. Wafting incense smoke over yourself is said to heal and bring luck." },
-            { title: "Omamori, omikuji, ema", text: "Omamori are charms for one thing each — exams, traffic safety, health — traditionally returned after a year to be burned. Omikuji are paper fortunes: tie a bad one to the rack and leave it behind. Ema are wooden plaques you write a wish on and hang up." },
+            {
+              title: "How to tell",
+              text: [
+                "A shrine — jinja, or a name ending in -gū or -taisha — has a torii at the entrance and a plain wooden hall. You usually won't see a statue: the kami is hidden inside.",
+                "A temple — tera, or a name ending in -ji or -in — has a big gate with guardian figures, a hall with a Buddha you can see, an incense burner and often a pagoda.",
+              ],
+            },
+            {
+              title: "At a shrine",
+              text: "Bow lightly at the torii and walk to the side of the path — the centre is for the kami. At the water basin, rinse your left hand, then your right, then pour a little into your cupped hand to rinse your mouth. Never drink from the ladle.",
+              pointsTitle: "At the hall",
+              points: [
+                "Drop a coin in the offering box",
+                "Ring the bell, if there is one",
+                "Bow twice, clap twice, pray, bow once",
+              ],
+            },
+            {
+              title: "At a temple",
+              text: [
+                "No clapping — put your palms together quietly and bow. Shoes come off wherever there's a step up into a hall, and many halls don't allow photos inside.",
+                "At the big incense burner, people waft the smoke over themselves — it's said to heal whatever it touches, so many aim it at their heads.",
+              ],
+            },
+            {
+              title: "Omamori, omikuji, ema",
+              text: "What's on sale at almost every shrine and temple:",
+              points: [
+                "Omamori — a charm in a brocade bag for one thing: exams, safe travel, health, love. Don't open it; bring it back after a year to be burned.",
+                "Omikuji — a paper fortune, usually ¥100–200. Good luck: keep it. Bad luck: tie it to the rack and leave it behind.",
+                "Ema — a wooden plaque to write a wish on and hang up, often painted with the year's zodiac animal. 2026 is the Year of the Horse.",
+              ],
+            },
           ],
         },
         {
           title: "Ideas you'll hear",
           items: [
-            { title: "Wa", text: "Harmony within the group. It explains a lot — the queues, the quiet trains, why people avoid saying “no” directly." },
-            { title: "Honne and tatemae", text: "Your real feelings and the face you show in public. Not seen as dishonest — just how you keep things smooth." },
-            { title: "Mottainai", text: "Regret at waste — of food, objects, effort. Leaving rice in your bowl can get you a look." },
-            { title: "Wabi-sabi", text: "Beauty in things that are simple, worn and imperfect. Kintsugi, mending broken pottery with gold lacquer, is the best-known example." },
-            { title: "Ikigai, honestly", text: "In Japan it just means something that makes life worth living — your grandchildren, your morning coffee. The four-circle diagram you see online was made up in the West." },
+            {
+              title: "Wa",
+              text: [
+                "Harmony within the group — an old idea: Prince Shōtoku's 7th-century code opens with it.",
+                "It explains a lot of daily life: orderly queues, quiet trains, decisions by consensus, and why people avoid a flat “no”. “That's a little difficult” (chotto muzukashii) usually means no.",
+              ],
+            },
+            {
+              title: "Honne and tatemae",
+              text: [
+                "Honne is what you really feel; tatemae is the face you show in public. It isn't seen as dishonest — it's how things stay smooth.",
+                "For a visitor it mostly means reading politeness generously, and not taking every “maybe” as a yes.",
+              ],
+            },
+            {
+              title: "Reading the air",
+              text: "Kūki o yomu — sensing what a situation needs without being told. Someone who can't is “KY”, short for kūki yomenai, “can't read the air”.",
+            },
+            {
+              title: "Omotenashi",
+              text: "Hospitality that anticipates what you need before you ask — the hot towel, the umbrella bag at the door, the staff who bow as the train pulls out. It's given without expecting anything back, which is part of why there's no tipping.",
+            },
+            {
+              title: "Mottainai",
+              text: "Regret at waste — of food, things, time or effort, with a Buddhist root: everything has value. Leaving rice in your bowl can get you a look.",
+            },
+            {
+              title: "Wabi-sabi",
+              text: [
+                "Beauty in things that are simple, worn, imperfect and passing — a cracked tea bowl, moss on stone, a fading maple.",
+                "It grew out of the tea ceremony. Kintsugi, mending broken pottery with lacquer and gold so the repair shows, is its best-known example.",
+              ],
+            },
+            {
+              title: "Mono no aware",
+              text: "A gentle sadness at how things pass. It's why cherry blossom, at its best for barely a week, matters so much — and why autumn leaves draw the same crowds.",
+            },
+            {
+              title: "Ikigai, honestly",
+              text: [
+                "In Japan it simply means something that makes life worth living — your grandchildren, a morning walk, your garden.",
+                "The four-circle diagram you see online (what you love, what you're good at, what the world needs, what you're paid for) was put together in the West, not here.",
+              ],
+            },
           ],
         },
       ],
@@ -103,25 +447,71 @@ export const japan: CountryGuide = {
         {
           title: "Temple and shrine seals",
           items: [
-            { title: "Goshuin", text: "A red seal plus the temple's or shrine's name and the date, brushed by hand by a priest or staff member — each one is unique. You collect them in a folding book, a goshuinchō, sold at the temple." },
-            { title: "Where they come from", text: "They started as receipts given to pilgrims who brought a hand-copied sutra. Over time they became proof of the visit itself, and part of pilgrimages like Shikoku's 88 temples — around 1,200 km, a seal at every stop." },
-            { title: "A record, not a souvenir", text: "A goshuin is treated as a sacred object. The donation is usually ¥300–500, in cash. Many people keep station and tourist stamps in a separate book; some temples won't write in one that mixes them." },
-            { title: "When it's busy", text: "Popular places hand out pre-written sheets (kakiokishi) instead. The counter often closes around 16:00–16:30." },
+            {
+              title: "Goshuin",
+              text: [
+                "A red seal plus the temple's or shrine's name and the date, brushed by hand by a priest or staff member — so each one is unique.",
+                "You collect them in a folding book, a goshuinchō, sold at most temples and shrines for around ¥1,000–2,000. Many places have their own cover designs.",
+              ],
+              pointsTitle: "How to ask",
+              points: [
+                "Find the counter — look for 御朱印 (goshuin) or the word nōkyōjo",
+                "Hand over your book, open at the next blank page",
+                "Pay the donation — usually ¥300–500, in cash",
+                "Wait, or take a number and collect it later",
+              ],
+            },
+            {
+              title: "Where they come from",
+              text: "They began as receipts for pilgrims who brought a hand-copied sutra to a temple. Over time they became proof of the visit itself, and part of pilgrimages like Shikoku's 88 temples — around 1,200 km, with a seal at every stop.",
+            },
+            {
+              title: "A record, not a souvenir",
+              text: "A goshuin is treated as a sacred object. Keep station and tourist stamps in a separate book — some temples won't write in one that mixes them, and a few won't sign a book that has both shrines and temples in it.",
+            },
+            {
+              title: "Busy days and special editions",
+              text: [
+                "At popular places, or during festivals, you're often given a pre-written sheet (kakiokishi) to glue in instead. The counter usually closes around 16:00–16:30.",
+                "Many places issue limited seasonal designs — autumn leaves, a festival, the year's zodiac animal — and the queue for those can be long.",
+              ],
+            },
           ],
         },
         {
           title: "Station and tourist stamps",
           items: [
-            { title: "Eki stamps", text: "Free rubber stamps near the ticket gates of many stations, each with a local landmark. The first is usually credited to Fukui Station in 1931; they took off with Japan National Railways' “Discover Japan” campaign in 1970, which got people travelling inside their own country." },
-            { title: "Not only stations", text: "Castles, museums, roadside rest stops (michi-no-eki), lighthouses and observation decks have them too. The 100 Fine Castles of Japan even has its own stamp book." },
-            { title: "Stamp rallies", text: "Collect a set across a train line or a town, sometimes for a prize. JR East runs a big one across Tokyo's stations most summers." },
-            { title: "Why it caught on", text: "Proof you were there, the pleasure of a complete set, and limited seasonal editions. It's the same instinct as the goshuin — travel as something you record." },
+            {
+              title: "Eki stamps",
+              text: [
+                "Free rubber stamps near the ticket gates of many stations, each with a local landmark or mascot. Look for a little desk or box with an ink pad.",
+                "The first is usually credited to Fukui Station in 1931. They took off with Japan National Railways' “Discover Japan” campaign in 1970, which got people travelling inside their own country.",
+              ],
+            },
+            {
+              title: "Not only stations",
+              text: "Castles, museums, roadside rest stops (michi-no-eki), lighthouses and observation decks have them too. The 100 Fine Castles of Japan even has its own stamp book.",
+            },
+            {
+              title: "Stamp rallies",
+              text: "Collect a set across a train line or a town, sometimes for a prize. JR East runs a big one across Tokyo's stations most summers, and anime and game tie-ins run all year.",
+            },
+            {
+              title: "Why it caught on",
+              text: "Proof you were there, the pleasure of a complete set, and limited seasonal editions. It's the same instinct as the goshuin — travel as something you record.",
+            },
           ],
         },
         {
           title: "Hanko",
           items: [
-            { title: "A seal instead of a signature", text: "Many people own a personal seal with their name, used for contracts, bank paperwork and signing for parcels. The government has been pushing to drop it for most official forms since 2020." },
+            {
+              title: "A seal instead of a signature",
+              text: [
+                "Many people own a personal seal with their family name, stamped in red for contracts, bank paperwork and signing for parcels. A registered one (jitsuin) is legally binding, like a notarised signature.",
+                "The government has been pushing to drop it from most official forms since 2020, but the habit is slow to go. Shops can carve one in your name in katakana or kanji — a popular souvenir.",
+              ],
+            },
           ],
         },
       ],
@@ -135,21 +525,57 @@ export const japan: CountryGuide = {
         {
           title: "School",
           items: [
-            { title: "The year starts in April", text: "With the cherry blossoms — school, university and the working year all begin then. Three terms; summer break is about six weeks from late July." },
-            { title: "6 – 3 – 3 – 4", text: "Six years of elementary school, three of junior high (the compulsory part), three of high school, four of university. Nearly everyone finishes high school; about six in ten go on to university." },
-            { title: "Students clean the school", text: "After lunch every day, pupils sweep, mop and wipe their classrooms, corridors and often the toilets. Most public schools have no cleaners." },
-            { title: "Lunch together", text: "School lunch (kyūshoku) is planned by nutritionists and eaten in the classroom. Pupils take turns serving it in white coats and caps; the teacher eats the same meal." },
-            { title: "Exams decide a lot", text: "Entrance exams pick your high school and university. Many students go to cram school (juku) in the evenings and holidays." },
-            { title: "Clubs", text: "After-school clubs (bukatsu) fill evenings and weekends. The national high-school baseball tournament at Kōshien, near Osaka, is shown live on national TV every summer." },
-            { title: "Uniforms", text: "Most junior-high and high-school students wear one — the sailor-collar uniform has been around since the 1920s." },
+            {
+              title: "The year starts in April",
+              text: "With the cherry blossoms — school, university and the working year all begin then, with entrance ceremonies under the trees. There are three terms, and the summer break runs about six weeks from late July.",
+            },
+            {
+              title: "6 – 3 – 3 – 4",
+              text: "Six years of elementary school and three of junior high are compulsory; then three of high school and four of university. Almost everyone finishes high school, and about six in ten go on to university.",
+            },
+            {
+              title: "Students clean the school",
+              text: [
+                "After lunch every day, pupils sweep, mop and wipe their classrooms, corridors and often the toilets. Most public schools have no cleaners.",
+                "The idea is that you look after the place you use — the same instinct you see when football fans tidy the stadium after a match.",
+              ],
+            },
+            {
+              title: "Lunch together",
+              text: "School lunch (kyūshoku) is planned by nutritionists and eaten in the classroom. Pupils take turns serving it in white coats and caps, everyone says itadakimasu together, and the teacher eats the same meal.",
+            },
+            {
+              title: "Exams decide a lot",
+              text: "Entrance exams decide your high school and university. Many students spend evenings and holidays at cram school (juku), and shrines to the god of learning, like Kyoto's Kitano Tenmangū, are full of exam-season ema.",
+            },
+            {
+              title: "Clubs",
+              text: "After-school clubs (bukatsu) fill evenings and weekends. The national high-school baseball tournament at Kōshien, near Osaka, is shown live on national TV every summer, and losing teams scoop up the stadium's soil to take home.",
+            },
+            {
+              title: "Uniforms",
+              text: "Most junior-high and high-school students wear one. The navy sailor-collar uniform for girls has been around since the 1920s; boys' high-collared gakuran are modelled on 19th-century European military jackets.",
+            },
           ],
         },
         {
           title: "Growing up",
           items: [
-            { title: "Independent early", text: "Kids walk to school or ride the train alone from the age of six, in groups or on their own, with a yellow hat and a leather backpack (randoseru) that can cost over ¥50,000." },
-            { title: "Becoming an adult", text: "Adulthood is 18 since 2022, but drinking and smoking stay at 20. Coming of Age Day, the second Monday of January, still celebrates 20-year-olds — many in kimono." },
-            { title: "Fewer children", text: "Under 700,000 babies were born in 2024, the fewest on record. Thousands of rural schools have closed or merged." },
+            {
+              title: "Independent early",
+              text: [
+                "Children walk to school or ride the train on their own from the age of six, in a yellow hat, with a leather backpack (randoseru) that can cost over ¥50,000 and is meant to last all six years.",
+                "A TV show, Hajimete no Otsukai, “My First Errand”, has filmed toddlers doing the shopping alone since 1991.",
+              ],
+            },
+            {
+              title: "Becoming an adult",
+              text: "The age of adulthood dropped to 18 in 2022, but drinking and smoking stay at 20. Coming of Age Day, the second Monday of January, still celebrates the 20-year-olds — many in long-sleeved kimono (furisode) or hakama.",
+            },
+            {
+              title: "Fewer children",
+              text: "Fewer than 700,000 babies were born in Japan in 2024, the fewest since records began in 1899. Thousands of rural schools have closed or merged, and some have been turned into hotels, cafés or — in Kyoto — a manga museum.",
+            },
           ],
         },
       ],
@@ -163,24 +589,51 @@ export const japan: CountryGuide = {
         {
           title: "The job",
           items: [
-            { title: "Everyone starts on 1 April", text: "Students job-hunt together in their final year (shūkatsu) in near-identical black suits, and new graduates join on the same day, often with a welcome ceremony." },
-            { title: "A job for life — less so now", text: "Big companies traditionally hired for life and paid by seniority. It still exists, but changing jobs has become far more common." },
-            { title: "Long hours", text: "Japanese has a word for death from overwork: karōshi. A 2019 law capped overtime for the first time; hours have been falling since." },
-            { title: "Women at work", text: "Most women now work, but few reach management — around one manager in seven is a woman." },
+            {
+              title: "Everyone starts on 1 April",
+              text: "Students job-hunt together in their final year (shūkatsu), in near-identical black suits, and new graduates all join on the same day — often with a welcome ceremony and weeks of company training.",
+            },
+            {
+              title: "A job for life — less so now",
+              text: "Big companies traditionally hired for life and paid by seniority, and many still do. But changing jobs, once frowned upon, has become far more common among the young.",
+            },
+            {
+              title: "Long hours",
+              text: [
+                "Japanese has a word for death from overwork: karōshi. A 2019 law capped overtime for the first time, and average hours have been falling since.",
+                "Staying late and the after-work drink (nomikai) with the boss are slowly fading — but the last trains on a Friday still tell the story.",
+              ],
+            },
+            {
+              title: "Women at work",
+              text: "Most women now work, but few reach management — around one manager in seven is a woman, one of the lowest shares among rich countries.",
+            },
           ],
         },
         {
           title: "Office life",
           items: [
-            { title: "Business cards", text: "Meishi are offered and taken with both hands, read, and kept on the table during the meeting — not pocketed straight away." },
-            { title: "Omiyage", text: "After a trip, you bring a box of local sweets for your colleagues. That's why every station sells boxes of individually wrapped snacks." },
+            {
+              title: "Business cards",
+              text: "Meishi are offered and received with both hands, read, and kept on the table during the meeting, lined up in seating order — not pocketed straight away.",
+            },
+            {
+              title: "Omiyage",
+              text: "After a trip, you bring a box of local sweets for your colleagues — one each. That's why every station and airport sells boxes of individually wrapped snacks, and why the box always says where it's from.",
+            },
           ],
         },
         {
           title: "Companies",
           items: [
-            { title: "The oldest companies anywhere", text: "Japan has more firms over 100 years old than any other country — tens of thousands. Kongō Gumi built temples from the year 578; Hōshi, an inn in Ishikawa, has been run by the same family since 718." },
-            { title: "Names you know", text: "Toyota, Sony, Nintendo, Uniqlo, Canon. Even 7-Eleven is Japanese-owned now. It's one of the world's largest economies." },
+            {
+              title: "The oldest companies anywhere",
+              text: "Japan has more firms over 100 years old than any other country — tens of thousands. Kongō Gumi has built temples since 578; Hōshi, an inn at Awazu Onsen in Ishikawa, has been run by the same family since 718.",
+            },
+            {
+              title: "Names you know",
+              text: "Toyota, Sony, Nintendo, Uniqlo, Canon, Shiseido. Even 7-Eleven is Japanese-owned now. Japan is one of the world's five largest economies.",
+            },
           ],
         },
       ],
@@ -194,11 +647,33 @@ export const japan: CountryGuide = {
         {
           title: "How it works",
           items: [
-            { title: "An emperor with no power", text: "Emperor Naruhito is the “symbol of the State” — ceremonial only. The imperial line is the oldest continuous hereditary monarchy in the world." },
-            { title: "Parliament", text: "The National Diet has two houses. Its members choose the prime minister, who runs the government." },
-            { title: "One party, mostly", text: "The Liberal Democratic Party has governed almost without a break since 1955 — out of power only in 1993–94 and 2009–12." },
-            { title: "No war", text: "Article 9 of the constitution renounces war. Japan has Self-Defense Forces rather than an army in name." },
-            { title: "47 prefectures", text: "Each with its own elected governor. Tokyo is one of them." },
+            {
+              title: "An emperor with no power",
+              text: [
+                "Emperor Naruhito is “the symbol of the State” — a ceremonial role with no political power. The imperial line is the oldest continuous hereditary monarchy in the world.",
+                "Only men can inherit the throne, and there are very few young men left in the family, so the succession is a live debate.",
+                "The palace's inner grounds open to the public on 2 January and on the emperor's birthday, 23 February, when the family greets crowds from a balcony.",
+              ],
+            },
+            {
+              title: "Parliament",
+              text: "The National Diet has two houses: the House of Representatives, which can be dissolved for a snap election, and the House of Councillors, half elected every three years. The Diet chooses the prime minister.",
+            },
+            {
+              title: "One party, mostly",
+              text: [
+                "The Liberal Democratic Party has governed almost without a break since 1955 — out of power only in 1993–94 and 2009–12.",
+                "It's a broad tent of rival factions, and leaders change often: Japan has had more than ten prime ministers since 2000. Sanae Takaichi became its first woman prime minister in October 2025.",
+              ],
+            },
+            {
+              title: "No war",
+              text: "Article 9 of the constitution renounces war and the maintenance of armed forces. Japan has Self-Defense Forces instead of an army in name — though its defence budget is now among the world's largest.",
+            },
+            {
+              title: "47 prefectures",
+              text: "Each has its own elected governor and assembly. Tokyo is one of them — Tokyo-to, a metropolis rather than a city.",
+            },
           ],
         },
       ],
@@ -212,19 +687,75 @@ export const japan: CountryGuide = {
         {
           title: "Everyday",
           items: [
-            { title: "Obsessed with the seasons", text: "Food, sweets, packaging and even drinks change with the season (kisetsu gentei — limited editions). The news tracks the cherry blossom front north each spring." },
-            { title: "Irasshaimase!", text: "The “welcome!” shouted when you walk into a shop or restaurant. No reply is expected — a nod is plenty." },
-            { title: "Kawaii and mascots", text: "Every town, prefecture and police force has a mascot. Kumamon, a black bear from Kumamoto, earns billions of yen a year in merchandise." },
-            { title: "Karaoke", text: "Invented in Japan in the early 1970s. You hire a private room with friends, by the hour." },
-            { title: "Pachinko", text: "Gambling for money is mostly illegal, so pachinko pays in prizes — which you can sell at a little shop next door. Everyone knows." },
+            {
+              title: "Obsessed with the seasons",
+              text: [
+                "Food, sweets, packaging and drinks change with the season — kisetsu gentei, limited editions. Autumn brings chestnut, sweet potato and maple-leaf everything.",
+                "The weather news tracks the cherry-blossom front north each spring, and the autumn-leaves front south each autumn.",
+              ],
+            },
+            {
+              title: "Irasshaimase!",
+              text: "The “welcome!” called out when you walk into a shop or restaurant. No reply is expected — a nod is plenty. Saying gochisōsama deshita (“thank you for the meal”) on the way out is always appreciated.",
+            },
+            {
+              title: "Kawaii and mascots",
+              text: "Every town, prefecture and even police force has a mascot (yuru-kyara). Kumamon, a black bear from Kumamoto, sells well over ¥100 billion of merchandise a year.",
+            },
+            {
+              title: "Karaoke",
+              text: "Invented in Japan in the early 1970s. You hire a private room with friends by the hour, order drinks from a tablet, and nobody minds how you sing.",
+            },
+            {
+              title: "Pachinko",
+              text: "Gambling for money is mostly illegal, so pachinko parlours pay out in prizes — which you can then sell at a little window next door, run as a separate business. Everyone knows.",
+            },
+          ],
+        },
+        {
+          title: "Arts",
+          items: [
+            {
+              title: "The tea ceremony",
+              text: "Chanoyu, “hot water for tea”: a host prepares matcha for guests with set movements in a small, plain room. It shaped Japanese taste in pottery, gardens, flowers and architecture. Many temples in Kyoto serve a bowl with a sweet for a few hundred yen.",
+            },
+            {
+              title: "Noh, kabuki, bunraku",
+              text: "Three stage traditions on UNESCO's list:",
+              points: [
+                "Noh — slow, masked, 14th-century drama with chanting and flute",
+                "Kabuki — Edo's flamboyant popular theatre, all-male; Tokyo's Kabukiza sells single-act tickets on the day",
+                "Bunraku — puppet theatre, each puppet worked by three people in full view; based in Osaka",
+              ],
+            },
+            {
+              title: "Geiko and maiko",
+              text: "Professional entertainers trained in dance, music and conversation — geisha, called geiko in Kyoto. Maiko are apprentices, in brighter kimono with long trailing sashes. Seeing them perform is easiest at a public dance season or a teahouse event booked through a hotel.",
+            },
           ],
         },
         {
           title: "Baths & sport",
           items: [
-            { title: "Onsen", text: "Around 3,000 hot-spring areas, thanks to all the volcanoes. Bathing together, naked and separated by sex, is an ordinary family outing." },
-            { title: "Sumo", text: "Six grand tournaments a year, 15 days each: Tokyo in January, May and September, Osaka in March, Nagoya in July, Fukuoka in November." },
-            { title: "Baseball", text: "The most-watched sport. Fans sing a song for every batter, and the cheering sections (ōendan) are half the show." },
+            {
+              title: "Onsen",
+              text: "Around 3,000 hot-spring areas, thanks to all the volcanoes. Bathing together, naked and separated by sex, is an ordinary family outing — and the mineral content of each spring is posted on the wall.",
+            },
+            {
+              title: "Sumo",
+              text: "Six grand tournaments a year, 15 days each, with the top wrestlers in the late afternoon. Morning practice at a stable (asageiko) can sometimes be watched for free.",
+              pointsTitle: "Tournaments",
+              points: [
+                "Tokyo — January, May, September",
+                "Osaka — March",
+                "Nagoya — July",
+                "Fukuoka — November",
+              ],
+            },
+            {
+              title: "Baseball",
+              text: "The most-watched sport. Fans sing a song for every batter, and the cheering sections (ōendan) are half the show. Beer is sold by young women carrying kegs on their backs up and down the stands.",
+            },
           ],
         },
       ],
@@ -643,6 +1174,9 @@ export const japan: CountryGuide = {
         { title: "The castle", text: "Built by Toyotomi Hideyoshi in 1583. The main tower you see is a 1931 reconstruction in concrete, with a museum inside." },
         { title: "Stand on the right", text: "Osaka stands on the right of escalators, unlike Tokyo — usually traced back to the 1970 Expo." },
         { title: "Two Expos", text: "Osaka hosted the World Expo in 1970 and again in 2025." },
+        { title: "Dōtonbori's signs", text: "The canal-side strip of giant signs: the Glico running man (there since 1935), a mechanical crab waving its legs, and Kuidaore Tarō, the drumming clown. Best after dark." },
+        { title: "The comedy capital", text: "Osaka is the home of manzai, two-person stand-up, and of Yoshimoto Kōgyō, the agency behind many of Japan's comedians. People here are famously chattier and more direct than in Tokyo." },
+        { title: "Bunraku's home", text: "The National Bunraku Theatre in Nanba stages the puppet theatre where each puppet is worked by three people in full view." },
       ],
     },
     {
@@ -655,6 +1189,9 @@ export const japan: CountryGuide = {
         { title: "The first permanent capital", text: "Before Kyoto, Nara was the capital. Its temples are among the oldest in Japan." },
         { title: "The Great Buddha", text: "Tōdai-ji's bronze Buddha is about 15 m tall, inside one of the largest wooden buildings in the world." },
         { title: "The deer", text: "About 1,300 roam the park. Wild and protected — sacred messengers of the gods in Shinto. They bow for crackers (shika senbei) but will also nip, butt and chase; keep paper and maps away." },
+        { title: "Kasuga Taisha's lanterns", text: ["The shrine in the forest behind the park has about 3,000 stone and bronze lanterns, all donated over the centuries.", "Twice a year — at Setsubun in early February and on 14–15 August — every one of them is lit at once (Mantōrō)."] },
+        { title: "Hōryū-ji is close", text: "About 30 minutes away by train or bus, Hōryū-ji has the oldest wooden buildings in the world, from around 700. Far quieter than Tōdai-ji." },
+        { title: "Kakinoha-zushi", text: "Nara's sushi: mackerel or salmon pressed on rice and wrapped in a persimmon leaf — made to keep in a landlocked town far from the sea." },
       ],
     },
     {
@@ -887,7 +1424,7 @@ export const japan: CountryGuide = {
       items: [
         { title: "Its own kingdom", text: "The Ryūkyū Kingdom traded across Asia until Japan annexed it in 1879. Language, food and music are distinct." },
         { title: "US rule until 1972", text: "After the war the islands were administered by the US for 27 years; large US bases remain." },
-        { title: "Shuri Castle", text: "The royal palace burned in 2019 and is being rebuilt." },
+        { title: "Shuri Castle", text: "The palace's main hall burned in 2019; its rebuilding is due to finish in 2026." },
       ],
     },
   ],

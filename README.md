@@ -483,7 +483,8 @@ When a trip has stays or pins in a country the app has a guide for (Japan today)
 - **While you're there** — festivals, seasons and closures that fall within the trip's own dates.
 - **Day trips** — from each base, off the usual list, all by train or bus.
 - **Understand** — history, belief, stamps, school, work, politics, culture, manga & anime and a page of fun facts.
-- Every page is grouped into collapsible sections; tap a point to read it.
+- Every page is grouped into collapsible sections; tap a point to read it — a few short paragraphs, sometimes a short list.
+- **History** is a timeline: each era shows its dates and a one-line summary; tap it for the story and where to see it today.
 - **Before you go** — only the non-obvious: traps and rules, getting around, food.
 - It's built into the app (`src/guides/`), read-only and works offline. Adding a country is one content file plus a `GUIDES` entry.
 
