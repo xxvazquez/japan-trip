@@ -93,7 +93,7 @@ The round button beside the tab bar (top right on a wide screen, or ⌘K / Ctrl+
 
 The trip as a list of days, grouped by **base** — where you're based for a run of nights (Tokyo, Kyoto). A **stay** is the place you sleep there: a hotel, an Airbnb, anything. Day trips go out from a base and back.
 
-- **Tags.** Each day shows **Arrive**, **Travel**, **Depart** or **Day trip**. These are worked out from the day itself, never chosen by hand. A day trip stays **Day trip** with its trains on it; an arrival or departure journey still wins.
+- **Tags.** Each day shows **Arrive**, **Travel**, **Depart** or **Day trip**. These are worked out from the day itself, never chosen by hand. A day trip stays **Day trip** with its trains on it; an arrival or departure journey still wins — but only on the date it actually runs, so a day dragged away from its flight loses the tag.
 - **Reorder** — hold a day, then drag it up or down (on a computer, just drag it). The dates shuffle with it, and **Undo** puts them back. Holding without moving opens the day's menu instead.
 - **Pin a day** that's fixed to its date (a public holiday, a booked tour) from the foot of its page:
   - It shows a pin and can't be dragged.
@@ -103,10 +103,11 @@ The trip as a list of days, grouped by **base** — where you're based for a run
 - **Mark a day as planned** once its plan is settled — hold its row (right-click on a computer) or use ⋯ on its page → **Mark as Planned**:
   - Plan shows a green check on the row, and the day's page says **Planned** under the title.
   - It changes nothing else. **Mark as Not Planned** takes it off.
+- A base emptied of its days reads **No days** and books no nights — the base before it ends where its own days do.
 - When the month changes between two days in a base, the day's date shows the month under it (**1 DEC**).
 - **During the trip** the top of Plan reads **Day 2 of 14**, with the city you're in and when you leave it: *2 nights left*, *Leaving tomorrow*, *Leaving today*. Moving hotels within the same city doesn't count as leaving.
-- **During the trip** the list opens on today. Earlier days move to **Past days** at the bottom (closed until you open it), grouped by base. Past days can be opened, not dragged. It moves on to the new day by itself, even if the app was left open overnight.
-- **After the trip** the top of Plan becomes a recap: how many days away, cities, total spent in the trip's main currency (tap it for Expenses) and stamps collected.
+- **During the trip** the list opens on today. Earlier days move to **Past days** at the bottom (closed until you open it), grouped by base. Past days can be opened and held for their menu, not dragged. It moves on to the new day by itself, even if the app was left open overnight.
+- **After the trip** the top of Plan becomes a recap: how many days it was, then one line with the dates, cities, total spent in the trip's main currency (tap it for Expenses) and stamps collected.
 - **Labels** — your own tags for a day ("Chill day", "Walking"):
   - They show as one grey line under the day's title, like on Plan.
   - Tap that line, or ⋯ → **Labels…**, for a checklist of every label in the trip. Tap one to put it on or take it off the day; **New Label…** makes another.

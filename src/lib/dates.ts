@@ -40,6 +40,12 @@ export function legNights(leg: Leg, legs: Leg[]): number {
   return next ? Math.min(span + 1, Math.max(0, daysBetween(leg.start, next))) : span;
 }
 
+/** The stays that still have days. A base emptied of its days keeps its
+ *  dates, but sleeps nobody — so it mustn't end the stay before it either. */
+export function legsWithDays(data: Pick<TripData, "legs" | "days">): Leg[] {
+  return data.legs.filter((l) => data.days.some((d) => d.legId === l.id));
+}
+
 /** A hotel's actual nights: one entry per stay that uses it, with the
  *  check-out date as the morning you leave (check-in + nights) — not the
  *  stay's last day, which is the last night's date. */
@@ -49,7 +55,7 @@ export function hotelStays(data: TripData, hotelId: string): { leg: Leg; checkIn
     .filter((l) => l.hotelId === hotelId && l.start && data.days.some((d) => d.legId === l.id))
     .sort((a, b) => a.start.localeCompare(b.start))
     .map((leg) => {
-      const nights = legNights(leg, data.legs);
+      const nights = legNights(leg, legsWithDays(data));
       return { leg, checkIn: leg.start, checkOut: addDays(leg.start, nights), nights };
     });
 }
@@ -159,8 +165,10 @@ export function legForDate(d: TripData, iso: ISODate) {
 
 /** The shape of a day, derived from its links / flag. */
 export type DerivedDayKind = "arrival" | "departure" | "travel" | "daytrip" | "base";
-export function dayKind(d: Pick<Day, "journeyIds" | "dayTrip">, data: TripData): DerivedDayKind {
-  const js = dayJourneys(d, data);
+export function dayKind(d: Pick<Day, "journeyIds" | "dayTrip" | "date">, data: TripData): DerivedDayKind {
+  // a journey left on a day it doesn't run on (the day was moved) doesn't
+  // make it that day's arrival or departure
+  const js = dayJourneys(d, data).filter((j) => !journeyOffDay(j, d.date));
   if (js.some((j) => j.kind === "arrival")) return "arrival";
   if (js.some((j) => j.kind === "departure")) return "departure";
   // a day trip's trains out and back don't make it a travel day

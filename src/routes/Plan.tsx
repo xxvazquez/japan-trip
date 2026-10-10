@@ -20,7 +20,6 @@ import { Section } from "@/components/Section";
 import { Empty } from "@/components/Empty";
 import { Icon, type IconName } from "@/components/Icon";
 import { ContextMenu } from "@/components/ContextMenu";
-import { ConfirmMenuItem } from "@/components/ActionSheet";
 import { NavAddButton } from "@/components/NavAddButton";
 import { TextPrompt } from "@/components/TextPrompt";
 import { primeKeyboard } from "@/lib/keyboard";
@@ -31,7 +30,7 @@ import { TileRow } from "@/components/TileRow";
 import { IconTile } from "@/components/IconTile";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { tripClock, fmtDate, fmtDateRange, dayKind, legCheckOut, legForDate, legNights, plural, addDays, daysBetween } from "@/lib/dates";
+import { tripClock, fmtDate, fmtDateRange, dayKind, legCheckOut, legForDate, legNights, legsWithDays, plural, addDays, daysBetween } from "@/lib/dates";
 import { nextDaySlot } from "@/lib/spans";
 import { canonicalLegs } from "@/lib/cityAssign";
 import { launchedFresh } from "@/lib/resume";
@@ -53,10 +52,14 @@ function Wrap({ to, children }: { to: string | false | undefined; children: Reac
  *  nothing is left out. */
 function TripRecap({ data, totalDays }: { data: TripData; totalDays: number }) {
   const loc = data.config.locale;
-  const cities = new Set(canonicalLegs(data).values()).size;
+  const city = canonicalLegs(data);
+  const cities = new Set(legsWithDays(data).map((l) => city.get(l.id))).size; // a base with no days was never visited
   const spent = useTripSpent(data);
   const stamps = (data.config.stamps ?? []).filter((s) => s.done).length;
+  // one caption line, as the countdown and "Day 2 of 4" have: the dates,
+  // then whatever the trip added up to
   const parts: ReactNode[] = [
+    fmtDateRange(data.meta.start, data.meta.end, loc, { day: "numeric", month: "short", year: "numeric" }),
     cities > 0 && plural(cities, "city", "cities"),
     spent && <Link to="/logbook/budget" className="text-accent">{spent} spent</Link>,
     stamps > 0 && plural(stamps, "stamp"),
@@ -65,15 +68,10 @@ function TripRecap({ data, totalDays }: { data: TripData; totalDays: number }) {
     <>
       <p className="flex items-baseline gap-2">
         <span className="font-display text-display">{totalDays}</span>
-        <span className="text-lg text-ink-soft">{totalDays === 1 ? "day" : "days"} away</span>
+        <span className="text-lg text-ink-soft">{totalDays === 1 ? "day" : "days"}, all done</span>
       </p>
-      {parts.length > 0 && (
-        <p className="mt-2 text-sm">
-          {parts.map((p, i) => <Fragment key={i}>{i > 0 && " · "}{p}</Fragment>)}
-        </p>
-      )}
-      <p className="meta mt-1">
-        {fmtDate(data.meta.start, loc, { day: "numeric", month: "short" })} – {fmtDate(data.meta.end, loc, { day: "numeric", month: "short", year: "numeric" })}
+      <p className="mt-2 text-sm text-ink-soft">
+        {parts.map((p, i) => <Fragment key={i}>{i > 0 && " · "}{p}</Fragment>)}
       </p>
     </>
   );
@@ -118,11 +116,12 @@ const leavingIn = (nights: number) =>
  *  city (the next stay starts that morning, same name) isn't leaving it */
 function cityCheckOut(leg: Leg, data: TripData): ISODate {
   const city = canonicalLegs(data);
-  let out = legCheckOut(leg, data.legs);
+  const booked = legsWithDays(data);
+  let out = legCheckOut(leg, booked);
   for (;;) {
-    const next = data.legs.find((l) => l.id !== leg.id && l.start === out && city.get(l.id) === city.get(leg.id));
+    const next = booked.find((l) => l.id !== leg.id && l.start === out && city.get(l.id) === city.get(leg.id));
     if (!next) return out;
-    const nextOut = legCheckOut(next, data.legs);
+    const nextOut = legCheckOut(next, booked);
     if (nextOut <= out) return out;
     out = nextOut;
   }
@@ -285,6 +284,8 @@ function LegList({ data, todayISO, readOnly, splitPast }: {
   const reorderDays = useApp((s) => s.reorderDays);
   const loc = data.config.locale;
   const legIds = data.legs.map((l) => l.id);
+  // an emptied base holds dates but no nights, so it doesn't end the one before
+  const booked = legsWithDays(data);
 
   // day ids per stay, straight from the data (date order)
   const derived: Record<string, string[]> = {};
@@ -385,13 +386,17 @@ function LegList({ data, todayISO, readOnly, splitPast }: {
         {data.legs.map((leg) => {
           const shown = (cols[leg.id] ?? []).filter((id) => !isPast(id));
           // a stay whose days have all gone by lives under Past days only
-          if (splitPast && !working && derived[leg.id].length > 0 && shown.length === 0) return null;
+          // — judged on its own days, not the drag's working copy, so a stay
+          // doesn't vanish when its last day is dragged out, nor pop in mid-drag
+          // (a day dropped there would be re-dated into the past)
+          if (splitPast && derived[leg.id].length > 0 && derived[leg.id].every(isPast)) return null;
           return (
             <LegBlock
               key={leg.id}
               leg={leg}
               loc={loc}
-              nights={legNights(leg, data.legs)}
+              nights={legNights(leg, booked)}
+              checkOut={legCheckOut(leg, booked)}
               dayIds={shown}
               days={data}
               todayISO={todayISO}
@@ -407,8 +412,8 @@ function LegList({ data, todayISO, readOnly, splitPast }: {
               <Fragment key={leg.id}>
                 <li className={`${DAY_ROW_LI} kicker px-3.5 pb-1 pt-3`}>{leg.base}</li>
                 {days.map((d) => (
-                  <li key={d.id} className={`${DAY_ROW_LI} flex`}>
-                    <DayLink data={data} day={d} today={false} loc={loc} planned={(data.config.plannedDays ?? []).includes(d.id)} />
+                  <li key={d.id} className={DAY_ROW_LI}>
+                    <DayRowBody data={data} day={d} today={false} loc={loc} readOnly={readOnly} />
                   </li>
                 ))}
               </Fragment>
@@ -424,11 +429,12 @@ function LegList({ data, todayISO, readOnly, splitPast }: {
 }
 
 function LegBlock({
-  leg, loc, nights, dayIds, days, todayISO, readOnly,
+  leg, loc, nights, checkOut, dayIds, days, todayISO, readOnly,
 }: {
   leg: Leg;
   loc: string;
   nights: number;
+  checkOut: ISODate;
   dayIds: string[];
   days: TripData;
   todayISO: string;
@@ -486,7 +492,7 @@ function LegBlock({
             there) but has nothing to date — say so, as an empty list does */}
         {dayIds.length === 0 && !days.days.some((d) => d.legId === leg.id) ? "No days" : (
           <>
-            {fmtDateRange(leg.start, legCheckOut(leg, days.legs), loc)}
+            {fmtDateRange(leg.start, checkOut, loc)}
             {/* a one-day last base has no night yet: its only day is the day you leave */}
             {nights > 0 && <> · {plural(nights, "night")}</>}
           </>
@@ -589,7 +595,6 @@ function DayLink({ data, day, today, loc, pinned, planned, newMonth }: { data: T
         </span>
         <DayKindTag day={day} data={data} />
       </span>
-      {today && <span className="shrink-0 text-xs text-accent">Today</span>}
       {/* checkmark.circle.fill, as Reminders marks a thing done */}
       {planned && (
         <span className="shrink-0 text-matcha" title="Planned">
@@ -609,9 +614,20 @@ function DayLink({ data, day, today, loc, pinned, planned, newMonth }: { data: T
   );
 }
 
-function DayRow({ data, day, today, loc, readOnly, newMonth }: { data: TripData; day: Day; today: boolean; loc: string; readOnly: boolean; newMonth?: boolean }) {
+/** A day row's content with its long-press / right-click menu — the same
+ *  in the live list and under Past days. */
+function DayRowBody({ data, day, today, loc, readOnly, newMonth, dragging }: { data: TripData; day: Day; today: boolean; loc: string; readOnly: boolean; newMonth?: boolean; dragging?: boolean }) {
   const pinned = (data.config.pinnedDays ?? []).includes(day.id);
   const planned = (data.config.plannedDays ?? []).includes(day.id);
+  return (
+    <ContextMenu menu={readOnly ? undefined : <DayMenu day={day} pinned={pinned} planned={planned} />} dismiss={dragging} className="flex items-start">
+      <DayLink data={data} day={day} today={today} loc={loc} pinned={pinned} planned={planned} newMonth={newMonth} />
+    </ContextMenu>
+  );
+}
+
+function DayRow({ data, day, today, loc, readOnly, newMonth }: { data: TripData; day: Day; today: boolean; loc: string; readOnly: boolean; newMonth?: boolean }) {
+  const pinned = (data.config.pinnedDays ?? []).includes(day.id);
   const { listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: day.id, disabled: readOnly || pinned });
   return (
     <li
@@ -620,9 +636,7 @@ function DayRow({ data, day, today, loc, readOnly, newMonth }: { data: TripData;
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={`${DAY_ROW_LI} ${isDragging ? "z-10 bg-surface opacity-40" : ""}`}
     >
-      <ContextMenu menu={readOnly ? undefined : <DayMenu day={day} pinned={pinned} planned={planned} />} dismiss={isDragging} className="flex items-start">
-        <DayLink data={data} day={day} today={today} loc={loc} pinned={pinned} planned={planned} newMonth={newMonth} />
-      </ContextMenu>
+      <DayRowBody data={data} day={day} today={today} loc={loc} readOnly={readOnly} newMonth={newMonth} dragging={isDragging} />
     </li>
   );
 }
@@ -643,7 +657,7 @@ function DayMenu({ day, pinned, planned }: { day: Day; pinned: boolean; planned:
         <Icon name="check-circle" size={16} /> {planned ? "Mark as Not Planned" : "Mark as Planned"}
       </button>
       <button type="button" className="menu-item" onClick={() => updateEntity<Day>("days", day.id, { dayTrip: !day.dayTrip })}>
-        <Icon name={day.dayTrip ? "close" : "plus"} size={16} /> {day.dayTrip ? "Not a day trip" : "Make this a day trip"}
+        <Icon name={day.dayTrip ? "close" : "explore"} size={16} /> {day.dayTrip ? "Not a Day Trip" : "Make a Day Trip"}
       </button>
       <button
         type="button"
@@ -654,9 +668,12 @@ function DayMenu({ day, pinned, planned }: { day: Day; pinned: boolean; planned:
           d.config.pinnedDays = ids.size ? [...ids] : undefined;
         })}
       >
-        <Icon name="pushpin" size={16} /> {pinned ? "Unpin this day" : "Pin this day"}
+        <Icon name="pushpin" size={16} /> {pinned ? "Unpin Day" : "Pin Day"}
       </button>
-      <ConfirmMenuItem onConfirm={() => undoable("Day deleted", () => removeEntity("days", day.id))} label="Delete day" icon={<Icon name="trash" size={16} />} />
+      {/* straight out, as a context menu's Delete is — Undo brings it back */}
+      <button type="button" className="menu-item text-danger" onClick={() => undoable("Day deleted", () => removeEntity("days", day.id))}>
+        <Icon name="trash" size={16} /> Delete Day
+      </button>
     </>
   );
 }
