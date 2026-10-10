@@ -82,16 +82,20 @@ export function nearestOpeningHours(lat: number, lng: number, name?: string, osm
   return p;
 }
 
-type NominatimRow = { lat: string; lon: string; name?: string; extratags?: Record<string, string> };
+type NominatimRow = { lat: string; lon: string; name?: string; extratags?: Record<string, string>; namedetails?: Record<string, string> };
 
 /** Nominatim's take: search the place's name inside a ~400 m box around its
  *  pin (that finds the actual venue, with its tags), else whatever's at the pin. */
 async function hoursFromNominatim(lat: number, lng: number, name?: string): Promise<PlaceHours | null> {
-  const pick = (rows: NominatimRow[], maxKm: number): PlaceHours | null => {
+  const pick = (rows: NominatimRow[], maxKm: number, place?: string): PlaceHours | null => {
     let best: PlaceHours | null = null;
     for (const r of rows) {
       const hours = r.extratags?.opening_hours;
       if (!hours) continue;
+      // a name search also returns whatever's of that kind nearby ("museum"
+      // finds every museum in the box) — only the place itself counts, the
+      // same rule `pickHours` holds Overpass's answer to
+      if (place && !namesMatch(place, { ...r.namedetails, ...(r.name && { name: r.name }) })) continue;
       const km = haversineKm(lat, lng, Number(r.lat), Number(r.lon));
       if (km <= maxKm && (!best || km < best.km)) best = { hours, km };
     }
@@ -110,9 +114,10 @@ async function hoursFromNominatim(lat: number, lng: number, name?: string): Prom
       viewbox: `${lng - dLng},${lat + dLat},${lng + dLng},${lat - dLat}`,
       bounded: "1",
       extratags: "1",
+      namedetails: "1",
       addressdetails: "0",
     }, { low: true });
-    const hit = pick(rows, 0.4);
+    const hit = pick(rows, 0.4, q);
     if (hit) return hit;
   }
   const at = await nominatimGet<NominatimRow>("reverse", {
@@ -128,8 +133,9 @@ async function hoursFromNominatim(lat: number, lng: number, name?: string): Prom
 }
 
 /** per pin *and* name — two places on one pin can have different hours.
- *  "hours3": answers stored under older keys could be a named neighbour's
- *  at the pin, so they're left behind. */
+ *  "hours4": answers stored under older keys could be a named neighbour's
+ *  at the pin, or any venue of the same kind Nominatim found nearby, so
+ *  they're left behind. */
 const cacheKey = (lat: number, lng: number, name?: string, osm?: string) =>
   `${lat.toFixed(4)},${lng.toFixed(4)},${name ? norm(name) : ""}${osm ? `,${osm}` : ""}`;
 
@@ -138,13 +144,13 @@ const cacheKey = (lat: number, lng: number, name?: string, osm?: string) =>
 export function cachedOpeningHours(lat: number, lng: number, name?: string, osm?: string): PlaceHours | null | undefined {
   const key = cacheKey(lat, lng, name, osm);
   if (cache.has(key)) return cache.get(key)!;
-  return readPersisted<PlaceHours>(`hours3.${key}`);
+  return readPersisted<PlaceHours>(`hours4.${key}`);
 }
 
 async function fetchOpeningHours(lat: number, lng: number, name?: string, osm?: string): Promise<PlaceHours | null> {
   const key = cacheKey(lat, lng, name, osm);
   if (cache.has(key)) return cache.get(key)!;
-  const stored = readPersisted<PlaceHours>(`hours3.${key}`);
+  const stored = readPersisted<PlaceHours>(`hours4.${key}`);
   if (stored) {
     cache.set(key, stored);
     return stored;
@@ -169,6 +175,6 @@ async function fetchOpeningHours(lat: number, lng: number, name?: string, osm?: 
   // cached even when null — "nothing tagged nearby" is a stable answer,
   // same as `transitStation.ts`'s own lookup cache
   cache.set(key, best);
-  if (best) writePersisted(`hours3.${key}`, best);
+  if (best) writePersisted(`hours4.${key}`, best);
   return best;
 }

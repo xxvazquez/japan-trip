@@ -1,5 +1,13 @@
-import { describe, expect, it } from "vitest";
-import { namesMatch, pickHours } from "./placeHours";
+import { describe, expect, it, vi } from "vitest";
+import { namesMatch, nearestOpeningHours, pickHours } from "./placeHours";
+import { nominatimGet } from "./nominatim";
+
+vi.mock("./overpass", () => ({
+  overpass: () => Promise.reject(new Error("429")),
+  readPersisted: () => undefined,
+  writePersisted: () => {},
+}));
+vi.mock("./nominatim", () => ({ nominatimGet: vi.fn() }));
 
 // ~0.00009° of latitude is about 10 m
 const at = (dLat: number, tags: Record<string, string>) => ({ lat: 35.0 + dLat, lon: 139.0, tags });
@@ -36,5 +44,22 @@ describe("pickHours", () => {
     expect(pickHours([at(0.0001, { opening_hours: "09:00-17:00" })], 35.0, 139.0, "Somewhere")?.hours).toBe("09:00-17:00");
     expect(pickHours([at(0.0005, { name: "Lawson", opening_hours: "24/7" })], 35.0, 139.0, "Section L Hamamatsucho")).toBeNull();
     expect(pickHours([at(0.0001, { name: "Bar Ginza", opening_hours: "11:00-04:00" })], 35.0, 139.0, "Chopsticks Studio Ginza")).toBeNull();
+  });
+});
+
+describe("nearestOpeningHours, when Overpass is busy", () => {
+  const row = (name: string, hours: string, names: Record<string, string> = {}) =>
+    ({ lat: "35.0001", lon: "139.0", name, extratags: { opening_hours: hours }, namedetails: { name, ...names } });
+
+  it("takes Nominatim's row only when it's the place itself", async () => {
+    vi.mocked(nominatimGet).mockImplementation(async (kind) =>
+      kind === "search" ? [row("国立科学博物館", "Tu-Su 09:00-17:00"), row("東京国立博物館", "Tu-Su 09:30-17:00", { "name:en": "Tokyo National Museum" })] : {});
+    expect((await nearestOpeningHours(35.0, 139.0, "Tokyo National Museum"))?.hours).toBe("Tu-Su 09:30-17:00");
+  });
+
+  it("doesn't take a neighbour of the same kind for a place it can't name", async () => {
+    vi.mocked(nominatimGet).mockImplementation(async (kind) =>
+      kind === "search" ? [row("東京都美術館", "09:30-17:30", { "name:en": "Tokyo Metropolitan Art Museum" })] : {});
+    expect(await nearestOpeningHours(35.0, 139.0, "A museum")).toBeNull();
   });
 });
