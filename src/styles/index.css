@@ -590,7 +590,7 @@ html.dark {
  * ------------------------------------------------------------------ */
 .maplibregl-ctrl-attrib.maplibregl-compact {
   background: rgb(var(--c-surface) / 0.85) !important;
-  border-radius: 2px !important;
+  border-radius: 9999px !important;
   box-shadow: none !important;
   border: 1px solid rgb(var(--c-line));
   min-height: 20px;
@@ -598,8 +598,10 @@ html.dark {
 .maplibregl-ctrl-attrib.maplibregl-compact-show {
   background: rgb(var(--c-surface)) !important;
 }
-.maplibregl-ctrl-attrib,
-.maplibregl-ctrl-attrib a {
+/* doubled class: the vendor's own `.maplibregl-ctrl-attrib a` (black)
+   loads after this sheet and would win a tie — unreadable in dark mode */
+.maplibregl-ctrl.maplibregl-ctrl-attrib,
+.maplibregl-ctrl.maplibregl-ctrl-attrib a {
   color: rgb(var(--c-ink-faint));
   font-family: theme("fontFamily.sans");
 }
