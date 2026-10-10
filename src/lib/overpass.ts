@@ -8,7 +8,8 @@
  */
 const ENDPOINTS = [
   "https://overpass-api.de/api/interpreter",
-  "https://overpass.kumi.systems/api/interpreter",
+  // kumi.systems stopped answering (500, no CORS) — the mirror the Worker uses
+  "https://overpass.private.coffee/api/interpreter",
 ];
 const MAX_IN_FLIGHT = 1;
 /** after a lookup fails on every server, stop trying for a while — a server
