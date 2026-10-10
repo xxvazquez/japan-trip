@@ -2,6 +2,7 @@ import { useBackToClose } from "@/lib/backClose";
 import { createContext, useContext, useEffect, useLayoutEffect, useReducer, useRef, useState, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { useSheetDrag } from "./useSheetDrag";
+import { useScrollLock } from "./useScrollLock";
 import { TAP } from "@/lib/device";
 
 /** How deep a sheet sits — one opened from inside another (a place card's
@@ -75,6 +76,8 @@ export function ActionSheet({
   const level = useContext(SheetLevel);
   const z = layers(level);
   useBackToClose(open, onClose);
+  // a phone sheet, or a held row's menu on any width, holds the page still
+  useScrollLock(open && (!!point || isNarrow()));
 
   useEffect(() => {
     if (!open) return;

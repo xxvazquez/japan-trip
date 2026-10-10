@@ -79,7 +79,7 @@ function WheelColumn({ options, value, onChange, ariaLabel }: {
       role="listbox"
       aria-label={ariaLabel}
       className="wheel-col relative h-[220px] w-14 snap-y snap-mandatory overflow-y-scroll focus:outline-none"
-      style={{ paddingTop: PAD, paddingBottom: PAD }}
+      style={{ paddingTop: PAD, paddingBottom: PAD, maskImage: WHEEL_FADE, WebkitMaskImage: WHEEL_FADE }}
     >
       {options.map((o) => (
         <div
@@ -95,6 +95,10 @@ function WheelColumn({ options, value, onChange, ariaLabel }: {
     </div>
   );
 }
+
+/** the rows fade away above and below the selection band, as iOS's wheel
+ *  does — the one in the band is the only one read at full strength */
+const WHEEL_FADE = "linear-gradient(to bottom, transparent, rgb(0 0 0 / 0.3) 25%, #000 40%, #000 60%, rgb(0 0 0 / 0.3) 75%, transparent)";
 
 type Seg = "h" | "m" | "p";
 const SEGS: Seg[] = clock24 ? ["h", "m"] : ["h", "m", "p"];
@@ -354,7 +358,7 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, unset, 
   };
   const wheels = (
     <div className="relative flex items-center justify-center gap-1">
-      <span aria-hidden className="pointer-events-none absolute inset-x-2 top-1/2 h-11 -translate-y-1/2 rounded-[10px] bg-surface-2" />
+      <span aria-hidden className="pointer-events-none absolute inset-x-2 top-1/2 h-11 -translate-y-1/2 rounded-[10px] bg-ink/[0.1]" />
       {clock24
         ? <WheelColumn options={WHEEL_HOURS} value={h} onChange={(v) => onPick(v, m)} ariaLabel="Hour" />
         : <WheelColumn options={WHEEL_HOURS} value={to12(h)} onChange={(v) => onPick(to24(v, periodOf(h)), m)} ariaLabel="Hour" />}
