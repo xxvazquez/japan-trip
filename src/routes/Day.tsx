@@ -2760,8 +2760,10 @@ function PlacePicker({ value, adding, places, more = [], title = "What this step
           color={placeTile(p, categoryIcons, categoryColors).color}
           tone={toneForPlaceCategory(p.category, categoryIcons)}
         />
-        <span className="min-w-0 flex-1 break-words">{p.name}</span>
-        {areaName && <span className="shrink-0 text-2xs text-ink-soft">{areaName}</span>}
+        <span className="min-w-0 flex-1">
+          <span className="block break-words">{p.name}</span>
+          {areaName && <span className="mt-0.5 block break-words text-[13px] leading-tight text-ink-faint">{areaName}</span>}
+        </span>
       </button>
     );
   };
