@@ -193,6 +193,7 @@ function FactCell({ k, label, source, value, kind, onEdit, autoEdit, className =
   const varies = value === VARIES;
   const shut = k === "closed" && !varies && !/^(none|no\b|open)/i.test(value.trim());
   const tone = varies ? "text-ink-faint" : shut ? "text-danger" : "text-ink";
+  const show = (v: string) => (k === "hours" ? keepSpansTogether(fmtClocksIn(v)) : fmtClocksIn(v));
   return (
     <div className={`flex min-w-0 items-start gap-3 px-3.5 py-3 ${className}`}>
       <IconTile size="sm" name={icon} tone={t.tone} color={t.danger ? "rgb(var(--c-danger))" : undefined} className="mt-0.5 shrink-0" />
@@ -208,15 +209,21 @@ function FactCell({ k, label, source, value, kind, onEdit, autoEdit, className =
             placeholder="Add"
             autoEdit={autoEdit}
             onCommit={onEdit}
-            format={fmtClocksIn}
+            format={show}
             className={`row-value block break-words text-left ${tone}`}
           />
         ) : (
-          <span className={`row-value block break-words text-left ${tone}`}>{fmtClocksIn(value)}</span>
+          <span className={`row-value block break-words text-left ${tone}`}>{show(value)}</span>
         )}
       </div>
     </div>
   );
+}
+
+/** hours wrap only between their " · " spans, never inside "Wed–Thu
+ *  09:30–17:00": spaces go non-breaking and a word joiner holds each dash */
+function keepSpansTogether(v: string): string {
+  return v.split(" · ").map((span) => span.replace(/ /g, "\u00a0").replace(/[–-]/g, "$&\u2060")).join(" · ");
 }
 
 /** the row hairline inset past the tile to the text, as Settings insets it */

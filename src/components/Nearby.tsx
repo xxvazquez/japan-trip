@@ -225,8 +225,9 @@ export function NearbyCard({ open, onClose, anchorRef, item, group, date, locale
       onClose={onClose}
       anchorRef={anchorRef}
       doneLabel={null}
+      grouped
       header={
-        <div className="space-y-3 md:w-[20rem]">
+        <div className="space-y-3 md:w-[20.5rem]">
           <div className="flex items-start gap-3 pl-1">
             <div className="min-w-0 flex-1">
               <h2 className="subhead break-words">{place.name}</h2>
@@ -252,7 +253,7 @@ export function NearbyCard({ open, onClose, anchorRef, item, group, date, locale
         </div>
       }
     >
-      <div onClick={(e) => e.stopPropagation()} className="space-y-4 px-3 pb-3 md:w-[21.5rem]">
+      <div onClick={(e) => e.stopPropagation()} className="space-y-4 px-3 pb-3 md:w-[22rem]">
         {place.note && (
           <div>
             <p className="kicker px-4 pb-1.5 pt-1">Note</p>

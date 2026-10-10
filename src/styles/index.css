@@ -427,7 +427,17 @@ html.dark {
   html.dark .glass-panel {
     background: rgb(var(--c-surface-2));
   }
+  /* a sheet holding grouped cards (a place card): the grouped grey under
+     them, as an iOS sheet sets its insets on systemGroupedBackground — a
+     card-coloured panel would swallow its own cards. Dark keeps its lifted
+     panel, which already sits a step off the cards */
+  .glass-panel.glass-grouped {
+    background: rgb(var(--c-bg));
+  }
   @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass-panel.glass-grouped {
+      background: rgb(var(--c-bg) / 0.9);
+    }
     .glass-panel {
       background: rgb(var(--c-surface) / 0.82);
       -webkit-backdrop-filter: blur(30px) saturate(180%);

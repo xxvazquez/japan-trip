@@ -40,6 +40,7 @@ export function ActionSheet({
   point,
   side,
   confirm,
+  grouped,
   children,
 }: {
   open: boolean;
@@ -61,6 +62,9 @@ export function ActionSheet({
   /** a destructive confirmation (iOS's confirmation dialog): on the phone
    *  sheet the message and the button are centred, as iOS sets them */
   confirm?: boolean;
+  /** holds grouped cards (a place card): the panel takes the grouped grey,
+   *  so its white insets read as cards */
+  grouped?: boolean;
   children: ReactNode;
 }) {
   const [, bump] = useReducer((n: number) => n + 1, 0);
@@ -117,7 +121,7 @@ export function ActionSheet({
         <div
           ref={sheetRef}
           style={{ zIndex: z.panel }}
-          className="sheet-float glass-panel flex max-h-[calc(var(--vvh,100dvh)*0.85)] flex-col overflow-hidden pb-1 pt-2 motion-safe:animate-sheet-up"
+          className={`sheet-float glass-panel ${grouped ? "glass-grouped" : ""} flex max-h-[calc(var(--vvh,100dvh)*0.85)] flex-col overflow-hidden pb-1 pt-2 motion-safe:animate-sheet-up`}
           onClick={onClose}
           role="menu"
         >
@@ -143,7 +147,7 @@ export function ActionSheet({
 
   if (side) {
     return createPortal(
-      <SidePopover anchor={anchorRef.current} onClose={onClose} menuRef={menuRef} z={z} w={menuWidth || 352} h={menuHeight} header={header}>
+      <SidePopover anchor={anchorRef.current} grouped={grouped} onClose={onClose} menuRef={menuRef} z={z} w={menuWidth || 352} h={menuHeight} header={header}>
         {children}
       </SidePopover>,
       document.body,
@@ -173,7 +177,7 @@ export function ActionSheet({
           left,
           zIndex: z.panel,
         }}
-        className="glass-panel fixed flex max-h-[70dvh] min-w-[12rem] max-w-[22rem] flex-col overflow-hidden rounded-[16px] text-sm motion-safe:animate-fade-in [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-3.5 [&_.menu-item]:py-2 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 [&_.menu-item:hover]:bg-ink/[0.06]"
+        className={`glass-panel ${grouped ? "glass-grouped" : ""} fixed flex max-h-[70dvh] min-w-[12rem] max-w-[22rem] flex-col overflow-hidden rounded-[16px] text-sm motion-safe:animate-fade-in [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-3.5 [&_.menu-item]:py-2 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 [&_.menu-item:hover]:bg-ink/[0.06]`}
       >
         {header && <div className="shrink-0 space-y-2 px-3 pb-2 pt-3" onClick={(e) => e.stopPropagation()}>{header}</div>}
         {/* a confirmation says what goes above its button, as a Mac alert does */}
@@ -190,8 +194,9 @@ const EDGE = 8; // the gap kept from the window's edges
 
 /** `side`'s popover: placed against the anchor's actual text (the lines it
  *  wraps to, not its whole box), with an arrow at its first line */
-function SidePopover({ anchor, onClose, menuRef, z, w, h, header, children }: {
+function SidePopover({ anchor, grouped, onClose, menuRef, z, w, h, header, children }: {
   anchor: HTMLElement | null;
+  grouped?: boolean;
   z: ReturnType<typeof layers>;
   onClose: () => void;
   menuRef: RefObject<HTMLDivElement>;
@@ -232,7 +237,7 @@ function SidePopover({ anchor, onClose, menuRef, z, w, h, header, children }: {
       {/* the arrow sits under the panel's edge, only its point showing */}
       <span
         aria-hidden
-        className="glass-panel pointer-events-none fixed h-[15px] w-[15px] rotate-45 !shadow-none motion-safe:animate-fade-in"
+        className={`glass-panel ${grouped ? "glass-grouped" : ""} pointer-events-none fixed h-[15px] w-[15px] rotate-45 !shadow-none motion-safe:animate-fade-in`}
         style={{ zIndex: z.arrow, left: arrow.x - 7.5 + (where === "right" ? 2 : where === "left" ? -2 : 0), top: arrow.y - 7.5 + (where === "below" ? 2 : where === "above" ? -2 : 0) }}
       />
       <div
@@ -240,7 +245,7 @@ function SidePopover({ anchor, onClose, menuRef, z, w, h, header, children }: {
         role="menu"
         onClick={onClose}
         style={{ top, left, maxHeight, zIndex: z.panel }}
-        className="glass-panel fixed flex w-max min-w-[12rem] max-w-[22rem] flex-col overflow-hidden rounded-[16px] text-sm motion-safe:animate-fade-in [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-3.5 [&_.menu-item]:py-2 [&_.menu-item]:text-left [&_.menu-item:hover]:bg-ink/[0.06]"
+        className={`glass-panel ${grouped ? "glass-grouped" : ""} fixed flex w-max min-w-[12rem] max-w-[22rem] flex-col overflow-hidden rounded-[16px] text-sm motion-safe:animate-fade-in [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:px-3.5 [&_.menu-item]:py-2 [&_.menu-item]:text-left [&_.menu-item:hover]:bg-ink/[0.06]`}
       >
         {header && <div className="shrink-0 space-y-2 px-3 pb-2 pt-3" onClick={(e) => e.stopPropagation()}>{header}</div>}
         <div className={`min-h-0 flex-1 overflow-y-auto pb-1.5 ${header ? "" : "pt-1.5"}`}>{children}</div>

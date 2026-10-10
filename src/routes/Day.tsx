@@ -2016,13 +2016,14 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                 anchorRef={nameRef}
                 doneLabel={null}
                 side
+                grouped
                 // laid out like a Maps place card: the name as the title, a
                 // clash with its hours under it, ✕ to close, then the
                 // button row — the place's own pages (Google Maps is the
                 // row's long-press and More, and the map beside the plan
                 // already shows where it is)
                 header={
-                  <div className="space-y-3 md:w-[20rem]">
+                  <div className="space-y-3 md:w-[20.5rem]">
                     <div className="flex items-start gap-3 pl-1">
                       <div className="min-w-0 flex-1">
                         <h2 className="subhead break-words">{place.name}</h2>
@@ -2125,7 +2126,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
               >
                 {/* then, as a Maps place card runs: your note, what's good to
                     know, and last the things you do to the step itself */}
-                <div onClick={(e) => e.stopPropagation()} className="space-y-4 px-3 pb-3 md:w-[21.5rem]">
+                <div onClick={(e) => e.stopPropagation()} className="space-y-4 px-3 pb-3 md:w-[22rem]">
                   {(item.note || cardNote || !readOnly) && (
                     <div>
                       <p className="kicker px-4 pb-1.5 pt-1">Note</p>
