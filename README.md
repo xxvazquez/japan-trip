@@ -397,7 +397,8 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 - **＋ Add place** — search for somewhere, or tap the map to drop a pin. The search looks within ~50 km of the map's centre first, nearest result at the top; only when nothing is there does it look further, and never outside the country the map is on.
 - **Right-click the map** (desktop) for **Add a Place Here** or **Open in Google Maps** at that spot; on a phone, hold a finger on the map to drop a pin.
 - Until something's typed, the search lists the three ways to add a place. **⋯ → Map Help** opens Help, which explains it in full.
-- **Already on the trip?** Adding a place you already have (the same place, the same Maps link, or the same name a block away) opens it instead of making a copy.
+- **Already on the trip?** Adding a place you already have (the same place, the same Maps link, or the same name within about 100 m) opens it instead of making a copy.
+- **Duplicate places merge by themselves**, by the same rule — wherever they came from. The one used on a day's plan is kept; it picks up the other's note, link and details, and every step and area points at it.
 - **Not on OpenStreetMap?** Paste the place's Google Maps link (Share → Copy link) into the search — it adds the place with its name, position and link.
 - A pasted link is matched to the same place on OpenStreetMap by where it is, even when OSM names it differently — the row says *On OpenStreetMap as “…”*. The place keeps Google's name, and its opening hours come from that OSM entry (needs migration `0043`).
 - **Tap any place on the map** — a shop, temple, station, lake, neighbourhood or a park's green — for a card with **Add** (saves it to My places) and **Google Maps**. A place already on the trip opens its own card instead.

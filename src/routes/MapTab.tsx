@@ -28,6 +28,7 @@ import { haversineKm, fmtDistanceKm, fmtWalk, useGeolocation } from "@/lib/geo";
 import { fmtClocksIn, fmtMinutes } from "@/lib/time";
 import { legHex } from "@/lib/legColors";
 import { areasNear, suggestAreas, type AreaSuggestion } from "@/lib/cluster";
+import { samePlace } from "@/lib/dedupe";
 import { useIsDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
 import { menuHref, reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
@@ -647,14 +648,8 @@ function useMapEditing(
     setLinkOnly(null);
   };
   const commitPlace = (name: string, lat: number, lng: number, url?: string, osm?: string) => {
-    // a place the trip already has — the same OpenStreetMap feature or
-    // Maps link, or the same name a block away — opens instead of being
-    // added twice
-    const key = name.trim().toLowerCase();
-    const have = places.find((p) =>
-      (osm && p.osm === osm) ||
-      (url && p.url === url) ||
-      (key && (p.name || "").trim().toLowerCase() === key && haversineKm(p.lat, p.lng, lat, lng) <= 0.2));
+    // a place the trip already has opens instead of being added twice
+    const have = places.find((p) => samePlace(p, { name, lat, lng, url, osm }));
     const id = have?.id ?? rid();
     if (have) { lat = have.lat; lng = have.lng; }
     else addEntity("places", { id, name: name || "New place", lat, lng, category: "My places", color: FALLBACK, ...(url ? { url } : {}), ...(osm ? { osm } : {}) } as Place);
@@ -1356,52 +1351,6 @@ export default function MapTab() {
     });
     return { type: "FeatureCollection" as const, features };
   }, [data, listAreas, places, inScopeIds, areaFilter]);
-
-  /** areas sharing a case-insensitive trimmed name with at least one other —
-   *  left over from before duplicate creation was guarded against, a rename
-   *  onto a name already in use, or two devices adding the same area. */
-  const duplicateAreaGroups = useMemo(() => {
-    if (!data) return [];
-    const byName = new Map<string, Area[]>();
-    for (const a of data.areas) {
-      const key = (a.name || "").trim().toLowerCase();
-      if (!key) continue;
-      if (!byName.has(key)) byName.set(key, []);
-      byName.get(key)!.push(a);
-    }
-    return [...byName.values()].filter((g) => g.length > 1);
-  }, [data]);
-
-  /** two areas with one name are one area: union each duplicate group's
-   *  places onto the one with the most (ties → the first), repoint any day
-   *  that linked one of the others, then drop them — as soon as they turn
-   *  up, nothing to tap. Builds one dup→keep remap across every group before
-   *  touching a single day — a day spanning two separate duplicate groups
-   *  needs one `updateEntity` covering both, not one per group: two
-   *  sequential calls each read the same pre-merge `data.days` snapshot, so
-   *  the second would overwrite the first's fix with stale `areaIds` and
-   *  leave a dangling reference behind. Not undoable on purpose — undoing
-   *  would only bring back the duplicates, which merge again. */
-  useEffect(() => {
-    if (!data || readOnly || duplicateAreaGroups.length === 0) return;
-    const remap = new Map<string, string>();
-    for (const group of duplicateAreaGroups) {
-      const keep = [...group].sort((x, y) => y.placeIds.length - x.placeIds.length)[0];
-      const mergedIds = [...new Set(group.flatMap((a) => a.placeIds))];
-      if (mergedIds.length !== keep.placeIds.length) {
-        updateEntity<Area>("areas", keep.id, { placeIds: mergedIds });
-      }
-      for (const a of group) if (a.id !== keep.id) remap.set(a.id, keep.id);
-    }
-    for (const day of data.days) {
-      const areaIds = day.areaIds ?? [];
-      if (!areaIds.some((id) => remap.has(id))) continue;
-      updateEntity<Day>("days", day.id, {
-        areaIds: [...new Set(areaIds.map((id) => remap.get(id) ?? id))],
-      });
-    }
-    for (const id of remap.keys()) removeEntity("areas", id);
-  }, [duplicateAreaGroups, readOnly]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /** what the half sheet can cover — the stop the list opens at, so on a
    *  phone pins are framed in the map left showing above it. Its tallest,

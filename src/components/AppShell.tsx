@@ -16,6 +16,7 @@ import { SplitMap, useSplit, useSplitPane } from "./SplitMap";
 import { useReadOnly } from "@/lib/readonly";
 import { useAutoHotelCoords, useAutoTripTimeZone } from "@/lib/hotelCoords";
 import { useResumeWhereLeft } from "@/lib/resume";
+import { useMergeDuplicates } from "@/lib/dedupe";
 
 export function AppShell() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -26,6 +27,7 @@ export function AppShell() {
   const pane = useSplitPane(rootRef);
   useAutoHotelCoords(!demo);
   useAutoTripTimeZone(!demo);
+  useMergeDuplicates(!demo);
   useResumeWhereLeft();
 
   // a screen you open starts at its top, as a navigation stack does — left
