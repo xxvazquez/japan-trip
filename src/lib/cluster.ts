@@ -233,3 +233,27 @@ export function suggestAreas(places: Place[], areas: Area[], cities?: CityContex
   const bySize = (a: AreaSuggestion, b: AreaSuggestion) => b.placeIds.length - a.placeIds.length;
   return [...joined.sort(bySize), ...fresh.sort(bySize)];
 }
+
+/**
+ * The areas one place would fit in, closest first — what to offer when it's
+ * filed by hand. Uses the same rule as tidying a suggestion's borders: the
+ * place has to sit within the area's current span (or a walk, if that's
+ * wider) of every place already in it, so an area is never offered to a pin
+ * across town. Areas it's already in are left out.
+ */
+export function areasNear(place: Place, places: Place[], areas: Area[]): { areaId: string; km: number }[] {
+  if (!Number.isFinite(place.lat) || !Number.isFinite(place.lng)) return [];
+  const byId = new Map(places.map((p) => [p.id, p] as const));
+  const out: { areaId: string; km: number }[] = [];
+  for (const a of areas) {
+    if (a.placeIds.includes(place.id)) continue;
+    const pts = a.placeIds
+      .map((id) => byId.get(id))
+      .filter((p): p is Place => !!p && Number.isFinite(p.lat) && Number.isFinite(p.lng));
+    if (!pts.length) continue;
+    const limit = Math.max(WALK_DAY_KM, diameter(pts, pts.map((_, i) => i)));
+    if (pts.some((p) => dist(place, p) > limit)) continue;
+    out.push({ areaId: a.id, km: dist(place, centroid(pts)) });
+  }
+  return out.sort((x, y) => x.km - y.km);
+}

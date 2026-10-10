@@ -27,7 +27,7 @@ import { osmVenueAt, searchPlaces, reverseGeocode, type GeoResult } from "@/lib/
 import { haversineKm, fmtDistanceKm, fmtWalk, useGeolocation } from "@/lib/geo";
 import { fmtClocksIn, fmtMinutes } from "@/lib/time";
 import { legHex } from "@/lib/legColors";
-import { suggestAreas, type AreaSuggestion } from "@/lib/cluster";
+import { areasNear, suggestAreas, type AreaSuggestion } from "@/lib/cluster";
 import { useIsDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
 import { menuHref, reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
@@ -647,8 +647,17 @@ function useMapEditing(
     setLinkOnly(null);
   };
   const commitPlace = (name: string, lat: number, lng: number, url?: string, osm?: string) => {
-    const id = rid();
-    addEntity("places", { id, name: name || "New place", lat, lng, category: "My places", color: FALLBACK, ...(url ? { url } : {}), ...(osm ? { osm } : {}) } as Place);
+    // a place the trip already has — the same OpenStreetMap feature or
+    // Maps link, or the same name a block away — opens instead of being
+    // added twice
+    const key = name.trim().toLowerCase();
+    const have = places.find((p) =>
+      (osm && p.osm === osm) ||
+      (url && p.url === url) ||
+      (key && (p.name || "").trim().toLowerCase() === key && haversineKm(p.lat, p.lng, lat, lng) <= 0.2));
+    const id = have?.id ?? rid();
+    if (have) { lat = have.lat; lng = have.lng; }
+    else addEntity("places", { id, name: name || "New place", lat, lng, category: "My places", color: FALLBACK, ...(url ? { url } : {}), ...(osm ? { osm } : {}) } as Place);
     cancelAdd();
     onSelect(id);
     mapRef.current?.easeTo({ center: [lng, lat], zoom: Math.max(mapRef.current.getZoom(), 14) });
@@ -1349,7 +1358,8 @@ export default function MapTab() {
   }, [data, listAreas, places, inScopeIds, areaFilter]);
 
   /** areas sharing a case-insensitive trimmed name with at least one other —
-   *  left over from before duplicate creation was guarded against. */
+   *  left over from before duplicate creation was guarded against, a rename
+   *  onto a name already in use, or two devices adding the same area. */
   const duplicateAreaGroups = useMemo(() => {
     if (!data) return [];
     const byName = new Map<string, Area[]>();
@@ -1361,6 +1371,37 @@ export default function MapTab() {
     }
     return [...byName.values()].filter((g) => g.length > 1);
   }, [data]);
+
+  /** two areas with one name are one area: union each duplicate group's
+   *  places onto the one with the most (ties → the first), repoint any day
+   *  that linked one of the others, then drop them — as soon as they turn
+   *  up, nothing to tap. Builds one dup→keep remap across every group before
+   *  touching a single day — a day spanning two separate duplicate groups
+   *  needs one `updateEntity` covering both, not one per group: two
+   *  sequential calls each read the same pre-merge `data.days` snapshot, so
+   *  the second would overwrite the first's fix with stale `areaIds` and
+   *  leave a dangling reference behind. Not undoable on purpose — undoing
+   *  would only bring back the duplicates, which merge again. */
+  useEffect(() => {
+    if (!data || readOnly || duplicateAreaGroups.length === 0) return;
+    const remap = new Map<string, string>();
+    for (const group of duplicateAreaGroups) {
+      const keep = [...group].sort((x, y) => y.placeIds.length - x.placeIds.length)[0];
+      const mergedIds = [...new Set(group.flatMap((a) => a.placeIds))];
+      if (mergedIds.length !== keep.placeIds.length) {
+        updateEntity<Area>("areas", keep.id, { placeIds: mergedIds });
+      }
+      for (const a of group) if (a.id !== keep.id) remap.set(a.id, keep.id);
+    }
+    for (const day of data.days) {
+      const areaIds = day.areaIds ?? [];
+      if (!areaIds.some((id) => remap.has(id))) continue;
+      updateEntity<Day>("days", day.id, {
+        areaIds: [...new Set(areaIds.map((id) => remap.get(id) ?? id))],
+      });
+    }
+    for (const id of remap.keys()) removeEntity("areas", id);
+  }, [duplicateAreaGroups, readOnly]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /** what the half sheet can cover — the stop the list opens at, so on a
    *  phone pins are framed in the map left showing above it. Its tallest,
@@ -1454,34 +1495,6 @@ export default function MapTab() {
     if (!a) return;
     const next = a.placeIds.includes(placeId) ? a.placeIds.filter((p) => p !== placeId) : [...a.placeIds, placeId];
     updateEntity<Area>("areas", areaId, { placeIds: next });
-  };
-
-  /** union each duplicate group's places onto the one with the most (ties → the
-   *  first), repoint any day that linked one of the others, then drop them.
-   *  Builds one dup→keep remap across every group before touching a single
-   *  day — a day spanning two separate duplicate groups (Laura's real trip
-   *  had several at once) needs one `updateEntity` covering both, not one
-   *  per group: two sequential calls each read the same pre-merge `data.days`
-   *  snapshot, so the second would silently overwrite the first's fix with
-   *  stale `areaIds` and leave a dangling reference behind. */
-  const mergeDuplicateAreas = () => {
-    const remap = new Map<string, string>();
-    for (const group of duplicateAreaGroups) {
-      const keep = [...group].sort((x, y) => y.placeIds.length - x.placeIds.length)[0];
-      const mergedIds = [...new Set(group.flatMap((a) => a.placeIds))];
-      if (mergedIds.length !== keep.placeIds.length) {
-        updateEntity<Area>("areas", keep.id, { placeIds: mergedIds });
-      }
-      for (const a of group) if (a.id !== keep.id) remap.set(a.id, keep.id);
-    }
-    for (const day of data.days) {
-      const areaIds = day.areaIds ?? [];
-      if (!areaIds.some((id) => remap.has(id))) continue;
-      updateEntity<Day>("days", day.id, {
-        areaIds: [...new Set(areaIds.map((id) => remap.get(id) ?? id))],
-      });
-    }
-    for (const id of remap.keys()) removeEntity("areas", id);
   };
 
   const cityOf = canonicalLegs(data);
@@ -1777,21 +1790,6 @@ export default function MapTab() {
               <span className="kicker">Areas</span>
               <button onClick={() => setEditingAreas(false)} className="tap text-xs font-medium text-accent">Done</button>
             </div>
-            {duplicateAreaGroups.length > 0 && (
-              <div className="flex items-center justify-between gap-2 rounded-[8px] bg-accent/10 px-2.5 py-1.5 text-xs">
-                <span className="text-ink-soft">
-                  {plural(duplicateAreaGroups.length, "duplicate name")} found — merging combines their places and keeps one.
-                </span>
-                <ConfirmButton
-                  label="Merge duplicate areas"
-                  message="Areas with the same name become one, with all their places."
-                  onConfirm={() => undoable("Duplicate areas merged", mergeDuplicateAreas)}
-                  className="shrink-0 text-accent"
-                >
-                  Merge
-                </ConfirmButton>
-              </div>
-            )}
             {data.areas.length > 0 && (
               <ul className="isolate max-h-64 overflow-y-auto rounded-[12px] bg-surface">
                 {[...data.areas]
@@ -2337,7 +2335,7 @@ function PlaceRow({
   // how the place is filed — its areas, category and city
   const filing = (
     <>
-          <AreasRow place={place} areas={areas} areaCity={areaCity} cities={legs.map((l) => l.base)} readOnly={readOnly} onToggleArea={onToggleArea} rowCls={rowCls} />
+          <AreasRow place={place} places={tripData?.places ?? []} areas={areas} areaCity={areaCity} cities={legs.map((l) => l.base)} readOnly={readOnly} onToggleArea={onToggleArea} rowCls={rowCls} />
           {place.category && (
             <li className={`${SM_TILE_DIVIDER} ${rowCls}`}>
               <IconTile size="sm" {...placeTile(place, categoryIcons, categoryColors)} />
@@ -2590,6 +2588,7 @@ function PlaceRow({
  *  list on tap — instead of a pill per area in the city. */
 function AreasRow({
   place,
+  places,
   areas,
   areaCity,
   cities,
@@ -2598,6 +2597,8 @@ function AreasRow({
   rowCls,
 }: {
   place: Place;
+  /** every place, to tell which areas this one sits among */
+  places: Place[];
   areas: Area[];
   areaCity: Map<string, string>;
   /** the trip's cities in the order it visits them */
@@ -2610,19 +2611,30 @@ function AreasRow({
   if (areas.length === 0) return null;
   const mine = areas.filter((a) => a.placeIds.includes(place.id));
   const names = mine.map((a) => a.name || "Untitled").join(", ");
+  // the areas it sits among, closest first — offered ahead of the rest so
+  // filing a new pin never means knowing the city's areas by heart
+  const suggested = areasNear(place, places, areas)
+    .slice(0, 3)
+    .map((n) => areas.find((a) => a.id === n.areaId)!);
+  const rest = areas.filter((a) => !suggested.includes(a));
   // one group per city, A–Z inside: the city this place's areas are in
   // first, then the trip's cities in the order it visits them, then any
   // others A–Z, with areas that have no city last
-  const home = mine.map((a) => areaCity.get(a.id)).find(Boolean);
+  const home = [...mine, ...suggested].map((a) => areaCity.get(a.id)).find(Boolean);
   const rank = (c: string) => (c === home ? -1 : cities.includes(c) ? cities.indexOf(c) : cities.length);
   const byCity = new Map<string, Area[]>();
-  for (const a of areas) {
+  for (const a of rest) {
     const c = areaCity.get(a.id) ?? "";
     byCity.set(c, [...(byCity.get(c) ?? []), a]);
   }
-  const groups = [...byCity]
-    .sort(([a], [b]) => (!a || !b ? Number(!a) - Number(!b) : rank(a) - rank(b) || a.localeCompare(b)))
-    .map(([c, list]) => ({ label: c || "Other", areas: list.sort(byAreaName) }));
+  const groups = [
+    ...(suggested.length ? [{ label: "Suggested", areas: suggested }] : []),
+    ...[...byCity]
+      .sort(([a], [b]) => (!a || !b ? Number(!a) - Number(!b) : rank(a) - rank(b) || a.localeCompare(b)))
+      .map(([c, list]) => ({ label: c || "Other", areas: list.sort(byAreaName) })),
+  ];
+  // a pin in no area yet: the closest one is a single tap from the card
+  const quick = mine.length === 0 ? suggested[0] : undefined;
   if (readOnly) {
     return mine.length > 0 ? (
       <li className={`${SM_TILE_DIVIDER} ${rowCls}`}>
@@ -2633,6 +2645,7 @@ function AreasRow({
     ) : null;
   }
   return (
+    <>
     <li className={SM_TILE_DIVIDER}>
       <button ref={sheet.anchorRef} onClick={() => sheet.setOpen(true)} aria-haspopup="menu" className={`${rowCls} w-full text-left active:bg-surface-2`}>
         <IconTile size="sm" name="pin" tone="matcha" />
@@ -2659,6 +2672,15 @@ function AreasRow({
         </div>
       </ActionSheet>
     </li>
+    {quick && (
+      <li className={SM_TILE_DIVIDER}>
+        <button type="button" onClick={() => onToggleArea(quick.id)} className={`${rowCls} w-full text-left text-accent active:bg-ink/[0.07]`}>
+          <Icon name="plus" size={16} className="mx-1.5 shrink-0" />
+          <span className="min-w-0 flex-1 break-words">Add to {quick.name || "Untitled"}</span>
+        </button>
+      </li>
+    )}
+    </>
   );
 }
 

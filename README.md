@@ -397,6 +397,7 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 - **＋ Add place** — search for somewhere, or tap the map to drop a pin. The search looks within ~50 km of the map's centre first, nearest result at the top; only when nothing is there does it look further, and never outside the country the map is on.
 - **Right-click the map** (desktop) for **Add a Place Here** or **Open in Google Maps** at that spot; on a phone, hold a finger on the map to drop a pin.
 - Until something's typed, the search lists the three ways to add a place. **⋯ → Map Help** opens Help, which explains it in full.
+- **Already on the trip?** Adding a place you already have (the same place, the same Maps link, or the same name a block away) opens it instead of making a copy.
 - **Not on OpenStreetMap?** Paste the place's Google Maps link (Share → Copy link) into the search — it adds the place with its name, position and link.
 - A pasted link is matched to the same place on OpenStreetMap by where it is, even when OSM names it differently — the row says *On OpenStreetMap as “…”*. The place keeps Google's name, and its opening hours come from that OSM entry (needs migration `0043`).
 - **Tap any place on the map** — a shop, temple, station, lake, neighbourhood or a park's green — for a card with **Add** (saves it to My places) and **Google Maps**. A place already on the trip opens its own card instead.
@@ -439,8 +440,9 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 **Managing areas** (all on the Map):
 
 - **Add** — *⋯ → New Area*.
-- **Assign places** — from a place's card.
-- **Rename, delete, or merge duplicates** — *⋯ → Edit Areas*.
+- **Assign places** — from a place's card. A place in no area offers the closest one it sits among (**+ Add to …**); the card's Areas list puts those under *Suggested*, ahead of the rest.
+- **Rename or delete** — *⋯ → Edit Areas*.
+- **Duplicates merge by themselves** — two areas with the same name become one, with all their places.
 - **Show one area** — tap its icon (on **All** too, where the others stay listed, dimmed); tap the rest of the row to fold it.
 
 **Areas on a day.** Add an area on a day's page and all its places appear on that day's map (faded). It's a live link, so later edits show up. Its row's ⋯ (or a long-press) adds its places to the plan or removes it from the day. The day offers areas from its own city — a day trip gets its town's areas.
