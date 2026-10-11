@@ -69,6 +69,19 @@ describe("parseNote", () => {
 });
 
 describe("doc round trip", () => {
+  it("keeps an empty line left between paragraphs", () => {
+    const doc: PMNode = { type: "doc", content: [
+      { type: "paragraph", content: [{ type: "text", text: "Indian restaurant." }] },
+      { type: "paragraph" },
+      { type: "paragraph", content: [{ type: "text", text: "Official web" }] },
+      { type: "paragraph" },
+    ] };
+    expect(noteFromDoc(doc)).toBe("Indian restaurant.\n\n\nOfficial web");
+    expect(docFromNote("Indian restaurant.\n\n\nOfficial web").content).toEqual(doc.content!.slice(0, 3));
+    expect(parseNote("a\n\nb").map((b) => b.t)).toEqual(["p", "p"]);
+    expect(parseNote("\n\n\na\n\n\n").map((b) => b.t)).toEqual(["p"]);
+    stable("- one\n- two\n\n\n\nAfter the list");
+  });
   it("writes back what it reads", () => {
     const text = [
       "Short street leading to the temple.",

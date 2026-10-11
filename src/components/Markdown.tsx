@@ -98,7 +98,8 @@ function renderBlock(b: Block, key: number, ctx: Ctx): ReactNode {
     case "ol":
       return <Fragment key={key}>{renderList(b, ctx)}</Fragment>;
     case "p":
-      return <p key={key}>{inline(b.kids)}</p>;
+      // an empty paragraph is a blank line left on purpose — hold its height
+      return <p key={key}>{b.kids.length ? inline(b.kids) : <br />}</p>;
     default:
       return null;
   }

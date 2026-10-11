@@ -59,7 +59,15 @@ function parseBlocks(lines: string[], base: number): Block[] {
   let i = 0;
   while (i < lines.length) {
     const line = lines[i];
-    if (BLANK.test(line)) { i++; continue; }
+    if (BLANK.test(line)) {
+      // one blank line just separates blocks; each one past it is an empty
+      // line the writer left there on purpose, kept between two blocks
+      let j = i;
+      while (j < lines.length && BLANK.test(lines[j])) j++;
+      if (out.length && j < lines.length) for (let k = i + 1; k < j; k++) out.push({ t: "p", kids: [] });
+      i = j;
+      continue;
+    }
 
     const h = line.match(HEADING);
     if (h) {
@@ -511,14 +519,18 @@ function listText(node: PMNode, indent: string): string[] {
   return out;
 }
 
-/** Blocks → lines, a blank line between blocks. */
+/** Blocks → lines, a blank line between blocks — and one more for each
+ *  empty paragraph between them, so a gap the writer left stays. */
 function blocksText(nodes: PMNode[] = []): string[] {
   const chunks: string[][] = [];
+  let gap = 0;
   for (const node of nodes) {
+    const before = chunks.length;
     switch (node.type) {
       case "paragraph": {
         const lines = inlineBlock(node.content);
         if (lines.some((l) => l.trim())) chunks.push(lines);
+        else if (chunks.length) gap++;
         break;
       }
       case "heading": {
@@ -538,10 +550,14 @@ function blocksText(nodes: PMNode[] = []): string[] {
         chunks.push(listText(node, ""));
         break;
     }
+    if (chunks.length > before) {
+      if (before) chunks[before - 1].push(...Array<string>(gap).fill(""));
+      gap = 0;
+    }
   }
   return chunks.flatMap((c, k) => (k ? ["", ...c] : c));
 }
 
 export function noteFromDoc(doc: PMNode): string {
-  return blocksText(doc.content).join("\n").replace(/\n{3,}/g, "\n\n").trim();
+  return blocksText(doc.content).join("\n").trim();
 }
