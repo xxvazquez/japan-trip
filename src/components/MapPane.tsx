@@ -89,6 +89,15 @@ export default function MapPane({ dayId }: { dayId: string }) {
     setPoi(null);
   };
 
+  /** take a place's steps off this day's plan — the place stays on the trip */
+  const removeFromDay = (place: Place) => {
+    const day = data?.days.find((d) => d.id === dayId);
+    if (!day) return;
+    undoable(`Removed ${place.name}`, () =>
+      useApp.getState().updateEntity<Day>("days", day.id, { plan: (day.plan ?? []).filter((i) => i.placeId !== place.id) }));
+    setSelected(null);
+  };
+
   // a plan row's "Show on map" — select + zoom to that place (MapView does
   // the zoom); handed over directly, never through the URL or history
   const placesRef = useRef(ctx.places);
@@ -115,6 +124,9 @@ export default function MapPane({ dayId }: { dayId: string }) {
 
   if (!data) return null;
   const picked = ctx.places.find((p) => p.id === selected);
+  // only a place a step is tied to can come off the day here — an area's
+  // place belongs to the area, and the stay to the trip
+  const removable = !readOnly && !!picked && data.days.find((d) => d.id === dayId)?.plan?.some((i) => i.placeId === picked.id);
 
   return (
     <div className="relative h-full w-full">
@@ -179,7 +191,7 @@ export default function MapPane({ dayId }: { dayId: string }) {
             rel="noopener"
             className="flex shrink-0 items-center gap-0.5 text-xs text-accent"
           >
-            Google Maps <Icon name="chevron" size={12} />
+            Maps <Icon name="chevron" size={12} />
           </a>
           <a
             href={gmapsRoute(undefined, `${picked.lat},${picked.lng}`, "walking")}
@@ -189,6 +201,11 @@ export default function MapPane({ dayId }: { dayId: string }) {
           >
             Directions <Icon name="chevron" size={12} />
           </a>
+          {removable && (
+            <button type="button" onClick={() => removeFromDay(picked)} className="shrink-0 text-xs text-danger active:opacity-60">
+              Remove
+            </button>
+          )}
           <button onClick={() => setSelected(null)} aria-label="Close" className="shrink-0 p-1 text-ink-faint hover:text-ink-soft">
             <Icon name="close" size={14} />
           </button>
