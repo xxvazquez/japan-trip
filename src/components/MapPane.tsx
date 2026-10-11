@@ -52,6 +52,12 @@ export default function MapPane({ dayId }: { dayId: string }) {
   // the stay pin's colour is read from the palette, so a light/dark flip redraws it
   const ctx = useMemo(() => (data ? dayPlaces(data, dayId) : { places: [], derived: new Set<string>() }), [data, dayId, dark]);
   const cats = useMemo(() => withStayCategory(data?.config ?? ({} as never)), [data?.config]);
+  // the day's steps in plan order — numbered pins joined by a line, as on
+  // the Map tab's day pill
+  const route = useMemo(() => {
+    const here = new Set(ctx.places.map((p) => p.id));
+    return (data?.days.find((d) => d.id === dayId)?.plan ?? []).map((i) => i.placeId).filter((id): id is string => !!id && here.has(id));
+  }, [ctx, data, dayId]);
   const fitKey = ctx.places.map((p) => `${p.id}@${p.lat},${p.lng}`).join("|");
 
   useEffect(() => { setSelected(null); setPoi(null); }, [dayId]);
@@ -134,6 +140,7 @@ export default function MapPane({ dayId }: { dayId: string }) {
         places={ctx.places}
         selectedId={selected}
         derivedIds={ctx.derived}
+        route={route}
         {...cats}
         categoryColors={data.config.categoryColors}
         dark={dark}
