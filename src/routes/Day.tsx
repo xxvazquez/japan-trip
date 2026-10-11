@@ -496,6 +496,8 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const openNearby = (item: NearbyItem, group: NearbyGroup, anchor: HTMLElement | null) => {
     nearbyAnchor.current = anchor;
     setNearbyOpen({ item, group });
+    // as a step's card does: the map beside the day goes to the place too
+    if (splitActive) selectInSplit(item.place.id);
   };
   const nearbyCtx = {
     byStep: nearbyByStep,

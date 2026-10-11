@@ -48,6 +48,8 @@ export default function MapPane({ dayId }: { dayId: string }) {
   const map = useRef<MLMap | null>(null);
   const [ready, setReady] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
+  /** a trip place that isn't on this day (a Nearby one), shown while it's picked */
+  const [extra, setExtra] = useState<Place | null>(null);
 
   // the stay pin's colour is read from the palette, so a light/dark flip redraws it
   const ctx = useMemo(() => (data ? dayPlaces(data, dayId) : { places: [], derived: new Set<string>() }), [data, dayId, dark]);
@@ -61,6 +63,8 @@ export default function MapPane({ dayId }: { dayId: string }) {
   const fitKey = ctx.places.map((p) => `${p.id}@${p.lat},${p.lng}`).join("|");
 
   useEffect(() => { setSelected(null); setPoi(null); }, [dayId]);
+  useEffect(() => { if (extra && selected !== extra.id) setExtra(null); }, [selected, extra]);
+  const shown = useMemo(() => (extra && !ctx.places.some((p) => p.id === extra.id) ? [...ctx.places, extra] : ctx.places), [ctx, extra]);
 
   /** a place the base map draws (a café, a shop, a temple) opened by a
    *  click — the same card the Map tab opens, adding it to this day */
@@ -108,8 +112,17 @@ export default function MapPane({ dayId }: { dayId: string }) {
   // the zoom); handed over directly, never through the URL or history
   const placesRef = useRef(ctx.places);
   placesRef.current = ctx.places;
+  const tripPlacesRef = useRef(data?.places);
+  tripPlacesRef.current = data?.places;
   useEffect(() => onSplitSelect((sel) => {
-    if (placesRef.current.some((p) => p.id === sel)) setSelected(sel);
+    if (!placesRef.current.some((p) => p.id === sel)) {
+      // not on this day: pin it on its own while it's the pick
+      const p = tripPlacesRef.current?.find((x) => x.id === sel);
+      if (!p) { clearSplitSelect(); return; }
+      setExtra(p);
+    }
+    setPoi(null);
+    setSelected(sel);
     clearSplitSelect();
   }), []);
 
@@ -129,7 +142,7 @@ export default function MapPane({ dayId }: { dayId: string }) {
   }, [fitKey, ready]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!data) return null;
-  const picked = ctx.places.find((p) => p.id === selected);
+  const picked = shown.find((p) => p.id === selected);
   // only a place a step is tied to can come off the day here — an area's
   // place belongs to the area, and the stay to the trip
   const removable = !readOnly && !!picked && data.days.find((d) => d.id === dayId)?.plan?.some((i) => i.placeId === picked.id);
@@ -137,7 +150,7 @@ export default function MapPane({ dayId }: { dayId: string }) {
   return (
     <div className="relative h-full w-full">
       <MapView
-        places={ctx.places}
+        places={shown}
         selectedId={selected}
         derivedIds={ctx.derived}
         route={route}
