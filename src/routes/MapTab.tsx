@@ -2052,7 +2052,7 @@ export default function MapTab() {
               </div>
               <PlaceActions>
                 {!readOnly && <PlaceAction icon="plus" label="Add" primary onClick={savePoi} />}
-                <PlaceAction href={placeMapLink(poi)} icon="map" label="Google Maps" primary={readOnly} />
+                <PlaceAction href={placeMapLink(poi)} icon="map" label="Maps" primary={readOnly} />
               </PlaceActions>
             </div>
           )}
@@ -2409,7 +2409,7 @@ function PlaceRow({
             return (
               <>
                 <PlaceActions>
-                  {link && <PlaceAction href={link} icon="map" label="Google Maps" primary />}
+                  {link && <PlaceAction href={link} icon="map" label="Maps" primary />}
                   {fits.map((a) => <PlaceAction key={a.key} href={a.href} onClick={a.run} icon={a.icon} label={a.label} />)}
                   {day ? (
                     <PlaceAction icon="calendar" label={fmtDate(day.date, loc, { weekday: "short", day: "numeric" })} onClick={() => nav(`/day/${day.id}`)} />

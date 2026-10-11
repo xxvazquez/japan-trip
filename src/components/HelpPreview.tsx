@@ -53,7 +53,7 @@ function PlaceCard() {
         </span>
       </div>
       <div className="mt-3 flex gap-2">
-        <PlaceButton icon="map" label="Google Maps" primary />
+        <PlaceButton icon="map" label="Maps" primary />
         <PlaceButton icon="locate" label="Map" />
         <PlaceButton icon="calendar" label="Calendar" />
       </div>

@@ -2044,7 +2044,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                     {/* Google Maps leads, filled, as Maps leads with Directions;
                         then the place's own pages, Show on Map and More */}
                     <PlaceActions>
-                      {mapHref && <PlaceAction href={mapHref} icon="map" label="Google Maps" primary />}
+                      {mapHref && <PlaceAction href={mapHref} icon="map" label="Maps" primary />}
                       {inRow("review") && reviewSite && <PlaceAction href={reviewHref(reviewSite, place)} icon="link" label={place.reviewUrl ? reviewSite.label : `Search ${reviewSite.label}`} />}
                       {inRow("menu") && placeMenu && <PlaceAction href={placeMenu} icon="menu" label="Menu" />}
                       {inRow("website") && website && <PlaceAction href={website} icon="globe" label="Website" />}

@@ -191,7 +191,7 @@ Suggestions from the trip's own saved places — nothing is looked up from outsi
 - **Planned elsewhere** — a place on another day's plan still shows, marked **Planned Wed 14 Oct**, so you can spot a better fit.
 - **Meals** — around a lunch (11:30–14:30) or dinner (18:00–21:00) the plan leaves open, somewhere to eat comes first, marked **For lunch** / **For dinner**. One that's known to be shut then isn't moved up.
 - **＋** adds a place right after its stop (Undo on the toast takes it back).
-- **Tap a row** for its card: the walk from the stop and that day's hours, **Google Maps**, Tabelog for a restaurant in Japan, **Map**, its note and Good to know, then **Add after …** and, if another day has it, **Move here from …** (takes it off that day) and a link to that day.
+- **Tap a row** for its card: the walk from the stop and that day's hours, **Maps** (Google Maps), Tabelog for a restaurant in Japan, **Map**, its note and Good to know, then **Add after …** and, if another day has it, **Move here from …** (takes it off that day) and a link to that day.
 - **On a stop's place card** — the same short list sits under Good to know, as **Nearby** — shut each time the card opens; tap it to show the places.
 
 ### Spending on a day
@@ -235,7 +235,7 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 - **Mark as optional** from a step's menu, or **More → Optional** on its place card, for something nice to do but not a must: an ochre ◌ Optional tag shows under its name. **Make this a must** undoes it.
 - **The place card** — tap a linked step's name or note, as you'd tap a place in Maps. ✕ or a drag down closes it.
   - **Top:** the name, a red line if it clashes with the place's hours, and a grey line if it's Optional, pinned, Overwhelming or labelled.
-  - **Buttons**, four across: **Google Maps** (filled), Tabelog (restaurants in Japan), **Menu**, **Website**, **Show on Map** (phone), **Share** and **Search Web** (when there's no website). What doesn't fit goes under **More**.
+  - **Buttons**, four across: **Maps** (Google Maps, filled), Tabelog (restaurants in Japan), **Menu**, **Website**, **Show on Map** (phone), **Share** and **Search Web** (when there's no website). What doesn't fit goes under **More**.
   - **Share** opens the Share sheet; where there isn't one, it copies the name and map link.
   - **Below:** the step's note, Good to know and **Nearby** (see [Nearby on a day](#nearby-on-a-day)).
 - **On a computer** the card opens as a popover with its arrow on the place's name — beside the name, or under it when a long name leaves no room — and the map pane flies to the place at the same time.
@@ -362,8 +362,8 @@ Stations and hours come from OpenStreetMap (Overpass, with Nominatim as a fallba
 At 1024px and up (a laptop, or a tablet held sideways), a day's page gets a map pane on the right.
 
 - It shows the day's places, its areas' places (drawn more quietly) and the hotel, and follows you between days.
-- Tap a pin for its name, **Google Maps** (the place itself) and **Directions**. Opening a step's place card zooms straight to it.
-- Tap any place the map itself draws (a café, shop, temple) for a card with **Add to day** — it saves the place and adds it as the last step of that day — and **Google Maps**.
+- Tap a pin for its name, **Maps** (the place itself in Google Maps) and **Directions**. Opening a step's place card zooms straight to it.
+- Tap any place the map itself draws (a café, shop, temple) for a card with **Add to day** — it saves the place and adds it as the last step of that day — and **Maps** (Google Maps).
 - Drag the left edge to resize; **✕** hides it and a small tab brings it back. Both are remembered.
 
 On a phone the pane isn't downloaded at all; **More → Show on Map** on a place card opens the Map tab instead.
@@ -401,7 +401,7 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 - **Duplicate places merge by themselves**, by the same rule — wherever they came from. The one used on a day's plan is kept; it picks up the other's note, link and details, and every step and area points at it.
 - **Not on OpenStreetMap?** Paste the place's Google Maps link (Share → Copy link) into the search — it adds the place with its name, position and link.
 - A pasted link is matched to the same place on OpenStreetMap by where it is, even when OSM names it differently — the row says *On OpenStreetMap as “…”*. The place keeps Google's name, and its opening hours come from that OSM entry (needs migration `0043`).
-- **Tap any place on the map** — a shop, temple, station, lake, neighbourhood or a park's green — for a card with **Add** (saves it to My places) and **Google Maps**. A place already on the trip opens its own card instead.
+- **Tap any place on the map** — a shop, temple, station, lake, neighbourhood or a park's green — for a card with **Add** (saves it to My places) and **Maps** (Google Maps). A place already on the trip opens its own card instead.
 - **The list** — once a city is picked, places are grouped by area (plus *No area*). On **All** it nests **city → area → place**.
 - **Search** — the field at the top of the list finds areas by name and places by name, category or note, across the whole trip. The map shows only what it finds; on a phone the sheet pulls up while you type.
 - **Areas fold open in place**, like folders in Files — tap an area row to show its places under it, and the map moves to show them. They start collapsed and remember what you opened.
@@ -410,7 +410,7 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 - **Tapping a place** swaps the list for its card, as Apple Maps does; ✕ goes back to the list where you left it, and the map stays where it is.
 - **A place's card** — laid out like a step's place card:
   - **Top:** the name (tap to rename) and the walk to the nearest station.
-  - **Buttons**, four across: **Google Maps** (filled), Tabelog (restaurants in Japan), **Menu**, **Website**, **Share**, **Search Web** (when there's no website), and the day it's on or **Add to Day**. What doesn't fit goes under **More**.
+  - **Buttons**, four across: **Maps** (Google Maps, filled), Tabelog (restaurants in Japan), **Menu**, **Website**, **Share**, **Search Web** (when there's no website), and the day it's on or **Add to Day**. What doesn't fit goes under **More**.
   - Google Maps searches at the pin, so a chain opens the right branch.
   - **Below:** **Note**, then **Good to know** — folded until you tap it, so filing a place stays quick (see [Helpers on a step](#helpers-on-a-step)) — then its areas, category and city, and last **Delete Place**.
   - **Category:** any place can move into any category, or **New Category…**, and takes on that category's colour.

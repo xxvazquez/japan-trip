@@ -156,7 +156,7 @@ export default function MapPane({ dayId }: { dayId: string }) {
             </div>
             <PlaceActions>
               {!readOnly && <PlaceAction icon="plus" label="Add to day" primary onClick={addPoiToDay} />}
-              <PlaceAction href={placeMapLink(poi)} icon="map" label="Google Maps" primary={readOnly} />
+              <PlaceAction href={placeMapLink(poi)} icon="map" label="Maps" primary={readOnly} />
             </PlaceActions>
           </div>
         )}

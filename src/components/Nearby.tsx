@@ -246,7 +246,7 @@ export function NearbyCard({ open, onClose, anchorRef, item, group, date, locale
             </button>
           </div>
           <PlaceActions>
-            {mapHref && <PlaceAction href={mapHref} icon="map" label="Google Maps" primary />}
+            {mapHref && <PlaceAction href={mapHref} icon="map" label="Maps" primary />}
             {reviewSite && <PlaceAction href={reviewHref(reviewSite, place)} icon="link" label={place.reviewUrl ? reviewSite.label : `Search ${reviewSite.label}`} />}
             <PlaceAction icon="locate" label="Show on Map" onClick={close(() => onShowOnMap(place))} />
           </PlaceActions>
