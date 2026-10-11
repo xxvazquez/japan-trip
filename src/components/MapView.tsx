@@ -132,7 +132,7 @@ function applySelection(m: MLMap, selectedId: string | null) {
 const stopRadius = (selId: string): unknown => ["case", ["==", ["get", "id"], selId], 14.5, 12];
 
 /** move the camera to a picked place, centred in the map a bottom sheet leaves showing */
-function flyToPlace(m: MLMap, p: Place, animate: boolean, coverBottom = 140) {
+export function flyToPlace(m: MLMap, p: Place, animate: boolean, coverBottom = 140) {
   m.easeTo({ center: [p.lng, p.lat], zoom: Math.max(m.getZoom(), 14), duration: animate ? 500 : 0, offset: [0, -coverBottom / 2] });
 }
 

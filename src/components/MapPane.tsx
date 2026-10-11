@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MapView, type BasePoi, type MLMap } from "./MapView";
+import { MapView, flyToPlace, type BasePoi, type MLMap } from "./MapView";
 import { Icon } from "./Icon";
 import { ActionSheet } from "./ActionSheet";
 import { PlaceAction, PlaceActions } from "./PlaceAction";
@@ -110,11 +110,18 @@ export default function MapPane({ dayId }: { dayId: string }) {
 
   // a plan row's "Show on map" — select + zoom to that place (MapView does
   // the zoom); handed over directly, never through the URL or history
-  const placesRef = useRef(ctx.places);
-  placesRef.current = ctx.places;
+  // what's on the map now, a picked Nearby place included
+  const placesRef = useRef(shown);
+  placesRef.current = shown;
   const tripPlacesRef = useRef(data?.places);
   tripPlacesRef.current = data?.places;
+  const selectedRef = useRef(selected);
+  selectedRef.current = selected;
   useEffect(() => onSplitSelect((sel) => {
+    // already the pick: the selection doesn't change, so MapView won't move —
+    // go back to it here, in case the map was panned away since
+    const same = selectedRef.current === sel && placesRef.current.find((p) => p.id === sel);
+    if (same && map.current) { flyToPlace(map.current, same, true); clearSplitSelect(); return; }
     if (!placesRef.current.some((p) => p.id === sel)) {
       // not on this day: pin it on its own while it's the pick
       const p = tripPlacesRef.current?.find((x) => x.id === sel);
@@ -131,6 +138,14 @@ export default function MapPane({ dayId }: { dayId: string }) {
   useEffect(() => {
     const m = map.current;
     if (!m || !ready || ctx.places.length === 0) return;
+    // a place picked while the map was still loading stays the view — a
+    // fit to the whole day would pull the camera off it
+    const pick = selectedRef.current && placesRef.current.find((p) => p.id === selectedRef.current);
+    if (pick) {
+      flyToPlace(m, pick, !first.current);
+      first.current = false;
+      return;
+    }
     const lngs = ctx.places.map((p) => p.lng);
     const lats = ctx.places.map((p) => p.lat);
     m.fitBounds(
