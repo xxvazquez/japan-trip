@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode, type RefObject } from "react";
 import { Link } from "react-router-dom";
 import { ActionSheet } from "./ActionSheet";
-import { ActionRow } from "./ActionRow";
+import { ACTION_ROW, ActionRow } from "./ActionRow";
 import { ContextMenu } from "./ContextMenu";
 import { Icon } from "./Icon";
 import { IconTile } from "./IconTile";
@@ -20,7 +20,7 @@ import { placeTile } from "@/lib/tones";
 import type { NearbyGroup, NearbyItem } from "@/lib/nearby";
 import type { Place } from "@/core/types";
 import { fmtClocksIn } from "@/lib/time";
-import { useApp } from "@/store/useApp";
+import { useApp, undoable } from "@/store/useApp";
 
 /** A place's opening hours on `date`, the rule for that month and weekday
  *  rather than the whole year's schedule. Read first from the place's "Good
@@ -74,6 +74,10 @@ export function useStepNearby(stepId: string) {
   return { group: ctx?.byStep.get(stepId), open: ctx?.open, add: ctx?.add };
 }
 
+/** deletes a suggestion's place from the whole trip — off every area and
+ *  day with it — with Undo, the same as deleting it on the Map tab */
+const deletePlace = (place: Place) => undoable("Place deleted", () => useApp.getState().removeEntity("places", place.id));
+
 /** "Wed 14 Oct" */
 const shortDate = (iso: string, locale?: string) => fmtDate(iso, locale, { weekday: "short", day: "numeric", month: "short" });
 
@@ -124,6 +128,11 @@ export function NearbyRow({ item, group, locale, categoryIcons, categoryColors, 
               <a href={mapHref} target="_blank" rel="noopener" className="menu-item">
                 <Icon name="map" size={16} /> Open in Google Maps
               </a>
+            )}
+            {!readOnly && (
+              <button type="button" className="menu-item text-danger" onClick={() => deletePlace(p)}>
+                <Icon name="trash" size={16} /> Delete Place
+              </button>
             )}
           </>
         }
@@ -288,6 +297,15 @@ export function NearbyCard({ open, onClose, anchorRef, item, group, date, locale
                 </Link>
               </li>
             )}
+          </ul>
+        )}
+        {!readOnly && (
+          <ul className="overflow-hidden rounded-[12px] bg-surface">
+            <li>
+              <button type="button" onClick={close(() => deletePlace(place))} className={`${ACTION_ROW} text-danger`}>
+                <Icon name="trash" size={14} /> Delete Place
+              </button>
+            </li>
           </ul>
         )}
       </div>

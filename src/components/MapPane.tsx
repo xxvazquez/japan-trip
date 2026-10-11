@@ -99,6 +99,12 @@ export default function MapPane({ dayId }: { dayId: string }) {
     setPoi(null);
   };
 
+  /** a place not on the plan (a Nearby one, an area's) — off the whole trip */
+  const deletePlace = (place: Place) => {
+    undoable("Place deleted", () => useApp.getState().removeEntity("places", place.id));
+    setSelected(null);
+  };
+
   /** take a place's steps off this day's plan — the place stays on the trip */
   const removeFromDay = (place: Place) => {
     const day = data?.days.find((d) => d.id === dayId);
@@ -158,9 +164,10 @@ export default function MapPane({ dayId }: { dayId: string }) {
 
   if (!data) return null;
   const picked = shown.find((p) => p.id === selected);
-  // only a place a step is tied to can come off the day here — an area's
-  // place belongs to the area, and the stay to the trip
+  // a place a step is tied to comes off the day here (it stays on the trip)
   const removable = !readOnly && !!picked && data.days.find((d) => d.id === dayId)?.plan?.some((i) => i.placeId === picked.id);
+  // anything else that's a real trip place (not the stay's stand-in pin) can be deleted outright
+  const deletable = !readOnly && !!picked && !removable && data.places.some((p) => p.id === picked.id);
 
   return (
     <div className="relative h-full w-full">
@@ -239,6 +246,11 @@ export default function MapPane({ dayId }: { dayId: string }) {
           {removable && (
             <button type="button" onClick={() => removeFromDay(picked)} className="shrink-0 text-xs text-danger active:opacity-60">
               Remove
+            </button>
+          )}
+          {deletable && (
+            <button type="button" onClick={() => deletePlace(picked)} className="shrink-0 text-xs text-danger active:opacity-60">
+              Delete
             </button>
           )}
           <button onClick={() => setSelected(null)} aria-label="Close" className="shrink-0 p-1 text-ink-faint hover:text-ink-soft">
