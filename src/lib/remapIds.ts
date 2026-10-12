@@ -32,11 +32,14 @@ export function remapIds(data: TripData): TripData {
     day.hotelId = R(day.hotelId);
     day.journeyIds = day.journeyIds?.map((id) => R(id)!);
     day.areaIds = day.areaIds?.map((id) => R(id)!);
-    for (const it of day.plan ?? []) {
+    // Plan B too — a step left on the old place id loses its pin in the copy
+    for (const it of [...(day.plan ?? []), ...(day.altPlan ?? [])]) {
       it.id = fresh(it.id)!;
       if (it.placeId) it.placeId = R(it.placeId);
     }
   }
+  // a pin's hand-set city, or the copy's pin points at the old trip's stay
+  for (const p of d.places) p.legId = R(p.legId);
   for (const j of d.journeys) {
     j.fromLegId = R(j.fromLegId);
     j.toLegId = R(j.toLegId);

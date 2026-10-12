@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { STORAGE_KEYS } from "@/lib/app";
-import type { Place, TripData } from "@/core/types";
+import type { Day, Place, TripData } from "@/core/types";
 
 /** every page booted so far — `resetModules` doesn't stop the old ones */
 const pages: { useApp: { setState: (s: { activeId: null; data: null }) => void } }[] = [];
@@ -342,5 +342,17 @@ describe("pins brought in from Google My Maps before the sync went away", () => 
     await a.settlePending();
     const b = await boot();
     expect(b.s().data!.places.find((p) => p.id === "old")).toMatchObject({ name: "Cafe", category: "Food", color: "#795548", note: "Soft serve" });
+  });
+
+  it("unlinks a deleted place from Plan B steps as well as Plan A", async () => {
+    const a = await boot();
+    a.s().addEntity("places", { id: "gone", name: "Cafe", lat: 1, lng: 2 } as Place);
+    const day = a.s().data!.days[0];
+    const step = { id: "s1", text: "Cafe", placeId: "gone" };
+    a.s().updateEntity<Day>("days", day.id, { plan: [step], altPlan: [{ ...step, id: "s2" }] });
+    a.s().removeEntity("places", "gone");
+    const after = a.s().data!.days.find((d) => d.id === day.id)!;
+    expect(after.plan![0].placeId).toBeUndefined();
+    expect(after.altPlan![0].placeId).toBeUndefined();
   });
 });

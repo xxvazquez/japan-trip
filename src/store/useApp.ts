@@ -1720,7 +1720,7 @@ export const useApp = create<AppStore>((set, get) => {
           }
           for (const day of d.days) {
             let changed = false;
-            for (const it of day.plan ?? []) {
+            for (const it of [...(day.plan ?? []), ...(day.altPlan ?? [])]) {
               if (it.placeId === id) { it.placeId = undefined; changed = true; }
             }
             if (changed) touchedDays.push(day.id);
