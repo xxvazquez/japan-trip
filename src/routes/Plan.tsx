@@ -524,14 +524,17 @@ function LegBlock({
 
 /** The date at the start of a day row, stacked as Calendar draws it: the
  *  weekday small over a big day number, in a narrow fixed column. Today's
- *  number takes the accent. */
+ *  number takes the accent; a Saturday or Sunday is red, as a printed
+ *  calendar marks the weekend. */
 function DayDate({ date, loc, strong, month }: { date: string; loc: string; strong?: boolean; month?: boolean }) {
+  const dow = new Date(`${date.slice(0, 10)}T00:00:00Z`).getUTCDay();
+  const tone = strong ? "text-accent" : dow === 0 || dow === 6 ? "text-danger" : null;
   return (
     <span className="flex w-8 shrink-0 flex-col items-center tabular-nums">
-      <span className={`text-[11px] uppercase leading-[13px] ${strong ? "text-accent" : "text-ink-faint"}`}>
+      <span className={`text-[11px] uppercase leading-[13px] ${tone ?? "text-ink-faint"}`}>
         {fmtDate(date, loc, { weekday: "short" })}
       </span>
-      <span className={`text-[22px] font-normal leading-[26px] ${strong ? "text-accent" : "text-ink"}`}>
+      <span className={`text-[22px] font-normal leading-[26px] ${tone ?? "text-ink"}`}>
         {fmtDate(date, loc, { day: "numeric" })}
       </span>
       {month && (
