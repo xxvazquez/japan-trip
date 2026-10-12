@@ -1132,10 +1132,6 @@ function reportListFailure(e: unknown) {
   useApp.setState({ notice: { tone: "warn", text: "Couldn't update the trip list on this device. Your trips are safe; it will be rebuilt next time the app opens." } });
 }
 
-/** Everything the current trip has pending must be on disk before the active
- *  trip changes underneath it. For a device-only trip that means awaiting the
- *  write itself: the writer re-reads the store each pass, so a switch that
- *  raced it would otherwise leave the old trip's last edit behind. */
 /** A new trip made from another (Duplicate, a restore) gets its own copy of
  *  every stored attachment (`carryStoredFiles`), saved onto its documents. */
 async function carryFiles(be: Backend, tripId: string, data: TripData) {
@@ -1150,6 +1146,10 @@ async function carryFiles(be: Backend, tripId: string, data: TripData) {
   }
 }
 
+/** Everything the current trip has pending must be on disk before the active
+ *  trip changes underneath it. For a device-only trip that means awaiting the
+ *  write itself: the writer re-reads the store each pass, so a switch that
+ *  raced it would otherwise leave the old trip's last edit behind. */
 async function flushForSwitch(get: () => AppStore) {
   const pending = !!(localTimer || localRunning || localDirty);
   flushNow(get);
