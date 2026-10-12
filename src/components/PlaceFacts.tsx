@@ -220,10 +220,14 @@ function FactCell({ k, label, source, value, kind, onEdit, autoEdit, className =
   );
 }
 
-/** hours wrap only between their " · " spans, never inside "Wed–Thu
+/** hours wrap only between their spans — " · ", or the commas and
+ *  semicolons a web search writes them with — never inside "Wed–Thu
  *  09:30–17:00": spaces go non-breaking and a word joiner holds each dash */
 function keepSpansTogether(v: string): string {
-  return v.split(" · ").map((span) => span.replace(/ /g, "\u00a0").replace(/[–-]/g, "$&\u2060")).join(" · ");
+  return v
+    .split(/( · |[,;] )/)
+    .map((part, i) => (i % 2 ? part : part.replace(/ /g, "\u00a0").replace(/[–-]/g, "$&\u2060")))
+    .join("");
 }
 
 /** the row hairline inset past the tile to the text, as Settings insets it */
