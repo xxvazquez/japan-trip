@@ -185,4 +185,24 @@ describe("a refresh", () => {
     expect(await refreshFacts(p, undefined)).toBeNull();
     expect(p.facts).toMatchObject({ price: "¥900", reservations: "No", queue: "Long", from: { price: "web", reservations: "web", queue: "web" } });
   });
+  it("drops a website nothing gives any more, but not one it couldn't check", async () => {
+    const run = async (facts: unknown, nominatim: Response) => {
+      const p = { ...place("cafe", 35, 135), name: "cafe", category: "coffee", facts: { checkedAt: "2026-09-01", name: "cafe", queue: "Long", website: "https://namesake.example/", sources: ["namesake.example"], from: { queue: "web" } } } as Place;
+      useApp.setState({ data: { ...trip(), places: [p] } as TripData, updateEntity: vi.fn((_t: string, _id: string, patch: Partial<Place>) => Object.assign(p, patch)) as never });
+      vi.stubGlobal("navigator", { onLine: true });
+      vi.stubGlobal("fetch", vi.fn(async (u: string) =>
+        String(u).includes("/api/place-facts")
+          ? new Response(JSON.stringify({ facts }), { headers: { "Content-Type": "application/json" } })
+          : String(u).includes("nominatim") ? nominatim.clone() : new Response("{}", { status: 500 })));
+      await refreshFacts(p, undefined);
+      return p.facts;
+    };
+    // OpenStreetMap couldn't be asked: the site stays until it can be checked
+    expect(await run(null, new Response("{}", { status: 500 }))).toMatchObject({ website: "https://namesake.example/" });
+    // past the pause a refusal starts, it answers with no site: the old one goes, the facts stay
+    const later = Date.now() + 3_600_000;
+    vi.spyOn(Date, "now").mockReturnValue(later);
+    expect(await run(null, new Response("[]", { headers: { "Content-Type": "application/json" } }))).toMatchObject({ queue: "Long", website: undefined, sources: ["namesake.example"] });
+    vi.mocked(Date.now).mockRestore();
+  });
 });

@@ -254,11 +254,17 @@ async function ask(p: Place, area: string | undefined, kind: "food" | "sight"): 
     // OSM's own tags at the pin beat what was read off the web: its website
     // and menu over a site picked out of the search's pages, its opening
     // hours over the searches' — a tag says the same thing every time
-    const [{ website, menu }, osm] = await Promise.all([
-      osmLinks(p.lat, p.lng, p.name).catch(() => ({ website: undefined, menu: undefined })),
+    const [links, osm] = await Promise.all([
+      // undefined when OpenStreetMap couldn't be asked
+      osmLinks(p.lat, p.lng, p.name).catch(() => undefined),
       // undefined when OpenStreetMap couldn't be asked, null when it has nothing
       nearestOpeningHours(p.lat, p.lng, p.name, p.osm).catch(() => undefined),
     ]);
+    // links it couldn't be asked about now stay as they were — a refresh
+    // only drops one that neither OpenStreetMap nor the search gives any more
+    const had = p.facts?.name === p.name ? p.facts : undefined;
+    const website = links ? links.website : facts?.website ? undefined : had?.website;
+    const menu = links ? links.menu : had?.menu;
     const from: PlaceFacts["from"] = {};
     for (const [k] of FACT_ROWS) if (facts?.[k]) from[k] = "web";
     const out: PlaceFacts = { ...(facts ?? { checkedAt: todayISO() }), ...(website && { website }), ...(menu && { menu }) };
@@ -338,7 +344,15 @@ export async function refreshFacts(p: Place, area: string | undefined): Promise<
   }
   updateEntity<Place>("places", p.id, {
     facts: {
-      ...(merged ?? { ...kept, checkedAt: todayISO() }),
+      // nothing found: the facts it had stay, but not a link nothing gives
+      // now — nor the pages it was read off, once no fact from them is left
+      ...(merged ?? {
+        ...kept,
+        website: undefined,
+        menu: undefined,
+        sources: kept && FACT_ROWS.some(([k]) => kept[k]) ? kept.sources : undefined,
+        checkedAt: todayISO(),
+      }),
       name: p.name,
       kind: kind === "sight" ? kind : undefined,
       version: FACTS_VERSION,
