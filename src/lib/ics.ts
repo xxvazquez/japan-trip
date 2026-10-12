@@ -126,6 +126,9 @@ function segmentTiming(seg: Segment, tripTz: string): EventTiming | null {
   return { allDay: false, start, end: end ?? new Date(start.getTime() + 60 * 60_000) };
 }
 
+/** a step on a place goes by the place's current name, as the day shows it */
+const stepTitle = (item: PlanItem, place: Place | undefined): string => place?.name || item.text || "Untitled";
+
 const planItemDesc = (item: PlanItem, timing: EventTiming): string[] =>
   [timing.allDay && item.time ? `Time: ${item.time}` : null, item.note].filter(Boolean) as string[];
 
@@ -155,7 +158,7 @@ function planItemEvent(item: PlanItem, day: Day, tz: string, place: Place | unde
     lines.push(`DTEND:${fmtUtcStamp(timing.end)}`);
   }
 
-  lines.push(`SUMMARY:${escText(item.text || "Untitled")}`);
+  lines.push(`SUMMARY:${escText(stepTitle(item, place))}`);
   const desc = planItemDesc(item, timing);
   if (desc.length) lines.push(`DESCRIPTION:${escText(desc.join("\n"))}`);
   if (place) {
@@ -273,7 +276,7 @@ function googleCalendarUrl(title: string, timing: EventTiming, description?: str
 export function googleCalendarUrlForPlanItem(item: PlanItem, day: Day, tz: string | undefined, place: Place | undefined): string {
   const timing = planItemTiming(item, day, safeTz(tz));
   const desc = planItemDesc(item, timing).join("\n");
-  return googleCalendarUrl(item.text || "Untitled", timing, desc || undefined, place?.name);
+  return googleCalendarUrl(stepTitle(item, place), timing, desc || undefined, place?.name);
 }
 
 /** `null` when the hop has no departure time — nothing to add yet. */

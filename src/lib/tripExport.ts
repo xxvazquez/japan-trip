@@ -16,7 +16,7 @@
  * files shipped beside the page (`tripArchive.ts`).
  */
 import type {
-  Day, Doc, Hotel, Journey, Leg, Place, Segment, TripData,
+  Day, Doc, Hotel, Journey, Leg, Place, PlanItem, Segment, TripData,
 } from "@/core/types";
 import { dayJourneys, fmtDate, fmtSpan, journeyDepartDate, legCheckOut, legNights, legsWithDays, plural, todayISO } from "@/lib/dates";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
@@ -136,14 +136,18 @@ function dayBlock(day: Day, data: TripData, loc: string): string {
     parts.push(`<p class="day-journey"><a href="#journey-${esc(journey.id)}">${esc(journey.label)}</a>${span ? ` · ${esc(span)}` : ""}${changes ? ` · ${esc(plural(changes, "change"))}` : ""}</p>`);
   }
 
-  const steps = (day.plan ?? []).filter((it) => it.text.trim() || it.time?.trim());
+  const placeById = new Map(data.places.map((p) => [p.id, p] as const));
+  // a step on a place goes by the place's name, as the day shows it — its own
+  // text is only what the place was called when it was added
+  const stepName = (it: PlanItem) => (it.placeId && placeById.get(it.placeId)?.name) || it.text;
+  const steps = (day.plan ?? []).filter((it) => stepName(it).trim() || it.time?.trim());
   if (steps.length) {
-    const placeById = new Map(data.places.map((p) => [p.id, p] as const));
     const li = steps
       .map((it) => {
         const time = it.time?.trim() ? `<span class="pi-time">${esc(fmtClocksIn(it.time.trim()))}</span> ` : "";
         const pl = it.placeId ? placeById.get(it.placeId) : undefined;
-        const body = it.url ? link(it.url, it.text) : pl ? linkTo(placeMapLink(pl), it.text) : esc(it.text);
+        const name = stepName(it);
+        const body = it.url ? link(it.url, name) : pl ? linkTo(placeMapLink(pl), name) : esc(name);
         const note = it.note?.trim() ? `<div class="pi-note">${mdToHtml(it.note)}</div>` : "";
         return `<li>${time}${body}${note}</li>`;
       })
