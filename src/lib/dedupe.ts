@@ -50,6 +50,56 @@ function groupsOf<T>(items: T[], same: (a: T, b: T) => boolean): number[][] {
   return [...by.values()].filter((g) => g.length > 1);
 }
 
+/** how far apart two same-named areas' places can sit and still be one
+ *  area — a "Station area" or a ward name like "Chuo" turns up in more than
+ *  one city, and those must stay two */
+export const SAME_AREA_KM = 30;
+
+/** the middle of an area's places, null while it has none */
+function areaMiddle(a: Area, byId: Map<string, Place>): { lat: number; lng: number } | null {
+  const pts = a.placeIds.map((id) => byId.get(id)).filter((p): p is Place => !!p);
+  return pts.length ? { lat: pts.reduce((s, p) => s + p.lat, 0) / pts.length, lng: pts.reduce((s, p) => s + p.lng, 0) / pts.length } : null;
+}
+
+/** the trip's area of this name in this part of the world (or one with no
+ *  places yet) — the one a new group of that name around here joins */
+export function areaNamedNear(data: Pick<TripData, "areas" | "places">, name: string, lat: number, lng: number): Area | undefined {
+  const byId = new Map(data.places.map((p) => [p.id, p]));
+  return data.areas.find((a) => {
+    if (nameKey(a.name) !== nameKey(name)) return false;
+    const m = areaMiddle(a, byId);
+    return !m || haversineKm(m.lat, m.lng, lat, lng) <= SAME_AREA_KM;
+  });
+}
+
+/** groups of areas that are one: the same name, and the same part of the
+ *  world — sharing a place, or their places' middles close together. An
+ *  area with no places yet can't be placed, so it joins the first group of
+ *  its name rather than linking two cities' areas through itself. */
+function sameAreas(areas: Area[], places: Place[]): Area[][] {
+  const byId = new Map(places.map((p) => [p.id, p]));
+  const middle = (a: Area) => areaMiddle(a, byId);
+  const byName = new Map<string, Area[]>();
+  for (const a of areas) if (nameKey(a.name)) byName.set(nameKey(a.name), [...(byName.get(nameKey(a.name)) ?? []), a]);
+  const out: Area[][] = [];
+  for (const named of byName.values()) {
+    if (named.length < 2) continue;
+    const placed = named.filter((a) => middle(a));
+    const empty = named.filter((a) => !middle(a));
+    const groups = groupsOf(placed, (a, b) => {
+      if (a.placeIds.some((id) => b.placeIds.includes(id))) return true;
+      const ma = middle(a)!, mb = middle(b)!;
+      return haversineKm(ma.lat, ma.lng, mb.lat, mb.lng) <= SAME_AREA_KM;
+    }).map((g) => g.map((i) => placed[i]));
+    if (empty.length) {
+      if (groups.length) groups[0].push(...empty);
+      else groups.push(placed.length ? [placed[0], ...empty] : empty);
+    }
+    out.push(...groups.filter((g) => g.length > 1));
+  }
+  return out;
+}
+
 /** what merging a duplicate place into the kept one adds to it: anything
  *  the kept one is missing, and a note it doesn't already have */
 function mergedFields(keep: Place, others: Place[]): Partial<Place> {
@@ -95,12 +145,10 @@ export function planDedupe(data: Pick<TripData, "places" | "areas" | "days">): D
     }
   }
 
-  // areas: one per name, keeping the one with the most places
+  // areas: one per name in one place, keeping the one with the most places
   const areaRemap = new Map<string, string>();
   const areaKeep = new Map<string, string[]>();
-  const named = data.areas.filter((a) => nameKey(a.name));
-  for (const g of groupsOf(named, (a, b) => nameKey(a.name) === nameKey(b.name))) {
-    const members = g.map((i) => named[i]);
+  for (const members of sameAreas(data.areas, data.places)) {
     const keep = members.reduce((best, a) => (a.placeIds.length > best.placeIds.length ? a : best));
     // the kept area's own order first, the others' places after
     areaKeep.set(keep.id, [keep, ...members.filter((a) => a !== keep)].flatMap((a) => a.placeIds));

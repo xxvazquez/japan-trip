@@ -28,7 +28,7 @@ import { haversineKm, fmtDistanceKm, fmtWalk, useGeolocation } from "@/lib/geo";
 import { fmtClocksIn, fmtMinutes } from "@/lib/time";
 import { legHex } from "@/lib/legColors";
 import { areasNear, suggestAreas, type AreaSuggestion } from "@/lib/cluster";
-import { samePlace } from "@/lib/dedupe";
+import { SAME_AREA_KM, areaNamedNear, samePlace } from "@/lib/dedupe";
 import { useIsDark } from "@/lib/mode";
 import { useReadOnly } from "@/lib/readonly";
 import { menuHref, reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
@@ -714,16 +714,18 @@ function useMapEditing(
     // neighbourhood name), and a write per group from this render's
     // snapshot would undo the first's places, or make the name twice
     const next = new Map<string, string[]>();
-    const created = new Map<string, { id: string; name: string }>();
+    const created = new Map<string, { id: string; name: string; lat: number; lng: number }>();
     const key = (name: string) => name.trim().toLowerCase();
     for (const g of review ?? []) {
       if (!g.keep || g.placeIds.length < (g.areaId ? 1 : 2)) continue;
       const name = g.name || "Area";
+      // a same-named area in another city stays its own
+      const madeHere = [...created.values()].find((c) => key(c.name) === key(name) && haversineKm(c.lat, c.lng, g.lat, g.lng) <= SAME_AREA_KM);
       let id = g.areaId && data.areas.some((a) => a.id === g.areaId) ? g.areaId
-        : data.areas.find((a) => key(a.name || "") === key(name))?.id ?? created.get(key(name))?.id;
+        : areaNamedNear(data, name, g.lat, g.lng)?.id ?? madeHere?.id;
       if (!id) {
         id = crypto.randomUUID?.() ?? rid();
-        created.set(key(name), { id, name });
+        created.set(id, { id, name, lat: g.lat, lng: g.lng });
       }
       const had = next.get(id) ?? data.areas.find((a) => a.id === id)?.placeIds ?? [];
       next.set(id, [...new Set([...had, ...g.placeIds])]);

@@ -447,7 +447,7 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 - **Add** — *⋯ → New Area*.
 - **Assign places** — from a place's card. A place in no area offers the closest one it sits among (**+ Add to …**); the card's Areas list puts those under *Suggested*, ahead of the rest.
 - **Rename or delete** — *⋯ → Edit Areas*.
-- **Duplicates merge by themselves** — two areas with the same name become one, with all their places.
+- **Duplicates merge by themselves** — two areas with the same name in the same city become one, with all their places. A "Station area" in two cities stays two.
 - **Show one area** — tap its icon (on **All** too, where the others stay listed, dimmed); tap the rest of the row to fold it.
 
 **Areas on a day.** Add an area on a day's page and all its places appear on that day's map (faded). It's a live link, so later edits show up. Its row's ⋯ (or a long-press) adds its places to the plan or removes it from the day. The day offers areas from its own city — a day trip gets its town's areas.
