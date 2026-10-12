@@ -252,11 +252,12 @@ const ll = (p: { lat?: number; lng?: number } | undefined): LatLng[] =>
   p?.lat !== undefined && p?.lng !== undefined ? [{ lat: p.lat, lng: p.lng }] : [];
 
 /** Every point a day's map shows: the places in its areas, its own plan
- *  steps' places, and the hotel it's anchored to (its own, else its leg's). */
+ *  steps' places (Plan B's too — switched to offline, it still needs its
+ *  map), and the hotel it's anchored to (its own, else its leg's). */
 export function dayOfflinePoints(data: TripData, day: Day): LatLng[] {
   const areaIds = new Set(day.areaIds ?? []);
   const placeIds = new Set(data.areas.filter((a) => areaIds.has(a.id)).flatMap((a) => a.placeIds));
-  for (const it of day.plan ?? []) if (it.placeId) placeIds.add(it.placeId);
+  for (const it of [...(day.plan ?? []), ...(day.altPlan ?? [])]) if (it.placeId) placeIds.add(it.placeId);
   const hotelId = day.hotelId ?? data.legs.find((l) => l.id === day.legId)?.hotelId;
   return [
     ...data.places.filter((p) => placeIds.has(p.id)).flatMap(ll),

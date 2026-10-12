@@ -97,3 +97,14 @@ describe("saving maps for offline", () => {
     expect(fetched).toEqual([]);
   });
 });
+
+describe("a day's offline points", () => {
+  it("cover Plan B's places as well as the plan that's on", async () => {
+    const { dayOfflinePoints } = await import("./offlineTiles");
+    const { buildSandbox } = await import("@/templates/demo");
+    const data = buildSandbox();
+    data.places.push({ id: "rainy", name: "Rainy-day museum", ...KYOTO });
+    const day = { ...data.days[0], altPlan: [{ id: "b1", text: "Museum", placeId: "rainy" }] };
+    expect(dayOfflinePoints(data, day)).toContainEqual(KYOTO);
+  });
+});
