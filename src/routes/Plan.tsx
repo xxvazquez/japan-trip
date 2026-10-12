@@ -133,6 +133,7 @@ let launched = false;
 export default function Plan() {
   const data = useData();
   const addEntity = useApp((s) => s.addEntity);
+  const resizeBase = useApp((s) => s.resizeBase);
   const readOnly = useReadOnly();
   const nav = useNavigate();
   const [namingBase, setNamingBase] = useState(false);
@@ -190,6 +191,8 @@ export default function Plan() {
               onClick: () => {
                 const slot = nextDaySlot(data);
                 if (!slot) return;
+                // past the last day it grows the last stay, which keeps the day home last
+                if (data.days.length && data.days.every((d) => d.date < slot.date)) return resizeBase(slot.legId, 1);
                 const hotelId = data.legs.find((l) => l.id === slot.legId)?.hotelId || undefined;
                 addEntity("days", { id: newId("day"), date: slot.date, legId: slot.legId, hotelId, title: "New day" } as never);
               },
