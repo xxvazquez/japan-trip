@@ -77,8 +77,9 @@ export function areaNamedNear(data: Pick<TripData, "areas" | "places">, name: st
 
 /** groups of areas that are one: the same name, and the same part of the
  *  world — sharing a place, or their places' middles close together. An
- *  area with no places yet can't be placed, so it joins the first group of
- *  its name rather than linking two cities' areas through itself. */
+ *  area with no places yet can't be placed — it may be the next city's
+ *  "Station area" — so it only merges with another empty one, and with a
+ *  namesake once its places put it in the same city. */
 function sameAreas(areas: Area[], places: Place[]): Area[][] {
   const byId = new Map(places.map((p) => [p.id, p]));
   const middle = (a: Area) => areaMiddle(a, byId);
@@ -94,11 +95,8 @@ function sameAreas(areas: Area[], places: Place[]): Area[][] {
       const ma = middle(a)!, mb = middle(b)!;
       return haversineKm(ma.lat, ma.lng, mb.lat, mb.lng) <= SAME_AREA_KM;
     }).map((g) => g.map((i) => placed[i]));
-    if (empty.length) {
-      if (groups.length) groups[0].push(...empty);
-      else groups.push(placed.length ? [placed[0], ...empty] : empty);
-    }
     out.push(...groups.filter((g) => g.length > 1));
+    if (empty.length > 1) out.push(empty);
   }
   return out;
 }

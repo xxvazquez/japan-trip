@@ -740,8 +740,13 @@ function useMapEditing(
   };
   const createArea = (name: string) => {
     if (!data) return;
-    const dup = data.areas.find((a) => (a.name || "").trim().toLowerCase() === name.toLowerCase());
-    if (!dup) addEntity("areas", { id: crypto.randomUUID?.() ?? rid(), name, placeIds: [] } as never);
+    // a namesake in another city doesn't stop it — only an empty one of the
+    // same name, which is the same area not yet filled
+    const key = name.trim().toLowerCase();
+    const dup = data.areas.find((a) => (a.name || "").trim().toLowerCase() === key && !a.placeIds.some((id) => data.places.some((p) => p.id === id)));
+    if (!dup) addEntity("areas", { id: crypto.randomUUID?.() ?? rid(), name: name.trim(), placeIds: [] } as never);
+    // an area with no places isn't in the list yet — show it where it is
+    setEditingAreas(true);
   };
 
   return {

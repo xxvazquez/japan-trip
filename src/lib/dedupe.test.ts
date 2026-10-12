@@ -54,7 +54,7 @@ describe("planDedupe", () => {
     expect(plan.days).toEqual([{ id: "d1", patch: { areaIds: ["a2"] } }]);
   });
 
-  it("keeps same-named areas in two cities apart, and files an empty one with the first", () => {
+  it("keeps same-named areas in two cities apart, and an empty one on its own", () => {
     // a "Station area" in Tokyo and one in Osaka
     const places = [place("t1", "A", 35.68, 139.76), place("t2", "B", 35.69, 139.7), place("o1", "C", 34.7, 135.5)];
     const areas: Area[] = [
@@ -62,9 +62,11 @@ describe("planDedupe", () => {
       { id: "osaka", name: "Station area", placeIds: ["o1"] },
       { id: "tokyo2", name: "station area", placeIds: ["t2"] },
       { id: "empty", name: "Station Area", placeIds: [] },
+      { id: "empty2", name: "Station area", placeIds: [] },
     ];
     const plan = planDedupe({ places, areas, days: [] });
-    expect(plan.removeAreas.sort()).toEqual(["empty", "tokyo2"]);
+    // the empty one may be a third city's — only its empty twin folds into it
+    expect(plan.removeAreas.sort()).toEqual(["empty2", "tokyo2"]);
     expect(plan.areas).toEqual([{ id: "tokyo", patch: { placeIds: ["t1", "t2"] } }]);
   });
 
