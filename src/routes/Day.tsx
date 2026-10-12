@@ -55,7 +55,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { isFoodPlace, reviewHref, reviewSiteFor, useAutoReviewLink } from "@/lib/reviewSite";
 import { FACT_ROWS, factsDayHours, factValue, notASight, placeArea, useAutoPlaceFacts, useFactsFailure, wantsFacts } from "@/lib/placeFacts";
 import { FactsRefresh, PlaceFactRows } from "@/components/PlaceFacts";
-import { addDays, dayJourneys, dayKind, fmtDate, journeyDepartDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
+import { addDays, dayJourneys, dayKind, fmtDate, isWeekend, journeyDepartDate, journeyOffDay, journeySpan, journeyStops, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { gmapsLink, gmapsRoute, mapUrlCoords, placeMapLink, sharePlace, webSearchHref } from "@/lib/maps";
 import { fmtDistanceKm, fmtWalk, haversineKm } from "@/lib/geo";
@@ -623,7 +623,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       <PageHeader
         back="/"
         dotColor={legHex(leg?.color)}
-        eyebrow={fmtDate(day.date, loc, { weekday: "long", day: "numeric", month: "long" })}
+        eyebrow={<span className={isWeekend(day.date) ? "text-danger" : undefined}>{fmtDate(day.date, loc, { weekday: "long", day: "numeric", month: "long" })}</span>}
         navSubtitle={fmtDate(day.date, loc, { weekday: "short", day: "numeric", month: "short" })}
         title={
           <Editable label="Day title" value={day.title ?? ""} placeholder="Untitled day" onCommit={(v) => patch({ title: v || undefined })} />

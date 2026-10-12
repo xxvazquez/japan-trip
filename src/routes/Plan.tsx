@@ -30,7 +30,7 @@ import { TileRow } from "@/components/TileRow";
 import { IconTile } from "@/components/IconTile";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
-import { tripClock, fmtDate, fmtDateRange, dayKind, legCheckOut, legForDate, legNights, legsWithDays, plural, addDays, daysBetween } from "@/lib/dates";
+import { tripClock, fmtDate, isWeekend, fmtDateRange, dayKind, legCheckOut, legForDate, legNights, legsWithDays, plural, addDays, daysBetween } from "@/lib/dates";
 import { nextDaySlot } from "@/lib/spans";
 import { canonicalLegs } from "@/lib/cityAssign";
 import { launchedFresh } from "@/lib/resume";
@@ -527,8 +527,7 @@ function LegBlock({
  *  number takes the accent; a Saturday or Sunday is red, as a printed
  *  calendar marks the weekend. */
 function DayDate({ date, loc, strong, month }: { date: string; loc: string; strong?: boolean; month?: boolean }) {
-  const dow = new Date(`${date.slice(0, 10)}T00:00:00Z`).getUTCDay();
-  const tone = strong ? "text-accent" : dow === 0 || dow === 6 ? "text-danger" : null;
+  const tone = strong ? "text-accent" : isWeekend(date) ? "text-danger" : null;
   return (
     <span className="flex w-8 shrink-0 flex-col items-center tabular-nums">
       <span className={`text-[11px] uppercase leading-[13px] ${tone ?? "text-ink-faint"}`}>

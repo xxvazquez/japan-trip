@@ -195,6 +195,12 @@ export function fmtDate(
   return parseISO(iso).toLocaleDateString(locale, opts);
 }
 
+/** Saturday or Sunday — drawn red, as a printed calendar marks the weekend. */
+export function isWeekend(iso: ISODate) {
+  const dow = parseISO(iso).getDay();
+  return dow === 0 || dow === 6;
+}
+
 /** A start–end span as people write it, the shared month said once
  *  ("3–4 Nov", "30 Nov – 2 Dec"); a single date when the two are the same. */
 export function fmtDateRange(
