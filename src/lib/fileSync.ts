@@ -1,5 +1,5 @@
 import { getFileBlob } from "./fileStore";
-import { uploadFile, MAX_FILE_BYTES } from "./cloudFiles";
+import { copyFile, uploadFile, MAX_FILE_BYTES } from "./cloudFiles";
 import type { Doc } from "@/core/types";
 
 interface Deps {
@@ -39,4 +39,31 @@ export async function uploadDeviceFiles(d: Deps): Promise<number> {
     }
   }
   return done;
+}
+
+/**
+ * A duplicated or restored trip's stored attachments still sit in the folder
+ * of the trip they came from, and only that trip's people can read it — so
+ * they'd stop opening once it's deleted, or for anyone who only has the copy.
+ * Copy each into this trip's own folder and return the documents that
+ * changed. A file that can't be copied (its trip is gone, no signal) keeps
+ * the path it had; one failure never stops the rest.
+ */
+export async function carryStoredFiles(tripId: string, docs: Doc[], copy = copyFile): Promise<Doc[]> {
+  const changed: Doc[] = [];
+  for (const doc of docs) {
+    let files = doc.files;
+    for (const f of doc.files ?? []) {
+      if (!f.storagePath || f.storagePath.startsWith(`${tripId}/`)) continue;
+      const path = `${tripId}/${f.id}`;
+      try {
+        await copy(f.storagePath, path);
+      } catch {
+        continue;
+      }
+      files = files!.map((x) => (x.id === f.id ? { ...x, storagePath: path } : x));
+    }
+    if (files !== doc.files) changed.push({ ...doc, files });
+  }
+  return changed;
 }

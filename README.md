@@ -526,6 +526,7 @@ Tap a document to open its page: name it, attach PDFs or photos, add fields and 
 - **Offline** — every attachment is kept on the device once the trip opens. A cloud with a ⇣ beside a file means it isn't on this device yet.
 - **Drive files** download while Drive is connected, or all at once from **Manage → Trips → This device → Save attachments for offline**.
 - **Removing** an attachment never deletes the file itself.
+- **Duplicating** a trip, or restoring one as a new trip, gives the new trip its own copy of each file in your account, so it still opens after the original is deleted.
 
 ### Packing
 

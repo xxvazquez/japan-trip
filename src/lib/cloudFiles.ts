@@ -28,6 +28,16 @@ export async function uploadFile(path: string, blob: Blob): Promise<void> {
   throw new Error(/size|too large|413/i.test(error.message) ? "That file is too big to upload." : "Upload failed — check your connection and try again.");
 }
 
+/** Copy one file to another path, server side. A copy already there (a
+ *  retry) counts as success, as with `uploadFile`. */
+export async function copyFile(from: string, to: string): Promise<void> {
+  const { error } = await (await bucket()).copy(from, to);
+  if (!error) return;
+  const status = (error as { statusCode?: string | number }).statusCode;
+  if (String(status) === "409" || /already exists|duplicate/i.test(error.message)) return;
+  throw error;
+}
+
 /** The file itself, to keep a copy on the device. */
 export async function downloadFile(path: string): Promise<Blob> {
   const { data, error } = await (await bucket()).download(path);

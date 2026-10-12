@@ -1136,6 +1136,20 @@ function reportListFailure(e: unknown) {
  *  trip changes underneath it. For a device-only trip that means awaiting the
  *  write itself: the writer re-reads the store each pass, so a switch that
  *  raced it would otherwise leave the old trip's last edit behind. */
+/** A new trip made from another (Duplicate, a restore) gets its own copy of
+ *  every stored attachment (`carryStoredFiles`), saved onto its documents. */
+async function carryFiles(be: Backend, tripId: string, data: TripData) {
+  if (be.kind !== "supabase" || !data.docs.some((d) => d.files?.some((f) => f.storagePath))) return;
+  try {
+    const { carryStoredFiles } = await import("@/lib/fileSync");
+    for (const doc of await carryStoredFiles(tripId, data.docs)) {
+      await be.upsertRow(tripId, "docs", doc as never, data.docs.findIndex((d) => d.id === doc.id));
+    }
+  } catch (e) {
+    console.error("[files]", e);
+  }
+}
+
 async function flushForSwitch(get: () => AppStore) {
   const pending = !!(localTimer || localRunning || localDirty);
   flushNow(get);
@@ -1390,6 +1404,7 @@ export const useApp = create<AppStore>((set, get) => {
       data.meta.title = name;
       const summary = summarise("", name, data, get().trips.find((t) => t.id === srcId)?.templateId);
       const id = await be.createTrip(data, summary);
+      await carryFiles(be, id, data);
       const trips = [...get().trips, { ...summary, id }];
       set({ trips });
       void be.setActive(get().activeId, trips).catch(reportListFailure);
@@ -1410,6 +1425,7 @@ export const useApp = create<AppStore>((set, get) => {
       data.meta.title = name;
       const summary = summarise("", name, data);
       const id = await be.createTrip(data, summary);
+      await carryFiles(be, id, data);
       const trips = [...get().trips, { ...summary, id }];
       set({ trips });
       void be.setActive(get().activeId, trips).catch(reportListFailure);

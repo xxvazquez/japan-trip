@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { uploadDeviceFiles } from "./fileSync";
+import { carryStoredFiles, uploadDeviceFiles } from "./fileSync";
 import type { Doc } from "@/core/types";
 
 const doc = (files: Doc["files"]): Doc => ({ id: "d1", title: "Passport", kind: "other", fields: [], files });
@@ -53,5 +53,29 @@ describe("uploadDeviceFiles", () => {
     });
     expect(await p).toBe(1);
     expect(set).toEqual([["d1", "f2", "trip1/f2"]]);
+  });
+});
+
+describe("carryStoredFiles", () => {
+  it("copies another trip's stored files into this trip's folder", async () => {
+    const copy = vi.fn(async () => {});
+    const src = doc([{ id: "f1", name: "a", storagePath: "old/f1" }, { id: "f2", name: "b", driveId: "g" }]);
+    const out = await carryStoredFiles("new", [src], copy);
+    expect(copy).toHaveBeenCalledWith("old/f1", "new/f1");
+    expect(out).toEqual([{ ...src, files: [{ id: "f1", name: "a", storagePath: "new/f1" }, { id: "f2", name: "b", driveId: "g" }] }]);
+    expect(src.files![0].storagePath).toBe("old/f1"); // the source is left alone
+  });
+
+  it("leaves files already in this trip, on Drive or on the device alone", async () => {
+    const copy = vi.fn(async () => {});
+    const out = await carryStoredFiles("new", [doc([{ id: "a", name: "a", storagePath: "new/a" }, { id: "b", name: "b", driveId: "g" }, { id: "c", name: "c" }])], copy);
+    expect(copy).not.toHaveBeenCalled();
+    expect(out).toEqual([]);
+  });
+
+  it("a file that can't be copied keeps its path, and the others still go", async () => {
+    const copy = vi.fn(async (from: string) => { if (from === "old/f1") throw new Error("gone"); });
+    const out = await carryStoredFiles("new", [doc([{ id: "f1", name: "a", storagePath: "old/f1" }, { id: "f2", name: "b", storagePath: "old/f2" }])], copy);
+    expect(out[0].files!.map((f) => f.storagePath)).toEqual(["old/f1", "new/f2"]);
   });
 });
