@@ -25,7 +25,8 @@ export type FactKey = (typeof FACT_ROWS)[number][0];
 
 /** a fact as shown: one typed in by hand wins over the lookup's */
 export const factValue = (f: PlaceFacts | undefined, k: FactKey): string | undefined =>
-  (f?.edited && k in f.edited ? f.edited[k] : f?.[k]) || undefined;
+  // facts saved before the lookup dropped the search's citation marks ("[4][2]")
+  (f?.edited && k in f.edited ? f.edited[k] : f?.[k]?.replace(/\s*\[\d+\]/g, "")) || undefined;
 
 /** a sight's labels for the slots that mean something else there */
 const SIGHT_LABELS: Partial<Record<keyof PlaceFacts, string>> = { reservations: "Tickets", queue: "Crowds", price: "Entry" };

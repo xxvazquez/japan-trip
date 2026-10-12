@@ -53,7 +53,7 @@ export function nearestPrefectures(at: { lat: number; lng: number }): string[] {
 
 /** lower-case words, with long vowels folded so "Houraiken" and "Hōraiken"
  *  both match "Horaiken" */
-const words = (s: string) =>
+export const words = (s: string) =>
   s
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
@@ -81,10 +81,10 @@ export function nameScore(ours: string, theirs: string): number {
   return a.length ? a.filter((x) => b.has(x)).length / a.length : 0;
 }
 
-/** words that say what a place is rather than which one it is — two names
- *  sharing only these aren't the same restaurant */
+/** words that say what a place is rather than which one it is, and the
+ *  little words between — two names sharing only these aren't the same place */
 const GENERIC = new Set(
-  "the and of de no ya tei restaurant cafe coffee bar kitchen dining house shop store branch main ten honten bakery ramen sushi soba udon izakaya yakitori yakiniku tempura tonkatsu unagi kissa".split(" "),
+  "a an at by for from in on to with the and of de no ya tei food market breakfast brunch lunch dinner restaurant cafe coffee bar kitchen dining house shop store branch main ten honten bakery ramen sushi soba udon izakaya yakitori yakiniku tempura tonkatsu unagi kissa".split(" "),
 );
 const CJK = /[\u3040-\u30ff\u3400-\u9fff]/;
 

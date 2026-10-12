@@ -6,7 +6,7 @@
  *  the pages is it (the app asks OpenStreetMap first, see `placeWebsite.ts`). Generic — works for a place anywhere. */
 
 import { SearchError, hasSearchKey, webSearch, type SearchKeys } from "./search";
-import { distinctiveWords, sameName } from "./tabelog";
+import { distinctiveWords, sameName, words as nameWords } from "./tabelog";
 
 type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
 
@@ -49,7 +49,8 @@ export function parseFacts(answer: string, kind: FactKind = "food"): Partial<Rec
   const re = new RegExp(`(${labels})\\s*:\\s*([\\s\\S]*?)(?=[,;]?\\s*(?:${stops})\\s*:|\\n|$)`, "gi");
   for (const m of answer.matchAll(re)) {
     const key = FACT_KEYS.find((k) => names[k].toLowerCase() === m[1].toLowerCase())!;
-    const value = m[2].replace(/\s+/g, " ").trim().replace(/[.,;]+$/, "").slice(0, 160);
+    // the summary's citation marks ("8:00-19:00 [4][2]") aren't part of the answer
+    const value = m[2].replace(/\s*\[\d+\]/g, "").replace(/\s+/g, " ").trim().replace(/[.,;]+$/, "").slice(0, 160);
     if (value && !EMPTY.test(value) && !out[key]) out[key] = value;
   }
   return out;
@@ -273,6 +274,16 @@ function byAddress(name: string, area: string | undefined, results: { url: strin
   return undefined;
 }
 
+/** whether a page names our place — by a word of its name that isn't the
+ *  city's: with "Kyoto Gogyo" in Kyoto, every Kyoto page has "Kyoto" in it */
+function namesPlace(name: string, area: string | undefined, text: string): boolean {
+  const city = new Set(area ? distinctiveWords(area) : []);
+  const own = distinctiveWords(name).filter((w) => !city.has(w));
+  if (!own.length) return sameName(name, text);
+  const theirs = new Set(nameWords(text));
+  return own.some((w) => theirs.has(w));
+}
+
 /** whether a page is in the stay's city — by the city's own words, so
  *  "Lake Kawaguchiko" is matched by a page that only says "Kawaguchiko" */
 function inArea(area: string, text: string): boolean {
@@ -292,7 +303,7 @@ export async function findFacts(name: string, area: string | undefined, keys: Se
     // come back about a namesake somewhere else entirely
     const about = body.results.filter((r) => {
       const text = `${r.title} ${r.content ?? ""} ${r.url}`;
-      return sameName(name, text) && (!area || inArea(area, text));
+      return namesPlace(name, area, text) && (!area || inArea(area, text));
     });
     return { answer: body.answer, about, facts: about.length && body.answer ? parseFacts(body.answer, kind) : {} };
   };

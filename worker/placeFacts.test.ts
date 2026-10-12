@@ -36,6 +36,9 @@ describe("parseFacts", () => {
     expect(parseFacts("Closed: Mondays Website: https://example.jp\nEntry: Free", "sight")).toEqual({ closed: "Mondays", price: "Free" });
     expect(parseFacts("Price: ¥1,000, Official website: https://x.jp")).toEqual({ price: "¥1,000" });
   });
+  it("drops the summary's citation marks", () => {
+    expect(parseFacts("Hours: 8:00-19:00 daily [4][2][3]\nClosed: None, open year-round [1].")).toEqual({ hours: "8:00-19:00 daily", closed: "None, open year-round" });
+  });
   it("drops facts the sources didn't give", () => {
     expect(parseFacts("Hours: unknown\nPrice: not stated in sources\nQueue: Often a line")).toEqual({ queue: "Often a line" });
   });
@@ -108,6 +111,11 @@ describe("findFacts", () => {
   it("takes a page naming the stay's city by its own word, not the whole phrase", async () => {
     const res = fake("Hours: 24 hours", ["Chureito Pagoda - a short walk from Kawaguchiko"]);
     expect(await findFacts("Chureito Pagoda", "Lake Kawaguchiko", { tavily: "key" }, res, today, "sight")).toMatchObject({ hours: "24 hours" });
+  });
+  it("doesn't take a page for sharing only a little word or the city's name", async () => {
+    expect(await findFacts("Market for lunch", "Riverton", { tavily: "key" }, fake("Hours: 7-15", ["Roasted Bean, great for breakfast in Riverton"]), today)).toBeNull();
+    expect(await findFacts("Kyoto Gogyo", "Kyoto", { tavily: "key" }, fake("Hours: 7-15", ["Best ramen in Kyoto"]), today)).toBeNull();
+    expect(await findFacts("Kyoto Gogyo", "Kyoto", { tavily: "key" }, fake("Hours: 11-15", ["Gogyo, Kyoto - burnt miso ramen"]), today)).toMatchObject({ hours: "11-15" });
   });
   it("finds nothing when no page is about the place", async () => {
     expect(await findFacts("Menya Inoichi", "Kyoto", { tavily: "key" }, fake("Queue: 45 min", ["Ichiran Shibuya"]), today)).toBeNull();
