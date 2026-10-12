@@ -19,13 +19,16 @@ const SAME_SPOT_KM = 0.1;
 const nameKey = (s: string | undefined) => (s ?? "").trim().toLowerCase();
 
 /** the same place, by any of: its OpenStreetMap feature, its Maps link, or
- *  its name a block away */
+ *  its name a block away (unless OpenStreetMap has them as two) */
 export function samePlace(
   a: Pick<Place, "name" | "lat" | "lng" | "url" | "osm">,
   b: Pick<Place, "name" | "lat" | "lng" | "url" | "osm">,
 ): boolean {
   if (a.osm && a.osm === b.osm) return true;
   if (a.url && a.url === b.url) return true;
+  // two features OpenStreetMap keeps apart are two places — a chain's
+  // branches can sit a block from each other in a big city
+  if (a.osm && b.osm) return false;
   const k = nameKey(a.name);
   return !!k && k === nameKey(b.name) && haversineKm(a.lat, a.lng, b.lat, b.lng) <= SAME_SPOT_KM;
 }

@@ -13,6 +13,8 @@ describe("samePlace", () => {
   });
   it("keeps two branches of a chain apart", () => {
     expect(samePlace(place("a", "Starbucks", 35.0, 135.0), place("b", "Starbucks", 35.003, 135.0))).toBe(false);
+    // a block apart, but two shops on OpenStreetMap
+    expect(samePlace(place("a", "7-Eleven", 35.0, 135.0, { osm: "node/1" }), place("b", "7-Eleven", 35.0007, 135.0, { osm: "node/2" }))).toBe(false);
   });
 });
 
