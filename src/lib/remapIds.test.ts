@@ -20,4 +20,15 @@ describe("remapIds", () => {
     // the source is left alone
     expect(src.places[0].legId).toBe(src.legs[0].id);
   });
+
+  it("keeps pinned and planned days on the copy's own days", () => {
+    const src = buildSandbox();
+    src.config.pinnedDays = [src.days[1].id];
+    src.config.plannedDays = [src.days[0].id, src.days[2].id];
+
+    const out = remapIds(src);
+    expect(out.config.pinnedDays).toEqual([out.days[1].id]);
+    expect(out.config.plannedDays).toEqual([out.days[0].id, out.days[2].id]);
+    expect(src.config.pinnedDays).toEqual([src.days[1].id]);
+  });
 });

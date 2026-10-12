@@ -45,6 +45,9 @@ export function remapIds(data: TripData): TripData {
     j.toLegId = R(j.toLegId);
   }
   for (const a of d.areas ?? []) a.placeIds = (a.placeIds ?? []).map((id) => R(id)!);
+  // pinned and planned days are kept by day id in the settings
+  if (d.config.pinnedDays) d.config.pinnedDays = d.config.pinnedDays.map((id) => R(id)!);
+  if (d.config.plannedDays) d.config.plannedDays = d.config.plannedDays.map((id) => R(id)!);
 
   return d;
 }
