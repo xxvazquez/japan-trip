@@ -1,3 +1,5 @@
+import { useEffect, useSyncExternalStore } from "react";
+
 /*
  * A day's "Show on map" on a wide screen selects the place in the split map
  * beside it. That goes through here rather than the URL: a router replace
@@ -26,4 +28,31 @@ export function onSplitSelect(f: (id: string) => void): () => void {
 /** The pane has the place — don't select it again on the next mount. */
 export function clearSplitSelect() {
   pending = null;
+}
+
+/* A place card open on the day's page already holds the place's buttons, so
+ * the pane's own bar for the same place waits behind it until it closes. */
+
+let cards = 0;
+const cardListeners = new Set<() => void>();
+const setCards = (n: number) => {
+  cards = n;
+  cardListeners.forEach((f) => f());
+};
+
+/** The day page's side: a place card that's `open` counts as covering the pane's bar. */
+export function useSplitCard(open: boolean) {
+  useEffect(() => {
+    if (!open) return;
+    setCards(cards + 1);
+    return () => setCards(cards - 1);
+  }, [open]);
+}
+
+/** The pane's side: is a place card up on the day's page? */
+export function useSplitCardOpen(): boolean {
+  return useSyncExternalStore(
+    (f) => { cardListeners.add(f); return () => { cardListeners.delete(f); }; },
+    () => cards > 0,
+  );
 }

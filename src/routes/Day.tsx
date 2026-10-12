@@ -76,7 +76,7 @@ import { useDaySun } from "@/lib/daySun";
 import { prefetchTiles, canPrefetchTiles, dayOfflinePoints } from "@/lib/offlineTiles";
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon, expenseCategoryForGlyph } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
-import { selectInSplit } from "@/lib/splitSelect";
+import { selectInSplit, useSplitCard } from "@/lib/splitSelect";
 import { fmtIn, minutesUntil, nowInDay } from "@/lib/upNext";
 import { useClock, useToday } from "@/lib/useToday";
 import { buildDayPdf, buildPagePdf, mdToPlain, PDF_HREF, PDF_HIDE, PDF_KEEP, type DayPdfRow } from "@/lib/dayPdf";
@@ -1607,6 +1607,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
   const factsFailure = useFactsFailure(place?.id ?? "");
   // the place card the step's icon opens; on desktop it hangs off the step
   const placeCard = useActionSheet();
+  useSplitCard(placeCard.open);
   const placeCardAnchor = useRef<HTMLDivElement>(null);
   // the place's name itself — the desktop card's arrow points at it
   const nameRef = useRef<HTMLSpanElement>(null);

@@ -364,7 +364,7 @@ At 1024px and up (a laptop, or a tablet held sideways), a day's page gets a map 
 
 - It shows the day's places, its areas' places (drawn more quietly) and the hotel, and follows you between days.
 - The plan's places are numbered in plan order and joined by a dotted line, as on the Map tab's day pill.
-- Tap a pin for its name, **Maps** (the place itself in Google Maps) and **Directions**. Opening a step's or a Nearby place's card zooms straight to it; a Nearby place gets a pin of its own while it's picked.
+- Tap a pin for its name, **Maps** (the place itself in Google Maps) and **Directions**. Opening a step's or a Nearby place's card zooms straight to it; a Nearby place gets a pin of its own while it's picked. The pin's bar waits until the card closes, since the card has the same buttons.
 - **Remove** on a plan place's pin takes its steps off the day; the place stays on the trip.
 - **Delete** on any other place's pin (a Nearby or area place) deletes it from the whole trip. The hotel has neither. Undo brings either back.
 - Tap any place the map itself draws (a café, shop, temple) for a card with **Add to day** — it saves the place and adds it as the last step of that day — and **Maps** (Google Maps).

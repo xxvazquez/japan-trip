@@ -21,6 +21,7 @@ import type { NearbyGroup, NearbyItem } from "@/lib/nearby";
 import type { Place } from "@/core/types";
 import { fmtClocksIn } from "@/lib/time";
 import { useApp, undoable } from "@/store/useApp";
+import { useSplitCard } from "@/lib/splitSelect";
 
 /** A place's opening hours on `date`, the rule for that month and weekday
  *  rather than the whole year's schedule. Read first from the place's "Good
@@ -224,6 +225,7 @@ export function NearbyCard({ open, onClose, anchorRef, item, group, date, locale
 }) {
   const place = item?.place;
   const hours = usePlaceHours(open ? place : undefined, date);
+  useSplitCard(open);
   if (!item || !group || !place) return null;
   const mapHref = placeMapLink(place);
   const reviewSite = reviewSiteFor(place, categoryIcons);

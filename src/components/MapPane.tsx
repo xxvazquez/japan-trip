@@ -10,7 +10,7 @@ import { haversineKm } from "@/lib/geo";
 import { gmapsRoute, placeMapLink } from "@/lib/maps";
 import { dayStay, stayPins, withStayCategory } from "@/lib/stayPins";
 import { kindLabel, loadBasePois } from "@/lib/mapStyle";
-import { clearSplitSelect, onSplitSelect } from "@/lib/splitSelect";
+import { clearSplitSelect, onSplitSelect, useSplitCardOpen } from "@/lib/splitSelect";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import { useApp, undoable } from "@/store/useApp";
 import type { Day, Place, TripData } from "@/core/types";
@@ -50,6 +50,7 @@ export default function MapPane({ dayId }: { dayId: string }) {
   const [selected, setSelected] = useState<string | null>(null);
   /** a trip place that isn't on this day (a Nearby one), shown while it's picked */
   const [extra, setExtra] = useState<Place | null>(null);
+  const cardOpen = useSplitCardOpen();
 
   // the stay pin's colour is read from the palette, so a light/dark flip redraws it
   const ctx = useMemo(() => (data ? dayPlaces(data, dayId) : { places: [], derived: new Set<string>() }), [data, dayId, dark]);
@@ -222,8 +223,9 @@ export default function MapPane({ dayId }: { dayId: string }) {
         </p>
       )}
 
-      {/* above the map's ⓘ attribution in the corner, not over it */}
-      {picked && (
+      {/* above the map's ⓘ attribution in the corner, not over it — and only
+          once the day's own card for the place is closed, as it holds the same buttons */}
+      {picked && !cardOpen && (
         <div className="absolute inset-x-4 bottom-11 z-10 flex items-center gap-3 rounded-[12px] border border-line bg-surface px-3.5 py-3 shadow-md">
           <span className="min-w-0 flex-1 break-words text-sm text-ink">{picked.name}</span>
           {/* the place itself in Google Maps — its photos, reviews, hours */}
