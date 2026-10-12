@@ -160,28 +160,84 @@ function stopsFC(stops: Place[], num: Map<string, number>, catColors: CatColors)
 
 /** the line joining a day's stops in order. Each hop bows gently to one
  *  side (a quadratic curve, a fifth of its length) so it reads as "then
- *  here", never as the street route — between stations it would be a lie. */
+ *  here", never as the street route — between stations it would be a lie.
+ *  Each hop picks the side that keeps it clear of the day's other hops and
+ *  pins, so a route that doubles back draws as two lines, not a tangle. */
 function routeLine(places: Place[], route: string[] | undefined): FeatureCollection<LineString> {
   const byId = new Map(places.map((p) => [p.id, p] as const));
   const pts = (route ?? []).map((id) => byId.get(id)).filter((p): p is Place => !!p)
     .filter((p, i, all) => i === 0 || p.id !== all[i - 1].id);
   if (pts.length < 2) return { type: "FeatureCollection", features: [] };
+  // work in a locally square plane so the bow is round at any latitude
   const k = Math.cos((pts[0].lat * Math.PI) / 180);
-  const coords: [number, number][] = [[pts[0].lng, pts[0].lat]];
-  for (let i = 1; i < pts.length; i++) {
-    const a = pts[i - 1], b = pts[i];
-    // work in a locally square plane so the bow is round at any latitude
-    const ax = a.lng * k, bx = b.lng * k;
-    const dx = bx - ax, dy = b.lat - a.lat;
-    const cx = (ax + bx) / 2 - dy * 0.2, cy = (a.lat + b.lat) / 2 + dx * 0.2;
-    for (let t = 1 / 24; t <= 1.0001; t += 1 / 24) {
+  const xy = pts.map((p) => [p.lng * k, p.lat] as const);
+  const hops = xy.length - 1;
+  const curve = (i: number, side: number): [number, number][] => {
+    const [ax, ay] = xy[i], [bx, by] = xy[i + 1];
+    const dx = bx - ax, dy = by - ay;
+    const cx = (ax + bx) / 2 - dy * 0.2 * side, cy = (ay + by) / 2 + dx * 0.2 * side;
+    const out: [number, number][] = [];
+    for (let t = 0; t <= 1.0001; t += 1 / 24) {
       const u = 1 - t;
-      const x = u * u * ax + 2 * u * t * cx + t * t * bx;
-      const y = u * u * a.lat + 2 * u * t * cy + t * t * b.lat;
-      coords.push([x / k, y]);
+      out.push([u * u * ax + 2 * u * t * cx + t * t * bx, u * u * ay + 2 * u * t * cy + t * t * by]);
+    }
+    return out;
+  };
+  const cand = Array.from({ length: hops }, (_, i) => [curve(i, 1), curve(i, -1)]);
+  const lens = xy.slice(1).map(([x, y], i) => Math.hypot(x - xy[i][0], y - xy[i][1]));
+
+  // how badly a hop's curve crowds the others: a crossing costs most, then
+  // every sample that runs close beside another hop or over another pin
+  const cost = (i: number, c: [number, number][], side: number[]) => {
+    const near = Math.max(lens[i] * 0.3, 1e-9);
+    let s = 0;
+    const press = (d: number) => { if (d < near) s += (1 - d / near) ** 2; };
+    for (let j = 0; j < hops; j++) {
+      if (j === i) continue;
+      const o = cand[j][side[j]];
+      if (crosses(c, o, Math.abs(i - j) === 1)) s += 50;
+      for (const [x, y] of c) {
+        let d = Infinity;
+        for (const [ox, oy] of o) d = Math.min(d, Math.hypot(x - ox, y - oy));
+        press(d);
+      }
+    }
+    xy.forEach(([px, py], n) => {
+      if (n === i || n === i + 1) return;
+      for (const [x, y] of c) press(Math.hypot(x - px, y - py));
+    });
+    return s;
+  };
+  // 0 = the usual left-hand bow; flip a hop only when it clearly helps,
+  // a few passes so a later hop's choice can settle an earlier one
+  const side = new Array<number>(hops).fill(0);
+  for (let pass = 0; pass < 3; pass++) {
+    let changed = false;
+    for (let i = 0; i < hops; i++) {
+      const keep = cost(i, cand[i][side[i]], side), flip = cost(i, cand[i][1 - side[i]], side);
+      if (flip + 0.5 < keep) { side[i] = 1 - side[i]; changed = true; }
+    }
+    if (!changed) break;
+  }
+
+  const coords: [number, number][] = [[pts[0].lng, pts[0].lat]];
+  side.forEach((s, i) => cand[i][s].slice(1).forEach(([x, y]) => coords.push([x / k, y])));
+  return { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: coords } }] };
+}
+
+/** do two sampled curves cross? Hops that meet at a stop share an end point,
+ *  which isn't a crossing, so `adjacent` skips the segments touching it */
+function crosses(a: [number, number][], b: [number, number][], adjacent: boolean): boolean {
+  const orient = (p: number[], q: number[], r: number[]) => Math.sign((q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]));
+  const skip = adjacent ? 2 : 0;
+  for (let i = 0; i < a.length - 1; i++) {
+    for (let j = 0; j < b.length - 1; j++) {
+      if (adjacent && (i < skip || i >= a.length - 1 - skip) && (j < skip || j >= b.length - 1 - skip)) continue;
+      const p = a[i], q = a[i + 1], r = b[j], s = b[j + 1];
+      if (orient(p, q, r) * orient(p, q, s) < 0 && orient(r, s, p) * orient(r, s, q) < 0) return true;
     }
   }
-  return { type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: coords } }] };
+  return false;
 }
 
 /** the trip's accent as a colour the map can paint, read from the live
