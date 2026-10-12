@@ -177,7 +177,7 @@ const RETRY_MAX = 60_000;
 
 /** does the local client have an unsaved change to this row? */
 function hasPendingFor(id: string) {
-  return queue.some((op) => (op.t === "row" || op.t === "del") && op.id === id);
+  return queue.some((op) => ((op.t === "row" || op.t === "del") && op.id === id) || (op.t === "areaPlaces" && op.areaId === id));
 }
 
 /** does the local client have an unsaved change to the trip row itself
@@ -855,7 +855,10 @@ async function flush(get: () => AppStore) {
   }
   for (const aid of areaSets) {
     const a = data.areas.find((x) => x.id === aid);
-    if (a) tasks.push(run(be.setAreaPlaces(activeId, aid, a.placeIds ?? []), { t: "areaPlaces", areaId: aid }));
+    if (a) {
+      markWritten([aid]); // its membership rows echo back under the area's id
+      tasks.push(run(be.setAreaPlaces(activeId, aid, a.placeIds ?? []), { t: "areaPlaces", areaId: aid }));
+    }
   }
   if (fieldKeys.size) {
     const keys = [...fieldKeys];

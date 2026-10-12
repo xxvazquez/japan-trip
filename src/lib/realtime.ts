@@ -48,8 +48,10 @@ export function subscribeTrip(
         "postgres_changes",
         { event: "*", schema: "public", table, filter: `trip_id=eq.${tripId}` },
         (payload: { eventType: "INSERT" | "UPDATE" | "DELETE"; new: Record<string, unknown>; old: Record<string, unknown> }) => {
-          const row = (payload.new && Object.keys(payload.new).length ? payload.new : payload.old) as { id?: string };
-          if (!row?.id || justWrote.has(row.id) || hasPendingFor(row.id)) return;
+          const row = (payload.new && Object.keys(payload.new).length ? payload.new : payload.old) as { id?: string; area_id?: string };
+          // an area's membership row has no id of its own — it's the area's
+          const id = table === "area_places" ? row?.area_id : row?.id;
+          if (!id || justWrote.has(id) || hasPendingFor(id)) return;
           let applied = true;
           getApply()((d) => { applied = splice(d, table, payload); });
           if (!applied) scheduleResync();
@@ -106,8 +108,9 @@ function splice(
 
   if (table === "segments") {
     const src = evt === "DELETE" ? payload.old : payload.new;
-    const j = d.journeys.find((x) => x.id === src.journey_id);
-    if (!j) return false;
+    // a delete's old row can arrive with only its id (RLS strips the rest)
+    const j = d.journeys.find((x) => x.id === src.journey_id) ?? (evt === "DELETE" ? d.journeys.find((x) => x.segments.some((s) => s.id === src.id)) : undefined);
+    if (!j) return evt === "DELETE" && !src.journey_id; // already gone here
     j.segments = j.segments.filter((s) => s.id !== src.id);
     if (evt !== "DELETE") {
       const seg = rowToSeg(payload.new);

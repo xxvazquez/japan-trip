@@ -792,6 +792,7 @@ edit in the UI  →  TripData (in memory)  →  backend
 ```
 
 - **Supabase** (configured and signed in) — every entity (legs, days, hotels, journeys and segments, luggage, docs, packing, places, areas, notes…) is its own row, private via RLS, synced in real time and shareable. Schema in [`supabase/migrations/`](supabase/migrations/).
+- Deletes and area changes reach the other devices live too (deletes need migration `0044`).
 - **IndexedDB** — used when Supabase isn't configured, or when the user picks **Use on this device only** (`localStorage["za.localOnly"]`, honoured by `needsAuth()`).
 - **Code splitting** — the Supabase client, MapLibre and the PDF viewer are separate chunks, only loaded when needed.
 
@@ -823,7 +824,7 @@ edit in the UI  →  TripData (in memory)  →  backend
 ### Setting up a project
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0043`).
+2. In the **SQL Editor**, run every file in `supabase/migrations/` **in order** (`0001` → `0044`).
    - `0033` moves old day-trip text (getting there / back, last way back) into each day's notes — take a backup first.
    - `0035` drops the retired day columns. On an existing project, run it only once the build with it is live — an older build still writes `journey_id`, and its day saves would fail.
 3. **Authentication → Providers → Google** — enable it with a Google Cloud OAuth client id and secret. Redirect: `https://<project-ref>.supabase.co/auth/v1/callback`.
