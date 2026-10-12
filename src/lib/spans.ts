@@ -1,5 +1,5 @@
 import type { TripData } from "@/core/types";
-import { addDays, rangeText, shiftDate } from "@/lib/dates";
+import { addDays, dayKind, rangeText, shiftDate } from "@/lib/dates";
 
 /**
  * The days are the itinerary; a stay's start/end follow them. After a day is
@@ -94,8 +94,9 @@ export interface LegResize {
 
 /**
  * Lengthen or shorten a stay by whole days at its end — the base page's
- * Days − / +. Adding puts new days after the stay's last day; removing takes
- * its last days off (never the first one). Everything dated after the stay —
+ * Days − / +. Adding puts new days after the stay's last day — before the
+ * day home, when the stay ends with one; removing takes its last days off
+ * (never the first one, nor the day home). Everything dated after the stay —
  * later days and stays, journeys and their hops, luggage notes, the trip's
  * end — slides by the same amount, so the rest of the trip keeps its shape
  * instead of overlapping or leaving a gap. A pinned day is the exception: it
@@ -104,8 +105,11 @@ export interface LegResize {
  */
 export function resizeLeg(d: TripData, legId: string, delta: number, newId: () => string): LegResize | null {
   const leg = d.legs.find((l) => l.id === legId);
-  const mine = d.days.filter((x) => x.legId === legId && x.date).sort((a, b) => a.date.localeCompare(b.date));
+  let mine = d.days.filter((x) => x.legId === legId && x.date).sort((a, b) => a.date.localeCompare(b.date));
   if (!leg || !mine.length || !Number.isInteger(delta) || delta === 0) return null;
+  // a stay that ends with the day home keeps it last: new days go in before
+  // it, and taking days off never takes it — it slides like a later day
+  if (mine.length > 1 && dayKind(mine[mine.length - 1], d) === "departure") mine = mine.slice(0, -1);
   const last = mine[mine.length - 1].date;
   const out: LegResize = { added: [], removed: [], days: [], legs: [], journeys: [], luggage: [], meta: false };
 

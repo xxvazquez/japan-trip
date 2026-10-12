@@ -165,4 +165,37 @@ describe("resizeLeg", () => {
     resizeLeg(d, "B", 2, id);
     expect([d.legs[1].end, d.meta.end]).toEqual(["2026-10-06", "2026-10-06"]);
   });
+
+  /** B's last day is the day home, with the flight out on it */
+  const homeward = () => {
+    const d = trip();
+    d.journeys = [{ id: "home", label: "Home", kind: "departure", date: "2026-10-04", segments: [{ mode: "flight", from: "B", to: "Home", depart: "2026-10-04T09:00", arrive: "2026-10-04T13:00" }] }] as never;
+    d.days[3].journeyIds = ["home"];
+    return d;
+  };
+
+  it("growing the last stay keeps the day home last, and its flight with it", () => {
+    const d = homeward();
+    resizeLeg(d, "B", 1, id);
+    expect(d.days.map((x) => [x.id, x.date])).toEqual([
+      ["d1", "2026-10-01"], ["d2", "2026-10-02"], ["d3", "2026-10-03"], [expect.any(String), "2026-10-04"], ["d4", "2026-10-05"],
+    ]);
+    expect(d.journeys[0].date).toBe("2026-10-05");
+    expect(d.journeys[0].segments[0].depart).toBe("2026-10-05T09:00");
+    expect([d.legs[1].end, d.meta.end]).toEqual(["2026-10-05", "2026-10-05"]);
+  });
+
+  it("shrinking the last stay never takes the day home", () => {
+    const d = homeward();
+    d.days.splice(3, 0, { id: "d3b", date: "2026-10-04", legId: "B" } as never);
+    d.days[4].date = "2026-10-05";
+    d.journeys[0].date = "2026-10-05";
+    d.journeys[0].segments[0].depart = "2026-10-05T09:00";
+    d.legs[1].end = d.meta.end = "2026-10-05";
+    const r = resizeLeg(d, "B", -1, id)!;
+    expect(r.removed).toEqual(["d3b"]);
+    expect(d.days.map((x) => [x.id, x.date]).slice(2)).toEqual([["d3", "2026-10-03"], ["d4", "2026-10-04"]]);
+    expect(d.journeys[0].segments[0].depart).toBe("2026-10-04T09:00");
+    expect(resizeLeg(d, "B", -1, id)).toBeNull();
+  });
 });

@@ -122,6 +122,7 @@ The days set the dates — you don't edit them separately.
 - **Days − / +** on a base's page adds or takes off a day at its end:
   - Everything later in the trip — days, bases, journeys, luggage dates — moves along with it.
   - A pinned day keeps its date.
+  - The day home stays last: on the last base, a new day goes in before it, and Days − never takes it.
   - Taking a day off can be undone.
 - Bases are always listed in date order. To change the order, move the days (drag them to another base).
 - The trip can start or end outside its days (a flight out the evening before day one). Its dates stretch to cover a day added outside them, and only shrink when the day on the trip's first or last date is deleted.
