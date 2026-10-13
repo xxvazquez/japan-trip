@@ -110,7 +110,8 @@ function splice(
     const src = evt === "DELETE" ? payload.old : payload.new;
     // a delete's old row can arrive with only its id (RLS strips the rest)
     const j = d.journeys.find((x) => x.id === src.journey_id) ?? (evt === "DELETE" ? d.journeys.find((x) => x.segments.some((s) => s.id === src.id)) : undefined);
-    if (!j) return evt === "DELETE" && !src.journey_id; // already gone here
+    // a hop deleted with its journey (cascade) has nothing left to come out of
+    if (!j) return evt === "DELETE";
     j.segments = j.segments.filter((s) => s.id !== src.id);
     if (evt !== "DELETE") {
       const seg = rowToSeg(payload.new);
@@ -123,7 +124,7 @@ function splice(
   if (table === "area_places") {
     const src = evt === "DELETE" ? payload.old : payload.new;
     const a = d.areas.find((x) => x.id === src.area_id);
-    if (!a) return false;
+    if (!a) return evt === "DELETE"; // went with its area
     a.placeIds = (a.placeIds ?? []).filter((id) => id !== src.place_id);
     if (evt !== "DELETE") a.placeIds.push(src.place_id as string);
     return true;

@@ -836,11 +836,10 @@ async function flush(get: () => AppStore) {
   };
   const allRows = [...rows.values()];
   const parents = (type: EntityType) => Promise.all(allRows.filter((r) => r.type === type).map(upsert));
-  tasks.push(
-    parents("hotels")
-      .then(() => parents("legs"))
-      .then(() => Promise.all(allRows.filter((r) => r.type !== "hotels" && r.type !== "legs").map(upsert))),
-  );
+  const rowsSaved = parents("hotels")
+    .then(() => parents("legs"))
+    .then(() => Promise.all(allRows.filter((r) => r.type !== "hotels" && r.type !== "legs").map(upsert)));
+  tasks.push(rowsSaved);
   for (const { type, id } of dels.values()) tasks.push(run(be.deleteRow(activeId, type, id), { t: "del", type, id }));
   for (const type of positions) {
     const list = data[type] as WithId[];
@@ -850,14 +849,16 @@ async function flush(get: () => AppStore) {
     const j = data.journeys.find((x) => x.id === jid);
     if (j) {
       markWritten(j.segments.map((s) => s.id));
-      tasks.push(run(be.setSegments(activeId, jid, j.segments), { t: "seg", journeyId: jid }));
+      // after the rows: a new journey's hops can't land before the journey
+      tasks.push(rowsSaved.then(() => run(be.setSegments(activeId, jid, j.segments), { t: "seg", journeyId: jid })));
     }
   }
   for (const aid of areaSets) {
     const a = data.areas.find((x) => x.id === aid);
     if (a) {
       markWritten([aid]); // its membership rows echo back under the area's id
-      tasks.push(run(be.setAreaPlaces(activeId, aid, a.placeIds ?? []), { t: "areaPlaces", areaId: aid }));
+      // likewise a new area, or a new place put in one
+      tasks.push(rowsSaved.then(() => run(be.setAreaPlaces(activeId, aid, a.placeIds ?? []), { t: "areaPlaces", areaId: aid })));
     }
   }
   if (fieldKeys.size) {
