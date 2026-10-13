@@ -120,11 +120,14 @@ interface AppStore {
   discardSyncIssue: (key: string) => void;
 
   /** the toast offering to take back the last delete; null when there's nothing to undo */
-  undoToast: { key: number; label: string } | null;
+  /** `plain`: a note with no Undo button (something done on another device) */
+  undoToast: { key: number; label: string; plain?: boolean } | null;
   /** Run a delete and remember what it changed, so <UndoToast> can offer to
    *  bring it back. Works on any mix of entity / config edits made inside `fn`. */
   undoable: (label: string, fn: () => void) => void;
   undo: () => void;
+  /** a short note in the Undo toast's place, with no Undo on it */
+  noteElsewhere: (label: string) => void;
   dismissUndo: () => void;
 
   /** local state only — pair with an op or use mutateTrip */
@@ -1085,6 +1088,20 @@ function sameValue(a: unknown, b: unknown): boolean {
 }
 
 let undoRecord: UndoRecord | null = null;
+
+/** rows another device deleted, by id → when, so a page left showing one
+ *  can tell that apart from a link that never pointed anywhere */
+const goneElsewhere = new Map<string, number>();
+export function deletedElsewhere(id: string | undefined): boolean {
+  const at = id ? goneElsewhere.get(id) : undefined;
+  return at !== undefined && Date.now() - at < 60_000;
+}
+/** true once per deleted row — the page showing it steps back only once */
+export function takeDeletedElsewhere(id: string | undefined): boolean {
+  const gone = deletedElsewhere(id);
+  if (id) goneElsewhere.delete(id);
+  return gone;
+}
 let undoKey = 0;
 let undoDepth = 0;
 
@@ -1622,6 +1639,13 @@ export const useApp = create<AppStore>((set, get) => {
       set({ undoToast: { key: ++undoKey, label } });
     },
 
+    noteElsewhere: (label) => {
+      // a pending Undo matters more than the note — leave it up
+      if (get().undoToast && !get().undoToast!.plain) return;
+      undoRecord = null;
+      set({ undoToast: { key: ++undoKey, label, plain: true } });
+    },
+
     dismissUndo: () => {
       undoRecord = null;
       set({ undoToast: null });
@@ -1698,6 +1722,10 @@ export const useApp = create<AppStore>((set, get) => {
       // another client's row/config may be from an older or newer build — repair
       // it the same way a load does, so a partial payload can't crash the UI
       const repaired = normalizeTrip(next);
+      for (const type of ENTITY_TYPES) {
+        const kept = new Set((repaired[type] as WithId[]).map((x) => x.id));
+        for (const row of cur[type] as WithId[]) if (!kept.has(row.id)) goneElsewhere.set(row.id, Date.now());
+      }
       // with nothing of ours unsent, what's on screen IS the server's copy
       if (!hasPendingFields()) setFieldBase(repaired);
       set({ data: repaired });

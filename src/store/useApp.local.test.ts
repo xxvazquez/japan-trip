@@ -323,6 +323,19 @@ describe("days shape the stays and the trip", () => {
     expect(a.s().notice).toBeNull();
   });
 
+  it("a row another device deleted is told apart from one that never existed", async () => {
+    const a = await setup();
+    a.s().applyRemote((d) => { d.days = d.days.filter((x) => x.id !== "x2"); });
+    expect(a.deletedElsewhere("x2")).toBe(true);
+    expect(a.takeDeletedElsewhere("x2")).toBe(true);
+    expect(a.takeDeletedElsewhere("x2")).toBe(false); // the page steps back once
+    expect(a.deletedElsewhere("x1")).toBe(false);
+    a.s().removeEntity("days", "x1"); // deleted here, not elsewhere
+    expect(a.deletedElsewhere("x1")).toBe(false);
+    a.s().noteElsewhere("Deleted on another device");
+    expect(a.s().undoToast).toMatchObject({ plain: true });
+  });
+
   it("undoing a day drag puts the days back in date order", async () => {
     const a = await setup();
     a.s().undoable("Day moved", () => a.s().reorderDays([{ legId: "L", dayIds: ["x3", "x1", "x2"] }]));

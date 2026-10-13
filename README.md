@@ -794,6 +794,7 @@ edit in the UI  →  TripData (in memory)  →  backend
 
 - **Supabase** (configured and signed in) — every entity (legs, days, hotels, journeys and segments, luggage, docs, packing, places, areas, notes…) is its own row, private via RLS, synced in real time and shareable. Schema in [`supabase/migrations/`](supabase/migrations/).
 - Deletes and area changes reach the other devices live too (deletes need migration `0044`).
+- If the page you're on is deleted on another device, it steps back to the list with a short *Deleted on another device* note.
 - **IndexedDB** — used when Supabase isn't configured, or when the user picks **Use on this device only** (`localStorage["za.localOnly"]`, honoured by `needsAuth()`).
 - **Code splitting** — the Supabase client, MapLibre and the PDF viewer are separate chunks, only loaded when needed.
 
