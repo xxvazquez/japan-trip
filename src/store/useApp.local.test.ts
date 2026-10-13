@@ -302,6 +302,27 @@ describe("days shape the stays and the trip", () => {
     expect(a.s().data!.meta.end).toBe("2026-10-03");
   });
 
+  it("undo keeps a change made since on another device, and still puts back the rest", async () => {
+    const a = await setup();
+    a.s().undoable("Day deleted", () => a.s().removeEntity("days", "x3")); // the stay ends a day sooner
+    a.s().applyRemote((d) => { d.legs[0].base = "Renamed elsewhere"; });
+    a.s().undo();
+    expect(a.s().data!.days.map((d) => d.id)).toEqual(["x1", "x2", "x3"]);
+    expect(a.s().data!.legs[0].base).toBe("Renamed elsewhere");
+    expect(a.s().notice?.tone).toBe("warn");
+  });
+
+  it("an unrelated change from another device doesn't stop undo putting everything back", async () => {
+    const a = await setup();
+    a.s().undoable("Day deleted", () => a.s().removeEntity("days", "x3"));
+    a.s().applyRemote((d) => { d.places.push({ id: "elsewhere", name: "Elsewhere", lat: 1, lng: 2 } as never); });
+    a.s().undo();
+    expect(a.s().data!.days.map((d) => d.id)).toEqual(["x1", "x2", "x3"]);
+    expect(a.s().data!.legs[0].end).toBe("2026-10-03");
+    expect(a.s().data!.meta.end).toBe("2026-10-03");
+    expect(a.s().notice).toBeNull();
+  });
+
   it("undoing a day drag puts the days back in date order", async () => {
     const a = await setup();
     a.s().undoable("Day moved", () => a.s().reorderDays([{ legId: "L", dayIds: ["x3", "x1", "x2"] }]));

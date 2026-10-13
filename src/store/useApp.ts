@@ -1061,10 +1061,27 @@ const ENTITY_TYPES: EntityType[] = ["legs", "days", "hotels", "journeys", "lugga
  *  made in the seconds the toast is up. */
 interface UndoRecord {
   tripId: string;
-  rows: { type: EntityType; id: string; index: number; before?: WithId }[];
+  /** `after` is the row as the delete left it (absent when it went) */
+  rows: { type: EntityType; id: string; index: number; before?: WithId; after?: WithId }[];
   config: Record<string, unknown>;
+  configAfter: Record<string, unknown>;
   meta?: TripData["meta"];
   media?: TripData["media"];
+  metaAfter?: TripData["meta"];
+  mediaAfter?: TripData["media"];
+}
+
+/** Same value, whatever order its keys are in and ignoring keys set to
+ *  undefined — a row re-read from the server or repaired on load is the same
+ *  row even when its keys come back in another order. */
+function sameValue(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (typeof a !== "object" || typeof b !== "object" || !a || !b) return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  if (Array.isArray(a)) return a.length === (b as unknown[]).length && a.every((x, i) => sameValue(x, (b as unknown[])[i]));
+  const ka = Object.keys(a).filter((k) => (a as Record<string, unknown>)[k] !== undefined);
+  const kb = Object.keys(b).filter((k) => (b as Record<string, unknown>)[k] !== undefined);
+  return ka.length === kb.length && ka.every((k) => sameValue((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k]));
 }
 
 let undoRecord: UndoRecord | null = null;
@@ -1079,21 +1096,26 @@ function diffForUndo(tripId: string, before: TripData, after: TripData): UndoRec
     const now = new Map(is.map((x) => [x.id, x]));
     was.forEach((row, index) => {
       const cur = now.get(row.id);
-      if (!cur || JSON.stringify(cur) !== JSON.stringify(row)) rows.push({ type, id: row.id, index, before: row });
+      if (!cur || JSON.stringify(cur) !== JSON.stringify(row)) rows.push({ type, id: row.id, index, before: row, after: cur });
     });
     const had = new Set(was.map((x) => x.id));
-    for (const row of is) if (!had.has(row.id)) rows.push({ type, id: row.id, index: -1 });
+    for (const row of is) if (!had.has(row.id)) rows.push({ type, id: row.id, index: -1, after: row });
   }
   const config: Record<string, unknown> = {};
+  const configAfter: Record<string, unknown> = {};
   const b = before.config as unknown as Record<string, unknown>;
   const a = after.config as unknown as Record<string, unknown>;
   for (const k of new Set([...Object.keys(b), ...Object.keys(a)])) {
-    if (JSON.stringify(a[k]) !== JSON.stringify(b[k])) config[k] = b[k];
+    if (JSON.stringify(a[k]) !== JSON.stringify(b[k])) { config[k] = b[k]; configAfter[k] = a[k]; }
   }
   const metaChanged = JSON.stringify(before.meta) !== JSON.stringify(after.meta);
   const mediaChanged = JSON.stringify(before.media) !== JSON.stringify(after.media);
   if (!rows.length && !Object.keys(config).length && !metaChanged && !mediaChanged) return null;
-  return { tripId, rows, config, meta: metaChanged ? before.meta : undefined, media: mediaChanged ? before.media : undefined };
+  return {
+    tripId, rows, config, configAfter,
+    meta: metaChanged ? before.meta : undefined, metaAfter: metaChanged ? after.meta : undefined,
+    media: mediaChanged ? before.media : undefined, mediaAfter: mediaChanged ? after.media : undefined,
+  };
 }
 
 const ENTITY_NOUN: Record<EntityType, [string, string]> = {
@@ -1611,10 +1633,21 @@ export const useApp = create<AppStore>((set, get) => {
       set({ undoToast: null });
       if (!rec || get().activeId !== rec.tripId) return;
       const reinserted = new Set<EntityType>();
+      // anything changed again since the delete — on another device, or by a
+      // later edit here — keeps that newer change rather than being wound back
+      const kept: UndoRecord["rows"] = [];
+      const keptKeys = new Set<string>();
+      let keepMeta = false;
+      let keepMedia = false;
       const next = local((d) => {
+        const cfgNow = d.config as unknown as Record<string, unknown>;
+        for (const k of Object.keys(rec.config)) if (!sameValue(cfgNow[k], rec.configAfter[k])) keptKeys.add(k);
+        keepMeta = !!rec.meta && !sameValue(d.meta, rec.metaAfter);
+        keepMedia = !!rec.media && !sameValue(d.media, rec.mediaAfter);
         for (const r of rec.rows) {
           const list = d[r.type] as WithId[];
           const i = list.findIndex((x) => x.id === r.id);
+          if (!sameValue(i >= 0 ? list[i] : undefined, r.after)) { kept.push(r); continue; }
           if (!r.before) { if (i >= 0) list.splice(i, 1); continue; } // added by the delete → take it out again
           const row = structuredClone(r.before);
           // a field the edit added (absent before) must go as cleared, not be
@@ -1625,17 +1658,21 @@ export const useApp = create<AppStore>((set, get) => {
           }
           else { list.splice(Math.min(r.index, list.length), 0, row); reinserted.add(r.type); }
         }
-        const cfg = d.config as unknown as Record<string, unknown>;
         for (const [k, v] of Object.entries(rec.config)) {
-          if (v === undefined) delete cfg[k]; else cfg[k] = structuredClone(v);
+          if (keptKeys.has(k)) continue;
+          if (v === undefined) delete cfgNow[k]; else cfgNow[k] = structuredClone(v);
         }
-        if (rec.meta) d.meta = structuredClone(rec.meta);
-        if (rec.media) d.media = structuredClone(rec.media);
+        if (rec.meta && !keepMeta) d.meta = structuredClone(rec.meta);
+        if (rec.media && !keepMedia) d.media = structuredClone(rec.media);
         // a day put back on its old date goes back to its old place in the list
-        if (rec.rows.some((r) => r.type === "days")) { sortDays(d); reinserted.add("days"); }
+        if (rec.rows.some((r) => r.type === "days" && !kept.includes(r))) { sortDays(d); reinserted.add("days"); }
       });
       if (!next) return;
+      if (kept.length || keptKeys.size || keepMeta || keepMedia) {
+        set({ notice: { tone: "warn", text: "Part of this had changed since, on this device or another, so that newer change was kept." } });
+      }
       for (const r of rec.rows) {
+        if (kept.includes(r)) continue;
         if (!r.before) { enqueue(get, { t: "del", type: r.type, id: r.id }); continue; }
         enqueue(get, { t: "row", type: r.type, id: r.id });
         if (r.type === "journeys") enqueue(get, { t: "seg", journeyId: r.id });
@@ -1643,9 +1680,9 @@ export const useApp = create<AppStore>((set, get) => {
       }
       for (const type of reinserted) enqueue(get, { t: "pos", type });
       const keys: FieldKey[] = [];
-      if (Object.keys(rec.config).length) keys.push("config");
-      if (rec.meta) keys.push("meta");
-      if (rec.media) keys.push("media");
+      if (Object.keys(rec.config).some((k) => !keptKeys.has(k))) keys.push("config");
+      if (rec.meta && !keepMeta) keys.push("meta");
+      if (rec.media && !keepMedia) keys.push("media");
       if (keys.length) enqueue(get, { t: "fields", keys });
     },
 

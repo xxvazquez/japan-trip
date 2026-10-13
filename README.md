@@ -679,6 +679,7 @@ Every edit saves as you make it. On top of that, the app keeps **restore points*
 - A failed save keeps your changes on screen, says so, and keeps retrying — even across a reload.
 - A save that would wipe a device-only trip is refused (with a **Save anyway** option).
 - Two devices changing trip settings at once are merged, not overwritten.
+- **Undo** never winds back something changed again since the delete (on this device or another) — that newer change is kept, and a note says so.
 - An older app version refuses to open data written by a newer one.
 
 ## Offline
