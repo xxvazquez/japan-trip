@@ -234,6 +234,22 @@ describe("signed-in: saving and the outbox", () => {
     expect(a.s().data!.places.find((p) => p.id === "q1")?.name).toBe("New");
   });
 
+  it("a new journey's hops and a new area's places are only sent once their rows have landed", async () => {
+    await seedTrip();
+    const a = await boot();
+    // the rows go out slowly — the members mustn't overtake them
+    fake.current.ctl.hold = (op, table) => (op === "upsert" && (table === "places" || table === "areas" || table === "journeys") ? sleep(80).then(() => {}) : null);
+    a.s().addEntity("places", place("m1"));
+    a.s().addEntity("areas", { id: "area-m", name: "Old town", placeIds: ["m1"] } as never);
+    a.s().addEntity("journeys", { id: "j-m", label: "Trip", kind: "transfer", segments: [{ id: "seg-m", mode: "train", from: "A", to: "B" }] } as never);
+    expect(await a.settlePending(3000)).toBe(true);
+    const order = fake.current.ctl.requests.filter((r) => r.op === "upsert").map((r) => r.table);
+    expect(order.indexOf("area_places")).toBeGreaterThan(order.indexOf("places"));
+    expect(order.indexOf("area_places")).toBeGreaterThan(order.indexOf("areas"));
+    expect(order.indexOf("segments")).toBeGreaterThan(order.indexOf("journeys"));
+    expect(a.s().syncState).toBe("saved");
+  });
+
   it("an edit waiting behind a slow save isn't lost when the trip is switched", async () => {
     const id = await seedTrip("First");
     const a = await boot();
