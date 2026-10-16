@@ -10,6 +10,7 @@ import { Icon } from "./Icon";
 import { NavProvider, NavLeft, NavTitle } from "./NavBar";
 import { UndoToast } from "./UndoToast";
 import { UpdatePill } from "./UpdatePill";
+import { UpNextPill } from "./UpNextPill";
 import { AccountButton } from "./Account";
 import { SafetyBanner, SyncBanner } from "./SafetyBanner";
 import { SplitMap, useSplit, useSplitPane } from "./SplitMap";
@@ -140,6 +141,7 @@ export function AppShell() {
       <TabBarOrRail onSearch={() => { primeKeyboard(); setSearchOpen(true); }} />
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
       <SplitMap pane={pane} />
+      <UpNextPill besidePane={split.active && !pane.collapsed} />
       <UndoToast besidePane={split.active && !pane.collapsed} />
       <UpdatePill besidePane={split.active && !pane.collapsed} />
     </div>

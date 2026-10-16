@@ -180,6 +180,7 @@ During the trip the app works like Calendar's Today:
 
 - **Opening the app goes straight to today's day.** Only on a fresh launch — the Plan tab and **‹ Plan** still show the list, even when the launch reopened another screen.
 - **Up next** heads today's plan: the next stop and how long until it starts (*in 25 min*), and when to leave for it — *Leave by 09:45 · 15 min walk*, or *≈ 32 min by train* past a long walk (≈ marks a guess). *Leave now* in red once that time's come. For a journey it shows the hop's details instead.
+- **On every other screen** the next timed stop rides above the tab bar (bottom of the screen on a computer) with its countdown — *Market for lunch · Up next · 13:00 · in 25 min*. Tap it for today. It counts exact times only, so "Around noon" is skipped. Not on today's own page or the Map.
 - **A red line** across the timeline marks the time now, with the time beside it, and moves as the day goes on.
 - **＋ → Add an amount** logs a spend at the till: the keypad first (in the currency you last spent in, else the trip's second), then its category — **Skip** keeps it uncategorised. It lands in the day's Spending.
 

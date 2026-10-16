@@ -49,10 +49,11 @@
   /* the phone's floating tab bar: 62px of glass sitting just above the home
      indicator (or 12px off the bottom where there's none). --tabbar-clear is
      how much of the screen's foot it covers, for anything that must stay
-     visible above it (the Undo toast, the Map sheet). */
+     visible above it (the Undo toast, the Map sheet). --accessory-h is the
+     Up next capsule riding above it (UpNextPill), 0 when it isn't showing. */
   --tabbar-h: 62px;
   --tabbar-bottom: max(var(--sab), 0.75rem);
-  --tabbar-clear: calc(var(--tabbar-bottom) + var(--tabbar-h) + 0.5rem);
+  --tabbar-clear: calc(var(--tabbar-bottom) + var(--tabbar-h) + 0.5rem + var(--accessory-h, 0px));
 }
 
 @media (min-resolution: 2dppx) {
