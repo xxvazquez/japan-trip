@@ -22,6 +22,7 @@ import { Icon, type IconName } from "@/components/Icon";
 import { ContextMenu } from "@/components/ContextMenu";
 import { NavAddButton } from "@/components/NavAddButton";
 import { RouteSketch } from "@/components/RouteSketch";
+import { Memories } from "@/components/Memories";
 import { TextPrompt } from "@/components/TextPrompt";
 import { primeKeyboard } from "@/lib/keyboard";
 import { useData } from "@/lib/data";
@@ -36,7 +37,6 @@ import { nextDaySlot } from "@/lib/spans";
 import { canonicalLegs } from "@/lib/cityAssign";
 import { launchedFresh } from "@/lib/resume";
 import { useZoomBack, zoomFrom } from "@/lib/pageTransition";
-import { useTripSpent } from "@/lib/fx";
 import { fmtClocksIn } from "@/lib/time";
 import { legHex, LEG_COLORS, type LegColorId } from "@/lib/legColors";
 import type { Day, ISODate, Leg, TripData } from "@/core/types";
@@ -49,33 +49,19 @@ function Wrap({ to, children }: { to: string | false | undefined; children: Reac
   return to ? <Link to={to} viewTransition className="block transition-opacity active:opacity-60">{children}</Link> : <div>{children}</div>;
 }
 
-/** After the trip: how long it was, then a derived recap — cities (two stays
- *  in one city count once), what was spent (one total in the trip's main
- *  currency, `useTripSpent`) and stamps collected. A part that comes to
- *  nothing is left out. */
+/** After the trip: how long it was and when, then `Memories` — the
+ *  cards for what it added up to. */
 function TripRecap({ data, totalDays }: { data: TripData; totalDays: number }) {
   const loc = data.config.locale;
-  const city = canonicalLegs(data);
-  const cities = new Set(legsWithDays(data).map((l) => city.get(l.id))).size; // a base with no days was never visited
-  const spent = useTripSpent(data);
-  const stamps = (data.config.stamps ?? []).filter((s) => s.done).length;
-  // one caption line, as the countdown and "Day 2 of 4" have: the dates,
-  // then whatever the trip added up to
-  const parts: ReactNode[] = [
-    fmtDateRange(data.meta.start, data.meta.end, loc, { day: "numeric", month: "short", year: "numeric" }),
-    cities > 0 && plural(cities, "city", "cities"),
-    spent && <Link to="/logbook/budget" className="text-accent">{spent} spent</Link>,
-    stamps > 0 && plural(stamps, "stamp"),
-  ].filter(Boolean);
   return (
     <>
       <p className="flex items-baseline gap-2">
         <span className="font-display text-display">{totalDays}</span>
         <span className="text-lg text-ink-soft">{totalDays === 1 ? "day" : "days"}, all done</span>
       </p>
-      <p className="mt-2 text-sm text-ink-soft">
-        {parts.map((p, i) => <Fragment key={i}>{i > 0 && " · "}{p}</Fragment>)}
-      </p>
+      <p className="mt-2 text-sm text-ink-soft">{fmtDateRange(data.meta.start, data.meta.end, loc, { day: "numeric", month: "short", year: "numeric" })}</p>
+      {/* what the trip added up to, a card each */}
+      <Memories data={data} />
     </>
   );
 }

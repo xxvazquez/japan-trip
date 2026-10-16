@@ -110,7 +110,9 @@ The trip as a list of days, grouped by **base** — where you're based for a run
 - **Before the trip** the top of Plan counts down the days, with a small sketch of your cities joined in the order you visit them. It draws from each stay's hotel or places (or the city name, looked up once), works offline, and shows once two cities can be placed.
 - **During the trip** the top of Plan reads **Day 2 of 14**, with the city you're in and when you leave it: *2 nights left*, *Leaving tomorrow*, *Leaving today*. Moving hotels within the same city doesn't count as leaving.
 - **During the trip** the list opens on today. Earlier days move to **Past days** at the bottom (closed until you open it), grouped by base. Past days can be opened and held for their menu, not dragged. It moves on to the new day by itself, even if the app was left open overnight.
-- **After the trip** the top of Plan becomes a recap: how many days it was, then one line with the dates, cities, total spent in the trip's main currency (tap it for Expenses) and stamps collected.
+- **After the trip** the top of Plan becomes a recap: how many days it was and the dates, then **Memories** — cards for the route, each city's nights, nights in all, places on the plan, stamps and total spent (in the main currency).
+  - Swipe through them on a phone; a computer shows them as a grid.
+  - Tap Stamps or Spent to open that list. A card with nothing to show is left out.
 - **Labels** — your own tags for a day ("Chill day", "Walking"):
   - They show as one grey line under the day's title, like on Plan.
   - Tap that line, or ⋯ → **Labels…**, for a checklist of every label in the trip. Tap one to put it on or take it off the day; **New Label…** makes another.

@@ -5,7 +5,6 @@ import { useCityAnchors } from "@/lib/cityCoords";
 import { legsWithDays } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 
-const W = 340; // drawing width, in px — the svg never draws wider than this
 const MAX_H = 112;
 const MIN_H = 44;
 const PAD = 22; // around the dots — room for a ring, and a label above or below
@@ -24,7 +23,13 @@ const overlaps = (a: Box, b: Box) => a.x < b.x + b.w && b.x < a.x + a.w && a.y <
  * so it needs no map tiles and draws offline. Nothing until two different
  * cities have somewhere to sit.
  */
-export function RouteSketch({ data }: { data: TripData }) {
+export function RouteSketch({ data, bare = false, width: W = 340 }: {
+  data: TripData;
+  /** just the drawing, for a card that's already there */
+  bare?: boolean;
+  /** the width it's drawn for, in px — about what it shows at, so labels stay 11px */
+  width?: number;
+}) {
   const cityAnchors = useCityAnchors(data);
   const sketch = useMemo(() => {
     const canon = canonicalLegs(data);
@@ -98,13 +103,11 @@ export function RouteSketch({ data }: { data: TripData }) {
 
     const dots = stops.filter((s, i) => stops.findIndex((t) => t.key === s.key) === i);
     return { h, d, dots, labels };
-  }, [data, cityAnchors]);
+  }, [data, cityAnchors, W]);
 
   if (!sketch) return null;
   const { h, d, dots, labels } = sketch;
-  return (
-    // on a card, as the itinerary under it is — the grey is only backdrop
-    <div className="mt-4 max-w-[22rem] rounded-[12px] bg-surface px-2 py-1">
+  const svg = (
       <svg
         viewBox={`0 0 ${W} ${h.toFixed(1)}`}
         className="block w-full overflow-visible"
@@ -132,6 +135,8 @@ export function RouteSketch({ data }: { data: TripData }) {
           </text>
         ))}
       </svg>
-    </div>
   );
+  if (bare) return svg;
+  // on a card, as the itinerary under it is — the grey is only backdrop
+  return <div className="mt-4 max-w-[22rem] rounded-[12px] bg-surface px-2 py-1">{svg}</div>;
 }
