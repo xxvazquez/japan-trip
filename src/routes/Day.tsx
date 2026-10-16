@@ -1739,7 +1739,29 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
       onTouchStart={readOnly || timed || pinned ? undefined : (listeners?.onTouchStart as React.TouchEventHandler | undefined)}
     >
       <SwipeToDelete undoLabel="Step removed" onDelete={readOnly ? undefined : onRemove}>
-      <ContextMenu dismiss={isDragging}>
+      <ContextMenu
+        dismiss={isDragging}
+        // held, a place lifts into a small card — what it is, its hours
+        // that day and the note — as Maps peeks a place; tap it for the card
+        preview={place && (
+          <div className="px-4 py-3.5">
+            <div className="flex items-start gap-3">
+              {tile}
+              <div className="min-w-0 flex-1">
+                <p className="lead break-words">{place.name}</p>
+                {item.time && <p className="meta mt-0.5">{fmtClocksIn(item.time)}</p>}
+                {conflict ? (
+                  <p className="meta mt-0.5 text-danger">{conflict}</p>
+                ) : hours && (
+                  <p className={`meta mt-0.5 ${hours === "Closed" ? "text-danger" : ""}`}>{hours === "Closed" ? "Closed this day" : `Open ${fmtClocksIn(hours)}`}</p>
+                )}
+              </div>
+            </div>
+            {(item.note || place.note) && <Markdown text={(item.note || place.note)!} className="note mt-2.5 text-[15px] text-ink-faint" />}
+          </div>
+        )}
+        onPreviewTap={openCard}
+      >
         <TimelineStop
           onTap={openCard}
           tapLabel={place ? `About ${place.name}` : undefined}

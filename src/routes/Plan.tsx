@@ -36,6 +36,7 @@ import { canonicalLegs } from "@/lib/cityAssign";
 import { launchedFresh } from "@/lib/resume";
 import { useZoomBack, zoomFrom } from "@/lib/pageTransition";
 import { useTripSpent } from "@/lib/fx";
+import { fmtClocksIn } from "@/lib/time";
 import { legHex, LEG_COLORS, type LegColorId } from "@/lib/legColors";
 import type { Day, ISODate, Leg, TripData } from "@/core/types";
 
@@ -623,13 +624,45 @@ function DayLink({ data, day, today, loc, pinned, planned, newMonth }: { data: T
   );
 }
 
+/** What a held day row lifts into: the date, the title and the day's
+ *  steps with their times — Calendar's peek at a day, without opening it. */
+function DayPreview({ data, day, loc }: { data: TripData; day: Day; loc: string }) {
+  const steps = (day.plan ?? []).filter((it) => it.text.trim() || it.placeId);
+  const name = (placeId?: string) => (placeId ? data.places.find((p) => p.id === placeId)?.name : undefined);
+  return (
+    <div className="px-4 py-3.5">
+      <p className="meta">{fmtDate(day.date, loc, { weekday: "long", day: "numeric", month: "long" })}</p>
+      <p className={`lead mt-0.5 break-words ${day.title ? "text-ink" : "text-ink-faint"}`}>{day.title || "Untitled day"}</p>
+      {steps.length ? (
+        <ul className="mt-2.5 grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1.5 text-sm leading-snug">
+          {steps.map((it) => (
+            <li key={it.id} className="contents">
+              <span className="text-right tabular-nums text-ink-faint">{it.time ? fmtClocksIn(it.time) : "·"}</span>
+              <span className={`break-words ${it.optional ? "text-ink-soft" : "text-ink"}`}>{it.text.trim() || name(it.placeId)}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="meta mt-2 text-ink-faint">Nothing planned yet</p>
+      )}
+    </div>
+  );
+}
+
 /** A day row's content with its long-press / right-click menu — the same
  *  in the live list and under Past days. */
 function DayRowBody({ data, day, today, loc, readOnly, newMonth, dragging }: { data: TripData; day: Day; today: boolean; loc: string; readOnly: boolean; newMonth?: boolean; dragging?: boolean }) {
   const pinned = (data.config.pinnedDays ?? []).includes(day.id);
   const planned = (data.config.plannedDays ?? []).includes(day.id);
+  const navigate = useNavigate();
   return (
-    <ContextMenu menu={readOnly ? undefined : <DayMenu day={day} pinned={pinned} planned={planned} />} dismiss={dragging} className="flex items-start">
+    <ContextMenu
+      menu={readOnly ? undefined : <DayMenu day={day} pinned={pinned} planned={planned} />}
+      preview={<DayPreview data={data} day={day} loc={loc} />}
+      onPreviewTap={() => navigate(`/day/${day.id}`, { viewTransition: true })}
+      dismiss={dragging}
+      className="flex items-start"
+    >
       <DayLink data={data} day={day} today={today} loc={loc} pinned={pinned} planned={planned} newMonth={newMonth} />
     </ContextMenu>
   );

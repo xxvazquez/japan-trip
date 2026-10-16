@@ -36,6 +36,8 @@ export function RowMenu({ children, label = "More" }: { children: ReactNode; lab
         onClose={() => (row ? row.close() : own.setOpen(false))}
         anchorRef={own.anchorRef}
         point={row?.point}
+        preview={row?.preview}
+        onPreviewTap={row?.onPreviewTap}
       >
         {children}
       </ActionSheet>

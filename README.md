@@ -604,6 +604,7 @@ Theme and trip logo. **Appearance** (light, dark or *Automatic*) is per device, 
 - **Day** — make it a day trip, pin it, delete it.
 - **Stay** / **Map place** — open in Google Maps, delete.
 - **Journey** / **Document** — delete.
+- **Previews** — on a phone, holding a day on Plan lifts a card with its steps and times; holding a place step on a day lifts its hours that day and its note. Tap the card to open it. Right-click on a computer shows the menu alone.
 
 **Haptics.** On a phone, a light tap answers a switch or tick, each row the time wheel passes, a row's menu opening, a row lifting to drag, and a swipe-to-delete reaching the point where it stays open. Android vibrates; on an iPhone it needs iOS 18 or later. A computer stays silent.
 

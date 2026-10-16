@@ -16,6 +16,9 @@ type Ctx = {
   close: () => void;
   /** a `RowMenu` inside says "my items are this row's menu" */
   claim: () => () => void;
+  /** the lifted preview card, while a touch hold has the menu open */
+  preview?: ReactNode;
+  onPreviewTap?: () => void;
 };
 
 const MenuCtx = createContext<Ctx | null>(null);
@@ -32,6 +35,11 @@ export const useRowContextMenu = () => useContext(MenuCtx);
  * are either `menu`, or — when the row already has a `RowMenu` inside — that
  * menu's own items, so they're written once. With neither (or `menu` null,
  * e.g. read-only) it's a plain wrapper and the browser's own menu stays.
+ *
+ * `preview` is what a touch hold lifts above the menu, as iOS lifts a
+ * held Calendar event or Maps place into a card — a peek at what the row
+ * opens onto. Tapping it does `onPreviewTap` (open the row). A right-click
+ * shows the menu alone, as a Mac does.
  */
 export function ContextMenu({
   menu,
@@ -39,8 +47,12 @@ export function ContextMenu({
   className = "",
   as: Tag = "div",
   dismiss = false,
+  preview,
+  onPreviewTap,
 }: {
   menu?: ReactNode;
+  preview?: ReactNode;
+  onPreviewTap?: () => void;
   children: ReactNode;
   className?: string;
   as?: "div" | "li";
@@ -49,6 +61,8 @@ export function ContextMenu({
 }) {
   const [open, setOpen] = useState(false);
   const [point, setPoint] = useState<MenuPoint | null>(null);
+  /** opened by a touch hold — the only way in that lifts the preview */
+  const [lifted, setLifted] = useState(false);
   const [pressing, setPressing] = useState(false);
   const [claims, setClaims] = useState(0);
   const ref = useRef<HTMLElement>(null);
@@ -58,19 +72,22 @@ export function ContextMenu({
 
   const enabled = !!menu || claims > 0;
 
-  const openAt = useCallback((p: MenuPoint | null) => {
+  const openAt = useCallback((p: MenuPoint | null, lift = false) => {
     setPoint(p);
+    setLifted(lift);
     setOpen(true);
   }, []);
   const close = useCallback(() => {
     setOpen(false);
     setPoint(null);
+    setLifted(false);
   }, []);
   const claim = useCallback(() => {
     setClaims((n) => n + 1);
     return () => setClaims((n) => n - 1);
   }, []);
-  const ctx = useMemo(() => ({ open, point, openAt, close, claim }), [open, point, openAt, close, claim]);
+  const shown = lifted && point ? preview : undefined;
+  const ctx = useMemo(() => ({ open, point, openAt, close, claim, preview: shown, onPreviewTap }), [open, point, openAt, close, claim, shown, onPreviewTap]);
 
   const cancel = () => {
     if (press.current) window.clearTimeout(press.current.timer);
@@ -84,7 +101,7 @@ export function ContextMenu({
 
   const fromRow = (x: number): MenuPoint | null => {
     const r = ref.current?.getBoundingClientRect();
-    return r ? { x, y: r.bottom + 6, flipY: r.top - 6, align: "center" } : null;
+    return r ? { x, y: r.bottom + 6, flipY: r.top - 6, align: "center", row: { left: r.left, top: r.top, width: r.width } } : null;
   };
 
   const onPointerDown = (e: React.PointerEvent) => {
@@ -98,7 +115,7 @@ export function ContextMenu({
     cancel();
     swallow.current = true;
     haptic();
-    openAt(fromRow(x));
+    openAt(fromRow(x), true);
   };
   const onPointerMove = (e: React.PointerEvent) => {
     const p = press.current;
@@ -139,7 +156,8 @@ export function ContextMenu({
     openAt(keyboard ? fromRow((ref.current?.getBoundingClientRect().left ?? 0) + 24) : { x: e.clientX, y: e.clientY, align: "start" });
   };
 
-  const lit = pressing || (open && !!point);
+  // with its preview lifted out of it, the row itself needn't stay lit
+  const lit = pressing || (open && !!point && !shown);
   return (
     <MenuCtx.Provider value={menu ? null : ctx}>
       <Tag
@@ -154,7 +172,7 @@ export function ContextMenu({
         {children}
       </Tag>
       {menu && (
-        <ActionSheet open={open} onClose={close} anchorRef={ref} point={point}>
+        <ActionSheet open={open} onClose={close} anchorRef={ref} point={point} preview={shown} onPreviewTap={onPreviewTap}>
           {menu}
         </ActionSheet>
       )}

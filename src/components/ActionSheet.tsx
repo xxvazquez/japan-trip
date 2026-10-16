@@ -42,6 +42,8 @@ export function ActionSheet({
   side,
   confirm,
   grouped,
+  preview,
+  onPreviewTap,
   children,
 }: {
   open: boolean;
@@ -66,6 +68,9 @@ export function ActionSheet({
   /** holds grouped cards (a place card): the panel takes the grouped grey,
    *  so its white insets read as cards */
   grouped?: boolean;
+  /** with `point`: a card lifted above the menu (`ContextMenu`'s preview) */
+  preview?: ReactNode;
+  onPreviewTap?: () => void;
   children: ReactNode;
 }) {
   const [, bump] = useReducer((n: number) => n + 1, 0);
@@ -115,6 +120,9 @@ export function ActionSheet({
   children = <SheetLevel.Provider value={level + 1}>{children}</SheetLevel.Provider>;
   if (header) header = <SheetLevel.Provider value={level + 1}>{header}</SheetLevel.Provider>;
 
+  if (point && preview && point.row) {
+    return <LiftedPreview point={point} row={point.row} preview={preview} onPreviewTap={onPreviewTap} onClose={onClose} menuRef={menuRef} z={z}>{children}</LiftedPreview>;
+  }
   if (point) return <ContextPopover point={point} onClose={onClose} menuRef={menuRef} z={z} w={menuWidth} h={menuHeight}>{children}</ContextPopover>;
 
   if (isNarrow()) {
@@ -264,18 +272,130 @@ function SidePopover({ anchor, grouped, onClose, menuRef, z, w, h, header, child
  * edge goes instead when there's no room below — the row's top edge, so the
  * menu never covers the row it belongs to.
  */
-export type MenuPoint = { x: number; y: number; flipY?: number; align?: "start" | "center" };
+export type MenuPoint = {
+  x: number;
+  y: number;
+  flipY?: number;
+  align?: "start" | "center";
+  /** the held row's box, for a preview lifted out of it */
+  row?: { left: number; top: number; width: number };
+};
+
+/** A CSS length (a var, an env()) in px, measured off a throwaway probe. */
+function cssPx(height: string) {
+  const probe = document.createElement("div");
+  probe.style.cssText = `position:fixed;visibility:hidden;height:${height}`;
+  document.body.append(probe);
+  const h = probe.offsetHeight;
+  probe.remove();
+  return h;
+}
 
 /** Room the phone's floating tab bar takes at the bottom (8px where there's
  *  none) — a context menu stays above it rather than covering it. */
 function tabBarClear() {
   if (!window.matchMedia("(max-width: 767px)").matches) return 8;
-  const probe = document.createElement("div");
-  probe.style.cssText = "position:fixed;visibility:hidden;height:var(--tabbar-clear)";
-  document.body.append(probe);
-  const h = probe.offsetHeight;
-  probe.remove();
-  return h || 8;
+  return cssPx("var(--tabbar-clear)") || 8;
+}
+
+/** the menu's own look, shared by a plain context menu and a lifted one */
+const CONTEXT_ITEMS =
+  "glass-panel flex flex-col overflow-y-auto overscroll-contain py-1.5 [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40";
+const CONTEXT_ITEMS_TOUCH =
+  "w-[min(16rem,calc(100vw-16px))] rounded-[22px] [&_.menu-item]:px-4 [&_.menu-item]:py-3 [&_.menu-item]:text-[17px] [&_.menu-item:active]:bg-ink/[0.07]";
+
+/**
+ * iOS's context menu with a preview: the page blurs back, the held row's
+ * preview card lifts out where the row was, and the menu hangs under it
+ * (over it, when the row is low on the screen) — the whole stack slid to
+ * stay between the status bar and the tab bar. Tapping the card opens it.
+ */
+function LiftedPreview({
+  point,
+  row,
+  preview,
+  onPreviewTap,
+  onClose,
+  menuRef,
+  z,
+  children,
+}: {
+  point: MenuPoint;
+  row: NonNullable<MenuPoint["row"]>;
+  preview: ReactNode;
+  onPreviewTap?: () => void;
+  onClose: () => void;
+  menuRef: RefObject<HTMLDivElement>;
+  z: ReturnType<typeof layers>;
+  children: ReactNode;
+}) {
+  const stackRef = useRef<HTMLDivElement>(null);
+  const [h, setH] = useState(0);
+  const [menuH, setMenuH] = useState(0);
+  useLayoutEffect(() => {
+    const el = stackRef.current;
+    if (!el) return;
+    const measure = () => {
+      setH(el.offsetHeight);
+      setMenuH(menuRef.current?.offsetHeight ?? 0);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [menuRef]);
+  const vw = window.innerWidth;
+  const ceiling = cssPx("var(--sat)") + 8;
+  const floor = window.innerHeight - tabBarClear();
+  const width = Math.min(row.width, vw - 16, 448);
+  const left = Math.min(Math.max(row.left, 8), vw - width - 8);
+  // the card where the row was; the menu under it, or above when the row
+  // sits in the lower half (iOS flips it the same way)
+  const above = row.top > (ceiling + floor) / 2;
+  const top = Math.max(ceiling, Math.min(above ? row.top - menuH - 8 : row.top, floor - h));
+  // a long menu takes the room on its side of the card, scrolling past that
+  // (never less than a third of the screen — the stack slides for the rest)
+  const cardH = h ? h - menuH - 8 : 0;
+  const room = above ? row.top - 8 - ceiling : floor - row.top - cardH - 8;
+  const menuMax = cardH ? Math.max(room, window.innerHeight / 3) : window.innerHeight * 0.4;
+  // grows out of where the finger is
+  const origin = `${Math.round(point.x - left)}px ${above ? "100%" : "0"}`;
+  const card = (
+    <div
+      onClick={(e) => {
+        e.stopPropagation();
+        onClose();
+        onPreviewTap?.();
+      }}
+      className="max-h-[calc((var(--vvh,100dvh)-var(--sat))*0.45)] overflow-y-auto overscroll-contain rounded-[14px] bg-surface shadow-[0_10px_40px_rgb(0_0_0/0.18)]"
+    >
+      {preview}
+    </div>
+  );
+  const menu = (
+    <div ref={menuRef} role="menu" onClick={onClose} style={{ maxHeight: menuMax }} className={`${CONTEXT_ITEMS} ${CONTEXT_ITEMS_TOUCH}`}>
+      {children}
+    </div>
+  );
+  return createPortal(
+    <>
+      <div
+        style={{ zIndex: z.backdrop }}
+        className="fixed inset-0 bg-black/20 backdrop-blur-md motion-safe:animate-fade-in"
+        onClick={onClose}
+        onContextMenu={(e) => { e.preventDefault(); onClose(); }}
+      />
+      <div
+        ref={stackRef}
+        style={{ top, left, width, transformOrigin: origin, zIndex: z.panel, visibility: h ? "visible" : "hidden" }}
+        className="fixed flex flex-col gap-2 motion-safe:animate-menu-pop"
+      >
+        {above ? menu : card}
+        {above ? card : menu}
+      </div>
+    </>,
+    document.body,
+  );
 }
 
 function ContextPopover({
@@ -313,9 +433,9 @@ function ContextPopover({
         role="menu"
         onClick={onClose}
         style={{ top, left, transformOrigin: origin, zIndex: z.panel }}
-        className={`glass-panel fixed flex max-h-[70dvh] flex-col overflow-y-auto overscroll-contain py-1.5 motion-safe:animate-menu-pop [&_.menu-item]:flex [&_.menu-item]:w-full [&_.menu-item]:items-center [&_.menu-item]:gap-2 [&_.menu-item]:text-left [&_.menu-item:disabled]:opacity-40 ${
+ className={`${CONTEXT_ITEMS} fixed max-h-[70dvh] motion-safe:animate-menu-pop ${
           narrow
-            ? "w-[min(16rem,calc(100vw-16px))] rounded-[22px] [&_.menu-item]:px-4 [&_.menu-item]:py-3 [&_.menu-item]:text-[17px] [&_.menu-item:active]:bg-ink/[0.07]"
+            ? CONTEXT_ITEMS_TOUCH
             : "min-w-[12rem] max-w-[22rem] rounded-[14px] text-sm [&_.menu-item]:px-3.5 [&_.menu-item]:py-1.5 [&_.menu-item:hover]:bg-ink/[0.06]"
         }`}
       >
