@@ -1,26 +1,52 @@
 import type { IconName } from "@/components/Icon";
 import type { MapGlyphId } from "@/lib/mapGlyphs";
 
-/** Body text: one paragraph, or several. */
+/** Body text: one paragraph, or several. `**bold**` marks a key phrase. */
 export type GuideText = string | string[];
 
-/** One point in a guide — a short lead, the text that opens under it, and
- *  an optional short list after the text. */
-export interface GuideItem {
-  title: string;
+/** A subheaded part of an article, after its opening paragraphs. */
+export interface GuidePart {
+  heading: string;
+  text?: GuideText;
+  points?: string[];
+}
+
+/** A word in the local language worth knowing — the script, how it's
+ *  said, what it means. */
+export interface GuideWord {
+  local: string;
+  say?: string;
+  means: string;
+}
+
+/** What every readable entry in a guide carries. Each one opens on its own
+ *  page: the summary as the standfirst, quick facts, the opening text,
+ *  subheaded parts, words to know, a tip, and a closing list. */
+export interface GuideArticle {
+  /** one line under the title on a list, and the article's standfirst */
+  summary?: string;
   text: GuideText;
+  /** label / value facts shown before the text — "When", "Costs" */
+  facts?: { label: string; value: string }[];
+  parts?: GuidePart[];
+  words?: GuideWord[];
+  /** one practical tip, set apart in a callout */
+  tip?: string;
   points?: string[];
   /** a small caption over `points` — "Where to see it" */
   pointsTitle?: string;
 }
 
-/** One stop on a timeline — when, what, a line that always shows, and the
- *  fuller story that opens under it. */
-export interface GuideEvent {
+/** One point in a guide. */
+export interface GuideItem extends GuideArticle {
+  title: string;
+}
+
+/** One stop on a timeline — when, what, and a line that always shows. */
+export interface GuideEvent extends GuideArticle {
   when: string;
   title: string;
   summary: string;
-  text: GuideText;
   /** places where the period can still be seen */
   see?: string[];
 }
@@ -44,12 +70,11 @@ export interface GuideTopic {
 }
 
 /** A day out from a base — somewhere off the usual list. */
-export interface GuideDayTrip {
+export interface GuideDayTrip extends GuideArticle {
   name: string;
   local?: string;
   /** how long and how, from the base — "About 40 min by JR" */
   getting: string;
-  text: GuideText;
 }
 
 /** A city or town the guide knows about. It shows when the trip has a stay,
@@ -73,13 +98,12 @@ export interface GuideCity {
 /** Something that happens every year on known dates — shown on the guide
  *  only when it falls within the trip. `from`/`to` are "MM-DD" and may
  *  wrap the new year ("12-29" → "01-03"). */
-export interface GuideDate {
+export interface GuideDate extends GuideArticle {
   from: string;
   to: string;
   /** how the dates read on the row */
   when: string;
   title: string;
-  text: GuideText;
 }
 
 export interface CountryGuide {

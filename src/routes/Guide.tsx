@@ -1,5 +1,4 @@
-import { useState, type ReactNode } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Icon } from "@/components/Icon";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
@@ -11,10 +10,12 @@ import { useData } from "@/lib/data";
 import { guideTopicColor } from "@/lib/tones";
 import { GUIDE_CONTENT } from "@/guides/content";
 import { citiesOnTrip, datesOnTrip } from "@/guides/match";
-import type { CountryGuide, GuideCity, GuideEvent, GuideItem, GuideText, GuideTopic } from "@/guides/types";
+import { allTopics, cityArticles, dateArticles, dayTripArticles, topicArticles, type ArticleRef } from "@/guides/articles";
+import type { CountryGuide, GuideCity, GuideDayTrip, GuideEvent, GuideText, GuideTopic } from "@/guides/types";
 
 /** A country guide — reference content the app ships with, read-only. Laid
- *  out like Settings: a home of grouped rows, each pushing to its own page. */
+ *  out like Settings: a home of grouped rows, each pushing to a topic's list,
+ *  and every entry on a list opening as its own article. */
 
 const guidePath = (g: CountryGuide) => `/logbook/guide/${g.id}`;
 
@@ -33,7 +34,7 @@ export function GuideHome() {
 
   const { stays, others } = citiesOnTrip(guide, data);
   const dates = datesOnTrip(guide, data);
-  const all = [...guide.understand, ...guide.practical];
+  const all = allTopics(guide);
   const topicRows = (topics: GuideTopic[]) => (
     <ul>
       {topics.map((t) => (
@@ -89,18 +90,8 @@ export function GuideHome() {
         {dates.length > 0 && (
           <Section title="While you're there" id={`guide-${guide.id}-dates`}>
             <ul>
-              {dates.map((d) => (
-                <Disclosure
-                  key={d.title}
-                  title={
-                    <>
-                      <span className="block text-xs text-ink-faint">{d.when}</span>
-                      <span className="value mt-0.5 block break-words">{d.title}</span>
-                    </>
-                  }
-                >
-                  <Body text={d.text} />
-                </Disclosure>
+              {dateArticles(dates).map((r) => (
+                <ArticleRow key={r.slug} to={`${guidePath(guide)}/date/${r.slug}`} caption={r.eyebrow} title={r.title} meta={r.article.summary} />
               ))}
             </ul>
           </Section>
@@ -116,18 +107,27 @@ export function GuideTopicPage() {
   const guide = useGuide();
   const { topic: id } = useParams();
   if (!guide) return noGuide;
-  const topic = [...guide.understand, ...guide.practical].find((t) => t.id === id);
+  const topic = allTopics(guide).find((t) => t.id === id);
   if (!topic) return <Missing title="Nothing here" body="That part of the guide isn’t here." to={guidePath(guide)} cta={`Back to ${guide.name}`} />;
+  const refs = topicArticles(topic);
+  const topicPath = `${guidePath(guide)}/${topic.id}`;
+  let n = 0;
 
   return (
-    <Page>
-      <PageHeader back={guidePath(guide)} title={topic.title} className="mb-6" />
+    <Page width="form">
+      <PageHeader back={guidePath(guide)} title={topic.title} meta={topic.summary} className="mb-6" />
       <div className="space-y-6">
         {topic.blocks.map((b, i) => (
           <Section key={i} title={b.title} id={`guide-${guide.id}-${topic.id}-${i}`}>
             <ul>
-              {b.items?.map((it) => <Item key={it.title} item={it} />)}
-              {b.timeline?.map((ev, n) => <Event key={ev.when} event={ev} last={n === b.timeline!.length - 1} />)}
+              {b.items?.map((it) => {
+                const r = refs[n++];
+                return <ArticleRow key={r.slug} to={`${topicPath}/${r.slug}`} title={it.title} meta={it.summary} />;
+              })}
+              {b.timeline?.map((ev, k) => {
+                const r = refs[n++];
+                return <EventRow key={r.slug} to={`${topicPath}/${r.slug}`} event={ev} last={k === b.timeline!.length - 1} />;
+              })}
             </ul>
           </Section>
         ))}
@@ -142,6 +142,7 @@ export function GuideCityPage() {
   if (!guide) return noGuide;
   const city = guide.cities.find((c) => c.id === id);
   if (!city) return <Missing title="Nothing here" body="The guide doesn’t cover that place." to={guidePath(guide)} cta={`Back to ${guide.name}`} />;
+  const cityPath = `${guidePath(guide)}/place/${city.id}`;
 
   return (
     <Page width="form">
@@ -158,7 +159,7 @@ export function GuideCityPage() {
           <Section>
             <ul>
               <TileRow
-                to={`${guidePath(guide)}/place/${city.id}/day-trips`}
+                to={`${cityPath}/day-trips`}
                 tile={<IconTile size="sm" name="train" tone="ai" />}
                 title="Day trips"
                 right={String(city.dayTrips.length)}
@@ -168,7 +169,9 @@ export function GuideCityPage() {
         ) : null}
         <Section title="Worth knowing" id={`guide-${guide.id}-city-items`}>
           <ul>
-            {city.items.map((it) => <Item key={it.title} item={it} />)}
+            {cityArticles(city).map((r) => (
+              <ArticleRow key={r.slug} to={`${cityPath}/${r.slug}`} title={r.title} meta={r.article.summary} />
+            ))}
           </ul>
         </Section>
       </div>
@@ -182,27 +185,15 @@ export function GuideDayTripsPage() {
   if (!guide) return noGuide;
   const city = guide.cities.find((c) => c.id === id);
   if (!city?.dayTrips?.length) return <Missing title="Nothing here" body="No day trips for that place." to={guidePath(guide)} cta={`Back to ${guide.name}`} />;
+  const tripsPath = `${guidePath(guide)}/place/${city.id}/day-trips`;
 
   return (
-    <Page>
+    <Page width="form">
       <PageHeader back={`${guidePath(guide)}/place/${city.id}`} title={`Day trips from ${city.name}`} meta="Off the usual list, by train or bus" className="mb-6" />
       <Section>
         <ul>
-          {city.dayTrips.map((t) => (
-            <Disclosure
-              key={t.name}
-              title={
-                <>
-                  <span className="flex items-baseline justify-between gap-3">
-                    <span className="value min-w-0 break-words">{t.name}</span>
-                    {t.local && <span className="shrink-0 text-sm text-ink-faint">{t.local}</span>}
-                  </span>
-                  <span className="mt-0.5 block break-words text-xs text-ink-faint">{t.getting}</span>
-                </>
-              }
-            >
-              <Body text={t.text} />
-            </Disclosure>
+          {dayTripArticles(city).map((r) => (
+            <ArticleRow key={r.slug} to={`${tripsPath}/${r.slug}`} title={r.title} side={r.side} meta={(r.article as GuideDayTrip).getting} />
           ))}
         </ul>
       </Section>
@@ -210,116 +201,317 @@ export function GuideDayTripsPage() {
   );
 }
 
-/* ------------------------------------------------------------------ rows */
+/* -------------------------------------------------------------- articles */
 
-/** A point you tap to read, the iOS disclosure row: the lead in primary
- *  ink with a trailing chevron that turns down as the text slides open
- *  under it. Whole row is the button, so the page scans as a list of
- *  headlines. */
-function Item({ item }: { item: GuideItem }) {
-  return (
-    <Disclosure title={<span className="value block break-words">{item.title}</span>}>
-      <Body text={item.text} points={item.points} pointsTitle={item.pointsTitle} />
-    </Disclosure>
-  );
-}
+export function GuideTopicArticle() {
+  const guide = useGuide();
+  const { topic: id, item } = useParams();
+  if (!guide) return noGuide;
+  const topics = allTopics(guide);
+  const t = topics.findIndex((x) => x.id === id);
+  const topic = topics[t];
+  if (!topic) return noArticle(guide);
+  const topicPath = `${guidePath(guide)}/${topic.id}`;
+  const refs = topicArticles(topic);
+  const i = refs.findIndex((r) => r.slug === item);
+  if (i < 0) return noArticle(guide);
+  const nextTopic = i === refs.length - 1 ? topics[t + 1] : undefined;
 
-function Disclosure({ title, children }: { title: ReactNode; children: ReactNode }) {
-  const [open, setOpen] = useState(false);
   return (
-    <li className={INSET_DIVIDER}>
-      <button
-        type="button"
-        onClick={() => setOpen((was) => !was)}
-        aria-expanded={open}
-        className="flex w-full items-start gap-3 px-3.5 py-3 text-left transition-colors duration-150 hover:bg-surface-2/40 active:bg-ink/[0.07] focus-visible:[outline-offset:-2px]"
-      >
-        <span className="min-w-0 flex-1">{title}</span>
-        <Chevron open={open} />
-      </button>
-      <Reveal open={open}>
-        <div className="px-3.5 pb-4">{children}</div>
-      </Reveal>
-    </li>
-  );
-}
-
-function Chevron({ open }: { open: boolean }) {
-  return (
-    <Icon
-      name="chevron"
-      size={14}
-      className={`mt-[3px] shrink-0 text-ink-faint transition-transform duration-300 [transition-timing-function:var(--ease-paper)] ${open ? "rotate-90" : ""}`}
+    <ArticlePage
+      key={`${topic.id}/${item}`}
+      back={topicPath}
+      entry={refs[i]}
+      next={refs[i + 1] && { to: `${topicPath}/${refs[i + 1].slug}`, entry: refs[i + 1] }}
+      nextTopic={nextTopic && { to: `${guidePath(guide)}/${nextTopic.id}`, topic: nextTopic, color: guideTopicColor(t + 1) }}
     />
   );
 }
 
-/** 0fr → 1fr animates to the content's own height, no measuring */
-function Reveal({ open, children }: { open: boolean; children: ReactNode }) {
+export function GuideCityArticle() {
+  const guide = useGuide();
+  const { city: id, item } = useParams();
+  if (!guide) return noGuide;
+  const city = guide.cities.find((c) => c.id === id);
+  if (!city) return noArticle(guide);
+  const cityPath = `${guidePath(guide)}/place/${city.id}`;
+  const refs = cityArticles(city);
+  const i = refs.findIndex((r) => r.slug === item);
+  if (i < 0) return noArticle(guide);
   return (
-    <div
-      className={`grid transition-[grid-template-rows] duration-300 [transition-timing-function:var(--ease-paper)] ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
-    >
-      <div className="overflow-hidden">{children}</div>
-    </div>
+    <ArticlePage
+      key={`${city.id}/${item}`}
+      back={cityPath}
+      entry={refs[i]}
+      next={refs[i + 1] && { to: `${cityPath}/${refs[i + 1].slug}`, entry: refs[i + 1] }}
+    />
   );
 }
 
-/** The text that opens under a row: paragraphs with a little air between
- *  them, then an optional bulleted list under a small caption. */
-function Body({ text, points, pointsTitle }: { text: GuideText; points?: string[]; pointsTitle?: string }) {
-  const paras = typeof text === "string" ? [text] : text;
+export function GuideDayTripArticle() {
+  const guide = useGuide();
+  const { city: id, item } = useParams();
+  if (!guide) return noGuide;
+  const city = guide.cities.find((c) => c.id === id);
+  if (!city) return noArticle(guide);
+  const tripsPath = `${guidePath(guide)}/place/${city.id}/day-trips`;
+  const refs = dayTripArticles(city);
+  const i = refs.findIndex((r) => r.slug === item);
+  if (i < 0) return noArticle(guide);
   return (
-    <div className="space-y-2.5 text-sm leading-[1.5] text-ink-soft">
-      {paras.map((p) => (
-        <p key={p} className="break-words">{p}</p>
-      ))}
-      {points?.length ? (
-        <div className="pt-1">
-          {pointsTitle && <p className="eyebrow mb-1.5 text-ink-faint">{pointsTitle}</p>}
-          <ul className="space-y-1.5">
-            {points.map((pt) => (
-              <li key={pt} className="flex gap-2.5">
-                <span aria-hidden className="mt-[0.55rem] h-[5px] w-[5px] shrink-0 rounded-full bg-ink-faint" />
-                <span className="min-w-0 break-words">{pt}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-    </div>
+    <ArticlePage
+      key={`${city.id}/${item}`}
+      back={tripsPath}
+      entry={refs[i]}
+      next={refs[i + 1] && { to: `${tripsPath}/${refs[i + 1].slug}`, entry: refs[i + 1] }}
+    />
+  );
+}
+
+export function GuideDateArticle() {
+  const data = useData();
+  const guide = useGuide();
+  const { item } = useParams();
+  if (!data) return null;
+  if (!guide) return noGuide;
+  // next steps through what falls on this trip; a link to any date still opens
+  const onTrip = dateArticles(datesOnTrip(guide, data));
+  const entry = dateArticles(guide.dates).find((r) => r.slug === item);
+  if (!entry) return noArticle(guide);
+  const i = onTrip.findIndex((r) => r.slug === item);
+  const next = i >= 0 ? onTrip[i + 1] : undefined;
+  return (
+    <ArticlePage
+      key={item}
+      back={guidePath(guide)}
+      entry={entry}
+      next={next && { to: `${guidePath(guide)}/date/${next.slug}`, entry: next }}
+    />
+  );
+}
+
+const noArticle = (g: CountryGuide) => (
+  <Missing title="Nothing here" body="That part of the guide isn’t here." to={guidePath(g)} cta={`Back to ${g.name}`} />
+);
+
+/**
+ * One entry of the guide on its own page, laid out like an article in the
+ * iPhone User Guide or Tips: a small caption and the large title, the
+ * summary as a standfirst, quick facts as a grouped list, then the text on
+ * a white card with its own sub-headings. A tip sits apart in a TipKit-style
+ * card, words to know and places get their own grouped lists, and the next
+ * entry waits at the foot so the guide reads straight through. Next
+ * replaces this page, so Back always returns to the list it came from.
+ */
+function ArticlePage({
+  back,
+  entry,
+  next,
+  nextTopic,
+}: {
+  back: string;
+  entry: ArticleRef;
+  next?: { to: string; entry: ArticleRef };
+  nextTopic?: { to: string; topic: GuideTopic; color: string };
+}) {
+  const a = entry.article;
+  const bullets = a.points?.length && !a.pointsTitle ? a.points : undefined;
+  return (
+    <Page width="form">
+      <PageHeader back={back} eyebrow={entry.eyebrow} title={entry.title} className={a.summary ? "!mb-3" : "mb-6"} />
+      {a.summary && <p className="mb-6 break-words text-[17px] leading-[1.45] text-ink-soft">{a.summary}</p>}
+
+      <div className="space-y-6">
+        {a.facts?.length ? (
+          <Section>
+            <ul>
+              {a.facts.map((f) => (
+                <InsetRow key={f.label} label={f.label} stacked={f.value.length > 26}>{f.value}</InsetRow>
+              ))}
+            </ul>
+          </Section>
+        ) : null}
+
+        <article className="selectable rounded-[12px] bg-surface px-4 py-4 sm:px-5 sm:py-5">
+          <Prose text={a.text} />
+          {bullets && <Bullets points={bullets} className="mt-3" />}
+          {a.parts?.map((p) => (
+            <section key={p.heading} className="mt-6">
+              <h2 className="text-[19px] font-medium leading-snug text-ink">{p.heading}</h2>
+              {p.text && <Prose text={p.text} className="mt-1.5" />}
+              {p.points?.length ? <Bullets points={p.points} className="mt-3" /> : null}
+            </section>
+          ))}
+        </article>
+
+        {a.tip && (
+          <div className="flex gap-3 rounded-[12px] bg-surface px-4 py-3.5">
+            <Icon name="bulb" size={22} className="mt-px shrink-0 text-gold" />
+            <div className="min-w-0">
+              <p className="text-[15px] font-medium leading-snug text-ink">Good to know</p>
+              <p className="mt-0.5 break-words text-[15px] leading-[1.45] text-ink-soft"><Inline text={a.tip} /></p>
+            </div>
+          </div>
+        )}
+
+        {a.words?.length ? (
+          <div>
+            <p className="kicker mb-1.5 px-1">Words to know</p>
+            <Section>
+              <ul>
+                {a.words.map((w) => (
+                  <li key={w.local} className={`${INSET_DIVIDER} px-3.5 py-3`}>
+                    <span className="flex flex-wrap items-baseline gap-x-2">
+                      <span className="font-jp text-[17px] text-ink">{w.local}</span>
+                      {w.say && <span className="text-[15px] italic text-ink-soft">{w.say}</span>}
+                    </span>
+                    <span className="mt-0.5 block break-words text-[15px] leading-snug text-ink-faint">{w.means}</span>
+                  </li>
+                ))}
+              </ul>
+            </Section>
+          </div>
+        ) : null}
+
+        {a.points?.length && a.pointsTitle ? (
+          <div>
+            <p className="kicker mb-1.5 px-1">{a.pointsTitle}</p>
+            <Section>
+              <ul>
+                {a.points.map((pt) => (
+                  <li key={pt} className={`${INSET_DIVIDER} after:left-12 flex items-start gap-3 px-3.5 py-3`}>
+                    <IconTile size="sm" glyph="pin" tone="accent" />
+                    <span className="min-w-0 flex-1 break-words text-[15px] leading-snug text-ink"><Inline text={pt} /></span>
+                  </li>
+                ))}
+              </ul>
+            </Section>
+          </div>
+        ) : null}
+
+        {next ? (
+          <div className="pt-2">
+            <p className="kicker mb-1.5 px-1">Up next</p>
+            <Section>
+              <ul>
+                <ArticleRow to={next.to} replace caption={next.entry.eyebrow} title={next.entry.title} meta={next.entry.article.summary} />
+              </ul>
+            </Section>
+          </div>
+        ) : nextTopic ? (
+          <div className="pt-2">
+            <p className="kicker mb-1.5 px-1">Next topic</p>
+            <Section>
+              <ul>
+                <TileRow
+                  to={nextTopic.to}
+                  tile={<IconTile size="sm" name={nextTopic.topic.icon} glyph={nextTopic.topic.glyph} color={nextTopic.color} />}
+                  title={nextTopic.topic.title}
+                  meta={nextTopic.topic.summary}
+                />
+              </ul>
+            </Section>
+          </div>
+        ) : null}
+      </div>
+    </Page>
+  );
+}
+
+/* ------------------------------------------------------------------ rows */
+
+/** An entry as a list row: its title, the one-line summary under it, and a
+ *  chevron — the page it opens is the whole read. */
+function ArticleRow({
+  to,
+  title,
+  meta,
+  caption,
+  side,
+  replace,
+}: {
+  to: string;
+  title: string;
+  meta?: string;
+  caption?: string;
+  side?: string;
+  replace?: boolean;
+}) {
+  return (
+    <li className={INSET_DIVIDER}>
+      <Link
+        to={to}
+        replace={replace}
+        viewTransition={!replace}
+        className="flex items-center gap-3 px-3.5 py-3 transition-colors duration-150 hover:bg-surface-2/40 active:bg-ink/[0.07] focus-visible:[outline-offset:-2px]"
+      >
+        <span className="min-w-0 flex-1">
+          {caption && <span className="block text-xs text-ink-faint">{caption}</span>}
+          <span className="value block break-words">{title}</span>
+          {meta && <span className="meta mt-0.5 block break-words">{meta}</span>}
+        </span>
+        {side && <span className="shrink-0 text-sm text-ink-faint">{side}</span>}
+        <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
+      </Link>
+    </li>
   );
 }
 
 /** One stop on a timeline: a dot on a rail down the left, the date as a
- *  small caption over the title and a one-line summary. Tapping opens the
- *  fuller story and where the period can still be seen. */
-function Event({ event, last }: { event: GuideEvent; last: boolean }) {
-  const [open, setOpen] = useState(false);
+ *  small caption over the title and a one-line summary; it opens the
+ *  fuller story on its own page. */
+function EventRow({ to, event, last }: { to: string; event: GuideEvent; last: boolean }) {
   return (
     <li className="relative">
       <span aria-hidden className="pointer-events-none absolute bottom-0 left-3.5 top-0 z-[1] w-2">
         {!last && <span className="absolute -bottom-[1.05rem] left-1/2 top-[1.05rem] w-px -translate-x-1/2 bg-line" />}
         <span className="absolute left-1/2 top-[1.05rem] h-2 w-2 -translate-x-1/2 rounded-full bg-accent" />
       </span>
-      <button
-        type="button"
-        onClick={() => setOpen((was) => !was)}
-        aria-expanded={open}
-        className="flex w-full items-start gap-3 py-3 pl-9 pr-3.5 text-left transition-colors duration-150 hover:bg-surface-2/40 active:bg-ink/[0.07] focus-visible:[outline-offset:-2px]"
+      <Link
+        to={to}
+        viewTransition
+        className="flex w-full items-center gap-3 py-3 pl-9 pr-3.5 text-left transition-colors duration-150 hover:bg-surface-2/40 active:bg-ink/[0.07] focus-visible:[outline-offset:-2px]"
       >
         <span className="min-w-0 flex-1">
           <span className="block text-xs tabular-nums text-ink-faint">{event.when}</span>
           <span className="value mt-0.5 block break-words">{event.title}</span>
-          <span className="mt-0.5 block break-words text-sm leading-[1.4] text-ink-soft">{event.summary}</span>
+          <span className="meta mt-0.5 block break-words">{event.summary}</span>
         </span>
-        <Chevron open={open} />
-      </button>
-      <Reveal open={open}>
-        <div className="pb-4 pl-9 pr-3.5">
-          <Body text={event.text} points={event.see} pointsTitle="Where to see it" />
-        </div>
-      </Reveal>
+        <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
+      </Link>
     </li>
   );
+}
+
+/* ------------------------------------------------------------------ text */
+
+/** paragraphs at reading size, with a little air between them */
+function Prose({ text, className = "" }: { text: GuideText; className?: string }) {
+  const paras = typeof text === "string" ? [text] : text;
+  return (
+    <div className={`space-y-3 text-[17px] leading-[1.5] text-ink ${className}`}>
+      {paras.map((p) => (
+        <p key={p} className="break-words"><Inline text={p} /></p>
+      ))}
+    </div>
+  );
+}
+
+function Bullets({ points, className = "" }: { points: string[]; className?: string }) {
+  return (
+    <ul className={`space-y-2 text-[17px] leading-[1.45] text-ink ${className}`}>
+      {points.map((pt) => (
+        <li key={pt} className="flex gap-3">
+          <span aria-hidden className="mt-[0.62em] h-[5px] w-[5px] shrink-0 rounded-full bg-ink-faint" />
+          <span className="min-w-0 break-words"><Inline text={pt} /></span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** `**bold**` — a key phrase, set in medium weight */
+function Inline({ text }: { text: string }) {
+  const parts = text.split(/\*\*(.+?)\*\*/g);
+  return <>{parts.map((p, i) => (i % 2 ? <strong key={i} className="font-medium">{p}</strong> : p))}</>;
 }

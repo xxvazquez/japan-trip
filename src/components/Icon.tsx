@@ -82,7 +82,8 @@ export type IconName =
   | "move"
   | "globe"
   | "menu"
-  | "filter";
+  | "filter"
+  | "bulb";
 
 const P: Record<IconName, JSX.Element> = {
   itinerary: (
@@ -120,6 +121,13 @@ const P: Record<IconName, JSX.Element> = {
     </>
   ),
   moon: <path d="M20 13a8 8 0 1 1-9-9 6.5 6.5 0 0 0 9 9Z" />,
+  // a light bulb — a tip, the way TipKit marks one
+  bulb: (
+    <>
+      <path d="M9 17.5h6M9.8 20.5h4.4" />
+      <path d="M8.6 14.6A6 6 0 1 1 15.4 14.6c-.6.5-.9 1.2-.9 1.9v1H9.5v-1c0-.7-.3-1.4-.9-1.9Z" />
+    </>
+  ),
   star: <path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9Z" />,
   // a sun half up over the horizon
   sunrise: (
