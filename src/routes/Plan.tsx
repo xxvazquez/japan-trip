@@ -34,6 +34,7 @@ import { tripClock, fmtDate, isWeekend, fmtDateRange, dayKind, legCheckOut, legF
 import { nextDaySlot } from "@/lib/spans";
 import { canonicalLegs } from "@/lib/cityAssign";
 import { launchedFresh } from "@/lib/resume";
+import { zoomFrom } from "@/lib/zoomTransition";
 import { useTripSpent } from "@/lib/fx";
 import { legHex, LEG_COLORS, type LegColorId } from "@/lib/legColors";
 import type { Day, ISODate, Leg, TripData } from "@/core/types";
@@ -590,12 +591,14 @@ function DayLink({ data, day, today, loc, pinned, planned, newMonth }: { data: T
     <Link
       to={`/day/${day.id}`}
       draggable={false}
+      viewTransition
+      onClick={(e) => zoomFrom(e.currentTarget.querySelector<HTMLElement>("[data-day-title]"))}
       className="flex min-w-0 flex-1 items-center gap-3.5 px-3.5 py-2.5"
     >
       {/* the stay's colour is on its header — not repeated on every day */}
       <DayDate date={day.date} loc={loc} strong={today} month={newMonth} />
       <span className="flex min-w-0 flex-1 flex-col">
-        <span className={`break-words leading-snug ${day.title ? "text-ink" : "text-ink-faint"}`}>
+        <span data-day-title className={`w-fit max-w-full break-words leading-snug ${day.title ? "text-ink" : "text-ink-faint"}`}>
           {day.title || "Untitled day"}
         </span>
         <DayKindTag day={day} data={data} />

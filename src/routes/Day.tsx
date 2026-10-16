@@ -626,7 +626,10 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         eyebrow={<span className={isWeekend(day.date) ? "text-danger" : undefined}>{fmtDate(day.date, loc, { weekday: "long", day: "numeric", month: "long" })}</span>}
         navSubtitle={fmtDate(day.date, loc, { weekday: "short", day: "numeric", month: "short" })}
         title={
-          <Editable label="Day title" value={day.title ?? ""} placeholder="Untitled day" onCommit={(v) => patch({ title: v || undefined })} />
+          // what the Plan row's title zooms into (`zoomFrom`)
+          <span className="vt-zoom-title inline-block max-w-full">
+            <Editable label="Day title" value={day.title ?? ""} placeholder="Untitled day" onCommit={(v) => patch({ title: v || undefined })} />
+          </span>
         }
         meta={(planned || day.labels?.length || weather || sunText) ? (
           <>

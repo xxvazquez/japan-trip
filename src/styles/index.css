@@ -542,6 +542,36 @@ html.dark {
     animation: vt-in 0.4s var(--ease-paper) both;
   }
 }
+/* iOS 18's zoom (`zoomFrom`, src/lib/zoomTransition.ts): the list behind
+   recedes and fades, the opened page grows in over it, and the row's title
+   travels into the page's large title */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-vt="zoom"]::view-transition-old(root) {
+    animation: vt-zoom-out 0.38s var(--ease-paper) both;
+  }
+  html[data-vt="zoom"]::view-transition-new(root) {
+    animation: vt-zoom-in 0.42s var(--ease-paper) both;
+  }
+  html[data-vt="zoom"]::view-transition-group(zoom-title) {
+    animation-duration: 0.42s;
+    animation-timing-function: var(--ease-paper);
+  }
+}
+html[data-vt="zoom"] .vt-zoom-title {
+  view-transition-name: zoom-title;
+}
+@keyframes vt-zoom-out {
+  to {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+@keyframes vt-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
 @keyframes vt-out {
   to {
     opacity: 0;
