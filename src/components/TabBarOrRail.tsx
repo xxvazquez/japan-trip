@@ -120,7 +120,7 @@ export function TabBarOrRail({ onSearch }: { onSearch: () => void }) {
     <>
       <nav
         aria-label="Sections"
-        className="tabbar-float fixed inset-x-3 bottom-[var(--tabbar-bottom)] z-40 flex items-center gap-2 md:hidden"
+        className="tabbar-float vt-tab-bar fixed inset-x-3 bottom-[var(--tabbar-bottom)] z-40 flex items-center gap-2 md:hidden"
       >
         <ul className="glass flex h-[var(--tabbar-h)] min-w-0 flex-1 items-stretch rounded-full p-1">
           {modules.map((s) => {
@@ -156,7 +156,7 @@ export function TabBarOrRail({ onSearch }: { onSearch: () => void }) {
 
       <nav
         aria-label="Sections"
-        className="material fixed bottom-0 left-0 top-0 z-40 hidden h-full w-[72px] border-r border-line md:block"
+        className="material vt-rail fixed bottom-0 left-0 top-0 z-40 hidden h-full w-[72px] border-r border-line md:block"
       >
         <ul className="flex h-full flex-col items-center gap-1.5 py-5">
           {modules.map((s) => {

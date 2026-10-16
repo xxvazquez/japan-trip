@@ -18,7 +18,7 @@ export function ActionRow({ icon, label, hint, onClick, to, disabled }: { icon?:
   return (
     <li className={INSET_DIVIDER}>
       {to ? (
-        <Link to={to} className={ACTION_ROW}>
+        <Link to={to} viewTransition className={ACTION_ROW}>
           <span className="flex min-w-0 flex-1 items-center gap-1.5 break-words">{inner}</span>
           <Icon name="chevron" size={14} className="-mr-1 shrink-0 text-ink-faint" />
         </Link>

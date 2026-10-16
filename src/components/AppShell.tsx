@@ -88,7 +88,7 @@ export function AppShell() {
         } as Record<string, string>
       }
     >
-      <header className="sticky top-0 z-30 pt-[var(--sat)]">
+      <header className="vt-nav-bar sticky top-0 z-30 pt-[var(--sat)]">
         {/* iOS 26: no bar and no hairline — content scrolls up under a soft
             blurred edge, and the controls float on it as glass */}
         <div aria-hidden className="scroll-edge pointer-events-none absolute inset-x-0 top-0 -bottom-4" />

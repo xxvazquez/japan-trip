@@ -532,27 +532,69 @@ html.dark {
 }
 
 /* ------------------------------------------------------------------ *
- * View Transitions — fusuma (sliding-door) page change. CSS only.
+ * View Transitions — iOS page changes (src/lib/pageTransition.ts says
+ * which way each one goes via html[data-vt]).
  * ------------------------------------------------------------------ */
+/* the bars stay put while the page under them moves, as UIKit's do */
+html:active-view-transition .vt-nav-bar {
+  view-transition-name: nav-bar;
+}
+html:active-view-transition .vt-tab-bar {
+  view-transition-name: tab-bar;
+}
+html:active-view-transition .vt-rail {
+  view-transition-name: rail;
+}
+html:active-view-transition .vt-up-next {
+  view-transition-name: up-next;
+}
 @media (prefers-reduced-motion: no-preference) {
+  ::view-transition-group(nav-bar),
+  ::view-transition-group(tab-bar),
+  ::view-transition-group(rail),
+  ::view-transition-group(up-next) {
+    animation-duration: 0.4s;
+    animation-timing-function: var(--ease-paper);
+  }
+  /* a push: the page slides in from the right over the list, which drifts
+     a third of the way left and dims (on a wide screen just a short slide) */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    mix-blend-mode: normal;
+  }
   ::view-transition-old(root) {
-    animation: vt-out 0.32s var(--ease-paper) both;
+    animation: vt-push-under 0.4s var(--ease-paper) both;
   }
   ::view-transition-new(root) {
-    animation: vt-in 0.4s var(--ease-paper) both;
+    animation: vt-push-over 0.4s var(--ease-paper) both;
   }
-}
-/* iOS 18's zoom (`zoomFrom`, src/lib/zoomTransition.ts): the list behind
-   recedes and fades, the opened page grows in over it, and the row's title
-   travels into the page's large title */
-@media (prefers-reduced-motion: no-preference) {
+  /* Back: the same, reversed — the page slides off on top */
+  html[data-vt="pop"]::view-transition-old(root) {
+    z-index: 1;
+    animation: vt-pop-over 0.4s var(--ease-paper) both;
+  }
+  html[data-vt="pop"]::view-transition-new(root) {
+    animation: vt-pop-under 0.4s var(--ease-paper) both;
+  }
+  /* iOS 18's zoom: the list recedes and fades, the day grows in over it,
+     the row's title travels into the day's large title — and back */
+  html[data-vt^="zoom"]::view-transition-old(root),
+  html[data-vt^="zoom"]::view-transition-new(root) {
+    mix-blend-mode: plus-lighter;
+  }
   html[data-vt="zoom"]::view-transition-old(root) {
     animation: vt-zoom-out 0.38s var(--ease-paper) both;
   }
   html[data-vt="zoom"]::view-transition-new(root) {
     animation: vt-zoom-in 0.42s var(--ease-paper) both;
   }
-  html[data-vt="zoom"]::view-transition-group(zoom-title) {
+  html[data-vt="zoom-back"]::view-transition-old(root) {
+    animation: vt-zoom-away 0.36s var(--ease-paper) both;
+  }
+  html[data-vt="zoom-back"]::view-transition-new(root) {
+    animation: vt-zoom-return 0.4s var(--ease-paper) both;
+  }
+  html[data-vt^="zoom"]::view-transition-group(zoom-title) {
     animation-duration: 0.42s;
     animation-timing-function: var(--ease-paper);
   }
@@ -560,29 +602,47 @@ html.dark {
 html[data-vt="zoom"] .vt-zoom-title {
   view-transition-name: zoom-title;
 }
-@keyframes vt-zoom-out {
-  to {
-    opacity: 0;
-    transform: scale(0.94);
+@keyframes vt-push-over {
+  from { transform: translateX(100%); }
+}
+@keyframes vt-push-under {
+  to { transform: translateX(-30%); filter: brightness(0.9); }
+}
+@keyframes vt-pop-over {
+  to { transform: translateX(100%); }
+}
+@keyframes vt-pop-under {
+  from { transform: translateX(-30%); filter: brightness(0.9); }
+}
+@media (min-width: 768px) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    mix-blend-mode: plus-lighter;
   }
+  @keyframes vt-push-over {
+    from { opacity: 0; transform: translateX(4%); }
+  }
+  @keyframes vt-push-under {
+    to { opacity: 0; transform: translateX(-2%); }
+  }
+  @keyframes vt-pop-over {
+    to { opacity: 0; transform: translateX(4%); }
+  }
+  @keyframes vt-pop-under {
+    from { opacity: 0; transform: translateX(-2%); }
+  }
+}
+@keyframes vt-zoom-out {
+  to { opacity: 0; transform: scale(0.94); }
 }
 @keyframes vt-zoom-in {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
+  from { opacity: 0; transform: scale(0.96); }
 }
-@keyframes vt-out {
-  to {
-    opacity: 0;
-    transform: translateX(-6%);
-  }
+@keyframes vt-zoom-away {
+  to { opacity: 0; transform: scale(0.96); }
 }
-@keyframes vt-in {
-  from {
-    opacity: 0;
-    transform: translateX(8%);
-  }
+@keyframes vt-zoom-return {
+  from { opacity: 0; transform: scale(0.94); }
 }
 
 @media (prefers-reduced-motion: reduce) {

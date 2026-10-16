@@ -2,6 +2,7 @@ import { lazy } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import { AppShell } from "@/components/AppShell";
 import RouteError from "@/routes/RouteError";
+import { installPageTransitions } from "@/lib/pageTransition";
 
 const Plan = lazy(() => import("@/routes/Plan"));
 const Day = lazy(() => import("@/routes/Day"));
@@ -60,3 +61,5 @@ export const router = createBrowserRouter([
     v7_skipActionErrorRevalidation: true,
   },
 });
+
+installPageTransitions(router);

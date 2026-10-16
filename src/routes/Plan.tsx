@@ -34,7 +34,7 @@ import { tripClock, fmtDate, isWeekend, fmtDateRange, dayKind, legCheckOut, legF
 import { nextDaySlot } from "@/lib/spans";
 import { canonicalLegs } from "@/lib/cityAssign";
 import { launchedFresh } from "@/lib/resume";
-import { zoomFrom } from "@/lib/zoomTransition";
+import { useZoomBack, zoomFrom } from "@/lib/pageTransition";
 import { useTripSpent } from "@/lib/fx";
 import { legHex, LEG_COLORS, type LegColorId } from "@/lib/legColors";
 import type { Day, ISODate, Leg, TripData } from "@/core/types";
@@ -44,7 +44,7 @@ import type { Day, ISODate, Leg, TripData } from "@/core/types";
  *  so tapping it to jump straight there needs no extra button. Falls back to
  *  a plain block (no link, no hover styling) if today has no Day yet. */
 function Wrap({ to, children }: { to: string | false | undefined; children: ReactNode }) {
-  return to ? <Link to={to} className="block transition-opacity active:opacity-60">{children}</Link> : <div>{children}</div>;
+  return to ? <Link to={to} viewTransition className="block transition-opacity active:opacity-60">{children}</Link> : <div>{children}</div>;
 }
 
 /** After the trip: how long it was, then a derived recap — cities (two stays
@@ -132,6 +132,7 @@ function cityCheckOut(leg: Leg, data: TripData): ISODate {
 let launched = false;
 
 export default function Plan() {
+  useZoomBack();
   const data = useData();
   const addEntity = useApp((s) => s.addEntity);
   const resizeBase = useApp((s) => s.resizeBase);
@@ -165,7 +166,7 @@ export default function Plan() {
     const legId = newId("leg");
     addEntity("legs", { id: legId, base: name, start: date, end: date, color } as never);
     addEntity("days", { id: newId("day"), date, legId, title: "New day" } as never);
-    nav(`/leg/${legId}`);
+    nav(`/leg/${legId}`, { viewTransition: true });
   };
 
   const c = tripClock(data);
@@ -477,7 +478,7 @@ function LegBlock({
 
   return (
     <section>
-      <Link to={`/leg/${leg.id}`} className="mb-2 flex items-baseline gap-2 transition-opacity active:opacity-60">
+      <Link to={`/leg/${leg.id}`} viewTransition className="mb-2 flex items-baseline gap-2 transition-opacity active:opacity-60">
         <span className="h-3 w-3 shrink-0 translate-y-[1px] rounded-full" style={{ background: hex }} />
         <h2 className="subhead font-semibold">{leg.base}</h2>
         {leg.nameAlt && (
@@ -598,7 +599,7 @@ function DayLink({ data, day, today, loc, pinned, planned, newMonth }: { data: T
       {/* the stay's colour is on its header — not repeated on every day */}
       <DayDate date={day.date} loc={loc} strong={today} month={newMonth} />
       <span className="flex min-w-0 flex-1 flex-col">
-        <span data-day-title className={`w-fit max-w-full break-words leading-snug ${day.title ? "text-ink" : "text-ink-faint"}`}>
+        <span data-day-title={day.id} className={`w-fit max-w-full break-words leading-snug ${day.title ? "text-ink" : "text-ink-faint"}`}>
           {day.title || "Untitled day"}
         </span>
         <DayKindTag day={day} data={data} />

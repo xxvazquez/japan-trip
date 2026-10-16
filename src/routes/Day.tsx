@@ -511,7 +511,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     const jid = crypto.randomUUID?.() ?? `journeys-${rid()}`;
     addEntity("journeys", { id: jid, label: "", kind: "transfer", date: day.date, segments: [] } as never);
     linkJourney(jid);
-    nav(`/journey/${jid}`);
+    nav(`/journey/${jid}`, { viewTransition: true });
   };
 
   const downloadDayCalendar = () =>
@@ -627,7 +627,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         navSubtitle={fmtDate(day.date, loc, { weekday: "short", day: "numeric", month: "short" })}
         title={
           // what the Plan row's title zooms into (`zoomFrom`)
-          <span className="vt-zoom-title inline-block max-w-full">
+          <span data-day={day.id} className="vt-zoom-title inline-block max-w-full">
             <Editable label="Day title" value={day.title ?? ""} placeholder="Untitled day" onCommit={(v) => patch({ title: v || undefined })} />
           </span>
         }
@@ -694,7 +694,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
       {ro && journeys.length > 0 && (
         <div className="mb-8 flex flex-wrap gap-2">
           {journeys.map((j) => (
-            <Link key={j.id} to={`/journey/${j.id}`} className="btn-sm">
+            <Link key={j.id} to={`/journey/${j.id}`} viewTransition className="btn-sm">
               <Icon name={j.segments[0] ? MODE_ICON[j.segments[0].mode] : "train"} size={14} className="text-ink-soft" /> <RouteLabel label={j.label || "New journey"} />
             </Link>
           ))}
@@ -1054,7 +1054,7 @@ function DayJourneyRow({ day, journey, data, onRemove }: { day: DayT; journey: J
     <li className="group relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
       <SwipeToDelete label="Remove" undoLabel="Journey removed from day" onDelete={onRemove}>
         <div className="flex items-center gap-1 pr-2">
-          <Link to={`/journey/${journey.id}`} className="flex min-w-0 flex-1 items-center gap-3 py-3 pl-3.5 pr-1 text-left active:bg-ink/[0.07]">
+          <Link to={`/journey/${journey.id}`} viewTransition className="flex min-w-0 flex-1 items-center gap-3 py-3 pl-3.5 pr-1 text-left active:bg-ink/[0.07]">
             <TitleLineTile><IconTile size="sm" name={first ? MODE_ICON[first.mode] : "train"} tone={first ? MODE_TONE[first.mode] : "ai"} /></TitleLineTile>
             <span className="min-w-0 flex-1">
               <span className="block break-words text-sm leading-snug text-ink"><RouteLabel label={journey.label || "New journey"} /></span>
@@ -2406,7 +2406,7 @@ function JourneyStopRow({ journey, stop }: { journey: Journey; stop: ReturnType<
   const meta = journeyStopMeta(journey, stop);
   return (
     <li>
-      <Link to={`/journey/${journey.id}`} className="block active:bg-ink/[0.07]">
+      <Link to={`/journey/${journey.id}`} viewTransition className="block active:bg-ink/[0.07]">
         <TimelineStop
           className="pr-3"
           time={fmtClock(stop.time)}
@@ -2528,7 +2528,7 @@ function StartFromHotel({ hotel, to, firstTime, time, readOnly, onTime }: {
         tile={<IconTile size="sm" glyph="hotel" tone="ink-faint" />}
         time={<HotelRowTime label="Leave at" time={time} timeStart={timeStart} readOnly={readOnly} onTime={onTime} />}
       >
-        <Link to={`/hotel/${hotel.id}`} className={`${STOP_TITLE} active:opacity-60`}>
+        <Link to={`/hotel/${hotel.id}`} viewTransition className={`${STOP_TITLE} active:opacity-60`}>
           From {hotel.name || "your stay"}
         </Link>
       </TimelineStop>

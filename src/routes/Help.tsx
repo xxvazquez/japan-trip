@@ -39,6 +39,7 @@ function QuestionRow({ topic, item }: { topic: HelpTopic; item: HelpItem }) {
     <li className={INSET_DIVIDER}>
       <Link
         to={`/help/${helpKey(topic, item)}`}
+        viewTransition
         className="flex items-center gap-3 px-3.5 py-3 transition-colors duration-150 hover:bg-surface-2/40 active:bg-ink/[0.07]"
       >
         <span className="value min-w-0 flex-1 break-words leading-snug text-ink">{item.q}</span>

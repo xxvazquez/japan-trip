@@ -56,7 +56,7 @@ export function TileRow({
   // own hairline, inset past the tile (14px pad + 22px tile + 12px gap), gone on the last row
   const li = "relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
   const row = to ? (
-    <Link to={to} className={`${cls} hover:bg-surface-2/40 active:bg-ink/[0.07]`}>
+    <Link to={to} viewTransition className={`${cls} hover:bg-surface-2/40 active:bg-ink/[0.07]`}>
       {body}
     </Link>
   ) : onClick ? (

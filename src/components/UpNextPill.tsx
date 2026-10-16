@@ -45,11 +45,12 @@ export function UpNextPill({ besidePane }: { besidePane?: boolean }) {
   if (!shown) return null;
   return (
     <div
-      className={`tabbar-float pointer-events-none fixed inset-x-0 bottom-[calc(var(--tabbar-bottom)+var(--tabbar-h)+0.5rem)] z-30 flex justify-center px-3 md:bottom-6 md:pl-[72px] ${besidePane ? "md:pr-[calc(var(--pane-w)+0.75rem)]" : ""}`}
+      className={`tabbar-float vt-up-next pointer-events-none fixed inset-x-0 bottom-[calc(var(--tabbar-bottom)+var(--tabbar-h)+0.5rem)] z-30 flex justify-center px-3 md:bottom-6 md:pl-[72px] ${besidePane ? "md:pr-[calc(var(--pane-w)+0.75rem)]" : ""}`}
     >
       <div ref={ref} className="pointer-events-auto w-full max-w-md">
         <Link
           to={`/day/${next.day.id}`}
+          viewTransition
           className="glass flex min-h-[52px] motion-safe:animate-fade-in items-center gap-3 rounded-[26px] py-1.5 pl-1.5 pr-4 text-ink transition-transform duration-150 active:scale-[0.98]"
         >
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-accent text-white dark:text-bg">

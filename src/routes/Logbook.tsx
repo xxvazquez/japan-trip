@@ -336,7 +336,7 @@ function Stays() {
   const add = () => {
     const id = crypto.randomUUID?.() ?? `hotels-${rid()}`;
     addEntity("hotels", { id, name: "New stay" } as never);
-    nav(`/hotel/${id}`);
+    nav(`/hotel/${id}`, { viewTransition: true });
   };
 
   if (data.hotels.length === 0) {
@@ -403,7 +403,7 @@ function GettingAround() {
   const add = () => {
     const id = crypto.randomUUID?.() ?? `journeys-${rid()}`;
     addEntity("journeys", { id, label: "", kind: "transfer", date: data.meta.start, segments: [] } as never);
-    nav(`/journey/${id}`);
+    nav(`/journey/${id}`, { viewTransition: true });
   };
 
   if (journeys.length === 0) {
@@ -735,7 +735,7 @@ export function ExpenseCategory() {
                       amount — no icon, the page title already says what kind */}
                   {rows.map((it, i) => (
                     <li key={`${it.to}-${i}`} className={INSET_DIVIDER}>
-                      <Link to={it.to} className="flex items-center gap-3 px-3.5 py-3 transition-colors duration-150 active:bg-ink/[0.07]">
+                      <Link to={it.to} viewTransition className="flex items-center gap-3 px-3.5 py-3 transition-colors duration-150 active:bg-ink/[0.07]">
                         <span className="min-w-0 flex-1">
                           <span className="block break-words text-sm leading-snug text-ink"><RouteLabel label={it.title} /></span>
                           <span className="meta mt-0.5 block">{[it.date && short(it.date), it.what].filter(Boolean).join(" · ")}</span>
@@ -796,7 +796,7 @@ function Documents() {
   const addDoc = () => {
     const id = crypto.randomUUID?.() ?? `docs-${rid()}`;
     addEntity("docs", { id, title: "New document", kind: "other", fields: [] } as never);
-    nav(`/logbook/documents/${id}`);
+    nav(`/logbook/documents/${id}`, { viewTransition: true });
   };
 
   if (docs.length === 0) {

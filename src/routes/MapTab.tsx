@@ -2026,7 +2026,7 @@ export default function MapTab() {
           categoryColors={data.config.categoryColors}
           dark={dark}
           // a stay's pin opens the stay, as its row does on the Plan
-          onSelect={(id) => { const stay = stayIdOfPin(id); if (stay) nav(`/hotel/${stay}`); else setSelected(id); }}
+          onSelect={(id) => { const stay = stayIdOfPin(id); if (stay) nav(`/hotel/${stay}`, { viewTransition: true }); else setSelected(id); }}
           onMapClick={onMapClick}
           onLongPress={onLongPress}
           onPoiClick={onPoiClick}
