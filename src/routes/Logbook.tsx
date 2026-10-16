@@ -667,6 +667,15 @@ function Expenses() {
       )}
       {currencies.map((cur) => {
         const b = byCurrency[cur];
+        // a foreign currency's amounts carry the main-currency figure under
+        // them, so every number on the page reads in money you think in
+        const rate = cur && cur !== primary ? rates[cur] : undefined;
+        const amount = (value: number, strong = false) => (
+          <span className="block text-right tabular-nums">
+            <span className={`block ${strong ? "font-medium text-ink" : ""}`}>{fmtMoney(value, cur)}</span>
+            {rate && <span className="meta mt-0.5 block">{fmtMoney(Math.round(value / rate), primary)}</span>}
+          </span>
+        );
         return (
           <Section key={cur || "—"} title={cur || "Unspecified currency"}>
             <ProportionBar segments={segmentsFor(b.byCategory, b.uncategorised)} />
@@ -674,13 +683,13 @@ function Expenses() {
               {categories
                 .filter((c) => (b.byCategory[c.id] ?? 0) > 0)
                 .map((c) => (
-                  <InsetRow key={c.id} label={catLabel(c)} to={`/logbook/budget/${c.id}`}>{fmtMoney(b.byCategory[c.id], cur)}</InsetRow>
+                  <InsetRow key={c.id} label={catLabel(c)} to={`/logbook/budget/${c.id}`}>{amount(b.byCategory[c.id])}</InsetRow>
                 ))}
               {b.uncategorised > 0 && (
-                <InsetRow label="Uncategorised" to={`/logbook/budget/${UNCATEGORISED}`}>{fmtMoney(b.uncategorised, cur)}</InsetRow>
+                <InsetRow label="Uncategorised" to={`/logbook/budget/${UNCATEGORISED}`}>{amount(b.uncategorised)}</InsetRow>
               )}
               <InsetRow label={<span className="font-medium text-ink">Total</span>}>
-                <span className="font-medium text-ink">{fmtMoney(b.total, cur)}</span>
+                {amount(b.total, true)}
               </InsetRow>
             </ul>
           </Section>
@@ -699,24 +708,34 @@ function Expenses() {
 const UNCATEGORISED = "uncategorised";
 
 /** One Expenses category opened: every amount behind its total — each stay
- *  price, fare and day-spending row — newest-last by date, one group per
- *  currency, each row opening the page it's edited on. Read-only, like the
- *  totals: amounts are changed where they live. */
+ *  price, fare and day-spending row — newest-last by date, each row opening
+ *  the page it's edited on. Every amount reads in the trip's main currency,
+ *  a foreign one with what was actually paid under it (a bank app's
+ *  paid-abroad row), converted at the same rates as Expenses. Read-only,
+ *  like the totals: amounts are changed where they live. */
 export function ExpenseCategory() {
   const data = useData();
   const { category } = useParams();
-  if (!data) return null;
-  const loc = data.config.locale;
-  const { categories, items } = tripCost(data);
-  const cat = categories.find((c) => c.id === category);
-  if (!cat && category !== UNCATEGORISED) {
-    return <Missing title="No such category" body="That expense category isn’t part of this trip." to="/logbook/budget" cta="Back to Expenses" />;
-  }
-  const mine = items
+  const cost = data ? tripCost(data) : null;
+  const cat = cost?.categories.find((c) => c.id === category);
+  const mine = (cost?.items ?? [])
     .filter((it) => (cat ? it.categoryId === cat.id : !it.categoryId))
     .sort((a, b) => (a.date ?? "\uffff").localeCompare(b.date ?? "\uffff"));
   const currencies = [...new Set(mine.map((it) => it.currency))];
+  const primary = data?.config.currency || currencies[0] || "";
+  const { rates } = useFxRates(primary, currencies.filter((c) => c && c !== primary));
+  if (!data) return null;
+  if (!cat && category !== UNCATEGORISED) {
+    return <Missing title="No such category" body="That expense category isn’t part of this trip." to="/logbook/budget" cta="Back to Expenses" />;
+  }
+  const loc = data.config.locale;
   const short = (d: string) => fmtDate(d, loc, { weekday: "short", day: "numeric", month: "short" });
+  /** an amount in the main currency, or null while its currency has no rate */
+  const toPrimary = (amount: number, cur: string) => (cur === primary ? amount : cur && rates[cur] ? amount / rates[cur] : null);
+  const subtotals = currencies.map((cur) => ({ cur, amount: mine.filter((it) => it.currency === cur).reduce((sum, it) => sum + it.amount, 0) }));
+  const converted = subtotals.map((s) => toPrimary(s.amount, s.cur));
+  const total = converted.every((v) => v !== null) ? converted.reduce<number>((sum, v) => sum + (v ?? 0), 0) : null;
+  const paid = subtotals.map((s) => fmtMoney(s.amount, s.cur)).join(" + ");
 
   return (
     <Page>
@@ -724,35 +743,44 @@ export function ExpenseCategory() {
       {mine.length === 0 ? (
         <Empty what="Nothing here yet" hint="Prices on stays and journeys, and a day’s spending, show up here once they’re in this category." />
       ) : (
-        <div className="space-y-6">
-          {currencies.map((cur) => {
-            const rows = mine.filter((it) => it.currency === cur);
-            const total = rows.reduce((sum, it) => sum + it.amount, 0);
-            return (
-              <Section key={cur || "—"} title={currencies.length > 1 ? cur || "Unspecified currency" : undefined}>
-                <ul>
-                  {/* Wallet's transaction row: what, the date under it, the
-                      amount — no icon, the page title already says what kind */}
-                  {rows.map((it, i) => (
-                    <li key={`${it.to}-${i}`} className={INSET_DIVIDER}>
-                      <Link to={it.to} viewTransition className="flex items-center gap-3 px-3.5 py-3 transition-colors duration-150 active:bg-ink/[0.07]">
-                        <span className="min-w-0 flex-1">
-                          <span className="block break-words text-sm leading-snug text-ink"><RouteLabel label={it.title} /></span>
-                          <span className="meta mt-0.5 block">{[it.date && short(it.date), it.what].filter(Boolean).join(" · ")}</span>
-                        </span>
-                        <span className="shrink-0 text-sm tabular-nums text-ink">{fmtMoney(it.amount, cur)}</span>
-                        <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
-                      </Link>
-                    </li>
-                  ))}
-                  <InsetRow label={<span className="font-medium text-ink">Total</span>}>
-                    <span className="font-medium text-ink">{fmtMoney(total, cur)}</span>
-                  </InsetRow>
-                </ul>
-              </Section>
-            );
-          })}
-        </div>
+        <Section>
+          <ul>
+            {/* Wallet's transaction row: what, the date under it, the
+                amount — no icon, the page title already says what kind */}
+            {mine.map((it, i) => {
+              const local = it.currency === primary ? null : toPrimary(it.amount, it.currency);
+              return (
+                <li key={`${it.to}-${i}`} className={INSET_DIVIDER}>
+                  <Link to={it.to} viewTransition className="flex items-center gap-3 px-3.5 py-3 transition-colors duration-150 active:bg-ink/[0.07]">
+                    <span className="min-w-0 flex-1">
+                      <span className="block break-words text-sm leading-snug text-ink"><RouteLabel label={it.title} /></span>
+                      <span className="meta mt-0.5 block">{[it.date && short(it.date), it.what].filter(Boolean).join(" · ")}</span>
+                    </span>
+                    <span className="shrink-0 text-right tabular-nums">
+                      <span className="block text-sm leading-snug text-ink">
+                        {local !== null ? fmtMoney(Math.round(local), primary) : fmtMoney(it.amount, it.currency)}
+                      </span>
+                      {local !== null && <span className="meta mt-0.5 block">{fmtMoney(it.amount, it.currency)}</span>}
+                    </span>
+                    <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
+                  </Link>
+                </li>
+              );
+            })}
+            <InsetRow label={<span className="font-medium text-ink">Total</span>}>
+              {total !== null ? (
+                <span className="block text-right tabular-nums">
+                  <span className="block font-medium text-ink">{fmtMoney(Math.round(total), primary)}</span>
+                  {subtotals.some((s) => s.cur !== primary) && <span className="meta mt-0.5 block">{paid}</span>}
+                </span>
+              ) : (
+                // a currency with no rate yet (offline before the first
+                // fetch) — each as it is, never a part-sum
+                <span className="font-medium text-ink">{paid}</span>
+              )}
+            </InsetRow>
+          </ul>
+        </Section>
       )}
     </Page>
   );
