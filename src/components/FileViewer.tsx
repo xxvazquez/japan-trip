@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import workerUrl from "pdfjs-dist/legacy/build/pdf.worker.min.mjs?url";
 import type { PDFDocumentProxy } from "pdfjs-dist/legacy/build/pdf.mjs";
 import { useBackToClose } from "@/lib/backClose";
+import { useWakeLock } from "@/lib/wakeLock";
 import { Icon } from "./Icon";
 
 /** What the viewer shows: a name for the bar, and the bytes, fetched once open. */
@@ -33,6 +34,7 @@ const isImage = (f: ViewerFile, blob: Blob | null) =>
  */
 export default function FileViewer({ file, onClose }: { file: ViewerFile; onClose: () => void }) {
   useBackToClose(true, onClose);
+  useWakeLock(true); // a ticket or booking stays readable at the counter
   const [blob, setBlob] = useState<Blob | null>(null);
   const [error, setError] = useState("");
   const [zoom, setZoom] = useState(1);

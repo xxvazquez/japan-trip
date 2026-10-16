@@ -521,6 +521,8 @@ Tap a document to open its page: name it, attach PDFs or photos, add fields and 
 - **Add a field** (also a stay's details and Emergency contacts) opens the new field ready to type. Leave both its name and value blank and it goes away.
 - **Signed in** — files go to your account (private to the trip, 25 MB each), or to a shared Google Drive folder if set up. Drive needs its own **Connect Google Drive** tap, once per device — it stays connected after that (about an hour only, without `GOOGLE_CLIENT_SECRET` on the server).
 - **On this device only** — files stay on the device, and upload automatically once you sign in.
+- **Show Pass** — a document with details or a photo gets a coloured strip under its name. Tap it for the document as a Wallet pass: its first detail large, the rest under it, and the first photo (a QR code or barcode screenshot) big on white for a scanner. Other files open from under the card.
+- **The screen stays on** while a pass or an opened file is showing, so a ticket doesn't go dark in a queue.
 - **Opening** a file shows it inside the app, like Quick Look: PDFs page by page, photos full width. Double-tap or pinch to zoom; **Share** saves or sends it on.
 - **Photos** show a preview under their name, from the copy on the device when there is one.
 - **Offline** — every attachment is kept on the device once the trip opens. A cloud with a ⇣ beside a file means it isn't on this device yet.

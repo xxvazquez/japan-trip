@@ -13,6 +13,7 @@ import { RowMenu } from "@/components/RowMenu";
 import { ContextMenu } from "@/components/ContextMenu";
 import { ConfirmMenuItem } from "@/components/ActionSheet";
 import { Icon } from "@/components/Icon";
+import { PassStub, PassView, hasPass } from "@/components/PassView";
 import { useData } from "@/lib/data";
 import { useApp, undoable } from "@/store/useApp";
 import { useAuth } from "@/lib/auth";
@@ -46,6 +47,7 @@ export default function Document() {
   const tripId = useApp((s) => s.activeId);
   const { user } = useAuth();
   const ro = useReadOnly();
+  const [pass, setPass] = useState(false);
   if (!data) return null;
 
   const doc = data.docs.find((d) => d.id === id);
@@ -71,6 +73,14 @@ export default function Document() {
       />
 
       <div className="space-y-6">
+        {/* Wallet's way to hold a booking up at a counter — the card, big */}
+        {hasPass(doc) && (
+          <div className="mt-5">
+            <PassStub doc={doc} onOpen={() => setPass(true)} />
+          </div>
+        )}
+        {pass && <PassView doc={doc} onClose={() => setPass(false)} />}
+
         {(!ro || files.length > 0) && (
           <Section title="Files">
             <Attachments
