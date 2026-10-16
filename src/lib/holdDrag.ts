@@ -1,5 +1,6 @@
 import type { TouchEvent as ReactTouchEvent } from "react";
 import type { Activators, SensorInstance, SensorProps } from "@dnd-kit/core";
+import { haptic } from "./haptics";
 
 const HOLD_MS = 450; // the same hold that opens a row's ContextMenu
 const SLOP_PX = 8; // more than this before the hold and it's a scroll
@@ -65,6 +66,7 @@ export class HoldDragSensor implements SensorInstance {
       if (!this.held) return this.cancel(); // moved first: a scroll
       this.started = true;
       dragging = true;
+      haptic(); // the row lifts
       this.props.onStart(this.from);
     }
     if (e.cancelable) e.preventDefault(); // the page mustn't scroll under the row

@@ -6,6 +6,7 @@ import { useScrollLock } from "./useScrollLock";
 import { useBackToClose } from "@/lib/backClose";
 import { Icon } from "./Icon";
 import { clock24, fmtClock } from "@/lib/time";
+import { haptic } from "@/lib/haptics";
 
 /* The pickers read the way the device's own clock does, as iOS's wheel
  * follows the phone's 24-Hour Time setting: 00–23, or 1–12 plus AM/PM. The
@@ -40,6 +41,7 @@ function WheelColumn({ options, value, onChange, ariaLabel }: {
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const settleTimer = useRef<number>();
+  const shown = useRef(-1); // the row in the band, for the tick as each one passes
 
   // snap to the current value whenever it changes from outside (opening the
   // sheet, or the other wheel defaulting this one to "00") — scrolling is
@@ -47,12 +49,19 @@ function WheelColumn({ options, value, onChange, ariaLabel }: {
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
-    el.scrollTop = Math.max(0, options.indexOf(value)) * ITEM_H;
+    shown.current = Math.max(0, options.indexOf(value)); // no tick for a jump from outside
+    el.scrollTop = shown.current * ITEM_H;
   }, [value, options]);
 
   const jump = (i: number) => ref.current?.scrollTo({ top: i * ITEM_H, behavior: "smooth" });
 
   const handleScroll = () => {
+    const el = ref.current;
+    const at = el ? Math.round(el.scrollTop / ITEM_H) : -1;
+    if (at !== shown.current) {
+      if (shown.current !== -1) haptic();
+      shown.current = at;
+    }
     window.clearTimeout(settleTimer.current);
     settleTimer.current = window.setTimeout(() => {
       const el = ref.current;

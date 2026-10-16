@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ActionSheet, type MenuPoint } from "./ActionSheet";
+import { haptic } from "@/lib/haptics";
 
 const HOLD_MS = 450; // iOS's own long-press is ~0.5s
 const SLOP_PX = 8; // more than this and it's a scroll or a swipe, not a hold
@@ -96,7 +97,7 @@ export function ContextMenu({
   const held = (x: number) => {
     cancel();
     swallow.current = true;
-    navigator.vibrate?.(10); // Android; iPhone has no web haptics to call
+    haptic();
     openAt(fromRow(x));
   };
   const onPointerMove = (e: React.PointerEvent) => {

@@ -1,3 +1,5 @@
+import { haptic } from "@/lib/haptics";
+
 /**
  * An iOS toggle switch — the settings-context on/off control (a checkbox in a
  * settings list is a switch on iOS). 51×31, the iOS size, sitting with the 17px row type;
@@ -25,7 +27,7 @@ export function Switch({
       aria-checked={checked}
       aria-label={label}
       disabled={disabled}
-      onClick={() => onChange(!checked)}
+      onClick={() => { haptic(); onChange(!checked); }}
       className={`relative inline-flex ${sm ? "h-6 w-10" : "h-[31px] w-[51px]"} shrink-0 items-center rounded-full transition-colors duration-200 before:absolute before:-inset-x-1 before:-inset-y-2.5 before:content-[''] disabled:opacity-50 ${
         checked ? "bg-accent" : "bg-ink/20"
       }`}

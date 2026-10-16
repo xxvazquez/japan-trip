@@ -597,6 +597,8 @@ Theme and trip logo. **Appearance** (light, dark or *Automatic*) is per device, 
 - **Stay** / **Map place** — open in Google Maps, delete.
 - **Journey** / **Document** — delete.
 
+**Haptics.** On a phone, a light tap answers a switch or tick, each row the time wheel passes, a row's menu opening, a row lifting to drag, and a swipe-to-delete reaching the point where it stays open. Android vibrates; on an iPhone it needs iOS 18 or later. A computer stays silent.
+
 **Notes** edit in place and show their formatting as you type, like Apple Notes. The toolbar above a note:
 
 | Button | What it does |

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useApp } from "@/store/useApp";
 import { ActionSheet } from "./ActionSheet";
+import { haptic } from "@/lib/haptics";
 
 const supportsTouch = () =>
   typeof window !== "undefined" &&
@@ -79,7 +80,10 @@ export function SwipeToDelete({
     }
     if (s.axis !== "x") return;
     dragging.current = true;
-    setDx(Math.max(Math.min(0, s.base + ddx), -MAX));
+    const next = Math.max(Math.min(0, s.base + ddx), -MAX);
+    // a tick as the row passes the point where letting go leaves it open
+    if (dxRef.current <= -REVEAL / 2 !== next <= -REVEAL / 2) haptic();
+    setDx(next);
   };
   const onEnd = () => {
     const s = g.current;

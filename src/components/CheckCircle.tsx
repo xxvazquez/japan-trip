@@ -1,4 +1,5 @@
 import { Icon } from "./Icon";
+import { haptic } from "@/lib/haptics";
 
 /**
  * A checklist tick — iOS Reminders style: an open ring that fills with the
@@ -24,7 +25,7 @@ export function CheckCircle({
       aria-checked={checked}
       aria-label={label}
       disabled={disabled}
-      onClick={() => onChange(!checked)}
+      onClick={() => { haptic(); onChange(!checked); }}
       className={`relative grid h-[22px] w-[22px] shrink-0 place-items-center rounded-full border-2 transition-colors before:absolute before:-inset-[11px] before:content-[''] ${
         checked ? "border-accent bg-accent text-white" : "border-line text-transparent"
       }`}
