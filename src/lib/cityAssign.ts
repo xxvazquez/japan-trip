@@ -30,7 +30,7 @@ const centroid = (pts: Place[]): LatLng | null =>
 
 /** Each stay's anchor: its hotel's coordinates, else the centroid of the
  *  places its (non-day-trip) days pull in, else its city centre. */
-function legAnchors(data: TripData, cityAnchors?: Map<string, LatLng>): { legId: string; lat: number; lng: number }[] {
+export function legAnchors(data: TripData, cityAnchors?: Map<string, LatLng>): { legId: string; lat: number; lng: number }[] {
   const anchors: { legId: string; lat: number; lng: number }[] = [];
   for (const leg of data.legs) {
     const hotel = data.hotels.find((h) => h.id === leg.hotelId);

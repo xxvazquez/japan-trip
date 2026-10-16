@@ -107,6 +107,7 @@ The trip as a list of days, grouped by **base** — where you're based for a run
   - It changes nothing else. **Mark as Not Planned** takes it off.
 - A base emptied of its days reads **No days** and books no nights — the base before it ends where its own days do.
 - When the month changes between two days in a base, the day's date shows the month under it (**1 DEC**).
+- **Before the trip** the top of Plan counts down the days, with a small sketch of your cities joined in the order you visit them. It draws from each stay's hotel or places (or the city name, looked up once), works offline, and shows once two cities can be placed.
 - **During the trip** the top of Plan reads **Day 2 of 14**, with the city you're in and when you leave it: *2 nights left*, *Leaving tomorrow*, *Leaving today*. Moving hotels within the same city doesn't count as leaving.
 - **During the trip** the list opens on today. Earlier days move to **Past days** at the bottom (closed until you open it), grouped by base. Past days can be opened and held for their menu, not dragged. It moves on to the new day by itself, even if the app was left open overnight.
 - **After the trip** the top of Plan becomes a recap: how many days it was, then one line with the dates, cities, total spent in the trip's main currency (tap it for Expenses) and stamps collected.
