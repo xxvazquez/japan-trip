@@ -11,7 +11,7 @@ import { guideTopicColor } from "@/lib/tones";
 import { GUIDE_CONTENT } from "@/guides/content";
 import { citiesOnTrip, datesOnTrip } from "@/guides/match";
 import { allTopics, cityArticles, dateArticles, dayTripArticles, topicArticles, type ArticleRef } from "@/guides/articles";
-import type { CountryGuide, GuideCity, GuideDayTrip, GuideEvent, GuideText, GuideTopic } from "@/guides/types";
+import type { CountryGuide, GuideBody, GuideCity, GuideDayTrip, GuideEvent, GuideText, GuideTopic } from "@/guides/types";
 
 /** A country guide — reference content the app ships with, read-only. Laid
  *  out like Settings: a home of grouped rows, each pushing to a topic's list,
@@ -333,7 +333,7 @@ function ArticlePage({
         ) : null}
 
         <article className="selectable rounded-[12px] bg-surface px-4 py-4 sm:px-5 sm:py-5">
-          <Prose text={a.text} />
+          {a.body ? <Body blocks={a.body} /> : a.text && <Prose text={a.text} />}
           {bullets && <Bullets points={bullets} className="mt-3" />}
           {a.parts?.map((p) => (
             <section key={p.heading} className="mt-6">
@@ -484,6 +484,124 @@ function EventRow({ to, event, last }: { to: string; event: GuideEvent; last: bo
 }
 
 /* ------------------------------------------------------------------ text */
+
+/** An article's body, block by block. Paragraphs stay short and sit at
+ *  reading size; everything else is drawn the way an Apple guide sets it
+ *  out — numbered steps on a rail, check / cross lists, a tinted box for a
+ *  tip, a small grouped table, key numbers as tiles. */
+function Body({ blocks }: { blocks: GuideBody[] }) {
+  return (
+    <div className="space-y-4">
+      {blocks.map((b, i) => (
+        <BodyBlock key={i} block={b} first={i === 0} />
+      ))}
+    </div>
+  );
+}
+
+function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
+  if ("p" in b) return <p className="break-words text-[17px] leading-[1.5] text-ink"><Inline text={b.p} /></p>;
+  if ("h" in b) return <h2 className={`break-words text-[20px] font-medium leading-snug text-ink ${first ? "" : "!mt-8"}`}>{b.h}</h2>;
+  if ("list" in b) return <Bullets points={b.list} />;
+  if ("steps" in b) {
+    return (
+      <ol className="!mt-5">
+        {b.steps.map((st, n) => (
+          <li key={n} className="relative flex gap-3.5 pb-5 last:pb-0">
+            {n < b.steps.length - 1 && <span aria-hidden className="absolute bottom-0 left-[13px] top-8 w-px bg-line" />}
+            <span className="grid h-[27px] w-[27px] shrink-0 place-items-center rounded-full bg-accent/[0.12] text-[15px] font-medium tabular-nums text-accent">{n + 1}</span>
+            <span className="min-w-0 flex-1 pt-[2px]">
+              <span className="block break-words text-[17px] font-medium leading-snug text-ink"><Inline text={st.title} /></span>
+              {st.text && <span className="mt-1 block break-words text-[15px] leading-[1.45] text-ink-soft"><Inline text={st.text} /></span>}
+            </span>
+          </li>
+        ))}
+      </ol>
+    );
+  }
+  if ("dos" in b || "donts" in b) {
+    const group = (label: string, items: string[], ok: boolean) => (
+      <div>
+        <p className="mb-2 text-[15px] font-medium text-ink">{label}</p>
+        <ul className="space-y-2.5">
+          {items.map((it) => (
+            <li key={it} className="flex gap-3">
+              <span className={`mt-[2px] grid h-[22px] w-[22px] shrink-0 place-items-center rounded-full ${ok ? "bg-matcha/[0.14] text-matcha" : "bg-danger/[0.12] text-danger"}`}>
+                <Icon name={ok ? "check" : "close"} size={13} strokeWidth={2.4} />
+              </span>
+              <span className="min-w-0 break-words text-[17px] leading-[1.45] text-ink"><Inline text={it} /></span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+    return (
+      <div className="space-y-5 rounded-[10px] bg-surface-2 px-3.5 py-3.5">
+        {b.dos?.length ? group("Do", b.dos, true) : null}
+        {b.donts?.length ? group("Don’t", b.donts, false) : null}
+      </div>
+    );
+  }
+  if ("note" in b) {
+    const warn = b.kind === "warning";
+    return (
+      <div className="flex gap-3 rounded-[10px] bg-surface-2 px-3.5 py-3">
+        <Icon name={warn ? "alert" : "bulb"} size={22} className={`mt-px shrink-0 ${warn ? "text-danger" : "text-gold"}`} />
+        <div className="min-w-0">
+          <p className="text-[15px] font-medium leading-snug text-ink">{b.title ?? (warn ? "Watch out" : "Tip")}</p>
+          <p className="mt-0.5 break-words text-[15px] leading-[1.45] text-ink-soft"><Inline text={b.note} /></p>
+        </div>
+      </div>
+    );
+  }
+  if ("table" in b) {
+    return (
+      <div className="overflow-x-auto rounded-[10px] border border-line">
+        <table className="w-full border-collapse text-left">
+          <thead>
+            <tr className="bg-surface-2">
+              {b.table.head.map((h, i) => (
+                <th key={i} className="px-3 py-2 align-bottom text-[13px] font-normal text-ink-soft">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {b.table.rows.map((r, i) => (
+              <tr key={i} className="border-t border-line">
+                {r.map((c, j) => (
+                  <td key={j} className={`px-3 py-2.5 align-top text-[15px] leading-snug ${j === 0 ? "text-ink" : "text-ink-soft"}`}><Inline text={c} /></td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+  if ("stats" in b) {
+    return (
+      <div className={`grid gap-2 ${b.stats.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
+        {b.stats.map((st) => (
+          <div key={st.label} className="rounded-[10px] bg-surface-2 px-3 py-2.5">
+            <p className="break-words text-[22px] font-medium leading-tight tabular-nums text-ink">{st.value}</p>
+            <p className="mt-0.5 break-words text-[13px] leading-snug text-ink-soft">{st.label}</p>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  if (!("terms" in b)) return null;
+  return (
+    <ul className="rounded-[10px] bg-surface-2">
+      {b.terms.map((t) => (
+        <li key={t.term} className="relative px-3.5 py-2.5 after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
+          <span className="block break-words text-[17px] leading-snug text-ink"><Inline text={t.term} /></span>
+          <span className="mt-0.5 block break-words text-[15px] leading-[1.45] text-ink-soft"><Inline text={t.text} /></span>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 /** paragraphs at reading size, with a little air between them */
 function Prose({ text, className = "" }: { text: GuideText; className?: string }) {

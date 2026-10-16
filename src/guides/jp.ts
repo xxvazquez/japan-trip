@@ -1122,253 +1122,276 @@ export const japan: CountryGuide = {
       id: "customs",
       title: "Easy to get wrong",
       icon: "door",
-      summary: "The manners that matter, and the rules with teeth",
+      summary: "How things are done, situation by situation",
       blocks: [
         {
-          title: "Manners that actually matter",
+          title: "Everyday situations",
           items: [
             {
-              title: "Shoes off",
-              summary: "The step at the door is the signal — and slippers have rules of their own",
-              text: [
-                "Japan draws a line between the dirty outside and the clean inside, and the line is usually a real one: a sunken entrance area, the **genkan**, with a step up to the floor proper. If you see that step — or a row of slippers waiting on it — your shoes come off before you go up.",
-                "It applies in homes, ryokan rooms, many temple halls, traditional restaurants, some museums and even fitting rooms in clothes shops, where you step out of your shoes before the curtain.",
-              ],
-              parts: [
+              title: "Shoes and slippers",
+              summary: "When your shoes come off, and the slipper rules nobody explains",
+              body: [
+                { p: "In Japan, the outside world is thought of as dirty and the inside as clean, and shoes are where the two meet. So the first thing to learn is when to take them off — and it's easier than it sounds, because buildings tell you." },
+                { h: "How to spot the moment" },
+                { p: "Look down as you walk in. If the floor **steps up** just past the door, or there's a row of **slippers** or shoe lockers waiting, that's the **genkan**, the entrance area where shoes stay. You'll meet it in homes, ryokan, many temple halls, traditional restaurants, some museums, and the fitting rooms of clothes shops." },
                 {
-                  heading: "Three kinds of floor",
-                  text: "Wooden or carpeted floors: slippers are fine. **Tatami** mats: socks only — slippers stay at the edge of the room. The toilet: its own pair of plastic slippers waits at the door; swap into them, and swap back on the way out. Walking back into a dining room in the toilet slippers is the classic visitor's mistake.",
+                  steps: [
+                    { title: "Step out of your shoes", text: "Facing into the building, on the lower floor — try not to put a socked foot down on the dirty side." },
+                    { title: "Step up onto the clean floor", text: "In socks, or into the slippers that are set out." },
+                    { title: "Turn your shoes round", text: "Toes pointing to the door, side by side, so they're ready when you leave. In a temple you may be given a bag to carry them." },
+                  ],
                 },
+                { h: "Three kinds of floor, three rules" },
                 {
-                  heading: "Leaving them neatly",
-                  text: "Step out of your shoes facing in, then turn them round so the toes point to the door — ready to step into when you leave. At a temple you may be handed a plastic bag to carry them through the hall.",
+                  table: {
+                    head: ["Floor", "What to wear"],
+                    rows: [
+                      ["Wood or carpet", "Slippers are fine"],
+                      ["**Tatami** mats", "Socks only — leave slippers at the edge"],
+                      ["Toilet", "The toilet's own slippers, waiting at its door"],
+                    ],
+                  },
                 },
+                { p: "The toilet slippers are the one that catches everyone. Swap into them at the toilet door and back again as you come out. Walking back into the dining room still wearing them is a classic mistake — and it always gets noticed." },
+                { note: "Wear shoes you can slip on and off without sitting down or untying, and socks without holes. On a temple day you'll take them off a dozen times.", title: "Tip" },
               ],
-              tip: "Wear shoes you can slip on and off without sitting down, and socks without holes — on a temple day you'll be shoeless a dozen times.",
               words: [
                 { local: "玄関", say: "genkan", means: "the entrance area where shoes come off" },
-                { local: "土足禁止", say: "dosoku kinshi", means: "no outdoor shoes" },
+                { local: "土足禁止", say: "dosoku kinshi", means: "no outdoor shoes beyond this point" },
               ],
             },
             {
-              title: "Onsen",
-              summary: "Wash first, then soak — the whole etiquette fits on a postcard",
-              text: [
-                "A hot-spring bath is one of the great pleasures of Japan, and the rules are simple once you know them. Baths are split by sex and everyone is naked — no swimsuits. The curtains at the entrance are usually colour-coded: **blue or 男** for men, **red or 女** for women, and they sometimes swap over during the day.",
-                "Undress in the changing room and leave your clothes in a basket or locker. Take only the small towel in with you.",
-              ],
-              parts: [
+              title: "Your first onsen",
+              summary: "A hot-spring bath, step by step, from the curtain to the cold drink after",
+              body: [
+                { p: "Soaking in a hot spring is one of the best things you can do in Japan, and the etiquette is simple once you've seen it. The baths are split into men's and women's, and everyone is naked — that's normal, and nobody looks. What matters is that you go in clean." },
                 {
-                  heading: "Wash before you soak",
-                  text: "Sit on a stool at the row of showers and wash properly, soap and all, then rinse off every bubble. The bath is for soaking, not for getting clean — getting in unwashed is the one thing that really offends.",
+                  stats: [
+                    { value: "40–42 °C", label: "usual water temperature" },
+                    { value: "10 min", label: "a good first soak" },
+                  ],
                 },
+                { h: "Step by step" },
                 {
-                  heading: "In the water",
-                  points: [
-                    "Keep the small towel out of the water — fold it on your head or leave it on the side.",
-                    "Tie long hair up so it doesn't touch the water.",
-                    "No swimming, no splashing, keep your voice down.",
-                    "Get out slowly; the water is often 40–42 °C and it's easy to feel faint.",
-                    "Dry off with the small towel before walking back into the changing room.",
+                  steps: [
+                    { title: "Find the right curtain", text: "Usually **blue with 男** for men and **red with 女** for women. Some places swap them over during the day, so check each time." },
+                    { title: "Undress in the changing room", text: "Clothes go in a basket or locker. Take only the small towel with you." },
+                    { title: "Wash first, properly", text: "Sit on a stool at the showers and wash all over with soap, then rinse off every bubble. This is the one rule that really matters." },
+                    { title: "Ease into the water", text: "Slowly — it's hotter than a bath at home. Keep the small towel out of the water; people fold it on their heads." },
+                    { title: "Soak quietly", text: "No swimming or splashing, hair tied up and out of the water, voices low." },
+                    { title: "Dry off before you go back", text: "Wipe yourself down with the small towel so you don't drip on the changing-room floor." },
                   ],
                 },
                 {
-                  heading: "Tattoos",
-                  text: "Many baths still turn away anyone with visible tattoos, an old association with the yakuza. More places now accept them, especially in tourist areas. A small one can be covered with a skin-coloured patch; otherwise look for “tattoo OK” baths or book a private family bath (**kashikiri**) by the hour.",
+                  dos: ["Drink water before and after", "Get out slowly if you feel light-headed", "Try the outdoor bath, the **rotenburo**, if there is one"],
+                  donts: ["Wear a swimsuit", "Put your towel in the water", "Bathe straight after a big meal or a few drinks"],
                 },
+                { h: "Tattoos" },
+                { p: "Many baths still turn away people with visible tattoos, because of an old link with the yakuza. It's changing, especially in tourist areas, and plenty of places now welcome them." },
+                { note: "With a small tattoo, a skin-coloured patch over it is usually accepted. Otherwise, look for baths that say “tattoo OK”, or book a **private bath** (kashikiri) by the hour — many ryokan have one.", kind: "warning", title: "If you have a tattoo" },
               ],
-              tip: "Drink water before and after, and skip the bath straight after a big meal or a few beers.",
               words: [
                 { local: "男湯", say: "otoko-yu", means: "men's bath" },
                 { local: "女湯", say: "onna-yu", means: "women's bath" },
+                { local: "露天風呂", say: "rotenburo", means: "outdoor bath" },
                 { local: "貸切風呂", say: "kashikiri-buro", means: "private bath you book" },
               ],
             },
             {
-              title: "Escalators",
-              summary: "Left in Tokyo, right in Osaka — and some cities want you to stand still",
-              text: [
-                "Japanese escalators have an unwritten rule: stand on one side, leave the other free for people walking up. Which side depends on where you are. In **Tokyo** and most of eastern Japan you stand on the **left**; in **Osaka** and much of Kansai you stand on the **right**.",
-                "Kyoto sits in between — stations full of visitors from everywhere are a mix of both. Do what the person in front of you does and you'll never be wrong.",
-              ],
-              parts: [
+              title: "Visiting a shrine or temple",
+              summary: "Which is which, how to wash your hands, and how to pray at each",
+              body: [
+                { p: "You'll visit a lot of both, often side by side. Shrines belong to **Shinto**, Japan's native belief in kami, the spirits of nature and ancestors. Temples are **Buddhist**. Most Japanese people visit both without thinking it strange, and visitors are welcome at nearly all of them." },
+                { h: "Telling them apart" },
                 {
-                  heading: "Why Osaka is different",
-                  text: "The popular story is that Osaka copied the stand-right habit of international visitors around the 1970 World Expo, and it stuck. Nobody has proved it, but it's the one locals tell.",
+                  table: {
+                    head: ["", "Shrine", "Temple"],
+                    rows: [
+                      ["Gate", "A **torii** — two posts, two crossbeams, often red", "A roofed gate, often with fierce guardian statues"],
+                      ["Inside", "A mirror or nothing visible — the kami is hidden", "Statues of the Buddha"],
+                      ["Smell", "Fresh wood", "Incense"],
+                      ["Name ends in", "-jinja, -gū, -taisha", "-ji, -dera, -in"],
+                    ],
+                  },
                 },
+                { h: "Washing at the water basin" },
+                { p: "Near the entrance of both there's a stone basin with ladles, the **temizuya**. It's a quick, symbolic clean before you approach." },
                 {
-                  heading: "Stand still, both sides",
-                  text: "Walking on escalators causes accidents, and rail companies now run campaigns asking everyone to stand on both sides. Saitama in 2021 and Nagoya in 2023 made it an official rule. Few people follow it yet, but you won't be told off for standing still.",
-                },
-              ],
-            },
-            {
-              title: "The cash tray",
-              summary: "Money goes in the little tray, not into someone's hand",
-              text: [
-                "At almost every till there's a small tray, often with a ridged rubber mat. Put your cash or card in it rather than handing it to the cashier — they'll pick it up from there.",
-                "Your change comes back the same way, or handed over with both hands, notes first. Staff often count larger notes out loud in front of you so you can see it's right, then the coins and the receipt.",
-              ],
-              parts: [
-                {
-                  heading: "Paying by card",
-                  text: "Card is now accepted almost everywhere in the cities. You'll often insert or tap it yourself on a little terminal the cashier turns towards you. If you're asked “ikkai?” it's asking whether to charge it in one payment — just say yes, “hai”.",
-                },
-              ],
-              tip: "Coins pile up fast — the ¥1, ¥5 and ¥10 ones are worth almost nothing. Use them up at convenience stores, or drop the ¥5 coins in a shrine's offering box; it's considered lucky.",
-            },
-            {
-              title: "No tipping",
-              summary: "Good service is the job — extra money just causes confusion",
-              text: [
-                "There's no tipping anywhere in Japan: not in restaurants, taxis, hotels or bars. Leave money on the table and the staff may well run down the street after you to give it back.",
-                "It isn't rudeness on their part; service is simply part of what you've paid for, and an unexplained extra can feel awkward to accept.",
-              ],
-              parts: [
-                {
-                  heading: "What you might pay instead",
-                  points: [
-                    "**Otōshi** — a small appetiser some izakaya bring automatically, with a fixed cover charge of a few hundred yen. It's normal, not a scam.",
-                    "A **service charge** of around 10% at some upmarket restaurants and hotels, printed on the bill.",
-                    "Late-night surcharges in some bars and in taxis after 10 pm.",
+                  steps: [
+                    { title: "Ladle in your right hand", text: "Scoop up water and pour a little over your left hand." },
+                    { title: "Swap hands", text: "Ladle in the left, pour over your right hand." },
+                    { title: "Rinse your mouth", text: "Pour a little into your cupped left hand and sip from that, never from the ladle. Spit it out discreetly by the basin, not back in. Skip this step if you prefer — many do." },
+                    { title: "Rinse the handle", text: "Tip the ladle upright so the last water runs down the handle, and put it back." },
                   ],
                 },
+                { h: "Praying at a shrine" },
                 {
-                  heading: "If you want to say thank you",
-                  text: "Say it: “gochisōsama deshita” as you leave a restaurant — literally “it was a feast” — is the warmest thing you can give. At a ryokan, some guests leave a small gift or money in an envelope for the room attendant, but it's never expected.",
+                  steps: [
+                    { title: "Drop a coin in the box", text: "Any amount. A ¥5 coin, go-en, sounds like “good connection”, so it's thought lucky." },
+                    { title: "Ring the bell", text: "If there's a rope, shake it to let the kami know you're there." },
+                    { title: "Bow twice, clap twice", text: "Deep bows, then two claps with your hands together at chest height." },
+                    { title: "Make your wish", text: "Silently, hands together." },
+                    { title: "Bow once more", text: "One deep bow to finish." },
+                  ],
+                },
+                { h: "Praying at a temple" },
+                { p: "Quieter: no clapping. Drop a coin, put your hands together, bow your head and make your wish. If there's a large incense burner, you can buy a bundle of sticks, light them, and waft the smoke over yourself — it's said to heal whatever part of you it touches." },
+                {
+                  dos: ["Walk to the side of a shrine's path — the centre is for the kami", "Bow slightly as you pass through the gate", "Take off your shoes where there's a step up into a hall"],
+                  donts: ["Photograph inside halls where a sign says no", "Clap at a temple", "Eat or smoke in the grounds"],
+                },
+                { note: "Try a fortune, **omikuji**, from a box for a coin or two. If it's bad, tie it to the rack provided and leave the bad luck behind. And buy a book for temple seals — see “Stamps everywhere” in Understand.", title: "Tip" },
+              ],
+              words: [
+                { local: "神社", say: "jinja", means: "shrine" },
+                { local: "お寺", say: "o-tera", means: "temple" },
+                { local: "おみくじ", say: "omikuji", means: "fortune slip" },
+                { local: "お守り", say: "omamori", means: "protective charm" },
+              ],
+            },
+            {
+              title: "Restaurant manners",
+              summary: "From the shout at the door to saying thank you on the way out",
+              body: [
+                { p: "Eating out in Japan is relaxed — nobody expects a visitor to know every custom, and asking for a fork is fine. But a meal follows a familiar shape, and knowing it makes everything smoother." },
+                { h: "How a meal goes" },
+                {
+                  steps: [
+                    { title: "You're greeted with a shout", text: "**“Irasshaimase!”** — welcome. You don't need to answer; a smile or nod is plenty." },
+                    { title: "Show how many you are", text: "Hold up fingers. Wait to be seated unless there's a ticket machine by the door — then buy your meal there first." },
+                    { title: "Wipe your hands", text: "The hot or cold towel, **oshibori**, is for hands. Wiping your face with it is something only tired salarymen get away with." },
+                    { title: "Say itadakimasu", text: "Before eating — “I humbly receive”. It's like saying grace." },
+                    { title: "Ask for the bill", text: "Catch someone's eye and say “o-kaikei onegaishimasu”, or make a small X with your index fingers." },
+                    { title: "Pay at the front", text: "Most places want you to take the bill to the till by the door rather than paying at the table." },
+                    { title: "Say thank you as you leave", text: "**“Gochisōsama deshita”** — “it was a feast”. Staff love hearing it." },
+                  ],
+                },
+                { h: "Chopsticks" },
+                { p: "Two gestures make people wince, because both are part of Buddhist funerals: rice with chopsticks stuck upright in it is the offering left for the dead, and passing food chopstick to chopstick is how relatives pass bones after a cremation." },
+                {
+                  dos: ["Rest chopsticks on the little holder, or the edge of the tray", "Use the serving chopsticks for shared plates", "Lift your rice or soup bowl to your mouth"],
+                  donts: ["Stand chopsticks upright in rice", "Pass food from chopsticks to chopsticks", "Point or wave with them"],
+                },
+                { h: "What surprises people" },
+                {
+                  terms: [
+                    { term: "Slurping is fine", text: "With noodles it's normal, even polite — it cools them and shows you're enjoying them." },
+                    { term: "No tipping", text: "Ever. Leave money behind and they may chase you to give it back." },
+                    { term: "The surprise starter", text: "Many izakaya bring a small dish, **otōshi**, you didn't order and add a few hundred yen for it. It's a cover charge, not a scam." },
+                    { term: "Pour for others", text: "When sharing a bottle, fill other people's glasses, never your own — someone will fill yours." },
+                  ],
                 },
               ],
               words: [
-                { local: "ごちそうさまでした", say: "gochisōsama deshita", means: "thank you for the meal (as you leave)" },
-                { local: "お通し", say: "otōshi", means: "the small paid starter at an izakaya" },
+                { local: "いらっしゃいませ", say: "irasshaimase", means: "welcome (you'll hear it everywhere)" },
+                { local: "いただきます", say: "itadakimasu", means: "said before eating" },
+                { local: "お会計お願いします", say: "o-kaikei onegaishimasu", means: "the bill, please" },
+                { local: "ごちそうさまでした", say: "gochisōsama deshita", means: "thank you for the meal" },
               ],
             },
             {
-              title: "Why there are no bins",
-              summary: "One of the cleanest countries has almost nowhere to throw things away",
-              text: [
-                "Visitors are always surprised: the streets are spotless, yet you can walk for an hour without passing a rubbish bin. Most public bins were taken away after the **1995 sarin gas attack** on the Tokyo subway, when the cult Aum Shinrikyō left nerve agent in packages on trains. Bins were seen as places to hide things, and they never came back.",
-                "The habit that grew up instead is simple: you carry your rubbish home.",
-              ],
-              parts: [
+              title: "Out and about",
+              summary: "Trains, escalators, rubbish and smoking — the street's quiet rules",
+              body: [
+                { p: "Japanese cities run on a lot of small, shared courtesies. None are hard, and most come from the same idea: in a crowded country, try not to bother the people around you." },
+                { h: "On trains" },
+                { p: "A packed commuter train is remarkably quiet. Visitors chatting at normal volume can be the loudest people in the carriage without realising it." },
                 {
-                  heading: "Where you can throw things",
-                  points: [
-                    "Beside vending machines — but only for bottles and cans.",
-                    "Inside convenience stores, for what you bought there.",
-                    "On station platforms, sorted by type.",
-                    "Your hotel room.",
-                  ],
+                  dos: ["Put your phone on silent — **manner mode**", "Wear your backpack on your front, or put it on the rack", "Queue at the marked lines on the platform and let people off first"],
+                  donts: ["Make phone calls", "Sit in the **priority seats** near the doors if others need them", "Eat on local trains — though on the shinkansen it's normal"],
                 },
+                { h: "On escalators" },
+                { p: "People stand on one side and leave the other free to walk. Which side depends on the city:" },
                 {
-                  heading: "Sorting",
-                  text: "Bins are split into burnable, PET bottles, cans and glass, and sometimes plastic. Bottle caps and labels often go separately from the bottle. Follow the pictures on the bin.",
+                  table: {
+                    head: ["Where", "Stand on the"],
+                    rows: [
+                      ["Tokyo and the east", "Left"],
+                      ["Osaka and much of Kansai", "Right"],
+                      ["Kyoto", "Mixed — copy the person in front"],
+                    ],
+                  },
                 },
-              ],
-              tip: "Keep a small plastic bag in your day bag for wrappers and empty bottles.",
-            },
-            {
-              title: "Smoking is the other way round",
-              summary: "Banned on the street, sometimes allowed indoors",
-              text: [
-                "Many visitors expect it the other way. Much of central Tokyo, Kyoto and Osaka bans smoking while walking in the street, with fines in some wards, and smokers gather in marked **smoking areas** — glass booths or fenced corners near stations.",
-                "Indoors, a 2020 law banned smoking in most restaurants, but small bars and some older izakaya can still allow it, and some places have a separate smoking room.",
-              ],
-              parts: [
-                {
-                  heading: "How to tell",
-                  text: "Look for a sticker on the door: 喫煙可 means smoking allowed, 禁煙 means no smoking. If you hate smoke, check before you sit down in a small bar.",
-                },
+                { p: "Rail companies now ask everyone to stand still on both sides for safety, and Saitama and Nagoya have made it a rule. You'll never be told off for standing." },
+                { h: "Rubbish — and where the bins went" },
+                { p: "The streets are spotless, yet there are hardly any bins. Most were removed after the **1995 sarin gas attack** on the Tokyo subway, when bins were seen as hiding places, and they never came back. The habit instead is to carry your rubbish home." },
+                { list: ["Bins next to **vending machines** take bottles and cans only.", "**Convenience stores** have bins for what you bought there.", "Station platforms have sorted bins: burnable, bottles, cans."] },
+                { note: "Keep a small bag in your day bag for wrappers and empty bottles.", title: "Tip" },
+                { h: "Eating while walking" },
+                { p: "Generally seen as a bit sloppy. People stand by the stall, finish, and hand back the stick before moving on. Some busy streets — Nakamise in Asakusa, Nishiki Market in Kyoto — have signs asking you not to eat on the move. Drinking water or tea as you walk is always fine." },
+                { h: "Smoking" },
+                { p: "It's the reverse of what many people expect: smoking in the street is **banned** in much of central Tokyo, Kyoto and Osaka, with fines in some wards, so smokers use marked smoking areas. Yet some small bars and izakaya still allow it inside. A sticker on the door tells you: **禁煙** no smoking, **喫煙可** smoking allowed." },
               ],
               words: [
+                { local: "優先席", say: "yūsen-seki", means: "priority seats" },
                 { local: "禁煙", say: "kin'en", means: "no smoking" },
                 { local: "喫煙所", say: "kitsuen-jo", means: "smoking area" },
               ],
             },
             {
-              title: "Eating while walking",
-              summary: "Street food is eaten where you buy it",
-              text: [
-                "Walking down the street eating is widely seen as a bit sloppy. People tend to stand next to the stall, finish what they've bought, and hand back the stick or wrapper before moving on — which also solves the problem of having no bins.",
-                "Some busy tourist streets have made it an explicit rule, with signs asking you not to eat on the move: Nakamise in Asakusa, Nishiki Market in Kyoto, the lanes up to Kiyomizu-dera and Kamakura's Komachi-dōri among them.",
-              ],
-              parts: [
+              title: "Paying",
+              summary: "Card works almost everywhere now — but here's when you'll still want cash",
+              body: [
+                { p: "Japan used to be famously cash-only. Today you can pay by card or phone in nearly every hotel, chain, department store and station, and an IC card like Suica covers most small things. But cash hasn't gone, and a few habits around paying are worth knowing." },
+                { h: "When you'll still need cash" },
+                { list: ["Temple and garden entry fees, shrine charms and stamps", "Small family restaurants and old-style bars", "Market stalls and festival food", "Rural buses and some coin lockers"] },
+                { h: "Getting cash" },
+                { p: "Many bank ATMs don't take foreign cards. These do, with an English menu:" },
                 {
-                  heading: "Where it's fine",
-                  text: "Festivals, where whole streets of food stalls are the point. An ice cream on a bench in a park. And drinking from a bottle of water or tea anywhere at all — that's never a problem.",
-                },
-              ],
-              tip: "Look for a little standing area or bench next to the stall — it's there because people are expected to use it.",
-            },
-            {
-              title: "Quiet on trains",
-              summary: "Silent phones, low voices, bags off your back",
-              text: [
-                "A packed Tokyo train is remarkably quiet. The idea is to leave everyone else in peace, and visitors who carry on a normal conversation can be the loudest people in the carriage.",
-              ],
-              parts: [
-                {
-                  heading: "The short list",
-                  points: [
-                    "No phone calls. Switch to silent, or **manner mode** as it's called here.",
-                    "Talk quietly, if at all.",
-                    "Take your backpack off and hold it in front of you or put it on the rack.",
-                    "Leave the **priority seats** near the doors free for older people, pregnant women and anyone with an injury.",
-                    "Let people off first; queue in the marked lines on the platform.",
+                  terms: [
+                    { term: "7-Eleven", text: "In almost every 7-Eleven, many open all night. The easy default." },
+                    { term: "Japan Post", text: "In post offices. Shorter hours, especially at weekends." },
+                    { term: "Aeon", text: "In Aeon shopping centres and some supermarkets." },
                   ],
                 },
+                { note: "When a cash machine or card terminal offers to charge you in your own currency, always choose **yen**. Their exchange rate is worse than your bank's.", kind: "warning", title: "Always pick yen" },
+                { h: "At the till" },
                 {
-                  heading: "Long-distance trains are different",
-                  text: "On the shinkansen and limited expresses, eating and drinking is normal — buying a boxed lunch at the station is half the fun. Calls are still made in the space between carriages.",
-                },
-              ],
-              words: [{ local: "優先席", say: "yūsen-seki", means: "priority seats" }],
-            },
-            {
-              title: "Chopsticks",
-              summary: "Two gestures to avoid, both from funerals",
-              text: [
-                "Nobody expects a visitor to be an expert with chopsticks, and asking for a fork is fine. But two things genuinely make people wince, because both echo Buddhist funeral rites.",
-              ],
-              parts: [
-                {
-                  heading: "The two to avoid",
-                  points: [
-                    "**Standing chopsticks upright in rice.** A bowl of rice with chopsticks stuck in it is placed at the altar for the dead.",
-                    "**Passing food from chopsticks to chopsticks.** At a cremation, relatives pass the bones this way.",
+                  steps: [
+                    { title: "Use the little tray", text: "Put your cash or card in it rather than handing it over." },
+                    { title: "Tap or insert the card yourself", text: "The cashier often turns the terminal towards you. If they ask “ikkai?”, it's whether to charge it in one go — say “hai”." },
+                    { title: "Change comes back counted", text: "Notes are counted out in front of you, then coins and receipt, sometimes with both hands." },
                   ],
                 },
-                {
-                  heading: "Smaller things",
-                  points: [
-                    "Rest them on the holder (hashioki) when you pause, or on the edge of the tray — not across the top of your bowl.",
-                    "Don't point with them or wave them about while talking.",
-                    "To take food from a shared plate, use the serving chopsticks if there are any.",
-                    "Disposable chopsticks: don't rub them together to remove splinters — it implies they're cheap.",
-                  ],
-                },
+                { p: "And no tipping — not in restaurants, taxis or hotels. Service is simply part of the price." },
+                { note: "Coins pile up fast. Spend them at convenience stores and vending machines, or drop ¥5 coins in shrine offering boxes — they're the lucky ones.", title: "Tip" },
               ],
             },
             {
-              title: "Bowing",
-              summary: "Nobody expects a visitor to bow — but a nod goes a long way",
-              text: [
-                "Bowing is everywhere: shop staff bow as you leave, train conductors bow as they enter the carriage, people bow while on the phone. It says hello, thank you, sorry and goodbye.",
-                "You're not expected to master it. A small nod of the head with a smile, and a **thank you**, is perfect — and is what most Japanese people do in everyday situations anyway.",
-              ],
-              parts: [
+              title: "Bowing and greetings",
+              summary: "Nobody expects a visitor to bow — a nod and a few words go a long way",
+              body: [
+                { p: "Bowing is everywhere: shop staff bow as you leave, conductors bow as they enter the carriage, people bow while on the phone. It says hello, thank you, sorry and goodbye all at once." },
+                { p: "You're not expected to master it. A small nod with a smile, plus a thank you in Japanese, is perfect — and it's what most people do day to day anyway." },
+                { h: "How deep" },
                 {
-                  heading: "How deep",
-                  text: "The deeper and longer the bow, the more respect or apology it carries. A slight nod is casual; a bow from the waist of about 30° is polite; a deep bow is for serious apologies and formal moments. Men usually keep their hands at their sides, women often in front.",
+                  table: {
+                    head: ["Bow", "Means"],
+                    rows: [
+                      ["A nod of the head", "Hello, thanks — everyday"],
+                      ["About 15°", "A polite greeting"],
+                      ["About 30°", "Respect — meeting someone, a formal thank you"],
+                      ["45° and held", "A deep apology"],
+                    ],
+                  },
                 },
+                { p: "You don't need to bow back to shop staff, conductors or hotel doormen — it's part of their job and no reply is expected." },
+                { h: "Five phrases that do most of the work" },
                 {
-                  heading: "Don't bow back to everything",
-                  text: "You don't need to return the bow of a shop assistant or a conductor — it's part of their job, and nobody expects a reply.",
+                  terms: [
+                    { term: "Sumimasen", text: "Excuse me, sorry, and thank-you-for-the-trouble. The most useful word in Japan." },
+                    { term: "Arigatō gozaimasu", text: "Thank you, politely." },
+                    { term: "Konnichiwa", text: "Hello, during the day." },
+                    { term: "Daijōbu desu", text: "I'm fine / no thanks — for a bag you don't need, or help you don't want." },
+                    { term: "… kudasai", text: "Please give me … — point at the menu and say “kore, kudasai”, this one, please." },
+                  ],
                 },
               ],
               words: [
+                { local: "すみません", say: "sumimasen", means: "excuse me / sorry" },
                 { local: "ありがとうございます", say: "arigatō gozaimasu", means: "thank you" },
-                { local: "すみません", say: "sumimasen", means: "excuse me / sorry / thank you for the trouble" },
+                { local: "大丈夫です", say: "daijōbu desu", means: "I'm fine / no thank you" },
+                { local: "これください", say: "kore kudasai", means: "this one, please" },
               ],
             },
           ],
@@ -1378,158 +1401,110 @@ export const japan: CountryGuide = {
           items: [
             {
               title: "Carry your passport",
-              summary: "Required by law for every short-stay visitor, every day",
-              text: [
-                "Foreign visitors must carry their **passport** with them at all times — it's the law, not a suggestion. Police can ask to see it, and occasionally do, especially around big stations and nightlife areas. Not having it can mean a trip to the police box while they check, and in theory a fine.",
-                "A photo or photocopy doesn't count. Residents carry a residence card instead; as a tourist, the passport is your ID.",
+              summary: "The law says every visitor carries it, every day",
+              body: [
+                { p: "As a short-stay visitor you're required by law to carry your **passport** at all times. Police can ask to see it, and occasionally do — usually around big stations and nightlife areas. Without it, you can be taken to the police box while they check who you are." },
+                { note: "A photo or photocopy doesn't count. It has to be the real thing.", kind: "warning", title: "Copies aren't enough" },
+                { h: "You'll also need it for" },
+                { list: ["Checking in at every hotel — they must copy it by law", "Tax-free shopping", "Collecting rail passes and some tickets", "Renting a car, bike or pocket wifi"] },
+                { note: "A slim zip pouch inside your day bag keeps it safe without being a nuisance.", title: "Tip" },
               ],
-              parts: [
-                {
-                  heading: "Other times you'll need it",
-                  points: [
-                    "Checking in at every hotel — they're required to copy it.",
-                    "Tax-free shopping.",
-                    "Collecting rail passes and some tickets.",
-                    "Renting a car, a bike or a pocket wifi.",
-                  ],
-                },
-              ],
-              tip: "A slim pouch that zips inside a bag keeps it safe without it being a nuisance all day.",
             },
             {
               title: "Check your medicines",
-              summary: "Some everyday Western medicines are banned — check before you pack",
-              text: [
-                "Japan's drug laws are strict, and some medicines that are ordinary at home are illegal here. People are detained at the airport every year for something they bought at a pharmacy without a second thought.",
-              ],
-              parts: [
+              summary: "Some ordinary medicines from home are illegal here",
+              body: [
+                { p: "Japan's drug laws are strict, and a few medicines that you can buy at any pharmacy at home are banned here. Every year visitors are stopped at the airport over something they packed without a second thought — so it's worth five minutes before you go." },
                 {
-                  heading: "Not allowed",
-                  points: [
-                    "**Stimulants**, including ADHD medicines such as Adderall — banned outright, even with a prescription.",
-                    "Cold and allergy medicines with a high dose of **pseudoephedrine** (Sudafed and similar).",
-                    "Anything containing **CBD with THC**, or cannabis in any form.",
-                    "Some strong painkillers with codeine need a permit.",
-                  ],
+                  table: {
+                    head: ["Medicine", "In Japan"],
+                    rows: [
+                      ["ADHD stimulants, e.g. Adderall", "**Banned**, even with a prescription"],
+                      ["Strong pseudoephedrine cold medicine, e.g. Sudafed", "**Banned** above a low dose"],
+                      ["CBD with any THC, cannabis", "**Banned**"],
+                      ["Codeine painkillers", "Limited — may need a permit"],
+                      ["Most prescriptions", "Fine, up to a month's supply"],
+                      ["Most over-the-counter medicines", "Fine, up to two months' supply"],
+                    ],
+                  },
                 },
-                {
-                  heading: "Bringing a supply",
-                  text: "You can bring up to **a month's supply** of a prescription medicine, or **two months'** of an over-the-counter one, without paperwork. Anything more needs an import certificate, the **Yakkan Shōmei**, applied for online through the health ministry before you travel.",
-                },
+                { h: "Bringing more" },
+                { p: "Anything over those amounts needs an import certificate, the **Yakkan Shōmei**, applied for online through the health ministry before you travel. It's free; allow a couple of weeks." },
+                { note: "Keep medicines in their original boxes with a copy of the prescription, in your hand luggage.", title: "Tip" },
               ],
-              tip: "Keep medicines in their original packaging with a copy of the prescription, in your hand luggage.",
             },
             {
               title: "Tax-free is changing",
-              summary: "From November 2026 you pay the tax and get it back at the airport",
-              facts: [
-                { label: "Starts", value: "1 November 2026" },
-                { label: "Tax", value: "10%, 8% on food" },
-              ],
-              text: [
-                "Until now, shops with a tax-free sign took the 10% consumption tax off at the till when you showed your passport. From **1 November 2026** that changes to a refund system: you pay the full price, and the tax comes back after customs confirm, as you leave Japan, that you're taking the goods with you.",
-              ],
-              parts: [
+              summary: "From November 2026 you pay the tax, then get it back as you leave",
+              body: [
+                { p: "Shops with a tax-free sign let visitors skip Japan's consumption tax. Until now it came off at the till. From **1 November 2026** it works as a refund instead: you pay the full price, and get the tax back once customs has seen, as you leave Japan, that the goods are going with you." },
                 {
-                  heading: "What to do",
-                  points: [
-                    "Show your passport when you pay; the shop registers the purchase electronically.",
-                    "Keep the goods unused until customs has seen them.",
-                    "Carry them in your hand luggage, or have them checked at customs before you check your bag in.",
-                    "Allow extra time at the airport for the customs check.",
+                  stats: [
+                    { value: "10%", label: "tax back (8% on food)" },
+                    { value: "¥5,000", label: "minimum per shop, per day" },
+                    { value: "90 days", label: "to leave Japan" },
                   ],
                 },
+                { h: "How it works" },
                 {
-                  heading: "What counts",
-                  text: "You need to spend at least ¥5,000 before tax in one shop on one day. The old split between general goods and consumables, the ¥500,000 cap and the sealed bags all go. You have to leave Japan within 90 days of buying for the refund to stand.",
-                },
-              ],
-            },
-            {
-              title: "Not every ATM takes your card",
-              summary: "Use 7-Eleven or Japan Post, and carry some cash",
-              text: [
-                "Japan is much more card-friendly than it used to be, but it's not cash-free. Small restaurants, temple entrance fees, shrine charms, market stalls and rural buses can be cash only.",
-                "Many bank ATMs don't accept foreign cards. The ones that reliably do are at **7-Eleven** (Seven Bank), **Japan Post** offices and **Aeon** — all with an English menu.",
-              ],
-              parts: [
-                {
-                  heading: "Good to know",
-                  points: [
-                    "7-Eleven ATMs are inside almost every 7-Eleven and many are open around the clock.",
-                    "Post office ATMs keep shorter hours, especially at weekends.",
-                    "Take out larger sums less often — your bank's fee is per withdrawal.",
-                    "When an ATM or card terminal offers to charge you in your home currency, choose yen. The conversion they offer is always worse.",
+                  steps: [
+                    { title: "Show your passport when you pay", text: "The shop registers the purchase electronically." },
+                    { title: "Keep the goods unused", text: "Until customs has seen them." },
+                    { title: "Carry them in your hand luggage", text: "Or have them checked before you check a bag in." },
+                    { title: "Stop at customs at the airport", text: "They confirm the goods and your refund goes through." },
                   ],
                 },
+                { p: "The good news: the old rules about sealed bags, the split between “general goods” and “consumables”, and the cap on consumables all go." },
+                { note: "Leave extra time at the airport for the customs check, especially if you've bought a lot.", kind: "warning", title: "Allow time" },
               ],
-              tip: "A ¥10,000 note is fine to pay with anywhere, even for a ¥150 drink — nobody will sigh at you.",
             },
             {
               title: "Touts",
-              summary: "The one scam to know about, in nightlife districts",
-              text: [
-                "Japan is one of the safest countries in the world, with one notable exception. In nightlife areas such as **Kabukichō** in Shinjuku and **Roppongi**, touts on the street invite passers-by into bars with promises of cheap drinks.",
-                "Inside, the bill can run to hundreds of thousands of yen, sometimes with drinks spiked and cards charged while the victim is out of it. The US and UK embassies warn about it every year.",
-              ],
-              parts: [
+              summary: "The one scam to know about in a very safe country",
+              body: [
+                { p: "Japan is one of the safest places you'll ever travel. The exception is a few nightlife districts — **Kabukichō** in Shinjuku and **Roppongi** above all — where touts on the street invite passers-by into bars with promises of cheap drinks or free entry." },
+                { p: "Inside, the bill can run to hundreds of thousands of yen. Sometimes drinks are spiked and cards charged while the victim can't object. Embassies warn about it every year." },
                 {
-                  heading: "How to avoid it",
-                  points: [
-                    "Never follow anyone from the street into a bar.",
-                    "Choose places yourself, with prices on a menu outside.",
-                    "Keep an eye on your drink.",
-                  ],
+                  dos: ["Choose bars yourself, with prices posted outside", "Keep an eye on your drink"],
+                  donts: ["Follow anyone from the street into a bar", "Hand over your card to be taken away"],
                 },
+                { note: "Ordinary bars and izakaya don't need touts. If someone's working hard to get you inside, walk on.", title: "The rule of thumb" },
               ],
-              tip: "Ordinary bars and izakaya don't need touts. If someone is working hard to get you in, walk on.",
             },
             {
               title: "Drones and photos",
-              summary: "Drones need a permit almost everywhere, and some places say no photos",
-              text: [
-                "Flying a drone over any built-up area, near airports, over crowds or at night needs a permit from the transport ministry, and most parks and temples ban them anyway. Drones over 100 g must also be registered. For a holiday, it's simplest to leave it at home.",
-              ],
-              parts: [
-                {
-                  heading: "Where cameras aren't welcome",
-                  points: [
-                    "Inside many temple halls, where sacred statues are kept — look for the crossed-out camera sign.",
-                    "Gion's private lanes in Kyoto, where signs warn of a fine for photographers who chase geiko and maiko.",
-                    "Some shops, markets and restaurants, especially of the food and of other customers.",
-                    "People on trains, without asking.",
-                  ],
-                },
-                {
-                  heading: "Why your phone makes a noise",
-                  text: "Phones sold in Japan play a shutter sound you can't switch off — a rule the makers agreed to stop secret photos. Yours won't, but it's why the click is everywhere.",
-                },
+              summary: "Leave the drone at home, and watch for no-photo signs",
+              body: [
+                { p: "Flying a drone over any built-up area, near airports, over crowds or at night needs a permit from the transport ministry, and most parks and temples ban them anyway. Any drone over 100 g also has to be registered. For a holiday, it's simplest not to bring one." },
+                { h: "Where cameras aren't welcome" },
+                { list: ["Inside many temple halls — look for a crossed-out camera", "Gion's private lanes in Kyoto, where signs warn of a fine for photographing geiko and maiko", "Some shops, markets and restaurants", "Strangers, especially on trains, without asking"] },
+                { p: "You'll notice every Japanese phone makes a loud shutter click that can't be switched off. Makers agreed to it to stop secret photos — yours won't, but now you know where the noise comes from." },
               ],
               words: [{ local: "撮影禁止", say: "satsuei kinshi", means: "no photography" }],
             },
             {
-              title: "Earthquake alerts",
+              title: "Earthquakes",
               summary: "Small tremors are normal — here's what to do if one isn't",
-              text: [
-                "Japan has around a fifth of the world's strong earthquakes, and you may well feel a small tremor during a trip. Buildings are built for it, and most quakes pass in seconds.",
-                "Phones in Japan sound a loud alarm a few seconds before strong shaking arrives. It's alarming the first time, and it's meant to be.",
-              ],
-              parts: [
+              body: [
+                { p: "Japan sits where four tectonic plates meet, and it has around a fifth of the world's strong earthquakes. You may well feel a small tremor on your trip: a sway, a rattle of glasses, and it's over. Buildings are made for it." },
+                { p: "Phones in Japan blare an alarm a few seconds before strong shaking arrives. It's startling the first time, and it's meant to be — it's your cue to act." },
+                { h: "If it shakes hard" },
                 {
-                  heading: "If it shakes hard",
-                  points: [
-                    "Indoors: get under a sturdy table and hold on, away from windows. Don't run outside.",
-                    "Outside: move away from buildings, glass and vending machines.",
-                    "On a train: hold on; it will stop automatically.",
-                    "On the coast: if the shaking is strong or long, go to high ground straight away without waiting for a warning. Follow the blue tsunami evacuation signs.",
-                  ],
+                  table: {
+                    head: ["Where you are", "What to do"],
+                    rows: [
+                      ["Indoors", "Get under a sturdy table and hold on, away from windows. Don't run outside."],
+                      ["Outside", "Move away from buildings, glass and vending machines."],
+                      ["On a train", "Hold on — it stops automatically."],
+                      ["By the sea", "Go to high ground at once, without waiting for a warning."],
+                    ],
+                  },
                 },
-                {
-                  heading: "Stay informed",
-                  text: "**Safety Tips**, a free app from the Japan Tourism Agency, sends earthquake, tsunami and weather warnings in English. NHK World also broadcasts in English during big events.",
-                },
+                { note: "If the shaking is strong or long and you're near the coast, head uphill or to the upper floors of a tall, solid building straight away. Follow the blue tsunami evacuation signs.", kind: "warning", title: "Tsunami" },
+                { h: "Stay informed" },
+                { p: "**Safety Tips**, a free app from the Japan Tourism Agency, sends earthquake, tsunami and weather warnings in English. NHK World broadcasts in English during big events." },
+                { note: "Glance at the evacuation map on the back of your hotel room door when you arrive.", title: "Tip" },
               ],
-              tip: "Your hotel room door has an evacuation map on the back — give it a glance when you arrive.",
             },
           ],
         },
@@ -1542,107 +1517,114 @@ export const japan: CountryGuide = {
       summary: "Trains, bullet trains, and travelling light",
       blocks: [
         {
-          title: "Trains",
+          title: "Trains and subways",
           items: [
             {
-              title: "Suica on your phone",
-              summary: "Tap your iPhone at the gate — no ticket, no unlocking",
-              text: [
-                "An IC card is the single most useful thing to have in Japan, and on an iPhone it lives in Apple Wallet. Add a **Suica** (or PASMO) card in Wallet, top it up with your bank card, and tap the phone on the gate reader as you go through. You don't need to unlock it or open anything — it works even when the battery has just run out, for a few hours, thanks to the power reserve.",
-                "The fare is worked out automatically from where you entered and left, so you never have to read a fare chart again.",
-              ],
-              parts: [
+              title: "Your first train ride",
+              summary: "From the ticket gate to the right exit, one step at a time",
+              body: [
+                { p: "Japan's trains look intimidating on a map, and are wonderfully easy in practice: everything is signposted in English, trains leave on the minute, and an IC card on your phone takes care of fares. Here's how a journey goes." },
                 {
-                  heading: "It pays for more than trains",
-                  points: [
-                    "Subways and most city buses.",
-                    "Convenience stores, many cafés and chains.",
-                    "Vending machines and coin lockers.",
-                    "Taxis in the big cities.",
+                  steps: [
+                    { title: "Plan it in a map app", text: "Google or Apple Maps give you the line, the platform, the best car to board and the exit to use. Note the **line name** and the **direction** — the last stop it's heading to." },
+                    { title: "Tap through the gate", text: "Hold your phone or IC card on the reader. The fare is worked out when you leave, so you don't need to know it." },
+                    { title: "Follow the line's colour and letter", text: "Every line has a colour and a letter, every station a number: **G 09** is the Ginza Line, stop 9. Following those is easier than reading names." },
+                    { title: "Wait at the marked spot", text: "Lines and numbers on the platform show where each car's doors will open. Queue to the side and let people off first." },
+                    { title: "Check the train type", text: "Local trains stop everywhere; rapid, express and limited express skip stations. The board and the train's front show which it is." },
+                    { title: "Change if you need to", text: "Follow the orange or green transfer signs. Changing between companies may mean a second set of gates — just tap again." },
+                    { title: "Find your exit before you go up", text: "Yellow signs on the platform list the exits and what's near each. In a big station, the wrong one can leave you a ten-minute walk away." },
                   ],
                 },
+                { h: "How big stations get" },
                 {
-                  heading: "On Android",
-                  text: "Android phones bought outside Japan usually can't add a Suica card. Buy a physical one instead: a **Welcome Suica** for visitors at Narita or Haneda airport, or a PASMO or ICOCA at a big station's machines.",
-                },
-              ],
-              tip: "Set Suica as the Express Transit card in Wallet, and top it up before a long day — the gates beep and stop you if the balance is short, and you'll need to fix it at a fare-adjust machine.",
-            },
-            {
-              title: "IC cards work almost everywhere",
-              summary: "One card for trains, subways and buses across most of the country",
-              text: [
-                "Japan has around ten regional IC cards — **Suica** and **PASMO** in Tokyo, **ICOCA** in Kansai, **manaca** in Nagoya, **SUGOCA** in Kyushu and others — but they all work on each other's networks. A Suica bought in Tokyo pays for a bus in Kyoto or a subway in Fukuoka.",
-                "Increasingly, you can also simply tap a contactless bank card or phone at the gate. Osaka Metro takes them at every station, and more private lines are adding it.",
-              ],
-              parts: [
-                {
-                  heading: "Where it can catch you out",
-                  points: [
-                    "Crossing between regions in one journey — a single IC fare can't cover a trip from one card area into another. Buy a ticket for that one.",
-                    "Some rural lines and buses still take cash only.",
-                    "Bullet trains need a proper ticket, though some can be linked to your IC card in advance.",
+                  stats: [
+                    { value: "200+", label: "exits at Shinjuku" },
+                    { value: "3 M", label: "people a day, roughly, at Shinjuku" },
                   ],
                 },
-                {
-                  heading: "On a bus",
-                  text: "On most city buses you tap on as you board and tap off as you leave. On a flat-fare bus you may tap only once. If you pay cash, there's a change machine by the driver — and taking a numbered ticket as you board tells the driver where you got on.",
-                },
-              ],
-            },
-            {
-              title: "Two subways in Tokyo",
-              summary: "Tokyo Metro and Toei are different companies",
-              text: [
-                "Tokyo has two subway operators: **Tokyo Metro**, with nine lines, and **Toei**, the city government's own, with four. They share stations and maps, but they're separate companies with separate fares.",
-                "Changing from one to the other means a second fare — a discount brings it down a little — and sometimes walking out through one set of gates and in through another. With an IC card all of this happens automatically; you just tap.",
-              ],
-              parts: [
-                {
-                  heading: "Lines that become other lines",
-                  text: "Many subway lines run straight on to private railways at the end of the line — a Hanzōmon Line train can turn into a Tōkyū train heading out to the suburbs. Check the destination on the front of the train, not just the colour.",
-                },
-              ],
-              tip: "Each line has a colour and a letter, and each station a number — G 09 is Ginza Line, stop 9. Following those is easier than reading names.",
-            },
-            {
-              title: "Find your exit first",
-              summary: "In a big station, the right exit matters more than the right platform",
-              text: [
-                "Shinjuku station has over 200 exits. Tokyo, Osaka-Umeda and Kyoto stations aren't far behind. Come out of the wrong one and the place you're going may be a ten- or fifteen-minute walk round the block.",
-                "Exits are numbered and lettered, and signposted in **yellow** on the platforms. Map apps tell you which one to take.",
-              ],
-              parts: [
-                {
-                  heading: "How locals do it",
-                  points: [
-                    "Check the exit before you arrive.",
-                    "On the platform, look for the yellow exit signs and the station map nearby.",
-                    "Many platforms show which car stops nearest each exit or staircase — board that car.",
-                    "If you're lost, ask at the station's ticket office or information desk — staff are used to it.",
-                  ],
-                },
+                { p: "Shinjuku is the world's busiest station, and Tokyo, Umeda in Osaka and Kyoto Station aren't far behind. None of them are worth fighting: give yourself time, follow the yellow signs, and ask at a ticket office if you're lost — staff are used to it." },
+                { note: "Many platforms show which car stops nearest each exit or staircase. Boarding that car saves a long walk at the other end.", title: "Tip" },
               ],
               words: [
                 { local: "出口", say: "deguchi", means: "exit" },
                 { local: "改札", say: "kaisatsu", means: "ticket gates" },
                 { local: "乗り換え", say: "norikae", means: "change trains" },
+                { local: "各駅停車", say: "kakueki teisha", means: "local train, all stops" },
+              ],
+            },
+            {
+              title: "Suica and IC cards",
+              summary: "The one thing to set up before you land",
+              body: [
+                { p: "An IC card is a tap-and-go travel card, and it's the most useful thing you can have in Japan. It pays for trains, subways and buses, and also for convenience stores, vending machines, lockers and many cafés. On an iPhone it lives in Apple Wallet, so you never need a physical card." },
+                { h: "Setting it up on iPhone" },
+                {
+                  steps: [
+                    { title: "Open Wallet and tap +", text: "Choose Transit Card, then **Suica** (or PASMO)." },
+                    { title: "Top it up", text: "Add money with your bank card, right there in Wallet." },
+                    { title: "Make it the Express Transit card", text: "Wallet offers this. It means you just hold the phone to the gate — no unlocking, no Face ID." },
+                    { title: "Tap at every gate", text: "In and out. It even works for a few hours after the battery dies, thanks to the power reserve." },
+                  ],
+                },
+                { h: "On Android" },
+                { p: "Phones bought outside Japan usually can't add Suica. Buy a physical card instead: a **Welcome Suica** for visitors at Narita or Haneda airport, or a PASMO or ICOCA from a big station's ticket machine." },
+                { h: "One card, the whole country" },
+                { p: "There are about ten regional cards, but they all work on each other's networks, so a Suica from Tokyo pays for a bus in Kyoto or the subway in Fukuoka." },
+                {
+                  terms: [
+                    { term: "Suica, PASMO", text: "Tokyo and eastern Japan" },
+                    { term: "ICOCA", text: "Osaka, Kyoto and western Japan" },
+                    { term: "manaca, TOICA", text: "Nagoya and around" },
+                    { term: "SUGOCA, nimoca", text: "Kyushu" },
+                  ],
+                },
+                { note: "One IC fare can't cross from one region's network into another's in a single journey — for that trip, buy a paper ticket. Some rural lines and buses are still cash only.", kind: "warning", title: "Where it can catch you out" },
+                { p: "More and more lines also take a **contactless bank card** at the gate — Osaka Metro does at every station. Handy as a backup." },
+              ],
+            },
+            {
+              title: "Tokyo's two subways",
+              summary: "Why some changes cost extra, and trains that turn into other trains",
+              body: [
+                { p: "Tokyo's subway map looks like one network, but it's two companies: **Tokyo Metro**, with nine lines, and **Toei**, run by the city, with four. They share stations, signs and maps, but charge separate fares." },
+                {
+                  table: {
+                    head: ["", "Tokyo Metro", "Toei"],
+                    rows: [
+                      ["Lines", "9", "4"],
+                      ["Includes", "Ginza, Marunouchi, Hibiya…", "Ōedo, Asakusa, Mita, Shinjuku"],
+                      ["Logo", "Blue “M”", "Green ginkgo leaf"],
+                    ],
+                  },
+                },
+                { p: "Changing from one to the other costs a little extra — a transfer discount keeps it small — and sometimes means walking out through one set of gates and in through another. With an IC card it's all automatic." },
+                { h: "Trains that become other trains" },
+                { p: "Many lines don't stop at the end of the subway: the train carries straight on onto a private railway out to the suburbs. A Hanzōmon Line train might become a Tōkyū train to Chūō-Rinkan. That's handy, but it means the colour of the train isn't enough — check the **destination** on its front and on the platform board." },
+                { note: "If a train is going somewhere you don't recognise, check that your stop is on its way — the map app will tell you which destinations work.", title: "Tip" },
               ],
             },
             {
               title: "Rush hour and last trains",
-              summary: "Avoid 7:30–9:30 on weekdays, and know when the last train goes",
-              text: [
-                "Weekday commuter trains in the big cities are famously full between about **7:30 and 9:30** in the morning, and again in the early evening. With a suitcase it's a real struggle. If you can, travel outside those times.",
-                "Some lines have **women-only cars** during the morning rush, marked in pink on the platform and on the train.",
-              ],
-              parts: [
+              summary: "When to avoid the trains, and when they stop",
+              body: [
+                { p: "Japan's famous crowded trains are real, but only at certain times. Plan around them and you'll rarely be squeezed." },
                 {
-                  heading: "Last trains",
-                  text: "Most lines stop between **midnight and 1 am**, earlier in the countryside. The last trains of the night are crowded too, especially on Fridays. Miss it and the options are a taxi, a 24-hour place, or waiting for the first train around 5 am.",
+                  table: {
+                    head: ["Time", "What it's like"],
+                    rows: [
+                      ["7:30–9:30 weekdays", "**Packed.** Avoid with luggage."],
+                      ["10:00–16:30", "Easy — the best time to move city"],
+                      ["17:30–19:30 weekdays", "Busy, but less than the morning"],
+                      ["Around midnight", "Last trains, often crowded on Fridays"],
+                      ["Weekends", "Busy in shopping areas, calm otherwise"],
+                    ],
+                  },
                 },
+                { p: "During the morning rush, some lines have **women-only cars**, marked in pink on the platform and the train. Anyone can use them at other times." },
+                { h: "The last train" },
+                { p: "Most lines stop between **midnight and 1 am**, earlier in the countryside, and start again around 5 am. There are no night trains in between." },
+                { note: "Miss the last train and it's a taxi, which gets expensive fast, or a long wait. Check the last connection home in your map app before the evening gets going.", kind: "warning", title: "Don't get stranded" },
               ],
-              tip: "Map apps show the last connection home — check it before the evening gets going.",
             },
           ],
         },
@@ -1650,87 +1632,102 @@ export const japan: CountryGuide = {
           title: "Shinkansen",
           items: [
             {
-              title: "Reserved or not",
-              summary: "How seats work on the bullet train",
-              facts: [
-                { label: "Tokyo → Kyoto", value: "About 2 h 15 min" },
-                { label: "Tokyo → Osaka", value: "About 2 h 30 min" },
-              ],
-              text: [
-                "Most shinkansen have a few **non-reserved cars** (jiyūseki) near one end, where you sit anywhere that's free. The rest are **reserved** (shiteiseki), and a reserved seat costs a few hundred yen more. There's also the **Green Car**, first class, with wider seats.",
-                "At busy times — weekends, holidays, the cherry-blossom season — the non-reserved cars fill up and people stand. A reserved seat is worth it then.",
-              ],
-              parts: [
+              title: "Riding the shinkansen",
+              summary: "Which train, which seat, and the view of Fuji",
+              body: [
+                { p: "The bullet train is one of the joys of a trip to Japan: smooth, spotless, and so punctual that delays are measured in seconds. Long-distance travel becomes as easy as taking a city train." },
                 {
-                  heading: "Which train",
-                  text: "On the Tokyo–Osaka line there are three kinds: **Nozomi**, the fastest, with the fewest stops; **Hikari**, a little slower; and **Kodama**, which stops everywhere. Nozomi runs every few minutes.",
-                },
-                {
-                  heading: "On board",
-                  points: [
-                    "Seats turn round so a group can face each other — ask the people behind before you do.",
-                    "Food and drink are fine. Buy an ekiben, a station bento, before you board.",
-                    "The train leaves exactly on time. Be on the platform a few minutes early, standing at your car number.",
+                  stats: [
+                    { value: "2 h 15", label: "Tokyo to Kyoto" },
+                    { value: "2 h 30", label: "Tokyo to Osaka" },
+                    { value: "285", label: "km/h, its top speed" },
                   ],
                 },
+                { h: "Three kinds of train" },
+                { p: "On the Tokyo–Kyoto–Osaka line you'll see three names. They run on the same track — the difference is how often they stop." },
+                {
+                  terms: [
+                    { term: "Nozomi", text: "The fastest, fewest stops, every few minutes. Not covered by a JR Pass without an extra ticket." },
+                    { term: "Hikari", text: "A few more stops, a little slower." },
+                    { term: "Kodama", text: "Stops everywhere. Good for smaller towns." },
+                  ],
+                },
+                { h: "Seats" },
+                {
+                  table: {
+                    head: ["Car type", "What it is"],
+                    rows: [
+                      ["Non-reserved, **jiyūseki**", "Sit anywhere free. Cheapest; full at busy times."],
+                      ["Reserved, **shiteiseki**", "Your own seat, a few hundred yen more."],
+                      ["**Green Car**", "First class: wider seats, quieter."],
+                    ],
+                  },
+                },
+                { h: "From platform to seat" },
+                {
+                  steps: [
+                    { title: "Buy a station lunch first", text: "An **ekiben** — a boxed lunch — from the shops in the station. Eating on board is part of the fun." },
+                    { title: "Go through the shinkansen gates", text: "They're separate from the local ones. Put in both tickets together, or tap the IC card you linked." },
+                    { title: "Find your car number", text: "It's painted on the platform floor and shown on the boards. Be there a few minutes early — the train waits only a minute or two." },
+                    { title: "Board and settle in", text: "Big bags go behind the last row or in the luggage area. Seats can turn to face each other for a group." },
+                  ],
+                },
+                { h: "Seeing Mount Fuji" },
+                { p: "Heading west from Tokyo, Fuji appears on the **right**, about 40 minutes out, near Shin-Fuji station. In a standard car that's the window seat **E**. Coming back to Tokyo it's on the left, seat **A**." },
+                { note: "It's only visible on a clear day — winter mornings give the best chance; in summer the mountain is usually hidden. Ask for seat E anyway when you book.", title: "Tip" },
               ],
               words: [
-                { local: "自由席", say: "jiyūseki", means: "non-reserved seats" },
-                { local: "指定席", say: "shiteiseki", means: "reserved seats" },
-                { local: "駅弁", say: "ekiben", means: "station bento" },
+                { local: "自由席", say: "jiyūseki", means: "non-reserved car" },
+                { local: "指定席", say: "shiteiseki", means: "reserved seat" },
+                { local: "駅弁", say: "ekiben", means: "station lunch box" },
               ],
             },
             {
-              title: "Which side for Fuji",
-              summary: "Seat E, on the right going west — about 40 minutes out",
-              facts: [
-                { label: "Side", value: "Right, going west" },
-                { label: "Seat", value: "E" },
-              ],
-              text: [
-                "Leaving Tokyo for Kyoto or Osaka, Mount Fuji appears on the **right** of the train, roughly 40 minutes after departure, near Shin-Fuji station. In a standard car the seats are lettered A–E; **E** is the window on that side. Coming back east to Tokyo, it's on the left, seat A.",
-                "It's visible for only a few minutes, and only on a clear day — the mountain is hidden by cloud more often than not, especially in summer. Winter mornings give the best odds.",
-              ],
-              tip: "Ask for “E seat” when you book, or pick it on the seat map. It's worth it even if the clouds win.",
-            },
-            {
-              title: "Booking",
-              summary: "Machines, ticket offices or an app — all easy in English",
-              text: [
-                "Shinkansen tickets are sold at ticket machines and staffed offices in every big station, and online. The machines have an English menu and take cards. You'll often get two tickets — the basic fare and the express supplement — and put both through the gate together.",
-              ],
-              parts: [
+              title: "Buying tickets",
+              summary: "Ticket machines, the smartEX app, and when to book ahead",
+              body: [
+                { p: "Shinkansen tickets are easy to buy, and most of the year you can just turn up on the day. There are three ways to do it." },
                 {
-                  heading: "Online",
-                  text: "**smartEX** covers the Tōkaidō, San'yō and Kyūshū lines. Book in the app, link your IC card, and tap through the gate with it — no paper ticket at all. Other lines have their own sites, run by JR East and JR West.",
-                },
-                {
-                  heading: "When to book",
-                  text: "Most of the year you can buy on the day. For travel around Golden Week in early May, Obon in mid-August, New Year or a Friday evening, book a few days ahead.",
-                },
-              ],
-              tip: "Leave a little time at the gate — paper tickets come back out of the machine, and you'll need them again at your destination.",
-            },
-            {
-              title: "The JR Pass",
-              summary: "Since its 2023 price rise, often not worth it for a classic route",
-              text: [
-                "The Japan Rail Pass used to be an obvious buy. In October 2023 its price went up by around 70%, and for many trips it no longer pays for itself.",
-                "For a **Tokyo–Kyoto–Osaka–Tokyo** loop, single tickets usually cost less than a 7-day pass. It still makes sense for long distances packed into a week — Tokyo to Hiroshima and back, or going north to Tōhoku.",
-              ],
-              parts: [
-                {
-                  heading: "What it doesn't cover",
-                  points: [
-                    "The fastest Nozomi and Mizuho trains, without an extra ticket.",
-                    "Subways and private railways — Tokyo Metro, Kintetsu, Hankyū, Odakyū and others.",
-                    "Most city buses outside JR's.",
+                  terms: [
+                    { term: "Ticket machines", text: "In every big station, with an English menu, taking cards. Look for the blue or green machines marked for shinkansen." },
+                    { term: "Ticket offices", text: "Staffed counters, usually signed **Midori no Madoguchi** or JR Ticket Office. Useful for anything complicated." },
+                    { term: "smartEX app", text: "For the Tōkaidō, San'yō and Kyūshū lines. Book on your phone and tap through the gate with a linked IC card — no paper at all." },
                   ],
                 },
+                { h: "Booking with smartEX" },
                 {
-                  heading: "Regional passes",
-                  text: "JR's regional passes — Kansai, Hokuriku, JR East and others — are much cheaper and can be good value if your trip stays in one area. Compare with a fare calculator before you buy.",
+                  steps: [
+                    { title: "Register and add your card", text: "A bank card to pay, and your Suica or other IC card to ride with." },
+                    { title: "Pick a train and seat", text: "The seat map lets you choose — seat E for the Fuji side." },
+                    { title: "Tap through at the station", text: "Your IC card now holds the ticket. A seat slip prints at the gate." },
+                  ],
                 },
+                { h: "When to book ahead" },
+                { list: ["**Golden Week**, late April to early May", "**Obon**, mid-August", "**New Year**, the last days of December and first of January", "Friday evenings and Sunday afternoons", "Cherry blossom and autumn leaf weekends near Kyoto"] },
+                { note: "With paper tickets, the gate hands them back — keep them, you need them to exit at the other end.", title: "Tip" },
+              ],
+            },
+            {
+              title: "Is the JR Pass worth it?",
+              summary: "Often not any more, for a classic route — here's how to tell",
+              body: [
+                { p: "The Japan Rail Pass gives unlimited JR travel for a set number of days. It used to be an obvious buy, but in October 2023 its price went up by around 70%, and for many trips it no longer pays for itself." },
+                { h: "Quick check" },
+                {
+                  table: {
+                    head: ["Your trip", "Pass worth it?"],
+                    rows: [
+                      ["Tokyo – Kyoto – Osaka and back", "Usually **no** — single tickets cost less"],
+                      ["Tokyo to Hiroshima and back within a week", "Often **yes**"],
+                      ["Long trips north or to Kyushu", "Often **yes**"],
+                      ["Mostly in one region", "Look at a **regional pass** instead"],
+                    ],
+                  },
+                },
+                { h: "What it doesn't cover" },
+                { list: ["The fastest **Nozomi** and **Mizuho** trains, without an extra ticket", "Subways — Tokyo Metro, Toei, Osaka Metro", "Private railways such as Kintetsu, Hankyū and Odakyū"] },
+                { p: "JR's regional passes — Kansai, Hokuriku, JR East and others — are far cheaper and can be great value if your trip stays in one area." },
+                { note: "Add up the single fares for your route with a fare calculator before buying. It takes two minutes and often saves real money.", title: "Tip" },
               ],
             },
           ],
@@ -1739,94 +1736,55 @@ export const japan: CountryGuide = {
           title: "Luggage & bikes",
           items: [
             {
-              title: "Big bags on the Shinkansen",
-              summary: "Over 160 cm in total, you need a seat with luggage space",
-              facts: [
-                { label: "Needs a booking", value: "161–250 cm total" },
-                { label: "Not allowed", value: "Over 250 cm" },
-              ],
-              text: [
-                "On the **Tōkaidō, San'yō and Kyūshū** shinkansen, a bag whose length, width and height add up to more than **160 cm** — a large checked-in suitcase — needs a reserved **seat with oversized-luggage space**, booked in advance at no extra cost. There's space behind the last row of seats in each car, or in some trains a luggage area.",
-                "Bring one on board without booking and you pay a fee on the spot and are moved to wherever there's space.",
-              ],
-              parts: [
+              title: "Travelling with luggage",
+              summary: "Big cases on the bullet train, sending bags ahead, and lockers",
+              body: [
+                { p: "Japan's trains are built for commuters, not suitcases: stairs, crowds and small racks. The good news is that you rarely need to drag luggage around at all." },
+                { h: "Big bags on the shinkansen" },
+                { p: "On the **Tōkaidō, San'yō and Kyūshū** lines, a bag whose length, width and height add up to more than 160 cm needs a reserved seat with oversized-luggage space. It costs nothing extra, but you must book it." },
                 {
-                  heading: "Measuring",
-                  text: "Add up height, width and depth, wheels and handle included. A typical medium suitcase, around 65 × 45 × 25 cm, is 135 cm and needs nothing. Smaller bags fit on the overhead rack.",
+                  table: {
+                    head: ["Total size", "What you need"],
+                    rows: [
+                      ["Up to 160 cm", "Nothing — use the rack or your legroom"],
+                      ["161–250 cm", "A seat booked with luggage space"],
+                      ["Over 250 cm", "Not allowed on board"],
+                    ],
+                  },
                 },
-              ],
-              tip: "Easiest of all: send the big case ahead by courier and ride with a day bag.",
-            },
-            {
-              title: "Send your luggage ahead",
-              summary: "Your suitcase travels hotel to hotel while you travel light",
-              text: [
-                "One of Japan's great conveniences: **takkyūbin**, door-to-door luggage delivery. Hand a suitcase in at your hotel front desk or a convenience store, and it's waiting at the next hotel, usually the next day. It costs a few thousand yen per bag, depending on size and distance.",
-                "It means you can ride the shinkansen and change trains with only a day bag — and sightsee on the day you move city.",
-              ],
-              parts: [
+                { p: "A typical medium suitcase, about 65 × 45 × 25 cm, adds up to 135 cm and is fine. Turn up with an oversized bag and no booking, and you pay a fee on the spot." },
+                { h: "Send your bags ahead" },
+                { p: "Japan's door-to-door delivery, **takkyūbin**, is one of its great conveniences. Your suitcase goes from one hotel to the next, usually overnight, for a few thousand yen — and you travel with just a day bag." },
                 {
-                  heading: "How it works",
-                  points: [
-                    "Ask at the front desk the day before; they'll help fill in the form.",
-                    "You'll need the next hotel's name, address and phone number, plus your booking name.",
-                    "Allow a day, two for long distances such as Tokyo to Hiroshima.",
-                    "Pack an overnight bag for the gap.",
+                  steps: [
+                    { title: "Ask at the front desk the day before", text: "They have the forms and will help fill them in." },
+                    { title: "Give the next hotel's details", text: "Name, address, phone number and the name the booking is under." },
+                    { title: "Pack an overnight bag", text: "Delivery usually takes a day, two for long distances." },
+                    { title: "Collect it at check-in", text: "It'll be waiting at the next hotel." },
                   ],
                 },
-                {
-                  heading: "Airport delivery",
-                  text: "You can send bags from the airport to your first hotel, and from your last hotel back to the airport — usually two days before your flight.",
-                },
+                { p: "Airports offer the same: send bags from arrivals to your first hotel, and from your last hotel to the airport, usually two days before your flight." },
+                { h: "Coin lockers" },
+                { p: "Every station has lockers in several sizes, most paid with an IC card: tap to lock, tap to open. The suitcase-sized ones go first on busy days. If they're full, look for a staffed luggage counter nearby, or leave bags at your hotel." },
+                { note: "Note the locker number and the exit it's near. In a big station, finding it again can take a while.", title: "Tip" },
               ],
               words: [
-                { local: "宅急便", say: "takkyūbin", means: "Yamato's courier — the black-cat logo" },
-                { local: "手ぶら観光", say: "tebura kankō", means: "hands-free sightseeing" },
+                { local: "宅急便", say: "takkyūbin", means: "door-to-door delivery (the black-cat logo)" },
+                { local: "コインロッカー", say: "koin rokkā", means: "coin lockers" },
               ],
             },
             {
-              title: "Coin lockers",
-              summary: "Every station has them — the big ones go first",
-              text: [
-                "Every station of any size has banks of **coin lockers** in several sizes, most paid with an IC card: tap to lock, tap again to open. Prices are a few hundred yen a day for a small one, more for a suitcase-sized one.",
-                "On busy days in tourist areas, the large lockers fill up by mid-morning.",
-              ],
-              parts: [
+              title: "Cycling",
+              summary: "A lovely way to see Kyoto and Nara — and fines started in 2026",
+              body: [
+                { p: "Bikes are perfect for flat cities like Kyoto and Nara, and for the countryside. Rentals are everywhere, often electric. The rules have been tightened, though: since **April 2026** police can give cyclists on-the-spot fines, the same way they do drivers." },
                 {
-                  heading: "When they're full",
-                  points: [
-                    "Staffed luggage counters near big stations take bags for the day.",
-                    "Apps such as ecbo cloak let you book space in shops and cafés.",
-                    "Your hotel will keep bags before check-in and after check-out.",
-                  ],
+                  dos: ["Ride on the **left**, with the traffic", "Use lights after dark", "Walk the bike on crowded pavements", "Park only in marked bike parking"],
+                  donts: ["Hold a phone or umbrella while riding", "Ride two abreast or carry a passenger", "Wear earphones that block out traffic", "Cycle after drinking"],
                 },
+                { p: "A bike left outside the marked parking is often taken away, and you'll have to collect it from a pound and pay a fee." },
+                { note: "Helmets are recommended by law but not enforced. Rental shops usually lend one if you ask.", title: "Tip" },
               ],
-              tip: "Note the locker number and which exit it's near — in a big station finding it again can take a while.",
-            },
-            {
-              title: "Cycling rules",
-              summary: "Ride on the left — and fines for cyclists started in 2026",
-              text: [
-                "Bikes are a lovely way to see Kyoto, Nara or the countryside, and rentals are everywhere. Japan's rules for cyclists have been tightened, and since **April 2026** police can give on-the-spot fines for offences such as riding with a phone in your hand.",
-              ],
-              parts: [
-                {
-                  heading: "The rules",
-                  points: [
-                    "Ride on the **left**, with the traffic.",
-                    "No phone in hand, no umbrella, no earphones that block traffic sound.",
-                    "Lights on after dark.",
-                    "No riding two abreast, and no passengers.",
-                    "Pavements only where signs allow, and slowly — pedestrians first.",
-                    "Never cycle after drinking.",
-                  ],
-                },
-                {
-                  heading: "Parking",
-                  text: "Park only in marked bike parking. A bike left on the street is often taken away and has to be collected from a pound for a fee.",
-                },
-              ],
-              tip: "Helmets are recommended by law, though not enforced. Rental shops usually lend one if you ask.",
             },
           ],
         },

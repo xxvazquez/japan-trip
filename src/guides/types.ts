@@ -19,13 +19,33 @@ export interface GuideWord {
   means: string;
 }
 
+/** One piece of an article's body, in reading order. Each kind has its own
+ *  look, so a read can walk you through something instead of being a wall
+ *  of paragraphs: a short paragraph, a sub-heading, numbered steps, a
+ *  bulleted list, do / don't lists, a tip or warning box, a small table,
+ *  a row of key numbers, or terms with a line each. `**bold**` works in
+ *  any of the text. */
+export type GuideBody =
+  | { p: string }
+  | { h: string }
+  | { steps: { title: string; text?: string }[] }
+  | { list: string[] }
+  | { dos?: string[]; donts?: string[] }
+  | { note: string; title?: string; kind?: "tip" | "warning" }
+  | { table: { head: string[]; rows: string[][] } }
+  | { stats: { value: string; label: string }[] }
+  | { terms: { term: string; text: string }[] };
+
 /** What every readable entry in a guide carries. Each one opens on its own
  *  page: the summary as the standfirst, quick facts, the opening text,
  *  subheaded parts, words to know, a tip, and a closing list. */
 export interface GuideArticle {
   /** one line under the title on a list, and the article's standfirst */
   summary?: string;
-  text: GuideText;
+  /** the article itself, block by block — when set, `text` and `parts`
+   *  aren't used */
+  body?: GuideBody[];
+  text?: GuideText;
   /** label / value facts shown before the text — "When", "Costs" */
   facts?: { label: string; value: string }[];
   parts?: GuidePart[];

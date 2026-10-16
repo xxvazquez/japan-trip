@@ -504,7 +504,7 @@ When a trip has stays or pins in a country the app has a guide for (Japan today)
 - **Day trips** — from each base, off the usual list, all by train or bus.
 - **Understand** — history, belief, stamps, school, work, politics, culture, manga & anime and a page of fun facts.
 - Every page is grouped into collapsible sections; each row shows a title and a one-line summary.
-- Tap a row to read it as its own article: a standfirst, quick facts, the text with sub-headings, a **Good to know** tip, **Words to know** and places to see it.
+- Tap a row to read it as its own article: a standfirst, then a guided read with sub-headings, numbered steps, do / don't lists, small tables, key numbers and tip or warning boxes, plus **Words to know** and places to see it.
 - **Up next** at the foot of an article opens the next one in place, so Back still returns to the list. The last one in a topic offers the next topic.
 - **History** is a timeline: each era shows its dates and a one-line summary.
 - **Before you go** — only the non-obvious: traps and rules, getting around, food.
