@@ -108,7 +108,7 @@ export function GuideHome() {
           <Section title="While you're there" id={`guide-${guide.id}-while-there`} defaultOpen={false} action={<span className="text-[13px] text-ink-faint">{dates.length}</span>}>
             <ul>
               {dateArticles(dates).map((r) => (
-                <ArticleRow key={r.slug} to={`${home}/date/${r.slug}`} caption={r.eyebrow} title={r.title} meta={r.article.summary} />
+                <ArticleRow key={r.slug} to={`${home}/date/${r.slug}`} caption={r.eyebrow} title={r.title} meta={r.article.summary} thumb={photoIn(r.article)?.src} />
               ))}
             </ul>
           </Section>
@@ -124,9 +124,18 @@ export function GuideHome() {
 
 /* ------------------------------------------------------------ home pieces */
 
+/** an article's first photo, if its body has one */
+function photoIn(a: GuideArticle): GuidePhoto | undefined {
+  for (const b of a.body ?? []) if ("photo" in b) return b.photo;
+  return undefined;
+}
+
 /** the first photo in a run of articles — a topic's or a city's cover */
 function coverOf(refs: ArticleRef[]): GuidePhoto | undefined {
-  for (const r of refs) for (const b of r.article.body ?? []) if ("photo" in b) return b.photo;
+  for (const r of refs) {
+    const p = photoIn(r.article);
+    if (p) return p;
+  }
   return undefined;
 }
 
@@ -233,7 +242,7 @@ export function GuideTopicPage() {
             <ul>
               {b.items?.map((it) => {
                 const r = refs[n++];
-                return <ArticleRow key={r.slug} to={`${topicPath}/${r.slug}`} title={it.title} meta={it.summary} />;
+                return <ArticleRow key={r.slug} to={`${topicPath}/${r.slug}`} title={it.title} meta={it.summary} thumb={photoIn(it)?.src} />;
               })}
               {b.timeline?.map((ev, k) => {
                 const r = refs[n++];
@@ -259,6 +268,7 @@ export function GuideCityPage() {
     <Page width="form">
       <PageHeader back={guidePath(guide)} title={city.name} meta={city.local} className="mb-6" />
       <div className="space-y-6">
+        <Hero fallback={cityFallback(guide, city)} />
         {city.population && (
           <Section>
             <ul>
@@ -282,7 +292,7 @@ export function GuideCityPage() {
           <Section key={g.title} title={g.title} id={`guide-${guide.id}-city-${g.title}`}>
             <ul>
               {g.refs.map((r) => (
-                <ArticleRow key={r.slug} to={`${cityPath}/${r.slug}`} title={r.title} meta={r.article.summary} />
+                <ArticleRow key={r.slug} to={`${cityPath}/${r.slug}`} title={r.title} meta={r.article.summary} thumb={photoIn(r.article)?.src} />
               ))}
             </ul>
           </Section>
@@ -319,7 +329,7 @@ export function GuideDayTripsPage() {
       <Section>
         <ul>
           {dayTripArticles(city).map((r) => (
-            <ArticleRow key={r.slug} to={`${tripsPath}/${r.slug}`} title={r.title} side={r.side} meta={(r.article as GuideDayTrip).getting} />
+            <ArticleRow key={r.slug} to={`${tripsPath}/${r.slug}`} title={r.title} side={r.side} meta={(r.article as GuideDayTrip).getting} thumb={photoIn(r.article)?.src} />
           ))}
         </ul>
       </Section>
@@ -475,7 +485,7 @@ function ArticlePage({
   // body's first photo moves up into the header (so it isn't shown twice),
   // else one from around the article
   const ownAt = a.body?.findIndex((b) => "photo" in b) ?? -1;
-  const own = ownAt >= 0 ? (a.body![ownAt] as { photo: GuidePhoto }).photo : undefined;
+  const own = photoIn(a);
   const header = own ?? fallback?.photo;
   const firstPhoto = header?.src;
   useEffect(() => {
@@ -495,15 +505,7 @@ function ArticlePage({
       {minutes ? <p className="mb-6 text-[13px] text-ink-faint">{minutes} min read</p> : a.summary ? <div className="mb-4" /> : null}
 
       <div className="space-y-6">
-        {header ? <ArticleHeader photo={header} /> : fallback?.art ? (
-          <div
-            className="-mx-5 grid aspect-[3/1] place-items-center bg-surface-2 sm:mx-0 sm:rounded-[12px]"
-            style={fallback.tint ? { background: fallback.tint } : undefined}
-            aria-hidden
-          >
-            {fallback.art}
-          </div>
-        ) : null}
+        <Hero photo={own} fallback={fallback} />
 
         {headings.length >= 4 && (
           <div>
@@ -606,7 +608,7 @@ function ArticlePage({
             <Section>
               <ul>
                 {related.map((r) => (
-                  <ArticleRow key={r.to} to={r.to} caption={r.entry.eyebrow} title={r.entry.title} meta={r.entry.article.summary} />
+                  <ArticleRow key={r.to} to={r.to} caption={r.entry.eyebrow} title={r.entry.title} meta={r.entry.article.summary} thumb={photoIn(r.entry.article)?.src} />
                 ))}
               </ul>
             </Section>
@@ -620,7 +622,7 @@ function ArticlePage({
             <p className="kicker mb-1.5 px-1">Up next</p>
             <Section>
               <ul>
-                <ArticleRow to={next.to} replace caption={next.entry.eyebrow} title={next.entry.title} meta={next.entry.article.summary} />
+                <ArticleRow to={next.to} replace caption={next.entry.eyebrow} title={next.entry.title} meta={next.entry.article.summary} thumb={photoIn(next.entry.article)?.src} />
               </ul>
             </Section>
           </div>
@@ -684,6 +686,7 @@ function ArticleRow({
   meta,
   caption,
   side,
+  thumb,
   replace,
 }: {
   to: string;
@@ -691,6 +694,8 @@ function ArticleRow({
   meta?: string;
   caption?: string;
   side?: string;
+  /** a photo from the article, as a square on the right — the News list */
+  thumb?: string;
   replace?: boolean;
 }) {
   return (
@@ -707,16 +712,23 @@ function ArticleRow({
           {meta && <span className="meta mt-0.5 block break-words">{meta}</span>}
         </span>
         {side && <span className="shrink-0 text-sm text-ink-faint">{side}</span>}
+        {thumb && <Thumb src={thumb} />}
         <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
       </Link>
     </li>
   );
 }
 
+/** a row's thumbnail — a small rounded square, cropped to fill */
+const Thumb = ({ src }: { src: string }) => (
+  <img src={src} alt="" loading="lazy" decoding="async" className="h-14 w-14 shrink-0 rounded-[8px] bg-surface-2 object-cover" />
+);
+
 /** One stop on a timeline: a dot on a rail down the left, the date as a
  *  small caption over the title and a one-line summary; it opens the
  *  fuller story on its own page. */
 function EventRow({ to, event, last }: { to: string; event: GuideEvent; last: boolean }) {
+  const thumb = photoIn(event)?.src;
   return (
     <li className="relative">
       <span aria-hidden className="pointer-events-none absolute bottom-0 left-3.5 top-0 z-[1] w-2">
@@ -733,6 +745,7 @@ function EventRow({ to, event, last }: { to: string; event: GuideEvent; last: bo
           <span className="value mt-0.5 block break-words">{event.title}</span>
           <span className="meta mt-0.5 block break-words">{event.summary}</span>
         </span>
+        {thumb && <Thumb src={thumb} />}
         <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
       </Link>
     </li>
@@ -751,6 +764,23 @@ function Body({ blocks, skip = -1 }: { blocks: GuideBody[]; skip?: number }) {
   return (
     <div className="space-y-4">
       {blocks.map((b, i) => (i === skip ? null : <BodyBlock key={i} block={b} first={i === 0} />))}
+    </div>
+  );
+}
+
+/** The picture a page opens on: its own photo, else the fallback's, else
+ *  a panel in the fallback's colour. */
+function Hero({ photo, fallback }: { photo?: GuidePhoto; fallback?: ArticleFallback }) {
+  const p = photo ?? fallback?.photo;
+  if (p) return <ArticleHeader photo={p} />;
+  if (!fallback?.art) return null;
+  return (
+    <div
+      className="-mx-5 grid aspect-[3/1] place-items-center bg-surface-2 sm:mx-0 sm:rounded-[12px]"
+      style={fallback.tint ? { background: fallback.tint } : undefined}
+      aria-hidden
+    >
+      {fallback.art}
     </div>
   );
 }

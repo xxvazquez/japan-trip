@@ -509,7 +509,8 @@ When a trip has stays or pins in a country the app has a guide for (Japan today)
 - **Day trips** — from each base, off the usual list, all by train or bus; on the city's page.
 - **Eat & drink** — food at home, eating out, how the cooking works, regional food on the route, coffee and kissaten, menus and drinks.
 - **Understand** — history, Look closer (everyday things explained), Japan by numbers, seasons & landscape, belief, language, stamps, school, work, politics, culture, manga & anime and a page of fun facts.
-- Every page is grouped into collapsible sections; on a topic's page each row shows a title and a one-line summary.
+- Every page is grouped into collapsible sections; on a topic's page each row shows a title, a one-line summary and, when the article has a photo, a thumbnail on the right.
+- A city's page opens on its cover picture (else its name in the local script on a colour panel).
 - Every article opens on a picture: its own first photo (moved up, with its caption and credit), else its topic's or city's cover, else a panel in its colour.
 - Body text is ragged-right on a phone and justified on wider screens.
 - Tap a row to read it as its own article: a standfirst, then a guided read with sub-headings, numbered steps, do / don't lists, small tables, key numbers and tip or warning boxes, plus **Words to know** and places to see it.
