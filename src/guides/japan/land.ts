@@ -60,7 +60,7 @@ export const land: GuideTopic = {
             { p: "At the Heian court (794–1185), autumn colour was as much a matter of poems and paintings as of outings. The best-known maple poem, Ariwara no Narihira's verse about the Tatsuta river dyed crimson, was written for a painted folding screen showing the river, not on its bank. It was collected in the imperial anthology *Kokinshū* in the early 900s and later in the *Hyakunin Isshu*, the hundred-poem collection still played as a card game at New Year.[^7] Poetry gave the season a fixed vocabulary: a few named places, set images, and a link between falling leaves and passing time. The aristocracy's habit of matching clothes, paper and ceremony to the calendar made those images part of daily life." },
             { p: "The word for the outing, **momijigari**, borrows from hunting: you go out and \"take\" the leaves. By the late 1400s it was familiar enough to be a stage setting. The Noh play *Momijigari*, attributed to Kanze Nobumitsu, sets a demon's ambush at a leaf-viewing party on Mount Togakushi. Later kabuki versions became so popular that an 1899 film of one is counted among the first narrative films made in Japan.[^8]" },
             { p: "In the Edo period (1603–1868) the pastime spread to townspeople. Safer roads, the pilgrimage boom and illustrated printed guides such as *Miyako meisho zue* (1780) told readers where to go. Seasonal calendars like *Edo meisho hanagoyomi* (1827) told them when. Picnics under the trees, with food and sake on a mat, took the shape they still have.[^9] It's the same pattern as cherry-blossom viewing: a court taste turned into a popular outing through print, travel and commerce." },
-            { p: "It's tempting to explain all this with a single national love of impermanence. Poets did use falling leaves that way, and the idea of **mono no aware**, a gentle sorrow at things passing, is real (see [Mono no aware](guide:belief/mono-no-aware)). But the history points to more ordinary forces too. There was a court that organised its poetry and dress by the season, a print trade that sold places, railways and later television and weather companies that sold timing, and temples whose gardens depend on visitors' fees. Seasonal colour became central to Japanese cultural life because all of these reinforced each other." },
+            { p: "It's tempting to explain all this with a single national love of impermanence. Poets did use falling leaves that way, and the idea of **mono no aware**, a gentle sorrow at things passing, is real (see [Words for Japan](guide:belief/words-for-japan-and-their-limits)). But the history points to more ordinary forces too. There was a court that organised its poetry and dress by the season, a print trade that sold places, railways and later television and weather companies that sold timing, and temples whose gardens depend on visitors' fees. Seasonal colour became central to Japanese cultural life because all of these reinforced each other." },
 
             { h: "The modern season" },
             { p: "**Forecasts.** From September, weather companies publish kōyō forecasts, calculated from temperature equations and updated through the season. Popular spots then post weekly status reports: 青葉 still green, 色づき始め starting, 見頃 at its best, 落葉始め falling. Your phone will show these by the dozen." },
@@ -85,7 +85,7 @@ export const land: GuideTopic = {
             { local: "紅葉前線", say: "kōyō zensen", means: "the autumn-colour front, mapped down the country" },
             { local: "ライトアップ", say: "raito appu", means: "a garden lit up for night opening" },
           ],
-          related: ["land/forests-wild-and-planted", "land/gardens", "belief/mono-no-aware"],
+          related: ["land/forests-wild-and-planted", "land/gardens", "belief/words-for-japan-and-their-limits"],
           sources: [
             { title: "Why leaves change colour — Weathernews", url: "https://weathernews.jp/news/202511/130156/", note: "The pigments, the abscission layer, and the 8 °C / 5 °C rule with its caveat" },
             { title: "Maple colouring dates, 1991–2020 normals — Japan Meteorological Agency", url: "https://www.data.jma.go.jp/sakura/data/kaede2020.pdf", note: "What the official date measures; the front's average progress" },
@@ -254,7 +254,7 @@ export const land: GuideTopic = {
             { local: "御師", say: "oshi", means: "a guide-priest who lodged pilgrims" },
             { local: "女人禁制", say: "nyonin kinsei", means: "a ban on women entering a sacred place" },
           ],
-          related: ["place/fuji-five-lakes/pilgrims-before-tourists", "land/volcanic-ground", "belief/a-thousand-years-mixed-together", "place/kurama/mountain-temple"],
+          related: ["place/fuji-five-lakes/pilgrims-before-tourists", "land/volcanic-ground", "belief/gods-and-buddhas-mixed-and-split", "place/kurama/mountain-temple"],
           sources: [
             { title: "Ōmiwa Shrine and Mount Miwa — nippon.com", url: "https://www.nippon.com/ja/guide-to-japan/gu009007/", note: "No main hall; the mountain as the god" },
             { title: "Yama no kami — Kokugakuin University Encyclopedia of Shinto", url: "https://d-museum.kokugakuin.ac.jp/bts/detail/?id=4044", note: "The mountain god who becomes the god of the fields" },
@@ -353,7 +353,7 @@ export const land: GuideTopic = {
             { local: "回遊式庭園", say: "kaiyū-shiki teien", means: "stroll garden" },
             { local: "雪吊り", say: "yukitsuri", means: "rope cones protecting pines from snow" },
           ],
-          related: ["land/autumn-colour", "land/forests-wild-and-planted", "belief/wabi-sabi", "place/kyoto/the-grid-and-what-broke-it"],
+          related: ["land/autumn-colour", "land/forests-wild-and-planted", "belief/words-for-japan-and-their-limits", "place/kyoto/the-grid-and-what-broke-it"],
           sources: [
             { title: "Sakuteiki — JAANUS dictionary of Japanese architecture and art", url: "https://projects.mcah.columbia.edu/jaanus/node/1579", note: "Authorship and date" },
             { title: "Review of Yamada, Shots in the Dark — Association for Asian Studies", url: "https://www.asianstudies.org/publications/eaa/archives/shots-in-the-dark-japan-zen-and-the-west/", note: "Ryōan-ji's postwar reputation as a Zen garden" },

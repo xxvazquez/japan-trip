@@ -25,6 +25,14 @@ const PHOTOS = {
   "machiya": { w: 900, h: 675, author: "Mariemon", license: "CC BY 3.0", url: "https://commons.wikimedia.org/wiki/File:Ky%C5%8D-machiya_02.JPG" },
   "jimbocho": { w: 900, h: 599, author: "Real Estate Japan", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Used_bookstore_in_Jimbocho_(50495926321).jpg" },
   "togoshi-ginza": { w: 900, h: 599, author: "OiMax", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Togoshi_Ginza_at_Night.jpg" },
+  "kamidana": { w: 900, h: 791, author: "Nesnad", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Typical-kamidana-tokyoarea-2017-12-22.jpg" },
+  "inari-fox": { w: 601, h: 900, author: "Jakub Hałun", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Inari_fox_statue,_Fushimi_Inari,_Kyoto,_20240818_1401_4478.jpg" },
+  "shimenawa-tree": { w: 601, h: 900, author: "Jakub Hałun", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Sacred_tree_bound_with_a_shimenawa_at_Suwa_Shrine_in_Nagasaki,_20240815_1403_3686.jpg" },
+  "nio": { w: 675, h: 900, author: "KENPEI", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Todaiji_Nandaimon_nio1.jpg" },
+  "jizo": { w: 900, h: 600, author: "NevinThompson", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Stone_Jizo_statues_with_red_caps_and_bibs,_Kochi,_June_2016.jpg" },
+  "toshogu": { w: 900, h: 675, author: "Nerotaso", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Toshogu_torii_and_pagoda.jpg" },
+  "toyokawa": { w: 900, h: 558, author: "Zairon", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Toyokawa_Toyokawa-inari_Torii.jpg" },
+  "kintsugi": { w: 900, h: 604, author: "D-Kuru", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Kintsugi_on_broken_Ky%C5%ABsu_lid-top_oblique_PNr%C2%B01258.jpg" },
 } as const;
 
 export type PhotoId = keyof typeof PHOTOS;
