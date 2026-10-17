@@ -1060,71 +1060,7 @@ const base: CountryGuide = {
           ],
         },
       ],
-      items: [
-        {
-          title: "A fishing village called Edo",
-          text: "Tokugawa Ieyasu made it his base in 1590; by the 1700s it was one of the largest cities in the world. It was renamed Tokyo, “eastern capital”, when the emperor moved here in 1868.",
-        },
-        {
-          title: "Rebuilt twice",
-          text: "The 1923 Great Kantō earthquake and the 1945 firebombing each destroyed much of the city — which is why so little old Tokyo survives, and why the old parts that did are treasured.",
-        },
-        {
-          title: "The world's largest city",
-          text: "Greater Tokyo is home to about 37 million people. Shinjuku is the world's busiest station, with millions passing through daily.",
-        },
-        {
-          title: "A city of villages",
-          text: "There's no single centre. Each district feels like its own town:",
-          points: [
-            "Asakusa and Yanaka — old Tokyo, temples, small shops",
-            "Ginza and Nihonbashi — department stores, old brands",
-            "Shibuya and Harajuku — young, loud, fashion",
-            "Shinjuku — skyscrapers, nightlife, a huge park",
-            "Ueno — museums and a park around a lotus pond",
-          ],
-        },
-        {
-          title: "Most Michelin stars",
-          text: "More starred restaurants than any other city — and great food in station basements and standing noodle bars for a fraction of the price.",
-        },
-        {
-          title: "Not a city",
-          text: "Tokyo City was abolished in 1943. Tokyo is a prefecture: 23 special wards, each with its own mayor, plus suburbs, mountains and islands 1,000 km out in the Pacific.",
-        },
-        { title: "634 = Musashi", text: "Tokyo Skytree is 634 m tall because 6-3-4 can be read mu-sa-shi, the old name of the province." },
-        {
-          title: "Tokyo Tower is made of tanks",
-          text: "About a third of its steel came from scrapped US tanks from the Korean War. At 333 m it was built to beat the Eiffel Tower, and is painted white and orange to meet air-safety rules.",
-        },
-        {
-          title: "The seven-minute miracle",
-          text: "A Shinkansen at Tokyo Station gets about seven minutes to be cleaned top to bottom, seats turned to face forward. The crew line up and bow to the train when it arrives.",
-        },
-        {
-          title: "The Yamanote loop",
-          text: "30 stations in a circle in about an hour. Takanawa Gateway, opened in 2020, was its first new station in half a century, and each station has its own departure melody.",
-        },
-        {
-          title: "Bubble land",
-          text: "At the peak of the 1980s bubble, the Imperial Palace grounds were said to be worth more than all the land in California.",
-        },
-        {
-          title: "Golden Gai",
-          text: "Six narrow alleys in Shinjuku with around 200 bars, many seating fewer than ten. Some charge a seat fee, and a few are regulars-only — a sign on the door says so.",
-        },
-        {
-          title: "Ghibli tickets",
-          text: "The Ghibli Museum in Mitaka sells only advance tickets, released at 10:00 on the 10th of the month before — the November batch on 10 October. They go fast.",
-        },
-        {
-          title: "Tsukiji is still open",
-          text: [
-            "The wholesale market moved to Toyosu in 2018, but Tsukiji's outer market of food stalls and knife shops stayed. Go in the morning; many stalls close by early afternoon.",
-            "Tsukishima, across the river, is where to eat monjayaki, Tokyo's runny cousin of okonomiyaki.",
-          ],
-        },
-      ],
+      items: [],
     },
     {
       id: "kyoto",
@@ -1190,79 +1126,7 @@ const base: CountryGuide = {
           ],
         },
       ],
-      items: [
-        {
-          title: "A thousand years as capital",
-          text: "Founded as Heian-kyō in 794 on a grid copied from China. The emperor lived here until 1868, and Kyoto people still sometimes say the emperor is only “visiting” Tokyo.",
-        },
-        {
-          title: "Spared in the war",
-          text: "Kyoto was largely left out of the bombing, so whole streets of wooden townhouses (machiya) survive — narrow at the front, deep inside, — the long thin plots go back to Hideyoshi's 1590s re-division of the blocks.",
-        },
-        {
-          title: "World Heritage, 17 times",
-          text: "Seventeen temples, shrines and a castle share one UNESCO listing — including Byōdō-in in Uji and Enryaku-ji on Mount Hiei.",
-        },
-        {
-          title: "Get up early",
-          text: "Fushimi Inari is open all night, and the famous spots are quiet only before about 8:00. Kiyomizu-dera opens at 6:00.",
-        },
-        {
-          title: "Buses fill up",
-          text: "The city buses are slow and packed in season. The subway and trains plus walking are often faster — and some routes now have express “sightseeing” buses at a higher fare.",
-        },
-        {
-          title: "Gion",
-          text: "Some private lanes off Hanamikoji are signposted no-entry for visitors, with a fine threatened. Don't photograph geiko and maiko up close or stop them.",
-        },
-        {
-          title: "Accommodation tax",
-          text: "Kyoto adds a per-person nightly tax on top of the room price, tiered by how much the room costs — and it went up sharply in 2026.",
-        },
-        {
-          title: "Directions by the grid",
-          text: "Kyoto addresses say which way to go from the nearest crossing:",
-          points: ["Agaru — go north", "Sagaru — go south", "Nishi-iru — go west", "Higashi-iru — go east"],
-        },
-        {
-          title: "10,000 gates",
-          text: "Every torii at Fushimi Inari was donated, mostly by companies — the donor and the date are written on the back. A big one costs over a million yen.",
-        },
-        {
-          title: "The Golden Pavilion burned",
-          text: "A young monk set fire to Kinkaku-ji in 1950. The one you see is a 1955 rebuild — the story became Mishima's novel The Temple of the Golden Pavilion.",
-        },
-        {
-          title: "No nails",
-          text: "Kiyomizu-dera's wooden stage, 13 m above the slope, is held up by 18 pillars jointed without a single nail. “Jumping off the stage at Kiyomizu” is the Japanese for taking the plunge.",
-        },
-        {
-          title: "No first-timers",
-          text: "Gion's teahouses follow ichigen-san okotowari: no new customers without an introduction from a regular. In Kyoto they're called geiko, not geisha.",
-        },
-        {
-          title: "A station people hated",
-          text: "Kyoto Station (1997), a 15-storey glass-and-steel canyon by Hiroshi Hara, was fought by residents. Go up the long staircase to the rooftop for a free view.",
-        },
-        {
-          title: "Autumn on your dates",
-          text: [
-            "The maples usually peak from about 20 November into early December.",
-            "In early November the colour starts higher up — Kurama, Ōhara, Takao — and temples open closed halls and night illuminations (tokubetsu kōkai).",
-          ],
-        },
-        {
-          title: "Kyoto's kitchen",
-          text: "Nishiki Market has fed the city for about 400 years.",
-          pointsTitle: "Look for",
-          points: [
-            "Obanzai — Kyoto home cooking",
-            "Yuba — tofu skin",
-            "Tsukemono — pickles, Kyoto's speciality",
-            "Kyō-yasai — heirloom Kyoto vegetables",
-          ],
-        },
-      ],
+      items: [],
     },
     {
       id: "osaka",
@@ -1742,49 +1606,7 @@ const base: CountryGuide = {
       aliases: ["Kawaguchiko", "Fujikawaguchiko"],
       lat: 35.5161, lng: 138.7519, radiusKm: 10,
       population: "About 27,000 (Fujikawaguchiko)",
-      items: [
-        {
-          title: "Cultural, not natural, heritage",
-          text: "Fuji is World Heritage as a sacred site and an inspiration for art — pilgrims have climbed it for centuries, and Hokusai painted it 36 times (and more).",
-        },
-        {
-          title: "Climbing it",
-          text: "The season is roughly July to early September. Since 2024 the trails charge an entry fee and cap the number of climbers each day; out of season, it's closed and dangerous.",
-        },
-        { title: "Early for the view", text: "The mountain is clearest in the early morning and in winter. By midday clouds often roll in." },
-        {
-          title: "Fuji is a live volcano",
-          text: "It last erupted in 1707, and ash fell on Edo, 100 km away. The five lakes were formed by old lava flows damming rivers.",
-        },
-        {
-          title: "The screen over Lawson",
-          text: "In 2024 the town put up a black mesh screen to block the famous view of Fuji above a convenience store, after crowds of photographers spilled into the road.",
-        },
-        {
-          title: "A record-late snowcap",
-          text: "Fuji usually gets its first snow in early autumn. In 2024 it came on 7 November — the latest since records began in 1894.",
-        },
-        {
-          title: "Chūrei-tō",
-          text: "The five-storey pagoda in every Fuji photo is a 1963 memorial to the war dead, about 400 steps up from Shimoyoshida station.",
-        },
-        {
-          title: "Autumn Leaves Festival",
-          text: "Usually early to mid November: the Momiji Corridor on Lake Kawaguchi's north shore is lit up after dark.",
-        },
-        {
-          title: "Hōtō and wine",
-          text: "Yamanashi's dish is hōtō, flat noodles stewed with pumpkin in miso. It's also Japan's biggest wine region, mostly from the local Kōshū grape.",
-        },
-        {
-          title: "Direct from Shinjuku",
-          text: "The Fuji Excursion limited express has run straight to Kawaguchiko since 2019; highway buses from Shinjuku take about two hours too.",
-        },
-        {
-          title: "Yoshida udon",
-          text: "In neighbouring Fujiyoshida the udon is famously thick and chewy, topped with cabbage. The town has dozens of tiny udon shops, many open only at lunch.",
-        },
-      ],
+      items: [],
     },
     {
       id: "koyasan",
@@ -1873,16 +1695,9 @@ const base: CountryGuide = {
   ],
 };
 
-/** which heading a city's short note sits under on its page */
-const GROUPS: Record<string, Record<string, string>> = {
-  tokyo: { "A fishing village called Edo": "Understand the place", "Rebuilt twice": "Understand the place", "Not a city": "Understand the place", "Tsukiji is still open": "Eat and drink", "Most Michelin stars": "Eat and drink" },
-  kyoto: { "A thousand years as capital": "Understand the place", "Spared in the war": "Understand the place", "Kyoto's kitchen": "Eat and drink" },
-  "fuji-five-lakes": { "Cultural, not natural, heritage": "Understand the place", "Fuji is a live volcano": "Understand the place", "Hōtō and wine": "Eat and drink", "Yoshida udon": "Eat and drink" },
-};
-
 const withReads = (c: GuideCity): GuideCity => ({
   ...c,
-  items: [...(placeReads[c.id] ?? []), ...c.items.map((it) => ({ ...it, group: it.group ?? GROUPS[c.id]?.[it.title] }))],
+  items: [...(placeReads[c.id] ?? []), ...c.items],
 });
 
 export const japan: CountryGuide = { ...base, cities: base.cities.map(withReads) };

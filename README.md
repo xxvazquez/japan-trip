@@ -502,7 +502,7 @@ Text isn't selectable (as in a native app), so values you might paste elsewhere 
 When a trip has stays or pins in a country the app has a guide for (Japan today), a row for it sits below the sections.
 
 - **Where you're staying / Also on your trip** — a page per city or town the trip touches, matched from its stays, bases and pins (a day trip to Uji or Kurama shows up without a stay there).
-- A city page groups its reads under **Understand the place**, **Look closer** and **Eat and drink**, with shorter notes under **Worth knowing**.
+- A city page groups its reads under **Understand the place**, **Look closer**, **Eat and drink** and **Before you go**, with shorter notes under **Worth knowing**. Tokyo, Kyoto and the Fuji lakes are full sourced chapters with no short notes left.
 - **While you're there** — festivals, seasons and closures that fall within the trip's own dates.
 - **Day trips** — from each base, off the usual list, all by train or bus.
 - **Eat & drink** — food at home, eating out, how the cooking works, regional food on the route, coffee and kissaten, menus and drinks.

@@ -444,6 +444,7 @@ export const regionalFood: GuideTopic = {
           body: [
             { p: "Yamanashi is mountains and steep valleys with little room for paddy fields, so for centuries people here ate more **wheat and barley** than rice. Its signature dishes are noodles, and they're thick, filling and cheap. On the slopes the land went to silk, then to fruit: it's Japan's biggest grower of grapes and peaches." },
             photo("hoto", "Hōtō noodles in a clay pot with pumpkin, shiitake and an egg", "Hōtō: flat noodles stewed in miso with pumpkin and mushrooms."),
+            photo("yoshida-udon", "A bowl of thick Yoshida udon topped with boiled cabbage and seasoned meat", "Yoshida udon from Fujiyoshida: hard, chewy noodles with cabbage."),
             {
               dishes: [
                 { name: "Hōtō", local: "ほうとう", say: "hōtō", kind: "Regional", text: "Flat, wide wheat noodles simmered — not boiled first — in miso broth with pumpkin, mushrooms and root vegetables, so the starch thickens it into a stew. A genuine home dish in Yamanashi that every visitor restaurant also serves. Unsalted dough, so the noodles are soft, not springy." },
@@ -460,7 +461,6 @@ export const regionalFood: GuideTopic = {
           summary: "Temple tofu, home cooking, and the matcha question",
           body: [
             { p: "Kyoto is far from the sea and was the capital for a thousand years. So its cooking leans on **vegetables, tofu and preserved fish**, on the refined cooking of the court and the temples, and on good water. Its food has two faces: the obanzai of homes and the kaiseki of the tea ceremony and the old restaurants." },
-            photo("yoshida-udon", "A bowl of thick Yoshida udon topped with boiled cabbage and seasoned meat", "Yoshida udon from Fujiyoshida: hard, chewy noodles with cabbage."),
             {
               dishes: [
                 { name: "Obanzai", local: "おばんざい", say: "obanzai", kind: "Everyday", text: "Kyoto home cooking: simmered vegetables, tofu, dried fish and seaweed, small and frugal, made from what's in season with nothing wasted. Restaurants now sell it too, laid out in bowls along the counter." },

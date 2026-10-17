@@ -65,6 +65,10 @@ const PHOTOS = {
   "sento": { w: 900, h: 675, author: "Kurihaya", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Tatsuno-yu_Sento_Tokyo_1.jpg" },
   "kokugikan": { w: 900, h: 675, author: "Gregg Tavares", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Inside_the_Ryogoku_Kokugikan_at_the_2014_January_Sumo_Tournament.jpg" },
   "tea-ro": { w: 592, h: 444, author: "Adriano", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Ro_and_Kama.jpg" },
+  "golden-gai": { w: 900, h: 600, author: "Gzzz", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Golden_Gai_(2).jpg" },
+  "red-fuji": { w: 900, h: 600, author: "Katsushika Hokusai", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Red_Fuji_southern_wind_clear_morning.jpg" },
+  "kiyomizu-stage": { w: 900, h: 675, author: "そらみみ", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Stage_of_Kiyomizudera_Temple_20131217-2.JPG" },
+  "nishiki-market": { w: 900, h: 600, author: "ignis", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Nishiki_ichiba_Kyoto_JPN.jpg" },
 } as const;
 
 export type PhotoId = keyof typeof PHOTOS;
