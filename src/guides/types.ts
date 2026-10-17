@@ -224,6 +224,8 @@ export interface CountryGuide {
   id: string;
   name: string;
   local?: string;
+  /** the picture the guide's home opens with */
+  cover?: GuidePhoto;
   /** "Understand" — history, belief, everyday life */
   understand: GuideTopic[];
   /** "Eat & drink" — food at home and out, regional food, coffee */

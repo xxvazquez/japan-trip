@@ -501,13 +501,15 @@ Text isn't selectable (as in a native app), so values you might paste elsewhere 
 
 When a trip has stays or pins in a country the app has a guide for (Japan today), a row for it sits below the sections. Pin it as its own tab from Manage → Setup → Tabs.
 
-- **Where you're staying / Also on your trip** — a page per city or town the trip touches, matched from its stays, bases and pins (a day trip to Uji or Kurama shows up without a stay there).
+- The home opens with a cover picture, then shelves of photo cards — one row that scrolls sideways on a phone, a grid on wider screens. A card's picture is the first photo in its reads; one with none shows its topic's colour and glyph.
+- **Continue reading** — the last article you opened, on this device.
+- **On this trip** — a card per city or town the trip touches, matched from its stays, bases and pins (a day trip to Uji or Kurama shows up without a stay there). Stays come first, marked **Staying**, with their day-trip count.
 - A city page groups its reads under **Understand the place**, **Look closer**, **Eat and drink** and **Before you go**, with shorter notes under **Worth knowing**. The cities on the route — Tokyo, Kyoto, the Fuji lakes, Nara, Uji, Kurama, Hakone and Kamakura — are full sourced chapters with no short notes left.
-- **While you're there** — festivals, seasons and closures that fall within the trip's own dates.
-- **Day trips** — from each base, off the usual list, all by train or bus.
+- **While you're there** — festivals, seasons and closures that fall within the trip's own dates. Folded by default, with a count beside it.
+- **Day trips** — from each base, off the usual list, all by train or bus; on the city's page.
 - **Eat & drink** — food at home, eating out, how the cooking works, regional food on the route, coffee and kissaten, menus and drinks.
 - **Understand** — history, Look closer (everyday things explained), Japan by numbers, seasons & landscape, belief, language, stamps, school, work, politics, culture, manga & anime and a page of fun facts.
-- Every page is grouped into collapsible sections; each row shows a title and a one-line summary.
+- Every page is grouped into collapsible sections; on a topic's page each row shows a title and a one-line summary.
 - Tap a row to read it as its own article: a standfirst, then a guided read with sub-headings, numbered steps, do / don't lists, small tables, key numbers and tip or warning boxes, plus **Words to know** and places to see it.
 - Articles can also carry a chart (line or bar, with unit, year and source), a dated timeline, food cards tagged Everyday / Regional / Seasonal / Occasion / Mostly for visitors, places with a Google Maps button, and phone numbers that dial on tap.
 - Long reads show their reading time, and an **In this article** list of their sections that jumps to each one.

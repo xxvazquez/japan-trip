@@ -17,6 +17,7 @@ import { stamps } from "./japan/stamps";
 import { trivia } from "./japan/trivia";
 import { growingUp } from "./japan/school";
 import { work } from "./japan/work";
+import { photoOf } from "./japan/photos";
 
 /** Japan — the country guide. Facts are checked against official sources
  *  (JNTO, the Ministry of Health, Japan Customs, city sites) where they
@@ -26,6 +27,7 @@ const base: CountryGuide = {
   id: "jp",
   name: "Japan",
   local: "日本 · Nihon",
+  cover: photoOf("red-fuji", "Mount Fuji in red against a sky of small clouds", "Red Fuji"),
 
   eat: [foodAtHome, eatingOut, howFoodWorks, regionalFood, coffee, menus],
 

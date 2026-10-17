@@ -19,6 +19,9 @@ import { usePersistedOpen, slug } from "@/lib/collapse";
  * `info` — one-off "how this works" copy, revealed by an ⓘ toggle in the header
  * rather than taking a permanent line — a sentence or two, or a list of `Tip`s
  * when it explains several things. (`<PageHeader info>` is the page-wide form.)
+ * `bare` — the children draw their own cards (a shelf of picture cards),
+ * so there's no inset around them; on a phone they run edge to edge, the
+ * way a horizontally scrolling shelf does in the App Store.
  * `defaultOpen` — the first-ever state, before the viewer has touched the
  * chevron (default `true`). Set `false` for a section that's more useful shut
  * until asked for, e.g. one card per list entry.
@@ -29,6 +32,7 @@ export function Section({
   info,
   id,
   defaultOpen = true,
+  bare = false,
   children,
   className = "",
 }: {
@@ -37,6 +41,7 @@ export function Section({
   info?: Tip[];
   id?: string;
   defaultOpen?: boolean;
+  bare?: boolean;
   children: ReactNode;
   className?: string;
 }) {
@@ -81,13 +86,17 @@ export function Section({
       )}
       {info && showInfo && <InfoCard id={infoId} info={info} className="mb-2" />}
       <div id={bodyId} className={`grid transition-[grid-template-rows] duration-300 ease-paper ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
-        <div className="min-h-0 overflow-hidden">
-          {/* isolate: makes the rounded overflow clip a swiped row's translated
-              Delete pane to the corner radius (Chromium skips it otherwise) */}
-          <div className="isolate overflow-hidden rounded-[12px] border border-line bg-surface shadow-[0_1px_1px_rgb(0_0_0/0.04),0_3px_8px_-2px_rgb(0_0_0/0.06)] dark:border-transparent dark:shadow-none">
-            {children}
+        {bare ? (
+          <div className="-mx-5 min-h-0 overflow-hidden sm:mx-0">{children}</div>
+        ) : (
+          <div className="min-h-0 overflow-hidden">
+            {/* isolate: makes the rounded overflow clip a swiped row's translated
+                Delete pane to the corner radius (Chromium skips it otherwise) */}
+            <div className="isolate overflow-hidden rounded-[12px] border border-line bg-surface shadow-[0_1px_1px_rgb(0_0_0/0.04),0_3px_8px_-2px_rgb(0_0_0/0.06)] dark:border-transparent dark:shadow-none">
+              {children}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );

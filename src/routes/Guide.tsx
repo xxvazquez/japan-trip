@@ -1,4 +1,5 @@
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useState, type ReactNode } from "react";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { Icon } from "@/components/Icon";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
@@ -13,11 +14,12 @@ import { GUIDE_CONTENT } from "@/guides/content";
 import { citiesOnTrip, datesOnTrip } from "@/guides/match";
 import { slug } from "@/lib/collapse";
 import { allTopics, articleText, cityArticles, dateArticles, dayTripArticles, resolveRef, topicArticles, type ArticleRef } from "@/guides/articles";
-import type { CountryGuide, GuideArticle, GuideBody, GuideCity, GuideDayTrip, GuideEvent, GuideSource, GuideText, GuideTopic } from "@/guides/types";
+import type { CountryGuide, GuideArticle, GuideBody, GuideCity, GuideDayTrip, GuideEvent, GuidePhoto, GuideSource, GuideText, GuideTopic } from "@/guides/types";
 
-/** A country guide — reference content the app ships with, read-only. Laid
- *  out like Settings: a home of grouped rows, each pushing to a topic's list,
- *  and every entry on a list opening as its own article. */
+/** A country guide — reference content the app ships with, read-only. Its
+ *  home reads like an Apple Maps guide: a cover, then shelves of picture
+ *  cards (the trip's places, then each group of topics), each pushing to a
+ *  topic's list, and every entry on a list opening as its own article. */
 
 const guidePath = (g: CountryGuide) => `/logbook/guide/${g.id}`;
 
@@ -31,6 +33,7 @@ const noGuide = <Missing title="No such guide" body="There’s no guide for that
 export function GuideHome() {
   const data = useData();
   const guide = useGuide();
+  const last = useLastRead(guide?.id);
   if (!data) return null;
   if (!guide) return noGuide;
 
@@ -38,77 +41,177 @@ export function GuideHome() {
   const dates = datesOnTrip(guide, data);
   const all = allTopics(guide);
   const pinned = data.config.modules.some((m) => m.enabled && m.kind === "guide" && m.target === guide.id);
-  const topicRows = (topics: GuideTopic[]) => (
-    <ul>
-      {topics.map((t) => (
-        <TileRow
-          key={t.id}
-          to={`${guidePath(guide)}/${t.id}`}
-          tile={<IconTile size="sm" name={t.icon} glyph={t.glyph} color={guideTopicColor(all.indexOf(t))} />}
-          title={t.title}
-          meta={t.summary}
-        />
-      ))}
-    </ul>
-  );
-  const cityRows = (cities: GuideCity[], stay: boolean) => (
-    <ul>
-      {cities.map((c) => (
-        <TileRow
-          key={c.id}
-          to={`${guidePath(guide)}/place/${c.id}`}
-          tile={<IconTile size="sm" glyph={stay ? "hotel" : "pin"} tone={stay ? "ink-faint" : "accent"} />}
-          title={c.name}
-          right={c.local}
-        />
-      ))}
-    </ul>
+  const home = guidePath(guide);
+  const shelf = (title: string, topics: GuideTopic[]) => (
+    <Section title={title} id={`guide-${guide.id}-${slug(title)}`} bare>
+      <Shelf>
+        {topics.map((t) => (
+          <ShelfCard
+            key={t.id}
+            to={`${home}/${t.id}`}
+            cover={coverOf(topicArticles(t))}
+            tint={guideTopicColor(all.indexOf(t))}
+            fallback={<IconTile name={t.icon} glyph={t.glyph} color={guideTopicColor(all.indexOf(t))} className="scale-[1.75]" />}
+            title={t.title}
+            meta={t.summary}
+          />
+        ))}
+      </Shelf>
+    </Section>
   );
 
   return (
     <Page width="form">
       {/* pinned to the tab bar, the guide is a tab of its own — a root, with
           no back button */}
-      <PageHeader back={pinned ? undefined : "/logbook"} title={guide.name} meta={guide.local} className="mb-6" />
-      <div className="space-y-6">
-        {stays.length > 0 && (
-          <Section title="Where you're staying" id={`guide-${guide.id}-stays`}>{cityRows(stays, true)}</Section>
-        )}
-        {others.length > 0 && (
-          <Section title="Also on your trip" id={`guide-${guide.id}-others`}>{cityRows(others, false)}</Section>
-        )}
-        {stays.some((c) => c.dayTrips?.length) && (
-          <Section title="Day trips" id={`guide-${guide.id}-day-trips`}>
+      <PageHeader back={pinned ? undefined : "/logbook"} title={guide.name} meta={guide.local} className="mb-5" />
+      <div className="space-y-7">
+        {guide.cover && <Cover photo={guide.cover} />}
+
+        {last && (
+          <Section title="Continue reading" id={`guide-${guide.id}-continue`}>
             <ul>
-              {stays.filter((c) => c.dayTrips?.length).map((c) => (
-                <TileRow
-                  key={c.id}
-                  to={`${guidePath(guide)}/place/${c.id}/day-trips`}
-                  tile={<IconTile size="sm" name="train" tone="ai" />}
-                  title={`From ${c.name}`}
-                  right={String(c.dayTrips!.length)}
-                />
-              ))}
+              <TileRow
+                to={last.to}
+                tile={last.src
+                  ? <img src={last.src} alt="" className="h-11 w-11 shrink-0 rounded-[8px] bg-surface-2 object-cover" />
+                  : <IconTile size="sm" name="globe" tone="accent" />}
+                title={last.title}
+                meta={last.caption}
+              />
             </ul>
           </Section>
         )}
+
+        {stays.length + others.length > 0 && (
+          <Section title="On this trip" id={`guide-${guide.id}-places`} bare>
+            <Shelf>
+              {[...stays, ...others].map((c) => {
+                const stay = stays.includes(c);
+                const trips = c.dayTrips?.length ?? 0;
+                return (
+                  <ShelfCard
+                    key={c.id}
+                    to={`${home}/place/${c.id}`}
+                    cover={coverOf(cityArticles(c))}
+                    fallback={<span className="font-jp text-[28px] text-ink-soft">{c.local ?? c.name}</span>}
+                    title={c.name}
+                    meta={[stay ? "Staying" : "On your plan", trips ? `${trips} day trips` : ""].filter(Boolean).join(" · ")}
+                  />
+                );
+              })}
+            </Shelf>
+          </Section>
+        )}
+
         {dates.length > 0 && (
-          <Section title="While you're there" id={`guide-${guide.id}-dates`}>
+          <Section title="While you're there" id={`guide-${guide.id}-while-there`} defaultOpen={false} action={<span className="text-[13px] text-ink-faint">{dates.length}</span>}>
             <ul>
               {dateArticles(dates).map((r) => (
-                <ArticleRow key={r.slug} to={`${guidePath(guide)}/date/${r.slug}`} caption={r.eyebrow} title={r.title} meta={r.article.summary} />
+                <ArticleRow key={r.slug} to={`${home}/date/${r.slug}`} caption={r.eyebrow} title={r.title} meta={r.article.summary} />
               ))}
             </ul>
           </Section>
         )}
-        {guide.eat?.length ? (
-          <Section title="Eat & drink" id={`guide-${guide.id}-eat`}>{topicRows(guide.eat)}</Section>
-        ) : null}
-        <Section title={`Understand ${guide.name}`} id={`guide-${guide.id}-understand`}>{topicRows(guide.understand)}</Section>
-        <Section title="Before you go" id={`guide-${guide.id}-practical`}>{topicRows(guide.practical)}</Section>
+
+        {guide.eat?.length ? shelf("Eat & drink", guide.eat) : null}
+        {shelf(`Understand ${guide.name}`, guide.understand)}
+        {shelf("Before you go", guide.practical)}
       </div>
     </Page>
   );
+}
+
+/* ------------------------------------------------------------ home pieces */
+
+/** the first photo in a run of articles — a topic's or a city's cover */
+function coverOf(refs: ArticleRef[]): GuidePhoto | undefined {
+  for (const r of refs) for (const b of r.article.body ?? []) if ("photo" in b) return b.photo;
+  return undefined;
+}
+
+/** The guide's opening picture, credited quietly under it — the cover of an
+ *  Apple Maps guide. */
+function Cover({ photo: p }: { photo: GuidePhoto }) {
+  return (
+    <figure>
+      <img
+        src={p.src}
+        alt={p.alt}
+        width={p.w}
+        height={p.h}
+        decoding="async"
+        className="block aspect-[2/1] w-full rounded-[12px] bg-surface-2 object-cover"
+      />
+      <figcaption className="mt-1.5 px-1 text-[11px] leading-snug text-ink-faint">
+        <a href={p.url} target="_blank" rel="noreferrer" className="break-words">
+          {p.caption ? `${p.caption} · ` : ""}{p.author} · {p.license}
+        </a>
+      </figcaption>
+    </figure>
+  );
+}
+
+/** A shelf of picture cards — one row that scrolls sideways on a phone, the
+ *  way the App Store and Apple Books lay out a collection, so a whole
+ *  section costs one card's height; a grid where the screen is wide enough
+ *  to show them all. */
+function Shelf({ children }: { children: ReactNode }) {
+  return (
+    <ul className="flex snap-x snap-mandatory scroll-px-5 gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
+      {children}
+    </ul>
+  );
+}
+
+/** a card with a cover photo, or — with none to show — its topic's colour
+ *  and glyph, the way Books draws a collection without art */
+function ShelfCard({ to, cover, tint, fallback, title, meta }: { to: string; cover?: GuidePhoto; tint?: string; fallback: ReactNode; title: string; meta?: string }) {
+  return (
+    <li className="w-[42vw] max-w-[12rem] shrink-0 snap-start sm:w-auto sm:max-w-none">
+      <Link
+        to={to}
+        viewTransition
+        className="flex h-full flex-col overflow-hidden rounded-[12px] border border-line bg-surface shadow-[0_1px_1px_rgb(0_0_0/0.04),0_3px_8px_-2px_rgb(0_0_0/0.06)] transition-transform duration-150 active:scale-[0.98] dark:border-transparent dark:shadow-none"
+      >
+        <span className="relative grid aspect-[3/2] place-items-center overflow-hidden bg-surface-2" style={!cover && tint ? { background: tint } : undefined}>
+          {cover
+            ? <img src={cover.src} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
+            : fallback}
+        </span>
+        <span className="block px-3 pb-3 pt-2">
+          <span className="block break-words text-[15px] leading-snug text-ink">{title}</span>
+          {meta && <span className="mt-0.5 block break-words text-[13px] leading-snug text-ink-faint">{meta}</span>}
+        </span>
+      </Link>
+    </li>
+  );
+}
+
+/** The article last opened, so the guide's home can offer to pick it up
+ *  again, the way Books does. Per device; reading it never fails the page. */
+interface LastRead { to: string; title: string; caption?: string; src?: string }
+const lastKey = (id: string) => `za.guide.last.${id}`;
+
+function useLastRead(id: string | undefined): LastRead | undefined {
+  const [last] = useState<LastRead | undefined>(() => {
+    if (!id) return undefined;
+    try {
+      const raw = localStorage.getItem(lastKey(id));
+      return raw ? (JSON.parse(raw) as LastRead) : undefined;
+    } catch {
+      return undefined;
+    }
+  });
+  return last;
+}
+
+function rememberRead(id: string, last: LastRead) {
+  try {
+    localStorage.setItem(lastKey(id), JSON.stringify(last));
+  } catch {
+    /* private mode / storage off — nothing to remember */
+  }
 }
 
 export function GuideTopicPage() {
@@ -341,7 +444,12 @@ function ArticlePage({
   nextTopic?: { to: string; topic: GuideTopic; color: string };
 }) {
   const guide = useGuide();
+  const { pathname } = useLocation();
   const a = entry.article;
+  const firstPhoto = a.body?.find((b): b is { photo: GuidePhoto } => "photo" in b)?.photo.src;
+  useEffect(() => {
+    if (guide) rememberRead(guide.id, { to: pathname, title: entry.title, caption: entry.eyebrow, src: firstPhoto });
+  }, [guide, pathname, entry.title, entry.eyebrow, firstPhoto]);
   const bullets = a.points?.length && !a.pointsTitle ? a.points : undefined;
   const minutes = readingMinutes(a);
   const headings = a.body?.flatMap((b) => ("h" in b ? [b.h] : [])) ?? [];

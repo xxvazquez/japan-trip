@@ -89,8 +89,12 @@ const PHOTOS = {
 
 export type PhotoId = keyof typeof PHOTOS;
 
-/** a photo block for an article body: what it shows, and an optional caption */
+/** one of the guide's photos, with what it shows and an optional caption */
+export function photoOf(id: PhotoId, alt: string, caption?: string): GuidePhoto {
+  return { src: `/guide/jp/${id}.jpg`, alt, caption, ...PHOTOS[id] };
+}
+
+/** a photo block for an article body */
 export function photo(id: PhotoId, alt: string, caption?: string): GuideBody {
-  const p: GuidePhoto = { src: `/guide/jp/${id}.jpg`, alt, caption, ...PHOTOS[id] };
-  return { photo: p };
+  return { photo: photoOf(id, alt, caption) };
 }
