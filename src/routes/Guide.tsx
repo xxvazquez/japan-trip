@@ -348,6 +348,7 @@ export function GuideTopicArticle() {
       key={`${topic.id}/${item}`}
       back={topicPath}
       entry={refs[i]}
+      fallback={{ photo: coverOf(refs), tint: guideTopicColor(t), art: <IconTile name={topic.icon} glyph={topic.glyph} color={guideTopicColor(t)} className="scale-[1.75]" /> }}
       next={refs[i + 1] && { to: `${topicPath}/${refs[i + 1].slug}`, entry: refs[i + 1] }}
       nextTopic={nextTopic && { to: `${guidePath(guide)}/${nextTopic.id}`, topic: nextTopic, color: guideTopicColor(t + 1) }}
     />
@@ -369,6 +370,7 @@ export function GuideCityArticle() {
       key={`${city.id}/${item}`}
       back={cityPath}
       entry={refs[i]}
+      fallback={cityFallback(guide, city)}
       next={refs[i + 1] && { to: `${cityPath}/${refs[i + 1].slug}`, entry: refs[i + 1] }}
     />
   );
@@ -389,6 +391,7 @@ export function GuideDayTripArticle() {
       key={`${city.id}/${item}`}
       back={tripsPath}
       entry={refs[i]}
+      fallback={cityFallback(guide, city)}
       next={refs[i + 1] && { to: `${tripsPath}/${refs[i + 1].slug}`, entry: refs[i + 1] }}
     />
   );
@@ -411,10 +414,22 @@ export function GuideDateArticle() {
       key={item}
       back={guidePath(guide)}
       entry={entry}
+      fallback={{
+        tint: guideTopicColor(Math.max(0, dateArticles(guide.dates).findIndex((r) => r.slug === item))),
+        art: <Icon name="calendar" size={30} strokeWidth={1.6} className="text-white" />,
+      }}
       next={next && { to: `${guidePath(guide)}/date/${next.slug}`, entry: next }}
     />
   );
 }
+
+/** what an article opens on when it has no photo of its own: the city's
+ *  cover, or its name in the local script */
+const cityFallback = (g: CountryGuide, c: GuideCity): ArticleFallback => ({
+  photo: coverOf(cityArticles(c)),
+  tint: guideTopicColor(g.cities.indexOf(c)),
+  art: <span className="font-jp text-[34px] text-white">{c.local ?? c.name}</span>,
+});
 
 const noArticle = (g: CountryGuide) => (
   <Missing title="Nothing here" body="That part of the guide isn’t here." to={guidePath(g)} cta={`Back to ${g.name}`} />
@@ -432,21 +447,37 @@ const noArticle = (g: CountryGuide) => (
  * the way Apple's own long support articles do, and ends with related
  * entries that carry the thread on.
  */
+/** An article's header picture when its body has none: a photo from
+ *  around it (its topic's or city's cover), else a panel in its colour. */
+interface ArticleFallback {
+  photo?: GuidePhoto;
+  tint?: string;
+  art?: ReactNode;
+}
+
 function ArticlePage({
   back,
   entry,
+  fallback,
   next,
   nextTopic,
 }: {
   back: string;
   entry: ArticleRef;
+  fallback?: ArticleFallback;
   next?: { to: string; entry: ArticleRef };
   nextTopic?: { to: string; topic: GuideTopic; color: string };
 }) {
   const guide = useGuide();
   const { pathname } = useLocation();
   const a = entry.article;
-  const firstPhoto = a.body?.find((b): b is { photo: GuidePhoto } => "photo" in b)?.photo.src;
+  // every read opens on a picture, the way Apple News leads a story: the
+  // body's first photo moves up into the header (so it isn't shown twice),
+  // else one from around the article
+  const ownAt = a.body?.findIndex((b) => "photo" in b) ?? -1;
+  const own = ownAt >= 0 ? (a.body![ownAt] as { photo: GuidePhoto }).photo : undefined;
+  const header = own ?? fallback?.photo;
+  const firstPhoto = header?.src;
   useEffect(() => {
     if (guide) rememberRead(guide.id, { to: pathname, title: entry.title, caption: entry.eyebrow, src: firstPhoto });
   }, [guide, pathname, entry.title, entry.eyebrow, firstPhoto]);
@@ -464,6 +495,16 @@ function ArticlePage({
       {minutes ? <p className="mb-6 text-[13px] text-ink-faint">{minutes} min read</p> : a.summary ? <div className="mb-4" /> : null}
 
       <div className="space-y-6">
+        {header ? <ArticleHeader photo={header} /> : fallback?.art ? (
+          <div
+            className="-mx-5 grid aspect-[3/1] place-items-center bg-surface-2 sm:mx-0 sm:rounded-[12px]"
+            style={fallback.tint ? { background: fallback.tint } : undefined}
+            aria-hidden
+          >
+            {fallback.art}
+          </div>
+        ) : null}
+
         {headings.length >= 4 && (
           <div>
             <p className="kicker mb-1.5 px-1">In this article</p>
@@ -503,7 +544,7 @@ function ArticlePage({
             views do, so a line of text gets the full width; wider screens
             keep it on a card. */}
         <article className="selectable -mx-5 bg-surface px-5 py-5 sm:mx-0 sm:rounded-[12px]">
-          {a.body ? <Body blocks={a.body} /> : a.text && <Prose text={a.text} />}
+          {a.body ? <Body blocks={a.body} skip={ownAt} /> : a.text && <Prose text={a.text} />}
           {bullets && <Bullets points={bullets} className="mt-3" />}
           {a.parts?.map((p) => (
             <section key={p.heading} className="mt-6">
@@ -704,13 +745,37 @@ function EventRow({ to, event, last }: { to: string; event: GuideEvent; last: bo
  *  reading size; everything else is drawn the way an Apple guide sets it
  *  out — numbered steps on a rail, check / cross lists, a tinted box for a
  *  tip, a small grouped table, key numbers as tiles. */
-function Body({ blocks }: { blocks: GuideBody[] }) {
+/** an article's blocks in order — bar `skip`, a photo already shown as
+ *  the article's header */
+function Body({ blocks, skip = -1 }: { blocks: GuideBody[]; skip?: number }) {
   return (
     <div className="space-y-4">
-      {blocks.map((b, i) => (
-        <BodyBlock key={i} block={b} first={i === 0} />
-      ))}
+      {blocks.map((b, i) => (i === skip ? null : <BodyBlock key={i} block={b} first={i === 0} />))}
     </div>
+  );
+}
+
+/** The picture an article opens on: edge to edge on a phone, like the
+ *  read under it, with its caption and credit beneath. */
+function ArticleHeader({ photo: p }: { photo: GuidePhoto }) {
+  const free = p.license === "CC0" || p.license === "Public domain";
+  return (
+    <figure className="-mx-5 sm:mx-0">
+      <img
+        src={p.src}
+        alt={p.alt}
+        width={p.w}
+        height={p.h}
+        decoding="async"
+        className="block aspect-[16/10] w-full bg-surface-2 object-cover sm:rounded-[12px]"
+      />
+      <figcaption className="mt-1.5 px-6 sm:px-1">
+        {p.caption && <span className="block break-words text-[13px] leading-snug text-ink-soft"><Inline text={p.caption} /></span>}
+        <a href={p.url} target="_blank" rel="noreferrer" className="mt-0.5 block break-words text-[11px] leading-snug text-ink-faint">
+          Photo: {p.author} · {p.license}{free ? "" : ", resized"}
+        </a>
+      </figcaption>
+    </figure>
   );
 }
 
@@ -853,10 +918,12 @@ function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
 
 const headingId = (h: string) => `part-${slug(h)}`;
 
-/** Body paragraphs are set flush to both edges, as Apple Books sets a
- *  page, with hyphenation so justified lines don't open up gaps. Only
- *  full-width prose: narrow columns (steps, notes, tables) stay ragged. */
-const JUSTIFY = "text-justify hyphens-auto";
+/** Body paragraphs are set ragged-right on a phone — a column that narrow
+ *  opens rivers and splits words when justified, which is why Apple's
+ *  reading views never justify it — and flush to both edges, hyphenated,
+ *  on the wider card. Only full-width prose: narrow columns (steps, notes,
+ *  tables) stay ragged everywhere. */
+const JUSTIFY = "sm:text-justify sm:hyphens-auto";
 
 /** about how long an article takes to read, at an unhurried 200 words a
  *  minute — said only for the long ones, where it helps to know */
