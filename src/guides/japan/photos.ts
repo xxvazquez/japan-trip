@@ -106,6 +106,20 @@ const PHOTOS = {
   "umeda-escalator": { w: 900, h: 600, author: "Jakub Hałun", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:20100715_Osaka_Umeda_Sky_Building_escalator_1855.jpg" },
   "glico-sign": { w: 662, h: 900, author: "Tokumeigakarinoaoshima", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Glico_sign_at_night,_25th_October_2014.JPG" },
   "nanba-kagetsu": { w: 900, h: 600, author: "Dick Thomas Johnson", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Namba_Grand_Kagetsu_2022-04-23.jpg" },
+  "sawara-shops": { w: 900, h: 603, author: "TANAKA Juuyoh", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Japanese_traditional_style_shops_%E5%92%8C%E9%A2%A8%E5%BB%BA%E7%AF%89(%E3%82%8F%E3%81%B5%E3%81%86%E3%81%91%E3%82%93%E3%81%A1%E3%81%8F)_(5395325824).jpg" },
+  "oyaji": { w: 900, h: 594, author: "Saigen Jiro", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Oya-ji_(Utsunomiya)_kan-non-dou-2.jpg" },
+  "mashiko-pottery": { w: 900, h: 675, author: "Abasaa", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Mashiko_Pottery_Sales_Center_01.JPG" },
+  "jigoku-nozoki": { w: 900, h: 675, author: "Guilhem Vellut", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Jigou-nozoki_2013-08-07_(9461737847).jpg" },
+  "hatonosu": { w: 900, h: 675, author: "Guilhem Vellut", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Hatonosu_Valley_@_Otama_Walking_Trail_(10756155063).jpg" },
+  "afuri-shrine": { w: 900, h: 600, author: "Σ64", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:%C5%8Cyama_Aburi_Shrine,_Kanagawa,_Japan_-_April_2008.jpg" },
+  "ashikaga-gakko": { w: 900, h: 675, author: "Abasaa", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Ashikaga_Gakko_Rear_Gate.JPG" },
+  "jingoji": { w: 900, h: 600, author: "KimonBerlin", license: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:Jingo-ji_(7066697911).jpg" },
+  "sanzenin-gate": { w: 900, h: 600, author: "t-mizo", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Goten-mon_gate,_Sanzen-in,_Ohara,_Kyoto_-_Jun_7,_2011.jpg" },
+  "hachimanbori": { w: 900, h: 603, author: "663highland", license: "CC BY 2.5", url: "https://commons.wikimedia.org/wiki/File:Hachimanbori07s3200.jpg" },
+  "miho-museum": { w: 900, h: 600, author: "雷太", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Miho_Museum,_Shigaraki;_September_2019_(02).jpg" },
+  "hiyoshi-taisha": { w: 900, h: 675, author: "Si-take.", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Hiyoshi_Taisha_Momiji_3.jpg" },
+  "ine-funaya": { w: 900, h: 600, author: "Naokijp", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Funaya_in_Ine_Town,_Yosa_District,_Kyoto_Prefecture_004.jpg" },
+  "ishibutai": { w: 900, h: 600, author: "663highland", license: "CC BY 2.5", url: "https://commons.wikimedia.org/wiki/File:Ishibutai-kofun_Asuka_Nara_pref05n4592.jpg" },
 } as const;
 
 export type PhotoId = keyof typeof PHOTOS;

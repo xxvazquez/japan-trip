@@ -590,21 +590,21 @@ const base: CountryGuide = {
       population: "About 14 million",
       dayTrips: [
         {
-          name: "Sawara", local: "佐原", getting: "About 1 h 30 min by JR or highway bus",
+          name: "Sawara", cover: photoOf("sawara-shops", "Old wooden shopfronts and white storehouses along a canal, a boat moored below", "Merchant houses along the Ono River in Sawara."), local: "佐原", getting: "About 1 h 30 min by JR or highway bus",
           text: [
             "A canal town of Edo-era merchant houses, with flat-bottomed boat rides under the willows.",
             "It was home to Inō Tadataka, who at 55 started walking the country to survey it — some 35,000 km — and produced the first accurate map of Japan. His museum shows maps startlingly close to satellite ones.",
           ],
         },
         {
-          name: "Ōya & Utsunomiya", local: "大谷・宇都宮", getting: "About 1 h 30 min: Shinkansen to Utsunomiya, then a 30-min bus",
+          name: "Ōya & Utsunomiya", cover: photoOf("oyaji", "A temple hall built against an overhanging cliff of pale stone", "Ōya-ji, its hall set into the Ōya stone cliff."), local: "大谷・宇都宮", getting: "About 1 h 30 min: Shinkansen to Utsunomiya, then a 30-min bus",
           text: [
             "The Ōya History Museum is an abandoned underground stone quarry as big as a cathedral — 20,000 m², 30 m down, cold all year. Frank Lloyd Wright built Tokyo's Imperial Hotel from this stone.",
             "Back in Utsunomiya, eat gyōza: the city fights Hamamatsu every year for the title of gyōza capital.",
           ],
         },
         {
-          name: "Mashiko", local: "益子", getting: "About 2 h 30 min by direct bus from Akihabara",
+          name: "Mashiko", cover: photoOf("mashiko-pottery", "A giant ceramic tanuki outside a pottery shop", "The pottery sales centre in Mashiko."), local: "益子", getting: "About 2 h 30 min by direct bus from Akihabara",
           text: [
             "The pottery town of Shōji Hamada, a founder of the mingei folk-craft movement, with hundreds of kilns and studios. His house and climbing kiln are now a museum.",
             "Its autumn pottery fair, around 3 November, fills the town with hundreds of tents.",
@@ -618,25 +618,25 @@ const base: CountryGuide = {
           ],
         },
         {
-          name: "Nokogiriyama", local: "鋸山", getting: "About 2 h by JR, or by ferry across Tokyo Bay from Kurihama",
+          name: "Nokogiriyama", cover: photoOf("jigoku-nozoki", "A rock ledge jutting out over forested hills", "Jigoku-nozoki, the 'peek into hell' ledge on Nokogiriyama."), local: "鋸山", getting: "About 2 h by JR, or by ferry across Tokyo Bay from Kurihama",
           text: [
             "An old quarry mountain whose cut cliffs look like the teeth of a saw. Stand on Jigoku-nozoki, “a peek into hell”, a ledge out over the drop.",
             "Below, a 31 m Buddha is carved into the rock — the largest pre-modern stone Buddha in Japan — and over 1,500 stone disciples line the trail.",
           ],
         },
         {
-          name: "Okutama", local: "奥多摩", getting: "About 2 h by JR Ōme line",
+          name: "Okutama", cover: photoOf("hatonosu", "A village on a forested slope above autumn trees", "Hatonosu on the Ōtama walking trail, in autumn."), local: "奥多摩", getting: "About 2 h by JR Ōme line",
           text: "Still Tokyo, the same prefecture — but forest, a deep river gorge and the Nippara limestone cave. Trains thin out in the evening, so check the last one back.",
         },
         {
-          name: "Ōyama", local: "大山", getting: "About 1 h by Odakyu to Isehara, then bus and cable car",
+          name: "Ōyama", cover: photoOf("afuri-shrine", "A red-roofed shrine building at the top of a slope, bare trees around it", "Afuri Shrine on Ōyama."), local: "大山", getting: "About 1 h by Odakyu to Isehara, then bus and cable car",
           text: [
             "The pilgrimage mountain Edo townspeople walked to from the city — you'll see it in ukiyo-e prints.",
             "The steps up to Ōyama-dera are lined with maples lit up at night in late autumn, and the town at the bottom lives on tofu.",
           ],
         },
         {
-          name: "Ashikaga", local: "足利", getting: "About 2 h by train",
+          name: "Ashikaga", cover: photoOf("ashikaga-gakko", "A thatched gate and white walls behind a wooden fence", "The gate of Ashikaga Gakkō, said to be Japan's oldest school."), local: "足利", getting: "About 2 h by train",
           text: [
             "Ashikaga Gakkō is said to be Japan's oldest school; Francis Xavier called it the most famous university in eastern Japan.",
             "Ashikaga Flower Park's winter illumination, millions of lights, starts in late October.",
@@ -653,35 +653,35 @@ const base: CountryGuide = {
       population: "About 1.4 million",
       dayTrips: [
         {
-          name: "Takao", local: "高雄", getting: "About 50 min by JR bus from Kyoto Station",
+          name: "Takao", cover: photoOf("jingoji", "A child at a table of small clay discs at a temple", "Clay discs for kawarake throwing at Jingo-ji."), local: "高雄", getting: "About 50 min by JR bus from Kyoto Station",
           text: [
             "Three mountain temples along a river gorge, where Kyoto's maples turn first — early to mid November.",
             "At Jingo-ji you throw little clay discs (kawarake) off a cliff to cast away bad luck. Kōzan-ji keeps copies of the Chōjū-giga, 12th-century scrolls of frogs and rabbits often called the first manga. Walk down the river to Kiyotaki.",
           ],
         },
         {
-          name: "Ōhara", local: "大原", getting: "About 25 min by bus from Kokusaikaikan subway station",
+          name: "Ōhara", cover: photoOf("sanzenin-gate", "A tiled temple gate at the top of stone steps", "The Goten-mon gate of Sanzen-in."), local: "大原", getting: "About 25 min by bus from Kokusaikaikan subway station",
           text: [
             "A farming valley in the northern hills. At Hōsen-in you sit on the tatami with matcha and see the garden framed by the pillars like a picture, under a pine said to be 700 years old.",
             "Sanzen-in's moss garden hides little smiling stone jizō. The valley's red shiso pickles (shibazuke) are the thing to bring back.",
           ],
         },
         {
-          name: "Ōmi-Hachiman", local: "近江八幡", getting: "About 35 min by JR from Kyoto",
+          name: "Ōmi-Hachiman", cover: photoOf("hachimanbori", "A canal between stone walls and old wooden houses", "The Hachimanbori canal."), local: "近江八幡", getting: "About 35 min by JR from Kyoto",
           text: [
             "An Edo-era merchant town on a canal you can tour by boat. The Ōmi merchants' motto, sanpō-yoshi — good for the seller, the buyer and society — is still quoted in Japanese business schools.",
             "La Collina, a confectioner's headquarters by the architect Terunobu Fujimori, has a lawn growing on its roof.",
           ],
         },
         {
-          name: "Miho Museum", local: "ミホミュージアム", getting: "About 1 h: JR to Ishiyama, then a 50-min bus",
+          name: "Miho Museum", cover: photoOf("miho-museum", "A glass-roofed entrance hall framing green hills", "The Miho Museum's entrance hall."), local: "ミホミュージアム", getting: "About 1 h: JR to Ishiyama, then a 50-min bus",
           text: [
             "I. M. Pei, the architect of the Louvre pyramid, built it in the Shiga mountains as a modern Shangri-La: you walk through a curving silver tunnel and over a bridge across a valley, and most of the building is underground.",
             "Open in spring and autumn seasons only, closed on Mondays.",
           ],
         },
         {
-          name: "Sakamoto & Hiyoshi Taisha", local: "坂本・日吉大社", getting: "About 40 min by Keihan or JR to Sakamoto",
+          name: "Sakamoto & Hiyoshi Taisha", cover: photoOf("hiyoshi-taisha", "Lanterns lighting red maples at night", "Hiyoshi Taisha's maples lit at night."), local: "坂本・日吉大社", getting: "About 40 min by Keihan or JR to Sakamoto",
           text: [
             "The temple town under Mount Hiei, its walls built in anō-zumi — stones stacked without mortar by the same guild of masons who built castle walls.",
             "Hiyoshi Taisha is one of the best maple spots near Kyoto and rarely crowded. Japan's longest cable car climbs from here to Enryaku-ji.",
@@ -695,14 +695,14 @@ const base: CountryGuide = {
           ],
         },
         {
-          name: "Ine & Amanohashidate", local: "伊根・天橋立", getting: "About 2 h by train, then 1 h by bus — a long day, better with a night",
+          name: "Ine & Amanohashidate", cover: photoOf("ine-funaya", "A row of wooden boathouses built over the water of a bay", "Funaya boathouses on Ine Bay."), local: "伊根・天橋立", getting: "About 2 h by train, then 1 h by bus — a long day, better with a night",
           text: [
             "Ine's 230 boathouses (funaya) sit right on the water, boats parked on the ground floor, homes above.",
             "On the way, Amanohashidate's pine-covered sandbar is one of Japan's three famous views. Tradition says to look at it upside down through your legs (mata-nozoki), when it becomes a bridge to heaven.",
           ],
         },
         {
-          name: "Asuka", local: "明日香", getting: "About 1 h 20 min by Kintetsu, changing at Kashiharajingū-mae",
+          name: "Asuka", cover: photoOf("ishibutai", "A tomb of huge bare stone slabs on a lawn", "Ishibutai Kofun, a stone burial chamber in Asuka."), local: "明日香", getting: "About 1 h 20 min by Kintetsu, changing at Kashiharajingū-mae",
           text: [
             "Japan's capital before Nara, now rice fields. Rent a bike between the burial mounds.",
             "Ishibutai is a tomb of giant bare boulders; Asuka-dera's Great Buddha, from 609, is the oldest in Japan.",
