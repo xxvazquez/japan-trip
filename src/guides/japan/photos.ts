@@ -33,6 +33,16 @@ const PHOTOS = {
   "toshogu": { w: 900, h: 675, author: "Nerotaso", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Toshogu_torii_and_pagoda.jpg" },
   "toyokawa": { w: 900, h: 558, author: "Zairon", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Toyokawa_Toyokawa-inari_Torii.jpg" },
   "kintsugi": { w: 900, h: 604, author: "D-Kuru", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Kintsugi_on_broken_Ky%C5%ABsu_lid-top_oblique_PNr%C2%B01258.jpg" },
+  "jomon-pot": { w: 889, h: 900, author: "Daderot", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Jomon_Vessel_with_Flame-like_Ornamentation,_attributed_provenance_Umataka,_Nagaoka-shi,_Niigata,_Jomon_period,_3000-2000_BC_-_Tokyo_National_Museum_-_DSC05620.JPG" },
+  "daisen-kofun": { w: 900, h: 883, author: "Geospatial Information Authority of Japan", license: "Attribution", url: "https://commons.wikimedia.org/wiki/File:NintokuTomb_Aerial_photograph_2007.jpg" },
+  "horyuji": { w: 900, h: 600, author: "ONO Masanobu", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Horyu-ji_Kondo_and_Five-story_Pagoda_2022.jpg" },
+  "byodoin": { w: 900, h: 599, author: "Marco Almbauer", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:By%C5%8Dd%C5%8D-in,_Phoenix_Hall.jpg" },
+  "mongol-scroll": { w: 900, h: 301, author: "Commissioned by Takezaki Suenaga", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:M%C5%8Dko_Sh%C5%ABrai_Ekotoba.jpg" },
+  "himeji": { w: 900, h: 675, author: "Kok Leng Yeo", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Flickr_-_yeowatzup_-_Himeji_Castle,_Himeji,_Hyogo,_Japan.jpg" },
+  "hakone-hiroshige": { w: 900, h: 594, author: "Utagawa Hiroshige", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Hiroshige-53-Stations-Hoeido-11-Hakone-MFA-02.jpg" },
+  "perry": { w: 900, h: 424, author: "Hibata Ōsuke", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:The_Mission_of_Commodore_Perry_to_Japan_in_1854_(BM_2013,3002.1).jpg" },
+  "yokohama-railway": { w: 900, h: 438, author: "Hiroshige III", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Yokohama_Railway_1874.jpg" },
+  "shinkansen-0": { w: 900, h: 675, author: "sodai gomi", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:0_series_shinkansen_at_Himeji_Station_2004.jpg" },
 } as const;
 
 export type PhotoId = keyof typeof PHOTOS;
