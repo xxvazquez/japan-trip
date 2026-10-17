@@ -1,13 +1,274 @@
-import type { CountryGuide } from "./types";
+import type { CountryGuide, GuideCity } from "./types";
+import { closer } from "./japan/closer";
+import { coffee } from "./japan/coffee";
+import { eatingOut, foodAtHome, howFoodWorks, regionalFood } from "./japan/food";
+import { land } from "./japan/land";
+import { numbers } from "./japan/numbers";
+import { placeReads } from "./japan/places";
+import { prepared } from "./japan/prepared";
 
 /** Japan — the country guide. Facts are checked against official sources
  *  (JNTO, the Ministry of Health, Japan Customs, city sites) where they
  *  carry a number or a rule; anything that changes often (fares, opening
  *  hours) is left out on purpose. */
-export const japan: CountryGuide = {
+const base: CountryGuide = {
   id: "jp",
   name: "Japan",
   local: "日本 · Nihon",
+
+  eat: [foodAtHome, eatingOut, howFoodWorks, regionalFood, coffee,
+    {
+      id: "food",
+      title: "Menus & drinks",
+      glyph: "noodles",
+      summary: "Autumn food, reading a menu, ordering, sake, tea, sweets",
+      blocks: [
+        {
+          title: "Autumn on the table",
+          items: [
+            {
+              title: "Matsutake",
+              text: "Pine mushrooms, the autumn luxury — a few domestic ones can cost more than the rest of the meal. Grilled, in a clear soup served in a little teapot (dobin-mushi) or cooked with rice.",
+            },
+            {
+              title: "Sanma",
+              text: "Pacific saury, salt-grilled whole with grated daikon: the smell of Japanese autumn. Catches have collapsed in the last decade, so it's no longer the cheap fish it was.",
+            },
+            {
+              title: "Shinmai",
+              text: "The new rice of the year, labelled as such in shops and on menus from October — softer and more fragrant. People really do notice.",
+            },
+            {
+              title: "Kuri and kaki",
+              text: "Chestnuts go into rice, sweets and Mont Blancs; persimmons are everywhere, fresh, or dried as hoshigaki hanging under the eaves.",
+            },
+            {
+              title: "Yaki-imo trucks",
+              text: "Small trucks drive slowly through neighbourhoods selling stone-roasted sweet potatoes, playing a recorded call: “ishi-yaki imo…”. Supermarkets roast them by the door too.",
+            },
+            {
+              title: "Oden season",
+              text: "From autumn, convenience stores keep a tray of oden simmering by the till — daikon, egg, tofu, fishcakes in dashi. Point at what you want.",
+            },
+          ],
+        },
+        {
+          title: "Reading the menu",
+          items: [
+            {
+              title: "Sushi means the rice",
+              text: "The word refers to the vinegared rice, not the fish.",
+              points: [
+                "Nigiri — a hand-pressed slice on rice",
+                "Sashimi — fish on its own, no rice",
+                "Maki — rolled in seaweed",
+                "Gunkan — a “battleship” of rice wrapped in seaweed, topped with roe or sea urchin",
+                "Chirashi — toppings scattered over a bowl of rice",
+              ],
+            },
+            {
+              title: "Edomae sushi was fast food",
+              text: "It started in 1820s Edo as a snack from street stalls. With no refrigeration, fish was cured, marinated or simmered — and top sushi chefs still age their fish for days.",
+            },
+            {
+              title: "Omakase or okonomi",
+              text: "Omakase leaves the chef to choose; okonomi is ordering piece by piece. At a serious counter, omakase is the norm.",
+            },
+            {
+              title: "Ramen",
+              text: "It came from China; Japan's first ramen shop opened in Asakusa in 1910. A bowl is built from a tare at the bottom, the broth and an aroma oil on top. The four bases:",
+              points: ["Shio — salt, clear and light", "Shōyu — soy, Tokyo's classic", "Miso — Sapporo's, rich and warming", "Tonkotsu — milky pork bone, from Fukuoka"],
+            },
+            {
+              title: "Tsukemen",
+              text: "Cold, thick noodles dipped in a concentrated hot broth — invented in Tokyo in the 1950s. At the end, ask for soup-wari to thin the leftover dip and drink it.",
+            },
+            {
+              title: "Soba and udon",
+              text: [
+                "Soba is buckwheat — ni-hachi is 20% wheat, jū-wari 100% buckwheat — and more of an eastern thing; udon is thick wheat noodles, the west's.",
+                "After soba you're given soba-yu, the cooking water, to pour into your leftover dipping sauce and drink.",
+              ],
+            },
+            {
+              title: "Yakitori, part by part",
+              text: "Ask for shio (salt) or tare (sweet glaze).",
+              points: [
+                "Negima — thigh and leek",
+                "Tsukune — meatball, often with raw egg yolk",
+                "Kawa — skin",
+                "Seseri — neck",
+                "Bonjiri — tail",
+                "Hatsu — heart; sunagimo — gizzard",
+              ],
+            },
+            {
+              title: "Wagyu grades",
+              text: "A5 means the best yield (A) and the top marbling score (5). Kobe beef is one certified brand of Tajima cattle from Hyōgo — real Kobe comes with a ten-digit number you can look up.",
+            },
+            {
+              title: "Yōshoku",
+              text: [
+                "Western food the Japanese way: omurice, hambāgu, korokke, spaghetti Napolitan with ketchup, and curry rice.",
+                "Curry was brought by the British navy; Japan's navy still eats it every Friday.",
+              ],
+            },
+            {
+              title: "Tempura is Portuguese",
+              text: "Brought by Portuguese traders and missionaries in the 16th century, as was castella sponge cake — and pan, the word for bread.",
+            },
+            {
+              title: "Kaiseki",
+              text: "The formal seasonal course, born from the tea ceremony. The name means “stone in the robe”: Zen monks held a warm stone to their stomach to quiet hunger.",
+            },
+            {
+              title: "Rice comes last",
+              text: "In a course or at an izakaya, rice, miso soup and pickles close the meal — drinking comes first. The final dish is the shime: rice cooked into the hotpot broth, or ramen after a night out.",
+            },
+          ],
+        },
+        {
+          title: "Ordering",
+          items: [
+            {
+              title: "Ticket machines",
+              text: "Many ramen and noodle shops have you buy a ticket at a machine by the door and hand it over at the counter. Some take only cash; newer ones take IC cards.",
+            },
+            {
+              title: "Reading Tabelog",
+              text: "The scale is compressed: 3.5 is very good, 3.8 is excellent, and anything over 4 is the elite. Don't read it like Google's stars.",
+            },
+            { title: "Lunch is the trick", text: "Places charging ¥20,000 at dinner often do a lunch set for a fraction of it — same kitchen." },
+            {
+              title: "A queue is a review",
+              text: "Lines are normal and orderly; some places hand out numbered tickets or take your name on a sheet by the door. A long one of locals is the best sign you'll get.",
+            },
+            {
+              title: "Book the popular places",
+              text: "Well-known restaurants can be full weeks ahead, and some only take bookings through a hotel or a Japanese phone number. Last orders are often 30–60 minutes before closing.",
+            },
+            { title: "Depachika at closing time", text: "Department-store basement food halls mark prepared food down in the last hour." },
+          ],
+        },
+        {
+          title: "How to eat it",
+          items: [
+            {
+              title: "Fish side down",
+              text: "Dip nigiri fish-side into the soy sauce, not the rice — the rice falls apart and soaks it up. Fingers are fine for nigiri.",
+            },
+            { title: "Ginger is a palate cleanser", text: "Gari is eaten between pieces, not piled on top. The chef has usually put the wasabi in already." },
+            {
+              title: "Real wasabi",
+              text: "Fresh wasabi is a rhizome grated on sharkskin, sweet and fleeting. What's served outside Japan is mostly horseradish, mustard and dye.",
+            },
+            { title: "Pour for others", text: "Fill your companions' glasses, not your own — they'll fill yours. Wait for kanpai before drinking." },
+            {
+              title: "Lift the bowl",
+              text: "Rice and miso bowls are picked up and brought to your mouth; miso is drunk straight from the bowl. Slurping noodles is fine — it cools them.",
+            },
+            {
+              title: "Eating on trains",
+              text: "On the Shinkansen and limited expresses an ekiben (station bento) and a beer are part of the trip. On commuter trains, people don't eat.",
+            },
+            {
+              title: "Vegetarian is hard",
+              text: "Fish stock (dashi) is in most soups, sauces and broths, even ones that look vegetable-only. Shōjin ryōri, Buddhist temple cooking, is fully plant-based.",
+            },
+          ],
+        },
+        {
+          title: "Drinks",
+          items: [
+            { title: "“Sake” means any alcohol", text: "The rice drink is nihonshu." },
+            {
+              title: "Reading a sake label",
+              text: "Kyoto's Fushimi and Kobe's Nada are the big brewing districts.",
+              points: [
+                "Junmai — nothing added but rice, water, yeast and kōji",
+                "Ginjō — rice polished to 60% of the grain or less: lighter, more fragrant",
+                "Daiginjō — polished to 50% or less",
+                "Nigori — cloudy, unfiltered",
+              ],
+            },
+            {
+              title: "Overflowing on purpose",
+              text: "Some bars pour sake into a glass standing in a wooden box until it overflows — mokkiri, a show of generosity. Drink from the glass, then pour the box in.",
+            },
+            {
+              title: "Hot or cold",
+              text: "Good sake is usually chilled, but warm sake (atsukan) in autumn and winter is a pleasure, not a sign of cheap sake.",
+            },
+            {
+              title: "Shōchū and sours",
+              text: "Shōchū is distilled — from sweet potato, barley or rice. Mixed with soda and fruit it's a sour or chūhai; the canned ones run up to 9%.",
+            },
+            {
+              title: "Whisky near Kyoto",
+              text: "Yamazaki, Japan's first malt whisky distillery (1923), is one stop down the line between Kyoto and Osaka. Tours need booking well ahead. Highballs are what most people actually drink.",
+            },
+            {
+              title: "The tea ladder",
+              text: "Green tea comes free with most meals.",
+              points: [
+                "Sencha — the everyday green",
+                "Gyokuro — shaded for weeks before picking; sweet and brothy",
+                "Matcha — shaded leaf ground to powder",
+                "Hōjicha — roasted, low in caffeine",
+                "Genmaicha — with toasted rice",
+              ],
+            },
+            {
+              title: "Beer tax, solved",
+              text: "Japan taxed beer by malt content, so brewers invented happōshu and “third beer” with less malt. From October 2026 they're all taxed the same — watch the cheap ones disappear.",
+            },
+            { title: "Calpis", text: "The sweet fermented-milk drink in every vending machine dates from 1919." },
+          ],
+        },
+        {
+          title: "Sweets",
+          items: [
+            {
+              title: "Wagashi",
+              text: "Sweets made to go with tea, shaped and coloured for the month — maple leaves and persimmons in autumn. Most are built on anko, sweet red bean paste.",
+            },
+            { title: "Dorayaki", text: "Two pancakes with anko between them — Doraemon's favourite food." },
+            {
+              title: "A Japanese Mont Blanc",
+              text: "The yellow chestnut Mont Blanc was adapted in Tokyo in 1933, at a shop in Jiyūgaoka still called Mont Blanc.",
+            },
+            { title: "Christmas cake", text: "Strawberry shortcake, white and red — ordered weeks ahead for 24 December." },
+          ],
+        },
+        {
+          title: "Fun facts",
+          items: [
+            {
+              title: "Plastic food is a craft",
+              text: "The food models in restaurant windows (sampuru) date from the 1930s. Kappabashi in Tokyo, the kitchenware street, sells them — and some shops let you make your own.",
+            },
+            { title: "A ¥333 million tuna", text: "The first bluefin auction of the year is a publicity stunt; in 2019 one fish went for ¥333.6 million." },
+            {
+              title: "A thousand-year-old snack bar",
+              text: "Ichiwa, by Imamiya Shrine in Kyoto, has sold grilled mochi with white miso since around the year 1000.",
+            },
+            {
+              title: "The onigiri wrapper",
+              text: "The 1-2-3 pull tabs on convenience-store onigiri keep the seaweed in its own film so it stays crisp until you open it.",
+            },
+            { title: "Fugu", text: "Blowfish is served only by licensed chefs, and its liver, the most poisonous part, has been banned since 1984." },
+            { title: "Raw egg is fine", text: "Eggs are produced to be eaten raw — tamago kake gohan, egg on rice, is a classic breakfast." },
+            { title: "Kewpie", text: "Japanese mayo is made with yolks only and rice vinegar — it's what makes the egg sandwiches so good." },
+            { title: "Square watermelons", text: "They exist, grown in boxes, cost a fortune — and are ornaments, picked too early to eat." },
+            {
+              title: "A ramen theme park",
+              text: "The Shin-Yokohama Ramen Museum (1994) rebuilt a 1958 Tokyo street with shops from around the country — the world's first food theme park.",
+            },
+          ],
+        },
+      ],
+    },
+  ],
 
   understand: [
     {
@@ -290,6 +551,9 @@ export const japan: CountryGuide = {
         },
       ],
     },
+    closer,
+    numbers,
+    land,
     {
       id: "belief",
       title: "Belief & philosophy",
@@ -1118,6 +1382,7 @@ export const japan: CountryGuide = {
   ],
 
   practical: [
+    prepared,
     {
       id: "customs",
       title: "Easy to get wrong",
@@ -1345,32 +1610,7 @@ export const japan: CountryGuide = {
                 { note: "Every phone sold in Japan makes a shutter sound that can't be switched off — makers agreed to it to deter secret photos. It's why you hear that click everywhere.", title: "Why the click" },
               ],
               words: [{ local: "撮影禁止", say: "satsuei kinshi", means: "no photography" }],
-            },
-            {
-              title: "Earthquakes",
-              summary: "Shindo, not magnitude — and what the alarm on your phone means",
-              body: [
-                { p: "Japan has around a fifth of the world's strong earthquakes, and a small tremor on a two-week trip is likely. Buildings are engineered for it; most quakes are a sway and a rattle, and over." },
-                { h: "Shindo, not magnitude" },
-                { p: "Japanese news reports an earthquake by **shindo** — how hard the ground shook at each place — rather than by magnitude, which measures the energy at the source. The same quake can be shindo 5 in one town and 2 in the next. The scale runs from 0 to 7, with 5 and 6 split into lower and upper." },
-                {
-                  table: {
-                    head: ["Shindo", "What it feels like"],
-                    rows: [
-                      ["1–2", "Noticed only by people sitting still"],
-                      ["3", "Most people feel it; dishes rattle"],
-                      ["4", "Startling; hanging lights swing hard"],
-                      ["5 lower and above", "Hard to stand; unsecured furniture moves. Phones sound the early warning."],
-                      ["6–7", "Severe. Buildings can be damaged."],
-                    ],
-                  },
-                },
-                { h: "The phone alarm" },
-                { p: "When shindo 5 lower or more is expected, the **Earthquake Early Warning** sends a piercing alert to phones in the area, seconds before the strong shaking arrives. Get under a sturdy table, away from windows, and stay inside until it stops — falling glass and signs make the street the more dangerous place." },
-                { note: "On the coast, strong or long shaking is the warning itself. Head for high ground at once, following the blue tsunami signs, without waiting for an official alert.", kind: "warning", title: "Tsunami" },
-                { p: "**Safety Tips**, a free app from the Japan Tourism Agency, sends quake, tsunami and weather alerts in English." },
-              ],
-            },
+            }
           ],
         },
       ],
@@ -1570,315 +1810,7 @@ export const japan: CountryGuide = {
           ],
         },
       ],
-    },
-    {
-      id: "food",
-      title: "Food & drink",
-      glyph: "noodles",
-      summary: "Umami, menus, autumn food, sake, sweets",
-      blocks: [
-        {
-          title: "How it thinks",
-          items: [
-            {
-              title: "Umami was discovered here",
-              text: "In 1908 the chemist Kikunae Ikeda worked out why kombu broth tasted so good: glutamate. He named the fifth taste umami, and the company that sold it as MSG became Ajinomoto.",
-            },
-            {
-              title: "Umami multiplies",
-              text: [
-                "Kombu (glutamate), bonito flakes (inosinate) and dried shiitake (guanylate) don't just add up — together they multiply.",
-                "That's why dashi made from two of them tastes far stronger than either alone, and why it's the base of so much Japanese cooking.",
-              ],
-            },
-            {
-              title: "The hardest food in the world",
-              text: "Katsuobushi, the bonito behind dashi, is smoked, dried and fermented with mould for months until it's as hard as wood, then shaved into flakes. The flakes dancing on hot food are just moving in the steam.",
-            },
-            {
-              title: "One soup, three dishes",
-              text: "Ichijū sansai — rice, a soup and three sides — is the shape of a home meal. Gohan means both “cooked rice” and “a meal”.",
-            },
-            {
-              title: "Shun",
-              text: "Eating each thing at its peak. Menus at good places change monthly, sometimes weekly, and a dish served out of season reads as careless.",
-            },
-            {
-              title: "Washoku is World Heritage",
-              text: "UNESCO listed Japanese food culture in 2013 — for its seasonality and the New Year meal, not for sushi.",
-            },
-            {
-              title: "The rice crisis",
-              text: "In 2024–25 rice prices roughly doubled after a poor harvest and hoarding, and the government released its emergency stockpile. Rice is still political here.",
-            },
-          ],
-        },
-        {
-          title: "Autumn on the table",
-          items: [
-            {
-              title: "Matsutake",
-              text: "Pine mushrooms, the autumn luxury — a few domestic ones can cost more than the rest of the meal. Grilled, in a clear soup served in a little teapot (dobin-mushi) or cooked with rice.",
-            },
-            {
-              title: "Sanma",
-              text: "Pacific saury, salt-grilled whole with grated daikon: the smell of Japanese autumn. Catches have collapsed in the last decade, so it's no longer the cheap fish it was.",
-            },
-            {
-              title: "Shinmai",
-              text: "The new rice of the year, labelled as such in shops and on menus from October — softer and more fragrant. People really do notice.",
-            },
-            {
-              title: "Kuri and kaki",
-              text: "Chestnuts go into rice, sweets and Mont Blancs; persimmons are everywhere, fresh, or dried as hoshigaki hanging under the eaves.",
-            },
-            {
-              title: "Yaki-imo trucks",
-              text: "Small trucks drive slowly through neighbourhoods selling stone-roasted sweet potatoes, playing a recorded call: “ishi-yaki imo…”. Supermarkets roast them by the door too.",
-            },
-            {
-              title: "Oden season",
-              text: "From autumn, convenience stores keep a tray of oden simmering by the till — daikon, egg, tofu, fishcakes in dashi. Point at what you want.",
-            },
-          ],
-        },
-        {
-          title: "Reading the menu",
-          items: [
-            {
-              title: "Sushi means the rice",
-              text: "The word refers to the vinegared rice, not the fish.",
-              points: [
-                "Nigiri — a hand-pressed slice on rice",
-                "Sashimi — fish on its own, no rice",
-                "Maki — rolled in seaweed",
-                "Gunkan — a “battleship” of rice wrapped in seaweed, topped with roe or sea urchin",
-                "Chirashi — toppings scattered over a bowl of rice",
-              ],
-            },
-            {
-              title: "Edomae sushi was fast food",
-              text: "It started in 1820s Edo as a snack from street stalls. With no refrigeration, fish was cured, marinated or simmered — and top sushi chefs still age their fish for days.",
-            },
-            {
-              title: "Omakase or okonomi",
-              text: "Omakase leaves the chef to choose; okonomi is ordering piece by piece. At a serious counter, omakase is the norm.",
-            },
-            {
-              title: "Ramen",
-              text: "It came from China; Japan's first ramen shop opened in Asakusa in 1910. A bowl is built from a tare at the bottom, the broth and an aroma oil on top. The four bases:",
-              points: ["Shio — salt, clear and light", "Shōyu — soy, Tokyo's classic", "Miso — Sapporo's, rich and warming", "Tonkotsu — milky pork bone, from Fukuoka"],
-            },
-            {
-              title: "Tsukemen",
-              text: "Cold, thick noodles dipped in a concentrated hot broth — invented in Tokyo in the 1950s. At the end, ask for soup-wari to thin the leftover dip and drink it.",
-            },
-            {
-              title: "Soba and udon",
-              text: [
-                "Soba is buckwheat — ni-hachi is 20% wheat, jū-wari 100% buckwheat — and more of an eastern thing; udon is thick wheat noodles, the west's.",
-                "After soba you're given soba-yu, the cooking water, to pour into your leftover dipping sauce and drink.",
-              ],
-            },
-            {
-              title: "Yakitori, part by part",
-              text: "Ask for shio (salt) or tare (sweet glaze).",
-              points: [
-                "Negima — thigh and leek",
-                "Tsukune — meatball, often with raw egg yolk",
-                "Kawa — skin",
-                "Seseri — neck",
-                "Bonjiri — tail",
-                "Hatsu — heart; sunagimo — gizzard",
-              ],
-            },
-            {
-              title: "Wagyu grades",
-              text: "A5 means the best yield (A) and the top marbling score (5). Kobe beef is one certified brand of Tajima cattle from Hyōgo — real Kobe comes with a ten-digit number you can look up.",
-            },
-            {
-              title: "Yōshoku",
-              text: [
-                "Western food the Japanese way: omurice, hambāgu, korokke, spaghetti Napolitan with ketchup, and curry rice.",
-                "Curry was brought by the British navy; Japan's navy still eats it every Friday.",
-              ],
-            },
-            {
-              title: "Tempura is Portuguese",
-              text: "Brought by Portuguese traders and missionaries in the 16th century, as was castella sponge cake — and pan, the word for bread.",
-            },
-            {
-              title: "Kaiseki",
-              text: "The formal seasonal course, born from the tea ceremony. The name means “stone in the robe”: Zen monks held a warm stone to their stomach to quiet hunger.",
-            },
-            {
-              title: "Rice comes last",
-              text: "In a course or at an izakaya, rice, miso soup and pickles close the meal — drinking comes first. The final dish is the shime: rice cooked into the hotpot broth, or ramen after a night out.",
-            },
-          ],
-        },
-        {
-          title: "Kinds of places",
-          items: [
-            { title: "Izakaya", text: "A pub that's really about the food: small plates to share, ordered in rounds as you drink. Shout sumimasen to call staff." },
-            { title: "Shokudō and teishoku", text: "Everyday diners serving teishoku — a set meal of a main, rice, miso soup and pickles. The best-value meal in the country." },
-            { title: "Kappō", text: "A counter where you watch the chef cook kaiseki-style food — less formal and more personal." },
-            { title: "Tachinomi", text: "Standing bars, often near stations — cheap, quick, and where you'll end up talking to strangers." },
-            {
-              title: "Kissaten",
-              text: "Old coffee houses with velvet chairs and slow hand-poured coffee. Before 11:00 many do a “morning service”: toast and egg free with your coffee.",
-            },
-            {
-              title: "Specialists",
-              text: "Most restaurants do one thing — only tonkatsu, only eel, only tempura — often for generations. A short menu is a good sign.",
-            },
-          ],
-        },
-        {
-          title: "Ordering",
-          items: [
-            {
-              title: "Ticket machines",
-              text: "Many ramen and noodle shops have you buy a ticket at a machine by the door and hand it over at the counter. Some take only cash; newer ones take IC cards.",
-            },
-            {
-              title: "The dish you didn't order",
-              text: "At many izakaya a small starter (otoshi) arrives unasked and is charged per person, usually a few hundred yen. It's the table charge, not a scam.",
-            },
-            {
-              title: "Reading Tabelog",
-              text: "The scale is compressed: 3.5 is very good, 3.8 is excellent, and anything over 4 is the elite. Don't read it like Google's stars.",
-            },
-            { title: "Lunch is the trick", text: "Places charging ¥20,000 at dinner often do a lunch set for a fraction of it — same kitchen." },
-            {
-              title: "A queue is a review",
-              text: "Lines are normal and orderly; some places hand out numbered tickets or take your name on a sheet by the door. A long one of locals is the best sign you'll get.",
-            },
-            {
-              title: "Book the popular places",
-              text: "Well-known restaurants can be full weeks ahead, and some only take bookings through a hotel or a Japanese phone number. Last orders are often 30–60 minutes before closing.",
-            },
-            { title: "Depachika at closing time", text: "Department-store basement food halls mark prepared food down in the last hour." },
-          ],
-        },
-        {
-          title: "How to eat it",
-          items: [
-            {
-              title: "Fish side down",
-              text: "Dip nigiri fish-side into the soy sauce, not the rice — the rice falls apart and soaks it up. Fingers are fine for nigiri.",
-            },
-            { title: "Ginger is a palate cleanser", text: "Gari is eaten between pieces, not piled on top. The chef has usually put the wasabi in already." },
-            {
-              title: "Real wasabi",
-              text: "Fresh wasabi is a rhizome grated on sharkskin, sweet and fleeting. What's served outside Japan is mostly horseradish, mustard and dye.",
-            },
-            { title: "Pour for others", text: "Fill your companions' glasses, not your own — they'll fill yours. Wait for kanpai before drinking." },
-            {
-              title: "Lift the bowl",
-              text: "Rice and miso bowls are picked up and brought to your mouth; miso is drunk straight from the bowl. Slurping noodles is fine — it cools them.",
-            },
-            {
-              title: "Eating on trains",
-              text: "On the Shinkansen and limited expresses an ekiben (station bento) and a beer are part of the trip. On commuter trains, people don't eat.",
-            },
-            {
-              title: "Vegetarian is hard",
-              text: "Fish stock (dashi) is in most soups, sauces and broths, even ones that look vegetable-only. Shōjin ryōri, Buddhist temple cooking, is fully plant-based.",
-            },
-          ],
-        },
-        {
-          title: "Drinks",
-          items: [
-            { title: "“Sake” means any alcohol", text: "The rice drink is nihonshu." },
-            {
-              title: "Reading a sake label",
-              text: "Kyoto's Fushimi and Kobe's Nada are the big brewing districts.",
-              points: [
-                "Junmai — nothing added but rice, water, yeast and kōji",
-                "Ginjō — rice polished to 60% of the grain or less: lighter, more fragrant",
-                "Daiginjō — polished to 50% or less",
-                "Nigori — cloudy, unfiltered",
-              ],
-            },
-            {
-              title: "Overflowing on purpose",
-              text: "Some bars pour sake into a glass standing in a wooden box until it overflows — mokkiri, a show of generosity. Drink from the glass, then pour the box in.",
-            },
-            {
-              title: "Hot or cold",
-              text: "Good sake is usually chilled, but warm sake (atsukan) in autumn and winter is a pleasure, not a sign of cheap sake.",
-            },
-            {
-              title: "Shōchū and sours",
-              text: "Shōchū is distilled — from sweet potato, barley or rice. Mixed with soda and fruit it's a sour or chūhai; the canned ones run up to 9%.",
-            },
-            {
-              title: "Whisky near Kyoto",
-              text: "Yamazaki, Japan's first malt whisky distillery (1923), is one stop down the line between Kyoto and Osaka. Tours need booking well ahead. Highballs are what most people actually drink.",
-            },
-            {
-              title: "The tea ladder",
-              text: "Green tea comes free with most meals.",
-              points: [
-                "Sencha — the everyday green",
-                "Gyokuro — shaded for weeks before picking; sweet and brothy",
-                "Matcha — shaded leaf ground to powder",
-                "Hōjicha — roasted, low in caffeine",
-                "Genmaicha — with toasted rice",
-              ],
-            },
-            {
-              title: "Beer tax, solved",
-              text: "Japan taxed beer by malt content, so brewers invented happōshu and “third beer” with less malt. From October 2026 they're all taxed the same — watch the cheap ones disappear.",
-            },
-            { title: "Calpis", text: "The sweet fermented-milk drink in every vending machine dates from 1919." },
-          ],
-        },
-        {
-          title: "Sweets",
-          items: [
-            {
-              title: "Wagashi",
-              text: "Sweets made to go with tea, shaped and coloured for the month — maple leaves and persimmons in autumn. Most are built on anko, sweet red bean paste.",
-            },
-            { title: "Dorayaki", text: "Two pancakes with anko between them — Doraemon's favourite food." },
-            {
-              title: "A Japanese Mont Blanc",
-              text: "The yellow chestnut Mont Blanc was adapted in Tokyo in 1933, at a shop in Jiyūgaoka still called Mont Blanc.",
-            },
-            { title: "Christmas cake", text: "Strawberry shortcake, white and red — ordered weeks ahead for 24 December." },
-          ],
-        },
-        {
-          title: "Fun facts",
-          items: [
-            {
-              title: "Plastic food is a craft",
-              text: "The food models in restaurant windows (sampuru) date from the 1930s. Kappabashi in Tokyo, the kitchenware street, sells them — and some shops let you make your own.",
-            },
-            { title: "A ¥333 million tuna", text: "The first bluefin auction of the year is a publicity stunt; in 2019 one fish went for ¥333.6 million." },
-            {
-              title: "A thousand-year-old snack bar",
-              text: "Ichiwa, by Imamiya Shrine in Kyoto, has sold grilled mochi with white miso since around the year 1000.",
-            },
-            {
-              title: "The onigiri wrapper",
-              text: "The 1-2-3 pull tabs on convenience-store onigiri keep the seaweed in its own film so it stays crisp until you open it.",
-            },
-            { title: "Fugu", text: "Blowfish is served only by licensed chefs, and its liver, the most poisonous part, has been banned since 1984." },
-            { title: "Raw egg is fine", text: "Eggs are produced to be eaten raw — tamago kake gohan, egg on rice, is a classic breakfast." },
-            { title: "Kewpie", text: "Japanese mayo is made with yolks only and rice vinegar — it's what makes the egg sandwiches so good." },
-            { title: "Square watermelons", text: "They exist, grown in boxes, cost a fortune — and are ornaments, picked too early to eat." },
-            {
-              title: "A ramen theme park",
-              text: "The Shin-Yokohama Ramen Museum (1994) rebuilt a 1958 Tokyo street with shops from around the country — the world's first food theme park.",
-            },
-          ],
-        },
-      ],
-    },
+    }
   ],
 
   dates: [
@@ -2182,7 +2114,7 @@ export const japan: CountryGuide = {
         },
         {
           title: "Spared in the war",
-          text: "Kyoto was largely left out of the bombing, so whole streets of wooden townhouses (machiya) survive — narrow at the front, deep inside, because tax was once charged by frontage.",
+          text: "Kyoto was largely left out of the bombing, so whole streets of wooden townhouses (machiya) survive — narrow at the front, deep inside, — the long thin plots go back to Hideyoshi's 1590s re-division of the blocks.",
         },
         {
           title: "World Heritage, 17 times",
@@ -2857,3 +2789,17 @@ export const japan: CountryGuide = {
     },
   ],
 };
+
+/** which heading a city's short note sits under on its page */
+const GROUPS: Record<string, Record<string, string>> = {
+  tokyo: { "A fishing village called Edo": "Understand the place", "Rebuilt twice": "Understand the place", "Not a city": "Understand the place", "Tsukiji is still open": "Eat and drink", "Most Michelin stars": "Eat and drink" },
+  kyoto: { "A thousand years as capital": "Understand the place", "Spared in the war": "Understand the place", "Kyoto's kitchen": "Eat and drink" },
+  "fuji-five-lakes": { "Cultural, not natural, heritage": "Understand the place", "Fuji is a live volcano": "Understand the place", "Hōtō and wine": "Eat and drink", "Yoshida udon": "Eat and drink" },
+};
+
+const withReads = (c: GuideCity): GuideCity => ({
+  ...c,
+  items: [...(placeReads[c.id] ?? []), ...c.items.map((it) => ({ ...it, group: it.group ?? GROUPS[c.id]?.[it.title] }))],
+});
+
+export const japan: CountryGuide = { ...base, cities: base.cities.map(withReads) };

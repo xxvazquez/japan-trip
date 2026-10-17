@@ -34,7 +34,64 @@ export type GuideBody =
   | { note: string; title?: string; kind?: "tip" | "warning" }
   | { table: { head: string[]; rows: string[][] } }
   | { stats: { value: string; label: string }[] }
-  | { terms: { term: string; text: string }[] };
+  | { terms: { term: string; text: string }[] }
+  | { chart: GuideChart }
+  | { dishes: GuideDish[] }
+  | { venues: GuideVenue[] }
+  | { call: GuideCall[] };
+
+/** A small chart that answers one question. Every chart says what it
+ *  measures, in what unit, and where the numbers come from.
+ *  `line` plots `x` (a year) against `value`; `bar` compares labelled
+ *  values, longest first as given. */
+export interface GuideChart {
+  kind: "line" | "bar";
+  title: string;
+  /** what the numbers are in — "kg per person per year" */
+  unit: string;
+  points: { label: string; value: number; x?: number; projected?: boolean }[];
+  /** the label of a bar or point drawn in the accent colour */
+  highlight?: string;
+  /** "Ministry of Agriculture (MAFF), Food Balance Sheet" */
+  source: string;
+  /** one or two lines on what the chart shows */
+  read?: string;
+  /** shown as "1,611" not "1611" — set to 0 for whole numbers, else decimals */
+  decimals?: number;
+}
+
+/** A dish or food as a card: what it's called, what it is, and how it fits
+ *  into everyday life. `kind` keeps a daily meal apart from a speciality,
+ *  a seasonal dish or something made mainly for visitors. */
+export interface GuideDish {
+  name: string;
+  local: string;
+  say?: string;
+  kind: "Everyday" | "Regional" | "Seasonal" | "Occasion" | "Mostly for visitors";
+  text: string;
+  /** where it comes from on this trip, or where to find it */
+  where?: string;
+}
+
+/** A real place worth going to — a café, a market — with what it is and
+ *  why. It links to a map search, never to booking. */
+export interface GuideVenue {
+  name: string;
+  local?: string;
+  /** the year it opened, when known */
+  since?: string;
+  area: string;
+  text: string;
+  /** what to search for on the map, when the name alone isn't enough */
+  query?: string;
+}
+
+/** A number to call, tappable on a phone. */
+export interface GuideCall {
+  number: string;
+  label: string;
+  text?: string;
+}
 
 /** What every readable entry in a guide carries. Each one opens on its own
  *  page: the summary as the standfirst, quick facts, the opening text,
@@ -55,11 +112,16 @@ export interface GuideArticle {
   points?: string[];
   /** a small caption over `points` — "Where to see it" */
   pointsTitle?: string;
+  /** where the facts come from, listed quietly at the foot */
+  sources?: { title: string; url: string }[];
 }
 
 /** One point in a guide. */
 export interface GuideItem extends GuideArticle {
   title: string;
+  /** on a city's page, the heading it's listed under — "Look closer".
+   *  Items without one fall under "Worth knowing". */
+  group?: string;
 }
 
 /** One stop on a timeline — when, what, and a line that always shows. */
@@ -132,6 +194,8 @@ export interface CountryGuide {
   local?: string;
   /** "Understand" — history, belief, everyday life */
   understand: GuideTopic[];
+  /** "Eat & drink" — food at home and out, regional food, coffee */
+  eat?: GuideTopic[];
   /** "Before you go" — the practical side */
   practical: GuideTopic[];
   dates: GuideDate[];

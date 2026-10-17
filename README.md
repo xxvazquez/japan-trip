@@ -502,14 +502,18 @@ Text isn't selectable (as in a native app), so values you might paste elsewhere 
 When a trip has stays or pins in a country the app has a guide for (Japan today), a row for it sits below the sections.
 
 - **Where you're staying / Also on your trip** — a page per city or town the trip touches, matched from its stays, bases and pins (a day trip to Uji or Kurama shows up without a stay there).
+- A city page groups its reads under **Understand the place**, **Look closer** and **Eat and drink**, with shorter notes under **Worth knowing**.
 - **While you're there** — festivals, seasons and closures that fall within the trip's own dates.
 - **Day trips** — from each base, off the usual list, all by train or bus.
-- **Understand** — history, belief, stamps, school, work, politics, culture, manga & anime and a page of fun facts.
+- **Eat & drink** — food at home, eating out, how the cooking works, regional food on the route, coffee and kissaten, menus and drinks.
+- **Understand** — history, Look closer (everyday things explained), Japan by numbers, seasons & landscape, belief, stamps, school, work, politics, culture, manga & anime and a page of fun facts.
 - Every page is grouped into collapsible sections; each row shows a title and a one-line summary.
 - Tap a row to read it as its own article: a standfirst, then a guided read with sub-headings, numbered steps, do / don't lists, small tables, key numbers and tip or warning boxes, plus **Words to know** and places to see it.
+- Articles can also carry a chart (line or bar, with unit, year and source), food cards tagged Everyday / Regional / Seasonal / Occasion / Mostly for visitors, places with a Google Maps button, and phone numbers that dial on tap.
+- **Sources** sit folded at the foot of an article; tap to see the links.
 - **Up next** at the foot of an article opens the next one in place, so Back still returns to the list. The last one in a topic offers the next topic.
 - **History** is a timeline: each era shows its dates and a one-line summary.
-- **Before you go** — only the non-obvious: traps and rules, getting around, food.
+- **Before you go** — **Be prepared** (who to call, earthquakes, tsunami, typhoons, Fuji, bears and other wildlife, setting up for a disaster), then traps and rules and getting around.
 - It's built into the app (`src/guides/`), read-only and works offline. Adding a country is one content file plus a `GUIDES` entry.
 
 ### Stays and journeys

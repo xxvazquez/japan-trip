@@ -6,6 +6,7 @@ import { Section } from "@/components/Section";
 import { IconTile } from "@/components/IconTile";
 import { TileRow } from "@/components/TileRow";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
+import { Calls, Chart, Dishes, Inline, Venues } from "@/components/GuideBlocks";
 import { useData } from "@/lib/data";
 import { guideTopicColor } from "@/lib/tones";
 import { GUIDE_CONTENT } from "@/guides/content";
@@ -96,6 +97,9 @@ export function GuideHome() {
             </ul>
           </Section>
         )}
+        {guide.eat?.length ? (
+          <Section title="Eat & drink" id={`guide-${guide.id}-eat`}>{topicRows(guide.eat)}</Section>
+        ) : null}
         <Section title={`Understand ${guide.name}`} id={`guide-${guide.id}-understand`}>{topicRows(guide.understand)}</Section>
         <Section title="Before you go" id={`guide-${guide.id}-practical`}>{topicRows(guide.practical)}</Section>
       </div>
@@ -167,16 +171,31 @@ export function GuideCityPage() {
             </ul>
           </Section>
         ) : null}
-        <Section title="Worth knowing" id={`guide-${guide.id}-city-items`}>
-          <ul>
-            {cityArticles(city).map((r) => (
-              <ArticleRow key={r.slug} to={`${cityPath}/${r.slug}`} title={r.title} meta={r.article.summary} />
-            ))}
-          </ul>
-        </Section>
+        {cityGroups(city).map((g) => (
+          <Section key={g.title} title={g.title} id={`guide-${guide.id}-city-${g.title}`}>
+            <ul>
+              {g.refs.map((r) => (
+                <ArticleRow key={r.slug} to={`${cityPath}/${r.slug}`} title={r.title} meta={r.article.summary} />
+              ))}
+            </ul>
+          </Section>
+        ))}
       </div>
     </Page>
   );
+}
+
+/** a city's entries under their headings, in the order the headings first
+ *  appear; anything without one is "Worth knowing", listed last */
+function cityGroups(city: GuideCity): { title: string; refs: ArticleRef[] }[] {
+  const out: { title: string; refs: ArticleRef[] }[] = [];
+  cityArticles(city).forEach((r, i) => {
+    const title = city.items[i].group ?? "Worth knowing";
+    const g = out.find((x) => x.title === title);
+    if (g) g.refs.push(r);
+    else out.push({ title, refs: [r] });
+  });
+  return [...out.filter((g) => g.title !== "Worth knowing"), ...out.filter((g) => g.title === "Worth knowing")];
 }
 
 export function GuideDayTripsPage() {
@@ -235,7 +254,7 @@ export function GuideCityArticle() {
   const city = guide.cities.find((c) => c.id === id);
   if (!city) return noArticle(guide);
   const cityPath = `${guidePath(guide)}/place/${city.id}`;
-  const refs = cityArticles(city);
+  const refs = cityGroups(city).flatMap((g) => g.refs);
   const i = refs.findIndex((r) => r.slug === item);
   if (i < 0) return noArticle(guide);
   return (
@@ -389,6 +408,8 @@ function ArticlePage({
           </div>
         ) : null}
 
+        {a.sources?.length ? <Sources sources={a.sources} /> : null}
+
         {next ? (
           <div className="pt-2">
             <p className="kicker mb-1.5 px-1">Up next</p>
@@ -415,6 +436,33 @@ function ArticlePage({
         ) : null}
       </div>
     </Page>
+  );
+}
+
+/** Where an article's facts come from: a quiet list of links at the foot,
+ *  closed until asked for, so citations never crowd the read. */
+function Sources({ sources }: { sources: { title: string; url: string }[] }) {
+  return (
+    <details className="group">
+      <summary className="tap flex w-fit cursor-pointer list-none items-center gap-1.5 px-1 text-[13px] text-ink-soft [&::-webkit-details-marker]:hidden">
+        <Icon name="link" size={13} />
+        {sources.length === 1 ? "1 source" : `${sources.length} sources`}
+        <Icon name="chevron" size={11} className="transition-transform duration-200 group-open:rotate-90" />
+      </summary>
+      <ul className="mt-2 rounded-[12px] bg-surface">
+        {sources.map((s) => (
+          <li key={s.url} className={INSET_DIVIDER}>
+            <a href={s.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 px-3.5 py-2.5 active:bg-ink/[0.07]">
+              <span className="min-w-0 flex-1">
+                <span className="block break-words text-[15px] leading-snug text-ink">{s.title}</span>
+                <span className="block break-all text-[12px] leading-snug text-ink-faint">{new URL(s.url).hostname.replace(/^www\./, "")}</span>
+              </span>
+              <Icon name="share" size={14} className="shrink-0 text-ink-faint" />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </details>
   );
 }
 
@@ -590,6 +638,10 @@ function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
       </div>
     );
   }
+  if ("chart" in b) return <Chart chart={b.chart} />;
+  if ("dishes" in b) return <Dishes dishes={b.dishes} />;
+  if ("venues" in b) return <Venues venues={b.venues} />;
+  if ("call" in b) return <Calls calls={b.call} />;
   if (!("terms" in b)) return null;
   return (
     <ul className="rounded-[10px] bg-surface-2">
@@ -626,10 +678,4 @@ function Bullets({ points, className = "" }: { points: string[]; className?: str
       ))}
     </ul>
   );
-}
-
-/** `**bold**` — a key phrase, set in medium weight */
-function Inline({ text }: { text: string }) {
-  const parts = text.split(/\*\*(.+?)\*\*/g);
-  return <>{parts.map((p, i) => (i % 2 ? <strong key={i} className="font-medium">{p}</strong> : p))}</>;
 }

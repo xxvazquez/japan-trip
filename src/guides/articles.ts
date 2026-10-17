@@ -58,4 +58,4 @@ export function dateArticles(dates: GuideDate[]): ArticleRef[] {
 }
 
 /** every topic, in the order the guide's home lists them */
-export const allTopics = (g: CountryGuide): GuideTopic[] => [...g.understand, ...g.practical];
+export const allTopics = (g: CountryGuide): GuideTopic[] => [...(g.eat ?? []), ...g.understand, ...g.practical];
