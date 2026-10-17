@@ -83,8 +83,6 @@ export default {
           from: { opacity: "0", transform: "translateY(100%)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
-        // a route line drawing itself on (`pathLength={1}` on the path)
-        draw: { from: { strokeDashoffset: "1" }, to: { strokeDashoffset: "0" } },
         "stamp-press": {
           "0%": { transform: "scale(0.6)" },
           "60%": { transform: "scale(1.15)" },
@@ -99,7 +97,6 @@ export default {
         // `backwards`, not `both`: after it ends the sheet must be free to follow a drag
         "sheet-up": "sheet-up 0.36s var(--ease-paper) backwards",
         "stamp-press": "stamp-press 0.28s var(--ease-paper) both",
-        draw: "draw 0.9s var(--ease-paper) both",
       },
     },
   },

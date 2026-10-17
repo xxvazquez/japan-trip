@@ -21,7 +21,6 @@ import { Empty } from "@/components/Empty";
 import { Icon, type IconName } from "@/components/Icon";
 import { ContextMenu } from "@/components/ContextMenu";
 import { NavAddButton } from "@/components/NavAddButton";
-import { RouteSketch } from "@/components/RouteSketch";
 import { Memories } from "@/components/Memories";
 import { TextPrompt } from "@/components/TextPrompt";
 import { primeKeyboard } from "@/lib/keyboard";
@@ -210,7 +209,6 @@ export default function Plan() {
               <span className="text-lg text-ink-soft">{c.daysUntilStart === 1 ? "day" : "days"} to go</span>
             </p>
             <p className="mt-2 text-sm text-ink-soft">Leaving {fmtDate(data.meta.start, loc, { weekday: "long", day: "numeric", month: "long" })}</p>
-            <RouteSketch data={data} />
           </>
         )}
         {!noDates && c.phase === "during" && (

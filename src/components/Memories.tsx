@@ -5,7 +5,6 @@ import { canonicalLegs } from "@/lib/cityAssign";
 import { legNights, legsWithDays, plural } from "@/lib/dates";
 import { legHex } from "@/lib/legColors";
 import { useTripSpent } from "@/lib/fx";
-import { RouteSketch } from "./RouteSketch";
 import { Icon } from "./Icon";
 
 /** One memory: a small kicker, the big figure, a line under it — the way
@@ -61,15 +60,9 @@ export function Memories({ data }: { data: TripData }) {
   const plannedDays = data.days.filter((d) => (d.plan ?? []).some((it) => it.placeId)).length;
   const stamps = data.config.stamps ?? [];
   const collected = stamps.filter((s) => s.done).length;
-  const route = <RouteSketch data={data} bare width={250} />;
 
   return (
     <div className="-mx-5 mt-5 flex snap-x snap-mandatory scroll-px-5 gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:-mx-7 sm:scroll-px-7 sm:px-7 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0 [&::-webkit-scrollbar]:hidden">
-      {cities.size > 1 && (
-        <Card title="Route">
-          <span className="mt-auto block pt-2">{route}</span>
-        </Card>
-      )}
       {cities.size > 0 && (
         <Card title={cities.size === 1 ? "City" : "Cities"}>
           <ul className="mt-auto space-y-1.5 pt-3">
