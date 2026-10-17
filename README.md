@@ -60,7 +60,11 @@ Do these on each phone, on wifi, a few days before you leave:
 - [ ] **Map → location arrow** — allow location once, so the blue dot works later.
 - [ ] **Manage → Sharing → Download everything** — keep the zip somewhere safe.
 
-**Plan reminds you.** From three weeks out and through the trip, a **Ready for offline** list heads Plan with whatever this phone still lacks — trip maps, attachments, Good to know for places never looked up, the app on the home screen. Each row opens where it's done and drops off once it is; the list goes when everything's ready.
+**Plan reminds you.** From three weeks out and through the trip, a one-row **Get ready for no signal** banner heads Plan on a phone, with a count of what it still lacks.
+
+- Tap it for the list — trip maps, attachments, Good to know for places never looked up, the app on the Home Screen. Each row opens where it's done and drops off once it is.
+- ✕ puts it away on that device for that trip; it only comes back for something new.
+- Not shown on desktop. Everything it lists is also in Manage → Trips → This device.
 
 ## Getting around
 

@@ -28,6 +28,8 @@ import { useData } from "@/lib/data";
 import { useToday } from "@/lib/useToday";
 import { useOfflineReadiness } from "@/lib/offlineReady";
 import { TileRow } from "@/components/TileRow";
+import { ActionSheet, useActionSheet } from "@/components/ActionSheet";
+import { touchDevice } from "@/lib/device";
 import { IconTile } from "@/components/IconTile";
 import { useApp, undoable } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
@@ -75,24 +77,69 @@ const KIND: Record<string, { label: string; icon: IconName }> = {
 /** this close to leaving, Plan starts reminding what isn't saved for offline */
 const READY_DAYS = 21;
 
-/** What still isn't ready for a trip with no signal, as rows at the head of
- *  Plan — the way Settings heads its list with "Finish Setting Up" — each
- *  opening where it's done. Gone once everything is. */
+/** What still isn't ready for a trip with no signal, as one quiet banner
+ *  at the head of Plan — the way Settings offers "Finish Setting Up Your
+ *  iPhone": a single row with a count, the list a tap away in a sheet, and
+ *  a ✕ to put it away. Phones only — saving maps or adding the app to the
+ *  Home Screen is a phone's job, not a desktop's. Dismissed per device and
+ *  trip; a reason that wasn't there when it was put away brings it back. */
 function OfflineReminder({ data, show }: { data: TripData; show: boolean }) {
-  const todo = useOfflineReadiness(show ? data : null);
-  if (!show || !todo?.length) return null;
+  const tripId = useApp((s) => s.activeId);
+  const todo = useOfflineReadiness(show && touchDevice ? data : null);
+  const [dismissed, setDismissed] = useState<string[]>(() => readDismissed(tripId));
+  const { open, setOpen, anchorRef } = useActionSheet();
+  const left = (todo ?? []).filter((t) => !dismissed.includes(t.key));
+  if (!show || !touchDevice || !left.length) return null;
+  const dismiss = () => {
+    const next = [...dismissed, ...left.map((t) => t.key)];
+    setDismissed(next);
+    writeDismissed(tripId, next);
+  };
   return (
-    <Section title="Ready for offline" id="plan-offline" className="mb-6" info={[
-      { icon: "cloud-down", title: "Before you leave", text: "What this phone still needs to work with no signal — do it on wifi." },
-      { icon: "check", title: "Drops off when done", text: "Each row goes to where it's done." },
-    ]}>
-      <ul>
-        {todo.map((t) => (
-          <TileRow key={t.key} to={t.to} tile={<IconTile name={t.icon} tone={t.key === "install" ? "accent" : "gold"} />} title={t.title} meta={t.detail} />
-        ))}
-      </ul>
-    </Section>
+    <>
+      <div className="mb-6 flex items-center rounded-[12px] border border-line bg-surface shadow-[0_1px_1px_rgb(0_0_0/0.04),0_3px_8px_-2px_rgb(0_0_0/0.06)] dark:border-transparent dark:shadow-none">
+        <button
+          ref={anchorRef as React.RefObject<HTMLButtonElement>}
+          type="button"
+          onClick={() => setOpen(true)}
+          className="flex min-w-0 flex-1 items-center gap-3 rounded-l-[12px] py-2.5 pl-3.5 text-left active:bg-ink/[0.07]"
+        >
+          <IconTile name="cloud-down" tone="gold" />
+          <span className="min-w-0 flex-1">
+            <span className="block break-words text-[17px] leading-snug text-ink">Get ready for no signal</span>
+            <span className="block break-words text-[15px] leading-snug text-ink-faint">{plural(left.length, "thing")} to do on wifi</span>
+          </span>
+          <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
+        </button>
+        <button type="button" onClick={dismiss} aria-label="Not now" className="tap grid h-11 w-11 shrink-0 place-items-center text-ink-faint">
+          <Icon name="close" size={13} />
+        </button>
+      </div>
+      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="Before you leave" doneLabel="Done">
+        <ul>
+          {left.map((t) => (
+            <TileRow key={t.key} to={t.to} tile={<IconTile name={t.icon} tone={t.key === "install" ? "accent" : "gold"} />} title={t.title} meta={t.detail} />
+          ))}
+        </ul>
+      </ActionSheet>
+    </>
   );
+}
+
+const dismissKey = (tripId: string | null) => `za.offline.dismissed.${tripId ?? ""}`;
+function readDismissed(tripId: string | null): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(dismissKey(tripId)) ?? "[]") as string[];
+  } catch {
+    return [];
+  }
+}
+function writeDismissed(tripId: string | null, keys: string[]) {
+  try {
+    localStorage.setItem(dismissKey(tripId), JSON.stringify(keys));
+  } catch {
+    /* storage off — it just shows again next time */
+  }
 }
 
 /** how long until you leave the city you're in: nights still to sleep
