@@ -114,6 +114,8 @@ export const foodAtHome: GuideTopic = {
                 { name: "Kinoko and kuri gohan", local: "きのこご飯・栗ご飯", say: "kinoko gohan · kuri gohan", kind: "Seasonal", text: "Rice cooked with mushrooms and soy, or with chestnuts — mixed rice (takikomi gohan) made in the rice cooker. A home dish that konbini sell as onigiri all season." },
                 { name: "Nabe", local: "鍋", say: "nabe", kind: "Everyday", text: "The first cold evenings mean the hotpot comes out. Supermarkets set up a nabe corner of broth packs — soy-milk, kimchi, miso, plain kombu — next to cut vegetables and thin-sliced pork." },
                 { name: "Oden", local: "おでん", say: "oden", kind: "Seasonal", text: "Daikon, eggs, konnyaku and fishcakes simmered for hours in dashi. Made at home on weekends, sold by the piece from steaming trays in konbini from autumn." },
+                { name: "Matsutake", local: "松茸", say: "matsutake", kind: "Seasonal", text: "Pine mushrooms, the autumn luxury. A few domestic ones can cost more than the rest of the dinner, so most households buy imported ones or skip them. Grilled, cooked into rice, or in a clear soup served in a small teapot (dobin-mushi)." },
+                { name: "Yaki-imo", local: "焼き芋", say: "yaki-imo", kind: "Seasonal", text: "Sweet potatoes roasted on hot stones. Small trucks still crawl through residential streets playing a recorded call, “ishi-yaki imo…”, and supermarkets roast them by the door." },
                 { name: "Kaki", local: "柿", say: "kaki", kind: "Seasonal", text: "Persimmons, eaten fresh and crisp, peeled and hung to dry under eaves as hoshigaki, or left on trees in villages — where they also draw bears." },
               ],
             },

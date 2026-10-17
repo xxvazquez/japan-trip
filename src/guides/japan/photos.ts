@@ -49,6 +49,12 @@ const PHOTOS = {
   "kyoto-subway-sign": { w: 900, h: 600, author: "MaedaAkihiko", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Kyoto-Subway_Kyoto-STA_Name-sign.jpg" },
   "kyoto-banner": { w: 900, h: 675, author: "Kyoww", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Kyoto_dialect_banner_in_Demachi.JPG" },
   "hogen-fuda": { w: 675, h: 900, author: "TeresaPikler", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Esempio_di_hogen_fuda.jpg" },
+  "hiroshige-sushi": { w: 900, h: 707, author: "Utagawa Hiroshige", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Hiroshige_Bowl_of_Sushi.jpg" },
+  "zaru-soba": { w: 900, h: 675, author: "hirotomo", license: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:Shinshu_soba,_ten_zaru_by_hirotomo_in_Suwa,_Nagano.jpg" },
+  "yakitori": { w: 629, h: 900, author: "竹麦魚(Searobin)", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Cooking_yakitori.jpg" },
+  "uji-tea": { w: 900, h: 600, author: "Nytm", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:TeaPlantation_Wazuka(Kyoto).jpg" },
+  "namagashi": { w: 900, h: 675, author: "akira yamada", license: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:Namagashi.jpg" },
+  "sampuru": { w: 675, h: 900, author: "Ph0kin", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Fake_food_kawasaki_japan.jpg" },
 } as const;
 
 export type PhotoId = keyof typeof PHOTOS;
