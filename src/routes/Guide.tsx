@@ -345,7 +345,7 @@ function ArticlePage({
   const related = guide ? (a.related ?? []).flatMap((ref) => {
     const r = resolveRef(guide, ref);
     return r ? [{ to: `${guidePath(guide)}/${ref}`, entry: r }] : [];
-  }) : [];
+  }).filter((r) => r.to !== next?.to) : [];
   return (
     <Page width="form">
       <PageHeader back={back} eyebrow={entry.eyebrow} title={entry.title} className={a.summary || minutes ? "!mb-3" : "mb-6"} />
@@ -388,7 +388,10 @@ function ArticlePage({
           </Section>
         ) : null}
 
-        <article className="selectable rounded-[12px] bg-surface px-4 py-4 sm:px-5 sm:py-5">
+        {/* On a phone the read runs edge to edge, the way Apple's own reading
+            views do, so a line of text gets the full width; wider screens
+            keep it on a card. */}
+        <article className="selectable -mx-5 bg-surface px-5 py-5 sm:mx-0 sm:rounded-[12px]">
           {a.body ? <Body blocks={a.body} /> : a.text && <Prose text={a.text} />}
           {bullets && <Bullets points={bullets} className="mt-3" />}
           {a.parts?.map((p) => (
@@ -601,7 +604,7 @@ function Body({ blocks }: { blocks: GuideBody[] }) {
 }
 
 function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
-  if ("p" in b) return <p className="break-words text-[17px] leading-[1.5] text-ink"><Inline text={b.p} /></p>;
+  if ("p" in b) return <p className={`break-words text-[17px] leading-[1.5] text-ink ${JUSTIFY}`}><Inline text={b.p} /></p>;
   if ("h" in b) {
     return (
       <h2 id={headingId(b.h)} className={`scroll-mt-[calc(var(--sat)+var(--nav-h)+1rem)] break-words text-[20px] font-medium leading-snug text-ink ${first ? "" : "!mt-8"}`}>
@@ -693,7 +696,7 @@ function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
             {b.table.rows.map((r, i) => (
               <tr key={i} className="border-t border-line">
                 {r.map((c, j) => (
-                  <td key={j} className={`px-3 py-2.5 align-top text-[15px] leading-snug ${j === 0 ? "text-ink" : "text-ink-soft"}`}><Inline text={c} /></td>
+                  <td key={j} className={`px-3 py-2.5 align-top text-[15px] leading-snug ${j === 0 ? "text-ink" : "text-ink-soft"} ${c.replace(/\*\*/g, "").length <= 12 ? "whitespace-nowrap" : ""}`}><Inline text={c} /></td>
                 ))}
               </tr>
             ))}
@@ -703,12 +706,17 @@ function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
     );
   }
   if ("stats" in b) {
+    // tiles side by side where there's room; on a phone, one grouped box
+    // with a row per number, so a label never wraps into a narrow column
     return (
-      <div className={`grid gap-2 ${b.stats.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
+      <div className={`overflow-hidden rounded-[10px] bg-surface-2 sm:grid sm:gap-2 sm:overflow-visible sm:rounded-none sm:bg-transparent ${b.stats.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
         {b.stats.map((st) => (
-          <div key={st.label} className="rounded-[10px] bg-surface-2 px-3 py-2.5">
-            <p className="break-words text-[22px] font-medium leading-tight tabular-nums text-ink">{st.value}</p>
-            <p className="mt-0.5 break-words text-[13px] leading-snug text-ink-soft">{st.label}</p>
+          <div
+            key={st.label}
+            className="relative flex items-baseline gap-3 px-3.5 py-2.5 after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden sm:block sm:rounded-[10px] sm:bg-surface-2 sm:px-3 sm:after:hidden"
+          >
+            <p className="w-[5.5rem] shrink-0 break-words text-[22px] font-medium leading-tight tabular-nums text-ink sm:w-auto">{st.value}</p>
+            <p className="min-w-0 break-words text-[15px] leading-snug text-ink-soft sm:mt-0.5 sm:text-[13px]">{st.label}</p>
           </div>
         ))}
       </div>
@@ -734,6 +742,11 @@ function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
 
 const headingId = (h: string) => `part-${slug(h)}`;
 
+/** Body paragraphs are set flush to both edges, as Apple Books sets a
+ *  page, with hyphenation so justified lines don't open up gaps. Only
+ *  full-width prose: narrow columns (steps, notes, tables) stay ragged. */
+const JUSTIFY = "text-justify hyphens-auto";
+
 /** about how long an article takes to read, at an unhurried 200 words a
  *  minute — said only for the long ones, where it helps to know */
 function readingMinutes(a: GuideArticle): number | undefined {
@@ -748,7 +761,7 @@ function Prose({ text, className = "" }: { text: GuideText; className?: string }
   return (
     <div className={`space-y-3 text-[17px] leading-[1.5] text-ink ${className}`}>
       {paras.map((p) => (
-        <p key={p} className="break-words"><Inline text={p} /></p>
+        <p key={p} className={`break-words ${JUSTIFY}`}><Inline text={p} /></p>
       ))}
     </div>
   );
