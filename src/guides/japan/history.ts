@@ -52,11 +52,6 @@ export const history: GuideTopic = {
             },
             { note: "Settled: pottery came long before farming, and farming came from the continent through Kyushu. Revised: Yayoi began around 500 years earlier than once taught. Still open: who exactly lies in the great tombs, and how the three ancestral groups mixed.", title: "What's known and what isn't", kind: "info" },
           ],
-          see: [
-            "Tokyo National Museum, Ueno — the Japanese archaeology gallery: flame pots, dogū, haniwa, bronze bells",
-            "Yayoi, a corner of Bunkyō in Tokyo, where this pottery was first found in 1884",
-            "Sakai City Office's free 21st-floor deck, over the Mozu tombs",
-          ],
           related: ["belief/shinto", "history/asuka-and-nara"],
           sources: [
             { title: "Cooke et al., Ancient genomics reveals tripartite origins of Japanese populations — Science Advances, 2021", url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC8448447", note: "Jōmon population size; the Kofun-period influx" },
@@ -97,12 +92,6 @@ export const history: GuideTopic = {
             { p: "The Nara temples grew so rich and political that the court moved away again, first briefly to Nagaoka, then to Kyoto in 794." },
             { note: "Settled: the Chinese-style state took shape between 645 and 701, and Nara was the first fixed capital. Debated: how much the chronicles' account of Shōtoku can be trusted, and the death toll of the 730s epidemic, which comes from scarce tax and census records.", title: "What's known and what isn't", kind: "info" },
           ],
-          see: [
-            "Hōryū-ji, near Nara — Shōtoku's temple",
-            "Tōdai-ji and its Great Buddha",
-            "The Shōsōin exhibition at the Nara National Museum — a few weeks each autumn, late October to mid November",
-            "Heijō Palace site — the rebuilt Suzaku Gate and Great Audience Hall",
-          ],
           related: ["belief/buddhism", "belief/words-for-japan-and-their-limits", "history/heian"],
           sources: [
             { title: "Shōtoku and sakoku stay in the textbooks — Bunshun Online, 2017", url: "https://bunshun.jp/articles/-/2113", note: "The proposed renaming and its reversal" },
@@ -137,11 +126,6 @@ export const history: GuideTopic = {
 
             { h: "Warriors" },
             { p: "While the court refined itself, provincial estates needed armed men, and the court used them to fight its own feuds. Two warrior clans with royal descent, the **Taira** and the **Minamoto**, rose this way. The Taira took control of the court in the 1160s. The Genpei War (1180–85) ended with the Minamoto destroying them at sea, at Dan-no-ura in 1185." },
-          ],
-          see: [
-            "Byōdō-in, Uji — Yorimichi's temple and its museum",
-            "Kyoto Imperial Palace — free, no booking needed; the buildings are 1855 reconstructions in Heian style",
-            "Tale of Genji Museum, Uji",
           ],
           related: ["place/kyoto/the-grid-and-what-broke-it", "belief/buddhism", "land/gardens", "history/kamakura-and-muromachi"],
           sources: [
@@ -185,11 +169,6 @@ export const history: GuideTopic = {
             { p: "A succession dispute became the **Ōnin War** (1467–77), fought in Kyoto's streets for ten years. It burned much of the city and broke the shoguns' authority. A century of *Sengoku*, \"warring states\", followed, with regional lords (*daimyō*) fighting from their castles. There's an old Kyoto joke that when a family mentions \"the last war\", it means Ōnin. That's why so little in Kyoto's centre is older than the 1500s." },
             { note: "Settled: the shogunate began in the 1180s and the Mongol invasions failed. Argued: which year counts as the founding, how much the typhoons decided against the defenders, and how far the \"divine wind\" story was built later.", title: "What's known and what isn't", kind: "info" },
           ],
-          see: [
-            "Kamakura — the Great Buddha (begun 1252), Tsurugaoka Hachimangū and the Zen temples of Kita-Kamakura",
-            "Sanjūsangen-dō, Kyoto — 1,001 statues of Kannon in a hall rebuilt in 1266",
-            "Kinkaku-ji and Ginkaku-ji, Kyoto",
-          ],
           related: ["place/kamakura/the-first-samurai-capital", "place/kamakura/zen-temples", "land/gardens", "history/unification"],
           sources: [
             { title: "The Kamakura shogunate began in 1180 — Bunshun", url: "https://books.bunshun.jp/articles/-/9759", note: "Textbooks moving from 1192 to 1185, and Hongō Kazuto's case for 1180" },
@@ -220,12 +199,6 @@ export const history: GuideTopic = {
               ],
             },
             photo("himeji", "A white castle keep with layered curved gables above stone walls", "Himeji Castle, the largest of the twelve original keeps, finished in 1609."),
-          ],
-          see: [
-            "Himeji Castle — an original keep from 1609",
-            "Hikone Castle, about 50 min from Kyoto — another original keep",
-            "Osaka Castle — the walls and moats",
-            "Kōdai-ji, Kyoto — the temple of Hideyoshi's widow",
           ],
           related: ["place/kyoto/the-grid-and-what-broke-it", "land/sacred-mountains", "belief/religion-without-belonging", "history/edo"],
           sources: [
@@ -267,12 +240,6 @@ export const history: GuideTopic = {
             { h: "A popular culture" },
             { p: "Peace made the merchants rich, even while the official class order put them at the bottom. They paid for **kabuki**, puppet theatre, woodblock prints, *haiku* and the pleasure quarters, and for fast food: sushi, tempura and soba stalls. Pilgrimage became the great excuse to travel. Millions went to Ise, and the Fuji confraternities climbed their mountain (see [Pilgrims before tourists](guide:place/fuji-five-lakes/pilgrims-before-tourists)). Every household was registered with a Buddhist temple (see [Buddhism](guide:belief/buddhism)), and every village shrine had its festival." },
             { note: "Settled: the Tokugawa peace, the lords' alternate residence, and tightly controlled foreign contact. Debated: how \"closed\" Japan really was, how large Edo was, and how far Edo's popular culture reached into the countryside.", title: "What's known and what isn't", kind: "info" },
-          ],
-          see: [
-            "Nikkō Tōshōgū — Ieyasu's mausoleum",
-            "Nijō Castle, Kyoto — the shoguns' Kyoto residence",
-            "Hakone — a stretch of the old Tōkaidō and its checkpoint",
-            "Tokyo's low city — Asakusa, Yanaka and Ningyōchō for the Edo street pattern",
           ],
           related: ["place/tokyo/a-castle-town-that-became-a-capital", "place/hakone/old-highway-checkpoint", "place/fuji-five-lakes/pilgrims-before-tourists", "belief/buddhism", "history/meiji-to-1945"],
           sources: [
@@ -323,12 +290,6 @@ export const history: GuideTopic = {
             { p: "**Kyoto** was spared, and the usual story credits an American art historian, Langdon Warner, who denied it himself. Kyoto had in fact been near the top of the atomic target list. The Secretary of War, Henry Stimson, struck it off and kept it off against the military's objections (see [Spared in the war](guide:place/kyoto/spared-in-the-war)).[^3]" },
             { note: "Settled: the scale and speed of Meiji's changes, and the destruction of 1945. Argued: whether 1868 was a restoration or a revolution, the emperor's responsibility for the war, and how to count the dead of the air raids.", title: "What's known and what isn't", kind: "info" },
           ],
-          see: [
-            "Yokohama — the old foreign settlement and the Western houses of Yamate",
-            "Meiji Jingū, Tokyo — the shrine to Emperor Meiji",
-            "Yokoamichō Park, Tokyo — the memorial hall for the 1923 earthquake and the 1945 air raids",
-            "Hiroshima Peace Memorial Museum and the A-Bomb Dome",
-          ],
           related: ["belief/gods-and-buddhas-mixed-and-split", "belief/shinto", "place/kyoto/spared-in-the-war", "history/since-1945"],
           sources: [
             { title: "Meiji Restoration — SamuraiWiki", url: "https://samurai-archives.com/wiki/Meiji_Restoration", note: "Restoration or revolution; ishin as renewal" },
@@ -365,11 +326,6 @@ export const history: GuideTopic = {
 
             { h: "Reiwa" },
             { p: "Emperor Akihito became the first emperor in two centuries to step down, and his son Naruhito took the throne on 1 May 2019. Reiwa, \"beautiful harmony\", was the first era name taken from Japanese poetry, the *Man'yōshū*, rather than the Chinese classics. Japan still counts years by era alongside the Western calendar. **2026 is Reiwa 8**, and you'll see it on receipts, tickets, forms and use-by dates, written R8 or 令和8年." },
-          ],
-          see: [
-            "Tokyo Tower (1958) and the 1964 Olympic buildings at Yoyogi",
-            "The Kyoto Railway Museum — a 0 series Shinkansen and steam locomotives",
-            "Nihonbashi, Tokyo — the old bridge under the 1963 expressway, which is now being moved underground",
           ],
           related: ["numbers/a-country-getting-smaller", "place/tokyo/a-castle-town-that-became-a-capital", "belief/religion-without-belonging"],
           sources: [

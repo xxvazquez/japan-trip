@@ -29,11 +29,7 @@ export function topicArticles(topic: GuideTopic): ArticleRef[] {
   return withSlugs(
     topic.blocks.flatMap((b) => [
       ...(b.items ?? []).map((it) => ({ title: it.title, eyebrow: b.title ?? topic.title, article: it })),
-      ...(b.timeline ?? []).map((ev) => ({
-        title: ev.title,
-        eyebrow: ev.when,
-        article: ev.see?.length ? { ...ev, points: ev.see, pointsTitle: ev.pointsTitle ?? "Where to see it" } : ev,
-      })),
+      ...(b.timeline ?? []).map((ev) => ({ title: ev.title, eyebrow: ev.when, article: ev })),
     ]),
   );
 }
@@ -57,8 +53,8 @@ export function dateArticles(dates: GuideDate[]): ArticleRef[] {
   return withSlugs(dates.map((d) => ({ title: d.title, eyebrow: d.when, article: d })));
 }
 
-/** every topic, in the order the guide's home lists them */
-export const allTopics = (g: CountryGuide): GuideTopic[] => [...(g.eat ?? []), ...g.understand, ...g.practical];
+/** every chapter in reading order, then the practical pages */
+export const allTopics = (g: CountryGuide): GuideTopic[] => [...g.sections.flatMap((s) => s.chapters), ...g.practical];
 
 /** An in-guide reference — "land/forests" or "place/kyoto/gion" — as the
  *  entry it names, or undefined when nothing by that name exists. */

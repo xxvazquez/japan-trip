@@ -82,7 +82,7 @@ export const closer: GuideTopic = {
             photo("jimbocho", "A second-hand bookshop front in Jimbōchō with stacks of magazines outside", "A used bookshop in Jimbōchō, its stock spilling onto the pavement."),
             { p: "**Notice** which side of Yasukuni-dōri they're on: most shops line the south side, so their fronts **face north**. The local explanation is that the sun never fades the spines in the window; it's a good story, if not a documented plan." },
           ],
-          related: ["coffee/tokyo-coffee-worth-the-detour", "language/three-scripts-at-once"],
+          related: ["place/tokyo/tokyo-coffee-worth-the-detour", "language/three-scripts-at-once"],
           sources: [
             { title: "Jimbōchō — Truly Tokyo", url: "https://trulytokyo.com/jimbocho/", note: "The 1913 fire, Iwanami's bookshop, about 130 used bookshops" },
           ],

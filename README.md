@@ -511,13 +511,13 @@ When a trip has stays or pins in a country the app has a guide for (Japan today)
 - A city page groups its reads under **Understand the place**, **Look closer**, **Eat and drink** and **Before you go**, with shorter notes under **Worth knowing**. The cities on the route — Tokyo, Kyoto, the Fuji lakes, Nara, Uji, Kurama, Hakone and Kamakura — are full sourced chapters with no short notes left.
 - **While you're there** — festivals, seasons and closures that fall within the trip's own dates. Folded by default, with a count beside it.
 - **Day trips** — from each base, off the usual list, all by train or bus; on the city's page.
-- **Eat & drink** — food at home, eating out, how the cooking works, regional food on the route, coffee and kissaten, menus and drinks.
-- **Understand** — history, Look closer (everyday things explained), Japan by numbers, seasons & landscape, belief, language, stamps, school, work, politics, culture, manga & anime and a page of fun facts.
+- The guide has two halves. **For this trip** is picked from the trip: On this trip, While you're there and Before you go. **The book** is the same for every trip and is meant to be timeless — no itineraries, prices or opening hours.
+- **The book** reads in order, in five parts: **Origins** (history, belief, language), **The land**, **The table** (how the cooking works, food at home, eating out, menus and drinks, regional food, coffee), **Everyday life** (Look closer, Japan by numbers, school, work, customs, stamps) and **Culture and the state** (culture, manga & anime, politics, Did you know).
 - Every page is grouped into collapsible sections; on a topic's page each row shows a title, a one-line summary and, when the article has a photo, a thumbnail on the right.
 - A city's page opens on its cover picture (else its name in the local script on a colour panel).
 - Every article opens on a picture: its own first photo (moved up, with its caption and credit), else its topic's or city's cover, else a panel in its colour. A short note with no body can carry a `cover` photo instead.
 - Body text is ragged-right on a phone and justified on wider screens.
-- Tap a row to read it as its own article: a standfirst, then a guided read with sub-headings, numbered steps, do / don't lists, small tables, key numbers and tip or warning boxes, plus **Words to know** and places to see it.
+- Tap a row to read it as its own article: a standfirst, then a guided read with sub-headings, numbered steps, do / don't lists, small tables, key numbers and tip or warning boxes, plus **Words to know**.
 - Articles can also carry a chart (line or bar, with unit, year and source), a dated timeline, food cards tagged Everyday / Regional / Seasonal / Occasion / Mostly for visitors, places with a Google Maps button, and phone numbers that dial on tap.
 - Long reads show their reading time, and an **In this article** list of their sections that jumps to each one.
 - Links in the text open another entry of the guide; **Related** at the foot lists the entries that carry the thread on.
@@ -525,8 +525,9 @@ When a trip has stays or pins in a country the app has a guide for (Japan today)
 - **Photos** — freely licensed pictures from Wikimedia Commons, resized and bundled in `public/guide/jp/` so they show offline. Each carries its author and licence under it, linking to its source page; the list lives in `src/guides/japan/photos.ts`.
 - **Up next** at the foot of an article opens the next one in place, so Back still returns to the list. The last one in a topic offers the next topic.
 - **History** is a timeline: each era shows its dates and a one-line summary.
-- **Before you go** — **Be prepared** (who to call, earthquakes, tsunami, typhoons, Fuji, bears and other wildlife, setting up for a disaster), then traps and rules and getting around.
-- It's built into the app (`src/guides/`), read-only and works offline. Adding a country is one content file plus a `GUIDES` entry.
+- **Before you go** — **Be prepared** (who to call, earthquakes, tsunami, typhoons, Fuji, bears and other wildlife, setting up for a disaster), **Rules with teeth** and **Getting around**.
+- **Coffee houses** worth sitting in are on the Tokyo and Kyoto pages, under **Coffee**; the Coffee chapter itself names no cafés.
+- It's built into the app (`src/guides/`), read-only and works offline. For Japan the book is `src/guides/jp.ts` and the trip half `src/guides/japan/trip.ts`. Adding a country is one content file plus a `GUIDES` entry.
 
 ### Stays and journeys
 

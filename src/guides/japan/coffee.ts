@@ -1,4 +1,4 @@
-import type { GuideTopic } from "../types";
+import type { GuideItem, GuideTopic } from "../types";
 import { photo } from "./photos";
 
 /** Japanese coffee culture: where the kissaten came from, how to read one,
@@ -10,7 +10,6 @@ export const coffee: GuideTopic = {
   summary: "Kissaten, siphons, thick toast — and where to sit for an hour",
   blocks: [
     {
-      title: "Understand it",
       items: [
         {
           title: "A short history of sitting down",
@@ -128,19 +127,9 @@ export const coffee: GuideTopic = {
                 { term: "Meikyoku kissa", text: "The classical version — “famous-music cafés” — with seats facing the speakers like a concert hall." },
               ],
             },
-            {
-              venues: [
-                { name: "Meikyoku Kissa Lion", local: "名曲喫茶ライオン", since: "1926", area: "Shibuya, Dōgenzaka", text: "A classical-music kissaten rebuilt after the war in 1950: dim, carved, seats facing a wall of speakers, and a rule of quiet. A strange, calm room in the middle of Shibuya's love-hotel hill." },
-                { name: "Jazz Spot Yamatoya", local: "ヤマトヤ", since: "1970", area: "Okazaki, Kyoto", text: "A jazz kissa near Kyoto University known for its record collection and old valve amplifiers, in a dark wooden room." },
-              ],
-            },
             { p: "**What it reveals:** the ongaku kissa was a solution to a housing problem and a way to share expensive things, and it trained the ears of the people who later made Japan the world's most devoted market for vinyl and high-end audio. The newer “listening bars” abroad copy it directly." },
-            { note: "Hours at music kissaten are often irregular and many keep strict quiet rules. Check before you go, and don't talk over a record. Shinjuku's DUG, the jazz bar in Murakami's *Norwegian Wood*, closed on 27 June 2026 when its building was demolished.[^1]", title: "Before you go" },
           ],
           related: ["coffee/what-the-kissaten-says-about-japan", "culture/sumo-baseball-and-pastimes"],
-          sources: [
-            { title: "Shinjuku's legendary DUG jazz café-bar closes its doors — Time Out Tokyo", url: "https://www.timeout.com/tokyo/news/shinjukus-legendary-dug-jazz-cafe-bar-closes-its-doors-on-june-27-062726", note: "27 June 2026" },
-          ],
         },
         {
           title: "What the kissaten says about Japan",
@@ -172,7 +161,7 @@ export const coffee: GuideTopic = {
             },
             { p: "The result: Kyoto has old kissaten that never closed, and a strong new specialty scene in old townhouses and garages." },
           ],
-          related: ["regional-food/kyoto", "coffee/kyoto-coffee-worth-the-detour"],
+          related: ["regional-food/kyoto", "place/kyoto/kyoto-coffee-worth-the-detour"],
           sources: [
             { title: "Bread spending by city — All About", url: "https://news.allabout.co.jp/articles/o/28209/", note: "Bread spending 2018–20: Kobe, Okayama, then Kyoto (Japanese)" },
             { title: "Is Kyoto really Japan's coffee capital? — Gendai", url: "https://gendai.media/articles/-/44289", note: "Kyoto first for coffee in 2012 and 2013 (Japanese)" },
@@ -180,59 +169,62 @@ export const coffee: GuideTopic = {
         },
       ],
     },
+  ],
+};
+
+/** Coffee houses worth sitting in, listed on the Tokyo and Kyoto pages of
+ *  the trip half — places, so not part of the chapter itself. */
+export const coffeeTokyo: GuideItem = {
+  group: "Coffee",
+  title: "Tokyo coffee worth the detour",
+  summary: "Ginza's old guard, Jimbōchō's book-café kissaten, two specialty pioneers",
+  body: [
+    { p: "Chosen for what they show about coffee in Tokyo, not for fame. Opening years are checked; opening days and hours change, and several old places close one weekday or take only cash — check the map before you set out." },
     {
-      title: "Where to sit",
-      items: [
-        {
-          title: "Tokyo coffee worth the detour",
-          summary: "Ginza's old guard, Jimbōchō's book-café kissaten, two specialty pioneers",
-          body: [
-            { p: "Chosen for what they show about coffee in Tokyo, not for fame. Opening years are checked; opening days and hours change, and several old places close one weekday or take only cash — check the map before you set out." },
-            {
-              venues: [
-                { name: "Café de l'Ambre", local: "カフェ・ド・ランブル", since: "1948", area: "Ginza", text: "“Coffee only” on the sign. Flannel-dripped coffee from beans aged for years; its founder Sekiguchi Ichirō worked here until he died at 103. Sit at the counter.[^1]" },
-                { name: "Café Paulista", local: "カフェーパウリスタ", since: "1911", area: "Ginza", text: "The company that made coffee popular in Japan, still selling Brazilian coffee in Ginza (the building is from 1970). A history lesson in a cup.[^2]" },
-                { name: "Ladrio", local: "ラドリオ", since: "1949", area: "Jimbōchō", text: "Brick, dim lights, and the Vienna coffee (cream on top) it's credited with bringing to Japan. Among the bookshops." },
-                { name: "Sabouru", local: "さぼうる", since: "1955", area: "Jimbōchō", text: "A wooden mountain-hut interior full of carvings and scribbles; pizza toast, Napolitan in huge portions, strawberry juice. Students' kissaten for seventy years.[^3]" },
-                { name: "Kayaba Coffee", local: "カヤバ珈琲", since: "1938", area: "Yanaka", text: "A corner kissaten in the old wooden neighbourhood that closed in 2006 and was revived by a young team in 2009 — known for its egg sandwich. Shows how the retro revival keeps places alive. Busy; seats are limited to 90 minutes." },
-                { name: "Chatei Hatou", local: "茶亭 羽當", since: "1989", area: "Shibuya", text: "Moody wood interior a few minutes from the crossing; the staff choose your cup from a wall of porcelain. Blue Bottle's founder named it as an inspiration.[^4]" },
-                { name: "Blue Bottle Kiyosumi-Shirakawa", local: "ブルーボトルコーヒー", since: "2015", area: "Kiyosumi-Shirakawa", text: "The American roaster's first shop in Japan, in a warehouse. Its arrival made this quiet canal district — high-ceilinged warehouses suit roasters — Tokyo's coffee neighbourhood." },
-                { name: "Fuglen Tokyo", local: "フグレン", since: "2012", area: "Tomigaya", text: "An Oslo café transplanted to a back street near Yoyogi Park: light Nordic roasts, vintage furniture, cocktails at night. A marker of the 2010s specialty turn." },
-              ],
-            },
-          ],
-          related: ["coffee/a-short-history-of-sitting-down", "look-closer/jimb-ch-a-book-town-by-accident", "coffee/kissaten-for-listening"],
-          sources: [
-            { title: "Café de l'Ambre (Time Out Tokyo)", url: "https://timeout.com/tokyo/restaurants/cafe-de-lambre" },
-            { title: "Café Paulista, Tokyo's oldest café (Old Tokyo)", url: "https://old-tokyo.info/cafe-paulista-oldest-cafe-in-tokyo-with-a-brazilian-history/" },
-            { title: "Sabouru (Time Out Tokyo)", url: "https://www.timeout.com/tokyo/restaurants/saboru-1" },
-            { title: "Chatei Hatou (Spoon & Tamago)", url: "https://spoon-tamago.com/chatei-hatou-a-nostalgic-kissaten-in-shibuya/" },
-          ],
-        },
-        {
-          title: "Kyoto coffee worth the detour",
-          summary: "Pre-war salons, a basement institution, and the new roasters",
-          body: [
-            { p: "Opening years are checked; hours and closing days aren't guaranteed — check the map before you go." },
-            {
-              venues: [
-                { name: "Salon de thé François", local: "フランソア喫茶室", since: "1934", area: "Shijō-Kiyamachi", text: "A machiya rebuilt inside as an Italian Baroque salon by the founder's artist friends, a meeting place for leftist students before the war. In 2003 it became the first café in Japan registered as a cultural property.[^1]" },
-                { name: "Rokuyōsha", local: "六曜社", since: "1950", area: "Kawaramachi-Sanjō", text: "The basement shop: hand-dripped coffee and doughnuts made every morning, in a narrow wood-panelled room a family has run for three generations.[^2]" },
-                { name: "Smart Coffee", local: "スマート珈琲店", since: "1932", area: "Teramachi", text: "A pre-war kissaten with its own roastery: hot cakes and French toast at lunch. A queue at weekends — go on a weekday morning." },
-                { name: "Inoda Coffee, main shop", local: "イノダコーヒ本店", since: "1940", area: "Sakaimachi-Sanjō", text: "Kyoto's grand old coffee house — where businessmen read the papers over breakfast. The house blend, Arabia no Shinju, traditionally came with milk and sugar already in." },
-                { name: "Shinshindō Kitashirakawa", local: "進々堂 京大北門前", since: "1930", area: "Hyakumanben", text: "Bakery-café opposite Kyoto University, its long wooden tables made by a craftsman of the folk-craft movement. Students have studied over a coffee and a curry bun here for nearly a century." },
-                { name: "Kaikado Café", local: "Kaikado Café", since: "2016", area: "Kawaramachi-Shichijō", text: "Opened by a family of hand-made tea-caddy makers in a 1927 tram-company building. Old craft and new coffee in one room." },
-                { name: "Weekenders Coffee Tominokoji", local: "ウィークエンダーズコーヒー", since: "2005", area: "Tominokoji", text: "One of Kyoto's specialty pioneers (it began as a kissa in 2005, roasting from 2011); this tiny standing shop, opened 2016, hides at the back of a car park. Light roasts, pour-over, no seats.", query: "Weekenders Coffee Tominokoji Kyoto" },
-              ],
-            },
-          ],
-          related: ["coffee/why-kyoto-loves-coffee-and-bread", "regional-food/kyoto"],
-          sources: [
-            { title: "François Kissashitsu (Kyoto City Tourism)", url: "https://kyoto.travel/en/travel-inspiration/francois-kissashitsu/" },
-            { title: "Rokuyosha (Leaf Kyoto)", url: "https://leafkyoto.net/en/store/230905-kyoto-rokuyousha" },
-          ],
-        },
+      venues: [
+        { name: "Café de l'Ambre", local: "カフェ・ド・ランブル", since: "1948", area: "Ginza", text: "“Coffee only” on the sign. Flannel-dripped coffee from beans aged for years; its founder Sekiguchi Ichirō worked here until he died at 103. Sit at the counter.[^1]" },
+        { name: "Café Paulista", local: "カフェーパウリスタ", since: "1911", area: "Ginza", text: "The company that made coffee popular in Japan, still selling Brazilian coffee in Ginza (the building is from 1970). A history lesson in a cup.[^2]" },
+        { name: "Ladrio", local: "ラドリオ", since: "1949", area: "Jimbōchō", text: "Brick, dim lights, and the Vienna coffee (cream on top) it's credited with bringing to Japan. Among the bookshops." },
+        { name: "Sabouru", local: "さぼうる", since: "1955", area: "Jimbōchō", text: "A wooden mountain-hut interior full of carvings and scribbles; pizza toast, Napolitan in huge portions, strawberry juice. Students' kissaten for seventy years.[^3]" },
+        { name: "Kayaba Coffee", local: "カヤバ珈琲", since: "1938", area: "Yanaka", text: "A corner kissaten in the old wooden neighbourhood that closed in 2006 and was revived by a young team in 2009 — known for its egg sandwich. Shows how the retro revival keeps places alive. Busy; seats are limited to 90 minutes." },
+        { name: "Chatei Hatou", local: "茶亭 羽當", since: "1989", area: "Shibuya", text: "Moody wood interior a few minutes from the crossing; the staff choose your cup from a wall of porcelain. Blue Bottle's founder named it as an inspiration.[^4]" },
+        { name: "Blue Bottle Kiyosumi-Shirakawa", local: "ブルーボトルコーヒー", since: "2015", area: "Kiyosumi-Shirakawa", text: "The American roaster's first shop in Japan, in a warehouse. Its arrival made this quiet canal district — high-ceilinged warehouses suit roasters — Tokyo's coffee neighbourhood." },
+        { name: "Fuglen Tokyo", local: "フグレン", since: "2012", area: "Tomigaya", text: "An Oslo café transplanted to a back street near Yoyogi Park: light Nordic roasts, vintage furniture, cocktails at night. A marker of the 2010s specialty turn." },
+        { name: "Meikyoku Kissa Lion", local: "名曲喫茶ライオン", since: "1926", area: "Shibuya, Dōgenzaka", text: "A classical-music kissaten rebuilt after the war in 1950: dim, carved, seats facing a wall of speakers, and a rule of quiet. A strange, calm room in the middle of Shibuya's love-hotel hill." },
       ],
     },
+  ],
+  related: ["coffee/a-short-history-of-sitting-down", "look-closer/jimb-ch-a-book-town-by-accident", "coffee/kissaten-for-listening"],
+  sources: [
+    { title: "Café de l'Ambre (Time Out Tokyo)", url: "https://timeout.com/tokyo/restaurants/cafe-de-lambre" },
+    { title: "Café Paulista, Tokyo's oldest café (Old Tokyo)", url: "https://old-tokyo.info/cafe-paulista-oldest-cafe-in-tokyo-with-a-brazilian-history/" },
+    { title: "Sabouru (Time Out Tokyo)", url: "https://www.timeout.com/tokyo/restaurants/saboru-1" },
+    { title: "Chatei Hatou (Spoon & Tamago)", url: "https://spoon-tamago.com/chatei-hatou-a-nostalgic-kissaten-in-shibuya/" },
+  ],
+};
+
+export const coffeeKyoto: GuideItem = {
+  group: "Coffee",
+  title: "Kyoto coffee worth the detour",
+  summary: "Pre-war salons, a basement institution, and the new roasters",
+  body: [
+    { p: "Opening years are checked; hours and closing days aren't guaranteed — check the map before you go." },
+    {
+      venues: [
+        { name: "Salon de thé François", local: "フランソア喫茶室", since: "1934", area: "Shijō-Kiyamachi", text: "A machiya rebuilt inside as an Italian Baroque salon by the founder's artist friends, a meeting place for leftist students before the war. In 2003 it became the first café in Japan registered as a cultural property.[^1]" },
+        { name: "Rokuyōsha", local: "六曜社", since: "1950", area: "Kawaramachi-Sanjō", text: "The basement shop: hand-dripped coffee and doughnuts made every morning, in a narrow wood-panelled room a family has run for three generations.[^2]" },
+        { name: "Smart Coffee", local: "スマート珈琲店", since: "1932", area: "Teramachi", text: "A pre-war kissaten with its own roastery: hot cakes and French toast at lunch. A queue at weekends — go on a weekday morning." },
+        { name: "Inoda Coffee, main shop", local: "イノダコーヒ本店", since: "1940", area: "Sakaimachi-Sanjō", text: "Kyoto's grand old coffee house — where businessmen read the papers over breakfast. The house blend, Arabia no Shinju, traditionally came with milk and sugar already in." },
+        { name: "Shinshindō Kitashirakawa", local: "進々堂 京大北門前", since: "1930", area: "Hyakumanben", text: "Bakery-café opposite Kyoto University, its long wooden tables made by a craftsman of the folk-craft movement. Students have studied over a coffee and a curry bun here for nearly a century." },
+        { name: "Kaikado Café", local: "Kaikado Café", since: "2016", area: "Kawaramachi-Shichijō", text: "Opened by a family of hand-made tea-caddy makers in a 1927 tram-company building. Old craft and new coffee in one room." },
+        { name: "Weekenders Coffee Tominokoji", local: "ウィークエンダーズコーヒー", since: "2005", area: "Tominokoji", text: "One of Kyoto's specialty pioneers (it began as a kissa in 2005, roasting from 2011); this tiny standing shop, opened 2016, hides at the back of a car park. Light roasts, pour-over, no seats.", query: "Weekenders Coffee Tominokoji Kyoto" },
+        { name: "Jazz Spot Yamatoya", local: "ヤマトヤ", since: "1970", area: "Okazaki, Kyoto", text: "A jazz kissa near Kyoto University known for its record collection and old valve amplifiers, in a dark wooden room." },
+      ],
+    },
+  ],
+  related: ["coffee/why-kyoto-loves-coffee-and-bread", "regional-food/kyoto"],
+  sources: [
+    { title: "François Kissashitsu (Kyoto City Tourism)", url: "https://kyoto.travel/en/travel-inspiration/francois-kissashitsu/" },
+    { title: "Rokuyosha (Leaf Kyoto)", url: "https://leafkyoto.net/en/store/230905-kyoto-rokuyousha" },
   ],
 };

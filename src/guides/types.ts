@@ -43,7 +43,51 @@ export type GuideBody =
   | { venues: GuideVenue[] }
   | { call: GuideCall[] }
   | { timeline: { when: string; text: string }[] }
-  | { photo: GuidePhoto };
+  | { photo: GuidePhoto }
+  | { figures: GuidePhoto[] }
+  | { pull: string }
+  | { evidence: GuideEvidence }
+  | { more: { title: string; body: GuideBody[] } }
+  | { compare: GuideCompare }
+  | { eras: GuideEras };
+
+/** What's settled about a subject, what has been revised, and what's
+ *  still argued over — so a reader can tell fact from interpretation. */
+export interface GuideEvidence {
+  settled?: string[];
+  revised?: string[];
+  open?: string[];
+}
+
+/** Two things side by side, row by row — a shrine and a temple, the
+ *  emperor and the shogun. */
+export interface GuideCompare {
+  title?: string;
+  a: string;
+  b: string;
+  rows: { label: string; a: string; b: string }[];
+}
+
+/** Spans of time drawn to scale on one band, so their lengths can be seen
+ *  against each other; tapping a span says what it was. Years are numbers,
+ *  BC negative. */
+export interface GuideEras {
+  title: string;
+  /** one line on what the band shows */
+  read?: string;
+  spans: {
+    name: string;
+    local?: string;
+    from: number;
+    to: number;
+    /** how the dates read — "710–794" */
+    when: string;
+    text: string;
+    /** the entry that tells this part — "history/edo" */
+    ref?: string;
+  }[];
+  source?: string;
+}
 
 /** A photo in an article, bundled with the app so it shows offline, and
  *  credited to its author under its licence. */
@@ -164,8 +208,6 @@ export interface GuideEvent extends GuideArticle {
   when: string;
   title: string;
   summary: string;
-  /** places where the period can still be seen */
-  see?: string[];
 }
 
 /** A group on a topic's page: a list of points, or a timeline. */
@@ -181,8 +223,13 @@ export interface GuideTopic {
   title: string;
   icon?: IconName;
   glyph?: MapGlyphId;
-  /** the row's sub-line on the guide's home */
+  /** the chapter's dek — its line in the contents and under its title */
   summary: string;
+  /** the picture the chapter opens on; else its first article's */
+  cover?: GuidePhoto;
+  /** the chapter's opening, read before its sections — what it's about
+   *  and how its parts hang together */
+  intro?: { body: GuideBody[]; sources?: GuideSource[] };
   blocks: GuideBlock[];
 }
 
@@ -223,17 +270,36 @@ export interface GuideDate extends GuideArticle {
   title: string;
 }
 
+/** A part of the guide — a run of chapters read in order. */
+export interface GuideSection {
+  title: string;
+  chapters: GuideTopic[];
+}
+
+/** A key number on the guide's cover. */
+export interface GuideFigure {
+  value: string;
+  label: string;
+}
+
+/** A guide has two halves. The book — `sections` of chapters, timeless,
+ *  read in order — is the same for everyone. "For this trip" is picked
+ *  from the trip itself: the `cities` it stays in or passes through and
+ *  the yearly `dates` that fall while it's on, plus the `practical` pages
+ *  for anyone about to travel. */
 export interface CountryGuide {
   id: string;
   name: string;
   local?: string;
   /** the picture the guide's home opens with */
   cover?: GuidePhoto;
-  /** "Understand" — history, belief, everyday life */
-  understand: GuideTopic[];
-  /** "Eat & drink" — food at home and out, regional food, coffee */
-  eat?: GuideTopic[];
-  /** "Before you go" — the practical side */
+  /** a few lines under the cover on what the guide is */
+  standfirst: string;
+  /** the country in a handful of numbers, each sourced */
+  glance?: { figures: GuideFigure[]; sources: GuideSource[] };
+  /** the chapters, part by part, in reading order */
+  sections: GuideSection[];
+  /** "Before you go" — emergencies, rules, getting around */
   practical: GuideTopic[];
   dates: GuideDate[];
   cities: GuideCity[];

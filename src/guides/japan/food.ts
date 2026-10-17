@@ -374,8 +374,8 @@ export const howFoodWorks: GuideTopic = {
                 { name: "Nukazuke", local: "糠漬け", say: "nukazuke", kind: "Everyday", text: "Vegetables buried for a day in a bed of fermented rice bran. A family's nuka bed is stirred by hand daily and can be kept alive for decades." },
                 { name: "Umeboshi", local: "梅干し", say: "umeboshi", kind: "Everyday", text: "Salted, dried ume (a sour apricot), often with red shiso. Fiercely sour; the classic filling of an onigiri." },
                 { name: "Takuan", local: "沢庵", say: "takuan", kind: "Everyday", text: "Bright yellow pickled daikon, crunchy and sweet-salty." },
-                { name: "Senmaizuke", local: "千枚漬け", say: "senmaizuke", kind: "Seasonal", text: "Paper-thin slices of a big Kyoto turnip, pickled with kombu: Kyoto's winter pickle, in shops from about November.", where: "Kyoto — Nishiki Market and pickle shops" },
-                { name: "Shibazuke", local: "しば漬け", say: "shibazuke", kind: "Regional", text: "Aubergine and cucumber pickled purple with red shiso, from the Ōhara valley.", where: "Kyoto — Ōhara" },
+                { name: "Senmaizuke", local: "千枚漬け", say: "senmaizuke", kind: "Seasonal", text: "Paper-thin slices of a big Kyoto turnip, pickled with kombu: Kyoto's winter pickle, in shops from about November." },
+                { name: "Shibazuke", local: "しば漬け", say: "shibazuke", kind: "Regional", text: "Aubergine and cucumber pickled purple with red shiso, from the Ōhara valley." },
               ],
             },
           ],
@@ -473,11 +473,11 @@ export const regionalFood: GuideTopic = {
             { p: "Edo was a city of single men — samurai serving their lords' years in the capital, labourers, craftsmen — living in rooms without kitchens. So it ate out, fast, from stalls: sushi, tempura, soba, eel. Much of “Tokyo food” is that street food, gone upmarket." },
             {
               dishes: [
-                { name: "Soba", local: "蕎麦", say: "soba", kind: "Everyday", text: "Buckwheat noodles, Edo's everyday food, in dark, bonito-strong broth or cold with a dipping sauce. The old soba houses of Kanda still serve it with sake in the afternoon.", where: "Standing shops in every station; old houses in Kanda" },
+                { name: "Soba", local: "蕎麦", say: "soba", kind: "Everyday", text: "Buckwheat noodles, Edo's everyday food, in dark, bonito-strong broth or cold with a dipping sauce. The old soba houses of Kanda still serve it with sake in the afternoon." },
                 { name: "Edomae sushi", local: "江戸前寿司", say: "edomae zushi", kind: "Regional", text: "Hand-pressed nigiri began as a quick snack at 1820s street stalls; with no refrigeration, the fish was cured, marinated or simmered. Top counters still age fish. At supermarket and conveyor-belt prices, sushi is ordinary food here; at a counter, it's an occasion." },
-                { name: "Monjayaki", local: "もんじゃ焼き", say: "monjayaki", kind: "Regional", text: "A runny batter fried on a hot plate and eaten in scrapes off a tiny spatula. Once a children's snack in downtown sweet shops; now Tsukishima's street of restaurants keeps it alive, for locals and visitors alike.", where: "Tsukishima" },
-                { name: "Chanko nabe", local: "ちゃんこ鍋", say: "chanko nabe", kind: "Regional", text: "The hotpot sumo wrestlers eat to put on weight, served by retired wrestlers' restaurants around the sumo hall.", where: "Ryōgoku" },
-                { name: "Fukagawa-meshi", local: "深川めし", say: "fukagawa meshi", kind: "Mostly for visitors", text: "Clams in miso broth over rice: a fishermen's quick meal from when the bay at Fukagawa was full of clams. Today it's heritage food more than daily food.", where: "Fukagawa, by Kiyosumi-Shirakawa" },
+                { name: "Monjayaki", local: "もんじゃ焼き", say: "monjayaki", kind: "Regional", text: "A runny batter fried on a hot plate and eaten in scrapes off a tiny spatula. Once a children's snack in downtown sweet shops; now Tsukishima's street of restaurants keeps it alive, for locals and visitors alike." },
+                { name: "Chanko nabe", local: "ちゃんこ鍋", say: "chanko nabe", kind: "Regional", text: "The hotpot sumo wrestlers eat to put on weight, served by retired wrestlers' restaurants around the sumo hall." },
+                { name: "Fukagawa-meshi", local: "深川めし", say: "fukagawa meshi", kind: "Mostly for visitors", text: "Clams in miso broth over rice: a fishermen's quick meal from when the bay at Fukagawa was full of clams. Today it's heritage food more than daily food." },
                 { name: "Tokyo shōyu ramen", local: "東京醤油ラーメン", say: "tōkyō shōyu rāmen", kind: "Everyday", text: "Clear soy-seasoned chicken broth, thin curly noodles — the plain bowl the city grew up on, from Asakusa's first ramen shop in 1910." },
               ],
             },
@@ -494,7 +494,7 @@ export const regionalFood: GuideTopic = {
             {
               dishes: [
                 { name: "Hōtō", local: "ほうとう", say: "hōtō", kind: "Regional", text: "Flat, wide wheat noodles simmered — not boiled first — in miso broth with pumpkin, mushrooms and root vegetables, so the starch thickens it into a stew. A genuine home dish in Yamanashi that every visitor restaurant also serves. Unsalted dough, so the noodles are soft, not springy." },
-                { name: "Yoshida udon", local: "吉田うどん", say: "yoshida udon", kind: "Regional", text: "Fujiyoshida's udon is famously hard and chewy, topped with boiled cabbage and spicy **suridane** paste. Dozens of small shops, many open only at lunch — locals' food first. The local story is that men cooked it while women worked the silk looms.", where: "Fujiyoshida, next to Kawaguchiko" },
+                { name: "Yoshida udon", local: "吉田うどん", say: "yoshida udon", kind: "Regional", text: "Fujiyoshida's udon is famously hard and chewy, topped with boiled cabbage and spicy **suridane** paste. Dozens of small shops, many open only at lunch — locals' food first. The local story is that men cooked it while women worked the silk looms." },
                 { name: "Torimotsu-ni", local: "鳥もつ煮", say: "torimotsu-ni", kind: "Regional", text: "Chicken giblets glazed in sweet soy, from Kōfu's soba shops. It won the gold prize at the national B-1 Grand Prix for local food in 2010, entered by a group of Kōfu city staff, and sold out across Tokyo supermarkets within days.[^1]" },
                 { name: "Shingen mochi", local: "信玄餅", say: "shingen mochi", kind: "Mostly for visitors", text: "Little rice cakes in roasted soy flour, with a tiny bottle of black-sugar syrup — the region's classic omiyage, bought to take home rather than eaten by locals day to day." },
                 { name: "Kōshū wine", local: "甲州ワイン", say: "kōshū wain", kind: "Regional", text: "Yamanashi has made wine since the 1870s. Kōshū, a pink-skinned local grape, makes a light, dry white that suits Japanese food." },
@@ -515,7 +515,7 @@ export const regionalFood: GuideTopic = {
               dishes: [
                 { name: "Obanzai", local: "おばんざい", say: "obanzai", kind: "Everyday", text: "Kyoto home cooking: simmered vegetables, tofu, dried fish and seaweed, small and frugal, made from what's in season with nothing wasted. Restaurants now sell it too, laid out in bowls along the counter." },
                 { name: "Kyō-yasai", local: "京野菜", say: "kyō yasai", kind: "Regional", text: "Kyoto's heirloom vegetables: Kujō leeks, Shōgoin turnips, Kamo aubergines, ebi-imo taro. In autumn and winter they fill Nishiki Market and home pots." },
-                { name: "Yudōfu", local: "湯豆腐", say: "yudōfu", kind: "Seasonal", text: "Silken tofu warmed in kombu broth, dipped in soy and condiments: a winter dish. The restaurants by Nanzen-ji serve it mostly to visitors; at home it's simply a cold-night supper.", where: "Nanzen-ji and Saga" },
+                { name: "Yudōfu", local: "湯豆腐", say: "yudōfu", kind: "Seasonal", text: "Silken tofu warmed in kombu broth, dipped in soy and condiments: a winter dish. The restaurants by Nanzen-ji serve it mostly to visitors; at home it's simply a cold-night supper." },
                 { name: "Yuba", local: "湯葉", say: "yuba", kind: "Regional", text: "The skin lifted off simmering soy milk — Buddhist temple food, rich in protein when monks ate no meat." },
                 { name: "Saba-zushi", local: "鯖寿司", say: "saba zushi", kind: "Occasion", text: "Salted mackerel pressed on rice and wrapped in kombu. The fish came from Wakasa Bay along the “mackerel road”, salted on the way. Made for festivals and guests." },
                 { name: "Nishin soba", local: "にしんそば", say: "nishin soba", kind: "Regional", text: "Soba with a sweet-simmered dried herring on top — Hokkaido fish carried to an inland city. Matsuba, a soba house beside the Minamiza theatre, first served it in 1882.[^1]" },

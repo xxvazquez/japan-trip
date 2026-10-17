@@ -43,7 +43,7 @@ export function GuideHome() {
   const pinned = data.config.modules.some((m) => m.enabled && m.kind === "guide" && m.target === guide.id);
   const home = guidePath(guide);
   const shelf = (title: string, topics: GuideTopic[]) => (
-    <Section title={title} id={`guide-${guide.id}-${slug(title)}`} bare>
+    <Section key={title} title={title} id={`guide-${guide.id}-${slug(title)}`} bare>
       <Shelf>
         {topics.map((t) => (
           <ShelfCard
@@ -114,9 +114,8 @@ export function GuideHome() {
           </Section>
         )}
 
-        {guide.eat?.length ? shelf("Eat & drink", guide.eat) : null}
-        {shelf(`Understand ${guide.name}`, guide.understand)}
         {shelf("Before you go", guide.practical)}
+        {guide.sections.map((sec) => shelf(sec.title, sec.chapters))}
       </div>
     </Page>
   );
