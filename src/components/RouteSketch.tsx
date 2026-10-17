@@ -138,5 +138,7 @@ export function RouteSketch({ data, bare = false, width: W = 340 }: {
   );
   if (bare) return svg;
   // on a card, as the itinerary under it is — the grey is only backdrop
-  return <div className="mt-4 max-w-[22rem] rounded-[12px] bg-surface px-2 py-1">{svg}</div>;
+  // the card spans the column like every other card; the sketch itself
+  // keeps its small size, centred in it
+  return <div className="mt-4 rounded-[12px] bg-surface px-2 py-1"><div className="mx-auto max-w-[22rem]">{svg}</div></div>;
 }

@@ -100,7 +100,7 @@ export function LogbookIndex() {
             <TileRow
               key={s}
               to={`/logbook/${sectionSlug(s)}`}
-              tile={<IconTile size="sm" {...logbookSectionTile(s)} />}
+              tile={<IconTile {...logbookSectionTile(s)} />}
               title={logbookLabel(s)}
               right={sectionSummary(s, data, spent)}
             />
@@ -114,7 +114,7 @@ export function LogbookIndex() {
               <TileRow
                 key={g.id}
                 to={`/logbook/guide/${g.id}`}
-                tile={<IconTile size="sm" name="globe" tone="accent" />}
+                tile={<IconTile name="globe" tone="accent" />}
                 title={g.name}
                 meta="History, culture and what to know"
               />
@@ -129,7 +129,7 @@ export function LogbookIndex() {
               <TileRow
                 key={l.id}
                 to={`/logbook/${l.id}`}
-                tile={<IconTile size="sm" name="list" color={customListColor(i)} />}
+                tile={<IconTile name="list" color={customListColor(i)} />}
                 title={l.title}
                 right={l.items.length ? String(l.items.length) : undefined}
               />

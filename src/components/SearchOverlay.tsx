@@ -170,7 +170,7 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
                   Clear
                 </button>
               </div>
-              <ul className="overflow-hidden rounded-[12px] border border-line bg-surface dark:border-ink/10">
+              <ul className="overflow-hidden rounded-[12px] border border-line bg-surface dark:border-transparent">
                 {recents.map((r) => (
                   <TileRow
                     key={r}
@@ -195,7 +195,7 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
             {groups.map(([group, rs]) => (
               <section key={group}>
                 <h2 className="kicker mb-1.5 break-words px-1">{group}</h2>
-                <ul className="overflow-hidden rounded-[12px] border border-line bg-surface dark:border-ink/10">
+                <ul className="overflow-hidden rounded-[12px] border border-line bg-surface dark:border-transparent">
                   {rs.map((r) => {
                     const i = n++;
                     return <ResultRow key={r.hit.to + r.hit.label} r={r} active={i === active} go={go} />;

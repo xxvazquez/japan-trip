@@ -84,7 +84,7 @@ export function Section({
         <div className="min-h-0 overflow-hidden">
           {/* isolate: makes the rounded overflow clip a swiped row's translated
               Delete pane to the corner radius (Chromium skips it otherwise) */}
-          <div className="isolate overflow-hidden rounded-[12px] border border-line bg-surface shadow-[0_1px_1px_rgb(0_0_0/0.04),0_3px_8px_-2px_rgb(0_0_0/0.06)] dark:border-ink/10 dark:shadow-[0_1px_2px_rgb(0_0_0/0.4),0_6px_16px_-4px_rgb(0_0_0/0.5)]">
+          <div className="isolate overflow-hidden rounded-[12px] border border-line bg-surface shadow-[0_1px_1px_rgb(0_0_0/0.04),0_3px_8px_-2px_rgb(0_0_0/0.06)] dark:border-transparent dark:shadow-none">
             {children}
           </div>
         </div>
