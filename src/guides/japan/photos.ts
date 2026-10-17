@@ -55,6 +55,16 @@ const PHOTOS = {
   "uji-tea": { w: 900, h: 600, author: "Nytm", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:TeaPlantation_Wazuka(Kyoto).jpg" },
   "namagashi": { w: 900, h: 675, author: "akira yamada", license: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:Namagashi.jpg" },
   "sampuru": { w: 675, h: 900, author: "Ph0kin", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Fake_food_kawasaki_japan.jpg" },
+  "koshien": { w: 640, h: 360, author: "Ministry of Education, Culture, Sports, Science and Technology", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:2020_Koshien_High_School_Baseball_Exchange_Game_Opening_Ceremony_1.jpg" },
+  "randoseru": { w: 900, h: 675, author: "Nesnad", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Randoseru-red-walkinggirls-feb14-2019.jpg" },
+  "commute": { w: 900, h: 675, author: "Kentin", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Nishishinjuku_morning_2009_Jan2.JPG" },
+  "diet": { w: 900, h: 560, author: "Kakidai", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:National_Diet_Building.jpg" },
+  "kabukiza": { w: 675, h: 900, author: "Tak1701d", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Ginza_Kabukiza_2013_0428.jpg" },
+  "noh-stage": { w: 900, h: 675, author: "Maarten Heerlien", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Stage_of_the_Kyoto-Kanze_Noh_and_Kyogen_theatre_(48885678827).jpg" },
+  "bunraku-puppet": { w: 449, h: 900, author: "Hiart", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Female_Bunraku_puppet_Japan,_early_20th_century.JPG" },
+  "sento": { w: 900, h: 675, author: "Kurihaya", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Tatsuno-yu_Sento_Tokyo_1.jpg" },
+  "kokugikan": { w: 900, h: 675, author: "Gregg Tavares", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Inside_the_Ryogoku_Kokugikan_at_the_2014_January_Sumo_Tournament.jpg" },
+  "tea-ro": { w: 592, h: 444, author: "Adriano", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Ro_and_Kama.jpg" },
 } as const;
 
 export type PhotoId = keyof typeof PHOTOS;

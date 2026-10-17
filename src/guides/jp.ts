@@ -1,6 +1,7 @@
 import type { CountryGuide, GuideCity } from "./types";
 import { closer } from "./japan/closer";
 import { coffee } from "./japan/coffee";
+import { culture } from "./japan/culture";
 import { eatingOut, foodAtHome, howFoodWorks, regionalFood } from "./japan/food";
 import { land } from "./japan/land";
 import { belief } from "./japan/belief";
@@ -9,7 +10,10 @@ import { language } from "./japan/language";
 import { menus } from "./japan/menus";
 import { numbers } from "./japan/numbers";
 import { placeReads } from "./japan/places";
+import { politics } from "./japan/politics";
 import { prepared } from "./japan/prepared";
+import { growingUp } from "./japan/school";
+import { work } from "./japan/work";
 
 /** Japan — the country guide. Facts are checked against official sources
  *  (JNTO, the Ministry of Health, Japan Customs, city sites) where they
@@ -107,250 +111,10 @@ const base: CountryGuide = {
         },
       ],
     },
-    {
-      id: "growing-up",
-      title: "Growing up & school",
-      glyph: "university",
-      summary: "Walking to school at six, cleaning the classroom",
-      blocks: [
-        {
-          title: "School",
-          items: [
-            {
-              title: "The year starts in April",
-              text: "With the cherry blossoms — school, university and the working year all begin then, with entrance ceremonies under the trees. There are three terms, and the summer break runs about six weeks from late July.",
-            },
-            {
-              title: "6 – 3 – 3 – 4",
-              text: "Six years of elementary school and three of junior high are compulsory; then three of high school and four of university. Almost everyone finishes high school, and about six in ten go on to university.",
-            },
-            {
-              title: "Students clean the school",
-              text: [
-                "After lunch every day, pupils sweep, mop and wipe their classrooms, corridors and often the toilets. Most public schools have no cleaners.",
-                "The idea is that you look after the place you use — the same instinct you see when football fans tidy the stadium after a match.",
-              ],
-            },
-            {
-              title: "Lunch together",
-              text: "School lunch (kyūshoku) is planned by nutritionists and eaten in the classroom. Pupils take turns serving it in white coats and caps, everyone says itadakimasu together, and the teacher eats the same meal.",
-            },
-            {
-              title: "Exams decide a lot",
-              text: "Entrance exams decide your high school and university. Many students spend evenings and holidays at cram school (juku), and shrines to the god of learning, like Kyoto's Kitano Tenmangū, are full of exam-season ema.",
-            },
-            {
-              title: "Clubs",
-              text: "After-school clubs (bukatsu) fill evenings and weekends. The national high-school baseball tournament at Kōshien, near Osaka, is shown live on national TV every summer, and losing teams scoop up the stadium's soil to take home.",
-            },
-            {
-              title: "Uniforms",
-              text: "Most junior-high and high-school students wear one. The navy sailor-collar uniform for girls has been around since the 1920s; boys' high-collared gakuran are modelled on 19th-century European military jackets.",
-            },
-          ],
-        },
-        {
-          title: "Growing up",
-          items: [
-            {
-              title: "Independent early",
-              text: [
-                "Children walk to school or ride the train on their own from the age of six, in a yellow hat, with a leather backpack (randoseru) that can cost over ¥50,000 and is meant to last all six years.",
-                "A TV show, Hajimete no Otsukai, “My First Errand”, has filmed toddlers doing the shopping alone since 1991.",
-              ],
-            },
-            {
-              title: "Becoming an adult",
-              text: "The age of adulthood dropped to 18 in 2022, but drinking and smoking stay at 20. Coming of Age Day, the second Monday of January, still celebrates the 20-year-olds — many in long-sleeved kimono (furisode) or hakama.",
-            },
-            {
-              title: "Fewer children",
-              text: "Fewer than 700,000 babies were born in Japan in 2024, the fewest since records began in 1899. Thousands of rural schools have closed or merged, and some have been turned into hotels, cafés or — in Kyoto — a manga museum.",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "work",
-      title: "Work & companies",
-      glyph: "bank",
-      summary: "One start date, old firms, omiyage",
-      blocks: [
-        {
-          title: "The job",
-          items: [
-            {
-              title: "Everyone starts on 1 April",
-              text: "Students job-hunt together in their final year (shūkatsu), in near-identical black suits, and new graduates all join on the same day — often with a welcome ceremony and weeks of company training.",
-            },
-            {
-              title: "A job for life — less so now",
-              text: "Big companies traditionally hired for life and paid by seniority, and many still do. But changing jobs, once frowned upon, has become far more common among the young.",
-            },
-            {
-              title: "Long hours",
-              text: [
-                "Japanese has a word for death from overwork: karōshi. A 2019 law capped overtime for the first time, and average hours have been falling since.",
-                "Staying late and the after-work drink (nomikai) with the boss are slowly fading — but the last trains on a Friday still tell the story.",
-              ],
-            },
-            {
-              title: "Women at work",
-              text: "Most women now work, but few reach management — around one manager in seven is a woman, one of the lowest shares among rich countries.",
-            },
-          ],
-        },
-        {
-          title: "Office life",
-          items: [
-            {
-              title: "Business cards",
-              text: "Meishi are offered and received with both hands, read, and kept on the table during the meeting, lined up in seating order — not pocketed straight away.",
-            },
-            {
-              title: "Omiyage",
-              text: "After a trip, you bring a box of local sweets for your colleagues — one each. That's why every station and airport sells boxes of individually wrapped snacks, and why the box always says where it's from.",
-            },
-          ],
-        },
-        {
-          title: "Companies",
-          items: [
-            {
-              title: "The oldest companies anywhere",
-              text: "Japan has more firms over 100 years old than any other country — tens of thousands. Kongō Gumi has built temples since 578; Hōshi, an inn at Awazu Onsen in Ishikawa, has been run by the same family since 718.",
-            },
-            {
-              title: "Names you know",
-              text: "Toyota, Sony, Nintendo, Uniqlo, Canon, Shiseido. Even 7-Eleven is Japanese-owned now. Japan is one of the world's five largest economies.",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "politics",
-      title: "Politics, briefly",
-      icon: "flag",
-      summary: "Emperor, parliament, one dominant party",
-      blocks: [
-        {
-          title: "How it works",
-          items: [
-            {
-              title: "An emperor with no power",
-              text: [
-                "Emperor Naruhito is “the symbol of the State” — a ceremonial role with no political power. The imperial line is the oldest continuous hereditary monarchy in the world.",
-                "Only men can inherit the throne, and there are very few young men left in the family, so the succession is a live debate.",
-                "The palace's inner grounds open to the public on 2 January and on the emperor's birthday, 23 February, when the family greets crowds from a balcony.",
-              ],
-            },
-            {
-              title: "Parliament",
-              text: "The National Diet has two houses: the House of Representatives, which can be dissolved for a snap election, and the House of Councillors, half elected every three years. The Diet chooses the prime minister.",
-            },
-            {
-              title: "One party, mostly",
-              text: [
-                "The Liberal Democratic Party has governed almost without a break since 1955 — out of power only in 1993–94 and 2009–12.",
-                "It's a broad tent of rival factions, and leaders change often: Japan has had more than ten prime ministers since 2000. Sanae Takaichi became its first woman prime minister in October 2025.",
-              ],
-            },
-            {
-              title: "No war",
-              text: "Article 9 of the constitution renounces war and the maintenance of armed forces. Japan has Self-Defense Forces instead of an army in name — though its defence budget is now among the world's largest.",
-            },
-            {
-              title: "47 prefectures",
-              text: "Each has its own elected governor and assembly. Tokyo is one of them — Tokyo-to, a metropolis rather than a city.",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      id: "culture",
-      title: "Culture",
-      glyph: "art",
-      summary: "Seasons, onsen, sumo, mascots",
-      blocks: [
-        {
-          title: "Everyday",
-          items: [
-            {
-              title: "Obsessed with the seasons",
-              text: [
-                "Food, sweets, packaging and drinks change with the season — kisetsu gentei, limited editions. Autumn brings chestnut, sweet potato and maple-leaf everything.",
-                "The weather news tracks the cherry-blossom front north each spring, and the autumn-leaves front south each autumn.",
-              ],
-            },
-            {
-              title: "Irasshaimase!",
-              text: "The “welcome!” called out when you walk into a shop or restaurant. No reply is expected — a nod is plenty. Saying gochisōsama deshita (“thank you for the meal”) on the way out is always appreciated.",
-            },
-            {
-              title: "Kawaii and mascots",
-              text: "Every town, prefecture and even police force has a mascot (yuru-kyara). Kumamon, a black bear from Kumamoto, sells well over ¥100 billion of merchandise a year.",
-            },
-            {
-              title: "Karaoke",
-              text: "Invented in Japan in the early 1970s. You hire a private room with friends by the hour, order drinks from a tablet, and nobody minds how you sing.",
-            },
-            {
-              title: "Pachinko",
-              text: "Gambling for money is mostly illegal, so pachinko parlours pay out in prizes — which you can then sell at a little window next door, run as a separate business. Everyone knows.",
-            },
-          ],
-        },
-        {
-          title: "Arts",
-          items: [
-            {
-              title: "The tea ceremony",
-              text: "Chanoyu, “hot water for tea”: a host prepares matcha for guests with set movements in a small, plain room. It shaped Japanese taste in pottery, gardens, flowers and architecture. Many temples in Kyoto serve a bowl with a sweet for a few hundred yen.",
-            },
-            {
-              title: "Noh, kabuki, bunraku",
-              text: "Three stage traditions on UNESCO's list:",
-              points: [
-                "Noh — slow, masked, 14th-century drama with chanting and flute",
-                "Kabuki — Edo's flamboyant popular theatre, all-male; Tokyo's Kabukiza sells single-act tickets on the day",
-                "Bunraku — puppet theatre, each puppet worked by three people in full view; based in Osaka",
-              ],
-            },
-            {
-              title: "Geiko and maiko",
-              text: "Professional entertainers trained in dance, music and conversation — geisha, called geiko in Kyoto. Maiko are apprentices, in brighter kimono with long trailing sashes. Seeing them perform is easiest at a public dance season or a teahouse event booked through a hotel.",
-            },
-          ],
-        },
-        {
-          title: "Baths & sport",
-          items: [
-            {
-              title: "Onsen",
-              text: "Around 3,000 hot-spring areas, thanks to all the volcanoes. Bathing together, naked and separated by sex, is an ordinary family outing — and the mineral content of each spring is posted on the wall.",
-            },
-            {
-              title: "Sumo",
-              text: "Six grand tournaments a year, 15 days each, with the top wrestlers in the late afternoon. Morning practice at a stable (asageiko) can sometimes be watched for free.",
-              pointsTitle: "Tournaments",
-              points: [
-                "Tokyo — January, May, September",
-                "Osaka — March",
-                "Nagoya — July",
-                "Fukuoka — November",
-              ],
-            },
-            {
-              title: "Baseball",
-              text: "The most-watched sport. Fans sing a song for every batter, and the cheering sections (ōendan) are half the show. Beer is sold by young women carrying kegs on their backs up and down the stands.",
-            },
-          ],
-        },
-      ],
-    },
+    growingUp,
+    work,
+    politics,
+    culture,
     {
       id: "manga",
       title: "Manga & anime",
