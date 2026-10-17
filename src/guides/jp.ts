@@ -718,15 +718,20 @@ const base: CountryGuide = {
       items: [
         {
           title: "The nation's kitchen",
-          text: "A merchant city in the Edo period, where rice from across Japan was traded — hence the nickname tenka no daidokoro. The world's first organised futures market traded rice here, at Dōjima, in the 1730s.",
+          text: "A merchant city in the Edo period, where rice from across Japan was traded — hence the nickname tenka no daidokoro. The world's first organised futures market traded rice here, at Dōjima, licensed by the shogunate in 1730.[^1]",
+          related: ["history/edo", "regional-food/tokyo"],
+          sources: [{ title: "Dōjima Rice Exchange — Wikipedia", url: "https://en.wikipedia.org/wiki/D%C5%8Djima_Rice_Exchange", note: "Licensed in 1730" }],
         },
         {
           title: "Eat until you drop",
           text: "Kuidaore is the city's motto. Takoyaki, okonomiyaki and kushikatsu are from here — and the rule at kushikatsu bars: no double-dipping in the shared sauce.",
+          related: ["food/getting-a-table-ordering-eating", "eating-out/an-izakaya-night-start-to-finish"],
         },
         {
           title: "The castle",
-          text: "Built by Toyotomi Hideyoshi in 1583. The main tower you see is a 1931 reconstruction in concrete, with a museum inside; the huge stone walls and moats are the real thing.",
+          text: "Built by Toyotomi Hideyoshi in 1583. The main tower you see is a 1931 reconstruction in concrete, with a museum inside; the huge stone walls and moats are the real thing, rebuilt by the Tokugawa after they destroyed Hideyoshi's castle in 1615.[^1]",
+          related: ["history/unification"],
+          sources: [{ title: "Osaka Castle — Wikipedia", url: "https://en.wikipedia.org/wiki/Osaka_Castle", note: "1583, 1615, the 1931 tower" }],
         },
         { title: "Stand on the right", text: "Osaka stands on the right of escalators, unlike Tokyo — usually traced back to the 1970 Expo." },
         { title: "Two Expos", text: "Osaka hosted the World Expo in 1970 and again in 2025. Tarō Okamoto's Tower of the Sun from 1970 still stands in Expo Park — you can go inside." },
@@ -736,11 +741,11 @@ const base: CountryGuide = {
         },
         {
           title: "The comedy capital",
-          text: "Osaka is the home of manzai, two-person stand-up, and of Yoshimoto Kōgyō, the agency behind many of Japan's comedians. People here are famously chattier and more direct than in Tokyo.",
+          text: "Osaka is the home of manzai, two-person stand-up, and of Yoshimoto Kōgyō, the agency behind many of Japan's comedians. People here are famously chattier and more direct than in Tokyo (see [Dialects and the standard](guide:language/dialects-and-the-standard)).",
         },
         {
           title: "Bunraku's home",
-          text: "The National Bunraku Theatre in Nanba stages the puppet theatre where each puppet is worked by three people in full view.",
+          text: "The National Bunraku Theatre in Nanba stages the puppet theatre where each puppet is worked by three people in full view (see [Noh, kabuki and bunraku](guide:culture/noh-kabuki-and-bunraku)).",
         },
       ],
     },
@@ -794,13 +799,15 @@ const base: CountryGuide = {
       items: [
         {
           title: "A shogun's mausoleum",
-          text: "Tōshō-gū is the shrine to Tokugawa Ieyasu, rebuilt in 1636 by his grandson — gold, lacquer and carving at full volume, the opposite of Zen restraint.",
+          text: "Tōshō-gū is the shrine to Tokugawa Ieyasu, rebuilt in 1636 by his grandson — gold, lacquer and carving at full volume, the opposite of Zen restraint. With Futarasan Shrine and Rinnō-ji it's a World Heritage site.[^1]",
           pointsTitle: "Look for",
           points: [
             "The three wise monkeys on the sacred stable",
             "The sleeping cat (nemuri-neko) over a gateway",
             "Yōmeimon, the gate you could stare at all day",
           ],
+          related: ["history/edo", "belief/gods-and-buddhas-mixed-and-split"],
+          sources: [{ title: "Shrines and Temples of Nikko — UNESCO", url: "https://whc.unesco.org/en/list/913", note: "Inscribed 1999" }],
         },
         {
           title: "Up the 48 bends",
@@ -809,6 +816,7 @@ const base: CountryGuide = {
         {
           title: "Cooler and earlier",
           text: "It's in the mountains: autumn colour starts around the lake in early October and reaches the town in late October, weeks before Tokyo.",
+          related: ["land/autumn-colour"],
         },
         { title: "The red bridge", text: "Shinkyō, the vermilion bridge at the entrance to the shrines, marks the spot where a god is said to have thrown snakes across the river for a monk to cross." },
         { title: "Yuba", text: "Nikkō's speciality is yuba, tofu skin — here written 湯波 rather than Kyoto's 湯葉, and served thicker, rolled." },
@@ -828,22 +836,26 @@ const base: CountryGuide = {
         {
           title: "6 August 1945",
           text: [
-            "The first atomic bomb used in war exploded over the city centre at 8:15 in the morning. An estimated 140,000 people had died by the end of the year.",
+            "The first atomic bomb used in war exploded over the city centre at 8:15 in the morning. An estimated 140,000 people had died by the end of the year.[^1]",
             "The Peace Memorial Museum is hard and essential. Allow at least two hours.",
           ],
+          related: ["history/meiji-to-1945", "history/since-1945"],
+          sources: [{ title: "Hiroshima Peace Memorial Museum", url: "https://hpmmuseum.jp/?lang=eng", note: "Deaths estimated at about 140,000 by the end of 1945" }],
         },
         {
           title: "The dome",
           text: "The A-Bomb Dome was the Prefectural Industrial Promotion Hall, designed by the Czech architect Jan Letzel. One of the few buildings left standing near the blast, it was kept as it was and became World Heritage in 1996.",
+          sources: [{ title: "Hiroshima Peace Memorial (Genbaku Dome) — UNESCO", url: "https://whc.unesco.org/en/list/775", note: "Inscribed 1996" }],
         },
         {
           title: "Paper cranes",
           text: "Sadako Sasaki was two when the bomb fell and died of leukaemia at twelve, folding paper cranes in hospital. Her statue in the park is hung with millions of cranes sent from around the world.",
         },
-        { title: "Trams that survived", text: "The city's trams were running again three days after the bomb. Two of the cars that survived it are still in service." },
+        { title: "Trams that survived", text: "The city's trams were running again three days after the bomb. Two of the cars that survived it, built in 1942, are still kept in service, mostly on weekday mornings.[^1]", sources: [{ title: "Trams that survived the bomb — Japan Tourism Agency", url: "https://www.mlit.go.jp/tagengo-db/R2-00309.html", note: "Cars 651 and 652 (Japanese)" }] },
         {
           title: "Its own okonomiyaki",
           text: "Layered rather than mixed, with noodles in the middle — a lasting rivalry with Osaka's version. Okonomi-mura is a building of dozens of counters.",
+          related: ["food/getting-a-table-ordering-eating"],
         },
       ],
     },
@@ -865,13 +877,15 @@ const base: CountryGuide = {
         {
           title: "A shrine on the water",
           text: "The shrine's halls and corridors stand on stilts over the tidal flat, built in their present form by the warlord Taira no Kiyomori in 1168. At high tide the whole thing seems to float.",
+          related: ["belief/shinto", "history/heian"],
+          sources: [{ title: "Itsukushima Shinto Shrine — UNESCO", url: "https://whc.unesco.org/en/list/776", note: "The shrine, Kiyomori's 12th-century plan, the sacred island" }],
         },
         {
           title: "A sacred island",
           text: "The whole island was considered a god. For centuries no births or deaths were allowed on it, and there's still no cemetery. Deer wander here too.",
         },
         { title: "Mount Misen", text: "A ropeway and a walk lead to the top. A fire lit by Kūkai in the 9th century is said to have burned in its hall ever since." },
-        { title: "Visitor tax", text: "Everyone landing on the island pays a ¥100 visitor tax, usually with the ferry ticket." },
+        { title: "Visitor tax", text: "Since October 2023 everyone landing on the island pays a ¥100 visitor tax, usually with the ferry ticket.[^1]", related: ["numbers/tourists-and-everyone-else"], sources: [{ title: "Hatsukaichi introduces Miyajima visitor tax — Travel Trade Journal", url: "https://traveltradejournal.com/japans-hatsukaichi-implements-tourist-tax-to-promote-sustainable-tourism-and-curb-overtourism/", note: "¥100 per visit from 1 October 2023" }] },
         { title: "Oysters and maple cakes", text: "Hiroshima Bay grows most of Japan's oysters, grilled on every corner. Momiji manjū are little maple-leaf-shaped cakes filled with bean paste." },
       ],
     },
@@ -885,6 +899,8 @@ const base: CountryGuide = {
         {
           title: "An original castle",
           text: "Most Japanese castle keeps are concrete rebuilds. Himeji's main keep dates from 1609 and survived wars, earthquakes and the 1945 bombing that burned the city around it.",
+          related: ["history/unification"],
+          sources: [{ title: "Himeji-jo — UNESCO", url: "https://whc.unesco.org/en/list/661", note: "Inscribed 1993" }],
         },
         {
           title: "The White Heron",
@@ -911,15 +927,19 @@ const base: CountryGuide = {
         },
         {
           title: "1995",
-          text: "The Great Hanshin earthquake of 17 January killed over 6,000 people. A stretch of the wrecked pier is kept as it was at the Port of Kobe Earthquake Memorial Park.",
+          text: "The Great Hanshin earthquake of 17 January killed 6,434 people.[^1] A stretch of the wrecked pier is kept as it was at the Port of Kobe Earthquake Memorial Park.",
+          related: ["prepared/when-the-ground-shakes", "trivia/japan-and-poland"],
+          sources: [{ title: "Great Hanshin earthquake — Wikipedia", url: "https://en.wikipedia.org/wiki/Great_Hanshin_earthquake", note: "6,434 deaths" }],
         },
         {
           title: "Kobe beef",
           text: "A specific certified Wagyu from Tajima cattle raised in Hyōgo — the real thing comes with a certificate number you can look up.",
+          related: ["food/yakitori-wagyu-and-y-shoku"],
         },
         {
           title: "Nada sake",
           text: "The five districts of Nada, along the shore, brew more sake than anywhere else in Japan, using the hard local water, miyamizu. Several breweries have free museums.",
+          related: ["food/sake-and-how-to-read-the-bottle"],
         },
         {
           title: "Night view",
@@ -937,12 +957,13 @@ const base: CountryGuide = {
         {
           title: "A rich castle town",
           text: "The Maeda clan, the wealthiest lords after the shogun, spent on arts and gardens. Kenroku-en is one of Japan's three great gardens; in winter its pines are tied up with ropes against the snow (yukizuri).",
+          related: ["land/gardens", "history/edo"],
         },
         {
           title: "Never bombed",
           text: "Kanazawa wasn't bombed in the war, so its geisha district (Higashi Chaya) and samurai quarter (Nagamachi) are original.",
         },
-        { title: "Gold leaf", text: "Almost all of Japan's gold leaf is made here — beaten to a ten-thousandth of a millimetre. You'll see it on ice cream." },
+        { title: "Gold leaf", text: "Over 99% of Japan's gold leaf is made here — beaten to a ten-thousandth of a millimetre. You'll see it on ice cream." },
         {
           title: "21st Century Museum",
           text: "A round glass museum by SANAA. Leandro Erlich's Swimming Pool lets you stand “underwater” fully dressed; timed tickets for the pool sell out.",
@@ -951,7 +972,7 @@ const base: CountryGuide = {
           title: "Ōmichō market",
           text: "The city's kitchen for 300 years. Snow crab season opens in early November, and seafood bowls (kaisendon) are the breakfast.",
         },
-        { title: "On the Shinkansen", text: "About 2 h 30 min from Tokyo since 2015. The Noto peninsula to the north is still recovering from the 2024 earthquake." },
+        { title: "On the Shinkansen", text: "About 2 h 30 min from Tokyo since 2015. The Noto peninsula to the north is still recovering from the January 2024 earthquake and the floods that followed that September." },
       ],
     },
     {
@@ -964,6 +985,7 @@ const base: CountryGuide = {
         {
           title: "Edo-era streets",
           text: "The Sanmachi lanes of dark wooden merchant houses and sake breweries. A ball of cedar leaves (sugidama) over a brewery's door means new sake — green when it's fresh, brown as it ages.",
+          related: ["food/sake-and-how-to-read-the-bottle", "history/edo"],
         },
         { title: "Morning markets", text: "Two of them, every morning: along the Miyagawa river and in front of the Takayama Jinya." },
         {
@@ -989,7 +1011,7 @@ const base: CountryGuide = {
           title: "Praying hands",
           text: "Gasshō-zukuri farmhouses have steep thatched roofs like hands in prayer, built to shed heavy snow. The big attics were used to raise silkworms.",
         },
-        { title: "World Heritage", text: "Listed in 1995 together with Gokayama, a smaller, quieter group of villages nearby." },
+        { title: "World Heritage", text: "Listed in 1995 together with Gokayama, a smaller, quieter group of villages nearby.", sources: [{ title: "Historic Villages of Shirakawa-go and Gokayama — UNESCO", url: "https://whc.unesco.org/en/list/734", note: "Inscribed 1995" }] },
         {
           title: "A roof every few decades",
           text: "A roof's thatch is replaced every 30–40 years in a day or two by the whole village working together (yui). Some houses are open inside.",
@@ -1009,10 +1031,13 @@ const base: CountryGuide = {
         {
           title: "Industrial heart",
           text: "Home ground of Toyota. The Toyota Commemorative Museum of Industry and Technology is in the old Toyoda spinning mill — the company started with automatic looms.",
+          related: ["work/old-firms-and-big-names"],
         },
         {
           title: "The castle",
-          text: "Famous for its golden dolphin-tigers (shachihoko) on the roof. The keep is a 1959 concrete rebuild, closed for a planned rebuild in wood; the Hommaru Palace beside it was rebuilt in wood in 2018.",
+          text: "Famous for its golden dolphin-tigers (shachihoko) on the roof. The keep is a 1959 concrete rebuild, closed since May 2018 for earthquake safety; a planned rebuild in wood has slipped to 2032 at the earliest. The Hommaru Palace beside it was rebuilt in wood in 2018 and is open.[^1]",
+          related: ["history/unification"],
+          sources: [{ title: "Nagoya Castle — japan-guide.com", url: "https://www.japan-guide.com/e/e3300.html", note: "Keep closed since 2018; the wooden rebuild delayed" }],
         },
         {
           title: "Its own food",
@@ -1024,6 +1049,7 @@ const base: CountryGuide = {
             "Kishimen — flat udon",
             "Morning service — toast and egg free with your coffee",
           ],
+          related: ["coffee/the-kissaten-menu"],
         },
         { title: "Atsuta Shrine", text: "Said to hold the sacred sword Kusanagi, one of the three imperial regalia. Nobody has seen it in modern times." },
       ],
@@ -1048,6 +1074,8 @@ const base: CountryGuide = {
         {
           title: "A town of temples",
           text: "Founded in 816 by the monk Kūkai as the centre of Shingon Buddhism — over a hundred temples on a mountaintop plateau 800 m up. The vermilion Konpon Daitō pagoda is its heart.",
+          related: ["belief/buddhism", "history/heian"],
+          sources: [{ title: "Sacred Sites and Pilgrimage Routes in the Kii Mountain Range — UNESCO", url: "https://whc.unesco.org/en/list/1142", note: "Kōyasan, inscribed 2004" }],
         },
         {
           title: "Sleep in a temple",
@@ -1075,9 +1103,9 @@ const base: CountryGuide = {
           text: "Laid out on a grid from 1869, when Japan settled Hokkaidō — homeland of the indigenous Ainu. American advisers helped plan its farms, which is why the old buildings look like New England.",
         },
         { title: "Snow Festival", text: "Giant snow and ice sculptures fill Ōdōri Park every February — and every hotel." },
-        { title: "Beer and miso ramen", text: "Sapporo Beer has been brewed here since 1876, Japan's oldest brand. Miso ramen was born here in the 1950s." },
+        { title: "Beer and miso ramen", text: "Sapporo Beer has been brewed here since 1876, Japan's oldest brand. Miso ramen was born here in the 1950s.", related: ["food/soba-udon-and-ramen", "food/sh-ch-whisky-and-beer"] },
         { title: "Jingisukan", text: "Mutton grilled on a domed iron pan, named after Genghis Khan. The local meal." },
-        { title: "The Ainu", text: "Upopoy, the National Ainu Museum, opened in Shiraoi, about an hour south, in 2020." },
+        { title: "The Ainu", text: "Upopoy, the National Ainu Museum, opened in Shiraoi, about an hour south, in 2020 (see [Dialects and the standard](guide:language/dialects-and-the-standard))." },
       ],
     },
     {
@@ -1091,10 +1119,11 @@ const base: CountryGuide = {
         {
           title: "Tonkotsu ramen",
           text: "The milky pork-bone broth comes from here. Order your noodles' firmness (barikata is very firm) and ask for kaedama, a second serving of noodles, for the leftover soup.",
+          related: ["food/soba-udon-and-ramen"],
         },
         { title: "Mentaiko", text: "Spicy pollock roe, brought from Korea after the war — in onigiri, on pasta, as a gift in every station shop." },
         { title: "Gateway to Asia", text: "Fukuoka is closer to Busan and Seoul than to Tokyo, and its airport is just two subway stops from Hakata station." },
-        { title: "Dazaifu", text: "Half an hour away, Dazaifu Tenmangū is the shrine to the god of learning. Eat umegae mochi, grilled rice cakes, on the street up to it." },
+        { title: "Dazaifu", text: "Half an hour away, Dazaifu Tenmangū is the shrine to the god of learning. Eat umegae mochi, grilled rice cakes, on the street up to it.", related: ["belief/shinto"] },
       ],
     },
     {
@@ -1107,17 +1136,18 @@ const base: CountryGuide = {
       items: [
         {
           title: "Its own kingdom",
-          text: "The Ryūkyū Kingdom traded across Asia until Japan annexed it in 1879. Its language, food, music and religion are distinct — the three-stringed sanshin is everywhere.",
+          text: "The Ryūkyū Kingdom traded across Asia until Japan annexed it in 1879. Its languages, food, music and religion are distinct — the three-stringed sanshin is everywhere (see [Dialects and the standard](guide:language/dialects-and-the-standard)).",
         },
         {
           title: "The Battle of Okinawa",
           text: "The biggest land battle fought on Japanese soil, in 1945. Around a quarter of the civilian population died. The Peace Memorial Park in the south lists every name, from every side.",
+          related: ["history/meiji-to-1945", "history/since-1945"],
         },
         {
           title: "US rule until 1972",
-          text: "After the war the islands were administered by the US for 27 years. Okinawa still hosts about 70% of the land used by US bases in Japan.",
+          text: "After the war the islands were administered by the US for 27 years. Okinawa, 0.6% of Japan's land, still hosts about 70% of the land used exclusively by US bases in Japan.",
         },
-        { title: "Shuri Castle", text: "The palace's main hall burned in 2019; its rebuilding is due to finish in 2026." },
+        { title: "Shuri Castle", text: "The palace's main hall burned in 2019. It has been rebuilt with traditional techniques, and the interior opens to visitors on 23 November 2026, by advance reservation.[^1]", sources: [{ title: "Shuri Castle main hall to reopen in November 2026 — GoAsia", url: "https://goasia.cc/en/news/okinawa-shuri-castle-main-hall-reopens-november-2026", note: "Completion ceremony 22 November, public opening 23 November 2026" }] },
         { title: "Its own food", text: "Gōyā champurū (bitter-melon stir-fry), Okinawa soba, Spam onigiri and awamori, the local rice spirit. Okinawa was long famous for its centenarians." },
       ],
     },
