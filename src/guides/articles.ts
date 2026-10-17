@@ -59,3 +59,22 @@ export function dateArticles(dates: GuideDate[]): ArticleRef[] {
 
 /** every topic, in the order the guide's home lists them */
 export const allTopics = (g: CountryGuide): GuideTopic[] => [...(g.eat ?? []), ...g.understand, ...g.practical];
+
+/** An in-guide reference — "land/forests" or "place/kyoto/gion" — as the
+ *  entry it names, or undefined when nothing by that name exists. */
+export function resolveRef(g: CountryGuide, ref: string): ArticleRef | undefined {
+  const parts = ref.split("/");
+  if (parts[0] === "place" && parts.length === 3) {
+    const city = g.cities.find((c) => c.id === parts[1]);
+    return city ? cityArticles(city).find((r) => r.slug === parts[2]) : undefined;
+  }
+  if (parts.length !== 2) return undefined;
+  const topic = allTopics(g).find((t) => t.id === parts[0]);
+  return topic ? topicArticles(topic).find((r) => r.slug === parts[1]) : undefined;
+}
+
+/** an article's text as one string — what the reading time and the
+ *  link / citation checks scan */
+export function articleText(a: GuideArticle): string {
+  return JSON.stringify([a.summary, a.body, a.text, a.parts, a.points, a.tip, a.facts]);
+}

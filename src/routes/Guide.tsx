@@ -11,8 +11,9 @@ import { useData } from "@/lib/data";
 import { guideTopicColor } from "@/lib/tones";
 import { GUIDE_CONTENT } from "@/guides/content";
 import { citiesOnTrip, datesOnTrip } from "@/guides/match";
-import { allTopics, cityArticles, dateArticles, dayTripArticles, topicArticles, type ArticleRef } from "@/guides/articles";
-import type { CountryGuide, GuideBody, GuideCity, GuideDayTrip, GuideEvent, GuideText, GuideTopic } from "@/guides/types";
+import { slug } from "@/lib/collapse";
+import { allTopics, articleText, cityArticles, dateArticles, dayTripArticles, resolveRef, topicArticles, type ArticleRef } from "@/guides/articles";
+import type { CountryGuide, GuideArticle, GuideBody, GuideCity, GuideDayTrip, GuideEvent, GuideSource, GuideText, GuideTopic } from "@/guides/types";
 
 /** A country guide — reference content the app ships with, read-only. Laid
  *  out like Settings: a home of grouped rows, each pushing to a topic's list,
@@ -321,6 +322,9 @@ const noArticle = (g: CountryGuide) => (
  * card, words to know and places get their own grouped lists, and the next
  * entry waits at the foot so the guide reads straight through. Next
  * replaces this page, so Back always returns to the list it came from.
+ * A long read also says how long it takes and opens with its contents,
+ * the way Apple's own long support articles do, and ends with related
+ * entries that carry the thread on.
  */
 function ArticlePage({
   back,
@@ -333,14 +337,47 @@ function ArticlePage({
   next?: { to: string; entry: ArticleRef };
   nextTopic?: { to: string; topic: GuideTopic; color: string };
 }) {
+  const guide = useGuide();
   const a = entry.article;
   const bullets = a.points?.length && !a.pointsTitle ? a.points : undefined;
+  const minutes = readingMinutes(a);
+  const headings = a.body?.flatMap((b) => ("h" in b ? [b.h] : [])) ?? [];
+  const related = guide ? (a.related ?? []).flatMap((ref) => {
+    const r = resolveRef(guide, ref);
+    return r ? [{ to: `${guidePath(guide)}/${ref}`, entry: r }] : [];
+  }) : [];
   return (
     <Page width="form">
-      <PageHeader back={back} eyebrow={entry.eyebrow} title={entry.title} className={a.summary ? "!mb-3" : "mb-6"} />
-      {a.summary && <p className="mb-6 break-words text-[17px] leading-[1.45] text-ink-soft">{a.summary}</p>}
+      <PageHeader back={back} eyebrow={entry.eyebrow} title={entry.title} className={a.summary || minutes ? "!mb-3" : "mb-6"} />
+      {a.summary && <p className="mb-2 break-words text-[17px] leading-[1.45] text-ink-soft">{a.summary}</p>}
+      {minutes ? <p className="mb-6 text-[13px] text-ink-faint">{minutes} min read</p> : a.summary ? <div className="mb-4" /> : null}
 
       <div className="space-y-6">
+        {headings.length >= 4 && (
+          <div>
+            <p className="kicker mb-1.5 px-1">In this article</p>
+            <Section>
+              <ul>
+                {headings.map((h) => (
+                  <li key={h} className={INSET_DIVIDER}>
+                    <a
+                      href={`#${headingId(h)}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        document.getElementById(headingId(h))?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }}
+                      className="flex items-center gap-3 px-3.5 py-2.5 text-[17px] leading-snug text-ink active:bg-ink/[0.07]"
+                    >
+                      <span className="min-w-0 flex-1 break-words">{h}</span>
+                      <Icon name="down" size={13} className="shrink-0 text-ink-faint" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </Section>
+          </div>
+        )}
+
         {a.facts?.length ? (
           <Section>
             <ul>
@@ -408,6 +445,19 @@ function ArticlePage({
           </div>
         ) : null}
 
+        {related.length ? (
+          <div>
+            <p className="kicker mb-1.5 px-1">Related</p>
+            <Section>
+              <ul>
+                {related.map((r) => (
+                  <ArticleRow key={r.to} to={r.to} caption={r.entry.eyebrow} title={r.entry.title} meta={r.entry.article.summary} />
+                ))}
+              </ul>
+            </Section>
+          </div>
+        ) : null}
+
         {a.sources?.length ? <Sources sources={a.sources} /> : null}
 
         {next ? (
@@ -439,25 +489,28 @@ function ArticlePage({
   );
 }
 
-/** Where an article's facts come from: a quiet list of links at the foot,
- *  closed until asked for, so citations never crowd the read. */
-function Sources({ sources }: { sources: { title: string; url: string }[] }) {
+/** Where an article's facts come from: a quiet numbered list of links at
+ *  the foot, closed until asked for, so citations never crowd the read.
+ *  A `[^n]` mark in the text opens it at the nth. */
+function Sources({ sources }: { sources: GuideSource[] }) {
   return (
-    <details className="group">
+    <details id="guide-sources" className="group">
       <summary className="tap flex w-fit cursor-pointer list-none items-center gap-1.5 px-1 text-[13px] text-ink-soft [&::-webkit-details-marker]:hidden">
         <Icon name="link" size={13} />
         {sources.length === 1 ? "1 source" : `${sources.length} sources`}
         <Icon name="chevron" size={11} className="transition-transform duration-200 group-open:rotate-90" />
       </summary>
       <ul className="mt-2 rounded-[12px] bg-surface">
-        {sources.map((s) => (
-          <li key={s.url} className={INSET_DIVIDER}>
-            <a href={s.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 px-3.5 py-2.5 active:bg-ink/[0.07]">
+        {sources.map((s, i) => (
+          <li key={i} id={`guide-source-${i + 1}`} className={`${INSET_DIVIDER} scroll-mt-24 first:rounded-t-[12px] last:rounded-b-[12px]`}>
+            <a href={s.url} target="_blank" rel="noreferrer" className="flex items-start gap-3 px-3.5 py-2.5 active:bg-ink/[0.07]">
+              <span className="w-4 shrink-0 pt-px text-right text-[13px] tabular-nums text-ink-faint">{i + 1}</span>
               <span className="min-w-0 flex-1">
                 <span className="block break-words text-[15px] leading-snug text-ink">{s.title}</span>
+                {s.note && <span className="mt-0.5 block break-words text-[13px] leading-snug text-ink-soft">{s.note}</span>}
                 <span className="block break-all text-[12px] leading-snug text-ink-faint">{new URL(s.url).hostname.replace(/^www\./, "")}</span>
               </span>
-              <Icon name="share" size={14} className="shrink-0 text-ink-faint" />
+              <Icon name="share" size={14} className="mt-1 shrink-0 text-ink-faint" />
             </a>
           </li>
         ))}
@@ -549,7 +602,29 @@ function Body({ blocks }: { blocks: GuideBody[] }) {
 
 function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
   if ("p" in b) return <p className="break-words text-[17px] leading-[1.5] text-ink"><Inline text={b.p} /></p>;
-  if ("h" in b) return <h2 className={`break-words text-[20px] font-medium leading-snug text-ink ${first ? "" : "!mt-8"}`}>{b.h}</h2>;
+  if ("h" in b) {
+    return (
+      <h2 id={headingId(b.h)} className={`scroll-mt-[calc(var(--sat)+var(--nav-h)+1rem)] break-words text-[20px] font-medium leading-snug text-ink ${first ? "" : "!mt-8"}`}>
+        {b.h}
+      </h2>
+    );
+  }
+  if ("timeline" in b) {
+    return (
+      <ol className="!mt-5">
+        {b.timeline.map((ev, n) => (
+          <li key={n} className="relative flex gap-3.5 pb-4 last:pb-0">
+            {n < b.timeline.length - 1 && <span aria-hidden className="absolute bottom-0 left-[4.5px] top-[0.95rem] w-px bg-line" />}
+            <span aria-hidden className="mt-[0.45rem] h-2.5 w-2.5 shrink-0 rounded-full bg-accent" />
+            <span className="min-w-0 flex-1">
+              <span className="block text-[13px] tabular-nums text-ink-faint">{ev.when}</span>
+              <span className="mt-0.5 block break-words text-[17px] leading-[1.45] text-ink"><Inline text={ev.text} /></span>
+            </span>
+          </li>
+        ))}
+      </ol>
+    );
+  }
   if ("list" in b) return <Bullets points={b.list} />;
   if ("steps" in b) {
     return (
@@ -592,11 +667,12 @@ function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
   }
   if ("note" in b) {
     const warn = b.kind === "warning";
+    const info = b.kind === "info";
     return (
       <div className="flex gap-3 rounded-[10px] bg-surface-2 px-3.5 py-3">
-        <Icon name={warn ? "alert" : "bulb"} size={22} className={`mt-px shrink-0 ${warn ? "text-danger" : "text-gold"}`} />
+        <Icon name={warn ? "alert" : info ? "info" : "bulb"} size={22} className={`mt-px shrink-0 ${warn ? "text-danger" : info ? "text-accent" : "text-gold"}`} />
         <div className="min-w-0">
-          <p className="text-[15px] font-medium leading-snug text-ink">{b.title ?? (warn ? "Watch out" : "Tip")}</p>
+          <p className="text-[15px] font-medium leading-snug text-ink">{b.title ?? (warn ? "Watch out" : info ? "Note" : "Tip")}</p>
           <p className="mt-0.5 break-words text-[15px] leading-[1.45] text-ink-soft"><Inline text={b.note} /></p>
         </div>
       </div>
@@ -654,6 +730,16 @@ function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
       ))}
     </ul>
   );
+}
+
+const headingId = (h: string) => `part-${slug(h)}`;
+
+/** about how long an article takes to read, at an unhurried 200 words a
+ *  minute — said only for the long ones, where it helps to know */
+function readingMinutes(a: GuideArticle): number | undefined {
+  const words = articleText(a).replace(/guide:[^)\s]+|\[\^\d+\]|[^\p{L}\s]/gu, " ").split(/\s+/).filter(Boolean).length;
+  const min = Math.round(words / 200);
+  return min >= 3 ? min : undefined;
 }
 
 /** paragraphs at reading size, with a little air between them */

@@ -509,8 +509,10 @@ When a trip has stays or pins in a country the app has a guide for (Japan today)
 - **Understand** — history, Look closer (everyday things explained), Japan by numbers, seasons & landscape, belief, stamps, school, work, politics, culture, manga & anime and a page of fun facts.
 - Every page is grouped into collapsible sections; each row shows a title and a one-line summary.
 - Tap a row to read it as its own article: a standfirst, then a guided read with sub-headings, numbered steps, do / don't lists, small tables, key numbers and tip or warning boxes, plus **Words to know** and places to see it.
-- Articles can also carry a chart (line or bar, with unit, year and source), food cards tagged Everyday / Regional / Seasonal / Occasion / Mostly for visitors, places with a Google Maps button, and phone numbers that dial on tap.
-- **Sources** sit folded at the foot of an article; tap to see the links.
+- Articles can also carry a chart (line or bar, with unit, year and source), a dated timeline, food cards tagged Everyday / Regional / Seasonal / Occasion / Mostly for visitors, places with a Google Maps button, and phone numbers that dial on tap.
+- Long reads show their reading time, and an **In this article** list of their sections that jumps to each one.
+- Links in the text open another entry of the guide; **Related** at the foot lists the entries that carry the thread on.
+- **Sources** sit folded and numbered at the foot of an article, each with a line on what it supports. A small number in the text opens the list at that source.
 - **Photos** — freely licensed pictures from Wikimedia Commons, resized and bundled in `public/guide/jp/` so they show offline. Each carries its author and licence under it, linking to its source page; the list lives in `src/guides/japan/photos.ts`.
 - **Up next** at the foot of an article opens the next one in place, so Back still returns to the list. The last one in a topic offers the next topic.
 - **History** is a timeline: each era shows its dates and a one-line summary.

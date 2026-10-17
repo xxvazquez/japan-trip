@@ -1,7 +1,10 @@
 import type { IconName } from "@/components/Icon";
 import type { MapGlyphId } from "@/lib/mapGlyphs";
 
-/** Body text: one paragraph, or several. `**bold**` marks a key phrase. */
+/** Body text: one paragraph, or several. `**bold**` marks a key phrase,
+ *  `[words](guide:topic/slug)` links to another entry of the same guide
+ *  (`guide:place/city/slug` for a city's), and `[^2]` cites the article's
+ *  second source. */
 export type GuideText = string | string[];
 
 /** A subheaded part of an article, after its opening paragraphs. */
@@ -31,7 +34,7 @@ export type GuideBody =
   | { steps: { title: string; text?: string }[] }
   | { list: string[] }
   | { dos?: string[]; donts?: string[] }
-  | { note: string; title?: string; kind?: "tip" | "warning" }
+  | { note: string; title?: string; kind?: "tip" | "warning" | "info" }
   | { table: { head: string[]; rows: string[][] } }
   | { stats: { value: string; label: string }[] }
   | { terms: { term: string; text: string }[] }
@@ -39,6 +42,7 @@ export type GuideBody =
   | { dishes: GuideDish[] }
   | { venues: GuideVenue[] }
   | { call: GuideCall[] }
+  | { timeline: { when: string; text: string }[] }
   | { photo: GuidePhoto };
 
 /** A photo in an article, bundled with the app so it shows offline, and
@@ -103,6 +107,13 @@ export interface GuideVenue {
   query?: string;
 }
 
+/** Where a claim comes from. `note` says what it's the evidence for. */
+export interface GuideSource {
+  title: string;
+  url: string;
+  note?: string;
+}
+
 /** A number to call, tappable on a phone. */
 export interface GuideCall {
   number: string;
@@ -129,8 +140,12 @@ export interface GuideArticle {
   points?: string[];
   /** a small caption over `points` — "Where to see it" */
   pointsTitle?: string;
-  /** where the facts come from, listed quietly at the foot */
-  sources?: { title: string; url: string }[];
+  /** where the facts come from, listed quietly at the foot and numbered,
+   *  so `[^n]` in the text points at the nth */
+  sources?: GuideSource[];
+  /** other entries that pick up where this one leaves off —
+   *  "land/forests-wild-and-planted", "place/kyoto/reading-a-kyoto-street" */
+  related?: string[];
 }
 
 /** One point in a guide. */

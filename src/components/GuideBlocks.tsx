@@ -1,4 +1,5 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
+import { Link, useParams } from "react-router-dom";
 import { Icon } from "@/components/Icon";
 import type { GuideCall, GuideChart, GuideDish, GuidePhoto, GuideVenue } from "@/guides/types";
 
@@ -6,10 +7,50 @@ import type { GuideCall, GuideChart, GuideDish, GuidePhoto, GuideVenue } from "@
  *  a map link, and numbers to call. Each sits inside the article's white
  *  card, set on a quiet grey inset like the other blocks. */
 
-/** `**bold**` — a key phrase, set in medium weight */
+/** `**bold**` — a key phrase, set in medium weight; `*italic*` — a title
+ *  or a word in another language; `[words](guide:…)` —
+ *  a link to another entry of this guide; `[^n]` — a citation, a small
+ *  number that opens the article's sources at the nth. */
 export function Inline({ text }: { text: string }) {
-  const parts = text.split(/\*\*(.+?)\*\*/g);
-  return <>{parts.map((p, i) => (i % 2 ? <strong key={i} className="font-medium">{p}</strong> : p))}</>;
+  const { guide } = useParams();
+  const out: ReactNode[] = [];
+  const re = /\*\*(.+?)\*\*|\[([^\]]+)\]\(guide:([^)\s]+)\)|\[\^(\d+)\]|\*([^*\s](?:[^*]*[^*\s])?)\*/g;
+  let last = 0;
+  for (let m = re.exec(text); m; m = re.exec(text)) {
+    if (m.index > last) out.push(text.slice(last, m.index));
+    const k = m.index;
+    if (m[1] != null) out.push(<strong key={k} className="font-medium">{m[1]}</strong>);
+    else if (m[2] != null)
+      out.push(
+        <Link key={k} to={`/logbook/guide/${guide}/${m[3]}`} viewTransition className="text-accent active:opacity-60">
+          {m[2]}
+        </Link>,
+      );
+    else if (m[4] != null) out.push(<Cite key={k} n={Number(m[4])} />);
+    else out.push(<em key={k}>{m[5]}</em>);
+    last = re.lastIndex;
+  }
+  if (last < text.length) out.push(text.slice(last));
+  return <>{out}</>;
+}
+
+/** A citation mark. Tapping it opens the sources at the foot and brings
+ *  that one into view, briefly tinted so the eye lands on it. */
+function Cite({ n }: { n: number }) {
+  const open = (e: MouseEvent) => {
+    e.preventDefault();
+    const list = document.getElementById("guide-sources") as HTMLDetailsElement | null;
+    const row = document.getElementById(`guide-source-${n}`);
+    if (!list || !row) return;
+    list.open = true;
+    row.scrollIntoView({ behavior: "smooth", block: "center" });
+    row.animate([{ backgroundColor: "rgb(var(--c-accent) / 0.14)" }, { backgroundColor: "transparent" }], { duration: 1600, easing: "ease-out" });
+  };
+  return (
+    <a href={`#guide-source-${n}`} onClick={open} className="tap relative -top-[0.45em] ml-px text-[0.65em] font-medium tabular-nums text-accent">
+      {n}
+    </a>
+  );
 }
 
 const fmt = (v: number, decimals = 0) =>
