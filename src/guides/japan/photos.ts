@@ -43,6 +43,12 @@ const PHOTOS = {
   "perry": { w: 900, h: 424, author: "Hibata Ōsuke", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:The_Mission_of_Commodore_Perry_to_Japan_in_1854_(BM_2013,3002.1).jpg" },
   "yokohama-railway": { w: 900, h: 438, author: "Hiroshige III", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Yokohama_Railway_1874.jpg" },
   "shinkansen-0": { w: 900, h: 675, author: "sodai gomi", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:0_series_shinkansen_at_Himeji_Station_2004.jpg" },
+  "manyoshu": { w: 900, h: 612, author: "Kamakura-period copyist", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Nishi_Honganji-bon_(1.1).jpg" },
+  "genji-kana": { w: 900, h: 420, author: "Unknown, 12th century", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Genji_emaki_01003_001.jpg" },
+  "kyoto-jr-sign": { w: 900, h: 675, author: "そらみみ", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Kyoto_Station_Sign_(Sagano_Line).jpg" },
+  "kyoto-subway-sign": { w: 900, h: 600, author: "MaedaAkihiko", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Kyoto-Subway_Kyoto-STA_Name-sign.jpg" },
+  "kyoto-banner": { w: 900, h: 675, author: "Kyoww", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Kyoto_dialect_banner_in_Demachi.JPG" },
+  "hogen-fuda": { w: 675, h: 900, author: "TeresaPikler", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Esempio_di_hogen_fuda.jpg" },
 } as const;
 
 export type PhotoId = keyof typeof PHOTOS;

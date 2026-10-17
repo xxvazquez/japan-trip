@@ -5,6 +5,7 @@ import { eatingOut, foodAtHome, howFoodWorks, regionalFood } from "./japan/food"
 import { land } from "./japan/land";
 import { belief } from "./japan/belief";
 import { history } from "./japan/history";
+import { language } from "./japan/language";
 import { numbers } from "./japan/numbers";
 import { placeReads } from "./japan/places";
 import { prepared } from "./japan/prepared";
@@ -278,6 +279,7 @@ const base: CountryGuide = {
     numbers,
     land,
     belief,
+    language,
     {
       id: "stamps",
       title: "Stamps everywhere",
@@ -909,14 +911,6 @@ const base: CountryGuide = {
             {
               title: "Addresses without streets",
               text: "Most streets have no names. An address is a district, a block and a building number — and in older areas buildings are sometimes numbered by when they were built, not where. That's why everyone navigates by map.",
-            },
-            {
-              title: "Green lights are “blue”",
-              text: "The old word ao covered both blue and green. Traffic lights were made a bluish green so the word still fits.",
-            },
-            {
-              title: "Around 2,000 characters",
-              text: "Students learn 2,136 everyday kanji by the end of high school, on top of the two 46-letter syllabaries, hiragana and katakana.",
             },
           ],
         },

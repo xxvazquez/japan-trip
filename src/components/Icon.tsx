@@ -78,6 +78,7 @@ export type IconName =
   | "medical"
   | "flag"
   | "stamp"
+  | "language"
   | "optional"
   | "move"
   | "globe"
@@ -491,6 +492,13 @@ const P: Record<IconName, JSX.Element> = {
     <>
       <path d="M10 13V9.5a2.5 2.5 0 1 1 4 0V13" />
       <path d="M5 16a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v1H5v-1ZM6 20.5h12" />
+    </>
+  ),
+  // iOS character.bubble — a speech bubble with a letter in it
+  language: (
+    <>
+      <path d="M12 4.5c4.7 0 8.5 3 8.5 6.8S16.7 18 12 18c-.9 0-1.8-.1-2.6-.3L5 19.8l1.2-3.6C4.6 14.9 3.5 13.2 3.5 11.3 3.5 7.5 7.3 4.5 12 4.5Z" />
+      <path d="m9.6 14 2.4-6 2.4 6M10.4 12h3.2" />
     </>
   ),
   // iOS icloud.and.arrow.down — a file that isn't on the device yet

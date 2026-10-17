@@ -506,7 +506,7 @@ When a trip has stays or pins in a country the app has a guide for (Japan today)
 - **While you're there** — festivals, seasons and closures that fall within the trip's own dates.
 - **Day trips** — from each base, off the usual list, all by train or bus.
 - **Eat & drink** — food at home, eating out, how the cooking works, regional food on the route, coffee and kissaten, menus and drinks.
-- **Understand** — history, Look closer (everyday things explained), Japan by numbers, seasons & landscape, belief, stamps, school, work, politics, culture, manga & anime and a page of fun facts.
+- **Understand** — history, Look closer (everyday things explained), Japan by numbers, seasons & landscape, belief, language, stamps, school, work, politics, culture, manga & anime and a page of fun facts.
 - Every page is grouped into collapsible sections; each row shows a title and a one-line summary.
 - Tap a row to read it as its own article: a standfirst, then a guided read with sub-headings, numbered steps, do / don't lists, small tables, key numbers and tip or warning boxes, plus **Words to know** and places to see it.
 - Articles can also carry a chart (line or bar, with unit, year and source), a dated timeline, food cards tagged Everyday / Regional / Seasonal / Occasion / Mostly for visitors, places with a Google Maps button, and phone numbers that dial on tap.
