@@ -21,7 +21,7 @@ export const prepared: GuideTopic = {
               call: [
                 { number: "119", label: "Ambulance or fire", text: "Say “kyūkyū desu” for an ambulance, “kaji desu” for a fire" },
                 { number: "110", label: "Police", text: "Crime, accidents, a bear in town, a lost child" },
-                { number: "050-3816-2787", label: "Japan Visitor Hotline", text: "Tourism agency, 24 h, English · help in illness, accidents and disasters" },
+                { number: "050-3816-2787", label: "Japan Visitor Hotline", text: "Tourism agency, 24 h, every day, in English, Chinese, Korean and Japanese · help in illness, accidents and disasters" },
                 { number: "#7119", label: "Is this an emergency?", text: "Nurse advice line, 24 h, in Tokyo, Kyoto and Yamanashi · Japanese" },
               ],
             },
@@ -35,17 +35,18 @@ export const prepared: GuideTopic = {
               ],
             },
             { note: "The ambulance is free. Treatment isn't: a visitor pays the full price at the hospital, usually before leaving. Keep your travel-insurance policy number and its 24-hour line with your passport.", title: "Cost" },
-            { p: "**#7119** exists because ambulances were being called for colds. A nurse tells you whether you need 119, a clinic tomorrow, or which hospital is open tonight. It's in Japanese — if that's a wall, the Visitor Hotline will help you find a hospital in English." },
+            { p: "**#7119** exists because ambulances were being called for colds; Kyoto runs one, and Yamanashi's started in October 2023.[^2][^3] A nurse tells you whether you need 119, a clinic tomorrow, or which hospital is open tonight. It's in Japanese — if that's a wall, the Visitor Hotline will help you find a hospital in English.[^1]" },
           ],
           words: [
             { local: "救急車", say: "kyūkyūsha", means: "ambulance" },
             { local: "助けて", say: "tasukete", means: "help!" },
             { local: "病院", say: "byōin", means: "hospital" },
           ],
+          related: ["prepared/ill-or-hurt", "prepared/set-up-your-phone", "language/politeness-in-the-grammar"],
           sources: [
-            { title: "Japan Visitor Hotline (JNTO)", url: "https://www.japan.travel/en/plan/hotline/" },
+            { title: "Japan Visitor Hotline — JNTO", url: "https://www.japan.travel/en/plan/hotline/", note: "050-3816-2787, 24 hours, every day" },
             { title: "#7119 Kyoto — Kyoto Prefecture", url: "https://www.pref.kyoto.jp/iryo/7119.html" },
-            { title: "#7119 Yamanashi — Yamanashi Prefecture", url: "https://www.pref.yamanashi.jp/shobo/7119.html" },
+            { title: "#7119 Yamanashi — Yamanashi Prefecture", url: "https://www.pref.yamanashi.jp/shobo/sincyaku/documents/7119shobo.html", note: "Running since 2 October 2023 (Japanese)" },
           ],
         },
         {
@@ -65,8 +66,9 @@ export const prepared: GuideTopic = {
               },
             },
             { p: "Bring your passport and cash. Many clinics take cards now, but not all, and a foreign prescription can't be filled in Japan — you need a Japanese doctor to write a new one." },
-            { note: "The tourism agency's search lists hospitals that take foreign patients, by language and by card payment. Find the nearest one to each of your stays before you need it.", title: "Look it up now" },
+            { note: "The tourism agency's search lists hospitals that take foreign patients, by language and by card payment. Find the nearest one to each of your stays before you need it.[^1]", title: "Look it up now" },
           ],
+          related: ["prepared/numbers-to-call", "numbers/long-lives-and-how-they-re-measured"],
           sources: [{ title: "Safe travel information (JNTO)", url: "https://www.jnto.go.jp/projects/visitor-support/safetravelinfo.html" }],
         },
         {
@@ -80,6 +82,7 @@ export const prepared: GuideTopic = {
             { local: "交番", say: "kōban", means: "police box" },
             { local: "落とし物", say: "otoshimono", means: "lost property" },
           ],
+          related: ["prepared/numbers-to-call", "look-closer/the-konbini-is-infrastructure"],
         },
       ],
     },
@@ -118,7 +121,7 @@ export const prepared: GuideTopic = {
               },
             },
             { h: "Shindo, not magnitude" },
-            { p: "Japanese news reports **shindo** — how hard the ground shook at each place — rather than magnitude, which is the energy at the source. The same quake can be shindo 5 in one town and 2 in the next." },
+            { p: "Japanese news reports **shindo** — how hard the ground shook at each place, on the weather agency's 10-step scale[^1] — rather than magnitude, which is the energy at the source. The same quake can be shindo 5 in one town and 2 in the next." },
             {
               table: {
                 head: ["Shindo", "What it's like"],
@@ -140,13 +143,14 @@ export const prepared: GuideTopic = {
             { local: "余震", say: "yoshin", means: "aftershock" },
             { local: "震度", say: "shindo", means: "intensity felt at a place" },
           ],
-          sources: [{ title: "Japan Meteorological Agency (English)", url: "https://www.jma.go.jp/jma/indexe.html" }],
+          related: ["prepared/tsunami", "prepared/the-big-ones", "look-closer/houses-that-don-t-last"],
+          sources: [{ title: "Japan Meteorological Agency (English)", url: "https://www.jma.go.jp/jma/indexe.html", note: "Shindo scale and the earthquake early warning" }],
         },
         {
           title: "Tsunami",
           summary: "Up, not out — and don't come back early",
           body: [
-            { p: "A tsunami isn't a breaking wave but the whole sea rising and pouring inland, again and again, for hours. In 2011 later waves were often bigger than the first, and people died returning to their homes after the first one ebbed." },
+            { p: "A tsunami isn't a breaking wave but the whole sea rising and pouring inland, again and again, for hours.[^1] In 2011 later waves were often bigger than the first, and people died returning to their homes after the first one ebbed." },
             photo("tsunami-sign", "A green pavement sign with an arrow and a figure running from a wave toward a building", "A pavement sign pointing to a tsunami evacuation building."),
             {
               dos: [
@@ -178,6 +182,7 @@ export const prepared: GuideTopic = {
             { local: "津波避難ビル", say: "tsunami hinan biru", means: "tsunami evacuation building" },
             { local: "高台", say: "takadai", means: "high ground" },
           ],
+          related: ["prepared/when-the-ground-shakes", "prepared/your-hotel-and-the-nearest-shelter"],
           sources: [{ title: "Japan Meteorological Agency (English)", url: "https://www.jma.go.jp/jma/indexe.html" }],
         },
         {
@@ -187,14 +192,15 @@ export const prepared: GuideTopic = {
             { p: "Two forecasts make headlines abroad. Both are probabilities over **30 years**, not predictions — the chance on any single day of your trip is tiny. They exist so that bridges, schools and hospitals get reinforced." },
             {
               terms: [
-                { term: "Nankai Trough", text: "A subduction zone off the Pacific coast from Shizuoka to Kyushu that has broken roughly every 100–150 years. In September 2025 the government's panel gave its 30-year chance as **60–90% or more** by one method and **20–50%** by another, stressing neither is better and that the risk hadn't risen." },
+                { term: "Nankai Trough", text: "A subduction zone off the Pacific coast from Shizuoka to Kyushu that has broken roughly every 100–150 years. In September 2025 the government's panel gave its 30-year chance as **60–90% or more** by one method and **20–50%** by another, stressing neither is better and that the risk hadn't risen.[^1]" },
                 { term: "Tokyo inland quake", text: "A magnitude-7 class quake under the capital region, put at around **70%** in 30 years. Smaller than Nankai, but under 37 million people." },
               ],
             },
             { h: "If a “megaquake advisory” is issued" },
             { p: "After a big quake on the Nankai zone, the weather agency can issue a **Nankai Trough Earthquake Extra Information** advisory for a week. The first was in August 2024. It doesn't mean a quake is coming; it means the odds are briefly higher than usual. Nothing closes. Do what locals do: know your exits, keep shoes and a bag by the bed, check the nearest high ground if you're on the coast." },
           ],
-          sources: [{ title: "Damage projections for Nankai Trough and Tokyo earthquakes (Nippon.com)", url: "https://www.nippon.com/en/japan-data/h02873/" }],
+          related: ["prepared/when-the-ground-shakes", "prepared/tsunami", "land/volcanic-ground"],
+          sources: [{ title: "Damage projections for Nankai Trough and Tokyo earthquakes — nippon.com", url: "https://www.nippon.com/en/japan-data/h02873/", note: "30-year probabilities and the 2025 revision" }],
         },
       ],
     },
@@ -205,7 +211,7 @@ export const prepared: GuideTopic = {
           title: "Typhoons and heavy rain",
           summary: "October still gets them — and Japan stops the trains before they hit",
           body: [
-            { p: "The typhoon season peaks in August and September, but October storms are not rare: Typhoon Hagibis flooded rivers across eastern Japan on 12 October 2019. By November they're unusual." },
+            { p: "The typhoon season peaks in August and September, but October storms are not rare: Typhoon Hagibis flooded rivers across eastern Japan on 12 October 2019, breaching levees on more than 70 rivers.[^1] By November they're unusual." },
             { p: "Railways now cancel in advance — **keikaku unkyū**, a planned suspension announced a day or two ahead, so no one is stranded mid-journey. When JR announces one, believe it: shops close early, and the day after can be slow while lines are checked." },
             { h: "The 1–5 alert levels" },
             { p: "Rain and flood alerts carry a level. Your hotel is usually the right place to be; the levels matter if you're in a valley, near a river or on a mountain road." },
@@ -227,6 +233,10 @@ export const prepared: GuideTopic = {
             { local: "計画運休", say: "keikaku unkyū", means: "planned suspension of trains" },
             { local: "避難指示", say: "hinan shiji", means: "evacuation order" },
           ],
+          related: ["prepared/your-hotel-and-the-nearest-shelter", "prepared/set-up-your-phone"],
+          sources: [
+            { title: "Typhoon Hagibis (2019) — Wikipedia", url: "https://en.wikipedia.org/wiki/Typhoon_Hagibis", note: "12–13 October 2019 and the river floods" },
+          ],
         },
         {
           title: "Sleeping under Fuji",
@@ -235,10 +245,10 @@ export const prepared: GuideTopic = {
             { p: "Fuji last erupted in 1707, in the Hōei eruption, and dropped ash on Edo 100 km away. Over the last few thousand years it has erupted on average every few decades; the 300-year quiet since is long, not reassuring. It is watched constantly." },
             { p: "The weather agency rates each active volcano on **Volcanic Alert Levels 1–5**. Fuji sits at 1. At 3, the mountain is closed; at 4 and 5, nearby residents are told to prepare and then to leave." },
             { h: "What the plan says" },
-            { p: "The 2021 hazard map widened the area where new vents could open towards Fujiyoshida and showed lava could reach towns sooner than earlier maps assumed. The 2023 evacuation plan asks residents in the fastest lava zones to leave **on foot**, to keep roads clear — and asks **visitors to leave early**, by bus or train, as soon as a rise to level 3 is announced, before anything erupts." },
+            { p: "The 2021 hazard map widened the area where new vents could open towards Fujiyoshida and showed lava could reach towns sooner than earlier maps assumed. The 2023 evacuation plan asks residents in the fastest lava zones to leave **on foot**, to keep roads clear — and asks **visitors to leave early**, by bus or train, as soon as a rise to level 3 is announced, before anything erupts.[^1]" },
             {
               dos: ["If an alert rises while you're at the lakes, leave that day — that's what the plan expects visitors to do", "In ashfall: stay indoors, wear a mask and glasses (not contact lenses), and don't drive — ash is slippery and blinding"],
-              donts: ["Assume a quiet mountain means no warning — Ontake's steam blast in 2014 killed 63 hikers with almost none"],
+              donts: ["Assume a quiet mountain means no warning — Ontake's steam blast in 2014 killed 58 hikers and left 5 missing, with almost no warning"],
             },
             { note: "Hakone's Ōwakudani valley also has an alert level, and the ropeway closes when it rises. If you go, check the morning of.", title: "Hakone too" },
           ],
@@ -247,6 +257,7 @@ export const prepared: GuideTopic = {
             { local: "噴火警戒レベル", say: "funka keikai reberu", means: "volcanic alert level" },
             { local: "火山灰", say: "kazanbai", means: "volcanic ash" },
           ],
+          related: ["land/volcanic-ground", "land/sacred-mountains", "place/fuji-five-lakes/pilgrims-before-tourists"],
           sources: [{ title: "Mount Fuji eruption plan (JST Science Japan, 2023)", url: "https://sj.jst.go.jp/stories/2023/s0703-01p.html" }],
         },
       ],
@@ -258,7 +269,7 @@ export const prepared: GuideTopic = {
           title: "Bears",
           summary: "Two species, record numbers — in exactly the places and season of this trip",
           body: [
-            { p: "Until recently a bear was something a hiker in northern Japan worried about. Now it's national news. In the year to March 2026 bears killed **13 people** — the most since records began in 2006 — and hurt more than 200; sightings doubled, and many were in towns: in gardens, school grounds, a supermarket. Your trip falls in the two months bears are most active, in two of the regions where they're seen. Understanding why makes the advice make sense." },
+            { p: "Until recently a bear was something a hiker in northern Japan worried about. Now it's national news. In the year to March 2026 bears killed **13 people** — the most since records began in 2006 — and hurt more than 200;[^2] sightings doubled,[^1] and many were in towns: in gardens, school grounds, a supermarket. Your trip falls in the two months bears are most active, in two of the regions where they're seen. Understanding why makes the advice make sense." },
             photo("black-bears", "Three Asian black bears, two standing, showing the pale crescent on the chest", "Asian black bears, photographed in a zoo. The white crescent on the chest gives them their Japanese name, “moon-ring bear”."),
             { stats: [{ value: "13", label: "deaths, FY2025, a record" }, { value: "238", label: "people hurt or killed" }, { value: "50,776", label: "sightings, also a record" }] },
             { h: "Two bears, two islands" },
@@ -319,7 +330,7 @@ export const prepared: GuideTopic = {
                 { title: "Far away and it hasn't seen you", text: "Back away quietly the way you came." },
                 { title: "It has seen you", text: "Face it, stay calm, and back away slowly, talking in a low voice. Don't turn your back, shout suddenly or stare it down. Most bears leave." },
                 { title: "It comes at you", text: "If you have bear spray, use it when the bear is a few metres away, aimed low at its face. Many charges stop short." },
-                { title: "If it attacks: face down", text: "Drop flat on your stomach, hands clasped over the back of your neck, elbows protecting your face, backpack on. Black bears go for the head and face. In an Akita University study of people hurt in 2023, none of those who managed this position was seriously injured." },
+                { title: "If it attacks: face down", text: "Drop flat on your stomach, hands clasped over the back of your neck, elbows protecting your face, backpack on. Black bears go for the head and face. In an Akita University study of people hurt in 2023, none of those who managed this position was seriously injured.[^3]" },
                 { title: "Afterwards", text: "Leave the area and call 110, even if no one is hurt — the town needs to know." },
               ],
             },
@@ -333,6 +344,7 @@ export const prepared: GuideTopic = {
             { local: "ツキノワグマ", say: "tsukinowaguma", means: "Asian black bear" },
             { local: "ヒグマ", say: "higuma", means: "brown bear (Hokkaido)" },
           ],
+          related: ["land/forests-wild-and-planted", "prepared/hornets-boars-and-monkeys", "food-at-home/autumn-in-a-home-kitchen"],
           sources: [
             { title: "Black bear sightings in Japan more than doubled in 2025 (Japan Times)", url: "https://www.japantimes.co.jp/news/2026/05/12/japan/society/2025-bear-numbers/" },
             { title: "Bear casualties hit record in fiscal 2025 (Xinhua, citing the Environment Ministry)", url: "https://english.news.cn/20260407/a733e4ac229e4632be7cca2dbe97567c/c.html" },
@@ -344,7 +356,7 @@ export const prepared: GuideTopic = {
           title: "Hornets, boars and monkeys",
           summary: "In an ordinary year, the hornet is the deadlier animal",
           body: [
-            { p: "Bears make the news, but most years more people in Japan die from hornet and wasp stings — usually between ten and twenty — than from bears. The giant **suzumebachi** is most aggressive in September and October, when its nests are biggest and it's defending them." },
+            { p: "Bears make the news, but most years more people in Japan die from hornet and wasp stings — 21 in 2023 and 18 in 2024, nearly all from allergic shock — than from bears.[^1] The giant **suzumebachi** is most aggressive in September and October, when its nests are biggest and it's defending them." },
             {
               dos: [
                 "If hornets circle you or you hear jaws clicking, walk away slowly and steadily — that's the warning",
@@ -356,6 +368,10 @@ export const prepared: GuideTopic = {
             { p: "**Wild boar** come down into Kyoto's hillside temples and the upper paths of Fushimi Inari at dusk. Give them room; a cornered boar charges. **Macaques** at Arashiyama's monkey park and on mountain roads grab food — don't eat in front of them or hold their gaze, which they read as a threat." },
           ],
           words: [{ local: "スズメバチ", say: "suzumebachi", means: "giant hornet" }, { local: "イノシシ", say: "inoshishi", means: "wild boar" }],
+          related: ["prepared/bears", "land/forests-wild-and-planted"],
+          sources: [
+            { title: "Bee and hornet sting deaths — Tōyō Keizai", url: "https://toyokeizai.net/articles/-/908756", note: "MHLW vital statistics: 15 in 2021, 20 in 2022, 21 in 2023, 18 in 2024 (Japanese)" },
+          ],
         },
       ],
     },
@@ -375,6 +391,10 @@ export const prepared: GuideTopic = {
                 { title: "Agree a meeting point", text: "If you're separated and the network is jammed: your hotel, or the 171 disaster message line, where you record and play back voice messages by phone number." },
               ],
             },
+          ],
+          related: ["prepared/numbers-to-call", "prepared/your-hotel-and-the-nearest-shelter", "look-closer/the-konbini-is-infrastructure"],
+          sources: [
+            { title: "Safe travel information — JNTO", url: "https://www.jnto.go.jp/projects/visitor-support/safetravelinfo.html", note: "Safety Tips app and the Visitor Hotline" },
           ],
         },
         {
@@ -405,6 +425,7 @@ export const prepared: GuideTopic = {
             { local: "避難所", say: "hinanjo", means: "shelter (to stay in)" },
             { local: "非常口", say: "hijōguchi", means: "emergency exit" },
           ],
+          related: ["prepared/when-the-ground-shakes", "prepared/tsunami", "prepared/set-up-your-phone"],
           sources: [{ title: "Safe travel information (JNTO)", url: "https://www.jnto.go.jp/projects/visitor-support/safetravelinfo.html" }],
         },
       ],
