@@ -1,4 +1,5 @@
 import type { GuideTopic } from "../types";
+import { photo } from "./photos";
 
 /** Emergencies, natural hazards and wildlife — what to do, in order, and
  *  why Japan does it that way. */
@@ -146,6 +147,7 @@ export const prepared: GuideTopic = {
           summary: "Up, not out — and don't come back early",
           body: [
             { p: "A tsunami isn't a breaking wave but the whole sea rising and pouring inland, again and again, for hours. In 2011 later waves were often bigger than the first, and people died returning to their homes after the first one ebbed." },
+            photo("tsunami-sign", "A green pavement sign with an arrow and a figure running from a wave toward a building", "A pavement sign pointing to a tsunami evacuation building."),
             {
               dos: [
                 "Treat strong shaking, or any shaking that lasts a long time, near the coast as the warning itself — go before any alert",
@@ -257,6 +259,7 @@ export const prepared: GuideTopic = {
           summary: "Two species, record numbers — in exactly the places and season of this trip",
           body: [
             { p: "Until recently a bear was something a hiker in northern Japan worried about. Now it's national news. In the year to March 2026 bears killed **13 people** — the most since records began in 2006 — and hurt more than 200; sightings doubled, and many were in towns: in gardens, school grounds, a supermarket. Your trip falls in the two months bears are most active, in two of the regions where they're seen. Understanding why makes the advice make sense." },
+            photo("black-bears", "Three Asian black bears, two standing, showing the pale crescent on the chest", "Asian black bears, photographed in a zoo. The white crescent on the chest gives them their Japanese name, “moon-ring bear”."),
             { stats: [{ value: "13", label: "deaths, FY2025, a record" }, { value: "238", label: "people hurt or killed" }, { value: "50,776", label: "sightings, also a record" }] },
             { h: "Two bears, two islands" },
             {
@@ -271,6 +274,7 @@ export const prepared: GuideTopic = {
               },
             },
             { p: "Everything below is about the **black bear**, the one on this route. It is mostly vegetarian, mostly shy, and usually leaves the moment it hears a person. Most injuries happen in a sudden, close meeting — a bend in a path, a thicket, a mother surprised with cubs." },
+            photo("bear-sign", "A hand-made bear warning notice tied to a wooden trail sign in a forest", "A クマ出没注意 notice on a nature trail in Aichi: check the date written on it."),
             { h: "A year in a black bear's life" },
             {
               steps: [

@@ -511,6 +511,7 @@ When a trip has stays or pins in a country the app has a guide for (Japan today)
 - Tap a row to read it as its own article: a standfirst, then a guided read with sub-headings, numbered steps, do / don't lists, small tables, key numbers and tip or warning boxes, plus **Words to know** and places to see it.
 - Articles can also carry a chart (line or bar, with unit, year and source), food cards tagged Everyday / Regional / Seasonal / Occasion / Mostly for visitors, places with a Google Maps button, and phone numbers that dial on tap.
 - **Sources** sit folded at the foot of an article; tap to see the links.
+- **Photos** — freely licensed pictures from Wikimedia Commons, resized and bundled in `public/guide/jp/` so they show offline. Each carries its author and licence under it, linking to its source page; the list lives in `src/guides/japan/photos.ts`.
 - **Up next** at the foot of an article opens the next one in place, so Back still returns to the list. The last one in a topic offers the next topic.
 - **History** is a timeline: each era shows its dates and a one-line summary.
 - **Before you go** — **Be prepared** (who to call, earthquakes, tsunami, typhoons, Fuji, bears and other wildlife, setting up for a disaster), then traps and rules and getting around.

@@ -38,7 +38,24 @@ export type GuideBody =
   | { chart: GuideChart }
   | { dishes: GuideDish[] }
   | { venues: GuideVenue[] }
-  | { call: GuideCall[] };
+  | { call: GuideCall[] }
+  | { photo: GuidePhoto };
+
+/** A photo in an article, bundled with the app so it shows offline, and
+ *  credited to its author under its licence. */
+export interface GuidePhoto {
+  src: string;
+  w: number;
+  h: number;
+  /** what the photo shows, for screen readers and when it fails to load */
+  alt: string;
+  caption?: string;
+  author: string;
+  /** "CC BY 2.0", "CC0", "Public domain" */
+  license: string;
+  /** the photo's page at its source, with the full licence */
+  url: string;
+}
 
 /** A small chart that answers one question. Every chart says what it
  *  measures, in what unit, and where the numbers come from.

@@ -1,4 +1,5 @@
 import type { GuideTopic } from "../types";
+import { photo } from "./photos";
 
 /** Ordinary things you'll pass every day, each tied back to the history or
  *  the social idea that explains it. */
@@ -51,6 +52,7 @@ export const closer: GuideTopic = {
           summary: "Shopping streets, and the bricks that gave them a name",
           body: [
             { p: "A **shōtengai** is a neighbourhood shopping street, often roofed: a tofu maker, a greengrocer, a rice shop, a fishmonger, a pharmacy, a croquette stall. In big cities they still work; in many provincial towns they've become **shutter streets** (shattā-dōri), closed by out-of-town malls and ageing owners." },
+            photo("togoshi-ginza", "Togoshi Ginza shopping street at night, lit by lanterns under its entrance arch", "Togoshi Ginza at night: about 1.3 km of shops."),
             { p: "Many are called “something-Ginza”. After the 1923 earthquake, a street in Togoshi took the rubble bricks of Tokyo's modern Ginza district to pave its own road, and borrowed the name too — Togoshi Ginza, now one of the longest shopping streets in Tokyo at about 1.3 km. Hundreds of towns followed." },
             { note: "Go between 16:00 and 18:00, when people shop for dinner and the croquettes come out of the fryer. Yanaka Ginza, Togoshi Ginza and Sunamachi Ginza are all Tokyo shōtengai that still feed their neighbourhoods.", title: "Tip" },
           ],
@@ -60,6 +62,7 @@ export const closer: GuideTopic = {
           summary: "Universities, a fire, and shops that face north",
           body: [
             { p: "Law schools that became Meiji, Nihon, Senshū and Chūō universities opened around Kanda in the 1880s, and second-hand textbook dealers followed the students. After a fire in 1913 the street was rebuilt as booksellers' shops; one of them, a used bookshop, became the publisher Iwanami. There are still more than 100 second-hand bookshops." },
+            photo("jimbocho", "A second-hand bookshop front in Jimbōchō with stacks of magazines outside", "A used bookshop in Jimbōchō, its stock spilling onto the pavement."),
             { p: "**Notice** which side of Yasukuni-dōri they're on: most shops line the south side, so their fronts **face north** and the sun never fades the spines in the window." },
           ],
         },

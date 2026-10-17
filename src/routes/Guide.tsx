@@ -6,7 +6,7 @@ import { Section } from "@/components/Section";
 import { IconTile } from "@/components/IconTile";
 import { TileRow } from "@/components/TileRow";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
-import { Calls, Chart, Dishes, Inline, Venues } from "@/components/GuideBlocks";
+import { Calls, Chart, Dishes, Inline, Venues, Photo } from "@/components/GuideBlocks";
 import { useData } from "@/lib/data";
 import { guideTopicColor } from "@/lib/tones";
 import { GUIDE_CONTENT } from "@/guides/content";
@@ -642,6 +642,7 @@ function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
   if ("dishes" in b) return <Dishes dishes={b.dishes} />;
   if ("venues" in b) return <Venues venues={b.venues} />;
   if ("call" in b) return <Calls calls={b.call} />;
+  if ("photo" in b) return <Photo photo={b.photo} />;
   if (!("terms" in b)) return null;
   return (
     <ul className="rounded-[10px] bg-surface-2">

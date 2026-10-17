@@ -1,4 +1,5 @@
 import type { GuideTopic } from "../types";
+import { photo } from "./photos";
 
 /** What people actually eat — at home, out, and on this trip's route — and
  *  how the cooking works underneath. */
@@ -105,6 +106,7 @@ export const foodAtHome: GuideTopic = {
           summary: "What changes on the table in October and November",
           body: [
             { p: "The seasons aren't a restaurant performance; they change what ordinary families cook. Late October and November, when you're here, is one of the strongest food seasons of the year, and you'll see it in supermarkets, konbini and home-style restaurants." },
+            photo("konbini-oden", "Trays of oden simmering by a convenience-store counter", "Oden at a 7-Eleven counter: daikon, eggs, fishcakes and tofu, sold by the piece from autumn."),
             {
               dishes: [
                 { name: "Shinmai", local: "新米", say: "shinmai", kind: "Seasonal", text: "The year's new rice, with a green or red 新米 sticker on the bag from autumn. Softer and moister; people cook it with slightly less water and eat it plain to taste it." },
@@ -122,6 +124,7 @@ export const foodAtHome: GuideTopic = {
           summary: "Bento, the prepared-food counter and the evening discount",
           body: [
             { p: "Between eating out and cooking at home there's a third way, with its own word: **nakashoku**, “middle food” — dishes bought ready-made and eaten at home. It's grown for decades with smaller households and two working parents, and it's why supermarkets give so much space to it." },
+            photo("supermarket-bento", "A supermarket bento of onigiri, grilled salmon, fried chicken and noodles", "A supermarket lunch box: onigiri, salted salmon, karaage and fried noodles."),
             {
               terms: [
                 { term: "Sōzai counters", text: "In every supermarket and depachika: karaage, croquettes, simmered pumpkin, potato salad, grilled fish, sold by the piece or the 100 g. People buy one or two to sit beside rice they cooked themselves." },
@@ -236,6 +239,7 @@ export const eatingOut: GuideTopic = {
           summary: "A department store's basement food hall — and what it says about gifts",
           body: [
             { p: "Department stores put their food halls underground, by the subway entrances, so commuters walk through them. A big depachika — Isetan Shinjuku, Mitsukoshi Nihonbashi, Takashimaya and Daimaru in Kyoto — is a city's best food in one place: bento, sōzai, wagashi, Western cakes, pickles, tea, fruit." },
+            photo("depachika", "A busy department-store basement food hall with counters of fruit and prepared food", "A depachika: counters of prepared food, gifts and fruit under one low ceiling."),
             { p: "Much of what's sold is **gifts**. Japan has formal gift seasons (ochūgen in summer, oseibo in December) and an expectation of **omiyage** after any trip, so beautifully boxed, individually wrapped, easy-to-share sweets are a whole industry. The fruit counter with ¥10,000 melons exists for the same reason: it's a present, not a snack." },
             { note: "In the last hour before closing, prepared food is marked down — a good dinner for a hotel room.", title: "Tip" },
           ],
@@ -325,6 +329,7 @@ export const howFoodWorks: GuideTopic = {
           summary: "Why a few slices of something salty come with your rice",
           body: [
             { p: "**Tsukemono** — pickles — are how vegetables kept through winter before refrigeration, and they're still on the side of almost every meal with rice. Rice is bland on purpose; a sharp, salty pickle is what you eat it with." },
+            photo("nishiki-pickles", "Wooden barrels of pickles outside a shop in Nishiki Market", "A tsukemono shop in Nishiki Market, Kyoto, its pickles in wooden tubs."),
             {
               dishes: [
                 { name: "Nukazuke", local: "糠漬け", say: "nukazuke", kind: "Everyday", text: "Vegetables buried for a day in a bed of fermented rice bran. A family's nuka bed is stirred by hand daily and can be kept alive for decades." },
@@ -378,6 +383,7 @@ export const howFoodWorks: GuideTopic = {
           summary: "Rice on the left, the season on the plate",
           body: [
             { p: "The template is **ichijū sansai**, “one soup, three dishes”: rice, a soup, a main and two smaller sides, plus pickles. Rice goes on the left, soup on the right, the main at the back. Today's ordinary dinner is usually “one soup, one or two dishes” — the template survives as the shape people aim for." },
+            photo("teishoku", "A set meal of rice, pork-and-vegetable miso soup and three small side dishes", "The everyday shape: rice, a soup (here tonjiru, pork miso soup) and small sides."),
             { p: "Cooks think in **methods** as much as ingredients: something raw (nama), grilled (yaki), simmered (ni), steamed (mushi), fried (age), dressed (ae). A balanced meal has a range of them — which is why a set meal so often pairs something fried with something simmered and something raw." },
             { h: "Shun: eating in season" },
             { p: "Each food has its peak, **shun**, and the language goes further: **hashiri** is the first of the season, expensive and celebrated; **nagori** the last, eaten with a little regret. In late October and November you'll see shinmai (the year's new rice), sanma, chestnuts, persimmons, matsutake and the first nabe of the cold." },
@@ -435,6 +441,7 @@ export const regionalFood: GuideTopic = {
           summary: "Flour, not rice — food from a mountain province",
           body: [
             { p: "Yamanashi is mountains and steep valleys with little room for paddy fields, so for centuries people here ate more **wheat and barley** than rice. Its signature dishes are noodles, and they're thick, filling and cheap. On the slopes the land went to silk, then to fruit: it's Japan's biggest grower of grapes and peaches." },
+            photo("hoto", "Hōtō noodles in a clay pot with pumpkin, shiitake and an egg", "Hōtō: flat noodles stewed in miso with pumpkin and mushrooms."),
             {
               dishes: [
                 { name: "Hōtō", local: "ほうとう", say: "hōtō", kind: "Regional", text: "Flat, wide wheat noodles simmered — not boiled first — in miso broth with pumpkin, mushrooms and root vegetables, so the starch thickens it into a stew. A genuine home dish in Yamanashi that every visitor restaurant also serves. Unsalted dough, so the noodles are soft, not springy." },
@@ -451,6 +458,7 @@ export const regionalFood: GuideTopic = {
           summary: "Temple tofu, home cooking, and the matcha question",
           body: [
             { p: "Kyoto is far from the sea and was the capital for a thousand years. So its cooking leans on **vegetables, tofu and preserved fish**, on the refined cooking of the court and the temples, and on good water. Its food has two faces: the obanzai of homes and the kaiseki of the tea ceremony and the old restaurants." },
+            photo("yoshida-udon", "A bowl of thick Yoshida udon topped with boiled cabbage and seasoned meat", "Yoshida udon from Fujiyoshida: hard, chewy noodles with cabbage."),
             {
               dishes: [
                 { name: "Obanzai", local: "おばんざい", say: "obanzai", kind: "Everyday", text: "Kyoto home cooking: simmered vegetables, tofu, dried fish and seaweed, small and frugal, made from what's in season with nothing wasted. Restaurants now sell it too, laid out in bowls along the counter." },

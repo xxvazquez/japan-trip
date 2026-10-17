@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
-import type { GuideCall, GuideChart, GuideDish, GuideVenue } from "@/guides/types";
+import type { GuideCall, GuideChart, GuideDish, GuidePhoto, GuideVenue } from "@/guides/types";
 
 /** The richer pieces of a guide article: a chart, food cards, places with
  *  a map link, and numbers to call. Each sits inside the article's white
@@ -252,5 +252,33 @@ export function Calls({ calls }: { calls: GuideCall[] }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+/* ----------------------------------------------------------------- photo */
+
+/** A photo across the article's width, at its own shape (tall ones capped
+ *  so they don't fill the screen), with a caption and a quiet credit that
+ *  links to its source and licence. */
+export function Photo({ photo: p }: { photo: GuidePhoto }) {
+  const free = p.license === "CC0" || p.license === "Public domain";
+  return (
+    <figure className="-mx-1">
+      <img
+        src={p.src}
+        alt={p.alt}
+        width={p.w}
+        height={p.h}
+        loading="lazy"
+        decoding="async"
+        className="block h-auto max-h-[min(60vh,32rem)] w-full rounded-[10px] bg-surface-2 object-cover"
+      />
+      <figcaption className="mt-1.5 px-1">
+        {p.caption && <span className="block break-words text-[13px] leading-snug text-ink-soft"><Inline text={p.caption} /></span>}
+        <a href={p.url} target="_blank" rel="noreferrer" className="mt-0.5 block break-words text-[11px] leading-snug text-ink-faint">
+          Photo: {p.author} · {p.license}{free ? "" : ", resized"}
+        </a>
+      </figcaption>
+    </figure>
   );
 }

@@ -1,4 +1,5 @@
 import type { GuideTopic } from "../types";
+import { photo } from "./photos";
 
 /** Japanese coffee culture: where the kissaten came from, how to read one,
  *  how the coffee's made, and places worth the detour on this route. */
@@ -16,6 +17,7 @@ export const coffee: GuideTopic = {
           summary: "From a failed Ueno coffee house to 155,000 kissaten",
           body: [
             { p: "Dutch traders on Dejima drank coffee in the 1600s, but Japan barely touched it until the Meiji opening. Since then it has gone through three lives: the Western-style coffee house, the **kissaten** that became every neighbourhood's living room, and the specialty roasters that learned from it." },
+            photo("kissaten-interior", "Red leather booths and dark wood panelling in an old kissaten", "Booths, wood and soft light: the classic kissaten room."),
             {
               steps: [
                 { title: "1888 — Kahiichakan, Ueno", text: "Japan's first real coffee house, opened by Tei Eikei after years abroad: leather chairs, newspapers, billiards. Too early — it closed within about five years." },
@@ -60,6 +62,7 @@ export const coffee: GuideTopic = {
           summary: "Siphon, flannel, pour-over — and Kyoto-style cold drip",
           body: [
             { p: "Kissaten masters prize **control**: one cup at a time, by hand, with a method chosen for the body it gives. Watching it is half the point — sit at the counter if there is one." },
+            photo("siphon", "A glass siphon coffee maker over a small burner", "A siphon: water rises into the top globe, steeps the grounds, then is drawn back down through a filter."),
             {
               terms: [
                 { term: "Siphon (saifon)", text: "Two glass globes over a flame or halogen burner: water is pushed up into the grounds, then pulled back down through a filter. Hot, clean and theatrical; a post-war kissaten favourite." },
@@ -77,6 +80,7 @@ export const coffee: GuideTopic = {
           summary: "Why there's toast with your coffee",
           body: [
             { p: "A kissaten is also a cheap, quick restaurant, and its menu is a museum of mid-century Japanese-Western food:" },
+            photo("kissaten-window", "A kissaten window of plastic food models: spaghetti, omurice, parfaits, cream soda, sandwiches", "The sampuru window of Café American in Osaka: Napolitan, omurice, curry, parfaits, cream soda — the whole menu in plastic."),
             {
               dishes: [
                 { name: "Morning service", local: "モーニング", say: "mōningu", kind: "Everyday", text: "Before about 11:00, order a coffee and get toast and a boiled egg with it, for the price of the coffee alone. Most often traced to Ichinomiya near Nagoya, where textile merchants did business over breakfast — though Toyohashi and others claim it too. Strongest around Nagoya; common everywhere." },
@@ -95,6 +99,7 @@ export const coffee: GuideTopic = {
           body: [
             { dos: ["Look for 喫茶 or 純喫茶 on the sign, plastic food in the window, a small bell on the door", "Order one thing each — a seat is rented with a drink", "Stay as long as you like when it's quiet; read, write, think", "Carry cash: many old places don't take cards"], donts: ["Hold a table for an hour at lunchtime when people are waiting", "Photograph the master or other customers without asking — some places ban photos outright"] },
             { p: "Order the **blend** (burendo) first; it's the house's identity. Water arrives without asking (ohiya). Coffee often comes with a tiny jug of cream and a sugar bowl; at Kyoto's Inoda the coffee came with milk and sugar already in unless you said otherwise." },
+            photo("junkissa-sign", "A yellow oval sign reading 純喫茶 American", "純喫茶 — “pure kissaten” — on a sign in Dōtonbori, Osaka."),
           ],
           words: [
             { local: "ブレンド", say: "burendo", means: "the house blend" },
@@ -110,6 +115,7 @@ export const coffee: GuideTopic = {
           summary: "Jazz and classical coffee houses, where you came to hear records",
           body: [
             { p: "In the 1950s and 60s records were expensive and flats were small and thin-walled. So a particular kind of kissaten appeared: the **ongaku kissa**, the music café, where a master with a huge record collection and a serious sound system played albums to a silent room. You paid for a coffee and sat for an hour, listening." },
+            photo("meikyoku-lion", "The stone-fronted entrance of Meikyoku Kissa Lion in Shibuya with its green neon sign", "Meikyoku Kissa Lion, Shibuya: a classical-music kissaten since 1926."),
             {
               terms: [
                 { term: "Jazz kissa", text: "The bigger branch. At its height there were hundreds across the country; students learned jazz here, one album side at a time. Talking is often discouraged; requests are written on a slip." },

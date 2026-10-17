@@ -1,4 +1,5 @@
 import type { GuideItem } from "../types";
+import { photo } from "./photos";
 
 /** Fuller reads for the cities on this route, by `GuideCity.id`. They go
  *  above a city's short notes, under their own headings. */
@@ -46,6 +47,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       summary: "Fujiyoshida was the start of a holy climb long before the photo spots",
       body: [
         { p: "For three centuries the north side of Fuji was a pilgrims' gateway. Groups from Edo (the **Fuji-kō**) walked here, purified themselves, stayed with a guide-priest (**oshi**) in Fujiyoshida, and set off from **Kitaguchi Hongū Fuji Sengen Jinja**, the shrine at the foot of the Yoshida trail, in white robes." },
+        photo("kitaguchi-hongu", "The huge red torii of Kitaguchi Hongū Fuji Sengen Jinja among cedars", "Kitaguchi Hongū Fuji Sengen Jinja, where Fuji pilgrims set out."),
         {
           list: [
             "**Kitaguchi Hongū Fuji Sengen Jinja** — a cedar avenue, huge torii, and the gate to the old trail, quiet early in the day",
@@ -89,6 +91,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       summary: "Bamboo fences, demon-quellers and a corner cut off",
       body: [
         { p: "Kyoto has around 40,000 **machiya** — wooden townhouses, narrow at the street and deep inside, called “eels' beds” (unagi no nedoko). They're disappearing at roughly 800 a year. Walk any older street and look for:" },
+        photo("machiya", "A Kyoto townhouse front with slatted lattice and a curved bamboo inuyarai fence at its base", "A Kyoto machiya: slatted lattice above, a curved bamboo inuyarai at the foot of the wall."),
         {
           terms: [
             { term: "Inuyarai", text: "Curved bamboo fences at the foot of the wall — to keep dogs, splashing mud and passers-by off the timber." },
