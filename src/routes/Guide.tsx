@@ -124,10 +124,10 @@ export function GuideHome() {
 
 /* ------------------------------------------------------------ home pieces */
 
-/** an article's first photo, if its body has one */
+/** an article's first photo — its body's, else the cover a short note has */
 function photoIn(a: GuideArticle): GuidePhoto | undefined {
   for (const b of a.body ?? []) if ("photo" in b) return b.photo;
-  return undefined;
+  return a.cover;
 }
 
 /** the first photo in a run of articles — a topic's or a city's cover */

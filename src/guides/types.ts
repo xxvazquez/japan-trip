@@ -127,6 +127,9 @@ export interface GuideCall {
 export interface GuideArticle {
   /** one line under the title on a list, and the article's standfirst */
   summary?: string;
+  /** the picture a short note opens on, when it has no body of its own to
+   *  carry a photo */
+  cover?: GuidePhoto;
   /** the article itself, block by block — when set, `text` and `parts`
    *  aren't used */
   body?: GuideBody[];

@@ -515,7 +515,7 @@ When a trip has stays or pins in a country the app has a guide for (Japan today)
 - **Understand** — history, Look closer (everyday things explained), Japan by numbers, seasons & landscape, belief, language, stamps, school, work, politics, culture, manga & anime and a page of fun facts.
 - Every page is grouped into collapsible sections; on a topic's page each row shows a title, a one-line summary and, when the article has a photo, a thumbnail on the right.
 - A city's page opens on its cover picture (else its name in the local script on a colour panel).
-- Every article opens on a picture: its own first photo (moved up, with its caption and credit), else its topic's or city's cover, else a panel in its colour.
+- Every article opens on a picture: its own first photo (moved up, with its caption and credit), else its topic's or city's cover, else a panel in its colour. A short note with no body can carry a `cover` photo instead.
 - Body text is ragged-right on a phone and justified on wider screens.
 - Tap a row to read it as its own article: a standfirst, then a guided read with sub-headings, numbered steps, do / don't lists, small tables, key numbers and tip or warning boxes, plus **Words to know** and places to see it.
 - Articles can also carry a chart (line or bar, with unit, year and source), a dated timeline, food cards tagged Everyday / Regional / Seasonal / Occasion / Mostly for visitors, places with a Google Maps button, and phone numbers that dial on tap.

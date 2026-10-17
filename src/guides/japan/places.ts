@@ -13,6 +13,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       title: "A castle town that became a capital",
       summary: "How Edo's plan, two fires and a renamed city still shape the streets you walk",
       body: [
+        photo("edo-castle-1880s", "A grassy bank above a moat, with castle walls beyond", "Edo Castle's moats in the 1880s, photographed by Adolfo Farsari."),
         { p: "Tokyo looks shapeless because it was never laid out as a grid. It grew around **Edo Castle**, now the Imperial Palace, in a spiral of moats: the shogun in the middle, his vassals' estates on the hills around him, and townspeople packed onto reclaimed marsh to the east. The two halves still have names. The **Yamanote**, “the hand of the mountains”, was the high city of samurai; the **Shitamachi**, “below the castle”, the low city of merchants and craftsmen, centred on Nihonbashi.[^1]" },
         {
           timeline: [
@@ -52,6 +53,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       title: "Station towns, not a centre",
       summary: "Why Tokyo has a dozen downtowns, and why each sits on a railway terminal",
       body: [
+        photo("ikebukuro-east", "A department store building over a station exit and a wide crossing", "Ikebukuro Station's east exit, under the Seibu department store."),
         { p: "Ask where the centre of Tokyo is and you'll get a station name. The city runs on a loop line, the **Yamanote**, about an hour round with 30 stations, and on the private railways that stop at it. Where they meet, a downtown grew." },
         { p: "The reason is a rule. Before the war, the government didn't let private suburban railways cross the Yamanote loop into the centre; only state lines went through. So the private companies built their terminals on the loop's western edge and made money twice: once on fares, and again on the **department stores** they put on top of their stations to catch passengers. Tōkyū at Shibuya, Seibu and Tōbu at Ikebukuro, Odakyū and Keiō at Shinjuku. Those terminals became the city's sub-centres, and in 1958 planners made them official.[^1]" },
         {
@@ -82,6 +84,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       title: "A city that keeps rebuilding",
       summary: "Houses that lose their value in twenty years, towers going up, and a motorway coming down",
       body: [
+        photo("toranomon-crane", "A tower under construction with cranes, between finished office towers", "Toranomon Hills Station Tower going up."),
         { p: "Tokyo is never finished. Partly that's disaster: earthquakes and fires taught the city to rebuild. But mostly it's economics and law. A Japanese house is valued like a car: a wooden one is written off for tax in 22 years, and buyers expect to knock it down and build new. National zoning is permissive, so owners can rebuild bigger without much of a fight. One result is that Tokyo builds a great deal of housing and has stayed affordable for a world city; another is that very little ordinary building gets old.[^1]" },
         { h: "Towers as symbols" },
         { p: "**Tokyo Tower** (1958), 333 m, was the city announcing its recovery: taller than the Eiffel Tower, painted white and orange to meet air-safety rules, and, by the usual account, built partly from steel of scrapped American tanks. **Tokyo Skytree** (2012) is 634 m because 6-3-4 can be read *mu-sa-shi*, the name of the old province." },
@@ -108,6 +111,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       title: "One block that survived",
       summary: "Kanda Sudachō's pre-war restaurants, still serving",
       body: [
+        photo("kanda-matsuya", "Cold soba on a bamboo tray beside bowls and cups", "Soba at Kanda Matsuya in Sudachō."),
         { p: "In 1945 the bombing missed a few blocks of **Kanda Sudachō**, and with them a cluster of wooden restaurants from the late 1920s and 30s — rebuilt after the 1923 earthquake, then spared. They're still open, still run by the same families, still serving one thing each." },
         {
           venues: [
@@ -157,6 +161,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       title: "Tsukiji, Toyosu and Tsukishima",
       summary: "A fish market that moved, the market that didn't, and Tokyo's runniest dish",
       body: [
+        photo("tsukiji-outer", "A stall of shellfish and fish with handwritten price tags", "A stall in Tsukiji's outer market."),
         { p: "For 83 years Tokyo's fish came through **Tsukiji**, opened in 1935 after the 1923 earthquake destroyed the old market at Nihonbashi. Its move to **Toyosu**, on reclaimed land across the bay, was planned for 2016 and stalled: the site had been a gas works, and tests found benzene in its groundwater far above legal limits. After more clean-up the new market opened in October 2018.[^1]" },
         { p: "The wholesale market left; the **outer market** (jōgai shijō) didn't. Its few hundred shops — knives, dried fish, tamagoyaki, kitchen tools, small sushi counters — still trade on the streets beside the old site and are busiest in the morning. Many close by early afternoon, and some on Sundays and Wednesdays, following the market's old calendar." },
         { p: "At **Toyosu**, the tuna auction can be watched from a glass-walled deck above the floor, or from a closer lower deck if you win a lottery in advance. It starts before 6:00. The first auction of the year is where the record prices come from (see [Sushi](guide:food/sushi-from-fermented-fish-to-fast-food))." },
@@ -174,6 +179,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       title: "Book ahead in Tokyo",
       summary: "The few things that sell out, and when they go on sale",
       body: [
+        photo("ghibli-museum", "An ivy-covered building with round windows in a garden", "The Ghibli Museum in Mitaka."),
         {
           terms: [
             { term: "Ghibli Museum, Mitaka", text: "Advance tickets only, for a date and entry time. Each month's go on sale on the 10th of the month before, at 10:00 Japan time, through Lawson Ticket — December's on 10 November. Weekends go within hours. No tickets at the door, and resold tickets can be refused" },
@@ -242,6 +248,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       title: "Crowds, screens and climbing rules",
       summary: "How a small lake town is pushing back, and what's changed on the mountain",
       body: [
+        photo("lawson-fuji", "A convenience store with Mount Fuji rising behind its roof", "The Lawson in Fujikawaguchiko with Mount Fuji behind it."),
         { p: "Fujikawaguchiko is a town of about 27,000 people. Its view of Fuji, framed by a pagoda, a shrine gate or the sign of a convenience store, now draws visitors by the coachload, and the town and its neighbour Fujiyoshida have started to limit where they can stand." },
         {
           timeline: [
@@ -266,6 +273,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       title: "Cold, dark and early",
       summary: "At 830 m, November nights are near freezing and the view goes by noon",
       body: [
+        photo("kawaguchiko-momiji", "Red maple leaves framing Mount Fuji across a lake", "Lake Kawaguchi and Mount Fuji in the autumn leaves."),
         { p: "Kawaguchiko sits about 800 m higher than Tokyo, so it's roughly 5 °C colder. In November nights are often near 0 °C and days are clear but sharp; the sun sets around 16:40, and local buses and many restaurants finish early." },
         { dos: ["See Fuji at dawn — it's clearest in the cold, still early morning, and often in cloud by noon", "Check the last bus back before an evening out", "Carry a warm layer and gloves for the lakeshore"], donts: ["Walk forest paths around the lakes at dusk — it's also when bears are most active (see Be prepared)"] },
         {
@@ -282,6 +290,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       title: "Wine country over the hill",
       summary: "A pink grape, two men sent to France in 1877, and a label you can now trust",
       body: [
+        photo("katsunuma-grapes", "Baskets of purple and green grapes with handwritten labels", "Grapes for sale in Katsunuma."),
         { p: "Over the pass from the lakes, the **Kōfu basin** is hot in summer, dry in autumn and Japan's main wine region. Its grape is **Kōshū**, a pink-skinned vinifera that has grown here for centuries — legends date it to a monk in 718 or a farmer in 1186. It makes a light, dry, faintly citrus white that suits Japanese food, and about 95% of it is grown in Yamanashi.[^1]" },
         { p: "Commercial wine began in 1877, when a company in **Katsunuma** sent two young men, Takano Masanari and Tsuchiya Ryūken, to France to learn winemaking. Their wine didn't sell — Japanese drinkers weren't ready — and the company folded in 1886, but the vineyards stayed and its line continues in today's Château Mercian." },
         { p: "Until recently a bottle labelled as Japanese might be made from imported grape concentrate. Since 2018 only wine from **grapes grown in Japan** may say **日本ワイン** (Nihon wine); a place name needs 85% of the grapes from there. Kōshū was registered with the international wine body in 2010, and **GI Yamanashi** became Japan's first wine region of origin in 2013.[^2]" },
@@ -332,6 +341,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       title: "Spared in the war",
       summary: "Why Kyoto wasn't bombed, the man wrongly thanked for it, and what it's losing now",
       body: [
+        photo("stimson", "A man in a suit seated at a desk, in black and white", "Henry L. Stimson, US Secretary of War from 1940 to 1945."),
         { p: "Kyoto came through 1945 with its wooden city largely standing, which is why whole streets of townhouses survive here and almost nowhere else in a big Japanese city. The reason is grimmer than it sounds. Kyoto was spared firebombing because it was on the list of targets for the **atomic bomb** — cities kept intact so the effect could be measured — and at the top of it." },
         { p: "It came off the list because of one man. The US Secretary of War, **Henry Stimson**, who had visited Kyoto in the 1920s, struck it off against the generals' wishes, going to President Truman to make it stick. Hiroshima moved up; Nagasaki was added in Kyoto's place. Stimson's motives, cultural or political, are still argued.[^1]" },
         { p: "For decades, though, Japan thanked someone else. **Langdon Warner**, an American art historian, was credited with persuading Washington to save Kyoto and Nara, and he has memorials at Hōryū-ji and in Kamakura. Warner himself denied it in 1945. Historians have since argued the story was encouraged as post-war goodwill.[^2] Kyoto wasn't untouched either: a few small raids in 1945 killed several dozen people." },
@@ -436,6 +446,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       title: "10,000 gates",
       summary: "Fushimi Inari: a rice god turned business god, and a tunnel of paid-for torii",
       body: [
+        photo("fushimi-inari", "A path running through a tunnel of orange torii", "The torii tunnel at Fushimi Inari."),
         { p: "**Fushimi Inari Taisha**, by tradition founded in 711, is the head of Japan's most widespread kind of shrine: tens of thousands of Inari shrines, from rooftop boxes on office buildings to the one in a supermarket car park. Inari began as a god of rice, which meant wealth, and as Japan urbanised, wealth meant business. That's who pays for the gates." },
         { p: "Each **torii** on the mountain was donated, mostly by companies and shop owners, in thanks for a wish granted or in hope of one. The donor's name and the date are painted on the back of each gate — walk the tunnel downhill and you can read them. A small gate costs several hundred thousand yen, a large one over a million, and the shrine replaces them as they rot, which is why most look new. The vermilion was traditionally made with cinnabar and thought to ward off evil and protect the wood.[^1]" },
         { p: "The **foxes** aren't Inari but its messengers. Look at what they hold in their mouths: a key (to the rice store), a jewel, a sheaf of rice, a scroll. Shops near the shrine sell fox-faced crackers and **inari-zushi**, rice in fried tofu, the fox's favourite food in folklore." },
@@ -500,6 +511,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       title: "The first permanent capital",
       summary: "Seventy-four years that set the pattern for Japan, and a palace that became rice fields",
       body: [
+        photo("suzakumon", "A red and white two-storey gate with a tiled roof", "Suzakumon, the rebuilt south gate of Heijō Palace."),
         { p: "Before 710 the court moved with each reign, because a ruler's death polluted his palace. **Heijō-kyō**, today's Nara, was the first capital meant to last: a grid of avenues copied from the Tang capital Chang'an, about 4.3 by 4.8 km, with a palace at the north end and perhaps 100,000 people. It lasted 74 years. In 784 Emperor Kanmu left for Nagaoka and then, in 794, for Kyoto (see [Asuka and Nara](guide:history/asuka-and-nara))." },
         { p: "Why he left is argued. The usual answer is that Nara's great Buddhist temples had grown too powerful — a monk, Dōkyō, had come close to the throne in the 760s — and Kanmu wanted a city where they couldn't follow. Water transport and his own family's ties to the Kyoto area mattered too." },
         { p: "The temples stayed when the court went, which is why Nara is now a temple town rather than a city. The palace site went back to rice fields. Its excavation, still under way, has turned up tens of thousands of **mokkan**, wooden tags and memos that record tax shipments of dried fish and fermented sushi, office rotas and writing practice. The **Suzakumon** gate (1998) and the **Great Audience Hall** (2010) have been rebuilt on the open field, which gives a sense of the scale." },
@@ -544,6 +556,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       title: "The deer",
       summary: "Messengers of a god, a national monument, and a population at a record high",
       body: [
+        photo("nara-deer", "A hand holding a round rice cracker in a paper band", "Shika senbei, the crackers sold in Nara Park to feed the deer."),
         { p: "Kasuga Taisha's founding legend says its god, **Takemikazuchi**, arrived from the east riding a white deer. Deer became his messengers, and for a thousand years killing one in Nara was a crime; in the Edo period, legend says, the penalty was death. They were nearly wiped out after 1945, then protected again, and in 1957 the deer of Nara were made a **Natural Monument**. They belong to no one: wild animals living in a town." },
         { p: "There are more now than ever. The 2025 count found 1,465, the most on record, and they're spreading into villages around the park. Injuries to visitors, mostly bites and butts, run to well over a hundred a year, many from teasing deer with crackers.[^1]" },
         {
@@ -599,6 +612,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       title: "Persimmon leaves and the birth of sake",
       summary: "Food from a town far from the sea — and a temple that brewed clear sake first",
       body: [
+        photo("kakinoha-zushi", "Two pieces of pressed sushi on green persimmon leaves", "Kakinoha-zushi: pressed fish on rice, wrapped in persimmon leaves."),
         { p: "Nara is landlocked and has a reputation, inside Japan, for plain food; a line often attributed to the novelist Shiga Naoya, who lived here, says there's nothing good to eat in Nara. What it does have is old food — dishes made to travel and to keep." },
         {
           dishes: [
@@ -660,6 +674,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       title: "Tale of Genji country",
       summary: "The novel's last chapters, a bridge, and a princess who became a demon",
       body: [
+        photo("genji-kana", "A page of flowing ink calligraphy on paper flecked with gold and silver", "A text panel from a 12th-century scroll of the Tale of Genji."),
         { p: "Uji was where Heian aristocrats had their country villas, an hour or two from the capital by river and road, and it's where Murasaki Shikibu set the **last ten chapters** of *The Tale of Genji*, written around 1000. Genji himself is dead by then. The “Uji chapters” follow two young men and the sisters they court in a melancholy house by the river, and end without resolution — a darker, more modern book than the first forty-four chapters." },
         { p: "**Uji Bridge** was first built, its stone inscription says, in 646, which would make it one of Japan's oldest. Its guardian is the **Hashihime**, the Bridge Princess, who appears in classical poetry as a lonely woman waiting by the river. Later legend made her darker: a jealous woman who prayed at [Kifune Shrine](guide:place/kurama/kifune-the-water-shrine) to become a demon, and bathed in the Uji River to finish the change. A small shrine to her stands near the bridge." },
         { p: "The **Tale of Genji Museum** tells the story with models of Heian rooms, costumes and short films, and is the easiest way into a novel few people finish. The Genji walking route links the sites of the Uji chapters with stone markers." },
@@ -671,6 +686,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       title: "A Chinese temple and a card factory",
       summary: "Mampuku-ji's Ming-style Zen, and the Nintendo Museum in the plant that made playing cards",
       body: [
+        photo("manpukuji", "A temple hall behind pine trees across a sanded courtyard", "Manpuku-ji in Uji."),
         { p: "Two stops north of Uji, **Mampuku-ji** looks nothing like the temples around it. It was founded in 1661 by **Ingen**, a Chinese Zen master who came to Nagasaki in 1654, and built in the style of a Ming-dynasty monastery: Chinese gates, rounded windows, a pot-bellied laughing Buddha at the entrance, sutras still chanted in old Chinese pronunciation. His **Ōbaku** school brought much else with it: the custom of steeping loose-leaf tea, which led to sencha; a kind of bean, *ingen-mame*, the green bean; and **fucha ryōri**, a Chinese vegetarian banquet shared from big dishes, still served at the temple by reservation." },
         { p: "Look for the **kaipan**, a big wooden fish hanging in the corridor and beaten to call monks to meals. The ball in its mouth stands for the worldly desires it spits out." },
         { h: "The Nintendo Museum" },
@@ -725,6 +741,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       title: "The Eizan line and the maple tunnel",
       summary: "A small railway, a panoramic train and the stretch it slows down for",
       body: [
+        photo("eizan-ichihara", "A red and cream train crossing a small bridge among trees", "An Eizan train near Ichihara, on the line to Kurama."),
         { p: "Kurama and Kibune are reached by the **Eizan Electric Railway** from Demachiyanagi, the end of the Keihan line in north-east Kyoto, about 30 minutes to Kurama. Two-car trains, and the **Kirara** with big side windows, run up the valley." },
         { p: "Between Ichihara and Ninose the line runs through a **tunnel of maples**. In November the trains slow to a crawl and the carriage lights go off, and on autumn evenings the trees are lit. In July 2020 a landslide closed the line beyond Ichihara for over a year; it reopened in September 2021." },
         { dos: ["Go early on autumn weekends; queues for trains at Demachiyanagi can be long", "Do the walk from Kurama to Kibune, downhill-ish, rather than the reverse", "Take the bus from Kibune shrine to Kibuneguchi station, or walk 30 minutes down the road"], donts: ["Start the mountain walk late in November — it's dark by about 16:45 under the trees"] },
