@@ -542,6 +542,7 @@ Tap a document to open its page: name it, attach PDFs or photos, add fields and 
 
 Add categories and items, tick them off. With two or more travellers (Manage → Setup), each item can be assigned to a person or **Shared**.
 
+- A ticked item moves to **Completed** at the bottom (collapsed, with its category under the name). Untick it there to send it back.
 - Categories keep their place: deleting or renaming items never reshuffles them. A new category goes at the bottom.
 - **Add item** opens the new item ready to type. Leave it blank and it disappears; clear an item's name to remove it (undoable). Your own lists work the same way.
 - **On your own lists**, an item's note and link only show once filled in. Add them from the item's **⋯**, which also deletes it.

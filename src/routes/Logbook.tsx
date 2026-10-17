@@ -887,6 +887,22 @@ function Packing() {
   const total = items.length;
   const done = items.filter((p) => p.done).length;
 
+  // a ticked item lingers in its category for a beat, struck through, before
+  // it moves down to Completed — the Reminders behaviour, so a tick is seen
+  const [lingering, setLingering] = useState<ReadonlySet<string>>(new Set());
+  const toggle = (id: string, v: boolean) => {
+    updateEntity<PackingItem>("packing", id, { done: v });
+    if (!v) return;
+    setLingering((s) => new Set(s).add(id));
+    window.setTimeout(() => setLingering((s) => {
+      const next = new Set(s);
+      next.delete(id);
+      return next;
+    }), 1200);
+  };
+  const isOpen = (it: PackingItem) => !it.done || lingering.has(it.id);
+  const completed = groups.flatMap(([group, list]) => list.filter((it) => !isOpen(it)).map((it) => [group, it] as const));
+
   const newItem = (group: string): PackingItem => ({ id: crypto.randomUUID?.() ?? `packing-${rid()}`, label: "", phase: "bring", group });
   // the new item opens ready to type, inside the tap (see `addStep` in Day.tsx)
   const [fresh, setFresh] = useState<string | null>(null);
@@ -945,8 +961,9 @@ function Packing() {
           Start with a category — Clothes, Tech, Toiletries… — then add what goes in it.
         </p>
       )}
-      {groups.map(([group, list]) => {
-        const g = list.filter((i) => i.done).length;
+      {groups.map(([group, all]) => {
+        const g = all.filter((i) => i.done).length;
+        const list = all.filter(isOpen);
         return (
           <Section
             key={group}
@@ -956,8 +973,8 @@ function Packing() {
             )}
             action={
               <span className="flex items-center gap-2">
-                <span className={`text-xs tabular-nums ${g === list.length ? "text-ink" : "text-ink-faint"}`}>
-                  {g}/{list.length}
+                <span className={`text-xs tabular-nums ${g === all.length ? "text-ink" : "text-ink-faint"}`}>
+                  {g}/{all.length}
                 </span>
                 {!ro && cardDeleteBtn(() => removeGroup(group), "Delete category")}
               </span>
@@ -971,7 +988,7 @@ function Packing() {
                   ro={ro}
                   people={people}
                   tagged={tagged}
-                  onToggle={(v) => updateEntity<PackingItem>("packing", it.id, { done: v })}
+                  onToggle={(v) => toggle(it.id, v)}
                   onLabel={(v) => updateEntity<PackingItem>("packing", it.id, { label: v })}
                   onAssign={(v) => updateEntity<PackingItem>("packing", it.id, { assignee: v })}
                   onRemove={() => removeItem(it.id)}
@@ -980,10 +997,36 @@ function Packing() {
                 />
               ))}
               {!ro && <ActionRow icon="plus" label="Add item" onClick={() => addItem(group)} />}
+              {ro && !list.some(isOpen) && <li className="meta px-3.5 py-3">All packed</li>}
             </ul>
           </Section>
         );
       })}
+      {completed.length > 0 && (
+        <Section
+          id="pack-completed"
+          title="Completed"
+          defaultOpen={false}
+          action={<span className="text-xs tabular-nums text-ink-faint">{completed.length}</span>}
+        >
+          <ul>
+            {completed.map(([group, it]) => (
+              <PackRow
+                key={it.id}
+                item={it}
+                ro={ro}
+                people={people}
+                tagged={tagged}
+                caption={group}
+                onToggle={(v) => toggle(it.id, v)}
+                onLabel={(v) => updateEntity<PackingItem>("packing", it.id, { label: v })}
+                onAssign={(v) => updateEntity<PackingItem>("packing", it.id, { assignee: v })}
+                onRemove={() => removeItem(it.id)}
+              />
+            ))}
+          </ul>
+        </Section>
+      )}
       {!ro && (
         <Section>
           <ul>
@@ -1073,8 +1116,10 @@ function CopyPackingRow() {
   );
 }
 
-function PackRow({ item, ro, people, tagged, onToggle, onLabel, onAssign, onRemove, autoEdit, onBlank }: {
+function PackRow({ item, ro, people, tagged, caption, onToggle, onLabel, onAssign, onRemove, autoEdit, onBlank }: {
   item: PackingItem;
+  /** a small grey line under the name — the category, on a Completed row */
+  caption?: string;
   ro: boolean;
   people: Person[];
   tagged: ReturnType<typeof withInitials>;
@@ -1097,7 +1142,10 @@ function PackRow({ item, ro, people, tagged, onToggle, onLabel, onAssign, onRemo
     return (
       <li className={`${liOuter} ${rowInner}`}>
         {box}
-        <span className={`min-w-0 flex-1 ${item.done ? "text-ink-faint line-through" : "text-ink"}`}>{item.label}</span>
+        <span className="min-w-0 flex-1">
+          <span className={`block break-words ${item.done ? "text-ink-faint line-through" : "text-ink"}`}>{item.label}</span>
+          {caption && <span className="block break-words text-xs text-ink-faint">{caption}</span>}
+        </span>
         {pill}
       </li>
     );
@@ -1109,6 +1157,7 @@ function PackRow({ item, ro, people, tagged, onToggle, onLabel, onAssign, onRemo
           {box}
           <span className="min-w-0 flex-1">
             <Editable label="Item" value={item.label} placeholder="Item" autoEdit={autoEdit} onBlank={onBlank} className={item.done ? "text-ink-faint line-through" : "text-ink"} onCommit={onLabel} />
+            {caption && <span className="block break-words text-xs text-ink-faint">{caption}</span>}
           </span>
           {pill}
           <RowDeleteButton undoLabel="Packing item removed" onClick={onRemove} />
