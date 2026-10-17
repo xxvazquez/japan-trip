@@ -21,7 +21,7 @@ export interface ThemeTokens {
 /** A navigable section (tab). Order / label / enabled are per-trip.
  *  `logbook-section` is a pin of one built-in Logbook page (see `target`)
  *  straight onto the main nav, alongside the three fixed hubs. */
-export type ModuleKind = "plan" | "map" | "logbook" | "logbook-section";
+export type ModuleKind = "plan" | "map" | "logbook" | "logbook-section" | "guide";
 
 export interface ModuleConfig {
   id: ID;
@@ -29,8 +29,9 @@ export interface ModuleConfig {
   label: string;
   icon: string;
   enabled: boolean;
-  /** `logbook-section` only: which built-in section this tab jumps to
-   *  (a `LogbookSection` key, e.g. "packing"). */
+  /** `logbook-section`: which built-in section this tab jumps to (a
+   *  `LogbookSection` key, e.g. "packing"). `guide`: which country guide
+   *  it opens (a `GUIDES` id, e.g. "jp"). */
   target?: string;
 }
 

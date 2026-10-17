@@ -499,7 +499,7 @@ Text isn't selectable (as in a native app), so values you might paste elsewhere 
 
 ### Country guide
 
-When a trip has stays or pins in a country the app has a guide for (Japan today), a row for it sits below the sections.
+When a trip has stays or pins in a country the app has a guide for (Japan today), a row for it sits below the sections. Pin it as its own tab from Manage → Setup → Tabs.
 
 - **Where you're staying / Also on your trip** — a page per city or town the trip touches, matched from its stays, bases and pins (a day trip to Uji or Kurama shows up without a stay there).
 - A city page groups its reads under **Understand the place**, **Look closer**, **Eat and drink** and **Before you go**, with shorter notes under **Worth knowing**. The cities on the route — Tokyo, Kyoto, the Fuji lakes, Nara, Uji, Kurama, Hakone and Kamakura — are full sourced chapters with no short notes left.
@@ -590,7 +590,7 @@ Open it from your account picture (or the foot of the sidebar on a wide screen).
 - **Currencies** — the first is the default (a new trip starts on `PLN`). Prices open a keypad, with a currency switch once there's a second currency. An amount in another currency shows what it comes to in the first (*≈ €27.40*) as you type.
 - **Expense categories** — rename, add, reorder or remove from ⋯. Removing one moves its spending to the next. A category can claim hop modes (so Train and Flights split out of Transport). Tap its icon to pick another from 130+.
 - **Logbook sections** — hide the ones you don't need.
-- **Tabs** — rename, reorder or hide Plan / Map / Logbook, and **Add tab** to pin a Logbook page (Packing, say) to the tab bar. A pinned page leaves the Logbook list, so it isn't shown twice.
+- **Tabs** — rename, reorder or hide Plan / Map / Logbook, and **Add tab** to pin a Logbook page (Packing, say) or the trip's country guide to the tab bar. A pinned page leaves the Logbook list, so it isn't shown twice.
 
 ### Map
 

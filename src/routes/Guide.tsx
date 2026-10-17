@@ -37,6 +37,7 @@ export function GuideHome() {
   const { stays, others } = citiesOnTrip(guide, data);
   const dates = datesOnTrip(guide, data);
   const all = allTopics(guide);
+  const pinned = data.config.modules.some((m) => m.enabled && m.kind === "guide" && m.target === guide.id);
   const topicRows = (topics: GuideTopic[]) => (
     <ul>
       {topics.map((t) => (
@@ -66,7 +67,9 @@ export function GuideHome() {
 
   return (
     <Page width="form">
-      <PageHeader back="/logbook" title={guide.name} meta={guide.local} className="mb-6" />
+      {/* pinned to the tab bar, the guide is a tab of its own — a root, with
+          no back button */}
+      <PageHeader back={pinned ? undefined : "/logbook"} title={guide.name} meta={guide.local} className="mb-6" />
       <div className="space-y-6">
         {stays.length > 0 && (
           <Section title="Where you're staying" id={`guide-${guide.id}-stays`}>{cityRows(stays, true)}</Section>

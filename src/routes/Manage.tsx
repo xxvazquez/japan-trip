@@ -38,6 +38,7 @@ import { plural } from "@/lib/dates";
 import { useAuth } from "@/lib/auth";
 import { RowMenu } from "@/components/RowMenu";
 import { ContextMenu } from "@/components/ContextMenu";
+import { tripGuides, type GuideEntry } from "@/guides";
 import { TextPrompt } from "@/components/TextPrompt";
 import { primeKeyboard } from "@/lib/keyboard";
 import { MODE_LABEL } from "@/lib/transport";
@@ -1154,7 +1155,9 @@ function AddTabButton() {
   const hidden = data.config.hiddenLogbook ?? [];
   const pinned = new Set(modules.filter((m) => m.kind === "logbook-section").map((m) => m.target));
   const available = LOGBOOK_SECTIONS.filter((s) => !hidden.includes(s) && !pinned.has(s));
-  if (available.length === 0) return null;
+  // the trip's country guide can be a tab too — read on the go, offline
+  const guides = tripGuides(data).filter((g) => !modules.some((m) => m.kind === "guide" && m.target === g.id));
+  if (available.length === 0 && guides.length === 0) return null;
 
   const add = (s: (typeof LOGBOOK_SECTIONS)[number]) => {
     mutate((d) => {
@@ -1169,15 +1172,31 @@ function AddTabButton() {
     });
     setOpen(false);
   };
+  const addGuide = (g: GuideEntry) => {
+    mutate((d) => {
+      d.config.modules.push({
+        id: crypto.randomUUID?.() ?? `tab-${Math.random().toString(36).slice(2, 9)}`,
+        kind: "guide",
+        target: g.id,
+        label: "Guide",
+        icon: "globe",
+        enabled: true,
+      });
+    });
+    setOpen(false);
+  };
 
   return (
     <li>
       <button ref={anchorRef} onClick={() => setOpen(true)} className="action w-full px-3.5 py-3 text-xs">
         <Icon name="plus" size={13} /> Add tab
       </button>
-      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="Pin a Logbook page">
+      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="Add a tab">
         {available.map((s) => (
           <button key={s} className="menu-item" onClick={() => add(s)}>{logbookLabel(s)}</button>
+        ))}
+        {guides.map((g) => (
+          <button key={g.id} className="menu-item" onClick={() => addGuide(g)}>{`${g.name} guide`}</button>
         ))}
       </ActionSheet>
     </li>
@@ -1194,7 +1213,7 @@ function ModulesPanel() {
   return (
     <Section title="Tabs" info={[
       { icon: "reorder", title: "Make them yours", text: "Reorder, rename, or turn the main tabs off for this trip." },
-      { icon: "pushpin", title: "Pin a Logbook page", text: "Like Packing — it gets a tab of its own." },
+      { icon: "pushpin", title: "Pin a Logbook page", text: "Like Packing or the country guide — it gets a tab of its own." },
     ]}>
       <ul>
         {modules.map((m, i) => {
@@ -1203,7 +1222,9 @@ function ModulesPanel() {
           // re-enabling it here too, until the section's shown again.
           const stuckHidden = m.kind === "logbook-section" && !m.enabled && hidden.includes(m.target ?? "");
           const tabTarget = (x: typeof m) =>
-            x.kind === "logbook-section" ? logbookLabel(x.target ?? "") : x.kind.charAt(0).toUpperCase() + x.kind.slice(1);
+            x.kind === "logbook-section" ? logbookLabel(x.target ?? "")
+              : x.kind === "guide" ? "Guide"
+              : x.kind.charAt(0).toUpperCase() + x.kind.slice(1);
           const renamed = (x: typeof m) => tabTarget(x).toLowerCase() !== x.label.trim().toLowerCase();
           return (
           <ContextMenu as="li" key={m.id} className={MLI_TILE}>
@@ -1211,7 +1232,7 @@ function ModulesPanel() {
                 page keeps that page's tile so the two lists match */}
             {m.kind === "logbook-section" && m.target
               ? <IconTile size="sm" {...logbookSectionTile(m.target as LogbookSection)} />
-              : <IconTile size="sm" name={m.icon && isIconName(m.icon) ? m.icon : "vault"} />}
+              : <IconTile size="sm" name={m.icon && isIconName(m.icon) ? m.icon : "vault"} tone={m.kind === "guide" ? "accent" : undefined} />}
             <span className="flex-1">
               <Editable label="Section label" value={m.label} onCommit={(v) => mutate((d) => { d.config.modules[i].label = v || m.label; })} />
               {/* what the tab opens — only worth saying once it's been renamed
@@ -1235,7 +1256,7 @@ function ModulesPanel() {
               index={i}
               count={modules.length}
               onMove={(dir) => mutate((d) => { const a = d.config.modules; [a[i], a[i + dir]] = [a[i + dir], a[i]]; })}
-              onRemove={m.kind === "logbook-section" ? () => mutate((d) => { d.config.modules = d.config.modules.filter((x) => x.id !== m.id); }) : undefined}
+              onRemove={m.kind === "logbook-section" || m.kind === "guide" ? () => mutate((d) => { d.config.modules = d.config.modules.filter((x) => x.id !== m.id); }) : undefined}
               removeLabel="Remove tab"
               undoLabel="Tab removed"
             />

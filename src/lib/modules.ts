@@ -2,12 +2,14 @@ import type { ModuleConfig, ModuleKind } from "@/core/types";
 import { sectionSlug } from "@/lib/logbook";
 
 /** Route resolver per module kind. `logbook-section` (a pinned Logbook page)
- *  has no fixed route — it's derived from the module's own `target`. */
+ *  and `guide` (a country guide pinned as a tab) have no fixed route — it's
+ *  derived from the module's own `target`. */
 export const MODULE_ROUTE: Record<ModuleKind, (m: ModuleConfig) => string> = {
   plan: () => "/",
   map: () => "/map",
   logbook: () => "/logbook",
   "logbook-section": (m) => `/logbook/${sectionSlug(m.target ?? "")}`,
+  guide: (m) => `/logbook/guide/${m.target ?? ""}`,
 };
 
 export function moduleTo(s: ModuleConfig): string {
@@ -55,7 +57,7 @@ const DEFAULTS: ModuleConfig[] = [
  *  the current section set. */
 export const enabledModules = (modules: ModuleConfig[]) => {
   const known = (modules ?? []).filter(
-    (m) => m.enabled && m.kind in MODULE_ROUTE && (m.kind !== "logbook-section" || !!m.target),
+    (m) => m.enabled && m.kind in MODULE_ROUTE && ((m.kind !== "logbook-section" && m.kind !== "guide") || !!m.target),
   );
   return known.length ? known : DEFAULTS;
 };

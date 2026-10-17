@@ -89,7 +89,9 @@ export function LogbookIndex() {
   const lists = (data.config.lists ?? []).filter((l) => !pinned.has(sectionSlug(l.id)));
   const builtins = LOGBOOK_SECTIONS.filter((s) => !hidden.includes(s) && !pinned.has(sectionSlug(s)));
   const moduleLabel = data.config.modules.find((m) => m.kind === "logbook")?.label ?? "Logbook";
-  const guides = tripGuides(data);
+  const guides = tripGuides(data).filter(
+    (g) => !data.config.modules.some((m) => m.enabled && m.kind === "guide" && m.target === g.id),
+  );
 
   return (
     <Page>
