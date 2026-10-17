@@ -14,7 +14,9 @@ const CHAR_W = FONT * 0.56; // rough width of one character, for label room
 type Stop = { key: string; name: string; color: string; x: number; y: number };
 type Box = { x: number; y: number; w: number; h: number };
 
-const overlaps = (a: Box, b: Box) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+/** how much of two boxes covers each other, in px² */
+const overlap = (a: Box, b: Box) =>
+  Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
 
 /**
  * The trip's cities joined in the order you visit them — a little sketch
@@ -81,23 +83,35 @@ export function RouteSketch({ data, bare = false, width: W = 340 }: {
       }
     }
     // one label per city, on the first side that's clear of the other
-    // labels and dots: right, left, above, below
-    const placed: Box[] = [...stops.map((s) => ({ x: s.x - 7, y: s.y - 7, w: 14, h: 14 })), ...along];
+    // labels and dots — right, left, above, below, then the four corners, as
+    // a map places a town's name. Two cities close together (Tokyo and the
+    // Fuji lakes) can leave no side clear, so then it's the side that covers
+    // least: another label or a dot counts far more than the line.
+    const solid: Box[] = stops.map((s) => ({ x: s.x - 7, y: s.y - 7, w: 14, h: 14 }));
     const labels: { key: string; text: string; x: number; y: number; anchor: "start" | "end" | "middle" }[] = [];
     const seen = new Set<string>();
     for (const s of stops) {
       if (seen.has(s.key) || !s.name) continue;
       seen.add(s.key);
       const w = s.name.length * CHAR_W;
+      const lh = FONT + 2;
       const options = [
-        { box: { x: s.x + 9, y: s.y - FONT / 2 - 1, w, h: FONT + 2 }, x: s.x + 9, y: s.y + FONT * 0.36, anchor: "start" as const },
-        { box: { x: s.x - 9 - w, y: s.y - FONT / 2 - 1, w, h: FONT + 2 }, x: s.x - 9, y: s.y + FONT * 0.36, anchor: "end" as const },
-        { box: { x: s.x - w / 2, y: s.y - 9 - FONT, w, h: FONT + 2 }, x: s.x, y: s.y - 9, anchor: "middle" as const },
-        { box: { x: s.x - w / 2, y: s.y + 8, w, h: FONT + 2 }, x: s.x, y: s.y + 8 + FONT, anchor: "middle" as const },
+        { box: { x: s.x + 9, y: s.y - FONT / 2 - 1, w, h: lh }, x: s.x + 9, y: s.y + FONT * 0.36, anchor: "start" as const },
+        { box: { x: s.x - 9 - w, y: s.y - FONT / 2 - 1, w, h: lh }, x: s.x - 9, y: s.y + FONT * 0.36, anchor: "end" as const },
+        { box: { x: s.x - w / 2, y: s.y - 9 - FONT, w, h: lh }, x: s.x, y: s.y - 9, anchor: "middle" as const },
+        { box: { x: s.x - w / 2, y: s.y + 8, w, h: lh }, x: s.x, y: s.y + 8 + FONT, anchor: "middle" as const },
+        { box: { x: s.x + 6, y: s.y + 6, w, h: lh }, x: s.x + 6, y: s.y + 6 + FONT, anchor: "start" as const },
+        { box: { x: s.x + 6, y: s.y - 6 - lh, w, h: lh }, x: s.x + 6, y: s.y - 8, anchor: "start" as const },
+        { box: { x: s.x - 6 - w, y: s.y + 6, w, h: lh }, x: s.x - 6, y: s.y + 6 + FONT, anchor: "end" as const },
+        { box: { x: s.x - 6 - w, y: s.y - 6 - lh, w, h: lh }, x: s.x - 6, y: s.y - 8, anchor: "end" as const },
       ];
-      const fits = (b: Box) => b.x >= 0 && b.x + b.w <= W && !placed.some((p) => overlaps(p, b));
-      const pick = options.find((o) => fits(o.box)) ?? options[0];
-      placed.push(pick.box);
+      const cost = (b: Box) => {
+        const out = Math.max(0, -b.x) + Math.max(0, b.x + b.w - W) + Math.max(0, -b.y) + Math.max(0, b.y + b.h - h);
+        return out * 100 + solid.reduce((n, p) => n + overlap(p, b), 0) * 10 + along.reduce((n, p) => n + overlap(p, b), 0);
+      };
+      // the first clear side wins; failing that, the one that covers least
+      const pick = options.reduce((best, o) => (cost(o.box) < cost(best.box) ? o : best));
+      solid.push(pick.box);
       labels.push({ key: s.key, text: s.name, x: pick.x, y: pick.y, anchor: pick.anchor });
     }
 
