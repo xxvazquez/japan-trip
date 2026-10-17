@@ -75,6 +75,11 @@ const PHOTOS = {
   "nakano-broadway": { w: 675, h: 900, author: "Kentin", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Nakano_broadway_entrance.JPG" },
   "akihabara": { w: 900, h: 600, author: "ElHeineken", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Akihabara_Night.jpg" },
   "kyoto-manga-museum": { w: 900, h: 600, author: "Tatyana Temirbulatova", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Sitting_people_reading_outdoors_at_Kyoto_International_Manga_Museum_20080608.jpg" },
+  "todaiji": { w: 900, h: 599, author: "663highland", license: "CC BY 2.5", url: "https://commons.wikimedia.org/wiki/File:Daibutsu-den_in_Todaiji_Nara01bs3200.jpg" },
+  "kasuga-lanterns": { w: 900, h: 675, author: "Immanuelle", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Stone_lanterns_in_Kasuga-taisha-1.jpg" },
+  "kurama-gate": { w: 900, h: 675, author: "KENPEI", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Kurama-dera_sanmon.jpg" },
+  "owakudani": { w: 900, h: 675, author: "そらみみ", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Owakudani_Valley_near_Owakudani_Station.JPG" },
+  "kamakura-daibutsu": { w: 900, h: 600, author: "KimonBerlin", license: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:Daibutsu_(Kotoku-in)_(5711706217).jpg" },
 } as const;
 
 export type PhotoId = keyof typeof PHOTOS;

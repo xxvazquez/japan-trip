@@ -1009,41 +1009,7 @@ const base: CountryGuide = {
       local: "奈良",
       lat: 34.6851, lng: 135.8048, radiusKm: 6,
       population: "About 350,000",
-      items: [
-        {
-          title: "The first permanent capital",
-          text: "Before Kyoto, Nara was the capital, from 710 to 784. Its temples are among the oldest in Japan, and eight sites share a World Heritage listing.",
-        },
-        {
-          title: "The Great Buddha",
-          text: [
-            "Tōdai-ji's bronze Buddha is about 15 m tall, inside one of the largest wooden buildings in the world — and the hall is a third smaller than the original.",
-            "Behind it, a pillar has a hole the size of the Buddha's nostril. Squeeze through it and you're promised enlightenment in your next life.",
-          ],
-        },
-        {
-          title: "The deer",
-          text: [
-            "About 1,300 roam the park — wild and protected, sacred messengers of the gods in Shinto.",
-            "They bow for crackers (shika senbei), but will also nip, butt and chase. Show empty hands when you're done, and keep paper and maps out of reach.",
-          ],
-        },
-        {
-          title: "Kasuga Taisha's lanterns",
-          text: [
-            "The shrine in the forest behind the park has about 3,000 stone and bronze lanterns, all donated over the centuries.",
-            "Twice a year — at Setsubun in early February and on 14–15 August — every one of them is lit at once (Mantōrō).",
-          ],
-        },
-        {
-          title: "Hōryū-ji is close",
-          text: "About 30 minutes away by train or bus, Hōryū-ji has the oldest wooden buildings in the world, from around 700. Far quieter than Tōdai-ji.",
-        },
-        {
-          title: "Kakinoha-zushi",
-          text: "Nara's sushi: mackerel or salmon pressed on rice and wrapped in a persimmon leaf — made to keep in a landlocked town far from the sea.",
-        },
-      ],
+      items: [],
     },
     {
       id: "uji",
@@ -1051,37 +1017,7 @@ const base: CountryGuide = {
       local: "宇治",
       lat: 34.8844, lng: 135.7997, radiusKm: 4,
       population: "About 180,000",
-      items: [
-        {
-          title: "Japan's tea town",
-          text: "Tea has been grown here since around the 13th century, and the shaded-leaf methods behind gyokuro and matcha were developed here. “Uji matcha” is still the benchmark.",
-        },
-        {
-          title: "The ¥10 coin",
-          text: "Byōdō-in's Phoenix Hall (1053) is the building on the coin. It began as an aristocrat's villa turned into a temple, built to look like the Pure Land paradise reflected in its pond.",
-        },
-        {
-          title: "Also on the old ¥10,000 note",
-          text: "The bronze phoenix from the Phoenix Hall's roof was on the back of the old ¥10,000 note. The originals are kept in the temple's museum.",
-        },
-        {
-          title: "Tale of Genji country",
-          text: "The final ten chapters of the novel are set here. The Tale of Genji Museum tells the story with models and short films.",
-        },
-        {
-          title: "The oldest shrine building",
-          text: "Ujigami Shrine's main hall, from around 1060, is the oldest surviving shrine building in Japan. It's small and quiet, across the river from Byōdō-in.",
-        },
-        { title: "Tsūen, since 1160", text: "The tea shop at the foot of Uji Bridge has been run by the same family for over 860 years." },
-        {
-          title: "Matcha is rationed",
-          text: "A worldwide matcha boom has emptied shelves since 2024 — many Uji shops limit how much one person can buy.",
-        },
-        {
-          title: "The Nintendo Museum",
-          text: "Opened in 2024 in Nintendo's old card and toy factory, a short walk from Ogura station. Tickets are sold ahead by lottery.",
-        },
-      ],
+      items: [],
     },
     {
       id: "kurama",
@@ -1089,40 +1025,7 @@ const base: CountryGuide = {
       local: "鞍馬・貴船",
       aliases: ["Kurama", "Kibune", "Kifune"],
       lat: 35.1180, lng: 135.7712, radiusKm: 2.5,
-      items: [
-        {
-          title: "Mountain temple",
-          text: "Kurama-dera was founded in the 8th century. Legend says the mountain is home to the tengu, long-nosed mountain spirits, who taught swordsmanship to the young samurai hero Minamoto no Yoshitsune.",
-        },
-        {
-          title: "Over the mountain",
-          text: "A trail climbs past the temple and down to Kibune: about 1.5–2 hours, steep, with steps and tree roots. Wear proper shoes, and there's a small entry fee at the temple.",
-        },
-        {
-          title: "Kifune Shrine",
-          text: "A shrine to the god of water, with a stone stairway lined with red lanterns. Its fortunes are blank until you float the paper on the spring water (mizu-mikuji).",
-        },
-        {
-          title: "Dining over the river",
-          text: "From May to September, Kibune's restaurants serve meals on platforms built over the stream (kawadoko) — a few degrees cooler than the city.",
-        },
-        {
-          title: "Fire festival on 22 October",
-          text: "Kurama no Hi-matsuri: villagers carry giant burning torches through the village at night. The same day as Kyoto's Jidai Matsuri parade.",
-        },
-        {
-          title: "Where ema began",
-          text: "Kifune Shrine is said to be the origin of ema: emperors once gave it a live black horse to pray for rain and a white one to stop it — later replaced by painted wooden horses.",
-        },
-        {
-          title: "Kifune, not Kibune",
-          text: "The shrine reads its name Kifune, with an unvoiced “f” for clear-flowing water; the village is Kibune.",
-        },
-        {
-          title: "The maple tunnel",
-          text: "Between Ichihara and Ninose the Eizan line runs through a tunnel of maples, lit up at night in November. The train slows down for it.",
-        },
-      ],
+      items: [],
     },
     {
       id: "hakone",
@@ -1130,44 +1033,7 @@ const base: CountryGuide = {
       local: "箱根",
       lat: 35.2324, lng: 139.1069, radiusKm: 10,
       population: "About 11,000",
-      items: [
-        {
-          title: "A volcano's hot springs",
-          text: "Hakone sits in a huge old caldera. Ōwakudani still steams, and its eggs are boiled black in the sulphur springs — each is said to add seven years to your life.",
-        },
-        {
-          title: "The Hakone loop",
-          text: "Most people do a circuit on one Hakone Freepass:",
-          points: [
-            "Mountain train from Hakone-Yumoto up switchbacks to Gōra",
-            "Cable car to Sōunzan",
-            "Ropeway over Ōwakudani to Lake Ashi",
-            "A mock pirate ship across the lake",
-            "Bus back to Hakone-Yumoto",
-          ],
-        },
-        { title: "The ropeway can stop", text: "It closes when volcanic gas levels rise or the wind is strong — a replacement bus runs. Check on the day." },
-        {
-          title: "Fuji isn't guaranteed",
-          text: "Clouds hide it more often than not, especially in summer. Winter and early-morning views are the best chance — the lake's red torii at Hakone Shrine is the usual photo.",
-        },
-        {
-          title: "Art in the hills",
-          text: "The Hakone Open-Air Museum (1969) puts big sculpture on its lawns and has a whole pavilion of Picasso. The Pola Museum hides Impressionists in the forest.",
-        },
-        {
-          title: "Old highway checkpoint",
-          text: "The Tōkaidō road from Edo to Kyoto passed here; travellers were checked at the Hakone barrier, now rebuilt. A stretch of the old stone-paved road runs through cedars nearby.",
-        },
-        {
-          title: "The New Year relay",
-          text: "Every 2–3 January, university teams run the Hakone Ekiden from Tokyo up to Lake Ashi and back — one of the most-watched TV events of the year.",
-        },
-        {
-          title: "A daimyō parade on 3 November",
-          text: "On Culture Day, Hakone-Yumoto stages a feudal lord's procession in Edo-era costume.",
-        },
-      ],
+      items: [],
     },
     {
       id: "kamakura",
@@ -1175,25 +1041,7 @@ const base: CountryGuide = {
       local: "鎌倉",
       lat: 35.3192, lng: 139.5467, radiusKm: 5,
       population: "About 170,000",
-      items: [
-        {
-          title: "The first samurai capital",
-          text: "The first shogunate ruled Japan from here from 1185, while the emperor stayed in Kyoto. Yoritomo chose it for defence: sea on one side, hills on the other three, crossed only by narrow cuttings (kiridōshi) you can still walk.",
-        },
-        {
-          title: "The Great Buddha outdoors",
-          text: "The 11 m bronze Buddha at Kōtoku-in, cast in the 1250s, has sat in the open since its hall was washed away at the end of the 15th century. You can step inside it for a small fee.",
-        },
-        {
-          title: "Zen temples",
-          text: "Kenchō-ji (1253) was Japan's first Zen training monastery, and Engaku-ji, by Kita-Kamakura station, is still a working one. Both are quieter than the centre.",
-        },
-        {
-          title: "By the sea",
-          text: "The little Enoden train runs along the coast to Enoshima, an island of shrines and caves joined by a bridge. Hase-dera looks over the bay; June brings its hydrangeas.",
-        },
-        { title: "Shirasu", text: "Tiny whitebait from Sagami Bay, raw or boiled, on a bowl of rice (shirasu-don) — the local lunch." },
-      ],
+      items: [],
     },
     {
       id: "nikko",

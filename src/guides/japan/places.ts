@@ -4,7 +4,8 @@ import { photo } from "./photos";
 /** Fuller reads for the cities on this route, by `GuideCity.id`. They go
  *  above a city's short notes, under their own headings. Tokyo, Kyoto and
  *  the Fuji lakes are told entirely here, as sourced chapters, with no
- *  short notes left under "Worth knowing". */
+ *  short notes left under "Worth knowing" — as are Nara, Uji, Kurama,
+ *  Hakone and Kamakura. */
 export const placeReads: Record<string, GuideItem[]> = {
   tokyo: [
     {
@@ -491,6 +492,390 @@ export const placeReads: Record<string, GuideItem[]> = {
         { p: "For the dishes themselves — obanzai, yudōfu, saba-zushi, nishin soba — see [Kyoto](guide:regional-food/kyoto) in Regional food; for the sweets, [Wagashi](guide:food/wagashi-and-sweets-that-tell-the-month)." },
       ],
       related: ["regional-food/kyoto", "food/wagashi-and-sweets-that-tell-the-month", "food/tea-from-temple-medicine-to-the-vending-machine"],
+    },
+  ],
+  nara: [
+    {
+      group: "Understand the place",
+      title: "The first permanent capital",
+      summary: "Seventy-four years that set the pattern for Japan, and a palace that became rice fields",
+      body: [
+        { p: "Before 710 the court moved with each reign, because a ruler's death polluted his palace. **Heijō-kyō**, today's Nara, was the first capital meant to last: a grid of avenues copied from the Tang capital Chang'an, about 4.3 by 4.8 km, with a palace at the north end and perhaps 100,000 people. It lasted 74 years. In 784 Emperor Kanmu left for Nagaoka and then, in 794, for Kyoto (see [Asuka and Nara](guide:history/asuka-and-nara))." },
+        { p: "Why he left is argued. The usual answer is that Nara's great Buddhist temples had grown too powerful — a monk, Dōkyō, had come close to the throne in the 760s — and Kanmu wanted a city where they couldn't follow. Water transport and his own family's ties to the Kyoto area mattered too." },
+        { p: "The temples stayed when the court went, which is why Nara is now a temple town rather than a city. The palace site went back to rice fields. Its excavation, still under way, has turned up tens of thousands of **mokkan**, wooden tags and memos that record tax shipments of dried fish and fermented sushi, office rotas and writing practice. The **Suzakumon** gate (1998) and the **Great Audience Hall** (2010) have been rebuilt on the open field, which gives a sense of the scale." },
+        {
+          stats: [
+            { value: "710–784", label: "Nara as capital" },
+            { value: "8", label: "sites in its 1998 World Heritage listing" },
+            { value: "~9,000", label: "objects in the Shōsōin storehouse" },
+          ],
+        },
+        { h: "The emperor's storehouse" },
+        { p: "When Emperor Shōmu died in 756, his widow gave his belongings to Tōdai-ji. They're still there, in the **Shōsōin**, a raised log storehouse: glass from Persia, a five-stringed lute from India, medicines, maps, textiles, the court's paperwork — the eastern end of the Silk Road, kept for 1,270 years. The Imperial Household Agency shows a selection for about two weeks each autumn at the **Nara National Museum**. In 2026 it runs from 24 October to 9 November; queues are long, and weekday evenings are quietest.[^1]" },
+      ],
+      related: ["history/asuka-and-nara", "place/nara/the-great-buddha", "belief/buddhism"],
+      sources: [
+        { title: "The 78th Annual Exhibition of Shōsōin Treasures — Hotelbank", url: "https://en.hotelbank.jp/?p=4320", note: "24 October – 9 November 2026" },
+      ],
+    },
+    {
+      group: "Understand the place",
+      title: "The Great Buddha",
+      summary: "A bronze made to stop an epidemic, and a hall that's two-thirds the size it was",
+      body: [
+        { p: "In the 730s smallpox killed perhaps a third of Japan's people, the four Fujiwara brothers who ran the government among them. Emperor **Shōmu** answered with Buddhism on a national scale: a state temple in every province, and at the centre, in 743, an order for a colossal bronze **Vairocana**, the cosmic Buddha, at **Tōdai-ji**. Casting ran from 747 to 749, in eight layers, using most of the copper the country could produce; an Indian monk painted in its eyes at the dedication in 752." },
+        photo("todaiji", "The huge wooden Great Buddha Hall of Tōdai-ji with its sweeping double roof", "The Great Buddha Hall, rebuilt in 1709 at about two-thirds of the original width."),
+        {
+          timeline: [
+            { when: "752", text: "The Buddha is dedicated; the **Omizutori** rite begins in the Nigatsu-dō, and has been held every year since" },
+            { when: "1180", text: "Taira troops burn the temple; it's rebuilt with Song Chinese techniques — the **Nandaimon** gate (1199) survives" },
+            { when: "1567", text: "Burned again in a civil war; the Buddha sits in the open for over a century" },
+            { when: "1709", text: "Today's hall: 57 m wide where the first was 86, because there were no more trees big enough" },
+          ],
+        },
+        { p: "Little of what you see is from 752: the head was recast in the 1690s, and only parts of the body and the lotus petals underneath are original. The bronze was once gilded with an amalgam of gold and mercury, burned off with heat, and some historians think mercury vapour sickened the city. The hall was the largest wooden building in the world for most of its life." },
+        { p: "Inside, behind the Buddha, a pillar has a hole at its base said to match the size of the Buddha's nostril. Squeezing through it promises enlightenment in the next life; children manage, adults sometimes don't." },
+        { note: "From 1 to 14 March each year, monks run with huge burning torches along the balcony of the Nigatsu-dō hall, on the hill behind the Buddha. The ceremony has not missed a year since 752, through wars and fires. Out of season, the Nigatsu-dō terrace is free and has the best view over Nara.", title: "Omizutori" },
+      ],
+      related: ["history/asuka-and-nara", "belief/buddhism", "place/kamakura/the-great-buddha-outdoors"],
+    },
+    {
+      group: "Understand the place",
+      title: "The deer",
+      summary: "Messengers of a god, a national monument, and a population at a record high",
+      body: [
+        { p: "Kasuga Taisha's founding legend says its god, **Takemikazuchi**, arrived from the east riding a white deer. Deer became his messengers, and for a thousand years killing one in Nara was a crime; in the Edo period, legend says, the penalty was death. They were nearly wiped out after 1945, then protected again, and in 1957 the deer of Nara were made a **Natural Monument**. They belong to no one: wild animals living in a town." },
+        { p: "There are more now than ever. The 2025 count found 1,465, the most on record, and they're spreading into villages around the park. Injuries to visitors, mostly bites and butts, run to well over a hundred a year, many from teasing deer with crackers.[^1]" },
+        {
+          dos: [
+            "Buy **shika-senbei**, the deer crackers sold at stalls (about ¥200), and feed them fairly quickly",
+            "Show your empty hands when you've finished — the deer understand it",
+            "Keep paper, maps and tickets out of reach; deer eat them",
+          ],
+          donts: [
+            "Hold crackers above a deer's head or pull them away — that's when they bite",
+            "Feed them anything but the crackers; plastic bags kill deer every year",
+            "Get between a doe and her fawn in early summer, or near stags in autumn rut",
+          ],
+        },
+        { p: "Many deer bow before they're fed, a habit that seems to be learned from people. In autumn the park's stags have their antlers sawn off in a public ceremony at a deer pen near Kasuga Taisha, held over several days in October, to protect visitors and each other." },
+      ],
+      related: ["place/nara/kasuga-taisha-s-lanterns", "belief/shinto"],
+      sources: [
+        { title: "Number of injuries among tourists up as Nara deer population hits record — The Independent via AOL", url: "https://www.aol.com/articles/number-injuries-among-tourists-nara-120342329.html", note: "1,465 deer in July 2025; injuries" },
+      ],
+    },
+    {
+      group: "Look closer",
+      title: "Kasuga Taisha's lanterns",
+      summary: "A clan shrine, its sacred forest, and a temple it was once part of",
+      body: [
+        { p: "**Kasuga Taisha** was founded in 768 by the **Fujiwara**, the family who ran the court for most of three centuries, and it was their shrine. Its partner was **Kōfuku-ji**, the Fujiwara temple next door. For a thousand years the two were run as one, the shrine's gods understood as forms of the temple's buddhas, until the Meiji government forced them apart in 1868 and Kōfuku-ji lost most of its land (see [Gods and buddhas](guide:belief/gods-and-buddhas-mixed-and-split))." },
+        photo("kasuga-lanterns", "A row of moss-stained stone lanterns lined up beside the vermilion corridors of Kasuga Taisha", "Stone lanterns beside Kasuga Taisha's halls, each one a gift with its donor's name."),
+        { p: "The **lanterns**, about 3,000 of them, are gifts: stone ones along the forest paths, bronze ones hanging in the corridors, each inscribed with its donor. Twice a year, at Setsubun in early February and on 14–15 August, every one is lit at once for the **Mantōrō**. The oldest stone lanterns date from the 12th century." },
+        { p: "Like Ise, Kasuga used to rebuild its main sanctuaries every 20 years; it now repairs and repaints them on that cycle instead, the 60th time in 2016. Behind the shrine, **Kasugayama Primeval Forest** has been protected since hunting and logging were banned there in 841, and is part of the World Heritage listing — a rare stand of warm-temperate forest left untouched next to a city." },
+        { note: "Kōfuku-ji's five-storey pagoda, Nara's skyline landmark, is under scaffolding for a major repair expected to last until about 2031. The Central Golden Hall was rebuilt in 2018, and the National Treasure Museum, with the three-faced, six-armed Ashura statue, is open.", title: "Kōfuku-ji now" },
+      ],
+      related: ["belief/shinto", "belief/gods-and-buddhas-mixed-and-split", "place/nara/the-deer"],
+    },
+    {
+      group: "Look closer",
+      title: "Hōryū-ji, the oldest wood",
+      summary: "Buildings from around 700, a fire in 1949, and a law it made",
+      body: [
+        { p: "Thirty minutes south-west of Nara, **Hōryū-ji** has the oldest wooden buildings in the world: its Golden Hall (Kondō) and five-storey pagoda date from around 700. They survive because they're Japanese cypress (hinoki), which strengthens for centuries after it's cut, because they were repaired piece by piece, and because the temple was lucky." },
+        photo("horyuji", "Hōryū-ji's Golden Hall and five-storey pagoda in its walled courtyard", "Hōryū-ji's Kondō and pagoda, both from around 700."),
+        { p: "How old they are is a long argument. The temple was founded in 607 by Prince Shōtoku; the official chronicle says it burned to the ground in 670. Historians argued for decades over whether the buildings are the originals or a rebuild. Excavation found the burned first temple slightly to the south-east, so they were rebuilt — but tree-ring dating then found the pagoda's central pillar was felled in **594**, and some Kondō timbers before 670. Old wood was reused, or construction had begun before the fire, or both.[^1]" },
+        { p: "On 26 January 1949, a restorer's electric heating pad caught fire in the Kondō and destroyed its 7th-century wall paintings, among the finest Buddhist paintings in Asia. The shock led directly to Japan's **Law for the Protection of Cultural Properties** in 1950, and 26 January is now the national day for fire drills at temples and museums. The burned panels are kept in a fireproof store; copies are on the walls." },
+        { note: "Hōryū-ji is far quieter than Tōdai-ji. Allow half a day, and walk on to Chūgū-ji next door for a 7th-century wooden statue of a pensive bodhisattva with one of the gentlest faces in Japanese art.", title: "Getting there" },
+      ],
+      related: ["history/asuka-and-nara", "belief/buddhism"],
+      sources: [
+        { title: "Hōryū-ji — New World Encyclopedia", url: "https://www.newworldencyclopedia.org/entry/Horyu-ji", note: "The 670 fire debate, the 594 pillar, the 1949 fire" },
+      ],
+    },
+    {
+      group: "Eat and drink",
+      title: "Persimmon leaves and the birth of sake",
+      summary: "Food from a town far from the sea — and a temple that brewed clear sake first",
+      body: [
+        { p: "Nara is landlocked and has a reputation, inside Japan, for plain food; a line often attributed to the novelist Shiga Naoya, who lived here, says there's nothing good to eat in Nara. What it does have is old food — dishes made to travel and to keep." },
+        {
+          dishes: [
+            { name: "Kakinoha-zushi", local: "柿の葉寿司", say: "kakinoha-zushi", kind: "Regional", text: "Slices of salted mackerel or salmon pressed onto rice and wrapped in a persimmon leaf, which is not eaten. The fish came salted over the mountains from the Kumano coast; the leaf keeps it and adds a faint tannic scent. Sold in boxes at every station.", where: "Shops on Sanjō-dōri; Kintetsu Nara station" },
+            { name: "Nara-zuke", local: "奈良漬", say: "narazuke", kind: "Regional", text: "Gourd, cucumber or melon pickled for months, sometimes years, in sake lees until dark brown, sweet and faintly alcoholic. An acquired taste, and a very old one: wooden tags from the Nara palace mention vegetables pickled in lees." },
+            { name: "Miwa sōmen", local: "三輪素麺", say: "miwa sōmen", kind: "Regional", text: "Very thin wheat noodles from Miwa, south of the city, which claims to be where Japanese noodles began. Eaten cold in summer, in hot broth (nyūmen) in winter." },
+            { name: "Chagayu", local: "茶粥", say: "chagayu", kind: "Regional", text: "Rice porridge cooked in roasted tea — a temple and farmhouse breakfast, now served at a few traditional restaurants." },
+          ],
+        },
+        { h: "Where clear sake began" },
+        { p: "**Shōryaku-ji**, a temple in the hills south of Nara, is called the birthplace of refined sake. In the 15th century its monks developed a starter called **bodaimoto** and a way of making sake clear rather than cloudy, the method behind modern brewing. Every January a few Nara brewers make bodaimoto there again from the temple's own yeast (see [Sake](guide:food/sake-and-how-to-read-the-bottle))." },
+      ],
+      related: ["food/sake-and-how-to-read-the-bottle", "food/sushi-from-fermented-fish-to-fast-food"],
+    },
+  ],
+  uji: [
+    {
+      group: "Understand the place",
+      title: "Japan's tea town",
+      summary: "The name on the best green tea, and how little of it grows in Uji",
+      body: [
+        { p: "Uji's place in tea is old and real: shade-growing for matcha was perfected here in the 16th century, gyokuro and modern sencha came out of Uji farms, and the shoguns had their tea jars filled here every year (see [Tea](guide:food/tea-from-temple-medicine-to-the-vending-machine)). But look at a map today and Uji is a commuter town. Most of its fields have gone under houses." },
+        { p: "So what is **Uji-cha**? By the trade's own definition, tea grown in Kyoto, Nara, Shiga or Mie prefectures and **processed in Kyoto prefecture** by Kyoto makers. Within Kyoto, about half the crop comes from **Wazuka**, a hill village 20 km east, whose terraced fields are what you see in photos of Uji tea.[^1] The name is a style and a standard, not a town." },
+        photo("uji-tea", "Rows of rounded tea bushes covering a hillside in the Kyoto countryside", "Wazuka's tea fields, east of Uji, where much “Uji” tea is grown."),
+        {
+          terms: [
+            { term: "Tsūen", text: "The tea shop at the foot of Uji Bridge, run by the same family since 1160. Its founder was a samurai who served tea to travellers at the bridge" },
+            { term: "Okunoyama tea garden", text: "The last of the Seven Gardens of Uji, fields picked out by the Ashikaga shoguns, still worked in the town" },
+            { term: "Taihō-an", text: "The city's tea house, where you can have a bowl of matcha made for you in a simple ceremony for a few hundred yen" },
+            { term: "Rationing", text: "Since 2024's matcha boom, many shops limit tins per customer — it's normal, not rude" },
+          ],
+        },
+        { note: "Uji's main street (Byōdō-in Omotesandō) is now mostly matcha soft-serve and souvenir shops. The best tea shops still let you taste before buying; ask for gyokuro or a good sencha rather than only matcha.", title: "Buying tea" },
+      ],
+      related: ["food/tea-from-temple-medicine-to-the-vending-machine", "place/uji/by-d-in-and-the-end-of-the-law"],
+      sources: [
+        { title: "Wazuka and Uji tea — Japan Tourism Agency multilingual explanations", url: "https://www.mlit.go.jp/tagengo-db/common/001928416.pdf", note: "About 49% of Kyoto's tea is grown in Wazuka" },
+      ],
+    },
+    {
+      group: "Understand the place",
+      title: "Byōdō-in and the end of the Law",
+      summary: "A paradise built in the year the world was meant to start ending",
+      body: [
+        { p: "Buddhist teaching held that after the Buddha's death the Dharma would decline in three ages, and Japanese monks calculated that the last and worst, **mappō**, “the end of the Law”, would begin in **1052**. That year **Fujiwara no Yorimichi**, the most powerful man at court, turned his family's villa at Uji into a temple. The next year he dedicated the **Phoenix Hall**: a building made to look like the palace of **Amida**, the buddha who would bring the faithful to his Pure Land at death, floating on a pond so you see it doubled.[^1]" },
+        photo("byodoin", "The Phoenix Hall of Byōdō-in with its wings spreading on either side, reflected in its pond", "The Phoenix Hall (1053) across its pond — the building on the ¥10 coin."),
+        { p: "Inside sits a gilded Amida by the sculptor **Jōchō**, carved from many blocks of wood joined together (yosegi), a technique he made standard: it let workshops make huge, light statues fast and without cracks. Around the walls fly 52 small wooden bodhisattvas on clouds, playing instruments and dancing. The hall itself has never burned, a rarity for a building of 1053." },
+        { p: "The Phoenix Hall has been on the **¥10 coin** since 1951, and one of the bronze phoenixes from its roof was on the back of the ¥10,000 note from 2004 to 2024. The originals of the phoenixes and many of the bodhisattvas are in the temple's museum, the Hōshōkan; copies are in their places. In 2012–14 the hall was repaired and repainted in **cinnabar red**, as it was at the founding — brighter than many visitors expect." },
+        { h: "Across the river" },
+        { p: "**Ujigami Shrine**, a few minutes over the Uji River, has the oldest surviving shrine building in Japan: its main hall dates from about 1060, confirmed by tree-ring dating. It was Byōdō-in's guardian shrine, and it's small, quiet and easy to miss." },
+      ],
+      related: ["belief/buddhism", "history/heian", "place/uji/tale-of-genji-country"],
+      sources: [
+        { title: "Byōdō-in history and restoration chronology — Japan Tourism Agency multilingual explanations", url: "https://www.mlit.go.jp/tagengo-db/en/R1-00403.html", note: "Founding in 1052, the 2012–14 repairs" },
+      ],
+    },
+    {
+      group: "Look closer",
+      title: "Tale of Genji country",
+      summary: "The novel's last chapters, a bridge, and a princess who became a demon",
+      body: [
+        { p: "Uji was where Heian aristocrats had their country villas, an hour or two from the capital by river and road, and it's where Murasaki Shikibu set the **last ten chapters** of *The Tale of Genji*, written around 1000. Genji himself is dead by then. The “Uji chapters” follow two young men and the sisters they court in a melancholy house by the river, and end without resolution — a darker, more modern book than the first forty-four chapters." },
+        { p: "**Uji Bridge** was first built, its stone inscription says, in 646, which would make it one of Japan's oldest. Its guardian is the **Hashihime**, the Bridge Princess, who appears in classical poetry as a lonely woman waiting by the river. Later legend made her darker: a jealous woman who prayed at [Kifune Shrine](guide:place/kurama/kifune-the-water-shrine) to become a demon, and bathed in the Uji River to finish the change. A small shrine to her stands near the bridge." },
+        { p: "The **Tale of Genji Museum** tells the story with models of Heian rooms, costumes and short films, and is the easiest way into a novel few people finish. The Genji walking route links the sites of the Uji chapters with stone markers." },
+      ],
+      related: ["history/heian", "place/uji/by-d-in-and-the-end-of-the-law", "place/kurama/kifune-the-water-shrine"],
+    },
+    {
+      group: "Look closer",
+      title: "A Chinese temple and a card factory",
+      summary: "Mampuku-ji's Ming-style Zen, and the Nintendo Museum in the plant that made playing cards",
+      body: [
+        { p: "Two stops north of Uji, **Mampuku-ji** looks nothing like the temples around it. It was founded in 1661 by **Ingen**, a Chinese Zen master who came to Nagasaki in 1654, and built in the style of a Ming-dynasty monastery: Chinese gates, rounded windows, a pot-bellied laughing Buddha at the entrance, sutras still chanted in old Chinese pronunciation. His **Ōbaku** school brought much else with it: the custom of steeping loose-leaf tea, which led to sencha; a kind of bean, *ingen-mame*, the green bean; and **fucha ryōri**, a Chinese vegetarian banquet shared from big dishes, still served at the temple by reservation." },
+        { p: "Look for the **kaipan**, a big wooden fish hanging in the corridor and beaten to call monks to meals. The ball in its mouth stands for the worldly desires it spits out." },
+        { h: "The Nintendo Museum" },
+        { p: "Nintendo was founded in Kyoto in 1889 to make **hanafuda**, flower-pattern playing cards. Its plant at Ogura in Uji made cards and then toys from 1969, and in October 2024 it reopened as the **Nintendo Museum**: early cards and toys, every console, and playable games on giant screens. Tickets are sold in advance only, by lottery, through the museum's site, and are hard to get." },
+      ],
+      related: ["food/tea-from-temple-medicine-to-the-vending-machine", "belief/buddhism"],
+    },
+  ],
+  kurama: [
+    {
+      group: "Understand the place",
+      title: "Mountain temple",
+      summary: "Tengu, a boy swordsman, a deity from Venus, and the walk over the mountain",
+      body: [
+        { p: "Kurama is a mountain north of Kyoto that has drawn people looking for power for twelve centuries. **Kurama-dera** was founded, the temple says, in 770, guarding the capital's northern approach; for most of its history it was a temple of the Tendai school, and it's thick with legend." },
+        { p: "The best known is about **tengu**, long-nosed, winged mountain spirits. As a boy, **Minamoto no Yoshitsune** — then called Ushiwakamaru — was sent to the temple to keep him out of the way of the Taira clan who had killed his father. Legend says the tengu king **Sōjōbō** taught him swordsmanship in the forest at night, and he grew up to destroy the Taira in 1185. Tengu masks hang in shops all through the village." },
+        { p: "The modern temple is stranger still. In 1949 Kurama-dera left Tendai and founded its own school, **Kurama Kōkyō**, which worships a trinity called **Sonten**: one of its three, **Maōson**, is said to have come down from Venus six and a half million years ago. In 1922 **Usui Mikao** fasted and meditated on the mountain for 21 days and came down with the practice he called **reiki**; reiki students from abroad still come on pilgrimage.[^1]" },
+        photo("kurama-gate", "A vermilion temple gate at the top of stone steps among trees", "The Niōmon gate at the foot of Kurama-dera's mountain path."),
+        { h: "Over the mountain to Kibune" },
+        {
+          steps: [
+            { title: "Kurama station to the main hall", text: "Through the Niōmon gate, then up on foot (about 30 minutes of steps) or by the temple's own short cable car" },
+            { title: "The main hall", text: "A paved triangle in front of it is said to be a point of power; people stand on it with arms raised" },
+            { title: "Kinone-michi", text: "Higher up, a stretch where cedar roots run over the ground because the rock below is too hard for them to sink into" },
+            { title: "Down to Kibune", text: "A steep descent to the river and the West Gate. About 1.5–2 hours in all, with many steps and roots: proper shoes" },
+          ],
+        },
+        { note: "On the night of 22 October, the **Kurama Fire Festival** fills the village with men carrying huge pine torches, re-enacting the arrival of the Yuki Shrine's god from the palace in 940. The village is tiny and the crowds enormous; trains are limited and the police control access.", title: "Fire on 22 October" },
+      ],
+      related: ["belief/buddhism", "place/kurama/kifune-the-water-shrine", "land/sacred-mountains"],
+      sources: [
+        { title: "Mount Kurama — Wikipedia", url: "https://en.wikipedia.org/wiki/Mount_Kurama", note: "Maōson, Usui Mikao in 1922" },
+      ],
+    },
+    {
+      group: "Understand the place",
+      title: "Kifune, the water shrine",
+      summary: "Rain-making horses, fortunes that appear in water, and a curse at two in the morning",
+      body: [
+        { p: "**Kifune Shrine** sits at the source of the Kamo River, the river that runs through Kyoto, and its god rules water. The court sent envoys here for centuries, in drought and in flood. The shrine reads its name **Kifune**, with an unvoiced *f* so as not to “muddy” the water; the village is **Kibune**." },
+        { p: "It's said to be where **ema**, the wooden prayer plaques at every shrine, began. Emperors offered a live **black horse** to pray for rain and a **white** one to make it stop. Over time painted horses on wooden boards replaced the animals, then any picture, then any wish written on a board. There are still two horse statues by the steps." },
+        { p: "At the main hall, buy a **mizu-mikuji**: a blank fortune slip that you float on the spring water until the words appear. Higher up the valley, the **Okumiya** (inner shrine) stands where, legend says, the goddess Tamayori-hime came upriver in a yellow boat, now hidden under a pile of stones." },
+        { h: "The other side of Kifune" },
+        { p: "Kifune also has a darker reputation. It's linked with **ushi no koku mairi**, a curse ritual performed at the hour of the ox, around 1–3 a.m.: dressed in white, with candles on the head, you nail a straw doll of your enemy to a sacred tree. Legend makes the Bridge Princess of [Uji](guide:place/uji/tale-of-genji-country) its first practitioner. The shrine discourages it, but every so often nails are still found in trees." },
+        { h: "Dining over the river" },
+        { p: "From May to September the inns of Kibune build platforms over the stream, **kawadoko**, and serve meals a few degrees cooler than the city. In autumn they move indoors, and the valley is one of the first places near Kyoto where the maples turn." },
+      ],
+      related: ["place/kurama/mountain-temple", "belief/shinto", "place/uji/tale-of-genji-country"],
+    },
+    {
+      group: "Before you go",
+      title: "The Eizan line and the maple tunnel",
+      summary: "A small railway, a panoramic train and the stretch it slows down for",
+      body: [
+        { p: "Kurama and Kibune are reached by the **Eizan Electric Railway** from Demachiyanagi, the end of the Keihan line in north-east Kyoto, about 30 minutes to Kurama. Two-car trains, and the **Kirara** with big side windows, run up the valley." },
+        { p: "Between Ichihara and Ninose the line runs through a **tunnel of maples**. In November the trains slow to a crawl and the carriage lights go off, and on autumn evenings the trees are lit. In July 2020 a landslide closed the line beyond Ichihara for over a year; it reopened in September 2021." },
+        { dos: ["Go early on autumn weekends; queues for trains at Demachiyanagi can be long", "Do the walk from Kurama to Kibune, downhill-ish, rather than the reverse", "Take the bus from Kibune shrine to Kibuneguchi station, or walk 30 minutes down the road"], donts: ["Start the mountain walk late in November — it's dark by about 16:45 under the trees"] },
+      ],
+    },
+  ],
+  hakone: [
+    {
+      group: "Understand the place",
+      title: "Living in a caldera",
+      summary: "A collapsed volcano, a valley still steaming, and hot water made to order",
+      body: [
+        { p: "Hakone is the inside of a volcano. A huge caldera, about 10 km across, formed as the old volcano erupted and collapsed over the last few hundred thousand years; younger cones grew inside it, and about 3,000 years ago an explosion and landslide on one of them, **Kamiyama**, blew out the valley at **Ōwakudani** and dammed the river that became **Lake Ashi**." },
+        photo("owakudani", "Bare, rocky slopes of Ōwakudani streaked with snow, with steam rising", "Ōwakudani, the “great boiling valley”, in winter."),
+        { p: "Ōwakudani still steams, and the volcano is watched. In 2015 the alert level rose, a small steam explosion followed, and the ropeway and the valley were closed for months. The ropeway still shuts whenever volcanic gas rises — a replacement bus runs." },
+        { p: "The famous **black eggs**, boiled in the springs, turn black because iron in the water reacts with hydrogen sulphide to coat the shell in iron sulphide. Each one, the sellers say, adds seven years to your life." },
+        { h: "Hot water, made" },
+        { p: "Hakone's hot springs come in several kinds, from clear alkaline water low down at Yumoto to milky sulphur water higher up. Some of that milky water is manufactured: since 1930 a company has drilled steam wells at Ōwakudani, mixed the steam with cold groundwater, and piped the result to around 400 inns and houses in Gōra and Sengokuhara. It's called **zōsei onsen**, “created hot spring”, and it's legally a hot spring all the same.[^1]" },
+        { note: "Many Hakone baths still turn away visible tattoos; some accept them covered with a patch. Private baths you book by the hour (kashikiri buro) avoid the question.", title: "Tattoos" },
+      ],
+      related: ["land/volcanic-ground", "place/hakone/two-railway-barons-and-the-hakone-loop"],
+      sources: [
+        { title: "Ōwakudani's hot water supply — Kanagawa Shimbun", url: "https://www.kanaloco.jp/news/social/entry-59486.html", note: "Steam and cold water mixed since 1930, piped to about 400 users" },
+      ],
+    },
+    {
+      group: "Understand the place",
+      title: "Old highway checkpoint",
+      summary: "Guns in, women out: the barrier that guarded the shogun's road",
+      body: [
+        { p: "The **Tōkaidō**, the great road between Edo and Kyoto, crossed the Hakone mountains on its hardest stretch, the *Hakone hachiri*, about 32 km of climbing. In 1619 the shogunate built a checkpoint, the **Hakone Sekisho**, on the shore of Lake Ashi, squeezed between the water and the mountain so no one could go round." },
+        { p: "Its job was summed up in a phrase: ***iri-deppō ni de-onna***, “guns going in, women going out”. Guns heading towards Edo could mean rebellion. Women heading out of Edo could mean that a lord's wife, kept in the capital as a hostage, was escaping — which would free her husband to rebel. Women needed a permit, and were inspected by female examiners; slipping round the barrier was punishable by death." },
+        { p: "The barrier was pulled down in 1869. The buildings you see were rebuilt in 2007 using a detailed record of a repair in 1865, found in an archive, and with the old techniques: the guardhouse, the jail, the gates, with figures of officials. It's one of the most exact reconstructions in Japan." },
+        { h: "The stone road" },
+        { p: "From the 1680s, stretches of the road were paved with stones (**ishidatami**) to stop travellers sinking into mud. Several kilometres survive, slippery and steep, through cedar forest between Hatajuku and Moto-Hakone. On the way is **Amazake-chaya**, a teahouse that has served sweet rice drink to walkers for about 400 years, run by the same family. The **cedar avenue** along the lake was planted for shade by the shogunate in 1618; some 400 trees still stand." },
+        { note: "On 3 November, Culture Day, Hakone-Yumoto stages the Daimyō Gyōretsu, a lord's procession in Edo costume through the town.", title: "On your dates" },
+      ],
+      related: ["history/edo", "place/hakone/living-in-a-caldera"],
+    },
+    {
+      group: "Understand the place",
+      title: "Two railway barons and the Hakone loop",
+      summary: "Why there are two lake fleets and a ropeway, and how to ride the circuit",
+      body: [
+        { p: "Hakone's transport is the leftover of a feud. After the war two railway groups fought over Hakone: **Odakyū**, which runs the trains from Shinjuku, and **Seibu**, whose founder **Tsutsumi Yasujirō** was buying land, hotels and bus rights across the resort. From 1949 the “**Hakone mountain war**” saw each company block the other's buses from its private roads and open rival routes, ships and ropeways. It was settled only in 1968.[^1] That's why Lake Ashi still has two fleets — Odakyū's mock **pirate ships** and Seibu's sightseeing boats — and why one ticket doesn't cover everything." },
+        { h: "The loop" },
+        {
+          steps: [
+            { title: "Hakone Tozan train, Yumoto to Gōra", text: "Japan's steepest railway that runs on ordinary wheels: an 80‰ gradient and three switchbacks where the train reverses up the slope. In June its line is lined with hydrangeas" },
+            { title: "Cable car, Gōra to Sōunzan", text: "A short funicular up the hill" },
+            { title: "Ropeway, over Ōwakudani to Tōgendai", text: "The view of the steaming valley — and of Fuji, on a clear morning" },
+            { title: "Pirate ship across Lake Ashi", text: "To Hakone-machi or Moto-Hakone, by the lake's red torii at Hakone Shrine" },
+            { title: "Bus back to Yumoto", text: "Or walk part of the old stone road" },
+          ],
+        },
+        { p: "The **Hakone Freepass** (Odakyū's) covers all of that and most buses. The Tozan line was wrecked by Typhoon Hagibis in October 2019 and didn't run to Gōra again until July 2020." },
+        { note: "Fuji is hidden more often than not, especially from late spring to early autumn. In November your best chance is early morning, from the ropeway or the lakeshore at Moto-Hakone.", title: "Fuji isn't guaranteed" },
+      ],
+      related: ["place/hakone/living-in-a-caldera", "place/hakone/old-highway-checkpoint"],
+      sources: [
+        { title: "Buying into Hakone Tozan Railway, and the Hakone mountain war with Seibu (1949) — The Shashi", url: "https://the-shashi.com/en/tse/9007/decisions/hakoneyama-sensou-1949/", note: "The feud from 1949 and the 1968 settlement" },
+      ],
+    },
+    {
+      group: "Look closer",
+      title: "Art in the hills, and the New Year race",
+      summary: "Museums paid for by a resort's money, and a relay the whole country watches",
+      body: [
+        { p: "Hakone has more art museums than a town of 11,000 has any right to, because Tokyo's rich and its corporations spent money here. The best known:" },
+        {
+          terms: [
+            { term: "Hakone Open-Air Museum (1969)", text: "Japan's first open-air sculpture museum, from the Fujisankei media group: Moore, Rodin and Miró on the lawns, a stained-glass tower to climb, a Picasso pavilion of over 300 works, and a hot-spring footbath" },
+            { term: "Pola Museum of Art (2002)", text: "A cosmetics family's collection of Impressionists and Japanese Western-style painting, in a building sunk into the beech forest so it doesn't break the treeline" },
+            { term: "Okada Museum of Art (2013)", text: "Japanese and East Asian art in a huge modern building, with a giant mural and a footbath café" },
+            { term: "Narukawa Art Museum", text: "Modern Japanese-style painting, with a view of Lake Ashi and Fuji through its windows" },
+          ],
+        },
+        { h: "The Hakone Ekiden" },
+        { p: "On 2 and 3 January each year, university relay teams run from Ōtemachi in Tokyo to Lake Ashi and back, about 217 km in ten legs over two days. The **Hakone Ekiden** began in 1920 and is one of the most watched broadcasts of the Japanese year; families watch it with New Year food. The fifth leg climbs some 800 m from Odawara up to the lake, and runners who master it are called the “god of the mountain”. The finish line at Moto-Hakone has a small museum." },
+      ],
+      related: ["place/hakone/two-railway-barons-and-the-hakone-loop"],
+    },
+  ],
+  kamakura: [
+    {
+      group: "Understand the place",
+      title: "The first samurai capital",
+      summary: "A town chosen for defence, a shogun killed on the shrine steps, and a fall in 1333",
+      body: [
+        { p: "When **Minamoto no Yoritomo** defeated the Taira in 1185, he didn't move to Kyoto. He governed from **Kamakura**, his family's old base, far from the court — the start of almost 700 years in which warriors, not emperors, ran Japan (see [Kamakura and Muromachi](guide:history/kamakura-and-muromachi)). Textbooks used to date the shogunate from 1192, when Yoritomo got the title; most now say 1185, when he got the power." },
+        { p: "He chose it for defence. Kamakura sits in a bowl with the sea to the south and steep hills on the other three sides, crossed only by seven narrow cuttings through the rock, the **kiridōshi**. Several can still be walked; the **Asaina** cutting, mossy and carved by hand, feels like stepping into the 13th century." },
+        { p: "The town's spine is **Wakamiya-ōji**, a straight avenue from the beach to **Tsurugaoka Hachimangū**, the Minamoto clan's shrine. Yoritomo built its raised central path, the **Dankazura**, in 1182 to pray for his wife Masako's safe childbirth; it narrows as it nears the shrine to make it look longer." },
+        { p: "On the shrine's great stone staircase, on a snowy night in 1219, the third shogun **Sanetomo** was murdered by his nephew, ending Yoritomo's line. A later story put the killer in hiding behind the huge **ginkgo** beside the steps, and the tree became famous for it. It blew down in March 2010; a shoot from its roots is growing into a new tree beside the old stump.[^1]" },
+        { p: "Real power passed to the **Hōjō**, regents for puppet shoguns. They fought off the Mongol invasions of 1274 and 1281 but were ruined by the cost, and in 1333 an army under **Nitta Yoshisada** broke into Kamakura along the beach — according to legend after he threw his sword into the sea at Inamuragasaki and the tide drew back. The Hōjō killed themselves by the hundred. Kamakura shrank to a temple town and fishing village until the railway made it a resort." },
+      ],
+      related: ["history/kamakura-and-muromachi", "place/kamakura/zen-temples"],
+      sources: [
+        { title: "Great Ginkgo and Stone Staircase — Japan Tourism Agency multilingual explanations", url: "https://www.mlit.go.jp/tagengo-db/en/R2-01192.html", note: "Sanetomo's murder, the later tree story, the 2010 fall" },
+      ],
+    },
+    {
+      group: "Understand the place",
+      title: "The Great Buddha outdoors",
+      summary: "Cast by donation, robbed of its hall by the sea, and once covered in gold",
+      body: [
+        { p: "Kamakura's **Great Buddha** at **Kōtoku-in** is an Amida, 11.3 m tall and about 121 tonnes of bronze, cast from around 1252. Unlike Nara's, it wasn't a state project: records say a priest, Jōkō, raised the money by begging donations across eastern Japan. A wooden Buddha came first and was wrecked by a storm. Almost nothing is recorded about who cast the bronze, or when it was finished.[^1]" },
+        photo("kamakura-daibutsu", "The head and shoulders of the bronze Great Buddha of Kamakura, green with age, against a blue sky", "Kōtoku-in's Amida, in the open air since its hall was washed away."),
+        { p: "It sat in a hall, which storms damaged in 1334 and 1369. The last hall was swept away, according to the traditional account, by the tsunami after the great Meiō earthquake of 1498, and was never rebuilt. The Buddha has sat in the open ever since. The bronze was gilded; traces of gold leaf still show on the cheek and by the ear." },
+        { p: "It has been restored rather than rebuilt: after the 1923 earthquake shifted it, and again in 1960–61, when the neck was strengthened and its base made to slide in an earthquake. For a small fee you can climb inside and see the seams between the cast sections." },
+        { note: "The Daibutsu and Hase-dera are a short walk from each other, and from Hase station on the Enoden. Hase-dera's terrace has one of the best views over Sagami Bay.", title: "On the way" },
+      ],
+      related: ["place/nara/the-great-buddha", "belief/buddhism"],
+      sources: [
+        { title: "Kōtoku-in — Wikipedia", url: "https://en.wikipedia.org/wiki/K%C5%8Dtoku-in", note: "Size, the storms of 1334 and 1369, the 1498 tsunami" },
+      ],
+    },
+    {
+      group: "Look closer",
+      title: "Zen temples",
+      summary: "Chinese masters, monks still in training, and a soup named after a temple",
+      body: [
+        { p: "Zen came to Japan through Kamakura's warriors as much as through Kyoto. The Hōjō regents invited Chinese masters fleeing the Mongol conquest of Song China, and built them monasteries on the Chinese pattern in the valleys of **Kita-Kamakura**." },
+        {
+          terms: [
+            { term: "Kenchō-ji (1253)", text: "Japan's first full Zen training monastery, founded for the Chinese monk Lanxi Daolong. First of Kamakura's “Five Mountains”, the official ranking of Zen temples. A path behind it climbs to Hansōbō, guarded by statues of tengu, with a view to Fuji" },
+            { term: "Engaku-ji (1282)", text: "Founded by the regent Hōjō Tokimune for the dead of both sides of the Mongol invasions, under another Chinese master, Wuxue Zuyuan. Still a working monastery, by Kita-Kamakura station; its relic hall is a model of Song-style building" },
+            { term: "Tōkei-ji", text: "Once a convent where a woman could take refuge from her husband and, after a few years, be granted a divorce — the “divorce temple”" },
+            { term: "Meigetsu-in", text: "Famous for June's hydrangeas and a round window looking onto a garden" },
+          ],
+        },
+        { p: "**Kenchin-jiru**, a vegetable and tofu soup eaten all over Japan, is said to be named after Kenchō-ji, where monks made it from scraps; it's a nice story and possibly just a sound-alike." },
+        { note: "Engaku-ji and Kenchō-ji hold zazen sessions open to the public on some weekends, usually in Japanese. Ask at the temple office. Both are far quieter than the centre of town.", title: "Sitting" },
+      ],
+      related: ["belief/buddhism", "place/kamakura/the-first-samurai-capital"],
+    },
+    {
+      group: "Eat and drink",
+      title: "The coast and its whitebait",
+      summary: "A tram along the beach, an island of shrines, and shirasu in season",
+      body: [
+        { p: "The **Enoden**, opened in 1902, rattles 10 km from Kamakura to Fujisawa along the coast, through backyards and along the beach road. **Kamakura-kōkōmae** crossing, where the train passes with the sea behind it, became a pilgrimage after the basketball manga *Slam Dunk* used it; crowds got bad enough that the city posted guards to keep people out of the road. Be quick and stay on the pavement." },
+        { p: "**Enoshima**, at the end of the line, is a small island joined by a bridge: shrines to Benzaiten, goddess of music and the sea, a sea-cave, a lighthouse with a view to Fuji. Its shops sell tako-senbei, octopus pressed flat into a cracker." },
+        {
+          dishes: [
+            { name: "Shirasu-don", local: "しらす丼", say: "shirasu-don", kind: "Regional", text: "Tiny sardine and anchovy fry from Sagami Bay on a bowl of rice: boiled (kama-age) most of the year, raw (nama) only on days the boats went out, since it spoils within hours. Fishing is closed from 1 January to 10 March.", where: "Around Kamakura, Koshigoe and Enoshima" },
+            { name: "Kamakura vegetables", local: "鎌倉野菜", say: "kamakura yasai", kind: "Regional", text: "Farmers from the hills have sold their own produce at the Kamakura Market (Renbai), by the station, since 1928; Tokyo chefs come for it." },
+            { name: "Hato sabure", local: "鳩サブレー", say: "hato sabure", kind: "Mostly for visitors", text: "A buttery biscuit shaped like a dove, the bird of Tsurugaoka Hachimangū, made by Toshimaya since 1897. The town's classic present to take home." },
+          ],
+        },
+      ],
+      related: ["place/kamakura/the-first-samurai-capital"],
     },
   ],
 };
