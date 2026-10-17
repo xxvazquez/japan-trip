@@ -69,6 +69,12 @@ const PHOTOS = {
   "red-fuji": { w: 900, h: 600, author: "Katsushika Hokusai", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Red_Fuji_southern_wind_clear_morning.jpg" },
   "kiyomizu-stage": { w: 900, h: 675, author: "そらみみ", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Stage_of_Kiyomizudera_Temple_20131217-2.JPG" },
   "nishiki-market": { w: 900, h: 600, author: "ignis", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Nishiki_ichiba_Kyoto_JPN.jpg" },
+  "choju-giga": { w: 900, h: 571, author: "Unknown, 12th–13th century (Kōzan-ji)", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Chouju_sumou.jpg" },
+  "hokusai-manga": { w: 746, h: 461, author: "Katsushika Hokusai", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Hokusai-MangaBathingPeople.jpg" },
+  "tokiwaso": { w: 900, h: 675, author: "Tokyo-Good", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Tokiwaso-Manga-Museum.jpg" },
+  "nakano-broadway": { w: 675, h: 900, author: "Kentin", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Nakano_broadway_entrance.JPG" },
+  "akihabara": { w: 900, h: 600, author: "ElHeineken", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Akihabara_Night.jpg" },
+  "kyoto-manga-museum": { w: 900, h: 600, author: "Tatyana Temirbulatova", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Sitting_people_reading_outdoors_at_Kyoto_International_Manga_Museum_20080608.jpg" },
 } as const;
 
 export type PhotoId = keyof typeof PHOTOS;
