@@ -508,10 +508,11 @@ When a trip has stays or pins in a country the app has a guide for (Japan today)
 - The home opens with a cover picture, then shelves of photo cards — one row that scrolls sideways on a phone, a grid on wider screens. A card's picture is the first photo in its reads; one with none shows its topic's colour and glyph.
 - **Continue reading** — the last article you opened, on this device.
 - **On this trip** — a card per city or town the trip touches, matched from its stays, bases and pins (a day trip to Uji or Kurama shows up without a stay there). Stays come first, marked **Staying**, with their day-trip count.
+- **Elsewhere in Japan** — the guide's other cities and regions, the ones the trip doesn't touch (Hiroshima, Sapporo, Kanazawa, Okinawa…), for ideas beyond the route.
 - A city page groups its reads under **Understand the place**, **Look closer**, **Eat and drink** and **Before you go**, with shorter notes under **Worth knowing**. The cities on the route — Tokyo, Kyoto, the Fuji lakes, Nara, Uji, Kurama, Hakone and Kamakura — are full sourced chapters with no short notes left.
 - **While you're there** — festivals, seasons and closures that fall within the trip's own dates. Folded by default, with a count beside it.
 - **Day trips** — from each base, off the usual list, all by train or bus; on the city's page.
-- The guide has two halves. **For this trip** is picked from the trip: On this trip, While you're there and Before you go. **The book** is the same for every trip and is meant to be timeless — no itineraries, prices or opening hours.
+- The guide has two halves. **For this trip** is picked from the trip: On this trip, Elsewhere in Japan, While you're there and Before you go. **The book** is the same for every trip and is meant to be timeless — no itineraries, prices or opening hours.
 - **The book** reads in order, in five parts: **Origins** (history, belief, language), **The land**, **The table** (how the cooking works, food at home, eating out, menus and drinks, regional food, coffee), **Everyday life** (Look closer, Japan by numbers, school, work, customs, stamps) and **Culture and the state** (culture, manga & anime, politics, Did you know).
 - Every page is grouped into collapsible sections; on a topic's page each row shows a title, a one-line summary and, when the article has a photo, a thumbnail on the right.
 - A city's page opens on its cover picture (else its name in the local script on a colour panel).

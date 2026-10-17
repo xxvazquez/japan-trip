@@ -38,6 +38,8 @@ export function GuideHome() {
   if (!guide) return noGuide;
 
   const { stays, others } = citiesOnTrip(guide, data);
+  // the rest of the country, for wondering where else to go
+  const elsewhere = guide.cities.filter((c) => !stays.includes(c) && !others.includes(c));
   const dates = datesOnTrip(guide, data);
   const all = allTopics(guide);
   const pinned = data.config.modules.some((m) => m.enabled && m.kind === "guide" && m.target === guide.id);
@@ -100,6 +102,23 @@ export function GuideHome() {
                   />
                 );
               })}
+            </Shelf>
+          </Section>
+        )}
+
+        {elsewhere.length > 0 && (
+          <Section title={`Elsewhere in ${guide.name}`} id={`guide-${guide.id}-elsewhere`} bare>
+            <Shelf>
+              {elsewhere.map((c) => (
+                <ShelfCard
+                  key={c.id}
+                  to={`${home}/place/${c.id}`}
+                  cover={coverOf(cityArticles(c))}
+                  fallback={<span className="font-jp text-[28px] text-ink-soft">{c.local ?? c.name}</span>}
+                  title={c.name}
+                  meta={c.population}
+                />
+              ))}
             </Shelf>
           </Section>
         )}
