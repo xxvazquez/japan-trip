@@ -80,6 +80,11 @@ const PHOTOS = {
   "kurama-gate": { w: 900, h: 675, author: "KENPEI", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Kurama-dera_sanmon.jpg" },
   "owakudani": { w: 900, h: 675, author: "そらみみ", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Owakudani_Valley_near_Owakudani_Station.JPG" },
   "kamakura-daibutsu": { w: 900, h: 600, author: "KimonBerlin", license: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:Daibutsu_(Kotoku-in)_(5711706217).jpg" },
+  "goshuin": { w: 675, h: 900, author: "先従隗始", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:H%C5%8Dgy%C5%8Dsan_Saiganji_Goshuin_20190505.jpg" },
+  "eki-stamp": { w: 675, h: 900, author: "Artem.G", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Tokyo_station_eki_stamp.jpg" },
+  "shinkansen-500": { w: 900, h: 616, author: "JobanLineE531", license: "CC BY 3.0", url: "https://commons.wikimedia.org/wiki/File:Shinkansen_500_series_W2_formation.jpg" },
+  "sugihara-desk": { w: 560, h: 900, author: "David.r.1929", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Sugihara_House_Museum,_Kaunas.jpg" },
+  "manggha": { w: 900, h: 600, author: "Kritzolina", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Manggha_Museum_of_Japanese_Art_and_Technology_01.jpg" },
 } as const;
 
 export type PhotoId = keyof typeof PHOTOS;
