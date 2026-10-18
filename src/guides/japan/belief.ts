@@ -70,7 +70,6 @@ export const belief: GuideTopic = {
             { h: "What a kami is" },
             { p: "**Kami** is usually translated as \"god\", which makes it sound too grand and too personal. The 18th-century scholar Motoori Norinaga reached his definition by looking at how old texts used the word: anything out of the ordinary that inspires awe. He noted that this could be good or bad.[^2]" },
             { p: "So a kami can be a mountain, a waterfall, an old tree or a great rock. It can be a clan's ancestor or a historical person. The courtier Sugawara no Michizane became **Tenjin**, the god of learning, after he died in exile in 903 and disasters struck the capital." },
-            { pull: "Anything out of the ordinary that inspires awe — good or bad." },
             { p: "That's why so many shrines began as a place rather than a building. A rope (*shimenawa*) around a tree or rock marks where a kami is present. At Ōmiwa, near Nara, there's still no main hall: people pray towards the mountain itself (see [Sacred mountains](guide:land/sacred-mountains))." },
             { p: "The woods around a village shrine, the *chinju no mori*, were protected for the same reason. They're often the oldest trees in a town." },
 
@@ -158,7 +157,7 @@ export const belief: GuideTopic = {
           body: [
             { p: "Japan has about 76,000 Buddhist temples, roughly as many as it has shrines. Today most of them are where families hold funerals and keep their graves." },
             { p: "That's only the latest of Buddhism's jobs here. It has been a diplomatic gift, a technology of state, a mountain discipline, a promise of salvation for ordinary people and a census office. Each role left something you can still see." },
-            photo("nio", "A huge, muscular wooden guardian statue with an angry face, standing in a temple gate", "One of the Niō guardians in Tōdai-ji's Great South Gate, carved by Unkei's workshop in 1203."),
+            photo("nio", "A huge, muscular wooden guardian statue with an angry face, standing in a temple gate", "A Niō guardian in Tōdai-ji's Great South Gate, carved by Unkei's workshop in 1203. One of each pair has an open mouth, saying *a*, the other a closed one, saying *un*: the first and last sounds, and everything between."),
 
             { h: "A gift from Korea" },
             { p: "Buddhism reached the Yamato court in the mid-6th century, through diplomacy with the Korean kingdom of Paekche. The *Nihon shoki* puts the moment in 552, temple histories in 538. Historians treat both with caution: immigrant families probably knew of it earlier.[^1]" },
@@ -184,7 +183,6 @@ export const belief: GuideTopic = {
             { h: "Every household on a temple's books" },
             { p: "The Tokugawa ban on Christianity made Buddhism part of government. Every household had to get a certificate from a Buddhist temple each year confirming it wasn't Christian.[^2]" },
             { p: "This **terauke** system tied each family to one temple for generations, as its *danka* or parishioners. Temples became registry offices, and funerals, memorial services and posthumous names became their steady income. The arrangement has outlived the law that created it." },
-            { pull: "The arrangement has outlived the law that created it." },
 
             { h: "Married priests" },
             { p: "The Meiji state took away Buddhism's privileges and much of its land. In 1872 it also stopped enforcing the monastic rules, decriminalising *nikujiki saitai*: eating meat and taking a wife.[^3] Only Jōdo Shinshū had openly allowed marriage before." },
@@ -212,6 +210,7 @@ export const belief: GuideTopic = {
               },
             },
             { p: "Funerals are shrinking too. Many families now hold small family-only services, some go straight to cremation, and others choose tree burial or a columbarium over a family grave. Some temples have answered with cafés, meditation classes and lodgings for visitors (*shukubō*)." },
+            { p: "The family grave shows why. A stone reads \"the grave of the Tanaka house\" and serves the whole line, with a wooden slat (*sotoba*) added behind it for each memorial service. A family without heirs has no one to tend it." },
             {
               evidence: {
                 settled: ["Buddhism arrived through diplomacy in the mid-500s.", "Its funeral role was fixed by the Edo-period certification system."],
@@ -219,17 +218,7 @@ export const belief: GuideTopic = {
                 open: ["The exact date of arrival.", "Whether \"funeral Buddhism\" is decline or simply a different kind of service.", "How many temples will actually close."],
               },
             },
-
-            { h: "What to look for" },
-            {
-              list: [
-                "**Two guardians in the gate**, the Niō. One has an open mouth, saying *a*, the other a closed one, saying *un*: the first and last sounds, and everything in between.",
-                "**Jizō statues in red bibs and caps.** Jizō protects travellers and children, including children who died; the bibs are often left by grieving parents.",
-                "**Tall wooden slats** (*sotoba*) behind graves, inscribed with Sanskrit letters and a posthumous name. Each marks a memorial service.",
-                "**\"The grave of the Tanaka house\"** on a stone. One grave serves the whole line, which is why a family without heirs has a problem.",
-              ],
-            },
-            photo("jizo", "A row of small stone Jizō statues wearing knitted red caps and red bibs", "Jizō statues in red caps and bibs."),
+            photo("jizo", "A row of small stone Jizō statues wearing knitted red caps and red bibs", "Jizō protects travellers and children, including children who died. The red caps and bibs are often left by grieving parents."),
           ],
           words: [
             { local: "寺", say: "tera / -ji", means: "temple" },
@@ -269,7 +258,7 @@ export const belief: GuideTopic = {
             { p: "Over the Heian period this hardened into a theology called **honji suijaku**, \"original ground and manifest trace\". Buddhas were the original reality, and kami were the forms they took to reach people in Japan." },
             { p: "The monk Eryō used *suijaku* for kami in a petition of 859. By the Middle Ages most shrines had a named buddha as their \"original ground\", and Amaterasu at Ise was linked to the cosmic buddha Dainichi.[^1] Kami given these identities were called **gongen**, \"provisional appearances\"." },
             { p: "The scheme could be turned round. In the Kamakura period some shrine priests made the kami the original and the buddhas the traces.[^1] When Tokugawa Ieyasu was deified at Nikkō in 1617, his title was still Tōshō Daigongen." },
-            { note: "Scholars call this *shinbutsu shūgō*, often translated \"kami-buddha syncretism\". It wasn't vague mixing. It was a worked-out system with its own doctrine, and it was the normal shape of religion in Japan for roughly a thousand years.", title: "A system, not a muddle", kind: "info" },
+            { p: "Scholars call this *shinbutsu shūgō*, often translated \"kami-buddha syncretism\". It wasn't vague mixing but a worked-out system with its own doctrine, and for roughly a thousand years it was simply the normal shape of religion in Japan." },
             { p: "**Shugendō**, the practice of the mountain ascetics called *yamabushi*, lived entirely in this world. It drew on esoteric Buddhism, kami worship and older mountain cults at once." },
 
             { h: "Pulled apart, from 1868" },
@@ -304,7 +293,7 @@ export const belief: GuideTopic = {
             { p: "At **Nikkō** the old complex was split into two shrines and a temple, but Tōshōgū kept its pagoda. **Toyokawa Inari**, one of the best-known places to pray to Inari, is legally a Sōtō Zen temple, with torii inside it. Most people moving between the two never feel the line the government drew." },
             photo("toyokawa", "A large torii gate standing inside the grounds of a Buddhist temple, with temple halls behind it", "A torii inside Toyokawa Inari, which is a Zen temple."),
 
-            { h: "What to look for" },
+            { h: "Seams still showing" },
             {
               list: [
                 "**A torii at a temple**, or a pagoda at a shrine: a combined site that survived the split.",
@@ -342,12 +331,11 @@ export const belief: GuideTopic = {
           body: [
             { p: "Ask people in Japan whether they have a religion and most say no. In NHK's 2018 survey, 62% named none, against 31% Buddhist, 3% Shinto and 1% Christian.[^1]" },
             { p: "Yet tens of millions go to a shrine in the first days of January, most funerals are Buddhist, and the religious bodies report more followers than the country has people.[^2] The contradiction mostly dissolves once you look at what the question is asking." },
-            photo("kamidana", "A small wooden shrine shelf high on a wall, hung with a straw rope and paper streamers, with talismans and offerings", "A kamidana, the household shelf for the kami, with talismans from a local shrine."),
+            photo("kamidana", "A small wooden shrine shelf high on a wall, hung with a straw rope and paper streamers, with talismans and offerings", "A kamidana, the household shelf for the kami, with talismans from a local shrine. Shops, restaurants and offices keep one too."),
 
             { h: "A word borrowed in the 1880s" },
             { p: "Japanese had no everyday word for \"religion\" when the treaties of the late 1850s used it. Translators tried several, and by the 1880s **shūkyō** (宗教) had settled in.[^3]" },
             { p: "The idea behind it was modelled on Protestant Christianity: a founder, a scripture, a creed you hold, a church you join. Measured against that, rinsing your hands at a shrine or cleaning the family grave looks like custom, and that's how most people classify it." },
-            { pull: "\"Do you have a religion?\" asks whether you belong. Most people don't." },
             {
               more: {
                 title: "Who made the word mean what it does",
@@ -370,7 +358,7 @@ export const belief: GuideTopic = {
             { p: "Nobody is lying. A shrine tends to count everyone in its parish, and a temple the households registered with it since the Edo period (see [Buddhism](guide:belief/buddhism)). Neither has a conversion rite or asks you to leave the other, and many homes keep both a kami shelf (*kamidana*) and a Buddhist altar (*butsudan*)." },
 
             { h: "Religion as something you do" },
-            { p: "What people do is divided by occasion rather than creed. Shrines handle beginnings and the hopes of this life: a baby's first visit, **Shichi-go-san** for children of three, five and seven, exam charms, the blessing of a new car." },
+            { p: "What people do is divided by occasion rather than creed. Shrines handle beginnings and the hopes of this life: a baby's first visit, **Shichi-go-san** for children of three, five and seven, exam charms, the blessing of a new car, a traffic-safety charm hanging in a taxi, a square of bamboo and rope where a priest blessed a building site." },
             { p: "Temples handle death and the ancestors: funerals, memorial services, the graves visited at the equinoxes and at Obon. \"Born Shinto, married Christian, die Buddhist\" is a joke rather than a statistic, but it maps the division well." },
             { p: "The scholars Ian Reader and George Tanabe called this being **practically religious**. Much of it is about *genze riyaku*, benefits in this life: safe childbirth, a passed exam, a business that does well.[^4] They argue that this isn't superstition on the fringe of \"real\" religion. For most people, most of the time, it is the religion." },
 
@@ -389,16 +377,6 @@ export const belief: GuideTopic = {
                 revised: ["\"No religion\" is now read as \"no membership\", not as unbelief."],
                 open: ["Whether \"religion\" is the right lens for any of this.", "Whether what's fading is the practice, or only the old institutions that carried it."],
               },
-            },
-
-            { h: "What to look for" },
-            {
-              list: [
-                "**A kamidana** high on the wall of a shop or office, with a sprig of sakaki, a talisman from the local shrine and sometimes a cup of sake.",
-                "**Charms** on schoolbags and car mirrors: a traffic-safety charm in a taxi, an exam charm on a teenager's rucksack.",
-                "**A building site** with a small square of bamboo and rope at its centre, where a priest blessed the ground before work began.",
-                "**Families in kimono** at shrines on November weekends for Shichi-go-san, the children carrying long bags of \"thousand-year\" candy.",
-              ],
             },
           ],
           words: [
@@ -451,7 +429,6 @@ export const belief: GuideTopic = {
             { h: "Reading the air" },
             { p: "*Kūki o yomu*, \"reading the air\", means sensing what a situation wants without being told. Its most famous treatment is a critique. In *A Study of \"Air\"* (1977), the writer Yamamoto Shichihei argued that the mood in a room can override logic and evidence, and traced disastrous wartime decisions to it.[^3]" },
             { p: "Thirty years later the phrase became a teenage insult: **KY**, *kūki yomenai*, \"can't read the air\", first appeared in national media in 2007.[^4] One phrase holds both a warning about conformity and a social rule." },
-            { pull: "One phrase holds both a warning about conformity and a social rule." },
 
             { h: "Omotenashi" },
             { p: "*Omotenashi* is an old word for wholehearted hospitality, rooted in the host's care at the tea ceremony. It became a national slogan in one moment: on 7 September 2013, presenting Tokyo's Olympic bid in Buenos Aires, the broadcaster Takigawa Christel spelled it out syllable by syllable, then bowed.[^5]" },
@@ -478,16 +455,6 @@ export const belief: GuideTopic = {
                 revised: ["Several took their present meaning recently: wabi-sabi as one idea, ikigai's diagram, omotenashi as a slogan."],
                 open: ["Whether they describe anything uniquely Japanese, or ordinary human habits given a name and sold back as national character."],
               },
-            },
-
-            { h: "Where you'll meet them" },
-            {
-              list: [
-                "**A soft \"that's difficult\"**, meaning no, and a change of subject rather than a refusal.",
-                "**Quiet trains**: no calls, low voices, the air read by a carriage full of strangers.",
-                "**Service without tips**, where a thank-you and a small bow are the reply.",
-                "**A clean rice bowl** at the end of a meal: mottainai at the table.",
-              ],
             },
           ],
           words: [

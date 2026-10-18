@@ -392,7 +392,7 @@ function rememberRead(id: string, last: LastRead) {
 /** a chapter page's line under its dek — its length, and how far you are */
 function ChapterProgress({ paths }: { paths: string[] }) {
   const { done, total } = useProgress(paths);
-  const parts = [total === 1 ? "1 section" : `${total} sections`, done ? (done >= total ? "all read" : `${done} read`) : ""];
+  const parts = [total === 1 ? "1 article" : `${total} articles`, done ? (done >= total ? "all read" : `${done} read`) : ""];
   return <p className="mb-6 text-[13px] tabular-nums text-ink-faint">{parts.filter(Boolean).join(" · ")}</p>;
 }
 
@@ -746,10 +746,9 @@ function ArticlePage({
                         e.preventDefault();
                         document.getElementById(headingId(h))?.scrollIntoView({ behavior: "smooth", block: "start" });
                       }}
-                      className="flex items-center gap-3 px-3.5 py-2.5 text-[17px] leading-snug text-ink active:bg-ink/[0.07]"
+                      className="block break-words px-3.5 py-2.5 text-[17px] leading-snug text-accent active:bg-ink/[0.07]"
                     >
-                      <span className="min-w-0 flex-1 break-words">{h}</span>
-                      <Icon name="down" size={13} className="shrink-0 text-ink-faint" />
+                      {h}
                     </a>
                   </li>
                 ))}

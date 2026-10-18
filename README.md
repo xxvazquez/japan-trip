@@ -541,7 +541,7 @@ The guide has two halves: **This Trip**, picked from the trip, and **Guide**, th
 - Visual blocks: an **era band** (spans to scale — tap or drag along it, or step with the arrows), a **pull quote** (a line from the read itself), **What's known** (Settled / Revised / Still argued), a side-by-side **compare**, a **photo pair**, and **Go deeper** panels that open in place.
 - Tap a small source number and that source opens in a sheet (a popover on desktop) with what it backs up and **Open source**. All sources also sit folded and numbered at the foot.
 - **Bookmark** and **Share** sit in the nav bar. Share opens the phone's share sheet; on desktop Chrome it copies the link (the button turns into a tick).
-- **Mark as Read** at the foot of every article; tap again to mark it unread. Read articles get a green tick on their row, and a chapter page says how many of its sections you've read.
+- **Mark as Read** at the foot of every article; tap again to mark it unread. Read articles get a green tick on their row, and a chapter page says how many of its articles you've read.
 - Read marks, bookmarks and Continue reading are kept on this device only, not synced.
 - Links in the text open other entries; **Related** lists the ones that carry the thread on. **Up next** opens the next entry in place, so Back still returns to the list.
 

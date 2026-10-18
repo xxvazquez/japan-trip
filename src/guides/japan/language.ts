@@ -67,7 +67,7 @@ export const language: GuideTopic = {
             },
             { p: "Long and short vowels make different words: *obasan* is an aunt, *obāsan* a grandmother; *kite* is \"come\", *kitte* a stamp. A haiku's 5-7-5 is a count of morae, which is why a haiku put into seventeen English syllables carries far more than the original." },
             { p: "The beat also shapes borrowed words. Japanese syllables end in a vowel or *n*, so a foreign word gets vowels added until it fits: *Christmas* becomes *ku-ri-su-ma-su*." },
-            { p: "One more habit makes Tokyo speech sound clipped. An *i* or *u* between voiceless consonants, or at the end of a phrase, is often whispered: *desu* is said \"dess\", *sukiyaki* \"s'kiyaki\".[^1] Western Japan devoices less, which is part of why Osaka speech sounds rounder." },
+            { p: "One more habit makes Tokyo speech sound clipped. An *i* or *u* between voiceless consonants, or at the end of a phrase, is often whispered: *desu* is said \"dess\", *sukiyaki* \"s'kiyaki\".[^1] Western Japan devoices less, which is part of why Osaka speech sounds rounder. Tokyo station announcements are the easiest place to hear it: *tsugi wa Shinjuku dess*." },
 
             { h: "Pitch that changes the word" },
             { p: "Japanese has no stress accent of the English kind. It has **pitch accent**: each beat is high or low, and in Tokyo speech what matters is whether and where the pitch drops.[^2] The classic example is *hashi*:" },
@@ -83,7 +83,6 @@ export const language: GuideTopic = {
             },
             { p: "Bridge and edge sound identical alone and part company only when a particle follows. So pitch is rarely what stops you being understood; context does most of the work. But it's what makes speech sound native, and the first thing that tells a listener where you're from." },
             { p: "Kansai does it differently. Kyoto and Osaka speech also marks whether a phrase starts high or low, and many common words come out reversed: *ame* \"rain\" falls in Tokyo and starts low in Kyoto.[^2] Parts of southern Tōhoku and northern Kantō have no distinctive pitch at all." },
-            { pull: "One language with several quite different melodies." },
 
             { h: "How the sounds have moved" },
             { p: "The sound now written *h* has travelled furthest. It's usually reconstructed as *p* in the oldest Japanese. By the Middle Ages it had softened to a breathy *f* made with both lips, and Portuguese missionaries around 1600 spelled it so: *fito* for *hito*, \"person\".[^3]" },
@@ -96,16 +95,6 @@ export const language: GuideTopic = {
                 revised: ["*h* was once *f*, and before that probably *p*."],
                 open: ["Whether the old spellings mean eight vowels, or different consonants.", "How to describe Kansai and Kyushu pitch in one framework."],
               },
-            },
-
-            { h: "What to listen for" },
-            {
-              list: [
-                "**Station announcements**, where *desu* and *masu* lose their final vowel: *tsugi wa Shinjuku dess*.",
-                "**A long vowel** written with a bar in katakana (コーヒー *kōhī*) or a macron in romaji (Kyōto), sometimes with nothing at all.",
-                "**Kansai comedians** on TV, whose pitch is often the mirror image of the Tokyo newsreader on the next channel.",
-                "**Fu**: a soft lip sound, nothing like an English *f*, the last trace of how *h* used to sound.",
-              ],
             },
           ],
           words: [
@@ -151,7 +140,7 @@ export const language: GuideTopic = {
             },
             { p: "Much of the great prose of the age, *The Tale of Genji* among it, was written in hiragana by women at court. Katakana kept an official air for much longer. Laws were written in kanji and katakana into the 20th century; the 1946 constitution used hiragana and plain modern speech, and the Civil Code of 1896 was only rewritten that way in 2004.[^4]" },
             photo("genji-kana", "A page of flowing ink calligraphy on paper decorated with gold and silver flecks", "Hiragana at its most fluid: a text panel from the 12th-century Tale of Genji scrolls."),
-            { p: "Modern writing settled on a division of labour. In 食べました *tabemashita*, \"ate\", 食 carries the meaning and べました the grammar. Japanese puts no spaces between words, so the change of script is what shows where one word ends and the next begins." },
+            { p: "Modern writing settled on a division of labour, and katakana also does the job capitals do in English: shop signs set ordinary Japanese words in it to make them stand out. In 食べました *tabemashita*, \"ate\", 食 carries the meaning and べました the grammar. Japanese puts no spaces between words, so the change of script is what shows where one word ends and the next begins." },
 
             { h: "One character, many readings" },
             { p: "Because characters were borrowed for meaning *and* sound, most have at least two kinds of reading. The **kun** reading is the native word attached to the character: 山 read *yama*. The **on** reading is the Chinese pronunciation as Japanese heard it: 山 read *san*, as in Fujisan." },
@@ -171,7 +160,7 @@ export const language: GuideTopic = {
 
             { h: "Reforms, and an argument for letters" },
             { p: "After 1945 the script itself was nearly on the table (see [Since 1945](guide:history/since-1945)). The US Education Mission of 1946 recommended moving to romaji. The government's first postwar list of 1,850 everyday characters came with the stated aim of limiting kanji, with a view to abolishing them eventually.[^5]" },
-            { p: "Neither happened. Many characters got shorter official forms (國 became 国), kana spelling was brought into line with modern speech, and the list became a guide rather than a limit." },
+            { p: "Neither happened. Many characters got shorter official forms (國 became 国), kana spelling was brought into line with modern speech, and the list became a guide rather than a limit. The old forms survive where they're part of a name, on shrine plaques and the signs of long-established shops: 國 for 国, 澤 for 沢." },
             {
               timeline: [
                 { when: "471", text: "The Inariyama sword: Chinese text with Japanese names spelled by sound" },
@@ -184,7 +173,6 @@ export const language: GuideTopic = {
               ],
             },
             { p: "The 2010 list added 196 characters and dropped five. It also said, for the first time, that people needn't be able to write every one by hand, since most writing now happens on keyboards that turn kana into kanji.[^6]" },
-            { pull: "Most writing now happens on keyboards that turn kana into kanji." },
 
             { h: "The letters themselves" },
             { p: "Even romaji has had two official spellings. Most signs, passports and maps use **Hepburn**, devised for English speakers in the 1860s: *shi*, *chi*, *tsu*, *fu*. Schools taught **Kunrei-shiki**, made official in 1954, which keeps to the grid of the kana table: *si*, *ti*, *tu*, *hu*." },
@@ -196,16 +184,6 @@ export const language: GuideTopic = {
                 revised: ["Kanji were nearly abolished after 1945; the official list is now a guide, not a limit."],
                 open: ["When each kana became a system.", "How much early kana writing was by women at court, and how much by men writing in their voice."],
               },
-            },
-
-            { h: "What to look for" },
-            {
-              list: [
-                "**Furigana** above a name on a temple board, telling you how an odd reading goes.",
-                "**Katakana for emphasis** on shop signs and packaging, even on Japanese words, the way English uses capitals.",
-                "**Vertical text** on old signs, noren and newspapers: read top to bottom, columns right to left.",
-                "**Old forms** on shrine plaques and long-established shops, like 國 for 国 or 澤 for 沢, kept as part of the name.",
-              ],
             },
           ],
           words: [
@@ -251,10 +229,9 @@ export const language: GuideTopic = {
             },
             { p: "Whole clauses go before the noun they describe, and prepositions come after their nouns (*Kyōto de*, \"Kyoto in\"). Even \"not\", the tense and the question come at the end, attached to the verb: *ikimasen deshita ka* is \"go-not-past-question\"." },
             { p: "You'll feel the consequence in conversation. A long sentence doesn't reveal whether it's a yes or a no until its last syllables. Listeners nod and murmur *hai* or *ee* through it, a habit called **aizuchi**, which says they're following, not that they agree." },
-            { pull: "A sentence doesn't reveal whether it's a yes or a no until its last syllables." },
 
             { h: "Particles, and the famous wa and ga" },
-            { p: "Because the verb waits at the end, the phrases before it need labels. Short particles follow each one: *o* marks the object, *ni* a destination or time, *de* where something happens, *no* possession. Word order before the verb is then fairly free." },
+            { p: "Because the verb waits at the end, the phrases before it need labels. Short particles follow each one: *o* marks the object, *ni* a destination or time, *de* where something happens, *no* possession. Word order before the verb is then fairly free. Particles at the very end carry tone: *ne* (\"isn't it?\") asks for agreement, *yo* (\"you know\") tells you something new." },
             { p: "The two learners argue about most are **wa** and **ga**. *Ga* marks the grammatical subject. *Wa* marks the **topic**, what the sentence is about, which needn't be the subject at all." },
             { p: "The grammarian Mikami Akira titled a 1960 book after one sentence, *Zō wa hana ga nagai*: \"as for elephants, the nose is long\". The elephant is the topic, the nose the subject. His point was that the topic, not the subject, is the backbone of a Japanese sentence." },
             { p: "Topics make one sentence that baffles visitors perfectly ordinary. At a restaurant someone says *boku wa unagi da*, literally \"I am eel\". It means \"as for me, it's eel\". Linguists call it the **unagi sentence**, after Okutsu Keiichirō's 1978 study, and still argue about how it works.[^2]" },
@@ -281,16 +258,6 @@ export const language: GuideTopic = {
                 settled: ["Japanese and the Ryukyuan languages descend from one ancestor.", "That ancestor most likely came over from the Korean peninsula with farming."],
                 open: ["Whether Japonic has any wider relatives, Korean included.", "How best to analyse wa, ga and the unagi sentence."],
               },
-            },
-
-            { h: "What to listen for" },
-            {
-              list: [
-                "**Aizuchi**: *hai*, *ee*, *sō desu ne*, *naruhodo*, nodded through a phone call.",
-                "**Sentence-final particles**: *ne* (\"isn't it?\") asks for agreement, *yo* (\"you know\") tells you something new. A lot of tone lives in them.",
-                "**Unagi sentences** at any counter: *watashi wa kōhī*, \"me, coffee\".",
-                "**Counters** at a bar: *nama ni-hai*, two draught beers.",
-              ],
             },
           ],
           words: [
@@ -342,7 +309,6 @@ export const language: GuideTopic = {
             { h: "Inside and outside" },
             { p: "What decides the form isn't fixed rank but **uchi** and **soto**, inside and outside: whose side is the person on, relative to the one you're addressing? Inside your company you speak respectfully about your boss." },
             { p: "To a caller from outside, the boss is one of *us*, so you lower him: \"*Tanaka wa tadaima gaishutsu shite orimasu*\", \"Tanaka is out at the moment\", with no *-san* and a humble verb.[^3] Calling him \"Mr Tanaka\" to a client would sound like praising your own family to a guest." },
-            { pull: "To an outsider, your own boss is one of us." },
             { p: "This relative system is fairly modern. Older Japanese weighed absolute rank more: courtiers honoured the emperor whoever they were speaking to, and an emperor's words in the chronicles could even honour himself. That shift is why the 2007 guide describes keigo as mutual respect rather than hierarchy." },
 
             { h: "Names instead of pronouns" },
@@ -360,16 +326,6 @@ export const language: GuideTopic = {
                 revised: ["Respect language is now framed officially as mutual respect, not rank."],
                 open: ["Whether it's simplifying, as young people use less sonkeigo and kenjōgo, or just changing form.", "Whether shop keigo is a corruption or a register in its own right."],
               },
-            },
-
-            { h: "What to listen for" },
-            {
-              list: [
-                "**Mairimasu** in platform announcements: the railway humbly bringing its own train.",
-                "**O-kyaku-sama**, \"honoured guest\", the department store's word for you.",
-                "**Shōshō o-machi kudasai**, \"please wait a moment\", the sonkeigo you'll hear most.",
-                "**Ore** and **boku** between young men, and *watashi* the moment one of them answers a work call.",
-              ],
             },
           ],
           words: [
@@ -413,7 +369,6 @@ export const language: GuideTopic = {
             { p: "Kango play the part Latin and Greek play in English: the vocabulary of learning, government, Buddhism and abstraction. One estimate puts them at about 60% of the words in a dictionary but only 18–20% of everyday speech.[^1]" },
             { p: "A native word and a kango often sit side by side: *yadoya* and *ryokan* for an inn, *hajimeru* and *kaishi suru* for \"to begin\". The kango usually sounds more formal, the way *commence* does." },
             { p: "Many kango were made in Japan. Meiji scholars needed words for Western ideas and built them from Chinese characters: *tetsugaku* (philosophy), *shakai* (society), *keizai* (economy), *denwa* (telephone).[^1] Many travelled back to China with students who studied in Tokyo (see [Meiji to 1945](guide:history/meiji-to-1945))." },
-            { pull: "Much of modern Chinese's vocabulary of politics and science was coined in Japan." },
 
             { h: "Portuguese and Dutch" },
             { p: "The first European words came with Portuguese traders and missionaries in the 16th century (see [Unification](guide:history/unification)). Some are everyday Japanese: *pan* (bread), *tabako*, *karuta* (playing cards), *botan* (button), and *kasutera*, the sponge cake of Nagasaki.[^2]" },
@@ -454,21 +409,12 @@ export const language: GuideTopic = {
             { h: "Words that cut the world differently" },
             { p: "Borrowing also redraws old words. Old Japanese used **ao** for a span covering blue and green, and still does in fixed phrases: *aoba* are fresh green leaves, *aona* green vegetables. *Midori*, now the usual word for green, once meant fresh shoots." },
             { p: "Traffic lights show the compromise. They were called *ao* from the start, international rules wanted green, and Japanese signals settled on the bluest green allowed.[^7]" },
-            { p: "Japanese also has a large stock of **sound-symbolic words**: *pika-pika* for shiny, *goro-goro* for lounging or rolling thunder, *shiin* for complete silence. They're not childish. Doctors ask patients to describe pain with them: *zuki-zuki* is a throbbing pain, *kiri-kiri* a sharp one." },
+            { p: "Japanese also has a large stock of **sound-symbolic words**: *pika-pika* for shiny, *goro-goro* for lounging or rolling thunder, *shiin* for complete silence. They're not childish. Doctors ask patients to describe pain with them, *zuki-zuki* for throbbing and *kiri-kiri* for sharp, and food packaging sells by them: *saku-saku* (crisp), *mochi-mochi* (chewy), *fuwa-fuwa* (fluffy)." },
             {
               evidence: {
                 settled: ["Japanese vocabulary has native, Sino-Japanese and foreign layers, each with its own register.", "Many Sino-Japanese words were coined in Meiji Japan."],
                 open: ["The exact proportions, which depend on what you count.", "Several famous etymologies, tempura's among them."],
               },
-            },
-
-            { h: "What to look for" },
-            {
-              list: [
-                "**Baikingu** on a hotel breakfast sign, and *mōningu* chalked outside a café.",
-                "**Ao** for green: an *ao-shingō*, a green light, at every crossing.",
-                "**Sound words** on food packaging: *saku-saku* (crisp), *mochi-mochi* (chewy), *fuwa-fuwa* (fluffy).",
-              ],
             },
           ],
           words: [
@@ -514,7 +460,6 @@ export const language: GuideTopic = {
             { p: "In 1927 the folklorist **Yanagita Kunio** noticed something about the words for snail. Near Kyoto people said *dedemushi*; further out *maimai*, then *katatsumuri*, then *tsuburi*, and at the far ends of the country *namekuji*." },
             { p: "His explanation, in *Kagyūkō* (\"On snails\", 1930), was that new words spread outward from the capital like ripples, so the oldest forms survive furthest away.[^3] Linguists have argued about it ever since, and plenty of words don't fit." },
             { p: "The most famous test came from a comedy show. A viewer asked the Osaka programme *Tantei! Knight Scoop* where *aho*, Kansai's \"idiot\", gives way to Tokyo's *baka*. Its producer, Matsumoto Osamu, surveyed town halls nationwide. His map, broadcast in 1991, showed words for \"fool\" in rings around Kyoto, with *baka* at both ends of the country.[^4]" },
-            { pull: "A map of the word \"fool\" proved a folklorist's theory." },
 
             { h: "Kansai and Kyoto" },
             { p: "The biggest difference from the standard is in Kansai, whose speakers are least inclined to drop it. Osaka's comedians made **Kansai-ben** familiar nationwide through TV." },

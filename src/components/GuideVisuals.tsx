@@ -208,8 +208,8 @@ export function Compare({ compare: c }: { compare: GuideCompare }) {
       {c.title && <figcaption className="pt-4 text-[15px] font-medium leading-snug text-ink">{c.title}</figcaption>}
       <div className="grid grid-cols-2 gap-3 pb-2 pt-3 sm:grid-cols-[7.5rem_1fr_1fr]">
         <span className="hidden sm:block" />
-        <span className="text-[15px] font-medium text-accent">{c.a}</span>
-        <span className="text-[15px] font-medium text-accent">{c.b}</span>
+        <span className="text-[15px] font-medium text-ink">{c.a}</span>
+        <span className="text-[15px] font-medium text-ink">{c.b}</span>
       </div>
       <dl>
         {c.rows.map((r) => (
