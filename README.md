@@ -548,7 +548,7 @@ The guide has two halves: **This Trip**, picked from the trip, and **Guide**, th
 - Blocks: sub-headings, numbered steps, do / don't lists, tables, key numbers, tip or warning boxes, timelines, charts (line or bar, with unit and source; drag along a line chart to read any year, and a projection is dashed with its end value labelled), food cards, places with a Maps button, phone numbers that dial, and **Words to know**.
 - Figures sit in the text between hairlines, as Apple News sets them, not in boxes; only tips and warnings keep a tinted callout.
 - Visual blocks: an **era band** (spans to scale — tap or drag along it, or step with the arrows), a **pull quote** (a line from the read itself), **What's known** (Settled / Revised / Still argued), a side-by-side **compare**, a **photo pair**, and **Go deeper** panels that open in place.
-- Tap a small source number and that source opens in a sheet (a popover on desktop) with what it backs up and **Open source**. All sources also sit folded and numbered at the foot.
+- Tap a small source number and that source opens in a sheet (a popover on desktop) with what it backs up and **Open Link**. All sources also sit folded and numbered at the foot.
 - Every article in both halves, every yearly date and every city card cites at least one source. Every chapter has its own cover photo, never repeated inside the chapter.
 - **Bookmark** and **Share** sit in the nav bar. Share opens the phone's share sheet; on desktop Chrome it copies the link (the button turns into a tick).
 - **Mark as Read** at the foot of every article; tap again to mark it unread. Read articles get a green tick on their row, and a chapter page says how many of its articles you've read.

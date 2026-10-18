@@ -59,7 +59,7 @@ function Cite({ n }: { n: number }) {
         href={src?.url ?? `#guide-source-${n}`}
         onClick={show}
         aria-label={`Source ${n}`}
-        className="tap relative -top-[0.45em] ml-px text-[0.65em] font-medium tabular-nums text-accent"
+        className="tap relative -top-[0.45em] ml-px text-[max(11px,0.65em)] font-medium tabular-nums text-accent"
       >
         {n}
       </a>
@@ -80,7 +80,7 @@ function Cite({ n }: { n: number }) {
           }
         >
           <button type="button" className="menu-item text-accent" onClick={() => window.open(src.url, "_blank", "noopener")}>
-            Open source
+            Open Link
           </button>
         </ActionSheet>
       )}
@@ -350,11 +350,13 @@ export function Venues({ venues }: { venues: GuideVenue[] }) {
           className="relative flex gap-3 px-3.5 py-3 after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden"
         >
           <div className="min-w-0 flex-1">
-            <p className="flex flex-wrap items-baseline gap-x-2">
-              <span className="break-words text-[17px] leading-snug text-ink">{v.name}</span>
-              {v.local && <span className="font-jp text-[13px] text-ink-faint">{v.local}</span>}
+            <p className="break-words text-[17px] leading-snug text-ink">{v.name}</p>
+            {/* one caption line under the name, as Maps subtitles a place:
+                its name in the local script (when it differs), area, age */}
+            <p className="mt-0.5 break-words text-[13px] leading-snug text-ink-soft">
+              {v.local && v.local !== v.name && <span className="font-jp">{v.local} · </span>}
+              {[v.area, v.since && `since ${v.since}`].filter(Boolean).join(" · ")}
             </p>
-            <p className="mt-0.5 text-[13px] text-ink-soft">{[v.area, v.since && `since ${v.since}`].filter(Boolean).join(" · ")}</p>
             <p className="mt-1.5 break-words text-[15px] leading-[1.45] text-ink"><Inline text={v.text} /></p>
           </div>
           <a

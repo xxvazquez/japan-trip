@@ -1156,8 +1156,31 @@ function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
     );
   }
   if ("table" in b) {
+    // four columns don't fit a phone's width without scrolling sideways, so
+    // there each row becomes its own small group — the row's name, then each
+    // column's value under its heading — and the grid returns where it fits
+    const wide = b.table.head.length >= 4;
+    const stacked = wide && (
+      <ul className="border-y border-line sm:hidden">
+        {b.table.rows.map((r, i) => (
+          <li key={i} className={`py-3 ${i ? "border-t border-line" : ""}`}>
+            <p className="break-words text-[17px] font-medium leading-snug text-ink"><Inline text={r[0]} /></p>
+            <dl className="mt-1.5 space-y-1.5">
+              {r.slice(1).map((c, j) => (
+                <div key={j}>
+                  <dt className="text-[13px] leading-snug text-ink-faint">{b.table.head[j + 1]}</dt>
+                  <dd className="break-words text-[15px] leading-snug text-ink"><Inline text={c} /></dd>
+                </div>
+              ))}
+            </dl>
+          </li>
+        ))}
+      </ul>
+    );
     return (
-      <div className="overflow-x-auto border-y border-line">
+      <>
+      {stacked}
+      <div className={`overflow-x-auto border-y border-line ${wide ? "hidden sm:block" : ""}`}>
         <table className="w-full border-separate border-spacing-0 text-left">
           <thead>
             <tr>
@@ -1177,6 +1200,7 @@ function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
           </tbody>
         </table>
       </div>
+      </>
     );
   }
   if ("stats" in b) {
