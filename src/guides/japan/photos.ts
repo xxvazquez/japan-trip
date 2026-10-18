@@ -144,6 +144,12 @@ const PHOTOS = {
   "hagi-castle-town": { w: 900, h: 675, author: "そらみみ", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Kikuya_Lane_in_Hagi_Castle_Town_1.jpg" },
   "address-sign": { w: 900, h: 600, author: "円周率３パーセント", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Kangetsu-cho_1-chome_address_sign_20180612.jpg" },
   "hanko": { w: 900, h: 675, author: "Nesnad", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Inkan_-_Tokyo_area_-_2022_Feb_7_various.jpeg" },
+  "sharaku-oniji": { w: 601, h: 900, author: "Tōshūsai Sharaku", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:%E4%B8%89%E4%BB%A3%E7%9B%AE%E5%A4%A7%E8%B0%B7%E9%AC%BC%E6%AC%A1%E3%81%AE%E5%A5%B4%E6%B1%9F%E6%88%B8%E5%85%B5%E8%A1%9B-Kabuki_Actor_%C5%8Ctani_Oniji_III_as_Yakko_Edobei_in_the_Play_The_Colored_Reins_of_a_Loving_Wife_(Koi_ny%C5%8Db%C5%8D_somewake_tazuna)_MET_DP130228.jpg" },
+  "hiroshige-kameido": { w: 612, h: 900, author: "Utagawa Hiroshige", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:De_pruimenboomgaard_te_Kameido-Rijksmuseum_RP-P-1956-743.jpeg" },
+  "van-gogh-kameido": { w: 755, h: 900, author: "Vincent van Gogh", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Bloeiende_pruimenboomgaard_(naar_Hiroshige)_-_s0115V1962_-_Van_Gogh_Museum.jpg" },
+  "great-wave": { w: 900, h: 605, author: "Katsushika Hokusai", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Tsunami_by_hokusai_19th_century.jpg" },
+  "election-posters": { w: 900, h: 600, author: "Noukei314", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Election_Poster_board_for_Yokohama_mayoral_election_2021.jpg" },
+  "nijubashi": { w: 900, h: 675, author: "Chris 73", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Imperial_Palace_Tokyo_Nijubashi_Bridge.JPG" },
   "temizuya": { w: 900, h: 676, author: "Hyppolyte de Saint-Rambert", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Seimei-jinja_(Kamigyo-ku,_Kyoto)_Ch%C5%8Dzuya_temizuya_hdsr_S5_07.jpg" },
 } as const;
 

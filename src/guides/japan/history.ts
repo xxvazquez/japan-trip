@@ -381,7 +381,7 @@ export const history: GuideTopic = {
             },
             { p: "The system's weakness was the thing it had kept at arm's length. When Western steamships arrived with guns no castle could answer, the shogunate had no good reply." },
           ],
-          related: ["belief/buddhism", "eating-out/sushi-from-fermented-fish-to-fast-food", "culture/noh-kabuki-and-bunraku", "history/meiji-to-1945"],
+          related: ["belief/buddhism", "eating-out/sushi-from-fermented-fish-to-fast-food", "culture/kabuki-and-bunraku", "history/meiji-to-1945"],
           sources: [
             { title: "Sankin-kōtai — Fukui Prefectural Archives", url: "https://www.library-archives.pref.fukui.lg.jp/fukui/08/m-exhbt/20170102AM/sankinkoutai.pdf", note: "Made a rule in the 1635 revision of the Laws for the Military Houses (Japanese)" },
             { title: "Edo-Tokyo history overview — Tokyo Metropolitan Government", url: "https://www.seikatubunka.metro.tokyo.lg.jp/documents/d/seikatubunka/2025-10-22-002507-090", note: "An estimated million people by the early 1700s (Japanese)" },

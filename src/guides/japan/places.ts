@@ -122,6 +122,29 @@ export const placeReads: Record<string, GuideItem[]> = {
     },
     {
       group: "Look closer",
+      title: "Akihabara, Nakano and Ikebukuro",
+      summary: "Where manga and anime fans shop, and the museums of the artists who made them",
+      body: [
+        { p: "**Akihabara** was a postwar black market for radio parts, then Tokyo's electronics district. From the 1990s, as electronics moved to suburban superstores, the shops that sold personal computers and their software drew fans of games and anime, and the area became the centre of otaku retail: figures, games, idol theatres, maid cafés (see [Fans, places and characters](guide:manga/fans-places-and-characters))." },
+        photo("akihabara", "A wide street at dusk lined with tall buildings covered in bright anime and game signs", "Akihabara's main street, Chūō-dōri."),
+        { p: "**Nakano Broadway**, a 1966 block of shops and flats a few minutes from Nakano station, has four floors of tiny collectors' shops for old manga, toys and cels. In **Ikebukuro**, Otome Road serves women fans." },
+        photo("nakano-broadway", "The entrance to Nakano Broadway, a red and grey building with its name above the doors", "Nakano Broadway: four floors of small collectors' shops."),
+        {
+          table: {
+            head: ["Museum", "What"],
+            rows: [
+              ["Tokiwa-sō Manga Museum, Toshima", "The rebuilt apartment house where Tezuka and the young Fujiko Fujio lived"],
+              ["Ghibli Museum, Mitaka", "Miyazaki's own design, with a short film shown only there; timed tickets (see [Book ahead in Tokyo](guide:place/tokyo/book-ahead-in-tokyo))"],
+              ["Fujiko F. Fujio Museum, Kawasaki", "Doraemon's creator's original drawings; timed tickets"],
+            ],
+          },
+        },
+        { p: "Fans of *Your Name* go to the stairs of **Suga Shrine** in Yotsuya, where the film ends. It's a residential street: be quiet and keep the steps clear." },
+      ],
+      related: ["manga/fans-places-and-characters", "manga/how-manga-took-shape"],
+    },
+    {
+      group: "Look closer",
       title: "One block that survived",
       summary: "Kanda Sudachō's pre-war restaurants, still serving",
       body: [
@@ -219,6 +242,8 @@ export const placeReads: Record<string, GuideItem[]> = {
             { term: "Toyosu tuna auction lower deck", text: "By lottery, applied for about a month ahead. The upper deck needs no booking" },
             { term: "Popular sushi and kaiseki counters", text: "Often weeks ahead, sometimes only through a hotel concierge" },
             { term: "Sumo, kabuki, the Imperial Palace tour", text: "Online in advance; the palace tour also releases same-day places in the morning" },
+            { term: "Kabuki for one act", text: "Kabukiza in Ginza sells single-act seats (*hitomakumi*) in the top gallery on the day, at their own counter: a taste of kabuki without the whole afternoon" },
+            { term: "The palace grounds, twice a year", text: "On 2 January and on the emperor's birthday, 23 February, the inner grounds open without tickets and the imperial family greets the crowd from a glass-fronted balcony. Arrive early and expect a bag check (see [The emperor](guide:politics/the-emperor))" },
           ],
         },
         { note: "Last trains leave around midnight, and Tokyo's night taxis are expensive. If an evening may run late, check your last train before it starts.", title: "The last train" },

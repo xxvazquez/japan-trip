@@ -278,7 +278,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Bunraku's home", cover: photoOf("bunraku-puppet", "A bunraku puppet held by its operators", "A bunraku puppet and its three operators."),
-          text: "The National Bunraku Theatre in Nanba stages the puppet theatre where each puppet is worked by three people in full view (see [Noh, kabuki and bunraku](guide:culture/noh-kabuki-and-bunraku)).",
+          text: "The National Bunraku Theatre in Nanba stages the puppet theatre where each puppet is worked by three people in full view (see [Kabuki and bunraku](guide:culture/kabuki-and-bunraku)).",
         },
       ],
     },

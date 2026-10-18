@@ -126,7 +126,7 @@ export const trivia: GuideTopic = {
             { p: "Japan has one of the biggest Chopin followings anywhere, and Japanese pianists are fixtures of the Warsaw competition: Sorita Kyōhei shared second prize in 2021, and in 2025 Kuwahara Shiori shared fourth, her final watched live by a record audience.[^2] In the other direction, the film director Andrzej Wajda used the money from his 1987 Kyoto Prize to help found **Manggha**, the museum of Japanese art and technology in Kraków, which opened in 1994." },
             photo("manggha", "A low building with a wave-shaped roof on a grassy bank above a river", "Manggha, the centre for Japanese art and technology in Kraków, across the Vistula from Wawel."),
           ],
-          related: ["history/meiji-to-1945", "culture/noh-kabuki-and-bunraku"],
+          related: ["history/meiji-to-1945", "culture/kabuki-and-bunraku"],
           sources: [
             { title: "Polish orphans in Siberia rescued by Japan — Embassy of Japan in Canada", url: "https://www.ca.emb-japan.go.jp/itpr_ja/Presentation-Polish-Orphans-rescued-from-Siberia.html", note: "765 children, 1920–22; the 1995 invitation" },
             { title: "Japanese pianist wins 4th prize in Chopin Competition — Adnkronos (Jiji)", url: "https://english.adnkronos.com/2025/10/21/japanese-pianist-wins-4th-prize-in-chopin-competition/", note: "Kuwahara Shiori, October 2025" },

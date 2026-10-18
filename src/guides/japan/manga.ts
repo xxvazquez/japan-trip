@@ -1,16 +1,37 @@
 import type { GuideTopic } from "../types";
-import { photo } from "./photos";
+import { photo, photoOf } from "./photos";
 
-/** Manga and anime as four reads: how manga took its shape, how anime
- *  grew out of it, who makes both and on what terms, and the fans, places
- *  and characters you'll meet on the route. */
+/** Culture and the state, part two: manga and anime, the townspeople's
+ *  pictures in a new medium. How each took its shape, who makes them and
+ *  on what terms, and the fans and characters. Where to find them in a
+ *  city is on that city's page. */
 export const manga: GuideTopic = {
   id: "manga",
   title: "Manga & anime",
   glyph: "bookstore",
-  summary: "How manga and anime grew, who draws them and for what pay, and where fans go",
+  summary: "How manga and anime grew, who draws them and for what pay, and what fans made of them",
+  cover: photoOf("hokusai-manga", "A printed double page of small sketches of people bathing and diving", "Bathers and divers in volume 4 of the Hokusai Manga, the sketchbooks that popularised the word."),
+  intro: {
+    body: [
+      { p: "In Japan comics aren't a genre or a children's shelf. They're a medium, read by every age on every subject, and the animation that grew out of them is now one of the country's biggest exports." },
+      {
+        stats: [
+          { value: "¥704bn", label: "manga sales in 2024, a record" },
+          { value: "¥3.84tn", label: "the anime industry's market, 2024" },
+          { value: "56%", label: "of anime's market earned abroad" },
+        ],
+      },
+      { p: "Both descend from the Edo townspeople's pictures: the woodblock print sold cheap to a big public, made by a publisher, an artist and a workshop (see [Ukiyo-e](guide:culture/ukiyo-e-pictures-of-the-floating-world)). The modern forms took shape after 1945, around one artist, Tezuka Osamu, and around how little money there was." },
+      { p: "That last point runs through the chapter. Weekly magazines and cheap TV animation built the style and the industry, and also its long hours and low pay (see [Long hours](guide:work/long-hours)). The chapter takes manga and anime in turn, then who makes them, then the fans, who turned a slur into a way of life." },
+    ],
+    sources: [
+      { title: "Japan's comic market hits a record ¥704.3 billion in 2024 — nippon.com", url: "https://www.nippon.com/ja/japan-data/h02328/", note: "Research Institute for Publications data (Japanese)" },
+      { title: "Global anime market grew to a record ¥3.84 trillion in 2024 — Anime News Network", url: "https://www.animenewsnetwork.com/news/2025-10-30/global-anime-market-grew-15-percent-to-record-3.84-trillion-yen-in-2024/.230464", note: "Association of Japanese Animations; overseas ¥2.17 trillion" },
+    ],
+  },
   blocks: [
     {
+      title: "How they grew",
       items: [
         {
           title: "How manga took shape",
@@ -21,7 +42,6 @@ export const manga: GuideTopic = {
             { h: "Old roots" },
             { p: "It's common to trace manga back to the **Chōjū-giga**, four 12th–13th-century picture scrolls owned by Kōzan-ji, a temple in the hills north-west of Kyoto, in which frogs, rabbits and monkeys bathe, wrestle and hold mock Buddhist services, drawn in quick brush lines with no text.[^2] The originals are in the national museums of Tokyo and Kyoto; Kōzan-ji shows full-size copies. The word *manga*, \"whimsical pictures\", was popularised by **Hokusai**, whose *Hokusai Manga*, sketchbooks of people, animals, gods and gestures, began appearing in 1814. Historians argue over how direct the line really is: modern manga owes at least as much to Western newspaper cartoons, which arrived with the Meiji period, and to American comics and Disney films after the war." },
             photo("choju-giga", "Ink drawing of a frog and a rabbit wrestling while other animals watch", "Frogs and rabbits wrestling in the Chōjū-giga, Kōzan-ji's 12th–13th-century scrolls."),
-            photo("hokusai-manga", "A printed double page of small sketches of people bathing and diving", "Bathers and divers in volume 4 of the Hokusai Manga, the sketchbooks that popularised the word."),
 
             { h: "Tezuka and the postwar boom" },
             { p: "The modern form took shape in the years after 1945, in cheap books printed in Osaka on poor red-tinged paper and in rental libraries, the *kashihon-ya*, where children paid a few yen to borrow a volume. Its central figure was **Tezuka Osamu** (1928–1989), a qualified doctor from Takarazuka who began with *New Treasure Island* in 1947. Tezuka drew like a film director: close-ups, pans, slow motion, a single action stretched over pages. *Astro Boy*, *Kimba the White Lion*, *Princess Knight* and *Black Jack* followed, around 150,000 pages in his life, and he's still called the god of manga." },
@@ -81,10 +101,10 @@ export const manga: GuideTopic = {
             { p: "On 1 January 1963 Tezuka's studio, Mushi Production, launched **Astro Boy**, the first weekly half-hour animated series on Japanese TV. Making 25 minutes of animation every week was impossible at Disney's rate of drawings, so Tezuka's team cut it: fewer drawings per second, held poses, reused sequences, mouths that move over a still face. This **limited animation** became the look of TV anime. Tezuka also agreed a low price with the broadcaster to win the slot, a decision often blamed, fairly or not, for the industry's low fees ever since (see [Who makes it, and for what](guide:manga/who-makes-it-and-for-what)). Mushi Production itself went bankrupt in 1973." },
 
             { h: "Families, robots and fans" },
-            { p: "TV anime settled into two lines. One was the family comedy: **Sazae-san**, broadcast every Sunday evening since 1969, is the longest-running animated series in the world, and its closing theme is so firmly linked to the end of the weekend that the Sunday-night blues are called *Sazae-san syndrome*. The other was science fiction for older children that kept its audience as they grew up: *Space Battleship Yamato* (1974) and **Mobile Suit Gundam** (1979), whose realistic war story and robot model kits created the adult anime fan. A life-size Gundam stands outside a shopping centre in Odaiba, Tokyo." },
+            { p: "TV anime settled into two lines. One was the family comedy: **Sazae-san**, broadcast every Sunday evening since 1969, is the longest-running animated series in the world, and its closing theme is so firmly linked to the end of the weekend that the Sunday-night blues are called *Sazae-san syndrome*. The other was science fiction for older children that kept its audience as they grew up: *Space Battleship Yamato* (1974) and **Mobile Suit Gundam** (1979), whose realistic war story and robot model kits created the adult anime fan." },
 
             { h: "Ghibli" },
-            { p: "**Studio Ghibli** was founded in 1985 by the directors Miyazaki Hayao and Takahata Isao with the producer Suzuki Toshio. Its films, *My Neighbor Totoro*, *Princess Mononoke*, *Spirited Away*, broke out of the fan audience to everyone. *Spirited Away* won the Oscar for animated feature in 2003 and was Japan's highest-grossing film for nineteen years; Miyazaki won a second Oscar for *The Boy and the Heron* in 2024. The Ghibli Museum in Mitaka, Tokyo, opened in 2001, and Ghibli Park, near Nagoya, in 2022. Both sell timed tickets in advance only." },
+            { p: "**Studio Ghibli** was founded in 1985 by the directors Miyazaki Hayao and Takahata Isao with the producer Suzuki Toshio. Its films, *My Neighbor Totoro*, *Princess Mononoke*, *Spirited Away*, broke out of the fan audience to everyone. *Spirited Away* won the Oscar for animated feature in 2003 and was Japan's highest-grossing film for nineteen years; Miyazaki won a second Oscar for *The Boy and the Heron* in 2024." },
             { p: "The record now belongs to TV anime's spin-offs. *Demon Slayer: Mugen Train* took ¥40.75 billion in Japan in 2020 and is the country's highest-grossing film; *Demon Slayer: Infinity Castle* (2025) set records for its opening and finished second.[^1] Anime is now as much an export as a domestic product: in 2024 the industry's total market reached a record **¥3.84 trillion**, and more than half of it came from abroad.[^2]" },
             { note: "Settled: TV anime's look grew from the cost-cutting of the 1960s, and the industry's centre has always been western Tokyo. Still argued: how much blame Astro Boy's price deserves for today's low pay, and whether the overseas boom will reach the people who draw.", title: "What's known and what isn't", kind: "info" },
           ],
@@ -100,6 +120,11 @@ export const manga: GuideTopic = {
             { title: "Global anime market grew to a record ¥3.84 trillion in 2024 — Anime News Network", url: "https://www.animenewsnetwork.com/news/2025-10-30/global-anime-market-grew-15-percent-to-record-3.84-trillion-yen-in-2024/.230464", note: "Association of Japanese Animations; overseas ¥2.17 trillion" },
           ],
         },
+      ],
+    },
+    {
+      title: "Makers and fans",
+      items: [
         {
           title: "Who makes it, and for what",
           summary: "Production committees, ¥1 million a year for beginners, the Kyoto Animation fire, and a boom that hasn't reached the drawing desk",
@@ -139,34 +164,21 @@ export const manga: GuideTopic = {
         },
         {
           title: "Fans, places and characters",
-          summary: "Otaku and Comiket, Akihabara and Nakano, anime pilgrimages, museums on the route and the characters you'll see everywhere",
+          summary: "Otaku and Comiket, anime pilgrimages, and the characters you'll see everywhere",
           body: [
             { p: "Fans of manga and anime have a word, a history and their own geography in Japan. The word is **otaku**, a polite, slightly distant way of saying \"you\" that fans used with each other. The writer Nakamori Akio turned it into a mocking label in 1983, and in 1989 it became a slur when the press linked a serial killer's video collection to otaku culture.[^1] It took two decades and a lot of money for the word to become what it mostly is now: a cheerful description of anyone deeply into something, trains and idols included." },
 
             { h: "Comiket and the fan economy" },
             { p: "Fans don't just consume. They make **dōjinshi**, self-published comics, often spin-offs of commercial series that publishers tolerate because the fan scene feeds their own. The great marketplace is **Comic Market**, Comiket, first held in December 1975 with about 700 people and 32 groups of artists.[^2] It now fills Tokyo Big Sight twice a year, in August and December, with hundreds of thousands of visitors across two days. Many professional artists started there." },
 
-            { h: "Akihabara, Nakano and Ikebukuro" },
-            { p: "**Akihabara** was a postwar black market for radio parts, then Tokyo's electronics district. From the 1990s, as electronics moved to suburban superstores, the shops that sold personal computers and their software drew fans of games and anime, and the area became the centre of otaku retail: figures, games, idol theatres, maid cafés. **Nakano Broadway**, a 1966 shopping-and-flats block a few minutes from Nakano station, has four floors of tiny collectors' shops for old manga, toys and cels, starting with the second-hand chain Mandarake. In **Ikebukuro**, Otome Road serves women fans, and Sunshine City has one of the biggest Pokémon Centers." },
-            photo("akihabara", "A wide street at dusk lined with tall buildings covered in bright anime and game signs", "Akihabara's main street, Chūō-dōri."),
-            photo("nakano-broadway", "The entrance to Nakano Broadway, a red and grey building with its name above the doors", "Nakano Broadway: four floors of small collectors' shops."),
+            { h: "Where fans gather" },
+            { p: "Fans built their own shopping districts, usually where something older left room. Tokyo's **Akihabara** went from a postwar black market for radio parts to an electronics district to the centre of otaku retail, as electronics moved to suburban superstores and the computer-game shops stayed (see [Akihabara, Nakano and Ikebukuro](guide:place/tokyo/akihabara-nakano-and-ikebukuro)). Osaka has Den-den Town, Nagoya Ōsu." },
 
             { h: "Pilgrimages" },
-            { p: "Anime often draws real places in exact detail, and fans go to stand in them: **seichi junrei**, \"pilgrimage to sacred places\". The phenomenon took off with *Lucky Star* in 2007, whose heroines worked at a real shrine, Washinomiya in Saitama; by 2009, 420,000 people visited it over the New Year.[^3] Since then towns have courted it. In Tokyo, the stairs at **Suga Shrine** in Yotsuya are where *Your Name* ends; in Kamakura, the level crossing by Kamakura-Kōkōmae station on the Enoden line, from the opening of *Slam Dunk*, is so crowded that the town posts staff there. Respect the residents: these are working streets." },
+            { p: "Anime often draws real places in exact detail, and fans go to stand in them: **seichi junrei**, \"pilgrimage to sacred places\". The phenomenon took off with *Lucky Star* in 2007, whose heroines worked at a real shrine, Washinomiya in Saitama; by 2009, 420,000 people visited it over the New Year.[^3] Since then towns have courted it, with maps, stamp rallies (see [Station stamps](guide:stamps/station-stamps-and-the-hanko)) and character signs. The crowds can be a burden: a level crossing in Kamakura from the opening of *Slam Dunk* became so busy that the town posts staff there (see [Kamakura](guide:place/kamakura/the-coast-and-its-whitebait))." },
 
-            { h: "Museums on the route" },
-            {
-              table: {
-                head: ["Where", "What"],
-                rows: [
-                  ["Kyoto International Manga Museum", "A 1920s school in central Kyoto with about 300,000 items; take any volume off the wall and read it on the lawn"],
-                  ["Tokiwa-sō Manga Museum, Toshima", "The rebuilt apartment house of Tezuka and the young Fujiko Fujio; free"],
-                  ["Ghibli Museum, Mitaka", "Miyazaki's own design, with a short film you can only see there; timed tickets, booked ahead"],
-                  ["Fujiko F. Fujio Museum, Kawasaki", "Doraemon's creator's original drawings; timed tickets"],
-                  ["Tezuka Osamu Manga Museum, Takarazuka", "In the town he grew up in, between Osaka and Kobe"],
-                ],
-              },
-            },
+            { h: "Kept like literature" },
+            { p: "Manga is now collected and studied like literature. Kyoto's International Manga Museum, in an old elementary school, holds about 300,000 items, and readers take volumes off the walls to read on its lawn (see [Schools without children](guide:growing-up/schools-without-children)). Tezuka has a museum in his home town, Takarazuka." },
             photo("kyoto-manga-museum", "People reading on a lawn in front of a brick school building with a modern glass extension", "Reading on the lawn at the Kyoto International Manga Museum, in the old Tatsuike school."),
 
             { h: "Characters you'll see" },
@@ -178,10 +190,10 @@ export const manga: GuideTopic = {
                 { term: "Hello Kitty", text: "Sanrio, 1974. Officially a little girl from the London suburbs, not a cat, with no mouth so you can read your own feelings into her." },
                 { term: "Pokémon", text: "Born on the Game Boy in 1996 from its creator's childhood insect collecting; the highest-grossing media franchise in the world." },
                 { term: "Chiikawa", text: "Tiny, anxious round creatures from a web comic, the character craze of the 2020s. Expect queues at its shops." },
-                { term: "Godzilla", text: "Born in 1954 from the fear of nuclear tests, months after a Japanese fishing boat was caught in fallout from an American H-bomb test. His head looks over Shinjuku from a hotel roof." },
+                { term: "Godzilla", text: "Born in 1954 from the fear of nuclear tests, months after a Japanese fishing boat was caught in fallout from an American H-bomb test." },
               ],
             },
-            { note: "Settled: otaku went from slur to mainstream in a generation, and pilgrimage tourism is now a deliberate strategy for towns. Still argued: who coined \"otaku\" as a label, and how much of Akihabara's otaku character will survive redevelopment.", title: "What's known and what isn't", kind: "info" },
+            { note: "Settled: otaku went from slur to mainstream in a generation, and pilgrimage tourism is now a deliberate strategy for towns. Still argued: who coined \"otaku\" as a label, and whether fan districts like Akihabara keep their character as they become tourist sights.", title: "What's known and what isn't", kind: "info" },
           ],
           words: [
             { local: "オタク", say: "otaku", means: "a devoted fan" },

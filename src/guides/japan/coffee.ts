@@ -92,7 +92,7 @@ export const coffee: GuideTopic = {
             },
             { p: "**What it reveals:** the ongaku kissa was a solution to a housing problem and a way to share expensive things, and it trained the ears of the people who later made Japan the world's most devoted market for vinyl and high-end audio. The newer “listening bars” abroad copy it directly." },
           ],
-          related: ["coffee/what-the-kissaten-says-about-japan", "culture/sumo-baseball-and-pastimes"],
+          related: ["coffee/what-the-kissaten-says-about-japan", "culture/karaoke-pachinko-and-mascots"],
         },
       ],
     },
