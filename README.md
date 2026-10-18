@@ -511,6 +511,7 @@ The guide has two halves: **For this trip**, picked from the trip, and **the boo
 
 - A full-width cover picture with its credit, then a standfirst on what the guide is.
 - **Continue reading** — the last article you opened, on this device.
+- **Saved** — the articles you've bookmarked, newest first.
 - **For this trip**, then **Understanding Japan** (the book), each under its own heading.
 
 **For this trip**
@@ -525,7 +526,7 @@ The guide has two halves: **For this trip**, picked from the trip, and **the boo
 **The book**
 
 - **At a glance** — six key numbers for the country, with their sources folded underneath.
-- Contents in five parts, chapters numbered straight through: **Origins** (history, belief, language), **The land**, **The table** (how the cooking works, food at home, eating out, menus and drinks, regional food, coffee), **Everyday life** (Look closer, Japan by numbers, school, work, customs, stamps) and **Culture and the state** (culture, manga & anime, politics, Did you know).
+- Contents in five parts, chapters numbered straight through (a chapter you've started shows "3 of 8 read", a finished one a green **Read**): **Origins** (history, belief, language), **The land**, **The table** (how the cooking works, food at home, eating out, menus and drinks, regional food, coffee), **Everyday life** (Look closer, Japan by numbers, school, work, customs, stamps) and **Culture and the state** (culture, manga & anime, politics, Did you know).
 - A chapter page shows "Chapter 4 · Origins", its title and dek, its picture, an optional opening read, then its sections. **Next chapter** at the foot.
 - **History** opens with two era bands drawn to scale, then lists its eras as a timeline.
 
@@ -537,6 +538,9 @@ The guide has two halves: **For this trip**, picked from the trip, and **the boo
 - Blocks: sub-headings, numbered steps, do / don't lists, tables, key numbers, tip or warning boxes, timelines, charts (line or bar, with unit and source), food cards, places with a Maps button, phone numbers that dial, and **Words to know**.
 - Visual blocks: an **era band** (spans to scale — tap or drag along it, or step with the arrows), a **pull quote** (a line from the read itself), **What's known** (Settled / Revised / Still argued), a side-by-side **compare**, a **photo pair**, and **Go deeper** panels that open in place.
 - Tap a small source number and that source opens in a sheet (a popover on desktop) with what it backs up and **Open source**. All sources also sit folded and numbered at the foot.
+- **Bookmark** and **Share** sit in the nav bar. Share opens the phone's share sheet; on desktop Chrome it copies the link (the button turns into a tick).
+- **Mark as Read** at the foot of every article; tap again to mark it unread. Read articles get a green tick on their row, and a chapter page says how many of its sections you've read.
+- Read marks, bookmarks and Continue reading are kept on this device only, not synced.
 - Links in the text open other entries; **Related** lists the ones that carry the thread on. **Up next** opens the next entry in place, so Back still returns to the list.
 
 **Content**

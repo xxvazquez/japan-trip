@@ -9,6 +9,8 @@ import { TileRow } from "@/components/TileRow";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { Calls, Chart, Dishes, GuideSources, Inline, Venues, Photo } from "@/components/GuideBlocks";
 import { Compare, Eras, Evidence, Figures, Pull } from "@/components/GuideVisuals";
+import { MarkRead, ReadingActions, ReadTick, useProgress } from "@/components/GuideReading";
+import { useSaved } from "@/lib/guideReading";
 import { useData } from "@/lib/data";
 import { guideTopicColor } from "@/lib/tones";
 import { GUIDE_CONTENT } from "@/guides/content";
@@ -35,6 +37,7 @@ export function GuideHome() {
   const data = useData();
   const guide = useGuide();
   const last = useLastRead(guide?.id);
+  const saved = useSaved(guide?.id);
   if (!data) return null;
   if (!guide) return noGuide;
 
@@ -66,6 +69,16 @@ export function GuideHome() {
                 title={last.title}
                 meta={last.caption}
               />
+            </ul>
+          </Section>
+        )}
+
+        {saved.length > 0 && (
+          <Section title="Saved" id={`guide-${guide.id}-saved`} action={<span className="text-[13px] text-ink-faint">{saved.length}</span>}>
+            <ul>
+              {saved.map((e) => (
+                <ArticleRow key={e.to} to={e.to} caption={e.caption} title={e.title} thumb={e.src} />
+              ))}
             </ul>
           </Section>
         )}
@@ -192,10 +205,24 @@ function Glance({ guide }: { guide: CountryGuide }) {
   );
 }
 
+/** how far through a chapter: "3 of 8 read", or "Read" with a tick */
+function Progress({ done, total }: { done: number; total: number }) {
+  return done >= total ? (
+    <span className="mt-1 flex items-center gap-1 text-[13px] text-matcha">
+      <Icon name="check-circle" size={14} filled />
+      Read
+    </span>
+  ) : (
+    <span className="mt-1 block text-[13px] tabular-nums text-ink-faint">{done} of {total} read</span>
+  );
+}
+
 /** A chapter in the contents: its number, title and dek, and its picture —
  *  a book's table of contents more than a list of links. */
 function ChapterRow({ to, n, topic: t }: { to: string; n: number; topic: GuideTopic }) {
-  const thumb = t.cover?.src ?? coverOf(topicArticles(t))?.src;
+  const refs = topicArticles(t);
+  const thumb = t.cover?.src ?? coverOf(refs)?.src;
+  const { done, total } = useProgress(refs.map((r) => `${to}/${r.slug}`));
   return (
     <li className={`${INSET_DIVIDER} after:left-[3.25rem]`}>
       <Link to={to} viewTransition className="flex items-center gap-3 py-3 pl-3.5 pr-3.5 transition-colors duration-150 hover:bg-surface-2/40 active:bg-ink/[0.07]">
@@ -203,6 +230,7 @@ function ChapterRow({ to, n, topic: t }: { to: string; n: number; topic: GuideTo
         <span className="min-w-0 flex-1">
           <span className="value block break-words">{t.title}</span>
           <span className="meta mt-0.5 block break-words">{t.summary}</span>
+          {done > 0 && <Progress done={done} total={total} />}
         </span>
         {thumb && <Thumb src={thumb} />}
         <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
@@ -313,6 +341,13 @@ function rememberRead(id: string, last: LastRead) {
   }
 }
 
+/** a chapter page's line under its dek — its length, and how far you are */
+function ChapterProgress({ paths }: { paths: string[] }) {
+  const { done, total } = useProgress(paths);
+  const parts = [total === 1 ? "1 section" : `${total} sections`, done ? (done >= total ? "all read" : `${done} read`) : ""];
+  return <p className="mb-6 text-[13px] tabular-nums text-ink-faint">{parts.filter(Boolean).join(" · ")}</p>;
+}
+
 /** where a chapter sits: "Chapter 4 · Origins" for the book, "Before you
  *  go" for a practical page */
 function chapterLabel(g: CountryGuide, t: GuideTopic): string {
@@ -342,11 +377,13 @@ export function GuideTopicPage() {
   const book = guide.sections.flatMap((sec) => sec.chapters);
   const next = book.includes(topic) ? book[book.indexOf(topic) + 1] : undefined;
   let n = 0;
+  const progress = <ChapterProgress paths={refs.map((r) => `${topicPath}/${r.slug}`)} />;
 
   return (
     <Page width="form">
       <PageHeader back={guidePath(guide)} eyebrow={chapterLabel(guide, topic)} title={topic.title} className="!mb-3" />
-      <p className="mb-6 break-words text-[17px] leading-[1.45] text-ink-soft">{topic.summary}</p>
+      <p className="mb-2 break-words text-[17px] leading-[1.45] text-ink-soft">{topic.summary}</p>
+      {progress}
       <div className="space-y-6">
         <Hero
           photo={topic.cover}
@@ -638,6 +675,7 @@ function ArticlePage({
   return (
     <GuideSources.Provider value={a.sources ?? []}>
     <Page width="form">
+      <ReadingActions entry={{ to: pathname, title: entry.title, caption: entry.eyebrow, src: firstPhoto }} />
       <PageHeader back={back} eyebrow={entry.eyebrow} title={entry.title} className={a.summary || minutes ? "!mb-3" : "mb-6"} />
       {a.summary && <p className="mb-2 break-words text-[17px] leading-[1.45] text-ink-soft">{a.summary}</p>}
       {minutes || chapter ? (
@@ -741,6 +779,8 @@ function ArticlePage({
             </Section>
           </div>
         ) : null}
+
+        <MarkRead path={pathname} />
 
         {related.length ? (
           <div>
@@ -853,6 +893,7 @@ function ArticleRow({
           {meta && <span className="meta mt-0.5 block break-words">{meta}</span>}
         </span>
         {side && <span className="shrink-0 text-sm text-ink-faint">{side}</span>}
+        <ReadTick to={to} />
         {thumb && <Thumb src={thumb} />}
         <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
       </Link>
@@ -886,6 +927,7 @@ function EventRow({ to, event, last }: { to: string; event: GuideEvent; last: bo
           <span className="value mt-0.5 block break-words">{event.title}</span>
           <span className="meta mt-0.5 block break-words">{event.summary}</span>
         </span>
+        <ReadTick to={to} />
         {thumb && <Thumb src={thumb} />}
         <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
       </Link>

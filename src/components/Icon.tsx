@@ -71,6 +71,7 @@ export type IconName =
   | "backspace"
   | "person"
   | "share"
+  | "bookmark"
   | "location"
   | "cloud-down"
   | "phone"
@@ -468,6 +469,8 @@ const P: Record<IconName, JSX.Element> = {
       <path d="M17 20.5v-17c-2 1.2-3 3.6-3 6.5v4.5h3" />
     </>
   ),
+  // bookmark — save a guide article; filled once it is saved
+  bookmark: <path d="M7 3.75h10a1 1 0 0 1 1 1V20.2a.5.5 0 0 1-.8.4L12 16.75 6.8 20.6a.5.5 0 0 1-.8-.4V4.75a1 1 0 0 1 1-1Z" />,
   // iOS square.and.arrow.up
   share: (
     <>
@@ -548,6 +551,8 @@ const FILLED: Partial<Record<IconName, JSX.Element>> = {
       d="M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17Z M6.96 13.04L10.62 16.7L17.06 10.03L15.54 8.57L10.58 13.7L8.44 11.56Z"
     />
   ),
+  // bookmark.fill — a saved guide article
+  bookmark: <path d="M7 3h10a1.75 1.75 0 0 1 1.75 1.75V20.2a1.2 1.2 0 0 1-1.9.97L12 17.6l-4.85 3.57a1.2 1.2 0 0 1-1.9-.97V4.75A1.75 1.75 0 0 1 7 3Z" />,
   location: <path d="M20 4 4.5 10.6l6.6 2.3 2.3 6.6L20 4Z" />,
   // info.circle.fill — the ⓘ while its tip card is showing
   info: (
