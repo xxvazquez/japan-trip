@@ -67,16 +67,17 @@ export const customs: GuideTopic = {
           body: [
             { p: "Most Japanese visit both without any sense of contradiction: Shinto for life — births, weddings, new cars — and Buddhism for death and the afterlife. The rituals differ, and getting them the wrong way round is the commonest slip." },
             {
-              table: {
-                head: ["", "Shrine — Shinto", "Temple — Buddhist"],
-                rows: [
-                  ["Entrance", "A **torii** gate", "A roofed gate, often with guardian kings"],
-                  ["Inside", "Nothing to see — the kami lives in a hidden object", "Buddha statues, incense"],
-                  ["To pray", "Bow, clap, bow", "Hands together, no clapping"],
-                  ["Name ends", "-jinja, -gū, -taisha", "-ji, -dera, -in"],
-                ],
-              },
+            compare: {
+              a: "Shrine — Shinto",
+              b: "Temple — Buddhist",
+              rows: [
+                { label: "Entrance", a: "A **torii** gate", b: "A roofed gate, often with guardian kings" },
+                { label: "Inside", a: "Nothing to see — the kami lives in a hidden object", b: "Buddha statues, incense" },
+                { label: "To pray", a: "Bow, clap, bow", b: "Hands together, no clapping" },
+                { label: "Name ends", a: "-jinja, -gū, -taisha", b: "-ji, -dera, -in" },
+              ],
             },
+          },
             { p: "The suffix says something too: **-jingū** marks a shrine with imperial ties, like Meiji Jingū, and **-taisha** a grand historic one, like Fushimi Inari Taisha. At a temple, **-in** is often a sub-temple inside a larger complex." },
             { h: "At the water basin" },
             { p: "The order at the **temizuya** is precise, and few visitors know it:" },

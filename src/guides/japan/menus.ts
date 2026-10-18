@@ -117,12 +117,29 @@ export const menus: GuideTopic = {
             },
 
             { h: "Udon: wheat in the west" },
-            { p: "Thick wheat noodles are the west's everyday noodle, in a pale kombu broth. The best known regional style is **Sanuki** udon from Kagawa, on Shikoku, firm and glossy, where many shops are self-service and a bowl costs a few hundred yen; the legend that the monk Kūkai brought the technique from China is a legend. Nearer your route, Fuji-Yoshida's hard, chewy udon was made for textile workers (see [Yamanashi and the Fuji lakes](guide:regional-food/yamanashi-and-the-fuji-lakes))." },
+            { p: "Thick wheat noodles are the west's everyday noodle, in a pale kombu broth. The best known regional style is **Sanuki** udon from Kagawa, on Shikoku, firm and glossy, where many shops are self-service and a bowl costs a few hundred yen; the legend that the monk Kūkai brought the technique from China is a legend. Fuji-Yoshida's hard, chewy udon, at the foot of Mount Fuji, was made for textile workers (see [Yamanashi and the Fuji lakes](guide:regional-food/yamanashi-and-the-fuji-lakes))." },
 
             { h: "Ramen: a Chinese noodle, naturalised" },
-            { p: "Ramen was called **shina soba**, then **chūka soba** — Chinese soba — and still is on old menus. What makes it ramen is **kansui**, alkaline mineral water kneaded into the dough, which turns the noodles yellow and gives them their bounce. Chinese cooks in Yokohama, Kobe and Nagasaki served noodle soups from the 1880s. **Rairaiken**, which opened in Asakusa in 1910 with cooks from Yokohama's Chinatown, is often called the first ramen shop; the Shin-Yokohama Ramen Museum, which recreated it in 2020, says rather that it was the shop that made the dish popular in Tokyo.[^3]" },
-            { p: "Ramen became national after 1945: American wheat aid, demobilised soldiers who had eaten noodles in China, and black-market stalls. On 25 August 1958 **Andō Momofuku** sold Chicken Ramen, the first instant noodles, from a shed in Ikeda near Osaka; Cup Noodle followed in 1971.[^4] Then came regional styles, and in the 1980s and 90s, TV ramen ranking shows turned them into destinations." },
-            { p: "A bowl is built in layers: a seasoning concentrate (**tare**) in the bottom, the broth, an aroma oil, then noodles and toppings. The four bases name the tare or the broth:" },
+            { p: "Ramen was called **shina soba**, then **chūka soba**, Chinese soba, and old menus still say so. What makes it ramen is **kansui**, alkaline mineral water kneaded into the dough, which turns the noodles yellow and gives them their bounce." },
+            {
+              timeline: [
+                { when: "1880s", text: "Chinese cooks in the treaty ports of Yokohama, Kobe and Nagasaki serve noodle soups" },
+                { when: "1910", text: "**Rairaiken** opens in Asakusa with cooks from Yokohama's Chinatown. Often called the first ramen shop; the Shin-Yokohama Ramen Museum, which recreated it, calls it the one that made ramen popular in Tokyo[^3]" },
+                { when: "After 1945", text: "Ramen goes national: American wheat aid, soldiers home from China, black-market stalls" },
+                { when: "1958", text: "On 25 August **Andō Momofuku** sells Chicken Ramen, the first instant noodles, from a shed in Ikeda[^4]" },
+                { when: "1971", text: "Cup Noodle" },
+                { when: "1980s–90s", text: "TV ranking shows turn regional styles into destinations" },
+              ],
+            },
+            { p: "A bowl is built in layers, from the bottom up:" },
+            {
+              steps: [
+                { title: "Tare", text: "A seasoning concentrate — salt, soy or miso. Most styles are named after it." },
+                { title: "Broth", text: "Chicken, pork, seafood or a blend; tonkotsu is named after its broth instead." },
+                { title: "Aroma oil", text: "A spoon of flavoured fat on top, which carries the smell to you first." },
+                { title: "Noodles and toppings" },
+              ],
+            },
             {
               table: {
                 head: ["Style", "What it is", "Where from"],
@@ -134,7 +151,7 @@ export const menus: GuideTopic = {
                 ],
               },
             },
-            { p: "**Tsukemen**, thick cold noodles dipped in a concentrated hot broth, is credited to **Yamagishi Kazuo** of Taishōken, who put “morisoba” on the menu in Nakano in 1955 after seeing staff eat their leftover noodles that way; some accounts date it to 1961 at his Higashi-Ikebukuro shop. Ask for **soup-wari** at the end and the broth is thinned for drinking.[^5]" },
+            { p: "**Tsukemen** is the dipping version: thick cold noodles and a concentrated hot broth. It's credited to **Yamagishi Kazuo** of Taishōken, who put it on the menu in 1955 after seeing his staff eat leftover noodles that way; some accounts say 1961. Ask for **soup-wari** at the end and the broth is thinned for drinking.[^5]" },
             { note: "At most ramen and noodle shops you buy a ticket at a machine by the door and hand it to the cook. Top-left buttons are usually the house bowl; toppings and extra noodles (kaedama) are separate buttons. Many still take only cash.", title: "The machine by the door" },
             { p: "Slurp. It cools the noodles and pulls the aroma up, and nobody notices. Eat fast — noodles go soft in hot broth, and at a busy counter the queue behind you is watching your bowl." },
           ],

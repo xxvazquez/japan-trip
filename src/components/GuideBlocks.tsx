@@ -1,7 +1,8 @@
-import { useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
+import { createContext, useContext, useLayoutEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Icon } from "@/components/Icon";
-import type { GuideCall, GuideChart, GuideDish, GuidePhoto, GuideVenue } from "@/guides/types";
+import { ActionSheet } from "@/components/ActionSheet";
+import type { GuideCall, GuideChart, GuideDish, GuidePhoto, GuideSource, GuideVenue } from "@/guides/types";
 
 /** The richer pieces of a guide article: a chart, food cards, places with
  *  a map link, and numbers to call. Each sits inside the article's white
@@ -34,22 +35,56 @@ export function Inline({ text }: { text: string }) {
   return <>{out}</>;
 }
 
-/** A citation mark. Tapping it opens the sources at the foot and brings
- *  that one into view, briefly tinted so the eye lands on it. */
+/** The sources of the article being read, so a citation mark can show its
+ *  own without leaving the paragraph. */
+export const GuideSources = createContext<GuideSource[]>([]);
+
+/** A citation mark. Tapping it opens that source on its own — a sheet on a
+ *  phone, a popover beside the mark on a wider screen — with what it backs
+ *  up and a link to it, so the reader never loses their place. The full
+ *  numbered list still sits folded at the foot. */
 function Cite({ n }: { n: number }) {
-  const open = (e: MouseEvent) => {
+  const sources = useContext(GuideSources);
+  const src = sources[n - 1];
+  const ref = useRef<HTMLAnchorElement>(null);
+  const [open, setOpen] = useState(false);
+  const show = (e: MouseEvent) => {
     e.preventDefault();
-    const list = document.getElementById("guide-sources") as HTMLDetailsElement | null;
-    const row = document.getElementById(`guide-source-${n}`);
-    if (!list || !row) return;
-    list.open = true;
-    row.scrollIntoView({ behavior: "smooth", block: "center" });
-    row.animate([{ backgroundColor: "rgb(var(--c-accent) / 0.14)" }, { backgroundColor: "transparent" }], { duration: 1600, easing: "ease-out" });
+    if (src) setOpen(true);
   };
   return (
-    <a href={`#guide-source-${n}`} onClick={open} className="tap relative -top-[0.45em] ml-px text-[0.65em] font-medium tabular-nums text-accent">
-      {n}
-    </a>
+    <>
+      <a
+        ref={ref}
+        href={src?.url ?? `#guide-source-${n}`}
+        onClick={show}
+        aria-label={`Source ${n}`}
+        className="tap relative -top-[0.45em] ml-px text-[0.65em] font-medium tabular-nums text-accent"
+      >
+        {n}
+      </a>
+      {src && (
+        <ActionSheet
+          open={open}
+          onClose={() => setOpen(false)}
+          anchorRef={ref}
+          side
+          doneLabel="Done"
+          header={
+            <div className="px-4 pb-2 pt-3 sm:max-w-[22rem]">
+              <p className="text-[13px] tabular-nums text-ink-faint">Source {n}</p>
+              <p className="mt-0.5 break-words text-[17px] leading-snug text-ink">{src.title}</p>
+              {src.note && <p className="mt-1 break-words text-[15px] leading-[1.4] text-ink-soft">{src.note}</p>}
+              <p className="mt-1 break-all text-[13px] text-ink-faint">{new URL(src.url).hostname.replace(/^www\./, "")}</p>
+            </div>
+          }
+        >
+          <button type="button" className="menu-item text-accent" onClick={() => window.open(src.url, "_blank", "noopener")}>
+            Open source
+          </button>
+        </ActionSheet>
+      )}
+    </>
   );
 }
 

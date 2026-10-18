@@ -505,29 +505,43 @@ Text isn't selectable (as in a native app), so values you might paste elsewhere 
 
 When a trip has stays or pins in a country the app has a guide for (Japan today), a row for it sits below the sections. Pin it as its own tab from Manage → Setup → Tabs.
 
-- The home opens with a cover picture, then shelves of photo cards — one row that scrolls sideways on a phone, a grid on wider screens. A card's picture is the first photo in its reads; one with none shows its topic's colour and glyph.
+The guide has two halves: **For this trip**, picked from the trip, and **the book**, the same for every trip and meant to be timeless (no itineraries, prices or opening hours).
+
+**Home**
+
+- A full-width cover picture with its credit, then a standfirst on what the guide is.
 - **Continue reading** — the last article you opened, on this device.
+- **For this trip**, then **Understanding Japan** (the book), each under its own heading.
+
+**For this trip**
+
 - **On this trip** — a card per city or town the trip touches, matched from its stays, bases and pins (a day trip to Uji or Kurama shows up without a stay there). Stays come first, marked **Staying**, with their day-trip count.
-- **Elsewhere in Japan** — the guide's other cities and regions, the ones the trip doesn't touch (Hiroshima, Sapporo, Kanazawa, Okinawa…), for ideas beyond the route.
-- A city page groups its reads under **Understand the place**, **Look closer**, **Eat and drink** and **Before you go**, with shorter notes under **Worth knowing**. The cities on the route — Tokyo, Kyoto, the Fuji lakes, Nara, Uji, Kurama, Hakone and Kamakura — are full sourced chapters with no short notes left.
-- **While you're there** — festivals, seasons and closures that fall within the trip's own dates. Folded by default, with a count beside it.
-- **Day trips** — from each base, off the usual list, all by train or bus; on the city's page.
-- The guide has two halves. **For this trip** is picked from the trip: On this trip, Elsewhere in Japan, While you're there and Before you go. **The book** is the same for every trip and is meant to be timeless — no itineraries, prices or opening hours.
-- **The book** reads in order, in five parts: **Origins** (history, belief, language), **The land**, **The table** (how the cooking works, food at home, eating out, menus and drinks, regional food, coffee), **Everyday life** (Look closer, Japan by numbers, school, work, customs, stamps) and **Culture and the state** (culture, manga & anime, politics, Did you know).
-- Every page is grouped into collapsible sections; on a topic's page each row shows a title, a one-line summary and, when the article has a photo, a thumbnail on the right.
-- A city's page opens on its cover picture (else its name in the local script on a colour panel).
-- Every article opens on a picture: its own first photo (moved up, with its caption and credit), else its topic's or city's cover, else a panel in its colour. A short note with no body can carry a `cover` photo instead.
-- Body text is ragged-right on a phone and justified on wider screens.
-- Tap a row to read it as its own article: a standfirst, then a guided read with sub-headings, numbered steps, do / don't lists, small tables, key numbers and tip or warning boxes, plus **Words to know**.
-- Articles can also carry a chart (line or bar, with unit, year and source), a dated timeline, food cards tagged Everyday / Regional / Seasonal / Occasion / Mostly for visitors, places with a Google Maps button, and phone numbers that dial on tap.
-- Long reads show their reading time, and an **In this article** list of their sections that jumps to each one.
-- Links in the text open another entry of the guide; **Related** at the foot lists the entries that carry the thread on.
-- **Sources** sit folded and numbered at the foot of an article, each with a line on what it supports. A small number in the text opens the list at that source.
-- **Photos** — freely licensed pictures from Wikimedia Commons, resized and bundled in `public/guide/jp/` so they show offline. Each carries its author and licence under it, linking to its source page; the list lives in `src/guides/japan/photos.ts`.
-- **Up next** at the foot of an article opens the next one in place, so Back still returns to the list. The last one in a topic offers the next topic.
-- **History** is a timeline: each era shows its dates and a one-line summary.
-- **Before you go** — **Be prepared** (who to call, earthquakes, tsunami, typhoons, Fuji, bears and other wildlife, setting up for a disaster), **Rules with teeth** and **Getting around**.
-- **Coffee houses** worth sitting in are on the Tokyo and Kyoto pages, under **Coffee**; the Coffee chapter itself names no cafés.
+- **Elsewhere in Japan** — the guide's other cities and regions (Hiroshima, Sapporo, Kanazawa, Okinawa…), for ideas beyond the route.
+- **While you're there** — festivals, seasons and closures that fall within the trip's dates. Folded, with a count.
+- **Before you go** — **Be prepared** (who to call, earthquakes, tsunami, typhoons, Fuji, bears), **Rules with teeth** and **Getting around**.
+- A city page opens on its cover picture and groups its reads under **Understand the place**, **Look closer**, **Eat and drink**, **Before you go** and **Coffee** (Tokyo and Kyoto), with short notes under **Worth knowing**.
+- **Day trips** — from each base, all by train or bus, on the city's page.
+
+**The book**
+
+- **At a glance** — six key numbers for the country, with their sources folded underneath.
+- Contents in five parts, chapters numbered straight through: **Origins** (history, belief, language), **The land**, **The table** (how the cooking works, food at home, eating out, menus and drinks, regional food, coffee), **Everyday life** (Look closer, Japan by numbers, school, work, customs, stamps) and **Culture and the state** (culture, manga & anime, politics, Did you know).
+- A chapter page shows "Chapter 4 · Origins", its title and dek, its picture, an optional opening read, then its sections. **Next chapter** at the foot.
+- **History** opens with two era bands drawn to scale, then lists its eras as a timeline.
+
+**Reading an article**
+
+- Opens on a picture: its own first photo, else its chapter's or city's cover, else a colour panel. A short note can carry a `cover` photo.
+- A caption, the title and a standfirst, then "Chapter · minutes" for long reads and an **In this article** list that jumps to each section.
+- The first paragraph is a lede, a size larger. Text is always ragged-right, never justified; paragraphs sit a line apart and headings have room above.
+- Blocks: sub-headings, numbered steps, do / don't lists, tables, key numbers, tip or warning boxes, timelines, charts (line or bar, with unit and source), food cards, places with a Maps button, phone numbers that dial, and **Words to know**.
+- Visual blocks: an **era band** (spans to scale — tap or drag along it, or step with the arrows), a **pull quote** (a line from the read itself), **What's known** (Settled / Revised / Still argued), a side-by-side **compare**, a **photo pair**, and **Go deeper** panels that open in place.
+- Tap a small source number and that source opens in a sheet (a popover on desktop) with what it backs up and **Open source**. All sources also sit folded and numbered at the foot.
+- Links in the text open other entries; **Related** lists the ones that carry the thread on. **Up next** opens the next entry in place, so Back still returns to the list.
+
+**Content**
+
+- **Photos** — freely licensed pictures from Wikimedia Commons, resized and bundled in `public/guide/jp/` so they show offline, each credited and linked to its source; the list is `src/guides/japan/photos.ts`.
 - It's built into the app (`src/guides/`), read-only and works offline. For Japan the book is `src/guides/jp.ts` and the trip half `src/guides/japan/trip.ts`. Adding a country is one content file plus a `GUIDES` entry.
 
 ### Stays and journeys

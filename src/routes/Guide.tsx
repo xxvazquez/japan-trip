@@ -7,7 +7,8 @@ import { Section } from "@/components/Section";
 import { IconTile } from "@/components/IconTile";
 import { TileRow } from "@/components/TileRow";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
-import { Calls, Chart, Dishes, Inline, Venues, Photo } from "@/components/GuideBlocks";
+import { Calls, Chart, Dishes, GuideSources, Inline, Venues, Photo } from "@/components/GuideBlocks";
+import { Compare, Eras, Evidence, Figures, Pull } from "@/components/GuideVisuals";
 import { useData } from "@/lib/data";
 import { guideTopicColor } from "@/lib/tones";
 import { GUIDE_CONTENT } from "@/guides/content";
@@ -41,26 +42,9 @@ export function GuideHome() {
   // the rest of the country, for wondering where else to go
   const elsewhere = guide.cities.filter((c) => !stays.includes(c) && !others.includes(c));
   const dates = datesOnTrip(guide, data);
-  const all = allTopics(guide);
   const pinned = data.config.modules.some((m) => m.enabled && m.kind === "guide" && m.target === guide.id);
   const home = guidePath(guide);
-  const shelf = (title: string, topics: GuideTopic[]) => (
-    <Section key={title} title={title} id={`guide-${guide.id}-${slug(title)}`} bare>
-      <Shelf>
-        {topics.map((t) => (
-          <ShelfCard
-            key={t.id}
-            to={`${home}/${t.id}`}
-            cover={coverOf(topicArticles(t))}
-            tint={guideTopicColor(all.indexOf(t))}
-            fallback={<IconTile name={t.icon} glyph={t.glyph} color={guideTopicColor(all.indexOf(t))} className="scale-[1.75]" />}
-            title={t.title}
-            meta={t.summary}
-          />
-        ))}
-      </Shelf>
-    </Section>
-  );
+  const book = guide.sections.flatMap((sec) => sec.chapters);
 
   return (
     <Page width="form">
@@ -69,6 +53,7 @@ export function GuideHome() {
       <PageHeader back={pinned ? undefined : "/logbook"} title={guide.name} meta={guide.local} className="mb-5" />
       <div className="space-y-7">
         {guide.cover && <Cover photo={guide.cover} />}
+        <p className="break-words text-[17px] leading-[1.45] text-ink-soft">{guide.standfirst}</p>
 
         {last && (
           <Section title="Continue reading" id={`guide-${guide.id}-continue`}>
@@ -85,58 +70,144 @@ export function GuideHome() {
           </Section>
         )}
 
-        {stays.length + others.length > 0 && (
-          <Section title="On this trip" id={`guide-${guide.id}-places`} bare>
-            <Shelf>
-              {[...stays, ...others].map((c) => {
-                const stay = stays.includes(c);
-                const trips = c.dayTrips?.length ?? 0;
-                return (
+        <Half title="For this trip" meta="Picked from the trip’s stays, plan and dates">
+          {stays.length + others.length > 0 && (
+            <Section title="On this trip" id={`guide-${guide.id}-places`} bare>
+              <Shelf>
+                {[...stays, ...others].map((c) => {
+                  const stay = stays.includes(c);
+                  const trips = c.dayTrips?.length ?? 0;
+                  return (
+                    <ShelfCard
+                      key={c.id}
+                      to={`${home}/place/${c.id}`}
+                      cover={coverOf(cityArticles(c))}
+                      fallback={<span className="font-jp text-[28px] text-ink-soft">{c.local ?? c.name}</span>}
+                      title={c.name}
+                      meta={[stay ? "Staying" : "On your plan", trips ? `${trips} day trips` : ""].filter(Boolean).join(" · ")}
+                    />
+                  );
+                })}
+              </Shelf>
+            </Section>
+          )}
+
+          {elsewhere.length > 0 && (
+            <Section title={`Elsewhere in ${guide.name}`} id={`guide-${guide.id}-elsewhere`} bare>
+              <Shelf>
+                {elsewhere.map((c) => (
                   <ShelfCard
                     key={c.id}
                     to={`${home}/place/${c.id}`}
                     cover={coverOf(cityArticles(c))}
                     fallback={<span className="font-jp text-[28px] text-ink-soft">{c.local ?? c.name}</span>}
                     title={c.name}
-                    meta={[stay ? "Staying" : "On your plan", trips ? `${trips} day trips` : ""].filter(Boolean).join(" · ")}
+                    meta={c.population}
                   />
-                );
-              })}
-            </Shelf>
-          </Section>
-        )}
+                ))}
+              </Shelf>
+            </Section>
+          )}
+          {dates.length > 0 && (
+            <Section title="While you're there" id={`guide-${guide.id}-while-there`} defaultOpen={false} action={<span className="text-[13px] text-ink-faint">{dates.length}</span>}>
+              <ul>
+                {dateArticles(dates).map((r) => (
+                  <ArticleRow key={r.slug} to={`${home}/date/${r.slug}`} caption={r.eyebrow} title={r.title} meta={r.article.summary} thumb={photoIn(r.article)?.src} />
+                ))}
+              </ul>
+            </Section>
+          )}
 
-        {elsewhere.length > 0 && (
-          <Section title={`Elsewhere in ${guide.name}`} id={`guide-${guide.id}-elsewhere`} bare>
-            <Shelf>
-              {elsewhere.map((c) => (
-                <ShelfCard
-                  key={c.id}
-                  to={`${home}/place/${c.id}`}
-                  cover={coverOf(cityArticles(c))}
-                  fallback={<span className="font-jp text-[28px] text-ink-soft">{c.local ?? c.name}</span>}
-                  title={c.name}
-                  meta={c.population}
-                />
-              ))}
-            </Shelf>
-          </Section>
-        )}
+          {guide.practical.length > 0 && (
+            <Section title="Before you go" id={`guide-${guide.id}-before-you-go`}>
+              <ul>
+                {guide.practical.map((t, i) => (
+                  <TileRow
+                    key={t.id}
+                    to={`${home}/${t.id}`}
+                    tile={<IconTile size="sm" name={t.icon} glyph={t.glyph} color={guideTopicColor(book.length + i)} />}
+                    title={t.title}
+                    meta={t.summary}
+                  />
+                ))}
+              </ul>
+            </Section>
+          )}
 
-        {dates.length > 0 && (
-          <Section title="While you're there" id={`guide-${guide.id}-while-there`} defaultOpen={false} action={<span className="text-[13px] text-ink-faint">{dates.length}</span>}>
-            <ul>
-              {dateArticles(dates).map((r) => (
-                <ArticleRow key={r.slug} to={`${home}/date/${r.slug}`} caption={r.eyebrow} title={r.title} meta={r.article.summary} thumb={photoIn(r.article)?.src} />
-              ))}
-            </ul>
-          </Section>
-        )}
+        </Half>
 
-        {shelf("Before you go", guide.practical)}
-        {guide.sections.map((sec) => shelf(sec.title, sec.chapters))}
+        <Half title={`Understanding ${guide.name}`} meta="The guide itself — the same for any trip, best read in order">
+          {guide.glance && <Glance guide={guide} />}
+          {guide.sections.map((sec, si) => (
+            <Section key={sec.title} title={`Part ${si + 1} · ${sec.title}`} id={`guide-${guide.id}-part-${slug(sec.title)}`}>
+              <ul>
+                {sec.chapters.map((t) => (
+                  <ChapterRow key={t.id} to={`${home}/${t.id}`} n={book.indexOf(t) + 1} topic={t} />
+                ))}
+              </ul>
+            </Section>
+          ))}
+        </Half>
       </div>
     </Page>
+  );
+}
+
+/** One half of the guide's home — For this trip, or the book — under a
+ *  heading of its own, the way the App Store's Today groups its stories. */
+function Half({ title, meta, children }: { title: string; meta: string; children: ReactNode }) {
+  return (
+    <section className="space-y-6 pt-2">
+      <header className="px-1">
+        <h2 className="subhead break-words text-ink">{title}</h2>
+        <p className="mt-0.5 break-words text-[15px] leading-snug text-ink-faint">{meta}</p>
+      </header>
+      {children}
+    </section>
+  );
+}
+
+/** The country in a handful of numbers — the cover's fact panel — with its
+ *  sources folded underneath. */
+function Glance({ guide }: { guide: CountryGuide }) {
+  const g = guide.glance!;
+  return (
+    <div className="space-y-2">
+      <Section title="At a glance" id={`guide-${guide.id}-glance`}>
+        <dl className="grid grid-cols-2 sm:grid-cols-3">
+          {g.figures.map((f, i) => (
+            <div
+              key={f.label}
+              className={`relative px-3.5 py-3 ${i % 2 ? "" : "after:absolute after:bottom-3 after:right-0 after:top-3 after:w-[var(--hair)] after:bg-line sm:after:hidden"} ${i >= 2 ? "border-t border-line sm:border-t-0" : ""} ${i >= 3 ? "sm:border-t sm:border-line" : ""}`}
+            >
+              <dt className="sr-only">{f.label}</dt>
+              <dd className="text-[24px] font-medium leading-tight tabular-nums tracking-[-0.01em] text-ink">{f.value}</dd>
+              <dd className="mt-0.5 break-words text-[13px] leading-snug text-ink-soft">{f.label}</dd>
+            </div>
+          ))}
+        </dl>
+      </Section>
+      <Sources sources={g.sources} id="guide-glance-sources" />
+    </div>
+  );
+}
+
+/** A chapter in the contents: its number, title and dek, and its picture —
+ *  a book's table of contents more than a list of links. */
+function ChapterRow({ to, n, topic: t }: { to: string; n: number; topic: GuideTopic }) {
+  const thumb = t.cover?.src ?? coverOf(topicArticles(t))?.src;
+  return (
+    <li className={`${INSET_DIVIDER} after:left-[3.25rem]`}>
+      <Link to={to} viewTransition className="flex items-center gap-3 py-3 pl-3.5 pr-3.5 transition-colors duration-150 hover:bg-surface-2/40 active:bg-ink/[0.07]">
+        <span className="w-6 shrink-0 self-start pt-px text-right text-[20px] leading-tight tabular-nums text-ink-faint">{n}</span>
+        <span className="min-w-0 flex-1">
+          <span className="value block break-words">{t.title}</span>
+          <span className="meta mt-0.5 block break-words">{t.summary}</span>
+        </span>
+        {thumb && <Thumb src={thumb} />}
+        <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
+      </Link>
+    </li>
   );
 }
 
@@ -161,18 +232,19 @@ function coverOf(refs: ArticleRef[]): GuidePhoto | undefined {
  *  Apple Maps guide. */
 function Cover({ photo: p }: { photo: GuidePhoto }) {
   return (
-    <figure>
+    <figure className="-mx-5 sm:mx-0">
       <img
         src={p.src}
         alt={p.alt}
         width={p.w}
         height={p.h}
         decoding="async"
-        className="block aspect-[2/1] w-full rounded-[12px] bg-surface-2 object-cover"
+        className="block aspect-[3/2] w-full bg-surface-2 object-cover sm:aspect-[2/1] sm:rounded-[12px]"
       />
-      <figcaption className="mt-1.5 px-1 text-[11px] leading-snug text-ink-faint">
-        <a href={p.url} target="_blank" rel="noreferrer" className="break-words">
-          {p.caption ? `${p.caption} · ` : ""}{p.author} · {p.license}
+      <figcaption className="mt-1.5 px-6 sm:px-1">
+        {p.caption && <span className="block break-words text-[13px] leading-snug text-ink-soft"><Inline text={p.caption} /></span>}
+        <a href={p.url} target="_blank" rel="noreferrer" className="mt-0.5 block break-words text-[11px] leading-snug text-ink-faint">
+          {p.author} · {p.license}
         </a>
       </figcaption>
     </figure>
@@ -241,22 +313,55 @@ function rememberRead(id: string, last: LastRead) {
   }
 }
 
+/** where a chapter sits: "Chapter 4 · Origins" for the book, "Before you
+ *  go" for a practical page */
+function chapterLabel(g: CountryGuide, t: GuideTopic): string {
+  const book = g.sections.flatMap((sec) => sec.chapters);
+  const n = book.indexOf(t);
+  if (n < 0) return "Before you go";
+  return `Chapter ${n + 1} · ${g.sections.find((sec) => sec.chapters.includes(t))!.title}`;
+}
+
+/**
+ * A chapter's own page, laid out like a chapter opening in Apple Books: a
+ * caption with its number and part, the large title and its dek, the
+ * picture, then the chapter's opening read — what it covers and how its
+ * parts hang together — before the list of its sections. The next chapter
+ * waits at the foot, so the book reads straight through.
+ */
 export function GuideTopicPage() {
   const guide = useGuide();
   const { topic: id } = useParams();
   if (!guide) return noGuide;
-  const topic = allTopics(guide).find((t) => t.id === id);
+  const topics = allTopics(guide);
+  const t = topics.findIndex((x) => x.id === id);
+  const topic = topics[t];
   if (!topic) return <Missing title="Nothing here" body="That part of the guide isn’t here." to={guidePath(guide)} cta={`Back to ${guide.name}`} />;
   const refs = topicArticles(topic);
   const topicPath = `${guidePath(guide)}/${topic.id}`;
+  const book = guide.sections.flatMap((sec) => sec.chapters);
+  const next = book.includes(topic) ? book[book.indexOf(topic) + 1] : undefined;
   let n = 0;
 
   return (
     <Page width="form">
-      <PageHeader back={guidePath(guide)} title={topic.title} meta={topic.summary} className="mb-6" />
+      <PageHeader back={guidePath(guide)} eyebrow={chapterLabel(guide, topic)} title={topic.title} className="!mb-3" />
+      <p className="mb-6 break-words text-[17px] leading-[1.45] text-ink-soft">{topic.summary}</p>
       <div className="space-y-6">
+        <Hero
+          photo={topic.cover}
+          fallback={{ photo: coverOf(refs), tint: guideTopicColor(t), art: <IconTile name={topic.icon} glyph={topic.glyph} color={guideTopicColor(t)} className="scale-[1.75]" /> }}
+        />
+        {topic.intro && (
+          <GuideSources.Provider value={topic.intro.sources ?? []}>
+            <article className="selectable -mx-5 bg-surface px-5 py-5 sm:mx-0 sm:rounded-[12px]">
+              <Body blocks={topic.intro.body} />
+            </article>
+            {topic.intro.sources?.length ? <Sources sources={topic.intro.sources} /> : null}
+          </GuideSources.Provider>
+        )}
         {topic.blocks.map((b, i) => (
-          <Section key={i} title={b.title} id={`guide-${guide.id}-${topic.id}-${i}`}>
+          <Section key={i} title={b.title ?? (topic.intro ? "In this chapter" : undefined)} id={`guide-${guide.id}-${topic.id}-${i}`}>
             <ul>
               {b.items?.map((it) => {
                 const r = refs[n++];
@@ -269,6 +374,16 @@ export function GuideTopicPage() {
             </ul>
           </Section>
         ))}
+        {next && (
+          <div className="pt-2">
+            <p className="kicker mb-1.5 px-1">Next chapter</p>
+            <Section>
+              <ul>
+                <ChapterRow to={`${guidePath(guide)}/${next.id}`} n={book.indexOf(next) + 1} topic={next} />
+              </ul>
+            </Section>
+          </div>
+        )}
       </div>
     </Page>
   );
@@ -377,6 +492,7 @@ export function GuideTopicArticle() {
       back={topicPath}
       entry={refs[i]}
       fallback={{ photo: coverOf(refs), tint: guideTopicColor(t), art: <IconTile name={topic.icon} glyph={topic.glyph} color={guideTopicColor(t)} className="scale-[1.75]" /> }}
+      chapter={chapterLabel(guide, topic)}
       next={refs[i + 1] && { to: `${topicPath}/${refs[i + 1].slug}`, entry: refs[i + 1] }}
       nextTopic={nextTopic && { to: `${guidePath(guide)}/${nextTopic.id}`, topic: nextTopic, color: guideTopicColor(t + 1) }}
     />
@@ -489,9 +605,12 @@ function ArticlePage({
   fallback,
   next,
   nextTopic,
+  chapter,
 }: {
   back: string;
   entry: ArticleRef;
+  /** "Chapter 4 · Origins", said with the reading time */
+  chapter?: string;
   fallback?: ArticleFallback;
   next?: { to: string; entry: ArticleRef };
   nextTopic?: { to: string; topic: GuideTopic; color: string };
@@ -517,10 +636,13 @@ function ArticlePage({
     return r ? [{ to: `${guidePath(guide)}/${ref}`, entry: r }] : [];
   }).filter((r) => r.to !== next?.to) : [];
   return (
+    <GuideSources.Provider value={a.sources ?? []}>
     <Page width="form">
       <PageHeader back={back} eyebrow={entry.eyebrow} title={entry.title} className={a.summary || minutes ? "!mb-3" : "mb-6"} />
       {a.summary && <p className="mb-2 break-words text-[17px] leading-[1.45] text-ink-soft">{a.summary}</p>}
-      {minutes ? <p className="mb-6 text-[13px] text-ink-faint">{minutes} min read</p> : a.summary ? <div className="mb-4" /> : null}
+      {minutes || chapter ? (
+        <p className="mb-6 text-[13px] text-ink-faint">{[chapter, minutes && `${minutes} min read`].filter(Boolean).join(" · ")}</p>
+      ) : a.summary ? <div className="mb-4" /> : null}
 
       <div className="space-y-6">
         <Hero photo={own} fallback={fallback} />
@@ -661,15 +783,16 @@ function ArticlePage({
         ) : null}
       </div>
     </Page>
+    </GuideSources.Provider>
   );
 }
 
 /** Where an article's facts come from: a quiet numbered list of links at
  *  the foot, closed until asked for, so citations never crowd the read.
  *  A `[^n]` mark in the text opens it at the nth. */
-function Sources({ sources }: { sources: GuideSource[] }) {
+function Sources({ sources, id = "guide-sources" }: { sources: GuideSource[]; id?: string }) {
   return (
-    <details id="guide-sources" className="group">
+    <details id={id} className="group">
       <summary className="tap flex w-fit cursor-pointer list-none items-center gap-1.5 px-1 text-[13px] text-ink-soft [&::-webkit-details-marker]:hidden">
         <Icon name="link" size={13} />
         {sources.length === 1 ? "1 source" : `${sources.length} sources`}
@@ -677,7 +800,7 @@ function Sources({ sources }: { sources: GuideSource[] }) {
       </summary>
       <ul className="mt-2 rounded-[12px] bg-surface">
         {sources.map((s, i) => (
-          <li key={i} id={`guide-source-${i + 1}`} className={`${INSET_DIVIDER} scroll-mt-24 first:rounded-t-[12px] last:rounded-b-[12px]`}>
+          <li key={i} id={`${id}-${i + 1}`} className={`${INSET_DIVIDER} scroll-mt-24 first:rounded-t-[12px] last:rounded-b-[12px]`}>
             <a href={s.url} target="_blank" rel="noreferrer" className="flex items-start gap-3 px-3.5 py-2.5 active:bg-ink/[0.07]">
               <span className="w-4 shrink-0 pt-px text-right text-[13px] tabular-nums text-ink-faint">{i + 1}</span>
               <span className="min-w-0 flex-1">
@@ -778,10 +901,15 @@ function EventRow({ to, event, last }: { to: string; event: GuideEvent; last: bo
  *  tip, a small grouped table, key numbers as tiles. */
 /** an article's blocks in order — bar `skip`, a photo already shown as
  *  the article's header */
-function Body({ blocks, skip = -1 }: { blocks: GuideBody[]; skip?: number }) {
+function Body({ blocks, skip = -1, nested }: { blocks: GuideBody[]; skip?: number; nested?: boolean }) {
+  // the lede is the first paragraph of the read itself, not of a panel in it
+  const lede = nested ? -1 : blocks.findIndex((b, i) => i !== skip && !("photo" in b));
+  // ragged-right always, as every Apple reading view sets it (justifying
+  // opens rivers between words); paragraphs a clear line apart; a heading
+  // sits close to what it heads, with a wide space above it
   return (
-    <div className="space-y-4">
-      {blocks.map((b, i) => (i === skip ? null : <BodyBlock key={i} block={b} first={i === 0} />))}
+    <div className={`${nested ? "space-y-3" : "space-y-5"} [&>h2+*]:!mt-2.5`}>
+      {blocks.map((b, i) => (i === skip ? null : <BodyBlock key={i} block={b} first={i === lede} />))}
     </div>
   );
 }
@@ -828,10 +956,21 @@ function ArticleHeader({ photo: p }: { photo: GuidePhoto }) {
 }
 
 function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
-  if ("p" in b) return <p className={`break-words text-[17px] leading-[1.5] text-ink ${JUSTIFY}`}><Inline text={b.p} /></p>;
+  // the opening paragraph is the lede, a size up, as Apple News sets it
+  if ("p" in b) {
+    return first
+      ? <p className="break-words text-[19px] leading-[1.45] text-ink"><Inline text={b.p} /></p>
+      : <p className={`break-words text-[17px] leading-[1.55] text-ink`}><Inline text={b.p} /></p>;
+  }
+  if ("pull" in b) return <Pull text={b.pull} />;
+  if ("evidence" in b) return <Evidence evidence={b.evidence} />;
+  if ("compare" in b) return <Compare compare={b.compare} />;
+  if ("eras" in b) return <Eras eras={b.eras} />;
+  if ("figures" in b) return <Figures photos={b.figures} />;
+  if ("more" in b) return <More title={b.more.title} blocks={b.more.body} />;
   if ("h" in b) {
     return (
-      <h2 id={headingId(b.h)} className={`scroll-mt-[calc(var(--sat)+var(--nav-h)+1rem)] break-words text-[20px] font-medium leading-snug text-ink ${first ? "" : "!mt-8"}`}>
+      <h2 id={headingId(b.h)} className={`scroll-mt-[calc(var(--sat)+var(--nav-h)+1rem)] break-words text-[22px] font-medium leading-tight tracking-[-0.01em] text-ink ${first ? "" : "!mt-10"}`}>
         {b.h}
       </h2>
     );
@@ -964,14 +1103,27 @@ function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
   );
 }
 
+/** "Go deeper": a closed panel for the detail a curious reader wants and
+ *  the rest can skip — the argument behind a date, how a number is made. */
+function More({ title, blocks }: { title: string; blocks: GuideBody[] }) {
+  return (
+    <details className="group rounded-[10px] bg-surface-2">
+      <summary className="flex cursor-pointer list-none items-center gap-3 px-3.5 py-3 active:bg-ink/[0.05] [&::-webkit-details-marker]:hidden">
+        <span className="min-w-0 flex-1">
+          <span className="block text-[13px] text-ink-faint">Go deeper</span>
+          <span className="block break-words text-[17px] leading-snug text-ink">{title}</span>
+        </span>
+        <Icon name="chevron" size={13} className="shrink-0 text-ink-faint transition-transform duration-200 group-open:rotate-90" />
+      </summary>
+      <div className="animate-fade-up px-3.5 pb-4 pt-1">
+        <Body blocks={blocks} nested />
+      </div>
+    </details>
+  );
+}
+
 const headingId = (h: string) => `part-${slug(h)}`;
 
-/** Body paragraphs are set ragged-right on a phone — a column that narrow
- *  opens rivers and splits words when justified, which is why Apple's
- *  reading views never justify it — and flush to both edges, hyphenated,
- *  on the wider card. Only full-width prose: narrow columns (steps, notes,
- *  tables) stay ragged everywhere. */
-const JUSTIFY = "sm:text-justify sm:hyphens-auto";
 
 /** about how long an article takes to read, at an unhurried 200 words a
  *  minute — said only for the long ones, where it helps to know */
@@ -987,7 +1139,7 @@ function Prose({ text, className = "" }: { text: GuideText; className?: string }
   return (
     <div className={`space-y-3 text-[17px] leading-[1.5] text-ink ${className}`}>
       {paras.map((p) => (
-        <p key={p} className={`break-words ${JUSTIFY}`}><Inline text={p} /></p>
+        <p key={p} className="break-words"><Inline text={p} /></p>
       ))}
     </div>
   );

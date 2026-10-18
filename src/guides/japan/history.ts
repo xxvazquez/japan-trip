@@ -9,7 +9,47 @@ export const history: GuideTopic = {
   id: "history",
   title: "A short history",
   glyph: "castle",
-  summary: "From the first pottery to Reiwa, era by era, and what each left on the route",
+  summary: "From the first pottery to Reiwa, era by era",
+  intro: {
+    body: [
+      { p: "Japanese history is usually told in eras named after the seat of power — Nara, Heian, Kamakura, Edo — and the names make the periods sound alike. They aren't. People made pottery on these islands for more than ten thousand years before anyone wrote anything down, and everything from the first Buddhist temples to the bullet train fits into the last fifteen hundred." },
+      {
+        eras: {
+          title: "Deep time",
+          read: "Drag along the band. Jōmon alone outlasts everything after it several times over.",
+          spans: [
+            { name: "Jōmon", local: "縄文", from: -14500, to: -950, when: "c. 14,500 – 10th c. BC", text: "Hunter-gatherers in settled villages, and some of the oldest pottery in the world. The end date varies by region: farming reached northern Kyushu first.", ref: "history/j-mon-yayoi-and-kofun" },
+            { name: "Yayoi", local: "弥生", from: -950, to: 250, when: "10th c. BC – AD 3rd c.", text: "Wet-rice farming and metal from the continent, starting in northern Kyushu and spreading east over centuries.", ref: "history/j-mon-yayoi-and-kofun" },
+            { name: "Kofun", local: "古墳", from: 250, to: 538, when: "3rd c. – 538", text: "Rulers buried under great keyhole-shaped mounds; the Yamato confederation takes shape in the Nara basin.", ref: "history/j-mon-yayoi-and-kofun" },
+            { name: "Since Buddhism", from: 538, to: new Date().getFullYear(), when: "538 – today", text: "Everything from the arrival of Buddhism to today: writing, the capitals, the samurai, the modern state. The band below opens it up.", ref: "history/asuka-and-nara" },
+          ],
+          source: "Period dates as taught today; the Yayoi start follows the National Museum of Japanese History's radiocarbon dating",
+        },
+      },
+      { p: "From the 6th century the record fills in, and the eras become a story of where power sat: with a court that copied China, with regents who married into the imperial line, with warrior governments that ruled beside the throne for almost seven hundred years, and finally with a modern state that kept the emperor and changed almost everything else." },
+      {
+        eras: {
+          title: "Recorded history",
+          read: "Tap or drag to see each era. Since 1868 there's one era per emperor's reign.",
+          spans: [
+            { name: "Asuka", local: "飛鳥", from: 538, to: 710, when: "538–710", text: "Buddhism arrives from Korea, and a clan federation remakes itself as a state on the Chinese model.", ref: "history/asuka-and-nara" },
+            { name: "Nara", local: "奈良", from: 710, to: 794, when: "710–794", text: "The first permanent capital, laid out on a Chinese grid; the Great Buddha; the first histories.", ref: "history/asuka-and-nara" },
+            { name: "Heian", local: "平安", from: 794, to: 1185, when: "794–1185", text: "The court in Kyoto, rule through marriage by the Fujiwara, and the women's literature of the kana script.", ref: "history/heian" },
+            { name: "Kamakura", local: "鎌倉", from: 1185, to: 1333, when: "1185–1333", text: "The first warrior government, in the east; the Mongol invasions; new schools of Buddhism.", ref: "history/kamakura-and-muromachi" },
+            { name: "Muromachi", local: "室町", from: 1336, to: 1573, when: "1336–1573", text: "The Ashikaga shoguns in Kyoto, Zen, Noh and the tea room, then a century of civil war.", ref: "history/kamakura-and-muromachi" },
+            { name: "Azuchi–Momoyama", local: "安土桃山", from: 1573, to: 1603, when: "1573–1603", text: "Three warlords reunite the country; guns, missionaries and the great castles.", ref: "history/unification" },
+            { name: "Edo", local: "江戸", from: 1603, to: 1868, when: "1603–1868", text: "Two and a half centuries of Tokugawa peace, controlled borders and a city of a million.", ref: "history/edo" },
+            { name: "Meiji", local: "明治", from: 1868, to: 1912, when: "1868–1912", text: "The old order abolished in a generation: railways, schools, a constitution, an empire.", ref: "history/meiji-to-1945" },
+            { name: "Taishō", local: "大正", from: 1912, to: 1926, when: "1912–1926", text: "Party politics, mass newspapers and department stores; the 1923 earthquake.", ref: "history/meiji-to-1945" },
+            { name: "Shōwa", local: "昭和", from: 1926, to: 1989, when: "1926–1989", text: "Militarism and war, defeat and occupation, then the fastest growth in the world.", ref: "history/since-1945" },
+            { name: "Heisei", local: "平成", from: 1989, to: 2019, when: "1989–2019", text: "The bubble bursts; slow growth, earthquakes, and a population that starts to shrink.", ref: "history/since-1945" },
+            { name: "Reiwa", local: "令和", from: 2019, to: new Date().getFullYear(), when: "2019 –", text: "The first era named from Japanese poetry rather than the Chinese classics.", ref: "history/since-1945" },
+          ],
+          source: "Conventional period dates. Kamakura is dated here from 1185, as most textbooks now do",
+        },
+      },
+    ],
+  },
   blocks: [
     {
       title: "Before the samurai",
