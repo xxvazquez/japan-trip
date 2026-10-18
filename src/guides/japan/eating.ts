@@ -9,7 +9,7 @@ export const eatingOut: GuideTopic = {
   title: "Eating out",
   glyph: "restaurant",
   summary: "Standing soba to a kaiseki counter, the street foods that became the national menu, and how a meal out works",
-  cover: photoOf("yakitori", "A cook in white gloves turning rows of chicken skewers over a long charcoal grill", "Skewers over charcoal: one of the dishes that turned eating out into everyday life."),
+  cover: photoOf("yokocho", "A narrow lane of small eateries under red lanterns, behind an old corner coffee shop", "The way into Omoide Yokochō, a lane of tiny eateries by Shinjuku station."),
   intro: {
     body: [
       { p: "Japan has eaten out for a long time. Edo, by the 1700s one of the largest cities in the world, was full of single men — samurai serving their lords' years in the capital, labourers, craftsmen — living in rooms without kitchens. They ate from stalls: sushi, tempura, soba, eel. Much of the national menu is that street food, gone upmarket." },
@@ -80,12 +80,16 @@ export const eatingOut: GuideTopic = {
           title: "Depachika",
           summary: "A department store's basement food hall, and what it says about gifts",
           body: [
-            { p: "Department stores put their food halls underground, by the subway entrances, so commuters walk through them. A big **depachika** is a city's best food in one place: bento, sōzai, wagashi, Western cakes, pickles, tea, fruit." },
+            { p: "Department stores put their food halls underground, by the subway entrances, so commuters walk through them. A big **depachika** is a city's best food in one place: bento, sōzai, wagashi, Western cakes, pickles, tea, fruit.[^1]" },
             photo("depachika", "A busy department-store basement food hall with counters of fruit and prepared food", "A depachika: counters of prepared food, gifts and fruit under one low ceiling."),
-            { p: "Much of what's sold is **gifts**. Japan has formal gift seasons — *ochūgen* in summer, *oseibo* in December — and an expectation of **omiyage** after any trip, so beautifully boxed, individually wrapped, easy-to-share sweets are a whole industry." },
+            { p: "Much of what's sold is **gifts**. Japan has formal gift seasons — *ochūgen* in summer, *oseibo* in December — and an expectation of **omiyage** after any trip, so beautifully boxed, individually wrapped, easy-to-share sweets are a whole industry.[^2]" },
             { p: "The fruit counter with melons at the price of a dinner exists for the same reason: it's a present, not a snack. How gift food grew out of travel is in [Meibutsu and the station box lunch](guide:regional-food/meibutsu-omiyage-and-the-station-box-lunch)." },
           ],
           related: ["food-at-home/bought-not-cooked", "regional-food/meibutsu-omiyage-and-the-station-box-lunch", "drinks/wagashi-and-sweets-that-tell-the-month"],
+          sources: [
+            { title: "Depachika — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E3%83%87%E3%83%91%E5%9C%B0%E4%B8%8B", note: "Department-store food halls" },
+            { title: "Omiyage — Wikipedia", url: "https://en.wikipedia.org/wiki/Omiyage", note: "Souvenir gifts after a trip" },
+          ],
         },
         {
           title: "Lunch for children, invented upstairs",
@@ -404,7 +408,7 @@ export const eatingOut: GuideTopic = {
           title: "Words on a menu",
           summary: "Cooking methods and ingredients, so a menu becomes readable",
           body: [
-            { p: "Japanese menus build dish names from a few parts: the ingredient, then how it's cooked. Learn the endings and you can guess most dishes. **Sake shioyaki** is salmon, salt-grilled; **buta kakuni** is pork, cubed and braised." },
+            { p: "Japanese menus build dish names from a few parts: the ingredient, then how it's cooked. Learn the endings and you can guess most dishes.[^1] **Sake shioyaki** is salmon, salt-grilled; **buta kakuni** is pork, cubed and braised." },
             { h: "How it's cooked" },
             {
               table: {
@@ -437,6 +441,9 @@ export const eatingOut: GuideTopic = {
             },
           ],
           related: ["eating-out/getting-a-table-ordering-eating", "language/three-scripts-at-once", "how-food-works/how-a-meal-is-built"],
+          sources: [
+            { title: "Japanese cuisine — Wikipedia", url: "https://en.wikipedia.org/wiki/Japanese_cuisine", note: "Dish names by method: yaki, ni, age, mushi, ae" },
+          ],
         },
       ],
     },

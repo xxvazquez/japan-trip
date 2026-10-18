@@ -87,7 +87,7 @@ export const culture: GuideTopic = {
           related: ["drinks/tea-from-temple-medicine-to-the-vending-machine", "history/unification", "drinks/wagashi-and-sweets-that-tell-the-month"],
           sources: [
             { title: "Wabi-cha — Wikipedia", url: "https://en.wikipedia.org/wiki/Wabi-cha", note: "Jukō, Jōō and Rikyū; the wabi style" },
-            { title: "National Treasures of Yamashiro — Kyoto Prefecture", url: "https://www.pref.kyoto.jp/kyotoyamashiro/en/nationaltreasure.html", note: "Taian at Myōkian, said to be Rikyū's" },
+            { title: "Taian — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%BE%85%E5%BA%B5", note: "Taian at Myōkian, said to be Rikyū's" },
           ],
         },
         {
@@ -239,7 +239,7 @@ export const culture: GuideTopic = {
             { p: "Some have found a second life. New owners have redesigned old sentō with saunas and design-magazine interiors, and a **sauna** boom since the late 2010s has brought young people back, chasing *totonou*, the light-headed calm after alternating hot sauna and cold plunge." },
 
             { h: "Onsen" },
-            { p: "An **onsen** uses water from a hot spring, defined by law by temperature at the source or mineral content. In fiscal 2023 Japan had **27,920** hot-spring sources and 2,857 onsen resort areas with lodging.[^4]" },
+            { p: "An **onsen** uses water from a hot spring as the law defines it (see [Volcanoes](guide:nature/volcanoes)). In fiscal 2023 Japan had **27,920** hot-spring sources and 2,857 onsen resort areas with lodging.[^4]" },
             { p: "The onsen trip itself is a modern institution. Railways and then company outings made resorts like Hakone, Atami and Beppu into places for weekends, honeymoons and office parties, with the **ryokan** inn at the centre: bath, dinner in a cotton yukata, bath again, futon. The trade has since moved from big groups to couples and families." },
 
             { h: "The bath at home" },
@@ -297,7 +297,7 @@ export const culture: GuideTopic = {
           title: "Baseball",
           summary: "An American game that arrived with a teacher and became the national one",
           body: [
-            { p: "**Baseball** came with an American teacher in the 1870s and spread through schools and universities. It became so Japanese that it has its own word, *yakyū*, \"field ball\". The amateur game still matters as much as the professional one, above all the high-school tournament at Kōshien (see [Clubs and Kōshien](guide:growing-up/clubs-and-k-shien))." },
+            { p: "**Baseball** came with an American teacher in the 1870s and spread through schools and universities.[^1] It became so Japanese that it has its own word, *yakyū*, \"field ball\". The amateur game still matters as much as the professional one, above all the high-school tournament at Kōshien (see [Clubs and Kōshien](guide:growing-up/clubs-and-k-shien))." },
             { p: "The professional league dates from 1936, and many of its teams were founded by railways and newspapers to sell tickets and papers (see [Railways built the cities](guide:look-closer/railways-built-the-cities)). It's the most-watched sport in the country." },
             { h: "At a game" },
             { p: "Each team's cheering section (*ōendan*) leads a song for every batter, with trumpets and drums; fans of the visiting team fill one stand of the outfield and cheer only when their side bats. Young women with beer kegs on their backs climb the stands pouring draught all game. Draws are allowed: in the regular season a game ends after twelve innings whatever the score." },
@@ -307,6 +307,9 @@ export const culture: GuideTopic = {
             { local: "応援団", say: "ōendan", means: "the organised cheering section" },
           ],
           related: ["growing-up/clubs-and-k-shien", "look-closer/railways-built-the-cities", "culture/sumo"],
+          sources: [
+            { title: "Baseball in Japan — Wikipedia", url: "https://en.wikipedia.org/wiki/Baseball_in_Japan", note: "Horace Wilson in the 1870s, the 1936 league, cheering sections, tie games" },
+          ],
         },
         {
           title: "Karaoke, pachinko and mascots",

@@ -34,7 +34,7 @@ export const numbers: GuideTopic = {
       { p: "The reads go from the population itself, through births and households, to health, work and the visitors. Each says where its numbers come from and what they can't tell you." },
     ],
     sources: [
-      { title: "Japan's population falls 2.5% in 2025 from 2020 — nippon.com (Jiji)", url: "https://www.nippon.com/en/news/yjj2026092900645/", note: "2025 census: 122,972,528; 29.4% aged 65+" },
+      { title: "Japan's 2025 census — nippon.com", url: "https://www.nippon.com/en/japan-data/h02915/", note: "2025 census: 122,972,528; 29.4% aged 65+" },
       { title: "2020 Population Census — Statistics Bureau of Japan", url: "https://www.stat.go.jp/english/data/kokusei/index.html", note: "One-person households 38%" },
     ],
   },
@@ -83,7 +83,7 @@ export const numbers: GuideTopic = {
           ],
           related: ["numbers/fewer-babies-and-the-fire-horse", "numbers/who-lives-with-whom", "work/overview"],
           sources: [
-            { title: "Japan's population falls 2.5% in 2025 from 2020 — nippon.com (Jiji)", url: "https://www.nippon.com/en/news/yjj2026092900645/", note: "2025 census: 122,972,528; 29.4% aged 65+; 3.84 million foreign residents" },
+            { title: "Japan's 2025 census — nippon.com", url: "https://www.nippon.com/en/japan-data/h02915/", note: "2025 census: 122,972,528; 29.4% aged 65+; 3.84 million foreign residents" },
             { title: "National Institute of Population and Social Security Research", url: "https://www.ipss.go.jp/index-e.asp", note: "2023 projections, medium variant" },
           ],
         },
@@ -122,7 +122,7 @@ export const numbers: GuideTopic = {
           ],
           related: ["numbers/a-country-getting-smaller", "growing-up/schools-without-children", "work/joining-a-company"],
           sources: [
-            { title: "Japan 2025 births hit record low of 671,000 — nippon.com (Jiji)", url: "https://www.nippon.com/en/news/yjj2026060300610/", note: "MHLW vital statistics: 671,236 births, fertility rate 1.14, Tokyo 0.96" },
+            { title: "Japan 2025 births hit record low of 671,000 — Adnkronos (Jiji)", url: "https://english.adnkronos.com/2026/06/03/japan-2025-births-hit-record-low-of-671000/", note: "MHLW vital statistics: 671,236 births, fertility rate 1.14, Tokyo 0.96" },
             { title: "First-half births in Japan rise for first time in 11 years — Adnkronos (Jiji)", url: "https://english.adnkronos.com/2026/08/28/1st-half-births-in-japan-rise-for-1st-time-in-11-years/", note: "January–June 2026, up 0.8%; the 1966 fall of about 25%" },
           ],
         },

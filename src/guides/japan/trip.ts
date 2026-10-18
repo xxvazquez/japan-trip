@@ -13,58 +13,92 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
     {
       from: "10-09", to: "10-10", when: "9–10 October", title: "Takayama's autumn festival",
       text: [
-        "Eleven towering festival floats, lacquered and gilded, are pulled through the old town around Sakurayama Hachimangū; some carry mechanical puppets (karakuri).",
+        "Eleven towering festival floats, lacquered and gilded, are pulled through the old town around Sakurayama Hachimangū; some carry mechanical puppets (karakuri).[^1]",
         "In the evening the floats are hung with lanterns. Rooms in Takayama book out months ahead.",
+      ],
+      sources: [
+        { title: "Takayama Festival — Wikipedia", url: "https://en.wikipedia.org/wiki/Takayama_Festival", note: "The spring and autumn festivals and their floats" },
       ],
     },
     {
       from: "10-22", to: "10-22", when: "22 October", title: "Two festivals in one night",
       text: [
-        "In the day, Kyoto's Jidai Matsuri parades about 2,000 people in costume from every era of the city's history, from the Imperial Palace to Heian Shrine.",
-        "That evening, Kurama's Fire Festival fills the mountain village with giant pine torches. Trains up are packed and controlled — go early, or plan a late night.",
+        "In the day, Kyoto's Jidai Matsuri parades about 2,000 people in costume from every era of the city's history, from the Imperial Palace to Heian Shrine.[^1]",
+        "That evening, Kurama's Fire Festival fills the mountain village with giant pine torches.[^2] Trains up are packed and controlled — go early, or plan a late night.",
+      ],
+      sources: [
+        { title: "Jidai Matsuri — Wikipedia", url: "https://en.wikipedia.org/wiki/Jidai_Matsuri", note: "22 October; about 2,000 marchers" },
+        { title: "Kurama Fire Festival — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E9%9E%8D%E9%A6%AC%E3%81%AE%E7%81%AB%E7%A5%AD", note: "The night of 22 October" },
       ],
     },
     {
       from: "10-25", to: "11-05", when: "Late October – early November", title: "Jimbōchō book festival",
-      text: "Tokyo's old-bookshop district lines a street with half a kilometre of outdoor stalls for the Kanda Used Book Festival — old prints, maps, photobooks and manga among the novels.",
+      text: "Tokyo's old-bookshop district lines a street with half a kilometre of outdoor stalls for the Kanda Used Book Festival — old prints, maps, photobooks and manga among the novels.[^1]",
+      sources: [
+        { title: "Kanda-Jinbōchō — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%A5%9E%E7%94%B0%E7%A5%9E%E4%BF%9D%E7%94%BA", note: "The Kanda Used Book Festival each autumn" },
+      ],
     },
     {
       from: "10-25", to: "11-12", when: "Late October – mid November", title: "The Shōsōin treasures",
-      text: "The Nara National Museum shows a few dozen of the emperor's 8th-century treasures — instruments, glass, textiles from along the Silk Road — for a few weeks each autumn. Expect a long queue; timed tickets help.",
+      text: "The Nara National Museum shows a few dozen of the emperor's 8th-century treasures — instruments, glass, textiles from along the Silk Road — for a few weeks each autumn.[^1] Expect a long queue; timed tickets help.",
+      sources: [
+        { title: "Shōsōin — Wikipedia", url: "https://en.wikipedia.org/wiki/Sh%C5%8Ds%C5%8Din", note: "The annual autumn exhibition at the Nara National Museum" },
+      ],
     },
     {
       from: "10-31", to: "10-31", when: "31 October", title: "Halloween in Shibuya",
-      text: "Street drinking is banned around the station and the ward asks people not to gather — expect police and barriers rather than a party.",
+      text: "Street drinking is banned around the station[^1] and the ward asks people not to gather — expect police and barriers rather than a party.",
+      sources: [
+        { title: "Shibuya ward bans street drinking around the station — The Japan Times", url: "https://www.japantimes.co.jp/news/2024/10/01/japan/society/shibuya-drinking-ban/", note: "The ordinance and the ward's requests" },
+      ],
     },
     {
       from: "10-15", to: "11-30", when: "October – November weekends", title: "Shichi-Go-San",
       text: [
-        "Families bring girls of three and seven and boys of five (and sometimes three) to shrines to pray for their health. The day itself is 15 November, but most go on a nearby weekend.",
+        "Families bring girls of three and seven and boys of five (and sometimes three) to shrines to pray for their health. The day itself is 15 November,[^1] but most go on a nearby weekend.",
         "Meiji Jingū is full of tiny kimonos. Look for the long bags of chitose-ame, “thousand-year candy”.",
+      ],
+      sources: [
+        { title: "Shichi-Go-San — Wikipedia", url: "https://en.wikipedia.org/wiki/Shichi-Go-San", note: "Ages, 15 November and chitose-ame" },
       ],
     },
     {
       from: "10-31", to: "11-04", when: "Around 3 November", title: "Mashiko pottery fair",
-      text: "The pottery town north of Tokyo fills with hundreds of potters' tents — from bargain bowls to serious work. A day trip by direct bus from Akihabara.",
+      text: "The pottery town north of Tokyo fills with hundreds of potters' tents — from bargain bowls to serious work.[^1] A day trip by direct bus from Akihabara.",
+      sources: [
+        { title: "Mashiko, Tochigi — Wikipedia", url: "https://en.wikipedia.org/wiki/Mashiko,_Tochigi", note: "The spring and autumn pottery fairs" },
+      ],
     },
     {
       from: "11-03", to: "11-03", when: "3 November", title: "Culture Day",
-      text: "A national holiday. Some museums and gardens are free, Hakone holds a daimyō procession, and it's usually one of the clearest days of the year.",
+      text: "A national holiday.[^1] Some museums and gardens are free, Hakone holds a daimyō procession, and it's usually one of the clearest days of the year.",
+      sources: [
+        { title: "Culture Day — Wikipedia", url: "https://en.wikipedia.org/wiki/Culture_Day", note: "3 November, and its reputation for clear weather" },
+      ],
     },
     {
       from: "11-01", to: "11-30", when: "November", title: "Tori no Ichi",
       text: [
-        "On the Days of the Rooster in November, Ōtori shrines hold night fairs selling decorated bamboo rakes (kumade) that “rake in” luck for businesses.",
+        "On the Days of the Rooster in November, Ōtori shrines hold night fairs selling decorated bamboo rakes (kumade) that “rake in” luck for businesses.[^1]",
         "The biggest is at Ōtori Shrine in Asakusa. When a sale is made, the stall claps a rhythm (tejime) for the buyer.",
+      ],
+      sources: [
+        { title: "Tori no Ichi — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E9%85%89%E3%81%AE%E5%B8%82", note: "The rooster-day fairs and their kumade rakes" },
       ],
     },
     {
       from: "11-01", to: "11-20", when: "Early to mid November", title: "Kawaguchiko's Autumn Leaves Festival",
-      text: "The Momiji Corridor on the north shore of Lake Kawaguchi is lit up after dark, with food stalls and Fuji behind it on a clear day.",
+      text: "The Momiji Corridor on the north shore of Lake Kawaguchi is lit up after dark,[^1] with food stalls and Fuji behind it on a clear day.",
+      sources: [
+        { title: "Fujikawaguchiko Town tourism", url: "https://fujisan.ne.jp/", note: "The Momiji Corridor and its illuminations" },
+      ],
     },
     {
       from: "11-01", to: "12-10", when: "November", title: "Temples open up",
-      text: "Kyoto's autumn special openings (tokubetsu kōkai): halls, gardens and treasures that are usually closed, many with evening illuminations that need their own ticket.",
+      text: "Kyoto's autumn special openings (tokubetsu kōkai): halls, gardens and treasures that are usually closed, many with evening illuminations that need their own ticket.[^1]",
+      sources: [
+        { title: "Kyoto's autumn special openings — Kyoto City Tourism Association", url: "https://kyoto.travel/en/", note: "Tokubetsu kōkai and evening illuminations" },
+      ],
     },
     {
       from: "11-15", to: "12-05", when: "Mid November – early December", title: "Peak maples in Kyoto",
@@ -75,39 +109,67 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
     },
     {
       from: "11-20", to: "12-05", when: "Late November", title: "The ginkgo avenue",
-      text: "Tokyo's Meiji Jingū Gaien ginkgo avenue turns gold. The ginkgo is Tokyo's tree — its leaf is the city's symbol.",
+      text: "Tokyo's Meiji Jingū Gaien ginkgo avenue turns gold.[^1] The ginkgo is Tokyo's tree — its leaf is the city's symbol.[^2]",
+      sources: [
+        { title: "Meiji Jingu Gaien — Wikipedia", url: "https://en.wikipedia.org/wiki/Meiji_Jingu_Gaien", note: "The ginkgo avenue" },
+        { title: "Symbols of Tokyo — Tokyo Metropolitan Government", url: "https://www.english.metro.tokyo.lg.jp/w/000-101-008024", note: "The ginkgo as Tokyo's tree" },
+      ],
     },
     {
       from: "11-23", to: "11-23", when: "23 November", title: "Labour Thanksgiving Day",
-      text: "A national holiday, rooted in the emperor's harvest rite (Niinamesai). Expect busier sights.",
+      text: "A national holiday, rooted in the emperor's harvest rite (Niinamesai).[^1] Expect busier sights.",
+      sources: [
+        { title: "Labor Thanksgiving Day — Wikipedia", url: "https://en.wikipedia.org/wiki/Labor_Thanksgiving_Day", note: "23 November, and the Niinamesai" },
+      ],
     },
     {
       from: "10-01", to: "02-28", when: "Autumn and winter", title: "Short days",
-      text: "Japan has no daylight saving: by November the sun sets around 16:30 in Tokyo and 16:50 in Kyoto. Plan outdoor sights for the morning, and many gardens close at dusk.",
+      text: "Japan has no daylight saving: by November the sun sets around 16:30 in Tokyo and 16:50 in Kyoto.[^1] Plan outdoor sights for the morning, and many gardens close at dusk.",
+      sources: [
+        { title: "Sunrise and sunset in Japan — National Astronomical Observatory of Japan", url: "https://eco.mtk.nao.ac.jp/koyomi/dni/", note: "Sunset times by city and date (Japanese)" },
+      ],
     },
     {
       from: "02-02", to: "02-04", when: "Around 3 February", title: "Setsubun",
-      text: "The eve of spring by the old calendar: people throw roasted soybeans to drive out demons, shouting “oni wa soto, fuku wa uchi”. Temples and shrines hold bean-throwing ceremonies, and Kasuga Taisha in Nara lights all its lanterns.",
+      text: "The eve of spring by the old calendar: people throw roasted soybeans to drive out demons, shouting “oni wa soto, fuku wa uchi”.[^1] Temples and shrines hold bean-throwing ceremonies, and Kasuga Taisha in Nara lights all its lanterns.",
+      sources: [
+        { title: "Setsubun — Wikipedia", url: "https://en.wikipedia.org/wiki/Setsubun", note: "Mamemaki and the bean-throwing ceremonies" },
+      ],
     },
     {
       from: "03-20", to: "04-10", when: "Late March – early April", title: "Cherry blossoms",
-      text: "Peak bloom in Tokyo and Kyoto, usually for about a week — and the year's biggest crowds and highest hotel prices.",
+      text: "Peak bloom in Tokyo and Kyoto, usually for about a week[^1] — and the year's biggest crowds and highest hotel prices.",
+      sources: [
+        { title: "Cherry blossom forecasts and observations — Japan Meteorological Agency", url: "https://www.data.jma.go.jp/sakura/data/index.html", note: "Average flowering and full-bloom dates (Japanese)" },
+      ],
     },
     {
       from: "04-29", to: "05-05", when: "29 April – 5 May", title: "Golden Week",
-      text: "Several national holidays in a row; the whole country travels, trains and hotels fill and prices rise.",
+      text: "Several national holidays in a row;[^1] the whole country travels, trains and hotels fill and prices rise.",
+      sources: [
+        { title: "Golden Week (Japan) — Wikipedia", url: "https://en.wikipedia.org/wiki/Golden_Week_(Japan)", note: "The holidays from 29 April to 5 May" },
+      ],
     },
     {
       from: "07-01", to: "07-31", when: "July", title: "Gion Matsuri",
-      text: "Kyoto's great festival runs all month. The huge wooden floats parade on 17 and 24 July, and on the evenings before, the streets around them fill with food stalls and people in yukata.",
+      text: "Kyoto's great festival runs all month. The huge wooden floats parade on 17 and 24 July,[^1] and on the evenings before, the streets around them fill with food stalls and people in yukata.",
+      sources: [
+        { title: "Gion Matsuri — Wikipedia", url: "https://en.wikipedia.org/wiki/Gion_Matsuri", note: "A month long; the float processions of 17 and 24 July" },
+      ],
     },
     {
       from: "08-11", to: "08-17", when: "Mid August", title: "Obon",
-      text: "People go home to honour their ancestors — trains are packed, and on 16 August Kyoto lights giant bonfire characters on the mountains around the city (Gozan no Okuribi) to send the spirits back.",
+      text: "People go home to honour their ancestors — trains are packed, and on 16 August Kyoto lights giant bonfire characters on the mountains around the city (Gozan no Okuribi) to send the spirits back.[^1]",
+      sources: [
+        { title: "Gozan no Okuribi — Wikipedia", url: "https://en.wikipedia.org/wiki/Gozan_no_Okuribi", note: "The bonfires of 16 August" },
+      ],
     },
     {
       from: "12-29", to: "01-03", when: "29 December – 3 January", title: "New Year",
-      text: "Many shops, restaurants and museums close. Temples ring their bells 108 times at midnight, and shrines are packed from midnight through the first three days.",
+      text: "Many shops, restaurants and museums close. Temples ring their bells 108 times at midnight,[^1] and shrines are packed from midnight through the first three days.",
+      sources: [
+        { title: "Japanese New Year — Wikipedia", url: "https://en.wikipedia.org/wiki/Japanese_New_Year", note: "Joya no kane and hatsumōde" },
+      ],
     },
   ],
 
@@ -277,8 +339,11 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Eat until you drop", cover: photoOf("kuidaore-taro", "A clown figure with a drum outside a restaurant, a crowd in front", "Kuidaore Tarō in Dōtonbori."),
-          text: "Kuidaore is the city's motto. Takoyaki, okonomiyaki and kushikatsu are from here — and the rule at kushikatsu bars: no double-dipping in the shared sauce.",
+          text: "Kuidaore is the city's motto.[^1] Takoyaki, okonomiyaki and kushikatsu are from here — and the rule at kushikatsu bars: no double-dipping in the shared sauce.",
           related: ["eating-out/getting-a-table-ordering-eating", "eating-out/an-izakaya-night-start-to-finish"],
+          sources: [
+            { title: "Kuidaore Tarō — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E3%81%8F%E3%81%84%E3%81%A0%E3%81%8A%E3%82%8C%E5%A4%AA%E9%83%8E", note: "Osaka's motto" },
+          ],
         },
         {
           title: "The castle", cover: photoOf("osaka-castle", "A castle keep above stone walls and a moat, office towers behind", "Osaka Castle's keep above its stone walls and moat."),
@@ -286,19 +351,28 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
           related: ["history/unification"],
           sources: [{ title: "Osaka Castle — Wikipedia", url: "https://en.wikipedia.org/wiki/Osaka_Castle", note: "1583, 1615, the 1931 tower" }],
         },
-        { title: "Stand on the right", related: ["customs/street-rules"], cover: photoOf("umeda-escalator", "A long escalator rising through a tube of arched ribs", "An escalator at the Umeda Sky Building."), text: "Osaka stands on the right of escalators, unlike Tokyo — usually traced back to the 1970 Expo." },
+        { title: "Stand on the right", related: ["customs/street-rules"], cover: photoOf("umeda-escalator", "A long escalator rising through a tube of arched ribs", "An escalator at the Umeda Sky Building."), text: "Osaka stands on the right of escalators, unlike Tokyo — usually traced back to the 1970 Expo.[^1]", sources: [{ title: "Escalator etiquette — Wikipedia", url: "https://en.wikipedia.org/wiki/Escalator_etiquette", note: "Osaka's right-side standing and the Expo story" }] },
         { title: "Two Expos", text: "Osaka hosted the World Expo in 1970 and again in 2025. Tarō Okamoto's Tower of the Sun from 1970 still stands in Expo Park — you can go inside.[^1]", sources: [{ title: "Expo '70 — Wikipedia", url: "https://en.wikipedia.org/wiki/Expo_%2770", note: "Osaka, 1970, and the Tower of the Sun" }] },
         {
           title: "Dōtonbori's signs", cover: photoOf("glico-sign", "A large lit-up advertising sign at night", "The Glico sign over Dōtonbori at night."),
-          text: "The canal-side strip of giant signs: the Glico running man (there since 1935), a mechanical crab waving its legs, and Kuidaore Tarō, the drumming clown. Best after dark.",
+          text: "The canal-side strip of giant signs: the Glico running man (there since 1935)[^1], a mechanical crab waving its legs, and Kuidaore Tarō, the drumming clown. Best after dark.",
+          sources: [
+            { title: "Dōtonbori — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E9%81%93%E9%A0%93%E5%A0%80", note: "On Dōtonbori since 1935" },
+          ],
         },
         {
           title: "The comedy capital", cover: photoOf("nanba-kagetsu", "A theatre front on a busy street, with bicycles parked outside", "Namba Grand Kagetsu, Yoshimoto's comedy theatre."),
-          text: "Osaka is the home of manzai, two-person stand-up, and of Yoshimoto Kōgyō, the agency behind many of Japan's comedians. People here are famously chattier and more direct than in Tokyo (see [Dialects and the standard](guide:language/dialects-and-the-standard)).",
+          text: "Osaka is the home of manzai, two-person stand-up, and of Yoshimoto Kōgyō, the agency behind many of Japan's comedians.[^1] People here are famously chattier and more direct than in Tokyo (see [Dialects and the standard](guide:language/dialects-and-the-standard)).",
+          sources: [
+            { title: "Yoshimoto Kogyo — Wikipedia", url: "https://en.wikipedia.org/wiki/Yoshimoto_Kogyo", note: "Osaka, manzai and its comedians" },
+          ],
         },
         {
           title: "Bunraku's home", cover: photoOf("bunraku-puppet", "A bunraku puppet held by its operators", "A bunraku puppet and its three operators."),
-          text: "The National Bunraku Theatre in Nanba stages the puppet theatre where each puppet is worked by three people in full view (see [Kabuki and bunraku](guide:culture/kabuki-and-bunraku)).",
+          text: "The National Bunraku Theatre in Nanba stages the puppet theatre where each puppet is worked by three people in full view[^1] (see [Kabuki and bunraku](guide:culture/kabuki-and-bunraku)).",
+          sources: [
+            { title: "National Bunraku Theatre — Wikipedia", url: "https://en.wikipedia.org/wiki/National_Bunraku_Theatre", note: "Osaka's puppet theatre" },
+          ],
         },
       ],
     },
@@ -371,15 +445,19 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Up the 48 bends",
-          text: "The Irohazaka road climbs to Lake Chūzenji in 48 hairpins — one for each syllable of the old iroha alphabet. At the top, Kegon Falls drops 97 m. In peak autumn, the traffic jams are famous.",
+          text: "The Irohazaka road climbs to Lake Chūzenji in 48 hairpins — one for each syllable of the old iroha alphabet.[^1] At the top, Kegon Falls drops 97 m.[^2] In peak autumn, the traffic jams are famous.",
+          sources: [
+            { title: "Irohazaka — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E3%81%84%E3%82%8D%E3%81%AF%E5%9D%82", note: "48 hairpins, one per iroha syllable" },
+            { title: "Kegon Falls — Wikipedia", url: "https://en.wikipedia.org/wiki/Kegon_Falls", note: "97 m" },
+          ],
         },
         {
           title: "Cooler and earlier",
           text: "It's in the mountains: autumn colour starts around the lake in early October and reaches the town in late October, weeks before Tokyo.",
           related: ["land/autumn-colour"],
         },
-        { title: "The red bridge", text: "Shinkyō, the vermilion bridge at the entrance to the shrines, marks the spot where a god is said to have thrown snakes across the river for a monk to cross." },
-        { title: "Yuba", text: "Nikkō's speciality is yuba, tofu skin — here written 湯波 rather than Kyoto's 湯葉, and served thicker, rolled." },
+        { title: "The red bridge", text: "Shinkyō, the vermilion bridge at the entrance to the shrines, marks the spot where a god is said to have thrown snakes across the river for a monk to cross.[^1]", sources: [{ title: "Shinkyō — Wikipedia", url: "https://en.wikipedia.org/wiki/Shinky%C5%8D", note: "The sacred bridge and the snake legend" }] },
+        { title: "Yuba", text: "Nikkō's speciality is yuba, tofu skin — here written 湯波 rather than Kyoto's 湯葉, and served thicker, rolled.[^1]", sources: [{ title: "Yuba — Wikipedia", url: "https://en.wikipedia.org/wiki/Yuba", note: "Tofu skin, and Nikkō's spelling" }] },
         {
           title: "Don't say kekkō",
           text: "“Nikkō o minai uchi wa kekkō to iu na” — don't say “splendid” (kekkō) until you've seen Nikkō.",
@@ -417,8 +495,11 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         { title: "Trams that survived", text: "The city's trams were running again three days after the bomb. Two of the cars that survived it, built in 1942, are still kept in service, mostly on weekday mornings.[^1]", sources: [{ title: "Trams that survived the bomb — Japan Tourism Agency", url: "https://www.mlit.go.jp/tagengo-db/R2-00309.html", note: "Cars 651 and 652 (Japanese)" }] },
         {
           title: "Its own okonomiyaki",
-          text: "Layered rather than mixed, with noodles in the middle — a lasting rivalry with Osaka's version. Okonomi-mura is a building of dozens of counters.",
+          text: "Layered rather than mixed, with noodles in the middle[^1] — a lasting rivalry with Osaka's version. Okonomi-mura is a building of dozens of counters.",
           related: ["eating-out/getting-a-table-ordering-eating"],
+          sources: [
+            { title: "Okonomiyaki — Wikipedia", url: "https://en.wikipedia.org/wiki/Okonomiyaki", note: "Hiroshima's layered style" },
+          ],
         },
       ],
     },
@@ -448,11 +529,14 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "A sacred island",
-          text: "The whole island was considered a god. For centuries no births or deaths were allowed on it, and there's still no cemetery. Deer wander here too.",
+          text: "The whole island was considered a god. For centuries no births or deaths were allowed on it, and there's still no cemetery.[^1] Deer wander here too.",
+          sources: [
+            { title: "Itsukushima — Wikipedia", url: "https://en.wikipedia.org/wiki/Itsukushima", note: "No births, deaths or burials on the island" },
+          ],
         },
-        { title: "Mount Misen", text: "A ropeway and a walk lead to the top. A fire lit by Kūkai in the 9th century is said to have burned in its hall ever since." },
+        { title: "Mount Misen", text: "A ropeway and a walk lead to the top. A fire lit by Kūkai in the 9th century is said to have burned in its hall ever since.[^1]", sources: [{ title: "Mount Misen — Wikipedia", url: "https://en.wikipedia.org/wiki/Mount_Misen", note: "Kūkai and the eternal flame" }] },
         { title: "Visitor tax", text: "Since October 2023 everyone landing on the island pays a ¥100 visitor tax, usually with the ferry ticket.[^1]", related: ["numbers/tourists-and-everyone-else"], sources: [{ title: "Hatsukaichi introduces Miyajima visitor tax — Travel Trade Journal", url: "https://traveltradejournal.com/japans-hatsukaichi-implements-tourist-tax-to-promote-sustainable-tourism-and-curb-overtourism/", note: "¥100 per visit from 1 October 2023" }] },
-        { title: "Oysters and maple cakes", text: "Hiroshima Bay grows most of Japan's oysters, grilled on every corner. Momiji manjū are little maple-leaf-shaped cakes filled with bean paste." },
+        { title: "Oysters and maple cakes", text: "Hiroshima Bay grows most of Japan's oysters, grilled on every corner. Momiji manjū are little maple-leaf-shaped cakes filled with bean paste.[^1]", sources: [{ title: "Momiji manjū — Wikipedia", url: "https://en.wikipedia.org/wiki/Momiji_manj%C5%AB", note: "Miyajima's maple-leaf cakes" }] },
       ],
     },
     {
@@ -479,7 +563,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
           title: "Inside the keep",
           text: "Six floors of bare wooden halls and steep, ladder-like stairs, shoes off. On busy days there's a queue to get in — go at opening.",
         },
-        { title: "Kōko-en", text: "Nine walled Edo-style gardens beside the castle, on the site of old samurai houses. A cheap combined ticket covers both." },
+        { title: "Kōko-en", text: "Nine walled Edo-style gardens beside the castle, on the site of old samurai houses.[^1] A cheap combined ticket covers both.", sources: [{ title: "Kōko-en — Wikipedia", url: "https://en.wikipedia.org/wiki/K%C5%8Dko-en", note: "Nine gardens on the old samurai quarter" }] },
         { title: "Close by Shinkansen", text: "About 30 minutes from Shin-Osaka, and the castle is a straight walk up the avenue from the station." },
       ],
     },
@@ -505,8 +589,11 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Kobe beef",
-          text: "A specific certified Wagyu from Tajima cattle raised in Hyōgo — the real thing comes with a certificate number you can look up.",
+          text: "A specific certified Wagyu from Tajima cattle raised in Hyōgo — the real thing comes with a certificate number you can look up.[^1]",
           related: ["eating-out/yakitori-wagyu-and-y-shoku"],
+          sources: [
+            { title: "Kobe beef — Wikipedia", url: "https://en.wikipedia.org/wiki/Kobe_beef", note: "Tajima cattle and the certificate" },
+          ],
         },
         {
           title: "Nada sake",
@@ -516,7 +603,11 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Night view",
-          text: "From Mount Maya or Mount Rokkō the lights of Kobe and Osaka Bay are called the “ten-million-dollar view”. Arima Onsen, one of Japan's oldest hot springs, is behind the mountains.",
+          text: "From Mount Maya or Mount Rokkō the lights of Kobe and Osaka Bay are called the “ten-million-dollar view”.[^1] Arima Onsen, one of Japan's oldest hot springs, is behind the mountains.[^2]",
+          sources: [
+            { title: "Mount Rokkō — Wikipedia", url: "https://en.wikipedia.org/wiki/Mount_Rokk%C5%8D", note: "The ten-million-dollar view" },
+            { title: "Arima Onsen — Wikipedia", url: "https://en.wikipedia.org/wiki/Arima_Onsen", note: "One of Japan's oldest hot springs" },
+          ],
         },
       ],
     },
@@ -537,18 +628,27 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Never bombed",
-          text: "Kanazawa wasn't bombed in the war, so its geisha district (Higashi Chaya) and samurai quarter (Nagamachi) are original.",
+          text: "Kanazawa wasn't bombed in the war, so its geisha district (Higashi Chaya) and samurai quarter (Nagamachi) are original.[^1]",
+          sources: [
+            { title: "Kanazawa — Wikipedia", url: "https://en.wikipedia.org/wiki/Kanazawa", note: "Spared from bombing; Higashi Chaya and Nagamachi" },
+          ],
         },
         { title: "Gold leaf", text: "Over 99% of Japan's gold leaf is made here — beaten to a ten-thousandth of a millimetre.[^1] You'll see it on ice cream.", sources: [{ title: "Kanazawa gold leaf — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E9%87%91%E6%B2%A2%E7%AE%94", note: "Over 99% of the country's output (Japanese)" }] },
         {
           title: "21st Century Museum",
-          text: "A round glass museum by SANAA. Leandro Erlich's Swimming Pool lets you stand “underwater” fully dressed; timed tickets for the pool sell out.",
+          text: "A round glass museum by SANAA. Leandro Erlich's Swimming Pool lets you stand “underwater” fully dressed;[^1] timed tickets for the pool sell out.",
+          sources: [
+            { title: "21st Century Museum of Contemporary Art, Kanazawa — Wikipedia", url: "https://en.wikipedia.org/wiki/21st_Century_Museum_of_Contemporary_Art,_Kanazawa", note: "SANAA's building; Erlich's Swimming Pool" },
+          ],
         },
         {
           title: "Ōmichō market",
-          text: "The city's kitchen for 300 years. Snow crab season opens in early November, and seafood bowls (kaisendon) are the breakfast.",
+          text: "The city's kitchen for 300 years.[^1] Snow crab season opens in early November, and seafood bowls (kaisendon) are the breakfast.",
+          sources: [
+            { title: "Ōmichō Market — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E8%BF%91%E6%B1%9F%E7%94%BA%E5%B8%82%E5%A0%B4", note: "About 300 years old" },
+          ],
         },
-        { title: "On the Shinkansen", text: "About 2 h 30 min from Tokyo since 2015. The Noto peninsula to the north is still recovering from the January 2024 earthquake and the floods that followed that September." },
+        { title: "On the Shinkansen", text: "About 2 h 30 min from Tokyo since 2015.[^1] The Noto peninsula to the north is still recovering from the January 2024 earthquake and the floods that followed that September.[^2]", sources: [{ title: "Hokuriku Shinkansen — Wikipedia", url: "https://en.wikipedia.org/wiki/Hokuriku_Shinkansen", note: "Tokyo to Kanazawa since March 2015" }, { title: "2024 Noto earthquake — Wikipedia", url: "https://en.wikipedia.org/wiki/2024_Noto_earthquake", note: "1 January 2024, and the September floods" }] },
       ],
     },
     {
@@ -562,8 +662,11 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       items: [
         {
           title: "Edo-era streets",
-          text: "The Sanmachi lanes of dark wooden merchant houses and sake breweries. A ball of cedar leaves (sugidama) over a brewery's door means new sake — green when it's fresh, brown as it ages.",
+          text: "The Sanmachi lanes of dark wooden merchant houses and sake breweries. A ball of cedar leaves (sugidama) over a brewery's door means new sake — green when it's fresh, brown as it ages.[^1]",
           related: ["drinks/sake-and-how-to-read-the-bottle", "history/edo"],
+          sources: [
+            { title: "Sugidama — Wikipedia", url: "https://en.wikipedia.org/wiki/Sugidama", note: "The cedar ball that signals new sake" },
+          ],
         },
         { title: "Morning markets", text: "Two of them, every morning: along the Miyagawa river and in front of the Takayama Jinya." },
         {
@@ -573,9 +676,12 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Two festivals",
-          text: "In spring (14–15 April) and autumn (9–10 October) the town pulls out its gilded festival floats. The rest of the year some are on show in a hall by Sakurayama Hachimangū.",
+          text: "In spring (14–15 April) and autumn (9–10 October) the town pulls out its gilded festival floats.[^1] The rest of the year some are on show in a hall by Sakurayama Hachimangū.",
+          sources: [
+            { title: "Takayama Festival — Wikipedia", url: "https://en.wikipedia.org/wiki/Takayama_Festival", note: "14–15 April and 9–10 October" },
+          ],
         },
-        { title: "Hida beef and sarubobo", text: "Hida beef is grilled on magnolia leaves with miso (hōba miso). Sarubobo, faceless red “baby monkey” dolls, are the local charm." },
+        { title: "Hida beef and sarubobo", text: "Hida beef is grilled on magnolia leaves with miso (hōba miso). Sarubobo, faceless red “baby monkey” dolls, are the local charm.[^1]", sources: [{ title: "Sarubobo — Wikipedia", url: "https://en.wikipedia.org/wiki/Sarubobo", note: "Hida's faceless charm dolls" }] },
       ],
     },
     {
@@ -590,7 +696,10 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       items: [
         {
           title: "Praying hands",
-          text: "Gasshō-zukuri farmhouses have steep thatched roofs like hands in prayer, built to shed heavy snow. The big attics were used to raise silkworms.",
+          text: "Gasshō-zukuri farmhouses have steep thatched roofs like hands in prayer, built to shed heavy snow. The big attics were used to raise silkworms.[^1]",
+          sources: [
+            { title: "Gasshō-zukuri — Wikipedia", url: "https://en.wikipedia.org/wiki/Gassh%C5%8D-zukuri", note: "The roofs and the silkworm attics" },
+          ],
         },
         { title: "World Heritage", text: "Listed in 1995 together with Gokayama, a smaller, quieter group of villages nearby.", sources: [{ title: "Historic Villages of Shirakawa-go and Gokayama — UNESCO", url: "https://whc.unesco.org/en/list/734", note: "Inscribed 1995" }] },
         {
@@ -635,6 +744,9 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
             "Morning service — toast and egg free with your coffee",
           ],
           related: ["coffee/the-kissaten-menu"],
+          sources: [
+            { title: "Nagoya cuisine — Wikipedia", url: "https://en.wikipedia.org/wiki/Nagoya_cuisine", note: "Miso katsu, tebasaki, hitsumabushi, kishimen" },
+          ],
         },
         { title: "Atsuta Shrine", text: "Said to hold the sacred sword Kusanagi, one of the three imperial regalia. Nobody has seen it in modern times.[^1]", related: ["politics/the-emperor"], sources: [{ title: "Kusanagi — Wikipedia", url: "https://en.wikipedia.org/wiki/Kusanagi", note: "The sword at Atsuta and its hidden keeping" }] },
       ],
@@ -667,7 +779,10 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Sleep in a temple",
-          text: "About 50 temples take guests (shukubō), with vegetarian temple food (shōjin ryōri) and the morning prayers, often with a fire ritual.",
+          text: "About 50 temples take guests (shukubō),[^1] with vegetarian temple food (shōjin ryōri) and the morning prayers, often with a fire ritual.",
+          sources: [
+            { title: "Shukubō — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%AE%BF%E5%9D%8A", note: "Temple lodgings; Kōyasan's about 50" },
+          ],
         },
         {
           title: "Okunoin",
@@ -695,9 +810,9 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
           related: ["look-closer/streets-without-names"],
           sources: [{ title: "Sapporo — Wikipedia", url: "https://en.wikipedia.org/wiki/Sapporo", note: "The 1869 Development Commission, the grid and the American advisers" }],
         },
-        { title: "Snow Festival", text: "Giant snow and ice sculptures fill Ōdōri Park every February — and every hotel." },
+        { title: "Snow Festival", text: "Giant snow and ice sculptures fill Ōdōri Park every February[^1] — and every hotel.", sources: [{ title: "Sapporo Snow Festival — Wikipedia", url: "https://en.wikipedia.org/wiki/Sapporo_Snow_Festival", note: "Every February in Ōdōri Park" }] },
         { title: "Beer and miso ramen", text: "Sapporo Beer has been brewed here since 1876, Japan's oldest brand.[^1] Miso ramen was born here in the 1950s.", sources: [{ title: "Sapporo Brewery — Wikipedia", url: "https://en.wikipedia.org/wiki/Sapporo_Brewery", note: "Founded 1876 by the Hokkaido Development Commission" }], related: ["eating-out/soba-udon-and-ramen", "drinks/sh-ch-whisky-and-beer"] },
-        { title: "Jingisukan", text: "Mutton grilled on a domed iron pan, named after Genghis Khan. The local meal." },
+        { title: "Jingisukan", text: "Mutton grilled on a domed iron pan, named after Genghis Khan.[^1] The local meal.", sources: [{ title: "Jingisukan — Wikipedia", url: "https://en.wikipedia.org/wiki/Jingisukan", note: "Mutton on a domed pan" }] },
         { title: "The Ainu", text: "Upopoy, the National Ainu Museum, opened in Shiraoi, about an hour south, in 2020[^1] (see [Dialects and the standard](guide:language/dialects-and-the-standard)).", sources: [{ title: "Upopoy — Wikipedia", url: "https://en.wikipedia.org/wiki/Upopoy", note: "The National Ainu Museum and Park, opened July 2020" }] },
       ],
     },
@@ -713,12 +828,15 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         { title: "Yatai", text: "Around a hundred open-air food stalls set up in the evenings, along the river at Nakasu and in Tenjin — ramen, grilled skewers, oden, a seat at the counter next to strangers.[^1]", sources: [{ title: "Yatai (food cart) — Wikipedia", url: "https://en.wikipedia.org/wiki/Yatai_(food_cart)", note: "Fukuoka's stalls, the most in Japan" }] },
         {
           title: "Tonkotsu ramen",
-          text: "The milky pork-bone broth comes from here. Order your noodles' firmness (barikata is very firm) and ask for kaedama, a second serving of noodles, for the leftover soup.",
+          text: "The milky pork-bone broth comes from here.[^1] Order your noodles' firmness (barikata is very firm) and ask for kaedama, a second serving of noodles, for the leftover soup.",
           related: ["eating-out/soba-udon-and-ramen"],
+          sources: [
+            { title: "Hakata ramen — Wikipedia", url: "https://en.wikipedia.org/wiki/Hakata_ramen", note: "Tonkotsu broth, firmness and kaedama" },
+          ],
         },
         { title: "Mentaiko", text: "Spicy pollock roe, brought from Korea after the war[^1] — in onigiri, on pasta, as a gift in every station shop.", sources: [{ title: "Mentaiko — Wikipedia", url: "https://en.wikipedia.org/wiki/Mentaiko", note: "Kawahara Toshio's Fukuya, 1949" }] },
-        { title: "Gateway to Asia", text: "Fukuoka is closer to Busan and Seoul than to Tokyo, and its airport is just two subway stops from Hakata station." },
-        { title: "Dazaifu", text: "Half an hour away, Dazaifu Tenmangū is the shrine to the god of learning. Eat umegae mochi, grilled rice cakes, on the street up to it.", related: ["belief/shinto"] },
+        { title: "Gateway to Asia", text: "Fukuoka is closer to Busan and Seoul than to Tokyo, and its airport is just two subway stops from Hakata station.[^1]", sources: [{ title: "Fukuoka Airport — Wikipedia", url: "https://en.wikipedia.org/wiki/Fukuoka_Airport", note: "Two subway stops from Hakata" }] },
+        { title: "Dazaifu", text: "Half an hour away, Dazaifu Tenmangū is the shrine to the god of learning.[^1] Eat umegae mochi, grilled rice cakes, on the street up to it.", related: ["belief/shinto"], sources: [{ title: "Dazaifu Tenmangū — Wikipedia", url: "https://en.wikipedia.org/wiki/Dazaifu_Tenmang%C5%AB", note: "The shrine to Sugawara no Michizane" }] },
       ],
     },
     {
@@ -748,7 +866,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
           sources: [{ title: "United States Forces Japan — Wikipedia", url: "https://en.wikipedia.org/wiki/United_States_Forces_Japan", note: "Okinawa's share of exclusive-use facilities" }],
         },
         { title: "Shuri Castle", text: "The palace's main hall burned in 2019. It has been rebuilt with traditional techniques, and the interior opens to visitors on 23 November 2026, by advance reservation.[^1]", sources: [{ title: "Shuri Castle main hall to reopen in November 2026 — GoAsia", url: "https://goasia.cc/en/news/okinawa-shuri-castle-main-hall-reopens-november-2026", note: "Completion ceremony 22 November, public opening 23 November 2026" }] },
-        { title: "Its own food", text: "Gōyā champurū (bitter-melon stir-fry), Okinawa soba, Spam onigiri and awamori, the local rice spirit. Okinawa was long famous for its centenarians." },
+        { title: "Its own food", text: "Gōyā champurū (bitter-melon stir-fry),[^1] Okinawa soba, Spam onigiri and awamori, the local rice spirit. Okinawa was long famous for its centenarians.[^2]", sources: [{ title: "Gōyā chanpurū — Wikipedia", url: "https://en.wikipedia.org/wiki/Chanpur%C5%AB", note: "Okinawa's bitter-melon stir-fry" }, { title: "Okinawa diet — Wikipedia", url: "https://en.wikipedia.org/wiki/Okinawa_diet", note: "The islands' long-lived people" }] },
       ],
     },
     {
@@ -780,8 +898,11 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Squid for breakfast",
-          text: "The morning market by the station sells squid caught overnight, cut into fine raw strips (ika sōmen) or served whole and still moving. Squid is the city's fish.",
+          text: "The morning market by the station sells squid caught overnight, cut into fine raw strips (ika sōmen) or served whole and still moving. Squid is the city's fish.[^1]",
           related: ["food-at-home/a-weekday-of-meals"],
+          sources: [
+            { title: "Hakodate Morning Market — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%87%BD%E9%A4%A8%E6%9C%9D%E5%B8%82", note: "Squid and the market by the station" },
+          ],
         },
         {
           title: "Under the sea to get here",
@@ -813,8 +934,11 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Bears",
-          text: "Shiretoko has one of the densest brown bear populations in the world. The Five Lakes are walked on an elevated boardwalk with an electric fence; the ground trails need a guide or a lecture first in bear season (see [Bears](guide:prepared/bears)).",
+          text: "Shiretoko has one of the densest brown bear populations in the world.[^1] The Five Lakes are walked on an elevated boardwalk with an electric fence; the ground trails need a guide or a lecture first in bear season (see [Bears](guide:prepared/bears)).",
           related: ["prepared/bears"],
+          sources: [
+            { title: "Shiretoko National Park — Wikipedia", url: "https://en.wikipedia.org/wiki/Shiretoko_National_Park", note: "Brown bears and the Five Lakes boardwalk" },
+          ],
         },
         {
           title: "From the sea",
@@ -845,8 +969,11 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Summer grasses",
-          text: "Bashō came here in 1689 on the walk he wrote up as *The Narrow Road to the Deep North*, and wrote one of his most quoted haiku on the ruins: summer grasses, all that's left of warriors' dreams.",
+          text: "Bashō came here in 1689 on the walk he wrote up as *The Narrow Road to the Deep North*, and wrote one of his most quoted haiku on the ruins: summer grasses, all that's left of warriors' dreams.[^1]",
           related: ["language/how-japanese-sounds"],
+          sources: [
+            { title: "Oku no Hosomichi — Wikipedia", url: "https://en.wikipedia.org/wiki/Oku_no_Hosomichi", note: "Bashō's 1689 journey and the Hiraizumi haiku" },
+          ],
         },
         {
           title: "Listed in 2011",
@@ -883,12 +1010,18 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Sheltered in 2011",
-          text: "When the tsunami struck in March 2011, the islands broke its force, and Matsushima suffered far less than the towns either side of it (see [Tsunami](guide:nature/tsunami)).",
+          text: "When the tsunami struck in March 2011, the islands broke its force, and Matsushima suffered far less than the towns either side of it[^1] (see [Tsunami](guide:nature/tsunami)).",
           related: ["nature/tsunami"],
+          sources: [
+            { title: "Matsushima — Wikipedia", url: "https://en.wikipedia.org/wiki/Matsushima", note: "How the islands buffered the 2011 tsunami" },
+          ],
         },
         {
           title: "Beef tongue in Sendai",
-          text: "Sendai, half an hour away, made grilled beef tongue (gyūtan) its dish after the war, served with barley rice and oxtail soup.",
+          text: "Sendai, half an hour away, made grilled beef tongue (gyūtan) its dish after the war,[^1] served with barley rice and oxtail soup.",
+          sources: [
+            { title: "Gyūtan — Wikipedia", url: "https://en.wikipedia.org/wiki/Gy%C5%ABtan", note: "Sendai's grilled beef tongue since 1948" },
+          ],
         },
       ],
     },
@@ -915,7 +1048,10 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Cherry bark",
-          text: "The local craft, **kabazaiku**, polishes mountain-cherry bark into a glossy brown skin for tea caddies and boxes; samurai made it on the side.",
+          text: "The local craft, **kabazaiku**, polishes mountain-cherry bark into a glossy brown skin for tea caddies and boxes; samurai made it on the side.[^1]",
+          sources: [
+            { title: "Kabazaiku — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E6%A8%BA%E7%B4%B0%E5%B7%A5", note: "Kakunodate's cherry-bark craft (Japanese)" },
+          ],
         },
       ],
     },
@@ -946,13 +1082,20 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Botchan and haiku",
-          text: "Natsume Sōseki taught here and set his comic novel *Botchan* (1906) in the town; a little steam-style train is named after it. The poet Masaoka Shiki, who did more than anyone to make the haiku modern, was born here, and the city keeps haiku post boxes for your verses.",
+          text: "Natsume Sōseki taught here and set his comic novel *Botchan* (1906) in the town;[^1] a little steam-style train is named after it. The poet Masaoka Shiki, who did more than anyone to make the haiku modern, was born here,[^2] and the city keeps haiku post boxes for your verses.",
           related: ["language/how-japanese-sounds"],
+          sources: [
+            { title: "Botchan — Wikipedia", url: "https://en.wikipedia.org/wiki/Botchan", note: "Sōseki's 1906 novel set in Matsuyama" },
+            { title: "Masaoka Shiki — Wikipedia", url: "https://en.wikipedia.org/wiki/Masaoka_Shiki", note: "Born in Matsuyama; the modern haiku" },
+          ],
         },
         {
           title: "On the pilgrim route",
-          text: "Ishite-ji, temple 51 of Shikoku's 88-temple pilgrimage, is a walk from Dōgo; you'll see pilgrims in white with staffs and stamp books (see [Goshuin](guide:stamps/goshuin)).",
+          text: "Ishite-ji, temple 51 of Shikoku's 88-temple pilgrimage,[^1] is a walk from Dōgo; you'll see pilgrims in white with staffs and stamp books (see [Goshuin](guide:stamps/goshuin)).",
           related: ["stamps/goshuin"],
+          sources: [
+            { title: "Shikoku Pilgrimage — Wikipedia", url: "https://en.wikipedia.org/wiki/Shikoku_Pilgrimage", note: "The 88 temples; Ishite-ji is number 51" },
+          ],
         },
       ],
     },
@@ -972,8 +1115,11 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Houses as artworks",
-          text: "In the old fishing village of Honmura, the **Art House Project** has turned empty houses and a shrine into permanent artworks since 1998: a way of filling buildings a shrinking population left behind (see [Who lives with whom](guide:numbers/who-lives-with-whom)).",
+          text: "In the old fishing village of Honmura, the **Art House Project** has turned empty houses and a shrine into permanent artworks since 1998:[^1] a way of filling buildings a shrinking population left behind (see [Who lives with whom](guide:numbers/who-lives-with-whom)).",
           related: ["numbers/who-lives-with-whom"],
+          sources: [
+            { title: "Art House Project — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%AE%B6%E3%83%97%E3%83%AD%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88", note: "The Art House Project since 1998" },
+          ],
         },
         {
           title: "And a smelter",
@@ -982,7 +1128,10 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "The Setouchi Triennale",
-          text: "Every three years since 2010, the art festival spreads works across a dozen Inland Sea islands and the ferries fill up.",
+          text: "Every three years since 2010,[^1] the art festival spreads works across a dozen Inland Sea islands and the ferries fill up.",
+          sources: [
+            { title: "Setouchi Triennale — Wikipedia", url: "https://en.wikipedia.org/wiki/Setouchi_Triennale", note: "Every three years since 2010" },
+          ],
         },
       ],
     },
@@ -1021,8 +1170,12 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Champon and castella",
-          text: "The city's food shows its trade: champon, a noodle soup from Chinese cooks; and castella, a sponge cake from the Portuguese, sold in long boxes as the city's present to take home.",
+          text: "The city's food shows its trade: champon, a noodle soup from Chinese cooks;[^1] and castella, a sponge cake from the Portuguese,[^2] sold in long boxes as the city's present to take home.",
           related: ["regional-food/overview"],
+          sources: [
+            { title: "Champon — Wikipedia", url: "https://en.wikipedia.org/wiki/Champon", note: "Nagasaki's noodle soup from Chinese cooks" },
+            { title: "Castella — Wikipedia", url: "https://en.wikipedia.org/wiki/Castella", note: "The Portuguese sponge cake" },
+          ],
         },
       ],
     },
@@ -1053,8 +1206,12 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Sweet potato country",
-          text: "The volcanic soil grows sweet potatoes, which the rest of Japan named *satsuma-imo* after the province. They go into the local shōchū, drunk with hot water, and the black pigs (kurobuta) are fattened on them (see [Shōchū, whisky and beer](guide:drinks/sh-ch-whisky-and-beer)).",
+          text: "The volcanic soil grows sweet potatoes, which the rest of Japan named *satsuma-imo* after the province.[^1] They go into the local shōchū, drunk with hot water,[^2] and the black pigs (kurobuta) are fattened on them (see [Shōchū, whisky and beer](guide:drinks/sh-ch-whisky-and-beer)).",
           related: ["drinks/sh-ch-whisky-and-beer"],
+          sources: [
+            { title: "Sweet potato — Wikipedia", url: "https://en.wikipedia.org/wiki/Sweet_potato", note: "Satsuma-imo and Kagoshima" },
+            { title: "Shōchū — Wikipedia", url: "https://en.wikipedia.org/wiki/Sh%C5%8Dch%C5%AB", note: "Imo-jōchū from sweet potatoes" },
+          ],
         },
       ],
     },
@@ -1080,7 +1237,10 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Cooked in steam",
-          text: "In Kannawa, inns and a public kitchen let you steam your own vegetables, eggs and seafood over hot-spring vents: **jigoku-mushi**. On the beach at Beppu, attendants bury you in naturally heated sand.",
+          text: "In Kannawa, inns and a public kitchen let you steam your own vegetables, eggs and seafood over hot-spring vents: **jigoku-mushi**.[^1] On the beach at Beppu, attendants bury you in naturally heated sand.",
+          sources: [
+            { title: "Hells of Beppu — Wikipedia", url: "https://en.wikipedia.org/wiki/Hells_of_Beppu", note: "Kannawa and jigoku-mushi steam cooking" },
+          ],
         },
       ],
     },
@@ -1113,8 +1273,12 @@ const rules: GuideTopic = {
           title: "Carry your passport",
           summary: "A legal requirement every day — a photo of it doesn't count",
           body: [
-            { p: "Short-stay visitors must carry their **passport** at all times under the Immigration Control Act. Police do spot checks, mostly around big stations and nightlife districts, and not having it can mean a trip to the police box while they confirm who you are. A photo or photocopy isn't accepted." },
+            { p: "Short-stay visitors must carry their **passport** at all times under the Immigration Control Act.[^1] Police do spot checks, mostly around big stations and nightlife districts, and not having it can mean a trip to the police box while they confirm who you are. A photo or photocopy isn't accepted.[^2]" },
             { p: "Hotels are also required by law to copy the passport of every foreign guest at check-in, and tax-free shopping now registers each purchase against it." },
+          ],
+          sources: [
+            { title: "Visas and consular services — Embassy of Japan in Finland", url: "https://www.fi.emb-japan.go.jp/itpr_fi/consular.html", note: "Short-term visitors must carry their passport at all times" },
+            { title: "Japan's passport law — The New Daily", url: "https://www.thenewdaily.com.au/travel/travel-advice/2025/09/14/japan-carry-passport-law", note: "Fines of up to ¥100,000; photocopies not accepted" },
           ],
         },
         {
@@ -1135,15 +1299,19 @@ const rules: GuideTopic = {
                 ],
               },
             },
-            { p: "Beyond those amounts you need an import certificate, the **Yakkan Shōmei**, applied for online through the health ministry before you fly. It's free; allow a couple of weeks." },
+            { p: "Beyond those amounts you need an import certificate, the **Yunyū Kakuninsho** (formerly the Yakkan Shōmei), applied for through the health ministry before you fly.[^1][^2] It's free; allow a couple of weeks." },
             { note: "Carry medicines in their original packaging with a copy of the prescription, in your hand luggage.", title: "At the airport" },
+          ],
+          sources: [
+            { title: "Q&A on bringing medicines into Japan — Ministry of Health, Labour and Welfare (PDF)", url: "https://kouseikyoku.mhlw.go.jp/chugokushikoku/gyomu/bu_ka/iji/documents/qa.pdf", note: "A month's supply of prescription medicine; the certificate for more" },
+            { title: "Bringing medicine to Japan — Accessible Japan", url: "https://accessible-japan.com/bringing-medicine-to-japan/", note: "Two months of over-the-counter medicine; pseudoephedrine; the renamed certificate" },
           ],
         },
         {
           title: "Tax-free is changing",
           summary: "From November 2026 you pay the tax, then get it back as you leave",
           body: [
-            { p: "Until now, tax-free shops took the 10% consumption tax off at the till. From **1 November 2026** it becomes a refund: you pay the full price, and the tax comes back once customs at the airport confirms you're taking the goods out of Japan." },
+            { p: "Until now, tax-free shops took the 10% consumption tax off at the till. From **1 November 2026** it becomes a refund: you pay the full price, and the tax comes back once customs at the airport confirms you're taking the goods out of Japan.[^1]" },
             {
               stats: [
                 { value: "¥5,000", label: "minimum per shop, per day" },
@@ -1153,24 +1321,35 @@ const rules: GuideTopic = {
             { p: "Some old rules disappear with it: the sealed bags, the split between general goods and consumables, and the cap on consumables. What matters now is that the goods stay unused and with you until customs has seen them — so in your hand luggage, or shown before you check a bag in." },
             { note: "Leave extra time at the airport for the customs stop, especially after a big shopping trip.", kind: "warning", title: "Allow time" },
           ],
+          sources: [
+            { title: "Japan's tax-free shopping reform from November 2026 — GLT", url: "https://www.gltjp.com/en/article/item/21542/", note: "The refund system, ¥5,000 minimum, 90 days, the consumables cap and sealed bags abolished" },
+          ],
         },
         {
           title: "Touts",
           summary: "The one scam to know about in a very safe country",
           body: [
-            { p: "In **Kabukichō** and **Roppongi**, street touts steer passers-by into bars with offers of cheap drinks. Inside, bills run to hundreds of thousands of yen, sometimes after spiked drinks and cards charged while the victim couldn't object. The US and UK embassies warn about it every year." },
+            { p: "In **Kabukichō** and **Roppongi**, street touts steer passers-by into bars with offers of cheap drinks. Inside, bills run to hundreds of thousands of yen, sometimes after spiked drinks and cards charged while the victim couldn't object. The US embassy has warned about it repeatedly.[^1][^2]" },
             { p: "The tell is simple: ordinary bars and izakaya don't need touts. If someone on the street is working to get you inside, walk on." },
+          ],
+          sources: [
+            { title: "US cautions its travellers on visiting Tokyo's Roppongi, Kabuki-chō — TTG Asia", url: "https://www.ttgasia.com/2015/06/10/us-cautions-its-travellers-on-visiting-tokyos-roppongi-kabuki-cho/", note: "Spiked drinks, card fraud and extortion" },
+            { title: "Japan crime and safety report — OSAC", url: "https://www.osac.gov/Content/Report/0372abfc-517c-493d-87e7-1ee6b159615b", note: "Bar-tab extortion in nightlife districts" },
           ],
         },
         {
           title: "Drones and photos",
           summary: "Drones need permits almost everywhere; some places fine photographers",
           body: [
-            { p: "Flying a drone over any densely inhabited area, near airports, above crowds or at night needs a permit from the transport ministry, and drones over 100 g must be registered. Most parks and temples ban them anyway." },
+            { p: "Flying a drone over any densely inhabited area, near airports, above crowds or at night needs a permit from the transport ministry, and drones over 100 g must be registered.[^1] Most parks and temples ban them anyway." },
             { p: "Photography is banned inside many temple halls, where the statues are objects of worship rather than art. In Gion, Kyoto, signs on private lanes warn of a fine for photographers who chase geiko and maiko." },
-            { note: "Every phone sold in Japan makes a shutter sound that can't be switched off — makers agreed to it to deter secret photos. It's why you hear that click everywhere.", title: "Why the click" },
+            { note: "Every phone sold in Japan makes a shutter sound that can't be switched off — makers agreed to it to deter secret photos.[^2] It's why you hear that click everywhere.", title: "Why the click" },
           ],
           words: [{ local: "撮影禁止", say: "satsuei kinshi", means: "no photography" }],
+          sources: [
+            { title: "Drones (UAS) — Ministry of Land, Infrastructure, Transport and Tourism", url: "https://www.mlit.go.jp/en/koku/uas.html", note: "Where a permit is needed; registration of drones over 100 g" },
+            { title: "Camera phone — Wikipedia", url: "https://en.wikipedia.org/wiki/Camera_phone", note: "Japan's audible shutter" },
+          ],
         }
       ],
     },
@@ -1206,7 +1385,7 @@ const gettingAround: GuideTopic = {
             { p: "Platform floors are painted with queue markings, often in different colours or shapes for different train types — a train with 10 cars and one with 8 stop at different places. Match the marking to the type on the board, and you'll be standing where the doors open." },
             { p: "Signs also show which **car number** stops nearest each staircase and exit. Riding in the right car can save a five-minute walk at a big interchange." },
             { h: "Trains that turn into other trains" },
-            { p: "Many subway lines run straight on to private railways at the end of the line: a Tokyo Hanzōmon Line train might continue as a Tōkyū train deep into the suburbs. The line's colour isn't enough — check the **destination** on the board." },
+            { p: "Many subway lines run straight on to private railways at the end of the line: a Tokyo Hanzōmon Line train might continue as a Tōkyū train deep into the suburbs. The line's colour isn't enough — check the **destination** on the board.[^1]" },
             { h: "Timing" },
             {
               table: {
@@ -1224,6 +1403,9 @@ const gettingAround: GuideTopic = {
             { local: "特急", say: "tokkyū", means: "limited express" },
             { local: "終電", say: "shūden", means: "last train" },
           ],
+          sources: [
+            { title: "Tokyo Metro Hanzōmon Line — Wikipedia", url: "https://en.wikipedia.org/wiki/Tokyo_Metro_Hanz%C5%8Dmon_Line", note: "Through services onto the Tōkyū Den-en-toshi Line" },
+          ],
         },
         {
           title: "IC cards: the fine print",
@@ -1233,21 +1415,24 @@ const gettingAround: GuideTopic = {
             {
               terms: [
                 { term: "Set it as the Express Transit card", text: "Then the gate reads it with the phone locked, no Face ID — and with power reserve it still works for a few hours after the battery dies." },
-                { term: "One card works everywhere…", text: "Around ten regional cards — Suica, PASMO, ICOCA, manaca, SUGOCA — all work on each other's networks, so a Tokyo Suica pays for a Kyoto bus." },
+                { term: "One card works everywhere…", text: "Around ten regional cards — Suica, PASMO, ICOCA, manaca, SUGOCA — all work on each other's networks, so a Tokyo Suica pays for a Kyoto bus.[^1]" },
                 { term: "…but not across a border", text: "A single journey can't start in one card's area and end in another's — Tokyo to Mishima on a local train, say, which crosses from JR East to JR Central at Atami. The exit gate won't open; pay the difference at the fare-adjustment machine." },
                 { term: "Shinkansen need a ticket", text: "An IC card alone won't open a bullet-train gate unless you've linked it to a booking, for example through smartEX." },
               ],
             },
             { h: "On Android" },
-            { p: "Android phones bought outside Japan generally can't add Suica — the hardware is the Japanese-market FeliCa chip. Use a physical card instead: the **Welcome Suica**, sold at Narita and Haneda, has no deposit and lasts 28 days." },
+            { p: "Android phones bought outside Japan generally can't add Suica — the hardware is the Japanese-market FeliCa chip. Use a physical card instead: the **Welcome Suica**, sold at Narita and Haneda, has no deposit and lasts 28 days.[^1]" },
             { note: "More and more gates now take a contactless bank card or phone directly — Osaka Metro does at every station. Handy as a backup when your IC balance runs out.", title: "Backup" },
+          ],
+          sources: [
+            { title: "Suica — Wikipedia", url: "https://en.wikipedia.org/wiki/Suica", note: "Express Transit, nationwide interoperability, Welcome Suica" },
           ],
         },
         {
           title: "Tokyo's two subways",
           summary: "Why some changes cost extra, and how to tell the companies apart",
           body: [
-            { p: "Tokyo's subway map looks like one network, but it's two companies: **Tokyo Metro**, a company since 2004 and listed on the stock exchange in 2024, and **Toei**, owned by the city. They share stations and signs, but fares are separate." },
+            { p: "Tokyo's subway map looks like one network, but it's two companies: **Tokyo Metro**, a company since 2004 and listed on the stock exchange in 2024,[^1] and **Toei**, owned by the city. They share stations and signs, but fares are separate." },
             {
               table: {
                 head: ["", "Tokyo Metro", "Toei"],
@@ -1258,7 +1443,11 @@ const gettingAround: GuideTopic = {
               },
             },
             { p: "Changing from one to the other costs a second, slightly discounted fare, and at some stations means leaving through one set of gates and walking to another, sometimes along the street. An IC card works it all out." },
-            { note: "The **Ōedo Line** is one of the deepest in Tokyo — Roppongi's platform is around 42 m down. Allow extra minutes for the escalators.", title: "Allow time" },
+            { note: "The **Ōedo Line** is one of the deepest in Tokyo — Roppongi's platform is around 42 m down.[^2] Allow extra minutes for the escalators.", title: "Allow time" },
+          ],
+          sources: [
+            { title: "Tokyo Metro — Wikipedia", url: "https://en.wikipedia.org/wiki/Tokyo_Metro", note: "A company since 2004, listed in October 2024" },
+            { title: "Toei Ōedo Line — Wikipedia", url: "https://en.wikipedia.org/wiki/Toei_%C5%8Cedo_Line", note: "Roppongi's platform about 42 m down" },
           ],
         },
       ],
@@ -1270,7 +1459,7 @@ const gettingAround: GuideTopic = {
           title: "Riding the shinkansen",
           summary: "Which train, which seat, and the peak days when it's all reserved",
           body: [
-            { p: "The Tōkaidō line between Tokyo, Kyoto and Osaka is the busiest high-speed line in the world, with trains every few minutes and an average delay measured in seconds." },
+            { p: "The Tōkaidō line between Tokyo, Kyoto and Osaka is the busiest high-speed line in the world, with trains every few minutes and an average delay measured in seconds.[^1]" },
             {
               stats: [
                 { value: "2 h 15", label: "Tokyo to Kyoto by Nozomi" },
@@ -1307,12 +1496,15 @@ const gettingAround: GuideTopic = {
             { local: "自由席", say: "jiyūseki", means: "non-reserved car" },
             { local: "指定席", say: "shiteiseki", means: "reserved seat" },
           ],
+          sources: [
+            { title: "Tōkaidō Shinkansen — Wikipedia", url: "https://en.wikipedia.org/wiki/T%C5%8Dkaid%C5%8D_Shinkansen", note: "Frequency, speed, Nozomi, Hikari and Kodama" },
+          ],
         },
         {
           title: "Is the JR Pass worth it?",
           summary: "Since the 2023 price rise, usually not for Tokyo–Kyoto–Osaka",
           body: [
-            { p: "The Japan Rail Pass used to pay for itself on almost any trip. In October 2023 its price rose by around 70%, and for the classic route it no longer does." },
+            { p: "The Japan Rail Pass used to pay for itself on almost any trip. In October 2023 its price rose by around 70%,[^1] and for the classic route it no longer does." },
             {
               table: {
                 head: ["Your trip", "Pass worth it?"],
@@ -1327,6 +1519,9 @@ const gettingAround: GuideTopic = {
             { p: "It also doesn't cover the Nozomi or Mizuho without a supplement, nor any subway or private railway — Tokyo Metro, Kintetsu to Nara, Hankyū, Odakyū to Hakone. On a city-heavy trip, a large share of your rides fall outside it." },
             { note: "Add up the single fares for your route before buying. It takes a few minutes and often saves real money.", title: "Do the sum" },
           ],
+          sources: [
+            { title: "Japan Rail Pass — Wikipedia", url: "https://en.wikipedia.org/wiki/Japan_Rail_Pass", note: "The October 2023 price rise and the Nozomi supplement" },
+          ],
         },
       ],
     },
@@ -1339,7 +1534,7 @@ const gettingAround: GuideTopic = {
           body: [
             { p: "Japanese stations are built for commuters, with stairs, crowds and small racks. The best answer is not to carry a big case at all." },
             { h: "The bullet-train size rule" },
-            { p: "On the Tōkaidō, San'yō and Kyūshū lines, any bag whose length, width and height add up to more than **160 cm** needs a seat booked with oversized-luggage space — free, but booked in advance. Without one, you pay a fee on board." },
+            { p: "On the Tōkaidō, San'yō and Kyūshū lines, any bag whose length, width and height add up to more than **160 cm** needs a seat booked with oversized-luggage space — free, but booked in advance. Without one, you pay a fee on board.[^1]" },
             {
               table: {
                 head: ["Total size", "What you need"],
@@ -1357,17 +1552,23 @@ const gettingAround: GuideTopic = {
             { p: "Station coin lockers mostly take IC cards: tap to lock, tap to open. Suitcase-sized ones go first, especially at tourist stations by mid-morning; staffed baggage counters nearby are the fallback." },
           ],
           words: [{ local: "宅急便", say: "takkyūbin", means: "door-to-door delivery (the black-cat logo)" }],
+          sources: [
+            { title: "Oversized baggage — JR Central", url: "https://global.jr-central.co.jp/en/info/oversized-baggage/", note: "The 160 cm and 250 cm limits and the reserved luggage seats" },
+          ],
         },
         {
           title: "Cycling",
           summary: "Since April 2026, cyclists get on-the-spot fines",
           body: [
-            { p: "Bikes suit flat Kyoto and Nara perfectly. But in April 2026 Japan brought cyclists into the **blue-ticket** system that drivers already face, so police can now fine you on the spot instead of just giving a warning." },
+            { p: "Bikes suit flat Kyoto and Nara perfectly. But in April 2026 Japan brought cyclists into the **blue-ticket** system that drivers already face, so police can now fine you on the spot instead of just giving a warning.[^1]" },
             {
               dos: ["Ride on the **left** of the road, with traffic", "Use a light after dark", "Park only in marked bike parking — bikes left elsewhere are impounded"],
               donts: ["Hold a phone or umbrella while riding — both are fineable", "Ride two abreast", "Cycle on the pavement unless a sign allows it, and then slowly, roadside"],
             },
             { note: "In Kyoto, parking enforcement is strict around stations and tourist streets. Use the paid bike parks; retrieving an impounded bike means a trip out of town and a fee.", title: "Kyoto especially" },
+          ],
+          sources: [
+            { title: "Blue tickets for cyclists — Setagaya City", url: "https://www.city.setagaya.lg.jp/01420/31961.html", note: "On-the-spot fines for cyclists aged 16 and over from 1 April 2026 (Japanese)" },
           ],
         },
       ],

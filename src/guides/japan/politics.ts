@@ -159,7 +159,7 @@ export const politics: GuideTopic = {
           summary: "A constitution that renounces war, an army that isn't called one, and an amendment never put to a vote",
           body: [
             { p: "Article 9 of the constitution renounces war \"as a sovereign right of the nation\" and says land, sea and air forces \"will never be maintained\"." },
-            { p: "In practice Japan has had the **Self-Defense Forces** since 1954, interpreted as the minimum needed to defend the country. Since 2015 they may also act in limited \"collective self-defence\" alongside allies. In 2022 the government committed to roughly doubling defence spending, to about 2% of GDP, which makes the budget one of the largest in the world." },
+            { p: "In practice Japan has had the **Self-Defense Forces** since 1954, interpreted as the minimum needed to defend the country.[^1] Since 2015 they may also act in limited \"collective self-defence\" alongside allies.[^2] In 2022 the government committed to roughly doubling defence spending, to about 2% of GDP, which makes the budget one of the largest in the world." },
             { p: "Amending Article 9 has been an LDP goal since its founding, and has never come to a vote. An amendment needs two-thirds of both houses and then a majority in a national referendum, a procedure that has never once been used." },
             { p: "Much of the public has grown attached to the article as it is, and the Self-Defense Forces are best known at home for disaster relief, after earthquakes and floods (see [Earthquakes](guide:nature/earthquakes))." },
             {
@@ -174,6 +174,10 @@ export const politics: GuideTopic = {
             { local: "憲法第九条", say: "kenpō dai-kyū-jō", means: "Article 9 of the constitution" },
           ],
           related: ["history/since-1945", "politics/the-diet-and-one-dominant-party"],
+          sources: [
+            { title: "Article 9 of the Japanese Constitution — Wikipedia", url: "https://en.wikipedia.org/wiki/Article_9_of_the_Japanese_Constitution", note: "The text, the SDF and reinterpretations" },
+            { title: "2015 Japanese military legislation — Wikipedia", url: "https://en.wikipedia.org/wiki/2015_Japanese_military_legislation", note: "Limited collective self-defence" },
+          ],
         },
         {
           title: "Prefectures and towns",

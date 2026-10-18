@@ -1,5 +1,5 @@
 import type { GuideTopic } from "../types";
-import { photo } from "./photos";
+import { photo, photoOf } from "./photos";
 
 /** Did you know: the curiosities worth keeping, each checked and grouped
  *  into a short read that explains rather than lists — design, trains,
@@ -9,6 +9,13 @@ export const trivia: GuideTopic = {
   title: "Did you know",
   glyph: "sparkle",
   summary: "Design that travelled, trains by design, lucky puns, odd borders, and Japan and Poland",
+  cover: photoOf("maneki-neko", "Hundreds of small white beckoning-cat figures with red collars crowded together", "Beckoning cats left at Gōtoku-ji in Tokyo, one of the temples that claims the cat began there."),
+  intro: {
+    body: [
+      { p: "The book closes with the things that don't fit a chapter but explain something anyway: objects designed in Japan that went round the world, trains run to the second, the luck hidden in numbers and puns, the oddities of the map, and an old friendship with a country on the other side of Eurasia." },
+      { p: "Each read checks its stories. Where a favourite tale turns out to be only a tale, it says so." },
+    ],
+  },
   blocks: [
     {
       items: [
@@ -65,7 +72,7 @@ export const trivia: GuideTopic = {
           title: "Luck, numbers and wordplay",
           summary: "Why the ¥5 coin goes in the offering box, why Kit Kats go to exams, and why there's no room 4",
           body: [
-            { p: "Japanese has a small set of sounds and a great many homophones, so puns, *goroawase*, run through everyday life: in gifts, prices, phone numbers and luck. Once you know a few, you start seeing them everywhere." },
+            { p: "Japanese has a small set of sounds and a great many homophones, so puns, *goroawase*, run through everyday life:[^1] in gifts, prices, phone numbers and luck. Once you know a few, you start seeing them everywhere." },
             {
               table: {
                 head: ["Thing", "Sounds like", "So"],
@@ -78,12 +85,17 @@ export const trivia: GuideTopic = {
                 ],
               },
             },
-            { p: "Nestlé Japan leaned into the Kit Kat pun from the early 2000s and has since made hundreds of regional and seasonal flavours, from matcha to sake, which is why there's a Kit Kat shelf in every airport." },
+            { p: "Nestlé Japan leaned into the Kit Kat pun from the early 2000s and has since made hundreds of regional and seasonal flavours, from matcha to sake, which is why there's a Kit Kat shelf in every airport.[^2]" },
             { h: "Money and holidays" },
             { p: "Look at your change. The **¥10 coin** shows the Phoenix Hall of Byōdō-in in Uji, which you can visit (see [Uji](guide:place/uji/tale-of-genji-country)); the ¥5 and ¥50 coins have holes in the middle. The banknotes issued in July 2024 carry Shibusawa Eiichi on the ¥10,000 note, the Meiji businessman who helped found around 500 companies (see [Names you know](guide:work/names-you-know)), and Tsuda Umeko, a pioneer of women's education, on the ¥5,000." },
-            { p: "And Christmas means **fried chicken**. A 1974 KFC campaign, *Kentucky for Christmas*, filled the gap in a country that had no Christmas dinner of its own; families now order their bucket weeks ahead, and the Colonel statues wear Santa suits." },
+            { p: "And Christmas means **fried chicken**. A 1974 KFC campaign, *Kentucky for Christmas*, filled the gap in a country that had no Christmas dinner of its own; families now order their bucket weeks ahead, and the Colonel statues wear Santa suits.[^3]" },
           ],
           related: ["language/how-japanese-sounds", "belief/religion-without-belonging", "place/uji/tale-of-genji-country"],
+          sources: [
+            { title: "Goroawase — Wikipedia", url: "https://en.wikipedia.org/wiki/Goroawase", note: "Number puns" },
+            { title: "Kit Kats in Japan — Wikipedia", url: "https://en.wikipedia.org/wiki/Kit_Kats_in_Japan", note: "Kitto katsu and the regional flavours" },
+            { title: "Christmas in Japan — Wikipedia", url: "https://en.wikipedia.org/wiki/Christmas_in_Japan", note: "KFC's 1974 campaign" },
+          ],
         },
         {
           title: "Quirks of the map",

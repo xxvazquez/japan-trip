@@ -10,7 +10,7 @@ export const howFoodWorks: GuideTopic = {
   title: "How the cooking works",
   glyph: "food",
   summary: "Rice, a five-minute stock, one mould and the season, and how much of it is younger than it looks",
-  cover: photoOf("teishoku", "A set meal of rice, pork-and-vegetable miso soup and three small side dishes", "Rice, a soup and small sides: the shape almost every Japanese meal still aims for."),
+  cover: photoOf("katsuobushi", "Market trays heaped with pink-brown flakes of shaved dried bonito, with price cards", "Shaved dried bonito at a market: the flakes behind most dashi."),
   intro: {
     body: [
       { p: "Japanese cooking rests on very few things. Short, sticky rice. A stock made in minutes from kelp and dried fish. One mould that ferments soy sauce, miso, sake and vinegar. Salt and pickles to eat the rice with. And a calendar that decides what goes on the plate." },
@@ -129,7 +129,7 @@ export const howFoodWorks: GuideTopic = {
           title: "Pickles at every meal",
           summary: "Why a few slices of something salty come with your rice",
           body: [
-            { p: "**Tsukemono**, pickles, are how vegetables kept through winter before refrigeration, and they're still beside almost every meal with rice. Rice is bland on purpose; a sharp, salty pickle is what you eat it with." },
+            { p: "**Tsukemono**, pickles, are how vegetables kept through winter before refrigeration, and they're still beside almost every meal with rice. Rice is bland on purpose; a sharp, salty pickle is what you eat it with.[^1]" },
             photo("nishiki-pickles", "Wooden barrels of pickles outside a shop in Nishiki Market", "A tsukemono shop in Kyoto, its pickles in wooden tubs."),
             {
               dishes: [
@@ -142,6 +142,9 @@ export const howFoodWorks: GuideTopic = {
             },
           ],
           related: ["how-food-works/k-ji-the-national-mould", "how-food-works/rice-properly", "regional-food/the-north-snow-and-settlers"],
+          sources: [
+            { title: "Tsukemono — Wikipedia", url: "https://en.wikipedia.org/wiki/Tsukemono", note: "Nukazuke, umeboshi, takuan and regional pickles" },
+          ],
         },
       ],
     },
@@ -152,14 +155,14 @@ export const howFoodWorks: GuideTopic = {
           title: "How a meal is built",
           summary: "One soup, a few dishes, rice on the left and the season on the plate",
           body: [
-            { p: "The template is **ichijū sansai**, “one soup, three dishes”: rice, a soup, a main and two smaller sides, plus pickles. Rice goes on the left, soup on the right, the main at the back." },
+            { p: "The template is **ichijū sansai**, “one soup, three dishes”: rice, a soup, a main and two smaller sides, plus pickles. Rice goes on the left, soup on the right, the main at the back.[^1]" },
             photo("teishoku", "A set meal of rice, pork-and-vegetable miso soup and three small side dishes", "The everyday shape: rice, a soup (here tonjiru, pork miso soup) and small sides."),
             { p: "An ordinary dinner today is more often one soup and one or two dishes. The template survives as the shape people aim for, and as the shape of every set meal (*teishoku*) in a restaurant." },
             { h: "Methods, not just ingredients" },
             { p: "Cooks think in **methods** as much as ingredients: something raw (nama), grilled (yaki), simmered (ni), steamed (mushi), fried (age), dressed (ae). A balanced meal has a range of them. That's why a set meal so often pairs something fried with something simmered and something raw." },
             { h: "Shun: eating in season" },
             { p: "Each food has its peak, **shun**, and the language goes further. **Hashiri** is the first of the season, expensive and celebrated. **Nagori** is the last, eaten with a little regret. What that means in an ordinary kitchen, season by season, is in [The year in a home kitchen](guide:food-at-home/the-year-in-a-home-kitchen)." },
-            { p: "The most formal meal of all, **kaiseki**, grew out of the meal served at the [tea ceremony](guide:culture/the-tea-ceremony) and is built on the same two ideas: a range of methods, and the season on every plate." },
+            { p: "The most formal meal of all, **kaiseki**, grew out of the meal served at the[^2] [tea ceremony](guide:culture/the-tea-ceremony) and is built on the same two ideas: a range of methods, and the season on every plate." },
           ],
           words: [
             { local: "一汁三菜", say: "ichijū sansai", means: "one soup, three dishes" },
@@ -167,6 +170,10 @@ export const howFoodWorks: GuideTopic = {
             { local: "定食", say: "teishoku", means: "a set meal" },
           ],
           related: ["food-at-home/a-weekday-of-meals", "food-at-home/the-year-in-a-home-kitchen", "culture/the-tea-ceremony"],
+          sources: [
+            { title: "Japanese cuisine — Wikipedia", url: "https://en.wikipedia.org/wiki/Japanese_cuisine", note: "Ichijū sansai and the cooking methods" },
+            { title: "Kaiseki — Wikipedia", url: "https://en.wikipedia.org/wiki/Kaiseki", note: "Its origin in the tea-ceremony meal" },
+          ],
         },
       ],
     },
@@ -178,7 +185,7 @@ export const foodAtHome: GuideTopic = {
   title: "Food at home",
   glyph: "breakfast",
   summary: "What an ordinary household eats on a weekday, where it comes from, and how the year changes it",
-  cover: photoOf("supermarket-bento", "A supermarket bento of onigiri, grilled salmon, fried chicken and noodles", "A supermarket lunch box: onigiri, salted salmon, karaage and fried noodles."),
+  cover: photoOf("home-bento", "A lunch box of rice, rolled omelette, fried chicken, spinach, tomatoes and cucumber", "A lunch box packed at home."),
   intro: {
     body: [
       { p: "The picture abroad — rice, miso soup, grilled fish and three little sides at every meal — is real, but it's the ideal, not the Tuesday. Most households eat a mix of Japanese, Chinese-derived and Western dishes, cooked fast, and on weekdays often not together." },
@@ -225,11 +232,15 @@ export const foodAtHome: GuideTopic = {
                 ],
               },
             },
-            { p: "Among the dishes most often cooked at home are **Western-born** ones: curry rice, hambāgu (a hamburger steak with sauce), spaghetti, gratin, cream stew. They arrived in the late 1800s and early 1900s and were adapted so thoroughly that families think of them as home food, not foreign food (see [Yōshoku](guide:eating-out/yakitori-wagyu-and-y-shoku))." },
+            { p: "Among the dishes most often cooked at home are **Western-born** ones: curry rice, hambāgu (a hamburger steak with sauce), spaghetti, gratin, cream stew. They arrived in the late 1800s and early 1900s and were adapted so thoroughly that families think of them as home food, not foreign food[^1][^2] (see [Yōshoku](guide:eating-out/yakitori-wagyu-and-y-shoku))." },
             { h: "Eating apart" },
             { p: "Many families no longer eat together on weekdays. Parents work late; teenagers have club activities and cram school. Dinner is often reheated at different times, one reason one-bowl and one-plate meals have pushed out the many-small-dishes table." },
           ],
           related: ["how-food-works/how-a-meal-is-built", "food-at-home/bought-not-cooked", "food-at-home/school-lunch"],
+          sources: [
+            { title: "Japanese curry — Wikipedia", url: "https://en.wikipedia.org/wiki/Japanese_curry", note: "From the Meiji navy to the roux block" },
+            { title: "Yōshoku — Wikipedia", url: "https://en.wikipedia.org/wiki/Y%C5%8Dshoku", note: "Western dishes adapted as home food" },
+          ],
         },
         {
           title: "Rice, less than you'd think",
@@ -320,7 +331,7 @@ export const foodAtHome: GuideTopic = {
             { h: "Fish and meat: cut for the dish" },
             { p: "The fish counter sells **saku**, neat blocks of tuna or salmon to slice as sashimi at home, alongside whole fish and pre-salted fillets for the grill. Meat is sliced paper-thin and labelled for its use: for shabu-shabu, for sukiyaki, for ginger pork, minced for gyōza. Big roasting joints are rare, because most homes have no oven, only a grill drawer under the gas hob." },
             { h: "Tofu, natto and the fermented aisle" },
-            { p: "A whole chilled wall is soy: firm (momen) and silken (kinu) tofu, fried tofu, soy milk, and twenty kinds of **natto** in three-packs — fermented soybeans, sticky and strong, eaten on rice at breakfast. Beside them are tubs of miso in a range of colours, and pickles." },
+            { p: "A whole chilled wall is soy: firm (momen) and silken (kinu) tofu, fried tofu, soy milk, and twenty kinds of **natto** in three-packs — fermented soybeans, sticky and strong, eaten on rice at breakfast.[^1] Beside them are tubs of miso in a range of colours, and pickles." },
             { h: "The shortcut aisles" },
             {
               list: [
@@ -339,6 +350,10 @@ export const foodAtHome: GuideTopic = {
             { local: "国産", say: "kokusan", means: "produced in Japan" },
           ],
           related: ["food-at-home/bought-not-cooked", "how-food-works/k-ji-the-national-mould", "eating-out/depachika"],
+          sources: [
+            { title: "Nattō — Wikipedia", url: "https://en.wikipedia.org/wiki/Natt%C5%8D", note: "Fermented soybeans, eaten on rice at breakfast" },
+            { title: "Japanese cuisine — Wikipedia", url: "https://en.wikipedia.org/wiki/Japanese_cuisine", note: "Dashi, tofu and the home kitchen" },
+          ],
         },
         {
           title: "The year in a home kitchen",

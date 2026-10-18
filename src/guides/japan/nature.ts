@@ -14,7 +14,7 @@ export const nature: GuideTopic = {
   cover: photoOf("red-fuji", "Hokusai's print of Mount Fuji glowing red against a blue sky streaked with cloud", "Hokusai's \"Red Fuji\", about 1830: the volcano at rest, a century after its last eruption."),
   intro: {
     body: [
-      { p: "Japan sits where four tectonic plates meet, in the path of the Pacific's typhoons, on a chain of volcanoes. Roughly a sixth of the world's magnitude-6 earthquakes happen in or around it, and about a tenth of its active volcanoes stand on it.[^1]" },
+      { p: "Japan sits where four tectonic plates meet, in the path of the Pacific's typhoons, on a chain of volcanoes. Close to a fifth of the world's magnitude-6 earthquakes happen in or around it, and about a tenth of its active volcanoes stand on it.[^1]" },
       { p: "Disaster is woven into the history. The courtier Kamo no Chōmei's *Hōjōki* of 1212, one of the classics every schoolchild reads, describes a city levelled by fire, whirlwind, famine and the great earthquake of 1185." },
       {
         stats: [
@@ -56,7 +56,7 @@ export const nature: GuideTopic = {
       { p: "The chapter takes the ground first, earthquakes and the tsunami they raise, then fire and water: the volcanoes and the storms. What to do if any of it happens while you're here is in [Be prepared](guide:prepared/when-the-ground-shakes)." },
     ],
     sources: [
-      { title: "Earthquakes of magnitude 6 and over, 2011–2023 — Ministry of Land, Infrastructure, Transport and Tourism", url: "https://www.mlit.go.jp/river/toukei_chousa/kasen_db/pdf/2024/2-2-4.pdf", note: "Japan: 16.3% of the world's; earlier white papers put it at about a fifth (Japanese)" },
+      { title: "Nearly 20% of large earthquakes happen in Japan — nippon.com", url: "https://www.nippon.com/en/japan-data/h00549/", note: "18.5% of the world's magnitude-6 earthquakes, from the 2014 disaster white paper" },
       { title: "Active volcanoes — Japan Meteorological Agency", url: "https://www.data.jma.go.jp/vois/data/tokyo/STOCK/kaisetsu/katsukazan_toha/katsukazan_toha.html", note: "111 active volcanoes (Japanese)" },
       { title: "Typhoon statistics, normals — Japan Meteorological Agency", url: "https://www.data.jma.go.jp/yoho/typhoon/statistics/average/average.html", note: "About 25 form a year, about 3 make landfall (Japanese)" },
       { title: "White Paper on Disaster Management 2023, ch. 1 — Cabinet Office", url: "https://www.bousai.go.jp/kaigirep/hakusho/r05/honbun/t1_1s_01_00.html", note: "About 105,000 dead or missing in 1923, most of them in fires (Japanese)" },

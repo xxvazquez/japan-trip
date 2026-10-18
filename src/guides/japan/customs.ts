@@ -39,7 +39,7 @@ export const customs: GuideTopic = {
           body: [
             { p: "Taking shoes off indoors is familiar enough. What trips people up is knowing exactly where the line falls, and the slipper rules beyond it." },
             photo("genkan", "Shoes and sandals on a concrete entrance floor, with a wooden floor one step higher in the foreground", "A genkan in a Hokkaido flat: shoes stay on the lower floor, and the step up is the threshold."),
-            { p: "The line is architectural. A sunken entrance, the **genkan**, sits a step below the floor proper: shoes stay at the lower level, and the step up is the threshold." },
+            { p: "The line is architectural. A sunken entrance, the **genkan**, sits a step below the floor proper: shoes stay at the lower level, and the step up is the threshold.[^1]" },
             { p: "It turns up in places you wouldn't expect: some restaurants, temple halls, clinics, school entrances lined with shoe lockers, and the fitting rooms of clothes shops, where you step out of your shoes before the curtain." },
             {
               table: {
@@ -59,6 +59,9 @@ export const customs: GuideTopic = {
             { local: "土足禁止", say: "dosoku kinshi", means: "no outdoor shoes past here" },
           ],
           related: ["customs/onsen-properly", "look-closer/houses-that-don-t-last"],
+          sources: [
+            { title: "Genkan — Wikipedia", url: "https://en.wikipedia.org/wiki/Genkan", note: "The sunken entrance and the shoe rules" },
+          ],
         },
         {
           title: "Onsen, properly",

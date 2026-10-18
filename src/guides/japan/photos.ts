@@ -41,7 +41,6 @@ const PHOTOS = {
   "himeji": { w: 900, h: 675, author: "Kok Leng Yeo", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Flickr_-_yeowatzup_-_Himeji_Castle,_Himeji,_Hyogo,_Japan.jpg" },
   "hakone-hiroshige": { w: 900, h: 594, author: "Utagawa Hiroshige", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Hiroshige-53-Stations-Hoeido-11-Hakone-MFA-02.jpg" },
   "perry": { w: 900, h: 424, author: "Hibata Ōsuke", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:The_Mission_of_Commodore_Perry_to_Japan_in_1854_(BM_2013,3002.1).jpg" },
-  "yokohama-railway": { w: 900, h: 438, author: "Hiroshige III", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Yokohama_Railway_1874.jpg" },
   "shinkansen-0": { w: 900, h: 675, author: "sodai gomi", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:0_series_shinkansen_at_Himeji_Station_2004.jpg" },
   "manyoshu": { w: 900, h: 612, author: "Kamakura-period copyist", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Nishi_Honganji-bon_(1.1).jpg" },
   "genji-kana": { w: 900, h: 420, author: "Unknown, 12th century", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Genji_emaki_01003_001.jpg" },
@@ -173,6 +172,13 @@ const PHOTOS = {
   "sakurajima": { w: 900, h: 601, author: "Jody McIntyre", license: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:View_of_Sakurajima_from_Shiroyama_Park_Observatory_-_Jan_27,_2010.jpg" },
   "umi-jigoku": { w: 900, h: 678, author: "Bpcon98", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Umi_Jigoku_(Sea_Hell)_in_Beppu.jpg" },
   "naoshima": { w: 900, h: 675, author: "Artandgeograph", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Naoshima_honmura_port_terminal.jpg" },
+  "katsuobushi": { w: 900, h: 675, author: "Stephan Ridgway", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:%E8%8A%B1%E3%81%8B%E3%81%A4%E3%81%8A_%E7%B3%B8%E3%81%8B%E3%81%A4%E3%81%8A_(48990285507).jpg" },
+  "home-bento": { w: 900, h: 675, author: "MassaWikiniki", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Homemade_lunch_box.jpg" },
+  "yokocho": { w: 900, h: 600, author: "MaedaAkihiko", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Shinjuku-West_Omoide-Yokocho.jpg" },
+  "sake-barrels": { w: 900, h: 600, author: "Ilkka Simomaa", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Meiji_Jingu_sake_barrels_2016-12-04.jpg" },
+  "boss-vending": { w: 675, h: 900, author: "Nikoletic126", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Boss_in_a_vending_machine.jpg" },
+  "rakuchu-rakugai": { w: 900, h: 410, author: "Kanō Eitoku", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Kan%C5%8D_Eitoku_-_Rakuch%C5%AB_rakugai_zu_(Uesugi)_-_right_screen.jpg" },
+  "maneki-neko": { w: 900, h: 675, author: "Niwrat", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Maneki-neko_(Japanese_Lucky_Cat)_Statues_at_Gotokuji_Temple,_Tokyo.jpg" },
   "temizuya": { w: 900, h: 676, author: "Hyppolyte de Saint-Rambert", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Seimei-jinja_(Kamigyo-ku,_Kyoto)_Ch%C5%8Dzuya_temizuya_hdsr_S5_07.jpg" },
 } as const;
 

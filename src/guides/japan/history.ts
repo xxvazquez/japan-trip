@@ -13,6 +13,7 @@ export const history: GuideTopic = {
   title: "A short history",
   glyph: "castle",
   summary: "From the first pottery to Reiwa, and why the eras are not alike",
+  cover: photoOf("rakuchu-rakugai", "A gold-leaf folding screen showing Kyoto's streets, temples and festival crowds through golden clouds", "Kyoto in the 1560s, from Kanō Eitoku's screens of the capital and its outskirts."),
   intro: {
     body: [
       { p: "Japanese history is usually told in eras named after the seat of power — Nara, Heian, Kamakura, Edo — and the names make the periods sound alike. They aren't. People made pottery on these islands for more than ten thousand years before anyone wrote anything down. Everything from the first Buddhist temples to the bullet train fits into the last fifteen hundred." },

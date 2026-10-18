@@ -231,7 +231,7 @@ export const belief: GuideTopic = {
           related: ["belief/gods-and-buddhas-mixed-and-split", "history/asuka-and-nara", "history/edo", "land/sacred-mountains", "land/gardens"],
           sources: [
             { title: "Buddhism in Japan — Wikipedia", url: "https://en.wikipedia.org/wiki/Buddhism_in_Japan", note: "The 552 and 538 dates, and why both are doubted" },
-            { title: "Scheid, review on the danka system — Japan Review, 2024", url: "https://nichibun.repo.nii.ac.jp/record/2000225/files/jare_2024_ea_DS1Scheid.pdf", note: "Temple certification against Christianity" },
+            { title: "Danka system — Wikipedia", url: "https://en.wikipedia.org/wiki/Danka_system", note: "Temple certification against Christianity" },
             { title: "Jaffe, Neither Monk nor Layman — Princeton University Press", url: "https://press.princeton.edu/books/ebook/9780691231099/neither-monk-nor-layman-0", note: "The 1872 decriminalisation of clerical marriage" },
             { title: "Over 12,000 temples lack resident monks — Buddhistdoor", url: "https://www2.buddhistdoor.net/news/survey-reveals-over-12000-temples-in-japan-lack-resident-monks", note: "The Asahi Shimbun's 2015 survey" },
             { title: "35% of religious corporations could vanish by 2040 — Tōyō Keizai", url: "https://toyokeizai.net/articles/-/676570", note: "Ishii Kenji's estimate, by denomination" },
@@ -474,7 +474,7 @@ export const belief: GuideTopic = {
             { title: "Yamamoto Shichihei, A Study of \"Air\" — Bungeishunjū", url: "https://books.bunshun.jp/ud/book/num/9784167911997", note: "Published 1977" },
             { title: "The spread of \"KY\" — Hosei University thesis", url: "https://hosei.ecats-library.jp/da/repository/00013323/ibunkaronbun_17_emura.pdf", note: "First in national media in Shūkan Asahi, July 2007" },
             { title: "Christel Takigawa: looking into Tokyo's Olympic future — Tokyo Weekender", url: "https://www.tokyoweekender.com/2013/11/christel-takigawa-looking-into-tokyos-olympic-future/", note: "The 2013 IOC presentation" },
-            { title: "Tokyo passes Japan's first customer harassment ordinance — Jiji Press", url: "https://sp.m.jiji.com/english/show/35873", note: "Passed October 2024, in force April 2025, no penalties" },
+            { title: "Tokyo law to stop customers abusing staff — WAM", url: "https://www.wam.ae/en/article/b5ii97u-tokyo-law-stop-customers-from-abusing-staff", note: "Passed October 2024, in force April 2025, no penalties" },
             { title: "Message from the Ambassador — Embassy of Japan in Kenya", url: "https://www.ke.emb-japan.go.jp/itpr_en/11_000001_00020.html", note: "Wangari Maathai and the MOTTAINAI campaign" },
             { title: "Japanese Aesthetics — Stanford Encyclopedia of Philosophy", url: "https://plato.stanford.edu/entries/japanese-aesthetics/", note: "Wabi, sabi, the tea masters, Norinaga and mono no aware" },
             { title: "Ikigai — Wikipedia", url: "https://en.wikipedia.org/wiki/Ikigai", note: "Kamiya Mieko's 1966 book; Zuzunaga's 2011 diagram" },

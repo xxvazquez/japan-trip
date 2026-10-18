@@ -10,7 +10,7 @@ export const drinks: GuideTopic = {
   title: "Drinks & sweets",
   glyph: "drink",
   summary: "Sake and the drinks that overtook it, tea from temple medicine to the bottle, and sweets that tell the month",
-  cover: photoOf("sugidama", "A large brown ball of cedar sprigs hanging under the eaves of an old sake brewery", "A sugidama outside a brewery: hung green when the new sake is pressed, brown by the time it's ready."),
+  cover: photoOf("sake-barrels", "A wall of straw-wrapped sake barrels painted with brewers' names", "Sake barrels given to Meiji Jingū by brewers across the country."),
   intro: {
     body: [
       { p: "Japan's two national drinks came with Buddhism and with rice. Tea arrived with monks from China and was first drunk as medicine; sake grew out of the same rice and the same kōji mould as soy sauce and miso. Both became arts, with their own vocabulary, regions and seasons." },

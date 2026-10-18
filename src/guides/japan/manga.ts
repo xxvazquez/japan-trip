@@ -159,7 +159,7 @@ export const manga: GuideTopic = {
           sources: [
             { title: "Global anime market grew to a record ¥3.84 trillion in 2024 — Anime News Network", url: "https://www.animenewsnetwork.com/news/2025-10-30/global-anime-market-grew-15-percent-to-record-3.84-trillion-yen-in-2024/.230464", note: "AJA figures, including ¥466.2 billion for production" },
             { title: "Animators earned an average of US$28,000 in 2013 — Anime News Network", url: "https://admin.animenewsnetwork.com/news/2015-05-15/study-animators-earned-usd28000-on-average-in-japan-in-2013/.87762", note: "JAniCA: in-betweeners about ¥1.1 million a year" },
-            { title: "Withdrawal of appeal against death sentence found valid in KyoAni case — nippon.com (Jiji)", url: "https://www.nippon.com/en/news/yjj2026031700701", note: "Osaka High Court, 17 March 2026" },
+            { title: "Withdrawal of appeal against death sentence found valid in KyoAni case — Adnkronos (Jiji)", url: "https://english.adnkronos.com/2026/03/17/withdrawal-of-appeal-against-death-sentence-found-valid-in-kyoani-case/", note: "Osaka High Court, 17 March 2026" },
           ],
         },
         {

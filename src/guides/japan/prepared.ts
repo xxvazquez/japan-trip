@@ -75,7 +75,7 @@ export const prepared: GuideTopic = {
           title: "Lost or stolen",
           summary: "Things come back — but you need the right paper",
           body: [
-            { p: "Lost things really do turn up: anything handed in goes to the nearest **kōban** (police box), then to the police lost-and-found centre for the area. Railways keep their own lost property for a few days first, so ask the station before the police." },
+            { p: "Lost things really do turn up: anything handed in goes to the nearest **kōban** (police box), then to the police lost-and-found centre for the area.[^1] Railways keep their own lost property for a few days first, so ask the station before the police." },
             { p: "For an insurance claim you need a report number: a **lost-property report** (ishitsu todoke) or a **theft report** (tōnan todoke) from any kōban. For a lost passport, get the police report first — the embassy needs it to issue an emergency travel document." },
           ],
           words: [
@@ -83,6 +83,9 @@ export const prepared: GuideTopic = {
             { local: "落とし物", say: "otoshimono", means: "lost property" },
           ],
           related: ["prepared/numbers-to-call", "look-closer/the-konbini-is-infrastructure"],
+          sources: [
+            { title: "Lost and found — Tokyo Metropolitan Police Department", url: "https://www.keishicho.metro.tokyo.lg.jp/multilingual/english/finding_services/lost_and_found/lost_found.html", note: "Reporting at a kōban, the Lost Property Center, collecting items" },
+          ],
         },
       ],
     },
