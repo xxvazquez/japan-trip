@@ -1,6 +1,6 @@
 import { primeKeyboard } from "@/lib/keyboard";
-import { Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Outlet, Link, useLocation, useNavigate, useNavigationType } from "react-router-dom";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { Outlet, Link, useNavigate } from "react-router-dom";
 import { TabBarOrRail } from "./TabBarOrRail";
 import { SyncStatus } from "./SyncStatus";
 import { PullToRefresh } from "./PullToRefresh";
@@ -17,6 +17,7 @@ import { SplitMap, useSplit, useSplitPane } from "./SplitMap";
 import { useReadOnly } from "@/lib/readonly";
 import { useAutoHotelCoords, useAutoTripTimeZone } from "@/lib/hotelCoords";
 import { useResumeWhereLeft } from "@/lib/resume";
+import { useScrollMemory } from "@/lib/scrollMemory";
 import { useMergeDuplicates } from "@/lib/dedupe";
 
 export function AppShell() {
@@ -31,15 +32,9 @@ export function AppShell() {
   useMergeDuplicates(!demo);
   useResumeWhereLeft();
 
-  // a screen you open starts at its top, as a navigation stack does — left
-  // alone, the browser keeps the old page's offset, so a day opened from far
-  // down the Plan (or the next day from the stepper) landed mid-page. Back
-  // keeps the browser's own restore; a tab switch restores its own spot after.
-  const { pathname } = useLocation();
-  const navType = useNavigationType();
-  useLayoutEffect(() => {
-    if (navType !== "POP") window.scrollTo(0, 0);
-  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+  // a screen you open starts at its top, Back returns to where you left it;
+  // a tab switch restores its own spot after
+  useScrollMemory();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
