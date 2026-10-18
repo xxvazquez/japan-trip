@@ -243,6 +243,11 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 - **Time order** — steps keep themselves in time order. Set or change a step's time and it moves to its place in the day.
 - **Untimed steps** — hold one, then drag it up or down (on a computer, drag the small ≡ that shows on hover). Holding without moving opens its menu instead. It then stays with the step above it. A loose time ("Around noon") counts as untimed.
 - **Pin a step** from its menu (**Pin this step**) to lock its time, e.g. a booking — it shows a pin, and tapping its time or the pin offers **Unpin** or **Unpin and change time**. It still sits where its time puts it. **Unpin this step** in the menu, or **More → Pin Time** on its place card, unlocks it too. Only a step with a time can be pinned.
+- **Shift times** — move many times at once instead of one by one:
+  - **Shift Times…** in the day's ⋯ moves every time in the day, wake-up and back-at-the-hotel included.
+  - **Shift times from here…** in a timed step's menu moves that step and everything after it.
+  - Pick **Earlier** or **Later** and a duration on the wheels (5-minute steps, up to 12 hr 55 min); the line under them shows what will change. Undo puts it back.
+  - Pinned steps keep their times. A shift that would push a time past midnight can't be made.
 - **Labels** — your own red reminders on a step, like "Remember to book". **Add a label…** in the step's menu (or **More → Add a Label…** on its place card) opens the trip's step labels: tap one to put it on or take it off, or **New Label…** to name one. Hold a label in that list to rename it or delete it on every step. They're a separate list from the day's labels.
 - **Mark as optional** from a step's menu, or **More → Optional** on its place card, for something nice to do but not a must: an ochre ◌ Optional tag shows under its name. **Make this a must** undoes it.
 - **The place card** — tap a linked step's name or note, as you'd tap a place in Maps. ✕ or a drag down closes it.

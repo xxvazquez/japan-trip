@@ -31,6 +31,7 @@ import type { Tip } from "@/components/InfoTips";
 import { saveFile, TAP, touchDevice } from "@/lib/device";
 import { RichNote } from "@/components/RichNote";
 import { RowMenu } from "@/components/RowMenu";
+import { ShiftTimesSheet } from "@/components/ShiftTimesSheet";
 import { Markdown } from "@/components/Markdown";
 import { ContextMenu } from "@/components/ContextMenu";
 import { RowDeleteButton } from "@/components/RowDeleteButton";
@@ -153,6 +154,17 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
 
   const L = lookups(data);
   const patch = (p: Partial<DayT>) => updateEntity<DayT>("days", day.id, p);
+  // Shift Times: the whole day from the Day menu, or one step on from its menu
+  const [shift, setShift] = useState<{ fromId?: string } | null>(null);
+  const shiftAnchor = useRef<HTMLElement | null>(null);
+  const openShift = (anchor: HTMLElement | null, fromId?: string) => {
+    shiftAnchor.current = anchor;
+    setShift({ fromId });
+  };
+  const stepName = (id?: string) => {
+    const it = id ? day.plan?.find((x) => x.id === id) : undefined;
+    return it && (data.places.find((p) => p.id === it.placeId)?.name || it.text);
+  };
   const pinned = (data.config.pinnedDays ?? []).includes(day.id);
   const planned = (data.config.plannedDays ?? []).includes(day.id);
   const togglePlanned = () => mutateTrip((d) => {
@@ -656,6 +668,11 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
                 <Icon name="tag" size={16} /> {day.labels?.length ? "Labels…" : "Add a Label…"}
               </button>
             )}
+            {!ro && (
+              <button className="menu-item" onClick={() => openShift(dayMenuAnchor.current)}>
+                <Icon name="clock" size={16} /> Shift Times…
+              </button>
+            )}
             {!ro && !hasAltPlan && (
               <button className="menu-item" onClick={addPlanB}>
                 <Icon name="copy" size={16} /> Add Plan B
@@ -688,6 +705,18 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
           onChange={(next) => patch({ labels: next.length ? next : undefined })}
           onRenameAll={(from, to) => undoable("Label renamed", () => relabel(from, to))}
           onDeleteAll={(l) => undoable("Label deleted", () => relabel(l))}
+        />
+      )}
+
+      {!ro && (
+        <ShiftTimesSheet
+          open={!!shift}
+          onClose={() => setShift(null)}
+          anchorRef={shiftAnchor as React.RefObject<HTMLElement>}
+          day={day}
+          fromId={shift?.fromId}
+          fromName={stepName(shift?.fromId)}
+          onShift={(p) => undoable("Times shifted", () => patch(p))}
         />
       )}
 
@@ -765,7 +794,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             </span>
           )}
         >
-          <PlanList day={day} journeys={journeys} startHotel={startHotel} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} morePlaces={morePlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} fresh={freshStep} onAdd={addStep} onChange={setPlan} onBackAt={(t) => patch({ backAt: t })} onLeaveAt={(t) => patch({ leaveAt: t })} onWakeAt={(t) => patch({ wakeAt: t })} onBreakfastAt={(t) => patch({ breakfastAt: t })} onQuickAddCost={quickAddCost} onShowOnMap={showOnMap} outline={outline} now={isToday ? clockNow : undefined} />
+          <PlanList day={day} journeys={journeys} startHotel={startHotel} returnHotel={dayKind(day, data) === "departure" ? undefined : weatherHotel} tz={data.config.tripTimeZone} items={day.plan ?? []} places={data.places} areaPlaces={areaPlaces} morePlaces={morePlaces} areaNameByPlaceId={areaNameByPlaceId} categoryIcons={data.config.categoryIcons} categoryColors={data.config.categoryColors} readOnly={ro} fresh={freshStep} onAdd={addStep} onChange={setPlan} onBackAt={(t) => patch({ backAt: t })} onLeaveAt={(t) => patch({ leaveAt: t })} onWakeAt={(t) => patch({ wakeAt: t })} onBreakfastAt={(t) => patch({ breakfastAt: t })} onQuickAddCost={quickAddCost} onShiftFrom={ro ? undefined : (el, id) => openShift(el, id)} onShowOnMap={showOnMap} outline={outline} now={isToday ? clockNow : undefined} />
         </Section>
       )}
 
@@ -1080,7 +1109,7 @@ function DayJourneyRow({ day, journey, data, onRemove }: { day: DayT; journey: J
 
 /* ------------------------------------------------------------------ plan */
 
-function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedItems, places, areaPlaces, morePlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, fresh, onAdd, onChange, onBackAt, onLeaveAt, onWakeAt, onBreakfastAt, onQuickAddCost, onShowOnMap, outline, now }: {
+function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedItems, places, areaPlaces, morePlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, fresh, onAdd, onChange, onBackAt, onLeaveAt, onWakeAt, onBreakfastAt, onQuickAddCost, onShiftFrom, onShowOnMap, outline, now }: {
   day: DayT;
   /** the day's journeys — their leave / arrive times show as rows of their own */
   journeys: Journey[];
@@ -1115,6 +1144,8 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   now?: string;
   onBreakfastAt: (time: string | undefined) => void;
   onQuickAddCost: (item: PlanItem) => void;
+  /** opens Shift Times from this step on */
+  onShiftFrom?: (row: HTMLElement | null, id: string) => void;
   onShowOnMap: (place: Place) => void;
 }) {
   const sensors = useSensors(
@@ -1353,6 +1384,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
           onDuplicate={() => duplicateItem(it.id)}
           onAddBelow={(el) => onAdd(el ? { currentTarget: el } : undefined, i + 1)}
           onQuickAddCost={onQuickAddCost}
+          onShiftFrom={onShiftFrom && ((el) => onShiftFrom(el, it.id))}
           onShowOnMap={onShowOnMap}
         />,
         ...(i < items.length - 1 ? connectorAfter(i) : []),
@@ -1552,7 +1584,7 @@ function timeBefore(items: PlanItem[], i: number): string | undefined {
   return undefined;
 }
 
-function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, onPatch, onRemove, onDuplicate, onAddBelow, onQuickAddCost, onShowOnMap }: {
+function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlaces, areaNameByPlaceId, categoryIcons, categoryColors, readOnly, onPatch, onRemove, onDuplicate, onAddBelow, onQuickAddCost, onShiftFrom, onShowOnMap }: {
   day: DayT;
   tz?: string;
   item: PlanItem;
@@ -1573,6 +1605,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
   /** adds a new step right under this one (opens what it is first) */
   onAddBelow: (row: HTMLElement | null) => void;
   onQuickAddCost: (item: PlanItem) => void;
+  onShiftFrom?: (row: HTMLElement | null) => void;
   onShowOnMap: (place: Place) => void;
 }) {
   const rowRef = useRef<HTMLLIElement | null>(null);
@@ -1897,6 +1930,11 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                       {item.time && (
                         <button type="button" className="menu-item" onClick={() => onPatch({ pinned: pinned ? undefined : true })}>
                           <Icon name="pushpin" size={16} /> {pinned ? "Unpin this step" : "Pin this step"}
+                        </button>
+                      )}
+                      {timed && !pinned && onShiftFrom && (
+                        <button type="button" className="menu-item" onClick={() => onShiftFrom(rowRef.current)}>
+                          <Icon name="clock" size={16} /> Shift times from here…
                         </button>
                       )}
                       <button type="button" className="menu-item" onClick={toggleOptional}>

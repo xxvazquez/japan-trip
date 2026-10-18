@@ -33,7 +33,7 @@ const isNarrow = () =>
 /** One spinning column (hour or minute) — scroll-snap drives the wheel feel,
  *  a short settle timer (not every scroll tick) is what actually commits a
  *  value, so a fast flick doesn't fire dozens of intermediate `onChange`s. */
-function WheelColumn({ options, value, onChange, ariaLabel }: {
+export function WheelColumn({ options, value, onChange, ariaLabel }: {
   options: string[];
   value: string;
   onChange: (v: string) => void;
