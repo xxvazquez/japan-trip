@@ -255,6 +255,8 @@ export interface GuideCity {
   radiusKm: number;
   /** rounded, as a phrase — "About 1.4 million" */
   population?: string;
+  /** the picture its card and page open on; else its first article's */
+  cover?: GuidePhoto;
   items: GuideItem[];
   dayTrips?: GuideDayTrip[];
 }
@@ -293,8 +295,6 @@ export interface CountryGuide {
   local?: string;
   /** the picture the guide's home opens with */
   cover?: GuidePhoto;
-  /** a few lines under the cover on what the guide is */
-  standfirst: string;
   /** the country in a handful of numbers, each sourced */
   glance?: { figures: GuideFigure[]; sources: GuideSource[] };
   /** the chapters, part by part, in reading order */

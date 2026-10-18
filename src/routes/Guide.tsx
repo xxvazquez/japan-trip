@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useParams, useSearchParams } from "react-router-dom";
 import { Icon } from "@/components/Icon";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
@@ -10,7 +10,8 @@ import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { Calls, Chart, Dishes, GuideSources, Inline, Venues, Photo } from "@/components/GuideBlocks";
 import { Compare, Eras, Evidence, Figures, Pull } from "@/components/GuideVisuals";
 import { MarkRead, ReadingActions, ReadTick, useProgress } from "@/components/GuideReading";
-import { useSaved } from "@/lib/guideReading";
+import { useSaved, type SavedEntry } from "@/lib/guideReading";
+import { SegmentedControl } from "@/components/SegmentedControl";
 import { useData } from "@/lib/data";
 import { guideTopicColor } from "@/lib/tones";
 import { GUIDE_CONTENT } from "@/guides/content";
@@ -33,150 +34,197 @@ function useGuide(): CountryGuide | undefined {
 
 const noGuide = <Missing title="No such guide" body="There’s no guide for that country." to="/logbook" cta="Back to Logbook" />;
 
+type HomeView = "guide" | "trip";
+const viewKey = (id: string) => `za.guide.view.${id}`;
+
+/** Which half of the guide's home is showing. It lives in the URL
+ *  (`?view=trip`), so Back and a shared link land on the same half, and
+ *  falls back to the one last chosen on this device. */
+function useHomeView(id: string | undefined): [HomeView, (v: HomeView) => void] {
+  const [params, setParams] = useSearchParams();
+  const fromUrl = params.get("view");
+  let remembered: string | null = null;
+  try {
+    remembered = id ? localStorage.getItem(viewKey(id)) : null;
+  } catch {
+    /* storage off */
+  }
+  const view: HomeView = (fromUrl ?? remembered) === "trip" ? "trip" : "guide";
+  const set = (v: HomeView) => {
+    try {
+      if (id) localStorage.setItem(viewKey(id), v);
+    } catch {
+      /* storage off */
+    }
+    // switching halves isn't a page you'd go Back to
+    setParams(v === "trip" ? { view: "trip" } : {}, { replace: true });
+  };
+  return [view, set];
+}
+
+/**
+ * A country guide's home. Two jobs, so two halves behind a segmented
+ * control under the title, the way Books keeps Reading Now apart from the
+ * Library: **Guide** is the book — where you left off, what you saved,
+ * the contents and the country at a glance — and **This Trip** is what
+ * the trip itself picks out: its places and day trips, the rest of the
+ * country, what's on while you're there, and the practical pages.
+ */
 export function GuideHome() {
   const data = useData();
   const guide = useGuide();
   const last = useLastRead(guide?.id);
   const saved = useSaved(guide?.id);
+  const [view, setView] = useHomeView(guide?.id);
   if (!data) return null;
   if (!guide) return noGuide;
 
-  const { stays, others } = citiesOnTrip(guide, data);
-  // the rest of the country, for wondering where else to go
-  const elsewhere = guide.cities.filter((c) => !stays.includes(c) && !others.includes(c));
-  const dates = datesOnTrip(guide, data);
   const pinned = data.config.modules.some((m) => m.enabled && m.kind === "guide" && m.target === guide.id);
   const home = guidePath(guide);
-  const book = guide.sections.flatMap((sec) => sec.chapters);
 
   return (
     <Page width="form">
       {/* pinned to the tab bar, the guide is a tab of its own — a root, with
           no back button */}
-      <PageHeader back={pinned ? undefined : "/logbook"} title={guide.name} meta={guide.local} className="mb-5" />
-      <div className="space-y-7">
-        {guide.cover && <Cover photo={guide.cover} />}
-        <p className="break-words text-[17px] leading-[1.45] text-ink-soft">{guide.standfirst}</p>
-
-        {last && (
-          <Section title="Continue reading" id={`guide-${guide.id}-continue`}>
-            <ul>
-              <TileRow
-                to={last.to}
-                tile={last.src
-                  ? <img src={last.src} alt="" className="h-11 w-11 shrink-0 rounded-[8px] bg-surface-2 object-cover" />
-                  : <IconTile size="sm" name="globe" tone="accent" />}
-                title={last.title}
-                meta={last.caption}
-              />
-            </ul>
-          </Section>
-        )}
-
-        {saved.length > 0 && (
-          <Section title="Saved" id={`guide-${guide.id}-saved`} action={<span className="text-[13px] text-ink-faint">{saved.length}</span>}>
-            <ul>
-              {saved.map((e) => (
-                <ArticleRow key={e.to} to={e.to} caption={e.caption} title={e.title} thumb={e.src} />
-              ))}
-            </ul>
-          </Section>
-        )}
-
-        <Half title="For this trip" meta="Picked from the trip’s stays, plan and dates">
-          {stays.length + others.length > 0 && (
-            <Section title="On this trip" id={`guide-${guide.id}-places`} bare>
-              <Shelf>
-                {[...stays, ...others].map((c) => {
-                  const stay = stays.includes(c);
-                  const trips = c.dayTrips?.length ?? 0;
-                  return (
-                    <ShelfCard
-                      key={c.id}
-                      to={`${home}/place/${c.id}`}
-                      cover={coverOf(cityArticles(c))}
-                      fallback={<span className="font-jp text-[28px] text-ink-soft">{c.local ?? c.name}</span>}
-                      title={c.name}
-                      meta={[stay ? "Staying" : "On your plan", trips ? `${trips} day trips` : ""].filter(Boolean).join(" · ")}
-                    />
-                  );
-                })}
-              </Shelf>
-            </Section>
-          )}
-
-          {elsewhere.length > 0 && (
-            <Section title={`Elsewhere in ${guide.name}`} id={`guide-${guide.id}-elsewhere`} bare>
-              <Shelf>
-                {elsewhere.map((c) => (
-                  <ShelfCard
-                    key={c.id}
-                    to={`${home}/place/${c.id}`}
-                    cover={coverOf(cityArticles(c))}
-                    fallback={<span className="font-jp text-[28px] text-ink-soft">{c.local ?? c.name}</span>}
-                    title={c.name}
-                    meta={c.population}
-                  />
-                ))}
-              </Shelf>
-            </Section>
-          )}
-          {dates.length > 0 && (
-            <Section title="While you're there" id={`guide-${guide.id}-while-there`} defaultOpen={false} action={<span className="text-[13px] text-ink-faint">{dates.length}</span>}>
-              <ul>
-                {dateArticles(dates).map((r) => (
-                  <ArticleRow key={r.slug} to={`${home}/date/${r.slug}`} caption={r.eyebrow} title={r.title} meta={r.article.summary} thumb={photoIn(r.article)?.src} />
-                ))}
-              </ul>
-            </Section>
-          )}
-
-          {guide.practical.length > 0 && (
-            <Section title="Before you go" id={`guide-${guide.id}-before-you-go`}>
-              <ul>
-                {guide.practical.map((t, i) => (
-                  <TileRow
-                    key={t.id}
-                    to={`${home}/${t.id}`}
-                    tile={<IconTile size="sm" name={t.icon} glyph={t.glyph} color={guideTopicColor(book.length + i)} />}
-                    title={t.title}
-                    meta={t.summary}
-                  />
-                ))}
-              </ul>
-            </Section>
-          )}
-
-        </Half>
-
-        <Half title={`Understanding ${guide.name}`} meta="The guide itself — the same for any trip, best read in order">
-          {guide.glance && <Glance guide={guide} />}
-          {guide.sections.map((sec, si) => (
-            <Section key={sec.title} title={`Part ${si + 1} · ${sec.title}`} id={`guide-${guide.id}-part-${slug(sec.title)}`}>
-              <ul>
-                {sec.chapters.map((t) => (
-                  <ChapterRow key={t.id} to={`${home}/${t.id}`} n={book.indexOf(t) + 1} topic={t} />
-                ))}
-              </ul>
-            </Section>
-          ))}
-        </Half>
-      </div>
+      <PageHeader back={pinned ? undefined : "/logbook"} title={guide.name} meta={guide.local} className="mb-4" />
+      <SegmentedControl
+        className="mb-6"
+        value={view}
+        onChange={setView}
+        options={[
+          { value: "guide", label: "Guide" },
+          { value: "trip", label: "This Trip" },
+        ]}
+      />
+      {view === "guide" ? <BookHome guide={guide} home={home} last={last} saved={saved} /> : <TripHome guide={guide} home={home} />}
     </Page>
   );
 }
 
-/** One half of the guide's home — For this trip, or the book — under a
- *  heading of its own, the way the App Store's Today groups its stories. */
-function Half({ title, meta, children }: { title: string; meta: string; children: ReactNode }) {
+/** The Guide half: the cover, where you left off, what you saved, the
+ *  contents by part, and the country in numbers last. */
+function BookHome({ guide, home, last, saved }: { guide: CountryGuide; home: string; last?: LastRead; saved: SavedEntry[] }) {
+  const book = guide.sections.flatMap((sec) => sec.chapters);
   return (
-    <section className="space-y-6 pt-2">
-      <header className="px-1">
-        <h2 className="subhead break-words text-ink">{title}</h2>
-        <p className="mt-0.5 break-words text-[15px] leading-snug text-ink-faint">{meta}</p>
-      </header>
-      {children}
-    </section>
+    <div className="space-y-7">
+      {guide.cover && <Cover photo={guide.cover} />}
+
+      {last && (
+        <Section title="Continue reading" id={`guide-${guide.id}-continue`}>
+          <ul>
+            <TileRow
+              to={last.to}
+              tile={last.src
+                ? <img src={last.src} alt="" className="h-11 w-11 shrink-0 rounded-[8px] bg-surface-2 object-cover" />
+                : <IconTile size="sm" name="globe" tone="accent" />}
+              title={last.title}
+              meta={last.caption}
+            />
+          </ul>
+        </Section>
+      )}
+
+      {saved.length > 0 && (
+        <Section title="Saved" id={`guide-${guide.id}-saved`} action={<span className="text-[13px] text-ink-faint">{saved.length}</span>}>
+          <ul>
+            {saved.map((e) => (
+              <ArticleRow key={e.to} to={e.to} caption={e.caption} title={e.title} thumb={e.src} />
+            ))}
+          </ul>
+        </Section>
+      )}
+
+      {guide.sections.map((sec, si) => (
+        <Section key={sec.title} title={`Part ${si + 1} · ${sec.title}`} id={`guide-${guide.id}-part-${slug(sec.title)}`}>
+          <ul>
+            {sec.chapters.map((t) => (
+              <ChapterRow key={t.id} to={`${home}/${t.id}`} n={book.indexOf(t) + 1} topic={t} />
+            ))}
+          </ul>
+        </Section>
+      ))}
+
+      {guide.glance && <Glance guide={guide} />}
+    </div>
+  );
+}
+
+/** The This Trip half: what the trip touches first, then the rest of the
+ *  country, what's on, and the practical pages. */
+function TripHome({ guide, home }: { guide: CountryGuide; home: string }) {
+  const data = useData()!;
+  const { stays, others } = citiesOnTrip(guide, data);
+  const elsewhere = guide.cities.filter((c) => !stays.includes(c) && !others.includes(c));
+  const dates = datesOnTrip(guide, data);
+  const book = guide.sections.flatMap((sec) => sec.chapters);
+  return (
+    <div className="space-y-7">
+      {stays.length + others.length > 0 ? (
+        <Section title="On this trip" id={`guide-${guide.id}-places`} bare>
+          <Shelf>
+            {[...stays, ...others].map((c) => {
+              const stay = stays.includes(c);
+              const trips = c.dayTrips?.length ?? 0;
+              return (
+                <ShelfCard
+                  key={c.id}
+                  to={`${home}/place/${c.id}`}
+                  cover={c.cover ?? coverOf(cityArticles(c))}
+                  fallback={<span className="font-jp text-[28px] text-ink-soft">{c.local ?? c.name}</span>}
+                  title={c.name}
+                  meta={[stay ? "Staying" : "On your plan", trips ? `${trips} day trips` : ""].filter(Boolean).join(" · ")}
+                />
+              );
+            })}
+          </Shelf>
+        </Section>
+      ) : (
+        <p className="px-1 text-[15px] leading-snug text-ink-faint">Add a stay or a pin in {guide.name} and its places show up here, with day trips from each base.</p>
+      )}
+
+      {dates.length > 0 && (
+        <Section title="While you're there" id={`guide-${guide.id}-while-there`} action={<span className="text-[13px] text-ink-faint">{dates.length}</span>}>
+          <ul>
+            {dateArticles(dates).map((r) => (
+              <ArticleRow key={r.slug} to={`${home}/date/${r.slug}`} caption={r.eyebrow} title={r.title} meta={r.article.summary} thumb={photoIn(r.article)?.src} />
+            ))}
+          </ul>
+        </Section>
+      )}
+
+      {guide.practical.length > 0 && (
+        <Section title="Before you go" id={`guide-${guide.id}-before-you-go`}>
+          <ul>
+            {guide.practical.map((t, i) => (
+              <TileRow
+                key={t.id}
+                to={`${home}/${t.id}`}
+                tile={<IconTile size="sm" name={t.icon} glyph={t.glyph} color={guideTopicColor(book.length + i)} />}
+                title={t.title}
+                meta={t.summary}
+              />
+            ))}
+          </ul>
+        </Section>
+      )}
+
+      {elsewhere.length > 0 && (
+        <Section title={`Elsewhere in ${guide.name}`} id={`guide-${guide.id}-elsewhere`} bare>
+          <Shelf>
+            {elsewhere.map((c) => (
+              <ShelfCard
+                key={c.id}
+                to={`${home}/place/${c.id}`}
+                cover={c.cover ?? coverOf(cityArticles(c))}
+                fallback={<span className="font-jp text-[28px] text-ink-soft">{c.local ?? c.name}</span>}
+                title={c.name}
+                meta={c.population}
+              />
+            ))}
+          </Shelf>
+        </Section>
+      )}
+    </div>
   );
 }
 
@@ -607,7 +655,7 @@ export function GuideDateArticle() {
 /** what an article opens on when it has no photo of its own: the city's
  *  cover, or its name in the local script */
 const cityFallback = (g: CountryGuide, c: GuideCity): ArticleFallback => ({
-  photo: coverOf(cityArticles(c)),
+  photo: c.cover ?? coverOf(cityArticles(c)),
   tint: guideTopicColor(g.cities.indexOf(c)),
   art: <span className="font-jp text-[34px] text-white">{c.local ?? c.name}</span>,
 });

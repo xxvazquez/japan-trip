@@ -505,27 +505,26 @@ Text isn't selectable (as in a native app), so values you might paste elsewhere 
 
 When a trip has stays or pins in a country the app has a guide for (Japan today), a row for it sits below the sections. Pin it as its own tab from Manage → Setup → Tabs.
 
-The guide has two halves: **For this trip**, picked from the trip, and **the book**, the same for every trip and meant to be timeless (no itineraries, prices or opening hours).
+The guide has two halves: **This Trip**, picked from the trip, and **Guide**, the book, the same for every trip and meant to be timeless (no itineraries, prices or opening hours).
 
 **Home**
 
-- A full-width cover picture with its credit, then a standfirst on what the guide is.
-- **Continue reading** — the last article you opened, on this device.
-- **Saved** — the articles you've bookmarked, newest first.
-- **For this trip**, then **Understanding Japan** (the book), each under its own heading.
+- Under the title, a **Guide | This Trip** switch, as Books separates Reading Now from the Library. The choice is in the address (`?view=trip`), so Back lands on the same half, and it's remembered on the device.
+- **Guide** — the cover picture, **Continue reading**, **Saved**, the contents by part, and **At a glance** last.
+- **This Trip** — On this trip, While you're there, Before you go, then Elsewhere in Japan.
 
-**For this trip**
+**This Trip**
 
 - **On this trip** — a card per city or town the trip touches, matched from its stays, bases and pins (a day trip to Uji or Kurama shows up without a stay there). Stays come first, marked **Staying**, with their day-trip count.
 - **Elsewhere in Japan** — the guide's other cities and regions (Hiroshima, Sapporo, Kanazawa, Okinawa…), for ideas beyond the route.
-- **While you're there** — festivals, seasons and closures that fall within the trip's dates. Folded, with a count.
+- **While you're there** — festivals, seasons and closures that fall within the trip's dates, with a count.
 - **Before you go** — **Be prepared** (who to call, earthquakes, tsunami, typhoons, Fuji, bears), **Rules with teeth** and **Getting around**.
-- A city page opens on its cover picture and groups its reads under **Understand the place**, **Look closer**, **Eat and drink**, **Before you go** and **Coffee** (Tokyo and Kyoto), with short notes under **Worth knowing**.
+- A city page opens on its cover picture (a city can name its own) and groups its reads under **Understand the place**, **Look closer**, **Eat and drink**, **Before you go** and **Coffee** (Tokyo and Kyoto), with short notes under **Worth knowing**.
 - **Day trips** — from each base, all by train or bus, on the city's page.
 
-**The book**
+**Guide — the book**
 
-- **At a glance** — six key numbers for the country, with their sources folded underneath.
+- **At a glance** — six key numbers for the country, at the foot of the contents, with their sources folded underneath.
 - Contents in five parts, chapters numbered straight through (a chapter you've started shows "3 of 8 read", a finished one a green **Read**): **Origins** (history, belief, language), **The land**, **The table** (how the cooking works, food at home, eating out, menus and drinks, regional food, coffee), **Everyday life** (Look closer, Japan by numbers, school, work, customs, stamps) and **Culture and the state** (culture, manga & anime, politics, Did you know).
 - A chapter page shows "Chapter 4 · Origins", its title and dek, its picture, an optional opening read, then its sections. **Next chapter** at the foot.
 - **History** opens with two era bands drawn to scale, then lists its eras as a timeline.

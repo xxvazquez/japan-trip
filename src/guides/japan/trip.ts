@@ -181,6 +181,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       local: "京都",
       lat: 35.0116, lng: 135.7681, radiusKm: 10,
       population: "About 1.4 million",
+      cover: photoOf("kiyomizu-stage", "A wooden temple hall on a tall timber stage above a wooded hillside", "Kiyomizu-dera's stage above the trees of Higashiyama."),
       dayTrips: [
         {
           name: "Takao", cover: photoOf("jingoji", "A child at a table of small clay discs at a temple", "Clay discs for kawarake throwing at Jingo-ji."), local: "高雄", getting: "About 50 min by JR bus from Kyoto Station",

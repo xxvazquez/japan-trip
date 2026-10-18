@@ -31,8 +31,6 @@ export const japan: CountryGuide = {
   name: "Japan",
   local: "日本 · Nihon",
   cover: photoOf("red-fuji", "Mount Fuji in red against a sky of small clouds", "*Fine Wind, Clear Morning*, from Hokusai's Thirty-six Views of Mount Fuji, about 1831."),
-  standfirst:
-    "How the country came to be the way it is: its past, its beliefs and language, the restless ground it stands on, what it eats, how it lives and how it governs itself. Read it in order, or open any chapter.",
 
   glance: {
     figures: [
