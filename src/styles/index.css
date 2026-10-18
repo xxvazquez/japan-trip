@@ -568,7 +568,11 @@ html:active-view-transition .vt-up-next {
   ::view-transition-new(root) {
     animation: vt-push-over 0.4s var(--ease-paper) both;
   }
-  /* Back: the same, reversed — the page slides off on top */
+  /* Back: the same, reversed — the page slides off on top. WebKit ignores
+     z-index on these pseudo-elements and always paints the new page over
+     the old, so the returning list is also clipped to the strip the
+     leaving page has uncovered (vt-pop-under); with both on one curve the
+     edges meet exactly, whichever engine stacks them which way. */
   html[data-vt="pop"]::view-transition-old(root) {
     z-index: 1;
     animation: vt-pop-over 0.4s var(--ease-paper) both;
@@ -612,7 +616,11 @@ html[data-vt="zoom"] .vt-zoom-title {
   to { transform: translateX(100%); }
 }
 @keyframes vt-pop-under {
-  from { transform: translateX(-30%); filter: brightness(0.9); }
+  /* the old page's left edge sits at p·W while this one sits at
+     −0.3·W·(1−p), so the uncovered strip ends 0.7·W·(1−p) short of this
+     page's right edge — linear in p, so one inset keyframe tracks it */
+  from { transform: translateX(-30%); filter: brightness(0.9); clip-path: inset(0 70% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
 }
 @media (min-width: 768px) {
   ::view-transition-old(root),
