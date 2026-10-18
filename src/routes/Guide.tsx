@@ -508,22 +508,20 @@ export function GuideCityPage() {
       <PageHeader back={guidePath(guide)} title={city.name} meta={city.local} className="mb-6" />
       <div className="space-y-6">
         <Hero fallback={cityFallback(guide, city)} />
-        {city.population && (
+        {/* the place's facts in one grouped list, the way Maps puts a
+            place's details together rather than a card per fact */}
+        {city.population || city.dayTrips?.length ? (
           <Section>
             <ul>
-              <InsetRow label="Population">{city.population}</InsetRow>
-            </ul>
-          </Section>
-        )}
-        {city.dayTrips?.length ? (
-          <Section>
-            <ul>
-              <TileRow
-                to={`${cityPath}/day-trips`}
-                tile={<IconTile size="sm" name="train" tone="ai" />}
-                title="Day trips"
-                right={String(city.dayTrips.length)}
-              />
+              {city.population && <InsetRow label="Population">{city.population}</InsetRow>}
+              {city.dayTrips?.length ? (
+                <TileRow
+                  to={`${cityPath}/day-trips`}
+                  tile={<IconTile size="sm" name="train" tone="ai" />}
+                  title="Day trips"
+                  right={String(city.dayTrips.length)}
+                />
+              ) : null}
             </ul>
           </Section>
         ) : null}

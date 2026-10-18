@@ -50,7 +50,7 @@ export const politics: GuideTopic = {
             { h: "From sovereign to symbol" },
             { p: "For most of history emperors reigned without ruling: regents, retired emperors and then shoguns held real power (see [Kamakura and Muromachi](guide:history/kamakura-and-muromachi)). The Meiji state restored the emperor to the centre, as a sacred sovereign in whose name the army and government acted." },
             { p: "After defeat in 1945 the occupation kept the throne but rewrote its meaning, and on 1 January 1946 Emperor Shōwa (Hirohito) issued a rescript that disclaimed the idea of his divinity. The symbolic role was largely shaped by his son Akihito, who spent his reign visiting disaster zones and war sites." },
-            { p: "In 2016 Akihito, then 82, signalled in a televised address that he wished to step down. There was no legal route, so the Diet passed a one-off law, and on 1 May 2019 he abdicated, the first emperor to do so in about two centuries. His son **Naruhito** succeeded." },
+            { p: "In 2016 Akihito, then 82, signalled in a televised address that he wished to step down. There was no legal route, so the Diet passed a one-off law, and on 30 April 2019 he abdicated, the first emperor to do so in about two centuries. His son **Naruhito** succeeded the next day." },
             { h: "Era names" },
             { p: "Each reign has an era name, the **gengō**, still used on official forms, coins, newspapers and driving licences. Naruhito's is **Reiwa**, which began in 2019, so a Reiwa year plus 2018 gives the Western one: Reiwa 8 is 2026. You'll also meet Heisei (1989–2019) and Shōwa (1926–89) on older dates." },
 
@@ -183,7 +183,7 @@ export const politics: GuideTopic = {
           title: "Prefectures and towns",
           summary: "Forty-seven prefectures with four different names, governors elected since 1947, and Osaka's plan to become a metropolis",
           body: [
-            { p: "Below the national government are **47 prefectures**, made in 1871 when the domains of the old lords were abolished (see [Meiji to 1945](guide:history/meiji-to-1945)). Since 1947 each has had an elected governor and assembly; before the war, governors were appointed from Tokyo." },
+            { p: "Below the national government are **47 prefectures**. They began in 1871, when the domains of the old lords were abolished and turned into hundreds of prefectures, and were merged down to today's map by 1888 (see [Meiji to 1945](guide:history/meiji-to-1945)). Since 1947 each has had an elected governor and assembly; before the war, governors were appointed from Tokyo." },
             {
               table: {
                 head: ["Name", "How many", "Which"],

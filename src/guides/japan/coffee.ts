@@ -315,7 +315,7 @@ export const coffee: GuideTopic = {
 /** Coffee houses worth sitting in, listed on the Tokyo and Kyoto pages of
  *  the trip half — places, so not part of the chapter itself. */
 export const coffeeTokyo: GuideItem = {
-  group: "Coffee",
+  group: "Eat and drink",
   title: "Tokyo coffee worth the detour",
   summary: "Ginza's old guard, Jimbōchō's book-café kissaten, two specialty pioneers",
   body: [
@@ -344,7 +344,7 @@ export const coffeeTokyo: GuideItem = {
 };
 
 export const coffeeKyoto: GuideItem = {
-  group: "Coffee",
+  group: "Eat and drink",
   title: "Kyoto coffee worth the detour",
   summary: "Pre-war salons, a basement institution, and the new roasters",
   body: [

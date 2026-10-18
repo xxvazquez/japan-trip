@@ -135,7 +135,8 @@ function BarChart({ chart: c }: { chart: GuideChart }) {
 function ticks(max: number): number[] {
   const raw = max / 4;
   const mag = 10 ** Math.floor(Math.log10(raw));
-  const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw) ?? raw;
+  // years are whole: a 2.5 step only where it lands on whole numbers (25, 250)
+  const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw && Number.isInteger(s)) ?? Math.ceil(raw);
   const out: number[] = [];
   for (let v = 0; v <= max + step * 0.001; v += step) out.push(v);
   if (out[out.length - 1] < max) out.push(out[out.length - 1] + step);
@@ -146,7 +147,8 @@ function ticks(max: number): number[] {
 function xTicks(x0: number, x1: number): number[] {
   const raw = (x1 - x0) / 6;
   const mag = 10 ** Math.floor(Math.log10(raw));
-  const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw) ?? raw;
+  // years are whole: a 2.5 step only where it lands on whole numbers (25, 250)
+  const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw && Number.isInteger(s)) ?? Math.ceil(raw);
   const out: number[] = [];
   for (let v = Math.ceil(x0 / step) * step; v <= x1; v += step) out.push(v);
   return out;
@@ -256,12 +258,30 @@ function LineChart({ chart: c }: { chart: GuideChart }) {
           [...labelled, ...(end ? [end] : [])].map((p) => {
             const left = sx(p.x) < padL + 24;
             const right = sx(p.x) > w - padR - 24;
+            // a low point the line climbs away from would have the line run
+            // through a label set above it, so its label goes under the dot —
+            // or, with no room above the axis, isn't drawn (a drag reads it)
+            const i = pts.indexOf(p);
+            // the line's height a label's width away, on the side the text runs
+            const climbs = (q: (typeof pts)[number] | undefined) => {
+              if (!q) return false;
+              const dx = Math.abs(sx(q.x) - sx(p.x));
+              return sy(p.value) + (sy(q.value) - sy(p.value)) * Math.min(1, 28 / (dx || 1)) < sy(p.value) - 10;
+            };
+            const crowded = (left ? climbs(pts[i + 1]) : right ? climbs(pts[i - 1]) : climbs(pts[i - 1]) || climbs(pts[i + 1]));
+            const fits = sy(p.value) + 18 < H - padB - 2;
+            // the latest value is always said: above, if there's no room under
+            const below = p === end || (crowded && (fits || p !== lastSolid));
+            const y = below ? sy(p.value) + 18 : sy(p.value) - 8;
+            const room = !below || p === end || fits;
             return (
               <g key={p.label}>
                 <circle cx={sx(p.x)} cy={sy(p.value)} r={3.5} className={p.projected ? "fill-surface stroke-accent" : "fill-accent"} strokeWidth={1.5} />
-                <text x={sx(p.x)} y={p === end ? sy(p.value) + 18 : sy(p.value) - 8} textAnchor={left ? "start" : right ? "end" : "middle"} className={`text-[12px] font-medium tabular-nums ${p === end ? "fill-ink-soft" : "fill-ink"}`}>
-                  {fmt(p.value, c.decimals)}
-                </text>
+                {room && (
+                  <text x={sx(p.x)} y={y} textAnchor={left ? "start" : right ? "end" : "middle"} className={`text-[12px] font-medium tabular-nums ${p === end ? "fill-ink-soft" : "fill-ink"}`}>
+                    {fmt(p.value, c.decimals)}
+                  </text>
+                )}
               </g>
             );
           })
