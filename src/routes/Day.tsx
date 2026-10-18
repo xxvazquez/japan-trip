@@ -2706,7 +2706,7 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
   // the stop could land on directions instead. `relative` keeps it painted
   // over the stop it's tucked under
   const pill = "relative inline-flex min-w-0 max-w-full items-center gap-1 text-[0.75rem] leading-snug text-ink-faint/70 tabular-nums transition-opacity active:opacity-50";
-  const trainTitle = train ? `Train from ${train.a.name} to ${train.b.name}` : "Transit directions";
+  const trainTitle = train ? `Train from ${train.a.name} to ${train.b.name}` : "Public transport directions";
   const long = !walk || walk.min > LONG_WALK_MIN;
   // a chevron between legs, as Maps strings a transit route together
   const leg = <Icon name="chevron" size={10} className="mx-0.5 inline-block shrink-0 align-[-1px] opacity-70" />;
@@ -2763,7 +2763,9 @@ function TravelConnector({ from, to }: { from: { lat: number; lng: number }; to:
                 )}
               </span>
             ) : (
-              <><Icon name="train" size={12} className="shrink-0" /> By train</>
+              // no station near one end: Google's transit directions still route
+              // it (buses included), so don't promise a train
+              <><Icon name="route" size={12} className="shrink-0" /> Public transport</>
             )}
           </a>
         )}
