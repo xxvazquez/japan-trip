@@ -138,6 +138,13 @@ const PHOTOS = {
   "goya-champuru": { w: 900, h: 597, author: "Ippei Suzuki", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Goya_Champuru_1.jpg" },
   "kiritanpo": { w: 900, h: 507, author: "Chensiyuan", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Kiritanpo_nabe_z.JPG" },
   "ekiben": { w: 900, h: 675, author: "masataka muto", license: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:Ekiben_(16942832905).jpg" },
+  "akiya": { w: 900, h: 675, author: "Kuroshio no Neko", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Akiya_in_Tabuse_2026.jpg" },
+  "coming-of-age": { w: 900, h: 599, author: "Kyle Hasegawa", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:2010-01-11_young_people_at_a_Seijin_shiki_in_Tokyo.jpg" },
+  "keiunkan": { w: 900, h: 600, author: "Sablier de Verrie", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Nishiyama_Onsen_Keiunkan.jpg" },
+  "hagi-castle-town": { w: 900, h: 675, author: "そらみみ", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Kikuya_Lane_in_Hagi_Castle_Town_1.jpg" },
+  "address-sign": { w: 900, h: 600, author: "円周率３パーセント", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Kangetsu-cho_1-chome_address_sign_20180612.jpg" },
+  "hanko": { w: 900, h: 675, author: "Nesnad", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Inkan_-_Tokyo_area_-_2022_Feb_7_various.jpeg" },
+  "temizuya": { w: 900, h: 676, author: "Hyppolyte de Saint-Rambert", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Seimei-jinja_(Kamigyo-ku,_Kyoto)_Ch%C5%8Dzuya_temizuya_hdsr_S5_07.jpg" },
 } as const;
 
 export type PhotoId = keyof typeof PHOTOS;

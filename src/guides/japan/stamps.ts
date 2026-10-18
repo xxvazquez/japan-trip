@@ -1,14 +1,23 @@
 import type { GuideTopic } from "../types";
-import { photo } from "./photos";
+import { photo, photoOf } from "./photos";
 
-/** Stamps as two reads: the goshuin, a temple receipt that became a
- *  pilgrimage record, and the secular stamps and seals that followed it,
- *  from station stamps to the hanko. */
+/** Everyday life, part six: stamps. The goshuin, a temple receipt that
+ *  became a pilgrimage record, and the secular stamps and seals that
+ *  followed it, from station stamps to the hanko — one habit of marking
+ *  where you've been and what you've agreed to. */
 export const stamps: GuideTopic = {
   id: "stamps",
   title: "Stamps everywhere",
   icon: "stamp",
   summary: "Temple seals, station stamps and the hanko, and why Japan records where it's been",
+  cover: photoOf("hanko", "Rows of cylindrical personal seals in red-lined cases, each priced by its diameter", "Personal seals for sale in Tokyo, priced by their width."),
+  intro: {
+    body: [
+      { p: "Japan stamps things. A red seal in ink marks a visit to a temple, a rubber stamp by the ticket gates marks a station, and until recently a carved personal seal stood in for a signature on almost every form." },
+      { p: "The three share a root. A seal is proof: that a pilgrim reached a temple, that a traveller passed this way, that a person agreed. And they share an audience: the domestic traveller, who still makes up most of Japan's tourism (see [Tourists — and everyone else](guide:numbers/tourists-and-everyone-else)), and the office that ran on paper (see [Office habits](guide:work/office-habits))." },
+      { p: "The chapter starts with the oldest, the temple seal, and ends with the one the government tried to retire." },
+    ],
+  },
   blocks: [
     {
       items: [
@@ -26,15 +35,15 @@ export const stamps: GuideTopic = {
             { h: "How to ask" },
             {
               steps: [
-                { title: "Get a book", text: "A folding *goshuinchō*, sold at most temples and shrines for about ¥1,000–2,000. Many have their own cover designs." },
+                { title: "Get a book", text: "A folding *goshuinchō*, sold at most temples and shrines, many with their own cover designs." },
                 { title: "Visit first", text: "Pray or pay your respects before you go to the counter; the seal records a visit, not a purchase." },
                 { title: "Find the counter", text: "Look for 御朱印 or 納経所. Hand over the book open at the next blank page." },
-                { title: "Pay, usually ¥300–500", text: "In cash, as an offering (*o-kimochi*) rather than a price. At busy places you may get a number and collect later." },
+                { title: "Make the offering", text: "A few hundred yen in cash, given as an offering (*o-kimochi*) rather than a price. At busy places you may get a number and collect later." },
               ],
             },
             {
               dos: ["Keep it as a record of visits, treated with some respect", "Take a pre-written sheet (*kakiokishi*) gracefully when that's what's offered — it's normal on festival days"],
-              donts: ["Put station or tourist stamps in the same book — some temples refuse a book that mixes them", "Arrive late: most counters close around 16:00–16:30"],
+              donts: ["Put station or tourist stamps in the same book — some temples refuse a book that mixes them", "Arrive late: most counters close in the late afternoon"],
             },
             { note: "Settled: goshuin grew out of receipts for offered sutras and became a record of the visit in the Edo period. Still argued: how far back the practice goes, and whether today's limited-edition designs are devotion, marketing or both.", title: "What's known and what isn't", kind: "info" },
           ],
@@ -44,7 +53,7 @@ export const stamps: GuideTopic = {
             { local: "納経所", say: "nōkyōjo", means: "the counter where seals are given" },
             { local: "書き置き", say: "kakiokishi", means: "a pre-written seal on a loose sheet" },
           ],
-          related: ["belief/shinto", "belief/buddhism", "stamps/station-stamps-and-the-hanko"],
+          related: ["belief/shinto", "customs/shrines-and-temples", "stamps/station-stamps-and-the-hanko"],
           sources: [
             { title: "The origins of goshuin — Serai", url: "https://serai.jp/?p=1018820", note: "From the Edo-period nōkyōchō and the rokujūrokubu pilgrims (Japanese)" },
           ],
@@ -81,7 +90,7 @@ export const stamps: GuideTopic = {
             { local: "判子 / 印鑑", say: "hanko / inkan", means: "a personal seal" },
             { local: "実印", say: "jitsuin", means: "a registered, legally binding seal" },
           ],
-          related: ["stamps/goshuin", "numbers/tourists-and-everyone-else", "work/working-life"],
+          related: ["stamps/goshuin", "numbers/tourists-and-everyone-else", "work/office-habits"],
           sources: [
             { title: "Eki stamp — Wikipedia", url: "https://en.wikipedia.org/wiki/Eki_stamp", note: "Fukui, 1931, and Discover Japan" },
             { title: "100 Fine Castles stamp rally — Japan Castle Association", url: "https://jcmanet.or.jp/bunken/kikanshi/2016/10/107.pdf", note: "Started June 2007; the second hundred from 2018 (Japanese)" },

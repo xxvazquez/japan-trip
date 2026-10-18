@@ -31,7 +31,7 @@ export const trivia: GuideTopic = {
             { p: "Wooden pagodas have survived centuries of earthquakes partly thanks to a free-standing central post, the *shinbashira*, which lets the storeys sway against each other instead of breaking. Tokyo Skytree's designers borrowed the idea: a concrete central column stands inside the steel tower, connected so that the two move out of step and damp each other's swaying (see [Asuka and Nara](guide:history/asuka-and-nara))." },
             { note: "Phones sold in Japan always make the shutter sound, even on silent, by an industry agreement against secret photography. Yours won't, but it's why you hear clicks everywhere.", title: "Click" },
           ],
-          related: ["look-closer/the-konbini-is-infrastructure", "work/old-firms-and-big-names", "language/borrowed-words"],
+          related: ["look-closer/the-konbini-is-infrastructure", "work/the-world-s-oldest-firms", "language/borrowed-words"],
           sources: [
             { title: "Shigetaka Kurita — Wikipedia", url: "https://en.wikipedia.org/wiki/Shigetaka_Kurita", note: "Kurita's 176 emoji, 1999, acquired 2016" },
             { title: "Uniqlo — Wikipedia", url: "https://en.wikipedia.org/wiki/Uniqlo", note: "Unique Clothing Warehouse and the 1988 Hong Kong registration" },
@@ -80,7 +80,7 @@ export const trivia: GuideTopic = {
             },
             { p: "Nestlé Japan leaned into the Kit Kat pun from the early 2000s and has since made hundreds of regional and seasonal flavours, from matcha to sake, which is why there's a Kit Kat shelf in every airport." },
             { h: "Money and holidays" },
-            { p: "Look at your change. The **¥10 coin** shows the Phoenix Hall of Byōdō-in in Uji, which you can visit (see [Uji](guide:place/uji/tale-of-genji-country)); the ¥5 and ¥50 coins have holes in the middle. The banknotes issued in July 2024 carry Shibusawa Eiichi on the ¥10,000 note, the Meiji businessman who helped found around 500 companies (see [Old firms and big names](guide:work/old-firms-and-big-names)), and Tsuda Umeko, a pioneer of women's education, on the ¥5,000." },
+            { p: "Look at your change. The **¥10 coin** shows the Phoenix Hall of Byōdō-in in Uji, which you can visit (see [Uji](guide:place/uji/tale-of-genji-country)); the ¥5 and ¥50 coins have holes in the middle. The banknotes issued in July 2024 carry Shibusawa Eiichi on the ¥10,000 note, the Meiji businessman who helped found around 500 companies (see [Names you know](guide:work/names-you-know)), and Tsuda Umeko, a pioneer of women's education, on the ¥5,000." },
             { p: "And Christmas means **fried chicken**. A 1974 KFC campaign, *Kentucky for Christmas*, filled the gap in a country that had no Christmas dinner of its own; families now order their bucket weeks ahead, and the Colonel statues wear Santa suits." },
           ],
           related: ["language/how-japanese-sounds", "belief/religion-without-belonging", "place/uji/tale-of-genji-country"],
@@ -102,7 +102,7 @@ export const trivia: GuideTopic = {
             { p: "Most Japanese streets have no names. An address names a district, then a numbered block, then a building number, and in older areas buildings were numbered in the order they were built, not where they stand. That's why everyone, including taxi drivers, navigates by map, and why a kōban's main job can seem to be giving directions." },
             { note: "Japan also has more pet cats and dogs than children: about 15.7 million against 13.7 million under-15s in 2025.[^3]", title: "And" },
           ],
-          related: ["land/sacred-mountains", "look-closer/high-city-low-city", "numbers/a-country-getting-smaller"],
+          related: ["land/sacred-mountains", "place/tokyo/a-castle-town-that-became-a-capital", "numbers/a-country-getting-smaller"],
           sources: [
             { title: "Why Japan has two electrical frequencies — Japan Experience", url: "https://www.japan-experience.com/plan-your-trip/to-know/before-you-travel/electrical-outlets-in-japan-everything-you-need-to-know-for-your-trip", note: "AEG in Tokyo, General Electric in Osaka" },
             { title: "Mount Fuji's owner — Japan Up Close", url: "https://japanupclose.web-japan.org/spot/s20230224_1.html", note: "The 1974 ruling and the 2004 return" },

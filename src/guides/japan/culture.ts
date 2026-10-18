@@ -158,7 +158,7 @@ export const culture: GuideTopic = {
             { p: "Wrestlers live and train communally in **stables**, *heya*, mostly in Tokyo's Ryōgoku, where you can sometimes watch morning practice. The sport has been global at the top for decades: since Akebono, from Hawaii, became the first foreign-born grand champion (*yokozuna*) in 1993, most yokozuna have been foreign-born, chiefly Mongolian. Its rules on women have not moved. Women may not step into a professional ring, and in April 2018, when the mayor of Maizuru collapsed while speaking in one, women who rushed in to give first aid were told by the referee to leave. The Sumo Association apologised, and the rule stayed.[^1]" },
 
             { h: "Baseball" },
-            { p: "**Baseball** came with an American teacher in the 1870s and spread through schools and universities, which is why the amateur game, above all the high-school tournament at Kōshien, still matters so much (see [School, from April to April](guide:growing-up/school-from-april-to-april)). The professional league dates from 1936, and it's the most-watched sport in the country. Going to a game is its own experience: each team's cheering section (*ōendan*) leads a song for every batter, fans of the visiting team fill one stand of the outfield, and young women with beer kegs on their backs climb the stands pouring draught all game." },
+            { p: "**Baseball** came with an American teacher in the 1870s and spread through schools and universities, which is why the amateur game, above all the high-school tournament at Kōshien, still matters so much (see [Clubs and Kōshien](guide:growing-up/clubs-and-k-shien)). The professional league dates from 1936, and it's the most-watched sport in the country. Going to a game is its own experience: each team's cheering section (*ōendan*) leads a song for every batter, fans of the visiting team fill one stand of the outfield, and young women with beer kegs on their backs climb the stands pouring draught all game." },
 
             { h: "Karaoke, pachinko and mascots" },
             {
@@ -188,7 +188,7 @@ export const culture: GuideTopic = {
             { local: "野球", say: "yakyū", means: "baseball" },
             { local: "ゆるキャラ", say: "yuru-kyara", means: "a local mascot" },
           ],
-          related: ["culture/baths", "growing-up/school-from-april-to-april", "belief/shinto"],
+          related: ["culture/baths", "growing-up/clubs-and-k-shien", "belief/shinto"],
           sources: [
             { title: "Sumo in uproar as women first responders ordered out of ring — CNN", url: "https://amp.cnn.com/cnn/2018/04/05/asia/japan-sumo-women-ring-emergency-intl-trnd", note: "Maizuru, April 2018" },
             { title: "The man who invented the karaoke machine never patented it — Quartz", url: "https://qz.com/159437/the-man-who-invented-the-karaoke-machine-never-patented-it", note: "Inoue Daisuke and the 8 Juke, 1971" },

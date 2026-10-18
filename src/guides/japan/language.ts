@@ -335,7 +335,7 @@ export const language: GuideTopic = {
             { local: "丁寧語", say: "teineigo", means: "polite -masu and desu, for the listener" },
             { local: "内 / 外", say: "uchi / soto", means: "inside and outside your group, which decides the form" },
           ],
-          related: ["language/how-a-sentence-is-built", "belief/words-for-japan-and-their-limits", "work/working-life"],
+          related: ["language/how-a-sentence-is-built", "belief/words-for-japan-and-their-limits", "work/office-habits"],
           sources: [
             { title: "Public opinion survey on the Japanese language — Agency for Cultural Affairs", url: "https://www.bunka.go.jp/tokei_hakusho_shuppan/tokeichosa/kokugo_yoronchosa/index.html", note: "The annual survey, including attitudes to keigo (Japanese)" },
             { title: "Keigo — Kotobank (Daijisen)", url: "https://kotobank.jp/word/%E6%95%AC%E8%AA%9E", note: "The three traditional kinds and the five of the 2007 guide (Japanese)" },
@@ -372,7 +372,7 @@ export const language: GuideTopic = {
 
             { h: "Portuguese and Dutch" },
             { p: "The first European words came with Portuguese traders and missionaries in the 16th century (see [Unification](guide:history/unification)). Some are everyday Japanese: *pan* (bread), *tabako*, *karuta* (playing cards), *botan* (button), and *kasutera*, the sponge cake of Nagasaki.[^2]" },
-            { p: "When the Portuguese were expelled, the Dutch at Dejima became Japan's window on Western learning for two centuries (see [Edo](guide:history/edo)). They left *bīru* (beer), *kōhī* (coffee), *garasu* (glass), *gomu* (rubber) and *randoseru*, the stiff leather backpack of every primary-school child, from the Dutch *ransel* (see [Childhood and coming of age](guide:growing-up/childhood-and-coming-of-age))." },
+            { p: "When the Portuguese were expelled, the Dutch at Dejima became Japan's window on Western learning for two centuries (see [Edo](guide:history/edo)). They left *bīru* (beer), *kōhī* (coffee), *garasu* (glass), *gomu* (rubber) and *randoseru*, the stiff leather backpack of every primary-school child, from the Dutch *ransel* (see [Out alone at six](guide:growing-up/out-alone-at-six))." },
 
             { h: "Learning from each country" },
             { p: "After 1868 Japan borrowed from whichever country it was learning a field from. Medicine and mountaineering came from German, which left *karute* (a patient's chart), *gerende* (a ski slope) and *arubaito*, from *Arbeit*, now the ordinary word for a part-time job." },
@@ -444,7 +444,7 @@ export const language: GuideTopic = {
 
             { h: "Making a standard" },
             { p: "For most of history the prestige speech was Kyoto's, the language of the court and of classical literature. In the Edo period, as Edo grew into one of the world's largest cities, its own speech gained ground." },
-            { p: "After 1868 the new government needed one language for schools, the army and newspapers. The linguist Ueda Kazutoshi argued in the 1890s for a **hyōjungo**, a standard, modelled on educated speech in Tokyo's Yamanote, the high city (see [High city, low city](guide:look-closer/high-city-low-city)).[^1]" },
+            { p: "After 1868 the new government needed one language for schools, the army and newspapers. The linguist Ueda Kazutoshi argued in the 1890s for a **hyōjungo**, a standard, modelled on educated speech in Tokyo's Yamanote, the high city (see [A castle town that became a capital](guide:place/tokyo/a-castle-town-that-became-a-capital)).[^1]" },
             {
               steps: [
                 { title: "1890s: a model chosen", text: "The speech of educated Tokyo households." },
@@ -512,7 +512,7 @@ export const language: GuideTopic = {
             { local: "おおきに", say: "ōkini", means: "thank you, in old Osaka speech" },
             { local: "おこしやす", say: "okoshiyasu", means: "welcome, in Kyoto" },
           ],
-          related: ["language/how-japanese-sounds", "history/meiji-to-1945", "look-closer/high-city-low-city"],
+          related: ["language/how-japanese-sounds", "history/meiji-to-1945", "place/tokyo/a-castle-town-that-became-a-capital"],
           sources: [
             { title: "Standard Japanese — Wikipedia", url: "https://en.wikipedia.org/wiki/Standard_Japanese", note: "Ueda Kazutoshi, the Yamanote model, hyōjungo and kyōtsūgo" },
             { title: "Nakamine, the dialect card in Okinawa — University of Toyama", url: "https://toyama.repo.nii.ac.jp/record/15885/files/SeikatsuShidoKenkyu_32_89to98_Nakamine.pdf", note: "How the hōgen fuda was used and when it appeared (Japanese)" },

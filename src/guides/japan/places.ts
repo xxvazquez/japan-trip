@@ -108,6 +108,20 @@ export const placeReads: Record<string, GuideItem[]> = {
     },
     {
       group: "Look closer",
+      title: "Jimbōchō, a book town by accident",
+      summary: "Universities, a fire, and shops that face north",
+      body: [
+        { p: "Law schools that became Meiji, Nihon, Senshū and Chūō universities opened around Kanda in the 1880s, and second-hand textbook dealers followed the students. After a fire in 1913 the street was rebuilt as booksellers' shops; one of them, a used bookshop opened that year by Iwanami Shigeo, became the publisher Iwanami. There are still around 130 second-hand bookshops.[^1]" },
+        photo("jimbocho", "A second-hand bookshop front in Jimbōchō with stacks of magazines outside", "A used bookshop in Jimbōchō, its stock spilling onto the pavement."),
+        { p: "**Notice** which side of Yasukuni-dōri they're on: most shops line the south side, so their fronts **face north**. The local explanation is that the sun never fades the spines in the window; it's a good story, if not a documented plan." },
+      ],
+      related: ["place/tokyo/station-towns-not-a-centre", "language/three-scripts-at-once"],
+      sources: [
+        { title: "Jimbōchō — Truly Tokyo", url: "https://trulytokyo.com/jimbocho/", note: "The 1913 fire, Iwanami's bookshop, about 130 used bookshops" },
+      ],
+    },
+    {
+      group: "Look closer",
       title: "One block that survived",
       summary: "Kanda Sudachō's pre-war restaurants, still serving",
       body: [

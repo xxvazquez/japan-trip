@@ -564,7 +564,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         {
           title: "Industrial heart",
           text: "Home ground of Toyota. The Toyota Commemorative Museum of Industry and Technology is in the old Toyoda spinning mill — the company started with automatic looms.",
-          related: ["work/old-firms-and-big-names"],
+          related: ["work/the-world-s-oldest-firms"],
         },
         {
           title: "The castle",

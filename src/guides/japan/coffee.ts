@@ -205,7 +205,7 @@ export const coffeeTokyo: GuideItem = {
       ],
     },
   ],
-  related: ["coffee/overview", "look-closer/jimb-ch-a-book-town-by-accident", "coffee/kissaten-for-listening"],
+  related: ["coffee/overview", "place/tokyo/jimb-ch-a-book-town-by-accident", "coffee/kissaten-for-listening"],
   sources: [
     { title: "Café de l'Ambre (Time Out Tokyo)", url: "https://timeout.com/tokyo/restaurants/cafe-de-lambre" },
     { title: "Café Paulista, Tokyo's oldest café (Old Tokyo)", url: "https://old-tokyo.info/cafe-paulista-oldest-cafe-in-tokyo-with-a-brazilian-history/" },

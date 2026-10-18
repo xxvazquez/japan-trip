@@ -274,7 +274,7 @@ export const foodAtHome: GuideTopic = {
             { p: "It explains a lot about adult tastes. Post-war lunches, started with American aid, were bread and skimmed milk. The 1954 School Lunch Act spread them to every elementary school, and bread lunches became universal in the 1960s.[^1] That's how a rice country got a bread habit. Rice came back in 1976 and now dominates again." },
             { p: "Adults are famously nostalgic about it: deep-fried whale in older generations' memories, **age-pan** (fried sugared bread), curry day. Some izakaya and cafés serve “kyūshoku menus” on aluminium trays as a joke everyone gets." },
           ],
-          related: ["growing-up/school-from-april-to-april", "food-at-home/rice-less-than-you-d-think"],
+          related: ["growing-up/cleaning-and-lunch", "food-at-home/rice-less-than-you-d-think"],
           sources: [{ title: "Why rice is vanishing from Japanese tables — nippon.com", url: "https://www.nippon.com/en/currents/d00046/", note: "Postwar bread lunches and rice's return in 1976" }],
         },
         {

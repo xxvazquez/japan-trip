@@ -61,7 +61,7 @@ export const manga: GuideTopic = {
             { local: "青年 / 女性", say: "seinen / josei", means: "for men / for women" },
             { local: "劇画", say: "gekiga", means: "dramatic, realistic manga for adults" },
           ],
-          related: ["manga/how-anime-took-shape", "manga/fans-places-and-characters", "growing-up/childhood-and-coming-of-age"],
+          related: ["manga/how-anime-took-shape", "manga/fans-places-and-characters", "growing-up/schools-without-children"],
           sources: [
             { title: "Japan's comic market hits a record ¥704.3 billion in 2024 — nippon.com", url: "https://www.nippon.com/ja/japan-data/h02328/", note: "Research Institute for Publications data; digital ¥512.2 billion (Japanese)" },
             { title: "Chōjū-jinbutsu-giga — Wikipedia", url: "https://en.wikipedia.org/wiki/Ch%C5%8Dj%C5%AB-jinbutsu-giga", note: "The four scrolls of Kōzan-ji, their dating and where they're kept" },
@@ -130,7 +130,7 @@ export const manga: GuideTopic = {
             { local: "連載", say: "rensai", means: "serialisation in a magazine" },
             { local: "アシスタント", say: "ashisutanto", means: "a manga artist's assistant" },
           ],
-          related: ["manga/how-anime-took-shape", "work/working-life", "manga/fans-places-and-characters"],
+          related: ["manga/how-anime-took-shape", "work/long-hours", "manga/fans-places-and-characters"],
           sources: [
             { title: "Global anime market grew to a record ¥3.84 trillion in 2024 — Anime News Network", url: "https://www.animenewsnetwork.com/news/2025-10-30/global-anime-market-grew-15-percent-to-record-3.84-trillion-yen-in-2024/.230464", note: "AJA figures, including ¥466.2 billion for production" },
             { title: "Animators earned an average of US$28,000 in 2013 — Anime News Network", url: "https://admin.animenewsnetwork.com/news/2015-05-15/study-animators-earned-usd28000-on-average-in-japan-in-2013/.87762", note: "JAniCA: in-betweeners about ¥1.1 million a year" },
@@ -189,7 +189,7 @@ export const manga: GuideTopic = {
             { local: "聖地巡礼", say: "seichi junrei", means: "visiting places from an anime" },
             { local: "推し", say: "oshi", means: "the character or performer you support most" },
           ],
-          related: ["manga/how-manga-took-shape", "manga/how-anime-took-shape", "growing-up/childhood-and-coming-of-age"],
+          related: ["manga/how-manga-took-shape", "manga/how-anime-took-shape", "growing-up/schools-without-children"],
           sources: [
             { title: "Akio Nakamori — Wikipedia", url: "https://en.wikipedia.org/wiki/Akio_Nakamori", note: "The June 1983 Manga Burikko essay and the 1989 case" },
             { title: "Comiket at Tokyo Big Sight — Tickets in Japan", url: "https://www.ticketsinjapan.com/media/comiket-tokyo-big-sight/", note: "The first Comiket, December 1975: about 700 people, 32 circles" },

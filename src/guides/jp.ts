@@ -56,7 +56,7 @@ export const japan: CountryGuide = {
     { title: "Origins", chapters: [history, belief, language] },
     { title: "The land", chapters: [land, nature] },
     { title: "The table", chapters: [howFoodWorks, foodAtHome, eatingOut, drinks, regionalFood, coffee] },
-    { title: "Everyday life", chapters: [closer, numbers, growingUp, work, customs, stamps] },
+    { title: "Everyday life", chapters: [numbers, growingUp, work, closer, customs, stamps] },
     { title: "Culture and the state", chapters: [culture, manga, politics, trivia] },
   ],
 

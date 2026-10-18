@@ -71,7 +71,7 @@ export const eatingOut: GuideTopic = {
             { local: "締め", say: "shime", means: "the closing dish" },
             { local: "お会計", say: "okaikei", means: "the bill" },
           ],
-          related: ["drinks/sake-and-how-to-read-the-bottle", "drinks/sh-ch-whisky-and-beer", "work/working-life"],
+          related: ["drinks/sake-and-how-to-read-the-bottle", "drinks/sh-ch-whisky-and-beer", "work/office-habits"],
           sources: [
             { title: "Izakaya — Wikipedia", url: "https://en.wikipedia.org/wiki/Izakaya", note: "Edo-period sake shops that let customers drink on the premises" },
           ],

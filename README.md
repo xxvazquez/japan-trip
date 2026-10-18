@@ -525,13 +525,14 @@ The guide has two halves: **This Trip**, picked from the trip, and **Guide**, th
 **Guide — the book**
 
 - **At a glance** — six key numbers for the country, at the foot of the contents, with their sources folded underneath.
-- Contents in five parts, chapters numbered straight through (a chapter you've started shows "3 of 8 read", a finished one a green **Read**): **Origins** (history, belief, language), **The land** (land and seasons, living with nature), **The table** (how the cooking works, food at home, eating out, drinks and sweets, regional food, coffee), **Everyday life** (Look closer, Japan by numbers, school, work, customs, stamps) and **Culture and the state** (culture, manga & anime, politics, Did you know).
+- Contents in five parts, chapters numbered straight through (a chapter you've started shows "3 of 8 read", a finished one a green **Read**): **Origins** (history, belief, language), **The land** (land and seasons, living with nature), **The table** (how the cooking works, food at home, eating out, drinks and sweets, regional food, coffee), **Everyday life** (Japan by numbers, school, work, Look closer, customs, stamps) and **Culture and the state** (culture, manga & anime, politics, Did you know).
 - A chapter page shows "Chapter 4 · Origins", its title and dek and a wide picture, then its contents straight away. A chapter with an opening read lists it first as **Overview**; **Next chapter** sits at the foot.
 - Every chapter opens on a real photo; a chapter can name its own cover.
 - **History** starts with an Overview (two era bands drawn to scale and the population from 725 to the 2070 projection), then tells its eight eras in order, each handing on to the next.
 - **Belief** and **Language** each open with an overview: their own changes drawn to scale against the eras, linked into History, then their reads in titled sections.
 - **Land & seasons** covers cherry and maple, forests, sacred mountains and gardens. **Living with nature** explains earthquakes, tsunami, volcanoes and typhoons as science and history; what to do in one stays under Before you go.
 - **The table** reads in order: how the cooking works, food at home, eating out (with sushi, noodles and meat), drinks and sweets, regional food, coffee. Each chapter opens with an Overview. **Regional food** is about the whole country (east and west, trade routes, flour country, the north and the south, food made to travel); what to eat in one city is on that city's page under **Eat and drink**.
+- **Everyday life** reads in order from the numbers to the street: Japan by numbers, growing up and school, work, Look closer, customs, stamps. Each opens with an Overview that says which earlier chapter explains it (falling births close schools; school cleaning explains the missing bins). Look closer is country-wide; Tokyo-only reads such as Jimbōchō are on the Tokyo page.
 
 **Reading an article**
 
