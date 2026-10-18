@@ -1,4 +1,5 @@
 import type { GuideTopic } from "../types";
+import { photoOf } from "./photos";
 
 /** A few numbers that change how you see the country — each dated, sourced
  *  and read for what it does and doesn't show. */
@@ -7,6 +8,7 @@ export const numbers: GuideTopic = {
   title: "Japan by numbers",
   glyph: "sparkle",
   summary: "Population, births, work, health, homes, tourists — read carefully",
+  cover: photoOf("commute", "Office workers crossing a wide street between towers in the morning", "The morning commute in Nishi-Shinjuku."),
   blocks: [
     {
       items: [

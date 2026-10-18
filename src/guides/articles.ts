@@ -24,14 +24,19 @@ function withSlugs(list: Omit<ArticleRef, "slug">[]): ArticleRef[] {
   });
 }
 
-/** a topic's entries, in page order: each group's points and timeline stops */
+/** a chapter's entries, in page order: its overview (when it has an
+ *  opening read), then each group's points and timeline stops */
 export function topicArticles(topic: GuideTopic): ArticleRef[] {
-  return withSlugs(
-    topic.blocks.flatMap((b) => [
+  const overview = topic.intro
+    ? [{ title: "Overview", eyebrow: topic.title, article: { summary: topic.summary, body: topic.intro.body, sources: topic.intro.sources } }]
+    : [];
+  return withSlugs([
+    ...overview,
+    ...topic.blocks.flatMap((b) => [
       ...(b.items ?? []).map((it) => ({ title: it.title, eyebrow: b.title ?? topic.title, article: it })),
       ...(b.timeline ?? []).map((ev) => ({ title: ev.title, eyebrow: ev.when, article: ev })),
     ]),
-  );
+  ]);
 }
 
 export function cityArticles(city: GuideCity): ArticleRef[] {

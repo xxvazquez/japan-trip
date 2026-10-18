@@ -705,6 +705,7 @@ const rules: GuideTopic = {
   title: "Rules with teeth",
   icon: "shield",
   summary: "Passports, medicines, tax-free shopping, touts and drones",
+  cover: photoOf("koban", "A small two-storey police post on a residential street, its name in Japanese above the door", "A neighbourhood police post in Tokyo, where officers live above the office."),
   blocks: [
     {
       items: [
@@ -781,6 +782,7 @@ const gettingAround: GuideTopic = {
   title: "Getting around",
   icon: "train",
   summary: "What the map app won't tell you about Japan's trains",
+  cover: photoOf("shinkansen-500", "A long blue-grey bullet train with a pointed nose running along a track", "A 500 series Shinkansen."),
   blocks: [
     {
       title: "Trains and subways",

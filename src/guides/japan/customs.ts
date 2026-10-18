@@ -1,4 +1,5 @@
 import type { GuideTopic } from "../types";
+import { photo } from "./photos";
 
 /** The customs that carry real weight — where the shoe line falls, how
  *  to bathe, shrine and temple ritual, the table, the street — each
@@ -16,6 +17,7 @@ export const customs: GuideTopic = {
           summary: "The step at the door decides — and the toilet has its own pair",
           body: [
             { p: "Taking shoes off indoors is familiar enough. What trips people up is knowing exactly where the line falls, and the slipper rules beyond it." },
+            photo("genkan", "Shoes and sandals on a concrete entrance floor, with a wooden floor one step higher in the foreground", "A genkan in a Hokkaido flat: shoes stay on the lower floor, and the step up is the threshold."),
             { p: "The line is architectural. A sunken entrance, the **genkan**, sits a step below the floor proper: shoes stay at the lower level, and the step up is the threshold. It turns up in places you wouldn't expect — some restaurants, museum galleries, temple halls, clinics, and the fitting rooms of clothes shops, where you step out of your shoes before the curtain." },
             {
               table: {

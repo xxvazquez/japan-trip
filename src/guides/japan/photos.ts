@@ -126,6 +126,8 @@ const PHOTOS = {
   "mitsui-hokusai": { w: 900, h: 618, author: "Katsushika Hokusai", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:%E5%86%A8%E5%B6%BD%E4%B8%89%E5%8D%81%E5%85%AD%E6%99%AF_%E6%B1%9F%E9%83%BD%E9%A7%BF%E6%B2%B3%E7%94%BA%E4%B8%89%E4%BA%95%E8%A6%8B%E4%B8%96%E7%95%A5%E5%9B%B3-Mitsui_Shop_at_Surugach%C5%8D_in_Edo_(Edo_Surugach%C5%8D_Mitsui_mise_ryaku_zu),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanj%C5%ABrokkei)_MET_DP141004.jpg" },
   "iwakura": { w: 900, h: 708, author: "Unknown, 1872", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Iwakura_mission.jpg" },
   "tokyo-1945": { w: 900, h: 718, author: "US Army Signal Corps", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Bomb_damage_in_Tokyo.jpg" },
+  "genkan": { w: 900, h: 703, author: "Sgroey", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:A_genkan_in_an_apartment_in_Hokkaido.jpg" },
+  "koban": { w: 900, h: 675, author: "Syced", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Police_box_in_Ebisu_2.jpg" },
 } as const;
 
 export type PhotoId = keyof typeof PHOTOS;

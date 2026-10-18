@@ -526,15 +526,18 @@ The guide has two halves: **This Trip**, picked from the trip, and **Guide**, th
 
 - **At a glance** — six key numbers for the country, at the foot of the contents, with their sources folded underneath.
 - Contents in five parts, chapters numbered straight through (a chapter you've started shows "3 of 8 read", a finished one a green **Read**): **Origins** (history, belief, language), **The land**, **The table** (how the cooking works, food at home, eating out, menus and drinks, regional food, coffee), **Everyday life** (Look closer, Japan by numbers, school, work, customs, stamps) and **Culture and the state** (culture, manga & anime, politics, Did you know).
-- A chapter page shows "Chapter 4 · Origins", its title and dek, its picture, an optional opening read, then its sections. **Next chapter** at the foot.
-- **History** opens with two era bands drawn to scale and the population from 725 to the 2070 projection, then tells its eight eras in order, each handing on to the next.
+- A chapter page shows "Chapter 4 · Origins", its title and dek and a wide picture, then its contents straight away. A chapter with an opening read lists it first as **Overview**; **Next chapter** sits at the foot.
+- Every chapter opens on a real photo; a chapter can name its own cover.
+- **History** starts with an Overview (two era bands drawn to scale and the population from 725 to the 2070 projection), then tells its eight eras in order, each handing on to the next.
+- **Belief** and **Language** each open with an overview: their own changes drawn to scale against the eras, linked into History, then their reads in titled sections.
 
 **Reading an article**
 
 - Opens on a picture: its own first photo, else its chapter's or city's cover, else a colour panel. A short note can carry a `cover` photo.
 - A caption, the title and a standfirst, then "Chapter · minutes" for long reads and an **In this article** list that jumps to each section.
 - The first paragraph is a lede, a size larger. Text is always ragged-right, never justified; paragraphs sit a line apart and headings have room above.
-- Blocks: sub-headings, numbered steps, do / don't lists, tables, key numbers, tip or warning boxes, timelines, charts (line or bar, with unit and source), food cards, places with a Maps button, phone numbers that dial, and **Words to know**.
+- Blocks: sub-headings, numbered steps, do / don't lists, tables, key numbers, tip or warning boxes, timelines, charts (line or bar, with unit and source; drag along a line chart to read any year, and a projection is dashed with its end value labelled), food cards, places with a Maps button, phone numbers that dial, and **Words to know**.
+- Figures sit in the text between hairlines, as Apple News sets them, not in boxes; only tips and warnings keep a tinted callout.
 - Visual blocks: an **era band** (spans to scale — tap or drag along it, or step with the arrows), a **pull quote** (a line from the read itself), **What's known** (Settled / Revised / Still argued), a side-by-side **compare**, a **photo pair**, and **Go deeper** panels that open in place.
 - Tap a small source number and that source opens in a sheet (a popover on desktop) with what it backs up and **Open source**. All sources also sit folded and numbered at the foot.
 - **Bookmark** and **Share** sit in the nav bar. Share opens the phone's share sheet; on desktop Chrome it copies the link (the button turns into a tick).

@@ -434,19 +434,19 @@ export function GuideTopicPage() {
       {progress}
       <div className="space-y-6">
         <Hero
+          wide
           photo={topic.cover}
-          fallback={{ photo: coverOf(refs), tint: guideTopicColor(t), art: <IconTile name={topic.icon} glyph={topic.glyph} color={guideTopicColor(t)} className="scale-[1.75]" /> }}
+          fallback={{ photo: topic.cover ?? coverOf(refs), tint: guideTopicColor(t), art: <IconTile name={topic.icon} glyph={topic.glyph} color={guideTopicColor(t)} className="scale-[1.75]" /> }}
         />
         {topic.intro && (
-          <GuideSources.Provider value={topic.intro.sources ?? []}>
-            <article className="selectable -mx-5 bg-surface px-5 py-5 sm:mx-0 sm:rounded-[12px]">
-              <Body blocks={topic.intro.body} />
-            </article>
-            {topic.intro.sources?.length ? <Sources sources={topic.intro.sources} /> : null}
-          </GuideSources.Provider>
+          <Section>
+            <ul>
+              <ArticleRow to={`${topicPath}/${refs[0].slug}`} title={refs[n++].title} meta="Start here: the whole chapter in one read" thumb={photoIn(refs[0].article)?.src} />
+            </ul>
+          </Section>
         )}
         {topic.blocks.map((b, i) => (
-          <Section key={i} title={b.title ?? (topic.intro ? "In this chapter" : undefined)} id={`guide-${guide.id}-${topic.id}-${i}`}>
+          <Section key={i} title={b.title} id={`guide-${guide.id}-${topic.id}-${i}`}>
             <ul>
               {b.items?.map((it) => {
                 const r = refs[n++];
@@ -576,7 +576,7 @@ export function GuideTopicArticle() {
       key={`${topic.id}/${item}`}
       back={topicPath}
       entry={refs[i]}
-      fallback={{ photo: coverOf(refs), tint: guideTopicColor(t), art: <IconTile name={topic.icon} glyph={topic.glyph} color={guideTopicColor(t)} className="scale-[1.75]" /> }}
+      fallback={{ photo: topic.cover ?? coverOf(refs), tint: guideTopicColor(t), art: <IconTile name={topic.icon} glyph={topic.glyph} color={guideTopicColor(t)} className="scale-[1.75]" /> }}
       chapter={chapterLabel(guide, topic)}
       next={refs[i + 1] && { to: `${topicPath}/${refs[i + 1].slug}`, entry: refs[i + 1] }}
       nextTopic={nextTopic && { to: `${guidePath(guide)}/${nextTopic.id}`, topic: nextTopic, color: guideTopicColor(t + 1) }}
@@ -1006,9 +1006,9 @@ function Body({ blocks, skip = -1, nested }: { blocks: GuideBody[]; skip?: numbe
 
 /** The picture a page opens on: its own photo, else the fallback's, else
  *  a panel in the fallback's colour. */
-function Hero({ photo, fallback }: { photo?: GuidePhoto; fallback?: ArticleFallback }) {
+function Hero({ photo, fallback, wide }: { photo?: GuidePhoto; fallback?: ArticleFallback; wide?: boolean }) {
   const p = photo ?? fallback?.photo;
-  if (p) return <ArticleHeader photo={p} />;
+  if (p) return <ArticleHeader photo={p} wide={wide} />;
   if (!fallback?.art) return null;
   return (
     <div
@@ -1023,7 +1023,7 @@ function Hero({ photo, fallback }: { photo?: GuidePhoto; fallback?: ArticleFallb
 
 /** The picture an article opens on: edge to edge on a phone, like the
  *  read under it, with its caption and credit beneath. */
-function ArticleHeader({ photo: p }: { photo: GuidePhoto }) {
+function ArticleHeader({ photo: p, wide }: { photo: GuidePhoto; wide?: boolean }) {
   const free = p.license === "CC0" || p.license === "Public domain";
   return (
     <figure className="-mx-5 sm:mx-0">
@@ -1033,7 +1033,7 @@ function ArticleHeader({ photo: p }: { photo: GuidePhoto }) {
         width={p.w}
         height={p.h}
         decoding="async"
-        className="block aspect-[16/10] w-full bg-surface-2 object-cover sm:rounded-[12px]"
+        className={`block w-full bg-surface-2 object-cover sm:rounded-[12px] ${wide ? "aspect-[2/1]" : "aspect-[16/10]"}`}
       />
       <figcaption className="mt-1.5 px-6 sm:px-1">
         {p.caption && <span className="block break-words text-[13px] leading-snug text-ink-soft"><Inline text={p.caption} /></span>}
@@ -1115,7 +1115,7 @@ function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
       </div>
     );
     return (
-      <div className="space-y-5 rounded-[10px] bg-surface-2 px-3.5 py-3.5">
+      <div className="space-y-5 border-y border-line py-4">
         {b.dos?.length ? group("Do", b.dos, true) : null}
         {b.donts?.length ? group("Don’t", b.donts, false) : null}
       </div>
@@ -1136,20 +1136,20 @@ function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
   }
   if ("table" in b) {
     return (
-      <div className="overflow-x-auto rounded-[10px] border border-line">
-        <table className="w-full border-collapse text-left">
+      <div className="overflow-x-auto border-y border-line">
+        <table className="w-full border-separate border-spacing-0 text-left">
           <thead>
-            <tr className="bg-surface-2">
+            <tr>
               {b.table.head.map((h, i) => (
-                <th key={i} className="px-3 py-2 align-bottom text-[13px] font-normal text-ink-soft">{h}</th>
+                <th key={i} className="py-2 pr-3 align-bottom text-[13px] font-normal text-ink-faint">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {b.table.rows.map((r, i) => (
-              <tr key={i} className="border-t border-line">
+              <tr key={i}>
                 {r.map((c, j) => (
-                  <td key={j} className={`px-3 py-2.5 align-top text-[15px] leading-snug ${j === 0 ? "text-ink" : "text-ink-soft"} ${c.replace(/\*\*/g, "").length <= 12 ? "whitespace-nowrap" : ""}`}><Inline text={c} /></td>
+                  <td key={j} className={`border-t border-line py-2.5 pr-3 align-top text-[15px] leading-snug ${j === 0 ? "text-ink" : "text-ink-soft"} ${c.replace(/\*\*/g, "").length <= 12 ? "whitespace-nowrap" : ""}`}><Inline text={c} /></td>
                 ))}
               </tr>
             ))}
@@ -1159,17 +1159,14 @@ function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
     );
   }
   if ("stats" in b) {
-    // tiles side by side where there's room; on a phone, one grouped box
-    // with a row per number, so a label never wraps into a narrow column
+    // key numbers side by side, as Fitness sets its summary: a big figure
+    // over a short label, columns split by hairlines, no box around them
     return (
-      <div className={`overflow-hidden rounded-[10px] bg-surface-2 sm:grid sm:gap-2 sm:overflow-visible sm:rounded-none sm:bg-transparent ${b.stats.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
-        {b.stats.map((st) => (
-          <div
-            key={st.label}
-            className="relative flex items-baseline gap-3 px-3.5 py-2.5 after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden sm:block sm:rounded-[10px] sm:bg-surface-2 sm:px-3 sm:after:hidden"
-          >
-            <p className="w-[5.5rem] shrink-0 break-words text-[22px] font-medium leading-tight tabular-nums text-ink sm:w-auto">{st.value}</p>
-            <p className="min-w-0 break-words text-[15px] leading-snug text-ink-soft sm:mt-0.5 sm:text-[13px]">{st.label}</p>
+      <div className={`grid border-y border-line py-3 ${b.stats.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
+        {b.stats.map((st, i) => (
+          <div key={st.label} className={`min-w-0 px-3 first:pl-0 ${i ? "border-l border-line" : ""}`}>
+            <p className="break-words text-[24px] font-medium leading-tight tracking-[-0.01em] tabular-nums text-ink">{st.value}</p>
+            <p className="mt-0.5 break-words text-[13px] leading-snug text-ink-soft">{st.label}</p>
           </div>
         ))}
       </div>
@@ -1182,9 +1179,9 @@ function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
   if ("photo" in b) return <Photo photo={b.photo} />;
   if (!("terms" in b)) return null;
   return (
-    <ul className="rounded-[10px] bg-surface-2">
+    <ul className="border-y border-line">
       {b.terms.map((t) => (
-        <li key={t.term} className="relative px-3.5 py-2.5 after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
+        <li key={t.term} className="relative py-2.5 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
           <span className="block break-words text-[17px] leading-snug text-ink"><Inline text={t.term} /></span>
           <span className="mt-0.5 block break-words text-[15px] leading-[1.45] text-ink-soft"><Inline text={t.text} /></span>
         </li>
@@ -1197,15 +1194,15 @@ function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
  *  the rest can skip — the argument behind a date, how a number is made. */
 function More({ title, blocks }: { title: string; blocks: GuideBody[] }) {
   return (
-    <details className="group rounded-[10px] bg-surface-2">
-      <summary className="flex cursor-pointer list-none items-center gap-3 px-3.5 py-3 active:bg-ink/[0.05] [&::-webkit-details-marker]:hidden">
+    <details className="group border-y border-line">
+      <summary className="flex cursor-pointer list-none items-center gap-3 py-3 active:opacity-60 [&::-webkit-details-marker]:hidden">
         <span className="min-w-0 flex-1">
           <span className="block text-[13px] text-ink-faint">Go deeper</span>
           <span className="block break-words text-[17px] leading-snug text-ink">{title}</span>
         </span>
         <Icon name="chevron" size={13} className="shrink-0 text-ink-faint transition-transform duration-200 group-open:rotate-90" />
       </summary>
-      <div className="animate-fade-up px-3.5 pb-4 pt-1">
+      <div className="animate-fade-up pb-4 pt-1">
         <Body blocks={blocks} nested />
       </div>
     </details>

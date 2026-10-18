@@ -95,7 +95,7 @@ const fmt = (v: number, decimals = 0) =>
 
 export function Chart({ chart: c }: { chart: GuideChart }) {
   return (
-    <figure className="rounded-[10px] bg-surface-2 px-3.5 pb-3 pt-3">
+    <figure className="border-y border-line py-4">
       <figcaption>
         <p className="break-words text-[15px] font-medium leading-snug text-ink">{c.title}</p>
         <p className="mt-0.5 break-words text-[13px] leading-snug text-ink-soft">{c.unit}</p>
@@ -142,12 +142,25 @@ function ticks(max: number): number[] {
   return out;
 }
 
+/** even steps along the x axis — about six across, on round numbers */
+function xTicks(x0: number, x1: number): number[] {
+  const raw = (x1 - x0) / 6;
+  const mag = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw) ?? raw;
+  const out: number[] = [];
+  for (let v = Math.ceil(x0 / step) * step; v <= x1; v += step) out.push(v);
+  return out;
+}
+
 /** A line over years, drawn at the width it's given so the type stays at
- *  its real size on a phone and on desktop. Values are labelled at the
- *  ends and at the highlighted point; a projection is dashed. */
+ *  its real size on a phone and on desktop. The axis steps evenly; the
+ *  highlight, the latest real value and a projection's end are labelled,
+ *  and a projection is dashed. Drag along it to read any point, as the
+ *  Health and Stocks charts do. */
 function LineChart({ chart: c }: { chart: GuideChart }) {
   const box = useRef<HTMLDivElement>(null);
   const [w, setW] = useState(320);
+  const [at, setAt] = useState<number | null>(null);
   useLayoutEffect(() => {
     const el = box.current;
     if (!el) return;
@@ -162,65 +175,99 @@ function LineChart({ chart: c }: { chart: GuideChart }) {
   const x1 = Math.max(...xs);
   const yt = ticks(Math.max(...pts.map((p) => p.value)));
   const yMax = yt[yt.length - 1];
-  const H = 170;
+  const H = 180;
   const padL = 34;
-  const padR = 14;
-  const padT = 18;
+  const padR = 16;
+  const padT = 26;
   const padB = 22;
   const sx = (x: number) => padL + ((x - x0) / (x1 - x0 || 1)) * (w - padL - padR);
   const sy = (v: number) => padT + (1 - v / yMax) * (H - padT - padB);
   const solid = pts.filter((p) => !p.projected);
   const lastSolid = solid[solid.length - 1];
-  const dashed = lastSolid ? [lastSolid, ...pts.filter((p) => p.projected)] : [];
+  const projected = pts.filter((p) => p.projected);
+  const dashed = lastSolid ? [lastSolid, ...projected] : [];
   const path = (list: typeof pts) => list.map((p, i) => `${i ? "L" : "M"}${sx(p.x).toFixed(1)},${sy(p.value).toFixed(1)}`).join("");
-  // value labels: the highlight first, then the latest real value, the
-  // last and the first — skipping any that would collide with one already placed
+  // the points worth a label: the highlight, the latest real value, where
+  // a projection ends, and the first — skipping any that would collide
   const labelled: typeof pts = [];
-  for (const p of [pts.find((q) => q.label === c.highlight), lastSolid, pts[pts.length - 1], pts[0]]) {
+  for (const p of [pts.find((q) => q.label === c.highlight), lastSolid, pts[0]]) {
     if (p && !labelled.includes(p) && labelled.every((q) => Math.abs(sx(q.x) - sx(p.x)) > 40)) labelled.push(p);
   }
-  // year labels along the bottom: the ends and the highlight, then any
-  // others with room to spare
-  const xLabels: typeof pts = [];
-  for (const p of [pts[0], pts[pts.length - 1], pts.find((q) => q.label === c.highlight), ...pts]) {
-    if (p && !xLabels.includes(p) && xLabels.every((q) => Math.abs(sx(q.x) - sx(p.x)) > 44)) xLabels.push(p);
-  }
+  // where a projection ends is always said — under its point, so it never
+  // fights the labels above the line
+  const end = projected[projected.length - 1];
+  const hit = at == null ? null : pts[at];
+
+  // the point nearest the finger
+  const pick = (clientX: number, el: Element) => {
+    const r = el.getBoundingClientRect();
+    const x = clientX - r.left;
+    let best = 0;
+    pts.forEach((p, i) => {
+      if (Math.abs(sx(p.x) - x) < Math.abs(sx(pts[best].x) - x)) best = i;
+    });
+    setAt(best);
+  };
 
   return (
     <div ref={box} className="w-full">
-      <svg width={w} height={H} role="img" aria-label={`${c.title}, ${c.unit}`} className="block overflow-visible">
+      <svg
+        width={w}
+        height={H}
+        role="img"
+        aria-label={`${c.title}, ${c.unit}`}
+        className="block touch-pan-y select-none overflow-visible"
+        onPointerDown={(e) => {
+          e.currentTarget.setPointerCapture(e.pointerId);
+          pick(e.clientX, e.currentTarget);
+        }}
+        onPointerMove={(e) => (e.buttons || e.pointerType === "mouse") && pick(e.clientX, e.currentTarget)}
+        onPointerUp={(e) => e.pointerType !== "mouse" && setAt(null)}
+        onPointerLeave={() => setAt(null)}
+        onPointerCancel={() => setAt(null)}
+      >
         {yt.map((v) => (
           <g key={v}>
             <line x1={padL} x2={w - padR} y1={sy(v)} y2={sy(v)} className="stroke-line" strokeWidth={v === 0 ? 1 : 0.6} />
             <text x={padL - 6} y={sy(v)} dy="0.32em" textAnchor="end" className="fill-ink-faint text-[11px] tabular-nums">{fmt(v, v % 1 ? 1 : 0)}</text>
           </g>
         ))}
-        {xLabels.map((p) => (
-          <text key={p.label} x={sx(p.x)} y={H - 4} textAnchor="middle" className="fill-ink-faint text-[11px] tabular-nums">{p.label}</text>
+        {xTicks(x0, x1).map((x) => (
+          <text key={x} x={sx(x)} y={H - 4} textAnchor="middle" className="fill-ink-faint text-[11px] tabular-nums">{x}</text>
         ))}
         <path d={path(solid)} fill="none" className="stroke-accent" strokeWidth={2.2} strokeLinejoin="round" strokeLinecap="round" />
         {dashed.length > 1 && (
           <path d={path(dashed)} fill="none" className="stroke-accent" strokeWidth={2} strokeDasharray="4 4" strokeLinecap="round" opacity={0.7} />
         )}
-        {labelled.map((p) => {
-          const left = sx(p.x) < padL + 24;
-          const right = sx(p.x) > w - padR - 24;
-          return (
-            <g key={p.label}>
-              <circle cx={sx(p.x)} cy={sy(p.value)} r={3.5} className={p.projected ? "fill-surface stroke-accent" : "fill-accent"} strokeWidth={1.5} />
-              <text
-                x={sx(p.x)}
-                y={sy(p.value) - 8}
-                textAnchor={left ? "start" : right ? "end" : "middle"}
-                className="fill-ink text-[12px] font-medium tabular-nums"
-              >
-                {fmt(p.value, c.decimals)}
-              </text>
-            </g>
-          );
-        })}
+        {hit ? (
+          <g>
+            <line x1={sx(hit.x)} x2={sx(hit.x)} y1={padT - 6} y2={H - padB} className="stroke-ink-faint" strokeWidth={1} />
+            <circle cx={sx(hit.x)} cy={sy(hit.value)} r={4.5} className={hit.projected ? "fill-surface stroke-accent" : "fill-accent"} strokeWidth={1.5} />
+            <text
+              x={Math.min(Math.max(sx(hit.x), padL + 30), w - padR - 30)}
+              y={padT - 12}
+              textAnchor="middle"
+              className="fill-ink text-[12px] font-medium tabular-nums"
+            >
+              {hit.label} · {fmt(hit.value, c.decimals)}{hit.projected ? " projected" : ""}
+            </text>
+          </g>
+        ) : (
+          [...labelled, ...(end ? [end] : [])].map((p) => {
+            const left = sx(p.x) < padL + 24;
+            const right = sx(p.x) > w - padR - 24;
+            return (
+              <g key={p.label}>
+                <circle cx={sx(p.x)} cy={sy(p.value)} r={3.5} className={p.projected ? "fill-surface stroke-accent" : "fill-accent"} strokeWidth={1.5} />
+                <text x={sx(p.x)} y={p === end ? sy(p.value) + 18 : sy(p.value) - 8} textAnchor={left ? "start" : right ? "end" : "middle"} className={`text-[12px] font-medium tabular-nums ${p === end ? "fill-ink-soft" : "fill-ink"}`}>
+                  {fmt(p.value, c.decimals)}
+                </text>
+              </g>
+            );
+          })
+        )}
       </svg>
-      {pts.some((p) => p.projected) && <p className="mt-1 text-[12px] text-ink-faint">Dashed: projection</p>}
+      <p className="mt-1 text-[12px] text-ink-faint">Drag along the line to read a year{projected.length ? " · dashed: projection" : ""}</p>
     </div>
   );
 }

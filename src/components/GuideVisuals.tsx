@@ -65,7 +65,7 @@ export function Eras({ eras: e }: { eras: GuideEras }) {
   };
 
   return (
-    <figure className="rounded-[10px] bg-surface-2 px-3.5 pb-3.5 pt-3">
+    <figure className="border-y border-line py-4">
       <figcaption>
         <p className="break-words text-[15px] font-medium leading-snug text-ink">{e.title}</p>
         {e.read && <p className="mt-0.5 break-words text-[13px] leading-snug text-ink-soft"><Inline text={e.read} /></p>}
@@ -122,7 +122,7 @@ export function Eras({ eras: e }: { eras: GuideEras }) {
           <p className="mt-1.5 break-words text-[15px] leading-[1.45] text-ink"><Inline text={span.text} /></p>
           {span.ref && (
             <Link to={`/logbook/guide/${guide}/${span.ref}`} viewTransition className="mt-1.5 inline-block text-[15px] text-accent active:opacity-60">
-              Read the chapter
+              Read more
             </Link>
           )}
         </div>
@@ -143,7 +143,7 @@ function StepButton({ icon, label, disabled, onClick }: { icon: IconName; label:
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      className="tap grid h-8 w-8 place-items-center rounded-full bg-surface text-accent transition-opacity active:opacity-60 disabled:text-ink-faint disabled:opacity-50"
+      className="tap grid h-8 w-8 place-items-center rounded-full bg-surface-2 text-accent transition-opacity active:opacity-60 disabled:text-ink-faint disabled:opacity-50"
     >
       <Icon name={icon} size={14} strokeWidth={2} />
     </button>
@@ -176,7 +176,7 @@ const EVIDENCE: { key: keyof GuideEvidence; label: string; icon: IconName; tone:
  *  isn't mistaken for the last word. */
 export function Evidence({ evidence: e }: { evidence: GuideEvidence }) {
   return (
-    <section className="rounded-[10px] bg-surface-2 px-3.5 py-3" aria-label="What's known">
+    <section className="border-y border-line py-4" aria-label="What's known">
       <p className="text-[15px] font-medium leading-snug text-ink">What’s known</p>
       <div className="mt-2.5 space-y-3">
         {EVIDENCE.filter((g) => e[g.key]?.length).map((g) => (
@@ -204,16 +204,16 @@ export function Evidence({ evidence: e }: { evidence: GuideEvidence }) {
  *  screen it's a three-column table. */
 export function Compare({ compare: c }: { compare: GuideCompare }) {
   return (
-    <figure className="overflow-hidden rounded-[10px] bg-surface-2">
-      {c.title && <figcaption className="px-3.5 pt-3 text-[15px] font-medium leading-snug text-ink">{c.title}</figcaption>}
-      <div className="grid grid-cols-2 gap-3 px-3.5 pb-2 pt-3 sm:grid-cols-[7.5rem_1fr_1fr]">
+    <figure className="border-y border-line">
+      {c.title && <figcaption className="pt-4 text-[15px] font-medium leading-snug text-ink">{c.title}</figcaption>}
+      <div className="grid grid-cols-2 gap-3 pb-2 pt-3 sm:grid-cols-[7.5rem_1fr_1fr]">
         <span className="hidden sm:block" />
         <span className="text-[15px] font-medium text-accent">{c.a}</span>
         <span className="text-[15px] font-medium text-accent">{c.b}</span>
       </div>
       <dl>
         {c.rows.map((r) => (
-          <div key={r.label} className="grid grid-cols-2 gap-x-3 border-t border-line px-3.5 py-2.5 sm:grid-cols-[7.5rem_1fr_1fr]">
+          <div key={r.label} className="grid grid-cols-2 gap-x-3 border-t border-line py-2.5 sm:grid-cols-[7.5rem_1fr_1fr]">
             <dt className="col-span-2 mb-0.5 text-[13px] text-ink-faint sm:col-span-1 sm:mb-0 sm:pt-px">{r.label}</dt>
             <dd className="min-w-0 break-words text-[15px] leading-[1.4] text-ink"><Inline text={r.a} /></dd>
             <dd className="min-w-0 break-words text-[15px] leading-[1.4] text-ink"><Inline text={r.b} /></dd>

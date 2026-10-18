@@ -56,7 +56,7 @@ export const history: GuideTopic = {
         chart: {
           kind: "line",
           title: "People in Japan, 725 to today",
-          unit: "Millions. Before 1872, scholars' estimates; dashed, the official projection",
+          unit: "Millions. Before 1872, scholars' estimates",
           points: [
             { label: "725", x: 725, value: 4.5 },
             { label: "800", x: 800, value: 5.5 },
@@ -119,7 +119,7 @@ export const history: GuideTopic = {
                 photoOf("daisen-kofun", "Aerial view of a huge keyhole-shaped wooded mound surrounded by moats, with a city all around it", "Daisen Kofun in Sakai, 486 m long, from the air."),
               ],
             },
-            { p: "The largest, Daisen Kofun at Sakai, is **486 m** long, by footprint one of the biggest tombs in the world.[^3] The Imperial Household Agency treats the major tombs as imperial graves and allows no excavation. That's why textbooks now name the biggest after its place rather than as the tomb of Emperor Nintoku: nobody can check who's buried there.[^4]" },
+            { p: "The largest, at Sakai, is **486 m** long, the biggest tomb in Japan.[^3] The Imperial Household Agency manages it as the tomb of Emperor Nintoku and allows no excavation, so nobody can check who's buried there. Many textbooks now call it **Daisen Kofun**, after its place; the World Heritage listing keeps the agency's name, Nintoku-tennō-ryō Kofun.[^4]" },
 
             { h: "Three peoples, not two" },
             { p: "Ancient DNA has complicated the origin story too. The old model said modern Japanese descend from two groups, Jōmon and Yayoi. A 2021 study of twelve ancient genomes found a third: a later wave of East Asian ancestry in the Kofun period, still visible in people today. The same study suggests the Jōmon were a small population, around a thousand breeding adults at any time, isolated for millennia.[^5]" },
@@ -136,10 +136,9 @@ export const history: GuideTopic = {
           sources: [
             { title: "Pottery from the Ōdai Yamamoto I site — Trends in Japan, 1999", url: "https://web-japan.org/trends00/honbun/tj990615.html", note: "About 16,500 years old by calibrated radiocarbon dating" },
             { title: "Final evaluation of the Yayoi chronology project — JSPS", url: "https://www.jsps.go.jp/file/storage/grants/j-grantsinaid/18_sousei/data/g_hyouka_shiryou21/jigo02_nishimoto.pdf", note: "Yayoi beginning in the late 10th century BC, spreading over about 500 years (Japanese)" },
-            { title: "Historic sites: Daisen Kofun — Japan Atlas, Web Japan", url: "https://web-japan.org/atlas/historical/his15.html", note: "486 m long" },
-            { title: "Textbook changes: Daisen Kofun, 1185 and more — Walkerplus", url: "https://www.walkerplus.com/article/1141841/", note: "Why textbooks stopped saying \"Emperor Nintoku's tomb\" (Japanese)" },
+            { title: "Nintoku-tennō-ryō Kofun — Agency for Cultural Affairs, Bunka Online", url: "https://online.bunka.go.jp/special_content/component/186", note: "Japan's largest kofun (Japanese)" },
+            { title: "Mozu-Furuichi Kofun Group — UNESCO", url: "https://whc.unesco.org/en/list/1593", note: "The listing's names for the tombs; World Heritage since 2019" },
             { title: "Cooke et al., Ancient genomics reveals tripartite origins of Japanese populations — Science Advances, 2021", url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC8448447", note: "The Kofun-period influx; a Jōmon effective population of about 1,000" },
-            { title: "Mozu-Furuichi Kofun Group — UNESCO", url: "https://whc.unesco.org/en/list/1593", note: "World Heritage since 2019" },
           ],
         },
         {
@@ -278,7 +277,8 @@ export const history: GuideTopic = {
             { h: "The Mongols" },
             { p: "Kublai Khan's fleets attacked northern Kyushu in 1274 and 1281. Both times the invaders withdrew or were wrecked, the second time by a typhoon. Centuries later this became the story of the **kamikaze**, the \"divine wind\" sent by the gods, revived in the 1940s for suicide pilots." },
             photo("mongol-scroll", "A painted handscroll scene: a mounted samurai charges as Mongol archers fire and a bomb bursts", "From the scroll a samurai commissioned in the 1290s to claim a reward for fighting the Mongols."),
-            { p: "Underwater archaeology off Takashima, where the 1281 fleet sank, complicates the legend. Much of the wreckage seems to come from flat-bottomed river boats pressed into service for a sea crossing they weren't built for.[^2] Samurai also fought hard on the beaches and from a stone wall built along Hakata Bay." },
+            { p: "Underwater archaeology off Takashima, where the 1281 fleet sank, has complicated the legend from the other side. Much of the timber seems to come from smaller boats built in the Yangtze valley, which fed a popular theory that the fleet was made of river boats unfit for the sea. The archaeologist who studied the wrecks, Randall Sasaki, stopped short of that: the remains, he concluded, can't say why the invasion failed.[^2]" },
+            { p: "What the record does show is that samurai fought hard on the beaches and from a stone wall built along Hakata Bay after the first attack." },
 
             { h: "Zen, tea and Noh" },
             { p: "The invasions were ruinous to repel, and with no conquered land to hand out as rewards, they helped break the Hōjō. In 1336 the **Ashikaga** set up a new shogunate in Kyoto's Muromachi district." },
@@ -290,7 +290,7 @@ export const history: GuideTopic = {
               evidence: {
                 settled: ["A warrior government took shape in the 1180s, beside the court.", "Both Mongol invasions failed."],
                 revised: ["The founding is now usually dated 1185, not 1192."],
-                open: ["How much the storms, rather than the defenders, decided 1281.", "How far the \"divine wind\" story was built later."],
+                open: ["How much the storm, the defenders or the ships themselves decided 1281.", "How far the \"divine wind\" story was built later."],
               },
             },
             { p: "By the 1540s there was no centre left at all — which is when Europeans arrived." },
@@ -298,7 +298,7 @@ export const history: GuideTopic = {
           related: ["belief/buddhism", "land/gardens", "culture/the-tea-ceremony", "history/unification"],
           sources: [
             { title: "The Kamakura shogunate began in 1180 — Bunshun", url: "https://books.bunshun.jp/articles/-/9759", note: "Textbooks moving from 1192 to 1185, and the case for 1180 (Japanese)" },
-            { title: "Sasaki, The Origins of the Lost Fleet of the Mongol Empire — Medievalists.net", url: "https://www.medievalists.net/2011/04/the-origin-of-the-lost-fleet-of-the-mongol-empire/", note: "The Takashima wrecks and their river-boat timbers" },
+            { title: "Sasaki, The Origins of the Lost Fleet of the Mongol Empire — Texas A&M University Press", url: "https://muse.jhu.edu/book/38210", note: "The Takashima timbers, and why they can't settle the failure" },
           ],
         },
         {
@@ -493,7 +493,8 @@ export const history: GuideTopic = {
             { p: "The population peaked around 2008 and has fallen every year since 2011. In 2024, **29.3%** of people were 65 or over.[^4] It shows in empty houses, rural schools turned into cafés, temples without priests and the shortage of workers behind many counters." },
 
             { h: "Reiwa" },
-            { p: "In 2019 Emperor Akihito became the first emperor in about two centuries to step down, and his son Naruhito took the throne on 1 May. The new era, **Reiwa**, was the first named from Japanese poetry, the *Man'yōshū*, rather than the Chinese classics.[^5]" },
+            { p: "In 2019 Emperor Akihito became the first emperor in about two centuries to step down, and his son Naruhito took the throne on 1 May. The new era, **Reiwa**, was the first in the record taken from a Japanese book, the 8th-century *Man'yōshū*, rather than the Chinese classics.[^5]" },
+            { p: "Scholars had long noted, though, that the Man'yōshū preface it comes from echoes a Chinese poem, Zhang Heng's \"Returning to the Fields\", from the classic anthology *Wenxuan*. The most Japanese of era names is, in the end, a fair summary of how Japanese culture has always worked with China's.[^6]" },
             { p: "Japan still counts years by era alongside the Western calendar. Forms, receipts and use-by dates say 令和 with a number — Reiwa 1 was 2019 — the last place the old era system touches daily life." },
           ],
           related: ["numbers/a-country-getting-smaller", "politics/the-emperor", "belief/religion-without-belonging"],
@@ -503,6 +504,7 @@ export const history: GuideTopic = {
             { title: "Damage from the Great East Japan Earthquake — Fire and Disaster Management Agency, 2019", url: "https://www.soumu.go.jp/main_content/000674389.pdf", note: "19,689 dead including disaster-related deaths, 2,563 missing (Japanese)" },
             { title: "Population estimates, 1 October 2024 — Statistics Bureau of Japan", url: "https://www.stat.go.jp/english/data/jinsui/2024np/index.html", note: "29.3% aged 65 or over" },
             { title: "Reiwa, the first era name from a Japanese classic — nippon.com", url: "https://www.nippon.com/ja/news/l00250/", note: "From the Man'yōshū; the first abdication in 202 years (Japanese)" },
+            { title: "The era name Reiwa — National Astronomical Observatory of Japan, Calendar Office", url: "https://eco.mtk.nao.ac.jp/koyomi/topics/html/topics2020_1.html", note: "The preface's debt to Zhang Heng's \"Returning to the Fields\" in the Wenxuan (Japanese)" },
           ],
         },
       ],
