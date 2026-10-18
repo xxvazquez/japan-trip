@@ -120,6 +120,12 @@ const PHOTOS = {
   "hiyoshi-taisha": { w: 900, h: 675, author: "Si-take.", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Hiyoshi_Taisha_Momiji_3.jpg" },
   "ine-funaya": { w: 900, h: 600, author: "Naokijp", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Funaya_in_Ine_Town,_Yosa_District,_Kyoto_Prefecture_004.jpg" },
   "ishibutai": { w: 900, h: 600, author: "663highland", license: "CC BY 2.5", url: "https://commons.wikimedia.org/wiki/File:Ishibutai-kofun_Asuka_Nara_pref05n4592.jpg" },
+  "haniwa-warrior": { w: 674, h: 900, author: "Daderot", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Warrior_in_Keiko_Armor,_National_Treasure,_Kofun_period,_6th_century,_haniwa_(terracotta_tomb_figurine)_from_Iizuka-machi,_Ota-shi,_Gunma_-_Tokyo_National_Museum_-_DSC06425.JPG" },
+  "heiji-sanjo": { w: 900, h: 485, author: "Unknown, late 13th century", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Heiji_Monogatari_Emaki_-_Sanjo_scroll_part_5_-_v2.jpg" },
+  "nanban-screen": { w: 900, h: 368, author: "Kanō Naizen", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Namban_byobu_R.jpg" },
+  "mitsui-hokusai": { w: 900, h: 618, author: "Katsushika Hokusai", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:%E5%86%A8%E5%B6%BD%E4%B8%89%E5%8D%81%E5%85%AD%E6%99%AF_%E6%B1%9F%E9%83%BD%E9%A7%BF%E6%B2%B3%E7%94%BA%E4%B8%89%E4%BA%95%E8%A6%8B%E4%B8%96%E7%95%A5%E5%9B%B3-Mitsui_Shop_at_Surugach%C5%8D_in_Edo_(Edo_Surugach%C5%8D_Mitsui_mise_ryaku_zu),_from_the_series_Thirty-six_Views_of_Mount_Fuji_(Fugaku_sanj%C5%ABrokkei)_MET_DP141004.jpg" },
+  "iwakura": { w: 900, h: 708, author: "Unknown, 1872", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Iwakura_mission.jpg" },
+  "tokyo-1945": { w: 900, h: 718, author: "US Army Signal Corps", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Bomb_damage_in_Tokyo.jpg" },
 } as const;
 
 export type PhotoId = keyof typeof PHOTOS;

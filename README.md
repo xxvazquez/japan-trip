@@ -527,7 +527,7 @@ The guide has two halves: **This Trip**, picked from the trip, and **Guide**, th
 - **At a glance** — six key numbers for the country, at the foot of the contents, with their sources folded underneath.
 - Contents in five parts, chapters numbered straight through (a chapter you've started shows "3 of 8 read", a finished one a green **Read**): **Origins** (history, belief, language), **The land**, **The table** (how the cooking works, food at home, eating out, menus and drinks, regional food, coffee), **Everyday life** (Look closer, Japan by numbers, school, work, customs, stamps) and **Culture and the state** (culture, manga & anime, politics, Did you know).
 - A chapter page shows "Chapter 4 · Origins", its title and dek, its picture, an optional opening read, then its sections. **Next chapter** at the foot.
-- **History** opens with two era bands drawn to scale, then lists its eras as a timeline.
+- **History** opens with two era bands drawn to scale and the population from 725 to the 2070 projection, then tells its eight eras in order, each handing on to the next.
 
 **Reading an article**
 
