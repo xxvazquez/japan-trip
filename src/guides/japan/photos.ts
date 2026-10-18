@@ -176,10 +176,17 @@ const PHOTOS = {
   "home-bento": { w: 900, h: 675, author: "MassaWikiniki", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Homemade_lunch_box.jpg" },
   "yokocho": { w: 900, h: 600, author: "MaedaAkihiko", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Shinjuku-West_Omoide-Yokocho.jpg" },
   "sake-barrels": { w: 900, h: 600, author: "Ilkka Simomaa", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Meiji_Jingu_sake_barrels_2016-12-04.jpg" },
-  "boss-vending": { w: 675, h: 900, author: "Nikoletic126", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Boss_in_a_vending_machine.jpg" },
   "rakuchu-rakugai": { w: 900, h: 410, author: "Kanō Eitoku", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Kan%C5%8D_Eitoku_-_Rakuch%C5%AB_rakugai_zu_(Uesugi)_-_right_screen.jpg" },
   "maneki-neko": { w: 900, h: 675, author: "Niwrat", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Maneki-neko_(Japanese_Lucky_Cat)_Statues_at_Gotokuji_Temple,_Tokyo.jpg" },
   "temizuya": { w: 900, h: 676, author: "Hyppolyte de Saint-Rambert", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Seimei-jinja_(Kamigyo-ku,_Kyoto)_Ch%C5%8Dzuya_temizuya_hdsr_S5_07.jpg" },
+  "tempura": { w: 675, h: 900, author: "Yaco*", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Tempura_01.jpg" },
+  "unaju": { w: 900, h: 600, author: "City Foodsters", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Unaju_of_%22Obana%22,_Unagi_restaurant_in_Minamisenju_-_Dec_22,_2013.jpg" },
+  "okonomiyaki": { w: 900, h: 600, author: "ume-y", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Okonomiyaki_001.jpg" },
+  "takoyaki": { w: 800, h: 600, author: "heiwa4126", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Takoyaki_by_yomi955.jpg" },
+  "kaiseki-hassun": { w: 900, h: 672, author: "Donatingpictures", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Kaiseki_-_Kyoto.jpg" },
+  "sukiyaki": { w: 900, h: 597, author: "ajari", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Sukiyaki_01.jpg" },
+  "v60": { w: 900, h: 676, author: "Olgierd Rudak", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Hario_V60_dripper_(30519007832).jpg" },
+  "vending-labels": { w: 900, h: 675, author: "Schellack", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Japanese_drink_vending_machine(2).jpg" },
 } as const;
 
 export type PhotoId = keyof typeof PHOTOS;

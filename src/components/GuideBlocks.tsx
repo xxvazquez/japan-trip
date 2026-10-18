@@ -285,6 +285,9 @@ const KIND_TONE: Record<GuideDish["kind"], string> = {
 /** Food cards, one per dish: the name and its Japanese, a tag for what kind
  *  of food it is in Japanese life, then a few lines on it. */
 export function Dishes({ dishes }: { dishes: GuideDish[] }) {
+  // a list of nothing but everyday dishes doesn't need "Everyday" on each
+  // card — the tag only earns its place where it tells two cards apart
+  const tagged = dishes.some((d) => d.kind !== "Everyday");
   return (
     <ul className="space-y-2">
       {dishes.map((d) => (
@@ -297,7 +300,7 @@ export function Dishes({ dishes }: { dishes: GuideDish[] }) {
                 {d.say && <span className="text-[13px] italic text-ink-faint">{d.say}</span>}
               </p>
             </div>
-            <span className={`mt-0.5 shrink-0 rounded-[6px] px-1.5 py-0.5 text-[12px] font-medium ${KIND_TONE[d.kind]}`}>{d.kind}</span>
+            {tagged && <span className={`mt-0.5 shrink-0 rounded-[6px] px-1.5 py-0.5 text-[12px] font-medium ${KIND_TONE[d.kind]}`}>{d.kind}</span>}
           </div>
           <p className="mt-2 break-words text-[15px] leading-[1.45] text-ink"><Inline text={d.text} /></p>
           {d.where && (

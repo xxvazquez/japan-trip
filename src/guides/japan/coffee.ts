@@ -1,5 +1,5 @@
 import type { GuideItem, GuideTopic } from "../types";
-import { photo, photoOf } from "./photos";
+import { photo } from "./photos";
 
 /** The table, last part: Japanese coffee culture. Where the kissaten came
  *  from, how to read one, how the coffee's made and what comes with it,
@@ -10,7 +10,6 @@ export const coffee: GuideTopic = {
   title: "Coffee",
   glyph: "coffee",
   summary: "Kissaten, siphons and thick toast, and a room rented for the price of a cup",
-  cover: photoOf("boss-vending", "A hand holding a can of Boss coffee in front of a lit vending machine full of cans", "Canned coffee from a vending machine, hot or cold, all year."),
   intro: {
     body: [
       { p: "Dutch traders on Dejima drank coffee in the 1600s, but Japan barely touched it until the Meiji opening. Since then it has had three lives: the Western-style coffee house, the **kissaten** that became every neighbourhood's living room, and the specialty roasters that learned from it." },
@@ -26,13 +25,32 @@ export const coffee: GuideTopic = {
         ],
       },
       { p: "Coffee is often written 珈琲 in kanji, characters chosen in the Edo period by the scholar Udagawa Yōan for their sound. A kissaten sign in kanji is usually old, or wants to look it." },
-      { p: "The chapter starts with the rooms — the kinds of coffee shop and how to read one — then what's in the cup and on the plate, and ends with what the kissaten says about the country. Places worth the detour are on the Tokyo and Kyoto pages." },
+      {
+        chart: {
+          kind: "line",
+          title: "Coffee shops in Japan",
+          unit: "establishments",
+          points: [
+            { label: "1966", x: 1966, value: 27026 },
+            { label: "1975", x: 1975, value: 92137 },
+            { label: "1981", x: 1981, value: 154630 },
+            { label: "2014", x: 2014, value: 69983 },
+            { label: "2021", x: 2021, value: 58669 },
+          ],
+          highlight: "1981",
+          decimals: 0,
+          source: "All Japan Coffee Association, from the national establishment surveys",
+          read: "Kissaten multiplied almost sixfold in fifteen years, then lost more than half again as chains, konbini coffee and age caught up with them.",
+        },
+      },
+      { p: "The chapter starts with the rooms — the kinds of coffee shop and how to read one — then what's in the cup, from the siphon to the can, what comes on the plate, and ends with what the kissaten says about the country. Places worth the detour are listed with the cities: [Tokyo](guide:place/tokyo/tokyo-coffee-worth-the-detour) and [Kyoto](guide:place/kyoto/kyoto-coffee-worth-the-detour)." },
     ],
     sources: [
       { title: "Coffee in Japan — Wikipedia", url: "https://en.wikipedia.org/wiki/Coffee_in_Japan", note: "Kahiichakan, 1888, and its early closure" },
       { title: "Emigration to Brazil and coffee — National Diet Library", url: "https://www.ndl.go.jp/brasil/e/column/coffee.html", note: "Mizuno Ryō, Café Paulista and the São Paulo beans" },
       { title: "The number of kissaten — Tōyō Keizai", url: "https://toyokeizai.net/articles/-/947079", note: "All Japan Coffee Association: 154,630 in 1981, 58,669 in 2021 (Japanese)" },
       { title: "Kissaten: are Japan's old-school coffee shops fading? — Unseen Japan", url: "https://unseen-japan.com/kissaten-japan-old-school-coffee/" },
+      { title: "Is the kissaten an endangered species? — LIMO, 2018", url: "https://limo.media/articles/-/5669", note: "All Japan Coffee Association: 27,026 in 1966, 92,137 in 1975, 69,983 in 2014 (Japanese)" },
     ],
   },
   blocks: [
@@ -107,7 +125,7 @@ export const coffee: GuideTopic = {
       ],
     },
     {
-      title: "In the cup and on the plate",
+      title: "In the cup",
       items: [
         {
           title: "How the coffee is made",
@@ -132,6 +150,97 @@ export const coffee: GuideTopic = {
             { title: "Canned coffee — Wikipedia", url: "https://en.wikipedia.org/wiki/Canned_coffee", note: "UCC's canned coffee with milk, 1969" },
           ],
         },
+        {
+          title: "Specialty coffee, the Japanese way",
+          summary: "Roast words on the menu, a 1968 shop in Tokyo's poorest district, and a world champion's two-number recipe",
+          body: [
+            { p: "The specialty cafés of the last twenty years look Scandinavian or Californian, but much of what they do was already being done in Japan: single cups brewed by hand, beans roasted in the shop, a counter where you watch. The newer wave mostly changed the **roast** — lighter — and the look." },
+            photo("v60", "A white cone-shaped ceramic coffee dripper sitting on a patterned cup, a hand grinder behind it", "A Hario V60 dripper: the Japanese cone most of the world's pour-over is made in."),
+            { h: "Reading the roast" },
+            { p: "Menus describe beans by origin and by how dark they're roasted, and the roast word is the one to read: it tells you which tradition you're in." },
+            {
+              table: {
+                head: ["On the menu", "Roast", "Tastes like"],
+                rows: [
+                  ["**浅煎り** asairi", "Light", "Fruit and acidity, tea-like; the specialty café's default"],
+                  ["**中煎り** chūiri", "Medium", "Balanced, rounder, sweeter"],
+                  ["**深煎り** fukairi", "Dark", "Bitter, heavy, chocolate and smoke; the kissaten's house blend"],
+                ],
+              },
+            },
+            { p: "A kissaten's dark blend and a specialty café's light single origin are different drinks, not better and worse ones. Many young roasters now offer both, and a dark **nel-drip** from an old master is something specialty people seek out." },
+            { h: "Where it came from" },
+            {
+              terms: [
+                { term: "Café Bach, 1968", text: "Taguchi Mamoru and his wife Fumiko opened a coffee shop in Sanya, Tokyo's district of day labourers' lodging houses, and began roasting their own beans in the early 1970s. Taguchi went on to train a generation of roasters and to lead the Specialty Coffee Association of Japan; the shop is often called the start of specialty coffee in Japan[^1]" },
+                { term: "The tools", text: "Kalita's filters and the Hario V60 (2004) made Japanese pour-over equipment the world's standard (see [How the coffee is made](guide:coffee/how-the-coffee-is-made))" },
+                { term: "The 4:6 method", text: "In 2016 **Kasuya Tetsu** won the World Brewers Cup in Dublin with a recipe anyone can repeat: the first 40% of the water, in two pours, sets the sweetness against the acidity; the last 60% sets the strength[^2]" },
+                { term: "The neighbourhoods", text: "Roasters cluster where rent is low and ceilings are high: Kiyosumi-Shirakawa's warehouses in Tokyo, old townhouses and garages in Kyoto" },
+              ],
+            },
+            { h: "Ordering" },
+            {
+              steps: [
+                { title: "Pick the beans, not the drink", text: "The menu lists two or three origins with tasting notes; you choose one and it's brewed by hand. Espresso drinks are there too, but they're not the point." },
+                { title: "Hot or iced", text: "Say hotto or aisu. Iced pour-over is brewed hot straight onto ice, and much better than it sounds." },
+                { title: "Wait", text: "A cup takes three or four minutes. Watching the pour is part of what you're paying for." },
+              ],
+            },
+            { note: "Many of the best specialty places are takeaway counters or a few stools. A kissaten is where you go to sit.", kind: "info", title: "Stand or sit" },
+          ],
+          words: [
+            { local: "浅煎り", say: "asairi", means: "light roast" },
+            { local: "深煎り", say: "fukairi", means: "dark roast" },
+            { local: "自家焙煎", say: "jika baisen", means: "roasted in the shop" },
+            { local: "ハンドドリップ", say: "hando dorippu", means: "hand-poured" },
+            { local: "シングルオリジン", say: "shinguru orijin", means: "single origin" },
+          ],
+          related: ["coffee/how-the-coffee-is-made", "place/tokyo/tokyo-coffee-worth-the-detour", "place/kyoto/kyoto-coffee-worth-the-detour"],
+          sources: [
+            { title: "Taguchi Mamoru and Café Bach — Japan Book Bank", url: "https://japanbookbank.com/en/book/8073", note: "The 1968 shop in Sanya and its place in Japanese specialty coffee" },
+            { title: "2016 World Brewers Cup champion Tetsu Kasuya — Kurasu", url: "https://kurasu.kyoto/blogs/kurasu-journal/2016-world-brewers-cup-champion-tetsu-kasuya", note: "The 2016 win and the 4:6 method" },
+          ],
+        },
+        {
+          title: "Canned coffee and the konbini cup",
+          summary: "Coffee from a machine, hot in winter, and a 100-yen cup that took a bite out of the kissaten",
+          body: [
+            { p: "Most coffee drunk in Japan isn't brewed in front of anyone. It comes out of a vending machine in a can, or out of a self-serve machine at a convenience store, and both are Japanese inventions in their way." },
+            photo("vending-labels", "A station vending machine of hot and cold coffee and soft drinks, each with a red or blue price label", "Red labels hot, blue labels cold: a drinks machine at a Japanese station."),
+            {
+              timeline: [
+                { when: "1969", text: "**UCC** sells canned coffee with milk, the first to take off[^1]" },
+                { when: "1973", text: "**Pokka** brings out a vending machine that sells drinks hot and cold from the same cabinet[^1]" },
+                { when: "1992", text: "Suntory launches **Boss**, the working man's can, with a pipe-smoking face on it[^2]" },
+                { when: "2013", text: "From January, 7-Eleven puts a self-serve, fresh-ground coffee machine into every store: ¥100 a cup, hot or iced[^3]" },
+              ],
+            },
+            { h: "The machine on every corner" },
+            { p: "Japan has around **2.2 million** drink vending machines,[^4] on streets, platforms, mountain paths and temple car parks, and coffee is their staple. From autumn the bottom row turns hot: a **red** label, *atatakāi*, means a heated can; **blue**, *tsumetāi*, cold. A hot can in a coat pocket on a winter platform is a small national pleasure." },
+            { p: "The cans are blended for that life — sweet, milky, meant to be drunk in four swallows. **Black**, **bitō** (low sugar) and **café au lait** are on every machine; tall resealable bottles of thin black coffee, sipped at a desk all morning, are the newer office habit." },
+            { h: "The konbini cup" },
+            { p: "At a konbini you buy an empty cup at the till, then press the button for hot or iced at the machine yourself. It's ground to order, costs a fraction of a café's coffee and is perfectly good. It was an instant hit, and the other big chains followed." },
+            { p: "Its cost was the kissaten's. The morning coffee a worker used to drink at the counter on the way to the office is now a cup in one hand at the station, and the old rooms lost another part of their trade (see [What the kissaten says about Japan](guide:coffee/what-the-kissaten-says-about-japan))." },
+          ],
+          words: [
+            { local: "あたたか〜い", say: "atatakāi", means: "hot — the red label" },
+            { local: "つめた〜い", say: "tsumetāi", means: "cold — the blue label" },
+            { local: "微糖", say: "bitō", means: "low sugar" },
+            { local: "自販機", say: "jihanki", means: "vending machine" },
+          ],
+          related: ["coffee/what-the-kissaten-says-about-japan", "look-closer/overview", "drinks/tea-from-temple-medicine-to-the-vending-machine"],
+          sources: [
+            { title: "Canned coffee — Wikipedia", url: "https://en.wikipedia.org/wiki/Canned_coffee", note: "UCC, 1969; Pokka's hot-and-cold machine, 1973" },
+            { title: "Boss Coffee — Wikipedia", url: "https://en.wikipedia.org/wiki/Boss_Coffee", note: "Launched by Suntory in 1992" },
+            { title: "7-Eleven brings in 100-yen coffee — Data Max, January 2013", url: "https://www.data-max.co.jp/2013/01/29/100_66_dm1509_1.html", note: "Sales from 23 January 2013, every store by the end of August, ¥100 hot or iced (Japanese)" },
+            { title: "Japan's vending industry shows signs of softening — Vending Times, 2026", url: "https://www.vendingtimes.com/news/japans-vending-industry-shows-signs-of-softening/", note: "About 2.2 million beverage machines, per the Japan Vending System Manufacturers Association" },
+          ],
+        },
+      ],
+    },
+    {
+      title: "On the plate",
+      items: [
         {
           title: "The kissaten menu",
           summary: "Why there's toast with your coffee",

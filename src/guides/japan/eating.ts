@@ -1,14 +1,15 @@
 import type { GuideTopic } from "../types";
 import { photo, photoOf } from "./photos";
 
-/** The table, part two: eating out. Where people eat and why, the three
- *  great street foods of Edo that became the national menu (sushi,
- *  noodles, grilled meat), and how a meal out works once you sit down. */
+/** The table, part two: eating out. Where people eat and why, the street
+ *  foods of Edo that became the national menu (sushi, noodles, grilled
+ *  meat), the one-dish specialists, and how a meal out works once you sit
+ *  down. */
 export const eatingOut: GuideTopic = {
   id: "eating-out",
   title: "Eating out",
   glyph: "restaurant",
-  summary: "Standing soba to a kaiseki counter, the street foods that became the national menu, and how a meal out works",
+  summary: "Standing soba to a kaiseki counter, the street foods that became the national menu, the specialists, and how a meal out works",
   cover: photoOf("yokocho", "A narrow lane of small eateries under red lanterns, behind an old corner coffee shop", "The way into Omoide Yokochō, a lane of tiny eateries by Shinjuku station."),
   intro: {
     body: [
@@ -29,7 +30,7 @@ export const eatingOut: GuideTopic = {
         },
       },
       { p: "Lunch near offices runs on the clock: most workers eat between 12:00 and 13:00, so a place goes from empty to a queue in minutes and is empty again by ten past one. A lunch set (*ranchi*) from the same kitchen often costs half the dinner price." },
-      { p: "Many of the cheap places are built for one person — counter seats, partitions, ticket machines — and eating alone is normal. The chapter goes from the kinds of place to the three dishes that made them, then to how a meal out works." },
+      { p: "Many of the cheap places are built for one person — counter seats, partitions, ticket machines — and eating alone is normal. The chapter goes from the kinds of place to the dishes that made them — sushi, noodles and grilled meat — then the specialists that cook one thing (tempura, eel, the hot plate, kaiseki, the table grill), and ends with how a meal out works." },
     ],
   },
   blocks: [
@@ -334,6 +335,179 @@ export const eatingOut: GuideTopic = {
             { title: "Beef traceability in Japan — Yokohama Central Wholesale Market", url: "https://en.city.yokohama.lg.jp/business/kigyoshien/chuoshijo/shijo/tokoro/tracability.html", note: "The ten-digit number for every cow, since 2003" },
             { title: "Yōshoku — Wikipedia", url: "https://en.wikipedia.org/wiki/Y%C5%8Dshoku", note: "Curry, tonkatsu, omurice and their origins" },
             { title: "Kobe Beef criteria — Kobe Beef Marketing & Distribution Promotion Association", url: "https://kobe-niku.jp/en/contents/about/criteria.html", note: "Tajima line, BMS 6+, yield A or B, the chrysanthemum stamp" },
+          ],
+        },
+      ],
+    },
+    {
+      title: "The specialists",
+      items: [
+        {
+          title: "Tempura and eel, the rest of Edo's stalls",
+          summary: "A Portuguese batter fried outdoors for fear of fire, and a river fish now listed as endangered",
+          body: [
+            { p: "Edo's street food had four stars: sushi, soba, **tempura** and **eel**. The first two have their own story above. The other two became the most specialised restaurants in the country — places that cook one thing, and are judged on it." },
+            photo("tempura", "Prawn, aubergine and green pepper tempura on a white plate with a mound of grated daikon", "Tempura with grated daikon to stir into the dipping sauce."),
+
+            { h: "Tempura" },
+            { p: "Frying in batter came with the Portuguese. Toward the end of the 16th century cooks in Nagasaki learned it from missionaries and traders, whose own fried vegetables were eaten on fasting days.[^1] The name is usually traced to the Latin *tempora*, those Ember Days; Portuguese *tempero*, “seasoning”, is the other candidate." },
+            { p: "In Edo it moved outdoors. A city of wood and paper feared fire above everything, and hot oil was kept out of houses, so tempura was fried at stalls and eaten on skewers, standing, the way the sushi was.[^1] The Edo style it left behind is still the Tokyo style: a thin batter of flour, egg and cold water barely mixed, seafood from the bay, oil with sesame in it for colour and fragrance." },
+            {
+              terms: [
+                { term: "At a counter", text: "The cook fries each piece as you eat the last, prawn first, vegetables and fish by the season, the oil watched like a thermometer. Lunch sets cost a fraction of the evening course" },
+                { term: "Tentsuyu or salt", text: "A warm dipping sauce of dashi, mirin and soy, about three to one to one, with grated daikon stirred in — or salt, sometimes mixed with matcha or yuzu, for the delicate pieces" },
+                { term: "Ten-don", text: "Tempura on a bowl of rice under a sweet soy sauce: the everyday version, from chains and old shops alike" },
+                { term: "Kakiage", text: "A loose fritter of shredded vegetables and small shrimp, what most people put on their soba or udon" },
+              ],
+            },
+            { p: "A good counter's tempura isn't greasy: the batter is cold so it sets fast, and the piece goes from oil to plate in seconds. That's why the counter exists. Tempura that has sat for five minutes is a different, worse food." },
+
+            { h: "Eel" },
+            photo("unaju", "Glazed grilled eel fillets laid over rice in a black lacquer box with an orange inside", "Unajū: eel kabayaki over rice in a lacquer box, at a Tokyo eel shop."),
+            { p: "**Kabayaki** is eel split, skewered and grilled under a sweet soy glaze. How it's split and whether it's steamed divides the country down the middle — the east steams it soft, the west grills it crisp — and that story is in [East and west](guide:regional-food/east-and-west). Served on rice, it's **unadon** in a bowl and **unajū** in a lacquer box, the box being the more formal." },
+            { p: "Nagoya has its own form, **hitsumabushi**: chopped eel on rice in a wooden tub, eaten in three rounds — plain, then with spring onion and wasabi, then with dashi or tea poured over. The midsummer eel day, and the story behind it, is in [The year in a home kitchen](guide:food-at-home/the-year-in-a-home-kitchen)." },
+            { note: "The Japanese eel has been listed as **Endangered** by the IUCN since June 2014, and by Japan's own environment ministry since 2013. Eels have never been bred at scale: nearly every farmed eel began as a wild glass eel netted in a river mouth, so a farmed eel is still a wild catch.[^2][^3]", kind: "info", title: "The eel problem" },
+            { p: "That makes eel the one great Edo dish with an open question over its future. Specialist shops are increasingly frank about it; many diners now keep it for a once-a-year occasion, which is what it was for most of its history." },
+          ],
+          words: [
+            { local: "天つゆ", say: "tentsuyu", means: "tempura dipping sauce" },
+            { local: "天丼", say: "tendon", means: "tempura on rice" },
+            { local: "かき揚げ", say: "kakiage", means: "a mixed vegetable fritter" },
+            { local: "うな重", say: "unajū", means: "eel on rice in a lacquer box" },
+            { local: "ひつまぶし", say: "hitsumabushi", means: "Nagoya's eel rice, eaten three ways" },
+          ],
+          related: ["regional-food/east-and-west", "eating-out/sushi-from-fermented-fish-to-fast-food", "history/edo"],
+          sources: [
+            { title: "Tempura — Wikipedia", url: "https://en.wikipedia.org/wiki/Tempura", note: "Nagasaki in the late 16th century, the Edo stalls and fire, the etymologies, tentsuyu" },
+            { title: "Endangered delicacy: Japanese eel put on species red list — Manufacturing.net (AP), 2014", url: "https://www.manufacturing.net/home/news/13176645/endangered-delicacy-japanese-eel-put-on-species-red-list", note: "The IUCN's Endangered listing, June 2014" },
+            { title: "Eels in Japan — Japan Wildlife Conservation Society, 2017", url: "https://jwcs.org/data/EN_EelsinJapan2017.pdf", note: "The environment ministry's 2013 listing; farming from wild glass eels" },
+          ],
+        },
+        {
+          title: "Okonomiyaki, takoyaki and the hot plate",
+          summary: "Flour, cabbage and a griddle: Osaka's street food, Hiroshima's post-war meal and Tokyo's runny cousin",
+          body: [
+            { p: "Western Japan has a word for a whole family of food: **konamono**, “flour things”. Cheap batter, a hot iron plate, whatever's to hand. They were children's snacks before they were meals, and Osaka, which calls itself the city that eats itself bankrupt (*kuidaore*), made them its signature." },
+            photo("okonomiyaki", "An okonomiyaki on a griddle under stripes of brown sauce and mayonnaise, with seaweed and bonito flakes", "Osaka-style okonomiyaki on the griddle: sauce, mayonnaise, aonori and bonito."),
+            { h: "Okonomiyaki" },
+            {
+              timeline: [
+                { when: "Meiji", text: "**Monji-yaki**: children at cheap sweet shops write letters in batter on an iron plate[^1]" },
+                { when: "Taishō", text: "**Issen yōshoku**, “one-sen Western food”: a thin pancake with spring onion and Worcestershire sauce, sold to children in Kyoto and Osaka[^1]" },
+                { when: "1930s", text: "The name **okonomiyaki** — “grilled how you like it” — appears at an Osaka shop" },
+                { when: "After 1945", text: "In Hiroshima, flattened by the bomb, the pancake becomes a cheap filling meal, padded with cabbage and noodles" },
+              ],
+            },
+            {
+              compare: {
+                title: "One pancake, two cities",
+                a: "Osaka",
+                b: "Hiroshima",
+                rows: [
+                  { label: "Built", a: "Everything mixed into the batter, then cooked as one cake", b: "Layered: a thin crêpe, a heap of cabbage, pork, noodles, a fried egg" },
+                  { label: "Cabbage", a: "Chopped, in the batter", b: "Three or four times as much, shredded and steamed under the crêpe" },
+                  { label: "Batter", a: "Thickened with grated nagaimo yam, so it's soft and fluffy", b: "Only a thin crêpe holding the layers together" },
+                  { label: "Noodles", a: "Only in a **modan-yaki**", b: "Always — soba or udon" },
+                  { label: "Who cooks", a: "Often you, at a hot-plate table", b: "The cook, at the counter; you eat off the griddle with a small spatula" },
+                ],
+              },
+            },
+            { p: "Both finish under a thick, fruity sauce, with mayonnaise, green laver (*aonori*) and bonito flakes that move in the heat. Tokyo's version is **monjayaki**: a much runnier batter cooked into a sticky, crisp-edged puddle and scraped off the plate with a tiny spatula. Tsukishima, an island of reclaimed land in Tokyo Bay, has a whole street of it." },
+
+            { h: "Takoyaki" },
+            photo("takoyaki", "Takoyaki balls under brown sauce, green laver and bonito flakes, with a pair of toothpicks", "Takoyaki as Osaka eats it: sauce, aonori, bonito, and toothpicks."),
+            { p: "Balls of batter round a piece of octopus, turned with a pick in a cast-iron plate of half-round moulds until crisp outside and molten in. **Endō Tomekichi**, a street vendor from Aizu, is credited with it in Osaka in 1935, building on earlier snacks: *radio-yaki* filled with beef or konnyaku, and the eggy **akashiyaki** of Akashi, which also used octopus.[^2] His shop, **Aizuya**, still serves them the original way — seasoned through, no sauce." },
+            { p: "Akashiyaki itself is still made in Akashi, softer and eggier, dipped in warm dashi rather than sauced: the older taste of the same idea. Every Osaka household is said to own a takoyaki plate. That's a cliché, but takoyaki parties (*takopa*) at home are real." },
+          ],
+          words: [
+            { local: "粉もん", say: "konamon", means: "“flour things”, in Osaka speech" },
+            { local: "お好み焼き", say: "okonomiyaki", means: "“grilled how you like it”" },
+            { local: "鉄板", say: "teppan", means: "the iron hot plate" },
+            { local: "青のり", say: "aonori", means: "green laver flakes" },
+            { local: "たこ焼き", say: "takoyaki", means: "octopus balls" },
+          ],
+          related: ["regional-food/flour-country", "eating-out/yakitori-wagyu-and-y-shoku", "how-food-works/dashi-and-why-the-noodle-soup-changes-colour"],
+          sources: [
+            { title: "Okonomiyaki — Wikipedia", url: "https://en.wikipedia.org/wiki/Okonomiyaki", note: "Funoyaki, monji-yaki, issen yōshoku, the 1930s name, Osaka and Hiroshima styles, monjayaki" },
+            { title: "Takoyaki — Wikipedia", url: "https://en.wikipedia.org/wiki/Takoyaki", note: "Endō Tomekichi, 1935, Aizuya; radio-yaki and akashiyaki" },
+          ],
+        },
+        {
+          title: "Kaiseki, a meal as a calendar",
+          summary: "Two words pronounced the same, a sequence of courses, and the season on every plate",
+          body: [
+            { p: "Two different meals are both called **kaiseki**, and the characters tell them apart. **懐石** — “breast-pocket stone” — is the frugal meal served before a formal tea ceremony; the name is usually explained by Zen monks who held a warm stone against their stomachs to quiet their hunger. **会席** — “a gathering's seats” — is the banquet that grew from it, with sake, served at restaurants, inns and occasions.[^1]" },
+            photo("kaiseki-hassun", "A hassun course: a small cedar stand with fried prawn and broad beans over a red lacquer tray of tiny lidded dishes", "A hassun course in Kyoto: the season set out in miniature."),
+            { p: "The tea meal kept to the home template, **one soup and three dishes** with rice (see [How a meal is built](guide:how-food-works/how-a-meal-is-built)). The banquet stretched that template into a sequence. Restaurants vary it, but the order runs roughly like this:[^1]" },
+            {
+              steps: [
+                { title: "Sakizuke", text: "A small appetiser, like an amuse-bouche." },
+                { title: "Hassun", text: "The seasonal centrepiece: a few small things arranged around a theme, often on a square tray." },
+                { title: "Mukōzuke", text: "Sashimi of whatever fish is at its best." },
+                { title: "Takiawase · futamono", text: "Vegetables simmered with fish, meat or tofu; then a lidded dish, usually a clear soup — the lid lifted to let out the smell." },
+                { title: "Yakimono", text: "Something grilled, usually fish." },
+                { title: "Su-zakana · shiizakana", text: "A vinegared dish to reset the palate, then something substantial, such as a small hotpot." },
+                { title: "Gohan, kō no mono, tome-wan", text: "Rice — often cooked with the season's ingredient — with pickles and a miso soup. As at home, the meal is closed by rice." },
+                { title: "Mizumono", text: "Fruit or a small sweet." },
+              ],
+            },
+            { h: "How to read it" },
+            { p: "Kaiseki is built to say **what time of year it is**. The ingredient is the obvious part: the first bamboo shoots, sweetfish in early summer, matsutake in autumn. But the cook says it with the dishes too — glass and celadon in summer, heavier lacquer and pottery in winter — and with a maple leaf, a cherry petal or a pine needle on the plate. Leaves like these are garnish you're not meant to eat." },
+            { p: "The same idea runs down the scale. A **ryokan** dinner is usually 会席-style, brought to the room or a private dining room in a long run of small dishes. A **kappō** restaurant serves similar food at a counter, cooked in front of you, more loosely. And a kaiseki restaurant's **lunch** is often a short version of the dinner at a fraction of the price." },
+            { evidence: { settled: ["Kaiseki for tea (懐石) came first, as the meal of the tea ceremony.", "The banquet form (会席) is a separate, later meal served with sake."], open: ["Whether the warm-stone story is the real origin of the name, or a fitting explanation added later."] } },
+          ],
+          words: [
+            { local: "懐石", say: "kaiseki", means: "the meal before tea" },
+            { local: "会席", say: "kaiseki", means: "the banquet in courses" },
+            { local: "八寸", say: "hassun", means: "the seasonal centrepiece course" },
+            { local: "割烹", say: "kappō", means: "counter cooking of the same food, less formal" },
+            { local: "旬", say: "shun", means: "a food's season" },
+          ],
+          related: ["culture/the-tea-ceremony", "how-food-works/how-a-meal-is-built", "food-at-home/the-year-in-a-home-kitchen"],
+          sources: [
+            { title: "Kaiseki — Wikipedia", url: "https://en.wikipedia.org/wiki/Kaiseki", note: "The two kaiseki, the warm stone, cha-kaiseki and the modern course order" },
+          ],
+        },
+        {
+          title: "Cooked at the table: sukiyaki, shabu-shabu, yakiniku",
+          summary: "A Meiji beef pot, an Osaka trademark and Korean grills — three meals that all arrived in the last 150 years",
+          body: [
+            { p: "Meals cooked on the table in front of you look timeless. These three are all modern, and each comes from a different moment in how Japan started eating meat." },
+            photo("sukiyaki", "An iron pot of sliced marbled beef, tofu, enoki mushrooms and chrysanthemum greens", "Sukiyaki: thin beef, grilled tofu, mushrooms and shungiku greens in a shallow iron pot."),
+            {
+              terms: [
+                { term: "Sukiyaki", text: "Born in the Meiji era as **gyūnabe**, “beef pot”, eaten in Yokohama and Tokyo as a sign of modernity; the name sukiyaki may only have caught on later.[^1] Thin beef and vegetables cooked in a shallow iron pan in a sweet soy sauce, each piece dipped in **raw beaten egg** before eating" },
+                { term: "Shabu-shabu", text: "Paper-thin meat swished through simmering kombu broth — the name is the sound. Named at **Suehiro** in Osaka, whose owner registered it as a trademark in 1952; it's usually traced to the Beijing mutton hotpot that Japanese who'd lived in China brought home after the war. Dipped in **ponzu** or sesame sauce[^2]" },
+                { term: "Yakiniku", text: "Bite-size meat grilled by you over a gas or charcoal grill set into the table. It comes from **Korean restaurants in Osaka and Tokyo** opened around 1945 by Koreans in Japan, often first advertised as *horumon-yaki*, offal grills[^3]" },
+                { term: "Jingisukan", text: "Hokkaido's mutton grill on a domed iron pan, named after Genghis Khan; first recorded under that name in 1931[^3]" },
+              ],
+            },
+            {
+              compare: {
+                title: "Sukiyaki, east and west",
+                a: "Kantō",
+                b: "Kansai",
+                rows: [
+                  { label: "First in the pan", a: "A ready-mixed sauce, **warishita**: soy, mirin, sugar, sake, dashi", b: "The beef, alone, seared in beef fat" },
+                  { label: "Then", a: "Meat and vegetables simmered in it together", b: "Sugar and soy straight onto the meat; vegetables later" },
+                  { label: "Feels like", a: "A sweet hotpot", b: "Closer to a grill, then a pot" },
+                ],
+              },
+            },
+            { p: "Yakiniku carries a history most diners never think about. Offal was what Japanese butchers threw away; Koreans in Japan, many pushed into the poorest work, made it into a cuisine, and **horumon** is still widely explained as Osaka dialect for “thrown-away things”, though the word's origin is argued. Today yakiniku is one of the country's favourite meals out, from chains with tablet ordering to Korean-Japanese shops in Osaka's Tsuruhashi." },
+            { p: "At all of them the table is the kitchen, which is the point: a hotpot or a grill is shared, slow and social, the meal a family or a group chooses for a celebration." },
+          ],
+          words: [
+            { local: "割下", say: "warishita", means: "sukiyaki's mixed sauce" },
+            { local: "ポン酢", say: "ponzu", means: "citrus and soy dipping sauce" },
+            { local: "ホルモン", say: "horumon", means: "grilled offal" },
+            { local: "タン塩", say: "tan shio", means: "salted beef tongue, a yakiniku opener" },
+          ],
+          related: ["eating-out/yakitori-wagyu-and-y-shoku", "food-at-home/the-year-in-a-home-kitchen", "regional-food/the-north-snow-and-settlers"],
+          sources: [
+            { title: "Sukiyaki — Wikipedia", url: "https://en.wikipedia.org/wiki/Sukiyaki", note: "Gyūnabe, the Kantō and Kansai methods, the raw egg" },
+            { title: "Shabu-shabu — Wikipedia", url: "https://en.wikipedia.org/wiki/Shabu-shabu", note: "Suehiro, Osaka; the 1952 trademark; the mutton hotpot theory" },
+            { title: "Yakiniku — Wikipedia", url: "https://en.wikipedia.org/wiki/Yakiniku", note: "Korean restaurants in Osaka and Tokyo around 1945; horumon; jingisukan, 1931" },
           ],
         },
       ],

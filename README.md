@@ -536,7 +536,7 @@ The guide has two halves: **This Trip**, picked from the trip, and **Guide**, th
 - **History** starts with an Overview (two era bands drawn to scale and the population from 725 to the 2070 projection), then tells its eight eras in order, each handing on to the next.
 - **Belief** and **Language** each open with an overview: their own changes drawn to scale against the eras, linked into History, then their reads in titled sections.
 - **Land & seasons** covers cherry and maple, forests, sacred mountains and gardens. **Living with nature** explains earthquakes, tsunami, volcanoes and typhoons as science and history; what to do in one stays under Before you go.
-- **The table** reads in order: how the cooking works, food at home, eating out (with sushi, noodles and meat), drinks and sweets, regional food, coffee. Each chapter opens with an Overview. **Regional food** is about the whole country (east and west, trade routes, flour country, the north and the south, food made to travel); what to eat in one city is on that city's page under **Eat and drink**.
+- **The table** reads in order: how the cooking works, food at home, eating out (sushi, noodles and meat, then the specialists: tempura and eel, okonomiyaki and takoyaki, kaiseki, sukiyaki and yakiniku), drinks and sweets, regional food, coffee (the kissaten, how it's brewed, specialty roasts, cans and the konbini cup). Each chapter opens with an Overview. **Regional food** is about the whole country (east and west, trade routes, flour country, the north and the south, food made to travel); what to eat in one city is on that city's page under **Eat and drink**.
 - **Everyday life** reads in order from the numbers to the street: Japan by numbers, growing up and school, work, Look closer, customs, stamps. Each opens with an Overview that says which earlier chapter explains it (falling births close schools; school cleaning explains the missing bins). Look closer is country-wide; Tokyo-only reads such as Jimbōchō are on the Tokyo page.
 - **Culture and the state** opens each chapter with an Overview: the arts by who paid for them (tea and noh, kabuki, bunraku and ukiyo-e, then baths, sumo and baseball), manga and anime, and government (the emperor, the Diet, elections, Article 9, the prefectures). Tickets, fan districts and the palace's open days are on the Tokyo and Kyoto pages.
 
@@ -553,7 +553,7 @@ The guide has two halves: **This Trip**, picked from the trip, and **Guide**, th
 - **Bookmark** and **Share** sit in the nav bar. Share opens the phone's share sheet; on desktop Chrome it copies the link (the button turns into a tick).
 - **Mark as Read** at the foot of every article; tap again to mark it unread. Read articles get a green tick on their row, and a chapter page says how many of its articles you've read.
 - Read marks, bookmarks and Continue reading are kept on this device only, not synced.
-- Links in the text open other entries; **Related** lists the ones that carry the thread on. **Up next** opens the next entry in place, so Back still returns to the list.
+- Links in the text open other entries; **Related** lists the ones that carry the thread on, each captioned with its chapter. **Up next** opens the next entry in place, so Back still returns to the list.
 
 **Content**
 

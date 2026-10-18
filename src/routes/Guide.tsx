@@ -737,9 +737,12 @@ function ArticlePage({
   const bullets = a.points?.length && !a.pointsTitle ? a.points : undefined;
   const minutes = readingMinutes(a);
   const headings = a.body?.flatMap((b) => ("h" in b ? [b.h] : [])) ?? [];
+  // a related read can sit in another chapter, so its caption names the
+  // chapter (a city's name for a place) rather than the group inside it
   const related = guide ? (a.related ?? []).flatMap((ref) => {
     const r = resolveRef(guide, ref);
-    return r ? [{ to: `${guidePath(guide)}/${ref}`, entry: r }] : [];
+    const chapter = allTopics(guide).find((t) => t.id === ref.split("/")[0])?.title;
+    return r ? [{ to: `${guidePath(guide)}/${ref}`, entry: r, caption: chapter ?? r.eyebrow }] : [];
   }).filter((r) => r.to !== next?.to) : [];
   return (
     <GuideSources.Provider value={a.sources ?? []}>
@@ -856,7 +859,7 @@ function ArticlePage({
             <Section>
               <ul>
                 {related.map((r) => (
-                  <ArticleRow key={r.to} to={r.to} caption={r.entry.eyebrow} title={r.entry.title} meta={r.entry.article.summary} thumb={photoIn(r.entry.article)?.src} />
+                  <ArticleRow key={r.to} to={r.to} caption={r.caption} title={r.entry.title} meta={r.entry.article.summary} thumb={photoIn(r.entry.article)?.src} />
                 ))}
               </ul>
             </Section>
