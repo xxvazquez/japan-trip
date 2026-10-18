@@ -344,7 +344,7 @@ export const prepared: GuideTopic = {
             { local: "ツキノワグマ", say: "tsukinowaguma", means: "Asian black bear" },
             { local: "ヒグマ", say: "higuma", means: "brown bear (Hokkaido)" },
           ],
-          related: ["land/forests-wild-and-planted", "prepared/hornets-boars-and-monkeys", "food-at-home/autumn-in-a-home-kitchen"],
+          related: ["land/forests-wild-and-planted", "prepared/hornets-boars-and-monkeys", "food-at-home/the-year-in-a-home-kitchen"],
           sources: [
             { title: "Black bear sightings in Japan more than doubled in 2025 (Japan Times)", url: "https://www.japantimes.co.jp/news/2026/05/12/japan/society/2025-bear-numbers/" },
             { title: "Bear casualties hit record in fiscal 2025 (Xinhua, citing the Environment Ministry)", url: "https://english.news.cn/20260407/a733e4ac229e4632be7cca2dbe97567c/c.html" },

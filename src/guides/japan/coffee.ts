@@ -1,43 +1,44 @@
 import type { GuideItem, GuideTopic } from "../types";
-import { photo } from "./photos";
+import { photo, photoOf } from "./photos";
 
-/** Japanese coffee culture: where the kissaten came from, how to read one,
- *  how the coffee's made, and places worth the detour on this route. */
+/** The table, last part: Japanese coffee culture. Where the kissaten came
+ *  from, how to read one, how the coffee's made and what comes with it,
+ *  and what the rooms say about the country. Places worth the detour are
+ *  on the city pages, below. */
 export const coffee: GuideTopic = {
   id: "coffee",
   title: "Coffee",
   glyph: "coffee",
-  summary: "Kissaten, siphons, thick toast — and where to sit for an hour",
+  summary: "Kissaten, siphons and thick toast, and a room rented for the price of a cup",
+  cover: photoOf("siphon", "A glass siphon coffee maker over a small burner", "A siphon at work: one cup at a time, by hand."),
+  intro: {
+    body: [
+      { p: "Dutch traders on Dejima drank coffee in the 1600s, but Japan barely touched it until the Meiji opening. Since then it has had three lives: the Western-style coffee house, the **kissaten** that became every neighbourhood's living room, and the specialty roasters that learned from it." },
+      photo("kissaten-interior", "Red leather booths and dark wood panelling in an old kissaten", "Booths, wood and soft light: the classic kissaten room."),
+      {
+        timeline: [
+          { when: "1888", text: "**Kahiichakan** opens in Ueno, Japan's first real coffee house: leather chairs, newspapers, billiards. Too early; it closes within about five years[^1]" },
+          { when: "1911", text: "**Café Paulista** in Ginza, opened by Mizuno Ryō, who had organised emigration to Brazil; São Paulo supplied the beans to build a market. Cheap coffee becomes a habit for students and writers[^2]" },
+          { when: "1930s", text: "About 10,000 kissaten. Cafés split in two: “cafés” with hostesses serving alcohol, and kissaten serving coffee, whose signs say **jun-kissa**, “pure kissaten”" },
+          { when: "1960", text: "Green-coffee imports freed. Kissaten multiply as the cheapest private space in a crowded city: somewhere to meet, read, do business, date, escape a tiny flat" },
+          { when: "1981", text: "The peak: **154,630** kissaten. Then the decline, as self-service chains arrive from 1980 and owners age without successors. By 2021 there are 58,669[^3]" },
+          { when: "2010s", text: "The third wave looks back: American roasters credit the kissaten's slow hand-brewing, and a young generation seeks out old kissaten as “retro”" },
+        ],
+      },
+      { p: "Coffee is often written 珈琲 in kanji, characters chosen in the Edo period by the scholar Udagawa Yōan for their sound. A kissaten sign in kanji is usually old, or wants to look it." },
+      { p: "The chapter starts with the rooms — the kinds of coffee shop and how to read one — then what's in the cup and on the plate, and ends with what the kissaten says about the country. Places worth the detour are on the Tokyo and Kyoto pages." },
+    ],
+    sources: [
+      { title: "Coffee in Japan — Wikipedia", url: "https://en.wikipedia.org/wiki/Coffee_in_Japan", note: "Kahiichakan, 1888, and its early closure" },
+      { title: "Emigration to Brazil and coffee — National Diet Library", url: "https://www.ndl.go.jp/brasil/e/column/coffee.html", note: "Mizuno Ryō, Café Paulista and the São Paulo beans" },
+      { title: "The number of kissaten — Tōyō Keizai", url: "https://toyokeizai.net/articles/-/947079", note: "All Japan Coffee Association: 154,630 in 1981, 58,669 in 2021 (Japanese)" },
+      { title: "Kissaten: are Japan's old-school coffee shops fading? — Unseen Japan", url: "https://unseen-japan.com/kissaten-japan-old-school-coffee/" },
+    ],
+  },
   blocks: [
     {
+      title: "The rooms",
       items: [
-        {
-          title: "A short history of sitting down",
-          summary: "From a failed Ueno coffee house to 155,000 kissaten",
-          body: [
-            { p: "Dutch traders on Dejima drank coffee in the 1600s, but Japan barely touched it until the Meiji opening. Since then it has gone through three lives: the Western-style coffee house, the **kissaten** that became every neighbourhood's living room, and the specialty roasters that learned from it." },
-            photo("kissaten-interior", "Red leather booths and dark wood panelling in an old kissaten", "Booths, wood and soft light: the classic kissaten room."),
-            {
-              steps: [
-                { title: "1888 — Kahiichakan, Ueno", text: "Japan's first real coffee house, opened by Tei Eikei after years abroad: leather chairs, newspapers, billiards. Too early — it closed within about five years.[^1]" },
-                { title: "1911 — Café Paulista, Ginza", text: "Opened by Mizuno Ryō, who had organised Japanese emigration to Brazil; the São Paulo government supplied the beans to build a market. Cheap Brazilian coffee made cafés a habit for students and writers.[^2]" },
-                { title: "1930s — about 10,000 kissaten", text: "Cafés split in two: “cafés” with hostesses serving alcohol, and kissaten serving coffee. Signs saying **jun-kissa**, “pure kissaten”, meant the second kind." },
-                { title: "1960 — beans freed", text: "Green-coffee imports were liberalised after the war's shortages. Kissaten multiplied as the cheapest private space in a crowded city: somewhere to meet, read, do business, date, escape a tiny flat." },
-                { title: "1981 — the peak", text: "154,630 kissaten. Then the decline: in 1980 Doutor opened its first self-service shop with cheap coffee, Starbucks arrived in Ginza in 1996, and owners aged without successors. By 2021 there were 58,669.[^3]" },
-                { title: "2010s — the third wave looks back", text: "American roasters credited the kissaten's slow hand-brewing; Blue Bottle opened its first Japan shop in Kiyosumi-Shirakawa in 2015. A young generation now seeks out old kissaten as “retro”." },
-              ],
-            },
-            { stats: [{ value: "1888", label: "first coffee house, Ueno" }, { value: "~10,000", label: "kissaten in 1935" }, { value: "~155,000", label: "kissaten at the 1981 peak" }] },
-            { note: "Coffee is often written 珈琲 in kanji — characters chosen in the Edo period by the scholar Udagawa Yōan for their sound. A kissaten sign in kanji is usually old, or wants to look it.", title: "珈琲" },
-          ],
-          sources: [
-            { title: "Coffee in Japan — Wikipedia", url: "https://en.wikipedia.org/wiki/Coffee_in_Japan", note: "Kahiichakan, 1888, and its early closure" },
-            { title: "Emigration to Brazil and coffee — National Diet Library", url: "https://www.ndl.go.jp/brasil/e/column/coffee.html", note: "Mizuno Ryō, Café Paulista and the São Paulo beans" },
-            { title: "The number of kissaten — Tōyō Keizai", url: "https://toyokeizai.net/articles/-/947079", note: "All Japan Coffee Association: 154,630 in 1981, 58,669 in 2021 (Japanese)" },
-            { title: "Kissaten: are Japan's old-school coffee shops fading? — Unseen Japan", url: "https://unseen-japan.com/kissaten-japan-old-school-coffee/" },
-          ],
-          related: ["coffee/what-the-kissaten-says-about-japan", "how-food-works/how-japanese-food-changed", "look-closer/jimb-ch-a-book-town-by-accident"],
-        },
         {
           title: "Kissaten, specialty, chain",
           summary: "Three kinds of coffee shop, three different reasons to go",
@@ -58,44 +59,6 @@ export const coffee: GuideTopic = {
             { note: "Some old kissaten still allow smoking under a special status. Check the sign by the door: 喫煙可 (smoking allowed) or 禁煙 (no smoking).", title: "Smoke" },
           ],
           related: ["coffee/reading-a-kissaten", "coffee/how-the-coffee-is-made"],
-        },
-        {
-          title: "How the coffee is made",
-          summary: "Siphon, flannel, pour-over — and Kyoto-style cold drip",
-          body: [
-            { p: "Kissaten masters prize **control**: one cup at a time, by hand, with a method chosen for the body it gives. Watching it is half the point — sit at the counter if there is one." },
-            photo("siphon", "A glass siphon coffee maker over a small burner", "A siphon: water rises into the top globe, steeps the grounds, then is drawn back down through a filter."),
-            {
-              terms: [
-                { term: "Siphon (saifon)", text: "Two glass globes over a flame or halogen burner: water is pushed up into the grounds, then pulled back down through a filter. Hot, clean and theatrical; a post-war kissaten favourite." },
-                { term: "Nel drip (neru dorippu)", text: "Hot water poured slowly through a flannel cloth bag. Thick, sweet, rounded coffee, often from long-aged beans. The flannel is kept in cold water between uses and replaced often — a sign the master takes it seriously." },
-                { term: "Pour-over", text: "A paper cone and a gooseneck kettle. Japanese makers designed the cones the world uses: Kalita (founded 1958), Kōno, and Hario's V60 (2004)." },
-                { term: "Kyoto-style cold drip", text: "Tall glass towers dripping cold water through the grounds, one drop at a time, for hours. Called “Kyoto-style” after the Kyoto kissaten that made it famous; in Japan it's also “Dutch coffee”." },
-                { term: "Iced coffee", text: "Japan drank iced coffee long before most of the world, and UCC's canned coffee with milk, launched in 1969, made coffee a vending-machine drink, sold hot in winter." },
-              ],
-            },
-            { p: "At some kissaten the master chooses your **cup** from a wall of porcelain, to suit you. It's part of the hospitality — notice which one you get." },
-          ],
-          related: ["coffee/the-kissaten-menu", "food/tea-from-temple-medicine-to-the-vending-machine"],
-        },
-        {
-          title: "The kissaten menu",
-          summary: "Why there's toast with your coffee",
-          body: [
-            { p: "A kissaten is also a cheap, quick restaurant, and its menu is a museum of mid-century Japanese-Western food:" },
-            photo("kissaten-window", "A kissaten window of plastic food models: spaghetti, omurice, parfaits, cream soda, sandwiches", "The sampuru window of Café American in Osaka: Napolitan, omurice, curry, parfaits, cream soda — the whole menu in plastic."),
-            {
-              dishes: [
-                { name: "Morning service", local: "モーニング", say: "mōningu", kind: "Everyday", text: "Before about 11:00, order a coffee and get toast and a boiled egg with it, for the price of the coffee alone. Most often traced to Ichinomiya near Nagoya, where textile merchants did business over breakfast — though Toyohashi and others claim it too. Strongest around Nagoya; common everywhere." },
-                { name: "Thick toast", local: "厚切りトースト", say: "atsugiri tōsuto", kind: "Everyday", text: "Japanese milk bread (shokupan), cut 3–4 cm thick, crisp outside and soft in. Often with butter and a scrape of sweet red-bean paste." },
-                { name: "Pizza toast", local: "ピザトースト", say: "piza tōsuto", kind: "Everyday", text: "Thick toast with ketchup, peppers, onion, salami and cheese, grilled. Kissaten fast food since the 1960s." },
-                { name: "Napolitan", local: "ナポリタン", say: "naporitan", kind: "Everyday", text: "Spaghetti fried with ketchup, onion, green pepper and sausage. A Yokohama hotel is usually credited with it during the post-war occupation — Italian in name only." },
-                { name: "Purin", local: "プリン", say: "purin", kind: "Everyday", text: "A firm, bitter-caramel custard pudding, sometimes with a cherry. The retro kind is steamed and dense; it's what people come for." },
-                { name: "Cream soda", local: "クリームソーダ", say: "kurīmu sōda", kind: "Everyday", text: "Bright green melon soda with a scoop of vanilla ice cream — the colour of a 1970s kissaten." },
-              ],
-            },
-          ],
-          related: ["food/yakitori-wagyu-and-y-shoku", "food/getting-a-table-ordering-eating", "language/borrowed-words"],
         },
         {
           title: "Reading a kissaten",
@@ -131,13 +94,61 @@ export const coffee: GuideTopic = {
           ],
           related: ["coffee/what-the-kissaten-says-about-japan", "culture/sumo-baseball-and-pastimes"],
         },
+      ],
+    },
+    {
+      title: "In the cup and on the plate",
+      items: [
+        {
+          title: "How the coffee is made",
+          summary: "Siphon, flannel, pour-over — and Kyoto-style cold drip",
+          body: [
+            { p: "Kissaten masters prize **control**: one cup at a time, by hand, with a method chosen for the body it gives. Watching it is half the point — sit at the counter if there is one." },
+            photo("siphon", "A glass siphon coffee maker over a small burner", "A siphon: water rises into the top globe, steeps the grounds, then is drawn back down through a filter."),
+            {
+              terms: [
+                { term: "Siphon (saifon)", text: "Two glass globes over a flame or halogen burner: water is pushed up into the grounds, then pulled back down through a filter. Hot, clean and theatrical; a post-war kissaten favourite." },
+                { term: "Nel drip (neru dorippu)", text: "Hot water poured slowly through a flannel cloth bag. Thick, sweet, rounded coffee, often from long-aged beans. The flannel is kept in cold water between uses and replaced often — a sign the master takes it seriously." },
+                { term: "Pour-over", text: "A paper cone and a gooseneck kettle. Japanese makers designed the cones the world uses: Kalita (founded 1958), Kōno, and Hario's V60 (2004)." },
+                { term: "Kyoto-style cold drip", text: "Tall glass towers dripping cold water through the grounds, one drop at a time, for hours. Called “Kyoto-style” after the Kyoto kissaten that made it famous; in Japan it's also “Dutch coffee”." },
+                { term: "Iced coffee", text: "Japan drank iced coffee long before most of the world, and UCC's canned coffee with milk, launched in 1969, made coffee a vending-machine drink, sold hot in winter." },
+              ],
+            },
+            { p: "At some kissaten the master chooses your **cup** from a wall of porcelain, to suit you. It's part of the hospitality — notice which one you get." },
+          ],
+          related: ["coffee/the-kissaten-menu", "drinks/tea-from-temple-medicine-to-the-vending-machine"],
+        },
+        {
+          title: "The kissaten menu",
+          summary: "Why there's toast with your coffee",
+          body: [
+            { p: "A kissaten is also a cheap, quick restaurant, and its menu is a museum of mid-century Japanese-Western food:" },
+            photo("kissaten-window", "A kissaten window of plastic food models: spaghetti, omurice, parfaits, cream soda, sandwiches", "The sampuru window of Café American in Osaka: Napolitan, omurice, curry, parfaits, cream soda — the whole menu in plastic."),
+            {
+              dishes: [
+                { name: "Morning service", local: "モーニング", say: "mōningu", kind: "Everyday", text: "Before about 11:00, order a coffee and get toast and a boiled egg with it, for the price of the coffee alone. Most often traced to Ichinomiya near Nagoya, where textile merchants did business over breakfast — though Toyohashi and others claim it too. Strongest around Nagoya; common everywhere." },
+                { name: "Thick toast", local: "厚切りトースト", say: "atsugiri tōsuto", kind: "Everyday", text: "Japanese milk bread (shokupan), cut 3–4 cm thick, crisp outside and soft in. Often with butter and a scrape of sweet red-bean paste." },
+                { name: "Pizza toast", local: "ピザトースト", say: "piza tōsuto", kind: "Everyday", text: "Thick toast with ketchup, peppers, onion, salami and cheese, grilled. Kissaten fast food since the 1960s." },
+                { name: "Napolitan", local: "ナポリタン", say: "naporitan", kind: "Everyday", text: "Spaghetti fried with ketchup, onion, green pepper and sausage. A Yokohama hotel is usually credited with it during the post-war occupation — Italian in name only." },
+                { name: "Purin", local: "プリン", say: "purin", kind: "Everyday", text: "A firm, bitter-caramel custard pudding, sometimes with a cherry. The retro kind is steamed and dense; it's what people come for." },
+                { name: "Cream soda", local: "クリームソーダ", say: "kurīmu sōda", kind: "Everyday", text: "Bright green melon soda with a scoop of vanilla ice cream — the colour of a 1970s kissaten." },
+              ],
+            },
+          ],
+          related: ["eating-out/yakitori-wagyu-and-y-shoku", "eating-out/getting-a-table-ordering-eating", "language/borrowed-words"],
+        },
+      ],
+    },
+    {
+      title: "What it says",
+      items: [
         {
           title: "What the kissaten says about Japan",
           summary: "A room of one's own, rented for the price of a coffee",
           body: [
             { p: "A kissaten is never just about coffee. It survives, and young people now seek out old ones, because it answers needs Japanese life has always had." },
             { h: "Space" },
-            { p: "Homes are small and often shared with family; offices are open-plan and hierarchical. The kissaten is a **third place** you can rent by the hour: for a business meeting before mobile phones, a first date, a writer's daily desk, a retired man's newspaper, a student's exam revision. Pricing a coffee at ¥600–900 makes sense when you're paying for the chair." },
+            { p: "Homes are small and often shared with family; offices are open-plan and hierarchical. The kissaten is a **third place** you can rent by the hour: for a business meeting before mobile phones, a first date, a writer's daily desk, a retired man's newspaper, a student's exam revision. A coffee priced far above a konbini cup makes sense when you're paying for the chair." },
             { h: "Solitude in public" },
             { p: "Many customers come alone and want to be left alone, in company. The counter, the newspapers, manga on a shelf and the master who doesn't chat unless you do — it's the same comfort as a solo ramen counter or a capsule hotel. Being alone in public isn't sad here; it's well catered for." },
             { h: "Craft and continuity" },
@@ -145,7 +156,7 @@ export const coffee: GuideTopic = {
             { h: "Ageing" },
             { p: "The decline from 155,000 kissaten is partly chains and convenience-store coffee — the self-serve konbini cup that 7-Eleven made a hit in 2013 — but mostly owners getting old without anyone to take over. When you sit in one, you're often sitting in the last years of somebody's life's work." },
           ],
-          related: ["belief/words-for-japan-and-their-limits", "food/getting-a-table-ordering-eating", "coffee/a-short-history-of-sitting-down"],
+          related: ["belief/words-for-japan-and-their-limits", "eating-out/getting-a-table-ordering-eating", "coffee/overview"],
         },
         {
           title: "Why Kyoto loves coffee and bread",
@@ -161,7 +172,7 @@ export const coffee: GuideTopic = {
             },
             { p: "The result: Kyoto has old kissaten that never closed, and a strong new specialty scene in old townhouses and garages." },
           ],
-          related: ["regional-food/kyoto", "place/kyoto/kyoto-coffee-worth-the-detour"],
+          related: ["place/kyoto/kyoto-s-kitchen", "place/kyoto/kyoto-coffee-worth-the-detour"],
           sources: [
             { title: "Bread spending by city — All About", url: "https://news.allabout.co.jp/articles/o/28209/", note: "Bread spending 2018–20: Kobe, Okayama, then Kyoto (Japanese)" },
             { title: "Is Kyoto really Japan's coffee capital? — Gendai", url: "https://gendai.media/articles/-/44289", note: "Kyoto first for coffee in 2012 and 2013 (Japanese)" },
@@ -194,7 +205,7 @@ export const coffeeTokyo: GuideItem = {
       ],
     },
   ],
-  related: ["coffee/a-short-history-of-sitting-down", "look-closer/jimb-ch-a-book-town-by-accident", "coffee/kissaten-for-listening"],
+  related: ["coffee/overview", "look-closer/jimb-ch-a-book-town-by-accident", "coffee/kissaten-for-listening"],
   sources: [
     { title: "Café de l'Ambre (Time Out Tokyo)", url: "https://timeout.com/tokyo/restaurants/cafe-de-lambre" },
     { title: "Café Paulista, Tokyo's oldest café (Old Tokyo)", url: "https://old-tokyo.info/cafe-paulista-oldest-cafe-in-tokyo-with-a-brazilian-history/" },
@@ -222,7 +233,7 @@ export const coffeeKyoto: GuideItem = {
       ],
     },
   ],
-  related: ["coffee/why-kyoto-loves-coffee-and-bread", "regional-food/kyoto"],
+  related: ["coffee/why-kyoto-loves-coffee-and-bread", "place/kyoto/kyoto-s-kitchen"],
   sources: [
     { title: "François Kissashitsu (Kyoto City Tourism)", url: "https://kyoto.travel/en/travel-inspiration/francois-kissashitsu/" },
     { title: "Rokuyosha (Leaf Kyoto)", url: "https://leafkyoto.net/en/store/230905-kyoto-rokuyousha" },

@@ -16,7 +16,7 @@ export const culture: GuideTopic = {
           title: "The tea ceremony",
           summary: "How a bowl of tea became a discipline, a politics and a style — and what happens when you're served one",
           body: [
-            { p: "**Chanoyu**, \"hot water for tea\", is a host making a bowl of powdered green tea for guests, with set movements, in a small plain room. Described like that it sounds slight. It became one of the most influential things in Japanese culture: it shaped pottery, architecture, gardens, flower arranging, cooking and a whole vocabulary of taste, and for a few decades in the 16th century it was close to the centre of power. Where tea itself came from is told in [Tea, from temple medicine to the vending machine](guide:food/tea-from-temple-medicine-to-the-vending-machine); this is about what was built on it." },
+            { p: "**Chanoyu**, \"hot water for tea\", is a host making a bowl of powdered green tea for guests, with set movements, in a small plain room. Described like that it sounds slight. It became one of the most influential things in Japanese culture: it shaped pottery, architecture, gardens, flower arranging, cooking and a whole vocabulary of taste, and for a few decades in the 16th century it was close to the centre of power. Where tea itself came from is told in [Tea, from temple medicine to the vending machine](guide:drinks/tea-from-temple-medicine-to-the-vending-machine); this is about what was built on it." },
             photo("tea-ro", "A kettle set in a square sunken hearth in a tatami floor, with a host's hands lifting a bamboo ladle", "The sunken hearth (ro) used in the colder months, with the kettle and a bamboo ladle."),
 
             { h: "From display to wabi" },
@@ -47,7 +47,7 @@ export const culture: GuideTopic = {
             { local: "家元", say: "iemoto", means: "hereditary head of a school" },
             { local: "躙口", say: "nijiriguchi", means: "the low crawl-in door of a tea room" },
           ],
-          related: ["food/tea-from-temple-medicine-to-the-vending-machine", "history/unification", "food/wagashi-and-sweets-that-tell-the-month"],
+          related: ["drinks/tea-from-temple-medicine-to-the-vending-machine", "history/unification", "drinks/wagashi-and-sweets-that-tell-the-month"],
           sources: [
             { title: "Wabi-cha — Wikipedia", url: "https://en.wikipedia.org/wiki/Wabi-cha", note: "Jukō, Jōō and Rikyū; the wabi style" },
             { title: "National Treasures of Yamashiro — Kyoto Prefecture", url: "https://www.pref.kyoto.jp/kyotoyamashiro/en/nationaltreasure.html", note: "Taian at Myōkian, said to be Rikyū's" },

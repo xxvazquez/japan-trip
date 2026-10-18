@@ -252,13 +252,13 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         {
           title: "The nation's kitchen",
           text: "A merchant city in the Edo period, where rice from across Japan was traded — hence the nickname tenka no daidokoro. The world's first organised futures market traded rice here, at Dōjima, licensed by the shogunate in 1730.[^1]",
-          related: ["history/edo", "regional-food/tokyo"],
+          related: ["history/edo", "place/tokyo/what-tokyo-eats"],
           sources: [{ title: "Dōjima Rice Exchange — Wikipedia", url: "https://en.wikipedia.org/wiki/D%C5%8Djima_Rice_Exchange", note: "Licensed in 1730" }],
         },
         {
           title: "Eat until you drop", cover: photoOf("kuidaore-taro", "A clown figure with a drum outside a restaurant, a crowd in front", "Kuidaore Tarō in Dōtonbori."),
           text: "Kuidaore is the city's motto. Takoyaki, okonomiyaki and kushikatsu are from here — and the rule at kushikatsu bars: no double-dipping in the shared sauce.",
-          related: ["food/getting-a-table-ordering-eating", "eating-out/an-izakaya-night-start-to-finish"],
+          related: ["eating-out/getting-a-table-ordering-eating", "eating-out/an-izakaya-night-start-to-finish"],
         },
         {
           title: "The castle", cover: photoOf("osaka-castle", "A castle keep above stone walls and a moat, office towers behind", "Osaka Castle's keep above its stone walls and moat."),
@@ -388,7 +388,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         {
           title: "Its own okonomiyaki",
           text: "Layered rather than mixed, with noodles in the middle — a lasting rivalry with Osaka's version. Okonomi-mura is a building of dozens of counters.",
-          related: ["food/getting-a-table-ordering-eating"],
+          related: ["eating-out/getting-a-table-ordering-eating"],
         },
       ],
     },
@@ -467,12 +467,12 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         {
           title: "Kobe beef",
           text: "A specific certified Wagyu from Tajima cattle raised in Hyōgo — the real thing comes with a certificate number you can look up.",
-          related: ["food/yakitori-wagyu-and-y-shoku"],
+          related: ["eating-out/yakitori-wagyu-and-y-shoku"],
         },
         {
           title: "Nada sake",
           text: "The five districts of Nada, along the shore, brew more sake than anywhere else in Japan, using the hard local water, miyamizu. Several breweries have free museums.",
-          related: ["food/sake-and-how-to-read-the-bottle"],
+          related: ["drinks/sake-and-how-to-read-the-bottle"],
         },
         {
           title: "Night view",
@@ -518,7 +518,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         {
           title: "Edo-era streets",
           text: "The Sanmachi lanes of dark wooden merchant houses and sake breweries. A ball of cedar leaves (sugidama) over a brewery's door means new sake — green when it's fresh, brown as it ages.",
-          related: ["food/sake-and-how-to-read-the-bottle", "history/edo"],
+          related: ["drinks/sake-and-how-to-read-the-bottle", "history/edo"],
         },
         { title: "Morning markets", text: "Two of them, every morning: along the Miyagawa river and in front of the Takayama Jinya." },
         {
@@ -636,7 +636,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
           text: "Laid out on a grid from 1869, when Japan settled Hokkaidō — homeland of the indigenous Ainu. American advisers helped plan its farms, which is why the old buildings look like New England.",
         },
         { title: "Snow Festival", text: "Giant snow and ice sculptures fill Ōdōri Park every February — and every hotel." },
-        { title: "Beer and miso ramen", text: "Sapporo Beer has been brewed here since 1876, Japan's oldest brand. Miso ramen was born here in the 1950s.", related: ["food/soba-udon-and-ramen", "food/sh-ch-whisky-and-beer"] },
+        { title: "Beer and miso ramen", text: "Sapporo Beer has been brewed here since 1876, Japan's oldest brand. Miso ramen was born here in the 1950s.", related: ["eating-out/soba-udon-and-ramen", "drinks/sh-ch-whisky-and-beer"] },
         { title: "Jingisukan", text: "Mutton grilled on a domed iron pan, named after Genghis Khan. The local meal." },
         { title: "The Ainu", text: "Upopoy, the National Ainu Museum, opened in Shiraoi, about an hour south, in 2020 (see [Dialects and the standard](guide:language/dialects-and-the-standard))." },
       ],
@@ -652,7 +652,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         {
           title: "Tonkotsu ramen",
           text: "The milky pork-bone broth comes from here. Order your noodles' firmness (barikata is very firm) and ask for kaedama, a second serving of noodles, for the leftover soup.",
-          related: ["food/soba-udon-and-ramen"],
+          related: ["eating-out/soba-udon-and-ramen"],
         },
         { title: "Mentaiko", text: "Spicy pollock roe, brought from Korea after the war — in onigiri, on pasta, as a gift in every station shop." },
         { title: "Gateway to Asia", text: "Fukuoka is closer to Busan and Seoul than to Tokyo, and its airport is just two subway stops from Hakata station." },

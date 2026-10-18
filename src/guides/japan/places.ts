@@ -151,7 +151,7 @@ export const placeReads: Record<string, GuideItem[]> = {
           ],
         },
       ],
-      related: ["eating-out/an-izakaya-night-start-to-finish", "food/sh-ch-whisky-and-beer"],
+      related: ["eating-out/an-izakaya-night-start-to-finish", "drinks/sh-ch-whisky-and-beer"],
       sources: [
         { title: "Shinjuku's Golden-gai: from black market and red-light district to drinking spot — nippon.com", url: "https://www.nippon.com/en/guide-to-japan/gu900052/", note: "Origins after 1945, the 1958 law, about 280 bars" },
       ],
@@ -164,15 +164,34 @@ export const placeReads: Record<string, GuideItem[]> = {
         photo("tsukiji-outer", "A stall of shellfish and fish with handwritten price tags", "A stall in Tsukiji's outer market."),
         { p: "For 83 years Tokyo's fish came through **Tsukiji**, opened in 1935 after the 1923 earthquake destroyed the old market at Nihonbashi. Its move to **Toyosu**, on reclaimed land across the bay, was planned for 2016 and stalled: the site had been a gas works, and tests found benzene in its groundwater far above legal limits. After more clean-up the new market opened in October 2018.[^1]" },
         { p: "The wholesale market left; the **outer market** (jōgai shijō) didn't. Its few hundred shops — knives, dried fish, tamagoyaki, kitchen tools, small sushi counters — still trade on the streets beside the old site and are busiest in the morning. Many close by early afternoon, and some on Sundays and Wednesdays, following the market's old calendar." },
-        { p: "At **Toyosu**, the tuna auction can be watched from a glass-walled deck above the floor, or from a closer lower deck if you win a lottery in advance. It starts before 6:00. The first auction of the year is where the record prices come from (see [Sushi](guide:food/sushi-from-fermented-fish-to-fast-food))." },
+        { p: "At **Toyosu**, the tuna auction can be watched from a glass-walled deck above the floor, or from a closer lower deck if you win a lottery in advance. It starts before 6:00. The first auction of the year is where the record prices come from (see [Sushi](guide:eating-out/sushi-from-fermented-fish-to-fast-food))." },
         { h: "Monjayaki in Tsukishima" },
         { p: "Across the river, **Tsukishima** is a 1890s reclaimed island of workers' houses, and its main street is lined with dozens of monjayaki restaurants. Monja is a thin, runny batter of dashi and flour with cabbage and fillings, fried on the table's hotplate inside a ring of the solids and eaten in crisping scrapes off a tiny spatula. It began as a children's snack sold by sweet shops; Tsukishima turned it into a dinner. Staff will usually make the first one for you." },
         { note: "Tokyo has held more Michelin-starred restaurants than any other city for years. But the more revealing measure is how good the cheap food is: the standing soba by the station, the department-store basement, the 7:00 bakery.", title: "Stars and the rest" },
       ],
-      related: ["regional-food/tokyo", "food/sushi-from-fermented-fish-to-fast-food", "eating-out/depachika"],
+      related: ["place/tokyo/what-tokyo-eats", "eating-out/sushi-from-fermented-fish-to-fast-food", "eating-out/depachika"],
       sources: [
         { title: "Uncertainty grows over Tsukiji market relocation — nippon.com", url: "https://nippon.com/en/currents/d00255", note: "The contamination and the delayed move" },
       ],
+    },
+    {
+      group: "Eat and drink",
+      title: "What Tokyo eats",
+      summary: "Edo's street food gone upmarket, and the dishes the city still claims",
+      body: [
+        { p: "Edo was a city of single men in rooms without kitchens, and it ate out, fast, from stalls. Much of what Tokyo calls its own food is that street food: soba, nigiri, tempura and eel (see [Eating out](guide:eating-out/overview))." },
+        {
+          dishes: [
+            { name: "Soba", local: "蕎麦", say: "soba", kind: "Everyday", text: "Buckwheat noodles in a dark, bonito-strong broth, or cold with a dipping sauce. The old soba houses still serve it with sake in the afternoon.", where: "Kanda's old soba houses; standing soba at any station" },
+            { name: "Edomae sushi", local: "江戸前寿司", say: "edomae zushi", kind: "Regional", text: "Hand-pressed nigiri with the fish cured, marinated or simmered first, as before refrigeration. Ordinary food at belt and supermarket prices; an occasion at a counter.", where: "Counters in Ginza and Tsukiji; standing sushi by stations" },
+            { name: "Monjayaki", local: "もんじゃ焼き", say: "monjayaki", kind: "Regional", text: "A runny batter fried on the table's hotplate and eaten in scrapes off a tiny spatula. Once a children's snack.", where: "Tsukishima's main street" },
+            { name: "Chanko nabe", local: "ちゃんこ鍋", say: "chanko nabe", kind: "Regional", text: "The hotpot sumo wrestlers eat to put on weight, served by retired wrestlers' restaurants.", where: "Around the sumo hall in Ryōgoku" },
+            { name: "Fukagawa-meshi", local: "深川めし", say: "fukagawa meshi", kind: "Mostly for visitors", text: "Clams in miso broth over rice, a fishermen's quick meal from when the bay at Fukagawa was full of clams. Heritage food more than daily food now.", where: "Kiyosumi-Shirakawa and Monzen-nakachō" },
+            { name: "Tokyo shōyu ramen", local: "東京醤油ラーメン", say: "tōkyō shōyu rāmen", kind: "Everyday", text: "Clear soy-seasoned chicken broth and thin curly noodles: the plain bowl the city grew up on, from Asakusa's first ramen shop in 1910.", where: "Everywhere; Ogikubo is the old ramen town" },
+          ],
+        },
+      ],
+      related: ["eating-out/sushi-from-fermented-fish-to-fast-food", "eating-out/soba-udon-and-ramen", "regional-food/east-and-west"],
     },
     {
       group: "Before you go",
@@ -295,17 +314,34 @@ export const placeReads: Record<string, GuideItem[]> = {
         { p: "Commercial wine began in 1877, when a company in **Katsunuma** sent two young men, Takano Masanari and Tsuchiya Ryūken, to France to learn winemaking. Their wine didn't sell — Japanese drinkers weren't ready — and the company folded in 1886, but the vineyards stayed and its line continues in today's Château Mercian." },
         { p: "Until recently a bottle labelled as Japanese might be made from imported grape concentrate. Since 2018 only wine from **grapes grown in Japan** may say **日本ワイン** (Nihon wine); a place name needs 85% of the grapes from there. Kōshū was registered with the international wine body in 2010, and **GI Yamanashi** became Japan's first wine region of origin in 2013.[^2]" },
         { note: "Katsunuma, about an hour from the lakes by car or train via Ōtsuki, has dozens of wineries, several within walking distance of Katsunuma-budōkyō station, many with tastings.", title: "On the route" },
-        { p: "For the local food — hōtō stew and Yoshida's hard udon — see [Yamanashi and the Fuji lakes](guide:regional-food/yamanashi-and-the-fuji-lakes)." },
+        { p: "The rest of the local food — hōtō stew and Yoshida's hard udon — is in [Flour country](guide:regional-food/flour-country), and what to eat around the lakes is in [Hōtō, hard udon and a box to take home](guide:place/fuji-five-lakes/h-t-hard-udon-and-a-box-to-take-home)." },
       ],
       words: [
         { local: "日本ワイン", say: "nihon wain", means: "wine from grapes grown in Japan" },
         { local: "甲州", say: "kōshū", means: "the local white grape, and the old name of the province" },
       ],
-      related: ["regional-food/yamanashi-and-the-fuji-lakes"],
+      related: ["regional-food/flour-country", "place/fuji-five-lakes/h-t-hard-udon-and-a-box-to-take-home"],
       sources: [
         { title: "Japanese wine: Koshu, Muscat Bailey A and global recognition — Wine with Seth", url: "https://www.winewithseth.com/winewiki/japanese-wine-koshu-muscat-bailey-a-and-global-recognition/", note: "Kōshū's share in Yamanashi; OIV registration in 2010" },
         { title: "Japan: new wine labeling standards become effective — USDA FAS", url: "https://www.fas.usda.gov/data/japan-new-wine-labeling-standards-become-effective", note: "The 2018 rules on Japanese wine and place names" },
       ],
+    },
+    {
+      group: "Eat and drink",
+      title: "Hōtō, hard udon and a box to take home",
+      summary: "Where the lakes' flour food is cooked, and the sweet everyone carries back",
+      body: [
+        photo("hoto", "Hōtō noodles in a clay pot with pumpkin, shiitake and an egg", "Hōtō: flat noodles stewed in miso with pumpkin and mushrooms."),
+        { p: "The lakes sit in Yamanashi's flour country, and the local food is noodles: why is told in [Flour country](guide:regional-food/flour-country). Around the lakes they're easy to find, with one catch: the best udon shops keep locals' hours." },
+        {
+          dishes: [
+            { name: "Hōtō", local: "ほうとう", say: "hōtō", kind: "Regional", text: "Flat noodles stewed in miso with pumpkin and vegetables, served bubbling in an iron pot. Big enough for a whole meal.", where: "Restaurants all round Lake Kawaguchi" },
+            { name: "Yoshida udon", local: "吉田うどん", say: "yoshida udon", kind: "Regional", text: "Hard, chewy udon with boiled cabbage and spicy paste. Dozens of small shops, many open only at lunch and some in family homes.", where: "Fujiyoshida, around the station and the Sengen shrine" },
+            { name: "Shingen mochi", local: "信玄餅", say: "shingen mochi", kind: "Mostly for visitors", text: "Rice cakes in roasted soy flour with a tiny bottle of black-sugar syrup, the region's classic omiyage.", where: "Stations, service areas and souvenir shops" },
+          ],
+        },
+      ],
+      related: ["regional-food/flour-country", "place/fuji-five-lakes/wine-country-over-the-hill", "regional-food/meibutsu-omiyage-and-the-station-box-lunch"],
     },
   ],
   kyoto: [
@@ -487,7 +523,7 @@ export const placeReads: Record<string, GuideItem[]> = {
     {
       group: "Eat and drink",
       title: "Kyoto's kitchen",
-      summary: "Nishiki Market, temple food, and vegetables with pedigrees",
+      summary: "Nishiki Market, vegetables with pedigrees, the dishes to try, and sake and whisky nearby",
       body: [
         { p: "Kyoto is far from the sea and was full of temples and a court for a thousand years. So its food is built from **vegetables, tofu, preserved fish and good water**, and from two refined traditions: the Buddhist kitchen and the tea-ceremony meal. Its everyday face is **obanzai**, frugal home cooking; its formal one is kaiseki." },
         photo("nishiki-market", "Shoppers at a lit food stall in the narrow covered street of Nishiki Market", "Nishiki Market: five blocks of food shops under one roof."),
@@ -500,9 +536,26 @@ export const placeReads: Record<string, GuideItem[]> = {
             { term: "Usukuchi", text: "Pale soy sauce, saltier than dark, so food keeps its colour (see [the dashi divide](guide:how-food-works/dashi-and-why-the-noodle-soup-changes-colour))" },
           ],
         },
-        { p: "For the dishes themselves — obanzai, yudōfu, saba-zushi, nishin soba — see [Kyoto](guide:regional-food/kyoto) in Regional food; for the sweets, [Wagashi](guide:food/wagashi-and-sweets-that-tell-the-month)." },
+        { h: "What to eat" },
+        {
+          dishes: [
+            { name: "Obanzai", local: "おばんざい", say: "obanzai", kind: "Everyday", text: "Kyoto home cooking: simmered vegetables, tofu, dried fish and seaweed, small and frugal, from what's in season with nothing wasted. Restaurants lay it out in bowls along the counter.", where: "Counter restaurants around Shijō and Pontochō" },
+            { name: "Yudōfu", local: "湯豆腐", say: "yudōfu", kind: "Seasonal", text: "Silken tofu warmed in kombu broth, dipped in soy and condiments: a winter supper at home, a set lunch for visitors.", where: "Restaurants by Nanzen-ji and in Arashiyama" },
+            { name: "Saba-zushi", local: "鯖寿司", say: "saba zushi", kind: "Occasion", text: "Salted mackerel pressed on rice and wrapped in kombu, from the fish carried over the mackerel road (see [Roads that carried flavour](guide:regional-food/roads-that-carried-flavour)). Made for festivals and guests.", where: "Old sushi shops; boxed at department stores" },
+            { name: "Nishin soba", local: "にしんそば", say: "nishin soba", kind: "Regional", text: "Soba with a sweet-simmered dried herring, Hokkaido fish brought to an inland city by the kombu ships. Matsuba, beside the Minamiza theatre, first served it in 1882.[^1]", where: "Matsuba, Shijō-Ōhashi" },
+            { name: "Matcha parfait", local: "抹茶パフェ", say: "matcha pafe", kind: "Mostly for visitors", text: "The matcha-everything sweets of Gion and Uji are recent and largely for visitors; Kyoto households drink sencha and hōjicha.", where: "Gion and Uji tea shops" },
+            { name: "Yatsuhashi", local: "八ツ橋", say: "yatsuhashi", kind: "Mostly for visitors", text: "Cinnamon rice-flour sweets, crisp or soft round bean paste: the top souvenir, rarely eaten by locals except as gifts.", where: "Every station and souvenir street" },
+          ],
+        },
+        { h: "Within reach" },
+        { p: "**Fushimi**, south of the centre, is one of Japan's two great brewing districts, known for soft water and gentle sake (see [Sake](guide:drinks/sake-and-how-to-read-the-bottle)). Gekkeikan's Ōkura museum, in a 1909 brewery, and the Kizakura brewery's restaurant are a short walk apart near Chūshojima station, with tastings." },
+        { p: "**Yamazaki**, Japan's first malt whisky distillery, is about 15 minutes from Kyoto on the JR Kyoto line. Tours and tastings are booked online and fill weeks ahead; there are no walk-in visits." },
+        { p: "By **Imamiya Shrine**, a short walk from Daitoku-ji, the two aburi mochi shops that have faced each other for centuries (see [Wagashi](guide:drinks/wagashi-and-sweets-that-tell-the-month)) usually close on Wednesdays." },
       ],
-      related: ["regional-food/kyoto", "food/wagashi-and-sweets-that-tell-the-month", "food/tea-from-temple-medicine-to-the-vending-machine"],
+      related: ["regional-food/east-and-west", "drinks/wagashi-and-sweets-that-tell-the-month", "drinks/tea-from-temple-medicine-to-the-vending-machine"],
+      sources: [
+        { title: "Nishin soba — Kyoto Prefecture", url: "https://www.pref.kyoto.jp/co-kyoto/gourmet/221221.html", note: "Matsuba's second owner, Matsuno Yosakichi, 1882 (Japanese)" },
+      ],
     },
   ],
   nara: [
@@ -623,9 +676,9 @@ export const placeReads: Record<string, GuideItem[]> = {
           ],
         },
         { h: "Where clear sake began" },
-        { p: "**Shōryaku-ji**, a temple in the hills south of Nara, is called the birthplace of refined sake. In the 15th century its monks developed a starter called **bodaimoto** and a way of making sake clear rather than cloudy, the method behind modern brewing. Every January a few Nara brewers make bodaimoto there again from the temple's own yeast (see [Sake](guide:food/sake-and-how-to-read-the-bottle))." },
+        { p: "**Shōryaku-ji**, a temple in the hills south of Nara, is called the birthplace of refined sake. In the 15th century its monks developed a starter called **bodaimoto** and a way of making sake clear rather than cloudy, the method behind modern brewing. Every January a few Nara brewers make bodaimoto there again from the temple's own yeast (see [Sake](guide:drinks/sake-and-how-to-read-the-bottle))." },
       ],
-      related: ["food/sake-and-how-to-read-the-bottle", "food/sushi-from-fermented-fish-to-fast-food"],
+      related: ["drinks/sake-and-how-to-read-the-bottle", "eating-out/sushi-from-fermented-fish-to-fast-food"],
     },
   ],
   uji: [
@@ -634,7 +687,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       title: "Japan's tea town",
       summary: "The name on the best green tea, and how little of it grows in Uji",
       body: [
-        { p: "Uji's place in tea is old and real: shade-growing for matcha was perfected here in the 16th century, gyokuro and modern sencha came out of Uji farms, and the shoguns had their tea jars filled here every year (see [Tea](guide:food/tea-from-temple-medicine-to-the-vending-machine)). But look at a map today and Uji is a commuter town. Most of its fields have gone under houses." },
+        { p: "Uji's place in tea is old and real: shade-growing for matcha was perfected here in the 16th century, gyokuro and modern sencha came out of Uji farms, and the shoguns had their tea jars filled here every year (see [Tea](guide:drinks/tea-from-temple-medicine-to-the-vending-machine)). But look at a map today and Uji is a commuter town. Most of its fields have gone under houses." },
         { p: "So what is **Uji-cha**? By the trade's own definition, tea grown in Kyoto, Nara, Shiga or Mie prefectures and **processed in Kyoto prefecture** by Kyoto makers. Within Kyoto, about half the crop comes from **Wazuka**, a hill village 20 km east, whose terraced fields are what you see in photos of Uji tea.[^1] The name is a style and a standard, not a town." },
         photo("uji-tea", "Rows of rounded tea bushes covering a hillside in the Kyoto countryside", "Wazuka's tea fields, east of Uji, where much “Uji” tea is grown."),
         {
@@ -647,7 +700,7 @@ export const placeReads: Record<string, GuideItem[]> = {
         },
         { note: "Uji's main street (Byōdō-in Omotesandō) is now mostly matcha soft-serve and souvenir shops. The best tea shops still let you taste before buying; ask for gyokuro or a good sencha rather than only matcha.", title: "Buying tea" },
       ],
-      related: ["food/tea-from-temple-medicine-to-the-vending-machine", "place/uji/by-d-in-and-the-end-of-the-law"],
+      related: ["drinks/tea-from-temple-medicine-to-the-vending-machine", "place/uji/by-d-in-and-the-end-of-the-law"],
       sources: [
         { title: "Wazuka and Uji tea — Japan Tourism Agency multilingual explanations", url: "https://www.mlit.go.jp/tagengo-db/common/001928416.pdf", note: "About 49% of Kyoto's tea is grown in Wazuka" },
       ],
@@ -692,7 +745,7 @@ export const placeReads: Record<string, GuideItem[]> = {
         { h: "The Nintendo Museum" },
         { p: "Nintendo was founded in Kyoto in 1889 to make **hanafuda**, flower-pattern playing cards. Its plant at Ogura in Uji made cards and then toys from 1969, and in October 2024 it reopened as the **Nintendo Museum**: early cards and toys, every console, and playable games on giant screens. Tickets are sold in advance only, by lottery, through the museum's site, and are hard to get." },
       ],
-      related: ["food/tea-from-temple-medicine-to-the-vending-machine", "belief/buddhism"],
+      related: ["drinks/tea-from-temple-medicine-to-the-vending-machine", "belief/buddhism"],
     },
   ],
   kurama: [

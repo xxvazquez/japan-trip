@@ -132,6 +132,12 @@ const PHOTOS = {
   "tsunami-stone": { w: 900, h: 600, author: "T.KISHIMOTO", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:%E5%A4%A7%E6%B4%A5%E6%B3%A2%E8%A8%98%E5%BF%B5%E7%A2%91.JPG" },
   "somei-yoshino": { w: 900, h: 600, author: "Laitche", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Cherry_blossoms_(Somei_Yoshino),_Nagai_Botanical_Garden,_April_2026_-1488.jpg" },
   "sakurajima-1914": { w: 589, h: 900, author: "Kyushu Railway Bureau, 1914", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:1914-dec-sakurajima-large-eruption.jpg" },
+  "sugidama": { w: 900, h: 600, author: "Celuici", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Sugidama_(cedar_ball)_outside_sake_brewery,_Takayama,_May_2017.jpg" },
+  "sakuramochi-east": { w: 900, h: 600, author: "Araisyohei", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Chomeiji_sakuramochi_2021-02-23_(1)_as.jpg" },
+  "sakuramochi-west": { w: 900, h: 675, author: "Masgatotkaca", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Sakuramochi.jpg" },
+  "goya-champuru": { w: 900, h: 597, author: "Ippei Suzuki", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Goya_Champuru_1.jpg" },
+  "kiritanpo": { w: 900, h: 507, author: "Chensiyuan", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Kiritanpo_nabe_z.JPG" },
+  "ekiben": { w: 900, h: 675, author: "masataka muto", license: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:Ekiben_(16942832905).jpg" },
 } as const;
 
 export type PhotoId = keyof typeof PHOTOS;

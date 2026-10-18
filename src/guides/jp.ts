@@ -3,16 +3,18 @@ import { closer } from "./japan/closer";
 import { coffee } from "./japan/coffee";
 import { culture } from "./japan/culture";
 import { customs } from "./japan/customs";
-import { eatingOut, foodAtHome, howFoodWorks, regionalFood } from "./japan/food";
+import { drinks } from "./japan/drinks";
+import { eatingOut } from "./japan/eating";
+import { foodAtHome, howFoodWorks } from "./japan/food";
 import { land } from "./japan/land";
 import { nature } from "./japan/nature";
 import { belief } from "./japan/belief";
 import { history } from "./japan/history";
 import { language } from "./japan/language";
 import { manga } from "./japan/manga";
-import { menus } from "./japan/menus";
 import { numbers } from "./japan/numbers";
 import { politics } from "./japan/politics";
+import { regionalFood } from "./japan/regional";
 import { stamps } from "./japan/stamps";
 import { trivia } from "./japan/trivia";
 import { tripCities, tripDates, tripPractical } from "./japan/trip";
@@ -53,7 +55,7 @@ export const japan: CountryGuide = {
   sections: [
     { title: "Origins", chapters: [history, belief, language] },
     { title: "The land", chapters: [land, nature] },
-    { title: "The table", chapters: [howFoodWorks, foodAtHome, eatingOut, menus, regionalFood, coffee] },
+    { title: "The table", chapters: [howFoodWorks, foodAtHome, eatingOut, drinks, regionalFood, coffee] },
     { title: "Everyday life", chapters: [closer, numbers, growingUp, work, customs, stamps] },
     { title: "Culture and the state", chapters: [culture, manga, politics, trivia] },
   ],

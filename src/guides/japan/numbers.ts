@@ -127,7 +127,7 @@ export const numbers: GuideTopic = {
             { p: "Everyone has been covered by public health insurance since **1961**. Patients pay 30% of the bill at working age, less when old or very young; prices are set nationally, so a visit costs the same everywhere. Japan sees doctors more often than almost any country and keeps people in hospital longer." },
             { note: "Long life has many causes — diet, low obesity, universal care, walking, relative equality, low violence. Don't credit any single one, least of all fish.", title: "Correlation" },
           ],
-          related: ["numbers/a-country-getting-smaller", "how-food-works/how-japanese-food-changed", "prepared/ill-or-hurt"],
+          related: ["numbers/a-country-getting-smaller", "how-food-works/overview", "prepared/ill-or-hurt"],
           sources: [
             { title: "Women top last year's global life expectancy rankings — The Star (Kyodo)", url: "https://www.thestar.com.my/aseanplus/aseanplus-news/2026/07/26/women-top-last-years-global-life-expectancy-rankings", note: "2025 abridged life table: 87.33 and 81.35" },
             { title: "Centenarians pass 100,000 — nippon.com", url: "https://www.nippon.com/ja/japan-data/h02902/", note: "107,677 as of September 2026 (Japanese)" },

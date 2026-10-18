@@ -156,7 +156,7 @@ export const language: GuideTopic = {
               },
             },
             { p: "Characters came over in several waves, from different parts of China at different times, so some have several on readings. 行 is *gyō* in 行列 (a queue), *kō* in 銀行 (a bank) and *an* in 行灯 (a paper lantern), each from a different layer of borrowing.[^2]" },
-            { p: "Readers aren't expected to guess. Small kana beside a character, **furigana**, show a rare reading on manga, children's books and unusual place names (see [Words on a menu](guide:how-food-works/words-on-a-menu)). Japan also made characters of its own: 峠 *tōge*, a mountain pass, is up and down beside mountain." },
+            { p: "Readers aren't expected to guess. Small kana beside a character, **furigana**, show a rare reading on manga, children's books and unusual place names (see [Words on a menu](guide:eating-out/words-on-a-menu)). Japan also made characters of its own: 峠 *tōge*, a mountain pass, is up and down beside mountain." },
 
             { h: "Reforms, and an argument for letters" },
             { p: "After 1945 the script itself was nearly on the table (see [Since 1945](guide:history/since-1945)). The US Education Mission of 1946 recommended moving to romaji. The government's first postwar list of 1,850 everyday characters came with the stated aim of limiting kanji, with a view to abolishing them eventually.[^5]" },
@@ -193,7 +193,7 @@ export const language: GuideTopic = {
             { local: "振り仮名", say: "furigana", means: "small kana printed beside a character to show its reading" },
             { local: "音読み / 訓読み", say: "on-yomi / kun-yomi", means: "Chinese-derived and native readings of a character" },
           ],
-          related: ["history/heian", "history/since-1945", "language/borrowed-words", "how-food-works/words-on-a-menu"],
+          related: ["history/heian", "history/since-1945", "language/borrowed-words", "eating-out/words-on-a-menu"],
           sources: [
             { title: "Inariyama Sword — Wikipedia", url: "https://en.wikipedia.org/wiki/Inariyama_Sword", note: "The inscription and its usual dating to 471" },
             { title: "Man'yōgana — Wikipedia", url: "https://en.wikipedia.org/wiki/Man%27y%C5%8Dgana", note: "Characters used for sound; on readings from different periods of borrowing" },
