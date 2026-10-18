@@ -33,11 +33,15 @@ const isNarrow = () =>
 /** One spinning column (hour or minute) — scroll-snap drives the wheel feel,
  *  a short settle timer (not every scroll tick) is what actually commits a
  *  value, so a fast flick doesn't fire dozens of intermediate `onChange`s. */
-export function WheelColumn({ options, value, onChange, ariaLabel }: {
+export function WheelColumn({ options, value, onChange, ariaLabel, width = "w-14", align = "center" }: {
   options: string[];
   value: string;
   onChange: (v: string) => void;
   ariaLabel: string;
+  width?: string;
+  /** "end" sets the numbers flush right against a unit beside the wheel,
+   *  as Clock's timer does */
+  align?: "center" | "end";
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const settleTimer = useRef<number>();
@@ -87,7 +91,7 @@ export function WheelColumn({ options, value, onChange, ariaLabel }: {
       tabIndex={0}
       role="listbox"
       aria-label={ariaLabel}
-      className="wheel-col relative h-[220px] w-14 snap-y snap-mandatory overflow-y-scroll focus:outline-none"
+      className={`wheel-col relative h-[220px] ${width} snap-y snap-mandatory overflow-y-scroll focus:outline-none`}
       style={{ paddingTop: PAD, paddingBottom: PAD, maskImage: WHEEL_FADE, WebkitMaskImage: WHEEL_FADE }}
     >
       {options.map((o) => (
@@ -96,7 +100,7 @@ export function WheelColumn({ options, value, onChange, ariaLabel }: {
           role="option"
           aria-selected={o === value}
           onClick={() => { jump(options.indexOf(o)); onChange(o); }}
-          className="flex h-11 snap-center cursor-pointer items-center justify-center text-[22px] tabular-nums text-ink"
+          className={`flex h-11 snap-center cursor-pointer items-center ${align === "end" ? "justify-end pr-1" : "justify-center"} text-[22px] tabular-nums text-ink`}
         >
           {o}
         </div>
