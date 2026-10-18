@@ -128,6 +128,10 @@ const PHOTOS = {
   "tokyo-1945": { w: 900, h: 718, author: "US Army Signal Corps", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Bomb_damage_in_Tokyo.jpg" },
   "genkan": { w: 900, h: 703, author: "Sgroey", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:A_genkan_in_an_apartment_in_Hokkaido.jpg" },
   "koban": { w: 900, h: 675, author: "Syced", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Police_box_in_Ebisu_2.jpg" },
+  "namazu-1855": { w: 615, h: 900, author: "Unknown, 1855", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Takemikazuchi-pins-Namazu-with-Kaname-ishi-spirit-stone-1855.png" },
+  "tsunami-stone": { w: 900, h: 600, author: "T.KISHIMOTO", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:%E5%A4%A7%E6%B4%A5%E6%B3%A2%E8%A8%98%E5%BF%B5%E7%A2%91.JPG" },
+  "somei-yoshino": { w: 900, h: 600, author: "Laitche", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Cherry_blossoms_(Somei_Yoshino),_Nagai_Botanical_Garden,_April_2026_-1488.jpg" },
+  "sakurajima-1914": { w: 589, h: 900, author: "Kyushu Railway Bureau, 1914", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:1914-dec-sakurajima-large-eruption.jpg" },
 } as const;
 
 export type PhotoId = keyof typeof PHOTOS;

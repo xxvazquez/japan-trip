@@ -5,6 +5,7 @@ import { culture } from "./japan/culture";
 import { customs } from "./japan/customs";
 import { eatingOut, foodAtHome, howFoodWorks, regionalFood } from "./japan/food";
 import { land } from "./japan/land";
+import { nature } from "./japan/nature";
 import { belief } from "./japan/belief";
 import { history } from "./japan/history";
 import { language } from "./japan/language";
@@ -51,7 +52,7 @@ export const japan: CountryGuide = {
 
   sections: [
     { title: "Origins", chapters: [history, belief, language] },
-    { title: "The land", chapters: [land] },
+    { title: "The land", chapters: [land, nature] },
     { title: "The table", chapters: [howFoodWorks, foodAtHome, eatingOut, menus, regionalFood, coffee] },
     { title: "Everyday life", chapters: [closer, numbers, growingUp, work, customs, stamps] },
     { title: "Culture and the state", chapters: [culture, manga, politics, trivia] },

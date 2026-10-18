@@ -237,7 +237,7 @@ export const placeReads: Record<string, GuideItem[]> = {
         { p: "Fuji hasn't erupted since 1707, a gap longer than usual. The Hōei eruption produced no lava but a vast ash cloud, dropping centimetres of ash on Edo for weeks. A repeat would close airports, railways and roads across the Kantō plain. In March 2025 a government panel told residents of greater Tokyo to stay home in an ashfall rather than flee, and to keep two weeks of supplies — twice the earthquake advice. Its worst case puts around 10 cm of ash on central Tokyo and up to 30 cm in Kanagawa.[^2]" },
         { note: "Settled: the lakes were shaped by lava, Fuji is active, and an eruption would bring ash to Tokyo. Unknown: when. There's no sign of an imminent eruption; the guidance is planning, not a warning.", title: "What's known and what isn't", kind: "info" },
       ],
-      related: ["land/volcanic-ground", "place/fuji-five-lakes/pilgrims-before-tourists"],
+      related: ["nature/volcanoes", "place/fuji-five-lakes/pilgrims-before-tourists"],
       sources: [
         { title: "Fuji Five Lakes — Japan Tourism Agency multilingual explanations", url: "https://www.mlit.go.jp/tagengo-db/en/R1-00131.html", note: "How each lake formed; the underground connection" },
         { title: "Japan issues guidelines telling public what to do if Mount Fuji erupts — AFP via Yahoo", url: "https://www.yahoo.com/news/japan-issues-guidelines-telling-public-101827993.html", note: "Stay home, two weeks of supplies, ash depths" },
@@ -762,7 +762,7 @@ export const placeReads: Record<string, GuideItem[]> = {
         { p: "Hakone's hot springs come in several kinds, from clear alkaline water low down at Yumoto to milky sulphur water higher up. Some of that milky water is manufactured: since 1930 a company has drilled steam wells at Ōwakudani, mixed the steam with cold groundwater, and piped the result to around 400 inns and houses in Gōra and Sengokuhara. It's called **zōsei onsen**, “created hot spring”, and it's legally a hot spring all the same.[^1]" },
         { note: "Many Hakone baths still turn away visible tattoos; some accept them covered with a patch. Private baths you book by the hour (kashikiri buro) avoid the question.", title: "Tattoos" },
       ],
-      related: ["land/volcanic-ground", "place/hakone/two-railway-barons-and-the-hakone-loop"],
+      related: ["nature/volcanoes", "place/hakone/two-railway-barons-and-the-hakone-loop"],
       sources: [
         { title: "Ōwakudani's hot water supply — Kanagawa Shimbun", url: "https://www.kanaloco.jp/news/social/entry-59486.html", note: "Steam and cold water mixed since 1930, piped to about 400 users" },
       ],

@@ -103,7 +103,7 @@ export const culture: GuideTopic = {
           title: "Baths",
           summary: "Why a country of small flats built its days around a hot soak, from the neighbourhood sentō to the onsen weekend",
           body: [
-            { p: "Bathing in Japan isn't mainly about getting clean. You wash first, sitting on a low stool, and only then get into the bath, to soak in water hot enough to be a shock, usually 40–42°C. The soak is for warmth, rest and, in company, for talking. Japan's volcanoes supply the water (see [Volcanic ground](guide:land/volcanic-ground)), and its history of crowded cities and small homes supplied the habit. How to behave in the water is in [Onsen, properly](guide:customs/onsen-properly); this is about how the habit came to be." },
+            { p: "Bathing in Japan isn't mainly about getting clean. You wash first, sitting on a low stool, and only then get into the bath, to soak in water hot enough to be a shock, usually 40–42°C. The soak is for warmth, rest and, in company, for talking. Japan's volcanoes supply the water (see [Volcanoes](guide:nature/volcanoes)), and its history of crowded cities and small homes supplied the habit. How to behave in the water is in [Onsen, properly](guide:customs/onsen-properly); this is about how the habit came to be." },
 
             { h: "Temples and bathhouses" },
             { p: "Some of the earliest baths were at Buddhist temples, which offered steam baths to monks and to the poor as an act of merit; cleansing was part of the practice. By the Edo period, cities were full of commercial bathhouses, **sentō**, because almost no ordinary house had a bath of its own and fuel was dear. Bathhouses were social centres, often with a room upstairs for tea and board games, and for most of the period men and women bathed together. Western visitors in the 1850s were scandalised. The Meiji government, anxious about how Japan looked to foreigners, banned mixed bathing in the cities from the 1870s onward. It survives, as **konyoku**, at some rural onsen." },
@@ -138,7 +138,7 @@ export const culture: GuideTopic = {
             { local: "貸切風呂", say: "kashikiri-buro", means: "a private bath booked for your group" },
             { local: "足湯", say: "ashiyu", means: "a footbath" },
           ],
-          related: ["customs/onsen-properly", "land/volcanic-ground", "culture/sumo-baseball-and-pastimes"],
+          related: ["customs/onsen-properly", "nature/volcanoes", "culture/sumo-baseball-and-pastimes"],
           sources: [
             { title: "Sentō: a dying tradition — Web Japan (1999)", url: "https://web-japan.org/trends00/honbun/tj990722.html", note: "2,687 bathhouses in Tokyo in 1968" },
             { title: "Welcome Sentō campaign — Unseen Japan", url: "https://unseen-japan.com/?p=84000", note: "Over 16,000 in the 1970s; 2,847 in fiscal 2023, from MHLW data" },
