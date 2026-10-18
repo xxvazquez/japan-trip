@@ -10,12 +10,47 @@
 
 ---
 
-Everything for a trip in one place: the plan, the map, the stays, the journeys, the luggage and the documents. It works offline, syncs between the people on the trip, and installs to a phone like a normal app.
+Everything for a trip in one place — the plan, the map, the stays, the journeys, the luggage and the documents. It works offline, syncs between the people on the trip, and installs on a phone like any other app.
 
-**Contents**
+## At a glance
 
-- **Using the app** — [Getting started](#getting-started) · [Before you travel](#before-you-travel) · [Getting around](#getting-around) · [Search](#search) · [Plan](#plan) · [A day](#a-day) · [Journeys](#journeys) · [Map](#map) · [Areas and categories](#areas-and-categories) · [Logbook](#logbook) · [Manage](#manage) · [Editing](#editing) · [Sharing and backups](#sharing-and-backups) · [Data safety](#data-safety) · [Offline](#offline) · [Troubleshooting](#troubleshooting)
-- **Technical** — [Stack](#stack) · [Running locally](#running-locally) · [How data is stored](#how-data-is-stored) · [Supabase](#supabase) · [Deploy](#deploy) · [The map background](#the-map-background) · [Project layout](#project-layout) · [Branding](#branding)
+| | |
+|---|---|
+| **Plan** | The trip day by day, grouped by where you're based, with times, travel between stops and opening hours. |
+| **Map** | Every place on one map, by city and area, with Good to know and Google Maps one tap away. |
+| **Logbook** | Stays, journeys, documents, packing, stamps, expenses — and a country guide for Japan. |
+| **Offline** | The trip, maps and attachments are kept on the phone, so nothing needs signal. |
+| **Shared** | Two people edit the same trip, and changes appear on both phones within seconds. |
+| **Safe** | Every edit saves as you go, deletes can be undone, and restore points are kept. |
+
+## Contents
+
+**Using the app**
+
+- [Getting started](#getting-started)
+- [Before you travel](#before-you-travel)
+- [Getting around](#getting-around)
+- [Search](#search)
+- [Plan](#plan) · [A day](#a-day) · [Journeys](#journeys)
+- [Map](#map) · [Areas and categories](#areas-and-categories)
+- [Logbook](#logbook) · [Country guide](#country-guide)
+- [Manage](#manage)
+- [Editing](#editing)
+- [Sharing and backups](#sharing-and-backups)
+- [Data safety](#data-safety)
+- [Offline](#offline)
+- [Troubleshooting](#troubleshooting)
+
+**Technical**
+
+- [Stack](#stack)
+- [Running locally](#running-locally)
+- [How data is stored](#how-data-is-stored)
+- [Supabase](#supabase)
+- [Deploy](#deploy)
+- [The map background](#the-map-background)
+- [Project layout](#project-layout)
+- [Branding](#branding)
 
 ---
 
@@ -28,6 +63,7 @@ Everything for a trip in one place: the plan, the map, the stays, the journeys, 
 2. **Create your trip.** New accounts only have the read-only **Demo**. Go to **Manage → Trips → New trip** and give it a name. Then set its dates in **Manage → Setup**.
 3. **Share it.** The owner opens **Manage → Sharing** and adds the other person's email. You both then edit the same trip, and changes appear on the other device within a second or two.
 
+> [!NOTE]
 > If someone signs in before they've been added, they'll only see the Demo. Share the trip with their email and it appears on their next reload.
 
 ### Install it on your phone
@@ -60,7 +96,9 @@ Do these on each phone, on wifi, a few days before you leave:
 - [ ] **Map → location arrow** — allow location once, so the blue dot works later.
 - [ ] **Manage → Sharing → Download everything** — keep the zip somewhere safe.
 
-**Plan reminds you.** From three weeks out and through the trip, a one-row **Get ready for no signal** banner heads Plan on a phone, with a count of what it still lacks.
+### Plan reminds you
+
+From three weeks out and through the trip, a one-row **Get ready for no signal** banner heads Plan on a phone, with a count of what it still lacks.
 
 - Tap it for the list — trip maps, attachments, Good to know for places never looked up, the app on the Home Screen. Each row opens where it's done and drops off once it is.
 - ✕ puts it away on that device for that trip; it only comes back for something new.
@@ -277,7 +315,9 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 
 These appear automatically when a step is linked to a place.
 
-**Getting to the next step.** Between two steps tied to places, quiet grey captions sit on the line — travel between things you do, the way Calendar shows travel time. Each opens its own Google Maps directions:
+#### Getting to the next step
+
+Between two steps tied to places, quiet grey captions sit on the line — travel between things you do, the way Calendar shows travel time. Each opens its own Google Maps directions:
 
 - The walk all the way, with its distance, e.g. *🚶 22 min · 1.8 km*.
 - Past a 15-minute walk, a train line under it, read like a Maps transit route: the door-to-door time first, then walk to the station › ride › walk from the station, e.g. *🚆 ≈ 15 min · 🚶 6 min › Shibuya → Harajuku › 🚶 5 min*.
@@ -287,7 +327,9 @@ These appear automatically when a step is linked to a place.
 
 - **≈ means a guess.** A walk shows a straight-line estimate with ≈ until the real street route comes back (needs `VITE_ORS_API_KEY`), then drops the ≈. The train time always has ≈ — no free source has the timetable. Nearby's walking minutes are guesses too.
 
-**Opening hours.** The hours to read are the **Hours** row in Good to know. A step's time is checked against that day's hours, with seasonal and weekday rules applied:
+#### Opening hours
+
+The hours to read are the **Hours** row in Good to know. A step's time is checked against that day's hours, with seasonal and weekday rules applied:
 
 - The hours come from Good to know's **Hours** and **Closed** rows first ("Tue–Sun 11am–3pm", "Mondays"), else from OpenStreetMap (matched by the place's name, or tagged right on its pin with no name of its own — never a neighbour's, even one in the same building). When Good to know's hours are OpenStreetMap's own, each day is read straight from its tag.
 - **Closed this day** — the place doesn't open that date (a closed weekday, or a day its hours don't cover).
@@ -298,7 +340,9 @@ These appear automatically when a step is linked to a place.
 - Nothing shows when it fits, or when the hours or the time (e.g. "Around noon") can't be read.
 - Stations, other transport and your own stays never get hours — what's tagged there is a ticket counter's or a kiosk's, not the place's.
 
-**Tabelog link.** A restaurant or café in Japan gets its Tabelog page found automatically:
+#### Tabelog link
+
+A restaurant or café in Japan gets its Tabelog page found automatically:
 
 - It happens the first time the step shows, or its card opens on the Map. Online only; the link is then saved with the place.
 - It's found through a web search (Tavily, or Exa once Tavily's month is used up): a Tabelog page in the same or a neighbouring prefecture whose title has the same name (English, or the Japanese name OpenStreetMap has for the pin).
@@ -309,7 +353,9 @@ These appear automatically when a step is linked to a place.
 - "Restaurant" means the category's icon is from *Food & drink* (or its name says food, café, bar…).
 - **Manage → Map → Tabelog links** finds them for every restaurant at once.
 
-**Good to know.** A short summary of a place from guides and review sites, plus its own website — anywhere, not just Japan. Each fact has its own coloured icon (a red one for **Closed**, whose day reads red too). Very short pairs share a row in two columns — **Hours** beside **Closed**, **Reservations** beside **Queue** (or Tickets beside Crowds) — and anything longer gets the full width.
+#### Good to know
+
+A short summary of a place from guides and review sites, plus its own website — anywhere, not just Japan. Each fact has its own coloured icon (a red one for **Closed**, whose day reads red too). Very short pairs share a row in two columns — **Hours** beside **Closed**, **Reservations** beside **Queue** (or Tickets beside Crowds) — and anything longer gets the full width.
 
 | Place | Shows |
 | --- | --- |
@@ -319,6 +365,9 @@ These appear automatically when a step is linked to a place.
 Where to find it:
 - **Plan** — tap a step's name; it's in the place card, under the buttons.
 - **Map** — in the place's card, under the note.
+
+<details>
+<summary><strong>How Good to know works</strong> — sources, refreshing, limits</summary>
 
 Where each fact comes from — shown small beside its label:
 
@@ -354,19 +403,27 @@ What to expect:
 - It can be out of date — check hours with the place before a long trip across town.
 - Needs `TAVILY_API_KEY`, `EXA_API_KEY` or `LINKUP_API_KEY` (see [Environment variables](#environment-envlocal)).
 
-**Wake up and Breakfast.** Every day opens with these two rows, above the hotel you leave from.
+</details>
+
+#### Wake up and Breakfast
+
+Every day opens with these two rows, above the hotel you leave from.
 
 - Each has its own time on the same wheel as a step's (needs migration `0041`). The wheel starts at 07:00 for Wake up, and at the wake-up time (else 07:30) for Breakfast.
 - They sit in time order with any step timed before you leave, and always under Morning.
 
-**From the hotel.** The day starts from the hotel you slept at the night before, so a moving day starts from the old one. Left off on the trip's first day and on an arrival day. The way to the next step sits under it.
+#### From the hotel
+
+The day starts from the hotel you slept at the night before, so a moving day starts from the old one. Left off on the trip's first day and on an arrival day. The way to the next step sits under it.
 
 - Its time (when you leave) is set on the same wheel as a step's (needs migration `0040`), and falls under Morning / Afternoon like any step.
 - It sits where that time puts it: a step timed earlier comes above it. With no time set, it opens the day.
 - The wheel starts at a suggestion: the first step's time less the way there (the walk, or the train past a 30-minute walk), rounded down to 5 minutes.
 - Tapping the name opens the hotel.
 
-**Back to hotel.** That night's hotel closes the day (left off on a departure day). The way there sits on the line above it, with the same pills as between steps.
+#### Back to hotel
+
+That night's hotel closes the day (left off on a departure day). The way there sits on the line above it, with the same pills as between steps.
 
 - Its time is set on the same wheel as a step's (needs migration `0039`). It falls under Morning / Afternoon / Evening like any step, so back at 19:00 closes the day under **Evening**.
 - It sits where its time puts it: a step timed later (a drink near the hotel) follows it, with the walk from the hotel above it. With no time set, it stays last.
@@ -466,9 +523,11 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 - **Duplicates merge by themselves** — two areas with the same name in the same city become one, with all their places. A "Station area" in two cities stays two, and an empty area waits until its places say which city it is in.
 - **Show one area** — tap its icon (on **All** too, where the others stay listed, dimmed); tap the rest of the row to fold it.
 
-**Areas on a day.** Add an area on a day's page and all its places appear on that day's map (faded). It's a live link, so later edits show up. Its row's ⋯ (or a long-press) adds its places to the plan or removes it from the day. The day offers areas from its own city — a day trip gets its town's areas.
+### Areas on a day
 
-**What else areas show:**
+Add an area on a day's page and all its places appear on that day's map (faded). It's a live link, so later edits show up. Its row's ⋯ (or a long-press) adds its places to the plan or removes it from the day. The day offers areas from its own city — a day trip gets its town's areas.
+
+### What else areas show
 
 - **A–Z everywhere** they're listed, each with its city (where most of its places are) unless it already sits under a city heading.
 - A faint labelled ring on the map at city scale (not across a whole country).
@@ -512,13 +571,13 @@ When a trip has stays or pins in a country the app has a guide for (Japan today)
 
 The guide has two halves: **This Trip**, picked from the trip, and **Guide**, the book, the same for every trip and meant to be timeless (no itineraries, prices or opening hours).
 
-**Home**
+#### Home
 
 - Under the title, a **Guide | This Trip** switch, as Books separates Reading Now from the Library. The choice is in the address (`?view=trip`), so Back lands on the same half, and it's remembered on the device.
 - **Guide** — the cover picture, **Continue reading**, **Saved**, the contents by part, and **At a glance** last.
 - **This Trip** — On this trip, While you're there, Before you go, then Elsewhere in Japan.
 
-**This Trip**
+#### This Trip
 
 - **On this trip** — a card per city or town the trip touches, matched from its stays, bases and pins (a day trip to Uji or Kurama shows up without a stay there). Stays come first, marked **Staying**, with their day-trip count.
 - **Elsewhere in Japan** — the guide's other places, for ideas beyond the route, grouped by region from Hokkaido to Okinawa (a city's `region`, in the order of the guide's `regions`). Every place has a cover photo and sourced facts.
@@ -527,20 +586,25 @@ The guide has two halves: **This Trip**, picked from the trip, and **Guide**, th
 - A city page opens on its cover picture (a city can name its own) and groups its reads under **Understand the place**, **Look closer**, **Eat and drink** (Tokyo and Kyoto add their coffee lists there) and **Before you go**, with short notes under **Worth knowing**. Population and Day trips share one grouped card at the top.
 - **Day trips** — from each base, all by train or bus, on the city's page.
 
-**Guide — the book**
+#### Guide — the book
 
+The book reads in order, in five parts, with chapters numbered straight through. A chapter you've started shows "3 of 8 read"; a finished one shows a green **Read**.
+
+| Part | Chapters |
+|---|---|
+| **Origins** | A short history (its eight eras in order, with two era bands drawn to scale and the population from 725 to 2070) · Belief & philosophy · Language |
+| **The land** | Land & seasons (cherry and maple, forests, sacred mountains, gardens) · Living with nature (earthquakes, tsunami, volcanoes and typhoons as science and history) |
+| **The table** | How the cooking works · Food at home · Eating out (sushi, noodles, meat, then the specialists: tempura and eel, okonomiyaki and takoyaki, kaiseki, sukiyaki and yakiniku) · Drinks & sweets · Regional food · Coffee (the kissaten, brewing, specialty roasts, cans and the konbini cup) |
+| **Everyday life** | Japan by numbers · Growing up & school · Work & companies · Look closer · Customs (including a night in a ryokan) · Stamps everywhere |
+| **Culture and the state** | Arts & pastimes · Manga & anime · Government & politics · Did you know |
+
+- **A chapter page** shows "Chapter 4 · Origins", its title, dek and a wide photo, then its contents. Its opening read comes first, titled as the iPhone User Guide titles its first pages ("Intro to coffee"), and **Next chapter** waits at the foot.
+- **Each intro** says how the chapter connects to the ones before it (falling births close schools; school cleaning explains the missing bins).
+- **Country-wide, not city-specific.** What to eat or see in one city lives on that city's page; what to do in an emergency lives under Before you go.
 - **At a glance** — six key numbers for the country, at the foot of the contents, with their sources folded underneath.
-- Contents in five parts, chapters numbered straight through (a chapter you've started shows "3 of 8 read", a finished one a green **Read**): **Origins** (history, belief, language), **The land** (land and seasons, living with nature), **The table** (how the cooking works, food at home, eating out, drinks and sweets, regional food, coffee), **Everyday life** (Japan by numbers, school, work, Look closer, customs, stamps) and **Culture and the state** (arts and pastimes, manga & anime, government, Did you know).
-- A chapter page shows "Chapter 4 · Origins", its title and dek and a wide picture, then its contents straight away. A chapter with an opening read lists it first, titled the way the iPhone User Guide titles its first pages ("Intro to coffee"); **Next chapter** sits at the foot.
-- Every chapter and city opens on a real photo of its own (`cover`).
-- **History** starts with its intro (two era bands drawn to scale and the population from 725 to the 2070 projection), then tells its eight eras in order, each handing on to the next.
-- **Belief** and **Language** each open with an overview: their own changes drawn to scale against the eras, linked into History, then their reads in titled sections.
-- **Land & seasons** covers cherry and maple, forests, sacred mountains and gardens. **Living with nature** explains earthquakes, tsunami, volcanoes and typhoons as science and history; what to do in one stays under Before you go.
-- **The table** reads in order: how the cooking works, food at home, eating out (sushi, noodles and meat, then the specialists: tempura and eel, okonomiyaki and takoyaki, kaiseki, sukiyaki and yakiniku), drinks and sweets, regional food, coffee (the kissaten, how it's brewed, specialty roasts, cans and the konbini cup). Each chapter opens with an intro. **Regional food** is about the whole country (east and west, trade routes, flour country, the north and the south, food made to travel); what to eat in one city is on that city's page under **Eat and drink**.
-- **Everyday life** reads in order from the numbers to the street: Japan by numbers, growing up and school, work, Look closer, customs, stamps. Each opens with an intro that says which earlier chapter explains it (falling births close schools; school cleaning explains the missing bins). Look closer is country-wide; Tokyo-only reads such as Jimbōchō are on the Tokyo page.
-- **Culture and the state** opens each chapter with an intro: the arts by who paid for them (tea and noh, kabuki, bunraku and ukiyo-e, then baths, sumo and baseball), manga and anime, and government (the emperor, the Diet, elections, Article 9, the prefectures). Tickets, fan districts and the palace's open days are on the Tokyo and Kyoto pages.
+- **Photos** — every chapter and city opens on a real photo of its own (`cover`).
 
-**Reading an article**
+#### Reading an article
 
 - Opens on its own first photo when it has one; a read without one opens on its text, never on a picture borrowed from its chapter or city, so no photo repeats. A short note can carry a `cover` photo.
 - A caption, the title and a standfirst, then "Chapter · minutes" for long reads and an **In this article** list that jumps to each section.
@@ -555,7 +619,7 @@ The guide has two halves: **This Trip**, picked from the trip, and **Guide**, th
 - Read marks, bookmarks and Continue reading are kept on this device only, not synced.
 - Links in the text open other entries; **Related** lists the ones that carry the thread on, each captioned with its chapter. **Up next** opens the next entry in place, so Back still returns to the list.
 
-**Content**
+#### Content
 
 - **Photos** — freely licensed pictures from Wikimedia Commons, resized and bundled in `public/guide/jp/` so they show offline, each credited and linked to its source; the list is `src/guides/japan/photos.ts`.
 - It's built into the app (`src/guides/`), read-only and works offline. For Japan the book is `src/guides/jp.ts` and the trip half `src/guides/japan/trip.ts`. Adding a country is one content file plus a `GUIDES` entry.
@@ -649,18 +713,26 @@ Theme and trip logo. **Appearance** (light, dark or *Automatic*) is per device, 
 
 ## Editing
 
-**Tap text to edit it.** There's no edit mode — the text stays where it is and a cursor appears. Dates and times open pickers; links, phone numbers and emails become tappable once filled in. In a list of details (a document, a stay's reference, Emergency), edit from the row's **⋯ → Edit**.
+### Tap text to edit it
 
-**Row menus.** Press and hold a row (right-click on desktop) to open its actions beside it — the same ones as its **⋯**. Days, stays, journeys, documents and Map places have one too:
+There's no edit mode — the text stays where it is and a cursor appears. Dates and times open pickers; links, phone numbers and emails become tappable once filled in. In a list of details (a document, a stay's reference, Emergency), edit from the row's **⋯ → Edit**.
+
+### Row menus
+
+Press and hold a row (right-click on desktop) to open its actions beside it — the same ones as its **⋯**. Days, stays, journeys, documents and Map places have one too:
 
 - **Day** — make it a day trip, pin it, delete it.
 - **Stay** / **Map place** — open in Google Maps, delete.
 - **Journey** / **Document** — delete.
 - **Previews** — on a phone, holding a day on Plan lifts a card with its steps and times; holding a place step on a day lifts its hours that day and its note. Tap the card to open it. Right-click on a computer shows the menu alone.
 
-**Haptics.** On a phone, a light tap answers a switch or tick, each row the time wheel passes, a row's menu opening, a row lifting to drag, and a swipe-to-delete reaching the point where it stays open. Android vibrates; on an iPhone it needs iOS 18 or later. A computer stays silent.
+### Haptics
 
-**Notes** edit in place and show their formatting as you type, like Apple Notes. The toolbar above a note:
+On a phone, a light tap answers a switch or tick, each row the time wheel passes, a row's menu opening, a row lifting to drag, and a swipe-to-delete reaching the point where it stays open. Android vibrates; on an iPhone it needs iOS 18 or later. A computer stays silent.
+
+### Notes
+
+Notes edit in place and show their formatting as you type, like Apple Notes. The toolbar above a note:
 
 | Button | What it does |
 | --- | --- |
@@ -679,15 +751,21 @@ Theme and trip logo. **Appearance** (light, dark or *Automatic*) is per device, 
 - Bullets written straight under a numbered step nest under that step.
 - Under the hood a note is still plain text (Markdown plus `{orange}…{/}` for colour and `{folded}` on a folded heading), so sync, backups and search are unchanged.
 
-**Deleting.** Every delete asks first (a confirm sheet that says what goes — "This day and its plan will be deleted." — or a second tap on a swiped row). After that, an **Undo** bar appears for 8 seconds (the clock stops while you're in another app) and puts back exactly what was removed. Only the last delete can be undone, and deleting a whole trip or a file can't be.
+### Deleting
 
-**Switching apps.** Leaving the app mid-task loses nothing:
+Every delete asks first (a confirm sheet that says what goes — "This day and its plan will be deleted." — or a second tap on a swiped row). After that, an **Undo** bar appears for 8 seconds (the clock stops while you're in another app) and puts back exactly what was removed. Only the last delete can be undone, and deleting a whole trip or a file can't be.
+
+### Switching apps
+
+Leaving the app mid-task loses nothing:
 
 - Text you're typing is saved the moment you switch away; the field stays open with what you wrote.
 - The phone may close the app in the background. Opening it again goes back to the same screen, scrolled to where you were — unless another trip has been opened since, then it starts on that trip's Plan.
 - The first launch of a new day starts fresh instead — on today's day during the trip.
 
-**Save status** (signed in only), top right:
+### Save status
+
+Shown top right, signed in only:
 
 | Label | Meaning |
 |---|---|
@@ -721,7 +799,7 @@ All under **Manage → Sharing** unless noted.
 
 Every edit saves as you make it. On top of that, the app keeps **restore points** — complete, checksummed copies of a trip.
 
-**When they're taken**
+### When they're taken
 
 - Every few minutes while you edit (newest 12 kept).
 - Just before every delete you make, named after what went ("Before deleting Riverton and 2 days"). These share the newest-12 list with the automatic ones.
@@ -735,7 +813,7 @@ Every edit saves as you make it. On top of that, the app keeps **restore points*
 - **Recently deleted** brings back deleted trips (kept 90 days).
 - **Back up now** takes one on demand. Do this on each trip before applying a migration that rewrites data.
 
-**Other safeguards**
+### Other safeguards
 
 - A trip is never deleted unless a restore point was made first.
 - Damaged data opens a recovery screen, never a blank trip.
@@ -761,7 +839,7 @@ Once the app has loaded, it works with no signal. See [Before you travel](#befor
 | **Your location** | GPS works without data; the blue dot shows on saved maps. |
 | **First visit ever** | A plain "you're offline" screen that retries on its own. |
 
-**Manage → Trips → This device**
+### Manage → Trips → This device
 
 | Row | Shows |
 |---|---|
@@ -773,13 +851,21 @@ Once the app has loaded, it works with no signal. See [Before you travel](#befor
 
 ## Troubleshooting
 
-**Something looks out of date.** Pull down from the top of any page — it re-pulls the trip and picks up a new version of the app if there is one. Or **Manage → Refresh**.
+### Something looks out of date
 
-**The app won't open.** Instead of a blank page it shows *Atlas couldn't open* with the error under it. **Reopen** clears the installed copy of the app and loads it fresh — your trips and saved maps stay. If the app's own files failed to load, it does this once by itself.
+Pull down from the top of any page — it re-pulls the trip and picks up a new version of the app if there is one. Or **Manage → Refresh**.
 
-**Is this device on the latest version?** The foot of **Manage** shows the version, commit and build date. Compare the commit with the one you pushed.
+### The app won't open
 
-**Help** (bottom of Manage) answers the common "how do I…" questions:
+Instead of a blank page it shows *Atlas couldn't open* with the error under it. **Reopen** clears the installed copy of the app and loads it fresh — your trips and saved maps stay. If the app's own files failed to load, it does this once by itself.
+
+### Is this device on the latest version?
+
+The foot of **Manage** shows the version, commit and build date. Compare the commit with the one you pushed.
+
+### Help
+
+Help, at the bottom of Manage, answers the common "how do I…" questions:
 - Questions are grouped by topic, with their own search. The app's main Search finds them too.
 - Each answer opens on its own page: a line or two, a picture of the real screen with the part to tap ringed, then steps or short rows.
 - **More in…** at the foot lists the topic's other questions.
@@ -882,7 +968,9 @@ edit in the UI  →  TripData (in memory)  →  backend
 | `errors.ts` | Typed failures. `loadTrip` throws `TripLoadError` (`unavailable` / `corrupt` / `missing` / `newer`) rather than returning empty, so a failed read can't trigger seeding over real data. |
 | `../storage.ts` | `get` returns `undefined` only for a truly missing key; failed reads and writes throw. The device backend validates, reads back and serialises every save, and refuses to replace a trip with nothing. |
 
-**Supabase outbox.** Unconfirmed edits (queued and in flight) are mirrored to IndexedDB. One batch goes to the server at a time, so an older save can't land after a newer one; a batch silent for 20 s stops blocking the next. Each tab has its own outbox, and a tab that died leaves its edits for the next tab to pick up (Web Locks, with a heartbeat fallback).
+#### Supabase outbox
+
+Unconfirmed edits (queued and in flight) are mirrored to IndexedDB. One batch goes to the server at a time, so an older save can't land after a newer one; a batch silent for 20 s stops blocking the next. Each tab has its own outbox, and a tab that died leaves its edits for the next tab to pick up (Web Locks, with a heartbeat fallback).
 
 ## Supabase
 
@@ -947,6 +1035,7 @@ After the first deploy:
 - Add the `*.workers.dev` URL to Supabase's Redirect URLs, or Google sign-in fails.
 - Optionally put the site behind **Cloudflare Access** (Zero Trust → Access → self-hosted app).
 
+> [!WARNING]
 > **Don't add `public/_redirects`.** Workers treats the usual `/* /index.html 200` catch-all as a redirect loop. SPA routing is already handled by `not_found_handling` in [`wrangler.jsonc`](wrangler.jsonc). `public/_headers` (cache rules) still applies.
 
 ### Public demo (no login)
@@ -965,6 +1054,7 @@ This works via `VITE_PUBLIC_DEMO=1` in [`.env.demo-public`](.env.demo-public) (`
 
 [MapLibre GL](https://maplibre.org) with [Protomaps](https://protomaps.com) vector tiles (OpenStreetMap data).
 
+> [!IMPORTANT]
 > `maplibre-gl` is pinned to **5.x** — 6.x breaks pmtiles loading.
 
 The tile source is picked at build time, first match wins:
