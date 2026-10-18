@@ -516,7 +516,7 @@ The guide has two halves: **This Trip**, picked from the trip, and **Guide**, th
 **This Trip**
 
 - **On this trip** — a card per city or town the trip touches, matched from its stays, bases and pins (a day trip to Uji or Kurama shows up without a stay there). Stays come first, marked **Staying**, with their day-trip count.
-- **Elsewhere in Japan** — the guide's other cities and regions (Hiroshima, Sapporo, Kanazawa, Okinawa…), for ideas beyond the route.
+- **Elsewhere in Japan** — the guide's other places, for ideas beyond the route, grouped by region from Hokkaido to Okinawa (a city's `region`, in the order of the guide's `regions`). Every place has a cover photo and sourced facts.
 - **While you're there** — festivals, seasons and closures that fall within the trip's dates, with a count.
 - **Before you go** — **Be prepared** (who to call, earthquakes, tsunami, typhoons, Fuji, bears), **Rules with teeth** and **Getting around**.
 - A city page opens on its cover picture (a city can name its own) and groups its reads under **Understand the place**, **Look closer**, **Eat and drink**, **Before you go** and **Coffee** (Tokyo and Kyoto), with short notes under **Worth knowing**.

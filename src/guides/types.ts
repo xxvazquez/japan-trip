@@ -255,6 +255,9 @@ export interface GuideCity {
   radiusKm: number;
   /** rounded, as a phrase — "About 1.4 million" */
   population?: string;
+  /** the part of the country it's in — "Kansai" — which groups the places
+   *  under Elsewhere; listed in the guide's `regions` */
+  region?: string;
   /** the picture its card and page open on; else its first article's */
   cover?: GuidePhoto;
   items: GuideItem[];
@@ -299,6 +302,9 @@ export interface CountryGuide {
   glance?: { figures: GuideFigure[]; sources: GuideSource[] };
   /** the chapters, part by part, in reading order */
   sections: GuideSection[];
+  /** the country's regions, north to south, in the order Elsewhere
+   *  lists its places */
+  regions?: string[];
   /** "Before you go" — emergencies, rules, getting around */
   practical: GuideTopic[];
   dates: GuideDate[];

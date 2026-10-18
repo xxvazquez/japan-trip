@@ -101,7 +101,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       ],
       related: ["place/tokyo/station-towns-not-a-centre", "place/tokyo/tsukiji-toyosu-and-tsukishima"],
       sources: [
-        { title: "Zoning in Japan — Wikipedia", url: "https://en.wikipedia.org/wiki/Zoning_in_Japan", note: "National zoning categories and why rebuilding is easy" },
+        { title: "Zoning districts — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%94%A8%E9%80%94%E5%9C%B0%E5%9F%9F", note: "The national zoning categories and why rebuilding is easy (Japanese)" },
         { title: "Nihonbashi — Wikipedia", url: "https://en.wikipedia.org/wiki/Nihonbashi", note: "The expressway's move underground" },
         { title: "100-year-old ginkgo trees could get the axe — AP", url: "https://abc17news.com/ap-national/2023/08/27/100-year-old-ginkgo-trees-could-get-the-axe-under-disputed-plan-for-tokyos-jingu-gaien-park/", note: "The Jingū Gaien plan and its opponents" },
       ],
@@ -123,11 +123,15 @@ export const placeReads: Record<string, GuideItem[]> = {
     {
       group: "Look closer",
       title: "Akihabara, Nakano and Ikebukuro",
+      sources: [
+        { title: "Akihabara — Wikipedia", url: "https://en.wikipedia.org/wiki/Akihabara", note: "From postwar radio-parts market to electronics and otaku retail" },
+        { title: "Nakano Broadway — Wikipedia", url: "https://en.wikipedia.org/wiki/Nakano_Broadway", note: "Opened 1966; Mandarake and the collectors' shops" },
+      ],
       summary: "Where manga and anime fans shop, and the museums of the artists who made them",
       body: [
-        { p: "**Akihabara** was a postwar black market for radio parts, then Tokyo's electronics district. From the 1990s, as electronics moved to suburban superstores, the shops that sold personal computers and their software drew fans of games and anime, and the area became the centre of otaku retail: figures, games, idol theatres, maid cafés (see [Fans, places and characters](guide:manga/fans-places-and-characters))." },
+        { p: "**Akihabara** was a postwar black market for radio parts, then Tokyo's electronics district. From the 1990s, as electronics moved to suburban superstores, the shops that sold personal computers and their software drew fans of games and anime, and the area became the centre of otaku retail: figures, games, idol theatres, maid cafés[^1] (see [Fans, places and characters](guide:manga/fans-places-and-characters))." },
         photo("akihabara", "A wide street at dusk lined with tall buildings covered in bright anime and game signs", "Akihabara's main street, Chūō-dōri."),
-        { p: "**Nakano Broadway**, a 1966 block of shops and flats a few minutes from Nakano station, has four floors of tiny collectors' shops for old manga, toys and cels. In **Ikebukuro**, Otome Road serves women fans." },
+        { p: "**Nakano Broadway**, a 1966 block of shops and flats a few minutes from Nakano station, has four floors of tiny collectors' shops for old manga, toys and cels.[^2] In **Ikebukuro**, Otome Road serves women fans." },
         photo("nakano-broadway", "The entrance to Nakano Broadway, a red and grey building with its name above the doors", "Nakano Broadway: four floors of small collectors' shops."),
         {
           table: {
@@ -146,10 +150,13 @@ export const placeReads: Record<string, GuideItem[]> = {
     {
       group: "Look closer",
       title: "One block that survived",
+      sources: [
+        { title: "Kanda Sudachō — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%A5%9E%E7%94%B0%E9%A0%88%E7%94%B0%E7%94%BA", note: "The district spared in 1945 and its prewar restaurant buildings" },
+      ],
       summary: "Kanda Sudachō's pre-war restaurants, still serving",
       body: [
         photo("kanda-matsuya", "Cold soba on a bamboo tray beside bowls and cups", "Soba at Kanda Matsuya in Sudachō."),
-        { p: "In 1945 the bombing missed a few blocks of **Kanda Sudachō**, and with them a cluster of wooden restaurants from the late 1920s and 30s — rebuilt after the 1923 earthquake, then spared. They're still open, still run by the same families, still serving one thing each." },
+        { p: "In 1945 the bombing missed a few blocks of **Kanda Sudachō**, and with them a cluster of wooden restaurants from the late 1920s and 30s — rebuilt after the 1923 earthquake, then spared. They're still open, still run by the same families, still serving one thing each.[^1]" },
         {
           venues: [
             { name: "Kanda Matsuya", local: "神田まつや", since: "1884", area: "Kanda Sudachō", text: "A soba house where office workers drink sake with their noodles at 15:00. Share tables; order the seiro and something warm.", query: "Kanda Matsuya soba" },
@@ -214,6 +221,10 @@ export const placeReads: Record<string, GuideItem[]> = {
     {
       group: "Eat and drink",
       title: "What Tokyo eats",
+      sources: [
+        { title: "Ramen — Wikipedia", url: "https://en.wikipedia.org/wiki/Ramen", note: "Rairaiken in Asakusa, 1910" },
+        { title: "Monjayaki — Wikipedia", url: "https://en.wikipedia.org/wiki/Monjayaki", note: "Tsukishima and its origins as a children's snack" },
+      ],
       summary: "Edo's street food gone upmarket, and the dishes the city still claims",
       body: [
         { p: "Edo was a city of single men in rooms without kitchens, and it ate out, fast, from stalls. Much of what Tokyo calls its own food is that street food: soba, nigiri, tempura and eel (see [Eating out](guide:eating-out/overview))." },
@@ -221,10 +232,10 @@ export const placeReads: Record<string, GuideItem[]> = {
           dishes: [
             { name: "Soba", local: "蕎麦", say: "soba", kind: "Everyday", text: "Buckwheat noodles in a dark, bonito-strong broth, or cold with a dipping sauce. The old soba houses still serve it with sake in the afternoon.", where: "Kanda's old soba houses; standing soba at any station" },
             { name: "Edomae sushi", local: "江戸前寿司", say: "edomae zushi", kind: "Regional", text: "Hand-pressed nigiri with the fish cured, marinated or simmered first, as before refrigeration. Ordinary food at belt and supermarket prices; an occasion at a counter.", where: "Counters in Ginza and Tsukiji; standing sushi by stations" },
-            { name: "Monjayaki", local: "もんじゃ焼き", say: "monjayaki", kind: "Regional", text: "A runny batter fried on the table's hotplate and eaten in scrapes off a tiny spatula. Once a children's snack.", where: "Tsukishima's main street" },
+            { name: "Monjayaki", local: "もんじゃ焼き", say: "monjayaki", kind: "Regional", text: "A runny batter fried on the table's hotplate and eaten in scrapes off a tiny spatula. Once a children's snack.[^2]", where: "Tsukishima's main street" },
             { name: "Chanko nabe", local: "ちゃんこ鍋", say: "chanko nabe", kind: "Regional", text: "The hotpot sumo wrestlers eat to put on weight, served by retired wrestlers' restaurants.", where: "Around the sumo hall in Ryōgoku" },
             { name: "Fukagawa-meshi", local: "深川めし", say: "fukagawa meshi", kind: "Mostly for visitors", text: "Clams in miso broth over rice, a fishermen's quick meal from when the bay at Fukagawa was full of clams. Heritage food more than daily food now.", where: "Kiyosumi-Shirakawa and Monzen-nakachō" },
-            { name: "Tokyo shōyu ramen", local: "東京醤油ラーメン", say: "tōkyō shōyu rāmen", kind: "Everyday", text: "Clear soy-seasoned chicken broth and thin curly noodles: the plain bowl the city grew up on, from Asakusa's first ramen shop in 1910.", where: "Everywhere; Ogikubo is the old ramen town" },
+            { name: "Tokyo shōyu ramen", local: "東京醤油ラーメン", say: "tōkyō shōyu rāmen", kind: "Everyday", text: "Clear soy-seasoned chicken broth and thin curly noodles: the plain bowl the city grew up on, from Asakusa's first ramen shop in 1910.[^1]", where: "Everywhere; Ogikubo is the old ramen town" },
           ],
         },
       ],
@@ -233,15 +244,19 @@ export const placeReads: Record<string, GuideItem[]> = {
     {
       group: "Before you go",
       title: "Book ahead in Tokyo",
+      sources: [
+        { title: "Tickets — Ghibli Museum, Mitaka", url: "https://www.ghibli-museum.jp/en/tickets/", note: "Advance sale through Lawson Ticket on the 10th of the month before" },
+        { title: "Imperial Palace tours and New Year greeting — Imperial Household Agency", url: "https://sankan.kunaicho.go.jp/", note: "Booked and same-day tour places; the 2 January and birthday greetings" },
+      ],
       summary: "The few things that sell out, and when they go on sale",
       body: [
         photo("ghibli-museum", "An ivy-covered building with round windows in a garden", "The Ghibli Museum in Mitaka."),
         {
           terms: [
-            { term: "Ghibli Museum, Mitaka", text: "Advance tickets only, for a date and entry time. Each month's go on sale on the 10th of the month before, at 10:00 Japan time, through Lawson Ticket — December's on 10 November. Weekends go within hours. No tickets at the door, and resold tickets can be refused" },
+            { term: "Ghibli Museum, Mitaka", text: "Advance tickets only, for a date and entry time. Each month's go on sale on the 10th of the month before, at 10:00 Japan time, through Lawson Ticket — December's on 10 November.[^1] Weekends go within hours. No tickets at the door, and resold tickets can be refused" },
             { term: "Toyosu tuna auction lower deck", text: "By lottery, applied for about a month ahead. The upper deck needs no booking" },
             { term: "Popular sushi and kaiseki counters", text: "Often weeks ahead, sometimes only through a hotel concierge" },
-            { term: "Sumo, kabuki, the Imperial Palace tour", text: "Online in advance; the palace tour also releases same-day places in the morning" },
+            { term: "Sumo, kabuki, the Imperial Palace tour", text: "Online in advance; the palace tour also releases same-day places in the morning[^2]" },
             { term: "Kabuki for one act", text: "Kabukiza in Ginza sells single-act seats (*hitomakumi*) in the top gallery on the day, at their own counter: a taste of kabuki without the whole afternoon" },
             { term: "The palace grounds, twice a year", text: "On 2 January and on the emperor's birthday, 23 February, the inner grounds open without tickets and the imperial family greets the crowd from a glass-fronted balcony. Arrive early and expect a bag check (see [The emperor](guide:politics/the-emperor))" },
           ],
@@ -329,6 +344,10 @@ export const placeReads: Record<string, GuideItem[]> = {
     {
       group: "Understand the place",
       title: "Cold, dark and early",
+      sources: [
+        { title: "Late snow on Japan's Mount Fuji sets a record — VOA Learning English", url: "https://learningenglish.voanews.com/a/late-snow-on-japan-s-mount-fuji-sets-a-record/7856902.html", note: "2024's first snowcap, the latest since records began in 1894" },
+        { title: "Fuji Excursion — Wikipedia", url: "https://en.wikipedia.org/wiki/Fuji_Excursion", note: "Direct from Shinjuku since March 2019" },
+      ],
       summary: "At 830 m, November nights are near freezing and the view goes by noon",
       body: [
         photo("kawaguchiko-momiji", "Red maple leaves framing Mount Fuji across a lake", "Lake Kawaguchi and Mount Fuji in the autumn leaves."),
@@ -336,9 +355,9 @@ export const placeReads: Record<string, GuideItem[]> = {
         { dos: ["See Fuji at dawn — it's clearest in the cold, still early morning, and often in cloud by noon", "Check the last bus back before an evening out", "Carry a warm layer and gloves for the lakeshore"], donts: ["Walk forest paths around the lakes at dusk — it's also when bears are most active (see Be prepared)"] },
         {
           terms: [
-            { term: "The snowcap", text: "Fuji usually gets its first snow in early autumn. In 2024 the cap didn't appear until 7 November, the latest since records began in 1894 — a sign of warmer autumns" },
+            { term: "The snowcap", text: "Fuji usually gets its first snow in early autumn. In 2024 the cap didn't appear until 7 November, the latest since records began in 1894 — a sign of warmer autumns[^1]" },
             { term: "Autumn Leaves Festival", text: "Usually early to mid November, when the Momiji Corridor of maples on Lake Kawaguchi's north shore is lit after dark" },
-            { term: "Getting here", text: "The Fuji Excursion limited express has run directly from Shinjuku since 2019, and highway buses take about two hours. Both fill at weekends: reserve" },
+            { term: "Getting here", text: "The Fuji Excursion limited express has run directly from Shinjuku since 2019,[^2] and highway buses take about two hours. Both fill at weekends: reserve" },
           ],
         },
       ],
@@ -368,14 +387,18 @@ export const placeReads: Record<string, GuideItem[]> = {
     {
       group: "Eat and drink",
       title: "Hōtō, hard udon and a box to take home",
+      sources: [
+        { title: "Hōtō — Wikipedia", url: "https://en.wikipedia.org/wiki/H%C5%8Dt%C5%8D", note: "Yamanashi's miso noodle stew" },
+        { title: "Yoshida udon — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%90%89%E7%94%B0%E3%81%AE%E3%81%86%E3%81%A9%E3%82%93", note: "Fujiyoshida's hard udon with cabbage (Japanese)" },
+      ],
       summary: "Where the lakes' flour food is cooked, and the sweet everyone carries back",
       body: [
         photo("hoto", "Hōtō noodles in a clay pot with pumpkin, shiitake and an egg", "Hōtō: flat noodles stewed in miso with pumpkin and mushrooms."),
         { p: "The lakes sit in Yamanashi's flour country, and the local food is noodles: why is told in [Flour country](guide:regional-food/flour-country). Around the lakes they're easy to find, with one catch: the best udon shops keep locals' hours." },
         {
           dishes: [
-            { name: "Hōtō", local: "ほうとう", say: "hōtō", kind: "Regional", text: "Flat noodles stewed in miso with pumpkin and vegetables, served bubbling in an iron pot. Big enough for a whole meal.", where: "Restaurants all round Lake Kawaguchi" },
-            { name: "Yoshida udon", local: "吉田うどん", say: "yoshida udon", kind: "Regional", text: "Hard, chewy udon with boiled cabbage and spicy paste. Dozens of small shops, many open only at lunch and some in family homes.", where: "Fujiyoshida, around the station and the Sengen shrine" },
+            { name: "Hōtō", local: "ほうとう", say: "hōtō", kind: "Regional", text: "Flat noodles stewed in miso with pumpkin and vegetables, served bubbling in an iron pot.[^1] Big enough for a whole meal.", where: "Restaurants all round Lake Kawaguchi" },
+            { name: "Yoshida udon", local: "吉田うどん", say: "yoshida udon", kind: "Regional", text: "Hard, chewy udon with boiled cabbage and spicy paste.[^2] Dozens of small shops, many open only at lunch and some in family homes.", where: "Fujiyoshida, around the station and the Sengen shrine" },
             { name: "Shingen mochi", local: "信玄餅", say: "shingen mochi", kind: "Mostly for visitors", text: "Rice cakes in roasted soy flour with a tiny bottle of black-sugar syrup, the region's classic omiyage.", where: "Stations, service areas and souvenir shops" },
           ],
         },
@@ -387,14 +410,19 @@ export const placeReads: Record<string, GuideItem[]> = {
     {
       group: "Understand the place",
       title: "The grid, and what broke it",
+      sources: [
+        { title: "Heian-kyō — Wikipedia", url: "https://en.wikipedia.org/wiki/Heian-ky%C5%8D", note: "Laid out in 794 on the model of Chang'an" },
+        { title: "Ōnin War — Wikipedia", url: "https://en.wikipedia.org/wiki/%C5%8Cnin_War", note: "1467–77, and the destruction of the capital" },
+        { title: "Odoi — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%BE%A1%E5%9C%9F%E5%B1%85", note: "Hideyoshi's rampart of 1591, and the stretch at Kitano Tenmangū" },
+      ],
       summary: "A Chinese plan from 794, rebuilt by a warlord in the 1590s",
       body: [
-        { p: "Heian-kyō was laid out in 794 as a rectangle of streets copied from the Chinese capital Chang'an, with the palace at the north and a great avenue running south. It was the emperor's city for over a thousand years. No law ever formally moved the capital to Tokyo in 1868 — the emperor simply went and stayed — and some Kyoto people still say, half joking, that he's only visiting." },
+        { p: "Heian-kyō was laid out in 794 as a rectangle of streets copied from the Chinese capital Chang'an, with the palace at the north and a great avenue running south.[^1] It was the emperor's city for over a thousand years. No law ever formally moved the capital to Tokyo in 1868 — the emperor simply went and stayed — and some Kyoto people still say, half joking, that he's only visiting." },
         {
           steps: [
             { title: "The west half failed", text: "The western side was marshy and emptied early; the city slid east towards the Kamo river and the hills, where the temples are." },
-            { title: "Wars burned it", text: "The Ōnin War (1467–77) destroyed much of the city. Very little before then survives inside the old grid; the oldest buildings are mostly temples on the edges." },
-            { title: "Hideyoshi remade it", text: "In the 1590s Toyotomi Hideyoshi cut new north–south streets through the big square blocks, creating long thin plots; moved temples into one line along **Teramachi** (“temple town”); and threw an earthen rampart, the Odoi, round the city." },
+            { title: "Wars burned it", text: "The Ōnin War (1467–77) destroyed much of the city.[^2] Very little before then survives inside the old grid; the oldest buildings are mostly temples on the edges." },
+            { title: "Hideyoshi remade it", text: "In the 1590s Toyotomi Hideyoshi cut new north–south streets through the big square blocks, creating long thin plots; moved temples into one line along **Teramachi** (“temple town”); and threw an earthen rampart, the Odoi, round the city.[^3]" },
           ],
         },
         { p: "**What you can notice:** Teramachi and Shin-Kyōgoku are still lined with temples behind the shops; a stretch of the Odoi rampart survives in the grounds of Kitano Tenmangū; and street names still carry the Heian numbering — Shijō is Fourth Avenue, Gojō Fifth." },
@@ -492,16 +520,20 @@ export const placeReads: Record<string, GuideItem[]> = {
       related: ["place/kyoto/10-000-gates", "place/kyoto/kyoto-s-kitchen"],
       sources: [
         { title: "Kyoto's highest hotel tax hike takes effect — Time Out", url: "https://timeout.com/osaka/news/kyotos-highest-hotel-tax-hike-takes-effect-all-you-need-to-know-030226", note: "The March 2026 tiers" },
-        { title: "New limited express buses and increased frequency — Kyoto City Tourism", url: "https://kyoto.travel/en/news/news_new_limited_express_buses_and_increased_frequency.html", note: "EX100 and EX101" },
+        { title: "New limited express buses and increased frequency — Kyoto City Tourism", url: "https://kyoto.travel/en/travel-inspiration/limited-express-buses-increased-frequency-of-city-buses-useful-for-sightseeing/", note: "EX100 and EX101" },
         { title: "Tourists banned from private alleys in Kyoto's geisha district — AFP via Malay Mail", url: "https://www.malaymail.com/amp/news/world/2024/03/07/tourists-banned-from-private-alleys-in-kyotos-geisha-district/122023", note: "Gion's 2024 request and the 2019 signs" },
       ],
     },
     {
       group: "Look closer",
       title: "Reading a Kyoto street",
+      sources: [
+        { title: "Kyō-machiya survey, 2024 — Kyoto City and the Kyoto Center for Community Collaboration (PDF)", url: "https://www.kyoto-machisen.jp/kyomachiya-survey-report/img/r6++.pdf", note: "34,580 machiya left; 5,566 lost in about eight years (Japanese)" },
+        { title: "Machiya — Wikipedia", url: "https://en.wikipedia.org/wiki/Machiya", note: "The townhouse, its lattices and the eel's-bed plan" },
+      ],
       summary: "Bamboo fences, demon-quellers and a corner cut off",
       body: [
-        { p: "Kyoto has some 35,000 **machiya** — wooden townhouses, narrow at the street and deep inside, called “eels' beds” (unagi no nedoko) — and loses around 800 a year (see [Spared in the war](guide:place/kyoto/spared-in-the-war)). Walk any older street and look for:" },
+        { p: "Kyoto has about 34,600 **machiya** — wooden townhouses, narrow at the street and deep inside, called “eels' beds” (unagi no nedoko) — and loses around 700 a year[^1] (see [Spared in the war](guide:place/kyoto/spared-in-the-war)). Walk any older street and look for:[^2]" },
         photo("machiya", "A Kyoto townhouse front with slatted lattice and a curved bamboo inuyarai fence at its base", "A Kyoto machiya: slatted lattice above, a curved bamboo inuyarai at the foot of the wall."),
         {
           terms: [
@@ -625,9 +657,14 @@ export const placeReads: Record<string, GuideItem[]> = {
     {
       group: "Understand the place",
       title: "The Great Buddha",
+      sources: [
+        { title: "Tōdai-ji — Wikipedia", url: "https://en.wikipedia.org/wiki/T%C5%8Ddai-ji", note: "743 order, casting 747–749, the 1180 and 1567 fires, the 1709 hall" },
+        { title: "735–737 Japanese smallpox epidemic — Wikipedia", url: "https://en.wikipedia.org/wiki/735%E2%80%93737_Japanese_smallpox_epidemic", note: "About a third of the population dead, the Fujiwara brothers among them" },
+        { title: "Omizutori — Tōdai-ji", url: "https://www.todaiji.or.jp/en/information/omizutori/", note: "Held every year since 752, 1–14 March" },
+      ],
       summary: "A bronze made to stop an epidemic, and a hall that's two-thirds the size it was",
       body: [
-        { p: "In the 730s smallpox killed perhaps a third of Japan's people, the four Fujiwara brothers who ran the government among them. Emperor **Shōmu** answered with Buddhism on a national scale: a state temple in every province, and at the centre, in 743, an order for a colossal bronze **Vairocana**, the cosmic Buddha, at **Tōdai-ji**. Casting ran from 747 to 749, in eight layers, using most of the copper the country could produce; an Indian monk painted in its eyes at the dedication in 752." },
+        { p: "In the 730s smallpox killed perhaps a third of Japan's people, the four Fujiwara brothers who ran the government among them.[^2] Emperor **Shōmu** answered with Buddhism on a national scale: a state temple in every province, and at the centre, in 743, an order for a colossal bronze **Vairocana**, the cosmic Buddha, at **Tōdai-ji**. Casting ran from 747 to 749, in eight layers, using most of the copper the country could produce; an Indian monk painted in its eyes at the dedication in 752.[^1]" },
         photo("todaiji", "The huge wooden Great Buddha Hall of Tōdai-ji with its sweeping double roof", "The Great Buddha Hall, rebuilt in 1709 at about two-thirds of the original width."),
         {
           timeline: [
@@ -639,7 +676,7 @@ export const placeReads: Record<string, GuideItem[]> = {
         },
         { p: "Little of what you see is from 752: the head was recast in the 1690s, and only parts of the body and the lotus petals underneath are original. The bronze was once gilded with an amalgam of gold and mercury, burned off with heat, and some historians think mercury vapour sickened the city. The hall was the largest wooden building in the world for most of its life." },
         { p: "Inside, behind the Buddha, a pillar has a hole at its base said to match the size of the Buddha's nostril. Squeezing through it promises enlightenment in the next life; children manage, adults sometimes don't." },
-        { note: "From 1 to 14 March each year, monks run with huge burning torches along the balcony of the Nigatsu-dō hall, on the hill behind the Buddha. The ceremony has not missed a year since 752, through wars and fires. Out of season, the Nigatsu-dō terrace is free and has the best view over Nara.", title: "Omizutori" },
+        { note: "From 1 to 14 March each year, monks run with huge burning torches along the balcony of the Nigatsu-dō hall, on the hill behind the Buddha. The ceremony has not missed a year since 752, through wars and fires.[^3] Out of season, the Nigatsu-dō terrace is free and has the best view over Nara.", title: "Omizutori" },
       ],
       related: ["history/asuka-and-nara", "belief/buddhism", "place/kamakura/the-great-buddha-outdoors"],
     },
@@ -673,13 +710,18 @@ export const placeReads: Record<string, GuideItem[]> = {
     {
       group: "Look closer",
       title: "Kasuga Taisha's lanterns",
+      sources: [
+        { title: "Kasuga-taisha — Wikipedia", url: "https://en.wikipedia.org/wiki/Kasuga-taisha", note: "Founded 768; the lanterns and the Mantōrō" },
+        { title: "Historic Monuments of Ancient Nara — UNESCO", url: "https://whc.unesco.org/en/list/870", note: "Kasuga Taisha, Kōfuku-ji and the Kasugayama Primeval Forest" },
+        { title: "Kōfuku-ji — Wikipedia", url: "https://en.wikipedia.org/wiki/K%C5%8Dfuku-ji", note: "The Central Golden Hall rebuilt in 2018; the pagoda's repair" },
+      ],
       summary: "A clan shrine, its sacred forest, and a temple it was once part of",
       body: [
-        { p: "**Kasuga Taisha** was founded in 768 by the **Fujiwara**, the family who ran the court for most of three centuries, and it was their shrine. Its partner was **Kōfuku-ji**, the Fujiwara temple next door. For a thousand years the two were run as one, the shrine's gods understood as forms of the temple's buddhas, until the Meiji government forced them apart in 1868 and Kōfuku-ji lost most of its land (see [Gods and buddhas](guide:belief/gods-and-buddhas-mixed-and-split))." },
+        { p: "**Kasuga Taisha** was founded in 768 by the **Fujiwara**, the family who ran the court for most of three centuries, and it was their shrine.[^1] Its partner was **Kōfuku-ji**, the Fujiwara temple next door. For a thousand years the two were run as one, the shrine's gods understood as forms of the temple's buddhas, until the Meiji government forced them apart in 1868 and Kōfuku-ji lost most of its land (see [Gods and buddhas](guide:belief/gods-and-buddhas-mixed-and-split))." },
         photo("kasuga-lanterns", "A row of moss-stained stone lanterns lined up beside the vermilion corridors of Kasuga Taisha", "Stone lanterns beside Kasuga Taisha's halls, each one a gift with its donor's name."),
         { p: "The **lanterns**, about 3,000 of them, are gifts: stone ones along the forest paths, bronze ones hanging in the corridors, each inscribed with its donor. Twice a year, at Setsubun in early February and on 14–15 August, every one is lit at once for the **Mantōrō**. The oldest stone lanterns date from the 12th century." },
-        { p: "Like Ise, Kasuga used to rebuild its main sanctuaries every 20 years; it now repairs and repaints them on that cycle instead, the 60th time in 2016. Behind the shrine, **Kasugayama Primeval Forest** has been protected since hunting and logging were banned there in 841, and is part of the World Heritage listing — a rare stand of warm-temperate forest left untouched next to a city." },
-        { note: "Kōfuku-ji's five-storey pagoda, Nara's skyline landmark, is under scaffolding for a major repair expected to last until about 2031. The Central Golden Hall was rebuilt in 2018, and the National Treasure Museum, with the three-faced, six-armed Ashura statue, is open.", title: "Kōfuku-ji now" },
+        { p: "Like Ise, Kasuga used to rebuild its main sanctuaries every 20 years; it now repairs and repaints them on that cycle instead, the 60th time in 2016. Behind the shrine, **Kasugayama Primeval Forest** has been protected since hunting and logging were banned there in 841, and is part of the World Heritage listing — a rare stand of warm-temperate forest left untouched next to a city.[^2]" },
+        { note: "Kōfuku-ji's five-storey pagoda, Nara's skyline landmark, is under scaffolding for a major repair expected to last until about 2031. The Central Golden Hall was rebuilt in 2018,[^3] and the National Treasure Museum, with the three-faced, six-armed Ashura statue, is open.", title: "Kōfuku-ji now" },
       ],
       related: ["belief/shinto", "belief/gods-and-buddhas-mixed-and-split", "place/nara/the-deer"],
     },
@@ -702,20 +744,24 @@ export const placeReads: Record<string, GuideItem[]> = {
     {
       group: "Eat and drink",
       title: "Persimmon leaves and the birth of sake",
+      sources: [
+        { title: "Kakinoha-zushi — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E6%9F%BF%E3%81%AE%E8%91%89%E5%AF%BF%E5%8F%B8", note: "Salted fish from the coast, pressed and wrapped in persimmon leaf (Japanese)" },
+        { title: "Shōryaku-ji — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E6%AD%A3%E6%9A%A6%E5%AF%BA", note: "Bodaimoto and the temple's claim to refined sake" },
+      ],
       summary: "Food from a town far from the sea — and a temple that brewed clear sake first",
       body: [
         photo("kakinoha-zushi", "Two pieces of pressed sushi on green persimmon leaves", "Kakinoha-zushi: pressed fish on rice, wrapped in persimmon leaves."),
         { p: "Nara is landlocked and has a reputation, inside Japan, for plain food; a line often attributed to the novelist Shiga Naoya, who lived here, says there's nothing good to eat in Nara. What it does have is old food — dishes made to travel and to keep." },
         {
           dishes: [
-            { name: "Kakinoha-zushi", local: "柿の葉寿司", say: "kakinoha-zushi", kind: "Regional", text: "Slices of salted mackerel or salmon pressed onto rice and wrapped in a persimmon leaf, which is not eaten. The fish came salted over the mountains from the Kumano coast; the leaf keeps it and adds a faint tannic scent. Sold in boxes at every station.", where: "Shops on Sanjō-dōri; Kintetsu Nara station" },
+            { name: "Kakinoha-zushi", local: "柿の葉寿司", say: "kakinoha-zushi", kind: "Regional", text: "Slices of salted mackerel or salmon pressed onto rice and wrapped in a persimmon leaf, which is not eaten. The fish came salted over the mountains from the Kumano coast; the leaf keeps it and adds a faint tannic scent. Sold in boxes at every station.[^1]", where: "Shops on Sanjō-dōri; Kintetsu Nara station" },
             { name: "Nara-zuke", local: "奈良漬", say: "narazuke", kind: "Regional", text: "Gourd, cucumber or melon pickled for months, sometimes years, in sake lees until dark brown, sweet and faintly alcoholic. An acquired taste, and a very old one: wooden tags from the Nara palace mention vegetables pickled in lees." },
             { name: "Miwa sōmen", local: "三輪素麺", say: "miwa sōmen", kind: "Regional", text: "Very thin wheat noodles from Miwa, south of the city, which claims to be where Japanese noodles began. Eaten cold in summer, in hot broth (nyūmen) in winter." },
             { name: "Chagayu", local: "茶粥", say: "chagayu", kind: "Regional", text: "Rice porridge cooked in roasted tea — a temple and farmhouse breakfast, now served at a few traditional restaurants." },
           ],
         },
         { h: "Where clear sake began" },
-        { p: "**Shōryaku-ji**, a temple in the hills south of Nara, is called the birthplace of refined sake. In the 15th century its monks developed a starter called **bodaimoto** and a way of making sake clear rather than cloudy, the method behind modern brewing. Every January a few Nara brewers make bodaimoto there again from the temple's own yeast (see [Sake](guide:drinks/sake-and-how-to-read-the-bottle))." },
+        { p: "**Shōryaku-ji**, a temple in the hills south of Nara, is called the birthplace of refined sake. In the 15th century its monks developed a starter called **bodaimoto** and a way of making sake clear rather than cloudy, the method behind modern brewing.[^2] Every January a few Nara brewers make bodaimoto there again from the temple's own yeast (see [Sake](guide:drinks/sake-and-how-to-read-the-bottle))." },
       ],
       related: ["drinks/sake-and-how-to-read-the-bottle", "eating-out/sushi-from-fermented-fish-to-fast-food"],
     },
@@ -764,25 +810,34 @@ export const placeReads: Record<string, GuideItem[]> = {
     {
       group: "Look closer",
       title: "Tale of Genji country",
+      sources: [
+        { title: "The Tale of Genji — Wikipedia", url: "https://en.wikipedia.org/wiki/The_Tale_of_Genji", note: "The Uji chapters, 45 to 54" },
+        { title: "Uji Bridge — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%AE%87%E6%B2%BB%E6%A9%8B", note: "The 646 date on the bridge stele, and the Hashihime" },
+        { title: "The Tale of Genji Museum — Uji City", url: "https://www.city.uji.kyoto.jp/site/genji/", note: "The museum's rooms and films" },
+      ],
       summary: "The novel's last chapters, a bridge, and a princess who became a demon",
       body: [
         photo("genji-kana", "A page of flowing ink calligraphy on paper flecked with gold and silver", "A text panel from a 12th-century scroll of the Tale of Genji."),
-        { p: "Uji was where Heian aristocrats had their country villas, an hour or two from the capital by river and road, and it's where Murasaki Shikibu set the **last ten chapters** of *The Tale of Genji*, written around 1000. Genji himself is dead by then. The “Uji chapters” follow two young men and the sisters they court in a melancholy house by the river, and end without resolution — a darker, more modern book than the first forty-four chapters." },
-        { p: "**Uji Bridge** was first built, its stone inscription says, in 646, which would make it one of Japan's oldest. Its guardian is the **Hashihime**, the Bridge Princess, who appears in classical poetry as a lonely woman waiting by the river. Later legend made her darker: a jealous woman who prayed at [Kifune Shrine](guide:place/kurama/kifune-the-water-shrine) to become a demon, and bathed in the Uji River to finish the change. A small shrine to her stands near the bridge." },
-        { p: "The **Tale of Genji Museum** tells the story with models of Heian rooms, costumes and short films, and is the easiest way into a novel few people finish. The Genji walking route links the sites of the Uji chapters with stone markers." },
+        { p: "Uji was where Heian aristocrats had their country villas, an hour or two from the capital by river and road, and it's where Murasaki Shikibu set the **last ten chapters** of *The Tale of Genji*, written around 1000. Genji himself is dead by then. The “Uji chapters” follow two young men and the sisters they court in a melancholy house by the river, and end without resolution — a darker, more modern book than the first forty-four chapters.[^1]" },
+        { p: "**Uji Bridge** was first built, its stone inscription says, in 646, which would make it one of Japan's oldest.[^2] Its guardian is the **Hashihime**, the Bridge Princess, who appears in classical poetry as a lonely woman waiting by the river. Later legend made her darker: a jealous woman who prayed at [Kifune Shrine](guide:place/kurama/kifune-the-water-shrine) to become a demon, and bathed in the Uji River to finish the change. A small shrine to her stands near the bridge." },
+        { p: "The **Tale of Genji Museum** tells the story with models of Heian rooms, costumes and short films, and is the easiest way into a novel few people finish.[^3] The Genji walking route links the sites of the Uji chapters with stone markers." },
       ],
       related: ["history/heian", "place/uji/by-d-in-and-the-end-of-the-law", "place/kurama/kifune-the-water-shrine"],
     },
     {
       group: "Look closer",
       title: "A Chinese temple and a card factory",
+      sources: [
+        { title: "Manpuku-ji — Wikipedia", url: "https://en.wikipedia.org/wiki/Manpuku-ji", note: "Founded 1661 by Ingen, who reached Nagasaki in 1654" },
+        { title: "Nintendo Museum", url: "https://museum.nintendo.com/en/", note: "Opened October 2024 in the Uji Ogura plant; tickets by advance lottery" },
+      ],
       summary: "Mampuku-ji's Ming-style Zen, and the Nintendo Museum in the plant that made playing cards",
       body: [
         photo("manpukuji", "A temple hall behind pine trees across a sanded courtyard", "Manpuku-ji in Uji."),
-        { p: "Two stops north of Uji, **Mampuku-ji** looks nothing like the temples around it. It was founded in 1661 by **Ingen**, a Chinese Zen master who came to Nagasaki in 1654, and built in the style of a Ming-dynasty monastery: Chinese gates, rounded windows, a pot-bellied laughing Buddha at the entrance, sutras still chanted in old Chinese pronunciation. His **Ōbaku** school brought much else with it: the custom of steeping loose-leaf tea, which led to sencha; a kind of bean, *ingen-mame*, the green bean; and **fucha ryōri**, a Chinese vegetarian banquet shared from big dishes, still served at the temple by reservation." },
+        { p: "Two stops north of Uji, **Mampuku-ji** looks nothing like the temples around it. It was founded in 1661 by **Ingen**, a Chinese Zen master who came to Nagasaki in 1654, and built in the style of a Ming-dynasty monastery: Chinese gates, rounded windows, a pot-bellied laughing Buddha at the entrance, sutras still chanted in old Chinese pronunciation. His **Ōbaku** school brought much else with it: the custom of steeping loose-leaf tea, which led to sencha; a kind of bean, *ingen-mame*, the green bean; and **fucha ryōri**, a Chinese vegetarian banquet shared from big dishes, still served at the temple by reservation.[^1]" },
         { p: "Look for the **kaipan**, a big wooden fish hanging in the corridor and beaten to call monks to meals. The ball in its mouth stands for the worldly desires it spits out." },
         { h: "The Nintendo Museum" },
-        { p: "Nintendo was founded in Kyoto in 1889 to make **hanafuda**, flower-pattern playing cards. Its plant at Ogura in Uji made cards and then toys from 1969, and in October 2024 it reopened as the **Nintendo Museum**: early cards and toys, every console, and playable games on giant screens. Tickets are sold in advance only, by lottery, through the museum's site, and are hard to get." },
+        { p: "Nintendo was founded in Kyoto in 1889 to make **hanafuda**, flower-pattern playing cards. Its plant at Ogura in Uji made cards and then toys from 1969, and in October 2024 it reopened as the **Nintendo Museum**: early cards and toys, every console, and playable games on giant screens. Tickets are sold in advance only, by lottery, through the museum's site, and are hard to get.[^2]" },
       ],
       related: ["drinks/tea-from-temple-medicine-to-the-vending-machine", "belief/buddhism"],
     },
@@ -816,10 +871,14 @@ export const placeReads: Record<string, GuideItem[]> = {
     {
       group: "Understand the place",
       title: "Kifune, the water shrine",
+      sources: [
+        { title: "Kifune Shrine", url: "https://kifunejinja.jp/", note: "The water god, the black and white horses, the mizu-mikuji (Japanese)" },
+        { title: "Kifune Shrine — Wikipedia", url: "https://en.wikipedia.org/wiki/Kifune_Shrine", note: "The court's rain prayers and the origin story of ema" },
+      ],
       summary: "Rain-making horses, fortunes that appear in water, and a curse at two in the morning",
       body: [
-        { p: "**Kifune Shrine** sits at the source of the Kamo River, the river that runs through Kyoto, and its god rules water. The court sent envoys here for centuries, in drought and in flood. The shrine reads its name **Kifune**, with an unvoiced *f* so as not to “muddy” the water; the village is **Kibune**." },
-        { p: "It's said to be where **ema**, the wooden prayer plaques at every shrine, began. Emperors offered a live **black horse** to pray for rain and a **white** one to make it stop. Over time painted horses on wooden boards replaced the animals, then any picture, then any wish written on a board. There are still two horse statues by the steps." },
+        { p: "**Kifune Shrine** sits at the source of the Kamo River, the river that runs through Kyoto, and its god rules water. The court sent envoys here for centuries, in drought and in flood.[^2] The shrine reads its name **Kifune**, with an unvoiced *f* so as not to “muddy” the water; the village is **Kibune**." },
+        { p: "It's said to be where **ema**, the wooden prayer plaques at every shrine, began. Emperors offered a live **black horse** to pray for rain and a **white** one to make it stop. Over time painted horses on wooden boards replaced the animals, then any picture, then any wish written on a board. There are still two horse statues by the steps.[^1]" },
         { p: "At the main hall, buy a **mizu-mikuji**: a blank fortune slip that you float on the spring water until the words appear. Higher up the valley, the **Okumiya** (inner shrine) stands where, legend says, the goddess Tamayori-hime came upriver in a yellow boat, now hidden under a pile of stones." },
         { h: "The other side of Kifune" },
         { p: "Kifune also has a darker reputation. It's linked with **ushi no koku mairi**, a curse ritual performed at the hour of the ox, around 1–3 a.m.: dressed in white, with candles on the head, you nail a straw doll of your enemy to a sacred tree. Legend makes the Bridge Princess of [Uji](guide:place/uji/tale-of-genji-country) its first practitioner. The shrine discourages it, but every so often nails are still found in trees." },
@@ -831,11 +890,15 @@ export const placeReads: Record<string, GuideItem[]> = {
     {
       group: "Before you go",
       title: "The Eizan line and the maple tunnel",
+      sources: [
+        { title: "Eizan Electric Railway — Wikipedia", url: "https://en.wikipedia.org/wiki/Eizan_Electric_Railway", note: "Demachiyanagi to Kurama, and the Kirara trains" },
+        { title: "Eizan line reopens between Ichihara and Kibuneguchi — Tetsudō Channel", url: "https://tetsudo-ch.com/744264.html", note: "The July 2020 landslide and the line's reopening in September 2021 (Japanese)" },
+      ],
       summary: "A small railway, a panoramic train and the stretch it slows down for",
       body: [
         photo("eizan-ichihara", "A red and cream train crossing a small bridge among trees", "An Eizan train near Ichihara, on the line to Kurama."),
-        { p: "Kurama and Kibune are reached by the **Eizan Electric Railway** from Demachiyanagi, the end of the Keihan line in north-east Kyoto, about 30 minutes to Kurama. Two-car trains, and the **Kirara** with big side windows, run up the valley." },
-        { p: "Between Ichihara and Ninose the line runs through a **tunnel of maples**. In November the trains slow to a crawl and the carriage lights go off, and on autumn evenings the trees are lit. In July 2020 a landslide closed the line beyond Ichihara for over a year; it reopened in September 2021." },
+        { p: "Kurama and Kibune are reached by the **Eizan Electric Railway** from Demachiyanagi, the end of the Keihan line in north-east Kyoto, about 30 minutes to Kurama.[^1] Two-car trains, and the **Kirara** with big side windows, run up the valley." },
+        { p: "Between Ichihara and Ninose the line runs through a **tunnel of maples**. In November the trains slow to a crawl and the carriage lights go off, and on autumn evenings the trees are lit. In July 2020 a landslide closed the line beyond Ichihara for over a year; it reopened in September 2021.[^2]" },
         { dos: ["Go early on autumn weekends; queues for trains at Demachiyanagi can be long", "Do the walk from Kurama to Kibune, downhill-ish, rather than the reverse", "Take the bus from Kibune shrine to Kibuneguchi station, or walk 30 minutes down the road"], donts: ["Start the mountain walk late in November — it's dark by about 16:45 under the trees"] },
       ],
     },
@@ -862,11 +925,15 @@ export const placeReads: Record<string, GuideItem[]> = {
     {
       group: "Understand the place",
       title: "Old highway checkpoint",
+      sources: [
+        { title: "Hakone Sekisho", url: "https://www.hakonesekisyo.jp/english/", note: "Built 1619, removed 1869, rebuilt in 2007 from the 1865 repair records" },
+        { title: "Hakone Sekisho — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%AE%B1%E6%A0%B9%E9%96%A2", note: "Guns in, women out, and the women's inspections (Japanese)" },
+      ],
       summary: "Guns in, women out: the barrier that guarded the shogun's road",
       body: [
-        { p: "The **Tōkaidō**, the great road between Edo and Kyoto, crossed the Hakone mountains on its hardest stretch, the *Hakone hachiri*, about 32 km of climbing. In 1619 the shogunate built a checkpoint, the **Hakone Sekisho**, on the shore of Lake Ashi, squeezed between the water and the mountain so no one could go round." },
-        { p: "Its job was summed up in a phrase: ***iri-deppō ni de-onna***, “guns going in, women going out”. Guns heading towards Edo could mean rebellion. Women heading out of Edo could mean that a lord's wife, kept in the capital as a hostage, was escaping — which would free her husband to rebel. Women needed a permit, and were inspected by female examiners; slipping round the barrier was punishable by death." },
-        { p: "The barrier was pulled down in 1869. The buildings you see were rebuilt in 2007 using a detailed record of a repair in 1865, found in an archive, and with the old techniques: the guardhouse, the jail, the gates, with figures of officials. It's one of the most exact reconstructions in Japan." },
+        { p: "The **Tōkaidō**, the great road between Edo and Kyoto, crossed the Hakone mountains on its hardest stretch, the *Hakone hachiri*, about 32 km of climbing. In 1619 the shogunate built a checkpoint, the **Hakone Sekisho**, on the shore of Lake Ashi, squeezed between the water and the mountain so no one could go round.[^1]" },
+        { p: "Its job was summed up in a phrase: ***iri-deppō ni de-onna***, “guns going in, women going out”. Guns heading towards Edo could mean rebellion. Women heading out of Edo could mean that a lord's wife, kept in the capital as a hostage, was escaping — which would free her husband to rebel. Women needed a permit, and were inspected by female examiners; slipping round the barrier was punishable by death.[^2]" },
+        { p: "The barrier was pulled down in 1869. The buildings you see were rebuilt in 2007 using a detailed record of a repair in 1865, found in an archive, and with the old techniques: the guardhouse, the jail, the gates, with figures of officials. It's one of the most exact reconstructions in Japan.[^1]" },
         { h: "The stone road" },
         { p: "From the 1680s, stretches of the road were paved with stones (**ishidatami**) to stop travellers sinking into mud. Several kilometres survive, slippery and steep, through cedar forest between Hatajuku and Moto-Hakone. On the way is **Amazake-chaya**, a teahouse that has served sweet rice drink to walkers for about 400 years, run by the same family. The **cedar avenue** along the lake was planted for shade by the shogunate in 1618; some 400 trees still stand." },
         { note: "On 3 November, Culture Day, Hakone-Yumoto stages the Daimyō Gyōretsu, a lord's procession in Edo costume through the town.", title: "On your dates" },
@@ -900,6 +967,10 @@ export const placeReads: Record<string, GuideItem[]> = {
     {
       group: "Look closer",
       title: "Art in the hills, and the New Year race",
+      sources: [
+        { title: "Hakone Open-Air Museum — Wikipedia", url: "https://en.wikipedia.org/wiki/Hakone_Open-Air_Museum", note: "Opened 1969; the Picasso pavilion" },
+        { title: "Hakone Ekiden — Wikipedia", url: "https://en.wikipedia.org/wiki/Hakone_Ekiden", note: "Since 1920; about 217 km in ten legs over two days" },
+      ],
       summary: "Museums paid for by a resort's money, and a relay the whole country watches",
       body: [
         { p: "Hakone has more art museums than a town of 11,000 has any right to, because Tokyo's rich and its corporations spent money here. The best known:" },
@@ -912,7 +983,7 @@ export const placeReads: Record<string, GuideItem[]> = {
           ],
         },
         { h: "The Hakone Ekiden" },
-        { p: "On 2 and 3 January each year, university relay teams run from Ōtemachi in Tokyo to Lake Ashi and back, about 217 km in ten legs over two days. The **Hakone Ekiden** began in 1920 and is one of the most watched broadcasts of the Japanese year; families watch it with New Year food. The fifth leg climbs some 800 m from Odawara up to the lake, and runners who master it are called the “god of the mountain”. The finish line at Moto-Hakone has a small museum." },
+        { p: "On 2 and 3 January each year, university relay teams run from Ōtemachi in Tokyo to Lake Ashi and back, about 217 km in ten legs over two days.[^2] The **Hakone Ekiden** began in 1920 and is one of the most watched broadcasts of the Japanese year; families watch it with New Year food. The fifth leg climbs some 800 m from Odawara up to the lake, and runners who master it are called the “god of the mountain”. The finish line at Moto-Hakone has a small museum." },
       ],
       related: ["place/hakone/two-railway-barons-and-the-hakone-loop"],
     },
@@ -953,9 +1024,14 @@ export const placeReads: Record<string, GuideItem[]> = {
     {
       group: "Look closer",
       title: "Zen temples",
+      sources: [
+        { title: "Kenchō-ji — Wikipedia", url: "https://en.wikipedia.org/wiki/Kench%C5%8D-ji", note: "Founded 1253 for Lanxi Daolong" },
+        { title: "Engaku-ji — Wikipedia", url: "https://en.wikipedia.org/wiki/Engaku-ji", note: "Founded 1282 by Hōjō Tokimune under Wuxue Zuyuan" },
+        { title: "Tōkei-ji — Wikipedia", url: "https://en.wikipedia.org/wiki/T%C5%8Dkei-ji", note: "The divorce temple" },
+      ],
       summary: "Chinese masters, monks still in training, and a soup named after a temple",
       body: [
-        { p: "Zen came to Japan through Kamakura's warriors as much as through Kyoto. The Hōjō regents invited Chinese masters fleeing the Mongol conquest of Song China, and built them monasteries on the Chinese pattern in the valleys of **Kita-Kamakura**." },
+        { p: "Zen came to Japan through Kamakura's warriors as much as through Kyoto. The Hōjō regents invited Chinese masters fleeing the Mongol conquest of Song China, and built them monasteries on the Chinese pattern in the valleys of **Kita-Kamakura**.[^1][^2]" },
         {
           terms: [
             { term: "Kenchō-ji (1253)", text: "Japan's first full Zen training monastery, founded for the Chinese monk Lanxi Daolong. First of Kamakura's “Five Mountains”, the official ranking of Zen temples. A path behind it climbs to Hansōbō, guarded by statues of tengu, with a view to Fuji" },
@@ -972,15 +1048,19 @@ export const placeReads: Record<string, GuideItem[]> = {
     {
       group: "Eat and drink",
       title: "The coast and its whitebait",
+      sources: [
+        { title: "Enoshima Electric Railway — Wikipedia", url: "https://en.wikipedia.org/wiki/Enoshima_Electric_Railway", note: "Opened 1902; 10 km from Kamakura to Fujisawa" },
+        { title: "Shirasu — Kanagawa Prefecture fish guide", url: "https://www.pref.kanagawa.jp/docs/mx7/cnt/f430693/zukan-shirasu.html", note: "The closed season from 1 January to 10 March (Japanese)" },
+      ],
       summary: "A tram along the beach, an island of shrines, and shirasu in season",
       body: [
-        { p: "The **Enoden**, opened in 1902, rattles 10 km from Kamakura to Fujisawa along the coast, through backyards and along the beach road. **Kamakura-kōkōmae** crossing, where the train passes with the sea behind it, became a pilgrimage after the basketball manga *Slam Dunk* used it; crowds got bad enough that the city posted guards to keep people out of the road. Be quick and stay on the pavement." },
+        { p: "The **Enoden**, opened in 1902, rattles 10 km from Kamakura to Fujisawa along the coast,[^1] through backyards and along the beach road. **Kamakura-kōkōmae** crossing, where the train passes with the sea behind it, became a pilgrimage after the basketball manga *Slam Dunk* used it; crowds got bad enough that the city posted guards to keep people out of the road. Be quick and stay on the pavement." },
         { p: "**Enoshima**, at the end of the line, is a small island joined by a bridge: shrines to Benzaiten, goddess of music and the sea, a sea-cave, a lighthouse with a view to Fuji. Its shops sell tako-senbei, octopus pressed flat into a cracker." },
         {
           dishes: [
-            { name: "Shirasu-don", local: "しらす丼", say: "shirasu-don", kind: "Regional", text: "Tiny sardine and anchovy fry from Sagami Bay on a bowl of rice: boiled (kama-age) most of the year, raw (nama) only on days the boats went out, since it spoils within hours. Fishing is closed from 1 January to 10 March.", where: "Around Kamakura, Koshigoe and Enoshima" },
+            { name: "Shirasu-don", local: "しらす丼", say: "shirasu-don", kind: "Regional", text: "Tiny sardine and anchovy fry from Sagami Bay on a bowl of rice: boiled (kama-age) most of the year, raw (nama) only on days the boats went out, since it spoils within hours. Fishing is closed from 1 January to 10 March.[^2]", where: "Around Kamakura, Koshigoe and Enoshima" },
             { name: "Kamakura vegetables", local: "鎌倉野菜", say: "kamakura yasai", kind: "Regional", text: "Farmers from the hills have sold their own produce at the Kamakura Market (Renbai), by the station, since 1928; Tokyo chefs come for it." },
-            { name: "Hato sabure", local: "鳩サブレー", say: "hato sabure", kind: "Mostly for visitors", text: "A buttery biscuit shaped like a dove, the bird of Tsurugaoka Hachimangū, made by Toshimaya since 1897. The town's classic present to take home." },
+            { name: "Hato sabure", local: "鳩サブレー", say: "hato sabure", kind: "Mostly for visitors", text: "A buttery biscuit shaped like a dove, the bird of Tsurugaoka Hachimangū, made by Toshimaya since the 1890s. The town's classic present to take home." },
           ],
         },
       ],

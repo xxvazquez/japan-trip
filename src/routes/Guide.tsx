@@ -210,18 +210,25 @@ function TripHome({ guide, home }: { guide: CountryGuide; home: string }) {
 
       {elsewhere.length > 0 && (
         <Section title={`Elsewhere in ${guide.name}`} id={`guide-${guide.id}-elsewhere`} bare>
-          <Shelf>
-            {elsewhere.map((c) => (
-              <ShelfCard
-                key={c.id}
-                to={`${home}/place/${c.id}`}
-                cover={c.cover ?? coverOf(cityArticles(c))}
-                fallback={<span className="font-jp text-[28px] text-ink-soft">{c.local ?? c.name}</span>}
-                title={c.name}
-                meta={c.population}
-              />
+          <div className="space-y-5">
+            {byRegion(guide, elsewhere).map(([region, cities]) => (
+              <div key={region ?? ""}>
+                {region && <p className="mb-2 px-5 text-[15px] leading-snug text-ink-soft sm:px-1">{region}</p>}
+                <Shelf>
+                  {cities.map((c) => (
+                    <ShelfCard
+                      key={c.id}
+                      to={`${home}/place/${c.id}`}
+                      cover={c.cover ?? coverOf(cityArticles(c))}
+                      fallback={<span className="font-jp text-[28px] text-ink-soft">{c.local ?? c.name}</span>}
+                      title={c.name}
+                      meta={c.population}
+                    />
+                  ))}
+                </Shelf>
+              </div>
             ))}
-          </Shelf>
+          </div>
         </Section>
       )}
     </div>
@@ -331,6 +338,20 @@ function Cover({ photo: p }: { photo: GuidePhoto }) {
  *  way the App Store and Apple Books lay out a collection, so a whole
  *  section costs one card's height; a grid where the screen is wide enough
  *  to show them all. */
+/** places grouped by the guide's regions, north to south — Apple Maps'
+ *  guides group by area the same way; anything without a region goes
+ *  last, under no heading */
+function byRegion(g: CountryGuide, cities: GuideCity[]): [string | undefined, GuideCity[]][] {
+  const order = g.regions ?? [];
+  const groups = new Map<string | undefined, GuideCity[]>();
+  for (const r of order) groups.set(r, []);
+  for (const c of cities) {
+    const key = c.region && order.includes(c.region) ? c.region : undefined;
+    groups.set(key, [...(groups.get(key) ?? []), c]);
+  }
+  return [...groups].filter(([, list]) => list.length > 0);
+}
+
 function Shelf({ children }: { children: ReactNode }) {
   return (
     <ul className="flex snap-x snap-mandatory scroll-px-5 gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">

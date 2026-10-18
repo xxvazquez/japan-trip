@@ -60,6 +60,7 @@ export const japan: CountryGuide = {
     { title: "Culture and the state", chapters: [culture, manga, politics, trivia] },
   ],
 
+  regions: ["Hokkaido", "Tōhoku", "Kantō", "Chūbu", "Kansai", "Chūgoku", "Shikoku", "Kyushu", "Okinawa"],
   practical: tripPractical,
   dates: tripDates,
   cities: tripCities,

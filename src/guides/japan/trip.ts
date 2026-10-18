@@ -117,60 +117,69 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       name: "Tokyo",
       local: "東京",
       lat: 35.6812, lng: 139.7671, radiusKm: 25,
+      region: "Kantō",
       population: "About 14 million",
       dayTrips: [
         {
           name: "Sawara", cover: photoOf("sawara-shops", "Old wooden shopfronts and white storehouses along a canal, a boat moored below", "Merchant houses along the Ono River in Sawara."), local: "佐原", getting: "About 1 h 30 min by JR or highway bus",
           text: [
             "A canal town of Edo-era merchant houses, with flat-bottomed boat rides under the willows.",
-            "It was home to Inō Tadataka, who at 55 started walking the country to survey it — some 35,000 km — and produced the first accurate map of Japan. His museum shows maps startlingly close to satellite ones.",
+            "It was home to Inō Tadataka, who at 55 started walking the country to survey it — some 35,000 km — and[^1] produced the first accurate map of Japan. His museum shows maps startlingly close to satellite ones.",
           ],
+          sources: [{ title: "Inō Tadataka — Wikipedia", url: "https://en.wikipedia.org/wiki/In%C5%8D_Tadataka", note: "Began surveying at 55; about 35,000 km walked" }],
         },
         {
           name: "Ōya & Utsunomiya", cover: photoOf("oyaji", "A temple hall built against an overhanging cliff of pale stone", "Ōya-ji, its hall set into the Ōya stone cliff."), local: "大谷・宇都宮", getting: "About 1 h 30 min: Shinkansen to Utsunomiya, then a 30-min bus",
           text: [
-            "The Ōya History Museum is an abandoned underground stone quarry as big as a cathedral — 20,000 m², 30 m down, cold all year. Frank Lloyd Wright built Tokyo's Imperial Hotel from this stone.",
+            "The Ōya History Museum is an abandoned underground stone quarry as big as a cathedral — 20,000 m², 30 m down, cold all year.[^1] Frank Lloyd Wright built Tokyo's Imperial Hotel from this stone.[^2]",
             "Back in Utsunomiya, eat gyōza: the city fights Hamamatsu every year for the title of gyōza capital.",
           ],
+          sources: [{ title: "Ōya History Museum", url: "https://www.oya909.co.jp/", note: "The former quarry: about 20,000 m², about 30 m down (Japanese)" }, { title: "Imperial Hotel, Tokyo — Wikipedia", url: "https://en.wikipedia.org/wiki/Imperial_Hotel,_Tokyo", note: "Wright's 1923 building in Ōya stone" }],
         },
         {
           name: "Mashiko", cover: photoOf("mashiko-pottery", "A giant ceramic tanuki outside a pottery shop", "The pottery sales centre in Mashiko."), local: "益子", getting: "About 2 h 30 min by direct bus from Akihabara",
           text: [
-            "The pottery town of Shōji Hamada, a founder of the mingei folk-craft movement, with hundreds of kilns and studios. His house and climbing kiln are now a museum.",
+            "The pottery town of Shōji Hamada, a founder of the mingei folk-craft movement, with hundreds of kilns and studios. His house and climbing kiln are now a museum.[^1]",
             "Its autumn pottery fair, around 3 November, fills the town with hundreds of tents.",
           ],
+          sources: [{ title: "Shōji Hamada — Wikipedia", url: "https://en.wikipedia.org/wiki/Sh%C5%8Dji_Hamada", note: "Mingei, and his house and kiln in Mashiko" }],
         },
         {
-          name: "Chichibu", local: "秩父", getting: "About 1 h 20 min by Seibu Laview from Ikebukuro",
+          name: "Chichibu", cover: photoOf("laview", "A silver train with a rounded mirror-like nose running along a green hillside", "Seibu's Laview on the line to Chichibu."), local: "秩父", getting: "About 1 h 20 min by Seibu Laview from Ikebukuro",
           text: [
-            "The train is half the trip: Laview, designed by Kazuyo Sejima of SANAA, has a mirrored silver nose and windows almost down to the floor.",
-            "In the mountains, Mitsumine Shrine is guarded by wolves instead of lion-dogs.",
+            "The train is half the trip: Laview, designed by Kazuyo Sejima of SANAA, has a mirrored silver nose and windows almost down to the floor.[^1]",
+            "In the mountains, Mitsumine Shrine is guarded by wolves instead of lion-dogs.[^2]",
           ],
+          sources: [{ title: "Seibu 001 series (Laview) — Wikipedia", url: "https://en.wikipedia.org/wiki/Seibu_001_series", note: "Designed by Kazuyo Sejima; in service since 2019" }, { title: "Mitsumine Shrine — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E4%B8%89%E5%B3%AF%E7%A5%9E%E7%A4%BE", note: "Its wolf guardians (Japanese)" }],
         },
         {
           name: "Nokogiriyama", cover: photoOf("jigoku-nozoki", "A rock ledge jutting out over forested hills", "Jigoku-nozoki, the 'peek into hell' ledge on Nokogiriyama."), local: "鋸山", getting: "About 2 h by JR, or by ferry across Tokyo Bay from Kurihama",
           text: [
             "An old quarry mountain whose cut cliffs look like the teeth of a saw. Stand on Jigoku-nozoki, “a peek into hell”, a ledge out over the drop.",
-            "Below, a 31 m Buddha is carved into the rock — the largest pre-modern stone Buddha in Japan — and over 1,500 stone disciples line the trail.",
+            "Below, a 31 m Buddha is carved into the rock — the largest pre-modern stone Buddha in Japan — and over 1,500 stone disciples line the trail.[^1]",
           ],
+          sources: [{ title: "Mount Nokogiri — Wikipedia", url: "https://en.wikipedia.org/wiki/Mount_Nokogiri", note: "The quarry, Jigoku-nozoki, the 31 m Daibutsu and the rakan" }],
         },
         {
           name: "Okutama", cover: photoOf("hatonosu", "A village on a forested slope above autumn trees", "Hatonosu on the Ōtama walking trail, in autumn."), local: "奥多摩", getting: "About 2 h by JR Ōme line",
-          text: "Still Tokyo, the same prefecture — but forest, a deep river gorge and the Nippara limestone cave. Trains thin out in the evening, so check the last one back.",
+          text: "Still Tokyo, the same prefecture — but forest, a deep river gorge and the Nippara limestone cave.[^1] Trains thin out in the evening, so check the last one back.",
+          sources: [{ title: "Okutama, Tokyo — Wikipedia", url: "https://en.wikipedia.org/wiki/Okutama,_Tokyo", note: "The town, the gorge and the Nippara cave" }],
         },
         {
           name: "Ōyama", cover: photoOf("afuri-shrine", "A red-roofed shrine building at the top of a slope, bare trees around it", "Afuri Shrine on Ōyama."), local: "大山", getting: "About 1 h by Odakyu to Isehara, then bus and cable car",
           text: [
-            "The pilgrimage mountain Edo townspeople walked to from the city — you'll see it in ukiyo-e prints.",
+            "The pilgrimage mountain Edo townspeople walked to from the city — you'll see it in ukiyo-e prints.[^1]",
             "The steps up to Ōyama-dera are lined with maples lit up at night in late autumn, and the town at the bottom lives on tofu.",
           ],
+          sources: [{ title: "Mount Ōyama (Kanagawa) — Wikipedia", url: "https://en.wikipedia.org/wiki/Mount_%C5%8Cyama_(Kanagawa)", note: "The Edo pilgrimage, Afuri Shrine and Ōyama-dera" }],
         },
         {
           name: "Ashikaga", cover: photoOf("ashikaga-gakko", "A thatched gate and white walls behind a wooden fence", "The gate of Ashikaga Gakkō, said to be Japan's oldest school."), local: "足利", getting: "About 2 h by train",
           text: [
-            "Ashikaga Gakkō is said to be Japan's oldest school; Francis Xavier called it the most famous university in eastern Japan.",
+            "Ashikaga Gakkō is said to be Japan's oldest school; Francis Xavier called it the most famous university in eastern Japan.[^1]",
             "Ashikaga Flower Park's winter illumination, millions of lights, starts in late October.",
           ],
+          sources: [{ title: "Ashikaga Gakkō — Wikipedia", url: "https://en.wikipedia.org/wiki/Ashikaga_Gakk%C5%8D", note: "Called Japan's oldest school; Xavier's description" }],
         },
       ],
       items: [],
@@ -180,6 +189,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       name: "Kyoto",
       local: "京都",
       lat: 35.0116, lng: 135.7681, radiusKm: 10,
+      region: "Kansai",
       population: "About 1.4 million",
       cover: photoOf("kiyomizu-stage", "A wooden temple hall on a tall timber stage above a wooded hillside", "Kiyomizu-dera's stage above the trees of Higashiyama."),
       dayTrips: [
@@ -187,57 +197,65 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
           name: "Takao", cover: photoOf("jingoji", "A child at a table of small clay discs at a temple", "Clay discs for kawarake throwing at Jingo-ji."), local: "高雄", getting: "About 50 min by JR bus from Kyoto Station",
           text: [
             "Three mountain temples along a river gorge, where Kyoto's maples turn first — early to mid November.",
-            "At Jingo-ji you throw little clay discs (kawarake) off a cliff to cast away bad luck. Kōzan-ji keeps copies of the Chōjū-giga, 12th-century scrolls of frogs and rabbits often called the first manga. Walk down the river to Kiyotaki.",
+            "At Jingo-ji you throw little clay discs (kawarake) off a cliff to cast away bad luck.[^1] Kōzan-ji keeps copies of the Chōjū-giga, 12th-century scrolls of frogs and rabbits often called the first manga.[^2] Walk down the river to Kiyotaki.",
           ],
+          sources: [{ title: "Jingo-ji — Wikipedia", url: "https://en.wikipedia.org/wiki/Jingo-ji", note: "Kawarake throwing" }, { title: "Kōzan-ji — Wikipedia", url: "https://en.wikipedia.org/wiki/K%C5%8Dzan-ji", note: "The Chōjū-giga copies" }],
         },
         {
           name: "Ōhara", cover: photoOf("sanzenin-gate", "A tiled temple gate at the top of stone steps", "The Goten-mon gate of Sanzen-in."), local: "大原", getting: "About 25 min by bus from Kokusaikaikan subway station",
           text: [
-            "A farming valley in the northern hills. At Hōsen-in you sit on the tatami with matcha and see the garden framed by the pillars like a picture, under a pine said to be 700 years old.",
+            "A farming valley in the northern hills. At Hōsen-in you sit on the tatami with matcha and see the garden framed by the pillars like a picture, under a pine said to be 700 years old.[^1]",
             "Sanzen-in's moss garden hides little smiling stone jizō. The valley's red shiso pickles (shibazuke) are the thing to bring back.",
           ],
+          sources: [{ title: "Hōsen-in — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%AE%9D%E6%B3%89%E9%99%A2", note: "The framed garden and the 700-year-old pine (Japanese)" }],
         },
         {
           name: "Ōmi-Hachiman", cover: photoOf("hachimanbori", "A canal between stone walls and old wooden houses", "The Hachimanbori canal."), local: "近江八幡", getting: "About 35 min by JR from Kyoto",
           text: [
-            "An Edo-era merchant town on a canal you can tour by boat. The Ōmi merchants' motto, sanpō-yoshi — good for the seller, the buyer and society — is still quoted in Japanese business schools.",
-            "La Collina, a confectioner's headquarters by the architect Terunobu Fujimori, has a lawn growing on its roof.",
+            "An Edo-era merchant town on a canal you can tour by boat. The Ōmi merchants' motto, sanpō-yoshi — good for the seller, the buyer and society — is still quoted in Japanese business schools.[^1]",
+            "La Collina, a confectioner's headquarters by the architect Terunobu Fujimori, has a lawn growing on its roof.[^2]",
           ],
+          sources: [{ title: "Ōmi merchants — Wikipedia", url: "https://en.wikipedia.org/wiki/%C5%8Cmi_merchants", note: "Sanpō-yoshi" }, { title: "La Collina Ōmi-Hachiman — Taneya", url: "https://taneya.jp/la_collina/", note: "Terunobu Fujimori's grass-roofed main shop (Japanese)" }],
         },
         {
           name: "Miho Museum", cover: photoOf("miho-museum", "A glass-roofed entrance hall framing green hills", "The Miho Museum's entrance hall."), local: "ミホミュージアム", getting: "About 1 h: JR to Ishiyama, then a 50-min bus",
           text: [
-            "I. M. Pei, the architect of the Louvre pyramid, built it in the Shiga mountains as a modern Shangri-La: you walk through a curving silver tunnel and over a bridge across a valley, and most of the building is underground.",
+            "I. M. Pei, the architect of the Louvre pyramid, built it in the Shiga mountains as a modern Shangri-La: you walk through a curving silver tunnel and over a bridge across a valley, and most of the building is underground.[^1]",
             "Open in spring and autumn seasons only, closed on Mondays.",
           ],
+          sources: [{ title: "Miho Museum — Wikipedia", url: "https://en.wikipedia.org/wiki/Miho_Museum", note: "I. M. Pei's design; open in spring and autumn seasons" }],
         },
         {
           name: "Sakamoto & Hiyoshi Taisha", cover: photoOf("hiyoshi-taisha", "Lanterns lighting red maples at night", "Hiyoshi Taisha's maples lit at night."), local: "坂本・日吉大社", getting: "About 40 min by Keihan or JR to Sakamoto",
           text: [
-            "The temple town under Mount Hiei, its walls built in anō-zumi — stones stacked without mortar by the same guild of masons who built castle walls.",
-            "Hiyoshi Taisha is one of the best maple spots near Kyoto and rarely crowded. Japan's longest cable car climbs from here to Enryaku-ji.",
+            "The temple town under Mount Hiei, its walls built in anō-zumi — stones stacked without mortar by the same guild of masons who built castle walls.[^1]",
+            "Hiyoshi Taisha is one of the best maple spots near Kyoto and rarely crowded. Japan's longest cable car climbs from here to Enryaku-ji.[^2]",
           ],
+          sources: [{ title: "Anō-shū — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%A9%B4%E5%A4%AA%E8%A1%86", note: "The Sakamoto masons and their dry-stone walls (Japanese)" }, { title: "Sakamoto Cable — Wikipedia", url: "https://en.wikipedia.org/wiki/Sakamoto_Cable", note: "Japan's longest cable car, to Enryaku-ji" }],
         },
         {
-          name: "Miyama", local: "美山", getting: "About 2 h: JR to Hiyoshi, then a local bus (only a few a day)",
+          name: "Miyama", cover: photoOf("miyama", "A valley village of thatched farmhouses below wooded mountains", "Kayabuki-no-sato, Miyama's thatched village."), local: "美山", getting: "About 2 h: JR to Hiyoshi, then a local bus (only a few a day)",
           text: [
-            "Kayabuki-no-sato: nearly 40 thatched farmhouses in a valley, still lived in — Shirakawa-gō without the coaches.",
+            "Kayabuki-no-sato: nearly 40 thatched farmhouses in a valley, still lived in — Shirakawa-gō without the coaches.[^1]",
             "The Little Indigo Museum, in one of the houses, dyes everything in indigo.",
           ],
+          sources: [{ title: "Miyama, Kyoto — Wikipedia", url: "https://en.wikipedia.org/wiki/Miyama,_Kyoto", note: "Kayabuki-no-sato, the thatched village" }],
         },
         {
           name: "Ine & Amanohashidate", cover: photoOf("ine-funaya", "A row of wooden boathouses built over the water of a bay", "Funaya boathouses on Ine Bay."), local: "伊根・天橋立", getting: "About 2 h by train, then 1 h by bus — a long day, better with a night",
           text: [
-            "Ine's 230 boathouses (funaya) sit right on the water, boats parked on the ground floor, homes above.",
-            "On the way, Amanohashidate's pine-covered sandbar is one of Japan's three famous views. Tradition says to look at it upside down through your legs (mata-nozoki), when it becomes a bridge to heaven.",
+            "Ine's 230 boathouses (funaya) sit right on the water, boats parked on the ground floor, homes above.[^1]",
+            "On the way, Amanohashidate's pine-covered sandbar is one of Japan's three famous views. Tradition says to look at it upside down through your legs (mata-nozoki), when it becomes a bridge to heaven.[^2]",
           ],
+          sources: [{ title: "Ine, Kyoto — Wikipedia", url: "https://en.wikipedia.org/wiki/Ine,_Kyoto", note: "About 230 funaya boathouses" }, { title: "Amanohashidate — Wikipedia", url: "https://en.wikipedia.org/wiki/Amanohashidate", note: "One of the Three Views; looking through your legs" }],
         },
         {
           name: "Asuka", cover: photoOf("ishibutai", "A tomb of huge bare stone slabs on a lawn", "Ishibutai Kofun, a stone burial chamber in Asuka."), local: "明日香", getting: "About 1 h 20 min by Kintetsu, changing at Kashiharajingū-mae",
           text: [
             "Japan's capital before Nara, now rice fields. Rent a bike between the burial mounds.",
-            "Ishibutai is a tomb of giant bare boulders; Asuka-dera's Great Buddha, from 609, is the oldest in Japan.",
+            "Ishibutai is a tomb of giant bare boulders;[^2] Asuka-dera's Great Buddha, from 609, is the oldest in Japan.[^1]",
           ],
+          sources: [{ title: "Asuka-dera — Wikipedia", url: "https://en.wikipedia.org/wiki/Asuka-dera", note: "The Great Buddha of 609" }, { title: "Ishibutai Kofun — Wikipedia", url: "https://en.wikipedia.org/wiki/Ishibutai_Kofun", note: "The bare stone chamber" }],
         },
       ],
       items: [],
@@ -247,6 +265,8 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       name: "Osaka",
       local: "大阪",
       lat: 34.6937, lng: 135.5023, radiusKm: 12,
+      region: "Kansai",
+      cover: photoOf("osaka-castle", "A castle keep above stone walls and a moat, office towers behind", "Osaka Castle's keep above its stone walls and moat."),
       population: "About 2.8 million",
       items: [
         {
@@ -266,8 +286,8 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
           related: ["history/unification"],
           sources: [{ title: "Osaka Castle — Wikipedia", url: "https://en.wikipedia.org/wiki/Osaka_Castle", note: "1583, 1615, the 1931 tower" }],
         },
-        { title: "Stand on the right", cover: photoOf("umeda-escalator", "A long escalator rising through a tube of arched ribs", "An escalator at the Umeda Sky Building."), text: "Osaka stands on the right of escalators, unlike Tokyo — usually traced back to the 1970 Expo." },
-        { title: "Two Expos", text: "Osaka hosted the World Expo in 1970 and again in 2025. Tarō Okamoto's Tower of the Sun from 1970 still stands in Expo Park — you can go inside." },
+        { title: "Stand on the right", related: ["customs/street-rules"], cover: photoOf("umeda-escalator", "A long escalator rising through a tube of arched ribs", "An escalator at the Umeda Sky Building."), text: "Osaka stands on the right of escalators, unlike Tokyo — usually traced back to the 1970 Expo." },
+        { title: "Two Expos", text: "Osaka hosted the World Expo in 1970 and again in 2025. Tarō Okamoto's Tower of the Sun from 1970 still stands in Expo Park — you can go inside.[^1]", sources: [{ title: "Expo '70 — Wikipedia", url: "https://en.wikipedia.org/wiki/Expo_%2770", note: "Osaka, 1970, and the Tower of the Sun" }] },
         {
           title: "Dōtonbori's signs", cover: photoOf("glico-sign", "A large lit-up advertising sign at night", "The Glico sign over Dōtonbori at night."),
           text: "The canal-side strip of giant signs: the Glico running man (there since 1935), a mechanical crab waving its legs, and Kuidaore Tarō, the drumming clown. Best after dark.",
@@ -287,6 +307,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       name: "Nara",
       local: "奈良",
       lat: 34.6851, lng: 135.8048, radiusKm: 6,
+      region: "Kansai",
       population: "About 350,000",
       items: [],
     },
@@ -295,6 +316,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       name: "Uji",
       local: "宇治",
       lat: 34.8844, lng: 135.7997, radiusKm: 4,
+      region: "Kansai",
       population: "About 180,000",
       items: [],
     },
@@ -304,6 +326,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       local: "鞍馬・貴船",
       aliases: ["Kurama", "Kibune", "Kifune"],
       lat: 35.1180, lng: 135.7712, radiusKm: 2.5,
+      region: "Kansai",
       items: [],
     },
     {
@@ -311,6 +334,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       name: "Hakone",
       local: "箱根",
       lat: 35.2324, lng: 139.1069, radiusKm: 10,
+      region: "Kantō",
       population: "About 11,000",
       items: [],
     },
@@ -319,6 +343,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       name: "Kamakura",
       local: "鎌倉",
       lat: 35.3192, lng: 139.5467, radiusKm: 5,
+      region: "Kantō",
       population: "About 170,000",
       items: [],
     },
@@ -328,6 +353,8 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       local: "日光",
       aliases: ["Nikko"],
       lat: 36.7581, lng: 139.5986, radiusKm: 10,
+      region: "Kantō",
+      cover: photoOf("toshogu", "A vermilion five-storey pagoda behind a large stone torii gate", "The stone torii and pagoda at Tōshō-gū."),
       population: "About 76,000",
       items: [
         {
@@ -364,6 +391,8 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       name: "Hiroshima",
       local: "広島",
       lat: 34.3853, lng: 132.4553, radiusKm: 10,
+      region: "Chūgoku",
+      cover: photoOf("genbaku-dome", "The ruined shell of a domed brick building beside a river walk", "The A-Bomb Dome, kept as the bomb left it."),
       population: "About 1.2 million",
       items: [
         {
@@ -382,7 +411,8 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Paper cranes",
-          text: "Sadako Sasaki was two when the bomb fell and died of leukaemia at twelve, folding paper cranes in hospital. Her statue in the park is hung with millions of cranes sent from around the world.",
+          text: "Sadako Sasaki was two when the bomb fell and died of leukaemia at twelve, folding paper cranes in hospital. Her statue in the park is hung with millions of cranes sent from around the world.[^1]",
+          sources: [{ title: "Sadako Sasaki — Wikipedia", url: "https://en.wikipedia.org/wiki/Sadako_Sasaki", note: "Leukaemia at twelve, the cranes, the Children's Peace Monument" }],
         },
         { title: "Trams that survived", text: "The city's trams were running again three days after the bomb. Two of the cars that survived it, built in 1942, are still kept in service, mostly on weekday mornings.[^1]", sources: [{ title: "Trams that survived the bomb — Japan Tourism Agency", url: "https://www.mlit.go.jp/tagengo-db/R2-00309.html", note: "Cars 651 and 652 (Japanese)" }] },
         {
@@ -398,14 +428,17 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       local: "宮島",
       aliases: ["Itsukushima"],
       lat: 34.2959, lng: 132.3199, radiusKm: 4,
+      region: "Chūgoku",
+      cover: photoOf("miyajima-torii", "A huge vermilion torii standing on wet sand at low tide, people walking around its legs", "Itsukushima's great torii at low tide."),
       population: "About 1,500",
       items: [
         {
           title: "The floating torii",
           text: [
-            "Itsukushima Shrine's gate, about 16 m tall, stands in the sea at high tide. It isn't buried — it stands under its own weight.",
+            "Itsukushima Shrine's gate, about 16 m tall, stands in the sea at high tide. It isn't buried — it stands under its own weight.[^1]",
             "At low tide you can walk out to it. Check the tide times before you go.",
           ],
+          sources: [{ title: "Itsukushima Shinto Shrine — UNESCO", url: "https://whc.unesco.org/en/list/776", note: "The shrine, the gate in the sea and the sacred island" }],
         },
         {
           title: "A shrine on the water",
@@ -427,6 +460,8 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       name: "Himeji",
       local: "姫路",
       lat: 34.8394, lng: 134.6939, radiusKm: 4,
+      region: "Kansai",
+      cover: photoOf("himeji", "A white castle keep with layered roofs above stone walls", "Himeji Castle, its keep standing since 1609."),
       population: "About 520,000",
       items: [
         {
@@ -437,7 +472,8 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "The White Heron",
-          text: "Its white plaster walls earned it the name Shirasagi-jō, White Heron Castle. In 1993 it was among Japan's first World Heritage sites, alongside Hōryū-ji.",
+          text: "Its white plaster walls earned it the name Shirasagi-jō, White Heron Castle. In 1993 it was among Japan's first World Heritage sites, alongside Hōryū-ji.[^1]",
+          sources: [{ title: "Himeji-jo — UNESCO", url: "https://whc.unesco.org/en/list/661", note: "Inscribed 1993, among Japan's first four sites" }],
         },
         {
           title: "Inside the keep",
@@ -452,11 +488,14 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       name: "Kobe",
       local: "神戸",
       lat: 34.6901, lng: 135.1955, radiusKm: 8,
+      region: "Kansai",
+      cover: photoOf("kobe-port", "A red lattice tower and a white wave-shaped roof on the harbour at dusk", "Kobe Port Tower and the Maritime Museum."),
       population: "About 1.5 million",
       items: [
         {
           title: "A port opened to the world",
-          text: "Opened to foreign trade in 1868. The Western merchants' houses (ijinkan) on the hill in Kitano are still standing, and Nankinmachi is one of Japan's three Chinatowns.",
+          text: "Opened to foreign trade in 1868. The Western merchants' houses (ijinkan) on the hill in Kitano are still standing, and Nankinmachi is one of Japan's three Chinatowns.[^1]",
+          sources: [{ title: "Kobe — Wikipedia", url: "https://en.wikipedia.org/wiki/Kobe", note: "The port opened in 1868; Kitano and Nankinmachi" }],
         },
         {
           title: "1995",
@@ -471,7 +510,8 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Nada sake",
-          text: "The five districts of Nada, along the shore, brew more sake than anywhere else in Japan, using the hard local water, miyamizu. Several breweries have free museums.",
+          text: "The five districts of Nada, along the shore, brew more sake than anywhere else in Japan, using the hard local water, miyamizu. Several breweries have free museums.[^1]",
+          sources: [{ title: "Nada-Gogō — Wikipedia", url: "https://en.wikipedia.org/wiki/Nada-Gog%C5%8D", note: "Japan's largest sake district and its miyamizu water" }],
           related: ["drinks/sake-and-how-to-read-the-bottle"],
         },
         {
@@ -485,18 +525,21 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       name: "Kanazawa",
       local: "金沢",
       lat: 36.5613, lng: 136.6562, radiusKm: 8,
+      region: "Chūbu",
+      cover: photoOf("kenrokuen", "A two-legged stone lantern at the edge of a pond under pines", "The Kotoji lantern in Kenroku-en."),
       population: "About 460,000",
       items: [
         {
           title: "A rich castle town",
-          text: "The Maeda clan, the wealthiest lords after the shogun, spent on arts and gardens. Kenroku-en is one of Japan's three great gardens; in winter its pines are tied up with ropes against the snow (yukizuri).",
+          text: "The Maeda clan, the wealthiest lords after the shogun, spent on arts and gardens. Kenroku-en is one of Japan's three great gardens; in winter its pines are tied up with ropes against the snow (yukizuri).[^1]",
+          sources: [{ title: "Kenroku-en — Wikipedia", url: "https://en.wikipedia.org/wiki/Kenroku-en", note: "One of the Three Great Gardens; the Maeda and the yukizuri" }],
           related: ["land/gardens", "history/edo"],
         },
         {
           title: "Never bombed",
           text: "Kanazawa wasn't bombed in the war, so its geisha district (Higashi Chaya) and samurai quarter (Nagamachi) are original.",
         },
-        { title: "Gold leaf", text: "Over 99% of Japan's gold leaf is made here — beaten to a ten-thousandth of a millimetre. You'll see it on ice cream." },
+        { title: "Gold leaf", text: "Over 99% of Japan's gold leaf is made here — beaten to a ten-thousandth of a millimetre.[^1] You'll see it on ice cream.", sources: [{ title: "Kanazawa gold leaf — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E9%87%91%E6%B2%A2%E7%AE%94", note: "Over 99% of the country's output (Japanese)" }] },
         {
           title: "21st Century Museum",
           text: "A round glass museum by SANAA. Leandro Erlich's Swimming Pool lets you stand “underwater” fully dressed; timed tickets for the pool sell out.",
@@ -513,6 +556,8 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       name: "Takayama",
       local: "高山",
       lat: 36.1461, lng: 137.2522, radiusKm: 5,
+      region: "Chūbu",
+      cover: photoOf("takayama-street", "A narrow lane between dark wooden merchant houses with low eaves", "One of the Sanmachi lanes in Takayama."),
       population: "About 83,000",
       items: [
         {
@@ -523,7 +568,8 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         { title: "Morning markets", text: "Two of them, every morning: along the Miyagawa river and in front of the Takayama Jinya." },
         {
           title: "Takayama Jinya",
-          text: "The only surviving government office of its kind from the Edo period, where officials sent by the shogun ran the region — with its rice storehouse and interrogation room.",
+          text: "The only surviving government office of its kind from the Edo period, where officials sent by the shogun ran the region — with its rice storehouse and interrogation room.[^1]",
+          sources: [{ title: "Takayama Jinya — Wikipedia", url: "https://en.wikipedia.org/wiki/Takayama_Jinya", note: "The only surviving gundai office building" }],
         },
         {
           title: "Two festivals",
@@ -538,6 +584,8 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       local: "白川郷",
       aliases: ["Shirakawago", "Shirakawa"],
       lat: 36.2577, lng: 136.9063, radiusKm: 3,
+      region: "Chūbu",
+      cover: photoOf("shirakawago", "A valley of steep thatched farmhouses among rice fields and green mountains", "Ogimachi, Shirakawa-gō, from the lookout."),
       population: "About 1,500",
       items: [
         {
@@ -547,7 +595,8 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         { title: "World Heritage", text: "Listed in 1995 together with Gokayama, a smaller, quieter group of villages nearby.", sources: [{ title: "Historic Villages of Shirakawa-go and Gokayama — UNESCO", url: "https://whc.unesco.org/en/list/734", note: "Inscribed 1995" }] },
         {
           title: "A roof every few decades",
-          text: "A roof's thatch is replaced every 30–40 years in a day or two by the whole village working together (yui). Some houses are open inside.",
+          text: "A roof's thatch is replaced every 30–40 years in a day or two by the whole village working together (yui).[^1] Some houses are open inside.",
+          sources: [{ title: "Historic Villages of Shirakawa-go and Gokayama — UNESCO", url: "https://whc.unesco.org/en/list/734", note: "Gasshō-zukuri and the yui system of rethatching" }],
         },
         { title: "The viewpoint", text: "The postcard view is from the Shiroyama lookout above the village, a short shuttle bus or a steep walk." },
         { title: "Still lived in", text: "It's a working village, not a museum. Stay on paths and out of gardens, and come early or late to miss the coach tours." },
@@ -559,11 +608,14 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       name: "Nagoya",
       local: "名古屋",
       lat: 35.1815, lng: 136.9066, radiusKm: 12,
+      region: "Chūbu",
+      cover: photoOf("nagoya-castle", "A castle keep with green roofs and golden ornaments behind a weeping cherry", "Nagoya Castle's keep above a weeping cherry."),
       population: "About 2.3 million",
       items: [
         {
           title: "Industrial heart",
-          text: "Home ground of Toyota. The Toyota Commemorative Museum of Industry and Technology is in the old Toyoda spinning mill — the company started with automatic looms.",
+          text: "Home ground of Toyota. The Toyota Commemorative Museum of Industry and Technology is in the old Toyoda spinning mill — the company started with automatic looms.[^1]",
+          sources: [{ title: "Toyota Commemorative Museum of Industry and Technology — Wikipedia", url: "https://en.wikipedia.org/wiki/Toyota_Commemorative_Museum_of_Industry_and_Technology", note: "The 1911 red-brick Toyoda mill" }],
           related: ["work/the-world-s-oldest-firms"],
         },
         {
@@ -584,7 +636,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
           ],
           related: ["coffee/the-kissaten-menu"],
         },
-        { title: "Atsuta Shrine", text: "Said to hold the sacred sword Kusanagi, one of the three imperial regalia. Nobody has seen it in modern times." },
+        { title: "Atsuta Shrine", text: "Said to hold the sacred sword Kusanagi, one of the three imperial regalia. Nobody has seen it in modern times.[^1]", related: ["politics/the-emperor"], sources: [{ title: "Kusanagi — Wikipedia", url: "https://en.wikipedia.org/wiki/Kusanagi", note: "The sword at Atsuta and its hidden keeping" }] },
       ],
     },
     {
@@ -593,6 +645,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       local: "富士五湖",
       aliases: ["Kawaguchiko", "Fujikawaguchiko"],
       lat: 35.5161, lng: 138.7519, radiusKm: 10,
+      region: "Chūbu",
       population: "About 27,000 (Fujikawaguchiko)",
       items: [],
     },
@@ -602,6 +655,8 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       local: "高野山",
       aliases: ["Koyasan", "Mount Koya"],
       lat: 34.2130, lng: 135.5850, radiusKm: 4,
+      region: "Kansai",
+      cover: photoOf("okunoin", "A moss-covered stone bridge on a path through giant cedars", "A stone bridge on the path through Okunoin."),
       population: "About 3,000",
       items: [
         {
@@ -620,6 +675,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
             "Japan's largest cemetery: over 200,000 graves and memorials under giant cedars, on a 2 km path to Kūkai's mausoleum. Monks believe he's still in meditation there, and bring him meals twice a day.",
             "Among the old samurai graves are company memorials — one shaped like a coffee cup, one like a rocket. Night walks with a monk are worth it.",
           ],
+          sources: [{ title: "Kōyasan — Wikipedia", url: "https://en.wikipedia.org/wiki/K%C5%8Dyasan", note: "Okunoin, Kūkai's mausoleum and the daily meals brought to it" }],
         },
         { title: "Getting there", text: "About 2 hours from Osaka's Namba by Nankai train, then a steep cable car and a bus. Cold — snow in winter, chilly nights in autumn." },
       ],
@@ -629,16 +685,20 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       name: "Sapporo",
       local: "札幌",
       lat: 43.0618, lng: 141.3545, radiusKm: 15,
+      region: "Hokkaido",
+      cover: photoOf("sapporo-odori", "A red and white TV tower above a long park of flowerbeds and fountains", "Ōdōri Park and the TV tower."),
       population: "About 2 million",
       items: [
         {
           title: "A planned city",
-          text: "Laid out on a grid from 1869, when Japan settled Hokkaidō — homeland of the indigenous Ainu. American advisers helped plan its farms, which is why the old buildings look like New England.",
+          text: "Laid out on a grid from 1869, when Japan settled Hokkaidō — homeland of the indigenous Ainu. American advisers helped plan its farms, which is why the old buildings look like New England.[^1]",
+          related: ["look-closer/streets-without-names"],
+          sources: [{ title: "Sapporo — Wikipedia", url: "https://en.wikipedia.org/wiki/Sapporo", note: "The 1869 Development Commission, the grid and the American advisers" }],
         },
         { title: "Snow Festival", text: "Giant snow and ice sculptures fill Ōdōri Park every February — and every hotel." },
-        { title: "Beer and miso ramen", text: "Sapporo Beer has been brewed here since 1876, Japan's oldest brand. Miso ramen was born here in the 1950s.", related: ["eating-out/soba-udon-and-ramen", "drinks/sh-ch-whisky-and-beer"] },
+        { title: "Beer and miso ramen", text: "Sapporo Beer has been brewed here since 1876, Japan's oldest brand.[^1] Miso ramen was born here in the 1950s.", sources: [{ title: "Sapporo Brewery — Wikipedia", url: "https://en.wikipedia.org/wiki/Sapporo_Brewery", note: "Founded 1876 by the Hokkaido Development Commission" }], related: ["eating-out/soba-udon-and-ramen", "drinks/sh-ch-whisky-and-beer"] },
         { title: "Jingisukan", text: "Mutton grilled on a domed iron pan, named after Genghis Khan. The local meal." },
-        { title: "The Ainu", text: "Upopoy, the National Ainu Museum, opened in Shiraoi, about an hour south, in 2020 (see [Dialects and the standard](guide:language/dialects-and-the-standard))." },
+        { title: "The Ainu", text: "Upopoy, the National Ainu Museum, opened in Shiraoi, about an hour south, in 2020[^1] (see [Dialects and the standard](guide:language/dialects-and-the-standard)).", sources: [{ title: "Upopoy — Wikipedia", url: "https://en.wikipedia.org/wiki/Upopoy", note: "The National Ainu Museum and Park, opened July 2020" }] },
       ],
     },
     {
@@ -646,15 +706,17 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       name: "Fukuoka",
       local: "福岡",
       lat: 33.5902, lng: 130.4017, radiusKm: 12,
+      region: "Kyushu",
+      cover: photoOf("fukuoka-yatai", "Lit food stalls along a riverside at night, people seated at the counters", "Yatai by the river at Nakasu."),
       population: "About 1.6 million",
       items: [
-        { title: "Yatai", text: "Around a hundred open-air food stalls set up in the evenings, along the river at Nakasu and in Tenjin — ramen, grilled skewers, oden, a seat at the counter next to strangers." },
+        { title: "Yatai", text: "Around a hundred open-air food stalls set up in the evenings, along the river at Nakasu and in Tenjin — ramen, grilled skewers, oden, a seat at the counter next to strangers.[^1]", sources: [{ title: "Yatai (food cart) — Wikipedia", url: "https://en.wikipedia.org/wiki/Yatai_(food_cart)", note: "Fukuoka's stalls, the most in Japan" }] },
         {
           title: "Tonkotsu ramen",
           text: "The milky pork-bone broth comes from here. Order your noodles' firmness (barikata is very firm) and ask for kaedama, a second serving of noodles, for the leftover soup.",
           related: ["eating-out/soba-udon-and-ramen"],
         },
-        { title: "Mentaiko", text: "Spicy pollock roe, brought from Korea after the war — in onigiri, on pasta, as a gift in every station shop." },
+        { title: "Mentaiko", text: "Spicy pollock roe, brought from Korea after the war[^1] — in onigiri, on pasta, as a gift in every station shop.", sources: [{ title: "Mentaiko — Wikipedia", url: "https://en.wikipedia.org/wiki/Mentaiko", note: "Kawahara Toshio's Fukuya, 1949" }] },
         { title: "Gateway to Asia", text: "Fukuoka is closer to Busan and Seoul than to Tokyo, and its airport is just two subway stops from Hakata station." },
         { title: "Dazaifu", text: "Half an hour away, Dazaifu Tenmangū is the shrine to the god of learning. Eat umegae mochi, grilled rice cakes, on the street up to it.", related: ["belief/shinto"] },
       ],
@@ -665,23 +727,361 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       local: "沖縄",
       aliases: ["Naha"],
       lat: 26.2124, lng: 127.6809, radiusKm: 30,
+      region: "Okinawa",
+      cover: photoOf("shureimon", "A red Chinese-style gate with a tiled roof among trees", "Shureimon, the gate to Shuri Castle."),
       population: "About 1.5 million (the prefecture)",
       items: [
         {
           title: "Its own kingdom",
-          text: "The Ryūkyū Kingdom traded across Asia until Japan annexed it in 1879. Its languages, food, music and religion are distinct — the three-stringed sanshin is everywhere (see [Dialects and the standard](guide:language/dialects-and-the-standard)).",
+          sources: [{ title: "Ryukyu Kingdom — Wikipedia", url: "https://en.wikipedia.org/wiki/Ryukyu_Kingdom", note: "Trade across Asia and annexation in 1879" }],
+          text: "The Ryūkyū Kingdom traded across Asia until Japan annexed it in 1879.[^1] Its languages, food, music and religion are distinct — the three-stringed sanshin is everywhere (see [Dialects and the standard](guide:language/dialects-and-the-standard)).",
         },
         {
           title: "The Battle of Okinawa",
-          text: "The biggest land battle fought on Japanese soil, in 1945. Around a quarter of the civilian population died. The Peace Memorial Park in the south lists every name, from every side.",
+          sources: [{ title: "Battle of Okinawa — Wikipedia", url: "https://en.wikipedia.org/wiki/Battle_of_Okinawa", note: "Civilian deaths, and the Cornerstone of Peace" }],
+          text: "The biggest land battle fought on Japanese soil, in 1945. Around a quarter of the civilian population died.[^1] The Peace Memorial Park in the south lists every name, from every side.",
           related: ["history/meiji-to-1945", "history/since-1945"],
         },
         {
           title: "US rule until 1972",
-          text: "After the war the islands were administered by the US for 27 years. Okinawa, 0.6% of Japan's land, still hosts about 70% of the land used exclusively by US bases in Japan.",
+          text: "After the war the islands were administered by the US for 27 years. Okinawa, 0.6% of Japan's land, still hosts about 70% of the land used exclusively by US bases in Japan.[^1]",
+          sources: [{ title: "United States Forces Japan — Wikipedia", url: "https://en.wikipedia.org/wiki/United_States_Forces_Japan", note: "Okinawa's share of exclusive-use facilities" }],
         },
         { title: "Shuri Castle", text: "The palace's main hall burned in 2019. It has been rebuilt with traditional techniques, and the interior opens to visitors on 23 November 2026, by advance reservation.[^1]", sources: [{ title: "Shuri Castle main hall to reopen in November 2026 — GoAsia", url: "https://goasia.cc/en/news/okinawa-shuri-castle-main-hall-reopens-november-2026", note: "Completion ceremony 22 November, public opening 23 November 2026" }] },
         { title: "Its own food", text: "Gōyā champurū (bitter-melon stir-fry), Okinawa soba, Spam onigiri and awamori, the local rice spirit. Okinawa was long famous for its centenarians." },
+      ],
+    },
+    {
+      id: "hakodate",
+      name: "Hakodate",
+      local: "函館",
+      lat: 41.7687, lng: 140.7288, radiusKm: 8,
+      region: "Hokkaido",
+      population: "About 240,000",
+      cover: photoOf("hakodate", "A city of lights on a narrow neck of land between two dark bays, seen from a mountain at night", "Hakodate from Mount Hakodate: the city pinched between two bays."),
+      items: [
+        {
+          title: "One of the first open ports",
+          text: "The 1854 treaty with Commodore Perry opened Hakodate to American ships, and from 1859 it was one of the first ports open to foreign trade (see [Meiji to 1945](guide:history/meiji-to-1945)). Consulates, churches and a Russian Orthodox cathedral still stand on the slopes of Motomachi.[^1]",
+          sources: [{ title: "Hakodate — Wikipedia", url: "https://en.wikipedia.org/wiki/Hakodate", note: "Opened by the 1854 Convention of Kanagawa; a treaty port from 1859" }],
+        },
+        {
+          title: "The star fort",
+          text: [
+            "**Goryōkaku**, a five-pointed star fort on a European plan, was designed in 1855 and finished in 1866. Three years later it was the last stronghold of shogunate loyalists, who had declared their own Republic of Ezo; its fall in 1869 ended the Boshin War.[^1]",
+            "The shape only makes sense from above: the Goryōkaku Tower beside it was built so you can see it.",
+          ],
+          related: ["history/meiji-to-1945"],
+          sources: [{ title: "Goryōkaku — Wikipedia", url: "https://en.wikipedia.org/wiki/Gory%C5%8Dkaku", note: "Designed 1855 by Takeda Ayasaburō, finished 1866; the Republic of Ezo's last stand" }],
+        },
+        {
+          title: "The night view",
+          text: "From Mount Hakodate the city's lights fill the neck of land between two bays, a shape you'll see on every postcard. A ropeway goes up; go just after sunset.",
+        },
+        {
+          title: "Squid for breakfast",
+          text: "The morning market by the station sells squid caught overnight, cut into fine raw strips (ika sōmen) or served whole and still moving. Squid is the city's fish.",
+          related: ["food-at-home/a-weekday-of-meals"],
+        },
+        {
+          title: "Under the sea to get here",
+          text: "Trains reach Hakodate from Honshu through the Seikan Tunnel, 53.85 km long and opened in 1988, much of it under the strait; the Shinkansen has run through it since 2016.[^1]",
+          sources: [{ title: "Seikan Tunnel — Wikipedia", url: "https://en.wikipedia.org/wiki/Seikan_Tunnel", note: "53.85 km, opened 1988; Hokkaido Shinkansen from 2016" }],
+        },
+      ],
+    },
+    {
+      id: "shiretoko",
+      name: "Shiretoko",
+      local: "知床",
+      aliases: ["Utoro", "Shari"],
+      lat: 44.1, lng: 145.05, radiusKm: 25,
+      region: "Hokkaido",
+      population: "About 11,000 (Shari town)",
+      cover: photoOf("shiretoko", "A still lake reflecting a sky of white cloud, with green volcanic mountains behind", "One of the Shiretoko Five Lakes, below the peninsula's volcanoes."),
+      items: [
+        {
+          title: "The end of the earth",
+          text: "The name comes from the Ainu *sir etok*, \"the end of the earth\": a roadless peninsula of volcanoes running out into the Sea of Okhotsk. It has been World Heritage since 2005.[^1]",
+          sources: [{ title: "Shiretoko — UNESCO", url: "https://whc.unesco.org/en/list/1193", note: "Inscribed 2005" }],
+        },
+        {
+          title: "Sea ice and salmon",
+          text: "In late winter, drift ice from the Amur river reaches the coast, the southernmost sea ice in the northern hemisphere. Its plankton feed the fish, the salmon run up the rivers, and the bears and eagles eat the salmon: the chain is why the site was listed.[^1]",
+          related: ["land/forests-wild-and-planted"],
+          sources: [{ title: "Shiretoko — UNESCO", url: "https://whc.unesco.org/en/list/1193", note: "Seasonal sea ice and the link between sea and land" }],
+        },
+        {
+          title: "Bears",
+          text: "Shiretoko has one of the densest brown bear populations in the world. The Five Lakes are walked on an elevated boardwalk with an electric fence; the ground trails need a guide or a lecture first in bear season (see [Bears](guide:prepared/bears)).",
+          related: ["prepared/bears"],
+        },
+        {
+          title: "From the sea",
+          text: "Much of the coast can only be seen from a boat. In April 2022 a small tour boat, the Kazu I, sank off the peninsula in cold, rough water; 20 died and six are still missing, and the rules for tour boats were tightened after it.[^1]",
+          sources: [{ title: "Kazu I — Wikipedia", url: "https://en.wikipedia.org/wiki/Kazu_I", note: "23 April 2022" }],
+        },
+      ],
+    },
+    {
+      id: "hiraizumi",
+      name: "Hiraizumi",
+      local: "平泉",
+      lat: 38.9867, lng: 141.1131, radiusKm: 4,
+      region: "Tōhoku",
+      population: "About 7,000",
+      cover: photoOf("konjikido", "A plain wooden hall at the top of stone steps among tall cedars, visitors climbing to it", "The hall that shelters Chūson-ji's Golden Hall."),
+      items: [
+        {
+          title: "A golden capital in the north",
+          text: "For about a century, from 1089 to 1189, the **Northern Fujiwara** ruled the north from here on the profits of the region's gold, and built a Buddhist capital to rival Kyoto. Minamoto no Yoritomo destroyed them in 1189, after they had sheltered his brother Yoshitsune (see [Kamakura and Muromachi](guide:history/kamakura-and-muromachi)).[^1]",
+          related: ["history/kamakura-and-muromachi"],
+          sources: [{ title: "Hiraizumi — UNESCO", url: "https://whc.unesco.org/en/list/1277", note: "The Pure Land temples and gardens; inscribed 2011" }],
+        },
+        {
+          title: "The Golden Hall",
+          text: "Chūson-ji's **Konjikidō**, finished in 1124, is covered inside and out in gold leaf and inlaid mother-of-pearl, and holds the mummified remains of the Fujiwara lords. Since 1965 it has stood inside a concrete hall that protects it.[^1]",
+          sources: [{ title: "Chūson-ji — Wikipedia", url: "https://en.wikipedia.org/wiki/Ch%C5%ABson-ji", note: "The Konjikidō of 1124 and the Fujiwara remains" }],
+        },
+        {
+          title: "Summer grasses",
+          text: "Bashō came here in 1689 on the walk he wrote up as *The Narrow Road to the Deep North*, and wrote one of his most quoted haiku on the ruins: summer grasses, all that's left of warriors' dreams.",
+          related: ["language/how-japanese-sounds"],
+        },
+        {
+          title: "Listed in 2011",
+          text: "Hiraizumi became World Heritage in June 2011, three months after the tsunami that devastated the coast an hour to the east (see [Tsunami](guide:nature/tsunami)).[^1]",
+          related: ["nature/tsunami"],
+          sources: [{ title: "Hiraizumi — UNESCO", url: "https://whc.unesco.org/en/list/1277", note: "Inscribed 2011" }],
+        },
+      ],
+    },
+    {
+      id: "matsushima",
+      name: "Matsushima",
+      local: "松島",
+      aliases: ["Sendai"],
+      lat: 38.368, lng: 141.0628, radiusKm: 6,
+      region: "Tōhoku",
+      population: "About 13,000",
+      cover: photoOf("matsushima", "Pine-topped islands of pale rock in a calm blue bay", "Islands in Matsushima Bay."),
+      items: [
+        {
+          title: "One of the Three Views",
+          text: "Some 260 small islands of soft rock topped with pines fill the bay. In the 1640s the scholar Hayashi Gahō named it one of Japan's three great views, with Miyajima and Amanohashidate, and the ranking stuck.[^1]",
+          sources: [{ title: "Three Views of Japan — Wikipedia", url: "https://en.wikipedia.org/wiki/Three_Views_of_Japan", note: "Hayashi Gahō's list, 1643" }],
+        },
+        {
+          title: "The haiku Bashō didn't write",
+          text: "Everyone in Japan can quote *Matsushima ya, aa Matsushima ya, Matsushima ya*, said to be Bashō lost for words. It isn't his: it was written later by another poet. Bashō did come in 1689, and wrote no haiku here.[^1]",
+          sources: [{ title: "Matsushima — Wikipedia", url: "https://en.wikipedia.org/wiki/Matsushima", note: "The misattributed verse and Bashō's visit" }],
+        },
+        {
+          title: "Date Masamune's temple",
+          text: "The warlord **Date Masamune**, who founded nearby Sendai in 1600, rebuilt the Zen temple Zuigan-ji in 1609. Its caves along the shore were cut by monks for meditation.[^1]",
+          sources: [{ title: "Zuigan-ji — Wikipedia", url: "https://en.wikipedia.org/wiki/Zuigan-ji", note: "Rebuilt by Date Masamune, completed 1609" }],
+        },
+        {
+          title: "Sheltered in 2011",
+          text: "When the tsunami struck in March 2011, the islands broke its force, and Matsushima suffered far less than the towns either side of it (see [Tsunami](guide:nature/tsunami)).",
+          related: ["nature/tsunami"],
+        },
+        {
+          title: "Beef tongue in Sendai",
+          text: "Sendai, half an hour away, made grilled beef tongue (gyūtan) its dish after the war, served with barley rice and oxtail soup.",
+        },
+      ],
+    },
+    {
+      id: "kakunodate",
+      name: "Kakunodate",
+      local: "角館",
+      lat: 39.5953, lng: 140.5625, radiusKm: 3,
+      region: "Tōhoku",
+      population: "About 24,000 (Semboku city)",
+      cover: photoOf("kakunodate", "A wide street of black wooden fences and samurai houses under weeping cherry trees in blossom", "Kakunodate's samurai street in cherry season."),
+      items: [
+        {
+          title: "A samurai street",
+          text: "Laid out in 1620 as a castle town, Kakunodate kept the plan: a wide street of samurai houses behind black board fences, and a separate merchants' town (see [Castle towns](guide:look-closer/castle-towns)). Several houses are open inside.[^1]",
+          related: ["look-closer/castle-towns"],
+          sources: [{ title: "Kakunodate, Akita — Wikipedia", url: "https://en.wikipedia.org/wiki/Kakunodate,_Akita", note: "Founded 1620; the samurai district" }],
+        },
+        {
+          title: "Weeping cherries",
+          text: "The samurai houses' gardens are full of old weeping cherries, some descended from trees brought from Kyoto; along the river, a 2 km tunnel of cherries was planted in 1934. They flower in late April, weeks after Tokyo's (see [Cherry blossom](guide:land/cherry-blossom)).[^1]",
+          related: ["land/cherry-blossom"],
+          sources: [{ title: "Kakunodate, Akita — Wikipedia", url: "https://en.wikipedia.org/wiki/Kakunodate,_Akita", note: "The shidarezakura and the Hinokinai river cherries" }],
+        },
+        {
+          title: "Cherry bark",
+          text: "The local craft, **kabazaiku**, polishes mountain-cherry bark into a glossy brown skin for tea caddies and boxes; samurai made it on the side.",
+        },
+      ],
+    },
+    {
+      id: "matsuyama",
+      name: "Matsuyama",
+      local: "松山",
+      aliases: ["Dogo", "Dōgo"],
+      lat: 33.8392, lng: 132.7657, radiusKm: 8,
+      region: "Shikoku",
+      population: "About 500,000",
+      cover: photoOf("dogo-onsen", "A three-storey wooden bathhouse lit up at dusk, with a small tower on the roof", "Dōgo Onsen Honkan at dusk."),
+      items: [
+        {
+          title: "Dōgo Onsen",
+          text: [
+            "One of the oldest hot springs in Japan, named in its earliest chronicles. Its main bathhouse, the **Honkan**, a rambling three-storey wooden building with a drum tower on top, was built in 1894 and is still a working public bath.[^1]",
+            "It's said to have helped inspire the bathhouse in *Spirited Away*. The building was restored, while staying open, from 2019 to 2024.",
+          ],
+          related: ["culture/baths"],
+          sources: [{ title: "Dōgo Onsen — Wikipedia", url: "https://en.wikipedia.org/wiki/D%C5%8Dgo_Onsen", note: "The 1894 Honkan" }],
+        },
+        {
+          title: "An original castle",
+          text: "Matsuyama Castle, on a hill in the middle of the city, has one of only twelve castle keeps in Japan that survive from before 1868.[^1]",
+          related: ["look-closer/castle-towns"],
+          sources: [{ title: "Matsuyama Castle (Iyo) — Wikipedia", url: "https://en.wikipedia.org/wiki/Matsuyama_Castle_(Iyo)", note: "One of the twelve original keeps" }],
+        },
+        {
+          title: "Botchan and haiku",
+          text: "Natsume Sōseki taught here and set his comic novel *Botchan* (1906) in the town; a little steam-style train is named after it. The poet Masaoka Shiki, who did more than anyone to make the haiku modern, was born here, and the city keeps haiku post boxes for your verses.",
+          related: ["language/how-japanese-sounds"],
+        },
+        {
+          title: "On the pilgrim route",
+          text: "Ishite-ji, temple 51 of Shikoku's 88-temple pilgrimage, is a walk from Dōgo; you'll see pilgrims in white with staffs and stamp books (see [Goshuin](guide:stamps/goshuin)).",
+          related: ["stamps/goshuin"],
+        },
+      ],
+    },
+    {
+      id: "naoshima",
+      name: "Naoshima",
+      local: "直島",
+      lat: 34.46, lng: 133.995, radiusKm: 4,
+      region: "Shikoku",
+      population: "About 3,000",
+      cover: photoOf("naoshima", "A cluster of large translucent spheres lit from inside at dusk, bicycles parked beneath", "The bicycle shelter and waiting room at Honmura port, Naoshima."),
+      items: [
+        {
+          title: "An island turned into a museum",
+          text: "A small island in the Inland Sea, best known for art. From the late 1980s the publishing company Benesse built museums and hotels here, starting with Tadao Ando's Benesse House in 1992; the Chichu Art Museum, sunk into a hill, followed in 2004, built around Monet's water lilies and works by James Turrell and Walter De Maria.[^1]",
+          sources: [{ title: "Naoshima — Wikipedia", url: "https://en.wikipedia.org/wiki/Naoshima,_Kagawa", note: "Benesse House 1992, Chichu Art Museum 2004" }],
+        },
+        {
+          title: "Houses as artworks",
+          text: "In the old fishing village of Honmura, the **Art House Project** has turned empty houses and a shrine into permanent artworks since 1998: a way of filling buildings a shrinking population left behind (see [Who lives with whom](guide:numbers/who-lives-with-whom)).",
+          related: ["numbers/who-lives-with-whom"],
+        },
+        {
+          title: "And a smelter",
+          text: "The north of the island is industrial: Mitsubishi's copper smelter has worked there since 1917, and was the island's main employer long before the art.[^1]",
+          sources: [{ title: "Naoshima — Wikipedia", url: "https://en.wikipedia.org/wiki/Naoshima,_Kagawa", note: "The Mitsubishi smelter since 1917" }],
+        },
+        {
+          title: "The Setouchi Triennale",
+          text: "Every three years since 2010, the art festival spreads works across a dozen Inland Sea islands and the ferries fill up.",
+        },
+      ],
+    },
+    {
+      id: "nagasaki",
+      name: "Nagasaki",
+      local: "長崎",
+      lat: 32.7503, lng: 129.8779, radiusKm: 8,
+      region: "Kyushu",
+      population: "About 400,000",
+      cover: photoOf("dejima", "Low white-walled warehouses with tiled roofs along a stone embankment and a stretch of water", "The rebuilt Dutch trading post on Dejima."),
+      items: [
+        {
+          title: "A Christian port",
+          text: "Nagasaki was founded as a port for Portuguese ships in 1571, and for a few years was effectively run by the Jesuits. When Christianity was banned, it became a place of martyrdom: 26 Christians were crucified here in 1597 (see [Unification](guide:history/unification)).[^1]",
+          related: ["history/unification"],
+          sources: [{ title: "Nagasaki — Wikipedia", url: "https://en.wikipedia.org/wiki/Nagasaki", note: "Founded 1571; the Jesuits; the 26 Martyrs, 1597" }],
+        },
+        {
+          title: "Dejima",
+          text: "From 1641 to 1859 the Dutch were the only Europeans allowed to trade with Japan, confined to **Dejima**, a fan-shaped artificial island in the harbour. Through it came books on medicine and science, *rangaku*, \"Dutch learning\". The island's buildings have been reconstructed on the old site.[^1]",
+          related: ["history/edo"],
+          sources: [{ title: "Dejima — Wikipedia", url: "https://en.wikipedia.org/wiki/Dejima", note: "The Dutch post, 1641–1859" }],
+        },
+        {
+          title: "Hidden Christians",
+          text: "Some Christians kept their faith in secret for over two centuries, disguising Mary as the Buddhist Kannon. Their villages and churches around Nagasaki became World Heritage in 2018.[^1]",
+          related: ["belief/religion-without-belonging"],
+          sources: [{ title: "Hidden Christian Sites in the Nagasaki Region — UNESCO", url: "https://whc.unesco.org/en/list/1495", note: "Inscribed 2018" }],
+        },
+        {
+          title: "9 August 1945",
+          text: "The second atomic bomb exploded over the Urakami valley at 11:02, killing about 74,000 people by the end of the year. The hypocentre is a park; the Atomic Bomb Museum is beside it.[^1]",
+          related: ["history/meiji-to-1945"],
+          sources: [{ title: "Nagasaki Atomic Bomb Museum", url: "https://nagasakipeace.jp/en/", note: "About 74,000 dead by the end of 1945" }],
+        },
+        {
+          title: "Champon and castella",
+          text: "The city's food shows its trade: champon, a noodle soup from Chinese cooks; and castella, a sponge cake from the Portuguese, sold in long boxes as the city's present to take home.",
+          related: ["regional-food/overview"],
+        },
+      ],
+    },
+    {
+      id: "kagoshima",
+      name: "Kagoshima",
+      local: "鹿児島",
+      aliases: ["Sakurajima"],
+      lat: 31.5966, lng: 130.5571, radiusKm: 12,
+      region: "Kyushu",
+      population: "About 590,000",
+      cover: photoOf("sakurajima", "A broad volcano across a bay behind a city of low buildings", "Sakurajima across the bay from Kagoshima."),
+      items: [
+        {
+          title: "A city facing a volcano",
+          text: [
+            "**Sakurajima**, across the bay, is one of Japan's most active volcanoes, and puffs ash most days. Its 1914 eruption poured out enough lava to join the island to the mainland (see [Volcanoes](guide:nature/volcanoes)).[^1]",
+            "When the wind blows ash into the city, residents sweep it up into special yellow bags for collection. A 15-minute ferry crosses to the volcano around the clock.",
+          ],
+          related: ["nature/volcanoes"],
+          sources: [{ title: "Sakurajima — Wikipedia", url: "https://en.wikipedia.org/wiki/Sakurajima", note: "The 1914 eruption and the land bridge" }],
+        },
+        {
+          title: "Satsuma and the Restoration",
+          text: "Kagoshima was the seat of the Shimazu lords of **Satsuma**, who with Chōshū led the overthrow of the shogunate in 1868 (see [Meiji to 1945](guide:history/meiji-to-1945)). Satsuma's Saigō Takamori then rebelled against the new government and died on the hill of Shiroyama above the city in 1877.[^1]",
+          related: ["history/meiji-to-1945"],
+          sources: [{ title: "Satsuma Rebellion — Wikipedia", url: "https://en.wikipedia.org/wiki/Satsuma_Rebellion", note: "1877; Saigō's death at Shiroyama" }],
+        },
+        {
+          title: "Sweet potato country",
+          text: "The volcanic soil grows sweet potatoes, which the rest of Japan named *satsuma-imo* after the province. They go into the local shōchū, drunk with hot water, and the black pigs (kurobuta) are fattened on them (see [Shōchū, whisky and beer](guide:drinks/sh-ch-whisky-and-beer)).",
+          related: ["drinks/sh-ch-whisky-and-beer"],
+        },
+      ],
+    },
+    {
+      id: "beppu",
+      name: "Beppu",
+      local: "別府",
+      lat: 33.2846, lng: 131.4914, radiusKm: 6,
+      region: "Kyushu",
+      population: "About 110,000",
+      cover: photoOf("umi-jigoku", "Clouds of steam rising from a milky blue pool among green trees", "Umi Jigoku, Beppu's cobalt-blue \"sea hell\"."),
+      items: [
+        {
+          title: "The hot-spring capital",
+          text: "Beppu has more hot-spring sources and more hot water than anywhere else in Japan: over 2,000 sources, putting out more than 80,000 litres a minute. Steam rises from drains, gardens and roadsides all over town.[^1]",
+          related: ["culture/baths", "nature/volcanoes"],
+          sources: [{ title: "Beppu's hot springs — Japan Tourism Agency multilingual database", url: "https://www.mlit.go.jp/tagengo-db/en/R2-02058.html", note: "Japan's largest output, over 2,000 sources" }],
+        },
+        {
+          title: "The hells",
+          text: "The **jigoku**, \"hells\", are springs too hot to bathe in, kept to be looked at: a cobalt-blue pool, a blood-red one, a boiling mud pond, a geyser. Seven are toured on one ticket.[^1]",
+          sources: [{ title: "Hells of Beppu — Wikipedia", url: "https://en.wikipedia.org/wiki/Hells_of_Beppu", note: "Umi Jigoku, Chi-no-ike Jigoku and the rest" }],
+        },
+        {
+          title: "Cooked in steam",
+          text: "In Kannawa, inns and a public kitchen let you steam your own vegetables, eggs and seafood over hot-spring vents: **jigoku-mushi**. On the beach at Beppu, attendants bury you in naturally heated sand.",
+        },
       ],
     },
   ],
