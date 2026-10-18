@@ -12,6 +12,7 @@ export const customs: GuideTopic = {
   summary: "The rules that carry real weight, and where each one comes from",
   cover: photoOf("temizuya", "A roofed stone water basin at a shrine with bamboo ladles laid across it", "The water basin at Seimei Shrine in Kyoto: you rinse before you go in."),
   intro: {
+    title: "Intro to customs",
     body: [
       { p: "Visitors worry about etiquette more than they need to. Most Japanese manners are forgiving towards outsiders, and the bows and phrases matter far less than a handful of rules that carry real weight." },
       { p: "Those rules mostly grow from three ideas, and once you know them you can guess the rest." },
@@ -64,9 +65,37 @@ export const customs: GuideTopic = {
           ],
         },
         {
+          title: "A night in a ryokan",
+          summary: "The inn that feeds you, lays your bed and runs to its own clock",
+          body: [
+            { p: "A **ryokan** is a Japanese inn, and a night in one is closer to being a house guest than a hotel guest. The price is usually per person and includes dinner and breakfast, and the evening follows the inn's routine rather than yours.[^1]" },
+            {
+              steps: [
+                { title: "Arrive in the afternoon", text: "Shoes off at the entrance; slippers in the corridors, bare feet or socks on the tatami. Tea and a small sweet often wait in the room." },
+                { title: "Change into the yukata", text: "The cotton robe in the room is for the whole stay — the bath, dinner, even a walk in a hot-spring town. Wrap **left over right**: the other way is how the dead are dressed." },
+                { title: "Bathe before dinner", text: "Most inns have a shared bath, and many a hot spring (see [Onsen, properly](guide:customs/onsen-properly))." },
+                { title: "Dinner at the agreed time", text: "Agreed at check-in, often in the room or a private dining room, as a long run of small seasonal dishes (see [Kaiseki](guide:eating-out/kaiseki-a-meal-as-a-calendar)). Arriving late can mean no dinner." },
+                { title: "Your bed appears", text: "While you eat or bathe, staff move the table aside and lay out futon on the tatami.[^1]" },
+              ],
+            },
+            { p: "There's no tipping. A gift envelope (*kokorozuke*) for the room attendant is an old custom some guests still keep at grand inns; nobody expects it from a visitor." },
+          ],
+          words: [
+            { local: "旅館", say: "ryokan", means: "Japanese inn" },
+            { local: "浴衣", say: "yukata", means: "cotton robe" },
+            { local: "一泊二食", say: "ippaku nishoku", means: "one night with two meals" },
+            { local: "仲居", say: "nakai", means: "the room attendant" },
+          ],
+          related: ["customs/onsen-properly", "customs/shoes-and-slippers", "eating-out/kaiseki-a-meal-as-a-calendar"],
+          sources: [
+            { title: "Ryokan — Wikipedia", url: "https://en.wikipedia.org/wiki/Ryokan", note: "Meals included in the rate, the yukata, staff laying out the futon" },
+          ],
+        },
+        {
           title: "Onsen, properly",
           summary: "What makes it an onsen, and the details that mark a first-timer",
-          body: [
+          body: [            photo("tsurunoyu-rotenburo", "A milky outdoor hot-spring pool in snow, steam rising, bathers in the water", "The outdoor bath at Tsurunoyu Onsen, Akita."),
+
             { p: "Everyone knows you bathe naked and wash first. The finer points are where visitors give themselves away." },
             { h: "Onsen or sentō?" },
             { p: "An **onsen** uses water from a hot spring, defined by law by its temperature at the source or its mineral content (see [Volcanoes](guide:nature/volcanoes)).[^1] A **sentō** is a neighbourhood bathhouse with heated tap water, often with a painted Mount Fuji on the wall. Same etiquette, different water: each onsen posts its spring's type, sulphur, iron or alkaline, at the entrance." },
@@ -104,7 +133,8 @@ export const customs: GuideTopic = {
         {
           title: "Shrines and temples",
           summary: "Telling them apart, the water basin, and why you clap at one and not the other",
-          body: [
+          body: [            photo("omikuji", "Paper fortune slips tied in rows on cords at a shrine", "Omikuji tied up at Namba Yasaka Shrine, Osaka — the bad fortunes left behind."),
+
             { p: "Most Japanese visit both without any sense of contradiction: Shinto for life, births, weddings and new cars; Buddhism for death and the afterlife (see [Religion without belonging](guide:belief/religion-without-belonging)). The rituals differ, and getting them the wrong way round is the commonest slip." },
             {
               compare: {

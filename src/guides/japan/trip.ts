@@ -2,7 +2,7 @@ import type { GuideCity, GuideDate, GuideTopic } from "../types";
 import { prepared } from "./prepared";
 import { coffeeKyoto, coffeeTokyo } from "./coffee";
 import { placeReads } from "./places";
-import { photoOf } from "./photos";
+import { photo, photoOf } from "./photos";
 
 /** The trip half of the Japan guide — shown only for what a trip touches:
  *  the cities it stays in or passes through (matched by `match.ts`), and
@@ -12,104 +12,227 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
   dates: [
     {
       from: "10-09", to: "10-10", when: "9–10 October", title: "Takayama's autumn festival",
-      text: [
-        "Eleven towering festival floats, lacquered and gilded, are pulled through the old town around Sakurayama Hachimangū; some carry mechanical puppets (karakuri).[^1]",
-        "In the evening the floats are hung with lanterns. Rooms in Takayama book out months ahead.",
+      summary: "Eleven gilded floats, a puppet show on a moving stage, and an old town lit by lanterns",
+      body: [
+        { p: "Takayama holds two great festivals a year: the **Sannō Matsuri** in April at Hie Shrine, and the autumn **Hachiman Matsuri** at Sakurayama Hachimangū on 9 and 10 October. Together they're counted among Japan's three most beautiful festivals, and they're part of the float festivals UNESCO lists as intangible heritage.[^1][^2]" },
+        {
+          terms: [
+            { term: "The floats (yatai)", text: "Eleven tall wooden floats, carved, lacquered and hung with embroidery by the town's merchant guilds since the Edo period, stand on show around the shrine through the day." },
+            { term: "Karakuri", text: "One float carries mechanical puppets worked by strings from inside, which perform in front of the shrine — a short, crowded show; arrive early for a view." },
+            { term: "The evening (yomatsuri)", text: "On the night of the 9th the floats are hung with lit lanterns and pulled slowly through the old town. It's the moment most people come for." },
+          ],
+        },
+        { note: "Rooms in Takayama and nearby onsen towns sell out months ahead. In rain the floats stay in their storehouses (yatai-gura). Outside the festival, a rotating few are on show all year in the Festival Float Exhibition Hall by the shrine.", title: "Planning" },
       ],
+      words: [
+        { local: "屋台", say: "yatai", means: "festival float (in Takayama)" },
+        { local: "からくり", say: "karakuri", means: "mechanical puppets" },
+      ],
+      related: ["place/takayama/two-festivals"],
       sources: [
-        { title: "Takayama Festival — Wikipedia", url: "https://en.wikipedia.org/wiki/Takayama_Festival", note: "The spring and autumn festivals and their floats" },
+        { title: "Takayama Festival — Wikipedia", url: "https://en.wikipedia.org/wiki/Takayama_Festival", note: "The spring and autumn festivals, the floats and karakuri" },
+        { title: "Yama, Hoko, Yatai, float festivals in Japan — UNESCO", url: "https://ich.unesco.org/en/RL/yama-hoko-yatai-float-festivals-in-japan-01059", note: "Inscribed 2016, Takayama among them" },
       ],
     },
     {
       from: "10-22", to: "10-22", when: "22 October", title: "Two festivals in one night",
-      text: [
-        "In the day, Kyoto's Jidai Matsuri parades about 2,000 people in costume from every era of the city's history, from the Imperial Palace to Heian Shrine.[^1]",
-        "That evening, Kurama's Fire Festival fills the mountain village with giant pine torches.[^2] Trains up are packed and controlled — go early, or plan a late night.",
+      summary: "Kyoto's costume parade by day, Kurama's fire festival by night",
+      body: [
+        { h: "By day: the Jidai Matsuri" },
+        { p: "The **Festival of the Ages** was first held in 1895, when Heian Shrine was built to mark 1,100 years since Kyoto became the capital. About 2,000 people in carefully researched costume walk from the Kyoto Imperial Palace to Heian Shrine, era by era, from the 8th-century court to the samurai who fought for the Meiji Restoration — famous women, warlords and court nobles among them.[^1]" },
+        { p: "It sets off from the palace around midday and takes a couple of hours to pass any one spot. Paid seats along the route are sold in advance; standing room along the avenues is free." },
+        { h: "By night: the Kurama Fire Festival" },
+        { p: "That evening, in the mountain village of Kurama north of the city, young men carry huge pine torches up the main street to Yuki Shrine, chanting, with children carrying small ones before them. It's one of Kyoto's three great “strange festivals”.[^2]" },
+        { note: "Kurama's single street and the one small railway can't take the crowds. Access is tightly controlled, viewing has been restricted in recent years, and the last trains back are packed. Check the year's arrangements before you go.", kind: "warning", title: "Kurama on the night" },
       ],
+      words: [
+        { local: "時代祭", say: "Jidai Matsuri", means: "Festival of the Ages" },
+        { local: "火祭", say: "hi matsuri", means: "fire festival" },
+        { local: "松明", say: "taimatsu", means: "torch" },
+      ],
+      related: ["place/kurama/mountain-temple", "history/heian"],
       sources: [
-        { title: "Jidai Matsuri — Wikipedia", url: "https://en.wikipedia.org/wiki/Jidai_Matsuri", note: "22 October; about 2,000 marchers" },
-        { title: "Kurama Fire Festival — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E9%9E%8D%E9%A6%AC%E3%81%AE%E7%81%AB%E7%A5%AD", note: "The night of 22 October" },
+        { title: "Jidai Matsuri — Wikipedia", url: "https://en.wikipedia.org/wiki/Jidai_Matsuri", note: "First held 1895; about 2,000 marchers, palace to Heian Shrine" },
+        { title: "Kurama Fire Festival — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E9%9E%8D%E9%A6%AC%E3%81%AE%E7%81%AB%E7%A5%AD", note: "The night of 22 October at Yuki Shrine" },
       ],
     },
     {
       from: "10-25", to: "11-05", when: "Late October – early November", title: "Jimbōchō book festival",
-      text: "Tokyo's old-bookshop district lines a street with half a kilometre of outdoor stalls for the Kanda Used Book Festival — old prints, maps, photobooks and manga among the novels.[^1]",
+      summary: "Half a kilometre of bookshelves on the pavement of Tokyo's old-book district",
+      body: [
+        { p: "Jimbōchō has more secondhand bookshops than anywhere else in the world, and for a week or so each autumn they move onto the street. The **Kanda Used Book Festival** coincides with the national Reading Week around Culture Day.[^1]" },
+        {
+          list: [
+            "**The book corridor** — shelves and wagons run for about half a kilometre along Yasukuni-dōri, backs to the shops, with prices pencilled inside the covers",
+            "**What's there** — old woodblock prints and maps, art and photo books, film posters, manga and a great deal of Japanese literature",
+            "**Around it** — publishers' stalls and talks in the neighbouring streets, and the area's old curry houses and kissaten",
+          ],
+        },
+        { note: "Most stalls want cash. Prints and maps are often sold in clear sleeves you can look through; ask before pulling anything out.", title: "Buying" },
+      ],
+      related: ["place/tokyo/jimb-ch-a-book-town-by-accident", "place/tokyo/tokyo-coffee-worth-the-detour"],
       sources: [
         { title: "Kanda-Jinbōchō — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%A5%9E%E7%94%B0%E7%A5%9E%E4%BF%9D%E7%94%BA", note: "The Kanda Used Book Festival each autumn" },
       ],
     },
     {
       from: "10-25", to: "11-12", when: "Late October – mid November", title: "The Shōsōin treasures",
-      text: "The Nara National Museum shows a few dozen of the emperor's 8th-century treasures — instruments, glass, textiles from along the Silk Road — for a few weeks each autumn.[^1] Expect a long queue; timed tickets help.",
+      summary: "An emperor's 8th-century possessions, out of storage for a few weeks a year",
+      body: [
+        { p: "In 756, after the death of Emperor Shōmu, his widow Empress Kōmyō gave more than 600 of his possessions to the Great Buddha of Tōdai-ji. They were kept in the **Shōsōin**, a log storehouse beside the temple, and the collection — now about 9,000 items — has been looked after there ever since.[^1]" },
+        { p: "Much of it came along the Silk Road: Persian-style glass, a five-stringed lute inlaid with mother-of-pearl, textiles, medicines, documents. Each autumn the **Nara National Museum** shows a different selection for a few weeks; a piece may not be shown again for years." },
+        { note: "It's one of Japan's most popular exhibitions. Buy a timed ticket in advance and go early or in the last hour. The storehouse itself can be seen from outside on weekdays.", title: "Going" },
+      ],
+      words: [{ local: "正倉院展", say: "Shōsōin-ten", means: "the annual Shōsōin exhibition" }],
+      related: ["place/nara/the-great-buddha", "history/asuka-and-nara"],
       sources: [
-        { title: "Shōsōin — Wikipedia", url: "https://en.wikipedia.org/wiki/Sh%C5%8Ds%C5%8Din", note: "The annual autumn exhibition at the Nara National Museum" },
+        { title: "Shōsōin — Wikipedia", url: "https://en.wikipedia.org/wiki/Sh%C5%8Ds%C5%8Din", note: "The 756 gift, about 9,000 items, the autumn exhibition" },
       ],
     },
     {
       from: "10-31", to: "10-31", when: "31 October", title: "Halloween in Shibuya",
-      text: "Street drinking is banned around the station[^1] and the ward asks people not to gather — expect police and barriers rather than a party.",
+      summary: "Not a party any more: the ward asks visitors to stay away",
+      body: [
+        { p: "Shibuya's scramble crossing used to fill with tens of thousands of people in costume at Halloween. After years of crowd crushes, vandalism and an overturned truck in 2018, the ward has turned against it. Drinking on the street around the station is banned, and the ward and police ask people not to come.[^1]" },
+        { p: "Expect barriers, police directing the crowd, closed shops and no alcohol for sale nearby — not a street party. For costumes, look for organised events with their own venues instead, such as Ikebukuro's cosplay festival." },
+      ],
+      related: ["place/tokyo/station-towns-not-a-centre"],
       sources: [
         { title: "Shibuya ward bans street drinking around the station — The Japan Times", url: "https://www.japantimes.co.jp/news/2024/10/01/japan/society/shibuya-drinking-ban/", note: "The ordinance and the ward's requests" },
       ],
     },
     {
       from: "10-15", to: "11-30", when: "October – November weekends", title: "Shichi-Go-San",
-      text: [
-        "Families bring girls of three and seven and boys of five (and sometimes three) to shrines to pray for their health. The day itself is 15 November,[^1] but most go on a nearby weekend.",
-        "Meiji Jingū is full of tiny kimonos. Look for the long bags of chitose-ame, “thousand-year candy”.",
+      summary: "Children of three, five and seven taken to the shrine in their best kimono",
+      body: [
+        { p: "**Shichi-Go-San**, “seven-five-three”, gives thanks for children growing up healthy. Girls are brought to a shrine at three and seven, boys at five (and in some families three). The ages go back to old rites of passage: letting a child's hair grow at three, a boy's first hakama trousers at five, a girl's first adult obi at seven.[^1]" },
+        { p: "The day is 15 November, but most families go on a weekend in October or November that suits them, and many book a photo studio as well. Each child gets **chitose-ame**, “thousand-year candy”: long red-and-white sticks in a bag printed with cranes and turtles, symbols of long life." },
+        { note: "Big shrines like Meiji Jingū are full of small children in kimono. It's lovely to see, but ask before photographing anyone's child.", title: "Watching" },
       ],
+      words: [
+        { local: "七五三", say: "shichi-go-san", means: "seven-five-three" },
+        { local: "千歳飴", say: "chitose-ame", means: "thousand-year candy" },
+      ],
+      related: ["growing-up/shichi-go-san-to-twenty"],
       sources: [
-        { title: "Shichi-Go-San — Wikipedia", url: "https://en.wikipedia.org/wiki/Shichi-Go-San", note: "Ages, 15 November and chitose-ame" },
+        { title: "Shichi-Go-San — Wikipedia", url: "https://en.wikipedia.org/wiki/Shichi-Go-San", note: "Ages, origins, 15 November and chitose-ame" },
       ],
     },
     {
       from: "10-31", to: "11-04", when: "Around 3 November", title: "Mashiko pottery fair",
-      text: "The pottery town north of Tokyo fills with hundreds of potters' tents — from bargain bowls to serious work.[^1] A day trip by direct bus from Akihabara.",
+      summary: "Hundreds of potters' tents in the town of the folk-craft movement",
+      body: [
+        { p: "**Mashiko**, two and a half hours north of Tokyo, became a pottery town in the 19th century and famous in the 20th, when the potter **Hamada Shōji** settled there and made it a centre of the mingei folk-craft movement. Twice a year — in Golden Week and around Culture Day — its pottery fair fills the main street and car parks with tents.[^1]" },
+        {
+          list: [
+            "**Young potters** sell straight from their own tents, often at prices well below the galleries",
+            "**Established kilns** hold sales in their showrooms",
+            "**Hamada's house** and climbing kiln are now the Mashiko Sankōkan museum",
+          ],
+        },
+        { note: "A direct bus runs from Akihabara. Bring cash, a bag and newspaper or bubble wrap — and leave room in your luggage.", title: "Going" },
+      ],
       sources: [
         { title: "Mashiko, Tochigi — Wikipedia", url: "https://en.wikipedia.org/wiki/Mashiko,_Tochigi", note: "The spring and autumn pottery fairs" },
+        { title: "Shōji Hamada — Wikipedia", url: "https://en.wikipedia.org/wiki/Sh%C5%8Dji_Hamada", note: "Mingei, and his house and kiln in Mashiko" },
       ],
     },
     {
       from: "11-03", to: "11-03", when: "3 November", title: "Culture Day",
-      text: "A national holiday.[^1] Some museums and gardens are free, Hakone holds a daimyō procession, and it's usually one of the clearest days of the year.",
+      summary: "A national holiday that began as an emperor's birthday, and a famously clear day",
+      body: [
+        { p: "3 November was the Meiji Emperor's birthday. After the war it became **Culture Day**, chosen because the 1946 constitution was promulgated on that date, and it's the day the emperor presents the Order of Culture to artists and scientists at the palace.[^1]" },
+        {
+          list: [
+            "**Weather** — it's one of the days statistically most likely to be fine, a “singular day” of the Japanese calendar",
+            "**Hakone** holds its daimyō procession, a costumed re-enactment of a lord's train on the old Tōkaidō road",
+            "**Universities** hold their open festivals around now, and some museums open free or with events",
+          ],
+        },
+        { note: "It's a holiday, so sights, trains and roads are busier, especially when it falls next to a weekend.", title: "Expect" },
+      ],
+      related: ["place/hakone/old-highway-checkpoint"],
       sources: [
-        { title: "Culture Day — Wikipedia", url: "https://en.wikipedia.org/wiki/Culture_Day", note: "3 November, and its reputation for clear weather" },
+        { title: "Culture Day — Wikipedia", url: "https://en.wikipedia.org/wiki/Culture_Day", note: "3 November, its history, and its reputation for clear weather" },
       ],
     },
     {
       from: "11-01", to: "11-30", when: "November", title: "Tori no Ichi",
-      text: [
-        "On the Days of the Rooster in November, Ōtori shrines hold night fairs selling decorated bamboo rakes (kumade) that “rake in” luck for businesses.[^1]",
-        "The biggest is at Ōtori Shrine in Asakusa. When a sale is made, the stall claps a rhythm (tejime) for the buyer.",
+      summary: "Night fairs on the days of the rooster, selling rakes to rake in luck",
+      body: [
+        { p: "On the **days of the rooster** in November — the old calendar counts days in a cycle of twelve animals, so there are two or three — Ōtori shrines hold fairs for business luck. The best-known is at Ōtori Shrine in Asakusa, which stays open from midnight to midnight.[^1]" },
+        { p: "What's sold is the **kumade**, a bamboo rake decorated with masks, coins, rice bales and lucky charms, to rake in customers. Shopkeepers buy a slightly bigger one each year. When a sale is agreed, the stallholders clap a rhythm (**tejime**) for the buyer, and you'll hear it across the fair all night." },
+        { p: "Folk belief says a year with three rooster days brings more fires. It's a busy, cheerful night out with food stalls, at its best after dark." },
       ],
+      words: [
+        { local: "酉の市", say: "tori no ichi", means: "rooster-day fair" },
+        { local: "熊手", say: "kumade", means: "lucky rake" },
+        { local: "手締め", say: "tejime", means: "the rhythmic clapping that seals a deal" },
+      ],
+      related: ["customs/shrines-and-temples", "trivia/luck-numbers-and-wordplay"],
       sources: [
         { title: "Tori no Ichi — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E9%85%89%E3%81%AE%E5%B8%82", note: "The rooster-day fairs and their kumade rakes" },
       ],
     },
     {
       from: "11-01", to: "11-20", when: "Early to mid November", title: "Kawaguchiko's Autumn Leaves Festival",
-      text: "The Momiji Corridor on the north shore of Lake Kawaguchi is lit up after dark,[^1] with food stalls and Fuji behind it on a clear day.",
+      summary: "A tunnel of maples on Lake Kawaguchi, lit after dark",
+      body: [
+        { p: "On the north shore of Lake Kawaguchi, the **Momiji Corridor** is a short avenue of old maples that turns red and gold in November. During the festival it's lit up after dark, with food and craft stalls alongside.[^1]" },
+        { p: "Morning is when Fuji is most often clear behind the leaves; the light-up is the evening plan. At 830 m it gets cold fast once the sun goes — see [Cold, dark and early](guide:place/fuji-five-lakes/cold-dark-and-early)." },
+      ],
+      related: ["place/fuji-five-lakes/cold-dark-and-early", "land/autumn-colour"],
       sources: [
         { title: "Fujikawaguchiko Town tourism", url: "https://fujisan.ne.jp/", note: "The Momiji Corridor and its illuminations" },
       ],
     },
     {
       from: "11-01", to: "12-10", when: "November", title: "Temples open up",
-      text: "Kyoto's autumn special openings (tokubetsu kōkai): halls, gardens and treasures that are usually closed, many with evening illuminations that need their own ticket.[^1]",
+      summary: "Halls, gardens and treasures that are shut the rest of the year, some lit at night",
+      body: [
+        { p: "Every autumn Kyoto's temples hold **special openings** (tokubetsu kōkai): sub-temples, painted screens, Buddhist statues and gardens that are normally closed to the public open for a few weeks, and many temples run **evening illuminations** of their autumn gardens.[^1]" },
+        {
+          list: [
+            "The openings change every year — check the city's list for this autumn",
+            "Night illuminations are a separate ticket from daytime entry, and the queue starts before the gates open",
+            "Some interiors don't allow photographs; staff will say so",
+          ],
+        },
+      ],
+      related: ["place/kyoto/too-many-visitors-and-what-the-city-is-trying", "land/autumn-colour"],
       sources: [
         { title: "Kyoto's autumn special openings — Kyoto City Tourism Association", url: "https://kyoto.travel/en/", note: "Tokubetsu kōkai and evening illuminations" },
       ],
     },
     {
       from: "11-15", to: "12-05", when: "Mid November – early December", title: "Peak maples in Kyoto",
-      text: [
-        "Tōfuku-ji, Eikan-dō and the Philosopher's Path at their reddest. The mountains around Takao, Kurama and Ōhara turn first.",
-        "Weekends are the busiest days of Kyoto's year — go at opening time.",
+      summary: "The reddest weeks of the year, and the busiest",
+      body: [
+        { p: "Kyoto's maples colour from the mountains down. The hills around **Takao, Kurama and Ōhara** turn first; the city's gardens peak from late November into early December." },
+        {
+          terms: [
+            { term: "Tōfuku-ji", text: "A valley of maples crossed by the Tsūten-kyō bridge — the classic view, and the most crowded" },
+            { term: "Eikan-dō", text: "A temple known as “momiji no Eikan-dō” for its autumn, with an evening illumination" },
+            { term: "The Philosopher's Path", text: "A canal walk between Ginkaku-ji and Nanzen-ji, gentler than the big temples" },
+          ],
+        },
+        { note: "Peak weekends are the busiest days of Kyoto's year. Be at the gate when it opens, go on a weekday if you can, and walk or take the train rather than a bus.", title: "Crowds" },
       ],
+      related: ["land/autumn-colour", "place/kyoto/too-many-visitors-and-what-the-city-is-trying"],
     },
     {
       from: "11-20", to: "12-05", when: "Late November", title: "The ginkgo avenue",
-      text: "Tokyo's Meiji Jingū Gaien ginkgo avenue turns gold.[^1] The ginkgo is Tokyo's tree — its leaf is the city's symbol.[^2]",
+      summary: "Tokyo's tree turns gold along the avenue to the Meiji Memorial Picture Gallery",
+      body: [
+        { p: "The double row of ginkgo trees in **Meiji Jingū Gaien** turns bright yellow at the end of November, framing the domed Memorial Picture Gallery at the end of the avenue.[^1] A small festival of food stalls runs alongside while the leaves are out." },
+        { p: "The ginkgo is Tokyo's official tree, and its leaf is the city government's symbol.[^2] Across the city the street trees turn at the same time, and the pavements fill with leaves and fallen nuts (ginnan), which smell strongly — and are roasted and eaten." },
+        { p: "The avenue has been at the centre of an argument over the redevelopment of the Gaien area, with campaigners warning about the trees; the avenue itself is to be kept." },
+      ],
+      words: [
+        { local: "銀杏", say: "ichō", means: "ginkgo tree" },
+        { local: "銀杏", say: "ginnan", means: "ginkgo nut — same characters" },
+      ],
+      related: ["land/autumn-colour"],
       sources: [
         { title: "Meiji Jingu Gaien — Wikipedia", url: "https://en.wikipedia.org/wiki/Meiji_Jingu_Gaien", note: "The ginkgo avenue" },
         { title: "Symbols of Tokyo — Tokyo Metropolitan Government", url: "https://www.english.metro.tokyo.lg.jp/w/000-101-008024", note: "The ginkgo as Tokyo's tree" },
@@ -117,58 +240,169 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
     },
     {
       from: "11-23", to: "11-23", when: "23 November", title: "Labour Thanksgiving Day",
-      text: "A national holiday, rooted in the emperor's harvest rite (Niinamesai).[^1] Expect busier sights.",
+      summary: "A modern holiday on the date of an ancient harvest rite",
+      body: [
+        { p: "Since 1948 23 November has been **Labour Thanksgiving Day**, a day to honour work and production. The date is far older: it's when the emperor performs the **Niinamesai**, offering the year's new rice to the gods and tasting it himself, a rite at the heart of the imperial court's year.[^1]" },
+        { p: "For visitors it's mainly a national holiday in the middle of autumn-colour season: sights, trains and Kyoto especially will be busier." },
+      ],
+      related: ["politics/the-emperor", "how-food-works/rice-properly"],
       sources: [
         { title: "Labor Thanksgiving Day — Wikipedia", url: "https://en.wikipedia.org/wiki/Labor_Thanksgiving_Day", note: "23 November, and the Niinamesai" },
       ],
     },
     {
       from: "10-01", to: "02-28", when: "Autumn and winter", title: "Short days",
-      text: "Japan has no daylight saving: by November the sun sets around 16:30 in Tokyo and 16:50 in Kyoto.[^1] Plan outdoor sights for the morning, and many gardens close at dusk.",
+      summary: "One time zone, no daylight saving, and sunset before five",
+      body: [
+        { p: "Japan runs on a single time zone with no daylight saving, so in autumn and winter it gets dark early — and earlier the further east you are. In late November the sun sets around **16:30 in Tokyo** and about **16:45 in Kyoto**.[^1]" },
+        {
+          list: [
+            "Many gardens and temples close at 16:30 or 17:00, with last entry half an hour before",
+            "Plan outdoor sights and hikes for the morning; dusk on a mountain path comes fast",
+            "Use the evening for illuminations, markets, onsen and dinner — the cities stay lively",
+          ],
+        },
+      ],
+      related: ["prepared/bears", "place/fuji-five-lakes/cold-dark-and-early"],
       sources: [
         { title: "Sunrise and sunset in Japan — National Astronomical Observatory of Japan", url: "https://eco.mtk.nao.ac.jp/koyomi/dni/", note: "Sunset times by city and date (Japanese)" },
       ],
     },
     {
       from: "02-02", to: "02-04", when: "Around 3 February", title: "Setsubun",
-      text: "The eve of spring by the old calendar: people throw roasted soybeans to drive out demons, shouting “oni wa soto, fuku wa uchi”.[^1] Temples and shrines hold bean-throwing ceremonies, and Kasuga Taisha in Nara lights all its lanterns.",
+      summary: "Beans thrown at demons on the eve of spring",
+      body: [
+        { p: "**Setsubun** is the day before the first day of spring in the old calendar, usually 3 February (2 February in some years). Families throw roasted soybeans out of the door and at a parent wearing a demon mask, shouting **“Oni wa soto, fuku wa uchi!”** — “Demons out, luck in!” — then eat one bean for each year of their age.[^1]" },
+        {
+          list: [
+            "**Temples and shrines** hold bean-throwing ceremonies; at big ones celebrities and sumo wrestlers throw the beans to the crowd",
+            "**Kasuga Taisha** in Nara lights all its lanterns that evening",
+            "**Ehōmaki**, a whole thick sushi roll eaten in silence facing the year's lucky direction, is the newer custom, spread by convenience stores (see [The year in a home kitchen](guide:food-at-home/the-year-in-a-home-kitchen))",
+          ],
+        },
+      ],
+      words: [
+        { local: "節分", say: "setsubun", means: "the division of the seasons" },
+        { local: "豆まき", say: "mamemaki", means: "bean throwing" },
+        { local: "鬼", say: "oni", means: "demon" },
+      ],
+      related: ["food-at-home/the-year-in-a-home-kitchen", "belief/overview"],
       sources: [
-        { title: "Setsubun — Wikipedia", url: "https://en.wikipedia.org/wiki/Setsubun", note: "Mamemaki and the bean-throwing ceremonies" },
+        { title: "Setsubun — Wikipedia", url: "https://en.wikipedia.org/wiki/Setsubun", note: "Mamemaki, the date and the temple ceremonies" },
       ],
     },
     {
       from: "03-20", to: "04-10", when: "Late March – early April", title: "Cherry blossoms",
-      text: "Peak bloom in Tokyo and Kyoto, usually for about a week[^1] — and the year's biggest crowds and highest hotel prices.",
+      summary: "A week of blossom, a national picnic, and the year's highest prices",
+      body: [
+        { p: "The weather agency declares the season open when a sample tree in each city — for Tokyo, one at Yasukuni Shrine — has five or six open flowers, and full bloom when about 80% are open, usually a week later. In Tokyo and Kyoto that's normally late March to early April.[^1]" },
+        { p: "People picnic under the trees for **hanami**: company groups send a junior colleague in the morning to hold a patch of ground with a blue sheet, and parks stay busy into the evening, when some trees are lit (yozakura)." },
+        { note: "It's the busiest and most expensive time of year for hotels in Kyoto and Tokyo, alongside autumn leaves. The new school and business year starts in April, so stations are full of new suits and new uniforms too.", title: "Expect" },
+      ],
+      words: [
+        { local: "花見", say: "hanami", means: "blossom viewing" },
+        { local: "満開", say: "mankai", means: "full bloom" },
+        { local: "夜桜", say: "yozakura", means: "cherry blossom at night" },
+      ],
+      related: ["land/cherry-blossom"],
       sources: [
-        { title: "Cherry blossom forecasts and observations — Japan Meteorological Agency", url: "https://www.data.jma.go.jp/sakura/data/index.html", note: "Average flowering and full-bloom dates (Japanese)" },
+        { title: "Cherry blossom forecasts and observations — Japan Meteorological Agency", url: "https://www.data.jma.go.jp/sakura/data/index.html", note: "Sample trees, flowering and full-bloom dates (Japanese)" },
       ],
     },
     {
       from: "04-29", to: "05-05", when: "29 April – 5 May", title: "Golden Week",
-      text: "Several national holidays in a row;[^1] the whole country travels, trains and hotels fill and prices rise.",
+      summary: "Four national holidays in a week, and the whole country on the move",
+      body: [
+        { p: "**Golden Week** strings together Shōwa Day (29 April), Constitution Day (3 May), Greenery Day (4 May) and Children's Day (5 May). With a weekend or two, many people get a week off, and the country travels at once.[^1]" },
+        {
+          list: [
+            "Shinkansen reserved seats, flights and hotels sell out and prices rise",
+            "Expressways jam, especially on the first and last days",
+            "Carp streamers (koinobori) fly for Children's Day",
+          ],
+        },
+        { note: "If your trip touches it, book transport and rooms early, or use the week for less famous places.", title: "Plan" },
+      ],
+      words: [{ local: "鯉のぼり", say: "koinobori", means: "carp streamers" }],
+      related: ["getting-around/riding-the-shinkansen"],
       sources: [
         { title: "Golden Week (Japan) — Wikipedia", url: "https://en.wikipedia.org/wiki/Golden_Week_(Japan)", note: "The holidays from 29 April to 5 May" },
       ],
     },
     {
       from: "07-01", to: "07-31", when: "July", title: "Gion Matsuri",
-      text: "Kyoto's great festival runs all month. The huge wooden floats parade on 17 and 24 July,[^1] and on the evenings before, the streets around them fill with food stalls and people in yukata.",
+      summary: "Kyoto's month-long festival, born of a plague in 869",
+      body: [
+        { p: "The **Gion Matsuri** began in 869, when the court ordered prayers to the god of Yasaka Shrine to end an epidemic. It has run for most of the eleven centuries since, organised by the merchant neighbourhoods of central Kyoto, each with its own float.[^1]" },
+        {
+          terms: [
+            { term: "The floats", text: "Thirty-four of them. The great hoko weigh about 12 tonnes and rise more than 20 metres, hung with old tapestries, some woven in Europe and Persia, and are pulled on wooden wheels and turned at corners on split bamboo." },
+            { term: "Yoiyama", text: "The three evenings before each procession (14–16 and 21–23 July): the floats stand lit in the streets, the centre is closed to traffic, and the city comes out in yukata. Old merchant houses open their doors to show folding screens." },
+            { term: "The processions", text: "17 July, with most of the floats, and 24 July, with the rest, through central Kyoto from the morning." },
+          ],
+        },
+        { note: "Kyoto in July is often over 35 °C and humid. Carry water, plan for crowds on the yoiyama evenings, and book rooms early.", kind: "warning", title: "Heat" },
+      ],
+      words: [
+        { local: "山鉾", say: "yamaboko", means: "festival floats" },
+        { local: "宵山", say: "yoiyama", means: "festival eve" },
+      ],
+      related: ["prepared/heat", "history/heian"],
       sources: [
-        { title: "Gion Matsuri — Wikipedia", url: "https://en.wikipedia.org/wiki/Gion_Matsuri", note: "A month long; the float processions of 17 and 24 July" },
+        { title: "Gion Matsuri — Wikipedia", url: "https://en.wikipedia.org/wiki/Gion_Matsuri", note: "869; 34 floats; yoiyama; processions on 17 and 24 July; UNESCO 2009" },
       ],
     },
     {
       from: "08-11", to: "08-17", when: "Mid August", title: "Obon",
-      text: "People go home to honour their ancestors — trains are packed, and on 16 August Kyoto lights giant bonfire characters on the mountains around the city (Gozan no Okuribi) to send the spirits back.[^1]",
+      summary: "The ancestors come home, and so does everyone else",
+      body: [
+        { p: "**Obon** is the Buddhist festival when the spirits of ancestors are believed to return home. Families clean the graves, light lanterns and gather, and towns hold **bon odori**, open-air dances in a ring around a tower, that anyone can join. In most of the country it falls around 13–16 August." },
+        { p: "In Kyoto it ends on the night of **16 August** with **Gozan no Okuribi**: five giant characters and shapes, including the 大 of Daimonji, are lit in bonfires on the mountains around the city to send the spirits back.[^1]" },
+        { note: "It isn't a public holiday, but many businesses close for a few days and the whole country travels at once. Trains and expressways out of the cities are packed at the start, and back in at the end.", title: "Expect" },
+      ],
+      words: [
+        { local: "お盆", say: "obon", means: "the festival of the dead" },
+        { local: "盆踊り", say: "bon odori", means: "the Obon dance" },
+        { local: "送り火", say: "okuribi", means: "fires that send the spirits off" },
+      ],
+      related: ["belief/buddhism"],
       sources: [
-        { title: "Gozan no Okuribi — Wikipedia", url: "https://en.wikipedia.org/wiki/Gozan_no_Okuribi", note: "The bonfires of 16 August" },
+        { title: "Gozan no Okuribi — Wikipedia", url: "https://en.wikipedia.org/wiki/Gozan_no_Okuribi", note: "The five bonfires of 16 August" },
+        { title: "Bon Festival — Wikipedia", url: "https://en.wikipedia.org/wiki/Bon_Festival", note: "Dates, bon odori and the return of ancestors" },
       ],
     },
     {
       from: "12-29", to: "01-03", when: "29 December – 3 January", title: "New Year",
-      text: "Many shops, restaurants and museums close. Temples ring their bells 108 times at midnight,[^1] and shrines are packed from midnight through the first three days.",
+      summary: "Japan's biggest holiday: closed doors, 108 bells and the first shrine visit",
+      body: [
+        { p: "**Shōgatsu**, New Year, is Japan's most important holiday — a time for family, much like Christmas in Europe. Offices close from about 29 December to 3 January, and people travel home." },
+        { h: "New Year's Eve" },
+        {
+          steps: [
+            { title: "Toshikoshi soba", text: "Buckwheat noodles eaten on the evening of the 31st, long for a long life." },
+            { title: "The 108 bells", text: "At midnight temples strike their great bells 108 times — **joya no kane** — one for each of the worldly desires of Buddhist teaching. Some let visitors take a turn.[^1]" },
+            { title: "The first shrine visit", text: "**Hatsumōde**: crowds visit shrines from midnight and through the first three days to pray for the year, buy charms and draw fortunes. Meiji Jingū in Tokyo and Fushimi Inari in Kyoto are among the busiest in the country.[^1]" },
+          ],
+        },
+        { h: "The first days" },
+        {
+          terms: [
+            { term: "Osechi", text: "Lacquer boxes of cold, symbolic dishes made in advance, so no one cooks in the first days" },
+            { term: "Hatsuhinode", text: "The first sunrise of the year, watched from beaches and hilltops" },
+            { term: "Fukubukuro", text: "Sealed “lucky bags” of goods sold at a discount by department stores and shops from 1 or 2 January" },
+            { term: "The emperor's greeting", text: "On 2 January the imperial family appears on a palace balcony to greet the public" },
+          ],
+        },
+        { note: "Many restaurants, small shops and museums close for some of 29 December – 3 January, and some sights shut on 1 January. Konbini, chain restaurants, department stores (from the 1st or 2nd) and big shrines are open. Trains run, and in Tokyo some lines run all night on New Year's Eve. Check opening days for anything you plan.", kind: "warning", title: "What's closed" },
+      ],
+      words: [
+        { local: "初詣", say: "hatsumōde", means: "first shrine visit of the year" },
+        { local: "除夜の鐘", say: "joya no kane", means: "the New Year's Eve bells" },
+        { local: "おせち", say: "osechi", means: "New Year food" },
+      ],
+      related: ["food-at-home/the-year-in-a-home-kitchen", "customs/shrines-and-temples"],
       sources: [
-        { title: "Japanese New Year — Wikipedia", url: "https://en.wikipedia.org/wiki/Japanese_New_Year", note: "Joya no kane and hatsumōde" },
+        { title: "Japanese New Year — Wikipedia", url: "https://en.wikipedia.org/wiki/Japanese_New_Year", note: "Joya no kane, hatsumōde, osechi, fukubukuro and the emperor's greeting" },
       ],
     },
   ],
@@ -177,6 +411,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
     {
       id: "tokyo",
       name: "Tokyo",
+      cover: photoOf("tokyo-skyline", "Tokyo's towers at night with the lit Tokyo Tower among them", "Tokyo at night."),
       local: "東京",
       lat: 35.6812, lng: 139.7671, radiusKm: 25,
       region: "Kantō",
@@ -253,10 +488,10 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       lat: 35.0116, lng: 135.7681, radiusKm: 10,
       region: "Kansai",
       population: "About 1.4 million",
-      cover: photoOf("kiyomizu-stage", "A wooden temple hall on a tall timber stage above a wooded hillside", "Kiyomizu-dera's stage above the trees of Higashiyama."),
+      cover: photoOf("yasaka-pagoda", "A five-storey pagoda at the end of a sloping lane of wooden houses", "Yasaka pagoda above the lanes of Higashiyama."),
       dayTrips: [
         {
-          name: "Takao", cover: photoOf("jingoji", "A child at a table of small clay discs at a temple", "Clay discs for kawarake throwing at Jingo-ji."), local: "高雄", getting: "About 50 min by JR bus from Kyoto Station",
+          name: "Takao", cover: photoOf("takao-maples", "A wooded hillside in autumn red and orange", "Maples on the slopes at Jingo-ji, Takao."), local: "高雄", getting: "About 50 min by JR bus from Kyoto Station",
           text: [
             "Three mountain temples along a river gorge, where Kyoto's maples turn first — early to mid November.",
             "At Jingo-ji you throw little clay discs (kawarake) off a cliff to cast away bad luck.[^1] Kōzan-ji keeps copies of the Chōjū-giga, 12th-century scrolls of frogs and rabbits often called the first manga.[^2] Walk down the river to Kiyotaki.",
@@ -288,7 +523,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
           sources: [{ title: "Miho Museum — Wikipedia", url: "https://en.wikipedia.org/wiki/Miho_Museum", note: "I. M. Pei's design; open in spring and autumn seasons" }],
         },
         {
-          name: "Sakamoto & Hiyoshi Taisha", cover: photoOf("hiyoshi-taisha", "Lanterns lighting red maples at night", "Hiyoshi Taisha's maples lit at night."), local: "坂本・日吉大社", getting: "About 40 min by Keihan or JR to Sakamoto",
+          name: "Sakamoto & Hiyoshi Taisha", cover: photoOf("hiyoshi-torii", "A tall stone torii over a road lined with autumn trees", "The torii of Hiyoshi Taisha at Sakamoto."), local: "坂本・日吉大社", getting: "About 40 min by Keihan or JR to Sakamoto",
           text: [
             "The temple town under Mount Hiei, its walls built in anō-zumi — stones stacked without mortar by the same guild of masons who built castle walls.[^1]",
             "Hiyoshi Taisha is one of the best maple spots near Kyoto and rarely crowded. Japan's longest cable car climbs from here to Enryaku-ji.[^2]",
@@ -328,11 +563,12 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       local: "大阪",
       lat: 34.6937, lng: 135.5023, radiusKm: 12,
       region: "Kansai",
-      cover: photoOf("osaka-castle", "A castle keep above stone walls and a moat, office towers behind", "Osaka Castle's keep above its stone walls and moat."),
+      cover: photoOf("dotonbori-canal", "A canal lined with neon signs at dusk", "Dōtonbori at dusk."),
       population: "About 2.8 million",
       items: [
         {
           title: "The nation's kitchen",
+          cover: photoOf("kuromon-market", "The entrance gate of a covered market street with a big name sign", "Kuromon market, Osaka."),
           text: "A merchant city in the Edo period, where rice from across Japan was traded — hence the nickname tenka no daidokoro. The world's first organised futures market traded rice here, at Dōjima, licensed by the shogunate in 1730.[^1]",
           related: ["history/edo", "place/tokyo/what-tokyo-eats"],
           sources: [{ title: "Dōjima Rice Exchange — Wikipedia", url: "https://en.wikipedia.org/wiki/D%C5%8Djima_Rice_Exchange", note: "Licensed in 1730" }],
@@ -352,7 +588,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
           sources: [{ title: "Osaka Castle — Wikipedia", url: "https://en.wikipedia.org/wiki/Osaka_Castle", note: "1583, 1615, the 1931 tower" }],
         },
         { title: "Stand on the right", related: ["customs/street-rules"], cover: photoOf("umeda-escalator", "A long escalator rising through a tube of arched ribs", "An escalator at the Umeda Sky Building."), text: "Osaka stands on the right of escalators, unlike Tokyo — usually traced back to the 1970 Expo.[^1]", sources: [{ title: "Escalator etiquette — Wikipedia", url: "https://en.wikipedia.org/wiki/Escalator_etiquette", note: "Osaka's right-side standing and the Expo story" }] },
-        { title: "Two Expos", text: "Osaka hosted the World Expo in 1970 and again in 2025. Tarō Okamoto's Tower of the Sun from 1970 still stands in Expo Park — you can go inside.[^1]", sources: [{ title: "Expo '70 — Wikipedia", url: "https://en.wikipedia.org/wiki/Expo_%2770", note: "Osaka, 1970, and the Tower of the Sun" }] },
+        { title: "Two Expos", cover: photoOf("expo-70", "Futuristic pavilions and a golden dome at the 1970 Osaka Expo", "Pavilions at Expo '70, April 1970."), text: "Osaka hosted the World Expo in 1970 and again in 2025. Tarō Okamoto's Tower of the Sun from 1970 still stands in Expo Park — you can go inside.[^1]", sources: [{ title: "Expo '70 — Wikipedia", url: "https://en.wikipedia.org/wiki/Expo_%2770", note: "Osaka, 1970, and the Tower of the Sun" }] },
         {
           title: "Dōtonbori's signs", cover: photoOf("glico-sign", "A large lit-up advertising sign at night", "The Glico sign over Dōtonbori at night."),
           text: "The canal-side strip of giant signs: the Glico running man (there since 1935)[^1], a mechanical crab waving its legs, and Kuidaore Tarō, the drumming clown. Best after dark.",
@@ -368,7 +604,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
           ],
         },
         {
-          title: "Bunraku's home", cover: photoOf("bunraku-puppet", "A bunraku puppet held by its operators", "A bunraku puppet and its three operators."),
+          title: "Bunraku's home", cover: photoOf("bunraku-theatre", "A dark modern theatre building with banners at its entrance", "The National Bunraku Theatre in Osaka."),
           text: "The National Bunraku Theatre in Nanba stages the puppet theatre where each puppet is worked by three people in full view[^1] (see [Kabuki and bunraku](guide:culture/kabuki-and-bunraku)).",
           sources: [
             { title: "National Bunraku Theatre — Wikipedia", url: "https://en.wikipedia.org/wiki/National_Bunraku_Theatre", note: "Osaka's puppet theatre" },
@@ -379,6 +615,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
     {
       id: "nara",
       name: "Nara",
+      cover: photoOf("kofukuji-park", "A five-storey pagoda and a temple hall across an open park", "Kōfuku-ji's pagoda across Nara Park."),
       local: "奈良",
       lat: 34.6851, lng: 135.8048, radiusKm: 6,
       region: "Kansai",
@@ -388,6 +625,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
     {
       id: "uji",
       name: "Uji",
+      cover: photoOf("uji-tea", "Rows of rounded tea bushes covering a hillside in the Kyoto countryside", "Tea fields in the Uji tea country, south of Kyoto."),
       local: "宇治",
       lat: 34.8844, lng: 135.7997, radiusKm: 4,
       region: "Kansai",
@@ -397,6 +635,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
     {
       id: "kurama",
       name: "Kurama & Kibune",
+      cover: photoOf("kurama-main-hall", "A vermilion temple hall at the top of a mountain path", "Kurama-dera's main hall."),
       local: "鞍馬・貴船",
       aliases: ["Kurama", "Kibune", "Kifune"],
       lat: 35.1180, lng: 135.7712, radiusKm: 2.5,
@@ -406,6 +645,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
     {
       id: "hakone",
       name: "Hakone",
+      cover: photoOf("ashi-fuji-torii", "A lake with a red torii at its edge and Mount Fuji behind", "Lake Ashi, Hakone Shrine's torii and Fuji."),
       local: "箱根",
       lat: 35.2324, lng: 139.1069, radiusKm: 10,
       region: "Kantō",
@@ -415,6 +655,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
     {
       id: "kamakura",
       name: "Kamakura",
+      cover: photoOf("hasedera", "A temple gate and lantern above a courtyard", "Hase-dera, Kamakura."),
       local: "鎌倉",
       lat: 35.3192, lng: 139.5467, radiusKm: 5,
       region: "Kantō",
@@ -433,6 +674,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       items: [
         {
           title: "A shogun's mausoleum",
+          cover: photoOf("yomeimon", "An ornate gate covered in gold, carving and colour", "The Yōmeimon gate at Nikkō Tōshō-gū."),
           text: "Tōshō-gū is the shrine to Tokugawa Ieyasu, rebuilt in 1636 by his grandson — gold, lacquer and carving at full volume, the opposite of Zen restraint. With Futarasan Shrine and Rinnō-ji it's a World Heritage site.[^1]",
           pointsTitle: "Look for",
           points: [
@@ -445,6 +687,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Up the 48 bends",
+          cover: photoOf("irohazaka", "A tour bus on a hairpin bend of a mountain road in autumn", "Irohazaka, from Akechidaira."),
           text: "The Irohazaka road climbs to Lake Chūzenji in 48 hairpins — one for each syllable of the old iroha alphabet.[^1] At the top, Kegon Falls drops 97 m.[^2] In peak autumn, the traffic jams are famous.",
           sources: [
             { title: "Irohazaka — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E3%81%84%E3%82%8D%E3%81%AF%E5%9D%82", note: "48 hairpins, one per iroha syllable" },
@@ -456,7 +699,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
           text: "It's in the mountains: autumn colour starts around the lake in early October and reaches the town in late October, weeks before Tokyo.",
           related: ["land/autumn-colour"],
         },
-        { title: "The red bridge", text: "Shinkyō, the vermilion bridge at the entrance to the shrines, marks the spot where a god is said to have thrown snakes across the river for a monk to cross.[^1]", sources: [{ title: "Shinkyō — Wikipedia", url: "https://en.wikipedia.org/wiki/Shinky%C5%8D", note: "The sacred bridge and the snake legend" }] },
+        { title: "The red bridge", cover: photoOf("shinkyo", "A red lacquered bridge over a rocky river among autumn trees", "The Shinkyō bridge over the Daiya."), text: "Shinkyō, the vermilion bridge at the entrance to the shrines, marks the spot where a god is said to have thrown snakes across the river for a monk to cross.[^1]", sources: [{ title: "Shinkyō — Wikipedia", url: "https://en.wikipedia.org/wiki/Shinky%C5%8D", note: "The sacred bridge and the snake legend" }] },
         { title: "Yuba", text: "Nikkō's speciality is yuba, tofu skin — here written 湯波 rather than Kyoto's 湯葉, and served thicker, rolled.[^1]", sources: [{ title: "Yuba — Wikipedia", url: "https://en.wikipedia.org/wiki/Yuba", note: "Tofu skin, and Nikkō's spelling" }] },
         {
           title: "Don't say kekkō",
@@ -484,17 +727,20 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "The dome",
+          cover: photoOf("genbaku-dome-close", "The ruined brick walls and bare steel dome of a domed building", "The Genbaku Dome, kept as it was left."),
           text: "The A-Bomb Dome was the Prefectural Industrial Promotion Hall, designed by the Czech architect Jan Letzel. One of the few buildings left standing near the blast, it was kept as it was and became World Heritage in 1996.",
           sources: [{ title: "Hiroshima Peace Memorial (Genbaku Dome) — UNESCO", url: "https://whc.unesco.org/en/list/775", note: "Inscribed 1996" }],
         },
         {
           title: "Paper cranes",
+          cover: photoOf("children-peace-cranes", "Glass cases full of strings of coloured paper cranes", "Paper cranes at the Children's Peace Monument."),
           text: "Sadako Sasaki was two when the bomb fell and died of leukaemia at twelve, folding paper cranes in hospital. Her statue in the park is hung with millions of cranes sent from around the world.[^1]",
           sources: [{ title: "Sadako Sasaki — Wikipedia", url: "https://en.wikipedia.org/wiki/Sadako_Sasaki", note: "Leukaemia at twelve, the cranes, the Children's Peace Monument" }],
         },
-        { title: "Trams that survived", text: "The city's trams were running again three days after the bomb. Two of the cars that survived it, built in 1942, are still kept in service, mostly on weekday mornings.[^1]", sources: [{ title: "Trams that survived the bomb — Japan Tourism Agency", url: "https://www.mlit.go.jp/tagengo-db/R2-00309.html", note: "Cars 651 and 652 (Japanese)" }] },
+        { title: "Trams that survived", cover: photoOf("tram-651", "An old green-and-cream tram running through a modern street", "Tram 651, which survived the bomb and still runs."), text: "The city's trams were running again three days after the bomb. Two of the cars that survived it, built in 1942, are still kept in service, mostly on weekday mornings.[^1]", sources: [{ title: "Trams that survived the bomb — Japan Tourism Agency", url: "https://www.mlit.go.jp/tagengo-db/R2-00309.html", note: "Cars 651 and 652 (Japanese)" }] },
         {
           title: "Its own okonomiyaki",
+          cover: photoOf("hiroshima-okonomiyaki", "A layered okonomiyaki of noodles, cabbage and egg under brown sauce", "Hiroshima okonomiyaki, layered rather than mixed."),
           text: "Layered rather than mixed, with noodles in the middle[^1] — a lasting rivalry with Osaka's version. Okonomi-mura is a building of dozens of counters.",
           related: ["eating-out/getting-a-table-ordering-eating"],
           sources: [
@@ -523,20 +769,22 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "A shrine on the water",
+          cover: photoOf("itsukushima-corridor", "A long vermilion roofed corridor on stilts", "A corridor of Itsukushima Shrine, built over the tidal flat."),
           text: "The shrine's halls and corridors stand on stilts over the tidal flat, built in their present form by the warlord Taira no Kiyomori in 1168. At high tide the whole thing seems to float.",
           related: ["belief/shinto", "history/heian"],
           sources: [{ title: "Itsukushima Shinto Shrine — UNESCO", url: "https://whc.unesco.org/en/list/776", note: "The shrine, Kiyomori's 12th-century plan, the sacred island" }],
         },
         {
           title: "A sacred island",
+          cover: photoOf("miyajima-deer", "A sika deer standing on a path", "One of Miyajima's deer."),
           text: "The whole island was considered a god. For centuries no births or deaths were allowed on it, and there's still no cemetery.[^1] Deer wander here too.",
           sources: [
             { title: "Itsukushima — Wikipedia", url: "https://en.wikipedia.org/wiki/Itsukushima", note: "No births, deaths or burials on the island" },
           ],
         },
-        { title: "Mount Misen", text: "A ropeway and a walk lead to the top. A fire lit by Kūkai in the 9th century is said to have burned in its hall ever since.[^1]", sources: [{ title: "Mount Misen — Wikipedia", url: "https://en.wikipedia.org/wiki/Mount_Misen", note: "Kūkai and the eternal flame" }] },
+        { title: "Mount Misen", cover: photoOf("misen-view", "Wooded slopes falling to the Inland Sea, with Hiroshima across the water", "From Mount Misen over the Inland Sea."), text: "A ropeway and a walk lead to the top. A fire lit by Kūkai in the 9th century is said to have burned in its hall ever since.[^1]", sources: [{ title: "Mount Misen — Wikipedia", url: "https://en.wikipedia.org/wiki/Mount_Misen", note: "Kūkai and the eternal flame" }] },
         { title: "Visitor tax", text: "Since October 2023 everyone landing on the island pays a ¥100 visitor tax, usually with the ferry ticket.[^1]", related: ["numbers/tourists-and-everyone-else"], sources: [{ title: "Hatsukaichi introduces Miyajima visitor tax — Travel Trade Journal", url: "https://traveltradejournal.com/japans-hatsukaichi-implements-tourist-tax-to-promote-sustainable-tourism-and-curb-overtourism/", note: "¥100 per visit from 1 October 2023" }] },
-        { title: "Oysters and maple cakes", text: "Hiroshima Bay grows most of Japan's oysters, grilled on every corner. Momiji manjū are little maple-leaf-shaped cakes filled with bean paste.[^1]", sources: [{ title: "Momiji manjū — Wikipedia", url: "https://en.wikipedia.org/wiki/Momiji_manj%C5%AB", note: "Miyajima's maple-leaf cakes" }] },
+        { title: "Oysters and maple cakes", cover: photoOf("momiji-manju", "Maple-leaf shaped cakes, one cut to show bean paste", "Momiji manjū."), text: "Hiroshima Bay grows most of Japan's oysters, grilled on every corner. Momiji manjū are little maple-leaf-shaped cakes filled with bean paste.[^1]", sources: [{ title: "Momiji manjū — Wikipedia", url: "https://en.wikipedia.org/wiki/Momiji_manj%C5%AB", note: "Miyajima's maple-leaf cakes" }] },
       ],
     },
     {
@@ -556,14 +804,16 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "The White Heron",
+          cover: photoOf("himeji-heron", "A white castle of stacked roofs on high stone walls", "Himeji Castle, the White Heron."),
           text: "Its white plaster walls earned it the name Shirasagi-jō, White Heron Castle. In 1993 it was among Japan's first World Heritage sites, alongside Hōryū-ji.[^1]",
           sources: [{ title: "Himeji-jo — UNESCO", url: "https://whc.unesco.org/en/list/661", note: "Inscribed 1993, among Japan's first four sites" }],
         },
         {
           title: "Inside the keep",
+          cover: photoOf("himeji-hyakken", "A long wooden corridor with latticed windows", "The Hyakken corridor at Himeji Castle."),
           text: "Six floors of bare wooden halls and steep, ladder-like stairs, shoes off. On busy days there's a queue to get in — go at opening.",
         },
-        { title: "Kōko-en", text: "Nine walled Edo-style gardens beside the castle, on the site of old samurai houses.[^1] A cheap combined ticket covers both.", sources: [{ title: "Kōko-en — Wikipedia", url: "https://en.wikipedia.org/wiki/K%C5%8Dko-en", note: "Nine gardens on the old samurai quarter" }] },
+        { title: "Kōko-en", cover: photoOf("kokoen", "A pond garden with red maples and a teahouse", "Kōko-en in autumn."), text: "Nine walled Edo-style gardens beside the castle, on the site of old samurai houses.[^1] A cheap combined ticket covers both.", sources: [{ title: "Kōko-en — Wikipedia", url: "https://en.wikipedia.org/wiki/K%C5%8Dko-en", note: "Nine gardens on the old samurai quarter" }] },
         { title: "Close by Shinkansen", text: "About 30 minutes from Shin-Osaka, and the castle is a straight walk up the avenue from the station." },
       ],
     },
@@ -578,17 +828,20 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       items: [
         {
           title: "A port opened to the world",
+          cover: photoOf("kitano-ijinkan", "A green-and-white wooden Western-style house on a slope", "One of Kitano's old foreign merchants' houses, now a café."),
           text: "Opened to foreign trade in 1868. The Western merchants' houses (ijinkan) on the hill in Kitano are still standing, and Nankinmachi is one of Japan's three Chinatowns.[^1]",
           sources: [{ title: "Kobe — Wikipedia", url: "https://en.wikipedia.org/wiki/Kobe", note: "The port opened in 1868; Kitano and Nankinmachi" }],
         },
         {
           title: "1995",
+          cover: photoOf("hanshin-1995", "A collapsed building lying across a city street after an earthquake", "Ikuta, central Kobe, after the earthquake of 17 January 1995."),
           text: "The Great Hanshin earthquake of 17 January killed 6,434 people.[^1] A stretch of the wrecked pier is kept as it was at the Port of Kobe Earthquake Memorial Park.",
           related: ["prepared/when-the-ground-shakes", "trivia/japan-and-poland"],
           sources: [{ title: "Great Hanshin earthquake — Wikipedia", url: "https://en.wikipedia.org/wiki/Great_Hanshin_earthquake", note: "6,434 deaths" }],
         },
         {
           title: "Kobe beef",
+          cover: photoOf("kobe-beef-raw", "Thick slices of heavily marbled raw beef on a wooden board", "Kobe beef."),
           text: "A specific certified Wagyu from Tajima cattle raised in Hyōgo — the real thing comes with a certificate number you can look up.[^1]",
           related: ["eating-out/yakitori-wagyu-and-y-shoku"],
           sources: [
@@ -603,6 +856,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Night view",
+          cover: photoOf("kobe-night", "A city of lights along a bay at night, seen from a mountain", "Kobe at night from Mount Maya."),
           text: "From Mount Maya or Mount Rokkō the lights of Kobe and Osaka Bay are called the “ten-million-dollar view”.[^1] Arima Onsen, one of Japan's oldest hot springs, is behind the mountains.[^2]",
           sources: [
             { title: "Mount Rokkō — Wikipedia", url: "https://en.wikipedia.org/wiki/Mount_Rokk%C5%8D", note: "The ten-million-dollar view" },
@@ -622,20 +876,23 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       items: [
         {
           title: "A rich castle town",
+          cover: photoOf("kanazawa-castle", "White castle buildings with lead-tiled roofs above a stone wall", "Kanazawa Castle."),
           text: "The Maeda clan, the wealthiest lords after the shogun, spent on arts and gardens. Kenroku-en is one of Japan's three great gardens; in winter its pines are tied up with ropes against the snow (yukizuri).[^1]",
           sources: [{ title: "Kenroku-en — Wikipedia", url: "https://en.wikipedia.org/wiki/Kenroku-en", note: "One of the Three Great Gardens; the Maeda and the yukizuri" }],
           related: ["land/gardens", "history/edo"],
         },
         {
           title: "Never bombed",
+          cover: photoOf("higashi-chaya", "A narrow street of dark latticed teahouses", "Higashi Chaya, the old geisha district."),
           text: "Kanazawa wasn't bombed in the war, so its geisha district (Higashi Chaya) and samurai quarter (Nagamachi) are original.[^1]",
           sources: [
             { title: "Kanazawa — Wikipedia", url: "https://en.wikipedia.org/wiki/Kanazawa", note: "Spared from bombing; Higashi Chaya and Nagamachi" },
           ],
         },
-        { title: "Gold leaf", text: "Over 99% of Japan's gold leaf is made here — beaten to a ten-thousandth of a millimetre.[^1] You'll see it on ice cream.", sources: [{ title: "Kanazawa gold leaf — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E9%87%91%E6%B2%A2%E7%AE%94", note: "Over 99% of the country's output (Japanese)" }] },
+        { title: "Gold leaf", cover: photoOf("gold-leaf-ice-cream", "A soft-serve ice cream cone wrapped in a sheet of gold leaf", "Soft-serve under gold leaf, Kanazawa's showpiece."), text: "Over 99% of Japan's gold leaf is made here — beaten to a ten-thousandth of a millimetre.[^1] You'll see it on ice cream.", sources: [{ title: "Kanazawa gold leaf — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E9%87%91%E6%B2%A2%E7%AE%94", note: "Over 99% of the country's output (Japanese)" }] },
         {
           title: "21st Century Museum",
+          cover: photoOf("kanazawa-21c", "A round, low glass museum on a lawn, seen from above", "The 21st Century Museum of Contemporary Art."),
           text: "A round glass museum by SANAA. Leandro Erlich's Swimming Pool lets you stand “underwater” fully dressed;[^1] timed tickets for the pool sell out.",
           sources: [
             { title: "21st Century Museum of Contemporary Art, Kanazawa — Wikipedia", url: "https://en.wikipedia.org/wiki/21st_Century_Museum_of_Contemporary_Art,_Kanazawa", note: "SANAA's building; Erlich's Swimming Pool" },
@@ -643,6 +900,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Ōmichō market",
+          cover: photoOf("omicho", "A covered market street of fish and produce stalls", "Ōmichō market."),
           text: "The city's kitchen for 300 years.[^1] Snow crab season opens in early November, and seafood bowls (kaisendon) are the breakfast.",
           sources: [
             { title: "Ōmichō Market — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E8%BF%91%E6%B1%9F%E7%94%BA%E5%B8%82%E5%A0%B4", note: "About 300 years old" },
@@ -668,20 +926,22 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
             { title: "Sugidama — Wikipedia", url: "https://en.wikipedia.org/wiki/Sugidama", note: "The cedar ball that signals new sake" },
           ],
         },
-        { title: "Morning markets", text: "Two of them, every morning: along the Miyagawa river and in front of the Takayama Jinya." },
+        { title: "Morning markets", cover: photoOf("takayama-market", "Stallholders selling apples and vegetables at a riverside market", "The Miyagawa morning market."), text: "Two of them, every morning: along the Miyagawa river and in front of the Takayama Jinya." },
         {
           title: "Takayama Jinya",
+          cover: photoOf("takayama-jinya", "A low wooden government office with a gravel forecourt", "Takayama Jinya."),
           text: "The only surviving government office of its kind from the Edo period, where officials sent by the shogun ran the region — with its rice storehouse and interrogation room.[^1]",
           sources: [{ title: "Takayama Jinya — Wikipedia", url: "https://en.wikipedia.org/wiki/Takayama_Jinya", note: "The only surviving gundai office building" }],
         },
         {
           title: "Two festivals",
+          cover: photoOf("takayama-floats", "Gilded, carved festival floats on display in a hall", "Festival floats in Takayama's exhibition hall."),
           text: "In spring (14–15 April) and autumn (9–10 October) the town pulls out its gilded festival floats.[^1] The rest of the year some are on show in a hall by Sakurayama Hachimangū.",
           sources: [
             { title: "Takayama Festival — Wikipedia", url: "https://en.wikipedia.org/wiki/Takayama_Festival", note: "14–15 April and 9–10 October" },
           ],
         },
-        { title: "Hida beef and sarubobo", text: "Hida beef is grilled on magnolia leaves with miso (hōba miso). Sarubobo, faceless red “baby monkey” dolls, are the local charm.[^1]", sources: [{ title: "Sarubobo — Wikipedia", url: "https://en.wikipedia.org/wiki/Sarubobo", note: "Hida's faceless charm dolls" }] },
+        { title: "Hida beef and sarubobo", cover: photoOf("sarubobo", "Rows of faceless red cloth dolls in colourful hoods", "Sarubobo dolls."), text: "Hida beef is grilled on magnolia leaves with miso (hōba miso). Sarubobo, faceless red “baby monkey” dolls, are the local charm.[^1]", sources: [{ title: "Sarubobo — Wikipedia", url: "https://en.wikipedia.org/wiki/Sarubobo", note: "Hida's faceless charm dolls" }] },
       ],
     },
     {
@@ -696,6 +956,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       items: [
         {
           title: "Praying hands",
+          cover: photoOf("gassho-house", "A tall farmhouse under a steep thatched roof", "A gasshō-zukuri farmhouse."),
           text: "Gasshō-zukuri farmhouses have steep thatched roofs like hands in prayer, built to shed heavy snow. The big attics were used to raise silkworms.[^1]",
           sources: [
             { title: "Gasshō-zukuri — Wikipedia", url: "https://en.wikipedia.org/wiki/Gassh%C5%8D-zukuri", note: "The roofs and the silkworm attics" },
@@ -704,11 +965,12 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         { title: "World Heritage", text: "Listed in 1995 together with Gokayama, a smaller, quieter group of villages nearby.", sources: [{ title: "Historic Villages of Shirakawa-go and Gokayama — UNESCO", url: "https://whc.unesco.org/en/list/734", note: "Inscribed 1995" }] },
         {
           title: "A roof every few decades",
+          cover: photoOf("gassho-rethatching", "Villagers on ladders and scaffolding laying new thatch on a steep roof", "Rethatching a gasshō roof in Ogimachi."),
           text: "A roof's thatch is replaced every 30–40 years in a day or two by the whole village working together (yui).[^1] Some houses are open inside.",
           sources: [{ title: "Historic Villages of Shirakawa-go and Gokayama — UNESCO", url: "https://whc.unesco.org/en/list/734", note: "Gasshō-zukuri and the yui system of rethatching" }],
         },
-        { title: "The viewpoint", text: "The postcard view is from the Shiroyama lookout above the village, a short shuttle bus or a steep walk." },
-        { title: "Still lived in", text: "It's a working village, not a museum. Stay on paths and out of gardens, and come early or late to miss the coach tours." },
+        { title: "The viewpoint", cover: photoOf("shirakawago-night", "A snow-covered village of thatched houses lit up at night", "Ogimachi in snow, lit for the winter evenings."), text: "The postcard view is from the Shiroyama lookout above the village, a short shuttle bus or a steep walk." },
+        { title: "Still lived in", cover: photoOf("shirakawago-fields", "Thatched houses among rice paddies and gardens", "Ogimachi from behind the Kanda house."), text: "It's a working village, not a museum. Stay on paths and out of gardens, and come early or late to miss the coach tours." },
         { title: "Getting there", text: "About 50 minutes by bus from Takayama or 75 from Kanazawa — book the seat ahead in busy seasons." },
       ],
     },
@@ -723,18 +985,21 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       items: [
         {
           title: "Industrial heart",
+          cover: photoOf("toyota-museum", "A red-brick factory hall with a modern glass entrance canopy", "The Toyota Commemorative Museum, in the original loom works."),
           text: "Home ground of Toyota. The Toyota Commemorative Museum of Industry and Technology is in the old Toyoda spinning mill — the company started with automatic looms.[^1]",
           sources: [{ title: "Toyota Commemorative Museum of Industry and Technology — Wikipedia", url: "https://en.wikipedia.org/wiki/Toyota_Commemorative_Museum_of_Industry_and_Technology", note: "The 1911 red-brick Toyoda mill" }],
           related: ["work/the-world-s-oldest-firms"],
         },
         {
           title: "The castle",
+          cover: photoOf("nagoya-castle-detail", "The ornate gable and golden fittings of a castle roof", "Nagoya Castle."),
           text: "Famous for its golden dolphin-tigers (shachihoko) on the roof. The keep is a 1959 concrete rebuild, closed since May 2018 for earthquake safety; a planned rebuild in wood has slipped to 2032 at the earliest. The Hommaru Palace beside it was rebuilt in wood in 2018 and is open.[^1]",
           related: ["history/unification"],
           sources: [{ title: "Nagoya Castle — japan-guide.com", url: "https://www.japan-guide.com/e/e3300.html", note: "Keep closed since 2018; the wooden rebuild delayed" }],
         },
         {
           title: "Its own food",
+          cover: photoOf("miso-katsu", "A set meal of pork cutlet under dark miso sauce with rice and soup", "Miso katsu."),
           text: "Nagoya meshi, the city's food:",
           points: [
             "Miso katsu — pork cutlet with a dark, sweet miso sauce",
@@ -748,12 +1013,13 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
             { title: "Nagoya cuisine — Wikipedia", url: "https://en.wikipedia.org/wiki/Nagoya_cuisine", note: "Miso katsu, tebasaki, hitsumabushi, kishimen" },
           ],
         },
-        { title: "Atsuta Shrine", text: "Said to hold the sacred sword Kusanagi, one of the three imperial regalia. Nobody has seen it in modern times.[^1]", related: ["politics/the-emperor"], sources: [{ title: "Kusanagi — Wikipedia", url: "https://en.wikipedia.org/wiki/Kusanagi", note: "The sword at Atsuta and its hidden keeping" }] },
+        { title: "Atsuta Shrine", cover: photoOf("atsuta", "A plain shrine hall among tall trees", "Atsuta Shrine."), text: "Said to hold the sacred sword Kusanagi, one of the three imperial regalia. Nobody has seen it in modern times.[^1]", related: ["politics/the-emperor"], sources: [{ title: "Kusanagi — Wikipedia", url: "https://en.wikipedia.org/wiki/Kusanagi", note: "The sword at Atsuta and its hidden keeping" }] },
       ],
     },
     {
       id: "fuji-five-lakes",
       name: "Fuji Five Lakes",
+      cover: photoOf("kawaguchi-fuji", "Mount Fuji reflected in a calm lake", "Fuji from Lake Kawaguchi."),
       local: "富士五湖",
       aliases: ["Kawaguchiko", "Fujikawaguchiko"],
       lat: 35.5161, lng: 138.7519, radiusKm: 10,
@@ -773,12 +1039,14 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       items: [
         {
           title: "A town of temples",
+          cover: photoOf("danjo-garan", "A bronze lantern before the vermilion pagoda of a temple complex", "The Danjō Garan, Kōyasan."),
           text: "Founded in 816 by the monk Kūkai as the centre of Shingon Buddhism — over a hundred temples on a mountaintop plateau 800 m up. The vermilion Konpon Daitō pagoda is its heart.",
           related: ["belief/buddhism", "history/heian"],
           sources: [{ title: "Sacred Sites and Pilgrimage Routes in the Kii Mountain Range — UNESCO", url: "https://whc.unesco.org/en/list/1142", note: "Kōyasan, inscribed 2004" }],
         },
         {
           title: "Sleep in a temple",
+          cover: photoOf("shojin-ryori", "Lacquer trays of small vegetarian dishes", "Shōjin ryōri at a Kōyasan temple lodging."),
           text: "About 50 temples take guests (shukubō),[^1] with vegetarian temple food (shōjin ryōri) and the morning prayers, often with a fire ritual.",
           sources: [
             { title: "Shukubō — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%AE%BF%E5%9D%8A", note: "Temple lodgings; Kōyasan's about 50" },
@@ -786,6 +1054,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Okunoin",
+          cover: photoOf("okunoin-jizo", "A pyramid of small stone Jizō statues in red bibs among cedars", "Jizō statues in Okunoin."),
           text: [
             "Japan's largest cemetery: over 200,000 graves and memorials under giant cedars, on a 2 km path to Kūkai's mausoleum. Monks believe he's still in meditation there, and bring him meals twice a day.",
             "Among the old samurai graves are company memorials — one shaped like a coffee cup, one like a rocket. Night walks with a monk are worth it.",
@@ -806,14 +1075,15 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       items: [
         {
           title: "A planned city",
+          cover: photoOf("sapporo-clock-tower", "A white wooden building with a clock tower and red roof", "The Sapporo Clock Tower, built in 1878."),
           text: "Laid out on a grid from 1869, when Japan settled Hokkaidō — homeland of the indigenous Ainu. American advisers helped plan its farms, which is why the old buildings look like New England.[^1]",
           related: ["look-closer/streets-without-names"],
           sources: [{ title: "Sapporo — Wikipedia", url: "https://en.wikipedia.org/wiki/Sapporo", note: "The 1869 Development Commission, the grid and the American advisers" }],
         },
-        { title: "Snow Festival", text: "Giant snow and ice sculptures fill Ōdōri Park every February[^1] — and every hotel.", sources: [{ title: "Sapporo Snow Festival — Wikipedia", url: "https://en.wikipedia.org/wiki/Sapporo_Snow_Festival", note: "Every February in Ōdōri Park" }] },
-        { title: "Beer and miso ramen", text: "Sapporo Beer has been brewed here since 1876, Japan's oldest brand.[^1] Miso ramen was born here in the 1950s.", sources: [{ title: "Sapporo Brewery — Wikipedia", url: "https://en.wikipedia.org/wiki/Sapporo_Brewery", note: "Founded 1876 by the Hokkaido Development Commission" }], related: ["eating-out/soba-udon-and-ramen", "drinks/sh-ch-whisky-and-beer"] },
-        { title: "Jingisukan", text: "Mutton grilled on a domed iron pan, named after Genghis Khan.[^1] The local meal.", sources: [{ title: "Jingisukan — Wikipedia", url: "https://en.wikipedia.org/wiki/Jingisukan", note: "Mutton on a domed pan" }] },
-        { title: "The Ainu", text: "Upopoy, the National Ainu Museum, opened in Shiraoi, about an hour south, in 2020[^1] (see [Dialects and the standard](guide:language/dialects-and-the-standard)).", sources: [{ title: "Upopoy — Wikipedia", url: "https://en.wikipedia.org/wiki/Upopoy", note: "The National Ainu Museum and Park, opened July 2020" }] },
+        { title: "Snow Festival", cover: photoOf("odori-snow-festival", "A long park lined with snow sculptures seen from above", "Ōdōri Park during the Snow Festival."), text: "Giant snow and ice sculptures fill Ōdōri Park every February[^1] — and every hotel.", sources: [{ title: "Sapporo Snow Festival — Wikipedia", url: "https://en.wikipedia.org/wiki/Sapporo_Snow_Festival", note: "Every February in Ōdōri Park" }] },
+        { title: "Beer and miso ramen", cover: photoOf("sapporo-miso-ramen", "A bowl of miso ramen topped with corn, butter and pork", "Miso ramen in Sapporo."), text: "Sapporo Beer has been brewed here since 1876, Japan's oldest brand.[^1] Miso ramen was born here in the 1950s.", sources: [{ title: "Sapporo Brewery — Wikipedia", url: "https://en.wikipedia.org/wiki/Sapporo_Brewery", note: "Founded 1876 by the Hokkaido Development Commission" }], related: ["eating-out/soba-udon-and-ramen", "drinks/sh-ch-whisky-and-beer"] },
+        { title: "Jingisukan", cover: photoOf("jingisukan-grill", "Sliced lamb and bean sprouts on a domed grill", "Jingisukan."), text: "Mutton grilled on a domed iron pan, named after Genghis Khan.[^1] The local meal.", sources: [{ title: "Jingisukan — Wikipedia", url: "https://en.wikipedia.org/wiki/Jingisukan", note: "Mutton on a domed pan" }] },
+        { title: "The Ainu", cover: photoOf("ainu-attush", "An elm-bark robe with bold indigo appliqué patterns", "An Ainu attush robe, 19th century."), text: "Upopoy, the National Ainu Museum, opened in Shiraoi, about an hour south, in 2020[^1] (see [Dialects and the standard](guide:language/dialects-and-the-standard)).", sources: [{ title: "Upopoy — Wikipedia", url: "https://en.wikipedia.org/wiki/Upopoy", note: "The National Ainu Museum and Park, opened July 2020" }] },
       ],
     },
     {
@@ -825,7 +1095,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       cover: photoOf("fukuoka-yatai", "Lit food stalls along a riverside at night, people seated at the counters", "Yatai by the river at Nakasu."),
       population: "About 1.6 million",
       items: [
-        { title: "Yatai", text: "Around a hundred open-air food stalls set up in the evenings, along the river at Nakasu and in Tenjin — ramen, grilled skewers, oden, a seat at the counter next to strangers.[^1]", sources: [{ title: "Yatai (food cart) — Wikipedia", url: "https://en.wikipedia.org/wiki/Yatai_(food_cart)", note: "Fukuoka's stalls, the most in Japan" }] },
+        { title: "Yatai", cover: photoOf("nakasu-yatai", "Food stalls lit up along a riverside at night, diners at their counters", "Yatai in Nakasu."), text: "Around a hundred open-air food stalls set up in the evenings, along the river at Nakasu and in Tenjin — ramen, grilled skewers, oden, a seat at the counter next to strangers.[^1]", sources: [{ title: "Yatai (food cart) — Wikipedia", url: "https://en.wikipedia.org/wiki/Yatai_(food_cart)", note: "Fukuoka's stalls, the most in Japan" }] },
         {
           title: "Tonkotsu ramen",
           text: "The milky pork-bone broth comes from here.[^1] Order your noodles' firmness (barikata is very firm) and ask for kaedama, a second serving of noodles, for the leftover soup.",
@@ -834,9 +1104,9 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
             { title: "Hakata ramen — Wikipedia", url: "https://en.wikipedia.org/wiki/Hakata_ramen", note: "Tonkotsu broth, firmness and kaedama" },
           ],
         },
-        { title: "Mentaiko", text: "Spicy pollock roe, brought from Korea after the war[^1] — in onigiri, on pasta, as a gift in every station shop.", sources: [{ title: "Mentaiko — Wikipedia", url: "https://en.wikipedia.org/wiki/Mentaiko", note: "Kawahara Toshio's Fukuya, 1949" }] },
-        { title: "Gateway to Asia", text: "Fukuoka is closer to Busan and Seoul than to Tokyo, and its airport is just two subway stops from Hakata station.[^1]", sources: [{ title: "Fukuoka Airport — Wikipedia", url: "https://en.wikipedia.org/wiki/Fukuoka_Airport", note: "Two subway stops from Hakata" }] },
-        { title: "Dazaifu", text: "Half an hour away, Dazaifu Tenmangū is the shrine to the god of learning.[^1] Eat umegae mochi, grilled rice cakes, on the street up to it.", related: ["belief/shinto"], sources: [{ title: "Dazaifu Tenmangū — Wikipedia", url: "https://en.wikipedia.org/wiki/Dazaifu_Tenmang%C5%AB", note: "The shrine to Sugawara no Michizane" }] },
+        { title: "Mentaiko", cover: photoOf("mentaiko", "Bright red sacs of salted pollock roe on a plate", "Salted pollock roe, the Korean dish Fukuoka made its own."), text: "Spicy pollock roe, brought from Korea after the war[^1] — in onigiri, on pasta, as a gift in every station shop.", sources: [{ title: "Mentaiko — Wikipedia", url: "https://en.wikipedia.org/wiki/Mentaiko", note: "Kawahara Toshio's Fukuya, 1949" }] },
+        { title: "Gateway to Asia", cover: photoOf("hakata-port", "A ferry at a harbour quay with a port tower behind", "Hakata port."), text: "Fukuoka is closer to Busan and Seoul than to Tokyo, and its airport is just two subway stops from Hakata station.[^1]", sources: [{ title: "Fukuoka Airport — Wikipedia", url: "https://en.wikipedia.org/wiki/Fukuoka_Airport", note: "Two subway stops from Hakata" }] },
+        { title: "Dazaifu", cover: photoOf("dazaifu", "A shrine hall with a deep curved roof among trees", "Dazaifu Tenmangū."), text: "Half an hour away, Dazaifu Tenmangū is the shrine to the god of learning.[^1] Eat umegae mochi, grilled rice cakes, on the street up to it.", related: ["belief/shinto"], sources: [{ title: "Dazaifu Tenmangū — Wikipedia", url: "https://en.wikipedia.org/wiki/Dazaifu_Tenmang%C5%AB", note: "The shrine to Sugawara no Michizane" }] },
       ],
     },
     {
@@ -851,22 +1121,25 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       items: [
         {
           title: "Its own kingdom",
+          cover: photoOf("shureimon-prewar", "A black-and-white photo of a Chinese-style gate with people standing in front", "Shureimon before 1945, when it was destroyed."),
           sources: [{ title: "Ryukyu Kingdom — Wikipedia", url: "https://en.wikipedia.org/wiki/Ryukyu_Kingdom", note: "Trade across Asia and annexation in 1879" }],
           text: "The Ryūkyū Kingdom traded across Asia until Japan annexed it in 1879.[^1] Its languages, food, music and religion are distinct — the three-stringed sanshin is everywhere (see [Dialects and the standard](guide:language/dialects-and-the-standard)).",
         },
         {
           title: "The Battle of Okinawa",
+          cover: photoOf("okinawa-tanks-1945", "US tanks gathered on a slope during the Battle of Okinawa", "US tanks during a lull in the fighting, 1945."),
           sources: [{ title: "Battle of Okinawa — Wikipedia", url: "https://en.wikipedia.org/wiki/Battle_of_Okinawa", note: "Civilian deaths, and the Cornerstone of Peace" }],
           text: "The biggest land battle fought on Japanese soil, in 1945. Around a quarter of the civilian population died.[^1] The Peace Memorial Park in the south lists every name, from every side.",
           related: ["history/meiji-to-1945", "history/since-1945"],
         },
         {
           title: "US rule until 1972",
+          cover: photoOf("reversion-1972", "A Japanese official laughing with American generals", "Before the reversion ceremony, 1972."),
           text: "After the war the islands were administered by the US for 27 years. Okinawa, 0.6% of Japan's land, still hosts about 70% of the land used exclusively by US bases in Japan.[^1]",
           sources: [{ title: "United States Forces Japan — Wikipedia", url: "https://en.wikipedia.org/wiki/United_States_Forces_Japan", note: "Okinawa's share of exclusive-use facilities" }],
         },
-        { title: "Shuri Castle", text: "The palace's main hall burned in 2019. It has been rebuilt with traditional techniques, and the interior opens to visitors on 23 November 2026, by advance reservation.[^1]", sources: [{ title: "Shuri Castle main hall to reopen in November 2026 — GoAsia", url: "https://goasia.cc/en/news/okinawa-shuri-castle-main-hall-reopens-november-2026", note: "Completion ceremony 22 November, public opening 23 November 2026" }] },
-        { title: "Its own food", text: "Gōyā champurū (bitter-melon stir-fry),[^1] Okinawa soba, Spam onigiri and awamori, the local rice spirit. Okinawa was long famous for its centenarians.[^2]", sources: [{ title: "Gōyā chanpurū — Wikipedia", url: "https://en.wikipedia.org/wiki/Chanpur%C5%AB", note: "Okinawa's bitter-melon stir-fry" }, { title: "Okinawa diet — Wikipedia", url: "https://en.wikipedia.org/wiki/Okinawa_diet", note: "The islands' long-lived people" }] },
+        { title: "Shuri Castle", cover: photoOf("shuri-throne", "An ornate red and gold throne beneath a carved inscription board", "The throne in Shuri Castle's main hall, before the 2019 fire."), text: "The palace's main hall burned in 2019. It has been rebuilt with traditional techniques, and the interior opens to visitors on 23 November 2026, by advance reservation.[^1]", sources: [{ title: "Shuri Castle main hall to reopen in November 2026 — GoAsia", url: "https://goasia.cc/en/news/okinawa-shuri-castle-main-hall-reopens-november-2026", note: "Completion ceremony 22 November, public opening 23 November 2026" }] },
+        { title: "Its own food", cover: photoOf("okinawa-soba", "A bowl of thick wheat noodles with braised pork ribs", "Okinawa soba."), text: "Gōyā champurū (bitter-melon stir-fry),[^1] Okinawa soba, Spam onigiri and awamori, the local rice spirit. Okinawa was long famous for its centenarians.[^2]", sources: [{ title: "Gōyā chanpurū — Wikipedia", url: "https://en.wikipedia.org/wiki/Chanpur%C5%AB", note: "Okinawa's bitter-melon stir-fry" }, { title: "Okinawa diet — Wikipedia", url: "https://en.wikipedia.org/wiki/Okinawa_diet", note: "The islands' long-lived people" }] },
       ],
     },
     {
@@ -880,11 +1153,13 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       items: [
         {
           title: "One of the first open ports",
+          cover: photoOf("motomachi-church", "A white church with a green spire above red roofs", "The Motomachi Catholic Church."),
           text: "The 1854 treaty with Commodore Perry opened Hakodate to American ships, and from 1859 it was one of the first ports open to foreign trade (see [Meiji to 1945](guide:history/meiji-to-1945)). Consulates, churches and a Russian Orthodox cathedral still stand on the slopes of Motomachi.[^1]",
           sources: [{ title: "Hakodate — Wikipedia", url: "https://en.wikipedia.org/wiki/Hakodate", note: "Opened by the 1854 Convention of Kanagawa; a treaty port from 1859" }],
         },
         {
           title: "The star fort",
+          cover: photoOf("goryokaku-aerial", "A five-pointed star fort surrounded by a moat, seen from above", "Goryōkaku from the air."),
           text: [
             "**Goryōkaku**, a five-pointed star fort on a European plan, was designed in 1855 and finished in 1866. Three years later it was the last stronghold of shogunate loyalists, who had declared their own Republic of Ezo; its fall in 1869 ended the Boshin War.[^1]",
             "The shape only makes sense from above: the Goryōkaku Tower beside it was built so you can see it.",
@@ -894,10 +1169,12 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "The night view",
+          cover: photoOf("hakodate-night-snow", "A narrow city of lights between two bays in winter, from a mountain", "Hakodate at night from Mount Hakodate."),
           text: "From Mount Hakodate the city's lights fill the neck of land between two bays, a shape you'll see on every postcard. A ropeway goes up; go just after sunset.",
         },
         {
           title: "Squid for breakfast",
+          cover: photoOf("squid-fishing", "Visitors fishing for live squid in a blue tank at a market", "Fishing for your breakfast at the morning market."),
           text: "The morning market by the station sells squid caught overnight, cut into fine raw strips (ika sōmen) or served whole and still moving. Squid is the city's fish.[^1]",
           related: ["food-at-home/a-weekday-of-meals"],
           sources: [
@@ -906,6 +1183,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Under the sea to get here",
+          cover: photoOf("seikan-portal", "A railway tunnel mouth with tracks leading into it", "The Honshu end of the Seikan Tunnel."),
           text: "Trains reach Hakodate from Honshu through the Seikan Tunnel, 53.85 km long and opened in 1988, much of it under the strait; the Shinkansen has run through it since 2016.[^1]",
           sources: [{ title: "Seikan Tunnel — Wikipedia", url: "https://en.wikipedia.org/wiki/Seikan_Tunnel", note: "53.85 km, opened 1988; Hokkaido Shinkansen from 2016" }],
         },
@@ -923,11 +1201,13 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       items: [
         {
           title: "The end of the earth",
+          cover: photoOf("shiretoko-boardwalk", "A raised wooden boardwalk across marsh towards mountains", "The elevated boardwalk at the Five Lakes."),
           text: "The name comes from the Ainu *sir etok*, \"the end of the earth\": a roadless peninsula of volcanoes running out into the Sea of Okhotsk. It has been World Heritage since 2005.[^1]",
           sources: [{ title: "Shiretoko — UNESCO", url: "https://whc.unesco.org/en/list/1193", note: "Inscribed 2005" }],
         },
         {
           title: "Sea ice and salmon",
+          cover: photoOf("shiretoko-drift-ice", "Broken sea ice packed against snowy cliffs", "Drift ice off Shiretoko."),
           text: "In late winter, drift ice from the Amur river reaches the coast, the southernmost sea ice in the northern hemisphere. Its plankton feed the fish, the salmon run up the rivers, and the bears and eagles eat the salmon: the chain is why the site was listed.[^1]",
           related: ["land/forests-wild-and-planted"],
           sources: [{ title: "Shiretoko — UNESCO", url: "https://whc.unesco.org/en/list/1193", note: "Seasonal sea ice and the link between sea and land" }],
@@ -958,17 +1238,20 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       items: [
         {
           title: "A golden capital in the north",
+          cover: photoOf("motsuji-pond", "A calm pond with grassy banks and green hills", "The Pure Land garden at Mōtsū-ji."),
           text: "For about a century, from 1089 to 1189, the **Northern Fujiwara** ruled the north from here on the profits of the region's gold, and built a Buddhist capital to rival Kyoto. Minamoto no Yoritomo destroyed them in 1189, after they had sheltered his brother Yoshitsune (see [Kamakura and Muromachi](guide:history/kamakura-and-muromachi)).[^1]",
           related: ["history/kamakura-and-muromachi"],
           sources: [{ title: "Hiraizumi — UNESCO", url: "https://whc.unesco.org/en/list/1277", note: "The Pure Land temples and gardens; inscribed 2011" }],
         },
         {
           title: "The Golden Hall",
+          cover: photoOf("konjikido-old-hall", "An old wooden hall in snow", "The old cover hall that sheltered the Konjikidō for centuries."),
           text: "Chūson-ji's **Konjikidō**, finished in 1124, is covered inside and out in gold leaf and inlaid mother-of-pearl, and holds the mummified remains of the Fujiwara lords. Since 1965 it has stood inside a concrete hall that protects it.[^1]",
           sources: [{ title: "Chūson-ji — Wikipedia", url: "https://en.wikipedia.org/wiki/Ch%C5%ABson-ji", note: "The Konjikidō of 1124 and the Fujiwara remains" }],
         },
         {
           title: "Summer grasses",
+          cover: photoOf("takadachi-view", "A broad river through green fields, seen from a hill", "The Kitakami River from Takadachi, where Bashō wrote of summer grasses."),
           text: "Bashō came here in 1689 on the walk he wrote up as *The Narrow Road to the Deep North*, and wrote one of his most quoted haiku on the ruins: summer grasses, all that's left of warriors' dreams.[^1]",
           related: ["language/how-japanese-sounds"],
           sources: [
@@ -995,6 +1278,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       items: [
         {
           title: "One of the Three Views",
+          cover: photoOf("matsushima-boats", "Pine-covered islets on a bay with small boats at dusk", "Matsushima bay."),
           text: "Some 260 small islands of soft rock topped with pines fill the bay. In the 1640s the scholar Hayashi Gahō named it one of Japan's three great views, with Miyajima and Amanohashidate, and the ranking stuck.[^1]",
           sources: [{ title: "Three Views of Japan — Wikipedia", url: "https://en.wikipedia.org/wiki/Three_Views_of_Japan", note: "Hayashi Gahō's list, 1643" }],
         },
@@ -1005,6 +1289,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Date Masamune's temple",
+          cover: photoOf("zuiganji", "Temple buildings with heavy tiled roofs among pines", "Zuigan-ji."),
           text: "The warlord **Date Masamune**, who founded nearby Sendai in 1600, rebuilt the Zen temple Zuigan-ji in 1609. Its caves along the shore were cut by monks for meditation.[^1]",
           sources: [{ title: "Zuigan-ji — Wikipedia", url: "https://en.wikipedia.org/wiki/Zuigan-ji", note: "Rebuilt by Date Masamune, completed 1609" }],
         },
@@ -1018,6 +1303,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Beef tongue in Sendai",
+          cover: photoOf("gyutan", "A set meal of grilled sliced beef tongue with barley rice and soup", "Gyūtan teishoku, Sendai's own."),
           text: "Sendai, half an hour away, made grilled beef tongue (gyūtan) its dish after the war,[^1] served with barley rice and oxtail soup.",
           sources: [
             { title: "Gyūtan — Wikipedia", url: "https://en.wikipedia.org/wiki/Gy%C5%ABtan", note: "Sendai's grilled beef tongue since 1948" },
@@ -1042,12 +1328,14 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Weeping cherries",
+          cover: photoOf("kakunodate-cherries", "A street of black fences under weeping cherries in full bloom", "Bukeyashiki street in late April."),
           text: "The samurai houses' gardens are full of old weeping cherries, some descended from trees brought from Kyoto; along the river, a 2 km tunnel of cherries was planted in 1934. They flower in late April, weeks after Tokyo's (see [Cherry blossom](guide:land/cherry-blossom)).[^1]",
           related: ["land/cherry-blossom"],
           sources: [{ title: "Kakunodate, Akita — Wikipedia", url: "https://en.wikipedia.org/wiki/Kakunodate,_Akita", note: "The shidarezakura and the Hinokinai river cherries" }],
         },
         {
           title: "Cherry bark",
+          cover: photoOf("kaba-craft-center", "A wooden museum building with a red gable", "The Kaba craft heritage centre."),
           text: "The local craft, **kabazaiku**, polishes mountain-cherry bark into a glossy brown skin for tea caddies and boxes; samurai made it on the side.[^1]",
           sources: [
             { title: "Kabazaiku — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E6%A8%BA%E7%B4%B0%E5%B7%A5", note: "Kakunodate's cherry-bark craft (Japanese)" },
@@ -1067,6 +1355,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       items: [
         {
           title: "Dōgo Onsen",
+          cover: photoOf("dogo-honkan-dusk", "A multi-storey wooden bathhouse lit at dusk", "Dōgo Onsen Honkan."),
           text: [
             "One of the oldest hot springs in Japan, named in its earliest chronicles. Its main bathhouse, the **Honkan**, a rambling three-storey wooden building with a drum tower on top, was built in 1894 and is still a working public bath.[^1]",
             "It's said to have helped inspire the bathhouse in *Spirited Away*. The building was restored, while staying open, from 2019 to 2024.",
@@ -1076,12 +1365,14 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "An original castle",
+          cover: photoOf("matsuyama-castle", "A white castle keep with stone walls and pines", "Matsuyama Castle."),
           text: "Matsuyama Castle, on a hill in the middle of the city, has one of only twelve castle keeps in Japan that survive from before 1868.[^1]",
           related: ["look-closer/castle-towns"],
           sources: [{ title: "Matsuyama Castle (Iyo) — Wikipedia", url: "https://en.wikipedia.org/wiki/Matsuyama_Castle_(Iyo)", note: "One of the twelve original keeps" }],
         },
         {
           title: "Botchan and haiku",
+          cover: photoOf("botchan-train", "A small steam-style train in a city street", "The Botchan train."),
           text: "Natsume Sōseki taught here and set his comic novel *Botchan* (1906) in the town;[^1] a little steam-style train is named after it. The poet Masaoka Shiki, who did more than anyone to make the haiku modern, was born here,[^2] and the city keeps haiku post boxes for your verses.",
           related: ["language/how-japanese-sounds"],
           sources: [
@@ -1091,6 +1382,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "On the pilgrim route",
+          cover: photoOf("henro-pilgrim", "A pilgrim in a white jacket and conical hat", "A henro on the 88-temple pilgrimage."),
           text: "Ishite-ji, temple 51 of Shikoku's 88-temple pilgrimage,[^1] is a walk from Dōgo; you'll see pilgrims in white with staffs and stamp books (see [Goshuin](guide:stamps/goshuin)).",
           related: ["stamps/goshuin"],
           sources: [
@@ -1115,6 +1407,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Houses as artworks",
+          cover: photoOf("haisha-art-house", "A house clad in a collage of salvaged materials", "Haisha, part of the Art House Project."),
           text: "In the old fishing village of Honmura, the **Art House Project** has turned empty houses and a shrine into permanent artworks since 1998:[^1] a way of filling buildings a shrinking population left behind (see [Who lives with whom](guide:numbers/who-lives-with-whom)).",
           related: ["numbers/who-lives-with-whom"],
           sources: [
@@ -1123,11 +1416,13 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "And a smelter",
+          cover: photoOf("naoshima-smelter", "The gate and office of an industrial plant", "The Mitsubishi Materials smelter on Naoshima."),
           text: "The north of the island is industrial: Mitsubishi's copper smelter has worked there since 1917, and was the island's main employer long before the art.[^1]",
           sources: [{ title: "Naoshima — Wikipedia", url: "https://en.wikipedia.org/wiki/Naoshima,_Kagawa", note: "The Mitsubishi smelter since 1917" }],
         },
         {
           title: "The Setouchi Triennale",
+          cover: photoOf("triennale-monument", "A large red sculpture on a lawn", "A Setouchi Triennale work on Takamijima."),
           text: "Every three years since 2010,[^1] the art festival spreads works across a dozen Inland Sea islands and the ferries fill up.",
           sources: [
             { title: "Setouchi Triennale — Wikipedia", url: "https://en.wikipedia.org/wiki/Setouchi_Triennale", note: "Every three years since 2010" },
@@ -1146,18 +1441,21 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       items: [
         {
           title: "A Christian port",
+          cover: photoOf("oura-church", "A white Gothic church at the top of stone steps", "Ōura Church."),
           text: "Nagasaki was founded as a port for Portuguese ships in 1571, and for a few years was effectively run by the Jesuits. When Christianity was banned, it became a place of martyrdom: 26 Christians were crucified here in 1597 (see [Unification](guide:history/unification)).[^1]",
           related: ["history/unification"],
           sources: [{ title: "Nagasaki — Wikipedia", url: "https://en.wikipedia.org/wiki/Nagasaki", note: "Founded 1571; the Jesuits; the 26 Martyrs, 1597" }],
         },
         {
           title: "Dejima",
+          cover: photoOf("dejima-model", "A scale model of a fan-shaped island of warehouses", "The model of Dejima at the restored site."),
           text: "From 1641 to 1859 the Dutch were the only Europeans allowed to trade with Japan, confined to **Dejima**, a fan-shaped artificial island in the harbour. Through it came books on medicine and science, *rangaku*, \"Dutch learning\". The island's buildings have been reconstructed on the old site.[^1]",
           related: ["history/edo"],
           sources: [{ title: "Dejima — Wikipedia", url: "https://en.wikipedia.org/wiki/Dejima", note: "The Dutch post, 1641–1859" }],
         },
         {
           title: "Hidden Christians",
+          cover: photoOf("maria-kannon", "A white porcelain figure of Kannon holding a child", "A Maria Kannon: a Buddhist figure prayed to as the Virgin."),
           text: "Some Christians kept their faith in secret for over two centuries, disguising Mary as the Buddhist Kannon. Their villages and churches around Nagasaki became World Heritage in 2018.[^1]",
           related: ["belief/religion-without-belonging"],
           sources: [{ title: "Hidden Christian Sites in the Nagasaki Region — UNESCO", url: "https://whc.unesco.org/en/list/1495", note: "Inscribed 2018" }],
@@ -1170,6 +1468,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Champon and castella",
+          cover: photoOf("champon", "A bowl of noodles in milky broth heaped with vegetables and seafood", "Nagasaki champon."),
           text: "The city's food shows its trade: champon, a noodle soup from Chinese cooks;[^1] and castella, a sponge cake from the Portuguese,[^2] sold in long boxes as the city's present to take home.",
           related: ["regional-food/overview"],
           sources: [
@@ -1191,6 +1490,7 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       items: [
         {
           title: "A city facing a volcano",
+          cover: photoOf("sakurajima-ash", "A volcano throwing up an ash cloud above a city", "Sakurajima erupting over Kagoshima."),
           text: [
             "**Sakurajima**, across the bay, is one of Japan's most active volcanoes, and puffs ash most days. Its 1914 eruption poured out enough lava to join the island to the mainland (see [Volcanoes](guide:nature/volcanoes)).[^1]",
             "When the wind blows ash into the city, residents sweep it up into special yellow bags for collection. A 15-minute ferry crosses to the volcano around the clock.",
@@ -1200,12 +1500,14 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
         },
         {
           title: "Satsuma and the Restoration",
+          cover: photoOf("saigo-statue", "A bronze statue of a stocky man in uniform on a stone base", "Saigō Takamori in Kagoshima, 1937."),
           text: "Kagoshima was the seat of the Shimazu lords of **Satsuma**, who with Chōshū led the overthrow of the shogunate in 1868 (see [Meiji to 1945](guide:history/meiji-to-1945)). Satsuma's Saigō Takamori then rebelled against the new government and died on the hill of Shiroyama above the city in 1877.[^1]",
           related: ["history/meiji-to-1945"],
           sources: [{ title: "Satsuma Rebellion — Wikipedia", url: "https://en.wikipedia.org/wiki/Satsuma_Rebellion", note: "1877; Saigō's death at Shiroyama" }],
         },
         {
           title: "Sweet potato country",
+          cover: photoOf("sweet-potatoes", "Freshly dug purple-skinned sweet potatoes on soil", "Satsumaimo, freshly dug."),
           text: "The volcanic soil grows sweet potatoes, which the rest of Japan named *satsuma-imo* after the province.[^1] They go into the local shōchū, drunk with hot water,[^2] and the black pigs (kurobuta) are fattened on them (see [Shōchū, whisky and beer](guide:drinks/sh-ch-whisky-and-beer)).",
           related: ["drinks/sh-ch-whisky-and-beer"],
           sources: [
@@ -1226,12 +1528,14 @@ const base: { dates: GuideDate[]; cities: GuideCity[] } = {
       items: [
         {
           title: "The hot-spring capital",
+          cover: photoOf("beppu-steam", "Columns of steam rising from a town at dawn", "Steam over Beppu."),
           text: "Beppu has more hot-spring sources and more hot water than anywhere else in Japan: over 2,000 sources, putting out more than 80,000 litres a minute. Steam rises from drains, gardens and roadsides all over town.[^1]",
           related: ["culture/baths", "nature/volcanoes"],
           sources: [{ title: "Beppu's hot springs — Japan Tourism Agency multilingual database", url: "https://www.mlit.go.jp/tagengo-db/en/R2-02058.html", note: "Japan's largest output, over 2,000 sources" }],
         },
         {
           title: "The hells",
+          cover: photoOf("chinoike-jigoku", "A steaming blood-red hot pond among trees", "Chinoike Jigoku, the Blood Pond Hell."),
           text: "The **jigoku**, \"hells\", are springs too hot to bathe in, kept to be looked at: a cobalt-blue pool, a blood-red one, a boiling mud pond, a geyser. Seven are toured on one ticket.[^1]",
           sources: [{ title: "Hells of Beppu — Wikipedia", url: "https://en.wikipedia.org/wiki/Hells_of_Beppu", note: "Umi Jigoku, Chi-no-ike Jigoku and the rest" }],
         },
@@ -1356,12 +1660,73 @@ const rules: GuideTopic = {
   ],
 };
 
+const money: GuideTopic = {
+  id: "money",
+  title: "Money",
+  icon: "wallet",
+  summary: "Cards, cash, the ATMs that take a foreign card, and the price on the label",
+  cover: photoOf("yen-notes-coins", "Japanese banknotes and coins spread out", "Yen notes and coins."),
+  blocks: [
+    {
+      items: [
+        {
+          title: "Cash, cards and ATMs",
+          summary: "Cards work almost everywhere in cities — almost",
+          body: [
+            { p: "Japan's reputation as a cash country is out of date in the cities. In 2024 cashless payments passed **42.8%** of household spending, the government's target reached a year early, and most of that is credit cards.[^1] Hotels, department stores, chains, konbini, stations and most restaurants take cards, and an IC transport card pays at konbini and vending machines too (see [IC cards](guide:getting-around/ic-cards-the-fine-print))." },
+            { stats: [{ value: "42.8%", label: "of spending cashless, 2024" }, { value: "82.9%", label: "of that by credit card" }] },
+            { h: "Where you still need cash" },
+            {
+              list: [
+                "Small family restaurants, izakaya and old kissaten — look for card logos by the door before you sit down",
+                "Shrines and temples: offerings, temple seals (goshuin), many entry fees",
+                "Festival stalls, morning markets, rural buses and some ticket machines",
+                "Coin lockers and some laundrettes, which want ¥100 coins",
+              ],
+            },
+            { h: "Getting yen" },
+            { p: "The ATMs in **7-Eleven** (Seven Bank) take foreign cards on the Visa, Mastercard, Amex, JCB, UnionPay and other networks, have English on screen, and most are open round the clock.[^2] **Japan Post** ATMs take foreign cards too. Bank-branch ATMs often don't. Your own bank may charge on top, so take out a larger sum less often." },
+            { note: "Carry a small purse for coins: ¥1, ¥5, ¥10, ¥50, ¥100 and ¥500 all turn up in change, and the ¥500 coin is worth more than it looks.", title: "Coins" },
+          ],
+          words: [
+            { local: "現金のみ", say: "genkin nomi", means: "cash only" },
+            { local: "カード使えますか", say: "kādo tsukaemasu ka", means: "can I use a card?" },
+          ],
+          related: ["money/prices-tax-and-the-tray", "getting-around/ic-cards-the-fine-print", "rules/tax-free-is-changing"],
+          sources: [
+            { title: "Cashless payments reached 42.8% in 2024 — Impress Watch", url: "https://www.watch.impress.co.jp/docs/news/2002754.html", note: "Economy ministry figures, 31 March 2025; credit cards 82.9% of the total (Japanese)" },
+            { title: "ATMs and credit cards — Sapporo tourism", url: "https://www.sapporo.travel/learn/useful_information/atms_and_credit_cards/?lang=en", note: "Seven Bank and Japan Post ATMs, the card networks they accept, 24-hour use" },
+          ],
+        },
+        {
+          title: "Prices, tax and the tray",
+          summary: "The price you see is the price you pay — and you never tip",
+          body: [
+            { p: "Shops and restaurants must show prices **with consumption tax included**, so the number on the shelf or menu is what you'll pay.[^1] Some still print the price before tax larger, with the total beside it in small type (税込, *zeikomi*, “tax included”); the total is the one that counts." },
+            { p: "At the till there's usually a small **tray** (karuton). Put your cash or card on it rather than handing it over, and your change comes back on it, notes counted out in front of you." },
+            { p: "There's **no tipping**, anywhere — not in restaurants, taxis or hotels. Leaving money on the table gets it chased after you. A few upmarket restaurants and hotels add a service charge to the bill, which says so; that's all." },
+          ],
+          words: [
+            { local: "税込", say: "zeikomi", means: "tax included" },
+            { local: "税抜", say: "zeinuki", means: "before tax" },
+            { local: "お会計", say: "okaikei", means: "the bill" },
+          ],
+          related: ["money/cash-cards-and-atms", "eating-out/getting-a-table-ordering-eating", "rules/tax-free-is-changing"],
+          sources: [
+            { title: "Tax-inclusive price display — National Tax Agency", url: "https://www.nta.go.jp/taxes/shiraberu/taxanswer/shohi/6902.htm", note: "Prices shown to consumers must include consumption tax (Japanese)" },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const gettingAround: GuideTopic = {
   id: "getting-around",
   title: "Getting around",
   icon: "train",
   summary: "What the map app won't tell you about Japan's trains",
-  cover: photoOf("shinkansen-500", "A long blue-grey bullet train with a pointed nose running along a track", "A 500 series Shinkansen."),
+  cover: photoOf("tokyo-shinkansen-platform", "A white bullet train at a platform under glass towers", "The Shinkansen platforms at Tokyo Station."),
   blocks: [
     {
       title: "Trains and subways",
@@ -1369,7 +1734,8 @@ const gettingAround: GuideTopic = {
         {
           title: "Reading the platform",
           summary: "Train types, floor markings, and the “limited express” trap",
-          body: [
+          body: [            photo("platform-boarding-mark", "Yellow floor markings on a platform showing where car 5 stops", "A boarding mark on the Sōbu Line platform at Ochanomizu: car 5 stops here."),
+
             { p: "A map app gets you to the right platform. It's what happens there — several kinds of train sharing one track, each stopping in different places — that catches people out." },
             { h: "Not every train stops" },
             { p: "On most lines, slower and faster trains use the same platform. The type is on the departure board and the front of the train, colour-coded:" },
@@ -1410,7 +1776,8 @@ const gettingAround: GuideTopic = {
         {
           title: "IC cards: the fine print",
           summary: "Express Transit, the region-crossing gap, and the Android problem",
-          body: [
+          body: [            photo("suica-gate", "A hand touching a green Suica card to a ticket gate reader", "Tapping a Suica at a station gate."),
+
             { p: "A Suica or PASMO in Apple Wallet is the obvious way to pay for transport, and it also covers convenience stores, lockers and vending machines. The useful detail is in the edges." },
             {
               terms: [
@@ -1431,7 +1798,8 @@ const gettingAround: GuideTopic = {
         {
           title: "Tokyo's two subways",
           summary: "Why some changes cost extra, and how to tell the companies apart",
-          body: [
+          body: [            photo("iidabashi-entrance", "A subway entrance with both Tokyo Metro and Toei signs", "Exit A1 at Iidabashi, shared by Tokyo Metro and Toei."),
+
             { p: "Tokyo's subway map looks like one network, but it's two companies: **Tokyo Metro**, a company since 2004 and listed on the stock exchange in 2024,[^1] and **Toei**, owned by the city. They share stations and signs, but fares are separate." },
             {
               table: {
@@ -1458,7 +1826,8 @@ const gettingAround: GuideTopic = {
         {
           title: "Riding the shinkansen",
           summary: "Which train, which seat, and the peak days when it's all reserved",
-          body: [
+          body: [            photo("shinkansen-boarding", "Passengers boarding a white Shinkansen at Kyoto station", "Boarding a Nozomi to Hiroshima at Kyoto."),
+
             { p: "The Tōkaidō line between Tokyo, Kyoto and Osaka is the busiest high-speed line in the world, with trains every few minutes and an average delay measured in seconds.[^1]" },
             {
               stats: [
@@ -1577,4 +1946,4 @@ const gettingAround: GuideTopic = {
 };
 
 /** "Before you go" — the practical pages, for whoever's about to travel */
-export const tripPractical: GuideTopic[] = [prepared, rules, gettingAround];
+export const tripPractical: GuideTopic[] = [prepared, rules, money, gettingAround];

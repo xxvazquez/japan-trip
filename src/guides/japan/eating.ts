@@ -12,6 +12,7 @@ export const eatingOut: GuideTopic = {
   summary: "Standing soba to a kaiseki counter, the street foods that became the national menu, the specialists, and how a meal out works",
   cover: photoOf("yokocho", "A narrow lane of small eateries under red lanterns, behind an old corner coffee shop", "The way into Omoide Yokochō, a lane of tiny eateries by Shinjuku station."),
   intro: {
+    title: "Intro to eating out",
     body: [
       { p: "Japan has eaten out for a long time. Edo, by the 1700s one of the largest cities in the world, was full of single men — samurai serving their lords' years in the capital, labourers, craftsmen — living in rooms without kitchens. They ate from stalls: sushi, tempura, soba, eel. Much of the national menu is that street food, gone upmarket." },
       { p: "It still is woven into ordinary days, partly because flats are small and kitchens smaller, partly because cheap, good food is everywhere. Each kind of place has its own job and its own crowd:" },
@@ -40,7 +41,8 @@ export const eatingOut: GuideTopic = {
         {
           title: "An izakaya night, start to finish",
           summary: "How the evening runs, and why it's more food than drink",
-          body: [
+          body: [            photo("gion-izakaya", "Cooks behind a counter of small dishes in a busy izakaya", "An izakaya counter in Gion, Kyoto."),
+
             { p: "An **izakaya** — literally “a sake shop you can stay in” — began in the Edo period as liquor sellers letting customers drink on the premises, with a few snacks.[^1] Today it's where most of Japan's social life after work happens: colleagues unwinding, friends catching up, families on a Sunday. It's a restaurant first; the drinks set the pace." },
             { h: "How it runs" },
             {
@@ -95,7 +97,8 @@ export const eatingOut: GuideTopic = {
         {
           title: "Lunch for children, invented upstairs",
           summary: "How department-store dining shaped the family meal out",
-          body: [
+          body: [            photo("okosama-lunch", "A plastic model of a children's set meal with a small Japanese flag in the rice", "An okosama lunch in a restaurant window, flag and all."),
+
             { p: "From the 1920s department stores sold a modern, middle-class way of life, and the top-floor restaurant was part of it: a whole family eating Western food together, on a Sunday." },
             { p: "In 1930, with the Depression biting, Andō Tarō, who ran the restaurant at Mitsukoshi's Nihonbashi store, created the first children's set. Small portions of Western dishes sat around a mound of rice shaped like Mount Fuji, with a flag on the summit. It cost 30 sen and was called *okosama yōshoku*, “Western food for the little ones”.[^1]" },
             { p: "The **okosama ranchi** with its flag is still on family-restaurant menus: a small museum piece of how Japan learned to eat out." },

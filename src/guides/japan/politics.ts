@@ -12,6 +12,7 @@ export const politics: GuideTopic = {
   summary: "The emperor, the Diet and its one dominant party, elections, Article 9 and the prefectures",
   cover: photoOf("diet", "A grey granite building with a stepped central tower at the end of a tree-lined approach", "The National Diet Building in Nagatachō, Tokyo, completed in 1936."),
   intro: {
+    title: "Intro to government and politics",
     body: [
       { p: "Modern Japan has had two constitutions. The **Meiji constitution** of 1889 made the emperor a sacred sovereign; the army answered to him, not to elected politicians, and that gap helped lead the country into war (see [Meiji to 1945](guide:history/meiji-to-1945)). The **1947 constitution**, drafted under American occupation, put sovereignty in the people, made the emperor a symbol and renounced war. It has never been amended." },
       {

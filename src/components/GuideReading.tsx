@@ -1,19 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useParams } from "react-router-dom";
 import { Icon } from "./Icon";
+import { ActionSheet, useActionSheet } from "./ActionSheet";
 import { setRead, setSaved, useReadSet, useSaved, type SavedEntry } from "@/lib/guideReading";
 
 /** The reader's tools on a guide article, kept per device: save it, share
- *  it, mark it read. Bookmark and Share sit in the navigation bar, the way
- *  Apple News and Books put them; Mark as Read waits at the foot of the
- *  read, where you finish it. */
+ *  it, mark it read. Bookmark, Share and a ⋯ menu sit in the navigation
+ *  bar, the way Apple News and Books put them. Reading to the end marks an
+ *  article read by itself, as Books keeps your place without being told;
+ *  the ⋯ menu (and a row's long-press) is where you change it by hand, as
+ *  Podcasts keeps Mark as Played in its menu. */
 
 /** Bookmark and Share — a glass capsule in the nav bar's `#nav-actions`
  *  slot, beside the account button. */
 export function ReadingActions({ entry }: { entry: SavedEntry }) {
   const { guide } = useParams();
   const saved = useSaved(guide).some((e) => e.to === entry.to);
+  const read = useReadSet(guide).has(entry.to);
+  const more = useActionSheet();
   const [slot, setSlot] = useState<HTMLElement | null>(null);
   const [copied, setCopied] = useState(false);
   useEffect(() => setSlot(document.getElementById("nav-actions")), []);
@@ -54,6 +59,12 @@ export function ReadingActions({ entry }: { entry: SavedEntry }) {
       <button type="button" className={btn} aria-label={copied ? "Link copied" : "Share"} onClick={share}>
         <Icon name={copied ? "check" : "share"} size={20} className={copied ? "text-matcha" : undefined} />
       </button>
+      <button ref={more.anchorRef} type="button" className={btn} aria-label="More" aria-haspopup="menu" aria-expanded={more.open} onClick={() => more.setOpen(true)}>
+        <Icon name="more" size={20} />
+      </button>
+      <ActionSheet open={more.open} onClose={() => more.setOpen(false)} anchorRef={more.anchorRef}>
+        <ReadMenuItem guide={guide} path={entry.to} read={read} />
+      </ActionSheet>
     </div>,
     slot,
   );
@@ -78,26 +89,43 @@ async function copy(text: string): Promise<boolean> {
   }
 }
 
-/** "Mark as Read" at the foot of an article — one tap, and a tap again
- *  takes it back, as Mail's Mark as Unread does. */
-export function MarkRead({ path }: { path: string }) {
-  const { guide } = useParams();
-  const read = useReadSet(guide).has(path);
-  if (!guide) return null;
+/** Mark as Read / Mark as Unread, for a ⋯ menu or a row's long-press —
+ *  Mail's and Podcasts' wording. */
+export function ReadMenuItem({ guide, path, read }: { guide: string; path: string; read: boolean }) {
   return (
-    <button
-      type="button"
-      aria-pressed={read}
-      onClick={() => setRead(guide, path, !read)}
-      className="flex w-full items-center gap-3 rounded-[12px] bg-surface px-3.5 py-3 text-left transition-colors active:bg-ink/[0.07]"
-    >
-      <Icon name="check-circle" size={24} filled={read} className={`shrink-0 transition-colors ${read ? "text-matcha" : "text-ink-faint"}`} />
-      <span className="min-w-0 flex-1">
-        <span className={`block text-[17px] leading-snug ${read ? "text-ink" : "text-accent"}`}>{read ? "Read" : "Mark as Read"}</span>
-        {read && <span className="block text-[13px] text-ink-faint">Tap to mark as unread</span>}
-      </span>
+    <button type="button" className="menu-item" onClick={() => setRead(guide, path, !read)}>
+      <Icon name="check-circle" size={18} filled={!read} className={read ? "text-ink-faint" : "text-matcha"} />
+      {read ? "Mark as Unread" : "Mark as Read"}
     </button>
   );
+}
+
+/** Marks the article read once its end has been on screen for a moment —
+ *  reading to the bottom is finishing it, as in Books. Put it after the
+ *  article's text. It acts once per visit, so marking the article unread
+ *  from the ⋯ menu while still on it sticks. */
+export function ReadWhenFinished({ path }: { path: string }) {
+  const { guide } = useParams();
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !guide) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const io = new IntersectionObserver(([e]) => {
+      clearTimeout(timer);
+      if (!e.isIntersecting) return;
+      timer = setTimeout(() => {
+        setRead(guide, path, true);
+        io.disconnect();
+      }, 1200);
+    });
+    io.observe(el);
+    return () => {
+      clearTimeout(timer);
+      io.disconnect();
+    };
+  }, [guide, path]);
+  return <div ref={ref} aria-hidden className="h-px" />;
 }
 
 /** a small filled tick for a row that's been read */

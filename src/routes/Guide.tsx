@@ -9,8 +9,9 @@ import { TileRow } from "@/components/TileRow";
 import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { Calls, Chart, Dishes, GuideSources, Inline, Venues, Photo } from "@/components/GuideBlocks";
 import { Compare, Eras, Evidence, Figures, Pull } from "@/components/GuideVisuals";
-import { MarkRead, ReadingActions, ReadTick, useProgress } from "@/components/GuideReading";
-import { useSaved, type SavedEntry } from "@/lib/guideReading";
+import { ReadingActions, ReadMenuItem, ReadTick, ReadWhenFinished, useProgress } from "@/components/GuideReading";
+import { useReadSet, useSaved, type SavedEntry } from "@/lib/guideReading";
+import { ContextMenu } from "@/components/ContextMenu";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { useData } from "@/lib/data";
 import { guideTopicColor } from "@/lib/tones";
@@ -595,7 +596,6 @@ export function GuideTopicArticle() {
       key={`${topic.id}/${item}`}
       back={topicPath}
       entry={refs[i]}
-      fallback={{ photo: topic.cover ?? coverOf(refs), tint: guideTopicColor(t), art: <IconTile name={topic.icon} glyph={topic.glyph} color={guideTopicColor(t)} className="scale-[1.75]" /> }}
       chapter={chapterLabel(guide, topic)}
       next={refs[i + 1] && { to: `${topicPath}/${refs[i + 1].slug}`, entry: refs[i + 1] }}
       nextTopic={nextTopic && { to: `${guidePath(guide)}/${nextTopic.id}`, topic: nextTopic, color: guideTopicColor(t + 1) }}
@@ -618,7 +618,6 @@ export function GuideCityArticle() {
       key={`${city.id}/${item}`}
       back={cityPath}
       entry={refs[i]}
-      fallback={cityFallback(guide, city)}
       next={refs[i + 1] && { to: `${cityPath}/${refs[i + 1].slug}`, entry: refs[i + 1] }}
     />
   );
@@ -639,7 +638,6 @@ export function GuideDayTripArticle() {
       key={`${city.id}/${item}`}
       back={tripsPath}
       entry={refs[i]}
-      fallback={cityFallback(guide, city)}
       next={refs[i + 1] && { to: `${tripsPath}/${refs[i + 1].slug}`, entry: refs[i + 1] }}
     />
   );
@@ -662,17 +660,13 @@ export function GuideDateArticle() {
       key={item}
       back={guidePath(guide)}
       entry={entry}
-      fallback={{
-        tint: guideTopicColor(Math.max(0, dateArticles(guide.dates).findIndex((r) => r.slug === item))),
-        art: <Icon name="calendar" size={30} strokeWidth={1.6} className="text-white" />,
-      }}
       next={next && { to: `${guidePath(guide)}/date/${next.slug}`, entry: next }}
     />
   );
 }
 
-/** what an article opens on when it has no photo of its own: the city's
- *  cover, or its name in the local script */
+/** what a city's page opens on when the city names no cover: its first
+ *  read's photo, or its name in the local script */
 const cityFallback = (g: CountryGuide, c: GuideCity): ArticleFallback => ({
   photo: c.cover ?? coverOf(cityArticles(c)),
   tint: guideTopicColor(g.cities.indexOf(c)),
@@ -695,8 +689,10 @@ const noArticle = (g: CountryGuide) => (
  * the way Apple's own long support articles do, and ends with related
  * entries that carry the thread on.
  */
-/** An article's header picture when its body has none: a photo from
- *  around it (its topic's or city's cover), else a panel in its colour. */
+/** A page's header picture when it has none of its own: a photo from
+ *  around it, else a panel in its colour. Chapter and city pages only — an
+ *  article with no photo of its own opens on its text, the way Apple News
+ *  sets a story without art, rather than repeating its chapter's picture. */
 interface ArticleFallback {
   photo?: GuidePhoto;
   tint?: string;
@@ -706,7 +702,6 @@ interface ArticleFallback {
 function ArticlePage({
   back,
   entry,
-  fallback,
   next,
   nextTopic,
   chapter,
@@ -715,20 +710,18 @@ function ArticlePage({
   entry: ArticleRef;
   /** "Chapter 4 · Origins", said with the reading time */
   chapter?: string;
-  fallback?: ArticleFallback;
   next?: { to: string; entry: ArticleRef };
   nextTopic?: { to: string; topic: GuideTopic; color: string };
 }) {
   const guide = useGuide();
   const { pathname } = useLocation();
   const a = entry.article;
-  // every read opens on a picture, the way Apple News leads a story: the
-  // body's first photo moves up into the header (so it isn't shown twice),
-  // else one from around the article
+  // a read with a photo opens on it, the way Apple News leads a story: the
+  // body's first photo moves up into the header (so it isn't shown twice);
+  // a read without one opens on its words, never on a borrowed picture
   const ownAt = a.body?.findIndex((b) => "photo" in b) ?? -1;
   const own = photoIn(a);
-  const header = own ?? fallback?.photo;
-  const firstPhoto = header?.src;
+  const firstPhoto = own?.src;
   useEffect(() => {
     if (guide) rememberRead(guide.id, { to: pathname, title: entry.title, caption: entry.eyebrow, src: firstPhoto });
   }, [guide, pathname, entry.title, entry.eyebrow, firstPhoto]);
@@ -753,7 +746,7 @@ function ArticlePage({
       ) : a.summary ? <div className="mb-4" /> : null}
 
       <div className="space-y-6">
-        <Hero photo={own} fallback={fallback} />
+        {own && <ArticleHeader photo={own} />}
 
         {headings.length >= 4 && (
           <div>
@@ -802,6 +795,7 @@ function ArticlePage({
               {p.points?.length ? <Bullets points={p.points} className="mt-3" /> : null}
             </section>
           ))}
+          <ReadWhenFinished path={pathname} />
         </article>
 
         {a.tip && (
@@ -848,8 +842,6 @@ function ArticlePage({
             </Section>
           </div>
         ) : null}
-
-        <MarkRead path={pathname} />
 
         {related.length ? (
           <div>
@@ -948,8 +940,12 @@ function ArticleRow({
   thumb?: string;
   replace?: boolean;
 }) {
+  const { guide } = useParams();
+  const read = useReadSet(guide).has(to);
+  // hold the row (right-click on a computer) to mark it read or unread,
+  // as Mail and Podcasts do from a list
   return (
-    <li className={INSET_DIVIDER}>
+    <ContextMenu as="li" className={INSET_DIVIDER} menu={guide ? <ReadMenuItem guide={guide} path={to} read={read} /> : undefined}>
       <Link
         to={to}
         replace={replace}
@@ -966,7 +962,7 @@ function ArticleRow({
         {thumb && <Thumb src={thumb} />}
         <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
       </Link>
-    </li>
+    </ContextMenu>
   );
 }
 

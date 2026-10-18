@@ -13,22 +13,27 @@ export interface ArticleRef {
   article: GuideArticle;
 }
 
-/** give every entry a slug from its title, unique within the list */
-function withSlugs(list: Omit<ArticleRef, "slug">[]): ArticleRef[] {
+/** give every entry a slug from its title (unless it brings its own),
+ *  unique within the list */
+function withSlugs(list: (Omit<ArticleRef, "slug"> & { slug?: string })[]): ArticleRef[] {
   const seen = new Map<string, number>();
   return list.map((a) => {
-    const base = slug(a.title) || "entry";
+    const base = a.slug ?? (slug(a.title) || "entry");
     const n = (seen.get(base) ?? 0) + 1;
     seen.set(base, n);
     return { ...a, slug: n > 1 ? `${base}-${n}` : base };
   });
 }
 
-/** a chapter's entries, in page order: its overview (when it has an
- *  opening read), then each group's points and timeline stops */
+/** a chapter's opening read's title — "Intro to Coffee" */
+export const introTitle = (topic: GuideTopic) => topic.intro?.title ?? `Intro to ${topic.title}`;
+
+/** a chapter's entries, in page order: its intro (when it has an opening
+ *  read — always at `…/overview`, so links to it hold), then each group's
+ *  points and timeline stops */
 export function topicArticles(topic: GuideTopic): ArticleRef[] {
   const overview = topic.intro
-    ? [{ title: "Overview", eyebrow: topic.title, article: { summary: topic.summary, body: topic.intro.body, sources: topic.intro.sources } }]
+    ? [{ slug: "overview", title: introTitle(topic), eyebrow: topic.title, article: { summary: topic.summary, body: topic.intro.body, sources: topic.intro.sources } }]
     : [];
   return withSlugs([
     ...overview,

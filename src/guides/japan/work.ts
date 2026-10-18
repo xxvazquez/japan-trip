@@ -13,6 +13,7 @@ export const work: GuideTopic = {
   summary: "Joining a company, long hours, women at work, and the world's oldest firms",
   cover: photoOf("commute", "Office workers in dark coats walking along a wide pavement between skyscrapers in the morning", "The morning walk to work in Nishi-Shinjuku, Tokyo's skyscraper office district."),
   intro: {
+    title: "Intro to work and companies",
     body: [
       { p: "Every year on **1 April**, the first day of the fiscal year and the day after the school year ends, hundreds of thousands of new graduates start work on the same day. Most haven't been hired for a particular job. They've been hired by a company, which will decide what they do, and move them around, for years to come. That difference explains most of what's distinctive about working in Japan." },
       { p: "The system was built for a country with plenty of young people. It no longer has them. The working-age population, 15 to 64, peaked in 1995 at about 87 million and was under 74 million by 2023.[^1]" },

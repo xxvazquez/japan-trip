@@ -13,6 +13,7 @@ export const growingUp: GuideTopic = {
   summary: "Cleaning the classroom, exams, clubs, children out alone, and schools with no children left",
   cover: photoOf("coming-of-age", "A crowd of young women in bright long-sleeved kimono with fur stoles and young men in suits, posing and laughing", "A coming-of-age ceremony in Tokyo: furisode for the women, suits and the odd hakama for the men."),
   intro: {
+    title: "Intro to growing up and school",
     body: [
       { p: "Japanese schools teach the usual subjects, and teach them well: Japanese teenagers score near the top of international maths and science tests. But walk past a school at the end of the day and what you'll see isn't lessons. Children are sweeping corridors, carrying out rubbish, or running laps for a club." },
       { p: "That's deliberate. The curriculum gives real time to what it calls **tokkatsu**, \"special activities\": cleaning, serving lunch, class duties, ceremonies. They're how school teaches children to run a group and look after shared space, and they explain a good deal of adult behaviour, from clean streets to a stadium tidied by its fans (see [Customs](guide:customs/overview))." },
@@ -172,7 +173,8 @@ export const growingUp: GuideTopic = {
         {
           title: "Shichi-go-san to twenty",
           summary: "Milestones kept at the shrine, and an adulthood that moved to 18 but kept its ceremony at 20",
-          body: [
+          body: [            photo("shichigosan", "Families at a shrine while a priest performs a blessing for children in kimono", "Shichi-Go-San at Ikuta Shrine, Kobe."),
+
             { p: "Childhood is marked by shrine visits more than birthdays. A baby is taken to the local shrine about a month after birth. In November, children of three, five and seven are dressed up for **Shichi-go-san**, \"seven-five-three\", and leave with long bags of chitose-ame candy (see [Religion without belonging](guide:belief/religion-without-belonging)). Starting elementary school,[^1] with the new randoseru, is its own ceremony in April." },
             { h: "Coming of age" },
             { p: "**Adulthood** changed in 2022, when the legal age dropped from 20 to 18. Eighteen-year-olds can now sign contracts and marry without consent, but drinking, smoking and gambling stay at 20." },

@@ -12,6 +12,7 @@ export const manga: GuideTopic = {
   summary: "How manga and anime grew, who draws them and for what pay, and what fans made of them",
   cover: photoOf("hokusai-manga", "A printed double page of small sketches of people bathing and diving", "Bathers and divers in volume 4 of the Hokusai Manga, the sketchbooks that popularised the word."),
   intro: {
+    title: "Intro to manga and anime",
     body: [
       { p: "In Japan comics aren't a genre or a children's shelf. They're a medium, read by every age on every subject, and the animation that grew out of them is now one of the country's biggest exports." },
       {

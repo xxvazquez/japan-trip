@@ -1,5 +1,5 @@
 import type { GuideTopic } from "../types";
-import { photo } from "./photos";
+import { photo, photoOf } from "./photos";
 
 /** Emergencies, natural hazards and wildlife — what to do, in order, and
  *  why Japan does it that way. */
@@ -7,7 +7,8 @@ export const prepared: GuideTopic = {
   id: "prepared",
   title: "Be prepared",
   icon: "shield",
-  summary: "Who to call, earthquakes, tsunami, typhoons, Fuji, bears",
+  summary: "Who to call, earthquakes, tsunami, typhoons, heat, Fuji, bears",
+  cover: photoOf("coast-guard-drill", "A Coast Guard helicopter lowering a rescuer on a line", "A Japan Coast Guard helicopter in Okinawa's annual disaster drill."),
   blocks: [
     {
       title: "If something happens",
@@ -16,15 +17,16 @@ export const prepared: GuideTopic = {
           title: "Numbers to call",
           summary: "119, 110 — and the two lines that save you a wasted ambulance",
           body: [
-            { p: "Both emergency numbers are free from any phone, including a foreign SIM or eSIM. Most fire departments can now bring an interpreter onto a 119 call: say **“English”** clearly and stay on the line." },
+            { p: "Both emergency numbers are free from any phone with a voice line, including a roaming foreign SIM. Most fire departments can now bring an interpreter onto a 119 call: say **“English”** clearly and stay on the line." },
             {
               call: [
                 { number: "119", label: "Ambulance or fire", text: "Say “kyūkyū desu” for an ambulance, “kaji desu” for a fire" },
                 { number: "110", label: "Police", text: "Crime, accidents, a bear in town, a lost child" },
                 { number: "050-3816-2787", label: "Japan Visitor Hotline", text: "Tourism agency, 24 h, every day, in English, Chinese, Korean and Japanese · help in illness, accidents and disasters" },
-                { number: "#7119", label: "Is this an emergency?", text: "Nurse advice line, 24 h, in Tokyo, Kyoto and Yamanashi · Japanese" },
+                { number: "#7119", label: "Is this an emergency?", text: "Nurse advice line, 24 h, in Tokyo, Kyoto and Yamanashi · Japanese · may not connect from a foreign number" },
               ],
             },
+            { note: "Many travel eSIMs are **data only** and can't dial 110 or 119 at all. Check yours before you go. Without a voice line, use a public phone — emergency calls are free, no coin or card, on the red button or by lifting the receiver and dialling — or ask anyone nearby, a shop or your hotel to call.", kind: "warning", title: "A data-only eSIM can't call" },
             { h: "What 119 will ask" },
             {
               steps: [
@@ -74,7 +76,8 @@ export const prepared: GuideTopic = {
         {
           title: "Lost or stolen",
           summary: "Things come back — but you need the right paper",
-          body: [
+          body: [            photo("koban-sudocho", "A small stone-and-tile police box with a red postbox beside it", "An old kōban, preserved at the Edo-Tokyo Open Air Architectural Museum."),
+
             { p: "Lost things really do turn up: anything handed in goes to the nearest **kōban** (police box), then to the police lost-and-found centre for the area.[^1] Railways keep their own lost property for a few days first, so ask the station before the police." },
             { p: "For an insurance claim you need a report number: a **lost-property report** (ishitsu todoke) or a **theft report** (tōnan todoke) from any kōban. For a lost passport, get the police report first — the embassy needs it to issue an emergency travel document." },
           ],
@@ -105,7 +108,7 @@ export const prepared: GuideTopic = {
                 { title: "Stay inside until it stops", text: "Most people hurt in Japanese quakes are hit by glass and signs falling into the street. Don't run out." },
                 { title: "Open the door", text: "Once it stops, prop the room door open — a frame twisted by a big quake can jam it shut." },
                 { title: "Put shoes on", text: "Before walking anywhere. Broken glass is the commonest injury after the shaking." },
-                { title: "Then check, don't rush", text: "Aftershocks follow. Look at NHK or the Safety Tips app before you decide to go anywhere." },
+                { title: "Then check, don't rush", text: "Aftershocks follow. Take the stairs, not the lift. Look at NHK or the Safety Tips app before you decide to go anywhere — and if you're near the coast, don't wait to check: go up (see Tsunami)." },
               ],
             },
             { h: "Wherever you are" },
@@ -115,7 +118,7 @@ export const prepared: GuideTopic = {
                 rows: [
                   ["On a train or subway", "Hold a strap or pole. Trains brake automatically and stop between stations; don't open doors or step onto the tracks — staff will lead you out."],
                   ["On the Shinkansen", "Power is cut automatically when the first wave is detected. Stay seated; it may wait for hours for the track to be checked."],
-                  ["In a lift", "Press every floor button and get out at the first one that opens. Most new lifts stop at the nearest floor by themselves."],
+                  ["In a lift", "Press every floor button and get out at the first one that opens. Most new lifts stop at the nearest floor by themselves. If you're stuck, press the intercom button and wait; don't force the doors."],
                   ["In a shop or station", "Away from shelves and glass, crouch, cover your head. Don't push to the exits with the crowd."],
                   ["In the street", "Move away from buildings, vending machines and concrete-block walls (one fell on a schoolgirl in Osaka in 2018). An open space or a modern building's lobby is safer."],
                   ["In an onsen", "Hold the edge, cover your head, and get out carefully — wet tiles and glass doors. Hot-spring water can turn muddy or stop for a while after a quake."],
@@ -124,16 +127,17 @@ export const prepared: GuideTopic = {
               },
             },
             { h: "Shindo, not magnitude" },
-            { p: "Japanese news reports **shindo** — how hard the ground shook at each place, on the weather agency's 10-step scale[^1] — rather than magnitude, which is the energy at the source. The same quake can be shindo 5 in one town and 2 in the next." },
+            { p: "Japanese news reports **shindo** — how hard the ground shook at each place, on the weather agency's 10-step scale[^1] — rather than magnitude, which is the energy at the source. The same quake can be shindo 5 in one town and 2 in the next. The phone warning goes out when shaking of 5 lower or more is expected somewhere." },
             {
               table: {
                 head: ["Shindo", "What it's like"],
                 rows: [
-                  ["1–2", "Noticed only by people sitting still"],
-                  ["3", "Most people feel it; dishes rattle"],
-                  ["4", "Startling; hanging lights swing hard"],
-                  ["5 lower / upper", "Hard to stand; unsecured furniture moves. The phone warning sounds."],
-                  ["6 lower / upper, 7", "Hard or impossible to stand. Old buildings can collapse."],
+                  ["1–2", "Felt by people sitting still indoors"],
+                  ["3", "Most people indoors feel it; dishes rattle"],
+                  ["4", "Most people are startled; hanging lights swing hard"],
+                  ["5 lower / upper", "Most people want to hold onto something, and by 5 upper walking is hard. Dishes and books fall; unsecured furniture can topple."],
+                  ["6 lower / upper", "Hard to stay standing; at 6 upper you can only crawl. Older wooden houses may lean or collapse."],
+                  ["7", "Thrown about. Even some sturdier buildings fail."],
                 ],
               },
             },
@@ -158,9 +162,10 @@ export const prepared: GuideTopic = {
             {
               dos: [
                 "Treat strong shaking, or any shaking that lasts a long time, near the coast as the warning itself — go before any alert",
-                "Go **up**: high ground, or the 4th floor or higher of a solid concrete building",
+                "Go **up**: high ground, or the upper floors of a solid concrete building — the 3rd floor at the very least, higher if you can",
                 "Look for the **tsunami evacuation building** sign (a figure climbing stairs above waves) — hotels and offices on the coast are designated, and open to anyone",
                 "Stay up until the warning is lifted, which can take a day",
+                "Move even if the shaking felt weak — a far-off quake, or a slow one, can still send a large tsunami",
               ],
               donts: [
                 "Go down to the shore to look",
@@ -178,6 +183,7 @@ export const prepared: GuideTopic = {
                 ],
               },
             },
+            { p: "Near the source the first wave can arrive **within minutes**, before any alert reaches you. And after a very large quake the first warning may give no height at all — just **巨大** (“huge”) or **高い** (“high”), because the size can't be measured yet.[^2] Treat either as the worst case." },
             { p: "On the north-east coast the rule is **tsunami tendenko**: when the tsunami comes, everyone runs for themselves, trusting the others to do the same. Why, and where it comes from, is in [Tsunami](guide:nature/tsunami)." },
             { note: "Kyoto and Kawaguchiko are inland. Tokyo's bay shore is the exposure on this trip — the low-lying eastern wards (Kōtō, Edogawa, Sumida) partly lie below high-tide level, which is why you see flood-height markers on poles there.", title: "On this trip" },
           ],
@@ -186,7 +192,10 @@ export const prepared: GuideTopic = {
             { local: "高台", say: "takadai", means: "high ground" },
           ],
           related: ["nature/tsunami", "prepared/when-the-ground-shakes", "prepared/your-hotel-and-the-nearest-shelter"],
-          sources: [{ title: "Japan Meteorological Agency (English)", url: "https://www.jma.go.jp/jma/indexe.html" }],
+          sources: [
+            { title: "Japan Meteorological Agency (English)", url: "https://www.jma.go.jp/jma/indexe.html" },
+            { title: "Tsunami warnings and advisories — Japan Meteorological Agency", url: "https://www.jma.go.jp/jma/kishou/know/jishin/joho/tsunamiinfo.html", note: "The height bands, and 巨大 / 高い in the first warning for a quake over magnitude 8 (Japanese)" },
+          ],
         },
         {
           title: "The big ones",
@@ -200,10 +209,19 @@ export const prepared: GuideTopic = {
               ],
             },
             { h: "If a “megaquake advisory” is issued" },
-            { p: "After a big quake on the Nankai zone, the weather agency can issue a **Nankai Trough Earthquake Extra Information** advisory for a week. The first was in August 2024. It doesn't mean a quake is coming; it means the odds are briefly higher than usual. Nothing closes. Do what locals do: know your exits, keep shoes and a bag by the bed, check the nearest high ground if you're on the coast." },
+            { p: "After a big quake on or near the Nankai zone, the weather agency issues **Nankai Trough Earthquake Extra Information** at one of two levels. Each lasts about a week.[^2]" },
+            {
+              terms: [
+                { term: "巨大地震注意 — Megaquake Advisory", text: "The lower level, after a magnitude-7 class quake. The first was issued in August 2024. It doesn't mean a quake is coming; the odds are briefly higher than usual. Nothing closes. Do what locals do: know your exits, keep shoes and a bag by the bed, check the nearest high ground if you're on the coast." },
+                { term: "巨大地震警戒 — Megaquake Warning", text: "The higher level, after a magnitude-8 class quake on part of the trough. Coastal areas where a tsunami would arrive too fast to escape tell residents to evacuate in advance for a week; trains and businesses there may stop. If you're on that coast, follow the town's instructions and go inland or uphill." },
+              ],
+            },
           ],
           related: ["prepared/when-the-ground-shakes", "prepared/tsunami", "nature/volcanoes"],
-          sources: [{ title: "Damage projections for Nankai Trough and Tokyo earthquakes — nippon.com", url: "https://www.nippon.com/en/japan-data/h02873/", note: "30-year probabilities and the 2025 revision" }],
+          sources: [
+            { title: "Damage projections for Nankai Trough and Tokyo earthquakes — nippon.com", url: "https://www.nippon.com/en/japan-data/h02873/", note: "30-year probabilities and the 2025 revision" },
+            { title: "Nankai Trough Earthquake Extra Information — Japan Meteorological Agency", url: "https://www.data.jma.go.jp/eqev/data/nteq/info_criterion.html", note: "The Megaquake Advisory and Megaquake Warning levels and what each asks (Japanese)" },
+          ],
         },
       ],
     },
@@ -242,9 +260,37 @@ export const prepared: GuideTopic = {
           ],
         },
         {
+          title: "Heat",
+          summary: "From May to September, heatstroke is the emergency that fills ambulances",
+          body: [
+            { p: "Summer in Japan's cities is hot and humid well into September, and the heat index matters more than the thermometer: 33 °C in Tokyo's damp air is harder on the body than the same in dry heat. Japan measures it as the **WBGT** heat index, which adds humidity and sun to temperature." },
+            {
+              terms: [
+                { term: "熱中症警戒アラート — Heatstroke Alert", text: "Issued the evening before or that morning when the index is forecast to reach 33 somewhere in the prefecture. National since 2021, from late April to late October.[^1]" },
+                { term: "熱中症特別警戒アラート — Special Heatstroke Alert", text: "The higher level, added in 2024, when the index is forecast to reach 35 across a whole prefecture: heat beyond anything on record there.[^2]" },
+              ],
+            },
+            {
+              dos: ["Drink before you're thirsty, with some salt — konbini sell oral rehydration drinks (経口補水液)", "Plan outdoor sightseeing for the morning and evening, and spend midday indoors", "Use the cool places towns open in a heatwave: libraries, malls, and designated cooling shelters"],
+              donts: ["Push on with a headache, dizziness, cramps or nausea — stop, cool down, drink"],
+            },
+            { note: "Confusion, fainting, or someone who can't drink on their own means **119**. While you wait, get them into shade or air-conditioning and cool the neck, armpits and groin.", kind: "warning", title: "When it's serious" },
+          ],
+          words: [
+            { local: "熱中症", say: "netchūshō", means: "heatstroke" },
+            { local: "暑さ指数", say: "atsusa shisū", means: "the WBGT heat index" },
+          ],
+          related: ["prepared/numbers-to-call", "prepared/typhoons-and-heavy-rain"],
+          sources: [
+            { title: "Heatstroke alerts — Japan Meteorological Agency, Aomori office (2021)", url: "https://www.data.jma.go.jp/aomori/pub-relations/pdf/saijiki/saijiki2021_03a.pdf", note: "National operation from 2021, issued at a forecast WBGT of 33 (Japanese)" },
+            { title: "Special Heatstroke Alert — Chiba City", url: "https://www.city.chiba.jp/kankyo/kankyohozen/datsutanso/heatalert.html", note: "WBGT 35, the higher alert's threshold, and the season it runs (Japanese)" },
+          ],
+        },
+        {
           title: "Sleeping under Fuji",
           summary: "An active volcano, and what the town plans if it wakes",
-          body: [
+          body: [            photo("fujiyoshida-street", "A town street with Mount Fuji rising directly beyond it", "Mount Fuji from Kamiyoshida, in Fujiyoshida."),
+
             { p: "Fuji last erupted in 1707, and its 300-year quiet since is long for it, not reassuring (see [Volcanoes](guide:nature/volcanoes)). It is watched constantly." },
             { p: "The weather agency rates each active volcano on **Volcanic Alert Levels 1–5**. Fuji sits at 1. At 3, the mountain is closed; at 4 and 5, nearby residents are told to prepare and then to leave." },
             { h: "What the plan says" },
@@ -358,7 +404,8 @@ export const prepared: GuideTopic = {
         {
           title: "Hornets, boars and monkeys",
           summary: "In an ordinary year, the hornet is the deadlier animal",
-          body: [
+          body: [            photo("giant-hornet", "A large orange-headed hornet on a tree trunk", "A queen Japanese giant hornet."),
+
             { p: "Bears make the news, but most years more people in Japan die from hornet and wasp stings — 21 in 2023 and 18 in 2024, nearly all from allergic shock — than from bears.[^1] The giant **suzumebachi** is most aggressive in September and October, when its nests are biggest and it's defending them." },
             {
               dos: [
@@ -390,8 +437,8 @@ export const prepared: GuideTopic = {
                 { title: "Install Safety Tips", text: "The tourism agency's free app pushes earthquake, tsunami, volcano and weather warnings in English, with what to do. It's the one alert you can rely on with a foreign SIM." },
                 { title: "Turn on emergency alerts", text: "iPhone: Settings → Notifications → Emergency Alerts. Android: Safety & emergency → Wireless emergency alerts. Japanese carriers' quake alerts reach many roaming phones too." },
                 { title: "Save your stays in Japanese", text: "Each hotel's name and address in Japanese script, as a screenshot that works offline. It's what you show a taxi, read to 119 or a shelter." },
-                { title: "Know 00000JAPAN", text: "In a disaster, carriers open free Wi-Fi under this network name, with no password." },
-                { title: "Agree a meeting point", text: "If you're separated and the network is jammed: your hotel, or the 171 disaster message line, where you record and play back voice messages by phone number." },
+                { title: "Know 00000JAPAN", text: "In a disaster, carriers open free Wi-Fi under this network name, with no password. It's open, so use it for messages and news, not banking." },
+                { title: "Agree a meeting point", text: "If you're separated and the network is jammed: your hotel. Japan's disaster message board, **web171**, lets you leave and read messages by phone number online; the 171 voice line works only from Japanese phones." },
               ],
             },
           ],

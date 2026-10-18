@@ -11,8 +11,9 @@ export const nature: GuideTopic = {
   title: "Living with nature",
   glyph: "waves",
   summary: "Earthquakes, tsunami, volcanoes and typhoons — how they work, and what each disaster changed",
-  cover: photoOf("red-fuji", "Hokusai's print of Mount Fuji glowing red against a blue sky streaked with cloud", "Hokusai's \"Red Fuji\", about 1830: the volcano at rest, a century after its last eruption."),
+  cover: photoOf("aso-nakadake", "A steaming turquoise crater lake inside a grey volcanic cone", "The crater of Nakadake, Mount Aso, one of Japan's most active volcanoes."),
   intro: {
+    title: "Intro to living with nature",
     body: [
       { p: "Japan sits where four tectonic plates meet, in the path of the Pacific's typhoons, on a chain of volcanoes. Close to a fifth of the world's magnitude-6 earthquakes happen in or around it, and about a tenth of its active volcanoes stand on it.[^1]" },
       { p: "Disaster is woven into the history. The courtier Kamo no Chōmei's *Hōjōki* of 1212, one of the classics every schoolchild reads, describes a city levelled by fire, whirlwind, famine and the great earthquake of 1185." },
@@ -154,7 +155,7 @@ export const nature: GuideTopic = {
 
             { h: "Rice sheaves on fire" },
             { p: "The best-known tsunami story is older. During the Ansei Nankai tsunami of 1854, **Hamaguchi Goryō**, a merchant in the village of Hiro in Wakayama, is said to have set fire to sheaves of rice on the hillside to guide villagers in the dark to high ground. He then paid for a sea wall that protected the village from a later tsunami in 1946.[^3]" },
-            { p: "Lafcadio Hearn retold the story in English in 1897, and as *Inamura no hi*, \"the fire of the rice sheaves\", it entered Japanese school readers. In 2015 the United Nations made 5 November, the date of the 1854 tsunami, World Tsunami Awareness Day.[^4]" },
+            { p: "Lafcadio Hearn retold the story in English in 1897, and as *Inamura no hi*, \"the fire of the rice sheaves\", it entered Japanese school readers. In 2015 the United Nations made 5 November — the 1854 tsunami's date in the old calendar — World Tsunami Awareness Day.[^4]" },
 
             { h: "The warning in the sand" },
             { p: "In 869 the Jōgan earthquake sent a tsunami far across the Sendai plain. Geologists mapping its sand layers in the 2000s showed it had reached kilometres inland, and warned that the coast could expect something like it again.[^5]" },
@@ -258,7 +259,8 @@ export const nature: GuideTopic = {
         {
           title: "Typhoons and rain",
           summary: "Numbered storms, the plum rain, a typhoon that wrote the disaster law, and a cathedral under Tokyo for floodwater",
-          body: [
+          body: [            photo("hagibis-flood", "An aerial view of farmland and towns under brown floodwater", "Saitama under floodwater after Typhoon Hagibis, October 2019."),
+
             { p: "About twenty-five typhoons form in the north-west Pacific each year. Around eleven come close to Japan, and about three make landfall.[^1] Most arrive between August and October, steered north by the summer high-pressure system and then swept north-east by the westerly winds." },
             { p: "Japan numbers its typhoons in order through the year. \"Typhoon No. 19\" is how the news knew the storm the rest of the world called Hagibis." },
 

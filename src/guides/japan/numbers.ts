@@ -13,6 +13,7 @@ export const numbers: GuideTopic = {
   summary: "Fewer people, older people, smaller homes — the numbers behind everyday life",
   cover: photoOf("akiya", "A single-storey wooden house in the countryside overgrown with ivy, its roof sagging", "An empty house in Yamaguchi prefecture, one of Japan's nine million."),
   intro: {
+    title: "Intro to Japan by numbers",
     body: [
       { p: "Most of what's changing in everyday Japan runs back to one fact. There are fewer people every year, and a larger share of them are old. The country passed its peak around 2008 and has shrunk every year since 2011.[^1]" },
       {

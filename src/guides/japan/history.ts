@@ -15,6 +15,7 @@ export const history: GuideTopic = {
   summary: "From the first pottery to Reiwa, and why the eras are not alike",
   cover: photoOf("rakuchu-rakugai", "A gold-leaf folding screen showing Kyoto's streets, temples and festival crowds through golden clouds", "Kyoto in the 1560s, from Kanō Eitoku's screens of the capital and its outskirts."),
   intro: {
+    title: "Intro to Japanese history",
     body: [
       { p: "Japanese history is usually told in eras named after the seat of power — Nara, Heian, Kamakura, Edo — and the names make the periods sound alike. They aren't. People made pottery on these islands for more than ten thousand years before anyone wrote anything down. Everything from the first Buddhist temples to the bullet train fits into the last fifteen hundred." },
       {
@@ -211,7 +212,6 @@ export const history: GuideTopic = {
             { h: "Writing in Japanese" },
             { p: "Official writing was in Chinese, a man's skill. The new **kana** syllabaries let people write Japanese as it was spoken, and women at court used them for diaries, essays and fiction. Murasaki Shikibu's *Tale of Genji* and Sei Shōnagon's *Pillow Book*, both from around 1000, come from rival households of the same court." },
             { pull: "Japanese literature's founding classics were written largely by women, in a script men affected to look down on." },
-            photo("genji-kana", "A painted handscroll scene of a palace interior seen from above, with flowing kana text beside it", "A scene from the 12th-century *Genji* scroll, with its text in flowing kana."),
 
             { h: "The end of the Dharma" },
             { p: "Buddhist teaching held that the age of the Dharma would decay in stages, and many believed the last and worst, **mappō**, began in 1052. That year Michinaga's son Yorimichi turned his villa at Uji into a temple, Byōdō-in. In 1053 he dedicated its Amida hall, a vision of the Pure Land where a believer could hope to be reborn.[^1]" },
@@ -327,7 +327,7 @@ export const history: GuideTopic = {
 
             { h: "The castles" },
             { p: "The great stone-walled castles with tall keeps went up mostly between the 1570s and the 1610s, statements of power as much as forts. Only **twelve** original keeps survive. Most were pulled down after the Meiji government's castle order of 1873; several more burned in the 1945 air raids.[^1]" },
-            photo("himeji", "A white castle keep with layered curved gables above stone walls", "Himeji Castle, the largest of the twelve original keeps, finished in 1609."),
+            photo("himeji-keep", "The white keep of Himeji Castle above its stone walls", "Himeji's keep, finished in 1609."),
             { p: "Ieyasu's settlement would keep the peace for two and a half centuries. The question it had to answer was how to stop anyone doing to the Tokugawa what they had done to everyone else." },
           ],
           related: ["land/sacred-mountains", "belief/religion-without-belonging", "history/edo"],

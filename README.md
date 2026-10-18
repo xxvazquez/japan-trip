@@ -523,7 +523,7 @@ The guide has two halves: **This Trip**, picked from the trip, and **Guide**, th
 - **On this trip** — a card per city or town the trip touches, matched from its stays, bases and pins (a day trip to Uji or Kurama shows up without a stay there). Stays come first, marked **Staying**, with their day-trip count.
 - **Elsewhere in Japan** — the guide's other places, for ideas beyond the route, grouped by region from Hokkaido to Okinawa (a city's `region`, in the order of the guide's `regions`). Every place has a cover photo and sourced facts.
 - **While you're there** — festivals, seasons and closures that fall within the trip's dates, with a count.
-- **Before you go** — **Be prepared** (who to call, earthquakes, tsunami, typhoons, Fuji, bears), **Rules with teeth** and **Getting around**.
+- **Before you go** — **Be prepared** (who to call, earthquakes, tsunami, typhoons, heat, Fuji, bears), **Rules with teeth**, **Money** (cards, cash, ATMs, prices) and **Getting around**.
 - A city page opens on its cover picture (a city can name its own) and groups its reads under **Understand the place**, **Look closer**, **Eat and drink** (Tokyo and Kyoto add their coffee lists there) and **Before you go**, with short notes under **Worth knowing**. Population and Day trips share one grouped card at the top.
 - **Day trips** — from each base, all by train or bus, on the city's page.
 
@@ -531,27 +531,27 @@ The guide has two halves: **This Trip**, picked from the trip, and **Guide**, th
 
 - **At a glance** — six key numbers for the country, at the foot of the contents, with their sources folded underneath.
 - Contents in five parts, chapters numbered straight through (a chapter you've started shows "3 of 8 read", a finished one a green **Read**): **Origins** (history, belief, language), **The land** (land and seasons, living with nature), **The table** (how the cooking works, food at home, eating out, drinks and sweets, regional food, coffee), **Everyday life** (Japan by numbers, school, work, Look closer, customs, stamps) and **Culture and the state** (arts and pastimes, manga & anime, government, Did you know).
-- A chapter page shows "Chapter 4 · Origins", its title and dek and a wide picture, then its contents straight away. A chapter with an opening read lists it first as **Overview**; **Next chapter** sits at the foot.
-- Every chapter opens on a real photo; a chapter can name its own cover.
-- **History** starts with an Overview (two era bands drawn to scale and the population from 725 to the 2070 projection), then tells its eight eras in order, each handing on to the next.
+- A chapter page shows "Chapter 4 · Origins", its title and dek and a wide picture, then its contents straight away. A chapter with an opening read lists it first, titled the way the iPhone User Guide titles its first pages ("Intro to coffee"); **Next chapter** sits at the foot.
+- Every chapter and city opens on a real photo of its own (`cover`).
+- **History** starts with its intro (two era bands drawn to scale and the population from 725 to the 2070 projection), then tells its eight eras in order, each handing on to the next.
 - **Belief** and **Language** each open with an overview: their own changes drawn to scale against the eras, linked into History, then their reads in titled sections.
 - **Land & seasons** covers cherry and maple, forests, sacred mountains and gardens. **Living with nature** explains earthquakes, tsunami, volcanoes and typhoons as science and history; what to do in one stays under Before you go.
-- **The table** reads in order: how the cooking works, food at home, eating out (sushi, noodles and meat, then the specialists: tempura and eel, okonomiyaki and takoyaki, kaiseki, sukiyaki and yakiniku), drinks and sweets, regional food, coffee (the kissaten, how it's brewed, specialty roasts, cans and the konbini cup). Each chapter opens with an Overview. **Regional food** is about the whole country (east and west, trade routes, flour country, the north and the south, food made to travel); what to eat in one city is on that city's page under **Eat and drink**.
-- **Everyday life** reads in order from the numbers to the street: Japan by numbers, growing up and school, work, Look closer, customs, stamps. Each opens with an Overview that says which earlier chapter explains it (falling births close schools; school cleaning explains the missing bins). Look closer is country-wide; Tokyo-only reads such as Jimbōchō are on the Tokyo page.
-- **Culture and the state** opens each chapter with an Overview: the arts by who paid for them (tea and noh, kabuki, bunraku and ukiyo-e, then baths, sumo and baseball), manga and anime, and government (the emperor, the Diet, elections, Article 9, the prefectures). Tickets, fan districts and the palace's open days are on the Tokyo and Kyoto pages.
+- **The table** reads in order: how the cooking works, food at home, eating out (sushi, noodles and meat, then the specialists: tempura and eel, okonomiyaki and takoyaki, kaiseki, sukiyaki and yakiniku), drinks and sweets, regional food, coffee (the kissaten, how it's brewed, specialty roasts, cans and the konbini cup). Each chapter opens with an intro. **Regional food** is about the whole country (east and west, trade routes, flour country, the north and the south, food made to travel); what to eat in one city is on that city's page under **Eat and drink**.
+- **Everyday life** reads in order from the numbers to the street: Japan by numbers, growing up and school, work, Look closer, customs, stamps. Each opens with an intro that says which earlier chapter explains it (falling births close schools; school cleaning explains the missing bins). Look closer is country-wide; Tokyo-only reads such as Jimbōchō are on the Tokyo page.
+- **Culture and the state** opens each chapter with an intro: the arts by who paid for them (tea and noh, kabuki, bunraku and ukiyo-e, then baths, sumo and baseball), manga and anime, and government (the emperor, the Diet, elections, Article 9, the prefectures). Tickets, fan districts and the palace's open days are on the Tokyo and Kyoto pages.
 
 **Reading an article**
 
-- Opens on a picture: its own first photo, else its chapter's or city's cover, else a colour panel. A short note can carry a `cover` photo.
+- Opens on its own first photo when it has one; a read without one opens on its text, never on a picture borrowed from its chapter or city, so no photo repeats. A short note can carry a `cover` photo.
 - A caption, the title and a standfirst, then "Chapter · minutes" for long reads and an **In this article** list that jumps to each section.
 - The first paragraph is a lede, a size larger. Text is always ragged-right, never justified; paragraphs sit a line apart and headings have room above.
 - Blocks: sub-headings, numbered steps, do / don't lists, tables, key numbers, tip or warning boxes, timelines, charts (line or bar, with unit and source; drag along a line chart to read any year, and a projection is dashed with its end value labelled), food cards, places with a Maps button, phone numbers that dial, and **Words to know**.
 - Figures sit in the text between hairlines, as Apple News sets them, not in boxes; only tips and warnings keep a tinted callout.
 - Visual blocks: an **era band** (spans to scale — tap or drag along it, or step with the arrows), a **pull quote** (a line from the read itself), **What's known** (Settled / Revised / Still argued), a side-by-side **compare**, a **photo pair**, and **Go deeper** panels that open in place.
 - Tap a small source number and that source opens in a sheet (a popover on desktop) with what it backs up and **Open Link**. All sources also sit folded and numbered at the foot.
-- Every article in both halves, every yearly date and every city card cites at least one source. Every chapter has its own cover photo, never repeated inside the chapter.
-- **Bookmark** and **Share** sit in the nav bar. Share opens the phone's share sheet; on desktop Chrome it copies the link (the button turns into a tick).
-- **Mark as Read** at the foot of every article; tap again to mark it unread. Read articles get a green tick on their row, and a chapter page says how many of its articles you've read.
+- Every article in both halves, every yearly date and every city card cites at least one source. No photo appears twice anywhere in the guide — every chapter, city and read has its own.
+- **Bookmark**, **Share** and **⋯** sit in the nav bar. Share opens the phone's share sheet; on desktop Chrome it copies the link (the button turns into a tick).
+- **Read by reading** — reaching the end of an article marks it read, as Books keeps your place. To change it by hand: **⋯ → Mark as Read / Mark as Unread** in the bar, or hold a row (right-click on a computer). Read articles get a green tick on their row, and a chapter page says how many of its articles you've read.
 - Read marks, bookmarks and Continue reading are kept on this device only, not synced.
 - Links in the text open other entries; **Related** lists the ones that carry the thread on, each captioned with its chapter. **Up next** opens the next entry in place, so Back still returns to the list.
 

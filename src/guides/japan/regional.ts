@@ -11,8 +11,9 @@ export const regionalFood: GuideTopic = {
   title: "Regional food",
   glyph: "route",
   summary: "The east–west line, the trade routes behind it, flour country, the north and the south, and food made to travel",
-  cover: photoOf("hoto", "Hōtō noodles in a clay pot with pumpkin, shiitake and an egg", "Hōtō from Yamanashi: flat noodles stewed in miso, from a province with little room for rice."),
+  cover: photoOf("sanuki-udon", "A bowl of thick plain udon with spring onion", "Kama-age Sanuki udon in Takamatsu."),
   intro: {
+    title: "Intro to regional food",
     body: [
       { p: "Japan is long, steep and divided by mountains, and for most of its history people ate what grew nearby or what a ship could bring. So the same country that shares one rice and one stock also has dozens of regional cuisines, and people notice the differences sharply." },
       { p: "Three things explain most of them. **Land**: where paddy fields wouldn't fit, people ate wheat, buckwheat or sweet potatoes. **Trade**: Edo-period cargo ships and salt-fish roads carried kelp and mackerel far inland and set the taste of whole regions. **History**: Hokkaido was settled only from 1869, and Okinawa was a kingdom of its own until 1879 and under US rule until 1972." },
@@ -35,7 +36,8 @@ export const regionalFood: GuideTopic = {
         {
           title: "East and west",
           summary: "Two halves of the country that cut an eel, shape a rice cake and pour a broth differently",
-          body: [
+          body: [            photo("kitsune-udon", "A bowl of udon in pale broth under a sheet of sweet fried tofu and spring onion", "Kitsune udon at Tennōji, Osaka: the pale, kombu-led broth of the west."),
+
             { p: "Ask anyone in Japan about food differences and they'll start with **Kantō** and **Kansai**: Tokyo and the east against Osaka, Kyoto and the west. The line is fuzzy, but it's usually drawn around Sekigahara, between Gifu and Shiga, and food companies still sell some products in an eastern and a western version." },
             {
               compare: {
@@ -81,7 +83,8 @@ export const regionalFood: GuideTopic = {
         {
           title: "Roads that carried flavour",
           summary: "Northern kelp shipped round the coast, and salted mackerel carried over the mountains",
-          body: [
+          body: [            photo("kumagawa-juku", "A quiet street of old wooden houses beside a stone canal", "Kumagawa-juku, a post town on the mackerel road from Obama to Kyoto."),
+
             { p: "A lot of regional taste was set by what could be moved, and how. Two kinds of route mattered most: the sea lanes that carried kelp from the far north, and the footpaths that carried salted fish to cities far from the sea." },
             { h: "The kombu road" },
             { p: "From the 17th century, cargo ships called **kitamaebune**, “north-bound ships”, sailed from Osaka through the Seto Inland Sea and the Kanmon Strait, then up the Sea of Japan coast to the ports of Hokuriku and, later, Hokkaido. They took rice, salt and cloth north and came back with herring and **kombu**.[^1] Ships could make only one round trip a year." },

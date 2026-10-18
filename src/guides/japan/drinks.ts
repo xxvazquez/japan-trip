@@ -12,6 +12,7 @@ export const drinks: GuideTopic = {
   summary: "Sake and the drinks that overtook it, tea from temple medicine to the bottle, and sweets that tell the month",
   cover: photoOf("sake-barrels", "A wall of straw-wrapped sake barrels painted with brewers' names", "Sake barrels given to Meiji Jingū by brewers across the country."),
   intro: {
+    title: "Intro to drinks and sweets",
     body: [
       { p: "Japan's two national drinks came with Buddhism and with rice. Tea arrived with monks from China and was first drunk as medicine; sake grew out of the same rice and the same kōji mould as soy sauce and miso. Both became arts, with their own vocabulary, regions and seasons." },
       { p: "Neither is what most people drink most of the time. An evening out starts with beer, moves to highballs and canned sours, and may never reach sake. Green tea is mostly drunk cold from a plastic bottle. Each shift has a date and a reason, often a tax." },
@@ -123,7 +124,8 @@ export const drinks: GuideTopic = {
         {
           title: "Shōchū, whisky and beer",
           summary: "The spirit of the south, a whisky that learned from Scotland, and a beer market shaped by tax",
-          body: [
+          body: [            photo("yamazaki-stills", "Two copper pot stills in a distillery hall", "Pot stills at Suntory's Yamazaki distillery, Japan's first malt whisky distillery."),
+
             { p: "Most of what Japan actually drinks isn't sake. Beer is the first drink of almost every evening, highballs and canned sours fill konbini fridges, and shōchū is the everyday spirit of the south. Each has been shaped as much by the tax code as by taste." },
 
             { h: "Shōchū: distilled, and from the south" },
@@ -200,7 +202,7 @@ export const drinks: GuideTopic = {
             { p: "Tea came with Buddhism. Monks brought it from China in the 9th century, but it didn't take root until the Zen monk **Eisai** returned in 1191 with seeds and the Song-dynasty habit of whisking powdered tea. He wrote that tea was medicine for the heart — and presented his book, the story goes, to a shogun nursing a hangover." },
             { p: "Seeds went to the monk **Myōe**, who planted them at Toganoo in the hills northwest of Kyoto and at **Uji**. Toganoo tea was called *honcha*, “real tea”; everything else *hicha*, “not-tea”, until Uji overtook it in the 15th century.[^1]" },
             { p: "Uji's great invention was **shade**. From the 16th century growers covered their bushes with reed and straw screens for weeks before picking. In low light the plant keeps more of its amino acids (theanine, which tastes sweet and brothy) and makes less catechin (which tastes bitter). Shaded leaf, steamed, dried and stone-ground, is **matcha**, what the [tea ceremony](guide:culture/the-tea-ceremony) uses." },
-            photo("uji-tea", "Rows of rounded tea bushes covering a hillside in the Kyoto countryside", "Tea fields at Wazuka, east of Uji, in the Kyoto tea country."),
+            photo("wazuka-tea-fields", "Rounded rows of tea bushes covering a hillside", "Tea fields at Wazuka, in the Uji tea country south of Kyoto."),
 
             { h: "Steeped tea: sencha and gyokuro" },
             { p: "Steeping loose leaf in hot water came later, with Chinese monks of the Ōbaku Zen school in the 1650s, and was a scholar's and merchant's tea, not the court's. In 1738 an Uji farmer, **Nagatani Sōen**, worked out a method — steaming fresh leaf, then rolling and drying it by hand — that kept the colour green and the taste fresh. It's still the basis of how Japanese green tea is made.[^2]" },

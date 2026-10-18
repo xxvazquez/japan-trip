@@ -13,6 +13,7 @@ export const closer: GuideTopic = {
   summary: "Bins, konbini, addresses, castle towns and railways — the street, explained",
   cover: photoOf("togoshi-ginza", "Togoshi Ginza shopping street at night, lit by lanterns under its entrance arch", "Togoshi Ginza in Tokyo at night: about 1.3 km of shops."),
   intro: {
+    title: "Intro to reading the street",
     body: [
       { p: "A Japanese street is full of small puzzles. There are no bins, but no litter. The corner shop takes your tax payment. The street has no name, and the houses on it look ten years old." },
       { p: "Each of these has a reason, and most of the reasons are in the chapters before. School teaches children to clean up after themselves (see [Cleaning and lunch](guide:growing-up/cleaning-and-lunch)). Millions of people live alone (see [Who lives with whom](guide:numbers/who-lives-with-whom)). Earthquakes rewrote the building rules (see [Earthquakes](guide:nature/earthquakes))." },
@@ -26,7 +27,8 @@ export const closer: GuideTopic = {
         {
           title: "Why there are no bins",
           summary: "Security scares, crows and cost, and a country that sorts its rubbish",
-          body: [
+          body: [            photo("see-through-bins", "Stainless steel recycling bins with clear windows on a station platform", "See-through bins on the Shinkansen platform at Nagoya."),
+
             { p: "The usual explanation is the **1995 sarin gas attack** on the Tokyo subway, after which stations removed bins as places to hide things. It's only part of the story." },
             { p: "Many bins came back, and went again after the Madrid and London train bombings of 2004 and 2005 and before summits and the Olympics. Railways and towns were also glad to save the cost of emptying them, and of cleaning up after the crows.[^1] Meanwhile people got used to carrying rubbish home, a habit school had already taught them (see [Cleaning and lunch](guide:growing-up/cleaning-and-lunch))." },
             { p: "The few bins left are by vending machines, for bottles and cans only, and inside konbini, for what you bought there." },
@@ -47,7 +49,8 @@ export const closer: GuideTopic = {
         {
           title: "The konbini is infrastructure",
           summary: "Bills, tickets, parcels, dinner for one, and a sticker for disasters",
-          body: [
+          body: [            photo("konbini-night", "A brightly lit FamilyMart convenience store at night", "A FamilyMart at night in Ikoma, Nara: lit, open and stocked at any hour."),
+
             { p: "There were about 56,000 convenience stores in Japan at the end of 2025,[^1] and they do far more than sell snacks. People pay electricity bills and taxes there, pick up concert and museum tickets, print documents, send luggage ahead (*takkyūbin*), withdraw cash with foreign cards, and buy dinner that was delivered that afternoon." },
             { p: "That dinner is a single portion, because so many customers live alone (see [Who lives with whom](guide:numbers/who-lives-with-whom)). In the countryside, where shops have closed, the konbini is often the only shop left." },
             { h: "The sticker in the window" },
@@ -61,7 +64,8 @@ export const closer: GuideTopic = {
         {
           title: "Every town has a Ginza",
           summary: "Shopping streets, and the bricks that gave them a name",
-          body: [
+          body: [            photo("seto-ginza", "A covered shopping arcade with banners and small shops", "Seto Ginza-dōri, a shopping arcade in Seto, Aichi — one of hundreds of Ginzas."),
+
             { p: "A **shōtengai** is a neighbourhood shopping street, often roofed: a tofu maker, a greengrocer, a rice shop, a fishmonger, a pharmacy, a croquette stall. They're busiest in the late afternoon, when people shop for dinner." },
             { p: "In big cities they still work. In many provincial towns they've become **shutter streets** (*shattā-dōri*), closed by out-of-town malls and owners with no one to hand over to." },
             { h: "Why “Ginza”" },
@@ -133,7 +137,8 @@ export const closer: GuideTopic = {
         {
           title: "Railways built the cities",
           summary: "Why the department store, the baseball team and the suburb share a railway's name",
-          body: [
+          body: [            photo("hankyu-umeda", "A maroon Hankyu train at a long terminal platform", "Hankyu's Umeda terminal in Osaka: a railway that built a city around its stations."),
+
             { p: "In the early 1900s Japan's private railway companies didn't just run trains; they built the places people went. The model came from **Kobayashi Ichizō**, of what's now Hankyū near Osaka.[^1]" },
             {
               steps: [
@@ -155,7 +160,8 @@ export const closer: GuideTopic = {
         {
           title: "Houses that don't last",
           summary: "Why so many homes look brand new",
-          body: [
+          body: [            photo("house-demolition", "An excavator tearing down a house on a Tokyo street", "A house coming down in Shibuya."),
+
             { p: "A Japanese house typically loses almost all its value in 20–30 years, and is then torn down and rebuilt rather than sold as it is." },
             { p: "Partly it's earthquakes. Building codes tightened sharply in 1981 and again for wooden houses in 2000, so older houses are seen as unsafe, and banks are reluctant to lend on pre-1981 ones.[^1] The 1981 standard is the one that decided which houses stood in Kobe in 1995 (see [Earthquakes](guide:nature/earthquakes)). Partly it's post-war housing built fast and cheaply, and a preference for new things." },
             { p: "Zoning is loose: a small shop, a bar or a workshop can sit in a residential street, and owners can rebuild bigger without much of a fight. That keeps big-city housing relatively cheap, since cities can keep building as they grow.[^2] It's also why one street can mix a 1960s wooden house, a narrow four-storey \"pencil building\" and a new prefab." },

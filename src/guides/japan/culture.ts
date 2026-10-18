@@ -13,6 +13,7 @@ export const culture: GuideTopic = {
   summary: "Tea, noh, kabuki and the woodblock print, then baths, sumo and baseball",
   cover: photoOf("sharaku-oniji", "A woodblock portrait of a kabuki actor with a scowling white face, his hands clawed in front of him", "The actor Ōtani Oniji III as a villain, printed by Sharaku in 1794: a kabuki star sold as a picture."),
   intro: {
+    title: "Intro to arts and pastimes",
     body: [
       { p: "Japan's classical arts are easiest to understand by asking who paid for them. Each grew up with an audience, and still carries its taste." },
       {
@@ -158,7 +159,8 @@ export const culture: GuideTopic = {
         {
           title: "Geiko and maiko",
           summary: "Professional entertainers of the old pleasure quarters, and why they're not to be chased",
-          body: [
+          body: [            photo("maiko-crowd", "A crowd of visitors with cameras pressing around two maiko in a Gion street", "Maiko in Gion, and the crowd that follows them."),
+
             { p: "**Geisha**, called **geiko** in Kyoto, are professional entertainers trained for years in dance, music and conversation, hired for banquets in teahouses. The name means \"person of the arts\". They grew out of the licensed pleasure quarters of the 18th century, as performers set apart from the courtesans there.[^1]" },
             { p: "**Maiko** are Kyoto's apprentices, in brighter kimono with long trailing sashes and their own hair dressed. They work in the city's five districts, the *kagai*, and perform in public at each district's annual dance season." },
             { p: "Their numbers are small and their working streets are lived-in. Kyoto's Gion now asks visitors to keep out of its private lanes and not to photograph geiko and maiko on their way to work (see [Kyoto's visitors](guide:place/kyoto/too-many-visitors-and-what-the-city-is-trying))." },
@@ -296,7 +298,8 @@ export const culture: GuideTopic = {
         {
           title: "Baseball",
           summary: "An American game that arrived with a teacher and became the national one",
-          body: [
+          body: [            photo("baseball-cheering", "Fans in matching happi coats playing trumpets in the outfield stands", "The cheering section at a Japanese ballgame, led by its own band."),
+
             { p: "**Baseball** came with an American teacher in the 1870s and spread through schools and universities.[^1] It became so Japanese that it has its own word, *yakyū*, \"field ball\". The amateur game still matters as much as the professional one, above all the high-school tournament at Kōshien (see [Clubs and Kōshien](guide:growing-up/clubs-and-k-shien))." },
             { p: "The professional league dates from 1936, and many of its teams were founded by railways and newspapers to sell tickets and papers (see [Railways built the cities](guide:look-closer/railways-built-the-cities)). It's the most-watched sport in the country." },
             { h: "At a game" },
@@ -314,7 +317,8 @@ export const culture: GuideTopic = {
         {
           title: "Karaoke, pachinko and mascots",
           summary: "An invention never patented, a gamble that isn't legally gambling, and a bear worth billions",
-          body: [
+          body: [            photo("pachinko-parlour", "Rows of players at bright pachinko machines in a parlour", "A pachinko parlour in Tokyo."),
+
             { p: "Between the old arts and the big sports sits a world of pastimes Japan invented or reinvented." },
             {
               terms: [

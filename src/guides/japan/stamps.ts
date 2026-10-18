@@ -12,6 +12,7 @@ export const stamps: GuideTopic = {
   summary: "Temple seals, station stamps and the hanko, and why Japan records where it's been",
   cover: photoOf("hanko", "Rows of cylindrical personal seals in red-lined cases, each priced by its diameter", "Personal seals for sale in Tokyo, priced by their width."),
   intro: {
+    title: "Intro to stamps",
     body: [
       { p: "Japan stamps things. A red seal in ink marks a visit to a temple, a rubber stamp by the ticket gates marks a station, and until recently a carved personal seal stood in for a signature on almost every form." },
       { p: "The three share a root. A seal is proof: that a pilgrim reached a temple, that a traveller passed this way, that a person agreed. And they share an audience: the domestic traveller, who still makes up most of Japan's tourism (see [Tourists — and everyone else](guide:numbers/tourists-and-everyone-else)), and the office that ran on paper (see [Office habits](guide:work/office-habits))." },

@@ -229,7 +229,14 @@ export interface GuideTopic {
   cover?: GuidePhoto;
   /** the chapter's opening, read before its sections — what it's about
    *  and how its parts hang together */
-  intro?: { body: GuideBody[]; sources?: GuideSource[] };
+  intro?: {
+    /** the opening read's own title, in the iPhone User Guide's "Intro to
+     *  Photos" form — "Intro to Japanese history"; else "Intro to" the
+     *  chapter's title */
+    title?: string;
+    body: GuideBody[];
+    sources?: GuideSource[];
+  };
   blocks: GuideBlock[];
 }
 

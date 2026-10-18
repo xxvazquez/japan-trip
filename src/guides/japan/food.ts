@@ -12,6 +12,7 @@ export const howFoodWorks: GuideTopic = {
   summary: "Rice, a five-minute stock, one mould and the season, and how much of it is younger than it looks",
   cover: photoOf("katsuobushi", "Market trays heaped with pink-brown flakes of shaved dried bonito, with price cards", "Shaved dried bonito at a market: the flakes behind most dashi."),
   intro: {
+    title: "Intro to Japanese cooking",
     body: [
       { p: "Japanese cooking rests on very few things. Short, sticky rice. A stock made in minutes from kelp and dried fish. One mould that ferments soy sauce, miso, sake and vinegar. Salt and pickles to eat the rice with. And a calendar that decides what goes on the plate." },
       { p: "Much of what's now called traditional is younger than it looks. A millennium of rules against eating meat, two waves of foreign food and a burst of post-war invention made the table you see today." },
@@ -49,7 +50,8 @@ export const howFoodWorks: GuideTopic = {
         {
           title: "Rice, properly",
           summary: "The grain, the variety, the washing and the cooker",
-          body: [
+          body: [            photo("rice-bowl", "A lacquer bowl of freshly cooked short-grain white rice", "One gō of cooked rice in a Wajima lacquer bowl."),
+
             { p: "Rice is so central that **gohan**, cooked rice, is the word for a meal itself. But the rice in a Japanese bowl is a specific thing, and the way it's handled explains a lot about the food around it." },
             { h: "The grain" },
             { p: "Japanese rice is **japonica**: short, round and sticky when cooked, unlike the long dry grains of Thai or Indian rice. Stickiness is the point — it holds together for chopsticks, onigiri and sushi. **Mochigome**, glutinous rice, is stickier still and is pounded into mochi." },
@@ -79,7 +81,8 @@ export const howFoodWorks: GuideTopic = {
         {
           title: "Dashi, and why the noodle soup changes colour",
           summary: "A stock made in minutes, the taste it gave a name to, and two halves of the country",
-          body: [
+          body: [            photo("kombu-drying", "Long strips of kelp laid out to dry on a shore in Hokkaido", "Kombu drying on the shore in Hokkaido, where most of it comes from."),
+
             { p: "Most Japanese cooking starts with **dashi**, a stock made in minutes from dried **kombu** kelp and shaved **katsuobushi** — smoked, dried, fermented bonito. It takes less time than a pot of rice, and it seasons soups, simmered dishes, noodle broths and sauces." },
             { h: "The fifth taste" },
             { p: "In 1908 the chemist Ikeda Kikunae found the source of kombu's savouriness, glutamate, and named the taste **umami**. The next year it went on sale as a seasoning, Ajinomoto.[^1]" },
@@ -103,7 +106,8 @@ export const howFoodWorks: GuideTopic = {
         {
           title: "Kōji, the national mould",
           summary: "The fungus behind soy sauce, miso, sake and mirin",
-          body: [
+          body: [            photo("koji-rice", "Steamed rice grains covered in fine white mould", "Kōji: rice grown over with Aspergillus oryzae."),
+
             { p: "A huge share of Japanese flavour comes from one mould, **Aspergillus oryzae**, or kōji. Grown on steamed rice, barley or soybeans, it breaks starch and protein down into sugars and amino acids." },
             { p: "In 2006 the Brewing Society of Japan declared it the **national fungus** (kokkin), though it came from China and isn't used only here.[^1] In 2024 the skills of brewing with kōji joined UNESCO's intangible heritage list (see [Sake](guide:drinks/sake-and-how-to-read-the-bottle))." },
             {
@@ -187,6 +191,7 @@ export const foodAtHome: GuideTopic = {
   summary: "What an ordinary household eats on a weekday, where it comes from, and how the year changes it",
   cover: photoOf("home-bento", "A lunch box of rice, rolled omelette, fried chicken, spinach, tomatoes and cucumber", "A lunch box packed at home."),
   intro: {
+    title: "Intro to food at home",
     body: [
       { p: "The picture abroad — rice, miso soup, grilled fish and three little sides at every meal — is real, but it's the ideal, not the Tuesday. Most households eat a mix of Japanese, Chinese-derived and Western dishes, cooked fast, and on weekdays often not together." },
       { p: "Three numbers sum up the change. Rice, the word for a meal, is eaten at less than half the rate of the early 1960s.[^1] Households spent more on bread than on rice for the first time in 2011.[^2] And ready-made food eaten at home has become a market of its own.[^3]" },
@@ -212,7 +217,8 @@ export const foodAtHome: GuideTopic = {
         {
           title: "A weekday of meals",
           summary: "Breakfast, lunch and dinner in an ordinary household",
-          body: [
+          body: [            photo("japanese-breakfast", "A tray of small dishes: rice, miso soup, grilled salmon, egg, natto, pickles and greens", "A traditional breakfast at a ryokan in Yamagata: more than most homes manage on a weekday."),
+
             { p: "A household's day of food is quicker, more mixed and more often eaten alone than the classic picture suggests. Each meal has its own pattern." },
             { h: "Breakfast" },
             { p: "Two camps. A **rice breakfast**: rice, miso soup, natto or a raw egg stirred into the rice (tamago kake gohan), a piece of salted salmon, pickles, last night's leftovers. Or a **bread breakfast**: thick toast, yoghurt, coffee — now at least as common, especially in younger and urban households. Plenty of commuters eat an onigiri on the way, or nothing." },
@@ -280,7 +286,8 @@ export const foodAtHome: GuideTopic = {
         {
           title: "School lunch",
           summary: "Where Japan learns to eat, and where bread came in",
-          body: [
+          body: [            photo("kyushoku", "School-lunch servers in white caps and coats dishing out food onto trays", "Kyūshoku in Tokyo: pupils in white coats and caps serve their classmates."),
+
             { p: "**Kyūshoku** is part of the school day, not a canteen. Children in white coats and caps fetch the food from the kitchen, serve their classmates, eat the same meal at their desks with the teacher, and clear up. Menus are planned by nutritionists and often use local produce." },
             { p: "It explains a lot about adult tastes. Post-war lunches, started with American aid, were bread and skimmed milk. The 1954 School Lunch Act spread them to every elementary school, and bread lunches became universal in the 1960s.[^1] That's how a rice country got a bread habit. Rice came back in 1976 and now dominates again." },
             { p: "Adults are famously nostalgic about it: deep-fried whale in older generations' memories, **age-pan** (fried sugared bread), curry day. Some izakaya and cafés serve “kyūshoku menus” on aluminium trays as a joke everyone gets." },
@@ -323,7 +330,8 @@ export const foodAtHome: GuideTopic = {
         {
           title: "The supermarket, aisle by aisle",
           summary: "What the shelves tell you about how households cook",
-          body: [
+          body: [            photo("supermarket-sozai", "A long supermarket counter of fried food in packs with price labels", "The sōzai counter in a Hyōgo supermarket: croquettes, karaage, tempura by the pack."),
+
             { p: "To see how Japan eats at home, skip the department-store food hall and walk round an ordinary neighbourhood supermarket. Its layout is a map of the home kitchen, and almost every aisle has something that surprises a European shopper." },
             { h: "Produce: sold by the piece" },
             { p: "Vegetables come in small, exact quantities: a daikon cut in half or thirds, three aubergines on a tray, a quarter of a cabbage in film. Households are small and kitchens have little storage, so people buy for a day or two." },

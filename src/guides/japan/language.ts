@@ -15,6 +15,7 @@ export const language: GuideTopic = {
   summary: "How Japanese sounds, is written and built, and how its history shows in every sentence",
   cover: photoOf("kyoto-jr-sign", "A lit station name board reading 京都 in large kanji, with きょうと in hiragana and Kyōto in Latin letters beneath", "One station name in three scripts: kanji for the name, hiragana for how it's read, romaji for visitors."),
   intro: {
+    title: "Intro to Japanese",
     body: [
       { p: "Japanese has almost no relatives, and it was written for its first thousand years with a script made for a different language. Most of what makes it look hard comes from that. Each stage of [the history](guide:history/asuka-and-nara) left a layer you can still see on a sign or hear in a sentence." },
       {

@@ -11,6 +11,7 @@ export const trivia: GuideTopic = {
   summary: "Design that travelled, trains by design, lucky puns, odd borders, and Japan and Poland",
   cover: photoOf("maneki-neko", "Hundreds of small white beckoning-cat figures with red collars crowded together", "Beckoning cats left at Gōtoku-ji in Tokyo, one of the temples that claims the cat began there."),
   intro: {
+    title: "Intro to Japan's surprises",
     body: [
       { p: "The book closes with the things that don't fit a chapter but explain something anyway: objects designed in Japan that went round the world, trains run to the second, the luck hidden in numbers and puns, the oddities of the map, and an old friendship with a country on the other side of Eurasia." },
       { p: "Each read checks its stories. Where a favourite tale turns out to be only a tale, it says so." },
@@ -22,7 +23,8 @@ export const trivia: GuideTopic = {
         {
           title: "Design that travelled",
           summary: "Emoji, Muji, a misread Q, a turtleneck, and a pagoda inside a tower",
-          body: [
+          body: [            photo("washlet-buttons", "A toilet control panel with stop and spray buttons labelled in Japanese and English", "A heated-seat toilet's control panel: stop, spray and water pressure."),
+
             { p: "A lot of what the world now uses every day was designed in Japan, often by solving a small local problem very thoroughly. A few of the stories behind the things you'll see." },
             {
               terms: [

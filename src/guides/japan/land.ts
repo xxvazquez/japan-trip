@@ -11,8 +11,9 @@ export const land: GuideTopic = {
   title: "Land & seasons",
   glyph: "leaf",
   summary: "Cherry and maple, planted forests, sacred mountains and gardens, and why the seasons matter so much",
-  cover: photoOf("kawaguchiko-momiji", "Red maple leaves framing Mount Fuji across a lake", "Mount Fuji framed by maples in late autumn: a volcano, a season and a planted tree in one view."),
+  cover: photoOf("yoshino-cherries", "A mountainside covered in pale cherry blossom", "Cherry trees covering Mount Yoshino."),
   intro: {
+    title: "Intro to the land and seasons",
     body: [
       { p: "Japan runs about 3,000 km from drift ice to coral, and most of it is mountain. People live on narrow plains along the coasts and in the river basins; behind them, two-thirds of the land is forest.[^1] That squeeze between steep hills and crowded flats shapes almost everything in this chapter." },
       { p: "The other shaping force is the calendar. Four distinct seasons are not unusual in themselves, but here each one has a flower, a food, a festival and a forecast, and the year is read through them." },
@@ -217,7 +218,8 @@ export const land: GuideTopic = {
         {
           title: "Forests, wild and planted",
           summary: "Why a country that is two-thirds forest imports most of its wood — and what that left on the hills",
-          body: [
+          body: [            photo("sugi-plantation", "Rows of planted cedar covering a hillside above a river", "A cedar plantation by the Yoneshiro River in Akita: even rows, one species, one age."),
+
             { p: "From a train window Japan looks like a forest with towns in the gaps. About **25 million hectares**, two-thirds of the land, is forest.[^1] Yet Japan buys more than half its wood from abroad." },
             { p: "That contradiction runs through the hills, the pollen in the spring air, the bears in the news and the villages emptying beneath it all." },
             {
@@ -393,7 +395,8 @@ export const land: GuideTopic = {
         {
           title: "Gardens",
           summary: "A thousand years of gardens — what each kind wants you to do, and what it says about who made it",
-          body: [
+          body: [            photo("ryoanji-garden", "Fifteen stones in raked white gravel, framed by a low earthen wall", "The dry garden at Ryōan-ji, Kyoto."),
+
             { p: "A Japanese garden is easy to admire and hard to read. The gravel, moss and clipped pines look timeless, but each kind was made for a particular person to do a particular thing: to stroll, to sit, to walk slowly to tea, to entertain a shogun." },
             { p: "Knowing who and what tells you where to stand and what you're meant to notice." },
 

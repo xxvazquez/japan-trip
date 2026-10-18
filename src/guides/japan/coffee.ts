@@ -1,5 +1,5 @@
 import type { GuideItem, GuideTopic } from "../types";
-import { photo } from "./photos";
+import { photo, photoOf } from "./photos";
 
 /** The table, last part: Japanese coffee culture. Where the kissaten came
  *  from, how to read one, how the coffee's made and what comes with it,
@@ -10,7 +10,9 @@ export const coffee: GuideTopic = {
   title: "Coffee",
   glyph: "coffee",
   summary: "Kissaten, siphons and thick toast, and a room rented for the price of a cup",
+  cover: photoOf("kissaten-counter", "The wooden counter and booths of a dimly lit coffee shop", "Inside a kissaten."),
   intro: {
+    title: "Intro to coffee",
     body: [
       { p: "Dutch traders on Dejima drank coffee in the 1600s, but Japan barely touched it until the Meiji opening. Since then it has had three lives: the Western-style coffee house, the **kissaten** that became every neighbourhood's living room, and the specialty roasters that learned from it." },
       photo("kissaten-interior", "Red leather booths and dark wood panelling in an old kissaten", "Booths, wood and soft light: the classic kissaten room."),
@@ -60,7 +62,8 @@ export const coffee: GuideTopic = {
         {
           title: "Kissaten, specialty, chain",
           summary: "Three kinds of coffee shop, three different reasons to go",
-          body: [
+          body: [            photo("komeda-coffee", "A suburban Komeda's Coffee with its timber gables and roadside sign", "A Komeda's Coffee in Saitama: the kissaten as a chain, built for the car."),
+
             {
               table: {
                 head: ["", "Kissaten", "Specialty café", "Chain"],
@@ -290,7 +293,8 @@ export const coffee: GuideTopic = {
         {
           title: "Why Kyoto loves coffee and bread",
           summary: "Craftsmen, students and a taste for the new",
-          body: [
+          body: [            photo("shinshindo", "A brick bakery-café front with a small hanging sign", "Shinshindō, opposite Kyoto University's north gate since 1930."),
+
             { p: "Kyoto, of all places — the city of tea — is one of Japan's biggest bread-and-coffee cities: in the national household survey it came third of all prefectural capitals for bread spending in 2018–20, behind Kobe and Okayama,[^1] and first for coffee in 2012 and 2013.[^2] The explanations people give, none proven but all plausible, say a lot about the city:" },
             {
               list: [

@@ -13,8 +13,9 @@ export const belief: GuideTopic = {
   title: "Belief & philosophy",
   icon: "temple",
   summary: "Shinto and Buddhism, how they were joined and split, and what people practise now",
-  cover: photoOf("toshogu", "A vermilion five-storey pagoda behind a large stone torii gate", "A torii and a pagoda side by side at Nikkō Tōshōgū, one of the combined sites that kept both through the split of 1868."),
+  cover: photoOf("nachi-pagoda", "A vermilion three-storey pagoda in front of a tall waterfall", "Seiganto-ji's pagoda and Nachi Falls, a temple and a shrine's sacred waterfall side by side."),
   intro: {
+    title: "Intro to belief and philosophy",
     body: [
       { p: "Most people in Japan say they have no religion, and most of them go to a shrine at New Year and bury their dead with Buddhist rites. That isn't a contradiction so much as a history." },
       { p: "Two traditions arrived at different times, spent a thousand years as one system, and were pulled apart by the state in a single decade. The older of them is older than writing: offerings on the island of Okinoshima go back to the late 4th century.[^2]" },
