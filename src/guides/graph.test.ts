@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { GUIDE_CONTENT } from "./content";
 import { CITY_GROUPS } from "./types";
 import { areaAt } from "./map";
-import { allTopics, cityLinks, dateArticles, dayTripArticles, guideGraph, relatedTo, resolveRef } from "./articles";
+import { allTopics, areaLinks, cityLinks, dateArticles, dayTripArticles, guideGraph, relatedTo, resolveRef } from "./articles";
 
 describe("guide links, both ways", () => {
   for (const [id, guide] of Object.entries(GUIDE_CONTENT)) {
@@ -79,6 +79,14 @@ describe("map", () => {
     it(`${id}: every division is drawn and sits in one of the guide's regions`, () => {
       expect(map.areas.filter((a) => !a.rings.length && !a.inset?.length).map((a) => a.name)).toEqual([]);
       expect(map.areas.filter((a) => !a.region || !guide.regions?.includes(a.region)).map((a) => a.name)).toEqual([]);
+    });
+    it(`${id}: a prefecture lists the guide's places in it and the reads that name it`, () => {
+      const kyoto = map.areas.find((a) => a.name === "Kyoto");
+      if (!kyoto) return;
+      const { cities, reads } = areaLinks(guide, kyoto);
+      expect(cities.map((c) => c.id).sort()).toEqual(["kurama", "kyoto", "uji"]);
+      expect(reads.length).toBeGreaterThan(0);
+      expect(reads.some((r) => r.startsWith("place/"))).toBe(false);
     });
     it(`${id}: no chapter is called "map", which is the map's own page`, () => {
       expect(allTopics(guide).map((t) => t.id)).not.toContain("map");

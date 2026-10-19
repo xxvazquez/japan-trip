@@ -1,5 +1,6 @@
 import { slug } from "@/lib/collapse";
 import type { CountryGuide, GuideArticle, GuideCity, GuideDate, GuideTopic } from "./types";
+import { areaAt, type MapArea } from "./map";
 
 /** One entry of a guide as its own page reads it — whatever it came from
  *  (a topic's point, a timeline stop, a city note, a day trip, a date). */
@@ -218,4 +219,25 @@ export function renamedPaths(g: CountryGuide): Map<string, string> {
  *  link / citation checks scan */
 export function articleText(a: GuideArticle): string {
   return JSON.stringify([a.summary, a.body, a.text, a.parts, a.points, a.tip, a.facts]);
+}
+
+/** What the guide has in one of the map's divisions: its places (by where
+ *  they are), and the reads elsewhere that talk about it — by its name or
+ *  its places' names, as whole words with their capitals — most mentions
+ *  first. A place's own notes aren't listed; its page has them. */
+export function areaLinks(g: CountryGuide, area: MapArea): { cities: GuideCity[]; reads: string[] } {
+  const cities = g.map ? g.cities.filter((c) => areaAt(g.map!, c.lat, c.lng)?.code === area.code) : [];
+  const accentless = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const names = [...new Set([area.name, ...cities.flatMap((c) => [c.name, c.short ?? c.name])].map(accentless))].filter((n) => n.length >= 3);
+  const words = names.map((n) => new RegExp(`(^|[^A-Za-z])${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?=$|[^A-Za-z])`, "g"));
+  const { entries } = guideGraph(g);
+  const scored = entries
+    .filter((e) => !isPlace(e.ref))
+    .map((e) => {
+      const text = accentless(`${e.entry.title} ${articleText(e.entry.article)}`);
+      return { ref: e.ref, n: words.reduce((sum, w) => sum + (text.match(w)?.length ?? 0), 0) };
+    })
+    .filter((x) => x.n > 0);
+  // a stable sort, so equal counts keep the guide's order
+  return { cities, reads: scored.sort((a, b) => b.n - a.n).map((x) => x.ref) };
 }

@@ -13,6 +13,8 @@ export interface MapCity {
   /** a stay or a pin of this trip is here */
   onTrip: boolean;
   to: string;
+  /** the division it's in */
+  area?: number;
 }
 
 type View = { k: number; tx: number; ty: number };
@@ -247,19 +249,23 @@ export function GuideMap({
       taken.push(b);
       out.push({ key: `c${c.id}`, text: c.name, x: d.x + 7, y: d.y, kind: "city", city: c, dot: d, size: 13 });
     };
-    const tryArea = (code: number, force = false) => {
+    const tryArea = (code: number) => {
       const a = map.areas.find((x) => x.code === code)!;
       const d = toScreen(...a.label);
       const text = a.name.toUpperCase();
       const w = width(text, 10.5, true);
       const b = { x0: d.x - w / 2, y0: d.y - 7, x1: d.x + w / 2, y1: d.y + 7 };
-      if (!force && !fits(b)) return;
+      if (!fits(b)) return;
       taken.push(b);
       out.push({ key: `a${code}`, text, x: d.x, y: d.y, kind: "area", size: 10.5 });
     };
     const byPeople = [...cities].sort((a, b) => b.people - a.people);
     byPeople.filter((c) => c.onTrip).forEach(tryCity);
-    if (selected != null) tryArea(selected, true);
+    // the selected division's own places, then its name where there's room
+    if (selected != null) {
+      byPeople.filter((c) => !c.onTrip && c.area === selected).forEach(tryCity);
+      tryArea(selected);
+    }
     // zoomed out, the regions name the country before any city does
     if (s < AREA_NAMES) {
       for (const r of regionAt) {

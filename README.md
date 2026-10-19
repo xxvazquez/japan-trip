@@ -594,7 +594,7 @@ The guide has two halves: **This Trip**, picked from the trip, and **Guide**, th
 #### Map
 
 - **Map** (`…/guide/jp/map`) — all 47 prefectures on one map, Okinawa in an inset top left. Region names show zoomed out, prefecture and city names fill in as you zoom, never overlapping. Your trip's places are dots in the accent colour, and the prefectures they're in are tinted.
-- Drag to move; pinch, ⌘/ctrl-scroll, the **+ −** buttons or a double-tap to zoom. Tap a prefecture to select it (it's kept in the address, `?p=26`); tap a city's name to open its page. Below the map, the prefectures by region, with their kanji and capital.
+- Drag to move; pinch, ⌘/ctrl-scroll, the **+ −** buttons or a double-tap to zoom. Tap a city's name to open its page. Tap a prefecture and a card opens under the map: its kanji, region and capital, **In the guide** (its places, each opening its page) and **Mentioned in** (the reads that name it or its places, most mentions first). The pick is kept in the address (`?p=26`), so Back from a place returns to it. Below the map, the prefectures by region, with their kanji and capital.
 - It's drawn from data shipped with the app (`src/guides/japan/map.ts`, about 55 KB), so it works in airplane mode. Rebuild it with `scripts/build_map.py` from Natural Earth's public-domain boundaries (steps at the top of the script).
 
 #### Guide — the book

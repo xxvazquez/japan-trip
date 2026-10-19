@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, Navigate, useLocation, useParams, useSearchParams } from "react-router-dom";
 import { ActionRow } from "@/components/ActionRow";
 import { GuideMap, type MapCity } from "@/components/GuideMap";
-import { areaAt } from "@/guides/map";
+import { areaAt, type MapArea } from "@/guides/map";
 import { tripPoints } from "@/guides";
 import { Icon } from "@/components/Icon";
 import { Page, PageHeader } from "@/components/Page";
@@ -23,7 +23,7 @@ import { GUIDE_CONTENT } from "@/guides/content";
 import { citiesOnTrip, cityOnTrip, datesOnTrip, type CityOnTrip } from "@/guides/match";
 import { fmtDate, fmtDateRange } from "@/lib/dates";
 import { slug } from "@/lib/collapse";
-import { allTopics, articleText, cityArticles, cityLinks, dateArticles, dayTripArticles, findRef, guideGraph, relatedTo, renamedPaths, topicArticles, type ArticleRef } from "@/guides/articles";
+import { allTopics, areaLinks, articleText, cityArticles, cityLinks, dateArticles, dayTripArticles, findRef, guideGraph, relatedTo, renamedPaths, topicArticles, type ArticleRef } from "@/guides/articles";
 import { CITY_GROUPS, type CountryGuide, type GuideArticle, type GuideBody, type GuideCity, type GuideDayTrip, type GuideEvent, type GuidePhoto, type GuideSource, type GuideText, type GuideTopic } from "@/guides/types";
 
 /** A country guide — reference content the app ships with, read-only. Its
@@ -642,6 +642,51 @@ function cityGroups(city: GuideCity): { title: string; refs: ArticleRef[] }[] {
   return out.sort((a, b) => order.indexOf(a.title) - order.indexOf(b.title));
 }
 
+/** A prefecture picked on the map, set out as Maps sets out a place you
+ *  tap: its name and kanji with a close button, where it is, then what
+ *  the guide has there — its places first, then the reads that talk
+ *  about it, most mentions first. */
+function AreaCard({ guide, area, trip, onClose }: { guide: CountryGuide; area: MapArea; trip: Set<string>; onClose: () => void }) {
+  const home = guidePath(guide);
+  const { cities, reads } = useMemo(() => areaLinks(guide, area), [guide, area]);
+  const rows = reads.flatMap((r) => entryRow(guide, r));
+  return (
+    <div className="space-y-6">
+      <div className="flex items-start gap-3 px-1">
+        <div className="min-w-0 flex-1">
+          <h2 className="subhead break-words">
+            {area.name}
+            {area.local && <span className="ml-2 font-jp font-normal text-ink-faint">{area.local}</span>}
+          </h2>
+          <p className="meta mt-0.5 break-words">{[area.region, area.capital && area.capital !== area.name ? `Capital ${area.capital}` : ""].filter(Boolean).join(" · ")}</p>
+        </div>
+        <button type="button" onClick={onClose} aria-label="Close" className="tap grid h-[30px] w-[30px] shrink-0 place-items-center rounded-full bg-ink/[0.07] text-ink-soft active:bg-ink/[0.12]">
+          <Icon name="close" size={13} />
+        </button>
+      </div>
+      {cities.length > 0 && (
+        <Section title="In the guide" id={`guide-${guide.id}-map-places`}>
+          <ul>
+            {cities.map((c) => (
+              <ArticleRow
+                key={c.id}
+                to={`${home}/place/${c.id}`}
+                title={c.name}
+                meta={[trip.has(c.id) ? "On this trip" : "", c.population ?? ""].filter(Boolean).join(" · ") || undefined}
+                thumb={(c.cover ?? coverOf(cityArticles(c)))?.src}
+              />
+            ))}
+          </ul>
+        </Section>
+      )}
+      <EntryList title="Mentioned in" id={`guide-${guide.id}-map-reads`} rows={rows} limit={4} />
+      {!cities.length && !rows.length && (
+        <p className="px-1 text-[15px] leading-snug text-ink-faint">Nothing in the guide is set in {area.name} yet.</p>
+      )}
+    </div>
+  );
+}
+
 /** people in a place, from the guide's rounded phrase — "About 1.4 million" */
 const peopleIn = (c: GuideCity): number => {
   const m = c.population?.match(/([\d.,]+)\s*(million)?/i);
@@ -662,6 +707,7 @@ export function GuideMapPage() {
   const data = useData();
   const guide = useGuide();
   const [params, setParams] = useSearchParams();
+  const card = useRef<HTMLDivElement>(null);
   const map = guide?.map;
   const onTrip = useMemo(() => (guide && data ? citiesOnTrip(guide, data) : { stays: [], others: [] }), [guide, data]);
   const tripAreas = useMemo(() => {
@@ -679,8 +725,9 @@ export function GuideMapPage() {
   const home = guidePath(guide);
   const selected = Number(params.get("p")) || undefined;
   const select = (code: number | undefined) => setParams(code ? { p: String(code) } : {}, { replace: true });
+  const area = map.areas.find((a) => a.code === selected);
   const trip = new Set([...onTrip.stays, ...onTrip.others].map((c) => c.id));
-  const cities: MapCity[] = guide.cities.map((c) => ({ id: c.id, name: c.short ?? c.name, lat: c.lat, lng: c.lng, people: peopleIn(c), onTrip: trip.has(c.id), to: `${home}/place/${c.id}` }));
+  const cities: MapCity[] = guide.cities.map((c) => ({ id: c.id, name: c.short ?? c.name, lat: c.lat, lng: c.lng, people: peopleIn(c), onTrip: trip.has(c.id), to: `${home}/place/${c.id}`, area: areaAt(map, c.lat, c.lng)?.code }));
   const regions = guide.regions ?? [];
   const byRegion = regions.map((r) => [r, map.areas.filter((a) => a.region === r)] as const).filter(([, list]) => list.length);
 
@@ -689,8 +736,23 @@ export function GuideMapPage() {
       <PageHeader back={home} backLabel={guide.name} title="Map" meta={`${map.areas.length} ${map.unit.many} in ${byRegion.length} regions`} className="mb-6" />
       <div className="space-y-6">
         <div className="-mx-5 overflow-hidden sm:mx-0 sm:rounded-[12px]">
-          <GuideMap map={map} regions={regions} cities={cities} tripAreas={tripAreas} selected={selected} onSelect={select} />
+          <GuideMap
+            map={map}
+            regions={regions}
+            cities={cities}
+            tripAreas={tripAreas}
+            selected={selected}
+            onSelect={(code) => {
+              select(code);
+              // bring the card up far enough to see, the map still in view
+              if (code) requestAnimationFrame(() => {
+                const top = card.current?.getBoundingClientRect().top;
+                if (top != null && top > window.innerHeight * 0.62) window.scrollBy({ top: top - window.innerHeight * 0.62, behavior: "smooth" });
+              });
+            }}
+          />
         </div>
+        <div ref={card}>{area && <AreaCard key={area.code} guide={guide} area={area} trip={trip} onClose={() => select(undefined)} />}</div>
         {byRegion.map(([region, list]) => (
           <Section key={region} title={region} id={`guide-${guide.id}-map-${slug(region)}`}>
             <ul>
