@@ -614,7 +614,7 @@ The book reads in order, in five parts, with chapters numbered straight through.
 - Figures sit in the text between hairlines, as Apple News sets them, not in boxes; only tips and warnings keep a tinted callout.
 - Visual blocks: an **era band** (spans to scale — tap or drag along it, or step with the arrows), a **pull quote** (a line from the read itself), **What's known** (Settled / Revised / Still argued), a side-by-side **compare**, a **photo pair**, and **Go deeper** panels that open in place.
 - Tap a small source number and that source opens in a sheet (a popover on desktop) with what it backs up and **Open Link**. All sources also sit folded and numbered at the foot.
-- Every article in both halves, every yearly date and every city card cites at least one source. No photo appears twice anywhere in the guide — every chapter, city and read has its own.
+- Every article in both halves, every yearly date and every city card cites at least one source. No photo appears twice anywhere in the guide — every chapter, city and read has its own (`links.test.ts` checks it).
 - **Bookmark**, **Share** and **⋯** sit in the nav bar. Share opens the phone's share sheet; on desktop Chrome it copies the link (the button turns into a tick).
 - **Read by reading** — reaching the end of an article marks it read, as Books keeps your place. To change it by hand: **⋯ → Mark as Read / Mark as Unread** in the bar, or hold a row (right-click on a computer). Read articles get a green tick on their row, and a chapter page says how many of its articles you've read.
 - Read marks, bookmarks and Continue reading are kept on this device only, not synced.
@@ -623,7 +623,7 @@ The book reads in order, in five parts, with chapters numbered straight through.
 #### Content
 
 - **Photos** — freely licensed pictures from Wikimedia Commons, resized and bundled in `public/guide/jp/` so they show offline, each credited and linked to its source; the list is `src/guides/japan/photos.ts`.
-- It's built into the app (`src/guides/`), read-only and works offline. For Japan the book is `src/guides/jp.ts` and the trip half `src/guides/japan/trip.ts`. Adding a country is one content file plus a `GUIDES` entry.
+- It's built into the app (`src/guides/`), read-only and works offline. For Japan the book is `src/guides/jp.ts`, the trip half `src/guides/japan/trip.ts` and its yearly dates `src/guides/japan/dates.ts`. Adding a country is one content file plus a `GUIDES` entry.
 
 ### Stays and journeys
 

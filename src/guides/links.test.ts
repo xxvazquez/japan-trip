@@ -36,5 +36,11 @@ describe("guide cross-references", () => {
       }
       expect(broken).toEqual([]);
     });
+
+    it(`${id}: no photo appears twice`, () => {
+      const seen = new Map<string, number>();
+      for (const m of JSON.stringify(guide).matchAll(/"src":"([^"]+)"/g)) seen.set(m[1], (seen.get(m[1]) ?? 0) + 1);
+      expect([...seen].filter(([, n]) => n > 1).map(([src]) => src)).toEqual([]);
+    });
   }
 });
