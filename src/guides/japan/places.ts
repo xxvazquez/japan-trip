@@ -114,6 +114,15 @@ export const placeReads: Record<string, GuideItem[]> = {
         { p: "Law schools that became Meiji, Nihon, Senshū and Chūō universities opened around Kanda in the 1880s, and second-hand textbook dealers followed the students. After a fire in 1913 the street was rebuilt as booksellers' shops; one of them, a used bookshop opened that year by Iwanami Shigeo, became the publisher Iwanami. There are still around 130 second-hand bookshops.[^1]" },
         photo("jimbocho", "A second-hand bookshop front in Jimbōchō with stacks of magazines outside", "A used bookshop in Jimbōchō, its stock spilling onto the pavement."),
         { p: "**Notice** which side of Yasukuni-dōri they're on: most shops line the south side, so their fronts **face north**. The local explanation is that the sun never fades the spines in the window; it's a good story, if not a documented plan." },
+        {
+          stats: [
+            { value: "~130", label: "second-hand bookshops" },
+            { value: "1913", label: "the fire that rebuilt the street as booksellers'" },
+            { value: "1960", label: "the first Kanda used-book festival" },
+          ],
+        },
+        { p: "The students weren't only Japanese. In the early 1900s thousands of Chinese students came to Tokyo to learn how Japan had modernised, and many lodged and ate around Jimbōchō; a plaque marks where the future premier **Zhou Enlai** studied in 1917–19, and one of the old Chinese restaurants that fed them still serves. It's also why the district has so many cheap curry houses: student food, now the subject of an annual curry contest." },
+        { p: "A story has it that the Americans spared Jimbōchō in the 1945 fire raids to protect its books. Most of the district did survive, but no evidence for the story has ever been found; the likelier reasons are the wind and the gaps that firebreaks left." },
       ],
       related: ["place/tokyo/station-towns-not-a-centre", "language/three-scripts-at-once"],
       sources: [

@@ -26,6 +26,13 @@ const base: { cities: GuideCity[] } = {
             { p: "Sawara grew rich in the Edo period shipping rice, sake and soy sauce down the Tone river to Edo, and called itself **Kō-Edo**, “little Edo”. The merchant houses and white storehouses along the Ono river were the first townscape in Kantō to be protected as a historic district, in 1996.[^1] Flat-bottomed boats take you up the canal under the willows." },
             { p: "Its most famous son was **Inō Tadataka**, a sake brewer who retired at 49, studied astronomy, and at 55 set out to survey the whole coastline on foot. Over 17 years he walked some 35,000 km; the map his team finished in 1821, three years after his death, was the first accurate map of Japan.[^2] The museum across the canal from his house shows sheets startlingly close to satellite outlines." },
             { note: "Sawara is about 30 minutes from Narita airport, so it works as a last afternoon before an evening flight. Twice a year, in July and October, the town's carved floats come out for the Sawara Grand Festival, one of the float festivals UNESCO lists.[^3]", title: "Going" },
+            {
+              stats: [
+                { value: "55", label: "Inō's age when he began his survey" },
+                { value: "~35,000 km", label: "walked over 17 years" },
+                { value: "1821", label: "the finished map presented to the shogunate" },
+              ],
+            },
           ],
           sources: [
             { title: "Katori city: Sawara's townscape — MLIT", url: "https://www.mlit.go.jp/crd/city/mint/pdf/044katori.pdf", note: "Selected as a preservation district in 1996, the first in Kantō (Japanese)" },
@@ -63,6 +70,14 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "The **Mashiko pottery fair**, held since 1966, takes over the town twice a year: in spring over Golden Week, and in autumn around 3 November, with hundreds of tents where young potters sell direct.[^2]" },
+            { p: "The town was hit hard by the 2011 earthquake: kilns collapsed, Hamada's great climbing kiln among them, and potters lost years of stock. It was rebuilt by the community, with volunteers firing the climbing kiln again a few years later, and the fair carried on. Today a good share of the town's potters are newcomers who came for the clay, the kilns and the company of other potters." },
+            {
+              stats: [
+                { value: "1853", label: "the first kiln in Mashiko" },
+                { value: "1924", label: "Hamada settles here" },
+                { value: "1966", label: "the first pottery fair" },
+              ],
+            },
             { note: "The fair days are the busiest of the year and the direct buses fill up; outside them the town is quiet, and some studios close midweek.", title: "Going" },
           ],
           sources: [
@@ -114,6 +129,14 @@ const base: { cities: GuideCity[] } = {
           body: [
             { p: "Tokyo prefecture runs west from the bay far into the mountains, and **Okutama**, at the end of the JR Ōme line, is its wild end: steep cedar forest, a clear river in a deep gorge and small villages clinging to the slopes. It's the same prefecture as Shibuya, and it can feel like a different country.[^1]" },
             {
+              stats: [
+                { value: "2,017 m", label: "Kumotori-yama, Tokyo's highest peak" },
+                { value: "1957", label: "the Ogōchi Dam completed" },
+                { value: "~36%", label: "of Tokyo prefecture that's forest" },
+              ],
+            },
+            { p: "The cedar forest that covers the hills is itself history. After the war the government paid for replanting on a vast scale, mostly with fast-growing *sugi*, for timber that cheap imports then made worthless; the plantations were left unthinned, and their spring pollen is now the source of Tokyo's notorious hay fever. Okutama's forestry co-operatives are slowly thinning and replanting with mixed trees (see [Forests, wild and planted](guide:land/forests-wild-and-planted))." },
+            {
               list: [
                 "**The Tama gorge** — a riverside path between Mitake and Okutama stations, best in autumn colour",
                 "**Nippara limestone cave** — Kantō's largest show cave, lit and cool, a bus ride north of the station",
@@ -151,6 +174,14 @@ const base: { cities: GuideCity[] } = {
             { p: "This small textile town is where the **Ashikaga** clan came from — the family who ruled as shoguns from Kyoto for over two centuries, from 1338. Their family residence became the temple **Bannaji**, still ringed by its moat and earthworks; its main hall is a National Treasure." },
             { p: "Next door, **Ashikaga Gakkō** is said to be Japan's oldest school. Its origins are disputed, but it flourished from the 15th century as a centre for Chinese classics and divination, and in 1549 Francis Xavier described it as the largest and most famous university in eastern Japan.[^1] The halls and gardens were restored in 1990 to their Edo-period form." },
             { p: "**Ashikaga Flower Park** is the other draw: its great wisteria, trained over trellises on steel supports, blooms in late April and early May, and from late October to February the park is lit with millions of lights." },
+            { p: "The great wisteria has a story of its own. Its main trees, about 160 years old, grew elsewhere in the city and were moved to the park in 1996, an operation that took years: the trunks were wrapped in plaster casts and carried whole, the first time trees this large and old had been transplanted. The tree doctor who did it, Tsukamoto Konomi, became the first woman qualified as a tree surgeon in Japan." },
+            {
+              stats: [
+                { value: "1338", label: "the Ashikaga take power as shoguns" },
+                { value: "1549", label: "Xavier calls its school the greatest in eastern Japan" },
+                { value: "~160", label: "years old: the park's great wisteria" },
+              ],
+            },
             { note: "The JR Ryōmō line stops at Ashikaga Flower Park station, right at the gate; the old town is two stops on, at Ashikaga. Tōbu trains from Asakusa run to Ashikagashi, across the river.", title: "Going" },
           ],
           sources: [{ title: "Ashikaga Gakkō — Wikipedia", url: "https://en.wikipedia.org/wiki/Ashikaga_Gakk%C5%8D", note: "Called Japan's oldest school; Xavier's description" }],
@@ -215,6 +246,14 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { note: "The canal and old town are a 15-minute bus ride from JR Ōmi-Hachiman station; La Collina is on the way. A ropeway climbs Mount Hachiman behind the canal for a view over the reed beds and the lake.", title: "Going" },
+            { p: "The canal nearly disappeared. By the 1960s it was silted, smelly and due to be filled in and paved over; local volunteers began clearing it themselves in 1972, the city changed its mind, and the cleaned canal became one of the first places in Japan to show how an old waterway could save a town. It has been a backdrop for period dramas ever since." },
+            {
+              stats: [
+                { value: "1585", label: "the canal dug for Hidetsugu's castle town" },
+                { value: "1905", label: "Vories arrives to teach English" },
+                { value: "1972", label: "volunteers start clearing the silted canal" },
+              ],
+            },
           ],
           sources: [{ title: "Ōmi merchants — Wikipedia", url: "https://en.wikipedia.org/wiki/%C5%8Cmi_merchants", note: "Sanpō-yoshi" }, { title: "La Collina Ōmi-Hachiman — Taneya", url: "https://taneya.jp/la_collina/", note: "Terunobu Fujimori's grass-roofed main shop (Japanese)" }],
         },
@@ -259,6 +298,19 @@ const base: { cities: GuideCity[] } = {
             { p: "**Kayabuki-no-sato**, “the village of thatched roofs”, is a hamlet of nearly 40 thatched farmhouses on a slope above the Yura river, in the mountains of Kyoto prefecture. It was protected as a historic district in 1993, and families still live in most of the houses.[^1]" },
             { p: "The roofs are a different shape from Shirakawa-gō's: hipped and rounded rather than steep A-frames, with the same need to be rethatched every few decades. The village keeps red fire hoses in little thatched huts, and tests them once a year by spraying water over every roof at once — a famous sight, held twice a year." },
             {
+              compare: {
+                a: "Miyama",
+                b: "Shirakawa-gō",
+                rows: [
+                  { label: "Roofs", a: "Hipped, rounded thatch", b: "Steep A-frame gasshō thatch" },
+                  { label: "Houses", a: "Nearly 40", b: "About 59 in Ogimachi" },
+                  { label: "Protected", a: "1993, national preservation district", b: "1995, World Heritage" },
+                  { label: "Getting there", a: "Train and a few buses a day", b: "Highway buses from three cities" },
+                  { label: "Visitors", a: "A trickle", b: "Millions a year" },
+                ],
+              },
+            },
+            {
               list: [
                 "**The Little Indigo Museum** — a single house where an indigo dyer shows old textiles and works the vats",
                 "**The folk museum** — one farmhouse open inside, hearth and all",
@@ -275,6 +327,14 @@ const base: { cities: GuideCity[] } = {
           body: [
             { p: "On the Tango peninsula, the fishing village of **Ine** wraps around a sheltered bay with some 230 **funaya**: wooden boathouses built right on the water, boats parked on the ground floor, rooms above. Ine was the first fishing village to be protected as a historic district, in 2005.[^1]" },
             { p: "On the way, **Amanohashidate**, “the bridge to heaven”, is a 3.6 km sandbar covered in thousands of pines across the mouth of a bay — one of Japan's three famous views since the 17th century. From the hills at either end, tradition says to bend over and look at it through your legs (*mata-nozoki*), when it seems to float up into the sky.[^2]" },
+            {
+              stats: [
+                { value: "~230", label: "funaya boathouses around Ine Bay" },
+                { value: "3.6 km", label: "Amanohashidate's sandbar" },
+                { value: "~8,000", label: "pines growing on it" },
+              ],
+            },
+            { p: "The funaya work because the bay is so sheltered. Ine faces south into a narrow inlet guarded by an island, its tides rise and fall by well under a metre, and storms rarely reach it, so houses can stand right at the waterline. The boat goes in at the bottom, nets dry on the floor above, and the family's main house stands across the road behind." },
             {
               list: [
                 "**Ine by boat** — a short cruise or a water taxi runs along the funaya; it's the best way to see them",
@@ -1969,6 +2029,14 @@ const base: { cities: GuideCity[] } = {
             { p: "**Karashi mentaiko**, pollock roe cured in salt and chilli, is a Korean dish, *myeongran-jeot*. **Kawahara Toshio**, who grew up in Busan under Japanese rule, missed it after the war, and began making a version for Japanese tastes at his food shop, **Fukuya**, in Fukuoka in 1949.[^1]" },
             { p: "He never patented his method, and told other shops how to make it. So the city filled with makers, and mentaiko became Fukuoka's speciality — the box everyone takes back from a trip, sold in every station and airport shop. *Mentai* comes from the Korean name for pollock, *myeongtae*." },
             {
+              stats: [
+                { value: "1949", label: "Fukuya's first mentaiko" },
+                { value: "0", label: "patents on the method" },
+                { value: "~200 km", label: "from Fukuoka to Busan, across the strait" },
+              ],
+            },
+            { p: "The dish is a reminder of how close Korea is. Fukuoka is nearer Busan than Tokyo, fast ferries cross in about three hours, and the city's history runs through that strait, from the Mongol fleets that landed here in 1274 and 1281 to the families, like Kawahara's, who came back from colonial Korea in 1945." },
+            {
               list: [
                 "**On rice or in onigiri** — the everyday way",
                 "**Mentaiko pasta** — with butter and nori, a Japanese café classic",
@@ -2008,6 +2076,16 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "On the street up to the shrine, eat **umegae mochi**: grilled rice cakes filled with sweet bean paste, stamped with a plum blossom." },
+            {
+              timeline: [
+                { when: "901", text: "Michizane is exiled to Dazaifu." },
+                { when: "903", text: "He dies here." },
+                { when: "930", text: "Lightning strikes the palace in Kyoto, killing courtiers; his spirit is blamed." },
+                { when: "993", text: "The court restores his rank posthumously, to calm him." },
+                { when: "1591", text: "The present main hall is built." },
+              ],
+            },
+            { p: "Dazaifu itself was once far more than a shrine town. For four centuries the **Dazaifu government office** ran Kyushu and handled the court's dealings with China and Korea; its foundation stones still lie in a field a short walk away, with almost nobody looking at them." },
             { note: "Nishitetsu trains from Tenjin take about 30 minutes, changing at Futsukaichi.", title: "Going" },
           ],
           related: ["belief/shinto"],
@@ -2078,6 +2156,15 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "The bases remain, and so does the argument over them. The plan to move the Futenma air station from the middle of Ginowan city to a new runway at Henoko has been opposed by many Okinawans and their governors for decades." },
+            {
+              timeline: [
+                { when: "1945", text: "The Battle of Okinawa: a quarter of the island's civilians die." },
+                { when: "1952", text: "Mainland Japan regains independence; Okinawa stays under US rule." },
+                { when: "1972", text: "Reversion to Japan on 15 May; the yen replaces the dollar." },
+                { when: "1978", text: "Traffic switches to the left overnight on 30 July, “730”." },
+                { when: "1995", text: "The rape of a schoolgirl by US servicemen brings mass protest and the plan to close Futenma." },
+              ],
+            },
             { p: "The American years also left food: A&W drive-ins, steak houses, Spam, and **taco rice**, taco filling on rice, first served in the town of Kin in 1984 to soldiers from the base next door." },
           ],
           sources: [{ title: "United States Forces Japan — Wikipedia", url: "https://en.wikipedia.org/wiki/United_States_Forces_Japan", note: "Okinawa's share of exclusive-use facilities" }],
@@ -2087,6 +2174,17 @@ const base: { cities: GuideCity[] } = {
           body: [
             { p: "**Shuri Castle** was the Ryūkyū kings' palace and seat of government for some 450 years, on a hill above Naha. Its buildings mixed Chinese and Japanese styles, painted red with dragons. The US Army's shelling destroyed it in 1945, and Shuri was rebuilt from 1992 from old photographs and records." },
             { p: "On **31 October 2019** a fire destroyed the main hall, the Seiden, and several other buildings. It has been rebuilt again, with traditional techniques and the red-lacquer craft the first rebuilding had revived, and the interior opens to visitors on **23 November 2026**, by advance reservation.[^1]" },
+            {
+              timeline: [
+                { when: "c. 1429", text: "Shuri becomes the capital of a united Ryūkyū kingdom." },
+                { when: "1609", text: "Satsuma invades; the kingdom pays tribute to both Japan and China." },
+                { when: "1879", text: "Japan annexes the kingdom as Okinawa prefecture; the last king is taken to Tokyo." },
+                { when: "1945", text: "Destroyed in the battle; the army had dug its headquarters under the castle." },
+                { when: "1992", text: "The first rebuilding opens." },
+                { when: "2019", text: "Fire destroys the main hall again." },
+                { when: "2026", text: "The second rebuilding opens in November." },
+              ],
+            },
             {
               list: [
                 "**Shureimon** — the gate on the approach, the image on the ¥2,000 note",
@@ -2677,6 +2775,14 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "At the foot of the hill, the lord's garden and the restored Ninomaru grounds are quieter and worth the extra stop." },
+            {
+              stats: [
+                { value: "12", label: "keeps left in Japan from before 1868" },
+                { value: "1854", label: "Matsuyama's rebuilt, the youngest of them" },
+                { value: "132 m", label: "the hill it stands on" },
+              ],
+            },
+            { p: "Why so few survive tells the story of modern Japan. After 1873 the Meiji government ordered most castles sold for scrap or pulled down as relics of the old order; American bombing in 1945 burned most of the rest, including great keeps at Nagoya, Okayama and Hiroshima. The concrete keeps you see in most cities are postwar rebuilds, many with lifts. Matsuyama's is wood, and the steep stairs prove it." },
             { note: "Take the chairlift up for the view, the ropeway down. In cherry season the castle grounds fill with picnics.", title: "Going" },
           ],
           related: ["look-closer/castle-towns"],
@@ -2689,6 +2795,15 @@ const base: { cities: GuideCity[] } = {
           body: [
             { p: "In 1895 the young **Natsume Sōseki**, later Japan's most famous novelist, taught English at the middle school here for a year. He made it into *Botchan* (1906), a comic novel about a hot-headed Tokyo teacher sent to a provincial town full of scheming colleagues, which every Japanese schoolchild knows.[^1] Matsuyama took it as a compliment rather than an insult, and named everything after it." },
             { p: "The poet **Masaoka Shiki**, who was born here, did more than anyone to make the haiku modern: he gave it its name, argued for writing from what you see, and revived poets like Buson.[^2] Sōseki lodged with Shiki during his Matsuyama year, in a house called Gudabutsu-an." },
+            { p: "Shiki's life was short and spent mostly in bed: tuberculosis, caught in his twenties, killed him at thirty-four in 1902. He wrote much of his best work lying down, and one of his most famous haiku is about eating a persimmon at Hōryū-ji, so that the persimmon has become a Nara symbol. His pen name, *Shiki*, is the cuckoo, a bird said in poetry to cough blood as it sings." },
+            {
+              timeline: [
+                { when: "1867", text: "Masaoka Shiki and Natsume Sōseki are both born." },
+                { when: "1895", text: "Sōseki teaches in Matsuyama and lodges with Shiki." },
+                { when: "1902", text: "Shiki dies at thirty-four." },
+                { when: "1906", text: "*Botchan* is published." },
+              ],
+            },
             {
               list: [
                 "**Botchan Karakuri Clock** — by Dōgo station, its characters come out on the hour",
@@ -2787,6 +2902,14 @@ const base: { cities: GuideCity[] } = {
             { p: "The art is in the south. The north of the island is industrial: **Mitsubishi**'s copper smelter has worked there since **1917**, and was the island's main employer long before the art.[^1] It still is a large one, and the island's economy rests on both." },
             { p: "The smelter shaped the island. Sulphur fumes in its early decades killed the vegetation on the hills around it, leaving them bare for years, and the town grew up around the works. Today it refines copper, gold and silver, and recycles metals from electronic scrap and industrial waste." },
             {
+              timeline: [
+                { when: "1917", text: "Mitsubishi opens the smelter, and the island's population grows around it." },
+                { when: "1960s", text: "Sulphur fumes have left the northern hills bare." },
+                { when: "1989", text: "The publisher Fukutake begins the art project in the south." },
+                { when: "2003", text: "The smelter starts treating Teshima's dumped waste, a job that runs for years." },
+              ],
+            },
+            {
               list: [
                 "**Recycling** — the plant extracts precious metals from old circuit boards and other waste",
                 "**Teshima's waste** — industrial waste illegally dumped on the neighbouring island of Teshima was treated here for years, after a long campaign by its residents",
@@ -2811,6 +2934,14 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "Many works stay after each festival, so the islands have collected art over the years; others are only there for the season." },
+            { p: "The festival is open about its purpose: to bring people back to islands that have been emptying for decades, of young people first, then of everyone. Several islands' populations are mostly over sixty-five, and the triennale's critics and fans argue over whether a few months of visitors every three years changes that, or only decorates it. Some islands have gained new residents, cafés and a school reopened; others haven't." },
+            {
+              stats: [
+                { value: "2010", label: "the first festival" },
+                { value: "~12", label: "islands in each edition" },
+                { value: "3", label: "seasons per festival: spring, summer, autumn" },
+              ],
+            },
             { note: "A festival passport covers many sites. In festival seasons, check ferry timetables and expect queues for small boats; the next one after 2025 is due in 2028.", title: "Going" },
           ],
           sources: [
@@ -2862,6 +2993,16 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "The harbour was later filled in around it, so the island is now inland. Since 1951 the city has been rebuilding it, and the warehouses, the chief's residence and a replica of the bridge, finished in 2017, now stand on the old site." },
+            {
+              timeline: [
+                { when: "1636", text: "The island is built for the Portuguese." },
+                { when: "1639", text: "The Portuguese are expelled." },
+                { when: "1641", text: "The Dutch East India Company is moved in from Hirado." },
+                { when: "1823", text: "Siebold arrives; expelled in 1829." },
+                { when: "1859", text: "The treaty ports open, and Dejima's monopoly ends." },
+                { when: "2017", text: "A replica of the bridge links it to the city again." },
+              ],
+            },
             { note: "Dejima is a few minutes from the tram stop of the same name. Give it an hour or two; the reconstructed rooms show Japanese and Dutch life side by side.", title: "Going" },
           ],
           related: ["history/edo"],
@@ -2900,6 +3041,14 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "Each **9 August**, a ceremony in the Peace Park ends with a minute's silence at 11:02." },
+            {
+              stats: [
+                { value: "11:02", label: "the time of the explosion" },
+                { value: "~74,000", label: "dead by the end of 1945" },
+                { value: "~500 m", label: "from the hypocentre to Urakami Cathedral" },
+              ],
+            },
+            { p: "The bomb fell on the one part of Japan that had kept Christianity alive in secret through 250 years of persecution. The Urakami Catholics, the *kakure kirishitan*, had come out after 1873 and spent thirty years building their cathedral by hand; it was destroyed with most of its congregation. The bell tower that fell into the stream beside it still lies where it landed." },
             { note: "The hypocentre, museum and Peace Park are close together, a short tram ride north of the station. Allow at least two hours.", title: "Going" },
           ],
           related: ["history/meiji-to-1945"],
