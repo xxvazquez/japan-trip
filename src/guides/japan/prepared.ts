@@ -78,8 +78,22 @@ export const prepared: GuideTopic = {
           summary: "Things come back — but you need the right paper",
           body: [            photo("koban-sudocho", "A small stone-and-tile police box with a red postbox beside it", "An old kōban, preserved at the Edo-Tokyo Open Air Architectural Museum."),
 
-            { p: "Lost things really do turn up: anything handed in goes to the nearest **kōban** (police box), then to the police lost-and-found centre for the area.[^1] Railways keep their own lost property for a few days first, so ask the station before the police." },
-            { p: "For an insurance claim you need a report number: a **lost-property report** (ishitsu todoke) or a **theft report** (tōnan todoke) from any kōban. For a lost passport, get the police report first — the embassy needs it to issue an emergency travel document." },
+            { p: "Lost things really do turn up, and not by luck. The **Lost Property Act** sets the system: whoever finds something hands it to the nearest **kōban** (police box), the police log and hold it, and the owner who claims it owes the finder a reward of **5–20%** of its value. Unclaimed after three months, it belongs to the finder.[^1]" },
+            {
+              stats: [
+                { value: "¥4.49bn", label: "cash handed in to the Tokyo police in 2024, a record" },
+                { value: "¥3.2bn", label: "of it returned to the owners" },
+              ],
+            },
+            { p: "Wallets are handed in with the cash still inside, phones and umbrellas by the hundred thousand. Railways keep their own lost property for a few days first, then pass it to the police, so ask the station, or the train company's lost-property line, before the police." },
+            {
+              steps: [
+                { title: "Ask where you lost it", text: "The station office, shop or hotel. Give the train, car number and time if you can." },
+                { title: "Report it at a kōban", text: "A lost-property report (*ishitsu todoke*) or a theft report (*tōnan todoke*). Ask for the report number; insurers want it." },
+                { title: "Check the police search", text: "In Tokyo, the Metropolitan Police lost-property centre in Iidabashi holds everything handed in across the city, searchable online." },
+              ],
+            },
+            { p: "For a lost passport, get the police report first: the embassy needs it to issue an emergency travel document, and immigration needs that before you can leave." },
           ],
           words: [
             { local: "交番", say: "kōban", means: "police box" },
@@ -88,6 +102,7 @@ export const prepared: GuideTopic = {
           related: ["prepared/numbers-to-call", "look-closer/the-konbini-is-infrastructure"],
           sources: [
             { title: "Lost and found — Tokyo Metropolitan Police Department", url: "https://www.keishicho.metro.tokyo.lg.jp/multilingual/english/finding_services/lost_and_found/lost_found.html", note: "Reporting at a kōban, the Lost Property Center, collecting items" },
+            { title: "Tokyo sees record ¥4.49 billion in lost cash turned in — Malay Mail (Kyodo)", url: "https://www.malaymail.com/amp/news/life/2025/03/06/tokyo-sees-record-449-billion-yen-in-lost-cash-turned-in-driven-by-tourism-surge/168715", note: "2024 figures from the Metropolitan Police: ¥4.49 billion handed in, about ¥3.2 billion returned" },
           ],
         },
       ],

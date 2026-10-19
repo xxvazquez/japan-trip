@@ -2883,9 +2883,23 @@ const rules: GuideTopic = {
           title: "Carry your passport",
           summary: "A legal requirement every day — a photo of it doesn't count",
           body: [
-            { p: "Short-stay visitors must carry their **passport** at all times under the Immigration Control Act.[^1] Police do spot checks, mostly around big stations and nightlife districts, and not having it can mean a trip to the police box while they confirm who you are. A photo or photocopy isn't accepted.[^2]" },
-            { p: "Hotels are also required by law to copy the passport of every foreign guest at check-in, and tax-free shopping now registers each purchase against it." },
+            { p: "Short-stay visitors must carry their **passport** at all times under the Immigration Control Act, and show it when a police officer asks. Leaving it in the hotel safe is, strictly, an offence with a fine of up to **¥100,000**. A photo or photocopy isn't accepted.[^1][^2]" },
+            { p: "In practice the police rarely ask a tourist who isn't doing anything. Spot checks happen mostly around big stations and nightlife districts, often prompted by something else, a bicycle without a registration sticker, say. Without the passport, a five-minute check turns into a trip to the police box while they confirm who you are." },
+            {
+              table: {
+                head: ["Who asks", "Why"],
+                rows: [
+                  ["**Police**", "The law above; residents carry a residence card instead"],
+                  ["**Hotels**", "Required to record the passport number of every foreign guest and keep a copy"],
+                  ["**Tax-free shops**", "Each purchase is registered against the passport's landing permission"],
+                  ["**Rental shops**", "Bikes and cars; a car also needs a 1949-convention international permit"],
+                ],
+              },
+            },
+            { p: "The page that matters is the **landing permission**: the sticker or stamp immigration gives you on arrival, with your status (*temporary visitor*) and the date your stay ends. Tax-free shopping depends on it, and it's what an officer checks." },
+            { note: "Keep a photo of the passport's photo page and the landing sticker on your phone anyway. It won't satisfy the law, but it makes an embassy replacement much faster if the passport is lost.", title: "And a copy" },
           ],
+          related: ["prepared/lost-or-stolen", "rules/tax-free-is-changing"],
           sources: [
             { title: "Visas and consular services — Embassy of Japan in Finland", url: "https://www.fi.emb-japan.go.jp/itpr_fi/consular.html", note: "Short-term visitors must carry their passport at all times" },
             { title: "Japan's passport law — The New Daily", url: "https://www.thenewdaily.com.au/travel/travel-advice/2025/09/14/japan-carry-passport-law", note: "Fines of up to ¥100,000; photocopies not accepted" },
@@ -2895,26 +2909,37 @@ const rules: GuideTopic = {
           title: "Check your medicines",
           summary: "Some ordinary medicines from home are illegal here",
           body: [
-            { p: "Japan's drug laws are among the strictest anywhere, and they catch visitors carrying things bought legally at home. Detentions at the airport happen every year." },
+            { p: "Japan's drug laws are among the strictest anywhere, and they catch visitors carrying things bought legally at home. The country treats **stimulants** as its main drug problem, so anything chemically close to amphetamine is banned outright, whatever a doctor at home has prescribed. Detentions at the airport happen every year." },
             {
               table: {
                 head: ["Medicine", "In Japan"],
                 rows: [
                   ["ADHD stimulants, e.g. Adderall", "**Banned**, even with a prescription"],
                   ["Pseudoephedrine cold medicine, e.g. Sudafed", "**Banned** above a low dose"],
-                  ["CBD containing any THC", "**Banned** — the THC limit is near zero"],
+                  ["Vicks inhalers sold in the US", "**Banned**: they contain a stimulant"],
+                  ["CBD containing any THC", "**Banned**; the THC limit is near zero"],
+                  ["Strong painkillers: morphine, oxycodone", "Need a separate narcotics permit in advance"],
                   ["Codeine painkillers", "Restricted"],
                   ["Prescription medicine", "Up to a month's supply"],
                   ["Over-the-counter medicine", "Up to two months' supply"],
                 ],
               },
             },
-            { p: "Beyond those amounts you need an import certificate, the **Yunyū Kakuninsho** (formerly the Yakkan Shōmei), applied for through the health ministry before you fly.[^1][^2] It's free; allow a couple of weeks." },
-            { note: "Carry medicines in their original packaging with a copy of the prescription, in your hand luggage.", title: "At the airport" },
+            { p: "Beyond those amounts you need an import certificate, the **Yunyū Kakuninsho** (formerly the Yakkan Shōmei), applied for through the health ministry before you fly.[^1][^2] It's free; allow a couple of weeks. Strong opioids are a different, stricter process again, through a regional narcotics office." },
+            { p: "Nobody is exempt. In 2015 a senior Toyota executive, newly arrived from the US, was arrested for oxycodone pills her father had posted to her in a parcel marked as necklaces; she was held for three weeks and released without charge, and resigned." },
+            {
+              steps: [
+                { title: "Check each medicine", text: "By its active ingredient, not its brand name, against the health ministry's lists." },
+                { title: "Count the supply", text: "Under a month's prescription or two months' over-the-counter medicine needs nothing." },
+                { title: "Apply if over", text: "For the import certificate, with the prescription, before you travel." },
+                { title: "Pack it right", text: "Original packaging, a copy of the prescription, in your hand luggage." },
+              ],
+            },
           ],
           sources: [
             { title: "Q&A on bringing medicines into Japan — Ministry of Health, Labour and Welfare (PDF)", url: "https://kouseikyoku.mhlw.go.jp/chugokushikoku/gyomu/bu_ka/iji/documents/qa.pdf", note: "A month's supply of prescription medicine; the certificate for more" },
             { title: "Bringing medicine to Japan — Accessible Japan", url: "https://accessible-japan.com/bringing-medicine-to-japan/", note: "Two months of over-the-counter medicine; pseudoephedrine; the renamed certificate" },
+            { title: "Julie Hamp — Wikipedia", url: "https://en.wikipedia.org/wiki/Julie_Hamp", note: "Arrested in Tokyo in June 2015 over imported oxycodone; released without charge" },
           ],
         },
         {
@@ -2922,15 +2947,26 @@ const rules: GuideTopic = {
           summary: "From November 2026 you pay the tax, then get it back as you leave",
           body: [
             { p: "Until now, tax-free shops took the 10% consumption tax off at the till. From **1 November 2026** it becomes a refund: you pay the full price, and the tax comes back once customs at the airport confirms you're taking the goods out of Japan.[^1]" },
+            photo("tax-free-sign", "A pink Tax Free sign in a shop window, with stickers for card payment and a help desk", "A tax-free shop sign. The shop still registers your passport; from November 2026 the refund waits for customs."),
+            { p: "The reason is fraud. Under the old system, goods bought tax-free were sometimes resold inside Japan, often in bulk by buyers working for resellers, and the tax was simply lost. Making the refund wait for proof of export closes that gap." },
             {
-              stats: [
-                { value: "¥5,000", label: "minimum per shop, per day" },
-                { value: "90 days", label: "to leave Japan" },
-              ],
+              compare: {
+                title: "The old system and the new",
+                a: "Until October 2026",
+                b: "From November 2026",
+                rows: [
+                  { label: "At the till", a: "Pay without the tax", b: "Pay the full price" },
+                  { label: "The tax back", a: "Already off", b: "Refunded after customs confirms export" },
+                  { label: "Minimum", a: "¥5,000 for each type of goods", b: "¥5,000 per shop, per day" },
+                  { label: "Consumables", a: "Capped, and sealed in a bag", b: "No cap, no sealed bags" },
+                  { label: "Time limit", a: "Take them with you when you leave", b: "Leave within 90 days of buying" },
+                ],
+              },
             },
-            { p: "Some old rules disappear with it: the sealed bags, the split between general goods and consumables, and the cap on consumables. What matters now is that the goods stay unused and with you until customs has seen them — so in your hand luggage, or shown before you check a bag in." },
-            { note: "Leave extra time at the airport for the customs stop, especially after a big shopping trip.", kind: "warning", title: "Allow time" },
+            { p: "What matters now is that the goods stay **unused and with you** until customs has seen them: in your hand luggage, or shown at the customs counter before you check a bag in. How the refund reaches you, back to the card or in cash, depends on the shop or its refund agent." },
+            { note: "Leave extra time at the airport for the customs stop, especially after a big shopping trip. Goods you can't show don't get a refund.", kind: "warning", title: "Allow time" },
           ],
+          related: ["money/prices-tax-and-the-tray", "rules/carry-your-passport"],
           sources: [
             { title: "Japan's tax-free shopping reform from November 2026 — GLT", url: "https://www.gltjp.com/en/article/item/21542/", note: "The refund system, ¥5,000 minimum, 90 days, the consumables cap and sealed bags abolished" },
           ],
@@ -2939,9 +2975,16 @@ const rules: GuideTopic = {
           title: "Touts",
           summary: "The one scam to know about in a very safe country",
           body: [
-            { p: "In **Kabukichō** and **Roppongi**, street touts steer passers-by into bars with offers of cheap drinks. Inside, bills run to hundreds of thousands of yen, sometimes after spiked drinks and cards charged while the victim couldn't object. The US embassy has warned about it repeatedly.[^1][^2]" },
-            { p: "The tell is simple: ordinary bars and izakaya don't need touts. If someone on the street is working to get you inside, walk on." },
+            { p: "Japan's street crime is so low that the one scam worth knowing stands out. In **Kabukichō** and **Roppongi**, and to a lesser degree in Osaka's Minami, street touts steer passers-by into bars with offers of cheap drinks. Inside, bills run to hundreds of thousands of yen, sometimes after spiked drinks and cards charged while the victim couldn't object. The US embassy has warned about it repeatedly.[^1][^2]" },
+            photo("kabukicho-gate", "The red neon arch of Kabukichō Ichiban-gai over a street crowded with signs at night", "Kabukichō's main gate in Shinjuku, where most of the warnings are about."),
+            { p: "Japanese has a word for it, **bottakuri**, a rip-off bar, and Tokyo has laws against touting on the street. The touts work anyway, now often foreign-language speakers aimed at visitors, and newer versions skip the street: a dating-app match who suggests a particular bar, then leaves you with the bill." },
+            {
+              dos: ["Walk on from anyone working to get you inside", "Choose bars yourself, with prices on a menu outside", "Call **110** if you're being made to pay; the police know these places"],
+              donts: ["Follow a stranger, or a new match, to a bar they pick", "Hand over a card to settle a bill you didn't agree to", "Accept a drink you didn't see poured"],
+            },
+            { p: "The tell is simple: ordinary bars and izakaya don't need touts. If someone on the street is working to get you inside, the business isn't one you want to be in." },
           ],
+          words: [{ local: "ぼったくり", say: "bottakuri", means: "rip-off" }],
           sources: [
             { title: "US cautions its travellers on visiting Tokyo's Roppongi, Kabuki-chō — TTG Asia", url: "https://www.ttgasia.com/2015/06/10/us-cautions-its-travellers-on-visiting-tokyos-roppongi-kabuki-cho/", note: "Spiked drinks, card fraud and extortion" },
             { title: "Japan crime and safety report — OSAC", url: "https://www.osac.gov/Content/Report/0372abfc-517c-493d-87e7-1ee6b159615b", note: "Bar-tab extortion in nightlife districts" },
@@ -2951,16 +2994,20 @@ const rules: GuideTopic = {
           title: "Drones and photos",
           summary: "Drones need permits almost everywhere; some places fine photographers",
           body: [
-            { p: "Flying a drone over any densely inhabited area, near airports, above crowds or at night needs a permit from the transport ministry, and drones over 100 g must be registered.[^1] Most parks and temples ban them anyway." },
-            { p: "Photography is banned inside many temple halls, where the statues are objects of worship rather than art. In Gion, Kyoto, signs on private lanes warn of a fine for photographers who chase geiko and maiko." },
-            { note: "Every phone sold in Japan makes a shutter sound that can't be switched off — makers agreed to it to deter secret photos.[^2] It's why you hear that click everywhere.", title: "Why the click" },
+            { h: "Drones" },
+            { p: "Since 2022 every drone over **100 g** flown in Japan must be registered, and carry a remote ID that broadcasts it. Flying over any densely inhabited area, near airports, above crowds, higher than 150 m or at night needs a permit from the transport ministry, and in a country this crowded, that's most of the places a visitor would fly.[^1]" },
+            { p: "A separate law bans drones of any size near the Diet, the Imperial Palace, the prime minister's residence, foreign embassies, nuclear plants and defence bases, and most parks, gardens and temples ban them in their own rules anyway." },
+            { h: "Photos" },
+            { p: "Photography is banned inside many temple halls, where the statues are objects of worship rather than art; the sign says 撮影禁止. In Kyoto's **Gion**, the private lanes off Hanami-kōji have signs warning of a ¥10,000 fee for photographers who stray in, after years of geiko and maiko being chased down the street." },
+            { p: "People are a matter of custom as much as law. Japan recognises a right to one's own likeness, and TV blurs passers-by. Photographing a stranger close up without asking is rude here; secretly photographing someone's underwear or intimate parts has been a crime of its own since 2023." },
+            { note: "Every phone sold in Japan makes a shutter sound that can't be switched off. It isn't a law, but makers agreed to it to deter secret photos.[^2] It's why you hear that click everywhere.", title: "Why the click" },
           ],
           words: [{ local: "撮影禁止", say: "satsuei kinshi", means: "no photography" }],
           sources: [
-            { title: "Drones (UAS) — Ministry of Land, Infrastructure, Transport and Tourism", url: "https://www.mlit.go.jp/en/koku/uas.html", note: "Where a permit is needed; registration of drones over 100 g" },
+            { title: "Drones (UAS) — Ministry of Land, Infrastructure, Transport and Tourism", url: "https://www.mlit.go.jp/en/koku/uas.html", note: "Where a permit is needed; registration and remote ID for drones over 100 g" },
             { title: "Camera phone — Wikipedia", url: "https://en.wikipedia.org/wiki/Camera_phone", note: "Japan's audible shutter" },
           ],
-        }
+        },
       ],
     },
   ],
@@ -3006,11 +3053,27 @@ const money: GuideTopic = {
         },
         {
           title: "Prices, tax and the tray",
-          summary: "The price you see is the price you pay — and you never tip",
+          summary: "The price you see is the price you pay — nearly — and you never tip",
           body: [
             { p: "Shops and restaurants must show prices **with consumption tax included**, so the number on the shelf or menu is what you'll pay.[^1] Some still print the price before tax larger, with the total beside it in small type (税込, *zeikomi*, “tax included”); the total is the one that counts." },
-            { p: "At the till there's usually a small **tray** (karuton). Put your cash or card on it rather than handing it over, and your change comes back on it, notes counted out in front of you." },
-            { p: "There's **no tipping**, anywhere — not in restaurants, taxis or hotels. Leaving money on the table gets it chased after you. A few upmarket restaurants and hotels add a service charge to the bill, which says so; that's all." },
+            { p: "The tax itself has two rates, and the line between them is a famous piece of hair-splitting. Since 2019 food and drink is taxed at **8%** when you take it away and **10%** when you eat it on the premises. That's why a konbini or a burger counter asks *here or to take away?* (*tennai de?*), and why a few places charge two prices for the same sandwich." },
+            {
+              table: {
+                head: ["On the bill", "What it is"],
+                rows: [
+                  ["Consumption tax", "**10%**, or **8%** on food and drink to take away; already in the price"],
+                  ["Otōshi", "A small dish brought unasked at an izakaya: a seat charge of a few hundred yen, not a mistake"],
+                  ["Service charge", "Upmarket restaurants and hotel bars, usually 10–15%, and stated"],
+                  ["Late-night charge", "Some bars and restaurants add about 10% after 22:00"],
+                  ["Accommodation tax", "Per person per night in Tokyo, Osaka, Kyoto and a growing list of towns, added by the hotel"],
+                  ["Bath tax", "About ¥150 a night at a hot-spring inn, for the town"],
+                ],
+              },
+            },
+            { p: "Accommodation taxes are rising fastest where visitors crowd most. Kyoto's, already the steepest in the country, was raised in March 2026 to a top rate of ¥10,000 a person a night for the most expensive rooms, a sign of how cities now try to price crowds rather than ban them.[^2]" },
+            { h: "The tray and the tip" },
+            { p: "At the till there's usually a small **tray** (*karuton*). Put your cash or card on it rather than handing it over, and your change comes back on it, notes counted out in front of you. It saves fingers touching and keeps the money where both sides can see it." },
+            { p: "There's **no tipping**, anywhere: not in restaurants, taxis or hotels. Money left on the table gets chased down the street after you. Good service is part of the price; the way to say thanks is *gochisōsama deshita* on the way out." },
           ],
           words: [
             { local: "税込", say: "zeikomi", means: "tax included" },
@@ -3020,6 +3083,7 @@ const money: GuideTopic = {
           related: ["money/cash-cards-and-atms", "eating-out/getting-a-table-ordering-eating", "rules/tax-free-is-changing"],
           sources: [
             { title: "Tax-inclusive price display — National Tax Agency", url: "https://www.nta.go.jp/taxes/shiraberu/taxanswer/shohi/6902.htm", note: "Prices shown to consumers must include consumption tax (Japanese)" },
+            { title: "Accommodation tax — Kyoto City", url: "https://www.city.kyoto.lg.jp/gyozai/page/0000236942.html", note: "The rates by room price, raised in March 2026 (Japanese)" },
           ],
         },
       ],
@@ -3106,18 +3170,22 @@ const gettingAround: GuideTopic = {
           summary: "Why some changes cost extra, and how to tell the companies apart",
           body: [            photo("iidabashi-entrance", "A subway entrance with both Tokyo Metro and Toei signs", "Exit A1 at Iidabashi, shared by Tokyo Metro and Toei."),
 
-            { p: "Tokyo's subway map looks like one network, but it's two companies: **Tokyo Metro**, a company since 2004 and listed on the stock exchange in 2024,[^1] and **Toei**, owned by the city. They share stations and signs, but fares are separate." },
+            { p: "Tokyo's subway map looks like one network, but it's two companies: **Tokyo Metro**, a company since 2004 and listed on the stock exchange in 2024,[^1] and **Toei**, owned by the city. They share stations, signs and a numbering system, but fares are separate." },
             {
               table: {
                 head: ["", "Tokyo Metro", "Toei"],
                 rows: [
-                  ["Lines", "9 — Ginza, Marunouchi, Hibiya, Tōzai, Chiyoda, Yūrakuchō, Hanzōmon, Namboku, Fukutoshin", "4 — Asakusa, Mita, Shinjuku, Ōedo"],
-                  ["Logo", "Blue “M”", "Green ginkgo leaf"],
+                  ["Lines", "9: Ginza, Marunouchi, Hibiya, Tōzai, Chiyoda, Yūrakuchō, Hanzōmon, Namboku, Fukutoshin", "4: Asakusa, Mita, Shinjuku, Ōedo"],
+                  ["Logo", "A blue “M”", "The city's green emblem, a T shaped like a ginkgo leaf"],
+                  ["Oldest line", "Ginza, 1927: the first subway in Asia", "Asakusa, 1960"],
                 ],
               },
             },
-            { p: "Changing from one to the other costs a second, slightly discounted fare, and at some stations means leaving through one set of gates and walking to another, sometimes along the street. An IC card works it all out." },
-            { note: "The **Ōedo Line** is one of the deepest in Tokyo — Roppongi's platform is around 42 m down.[^2] Allow extra minutes for the escalators.", title: "Allow time" },
+            { p: "The split is history, not design. The Ginza Line was built by private companies before the war; the state took the network over in 1941; and after the war the city, refused a share, built lines of its own. Merging the two has been discussed for decades and never happened." },
+            { p: "Changing from one to the other costs a second fare, discounted a little, and at some stations means leaving through one set of gates and walking to another, sometimes along the street. An IC card works it all out. The **Tokyo Subway Ticket** for visitors, for 24, 48 or 72 hours, covers both companies, which is most of its value." },
+            { h: "Reading the code" },
+            { p: "Every station has a code: the line's letter and a number, **G-09** for Ginza on the Ginza Line, **H-08** for the same station on the Hibiya. The numbers count along the line, so you can tell which way to go and how many stops are left without reading a word of Japanese." },
+            { note: "The **Ōedo Line**, the newest, is one of the deepest in Tokyo: Roppongi's platform is around 42 m down.[^2] Allow extra minutes for the escalators.", title: "Allow time" },
           ],
           sources: [
             { title: "Tokyo Metro — Wikipedia", url: "https://en.wikipedia.org/wiki/Tokyo_Metro", note: "A company since 2004, listed in October 2024" },
@@ -3181,17 +3249,25 @@ const gettingAround: GuideTopic = {
           body: [
             { p: "The Japan Rail Pass used to pay for itself on almost any trip. In October 2023 its price rose by around 70%,[^1] and for the classic route it no longer does." },
             {
+              stats: [
+                { value: "¥50,000", label: "a 7-day ordinary pass since October 2023" },
+                { value: "~¥30,000", label: "single fares for Tokyo – Kyoto – Osaka – Tokyo by Nozomi" },
+                { value: "+¥4,960", label: "to ride a Nozomi on the pass, Tokyo to Shin-Osaka" },
+              ],
+            },
+            { p: "The pass was designed in 1981 to sell long-distance rail to foreign tourists at a loss-leader price, and for forty years it was the default. The rise brought it close to what the six JR companies earn on the journeys people actually make with it, which on the busiest line is mostly the triangle between Tokyo, Kyoto and Osaka." },
+            {
               table: {
                 head: ["Your trip", "Pass worth it?"],
                 rows: [
                   ["Tokyo – Kyoto – Osaka – Tokyo", "Usually **no**"],
-                  ["Adding Hiroshima within the same week", "Close — compare"],
-                  ["Long hauls north or to Kyushu", "Often **yes**"],
+                  ["Adding Hiroshima within the same week", "Close: compare"],
+                  ["Long hauls north to Aomori or Hokkaido, or to Kyushu", "Often **yes**"],
                   ["Staying in one region", "A **regional pass** is far cheaper"],
                 ],
               },
             },
-            { p: "It also doesn't cover the Nozomi or Mizuho without a supplement, nor any subway or private railway — Tokyo Metro, Kintetsu to Nara, Hankyū, Odakyū to Hakone. On a city-heavy trip, a large share of your rides fall outside it." },
+            { p: "It also doesn't cover the Nozomi or Mizuho without a supplement, nor any subway or private railway: Tokyo Metro, Kintetsu to Nara, Hankyū, Odakyū to Hakone. On a city-heavy trip, a large share of your rides fall outside it." },
             { note: "Add up the single fares for your route before buying. It takes a few minutes and often saves real money.", title: "Do the sum" },
           ],
           sources: [
@@ -3235,15 +3311,32 @@ const gettingAround: GuideTopic = {
           title: "Cycling",
           summary: "Since April 2026, cyclists get on-the-spot fines",
           body: [
-            { p: "Bikes suit flat Kyoto and Nara perfectly. But in April 2026 Japan brought cyclists into the **blue-ticket** system that drivers already face, so police can now fine you on the spot instead of just giving a warning.[^1]" },
+            { p: "Bikes suit flat Kyoto and Nara perfectly, and Japan is full of them: one of the highest rates of cycling in the world, mostly on heavy shopping bikes ridden slowly on the pavement. But the rules have tightened. In April 2026 cyclists aged 16 and over joined the **blue-ticket** system drivers already face, so police can now fine you on the spot instead of just giving a warning.[^1]" },
             {
-              dos: ["Ride on the **left** of the road, with traffic", "Use a light after dark", "Park only in marked bike parking — bikes left elsewhere are impounded"],
-              donts: ["Hold a phone or umbrella while riding — both are fineable", "Ride two abreast", "Cycle on the pavement unless a sign allows it, and then slowly, roadside"],
+              table: {
+                head: ["Offence", "On-the-spot fine"],
+                rows: [
+                  ["Using a phone while riding", "¥12,000"],
+                  ["Running a red light", "¥6,000"],
+                  ["Riding on the right, against traffic", "¥6,000"],
+                  ["Riding on a pavement where it isn't allowed", "¥6,000"],
+                  ["No light after dark", "¥5,000"],
+                  ["Holding an umbrella (a prefectural rule)", "¥5,000"],
+                  ["Two abreast, or a passenger on the back", "¥3,000"],
+                ],
+              },
             },
+            { p: "Riding drunk, or on a phone in a way that causes danger, is now a criminal offence rather than a fine. Helmets aren't compulsory for adults, only something every rider is told to *make an effort* to wear." },
+            {
+              dos: ["Ride on the **left** of the road, with traffic", "Use a light after dark", "Park only in marked bike parking; bikes left elsewhere are impounded"],
+              donts: ["Hold a phone or umbrella while riding", "Ride two abreast", "Cycle on the pavement unless a sign allows it, and then slowly, on the road side"],
+            },
+            photo("kyoto-bike-removal", "Workers loading illegally parked bicycles onto a city truck by a Kyoto station", "Kyoto's removal truck clearing bikes parked outside the marked areas."),
             { note: "In Kyoto, parking enforcement is strict around stations and tourist streets. Use the paid bike parks; retrieving an impounded bike means a trip out of town and a fee.", title: "Kyoto especially" },
           ],
           sources: [
             { title: "Blue tickets for cyclists — Setagaya City", url: "https://www.city.setagaya.lg.jp/01420/31961.html", note: "On-the-spot fines for cyclists aged 16 and over from 1 April 2026 (Japanese)" },
+            { title: "Bicycle blue tickets and fines — Sompo Direct", url: "https://www.sompo-direct.co.jp/otona/oshiete/car/bicycle-blue-ticket.html", note: "The fine for each offence; the umbrella rule is set by each prefecture (Japanese)" },
           ],
         },
       ],

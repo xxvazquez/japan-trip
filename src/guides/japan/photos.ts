@@ -364,6 +364,9 @@ const PHOTOS = {
   "mashiko-fair": { w: 900, h: 675, author: "FukuroWaraw", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:2023%E5%B9%B4%EF%BC%88%E4%BB%A4%E5%92%8C5%E5%B9%B4%EF%BC%89%E6%98%A5%E3%81%AE%E7%9B%8A%E5%AD%90%E9%99%B6%E5%99%A8%E5%B8%82%E3%83%86%E3%83%B3%E3%83%88%E6%9D%91%E3%80%8C%E3%81%8B%E3%81%BE%E3%81%90%E3%82%8C%E3%81%AE%E4%B8%98%E3%80%8D.jpg" },
   "kawaguchiko-autumn-fuji": { w: 900, h: 600, author: "Alpsdake", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Autumn_leaf_color_and_Mount_Fuji_from_Lake_Kawaguchi.jpg" },
   "eikando-maples": { w: 900, h: 600, author: "Suicasmo", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Zenrinji_Eikando_20161113-1.jpg" },
+  "kabukicho-gate": { w: 900, h: 675, author: "Daniel Ramirez from Honolulu, USA", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Kabukicho_Gate,_Shinjuku_(29362322511).jpg" },
+  "tax-free-sign": { w: 900, h: 675, author: "Naha Mama Pavilionz", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:JP_%E6%97%A5%E6%9C%AC_Japan_%E6%B2%96%E7%B9%A9_OKINAWA_%E9%82%A3%E9%9C%B8_Naha_%E5%9C%8B%E9%9A%9B%E9%80%9A_Kokusai-dori_food_shop_%E5%BE%A1%E8%8F%93%E5%AD%90%E5%BE%A1%E6%AE%BF_%E3%81%8A%E3%81%8B%E3%81%97%E3%81%94%E3%81%A6%E3%82%93_Okashigoten_January_2025_R12S_Tax_Free_rules_sign.jpg" },
+  "kyoto-bike-removal": { w: 900, h: 675, author: "Just ishaq", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Bicycle_cleaning_in_Kyoto.JPG" },
 } as const;
 
 export type PhotoId = keyof typeof PHOTOS;
