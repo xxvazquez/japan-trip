@@ -714,8 +714,28 @@ export function MapView({
     });
 
     // Map settled: show it if any tile made it, otherwise it's broken.
-    const settle = () => setStatus((s) => (s === "loading" ? (tilesOk.current > 0 ? "ok" : "error") : s));
-    m.once("idle", settle);
+    let settled = false;
+    const settle = () => {
+      if (settled) return;
+      settled = true;
+      setStatus((s) => (s === "loading" ? (tilesOk.current > 0 ? "ok" : "error") : s));
+    };
+    // Show the map once the basemap has drawn where the camera ends up. Not
+    // on `idle`: that waits for every source and a quiet frame, and each
+    // places/route setData (facts and walk times landing one by one) pushes
+    // it back, for many seconds on an iPhone with the basemap long drawn.
+    // Armed a few frames after load, so the caller's opening fit has begun
+    // and the zoomed-out world never flashes before it.
+    let armed = false;
+    const check = () => {
+      if (!armed || settled || m.isMoving()) return;
+      try { if (m.isSourceLoaded("protomaps")) settle(); } catch { /* style mid-swap */ }
+    };
+    m.on("moveend", check);
+    m.on("render", check);
+    m.on("load", () => {
+      requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(() => { armed = true; check(); })));
+    });
     // last resort — the Source Cooperative planet archive can be 20–30s to
     // first paint, so wait a while before forcing the decision.
     const paintFallback = setTimeout(settle, 25000);
