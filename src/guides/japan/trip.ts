@@ -323,6 +323,14 @@ const base: { cities: GuideCity[] } = {
           body: [
             { p: "In the Edo period, Osaka was where Japan's money was made. Lords from across western Japan were paid their taxes in rice, and shipped it to warehouses along the rivers of Osaka to be sold for cash. The city became **tenka no daidokoro**, “the nation's kitchen”: the market where rice, sake, oil, cotton and almost everything else changed hands." },
             { p: "At **Dōjima**, merchants traded not just rice but promises of future rice, and in 1730 the shogunate licensed the exchange — usually counted as the world's first organised futures market.[^1]" },
+            {
+              stats: [
+                { value: "1730", label: "Dōjima's rice futures licensed by the shogunate" },
+                { value: "808", label: "bridges in the saying" },
+                { value: "12", label: "of them actually built by the shogunate" },
+              ],
+            },
+            { p: "The merchants schooled themselves as well. In 1724 a group of them founded the **Kaitokudō**, an academy where townspeople studied Confucian ethics and economics, and argued that honest profit was a virtue rather than a vice. Its tradition, and later its library, passed to what became Osaka University." },
             { p: "The merchants paid for their own city, too. Osaka is called the city of “808 bridges”, a figure of speech; it never had even 200. Of those, only a dozen were built and kept by the shogunate. The rest were **machi-bashi**, “townspeople's bridges”, paid for by merchants and the districts that used them.[^2]" },
             { note: "The kitchen nickname lives on in the food markets: **Kuromon**, near Nippombashi, has around two centuries of history and now caters heavily to visitors; **Kizu** and the long covered arcade of **Tenjinbashi-suji** are more local.", title: "Today's kitchens" },
           ],
@@ -402,6 +410,14 @@ const base: { cities: GuideCity[] } = {
             { p: "**Expo '70**, the first World Expo held in Asia, drew about 64 million visitors to the Senri hills north of Osaka in six months — a showcase for a Japan that had rebuilt itself in 25 years. Moving walkways and a wireless telephone were among the novelties shown to the public.[^1]" },
             { p: "Its centrepiece survives: Tarō Okamoto's **Tower of the Sun**, 70 m tall, with a golden face at the top for the future, a smiling one on its belly for the present and a black sun on its back for the past. It was left standing when the pavilions came down, and since 2018 you can go inside, up a 41 m sculpted *Tree of Life* of evolving creatures, by advance reservation.[^2]" },
             { p: "Osaka held a second Expo in 2025, on the reclaimed island of **Yumeshima**, from April to October. Its emblem was Sou Fujimoto's **Grand Ring**, a two-kilometre wooden walkway around the site, certified as the world's largest wooden structure." },
+            {
+              stats: [
+                { value: "64m", label: "visitors to Expo '70 in six months" },
+                { value: "70 m", label: "Okamoto's Tower of the Sun" },
+                { value: "2 km", label: "around the 2025 Grand Ring" },
+              ],
+            },
+            { p: "The two fairs bracket a story. Expo '70 showed a country that had just become the world's second-largest economy and was sure of the future; the 2025 Expo was held by a country that had been overtaken, was ageing, and argued hard over whether a world's fair was still worth the money." },
             { note: "Expo '70 Commemorative Park is on the Osaka Monorail, about 40 minutes from central Osaka; the Japanese garden and folk-craft museum there are quiet even when the tower is booked out.", title: "Going" },
           ],
           sources: [
@@ -422,6 +438,15 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "When the Hanshin Tigers baseball team wins big, fans jump off **Ebisu bridge** into the canal. After the 1985 championship they threw in a statue of Colonel Sanders, and the team's long losing run afterwards became “the Curse of the Colonel”; the statue was dredged up in 2009." },
+            {
+              timeline: [
+                { when: "1612", text: "Yasui Dōton begins digging the canal." },
+                { when: "1615", text: "His relatives finish it; the theatres soon follow." },
+                { when: "1935", text: "The first Glico running man goes up." },
+                { when: "1985", text: "Tigers fans throw Colonel Sanders into the canal." },
+                { when: "2009", text: "The Colonel is dredged up, missing a hand and his glasses." },
+              ],
+            },
             { note: "Come after dark, when the signs are lit, and walk the riverside promenade below the street rather than the packed bridge. It's one of the city's busiest spots for pickpockets and touts.", title: "Going" },
           ],
           sources: [
@@ -441,6 +466,7 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "The habit reaches beyond the stage. People here are famously chattier and quicker to joke than in Tokyo, and a shopkeeper may expect a little back-and-forth (see [Dialects and the standard](guide:language/dialects-and-the-standard))." },
+            { p: "Yoshimoto began as a business, not an art. **Yoshimoto Sei** and her husband bought their first variety hall in 1912, then hall after hall, until they controlled much of Osaka's live entertainment; manzai was the cheap, fast format that filled their stages. The company still runs a school for would-be comedians, and every December the **M-1 Grand Prix**, a national manzai contest it started in 2001, is one of the most watched shows on Japanese TV." },
             { note: "The shows are in fast Osaka dialect and won't mean much without good Japanese, but the slapstick of shinkigeki travels. Tickets sell out at weekends.", title: "Going" },
           ],
           words: [
@@ -541,6 +567,15 @@ const base: { cities: GuideCity[] } = {
             { p: "**Tokugawa Ieyasu**, the first Tokugawa shogun, died in 1616 and was enshrined here as a god the next year. His grandson Iemitsu rebuilt the shrine on a far grander scale in 1636, and **Tōshō-gū** became a statement of the dynasty's power: lacquer, gold leaf and carving at full volume, the opposite of the Zen restraint you see in Kyoto. With Futarasan Shrine and the temple Rinnō-ji, it's a World Heritage site.[^1]" },
             { p: "The buildings carry about 5,173 carvings in all. **Yōmeimon**, the main gate, has 508 of them — sages, children at play, dragons and imaginary beasts — and is nicknamed *higurashi-mon*, the gate you could look at until dusk.[^2]" },
             {
+              timeline: [
+                { when: "1616", text: "Tokugawa Ieyasu dies; his will asks for a small shrine at Nikkō." },
+                { when: "1617", text: "He is enshrined here as Tōshō Daigongen, a god." },
+                { when: "1636", text: "His grandson Iemitsu rebuilds it as you see it, in about a year and a half." },
+                { when: "1999", text: "Listed as World Heritage with Futarasan Shrine and Rinnō-ji." },
+              ],
+            },
+            { p: "The irony is in Ieyasu's own wishes: he asked for a small shrine. What his grandson built was propaganda, a place where daimyō and envoys from Korea were brought to be impressed, and where the shogun's family was presented as divine." },
+            {
               list: [
                 "**The three wise monkeys** — see no evil, hear no evil, speak no evil — one panel in a series on the life of a monkey, on the sacred stable",
                 "**The sleeping cat** (nemuri-neko) over the gateway to Ieyasu's tomb, with sparrows carved on the other side",
@@ -593,6 +628,7 @@ const base: { cities: GuideCity[] } = {
               },
             },
             { p: "The same height makes it cool all year. Even in midsummer the lake is pleasant, which is why diplomats summered there; in autumn the evenings are cold enough for a coat, and the mountain roads can see snow from November." },
+            { p: "From the 1890s to the 1930s Lake Chūzenji was where Tokyo's foreign community spent the summer, so much that the embassies moved up with it. The **Italian and British embassy villas** on the south shore are now open as memorial parks, wooden houses with verandas over the water, and among the quietest places in Nikkō in autumn." },
             { note: "Peak times shift by a week or more from year to year. Nikkō's tourism office posts colour reports through the season.", title: "Timing" },
           ],
           related: ["land/autumn-colour"],
@@ -603,6 +639,13 @@ const base: { cities: GuideCity[] } = {
           summary: "The sacred bridge at the gateway to the shrines, and the snakes in its legend",
           body: [
             { p: "**Shinkyō**, the vermilion bridge over the Daiya river, marks the entrance to Nikkō's shrines. It belongs to Futarasan Shrine and is often counted among Japan's three most remarkable bridges.[^1]" },
+            {
+              stats: [
+                { value: "28 m", label: "long, over the Daiya" },
+                { value: "1902", label: "a flood washes the bridge away" },
+                { value: "1904", label: "rebuilt, as it stands today" },
+              ],
+            },
             { p: "The legend explains why it's here. In the 8th century the monk **Shōdō Shōnin**, who opened Nikkō's mountains to Buddhism, was stopped by the torrent. He prayed, and a god appeared and threw two snakes, one red and one blue, across the water; sedge grew on their backs, and the monk walked over. The bridge's other name is Yamasuge-no-jabashi, “the snake bridge of sedge”." },
             {
               list: [
@@ -702,6 +745,14 @@ const base: { cities: GuideCity[] } = {
             { p: "The building was the Hiroshima Prefectural Industrial Promotion Hall, finished in 1915 to a design by the Czech architect **Jan Letzel**: brick and stone, with a green copper dome, the most modern building in the city. The bomb burst about 160 m away, almost directly above it. Everyone inside died, but because the blast came from above, the walls and the steel frame of the dome stayed standing." },
             { p: "For twenty years Hiroshima argued over whether to pull it down as a painful reminder or to keep it. A diary left by a schoolgirl who died of leukaemia in 1960, Kajiyama Hiroko, hoping the dome would be kept, helped decide it: in 1966 the city council voted to preserve it, and it has been reinforced several times since.[^1]" },
             { p: "It became World Heritage in **1996** as the Hiroshima Peace Memorial, a listing the United States and China did not support, each for its own reasons." },
+            {
+              timeline: [
+                { when: "1915", text: "The Industrial Promotion Hall opens, designed by Jan Letzel." },
+                { when: "1945", text: "The bomb bursts almost overhead; the shell and dome frame stand." },
+                { when: "1966", text: "The city council votes to keep it." },
+                { when: "1996", text: "Listed as World Heritage." },
+              ],
+            },
             { note: "The dome is fenced off and can't be entered. See it from across the river, and from the Aioi bridge, the T-shaped bridge that was the bomber's aiming point.", title: "Seeing it" },
           ],
           sources: [{ title: "Hiroshima Peace Memorial (Genbaku Dome) — UNESCO", url: "https://whc.unesco.org/en/list/775", note: "Inscribed 1996; the building and its preservation" }],
@@ -714,6 +765,13 @@ const base: { cities: GuideCity[] } = {
             { p: "**Sadako Sasaki** was two when the bomb fell, a mile from the hypocentre. Ten years later she developed leukaemia, and in hospital she folded paper cranes, following the old belief that a thousand cranes grant a wish. She died in 1955, aged twelve.[^1]" },
             { p: "Her classmates started a campaign, schoolchildren across Japan gave money, and in 1958 the **Children's Peace Monument** was unveiled in the park: a girl holding a golden crane above her head. Sadako's story spread worldwide, and strings of a thousand cranes — *senbazuru* — now arrive from schools everywhere." },
             { p: "The city says about **ten million cranes** are offered at the monument every year. They're kept in glass booths around it, and since 2012 the city has given the older ones away to be recycled into paper, cards and other things.[^2]" },
+            {
+              stats: [
+                { value: "1,000", label: "cranes for a wish, in the old belief" },
+                { value: "1958", label: "the Children's Peace Monument unveiled" },
+                { value: "~10m", label: "cranes sent to it every year" },
+              ],
+            },
             { note: "If you'd like to leave cranes, bring them already strung; there's a place to hang them in the booths. Many hotels and the museum shop sell paper.", title: "Leaving cranes" },
           ],
           words: [{ local: "千羽鶴", say: "senbazuru", means: "a thousand paper cranes on a string" }],
@@ -728,6 +786,13 @@ const base: { cities: GuideCity[] } = {
           body: [
             { p: "Most of Hiroshima's trams were wrecked or burned in August 1945. Yet three days later, on 9 August, a stretch of line was running again, a sign to survivors that the city was alive. With so many men at war, many of the drivers were teenage girls from the tram company's own school." },
             { p: "Two of the cars that survived, **651** and **652**, built in 1942, are still kept in service by Hiroden, the city's tram company, and run mainly on weekday mornings.[^1]" },
+            {
+              stats: [
+                { value: "3 days", label: "after the bomb, the first trams ran again" },
+                { value: "1942", label: "when cars 651 and 652 were built" },
+                { value: "2", label: "of them still in service" },
+              ],
+            },
             { p: "Hiroden is one of Japan's biggest tram networks, and it bought up old trams when other cities closed theirs. You can still ride cars from other cities in their old liveries alongside the modern low-floor ones — hence its nickname, the moving tram museum." },
             { note: "Trams are the easiest way between Hiroshima Station, the Peace Park and the Miyajima ferry at Hiroshima-kō or Miyajimaguchi. Board at the back, pay at the front; IC cards work.", title: "Using them" },
           ],
@@ -801,6 +866,14 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "The design has survived a long time, but not untouched: typhoons have broken corridors more than once, and each time they have been rebuilt to the same plan. It became World Heritage in 1996, together with the forested hills behind it (see [Shinto](guide:belief/shinto))." },
+            { p: "The building is designed to let the sea through. The boards of the corridors are laid with small gaps, so a storm surge rising from below pushes up through them rather than lifting the floor away, and the halls stand on posts sunk in the tidal flat rather than on solid ground. Out on the water stands a **Noh stage**, one of very few anywhere built over the sea; plays are still performed on it at spring festivals." },
+            {
+              stats: [
+                { value: "1168", label: "Kiyomori's rebuilding, the plan that survives" },
+                { value: "~275 m", label: "of corridor over the water" },
+                { value: "1996", label: "listed as World Heritage" },
+              ],
+            },
             { note: "The shrine opens early in the morning, and the first hour, before the ferries bring the crowds, is the best time to walk the corridors.", title: "Going" },
           ],
           related: ["belief/shinto", "history/heian"],
@@ -813,6 +886,13 @@ const base: { cities: GuideCity[] } = {
           body: [
             { p: "*Itsukushima* means something like “the island of worship”. The island itself, with its forested peak, was considered divine, and for centuries the rules that followed were strict: commoners weren't allowed to live on it at first, and later no births or deaths were allowed. Women went to the mainland to give birth, the dying were carried across the strait, and mourners stayed away for a period before returning.[^1]" },
             { p: "Some of it still holds. There is **no cemetery** on Miyajima — islanders are buried on the mainland at Ōno — and the old rules shaped a town that lives entirely along its shore." },
+            {
+              stats: [
+                { value: "0", label: "cemeteries on the island" },
+                { value: "~1,500", label: "people living on it" },
+                { value: "535 m", label: "Mount Misen, its sacred peak" },
+              ],
+            },
             { p: "The island's **deer** are wild, and descended, so tradition says, from the sacred deer of the gods. Unlike Nara's, they're not meant to be fed: the town has asked visitors to stop for years, to keep them healthy and out of the shops." },
             {
               donts: ["Feed the deer, or leave paper maps and bags within their reach — they eat them", "Walk into the shrine's tidal flat at the edges where it's roped off"],
@@ -916,6 +996,13 @@ const base: { cities: GuideCity[] } = {
             { p: "The plaster wasn't decoration. It made the wooden building fire-resistant — essential when attackers used fire arrows — and its thickness protected against bullets." },
             { p: "A great restoration from 2009 to 2015 replastered the keep, and it emerged so dazzling that people nicknamed it **Shirosugi-jō**, “too-white castle”. It was meant to look like that: lime plaster grows mould and greys over a few years, and the castle has since toned down to the soft white of older photographs." },
             { p: "In 1993 it was one of the first four places in Japan to be listed as World Heritage, alongside the temple Hōryū-ji and the forests of Yakushima and Shirakami.[^1]" },
+            {
+              stats: [
+                { value: "1609", label: "the main keep completed" },
+                { value: "2015", label: "the great replastering finished, after six years" },
+                { value: "1993", label: "among Japan's first four World Heritage Sites" },
+              ],
+            },
             { note: "The classic view of the whole castle is from the Sannomaru lawn inside the main gate. For a quieter one, walk to the north side of the moat, or look from the observation deck in Himeji station's north concourse.", title: "Seeing it" },
           ],
           sources: [{ title: "Himeji-jo — UNESCO", url: "https://whc.unesco.org/en/list/661", note: "Inscribed 1993, among Japan's first four sites" }],
@@ -935,6 +1022,14 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "The route through the grounds to the keep is long and climbs, through gate after gate. Allow two to three hours for the castle and the gardens next door." },
+            {
+              stats: [
+                { value: "5 / 6", label: "storeys seen from outside, floors inside, plus a basement" },
+                { value: "2", label: "great pillars holding the keep up, west and east" },
+                { value: "1956", label: "the keep taken apart, rebuilt by 1964" },
+              ],
+            },
+            { p: "That rebuilding is the castle's secret. In the **Shōwa restoration** of 1956–64, carpenters dismantled the whole keep piece by piece, repaired or replaced every member, and put it back together. The west pillar, rotten at the base, had to be replaced: the first tree chosen in the mountains of Kiso broke as it was carried down, and a second was brought from another mountain and spliced with the first. So the keep is original in design and largely in timber, but it has been taken apart once." },
             { note: "On busy days entry to the keep is limited and a queue builds from mid-morning; in peak cherry season and holidays it can be an hour or more. Go at opening, or late afternoon before last entry.", title: "Crowds" },
           ],
         },
@@ -944,6 +1039,14 @@ const base: { cities: GuideCity[] } = {
           body: [
             { p: "**Kōko-en** looks old but opened in 1992, to mark a hundred years of Himeji as a city. It was laid out on the site of the samurai houses of the castle's West Residence, following the old plan of the plots and lanes, which archaeologists dug up first.[^1]" },
             { p: "Each of the nine gardens sits within its own walls and has its own style — a feudal lord's pond garden with a waterfall, a garden of pines, one of flowers, one of bamboo, a tea garden — so walking through them is like going from house to house. The largest has koi to feed in its pond." },
+            {
+              stats: [
+                { value: "9", label: "walled gardens, each in its own style" },
+                { value: "1992", label: "opened, on dug-up samurai plots" },
+                { value: "~3.5 ha", label: "about the size of five football pitches" },
+              ],
+            },
+            { p: "The walls are the clever part. Each garden is screened from the next by a wall in the style of a samurai residence, so you never see more than one at a time, and the castle keep appears only where the designers chose to borrow it, over a wall or between trees: *shakkei*, borrowed scenery." },
             {
               list: [
                 "**The tea house** — matcha and a sweet served in the tea garden, a quiet break after the castle",
@@ -973,6 +1076,7 @@ const base: { cities: GuideCity[] } = {
             },
             { p: "From the station's north exit, **Ōtemae-dōri** runs dead straight to the castle, about a kilometre away, so you see the keep growing ahead of you the whole way: a 15- to 20-minute walk. Loop buses go too." },
             { p: "If you're passing through on the Shinkansen, the station has coin lockers for big bags, and a viewing deck on the north side frames the castle at the end of the avenue." },
+            { p: "Eat before you go back. Himeji's own version of **oden**, the simmered winter stew, is served with a dish of **ginger soy sauce** to dip it in, and the station's stands sell *ekisoba*, Chinese-style noodles in a Japanese broth, a postwar invention of a Himeji station caterer." },
             { note: "With more time, **Mount Shosha**, a bus and ropeway ride from the station, has Engyō-ji, a mountain temple of wooden halls in the forest, quieter than anything in the city.", title: "Further" },
           ],
         },
@@ -1017,6 +1121,15 @@ const base: { cities: GuideCity[] } = {
           body: [
             { p: "At **5:46 am on 17 January 1995**, a magnitude 6.9 earthquake struck directly under Kobe and the cities around it. In about twenty seconds, wooden houses collapsed onto sleeping families, an elevated expressway toppled on its side, and fires spread through the old districts. **6,434** people died, most of them crushed in their homes.[^1]" },
             { p: "It changed Japan. Building codes were tightened again, and the volunteers who poured in from across the country — over a million in the first year — made 1995 known as the year volunteering began." },
+            {
+              stats: [
+                { value: "6,434", label: "people killed" },
+                { value: "~20 s", label: "of the strongest shaking" },
+                { value: "1m+", label: "volunteers in the first year" },
+              ],
+            },
+            { p: "The port never fully recovered its place. Kobe had been one of the world's busiest container ports; while its quays were rebuilt, shipping lines moved to Busan, Kaohsiung and Shanghai, and much of the trade never came back. A stretch of broken, tilted quay is kept as it was, in the **Port of Kobe Earthquake Memorial Park** by Meriken Park." },
+            { p: "Every December since 1995 the city has held the **Luminarie**, arches of light first put up as a memorial and a sign of recovery, and every 17 January at 5:46 a.m. people gather with lanterns in Higashi Yūenchi park for a minute's silence." },
             {
               list: [
                 "**Port of Kobe Earthquake Memorial Park** — a stretch of the wrecked quay, tilted and cracked, kept as it was",
