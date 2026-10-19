@@ -44,7 +44,9 @@ describe("saving maps for offline", () => {
     expect(saved).toContain("https://protomaps.github.io/basemaps-assets/fonts/Noto%20Sans%20Regular/0-255.pbf");
     expect(saved).toContain("https://protomaps.github.io/basemaps-assets/sprites/v4/dark@2x.png");
     const zooms = new Set(saved.filter((u) => u.includes("api.protomaps.com")).map((u) => Number(u.split("/v4/")[1].split("/")[0])));
-    expect([...zooms].sort((a, b) => a - b)).toEqual([5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
+    expect([...zooms].sort((a, b) => a - b)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
+    // pinched right out there's still a whole world to show
+    expect(saved.filter((u) => /\/v4\/[012]\//.test(u))).toHaveLength(21);
     // stored under the URL the map asks for; downloaded marked so the SW lets it through
     expect(saved.every((u) => !u.includes("save=1"))).toBe(true);
     expect(fetched.filter((u) => u.includes("api.protomaps.com")).every((u) => u.includes("save=1"))).toBe(true);

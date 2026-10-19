@@ -8,6 +8,7 @@ import { SearchField } from "@/components/SearchField";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { Switch } from "@/components/Switch";
 import { InsetRow } from "@/components/InsetRow";
+import { useOnline } from "@/components/SyncStatus";
 import { useApp } from "@/store/useApp";
 import { useReadOnly } from "@/lib/readonly";
 import { useData } from "@/lib/data";
@@ -41,6 +42,7 @@ export default function Neighbourhoods() {
   const { cityLeg, tripCities, placeCity } = useTripCities(data, cityAnchors);
   const places = useMemo(() => data?.places ?? [], [data]);
   const { levels, total, pending, failed } = usePlaceLevels(places);
+  const online = useOnline();
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<Sort>("size");
   const readOnly = useReadOnly();
@@ -130,7 +132,11 @@ export default function Neighbourhoods() {
           </Section>
         )}
         {pending === 0 && failed > 0 && (
-          <p className="px-4 text-[15px] text-ink-faint">{plural(failed, "place")} couldn’t be looked up. Open this page again later to try them again.</p>
+          <p className="px-4 text-[15px] text-ink-faint">
+            {online
+              ? `${plural(failed, "place")} couldn’t be looked up. Open this page again later to try them again.`
+              : `You’re offline. ${plural(failed, "place")} will be looked up once you’re back online.`}
+          </p>
         )}
 
         {/* the switch the page exists for: group the Map by these instead of

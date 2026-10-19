@@ -22,6 +22,11 @@ const ZOOMS = [11, 12, 13, 14, 15];
 const OVERVIEW_ZOOMS = [5, 6, 7, 8, 9, 10];
 // ~100 KB a tile out here, so kept to roughly 15 MB
 const MAX_OVERVIEW_TILES = 150;
+// pinched all the way out: the whole world at 0–2 (21 tiles, about 1 MB —
+// also what the map shows for a moment as it opens), then the continent
+// around the trip at 3–4, a tile past it on every side so the screen fills
+const WORLD_ZOOMS = [0, 1, 2];
+const CONTINENT_ZOOMS = [3, 4];
 // ~700m so the cached area doesn't crop right at a place's pin
 const PAD_METERS = 700;
 // a sane ceiling so one big, spread-out day can't queue thousands of requests
@@ -77,6 +82,26 @@ function overviewTiles(points: LatLng[]): Tile[] {
   return out;
 }
 
+/** The world and continent views below the overview, so a map pinched
+ *  right out offline still shows land and sea instead of a blank screen. */
+function zoomedOutTiles(points: LatLng[]): Tile[] {
+  const out: Tile[] = [];
+  for (const z of WORLD_ZOOMS) {
+    const n = 2 ** z;
+    for (let x = 0; x < n; x++) for (let y = 0; y < n; y++) out.push({ z, x, y });
+  }
+  const bounds = paddedBounds(points);
+  for (const z of CONTINENT_ZOOMS) {
+    const n = 2 ** z;
+    const nw = tileIndex(bounds.west, bounds.north, z);
+    const se = tileIndex(bounds.east, bounds.south, z);
+    for (let x = Math.max(nw.x - 1, 0); x <= Math.min(se.x + 1, n - 1); x++) {
+      for (let y = Math.max(nw.y - 1, 0); y <= Math.min(se.y + 1, n - 1); y++) out.push({ z, x, y });
+    }
+  }
+  return out;
+}
+
 /** Every tile covering one group of points, capped so a single spread-out
  *  group can't queue thousands of requests on its own. */
 function tilesForGroup(points: LatLng[]): { tiles: Tile[]; truncated: boolean } {
@@ -101,7 +126,7 @@ const SAVE_PARAM = "save";
 
 /** Average transfer size of one tile per zoom, measured on Japanese cities
  *  (2026-10-04, compressed) — enough for an honest "about N MB". */
-const TILE_KB: Record<number, number> = { 5: 25, 6: 45, 7: 135, 8: 110, 9: 160, 10: 95, 11: 70, 12: 105, 13: 85, 14: 65, 15: 95 };
+const TILE_KB: Record<number, number> = { 0: 70, 1: 60, 2: 50, 3: 60, 4: 50, 5: 25, 6: 45, 7: 135, 8: 110, 9: 160, 10: 95, 11: 70, 12: 105, 13: 85, 14: 65, 15: 95 };
 const ASSET_KB = 40;
 
 const tileUrl = (t: Tile) =>
@@ -130,6 +155,7 @@ function planFor(groups: LatLng[][]): Plan {
   }
   if (tiles.length > MAX_TRIP_TILES) { tiles.length = MAX_TRIP_TILES; truncated = true; }
   if (!HOSTED_TILES || tiles.length === 0) return { items: [], truncated };
+  zoomedOutTiles(groups.flat()).forEach(add);
   overviewTiles(groups.flat()).forEach(add);
   return {
     items: [

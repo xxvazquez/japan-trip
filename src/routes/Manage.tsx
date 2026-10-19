@@ -1743,7 +1743,7 @@ function ReviewLinksPanel() {
 
   const summary = run && !run.running
     ? run.failed === run.done && run.done > 0
-      ? `Couldn’t reach ${label} — try again later`
+      ? navigator.onLine ? `Couldn’t reach ${label} — try again later` : FAILURE_TEXT.offline
       : `Found ${run.found} of ${run.total}${run.failed ? ` · ${run.failed} couldn’t be checked` : ""}`
     : null;
 

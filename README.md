@@ -552,6 +552,7 @@ When unassigned places sit close together, **⋯ → Suggest Areas** appears. No
 - **Areas vs neighbourhoods** — areas are yours (you name them and pick their places); neighbourhoods are the official names, worked out for you.
 - A neighbourhood with 3 or more places is its own group; smaller ones join their district, then their ward or city.
 - Names come from OpenStreetMap, looked up once per place (about one a second) and kept on the device. The lookup keeps going while the app is open, even after you leave the page.
+- Offline, the page says so; places that couldn't be looked up are tried again once the connection is back.
 - **Search** neighbourhoods and places, and sort by **Most places** or **A–Z**.
 - **Group the Map by neighbourhood** — the switch at the top (or *⋯ → Group by Neighbourhood* on the Map) makes the Map list and its outlines use neighbourhoods instead of your areas. Switch back any time.
 - **Your areas are never changed by it.** A place keeps the areas you gave it, and its card's Areas row still edits them; switching back shows every area exactly as you left it.
@@ -844,8 +845,8 @@ Once the app has loaded, it works with no signal. See [Before you travel](#befor
 | Row | Shows |
 |---|---|
 | **Works offline** | *Ready* once the app is fully saved on the device. |
-| **Save trip maps for offline** | Saves the area around every day, stay and place, the zoomed-out view of the whole trip, and the map's labels and icons for light and dark mode, with progress. Shows roughly how much it'll download — a few hundred MB for a multi-city trip, so do it on Wi-Fi. |
-| **Trip maps ✓ Saved** | Replaces the save row once everything is saved. Add places later and it reads *Save N new places for offline* with the size of just those. |
+| **Save trip maps for offline** | Saves the area around every day, stay and place, the zoomed-out view of the whole trip down to the whole world, and the map's labels and icons for light and dark mode, with progress. Shows roughly how much it'll download — a few hundred MB for a multi-city trip, so do it on Wi-Fi. |
+| **Trip maps ✓ Saved** | Replaces the save row once everything is saved. Add places later and it reads *Save N new places for offline* with the size of just those; after an update that saves more of the map it reads *Finish saving trip maps*. |
 | **Save attachments for offline** | Downloads every file not on the device yet; reads *On this device* when done. |
 | **Install app** / **Add to Home Screen** | Installs, or shows the two iPhone steps. Reads *Installed* once done. |
 

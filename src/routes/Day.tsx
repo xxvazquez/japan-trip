@@ -398,10 +398,14 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const { busy: offlineBusy, msg: offlineMsg, run: runOffline } = useAsyncAction("Couldn't cache the map tiles.");
   const downloadOfflineMaps = () =>
     runOffline(async () => {
-      const { ok, truncated } = activeId ? await prefetchTiles(activeId, offlinePoints) : { ok: 0, truncated: false };
-      return truncated
-        ? `Cached ${ok} tiles — this area is large, so the far edges were left out.`
-        : `Cached ${ok} map tiles for offline use.`;
+      const { ok, failed, truncated } = activeId ? await prefetchTiles(activeId, offlinePoints) : { ok: 0, failed: 0, truncated: false };
+      return failed && !ok
+        ? "Couldn’t reach the map server — try again once you have a connection."
+        : failed
+          ? `Cached ${ok} map tiles; ${failed} didn’t load — ${TAP.toLowerCase()} again to retry.`
+          : truncated
+            ? `Cached ${ok} tiles — this area is large, so the far edges were left out.`
+            : `Cached ${ok} map tiles for offline use.`;
     });
 
   const setCosts = (next: DayCost[]) => patch({ costs: next.length ? next : undefined });

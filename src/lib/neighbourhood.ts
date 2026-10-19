@@ -120,7 +120,7 @@ async function lookup(p: { lat: number; lng: number }): Promise<Levels> {
   return addressLevels(r.address ?? {});
 }
 
-/** lookups that got no answer this session — not cached, so a later visit retries */
+/** lookups that got no answer — not cached, and asked again once the connection is back */
 const failedKeys = new Set<string>();
 
 /* The lookups run in one queue for the whole app, not inside the page —
@@ -129,6 +129,15 @@ const failedKeys = new Set<string>();
 const listeners = new Set<() => void>();
 const queue: string[] = [];
 let running = false;
+
+// back online: what failed (no signal, most often) is asked again, so the
+// page fills in by itself instead of waiting for the app to restart
+if (typeof window !== "undefined")
+  window.addEventListener("online", () => {
+    if (!failedKeys.size) return;
+    failedKeys.clear();
+    listeners.forEach((f) => f());
+  });
 
 async function drain() {
   running = true;
@@ -167,6 +176,11 @@ export function usePlaceLevels(places: Place[]) {
   useEffect(() => {
     const f = () => bump((n) => n + 1);
     listeners.add(f);
+    // a new visit with signal asks the failed ones again
+    if (failedKeys.size && navigator.onLine) {
+      failedKeys.clear();
+      f();
+    }
     return () => {
       listeners.delete(f);
     };
