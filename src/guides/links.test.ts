@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { GUIDE_CONTENT } from "./content";
 import { allTopics, articleText, cityArticles, dateArticles, dayTripArticles, resolveRef, topicArticles } from "./articles";
+import { guideHits } from "./search";
 
 describe("guide cross-references", () => {
   for (const [id, guide] of Object.entries(GUIDE_CONTENT)) {
@@ -35,6 +36,18 @@ describe("guide cross-references", () => {
         }
       }
       expect(broken).toEqual([]);
+    });
+
+    it(`${id}: every search hit opens a page of the guide`, () => {
+      const base = `/logbook/guide/${guide.id}`;
+      const pages = new Set([
+        ...allTopics(guide).flatMap((t) => [`${base}/${t.id}`, ...topicArticles(t).map((r) => `${base}/${t.id}/${r.slug}`)]),
+        ...guide.cities.flatMap((c) => [`${base}/place/${c.id}`, ...cityArticles(c).map((r) => `${base}/place/${c.id}/${r.slug}`), ...dayTripArticles(c).map((r) => `${base}/place/${c.id}/day-trips/${r.slug}`)]),
+        ...dateArticles(guide.dates).map((r) => `${base}/date/${r.slug}`),
+      ]);
+      const hits = guideHits([id]);
+      expect(hits.length).toBe(pages.size);
+      expect(hits.filter((h) => !pages.has(h.to)).map((h) => h.to)).toEqual([]);
     });
 
     it(`${id}: no photo appears twice`, () => {

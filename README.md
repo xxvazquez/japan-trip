@@ -125,6 +125,7 @@ A Logbook page pinned to the tab bar is a tab of its own, so it has no back butt
 The round button beside the tab bar (top right on a wide screen, or ⌘K / Ctrl+K).
 
 - **Searches everything in the trip** — names, plan steps, spending, notes, addresses, booking refs, document fields and file names — plus the **Help** answers, listed last.
+- **Finds the country guide too** (Japan guide): chapters, cities and every article, by title, summary or any sentence in it, quoting the sentence it matched. Listed after the trip's own things, its best eight. The guide is fetched only once Search opens on a trip that has one, and works offline. In a guide's text a word must match as typed (no running words together).
 - **Every word counts, in any order.** "ueno museum" finds a museum whose note mentions Ueno.
 - **Accents, spaces and dashes are ignored.** "sensoji" finds *Sensō-ji*.
 - **Shows why it matched.** When the words aren't in the name, the line they were found in shows under it, words highlighted.

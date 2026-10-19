@@ -5,6 +5,7 @@ import { useData } from "@/lib/data";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { useBackToClose } from "@/lib/backClose";
 import { useApp } from "@/store/useApp";
+import { tripGuides } from "@/guides";
 import { Icon } from "./Icon";
 import { IconTile } from "./IconTile";
 import { TileRow } from "./TileRow";
@@ -22,6 +23,7 @@ const GROUP_LABEL: Record<SearchKind, string> = {
   packing: "Packing",
   list: "Lists",
   note: "Scratchpad",
+  guide: "Guide",
   help: "Help",
 };
 
@@ -77,15 +79,17 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
   // each area's city — only worked out while search is open
   const cityData = open ? data : null;
   const { areaCity } = useTripCities(cityData, useCityAnchors(cityData));
+  const guideHits = useGuideHits(cityData);
+  const guideNames = data ? tripGuides(data).map((g) => g.name).join(" and ") : "";
   const groups = useMemo(() => {
-    const found = open && data ? search(data, query, 80, areaCity) : [];
+    const found = open && data ? search(data, query, 80, areaCity, guideHits) : [];
     const by = new Map<string, SearchResult[]>();
     for (const r of found) {
       const g = groupOf(r.hit);
       by.set(g, [...(by.get(g) ?? []), r]);
     }
     return [...by.entries()];
-  }, [query, open, data, areaCity]);
+  }, [query, open, data, areaCity, guideHits]);
   const results = useMemo(() => groups.flatMap(([, rs]) => rs.map((r) => r.hit)), [groups]);
 
   useLayoutEffect(() => {
@@ -184,7 +188,7 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
               </ul>
             </section>
           )}
-          {!q && recents.length === 0 && <p className="meta px-1 py-3">Search places, stays, days, documents and lists.</p>}
+          {!q && recents.length === 0 && <p className="meta px-1 py-3">{guideNames ? `Search places, stays, days, documents, lists and the ${guideNames} guide.` : "Search places, stays, days, documents and lists."}</p>}
           {q && query === q && results.length === 0 && (
             <div className="px-6 pt-16 text-center">
               <p className="text-lg text-ink">No Results</p>
@@ -208,6 +212,23 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
       </div>
     </div>
   );
+}
+
+/** The entries of the guides this trip goes to, for Search. The guide's
+ *  content is its own chunk, so it's fetched only once Search opens on a
+ *  trip that has a guide — and it's precached, so this works offline. */
+function useGuideHits(data: ReturnType<typeof useData>): SearchHit[] | undefined {
+  const ids = data ? tripGuides(data).map((g) => g.id).join(",") : "";
+  const [hits, setHits] = useState<{ ids: string; hits: SearchHit[] }>();
+  useEffect(() => {
+    if (!ids || hits?.ids === ids) return;
+    let live = true;
+    import("@/guides/search").then((m) => live && setHits({ ids, hits: m.guideHits(ids.split(",")) }));
+    return () => {
+      live = false;
+    };
+  }, [ids, hits?.ids]);
+  return ids && hits?.ids === ids ? hits.hits : undefined;
 }
 
 /** the matched words in a snippet, set in the text's own colour like Mail does */

@@ -48,6 +48,21 @@ describe("search", () => {
     expect(search(trip(), "undo deleted")[0].hit.kind).toBe("help");
   });
 
+  it("lists a guide's entries after the trip's own things, its best eight", () => {
+    const guide = (label: string, text: string) => ({ kind: "guide" as const, chip: "Japan guide", tile: { name: "globe" as const }, label, to: `/g/${label}`, fields: [{ text }] });
+    const extra = [guide("Ueno and its museums", "Museums in Ueno Park"), ...Array.from({ length: 20 }, (_, i) => guide(`Read ${i}`, "a museum in it"))];
+    const r = search(trip(), "museum", 80, undefined, extra);
+    expect(r[0].hit.label).toBe("Tokyo National Museum");
+    expect(r.filter((x) => x.hit.kind === "guide")).toHaveLength(8);
+    expect(r[1].hit.label).toBe("Ueno and its museums");
+    // in a guide's prose a word has to be there as typed, not run across words
+    const prose = [{ ...guide("Asuka and Nara", "Heijō-kyō, today's Nara"), prose: true }];
+    expect(search(trip(), "kyoto", 80, undefined, prose)).toEqual([]);
+    // the words together, as typed, rank above the same words apart
+    const two = [guide("Baths", "A golden age. Open all week."), guide("Trains", "Full at Golden Week and Obon.")];
+    expect(search(trip(), "golden week", 80, undefined, two).map((x) => x.hit.label)).toEqual(["Trains", "Baths"]);
+  });
+
   it("stays fast on a big trip", () => {
     const d = trip();
     for (let i = 0; i < 3000; i++)

@@ -8,7 +8,7 @@ import { noteToPlain } from "./noteFormat";
 import { fmtClocksIn } from "./time";
 import { customListColor, logbookSectionTile, placeTile, toneForSegmentMode, type LogbookTile } from "./tones";
 
-export type SearchKind = "day" | "leg" | "hotel" | "place" | "transfer" | "area" | "luggage" | "doc" | "packing" | "list" | "note" | "help";
+export type SearchKind = "day" | "leg" | "hotel" | "place" | "transfer" | "area" | "luggage" | "doc" | "packing" | "list" | "note" | "guide" | "help";
 
 /** one searchable piece of an item, with the name it goes by in a snippet */
 type Field = { label?: string; text: string | undefined | null };
@@ -24,6 +24,9 @@ export interface SearchHit {
   to: string;
   /** everything else about the item that a search should find */
   fields: Field[];
+  /** its fields are long prose (a guide's text): there, a word must be
+   *  found as typed — "kyoto" mustn't run "Heijō-kyō, today's" together */
+  prose?: boolean;
 }
 
 /** A result: the hit, plus — when the words were found somewhere other than
@@ -270,7 +273,7 @@ function match(x: Indexed, words: string[], phrase: string): { score: number; fi
     }
     let best = 0;
     for (const fl of x.fields) {
-      const p = place(fl.f, w) || (cw && fl.c.includes(cw) ? 1 : 0);
+      const p = place(fl.f, w) || (cw && !x.h.prose && fl.c.includes(cw) ? 1 : 0);
       if (p > best) {
         best = p;
         if (!field) field = fl;
@@ -282,6 +285,14 @@ function match(x: Indexed, words: string[], phrase: string): { score: number; fi
   }
   if (x.label === phrase) score += 100;
   else if (x.label.startsWith(phrase)) score += 50;
+  else if (phrase.includes(" ")) {
+    // several words found together, as typed, beat the same words scattered
+    const together = x.fields.find((fl) => fl.f.includes(phrase));
+    if (together) {
+      score += 15;
+      field = together;
+    }
+  }
   return { score, field };
 }
 
@@ -290,24 +301,30 @@ function snippet(fl: IndexedField, words: string[]): SearchResult["snippet"] {
   let text = fl.raw;
   // a long note: start a little before the first word found
   const first = Math.min(...words.map((w) => fl.f.indexOf(w)).filter((i) => i >= 0));
-  if (text.length > 110 && Number.isFinite(first) && first > 40) text = "…" + text.slice(text.lastIndexOf(" ", first - 30) + 1);
+  const cut = text.length > 110 && Number.isFinite(first) && first > 40;
+  if (cut) text = text.slice(text.lastIndexOf(" ", first - 30) + 1);
+  // the "…" goes on after the words are found: folding spreads it to three dots
   const folded = fold(text);
+  const at0 = cut ? 1 : 0;
   const marks: [number, number][] = [];
   for (const w of words) {
     const at = folded.indexOf(w);
     // folding can change a text's length (rare ligatures); only mark when it lines up
-    if (at >= 0 && folded.length === text.length) marks.push([at, at + w.length]);
+    if (at >= 0 && folded.length === text.length) marks.push([at + at0, at + at0 + w.length]);
   }
-  return { label: fl.label, text, marks: marks.sort((a, b) => a[0] - b[0]) };
+  return { label: fl.label, text: cut ? "…" + text : text, marks: marks.sort((a, b) => a[0] - b[0]) };
 }
 
-const KIND_ORDER: SearchKind[] = ["day", "leg", "hotel", "place", "transfer", "area", "doc", "luggage", "list", "note", "packing", "help"];
+const KIND_ORDER: SearchKind[] = ["day", "leg", "hotel", "place", "transfer", "area", "doc", "luggage", "list", "note", "packing", "guide", "help"];
 
-let cache: { data: TripData; areaCity?: Map<string, string>; index: Indexed[] } | null = null;
+/** a guide answers most words, so it shows its best few, as Spotlight does */
+const GUIDE_MAX = 8;
 
-function indexOf(data: TripData, areaCity?: Map<string, string>): Indexed[] {
-  if (cache?.data === data && cache.areaCity === areaCity) return cache.index;
-  const index = build(data, areaCity).map((h) => {
+let cache: { data: TripData; areaCity?: Map<string, string>; extra?: SearchHit[]; index: Indexed[] } | null = null;
+
+function indexOf(data: TripData, areaCity?: Map<string, string>, extra?: SearchHit[]): Indexed[] {
+  if (cache?.data === data && cache.areaCity === areaCity && cache.extra === extra) return cache.index;
+  const index = [...build(data, areaCity), ...(extra ?? [])].map((h) => {
     const label = fold(h.label);
     const fields = h.fields
       .filter((x): x is { label?: string; text: string } => !!x.text?.trim())
@@ -319,26 +336,29 @@ function indexOf(data: TripData, areaCity?: Map<string, string>): Indexed[] {
       });
     return { h, label, cLabel: compact(label), fields };
   });
-  cache = { data, areaCity, index };
+  cache = { data, areaCity, extra, index };
   return index;
 }
 
 /** `areaCity` (area id → city name, from `useTripCities`) labels each area
- *  with its city. */
-export function search(data: TripData, query: string, limit = 12, areaCity?: Map<string, string>): SearchResult[] {
+ *  with its city; `extra` adds hits from outside the trip (a country guide's
+ *  entries), ranked after the trip's own things. */
+export function search(data: TripData, query: string, limit = 12, areaCity?: Map<string, string>, extra?: SearchHit[]): SearchResult[] {
   const phrase = fold(query.trim()).replace(/\s+/g, " ");
   if (!phrase) return [];
   const words = [...new Set(phrase.split(" "))].sort((a, b) => b.length - a.length);
   const found: { r: SearchResult; s: number }[] = [];
-  for (const x of indexOf(data, areaCity)) {
+  for (const x of indexOf(data, areaCity, extra)) {
     const m = match(x, words, phrase);
     if (!m) continue;
-    // the trip's own things first; how-to answers after them
-    const s = m.score - (x.h.kind === "help" ? 40 : 0);
+    // the trip's own things first; then the guide, then how-to answers
+    const s = m.score - (x.h.kind === "help" ? 40 : x.h.kind === "guide" ? 30 : 0);
     found.push({ r: { hit: x.h, snippet: m.field ? snippet(m.field, words) : undefined }, s });
   }
+  let guides = 0;
   return found
     .sort((a, b) => b.s - a.s || KIND_ORDER.indexOf(a.r.hit.kind) - KIND_ORDER.indexOf(b.r.hit.kind))
+    .filter((x) => x.r.hit.kind !== "guide" || ++guides <= GUIDE_MAX)
     .slice(0, limit)
     .map((x) => x.r);
 }
