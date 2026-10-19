@@ -184,7 +184,8 @@ const base: { cities: GuideCity[] } = {
             },
             { note: "The JR Ryōmō line stops at Ashikaga Flower Park station, right at the gate; the old town is two stops on, at Ashikaga. Tōbu trains from Asakusa run to Ashikagashi, across the river.", title: "Going" },
           ],
-          sources: [{ title: "Ashikaga Gakkō — Wikipedia", url: "https://en.wikipedia.org/wiki/Ashikaga_Gakk%C5%8D", note: "Called Japan's oldest school; Xavier's description" }],
+          sources: [
+            { title: "Tsukamoto Konomi, tree doctor — nippon.com", url: "https://www.nippon.com/ja/people/e00096/", note: "Japan's first woman tree doctor; four 130-year-old wisteria moved in 1996 (Japanese)" },{ title: "Ashikaga Gakkō — Wikipedia", url: "https://en.wikipedia.org/wiki/Ashikaga_Gakk%C5%8D", note: "Called Japan's oldest school; Xavier's description" }],
         },
       ],
       items: [],
@@ -255,7 +256,8 @@ const base: { cities: GuideCity[] } = {
               ],
             },
           ],
-          sources: [{ title: "Ōmi merchants — Wikipedia", url: "https://en.wikipedia.org/wiki/%C5%8Cmi_merchants", note: "Sanpō-yoshi" }, { title: "La Collina Ōmi-Hachiman — Taneya", url: "https://taneya.jp/la_collina/", note: "Terunobu Fujimori's grass-roofed main shop (Japanese)" }],
+          sources: [
+            { title: "Hachimanbori Moat — Japan Tourism Agency", url: "https://www.mlit.go.jp/tagengo-db/en/R4-00571.html", note: "The 1972 plan to fill it in and the citizens' campaign that saved it" },{ title: "Ōmi merchants — Wikipedia", url: "https://en.wikipedia.org/wiki/%C5%8Cmi_merchants", note: "Sanpō-yoshi" }, { title: "La Collina Ōmi-Hachiman — Taneya", url: "https://taneya.jp/la_collina/", note: "Terunobu Fujimori's grass-roofed main shop (Japanese)" }],
         },
         {
           name: "Miho Museum", cover: photoOf("miho-museum", "A glass-roofed entrance hall framing green hills", "The Miho Museum's entrance hall."), local: "ミホミュージアム", getting: "About 1 h: JR to Ishiyama, then a 50-min bus",
@@ -715,7 +717,8 @@ const base: { cities: GuideCity[] } = {
             },
             { note: "You can pay to walk onto the bridge itself, but the classic view is free, from the road bridge next to it — best with the river high and the maples turning.", title: "Going" },
           ],
-          sources: [{ title: "Shinkyō — Wikipedia", url: "https://en.wikipedia.org/wiki/Shinky%C5%8D", note: "The sacred bridge, the snake legend and its rebuilding" }],
+          sources: [
+            { title: "The 1902 Ashio typhoon — MLIT Nikkō Sabo Office", url: "https://www.ktr.mlit.go.jp/nikko/sss/shiwa/saigai/edo.htm", note: "Shinkyō swept away on 28 September 1902 (Japanese)" },{ title: "Shinkyō — Wikipedia", url: "https://en.wikipedia.org/wiki/Shinky%C5%8D", note: "The sacred bridge, the snake legend and its rebuilding" }],
         },
         {
           title: "Yuba",
@@ -1091,6 +1094,7 @@ const base: { cities: GuideCity[] } = {
             { p: "That rebuilding is the castle's secret. In the **Shōwa restoration** of 1956–64, carpenters dismantled the whole keep piece by piece, repaired or replaced every member, and put it back together. The west pillar, rotten after some 350 years, had to be replaced: the huge tree chosen for it broke as it was carried down the mountain, and the carpenters ended up joining two trunks, just as the original pillar had been made from two. So the keep is original in design and largely in timber, but it has been taken apart once." },
             { note: "On busy days entry to the keep is limited and a queue builds from mid-morning; in peak cherry season and holidays it can be an hour or more. Go at opening, or late afternoon before last entry.", title: "Crowds" },
           ],
+          sources: [{ title: "The Shōwa restoration — Japan Tourism Agency", url: "https://www.mlit.go.jp/tagengo-db/R1-00680.html", note: "The keep dismantled and rebuilt, 1956–64; the west pillar replaced (Japanese)" }],
         },
         {
           title: "Kōko-en", cover: photoOf("kokoen", "A pond garden with red maples and a teahouse", "Kōko-en in autumn."),
@@ -1199,7 +1203,8 @@ const base: { cities: GuideCity[] } = {
             { p: "If you feel a tremor while you're here, see [When the ground shakes](guide:prepared/when-the-ground-shakes)." },
           ],
           related: ["prepared/when-the-ground-shakes", "trivia/japan-and-poland"],
-          sources: [{ title: "Great Hanshin earthquake — Wikipedia", url: "https://en.wikipedia.org/wiki/Great_Hanshin_earthquake", note: "5:46 am, 17 January 1995; 6,434 deaths" }],
+          sources: [
+            { title: "Kobe port after the quake — Kobe Shimbun", url: "https://www.kobe-np.co.jp/rentoku/sinsai/24/201811/0011790481.shtml", note: "Sixth in the world for containers in 1994; volume halved, recovered by 2017, rank never did (Japanese)" },{ title: "Great Hanshin earthquake — Wikipedia", url: "https://en.wikipedia.org/wiki/Great_Hanshin_earthquake", note: "5:46 am, 17 January 1995; 6,434 deaths" }],
         },
         {
           title: "Kobe beef",
@@ -2724,6 +2729,7 @@ const base: { cities: GuideCity[] } = {
             { note: "The **Kakunodate Kabazaiku Denshōkan**, on the samurai street, has a museum of old pieces and craftsmen working on site. Real pieces aren't cheap: a tea caddy costs about what good tea ware does.", title: "Seeing it" },
           ],
           sources: [
+            { title: "The history of kabazaiku — Japan Tourism Agency", url: "https://www.mlit.go.jp/tagengo-db/R1-02067.html", note: "Brought to Kakunodate in the 1780s; Akita's first national traditional craft, 1976 (Japanese)" },
             { title: "Kabazaiku — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E6%A8%BA%E7%B4%B0%E5%B7%A5", note: "Kakunodate's cherry-bark craft (Japanese)" },
           ],
         },
