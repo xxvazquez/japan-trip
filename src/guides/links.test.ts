@@ -44,6 +44,7 @@ describe("guide cross-references", () => {
         ...allTopics(guide).flatMap((t) => [`${base}/${t.id}`, ...topicArticles(t).map((r) => `${base}/${t.id}/${r.slug}`)]),
         ...guide.cities.flatMap((c) => [`${base}/place/${c.id}`, ...cityArticles(c).map((r) => `${base}/place/${c.id}/${r.slug}`), ...dayTripArticles(c).map((r) => `${base}/place/${c.id}/day-trips/${r.slug}`)]),
         ...dateArticles(guide.dates).map((r) => `${base}/date/${r.slug}`),
+        ...(guide.map?.areas ?? []).map((a) => `${base}/map?p=${a.code}`),
       ]);
       const hits = guideHits([id]);
       expect(hits.length).toBe(pages.size);

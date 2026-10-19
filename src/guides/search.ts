@@ -60,6 +60,13 @@ export function guideHits(ids: string[]): SearchHit[] {
       for (const r of dayTripArticles(c)) entry(r, `${base}/place/${c.id}/day-trips/${r.slug}`, `Day trip from ${c.name}`);
     }
     for (const r of dateArticles(g.dates)) entry(r, `${base}/date/${r.slug}`);
+    // each prefecture opens the map on it — "Gifu", "岐阜県", or its capital
+    if (g.map) {
+      const unit = g.map.unit.one.replace(/^./, (c) => c.toUpperCase());
+      for (const a of g.map.areas) {
+        hits.push({ kind: "guide", chip, tile, label: a.name, sub: [unit, a.region].filter(Boolean).join(" · "), to: `${base}/map?p=${a.code}`, fields: [a.local, a.capital].filter((x): x is string => !!x).map((text) => ({ text })) });
+      }
+    }
   }
   return hits;
 }

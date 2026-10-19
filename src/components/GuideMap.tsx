@@ -371,3 +371,23 @@ export function GuideMap({
     </div>
   );
 }
+
+/** The whole map small and still, for a card that opens the real one:
+ *  the land, the trip's prefectures tinted and its places as dots. */
+export function MapPreview({ map, tripAreas, dots }: { map: CountryMap; tripAreas: Set<number>; dots: { x: number; y: number }[] }) {
+  return (
+    <svg viewBox={`0 0 ${map.width} ${map.height}`} preserveAspectRatio="xMidYMid meet" className="block h-full w-full" aria-hidden>
+      {map.inset && <rect x={map.inset.x} y={map.inset.y} width={map.inset.w} height={map.inset.h} rx={14} className="fill-ai/[0.04] stroke-line" strokeWidth={1} vectorEffect="non-scaling-stroke" />}
+      {map.areas.map((a) => (
+        <g key={a.code} className={tripAreas.has(a.code) ? "fill-accent/[0.18]" : "fill-surface"}>
+          {[...a.rings, ...(a.inset ?? [])].map((r, i) => (
+            <path key={i} d={ringPath(r)} className="stroke-line" strokeWidth={0.5} vectorEffect="non-scaling-stroke" />
+          ))}
+        </g>
+      ))}
+      {dots.map((d, i) => (
+        <circle key={i} cx={d.x} cy={d.y} r={18} className="fill-accent stroke-surface" strokeWidth={6} />
+      ))}
+    </svg>
+  );
+}

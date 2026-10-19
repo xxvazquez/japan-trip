@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link, Navigate, useLocation, useParams, useSearchParams } from "react-router-dom";
 import { ActionRow } from "@/components/ActionRow";
-import { GuideMap, type MapCity } from "@/components/GuideMap";
-import { areaAt, type MapArea } from "@/guides/map";
+import { GuideMap, MapPreview, type MapCity } from "@/components/GuideMap";
+import { areaAt, project, type CountryMap, type MapArea, type MapPoint } from "@/guides/map";
 import { tripPoints } from "@/guides";
 import { Icon } from "@/components/Icon";
 import { Page, PageHeader } from "@/components/Page";
@@ -163,6 +163,8 @@ function BookHome({ guide, home, last, saved }: { guide: CountryGuide; home: str
         </Section>
       )}
 
+      <MapCard guide={guide} home={home} />
+
       {guide.sections.map((sec, si) => (
         <Section key={sec.title} title={`Part ${si + 1} · ${sec.title}`} id={`guide-${guide.id}-part-${slug(sec.title)}`}>
           <ul>
@@ -210,6 +212,8 @@ function TripHome({ guide, home }: { guide: CountryGuide; home: string }) {
       ) : (
         <p className="px-1 text-[15px] leading-snug text-ink-faint">Add a stay or a pin in {guide.name} and its places show up here, with day trips from each base.</p>
       )}
+
+      <MapCard guide={guide} home={home} />
 
       {dates.length > 0 && (
         <Section title="While you're there" id={`guide-${guide.id}-while-there`} action={<span className="text-[13px] text-ink-faint">{dates.length}</span>}>
@@ -542,6 +546,7 @@ export function GuideCityPage() {
   if (!city) return <Missing title="Nothing here" body="The guide doesn’t cover that place." to={guidePath(guide)} cta={`Back to ${guide.name}`} />;
   const cityPath = `${guidePath(guide)}/place/${city.id}`;
   const hub = cityLinks(guide, city);
+  const area = guide.map ? areaAt(guide.map, city.lat, city.lng) : undefined;
   const mine = data ? cityOnTrip(guide, data, city) : undefined;
   const ownDates = new Set(mine?.dates.map((d) => d.title));
 
@@ -552,9 +557,14 @@ export function GuideCityPage() {
         <Hero fallback={cityFallback(guide, city)} />
         {/* the place's facts in one grouped list, the way Maps puts a
             place's details together rather than a card per fact */}
-        {city.population || city.dayTrips?.length ? (
+        {city.population || city.dayTrips?.length || area ? (
           <Section>
             <ul>
+              {area && (
+                <InsetRow label={guide.map!.unit.one.replace(/^./, (c) => c.toUpperCase())} to={`${guidePath(guide)}/map?p=${area.code}`}>
+                  {area.name}
+                </InsetRow>
+              )}
               {city.population && <InsetRow label="Population">{city.population}</InsetRow>}
               {city.dayTrips?.length ? (
                 <TileRow
@@ -642,6 +652,52 @@ function cityGroups(city: GuideCity): { title: string; refs: ArticleRef[] }[] {
   return out.sort((a, b) => order.indexOf(a.title) - order.indexOf(b.title));
 }
 
+/** the prefectures the trip touches, and where it stays, for the map */
+function useTripOnMap(map: CountryMap | undefined) {
+  const data = useData();
+  return useMemo(() => {
+    const areas = new Set<number>();
+    const stays: MapPoint[] = [];
+    if (!map || !data) return { areas, stays };
+    for (const p of tripPoints(data)) {
+      const a = areaAt(map, p.lat, p.lng);
+      if (a) areas.add(a.code);
+    }
+    for (const h of data.hotels) {
+      const p = h.lat != null && h.lng != null ? project(map, h.lat, h.lng) : undefined;
+      if (p) stays.push(p);
+    }
+    return { areas, stays };
+  }, [map, data]);
+}
+
+/** The way into the map from the guide's home: the whole country small,
+ *  the trip on it, as Maps previews a guide's area on its card. */
+function MapCard({ guide, home }: { guide: CountryGuide; home: string }) {
+  const trip = useTripOnMap(guide.map);
+  const map = guide.map;
+  if (!map) return null;
+  const regions = new Set(map.areas.map((a) => a.region).filter(Boolean)).size;
+  return (
+    <Section title="Map" id={`guide-${guide.id}-map`}>
+      <Link to={`${home}/map`} viewTransition className="block transition-colors duration-150 active:bg-ink/[0.07]">
+        <div className="h-[210px] bg-ai/[0.09] p-2">
+          <MapPreview map={map} tripAreas={trip.areas} dots={trip.stays} />
+        </div>
+        <div className="flex items-center gap-3 px-3.5 py-3">
+          <span className="min-w-0 flex-1">
+            <span className="value block break-words">{guide.name} by {map.unit.one}</span>
+            <span className="meta mt-0.5 block break-words">
+              {map.areas.length} {map.unit.many} in {regions} regions{trip.areas.size ? ` · ${trip.areas.size} on your trip` : ""}
+            </span>
+          </span>
+          <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
+        </div>
+      </Link>
+    </Section>
+  );
+}
+
 /** A prefecture picked on the map, set out as Maps sets out a place you
  *  tap: its name and kanji with a close button, where it is, then what
  *  the guide has there — its places first, then the reads that talk
@@ -710,15 +766,7 @@ export function GuideMapPage() {
   const card = useRef<HTMLDivElement>(null);
   const map = guide?.map;
   const onTrip = useMemo(() => (guide && data ? citiesOnTrip(guide, data) : { stays: [], others: [] }), [guide, data]);
-  const tripAreas = useMemo(() => {
-    const out = new Set<number>();
-    if (!map || !data) return out;
-    for (const p of tripPoints(data)) {
-      const a = areaAt(map, p.lat, p.lng);
-      if (a) out.add(a.code);
-    }
-    return out;
-  }, [map, data]);
+  const tripAreas = useTripOnMap(map).areas;
   if (!data) return null;
   if (!guide) return noGuide;
   if (!map) return noArticle(guide);
