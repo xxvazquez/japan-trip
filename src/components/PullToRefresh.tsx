@@ -42,8 +42,10 @@ export function PullToRefresh() {
   useEffect(() => {
     if (skip) return;
     const onDown = (e: PointerEvent) => {
-      // a drag on an open sheet (pulling it down to close) isn't a pull on the page
-      if (e.pointerType !== "touch" || refreshing || window.scrollY > 0 || scrollLocked()) { startY.current = null; return; }
+      // a drag on an open sheet (pulling it down to close) isn't a pull on
+      // the page, and nor is one on a surface that pans itself (a map)
+      const own = (e.target as Element | null)?.closest?.("[data-no-pull]");
+      if (e.pointerType !== "touch" || refreshing || window.scrollY > 0 || scrollLocked() || own) { startY.current = null; return; }
       startY.current = e.clientY;
       pullingRef.current = false;
     };

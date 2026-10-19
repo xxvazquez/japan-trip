@@ -19,6 +19,8 @@ export interface MapCity {
 
 type View = { k: number; tx: number; ty: number };
 
+/** ms within which a second tap makes a double-tap */
+const DOUBLE_TAP = 280;
 /** past this the simplified outlines show their straight edges */
 const MAX_K = 6;
 /** map units to screen px at which every place gets a name and the
@@ -134,6 +136,7 @@ export function GuideMap({
   // ---- gestures: one finger drags, two pinch; a still tap selects
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const gesture = useRef({ moved: 0, start: 0, lastTap: 0, lastX: 0, lastY: 0 });
+  const pendingTap = useRef(0);
   const local = (e: { clientX: number; clientY: number }) => {
     const r = box.current!.getBoundingClientRect();
     return { x: e.clientX - r.left, y: e.clientY - r.top };
@@ -184,7 +187,10 @@ export function GuideMap({
     const g = gesture.current;
     if (ps.size || g.moved > 8 || performance.now() - g.start > 500) return;
     const now = performance.now();
-    if (now - g.lastTap < 320 && Math.hypot(p.x - g.lastX, p.y - g.lastY) < 30) {
+    if (now - g.lastTap < DOUBLE_TAP && Math.hypot(p.x - g.lastX, p.y - g.lastY) < 30) {
+      // the second tap of a double-tap only zooms; the first one's pick,
+      // still waiting, is dropped — as Maps does
+      clearTimeout(pendingTap.current);
       g.lastTap = 0;
       animateTo(zoomAbout(viewRef.current, 2, p.x, p.y));
       return;
@@ -199,8 +205,10 @@ export function GuideMap({
       return;
     }
     const area = hit?.closest<SVGElement>("[data-area]")?.dataset.area;
-    onSelect(area ? Number(area) : undefined);
+    clearTimeout(pendingTap.current);
+    pendingTap.current = window.setTimeout(() => onSelect(area ? Number(area) : undefined), DOUBLE_TAP);
   };
+  useEffect(() => () => clearTimeout(pendingTap.current), []);
 
   // trackpad pinch (and ⌘/ctrl + scroll) zooms; a plain scroll still
   // scrolls the page past the map
@@ -307,6 +315,7 @@ export function GuideMap({
   return (
     <div
       ref={box}
+      data-no-pull
       className="relative touch-none select-none overflow-hidden bg-ai/[0.09] dark:bg-ai/[0.16]"
       style={{ height: size.h || undefined, aspectRatio: size.h ? undefined : `${map.width} / ${map.height}` }}
       onPointerDown={onPointerDown}
@@ -321,7 +330,7 @@ export function GuideMap({
               <rect x={inset.x} y={inset.y} width={inset.w} height={inset.h} rx={10} className="fill-ai/[0.04] stroke-line" strokeWidth={1} vectorEffect="non-scaling-stroke" />
             )}
             {map.areas.map((a) => {
-              const fill = a.code === selected ? "fill-accent/30" : tripAreas.has(a.code) ? "fill-accent/[0.13]" : "fill-surface dark:fill-surface-2";
+              const fill = a.code === selected ? "fill-accent/30 dark:fill-accent/20" : tripAreas.has(a.code) ? "fill-accent/[0.13]" : "fill-surface dark:fill-surface-2";
               return (
                 <g key={a.code} data-area={a.code} className={`${fill} cursor-pointer`}>
                   {[...a.rings, ...(a.inset ?? [])].map((r, i) => (

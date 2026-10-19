@@ -728,7 +728,7 @@ function AreaCard({ guide, area, trip, onClose }: { guide: CountryGuide; area: M
                 key={c.id}
                 to={`${home}/place/${c.id}`}
                 title={c.name}
-                meta={[trip.has(c.id) ? "On this trip" : "", c.population ?? ""].filter(Boolean).join(" · ") || undefined}
+                meta={[trip.has(c.id) ? "On this trip" : "", c.population ?? c.local ?? ""].filter(Boolean).join(" · ") || undefined}
                 thumb={(c.cover ?? coverOf(cityArticles(c)))?.src}
               />
             ))}
@@ -781,7 +781,7 @@ export function GuideMapPage() {
   const byRegion = regions.map((r) => [r, map.areas.filter((a) => a.region === r)] as const).filter(([, list]) => list.length);
 
   return (
-    <Page width="form">
+    <Page width="reading">
       <PageHeader back={home} backLabel={guide.name} title="Map" meta={`${map.areas.length} ${map.unit.many} in ${byRegion.length} regions`} className="mb-6" />
       <div className="space-y-6">
         <div ref={frame} className="-mx-5 overflow-hidden sm:mx-0 sm:rounded-[12px]">
