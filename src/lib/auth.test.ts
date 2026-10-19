@@ -46,6 +46,30 @@ describe("opening with no connection", () => {
     expect(auth.isSessionStale()).toBe(true);
   });
 
+  it("with no signal, opens from the device copy without waiting for the renewal to give up", async () => {
+    localStorage.setItem(KEY, JSON.stringify(saved));
+    vi.stubGlobal("navigator", { onLine: false });
+    fake.getSession.mockReturnValue(new Promise(() => {})); // retrying for ~25 s
+    const auth = await boot();
+    expect(auth.isAuthReady()).toBe(true);
+    expect(auth.getUserId()).toBe("u1");
+    expect(auth.isSessionStale()).toBe(true);
+  });
+
+  it("a renewal that lands after opening swaps in the fresh login", async () => {
+    localStorage.setItem(KEY, JSON.stringify(saved));
+    vi.stubGlobal("navigator", { onLine: false });
+    let renew!: (v: unknown) => void;
+    fake.getSession.mockReturnValue(new Promise((r) => { renew = r; }));
+    const auth = await boot();
+    const renewed = vi.fn();
+    window.addEventListener("za:session-renewed", renewed);
+    renew({ data: { session: { ...saved, access_token: "b" } }, error: null });
+    await settle();
+    expect(auth.isSessionStale()).toBe(false);
+    expect(renewed).toHaveBeenCalledOnce();
+  });
+
   it("is signed out when nothing is saved on the device", async () => {
     fake.getSession.mockResolvedValue({ data: { session: null }, error: offlineError });
     const auth = await boot();

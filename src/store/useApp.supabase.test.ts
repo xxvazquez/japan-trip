@@ -699,6 +699,25 @@ describe("signed-in: opening with no connection", () => {
     }
   });
 
+  it("signed in only from the device copy: opens the saved trip without waiting on the server", async () => {
+    const id = await seedTrip("Saved trip");
+    await boot();
+    await sleep(80);
+    let answer!: () => void;
+    fake.current.ctl.gate = new Promise((r) => { answer = r; }); // every request would wait on the renewal
+    authLib.stale = true;
+    try {
+      const b = await boot();
+      expect(b.s().activeId).toBe(id);
+      expect(b.s().data!.meta.title).toBe("Saved trip");
+      expect(b.s().bootError).toBe(false);
+    } finally {
+      authLib.stale = false;
+      fake.current.ctl.gate = null;
+      answer();
+    }
+  });
+
   it("a server that never answers opens the device copy after a few seconds, not an endless loader", async () => {
     const id = await seedTrip("Saved trip");
     await boot();

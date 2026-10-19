@@ -48,13 +48,26 @@ function setSession(session: Session | null, fromDevice = false) {
   emit();
 }
 
+/** How long the first launch waits for the login to be renewed before opening
+ *  from the device copy. With no signal, renewal retries for ~25 s before it
+ *  gives up — the app would sit on its loader all that time. */
+const RENEW_WAIT_MS = 2500;
+
 function loadAuth() {
   void getSupabase()
     .then(async (sb) => {
       if (!sb) return;
-      const { data, error } = await sb.auth.getSession();
+      const renewing = sb.auth.getSession();
+      const saved = storedSession(sb);
+      if (saved) {
+        // no signal at all: don't wait. Otherwise give a quick renewal a moment.
+        const wait = navigator.onLine === false ? 0 : RENEW_WAIT_MS;
+        const early = await Promise.race([renewing, new Promise<null>((r) => setTimeout(() => r(null), wait))]);
+        if (!early) setSession(saved, true); // opens now; the renewal below catches up
+      }
+      const { data, error } = await renewing;
       if (data.session || !error) setSession(data.session);
-      else setSession(storedSession(sb), true);
+      else if (!stale) setSession(storedSession(sb), true);
       if (subscribed) return;
       subscribed = true;
       sb.auth.onAuthStateChange((event, session) => {

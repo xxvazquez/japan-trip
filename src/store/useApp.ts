@@ -1266,6 +1266,10 @@ export const useApp = create<AppStore>((set, get) => {
         set({ authRequired: false, ...(get().data ? {} : { hydrated: false }) });
         const be = pickBackend();
         setupSyncListeners(get);
+        // signed in only from the device copy (no signal to renew the login):
+        // every server request would wait on that renewal, so open the trip
+        // saved on the device now — the renewal re-pulls it once it lands
+        if (be.kind === "supabase" && isSessionStale() && (await recoverFromOutbox(get, listen))) return;
 
         let trips: TripSummary[];
         let activeId: string | null;
