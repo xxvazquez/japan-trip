@@ -438,6 +438,7 @@ export const tripDates: GuideDate[] = [
     summary: "One time zone, no daylight saving, and sunset before five",
     body: [
       { p: "Japan stretches about 3,000 km from Hokkaido to the southern islands, yet the whole country keeps one clock. **Japan Standard Time** is set by the sun on the 135th meridian, which runs through the city of Akashi near Kobe. Tokyo lies about 5° east of it, so the sun rises and sets there some 20 minutes earlier than the clock assumes; Naha lies 7° west, and runs half an hour late.[^1]" },
+      photo("akashi-planetarium", "A round white building with a tall tower topped by a large clock", "The planetarium in Akashi, built on the 135th meridian that sets the whole country's clock."),
       { p: "Nor are the clocks changed in summer. The occupation imposed daylight saving from 1948 to 1951, and it was dropped as soon as Japan could; a proposal to bring it back for the 2020 Olympics went nowhere. So in late autumn the sun sets in Tokyo at about **16:30**, before many people leave work, and in Sapporo at four.[^2]" },
       {
         table: {

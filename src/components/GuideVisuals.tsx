@@ -97,7 +97,7 @@ export function Eras({ eras: e }: { eras: GuideEras }) {
             >
               {/* a label only where it fits whole — never clipped */}
               {px > s.name.length * 6.2 + 10 && (
-                <span className={`absolute inset-x-0 top-1/2 -translate-y-1/2 whitespace-nowrap text-center text-[11px] leading-none ${on ? "text-white" : "text-ink-soft"}`}>
+                <span className={`absolute inset-x-0 top-1/2 -translate-y-1/2 whitespace-nowrap text-center text-[11px] leading-none ${on ? "text-white dark:text-bg" : "text-ink-soft"}`}>
                   {s.name}
                 </span>
               )}

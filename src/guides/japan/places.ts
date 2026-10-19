@@ -35,9 +35,9 @@ export const placeReads: Record<string, GuideItem[]> = {
         { p: "For decades Tokyo was the world's largest urban area. In 2025 the UN changed how it measures cities, and on the new method Jakarta and Dhaka are bigger; Tokyo, at about 33 million, is third, and its population is roughly flat while theirs grow.[^2]" },
         {
           stats: [
-            { value: "~14 m", label: "people in Tokyo prefecture" },
+            { value: "~14M", label: "people in Tokyo prefecture" },
             { value: "23", label: "special wards, each with a mayor" },
-            { value: "33 m", label: "the urban area, now third in the world" },
+            { value: "33M", label: "people in the urban area, now third in the world" },
           ],
         },
         { note: "At the height of the 1980s bubble, the Imperial Palace grounds were said to be worth more than all the land in California. It's a famous comparison and a rough one, but it captures how high land prices went before they fell by more than half in the 1990s.", title: "Bubble land" },

@@ -331,6 +331,11 @@ const KIND_TONE: Record<GuideDish["kind"], string> = {
   "Mostly for visitors": "bg-ink/[0.07] text-ink-soft",
 };
 
+/** the reading said again under a name that already is it — "Nukazuke",
+ *  *nukazuke* — tells the reader nothing, so it's left off */
+const bare = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z]/g, "");
+const sameWord = (a: string, b: string) => bare(a) === bare(b);
+
 /** Food cards, one per dish: the name and its Japanese, a tag for what kind
  *  of food it is in Japanese life, then a few lines on it. */
 export function Dishes({ dishes }: { dishes: GuideDish[] }) {
@@ -346,7 +351,7 @@ export function Dishes({ dishes }: { dishes: GuideDish[] }) {
               <p className="break-words text-[17px] leading-snug text-ink">{d.name}</p>
               <p className="mt-0.5 flex flex-wrap items-baseline gap-x-2">
                 <span className="font-jp text-[15px] text-ink-soft">{d.local}</span>
-                {d.say && <span className="text-[13px] italic text-ink-faint">{d.say}</span>}
+                {d.say && !sameWord(d.say, d.name) && <span className="text-[13px] italic text-ink-faint">{d.say}</span>}
               </p>
             </div>
             {tagged && <span className={`mt-0.5 shrink-0 rounded-[6px] px-1.5 py-0.5 text-[12px] font-medium ${KIND_TONE[d.kind]}`}>{d.kind}</span>}
@@ -415,7 +420,7 @@ export function Calls({ calls }: { calls: GuideCall[] }) {
           className="relative after:absolute after:bottom-0 after:left-14 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden"
         >
           <a href={`tel:${c.number.replace(/[^\d+#]/g, "").replace("#", "%23")}`} className="flex items-center gap-3 px-3.5 py-3 active:bg-ink/[0.07]">
-            <span className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-full bg-matcha text-white">
+            <span className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-full bg-matcha text-white dark:text-bg">
               <Icon name="phone" size={15} />
             </span>
             <span className="min-w-0 flex-1">

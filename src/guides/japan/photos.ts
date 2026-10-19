@@ -190,6 +190,7 @@ const PHOTOS = {
   "sugi-plantation": { w: 900, h: 600, author: "掬茶", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Sugi_plantation_along_the_Yoneshiro_River,_Akita_Pref,_Japan.jpg" },
   "ryoanji-garden": { w: 900, h: 600, author: "Stephane D'Alu", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:RyoanJi-Dry_garden.jpg" },
   "rice-bowl": { w: 900, h: 720, author: "yuuki", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Japanese_rice_in_Wajima-nuri_lacquerware.jpg" },
+  "akashi-planetarium": { w: 900, h: 600, author: "halfrain", license: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:Akashi_Municipal_Planetarium_-_May_18,_2022.jpg" },
   "kombu-drying": { w: 900, h: 606, author: "Marie-Sophie Mejan", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Japan,_Hokkaido,_drying_kelp_2.jpg" },
   "koji-rice": { w: 900, h: 675, author: "Forrest O.", license: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:Aspergillus_oryzae_(%E9%BA%B9).jpg" },
   "japanese-breakfast": { w: 900, h: 598, author: "Jpatokal", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:AzumaRyokan_Breakfast_2.JPG" },

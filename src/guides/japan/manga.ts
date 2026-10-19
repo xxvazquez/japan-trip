@@ -69,7 +69,7 @@ export const manga: GuideTopic = {
               stats: [
                 { value: "¥704bn", label: "manga sales in 2024, a record" },
                 { value: "73%", label: "of it digital" },
-                { value: "6.53m", label: "Shōnen Jump's peak weekly print run, 1995" },
+                { value: "6.53M", label: "Shōnen Jump's peak weekly print run, 1995" },
               ],
             },
             {

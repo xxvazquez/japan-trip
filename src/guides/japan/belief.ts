@@ -352,8 +352,8 @@ export const belief: GuideTopic = {
             { p: "The Agency for Cultural Affairs publishes what religious bodies report about themselves. At the end of 2016 they claimed **182.2 million** followers, about 84.7 million Shinto and 87.7 million Buddhist, in a country of about 127 million.[^2]" },
             {
               stats: [
-                { value: "182.2m", label: "followers reported by religious bodies (2016)" },
-                { value: "~127m", label: "people living in Japan then" },
+                { value: "182.2M", label: "followers reported by religious bodies (2016)" },
+                { value: "~127M", label: "people living in Japan then" },
                 { value: "62%", label: "say they have no religion (NHK, 2018)" },
               ],
             },

@@ -144,7 +144,7 @@ export const history: GuideTopic = {
           ],
         },
         {
-          when: "538 – 794",
+          when: "538–794",
           title: "Asuka and Nara",
           summary: "Buddhism, a state copied from China, a name for the country, and its first permanent capital",
           body: [
@@ -190,7 +190,7 @@ export const history: GuideTopic = {
           ],
         },
         {
-          when: "794 – 1185",
+          when: "794–1185",
           title: "Heian",
           summary: "Kyoto becomes the capital, the Fujiwara rule through marriage, women write in Japanese, and warriors wait in the provinces",
           body: [
@@ -234,7 +234,7 @@ export const history: GuideTopic = {
       title: "Samurai rule",
       timeline: [
         {
-          when: "1185 – 1573",
+          when: "1185–1573",
           title: "Kamakura and Muromachi",
           summary: "A warrior government beside the court, the Mongols, Zen and tea, and a war that burned Kyoto",
           body: [
@@ -303,7 +303,7 @@ export const history: GuideTopic = {
           ],
         },
         {
-          when: "1543 – 1603",
+          when: "1543–1603",
           title: "Unification",
           summary: "Guns and missionaries arrive, three warlords reunite the country, and the great castles go up",
           body: [
@@ -336,7 +336,7 @@ export const history: GuideTopic = {
           ],
         },
         {
-          when: "1603 – 1868",
+          when: "1603–1868",
           title: "Edo",
           summary: "Two and a half centuries of peace, a city of a million, controlled borders, and a popular culture that still defines Japan",
           body: [
@@ -345,7 +345,7 @@ export const history: GuideTopic = {
               stats: [
                 { value: "265", label: "years of Tokugawa rule" },
                 { value: "~260", label: "domains, each with its lord" },
-                { value: "~1 m", label: "people in Edo by the early 1700s" },
+                { value: "~1M", label: "people in Edo by the early 1700s" },
               ],
             },
 
@@ -395,7 +395,7 @@ export const history: GuideTopic = {
       title: "Modern Japan",
       timeline: [
         {
-          when: "1853 – 1945",
+          when: "1853–1945",
           title: "Meiji to 1945",
           summary: "Forced open, remade in a generation, an empire built, and a war that destroyed it",
           body: [

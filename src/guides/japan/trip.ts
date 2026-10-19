@@ -473,7 +473,7 @@ const base: { cities: GuideCity[] } = {
             { p: "Osaka held a second Expo in 2025, on the reclaimed island of **Yumeshima**, from April to October. Its emblem was Sou Fujimoto's **Grand Ring**, a two-kilometre wooden walkway around the site, certified as the world's largest wooden structure." },
             {
               stats: [
-                { value: "64m", label: "visitors to Expo '70 in six months" },
+                { value: "64M", label: "visitors to Expo '70 in six months" },
                 { value: "70 m", label: "Okamoto's Tower of the Sun" },
                 { value: "2 km", label: "around the 2025 Grand Ring" },
               ],
@@ -1163,7 +1163,7 @@ const base: { cities: GuideCity[] } = {
               stats: [
                 { value: "1,000", label: "cranes for a wish, in the old belief" },
                 { value: "1958", label: "the Children's Peace Monument unveiled" },
-                { value: "~10m", label: "cranes sent to it every year" },
+                { value: "~10M", label: "cranes sent to it every year" },
               ],
             },
             { note: "If you'd like to leave cranes, bring them already strung; there's a place to hang them in the booths. Many hotels and the museum shop sell paper.", title: "Leaving cranes" },
@@ -1585,7 +1585,7 @@ const base: { cities: GuideCity[] } = {
               stats: [
                 { value: "6,434", label: "people killed" },
                 { value: "~20 s", label: "of the strongest shaking" },
-                { value: "1m+", label: "volunteers in the first year" },
+                { value: "1M+", label: "volunteers in the first year" },
               ],
             },
             { p: "The port never recovered its place. In 1994 Kobe was the world's sixth-busiest container port; while its quays were rebuilt, transshipment cargo moved to cheaper Busan and Kaohsiung, which were already competing for it, and though Kobe's volume has since recovered, its rank never did. A stretch of broken, tilted quay is kept as it was, in the **Port of Kobe Earthquake Memorial Park** by Meriken Park." },

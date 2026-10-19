@@ -37,7 +37,7 @@ export const japan: CountryGuide = {
 
   glance: {
     figures: [
-      { value: "123.8 m", label: "people in 2024, fewer each year since 2011" },
+      { value: "123.8M", label: "people in 2024, fewer each year since 2011" },
       { value: "29.3%", label: "aged 65 or over" },
       { value: "14,125", label: "islands, by the 2023 count" },
       { value: "111", label: "active volcanoes, a tenth of the world's" },

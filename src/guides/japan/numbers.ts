@@ -18,7 +18,7 @@ export const numbers: GuideTopic = {
       { p: "Most of what's changing in everyday Japan runs back to one fact. There are **fewer people every year**, and **a larger share of them are old**. The country passed its peak around 2008 and has shrunk every year since 2011.[^1]" },
       {
         stats: [
-          { value: "122.97m", label: "people at the 2025 census" },
+          { value: "122.97M", label: "people at the 2025 census" },
           { value: "29.4%", label: "aged 65 or over" },
           { value: "38%", label: "of households are one person" },
         ],
@@ -131,7 +131,7 @@ export const numbers: GuideTopic = {
           title: "Who lives with whom",
           summary: "More people live alone than in any other kind of household",
           body: [
-            { stats: [{ value: "38%", label: "of households are one person (2020 census)" }, { value: "9m", label: "empty homes in 2023" }, { value: "13.8%", label: "of all homes stood empty" }] },
+            { stats: [{ value: "38%", label: "of households are one person (2020 census)" }, { value: "9M", label: "empty homes in 2023" }, { value: "13.8%", label: "of all homes stood empty" }] },
             { p: "The household you'd picture, parents and children, is now outnumbered by people living alone: young workers in the cities, and widowed old people everywhere.[^2]" },
             {
               chart: {

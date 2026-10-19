@@ -239,7 +239,10 @@ function build(d: TripData, areaCity?: Map<string, string>): SearchHit[] {
 /** Lower-case with Latin accents dropped, so "sensō-ji" matches "senso-ji"
  *  (only the combining accents — Japanese dakuten are left alone). */
 const NOTE_MARKUP = /[*_~+`{[\\#>]|^\s*(?:[-+]|\d+[.)])\s/m;
-const fold = (s: string) => s.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").normalize("NFC").toLowerCase();
+// curly quotes and a no-break space fold to what a keyboard types, one
+// character for one, so a match still lines up with the text it marks
+const fold = (s: string) =>
+  s.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").normalize("NFC").toLowerCase().replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/\u00a0/g, " ");
 /** …and with spaces and punctuation gone too, so "sensoji" matches "Sensō-ji". */
 const compact = (s: string) => s.replace(/[^\p{L}\p{N}]/gu, "");
 
