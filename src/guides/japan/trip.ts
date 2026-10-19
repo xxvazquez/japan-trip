@@ -1325,6 +1325,15 @@ const base: { cities: GuideCity[] } = {
               },
             },
             { p: "The new station's gate is a giant wooden *tsuzumi* drum, a nod to the city's Noh theatre." },
+            {
+              timeline: [
+                { when: "1997", text: "The line opens as far as Nagano, for the 1998 Winter Olympics." },
+                { when: "2015", text: "Extended to Toyama and Kanazawa." },
+                { when: "2024", text: "Extended to Fukui and Tsuruga." },
+                { when: "Unbuilt", text: "Tsuruga to Kyoto and Osaka: the route was chosen in 2016, but building it is still decades off." },
+              ],
+            },
+            { p: "The missing last link is why the trip from Kyoto still needs a change of train at Tsuruga. The chosen route runs through Obama and under Kyoto, and its tunnels, cost and the water under the old capital have kept it stuck in argument ever since." },
             { note: "To the north, the **Noto peninsula** was struck by a magnitude 7.5 earthquake on 1 January 2024 and by severe floods that September. Kanazawa itself was little damaged, but parts of Noto, including Wajima's morning market, are still rebuilding; check what's open before going.[^2]", title: "Noto", kind: "info" },
           ],
           sources: [{ title: "Hokuriku Shinkansen — Wikipedia", url: "https://en.wikipedia.org/wiki/Hokuriku_Shinkansen", note: "Tokyo to Kanazawa since March 2015; extended to Tsuruga in 2024" }, { title: "2024 Noto earthquake — Wikipedia", url: "https://en.wikipedia.org/wiki/2024_Noto_earthquake", note: "1 January 2024, and the September floods" }] },
@@ -1395,6 +1404,14 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "It's a plain place, and that's its interest: not a palace but a working office, the everyday face of the shogun's government." },
+            {
+              stats: [
+                { value: "1692", label: "Hida taken under the shogun's direct rule" },
+                { value: "~60", label: "such offices once, across Japan" },
+                { value: "1969", label: "the last year it was used as an office" },
+              ],
+            },
+            { p: "Direct rule wasn't gentle. In the 1770s and 1780s a father-and-son pair of magistrates, the Ōhara, pushed land surveys and new taxes so hard that Hida's farmers rose against them three times, the **Ōhara Disturbances**. Leaders were executed; in the end the shogunate dismissed and exiled the younger Ōhara. The court room you walk through is where such cases were heard." },
             { note: "Visit it with the morning market held in front of it. Plan an hour; the rooms are entered in socks.", title: "Going" },
           ],
           sources: [{ title: "Takayama Jinya — Wikipedia", url: "https://en.wikipedia.org/wiki/Takayama_Jinya", note: "The only surviving gundai office building" }],
@@ -1417,6 +1434,7 @@ const base: { cities: GuideCity[] } = {
               },
             },
             { p: "The floats, *yatai*, belong to the town's neighbourhoods, which keep them in tall white **yatai-gura**, float storehouses, that you'll see in the side streets. Each has carving, lacquer and embroidery by Hida's craftsmen, and some carry **karakuri** puppets worked by strings. On the festival evenings the floats are hung with lanterns and pulled through the town." },
+            { p: "Takayama calls itself *Hida no Shō-Kyōto*, Hida's little Kyoto, and the floats are part of the claim: their tiered form follows Kyoto's Gion floats, carried over the mountains by merchants who did business with the capital. What's local is the workmanship, by the same Hida carpenters who built temples in Nara and Kyoto a thousand years earlier." },
             { note: "Outside festival days, a rotating few floats are on show all year in the **Festival Float Exhibition Hall** at Sakurayama Hachimangū. During the festivals, rooms sell out months ahead, and in rain the floats stay in their storehouses.", title: "Seeing them" },
           ],
           sources: [
@@ -1519,6 +1537,14 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "Each season gives a different picture: green paddies in summer, gold in autumn, and in winter the roofs deep in snow." },
+            {
+              stats: [
+                { value: "~60°", label: "pitch of a gasshō roof, steep enough to shed snow" },
+                { value: "59", label: "gasshō houses in Ogimachi" },
+                { value: "1995", label: "listed as World Heritage" },
+              ],
+            },
+            { p: "From up here you can see why the houses face the way they do. Almost every roof's gable points north and south, along the valley, so the wind blows past rather than against them, and each slope gets an equal share of sun to dry the thatch after snow." },
             { note: "On a few evenings each January and February the village is lit up. It has become so popular that entry, parking and the viewpoint now need reservations booked well ahead; check the village's site for the year's dates.", title: "Light-up" },
           ] },
         { title: "Still lived in", cover: photoOf("shirakawago-fields", "Thatched houses among rice paddies and gardens", "Ogimachi from behind the Kanda house."),
@@ -1538,6 +1564,14 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "The residents themselves set down rules in 1971 not to sell, rent or destroy their houses, before any outside protection came — the reason the village still exists." },
+            {
+              timeline: [
+                { when: "1950s–60s", text: "Dams flood villages up and down the valley; gasshō houses are sold off or burned for land." },
+                { when: "1971", text: "Ogimachi's residents agree not to sell, rent or pull down their houses." },
+                { when: "1976", text: "The village becomes a national preservation district." },
+                { when: "1995", text: "World Heritage, with Gokayama's Ainokura and Suganuma." },
+              ],
+            },
             { note: "The coach tours arrive from mid-morning. Early morning, before 9, and the late afternoon are the times to walk the lanes.", title: "When" },
           ],
           sources: [{ title: "Shirakawa-gō — Wikipedia", url: "https://en.wikipedia.org/wiki/Shirakawa-go", note: "Ogimachi's population at inscription" }] },
@@ -1559,6 +1593,7 @@ const base: { cities: GuideCity[] } = {
             { p: "A neat way to do it is between two bases: Takayama in the morning, Shirakawa-gō for the afternoon, Kanazawa by evening, with your bags in the terminal's lockers." },
             { note: "Seats are reserved and sell out in autumn, at the festivals and on winter light-up days — book as soon as you know your dates. In snow, buses can be delayed or cancelled.", title: "Booking" },
             { p: "To stay overnight, a handful of gasshō houses take guests as small *minshuku*: tatami rooms, a shared bath and dinner around the hearth." },
+            { p: "For something quieter, the two other villages on the World Heritage list, **Ainokura** and **Suganuma** in Gokayama, are a short bus ride north, smaller, steeper and much less visited. Ainokura has gasshō inns of its own and, after the last bus, almost nobody." },
           ] },
       ],
     },
@@ -1639,6 +1674,17 @@ const base: { cities: GuideCity[] } = {
           body: [
             { p: "**Atsuta Jingū**, in the south of the city, is one of Japan's most important shrines after Ise. It's said to keep **Kusanagi no Tsurugi**, “the grass-cutting sword”, one of the three sacred treasures of the imperial throne, given in myth by the sun goddess's family and enshrined here, by tradition, since the 2nd century.[^1]" },
             { p: "The sword is never shown. Not even the emperor sees it: enthronement ceremonies use a replica kept at the palace. Whether it exists, and what it looks like, is a matter for the shrine alone, which only deepens its aura (see [The emperor](guide:politics/the-emperor))." },
+            {
+              table: {
+                head: ["The regalia", "Kept at"],
+                rows: [
+                  ["The mirror, *Yata no Kagami*", "Ise Jingū's Inner Shrine"],
+                  ["The sword, *Kusanagi no Tsurugi*", "Atsuta Jingū, Nagoya"],
+                  ["The jewel, *Yasakani no Magatama*", "The Imperial Palace, Tokyo"],
+                ],
+              },
+            },
+            { p: "None of the three has been seen in public in modern times. When a new emperor accedes, the jewel and the palace's replica sword are handed to him in closed boxes, the *Kenji-tō Shōkei no Gi*; the last was on 1 May 2019." },
             {
               list: [
                 "**Nobunaga's wall** — a tiled earthen wall Oda Nobunaga gave in thanks for his victory at Okehazama in 1560, one of Japan's three great shrine walls",
@@ -1749,6 +1795,7 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "Nankai sells a **Kōyasan World Heritage Ticket** combining the train, cable car and town buses at a discount." },
+            { p: "For over a thousand years the mountain was closed to women. They could go no further than the **nyonin-dō**, women's halls at each of the seven entrances, and walked a path around the peaks, the *nyonin-michi*, looking down at the temples they couldn't enter. The ban was lifted in 1872. One hall survives, at Fudōzaka, beside the cable car road." },
             { p: "The old way is the **Chōishi-michi**, a 24 km path from Kudoyama, at the foot of the mountain, marked by 180 stone posts, one every *chō* (about 109 m). It takes most of a day uphill." },
             { note: "The plateau is markedly colder than Osaka: snow in winter, frost from November, chilly nights even in early autumn. Bring a warm layer whatever the season.", title: "Weather" },
           ],
@@ -1810,6 +1857,14 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "**Miso ramen** was born here in the 1950s, when a ramen shop put miso into the broth; it caught on nationally in the 1960s. Sapporo's is rich, often fried with vegetables in a wok first, with thick wavy noodles that hold up in hot soup, and topped with sweetcorn and a knob of butter in the Hokkaidō way." },
+            {
+              timeline: [
+                { when: "1869", text: "The Development Commission is set up to settle Hokkaidō." },
+                { when: "1876", text: "Its brewery makes the first Sapporo beer." },
+                { when: "1950s", text: "A Sapporo ramen shop puts miso in the broth." },
+                { when: "1960s", text: "Miso ramen goes national, helped by instant versions." },
+              ],
+            },
             { note: "**Ganso Ramen Yokochō**, an alley of small ramen shops in Susukino, is the classic place for a late bowl. Expect queues at the famous shops at weekends.", title: "Where" },
           ],
           sources: [{ title: "Sapporo Brewery — Wikipedia", url: "https://en.wikipedia.org/wiki/Sapporo_Brewery", note: "Founded 1876 by the Hokkaido Development Commission" }], related: ["eating-out/soba-udon-and-ramen", "drinks/sh-ch-whisky-and-beer"] },
@@ -1834,6 +1889,16 @@ const base: { cities: GuideCity[] } = {
           body: [
             { p: "The **Ainu** lived in Hokkaidō, Sakhalin and the Kuril islands long before Japanese settlement. After 1869 their land was taken, their hunting and fishing restricted and their language suppressed in schools. Japan recognised them as an indigenous people only in 2008, in a Diet resolution, and in law in 2019 (see [Dialects and the standard](guide:language/dialects-and-the-standard))." },
             { p: "**Upopoy**, the National Ainu Museum and Park, opened in July 2020 on Lake Poroto at **Shiraoi**, about an hour south of Sapporo by train. Its name means “singing in a large group” in Ainu. It has a museum, a reconstructed village, and performances of dance and music by Ainu staff.[^1]" },
+            {
+              timeline: [
+                { when: "1869", text: "Ezo is renamed Hokkaidō and opened to settlers." },
+                { when: "1899", text: "The Hokkaidō Former Natives Protection Act: farming plots, assimilation, Japanese schooling." },
+                { when: "1997", text: "That law is finally replaced by one promoting Ainu culture." },
+                { when: "2008", text: "The Diet resolves that the Ainu are an indigenous people." },
+                { when: "2019", text: "A law recognises them as such." },
+                { when: "2020", text: "Upopoy opens." },
+              ],
+            },
             {
               list: [
                 "**Place names** — Sapporo, Otaru, Shiretoko and most names in Hokkaidō come from Ainu",
@@ -2076,6 +2141,14 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "Down at the water, the **red-brick warehouses** of Kanemori, built for the port trade, are now shops and restaurants." },
+            {
+              timeline: [
+                { when: "1854", text: "Opened to American ships under the Convention of Kanagawa." },
+                { when: "1859", text: "A treaty port for foreign trade." },
+                { when: "1869", text: "The last shogunate holdouts surrender at the star-shaped fort of Goryōkaku, ending the civil war." },
+                { when: "1916", text: "The present Orthodox church is built." },
+              ],
+            },
             { note: "Hachiman-zaka, the straight slope running down to the harbour, is the classic view. The whole district is a pleasant hour on foot, ending at the ropeway for the night view.", title: "Walking it" },
           ],
           sources: [{ title: "Hakodate — Wikipedia", url: "https://en.wikipedia.org/wiki/Hakodate", note: "Opened by the 1854 Convention of Kanagawa; a treaty port from 1859" }],
@@ -2152,6 +2225,7 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "Since 2016 the **Hokkaidō Shinkansen** has run through it, from Shin-Aomori to **Shin-Hakodate-Hokuto**, about four hours from Tokyo at best. Because freight trains share the tunnel, the bullet trains have to slow down inside it for much of the year." },
+            { p: "It cost 34 workers' lives to build, through rock so fractured that the sea broke in four times. For almost thirty years it was the longest railway tunnel in the world, until Switzerland's Gotthard Base Tunnel passed it in 2016; it's still the longest with an undersea section. Inside, the bullet trains are held to 160 km/h for much of the year, so as not to blow the containers off passing freight trains, and run faster only at peak holiday times when freight is timed around them." },
             { note: "Shin-Hakodate-Hokuto is about 18 km from the city. The Hakodate Liner shuttle connects in about 15–20 minutes to Hakodate station; trains are timed to the Shinkansen.", title: "Arriving" },
           ],
           sources: [{ title: "Seikan Tunnel — Wikipedia", url: "https://en.wikipedia.org/wiki/Seikan_Tunnel", note: "53.85 km, opened 1988; the Tōya Maru; Hokkaido Shinkansen from 2016" }],
@@ -2240,6 +2314,14 @@ const base: { cities: GuideCity[] } = {
             { p: "Most of Shiretoko's coast can only be seen from a boat: sheer cliffs, waterfalls dropping straight into the sea, sea caves, and bears foraging on the beaches. Tour boats leave from Utoro in summer, from big cruise boats to small fast ones that go closer in." },
             { p: "On **23 April 2022**, a small tour boat, the **Kazu I**, sank off the peninsula in cold, rough water with 26 people aboard. Twenty died and six are still missing. Investigators found the operator had sailed despite warnings and with faulty equipment, and the national rules for small tour boats were tightened in response.[^1]" },
             {
+              stats: [
+                { value: "2005", label: "listed as World Heritage, land and sea together" },
+                { value: "26", label: "people aboard the Kazu I" },
+                { value: "Apr–Oct", label: "the boat season" },
+              ],
+            },
+            { p: "The same sea freezes in winter. In February the Sea of Okhotsk carries **drift ice** to this coast, the southernmost sea ice in the northern hemisphere, and the plankton under it feeds the salmon that feed the bears. The World Heritage listing was for that whole chain, from the ice to the forest." },
+            {
               list: [
                 "**Big boats** — steadier, with a viewing deck; they run to the cape or the waterfalls",
                 "**Small boats** — closer to the cliffs and bears, cancelled more often in waves",
@@ -2277,6 +2359,15 @@ const base: { cities: GuideCity[] } = {
             },
             { p: "Their temples were meant as a **Pure Land** on earth — the paradise of the Buddha Amida — with halls set by ponds to recreate it. That idea, rather than any single building, is what UNESCO listed. At **Mōtsū-ji**, the halls have burned, but the great pond garden survives with its stones and shore, and every year in late May poets compose verses by the winding stream." },
             { p: "Gold from this region may lie behind Marco Polo's tale of Zipangu, an island of gold palaces, though he never came." },
+            {
+              timeline: [
+                { when: "c. 1100", text: "Fujiwara no Kiyohira makes Hiraizumi his seat." },
+                { when: "1124", text: "The Golden Hall at Chūson-ji." },
+                { when: "1189", text: "Yoritomo's armies end the Northern Fujiwara." },
+                { when: "1689", text: "Bashō visits and writes of summer grass where warriors dreamed." },
+                { when: "2011", text: "Listed as World Heritage, three months after the tsunami struck the coast nearby." },
+              ],
+            },
           ],
           related: ["history/kamakura-and-muromachi"],
           sources: [{ title: "Hiraizumi — UNESCO", url: "https://whc.unesco.org/en/list/1277", note: "The Pure Land temples and gardens; inscribed 2011" }],
@@ -2297,6 +2388,7 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "The old wooden cover hall that sheltered it for seven centuries was moved a short way off and still stands among the cedars." },
+            { p: "The 1950 study found more than bodies. In the container holding the fourth lord's head were lotus seeds, about eight hundred years old. Botanists coaxed them into germinating decades later, and the **Chūson-ji lotus** first flowered in the late 1990s; it blooms in the temple's pond every July, a plant from the Fujiwara age growing again." },
             { note: "Chūson-ji is up a long, steep avenue of cedars, the Tsukimi-zaka; allow 20 minutes to climb past the smaller halls to the Golden Hall. Photography isn't allowed inside.", title: "Going" },
           ],
           sources: [
@@ -2376,6 +2468,17 @@ const base: { cities: GuideCity[] } = {
             { p: "Everyone in Japan can quote *Matsushima ya, aa Matsushima ya, Matsushima ya*: “Matsushima! Ah, Matsushima! Matsushima!” — said to be Bashō so overwhelmed by the bay that all he could manage was its name. It's a lovely story, and it isn't true. The verse was written later, by a different poet, as a light comic verse, and only got attached to Bashō's name afterwards.[^1]" },
             { p: "What did happen is just as telling. **Bashō** came here in 1689 on the journey of *The Narrow Road to the Deep North*. In his prose he called Matsushima the most beautiful place in Japan, compared the islands to people — some standing, some lying down, some like parents holding children — and then wrote no haiku of his own about it. His travelling companion, Sora, did." },
             { p: "To see what left him speechless, sit at **Kanrantei**, a tea house on the shore said to have come from Hideyoshi's Fushimi Castle, which serves matcha looking out over the islands." },
+            {
+              table: {
+                head: ["The Three Views of Japan", "What it is"],
+                rows: [
+                  ["**Matsushima**", "A bay of some 260 pine-covered islands, near Sendai"],
+                  ["**Amanohashidate**", "A pine-covered sandbar across a bay, north of Kyoto"],
+                  ["**Miyajima**", "The shrine and its gate in the sea, near Hiroshima"],
+                ],
+              },
+            },
+            { p: "The list, *Nihon Sankei*, was set down in the 1640s by the Confucian scholar Hayashi Gahō, and all three are still sold as a set. What they share is pine, water and the shore: the ideal Japanese landscape in its Edo-period form." },
             { note: "The silence is the point: the scenery was too much for a poem. It's often read as the highest compliment a poet could pay.", title: "Reading it" },
           ],
           related: ["language/how-japanese-sounds"],
@@ -2412,6 +2515,13 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "The bay's shallow water and its maze of islands acted like a breakwater, absorbing and scattering the wave. Engineers have studied it since (see [Tsunami](guide:nature/tsunami))." },
+            {
+              stats: [
+                { value: "2–3 m", label: "how high the water rose in Matsushima" },
+                { value: "10 m+", label: "the waves on the open coast nearby" },
+                { value: "1,100+", label: "people lost in Higashi-Matsushima next door" },
+              ],
+            },
             { note: "The **Ishinomaki Minamihama Tsunami Memorial Park**, about 40 minutes beyond Matsushima, explains what happened along this coast.", title: "Remembering" },
           ],
           related: ["nature/tsunami"],
@@ -2434,6 +2544,7 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "Most of the tongue is imported now, since Japan's own herds can't supply the demand. Sendai's other taste is **zunda**, sweet bright-green paste of mashed edamame, on mochi or in a milkshake." },
+            { p: "That dependence nearly sank it once. When Japan banned American beef after a case of mad-cow disease in December 2003, Sendai's gyūtan shops lost most of their supply overnight; some closed, others switched to Australian tongue, raised prices or shrank portions until imports resumed. Gyūtan is a local dish built on a global supply chain." },
             { note: "The station's third floor has a “gyūtan street” of restaurant branches, handy before a train; the queues are shorter mid-afternoon.", title: "Where" },
           ],
           sources: [
@@ -2506,6 +2617,13 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "Bark is taken from living trees in a way that lets it grow back, and each sheet's finish — left speckled and natural, or polished to a sheen — is chosen by the maker." },
+            {
+              stats: [
+                { value: "Late 1700s", label: "when the craft reached Kakunodate's samurai" },
+                { value: "1976", label: "named a national traditional craft" },
+                { value: "Yamazakura", label: "the wild mountain cherry the bark comes from" },
+              ],
+            },
             { note: "The **Kakunodate Kabazaiku Denshōkan**, on the samurai street, has a museum of old pieces and craftsmen working on site. Real pieces aren't cheap: a tea caddy costs about what good tea ware does.", title: "Seeing it" },
           ],
           sources: [
