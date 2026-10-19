@@ -57,7 +57,7 @@ export const tripDates: GuideDate[] = [
       },
       { p: "It sets off from the palace around midday and takes about two hours to pass any one spot. Paid seats along the route are sold in advance; standing room on the avenues is free." },
       { h: "By night: the Kurama Fire Festival" },
-      { p: "In 940, the story goes, the court moved the god of **Yuki Shrine** from the palace to Kurama to guard the capital's northern approach, and the villagers met the procession with torches. That evening they still do. Children carry small pine torches up the single street, then young men in loincloths shoulder huge ones, chanting *saireya, sairyō*, until the torches are piled and burning at the shrine steps.[^2]" },
+      { p: "In 940, the story goes, the court moved the god of **Yuki Shrine** from the palace to Kurama to guard the capital's northern approach, and the villagers met the procession with torches. That evening they still do. Children carry small pine torches up the single street, then young men in loincloths shoulder huge ones, chanting *saireiya, sairyō*, until the torches are piled and burning at the shrine steps.[^2]" },
       { pull: "History arrives in reverse: the Meiji Restoration first, the founding of the city last." },
       { note: "Kurama's single street and the one small railway can't take the crowds. Access is tightly controlled, viewing has been restricted in recent years, and the last trains back are packed. Check the year's arrangements before you go.", kind: "warning", title: "Kurama on the night" },
     ],
@@ -143,11 +143,11 @@ export const tripDates: GuideDate[] = [
           { when: "1997", text: "Halloween events begin at Tokyo Disneyland and in Kawasaki." },
           { when: "2018", text: "A truck is overturned in Center-gai on the weekend before Halloween." },
           { when: "2019", text: "Shibuya bans street drinking around the station on Halloween and New Year's Eve." },
-          { when: "2023", text: "The mayor tells visitors plainly that Shibuya is not a Halloween venue." },
+          { when: "2023", text: "The mayor asks people not to come to Shibuya for Halloween." },
           { when: "2024", text: "The evening street-drinking ban around the station becomes year-round." },
         ],
       },
-      { p: "Expect barriers, police directing the crowd, closed shops and **no alcohol for sale** near the station, not a street party. For costumes, go where the night has a host: **Ikebukuro's** cosplay festival, held since 2014, has a venue, changing rooms and rules." },
+      { p: "Expect barriers, police directing the crowd, closed shops and **no alcohol for sale** near the station, not a street party. For costumes, go where the night has a host: **Ikebukuro's** cosplay festival has a venue, changing rooms and rules." },
     ],
     related: ["place/tokyo/station-towns-not-a-centre"],
     sources: [
@@ -190,7 +190,7 @@ export const tripDates: GuideDate[] = [
     summary: "Hundreds of potters' tents in the town of the folk-craft movement",
     body: [
       { p: "**Mashiko**, two and a half hours north of Tokyo, started making pottery in 1853, and for its first seventy years made what Tokyo's kitchens needed: heavy mortars, pots and jars in thick brown glazes. Nobody called it art.[^1]" },
-      { p: "That changed in 1924, when the potter **Hamada Shōji** came home from England, where he had built a kiln with Bernard Leach in St Ives, and chose Mashiko for its plain local clay and its working potters. With Yanagi Sōetsu he made it a centre of the **mingei** folk-craft movement, the idea that beauty lives in useful things made by unnamed hands. Hamada was among the first Living National Treasures, named in 1955.[^2]" },
+      { p: "That changed in the 1920s, when the potter **Hamada Shōji** came home from England, where he had built a kiln with Bernard Leach in St Ives, and chose Mashiko for its plain local clay and its working potters. With Yanagi Sōetsu he made it a centre of the **mingei** folk-craft movement, the idea that beauty lives in useful things made by unnamed hands. Hamada was among the first Living National Treasures, named in 1955.[^2]" },
       photo("mashiko-fair", "Rows of white tents on a hillside with visitors walking between them", "Potters' tents on a hillside at the spring fair in 2023."),
       { p: "Twice a year, in Golden Week and around Culture Day, the pottery fair fills the main street and car parks with hundreds of tents, and hundreds of thousands of visitors come. The town has some 250 kilns, many run by potters who moved here because of what Hamada started." },
       {
@@ -212,7 +212,7 @@ export const tripDates: GuideDate[] = [
     ],
     sources: [
       { title: "Mashiko, Tochigi — Wikipedia", url: "https://en.wikipedia.org/wiki/Mashiko,_Tochigi", note: "Pottery since 1853 and the spring and autumn fairs" },
-      { title: "Shōji Hamada — Wikipedia", url: "https://en.wikipedia.org/wiki/Sh%C5%8Dji_Hamada", note: "St Ives, Mashiko from 1924, mingei, Living National Treasure 1955" },
+      { title: "Shōji Hamada — Wikipedia", url: "https://en.wikipedia.org/wiki/Sh%C5%8Dji_Hamada", note: "St Ives, Mashiko from the 1920s, mingei, Living National Treasure 1955" },
     ],
   },
   {
@@ -235,7 +235,7 @@ export const tripDates: GuideDate[] = [
       },
       { p: "Not everyone has accepted the change of name: a campaign, backed by some ruling-party politicians, wants it called **Meiji Day** again. For most people it's simply a day off in the best weeks of autumn." },
       { h: "The day's honours" },
-      { p: "At the palace the emperor presents the **Order of Culture** to a handful of scientists, writers and artists each year. Its badge is the flower of the *tachibana*, a wild citrus, rather than the cherry blossom first proposed. The story goes that Emperor Shōwa preferred the evergreen to a flower that falls in days, for an order meant to honour work that lasts.[^2]" },
+      { p: "At the palace the emperor presents the **Order of Culture** to a handful of scientists, writers and artists each year. Its badge is the flower of the *tachibana*, an evergreen wild citrus. The first design used the cherry blossom, but the cherry had long stood for martial valour, and the tachibana was chosen for an order about culture; Emperor Shōwa, asked about it decades later, said culture needed to be long-lived.[^2][^3]" },
       photo("order-of-culture", "A line drawing of a five-petalled flower badge hung from a spray of leaves and fruit, front and back", "The Order of Culture as drawn in its founding decree of 1937: a tachibana blossom."),
       {
         list: [
@@ -250,6 +250,7 @@ export const tripDates: GuideDate[] = [
     sources: [
       { title: "Culture Day — Wikipedia", url: "https://en.wikipedia.org/wiki/Culture_Day", note: "3 November, its earlier names, and its reputation for clear weather" },
       { title: "Order of Culture — Wikipedia", url: "https://en.wikipedia.org/wiki/Order_of_Culture", note: "Founded 1937, presented on 3 November; the tachibana badge" },
+      { title: "Bunka kunshō — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E6%96%87%E5%8C%96%E5%8B%B2%E7%AB%A0", note: "The first cherry-blossom design, the change to tachibana, and Emperor Shōwa's 1976 remark" },
     ],
   },
   {
@@ -329,11 +330,11 @@ export const tripDates: GuideDate[] = [
     body: [
       { p: "Kyoto's maples colour **from the mountains down**. The hills around Takao, Kurama and Ōhara turn first, from early November; the city's gardens peak from late November into early December. What sets the colour off is cold: leaves turn quickly once the night falls below about 8 °C, and best of all after sunny days and cold, clear nights." },
       photo("eikando-maples", "Maple trees glowing red, orange and gold under floodlights at night", "Eikan-dō's maples during its evening illumination."),
-      { p: "That season has been moving. The Japan Meteorological Agency records the day a sample maple in each city turns, and since 1953 that day has come about **2.8 days later each decade**, two to three weeks over the record. A Kyoto “November” maple is increasingly a December one.[^1]" },
+      { p: "That season has been moving. The Japan Meteorological Agency records the day a sample maple in each city turns, and since 1953 that day has come about **three days later each decade**, some three weeks over the record. A Kyoto “November” maple is increasingly a December one.[^1]" },
       {
         stats: [
-          { value: "+2.8", label: "days later per decade that maples turn, since 1953" },
-          { value: "+1.8", label: "days later per decade for ginkgo" },
+          { value: "~3 days", label: "later per decade that maples turn, since 1953" },
+          { value: "~3 weeks", label: "later than when records began" },
           { value: "8 °C", label: "the night-time low around which colour starts" },
         ],
       },
@@ -349,7 +350,7 @@ export const tripDates: GuideDate[] = [
     ],
     related: ["land/autumn-colour", "place/kyoto/too-many-visitors-and-what-the-city-is-trying"],
     sources: [
-      { title: "Climate Change Monitoring Report — Japan Meteorological Agency", url: "https://www.data.jma.go.jp/cpdinfo/monitor/index.html", note: "Maple colouring 2.8 days and ginkgo yellowing 1.8 days later per decade since 1953" },
+      { title: "Maples turn about three days later every ten years — tenki.jp (Japan Weather Association)", url: "https://tenki.jp/forecaster/k_shiraishi/2022/11/06/20358.html", note: "JMA phenology data: maple colouring 3.1 days later per decade since 1953 (Japanese)" },
     ],
   },
   {
@@ -359,7 +360,7 @@ export const tripDates: GuideDate[] = [
       { p: "The double row of ginkgo trees in **Meiji Jingū Gaien** turns bright yellow at the end of November, framing the domed Memorial Picture Gallery at the end of the avenue.[^1] A small festival of food stalls runs alongside while the leaves are out." },
       photo("ginkgo-avenue", "Tall ginkgo trees in full yellow along a Tokyo street, with people taking photos", "The Gaien avenue at its peak, in the last week of November."),
       { h: "A planted perspective" },
-      { p: "The **146 trees** were planted in 1923, raised from the seeds of a ginkgo in the imperial garden at Shinjuku. They're not as natural as they look. The tallest stand at the Aoyama end and the trees step down in height towards the gallery, so the avenue seems longer than its 300 metres, and they're clipped into matching cones." },
+      { p: "The **146 trees** were raised from 1908 and the avenue finished in 1923, to a plan by the landscape designer Orishimo Yoshinobu. They're not as natural as they look.[^3] The tallest stand at the Aoyama end and the trees step down in height towards the gallery, so the avenue seems longer than its 300 metres, and they're clipped into matching cones." },
       { p: "The ginkgo is Tokyo's official tree.[^2] The green emblem the city adopted in 1989 is officially a stylised *T* for Tokyo, though almost everyone reads it as a ginkgo leaf. Across the city the street trees turn at the same time, and the pavements fill with leaves and fallen nuts (*ginnan*) from the female trees, which smell strongly and are roasted and eaten." },
       { h: "The redevelopment" },
       { p: "The avenue is at the centre of Tokyo's biggest planning row in years. A redevelopment of the Gaien sports area, approved in 2023, replaces its stadiums and adds towers, and the felling of hundreds of trees nearby drew protest, including from heritage experts and, before his death, the composer Sakamoto Ryūichi. The developers say the four rows of the avenue itself will stay; campaigners worry about the roots of trees next to the new building work.[^1]" },
@@ -372,6 +373,7 @@ export const tripDates: GuideDate[] = [
     sources: [
       { title: "Meiji Jingu Gaien — Wikipedia", url: "https://en.wikipedia.org/wiki/Meiji_Jingu_Gaien", note: "The ginkgo avenue, its planting and the redevelopment" },
       { title: "Symbols of Tokyo — Tokyo Metropolitan Government", url: "https://www.english.metro.tokyo.lg.jp/w/000-101-008024", note: "The ginkgo as Tokyo's tree, and the T-shaped symbol mark" },
+      { title: "The Gaien ginkgo avenue — Minato City", url: "https://www.city.minato.tokyo.jp/kouhou/kuse/koho/konjaku/konjaku19.html", note: "146 trees in four rows over about 300 m, finished 1923, graded in height (Japanese)" },
     ],
   },
   {
@@ -452,7 +454,7 @@ export const tripDates: GuideDate[] = [
       {
         list: [
           "**Temples of Fudō**, like Narita-san Shinshō-ji, don't shout “demons out”: their god is said to tame demons, not chase them off",
-          "**Places with oni in their name**, and families named Kitō, “demon”, sometimes shout “demons in” instead",
+          "**Towns once ruled by the Kuki clan**, whose name is written “nine demons”, shout “demons in”, so as not to drive their lords away",
           "**Kasuga Taisha** in Nara lights all its lanterns that evening",
         ],
       },
@@ -502,7 +504,7 @@ export const tripDates: GuideDate[] = [
     from: "04-29", to: "05-05", when: "29 April – 5 May", title: "Golden Week",
     summary: "Four national holidays in a week, and the whole country on the move",
     body: [
-      { p: "**Golden Week** is a cinema term. In 1951 the film company Daiei noticed that a run of new spring holidays filled its theatres like nothing else, and borrowed the radio phrase for peak listening time to name it. The public broadcaster NHK still avoids the brand and says “the long holidays” instead.[^1]" },
+      { p: "**Golden Week** is a cinema term. In 1951 a Daiei film released over the new spring holidays did better than its New Year and Obon releases, and the company named the week to sell it; the name echoed radio's *golden time*, the hours of peak listening. The public broadcaster NHK still avoids the brand and says “the long holidays” instead.[^1]" },
       {
         table: {
           head: ["Date", "Holiday", "What it marks"],

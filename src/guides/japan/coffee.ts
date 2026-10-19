@@ -320,7 +320,7 @@ export const coffee: GuideTopic = {
                 "**A taste for the new.** The old capital has always been quick to adopt fashionable things, then keep them for a century.",
               ],
             },
-            { p: "Bread arrived with the same appetite for the modern. Shinshindō's founder, Tsuzuki Kiyotarō, is said to have been the first Japanese baker to train in Paris, in the 1920s, and came home to sell French bread to students. A century on, Kyoto's neighbourhood bakeries still open early for the same reason the kissaten do: people who work at home want breakfast near home." },
+            { p: "Bread arrived with the same appetite for the modern. Shinshindō's founder, Tsuzuki Hitoshi, is said to have been the first Japanese baker to train in Paris, in 1924, and came home to sell French bread to students. A century on, Kyoto's neighbourhood bakeries still open early for the same reason the kissaten do: people who work at home want breakfast near home." },
             { p: "The result: Kyoto has **old kissaten that never closed**, and a strong new specialty scene in old townhouses and garages, often run by people who trained in the old places first." },
           ],
           related: ["place/kyoto/kyoto-s-kitchen", "place/kyoto/kyoto-coffee-worth-the-detour"],

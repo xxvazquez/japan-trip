@@ -122,7 +122,7 @@ export const placeReads: Record<string, GuideItem[]> = {
           ],
         },
         { p: "The students weren't only Japanese. In the early 1900s thousands of Chinese students came to Tokyo to learn how Japan had modernised, and many lodged and ate around Jimbōchō; a plaque marks where the future premier **Zhou Enlai** studied in 1917–19, and one of the old Chinese restaurants that fed them still serves. It's also why the district has so many cheap curry houses: student food, now the subject of an annual curry contest." },
-        { p: "A story has it that the Americans spared Jimbōchō in the 1945 fire raids to protect its books. Most of the district did survive, but no evidence for the story has ever been found; the likelier reasons are the wind and the gaps that firebreaks left." },
+        { p: "A story has it that the Americans spared Jimbōchō in the 1945 fire raids to protect its books. Most of the district did survive, and a documentary has chased the tale back to a Russian-French scholar of Japan said to have lobbied for it, but no record has been found that the raids were planned around it." },
       ],
       related: ["place/tokyo/station-towns-not-a-centre", "language/three-scripts-at-once"],
       sources: [

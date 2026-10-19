@@ -70,11 +70,11 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "The **Mashiko pottery fair**, held since 1966, takes over the town twice a year: in spring over Golden Week, and in autumn around 3 November, with hundreds of tents where young potters sell direct.[^2]" },
-            { p: "The town was hit hard by the 2011 earthquake: kilns collapsed, Hamada's great climbing kiln among them, and potters lost years of stock. It was rebuilt by the community, with volunteers firing the climbing kiln again a few years later, and the fair carried on. Today a good share of the town's potters are newcomers who came for the clay, the kilns and the company of other potters." },
+            { p: "The town was hit hard by the 2011 earthquake: many of its old kilns and workshops were badly damaged or destroyed, and potters lost years of stock. The fair carried on, and the kilns were rebuilt. Today a good share of the town's potters are newcomers who came for the clay, the kilns and the company of other potters." },
             {
               stats: [
                 { value: "1853", label: "the first kiln in Mashiko" },
-                { value: "1924", label: "Hamada settles here" },
+                { value: "1920s", label: "Hamada settles here" },
                 { value: "1966", label: "the first pottery fair" },
               ],
             },
@@ -174,7 +174,7 @@ const base: { cities: GuideCity[] } = {
             { p: "This small textile town is where the **Ashikaga** clan came from — the family who ruled as shoguns from Kyoto for over two centuries, from 1338. Their family residence became the temple **Bannaji**, still ringed by its moat and earthworks; its main hall is a National Treasure." },
             { p: "Next door, **Ashikaga Gakkō** is said to be Japan's oldest school. Its origins are disputed, but it flourished from the 15th century as a centre for Chinese classics and divination, and in 1549 Francis Xavier described it as the largest and most famous university in eastern Japan.[^1] The halls and gardens were restored in 1990 to their Edo-period form." },
             { p: "**Ashikaga Flower Park** is the other draw: its great wisteria, trained over trellises on steel supports, blooms in late April and early May, and from late October to February the park is lit with millions of lights." },
-            { p: "The great wisteria has a story of its own. Its main trees, about 160 years old, grew elsewhere in the city and were moved to the park in 1996, an operation that took years: the trunks were wrapped in plaster casts and carried whole, the first time trees this large and old had been transplanted. The tree doctor who did it, Tsukamoto Konomi, became the first woman qualified as a tree surgeon in Japan." },
+            { p: "The great wisteria has a story of its own. Its four great vines, then about 130 years old, grew elsewhere in the city and were moved to the park when it opened in 1996, after two years of preparation: the trunks were wrapped in plaster casts and carried whole, a move few thought possible for vines so old. The tree doctor who did it, Tsukamoto Konomi, was Japan's first woman qualified as a tree surgeon." },
             {
               stats: [
                 { value: "1338", label: "the Ashikaga take power as shoguns" },
@@ -246,12 +246,12 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { note: "The canal and old town are a 15-minute bus ride from JR Ōmi-Hachiman station; La Collina is on the way. A ropeway climbs Mount Hachiman behind the canal for a view over the reed beds and the lake.", title: "Going" },
-            { p: "The canal nearly disappeared. By the 1960s it was silted, smelly and due to be filled in and paved over; local volunteers began clearing it themselves in 1972, the city changed its mind, and the cleaned canal became one of the first places in Japan to show how an old waterway could save a town. It has been a backdrop for period dramas ever since." },
+            { p: "The canal nearly disappeared. By the 1960s it was silted and smelly, and in 1972 the city announced it would fill it in. The local Junior Chamber's petition grew into a citizens' campaign, residents began cleaning the canal themselves, and the plan was dropped; the cleaned canal became one of the first places in Japan to show how an old waterway could save a town. It has been a backdrop for period dramas ever since." },
             {
               stats: [
                 { value: "1585", label: "the canal dug for Hidetsugu's castle town" },
                 { value: "1905", label: "Vories arrives to teach English" },
-                { value: "1972", label: "volunteers start clearing the silted canal" },
+                { value: "1972", label: "a plan to fill it in, and the campaign that stopped it" },
               ],
             },
           ],
@@ -303,7 +303,6 @@ const base: { cities: GuideCity[] } = {
                 b: "Shirakawa-gō",
                 rows: [
                   { label: "Roofs", a: "Hipped, rounded thatch", b: "Steep A-frame gasshō thatch" },
-                  { label: "Houses", a: "Nearly 40", b: "About 59 in Ogimachi" },
                   { label: "Protected", a: "1993, national preservation district", b: "1995, World Heritage" },
                   { label: "Getting there", a: "Train and a few buses a day", b: "Highway buses from three cities" },
                   { label: "Visitors", a: "A trickle", b: "Millions a year" },
@@ -1089,7 +1088,7 @@ const base: { cities: GuideCity[] } = {
                 { value: "1956", label: "the keep taken apart, rebuilt by 1964" },
               ],
             },
-            { p: "That rebuilding is the castle's secret. In the **Shōwa restoration** of 1956–64, carpenters dismantled the whole keep piece by piece, repaired or replaced every member, and put it back together. The west pillar, rotten at the base, had to be replaced: the first tree chosen in the mountains of Kiso broke as it was carried down, and a second was brought from another mountain and spliced with the first. So the keep is original in design and largely in timber, but it has been taken apart once." },
+            { p: "That rebuilding is the castle's secret. In the **Shōwa restoration** of 1956–64, carpenters dismantled the whole keep piece by piece, repaired or replaced every member, and put it back together. The west pillar, rotten after some 350 years, had to be replaced: the huge tree chosen for it broke as it was carried down the mountain, and the carpenters ended up joining two trunks, just as the original pillar had been made from two. So the keep is original in design and largely in timber, but it has been taken apart once." },
             { note: "On busy days entry to the keep is limited and a queue builds from mid-morning; in peak cherry season and holidays it can be an hour or more. Go at opening, or late afternoon before last entry.", title: "Crowds" },
           ],
         },
@@ -1188,8 +1187,8 @@ const base: { cities: GuideCity[] } = {
                 { value: "1m+", label: "volunteers in the first year" },
               ],
             },
-            { p: "The port never fully recovered its place. Kobe had been one of the world's busiest container ports; while its quays were rebuilt, shipping lines moved to Busan, Kaohsiung and Shanghai, and much of the trade never came back. A stretch of broken, tilted quay is kept as it was, in the **Port of Kobe Earthquake Memorial Park** by Meriken Park." },
-            { p: "Every December since 1995 the city has held the **Luminarie**, arches of light first put up as a memorial and a sign of recovery, and every 17 January at 5:46 a.m. people gather with lanterns in Higashi Yūenchi park for a minute's silence." },
+            { p: "The port never recovered its place. In 1994 Kobe was the world's sixth-busiest container port; while its quays were rebuilt, transshipment cargo moved to cheaper Busan and Kaohsiung, which were already competing for it, and though Kobe's volume has since recovered, its rank never did. A stretch of broken, tilted quay is kept as it was, in the **Port of Kobe Earthquake Memorial Park** by Meriken Park." },
+            { p: "Since December 1995 the city has held the **Luminarie**, arches of light first put up as a memorial and a sign of recovery, now moved to late January, the month of the quake, and every 17 January at 5:46 a.m. people gather with lanterns in Higashi Yūenchi park for a minute's silence." },
             {
               list: [
                 "**Port of Kobe Earthquake Memorial Park** — a stretch of the wrecked quay, tilted and cracked, kept as it was",
@@ -1471,7 +1470,7 @@ const base: { cities: GuideCity[] } = {
                 { value: "1969", label: "the last year it was used as an office" },
               ],
             },
-            { p: "Direct rule wasn't gentle. In the 1770s and 1780s a father-and-son pair of magistrates, the Ōhara, pushed land surveys and new taxes so hard that Hida's farmers rose against them three times, the **Ōhara Disturbances**. Leaders were executed; in the end the shogunate dismissed and exiled the younger Ōhara. The court room you walk through is where such cases were heard." },
+            { p: "Direct rule wasn't gentle. From the 1770s the magistrate Ōhara Hikoshirō, and later his son, pushed land surveys and new demands so hard that Hida's farmers rose against them in the **Ōhara Disturbances**, and their leaders were executed. The court room you walk through is where such cases were heard." },
             { note: "Visit it with the morning market held in front of it. Plan an hour; the rooms are entered in socks.", title: "Going" },
           ],
           sources: [{ title: "Takayama Jinya — Wikipedia", url: "https://en.wikipedia.org/wiki/Takayama_Jinya", note: "The only surviving gundai office building" }],
@@ -1600,7 +1599,7 @@ const base: { cities: GuideCity[] } = {
             {
               stats: [
                 { value: "~60°", label: "pitch of a gasshō roof, steep enough to shed snow" },
-                { value: "59", label: "gasshō houses in Ogimachi" },
+                { value: "N–S", label: "how almost every gable is aligned" },
                 { value: "1995", label: "listed as World Heritage" },
               ],
             },
@@ -2158,7 +2157,7 @@ const base: { cities: GuideCity[] } = {
             { p: "The bases remain, and so does the argument over them. The plan to move the Futenma air station from the middle of Ginowan city to a new runway at Henoko has been opposed by many Okinawans and their governors for decades." },
             {
               timeline: [
-                { when: "1945", text: "The Battle of Okinawa: a quarter of the island's civilians die." },
+                { when: "1945", text: "The Battle of Okinawa: about one in four of Okinawa's people die." },
                 { when: "1952", text: "Mainland Japan regains independence; Okinawa stays under US rule." },
                 { when: "1972", text: "Reversion to Japan on 15 May; the yen replaces the dollar." },
                 { when: "1978", text: "Traffic switches to the left overnight on 30 July, “730”." },
@@ -2906,7 +2905,7 @@ const base: { cities: GuideCity[] } = {
                 { when: "1917", text: "Mitsubishi opens the smelter, and the island's population grows around it." },
                 { when: "1960s", text: "Sulphur fumes have left the northern hills bare." },
                 { when: "1989", text: "The publisher Fukutake begins the art project in the south." },
-                { when: "2003", text: "The smelter starts treating Teshima's dumped waste, a job that runs for years." },
+                { when: "2000–17", text: "After a settlement with Teshima's residents, waste dumped on their island is shipped here and treated at the smelter." },
               ],
             },
             {
@@ -3568,7 +3567,7 @@ const gettingAround: GuideTopic = {
                 ],
               },
             },
-            { p: "The split is history, not design. The Ginza Line was built by private companies before the war; the state took the network over in 1941; and after the war the city, refused a share, built lines of its own. Merging the two has been discussed for decades and never happened." },
+            { p: "The split is history, not design. The Ginza Line was built by private companies before the war; a state-backed authority took the network over in 1941; and after the war the city, which had wanted the network for itself, built lines of its own. Merging the two has been discussed for decades and never happened." },
             { p: "Changing from one to the other costs a second fare, discounted a little, and at some stations means leaving through one set of gates and walking to another, sometimes along the street. An IC card works it all out. The **Tokyo Subway Ticket** for visitors, for 24, 48 or 72 hours, covers both companies, which is most of its value." },
             { h: "Reading the code" },
             { p: "Every station has a code: the line's letter and a number, **G-09** for Ginza on the Ginza Line, **H-08** for the same station on the Hibiya. The numbers count along the line, so you can tell which way to go and how many stops are left without reading a word of Japanese." },
