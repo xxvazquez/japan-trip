@@ -14,8 +14,8 @@ export const drinks: GuideTopic = {
   intro: {
     title: "Intro to drinks and sweets",
     body: [
-      { p: "Japan's two national drinks came with Buddhism and with rice. Tea arrived with monks from China and was first drunk as medicine; sake grew out of the same rice and the same kōji mould as soy sauce and miso. Both became arts, with their own vocabulary, regions and seasons." },
-      { p: "Neither is what most people drink most of the time. An evening out starts with beer, moves to highballs and canned sours, and may never reach sake. Green tea is mostly drunk cold from a plastic bottle. Each shift has a date and a reason, often a tax." },
+      { p: "Japan's two national drinks came **with Buddhism and with rice**. Tea arrived with monks from China and was first drunk as medicine; sake grew out of the same rice and the same kōji mould as soy sauce and miso. Both became arts, with their own vocabulary, regions and seasons." },
+      { p: "Neither is what most people drink most of the time. An evening out starts with beer, moves to highballs and canned sours, and may never reach sake. Green tea is mostly drunk cold from a plastic bottle. Each shift has a date and a reason, **often a tax**: beer's malt rules gave the world *happōshu*, low-malt beer, and the taxes on shōchū and whisky decided what filled the highball." },
       {
         terms: [
           { term: "Beer", text: "The first drink of almost every evening; four companies sell nearly all of it" },

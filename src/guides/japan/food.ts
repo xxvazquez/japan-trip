@@ -193,7 +193,8 @@ export const foodAtHome: GuideTopic = {
   intro: {
     title: "Intro to food at home",
     body: [
-      { p: "The picture abroad — rice, miso soup, grilled fish and three little sides at every meal — is real, but it's the ideal, not the Tuesday. Most households eat a mix of Japanese, Chinese-derived and Western dishes, cooked fast, and on weekdays often not together." },
+      { p: "The picture abroad — rice, miso soup, grilled fish and three little sides at every meal — is real, but it's **the ideal, not the Tuesday**. Most households eat a mix of Japanese, Chinese-derived and Western dishes, cooked fast, and on weekdays often not together." },
+      { p: "The home kitchen also works on a different budget of time. Dual-income households are now the large majority of couples, and the evening meal has been rebuilt around that: one pot instead of five dishes, a supermarket side dish to round it out, rice from a cooker set on a timer that morning. The old ideal survives as a weekend, a holiday or a ryokan breakfast." },
       { p: "Three numbers sum up the change. Rice, the word for a meal, is eaten at less than half the rate of the early 1960s.[^1] Households spent more on bread than on rice for the first time in 2011.[^2] And ready-made food eaten at home has become a market of its own.[^3]" },
       {
         stats: [
@@ -290,10 +291,24 @@ export const foodAtHome: GuideTopic = {
 
             { p: "**Kyūshoku** is part of the school day, not a canteen. Children in white coats and caps fetch the food from the kitchen, serve their classmates, eat the same meal at their desks with the teacher, and clear up. Menus are planned by nutritionists and often use local produce." },
             { p: "It explains a lot about adult tastes. Post-war lunches, started with American aid, were bread and skimmed milk. The 1954 School Lunch Act spread them to every elementary school, and bread lunches became universal in the 1960s.[^1] That's how a rice country got a bread habit. Rice came back in 1976 and now dominates again." },
+            {
+              timeline: [
+                { when: "1889", text: "A Buddhist temple school in Tsuruoka, Yamagata, feeds poor pupils rice balls, salted salmon and pickles: the first school lunch." },
+                { when: "1947", text: "Lunches restart for the hungry postwar cities, with American relief food." },
+                { when: "1954", text: "The School Lunch Act makes it part of education." },
+                { when: "1976", text: "Rice returns to the menu." },
+                { when: "2005", text: "A law on *shokuiku*, food education, gives schools the job of teaching how to eat." },
+                { when: "2026", text: "The state starts paying most of the food cost of public elementary school lunches." },
+              ],
+            },
+            { p: "The money changed this year. Parents used to pay for the ingredients, on average about ¥4,700 a month at elementary school, while the town paid for kitchens and staff; from April 2026 the national government covers most of that food bill for every public elementary pupil.[^2]" },
             { p: "Adults are famously nostalgic about it: deep-fried whale in older generations' memories, **age-pan** (fried sugared bread), curry day. Some izakaya and cafés serve “kyūshoku menus” on aluminium trays as a joke everyone gets." },
           ],
           related: ["growing-up/cleaning-and-lunch", "food-at-home/rice-less-than-you-d-think"],
-          sources: [{ title: "Why rice is vanishing from Japanese tables — nippon.com", url: "https://www.nippon.com/en/currents/d00046/", note: "Postwar bread lunches and rice's return in 1976" }],
+          sources: [
+            { title: "Why rice is vanishing from Japanese tables — nippon.com", url: "https://www.nippon.com/en/currents/d00046/", note: "Postwar bread lunches and rice's return in 1976" },
+            { title: "Reducing the cost of school lunch — Ministry of Education (MEXT)", url: "https://www.mext.go.jp/a_menu/sports/syokuiku/kyu-lighten.html", note: "National support for public elementary school lunch costs from April 2026; ¥4,688 a month on average in 2023 (Japanese)" },
+          ],
         },
         {
           title: "Bought, not cooked",

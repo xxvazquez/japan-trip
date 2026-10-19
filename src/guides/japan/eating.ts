@@ -86,7 +86,20 @@ export const eatingOut: GuideTopic = {
             { p: "Department stores put their food halls underground, by the subway entrances, so commuters walk through them. A big **depachika** is a city's best food in one place: bento, sōzai, wagashi, Western cakes, pickles, tea, fruit.[^1]" },
             photo("depachika", "A busy department-store basement food hall with counters of fruit and prepared food", "A depachika: counters of prepared food, gifts and fruit under one low ceiling."),
             { p: "Much of what's sold is **gifts**. Japan has formal gift seasons — *ochūgen* in summer, *oseibo* in December — and an expectation of **omiyage** after any trip, so beautifully boxed, individually wrapped, easy-to-share sweets are a whole industry.[^2]" },
+            {
+              table: {
+                head: ["The gift", "When", "For whom"],
+                rows: [
+                  ["*Ochūgen*", "Early summer: July in Tokyo, a little later in the west", "People you owe thanks: a boss, a doctor, a client"],
+                  ["*Oseibo*", "December", "The same, at the year's end"],
+                  ["*Omiyage*", "After any trip", "Colleagues, family and friends, one each"],
+                  ["*Temiyage*", "When visiting someone's home", "Your host"],
+                ],
+              },
+            },
+            { p: "A gift is judged as much by its wrapping as its contents. The store wraps it in its own paper, and for formal gifts adds *noshi*, a printed band naming the occasion and the giver, so that the box arrives saying exactly what it is for." },
             { p: "The fruit counter with melons at the price of a dinner exists for the same reason: it's a present, not a snack. How gift food grew out of travel is in [Meibutsu and the station box lunch](guide:regional-food/meibutsu-omiyage-and-the-station-box-lunch)." },
+            { note: "In the last hour before closing, many counters put discount stickers on what won't keep till tomorrow: bento, sushi and sōzai at a third or half off.", title: "Last hour" },
           ],
           related: ["food-at-home/bought-not-cooked", "regional-food/meibutsu-omiyage-and-the-station-box-lunch", "drinks/wagashi-and-sweets-that-tell-the-month"],
           sources: [
@@ -101,7 +114,17 @@ export const eatingOut: GuideTopic = {
 
             { p: "From the 1920s department stores sold a modern, middle-class way of life, and the top-floor restaurant was part of it: a whole family eating Western food together, on a Sunday." },
             { p: "In 1930, with the Depression biting, Andō Tarō, who ran the restaurant at Mitsukoshi's Nihonbashi store, created the first children's set. Small portions of Western dishes sat around a mound of rice shaped like Mount Fuji, with a flag on the summit. It cost 30 sen and was called *okosama yōshoku*, “Western food for the little ones”.[^1]" },
-            { p: "The **okosama ranchi** with its flag is still on family-restaurant menus: a small museum piece of how Japan learned to eat out." },
+            { p: "The store restaurant was a big, bright hall with a ticket counter and set prices, the first place many families ate out at all. It was also democratic in a way restaurants weren't. In the same Depression, customers at Hankyū's Umeda store took to ordering plain rice and pouring on the free Worcester sauce from the tables, *sōsu raisu*; the railway's founder, **Kobayashi Ichizō**, told staff to welcome them, reasoning that they'd come back as paying customers when times were better." },
+            {
+              timeline: [
+                { when: "1904", text: "Mitsukoshi announces itself as Japan's first department store, on the American model." },
+                { when: "1923", text: "After the earthquake, stores stop making customers leave their shoes at the door, and anyone can walk in." },
+                { when: "1930", text: "The children's set at Mitsukoshi's Nihonbashi restaurant." },
+                { when: "1950s–70s", text: "Top-floor dining halls and rooftop playgrounds: the family Sunday out." },
+                { when: "1990s on", text: "Family-restaurant chains take the trade, and most of the great halls close." },
+              ],
+            },
+            { p: "The **okosama ranchi** with its flag is still on family-restaurant menus: a small museum piece of how Japan learned to eat out. A few store halls survive as museums of themselves, the best loved in Hanamaki, Iwate, where the top-floor restaurant of the old Marukan store is famous for a soft-serve cone so tall it's eaten with chopsticks." },
           ],
           related: ["eating-out/depachika", "eating-out/yakitori-wagyu-and-y-shoku"],
           sources: [

@@ -92,6 +92,16 @@ export const coffee: GuideTopic = {
             { dos: ["Look for 喫茶 or 純喫茶 on the sign, plastic food in the window, a small bell on the door", "Order one thing each — a seat is rented with a drink", "Stay as long as you like when it's quiet; read, write, think", "Carry cash: many old places don't take cards"], donts: ["Hold a table for an hour at lunchtime when people are waiting", "Photograph the master or other customers without asking — some places ban photos outright"] },
             { p: "Order the **blend** (burendo) first; it's the house's identity.[^1] Water arrives without asking (ohiya). Coffee often comes with a tiny jug of cream and a sugar bowl; at Kyoto's Inoda the coffee came with milk and sugar already in unless you said otherwise." },
             photo("junkissa-sign", "A yellow oval sign reading 純喫茶 American", "純喫茶 — “pure kissaten” — on a sign in Dōtonbori, Osaka."),
+            { h: "What the sign is telling you" },
+            { p: "**Jun-kissa**, “pure kissaten”, is a word from the 1930s, when it set a respectable coffee house apart from the *café* of the day, where waitresses sat with customers and the drink was beside the point. The word stuck, and now marks a place that has kept its old interior and its old ways." },
+            { p: "The ways include smoke. Japan's 2020 indoor smoking law exempts small establishments that already existed, and many old kissaten kept their ashtrays; look for 喫煙可, *smoking allowed*, on the door if it matters to you. And around Nagoya, order a coffee before about 11:00 and toast and an egg come with it, the **morning service** (see [The kissaten menu](guide:coffee/the-kissaten-menu))." },
+            {
+              terms: [
+                { term: "Jun-kissa", text: "The old-style coffee house: wood, velvet, a counter, the master" },
+                { term: "Meikyoku kissa", text: "A listening café, playing classical records, where talking is discouraged" },
+                { term: "Jazz kissa", text: "The same for jazz, with a serious record collection and serious speakers" },
+              ],
+            },
           ],
           words: [
             { local: "ブレンド", say: "burendo", means: "the house blend" },
@@ -275,6 +285,12 @@ export const coffee: GuideTopic = {
           title: "What the kissaten says about Japan",
           summary: "A room of one's own, rented for the price of a coffee",
           body: [
+            {
+              stats: [
+                { value: "~155,000", label: "kissaten in 1981, the peak" },
+                { value: "58,669", label: "in 2021, by the economic census" },
+              ],
+            },
             { p: "A kissaten is never just about coffee. It survives, and young people now seek out old ones, because it answers needs Japanese life has always had." },
             { h: "Space" },
             { p: "Homes are small and often shared with family; offices are open-plan and hierarchical. The kissaten is a **third place** you can rent by the hour: for a business meeting before mobile phones, a first date, a writer's daily desk, a retired man's newspaper, a student's exam revision. A coffee priced far above a konbini cup makes sense when you're paying for the chair." },
@@ -288,6 +304,7 @@ export const coffee: GuideTopic = {
           related: ["belief/words-for-japan-and-their-limits", "eating-out/getting-a-table-ordering-eating", "coffee/overview"],
           sources: [
             { title: "Kissaten — Wikipedia", url: "https://en.wikipedia.org/wiki/Kissaten", note: "The peak of about 155,000 in 1981 and the long decline" },
+            { title: "Kissaten in Aichi — Aichi Prefecture statistics", url: "https://www.pref.aichi.jp/soshiki/toukei/0000078219.html", note: "58,669 kissaten nationwide in the 2021 Economic Census (Japanese)" },
           ],
         },
         {
@@ -303,7 +320,8 @@ export const coffee: GuideTopic = {
                 "**A taste for the new.** The old capital has always been quick to adopt fashionable things, then keep them for a century.",
               ],
             },
-            { p: "The result: Kyoto has old kissaten that never closed, and a strong new specialty scene in old townhouses and garages." },
+            { p: "Bread arrived with the same appetite for the modern. Shinshindō's founder, Tsuzuki Kiyotarō, is said to have been the first Japanese baker to train in Paris, in the 1920s, and came home to sell French bread to students. A century on, Kyoto's neighbourhood bakeries still open early for the same reason the kissaten do: people who work at home want breakfast near home." },
+            { p: "The result: Kyoto has **old kissaten that never closed**, and a strong new specialty scene in old townhouses and garages, often run by people who trained in the old places first." },
           ],
           related: ["place/kyoto/kyoto-s-kitchen", "place/kyoto/kyoto-coffee-worth-the-detour"],
           sources: [
