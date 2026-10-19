@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { GUIDE_CONTENT } from "./content";
+import { CITY_GROUPS } from "./types";
 import { cityLinks, dateArticles, dayTripArticles, guideGraph, relatedTo, resolveRef } from "./articles";
 
 describe("guide links, both ways", () => {
@@ -45,6 +46,24 @@ describe("guide links, both ways", () => {
     it(`${id}: every place is tied into the rest of the guide`, () => {
       const alone = guide.cities.filter((c) => cityLinks(guide, c).reads.length === 0).map((c) => c.id);
       expect(alone).toEqual([]);
+    });
+  }
+});
+
+describe("city pages", () => {
+  for (const [id, guide] of Object.entries(GUIDE_CONTENT)) {
+    it(`${id}: every note on a place sits under one of the shared headings`, () => {
+      const loose = guide.cities.flatMap((c) => c.items.filter((i) => !i.group || !CITY_GROUPS.includes(i.group)).map((i) => `${c.id}: ${i.title}`));
+      expect(loose).toEqual([]);
+    });
+  }
+});
+
+describe("dates", () => {
+  for (const [id, guide] of Object.entries(GUIDE_CONTENT)) {
+    it(`${id}: a date's places are places in the guide`, () => {
+      const ids = new Set(guide.cities.map((c) => c.id));
+      expect(guide.dates.flatMap((d) => (d.places ?? []).filter((p) => !ids.has(p)))).toEqual([]);
     });
   }
 });

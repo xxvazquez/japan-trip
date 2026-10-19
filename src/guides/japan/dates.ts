@@ -6,7 +6,7 @@ import { photo } from "./photos";
  *  trip that starts in October meets them. */
 export const tripDates: GuideDate[] = [
   {
-    from: "10-09", to: "10-10", when: "9–10 October", title: "Takayama's autumn festival",
+    from: "10-09", to: "10-10", when: "9–10 October", title: "Takayama's autumn festival", places: ["takayama"],
     summary: "Eleven gilded floats, a puppet show on a moving stage, and an old town lit by lanterns",
     body: [
       { p: "Takayama holds two great festivals a year: the **Sannō Matsuri** in April at Hie Shrine, and the autumn **Hachiman Matsuri** at Sakurayama Hachimangū on 9 and 10 October. Together they're counted among Japan's three most beautiful festivals, and they're among the 33 float festivals UNESCO inscribed together as intangible heritage in 2016.[^1][^2]" },
@@ -31,7 +31,7 @@ export const tripDates: GuideDate[] = [
     ],
   },
   {
-    from: "10-22", to: "10-22", when: "22 October", title: "Two festivals in one night",
+    from: "10-22", to: "10-22", when: "22 October", title: "Two festivals in one night", places: ["kyoto", "kurama"],
     summary: "Kyoto's costume parade by day, Kurama's fire festival by night",
     body: [
       { p: "On one day Kyoto puts on its newest great festival and one of its oldest. By day, a parade invented in the 1890s to tell the city's history; after dark, in a mountain village half an hour north, a fire festival that goes back a thousand years." },
@@ -68,7 +68,7 @@ export const tripDates: GuideDate[] = [
     ],
   },
   {
-    from: "10-25", to: "11-05", when: "Late October – early November", title: "Jimbōchō book festival",
+    from: "10-25", to: "11-05", when: "Late October – early November", title: "Jimbōchō book festival", places: ["tokyo"],
     summary: "Half a kilometre of bookshelves on the pavement of Tokyo's old-book district",
     body: [
       { p: "Jimbōchō has the largest cluster of secondhand bookshops in Japan, about 130 of them, and for a week or so each autumn they move onto the street. The **Kanda Used Book Festival**, first held in 1960, coincides with the national Reading Week around Culture Day.[^1]" },
@@ -97,7 +97,7 @@ export const tripDates: GuideDate[] = [
     ],
   },
   {
-    from: "10-25", to: "11-12", when: "Late October – mid November", title: "The Shōsōin treasures",
+    from: "10-25", to: "11-12", when: "Late October – mid November", title: "The Shōsōin treasures", places: ["nara"],
     summary: "An emperor's 8th-century possessions, out of storage for a few weeks a year",
     body: [
       { p: "In 756, after the death of Emperor Shōmu, his widow **Empress Kōmyō** gave more than 600 of his possessions to the Great Buddha of Tōdai-ji, with an inventory that survives. They were kept in the **Shōsōin**, a raised log storehouse beside the temple, and the collection, now about 9,000 items, has been looked after ever since.[^1]" },
@@ -131,7 +131,7 @@ export const tripDates: GuideDate[] = [
     ],
   },
   {
-    from: "10-31", to: "10-31", when: "31 October", title: "Halloween in Shibuya",
+    from: "10-31", to: "10-31", when: "31 October", title: "Halloween in Shibuya", places: ["tokyo"],
     summary: "Not a party any more: the ward asks visitors to stay away",
     body: [
       { p: "Halloween in Japan is a young import with an adult face. It took off in the late 1990s, when Tokyo Disneyland and Kawasaki's street parade both began Halloween events in 1997, and it grew up as a **costume night for adults** rather than trick-or-treating for children.[^2] By the 2010s its unofficial centre was the **Shibuya scramble crossing**, where tens of thousands gathered in costume with no organiser and no venue." },
@@ -185,7 +185,7 @@ export const tripDates: GuideDate[] = [
     ],
   },
   {
-    from: "10-31", to: "11-04", when: "Around 3 November", title: "Mashiko pottery fair",
+    from: "10-31", to: "11-04", when: "Around 3 November", title: "Mashiko pottery fair", places: ["tokyo"],
     summary: "Hundreds of potters' tents in the town of the folk-craft movement",
     body: [
       { p: "**Mashiko**, two and a half hours north of Tokyo, made heavy kitchen pots from 1853 until the potter **Hamada Shōji** settled there in the 1920s and made it a centre of the **mingei** folk-craft movement (see [Mashiko](guide:place/tokyo/day-trips/mashiko)).[^1][^2]" },
@@ -212,6 +212,7 @@ export const tripDates: GuideDate[] = [
       { title: "Mashiko, Tochigi — Wikipedia", url: "https://en.wikipedia.org/wiki/Mashiko,_Tochigi", note: "Pottery since 1853 and the spring and autumn fairs" },
       { title: "Shōji Hamada — Wikipedia", url: "https://en.wikipedia.org/wiki/Sh%C5%8Dji_Hamada", note: "St Ives, Mashiko from the 1920s, mingei, Living National Treasure 1955" },
     ],
+    related: ["place/tokyo/day-trips/mashiko"],
   },
   {
     from: "11-03", to: "11-03", when: "3 November", title: "Culture Day",
@@ -252,7 +253,7 @@ export const tripDates: GuideDate[] = [
     ],
   },
   {
-    from: "11-01", to: "11-30", when: "November", title: "Tori no Ichi",
+    from: "11-01", to: "11-30", when: "November", title: "Tori no Ichi", places: ["tokyo"],
     summary: "Night fairs on the days of the rooster, selling rakes to rake in luck",
     body: [
       { p: "The old calendar counts days in a cycle of twelve animals, so a **day of the rooster** comes round every twelve days. In November, Ōtori shrines hold fairs on each one for business luck. The best-known is at **Ōtori Shrine in Asakusa**, which stays open from midnight to midnight; Hanazono Shrine in Shinjuku runs a big one too.[^1]" },
@@ -280,7 +281,7 @@ export const tripDates: GuideDate[] = [
     ],
   },
   {
-    from: "11-01", to: "11-20", when: "Early to mid November", title: "Kawaguchiko's Autumn Leaves Festival",
+    from: "11-01", to: "11-20", when: "Early to mid November", title: "Kawaguchiko's Autumn Leaves Festival", places: ["fuji-five-lakes"],
     summary: "A tunnel of maples on Lake Kawaguchi, lit after dark",
     body: [
       { p: "On the north shore of Lake Kawaguchi, the **Momiji Corridor** is a short avenue of old maples by a stream that turns red and gold in November. During the festival it's lit after dark, with food and craft stalls alongside.[^1]" },
@@ -301,7 +302,7 @@ export const tripDates: GuideDate[] = [
     ],
   },
   {
-    from: "11-01", to: "12-10", when: "November", title: "Temples open up",
+    from: "11-01", to: "12-10", when: "November", title: "Temples open up", places: ["kyoto"],
     summary: "Halls, gardens and treasures that are shut the rest of the year, some lit at night",
     body: [
       { p: "Most of Kyoto's temples are working religious houses, and much of what they own is never on view: sub-temples where monks live, painted sliding doors in rooms that are still used, statues kept as objects of worship rather than art. Twice a year, in spring and autumn, some of it opens for a few weeks as **special openings** (*tokubetsu kōkai*).[^1]" },
@@ -334,7 +335,7 @@ export const tripDates: GuideDate[] = [
     ],
   },
   {
-    from: "11-15", to: "12-05", when: "Mid November – early December", title: "Peak maples in Kyoto",
+    from: "11-15", to: "12-05", when: "Mid November – early December", title: "Peak maples in Kyoto", places: ["kyoto"],
     summary: "The reddest weeks of the year, and the busiest",
     body: [
       { p: "Kyoto's maples colour **from the mountains down**. The hills around Takao, Kurama and Ōhara turn first, from early November; the city's gardens peak from late November into early December. What sets the colour off is cold: leaves turn quickly once the night falls below about 8 °C, and best of all after sunny days and cold, clear nights." },
@@ -363,7 +364,7 @@ export const tripDates: GuideDate[] = [
     ],
   },
   {
-    from: "11-20", to: "12-05", when: "Late November", title: "The ginkgo avenue",
+    from: "11-20", to: "12-05", when: "Late November", title: "The ginkgo avenue", places: ["tokyo"],
     summary: "Tokyo's tree turns gold along the avenue to the Meiji Memorial Picture Gallery",
     body: [
       { p: "The double row of ginkgo trees in **Meiji Jingū Gaien** turns bright yellow at the end of November, framing the domed Memorial Picture Gallery at the end of the avenue.[^1] A small festival of food stalls runs alongside while the leaves are out." },
@@ -552,7 +553,7 @@ export const tripDates: GuideDate[] = [
     ],
   },
   {
-    from: "07-01", to: "07-31", when: "July", title: "Gion Matsuri",
+    from: "07-01", to: "07-31", when: "July", title: "Gion Matsuri", places: ["kyoto"],
     summary: "Kyoto's month-long festival, born of a plague in 869",
     body: [
       { p: "The **Gion Matsuri** began in 869, when the court ordered prayers to the god of Yasaka Shrine to end an epidemic. It has run for most of the eleven centuries since, organised not by the shrine but by the **merchant neighbourhoods** of central Kyoto, each with its own float, its own storehouse and its own treasures.[^1]" },

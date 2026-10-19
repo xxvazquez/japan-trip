@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { TripData } from "@/core/types";
 import { japan } from "./jp";
-import { citiesOnTrip, datesOnTrip } from "./match";
+import { citiesOnTrip, cityOnTrip, datesOnTrip } from "./match";
 import { tripGuides } from "./index";
 
 const trip = (over: Partial<TripData>): TripData =>
@@ -46,5 +46,30 @@ describe("datesOnTrip", () => {
     expect(titles).not.toContain("The ginkgo avenue");
     const winter = trip({ days: [{ date: "2027-01-02" }] as TripData["days"] });
     expect(datesOnTrip(japan, winter).map((d) => d.title)).toContain("New Year");
+  });
+});
+
+describe("cityOnTrip", () => {
+  it("finds the stay, the day trip, what's on, and notes about pinned places", () => {
+    const data = trip({
+      legs: [{ id: "k", base: "Kyoto", start: "2026-10-20", end: "2026-10-24", color: "" }],
+      days: [
+        { id: "d1", date: "2026-10-22", legId: "k" },
+        { id: "d2", date: "2026-10-23", legId: "k", plan: [{ id: "s", text: "Byōdō-in", placeId: "p1" }] },
+      ] as TripData["days"],
+      places: [
+        { id: "p1", name: "Byōdō-in", lat: 34.8893, lng: 135.8077 },
+        { id: "p2", name: "A museum", lat: 34.8890, lng: 135.8070 },
+      ],
+    });
+    const kyoto = cityOnTrip(japan, data, japan.cities.find((c) => c.id === "kyoto")!);
+    expect(kyoto.legs.map((l) => l.id)).toEqual(["k"]);
+    expect(kyoto.dates.map((d) => d.title)).toContain("Two festivals in one night");
+    const uji = cityOnTrip(japan, data, japan.cities.find((c) => c.id === "uji")!);
+    expect(uji.legs).toEqual([]);
+    expect(uji.days.map((d) => d.id)).toEqual(["d2"]);
+    expect(uji.notes.some((n) => n.ref.startsWith("place/uji/byodo-in") && n.pins.includes("Byōdō-in"))).toBe(true);
+    // a pin with no proper name never matches ordinary words
+    expect(uji.notes.flatMap((n) => n.pins)).not.toContain("A museum");
   });
 });

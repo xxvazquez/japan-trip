@@ -196,12 +196,18 @@ export interface GuideArticle {
   related?: string[];
 }
 
+/** The headings a city's notes are listed under, in the order every
+ *  city's page shows them: what the place is, what to look at, what to
+ *  eat, and what to sort out before going. */
+export const CITY_GROUPS = ["Understand the place", "Look closer", "Eat and drink", "Before you go"] as const;
+export type CityGroup = (typeof CITY_GROUPS)[number];
+
 /** One point in a guide. */
 export interface GuideItem extends GuideArticle {
   title: string;
   /** on a city's page, the heading it's listed under — "Look closer".
    *  Items without one fall under "Worth knowing". */
-  group?: string;
+  group?: CityGroup;
 }
 
 /** One stop on a timeline — when, what, and a line that always shows. */
@@ -285,6 +291,9 @@ export interface GuideDate extends GuideArticle {
   to: string;
   /** how the dates read on the row */
   when: string;
+  /** the guide's places it happens in, by city id — a city's page shows
+   *  it under On this trip only there; none means the whole country */
+  places?: string[];
   title: string;
 }
 

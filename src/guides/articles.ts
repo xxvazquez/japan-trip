@@ -176,14 +176,27 @@ export function relatedTo(g: CountryGuide, ref: string, max = { related: 6, plac
 }
 
 /** A place as a hub: the reads elsewhere in the guide its notes and day
- *  trips are tied to, either way round, in the guide's order, and the
- *  yearly dates tied to it. */
+ *  trips are tied to, either way round, and the yearly dates tied to it.
+ *  Reads come most relevant first — the more of the place's notes a read
+ *  is linked with, and the more it talks about the place by name, the
+ *  higher it sits; ties keep the guide's order. Dates keep the calendar's. */
 export function cityLinks(g: CountryGuide, city: GuideCity): { reads: string[]; dates: string[] } {
-  const { entries, out, into } = guideGraph(g);
+  const { entries, byRef, out, into } = guideGraph(g);
   const mine = entries.filter((e) => cityOf(e.ref) === city.id).map((e) => e.ref);
-  const tied = new Set(mine.flatMap((r) => [...(out.get(r) ?? []), ...(into.get(r) ?? [])]));
-  const order = entries.map((e) => e.ref).filter((r) => tied.has(r) && !isPlace(r));
-  return { reads: order.filter((r) => !isDate(r)), dates: order.filter(isDate) };
+  const ties = new Map<string, number>();
+  for (const r of mine) for (const x of [...(out.get(r) ?? []), ...(into.get(r) ?? [])]) ties.set(x, (ties.get(x) ?? 0) + 1);
+  const order = entries.map((e) => e.ref).filter((r) => ties.has(r) && !isPlace(r));
+  const names = [city.name, ...(city.aliases ?? [])].map((n) => n.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase());
+  const mentions = (ref: string) => {
+    const text = articleText(byRef.get(ref)!.entry.article).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+    return Math.min(3, names.reduce((n, name) => n + text.split(name).length - 1, 0));
+  };
+  const score = new Map(order.map((r) => [r, ties.get(r)! * 2 + mentions(r)]));
+  const reads = order.filter((r) => !isDate(r)).sort((a, b) => score.get(b)! - score.get(a)!);
+  // a date is the place's when it says it happens there, or a link ties it
+  const here = new Set(dateArticles(g.dates).filter((_, i) => g.dates[i].places?.includes(city.id)).map((r) => `date/${r.slug}`));
+  const dates = entries.map((e) => e.ref).filter((r) => isDate(r) && (here.has(r) || ties.has(r)));
+  return { reads, dates };
 }
 
 /** every entry's old path → its path now, for the ones whose slug changed

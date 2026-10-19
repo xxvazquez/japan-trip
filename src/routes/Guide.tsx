@@ -17,10 +17,11 @@ import { SegmentedControl } from "@/components/SegmentedControl";
 import { useData } from "@/lib/data";
 import { guideTopicColor } from "@/lib/tones";
 import { GUIDE_CONTENT } from "@/guides/content";
-import { citiesOnTrip, datesOnTrip } from "@/guides/match";
+import { citiesOnTrip, cityOnTrip, datesOnTrip, type CityOnTrip } from "@/guides/match";
+import { fmtDate, fmtDateRange } from "@/lib/dates";
 import { slug } from "@/lib/collapse";
 import { allTopics, articleText, cityArticles, cityLinks, dateArticles, dayTripArticles, findRef, guideGraph, relatedTo, renamedPaths, topicArticles, type ArticleRef } from "@/guides/articles";
-import type { CountryGuide, GuideArticle, GuideBody, GuideCity, GuideDayTrip, GuideEvent, GuidePhoto, GuideSource, GuideText, GuideTopic } from "@/guides/types";
+import { CITY_GROUPS, type CountryGuide, type GuideArticle, type GuideBody, type GuideCity, type GuideDayTrip, type GuideEvent, type GuidePhoto, type GuideSource, type GuideText, type GuideTopic } from "@/guides/types";
 
 /** A country guide — reference content the app ships with, read-only. Its
  *  home reads like an Apple Maps guide: a cover, then shelves of picture
@@ -530,6 +531,7 @@ export function GuideTopicPage() {
 }
 
 export function GuideCityPage() {
+  const data = useData();
   const guide = useGuide();
   const { city: id } = useParams();
   if (!guide) return noGuide;
@@ -537,6 +539,8 @@ export function GuideCityPage() {
   if (!city) return <Missing title="Nothing here" body="The guide doesn’t cover that place." to={guidePath(guide)} cta={`Back to ${guide.name}`} />;
   const cityPath = `${guidePath(guide)}/place/${city.id}`;
   const hub = cityLinks(guide, city);
+  const mine = data ? cityOnTrip(guide, data, city) : undefined;
+  const ownDates = new Set(mine?.dates.map((d) => d.title));
 
   return (
     <Page width="form">
@@ -560,6 +564,7 @@ export function GuideCityPage() {
             </ul>
           </Section>
         ) : null}
+        {mine && <CityTrip guide={guide} city={city} trip={mine} />}
         {cityGroups(city).map((g) => (
           <Section key={g.title} title={g.title} id={`guide-${guide.id}-city-${g.title}`}>
             <ul>
@@ -572,16 +577,58 @@ export function GuideCityPage() {
         {/* the place as a hub: what the book and the calendar say about
             it, found through the links its notes already make, so nothing
             general is written out again on a place's page */}
-        <EntryList key={`${city.id}-dates`} title="Through the year" id={`guide-${guide.id}-city-${city.id}-dates`} rows={hub.dates.flatMap((r) => entryRow(guide, r))} />
+        <EntryList key={`${city.id}-dates`} title="Through the year" id={`guide-${guide.id}-city-${city.id}-dates`} rows={hub.dates.flatMap((r) => entryRow(guide, r)).filter((r) => !ownDates.has(r.entry.title))} />
         <EntryList key={`${city.id}-reads`} title="In the guide" id={`guide-${guide.id}-city-${city.id}-reads`} rows={hub.reads.flatMap((r) => entryRow(guide, r))} limit={5} />
       </div>
     </Page>
   );
 }
 
-/** a city's entries under their headings, in the order the headings first
- *  appear; anything without one is "Worth knowing", listed last */
+/** What the place means for this trip, first on its page, the way Maps
+ *  puts your own reservation above a place's details: the stay (or the
+ *  day trip) here, what's on while you're here, and the notes that talk
+ *  about somewhere you've pinned. Nothing when the trip doesn't come here. */
+function CityTrip({ guide, city, trip }: { guide: CountryGuide; city: GuideCity; trip: CityOnTrip }) {
+  const data = useData()!;
+  const home = guidePath(guide);
+  const dayTrips = trip.days.filter((d) => !trip.legs.some((l) => l.id === d.legId));
+  const dates = dateArticles(guide.dates).filter((r) => trip.dates.some((d) => d.title === r.title));
+  if (!trip.legs.length && !dayTrips.length && !trip.notes.length) return null;
+  const nights = (a: string, b: string) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5);
+  return (
+    <Section title="On this trip" id={`guide-${guide.id}-city-${city.id}-trip`}>
+      <ul>
+        {trip.legs.map((l) => {
+          const n = nights(l.start, l.end);
+          return (
+            <TileRow
+              key={l.id}
+              to={`/leg/${l.id}`}
+              tile={<IconTile size="sm" name="bed" tone="accent" />}
+              title={data.hotels.find((h) => h.id === l.hotelId)?.name || l.base}
+              meta={[fmtDateRange(l.start, l.end), n > 0 ? (n === 1 ? "1 night" : `${n} nights`) : ""].filter(Boolean).join(" · ")}
+            />
+          );
+        })}
+        {dayTrips.map((d) => (
+          <TileRow key={d.id} to={`/day/${d.id}`} tile={<IconTile size="sm" name="train" tone="ai" />} title={d.title || "Day out"} meta={fmtDate(d.date)} />
+        ))}
+        {dates.map((r) => (
+          <ArticleRow key={r.slug} to={`${home}/date/${r.slug}`} caption={r.eyebrow} title={r.title} meta={r.article.summary} thumb={photoIn(r.article)?.src} />
+        ))}
+        {trip.notes.flatMap((n) => entryRow(guide, n.ref).map((r) => (
+          <ArticleRow key={r.to} to={r.to} caption={`Pinned: ${n.pins.join(", ")}`} title={r.entry.title} meta={r.entry.article.summary} thumb={photoIn(r.entry.article)?.src} />
+        )))}
+      </ul>
+    </Section>
+  );
+}
+
+/** a city's entries under their headings, always in the same order so
+ *  every place's page reads alike; anything without one is "Worth
+ *  knowing", listed last */
 function cityGroups(city: GuideCity): { title: string; refs: ArticleRef[] }[] {
+  const order: string[] = [...CITY_GROUPS, "Worth knowing"];
   const out: { title: string; refs: ArticleRef[] }[] = [];
   cityArticles(city).forEach((r, i) => {
     const title = city.items[i].group ?? "Worth knowing";
@@ -589,7 +636,7 @@ function cityGroups(city: GuideCity): { title: string; refs: ArticleRef[] }[] {
     if (g) g.refs.push(r);
     else out.push({ title, refs: [r] });
   });
-  return [...out.filter((g) => g.title !== "Worth knowing"), ...out.filter((g) => g.title === "Worth knowing")];
+  return out.sort((a, b) => order.indexOf(a.title) - order.indexOf(b.title));
 }
 
 export function GuideDayTripsPage() {
@@ -780,12 +827,10 @@ function ArticlePage({
   const minutes = readingMinutes(a);
   const headings = a.body?.flatMap((b) => ("h" in b ? [b.h] : [])) ?? [];
   // what the read is tied to, whichever side wrote the link: its own
-  // related reads and the reads that point back at it, then the places
-  // whose notes do
+  // related reads, the reads that point back at it, then the places whose
+  // notes do — one list, cut short the way Apple News ends a story
   const links = guide ? relatedTo(guide, pathname.slice(guidePath(guide).length + 1)) : { related: [], places: [] };
-  const rows = (refs: string[]) => (guide ? refs.flatMap((ref) => entryRow(guide, ref)).filter((r) => r.to !== next?.to) : []);
-  const related = rows(links.related);
-  const places = rows(links.places);
+  const related = guide ? [...links.related, ...links.places].flatMap((ref) => entryRow(guide, ref)).filter((r) => r.to !== next?.to) : [];
   return (
     <GuideSources.Provider value={a.sources ?? []}>
     <Page width="form">
@@ -920,8 +965,7 @@ function ArticlePage({
           />
         ) : null}
 
-        <EntryList kicker="Related" rows={related} />
-        <EntryList kicker="Places" rows={places} />
+        <EntryList key={pathname} kicker="Related" rows={related} limit={3} />
       </div>
     </Page>
     </GuideSources.Provider>

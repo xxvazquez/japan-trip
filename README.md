@@ -585,8 +585,10 @@ The guide has two halves: **This Trip**, picked from the trip, and **Guide**, th
 - **Elsewhere in Japan** — the guide's other places, for ideas beyond the route, grouped by region from Hokkaido to Okinawa (a city's `region`, in the order of the guide's `regions`). Every place has a cover photo and sourced facts.
 - **While you're there** — festivals, seasons and closures that fall within the trip's dates, with a count.
 - **Before you go** — **Be prepared** (who to call, earthquakes, tsunami, typhoons, heat, Fuji, bears), **Rules with teeth**, **Money** (cards, cash, ATMs, prices) and **Getting around**.
-- A city page opens on its cover picture (a city can name its own) and groups its reads under **Understand the place**, **Look closer**, **Eat and drink** (Tokyo and Kyoto add their coffee lists there) and **Before you go**, with short notes under **Worth knowing**. Population and Day trips share one grouped card at the top.
-- A city page ends as a hub: **Through the year** lists the dates tied to it (Takayama's autumn festival), and **In the guide** the chapter reads its notes link to or are linked from, five at first with **Show All**. Nothing general is copied onto a city's page.
+- A city page opens on its cover picture (a city can name its own) and groups its reads under **Understand the place**, **Look closer**, **Eat and drink** (Tokyo and Kyoto add their coffee lists there) and **Before you go**, always in that order. Every note names its `group`; a test catches one that doesn't. Population and Day trips share one grouped card at the top.
+- **On this trip** leads a city's page when the trip goes there: your stay (hotel and nights) or day trip, the dates that fall while you're there, and the notes that talk about a place you've pinned (*Pinned: Byōdō-in*).
+- A date says where it happens with `places` (city ids). It shows under On this trip only there; one with none is national.
+- A city page ends as a hub: **Through the year** lists the dates tied to it (Takayama's autumn festival), and **In the guide** the chapter reads its notes link to or are linked from, most relevant first (the most links, then the most mentions of the place), five at first with **Show All**. Nothing general is copied onto a city's page.
 - **Day trips** — from each base, all by train or bus, on the city's page.
 
 #### Guide — the book
@@ -621,7 +623,7 @@ The book reads in order, in five parts, with chapters numbered straight through.
 - **Bookmark**, **Share** and **⋯** sit in the nav bar. Share opens the phone's share sheet; on desktop Chrome it copies the link (the button turns into a tick).
 - **Read by reading** — reaching the end of an article marks it read, as Books keeps your place. To change it by hand: **⋯ → Mark as Read / Mark as Unread** in the bar, or hold a row (right-click on a computer). Read articles get a green tick on their row, and a chapter page says how many of its articles you've read.
 - Read marks, bookmarks and Continue reading are kept on this device only, not synced.
-- An article ends the way Apple News closes a story: its **sources**, then **Up next** as one big picture card (**Next chapter** at a chapter's end), then **Related**, the reads that carry the thread on, each captioned with its chapter, and **Places**, the city notes that point at it.
+- An article ends the way Apple News closes a story: its **sources**, then **Up next** as one big picture card (**Next chapter** at a chapter's end), then **Related**: its own related reads, the reads that point at it, then the city notes that do, each captioned with its chapter or place. Three show, with **Show All** for the rest.
 - A link is written once, on either side (`related` or an in-text `guide:` link), and shows at both ends. Day trips (`place/<city>/day-trips/<slug>`) and dates (`date/<slug>`) can be linked to too.
 - Up next opens the next entry in place, so Back still returns to the list. The back button names the page it returns to (‹ Kyoto, ‹ Japan), even after a reload; a long chapter or place name uses its short form (‹ Arts, ‹ Kurama), set as `short` on the chapter or city; anything still too long reads ‹ Back.
 - An article's address is its title without accents (`…/history/jomon-yayoi-and-kofun`). Older links that dropped accented letters (`j-mon`) redirect, and read marks and bookmarks move with them.
