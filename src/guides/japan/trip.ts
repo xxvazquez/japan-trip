@@ -559,6 +559,49 @@ const base: { cities: GuideCity[] } = {
           ],
         },
       ],
+      dayTrips: [
+        {
+          name: "Sakai", cover: photoOf("rikyu-house", "A stone well and a small wooden shelter in a garden of raked gravel", "The site of Sen no Rikyū's house in Sakai."), local: "堺", getting: "About 15 min by Nankai or JR from Namba or Tennōji",
+          summary: "A merchant republic that answered to no lord, the tea master it produced, and the knives",
+          body: [
+            { p: "In the 1500s, while warlords fought over the rest of Japan, **Sakai** ran itself. It was a port of about **40,000** people, rich on the trade with China and then with the Portuguese, governed by a council of its wealthiest merchants and ringed with a moat. The Jesuit Gaspar Vilela wrote in 1561 that it was “governed by consuls like **Venice**”.[^1]" },
+            { p: "It ended with unification. Oda Nobunaga demanded a crushing levy; Toyotomi Hideyoshi abolished the town's self-government and moved its merchants to build up his new Osaka.[^1] One Sakai merchant went with the warlords: **Sen no Rikyū**, who perfected the tea ceremony as Nobunaga's and then Hideyoshi's tea master, until Hideyoshi ordered him to kill himself in 1591. The site of his house, with its well, is in the old town, and **Sakai Rishō no Mori** across the road is a museum to him and to the poet Yosano Akiko, also born here." },
+            { h: "Knives" },
+            { p: "Sakai's smiths began with blades for chopping **tobacco**, brought by the Portuguese in the 16th century; the shogunate later gave their work its own seal. Today they make the single-bevelled knives most professional Japanese chefs use. The work is still divided between specialists: one forges the blade, another sharpens it, a third fits the handle.[^2]" },
+            { note: "The **Sakai Traditional Crafts Museum** has knives to buy and, on some days, a smith at work. The huge keyhole tomb of **Daisen**, one of the largest in the world, is a bus ride away (see [Kofun](guide:history/j-mon-yayoi-and-kofun)).", title: "Going" },
+          ],
+          sources: [
+            { title: "Sakai — Wikipedia", url: "https://en.wikipedia.org/wiki/Sakai", note: "About 40,000 people in the 1530s; merchant rule; Vilela's “like Venice”, 1561; Nobunaga and Hideyoshi; Rikyū" },
+            { title: "Sakai forged knives — Sakai City", url: "https://www.city.sakai.lg.jp/kanko/sakai/keisho/dentosangyo/sakaiuchihamono.html", note: "Tobacco knives in the 16th century; the division of forging, sharpening and handles (Japanese)" },
+          ],
+        },
+        {
+          name: "Ōyamazaki", cover: photoOf("yamazaki-distillery", "Brick and white distillery buildings at the foot of a wooded hill", "Suntory's Yamazaki distillery."), local: "大山崎", getting: "About 30 min by JR from Osaka",
+          summary: "Japan's first whisky, the only tea room Rikyū surely built, and a Tudor villa on the hill where a battle was won",
+          body: [
+            { p: "Where the hills close in between Kyoto and Osaka, three rivers meet and the mist hangs in the valley. In **1923** Torii Shinjirō of the company that became Suntory chose it for Japan's first malt whisky distillery, with **Taketsuru Masataka** as its first manager, fresh from Scotland. The whisky took years to sell; the hit came only in 1937 with Kakubin.[^1] Taketsuru left in 1934 to found Nikka at Yoichi, in Hokkaido (see [Shōchū, whisky and beer](guide:drinks/sh-ch-whisky-and-beer))." },
+            { p: "Up the hill from the station, the temple of **Myōki-an** keeps **Tai-an**, the only surviving tea room that can be credited to **Sen no Rikyū** with confidence, and the oldest tea-room building in Japan: two tatami mats, a crawl-through door, earth walls. It's a National Treasure. Seeing it means writing a return postcard about a month ahead, and looking in from the doorway.[^2]" },
+            { p: "Higher still is the **Asahi Group Ōyamazaki Villa Museum**, an English Tudor-style house that a businessman, Kaga Shōtarō, designed himself, finished in 1932 and built to look down on the river the way Windsor looks over the Thames. In the late 1980s it was bought to be pulled down for flats; the prefecture and Asahi saved it, and since 1996 it's shown folk-craft and Monet's water lilies, in an underground gallery by Andō Tadao.[^3]" },
+            { note: "The distillery tour must be booked well ahead and sells out. Behind the villa, the path up **Tennōzan** leads to the hill where Toyotomi Hideyoshi beat Akechi Mitsuhide in **1582**, eleven days after Akechi killed Nobunaga.", title: "Going" },
+          ],
+          sources: [
+            { title: "Yamazaki distillery — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%B1%B1%E5%B4%8E%E8%92%B8%E6%BA%9C%E6%89%80", note: "Land bought 1923; Taketsuru; Kakubin in 1937; Taketsuru leaves in 1934 (Japanese)" },
+            { title: "Myōki-an — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%A6%99%E5%96%9C%E5%BA%B5", note: "Tai-an, the oldest tea-room building and the only one credibly Rikyū's; booking by postcard a month ahead (Japanese)" },
+            { title: "Asahi Group Ōyamazaki Villa Museum of Art — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E3%82%A2%E3%82%B5%E3%83%92%E3%82%B0%E3%83%AB%E3%83%BC%E3%83%97%E5%A4%A7%E5%B1%B1%E5%B4%8E%E5%B1%B1%E8%8D%98%E7%BE%8E%E8%A1%93%E9%A4%A8", note: "Kaga Shōtarō's villa, finished 1932; saved from flats; a museum since 1996; Andō's gallery and the water lilies (Japanese)" },
+          ],
+        },
+        {
+          name: "Tondabayashi", cover: photoOf("tondabayashi", "A large old merchant house with white walls and a tiled roof on a quiet lane", "A merchant house in Tondabayashi's temple town."), local: "富田林", getting: "About 35 min by Kintetsu from Abenobashi",
+          summary: "A town built round a temple in 1560 by a Buddhist sect that ran its own towns",
+          body: [
+            { p: "In **1560** a priest of the Kōshō-ji branch of True Pure Land Buddhism bought a stretch of rough ground above the Ishikawa river for a hundred strings of coins and laid out a town round a new temple. It was a **jinaimachi**, a temple town: self-governing, walled by its own embankment and bamboo, and protected by the sect at a time when its followers could field armies.[^1]" },
+            { p: "The town lost its independence when Hideyoshi took it in hand in the 1580s, but its merchants did well under the Tokugawa, brewing sake and trading cotton, and kept rebuilding on the same grid: seven streets one way and six the other, on an oval about 400 by 350 m. It's the only historic townscape in Osaka prefecture protected as a preservation district, chosen in **1997**.[^1]" },
+            { p: "The temple, **Kōshō-ji Betsuin**, is still at the centre, with six buildings listed as Important Cultural Properties. The streets are deliberately offset at the crossings, *atemage*, so an attacker can't see down them." },
+            { note: "The district is a 10-minute walk from Tondabayashi station. The **Old Sugiyama house**, a sake brewer's home of the 1700s, is open to visit; the rest are lived in, so it stays quiet.", title: "Going" },
+          ],
+          sources: [{ title: "Tondabayashi jinaimachi — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%AF%8C%E7%94%B0%E6%9E%97%E5%AF%BA%E5%86%85%E7%94%BA", note: "Founded 1560; the 7 by 6 street grid, about 400 by 350 m; Osaka's only preservation district, 1997 (Japanese)" }],
+        },
+      ],
     },
     {
       id: "nara",
@@ -772,6 +815,276 @@ const base: { cities: GuideCity[] } = {
       ],
     },
     {
+      id: "yokohama",
+      name: "Yokohama",
+      local: "横浜",
+      lat: 35.4437, lng: 139.638, radiusKm: 10,
+      region: "Kantō",
+      population: "About 3.7 million",
+      cover: photoOf("yokohama-night", "Office towers, a big wheel and a hotel shaped like a sail lit up across a harbour at night", "Minato Mirai from Ōsanbashi pier."),
+      items: [
+        {
+          title: "The port put out of the way",
+          summary: "Opened in 1859 in a fishing village, chosen because it was off the main road",
+          body: [
+            { p: "The 1858 treaty with the United States named **Kanagawa**, a post town on the Tōkaidō, as the port to open. The shogunate didn't want foreigners on the busiest road in Japan, so it built the wharves across the inlet instead, in **Yokohama**, a fishing village on a sandbar, and opened them on **2 June 1859**. The consuls complained; the merchants saw the deep water and the new warehouses, and moved in anyway.[^1]" },
+            { p: "The road was the danger the shogunate feared. In 1862 four British riders met a daimyō's procession on the Tōkaidō at **Namamugi**, now in Tsurumi ward, and the Satsuma samurai escorting it cut them down, killing one. Britain's answer was to bombard Kagoshima the next year (see [Satsuma and the Restoration](guide:place/kagoshima/satsuma-and-the-restoration)).[^1]" },
+            {
+              timeline: [
+                { when: "1859", text: "The port opens in the fishing village" },
+                { when: "1862", text: "The Namamugi incident on the Tōkaidō" },
+                { when: "1870", text: "Japan's first daily newspaper" },
+                { when: "1872", text: "The first gas street lamps, and the first railway, to Shimbashi in Tokyo" },
+                { when: "1899", text: "Foreigners lose their own courts; the settlement becomes ordinary city" },
+                { when: "1923", text: "The Great Kantō earthquake flattens it" },
+              ],
+            },
+            { p: "What paid for all of it was **raw silk**. In 1862 silk and silkworm eggs made up 86% of Japan's exports, carried down from the mountains of Gunma and Nagano and shipped from here to Lyon and London.[^2] The merchants traded on the flat in **Kannai** and built their houses up on **Yamate**, which they called the Bluff, where the Foreign General Cemetery and a row of restored Western houses still stand." },
+            { note: "Kannai, Yamate and Chinatown are all a short walk apart. **Motomachi**, the shopping street under the Bluff, began by selling to the foreigners on the hill.", title: "Going" },
+          ],
+          related: ["history/meiji-to-1945"],
+          sources: [
+            { title: "Yokohama — Wikipedia", url: "https://en.wikipedia.org/wiki/Yokohama", note: "Kanagawa passed over; the port opened 2 June 1859; Namamugi, 1862; the firsts of 1870 and 1872" },
+            { title: "Tomioka Silk Mill — Wikipedia", url: "https://en.wikipedia.org/wiki/Tomioka_Silk_Mill", note: "Silk and silkworm eggs 86% of Japan's exports in 1862" },
+          ],
+        },
+        {
+          title: "Chinatown and the shiumai",
+          summary: "Japan's biggest Chinatown, begun by the clerks the Western firms brought, and the station dumpling made to be eaten cold",
+          body: [
+            photo("yokohama-chinatown", "An ornate Chinese gate painted red, green and gold over a street of shops", "Zenrin-mon, the gate into Yokohama's Chinatown."),
+            { p: "The Western trading houses that arrived in 1859 brought **Chinese staff** with them: compradors, clerks and craftsmen who could write to Japanese merchants in Chinese characters when neither side spoke the other's language. They settled in a block of reclaimed land beside the foreign settlement, and **Chūkagai** grew around them. It's now Japan's largest Chinatown, with about 250 Chinese-run or Chinese-themed shops and restaurants in a few dense streets.[^1]" },
+            { p: "Little of it is old. The 1923 earthquake killed about **1,541** of its 4,705 Chinese residents, a third of them, and the war with China from 1937 emptied it again. Most of what you see went up after the war.[^1]" },
+            {
+              terms: [
+                { term: "Kantei-byō", text: "The temple to Guan Yu, the Three Kingdoms general worshipped as a god of loyalty and of trade — fitting for a town of merchants." },
+                { term: "Ma-so-byō", text: "A temple to Mazu, goddess of the sea and of sailors, opened in 2006." },
+                { term: "The gates", text: "Ten of them, set to the compass; the big goodwill gate, Zenrin-mon, dates from 1955." },
+              ],
+            },
+            {
+              dishes: [
+                { name: "Shiumai", local: "シウマイ", kind: "Regional", text: "Small pork dumplings made by **Kiyōken**, a caterer that began in 1908 as a kiosk in the first Yokohama station and spells the word its own way. They were designed to taste good cold, for eating on a train; the *Shiumai bentō* is one of Japan's best-known station boxes, with a small china soy bottle in the box.[^2]", where: "Every Kiyōken counter at Yokohama station" },
+                { name: "Sanmā-men", local: "サンマーメン", kind: "Regional", text: "Yokohama's own noodle soup, nothing to do with saury: soy ramen under a thick, glossy sauce of stir-fried bean sprouts and pork." },
+                { name: "Nikuman", local: "肉まん", kind: "Everyday", text: "Steamed pork buns, sold from steaming windows all along the main street." },
+              ],
+            },
+            photo("kiyoken-shiumai", "A bento box of rice, shiumai dumplings and side dishes on a train table", "Kiyōken's Shiumai bentō."),
+            { note: "At weekends the main street is packed by noon. The side lanes have the older, plainer restaurants where Chinese families eat; set lunches are much cheaper than dinner.", title: "Going" },
+          ],
+          sources: [
+            { title: "Yokohama Chinatown — Wikipedia", url: "https://en.wikipedia.org/wiki/Yokohama_Chinatown", note: "Founded with the port; about 250 shops; 1,541 of 4,705 killed in 1923; the 1955 gate; the Mazu temple, 2006" },
+            { title: "Kiyōken — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%B4%8E%E9%99%BD%E8%BB%92", note: "Founded 1908 in the first Yokohama station; the Shiumai bentō (Japanese)" },
+          ],
+        },
+        {
+          title: "A park made of rubble",
+          cover: photoOf("hikawa-maru", "A black-hulled ocean liner with a single funnel moored at a quay", "Hikawa Maru at Yamashita Park."),
+          summary: "The 1923 earthquake killed one in fourteen; the debris became the waterfront, and a liner from 1930 is moored beside it",
+          body: [
+            { p: "The **Great Kantō earthquake** struck at 11:58 on 1 September 1923, and in Yokohama, closer to the epicentre than Tokyo, it was worse. The city police counted **30,771 dead** out of a population of 434,170 — about one person in fourteen. Brick buildings of the treaty port collapsed, and fires burned the rest.[^1]" },
+            { p: "The rubble was pushed into the harbour, and on the new land the city laid out **Yamashita Park**, opened in **1930**: the waterfront promenade everyone walks today is the old city, buried. In August 1945 the Occupation took it for military housing and held it until 1960; across the road, at the **Hotel New Grand**, General MacArthur spent his first night in Japan.[^2]" },
+            { p: "The liner moored at the park's end, **Hikawa Maru**, sailed Yokohama to Seattle from 1930. Charlie Chaplin crossed on her in 1932; Kanō Jigorō, the founder of judo, died aboard in 1938; in 1940–41 hundreds of Jewish refugees from Europe sailed on her to North America. She survived the war as a hospital ship, one of very few big Japanese liners to come through, and has been a museum here since 1961.[^3]" },
+            {
+              stats: [
+                { value: "30,771", label: "dead in Yokohama in 1923" },
+                { value: "1930", label: "Yamashita Park opens on the debris" },
+                { value: "238", label: "Pacific voyages by Hikawa Maru" },
+              ],
+            },
+            { note: "Hikawa Maru's cabins, dining saloon and engine room are open to walk through. The Marine Tower across the road gives the view back over the bay.", title: "Going" },
+          ],
+          related: ["history/meiji-to-1945"],
+          sources: [
+            { title: "Yokohama — Wikipedia", url: "https://en.wikipedia.org/wiki/Yokohama", note: "30,771 dead of a population of 434,170 in 1923" },
+            { title: "Yamashita Park — Wikipedia", url: "https://en.wikipedia.org/wiki/Yamashita_Park", note: "Built on earthquake rubble, opened 15 March 1930; requisitioned 1945–1960; the Hotel New Grand" },
+            { title: "Hikawa Maru — Wikipedia", url: "https://en.wikipedia.org/wiki/Hikawa_Maru", note: "Chaplin, Kanō, the refugees, the hospital ship; berthed here since 1961; 238 voyages" },
+          ],
+        },
+        {
+          title: "Sankeien",
+          cover: photoOf("sankeien", "A three-storey pagoda on a wooded hill above a large pond", "The Tōmyō-ji pagoda above Sankeien's pond."),
+          summary: "A silk merchant's garden, filled with old buildings he bought from Kyoto and Kamakura when nobody wanted them",
+          body: [
+            { p: "**Hara Tomitarō** (1868–1939), who wrote and painted as Sankei, made his fortune in Yokohama silk. From 1902 he laid out a garden of ponds and wooded hills on the coast south of the port, and in **1906** he opened it to the public, free.[^1]" },
+            { p: "Then he filled it. In the decades after the Meiji Restoration, temples lost their lands and old buildings were being sold off or left to rot, and Hara bought them and had them taken down, shipped and rebuilt here. The garden is in effect a museum of Japanese architecture, with ten buildings now listed as Important Cultural Properties.[^1]" },
+            {
+              terms: [
+                { term: "Tōmyō-ji pagoda", text: "Built in Kyoto in **1457**, moved here in 1914; it stands on the hill over the pond, the garden's signature view." },
+                { term: "Gekkaden", text: "A guest hall built in 1603 in Tokugawa Ieyasu's Fushimi Castle, Kyoto." },
+                { term: "Jutō Ōi-dō", text: "A small hall Toyotomi Hideyoshi built in 1591 for his mother — one of the few buildings certainly his." },
+                { term: "Yanohara house", text: "A huge thatched farmhouse of a wealthy Edo-period family from the mountains of Gifu, its rooms open to walk through." },
+              ],
+            },
+            { p: "The war damaged it badly, and in 1953 the Hara family gave it to the city. The **inner garden**, the family's own, opened for the first time in 1958 — the part with the Kyoto halls, and the quietest." },
+            { note: "Buses from Yokohama or Sakuragichō stations take about 35 minutes; get off at Honmoku. Cherry blossom in early April, and the lotuses on the pond in July, are the best times.", title: "Going" },
+          ],
+          related: ["land/gardens"],
+          sources: [{ title: "Sankei-en — Wikipedia", url: "https://en.wikipedia.org/wiki/Sankei-en", note: "Hara Sankei; opened 1906; the Tōmyō-ji pagoda of 1457, Gekkaden, Jutō Ōi-dō; given to the city in 1953" }],
+        },
+        {
+          title: "A shipyard turned skyline",
+          cover: photoOf("landmark-nippon-maru", "A white four-masted sailing ship in a stone dock below a tall tower", "Nippon Maru in its dock below the Landmark Tower."),
+          summary: "Minato Mirai went up on a Mitsubishi shipyard; two of the yard's stone docks are still at its feet",
+          body: [
+            { p: "The towers on the bay are newer than they look. **Minato Mirai 21** was proposed in 1965 by the mayor, Asukata Ichio, to join the old port town of Kannai to the area around Yokohama station, with a shipyard and rail yards in between. The **Mitsubishi** shipyard moved out, building began in 1983, and about 79,000 people now work there.[^1]" },
+            { p: "The **Landmark Tower**, 296 m, opened in 1993 and was Japan's tallest building until 2014. Its lifts still descend faster than any others in the world. Its 69th-floor observatory, Sky Garden, closed at the end of 2025 for a long refit and isn't due back before 2028.[^2]" },
+            { p: "The shipyard's two stone **dry docks** were kept. One, at the tower's foot, is now a sunken plaza of steps; in the other sits **Nippon Maru**, a four-masted barque launched in 1930 that trained Japan's merchant cadets until 1984. On some days her crew still unfurl all 32 sails.[^3]" },
+            {
+              stats: [
+                { value: "1983", label: "building begins on the shipyard" },
+                { value: "296 m", label: "the Landmark Tower" },
+                { value: "79,000", label: "people working there" },
+              ],
+            },
+            { note: "The **Red Brick Warehouses**, customs stores from the 1910s, are now shops and a beer festival site. The **Kishamichi** promenade runs along an old freight line across the water from Sakuragichō.", title: "Walking it" },
+          ],
+          sources: [
+            { title: "Minato Mirai 21 — Wikipedia", url: "https://en.wikipedia.org/wiki/Minato_Mirai_21", note: "Proposed 1965; building began 1983; about 79,000 workers" },
+            { title: "Yokohama Landmark Tower — Wikipedia", url: "https://en.wikipedia.org/wiki/Yokohama_Landmark_Tower", note: "296.3 m; tallest until 2014; Sky Garden closed from 2025 to 2028 or later" },
+            { title: "Nippon Maru (1930) — Wikipedia", url: "https://en.wikipedia.org/wiki/Nippon_Maru_(1930)", note: "Launched 1930; four-masted barque with 32 sails; retired 1984" },
+          ],
+        },
+        {
+          title: "Ramen, the Yokohama way",
+          cover: photoOf("iekei-ramen", "A bowl of ramen in a creamy brown broth with spinach, pork and three sheets of nori", "A bowl of iekei ramen."),
+          summary: "A trucker's idea that became a whole family of shops, a museum built as 1958, and the cup noodle",
+          body: [
+            { p: "In **1974** a former long-haul truck driver, Yoshimura Minoru, opened **Yoshimura-ya** with an idea from the road: mix Kyushu's pork-bone broth with Tokyo's soy sauce. Thick straight noodles, spinach, a slice of pork and three sheets of nori on top. The shop stood among the shipyards and factories of the bay, and the workers and drivers made it famous.[^1]" },
+            { p: "Its apprentices opened their own shops, most called something-*ya*, so the whole family is known as **iekei**, “the -ya lineage”. There are now hundreds, from the direct descendants to chains with no link at all." },
+            {
+              steps: [
+                { title: "Firmness", text: "*Katasa*: soft, normal or firm (*kata*) noodles." },
+                { title: "Fat", text: "*Abura*: less, normal or more chicken fat on the surface." },
+                { title: "Strength", text: "*Aji*: lighter or stronger seasoning. First time, say *futsū* — normal — for all three." },
+                { title: "At the table", text: "Add raw garlic, ginger or doubanjiang to taste, and eat the nori wrapped round rice." },
+              ],
+            },
+            { p: "Two museums make the same city noodle-mad. The **Shin-Yokohama Ramen Museum**, opened in 1994, is a basement built as a Tokyo street of 1958, the year instant noodles were invented, with branches of famous shops from across Japan.[^2] At the **Cup Noodles Museum** in Minato Mirai, opened in 2011, you design and seal your own cup; it honours **Andō Momofuku**, who put Chicken Ramen on sale in 1958 and the Cup Noodle in 1971.[^3]" },
+          ],
+          related: ["eating-out/soba-udon-and-ramen"],
+          sources: [
+            { title: "Iekei ramen — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%AE%B6%E7%B3%BB%E3%83%A9%E3%83%BC%E3%83%A1%E3%83%B3", note: "Yoshimura-ya, 1974; the trucker's idea; the factory district (Japanese)" },
+            { title: "Shin-Yokohama Ramen Museum — Wikipedia", url: "https://en.wikipedia.org/wiki/Shin-Yokohama_Ramen_Museum", note: "Opened 1994; the 1958 streetscape" },
+            { title: "Momofuku Ando — Wikipedia", url: "https://en.wikipedia.org/wiki/Momofuku_Ando", note: "Instant noodles on sale 25 August 1958" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "okayama",
+      name: "Okayama",
+      local: "岡山",
+      aliases: ["Kurashiki", "倉敷"],
+      lat: 34.6555, lng: 133.8615, radiusKm: 12,
+      region: "Chūgoku",
+      population: "About 720,000 (Okayama), 480,000 (Kurashiki)",
+      cover: photoOf("korakuen-castle", "A wide lawn and pond in a garden, a black castle keep rising over the trees beyond", "Kōrakuen, with Okayama Castle behind."),
+      items: [
+        {
+          title: "A lord's garden with a castle for scenery",
+          cover: photoOf("korakuen-lawn", "A broad garden of lawns, a winding stream and a pond with a small island", "Kōrakuen's lawns and stream."),
+          summary: "Kōrakuen, finished in 1700, and the black “crow castle” across the river that it borrows as a backdrop",
+          body: [
+            { p: "**Kōrakuen** was begun in **1687** by the lord of Okayama, Ikeda Tsunamasa, and finished in 1700 on an island in the Asahi river, under the walls of his castle. It's a stroll garden, but an unusual one: instead of moss and dense planting it opens out into wide **lawns**, a stream, tea fields and even a small rice paddy, so it reads more like a park than a Kyoto garden. It's counted with Kenroku-en in Kanazawa and Kairaku-en in Mito as one of Japan's three great gardens.[^1]" },
+            { p: "Its name came late. It was the lord's garden, *Kōen*, “the garden behind”, until 1871, when it was renamed after a line from the Chinese scholar Fan Zhongyan: a ruler should *grieve before the people grieve, and enjoy after they enjoy* — *kōraku*. In 1884 the prefecture took it over and opened it to everyone.[^1]" },
+            { p: "The backdrop is **Okayama Castle**, its keep finished in 1597 and clad in black boards, which gave it the nickname **U-jō**, the crow castle, against Himeji's white heron. The keep burned in the air raid of 29 June 1945; the one you see is a concrete copy of 1966, though two original turrets survived.[^2]" },
+            {
+              stats: [
+                { value: "1700", label: "the garden finished" },
+                { value: "13 ha", label: "of lawns, ponds and tea fields" },
+                { value: "1966", label: "the castle keep rebuilt" },
+              ],
+            },
+            { note: "A footbridge links the garden's south gate to the castle across the river; seeing both takes half a day. The garden is a 25-minute walk or a short tram ride from Okayama station.", title: "Going" },
+          ],
+          related: ["land/gardens", "place/kanazawa/a-rich-castle-town"],
+          sources: [
+            { title: "Kōraku-en — Wikipedia", url: "https://en.wikipedia.org/wiki/K%C5%8Draku-en", note: "Begun 1687, finished 1700; renamed 1871 after Fan Zhongyan; public from 1884; about 133,000 m²" },
+            { title: "Okayama Castle — Wikipedia", url: "https://en.wikipedia.org/wiki/Okayama_Castle", note: "Keep finished 1597, burned 29 June 1945, rebuilt in concrete in 1966" },
+          ],
+        },
+        {
+          title: "Kurashiki's canal of storehouses",
+          cover: photoOf("kurashiki-canal", "A stone-lined canal edged with willows, white-walled storehouses along it", "The Kurashiki river through the Bikan quarter."),
+          summary: "A shogunate rice port, 17 km from Okayama, that kept its willows and white-and-black walls",
+          body: [
+            { p: "**Kurashiki**'s name means “a place of storehouses”. In **1642** the shogunate took the town as its own territory and set up an intendant's office here, and the canal became the port where the rice tax of southern Bitchū was gathered and shipped out to Osaka. The merchants who handled it built rows of storehouses along the water.[^1]" },
+            {
+              terms: [
+                { term: "Namako-kabe", text: "The walls of black tiles set in diagonal grids of raised white plaster, which look like the ridges of a sea cucumber, *namako*. They protected against fire and rain." },
+                { term: "Kurashiki-mado", text: "The narrow vertical bars on the merchant houses' upper windows." },
+                { term: "Ōhashi house", text: "A big rice merchant's house of 1796, open to visit, its long frontage showing how much the trade paid." },
+              ],
+            },
+            { p: "The canal quarter, the **Bikan** district, survived the war unbombed and was protected as a preservation district in 1979. Several storehouses are now small museums of folk craft, toys and archaeology; others are cafés." },
+            { note: "Kurashiki is 15 minutes from Okayama by JR, and the canal 10 minutes' walk from the station. Come early or stay into the evening, when the tour groups have gone and the canal is lit.", title: "Going" },
+          ],
+          related: ["look-closer/castle-towns"],
+          sources: [{ title: "Kurashiki Bikan Historical Quarter — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%80%89%E6%95%B7%E7%BE%8E%E8%A6%B3%E5%9C%B0%E5%8C%BA", note: "Shogunate territory from 1642; the storehouses, the Ōhara museum and the Kurabō mill (Japanese)" }],
+        },
+        {
+          title: "A spinning mill and an El Greco",
+          summary: "How a cotton company's heir built Japan's first museum of Western art in a country town",
+          body: [
+            photo("ohara-museum", "A stone building with a Greek temple front of columns and a pediment", "The Ōhara Museum of Art."),
+            { p: "In 1888 the townspeople founded a cotton-spinning company, **Kurabō**, on the site of the old shogunal office, and its red-brick mill opened in 1889. **Ōhara Magosaburō** (1880–1943), the founder's son, turned it into one of Japan's big textile firms — and spent the money in unusual ways: a hospital for the town, institutes to study workers' lives and welfare, support for an orphanage.[^1]" },
+            { p: "He also paid for a painter friend, **Kojima Torajirō**, to study in Europe and to buy paintings there for him. When Kojima died in 1929, Ōhara opened the **Ōhara Museum of Art** the next year in his memory: Japan's **first museum of Western art**, decades before Tokyo had one.[^2] Its best-known picture is El Greco's *Annunciation*; Monet, Gauguin and Modigliani hang nearby." },
+            { p: "The mill itself closed after the war and in 1973 became **Ivy Square**, a hotel, museum and courtyard inside the ivy-covered brick walls.[^3]" },
+            photo("ivy-square", "A courtyard surrounded by red-brick walls thick with ivy", "Ivy Square, the old Kurabō mill."),
+            {
+              timeline: [
+                { when: "1888", text: "Kurabō is founded" },
+                { when: "1889", text: "The red-brick mill begins spinning" },
+                { when: "1930", text: "The Ōhara Museum of Art opens" },
+                { when: "1973", text: "The mill reopens as Ivy Square" },
+              ],
+            },
+            { note: "The museum's main building is by the canal; the annexe behind holds Japanese modern art and a craft gallery. The ivy-covered café beside it is named **El Greco**, after the painting.", title: "Seeing it" },
+          ],
+          sources: [
+            { title: "Kurashiki Bikan Historical Quarter — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%80%89%E6%95%B7%E7%BE%8E%E8%A6%B3%E5%9C%B0%E5%8C%BA", note: "The Kurabō mill of 1888 on the intendant's office site (Japanese)" },
+            { title: "Ōhara Museum of Art — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%A4%A7%E5%8E%9F%E7%BE%8E%E8%A1%93%E9%A4%A8", note: "Ōhara Magosaburō, Kojima Torajirō, opened 1930 as Japan's first museum of Western art (Japanese)" },
+            { title: "Kurashiki Ivy Square — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%80%89%E6%95%B7%E3%82%A2%E3%82%A4%E3%83%93%E3%83%BC%E3%82%B9%E3%82%AF%E3%82%A8%E3%82%A2", note: "The 1889 mill, reopened in 1973 (Japanese)" },
+          ],
+        },
+        {
+          title: "The peach boy's shrine",
+          cover: photoOf("kibitsu-corridor", "A long roofed wooden corridor running downhill past a shrine with a deep double-gabled roof", "Kibitsu Shrine and its corridor."),
+          summary: "The ogre-slayer behind Momotarō, a roof found nowhere else, and a kettle that tells your fortune by its roar",
+          body: [
+            { p: "Okayama calls itself the home of **Momotarō**, the boy born from a peach who sets out with a dog, a monkey and a pheasant to fight ogres, paying them in **kibi-dango**. The written tale only dates from the Edo period, but the region has an older story that it borrowed: Prince **Kibitsuhiko**, sent by the court to subdue Kibi, killed a demon called **Ura** who lived in a fortress in the hills. The demon's castle, *Kinojō*, is a real 7th-century hill fort above the plain.[^1]" },
+            { p: "Kibitsuhiko is the god of **Kibitsu Shrine**, west of the city. Its main hall, rebuilt by the shogun Ashikaga Yoshimitsu and finished in **1425**, has a roof of two hipped gables side by side, a form found only here and named *kibitsu-zukuri*; it's a National Treasure. A roofed corridor of 398 m runs down the slope from it.[^2]" },
+            { p: "In the **Narukama** rite, held daily except on Fridays, a priestess boils rice over an iron kettle, and the sound it makes tells your fortune: a long, loud roar is good, silence bad. The legend says Ura's head is buried under the kettle, and still answers." },
+            { note: "Kibitsu station on the JR Momotarō line, 20 minutes from Okayama, is a 10-minute walk from the shrine. A flat cycle path, the **Kibiji**, runs past it and the region's burial mounds; bikes can be hired at Bizen-Ichinomiya station.", title: "Going" },
+          ],
+          related: ["belief/shinto"],
+          sources: [
+            { title: "Momotarō — Wikipedia", url: "https://en.wikipedia.org/wiki/Momotar%C5%8D", note: "The written versions from the Edo period" },
+            { title: "Kibitsu Shrine — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%90%89%E5%82%99%E6%B4%A5%E7%A5%9E%E7%A4%BE", note: "The hall of 1425; the kibitsu-zukuri roof; the 398 m corridor; the kettle rite (Japanese)" },
+          ],
+        },
+        {
+          title: "Jeans from Kojima",
+          cover: photoOf("kojima-jeans", "A shopping street hung with pairs of jeans on lines over the road", "Kojima Jeans Street."),
+          summary: "Salty reclaimed land that grew cotton, then sailcloth and school uniforms, then Japan's first jeans",
+          body: [
+            { p: "**Kojima**, on the coast south of Kurashiki, is where Japanese jeans began, and the reason goes back three centuries. In the Edo period the bay was reclaimed for farmland, and the salty new soil was too poor for rice, so farmers grew **cotton**. Kojima wove it into sailcloth and tabi socks, then, in the 20th century, into Japan's **school uniforms**.[^1]" },
+            { p: "When new synthetic fabrics took the uniform trade in the 1960s, a uniform maker, **Maruo**, turned to denim. It sewed jeans first for a Tokyo brand, and in **April 1965** the first jeans made in Japan went on sale; by 1967 it had its own label, **Big John**, made from American denim bought as offcuts.[^1] The town now has dozens of denim makers, from the big mills to one-man workshops, and a reputation among collectors for slow-woven selvedge." },
+            {
+              stats: [
+                { value: "Edo", label: "period: cotton on the reclaimed land" },
+                { value: "1965", label: "the first Japanese jeans" },
+                { value: "1967", label: "Big John's own label" },
+              ],
+            },
+            { note: "**Jeans Street**, a short shopping street in Ajino, a walk from Kojima station, has a few dozen makers' shops; several let you choose fabric and have a pair hemmed or made to measure.", title: "Going" },
+          ],
+          sources: [{ title: "Japanese jeans turn sixty: Kojima — nippon.com", url: "https://www.nippon.com/en/japan-topics/g02518/", note: "Cotton on reclaimed land, sailcloth and uniforms; the first Japanese jeans in April 1965" }],
+        },
+      ],
+    },
+    {
       id: "hiroshima",
       name: "Hiroshima",
       local: "広島",
@@ -881,6 +1194,51 @@ const base: { cities: GuideCity[] } = {
           related: ["eating-out/getting-a-table-ordering-eating"],
           sources: [
             { title: "Okonomiyaki — Wikipedia", url: "https://en.wikipedia.org/wiki/Okonomiyaki", note: "Hiroshima's layered style" },
+          ],
+        },
+      ],
+      dayTrips: [
+        {
+          name: "Kure", cover: photoOf("yamato-museum", "A modern museum building beside a harbour quay", "The Yamato Museum on Kure's waterfront."), local: "呉", getting: "About 35 min by JR from Hiroshima",
+          summary: "The navy town that built the battleship Yamato, and the museum that reopened in 2026",
+          body: [
+            { p: "Kure was a fishing village until 1889, when the navy chose its sheltered harbour for a base and dockyard. By the Second World War it was one of the biggest naval arsenals in the world, and in a covered dock here it built **Yamato**, the largest battleship ever made, launched in secret in 1940 and sunk in April 1945 on a one-way mission to Okinawa." },
+            { p: "The **Yamato Museum**, opened in **2005**, is built round a **1:10 model** of the ship, 26 metres long. Its first director insisted it was about the technology and how it was used, not a celebration of war; it closed in 2025 for a refit and reopened on **23 April 2026** with its collection grown from about 1,800 to 2,100 pieces.[^1]" },
+            { p: "Across the road, the **JMSDF Kure Museum** puts you inside a real submarine, the *Akishio*, standing on the quay. The shipyards are still working, and the harbour cruise passes destroyers and submarines of today's navy." },
+            { note: "Kure's **kaigun curry**, navy curry, began as the sailors' Friday dish; restaurants serve the recipes of particular ships. The museum and the submarine are a 5-minute walk from Kure station.", title: "Going" },
+          ],
+          sources: [{ title: "Kure Maritime Museum (Yamato Museum) — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%91%89%E5%B8%82%E6%B5%B7%E4%BA%8B%E6%AD%B4%E5%8F%B2%E7%A7%91%E5%AD%A6%E9%A4%A8", note: "Opened 23 April 2005; the 1:10 Yamato; closed 2025, reopened 23 April 2026 (Japanese)" }],
+        },
+        {
+          name: "Takehara & Ōkunoshima", local: "竹原・大久野島", getting: "About 1 h 15 min by JR or bus to Takehara; Ōkunoshima by ferry from Tadanoumi",
+          summary: "A salt town that raised Japan's whisky pioneer, and an island where the army made poison gas",
+          body: [
+            photo("takehara", "A narrow lane of old merchant houses with latticed fronts and tiled roofs", "Takehara's old salt-merchant quarter."),
+            { p: "**Takehara** grew rich on salt in the late Edo period, evaporated from the Inland Sea in great fields along the shore, and the merchants' houses of its old quarter survive: the “little Kyoto of Aki”, a preservation district since 1982.[^1] One family of salt makers and sake brewers there were the **Taketsurus**. Their son **Masataka**, born in 1894, went to Glasgow to study, came home with a Scottish wife, and built Japan's first two whisky distilleries, at Yamazaki and Yoichi.[^2] The family brewery still makes sake in the old quarter." },
+            photo("okunoshima", "Several wild rabbits on a grassy bank by the sea", "Ōkunoshima's rabbits."),
+            { p: "A 15-minute ferry from Tadanoumi, down the coast, reaches **Ōkunoshima**. From **1929 to 1945** the army made poison gas here in secret, the only army gas works in Japan; the island's people were moved off and it was said to have been left off maps. When it became a national holiday village in 1961, a search still found truckloads of gas in the tunnels.[^3]" },
+            { p: "Now it's **rabbit island**: about **500** wild rabbits and some 200,000 visitors a year. They aren't the army's test animals, which were all killed after the war; the likeliest story is that a local school let eight of its rabbits go on the island in **1971**. The ruined power station and gas stores stand among them, and a small **Poison Gas Museum** tells the story the rabbits make easy to forget.[^3]" },
+            { note: "Don't feed the rabbits bread or snacks; buy proper rabbit food before the ferry. Takehara and the island make one long day together.", title: "Going" },
+          ],
+          related: ["drinks/sh-ch-whisky-and-beer"],
+          sources: [
+            { title: "Takehara — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%AB%B9%E5%8E%9F%E5%B8%82", note: "Salt in the late Edo period; “little Kyoto of Aki”; preserved from 1982 (Japanese)" },
+            { title: "Taketsuru Masataka — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%AB%B9%E9%B6%B4%E6%94%BF%E5%AD%9D", note: "Born 1894 in Takehara to a sake and salt family; Yamazaki and Yoichi (Japanese)" },
+            { title: "Ōkunoshima — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%A4%A7%E4%B9%85%E9%87%8E%E5%B3%B6", note: "Poison gas made 1929–1945; the 1961 search; the only army gas works; eight school rabbits released in 1971; about 500 rabbits and 200,000 visitors (Japanese)" },
+          ],
+        },
+        {
+          name: "Onomichi", cover: photoOf("onomichi-hasui", "A woodblock print of a stone-stepped lane climbing between temple roofs", "Kawase Hasui's print of the slope to Senkō-ji."), local: "尾道", getting: "About 1 h 15 min by Shinkansen to Shin-Onomichi or JR to Onomichi",
+          summary: "A town of temples and slopes on a narrow strait, loved by writers and film-makers, where the island bike route begins",
+          body: [
+            { p: "Onomichi is squeezed between hills and the **Onomichi Channel**, a strait so narrow the island across looks like the far bank of a river. Its merchants grew rich shipping rice and goods on the Inland Sea and spent it on temples; dozens climb the hillside, linked by stone steps and lanes too steep and narrow for cars." },
+            { p: "It's known as a town of **slopes**, **literature**, **film** and **cats**. The novelist Hayashi Fumiko grew up here and Shiga Naoya lived here while writing; **Ozu Yasujirō** opened *Tokyo Story* in its streets in 1953.[^1] The walk up to **Senkō-ji**, past poems carved in the rocks, gives the view over the strait, and a cable car saves the climb." },
+            { p: "Onomichi is also where the **Shimanami Kaidō** begins: an expressway of bridges, opened in **1999**, that hops across nine islands to Imabari on Shikoku, 59 km, with its own lane for bikes and walkers all the way. Bikes can be hired in Onomichi and left at the other end, and cyclists ride free until **March 2028**.[^2]" },
+            { note: "Ride a stretch rather than all of it: to Ikuchijima and Setoda, with its lemon groves and the extravagant temple of Kōsan-ji, is a good day there and back by bike and ferry.", title: "Going" },
+          ],
+          sources: [
+            { title: "Onomichi — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%B0%BE%E9%81%93%E5%B8%82", note: "Slopes, literature, film and cats; Hayashi Fumiko, Shiga Naoya, Ozu (Japanese)" },
+            { title: "Nishiseto Expressway — Wikipedia", url: "https://en.wikipedia.org/wiki/Nishiseto_Expressway", note: "Opened 1 May 1999; 59.4 km across nine islands; cyclists free until 31 March 2028" },
           ],
         },
       ],
@@ -1662,6 +2020,78 @@ const base: { cities: GuideCity[] } = {
       ],
     },
     {
+      id: "matsumoto",
+      name: "Matsumoto",
+      local: "松本",
+      lat: 36.2380, lng: 137.9720, radiusKm: 8,
+      region: "Chūbu",
+      population: "About 235,000",
+      cover: photoOf("matsumoto-castle", "A black castle keep with white trim reflected in a moat, a red bridge in front", "Matsumoto Castle and its moat."),
+      items: [
+        {
+          title: "The black castle the town bought back",
+          cover: photoOf("matsumoto-tsukimi", "A black and white castle keep and its lower turrets above a moat", "The keep, with the moon-viewing turret on the right."),
+          summary: "One of only twelve original keeps, auctioned for scrap in 1872 and saved by its townspeople — twice",
+          body: [
+            { p: "Matsumoto has one of Japan's **twelve original castle keeps**, and one of the five that are National Treasures. Ishikawa Kazumasa and his son Yasunaga, put here by Hideyoshi in 1590 to watch the Tokugawa, built it in black-lacquered boards, finished around **1593–94** — a warlike tower for a warlike time, with gun ports and stone-drop openings in its walls.[^1]" },
+            { p: "A generation later, in the peace of the 1630s, a lord added something no fighting castle needs: the **Tsukimi yagura**, a moon-viewing turret, open on three sides with a red-railed veranda. The two halves of the building show the change from war to the Edo peace in one glance." },
+            { p: "The town has saved it twice. In **1872** the new government auctioned the keep to be pulled down; a local man, **Ichikawa Ryōzō**, raised the money to buy it back, partly by holding exhibitions inside it. By the 1900s it was leaning badly, and a headmaster, **Kobayashi Unari**, led a campaign that paid for the repairs from 1903.[^2]" },
+            {
+              timeline: [
+                { when: "1590s", text: "The Ishikawa build the keep" },
+                { when: "1630s", text: "The moon-viewing turret is added" },
+                { when: "1872", text: "Sold at auction; bought back by townspeople" },
+                { when: "1903", text: "Repairs begin on the leaning keep" },
+                { when: "1936", text: "Named a National Treasure" },
+              ],
+            },
+            { note: "Inside, the stairs are steep and nearly ladders; at busy times there's a queue to climb. Shoes come off at the door. The walk from the station takes 15 minutes, past Nakamachi.", title: "Going" },
+          ],
+          related: ["look-closer/castle-towns"],
+          sources: [
+            { title: "Matsumoto Castle — Wikipedia", url: "https://en.wikipedia.org/wiki/Matsumoto_Castle", note: "One of twelve original keeps; built by the Ishikawa, about 1593–94" },
+            { title: "Matsumoto Castle — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E6%9D%BE%E6%9C%AC%E5%9F%8E", note: "The 1872 auction and Ichikawa Ryōzō; Kobayashi Unari and the repairs from 1903 (Japanese)" },
+          ],
+        },
+        {
+          title: "A school the town paid for",
+          cover: photoOf("kaichi-school", "A white two-storey school with a tiled roof, a carved porch and an octagonal tower", "The former Kaichi School, 1876."),
+          summary: "Kaichi School, 1876: a local carpenter's idea of a Western building, and the first school named a National Treasure",
+          body: [
+            { p: "Meiji Japan made school compulsory in 1872, and Matsumoto answered with a building. The **Kaichi School**, opened in 1876, was designed by a local master carpenter, **Tateishi Kiyoshige**, who had walked round Tokyo and Yokohama sketching the new foreign buildings — and then built what he imagined they were. The townspeople paid for most of it.[^1]" },
+            { p: "The result is **giyōfū**, “pseudo-Western” architecture: a white plastered front with stone corners painted on, a Japanese tiled roof, a porch carved with dragons and cherubs holding a sign, and an octagonal tower on top. About 7,000 guests came to the opening and 12,000 more to look. In **2019** it became the first modern school building to be named a National Treasure.[^1]" },
+            { p: "It taught children until 1963, and is now a museum of Japanese schooling, its classrooms full of old desks, textbooks and report cards." },
+            { note: "The school is a 10-minute walk north of the castle. Allow 45 minutes.", title: "Going" },
+          ],
+          sources: [{ title: "Former Kaichi School — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E6%97%A7%E9%96%8B%E6%99%BA%E5%AD%A6%E6%A0%A1", note: "Built 1876; the opening crowds; National Treasure in 2019 (Japanese)" }],
+        },
+        {
+          title: "A town of springs",
+          summary: "Water rising from the Alps in wells on street corners, storehouses built after a fire, and soba",
+          body: [
+            photo("nakamachi", "A quiet street of white-and-black storehouses with tiled roofs", "Nakamachi's storehouses."),
+            { p: "Snowmelt from the Northern Alps sinks into the gravel fan Matsumoto stands on and comes up again in the middle of town, and the old castle town is dotted with **public wells** and spouts where people still fill bottles. The best known, **Genchi no ido**, is named after a 16th-century samurai said to have dug it, and was the town's drinking water for centuries." },
+            photo("genchi-well", "Water pouring from spouts in a stone basin under a small roof", "Genchi no ido, the old town well."),
+            { p: "**Nakamachi**, the merchants' street south of the castle, is lined with storehouses in white plaster and black *namako* tiles. They went up in the late Edo and Meiji periods, after big fires swept the wooden town, so merchants rebuilt in what wouldn't burn.[^1] Many now sell the town's **crafts**: Matsumoto furniture, woodwork and folk-craft, which the town has made a speciality of since the mingei movement." },
+            { p: "The cold, clear water and the mountain buckwheat make **Shinshū soba**, Nagano's buckwheat noodles. Order **zaru**, served cold on a bamboo tray, to taste the noodle; the cooking water, *soba-yu*, comes at the end to mix into the dipping sauce and drink." },
+            { note: "Across the river from Nakamachi, **Nawate-dōri** is a little row of stalls with a frog theme — the river was once full of them. **Crafts Fair Matsumoto**, held in late May, fills the park by the castle with hundreds of makers.", title: "Walking it" },
+          ],
+          related: ["eating-out/soba-udon-and-ramen"],
+          sources: [{ title: "Nakamachi Street — Visit Matsumoto (city tourism)", url: "https://visitmatsumoto.com/en/spot/detail_1082.html", note: "Clay-walled storehouses built against fire in the late Edo and Meiji periods" }],
+        },
+        {
+          title: "Kusama's home town",
+          summary: "Yayoi Kusama was born here in 1929, painted here as a girl, and left; the city's museum holds her",
+          body: [
+            { p: "**Yayoi Kusama**, the artist of polka dots and infinity rooms, was born in Matsumoto in **1929** to a family of plant nurserymen, and grew up drawing obsessively in the fields of the seed farm. She had her first solo show in 1952 in the town's public hall, left for New York in 1957, and became one of the most famous artists in the world. She died in August **2026**, at 97.[^1]" },
+            { p: "The **Matsumoto City Museum of Art** holds a large collection of her work, from the girlhood drawings to the late paintings, and its building is hard to miss: the outside is covered in her red dots, and a giant flowering sculpture, *The Visionary Flowers*, stands at the entrance. Even the vending machines outside wear the dots." },
+            { note: "The museum is a 12-minute walk from the station, south-east along Aoba-dōri. The Kusama galleries are permanent; the rest of the museum shows local painters and calligraphers.", title: "Going" },
+          ],
+          sources: [{ title: "Yayoi Kusama — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E8%8D%89%E9%96%93%E5%BD%8C%E7%94%9F", note: "Born in Matsumoto, 22 March 1929; first show there in 1952; to the US in 1957; died 14 August 2026 (Japanese)" }],
+        },
+      ],
+    },
+    {
       id: "nagoya",
       name: "Nagoya",
       local: "名古屋",
@@ -1773,6 +2203,109 @@ const base: { cities: GuideCity[] } = {
       region: "Chūbu",
       population: "About 27,000 (Fujikawaguchiko)",
       items: [],
+    },
+    {
+      id: "ise",
+      name: "Ise",
+      local: "伊勢",
+      aliases: ["Ise-shi", "Futami", "Toba", "Ise-Shima"],
+      lat: 34.4700, lng: 136.7200, radiusKm: 10,
+      region: "Kansai",
+      population: "About 120,000",
+      cover: photoOf("ise-uji-bridge", "A long wooden bridge with a plain wooden torii at its end, crossing a river into a forest", "Uji-bashi, the bridge into the Inner Shrine."),
+      items: [
+        {
+          title: "A shrine rebuilt every twenty years",
+          cover: photoOf("ise-geku", "A plain wooden torii and a gravel path among tall cedars", "The way into the Outer Shrine, Gekū."),
+          summary: "The 63rd rebuilding is under way now: timber hauled through town in 2026, the move in 2033",
+          body: [
+            { p: "**Ise Jingū** isn't one shrine but **125**. At the heart are two: the **Naikū**, the Inner Shrine, to the sun goddess Amaterasu, and the **Gekū**, the Outer Shrine, six kilometres away, to Toyouke, the goddess who brings her food. Custom says you visit the Gekū first.[^1]" },
+            { p: "Every twenty years both main sanctuaries are built again from new cypress on the empty plot beside them, the goddess is carried across at night, and the old buildings come down. The first rebuilding was in **692**; the present buildings, the 62nd, date from **2013**.[^1] Ise explains it with the idea of **tokowaka**, “forever young”: the shrine is kept ancient by never letting it grow old.[^2]" },
+            {
+              stats: [
+                { value: "125", label: "shrines in the Jingū" },
+                { value: "692", label: "the first rebuilding" },
+                { value: "10,000+", label: "cypress logs for each one" },
+              ],
+            },
+            { h: "The 63rd, in progress" },
+            { p: "The cycle takes eight years, and it's running now. The first rites, at the foot of the timber mountains, were held on **2 May 2025**. In spring and summer **2026** the people of Ise hauled the sacred timber into the shrines themselves, on carts through the streets to the Gekū and on sledges up the Isuzu river to the Naikū, as their forebears have done every twenty years. The move itself is due in **2033**.[^2]" },
+            { p: "A rebuilding needs over **10,000** cypress logs. Japan ran short: for 2013, Aomori *hiba* was used for the first time alongside cypress. In 1925 the Jingū began replanting its own hills with cypress for the purpose, a forest that takes about **200 years** to grow logs big enough.[^2]" },
+            { h: "Nothing thrown away" },
+            { p: "The old wood moves on. The two torii at the ends of **Uji-bashi**, the bridge into the Naikū, are made from the ridge pillars of the old sanctuaries, and the bridge itself is rebuilt four years ahead of each move. After twenty years on the bridge, the torii go on to stand at the old post towns of **Seki** and **Kuwana**, on the roads pilgrims took to Ise — sixty years of service from one tree.[^3]" },
+            { note: "The sanctuaries are seen only through their fences and gates, and photos are not allowed in front of them. The new plot beside each one, with its small covered post, is where the next sanctuary will stand. Allow half a day for both shrines; buses link them in 15 minutes.", title: "Visiting" },
+          ],
+          related: ["belief/shinto", "land/forests-wild-and-planted"],
+          sources: [
+            { title: "Ise Grand Shrine — Wikipedia", url: "https://en.wikipedia.org/wiki/Ise_Grand_Shrine", note: "Naikū, Gekū and the 123 other shrines; first rebuilt 692; the 2013 buildings, the 62nd" },
+            { title: "Jingū Shikinen Sengū — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%A5%9E%E5%AE%AE%E5%BC%8F%E5%B9%B4%E9%81%B7%E5%AE%AE", note: "Tokowaka; over 10,000 cypress; hiba in 2013; the forest planted from 1925; the 2025 and 2026 rites (Japanese)" },
+            { title: "Uji-bashi (Ise) — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%AE%87%E6%B2%BB%E6%A9%8B_(%E4%BC%8A%E5%8B%A2%E5%B8%82)", note: "Rebuilt four years ahead of each move; the torii from the ridge pillars, then to Seki and Kuwana (Japanese)" },
+          ],
+        },
+        {
+          title: "The pilgrimage everyone made",
+          cover: photoOf("okage-yokocho", "A narrow street of dark wooden shops with tiled roofs and hanging banners", "Okage Yokochō, rebuilt in the Edo style."),
+          summary: "Runaway pilgrims by the million, a cake shop of 1707, and a street rebuilt to bring them back",
+          body: [
+            { p: "In the Edo period, when ordinary people needed permission to leave their domain, a pilgrimage to Ise was one journey nobody could refuse. Villages pooled money in clubs, *Ise-kō*, and sent members in turn. Every sixty years or so the urge became a mania, the **okage mairi**, when servants and children walked off without leave. In **1830** about **4.3 million** people went, at a time when Japan had about 32 million.[^1]" },
+            {
+              table: {
+                head: ["Year", "Pilgrims, by the records"],
+                rows: [
+                  ["1705", "3.3–3.7 million"],
+                  ["1771", "2 million"],
+                  ["1830", "4.28 million"],
+                ],
+              },
+            },
+            { p: "Those who were too ill to go sometimes sent the dog. An *okage-inu* walked the road with a note and money tied to its collar, fed and passed along by travellers, and came home with a charm.[^1]" },
+            { h: "A street brought back" },
+            { p: "The approach to the Naikū, **Oharai-machi**, drew two to four million pilgrims a year in Edo times. By the late 1970s it was down to about **200,000**: coach parties drove straight to the bridge and left. In **1993**, for the 61st rebuilding, the cake maker **Akafuku** spent about ¥14 billion, about what it sold in a year, on **Okage Yokochō**, a block of shops rebuilt in the old Ise style. By 2002 the street had more than **3 million** visitors.[^2][^5]" },
+            {
+              dishes: [
+                { name: "Akafuku mochi", local: "赤福餅", kind: "Regional", text: "Soft rice cake under smooth red-bean paste, pressed with three ridges for the Isuzu river's ripples. Made since **1707**; the shop shut for months in 2007 when it was found re-dating unsold cakes.[^3]", where: "The main shop by the river, near the bridge end of Oharai-machi" },
+                { name: "Ise udon", local: "伊勢うどん", kind: "Regional", text: "The opposite of firm Sanuki udon: very thick noodles boiled for at least 25 minutes until pillowy, under a little dark tamari sauce, no broth.[^4]" },
+                { name: "Tekone-zushi", local: "手こね寿司", kind: "Regional", text: "Raw bonito marinated in soy, tossed by hand through sushi rice: a fishermen's lunch from the coast." },
+              ],
+            },
+            { note: "Arrive at the Naikū by 8 am and walk Oharai-machi on the way out, when the shops have opened. Akafuku's main shop serves the mochi with tea by the river.", title: "Going" },
+          ],
+          sources: [
+            { title: "Okage mairi — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E3%81%8A%E8%94%AD%E5%8F%82%E3%82%8A", note: "The 1705, 1771 and 1830 waves and their numbers; okage-inu (Japanese)" },
+            { title: "Okage Yokochō — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E3%81%8A%E3%81%8B%E3%81%92%E6%A8%AA%E4%B8%81", note: "Two to four million a year in Edo times, 200,000 by the late 1970s; built in 1993 for about ¥14 billion" },
+            { title: "Akafuku — Wikipedia", url: "https://en.wikipedia.org/wiki/Akafuku", note: "Founded 1707; closed in 2007 over expiry labels" },
+            { title: "Ise udon — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E4%BC%8A%E5%8B%A2%E3%81%86%E3%81%A9%E3%82%93", note: "Noodles at least 6 mm, boiled 25 minutes or more; tamari sauce (Japanese)" },
+            { title: "Oharai-machi — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E3%81%8A%E3%81%AF%E3%82%89%E3%81%84%E7%94%BA", note: "Over 3 million visitors by 2002 (Japanese)" },
+          ],
+        },
+        {
+          title: "Two rocks tied together",
+          cover: photoOf("meoto-iwa", "Two rocks in the sea joined by a thick rope, the sun rising behind", "Meoto Iwa at Futami at dawn."),
+          summary: "Futami's Wedded Rocks are a torii in the sea, and the sun rises between them only in summer",
+          body: [
+            { p: "At **Futami**, on the coast north-east of Ise, two rocks stand in the surf joined by a great straw rope. They're called **Meoto Iwa**, the wedded rocks, but to the shrine on the shore they're a **torii**: a gateway to a sacred stone that lies on the seabed about 700 m beyond them, and to the sun rising over the sea.[^1]" },
+            { p: "The calendar picture of New Year's sun between the rocks is a summer photograph. The sun rises between them only around the **summer solstice**, when on a clear morning Mount Fuji shows on the horizon too; in winter it comes up well to the south.[^1]" },
+            { p: "The smaller rock broke off at its base in a typhoon in **1918** and was set back up in 1921 at a slightly different angle. The shrine's messenger is the frog, *kaeru*, a pun on “return safely”, and its grounds are crowded with frog statues left by grateful travellers. Pilgrims once purified themselves in the sea here before going on to Ise; Futami's beach opened in 1882 as Japan's first public bathing beach.[^1]" },
+            { note: "Futami is 10 minutes by JR from Iseshi station, then a 15-minute walk. The big rope is replaced several times a year in a public ceremony.", title: "Going" },
+          ],
+          sources: [{ title: "Futami Okitama Shrine — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E4%BA%8C%E8%A6%8B%E8%88%88%E7%8E%89%E7%A5%9E%E7%A4%BE", note: "The rocks as a torii; the sun between them only in summer; the 1918 typhoon; frogs; the 1882 beach (Japanese)" }],
+        },
+        {
+          title: "The women who dive",
+          cover: photoOf("ama-diver", "A woman in white diving clothes and a mask at the water's edge", "An ama at Mikimoto Pearl Island, Toba."),
+          summary: "Half of Japan's ama work this coast, most of them now in their seventies",
+          body: [
+            { p: "The coast of **Toba** and **Shima**, south of Ise, has more **ama** than anywhere in Japan: free divers, almost all women, who go down on one breath for abalone, turban shells, sea urchin and seaweed. The village of **Kuzaki**, in Toba, still sends the shrine *noshi-awabi*, abalone sliced into strips and dried, a duty it traces back, by tradition, more than two thousand years.[^1]" },
+            { p: "A count by the Toba Sea-Folk Museum in **2022** found **514** ama in Toba and Shima, about half of all Japan's. In the 1940s Japan had about 6,000.[^1][^2] They're getting old: one ama of Ōsatsu, a village that once had over 400, says about 80 are left, most in their seventies and about five under fifty.[^1]" },
+            { p: "The diving is regulated by the women themselves: seasons, hours, the size of shell that can be taken. They dive without tanks by choice, since the limit on breath is what keeps the beds from being stripped. Between dives they warm themselves round a fire in a hut, the *amagoya*, some of which now take guests for a meal of what was just caught." },
+            { note: "The **Toba Sea-Folk Museum** (Umi no Hakubutsukan) tells the ama's story properly; the diving demonstrations at **Mikimoto Pearl Island** in Toba go back to when ama gathered the oysters for the first cultured pearls in the 1890s.", title: "Seeing it" },
+          ],
+          sources: [
+            { title: "Ama of Toba and Shima — Mie Prefecture tourism (Kankō Mie)", url: "https://www.kankomie.or.jp/report/2067", note: "514 ama in 2022, about half of Japan's, by the Toba Sea-Folk Museum's count; Kuzaki's abalone for the shrine; Ōsatsu's divers (Japanese)" },
+            { title: "Ama (diving) — Wikipedia", url: "https://en.wikipedia.org/wiki/Ama_(diving)", note: "About 6,000 in the 1940s; Mikimoto's pearls" },
+          ],
+        },
+      ],
     },
     {
       id: "koyasan",
@@ -1974,6 +2507,34 @@ const base: { cities: GuideCity[] } = {
           ],
           sources: [{ title: "Upopoy — Wikipedia", url: "https://en.wikipedia.org/wiki/Upopoy", note: "The National Ainu Museum and Park, opened July 2020" }] },
       ],
+      dayTrips: [
+        {
+          name: "Otaru", cover: photoOf("otaru-canal", "Stone warehouses along a canal lined with old gas lamps", "The Otaru canal and its warehouses."), local: "小樽", getting: "About 35 min by JR rapid from Sapporo",
+          summary: "Hokkaido's old port of herring and banks, and the canal the town fought for ten years to keep",
+          body: [
+            { p: "Before Sapporo outgrew it, **Otaru** was Hokkaido's front door: the port for its coal, its timber and the **herring** that made fortunes along this coast, with so many bank branches on one street it was called the Wall Street of the north. The **canal**, finished in **1923**, is unusual: instead of being dug inland, it was made by reclaiming land offshore, which is why it curves with the old shoreline. It's 1,140 m long.[^1]" },
+            { p: "After the war the port moved to new wharves, the canal silted up, and in **1966** the city planned to fill it in for a road. Residents fought the plan for over a decade, one of Japan's first big conservation campaigns. The compromise, finished in **1986**, filled half the width for the road and kept the other half as water, with a walk and 63 gas lamps along the stone warehouses. It made Otaru one of Hokkaido's busiest sights.[^1]" },
+            { p: "The warehouses now hold glass workshops, music-box shops and breweries, and Sakaimachi-dōri behind them is a street of old merchant houses turned sweet shops. The sushi counters near the station, supplied by the port, are a reason in themselves." },
+            { note: "Walk the canal at dusk, when the lamps come on, and go on to Yoichi the same day.", title: "Going" },
+          ],
+          sources: [{ title: "Otaru Canal — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%B0%8F%E6%A8%BD%E9%81%8B%E6%B2%B3", note: "Built by reclamation, finished 1923; 1,140 m; the 1966 road plan; half filled, 1986; 63 gas lamps (Japanese)" }],
+        },
+        {
+          name: "Yoichi", cover: photoOf("yoichi", "Stone distillery buildings with red roofs and pagoda-like kilns", "Nikka's Yoichi distillery."), local: "余市", getting: "About 25 min by JR beyond Otaru",
+          summary: "The distillery Taketsuru built where it felt like Scotland, still firing its stills with coal",
+          body: [
+            { p: "When **Taketsuru Masataka** left Yamazaki in 1934, he came here: a cold fishing town on the Shakotan coast, with sea air, peat and a climate as close to Scotland's as he could find. Whisky takes years before it can be sold, so his new company began by selling **apple juice** from Yoichi's orchards; its name, Dai Nippon Kajū, “Great Japan Fruit Juice”, shortened to **Nikka**. Its first whisky went on sale in 1940.[^1]" },
+            { p: "The stills are still heated by **coal fires** under the pot, stoked by hand, the old Scottish way, and Yoichi is believed to be the only distillery in the world still doing it. The stone buildings, with their pagoda-roofed kilns, became Important Cultural Properties in **2022**.[^1]" },
+            { p: "Taketsuru's Scottish wife, **Rita** (Jessie Roberta Cowan), lived here with him; she died in 1961 and is buried with him on a hill above the town. Their story became the 2014 NHK morning drama *Massan*, which brought crowds to Yoichi.[^2]" },
+            { note: "The distillery tour is free but must be booked. Yoichi is also a fruit town: apples, cherries and wine grapes, and a cluster of small wineries.", title: "Going" },
+          ],
+          related: ["drinks/sh-ch-whisky-and-beer"],
+          sources: [
+            { title: "Yoichi distillery — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E4%BD%99%E5%B8%82%E8%92%B8%E6%BA%9C%E6%89%80", note: "Founded 1934; apple juice from 1935; first whisky 1940; coal-fired stills, said to be the last in the world; ten buildings Important Cultural Properties, 2022 (Japanese)" },
+            { title: "Taketsuru Masataka — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%AB%B9%E9%B6%B4%E6%94%BF%E5%AD%9D", note: "Rita; the 2014 drama Massan (Japanese)" },
+          ],
+        },
+      ],
     },
     {
       id: "fukuoka",
@@ -2094,6 +2655,42 @@ const base: { cities: GuideCity[] } = {
           ],
           related: ["belief/shinto"],
           sources: [{ title: "Dazaifu Tenmangū — Wikipedia", url: "https://en.wikipedia.org/wiki/Dazaifu_Tenmang%C5%AB", note: "The shrine to Sugawara no Michizane" }] },
+      ],
+      dayTrips: [
+        {
+          name: "Yanagawa", cover: photoOf("yanagawa", "A flat-bottomed boat poled along a willow-lined canal", "A punt on Yanagawa's canals."), local: "柳川", getting: "About 50 min by Nishitetsu from Tenjin",
+          summary: "A castle town of 930 km of canals, saved in 1977 by the man in charge of its drains",
+          body: [
+            { p: "Yanagawa sits on the soft clay flats of the Ariake Sea, laced with **horiwari**, canals dug first as the moats of its castle and then as its water supply and irrigation. Counting the farm channels, they run to **930 km**. Boatmen pole flat punts through the old town under willows and low bridges, an hour's ride.[^1]" },
+            { p: "By the 1970s the canals were choked with rubbish and sewage, and in **1977** the council approved a plan to pave most of them over. The official given the job, **Hiromatsu Tsutau**, head of the sewerage section, studied them instead, argued that the water system was what kept the whole plain alive, and persuaded the mayor to clean them with residents' help. The story so moved the animator **Takahata Isao** that he made a documentary of it, *The Story of Yanagawa's Canals* (1987), paid for by Miyazaki Hayao.[^1][^2]" },
+            {
+              dishes: [
+                { name: "Unagi no seiro-mushi", local: "鰻のせいろ蒸し", kind: "Regional", text: "Grilled eel on rice dressed with its sauce, topped with shredded omelette and steamed together in a lidded box: Yanagawa's dish since the Edo period, when eel helped pay the domain's bills.[^3]" },
+              ],
+            },
+            { note: "The poet **Kitahara Hakushū**, born here in 1885, wrote of the canals; his family's sake house is a museum. **Ohana**, the lords' villa with its pond garden, is where the boat ride ends.", title: "Going" },
+          ],
+          sources: [
+            { title: "Yanagawa — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E6%9F%B3%E5%B7%9D%E5%B8%82", note: "930 km of canals; the 1977 plan and Hiromatsu Tsutau (Japanese)" },
+            { title: "The Story of Yanagawa's Canals — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E6%9F%B3%E5%B7%9D%E5%A0%80%E5%89%B2%E7%89%A9%E8%AA%9E", note: "Takahata's 1987 documentary, made with Miyazaki's money (Japanese)" },
+            { title: "Unagi no seiro-mushi — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E9%B0%BB%E3%81%AE%E3%81%9B%E3%81%84%E3%82%8D%E8%92%B8%E3%81%97", note: "Yanagawa's dish; eel and the domain (Japanese)" },
+          ],
+        },
+        {
+          name: "Arita", cover: photoOf("tozan-shrine", "A white porcelain torii decorated with blue patterns at a shrine", "The porcelain torii of Tōzan Shrine, 1888."), local: "有田", getting: "About 1 h 20 min by JR limited express from Hakata",
+          summary: "Where Japanese porcelain began, with clay found by a Korean potter brought here by force",
+          body: [
+            { p: "Japan's first porcelain was made in Arita in the **1610s**. The clay came from **Izumiyama**, a hill of white stone above the town; tradition credits its discovery, in 1616, to **Yi Sam-pyeong**, one of the Korean potters carried off by the lord of Saga during Hideyoshi's invasions of Korea. The domain soon had the industry under tight control, closing kilns until only thirteen remained in Arita by 1637.[^1]" },
+            { p: "From the 1650s, when war in China cut off Chinese porcelain, the **Dutch East India Company** shipped Arita's wares to Europe from Nagasaki. Europe called them **Imari**, after the port they left from, and the palaces of Europe filled with them; Meissen's first porcelain copied their patterns.[^2]" },
+            { p: "**Tōzan Shrine**, on the slope above the railway, is the potters' shrine, and it's made of the product: its **torii** of 1888 is porcelain, with porcelain guardian dogs and lanterns. It honours Yi Sam-pyeong alongside the god and the lord, and a monument to him on the hill behind was put up in 1917, 300 years after the clay.[^3]" },
+            { note: "The **Arita Ceramics Fair**, every Golden Week (29 April – 5 May), fills the town's 4 km main street with stalls and is one of Japan's biggest. The Kyushu Ceramic Museum has the best of the old export wares.", title: "Going" },
+          ],
+          sources: [
+            { title: "Arita ware — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E6%9C%89%E7%94%B0%E7%84%BC", note: "Porcelain from the 1610s; Izumiyama and Yi Sam-pyeong, 1616; the kilns limited in 1637 (Japanese)" },
+            { title: "Imari ware — Wikipedia", url: "https://en.wikipedia.org/wiki/Imari_ware", note: "Exported to Europe by the Dutch; the name from the port" },
+            { title: "Tōzan Shrine (Arita) — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E9%99%B6%E5%B1%B1%E7%A5%9E%E7%A4%BE_(%E6%9C%89%E7%94%B0%E7%94%BA)", note: "The porcelain torii of 1888; Yi Sam-pyeong enshrined; the 1917 monument (Japanese)" },
+          ],
+        },
       ],
     },
     {
@@ -2536,6 +3133,102 @@ const base: { cities: GuideCity[] } = {
       ],
     },
     {
+      id: "sendai",
+      name: "Sendai",
+      local: "仙台",
+      lat: 38.2601, lng: 140.8824, radiusKm: 10,
+      region: "Tōhoku",
+      population: "About 1.1 million",
+      cover: photoOf("masamune-statue", "A bronze statue of a samurai on horseback, his helmet crowned with a long crescent", "Date Masamune on Aoba hill."),
+      items: [
+        {
+          title: "Date Masamune's city",
+          cover: photoOf("zuihoden", "A small, richly carved and lacquered hall with gilded details among cedars", "Zuihōden, Masamune's mausoleum."),
+          summary: "A one-eyed warlord's castle town of 1601, his embassy to the Pope, and a gilded tomb rebuilt after 1945",
+          body: [
+            { p: "Sendai begins with **Date Masamune** (1567–1636), the “one-eyed dragon”, who lost an eye to smallpox as a child and fought his way to rule most of the north. In December 1600, weeks after the battle of Sekigahara, he began a castle on **Aoba hill** above the Hirose river, and in 1601 laid out the town below it. The name was his choice too, rewritten in characters from a Chinese poem about an immortal palace.[^1]" },
+            { p: "He looked further than most lords. In **1613** he sent a retainer, **Hasekura Tsunenaga**, on a Japanese-built galleon across the Pacific to Mexico, then on to Spain and Rome, where he was received by Pope Paul V. By the time Hasekura got home, in 1620, Christianity had been banned and the trade he'd gone to arrange was impossible. Japan sent no embassy to Europe again until 1862.[^2]" },
+            { p: "Masamune asked to be buried on the hill of Kyōgamine, and his mausoleum, **Zuihōden**, was built there in 1637 in the gilded, carved Momoyama style. It was a National Treasure from 1931 until the air raid of 10 July 1945 burned it. It was rebuilt and reopened in 1979, after an excavation that found his remains.[^3]" },
+            {
+              timeline: [
+                { when: "1600", text: "Masamune begins Sendai Castle on Aoba hill" },
+                { when: "1613", text: "Hasekura sails for Mexico, Spain and Rome" },
+                { when: "1637", text: "Zuihōden is built over his grave" },
+                { when: "1945", text: "The air raid of 10 July burns the centre and the mausoleum" },
+                { when: "1979", text: "Zuihōden rebuilt" },
+              ],
+            },
+            { note: "Little of the castle stands: the site on Aoba hill has the walls, the equestrian statue and the view over the city. Zuihōden is a 15-minute walk up through cedars from the Loople tourist bus.", title: "Going" },
+          ],
+          sources: [
+            { title: "Sendai — Wikipedia", url: "https://en.wikipedia.org/wiki/Sendai", note: "Founded by Date Masamune; the castle begun in December 1600 and the town in 1601; the name" },
+            { title: "Hasekura Tsunenaga — Wikipedia", url: "https://en.wikipedia.org/wiki/Hasekura_Tsunenaga", note: "The Keichō embassy, 1613–1620; the next embassy to Europe in 1862" },
+            { title: "Zuihōden — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%91%9E%E9%B3%B3%E6%AE%BF", note: "Built 1637; National Treasure 1931; burned 10 July 1945; rebuilt after the 1974 excavation (Japanese)" },
+          ],
+        },
+        {
+          title: "Tanabata in August",
+          cover: photoOf("sendai-tanabata", "Huge paper streamers in bright colours hanging from bamboo poles in a covered shopping arcade", "Tanabata streamers in Sendai's arcades."),
+          summary: "Japan's grandest star festival, a month late on purpose, and revived by shopkeepers for a sale",
+          body: [
+            { p: "Elsewhere Tanabata falls on 7 July. Sendai keeps it a month late, by the old calendar's reckoning, on **6–8 August**, when the covered arcades of Ichibanchō and Chūō-dōri are hung with hundreds of bamboo poles trailing paper streamers several metres long.[^1]" },
+            { p: "Its story is better than the one usually told. Sendai likes to say that Masamune encouraged the festival, but there's no record that he did. What is recorded is that it had faded by the early 20th century, and that in **1926** the city's shopping streets revived it as the centrepiece of a joint summer sale. In **1946**, a year after the air raid, it came back with **52** bamboo decorations in a burned-out city.[^1]" },
+            {
+              terms: [
+                { term: "Fukinagashi", text: "The long streamers, standing for the weaver's threads — the festival is about the weaver star and the herdsman, who meet once a year." },
+                { term: "Tanzaku", text: "Paper strips with wishes written on them, traditionally for study and handwriting." },
+                { term: "Orizuru", text: "Strings of paper cranes, for long life in the family." },
+                { term: "Toami", text: "Paper fishing nets, for a good catch and a good harvest." },
+              ],
+            },
+            { p: "In December the same streets do it again in light: the **Pageant of Starlight**, begun by volunteers in 1986, strings the zelkova trees of Jōzenji-dōri with hundreds of thousands of bulbs.[^2]" },
+            { note: "Hotels fill months ahead for 6–8 August, and the arcades are shoulder to shoulder in the evening. Early morning, before the shops open, is the best time to see the streamers.", title: "Going" },
+          ],
+          related: ["land/overview"],
+          sources: [
+            { title: "Sendai Tanabata — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E4%BB%99%E5%8F%B0%E4%B8%83%E5%A4%95", note: "6–8 August; the Masamune story unproven; the 1926 revival; 52 decorations in 1946 (Japanese)" },
+            { title: "SENDAI Pageant of Starlight — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/SENDAI%E5%85%89%E3%81%AE%E3%83%9A%E3%83%BC%E3%82%B8%E3%82%A7%E3%83%B3%E3%83%88", note: "Begun by volunteers in 1986 on the zelkova avenues (Japanese)" },
+          ],
+        },
+        {
+          title: "Gyūtan, and the story it tells",
+          cover: photoOf("sendai-gyutan", "A plate of thick grilled beef-tongue slices with a bowl of barley rice and a bowl of clear soup", "A gyūtan set: tongue, barley rice and oxtail soup."),
+          summary: "Grilled beef tongue began here in 1948 — but not for the reason every shop gives",
+          body: [
+            { p: "Sendai's dish is **gyūtan**, beef tongue, sliced thick, salted and grilled over charcoal. It's served as a set that hasn't changed in decades: the tongue, a bowl of **barley rice**, a clear **oxtail soup** and pickles, often with a spoonful of green chilli miso.[^1]" },
+            { p: "It began in **1948**, when Sano Keishirō, who ran a yakitori bar, opened a restaurant serving tongue. The story told in nearly every shop in town is that he used the tongues and tails the American occupation troops in Sendai threw away. It's a good story, and there's no evidence for it; and the tongues today mostly come from abroad. The real boost came in **1991**, when Japan lifted its quotas on imported beef and tongue became cheap.[^1]" },
+            {
+              dishes: [
+                { name: "Gyūtan", local: "牛たん", kind: "Regional", text: "Thick-cut beef tongue grilled over charcoal, chewy and smoky, with barley rice and oxtail soup.", where: "The “gyūtan street” on the third floor of Sendai station" },
+                { name: "Zunda", local: "ずんだ", kind: "Regional", text: "A sweet, bright-green paste of crushed young edamame, on mochi or whipped into a milkshake." },
+                { name: "Sasa-kamaboko", local: "笹かまぼこ", kind: "Regional", text: "Fish cake shaped like a bamboo leaf and grilled, the classic box to take home." },
+              ],
+            },
+            { note: "The station's gyūtan street queues at lunch; the shops in Kokubunchō, the nightlife district, are calmer in the evening. Ask for *atsugiri*, the thick cut.", title: "Eating" },
+          ],
+          related: ["regional-food/overview"],
+          sources: [{ title: "Gyūtan — Wikipedia", url: "https://en.wikipedia.org/wiki/Gy%C5%ABtan", note: "Sano Keishirō, 1948; the occupation story untrue; the 1991 end of import quotas" }],
+        },
+        {
+          title: "Arahama, 11 March 2011",
+          cover: photoOf("arahama-school", "A four-storey concrete school building standing alone on flat open ground", "The former Arahama Elementary School, kept as it was left."),
+          summary: "A school 700 m from the sea where 320 people waited out the tsunami, kept as it was left",
+          body: [
+            { p: "Sendai's centre is 10 km inland, and on **11 March 2011** it shook but stood; the **Sendai Mediatheque**, Toyo Ito's glass library of 2001, came through almost undamaged. The coast was another matter. The tsunami crossed the flat rice plain of Wakabayashi ward for kilometres, and the seaside district of **Arahama** was swept away.[^1]" },
+            { p: "**Arahama Elementary School** stands about 700 m from the shore. The water reached its second floor. About **320 people** — pupils, teachers and neighbours who had run there — sheltered on the upper floors and the roof through the night, and all were rescued by the next day. The district was declared unfit to live in, and the school was preserved as it was found, with bent railings and the clock stopped; it opened as a memorial on 30 April 2017.[^2]" },
+            { p: "Four years later Sendai hosted the UN conference that adopted the **Sendai Framework for Disaster Risk Reduction** (2015–2030), the world's plan for cutting deaths from disasters — so the city's name now stands for the subject in international policy.[^3]" },
+            { note: "Buses from Arai station on the Tōzai subway line take about 15 minutes. The fourth floor has the exhibition; the roof shows the empty plain, the new raised coastal road and the sea.", title: "Visiting" },
+          ],
+          related: ["nature/tsunami"],
+          sources: [
+            { title: "Sendai — Wikipedia", url: "https://en.wikipedia.org/wiki/Sendai", note: "The 2011 tsunami on the coastal wards" },
+            { title: "Arahama Elementary School opens as a memorial — Sendai City", url: "https://sendai-resilience.jp/news/detail---id-118.html", note: "About 320 people sheltered and were all rescued; open from 30 April 2017" },
+            { title: "Sendai Framework for Disaster Risk Reduction — Wikipedia", url: "https://en.wikipedia.org/wiki/Sendai_Framework_for_Disaster_Risk_Reduction", note: "Adopted in Sendai in March 2015" },
+          ],
+        },
+      ],
+    },
+    {
       id: "matsushima",
       name: "Matsushima",
       local: "松島",
@@ -2732,6 +3425,33 @@ const base: { cities: GuideCity[] } = {
             { title: "The history of kabazaiku — Japan Tourism Agency", url: "https://www.mlit.go.jp/tagengo-db/R1-02067.html", note: "Brought to Kakunodate in the 1780s; Akita's first national traditional craft, 1976 (Japanese)" },
             { title: "Kabazaiku — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E6%A8%BA%E7%B4%B0%E5%B7%A5", note: "Kakunodate's cherry-bark craft (Japanese)" },
           ],
+        },
+        {
+          title: "Lake Tazawa and the lost fish",
+          cover: photoOf("lake-tazawa", "A golden statue of a woman on rocks at the edge of a deep blue lake in snow", "Lake Tazawa and the statue of Tatsuko."),
+          summary: "Japan's deepest lake, poisoned in 1940 for a power station, and the fish found alive 70 years later near Mount Fuji",
+          body: [
+            { p: "Twenty minutes from Kakunodate, **Lake Tazawa** fills an old caldera about 6 km across. At **423.4 m** it's the deepest lake in Japan; its bottom lies 174 m below sea level, and it never freezes. A golden statue on the shore is **Tatsuko**, the girl of the legend who prayed for eternal beauty and was turned into the lake's dragon.[^1]" },
+            { p: "It was once among Japan's clearest lakes, and home to a fish found nowhere else, the **kunimasu**, a dark salmon that lived in its depths. In **1940**, to raise more power and rice for the war, engineers diverted the **Tama river** into the lake. The Tama is fed by Tamagawa Onsen, a spring at **pH 1.1**, and the acid wiped out the lake's fish within a few years.[^1][^2]" },
+            { p: "Seventy years later, in **2010**, kunimasu turned up alive in **Lake Saiko**, one of the Fuji Five Lakes. Before the diversion, in 1935, eggs had been sent to several lakes to try raising them, and in one they had quietly survived. A neutralising plant on the Tama has run since **1991**, but the lake as a whole has still not recovered.[^1][^2]" },
+            { note: "Buses run from Tazawako station on the Akita Shinkansen. Hire a bike and ride the 20 km round the shore; the water is a startling blue.", title: "Going" },
+          ],
+          related: ["place/fuji-five-lakes/a-volcano-that-made-the-lakes"],
+          sources: [
+            { title: "Lake Tazawa — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%94%B0%E6%B2%A2%E6%B9%96", note: "423.4 m deep; never freezes; the pH 1.1 water of 1940; the neutralising plant from 1991 (Japanese)" },
+            { title: "Kunimasu — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E3%82%AF%E3%83%8B%E3%83%9E%E3%82%B9", note: "Lost from Tazawa about 1940; eggs sent out in 1935; found in Lake Saiko in 2010 (Japanese)" },
+          ],
+        },
+        {
+          title: "Kiritanpo, from the hunters' fire",
+          cover: photoOf("akita-kiritanpo", "Tubes of pounded rice on cedar skewers toasting by a fire", "Kiritanpo browning on their skewers."),
+          summary: "Pounded rice toasted on a cedar stick: Akita's autumn hotpot, and what the mountain hunters ate",
+          body: [
+            { p: "**Kiritanpo** is Akita's food. Freshly cooked rice is half-pounded, pressed round a cedar skewer and toasted by the fire until crusty; slid off and cut into lengths, the tubes go into a hotpot of chicken broth with burdock, maitake mushrooms, spring onions and *seri*, a sharp water parsley.[^1]" },
+            { p: "One story puts its origin with the **matagi**, the hunters of the northern Akita mountains, who mashed their leftover rice on sticks to toast over the fire and stewed it with whatever they'd caught. Another credits a lord's inspection tour. Its name comes from *tanpo*, the padded tip of a practice spear, which the rice on its stick resembles.[^1]" },
+            { p: "The broth is made with **Hinai-jidori**, a breed raised in the north of the prefecture and Akita's pride, and the hotpot is a dish of the cold months: from the new rice in autumn through winter. Grilled on the stick with sweet miso, it's a snack at festivals." },
+          ],
+          sources: [{ title: "Kiritanpo — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E3%81%8D%E3%82%8A%E3%81%9F%E3%82%93%E3%81%BD", note: "How it's made; the matagi and the other origin stories; the name (Japanese)" }],
         },
       ],
     },
@@ -3085,6 +3805,108 @@ const base: { cities: GuideCity[] } = {
       ],
     },
     {
+      id: "kumamoto",
+      name: "Kumamoto",
+      local: "熊本",
+      lat: 32.8031, lng: 130.7079, radiusKm: 10,
+      region: "Kyushu",
+      population: "About 730,000",
+      cover: photoOf("kumamoto-castle", "A black-and-white castle keep with several roofs above high curved stone walls", "Kumamoto Castle's keep, restored in 2021."),
+      items: [
+        {
+          title: "Kiyomasa's walls",
+          cover: photoOf("kumamoto-walls", "Tall stone castle walls curving outwards at the top, a turret above", "Kumamoto's curved walls."),
+          summary: "A castle built by Japan's great wall-maker, burned on the eve of its only siege — which it won",
+          body: [
+            { p: "Kumamoto Castle was built from **1591** by **Katō Kiyomasa**, a general of Hideyoshi's who went on to fight through the invasions of Korea, and its keep stood by about 1600. Kiyomasa was the most famous castle-builder of his age, and his speciality was the stone walls: steep at the foot and curving out sharply near the top, so that no one could climb them. They're called **musha-gaeshi**, “warrior repellers”.[^1]" },
+            { p: "Early in Meiji, the castle was nearly given up as a “useless luxury” of the old order. Instead the army made it a garrison, and in **February 1877** Saigō Takamori's Satsuma rebels marched on it. Two days before their assault, on 19 February, a fire of unknown cause burned the keep and palace. The garrison, about **4,000** men, still held the walls against some **14,000** rebels for over fifty days, until relief broke through. It was the castle's only battle, and Saigō's rebellion never recovered (see [Satsuma and the Restoration](guide:place/kagoshima/satsuma-and-the-restoration)).[^1]" },
+            {
+              stats: [
+                { value: "1591", label: "Kiyomasa begins building" },
+                { value: "4,000", label: "defenders in 1877" },
+                { value: "14,000", label: "rebels who couldn't take it" },
+              ],
+            },
+            { p: "The keep was rebuilt in concrete in 1960. The **Uto turret**, the castle's biggest surviving original building, three storeys high, came through the fire of 1877 untouched." },
+            { note: "The castle is a short tram ride from Kumamoto station (Kumamoto-jō/Shiyakusho-mae). **Sakuranobaba Jōsaien**, a food-and-souvenir street at the foot, has the old castle-town food in one place.", title: "Going" },
+          ],
+          related: ["look-closer/castle-towns", "history/meiji-to-1945"],
+          sources: [{ title: "Kumamoto Castle — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%86%8A%E6%9C%AC%E5%9F%8E", note: "Begun by Kiyomasa in 1591; the 1877 fire and siege, 4,000 against 14,000 (Japanese)" }],
+        },
+        {
+          title: "The castle after 2016",
+          cover: photoOf("kumamoto-2016", "A castle turret balanced on a single column of stones, the wall beneath it collapsed in a heap", "The Inui turret after the earthquakes, standing on one corner of stone."),
+          summary: "Two earthquakes in two nights brought down walls Kiyomasa built; the repair will take until 2052",
+          body: [
+            { p: "On **14 April 2016** a magnitude-6.2 earthquake struck beneath Kumamoto, and at 1:25 am on **16 April**, while people were still clearing up, the real one came: magnitude 7.0, the first shaking ever measured at the top of Japan's scale, 7, in Kyushu. That the first quake turned out to be a foreshock was the cruel surprise. In all 277 people died, most of them afterwards, in the strain of evacuation.[^1]" },
+            { p: "The castle took it badly. Its walls slumped, bulged or collapsed in **517** faces at 50 places — almost a third of all its stonework. The image of the disaster was the **Inui turret**, left standing on a single column of corner stones with the wall beneath it gone; the corners, laid in Kiyomasa's interlocking long-and-short pattern, are what held.[^2]" },
+            { p: "Each fallen stone has been numbered, photographed and matched to old pictures so it can go back where it was. The keep reopened in **2021**; in 2022 the city said the whole castle won't be finished until **2052**, fifteen years later than first planned.[^2]" },
+            {
+              timeline: [
+                { when: "14 Apr 2016", text: "The first quake, magnitude 6.2" },
+                { when: "16 Apr 2016", text: "The main quake, magnitude 7.0, 1:25 am" },
+                { when: "2021", text: "The keep's repair is finished" },
+                { when: "2052", text: "Full restoration, on the current plan" },
+              ],
+            },
+            { note: "A raised walkway, built after the earthquake, takes you through the grounds above the repair work, so you see the fallen walls and the craftsmen at work. Some parts stay closed.", title: "Seeing it" },
+          ],
+          related: ["nature/earthquakes"],
+          sources: [
+            { title: "2016 Kumamoto earthquakes — Wikipedia", url: "https://en.wikipedia.org/wiki/2016_Kumamoto_earthquakes", note: "The two quakes, the first shindo 7 in Kyushu, 277 dead" },
+            { title: "Kumamoto Castle — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%86%8A%E6%9C%AC%E5%9F%8E", note: "517 wall faces at 50 places; the keep finished in March 2021; full repair put back to 2052 (Japanese)" },
+          ],
+        },
+        {
+          title: "A Tōkaidō in miniature",
+          cover: photoOf("suizenji", "A garden with a pond, a stone bridge and a small grassy cone-shaped hill", "Suizenji Jōjuen and its little Fuji."),
+          summary: "Suizenji Jōjuen, a lord's garden fed by spring water, with a small grassy Mount Fuji",
+          body: [
+            { p: "The Hosokawa lords, who took over Kumamoto from Kiyomasa's son in 1632, made their garden around a **spring**. **Suizenji Jōjuen** began about 1636 as a tea house by a Zen temple, and over three generations became a stroll garden around a pond of water so clear it's fed straight from the aquifer under Aso.[^1]" },
+            { p: "It's often said to recreate the **53 stations of the Tōkaidō**, the road from Edo to Kyoto, in miniature. That's a later reading — the clearest thing in it is a small, perfectly rounded grassy hill standing for Mount Fuji — but it explains why the paths seem to make a journey. The thatched tea house, Kokin-denju-no-ma, was moved here in 1912 from the Imperial Palace in Kyoto.[^1]" },
+            { p: "The water is the point. Kumamoto city gets **all of its drinking water** from groundwater, rain that falls on Aso and takes years to filter through the volcanic rock — unusual among Japanese cities of its size." },
+            { note: "The garden is a 20-minute tram ride from the centre. Carp and ducks crowd the pond; the shop by the tea house serves matcha with a sweet looking over the water.", title: "Going" },
+          ],
+          related: ["land/gardens"],
+          sources: [{ title: "Suizen-ji Jōju-en — Wikipedia", url: "https://en.wikipedia.org/wiki/Suizen-ji_J%C5%8Dju-en", note: "Begun about 1636 by Hosokawa Tadatoshi; the tea house moved from Kyoto in 1912" }],
+        },
+        {
+          title: "Kumamon, the free bear",
+          cover: photoOf("kumamon", "A black bear mascot with red cheeks waving to a crowd", "Kumamon."),
+          summary: "A mascot made for the bullet train, who earned billions by being given away",
+          body: [
+            { p: "**Kumamon** was created in **2010** for the prefecture's campaign around the opening of the Kyushu Shinkansen to Kagoshima the next spring. In late 2011 he won the national mascot grand prix, the *Yuru-kyara* contest, with over 280,000 votes.[^1]" },
+            { p: "The clever part was the licence. Kumamoto Prefecture lets companies put Kumamon on their products **free of charge**, as long as they apply and help promote the prefecture. He was everywhere within months. Goods sales went from ¥2.5 billion in 2011 to ¥29.3 billion in 2012, and the Bank of Japan estimated his economic effect over two years at **¥123 billion**.[^1]" },
+            { p: "He's officially the prefecture's “sales manager and happiness manager”, has an office in the city, and appears in person, as a man-sized bear, on a timetable (see [Karaoke, pachinko and mascots](guide:culture/karaoke-pachinko-and-mascots))." },
+            { note: "**Kumamon Square**, his office near the Tsuruya department store, is free, with appearances on most days. Look for him on the Hisatsu Orange Railway's trains, too.", title: "Meeting him" },
+          ],
+          related: ["culture/karaoke-pachinko-and-mascots"],
+          sources: [{ title: "Kumamon — Wikipedia", url: "https://en.wikipedia.org/wiki/Kumamon", note: "Created 2010; the 2011 grand prix; free licence; sales and the Bank of Japan estimate" }],
+        },
+        {
+          title: "Mustard lotus and horse",
+          cover: photoOf("karashi-renkon", "Slices of lotus root, each hole filled with yellow mustard, in a yellow fried coat", "Karashi renkon."),
+          summary: "A dish invented to cure a lord, raw horse, and a ramen made with burnt garlic",
+          body: [
+            {
+              dishes: [
+                { name: "Karashi renkon", local: "辛子蓮根", kind: "Regional", text: "Lotus root with every hole stuffed with mustard miso, coated in a yellow batter and fried, then sliced. The story is that it was made in the 17th century for a sickly Hosokawa lord, and that the cut slices, looking like the Hosokawa crest, were kept from commoners for centuries. It's fiercely hot." },
+                { name: "Basashi", local: "馬刺し", kind: "Regional", text: "Raw horse meat, sliced thin like sashimi and dipped in sweet soy with ginger and garlic. Kumamoto is Japan's main horse-meat region; the marbled cut, *shimofuri*, is the prize." },
+                { name: "Kumamoto ramen", local: "熊本ラーメン", kind: "Regional", text: "Pork-bone broth richer than Hakata's, with thicker noodles and a slick of **mā-yu**, garlic fried until black in oil." },
+                { name: "Taipīen", local: "太平燕", kind: "Regional", text: "Glass-noodle soup with vegetables, seafood and a fried egg, brought by Chinese immigrants and a regular of local school lunches." },
+              ],
+            },
+            { note: "Horse is served in most izakaya; order it as a plate of mixed cuts, *moriawase*, to try the lean red, the marbled and the white mane fat, *tategami*.", title: "Ordering" },
+          ],
+          related: ["regional-food/overview"],
+          sources: [
+            { title: "Karashi renkon — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E8%BE%9B%E5%AD%90%E8%93%AE%E6%A0%B9", note: "Kumamoto's mustard-stuffed lotus root and its Hosokawa story (Japanese)" },
+            { title: "Basashi — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E9%A6%AC%E5%88%BA%E3%81%97", note: "Raw horse meat and Kumamoto (Japanese)" },
+          ],
+        },
+      ],
+    },
+    {
       id: "kagoshima",
       name: "Kagoshima",
       local: "鹿児島",
@@ -3157,6 +3979,36 @@ const base: { cities: GuideCity[] } = {
             { title: "Sweet potato — Wikipedia", url: "https://en.wikipedia.org/wiki/Sweet_potato", note: "Satsuma-imo and Kagoshima" },
             { title: "Shōchū — Wikipedia", url: "https://en.wikipedia.org/wiki/Sh%C5%8Dch%C5%AB", note: "Imo-jōchū from sweet potatoes" },
           ],
+        },
+        {
+          title: "Chiran: gardens and a last airfield",
+          summary: "A samurai village of clipped hedges, and the army airfield 439 young pilots flew from and didn't come back",
+          body: [
+            photo("chiran-garden", "A small dry garden of clipped shrubs and stones behind a samurai house", "One of Chiran's samurai gardens."),
+            { p: "Satsuma ran its domain through **113** outer districts, each with a fortified village of samurai, a *fumoto*, round its magistrate's office. **Chiran**, an hour south of Kagoshima, kept its own: a 700 m street of stone walls and clipped hedges, and behind them **seven gardens** laid out in the 1700s and early 1800s, borrowing the peak of Hahagadake as their backdrop. They became a national place of scenic beauty in **1981**.[^1]" },
+            { p: "The same town has a harder history. From April 1945, as American forces landed on Okinawa, the army's **special attack** units flew from Chiran's airfield on one-way missions against the fleet. Of the 1,036 army pilots who died in such attacks, the museum records **439**, about four in ten, as taking off from here; many were in their late teens or early twenties.[^2]" },
+            photo("chiran-museum", "A low modern museum building with a fighter plane displayed outside", "The Chiran Peace Museum."),
+            { p: "**Torihama Tome** ran the Tomiya canteen, the army's official eating house in town, and fed and mothered the pilots; one, the story goes, told her he'd come back as a firefly, and on the night after he died a firefly came in. Her canteen is now a small museum of its own.[^3] The **Chiran Peace Museum** holds about **14,000** objects: photographs, uniforms, and the last letters the pilots wrote home, many to their mothers.[^2]" },
+            { note: "Photography isn't allowed inside the museum. Allow two hours, and give the letters time. The samurai gardens are a 10-minute bus ride away; one ticket covers all seven. Buses from Kagoshima take a little over an hour.", title: "Going" },
+          ],
+          related: ["history/meiji-to-1945"],
+          sources: [
+            { title: "Bukeyashiki street, Minamikyūshū — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E6%AD%A6%E5%AE%B6%E5%B1%8B%E6%95%B7%E9%80%9A%E3%82%8A_(%E5%8D%97%E4%B9%9D%E5%B7%9E%E5%B8%82)", note: "113 outer districts; the 700 m street; seven gardens of the 1700s–1800s, a scenic place since 1981 (Japanese)" },
+            { title: "Chiran Peace Museum for Kamikaze Pilots — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%9F%A5%E8%A6%A7%E7%89%B9%E6%94%BB%E5%B9%B3%E5%92%8C%E4%BC%9A%E9%A4%A8", note: "439 of 1,036 army special-attack dead flew from Chiran; about 14,000 objects (Japanese)" },
+            { title: "Torihama Tome — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E9%B3%A5%E6%BF%B1%E3%83%88%E3%83%A1", note: "The Tomiya canteen; the firefly story (Japanese)" },
+          ],
+        },
+        {
+          title: "Satsuma glass",
+          cover: photoOf("satsuma-kiriko", "Two cut-glass tumblers, one red and one blue, with deep cut patterns", "Satsuma kiriko: colour cut back to clear."),
+          summary: "A lord's glassworks that lasted barely twenty years, and a craft brought back from about 200 surviving pieces",
+          body: [
+            { p: "Glass was one of **Shimazu Nariakira**'s projects in the 1850s, alongside the furnaces and cannon foundries of the Shūseikan. His craftsmen worked from Dutch glassmaking books and brought in Edo glass cutters, and made something new: **Satsuma kiriko**, cut glass with a thick skin of colour over clear, including a deep red. Nariakira gave it to other lords as gifts.[^1]" },
+            { p: "It was over almost as soon as it began. Nariakira died in **1858**, his successors cut back the works, and the British bombardment of 1863 hit the factories. By the 1870s the craft was gone; only about **200** pieces are known to survive, and they sell for millions of yen.[^1]" },
+            { p: "What makes it Satsuma is the **bokashi**, the blur. The colour layer is thick, so a deep, slanting cut grades from full colour through every shade to clear, where Edo kiriko, cut from clear glass, gives a crisp line. In the **1980s** glassmakers, with the Shimazu family's company, rebuilt the technique from those survivors; it's been a Kagoshima traditional craft since 1989.[^1]" },
+            { note: "The workshop beside **Sengan-en**, the Shimazu garden, lets you watch the cutting, and its shop is the place to buy. A small cup is a big purchase — think of it as a piece, not a souvenir.", title: "Seeing it" },
+          ],
+          sources: [{ title: "Satsuma kiriko — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E8%96%A9%E6%91%A9%E5%88%87%E5%AD%90", note: "Nariakira's glassworks; about 200 surviving pieces; bokashi; revived from 1985, a prefectural craft from 1989 (Japanese)" }],
         },
       ],
     },
@@ -3236,6 +4088,36 @@ const base: { cities: GuideCity[] } = {
           sources: [
             { title: "Hells of Beppu — Wikipedia", url: "https://en.wikipedia.org/wiki/Hells_of_Beppu", note: "Kannawa and jigoku-mushi steam cooking" },
           ],
+        },
+        {
+          title: "The man who sold Beppu",
+          cover: photoOf("kumahachi", "A bronze statue of a man in a cape with both arms raised, little demons clinging to it", "Aburaya Kumahachi outside Beppu station."),
+          summary: "A ruined rice trader who arrived in 1911 and invented the Japanese hot-spring holiday",
+          body: [
+            { p: "Beppu's steam was always there; its tourists were made by one man. **Aburaya Kumahachi** (1863–1935) was a rice merchant from Uwajima who made a fortune on the Osaka rice exchange, lost it all after the war with China in 1895, and wandered America for three years, where he was baptised. He turned up in Beppu in **1911** to open a small inn, the Kamenoi. His motto was a line from the New Testament: *be not forgetful to entertain strangers*.[^1]" },
+            { p: "He thought big. He coined the slogan “**Mountains, Fuji; seas, the Inland Sea; hot springs, Beppu**”, and in 1925 planted a post carved with it near the summit of **Mount Fuji**, then put up more around the country. He got the shipping line to build a pier so steamers from Osaka could dock instead of landing passengers by lighter, and in 1927 had townspeople send in postcards en masse until a newspaper poll ranked Beppu first among Japan's new scenic spots.[^1]" },
+            {
+              timeline: [
+                { when: "1911", text: "Opens the Kamenoi inn" },
+                { when: "1916", text: "A steamer pier for the Osaka boats" },
+                { when: "1925", text: "His slogan goes up near the top of Mount Fuji" },
+                { when: "1928", text: "Japan's first sightseeing bus with women guides, round the hells" },
+              ],
+            },
+            { p: "In **1928** his bus company started the country's first sightseeing tour led by **women guides**, round the hells; the company, Kamenoi Bus, still runs Beppu's buses. The statue by the station, put up in 2007, shows him on one foot with both arms raised, little demons from the hells clinging to his cape.[^1]" },
+          ],
+          sources: [{ title: "Aburaya Kumahachi — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E6%B2%B9%E5%B1%8B%E7%86%8A%E5%85%AB", note: "Ruin, America and arrival in 1911; the Kamenoi; the 1916 pier; the Fuji post of 1925; the 1927 poll; women bus guides from 1928; the 2007 statue (Japanese)" }],
+        },
+        {
+          title: "A university of 112 countries",
+          cover: photoOf("apu-campus", "Modern university buildings on a hilltop with the sea below", "APU on the hill above Beppu."),
+          summary: "On the hill above the spa town, half the students are from abroad",
+          body: [
+            { p: "On a plateau above Beppu sits one of the most international universities in Asia. **Ritsumeikan Asia Pacific University**, APU, opened in **2000**, set up by Kyoto's Ritsumeikan. Of its roughly 6,000 students, about **half** come from abroad, from **112** countries and regions, and nearly all of them stay the full four years.[^1]" },
+            { p: "For a town of about 110,000, that's a lot of young foreigners. Students work in Beppu's inns, restaurants and baths, run the stalls at its festivals, and stay on: the onsen town of elderly bath-house regulars has become one of the least homogeneous places in provincial Japan." },
+            { note: "Buses run up to the campus from Beppu station. The view from the hill over the bay and the steaming town is worth the ride.", title: "Going" },
+          ],
+          sources: [{ title: "Ritsumeikan Asia Pacific University — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%AB%8B%E5%91%BD%E9%A4%A8%E3%82%A2%E3%82%B8%E3%82%A2%E5%A4%AA%E5%B9%B3%E6%B4%8B%E5%A4%A7%E5%AD%A6", note: "Opened 2000; about half of about 6,000 students from 112 countries and regions, November 2024 (Japanese)" }],
         },
       ],
     },
@@ -3689,14 +4571,45 @@ const gettingAround: GuideTopic = {
               },
             },
             { h: "Send it ahead" },
-            { p: "**Takkyūbin** carries suitcases hotel to hotel, usually overnight, for a few thousand yen a bag. Hand it in at the front desk the day before with the next hotel's details, keep an overnight bag, and move city with only a day pack — free to sightsee on the way." },
-            { p: "Airports run the same service: arrivals to your first hotel, and your last hotel to departures, usually two days before the flight." },
+            { p: "**Takkyūbin** carries suitcases hotel to hotel, usually overnight, for a few thousand yen a bag, so you can move city with only a day pack and sightsee on the way. How to do it is in [Sending your bags ahead](guide:getting-around/sending-your-bags-ahead)." },
             { h: "Lockers" },
             { p: "Station coin lockers mostly take IC cards: tap to lock, tap to open. Suitcase-sized ones go first, especially at tourist stations by mid-morning; staffed baggage counters nearby are the fallback." },
           ],
           words: [{ local: "宅急便", say: "takkyūbin", means: "door-to-door delivery (the black-cat logo)" }],
           sources: [
             { title: "Oversized baggage — JR Central", url: "https://global.jr-central.co.jp/en/info/oversized-baggage/", note: "The 160 cm and 250 cm limits and the reserved luggage seats" },
+          ],
+        },
+        {
+          title: "Sending your bags ahead",
+          cover: photoOf("takkyubin", "A small white delivery truck with a black cat logo on a city street", "A Yamato truck under the black cat; this one carries chilled parcels, Cool Takkyūbin."),
+          summary: "Takkyūbin moves a suitcase hotel to hotel overnight, and it's how Japanese travellers do it too",
+          body: [
+            { p: "The trick that changes a Japan trip is not carrying your case at all. **Takkyūbin**, door-to-door delivery, picks a bag up from one hotel and delivers it to the next, usually **the next day**, anywhere on the main islands. It isn't a tourist service: it's how Japanese families send skis to the slopes, golf bags to the course and suitcases to the airport." },
+            { h: "How it began" },
+            { p: "Until the 1970s a private person sending a parcel took it to the post office, which accepted nothing over 6 kg. **Ogura Masao**, who ran **Yamato Transport**, bet that small parcels from homes, which every carrier avoided as unprofitable, could pay if there were enough of them. Takkyūbin started in **January 1976**. On its first day it carried **11** parcels; people misheard the name as *table-tennis delivery*, and took the cat on the depots' signs for a vet's.[^1]" },
+            { p: "Within a few years every rival had copied it, and by 1997 Yamato reached every inhabited island. *Takkyūbin* is Yamato's trademark; the others call theirs *takuhaibin*, and sending luggage by any of them is just *takuhai*.[^1][^2]" },
+            { h: "Doing it" },
+            {
+              steps: [
+                { title: "Ask at the front desk", text: "The day before you move, by late afternoon. Most hotels and many ryokan take bags every day; convenience stores take them too." },
+                { title: "Fill in the slip", text: "The next hotel's name, address and phone number, and **your name as it's on the booking**, with the date you'll arrive. Staff usually fill it in for you." },
+                { title: "Pay", text: "By size, the length + width + height added up, and distance: a big suitcase costs a few thousand yen. Pay at the desk, by card or cash." },
+                { title: "Travel light", text: "Keep a day bag with a night's things. The case waits for you at the next hotel's desk." },
+              ],
+            },
+            { note: "Plan on **next-day** delivery between the big cities, and **two days** for long hauls (Tokyo to Hokkaido or Kyushu) or remote inns. Don't send a bag to arrive the same day you move. Medicines, passports, chargers and valuables stay with you.", title: "Timing", kind: "warning" },
+            { h: "Airports" },
+            { p: "Narita, Haneda, Kansai and the other big airports have delivery counters in arrivals: hand over your case when you land, ride the train with a day bag, and find it at your hotel the next day. For the flight home, send it from your last hotel to the airport counter **two days** ahead and collect it before check-in." },
+          ],
+          words: [
+            { local: "宅急便", say: "takkyūbin", means: "Yamato's door-to-door delivery" },
+            { local: "手ぶら観光", say: "tebura kankō", means: "hands-free sightseeing, the sign on luggage counters" },
+          ],
+          related: ["getting-around/travelling-light"],
+          sources: [
+            { title: "Takkyūbin — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%AE%85%E6%80%A5%E4%BE%BF", note: "Ogura Masao; the 6 kg post-office limit; started 1976; 11 parcels on day one; every island by 1997 (Japanese)" },
+            { title: "Yamato Transport — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E3%83%A4%E3%83%9E%E3%83%88%E9%81%8B%E8%BC%B8", note: "Founded 1919; Takkyūbin a registered trademark since 1979 (Japanese)" },
           ],
         },
         {
