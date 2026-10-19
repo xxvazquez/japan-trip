@@ -222,6 +222,9 @@ export interface GuideBlock {
 export interface GuideTopic {
   id: string;
   title: string;
+  /** a shorter name for the back button of its articles, where the title
+   *  won't fit on a phone — "Cooking" for "How the cooking works" */
+  short?: string;
   icon?: IconName;
   glyph?: MapGlyphId;
   /** the chapter's dek — its line in the contents and under its title */
@@ -254,6 +257,8 @@ export interface GuideDayTrip extends GuideArticle {
 export interface GuideCity {
   id: string;
   name: string;
+  /** a shorter name for the back button of its notes — "Kurama" */
+  short?: string;
   /** the name in the local script */
   local?: string;
   /** other spellings a stay's base might use */

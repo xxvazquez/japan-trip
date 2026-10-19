@@ -8,6 +8,7 @@ import { photo, photoOf } from "./photos";
  *  is on the practical page, Be prepared. */
 export const nature: GuideTopic = {
   id: "nature",
+  short: "Nature",
   title: "Living with nature",
   glyph: "waves",
   summary: "Earthquakes, tsunami, volcanoes and typhoons — how they work, and what each disaster changed",

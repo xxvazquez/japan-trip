@@ -8,6 +8,7 @@ import { photo, photoOf } from "./photos";
  *  burns has its own chapter, Living with nature. */
 export const land: GuideTopic = {
   id: "land",
+  short: "Land",
   title: "Land & seasons",
   glyph: "leaf",
   summary: "Cherry and maple, planted forests, sacred mountains and gardens, and why the seasons matter so much",

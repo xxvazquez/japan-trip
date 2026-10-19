@@ -8,6 +8,7 @@ import { photo, photoOf } from "./photos";
  *  ones, and how the big names began. */
 export const work: GuideTopic = {
   id: "work",
+  short: "Work",
   title: "Work & companies",
   glyph: "bank",
   summary: "Joining a company, long hours, women at work, and the world's oldest firms",

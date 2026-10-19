@@ -20,7 +20,7 @@ type Api = {
   state: NavState;
   /** the title of the page this one was opened from, if it had one */
   backTitle?: string;
-  register: (v: { back?: { to?: string; label?: string }; title: string; subtitle?: string }) => void;
+  register: (v: { back?: { to?: string; label?: string }; title: string; subtitle?: string; backTitle?: string }) => void;
   setCollapsed: (v: boolean) => void;
   clear: () => void;
 };
@@ -68,8 +68,10 @@ export function NavProvider({ children }: { children: ReactNode }) {
   // dependencies don't re-run (and clear the bar) every time the state changes
   const actions = useMemo(
     () => ({
-      register: (v: { back?: { to?: string; label?: string }; title: string; subtitle?: string }) => {
-        if (v.title) titles.current.set(keyRef.current, v.title);
+      register: (v: { back?: { to?: string; label?: string }; title: string; subtitle?: string; backTitle?: string }) => {
+        // a page can name itself shorter for the back buttons of the pages
+        // it opens — UIKit's backButtonTitle
+        if (v.title) titles.current.set(keyRef.current, v.backTitle ?? v.title);
         setState((s) =>
           s.title === v.title && s.subtitle === v.subtitle && s.back?.to === v.back?.to && s.back?.label === v.back?.label && !!s.back === !!v.back
             ? s
@@ -224,6 +226,7 @@ export function useNavRegistration(
   back: { to?: string; label?: string } | undefined,
   title: string,
   subtitle?: string,
+  backTitle?: string,
 ) {
   const nav = useNavBar();
   const register = nav?.register;
@@ -234,8 +237,8 @@ export function useNavRegistration(
   const hasBack = !!back;
 
   useEffect(() => {
-    register?.({ ...(hasBack ? { back: { to: backTo, ...(backLabel ? { label: backLabel } : {}) } } : {}), title, subtitle });
-  }, [register, hasBack, backTo, backLabel, title, subtitle]);
+    register?.({ ...(hasBack ? { back: { to: backTo, ...(backLabel ? { label: backLabel } : {}) } } : {}), title, subtitle, backTitle });
+  }, [register, hasBack, backTo, backLabel, title, subtitle, backTitle]);
 
   useEffect(() => () => clear?.(), [clear]);
 

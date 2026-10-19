@@ -7,6 +7,7 @@ import { photo, photoOf } from "./photos";
  *  Recent events are dated, so a reader can tell how old they are. */
 export const politics: GuideTopic = {
   id: "politics",
+  short: "Politics",
   title: "Government & politics",
   icon: "flag",
   summary: "The emperor, the Diet and its one dominant party, elections, Article 9 and the prefectures",

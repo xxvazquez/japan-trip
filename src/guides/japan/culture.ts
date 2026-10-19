@@ -8,6 +8,7 @@ import { photo, photoOf } from "./photos";
  *  trip is on the city pages. */
 export const culture: GuideTopic = {
   id: "culture",
+  short: "Arts",
   title: "Arts & pastimes",
   glyph: "art",
   summary: "Tea, noh, kabuki and the woodblock print, then baths, sumo and baseball",

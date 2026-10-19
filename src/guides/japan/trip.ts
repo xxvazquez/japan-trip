@@ -646,6 +646,7 @@ const base: { cities: GuideCity[] } = {
     {
       id: "kurama",
       name: "Kurama & Kibune",
+      short: "Kurama",
       cover: photoOf("kurama-main-hall", "A vermilion temple hall at the top of a mountain path", "Kurama-dera's main hall."),
       local: "鞍馬・貴船",
       aliases: ["Kurama", "Kibune", "Kifune"],
@@ -1929,6 +1930,7 @@ const base: { cities: GuideCity[] } = {
     {
       id: "shirakawago",
       name: "Shirakawa-gō",
+      short: "Shirakawa",
       local: "白川郷",
       aliases: ["Shirakawago", "Shirakawa"],
       lat: 36.2577, lng: 136.9063, radiusKm: 3,
@@ -2267,6 +2269,7 @@ const base: { cities: GuideCity[] } = {
     {
       id: "fuji-five-lakes",
       name: "Fuji Five Lakes",
+      short: "Fuji Lakes",
       cover: photoOf("kawaguchi-fuji", "Mount Fuji reflected in a calm lake", "Fuji from Lake Kawaguchi."),
       local: "富士五湖",
       aliases: ["Kawaguchiko", "Fujikawaguchiko"],
@@ -4257,6 +4260,7 @@ export const tripCities = base.cities.map(withReads);
  *  some of which change from year to year. */
 const rules: GuideTopic = {
   id: "rules",
+  short: "Rules",
   title: "Rules with teeth",
   icon: "shield",
   summary: "Passports, medicines, tax-free shopping, touts and drones",
@@ -4485,6 +4489,7 @@ const money: GuideTopic = {
 
 const gettingAround: GuideTopic = {
   id: "getting-around",
+  short: "Transport",
   title: "Getting around",
   icon: "train",
   summary: "What the map app won't tell you about Japan's trains",

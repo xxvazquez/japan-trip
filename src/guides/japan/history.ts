@@ -10,6 +10,7 @@ const now = new Date().getFullYear();
  *  settled. Places appear only as evidence, never as things to visit. */
 export const history: GuideTopic = {
   id: "history",
+  short: "History",
   title: "A short history",
   glyph: "castle",
   summary: "From the first pottery to Reiwa, and why the eras are not alike",

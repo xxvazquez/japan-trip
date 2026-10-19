@@ -7,6 +7,7 @@ import { photo, photoOf } from "./photos";
 
 export const howFoodWorks: GuideTopic = {
   id: "how-food-works",
+  short: "Cooking",
   title: "How the cooking works",
   glyph: "food",
   summary: "Rice, a five-minute stock, one mould and the season, and how much of it is younger than it looks",
@@ -291,6 +292,7 @@ export const howFoodWorks: GuideTopic = {
 
 export const foodAtHome: GuideTopic = {
   id: "food-at-home",
+  short: "At home",
   title: "Food at home",
   glyph: "breakfast",
   summary: "What an ordinary household eats on a weekday, where it comes from, and how the year changes it",

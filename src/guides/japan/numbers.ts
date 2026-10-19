@@ -8,6 +8,7 @@ import { photoOf } from "./photos";
  *  turns up in a classroom, an office or a street. */
 export const numbers: GuideTopic = {
   id: "numbers",
+  short: "Numbers",
   title: "Japan by numbers",
   glyph: "sparkle",
   summary: "Fewer people, older people, smaller homes — the numbers behind everyday life",

@@ -7,6 +7,7 @@ import { photo, photoOf } from "./photos";
  *  where you've been and what you've agreed to. */
 export const stamps: GuideTopic = {
   id: "stamps",
+  short: "Stamps",
   title: "Stamps everywhere",
   icon: "stamp",
   summary: "Temple seals, station stamps and the hanko, and why Japan records where it's been",

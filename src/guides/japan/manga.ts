@@ -7,6 +7,7 @@ import { photo, photoOf } from "./photos";
  *  city is on that city's page. */
 export const manga: GuideTopic = {
   id: "manga",
+  short: "Manga",
   title: "Manga & anime",
   glyph: "bookstore",
   summary: "How manga and anime grew, who draws them and for what pay, and what fans made of them",

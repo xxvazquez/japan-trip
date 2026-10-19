@@ -6,6 +6,7 @@ import { photo, photoOf } from "./photos";
  *  luck and wordplay, the map's quirks, and Japan and Poland. */
 export const trivia: GuideTopic = {
   id: "trivia",
+  short: "Trivia",
   title: "Did you know",
   glyph: "sparkle",
   summary: "Design that travelled, trains by design, lucky puns, odd borders, and Japan and Poland",

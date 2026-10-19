@@ -475,7 +475,7 @@ export function GuideTopicPage() {
 
   return (
     <Page width="form">
-      <PageHeader back={guidePath(guide)} backLabel={guide.name} eyebrow={chapterLabel(guide, topic)} title={topic.title} className="!mb-3" />
+      <PageHeader back={guidePath(guide)} backLabel={guide.name} backTitle={topic.short} eyebrow={chapterLabel(guide, topic)} title={topic.title} className="!mb-3" />
       <p className="mb-2 break-words text-[17px] leading-[1.45] text-ink-soft">{topic.summary}</p>
       {progress}
       <div className="space-y-6">
@@ -487,7 +487,16 @@ export function GuideTopicPage() {
         {topic.intro && (
           <Section>
             <ul>
-              <ArticleRow to={`${topicPath}/${refs[0].slug}`} title={refs[n++].title} meta="Start here: the whole chapter in one read" thumb={photoIn(refs[0].article)?.src} />
+              {/* the chapter's cover already fills the screen above, so the
+                  intro is marked by the chapter's own tile, as Tips marks a
+                  collection's first tip */}
+              <ArticleRow
+                to={`${topicPath}/${refs[0].slug}`}
+                title={refs[n++].title}
+                meta="Start here: the whole chapter in one read"
+                thumb={photoIn(refs[0].article)?.src}
+                art={<IconTile name={topic.icon} glyph={topic.glyph} color={guideTopicColor(t)} size="thumb" />}
+              />
             </ul>
           </Section>
         )}
@@ -531,7 +540,7 @@ export function GuideCityPage() {
 
   return (
     <Page width="form">
-      <PageHeader back={guidePath(guide)} backLabel={guide.name} title={city.name} meta={city.local} className="mb-6" />
+      <PageHeader back={guidePath(guide)} backLabel={guide.name} backTitle={city.short} title={city.name} meta={city.local} className="mb-6" />
       <div className="space-y-6">
         <Hero fallback={cityFallback(guide, city)} />
         {/* the place's facts in one grouped list, the way Maps puts a
@@ -593,7 +602,7 @@ export function GuideDayTripsPage() {
 
   return (
     <Page width="form">
-      <PageHeader back={`${guidePath(guide)}/place/${city.id}`} backLabel={city.name} title={`Day trips from ${city.name}`} meta="Off the usual list, by train or bus" className="mb-6" />
+      <PageHeader back={`${guidePath(guide)}/place/${city.id}`} backLabel={city.short ?? city.name} backTitle="Day trips" title={`Day trips from ${city.name}`} meta="Off the usual list, by train or bus" className="mb-6" />
       <Section>
         <ul>
           {dayTripArticles(city).map((r) => (
@@ -626,7 +635,7 @@ export function GuideTopicArticle() {
     <ArticlePage
       key={`${topic.id}/${item}`}
       back={topicPath}
-      backLabel={topic.title}
+      backLabel={topic.short ?? topic.title}
       entry={refs[i]}
       chapter={chapterLabel(guide, topic)}
       next={refs[i + 1] && { to: `${topicPath}/${refs[i + 1].slug}`, entry: refs[i + 1] }}
@@ -650,7 +659,7 @@ export function GuideCityArticle() {
     <ArticlePage
       key={`${city.id}/${item}`}
       back={cityPath}
-      backLabel={city.name}
+      backLabel={city.short ?? city.name}
       entry={refs[i]}
       next={refs[i + 1] && { to: `${cityPath}/${refs[i + 1].slug}`, entry: refs[i + 1] }}
     />
@@ -999,6 +1008,7 @@ function ArticleRow({
   caption,
   side,
   thumb,
+  art,
   replace,
 }: {
   to: string;
@@ -1008,6 +1018,8 @@ function ArticleRow({
   side?: string;
   /** a photo from the article, as a square on the right — the News list */
   thumb?: string;
+  /** what stands in the thumbnail's place when there's no photo */
+  art?: ReactNode;
   replace?: boolean;
 }) {
   const { guide } = useParams();
@@ -1029,7 +1041,7 @@ function ArticleRow({
         </span>
         {side && <span className="shrink-0 text-sm text-ink-faint">{side}</span>}
         <ReadTick to={to} />
-        {thumb && <Thumb src={thumb} />}
+        {thumb ? <Thumb src={thumb} /> : art}
         <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
       </Link>
     </ContextMenu>

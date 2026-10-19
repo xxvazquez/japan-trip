@@ -24,6 +24,8 @@ const TILE_BG: Record<Tone, string> = {
  *
  *   md — 28px, the default row tile
  *   sm — 22px, a lighter touch (a detail row, a nested item)
+ *   thumb — 56px, standing in for a row's photo thumbnail where there's
+ *           no photo to show, at the thumbnail's own size and corners
  */
 export function IconTile({
   name,
@@ -39,11 +41,11 @@ export function IconTile({
   tone?: Tone;
   color?: string;
   ghost?: boolean;
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "thumb";
   className?: string;
 }) {
-  const box = size === "md" ? "h-7 w-7" : "h-[22px] w-[22px]";
-  const px = size === "md" ? 16 : 13;
+  const box = size === "thumb" ? "h-14 w-14 !rounded-[8px]" : size === "md" ? "h-7 w-7" : "h-[22px] w-[22px]";
+  const px = size === "thumb" ? 26 : size === "md" ? 16 : 13;
   const d = glyph ? glyphPath(glyph) : undefined;
   const fill = ghost
     ? "bg-ink-faint/[0.14] text-ink-soft"

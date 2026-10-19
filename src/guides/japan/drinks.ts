@@ -7,6 +7,7 @@ import { photo, photoOf } from "./photos";
  *  sweets were made to go with it. Coffee has its own chapter. */
 export const drinks: GuideTopic = {
   id: "drinks",
+  short: "Drinks",
   title: "Drinks & sweets",
   glyph: "drink",
   summary: "Sake and the drinks that overtook it, tea from temple medicine to the bottle, and sweets that tell the month",

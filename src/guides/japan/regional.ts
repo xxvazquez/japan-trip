@@ -8,6 +8,7 @@ import { photo, photoOf } from "./photos";
  *  What to eat in a particular city is on that city's page. */
 export const regionalFood: GuideTopic = {
   id: "regional-food",
+  short: "Regional",
   title: "Regional food",
   glyph: "route",
   summary: "The east–west line, the trade routes behind it, flour country, the north and the south, and food made to travel",

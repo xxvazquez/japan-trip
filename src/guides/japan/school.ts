@@ -8,6 +8,7 @@ import { photo, photoOf } from "./photos";
  *  shrine milestones, and the schools emptied by falling births. */
 export const growingUp: GuideTopic = {
   id: "growing-up",
+  short: "School",
   title: "Growing up & school",
   glyph: "university",
   summary: "Cleaning the classroom, exams, clubs, children out alone, and schools with no children left",

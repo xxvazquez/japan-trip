@@ -10,6 +10,7 @@ const now = new Date().getFullYear();
  *  Settled facts sit apart from revisions and live arguments. */
 export const belief: GuideTopic = {
   id: "belief",
+  short: "Belief",
   title: "Belief & philosophy",
   icon: "temple",
   summary: "Shinto and Buddhism, how they were joined and split, and what people practise now",
