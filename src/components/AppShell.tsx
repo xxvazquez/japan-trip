@@ -19,6 +19,7 @@ import { useAutoHotelCoords, useAutoTripTimeZone } from "@/lib/hotelCoords";
 import { useResumeWhereLeft } from "@/lib/resume";
 import { useScrollMemory } from "@/lib/scrollMemory";
 import { useMergeDuplicates } from "@/lib/dedupe";
+import { startBackSwipe, usePageCommit, type BackSwipe } from "@/lib/pageTransition";
 
 export function AppShell() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -47,28 +48,64 @@ export function AppShell() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // iOS edge-swipe back: a drag that starts within 24px of the left edge and
-  // travels right goes back a screen (the fusuma view-transition animates it).
+  usePageCommit();
+
+  // iOS edge-swipe back: a drag from the left edge pulls the page off with
+  // the finger, the previous screen sliding in underneath; letting go past
+  // halfway (or with a flick) finishes going back, otherwise it settles back
   useEffect(() => {
-    let x0 = 0, y0 = 0, live = false;
     const start = (e: TouchEvent) => {
-      const t = e.touches[0];
-      live = t.clientX <= 24 && ((window.history.state?.idx ?? 0) > 0);
-      x0 = t.clientX;
-      y0 = t.clientY;
-    };
-    const end = (e: TouchEvent) => {
-      if (!live) return;
-      live = false;
-      const t = e.changedTouches[0];
-      if (t.clientX - x0 > 64 && Math.abs(t.clientY - y0) < 48) nav(-1);
+      if (e.touches.length !== 1) return;
+      const first = e.touches[0];
+      if (first.clientX > 24 || (window.history.state?.idx ?? 0) <= 0) return;
+      // the page this lands on is swapped out mid-drag, and a removed
+      // element's touches no longer bubble up to the document: listen on
+      // the element itself, which keeps getting them
+      const target = e.target as EventTarget;
+      const x0 = first.clientX, y0 = first.clientY;
+      const width = window.innerWidth;
+      let phase: "maybe" | "drag" | "off" = "maybe";
+      let swipe: BackSwipe | null = null;
+      let dx = 0, lastX = x0, lastT = e.timeStamp, speed = 0;
+
+      const move = (ev: TouchEvent) => {
+        const t = ev.touches[0];
+        if (!t || phase === "off") return;
+        dx = t.clientX - x0;
+        const dy = t.clientY - y0;
+        if (phase === "maybe") {
+          if (Math.abs(dy) > 10 && Math.abs(dy) > dx) { phase = "off"; detach(); return; }
+          if (dx <= 10 || dx <= Math.abs(dy)) return;
+          phase = "drag";
+          swipe = startBackSwipe();
+        }
+        if (ev.cancelable) ev.preventDefault();
+        const dt = ev.timeStamp - lastT;
+        if (dt > 0) speed = 0.7 * ((t.clientX - lastX) / dt) + 0.3 * speed;
+        lastX = t.clientX;
+        lastT = ev.timeStamp;
+        swipe?.move(dx / width);
+      };
+      const end = (ev: TouchEvent) => {
+        detach();
+        if (phase !== "drag") return;
+        // a finger held still before lifting has no throw left in it
+        if (ev.timeStamp - lastT > 80) speed = 0;
+        const commit = ev.type === "touchend" && (speed > 0.25 || (speed > -0.25 && dx / width > 0.5));
+        if (swipe) swipe.release(commit, speed);
+        else if (commit) nav(-1);
+      };
+      const detach = () => {
+        target.removeEventListener("touchmove", move as EventListener);
+        target.removeEventListener("touchend", end as EventListener);
+        target.removeEventListener("touchcancel", end as EventListener);
+      };
+      target.addEventListener("touchmove", move as EventListener, { passive: false });
+      target.addEventListener("touchend", end as EventListener);
+      target.addEventListener("touchcancel", end as EventListener);
     };
     document.addEventListener("touchstart", start, { passive: true });
-    document.addEventListener("touchend", end, { passive: true });
-    return () => {
-      document.removeEventListener("touchstart", start);
-      document.removeEventListener("touchend", end);
-    };
+    return () => document.removeEventListener("touchstart", start);
   }, [nav]);
 
   return (
