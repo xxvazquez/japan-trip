@@ -451,7 +451,7 @@ export function GuideTopicPage() {
 
   return (
     <Page width="form">
-      <PageHeader back={guidePath(guide)} eyebrow={chapterLabel(guide, topic)} title={topic.title} className="!mb-3" />
+      <PageHeader back={guidePath(guide)} backLabel={guide.name} eyebrow={chapterLabel(guide, topic)} title={topic.title} className="!mb-3" />
       <p className="mb-2 break-words text-[17px] leading-[1.45] text-ink-soft">{topic.summary}</p>
       {progress}
       <div className="space-y-6">
@@ -506,7 +506,7 @@ export function GuideCityPage() {
 
   return (
     <Page width="form">
-      <PageHeader back={guidePath(guide)} title={city.name} meta={city.local} className="mb-6" />
+      <PageHeader back={guidePath(guide)} backLabel={guide.name} title={city.name} meta={city.local} className="mb-6" />
       <div className="space-y-6">
         <Hero fallback={cityFallback(guide, city)} />
         {/* the place's facts in one grouped list, the way Maps puts a
@@ -563,7 +563,7 @@ export function GuideDayTripsPage() {
 
   return (
     <Page width="form">
-      <PageHeader back={`${guidePath(guide)}/place/${city.id}`} title={`Day trips from ${city.name}`} meta="Off the usual list, by train or bus" className="mb-6" />
+      <PageHeader back={`${guidePath(guide)}/place/${city.id}`} backLabel={city.name} title={`Day trips from ${city.name}`} meta="Off the usual list, by train or bus" className="mb-6" />
       <Section>
         <ul>
           {dayTripArticles(city).map((r) => (
@@ -595,6 +595,7 @@ export function GuideTopicArticle() {
     <ArticlePage
       key={`${topic.id}/${item}`}
       back={topicPath}
+      backLabel={topic.title}
       entry={refs[i]}
       chapter={chapterLabel(guide, topic)}
       next={refs[i + 1] && { to: `${topicPath}/${refs[i + 1].slug}`, entry: refs[i + 1] }}
@@ -617,6 +618,7 @@ export function GuideCityArticle() {
     <ArticlePage
       key={`${city.id}/${item}`}
       back={cityPath}
+      backLabel={city.name}
       entry={refs[i]}
       next={refs[i + 1] && { to: `${cityPath}/${refs[i + 1].slug}`, entry: refs[i + 1] }}
     />
@@ -637,6 +639,7 @@ export function GuideDayTripArticle() {
     <ArticlePage
       key={`${city.id}/${item}`}
       back={tripsPath}
+      backLabel="Day trips"
       entry={refs[i]}
       next={refs[i + 1] && { to: `${tripsPath}/${refs[i + 1].slug}`, entry: refs[i + 1] }}
     />
@@ -659,6 +662,7 @@ export function GuideDateArticle() {
     <ArticlePage
       key={item}
       back={guidePath(guide)}
+      backLabel={guide.name}
       entry={entry}
       next={next && { to: `${guidePath(guide)}/date/${next.slug}`, entry: next }}
     />
@@ -686,8 +690,8 @@ const noArticle = (g: CountryGuide) => (
  * entry waits at the foot so the guide reads straight through. Next
  * replaces this page, so Back always returns to the list it came from.
  * A long read also says how long it takes and opens with its contents,
- * the way Apple's own long support articles do, and ends with related
- * entries that carry the thread on.
+ * the way Apple's own long support articles do, and ends with its sources,
+ * a big Up Next card and the related entries that carry the thread on.
  */
 /** A page's header picture when it has none of its own: a photo from
  *  around it, else a panel in its colour. Chapter and city pages only — an
@@ -701,12 +705,15 @@ interface ArticleFallback {
 
 function ArticlePage({
   back,
+  backLabel,
   entry,
   next,
   nextTopic,
   chapter,
 }: {
   back: string;
+  /** the name of the list `back` returns to, for a cold load */
+  backLabel?: string;
   entry: ArticleRef;
   /** "Chapter 4 · Origins", said with the reading time */
   chapter?: string;
@@ -739,7 +746,7 @@ function ArticlePage({
     <GuideSources.Provider value={a.sources ?? []}>
     <Page width="form">
       <ReadingActions entry={{ to: pathname, title: entry.title, caption: entry.eyebrow, src: firstPhoto }} />
-      <PageHeader back={back} eyebrow={entry.eyebrow} title={entry.title} className={a.summary || minutes ? "!mb-3" : "mb-6"} />
+      <PageHeader back={back} backLabel={backLabel} eyebrow={entry.eyebrow} title={entry.title} className={a.summary || minutes ? "!mb-3" : "mb-6"} />
       {a.summary && <p className="mb-2 break-words text-[17px] leading-[1.45] text-ink-soft">{a.summary}</p>}
       {minutes || chapter ? (
         <p className="mb-6 text-[13px] text-ink-faint">{[chapter, minutes && `${minutes} min read`].filter(Boolean).join(" · ")}</p>
@@ -843,6 +850,32 @@ function ArticlePage({
           </div>
         ) : null}
 
+        {/* the read's foot, in the order Apple News closes a story: where
+            its facts came from, then the one thing to read next as a big
+            picture card, then the reads that carry the thread on */}
+        {a.sources?.length ? <Sources sources={a.sources} /> : null}
+
+        {next ? (
+          <UpNext
+            to={next.to}
+            kicker="Up next"
+            caption={next.entry.eyebrow}
+            title={next.entry.title}
+            summary={next.entry.article.summary}
+            photo={photoIn(next.entry.article)}
+          />
+        ) : nextTopic ? (
+          <UpNext
+            to={nextTopic.to}
+            kicker="Next chapter"
+            caption={guide ? chapterLabel(guide, nextTopic.topic) : undefined}
+            title={nextTopic.topic.title}
+            summary={nextTopic.topic.summary}
+            photo={nextTopic.topic.cover ?? coverOf(topicArticles(nextTopic.topic))}
+            tint={nextTopic.color}
+          />
+        ) : null}
+
         {related.length ? (
           <div>
             <p className="kicker mb-1.5 px-1">Related</p>
@@ -855,36 +888,48 @@ function ArticlePage({
             </Section>
           </div>
         ) : null}
-
-        {a.sources?.length ? <Sources sources={a.sources} /> : null}
-
-        {next ? (
-          <div className="pt-2">
-            <p className="kicker mb-1.5 px-1">Up next</p>
-            <Section>
-              <ul>
-                <ArticleRow to={next.to} replace caption={next.entry.eyebrow} title={next.entry.title} meta={next.entry.article.summary} thumb={photoIn(next.entry.article)?.src} />
-              </ul>
-            </Section>
-          </div>
-        ) : nextTopic ? (
-          <div className="pt-2">
-            <p className="kicker mb-1.5 px-1">Next topic</p>
-            <Section>
-              <ul>
-                <TileRow
-                  to={nextTopic.to}
-                  tile={<IconTile size="sm" name={nextTopic.topic.icon} glyph={nextTopic.topic.glyph} color={nextTopic.color} />}
-                  title={nextTopic.topic.title}
-                  meta={nextTopic.topic.summary}
-                />
-              </ul>
-            </Section>
-          </div>
-        ) : null}
       </div>
     </Page>
     </GuideSources.Provider>
+  );
+}
+
+/** What to read next, as Apple News sets its Up Next: one big card, the
+ *  read's own picture across the top (else a panel in its chapter's
+ *  colour, or none), then its caption, headline and dek. It replaces the
+ *  page, so Back still returns to the list the reading started from. */
+function UpNext({ to, kicker, caption, title, summary, photo, tint }: {
+  to: string;
+  kicker: string;
+  caption?: string;
+  title: string;
+  summary?: string;
+  photo?: GuidePhoto;
+  tint?: string;
+}) {
+  return (
+    <div className="pt-2">
+      <p className="kicker mb-1.5 px-1">{kicker}</p>
+      <Link
+        to={to}
+        replace
+        className="block overflow-hidden rounded-[12px] bg-surface transition-colors duration-150 active:bg-ink/[0.07] focus-visible:[outline-offset:-2px]"
+      >
+        {photo ? (
+          <img src={photo.src} alt="" width={photo.w} height={photo.h} loading="lazy" decoding="async" className="block aspect-[2/1] w-full bg-surface-2 object-cover" />
+        ) : tint ? (
+          <span aria-hidden className="block aspect-[4/1] w-full" style={{ background: tint }} />
+        ) : null}
+        <span className="flex items-center gap-3 px-4 py-3.5">
+          <span className="min-w-0 flex-1">
+            {caption && <span className="block text-[13px] text-ink-faint">{caption}</span>}
+            <span className="subhead mt-0.5 block break-words">{title}</span>
+            {summary && <span className="meta mt-1 block break-words">{summary}</span>}
+          </span>
+          <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
+        </span>
+      </Link>
+    </div>
   );
 }
 

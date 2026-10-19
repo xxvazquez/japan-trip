@@ -618,7 +618,8 @@ The book reads in order, in five parts, with chapters numbered straight through.
 - **Bookmark**, **Share** and **⋯** sit in the nav bar. Share opens the phone's share sheet; on desktop Chrome it copies the link (the button turns into a tick).
 - **Read by reading** — reaching the end of an article marks it read, as Books keeps your place. To change it by hand: **⋯ → Mark as Read / Mark as Unread** in the bar, or hold a row (right-click on a computer). Read articles get a green tick on their row, and a chapter page says how many of its articles you've read.
 - Read marks, bookmarks and Continue reading are kept on this device only, not synced.
-- Links in the text open other entries; **Related** lists the ones that carry the thread on, each captioned with its chapter. **Up next** opens the next entry in place, so Back still returns to the list.
+- An article ends the way Apple News closes a story: its **sources**, then **Up next** as one big picture card (**Next chapter** at a chapter's end), then **Related**, the reads that carry the thread on, each captioned with its chapter.
+- Up next opens the next entry in place, so Back still returns to the list. The back button names the page it returns to (‹ Kyoto, ‹ Japan), even after a reload.
 
 #### Content
 

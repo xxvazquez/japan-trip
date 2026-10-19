@@ -48,6 +48,7 @@ export function Page({
  */
 export function PageHeader({
   back,
+  backLabel,
   eyebrow,
   dotColor,
   title,
@@ -59,6 +60,9 @@ export function PageHeader({
 }: {
   /** show a back control: a path is the cold-load fallback, `true` uses Plan */
   back?: string | boolean;
+  /** the name of the page `back` leads to, for the button on a cold load
+   *  (a deep link or reload), when there's no screen to borrow it from */
+  backLabel?: string;
   eyebrow?: ReactNode;
   dotColor?: string;
   title: ReactNode;
@@ -82,7 +86,7 @@ export function PageHeader({
     const t = h1?.textContent?.replace(/\s*→\s*/g, " → ").trim();
     if (t && t !== titleText) setTitleText(t);
   });
-  useNavRegistration(h1, back ? { to: typeof back === "string" ? back : undefined } : undefined, titleText, navSubtitle);
+  useNavRegistration(h1, back ? { to: typeof back === "string" ? back : undefined, label: backLabel } : undefined, titleText, navSubtitle);
   return (
     <header className={`mb-8 ${className}`}>
       {eyebrow ? (

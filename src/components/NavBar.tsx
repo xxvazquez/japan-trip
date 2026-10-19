@@ -15,12 +15,12 @@ import { sheetEntries } from "@/lib/backClose";
  * under the bar, at which point the bar fades the small centred title in.
  * Pages that don't register (Plan, Map) leave the bar as brand + actions.
  */
-type NavState = { back?: { to?: string }; title: string; subtitle?: string; collapsed: boolean };
+type NavState = { back?: { to?: string; label?: string }; title: string; subtitle?: string; collapsed: boolean };
 type Api = {
   state: NavState;
   /** the title of the page this one was opened from, if it had one */
   backTitle?: string;
-  register: (v: { back?: { to?: string }; title: string; subtitle?: string }) => void;
+  register: (v: { back?: { to?: string; label?: string }; title: string; subtitle?: string }) => void;
   setCollapsed: (v: boolean) => void;
   clear: () => void;
 };
@@ -68,10 +68,10 @@ export function NavProvider({ children }: { children: ReactNode }) {
   // dependencies don't re-run (and clear the bar) every time the state changes
   const actions = useMemo(
     () => ({
-      register: (v: { back?: { to?: string }; title: string; subtitle?: string }) => {
+      register: (v: { back?: { to?: string; label?: string }; title: string; subtitle?: string }) => {
         if (v.title) titles.current.set(keyRef.current, v.title);
         setState((s) =>
-          s.title === v.title && s.subtitle === v.subtitle && s.back?.to === v.back?.to && !!s.back === !!v.back
+          s.title === v.title && s.subtitle === v.subtitle && s.back?.to === v.back?.to && s.back?.label === v.back?.label && !!s.back === !!v.back
             ? s
             : { collapsed: s.collapsed, title: v.title, ...(v.subtitle ? { subtitle: v.subtitle } : {}), ...(v.back ? { back: v.back } : {}) },
         );
@@ -138,10 +138,11 @@ function TripSwitcher() {
 
 /** The back button's word: the screen you came from (iOS's own rule), or
  *  plain "Back" when that title is too long to sit in the bar; on a cold
- *  load, where going back means going to `to`, that page's name. */
-function backLabel(prevTitle: string | undefined, to: string): string {
-  if (prevTitle) return prevTitle.length <= 14 ? prevTitle : "Back";
-  return PARENT_LABEL[to] ?? "Back";
+ *  load, where going back means going to `to`, that page's name — the one
+ *  the page itself gives (`label`), else the fixed list. */
+function backLabel(prevTitle: string | undefined, to: string, label?: string): string {
+  const word = prevTitle ?? label ?? PARENT_LABEL[to];
+  return word && word.length <= 14 ? word : "Back";
 }
 
 /** Leave a detail page the way its back button does — pop it — so a page
@@ -183,7 +184,7 @@ export function NavLeft() {
       <Icon name="back" size={22} />
       {/* iOS drops the word for a bare chevron when the bar runs out of room
           — here, a phone once a two-line title (a day's date) is showing */}
-      <span className={crowded ? "max-sm:sr-only" : undefined}>{backLabel(canGoBack ? nav?.backTitle : undefined, to)}</span>
+      <span className={crowded ? "max-sm:sr-only" : undefined}>{backLabel(canGoBack ? nav?.backTitle : undefined, to, back.label)}</span>
     </button>
   );
 }
@@ -211,7 +212,7 @@ export function NavTitle() {
 /** For a page header: register with the bar and watch the large title. */
 export function useNavRegistration(
   el: HTMLElement | null,
-  back: { to?: string } | undefined,
+  back: { to?: string; label?: string } | undefined,
   title: string,
   subtitle?: string,
 ) {
@@ -220,11 +221,12 @@ export function useNavRegistration(
   const setCollapsed = nav?.setCollapsed;
   const clear = nav?.clear;
   const backTo = back?.to;
+  const backLabel = back?.label;
   const hasBack = !!back;
 
   useEffect(() => {
-    register?.({ ...(hasBack ? { back: { to: backTo } } : {}), title, subtitle });
-  }, [register, hasBack, backTo, title, subtitle]);
+    register?.({ ...(hasBack ? { back: { to: backTo, ...(backLabel ? { label: backLabel } : {}) } } : {}), title, subtitle });
+  }, [register, hasBack, backTo, backLabel, title, subtitle]);
 
   useEffect(() => () => clear?.(), [clear]);
 
