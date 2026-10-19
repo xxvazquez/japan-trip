@@ -55,7 +55,7 @@ export const culture: GuideTopic = {
             { p: "Wabi is usually translated as \"rustic simplicity\", which misses the edge. It meant finding beauty in what is plain, worn and incomplete, and it made a deliberate contrast with the gold and display of the age." },
             { h: "Tea as politics" },
             { p: "Rikyū served the two men who unified Japan, Oda Nobunaga and then **Toyotomi Hideyoshi** (see [Unification](guide:history/unification)). Hideyoshi used tea as politics: gifts of famous tea bowls were rewards worth a province, and he held a vast public tea gathering at Kitano in Kyoto in 1587. He also had a portable tea room built of gold. In 1591 he ordered Rikyū to take his own life, for reasons that have never been settled." },
-            { p: "One room survives that's said to be Rikyū's: **Taian**, at Myōkian temple between Kyoto and Osaka. It's two tatami mats, about three square metres, and a National Treasure.[^2]" },
+            { p: "One room survives that's said to be Rikyū's: **Taian**, at Myōkian temple between Kyoto and Osaka. It's two tatami mats, about three square metres, and a National Treasure, traditionally dated to 1582 and built on Hideyoshi's orders; there's no document proving it's Rikyū's, only a tradition that goes back to the Edo period.[^2][^3]" },
 
             { h: "Schools" },
             { p: "Rikyū's descendants founded three houses in Kyoto, still neighbours today: **Omotesenke**, **Urasenke** and **Mushakōjisenke**, the *san-senke*, each led by its iemoto. Most people who study tea today are women, though most iemoto have been men." },
@@ -89,6 +89,7 @@ export const culture: GuideTopic = {
           sources: [
             { title: "Wabi-cha — Wikipedia", url: "https://en.wikipedia.org/wiki/Wabi-cha", note: "Jukō, Jōō and Rikyū; the wabi style" },
             { title: "Taian — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%BE%85%E5%BA%B5", note: "Taian at Myōkian, said to be Rikyū's" },
+            { title: "待庵 (Taian) — Kotobank (Heibonsha World Encyclopedia and others)", url: "https://kotobank.jp/word/待庵-90738", note: "Two mats; said to date from 1582; attributed to Rikyū by Edo-period tradition, without proof (Japanese)" },
           ],
         },
         {
@@ -101,6 +102,8 @@ export const culture: GuideTopic = {
             { p: "A noh play is slow, sung and danced, with a chorus and a small ensemble of flute and drums, on a bare cypress stage with a painted pine at the back. The stage keeps its own roof even indoors, because it was built for shrine precincts." },
             { p: "The main actor wears a carved mask, tilted a fraction up or down to make it seem to smile or grieve. Often the hero turns out to be a ghost, reliving the moment that binds them to the world, and a travelling monk's prayers release them." },
             { p: "Between noh plays come **kyōgen**, short comic pieces in everyday speech: servants outwitting masters, a monk who can't resist sake. Together the two are **nōgaku**, recognised by UNESCO in 2001, the first of Japan's arts on its list.[^2]" },
+            { h: "Watching one" },
+            { p: "The language is 14th-century verse, sung, and even Japanese audiences can't follow it unaided. Every seat at the **National Noh Theatre** in Sendagaya, Tokyo, has a small screen in the seat back that shows the words and what's happening as it happens, in Japanese or English.[^3] Programmes usually pair a noh with a kyōgen, so you get both moods in one afternoon; dozing through a slow passage is so common that nobody minds." },
             {
               compare: {
                 title: "The two halves of nōgaku",
@@ -123,6 +126,7 @@ export const culture: GuideTopic = {
           sources: [
             { title: "Zeami Motokiyo — Wikipedia", url: "https://en.wikipedia.org/wiki/Zeami_Motokiyo", note: "Born 1363; Yoshimitsu's patronage; exile to Sado in 1434" },
             { title: "Nôgaku theatre — UNESCO Intangible Cultural Heritage", url: "https://ich.unesco.org/en/RL/nogaku-theatre-00012", note: "Proclaimed 2001, inscribed 2008" },
+            { title: "The noh appreciation class — Agency for Cultural Affairs", url: "https://www.bunka.go.jp/prmagazine/rensai/youkoso/youkoso_047.html", note: "Subtitles at every seat of the National Noh Theatre, in real time (Japanese)" },
           ],
         },
         {
@@ -191,6 +195,7 @@ export const culture: GuideTopic = {
               },
             },
             { p: "The dances are the one time anyone can buy a ticket and watch them work, and the November Gion Odori is the only one in autumn." },
+            { p: "The public dances are a Meiji invention, and a rescue. When the emperor and the court left for Tokyo, Kyoto lost its reason for being and much of its trade. For the city's first Kyoto Exhibition in **1872**, Gion's geiko and maiko danced for visitors for 80 days in a Gion Shinbashi teahouse: the first Miyako Odori. Pontochō's Kamogawa Odori opened the same year.[^2] The dances were made for outsiders from the start." },
             { p: "Their working streets are lived-in. Kyoto's Gion now asks visitors to keep out of its private lanes and not to photograph geiko and maiko on their way to work (see [Kyoto's visitors](guide:place/kyoto/too-many-visitors-and-what-the-city-is-trying))." },
           ],
           words: [
@@ -198,7 +203,10 @@ export const culture: GuideTopic = {
             { local: "花街", say: "kagai", means: "a geisha district" },
           ],
           related: ["place/kyoto/too-many-visitors-and-what-the-city-is-trying", "culture/kabuki-and-bunraku"],
-          sources: [{ title: "Geisha — Wikipedia", url: "https://en.wikipedia.org/wiki/Geisha", note: "Origins in the 18th-century pleasure quarters; geiko and maiko in Kyoto" }],
+          sources: [
+            { title: "Geisha — Wikipedia", url: "https://en.wikipedia.org/wiki/Geisha", note: "Origins in the 18th-century pleasure quarters; geiko and maiko in Kyoto" },
+            { title: "Kyoto in April — Kyoto City Official Travel Guide", url: "https://ja.kyoto.travel/event/season/april/", note: "Miyako Odori from the 1872 Kyoto Exhibition, 80 days in Gion Shinbashi; Kamogawa Odori first staged 1872 (Japanese)" },
+          ],
         },
       ],
     },
@@ -328,16 +336,37 @@ export const culture: GuideTopic = {
           summary: "An American game that arrived with a teacher and became the national one",
           body: [            photo("baseball-cheering", "Fans in matching happi coats playing trumpets in the outfield stands", "The cheering section at a Japanese ballgame, led by its own band."),
 
-            { p: "**Baseball** came with an American teacher in the 1870s and spread through schools and universities.[^1] It became so Japanese that it has its own word, *yakyū*, \"field ball\". The amateur game still matters as much as the professional one, above all the high-school tournament at Kōshien (see [Clubs and Kōshien](guide:growing-up/clubs-and-koshien))." },
+            { p: "**Baseball** came with an American teacher, **Horace Wilson**, who taught English and maths at the school that became the University of Tokyo and showed his students the game in 1872. He was voted into Japan's Baseball Hall of Fame in 2003, and a monument stands on the school's old site in Kanda.[^2] From there it spread through schools and universities.[^1] It became so Japanese that it has its own word, *yakyū*, \"field ball\". The amateur game still matters as much as the professional one, above all the high-school tournament at Kōshien (see [Clubs and Kōshien](guide:growing-up/clubs-and-koshien))." },
             { p: "The professional league dates from 1936, and many of its teams were founded by railways and newspapers to sell tickets and papers (see [Railways built the cities](guide:look-closer/railways-built-the-cities)). It's the most-watched sport in the country." },
             { h: "At a game" },
             {
               stats: [
-                { value: "1870s", label: "arrives with an American teacher" },
+                { value: "1872", label: "arrives with an American teacher" },
                 { value: "1936", label: "the professional league founded" },
                 { value: "12", label: "innings, then a regular-season game is a draw" },
               ],
             },
+            { h: "Bigger than ever" },
+            { p: "Baseball has been called a sport in decline for twenty years, and the turnstiles say otherwise. The 2026 season drew **27,177,247** spectators to league games, the third record in a row, about 31,700 a game.[^3] The league has only published real counts since 2005, when the total was 19.9 million; before that, clubs announced round, generous estimates." },
+            {
+              chart: {
+                kind: "line",
+                title: "Spectators at professional league games",
+                unit: "Millions a season, both leagues, regular season",
+                points: [
+                  { label: "2005", x: 2005, value: 19.92 },
+                  { label: "2008", x: 2008, value: 21.64 },
+                  { label: "2019", x: 2019, value: 26.54 },
+                  { label: "2025", x: 2025, value: 27.04 },
+                  { label: "2026", x: 2026, value: 27.18 },
+                ],
+                highlight: "2026",
+                decimals: 1,
+                source: "Nippon Professional Baseball (NPB), attendance since actual counts began in 2005",
+                read: "The pandemic seasons of 2020–21, with capped or empty stands, are left out.",
+              },
+            },
+            { p: "What has shrunk is the grassroots. The number of boys playing high-school baseball has fallen for years, and many schools now enter combined teams (see [Clubs and Kōshien](guide:growing-up/clubs-and-koshien)). The game is watched more and played less." },
             { p: "Each team's cheering section (*ōendan*) leads a song for every batter, with trumpets and drums; fans of the visiting team fill one stand of the outfield and cheer only when their side bats. Young women with beer kegs on their backs climb the stands pouring draught all game. Draws are allowed: in the regular season a game ends after twelve innings whatever the score." },
           ],
           words: [
@@ -347,6 +376,8 @@ export const culture: GuideTopic = {
           related: ["growing-up/clubs-and-koshien", "look-closer/railways-built-the-cities", "culture/sumo"],
           sources: [
             { title: "Baseball in Japan — Wikipedia", url: "https://en.wikipedia.org/wiki/Baseball_in_Japan", note: "Horace Wilson in the 1870s, the 1936 league, cheering sections, tie games" },
+            { title: "150 years of Japanese baseball: Horace Wilson — Nippon Professional Baseball", url: "https://npb.jp/archives/japanesebaseball150th/news/20220314_02.html", note: "1872 at the school that became Kaisei Gakkō; Hall of Fame 2003; the Kanda monument (Japanese)" },
+            { title: "Season over, attendance a record for the third year — Nippon Professional Baseball, October 2026", url: "https://npb.jp/news/detail/20261009_02.html", note: "27,177,247 in 2026; the series since actual counts began in 2005 (Japanese)" },
           ],
         },
         {

@@ -14,7 +14,7 @@ export const politics: GuideTopic = {
   intro: {
     title: "Intro to government and politics",
     body: [
-      { p: "Modern Japan has had two constitutions. The **Meiji constitution** of 1889 made the emperor a sacred sovereign; the army answered to him, not to elected politicians, and that gap helped lead the country into war (see [Meiji to 1945](guide:history/meiji-to-1945)). The **1947 constitution**, drafted under American occupation, put sovereignty in the people, made the emperor a symbol and renounced war. It has never been amended." },
+      { p: "Modern Japan has had two constitutions. The **Meiji constitution** of 1889 made the emperor a sacred sovereign; the army answered to him, not to elected politicians, and that gap helped lead the country into war (see [Meiji to 1945](guide:history/meiji-to-1945)). The **1947 constitution**, drafted under American occupation, put sovereignty in the people, made the emperor a symbol and renounced war. It has never been amended.[^1]" },
       {
         stats: [
           { value: "0", label: "amendments to the 1947 constitution" },
@@ -34,6 +34,9 @@ export const politics: GuideTopic = {
         ],
       },
       { p: "The chapter starts with the throne, then the elected state: the Diet, how elections look, Article 9 and the prefectures. Politics moves fast; recent events here are dated so you can tell how old they are." },
+    ],
+    sources: [
+      { title: "The Constitution of Japan — Prime Minister's Office of Japan", url: "https://japan.kantei.go.jp/constitution_and_government_of_japan/constitution_e.html", note: "The English text; Article 1 (the symbol emperor), Article 9, Article 96 (amendment)" },
     ],
   },
   blocks: [
@@ -168,7 +171,7 @@ export const politics: GuideTopic = {
           body: [
             { p: "Article 9 of the constitution renounces war \"as a sovereign right of the nation\" and says land, sea and air forces \"will never be maintained\". It was written in February 1946, in about a week, by American officers of the occupation, and adopted by the Diet that autumn. Who first proposed it is still argued: MacArthur later said the idea came from Prime Minister Shidehara Kijūrō; many historians doubt it.[^1]" },
             { p: "One small change in the Diet made everything after it possible. The legislator **Ashida Hitoshi** added a phrase to the second paragraph, *in order to accomplish the aim of the preceding paragraph*, so that the ban on forces could be read as a ban on forces **for war**, leaving room for forces for defence. Every government since has relied on that reading." },
-            { p: "In practice Japan has had the **Self-Defense Forces** since 1954, interpreted as the minimum needed to defend the country.[^1] Since 2015 they may also act in limited \"collective self-defence\" alongside allies.[^2] In 2022 the government committed to roughly doubling defence spending, to about 2% of GDP, which makes the budget one of the largest in the world." },
+            { p: "In practice Japan has had the **Self-Defense Forces** since 1954, interpreted as the minimum needed to defend the country.[^1] Since 2015 they may also act in limited \"collective self-defence\" alongside allies.[^2] In 2022 the government committed to roughly doubling defence spending, to about 2% of GDP by fiscal 2027, ¥43 trillion over five years, which makes the budget one of the largest in the world.[^3]" },
             {
               timeline: [
                 { when: "1946", text: "The constitution is drafted under the occupation and promulgated on 3 November." },
@@ -179,7 +182,7 @@ export const politics: GuideTopic = {
                 { when: "2022", text: "The plan to raise defence spending to about 2% of GDP." },
               ],
             },
-            { p: "Amending Article 9 has been an LDP goal since its founding, and has never come to a vote. An amendment needs two-thirds of both houses and then a majority in a national referendum, a procedure that has never once been used." },
+            { p: "Amending Article 9 has been an LDP goal since its founding, and has never come to a vote. An amendment needs two-thirds of both houses and then a majority in a national referendum (Article 96).[^4] The law setting out how such a referendum would even be run was only passed in 2007, sixty years after the constitution took effect, and it has never been used." },
             { p: "Much of the public has grown attached to the article as it is, and the Self-Defense Forces are best known at home for disaster relief, after earthquakes and floods (see [Earthquakes](guide:nature/earthquakes))." },
             {
               evidence: {
@@ -196,6 +199,8 @@ export const politics: GuideTopic = {
           sources: [
             { title: "Article 9 of the Japanese Constitution — Wikipedia", url: "https://en.wikipedia.org/wiki/Article_9_of_the_Japanese_Constitution", note: "The text, the SDF and reinterpretations" },
             { title: "2015 Japanese military legislation — Wikipedia", url: "https://en.wikipedia.org/wiki/2015_Japanese_military_legislation", note: "Limited collective self-defence" },
+            { title: "Defence spending under the 2022 plan — nippon.com", url: "https://www.nippon.com/ja/in-depth/d00876/", note: "¥43 trillion over fiscal 2023–27; 2% of GDP by 2027, including related spending (Japanese)" },
+            { title: "The Constitution of Japan — Prime Minister's Office of Japan", url: "https://japan.kantei.go.jp/constitution_and_government_of_japan/constitution_e.html", note: "Article 9 and Article 96 in English" },
           ],
         },
         {
@@ -222,10 +227,10 @@ export const politics: GuideTopic = {
                 { value: "1,718", label: "cities, towns and villages, down from 3,232 in 1999" },
               ],
             },
-            { p: "Those municipalities are the level people deal with day to day. The **Great Heisei Mergers** of 1999–2010 roughly halved their number, as shrinking villages were folded into towns, which is why so many places now carry a new, often rather vague name: a hyphenated pair, a district name, or simply the name of the nearest mountain." },
-            { p: "The money mostly runs downhill from Tokyo, and one scheme lets taxpayers redirect a little of it. **Furusato nōzei**, “hometown tax”, started in 2008, lets people give to any municipality they choose and deduct it from their own tax, and towns send back gifts of local beef, rice or crab. By 2023 it was worth over a trillion yen a year, a lifeline for some rural towns and a loss for the big cities their donors live in." },
+            { p: "Those municipalities are the level people deal with day to day. The **Great Heisei Mergers** of 1999–2010 roughly halved their number, from 3,232 in 1999 to 1,727 in 2010,[^2] as shrinking villages were folded into towns, which is why so many places now carry a new, often rather vague name: a hyphenated pair, a district name, or simply the name of the nearest mountain." },
+            { p: "The money mostly runs downhill from Tokyo, and one scheme lets taxpayers redirect a little of it. **Furusato nōzei**, “hometown tax”, started in 2008, lets people give to any municipality they choose and deduct it from their own tax, and towns send back gifts of local beef, rice or crab. Gifts in its first year, 2008, came to about ¥8 billion; in fiscal 2025 they were **¥1.33 trillion**, from almost 60 million donations.[^3] It's a lifeline for some rural towns and a loss for the big cities their donors live in, and since 2019 the gifts back may be worth no more than 30% of the donation, after a bidding war of gift cards and beef." },
             { h: "Osaka's metropolis plan" },
-            { p: "Osaka has twice voted on copying that model, abolishing Osaka City and replacing it with special wards under the prefecture. The idea is the founding cause of the Ishin party. It lost both referendums by under a percentage point, in 2015 and again in November 2020, by 50.6% to 49.4%.[^1] Ishin has promised a third try." },
+            { p: "Osaka has twice voted on copying that model, abolishing Osaka City and replacing it with special wards under the prefecture. The idea is the founding cause of the Ishin party. It lost both referendums by under a percentage point, in 2015 and again in November 2020, by 692,996 votes to 675,829, 50.6% to 49.4%.[^1][^4] Ishin has promised a third try." },
           ],
           words: [
             { local: "都道府県", say: "todōfuken", means: "the 47 prefectures" },
@@ -234,6 +239,9 @@ export const politics: GuideTopic = {
           related: ["politics/elections", "history/meiji-to-1945", "place/tokyo/a-castle-town-that-became-a-capital"],
           sources: [
             { title: "Osaka Metropolis plan — Wikipedia", url: "https://en.wikipedia.org/wiki/Osaka_Metropolis_plan", note: "The 2015 and 2020 referendums, and the push for a third" },
+            { title: "Municipal mergers — Ministry of Internal Affairs and Communications", url: "https://www.soumu.go.jp/kouiki/kouiki.html", note: "3,232 municipalities in March 1999, 1,727 in March 2010, 1,718 since 2014 (Japanese)" },
+            { title: "Furusato nōzei survey, July 2026 — Ministry of Internal Affairs and Communications (PDF)", url: "https://www.soumu.go.jp/main_content/001084951.pdf", note: "¥8.14 billion in 2008; ¥1,331.4 billion and 59.63 million donations in fiscal 2025 (Japanese)" },
+            { title: "Osaka special-ward referendum, 1 November 2020, final count — Osaka City Election Commission", url: "https://www.city.osaka.lg.jp/contents/wdu240/sokuhoukekka/kaihyo_data_10_r21101.html", note: "Against 692,996, for 675,829 (Japanese)" },
           ],
         },
       ],

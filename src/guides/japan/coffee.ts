@@ -76,33 +76,23 @@ export const coffee: GuideTopic = {
                 ],
               },
             },
-            { p: "The three didn't arrive together. Each one came in answer to the one before, and the count of kissaten tells the story: about **155,000** in 1981, the peak, and under **59,000** forty years later.[^3]" },
-            {
-              stats: [
-                { value: "154,630", label: "kissaten in 1981, the peak" },
-                { value: "58,669", label: "in 2021" },
-                { value: "1996", label: "the first Starbucks outside North America" },
-              ],
-            },
-
+            { p: "The three didn't arrive together. Each one came in answer to the one before, and the kissaten count that peaked in 1981 (see [Intro to coffee](guide:coffee/overview)) fell as they arrived." },
             { h: "Coffee standing up, for ¥150" },
-            { p: "By 1980 coffee was an everyday drink, but a cup at a kissaten cost about ¥300, at a time when office workers' take-home pay was falling. In April 1980 the roaster **Toriba Hiromichi** opened the first **Doutor** coffee shop by Harajuku station: you ordered at a counter, a fully automatic machine made the coffee, and you drank it standing, for **¥150**, half the going rate.[^4]" },
-            { p: "Toriba had seen Parisian office workers stop for a coffee at the bar on the way to work. Drinking standing up was thought ill-mannered in Japan; he wanted to make it fashionable, and he did. The name is from the street in São Paulo where he'd worked as a young man.[^1] The kissaten's long decline begins the year after Doutor opened." },
+            { p: "By 1980 coffee was an everyday drink, but a cup at a kissaten cost about ¥300, at a time when office workers' take-home pay was falling. In April 1980 the roaster **Toriba Hiromichi** opened the first **Doutor** coffee shop by Harajuku station: you ordered at a counter, a fully automatic machine made the coffee, and you drank it standing, for **¥150**, half the going rate.[^3]" },
+            { p: "Toriba had seen Parisian office workers stop for a coffee at the bar on the way to work. Drinking standing up was thought ill-mannered in Japan; he wanted to make it fashionable, and he did. The name is from the street in São Paulo where he'd worked as a young man.[^1]" },
 
             { h: "Starbucks, and a cup without smoke" },
-            { p: "In August **1996** Starbucks opened on Matsuya-dōri in Ginza: its first shop outside North America.[^5] What it offered wasn't only lattes. It banned smoking indoors, at a time when almost every kissaten and Doutor was thick with it, and it let you sit for hours with a book or a laptop. Women and students, put off by the smoke and the salarymen, filled it." },
-            { p: "Starbucks now has more branches in Japan than any other coffee chain, but on its own terms: regional-only drinks, a sakura menu every spring, and shops built into a Kyoto machiya and a Dazaifu shrine approach." },
+            { p: "In August **1996** Starbucks opened on Matsuya-dōri in Ginza: its first shop outside North America.[^4] What it offered wasn't only lattes. It banned smoking indoors, at a time when almost every kissaten and Doutor was thick with it, and it let you sit for hours with a book or a laptop. Women and students, put off by the smoke and the salarymen, filled it." },
 
             { h: "The kissaten as a chain" },
             { p: "**Komeda's** went the other way. **Katō Tarō** opened it in Nagoya in 1968; his family ran a rice shop, and “Kome-ya no Tarō”, the rice shop's Tarō, became the name.[^2] It kept everything the kissaten had: padded booths, rack of newspapers, a free breakfast with morning coffee, the Shiro-Noir (warm Danish pastry under soft-serve) since 1977. It just put it on a big car park by a suburban main road." },
-            { p: "It reached 1,000 branches in 2023,[^6] mostly in the suburbs and in the Chūbu region, where Nagoya's habit of a long kissaten breakfast never died. Komeda's is the clearest sign that people didn't stop wanting the kissaten; they wanted one with parking and a reliable menu." },
+            { p: "It reached 1,000 branches in 2023,[^5] mostly in the suburbs and in the Chūbu region, where Nagoya's habit of a long kissaten breakfast never died. Komeda's is the clearest sign that people didn't stop wanting the kissaten; they wanted one with parking and a reliable menu." },
             { note: "Some old kissaten still allow smoking under a special status. Check the sign by the door: 喫煙可 (smoking allowed) or 禁煙 (no smoking).", title: "Smoke" },
           ],
           related: ["coffee/reading-a-kissaten", "coffee/how-the-coffee-is-made", "coffee/what-the-kissaten-says-about-japan"],
           sources: [
             { title: "Doutor Coffee — Wikipedia", url: "https://en.wikipedia.org/wiki/Doutor_Coffee", note: "Founded 1962; the first Doutor café, 1980; the name" },
             { title: "Komeda Coffee — Wikipedia", url: "https://en.wikipedia.org/wiki/Komeda_Coffee", note: "Nagoya, 1968; the name" },
-            { title: "The number of kissaten — Tōyō Keizai", url: "https://toyokeizai.net/articles/-/947079", note: "All Japan Coffee Association: 154,630 in 1981, 58,669 in 2021 (Japanese)" },
             { title: "How the first Doutor changed the coffee trade — Tokyo Walker, 2025", url: "https://www.walkerplus.com/article/1237336/", note: "Harajuku, April 1980; standing; ¥150 against about ¥300 (Japanese)" },
             { title: "Company history to 2000 — Starbucks Coffee Japan", url: "https://www.starbucks.co.jp/company/history/fy2000.html", note: "Ginza Matsuya-dōri, August 1996, the first store outside North America (Japanese)" },
             { title: "Komeda's 1,071 shops — Impress Gourmet Watch, 2025", url: "https://gourmet.watch.impress.co.jp/docs/news/1665077.html", note: "Nagoya 1968; 1,000 shops in 2023; 1,071 in January 2025 (Japanese)" },

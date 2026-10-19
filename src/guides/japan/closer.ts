@@ -24,7 +24,19 @@ export const closer: GuideTopic = {
           { term: "How towns were laid out", text: "The older layer under the street: the **castle towns** that set the shape of most cities, and the **railways** that built the suburbs and the shopping centres around their stations." },
         ],
       },
+      {
+        stats: [
+          { value: "851 g", label: "rubbish per person a day, 2023" },
+          { value: "56,054", label: "convenience stores, end of 2025" },
+          { value: "27 years", label: "the average age of a house when it's demolished" },
+        ],
+      },
       { p: "None of it needs a guidebook's list of sights. It works on any street, in any town, on the walk from the station to your hotel." },
+    ],
+    sources: [
+      { title: "General waste in fiscal 2023 — Ministry of the Environment", url: "https://www.env.go.jp/press/press_04470.html", note: "851 g per person a day; 19.5% recycled; 1,004 incinerators (Japanese)" },
+      { title: "Convenience-store spending per customer hits a record in 2025 — Sakigake (Kyodo)", url: "https://www.sakigake.jp/news/article/20260618CO0136/", note: "56,054 stores, Japan Franchise Association (Japanese)" },
+      { title: "The second-hand housing market, policy review, May 2019 — Ministry of Land, Infrastructure, Transport and Tourism (PDF)", url: "https://www.mlit.go.jp/common/001290143.pdf", note: "Average age of demolished houses: Japan 27.0 years, US 66.6, England 80.6 (Japanese)" },
     ],
   },
   blocks: [
@@ -48,7 +60,11 @@ export const closer: GuideTopic = {
             },
             { h: "Sorting it" },
             { p: "Sorting is serious because Japan **burns** about three-quarters of its household rubbish, in nearly a thousand municipal incinerators, rather than burying it: it has little spare land.[^2] That's why burnable, non-burnable, PET bottles and cans go separately, and why bottles have their labels and caps taken off. Rules differ by town, and each publishes its own calendar of collection days." },
-            { stats: [{ value: "~¾", label: "of household rubbish burned, not buried" }, { value: "~1,000", label: "municipal incinerators" }] },
+            { stats: [{ value: "~¾", label: "of household rubbish burned, not buried" }, { value: "1,004", label: "municipal incinerators, 2023" }, { value: "19.5%", label: "recycled" }] },
+            { p: "The result is less rubbish than you'd think: **851 g** per person a day in 2023, 3% down on the year before, and less than 1% of it buried untreated. The landfill that's left would fill in about 25 years at the present rate.[^3]" },
+            { h: "Collection day" },
+            { p: "The calendar runs the neighbourhood. Bags go out on the right morning, by 8:00, at a marked spot on the street, often under a net against the crows; many towns require clear or official bags with the household's name written on them, so a bag put out wrongly can be traced, tagged with a sticker saying why, and left behind." },
+            { p: "Large items, a sofa or a bike, need a paid sticker bought at a konbini, and appliances such as fridges and televisions are covered by a recycling law that charges a fee on disposal. A newcomer's first lesson from the neighbours is usually about rubbish." },
             { note: "Keep a small bag in your pocket for the day's rubbish, as people here do.", title: "Tip" },
           ],
           words: [
@@ -59,6 +75,7 @@ export const closer: GuideTopic = {
           sources: [
             { title: "Why are there no trash cans in Japan's train stations? — JR Pass", url: "https://www.jrpass.com/blog/why-are-there-no-trash-cans-in-japan-s-train-stations", note: "Removals after 1995 and before later security events" },
             { title: "Japan's waste incinerators — nippon.com", url: "https://www.nippon.com/en/japan-data/h02758/", note: "991 incineration facilities at the end of fiscal 2024" },
+            { title: "General waste in fiscal 2023 — Ministry of the Environment", url: "https://www.env.go.jp/press/press_04470.html", note: "38.97 million tonnes; 851 g per person a day; 19.5% recycled; 0.8% landfilled direct; 24.8 years of landfill left (Japanese)" },
           ],
         },
         {
@@ -82,12 +99,14 @@ export const closer: GuideTopic = {
               },
             },
             { p: "Three chains run most of them, 7-Eleven, FamilyMart and Lawson, and the model has grown far beyond its origins. 7-Eleven began in Texas, but its Japanese licensee grew so much bigger than its American parent that it bought it, in stages from 1991, and the Japanese company now owns the brand worldwide." },
+            { p: "The first Japanese 7-Eleven opened in Tokyo's Kōtō ward in May 1974, run by a liquor shop's owner.[^2] Its real invention was logistics: deliveries several times a day sorted by temperature, so a shop the size of a living room can carry fresh food for every meal without a storeroom." },
             { h: "The sticker in the window" },
             { p: "Look in the window for a sticker reading **災害時帰宅支援ステーション**, \"support station for people walking home in a disaster\". Chains have agreements with local governments to give water, toilets and route information to commuters walking home if the trains stop after an earthquake. It's the lesson of 2011, when millions of commuters were stranded in Tokyo, built into the shop on the corner." },
           ],
           related: ["food-at-home/bought-not-cooked", "numbers/who-lives-with-whom", "prepared/when-the-ground-shakes"],
           sources: [
             { title: "Convenience-store spending per customer hits a record in 2025 — Sakigake (Kyodo)", url: "https://www.sakigake.jp/news/article/20260618CO0136/", note: "56,054 stores at the end of 2025, Japan Franchise Association (Japanese)" },
+            { title: "Seven-Eleven Japan — Wikipedia", url: "https://en.wikipedia.org/wiki/Seven-Eleven_Japan", note: "First store in Toyosu, Kōtō, May 1974" },
           ],
         },
         {
@@ -97,21 +116,18 @@ export const closer: GuideTopic = {
 
             { p: "A **shōtengai** is a neighbourhood shopping street, often roofed: a tofu maker, a greengrocer, a rice shop, a fishmonger, a pharmacy, a croquette stall. They're busiest in the late afternoon, when people shop for dinner." },
             { p: "In big cities they still work. In many provincial towns they've become **shutter streets** (*shattā-dōri*), closed by out-of-town malls and owners with no one to hand over to." },
+            { p: "The government counts them every three years. In its 2021 survey the average shopping street had about **one shop in seven empty** (13.6%), and the most common worry, ahead of shoppers, was that the owners were old and had no one to take over. Half the streets expected more empty shops to come.[^2] Many keep their street lights, loudspeakers and seasonal decorations going on a dwindling association fee: the lanterns outlive the shops under them." },
             { h: "Why “Ginza”" },
-            { p: "The name itself means **silver mint**: the shogunate struck its silver coins there from 1612. After a fire in 1872 the Meiji government rebuilt the district in brick as a showcase of the new Japan, with gas lamps and pavements, and Ginza became the word for modern, Western, smart." },
-            {
-              timeline: [
-                { when: "1612", text: "The shogunate's **silver mint** moves to the district and gives it its name" },
-                { when: "1872", text: "After a fire, it's rebuilt in brick, with gas lamps and pavements" },
-                { when: "1923", text: "After the earthquake, Togoshi paves its street with Ginza's rubble bricks, and takes the name" },
-              ],
-            },
+            { p: "The name itself means **silver mint**: the shogunate's mint moved here from Sunpu in 1612, and the name stayed after the mint moved on in 1800. What made it famous was a fire. In 1872 a blaze burned the district from Marunouchi to Kyōbashi, and the new Meiji government rebuilt it as a showcase: a brick town with arcades, gas lamps and pavements, designed by the Irish-born engineer **Thomas Waters** and finished in 1877.[^3]" },
+            { p: "Shopkeepers began using the arcades as display windows, and strolling past them got its own word, *Ginbura*, “loafing about Ginza”.[^3] The district became the word for modern, Western and smart, and every town wanted one." },
             { p: "Many shopping streets are called \"something-Ginza\" in its honour. After the 1923 earthquake, a street in Togoshi took the rubble bricks of Ginza to pave its own road, and borrowed the name too: Togoshi Ginza, now one of the longest shopping streets in Tokyo at about 1.3 km, with some 400 shops.[^1]" },
             { p: "More than 300 \"Ginzas\" are said to exist around the country, though nobody has made an official count." },
           ],
           related: ["look-closer/railways-built-the-cities", "food-at-home/bought-not-cooked"],
           sources: [
             { title: "Togoshi Ginza shopping street — Shinagawa City (PDF)", url: "https://www.city.shinagawa.tokyo.jp/ct/pdf/hpg000026056_9.pdf", note: "About 1.3 km and about 400 shops (Japanese)" },
+            { title: "Shopping street survey, fiscal 2021 — Small and Medium Enterprise Agency", url: "https://www.chusho.meti.go.jp/shogyo/shogyo/2022/220408shoutengai.html", note: "Average vacancy 13.59%; 49.9% expect more empty shops (Japanese)" },
+            { title: "Ginza's brick town — Sumitomo Mitsui Trust, Kono Machi Archives", url: "https://smtrc.jp/town-archives/city/ginza/p02.html", note: "The 1872 fire; Waters' brick town, finished 1877; Ginbura (Japanese)" },
           ],
         },
         {
@@ -122,6 +138,8 @@ export const closer: GuideTopic = {
             photo("address-sign", "A sign on a green utility pole reading Kangetsu-chō 1-chōme, Chikusa ward, in Japanese and romaji", "An address sign on a utility pole in Nagoya: the district and its chōme, but no street."),
             { h: "Why blocks" },
             { p: "The older system numbered plots of land in the order they were registered, so neighbouring numbers could be far apart and gaps opened as plots were split or merged. A law of **1962** introduced the block system to make addresses findable; most of the country now uses it, though some areas still go by land numbers.[^1]" },
+            { p: "The law actually allowed two methods: blocks, or a **road method** that numbers buildings along named streets, the European way.[^2] Almost every town chose blocks. Streets in most Japanese towns are irregular, often old field paths, and a block system needed no street names at all; for big roads, cities give names to the roads alone, for drivers, not for addresses." },
+            { p: "So the same building can have two numbers. The **jūkyo hyōji**, the residential address, is what goes on a letter. The **chiban**, the land-registry number, is what goes on a deed, and in many places it's a different number entirely. Where no block address was ever brought in, the land number is still the address, and those are the places a delivery driver dreads." },
             {
               steps: [
                 { title: "The district", text: "A named area of the city — the part you'd search for." },
@@ -145,11 +163,13 @@ export const closer: GuideTopic = {
           words: [
             { local: "丁目", say: "chōme", means: "a numbered part of a district" },
             { local: "番地", say: "banchi", means: "a land or block number" },
+            { local: "住居表示 / 地番", say: "jūkyo hyōji / chiban", means: "the postal address / the land-registry number" },
             { local: "上ル / 下ル", say: "agaru / sagaru", means: "north / south of the junction, in Kyoto" },
           ],
           related: ["place/kyoto/the-grid-and-what-broke-it", "look-closer/castle-towns"],
           sources: [
             { title: "Japanese addressing system — Wikipedia", url: "https://en.wikipedia.org/wiki/Japanese_addressing_system", note: "Blocks rather than streets, the 1962 act, Kyoto's agaru and sagaru" },
+            { title: "Act on Residential Addresses (Act No. 119 of 1962) — e-Gov law database", url: "https://laws.e-gov.go.jp/law/337AC0000000119", note: "Article 2: the block method and the road method (Japanese)" },
           ],
         },
       ],
@@ -176,6 +196,9 @@ export const closer: GuideTopic = {
             { h: "What's left" },
             { p: "The trades left their names. A **Kajimachi** was the smiths' quarter, a **Gofukumachi** the cloth merchants'; a **Teramachi** is the line of temples on the edge.[^1] You'll find them as district names and station names across the country, long after the trades moved out." },
             { p: "The social split could last too. In Edo, the samurai high ground and the merchants' low city became Tokyo's Yamanote and Shitamachi (see [A castle town that became a capital](guide:place/tokyo/a-castle-town-that-became-a-capital))." },
+            { h: "The castle is usually the newest part" },
+            { p: "The town plan is often older than the castle in the middle of it. The Meiji government ordered most castles demolished or handed to the army in 1873, and the bombing of 1945 burned many of the rest. Of roughly 200 castles you can visit, only **twelve** still have a keep built before the Edo period ended; five are National Treasures. The keeps of Osaka, Nagoya and Hiroshima are concrete rebuilds, Osaka's from 1931, the others postwar, some with lifts inside.[^2]" },
+            { p: "So the street plan, the moat and the stone walls are usually the old things, and the white tower above them is the reconstruction. The state protects the old quarters themselves: since 1975 it has listed districts of historic buildings for preservation, **130** of them by 2026, and the samurai streets of Hagi and Kakunodate were among the first.[^3]" },
           ],
           words: [
             { local: "城下町", say: "jōkamachi", means: "castle town" },
@@ -185,6 +208,8 @@ export const closer: GuideTopic = {
           related: ["history/unification", "history/edo", "place/tokyo/a-castle-town-that-became-a-capital"],
           sources: [
             { title: "Jōkamachi — Wikipedia", url: "https://en.wikipedia.org/wiki/J%C5%8Dkamachi", note: "The plan, cranked roads, trade quarters; more than half of cities over 100,000" },
+            { title: "The twelve surviving castle keeps — nippon.com Japan Data", url: "https://www.nippon.com/ja/japan-data/h00413/", note: "About 200 castles, twelve original keeps, five National Treasures (Japanese)" },
+            { title: "Preservation districts for groups of historic buildings — Agency for Cultural Affairs", url: "https://www.bunka.go.jp/seisaku/bunkazai/shokai/hozonchiku/", note: "130 districts in 107 municipalities, September 2026; the first chosen in 1975 (Japanese)" },
           ],
         },
         {
@@ -200,6 +225,7 @@ export const closer: GuideTopic = {
                 { title: "Sell at the terminal", text: "In 1929 he opened a department store at his city terminal, Umeda, so passengers spent money at both ends." },
               ],
             },
+            { p: "The dates are tight. His line opened in March 1910, and that June he was already selling houses by Ikeda station with 20% down and the rest in monthly payments over ten years, a forerunner of the home loan. The Takarazuka Revue, an all-female theatre company, gave its first show in 1914, and the Hankyū department store opened over the Umeda terminal in 1929, billed as the first in the world run by a railway.[^2]" },
             { p: "Every big private railway copied him. That's why the department stores over Tokyo's terminals carry railway names (see [Station towns, not a centre](guide:place/tokyo/station-towns-not-a-centre)), and why so many professional baseball teams were founded by railways: the Hanshin Tigers still belong to the Hanshin railway, the Seibu Lions to Seibu." },
             { h: "The station is the centre" },
             { p: "Neighbourhoods are named after their station, and life gathers at its exits: a shopping street, a supermarket, banks, cram schools, a kōban. Ask someone where they live and they'll name a station." },
@@ -208,6 +234,7 @@ export const closer: GuideTopic = {
           related: ["place/tokyo/station-towns-not-a-centre", "look-closer/castle-towns", "work/names-you-know"],
           sources: [
             { title: "Kobayashi Ichizō — Wikipedia", url: "https://en.wikipedia.org/wiki/Ichiz%C5%8D_Kobayashi", note: "Hankyū's suburbs, Takarazuka and the 1929 Umeda department store" },
+            { title: "Toyonaka and the first railway suburbs — Sumitomo Mitsui Trust, Kono Machi Archives", url: "https://smtrc.jp/town-archives/city/toyonaka/p04.html", note: "The 1910 lines; houses sold for 20% down and ten years of instalments; the first railway-run department store (Japanese)" },
           ],
         },
         {
@@ -226,12 +253,14 @@ export const closer: GuideTopic = {
             { p: "Partly it's earthquakes. Building codes tightened sharply in 1981 and again for wooden houses in 2000, so older houses are seen as unsafe, and banks are reluctant to lend on pre-1981 ones.[^1] The 1981 standard is the one that decided which houses stood in Kobe in 1995 (see [Earthquakes](guide:nature/earthquakes)). Partly it's post-war housing built fast and cheaply, and a preference for new things." },
             { p: "Zoning is loose: a small shop, a bar or a workshop can sit in a residential street, and owners can rebuild bigger without much of a fight. That keeps big-city housing relatively cheap, since cities can keep building as they grow.[^2] It's also why one street can mix a 1960s wooden house, a narrow four-storey \"pencil building\" and a new prefab." },
             { p: "Each rebuild is a chance to change the street, and you can read the decades in it: wooden houses with tiled roofs from before the 1980s, prefabricated houses clad in tile-patterned panels from the bubble years, and narrow steel-framed **pencil buildings** where a plot was split between heirs." },
+            { p: "Measured another way: a house in Japan is, on average, about **27** years old when it's pulled down, by the land ministry's comparison, against about 67 in the United States and 81 in England. Only about **one home sale in seven** is a second-hand home, around a sixth of the share in the US and Europe,[^3] so Japanese families build new, and the old house goes to the scrapyard." },
             { p: "The flip side is in the countryside, where an old house nobody wants is worth less than the cost of pulling it down (see [Who lives with whom](guide:numbers/who-lives-with-whom))." },
           ],
           related: ["nature/earthquakes", "numbers/who-lives-with-whom", "place/tokyo/a-city-that-keeps-rebuilding"],
           sources: [
             { title: "Housing in Japan — Wikipedia", url: "https://en.wikipedia.org/wiki/Housing_in_Japan", note: "Depreciation, the 1981 and 2000 codes, rebuilding" },
             { title: "Japanese housing, with Jiro Yoshida — UCLA Lewis Center", url: "https://www.lewis.ucla.edu/2021/12/08/16-japanese-housing-with-jiro-yoshisa/", note: "Zoning, supply and affordability" },
+            { title: "The second-hand housing market, policy review, May 2019 — Ministry of Land, Infrastructure, Transport and Tourism (PDF)", url: "https://www.mlit.go.jp/common/001290143.pdf", note: "Average age at demolition: Japan 27.0, US 66.6, England 80.6 years; second-hand homes 14.7% of sales, about a sixth of Western levels (Japanese)" },
           ],
         },
       ],
