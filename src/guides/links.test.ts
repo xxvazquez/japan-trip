@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { GUIDE_CONTENT } from "./content";
-import { allTopics, articleText, cityArticles, dateArticles, dayTripArticles, resolveRef, topicArticles } from "./articles";
+import { allTopics, articleText, cityArticles, dateArticles, dayTripArticles, findRef, renamedPaths, resolveRef, titleSlug, topicArticles } from "./articles";
 import { guideHits } from "./search";
 
 describe("guide cross-references", () => {
@@ -48,6 +48,14 @@ describe("guide cross-references", () => {
       const hits = guideHits([id]);
       expect(hits.length).toBe(pages.size);
       expect(hits.filter((h) => !pages.has(h.to)).map((h) => h.to)).toEqual([]);
+    });
+
+    it(`${id}: slugs keep accented letters, and old ones still open`, () => {
+      // "Jōmon" must read "jomon", never "j-mon"
+      const lost = entries.filter((e) => /[\u00C0-\u024F]/.test(e.title) && !e.slug.startsWith(titleSlug(e.title))).map((e) => e.slug);
+      expect(lost).toEqual([]);
+      expect(renamedPaths(guide).size).toBeGreaterThan(0);
+      for (const e of entries.filter((x) => x.was)) expect(findRef(entries, e.was)).toBeGreaterThanOrEqual(0);
     });
 
     it(`${id}: no photo appears twice`, () => {

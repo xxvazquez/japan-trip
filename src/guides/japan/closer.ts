@@ -39,8 +39,16 @@ export const closer: GuideTopic = {
             { p: "The usual explanation is the **1995 sarin gas attack** on the Tokyo subway, after which stations removed bins as places to hide things. It's only part of the story." },
             { p: "Many bins came back, and went again after the Madrid and London train bombings of 2004 and 2005 and before summits and the Olympics. Railways and towns were also glad to save the cost of emptying them, and of cleaning up after the crows.[^1] Meanwhile people got used to carrying rubbish home, a habit school had already taught them (see [Cleaning and lunch](guide:growing-up/cleaning-and-lunch))." },
             { p: "The few bins left are by vending machines, for bottles and cans only, and inside konbini, for what you bought there." },
+            {
+              timeline: [
+                { when: "1995", text: "The sarin attack on the Tokyo subway; stations take their bins away" },
+                { when: "2004–05", text: "After the Madrid and London train bombings, returned bins go again" },
+                { when: "Later", text: "Summits and the Olympics clear more; railways are glad to save the cost of emptying them" },
+              ],
+            },
             { h: "Sorting it" },
             { p: "Sorting is serious because Japan **burns** about three-quarters of its household rubbish, in nearly a thousand municipal incinerators, rather than burying it: it has little spare land.[^2] That's why burnable, non-burnable, PET bottles and cans go separately, and why bottles have their labels and caps taken off. Rules differ by town, and each publishes its own calendar of collection days." },
+            { stats: [{ value: "~¾", label: "of household rubbish burned, not buried" }, { value: "~1,000", label: "municipal incinerators" }] },
             { note: "Keep a small bag in your pocket for the day's rubbish, as people here do.", title: "Tip" },
           ],
           words: [
@@ -91,6 +99,13 @@ export const closer: GuideTopic = {
             { p: "In big cities they still work. In many provincial towns they've become **shutter streets** (*shattā-dōri*), closed by out-of-town malls and owners with no one to hand over to." },
             { h: "Why “Ginza”" },
             { p: "The name itself means **silver mint**: the shogunate struck its silver coins there from 1612. After a fire in 1872 the Meiji government rebuilt the district in brick as a showcase of the new Japan, with gas lamps and pavements, and Ginza became the word for modern, Western, smart." },
+            {
+              timeline: [
+                { when: "1612", text: "The shogunate's **silver mint** moves to the district and gives it its name" },
+                { when: "1872", text: "After a fire, it's rebuilt in brick, with gas lamps and pavements" },
+                { when: "1923", text: "After the earthquake, Togoshi paves its street with Ginza's rubble bricks, and takes the name" },
+              ],
+            },
             { p: "Many shopping streets are called \"something-Ginza\" in its honour. After the 1923 earthquake, a street in Togoshi took the rubble bricks of Ginza to pave its own road, and borrowed the name too: Togoshi Ginza, now one of the longest shopping streets in Tokyo at about 1.3 km, with some 400 shops.[^1]" },
             { p: "More than 300 \"Ginzas\" are said to exist around the country, though nobody has made an official count." },
           ],
@@ -107,9 +122,25 @@ export const closer: GuideTopic = {
             photo("address-sign", "A sign on a green utility pole reading Kangetsu-chō 1-chōme, Chikusa ward, in Japanese and romaji", "An address sign on a utility pole in Nagoya: the district and its chōme, but no street."),
             { h: "Why blocks" },
             { p: "The older system numbered plots of land in the order they were registered, so neighbouring numbers could be far apart and gaps opened as plots were split or merged. A law of **1962** introduced the block system to make addresses findable; most of the country now uses it, though some areas still go by land numbers.[^1]" },
+            {
+              steps: [
+                { title: "The district", text: "A named area of the city — the part you'd search for." },
+                { title: "The chōme", text: "A numbered section of the district: the **3** in 3-5-12." },
+                { title: "The block", text: "A numbered block in it, the **5**." },
+                { title: "The building", text: "The building on that block, the **12** — numbered round the block, not along a street." },
+              ],
+            },
             { p: "Finding a place still takes help. People give directions by station exits and landmarks, shops print maps on their cards, and blocks have small numbered plates on poles and corners, with district maps by stations and bus stops." },
             { h: "Kyoto's exception" },
             { p: "Kyoto, laid out as a grid in the 8th century, works the other way. Addresses there name the street a place is on and the nearest cross street, then the direction from the junction: **agaru**, \"going up\" (north), **sagaru**, \"going down\" (south), **nishi-iru** and **higashi-iru**, \"entering west\" and \"entering east\".[^1] Sapporo's grid has its own street-based numbering too." },
+            {
+              terms: [
+                { term: "Agaru 上ル", text: "North of the junction — “going up”, towards the old palace." },
+                { term: "Sagaru 下ル", text: "South — “going down”." },
+                { term: "Nishi-iru 西入ル", text: "West — “entering west”." },
+                { term: "Higashi-iru 東入ル", text: "East — “entering east”." },
+              ],
+            },
           ],
           words: [
             { local: "丁目", say: "chōme", means: "a numbered part of a district" },

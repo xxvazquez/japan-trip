@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Link, useLocation, useParams, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useLocation, useParams, useSearchParams } from "react-router-dom";
 import { Icon } from "@/components/Icon";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
@@ -10,7 +10,7 @@ import { InsetRow, INSET_DIVIDER } from "@/components/InsetRow";
 import { Calls, Chart, Dishes, GuideSources, Inline, Venues, Photo } from "@/components/GuideBlocks";
 import { Compare, Eras, Evidence, Figures, Pull } from "@/components/GuideVisuals";
 import { ReadingActions, ReadMenuItem, ReadTick, ReadWhenFinished, useProgress } from "@/components/GuideReading";
-import { useReadSet, useSaved, type SavedEntry } from "@/lib/guideReading";
+import { renamePaths, useReadSet, useSaved, type SavedEntry } from "@/lib/guideReading";
 import { ContextMenu } from "@/components/ContextMenu";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { useData } from "@/lib/data";
@@ -18,7 +18,7 @@ import { guideTopicColor } from "@/lib/tones";
 import { GUIDE_CONTENT } from "@/guides/content";
 import { citiesOnTrip, datesOnTrip } from "@/guides/match";
 import { slug } from "@/lib/collapse";
-import { allTopics, articleText, cityArticles, dateArticles, dayTripArticles, resolveRef, topicArticles, type ArticleRef } from "@/guides/articles";
+import { allTopics, articleText, cityArticles, dateArticles, dayTripArticles, findRef, renamedPaths, resolveRef, topicArticles, type ArticleRef } from "@/guides/articles";
 import type { CountryGuide, GuideArticle, GuideBody, GuideCity, GuideDayTrip, GuideEvent, GuidePhoto, GuideSource, GuideText, GuideTopic } from "@/guides/types";
 
 /** A country guide — reference content the app ships with, read-only. Its
@@ -30,7 +30,30 @@ const guidePath = (g: CountryGuide) => `/logbook/guide/${g.id}`;
 
 function useGuide(): CountryGuide | undefined {
   const { guide } = useParams();
-  return guide ? GUIDE_CONTENT[guide] : undefined;
+  const g = guide ? GUIDE_CONTENT[guide] : undefined;
+  useEffect(() => {
+    if (g) movePaths(g);
+  }, [g]);
+  return g;
+}
+
+/** once a session, point this device's read marks, bookmarks and
+ *  Continue Reading at the articles' current paths */
+const moved = new Set<string>();
+function movePaths(g: CountryGuide) {
+  if (moved.has(g.id)) return;
+  moved.add(g.id);
+  const renamed = renamedPaths(g);
+  if (!renamed.size) return;
+  renamePaths(g.id, renamed);
+  try {
+    const raw = localStorage.getItem(lastKey(g.id));
+    const last = raw ? (JSON.parse(raw) as LastRead) : undefined;
+    const to = last && renamed.get(last.to);
+    if (to) localStorage.setItem(lastKey(g.id), JSON.stringify({ ...last, to }));
+  } catch {
+    /* storage off */
+  }
 }
 
 const noGuide = <Missing title="No such guide" body="There’s no guide for that country." to="/logbook" cta="Back to Logbook" />;
@@ -587,8 +610,9 @@ export function GuideTopicArticle() {
   if (!topic) return noArticle(guide);
   const topicPath = `${guidePath(guide)}/${topic.id}`;
   const refs = topicArticles(topic);
-  const i = refs.findIndex((r) => r.slug === item);
+  const i = findRef(refs, item);
   if (i < 0) return noArticle(guide);
+  if (refs[i].slug !== item) return <Navigate replace to={`${topicPath}/${refs[i].slug}`} />;
   const nextTopic = i === refs.length - 1 ? topics[t + 1] : undefined;
 
   return (
@@ -612,8 +636,9 @@ export function GuideCityArticle() {
   if (!city) return noArticle(guide);
   const cityPath = `${guidePath(guide)}/place/${city.id}`;
   const refs = cityGroups(city).flatMap((g) => g.refs);
-  const i = refs.findIndex((r) => r.slug === item);
+  const i = findRef(refs, item);
   if (i < 0) return noArticle(guide);
+  if (refs[i].slug !== item) return <Navigate replace to={`${cityPath}/${refs[i].slug}`} />;
   return (
     <ArticlePage
       key={`${city.id}/${item}`}
@@ -633,8 +658,9 @@ export function GuideDayTripArticle() {
   if (!city) return noArticle(guide);
   const tripsPath = `${guidePath(guide)}/place/${city.id}/day-trips`;
   const refs = dayTripArticles(city);
-  const i = refs.findIndex((r) => r.slug === item);
+  const i = findRef(refs, item);
   if (i < 0) return noArticle(guide);
+  if (refs[i].slug !== item) return <Navigate replace to={`${tripsPath}/${refs[i].slug}`} />;
   return (
     <ArticlePage
       key={`${city.id}/${item}`}
@@ -654,8 +680,10 @@ export function GuideDateArticle() {
   if (!guide) return noGuide;
   // next steps through what falls on this trip; a link to any date still opens
   const onTrip = dateArticles(datesOnTrip(guide, data));
-  const entry = dateArticles(guide.dates).find((r) => r.slug === item);
+  const all = dateArticles(guide.dates);
+  const entry = all[findRef(all, item)];
   if (!entry) return noArticle(guide);
+  if (entry.slug !== item) return <Navigate replace to={`${guidePath(guide)}/date/${entry.slug}`} />;
   const i = onTrip.findIndex((r) => r.slug === item);
   const next = i >= 0 ? onTrip[i + 1] : undefined;
   return (

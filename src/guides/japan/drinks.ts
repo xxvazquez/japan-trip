@@ -43,7 +43,7 @@ export const drinks: GuideTopic = {
           summary: "A brewed drink stronger than wine, two brewing towns with opposite water, and a label you can decode",
           body: [
             { p: "In Japanese, *sake* means any alcohol; the rice drink is **nihonshu**. It's brewed, not distilled, yet it reaches 18–20% alcohol on its own, more than any wine or beer." },
-            { p: "The trick is that two things happen in the same tank at once. Kōji mould breaks the rice's starch into sugar while yeast turns that sugar into alcohol, so neither ever runs out of work (see [Kōji, the national mould](guide:how-food-works/k-ji-the-national-mould)). Most sake is then diluted to around 15%." },
+            { p: "The trick is that two things happen in the same tank at once. Kōji mould breaks the rice's starch into sugar while yeast turns that sugar into alcohol, so neither ever runs out of work (see [Kōji, the national mould](guide:how-food-works/koji-the-national-mould)). Most sake is then diluted to around 15%." },
             { p: "In December 2024 the knowledge and skills of brewing with kōji — sake, shōchū, awamori and mirin — were added to UNESCO's list of intangible heritage.[^1]" },
 
             { h: "Reading the label" },
@@ -118,7 +118,7 @@ export const drinks: GuideTopic = {
             { local: "一合", say: "ichi-gō", means: "the standard pour, 180 ml" },
             { local: "乾杯", say: "kanpai", means: "cheers" },
           ],
-          related: ["how-food-works/k-ji-the-national-mould", "drinks/sh-ch-whisky-and-beer", "eating-out/an-izakaya-night-start-to-finish"],
+          related: ["how-food-works/koji-the-national-mould", "drinks/shochu-whisky-and-beer", "eating-out/an-izakaya-night-start-to-finish"],
           sources: [
             { title: "Traditional knowledge and skills of sake-making with koji mold in Japan — UNESCO", url: "https://ich.unesco.org/en/RL/traditional-knowledge-and-skills-of-sake-making-with-koji-mold-in-japan-01977", note: "Inscribed December 2024" },
             { title: "Standards for the tokutei meishō grades — National Tax Agency", url: "https://www.nta.go.jp/about/organization/sapporo/release/r4/kanpyokai/03.htm", note: "Polishing limits and added alcohol by grade" },
@@ -175,7 +175,7 @@ export const drinks: GuideTopic = {
             { local: "ハイボール", say: "haibōru", means: "whisky and soda" },
             { local: "生ビール", say: "nama bīru", means: "draught beer" },
           ],
-          related: ["drinks/sake-and-how-to-read-the-bottle", "eating-out/an-izakaya-night-start-to-finish", "regional-food/the-south-pork-potatoes-and-the-ry-ky-s"],
+          related: ["drinks/sake-and-how-to-read-the-bottle", "eating-out/an-izakaya-night-start-to-finish", "regional-food/the-south-pork-potatoes-and-the-ryukyus"],
           sources: [
             { title: "Yamazaki distillery — Wikipedia", url: "https://en.wikipedia.org/wiki/Yamazaki_distillery", note: "Opened 1923, distilling from 1924; Taketsuru as manager" },
             { title: "New Japanese whisky rules aim to deter imposters — AFP via Malay Mail", url: "https://www.malaymail.com/news/life/2024/04/01/new-japanese-whisky-rules-aim-to-deter-imposters/126636", note: "The standard, its three-year grace period, April 2024" },

@@ -23,9 +23,9 @@ export const history: GuideTopic = {
           title: "Deep time",
           read: "Drag along the band. The Jōmon alone outlasts everything after it several times over.",
           spans: [
-            { name: "Jōmon", local: "縄文", from: -14500, to: -950, when: "c. 14,500 – 10th c. BC", text: "Hunter-gatherers in settled villages, and some of the oldest pottery in the world. The end date varies by region: farming reached northern Kyushu first.", ref: "history/j-mon-yayoi-and-kofun" },
-            { name: "Yayoi", local: "弥生", from: -950, to: 250, when: "10th c. BC – AD 3rd c.", text: "Wet-rice farming and metal from the continent, starting in northern Kyushu and spreading east over centuries.", ref: "history/j-mon-yayoi-and-kofun" },
-            { name: "Kofun", local: "古墳", from: 250, to: 538, when: "3rd c. – 538", text: "Rulers buried under great keyhole-shaped mounds; the Yamato confederation takes shape in the Nara basin.", ref: "history/j-mon-yayoi-and-kofun" },
+            { name: "Jōmon", local: "縄文", from: -14500, to: -950, when: "c. 14,500 – 10th c. BC", text: "Hunter-gatherers in settled villages, and some of the oldest pottery in the world. The end date varies by region: farming reached northern Kyushu first.", ref: "history/jomon-yayoi-and-kofun" },
+            { name: "Yayoi", local: "弥生", from: -950, to: 250, when: "10th c. BC – AD 3rd c.", text: "Wet-rice farming and metal from the continent, starting in northern Kyushu and spreading east over centuries.", ref: "history/jomon-yayoi-and-kofun" },
+            { name: "Kofun", local: "古墳", from: 250, to: 538, when: "3rd c. – 538", text: "Rulers buried under great keyhole-shaped mounds; the Yamato confederation takes shape in the Nara basin.", ref: "history/jomon-yayoi-and-kofun" },
             { name: "Since Buddhism", from: 538, to: now, when: "538 – today", text: "Everything from the arrival of Buddhism to today: writing, the capitals, the samurai, the modern state. The band below opens it up.", ref: "history/asuka-and-nara" },
           ],
           source: "Period dates as taught today; the Yayoi start follows the National Museum of Japanese History's radiocarbon dating",

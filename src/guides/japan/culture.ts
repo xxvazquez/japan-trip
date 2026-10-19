@@ -101,6 +101,19 @@ export const culture: GuideTopic = {
             { p: "A noh play is slow, sung and danced, with a chorus and a small ensemble of flute and drums, on a bare cypress stage with a painted pine at the back. The stage keeps its own roof even indoors, because it was built for shrine precincts." },
             { p: "The main actor wears a carved mask, tilted a fraction up or down to make it seem to smile or grieve. Often the hero turns out to be a ghost, reliving the moment that binds them to the world, and a travelling monk's prayers release them." },
             { p: "Between noh plays come **kyōgen**, short comic pieces in everyday speech: servants outwitting masters, a monk who can't resist sake. Together the two are **nōgaku**, recognised by UNESCO in 2001, the first of Japan's arts on its list.[^2]" },
+            {
+              compare: {
+                title: "The two halves of nōgaku",
+                a: "Noh",
+                b: "Kyōgen",
+                rows: [
+                  { label: "Mood", a: "Slow, sung and danced", b: "Short and comic" },
+                  { label: "Words", a: "Chanted verse, with a chorus", b: "Everyday speech" },
+                  { label: "Who's in it", a: "Ghosts reliving a moment, and the monk who frees them", b: "Servants outwitting masters, a monk who can't resist sake" },
+                  { label: "The face", a: "A carved mask on the main actor", b: "Mostly the actor's own" },
+                ],
+              },
+            },
           ],
           words: [
             { local: "能 / 狂言", say: "nō / kyōgen", means: "masked drama / its comic interludes" },
@@ -315,16 +328,23 @@ export const culture: GuideTopic = {
           summary: "An American game that arrived with a teacher and became the national one",
           body: [            photo("baseball-cheering", "Fans in matching happi coats playing trumpets in the outfield stands", "The cheering section at a Japanese ballgame, led by its own band."),
 
-            { p: "**Baseball** came with an American teacher in the 1870s and spread through schools and universities.[^1] It became so Japanese that it has its own word, *yakyū*, \"field ball\". The amateur game still matters as much as the professional one, above all the high-school tournament at Kōshien (see [Clubs and Kōshien](guide:growing-up/clubs-and-k-shien))." },
+            { p: "**Baseball** came with an American teacher in the 1870s and spread through schools and universities.[^1] It became so Japanese that it has its own word, *yakyū*, \"field ball\". The amateur game still matters as much as the professional one, above all the high-school tournament at Kōshien (see [Clubs and Kōshien](guide:growing-up/clubs-and-koshien))." },
             { p: "The professional league dates from 1936, and many of its teams were founded by railways and newspapers to sell tickets and papers (see [Railways built the cities](guide:look-closer/railways-built-the-cities)). It's the most-watched sport in the country." },
             { h: "At a game" },
+            {
+              stats: [
+                { value: "1870s", label: "arrives with an American teacher" },
+                { value: "1936", label: "the professional league founded" },
+                { value: "12", label: "innings, then a regular-season game is a draw" },
+              ],
+            },
             { p: "Each team's cheering section (*ōendan*) leads a song for every batter, with trumpets and drums; fans of the visiting team fill one stand of the outfield and cheer only when their side bats. Young women with beer kegs on their backs climb the stands pouring draught all game. Draws are allowed: in the regular season a game ends after twelve innings whatever the score." },
           ],
           words: [
             { local: "野球", say: "yakyū", means: "baseball" },
             { local: "応援団", say: "ōendan", means: "the organised cheering section" },
           ],
-          related: ["growing-up/clubs-and-k-shien", "look-closer/railways-built-the-cities", "culture/sumo"],
+          related: ["growing-up/clubs-and-koshien", "look-closer/railways-built-the-cities", "culture/sumo"],
           sources: [
             { title: "Baseball in Japan — Wikipedia", url: "https://en.wikipedia.org/wiki/Baseball_in_Japan", note: "Horace Wilson in the 1870s, the 1936 league, cheering sections, tie games" },
           ],

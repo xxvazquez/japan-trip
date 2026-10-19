@@ -244,7 +244,7 @@ export const language: GuideTopic = {
 
             { h: "Where Japanese comes from" },
             { p: "Japanese has almost no relatives. Its family, **Japonic**, has two branches: Japanese, and the Ryukyuan languages of Okinawa and the southern islands, which are at least as distinct from Japanese as Spanish is from Portuguese.[^3]" },
-            { p: "Most linguists think Proto-Japonic came to the islands with rice farmers from the Korean peninsula, starting around the first millennium BC (see [Jōmon, Yayoi and Kofun](guide:history/j-mon-yayoi-and-kofun)). Place names recorded in the old Korean kingdoms suggest a related language was once spoken there too." },
+            { p: "Most linguists think Proto-Japonic came to the islands with rice farmers from the Korean peninsula, starting around the first millennium BC (see [Jōmon, Yayoi and Kofun](guide:history/jomon-yayoi-and-kofun)). Place names recorded in the old Korean kingdoms suggest a related language was once spoken there too." },
             {
               more: {
                 title: "Is Japanese related to Korean?",
@@ -268,7 +268,7 @@ export const language: GuideTopic = {
             { local: "〜本 / 〜枚 / 〜杯", say: "-hon / -mai / -hai", means: "counters for long things, flat things, and cups or glasses" },
             { local: "ね / よ", say: "ne / yo", means: "\"isn't it?\" and \"you know\", at the end of a sentence" },
           ],
-          related: ["language/politeness-in-the-grammar", "history/j-mon-yayoi-and-kofun", "language/dialects-and-the-standard"],
+          related: ["language/politeness-in-the-grammar", "history/jomon-yayoi-and-kofun", "language/dialects-and-the-standard"],
           sources: [
             { title: "Japanese grammar — Wikipedia", url: "https://en.wikipedia.org/wiki/Japanese_grammar", note: "Head-final order, particles, topic and subject, dropped arguments" },
             { title: "Satō, on the unagi sentence — Chiba University", url: "https://opac.ll.chiba-u.jp/da/curator/900051993/Gobun_20_sato.pdf", note: "Okutsu's 1978 analysis and the rival explanations (Japanese)" },

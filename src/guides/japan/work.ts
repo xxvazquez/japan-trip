@@ -108,7 +108,7 @@ export const work: GuideTopic = {
             { local: "過労死", say: "karōshi", means: "death from overwork" },
             { local: "残業", say: "zangyō", means: "overtime" },
           ],
-          related: ["numbers/do-they-really-work-the-longest", "work/women-at-work", "growing-up/clubs-and-k-shien"],
+          related: ["numbers/do-they-really-work-the-longest", "work/women-at-work", "growing-up/clubs-and-koshien"],
           sources: [
             { title: "Japan's labor reform caps overtime in a bid to curb karoshi — Proskauer", url: "https://www.proskauer.com/blog/japans-labor-reform-caps-overtime-in-a-bid-to-curb-karoshi", note: "The 2018 law: 45/360 hours, under 100 a month, from April 2019" },
             { title: "Japan's work-style reform faces concerns over backsliding — Adnkronos", url: "https://english.adnkronos.com/2026/03/25/focus-japans-work-style-reform-faces-concerns-over-backsliding/", note: "The Dentsu case and the 2026 review" },

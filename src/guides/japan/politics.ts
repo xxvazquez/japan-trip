@@ -139,6 +139,13 @@ export const politics: GuideTopic = {
             { h: "A short, regulated campaign" },
             { p: "The official campaign lasts between 12 and 17 days, depending on the election. **Door-to-door canvassing has been banned for nearly a century**, as a guard against vote-buying.[^2] Instead, candidates tour in **sound trucks** (*gaisensha*), calling out their own name from the roof, and stand outside stations at rush hour bowing to commuters." },
             photo("election-posters", "A large white board divided into numbered empty panels, with a green notice giving the polling date", "A poster board before a mayoral election in Yokohama: one numbered panel per candidate, posted nowhere else."),
+            {
+              stats: [
+                { value: "12–17", label: "days of official campaign" },
+                { value: "2013", label: "campaigning online allowed" },
+                { value: "18", label: "the voting age since 2016" },
+              ],
+            },
             { p: "Posters may go only on official **numbered boards** set up outside schools and stations, one panel per candidate. Online campaigning was only allowed from 2013.[^3] The voting age fell from 20 to 18 in 2016.[^1]" },
             { h: "One person, unequal votes" },
             { p: "Seats were drawn when the countryside held more of the population, and they've followed people to the cities only slowly. A rural vote can weigh twice an urban one. The Supreme Court has several times ruled that national elections were held in a **\"state of unconstitutionality\"**, without overturning them, and ordered the Diet to fix the gap.[^1] The rural weighting has long favoured the LDP, whose base is strongest outside the big cities." },

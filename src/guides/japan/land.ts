@@ -31,7 +31,7 @@ export const land: GuideTopic = {
       { p: "The rain doesn't fall where most visitors expect. Tsuyu is the famous wet season, but in Tokyo the wettest months are September and October, when typhoons and autumn fronts arrive." },
       {
         chart: {
-          kind: "bar",
+          kind: "column",
           title: "Rain in Tokyo, month by month",
           unit: "mm, 1991–2020 average",
           points: [

@@ -171,7 +171,7 @@ export const numbers: GuideTopic = {
           summary: "Life expectancy, obesity, smoking and what people die of",
           body: [
             { stats: [{ value: "87.33", label: "years — women's life expectancy, 2025" }, { value: "81.35", label: "years — men's, 2025" }, { value: "107,677", label: "people aged 100 or more, September 2026" }] },
-            { p: "Japanese women have had the world's longest life expectancy for 41 years running; men rank seventh.[^1] The number of centenarians passed 100,000 for the first time in 2026, 87.6% of them women.[^2]" },
+            { p: "In the health ministry's international comparison, Japanese women live the longest of any country; men rank seventh.[^1] The number of centenarians passed 100,000 for the first time in 2026, 87.6% of them women.[^2]" },
             { h: "Obesity: a different line" },
             { p: "Japan defines **obesity as a BMI of 25 or more**, not 30 as in Europe and the US, because health risks rise at lower weights in East Asian populations. By that stricter line, about a third of men and a fifth of women are obese.[^3] By the international line of 30, only a few per cent are, among the lowest in the OECD. Same people, different ruler." },
             { h: "Smoking and drinking" },

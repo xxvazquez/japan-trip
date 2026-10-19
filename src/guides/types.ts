@@ -108,9 +108,10 @@ export interface GuidePhoto {
 /** A small chart that answers one question. Every chart says what it
  *  measures, in what unit, and where the numbers come from.
  *  `line` plots `x` (a year) against `value`; `bar` compares labelled
- *  values, longest first as given. */
+ *  values, longest first as given; `column` stands a series that has its
+ *  own order (the months of a year) upright, in that order. */
 export interface GuideChart {
-  kind: "line" | "bar";
+  kind: "line" | "bar" | "column";
   title: string;
   /** what the numbers are in — "kg per person per year" */
   unit: string;

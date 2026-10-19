@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useLocation, useNavigate, useNavigationType } from "react-router-dom";
 import { Icon } from "./Icon";
 import { Wordmark } from "./Wordmark";
@@ -169,22 +169,31 @@ export function NavLeft() {
   const go = useNavigate();
   const loc = useLocation();
   const back = nav?.state.back;
-  if (!back) return <TripSwitcher />;
-  const to = back.to ?? "/";
+  const to = back?.to ?? "/";
   // "default" = a cold load (deep link, reload): there's no history to pop
   const canGoBack = loc.key !== "default";
+  const word = back ? backLabel(canGoBack ? nav?.backTitle : undefined, to, back.label) : "";
+  // a name that would break onto a second line in the capsule gives way to
+  // plain "Back", the way UIKit shortens a back title that doesn't fit
+  const label = useRef<HTMLSpanElement>(null);
+  const [tight, setTight] = useState<string>();
+  useLayoutEffect(() => {
+    const el = label.current;
+    if (el && word !== "Back" && el.scrollWidth > el.clientWidth + 1) setTight(word);
+  }, [word]);
+  if (!back) return <TripSwitcher />;
   const crowded = !!nav?.state.subtitle && nav.state.collapsed;
   return (
     // iOS 26 glass capsule — the chevron plus where it goes back to, kept as a
     // word so it's always clear which screen you're leaving for
     <button
       onClick={() => (canGoBack ? go(-1) : go(to))}
-      className={`glass flex h-11 min-w-11 items-center gap-0.5 rounded-full pl-2 text-[17px] ${crowded ? "pr-3.5 max-sm:justify-center max-sm:pl-0 max-sm:pr-0.5" : "pr-3.5"} text-ink transition-transform active:scale-95`}
+      className={`glass flex h-11 min-w-11 max-w-full items-center gap-0.5 rounded-full pl-2 text-[17px] ${crowded ? "pr-3.5 max-sm:justify-center max-sm:pl-0 max-sm:pr-0.5" : "pr-3.5"} text-ink transition-transform active:scale-95`}
     >
-      <Icon name="back" size={22} />
+      <Icon name="back" size={22} className="shrink-0" />
       {/* iOS drops the word for a bare chevron when the bar runs out of room
           — here, a phone once a two-line title (a day's date) is showing */}
-      <span className={crowded ? "max-sm:sr-only" : undefined}>{backLabel(canGoBack ? nav?.backTitle : undefined, to, back.label)}</span>
+      <span ref={label} className={`min-w-0 overflow-hidden whitespace-nowrap ${crowded ? "max-sm:sr-only" : ""}`}>{tight === word ? "Back" : word}</span>
     </button>
   );
 }

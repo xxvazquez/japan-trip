@@ -568,7 +568,7 @@ const base: { cities: GuideCity[] } = {
             { p: "It ended with unification. Oda Nobunaga demanded a crushing levy; Toyotomi Hideyoshi abolished the town's self-government and moved its merchants to build up his new Osaka.[^1] One Sakai merchant went with the warlords: **Sen no Rikyū**, who perfected the tea ceremony as Nobunaga's and then Hideyoshi's tea master, until Hideyoshi ordered him to kill himself in 1591. The site of his house, with its well, is in the old town, and **Sakai Rishō no Mori** across the road is a museum to him and to the poet Yosano Akiko, also born here." },
             { h: "Knives" },
             { p: "Sakai's smiths began with blades for chopping **tobacco**, brought by the Portuguese in the 16th century; the shogunate later gave their work its own seal. Today they make the single-bevelled knives most professional Japanese chefs use. The work is still divided between specialists: one forges the blade, another sharpens it, a third fits the handle.[^2]" },
-            { note: "The **Sakai Traditional Crafts Museum** has knives to buy and, on some days, a smith at work. The huge keyhole tomb of **Daisen**, one of the largest in the world, is a bus ride away (see [Kofun](guide:history/j-mon-yayoi-and-kofun)).", title: "Going" },
+            { note: "The **Sakai Traditional Crafts Museum** has knives to buy and, on some days, a smith at work. The huge keyhole tomb of **Daisen**, one of the largest in the world, is a bus ride away (see [Kofun](guide:history/jomon-yayoi-and-kofun)).", title: "Going" },
           ],
           sources: [
             { title: "Sakai — Wikipedia", url: "https://en.wikipedia.org/wiki/Sakai", note: "About 40,000 people in the 1530s; merchant rule; Vilela's “like Venice”, 1561; Nobunaga and Hideyoshi; Rikyū" },
@@ -579,7 +579,7 @@ const base: { cities: GuideCity[] } = {
           name: "Ōyamazaki", cover: photoOf("yamazaki-distillery", "Brick and white distillery buildings at the foot of a wooded hill", "Suntory's Yamazaki distillery."), local: "大山崎", getting: "About 30 min by JR from Osaka",
           summary: "Japan's first whisky, the only tea room Rikyū surely built, and a Tudor villa on the hill where a battle was won",
           body: [
-            { p: "Where the hills close in between Kyoto and Osaka, three rivers meet and the mist hangs in the valley. In **1923** Torii Shinjirō of the company that became Suntory chose it for Japan's first malt whisky distillery, with **Taketsuru Masataka** as its first manager, fresh from Scotland. The whisky took years to sell; the hit came only in 1937 with Kakubin.[^1] Taketsuru left in 1934 to found Nikka at Yoichi, in Hokkaido (see [Shōchū, whisky and beer](guide:drinks/sh-ch-whisky-and-beer))." },
+            { p: "Where the hills close in between Kyoto and Osaka, three rivers meet and the mist hangs in the valley. In **1923** Torii Shinjirō of the company that became Suntory chose it for Japan's first malt whisky distillery, with **Taketsuru Masataka** as its first manager, fresh from Scotland. The whisky took years to sell; the hit came only in 1937 with Kakubin.[^1] Taketsuru left in 1934 to found Nikka at Yoichi, in Hokkaido (see [Shōchū, whisky and beer](guide:drinks/shochu-whisky-and-beer))." },
             { p: "Up the hill from the station, the temple of **Myōki-an** keeps **Tai-an**, the only surviving tea room that can be credited to **Sen no Rikyū** with confidence, and the oldest tea-room building in Japan: two tatami mats, a crawl-through door, earth walls. It's a National Treasure. Seeing it means writing a return postcard about a month ahead, and looking in from the doorway.[^2]" },
             { p: "Higher still is the **Asahi Group Ōyamazaki Villa Museum**, an English Tudor-style house that a businessman, Kaga Shōtarō, designed himself, finished in 1932 and built to look down on the river the way Windsor looks over the Thames. In the late 1980s it was bought to be pulled down for flats; the prefecture and Asahi saved it, and since 1996 it's shown folk-craft and Monet's water lilies, in an underground gallery by Andō Tadao.[^3]" },
             { note: "The distillery tour must be booked well ahead and sells out. Behind the villa, the path up **Tennōzan** leads to the hill where Toyotomi Hideyoshi beat Akechi Mitsuhide in **1582**, eleven days after Akechi killed Nobunaga.", title: "Going" },
@@ -1030,14 +1030,14 @@ const base: { cities: GuideCity[] } = {
             photo("ohara-museum", "A stone building with a Greek temple front of columns and a pediment", "The Ōhara Museum of Art."),
             { p: "In 1888 the townspeople founded a cotton-spinning company, **Kurabō**, on the site of the old shogunal office, and its red-brick mill opened in 1889. **Ōhara Magosaburō** (1880–1943), the founder's son, turned it into one of Japan's big textile firms — and spent the money in unusual ways: a hospital for the town, institutes to study workers' lives and welfare, support for an orphanage.[^1]" },
             { p: "He also paid for a painter friend, **Kojima Torajirō**, to study in Europe and to buy paintings there for him. When Kojima died in 1929, Ōhara opened the **Ōhara Museum of Art** the next year in his memory: Japan's **first museum of Western art**, decades before Tokyo had one.[^2] Its best-known picture is El Greco's *Annunciation*; Monet, Gauguin and Modigliani hang nearby." },
-            { p: "The mill itself closed after the war and in 1973 became **Ivy Square**, a hotel, museum and courtyard inside the ivy-covered brick walls.[^3]" },
+            { p: "The mill itself closed after the war and in 1974 became **Ivy Square**, a hotel, museum and courtyard inside the ivy-covered brick walls.[^3]" },
             photo("ivy-square", "A courtyard surrounded by red-brick walls thick with ivy", "Ivy Square, the old Kurabō mill."),
             {
               timeline: [
                 { when: "1888", text: "Kurabō is founded" },
                 { when: "1889", text: "The red-brick mill begins spinning" },
                 { when: "1930", text: "The Ōhara Museum of Art opens" },
-                { when: "1973", text: "The mill reopens as Ivy Square" },
+                { when: "1974", text: "The mill reopens as Ivy Square" },
               ],
             },
             { note: "The museum's main building is by the canal; the annexe behind holds Japanese modern art and a craft gallery. The ivy-covered café beside it is named **El Greco**, after the painting.", title: "Seeing it" },
@@ -1045,7 +1045,7 @@ const base: { cities: GuideCity[] } = {
           sources: [
             { title: "Kurashiki Bikan Historical Quarter — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%80%89%E6%95%B7%E7%BE%8E%E8%A6%B3%E5%9C%B0%E5%8C%BA", note: "The Kurabō mill of 1888 on the intendant's office site (Japanese)" },
             { title: "Ōhara Museum of Art — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%A4%A7%E5%8E%9F%E7%BE%8E%E8%A1%93%E9%A4%A8", note: "Ōhara Magosaburō, Kojima Torajirō, opened 1930 as Japan's first museum of Western art (Japanese)" },
-            { title: "Kurashiki Ivy Square — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%80%89%E6%95%B7%E3%82%A2%E3%82%A4%E3%83%93%E3%83%BC%E3%82%B9%E3%82%AF%E3%82%A8%E3%82%A2", note: "The 1889 mill, reopened in 1973 (Japanese)" },
+            { title: "Kurashiki Ivy Square — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%80%89%E6%95%B7%E3%82%A2%E3%82%A4%E3%83%93%E3%83%BC%E3%82%B9%E3%82%AF%E3%82%A8%E3%82%A2", note: "The 1889 mill, reopened in 1974 (Japanese)" },
           ],
         },
         {
@@ -1220,7 +1220,7 @@ const base: { cities: GuideCity[] } = {
             { p: "Now it's **rabbit island**: about **500** wild rabbits and some 200,000 visitors a year. They aren't the army's test animals, which were all killed after the war; the likeliest story is that a local school let eight of its rabbits go on the island in **1971**. The ruined power station and gas stores stand among them, and a small **Poison Gas Museum** tells the story the rabbits make easy to forget.[^3]" },
             { note: "Don't feed the rabbits bread or snacks; buy proper rabbit food before the ferry. Takehara and the island make one long day together.", title: "Going" },
           ],
-          related: ["drinks/sh-ch-whisky-and-beer"],
+          related: ["drinks/shochu-whisky-and-beer"],
           sources: [
             { title: "Takehara — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%AB%B9%E5%8E%9F%E5%B8%82", note: "Salt in the late Edo period; “little Kyoto of Aki”; preserved from 1982 (Japanese)" },
             { title: "Taketsuru Masataka — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%AB%B9%E9%B6%B4%E6%94%BF%E5%AD%9D", note: "Born 1894 in Takehara to a sake and salt family; Yamazaki and Yoichi (Japanese)" },
@@ -1581,7 +1581,7 @@ const base: { cities: GuideCity[] } = {
             { p: "Only a few thousand cattle a year qualify, so much “Kobe beef” on menus abroad, and some in Japan, is something else. It was first exported only in 2012." },
             { note: "In Kobe, look for the council's certificate in the window. Lunch sets at teppanyaki restaurants cost far less than dinner for the same beef.", title: "Eating" },
           ],
-          related: ["eating-out/yakitori-wagyu-and-y-shoku"],
+          related: ["eating-out/yakitori-wagyu-and-yoshoku"],
           sources: [
             { title: "Kobe beef — Wikipedia", url: "https://en.wikipedia.org/wiki/Kobe_beef", note: "Tajima cattle, the grading rules, the chrysanthemum stamp and the ID number" },
           ],
@@ -2084,6 +2084,14 @@ const base: { cities: GuideCity[] } = {
           summary: "Yayoi Kusama was born here in 1929, painted here as a girl, and left; the city's museum holds her",
           body: [
             { p: "**Yayoi Kusama**, the artist of polka dots and infinity rooms, was born in Matsumoto in **1929** to a family of plant nurserymen, and grew up drawing obsessively in the fields of the seed farm. She had her first solo show in 1952 in the town's public hall, left for New York in 1957, and became one of the most famous artists in the world. She died in August **2026**, at 97.[^1]" },
+            {
+              timeline: [
+                { when: "1929", text: "Born in Matsumoto, to a family of plant nurserymen" },
+                { when: "1952", text: "Her first solo show, in the town's public hall" },
+                { when: "1957", text: "Leaves for New York" },
+                { when: "2026", text: "Dies in August, at 97" },
+              ],
+            },
             { p: "The **Matsumoto City Museum of Art** holds a large collection of her work, from the girlhood drawings to the late paintings, and its building is hard to miss: the outside is covered in her red dots, and a giant flowering sculpture, *The Visionary Flowers*, stands at the entrance. Even the vending machines outside wear the dots." },
             { note: "The museum is a 12-minute walk from the station, south-east along Aoba-dōri. The Kusama galleries are permanent; the rest of the museum shows local painters and calligraphers.", title: "Going" },
           ],
@@ -2220,11 +2228,11 @@ const base: { cities: GuideCity[] } = {
           summary: "The 63rd rebuilding is under way now: timber hauled through town in 2026, the move in 2033",
           body: [
             { p: "**Ise Jingū** isn't one shrine but **125**. At the heart are two: the **Naikū**, the Inner Shrine, to the sun goddess Amaterasu, and the **Gekū**, the Outer Shrine, six kilometres away, to Toyouke, the goddess who brings her food. Custom says you visit the Gekū first.[^1]" },
-            { p: "Every twenty years both main sanctuaries are built again from new cypress on the empty plot beside them, the goddess is carried across at night, and the old buildings come down. The first rebuilding was in **692**; the present buildings, the 62nd, date from **2013**.[^1] Ise explains it with the idea of **tokowaka**, “forever young”: the shrine is kept ancient by never letting it grow old.[^2]" },
+            { p: "Every twenty years both main sanctuaries are built again from new cypress on the empty plot beside them, the goddess is carried across at night, and the old buildings come down. The first rebuilding was in **690**, at the Naikū, with the Gekū two years later; the present buildings, the 62nd, date from **2013**.[^1] Ise explains it with the idea of **tokowaka**, “forever young”: the shrine is kept ancient by never letting it grow old.[^2]" },
             {
               stats: [
                 { value: "125", label: "shrines in the Jingū" },
-                { value: "692", label: "the first rebuilding" },
+                { value: "690", label: "the first rebuilding, at the Naikū" },
                 { value: "10,000+", label: "cypress logs for each one" },
               ],
             },
@@ -2237,7 +2245,7 @@ const base: { cities: GuideCity[] } = {
           ],
           related: ["belief/shinto", "land/forests-wild-and-planted"],
           sources: [
-            { title: "Ise Grand Shrine — Wikipedia", url: "https://en.wikipedia.org/wiki/Ise_Grand_Shrine", note: "Naikū, Gekū and the 123 other shrines; first rebuilt 692; the 2013 buildings, the 62nd" },
+            { title: "Ise Grand Shrine — Wikipedia", url: "https://en.wikipedia.org/wiki/Ise_Grand_Shrine", note: "Naikū, Gekū and the 123 other shrines; first rebuilt 690 (Naikū) and 692 (Gekū); the 2013 buildings, the 62nd" },
             { title: "Jingū Shikinen Sengū — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%A5%9E%E5%AE%AE%E5%BC%8F%E5%B9%B4%E9%81%B7%E5%AE%AE", note: "Tokowaka; over 10,000 cypress; hiba in 2013; the forest planted from 1925; the 2025 and 2026 rites (Japanese)" },
             { title: "Uji-bashi (Ise) — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%AE%87%E6%B2%BB%E6%A9%8B_(%E4%BC%8A%E5%8B%A2%E5%B8%82)", note: "Rebuilt four years ahead of each move; the torii from the ridge pillars, then to Seki and Kuwana (Japanese)" },
           ],
@@ -2464,7 +2472,7 @@ const base: { cities: GuideCity[] } = {
             },
             { note: "**Ganso Ramen Yokochō**, an alley of small ramen shops in Susukino, is the classic place for a late bowl. Expect queues at the famous shops at weekends.", title: "Where" },
           ],
-          sources: [{ title: "Sapporo Brewery — Wikipedia", url: "https://en.wikipedia.org/wiki/Sapporo_Brewery", note: "Founded 1876 by the Hokkaido Development Commission" }], related: ["eating-out/soba-udon-and-ramen", "drinks/sh-ch-whisky-and-beer"] },
+          sources: [{ title: "Sapporo Brewery — Wikipedia", url: "https://en.wikipedia.org/wiki/Sapporo_Brewery", note: "Founded 1876 by the Hokkaido Development Commission" }], related: ["eating-out/soba-udon-and-ramen", "drinks/shochu-whisky-and-beer"] },
         { title: "Jingisukan", cover: photoOf("jingisukan-grill", "Sliced lamb and bean sprouts on a domed grill", "Jingisukan."),
           summary: "Mutton on a domed iron pan, named after Genghis Khan, and Hokkaidō's meal for any occasion",
           body: [
@@ -2528,7 +2536,7 @@ const base: { cities: GuideCity[] } = {
             { p: "Taketsuru's Scottish wife, **Rita** (Jessie Roberta Cowan), lived here with him; she died in 1961 and is buried with him on a hill above the town. Their story became the 2014 NHK morning drama *Massan*, which brought crowds to Yoichi.[^2]" },
             { note: "The distillery tour is free but must be booked. Yoichi is also a fruit town: apples, cherries and wine grapes, and a cluster of small wineries.", title: "Going" },
           ],
-          related: ["drinks/sh-ch-whisky-and-beer"],
+          related: ["drinks/shochu-whisky-and-beer"],
           sources: [
             { title: "Yoichi distillery — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E4%BD%99%E5%B8%82%E8%92%B8%E6%BA%9C%E6%89%80", note: "Founded 1934; apple juice from 1935; first whisky 1940; coal-fired stills, said to be the last in the world; ten buildings Important Cultural Properties, 2022 (Japanese)" },
             { title: "Taketsuru Masataka — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%AB%B9%E9%B6%B4%E6%94%BF%E5%AD%9D", note: "Rita; the 2014 drama Massan (Japanese)" },
@@ -3971,10 +3979,10 @@ const base: { cities: GuideCity[] } = {
                 { term: "Shirokuma", text: "“Polar bear”: shaved ice with condensed milk and fruit, Kagoshima's summer treat." },
               ],
             },
-            { p: "The town is full of shōchū bars, and there are more than a hundred distilleries in the prefecture (see [Shōchū, whisky and beer](guide:drinks/sh-ch-whisky-and-beer))." },
+            { p: "The town is full of shōchū bars, and there are more than a hundred distilleries in the prefecture (see [Shōchū, whisky and beer](guide:drinks/shochu-whisky-and-beer))." },
             { note: "Ask for the local shōchū by name in an izakaya; most will have a long list and be happy to recommend one.", title: "Drinking" },
           ],
-          related: ["drinks/sh-ch-whisky-and-beer"],
+          related: ["drinks/shochu-whisky-and-beer"],
           sources: [
             { title: "Sweet potato — Wikipedia", url: "https://en.wikipedia.org/wiki/Sweet_potato", note: "Satsuma-imo and Kagoshima" },
             { title: "Shōchū — Wikipedia", url: "https://en.wikipedia.org/wiki/Sh%C5%8Dch%C5%AB", note: "Imo-jōchū from sweet potatoes" },

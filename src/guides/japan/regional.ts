@@ -103,6 +103,20 @@ export const regionalFood: GuideTopic = {
             { h: "The mackerel road" },
             { p: "Kyoto was a capital without a coast. Fish came from Wakasa Bay, on the Sea of Japan, over the mountains on foot and on packhorses, salted on the way so it would last. The best-known path is still called the **saba-kaidō**, the mackerel road. The name comes from an old merchant record in Obama of fish salted at the harbour and carried to the capital.[^2]" },
             { p: "The porters had a saying, **Kyō wa tōtemo jūhachi-ri**: “Kyoto may be far, but it's only eighteen ri”, about 72 km. Walked through the night over the passes, the fish arrived lightly salted, what Kyoto called **Wakasa hitoshio**, “Wakasa one-salt”, and paid extra for. The province had sent food to the court for some 1,500 years before that; it was a *miketsukuni*, a province that supplied the emperor's table, and in 2015 its routes became one of the first Japan Heritage stories.[^2]" },
+            {
+              compare: {
+                title: "Two roads that set the taste",
+                a: "The kombu road",
+                b: "The mackerel road",
+                rows: [
+                  { label: "Route", a: "Osaka by sea round to Hokuriku and Hokkaido", b: "Wakasa Bay over the mountains to Kyoto, about 72 km" },
+                  { label: "Carried by", a: "*Kitamaebune*, one round trip a year", b: "Porters and packhorses, through the night" },
+                  { label: "Brought", a: "Kelp and herring south", b: "Lightly salted fish to the capital" },
+                  { label: "Left behind", a: "Kombu stock in Osaka and Kyoto, kelp in Toyama and Okinawa", b: "Saba-zushi, salted mackerel pressed on rice" },
+                  { label: "Japan Heritage", a: "2017", b: "2015" },
+                ],
+              },
+            },
             { p: "By the time the fish reached the city, the salt had done its work, and Kyoto built dishes around it: **saba-zushi**, salted mackerel pressed on rice and wrapped in kombu, made for festivals and guests. Inland Nara did the same with persimmon leaves (see [Kakinoha-zushi](guide:place/nara/persimmon-leaves-and-the-birth-of-sake))." },
           ],
           words: [
@@ -194,7 +208,7 @@ export const regionalFood: GuideTopic = {
           body: [
             { p: "The far south ate differently for reasons of climate and of history. Southern Kyushu had volcanic soil that wouldn't hold paddy; Okinawa was a separate kingdom with its own court cooking, trading with China and Southeast Asia, until Japan annexed it in 1879." },
             { h: "Kagoshima: the potato that came north" },
-            { p: "The sweet potato reached Japan through the Ryūkyūs, and in the south it's still called **satsuma-imo**, the Satsuma potato. It grew where rice wouldn't and saved the region in famine years. Kagoshima distils it into **imo shōchū** (see [Shōchū](guide:drinks/sh-ch-whisky-and-beer)), and raises black Berkshire pigs, *kurobuta*, partly on it." },
+            { p: "The sweet potato reached Japan through the Ryūkyūs, and in the south it's still called **satsuma-imo**, the Satsuma potato. It grew where rice wouldn't and saved the region in famine years. Kagoshima distils it into **imo shōchū** (see [Shōchū](guide:drinks/shochu-whisky-and-beer)), and raises black Berkshire pigs, *kurobuta*, partly on it." },
             { p: "Northern Kyushu gave the country its pork-bone ramen: **tonkotsu**, boiled until the broth turns milky, from Kurume and then Hakata." },
             { h: "Okinawa: the kingdom's kitchen" },
             { p: "Okinawan food is built on **pork**, used from snout to trotter, on bitter melon, seaweed, tofu and kombu brought by the kombu road, and on awamori. Its court cuisine served Chinese envoys; its home cooking is the stir-fry, **champurū**, from a word for “mixed”." },
@@ -221,7 +235,7 @@ export const regionalFood: GuideTopic = {
             { local: "さつまいも", say: "satsuma-imo", means: "sweet potato" },
             { local: "泡盛", say: "awamori", means: "Okinawa's rice spirit" },
           ],
-          related: ["drinks/sh-ch-whisky-and-beer", "regional-food/roads-that-carried-flavour", "how-food-works/overview"],
+          related: ["drinks/shochu-whisky-and-beer", "regional-food/roads-that-carried-flavour", "how-food-works/overview"],
           sources: [
             { title: "Taco rice — Wikipedia", url: "https://en.wikipedia.org/wiki/Taco_rice", note: "Gibo Matsuzō, Kin, 1984, by Camp Hansen" },
             { title: "Okinawa Prefecture health report on the prefectural life tables (Japanese)", url: "https://www.pref.okinawa.jp/_res/projects/default_project/_page_/001/006/578/26page2.pdf", note: "Men's ranking from 4th in 1995 to 26th in 2000" },

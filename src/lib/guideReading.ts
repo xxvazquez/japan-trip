@@ -96,3 +96,13 @@ export function setSaved(id: string, entry: SavedEntry, saved: boolean) {
   const list = get(savedKey(id), NO_SAVED).filter((e) => e.to !== entry.to);
   put(savedKey(id), saved ? [entry, ...list] : list);
 }
+
+/** Carry read marks and bookmarks over to articles' new paths when their
+ *  slugs change — `renamed` maps each old path to the new one. */
+export function renamePaths(id: string, renamed: Map<string, string>) {
+  const move = (p: string) => renamed.get(p) ?? p;
+  const read = get(readKey(id), NONE);
+  if (read.some((p) => renamed.has(p))) put(readKey(id), [...new Set(read.map(move))]);
+  const saved = get(savedKey(id), NO_SAVED);
+  if (saved.some((e) => renamed.has(e.to))) put(savedKey(id), saved.map((e) => ({ ...e, to: move(e.to) })));
+}

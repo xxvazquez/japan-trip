@@ -62,6 +62,13 @@ export const howFoodWorks: GuideTopic = {
             { p: "For sake the polishing goes much further. A daiginjō label means half or more of each grain was ground away (see [Sake](guide:drinks/sake-and-how-to-read-the-bottle))." },
             { h: "The cooker" },
             { p: "Toshiba's automatic electric rice cooker went on sale in December 1955 and changed home life: rice no longer needed someone watching a pot over a flame at dawn. By 1960 about half of all households had one.[^2] Modern cookers keep rice warm for hours, which is why a home always has rice ready." },
+            {
+              stats: [
+                { value: "1956", label: "Koshihikari registered, the variety that sets the standard" },
+                { value: "~⅓", label: "of all paddy planted with it" },
+                { value: "1955", label: "the automatic rice cooker goes on sale" },
+              ],
+            },
             { h: "How it's eaten" },
             { p: "Rice is eaten plain and white, alongside the other dishes rather than mixed with them. The sides are seasoned so that you can eat rice with them. Pouring soy sauce over your rice is the one habit that will genuinely puzzle a Japanese companion. At a drinking meal, rice comes last." },
             { note: "For decades, policy paid farmers to grow other crops so that rice prices stayed up. When a poor harvest and hoarding doubled prices in 2024–25, the government released its emergency stockpile, and rice policy was front-page politics again.[^3]", title: "Rice and politics" },
@@ -87,6 +94,14 @@ export const howFoodWorks: GuideTopic = {
             { h: "The fifth taste" },
             { p: "In 1908 the chemist Ikeda Kikunae found the source of kombu's savouriness, glutamate, and named the taste **umami**. The next year it went on sale as a seasoning, Ajinomoto.[^1][^2]" },
             { p: "Ikeda's student Kodama Shintarō found the bonito's own umami compound, **inosinate**, in 1913; a researcher at the soy-sauce maker Yamasa found the shiitake's, **guanylate**, in 1957. Mixed half and half, glutamate and inosinate taste **seven to eight times** as strong as either alone.[^2]" },
+            {
+              timeline: [
+                { when: "1908", text: "Ikeda Kikunae finds **glutamate** in kombu and names the taste umami" },
+                { when: "1909", text: "It goes on sale as a seasoning, Ajinomoto" },
+                { when: "1913", text: "Kodama Shintarō finds **inosinate** in bonito flakes" },
+                { when: "1957", text: "A Yamasa researcher finds **guanylate** in shiitake" },
+              ],
+            },
             { p: "That synergy is the logic of much Japanese food, worked out by cooks centuries before anyone measured it: kombu with bonito, kombu with dried sardines, kombu with shiitake for a temple kitchen that uses no fish." },
             { h: "Five minutes, not five hours" },
             { p: "A European stock simmers bones for hours to pull out gelatin and body. Dashi does the opposite. Kombu is soaked or brought just short of the boil and lifted out before it turns slimy and bitter; bonito flakes go in off the heat and are strained after a minute or two. **Ichiban dashi**, first dashi, is clear and fragrant, for clear soups. The used kombu and flakes are simmered again for **niban dashi**, second dashi, for miso soup and simmered dishes." },
@@ -94,6 +109,19 @@ export const howFoodWorks: GuideTopic = {
             { h: "East and west in one bowl" },
             { p: "Order udon in Kyoto or Osaka and then in Tokyo. In the west the broth is pale gold, built on kombu and seasoned with light-coloured soy; in the east it's dark brown, heavier on bonito and dark soy." },
             { p: "The divide has history behind it. Edo-period cargo ships carried Hokkaido kombu down the Sea of Japan coast to Osaka and Kyoto, whose soft water draws out its flavour. Edo had bonito from its own coast and a taste for strong soy. More of the east–west line is in [East and west](guide:regional-food/east-and-west)." },
+            {
+              compare: {
+                title: "One bowl of udon, two broths",
+                a: "West: Kyoto, Osaka",
+                b: "East: Tokyo",
+                rows: [
+                  { label: "Colour", a: "Pale gold", b: "Dark brown" },
+                  { label: "Stock", a: "Built on **kombu**", b: "Heavier on **bonito**" },
+                  { label: "Soy", a: "Light-coloured *usukuchi*", b: "Dark *koikuchi*" },
+                  { label: "Why", a: "Hokkaido kelp by ship, and soft water that draws it out", b: "Bonito from its own coast, and a taste for strong soy" },
+                ],
+              },
+            },
             { note: "The light-coloured soy of Kyoto (usukuchi) is **saltier** than dark soy, not milder. It's light so it doesn't colour the food.", title: "Lighter isn't milder" },
           ],
           words: [
@@ -102,7 +130,7 @@ export const howFoodWorks: GuideTopic = {
             { local: "鰹節", say: "katsuobushi", means: "dried bonito" },
             { local: "うま味", say: "umami", means: "savoury taste" },
           ],
-          related: ["how-food-works/k-ji-the-national-mould", "regional-food/east-and-west", "eating-out/soba-udon-and-ramen"],
+          related: ["how-food-works/koji-the-national-mould", "regional-food/east-and-west", "eating-out/soba-udon-and-ramen"],
           sources: [
             { title: "Kikunae Ikeda — Wikipedia", url: "https://en.wikipedia.org/wiki/Kikunae_Ikeda", note: "Glutamate from kombu, 1908; Ajinomoto, 1909" },
             { title: "What is umami? — Umami Information Center", url: "https://www.umamiinfo.com/what/whatisumami/", note: "Ikeda 1908, Kodama's inosinate 1913, Kuninaka's guanylate 1957; the seven- to eightfold synergy" },
@@ -201,7 +229,7 @@ export const howFoodWorks: GuideTopic = {
             { local: "浅漬け", say: "asazuke", means: "a quick, light pickle" },
             { local: "糠床", say: "nukadoko", means: "the bran bed a family keeps" },
           ],
-          related: ["how-food-works/k-ji-the-national-mould", "how-food-works/rice-properly", "regional-food/the-north-snow-and-settlers"],
+          related: ["how-food-works/koji-the-national-mould", "how-food-works/rice-properly", "regional-food/the-north-snow-and-settlers"],
           sources: [
             { title: "Tsukemono — Wikipedia", url: "https://en.wikipedia.org/wiki/Tsukemono", note: "Kinds of pickle and the name kō no mono" },
             { title: "The pickle market — Shoku no Shimbun / Japan Food Supply and Demand Research Center data, via Newswitch", url: "https://newswitch.jp/p/4775", note: "Output of about 1.2 million tonnes in 1991 and 719,000 in 2013 (Japanese)" },
@@ -229,6 +257,16 @@ export const howFoodWorks: GuideTopic = {
             { p: "In 2016 the television cook **Doi Yoshiharu** published *Ichijū issai de yoi to iu teian*, “a proposal that one soup and one dish is enough”: rice, a miso soup thick with whatever vegetables there are, and a pickle. It became a long-running bestseller.[^4] It struck a nerve because so many households, most with two working adults, felt guilty for falling short of three dishes." },
             { h: "Methods, not just ingredients" },
             { p: "Cooks think in **methods** as much as ingredients: something raw (nama), grilled (yaki), simmered (ni), steamed (mushi), fried (age), dressed (ae). A balanced meal has a range of them. That's why a set meal so often pairs something fried with something simmered and something raw." },
+            {
+              terms: [
+                { term: "Nama 生", text: "Raw: sashimi, a salad of shredded cabbage." },
+                { term: "Yaki 焼き", text: "Grilled: a salted fish, yakitori." },
+                { term: "Ni 煮", text: "Simmered in dashi and soy: vegetables, fish." },
+                { term: "Mushi 蒸し", text: "Steamed: chawanmushi, the savoury custard." },
+                { term: "Age 揚げ", text: "Fried: tempura, karaage." },
+                { term: "Ae 和え", text: "Dressed: greens in sesame or tofu." },
+              ],
+            },
             { h: "Shun: eating in season" },
             { p: "Each food has its peak, **shun**, and the language goes further. **Hashiri** is the first of the season, expensive and celebrated. **Nagori** is the last, eaten with a little regret. What that means in an ordinary kitchen, season by season, is in [The year in a home kitchen](guide:food-at-home/the-year-in-a-home-kitchen)." },
             { p: "The most formal meal of all, **kaiseki**, grew out of the meal served at the[^2] [tea ceremony](guide:culture/the-tea-ceremony) and is built on the same two ideas: a range of methods, and the season on every plate." },
@@ -306,7 +344,7 @@ export const foodAtHome: GuideTopic = {
                 ],
               },
             },
-            { p: "Among the dishes most often cooked at home are **Western-born** ones: curry rice, hambāgu (a hamburger steak with sauce), spaghetti, gratin, cream stew. They arrived in the late 1800s and early 1900s and were adapted so thoroughly that families think of them as home food, not foreign food[^1][^2] (see [Yōshoku](guide:eating-out/yakitori-wagyu-and-y-shoku))." },
+            { p: "Among the dishes most often cooked at home are **Western-born** ones: curry rice, hambāgu (a hamburger steak with sauce), spaghetti, gratin, cream stew. They arrived in the late 1800s and early 1900s and were adapted so thoroughly that families think of them as home food, not foreign food[^1][^2] (see [Yōshoku](guide:eating-out/yakitori-wagyu-and-yoshoku))." },
             { h: "Eating apart" },
             { p: "Many families no longer eat together on weekdays. Parents work late; teenagers have club activities and cram school. In the farm ministry's 2024 survey, **63%** of people who live with family ate dinner with them almost every day, and only **43%** breakfast; across the week it came to about **nine** shared meals out of fourteen.[^3]" },
             { p: "Dinner is often reheated at different times, one reason one-bowl and one-plate meals have pushed out the many-small-dishes table. The ministry has a word for eating alone, **koshoku**, and treats it as a problem to be reduced; there's a matching one, *kyōshoku*, for eating together." },
@@ -424,6 +462,12 @@ export const foodAtHome: GuideTopic = {
             { p: "The fish counter sells **saku**, neat blocks of tuna or salmon to slice as sashimi at home, alongside whole fish and pre-salted fillets for the grill. Meat is sliced paper-thin and labelled for its use: for shabu-shabu, for sukiyaki, for ginger pork, minced for gyōza. Big roasting joints are rare, because most homes have no oven, only a grill drawer under the gas hob." },
             { h: "Tofu, natto and the fermented aisle" },
             { p: "A whole chilled wall is soy: firm (momen) and silken (kinu) tofu, fried tofu, soy milk, and twenty kinds of **natto** in three-packs — fermented soybeans, sticky and strong, eaten on rice at breakfast.[^1] It's a ¥287 billion market, and it grew in 2024 even as prices rose, because a three-pack is still one of the cheapest proteins in the shop.[^3] It's also a north-eastern taste: households in Fukushima spend nearly **three times** as much on it as households in Wakayama.[^4] Beside them are tubs of miso in a range of colours, and pickles." },
+            {
+              stats: [
+                { value: "¥287 bn", label: "a year spent on natto, and growing" },
+                { value: "~3×", label: "as much natto bought in Fukushima as in Wakayama" },
+              ],
+            },
             { h: "The shortcut aisles" },
             {
               list: [
@@ -441,7 +485,7 @@ export const foodAtHome: GuideTopic = {
             { local: "訳あり", say: "wake-ari", means: "imperfect, sold cheaper" },
             { local: "国産", say: "kokusan", means: "produced in Japan" },
           ],
-          related: ["food-at-home/bought-not-cooked", "how-food-works/k-ji-the-national-mould", "eating-out/depachika"],
+          related: ["food-at-home/bought-not-cooked", "how-food-works/koji-the-national-mould", "eating-out/depachika"],
           sources: [
             { title: "Nattō — Wikipedia", url: "https://en.wikipedia.org/wiki/Natt%C5%8D", note: "Fermented soybeans, eaten on rice at breakfast" },
             { title: "Japanese cuisine — Wikipedia", url: "https://en.wikipedia.org/wiki/Japanese_cuisine", note: "Dashi, tofu and the home kitchen" },

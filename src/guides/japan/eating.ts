@@ -78,7 +78,7 @@ export const eatingOut: GuideTopic = {
             { local: "締め", say: "shime", means: "the closing dish" },
             { local: "お会計", say: "okaikei", means: "the bill" },
           ],
-          related: ["drinks/sake-and-how-to-read-the-bottle", "drinks/sh-ch-whisky-and-beer", "work/office-habits"],
+          related: ["drinks/sake-and-how-to-read-the-bottle", "drinks/shochu-whisky-and-beer", "work/office-habits"],
           sources: [
             { title: "Izakaya — Wikipedia", url: "https://en.wikipedia.org/wiki/Izakaya", note: "Edo-period sake shops that let customers drink on the premises" },
             { title: "Toshimaya — Chiyoda City Tourism Association", url: "https://visit-chiyoda.tokyo/app/spot/detail/459", note: "Founded 1596 at Kamakura-gashi, Kanda; called the first izakaya for serving sake with snacks (Japanese)" },
@@ -135,7 +135,7 @@ export const eatingOut: GuideTopic = {
             },
             { p: "The **okosama ranchi** with its flag is still on family-restaurant menus: a small museum piece of how Japan learned to eat out. A few store halls survive as museums of themselves, the best loved in Hanamaki, Iwate, where the top-floor restaurant of the old Marukan store is famous for a soft-serve cone so tall it's eaten with chopsticks." },
           ],
-          related: ["eating-out/depachika", "eating-out/yakitori-wagyu-and-y-shoku"],
+          related: ["eating-out/depachika", "eating-out/yakitori-wagyu-and-yoshoku"],
           sources: [
             { title: "The origin of okosama lunch — Zatsuneta", url: "https://zatsuneta.com/archives/007395.html", note: "Andō Tarō at Mitsukoshi Nihonbashi, 1930; the Fuji-shaped rice and flag (Japanese)" },
           ],
@@ -224,7 +224,7 @@ export const eatingOut: GuideTopic = {
             { local: "あがり", say: "agari", means: "tea, at a sushi shop" },
             { local: "お任せ", say: "omakase", means: "leaving it to the chef" },
           ],
-          related: ["how-food-works/k-ji-the-national-mould", "drinks/sake-and-how-to-read-the-bottle", "history/edo"],
+          related: ["how-food-works/koji-the-national-mould", "drinks/sake-and-how-to-read-the-bottle", "history/edo"],
           sources: [
             { title: "History of sushi — Wikipedia", url: "https://en.wikipedia.org/wiki/History_of_sushi", note: "Narezushi, namanare, hayazushi; the Southeast Asian origin argument" },
             { title: "When sushi became a new fast food in Edo — nippon.com", url: "https://www.nippon.com/en/japan-topics/g00962/", note: "Stalls, piece size, Hanaya Yohei" },
@@ -462,7 +462,7 @@ export const eatingOut: GuideTopic = {
             { local: "青のり", say: "aonori", means: "green laver flakes" },
             { local: "たこ焼き", say: "takoyaki", means: "octopus balls" },
           ],
-          related: ["regional-food/flour-country", "eating-out/yakitori-wagyu-and-y-shoku", "how-food-works/dashi-and-why-the-noodle-soup-changes-colour"],
+          related: ["regional-food/flour-country", "eating-out/yakitori-wagyu-and-yoshoku", "how-food-works/dashi-and-why-the-noodle-soup-changes-colour"],
           sources: [
             { title: "Okonomiyaki — Wikipedia", url: "https://en.wikipedia.org/wiki/Okonomiyaki", note: "Funoyaki, monji-yaki, issen yōshoku, the 1930s name, Osaka and Hiroshima styles, monjayaki" },
             { title: "Takoyaki — Wikipedia", url: "https://en.wikipedia.org/wiki/Takoyaki", note: "Endō Tomekichi, 1935, Aizuya; radio-yaki and akashiyaki" },
@@ -541,7 +541,7 @@ export const eatingOut: GuideTopic = {
             { local: "ホルモン", say: "horumon", means: "grilled offal" },
             { local: "タン塩", say: "tan shio", means: "salted beef tongue, a yakiniku opener" },
           ],
-          related: ["eating-out/yakitori-wagyu-and-y-shoku", "food-at-home/the-year-in-a-home-kitchen", "regional-food/the-north-snow-and-settlers"],
+          related: ["eating-out/yakitori-wagyu-and-yoshoku", "food-at-home/the-year-in-a-home-kitchen", "regional-food/the-north-snow-and-settlers"],
           sources: [
             { title: "Sukiyaki — Wikipedia", url: "https://en.wikipedia.org/wiki/Sukiyaki", note: "Gyūnabe, the Kantō and Kansai methods, the raw egg" },
             { title: "Shabu-shabu — Wikipedia", url: "https://en.wikipedia.org/wiki/Shabu-shabu", note: "Suehiro, Osaka, 1952; the trademark; the mutton hotpot theory" },

@@ -11,19 +11,38 @@ export interface ArticleRef {
   /** a short trailing word on its row — the local name */
   side?: string;
   article: GuideArticle;
+  /** the slug it had while accented letters were dropped whole ("j-mon"),
+   *  so an old link, bookmark or read mark still finds it */
+  was?: string;
 }
+
+/** a title as a slug, accents taken off first — "Jōmon" is "jomon" */
+export const titleSlug = (title: string) => slug(title.normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
 
 /** give every entry a slug from its title (unless it brings its own),
  *  unique within the list */
 function withSlugs(list: (Omit<ArticleRef, "slug"> & { slug?: string })[]): ArticleRef[] {
-  const seen = new Map<string, number>();
+  const unique = () => {
+    const seen = new Map<string, number>();
+    return (base: string) => {
+      const n = (seen.get(base) ?? 0) + 1;
+      seen.set(base, n);
+      return n > 1 ? `${base}-${n}` : base;
+    };
+  };
+  const now = unique();
+  const old = unique();
   return list.map((a) => {
-    const base = a.slug ?? (slug(a.title) || "entry");
-    const n = (seen.get(base) ?? 0) + 1;
-    seen.set(base, n);
-    return { ...a, slug: n > 1 ? `${base}-${n}` : base };
+    const s = now(a.slug ?? (titleSlug(a.title) || "entry"));
+    const was = old(a.slug ?? (slug(a.title) || "entry"));
+    return { ...a, slug: s, ...(was !== s ? { was } : {}) };
   });
 }
+
+/** where in a list the entry a URL names is — by its slug, or the one it
+ *  used to have */
+export const findRef = (refs: ArticleRef[], item: string | undefined): number =>
+  refs.findIndex((r) => r.slug === item || r.was === item);
 
 /** a chapter's opening read's title — "Intro to Coffee" */
 export const introTitle = (topic: GuideTopic) => topic.intro?.title ?? `Intro to ${topic.title}`;
@@ -77,6 +96,21 @@ export function resolveRef(g: CountryGuide, ref: string): ArticleRef | undefined
   if (parts.length !== 2) return undefined;
   const topic = allTopics(g).find((t) => t.id === parts[0]);
   return topic ? topicArticles(topic).find((r) => r.slug === parts[1]) : undefined;
+}
+
+/** every entry's old path → its path now, for the ones whose slug changed
+ *  when accents stopped being dropped */
+export function renamedPaths(g: CountryGuide): Map<string, string> {
+  const base = `/logbook/guide/${g.id}`;
+  const out = new Map<string, string>();
+  const add = (at: string, refs: ArticleRef[]) => refs.forEach((r) => r.was && out.set(`${at}/${r.was}`, `${at}/${r.slug}`));
+  allTopics(g).forEach((t) => add(`${base}/${t.id}`, topicArticles(t)));
+  g.cities.forEach((c) => {
+    add(`${base}/place/${c.id}`, cityArticles(c));
+    add(`${base}/place/${c.id}/day-trips`, dayTripArticles(c));
+  });
+  add(`${base}/date`, dateArticles(g.dates));
+  return out;
 }
 
 /** an article's text as one string — what the reading time and the

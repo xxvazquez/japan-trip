@@ -100,7 +100,7 @@ export function Chart({ chart: c }: { chart: GuideChart }) {
         <p className="break-words text-[15px] font-medium leading-snug text-ink">{c.title}</p>
         <p className="mt-0.5 break-words text-[13px] leading-snug text-ink-soft">{c.unit}</p>
       </figcaption>
-      <div className="mt-3">{c.kind === "line" ? <LineChart chart={c} /> : <BarChart chart={c} />}</div>
+      <div className="mt-3">{c.kind === "line" ? <LineChart chart={c} /> : c.kind === "column" ? <ColumnChart chart={c} /> : <BarChart chart={c} />}</div>
       {c.read && <p className="mt-3 break-words text-[15px] leading-[1.45] text-ink"><Inline text={c.read} /></p>}
       <p className="mt-2 break-words text-[12px] leading-snug text-ink-faint">Source: {c.source}</p>
     </figure>
@@ -131,6 +131,34 @@ function BarChart({ chart: c }: { chart: GuideChart }) {
   );
 }
 
+/** Upright columns for a series read in its own order — the months of a
+ *  year — the way Weather draws monthly averages: every value over its
+ *  column, the label under it, the highlight in the accent colour. A label
+ *  too wide for its column shortens to its first letter (J F M…). */
+function ColumnChart({ chart: c }: { chart: GuideChart }) {
+  const max = Math.max(...c.points.map((p) => p.value), 0) || 1;
+  const short = c.points.length > 7;
+  return (
+    <ol className="flex h-[148px] items-end gap-[3px]" aria-label={c.title}>
+      {c.points.map((p) => {
+        const hi = p.label === c.highlight;
+        return (
+          <li key={p.label} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end" aria-label={`${p.label}: ${fmt(p.value, c.decimals)}`}>
+            <span className={`mb-1 text-[11px] leading-none tabular-nums ${hi ? "font-medium text-ink" : "text-ink-faint"}`}>{fmt(p.value, c.decimals)}</span>
+            <span
+              className={`w-full max-w-[28px] rounded-t-[4px] ${hi ? "bg-accent" : "bg-ink-faint/35"}`}
+              style={{ height: `${Math.max(2, (p.value / max) * 100)}px` }}
+            />
+            <span className={`mt-1.5 text-[11px] leading-none ${hi ? "font-medium text-ink" : "text-ink-soft"}`}>
+              {short ? <><span className="sm:hidden">{p.label.slice(0, 1)}</span><span className="max-sm:hidden">{p.label}</span></> : p.label}
+            </span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 /** "Nice" round steps for a y axis that starts at zero. */
 function ticks(max: number): number[] {
   const raw = max / 4;
@@ -145,6 +173,7 @@ function ticks(max: number): number[] {
 
 /** even steps along the x axis — about six across, on round numbers */
 function xTicks(x0: number, x1: number): number[] {
+  if (x1 <= x0) return [x0];
   const raw = (x1 - x0) / 6;
   const mag = 10 ** Math.floor(Math.log10(raw));
   // years are whole: a 2.5 step only where it lands on whole numbers (25, 250)
@@ -255,7 +284,7 @@ function LineChart({ chart: c }: { chart: GuideChart }) {
             </text>
           </g>
         ) : (
-          [...labelled, ...(end ? [end] : [])].map((p) => {
+          [...labelled, ...(end && !labelled.includes(end) ? [end] : [])].map((p) => {
             const left = sx(p.x) < padL + 24;
             const right = sx(p.x) > w - padR - 24;
             // a low point the line climbs away from would have the line run
@@ -385,7 +414,7 @@ export function Calls({ calls }: { calls: GuideCall[] }) {
           key={c.number}
           className="relative after:absolute after:bottom-0 after:left-14 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden"
         >
-          <a href={`tel:${c.number.replace(/[^\d+#]/g, "")}`} className="flex items-center gap-3 px-3.5 py-3 active:bg-ink/[0.07]">
+          <a href={`tel:${c.number.replace(/[^\d+#]/g, "").replace("#", "%23")}`} className="flex items-center gap-3 px-3.5 py-3 active:bg-ink/[0.07]">
             <span className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-full bg-matcha text-white">
               <Icon name="phone" size={15} />
             </span>

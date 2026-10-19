@@ -611,7 +611,7 @@ The book reads in order, in five parts, with chapters numbered straight through.
 - Opens on its own first photo when it has one; a read without one opens on its text, never on a picture borrowed from its chapter or city, so no photo repeats. A short note can carry a `cover` photo.
 - A caption, the title and a standfirst, then "Chapter · minutes" for long reads and an **In this article** list that jumps to each section.
 - The first paragraph is a lede, a size larger. Text is always ragged-right, never justified; paragraphs sit a line apart and headings have room above.
-- Blocks: sub-headings, numbered steps, do / don't lists, tables, key numbers, tip or warning boxes, timelines, charts (line or bar, with unit and source; drag along a line chart to read any year, and a projection is dashed with its end value labelled), food cards, places with a Maps button, phone numbers that dial, and **Words to know**.
+- Blocks: sub-headings, numbered steps, do / don't lists, tables, key numbers, tip or warning boxes, timelines, charts (line, bar, or upright columns for a series in its own order such as months, as Weather draws them; each with unit and source; drag along a line chart to read any year, and a projection is dashed with its end value labelled), food cards, places with a Maps button, phone numbers that dial, and **Words to know**.
 - Figures sit in the text between hairlines, as Apple News sets them, not in boxes; only tips and warnings keep a tinted callout.
 - Visual blocks: an **era band** (spans to scale — tap or drag along it, or step with the arrows), a **pull quote** (a line from the read itself), **What's known** (Settled / Revised / Still argued), a side-by-side **compare**, a **photo pair**, and **Go deeper** panels that open in place.
 - Tap a small source number and that source opens in a sheet (a popover on desktop) with what it backs up and **Open Link**. All sources also sit folded and numbered at the foot.
@@ -620,7 +620,8 @@ The book reads in order, in five parts, with chapters numbered straight through.
 - **Read by reading** — reaching the end of an article marks it read, as Books keeps your place. To change it by hand: **⋯ → Mark as Read / Mark as Unread** in the bar, or hold a row (right-click on a computer). Read articles get a green tick on their row, and a chapter page says how many of its articles you've read.
 - Read marks, bookmarks and Continue reading are kept on this device only, not synced.
 - An article ends the way Apple News closes a story: its **sources**, then **Up next** as one big picture card (**Next chapter** at a chapter's end), then **Related**, the reads that carry the thread on, each captioned with its chapter.
-- Up next opens the next entry in place, so Back still returns to the list. The back button names the page it returns to (‹ Kyoto, ‹ Japan), even after a reload.
+- Up next opens the next entry in place, so Back still returns to the list. The back button names the page it returns to (‹ Kyoto, ‹ Japan), even after a reload; a name too long for the bar reads ‹ Back.
+- An article's address is its title without accents (`…/history/jomon-yayoi-and-kofun`). Older links that dropped accented letters (`j-mon`) redirect, and read marks and bookmarks move with them.
 
 #### Content
 

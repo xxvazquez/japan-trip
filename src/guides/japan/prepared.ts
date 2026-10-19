@@ -23,7 +23,7 @@ export const prepared: GuideTopic = {
                 { number: "119", label: "Ambulance or fire", text: "Say “kyūkyū desu” for an ambulance, “kaji desu” for a fire" },
                 { number: "110", label: "Police", text: "Crime, accidents, a bear in town, a lost child" },
                 { number: "050-3816-2787", label: "Japan Visitor Hotline", text: "Tourism agency, 24 h, every day, in English, Chinese, Korean and Japanese · help in illness, accidents and disasters" },
-                { number: "#7119", label: "Is this an emergency?", text: "Nurse advice line, 24 h, in Tokyo, Kyoto and Yamanashi · Japanese · may not connect from a foreign number" },
+                { number: "#7119", label: "Is this an emergency?", text: "Nurse advice line, 24 h, in Tokyo, Osaka, Kyoto and most other prefectures · Japanese · may not connect from a foreign number" },
               ],
             },
             { note: "Many travel eSIMs are **data only** and can't dial 110 or 119 at all. Check yours before you go. Without a voice line, use a public phone — emergency calls are free, no coin or card, on the red button or by lifting the receiver and dialling — or ask anyone nearby, a shop or your hotel to call.", kind: "warning", title: "A data-only eSIM can't call" },
@@ -37,7 +37,7 @@ export const prepared: GuideTopic = {
               ],
             },
             { note: "The ambulance is free. Treatment isn't: a visitor pays the full price at the hospital, usually before leaving. Keep your travel-insurance policy number and its 24-hour line with your passport.", title: "Cost" },
-            { p: "**#7119** exists because ambulances were being called for colds; Kyoto runs one, and Yamanashi's started in October 2023.[^2][^3] A nurse tells you whether you need 119, a clinic tomorrow, or which hospital is open tonight. It's in Japanese — if that's a wall, the Visitor Hotline will help you find a hospital in English.[^1]" },
+            { p: "**#7119** exists because ambulances were being called for colds. It now runs in 42 areas from Hokkaido to Okinawa,[^2] Kyoto[^3] and Yamanashi, since October 2023,[^4] among them. A nurse tells you whether you need 119, a clinic tomorrow, or which hospital is open tonight. It's in Japanese — if that's a wall, the Visitor Hotline will help you find a hospital in English.[^1]" },
           ],
           words: [
             { local: "救急車", say: "kyūkyūsha", means: "ambulance" },
@@ -47,6 +47,7 @@ export const prepared: GuideTopic = {
           related: ["prepared/ill-or-hurt", "prepared/set-up-your-phone", "language/politeness-in-the-grammar"],
           sources: [
             { title: "Japan Visitor Hotline — JNTO", url: "https://www.japan.travel/en/plan/hotline/", note: "050-3816-2787, 24 hours, every day" },
+            { title: "#7119 — Fire and Disaster Management Agency", url: "https://www.fdma.go.jp/mission/enrichment/appropriate/appropriate007.html", note: "Running in 42 areas nationwide, with each one's number and hours (Japanese)" },
             { title: "#7119 Kyoto — Kyoto Prefecture", url: "https://www.pref.kyoto.jp/iryo/7119.html" },
             { title: "#7119 Yamanashi — Yamanashi Prefecture", url: "https://www.pref.yamanashi.jp/shobo/sincyaku/documents/7119shobo.html", note: "Running since 2 October 2023 (Japanese)" },
           ],

@@ -79,11 +79,20 @@ export const stamps: GuideTopic = {
 
             { h: "Stamps for travellers" },
             { p: "The first station stamp is usually credited to Fukui Station in 1931. They took off after October 1970, when Japanese National Railways launched **Discover Japan**, a campaign to keep the travel habit of the Osaka Expo going, and new stamps were placed at stations to be collected along the network.[^1] Since then the idea has spread to **stamp rallies**: a set to collect across a railway line, a city or a series of anime locations, sometimes for a prize. The **100 Fine Castles of Japan** has had its own stamp book since 2007, and a second hundred since 2018.[^2]" },
+            {
+              timeline: [
+                { when: "1931", text: "Fukui Station's stamp, usually counted the first" },
+                { when: "1970", text: "JNR's **Discover Japan** campaign spreads stamps along the network" },
+                { when: "2007", text: "The 100 Fine Castles get their own stamp book" },
+                { when: "2018", text: "A second hundred castles follow" },
+              ],
+            },
             { p: "It's the same pleasure as the goshuin, without the religion: proof you were there, the satisfaction of a complete set, and limited editions that reward going at the right moment. It also suits a country where the domestic tourist is still the main tourist (see [Tourists — and everyone else](guide:numbers/tourists-and-everyone-else))." },
 
             { h: "The hanko" },
             { p: "The third kind of stamp is the one Japanese adults use most. A **hanko** is a personal seal, usually carved with the family name and stamped in red instead of a signature: on bank forms, contracts, delivery slips and office documents, often by several people in turn. A seal registered at the town hall, a **jitsuin**, is legally binding, like a notarised signature, and kept somewhere safe." },
             { p: "The pandemic made it a political issue: people had to go into offices just to stamp paper. In 2020 the government set out to remove the seal from administrative procedures, and announced it would be dropped from all but 83 of nearly 15,000 of them.[^3] Companies followed with electronic approval. The hanko hasn't disappeared — wills, property and many private contracts still use one — but it's become a choice more than a requirement. Shops in most towns will carve one in your name, in katakana or kanji, while you wait." },
+            { stats: [{ value: "~15,000", label: "government procedures that needed a seal" }, { value: "83", label: "that still do, after 2020" }] },
             { note: "Settled: station stamps date from the 1930s and spread with the 1970s domestic-travel boom; the government removed seal requirements from most administrative procedures in 2020–21. Still argued: whether Fukui really had the first station stamp.", title: "What's known and what isn't", kind: "info" },
 
             { h: "What to look for" },

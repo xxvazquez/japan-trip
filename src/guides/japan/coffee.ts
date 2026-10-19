@@ -319,7 +319,7 @@ export const coffee: GuideTopic = {
             { p: "Morning service has a better-documented origin than most food legends, though still not a written one. In the late 1950s Ichinomiya, north-west of Nagoya, was a boom town of small weaving mills. The looms were too loud to talk over, so mill owners did business in kissaten, several times a day. A grateful owner began adding a boiled egg and peanuts to the morning coffee, and rivals had to match it.[^3]" },
             { p: "The habit stuck to the region, and it shows in the household survey: **Nagoya** spends more on kissaten than any other city in Japan, about **¥16,400** a household a year against a national **¥10,300**, with **Gifu**, its neighbour, third.[^4] A Nagoya morning set now can run to toast, egg, salad, yoghurt and a small bowl of soup, and families go at weekends." },
           ],
-          related: ["eating-out/yakitori-wagyu-and-y-shoku", "eating-out/getting-a-table-ordering-eating", "language/borrowed-words"],
+          related: ["eating-out/yakitori-wagyu-and-yoshoku", "eating-out/getting-a-table-ordering-eating", "language/borrowed-words"],
           sources: [
             { title: "Napolitan — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E3%83%8A%E3%83%9D%E3%83%AA%E3%82%BF%E3%83%B3", note: "Credited to the Hotel New Grand, Yokohama" },
             { title: "Yokohama's food firsts — Kanagawa Tourism Association", url: "https://www.kanagawa-kankou.or.jp/features/foods-guide25", note: "Irie Shigetada's tomato sauce; Ishibashi Toyokichi's ketchup version at the Center Grill (Japanese)" },
@@ -365,6 +365,13 @@ export const coffee: GuideTopic = {
 
             { p: "Kyoto, of all places — the city of tea — is one of Japan's biggest bread-and-coffee cities. In the national household survey for 2023–25 it comes **third** of all the big cities for bread spending, behind Kobe and Sakai, and **second** for coffee bought to brew at home, behind its neighbour Ōtsu, as it has been near the top for years.[^1][^2][^3] The explanations people give, none proven but all plausible, say a lot about the city:" },
             {
+              stats: [
+                { value: "3rd", label: "of the big cities for bread spending, 2023–25" },
+                { value: "2nd", label: "for coffee bought to brew at home" },
+                { value: "~1 in 10", label: "people in the city a student" },
+              ],
+            },
+            {
               list: [
                 "**Workshops.** Kyoto was a city of home-based crafts — Nishijin weavers, dyers, potters — who wanted a quick breakfast and a coffee break near the loom.",
                 "**Students.** About one in ten people in the city is a student. Kissaten near the universities were study rooms and debating halls; Shinshindō by Kyoto University, a bakery-café since 1930, still has its long communal tables.",
@@ -408,7 +415,7 @@ export const coffeeTokyo: GuideItem = {
       ],
     },
   ],
-  related: ["coffee/overview", "place/tokyo/jimb-ch-a-book-town-by-accident", "coffee/kissaten-for-listening"],
+  related: ["coffee/overview", "place/tokyo/jimbocho-a-book-town-by-accident", "coffee/kissaten-for-listening"],
   sources: [
     { title: "Café de l'Ambre (Time Out Tokyo)", url: "https://timeout.com/tokyo/restaurants/cafe-de-lambre" },
     { title: "Café Paulista, Tokyo's oldest café (Old Tokyo)", url: "https://old-tokyo.info/cafe-paulista-oldest-cafe-in-tokyo-with-a-brazilian-history/" },

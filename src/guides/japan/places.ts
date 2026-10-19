@@ -204,7 +204,7 @@ export const placeReads: Record<string, GuideItem[]> = {
           ],
         },
       ],
-      related: ["eating-out/an-izakaya-night-start-to-finish", "drinks/sh-ch-whisky-and-beer"],
+      related: ["eating-out/an-izakaya-night-start-to-finish", "drinks/shochu-whisky-and-beer"],
       sources: [
         { title: "Shinjuku's Golden-gai: from black market and red-light district to drinking spot — nippon.com", url: "https://www.nippon.com/en/guide-to-japan/gu900052/", note: "Origins after 1945, the 1958 law, about 280 bars" },
       ],
@@ -382,13 +382,13 @@ export const placeReads: Record<string, GuideItem[]> = {
         { p: "Commercial wine began in 1877, when a company in **Katsunuma** sent two young men, Takano Masanari and Tsuchiya Ryūken, to France to learn winemaking. Their wine didn't sell — Japanese drinkers weren't ready — and the company folded in 1886, but the vineyards stayed and its line continues in today's Château Mercian." },
         { p: "Until recently a bottle labelled as Japanese might be made from imported grape concentrate. Since 2018 only wine from **grapes grown in Japan** may say **日本ワイン** (Nihon wine); a place name needs 85% of the grapes from there. Kōshū was registered with the international wine body in 2010, and **GI Yamanashi** became Japan's first wine region of origin in 2013.[^2]" },
         { note: "Katsunuma, about an hour from the lakes by car or train via Ōtsuki, has dozens of wineries, several within walking distance of Katsunuma-budōkyō station, many with tastings.", title: "On the route" },
-        { p: "The rest of the local food — hōtō stew and Yoshida's hard udon — is in [Flour country](guide:regional-food/flour-country), and what to eat around the lakes is in [Hōtō, hard udon and a box to take home](guide:place/fuji-five-lakes/h-t-hard-udon-and-a-box-to-take-home)." },
+        { p: "The rest of the local food — hōtō stew and Yoshida's hard udon — is in [Flour country](guide:regional-food/flour-country), and what to eat around the lakes is in [Hōtō, hard udon and a box to take home](guide:place/fuji-five-lakes/hoto-hard-udon-and-a-box-to-take-home)." },
       ],
       words: [
         { local: "日本ワイン", say: "nihon wain", means: "wine from grapes grown in Japan" },
         { local: "甲州", say: "kōshū", means: "the local white grape, and the old name of the province" },
       ],
-      related: ["regional-food/flour-country", "place/fuji-five-lakes/h-t-hard-udon-and-a-box-to-take-home"],
+      related: ["regional-food/flour-country", "place/fuji-five-lakes/hoto-hard-udon-and-a-box-to-take-home"],
       sources: [
         { title: "Japanese wine: Koshu, Muscat Bailey A and global recognition — Wine with Seth", url: "https://www.winewithseth.com/winewiki/japanese-wine-koshu-muscat-bailey-a-and-global-recognition/", note: "Kōshū's share in Yamanashi; OIV registration in 2010" },
         { title: "Japan: new wine labeling standards become effective — USDA FAS", url: "https://www.fas.usda.gov/data/japan-new-wine-labeling-standards-become-effective", note: "The 2018 rules on Japanese wine and place names" },
@@ -796,7 +796,7 @@ export const placeReads: Record<string, GuideItem[]> = {
         },
         { note: "Uji's main street (Byōdō-in Omotesandō) is now mostly matcha soft-serve and souvenir shops. The best tea shops still let you taste before buying; ask for gyokuro or a good sencha rather than only matcha.", title: "Buying tea" },
       ],
-      related: ["drinks/tea-from-temple-medicine-to-the-vending-machine", "place/uji/by-d-in-and-the-end-of-the-law"],
+      related: ["drinks/tea-from-temple-medicine-to-the-vending-machine", "place/uji/byodo-in-and-the-end-of-the-law"],
       sources: [
         { title: "Wazuka and Uji tea — Japan Tourism Agency multilingual explanations", url: "https://www.mlit.go.jp/tagengo-db/common/001928416.pdf", note: "About 49% of Kyoto's tea is grown in Wazuka" },
       ],
@@ -833,7 +833,7 @@ export const placeReads: Record<string, GuideItem[]> = {
         { p: "**Uji Bridge** was first built, its stone inscription says, in 646, which would make it one of Japan's oldest.[^2] Its guardian is the **Hashihime**, the Bridge Princess, who appears in classical poetry as a lonely woman waiting by the river. Later legend made her darker: a jealous woman who prayed at [Kifune Shrine](guide:place/kurama/kifune-the-water-shrine) to become a demon, and bathed in the Uji River to finish the change. A small shrine to her stands near the bridge." },
         { p: "The **Tale of Genji Museum** tells the story with models of Heian rooms, costumes and short films, and is the easiest way into a novel few people finish.[^3] The Genji walking route links the sites of the Uji chapters with stone markers." },
       ],
-      related: ["history/heian", "place/uji/by-d-in-and-the-end-of-the-law", "place/kurama/kifune-the-water-shrine"],
+      related: ["history/heian", "place/uji/byodo-in-and-the-end-of-the-law", "place/kurama/kifune-the-water-shrine"],
     },
     {
       group: "Look closer",

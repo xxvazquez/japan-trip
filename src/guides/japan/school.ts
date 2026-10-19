@@ -80,6 +80,13 @@ export const growingUp: GuideTopic = {
             { p: "The menu is planned by nutritionists and has shaped how the whole country eats (see [School lunch](guide:food-at-home/school-lunch))." },
             { h: "Teaching it abroad" },
             { p: "The model travels. After President Sisi's visit to Japan in 2016, Egypt signed an education partnership with Japan, and in September 2018 it opened **35** state primary schools built around tokkatsu: class meetings, a daily class monitor, and pupils cleaning their own rooms. Every first-year class in the country got 45 minutes of it a week.[^2]" },
+            {
+              stats: [
+                { value: "35", label: "Egyptian state schools opened on the model, 2018" },
+                { value: "45 min", label: "a week of it for every first-year class" },
+                { value: "51", label: "such schools by 2023" },
+              ],
+            },
             { p: "The cleaning was the hard sell. Parents objected that they hadn't sent their children to school to be janitors; a few years on, teachers reported children tidying up without being told. By 2023 there were 51 such schools.[^2][^3]" },
             { note: "Settled: cleaning and serving are part of the curriculum, not a cost-saving. Argued: how much adult tidiness and group-mindedness they explain, and how much comes from home, neighbourhood and work.", title: "What's known and what isn't", kind: "info" },
           ],
@@ -130,6 +137,21 @@ export const growingUp: GuideTopic = {
             { p: "Club is also where many people first learn the hierarchy that runs a Japanese office: first-years retrieve balls and bow to second-years, and a club's captain speaks for it to the teacher. People in their fifties still introduce themselves by the club they were in at fifteen." },
             { h: "Who pays for it: the teachers" },
             { p: "Clubs are run by teachers, mostly on their own time. In the OECD's 2024 teaching survey Japan's lower-secondary teachers worked **55.1 hours** a week, the longest of any country surveyed and about 14 hours above the OECD average; **5.6 hours** of it went on clubs and other activities outside lessons, against 1.7 on average.[^2] That's four hours a week less than in 2018, but still the outlier." },
+            {
+              chart: {
+                kind: "bar",
+                title: "Teachers' hours on clubs and activities",
+                unit: "hours a week, lower-secondary teachers, 2024",
+                points: [
+                  { label: "Japan", value: 5.6 },
+                  { label: "OECD average", value: 1.7 },
+                ],
+                highlight: "Japan",
+                decimals: 1,
+                source: "OECD TALIS 2024, as reported by nippon.com",
+                read: "Out of a 55.1-hour week, the longest in the survey.",
+              },
+            },
             { p: "So the clubs are leaving the school. Since 2023 weekend clubs have been handed to local sports and arts associations, and under a plan agreed in 2025 the government aims to move weekend club activity out of schools almost entirely by 2031, renamed from “transfer” to “regional expansion”, and to start on weekday clubs too.[^3] In towns with no local club to take over, that can simply mean no club." },
             photo("koshien", "A large baseball stadium with players lined up on the field for an opening ceremony", "Kōshien Stadium near Osaka, home of the national high-school baseball tournament since 1924."),
             { h: "Kōshien" },
@@ -138,6 +160,15 @@ export const growingUp: GuideTopic = {
             { h: "The heat, and the seventh inning" },
             { p: "The tournament is played in Osaka's August, increasingly dangerous for teenagers in full uniform. In 2024 it began splitting its first days into a **morning and an evening session**, leaving the field empty through the hottest hours, and in 2025 extended that to the first six days.[^4]" },
             { p: "The bigger change is still argued over. The federation has proposed shortening games to **seven innings** from around 2028, for the heat and for the volunteer teachers who coach; in its survey about **70%** of member schools were against, because fewer innings mean fewer chances for the players who aren't the stars.[^5] Kōshien is the one institution that a shrinking, heating, overworked country has to change while everyone watches." },
+            {
+              timeline: [
+                { when: "1915", text: "The first national high-school baseball tournament" },
+                { when: "1924", text: "Kōshien Stadium opens, and the tournament moves in" },
+                { when: "2024", text: "The first days split into a morning and an evening session, out of the midday heat" },
+                { when: "2025", text: "The split extended to the first six days" },
+                { when: "c. 2028", text: "Seven-inning games proposed; most member schools against" },
+              ],
+            },
           ],
           words: [
             { local: "部活", say: "bukatsu", means: "an after-school club" },
@@ -170,6 +201,13 @@ export const growingUp: GuideTopic = {
             { p: "One TV show makes the expectation into entertainment. ***Hajimete no Otsukai***, \"My First Errand\", has followed toddlers sent out alone to buy groceries since 1991,[^1] with a hidden film crew and much of the neighbourhood quietly in on it. It works as comedy and as a portrait of a community that keeps an eye on children without hovering." },
             { h: "The risk is the road" },
             { p: "The danger that worries parents isn't strangers but cars. Seven, the age of a first-year walking alone, is the age at which more people are killed or hurt on foot than any other: police figures for 2020–24 put seven-year-olds at the top of every age.[^2] A Saitama Prefecture analysis of four prefectures' data found that most of these accidents happen within a kilometre of home, between 14:00 and 18:00, on the way back from school or out to play, rather than on the supervised morning walk.[^3]" },
+            {
+              stats: [
+                { value: "7", label: "the age most often killed or hurt on foot" },
+                { value: "< 1 km", label: "from home, where most of those accidents happen" },
+                { value: "14–18 h", label: "the hours they happen, after school" },
+              ],
+            },
             { p: "That's why the morning has volunteers with flags and the afternoon has none, and why road-safety campaigns now aim at the after-school hours. Many first-years also carry a small personal alarm on the randoseru, and towns broadcast a chime over loudspeakers at about 17:00 that tells children it's time to go home." },
             { note: "Settled: children in Japan are trusted to move around alone young. Argued: how long that can last as neighbourhoods age and fewer adults are around in the daytime to keep watch.", title: "What's known and what isn't", kind: "info" },
             { h: "What to look for" },

@@ -64,12 +64,26 @@ export const trivia: GuideTopic = {
 
             { h: "Point and call" },
             { p: "Drivers and platform staff point at each signal, gauge and door and call it out loud: \"signal, green!\" It's called **shisa kanko**, pointing and calling, and dates back to steam-era drivers in the early 1900s. It looks theatrical, and it works. In a 1994 experiment by the Railway Technical Research Institute, volunteers doing a simple task made 2.38 errors per 100 actions with no technique, and 0.38 when they pointed and called — a cut of almost 85%.[^1] The method has spread to factories, building sites and hospitals." },
+            {
+              chart: {
+                kind: "bar",
+                title: "What pointing and calling does",
+                unit: "errors per 100 actions, in a simple task",
+                points: [
+                  { label: "No technique", value: 2.38 },
+                  { label: "Pointing and calling", value: 0.38 },
+                ],
+                highlight: "Pointing and calling",
+                decimals: 2,
+                source: "Railway Technical Research Institute, 1994",
+              },
+            },
 
             { h: "A tune for every platform" },
-            { p: "Instead of a buzzer, many stations play a short departure melody, the *hassha merodī*, composed to be pleasant, end before the doors close, and calm people who are running for the train. Some are local signatures. Takadanobaba in Tokyo plays the *Astro Boy* theme, because Tezuka's studio was nearby (see [How manga took shape](guide:manga/how-manga-took-shape)); Ebisu plays the march from the Yebisu beer advert." },
+            { p: "Instead of a buzzer, many stations play a short departure melody, the *hassha merodī*, composed to be pleasant, end before the doors close, and calm people who are running for the train. Some are local signatures. Takadanobaba in Tokyo plays the *Astro Boy* theme, because Tezuka's studio was nearby (see [How manga took shape](guide:manga/how-manga-took-shape)); Ebisu plays the theme from *The Third Man*, the tune of the Yebisu beer adverts." },
 
             { h: "Safety, and a kingfisher" },
-            { p: "Since the first Shinkansen ran on 1 October 1964, no passenger has been killed in a derailment or collision on the high-speed network, across billions of journeys. Its only derailment, in the 2004 Chūetsu earthquake, injured no one; the automatic train-control system is usually credited.[^2] The look of the trains comes from engineering, too. The long nose of the **500 series** was modelled on a kingfisher's beak by the engineer Nakatsu Eiji, a birdwatcher, to stop the boom that early trains made bursting out of tunnels — the bird dives into water with barely a splash." },
+            { p: "Since the first Shinkansen ran on 1 October 1964, no passenger has been killed in a derailment or collision on the high-speed network, across billions of journeys. Earthquakes have derailed trains twice with passengers aboard, in 2004 in Niigata and in 2022 in Fukushima, and no one aboard was hurt either time; the automatic train-control system and quake detectors that cut the power are usually credited.[^2][^3] The look of the trains comes from engineering, too. The long nose of the **500 series** was modelled on a kingfisher's beak by the engineer Nakatsu Eiji, a birdwatcher, to stop the boom that early trains made bursting out of tunnels — the bird dives into water with barely a splash." },
             photo("shinkansen-500", "A long-nosed silver and grey bullet train at speed under overhead wires", "The 500 series, its nose shaped after a kingfisher's beak."),
             { note: "Settled: pointing and calling measurably reduces errors, and the Shinkansen has had no passenger deaths from derailment or collision. Still argued: how much of the punctuality comes from technology and how much from the labour of staff who are held to it.", title: "What's known and what isn't", kind: "info" },
           ],
@@ -77,6 +91,7 @@ export const trivia: GuideTopic = {
           sources: [
             { title: "Point it, call it, get it right — Flight Safety Australia", url: "https://www.flightsafetyaustralia.com/2018/01/point-it-call-i", note: "The 1994 Railway Technical Research Institute experiment" },
             { title: "Safest high-speed rail network — Guinness World Records", url: "https://www.guinnessworldrecords.com/world-records/safest-high-speed-rail-network", note: "No passenger fatalities; the 2004 derailment" },
+            { title: "Japanese bullet train derails following 7.4 earthquake — International Railway Journal", url: "https://www.railjournal.com/passenger/high-speed/japanese-bullet-train-derails-following-7-4-earthquake/", note: "March 2022: 16 of 17 cars derailed near Fukushima; none of the 75 passengers or three crew hurt" },
           ],
         },
         {
@@ -155,6 +170,15 @@ export const trivia: GuideTopic = {
             { h: "Culture both ways" },
             { p: "Japan has one of the biggest Chopin followings anywhere, and Japanese pianists are fixtures of the Warsaw competition: Sorita Kyōhei shared second prize in 2021, and in 2025 Kuwahara Shiori shared fourth, her final watched live by a record audience.[^2] In the other direction, the film director Andrzej Wajda used the money from his 1987 Kyoto Prize to help found **Manggha**, the museum of Japanese art and technology in Kraków, which opened in 1994." },
             photo("manggha", "A low building with a wave-shaped roof on a grassy bank above a river", "Manggha, the centre for Japanese art and technology in Kraków, across the Vistula from Wawel."),
+            {
+              timeline: [
+                { when: "1920–22", text: "Japan brings **765** Polish children out of Siberia and home" },
+                { when: "1940", text: "Sugihara signs transit visas in Kaunas" },
+                { when: "1985", text: "Israel names him Righteous Among the Nations" },
+                { when: "1994", text: "Manggha opens in Kraków, paid for partly by Wajda's Kyoto Prize" },
+                { when: "1995–96", text: "Poland invites children orphaned by the Kobe earthquake" },
+              ],
+            },
           ],
           related: ["history/meiji-to-1945", "culture/kabuki-and-bunraku"],
           sources: [

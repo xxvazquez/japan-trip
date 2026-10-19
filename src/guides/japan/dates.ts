@@ -77,6 +77,13 @@ export const tripDates: GuideDate[] = [
     summary: "Half a kilometre of bookshelves on the pavement of Tokyo's old-book district",
     body: [
       { p: "Jimbōchō has the largest cluster of secondhand bookshops in Japan, about 130 of them, and for a week or so each autumn they move onto the street. The **Kanda Used Book Festival**, first held in 1960, coincides with the national Reading Week around Culture Day.[^1]" },
+      {
+        stats: [
+          { value: "~130", label: "secondhand bookshops in the district" },
+          { value: "~½ km", label: "of shelves on the pavement during the festival" },
+          { value: "1960", label: "the first Kanda Used Book Festival" },
+        ],
+      },
       photo("kanda-book-fair", "Racks of secondhand books on a pavement under a long red festival banner, with people browsing", "The book corridor at the Jimbōchō crossing during the 60th festival, in 2019."),
       { h: "How a book town happened" },
       { p: "In the 1880s the forerunners of half a dozen universities, Meiji, Chūō, Nihon and Senshū among them, opened around Kanda, and students meant a trade in textbooks. After a fire swept the district in 1913, a young teacher named **Iwanami Shigeo** opened a secondhand shop here; it became Iwanami Shoten, one of the country's most serious publishers, and others followed.[^2]" },
@@ -91,7 +98,7 @@ export const tripDates: GuideDate[] = [
       },
       { note: "Most stalls want cash. Prints and maps are often sold in clear sleeves you can look through; ask before pulling anything out.", title: "Buying" },
     ],
-    related: ["place/tokyo/jimb-ch-a-book-town-by-accident", "place/tokyo/tokyo-coffee-worth-the-detour"],
+    related: ["place/tokyo/jimbocho-a-book-town-by-accident", "place/tokyo/tokyo-coffee-worth-the-detour"],
     sources: [
       { title: "Kanda-Jinbōchō — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%A5%9E%E7%94%B0%E7%A5%9E%E4%BF%9D%E7%94%BA", note: "The bookshops and the Kanda Used Book Festival each autumn" },
       { title: "Iwanami Shoten — Wikipedia", url: "https://en.wikipedia.org/wiki/Iwanami_Shoten", note: "Founded in Jimbōchō in 1913 as a secondhand bookshop" },
@@ -312,6 +319,17 @@ export const tripDates: GuideDate[] = [
       { h: "Night openings" },
       { p: "The other autumn draw is the **evening illumination**, *yoru no tokubetsu haikan*. Gardens and maples are floodlit, and some temples project light onto ponds so the trees appear twice. They're a recent tradition, mostly from the last thirty years, and they've become one of the season's main events." },
       {
+        compare: {
+          a: "Special openings",
+          b: "Night illuminations",
+          rows: [
+            { label: "What", a: "Rooms, sliding-door paintings and statues kept shut the rest of the year", b: "Gardens and maples floodlit, some doubled in a pond" },
+            { label: "When", a: "A few weeks in spring and autumn, by day", b: "Autumn evenings" },
+            { label: "Ticket", a: "The opening's own entry", b: "A separate ticket from daytime entry" },
+          ],
+        },
+      },
+      {
         list: [
           "Night illuminations are a **separate ticket** from daytime entry, and the queue starts before the gates open",
           "Some interiors don't allow photographs, and staff will say so; inside a hall, a guide may explain in Japanese only",
@@ -361,6 +379,13 @@ export const tripDates: GuideDate[] = [
       photo("ginkgo-avenue", "Tall ginkgo trees in full yellow along a Tokyo street, with people taking photos", "The Gaien avenue at its peak, in the last week of November."),
       { h: "A planted perspective" },
       { p: "The **146 trees** were raised from 1908 and the avenue finished in 1923, to a plan by the landscape designer Orishimo Yoshinobu. They're not as natural as they look.[^3] The tallest stand at the Aoyama end and the trees step down in height towards the gallery, so the avenue seems longer than its 300 metres, and they're clipped into matching cones." },
+      {
+        stats: [
+          { value: "146", label: "ginkgo trees, in four rows" },
+          { value: "300 m", label: "of avenue, made to look longer" },
+          { value: "1923", label: "the avenue finished" },
+        ],
+      },
       { p: "The ginkgo is Tokyo's official tree.[^2] The green emblem the city adopted in 1989 is officially a stylised *T* for Tokyo, though almost everyone reads it as a ginkgo leaf. Across the city the street trees turn at the same time, and the pavements fill with leaves and fallen nuts (*ginnan*) from the female trees, which smell strongly and are roasted and eaten." },
       { h: "The redevelopment" },
       { p: "The avenue is at the centre of Tokyo's biggest planning row in years. A redevelopment of the Gaien sports area, approved in 2023, replaces its stadiums and adds towers, and the felling of hundreds of trees nearby drew protest, including from heritage experts and, before his death, the composer Sakamoto Ryūichi. The developers say the four rows of the avenue itself will stay; campaigners worry about the roots of trees next to the new building work.[^1]" },
@@ -450,6 +475,15 @@ export const tripDates: GuideDate[] = [
       photo("mamemaki", "Priests and guests on the veranda of a red shrine hall throwing beans to a dense crowd below", "Bean-throwing at Hakone Shrine. At big shrines the throwers are often celebrities or sumo wrestlers."),
       { h: "Not always the 3rd" },
       { p: "Setsubun falls on the day before *risshun*, the astronomical start of spring, and that drifts. In **2021** it fell on 2 February for the first time since 1897, and it did again in 2025. Calendars printed years ahead get it wrong." },
+      {
+        timeline: [
+          { when: "1897", text: "Setsubun falls on 2 February" },
+          { when: "Late 1990s", text: "Convenience stores take Osaka's **ehōmaki** nationwide" },
+          { when: "2019", text: "So many rolls are thrown away that the agriculture ministry asks shops to make fewer" },
+          { when: "2021", text: "Setsubun on 2 February again, for the first time since 1897" },
+          { when: "2025", text: "And again" },
+        ],
+      },
       { h: "Exceptions" },
       {
         list: [
