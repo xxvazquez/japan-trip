@@ -3376,6 +3376,13 @@ const rules: GuideTopic = {
           body: [
             { h: "Drones" },
             { p: "Since 2022 every drone over **100 g** flown in Japan must be registered, and carry a remote ID that broadcasts it. Flying over any densely inhabited area, near airports, above crowds, higher than 150 m or at night needs a permit from the transport ministry, and in a country this crowded, that's most of the places a visitor would fly.[^1]" },
+            {
+              stats: [
+                { value: "100 g", label: "the weight above which a drone must be registered" },
+                { value: "150 m", label: "the height above which a permit is needed anywhere" },
+                { value: "2022", label: "registration and remote ID made compulsory" },
+              ],
+            },
             { p: "A separate law bans drones of any size near the Diet, the Imperial Palace, the prime minister's residence, foreign embassies, nuclear plants and defence bases, and most parks, gardens and temples ban them in their own rules anyway." },
             { h: "Photos" },
             { p: "Photography is banned inside many temple halls, where the statues are objects of worship rather than art; the sign says 撮影禁止. In Kyoto's **Gion**, the private lanes off Hanami-kōji have signs warning of a ¥10,000 fee for photographers who stray in, after years of geiko and maiko being chased down the street." },

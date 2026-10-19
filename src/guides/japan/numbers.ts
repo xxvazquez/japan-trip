@@ -15,7 +15,7 @@ export const numbers: GuideTopic = {
   intro: {
     title: "Intro to Japan by numbers",
     body: [
-      { p: "Most of what's changing in everyday Japan runs back to one fact. There are fewer people every year, and a larger share of them are old. The country passed its peak around 2008 and has shrunk every year since 2011.[^1]" },
+      { p: "Most of what's changing in everyday Japan runs back to one fact. There are **fewer people every year**, and **a larger share of them are old**. The country passed its peak around 2008 and has shrunk every year since 2011.[^1]" },
       {
         stats: [
           { value: "122.97m", label: "people at the 2025 census" },

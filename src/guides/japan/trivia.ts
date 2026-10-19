@@ -14,7 +14,7 @@ export const trivia: GuideTopic = {
     title: "Intro to Japan's surprises",
     body: [
       { p: "The book closes with the things that don't fit a chapter but explain something anyway: objects designed in Japan that went round the world, trains run to the second, the luck hidden in numbers and puns, the oddities of the map, and an old friendship with a country on the other side of Eurasia." },
-      { p: "Each read checks its stories. Where a favourite tale turns out to be only a tale, it says so, and plenty do. The emoji really were drawn by one man for a phone company; the Shinkansen really has never killed a passenger in a crash; but KFC at Christmas began as a marketing campaign, not a misunderstanding of Western custom." },
+      { p: "Each read checks its stories. Where a favourite tale turns out to be only a tale, it says so, and **plenty do**. The emoji really were drawn by one man for a phone company; the Shinkansen really has never killed a passenger in a crash; but KFC at Christmas began as a marketing campaign, not a misunderstanding of Western custom." },
       {
         terms: [
           { term: "Design that travelled", text: "The emoji, the Washlet, the Walkman and the shop that became Uniqlo." },
