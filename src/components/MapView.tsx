@@ -13,7 +13,7 @@ import {
 import { Protocol } from "pmtiles";
 import type { FeatureCollection, Geometry, LineString, Point, Polygon } from "geojson";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { buildMapStyle, BASE_POIS_LAYER, kindLabel, labelName } from "@/lib/mapStyle";
+import { buildMapStyle, BASE_POIS_LAYER, kindLabel, labelName, landColor } from "@/lib/mapStyle";
 import { Icon } from "@/components/Icon";
 import { Loader } from "@/components/Loader";
 import { LocateControl } from "@/components/LocateControl";
@@ -240,12 +240,13 @@ function crosses(a: [number, number][], b: [number, number][], adjacent: boolean
   return false;
 }
 
-/** the trip's accent as a colour the map can paint, read from the live
- *  palette so it follows light/dark and the trip's theme */
-function accentColor(): string {
-  const v = getComputedStyle(document.documentElement).getPropertyValue("--c-accent").trim();
-  return v ? `rgb(${v.split(/\s+/).join(",")})` : FALLBACK;
+/** a palette token as a colour the map can paint, read live so it follows
+ *  light/dark and the trip's theme */
+function tokenColor(name: string, fallback: string): string {
+  const v = getComputedStyle(document.documentElement).getPropertyValue(`--c-${name}`).trim();
+  return v ? `rgb(${v.split(/\s+/).join(",")})` : fallback;
 }
+const accentColor = () => tokenColor("accent", FALLBACK);
 
 /** categories the trip wants kept on screen when zoomed out (`config.pinnedCategories`) */
 function splitPinned(places: Place[], cats: string[] | undefined): { pinned: Place[]; rest: Place[] } {
@@ -376,8 +377,11 @@ export function MapView({
     const { places: all, selectedId: s, derivedIds: di, areaShapes: sh, transit: tr, categoryIcons: ci, categoryColors: cc, pinnedCategories: pc, route: rt, dark: d } = state.current;
     const { stops, others: p, num } = splitStops(all, rt);
     const { pinned, rest } = splitPinned(p, pc);
-    const halo = d ? "#14181c" : "#f2efe8";
-    const ink = d ? "#e7ebee" : "#1a2026";
+    // names are cut out of the land they sit on, in the app's own ink; a
+    // pin's ring is the card colour, as a pin sits on Maps
+    const halo = landColor(d);
+    const ink = tokenColor("ink", d ? "#f5f5f7" : "#1a2026");
+    const ring = tokenColor("surface", d ? "#1c1c1e" : "#f9fafb");
 
     // transit overlay sits ABOVE the basemap but under our areas + pins
     for (const layer of transitLayers(d)) m.addLayer(layer);
@@ -462,7 +466,7 @@ export function MapView({
         "circle-radius": ["case", ["==", ["get", "id"], sel(s)], 10, ["get", "derived"], 6, 7.5],
         "circle-opacity": ["case", ["==", ["get", "id"], sel(s)], 1, ["get", "derived"], 0.55, 1],
         "circle-stroke-width": ["case", ["==", ["get", "id"], sel(s)], 3, 2],
-        "circle-stroke-color": d ? "#14181c" : "#fdfcf9",
+        "circle-stroke-color": ring,
         "circle-stroke-opacity": ["case", ["==", ["get", "id"], sel(s)], 1, ["get", "derived"], 0.55, 1],
       },
     });
@@ -524,7 +528,7 @@ export function MapView({
         "circle-color": ["get", "color"],
         "circle-radius": stopRadius(sel(s)) as number,
         "circle-stroke-width": 2.5,
-        "circle-stroke-color": d ? "#14181c" : "#ffffff",
+        "circle-stroke-color": ring,
       },
     });
     m.addLayer({

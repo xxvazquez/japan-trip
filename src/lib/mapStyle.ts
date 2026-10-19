@@ -122,6 +122,10 @@ function latinizeLabels<T extends { layout?: Record<string, unknown> }>(list: T[
   });
 }
 
+/** the basemap's land, which a label's halo has to match to read as a
+ *  clean cut-out rather than a box */
+export const landColor = (dark: boolean): string => (dark ? DARK : LIGHT).earth!;
+
 export function buildMapStyle(dark: boolean): StyleSpecification {
   const flavor: Flavor = { ...namedFlavor(dark ? "dark" : "light"), ...(dark ? DARK : LIGHT) };
   return {
