@@ -19,7 +19,7 @@ export const work: GuideTopic = {
       { p: "The system was built for a country with plenty of young people. It no longer has them. The working-age population, 15 to 64, peaked in 1995 at about 87 million and was under 74 million by 2023.[^1]" },
       {
         stats: [
-          { value: "87m → 74m", label: "people aged 15–64, 1995 to 2023" },
+          { value: "−13m", label: "people aged 15–64, from 87m in 1995 to 74m in 2023" },
           { value: "2.57m", label: "foreign workers, October 2025, a record" },
           { value: "36.5%", label: "of employees on non-regular contracts, 2025" },
         ],

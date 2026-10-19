@@ -29,7 +29,7 @@ const base: { cities: GuideCity[] } = {
             {
               stats: [
                 { value: "55", label: "Inō's age when he began his survey" },
-                { value: "~35,000 km", label: "walked over 17 years" },
+                { value: "35,000", label: "km walked, roughly, over 17 years" },
                 { value: "1821", label: "the finished map presented to the shogunate" },
               ],
             },
@@ -788,7 +788,7 @@ const base: { cities: GuideCity[] } = {
             {
               stats: [
                 { value: "8:15", label: "the moment of the explosion" },
-                { value: "~140,000", label: "dead by the end of 1945" },
+                { value: "140,000", label: "dead by the end of 1945, by the city's estimate" },
                 { value: "2 km", label: "radius of almost total destruction" },
               ],
             },
@@ -2721,9 +2721,9 @@ const base: { cities: GuideCity[] } = {
             { p: "Bark is taken from living trees in a way that lets it grow back, and each sheet's finish — left speckled and natural, or polished to a sheen — is chosen by the maker." },
             {
               stats: [
-                { value: "Late 1700s", label: "when the craft reached Kakunodate's samurai" },
+                { value: "1780s", label: "when the craft reached Kakunodate's samurai" },
                 { value: "1976", label: "named a national traditional craft" },
-                { value: "Yamazakura", label: "the wild mountain cherry the bark comes from" },
+                { value: "1978", label: "the craft museum opens on the samurai street" },
               ],
             },
             { note: "The **Kakunodate Kabazaiku Denshōkan**, on the samurai street, has a museum of old pieces and craftsmen working on site. Real pieces aren't cheap: a tea caddy costs about what good tea ware does.", title: "Seeing it" },
@@ -3643,7 +3643,7 @@ const gettingAround: GuideTopic = {
             {
               stats: [
                 { value: "¥50,000", label: "a 7-day ordinary pass since October 2023" },
-                { value: "~¥30,000", label: "single fares for Tokyo – Kyoto – Osaka – Tokyo by Nozomi" },
+                { value: "¥30,000", label: "roughly, in single fares for Tokyo – Kyoto – Osaka – Tokyo by Nozomi" },
                 { value: "+¥4,960", label: "to ride a Nozomi on the pass, Tokyo to Shin-Osaka" },
               ],
             },

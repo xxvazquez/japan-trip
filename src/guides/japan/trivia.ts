@@ -115,7 +115,7 @@ export const trivia: GuideTopic = {
             {
               stats: [
                 { value: "14,125", label: "islands at the 2023 count, up from 6,852" },
-                { value: "50 / 60 Hz", label: "the east's grid and the west's" },
+                { value: "50/60", label: "hertz: the east's grid and the west's" },
                 { value: "3,776 m", label: "Fuji's summit, owned by a shrine" },
               ],
             },

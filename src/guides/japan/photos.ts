@@ -358,7 +358,7 @@ const PHOTOS = {
   "kanda-book-fair": { w: 900, h: 582, author: "みそがい", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Kanda_furuhon_matsuri_2019(60th).jpg" },
   "shibuya-halloween": { w: 900, h: 600, author: "Dick Thomas Johnson from Tokyo, Japan", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:%E8%AD%A6%E8%A6%96%E5%BA%81_%E6%A9%9F%E5%8B%95%E9%9A%8A_(October_31)_(44223548490).jpg" },
   "kodaiji-lightup": { w: 675, h: 900, author: "lumoplank", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Kodai-ji,_Kyoto_-_Kodaiji7304.jpg" },
-  "order-of-culture": { w: 900, h: 691, author: "Government of Japan", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Cabinet_Order_of_Order_of_Culture.jpg" },
+  "fuji-from-tokyo": { w: 900, h: 596, author: "Tomi Mäkitalo", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Mt._Fuji_from_Tokyo_Tower_-_panoramio.jpg" },
   "takayama-yatai-hall": { w: 675, h: 900, author: "Mti", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Takayama_festival_Yatai_Kaikan_No,7.JPG" },
   "shichigosan-shrine": { w: 900, h: 757, author: "AshleyBrownPix", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Childrens_753_Celebration_%E4%B8%83%E4%BA%94%E4%B8%89%E3%81%AE%E3%81%8A%E7%A5%9D%E3%81%84_20.jpg" },
   "mashiko-fair": { w: 900, h: 675, author: "FukuroWaraw", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:2023%E5%B9%B4%EF%BC%88%E4%BB%A4%E5%92%8C5%E5%B9%B4%EF%BC%89%E6%98%A5%E3%81%AE%E7%9B%8A%E5%AD%90%E9%99%B6%E5%99%A8%E5%B8%82%E3%83%86%E3%83%B3%E3%83%88%E6%9D%91%E3%80%8C%E3%81%8B%E3%81%BE%E3%81%90%E3%82%8C%E3%81%AE%E4%B8%98%E3%80%8D.jpg" },

@@ -90,7 +90,7 @@ export const land: GuideTopic = {
               stats: [
                 { value: "812", label: "first record of Kyoto's peak bloom" },
                 { value: "26 Mar", label: "earliest peak in that record, in 2021" },
-                { value: "−1.2 days", label: "earlier each decade since 1953, nationally" },
+                { value: "−1.2", label: "days earlier each decade since 1953, nationally" },
               ],
             },
             { p: "Kyoto's record is one of the longest series of nature observations anywhere. The climatologist Aono Yasuyuki rebuilt it from court diaries and chronicles back to 812. Peak bloom drifted from mid-April towards early April from about 1800, and in 2021 it fell on 26 March, the earliest in the record.[^2] The agency's own national series shows cherries opening 1.2 days earlier per decade since 1953.[^6]" },

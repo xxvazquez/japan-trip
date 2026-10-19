@@ -219,6 +219,7 @@ export const tripDates: GuideDate[] = [
     from: "11-03", to: "11-03", when: "3 November", title: "Culture Day",
     summary: "A national holiday that began as an emperor's birthday, and a famously clear day",
     body: [
+      photo("fuji-from-tokyo", "Mount Fuji silhouetted at sunset beyond the towers of western Tokyo", "Fuji from Tokyo Tower at dusk. On the clear days of late autumn it shows from the city, about 100 km away."),
       { p: "3 November has been a holiday under three names. It was the **Meiji Emperor's birthday**, kept as a holiday while he reigned; from 1927 it was **Meiji Day**, in his memory. In 1946 the new constitution was promulgated on that date, and in 1948 the day became **Culture Day**, for freedom, peace and culture.[^1]" },
       {
         compare: {
@@ -236,7 +237,6 @@ export const tripDates: GuideDate[] = [
       { p: "Not everyone has accepted the change of name: a campaign, backed by some ruling-party politicians, wants it called **Meiji Day** again. For most people it's simply a day off in the best weeks of autumn." },
       { h: "The day's honours" },
       { p: "At the palace the emperor presents the **Order of Culture** to a handful of scientists, writers and artists each year. Its badge is the flower of the *tachibana*, an evergreen wild citrus. The first design used the cherry blossom, but the cherry had long stood for martial valour, and the tachibana was chosen for an order about culture; Emperor Shōwa, asked about it decades later, said culture needed to be long-lived.[^2][^3]" },
-      photo("order-of-culture", "A line drawing of a five-petalled flower badge hung from a spray of leaves and fruit, front and back", "The Order of Culture as drawn in its founding decree of 1937: a tachibana blossom."),
       {
         list: [
           "**Weather**: it's one of the days statistically most likely to be fine, a “singular day” of the Japanese calendar",

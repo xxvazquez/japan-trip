@@ -1201,12 +1201,13 @@ function BodyBlock({ block: b, first }: { block: GuideBody; first: boolean }) {
   }
   if ("stats" in b) {
     // key numbers side by side, as Fitness sets its summary: a big figure
-    // over a short label, columns split by hairlines, no box around them
+    // over a short label, columns split by hairlines, no box around them.
+    // A figure never wraps; three across step down a size on a small phone
     return (
       <div className={`grid border-y border-line py-3 ${b.stats.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
         {b.stats.map((st, i) => (
           <div key={st.label} className={`min-w-0 px-3 first:pl-0 ${i ? "border-l border-line" : ""}`}>
-            <p className="break-words text-[24px] font-medium leading-tight tracking-[-0.01em] tabular-nums text-ink">{st.value}</p>
+            <p className={`whitespace-nowrap font-medium leading-tight tracking-[-0.01em] tabular-nums text-ink ${b.stats.length === 2 ? "text-[24px]" : "text-[20px] min-[420px]:text-[24px]"}`}>{st.value}</p>
             <p className="mt-0.5 break-words text-[13px] leading-snug text-ink-soft">{st.label}</p>
           </div>
         ))}
