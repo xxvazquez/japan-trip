@@ -849,7 +849,7 @@ function ArticlePage({
             <Section>
               <ul>
                 {a.words.map((w) => (
-                  <li key={w.local} className={`${INSET_DIVIDER} px-3.5 py-3`}>
+                  <li key={`${w.local} ${w.say ?? ""}`} className={`${INSET_DIVIDER} px-3.5 py-3`}>
                     <span className="flex flex-wrap items-baseline gap-x-2">
                       <span className="font-jp text-[17px] text-ink">{w.local}</span>
                       {w.say && <span className="text-[15px] italic text-ink-soft">{w.say}</span>}
