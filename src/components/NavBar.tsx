@@ -177,14 +177,24 @@ export function NavLeft() {
   const word = back ? backLabel(canGoBack ? nav?.backTitle : undefined, to, back.label) : "";
   // a name that would break onto a second line in the capsule gives way to
   // plain "Back", the way UIKit shortens a back title that doesn't fit
+  // It's checked again whenever the room changes (the page's actions arrive
+  // in the bar a moment later, a phone turns), never while the word is
+  // hidden for a crowded bar, where it would always look too wide.
+  const crowded = !!nav?.state.subtitle && nav.state.collapsed;
   const label = useRef<HTMLSpanElement>(null);
   const [tight, setTight] = useState<string>();
   useLayoutEffect(() => {
     const el = label.current;
-    if (el && word !== "Back" && el.scrollWidth > el.clientWidth + 1) setTight(word);
-  }, [word]);
+    if (!el || word === "Back" || crowded) return;
+    const check = () => {
+      if (el.scrollWidth > el.clientWidth + 1) setTight(word);
+    };
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [word, crowded]);
   if (!back) return <TripSwitcher />;
-  const crowded = !!nav?.state.subtitle && nav.state.collapsed;
   return (
     // iOS 26 glass capsule — the chevron plus where it goes back to, kept as a
     // word so it's always clear which screen you're leaving for
