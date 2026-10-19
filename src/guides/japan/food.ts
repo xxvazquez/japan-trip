@@ -93,17 +93,16 @@ export const howFoodWorks: GuideTopic = {
 
             { p: "Most Japanese cooking starts with **dashi**, a stock made in minutes from dried **kombu** kelp and shaved **katsuobushi** — smoked, dried, fermented bonito. It takes less time than a pot of rice, and it seasons soups, simmered dishes, noodle broths and sauces." },
             { h: "The fifth taste" },
-            { p: "In 1908 the chemist Ikeda Kikunae found the source of kombu's savouriness, glutamate, and named the taste **umami**. The next year it went on sale as a seasoning, Ajinomoto.[^1][^2]" },
-            { p: "Ikeda's student Kodama Shintarō found the bonito's own umami compound, **inosinate**, in 1913; a researcher at the soy-sauce maker Yamasa found the shiitake's, **guanylate**, in 1957. Mixed half and half, glutamate and inosinate taste **seven to eight times** as strong as either alone.[^2]" },
+            { p: "The savouriness dashi is built on was named by a Japanese chemist, and the three compounds behind it were all found in the three things Japanese stock is made from.[^1][^2]" },
             {
               timeline: [
-                { when: "1908", text: "Ikeda Kikunae finds **glutamate** in kombu and names the taste umami" },
+                { when: "1908", text: "Ikeda Kikunae finds **glutamate** in kombu and names the taste **umami**[^1]" },
                 { when: "1909", text: "It goes on sale as a seasoning, Ajinomoto" },
-                { when: "1913", text: "Kodama Shintarō finds **inosinate** in bonito flakes" },
-                { when: "1957", text: "A Yamasa researcher finds **guanylate** in shiitake" },
+                { when: "1913", text: "Kodama Shintarō finds **inosinate** in bonito flakes[^2]" },
+                { when: "1957", text: "A Yamasa researcher finds **guanylate** in shiitake[^2]" },
               ],
             },
-            { p: "That synergy is the logic of much Japanese food, worked out by cooks centuries before anyone measured it: kombu with bonito, kombu with dried sardines, kombu with shiitake for a temple kitchen that uses no fish." },
+            { p: "Mixed half and half, glutamate and inosinate taste **seven to eight times** as strong as either alone.[^2] That synergy is the logic of much Japanese food, worked out by cooks centuries before anyone measured it: kombu with bonito, kombu with dried sardines, kombu with shiitake for a temple kitchen that uses no fish." },
             { h: "Five minutes, not five hours" },
             { p: "A European stock simmers bones for hours to pull out gelatin and body. Dashi does the opposite. Kombu is soaked or brought just short of the boil and lifted out before it turns slimy and bitter; bonito flakes go in off the heat and are strained after a minute or two. **Ichiban dashi**, first dashi, is clear and fragrant, for clear soups. The used kombu and flakes are simmered again for **niban dashi**, second dashi, for miso soup and simmered dishes." },
             { p: "Most homes now use neither. Granules (*dashi no moto*) and tea-bag-style dashi packs are the everyday stock, and a bottle of *mentsuyu*, noodle sauce already made with dashi, soy and mirin, does much of a weeknight's seasoning." },

@@ -92,6 +92,24 @@ describe("guide cross-references", () => {
       expect(run).toEqual([]);
     });
 
+    it(`${id}: a timeline adds to its text, never restates the paragraph beside it`, () => {
+      // every date of a timeline already in the paragraph next to it is the
+      // same thing said twice; the prose keeps the why, the timeline the when
+      const twice: string[] = [];
+      for (const e of entries) {
+        const body = e.article.body ?? [];
+        body.forEach((b, i) => {
+          if (!("timeline" in b)) return;
+          const years = b.timeline.map((t) => t.when.match(/\d{3,4}/)?.[0]).filter((y): y is string => !!y);
+          if (years.length < 3) return;
+          for (const n of [body[i - 1], body[i - 2], body[i + 1]]) {
+            if (n && "p" in n && years.every((y) => n.p.includes(y))) twice.push(e.title);
+          }
+        });
+      }
+      expect(twice).toEqual([]);
+    });
+
     it(`${id}: no photo appears twice`, () => {
       const seen = new Map<string, number>();
       for (const m of JSON.stringify(guide).matchAll(/"src":"([^"]+)"/g)) seen.set(m[1], (seen.get(m[1]) ?? 0) + 1);

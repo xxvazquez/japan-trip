@@ -171,15 +171,6 @@ export const trivia: GuideTopic = {
             { h: "Culture both ways" },
             { p: "Japan has one of the biggest Chopin followings anywhere, and Japanese pianists are fixtures of the Warsaw competition: Sorita Kyōhei shared second prize in 2021, and in 2025 Kuwahara Shiori shared fourth, her final watched live by a record audience.[^2] In the other direction, the film director Andrzej Wajda used the money from his 1987 Kyoto Prize to help found **Manggha**, the museum of Japanese art and technology in Kraków, which opened in 1994." },
             photo("manggha", "A low building with a wave-shaped roof on a grassy bank above a river", "Manggha, the centre for Japanese art and technology in Kraków, across the Vistula from Wawel."),
-            {
-              timeline: [
-                { when: "1920–22", text: "Japan brings **765** Polish children out of Siberia and home" },
-                { when: "1940", text: "Sugihara signs transit visas in Kaunas" },
-                { when: "1985", text: "Israel names him Righteous Among the Nations" },
-                { when: "1994", text: "Manggha opens in Kraków, paid for partly by Wajda's Kyoto Prize" },
-                { when: "1995–96", text: "Poland invites children orphaned by the Kobe earthquake" },
-              ],
-            },
           ],
           related: ["history/meiji-to-1945", "culture/kabuki-and-bunraku"],
           sources: [

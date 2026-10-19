@@ -467,15 +467,6 @@ export const tripDates: GuideDate[] = [
       photo("mamemaki", "Priests and guests on the veranda of a red shrine hall throwing beans to a dense crowd below", "Bean-throwing at Hakone Shrine. At big shrines the throwers are often celebrities or sumo wrestlers."),
       { h: "Not always the 3rd" },
       { p: "Setsubun falls on the day before *risshun*, the astronomical start of spring, and that drifts. In **2021** it fell on 2 February for the first time since 1897, and it did again in 2025. Calendars printed years ahead get it wrong." },
-      {
-        timeline: [
-          { when: "1897", text: "Setsubun falls on 2 February" },
-          { when: "Late 1990s", text: "Convenience stores take Osaka's **ehōmaki** nationwide" },
-          { when: "2019", text: "So many rolls are thrown away that the agriculture ministry asks shops to make fewer" },
-          { when: "2021", text: "Setsubun on 2 February again, for the first time since 1897" },
-          { when: "2025", text: "And again" },
-        ],
-      },
       { h: "Exceptions" },
       {
         list: [

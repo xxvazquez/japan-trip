@@ -2148,7 +2148,7 @@ const base: { cities: GuideCity[] } = {
           title: "Kusama's home town",
           summary: "Yayoi Kusama was born here in 1929, painted here as a girl, and left; the city's museum holds her",
           body: [
-            { p: "**Yayoi Kusama**, the artist of polka dots and infinity rooms, was born in Matsumoto in **1929** to a family of plant nurserymen, and grew up drawing obsessively in the fields of the seed farm. She had her first solo show in 1952 in the town's public hall, left for New York in 1957, and became one of the most famous artists in the world. She died in August **2026**, at 97.[^1]" },
+            { p: "**Yayoi Kusama**, the artist of polka dots and infinity rooms, grew up here drawing obsessively in the fields of her family's seed farm, and showed her work first in the town's public hall before leaving for New York and becoming one of the most famous artists in the world.[^1]" },
             {
               timeline: [
                 { when: "1929", text: "Born in Matsumoto, to a family of plant nurserymen" },

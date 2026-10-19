@@ -216,7 +216,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       summary: "A fish market that moved, the market that didn't, and Tokyo's runniest dish",
       body: [
         photo("tsukiji-outer", "A stall of shellfish and fish with handwritten price tags", "A stall in Tsukiji's outer market."),
-        { p: "For 83 years Tokyo's fish came through **Tsukiji**, opened in 1935 after the 1923 earthquake destroyed the old market at Nihonbashi. Its move to **Toyosu**, on reclaimed land across the bay, was planned for 2016 and stalled: the site had been a gas works, and tests found benzene in its groundwater far above legal limits. After more clean-up the new market opened in October 2018.[^1]" },
+        { p: "For 83 years Tokyo's fish came through **Tsukiji**. Its move to **Toyosu**, on reclaimed land across the bay, stalled when tests found benzene in the groundwater of the old gas-works site far above legal limits, and the new market opened only after more clean-up.[^1]" },
         {
           timeline: [
             { when: "1923", text: "The earthquake destroys the old fish market at Nihonbashi" },

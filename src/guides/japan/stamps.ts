@@ -79,7 +79,7 @@ export const stamps: GuideTopic = {
             photo("eki-stamp", "A small stamp desk below a poster of Tokyo Station's stamp design", "The stamp desk at Tokyo Station."),
 
             { h: "Stamps for travellers" },
-            { p: "The first station stamp is usually credited to Fukui Station in 1931. They took off after October 1970, when Japanese National Railways launched **Discover Japan**, a campaign to keep the travel habit of the Osaka Expo going, and new stamps were placed at stations to be collected along the network.[^1] Since then the idea has spread to **stamp rallies**: a set to collect across a railway line, a city or a series of anime locations, sometimes for a prize. The **100 Fine Castles of Japan** has had its own stamp book since 2007, and a second hundred since 2018.[^2]" },
+            { p: "Station stamps go back to the 1930s, but they took off with **Discover Japan**, the national railway's campaign to keep the travel habit of the Osaka Expo going, which placed new stamps along the network to be collected.[^1] The idea has since spread to **stamp rallies**: a set to collect across a railway line, a city or a series of anime locations, sometimes for a prize. Castles have stamp books of their own.[^2]" },
             {
               timeline: [
                 { when: "1931", text: "Fukui Station's stamp, usually counted the first" },

@@ -161,15 +161,6 @@ export const growingUp: GuideTopic = {
             { h: "The heat, and the seventh inning" },
             { p: "The tournament is played in Osaka's August, increasingly dangerous for teenagers in full uniform. In 2024 it began splitting its first days into a **morning and an evening session**, leaving the field empty through the hottest hours, and in 2025 extended that to the first six days.[^4]" },
             { p: "The bigger change is still argued over. The federation has proposed shortening games to **seven innings** from around 2028, for the heat and for the volunteer teachers who coach; in its survey about **70%** of member schools were against, because fewer innings mean fewer chances for the players who aren't the stars.[^5] Kōshien is the one institution that a shrinking, heating, overworked country has to change while everyone watches." },
-            {
-              timeline: [
-                { when: "1915", text: "The first national high-school baseball tournament" },
-                { when: "1924", text: "Kōshien Stadium opens, and the tournament moves in" },
-                { when: "2024", text: "The first days split into a morning and an evening session, out of the midday heat" },
-                { when: "2025", text: "The split extended to the first six days" },
-                { when: "c. 2028", text: "Seven-inning games proposed; most member schools against" },
-              ],
-            },
           ],
           words: [
             { local: "部活", say: "bukatsu", means: "an after-school club" },

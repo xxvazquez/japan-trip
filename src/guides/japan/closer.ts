@@ -51,13 +51,6 @@ export const closer: GuideTopic = {
             { p: "The usual explanation is the **1995 sarin gas attack** on the Tokyo subway, after which stations removed bins as places to hide things. It's only part of the story." },
             { p: "Many bins came back, and went again after the Madrid and London train bombings of 2004 and 2005 and before summits and the Olympics. Railways and towns were also glad to save the cost of emptying them, and of cleaning up after the crows.[^1] Meanwhile people got used to carrying rubbish home, a habit school had already taught them (see [Cleaning and lunch](guide:growing-up/cleaning-and-lunch))." },
             { p: "The few bins left are by vending machines, for bottles and cans only, and inside konbini, for what you bought there." },
-            {
-              timeline: [
-                { when: "1995", text: "The sarin attack on the Tokyo subway; stations take their bins away" },
-                { when: "2004–05", text: "After the Madrid and London train bombings, returned bins go again" },
-                { when: "Later", text: "Summits and the Olympics clear more; railways are glad to save the cost of emptying them" },
-              ],
-            },
             { h: "Sorting it" },
             { p: "Sorting is serious because Japan **burns** about three-quarters of its household rubbish, in nearly a thousand municipal incinerators, rather than burying it: it has little spare land.[^2] That's why burnable, non-burnable, PET bottles and cans go separately, and why bottles have their labels and caps taken off. Rules differ by town, and each publishes its own calendar of collection days." },
             { stats: [{ value: "~¾", label: "of household rubbish burned, not buried" }, { value: "1,004", label: "municipal incinerators, 2023" }, { value: "19.5%", label: "recycled" }] },
@@ -120,7 +113,7 @@ export const closer: GuideTopic = {
             { h: "Why “Ginza”" },
             { p: "The name itself means **silver mint**: the shogunate's mint moved here from Sunpu in 1612, and the name stayed after the mint moved on in 1800. What made it famous was a fire. In 1872 a blaze burned the district from Marunouchi to Kyōbashi, and the new Meiji government rebuilt it as a showcase: a brick town with arcades, gas lamps and pavements, designed by the Irish-born engineer **Thomas Waters** and finished in 1877.[^3]" },
             { p: "Shopkeepers began using the arcades as display windows, and strolling past them got its own word, *Ginbura*, “loafing about Ginza”.[^3] The district became the word for modern, Western and smart, and every town wanted one." },
-            { p: "Many shopping streets are called \"something-Ginza\" in its honour. After the 1923 earthquake, a street in Togoshi took the rubble bricks of Ginza to pave its own road, and borrowed the name too: Togoshi Ginza, now one of the longest shopping streets in Tokyo at about 1.3 km, with some 400 shops.[^1]" },
+            { p: "Many shopping streets are called \"something-Ginza\" in its honour. Togoshi's is the best known: paved with Ginza's own bricks, it's now one of the longest shopping streets in Tokyo at about 1.3 km, with some 400 shops.[^1]" },
             { p: "More than 300 \"Ginzas\" are said to exist around the country, though nobody has made an official count." },
           ],
           related: ["look-closer/railways-built-the-cities", "food-at-home/bought-not-cooked"],
