@@ -155,6 +155,7 @@ export const land: GuideTopic = {
                 body: [
                   { p: "In East Asia and eastern North America the mountain ranges run north–south, so red-leaved trees, and the insects that shaped them, could retreat south during the ice ages and return. Europe's east–west Alps blocked that retreat, and many lineages died out." },
                   { p: "By one count East Asia has about **152** tree species with red autumn leaves, and all of Europe **24**. The explanation is a hypothesis, not a settled finding.[^3]" },
+                  { p: "It's a neat test of the signal idea too. If red warns insects off, then where the insects that read the warning died out with the ice, trees would gain nothing by making red, and Europe's woods would turn yellow, which is broadly what they do. Japan, with its north–south island arc and no ice sheet, kept both the trees and their insects." },
                 ],
               },
             },

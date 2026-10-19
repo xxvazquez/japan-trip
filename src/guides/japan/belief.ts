@@ -17,8 +17,8 @@ export const belief: GuideTopic = {
   intro: {
     title: "Intro to belief and philosophy",
     body: [
-      { p: "Most people in Japan say they have no religion, and most of them go to a shrine at New Year and bury their dead with Buddhist rites. That isn't a contradiction so much as a history." },
-      { p: "Two traditions arrived at different times, spent a thousand years as one system, and were pulled apart by the state in a single decade. The older of them is older than writing: offerings on the island of Okinoshima go back to the late 4th century.[^2]" },
+      { p: "Most people in Japan say they have no religion, and most of them go to a shrine at New Year and bury their dead with Buddhist rites. That isn't a contradiction so much as **a history**." },
+      { p: "Two traditions arrived at different times, **spent a thousand years as one system**, and were pulled apart by the state in a single decade. The older of them is older than writing: offerings on the island of Okinoshima go back to the late 4th century.[^2]" },
       {
         eras: {
           title: "Kami and buddhas over time",
@@ -342,7 +342,8 @@ export const belief: GuideTopic = {
                 title: "Who made the word mean what it does",
                 body: [
                   { p: "Jason Ananda Josephson stresses Western diplomatic pressure: Japan needed a category called religion to negotiate over religious freedom. Hans Martin Krämer points out that Buddhist writers were reshaping the idea for their own purposes from the very start of Meiji.[^3]" },
-                  { p: "Both agree on the outcome. Ask instead whether people visit a shrine at New Year or keep a family altar, and the answers change." },
+                  { p: "The category had consequences straight away. The 1889 constitution granted freedom of religion, within limits of peace and order and the duties of subjects, and the state then declared its own shrine rites **not a religion** but a civic duty. A Christian or Buddhist could worship freely, and still be expected to bow at the shrine. The postwar separation of religion and state was written to undo exactly that." },
+                  { p: "Both historians agree on the outcome. Ask instead whether people visit a shrine at New Year or keep a family altar, and the answers change." },
                 ],
               },
             },

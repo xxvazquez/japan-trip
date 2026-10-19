@@ -250,6 +250,7 @@ export const language: GuideTopic = {
                 title: "Is Japanese related to Korean?",
                 body: [
                   { p: "Japanese and Korean share a strikingly similar grammar but very little basic vocabulary that can be traced to a common source. Similar grammar alone can come from centuries of contact." },
+                  { p: "The numbers show the problem. Related languages usually keep their counting words: English *three*, German *drei*, Latin *trēs*. Japanese *hitotsu, futatsu, mittsu* and Korean *hana, dul, set* share nothing. Yet a handful of place names recorded in the old kingdom of **Goguryeo** seem to use number words close to Japanese *mi* (three), *itsu* (five) and *nana* (seven), the main evidence that a Japonic language was once spoken on the peninsula, and later replaced." },
                   { p: "In 2021 a team led by Martine Robbeets argued in *Nature* that Japanese, Korean, Tungusic, Mongolic and Turkic share an ancestor spoken by millet farmers in north-east China about 9,000 years ago.[^4] Many historical linguists reject the \"Transeurasian\" family it relies on." },
                 ],
               },

@@ -17,7 +17,7 @@ export const history: GuideTopic = {
   intro: {
     title: "Intro to Japanese history",
     body: [
-      { p: "Japanese history is usually told in eras named after the seat of power — Nara, Heian, Kamakura, Edo — and the names make the periods sound alike. They aren't. People made pottery on these islands for more than ten thousand years before anyone wrote anything down. Everything from the first Buddhist temples to the bullet train fits into the last fifteen hundred." },
+      { p: "Japanese history is usually told in eras named after the seat of power — Nara, Heian, Kamakura, Edo — and the names make the periods sound alike. **They aren't.** People made pottery on these islands for more than ten thousand years before anyone wrote anything down. Everything from the first Buddhist temples to the bullet train fits into the last fifteen hundred." },
       {
         eras: {
           title: "Deep time",
@@ -31,7 +31,7 @@ export const history: GuideTopic = {
           source: "Period dates as taught today; the Yayoi start follows the National Museum of Japanese History's radiocarbon dating",
         },
       },
-      { p: "Once writing arrives, the eras become a story of where power sat: with a court that copied China, with regents who married into the imperial line, with warrior governments that ruled beside the throne for almost seven hundred years, and finally with a modern state that kept the emperor and changed almost everything else." },
+      { p: "Once writing arrives, the eras become a story of where power sat: with a court that copied China, with regents who married into the imperial line, with **warrior governments that ruled beside the throne for almost seven hundred years**, and finally with a modern state that kept the emperor and changed almost everything else." },
       {
         eras: {
           title: "Recorded history",
