@@ -16,6 +16,7 @@ import { useReadOnly } from "@/lib/readonly";
 import { fmtDate, plural } from "@/lib/dates";
 import { LEG_COLORS, legHex, type LegColorId } from "@/lib/legColors";
 import type { Day as DayT, Leg as LegT } from "@/core/types";
+import { newId } from "@/lib/ids";
 
 /** the stay picker's "make a new one" choice — never a real id */
 const NEW_STAY = "__new_stay";
@@ -115,7 +116,7 @@ export default function Leg() {
                     const v = e.target.value;
                     if (v === NEW_STAY) {
                       // a stay of its own, named after the base, ready to fill in on its page
-                      const hid = crypto.randomUUID?.() ?? `hotel-${Math.random().toString(36).slice(2, 8)}`;
+                      const hid = newId();
                       addEntity("hotels", { id: hid, name: leg.base } as never);
                       setStay(hid);
                     } else if (v) setStay(v);

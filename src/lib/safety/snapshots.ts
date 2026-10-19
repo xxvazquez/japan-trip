@@ -4,6 +4,7 @@ import { SCHEMA_VERSION } from "../hydrate";
 import { StorageError, SaveBlockedError } from "./errors";
 import { hashOf, tripStats, validateTrip, describeProblems, type TripStats } from "./validate";
 import type { TripData } from "@/core/types";
+import { shortId } from "@/lib/ids";
 
 /**
  * Restore points. A snapshot is a complete, validated, checksummed copy of one
@@ -66,7 +67,6 @@ export const LIMITS = {
 const KEY_RE = /^snap:(.+):(\d{13}):([ae]):([a-z0-9]+)$/;
 const snapKey = (tripId: string, ts: number, cls: "a" | "e", rand: string) =>
   `snap:${tripId}:${String(ts).padStart(13, "0")}:${cls}:${rand}`;
-const rid = () => Math.random().toString(36).slice(2, 10);
 // a delete's restore point rotates with the automatic ones, so a run of small
 // deletes can't push out the rare event points (before an update, a crash…)
 const classOf = (reason: string): "a" | "e" => (reason === "auto" || reason.startsWith("deleted:") ? "a" : "e");
@@ -149,7 +149,7 @@ export async function takeDeviceSnapshot(
     stats: tripStats(data),
     hash,
   };
-  const key = snapKey(tripId, now, cls, rid());
+  const key = snapKey(tripId, now, cls, shortId());
   meta.id = key;
   const env: Envelope = { format: 1, ...meta, data: structuredClone(data) };
 

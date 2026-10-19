@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { Component, useEffect, type ReactNode } from "react";
 import { useRouteError } from "react-router-dom";
 import { APP_NAME } from "@/lib/app";
 import { useIsDark } from "@/lib/mode";
@@ -43,7 +43,6 @@ function noteReload(spent: number) {
  *  screen instead of a blank page. */
 export default function RouteError() {
   const error = useRouteError();
-  const dark = useIsDark();
   const chunkError = isChunkLoadError(error);
   const spent = chunkError ? reloadsSpent() : MAX_RELOADS;
   const willReload = chunkError && spent < MAX_RELOADS;
@@ -62,6 +61,12 @@ export default function RouteError() {
 
   if (willReload) return <BootScreen label="Loading" />;
 
+  return <ErrorScreen />;
+}
+
+/** the plain "Something went wrong" screen with a Reload button */
+function ErrorScreen() {
+  const dark = useIsDark();
   return (
     <div className="grid min-h-dvh place-items-center px-6">
       <div className="w-full max-w-sm text-center">
@@ -76,4 +81,30 @@ export default function RouteError() {
       </div>
     </div>
   );
+}
+
+/** The last line of defence around the whole app, for an error outside any
+ *  page (the boot, sign-in or recovery screens, the theme) that the
+ *  router's own error page can't catch — the same screen instead of a blank
+ *  white one. A failed chunk is retried the way a page's is. */
+export class AppErrorBoundary extends Component<{ children: ReactNode }, { error: unknown }> {
+  state: { error: unknown } = { error: null };
+  static getDerivedStateFromError(error: unknown) {
+    return { error };
+  }
+  componentDidCatch() {
+    flushPendingNow();
+    if (isChunkLoadError(this.state.error) && reloadsSpent() < MAX_RELOADS) {
+      const spent = reloadsSpent();
+      setTimeout(() => {
+        noteReload(spent);
+        window.location.reload();
+      }, RELOAD_DELAY_MS);
+    }
+  }
+  render() {
+    if (!this.state.error) return this.props.children;
+    if (isChunkLoadError(this.state.error) && reloadsSpent() < MAX_RELOADS) return <BootScreen label="Loading" />;
+    return <ErrorScreen />;
+  }
 }

@@ -1,7 +1,6 @@
 import type { TripData } from "@/core/types";
+import { newId } from "@/lib/ids";
 
-const uid = () =>
-  typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `id-${Math.random().toString(36).slice(2)}-${Date.now().toString(36)}`;
 
 /**
  * Give every entity a fresh globally-unique id and rewrite all cross-references.
@@ -13,7 +12,7 @@ export function remapIds(data: TripData): TripData {
   const map = new Map<string, string>();
   const fresh = (old?: string) => {
     if (!old) return old;
-    if (!map.has(old)) map.set(old, uid());
+    if (!map.has(old)) map.set(old, newId());
     return map.get(old)!;
   };
 

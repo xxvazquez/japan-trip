@@ -838,6 +838,7 @@ Once the app has loaded, it works with no signal. See [Before you travel](#befor
 | **Edits** | Queued on the device and sent when you're back. The app then re-pulls the trip to pick up your companion's changes. |
 | **Signing in** | You stay signed in, even after days away. The app opens straight away from the device copy and the login renews itself once you're back. |
 | **Weak signal** | If the server hasn't answered in 5 seconds, the app opens the device copy and updates once it gets through. |
+| **Wifi with no internet** (a plane, an unpaid hotel) | Weather, time-zone and walking-time lookups give up after a few seconds and show what's saved. An app update that can't finish carries on out of sight instead of leaving *Updating…* on screen. |
 | **Maps** | Areas you've viewed are kept. Save more ahead from a day's **Download offline maps** (Plan B's stops included), or the whole trip from **This device**. A new area opened offline retries when you reconnect. |
 | **Attachments** | Kept on the device — see [Documents](#documents). |
 | **Weather** | A day keeps the last forecast it showed. Sunrise and sunset need no signal. |

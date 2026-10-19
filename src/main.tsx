@@ -12,6 +12,7 @@ import { RefreshScreen } from "./components/RefreshScreen";
 import { SignIn } from "./routes/SignIn";
 import { Offline } from "./routes/Offline";
 import { Recovery } from "./routes/Recovery";
+import { AppErrorBoundary } from "./routes/RouteError";
 import "./lib/pwa"; // install prompt + app updates: listening before anything can miss them
 import "./lib/keyboard"; // tracks the on-screen keyboard for the tab bar and sheets
 import "./styles/index.css";
@@ -73,6 +74,8 @@ const w = window as unknown as { __root?: ReactDOM.Root };
 w.__root ??= ReactDOM.createRoot(container);
 w.__root.render(
   <React.StrictMode>
-    <Root />
+    <AppErrorBoundary>
+      <Root />
+    </AppErrorBoundary>
   </React.StrictMode>,
 );

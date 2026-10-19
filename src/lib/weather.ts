@@ -98,7 +98,9 @@ export async function fetchDayWeather(lat: number, lng: number, date: string): P
   if (typeof navigator !== "undefined" && navigator.onLine === false) return stored;
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&timezone=auto&start_date=${date}&end_date=${date}`;
-    const res = await fetch(url);
+    // plane or hotel wifi that hasn't been paid for holds a request open for
+    // minutes; give up quickly so the forecast saved on the device shows
+    const res = await fetch(url, { signal: AbortSignal.timeout(8_000) });
     if (res.status === 400) {
       // the date is outside Open-Meteo's forecast window — deterministic for
       // this session (unlike a transient failure below), so remember it

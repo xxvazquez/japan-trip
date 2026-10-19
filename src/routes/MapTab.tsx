@@ -51,6 +51,7 @@ import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import { dayStay, stayIdOfPin, stayPins, withStayCategory } from "@/lib/stayPins";
 import type { Area, Day, PlanItem, Place, TripData } from "@/core/types";
+import { newId } from "@/lib/ids";
 
 const FALLBACK = DEFAULT_ACCENT;
 
@@ -187,7 +188,6 @@ function CatMark({ color, glyph }: { color: string; glyph?: string }) {
     </span>
   );
 }
-const rid = () => (crypto?.randomUUID ? crypto.randomUUID() : `p-${Math.random().toString(36).slice(2)}`);
 
 const TRANSIT_KEY = "za.transit";
 const TRANSIT_DEFAULT = ["train", "metro"];
@@ -650,7 +650,7 @@ function useMapEditing(
   const commitPlace = (name: string, lat: number, lng: number, url?: string, osm?: string) => {
     // a place the trip already has opens instead of being added twice
     const have = places.find((p) => samePlace(p, { name, lat, lng, url, osm }));
-    const id = have?.id ?? rid();
+    const id = have?.id ?? newId();
     if (have) { lat = have.lat; lng = have.lng; }
     else addEntity("places", { id, name: name || "New place", lat, lng, category: "My places", color: FALLBACK, ...(url ? { url } : {}), ...(osm ? { osm } : {}) } as Place);
     cancelAdd();
@@ -724,7 +724,7 @@ function useMapEditing(
       let id = g.areaId && data.areas.some((a) => a.id === g.areaId) ? g.areaId
         : areaNamedNear(data, name, g.lat, g.lng)?.id ?? madeHere?.id;
       if (!id) {
-        id = crypto.randomUUID?.() ?? rid();
+        id = newId();
         created.set(id, { id, name, lat: g.lat, lng: g.lng });
       }
       const had = next.get(id) ?? data.areas.find((a) => a.id === id)?.placeIds ?? [];
@@ -744,7 +744,7 @@ function useMapEditing(
     // same name, which is the same area not yet filled
     const key = name.trim().toLowerCase();
     const dup = data.areas.find((a) => (a.name || "").trim().toLowerCase() === key && !a.placeIds.some((id) => data.places.some((p) => p.id === id)));
-    if (!dup) addEntity("areas", { id: crypto.randomUUID?.() ?? rid(), name: name.trim(), placeIds: [] } as never);
+    if (!dup) addEntity("areas", { id: newId(), name: name.trim(), placeIds: [] } as never);
     // an area with no places isn't in the list yet — show it where it is
     setEditingAreas(true);
   };
@@ -1442,7 +1442,7 @@ export default function MapTab() {
     const day = data.days.find((d) => d.id === dayId);
     if (!day) return;
     if ((day.plan ?? []).some((it) => it.placeId === place.id)) return;
-    const step: PlanItem = { id: rid(), text: place.name, placeId: place.id };
+    const step: PlanItem = { id: newId(), text: place.name, placeId: place.id };
     updateEntity<Day>("days", dayId, { plan: [...(day.plan ?? []), step] });
   };
 

@@ -3,6 +3,7 @@ import { mapUrlCoords } from "./maps";
 import { sortLegs } from "./spans";
 import type { Day, Doc, DocField, ExpenseCategory, Hotel, Leg, ModuleConfig, Place, PlanItem, ThemeTokens, TripData } from "@/core/types";
 import { todayISO } from "@/lib/dates";
+import { newId } from "@/lib/ids";
 
 /** current TripData shape version — templates, db loads and normalize all agree on this */
 export const SCHEMA_VERSION = 21;
@@ -31,8 +32,7 @@ const cleanLabels = (x: unknown): string[] => Array.isArray(x)
   ? [...new Set(x.filter((l): l is string => typeof l === "string").map((l) => l.trim()).filter(Boolean))]
   : [];
 
-const fieldId = () =>
-  (globalThis.crypto?.randomUUID?.() ?? `f-${Math.random().toString(36).slice(2, 10)}`);
+const fieldId = newId;
 
 /** Legacy spending rows carried only a free-text label. Best-effort match it to
  *  one of the trip's categories by keyword so the Expenses grouping isn't all

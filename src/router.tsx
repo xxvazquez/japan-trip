@@ -4,28 +4,63 @@ import { AppShell } from "@/components/AppShell";
 import RouteError from "@/routes/RouteError";
 import { installPageTransitions } from "@/lib/pageTransition";
 
-const Plan = lazy(() => import("@/routes/Plan"));
-const Day = lazy(() => import("@/routes/Day"));
-const Leg = lazy(() => import("@/routes/Leg"));
-const Journey = lazy(() => import("@/routes/Journey"));
-const MapTab = lazy(() => import("@/routes/MapTab"));
-const Neighbourhoods = lazy(() => import("@/routes/Neighbourhoods"));
-const LogbookIndex = lazy(() => import("@/routes/Logbook").then((m) => ({ default: m.LogbookIndex })));
-const LogbookSection = lazy(() => import("@/routes/Logbook").then((m) => ({ default: m.LogbookSection })));
-const ExpenseCategory = lazy(() => import("@/routes/Logbook").then((m) => ({ default: m.ExpenseCategory })));
-const GuideHome = lazy(() => import("@/routes/Guide").then((m) => ({ default: m.GuideHome })));
-const GuideTopicPage = lazy(() => import("@/routes/Guide").then((m) => ({ default: m.GuideTopicPage })));
-const GuideCityPage = lazy(() => import("@/routes/Guide").then((m) => ({ default: m.GuideCityPage })));
-const GuideDayTripsPage = lazy(() => import("@/routes/Guide").then((m) => ({ default: m.GuideDayTripsPage })));
-const GuideTopicArticle = lazy(() => import("@/routes/Guide").then((m) => ({ default: m.GuideTopicArticle })));
-const GuideCityArticle = lazy(() => import("@/routes/Guide").then((m) => ({ default: m.GuideCityArticle })));
-const GuideDayTripArticle = lazy(() => import("@/routes/Guide").then((m) => ({ default: m.GuideDayTripArticle })));
-const GuideDateArticle = lazy(() => import("@/routes/Guide").then((m) => ({ default: m.GuideDateArticle })));
-const Hotel = lazy(() => import("@/routes/Hotel"));
-const Document = lazy(() => import("@/routes/Document"));
-const Manage = lazy(() => import("@/routes/Manage"));
-const Help = lazy(() => import("@/routes/Help"));
-const NotFound = lazy(() => import("@/routes/NotFound"));
+// each page's code, loaded the first time it's opened
+const load = {
+  plan: () => import("@/routes/Plan"),
+  day: () => import("@/routes/Day"),
+  leg: () => import("@/routes/Leg"),
+  journey: () => import("@/routes/Journey"),
+  map: () => import("@/routes/MapTab"),
+  neighbourhoods: () => import("@/routes/Neighbourhoods"),
+  logbook: () => import("@/routes/Logbook"),
+  guide: () => import("@/routes/Guide"),
+  hotel: () => import("@/routes/Hotel"),
+  document: () => import("@/routes/Document"),
+  manage: () => import("@/routes/Manage"),
+  help: () => import("@/routes/Help"),
+  notFound: () => import("@/routes/NotFound"),
+};
+
+const Plan = lazy(load.plan);
+const Day = lazy(load.day);
+const Leg = lazy(load.leg);
+const Journey = lazy(load.journey);
+const MapTab = lazy(load.map);
+const Neighbourhoods = lazy(load.neighbourhoods);
+const LogbookIndex = lazy(() => load.logbook().then((m) => ({ default: m.LogbookIndex })));
+const LogbookSection = lazy(() => load.logbook().then((m) => ({ default: m.LogbookSection })));
+const ExpenseCategory = lazy(() => load.logbook().then((m) => ({ default: m.ExpenseCategory })));
+const GuideHome = lazy(() => load.guide().then((m) => ({ default: m.GuideHome })));
+const GuideTopicPage = lazy(() => load.guide().then((m) => ({ default: m.GuideTopicPage })));
+const GuideCityPage = lazy(() => load.guide().then((m) => ({ default: m.GuideCityPage })));
+const GuideDayTripsPage = lazy(() => load.guide().then((m) => ({ default: m.GuideDayTripsPage })));
+const GuideTopicArticle = lazy(() => load.guide().then((m) => ({ default: m.GuideTopicArticle })));
+const GuideCityArticle = lazy(() => load.guide().then((m) => ({ default: m.GuideCityArticle })));
+const GuideDayTripArticle = lazy(() => load.guide().then((m) => ({ default: m.GuideDayTripArticle })));
+const GuideDateArticle = lazy(() => load.guide().then((m) => ({ default: m.GuideDateArticle })));
+const Hotel = lazy(load.hotel);
+const Document = lazy(load.document);
+const Manage = lazy(load.manage);
+const Help = lazy(load.help);
+const NotFound = lazy(load.notFound);
+
+/** A page's code only loads when it's first opened, and a tap meanwhile
+ *  leaves the old page up with nothing to show it was heard. So once the
+ *  app has opened, every page is read in ahead, one at a time, while
+ *  nothing else is going on. The Map pages are left to load on their own:
+ *  they bring MapLibre, which a phone shouldn't carry until it's needed. */
+const PRELOAD_AFTER_MS = 2500;
+function preloadPages() {
+  const next = [load.plan, load.day, load.logbook, load.manage, load.leg, load.journey, load.hotel, load.document, load.guide, load.help, load.notFound];
+  const step = () => {
+    const fn = next.shift();
+    if (!fn) return;
+    // a failed read is only a missed head start — opening the page tries again
+    void fn().catch(() => {}).then(() => setTimeout(step, 150));
+  };
+  step();
+}
+if (typeof window !== "undefined") setTimeout(preloadPages, PRELOAD_AFTER_MS);
 
 export const router = createBrowserRouter([
   {

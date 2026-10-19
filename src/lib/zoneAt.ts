@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
  *  forecast uses — `timezone=auto` names the zone for any coordinates). */
 export async function zoneAt(lat: number, lng: number): Promise<string | null> {
   try {
-    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weathercode&forecast_days=1&timezone=auto`);
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weathercode&forecast_days=1&timezone=auto`, {
+      signal: AbortSignal.timeout(8_000),
+    });
     if (!res.ok) return null;
     const tz = ((await res.json()) as { timezone?: string }).timezone;
     if (!tz) return null;

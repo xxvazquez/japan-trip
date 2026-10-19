@@ -41,6 +41,7 @@ import { useZoomBack, zoomFrom } from "@/lib/pageTransition";
 import { fmtClocksIn } from "@/lib/time";
 import { legHex, LEG_COLORS, type LegColorId } from "@/lib/legColors";
 import type { Day, ISODate, Leg, TripData } from "@/core/types";
+import { newId } from "@/lib/ids";
 
 /** Makes the "Day X of Y" header itself the shortcut to today's Day page
  *  while the trip is live — the whole point of the header is "here's today,"
@@ -186,7 +187,6 @@ export default function Plan() {
   }, [data, todayId, nav]);
   if (!data) return null;
 
-  const newId = (kind: string) => crypto.randomUUID?.() ?? `${kind}-${Math.random().toString(36).slice(2, 8)}`;
   // a new base starts the day after the last day, with that day already in
   // it — so "Add a day" carries on in the new base — then opens to be named
   // and given its stay. Named first, in the iOS "New Album" alert.
@@ -197,9 +197,9 @@ export default function Plan() {
     const used = new Set(data.legs.map((l) => l.color));
     const ids = Object.keys(LEG_COLORS) as LegColorId[];
     const color = ids.find((c) => !used.has(c)) ?? ids[data.legs.length % ids.length];
-    const legId = newId("leg");
+    const legId = newId();
     addEntity("legs", { id: legId, base: name, start: date, end: date, color } as never);
-    addEntity("days", { id: newId("day"), date, legId, title: "New day" } as never);
+    addEntity("days", { id: newId(), date, legId, title: "New day" } as never);
     nav(`/leg/${legId}`, { viewTransition: true });
   };
 
@@ -230,7 +230,7 @@ export default function Plan() {
                 // past the last day it grows the last stay, which keeps the day home last
                 if (data.days.length && data.days.every((d) => d.date < slot.date)) return resizeBase(slot.legId, 1);
                 const hotelId = data.legs.find((l) => l.id === slot.legId)?.hotelId || undefined;
-                addEntity("days", { id: newId("day"), date: slot.date, legId: slot.legId, hotelId, title: "New day" } as never);
+                addEntity("days", { id: newId(), date: slot.date, legId: slot.legId, hotelId, title: "New day" } as never);
               },
             },
             { icon: "pin", label: "Add a base", onClick: askBase },
@@ -492,7 +492,7 @@ function LegBlock({
     const next = mine.length ? addDays(mine[mine.length - 1], 1) : leg.start || days.meta.start;
     const gap = mine.length > 0 && !days.days.some((d) => d.date === next) && days.days.some((d) => d.date > next);
     if (mine.length && !gap) return resizeBase(leg.id, 1);
-    const id = crypto.randomUUID?.() ?? `day-${Math.random().toString(36).slice(2, 8)}`;
+    const id = newId();
     addEntity("days", { id, date: next, legId: leg.id, hotelId: leg.hotelId || undefined, title: "New day" } as never);
   };
   const listed = dayIds.map((id) => days.days.find((d) => d.id === id)).filter((d): d is Day => !!d);

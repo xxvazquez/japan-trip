@@ -20,8 +20,8 @@ import { useReadOnly } from "@/lib/readonly";
 import { plural } from "@/lib/dates";
 import type { StampItem, StampKind } from "@/core/types";
 import { SearchField } from "./SearchField";
+import { shortId } from "@/lib/ids";
 
-const rid = () => Math.random().toString(36).slice(2, 8);
 const NEW_SECTION = "New section";
 const KINDS: Record<StampKind, { label: string; icon: "train" | "temple"; tone: "ai" | "gold" }> = {
   station: { label: "Station", icon: "train", tone: "ai" },
@@ -150,7 +150,7 @@ export function Stamps() {
     while (taken.has(`${NEW_SECTION} ${n}`)) n++;
     return `${NEW_SECTION} ${n}`;
   };
-  const add = (group?: string) => set((l) => { l.push({ id: rid(), label: "", ...(group ? { group } : {}) }); });
+  const add = (group?: string) => set((l) => { l.push({ id: shortId(), label: "", ...(group ? { group } : {}) }); });
   /** moved stamps land at the end of their new section, and a new section
    *  appears after the existing ones */
   const relocate = (ids: string[], group: string | undefined) =>

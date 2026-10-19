@@ -87,6 +87,7 @@ async function fetchRoute(key: string, a: LatLng, b: LatLng): Promise<WalkRoute 
       method: "POST",
       headers: { Authorization: API_KEY!, "Content-Type": "application/json" },
       body: JSON.stringify({ coordinates: [[a.lng, a.lat], [b.lng, b.lat]] }),
+      signal: AbortSignal.timeout(10_000),
     });
     if (!res.ok) throw new Error(String(res.status));
     const json = (await res.json()) as { routes?: { summary?: { distance: number; duration: number } }[] };

@@ -14,8 +14,8 @@ import { clearSplitSelect, onSplitSelect, useSplitCardOpen } from "@/lib/splitSe
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
 import { useApp, undoable } from "@/store/useApp";
 import type { Day, Place, TripData } from "@/core/types";
+import { newId } from "@/lib/ids";
 
-const rid = () => (crypto?.randomUUID ? crypto.randomUUID() : `p-${Math.random().toString(36).slice(2)}`);
 
 /**
  * The map half of a day's wide-screen split view: that day's own places — the
@@ -92,10 +92,10 @@ export default function MapPane({ dayId }: { dayId: string }) {
     undoable(`Added ${poi.name}`, () => {
       let placeId = saved?.id;
       if (!placeId) {
-        placeId = rid();
+        placeId = newId();
         addEntity("places", { id: placeId, name: poi.name, lat: poi.lat, lng: poi.lng, category: "My places", color: DEFAULT_ACCENT } as Place);
       }
-      updateEntity<Day>("days", day.id, { plan: [...(day.plan ?? []), { id: rid(), text: poi.name, placeId }] });
+      updateEntity<Day>("days", day.id, { plan: [...(day.plan ?? []), { id: newId(), text: poi.name, placeId }] });
     });
     setPoi(null);
   };

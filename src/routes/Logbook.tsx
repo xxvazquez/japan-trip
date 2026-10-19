@@ -41,8 +41,8 @@ import { tripCost, fmtMoney, combineCurrencies, expenseCategoryIcon } from "@/li
 import { useFxRates, useTripSpent } from "@/lib/fx";
 import { tripGuides } from "@/guides";
 import type { CustomList, Doc, LuggageNote, PackingItem, ScratchNote, TripData } from "@/core/types";
+import { shortId } from "@/lib/ids";
 
-const rid = () => Math.random().toString(36).slice(2, 8);
 
 /** The quiet trailing value on a Logbook menu row — how much is in the section,
  *  or how far along it is (packing, spending). Nothing when it's empty. */
@@ -222,7 +222,7 @@ function ListSection({ list }: { list: CustomList }) {
   // the new item opens ready to type, inside the tap (see `addStep` in Day.tsx)
   const [fresh, setFresh] = useState<string | null>(null);
   const add = () => {
-    const id = rid();
+    const id = shortId();
     flushSync(() => {
       setFresh(id);
       set((l) => { l.items.push({ id, label: "" }); });
@@ -336,7 +336,7 @@ function Stays() {
 
   // same as "Add a journey": make it, then open its page to fill in
   const add = () => {
-    const id = crypto.randomUUID?.() ?? `hotels-${rid()}`;
+    const id = crypto.randomUUID?.() ?? `hotels-${shortId()}`;
     addEntity("hotels", { id, name: "New stay" } as never);
     nav(`/hotel/${id}`, { viewTransition: true });
   };
@@ -403,7 +403,7 @@ function GettingAround() {
   // blank journey, kind chosen on its own page — same pattern as the Day
   // route's "＋ New journey" (never guessed from a date here either)
   const add = () => {
-    const id = crypto.randomUUID?.() ?? `journeys-${rid()}`;
+    const id = crypto.randomUUID?.() ?? `journeys-${shortId()}`;
     addEntity("journeys", { id, label: "", kind: "transfer", date: data.meta.start, segments: [] } as never);
     nav(`/journey/${id}`, { viewTransition: true });
   };
@@ -461,7 +461,7 @@ function Luggage() {
   const updateEntity = useApp((s) => s.updateEntity);
   const addEntity = useApp((s) => s.addEntity);
   const removeEntity = useApp((s) => s.removeEntity);
-  const add = () => addEntity("luggage", { id: crypto.randomUUID?.() ?? `lug-${rid()}`, title: "" } as never);
+  const add = () => addEntity("luggage", { id: crypto.randomUUID?.() ?? `lug-${shortId()}`, title: "" } as never);
 
   if (data.luggage.length === 0) {
     return (
@@ -824,7 +824,7 @@ function Documents() {
 
   // a new document opens straight onto its own page, same as a new journey
   const addDoc = () => {
-    const id = crypto.randomUUID?.() ?? `docs-${rid()}`;
+    const id = crypto.randomUUID?.() ?? `docs-${shortId()}`;
     addEntity("docs", { id, title: "New document", kind: "other", fields: [] } as never);
     nav(`/logbook/documents/${id}`, { viewTransition: true });
   };
@@ -905,7 +905,7 @@ function Packing() {
   const isOpen = (it: PackingItem) => !it.done || lingering.has(it.id);
   const completed = groups.flatMap(([group, list]) => list.filter((it) => !isOpen(it)).map((it) => [group, it] as const));
 
-  const newItem = (group: string): PackingItem => ({ id: crypto.randomUUID?.() ?? `packing-${rid()}`, label: "", phase: "bring", group });
+  const newItem = (group: string): PackingItem => ({ id: crypto.randomUUID?.() ?? `packing-${shortId()}`, label: "", phase: "bring", group });
   // the new item opens ready to type, inside the tap (see `addStep` in Day.tsx)
   const [fresh, setFresh] = useState<string | null>(null);
   const addItem = (group: string) => {
@@ -1075,7 +1075,7 @@ function CopyPackingRow() {
         have.add(key(it));
         const assignee = it.assignee === "shared" ? "shared" : it.assignee ? here.get(nameOf.get(it.assignee) ?? "") : undefined;
         addEntity("packing", {
-          id: crypto.randomUUID?.() ?? `packing-${rid()}`,
+          id: crypto.randomUUID?.() ?? `packing-${shortId()}`,
           label: it.label,
           phase: it.phase,
           group: it.group,
@@ -1220,7 +1220,7 @@ function Notes() {
   const updateEntity = useApp((s) => s.updateEntity);
   const addEntity = useApp((s) => s.addEntity);
   const removeEntity = useApp((s) => s.removeEntity);
-  const add = () => addEntity("scratchNotes", { id: crypto.randomUUID?.() ?? `note-${rid()}`, title: "" } as never);
+  const add = () => addEntity("scratchNotes", { id: crypto.randomUUID?.() ?? `note-${shortId()}`, title: "" } as never);
 
   if (data.scratchNotes.length === 0) {
     return (

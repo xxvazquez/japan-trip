@@ -13,6 +13,7 @@ import { takeSnapshot } from "./safety/snapshots";
 import { quarantine } from "./safety/quarantine";
 import { announceSaved } from "./safety/crossTab";
 import type { AtlasState, EntityType, Segment, TripData, TripSummary } from "@/core/types";
+import { shortId } from "@/lib/ids";
 
 export interface Backend {
   kind: "local" | "supabase";
@@ -50,7 +51,6 @@ export interface Backend {
 }
 
 const now = () => new Date().toISOString();
-const rid = () => Math.random().toString(36).slice(2, 9);
 const noop = async () => {};
 
 /* ---------------------------------------------------- local (IndexedDB) */
@@ -236,7 +236,7 @@ const localBackend: Backend = {
   async createTrip(data) {
     const v = validateTrip(data);
     if (v.fatal) throw new SaveBlockedError("invalid", `Not creating a trip from invalid data (${describeProblems(v)})`);
-    const id = rid();
+    const id = shortId();
     await writeVerified(STORAGE_KEYS.trip(id), data);
     known.set(id, hashOf(data));
     return id;

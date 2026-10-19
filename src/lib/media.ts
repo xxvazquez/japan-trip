@@ -1,6 +1,6 @@
 import type { MediaItem } from "@/core/types";
+import { shortId } from "@/lib/ids";
 
-const rid = () => Math.random().toString(36).slice(2, 9);
 
 /**
  * Read an image File, downscale it to fit `maxEdge`, and return a MediaItem with
@@ -24,7 +24,7 @@ export async function fileToMediaItem(file: File, maxEdge = 1600, quality = 0.82
   let dataUrl = canvas.toDataURL(type, quality);
   if (!dataUrl.startsWith("data:image/webp")) dataUrl = canvas.toDataURL("image/jpeg", quality);
 
-  return { id: `media-${rid()}`, name: file.name.replace(/\.[^.]+$/, ""), dataUrl, w, h };
+  return { id: `media-${shortId()}`, name: file.name.replace(/\.[^.]+$/, ""), dataUrl, w, h };
 }
 
 export function pickImage(): Promise<File | null> {

@@ -27,6 +27,7 @@ import type { ViewerFile } from "@/components/FileViewer";
 import { driveEnabled, driveConnected, prepareDrive, connectDrive, ensureFolder, uploadToDrive, shareFile, driveViewUrl, driveImageUrl } from "@/lib/drive";
 import type { Doc, DocFile } from "@/core/types";
 import { TAP } from "@/lib/device";
+import { shortId } from "@/lib/ids";
 
 const FileViewer = lazy(() => import("@/components/FileViewer"));
 
@@ -34,7 +35,6 @@ const FileViewer = lazy(() => import("@/components/FileViewer"));
 const fmtBytes = (b: number) =>
   b < 1024 * 1024 ? `${Math.max(1, Math.round(b / 1024))} KB` : `${(b / 1048576).toFixed(1)} MB`;
 
-const rid = () => Math.random().toString(36).slice(2, 8);
 
 /** One document from Logbook → Documents, pushed as its own page: its files,
  *  its fields, a note. */
@@ -173,7 +173,7 @@ function Attachments({
         for (const f of fileList) {
           const up = await uploadToDrive(f, f.name, folderId);
           if (shareWith.length) await shareFile(up.id, shareWith);
-          const id = rid();
+          const id = shortId();
           await putFileAs(id, f, { copy: true }).catch(() => {}); // opens offline from the start
           added.push({ id, name: up.name, size: up.size, driveId: up.id, mime: up.mime });
         }

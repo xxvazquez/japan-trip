@@ -16,6 +16,7 @@ import { quarantine } from "@/lib/safety/quarantine";
 import { onSavedElsewhere, isTabAlive, TAB_ID } from "@/lib/safety/crossTab";
 import { mergeJson } from "@/lib/safety/merge";
 import type { Day, Doc, EntityType, MediaItem, TripData, TripSummary } from "@/core/types";
+import { newId } from "@/lib/ids";
 
 const now = () => new Date().toISOString();
 
@@ -1958,8 +1959,7 @@ export const useApp = create<AppStore>((set, get) => {
 
     resizeBase: (legId, delta) => {
       let r: LegResize | null = null;
-      const newId = () => crypto.randomUUID?.() ?? `day-${Math.random().toString(36).slice(2, 10)}`;
-      if (!local((d) => { r = resizeLeg(d, legId, delta, newId); }) || !r) return;
+            if (!local((d) => { r = resizeLeg(d, legId, delta, newId); }) || !r) return;
       const { added, removed, days, legs, journeys, luggage, meta } = r as LegResize;
       for (const id of removed) enqueue(get, { t: "del", type: "days", id });
       for (const id of [...added, ...days]) enqueue(get, { t: "row", type: "days", id });

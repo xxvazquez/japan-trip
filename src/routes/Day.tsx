@@ -61,6 +61,7 @@ import { legHex } from "@/lib/legColors";
 import { gmapsLink, gmapsRoute, mapUrlCoords, placeMapLink, sharePlace, webSearchHref } from "@/lib/maps";
 import { fmtDistanceKm, fmtWalk, haversineKm } from "@/lib/geo";
 import { clock24, clockOf, fmtClock, fmtClocksIn, fmtDuration, fmtMinutes } from "@/lib/time";
+import { shortId } from "@/lib/ids";
 
 /** the timeline's time column — wide enough for "10:30 PM" on a 12-hour device */
 const TIME_COL = clock24 ? "w-[2.625rem]" : "w-[3.75rem]";
@@ -86,7 +87,6 @@ import { applyPalette } from "@/lib/mode";
 import { THEME_PRESETS } from "@/lib/themePresets";
 import type { Area, Day as DayT, DayCost, ExpenseCategory, Hotel, Journey, PlanItem, Place, TripData } from "@/core/types";
 
-const rid = () => Math.random().toString(36).slice(2, 9);
 /** an area row's hairline, inset past its small tile like a `TileRow`'s */
 const AREA_ROW_LI = INSET_DIVIDER.replace("after:left-3.5", "after:left-12");
 
@@ -218,7 +218,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   // Plan B starts as a copy of Plan A — on a rainy day only a few stops change
   const addPlanB = () => {
     setFreshStep(null);
-    const copy = (day.plan ?? []).map((it) => ({ ...it, id: rid() }));
+    const copy = (day.plan ?? []).map((it) => ({ ...it, id: shortId() }));
     patch({ plan: copy.length ? copy : undefined, altPlan: day.plan ?? [], onAltPlan: true });
   };
   const deletePlanB = () => undoable("Plan B deleted", () => {
@@ -242,7 +242,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   };
   const addPicked = (pid?: string) => {
     addSheet.setOpen(false);
-    const id = rid();
+    const id = shortId();
     const p = pid ? data.places.find((x) => x.id === pid) : undefined;
     flushSync(() => {
       setFreshStep(id);
@@ -424,12 +424,12 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const [quickSpend, setQuickSpend] = useState(false);
   const quickSpendAnchor = useRef<HTMLElement | null>(null);
   const addSpend = (cost: Omit<DayCost, "id">) => {
-    const id = rid();
+    const id = shortId();
     setCosts([...(day.costs ?? []), { id, ...cost }]);
     setJustAddedCostId(id);
   };
   const quickAddCost = (item: PlanItem) => {
-    const id = rid();
+    const id = shortId();
     const { label, categoryId } = stepSpend(item);
     setCosts([...(day.costs ?? []), { id, label, amount: "", ...(categoryId && { categoryId }) }]);
     setJustAddedCostId(id);
@@ -489,7 +489,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   const withNearby = (stepId: string, place: Place) => {
     const plan = sortByTime(day.plan ?? [], () => false);
     const i = plan.findIndex((x) => x.id === stepId);
-    return [...plan.slice(0, i + 1), { id: rid(), text: place.name, placeId: place.id }, ...plan.slice(i + 1)];
+    return [...plan.slice(0, i + 1), { id: shortId(), text: place.name, placeId: place.id }, ...plan.slice(i + 1)];
   };
   const addNearby = (group: NearbyGroup, place: Place) =>
     undoable(`Added after ${group.stop.name}`, () => setPlan(withNearby(group.stepId, place)));
@@ -524,7 +524,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   // "＋ New journey" — a blank journey, its type chosen on the journey page (never
   // guessed from the day's date: you can arrive, transfer or leave at any point).
   const newJourney = () => {
-    const jid = crypto.randomUUID?.() ?? `journeys-${rid()}`;
+    const jid = crypto.randomUUID?.() ?? `journeys-${shortId()}`;
     addEntity("journeys", { id: jid, label: "", kind: "transfer", date: day.date, segments: [] } as never);
     linkJourney(jid);
     nav(`/journey/${jid}`, { viewTransition: true });
@@ -874,7 +874,7 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
                               <button
                                 type="button"
                                 className="menu-item"
-                                onClick={() => undoable(`Added ${plural(newPlaces.length, "place")}`, () => setPlan([...(day.plan ?? []), ...newPlaces.map((p) => ({ id: rid(), text: p.name, placeId: p.id }))]))}
+                                onClick={() => undoable(`Added ${plural(newPlaces.length, "place")}`, () => setPlan([...(day.plan ?? []), ...newPlaces.map((p) => ({ id: shortId(), text: p.name, placeId: p.id }))]))}
                               >
                                 <Icon name="plus" size={16} /> Add {newPlaces.length === a.placeIds.length ? "its places" : plural(newPlaces.length, "more place")} to the plan
                               </button>
@@ -1176,7 +1176,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   const duplicateItem = (id: string) => {
     const i = items.findIndex((x) => x.id === id);
     if (i === -1) return;
-    onChange([...items.slice(0, i + 1), { ...items[i], id: rid(), pinned: undefined }, ...items.slice(i + 1)]);
+    onChange([...items.slice(0, i + 1), { ...items[i], id: shortId(), pinned: undefined }, ...items.slice(i + 1)]);
   };
 
 
@@ -3027,7 +3027,7 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
   // away just stops there
   const [keypadFor, setKeypadFor] = useState<string | null>(null);
   const addWithLabel = (label: string, categoryId?: string) => {
-    const id = rid();
+    const id = shortId();
     flushSync(() => {
       setOpen(false);
       setFresh(id);

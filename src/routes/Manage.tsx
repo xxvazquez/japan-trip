@@ -54,6 +54,7 @@ import { listMembers, inviteMember, removeMember, type Member } from "@/lib/db";
 import { useEffect } from "react";
 import type { Day, ExpenseCategory, Place, TripData } from "@/core/types";
 import { TAP, isIOS, saveFile } from "@/lib/device";
+import { newId, shortId } from "@/lib/ids";
 
 type PanelId = "trips" | "setup" | "map" | "appearance" | "sharing";
 /** panels that were renamed — an old link still lands on the new page */
@@ -921,7 +922,7 @@ function TravellersPanel() {
     mutate((d) => sync(d, people.map((p, j) => (j === i ? { ...p, name } : p))));
   const remove = (i: number) => mutate((d) => sync(d, people.filter((_, j) => j !== i)));
   const add = () =>
-    mutate((d) => sync(d, [...people, { id: `p-${Math.random().toString(36).slice(2, 8)}`, name: "" }]));
+    mutate((d) => sync(d, [...people, { id: `p-${shortId()}`, name: "" }]));
 
   return (
     <Section title="Travellers" info={[{ icon: "person", title: "Who's going", text: "Used to assign packing to each person." }]}>
@@ -1010,7 +1011,6 @@ function ExpenseCategoriesPanel() {
   if (!data) return null;
   if (data.config.demo) return null;
   const cats = data.config.expenseCategories ?? [];
-  const rid = () => Math.random().toString(36).slice(2, 9);
 
   // which category (if any) already claims each mode, so a chip can't be
   // double-assigned by mistake
@@ -1134,7 +1134,7 @@ function ExpenseCategoriesPanel() {
             />
           </ContextMenu>
         ))}
-        <AddRow label="Add a category" onClick={() => mutate((d) => { (d.config.expenseCategories ??= []).push({ id: `cat-${rid()}`, label: "New category" }); })} />
+        <AddRow label="Add a category" onClick={() => mutate((d) => { (d.config.expenseCategories ??= []).push({ id: `cat-${shortId()}`, label: "New category" }); })} />
       </ul>
     </Section>
   );
@@ -1162,7 +1162,7 @@ function AddTabButton() {
   const add = (s: (typeof LOGBOOK_SECTIONS)[number]) => {
     mutate((d) => {
       d.config.modules.push({
-        id: crypto.randomUUID?.() ?? `tab-${Math.random().toString(36).slice(2, 9)}`,
+        id: newId(),
         kind: "logbook-section",
         target: s,
         label: logbookLabel(s),
@@ -1175,7 +1175,7 @@ function AddTabButton() {
   const addGuide = (g: GuideEntry) => {
     mutate((d) => {
       d.config.modules.push({
-        id: crypto.randomUUID?.() ?? `tab-${Math.random().toString(36).slice(2, 9)}`,
+        id: newId(),
         kind: "guide",
         target: g.id,
         label: "Guide",

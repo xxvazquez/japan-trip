@@ -6,6 +6,7 @@ import { mergeJson } from "./safety/merge";
 import { tripRangeText } from "@/lib/dates";
 import type { SnapshotMeta } from "./safety/snapshots";
 import type { EntityType, Segment, TripData, TripSummary } from "@/core/types";
+import { newId } from "@/lib/ids";
 
 /* ------------------------------------------------------------------ *
  * Generic mapping between the camelCase TripData shape and the
@@ -105,7 +106,6 @@ function rowToSeg(r: Record<string, unknown>): Segment {
   return e as unknown as Segment;
 }
 
-const rid = () => (crypto?.randomUUID ? crypto.randomUUID() : `id-${Math.random().toString(36).slice(2)}`);
 async function client() {
   const sb = await getSupabase();
   if (!sb) throw new Error("Supabase not configured");
@@ -226,7 +226,7 @@ export async function createTrip(
   summary: Omit<TripSummary, "id" | "createdAt" | "updatedAt">,
 ): Promise<string> {
   const sb = await client();
-  const dbId = rid();
+  const dbId = newId();
   check(
     await sb.from("trips").insert({
       id: dbId,

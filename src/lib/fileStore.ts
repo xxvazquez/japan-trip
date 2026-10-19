@@ -1,4 +1,5 @@
 import { get, set, del, keys } from "idb-keyval";
+import { newId } from "@/lib/ids";
 
 /**
  * Binary attachments (PDFs, images) kept in the browser's IndexedDB, keyed by
@@ -6,13 +7,12 @@ import { get, set, del, keys } from "idb-keyval";
  * account's storage or Drive keeps a copy here too, so it opens offline.
  */
 const key = (id: string) => `file:${id}`;
-const rid = () => (crypto?.randomUUID ? crypto.randomUUID() : `f-${Math.random().toString(36).slice(2)}`);
 
 /** fired when a file is saved to the device, so a list can update its badges */
 export const FILES_CHANGED = "za:files-changed";
 
 export async function putFile(file: Blob): Promise<string> {
-  const id = rid();
+  const id = newId();
   await putFileAs(id, file);
   return id;
 }

@@ -13,8 +13,8 @@ import { useData } from "@/lib/data";
 import { copyText } from "@/lib/clipboard";
 import { fmtFare, isMoneyLabel } from "@/lib/cost";
 import type { DocField } from "@/core/types";
+import { shortId } from "@/lib/ids";
 
-const rid = () => Math.random().toString(36).slice(2, 8);
 
 /**
  * A list of the user's own `{label, value}` fields — the shared pattern behind
@@ -79,7 +79,7 @@ export function FieldList({
   // iPhone keyboard comes up (see `addStep` in Day.tsx)
   const [fresh, setFresh] = useState<string | null>(null);
   const add = () => {
-    const id = rid();
+    const id = shortId();
     flushSync(() => {
       setFresh(id);
       onChange([...fields, { id, label: "", value: "" }]);

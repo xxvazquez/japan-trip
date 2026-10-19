@@ -25,10 +25,10 @@ import { journeyFare, hopsPriced, fmtMoney, cleanAmount, fmtFare } from "@/lib/c
 import { splitRoute, joinRoute, JOURNEY_KIND_LABEL } from "@/lib/journey";
 import { Arrow, RouteLabel } from "@/components/RouteLabel";
 import type { Day, Journey as JourneyT, JourneyKind, Segment, TransportMode } from "@/core/types";
+import { shortId } from "@/lib/ids";
 
 const MODES: TransportMode[] = ["flight", "train", "bus", "ferry", "car", "taxi", "subway", "walk"];
 const KINDS: JourneyKind[] = ["arrival", "transfer", "departure"];
-const rid = () => Math.random().toString(36).slice(2, 8);
 
 export default function Journey() {
   const data = useData();
@@ -437,7 +437,7 @@ export default function Journey() {
               onClick={() => {
                 // a new hop starts where the last one ended, by the same mode
                 const l = j.segments.at(-1);
-                patch({ segments: [...j.segments, { id: crypto.randomUUID?.() ?? `seg-${rid()}`, mode: l?.mode ?? "train", from: l?.to ?? "", to: "", fromTz: l?.toTz, toTz: l?.toTz }] });
+                patch({ segments: [...j.segments, { id: crypto.randomUUID?.() ?? `seg-${shortId()}`, mode: l?.mode ?? "train", from: l?.to ?? "", to: "", fromTz: l?.toTz, toTz: l?.toTz }] });
               }}
               className="action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07]"
             >
