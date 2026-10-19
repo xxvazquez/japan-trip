@@ -3333,7 +3333,6 @@ const base: { cities: GuideCity[] } = {
       id: "matsushima",
       name: "Matsushima",
       local: "松島",
-      aliases: ["Sendai"],
       lat: 38.368, lng: 141.0628, radiusKm: 6,
       region: "Tōhoku",
       population: "About 13,000",

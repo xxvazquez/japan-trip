@@ -25,6 +25,11 @@ describe("citiesOnTrip", () => {
     expect(others.map((c) => c.id)).toEqual(["kurama", "uji"]);
   });
 
+  it("matches a base to its own city only, not a neighbour's", () => {
+    const data = trip({ legs: [{ id: "a", base: "Sendai", start: "2026-11-01", end: "2026-11-04", color: "" }] });
+    expect(citiesOnTrip(japan, data).stays.map((c) => c.id)).toEqual(["sendai"]);
+  });
+
   it("finds no guide for a trip elsewhere", () => {
     expect(tripGuides(trip({ places: [{ id: "p", name: "Louvre", lat: 48.86, lng: 2.34 }] }))).toEqual([]);
     expect(tripGuides(trip({ places: [{ id: "p", name: "Shibuya", lat: 35.66, lng: 139.70 }] })).map((g) => g.id)).toEqual(["jp"]);
