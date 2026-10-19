@@ -76,13 +76,36 @@ export const coffee: GuideTopic = {
                 ],
               },
             },
-            { p: "Two Japanese chains are worth knowing. **Doutor** (1980) made coffee cheap and quick;[^1] **Komeda's** (from Nagoya, 1968) is a kissaten scaled up — padded booths, newspapers, a free breakfast with morning coffee — and shows how the old model survives.[^2]" },
+            { p: "The three didn't arrive together. Each one came in answer to the one before, and the count of kissaten tells the story: about **155,000** in 1981, the peak, and under **59,000** forty years later.[^3]" },
+            {
+              stats: [
+                { value: "154,630", label: "kissaten in 1981, the peak" },
+                { value: "58,669", label: "in 2021" },
+                { value: "1996", label: "the first Starbucks outside North America" },
+              ],
+            },
+
+            { h: "Coffee standing up, for ¥150" },
+            { p: "By 1980 coffee was an everyday drink, but a cup at a kissaten cost about ¥300, at a time when office workers' take-home pay was falling. In April 1980 the roaster **Toriba Hiromichi** opened the first **Doutor** coffee shop by Harajuku station: you ordered at a counter, a fully automatic machine made the coffee, and you drank it standing, for **¥150**, half the going rate.[^4]" },
+            { p: "Toriba had seen Parisian office workers stop for a coffee at the bar on the way to work. Drinking standing up was thought ill-mannered in Japan; he wanted to make it fashionable, and he did. The name is from the street in São Paulo where he'd worked as a young man.[^1] The kissaten's long decline begins the year after Doutor opened." },
+
+            { h: "Starbucks, and a cup without smoke" },
+            { p: "In August **1996** Starbucks opened on Matsuya-dōri in Ginza: its first shop outside North America.[^5] What it offered wasn't only lattes. It banned smoking indoors, at a time when almost every kissaten and Doutor was thick with it, and it let you sit for hours with a book or a laptop. Women and students, put off by the smoke and the salarymen, filled it." },
+            { p: "Starbucks now has more branches in Japan than any other coffee chain, but on its own terms: regional-only drinks, a sakura menu every spring, and shops built into a Kyoto machiya and a Dazaifu shrine approach." },
+
+            { h: "The kissaten as a chain" },
+            { p: "**Komeda's** went the other way. **Katō Tarō** opened it in Nagoya in 1968; his family ran a rice shop, and “Kome-ya no Tarō”, the rice shop's Tarō, became the name.[^2] It kept everything the kissaten had: padded booths, rack of newspapers, a free breakfast with morning coffee, the Shiro-Noir (warm Danish pastry under soft-serve) since 1977. It just put it on a big car park by a suburban main road." },
+            { p: "It reached 1,000 branches in 2023,[^6] mostly in the suburbs and in the Chūbu region, where Nagoya's habit of a long kissaten breakfast never died. Komeda's is the clearest sign that people didn't stop wanting the kissaten; they wanted one with parking and a reliable menu." },
             { note: "Some old kissaten still allow smoking under a special status. Check the sign by the door: 喫煙可 (smoking allowed) or 禁煙 (no smoking).", title: "Smoke" },
           ],
-          related: ["coffee/reading-a-kissaten", "coffee/how-the-coffee-is-made"],
+          related: ["coffee/reading-a-kissaten", "coffee/how-the-coffee-is-made", "coffee/what-the-kissaten-says-about-japan"],
           sources: [
-            { title: "Doutor Coffee — Wikipedia", url: "https://en.wikipedia.org/wiki/Doutor_Coffee", note: "Founded 1962; the first Doutor café, 1980" },
-            { title: "Komeda Coffee — Wikipedia", url: "https://en.wikipedia.org/wiki/Komeda_Coffee", note: "Nagoya, 1968" },
+            { title: "Doutor Coffee — Wikipedia", url: "https://en.wikipedia.org/wiki/Doutor_Coffee", note: "Founded 1962; the first Doutor café, 1980; the name" },
+            { title: "Komeda Coffee — Wikipedia", url: "https://en.wikipedia.org/wiki/Komeda_Coffee", note: "Nagoya, 1968; the name" },
+            { title: "The number of kissaten — Tōyō Keizai", url: "https://toyokeizai.net/articles/-/947079", note: "All Japan Coffee Association: 154,630 in 1981, 58,669 in 2021 (Japanese)" },
+            { title: "How the first Doutor changed the coffee trade — Tokyo Walker, 2025", url: "https://www.walkerplus.com/article/1237336/", note: "Harajuku, April 1980; standing; ¥150 against about ¥300 (Japanese)" },
+            { title: "Company history to 2000 — Starbucks Coffee Japan", url: "https://www.starbucks.co.jp/company/history/fy2000.html", note: "Ginza Matsuya-dōri, August 1996, the first store outside North America (Japanese)" },
+            { title: "Komeda's 1,071 shops — Impress Gourmet Watch, 2025", url: "https://gourmet.watch.impress.co.jp/docs/news/1665077.html", note: "Nagoya 1968; 1,000 shops in 2023; 1,071 in January 2025 (Japanese)" },
           ],
         },
         {
@@ -94,7 +117,7 @@ export const coffee: GuideTopic = {
             photo("junkissa-sign", "A yellow oval sign reading 純喫茶 American", "純喫茶 — “pure kissaten” — on a sign in Dōtonbori, Osaka."),
             { h: "What the sign is telling you" },
             { p: "**Jun-kissa**, “pure kissaten”, is a word from the 1930s, when it set a respectable coffee house apart from the *café* of the day, where waitresses sat with customers and the drink was beside the point. The word stuck, and now marks a place that has kept its old interior and its old ways." },
-            { p: "The ways include smoke. Japan's 2020 indoor smoking law exempts small establishments that already existed, and many old kissaten kept their ashtrays; look for 喫煙可, *smoking allowed*, on the door if it matters to you. And around Nagoya, order a coffee before about 11:00 and toast and an egg come with it, the **morning service** (see [The kissaten menu](guide:coffee/the-kissaten-menu))." },
+            { p: "The ways include smoke. Japan's indoor smoking law, in full force from April 2020, exempts small establishments that already existed,[^2] and many old kissaten kept their ashtrays; look for 喫煙可, *smoking allowed*, on the door if it matters to you. And around Nagoya, order a coffee before about 11:00 and toast and an egg come with it, the **morning service** (see [The kissaten menu](guide:coffee/the-kissaten-menu))." },
             {
               terms: [
                 { term: "Jun-kissa", text: "The old-style coffee house: wood, velvet, a counter, the master" },
@@ -114,6 +137,7 @@ export const coffee: GuideTopic = {
           related: ["coffee/kissaten-specialty-chain", "coffee/the-kissaten-menu"],
           sources: [
             { title: "Kissaten — Wikipedia", url: "https://en.wikipedia.org/wiki/Kissaten", note: "The old-style coffee house and its customs" },
+            { title: "Passive smoking measures — Ministry of Health, Labour and Welfare", url: "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000189195.html", note: "The revised Health Promotion Act, in full force from 1 April 2020; existing small eateries (Japanese)" },
           ],
         },
         {
@@ -128,11 +152,27 @@ export const coffee: GuideTopic = {
                 { term: "Meikyoku kissa", text: "The classical version — “famous-music cafés” — with seats facing the speakers like a concert hall." },
               ],
             },
+            { h: "Lion, 1926: a concert hall for one coffee" },
+            { p: "The classical branch is the older. **Meikyoku Kissa Lion** in Shibuya was opened in 1926 by Yamadera Yanosuke, who designed it himself; it burned in the 1945 air raids and was rebuilt to the same plan. The seats still face a wooden speaker cabinet more than three metres tall, like pews facing an altar. Twice a day, at 15:00 and 19:00, there's an hour-long programme, the “Lion Concert”; the rest of the time it plays requests. Talking and photos are banned.[^2]" },
+            { h: "Chigusa, 1933: jazz from the ships" },
+            { p: "Jazz came in through the port. **Yoshida Mamoru** opened **Chigusa** in Yokohama's Noge district in 1933, when he was about twenty, to play imported records. The air raids destroyed the café and the collection; he reopened in 1948, and the young Japanese musicians playing at the American military clubs came to learn the latest American jazz from his records, one side at a time.[^3]" },
+            { p: "Yoshida died in 1994; his sister and the regulars kept it open until redevelopment closed it in 2007. Volunteers reopened it in 2012, and in 2022 the old building came down to be rebuilt as a jazz museum with a stage.[^3]" },
+            { h: "Six hundred rooms, and a rule of silence" },
+            { p: "The boom came in the 1960s and early 70s, with student radicalism and free jazz. At its height, in the mid-1970s, there were around **600** jazz kissa across Japan.[^1] The rules were strict: no talking, requests written on a slip, the sleeve of the record now playing propped up by the turntable for everyone to read. Students sat for hours over one coffee and came out knowing every Blue Note session by its catalogue number." },
+            { p: "Cheap stereos, the Walkman and the CD emptied them, and the survivors became pilgrimage sites. **Basie** in Ichinoseki, Iwate, opened in 1970 by a former drummer, Sugawara Shōji, is famous among audio people for a sound system he has tuned for half a century." },
             { p: "**What it reveals:** the ongaku kissa was a solution to a housing problem and a way to share expensive things, and it trained the ears of the people who later made Japan the world's most devoted market for vinyl and high-end audio. The newer “listening bars” abroad copy it directly." },
+            { note: "Most listening cafés still want quiet. Order, sit, and talk outside; check before you take a photo. Lion bans both.", title: "Before you go in" },
           ],
-          related: ["coffee/what-the-kissaten-says-about-japan", "culture/karaoke-pachinko-and-mascots"],
+          words: [
+            { local: "名曲喫茶", say: "meikyoku kissa", means: "a classical-music café" },
+            { local: "ジャズ喫茶", say: "jazu kissa", means: "a jazz café" },
+            { local: "私語厳禁", say: "shigo genkin", means: "no talking" },
+          ],
+          related: ["coffee/what-the-kissaten-says-about-japan", "coffee/reading-a-kissaten", "culture/karaoke-pachinko-and-mascots"],
           sources: [
-            { title: "Jazz kissa — Wikipedia", url: "https://en.wikipedia.org/wiki/Jazz_kissa", note: "The music café, its masters and its rules" },
+            { title: "Jazz kissa — Wikipedia", url: "https://en.wikipedia.org/wiki/Jazz_kissa", note: "The music café, its masters and its rules; about 600 in the mid-1970s" },
+            { title: "Meikyoku Kissa Lion — Serai", url: "https://serai.jp/hobby/1128271", note: "Founded 1926 by Yamadera Yanosuke; rebuilt after the air raid; the speakers, the concerts, the silence (Japanese)" },
+            { title: "Japan's oldest jazz kissa Chigusa to become a museum — All About News, 2022", url: "https://news.allabout.co.jp/articles/o/39519/", note: "1933, reopened 1948, Yoshida's death 1994, closed 2007, reopened 2012 (Japanese)" },
           ],
         },
       ],
@@ -150,9 +190,9 @@ export const coffee: GuideTopic = {
               terms: [
                 { term: "Siphon (saifon)", text: "Two glass globes over a flame or halogen burner: water is pushed up into the grounds, then pulled back down through a filter. Hot, clean and theatrical; a post-war kissaten favourite." },
                 { term: "Nel drip (neru dorippu)", text: "Hot water poured slowly through a flannel cloth bag. Thick, sweet, rounded coffee, often from long-aged beans. The flannel is kept in cold water between uses and replaced often — a sign the master takes it seriously." },
-                { term: "Pour-over", text: "A paper cone and a gooseneck kettle. Japanese makers designed the cones the world uses: Kalita (founded 1958), Kōno, and Hario's V60 (2004).[^1]" },
+                { term: "Pour-over", text: "A paper cone and a gooseneck kettle. Japanese makers designed the cones the world uses: Kalita (founded 1958), Kōno, and Hario's V60 (2004), named for its 60-degree cone and its single large hole, which leaves the speed of the pour to the brewer.[^1][^3] Hario, a heat-proof-glass maker, had been making siphons since 1948." },
                 { term: "Kyoto-style cold drip", text: "Tall glass towers dripping cold water through the grounds, one drop at a time, for hours. Called “Kyoto-style” after the Kyoto kissaten that made it famous; in Japan it's also “Dutch coffee”." },
-                { term: "Iced coffee", text: "Japan drank iced coffee long before most of the world, and UCC's canned coffee with milk, launched in 1969,[^2] made coffee a vending-machine drink, sold hot in winter." },
+                { term: "Iced coffee", text: "Japan drank iced coffee long before most of the world, and UCC's canned coffee with milk, launched in April 1969,[^2] made coffee a vending-machine drink, sold hot in winter. It sold slowly until the 1970 Osaka Expo put it in front of millions of thirsty visitors.[^4]" },
               ],
             },
             { p: "At some kissaten the master chooses your **cup** from a wall of porcelain, to suit you. It's part of the hospitality — notice which one you get." },
@@ -161,6 +201,8 @@ export const coffee: GuideTopic = {
           sources: [
             { title: "Hario — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/HARIO", note: "The V60, 2004" },
             { title: "Canned coffee — Wikipedia", url: "https://en.wikipedia.org/wiki/Canned_coffee", note: "UCC's canned coffee with milk, 1969" },
+            { title: "Birth of the Hario V60 — Hario UK", url: "https://www.hario.co.uk/blogs/news/birth-of-the-hario-v60", note: "The idea from the 1980s, launched 2004; the 60-degree cone" },
+            { title: "UCC coffee with milk and the 1970 Expo — J-Net21 (Organization for Small & Medium Enterprises and Regional Innovation)", url: "https://j-net21.smrj.go.jp/special/expo1970/20231102.html", note: "April 1969 launch; the Expo breakthrough (Japanese)" },
           ],
         },
         {
@@ -270,10 +312,19 @@ export const coffee: GuideTopic = {
                 { name: "Cream soda", local: "クリームソーダ", say: "kurīmu sōda", kind: "Everyday", text: "Bright green melon soda with a scoop of vanilla ice cream — the colour of a 1970s kissaten." },
               ],
             },
+            { h: "The Napolitan that wasn't" },
+            { p: "The dish most people picture is not the one that was invented. At the Hotel New Grand, requisitioned by the occupation forces, American soldiers ate boiled spaghetti tossed with salt, pepper and ketchup. The hotel's head chef, **Irie Shigetada**, answered with a proper sauce of fresh tomatoes, onion, garlic and olive oil, and the hotel still serves it that way, without ketchup.[^2]" },
+            { p: "The ketchup version came from a former New Grand cook, **Ishibashi Toyokichi**, who opened the Center Grill in Yokohama and used ketchup because fresh tomatoes were a luxury.[^2] It was his cheap one, fried in a pan with sausage and green pepper, that spread to every kissaten counter in the country." },
+            { h: "Breakfast for the price of a coffee" },
+            { p: "Morning service has a better-documented origin than most food legends, though still not a written one. In the late 1950s Ichinomiya, north-west of Nagoya, was a boom town of small weaving mills. The looms were too loud to talk over, so mill owners did business in kissaten, several times a day. A grateful owner began adding a boiled egg and peanuts to the morning coffee, and rivals had to match it.[^3]" },
+            { p: "The habit stuck to the region, and it shows in the household survey: **Nagoya** spends more on kissaten than any other city in Japan, about **¥16,400** a household a year against a national **¥10,300**, with **Gifu**, its neighbour, third.[^4] A Nagoya morning set now can run to toast, egg, salad, yoghurt and a small bowl of soup, and families go at weekends." },
           ],
           related: ["eating-out/yakitori-wagyu-and-y-shoku", "eating-out/getting-a-table-ordering-eating", "language/borrowed-words"],
           sources: [
             { title: "Napolitan — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E3%83%8A%E3%83%9D%E3%83%AA%E3%82%BF%E3%83%B3", note: "Credited to the Hotel New Grand, Yokohama" },
+            { title: "Yokohama's food firsts — Kanagawa Tourism Association", url: "https://www.kanagawa-kankou.or.jp/features/foods-guide25", note: "Irie Shigetada's tomato sauce; Ishibashi Toyokichi's ketchup version at the Center Grill (Japanese)" },
+            { title: "Ichinomiya morning — Aichi Now, Aichi Prefecture's official tourism site", url: "https://aichinow.pref.aichi.jp/columns/detail/10", note: "Textile mills, deals in kissaten, the egg and peanuts of the late 1950s (Japanese)" },
+            { title: "Household Survey: rankings by city, 2023–25 average — Statistics Bureau of Japan", url: "https://www.stat.go.jp/data/kakei/5.html", note: "Spending on kissaten: Nagoya ¥16,431, Tokyo ¥16,270, Gifu ¥14,663; national ¥10,261 (Japanese)" },
           ],
         },
       ],
@@ -312,7 +363,7 @@ export const coffee: GuideTopic = {
           summary: "Craftsmen, students and a taste for the new",
           body: [            photo("shinshindo", "A brick bakery-café front with a small hanging sign", "Shinshindō, opposite Kyoto University's north gate since 1930."),
 
-            { p: "Kyoto, of all places — the city of tea — is one of Japan's biggest bread-and-coffee cities: in the national household survey it came third of all prefectural capitals for bread spending in 2018–20, behind Kobe and Okayama,[^1] and first for coffee in 2012 and 2013.[^2] The explanations people give, none proven but all plausible, say a lot about the city:" },
+            { p: "Kyoto, of all places — the city of tea — is one of Japan's biggest bread-and-coffee cities. In the national household survey for 2023–25 it comes **third** of all the big cities for bread spending, behind Kobe and Sakai, and **second** for coffee bought to brew at home, behind its neighbour Ōtsu, as it has been near the top for years.[^1][^2][^3] The explanations people give, none proven but all plausible, say a lot about the city:" },
             {
               list: [
                 "**Workshops.** Kyoto was a city of home-based crafts — Nishijin weavers, dyers, potters — who wanted a quick breakfast and a coffee break near the loom.",
@@ -327,6 +378,7 @@ export const coffee: GuideTopic = {
           sources: [
             { title: "Bread spending by city — All About", url: "https://news.allabout.co.jp/articles/o/28209/", note: "Bread spending 2018–20: Kobe, Okayama, then Kyoto (Japanese)" },
             { title: "Is Kyoto really Japan's coffee capital? — Gendai", url: "https://gendai.media/articles/-/44289", note: "Kyoto first for coffee in 2012 and 2013 (Japanese)" },
+            { title: "Household Survey: rankings by city, 2023–25 average — Statistics Bureau of Japan", url: "https://www.stat.go.jp/data/kakei/5.html", note: "Bread: Kobe ¥41,967, Sakai ¥39,416, Kyoto ¥39,347; coffee: Ōtsu ¥10,396, Kyoto ¥10,149 (Japanese)" },
           ],
         },
       ],

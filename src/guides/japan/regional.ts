@@ -16,7 +16,7 @@ export const regionalFood: GuideTopic = {
     title: "Intro to regional food",
     body: [
       { p: "Japan is long, steep and divided by mountains, and for most of its history people ate what grew nearby or what a ship could bring. So the same country that shares one rice and one stock also has dozens of regional cuisines, and people notice the differences sharply." },
-      { p: "Three things explain most of them. **Land**: where paddy fields wouldn't fit, people ate wheat, buckwheat or sweet potatoes. **Trade**: Edo-period cargo ships and salt-fish roads carried kelp and mackerel far inland and set the taste of whole regions. **History**: Hokkaido was settled only from 1869, and Okinawa was a kingdom of its own until 1879 and under US rule until 1972." },
+      { p: "Three things explain most of them. **Land**: where paddy fields wouldn't fit, people ate wheat, buckwheat or sweet potatoes. **Trade**: Edo-period cargo ships and salt-fish roads carried kelp and mackerel far inland and set the taste of whole regions. **History**: Hokkaido was named and settled only from 1869,[^1] and Okinawa was a kingdom of its own until 1879 and under US rule until 1972.[^2]" },
       { p: "Every prefecture also has its **meibutsu**, the things it's famous for, and some of those are what locals eat while others are mostly made for visitors. This guide's dish cards keep the two apart." },
       {
         terms: [
@@ -26,7 +26,14 @@ export const regionalFood: GuideTopic = {
           { term: "Mostly for visitors", text: "Made for travellers and gifts; locals buy it to take somewhere else" },
         ],
       },
+      { p: "The farm ministry keeps the official record. In 2007 it named a hundred regional dishes of farming and fishing villages, Hokkaido's jingisukan among them,[^4] and its database *Our Regional Cuisines* gives each prefecture's dishes a page of their own: where they came from, who eats them and when.[^3]" },
       { p: "The chapter starts with the line that splits the country in two, then follows the roads that drew it, the regions that ate differently, and the food made to be carried home. What to eat in a particular city is on that city's page in For this trip." },
+    ],
+    sources: [
+      { title: "Hokkaido's early history — Hokkaido Museum", url: "https://www.hm.pref.hokkaido.lg.jp/wp-content/uploads/2025/01/JPN-1-4.pdf", note: "The Kaitakushi set up in July 1869; Ezochi renamed Hokkaido that August (Japanese)" },
+      { title: "Okinawa — Ministry of Foreign Affairs", url: "https://www.mofa.go.jp/mofaj/gaiko/summit/toyako08/venue/okinawa_03.html", note: "The Ryūkyū kingdom, Okinawa Prefecture from 1879, returned to Japan in 1972 (Japanese)" },
+      { title: "Our Regional Cuisines — Ministry of Agriculture, Forestry and Fisheries", url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/", note: "The national database of regional dishes (Japanese)" },
+      { title: "Jingisukan, Hokkaido — MAFF, Our Regional Cuisines", url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/jingisukan_hokkaido.html", note: "One of the hundred regional dishes chosen in 2007 (Japanese)" },
     ],
   },
   blocks: [
@@ -39,6 +46,7 @@ export const regionalFood: GuideTopic = {
           body: [            photo("kitsune-udon", "A bowl of udon in pale broth under a sheet of sweet fried tofu and spring onion", "Kitsune udon at Tennōji, Osaka: the pale, kombu-led broth of the west."),
 
             { p: "Ask anyone in Japan about food differences and they'll start with **Kantō** and **Kansai**: Tokyo and the east against Osaka, Kyoto and the west. The line is fuzzy, but it's usually drawn around Sekigahara, between Gifu and Shiga, and food companies still sell some products in an eastern and a western version." },
+            { p: "The best-known is a cup noodle. Nissin's **Donbei** kitsune udon, on sale since 1976, has always come in two broths: dark and bonito-led east of Sekigahara, pale and kombu-led west of it. Since 2002 even the sheet of fried tofu on top has differed.[^4] A small **(E)** or **(W)** on the side of the cup says which one you have." },
             {
               compare: {
                 title: "The same dish, two ways",
@@ -78,6 +86,7 @@ export const regionalFood: GuideTopic = {
             { title: "Kabayaki — Wikipedia", url: "https://en.wikipedia.org/wiki/Kabayaki", note: "The Kantō and Kansai ways of splitting and cooking eel" },
             { title: "Zōni — Wikipedia", url: "https://en.wikipedia.org/wiki/Z%C5%8Dni", note: "Square grilled mochi in the east, round boiled in the west; regional broths" },
             { title: "Sakuramochi — Wikipedia", url: "https://en.wikipedia.org/wiki/Sakuramochi", note: "Chōmeiji and Dōmyōji styles" },
+            { title: "Why Donbei tastes different east and west — Shūkan Jose Prime", url: "https://www.jprime.jp/articles/-/8814", note: "Nissin: split at Sekigahara, bonito-dark east and kombu-pale west; launched 1976, tofu split from 2002 (Japanese)" },
           ],
         },
         {
@@ -88,10 +97,12 @@ export const regionalFood: GuideTopic = {
             { p: "A lot of regional taste was set by what could be moved, and how. Two kinds of route mattered most: the sea lanes that carried kelp from the far north, and the footpaths that carried salted fish to cities far from the sea." },
             { h: "The kombu road" },
             { p: "From the 17th century, cargo ships called **kitamaebune**, “north-bound ships”, sailed from Osaka through the Seto Inland Sea and the Kanmon Strait, then up the Sea of Japan coast to the ports of Hokuriku and, later, Hokkaido. They took rice, salt and cloth north and came back with herring and **kombu**.[^1] Ships could make only one round trip a year." },
+            { p: "They weren't hired freighters. A kitamaebune owner bought cargo in one port and sold it in the next, a floating trading house, and a good voyage could pay for the ship. The money is still visible: shipowners' mansions, merchant streets climbing from the harbour, and votive paintings of ships hung in shrines. Since 2017 the ports have been listed together as one **Japan Heritage** story, now spread over 49 towns in 16 prefectures.[^3]" },
             { p: "Wherever they called, kelp entered the cooking. That's why Osaka and Kyoto built their food on kombu stock, why Toyama on the Hokuriku coast still eats kelp in everything from onigiri to sashimi wrapped in it, and why dried herring from Hokkaido ended up on top of a bowl of soba in Kyoto, a city nowhere near the herring grounds." },
             { p: "Satsuma merchants carried kombu further, to the Ryūkyū kingdom and on to China. Okinawa, where no kelp grows, still cooks it in long stir-fries and stews. The route ended with the railways and the telegraph, but the tastes it laid down didn't." },
             { h: "The mackerel road" },
-            { p: "Kyoto was a capital without a coast. Fish came from Wakasa Bay, on the Sea of Japan, over the mountains on foot and on packhorses, salted on the way so it would last. The best-known path is still called the **saba-kaidō**, the mackerel road." },
+            { p: "Kyoto was a capital without a coast. Fish came from Wakasa Bay, on the Sea of Japan, over the mountains on foot and on packhorses, salted on the way so it would last. The best-known path is still called the **saba-kaidō**, the mackerel road. The name comes from an old merchant record in Obama of fish salted at the harbour and carried to the capital.[^2]" },
+            { p: "The porters had a saying, **Kyō wa tōtemo jūhachi-ri**: “Kyoto may be far, but it's only eighteen ri”, about 72 km. Walked through the night over the passes, the fish arrived lightly salted, what Kyoto called **Wakasa hitoshio**, “Wakasa one-salt”, and paid extra for. The province had sent food to the court for some 1,500 years before that; it was a *miketsukuni*, a province that supplied the emperor's table, and in 2015 its routes became one of the first Japan Heritage stories.[^2]" },
             { p: "By the time the fish reached the city, the salt had done its work, and Kyoto built dishes around it: **saba-zushi**, salted mackerel pressed on rice and wrapped in kombu, made for festivals and guests. Inland Nara did the same with persimmon leaves (see [Kakinoha-zushi](guide:place/nara/persimmon-leaves-and-the-birth-of-sake))." },
           ],
           words: [
@@ -101,6 +112,8 @@ export const regionalFood: GuideTopic = {
           related: ["how-food-works/dashi-and-why-the-noodle-soup-changes-colour", "regional-food/east-and-west", "eating-out/sushi-from-fermented-fish-to-fast-food"],
           sources: [
             { title: "Kitamaebune — Wikipedia", url: "https://en.wikipedia.org/wiki/Kitamaebune", note: "The route from Osaka to Hokuriku and Hokkaido; one trip a year; the end with railways" },
+            { title: "Wakasa, the food province, and the mackerel road — Japan Heritage, Agency for Cultural Affairs", url: "https://japan-heritage.bunka.go.jp/ja/stories/story005/", note: "The Obama record, hitoshio mackerel, “eighteen ri” to Kyoto (Japanese)" },
+            { title: "Kitamaebune ports in Japan Heritage — Okayama City, 2024", url: "https://www.city.okayama.jp/shisei/cmsfiles/contents/0000057/57777/20240301_kitamaebune.pdf", note: "The story and its 49 municipalities in 16 prefectures (Japanese)" },
           ],
         },
       ],
@@ -149,11 +162,12 @@ export const regionalFood: GuideTopic = {
             {
               dishes: [
                 { name: "Kiritanpo", local: "きりたんぽ", say: "kiritanpo", kind: "Regional", text: "Fresh rice, pounded until half-mashed, pressed round cedar skewers and toasted over an open hearth. Eaten with sweet miso, or cut up into a chicken hotpot.[^1]" },
-                { name: "Imoni", local: "芋煮", say: "imoni", kind: "Seasonal", text: "Taro stewed with meat by a riverbank: Yamagata's autumn outdoor party, beef and soy there, pork and miso next door in Miyagi." },
+                { name: "Imoni", local: "芋煮", say: "imoni", kind: "Seasonal", text: "Taro stewed with meat by a riverbank: Yamagata's autumn outdoor party, beef and soy inland, pork and miso on the Shōnai coast and next door in Miyagi.[^3]" },
               ],
             },
+            { p: "Imoni began, the Yamagata story goes, in the mid-1600s with boatmen at the head of navigation on the Mogami River, stuck for days waiting for whoever was to collect their cargo, who cooked local taro with dried cod. Beef came in only in the early Shōwa period. Every September Yamagata City stirs a pot **6.5 metres** across on the riverbed with a brand-new excavator, and hands out the stew to the crowd.[^3]" },
             { h: "Hokkaido: a frontier kitchen" },
-            { p: "The Ainu lived by salmon, deer and wild plants, and their dishes, such as the salmon-and-vegetable soup **ohaw**, are being taught and served again. The settlers brought the rest, and the state brought farming of the kind Hokkaido's climate allowed: dairy, potatoes, wheat and sheep." },
+            { p: "The Ainu lived by salmon, deer and wild plants, and their dishes, such as the salmon-and-vegetable soup **ohaw**, are being taught and served again. A law of 2019 recognised the Ainu as an indigenous people for the first time, and in July 2020 the national centre **Upopoy** opened at Shiraoi, with a museum and a restaurant that serves Ainu food.[^4] The settlers brought the rest, and the state brought farming of the kind Hokkaido's climate allowed: dairy, potatoes, wheat and sheep." },
             {
               dishes: [
                 { name: "Jingisukan", local: "ジンギスカン", say: "jingisukan", kind: "Everyday", text: "Mutton grilled on a domed iron plate. From 1918 the state set up sheep farms for wool, and only Hokkaido's survived, so people there ate the sheep they sheared. The name, after Genghis Khan, is first written down in 1931.[^2]" },
@@ -170,6 +184,8 @@ export const regionalFood: GuideTopic = {
           sources: [
             { title: "Kiritanpo — Wikipedia", url: "https://en.wikipedia.org/wiki/Kiritanpo", note: "Pounded rice on cedar skewers, Akita" },
             { title: "Jingisukan — Wikipedia", url: "https://en.wikipedia.org/wiki/Jingisukan", note: "The 1918 sheep farms; first written mention in 1931" },
+            { title: "Imoni, Yamagata — MAFF, Our Regional Cuisines", url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/imoni_yamagata.html", note: "The Mogami boatmen, beef from early Shōwa, the 6.5 m pot (Japanese)" },
+            { title: "Ainu culture — Agency for Cultural Affairs", url: "https://www.bunka.go.jp/seisaku/bunkazai/ainu/", note: "The Ainu Promotion Act, April 2019; Upopoy opened 12 July 2020 at Shiraoi (Japanese)" },
           ],
         },
         {
@@ -233,9 +249,10 @@ export const regionalFood: GuideTopic = {
               ],
             },
             { h: "The station box lunch" },
-            { p: "Railways turned the travelling meal into a genre. The first **ekiben** is generally said to have been sold at Utsunomiya station in 1885: rice balls wrapped in bamboo leaf. Himeji sold the first with side dishes in 1888. In the 20th century stations began filling boxes with their own local specialities, and the ekiben became a way of eating your way across the country.[^2]" },
+            { p: "Railways turned the travelling meal into a genre. The first **ekiben** is generally said to have been sold at Utsunomiya station in July 1885 by a local inn, the Shirakiya: two rice balls and pickled daikon wrapped in bamboo leaf. Kobe and Ueno have rival claims, but the trade association backs Utsunomiya.[^3] Himeji sold the first with side dishes, a makunouchi box, four years later.[^3] In the 20th century stations began filling boxes with their own local specialities, and the ekiben became a way of eating your way across the country.[^2]" },
             photo("ekiben", "An open station bento box with rice, fish, vegetables and pickles in compartments", "An ekiben: a region's food in one box, eaten on the train."),
-            { p: "Ekiben peaked in the 1980s and declined as trains got faster. They revived on the Shinkansen once the dining cars were withdrawn, and the big stations now sell boxes from all over Japan." },
+            { p: "Ekiben makers were most numerous in the late 1960s, when slow express trains stopped long enough for vendors to sell through the windows. Faster trains with windows that didn't open, and the konbini on the platform, did for most of them: by 2021 the makers' association had **87** member companies, about a fifth of its peak.[^3]" },
+            { p: "The ones that survived did so by becoming a destination. They revived on the Shinkansen once the dining cars were withdrawn, big stations now sell boxes from all over Japan, and department stores hold ekiben fairs that draw queues from opening time. A box with a self-heating string you pull, or a reusable pottery pot like Yokokawa's *tōge no kamameshi*, is half the appeal." },
             { h: "B-grade, first prize" },
             { p: "From the 2000s towns began promoting their cheap everyday food, *B-kyū gurume*, “B-grade gourmet”, as a draw. The **B-1 Grand Prix** pits them against each other, and a win can make a dish: Kōfu's giblets in sweet soy sold out across Tokyo after winning in 2010 (see [Flour country](guide:regional-food/flour-country)). It's the meibutsu idea again, applied to food that locals actually eat." },
           ],
@@ -247,7 +264,8 @@ export const regionalFood: GuideTopic = {
           related: ["eating-out/depachika", "regional-food/flour-country", "eating-out/getting-a-table-ordering-eating"],
           sources: [
             { title: "Omiyage — Wikipedia", url: "https://en.wikipedia.org/wiki/Omiyage", note: "Gifts for others, from meibutsu, as a social obligation" },
-            { title: "Ekiben — Wikipedia", url: "https://en.wikipedia.org/wiki/Ekiben", note: "Utsunomiya 1885, Himeji 1888, the 1980s peak and the Shinkansen revival" },
+            { title: "Ekiben — Wikipedia", url: "https://en.wikipedia.org/wiki/Ekiben", note: "Utsunomiya 1885 and the Shinkansen revival" },
+            { title: "The history and future of ekiben — Kobe Shimbun, March 2021", url: "https://www.kobe-np.co.jp/news/tajima/202103/sp/0014135677.shtml", note: "The association backs Utsunomiya, 1885; Himeji four years later; 87 members in 2021, a fifth of the late-1960s peak (Japanese)" },
           ],
         },
       ],

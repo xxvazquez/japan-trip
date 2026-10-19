@@ -14,7 +14,7 @@ export const eatingOut: GuideTopic = {
   intro: {
     title: "Intro to eating out",
     body: [
-      { p: "Japan has eaten out for a long time. Edo, by the 1700s one of the largest cities in the world, was full of single men — samurai serving their lords' years in the capital, labourers, craftsmen — living in rooms without kitchens. They ate from stalls: sushi, tempura, soba, eel. Much of the national menu is that street food, gone upmarket." },
+      { p: "Japan has eaten out for a long time. Edo, a city of over a million by the 1700s and one of the largest in the world, was full of single men — samurai serving their lords' years in the capital, labourers, craftsmen — living in rooms without kitchens. Estimates put men at nearly two for every woman among the townspeople.[^1] They ate from stalls that ran late into the night, the konbini of their day: sushi, tempura, soba, eel.[^2] Much of the national menu is that street food, gone upmarket." },
       { p: "It still is woven into ordinary days, partly because flats are small and kitchens smaller, partly because cheap, good food is everywhere. Each kind of place has its own job and its own crowd:" },
       {
         table: {
@@ -33,6 +33,10 @@ export const eatingOut: GuideTopic = {
       { p: "Lunch near offices runs on the clock: most workers eat between 12:00 and 13:00, so a place goes from empty to a queue in minutes and is empty again by ten past one. A lunch set (*ranchi*) from the same kitchen often costs half the dinner price." },
       { p: "Many of the cheap places are built for one person — counter seats, partitions, ticket machines — and eating alone is normal. The chapter goes from the kinds of place to the dishes that made them — sushi, noodles and grilled meat — then the specialists that cook one thing (tempura, eel, the hot plate, kaiseki, the table grill), and ends with how a meal out works." },
     ],
+    sources: [
+      { title: "Some prefer noodles: soba and udon in the Edo period — nippon.com", url: "https://www.nippon.com/en/japan-topics/g00940/", note: "About 1.8 men to each woman; stalls open late, like today's konbini" },
+      { title: "Japanese noodles: soba — Kikkoman Food Forum", url: "https://www.kikkoman.com/en/culture/assets/pdf/foodforum32-3.pdf", note: "A city of over a million, mostly single men" },
+    ],
   },
   blocks: [
     {
@@ -43,7 +47,7 @@ export const eatingOut: GuideTopic = {
           summary: "How the evening runs, and why it's more food than drink",
           body: [            photo("gion-izakaya", "Cooks behind a counter of small dishes in a busy izakaya", "An izakaya counter in Gion, Kyoto."),
 
-            { p: "An **izakaya** — literally “a sake shop you can stay in” — began in the Edo period as liquor sellers letting customers drink on the premises, with a few snacks.[^1] Today it's where most of Japan's social life after work happens: colleagues unwinding, friends catching up, families on a Sunday. It's a restaurant first; the drinks set the pace." },
+            { p: "An **izakaya** — literally “a sake shop you can stay in” — began in the Edo period as liquor sellers letting customers drink on the premises, with a few snacks.[^1] Tokyo's oldest sake seller, **Toshimaya**, founded in 1596 by a wharf in Kanda, is called the first: it sold cheap sake by the cup with grilled tofu on a skewer, and still trades today.[^2] Today it's where most of Japan's social life after work happens: colleagues unwinding, friends catching up, families on a Sunday. It's a restaurant first; the drinks set the pace." },
             { h: "How it runs" },
             {
               steps: [
@@ -77,6 +81,7 @@ export const eatingOut: GuideTopic = {
           related: ["drinks/sake-and-how-to-read-the-bottle", "drinks/sh-ch-whisky-and-beer", "work/office-habits"],
           sources: [
             { title: "Izakaya — Wikipedia", url: "https://en.wikipedia.org/wiki/Izakaya", note: "Edo-period sake shops that let customers drink on the premises" },
+            { title: "Toshimaya — Chiyoda City Tourism Association", url: "https://visit-chiyoda.tokyo/app/spot/detail/459", note: "Founded 1596 at Kamakura-gashi, Kanda; called the first izakaya for serving sake with snacks (Japanese)" },
           ],
         },
         {
@@ -84,6 +89,9 @@ export const eatingOut: GuideTopic = {
           summary: "A department store's basement food hall, and what it says about gifts",
           body: [
             { p: "Department stores put their food halls underground, by the subway entrances, so commuters walk through them. A big **depachika** is a city's best food in one place: bento, sōzai, wagashi, Western cakes, pickles, tea, fruit.[^1]" },
+            { h: "Who put food in the basement" },
+            { p: "The idea is older than the word. Takashimaya's Nagahori store in Osaka, opened in October **1922**, was the first former kimono house to sell food from its basement. On 1 December **1936** Matsuzakaya in Nagoya opened the *Tōzai Meibutsu-gai*, a basement street of famous shops from Kyoto, Osaka and Tokyo under one roof, Toraya's sweets among them. After the war, Tokyo's Tōyoko store in Shibuya copied it as the **Tōyoko Noren-gai**, and the brand-shop food hall spread to every station building.[^3]" },
+            { p: "The nickname *depachika* is from the late 1990s, when stores rebuilt their basements as showcases for celebrity patissiers and sōzai brands and magazines made the food halls a destination of their own. For many stores the basement is now the reason people come at all: it draws shoppers in, and the escalators carry a few of them up to the floors that sell clothes." },
             photo("depachika", "A busy department-store basement food hall with counters of fruit and prepared food", "A depachika: counters of prepared food, gifts and fruit under one low ceiling."),
             { p: "Much of what's sold is **gifts**. Japan has formal gift seasons — *ochūgen* in summer, *oseibo* in December — and an expectation of **omiyage** after any trip, so beautifully boxed, individually wrapped, easy-to-share sweets are a whole industry.[^2]" },
             {
@@ -105,6 +113,7 @@ export const eatingOut: GuideTopic = {
           sources: [
             { title: "Depachika — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E3%83%87%E3%83%91%E5%9C%B0%E4%B8%8B", note: "Department-store food halls" },
             { title: "Omiyage — Wikipedia", url: "https://en.wikipedia.org/wiki/Omiyage", note: "Souvenir gifts after a trip" },
+            { title: "Did Matsuzakaya start the depachika? — Nagoya City Library reference report No. 70", url: "https://www.library.city.nagoya.jp/img/reference/chosahoukoku_70.pdf", note: "Takashimaya Nagahori 1922; Matsuzakaya's Tōzai Meibutsu-gai, 1936; Tōyoko Noren-gai (Japanese)" },
           ],
         },
         {
@@ -421,7 +430,8 @@ export const eatingOut: GuideTopic = {
                 { when: "Meiji", text: "**Monji-yaki**: children at cheap sweet shops write letters in batter on an iron plate[^1]" },
                 { when: "Taishō", text: "**Issen yōshoku**, “one-sen Western food”: a thin pancake with spring onion and Worcestershire sauce, sold to children in Kyoto and Osaka[^1]" },
                 { when: "1930s", text: "The name **okonomiyaki** — “grilled how you like it” — appears at an Osaka shop" },
-                { when: "After 1945", text: "In Hiroshima, flattened by the bomb, the pancake becomes a cheap filling meal, padded with cabbage and noodles" },
+                { when: "After 1945", text: "In Hiroshima, flattened by the bomb, stalls in the burnt-out city pad the one-sen pancake with cabbage and bean sprouts into a filling meal[^3]" },
+                { when: "About 1950–55", text: "Hiroshima drops the old name for okonomiyaki, and noodles and an egg go in: hence the shop menu's *niku-tama-soba*, “meat, egg, noodles”[^3]" },
               ],
             },
             {
@@ -456,13 +466,14 @@ export const eatingOut: GuideTopic = {
           sources: [
             { title: "Okonomiyaki — Wikipedia", url: "https://en.wikipedia.org/wiki/Okonomiyaki", note: "Funoyaki, monji-yaki, issen yōshoku, the 1930s name, Osaka and Hiroshima styles, monjayaki" },
             { title: "Takoyaki — Wikipedia", url: "https://en.wikipedia.org/wiki/Takoyaki", note: "Endō Tomekichi, 1935, Aizuya; radio-yaki and akashiyaki" },
+            { title: "Hiroshima okonomiyaki — Hiroshima Prefecture, Hiroshima Lab", url: "https://www.pref.hiroshima.lg.jp/lab/topics/20211008/01/", note: "Issen yōshoku, postwar stalls, the name around 1950, noodles and egg by about 1955 (Japanese)" },
           ],
         },
         {
           title: "Kaiseki, a meal as a calendar",
           summary: "Two words pronounced the same, a sequence of courses, and the season on every plate",
           body: [
-            { p: "Two different meals are both called **kaiseki**, and the characters tell them apart. **懐石** — “breast-pocket stone” — is the frugal meal served before a formal tea ceremony; the name is usually explained by Zen monks who held a warm stone against their stomachs to quiet their hunger. **会席** — “a gathering's seats” — is the banquet that grew from it, with sake, served at restaurants, inns and occasions.[^1]" },
+            { p: "Two different meals are both called **kaiseki**, and the characters tell them apart. **懐石** — “breast-pocket stone” — is the frugal meal served before a formal tea ceremony; the name is usually explained by Zen monks who held a warm stone against their stomachs to quiet their hunger, an image the tea text *Nanpōroku* uses for a meal meant only to take the edge off.[^2] **会席** — “a gathering's seats” — is the banquet that grew from it, with sake, served at restaurants, inns and occasions.[^1]" },
             photo("kaiseki-hassun", "A hassun course: a small cedar stand with fried prawn and broad beans over a red lacquer tray of tiny lidded dishes", "A hassun course in Kyoto: the season set out in miniature."),
             { p: "The tea meal kept to the home template, **one soup and three dishes** with rice (see [How a meal is built](guide:how-food-works/how-a-meal-is-built)). The banquet stretched that template into a sequence. Restaurants vary it, but the order runs roughly like this:[^1]" },
             {
@@ -492,6 +503,7 @@ export const eatingOut: GuideTopic = {
           related: ["culture/the-tea-ceremony", "how-food-works/how-a-meal-is-built", "food-at-home/the-year-in-a-home-kitchen"],
           sources: [
             { title: "Kaiseki — Wikipedia", url: "https://en.wikipedia.org/wiki/Kaiseki", note: "The two kaiseki, the warm stone, cha-kaiseki and the modern course order" },
+            { title: "懐石 (kaiseki) — Kotobank (Heibonsha World Encyclopedia and others)", url: "https://kotobank.jp/word/懐石", note: "The warm stone, the Nanpōroku and the one-soup-three-dishes tea meal (Japanese)" },
           ],
         },
         {
@@ -503,9 +515,9 @@ export const eatingOut: GuideTopic = {
             {
               terms: [
                 { term: "Sukiyaki", text: "Born in the Meiji era as **gyūnabe**, “beef pot”, eaten in Yokohama and Tokyo as a sign of modernity; the name sukiyaki may only have caught on later.[^1] Thin beef and vegetables cooked in a shallow iron pan in a sweet soy sauce, each piece dipped in **raw beaten egg** before eating" },
-                { term: "Shabu-shabu", text: "Paper-thin meat swished through simmering kombu broth — the name is the sound. Named at **Suehiro** in Osaka, whose owner registered it as a trademark in 1952; it's usually traced to the Beijing mutton hotpot that Japanese who'd lived in China brought home after the war. Dipped in **ponzu** or sesame sauce[^2]" },
+                { term: "Shabu-shabu", text: "Paper-thin meat swished through simmering kombu broth — the name is the sound. Named at **Suehiro** in Osaka in 1952 and registered as its trademark a few years later; it's usually traced to the Beijing mutton hotpot that Japanese who'd lived in China brought home after the war. Dipped in **ponzu** or sesame sauce[^2]" },
                 { term: "Yakiniku", text: "Bite-size meat grilled by you over a gas or charcoal grill set into the table. It comes from **Korean restaurants in Osaka and Tokyo** opened around 1945 by Koreans in Japan, often first advertised as *horumon-yaki*, offal grills[^3]" },
-                { term: "Jingisukan", text: "Hokkaido's mutton grill on a domed iron pan, named after Genghis Khan; first recorded under that name in 1931[^3]" },
+                { term: "Jingisukan", text: "Hokkaido's mutton grill on a domed iron pan, named after Genghis Khan; first recorded under that name in 1931.[^3] Sheep were farmed for wool after the First World War cut off imports, and the grill reached ordinary Hokkaido homes after the next one[^4]" },
               ],
             },
             {
@@ -532,8 +544,9 @@ export const eatingOut: GuideTopic = {
           related: ["eating-out/yakitori-wagyu-and-y-shoku", "food-at-home/the-year-in-a-home-kitchen", "regional-food/the-north-snow-and-settlers"],
           sources: [
             { title: "Sukiyaki — Wikipedia", url: "https://en.wikipedia.org/wiki/Sukiyaki", note: "Gyūnabe, the Kantō and Kansai methods, the raw egg" },
-            { title: "Shabu-shabu — Wikipedia", url: "https://en.wikipedia.org/wiki/Shabu-shabu", note: "Suehiro, Osaka; the 1952 trademark; the mutton hotpot theory" },
+            { title: "Shabu-shabu — Wikipedia", url: "https://en.wikipedia.org/wiki/Shabu-shabu", note: "Suehiro, Osaka, 1952; the trademark; the mutton hotpot theory" },
             { title: "Yakiniku — Wikipedia", url: "https://en.wikipedia.org/wiki/Yakiniku", note: "Korean restaurants in Osaka and Tokyo around 1945; horumon; jingisukan, 1931" },
+            { title: "Jingisukan, Hokkaido — MAFF, Our Regional Cuisines", url: "https://www.maff.go.jp/j/keikaku/syokubunka/k_ryouri/search_menu/menu/jingisukan_hokkaido.html", note: "Wartime sheep farming for wool; the grill in homes after the war (Japanese)" },
           ],
         },
       ],
@@ -639,10 +652,29 @@ export const eatingOut: GuideTopic = {
                 { term: "時価 jika", text: "Market price — ask before you order" },
               ],
             },
+            { h: "Words around the dish" },
+            { p: "A lot of a menu isn't dishes at all. These are the words that tell you what you're allowed, and when:" },
+            {
+              terms: [
+                { term: "季節限定 · 期間限定", text: "Seasonal, for a limited time: the dish the place is proud of this month" },
+                { term: "数量限定 · 品切れ", text: "Only so many made · sold out. A slip pasted over a line on the board means it's gone" },
+                { term: "おまかせ omakase", text: "Leave it to the chef: you choose a price, they choose the food" },
+                { term: "ラストオーダー L.O.", text: "Last orders, usually 30 minutes before closing; the kitchen often shuts before the doors do" },
+                { term: "お一人様一品 · ワンドリンク制", text: "One dish per person · one drink each: a minimum order, common at small bars and live-music places" },
+                { term: "税込 zeikomi · 税抜 zeinuki", text: "Tax included · tax not included" },
+              ],
+            },
+            { h: "Why there are two prices" },
+            { p: "Since October 2019 consumption tax has had two rates: **10%** in general and **8%** on food and non-alcoholic drink.[^2] Food you eat in counts as a restaurant service and pays 10%; the same food taken away is groceries and pays 8%. That's why a konbini till asks whether you'll eat in, and why a menu can carry two prices for one bento." },
+            { p: "Since 2021 any price shown to a shopper must include the tax,[^3] so the big number is now the one you pay; older menus and some bars still print the pre-tax price large and the total small. Alcohol is always at the full rate, wherever you drink it." },
+            { h: "Reading a wall menu" },
+            { p: "At a small izakaya or soba shop the menu is often a row of paper strips on the wall, one dish each, written top to bottom. Prices may be in kanji numerals (**五百** for 500, **千二百** for 1,200), and the newest strips, on whiter paper, are usually the day's additions. The printed menu on the table is the permanent list; the board and the wall are where the cook's interest lies." },
           ],
           related: ["eating-out/getting-a-table-ordering-eating", "language/three-scripts-at-once", "how-food-works/how-a-meal-is-built"],
           sources: [
             { title: "Japanese cuisine — Wikipedia", url: "https://en.wikipedia.org/wiki/Japanese_cuisine", note: "Dish names by method: yaki, ni, age, mushi, ae" },
+            { title: "Overview of the reduced tax rate — National Tax Agency", url: "https://www.nta.go.jp/taxes/shiraberu/zeimokubetsu/shohi/keigenzeiritsu/01.htm", note: "10% standard and 8% reduced rate from 1 October 2019 (Japanese)" },
+            { title: "Tax-inclusive price display, Tax Answer No. 6902 — National Tax Agency", url: "https://www.nta.go.jp/taxes/shiraberu/taxanswer/shohi/6902.htm", note: "Prices shown to consumers must include consumption tax (Japanese)" },
           ],
         },
       ],

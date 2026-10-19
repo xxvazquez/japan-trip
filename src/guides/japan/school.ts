@@ -79,7 +79,8 @@ export const growingUp: GuideTopic = {
             { p: "Lunch works the same way. In elementary school, pupils take turns as servers in white coats and caps, wheel the food up from the kitchen and dish it out to the class, and everyone says *itadakimasu* together. The teacher eats the same meal at a desk among them." },
             { p: "The menu is planned by nutritionists and has shaped how the whole country eats (see [School lunch](guide:food-at-home/school-lunch))." },
             { h: "Teaching it abroad" },
-            { p: "The model travels. Since 2018 Egypt has opened state schools built around tokkatsu, with pupils cleaning and serving as they do here, under an agreement with Japan's aid agency.[^1]" },
+            { p: "The model travels. After President Sisi's visit to Japan in 2016, Egypt signed an education partnership with Japan, and in September 2018 it opened **35** state primary schools built around tokkatsu: class meetings, a daily class monitor, and pupils cleaning their own rooms. Every first-year class in the country got 45 minutes of it a week.[^2]" },
+            { p: "The cleaning was the hard sell. Parents objected that they hadn't sent their children to school to be janitors; a few years on, teachers reported children tidying up without being told. By 2023 there were 51 such schools.[^2][^3]" },
             { note: "Settled: cleaning and serving are part of the curriculum, not a cost-saving. Argued: how much adult tidiness and group-mindedness they explain, and how much comes from home, neighbourhood and work.", title: "What's known and what isn't", kind: "info" },
           ],
           words: [
@@ -90,6 +91,8 @@ export const growingUp: GuideTopic = {
           related: ["food-at-home/school-lunch", "look-closer/why-there-are-no-bins", "customs/overview"],
           sources: [
             { title: "Tokkatsu — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%89%B9%E5%88%A5%E6%B4%BB%E5%8B%95", note: "Special activities, and their export to Egypt" },
+            { title: "Japanese-style education in Egypt — nippon.com", url: "https://www.nippon.com/ja/japan-topics/g00727/", note: "The 2016 partnership; 35 Egypt-Japan Schools from September 2018; 45 minutes of tokkatsu a week; the resistance to cleaning (Japanese)" },
+            { title: "Egypt-Japan Schools — JICA press release, April 2023 (PDF)", url: "https://www.jica.go.jp/tokyo/press/h2nf2c000000209b-att/h2nf2c000000209z.pdf", note: "51 schools nationwide (Japanese)" },
           ],
         },
         {
@@ -123,17 +126,31 @@ export const growingUp: GuideTopic = {
           title: "Clubs and Kōshien",
           summary: "After-school clubs that run all year, and a baseball tournament the whole country watches",
           body: [
-            { p: "From junior high, most pupils join a club, a **bukatsu**: baseball, brass band, kendo, calligraphy, volleyball. Clubs meet after school, at weekends and through the holidays." },
-            { p: "They're run by teachers, often unpaid for the time, which is a big reason Japanese teachers work some of the longest hours in the OECD. The government is moving weekend clubs out to local sports associations to give teachers their weekends back." },
+            { p: "From junior high, most pupils join a club, a **bukatsu**: baseball, brass band, kendo, calligraphy, volleyball. Clubs meet after school, at weekends and through the holidays, and a club is less a hobby than a second homeroom, with its own seniors (*senpai*), juniors (*kōhai*) and rules about who carries the kit." },
+            { p: "Club is also where many people first learn the hierarchy that runs a Japanese office: first-years retrieve balls and bow to second-years, and a club's captain speaks for it to the teacher. People in their fifties still introduce themselves by the club they were in at fifteen." },
+            { h: "Who pays for it: the teachers" },
+            { p: "Clubs are run by teachers, mostly on their own time. In the OECD's 2024 teaching survey Japan's lower-secondary teachers worked **55.1 hours** a week, the longest of any country surveyed and about 14 hours above the OECD average; **5.6 hours** of it went on clubs and other activities outside lessons, against 1.7 on average.[^2] That's four hours a week less than in 2018, but still the outlier." },
+            { p: "So the clubs are leaving the school. Since 2023 weekend clubs have been handed to local sports and arts associations, and under a plan agreed in 2025 the government aims to move weekend club activity out of schools almost entirely by 2031, renamed from “transfer” to “regional expansion”, and to start on weekday clubs too.[^3] In towns with no local club to take over, that can simply mean no club." },
             photo("koshien", "A large baseball stadium with players lined up on the field for an opening ceremony", "Kōshien Stadium near Osaka, home of the national high-school baseball tournament since 1924."),
             { h: "Kōshien" },
-            { p: "The summit of club life is **Kōshien**. The national high-school baseball tournament began in 1915 and has been played at Kōshien Stadium, between Osaka and Kobe, since it opened in 1924.[^1] Every August thousands of schools play qualifiers for 49 places, and the games are broadcast live nationwide." },
-            { p: "When a team is knocked out, its players kneel and scoop the stadium's black soil into bags to take home. It's televised, it's emotional, and it's watched by people with no interest in baseball at all." },
+            { p: "The summit of club life is **Kōshien**. The national high-school baseball tournament began in 1915 and has been played at Kōshien Stadium, between Osaka and Kobe, since it opened in 1924.[^1] Every summer thousands of schools play qualifiers for 49 places, one per prefecture and two each for Tokyo and Hokkaido, and every game of the August finals is broadcast live nationwide. A spring tournament, *Senbatsu*, picks its field by invitation." },
+            { p: "When a team is knocked out, its players kneel and scoop the stadium's black soil into bags to take home. It's televised, it's emotional, and it's watched by people with no interest in baseball at all. Losing teams cry; winning ones line up to sing their school song." },
+            { h: "The heat, and the seventh inning" },
+            { p: "The tournament is played in Osaka's August, increasingly dangerous for teenagers in full uniform. In 2024 it began splitting its first days into a **morning and an evening session**, leaving the field empty through the hottest hours, and in 2025 extended that to the first six days.[^4]" },
+            { p: "The bigger change is still argued over. The federation has proposed shortening games to **seven innings** from around 2028, for the heat and for the volunteer teachers who coach; in its survey about **70%** of member schools were against, because fewer innings mean fewer chances for the players who aren't the stars.[^5] Kōshien is the one institution that a shrinking, heating, overworked country has to change while everyone watches." },
           ],
-          words: [{ local: "部活", say: "bukatsu", means: "an after-school club" }],
-          related: ["growing-up/exams-and-cram-schools", "work/long-hours"],
+          words: [
+            { local: "部活", say: "bukatsu", means: "an after-school club" },
+            { local: "先輩・後輩", say: "senpai · kōhai", means: "seniors and juniors in a club or a company" },
+            { local: "甲子園の土", say: "Kōshien no tsuchi", means: "the stadium's soil, taken home by losing teams" },
+          ],
+          related: ["growing-up/exams-and-cram-schools", "work/long-hours", "culture/baseball"],
           sources: [
             { title: "A century at Kōshien — nippon.com", url: "https://nippon.com/en/in-depth/d00975", note: "The tournament since 1915 and the stadium since 1924" },
+            { title: "Teachers' hours: Japan longest in the OECD survey — nippon.com Japan Data", url: "https://www.nippon.com/ja/japan-data/h02566/", note: "TALIS 2024: 55.1 hours a week in junior high, 5.6 on extracurricular work against 1.7 (Japanese)" },
+            { title: "Final report on reforming school clubs, May 2025 — Ministry of Education (MEXT)", url: "https://www.mext.go.jp/b_menu/activity/detail/2025/20250516.html", note: "Weekend clubs moved out of schools by fiscal 2031; weekday clubs next (Japanese)" },
+            { title: "Kōshien's split-day schedule widens — Baseball Channel, 2025", url: "https://www.baseballchannel.jp/etc/224917/", note: "Morning and evening sessions from 2024, six days in 2025 (Japanese)" },
+            { title: "Seven-inning high-school baseball: for or against? — J-CAST News, June 2026", url: "https://www.j-cast.com/2026/06/20515755.html", note: "The federation's 2028 proposal; about 70% of member schools against (Japanese)" },
           ],
         },
       ],
@@ -151,6 +168,9 @@ export const growingUp: GuideTopic = {
             { p: "A yellow hat or yellow bag cover marks a first-year. The backpack, the **randoseru**, is stiff leather, often a grandparents' gift, and meant to last six years; its name is the Dutch *ransel* (see [Borrowed words](guide:language/borrowed-words))." },
             { h: "My First Errand" },
             { p: "One TV show makes the expectation into entertainment. ***Hajimete no Otsukai***, \"My First Errand\", has followed toddlers sent out alone to buy groceries since 1991,[^1] with a hidden film crew and much of the neighbourhood quietly in on it. It works as comedy and as a portrait of a community that keeps an eye on children without hovering." },
+            { h: "The risk is the road" },
+            { p: "The danger that worries parents isn't strangers but cars. Seven, the age of a first-year walking alone, is the age at which more people are killed or hurt on foot than any other: police figures for 2020–24 put seven-year-olds at the top of every age.[^2] A Saitama Prefecture analysis of four prefectures' data found that most of these accidents happen within a kilometre of home, between 14:00 and 18:00, on the way back from school or out to play, rather than on the supervised morning walk.[^3]" },
+            { p: "That's why the morning has volunteers with flags and the afternoon has none, and why road-safety campaigns now aim at the after-school hours. Many first-years also carry a small personal alarm on the randoseru, and towns broadcast a chime over loudspeakers at about 17:00 that tells children it's time to go home." },
             { note: "Settled: children in Japan are trusted to move around alone young. Argued: how long that can last as neighbourhoods age and fewer adults are around in the daytime to keep watch.", title: "What's known and what isn't", kind: "info" },
             { h: "What to look for" },
             {
@@ -169,6 +189,8 @@ export const growingUp: GuideTopic = {
           related: ["growing-up/shichi-go-san-to-twenty", "language/borrowed-words"],
           sources: [
             { title: "Old Enough! — Wikipedia", url: "https://en.wikipedia.org/wiki/Old_Enough!", note: "Hajimete no Otsukai, on air since 1991" },
+            { title: "“The devil's age of seven” — Kuruma News, 2025", url: "https://kuruma-news.jp/post/896615", note: "National Police Agency, March 2025: seven the commonest age of pedestrian casualties, 2020–24 (Japanese)" },
+            { title: "Seven-year-olds walking alone — Saitama Prefecture", url: "https://www.pref.saitama.lg.jp/a0311/saftey-chidl/7sai_no_hitori_aruki.html", note: "First- and second-years half of child pedestrian casualties; 14:00–18:00; within 1 km of home (Japanese)" },
           ],
         },
         {
@@ -188,7 +210,8 @@ export const growingUp: GuideTopic = {
               ],
             },
             { h: "Coming of age" },
-            { p: "**Adulthood** changed in 2022, when the legal age dropped from 20 to 18. Eighteen-year-olds can now sign contracts and marry without consent, but drinking, smoking and gambling stay at 20." },
+            { p: "**Adulthood** changed on 1 April 2022, when the legal age dropped from 20 to 18, the first change in about 140 years, since a decree of 1876.[^3] Eighteen-year-olds can now sign contracts and marry without consent, but drinking, smoking and betting on races stay at 20.[^2]" },
+            { p: "The change had a cost the law's critics had warned about. A minor's contract could be cancelled; an 18-year-old's can't. Consumer centres now run campaigns in high schools about the beauty-treatment subscriptions, get-rich-quick investment schemes and modelling contracts aimed at people who turned adult last week." },
             { p: "Most towns kept their ceremony for 20-year-olds anyway, held on or around Coming of Age Day, the second Monday of January, partly because 18-year-olds are in the middle of exams.[^2] Young women come in long-sleeved **furisode** kimono, often rented or handed down, and young men in suits or *hakama*." },
           ],
           words: [
@@ -200,6 +223,7 @@ export const growingUp: GuideTopic = {
           sources: [
             { title: "Shichi-Go-San — Wikipedia", url: "https://en.wikipedia.org/wiki/Shichi-Go-San", note: "The November shrine visit" },
             { title: "Coming of Age Day — Wikipedia", url: "https://en.wikipedia.org/wiki/Coming_of_Age_Day", note: "The 2022 change to 18 and the ceremonies kept at 20" },
+            { title: "The age of majority lowered to 18 — Ministry of Justice", url: "https://www.moj.go.jp/MINJI/minji07_00218.html", note: "In force 1 April 2022, about 140 years after the 1876 decree (Japanese)" },
           ],
         },
         {

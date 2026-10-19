@@ -85,8 +85,12 @@ export const howFoodWorks: GuideTopic = {
 
             { p: "Most Japanese cooking starts with **dashi**, a stock made in minutes from dried **kombu** kelp and shaved **katsuobushi** — smoked, dried, fermented bonito. It takes less time than a pot of rice, and it seasons soups, simmered dishes, noodle broths and sauces." },
             { h: "The fifth taste" },
-            { p: "In 1908 the chemist Ikeda Kikunae found the source of kombu's savouriness, glutamate, and named the taste **umami**. The next year it went on sale as a seasoning, Ajinomoto.[^1]" },
-            { p: "The bonito adds a second umami compound, inosinate. Together the two taste many times stronger than either alone. That synergy is the logic of much Japanese food: kombu with bonito, kombu with dried sardines, kombu with shiitake for a temple kitchen that uses no fish." },
+            { p: "In 1908 the chemist Ikeda Kikunae found the source of kombu's savouriness, glutamate, and named the taste **umami**. The next year it went on sale as a seasoning, Ajinomoto.[^1][^2]" },
+            { p: "Ikeda's student Kodama Shintarō found the bonito's own umami compound, **inosinate**, in 1913; a researcher at the soy-sauce maker Yamasa found the shiitake's, **guanylate**, in 1957. Mixed half and half, glutamate and inosinate taste **seven to eight times** as strong as either alone.[^2]" },
+            { p: "That synergy is the logic of much Japanese food, worked out by cooks centuries before anyone measured it: kombu with bonito, kombu with dried sardines, kombu with shiitake for a temple kitchen that uses no fish." },
+            { h: "Five minutes, not five hours" },
+            { p: "A European stock simmers bones for hours to pull out gelatin and body. Dashi does the opposite. Kombu is soaked or brought just short of the boil and lifted out before it turns slimy and bitter; bonito flakes go in off the heat and are strained after a minute or two. **Ichiban dashi**, first dashi, is clear and fragrant, for clear soups. The used kombu and flakes are simmered again for **niban dashi**, second dashi, for miso soup and simmered dishes." },
+            { p: "Most homes now use neither. Granules (*dashi no moto*) and tea-bag-style dashi packs are the everyday stock, and a bottle of *mentsuyu*, noodle sauce already made with dashi, soy and mirin, does much of a weeknight's seasoning." },
             { h: "East and west in one bowl" },
             { p: "Order udon in Kyoto or Osaka and then in Tokyo. In the west the broth is pale gold, built on kombu and seasoned with light-coloured soy; in the east it's dark brown, heavier on bonito and dark soy." },
             { p: "The divide has history behind it. Edo-period cargo ships carried Hokkaido kombu down the Sea of Japan coast to Osaka and Kyoto, whose soft water draws out its flavour. Edo had bonito from its own coast and a taste for strong soy. More of the east–west line is in [East and west](guide:regional-food/east-and-west)." },
@@ -101,6 +105,7 @@ export const howFoodWorks: GuideTopic = {
           related: ["how-food-works/k-ji-the-national-mould", "regional-food/east-and-west", "eating-out/soba-udon-and-ramen"],
           sources: [
             { title: "Kikunae Ikeda — Wikipedia", url: "https://en.wikipedia.org/wiki/Kikunae_Ikeda", note: "Glutamate from kombu, 1908; Ajinomoto, 1909" },
+            { title: "What is umami? — Umami Information Center", url: "https://www.umamiinfo.com/what/whatisumami/", note: "Ikeda 1908, Kodama's inosinate 1913, Kuninaka's guanylate 1957; the seven- to eightfold synergy" },
           ],
         },
         {
@@ -108,33 +113,77 @@ export const howFoodWorks: GuideTopic = {
           summary: "The fungus behind soy sauce, miso, sake and mirin",
           body: [            photo("koji-rice", "Steamed rice grains covered in fine white mould", "Kōji: rice grown over with Aspergillus oryzae."),
 
-            { p: "A huge share of Japanese flavour comes from one mould, **Aspergillus oryzae**, or kōji. Grown on steamed rice, barley or soybeans, it breaks starch and protein down into sugars and amino acids." },
-            { p: "In 2006 the Brewing Society of Japan declared it the **national fungus** (kokkin), though it came from China and isn't used only here.[^1] In 2024 the skills of brewing with kōji joined UNESCO's intangible heritage list (see [Sake](guide:drinks/sake-and-how-to-read-the-bottle))." },
+            { p: "A huge share of Japanese flavour comes from one mould, **Aspergillus oryzae**, or kōji. Grown on steamed rice, barley or soybeans, it breaks starch and protein down into sugars and amino acids. Soy sauce, miso, sake, mirin, rice vinegar and amazake are all kōji's work, which makes it the closest thing the kitchen has to a single foundation." },
+            { p: "On 12 October 2006 the Brewing Society of Japan declared it the **national fungus** (kokkin), though the craft came from China and isn't used only here.[^1] In December 2024 the skills of brewing with kōji joined UNESCO's intangible heritage list, Japan's second food entry after washoku in 2013.[^2]" },
+            {
+              stats: [
+                { value: "2006", label: "named the national fungus" },
+                { value: "~12,000", label: "genes, sequenced in 2005" },
+                { value: "98%+", label: "of its genome shared with a toxic cousin" },
+              ],
+            },
+
+            { h: "A tamed wild mould" },
+            { p: "Kōji is a domesticated organism, like a dog or wheat. Its wild ancestor is **Aspergillus flavus**, a mould that grows on stored grain and nuts and makes aflatoxin, one of the most potent natural carcinogens known. When a Japanese team finished the kōji genome in 2005, it showed the two share more than 98% of their sequence, but in kōji the genes for making aflatoxin are broken or missing.[^1]" },
+            { p: "Centuries of brewers keeping back the best batches selected for that, without knowing it, and for more starch-digesting enzymes: kōji has three copies of the main amylase gene where its wild cousin has one.[^1]" },
+
+            { h: "A guild that went to war" },
+            { p: "Growing kōji was a trade before it was a science, and in medieval Kyoto a lucrative one. The **kōji guild** (kōji-za) of Kitano Shrine held the sole right to make and sell it across the capital; in 1419 the shogun's men stood by while guild members smashed the kōji rooms of breweries that made their own.[^3]" },
+            { p: "The brewers, many of them under the protection of the great monastery on Mount Hiei, pushed back. In **1444** the shogunate withdrew the monopoly; guild members barricaded themselves inside Kitano Shrine, troops were sent in, and the shrine burned. The monopoly never really recovered, and breweries have grown their own kōji ever since.[^3]" },
+
+            { h: "Who makes the starter" },
+            { p: "A brewery or miso maker doesn't catch kōji from the air. It buys spores, **tane-kōji** (seed kōji, also called *moyashi*), from a small number of specialist houses that keep and select strains, some for centuries. Sprinkled on steamed rice and kept warm and humid for about two days, the spores turn it into the snowy, chestnut-smelling mass in the photo.[^1]" },
+            { p: "Shōchū and Okinawa's awamori use relatives that make citric acid as they grow, which keeps a ferment safe in a hot climate: **black kōji** in Okinawa and **white kōji** across Kyushu, a mutant of the black one found in the early 20th century." },
             {
               terms: [
                 { term: "Shōyu, soy sauce", text: "Soybeans, wheat, salt and kōji, fermented for months. Dark koikuchi is the everyday kind; usukuchi is Kansai's light one; tamari is the thick, almost wheat-free kind from around Nagoya" },
                 { term: "Miso", text: "Soybeans, salt and kōji, often with rice or barley. Kyoto's saikyō miso is pale, sweet and short-fermented; Nagoya's is dark and all-soybean; most homes use a medium one" },
                 { term: "Sake and mirin", text: "Rice and kōji. Mirin is a sweet rice seasoning: the glaze on teriyaki and the sweetness in simmered dishes" },
                 { term: "Rice vinegar and amazake", text: "Also kōji's work. Amazake, a sweet, unalcoholic rice drink, is sold hot at temples in winter" },
+                { term: "Shio-kōji", text: "Kōji, salt and water left for a week or two: a seasoning and marinade that became a national craze around 2011–12 and is now a supermarket staple" },
               ],
             },
+            { note: "**麹** is the Chinese character for kōji. **糀**, “rice flowering”, is a character made up in Japan in the Edo period for kōji grown on rice, and it's the one you'll see on many miso and amazake labels.[^1]", title: "Two ways to write it" },
           ],
           words: [
-            { local: "麹", say: "kōji", means: "the mould used to ferment" },
+            { local: "麹 / 糀", say: "kōji", means: "the mould used to ferment" },
+            { local: "種麹", say: "tane-kōji", means: "seed kōji, the spores a brewer buys" },
             { local: "醤油", say: "shōyu", means: "soy sauce" },
             { local: "味噌", say: "miso", means: "fermented soybean paste" },
           ],
           related: ["drinks/sake-and-how-to-read-the-bottle", "how-food-works/pickles-at-every-meal", "how-food-works/dashi-and-why-the-noodle-soup-changes-colour"],
           sources: [
-            { title: "Aspergillus oryzae — Wikipedia", url: "https://en.wikipedia.org/wiki/Aspergillus_oryzae", note: "Declared the national fungus by the Brewing Society of Japan, 2006" },
+            { title: "Kōji mould and the UNESCO listing of sake brewing — Kikkoman Institute for International Food Culture", url: "https://www.kikkoman.com/en/kiifc/journal/no36_koujikin.html", note: "National fungus, 12 October 2006; the 2005 genome; kinship with A. flavus and the missing aflatoxin genes; 糀" },
+            { title: "Traditional knowledge and skills of sake-making with koji mold in Japan — UNESCO", url: "https://ich.unesco.org/en/RL/traditional-knowledge-and-skills-of-sake-making-with-koji-mold-in-japan-01977", note: "Inscribed December 2024" },
+            { title: "麹座 (kōji-za) — Kotobank (Nihon Daihyakka Zensho)", url: "https://kotobank.jp/word/%E9%BA%B9%E5%BA%A7-1532846", note: "Kitano's monopoly, the 1419 decree and the Bun'an kōji riot (Japanese)" },
           ],
         },
         {
           title: "Pickles at every meal",
           summary: "Why a few slices of something salty come with your rice",
           body: [
-            { p: "**Tsukemono**, pickles, are how vegetables kept through winter before refrigeration, and they're still beside almost every meal with rice. Rice is bland on purpose; a sharp, salty pickle is what you eat it with.[^1]" },
+            { p: "**Tsukemono**, pickles, are how vegetables kept through winter before refrigeration, and they're still beside almost every meal with rice. Rice is bland on purpose; a sharp, salty pickle is what you eat it with. The old name for them, **kō no mono**, “fragrant things”, is why a plate of pickles is still called *oshinko*.[^1]" },
             photo("nishiki-pickles", "Wooden barrels of pickles outside a shop in Nishiki Market", "A tsukemono shop in Kyoto, its pickles in wooden tubs."),
+
+            { h: "Five ways to pickle" },
+            { p: "A Japanese pickle isn't usually vinegar. It's whatever the vegetable is packed into, and each medium does something different:" },
+            {
+              terms: [
+                { term: "Salt (shiozuke)", text: "The oldest and simplest: salt and a weight. **Asazuke**, “shallow pickles”, are salted for hours, not months, and fill most of a supermarket's pickle shelf" },
+                { term: "Rice bran (nukazuke)", text: "A living bed of fermented bran, salt and water that lactic bacteria keep sour. Vegetables come out with a tang, and soak up B vitamins from the bran" },
+                { term: "Miso, soy and sake lees", text: "Slow, deep pickles: Nara's **narazuke** are melons and gourds cured for a year or more in the lees left from sake" },
+                { term: "Vinegar and sugar", text: "The sweet-sour pickles: pink ginger with sushi (gari), rakkyō shallots with curry" },
+                { term: "Kōji", text: "Tokyo's *bettarazuke*, sticky with sweet rice kōji, sold at a fair of its own every October" },
+              ],
+            },
+
+            { h: "A shrinking jar" },
+            { p: "Pickles fell with rice. Factory output was about **1.2 million tonnes** in 1991 and about **720,000** by 2013, down 40% in two decades; the trade body blames less rice eaten and a more varied diet.[^2] Salt is the other reason: the old long-cured pickles were fiercely salty, and most of what's sold now is low-salt and kept in the fridge." },
+            { p: "Low salt has a cost. In August 2012 lightly pickled Chinese cabbage from a Sapporo factory, not properly disinfected, carried **E. coli O157** into care homes: **169 people** fell ill and **8 died**.[^3] Hygiene rules for pickles were rewritten that year, and the 2018 revision of the Food Sanitation Act made pickle-making a licensed trade for the first time." },
+            { p: "The licence arrived in June 2021 with three years' grace. Farm women who had sold their own pickles at roadside stations for decades suddenly needed a separate kitchen, a dedicated sink and hands-free taps; many gave up. In Akita, the heartland of smoked iburi-gakko, 334 producers had a licence by March 2024, some by sharing a converted community kitchen.[^4]" },
+
+            { h: "Umeboshi, a Wakayama monopoly" },
+            { p: "The fiercest pickle on the table is mostly from one prefecture. **Wakayama** grows about **64%** of Japan's ume and has been the top producer every year since 1965;[^5] the town of Minabe and its *Nankō* variety set the standard. The fruit is salted in June, sun-dried for three days in the July heat, then often coloured with red shiso." },
             {
               dishes: [
                 { name: "Nukazuke", local: "糠漬け", say: "nukazuke", kind: "Everyday", text: "Vegetables buried for a day in a bed of fermented rice bran. A family's nuka bed is stirred by hand daily and can be kept alive for decades." },
@@ -142,12 +191,23 @@ export const howFoodWorks: GuideTopic = {
                 { name: "Takuan", local: "沢庵", say: "takuan", kind: "Everyday", text: "Bright yellow pickled daikon, crunchy and sweet-salty." },
                 { name: "Senmaizuke", local: "千枚漬け", say: "senmaizuke", kind: "Seasonal", text: "Paper-thin slices of a big Kyoto turnip, pickled with kombu: Kyoto's winter pickle." },
                 { name: "Iburi-gakko", local: "いぶりがっこ", say: "iburi-gakko", kind: "Regional", text: "Daikon smoked over a fire before pickling, from snowy Akita, where the vegetables couldn't be dried in the sun before winter." },
+                { name: "Fukujinzuke", local: "福神漬", say: "fukujinzuke", kind: "Everyday", text: "Seven vegetables chopped and simmered in sweet soy, dyed red-brown: the relish beside every plate of curry rice." },
               ],
             },
+            { note: "Pickles at a set meal or a ramen counter are free and refilled; at an izakaya they're a dish you order, often as the last thing with rice. A teishoku's pickles aren't garnish: they're there to finish the rice.", title: "On the table" },
+          ],
+          words: [
+            { local: "漬物 / お新香", say: "tsukemono / oshinko", means: "pickles" },
+            { local: "浅漬け", say: "asazuke", means: "a quick, light pickle" },
+            { local: "糠床", say: "nukadoko", means: "the bran bed a family keeps" },
           ],
           related: ["how-food-works/k-ji-the-national-mould", "how-food-works/rice-properly", "regional-food/the-north-snow-and-settlers"],
           sources: [
-            { title: "Tsukemono — Wikipedia", url: "https://en.wikipedia.org/wiki/Tsukemono", note: "Nukazuke, umeboshi, takuan and regional pickles" },
+            { title: "Tsukemono — Wikipedia", url: "https://en.wikipedia.org/wiki/Tsukemono", note: "Kinds of pickle and the name kō no mono" },
+            { title: "The pickle market — Shoku no Shimbun / Japan Food Supply and Demand Research Center data, via Newswitch", url: "https://newswitch.jp/p/4775", note: "Output of about 1.2 million tonnes in 1991 and 719,000 in 2013 (Japanese)" },
+            { title: "Food poisoning from asazuke pickles, August 2012 — National Institute of Health Sciences", url: "https://www.nihs.go.jp/kanren/shokuhin/20151002-fhm.pdf", note: "169 ill, 8 dead; the hygiene code rewritten that year (Japanese)" },
+            { title: "Akita's pickle makers after the licensing change — Tōyō Keizai", url: "https://toyokeizai.net/articles/-/779925", note: "Licensing from June 2021, three years' grace; 334 licensed facilities by March 2024 (Japanese)" },
+            { title: "Ume harvest, 2023 — MAFF Kinki Regional Agricultural Administration Office", url: "https://www.maff.go.jp/kinki/press/toukei/toukeikikaku/231130.html", note: "Wakayama 64% of the national crop, top since 1965 (Japanese)" },
           ],
         },
       ],
@@ -161,7 +221,12 @@ export const howFoodWorks: GuideTopic = {
           body: [
             { p: "The template is **ichijū sansai**, “one soup, three dishes”: rice, a soup, a main and two smaller sides, plus pickles. Rice goes on the left, soup on the right, the main at the back.[^1]" },
             photo("teishoku", "A set meal of rice, pork-and-vegetable miso soup and three small side dishes", "The everyday shape: rice, a soup (here tonjiru, pork miso soup) and small sides."),
-            { p: "An ordinary dinner today is more often one soup and one or two dishes. The template survives as the shape people aim for, and as the shape of every set meal (*teishoku*) in a restaurant." },
+            { p: "An ordinary dinner today is more often one soup and one or two dishes. The template survives as the shape people aim for, as the shape of every set meal (*teishoku*) in a restaurant, and as the model the farm ministry holds up when it explains why Japanese meals are balanced.[^3]" },
+            { h: "Where the template came from" },
+            { p: "It isn't ancient peasant food. Ordinary people for most of history ate rice or other grain, soup and a pickle: one soup, one side at best. **Ichijū sansai** is the frugal end of a samurai-class banquet, *honzen ryōri*, in which a guest might face several trays and many dishes, and it was the tea masters of the 1500s who cut that down to a single tray of rice, soup and three dishes for the meal before tea.[^2]" },
+            { p: "The modern ideal of three home-cooked dishes every night is younger still: it belongs to the postwar housewife with a fridge and a gas ring, and to the school nutrition lessons that taught her children to count food groups." },
+            { pull: "Rice, a miso soup full of vegetables, a pickle: one soup and one dish is enough." },
+            { p: "In 2016 the television cook **Doi Yoshiharu** published *Ichijū issai de yoi to iu teian*, “a proposal that one soup and one dish is enough”: rice, a miso soup thick with whatever vegetables there are, and a pickle. It became a long-running bestseller.[^4] It struck a nerve because so many households, most with two working adults, felt guilty for falling short of three dishes." },
             { h: "Methods, not just ingredients" },
             { p: "Cooks think in **methods** as much as ingredients: something raw (nama), grilled (yaki), simmered (ni), steamed (mushi), fried (age), dressed (ae). A balanced meal has a range of them. That's why a set meal so often pairs something fried with something simmered and something raw." },
             { h: "Shun: eating in season" },
@@ -176,7 +241,9 @@ export const howFoodWorks: GuideTopic = {
           related: ["food-at-home/a-weekday-of-meals", "food-at-home/the-year-in-a-home-kitchen", "culture/the-tea-ceremony"],
           sources: [
             { title: "Japanese cuisine — Wikipedia", url: "https://en.wikipedia.org/wiki/Japanese_cuisine", note: "Ichijū sansai and the cooking methods" },
-            { title: "Kaiseki — Wikipedia", url: "https://en.wikipedia.org/wiki/Kaiseki", note: "Its origin in the tea-ceremony meal" },
+            { title: "Kaiseki — Wikipedia", url: "https://en.wikipedia.org/wiki/Kaiseki", note: "Its origin in the tea-ceremony meal and in honzen ryōri" },
+            { title: "Japanese cuisine — Ministry of Agriculture, Forestry and Fisheries", url: "https://www.maff.go.jp/e/policies/market/japan-cuisine/index.html", note: "Rice, soup, a main and two sides: ichijū sansai as the balanced meal" },
+            { title: "一汁一菜でよいという提案 — Shinchōsha", url: "https://www.shinchosha.co.jp/book/103381/", note: "Doi Yoshiharu's book, first published 2016 (Japanese)" },
           ],
         },
       ],
@@ -241,12 +308,14 @@ export const foodAtHome: GuideTopic = {
             },
             { p: "Among the dishes most often cooked at home are **Western-born** ones: curry rice, hambāgu (a hamburger steak with sauce), spaghetti, gratin, cream stew. They arrived in the late 1800s and early 1900s and were adapted so thoroughly that families think of them as home food, not foreign food[^1][^2] (see [Yōshoku](guide:eating-out/yakitori-wagyu-and-y-shoku))." },
             { h: "Eating apart" },
-            { p: "Many families no longer eat together on weekdays. Parents work late; teenagers have club activities and cram school. Dinner is often reheated at different times, one reason one-bowl and one-plate meals have pushed out the many-small-dishes table." },
+            { p: "Many families no longer eat together on weekdays. Parents work late; teenagers have club activities and cram school. In the farm ministry's 2024 survey, **63%** of people who live with family ate dinner with them almost every day, and only **43%** breakfast; across the week it came to about **nine** shared meals out of fourteen.[^3]" },
+            { p: "Dinner is often reheated at different times, one reason one-bowl and one-plate meals have pushed out the many-small-dishes table. The ministry has a word for eating alone, **koshoku**, and treats it as a problem to be reduced; there's a matching one, *kyōshoku*, for eating together." },
           ],
           related: ["how-food-works/how-a-meal-is-built", "food-at-home/bought-not-cooked", "food-at-home/school-lunch"],
           sources: [
             { title: "Japanese curry — Wikipedia", url: "https://en.wikipedia.org/wiki/Japanese_curry", note: "From the Meiji navy to the roux block" },
             { title: "Yōshoku — Wikipedia", url: "https://en.wikipedia.org/wiki/Y%C5%8Dshoku", note: "Western dishes adapted as home food" },
+            { title: "Survey on attitudes to food education, FY2024 — Ministry of Agriculture (MAFF)", url: "https://www.maff.go.jp/j/syokuiku/ishiki/r06/", note: "Dinner with family almost every day 63.3%, breakfast 42.9%; 8.9 shared meals a week (Japanese)" },
           ],
         },
         {
@@ -354,7 +423,7 @@ export const foodAtHome: GuideTopic = {
             { h: "Fish and meat: cut for the dish" },
             { p: "The fish counter sells **saku**, neat blocks of tuna or salmon to slice as sashimi at home, alongside whole fish and pre-salted fillets for the grill. Meat is sliced paper-thin and labelled for its use: for shabu-shabu, for sukiyaki, for ginger pork, minced for gyōza. Big roasting joints are rare, because most homes have no oven, only a grill drawer under the gas hob." },
             { h: "Tofu, natto and the fermented aisle" },
-            { p: "A whole chilled wall is soy: firm (momen) and silken (kinu) tofu, fried tofu, soy milk, and twenty kinds of **natto** in three-packs — fermented soybeans, sticky and strong, eaten on rice at breakfast.[^1] Beside them are tubs of miso in a range of colours, and pickles." },
+            { p: "A whole chilled wall is soy: firm (momen) and silken (kinu) tofu, fried tofu, soy milk, and twenty kinds of **natto** in three-packs — fermented soybeans, sticky and strong, eaten on rice at breakfast.[^1] It's a ¥287 billion market, and it grew in 2024 even as prices rose, because a three-pack is still one of the cheapest proteins in the shop.[^3] It's also a north-eastern taste: households in Fukushima spend nearly **three times** as much on it as households in Wakayama.[^4] Beside them are tubs of miso in a range of colours, and pickles." },
             { h: "The shortcut aisles" },
             {
               list: [
@@ -376,6 +445,8 @@ export const foodAtHome: GuideTopic = {
           sources: [
             { title: "Nattō — Wikipedia", url: "https://en.wikipedia.org/wiki/Natt%C5%8D", note: "Fermented soybeans, eaten on rice at breakfast" },
             { title: "Japanese cuisine — Wikipedia", url: "https://en.wikipedia.org/wiki/Japanese_cuisine", note: "Dashi, tofu and the home kitchen" },
+            { title: "Natto market, 2024 — Nippon Shokuryō Shimbun", url: "https://news.nissyoku.co.jp/special/1158095", note: "National Natto Cooperative Federation: ¥287.4 billion, up 6.6% (Japanese)" },
+            { title: "Household Survey: rankings by city, 2023–25 average — Statistics Bureau of Japan", url: "https://www.stat.go.jp/data/kakei/5.html", note: "Natto: Fukushima ¥7,102 a household a year, Wakayama ¥2,468 (Japanese)" },
           ],
         },
         {

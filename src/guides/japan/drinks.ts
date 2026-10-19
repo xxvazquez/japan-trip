@@ -16,6 +16,7 @@ export const drinks: GuideTopic = {
     body: [
       { p: "Japan's two national drinks came **with Buddhism and with rice**. Tea arrived with monks from China and was first drunk as medicine; sake grew out of the same rice and the same kōji mould as soy sauce and miso. Both became arts, with their own vocabulary, regions and seasons." },
       { p: "Neither is what most people drink most of the time. An evening out starts with beer, moves to highballs and canned sours, and may never reach sake. Green tea is mostly drunk cold from a plastic bottle. Each shift has a date and a reason, **often a tax**: beer's malt rules gave the world *happōshu*, low-malt beer, and the taxes on shōchū and whisky decided what filled the highball." },
+      { p: "The dates are easy to find. Sake shipments peaked in **1973** and are about a quarter of that now.[^1] Green tea went into a can in **1985** and a plastic bottle in **1990**, and the teapot began its retreat.[^2] And in **October 2026**, after three steps over six years, beer, happōshu and the malt-free “new genre” were finally taxed at one rate, **¥54.25** a 350 ml can, ending the game that had invented them; canned chūhai went up to ¥35.[^3]" },
       {
         terms: [
           { term: "Beer", text: "The first drink of almost every evening; four companies sell nearly all of it" },
@@ -26,6 +27,11 @@ export const drinks: GuideTopic = {
         ],
       },
       { p: "The sweets belong with the tea: wagashi were made to be eaten before a bowl of matcha, and the finest still change with the calendar. The chapter goes from the brewery to the tea field to the sweet shop. Coffee, which has its own history of rooms and rituals, is in [Coffee](guide:coffee/overview)." },
+    ],
+    sources: [
+      { title: "Sake industry trends — News On Japan", url: "https://newsonjapan.com/article/138726.php", note: "The 1973 peak and about a quarter of it today" },
+      { title: "Corporate history — Ito En", url: "https://www.itoen-global.com/about_us/history.html", note: "Canned green tea 1985, PET bottle 1990" },
+      { title: "Liquor tax: the beer-type rates — Ministry of Finance", url: "https://www.mof.go.jp/tax_policy/summary/consumption/d08.htm", note: "One rate of ¥155,000 per kilolitre (¥54.25 per 350 ml) from October 2026, in three steps from 2020 (Japanese)" },
     ],
   },
   blocks: [
