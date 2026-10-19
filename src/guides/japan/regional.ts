@@ -16,7 +16,14 @@ export const regionalFood: GuideTopic = {
     title: "Intro to regional food",
     body: [
       { p: "Japan is long, steep and divided by mountains, and for most of its history people ate what grew nearby or what a ship could bring. So the same country that shares one rice and one stock also has dozens of regional cuisines, and people notice the differences sharply." },
-      { p: "Three things explain most of them. **Land**: where paddy fields wouldn't fit, people ate wheat, buckwheat or sweet potatoes. **Trade**: Edo-period cargo ships and salt-fish roads carried kelp and mackerel far inland and set the taste of whole regions. **History**: Hokkaido was named and settled only from 1869,[^1] and Okinawa was a kingdom of its own until 1879 and under US rule until 1972.[^2]" },
+      { p: "Three things explain most of them:" },
+      {
+        terms: [
+          { term: "Land", text: "Where paddy fields wouldn't fit, people ate wheat, buckwheat or sweet potatoes." },
+          { term: "Trade", text: "Edo-period cargo ships and salt-fish roads carried kelp and mackerel far inland and set the taste of whole regions." },
+          { term: "History", text: "Hokkaido was named and settled only from 1869,[^1] and Okinawa was a kingdom of its own until 1879 and under US rule until 1972.[^2]" },
+        ],
+      },
       { p: "Every prefecture also has its **meibutsu**, the things it's famous for, and some of those are what locals eat while others are mostly made for visitors. This guide's dish cards keep the two apart." },
       {
         terms: [

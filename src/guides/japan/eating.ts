@@ -236,7 +236,14 @@ export const eatingOut: GuideTopic = {
           title: "Soba, udon and ramen",
           summary: "Edo's buckwheat, the west's wheat, and a Chinese noodle that became the national dish",
           body: [
-            { p: "Japan eats three noodle families with three different histories. **Soba** is buckwheat, a mountain crop that grows in poor soil and short summers. **Udon** is wheat, grown and milled in the warmer west. **Ramen** is Chinese wheat noodles, made springy and yellow with alkaline water, that arrived through the treaty ports and took over the country after the war." },
+            { p: "Japan eats three noodle families with three different histories:" },
+            {
+              terms: [
+                { term: "Soba そば", text: "Buckwheat, a mountain crop that grows in poor soil and short summers." },
+                { term: "Udon うどん", text: "Wheat, grown and milled in the warmer west." },
+                { term: "Ramen ラーメン", text: "Chinese wheat noodles, made springy and yellow with alkaline water, that arrived through the treaty ports and took over the country after the war." },
+              ],
+            },
             photo("zaru-soba", "Cold buckwheat noodles on a bamboo tray with tempura and a cup of dipping sauce", "Cold soba with tempura in Nagano, buckwheat country, served on a bamboo tray."),
 
             { h: "Soba: Edo's noodle" },

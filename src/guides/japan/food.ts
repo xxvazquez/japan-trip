@@ -327,7 +327,14 @@ export const foodAtHome: GuideTopic = {
 
             { p: "A household's day of food is quicker, more mixed and more often eaten alone than the classic picture suggests. Each meal has its own pattern." },
             { h: "Breakfast" },
-            { p: "Two camps. A **rice breakfast**: rice, miso soup, natto or a raw egg stirred into the rice (tamago kake gohan), a piece of salted salmon, pickles, last night's leftovers. Or a **bread breakfast**: thick toast, yoghurt, coffee — now at least as common, especially in younger and urban households. Plenty of commuters eat an onigiri on the way, or nothing." },
+            { p: "Two camps, and plenty of people in neither:" },
+            {
+              terms: [
+                { term: "Rice breakfast", text: "Rice, miso soup, natto or a raw egg stirred into the rice (tamago kake gohan), a piece of salted salmon, pickles, last night's leftovers." },
+                { term: "Bread breakfast", text: "Thick toast, yoghurt, coffee — now at least as common, especially in younger and urban households." },
+                { term: "On the way", text: "An onigiri bought on the commute, or nothing at all." },
+              ],
+            },
             { h: "Lunch" },
             { p: "Children eat **school lunch**, the same planned meal for the whole school (see [School lunch](guide:food-at-home/school-lunch)). Adults eat a bento from home, something from a konbini, or a quick set meal near work, mostly between 12:00 and 13:00. Lunch is fast and cheap, and people notice when it isn't." },
             { h: "Dinner" },

@@ -24,7 +24,9 @@ export const work: GuideTopic = {
           { value: "36.5%", label: "of employees on non-regular contracts, 2025" },
         ],
       },
-      { p: "The gap is being filled three ways: by women, most of whom now work; by older people, many working past 65; and by foreign workers, whose number sets a record every year.[^2] You'll see all three behind konbini counters (see [A country getting smaller](guide:numbers/a-country-getting-smaller))." },
+      { p: "The gap is being filled three ways:" },
+      { list: ["**Women**, most of whom now work", "**Older people**, many working past 65", "**Foreign workers**, whose number sets a record every year[^2]"] },
+      { p: "You'll see all three behind konbini counters (see [A country getting smaller](guide:numbers/a-country-getting-smaller))." },
       { p: "The chapter takes a working life first, from the hiring calendar to the hours, women's careers and office habits, then the companies: the oldest in the world, and the big names that began as something else." },
     ],
     sources: [

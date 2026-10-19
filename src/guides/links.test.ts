@@ -73,6 +73,25 @@ describe("guide cross-references", () => {
       expect(long).toEqual([]);
     });
 
+    it(`${id}: a list is set as a list, not run into a paragraph`, () => {
+      // "**Land**: … **Trade**: …" or three sentences that each open on a
+      // bold term are items, and belong in terms or a bulleted list
+      const run: string[] = [];
+      const walk = (o: unknown): void => {
+        if (Array.isArray(o)) return o.forEach(walk);
+        if (!o || typeof o !== "object") return;
+        const p = (o as { p?: unknown }).p;
+        if (typeof p === "string") {
+          const labels = (p.match(/\*\*[^*]+\*\*:/g) ?? []).length;
+          const boldLed = p.split(/(?<=[.!?])\s+/).filter((s) => s.startsWith("**")).length;
+          if (labels >= 2 || boldLed >= 3) run.push(p.slice(0, 60));
+        }
+        Object.values(o).forEach(walk);
+      };
+      walk(guide);
+      expect(run).toEqual([]);
+    });
+
     it(`${id}: no photo appears twice`, () => {
       const seen = new Map<string, number>();
       for (const m of JSON.stringify(guide).matchAll(/"src":"([^"]+)"/g)) seen.set(m[1], (seen.get(m[1]) ?? 0) + 1);
