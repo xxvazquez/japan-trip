@@ -14,7 +14,7 @@ export const manga: GuideTopic = {
   intro: {
     title: "Intro to manga and anime",
     body: [
-      { p: "In Japan comics aren't a genre or a children's shelf. They're a medium, read by every age on every subject, and the animation that grew out of them is now one of the country's biggest exports." },
+      { p: "In Japan comics aren't a genre or a children's shelf. They're **a medium**, read by every age on every subject, and the animation that grew out of them is now one of the country's biggest exports." },
       {
         stats: [
           { value: "¥704bn", label: "manga sales in 2024, a record" },
@@ -23,7 +23,17 @@ export const manga: GuideTopic = {
         ],
       },
       { p: "Both descend from the Edo townspeople's pictures: the woodblock print sold cheap to a big public, made by a publisher, an artist and a workshop (see [Ukiyo-e](guide:culture/ukiyo-e-pictures-of-the-floating-world)). The modern forms took shape after 1945, around one artist, Tezuka Osamu, and around how little money there was." },
-      { p: "That last point runs through the chapter. Weekly magazines and cheap TV animation built the style and the industry, and also its long hours and low pay (see [Long hours](guide:work/long-hours)). The chapter takes manga and anime in turn, then who makes them, then the fans, who turned a slur into a way of life." },
+      { p: "The labels you'll see on shelves are the first surprise. They describe **who a magazine is sold to**, not what a story is about:" },
+      {
+        terms: [
+          { term: "Shōnen", text: "For boys: *Weekly Shōnen Jump*, home of *One Piece* and *Dragon Ball*, and read by plenty of adults and girls." },
+          { term: "Shōjo", text: "For girls: romance, yes, but also some of the medium's most experimental storytelling from the 1970s." },
+          { term: "Seinen", text: "For young men: crime, history, politics, work." },
+          { term: "Josei", text: "For adult women: everyday life, careers, relationships." },
+        ],
+      },
+      { p: "A war story can be shōjo and a cooking manga seinen. The category is a marketing decision, made by the magazine that first serialised it." },
+      { p: "That last point, money, runs through the chapter. Weekly magazines and cheap TV animation built the style and the industry, and also its long hours and low pay (see [Long hours](guide:work/long-hours)). The chapter takes manga and anime in turn, then who makes them, then the fans, who turned a slur into a way of life." },
     ],
     sources: [
       { title: "Japan's comic market hits a record ¥704.3 billion in 2024 — nippon.com", url: "https://www.nippon.com/ja/japan-data/h02328/", note: "Research Institute for Publications data (Japanese)" },
@@ -107,6 +117,18 @@ export const manga: GuideTopic = {
             { h: "Ghibli" },
             { p: "**Studio Ghibli** was founded in 1985 by the directors Miyazaki Hayao and Takahata Isao with the producer Suzuki Toshio. Its films, *My Neighbor Totoro*, *Princess Mononoke*, *Spirited Away*, broke out of the fan audience to everyone. *Spirited Away* won the Oscar for animated feature in 2003 and was Japan's highest-grossing film for nineteen years; Miyazaki won a second Oscar for *The Boy and the Heron* in 2024." },
             { p: "The record now belongs to TV anime's spin-offs. *Demon Slayer: Mugen Train* took ¥40.75 billion in Japan in 2020 and is the country's highest-grossing film; *Demon Slayer: Infinity Castle* (2025) set records for its opening and finished second.[^1] Anime is now as much an export as a domestic product: in 2024 the industry's total market reached a record **¥3.84 trillion**, and more than half of it came from abroad.[^2]" },
+            {
+              timeline: [
+                { when: "1917", text: "The first Japanese animated shorts." },
+                { when: "1958", text: "Toei's *Hakujaden*, the first colour feature." },
+                { when: "1963", text: "*Astro Boy*, the first weekly TV series, and limited animation." },
+                { when: "1969", text: "*Sazae-san* begins its Sunday evenings." },
+                { when: "1979", text: "*Mobile Suit Gundam*, and the adult fan." },
+                { when: "1985", text: "Studio Ghibli founded." },
+                { when: "2003", text: "*Spirited Away* wins the Oscar." },
+                { when: "2020", text: "*Demon Slayer: Mugen Train* becomes Japan's highest-grossing film." },
+              ],
+            },
             { note: "Settled: TV anime's look grew from the cost-cutting of the 1960s, and the industry's centre has always been western Tokyo. Still argued: how much blame Astro Boy's price deserves for today's low pay, and whether the overseas boom will reach the people who draw.", title: "What's known and what isn't", kind: "info" },
           ],
           words: [

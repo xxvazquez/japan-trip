@@ -159,14 +159,25 @@ export const politics: GuideTopic = {
           title: "Article 9",
           summary: "A constitution that renounces war, an army that isn't called one, and an amendment never put to a vote",
           body: [
-            { p: "Article 9 of the constitution renounces war \"as a sovereign right of the nation\" and says land, sea and air forces \"will never be maintained\"." },
+            { p: "Article 9 of the constitution renounces war \"as a sovereign right of the nation\" and says land, sea and air forces \"will never be maintained\". It was written in February 1946, in about a week, by American officers of the occupation, and adopted by the Diet that autumn. Who first proposed it is still argued: MacArthur later said the idea came from Prime Minister Shidehara Kijūrō; many historians doubt it.[^1]" },
+            { p: "One small change in the Diet made everything after it possible. The legislator **Ashida Hitoshi** added a phrase to the second paragraph, *in order to accomplish the aim of the preceding paragraph*, so that the ban on forces could be read as a ban on forces **for war**, leaving room for forces for defence. Every government since has relied on that reading." },
             { p: "In practice Japan has had the **Self-Defense Forces** since 1954, interpreted as the minimum needed to defend the country.[^1] Since 2015 they may also act in limited \"collective self-defence\" alongside allies.[^2] In 2022 the government committed to roughly doubling defence spending, to about 2% of GDP, which makes the budget one of the largest in the world." },
+            {
+              timeline: [
+                { when: "1946", text: "The constitution is drafted under the occupation and promulgated on 3 November." },
+                { when: "1950", text: "The Korean War begins; the occupation orders a National Police Reserve." },
+                { when: "1954", text: "It becomes the Self-Defense Forces." },
+                { when: "1992", text: "A law lets them join UN peacekeeping, first in Cambodia." },
+                { when: "2015", text: "New security laws allow limited collective self-defence." },
+                { when: "2022", text: "The plan to raise defence spending to about 2% of GDP." },
+              ],
+            },
             { p: "Amending Article 9 has been an LDP goal since its founding, and has never come to a vote. An amendment needs two-thirds of both houses and then a majority in a national referendum, a procedure that has never once been used." },
             { p: "Much of the public has grown attached to the article as it is, and the Self-Defense Forces are best known at home for disaster relief, after earthquakes and floods (see [Earthquakes](guide:nature/earthquakes))." },
             {
               evidence: {
                 settled: ["Article 9 has never been amended, and the Self-Defense Forces have existed since 1954."],
-                open: ["How far the Self-Defense Forces can go without changing the constitution."],
+                open: ["How far the Self-Defense Forces can go without changing the constitution.", "Whether the idea of renouncing war came from MacArthur or from Shidehara."],
               },
             },
           ],
@@ -197,6 +208,15 @@ export const politics: GuideTopic = {
               },
             },
             { p: "The names are historical, not differences of power, with one exception. Tokyo-*to* has no city government at its centre: its 23 special wards each have their own mayor, and the metropolis runs what a city would (see [A castle town that became a capital](guide:place/tokyo/a-castle-town-that-became-a-capital))." },
+            {
+              stats: [
+                { value: "22%", label: "of Japan's land is Hokkaido" },
+                { value: "~11%", label: "of its people live in Tokyo-to" },
+                { value: "1,718", label: "cities, towns and villages, down from 3,232 in 1999" },
+              ],
+            },
+            { p: "Those municipalities are the level people deal with day to day. The **Great Heisei Mergers** of 1999–2010 roughly halved their number, as shrinking villages were folded into towns, which is why so many places now carry a new, often rather vague name: a hyphenated pair, a district name, or simply the name of the nearest mountain." },
+            { p: "The money mostly runs downhill from Tokyo, and one scheme lets taxpayers redirect a little of it. **Furusato nōzei**, “hometown tax”, started in 2008, lets people give to any municipality they choose and deduct it from their own tax, and towns send back gifts of local beef, rice or crab. By 2023 it was worth over a trillion yen a year, a lifeline for some rural towns and a loss for the big cities their donors live in." },
             { h: "Osaka's metropolis plan" },
             { p: "Osaka has twice voted on copying that model, abolishing Osaka City and replacing it with special wards under the prefecture. The idea is the founding cause of the Ishin party. It lost both referendums by under a percentage point, in 2015 and again in November 2020, by 50.6% to 49.4%.[^1] Ishin has promised a third try." },
           ],

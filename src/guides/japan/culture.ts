@@ -163,7 +163,22 @@ export const culture: GuideTopic = {
 
             { p: "**Geisha**, called **geiko** in Kyoto, are professional entertainers trained for years in dance, music and conversation, hired for banquets in teahouses. The name means \"person of the arts\". They grew out of the licensed pleasure quarters of the 18th century, as performers set apart from the courtesans there.[^1]" },
             { p: "**Maiko** are Kyoto's apprentices, in brighter kimono with long trailing sashes and their own hair dressed. They work in the city's five districts, the *kagai*, and perform in public at each district's annual dance season." },
-            { p: "Their numbers are small and their working streets are lived-in. Kyoto's Gion now asks visitors to keep out of its private lanes and not to photograph geiko and maiko on their way to work (see [Kyoto's visitors](guide:place/kyoto/too-many-visitors-and-what-the-city-is-trying))." },
+            { p: "The path is long and starts young. A maiko usually begins at fifteen, straight from junior high school, and lives in an *okiya*, a geisha house, whose mother figure pays for her training, kimono and keep. Around twenty she becomes a geiko in a ceremony called *erikae*, “turning the collar”, from a maiko's red collar to a geiko's white. Teahouses traditionally take no first-time guest without an introduction, *ichigen-san okotowari*, which keeps the evenings private and the prices unspoken." },
+            { p: "Their numbers are tiny. In the 1920s there were some 80,000 geisha across Japan; Kyoto now has a couple of hundred geiko and maiko. Most of the “maiko” photographed in Gion in daylight are visitors in rented costume, a dress-up business called *maiko henshin*." },
+            {
+              table: {
+                head: ["District", "Its public dance", "When"],
+                rows: [
+                  ["Gion Kōbu", "Miyako Odori", "April"],
+                  ["Miyagawa-chō", "Kyō Odori", "April"],
+                  ["Kamishichiken", "Kitano Odori", "Spring"],
+                  ["Pontochō", "Kamogawa Odori", "May"],
+                  ["Gion Higashi", "Gion Odori", "November"],
+                ],
+              },
+            },
+            { p: "The dances are the one time anyone can buy a ticket and watch them work, and the November Gion Odori is the only one in autumn." },
+            { p: "Their working streets are lived-in. Kyoto's Gion now asks visitors to keep out of its private lanes and not to photograph geiko and maiko on their way to work (see [Kyoto's visitors](guide:place/kyoto/too-many-visitors-and-what-the-city-is-trying))." },
           ],
           words: [
             { local: "舞妓 / 芸妓", say: "maiko / geiko", means: "apprentice / full Kyoto geisha" },

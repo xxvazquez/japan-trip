@@ -14,7 +14,16 @@ export const trivia: GuideTopic = {
     title: "Intro to Japan's surprises",
     body: [
       { p: "The book closes with the things that don't fit a chapter but explain something anyway: objects designed in Japan that went round the world, trains run to the second, the luck hidden in numbers and puns, the oddities of the map, and an old friendship with a country on the other side of Eurasia." },
-      { p: "Each read checks its stories. Where a favourite tale turns out to be only a tale, it says so." },
+      { p: "Each read checks its stories. Where a favourite tale turns out to be only a tale, it says so, and plenty do. The emoji really were drawn by one man for a phone company; the Shinkansen really has never killed a passenger in a crash; but KFC at Christmas began as a marketing campaign, not a misunderstanding of Western custom." },
+      {
+        terms: [
+          { term: "Design that travelled", text: "The emoji, the Washlet, the Walkman and the shop that became Uniqlo." },
+          { term: "Trains, by design", text: "Punctuality, pointing and calling, and a safety record built on both." },
+          { term: "Luck, numbers and wordplay", text: "Why four is avoided, Kit Kats are lucky and Christmas means fried chicken." },
+          { term: "Quirks of the map", text: "Twice the islands, two electricity grids, and a summit owned by a shrine." },
+          { term: "Japan and Poland", text: "A friendship that began with orphans rescued from Siberia." },
+        ],
+      },
     ],
   },
   blocks: [
@@ -103,6 +112,13 @@ export const trivia: GuideTopic = {
           title: "Quirks of the map",
           summary: "Twice as many islands as anyone thought, two electricity grids, a privately owned summit, and streets with no names",
           body: [
+            {
+              stats: [
+                { value: "14,125", label: "islands at the 2023 count, up from 6,852" },
+                { value: "50 / 60 Hz", label: "the east's grid and the west's" },
+                { value: "3,776 m", label: "Fuji's summit, owned by a shrine" },
+              ],
+            },
             { h: "14,125 islands" },
             { p: "For decades Japan was said to have 6,852 islands. In 2023 the Geospatial Information Authority recounted them on modern digital maps and found **14,125**. The coastline hadn't changed; the counting method had." },
 
