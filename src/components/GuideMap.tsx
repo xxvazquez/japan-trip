@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Icon } from "./Icon";
-import { areaBox, project, ringPath, type CountryMap } from "@/guides/map";
+import { areaFocus, project, ringPath, type CountryMap } from "@/guides/map";
 
 export interface MapCity {
   id: string;
@@ -120,7 +120,7 @@ export function GuideMap({
     shown.current = selected;
     const a = map.areas.find((x) => x.code === selected);
     if (!a) return;
-    const b = areaBox(a);
+    const b = areaFocus(a);
     const k = Math.min(6, Math.max(1, 0.55 * Math.min(size.w / ((b.x1 - b.x0) * base), size.h / ((b.y1 - b.y0) * base))));
     const cx = ((b.x0 + b.x1) / 2) * base * k;
     const cy = ((b.y0 + b.y1) / 2) * base * k;

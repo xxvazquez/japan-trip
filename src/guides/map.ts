@@ -113,3 +113,19 @@ export function areaBox(a: MapArea, inInset = false): { x0: number; y0: number; 
   }
   return { x0, y0, x1, y1 };
 }
+
+/** where to look when a division is picked: the box of its biggest piece
+ *  of land, so Tokyo frames the city rather than the Izu islands far south */
+export function areaFocus(a: MapArea): { x0: number; y0: number; x1: number; y1: number } {
+  let best = { x0: 0, y0: 0, x1: 0, y1: 0 };
+  let size = -1;
+  for (const r of a.rings.length ? a.rings : a.inset ?? []) {
+    const b = areaBox({ ...a, rings: [r], inset: [] });
+    const s = (b.x1 - b.x0) * (b.y1 - b.y0);
+    if (s > size) {
+      size = s;
+      best = b;
+    }
+  }
+  return best;
+}
