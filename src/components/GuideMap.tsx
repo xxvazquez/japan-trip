@@ -19,11 +19,11 @@ export interface MapCity {
 
 type View = { k: number; tx: number; ty: number };
 
-const MAX_K = 10;
-/** map units to screen px at which the prefecture names take over from the
- *  region names, and every city gets a name */
+/** past this the simplified outlines show their straight edges */
+const MAX_K = 6;
+/** map units to screen px at which every place gets a name and the
+ *  prefecture names take over from the region names */
 const AREA_NAMES = 0.7;
-const ALL_CITIES = 1.15;
 
 /**
  * A country's map as Apple draws a country at a glance: pale land on a
@@ -57,13 +57,14 @@ export function GuideMap({
   viewRef.current = view;
   const anim = useRef(0);
 
-  // the frame keeps the map's shape, no taller than most of the screen
+  // the frame keeps the map's shape, short enough that a picked
+  // prefecture's card shows under it with the whole map still in view
   useLayoutEffect(() => {
     const el = box.current;
     if (!el) return;
     const measure = () => {
       const w = el.clientWidth;
-      const h = Math.min(w * (map.height / map.width), window.innerHeight * 0.68);
+      const h = Math.min(w * (map.height / map.width), window.innerHeight * 0.58);
       setSize((s) => (s.w === w && s.h === h ? s : { w, h }));
     };
     measure();
@@ -233,9 +234,10 @@ export function GuideMap({
   }, [map, regions]);
 
   const placed = (() => {
-    type L = { key: string; text: string; x: number; y: number; kind: "city" | "area" | "region"; city?: MapCity; dot?: { x: number; y: number }; size: number };
+    type L = { key: string; text: string; x: number; y: number; kind: "city" | "area" | "region"; city?: MapCity; dot?: { x: number; y: number }; size: number; end?: boolean };
     const out: L[] = [];
-    const taken: { x0: number; y0: number; x1: number; y1: number }[] = [];
+    // the zoom buttons' corner is kept clear, so no name hides under them
+    const taken: { x0: number; y0: number; x1: number; y1: number }[] = [{ x0: size.w - 60, y0: size.h - 104, x1: size.w, y1: size.h }];
     const fits = (b: { x0: number; y0: number; x1: number; y1: number }) =>
       b.x0 >= 2 && b.y0 >= 2 && b.x1 <= size.w - 2 && b.y1 <= size.h - 2 && !taken.some((t) => b.x0 < t.x1 && b.x1 > t.x0 && b.y0 < t.y1 && b.y1 > t.y0);
     const width = (text: string, px: number, caps: boolean) => text.length * px * (caps ? 0.68 : 0.56);
@@ -244,13 +246,22 @@ export function GuideMap({
       if (!p) return;
       const d = toScreen(p.x, p.y);
       const w = width(c.name, 13, false);
-      const b = { x0: d.x - 4, y0: d.y - 9, x1: d.x + 8 + w, y1: d.y + 9 };
-      if (!fits(b)) return;
+      // the name sits right of its dot, or left where the right is taken,
+      // as Maps flips a label at the edge of the screen
+      const right = { x0: d.x - 4, y0: d.y - 9, x1: d.x + 8 + w, y1: d.y + 9 };
+      const left = { x0: d.x - 8 - w, y0: d.y - 9, x1: d.x + 4, y1: d.y + 9 };
+      const b = fits(right) ? right : fits(left) ? left : undefined;
+      if (!b) return;
       taken.push(b);
-      out.push({ key: `c${c.id}`, text: c.name, x: d.x + 7, y: d.y, kind: "city", city: c, dot: d, size: 13 });
+      const end = b === left;
+      out.push({ key: `c${c.id}`, text: c.name, x: end ? d.x - 7 : d.x + 7, y: d.y, kind: "city", city: c, dot: d, size: 13, end });
     };
+    const named = (name: string) => out.some((l) => l.kind === "city" && l.text.toLowerCase() === name.toLowerCase());
     const tryArea = (code: number) => {
       const a = map.areas.find((x) => x.code === code)!;
+      // a prefecture or region named for its city (Tokyo, Okinawa) is named
+      // once, by the city
+      if (named(a.name)) return;
       const d = toScreen(...a.label);
       const text = a.name.toUpperCase();
       const w = width(text, 10.5, true);
@@ -266,9 +277,12 @@ export function GuideMap({
       byPeople.filter((c) => !c.onTrip && c.area === selected).forEach(tryCity);
       tryArea(selected);
     }
-    // zoomed out, the regions name the country before any city does
+    // the biggest places name the country first, as Maps does zoomed out,
+    // then the regions fill the room left between them
+    byPeople.filter((c) => !c.onTrip).slice(0, 8).forEach(tryCity);
     if (s < AREA_NAMES) {
       for (const r of regionAt) {
+        if (named(r.name)) continue;
         const d = toScreen(r.x, r.y);
         const text = r.name.toUpperCase();
         const w = width(text, 12, true);
@@ -278,11 +292,12 @@ export function GuideMap({
         out.push({ key: `r${r.name}`, text, x: d.x, y: d.y, kind: "region", size: 12 });
       }
     }
-    byPeople.filter((c) => !c.onTrip).slice(0, 8).forEach(tryCity);
     // closer in, every place the guide covers is named before the
     // prefectures fill the gaps between them
-    if (s >= ALL_CITIES) byPeople.filter((c) => !c.onTrip).slice(8).forEach(tryCity);
-    if (s >= AREA_NAMES) for (const a of map.areas) if (a.code !== selected) tryArea(a.code);
+    if (s >= AREA_NAMES) {
+      byPeople.filter((c) => !c.onTrip).slice(8).forEach(tryCity);
+      for (const a of map.areas) if (a.code !== selected) tryArea(a.code);
+    }
     return out;
   })();
 
@@ -292,7 +307,7 @@ export function GuideMap({
   return (
     <div
       ref={box}
-      className="relative touch-none select-none overflow-hidden bg-ai/[0.09]"
+      className="relative touch-none select-none overflow-hidden bg-ai/[0.09] dark:bg-ai/[0.16]"
       style={{ height: size.h || undefined, aspectRatio: size.h ? undefined : `${map.width} / ${map.height}` }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
@@ -306,7 +321,7 @@ export function GuideMap({
               <rect x={inset.x} y={inset.y} width={inset.w} height={inset.h} rx={10} className="fill-ai/[0.04] stroke-line" strokeWidth={1} vectorEffect="non-scaling-stroke" />
             )}
             {map.areas.map((a) => {
-              const fill = a.code === selected ? "fill-accent/30" : tripAreas.has(a.code) ? "fill-accent/[0.13]" : "fill-surface";
+              const fill = a.code === selected ? "fill-accent/30" : tripAreas.has(a.code) ? "fill-accent/[0.13]" : "fill-surface dark:fill-surface-2";
               return (
                 <g key={a.code} data-area={a.code} className={`${fill} cursor-pointer`}>
                   {[...a.rings, ...(a.inset ?? [])].map((r, i) => (
@@ -328,9 +343,9 @@ export function GuideMap({
             l.kind === "city" ? (
               <g key={l.key} data-city={l.city!.to} className="cursor-pointer">
                 {/* a generous invisible target, as a map pin has */}
-                <rect x={l.dot!.x - 10} y={l.dot!.y - 12} width={l.text.length * 7.3 + 24} height={24} fill="transparent" />
+                <rect x={l.end ? l.dot!.x - l.text.length * 7.3 - 14 : l.dot!.x - 10} y={l.dot!.y - 12} width={l.text.length * 7.3 + 24} height={24} fill="transparent" />
                 <circle cx={l.dot!.x} cy={l.dot!.y} r={l.city!.onTrip ? 4.5 : 3.5} className={l.city!.onTrip ? "fill-accent stroke-surface" : "fill-ink-soft stroke-surface"} strokeWidth={1.5} />
-                <text x={l.x} y={l.y} dy="0.35em" fontSize={l.size} className={`stroke-surface ${l.city!.onTrip ? "fill-accent font-medium" : "fill-ink"}`} style={halo}>
+                <text x={l.x} y={l.y} dy="0.35em" fontSize={l.size} textAnchor={l.end ? "end" : undefined} className={`stroke-surface ${l.city!.onTrip ? "fill-accent font-medium" : "fill-ink"}`} style={halo}>
                   {l.text}
                 </text>
               </g>
@@ -379,7 +394,7 @@ export function MapPreview({ map, tripAreas, dots }: { map: CountryMap; tripArea
     <svg viewBox={`0 0 ${map.width} ${map.height}`} preserveAspectRatio="xMidYMid meet" className="block h-full w-full" aria-hidden>
       {map.inset && <rect x={map.inset.x} y={map.inset.y} width={map.inset.w} height={map.inset.h} rx={14} className="fill-ai/[0.04] stroke-line" strokeWidth={1} vectorEffect="non-scaling-stroke" />}
       {map.areas.map((a) => (
-        <g key={a.code} className={tripAreas.has(a.code) ? "fill-accent/[0.18]" : "fill-surface"}>
+        <g key={a.code} className={tripAreas.has(a.code) ? "fill-accent/[0.18]" : "fill-surface dark:fill-surface-2"}>
           {[...a.rings, ...(a.inset ?? [])].map((r, i) => (
             <path key={i} d={ringPath(r)} className="stroke-line" strokeWidth={0.5} vectorEffect="non-scaling-stroke" />
           ))}

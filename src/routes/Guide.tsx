@@ -681,7 +681,7 @@ function MapCard({ guide, home }: { guide: CountryGuide; home: string }) {
   return (
     <Section title="Map" id={`guide-${guide.id}-map`}>
       <Link to={`${home}/map`} viewTransition className="block transition-colors duration-150 active:bg-ink/[0.07]">
-        <div className="h-[210px] bg-ai/[0.09] p-2">
+        <div className="h-[210px] bg-ai/[0.09] dark:bg-ai/[0.16] p-2">
           <MapPreview map={map} tripAreas={trip.areas} dots={trip.stays} />
         </div>
         <div className="flex items-center gap-3 px-3.5 py-3">
@@ -714,7 +714,7 @@ function AreaCard({ guide, area, trip, onClose }: { guide: CountryGuide; area: M
             {area.name}
             {area.local && <span className="ml-2 font-jp font-normal text-ink-faint">{area.local}</span>}
           </h2>
-          <p className="meta mt-0.5 break-words">{[area.region, area.capital && area.capital !== area.name ? `Capital ${area.capital}` : ""].filter(Boolean).join(" · ")}</p>
+          <p className="meta mt-0.5 break-words">{[area.region !== area.name ? area.region : "", area.capital && area.capital !== area.name ? `Capital ${area.capital}` : ""].filter(Boolean).join(" · ")}</p>
         </div>
         <button type="button" onClick={onClose} aria-label="Close" className="tap grid h-[30px] w-[30px] shrink-0 place-items-center rounded-full bg-ink/[0.07] text-ink-soft active:bg-ink/[0.12]">
           <Icon name="close" size={13} />
@@ -764,6 +764,7 @@ export function GuideMapPage() {
   const guide = useGuide();
   const [params, setParams] = useSearchParams();
   const card = useRef<HTMLDivElement>(null);
+  const frame = useRef<HTMLDivElement>(null);
   const map = guide?.map;
   const onTrip = useMemo(() => (guide && data ? citiesOnTrip(guide, data) : { stays: [], others: [] }), [guide, data]);
   const tripAreas = useTripOnMap(map).areas;
@@ -783,7 +784,7 @@ export function GuideMapPage() {
     <Page width="form">
       <PageHeader back={home} backLabel={guide.name} title="Map" meta={`${map.areas.length} ${map.unit.many} in ${byRegion.length} regions`} className="mb-6" />
       <div className="space-y-6">
-        <div className="-mx-5 overflow-hidden sm:mx-0 sm:rounded-[12px]">
+        <div ref={frame} className="-mx-5 overflow-hidden sm:mx-0 sm:rounded-[12px]">
           <GuideMap
             map={map}
             regions={regions}
@@ -792,10 +793,16 @@ export function GuideMapPage() {
             selected={selected}
             onSelect={(code) => {
               select(code);
-              // bring the card up far enough to see, the map still in view
+              // bring the card up far enough to see, but never push the
+              // map's top under the nav bar, where the picked prefecture
+              // may be
               if (code) requestAnimationFrame(() => {
                 const top = card.current?.getBoundingClientRect().top;
-                if (top != null && top > window.innerHeight * 0.62) window.scrollBy({ top: top - window.innerHeight * 0.62, behavior: "smooth" });
+                const mapTop = frame.current?.getBoundingClientRect().top;
+                const bar = document.querySelector(".vt-nav-bar")?.getBoundingClientRect().bottom ?? 0;
+                if (top == null || mapTop == null) return;
+                const by = Math.min(top - window.innerHeight * 0.62, mapTop - bar);
+                if (by > 0) window.scrollBy({ top: by, behavior: "smooth" });
               });
             }}
           />
