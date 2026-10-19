@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { GUIDE_CONTENT } from "./content";
 import { CITY_GROUPS } from "./types";
-import { cityLinks, dateArticles, dayTripArticles, guideGraph, relatedTo, resolveRef } from "./articles";
+import { areaAt } from "./map";
+import { allTopics, cityLinks, dateArticles, dayTripArticles, guideGraph, relatedTo, resolveRef } from "./articles";
 
 describe("guide links, both ways", () => {
   for (const [id, guide] of Object.entries(GUIDE_CONTENT)) {
@@ -64,6 +65,23 @@ describe("dates", () => {
     it(`${id}: a date's places are places in the guide`, () => {
       const ids = new Set(guide.cities.map((c) => c.id));
       expect(guide.dates.flatMap((d) => (d.places ?? []).filter((p) => !ids.has(p)))).toEqual([]);
+    });
+  }
+});
+
+describe("map", () => {
+  for (const [id, guide] of Object.entries(GUIDE_CONTENT)) {
+    if (!guide.map) continue;
+    const map = guide.map;
+    it(`${id}: every place in the guide falls in one of the map's divisions`, () => {
+      expect(guide.cities.filter((c) => !areaAt(map, c.lat, c.lng)).map((c) => c.id)).toEqual([]);
+    });
+    it(`${id}: every division is drawn and sits in one of the guide's regions`, () => {
+      expect(map.areas.filter((a) => !a.rings.length && !a.inset?.length).map((a) => a.name)).toEqual([]);
+      expect(map.areas.filter((a) => !a.region || !guide.regions?.includes(a.region)).map((a) => a.name)).toEqual([]);
+    });
+    it(`${id}: no chapter is called "map", which is the map's own page`, () => {
+      expect(allTopics(guide).map((t) => t.id)).not.toContain("map");
     });
   }
 });

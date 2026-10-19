@@ -21,6 +21,7 @@ import { tripCities, tripDates, tripPractical } from "./japan/trip";
 import { growingUp } from "./japan/school";
 import { work } from "./japan/work";
 import { photoOf } from "./japan/photos";
+import { japanMap } from "./japan/map";
 
 /** Japan — the country guide. The book is read in order: five parts, each
  *  a run of chapters that pick up where the last left off. It's reference,
@@ -61,6 +62,7 @@ export const japan: CountryGuide = {
   ],
 
   regions: ["Hokkaido", "Tōhoku", "Kantō", "Chūbu", "Kansai", "Chūgoku", "Shikoku", "Kyushu", "Okinawa"],
+  map: japanMap,
   practical: tripPractical,
   dates: tripDates,
   cities: tripCities,

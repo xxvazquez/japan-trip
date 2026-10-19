@@ -38,6 +38,7 @@ const GuideTopicArticle = lazy(() => load.guide().then((m) => ({ default: m.Guid
 const GuideCityArticle = lazy(() => load.guide().then((m) => ({ default: m.GuideCityArticle })));
 const GuideDayTripArticle = lazy(() => load.guide().then((m) => ({ default: m.GuideDayTripArticle })));
 const GuideDateArticle = lazy(() => load.guide().then((m) => ({ default: m.GuideDateArticle })));
+const GuideMapPage = lazy(() => load.guide().then((m) => ({ default: m.GuideMapPage })));
 const Hotel = lazy(load.hotel);
 const Document = lazy(load.document);
 const Manage = lazy(load.manage);
@@ -78,6 +79,7 @@ export const router = createBrowserRouter([
       { path: "logbook/documents/:id", element: <Document /> },
       { path: "logbook/budget/:category", element: <ExpenseCategory /> },
       { path: "logbook/guide/:guide", element: <GuideHome /> },
+      { path: "logbook/guide/:guide/map", element: <GuideMapPage /> },
       { path: "logbook/guide/:guide/:topic", element: <GuideTopicPage /> },
       { path: "logbook/guide/:guide/place/:city", element: <GuideCityPage /> },
       { path: "logbook/guide/:guide/place/:city/day-trips", element: <GuideDayTripsPage /> },

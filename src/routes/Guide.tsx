@@ -1,6 +1,9 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, Navigate, useLocation, useParams, useSearchParams } from "react-router-dom";
 import { ActionRow } from "@/components/ActionRow";
+import { GuideMap, type MapCity } from "@/components/GuideMap";
+import { areaAt } from "@/guides/map";
+import { tripPoints } from "@/guides";
 import { Icon } from "@/components/Icon";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
@@ -637,6 +640,85 @@ function cityGroups(city: GuideCity): { title: string; refs: ArticleRef[] }[] {
     else out.push({ title, refs: [r] });
   });
   return out.sort((a, b) => order.indexOf(a.title) - order.indexOf(b.title));
+}
+
+/** people in a place, from the guide's rounded phrase — "About 1.4 million" */
+const peopleIn = (c: GuideCity): number => {
+  const m = c.population?.match(/([\d.,]+)\s*(million)?/i);
+  if (!m) return 0;
+  const n = Number(m[1].replace(/,/g, ""));
+  return m[2] ? n * 1e6 : n;
+};
+
+/**
+ * The country on one map, the way Maps shows a country before you zoom
+ * in: every prefecture, its region, the guide's places as named dots and
+ * the trip's own in the accent colour, then the same prefectures as a
+ * list by region. Drawn from data shipped with the guide, so it works in
+ * airplane mode. The selected prefecture lives in the address (`?p=26`),
+ * so Back from a place returns to it.
+ */
+export function GuideMapPage() {
+  const data = useData();
+  const guide = useGuide();
+  const [params, setParams] = useSearchParams();
+  const map = guide?.map;
+  const onTrip = useMemo(() => (guide && data ? citiesOnTrip(guide, data) : { stays: [], others: [] }), [guide, data]);
+  const tripAreas = useMemo(() => {
+    const out = new Set<number>();
+    if (!map || !data) return out;
+    for (const p of tripPoints(data)) {
+      const a = areaAt(map, p.lat, p.lng);
+      if (a) out.add(a.code);
+    }
+    return out;
+  }, [map, data]);
+  if (!data) return null;
+  if (!guide) return noGuide;
+  if (!map) return noArticle(guide);
+  const home = guidePath(guide);
+  const selected = Number(params.get("p")) || undefined;
+  const select = (code: number | undefined) => setParams(code ? { p: String(code) } : {}, { replace: true });
+  const trip = new Set([...onTrip.stays, ...onTrip.others].map((c) => c.id));
+  const cities: MapCity[] = guide.cities.map((c) => ({ id: c.id, name: c.short ?? c.name, lat: c.lat, lng: c.lng, people: peopleIn(c), onTrip: trip.has(c.id), to: `${home}/place/${c.id}` }));
+  const regions = guide.regions ?? [];
+  const byRegion = regions.map((r) => [r, map.areas.filter((a) => a.region === r)] as const).filter(([, list]) => list.length);
+
+  return (
+    <Page width="form">
+      <PageHeader back={home} backLabel={guide.name} title="Map" meta={`${map.areas.length} ${map.unit.many} in ${byRegion.length} regions`} className="mb-6" />
+      <div className="space-y-6">
+        <div className="-mx-5 overflow-hidden sm:mx-0 sm:rounded-[12px]">
+          <GuideMap map={map} regions={regions} cities={cities} tripAreas={tripAreas} selected={selected} onSelect={select} />
+        </div>
+        {byRegion.map(([region, list]) => (
+          <Section key={region} title={region} id={`guide-${guide.id}-map-${slug(region)}`}>
+            <ul>
+              {list.map((a) => (
+                <li key={a.code} className={INSET_DIVIDER}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      select(a.code);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="flex w-full items-center gap-3 px-3.5 py-3 text-left transition-colors duration-150 active:bg-ink/[0.07]"
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className={`value block break-words ${a.code === selected ? "text-accent" : ""}`}>{a.name}</span>
+                      {a.capital && a.capital !== a.name && <span className="meta mt-0.5 block break-words">Capital {a.capital}</span>}
+                    </span>
+                    {a.local && <span className="shrink-0 font-jp text-[15px] text-ink-faint">{a.local}</span>}
+                    {tripAreas.has(a.code) && <span aria-label="On this trip" className="h-2 w-2 shrink-0 rounded-full bg-accent" />}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </Section>
+        ))}
+      </div>
+    </Page>
+  );
 }
 
 export function GuideDayTripsPage() {

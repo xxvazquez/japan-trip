@@ -1,3 +1,4 @@
+import type { CountryMap } from "./map";
 import type { IconName } from "@/components/Icon";
 import type { MapGlyphId } from "@/lib/mapGlyphs";
 
@@ -327,6 +328,8 @@ export interface CountryGuide {
   /** the country's regions, north to south, in the order Elsewhere
    *  lists its places */
   regions?: string[];
+  /** the country's divisions drawn as a map, shipped with the guide */
+  map?: CountryMap;
   /** "Before you go" — emergencies, rules, getting around */
   practical: GuideTopic[];
   dates: GuideDate[];
