@@ -568,6 +568,13 @@ const base: { cities: GuideCity[] } = {
             { p: "It ended with unification. Oda Nobunaga demanded a crushing levy; Toyotomi Hideyoshi abolished the town's self-government and moved its merchants to build up his new Osaka.[^1] One Sakai merchant went with the warlords: **Sen no Rikyū**, who perfected the tea ceremony as Nobunaga's and then Hideyoshi's tea master, until Hideyoshi ordered him to kill himself in 1591. The site of his house, with its well, is in the old town, and **Sakai Rishō no Mori** across the road is a museum to him and to the poet Yosano Akiko, also born here." },
             { h: "Knives" },
             { p: "Sakai's smiths began with blades for chopping **tobacco**, brought by the Portuguese in the 16th century; the shogunate later gave their work its own seal. Today they make the single-bevelled knives most professional Japanese chefs use. The work is still divided between specialists: one forges the blade, another sharpens it, a third fits the handle.[^2]" },
+            {
+              steps: [
+                { title: "Forging", text: "One smith forges the blade." },
+                { title: "Sharpening", text: "Another puts the single-bevelled edge on it." },
+                { title: "Handle", text: "A third fits the handle." },
+              ],
+            },
             { note: "The **Sakai Traditional Crafts Museum** has knives to buy and, on some days, a smith at work. The huge keyhole tomb of **Daisen**, one of the largest in the world, is a bus ride away (see [Kofun](guide:history/jomon-yayoi-and-kofun)).", title: "Going" },
           ],
           sources: [
@@ -582,6 +589,16 @@ const base: { cities: GuideCity[] } = {
             { p: "Where the hills close in between Kyoto and Osaka, three rivers meet and the mist hangs in the valley. In **1923** Torii Shinjirō of the company that became Suntory chose it for Japan's first malt whisky distillery, with **Taketsuru Masataka** as its first manager, fresh from Scotland. The whisky took years to sell; the hit came only in 1937 with Kakubin.[^1] Taketsuru left in 1934 to found Nikka at Yoichi, in Hokkaido (see [Shōchū, whisky and beer](guide:drinks/shochu-whisky-and-beer))." },
             { p: "Up the hill from the station, the temple of **Myōki-an** keeps **Tai-an**, the only surviving tea room that can be credited to **Sen no Rikyū** with confidence, and the oldest tea-room building in Japan: two tatami mats, a crawl-through door, earth walls. It's a National Treasure. Seeing it means writing a return postcard about a month ahead, and looking in from the doorway.[^2]" },
             { p: "Higher still is the **Asahi Group Ōyamazaki Villa Museum**, an English Tudor-style house that a businessman, Kaga Shōtarō, designed himself, finished in 1932 and built to look down on the river the way Windsor looks over the Thames. In the late 1980s it was bought to be pulled down for flats; the prefecture and Asahi saved it, and since 1996 it's shown folk-craft and Monet's water lilies, in an underground gallery by Andō Tadao.[^3]" },
+            {
+              timeline: [
+                { when: "1582", text: "Hideyoshi beats Akechi Mitsuhide at Tennōzan, eleven days after Nobunaga's death" },
+                { when: "1923", text: "Japan's first malt whisky distillery is founded here" },
+                { when: "1932", text: "Kaga Shōtarō's Tudor-style villa is finished" },
+                { when: "1934", text: "Taketsuru leaves to found Nikka at Yoichi" },
+                { when: "1937", text: "Kakubin, the distillery's first hit" },
+                { when: "1996", text: "The saved villa opens as a museum" },
+              ],
+            },
             { note: "The distillery tour must be booked well ahead and sells out. Behind the villa, the path up **Tennōzan** leads to the hill where Toyotomi Hideyoshi beat Akechi Mitsuhide in **1582**, eleven days after Akechi killed Nobunaga.", title: "Going" },
           ],
           sources: [
@@ -597,6 +614,7 @@ const base: { cities: GuideCity[] } = {
             { p: "In **1560** a priest of the Kōshō-ji branch of True Pure Land Buddhism bought a stretch of rough ground above the Ishikawa river for a hundred strings of coins and laid out a town round a new temple. It was a **jinaimachi**, a temple town: self-governing, walled by its own embankment and bamboo, and protected by the sect at a time when its followers could field armies.[^1]" },
             { p: "The town lost its independence when Hideyoshi took it in hand in the 1580s, but its merchants did well under the Tokugawa, brewing sake and trading cotton, and kept rebuilding on the same grid: seven streets one way and six the other, on an oval about 400 by 350 m. It's the only historic townscape in Osaka prefecture protected as a preservation district, chosen in **1997**.[^1]" },
             { p: "The temple, **Kōshō-ji Betsuin**, is still at the centre, with six buildings listed as Important Cultural Properties. The streets are deliberately offset at the crossings, *atemage*, so an attacker can't see down them." },
+            { stats: [{ value: "7 × 6", label: "streets on the town's grid" }, { value: "~400 × 350 m", label: "the oval it fills" }, { value: "6", label: "temple buildings listed as Important Cultural Properties" }] },
             { note: "The district is a 10-minute walk from Tondabayashi station. The **Old Sugiyama house**, a sake brewer's home of the 1700s, is open to visit; the rest are lived in, so it stays quiet.", title: "Going" },
           ],
           sources: [{ title: "Tondabayashi jinaimachi — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%AF%8C%E7%94%B0%E6%9E%97%E5%AF%BA%E5%86%85%E7%94%BA", note: "Founded 1560; the 7 by 6 street grid, about 400 by 350 m; Osaka's only preservation district, 1997 (Japanese)" }],
@@ -1055,6 +1073,7 @@ const base: { cities: GuideCity[] } = {
           body: [
             { p: "Okayama calls itself the home of **Momotarō**, the boy born from a peach who sets out with a dog, a monkey and a pheasant to fight ogres, paying them in **kibi-dango**. The written tale only dates from the Edo period, but the region has an older story that it borrowed: Prince **Kibitsuhiko**, sent by the court to subdue Kibi, killed a demon called **Ura** who lived in a fortress in the hills. The demon's castle, *Kinojō*, is a real 7th-century hill fort above the plain.[^1]" },
             { p: "Kibitsuhiko is the god of **Kibitsu Shrine**, west of the city. Its main hall, rebuilt by the shogun Ashikaga Yoshimitsu and finished in **1425**, has a roof of two hipped gables side by side, a form found only here and named *kibitsu-zukuri*; it's a National Treasure. A roofed corridor of 398 m runs down the slope from it.[^2]" },
+            { stats: [{ value: "1425", label: "the main hall finished" }, { value: "398 m", label: "of roofed corridor down the slope" }, { value: "6 days", label: "a week the kettle rite is held" }] },
             { p: "In the **Narukama** rite, held daily except on Fridays, a priestess boils rice over an iron kettle, and the sound it makes tells your fortune: a long, loud roar is good, silence bad. The legend says Ura's head is buried under the kettle, and still answers." },
             { note: "Kibitsu station on the JR Momotarō line, 20 minutes from Okayama, is a 10-minute walk from the shrine. A flat cycle path, the **Kibiji**, runs past it and the region's burial mounds; bikes can be hired at Bizen-Ichinomiya station.", title: "Going" },
           ],
@@ -1204,6 +1223,15 @@ const base: { cities: GuideCity[] } = {
           body: [
             { p: "Kure was a fishing village until 1889, when the navy chose its sheltered harbour for a base and dockyard. By the Second World War it was one of the biggest naval arsenals in the world, and in a covered dock here it built **Yamato**, the largest battleship ever made, launched in secret in 1940 and sunk in April 1945 on a one-way mission to Okinawa." },
             { p: "The **Yamato Museum**, opened in **2005**, is built round a **1:10 model** of the ship, 26 metres long. Its first director insisted it was about the technology and how it was used, not a celebration of war; it closed in 2025 for a refit and reopened on **23 April 2026** with its collection grown from about 1,800 to 2,100 pieces.[^1]" },
+            {
+              timeline: [
+                { when: "1889", text: "The navy picks Kure's harbour for a base" },
+                { when: "1940", text: "**Yamato** is launched here in secret" },
+                { when: "Apr 1945", text: "She is sunk on the way to Okinawa" },
+                { when: "2005", text: "The Yamato Museum opens" },
+                { when: "23 Apr 2026", text: "It reopens after a refit, with about 2,100 pieces" },
+              ],
+            },
             { p: "Across the road, the **JMSDF Kure Museum** puts you inside a real submarine, the *Akishio*, standing on the quay. The shipyards are still working, and the harbour cruise passes destroyers and submarines of today's navy." },
             { note: "Kure's **kaigun curry**, navy curry, began as the sailors' Friday dish; restaurants serve the recipes of particular ships. The museum and the submarine are a 5-minute walk from Kure station.", title: "Going" },
           ],
@@ -1216,15 +1244,25 @@ const base: { cities: GuideCity[] } = {
             photo("takehara", "A narrow lane of old merchant houses with latticed fronts and tiled roofs", "Takehara's old salt-merchant quarter."),
             { p: "**Takehara** grew rich on salt in the late Edo period, evaporated from the Inland Sea in great fields along the shore, and the merchants' houses of its old quarter survive: the “little Kyoto of Aki”, a preservation district since 1982.[^1] One family of salt makers and sake brewers there were the **Taketsurus**. Their son **Masataka**, born in 1894, went to Glasgow to study, came home with a Scottish wife, and built Japan's first two whisky distilleries, at Yamazaki and Yoichi.[^2] The family brewery still makes sake in the old quarter." },
             photo("okunoshima", "Several wild rabbits on a grassy bank by the sea", "Ōkunoshima's rabbits."),
-            { p: "A 15-minute ferry from Tadanoumi, down the coast, reaches **Ōkunoshima**. From **1929 to 1945** the army made poison gas here in secret, the only army gas works in Japan; the island's people were moved off and it was said to have been left off maps. When it became a national holiday village in 1961, a search still found truckloads of gas in the tunnels.[^3]" },
+            { p: "A 15-minute ferry from Tadanoumi, down the coast, reaches **Ōkunoshima**. From **1929 to 1945** the army made poison gas here in secret, the only army gas works in Japan; the island's people were moved off and it was said to have been left off maps. A search in 1961, before it became a national holiday village in 1963, still found truckloads of gas in an air-raid shelter.[^3]" },
             { p: "Now it's **rabbit island**: about **500** wild rabbits and some 200,000 visitors a year. They aren't the army's test animals, which were all killed after the war; the likeliest story is that a local school let eight of its rabbits go on the island in **1971**. The ruined power station and gas stores stand among them, and a small **Poison Gas Museum** tells the story the rabbits make easy to forget.[^3]" },
+            {
+              timeline: [
+                { when: "1894", text: "Taketsuru Masataka is born in Takehara" },
+                { when: "1929–45", text: "The army makes poison gas on Ōkunoshima" },
+                { when: "1961", text: "A search still finds gas on the island" },
+                { when: "1963", text: "It opens as a national holiday village" },
+                { when: "1971", text: "Eight school rabbits are let go there" },
+                { when: "1982", text: "Takehara's old quarter is preserved" },
+              ],
+            },
             { note: "Don't feed the rabbits bread or snacks; buy proper rabbit food before the ferry. Takehara and the island make one long day together.", title: "Going" },
           ],
           related: ["drinks/shochu-whisky-and-beer"],
           sources: [
             { title: "Takehara — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%AB%B9%E5%8E%9F%E5%B8%82", note: "Salt in the late Edo period; “little Kyoto of Aki”; preserved from 1982 (Japanese)" },
             { title: "Taketsuru Masataka — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%AB%B9%E9%B6%B4%E6%94%BF%E5%AD%9D", note: "Born 1894 in Takehara to a sake and salt family; Yamazaki and Yoichi (Japanese)" },
-            { title: "Ōkunoshima — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%A4%A7%E4%B9%85%E9%87%8E%E5%B3%B6", note: "Poison gas made 1929–1945; the 1961 search; the only army gas works; eight school rabbits released in 1971; about 500 rabbits and 200,000 visitors (Japanese)" },
+            { title: "Ōkunoshima — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E5%A4%A7%E4%B9%85%E9%87%8E%E5%B3%B6", note: "Poison gas made 1929–1945; the 1961 search; the holiday village, 1963; the only army gas works; eight school rabbits released in 1971; about 500 rabbits and 200,000 visitors (Japanese)" },
           ],
         },
         {
@@ -1234,6 +1272,7 @@ const base: { cities: GuideCity[] } = {
             { p: "Onomichi is squeezed between hills and the **Onomichi Channel**, a strait so narrow the island across looks like the far bank of a river. Its merchants grew rich shipping rice and goods on the Inland Sea and spent it on temples; dozens climb the hillside, linked by stone steps and lanes too steep and narrow for cars." },
             { p: "It's known as a town of **slopes**, **literature**, **film** and **cats**. The novelist Hayashi Fumiko grew up here and Shiga Naoya lived here while writing; **Ozu Yasujirō** opened *Tokyo Story* in its streets in 1953.[^1] The walk up to **Senkō-ji**, past poems carved in the rocks, gives the view over the strait, and a cable car saves the climb." },
             { p: "Onomichi is also where the **Shimanami Kaidō** begins: an expressway of bridges, opened in **1999**, that hops across nine islands to Imabari on Shikoku, 59 km, with its own lane for bikes and walkers all the way. Bikes can be hired in Onomichi and left at the other end, and cyclists ride free until **March 2028**.[^2]" },
+            { stats: [{ value: "59 km", label: "from Onomichi to Imabari" }, { value: "9", label: "islands crossed" }, { value: "Free", label: "for cyclists until March 2028" }] },
             { note: "Ride a stretch rather than all of it: to Ikuchijima and Setoda, with its lemon groves and the extravagant temple of Kōsan-ji, is a good day there and back by bike and ferry.", title: "Going" },
           ],
           sources: [
@@ -2060,6 +2099,14 @@ const base: { cities: GuideCity[] } = {
           body: [
             { p: "Meiji Japan made school compulsory in 1872, and Matsumoto answered with a building. The **Kaichi School**, opened in 1876, was designed by a local master carpenter, **Tateishi Kiyoshige**, who had walked round Tokyo and Yokohama sketching the new foreign buildings — and then built what he imagined they were. The townspeople paid for most of it.[^1]" },
             { p: "The result is **giyōfū**, “pseudo-Western” architecture: a white plastered front with stone corners painted on, a Japanese tiled roof, a porch carved with dragons and cherubs holding a sign, and an octagonal tower on top. About 7,000 guests came to the opening and 12,000 more to look. In **2019** it became the first modern school building to be named a National Treasure.[^1]" },
+            {
+              timeline: [
+                { when: "1872", text: "School becomes compulsory" },
+                { when: "1876", text: "**Kaichi School** opens; about 7,000 guests come" },
+                { when: "1963", text: "The last children are taught here" },
+                { when: "2019", text: "The first modern school building named a National Treasure" },
+              ],
+            },
             { p: "It taught children until 1963, and is now a museum of Japanese schooling, its classrooms full of old desks, textbooks and report cards." },
             { note: "The school is a 10-minute walk north of the castle. Allow 45 minutes.", title: "Going" },
           ],
@@ -2071,6 +2118,14 @@ const base: { cities: GuideCity[] } = {
           body: [
             photo("nakamachi", "A quiet street of white-and-black storehouses with tiled roofs", "Nakamachi's storehouses."),
             { p: "Snowmelt from the Northern Alps sinks into the gravel fan Matsumoto stands on and comes up again in the middle of town, and the old castle town is dotted with **public wells** and spouts where people still fill bottles. The best known, **Genchi no ido**, is named after a 16th-century samurai said to have dug it, and was the town's drinking water for centuries." },
+            {
+              steps: [
+                { title: "Snow on the Alps", text: "Snowmelt from the Northern Alps sinks into the ground." },
+                { title: "Through the gravel", text: "It runs under the fan the town stands on." },
+                { title: "Up in town", text: "It rises in public wells and spouts on street corners." },
+                { title: "Into the soba", text: "The cold, clear water goes into Shinshū soba." },
+              ],
+            },
             photo("genchi-well", "Water pouring from spouts in a stone basin under a small roof", "Genchi no ido, the old town well."),
             { p: "**Nakamachi**, the merchants' street south of the castle, is lined with storehouses in white plaster and black *namako* tiles. They went up in the late Edo and Meiji periods, after big fires swept the wooden town, so merchants rebuilt in what wouldn't burn.[^1] Many now sell the town's **crafts**: Matsumoto furniture, woodwork and folk-craft, which the town has made a speciality of since the mingei movement." },
             { p: "The cold, clear water and the mountain buckwheat make **Shinshū soba**, Nagano's buckwheat noodles. Order **zaru**, served cold on a bamboo tray, to taste the noodle; the cooking water, *soba-yu*, comes at the end to mix into the dipping sauce and drink." },
@@ -2293,6 +2348,7 @@ const base: { cities: GuideCity[] } = {
           body: [
             { p: "At **Futami**, on the coast north-east of Ise, two rocks stand in the surf joined by a great straw rope. They're called **Meoto Iwa**, the wedded rocks, but to the shrine on the shore they're a **torii**: a gateway to a sacred stone that lies on the seabed about 700 m beyond them, and to the sun rising over the sea.[^1]" },
             { p: "The calendar picture of New Year's sun between the rocks is a summer photograph. The sun rises between them only around the **summer solstice**, when on a clear morning Mount Fuji shows on the horizon too; in winter it comes up well to the south.[^1]" },
+            { stats: [{ value: "~700 m", label: "out to the sacred stone the rocks frame" }, { value: "Summer", label: "the only season the sun rises between them" }, { value: "1882", label: "Japan's first public bathing beach opens here" }] },
             { p: "The smaller rock broke off at its base in a typhoon in **1918** and was set back up in 1921 at a slightly different angle. The shrine's messenger is the frog, *kaeru*, a pun on “return safely”, and its grounds are crowded with frog statues left by grateful travellers. Pilgrims once purified themselves in the sea here before going on to Ise; Futami's beach opened in 1882 as Japan's first public bathing beach.[^1]" },
             { note: "Futami is 10 minutes by JR from Iseshi station, then a 15-minute walk. The big rope is replaced several times a year in a public ceremony.", title: "Going" },
           ],
@@ -2305,6 +2361,7 @@ const base: { cities: GuideCity[] } = {
           body: [
             { p: "The coast of **Toba** and **Shima**, south of Ise, has more **ama** than anywhere in Japan: free divers, almost all women, who go down on one breath for abalone, turban shells, sea urchin and seaweed. The village of **Kuzaki**, in Toba, still sends the shrine *noshi-awabi*, abalone sliced into strips and dried, a duty it traces back, by tradition, more than two thousand years.[^1]" },
             { p: "A count by the Toba Sea-Folk Museum in **2022** found **514** ama in Toba and Shima, about half of all Japan's. In the 1940s Japan had about 6,000.[^1][^2] They're getting old: one ama of Ōsatsu, a village that once had over 400, says about 80 are left, most in their seventies and about five under fifty.[^1]" },
+            { stats: [{ value: "514", label: "ama in Toba and Shima, 2022" }, { value: "~½", label: "of all Japan's" }, { value: "~6,000", label: "in Japan in the 1940s" }] },
             { p: "The diving is regulated by the women themselves: seasons, hours, the size of shell that can be taken. They dive without tanks by choice, since the limit on breath is what keeps the beds from being stripped. Between dives they warm themselves round a fire in a hut, the *amagoya*, some of which now take guests for a meal of what was just caught." },
             { note: "The **Toba Sea-Folk Museum** (Umi no Hakubutsukan) tells the ama's story properly; the diving demonstrations at **Mikimoto Pearl Island** in Toba go back to when ama gathered the oysters for the first cultured pearls in the 1890s.", title: "Seeing it" },
           ],
@@ -2373,6 +2430,7 @@ const base: { cities: GuideCity[] } = {
           summary: "Japan's largest cemetery under giant cedars, on a 2 km path to where Kūkai is believed to be meditating still",
           body: [
             { p: "**Okunoin** is Japan's largest cemetery: over 200,000 graves and memorials on a 2 km path through cedars hundreds of years old, from the Ichinohashi bridge to **Kūkai's mausoleum**. Shingon believers hold that Kūkai didn't die in 835 but entered eternal meditation, waiting for the future Buddha, and monks bring him meals twice a day, carried in a wooden box past the crowds.[^1]" },
+            { stats: [{ value: "200,000+", label: "graves and memorials" }, { value: "2 km", label: "of path to Kūkai's mausoleum" }, { value: "2", label: "meals a day carried to him" }] },
             {
               list: [
                 "**Warlords** — almost every great family of the civil wars has a memorial here, enemies side by side: Oda Nobunaga, Takeda Shingen, the Toyotomi",
@@ -2522,6 +2580,13 @@ const base: { cities: GuideCity[] } = {
           body: [
             { p: "Before Sapporo outgrew it, **Otaru** was Hokkaido's front door: the port for its coal, its timber and the **herring** that made fortunes along this coast, with so many bank branches on one street it was called the Wall Street of the north. The **canal**, finished in **1923**, is unusual: instead of being dug inland, it was made by reclaiming land offshore, which is why it curves with the old shoreline. It's 1,140 m long.[^1]" },
             { p: "After the war the port moved to new wharves, the canal silted up, and in **1966** the city planned to fill it in for a road. Residents fought the plan for over a decade, one of Japan's first big conservation campaigns. The compromise, finished in **1986**, filled half the width for the road and kept the other half as water, with a walk and 63 gas lamps along the stone warehouses. It made Otaru one of Hokkaido's busiest sights.[^1]" },
+            {
+              timeline: [
+                { when: "1923", text: "The canal is finished, built out into the sea" },
+                { when: "1966", text: "The city plans to fill it in for a road" },
+                { when: "1986", text: "The compromise: half filled, half kept, with 63 gas lamps" },
+              ],
+            },
             { p: "The warehouses now hold glass workshops, music-box shops and breweries, and Sakaimachi-dōri behind them is a street of old merchant houses turned sweet shops. The sushi counters near the station, supplied by the port, are a reason in themselves." },
             { note: "Walk the canal at dusk, when the lamps come on, and go on to Yoichi the same day.", title: "Going" },
           ],
@@ -2534,6 +2599,15 @@ const base: { cities: GuideCity[] } = {
             { p: "When **Taketsuru Masataka** left Yamazaki in 1934, he came here: a cold fishing town on the Shakotan coast, with sea air, peat and a climate as close to Scotland's as he could find. Whisky takes years before it can be sold, so his new company began by selling **apple juice** from Yoichi's orchards; its name, Dai Nippon Kajū, “Great Japan Fruit Juice”, shortened to **Nikka**. Its first whisky went on sale in 1940.[^1]" },
             { p: "The stills are still heated by **coal fires** under the pot, stoked by hand, the old Scottish way, and Yoichi is believed to be the only distillery in the world still doing it. The stone buildings, with their pagoda-roofed kilns, became Important Cultural Properties in **2022**.[^1]" },
             { p: "Taketsuru's Scottish wife, **Rita** (Jessie Roberta Cowan), lived here with him; she died in 1961 and is buried with him on a hill above the town. Their story became the 2014 NHK morning drama *Massan*, which brought crowds to Yoichi.[^2]" },
+            {
+              timeline: [
+                { when: "1934", text: "Taketsuru comes to Yoichi and starts by selling apple juice" },
+                { when: "1940", text: "Nikka's first whisky goes on sale" },
+                { when: "1961", text: "Rita dies" },
+                { when: "2014", text: "Their story becomes the NHK drama *Massan*" },
+                { when: "2022", text: "The stone buildings become Important Cultural Properties" },
+              ],
+            },
             { note: "The distillery tour is free but must be booked. Yoichi is also a fruit town: apples, cherries and wine grapes, and a cluster of small wineries.", title: "Going" },
           ],
           related: ["drinks/shochu-whisky-and-beer"],
@@ -2691,6 +2765,16 @@ const base: { cities: GuideCity[] } = {
             { p: "Japan's first porcelain was made in Arita in the **1610s**. The clay came from **Izumiyama**, a hill of white stone above the town; tradition credits its discovery, in 1616, to **Yi Sam-pyeong**, one of the Korean potters carried off by the lord of Saga during Hideyoshi's invasions of Korea. The domain soon had the industry under tight control, closing kilns until only thirteen remained in Arita by 1637.[^1]" },
             { p: "From the 1650s, when war in China cut off Chinese porcelain, the **Dutch East India Company** shipped Arita's wares to Europe from Nagasaki. Europe called them **Imari**, after the port they left from, and the palaces of Europe filled with them; Meissen's first porcelain copied their patterns.[^2]" },
             { p: "**Tōzan Shrine**, on the slope above the railway, is the potters' shrine, and it's made of the product: its **torii** of 1888 is porcelain, with porcelain guardian dogs and lanterns. It honours Yi Sam-pyeong alongside the god and the lord, and a monument to him on the hill behind was put up in 1917, 300 years after the clay.[^3]" },
+            {
+              timeline: [
+                { when: "1610s", text: "Japan's first porcelain is made in Arita" },
+                { when: "1616", text: "Yi Sam-pyeong finds the clay at Izumiyama, by tradition" },
+                { when: "1637", text: "The domain cuts Arita to thirteen kilns" },
+                { when: "1650s", text: "The Dutch start shipping it to Europe as Imari" },
+                { when: "1888", text: "Tōzan Shrine's porcelain torii" },
+                { when: "1917", text: "A monument to Yi Sam-pyeong, 300 years on" },
+              ],
+            },
             { note: "The **Arita Ceramics Fair**, every Golden Week (29 April – 5 May), fills the town's 4 km main street with stalls and is one of Japan's biggest. The Kyushu Ceramic Museum has the best of the old export wares.", title: "Going" },
           ],
           sources: [
@@ -3111,6 +3195,13 @@ const base: { cities: GuideCity[] } = {
             { p: "On the hill of **Takadachi**, above the Kitakami river, the hero **Minamoto no Yoshitsune** died in 1189 when the Fujiwara, under pressure from his brother Yoritomo, turned on him. By legend his giant warrior-monk **Benkei** died standing on the riverbank, so full of arrows he couldn't fall, holding off the attackers while Yoshitsune took his own life." },
             { p: "Five hundred years later, in 1689, the poet **Bashō** came here on the walk he wrote up as *The Narrow Road to the Deep North*. Looking over the river, he wrote one of the best-known haiku in Japanese:[^1]" },
             { pull: "Natsukusa ya / tsuwamonodomo ga / yume no ato — summer grass: all that is left of warriors' dreams." },
+            {
+              terms: [
+                { term: "Natsukusa ya", text: "Summer grass." },
+                { term: "Tsuwamonodomo ga", text: "Of the warriors." },
+                { term: "Yume no ato", text: "All that is left of their dreams." },
+              ],
+            },
             { p: "A small hall, the **Gikeidō**, stands on the hill in Yoshitsune's memory, and the view Bashō saw is little changed. Yoshitsune is honoured every year in the **Spring Fujiwara Festival** in early May, with a procession in Heian costume." },
             { note: "Takadachi is a 20-minute walk from Hiraizumi station, or on the Runrun loop bus with Chūson-ji and Mōtsū-ji.", title: "Going" },
           ],
@@ -3223,15 +3314,17 @@ const base: { cities: GuideCity[] } = {
           summary: "A school 700 m from the sea where 320 people waited out the tsunami, kept as it was left",
           body: [
             { p: "Sendai's centre is 10 km inland, and on **11 March 2011** it shook but stood; the **Sendai Mediatheque**, Toyo Ito's glass library of 2001, came through almost undamaged. The coast was another matter. The tsunami crossed the flat rice plain of Wakabayashi ward for kilometres, and the seaside district of **Arahama** was swept away.[^1]" },
-            { p: "**Arahama Elementary School** stands about 700 m from the shore. The water reached its second floor. About **320 people** — pupils, teachers and neighbours who had run there — sheltered on the upper floors and the roof through the night, and all were rescued by the next day. The district was declared unfit to live in, and the school was preserved as it was found, with bent railings and the clock stopped; it opened as a memorial on 30 April 2017.[^2]" },
+            { p: "**Arahama Elementary School** stands about 700 m from the shore. The water reached its second floor. About **320 people** — pupils, teachers and neighbours who had run there — sheltered on the upper floors and the roof through the night, and all were rescued by the next day.[^4] The district was declared unfit to live in, and the school was preserved as it was found, with bent railings and the clock stopped; it opened as a memorial on 30 April 2017.[^2]" },
+            { stats: [{ value: "~700 m", label: "from the school to the shore" }, { value: "~320", label: "people sheltered on its upper floors and roof" }, { value: "All", label: "rescued by the next day" }] },
             { p: "Four years later Sendai hosted the UN conference that adopted the **Sendai Framework for Disaster Risk Reduction** (2015–2030), the world's plan for cutting deaths from disasters — so the city's name now stands for the subject in international policy.[^3]" },
             { note: "Buses from Arai station on the Tōzai subway line take about 15 minutes. The fourth floor has the exhibition; the roof shows the empty plain, the new raised coastal road and the sea.", title: "Visiting" },
           ],
           related: ["nature/tsunami"],
           sources: [
             { title: "Sendai — Wikipedia", url: "https://en.wikipedia.org/wiki/Sendai", note: "The 2011 tsunami on the coastal wards" },
-            { title: "Arahama Elementary School opens as a memorial — Sendai City", url: "https://sendai-resilience.jp/news/detail---id-118.html", note: "About 320 people sheltered and were all rescued; open from 30 April 2017" },
+            { title: "Arahama Elementary School opens as a memorial — Sendai City", url: "https://sendai-resilience.jp/news/detail---id-118.html", note: "Open as a memorial from 30 April 2017" },
             { title: "Sendai Framework for Disaster Risk Reduction — Wikipedia", url: "https://en.wikipedia.org/wiki/Sendai_Framework_for_Disaster_Risk_Reduction", note: "Adopted in Sendai in March 2015" },
+            { title: "Arahama Elementary School — Tabi Tōhoku", url: "https://www.tohokukanko.jp/attractions/print_1004523.html", note: "About 700 m inland; 320 people sheltered; water to the second floor; all rescued 27 hours after the earthquake (Japanese)" },
           ],
         },
       ],
@@ -3442,6 +3535,14 @@ const base: { cities: GuideCity[] } = {
             { p: "Twenty minutes from Kakunodate, **Lake Tazawa** fills an old caldera about 6 km across. At **423.4 m** it's the deepest lake in Japan; its bottom lies 174 m below sea level, and it never freezes. A golden statue on the shore is **Tatsuko**, the girl of the legend who prayed for eternal beauty and was turned into the lake's dragon.[^1]" },
             { p: "It was once among Japan's clearest lakes, and home to a fish found nowhere else, the **kunimasu**, a dark salmon that lived in its depths. In **1940**, to raise more power and rice for the war, engineers diverted the **Tama river** into the lake. The Tama is fed by Tamagawa Onsen, a spring at **pH 1.1**, and the acid wiped out the lake's fish within a few years.[^1][^2]" },
             { p: "Seventy years later, in **2010**, kunimasu turned up alive in **Lake Saiko**, one of the Fuji Five Lakes. Before the diversion, in 1935, eggs had been sent to several lakes to try raising them, and in one they had quietly survived. A neutralising plant on the Tama has run since **1991**, but the lake as a whole has still not recovered.[^1][^2]" },
+            {
+              timeline: [
+                { when: "1935", text: "Kunimasu eggs are sent to other lakes" },
+                { when: "1940", text: "The acid Tama river is turned into the lake; its fish die out" },
+                { when: "1991", text: "A neutralising plant starts on the Tama" },
+                { when: "2010", text: "Kunimasu are found alive in Lake Saiko" },
+              ],
+            },
             { note: "Buses run from Tazawako station on the Akita Shinkansen. Hire a bike and ride the 20 km round the shore; the water is a startling blue.", title: "Going" },
           ],
           related: ["place/fuji-five-lakes/a-volcano-that-made-the-lakes"],
@@ -3456,6 +3557,14 @@ const base: { cities: GuideCity[] } = {
           summary: "Pounded rice toasted on a cedar stick: Akita's autumn hotpot, and what the mountain hunters ate",
           body: [
             { p: "**Kiritanpo** is Akita's food. Freshly cooked rice is half-pounded, pressed round a cedar skewer and toasted by the fire until crusty; slid off and cut into lengths, the tubes go into a hotpot of chicken broth with burdock, maitake mushrooms, spring onions and *seri*, a sharp water parsley.[^1]" },
+            {
+              steps: [
+                { title: "Pound", text: "Half-pound freshly cooked rice." },
+                { title: "Skewer", text: "Press it round a cedar skewer." },
+                { title: "Toast", text: "Toast it by the fire until crusty." },
+                { title: "Simmer", text: "Slide it off, cut it, and put it in the chicken hotpot." },
+              ],
+            },
             { p: "One story puts its origin with the **matagi**, the hunters of the northern Akita mountains, who mashed their leftover rice on sticks to toast over the fire and stewed it with whatever they'd caught. Another credits a lord's inspection tour. Its name comes from *tanpo*, the padded tip of a practice spear, which the rice on its stick resembles.[^1]" },
             { p: "The broth is made with **Hinai-jidori**, a breed raised in the north of the prefecture and Akita's pride, and the hotpot is a dish of the cold months: from the new rice in autumn through winter. Grilled on the stick with sweet miso, it's a snack at festivals." },
           ],
@@ -3873,6 +3982,7 @@ const base: { cities: GuideCity[] } = {
             { p: "The Hosokawa lords, who took over Kumamoto from Kiyomasa's son in 1632, made their garden around a **spring**. **Suizenji Jōjuen** began about 1636 as a tea house by a Zen temple, and over three generations became a stroll garden around a pond of water so clear it's fed straight from the aquifer under Aso.[^1]" },
             { p: "It's often said to recreate the **53 stations of the Tōkaidō**, the road from Edo to Kyoto, in miniature. That's a later reading — the clearest thing in it is a small, perfectly rounded grassy hill standing for Mount Fuji — but it explains why the paths seem to make a journey. The thatched tea house, Kokin-denju-no-ma, was moved here in 1912 from the Imperial Palace in Kyoto.[^1]" },
             { p: "The water is the point. Kumamoto city gets **all of its drinking water** from groundwater, rain that falls on Aso and takes years to filter through the volcanic rock — unusual among Japanese cities of its size." },
+            { stats: [{ value: "~1636", label: "begun as a tea house" }, { value: "53", label: "Tōkaidō stations it's said to echo" }, { value: "All", label: "of Kumamoto's drinking water from underground" }] },
             { note: "The garden is a 20-minute tram ride from the centre. Carp and ducks crowd the pond; the shop by the tea house serves matcha with a sweet looking over the water.", title: "Going" },
           ],
           related: ["land/gardens"],
@@ -3885,6 +3995,7 @@ const base: { cities: GuideCity[] } = {
           body: [
             { p: "**Kumamon** was created in **2010** for the prefecture's campaign around the opening of the Kyushu Shinkansen to Kagoshima the next spring. In late 2011 he won the national mascot grand prix, the *Yuru-kyara* contest, with over 280,000 votes.[^1]" },
             { p: "The clever part was the licence. Kumamoto Prefecture lets companies put Kumamon on their products **free of charge**, as long as they apply and help promote the prefecture. He was everywhere within months. Goods sales went from ¥2.5 billion in 2011 to ¥29.3 billion in 2012, and the Bank of Japan estimated his economic effect over two years at **¥123 billion**.[^1]" },
+            { stats: [{ value: "280,000+", label: "votes in the 2011 mascot grand prix" }, { value: "¥29.3bn", label: "of Kumamon goods sold in 2012, from ¥2.5bn" }, { value: "¥123bn", label: "effect over two years, Bank of Japan" }] },
             { p: "He's officially the prefecture's “sales manager and happiness manager”, has an office in the city, and appears in person, as a man-sized bear, on a timetable (see [Karaoke, pachinko and mascots](guide:culture/karaoke-pachinko-and-mascots))." },
             { note: "**Kumamon Square**, his office near the Tsuruya department store, is free, with appearances on most days. Look for him on the Hisatsu Orange Railway's trains, too.", title: "Meeting him" },
           ],
@@ -3997,6 +4108,7 @@ const base: { cities: GuideCity[] } = {
             { p: "The same town has a harder history. From April 1945, as American forces landed on Okinawa, the army's **special attack** units flew from Chiran's airfield on one-way missions against the fleet. Of the 1,036 army pilots who died in such attacks, the museum records **439**, about four in ten, as taking off from here; many were in their late teens or early twenties.[^2]" },
             photo("chiran-museum", "A low modern museum building with a fighter plane displayed outside", "The Chiran Peace Museum."),
             { p: "**Torihama Tome** ran the Tomiya canteen, the army's official eating house in town, and fed and mothered the pilots; one, the story goes, told her he'd come back as a firefly, and on the night after he died a firefly came in. Her canteen is now a small museum of its own.[^3] The **Chiran Peace Museum** holds about **14,000** objects: photographs, uniforms, and the last letters the pilots wrote home, many to their mothers.[^2]" },
+            { stats: [{ value: "439", label: "army pilots flew their last mission from Chiran" }, { value: "1,036", label: "army pilots died in such attacks" }, { value: "~14,000", label: "objects in the Peace Museum" }] },
             { note: "Photography isn't allowed inside the museum. Allow two hours, and give the letters time. The samurai gardens are a 10-minute bus ride away; one ticket covers all seven. Buses from Kagoshima take a little over an hour.", title: "Going" },
           ],
           related: ["history/meiji-to-1945"],
@@ -4014,6 +4126,16 @@ const base: { cities: GuideCity[] } = {
             { p: "Glass was one of **Shimazu Nariakira**'s projects in the 1850s, alongside the furnaces and cannon foundries of the Shūseikan. His craftsmen worked from Dutch glassmaking books and brought in Edo glass cutters, and made something new: **Satsuma kiriko**, cut glass with a thick skin of colour over clear, including a deep red. Nariakira gave it to other lords as gifts.[^1]" },
             { p: "It was over almost as soon as it began. Nariakira died in **1858**, his successors cut back the works, and the British bombardment of 1863 hit the factories. By the 1870s the craft was gone; only about **200** pieces are known to survive, and they sell for millions of yen.[^1]" },
             { p: "What makes it Satsuma is the **bokashi**, the blur. The colour layer is thick, so a deep, slanting cut grades from full colour through every shade to clear, where Edo kiriko, cut from clear glass, gives a crisp line. In the **1980s** glassmakers, with the Shimazu family's company, rebuilt the technique from those survivors; it's been a Kagoshima traditional craft since 1989.[^1]" },
+            {
+              compare: {
+                a: "Satsuma kiriko",
+                b: "Edo kiriko",
+                rows: [
+                  { label: "Glass", a: "A thick skin of colour over clear", b: "Clear" },
+                  { label: "Cut", a: "Grades from colour to clear — bokashi", b: "A crisp line" },
+                ],
+              },
+            },
             { note: "The workshop beside **Sengan-en**, the Shimazu garden, lets you watch the cutting, and its shop is the place to buy. A small cup is a big purchase — think of it as a piece, not a souvenir.", title: "Seeing it" },
           ],
           sources: [{ title: "Satsuma kiriko — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E8%96%A9%E6%91%A9%E5%88%87%E5%AD%90", note: "Nariakira's glassworks; about 200 surviving pieces; bokashi; revived from 1985, a prefectural craft from 1989 (Japanese)" }],
@@ -4121,11 +4243,12 @@ const base: { cities: GuideCity[] } = {
           cover: photoOf("apu-campus", "Modern university buildings on a hilltop with the sea below", "APU on the hill above Beppu."),
           summary: "On the hill above the spa town, half the students are from abroad",
           body: [
-            { p: "On a plateau above Beppu sits one of the most international universities in Asia. **Ritsumeikan Asia Pacific University**, APU, opened in **2000**, set up by Kyoto's Ritsumeikan. Of its roughly 6,000 students, about **half** come from abroad, from **112** countries and regions, and nearly all of them stay the full four years.[^1]" },
+            { p: "On a plateau above Beppu sits one of the most international universities in Asia. **Ritsumeikan Asia Pacific University**, APU, opened in **2000**, set up by Kyoto's Ritsumeikan. Of its roughly 6,000 students, about **half** come from abroad, from **112** countries and regions, and about nine in ten of those stay the full four years for a degree.[^1]" },
+            { stats: [{ value: "~6,000", label: "students" }, { value: "~½", label: "from abroad" }, { value: "112", label: "countries and regions" }] },
             { p: "For a town of about 110,000, that's a lot of young foreigners. Students work in Beppu's inns, restaurants and baths, run the stalls at its festivals, and stay on: the onsen town of elderly bath-house regulars has become one of the least homogeneous places in provincial Japan." },
             { note: "Buses run up to the campus from Beppu station. The view from the hill over the bay and the steaming town is worth the ride.", title: "Going" },
           ],
-          sources: [{ title: "Ritsumeikan Asia Pacific University — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%AB%8B%E5%91%BD%E9%A4%A8%E3%82%A2%E3%82%B8%E3%82%A2%E5%A4%AA%E5%B9%B3%E6%B4%8B%E5%A4%A7%E5%AD%A6", note: "Opened 2000; about half of about 6,000 students from 112 countries and regions, November 2024 (Japanese)" }],
+          sources: [{ title: "Ritsumeikan Asia Pacific University — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%AB%8B%E5%91%BD%E9%A4%A8%E3%82%A2%E3%82%B8%E3%82%A2%E5%A4%AA%E5%B9%B3%E6%B4%8B%E5%A4%A7%E5%AD%A6", note: "Opened 2000; about half of about 6,000 students from 112 countries and regions, about 90% of them degree students, November 2024 (Japanese)" }],
         },
       ],
     },

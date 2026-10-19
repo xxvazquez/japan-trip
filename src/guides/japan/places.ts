@@ -88,6 +88,7 @@ export const placeReads: Record<string, GuideItem[]> = {
         { p: "Tokyo is never finished. Partly that's disaster: earthquakes and fires taught the city to rebuild. But mostly it's economics and law. A Japanese house is valued like a car: a wooden one is written off for tax in 22 years, and buyers expect to knock it down and build new. National zoning is permissive, so owners can rebuild bigger without much of a fight. One result is that Tokyo builds a great deal of housing and has stayed affordable for a world city; another is that very little ordinary building gets old.[^1]" },
         { h: "Towers as symbols" },
         { p: "**Tokyo Tower** (1958), 333 m, was the city announcing its recovery: taller than the Eiffel Tower, painted white and orange to meet air-safety rules, and, by the usual account, built partly from steel of scrapped American tanks. **Tokyo Skytree** (2012) is 634 m because 6-3-4 can be read *mu-sa-shi*, the name of the old province." },
+        { stats: [{ value: "333 m", label: "Tokyo Tower, 1958" }, { value: "634 m", label: "Tokyo Skytree, 2012" }, { value: "22 years", label: "to write off a wooden house for tax" }] },
         { h: "What's changing now" },
         {
           list: [
@@ -216,6 +217,14 @@ export const placeReads: Record<string, GuideItem[]> = {
       body: [
         photo("tsukiji-outer", "A stall of shellfish and fish with handwritten price tags", "A stall in Tsukiji's outer market."),
         { p: "For 83 years Tokyo's fish came through **Tsukiji**, opened in 1935 after the 1923 earthquake destroyed the old market at Nihonbashi. Its move to **Toyosu**, on reclaimed land across the bay, was planned for 2016 and stalled: the site had been a gas works, and tests found benzene in its groundwater far above legal limits. After more clean-up the new market opened in October 2018.[^1]" },
+        {
+          timeline: [
+            { when: "1923", text: "The earthquake destroys the old fish market at Nihonbashi" },
+            { when: "1935", text: "**Tsukiji** opens in its place" },
+            { when: "2016", text: "The planned move to Toyosu stalls over benzene in the groundwater" },
+            { when: "Oct 2018", text: "**Toyosu** opens; Tsukiji's outer market stays" },
+          ],
+        },
         { p: "The wholesale market left; the **outer market** (jōgai shijō) didn't. Its few hundred shops — knives, dried fish, tamagoyaki, kitchen tools, small sushi counters — still trade on the streets beside the old site and are busiest in the morning. Many close by early afternoon, and some on Sundays and Wednesdays, following the market's old calendar." },
         { p: "At **Toyosu**, the tuna auction can be watched from a glass-walled deck above the floor, or from a closer lower deck if you win a lottery in advance. It starts before 6:00. The first auction of the year is where the record prices come from (see [Sushi](guide:eating-out/sushi-from-fermented-fish-to-fast-food))." },
         { h: "Monjayaki in Tsukishima" },
@@ -292,6 +301,14 @@ export const placeReads: Record<string, GuideItem[]> = {
           ],
         },
         { p: "Fuji was inscribed as World Heritage in 2013 as a **cultural** site, “place of worship and source of artistic inspiration”, not a natural one. Its 25 parts include the summit, shrines, lakes, lava caves, pilgrim houses and even a beach of pines, Miho no Matsubara, 45 km away, chosen for the view that painters made famous.[^1]" },
+        {
+          timeline: [
+            { when: "Late 1500s", text: "**Hasegawa Kakugyō** practises in the lava caves" },
+            { when: "1733", text: "**Jikigyō Miroku** starves himself near the summit" },
+            { when: "Late Edo", text: "Hundreds of Fuji-kō in Edo alone" },
+            { when: "2013", text: "World Heritage, as a cultural site of 25 parts" },
+          ],
+        },
       ],
       related: ["land/sacred-mountains", "place/fuji-five-lakes/a-volcano-that-made-the-lakes", "belief/shinto"],
       sources: [
@@ -381,6 +398,16 @@ export const placeReads: Record<string, GuideItem[]> = {
         { p: "Over the pass from the lakes, the **Kōfu basin** is hot in summer, dry in autumn and Japan's main wine region. Its grape is **Kōshū**, a pink-skinned vinifera that has grown here for centuries — legends date it to a monk in 718 or a farmer in 1186. It makes a light, dry, faintly citrus white that suits Japanese food, and about 95% of it is grown in Yamanashi.[^1]" },
         { p: "Commercial wine began in 1877, when a company in **Katsunuma** sent two young men, Takano Masanari and Tsuchiya Ryūken, to France to learn winemaking. Their wine didn't sell — Japanese drinkers weren't ready — and the company folded in 1886, but the vineyards stayed and its line continues in today's Château Mercian." },
         { p: "Until recently a bottle labelled as Japanese might be made from imported grape concentrate. Since 2018 only wine from **grapes grown in Japan** may say **日本ワイン** (Nihon wine); a place name needs 85% of the grapes from there. Kōshū was registered with the international wine body in 2010, and **GI Yamanashi** became Japan's first wine region of origin in 2013.[^2]" },
+        {
+          timeline: [
+            { when: "718 or 1186", text: "The legends' dates for the first Kōshū vines" },
+            { when: "1877", text: "Two young men from Katsunuma go to France to learn winemaking" },
+            { when: "1886", text: "Their company folds; the vineyards stay" },
+            { when: "2010", text: "Kōshū registered with the international wine body" },
+            { when: "2013", text: "**GI Yamanashi**, Japan's first wine region of origin" },
+            { when: "2018", text: "Only wine from grapes grown in Japan may say 日本ワイン" },
+          ],
+        },
         { note: "Katsunuma, about an hour from the lakes by car or train via Ōtsuki, has dozens of wineries, several within walking distance of Katsunuma-budōkyō station, many with tastings.", title: "On the route" },
         { p: "The rest of the local food — hōtō stew and Yoshida's hard udon — is in [Flour country](guide:regional-food/flour-country), and what to eat around the lakes is in [Hōtō, hard udon and a box to take home](guide:place/fuji-five-lakes/hoto-hard-udon-and-a-box-to-take-home)." },
       ],
@@ -589,17 +616,20 @@ export const placeReads: Record<string, GuideItem[]> = {
       body: [
         { p: "Three famous buildings each carry a story that tells you more than the guidebook photo." },
         { h: "Kiyomizu-dera's stage" },
-        { p: "The wooden stage of Kiyomizu-dera, rebuilt in 1633, juts 13 m out over the hillside on 18 tall zelkova pillars, braced in a lattice of beams held by joinery and wedges rather than nails. “To jump off the stage at Kiyomizu” means to take the plunge — and people did. A temple sub-house's diary, found in the 1990s, records more than 200 jumps in the Edo period, made as a vow, with over 80% surviving the fall into trees. The Meiji government banned it.[^1]" },
+        { p: "The wooden stage of Kiyomizu-dera, rebuilt in 1633, stands about 13 m above the hillside on tall zelkova pillars, braced in a lattice of beams held by joinery and wedges rather than nails. “To jump off the stage at Kiyomizu” means to take the plunge — and people did. A temple sub-house's diary, found in the 1990s, records more than 200 jumps in the Edo period, made as a vow, with over 80% surviving the fall into trees. The Meiji government banned it.[^1][^3]" },
+        { stats: [{ value: "~13 m", label: "from the stage to the hillside" }, { value: "200+", label: "jumps recorded in the Edo period" }, { value: "80%+", label: "of jumpers survived" }] },
         photo("kiyomizu-stage", "The lattice of tall wooden pillars and cross-beams holding up Kiyomizu-dera's stage, seen from below through maple branches", "Under Kiyomizu-dera's stage: zelkova pillars and beams, jointed without nails."),
         { h: "The Golden Pavilion's fire" },
         { p: "**Kinkaku-ji** was built as a shogun's retirement villa around 1397. On 2 July 1950 a 21-year-old acolyte set it on fire and it burned to the ground. The pavilion you see is a 1955 rebuild, and its gold leaf was redone, much thicker, in 1987 — so it's brighter now than it was for most of its history. The arson became Mishima Yukio's novel *The Temple of the Golden Pavilion* (1956), about a young monk unable to bear the building's beauty.[^2]" },
         { h: "A station people hated" },
-        { p: "**Kyoto Station** (1997), by Hara Hiroshi, is a 15-storey canyon of glass and steel, 470 m long, built against loud opposition as an affront to the old capital. Its giant staircase, 171 steps, now hosts an annual race to the top, and the roof garden has one of the best free views of the city." },
+        { p: "**Kyoto Station** (1997), by Hara Hiroshi, is a 16-storey canyon of glass and steel, 470 m long, built against loud opposition as an affront to the old capital. Its giant staircase, 171 steps, now hosts an annual race to the top, and the roof garden has one of the best free views of the city.[^4]" },
       ],
       related: ["place/kyoto/spared-in-the-war", "belief/buddhism"],
       sources: [
         { title: "Kiyomizu jumps in the Jōjuin diary — Nichibun news", url: "https://nichibun.repo.nii.ac.jp/record/6583/files/news_095_005.pdf", note: "Over 200 jumps, over 80% surviving" },
         { title: "Kinkaku-ji — Wikipedia", url: "https://en.wikipedia.org/wiki/Kinkaku-ji", note: "1397, the 1950 arson, 1955 rebuild, 1987 regilding" },
+        { title: "Kiyomizu-dera — National Diet Library", url: "https://www.ndl.go.jp/en/landmarks/column/kiyomizudera", note: "The main hall rebuilt in 1633; the stage about 13 m high (Japanese)" },
+        { title: "Kyoto Station Building — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E4%BA%AC%E9%83%BD%E9%A7%85%E3%83%93%E3%83%AB", note: "Hara Hiroshi, 1997; 16 floors above ground; 470 m east to west; the 171-step staircase and its February race (Japanese)" },
       ],
     },
     {
@@ -699,6 +729,7 @@ export const placeReads: Record<string, GuideItem[]> = {
         photo("nara-deer", "A hand holding a round rice cracker in a paper band", "Shika senbei, the crackers sold in Nara Park to feed the deer."),
         { p: "Kasuga Taisha's founding legend says its god, **Takemikazuchi**, arrived from the east riding a white deer. Deer became his messengers, and for a thousand years killing one in Nara was a crime; in the Edo period, legend says, the penalty was death. They were nearly wiped out after 1945, then protected again, and in 1957 the deer of Nara were made a **Natural Monument**. They belong to no one: wild animals living in a town." },
         { p: "There are more now than ever. The 2025 count found 1,465, the most on record, and they're spreading into villages around the park. Injuries to visitors, mostly bites and butts, run to well over a hundred a year, many from teasing deer with crackers.[^1]" },
+        { stats: [{ value: "1,465", label: "deer counted in 2025, a record" }, { value: "100+", label: "visitors hurt each year" }, { value: "~¥200", label: "a bundle of deer crackers" }] },
         {
           dos: [
             "Buy **shika-senbei**, the deer crackers sold at stalls (about ¥200), and feed them fairly quickly",
@@ -732,6 +763,15 @@ export const placeReads: Record<string, GuideItem[]> = {
         photo("kasuga-corridor", "Rows of bronze lanterns hanging along a vermilion corridor", "Bronze lanterns along the west corridor of Kasuga Taisha."),
         { p: "The **lanterns**, about 3,000 of them, are gifts: stone ones along the forest paths, bronze ones hanging in the corridors, each inscribed with its donor. Twice a year, at Setsubun in early February and on 14–15 August, every one is lit at once for the **Mantōrō**. The oldest stone lanterns date from the 12th century." },
         { p: "Like Ise, Kasuga used to rebuild its main sanctuaries every 20 years; it now repairs and repaints them on that cycle instead, the 60th time in 2016. Behind the shrine, **Kasugayama Primeval Forest** has been protected since hunting and logging were banned there in 841, and is part of the World Heritage listing — a rare stand of warm-temperate forest left untouched next to a city.[^2]" },
+        {
+          timeline: [
+            { when: "768", text: "The Fujiwara found **Kasuga Taisha**" },
+            { when: "841", text: "Hunting and logging are banned in the forest behind it" },
+            { when: "1100s", text: "The oldest of its stone lanterns" },
+            { when: "1868", text: "The Meiji government splits the shrine from Kōfuku-ji" },
+            { when: "2016", text: "The sanctuaries' 60th repair on the 20-year cycle" },
+          ],
+        },
         { note: "Kōfuku-ji's five-storey pagoda, Nara's skyline landmark, is under scaffolding for a major repair expected to last until about 2031. The Central Golden Hall was rebuilt in 2018,[^3] and the National Treasure Museum, with the three-faced, six-armed Ashura statue, is open.", title: "Kōfuku-ji now" },
       ],
       related: ["belief/shinto", "belief/gods-and-buddhas-mixed-and-split", "place/nara/the-deer"],
@@ -745,6 +785,16 @@ export const placeReads: Record<string, GuideItem[]> = {
         photo("horyuji-gate", "A five-storey pagoda seen through a wooden gateway", "Hōryū-ji's pagoda through the inner gate."),
         { p: "How old they are is a long argument. The temple was founded in 607 by Prince Shōtoku; the official chronicle says it burned to the ground in 670. Historians argued for decades over whether the buildings are the originals or a rebuild. Excavation found the burned first temple slightly to the south-east, so they were rebuilt — but tree-ring dating then found the pagoda's central pillar was felled in **594**, and some Kondō timbers before 670. Old wood was reused, or construction had begun before the fire, or both.[^1]" },
         { p: "On 26 January 1949, a restorer's electric heating pad caught fire in the Kondō and destroyed its 7th-century wall paintings, among the finest Buddhist paintings in Asia. The shock led directly to Japan's **Law for the Protection of Cultural Properties** in 1950, and 26 January is now the national day for fire drills at temples and museums. The burned panels are kept in a fireproof store; copies are on the walls." },
+        {
+          timeline: [
+            { when: "594", text: "The tree for the pagoda's central pillar is felled" },
+            { when: "607", text: "Prince Shōtoku founds the temple" },
+            { when: "670", text: "The chronicle says it burns to the ground" },
+            { when: "c. 700", text: "The Golden Hall and pagoda that stand today" },
+            { when: "1949", text: "Fire destroys the Golden Hall's wall paintings" },
+            { when: "1950", text: "The Law for the Protection of Cultural Properties" },
+          ],
+        },
         { note: "Hōryū-ji is far quieter than Tōdai-ji. Allow half a day, and walk on to Chūgū-ji next door for a 7th-century wooden statue of a pensive bodhisattva with one of the gentlest faces in Japanese art.", title: "Getting there" },
       ],
       related: ["history/asuka-and-nara", "belief/buddhism"],
@@ -810,6 +860,15 @@ export const placeReads: Record<string, GuideItem[]> = {
         photo("byodoin-bridge", "A red-roofed hall with spreading wings mirrored in a pond, a small bridge in front", "The Phoenix Hall across its pond."),
         { p: "Inside sits a gilded Amida by the sculptor **Jōchō**, carved from many blocks of wood joined together (yosegi), a technique he made standard: it let workshops make huge, light statues fast and without cracks. Around the walls fly 52 small wooden bodhisattvas on clouds, playing instruments and dancing. The hall itself has never burned, a rarity for a building of 1053." },
         { p: "The Phoenix Hall has been on the **¥10 coin** since 1951, and one of the bronze phoenixes from its roof was on the back of the ¥10,000 note from 2004 to 2024. The originals of the phoenixes and many of the bodhisattvas are in the temple's museum, the Hōshōkan; copies are in their places. In 2012–14 the hall was repaired and repainted in **cinnabar red**, as it was at the founding — brighter than many visitors expect." },
+        {
+          timeline: [
+            { when: "1052", text: "The year **mappō** was meant to begin; Yorimichi's villa becomes a temple" },
+            { when: "1053", text: "The **Phoenix Hall** is dedicated" },
+            { when: "1951", text: "It goes on the ¥10 coin" },
+            { when: "2004–24", text: "A roof phoenix on the back of the ¥10,000 note" },
+            { when: "2012–14", text: "Repaired and repainted in its first cinnabar red" },
+          ],
+        },
         { h: "Across the river" },
         { p: "**Ujigami Shrine**, a few minutes over the Uji River, has the oldest surviving shrine building in Japan: its main hall dates from about 1060, confirmed by tree-ring dating. It was Byōdō-in's guardian shrine, and it's small, quiet and easy to miss." },
       ],
@@ -830,6 +889,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       body: [
         photo("uji-bridge-screen", "A gold folding screen showing a bridge, willows and a waterwheel", "The bridge at Uji on a 17th-century folding screen, a scene drawn from Genji."),
         { p: "Uji was where Heian aristocrats had their country villas, an hour or two from the capital by river and road, and it's where Murasaki Shikibu set the **last ten chapters** of *The Tale of Genji*, written around 1000. Genji himself is dead by then. The “Uji chapters” follow two young men and the sisters they court in a melancholy house by the river, and end without resolution — a darker, more modern book than the first forty-four chapters.[^1]" },
+        { stats: [{ value: "54", label: "chapters in The Tale of Genji" }, { value: "10", label: "set in Uji, chapters 45–54" }, { value: "646", label: "the date on Uji Bridge's stone" }] },
         { p: "**Uji Bridge** was first built, its stone inscription says, in 646, which would make it one of Japan's oldest.[^2] Its guardian is the **Hashihime**, the Bridge Princess, who appears in classical poetry as a lonely woman waiting by the river. Later legend made her darker: a jealous woman who prayed at [Kifune Shrine](guide:place/kurama/kifune-the-water-shrine) to become a demon, and bathed in the Uji River to finish the change. A small shrine to her stands near the bridge." },
         { p: "The **Tale of Genji Museum** tells the story with models of Heian rooms, costumes and short films, and is the easiest way into a novel few people finish.[^3] The Genji walking route links the sites of the Uji chapters with stone markers." },
       ],
@@ -847,6 +907,14 @@ export const placeReads: Record<string, GuideItem[]> = {
         photo("manpukuji", "A temple hall behind pine trees across a sanded courtyard", "Manpuku-ji in Uji."),
         { p: "Two stops north of Uji, **Mampuku-ji** looks nothing like the temples around it. It was founded in 1661 by **Ingen**, a Chinese Zen master who came to Nagasaki in 1654, and built in the style of a Ming-dynasty monastery: Chinese gates, rounded windows, a pot-bellied laughing Buddha at the entrance, sutras still chanted in old Chinese pronunciation. His **Ōbaku** school brought much else with it: the custom of steeping loose-leaf tea, which led to sencha; a kind of bean, *ingen-mame*, the green bean; and **fucha ryōri**, a Chinese vegetarian banquet shared from big dishes, still served at the temple by reservation.[^1]" },
         { p: "Look for the **kaipan**, a big wooden fish hanging in the corridor and beaten to call monks to meals. The ball in its mouth stands for the worldly desires it spits out." },
+        {
+          terms: [
+            { term: "Sencha", text: "Tea steeped from loose leaves, a custom the Ōbaku school brought." },
+            { term: "Ingen-mame", text: "The green bean, named after Ingen." },
+            { term: "Fucha ryōri", text: "A Chinese vegetarian banquet shared from big dishes." },
+            { term: "Kaipan", text: "The wooden fish beaten to call monks to meals." },
+          ],
+        },
         { h: "The Nintendo Museum" },
         { p: "Nintendo was founded in Kyoto in 1889 to make **hanafuda**, flower-pattern playing cards. Its plant at Ogura in Uji made cards and then toys from 1969, and in October 2024 it reopened as the **Nintendo Museum**: early cards and toys, every console, and playable games on giant screens. Tickets are sold in advance only, by lottery, through the museum's site, and are hard to get.[^2]" },
       ],
@@ -896,6 +964,14 @@ export const placeReads: Record<string, GuideItem[]> = {
         { p: "Kifune also has a darker reputation. It's linked with **ushi no koku mairi**, a curse ritual performed at the hour of the ox, around 1–3 a.m.: dressed in white, with candles on the head, you nail a straw doll of your enemy to a sacred tree. Legend makes the Bridge Princess of [Uji](guide:place/uji/tale-of-genji-country) its first practitioner. The shrine discourages it, but every so often nails are still found in trees." },
         { h: "Dining over the river" },
         { p: "From May to September the inns of Kibune build platforms over the stream, **kawadoko**, and serve meals a few degrees cooler than the city. In autumn they move indoors, and the valley is one of the first places near Kyoto where the maples turn." },
+        {
+          terms: [
+            { term: "Ema", text: "A wooden prayer plaque — painted horses that stood in for the live ones." },
+            { term: "Mizu-mikuji", text: "A blank fortune whose words appear on the spring water." },
+            { term: "Ushi no koku mairi", text: "The curse at the hour of the ox, around 1–3 a.m." },
+            { term: "Kawadoko", text: "Dining platforms over the stream, May to September." },
+          ],
+        },
       ],
       related: ["place/kurama/mountain-temple", "belief/shinto", "place/uji/tale-of-genji-country"],
     },
@@ -911,6 +987,14 @@ export const placeReads: Record<string, GuideItem[]> = {
         photo("eizan-ichihara", "A red and cream train crossing a small bridge among trees", "An Eizan train near Ichihara, on the line to Kurama."),
         { p: "Kurama and Kibune are reached by the **Eizan Electric Railway** from Demachiyanagi, the end of the Keihan line in north-east Kyoto, about 30 minutes to Kurama.[^1] Two-car trains, and the **Kirara** with big side windows, run up the valley." },
         { p: "Between Ichihara and Ninose the line runs through a **tunnel of maples**. In November the trains slow to a crawl and the carriage lights go off, and on autumn evenings the trees are lit. In July 2020 a landslide closed the line beyond Ichihara for over a year; it reopened in September 2021.[^2]" },
+        {
+          steps: [
+            { title: "Demachiyanagi", text: "Change from the Keihan line to the Eizan." },
+            { title: "Ichihara to Ninose", text: "The maple tunnel; in November the train slows to a crawl." },
+            { title: "Kurama", text: "About 30 minutes from Demachiyanagi. Walk over to Kibune." },
+            { title: "Kibune", text: "Bus to Kibuneguchi station, or walk 30 minutes down the road." },
+          ],
+        },
         { dos: ["Go early on autumn weekends; queues for trains at Demachiyanagi can be long", "Do the walk from Kurama to Kibune, downhill-ish, rather than the reverse", "Take the bus from Kibune shrine to Kibuneguchi station, or walk 30 minutes down the road"], donts: ["Start the mountain walk late in November — it's dark by about 16:45 under the trees"] },
       ],
     },
@@ -927,6 +1011,14 @@ export const placeReads: Record<string, GuideItem[]> = {
         { p: "The famous **black eggs**, boiled in the springs, turn black because iron in the water reacts with hydrogen sulphide to coat the shell in iron sulphide. Each one, the sellers say, adds seven years to your life." },
         { h: "Hot water, made" },
         { p: "Hakone's hot springs come in several kinds, from clear alkaline water low down at Yumoto to milky sulphur water higher up. Some of that milky water is manufactured: since 1930 a company has drilled steam wells at Ōwakudani, mixed the steam with cold groundwater, and piped the result to around 400 inns and houses in Gōra and Sengokuhara. It's called **zōsei onsen**, “created hot spring”, and it's legally a hot spring all the same.[^1]" },
+        {
+          timeline: [
+            { when: "Long ago", text: "Over a few hundred thousand years, the old volcano erupts and collapses into a caldera about 10 km across" },
+            { when: "~3,000 years ago", text: "An explosion on Kamiyama blows out **Ōwakudani** and dams **Lake Ashi**" },
+            { when: "1930", text: "Steam wells at Ōwakudani start making hot spring water" },
+            { when: "2015", text: "The alert level rises and a small steam explosion closes the valley for months" },
+          ],
+        },
         { note: "Many Hakone baths still turn away visible tattoos; some accept them covered with a patch. Private baths you book by the hour (kashikiri buro) avoid the question.", title: "Tattoos" },
       ],
       related: ["nature/volcanoes", "place/hakone/two-railway-barons-and-the-hakone-loop"],
@@ -949,6 +1041,16 @@ export const placeReads: Record<string, GuideItem[]> = {
         { p: "The barrier was pulled down in 1869. The buildings you see were rebuilt in 2007 using a detailed record of a repair in 1865, found in an archive, and with the old techniques: the guardhouse, the jail, the gates, with figures of officials. It's one of the most exact reconstructions in Japan.[^1]" },
         { h: "The stone road" },
         { p: "From the 1680s, stretches of the road were paved with stones (**ishidatami**) to stop travellers sinking into mud. Several kilometres survive, slippery and steep, through cedar forest between Hatajuku and Moto-Hakone. On the way is **Amazake-chaya**, a teahouse that has served sweet rice drink to walkers for about 400 years, run by the same family. The **cedar avenue** along the lake was planted for shade by the shogunate in 1618; some 400 trees still stand." },
+        {
+          timeline: [
+            { when: "1618", text: "The cedar avenue is planted along the lake" },
+            { when: "1619", text: "The shogunate builds the **Hakone Sekisho**" },
+            { when: "1680s", text: "Stretches of the road are paved with stones" },
+            { when: "1865", text: "A repair is recorded in detail" },
+            { when: "1869", text: "The barrier is pulled down" },
+            { when: "2007", text: "Rebuilt from the 1865 record" },
+          ],
+        },
         { note: "On 3 November, Culture Day, Hakone-Yumoto stages the Daimyō Gyōretsu, a lord's procession in Edo costume through the town.", title: "On your dates" },
       ],
       related: ["history/edo", "place/hakone/living-in-a-caldera"],
@@ -1015,6 +1117,16 @@ export const placeReads: Record<string, GuideItem[]> = {
         { p: "The town's spine is **Wakamiya-ōji**, a straight avenue from the beach to **Tsurugaoka Hachimangū**, the Minamoto clan's shrine. Yoritomo built its raised central path, the **Dankazura**, in 1182 to pray for his wife Masako's safe childbirth; it narrows as it nears the shrine to make it look longer." },
         { p: "On the shrine's great stone staircase, on a snowy night in 1219, the third shogun **Sanetomo** was murdered by his nephew, ending Yoritomo's line. A later story put the killer in hiding behind the huge **ginkgo** beside the steps, and the tree became famous for it. It blew down in March 2010; a shoot from its roots is growing into a new tree beside the old stump.[^1]" },
         { p: "Real power passed to the **Hōjō**, regents for puppet shoguns. They fought off the Mongol invasions of 1274 and 1281 but were ruined by the cost, and in 1333 an army under **Nitta Yoshisada** broke into Kamakura along the beach — according to legend after he threw his sword into the sea at Inamuragasaki and the tide drew back. The Hōjō killed themselves by the hundred. Kamakura shrank to a temple town and fishing village until the railway made it a resort." },
+        {
+          timeline: [
+            { when: "1182", text: "Yoritomo builds the **Dankazura** to the shrine" },
+            { when: "1185", text: "He defeats the Taira and rules from Kamakura" },
+            { when: "1219", text: "The third shogun, Sanetomo, is murdered on the shrine steps" },
+            { when: "1274, 1281", text: "The Hōjō regents fight off the Mongols" },
+            { when: "1333", text: "Nitta Yoshisada breaks in along the beach; the Hōjō fall" },
+            { when: "2010", text: "The great ginkgo by the steps blows down" },
+          ],
+        },
       ],
       related: ["history/kamakura-and-muromachi", "place/kamakura/zen-temples"],
       sources: [
@@ -1027,6 +1139,7 @@ export const placeReads: Record<string, GuideItem[]> = {
       summary: "Cast by donation, robbed of its hall by the sea, and once covered in gold",
       body: [
         { p: "Kamakura's **Great Buddha** at **Kōtoku-in** is an Amida, 11.3 m tall and about 121 tonnes of bronze, cast from around 1252. Unlike Nara's, it wasn't a state project: records say a priest, Jōkō, raised the money by begging donations across eastern Japan. A wooden Buddha came first and was wrecked by a storm. Almost nothing is recorded about who cast the bronze, or when it was finished.[^1]" },
+        { stats: [{ value: "11.3 m", label: "tall" }, { value: "~121 t", label: "of bronze" }, { value: "1498", label: "since when it has sat in the open" }] },
         photo("kamakura-buddha-side", "A huge bronze seated Buddha in the open air, seen from the side", "The Great Buddha of Kōtoku-in, out in the open since 1498."),
         { p: "It sat in a hall, which storms damaged in 1334 and 1369. The last hall was swept away, according to the traditional account, by the tsunami after the great Meiō earthquake of 1498, and was never rebuilt. The Buddha has sat in the open ever since. The bronze was gilded; traces of gold leaf still show on the cheek and by the ear." },
         { p: "It has been restored rather than rebuilt: after the 1923 earthquake shifted it, and again in 1960–61, when the neck was strengthened and its base made to slide in an earthquake. For a small fee you can climb inside and see the seams between the cast sections." },
