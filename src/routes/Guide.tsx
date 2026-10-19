@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, Navigate, useLocation, useParams, useSearchParams } from "react-router-dom";
+import { ActionRow } from "@/components/ActionRow";
 import { Icon } from "@/components/Icon";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
@@ -18,7 +19,7 @@ import { guideTopicColor } from "@/lib/tones";
 import { GUIDE_CONTENT } from "@/guides/content";
 import { citiesOnTrip, datesOnTrip } from "@/guides/match";
 import { slug } from "@/lib/collapse";
-import { allTopics, articleText, cityArticles, dateArticles, dayTripArticles, findRef, renamedPaths, resolveRef, topicArticles, type ArticleRef } from "@/guides/articles";
+import { allTopics, articleText, cityArticles, cityLinks, dateArticles, dayTripArticles, findRef, guideGraph, relatedTo, renamedPaths, topicArticles, type ArticleRef } from "@/guides/articles";
 import type { CountryGuide, GuideArticle, GuideBody, GuideCity, GuideDayTrip, GuideEvent, GuidePhoto, GuideSource, GuideText, GuideTopic } from "@/guides/types";
 
 /** A country guide — reference content the app ships with, read-only. Its
@@ -526,6 +527,7 @@ export function GuideCityPage() {
   const city = guide.cities.find((c) => c.id === id);
   if (!city) return <Missing title="Nothing here" body="The guide doesn’t cover that place." to={guidePath(guide)} cta={`Back to ${guide.name}`} />;
   const cityPath = `${guidePath(guide)}/place/${city.id}`;
+  const hub = cityLinks(guide, city);
 
   return (
     <Page width="form">
@@ -558,6 +560,11 @@ export function GuideCityPage() {
             </ul>
           </Section>
         ))}
+        {/* the place as a hub: what the book and the calendar say about
+            it, found through the links its notes already make, so nothing
+            general is written out again on a place's page */}
+        <EntryList key={`${city.id}-dates`} title="Through the year" id={`guide-${guide.id}-city-${city.id}-dates`} rows={hub.dates.flatMap((r) => entryRow(guide, r))} />
+        <EntryList key={`${city.id}-reads`} title="In the guide" id={`guide-${guide.id}-city-${city.id}-reads`} rows={hub.reads.flatMap((r) => entryRow(guide, r))} limit={5} />
       </div>
     </Page>
   );
@@ -763,13 +770,13 @@ function ArticlePage({
   const bullets = a.points?.length && !a.pointsTitle ? a.points : undefined;
   const minutes = readingMinutes(a);
   const headings = a.body?.flatMap((b) => ("h" in b ? [b.h] : [])) ?? [];
-  // a related read can sit in another chapter, so its caption names the
-  // chapter (a city's name for a place) rather than the group inside it
-  const related = guide ? (a.related ?? []).flatMap((ref) => {
-    const r = resolveRef(guide, ref);
-    const chapter = allTopics(guide).find((t) => t.id === ref.split("/")[0])?.title;
-    return r ? [{ to: `${guidePath(guide)}/${ref}`, entry: r, caption: chapter ?? r.eyebrow }] : [];
-  }).filter((r) => r.to !== next?.to) : [];
+  // what the read is tied to, whichever side wrote the link: its own
+  // related reads and the reads that point back at it, then the places
+  // whose notes do
+  const links = guide ? relatedTo(guide, pathname.slice(guidePath(guide).length + 1)) : { related: [], places: [] };
+  const rows = (refs: string[]) => (guide ? refs.flatMap((ref) => entryRow(guide, ref)).filter((r) => r.to !== next?.to) : []);
+  const related = rows(links.related);
+  const places = rows(links.places);
   return (
     <GuideSources.Provider value={a.sources ?? []}>
     <Page width="form">
@@ -904,18 +911,8 @@ function ArticlePage({
           />
         ) : null}
 
-        {related.length ? (
-          <div>
-            <p className="kicker mb-1.5 px-1">Related</p>
-            <Section>
-              <ul>
-                {related.map((r) => (
-                  <ArticleRow key={r.to} to={r.to} caption={r.caption} title={r.entry.title} meta={r.entry.article.summary} thumb={photoIn(r.entry.article)?.src} />
-                ))}
-              </ul>
-            </Section>
-          </div>
-        ) : null}
+        <EntryList kicker="Related" rows={related} />
+        <EntryList kicker="Places" rows={places} />
       </div>
     </Page>
     </GuideSources.Provider>
@@ -1036,6 +1033,48 @@ function ArticleRow({
         <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
       </Link>
     </ContextMenu>
+  );
+}
+
+interface EntryRowData {
+  to: string;
+  entry: ArticleRef;
+  caption?: string;
+}
+
+/** an entry named by its reference, ready for a list — captioned with
+ *  where it lives (its chapter, its place, or its dates), since a list of
+ *  links crosses the guide */
+function entryRow(g: CountryGuide, ref: string): EntryRowData[] {
+  const e = guideGraph(g).byRef.get(ref)?.entry;
+  if (!e) return [];
+  const chapter = allTopics(g).find((t) => t.id === ref.split("/")[0])?.title;
+  return [{ to: `${guidePath(g)}/${ref}`, entry: e, caption: chapter ?? e.eyebrow }];
+}
+
+/** A titled list of entries from across the guide. A long one shows its
+ *  first few and a Show All row, the way the App Store and Music cut a
+ *  list short, rather than a screen of rows. */
+function EntryList({ kicker, title, id, rows, limit }: { kicker?: string; title?: string; id?: string; rows: EntryRowData[]; limit?: number }) {
+  const [all, setAll] = useState(false);
+  if (!rows.length) return null;
+  const cut = limit && !all && rows.length > limit + 1 ? limit : rows.length;
+  const list = (
+    <Section title={title} id={id}>
+      <ul>
+        {rows.slice(0, cut).map((r) => (
+          <ArticleRow key={r.to} to={r.to} caption={r.caption} title={r.entry.title} meta={r.entry.article.summary} thumb={photoIn(r.entry.article)?.src} />
+        ))}
+        {cut < rows.length && <ActionRow label={`Show All (${rows.length})`} onClick={() => setAll(true)} />}
+      </ul>
+    </Section>
+  );
+  if (!kicker) return list;
+  return (
+    <div>
+      <p className="kicker mb-1.5 px-1">{kicker}</p>
+      {list}
+    </div>
   );
 }
 

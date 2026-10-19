@@ -11,9 +11,7 @@ export const tripDates: GuideDate[] = [
     body: [
       { p: "Takayama holds two great festivals a year: the **Sannō Matsuri** in April at Hie Shrine, and the autumn **Hachiman Matsuri** at Sakurayama Hachimangū on 9 and 10 October. Together they're counted among Japan's three most beautiful festivals, and they're among the 33 float festivals UNESCO inscribed together as intangible heritage in 2016.[^1][^2]" },
       photo("takayama-yatai-hall", "Gilded and lacquered festival floats on display in a tall hall, with a gold canopy in the foreground", "Floats in the exhibition hall beside the shrine, built in tiers and carved by the town's own carpenters."),
-      { h: "Why a mountain town has floats like these" },
-      { p: "Hida, the old province around Takayama, was too poor in rice to pay its taxes in grain. From the 8th century it paid in labour instead, sending its carpenters to build the capitals' temples and palaces, and *Hida no takumi*, the craftsmen of Hida, became a byword for fine joinery.[^3]" },
-      { p: "From 1692 the shogunate ruled Takayama directly, for its timber and mines, and its merchants grew rich. The floats are where that money and that carpentry met: each neighbourhood's guild commissioned and rebuilt its own, and they're still owned and stored by those neighbourhoods, not by the shrine." },
+      { p: "The floats belong to the town's neighbourhoods, not the shrine, and were built by Hida's carpenters with merchant money (see [Two festivals](guide:place/takayama/two-festivals))." },
       {
         terms: [
           { term: "The floats (yatai)", text: "**Eleven** tall wooden floats, carved, lacquered and hung with embroidery, stand on show around the shrine through the day." },
@@ -21,18 +19,15 @@ export const tripDates: GuideDate[] = [
           { term: "The evening (yomatsuri)", text: "On the night of the 9th the floats are hung with lit lanterns and pulled slowly through the old town. It's the moment most people come for." },
         ],
       },
-      { note: "Rooms in Takayama and nearby onsen towns sell out months ahead. In rain the floats stay in their storehouses (*yatai-gura*), tall white buildings you'll pass in the side streets. Outside the festival, a rotating few are on show all year in the Festival Float Exhibition Hall by the shrine.", title: "Planning" },
+      { note: "Rooms in Takayama and nearby onsen towns sell out months ahead. In rain the floats stay in their storehouses (*yatai-gura*), tall white buildings you'll pass in the side streets.", title: "Planning" },
     ],
     words: [
       { local: "屋台", say: "yatai", means: "festival float (in Takayama)" },
       { local: "からくり", say: "karakuri", means: "mechanical puppets" },
-      { local: "飛騨の匠", say: "Hida no takumi", means: "the carpenters of Hida" },
     ],
-    related: ["place/takayama/two-festivals"],
     sources: [
       { title: "Takayama Festival — Wikipedia", url: "https://en.wikipedia.org/wiki/Takayama_Festival", note: "The spring and autumn festivals, the floats and karakuri" },
       { title: "Yama, Hoko, Yatai, float festivals in Japan — UNESCO", url: "https://ich.unesco.org/en/RL/yama-hoko-yatai-float-festivals-in-japan-01059", note: "33 festivals inscribed in 2016, Takayama among them" },
-      { title: "Hida no takumi — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E9%A3%9B%E9%A8%A8%E3%81%AE%E5%8C%A0", note: "Hida's carpenters sent to the capital in place of taxes" },
     ],
   },
   {
@@ -85,9 +80,7 @@ export const tripDates: GuideDate[] = [
         ],
       },
       photo("kanda-book-fair", "Racks of secondhand books on a pavement under a long red festival banner, with people browsing", "The book corridor at the Jimbōchō crossing during the 60th festival, in 2019."),
-      { h: "How a book town happened" },
-      { p: "In the 1880s the forerunners of half a dozen universities, Meiji, Chūō, Nihon and Senshū among them, opened around Kanda, and students meant a trade in textbooks. After a fire swept the district in 1913, a young teacher named **Iwanami Shigeo** opened a secondhand shop here; it became Iwanami Shoten, one of the country's most serious publishers, and others followed.[^2]" },
-      { p: "Walk Yasukuni-dōri and you'll notice the shops line its **south side**, fronts facing north. The usual explanation is the books: a north-facing window keeps the sun off the spines. Whether it was planned or just how the plots fell, it works." },
+      { p: "The shops are here because the universities were: law schools opened around Kanda in the 1880s, and the textbook trade followed the students (see [A book town by accident](guide:place/tokyo/jimbocho-a-book-town-by-accident))." },
       {
         list: [
           "**The book corridor**: shelves and wagons for about half a kilometre along Yasukuni-dōri, backs to the shops, with prices pencilled inside the covers",
@@ -98,10 +91,9 @@ export const tripDates: GuideDate[] = [
       },
       { note: "Most stalls want cash. Prints and maps are often sold in clear sleeves you can look through; ask before pulling anything out.", title: "Buying" },
     ],
-    related: ["place/tokyo/jimbocho-a-book-town-by-accident", "place/tokyo/tokyo-coffee-worth-the-detour"],
+    related: ["place/tokyo/tokyo-coffee-worth-the-detour"],
     sources: [
       { title: "Kanda-Jinbōchō — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E7%A5%9E%E7%94%B0%E7%A5%9E%E4%BF%9D%E7%94%BA", note: "The bookshops and the Kanda Used Book Festival each autumn" },
-      { title: "Iwanami Shoten — Wikipedia", url: "https://en.wikipedia.org/wiki/Iwanami_Shoten", note: "Founded in Jimbōchō in 1913 as a secondhand bookshop" },
     ],
   },
   {
@@ -196,8 +188,7 @@ export const tripDates: GuideDate[] = [
     from: "10-31", to: "11-04", when: "Around 3 November", title: "Mashiko pottery fair",
     summary: "Hundreds of potters' tents in the town of the folk-craft movement",
     body: [
-      { p: "**Mashiko**, two and a half hours north of Tokyo, started making pottery in 1853, and for its first seventy years made what Tokyo's kitchens needed: heavy mortars, pots and jars in thick brown glazes. Nobody called it art.[^1]" },
-      { p: "That changed in the 1920s, when the potter **Hamada Shōji** came home from England, where he had built a kiln with Bernard Leach in St Ives, and chose Mashiko for its plain local clay and its working potters. With Yanagi Sōetsu he made it a centre of the **mingei** folk-craft movement, the idea that beauty lives in useful things made by unnamed hands. Hamada was among the first Living National Treasures, named in 1955.[^2]" },
+      { p: "**Mashiko**, two and a half hours north of Tokyo, made heavy kitchen pots from 1853 until the potter **Hamada Shōji** settled there in the 1920s and made it a centre of the **mingei** folk-craft movement (see [Mashiko](guide:place/tokyo/day-trips/mashiko)).[^1][^2]" },
       photo("mashiko-fair", "Rows of white tents on a hillside with visitors walking between them", "Potters' tents on a hillside at the spring fair in 2023."),
       { p: "Twice a year, in Golden Week and around Culture Day, the pottery fair fills the main street and car parks with hundreds of tents, and hundreds of thousands of visitors come. The town has some 250 kilns, many run by potters who moved here because of what Hamada started." },
       {

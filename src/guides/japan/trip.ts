@@ -61,15 +61,15 @@ const base: { cities: GuideCity[] } = {
           name: "Mashiko", cover: photoOf("mashiko-pottery", "A giant ceramic tanuki outside a pottery shop", "The pottery sales centre in Mashiko."), local: "益子", getting: "About 2 h 30 min by direct bus from Akihabara",
           summary: "The country pottery town that one potter made famous, and its twice-yearly fair",
           body: [
-            { p: "Mashiko made plain kitchen pots for Tokyo — mortars, jars, teapots — until **Shōji Hamada** settled here in the 1920s, after working in England with Bernard Leach. With the philosopher Yanagi Muneyoshi he founded **mingei**, the folk-craft movement that prized everyday things made by unknown hands. He was named a Living National Treasure in 1955, and his fame brought other potters.[^1]" },
+            { p: "Mashiko made plain kitchen pots for Tokyo — mortars, jars, teapots — until **Hamada Shōji** settled here in the 1920s, after working in England with Bernard Leach. With the philosopher Yanagi Sōetsu he founded **mingei**, the folk-craft movement that prized everyday things made by unknown hands. He was named a Living National Treasure in 1955, and his fame brought other potters.[^1]" },
             {
               list: [
                 "**Mashiko Sankōkan** — Hamada's house, workshop and climbing kiln, with the pieces he collected from around the world",
                 "**The main street** — dozens of shops and studios, from potters' own work to cheap seconds",
-                "**The glazes** — look for the persimmon-brown kaki and the grey-green nuka that mark the local style",
+                "**The glazes** — look for the rust-red kaki and the milky nuka-jiro that mark the local style",
               ],
             },
-            { p: "The **Mashiko pottery fair**, held since 1966, takes over the town twice a year: in spring over Golden Week, and in autumn around 3 November, with hundreds of tents where young potters sell direct.[^2]" },
+            { p: "The **Mashiko pottery fair**, held since 1966, takes over the town twice a year: in spring over Golden Week, and in autumn around 3 November, with hundreds of tents where young potters sell direct (see [Mashiko pottery fair](guide:date/mashiko-pottery-fair)).[^2]" },
             { p: "The town was hit hard by the 2011 earthquake: many of its old kilns and workshops were badly damaged or destroyed, and potters lost years of stock. The fair carried on, and the kilns were rebuilt. Today a good share of the town's potters are newcomers who came for the clay, the kilns and the company of other potters." },
             {
               stats: [
@@ -321,6 +321,7 @@ const base: { cities: GuideCity[] } = {
             { note: "Buses are few — plan the day around them, or stay the night at one of the inns. Keep to the lanes: the houses and gardens are private.", title: "Going" },
           ],
           sources: [{ title: "Miyama, Kyoto — Wikipedia", url: "https://en.wikipedia.org/wiki/Miyama,_Kyoto", note: "Kayabuki-no-sato, the thatched village" }],
+          related: ["place/shirakawago/praying-hands", "place/shirakawago/a-roof-every-few-decades"],
         },
         {
           name: "Ine & Amanohashidate", cover: photoOf("ine-funaya", "A row of wooden boathouses built over the water of a bay", "Funaya boathouses on Ine Bay."), local: "伊根・天橋立", getting: "About 2 h by train, then 1 h by bus — a long day, better with a night",
@@ -554,6 +555,7 @@ const base: { cities: GuideCity[] } = {
             { p: "The training is famously long: a puppeteer is said to spend ten years on the feet and ten on the left arm before taking the head." },
             { note: "Performances run in seasons of a few weeks several times a year, not every day. English earphone guides explain the story; buy tickets ahead for the evening shows.", title: "Going" },
           ],
+          related: ["culture/kabuki-and-bunraku"],
           sources: [
             { title: "National Bunraku Theatre — Wikipedia", url: "https://en.wikipedia.org/wiki/National_Bunraku_Theatre", note: "Osaka's puppet theatre, opened 1984" },
           ],
@@ -1128,7 +1130,7 @@ const base: { cities: GuideCity[] } = {
             { note: "Each 6 August a memorial ceremony is held in the park, with a minute's silence at 8:15, and in the evening paper lanterns are floated on the river. Expect crowds and closures that day.", title: "On the anniversary" },
           ],
           words: [{ local: "被爆者", say: "hibakusha", means: "a survivor of the bombs" }],
-          related: ["history/meiji-to-1945", "history/since-1945"],
+          related: ["history/meiji-to-1945", "history/since-1945", "place/nagasaki/9-august-1945"],
           sources: [{ title: "Hiroshima Peace Memorial Museum", url: "https://hpmmuseum.jp/?lang=eng", note: "Deaths estimated at about 140,000 by the end of 1945" }],
         },
         {
@@ -1210,7 +1212,7 @@ const base: { cities: GuideCity[] } = {
             { p: "It grew up after the war, when flour was cheap and cabbage filled you up, and the city now has hundreds of shops making it." },
             { note: "**Okonomi-mura**, near Hatchōbori, is a building with about two dozen counters over several floors. Sit at the hotplate and eat straight from it with a small spatula, the *hera*.", title: "Where" },
           ],
-          related: ["eating-out/getting-a-table-ordering-eating"],
+          related: ["eating-out/okonomiyaki-takoyaki-and-the-hot-plate", "eating-out/getting-a-table-ordering-eating"],
           sources: [
             { title: "Okonomiyaki — Wikipedia", url: "https://en.wikipedia.org/wiki/Okonomiyaki", note: "Hiroshima's layered style" },
           ],
@@ -1895,11 +1897,16 @@ const base: { cities: GuideCity[] } = {
               },
             },
             { p: "The floats, *yatai*, belong to the town's neighbourhoods, which keep them in tall white **yatai-gura**, float storehouses, that you'll see in the side streets. Each has carving, lacquer and embroidery by Hida's craftsmen, and some carry **karakuri** puppets worked by strings. On the festival evenings the floats are hung with lanterns and pulled through the town." },
-            { p: "Takayama calls itself *Hida no Shō-Kyōto*, Hida's little Kyoto, and the floats are part of the claim: their tiered form follows Kyoto's Gion floats, carried over the mountains by merchants who did business with the capital. What's local is the workmanship, by the same Hida carpenters who built temples in Nara and Kyoto a thousand years earlier." },
+            { p: "Takayama calls itself *Hida no Shō-Kyōto*, Hida's little Kyoto, and the floats are part of the claim: their tiered form follows Kyoto's Gion floats, carried over the mountains by merchants who did business with the capital. What's local is the workmanship." },
+            { h: "Why a mountain town has floats like these" },
+            { p: "Hida, the old province around Takayama, was too poor in rice to pay its taxes in grain. From the 8th century it paid in labour instead, sending its carpenters to build the capitals' temples and palaces, and *Hida no takumi*, the craftsmen of Hida, became a byword for fine joinery.[^2]" },
+            { p: "From 1692 the shogunate ruled Takayama directly, for its timber and mines, and its merchants grew rich. The floats are where that money and that carpentry met: each neighbourhood's guild commissioned and rebuilt its own, and they're still owned and stored by those neighbourhoods, not by the shrine." },
             { note: "Outside festival days, a rotating few floats are on show all year in the **Festival Float Exhibition Hall** at Sakurayama Hachimangū. During the festivals, rooms sell out months ahead, and in rain the floats stay in their storehouses.", title: "Seeing them" },
           ],
+          words: [{ local: "飛騨の匠", say: "Hida no takumi", means: "the carpenters of Hida" }],
           sources: [
             { title: "Takayama Festival — Wikipedia", url: "https://en.wikipedia.org/wiki/Takayama_Festival", note: "14–15 April and 9–10 October; the floats and karakuri" },
+            { title: "Hida no takumi — Wikipedia (Japanese)", url: "https://ja.wikipedia.org/wiki/%E9%A3%9B%E9%A8%A8%E3%81%AE%E5%8C%A0", note: "Hida's carpenters sent to the capital in place of taxes" },
           ],
         },
         { title: "Hida beef and sarubobo", cover: photoOf("sarubobo", "Rows of faceless red cloth dolls in colourful hoods", "Sarubobo dolls."),
@@ -2035,6 +2042,7 @@ const base: { cities: GuideCity[] } = {
             },
             { note: "The coach tours arrive from mid-morning. Early morning, before 9, and the late afternoon are the times to walk the lanes.", title: "When" },
           ],
+          related: ["numbers/tourists-and-everyone-else"],
           sources: [{ title: "Shirakawa-gō — Wikipedia", url: "https://en.wikipedia.org/wiki/Shirakawa-go", note: "Ogimachi's population at inscription" }] },
         { title: "Getting there",
           summary: "Buses from Takayama, Kanazawa and Nagoya — no train comes near — and why to book the seat",
@@ -2889,7 +2897,7 @@ const base: { cities: GuideCity[] } = {
           ],
           sources: [{ title: "Shuri Castle main hall to reopen in November 2026 — GoAsia", url: "https://goasia.cc/en/news/okinawa-shuri-castle-main-hall-reopens-november-2026", note: "Completion ceremony 22 November, public opening 23 November 2026" }] },
         { title: "Its own food", cover: photoOf("okinawa-soba", "A bowl of thick wheat noodles with braised pork ribs", "Okinawa soba."),
-          summary: "Bitter melon, pork, wheat noodles called soba, a rice spirit aged in jars — and the long-life myth",
+          summary: "Bitter melon, pork, wheat noodles called soba, and a rice spirit aged in jars",
           body: [
             { p: "Okinawan food grew from the kingdom's ties with China and Southeast Asia, then from the American years, and it's quite unlike the rest of Japan's: more pork, more oil, fewer raw dishes." },
             {
@@ -2902,9 +2910,9 @@ const base: { cities: GuideCity[] } = {
               ],
             },
             { p: "**Awamori**, the islands' spirit, is distilled from Thai long-grain rice; aged three years or more, it becomes *kūsu*, and old jars are passed down." },
-            { p: "Okinawa was long famous for its centenarians and healthy diet.[^2] The postwar generations eat differently, and in 2000 Okinawan men fell from 4th to 26th among Japan's prefectures for life expectancy — a drop the islands still call the “26 shock”." },
+            { p: "The diet was long credited with the islands' famous centenarians, until the postwar generations' life expectancy fell down the national table (see [The south](guide:regional-food/the-south-pork-potatoes-and-the-ryukyus))." },
           ],
-          sources: [{ title: "Gōyā chanpurū — Wikipedia", url: "https://en.wikipedia.org/wiki/Chanpur%C5%AB", note: "Okinawa's bitter-melon stir-fry" }, { title: "Okinawa diet — Wikipedia", url: "https://en.wikipedia.org/wiki/Okinawa_diet", note: "The islands' long-lived people, and the 2000 drop in men's life expectancy" }] },
+          sources: [{ title: "Gōyā chanpurū — Wikipedia", url: "https://en.wikipedia.org/wiki/Chanpur%C5%AB", note: "Okinawa's bitter-melon stir-fry" }] },
       ],
     },
     {
@@ -3296,6 +3304,7 @@ const base: { cities: GuideCity[] } = {
           body: [
             { p: "Sendai's dish is **gyūtan**, beef tongue, sliced thick, salted and grilled over charcoal. It's served as a set that hasn't changed in decades: the tongue, a bowl of **barley rice**, a clear **oxtail soup** and pickles, often with a spoonful of green chilli miso.[^1]" },
             { p: "It began in **1948**, when Sano Keishirō, who ran a yakitori bar, opened a restaurant serving tongue. The story told in nearly every shop in town is that he used the tongues and tails the American occupation troops in Sendai threw away. It's a good story, and there's no evidence for it; and the tongues today mostly come from abroad. The real boost came in **1991**, when Japan lifted its quotas on imported beef and tongue became cheap.[^1]" },
+            { p: "Depending on imports nearly sank it once. When Japan banned American beef after a case of mad-cow disease in December 2003, Sendai's gyūtan shops lost most of their supply overnight; some closed, others switched to Australian tongue, raised prices or shrank portions until imports resumed. Gyūtan is a local dish built on a global supply chain." },
             {
               dishes: [
                 { name: "Gyūtan", local: "牛たん", kind: "Regional", text: "Thick-cut beef tongue grilled over charcoal, chewy and smoky, with barley rice and oxtail soup.", where: "The “gyūtan street” on the third floor of Sendai station" },
@@ -3395,6 +3404,7 @@ const base: { cities: GuideCity[] } = {
             { p: "The main hall was restored between 2008 and 2018, and its rooms are open to walk through." },
             { note: "Zuigan-ji is a few minutes' walk from the boat pier; combine it with Godaidō and Entsū-in in one morning.", title: "Going" },
           ],
+          related: ["place/sendai/date-masamune-s-city"],
           sources: [{ title: "Zuigan-ji — Wikipedia", url: "https://en.wikipedia.org/wiki/Zuigan-ji", note: "Rebuilt by Date Masamune, completed 1609" }],
         },
         {
@@ -3422,28 +3432,6 @@ const base: { cities: GuideCity[] } = {
           related: ["nature/tsunami"],
           sources: [
             { title: "Matsushima — Wikipedia", url: "https://en.wikipedia.org/wiki/Matsushima", note: "How the islands buffered the 2011 tsunami" },
-          ],
-        },
-        {
-          title: "Beef tongue in Sendai",
-          cover: photoOf("gyutan", "A set meal of grilled sliced beef tongue with barley rice and soup", "Gyūtan teishoku, Sendai's own."),
-          summary: "A postwar cook's dish that became Sendai's own, and the sweet green bean paste it's often followed by",
-          body: [
-            { p: "**Gyūtan**, thick-sliced beef tongue grilled over charcoal, became Sendai's dish after the war. A cook named **Sano Keishirō** began serving it in 1948, with the city full of occupation troops and the tongue an unwanted cut; it caught on, and now dozens of restaurants around the station specialise in it.[^1]" },
-            {
-              steps: [
-                { title: "The tongue", text: "Salted, often aged for a few days, and grilled over charcoal; cut thick, with scoring so it's tender." },
-                { title: "Barley rice", text: "*Mugimeshi*, rice mixed with barley." },
-                { title: "Oxtail soup", text: "A clear soup with green onions." },
-                { title: "Pickles", text: "Spicy pickled cabbage and a green chilli miso on the side." },
-              ],
-            },
-            { p: "Most of the tongue is imported now, since Japan's own herds can't supply the demand. Sendai's other taste is **zunda**, sweet bright-green paste of mashed edamame, on mochi or in a milkshake." },
-            { p: "That dependence nearly sank it once. When Japan banned American beef after a case of mad-cow disease in December 2003, Sendai's gyūtan shops lost most of their supply overnight; some closed, others switched to Australian tongue, raised prices or shrank portions until imports resumed. Gyūtan is a local dish built on a global supply chain." },
-            { note: "The station's third floor has a “gyūtan street” of restaurant branches, handy before a train; the queues are shorter mid-afternoon.", title: "Where" },
-          ],
-          sources: [
-            { title: "Gyūtan — Wikipedia", url: "https://en.wikipedia.org/wiki/Gy%C5%ABtan", note: "Sendai's grilled beef tongue since 1948" },
           ],
         },
       ],
@@ -3892,7 +3880,7 @@ const base: { cities: GuideCity[] } = {
             { p: "The bomb fell on the one part of Japan that had kept Christianity alive in secret through 250 years of persecution. The Urakami Catholics, the *kakure kirishitan*, had come out after 1873 and spent thirty years building their cathedral by hand; it was destroyed with most of its congregation. The bell tower that fell into the stream beside it still lies where it landed." },
             { note: "The hypocentre, museum and Peace Park are close together, a short tram ride north of the station. Allow at least two hours.", title: "Going" },
           ],
-          related: ["history/meiji-to-1945"],
+          related: ["history/meiji-to-1945", "place/hiroshima/6-august-1945"],
           sources: [{ title: "Nagasaki Atomic Bomb Museum", url: "https://nagasakipeace.jp/en/", note: "About 74,000 dead by the end of 1945" }],
         },
         {

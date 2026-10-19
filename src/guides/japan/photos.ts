@@ -293,7 +293,6 @@ const PHOTOS = {
   "takadachi-view": { w: 900, h: 600, author: "663highland", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:230728_Takadachi_Gikei-do_Hiraizumi_Iwate_pref_Japan12s3.jpg" },
   "matsushima-boats": { w: 900, h: 507, author: "Chensiyuan", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Matsushima_miyagi_z.JPG" },
   "zuiganji": { w: 900, h: 604, author: "LBM1948", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Matsushima,_Zuiganji_(2005)_09.jpg" },
-  "gyutan": { w: 900, h: 644, author: "Captain76", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Gyutan_teishoku.JPG" },
   "kaba-craft-center": { w: 900, h: 506, author: "掬茶", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Semboku_Municipal_Kaba_Craft_Heritage_Center_20190414.jpg" },
   "dogo-honkan-dusk": { w: 900, h: 600, author: "Japanexperterna.se", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Dogo_onsen_honkan_long_exposure.jpg" },
   "matsuyama-castle": { w: 900, h: 675, author: "Jyo81", license: "CC BY 3.0", url: "https://commons.wikimedia.org/wiki/File:MEIN%26SMALL_CASTLE_TOWER_,MATSUYAMA_CASTLE(IYO).JPG" },

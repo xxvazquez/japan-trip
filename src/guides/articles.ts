@@ -85,17 +85,105 @@ export function dateArticles(dates: GuideDate[]): ArticleRef[] {
 /** every chapter in reading order, then the practical pages */
 export const allTopics = (g: CountryGuide): GuideTopic[] => [...g.sections.flatMap((s) => s.chapters), ...g.practical];
 
-/** An in-guide reference — "land/forests" or "place/kyoto/gion" — as the
- *  entry it names, or undefined when nothing by that name exists. */
+/** An in-guide reference — "land/forests", "place/kyoto/gion",
+ *  "place/tokyo/day-trips/mashiko" or "date/setsubun" — as the entry it
+ *  names, or undefined when nothing by that name exists. A reference is
+ *  also the entry's path under the guide. */
 export function resolveRef(g: CountryGuide, ref: string): ArticleRef | undefined {
   const parts = ref.split("/");
-  if (parts[0] === "place" && parts.length === 3) {
+  if (parts[0] === "place") {
     const city = g.cities.find((c) => c.id === parts[1]);
-    return city ? cityArticles(city).find((r) => r.slug === parts[2]) : undefined;
+    if (!city) return undefined;
+    if (parts.length === 3) return cityArticles(city).find((r) => r.slug === parts[2]);
+    if (parts.length === 4 && parts[2] === "day-trips") return dayTripArticles(city).find((r) => r.slug === parts[3]);
+    return undefined;
   }
   if (parts.length !== 2) return undefined;
+  if (parts[0] === "date") return dateArticles(g.dates).find((r) => r.slug === parts[1]);
   const topic = allTopics(g).find((t) => t.id === parts[0]);
   return topic ? topicArticles(topic).find((r) => r.slug === parts[1]) : undefined;
+}
+
+/** Every entry of a guide with its reference, in the guide's own order:
+ *  the chapters and practical pages, then each place's notes and day
+ *  trips, then the dates. */
+export interface GuideEntryRef {
+  ref: string;
+  entry: ArticleRef;
+}
+export function allEntries(g: CountryGuide): GuideEntryRef[] {
+  const at = (base: string, refs: ArticleRef[]) => refs.map((entry) => ({ ref: `${base}/${entry.slug}`, entry }));
+  return [
+    ...allTopics(g).flatMap((t) => at(t.id, topicArticles(t))),
+    ...g.cities.flatMap((c) => [...at(`place/${c.id}`, cityArticles(c)), ...at(`place/${c.id}/day-trips`, dayTripArticles(c))]),
+    ...at("date", dateArticles(g.dates)),
+  ];
+}
+
+/** the entries an article points at, in its related list or its text */
+export function linksOf(a: GuideArticle): string[] {
+  const inText = [...articleText(a).matchAll(/\]\(guide:([^)\s]+)\)/g)].map((m) => m[1]);
+  return [...new Set([...(a.related ?? []), ...inText])];
+}
+
+/** Every link in a guide, both ways: an entry's outgoing links and the
+ *  entries that point at it. A relationship is written once, on either
+ *  side, and both ends see it. */
+export interface GuideGraph {
+  entries: GuideEntryRef[];
+  byRef: Map<string, GuideEntryRef>;
+  out: Map<string, string[]>;
+  into: Map<string, string[]>;
+}
+const graphs = new WeakMap<CountryGuide, GuideGraph>();
+export function guideGraph(g: CountryGuide): GuideGraph {
+  const cached = graphs.get(g);
+  if (cached) return cached;
+  const entries = allEntries(g);
+  const byRef = new Map(entries.map((e) => [e.ref, e]));
+  const out = new Map<string, string[]>();
+  const into = new Map<string, string[]>();
+  for (const e of entries) {
+    const links = linksOf(e.entry.article).filter((r) => r !== e.ref && byRef.has(r));
+    out.set(e.ref, links);
+    for (const r of links) into.set(r, [...(into.get(r) ?? []), e.ref]);
+  }
+  const graph = { entries, byRef, out, into };
+  graphs.set(g, graph);
+  return graph;
+}
+
+const isPlace = (ref: string) => ref.startsWith("place/");
+const isDate = (ref: string) => ref.startsWith("date/");
+const cityOf = (ref: string) => (isPlace(ref) ? ref.split("/")[1] : undefined);
+
+/** What to read after an entry: `related` — its own related list, then
+ *  the reads that point at it — and `places`, the notes and day trips
+ *  that point at it from the places they're about. Its own in-text links
+ *  aren't repeated; they're already a tap away in the text. */
+export function relatedTo(g: CountryGuide, ref: string, max = { related: 6, places: 8 }): { related: string[]; places: string[] } {
+  const { byRef, into } = guideGraph(g);
+  const own = (byRef.get(ref)?.entry.article.related ?? []).filter((r) => byRef.has(r));
+  const inText = new Set(linksOf(byRef.get(ref)?.entry.article ?? {}).filter((r) => !own.includes(r)));
+  const back = (into.get(ref) ?? []).filter((r) => !own.includes(r) && !inText.has(r));
+  // a place's note keeps its sibling notes among its reads; anywhere else,
+  // notes from places gather in their own list
+  const home = cityOf(ref);
+  const asPlace = (r: string) => isPlace(r) && cityOf(r) !== home;
+  const related = [...own, ...back.filter((r) => !asPlace(r))].slice(0, Math.max(max.related, own.length));
+  const places = back.filter(asPlace).slice(0, max.places);
+  return { related, places };
+}
+
+/** A place as a hub: the reads elsewhere in the guide its notes and day
+ *  trips are tied to, either way round, in the guide's order, and the
+ *  yearly dates tied to it. */
+export function cityLinks(g: CountryGuide, city: GuideCity): { reads: string[]; dates: string[] } {
+  const { entries, out, into } = guideGraph(g);
+  const mine = entries.filter((e) => cityOf(e.ref) === city.id).map((e) => e.ref);
+  const tied = new Set(mine.flatMap((r) => [...(out.get(r) ?? []), ...(into.get(r) ?? [])]));
+  const order = entries.map((e) => e.ref).filter((r) => tied.has(r) && !isPlace(r));
+  return { reads: order.filter((r) => !isDate(r)), dates: order.filter(isDate) };
 }
 
 /** every entry's old path → its path now, for the ones whose slug changed
