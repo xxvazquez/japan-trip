@@ -74,6 +74,7 @@ export const growingUp: GuideTopic = {
           body: [
             { p: "Most public schools have no cleaners. After lunch, every day, pupils sweep, mop and wipe their classrooms, corridors, stairs and often the toilets, in rotating groups. The point is less about saving money than about the idea that you look after the space you share." },
             { p: "You'll recognise the instinct later: in streets with no bins where people carry rubbish home (see [Why there are no bins](guide:look-closer/why-there-are-no-bins)), in fans tidying a stadium after a match, in a Shinkansen crew turning every seat in a few minutes." },
+            photo("classroom", "An empty junior high school classroom with rows of wooden desks, a blackboard and a clock", "A junior high classroom. The pupils who sit here also sweep it, every day."),
             { h: "Lunch, served by the class" },
             { p: "Lunch works the same way. In elementary school, pupils take turns as servers in white coats and caps, wheel the food up from the kitchen and dish it out to the class, and everyone says *itadakimasu* together. The teacher eats the same meal at a desk among them." },
             { p: "The menu is planned by nutritionists and has shaped how the whole country eats (see [School lunch](guide:food-at-home/school-lunch))." },
@@ -176,6 +177,16 @@ export const growingUp: GuideTopic = {
           body: [            photo("shichigosan", "Families at a shrine while a priest performs a blessing for children in kimono", "Shichi-Go-San at Ikuta Shrine, Kobe."),
 
             { p: "Childhood is marked by shrine visits more than birthdays. A baby is taken to the local shrine about a month after birth. In November, children of three, five and seven are dressed up for **Shichi-go-san**, \"seven-five-three\", and leave with long bags of chitose-ame candy (see [Religion without belonging](guide:belief/religion-without-belonging)). Starting elementary school,[^1] with the new randoseru, is its own ceremony in April." },
+            {
+              timeline: [
+                { when: "About 1 month", text: "*Omiyamairi*: the baby's first visit to the local shrine." },
+                { when: "100 days", text: "*Okuizome*: a first meal, offered rather than eaten, with a stone to bite for strong teeth." },
+                { when: "3, 5 and 7", text: "*Shichi-go-san*, each November." },
+                { when: "6", text: "Elementary school, starting in April, with a ceremony and a new randoseru." },
+                { when: "18", text: "Legally adult since 2022: contracts and marriage. The vote came at 18 in 2016." },
+                { when: "20", text: "The coming-of-age ceremony, and drinking, smoking and gambling." },
+              ],
+            },
             { h: "Coming of age" },
             { p: "**Adulthood** changed in 2022, when the legal age dropped from 20 to 18. Eighteen-year-olds can now sign contracts and marry without consent, but drinking, smoking and gambling stay at 20." },
             { p: "Most towns kept their ceremony for 20-year-olds anyway, held on or around Coming of Age Day, the second Monday of January, partly because 18-year-olds are in the middle of exams.[^2] Young women come in long-sleeved **furisode** kimono, often rented or handed down, and young men in suits or *hakama*." },
@@ -196,10 +207,19 @@ export const growingUp: GuideTopic = {
           summary: "Hundreds close every year, and what the buildings become",
           body: [
             { p: "There are far fewer children than there were. Births fell below 700,000 in 2024, the lowest since records began in 1899 (see [Fewer babies](guide:numbers/fewer-babies-and-the-fire-horse)). Schools follow: **8,850** public schools closed or merged between 2004 and 2023, most of them elementary schools in the countryside.[^1]" },
+            {
+              stats: [
+                { value: "8,850", label: "public schools closed or merged, 2004–2023" },
+                { value: "74%", label: "of the buildings still standing are in use again" },
+                { value: "686,061", label: "babies born in Japan in 2024" },
+              ],
+            },
+            photo("closed-school", "A two-storey concrete school building behind trees, with a barrier and a sign at the gate", "A closed elementary school in Kimotsuki, Kagoshima. The sign at the gate asks people to keep out."),
             { p: "Most of the buildings stay standing. Three in four of those that survive have found a second life as community centres, gyms, museums, care homes, offices, hotels or cafés; the rest stand empty.[^1] A school with a clock on its front and a sports ground gone to grass is one of the commonest sights in rural Japan." },
             { h: "A school that became a museum" },
             { p: "Kyoto has the best-known example. The city founded its own neighbourhood elementary schools in 1869, before the national school system existed, paid for by the townspeople of each district. One of them, **Tatsuike**, closed as the city centre emptied of families." },
             { p: "Since 2006 its 1920s building has housed the Kyoto International Manga Museum, run by the city and Kyoto Seika University, with readers sitting on the old school lawn.[^2]" },
+            { p: "Closing a school is hard in a way closing an office isn't. In much of the countryside the school was the village's hall, polling station, sports ground and evacuation shelter, and losing it is often the moment families with children decide to leave. Some towns now keep a school open for a handful of pupils for exactly that reason, and a few advertise for families to move in." },
           ],
           related: ["numbers/fewer-babies-and-the-fire-horse", "numbers/who-lives-with-whom", "manga/how-manga-took-shape"],
           sources: [

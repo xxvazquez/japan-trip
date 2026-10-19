@@ -15,7 +15,18 @@ export const stamps: GuideTopic = {
     title: "Intro to stamps",
     body: [
       { p: "Japan stamps things. A red seal in ink marks a visit to a temple, a rubber stamp by the ticket gates marks a station, and until recently a carved personal seal stood in for a signature on almost every form." },
+      {
+        table: {
+          head: ["", "What it proves", "Since"],
+          rows: [
+            ["**Goshuin**", "That you visited a temple or shrine", "Medieval receipts; the visit itself from the Edo period"],
+            ["**Eki stamp**", "That you passed through a station or sight", "The 1930s, revived by the railways' 1970s campaigns"],
+            ["**Hanko**", "That you agreed, as a signature does", "Official seals for over a thousand years; everyone's since Meiji"],
+          ],
+        },
+      },
       { p: "The three share a root. A seal is proof: that a pilgrim reached a temple, that a traveller passed this way, that a person agreed. And they share an audience: the domestic traveller, who still makes up most of Japan's tourism (see [Tourists — and everyone else](guide:numbers/tourists-and-everyone-else)), and the office that ran on paper (see [Office habits](guide:work/office-habits))." },
+      { p: "What links them is a preference for **a mark over a word**. A signature can be anything; a seal is a fixed design, registered or recognised, that looks the same every time. That made it trustworthy for a bureaucracy, collectable for a traveller, and, in the 2020s, an obstacle for a government trying to move its paperwork online." },
       { p: "The chapter starts with the oldest, the temple seal, and ends with the one the government tried to retire." },
     ],
   },

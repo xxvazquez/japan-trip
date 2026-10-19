@@ -367,6 +367,9 @@ const PHOTOS = {
   "kabukicho-gate": { w: 900, h: 675, author: "Daniel Ramirez from Honolulu, USA", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Kabukicho_Gate,_Shinjuku_(29362322511).jpg" },
   "tax-free-sign": { w: 900, h: 675, author: "Naha Mama Pavilionz", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:JP_%E6%97%A5%E6%9C%AC_Japan_%E6%B2%96%E7%B9%A9_OKINAWA_%E9%82%A3%E9%9C%B8_Naha_%E5%9C%8B%E9%9A%9B%E9%80%9A_Kokusai-dori_food_shop_%E5%BE%A1%E8%8F%93%E5%AD%90%E5%BE%A1%E6%AE%BF_%E3%81%8A%E3%81%8B%E3%81%97%E3%81%94%E3%81%A6%E3%82%93_Okashigoten_January_2025_R12S_Tax_Free_rules_sign.jpg" },
   "kyoto-bike-removal": { w: 900, h: 675, author: "Just ishaq", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Bicycle_cleaning_in_Kyoto.JPG" },
+  "classroom": { w: 900, h: 675, author: "Darklanlan", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Classroom2.jpg" },
+  "closed-school": { w: 900, h: 675, author: "ja:User:Sanjo", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:Kawakami_es_Kimotsuki_2012.JPG" },
+  "nintendo-hanafuda": { w: 900, h: 675, author: "fuzzcat", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Nintendo_Hanafuda.jpg" },
 } as const;
 
 export type PhotoId = keyof typeof PHOTOS;

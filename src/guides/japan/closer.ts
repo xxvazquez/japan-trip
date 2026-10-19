@@ -17,7 +17,14 @@ export const closer: GuideTopic = {
     body: [
       { p: "A Japanese street is full of small puzzles. There are no bins, but no litter. The corner shop takes your tax payment. The street has no name, and the houses on it look ten years old." },
       { p: "Each of these has a reason, and most of the reasons are in the chapters before. School teaches children to clean up after themselves (see [Cleaning and lunch](guide:growing-up/cleaning-and-lunch)). Millions of people live alone (see [Who lives with whom](guide:numbers/who-lives-with-whom)). Earthquakes rewrote the building rules (see [Earthquakes](guide:nature/earthquakes))." },
-      { p: "The first group of reads is the street as you walk it. The second is how the towns themselves were laid out: around castles first, then around railway stations." },
+      { p: "Read this way, a street stops being scenery. The bins you can't find, the shop that never shuts, the plate on a pole that gives an address with no street in it: each is a small fossil of a decision taken somewhere else, by a railway company, a fire brigade, a building inspector or a frightened government." },
+      {
+        terms: [
+          { term: "On the street", text: "What you pass every day: the missing bins, the konbini, the shopping street, the houses, the address plates. Each followed back to the habit or the history behind it." },
+          { term: "How towns were laid out", text: "The older layer under the street: the **castle towns** that set the shape of most cities, and the **railways** that built the suburbs and the shopping centres around their stations." },
+        ],
+      },
+      { p: "None of it needs a guidebook's list of sights. It works on any street, in any town, on the walk from the station to your hotel." },
     ],
   },
   blocks: [
@@ -53,6 +60,20 @@ export const closer: GuideTopic = {
 
             { p: "There were about 56,000 convenience stores in Japan at the end of 2025,[^1] and they do far more than sell snacks. People pay electricity bills and taxes there, pick up concert and museum tickets, print documents, send luggage ahead (*takkyūbin*), withdraw cash with foreign cards, and buy dinner that was delivered that afternoon." },
             { p: "That dinner is a single portion, because so many customers live alone (see [Who lives with whom](guide:numbers/who-lives-with-whom)). In the countryside, where shops have closed, the konbini is often the only shop left." },
+            {
+              table: {
+                head: ["At the counter or the machine", "What it does"],
+                rows: [
+                  ["Bills and taxes", "Pay a utility bill or a car tax with the slip that came in the post"],
+                  ["Tickets", "Print concert, museum and bus tickets booked online"],
+                  ["Parcels", "Send a suitcase ahead, or collect an online order"],
+                  ["Copies", "Print, scan and make copies; some print residence certificates"],
+                  ["Cash", "Seven Bank and other ATMs that take foreign cards"],
+                  ["Dinner", "Single portions delivered several times a day, heated at the till"],
+                ],
+              },
+            },
+            { p: "Three chains run most of them, 7-Eleven, FamilyMart and Lawson, and the model has grown far beyond its origins. 7-Eleven began in Texas, but its Japanese licensee grew so much bigger than its American parent that it bought it, in stages from 1991, and the Japanese company now owns the brand worldwide." },
             { h: "The sticker in the window" },
             { p: "Look in the window for a sticker reading **災害時帰宅支援ステーション**, \"support station for people walking home in a disaster\". Chains have agreements with local governments to give water, toilets and route information to commuters walking home if the trains stop after an earthquake. It's the lesson of 2011, when millions of commuters were stranded in Tokyo, built into the shop on the corner." },
           ],
@@ -69,7 +90,8 @@ export const closer: GuideTopic = {
             { p: "A **shōtengai** is a neighbourhood shopping street, often roofed: a tofu maker, a greengrocer, a rice shop, a fishmonger, a pharmacy, a croquette stall. They're busiest in the late afternoon, when people shop for dinner." },
             { p: "In big cities they still work. In many provincial towns they've become **shutter streets** (*shattā-dōri*), closed by out-of-town malls and owners with no one to hand over to." },
             { h: "Why “Ginza”" },
-            { p: "Many are called \"something-Ginza\", after Tokyo's first modern shopping district. After the 1923 earthquake, a street in Togoshi took the rubble bricks of Ginza to pave its own road, and borrowed the name too: Togoshi Ginza, now one of the longest shopping streets in Tokyo at about 1.3 km, with some 400 shops.[^1]" },
+            { p: "The name itself means **silver mint**: the shogunate struck its silver coins there from 1612. After a fire in 1872 the Meiji government rebuilt the district in brick as a showcase of the new Japan, with gas lamps and pavements, and Ginza became the word for modern, Western, smart." },
+            { p: "Many shopping streets are called \"something-Ginza\" in its honour. After the 1923 earthquake, a street in Togoshi took the rubble bricks of Ginza to pave its own road, and borrowed the name too: Togoshi Ginza, now one of the longest shopping streets in Tokyo at about 1.3 km, with some 400 shops.[^1]" },
             { p: "More than 300 \"Ginzas\" are said to exist around the country, though nobody has made an official count." },
           ],
           related: ["look-closer/railways-built-the-cities", "food-at-home/bought-not-cooked"],
@@ -162,9 +184,17 @@ export const closer: GuideTopic = {
           summary: "Why so many homes look brand new",
           body: [            photo("house-demolition", "An excavator tearing down a house on a Tokyo street", "A house coming down in Shibuya."),
 
-            { p: "A Japanese house typically loses almost all its value in 20–30 years, and is then torn down and rebuilt rather than sold as it is." },
+            { p: "A Japanese house typically loses **almost all its value in 20–30 years**, and is then torn down and rebuilt rather than sold as it is. Buyers pay for the land; the building is close to worthless, and sometimes a cost." },
+            {
+              stats: [
+                { value: "22 years", label: "the tax life of a wooden house, after which it's written off" },
+                { value: "1981", label: "the earthquake code that divides “old” from “new”" },
+                { value: "2000", label: "the code tightened again for wooden houses" },
+              ],
+            },
             { p: "Partly it's earthquakes. Building codes tightened sharply in 1981 and again for wooden houses in 2000, so older houses are seen as unsafe, and banks are reluctant to lend on pre-1981 ones.[^1] The 1981 standard is the one that decided which houses stood in Kobe in 1995 (see [Earthquakes](guide:nature/earthquakes)). Partly it's post-war housing built fast and cheaply, and a preference for new things." },
             { p: "Zoning is loose: a small shop, a bar or a workshop can sit in a residential street, and owners can rebuild bigger without much of a fight. That keeps big-city housing relatively cheap, since cities can keep building as they grow.[^2] It's also why one street can mix a 1960s wooden house, a narrow four-storey \"pencil building\" and a new prefab." },
+            { p: "Each rebuild is a chance to change the street, and you can read the decades in it: wooden houses with tiled roofs from before the 1980s, prefabricated houses clad in tile-patterned panels from the bubble years, and narrow steel-framed **pencil buildings** where a plot was split between heirs." },
             { p: "The flip side is in the countryside, where an old house nobody wants is worth less than the cost of pulling it down (see [Who lives with whom](guide:numbers/who-lives-with-whom))." },
           ],
           related: ["nature/earthquakes", "numbers/who-lives-with-whom", "place/tokyo/a-city-that-keeps-rebuilding"],

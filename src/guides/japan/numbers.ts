@@ -133,6 +133,23 @@ export const numbers: GuideTopic = {
           body: [
             { stats: [{ value: "38%", label: "of households are one person (2020 census)" }, { value: "9m", label: "empty homes in 2023" }, { value: "13.8%", label: "of all homes stood empty" }] },
             { p: "The household you'd picture, parents and children, is now outnumbered by people living alone: young workers in the cities, and widowed old people everywhere.[^2]" },
+            {
+              chart: {
+                kind: "bar",
+                title: "Who a household is",
+                unit: "Share of all households, %, 2020 census",
+                points: [
+                  { label: "One person", value: 38.1 },
+                  { label: "Couple with children", value: 25.1 },
+                  { label: "Single parent with children", value: 9.0 },
+                ],
+                highlight: "One person",
+                decimals: 1,
+                source: "2020 Population Census, Statistics Bureau of Japan",
+                read: "Couples on their own, and households of three generations, make up most of the rest. The three-generation home, the image of the Japanese family for a century, is now a small minority.",
+              },
+            },
+            { p: "Living alone has two peaks. One is in the twenties, young workers who've moved to the cities; the other, growing faster, is past seventy-five, mostly widowed women. Each has its own vocabulary: the newspapers write about *kodokushi*, people who die alone and aren't found for days, and the government appointed a minister for loneliness in 2021, the second country after Britain to do so." },
             { p: "You see it in the shops. Supermarkets sell single portions and rice in 2 kg bags, restaurants have counters and one-person hotpots, and konbini are built around one person's dinner (see [Bought, not cooked](guide:food-at-home/bought-not-cooked))." },
             { h: "Nine million empty homes" },
             { p: "At the same time, **nine million** homes stand empty, about one in seven.[^1] Many are **akiya**, inherited houses in the countryside that no one wants to live in, can't easily sell and would have to pay to demolish. Old houses lose their value fast (see [Houses that don't last](guide:look-closer/houses-that-don-t-last)), so the land is often worth more without them." },

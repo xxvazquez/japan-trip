@@ -133,6 +133,8 @@ export const work: GuideTopic = {
               },
             },
             { p: "By the ILO's measure, women held about **16%** of management jobs in 2024.[^1] A company survey by Teikoku Databank put it lower still, at 10.9%, the first time it had passed 10% since the survey began.[^2]" },
+            { p: "The change below the ceiling is real. For decades a graph of women's employment by age made the shape of an **M**: high in the twenties, a deep dip in the early thirties as women left to raise children, and a second, lower peak of part-time work later. The dip is now shallow, and the M has almost become the plateau seen in most rich countries." },
+            { p: "Pay hasn't followed. A woman in full-time work earns about a fifth less than a man, one of the widest gaps in the OECD, and since 2022 companies with more than 300 staff must publish their own figure." },
             { p: "The IMF and others point to the same causes. Membership employment rewards long in-office hours and transfers to other cities at the company's call, both hard to combine with children. And most housework and childcare is still done by women. Many women who leave to raise children come back as non-regular workers (see [Joining a company](guide:work/joining-a-company))." },
           ],
           related: ["work/joining-a-company", "numbers/fewer-babies-and-the-fire-horse"],
@@ -221,6 +223,24 @@ export const work: GuideTopic = {
           body: [
             { p: "Many of the global brands began as something else. **Nintendo** was founded in Kyoto in 1889 to make hanafuda, flower-pattern playing cards, and is still headquartered there;[^1] its old headquarters near the Kamo river is now a hotel." },
             { p: "**Toyota** started as a loom maker, **Yamaha** as a maker of reed organs, **Shiseido** as a Western-style pharmacy in Ginza. Others are postwar start-ups: Sony was founded in a bombed-out Tokyo department store in 1946, Honda as a motorbike maker in 1948 (see [Since 1945](guide:history/since-1945))." },
+            photo("nintendo-hanafuda", "A museum case of red and black hanafuda flower cards and their boxes", "Nintendo's hanafuda cards, the company's first product."),
+            {
+              table: {
+                head: ["Company", "Began as", "Year"],
+                rows: [
+                  ["Shiseido", "A Western-style pharmacy in Ginza", "1872"],
+                  ["Kawasaki", "A shipyard in Tokyo", "1878"],
+                  ["Yamaha", "A reed-organ maker", "1887"],
+                  ["Nintendo", "Hanafuda playing cards", "1889"],
+                  ["Suzuki", "A loom maker", "1909"],
+                  ["Panasonic", "Light sockets and plugs", "1918"],
+                  ["Mazda", "A cork maker", "1920"],
+                  ["Toyota", "A loom maker; cars from 1937", "1926"],
+                  ["Sony", "A radio repair shop in a bombed department store", "1946"],
+                ],
+              },
+            },
+            { p: "The loom makers are no coincidence. Textiles were Japan's first great export industry, and the skills of building precise machines in volume carried straight into cars and motorbikes: Toyota and Suzuki both began with Sakichi Toyoda's and Michio Suzuki's looms." },
             { h: "Zaibatsu and keiretsu" },
             { p: "Before the war, much of the economy was run by family **zaibatsu**, conglomerates like Mitsui and Mitsubishi. The occupation broke them up after 1945, and they regrouped looser, as **keiretsu**: a bank, a trading house and manufacturers that still share a name and hold each other's shares.[^2]" },
             { p: "So Mitsubishi's three diamonds turn up on a bank, a car, a lift and a beer, since Kirin is a Mitsubishi group company. And a railway's name tops department stores, baseball teams and housing estates (see [Railways built the cities](guide:look-closer/railways-built-the-cities))." },
