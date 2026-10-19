@@ -58,6 +58,21 @@ describe("guide cross-references", () => {
       for (const e of entries.filter((x) => x.was)) expect(findRef(entries, e.was)).toBeGreaterThanOrEqual(0);
     });
 
+    it(`${id}: key figures fit three across on a phone`, () => {
+      // a figure never wraps, so a long one in a row of three runs into its
+      // neighbour on a 375pt screen; about eight characters is the most that fits
+      const long: string[] = [];
+      const walk = (o: unknown): void => {
+        if (Array.isArray(o)) return o.forEach(walk);
+        if (!o || typeof o !== "object") return;
+        const stats = (o as { stats?: { value: string }[] }).stats;
+        if (stats?.length === 3) for (const s of stats) if ([...s.value].length > 8) long.push(s.value);
+        Object.values(o).forEach(walk);
+      };
+      walk(guide);
+      expect(long).toEqual([]);
+    });
+
     it(`${id}: no photo appears twice`, () => {
       const seen = new Map<string, number>();
       for (const m of JSON.stringify(guide).matchAll(/"src":"([^"]+)"/g)) seen.set(m[1], (seen.get(m[1]) ?? 0) + 1);
