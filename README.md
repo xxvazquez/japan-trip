@@ -569,6 +569,8 @@ The reference drawer: stays · journeys · luggage · documents · emergency num
 
 Text isn't selectable (as in a native app), so values you might paste elsewhere have a **copy** icon.
 
+**Scratchpad** lists its notes the way Notes does: the title, then the first line in grey (a bare link shows as its site). Tap one to open it on its own page. A new note left empty is removed when you leave it.
+
 ### Country guide
 
 When a trip has stays or pins in a country the app has a guide for (Japan today), a row for it sits below the sections. Pin it as its own tab from Manage → Setup → Tabs.

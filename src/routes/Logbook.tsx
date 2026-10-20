@@ -1,8 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { flushSync } from "react-dom";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
+import { useLeavePage } from "@/components/NavBar";
+import { ConfirmButton } from "@/components/ConfirmButton";
+import { notePreview } from "@/lib/noteFormat";
 import { Section } from "@/components/Section";
 import { IconTile } from "@/components/IconTile";
 import { TileRow } from "@/components/TileRow";
@@ -1217,16 +1220,22 @@ function AssignPill({ value, people, tagged, readOnly, onChange }: {
 function Notes() {
   const data = useData()!;
   const ro = useReadOnly();
-  const updateEntity = useApp((s) => s.updateEntity);
   const addEntity = useApp((s) => s.addEntity);
   const removeEntity = useApp((s) => s.removeEntity);
-  const add = () => addEntity("scratchNotes", { id: crypto.randomUUID?.() ?? `note-${shortId()}`, title: "" } as never);
+  const nav = useNavigate();
+
+  // a new note opens straight onto its own page, as Notes does
+  const add = () => {
+    const id = crypto.randomUUID?.() ?? `note-${shortId()}`;
+    addEntity("scratchNotes", { id, title: "" } as never);
+    nav(`/logbook/notes/${id}`, { viewTransition: true });
+  };
 
   if (data.scratchNotes.length === 0) {
     return (
       <Empty
         what="Nothing noted yet"
-        hint={ro ? "A scratchpad for anything you want to remember." : "A phrase to remember, a packing reminder — whatever's easiest as its own box."}
+        hint={ro ? "A scratchpad for anything you want to remember." : "A phrase to remember, a packing reminder — one note each."}
         onAdd={ro ? undefined : add}
         addLabel="Add a note"
       />
@@ -1234,29 +1243,93 @@ function Notes() {
   }
 
   return (
-    <div className="space-y-6">
-      <Section>
-        <ul>
-          {data.scratchNotes.map((n) => {
-            const p = (patch: Partial<ScratchNote>) => updateEntity<ScratchNote>("scratchNotes", n.id, patch);
-            return (
-              <AccordionRow
-                key={n.id}
-                id={n.id}
-                defaultOpen
-                title={<Editable label="Title" value={n.title} placeholder="Title" onCommit={(v) => p({ title: v })} />}
-                action={!ro && cardDeleteBtn(() => undoable("Note deleted", () => removeEntity("scratchNotes", n.id)), "Delete note")}
-              >
-                <div className="note px-3.5 py-3 text-ink-soft">
-                  <RichNote value={n.text ?? ""} placeholder="Anything to remember." onCommit={(v) => p({ text: v || undefined })} />
-                </div>
-              </AccordionRow>
-            );
-          })}
-          {!ro && <ActionRow icon="plus" label="Add a note" onClick={add} />}
-        </ul>
-      </Section>
-    </div>
+    <Section>
+      <ul>
+        {data.scratchNotes.map((n) => {
+          const del = () => undoable("Note deleted", () => removeEntity("scratchNotes", n.id));
+          const preview = notePreview(n.text ?? "");
+          return (
+            <li key={n.id} className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
+              <SwipeToDelete message="This note will be deleted." undoLabel="Note deleted" onDelete={ro ? undefined : () => removeEntity("scratchNotes", n.id)}>
+                <ContextMenu menu={ro ? undefined : <ConfirmMenuItem onConfirm={del} label="Delete note" icon={<Icon name="trash" size={16} />} />}>
+                  <Link
+                    to={`/logbook/notes/${n.id}`}
+                    viewTransition
+                    className="flex w-full items-center gap-3 px-3.5 py-3 text-left transition-colors duration-150 hover:bg-surface-2/40 focus-visible:[outline-offset:-2px] active:bg-ink/[0.07]"
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="block break-words text-sm leading-snug text-ink">{n.title || "New note"}</span>
+                      <span className="meta mt-0.5 block break-words text-ink-faint">{preview || "No additional text"}</span>
+                    </span>
+                    <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
+                  </Link>
+                </ContextMenu>
+              </SwipeToDelete>
+            </li>
+          );
+        })}
+        {!ro && <ActionRow icon="plus" label="Add a note" onClick={add} />}
+      </ul>
+    </Section>
+  );
+}
+
+/** One Scratchpad note, pushed as its own page — its title and its text,
+ *  the way a note opens in Notes. */
+export function ScratchNotePage() {
+  const data = useData();
+  const { id } = useParams();
+  const leave = useLeavePage();
+  const ro = useReadOnly();
+  const updateEntity = useApp((s) => s.updateEntity);
+  const removeEntity = useApp((s) => s.removeEntity);
+
+  // a note left with nothing in it goes when you leave it, as in Notes
+  // (only once the page is really gone — a remount in place isn't leaving)
+  useEffect(() => () => {
+    if (ro || !id) return;
+    setTimeout(() => {
+      if (window.location.pathname.endsWith(`/logbook/notes/${id}`)) return;
+      const n = useApp.getState().data?.scratchNotes.find((x) => x.id === id);
+      if (n && !n.title.trim() && !n.text?.trim()) removeEntity("scratchNotes", id);
+    }, 0);
+  }, [id, ro, removeEntity]);
+
+  if (!data) return null;
+  const note = data.scratchNotes.find((n) => n.id === id);
+  if (!note)
+    return <Missing title="No note here" body="That note isn’t part of this trip." to="/logbook/notes" cta="See all notes" />;
+  const p = (patch: Partial<ScratchNote>) => updateEntity<ScratchNote>("scratchNotes", note.id, patch);
+
+  return (
+    <Page>
+      <PageHeader
+        back="/logbook/notes"
+        title={ro ? (note.title || "Note") : <Editable label="Title" value={note.title} placeholder="Title" onCommit={(v) => p({ title: v })} />}
+        className="mb-6"
+      />
+      <div className="space-y-6">
+        {(note.text?.trim() || !ro) && (
+          <Section>
+            <div className="note px-3.5 py-3">
+              <RichNote value={note.text ?? ""} placeholder="Anything to remember." onCommit={(v) => p({ text: v || undefined })} />
+            </div>
+          </Section>
+        )}
+        {!ro && (
+          <Section>
+            <ConfirmButton
+              onConfirm={() => undoable("Note deleted", () => { removeEntity("scratchNotes", note.id); leave("/logbook/notes"); })}
+              label="Delete note"
+              message="This note will be deleted."
+              className="w-full justify-center px-3.5 py-3 text-sm text-danger"
+            >
+              Delete note
+            </ConfirmButton>
+          </Section>
+        )}
+      </div>
+    </Page>
   );
 }
 

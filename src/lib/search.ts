@@ -192,7 +192,7 @@ function build(d: TripData, areaCity?: Map<string, string>): SearchHit[] {
       tile: logbookSectionTile("notes"),
       label: n.title || "Note",
       sub: n.text || undefined,
-      to: "/logbook/notes",
+      to: `/logbook/notes/${n.id}`,
       fields: [{ text: n.text }],
     });
   }

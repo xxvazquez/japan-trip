@@ -1,3 +1,5 @@
+import { linkLabel } from "./linkLabel";
+
 /**
  * The note format: a small slice of Markdown, plus two additions of our own.
  * It's what every note is stored as (one plain text column), what <Markdown>
@@ -301,6 +303,27 @@ export function noteToPlain(text: string): string {
       b.t === "h" || b.t === "p" ? [inl(b.kids)] : b.t === "quote" ? blocks(b.blocks) : b.t === "hr" ? [] : list(b),
     );
   return blocks(parseNote(text)).join("\n");
+}
+
+/** The first line of a note with words in it, as a list row's grey second
+ *  line (the way Notes previews a note) — a bare link reads as its site. */
+export function notePreview(text: string): string {
+  const inl = (ns: Inline[]): string =>
+    ns.map((n) =>
+      n.t === "text" || n.t === "code" ? n.s
+        : n.t === "br" ? " "
+        : n.t === "link" && n.kids.length === 1 && n.kids[0].t === "text" && n.kids[0].s === n.href ? linkLabel(n.href)
+        : n.t === "link" ? inl(n.kids)
+        : inl(n.kids),
+    ).join("");
+  const lines = (bs: Block[]): string[] =>
+    bs.flatMap((b) =>
+      b.t === "h" || b.t === "p" ? [inl(b.kids)]
+        : b.t === "quote" ? lines(b.blocks)
+        : b.t === "hr" ? []
+        : b.items.map((it) => inl(it.kids)),
+    );
+  return lines(parseNote(text)).map((l) => l.trim()).find(Boolean) ?? "";
 }
 
 /* ------------------------------------------------------------------ *

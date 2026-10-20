@@ -30,6 +30,7 @@ const Neighbourhoods = lazy(load.neighbourhoods);
 const LogbookIndex = lazy(() => load.logbook().then((m) => ({ default: m.LogbookIndex })));
 const LogbookSection = lazy(() => load.logbook().then((m) => ({ default: m.LogbookSection })));
 const ExpenseCategory = lazy(() => load.logbook().then((m) => ({ default: m.ExpenseCategory })));
+const ScratchNotePage = lazy(() => load.logbook().then((m) => ({ default: m.ScratchNotePage })));
 const GuideLayout = lazy(() => load.guide().then((m) => ({ default: m.GuideLayout })));
 const GuideHome = lazy(() => load.guide().then((m) => ({ default: m.GuideHome })));
 const GuideTopicPage = lazy(() => load.guide().then((m) => ({ default: m.GuideTopicPage })));
@@ -78,6 +79,7 @@ export const router = createBrowserRouter([
       { path: "logbook", element: <LogbookIndex /> },
       { path: "logbook/:section", element: <LogbookSection /> },
       { path: "logbook/documents/:id", element: <Document /> },
+      { path: "logbook/notes/:id", element: <ScratchNotePage /> },
       { path: "logbook/budget/:category", element: <ExpenseCategory /> },
       {
         // the guide's pages share one frame: on a wide screen its contents
