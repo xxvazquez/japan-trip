@@ -1058,7 +1058,8 @@ function nearbyHours(p: Place, date: string): string | undefined {
 }
 
 /** One journey on the day, as an iOS list row: the first hop's mode tile,
- *  the route, its times underneath, a chevron into the journey. If it runs
+ *  the route, its times underneath (or, with no hops yet, the journey page's
+ *  own "Add a hop" — times live on hops), a chevron into the journey. If it runs
  *  on another date (a flight moved to the next day), the sub-line says so in
  *  red and offers to move it there. Swipe (phone) or ✕ (desktop) takes it off
  *  this day — the journey itself stays. */
@@ -1097,7 +1098,7 @@ function DayJourneyRow({ day, journey, data, onRemove }: { day: DayT; journey: J
               {off && when ? (
                 <span className="meta mt-0.5 block text-danger">Leaves {short(when)}, not this day</span>
               ) : (
-                <span className={`meta mt-0.5 block ${meta ? "" : "text-ink-faint"}`}>{meta || "Add its times"}</span>
+                <span className={`meta mt-0.5 block ${meta ? "" : "text-ink-faint"}`}>{meta || "Add a hop"}</span>
               )}
             </span>
             <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
