@@ -77,7 +77,7 @@ export const regionalFood: GuideTopic = {
               ],
             },
             { h: "Why the broth changes colour" },
-            { p: "The stock is the clearest difference, and it comes from trade and water. Kombu came down the Sea of Japan coast on cargo ships to Osaka and Kyoto, whose soft water draws out its flavour. Edo had bonito from its own coast and a taste for dark soy (see [Dashi](guide:how-food-works/dashi-and-why-the-noodle-soup-changes-colour))." },
+            { p: "The stock is the clearest difference: kelp in the west, bonito and dark soy in the east. Trade and water made it so — the story is in [Dashi](guide:how-food-works/dashi-and-why-the-noodle-soup-changes-colour)." },
             { h: "The eel" },
             { p: "In the east, eel for **kabayaki** is split down the back, grilled plain, steamed, then glazed and grilled again, which makes it soft and flaky. In the west it's split down the belly and grilled straight through, crisper and chewier.[^1] A popular explanation says samurai Edo avoided the belly cut because it recalled ritual suicide; it's repeated everywhere and shown nowhere." },
             { h: "The New Year soup" },
@@ -263,13 +263,7 @@ export const regionalFood: GuideTopic = {
             { h: "Gifts for the people who stayed" },
             { p: "Edo-period pilgrims to Ise and travellers on the great highways bought local specialities at the post towns and teahouses, and brought some back for the neighbours who had chipped in for the journey. The habit hardened into **omiyage**: food from the place you went, bought not for yourself but for family and colleagues, almost as an apology for having been away.[^1]" },
             { p: "That's why omiyage come as a box of individually wrapped sweets, easy to hand round an office, and why stations, airports and service areas are lined with them. Some are what locals eat; many are made only for this job." },
-            {
-              dishes: [
-                { name: "Shingen mochi", local: "信玄餅", say: "shingen mochi", kind: "Mostly for visitors", text: "Little rice cakes in roasted soy flour with a tiny bottle of black-sugar syrup: Yamanashi's classic omiyage, bought to take home rather than eaten day to day." },
-                { name: "Yatsuhashi", local: "八ツ橋", say: "yatsuhashi", kind: "Mostly for visitors", text: "Cinnamon rice-flour sweets, baked crisp or soft and folded round bean paste: Kyoto's top souvenir, rarely eaten by locals except as gifts." },
-                { name: "Matcha everything", local: "抹茶スイーツ", say: "matcha suītsu", kind: "Mostly for visitors", text: "The matcha parfaits and soft-serve of Kyoto and Uji are recent and largely for visitors. Kyoto households drink sencha and hōjicha day to day; whisked matcha belongs to the tea ceremony." },
-              ],
-            },
+            { p: "Two classics are Yamanashi's **Shingen mochi** and Kyoto's **yatsuhashi**, both far more often given than eaten by the people who live there; they're on [the Fuji lakes'](guide:place/fuji-five-lakes/hoto-hard-udon-and-a-box-to-take-home) and [Kyoto's](guide:place/kyoto/kyoto-s-kitchen) food pages." },
             { h: "The station box lunch" },
             { p: "Railways turned the travelling meal into a genre. The first **ekiben** is generally said to have been sold at Utsunomiya station in July 1885 by a local inn, the Shirakiya: two rice balls and pickled daikon wrapped in bamboo leaf. Kobe and Ueno have rival claims, but the trade association backs Utsunomiya.[^3] Himeji sold the first with side dishes, a makunouchi box, four years later.[^3] In the 20th century stations began filling boxes with their own local specialities, and the ekiben became a way of eating your way across the country.[^2]" },
             photo("ekiben", "An open station bento box with rice, fish, vegetables and pickles in compartments", "An ekiben: a region's food in one box, eaten on the train."),

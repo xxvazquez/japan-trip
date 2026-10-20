@@ -334,8 +334,8 @@ export const land: GuideTopic = {
             { p: "Folklorists recorded a widespread rural belief behind the many shrines that come in pairs, one high and one low. The mountain god comes down in spring to become the god of the rice fields and goes back up after the harvest.[^2] In a rice-growing country, the mountains are where the water comes from." },
 
             { h: "The volcano and its god" },
-            { p: "Fuji is a **stratovolcano**, built layer by layer from lava and ash, on top of at least two older volcanoes. Its last eruption, in 1707, dropped ash on Edo a hundred kilometres away (see [Volcanoes](guide:nature/volcanoes)).[^3]" },
-            { p: "Geology and religion meet in a written record. In **864** the Jōgan eruption poured lava into the lakes on Fuji's north side. The court decided the volcano's god was angry at neglected rites and ordered a new shrine to **Asama no Ōkami** on that side of the mountain.[^4] Asama, or Sengen, became the name of Fuji's god and of the shrines that ring it." },
+            { p: "It is also a live volcano, quiet since 1707; what it is made of and what an eruption would mean are in [Volcanoes](guide:nature/volcanoes).[^3]" },
+            { p: "Geology and religion meet in a written record. In **864** an eruption on Fuji's north side buried villages and lakes in lava. The court decided the volcano's god was angry at neglected rites and ordered a new shrine to **Asama no Ōkami** on that side of the mountain.[^4] Asama, or Sengen, became the name of Fuji's god and of the shrines that ring it." },
 
             { h: "Monks and mountain ascetics" },
             { p: "From the 8th century Buddhist monks went into the mountains to practise and found kami already there. Saichō's temple on Mount Hiei grew into the head of the Tendai school, guarding the capital's unlucky north-east (see [Buddhism](guide:belief/buddhism)).[^5]" },

@@ -49,7 +49,7 @@ export const manga: GuideTopic = {
           title: "How manga took shape",
           summary: "From animal scrolls and Hokusai's sketchbooks to Tezuka, weekly magazines and the phone",
           body: [
-            { p: "In Japan comics aren't a genre or a children's shelf. They're a medium, read by every age on every subject, from cookery and golf to history, medicine and romance. Manga made up about a quarter of all publishing sales in 2024.[^1] How a picture-story became that central is a story of old roots, a postwar boom and a few remarkable artists." },
+            { p: "There's a manga about cookery, golf, history, medicine or romance, and someone of every age reading it: manga made up about a quarter of all publishing sales in 2024.[^1] How a picture-story became that central is a story of old roots, a postwar boom and a few remarkable artists." },
 
             { h: "Old roots" },
             { p: "It's common to trace manga back to the **Chōjū-giga**, four 12th–13th-century picture scrolls owned by Kōzan-ji, a temple in the hills north-west of Kyoto, in which frogs, rabbits and monkeys bathe, wrestle and hold mock Buddhist services, drawn in quick brush lines with no text.[^2] The originals are in the national museums of Tokyo and Kyoto; Kōzan-ji shows full-size copies. The word *manga*, \"whimsical pictures\", was popularised by **Hokusai**, whose *Hokusai Manga*, sketchbooks of people, animals, gods and gestures, began appearing in 1814. Historians argue over how direct the line really is: modern manga owes at least as much to Western newspaper cartoons, which arrived with the Meiji period, and to American comics and Disney films after the war." },

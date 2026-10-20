@@ -173,7 +173,7 @@ export const prepared: GuideTopic = {
           title: "Tsunami",
           summary: "Up, not out — and don't come back early",
           body: [
-            { p: "A tsunami isn't a breaking wave but the whole sea rising and pouring inland, again and again, for hours.[^1] In 2011 later waves were often bigger than the first, and people died returning to their homes after the first one ebbed." },
+            { p: "The first wave is rarely the last, or the biggest: the sea keeps surging in for hours.[^1] In 2011 later waves were often bigger than the first, and people died returning to their homes after the first one ebbed." },
             photo("tsunami-sign", "A green pavement sign with an arrow and a figure running from a wave toward a building", "A pavement sign pointing to a tsunami evacuation building."),
             {
               dos: [

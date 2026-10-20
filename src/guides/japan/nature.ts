@@ -213,7 +213,7 @@ export const nature: GuideTopic = {
 
             { h: "Fuji, still young" },
             { p: "Fuji is a stratovolcano, a cone of alternating lava and ash, built on top of at least two older volcanoes. Its last eruption began in December **1707**, 49 days after a great Nankai earthquake, and dropped ash on Edo a hundred kilometres away.[^2] It has been quiet for three centuries, which by its own record is a long pause, not a sign of retirement." },
-            { p: "On its north side the volcano made a landscape. In **864** the Jōgan eruption poured lava into a large lake and split it in two, today's Lake Sai and Lake Shōji; they still rise and fall together underground with Lake Motosu.[^3] The forest of Aokigahara grows on that lava, its roots snaking across bare rock under a thin skin of soil." },
+            { p: "On its north side the volcano made a landscape: the **864** Jōgan eruption split a lake in two and laid down the lava that the Aokigahara forest grows on.[^3] The lakes it left are in [A volcano that made the lakes](guide:place/fuji-five-lakes/a-volcano-that-made-the-lakes)." },
             { p: "Fuji is also a sponge. Rain and snowmelt soak into its porous lava and come out years later as springs at its foot, which is why spring-fed ponds are among the listed parts of its World Heritage site (see [Sacred mountains](guide:land/sacred-mountains))." },
 
             { h: "Sakurajima, 1914" },
