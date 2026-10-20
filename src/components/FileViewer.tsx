@@ -192,16 +192,19 @@ export default function FileViewer({ file, onClose }: { file: ViewerFile; onClos
 
   return createPortal(
     <div className="fixed inset-0 z-[65] flex flex-col bg-bg motion-safe:animate-sheet-up" role="dialog" aria-modal="true" aria-label={file.name}>
-      <header className="relative z-10 flex shrink-0 items-center gap-2 px-3 pb-2 pt-[calc(var(--sat)+8px)]">
-        <button onClick={onClose} className="glass h-11 shrink-0 rounded-full px-4 text-[17px] text-ink">
+      {/* the side columns share the spare room equally, so the title sits
+          in the middle of the screen whatever the buttons' widths, and a
+          long name takes the room up to them */}
+      <header className="relative z-10 grid shrink-0 grid-cols-[minmax(max-content,1fr)_minmax(0,auto)_minmax(max-content,1fr)] items-center gap-2 px-3 pb-2 pt-[calc(var(--sat)+8px)]">
+        <button onClick={onClose} className="glass h-11 justify-self-start rounded-full px-4 text-[17px] text-ink">
           Done
         </button>
-        <h2 className="min-w-0 flex-1 truncate text-center text-[17px] font-medium text-ink">{file.name}</h2>
+        <FileTitle name={file.name} />
         <button
           onClick={share}
           disabled={!shareable}
           aria-label={canShare ? "Share" : "Download"}
-          className="glass grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink disabled:opacity-40"
+          className="glass grid h-11 w-11 place-items-center justify-self-end rounded-full text-ink disabled:opacity-40"
         >
           <Icon name={canShare ? "share" : "download"} size={20} />
         </button>
@@ -377,5 +380,23 @@ function PdfPage({ doc, n, width, height }: { doc: PDFDocumentProxy; n: number; 
     <div ref={box} style={{ width, height }} className="shrink-0 overflow-hidden rounded-[2px] bg-white shadow-sm">
       <canvas ref={canvas} style={{ width, height }} className="block" />
     </div>
+  );
+}
+
+/** A file's name as Quick Look titles it: one line, and when it doesn't
+ *  fit, cut in the middle so the end of the name and its extension still
+ *  show — "Boarding pass…JL005.pdf" — which is what tells two files apart. */
+function FileTitle({ name }: { name: string }) {
+  const dot = name.lastIndexOf(".");
+  const ext = dot > 0 && name.length - dot <= 6 ? name.length - dot : 0;
+  let cut = Math.max(0, name.length - ext - 6);
+  // a space at the cut goes with the part that's cut away, so the
+  // ellipsis sits tight against the end — "pass…JL505", not "pass … JL505"
+  while (cut < name.length - ext && name[cut] === " ") cut++;
+  return (
+    <h2 className="flex min-w-0 justify-center text-[17px] font-medium text-ink" title={name}>
+      <span className="min-w-0 truncate">{name.slice(0, cut)}</span>
+      <span className="shrink-0 whitespace-pre">{name.slice(cut)}</span>
+    </h2>
   );
 }
