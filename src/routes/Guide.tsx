@@ -1258,6 +1258,7 @@ function ArticleRow({
   title: string;
   meta?: string;
   caption?: string;
+  /** the name in the local script, set after the title */
   side?: string;
   /** a photo from the article, as a square on the right — the News list */
   thumb?: string;
@@ -1279,10 +1280,15 @@ function ArticleRow({
       >
         <span className="min-w-0 flex-1">
           {caption && <span className="block text-xs text-ink-faint">{caption}</span>}
-          <span className="value block break-words">{title}</span>
+          {/* a local name follows the title in grey, as the place card puts
+              "Nara 奈良県" — a third column beside the photo would squeeze
+              the words into a narrow strip */}
+          <span className="value block break-words">
+            {title}
+            {side && <>{" "}<span className="inline-block max-w-full font-jp text-ink-faint">{side}</span></>}
+          </span>
           {meta && <span className="meta mt-0.5 block break-words">{meta}</span>}
         </span>
-        {side && <span className="shrink-0 text-sm text-ink-faint">{side}</span>}
         <ReadTick to={to} />
         {thumb ? <Thumb src={thumb} /> : art}
         <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
