@@ -152,7 +152,7 @@ The trip as a list of days, grouped by **base** — where you're based for a run
 - When the month changes between two days in a base, the day's date shows the month under it (**1 DEC**).
 - **Before the trip** the top of Plan counts down the days and says when you leave.
 - **During the trip** the top of Plan reads **Day 2 of 14**, with the city you're in and when you leave it: *2 nights left*, *Leaving tomorrow*, *Leaving today*. Moving hotels within the same city doesn't count as leaving.
-- **On the way there** — an overnight journey out (the first day's arrival flight) that lands after the trip's first date reads **On the way**, *Arriving in Tokyo tomorrow*. Day 1 is the day you land.
+- **On the way there** — from the journey out's date until Day 1 the top reads **On the way**, *Arriving in Tokyo tomorrow*. Day 1 is the plan's first day, or the day the journey out lands if that's later: a flight dated 20 Oct with the first day on 23 Oct is three days on the way.
 - **During the trip** the list opens on today. Earlier days move to **Past days** at the bottom (closed until you open it), grouped by base. Past days can be opened and held for their menu, not dragged. It moves on to the new day by itself, even if the app was left open overnight.
 - **After the trip** the top of Plan becomes a recap: how many days it was and the dates, then **Memories** — cards for each city's nights, nights in all, places on the plan, stamps and total spent (in the main currency).
   - Swipe through them on a phone; a computer shows them as a grid.

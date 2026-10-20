@@ -45,4 +45,22 @@ describe("tripClock", () => {
     d.journeys[0].fromLegId = "A";
     expect(tripClock(d, at("2026-10-20"))).toMatchObject({ phase: "during", dayNumber: 1, inTransit: false });
   });
+
+  it("a flight out dated days before the plan's first day is on the way until that day", () => {
+    const d = trip("2026-10-21");
+    d.meta.start = "2026-10-23";
+    d.days = d.days.filter((x) => x.date >= "2026-10-23");
+    d.days[0].journeyIds = ["j"];
+    d.journeys[0].segments[0].arrive = undefined; // no landing time entered
+    expect(tripClock(d, at("2026-10-19"))).toMatchObject({ phase: "before", inTransit: false, leaves: "2026-10-20", daysUntilStart: 1 });
+    expect(tripClock(d, at("2026-10-21"))).toMatchObject({ phase: "before", inTransit: true, arrives: "2026-10-23", daysUntilStart: 2 });
+    expect(tripClock(d, at("2026-10-23"))).toMatchObject({ phase: "during", dayNumber: 1, totalDays: 2 });
+  });
+
+  it("the trip's start set before the first planned day counts as setting off", () => {
+    const d = trip("2026-10-20");
+    d.journeys = [];
+    d.days = d.days.filter((x) => x.date >= "2026-10-22");
+    expect(tripClock(d, at("2026-10-21"))).toMatchObject({ phase: "before", inTransit: true, arrives: "2026-10-22" });
+  });
 });

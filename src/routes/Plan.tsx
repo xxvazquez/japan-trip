@@ -271,7 +271,7 @@ export default function Plan() {
               <span className="font-display text-display">{c.daysUntilStart}</span>
               <span className="text-lg text-ink-soft">{c.daysUntilStart === 1 ? "day" : "days"} to go</span>
             </p>
-            <p className="mt-2 text-sm text-ink-soft">Leaving {fmtDate(data.meta.start, loc, { weekday: "long", day: "numeric", month: "long" })}</p>
+            <p className="mt-2 text-sm text-ink-soft">Leaving {fmtDate(c.leaves, loc, { weekday: "long", day: "numeric", month: "long" })}</p>
           </>
         )}
         {!noDates && c.phase === "during" && (
