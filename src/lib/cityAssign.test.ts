@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { placeCityMap, dayTripCities, dayTripLabel, dayTripQuery, cityNear, areaCityNames, byAreaName } from "./cityAssign";
+import { placeLegMap, placeCityMap, dayTripCities, dayTripLabel, dayTripQuery, cityNear, areaCityNames, byAreaName } from "./cityAssign";
 import type { TripData } from "@/core/types";
 
 const place = (id: string, lat: number, lng: number) => ({ id, name: id, lat, lng });
@@ -65,5 +65,27 @@ describe("areas in lists", () => {
     const m = areaCityNames(d, new Map([["p1", "kyoto"], ["p2", "kyoto"], ["p3", "nara-day"]]), [{ id: "nara-day", name: "Nara", legId: "kyoto", dayIds: [] }]);
     expect(m.get("a")).toBe("Kyoto");
     expect(m.has("b")).toBe(false);
+  });
+});
+
+describe("a second booking of the same hotel", () => {
+  it("anchors on the first booking, not on where its days go", () => {
+    const d = {
+      legs: [
+        { id: "tokyo", base: "Tokyo", hotelId: "h1" },
+        { id: "lake", base: "Lake", hotelId: "h2" },
+        { id: "tokyo2", base: "Tokyo", hotelId: "h3" },
+      ],
+      hotels: [
+        { id: "h1", name: "Hotel X", lat: 35.658, lng: 139.756 },
+        { id: "h2", name: "Lake inn", lat: 35.494, lng: 138.778 },
+        { id: "h3", name: "Hotel X — return" },
+      ],
+      // the return stay's only planned places are out at the lake
+      days: [{ id: "last", date: "2026-11-12", legId: "tokyo2", plan: [{ id: "s", placeId: "park" }] }],
+      places: [place("park", 35.523, 138.746)],
+      areas: [],
+    } as unknown as TripData;
+    expect(placeLegMap(d).get("park")).toBe("lake");
   });
 });

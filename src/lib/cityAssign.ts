@@ -1,6 +1,6 @@
 import type { Area, Place, TripData } from "@/core/types";
 import { haversineKm } from "@/lib/geo";
-import { mapUrlCoords } from "@/lib/maps";
+import { stayCoords } from "@/lib/stayCoords";
 
 /** How far (km) a pin may sit from a stay's anchor and still count as "in"
  *  that city — keeps a lone anchored leg from vacuuming up the whole trip
@@ -28,17 +28,19 @@ function dayPlaceIds(data: TripData, d: TripData["days"][number]): Set<string> {
 const centroid = (pts: Place[]): LatLng | null =>
   pts.length ? { lat: pts.reduce((s, p) => s + p.lat, 0) / pts.length, lng: pts.reduce((s, p) => s + p.lng, 0) / pts.length } : null;
 
-/** Each stay's anchor: its hotel's coordinates, else the centroid of the
+/** Each stay's anchor: its hotel's coordinates (or another booking of the
+ *  same hotel's), else the centroid of the
  *  places its (non-day-trip) days pull in, else its city centre. */
 export function legAnchors(data: TripData, cityAnchors?: Map<string, LatLng>): { legId: string; lat: number; lng: number }[] {
   const anchors: { legId: string; lat: number; lng: number }[] = [];
   for (const leg of data.legs) {
     const hotel = data.hotels.find((h) => h.id === leg.hotelId);
-    const hc = hotel && Number.isFinite(hotel.lat) && Number.isFinite(hotel.lng)
-      ? ([hotel.lat, hotel.lng] as [number, number])
-      : mapUrlCoords(hotel?.mapUrl);
+    // a second booking of the same hotel, added with just a name, borrows
+    // the first's coordinates — its days' places can be anywhere (a last
+    // day out of town) and would pull the stay's centre with them
+    const hc = hotel && stayCoords(hotel, data.hotels, data.places);
     if (hc) {
-      anchors.push({ legId: leg.id, lat: hc[0], lng: hc[1] });
+      anchors.push({ legId: leg.id, ...hc });
       continue;
     }
     const ids = new Set<string>();
