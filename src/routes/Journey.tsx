@@ -289,7 +289,7 @@ export default function Journey() {
           return (
             <div key={s.id} className="group">
               <Section>
-              <SwipeToDelete undoLabel="Hop removed" onDelete={ro ? undefined : () => patch({ segments: j.segments.filter((_, k) => k !== i) })} label="Remove hop">
+              <SwipeToDelete message="This hop will be deleted." undoLabel="Hop removed" onDelete={ro ? undefined : () => patch({ segments: j.segments.filter((_, k) => k !== i) })} label="Remove hop">
               <div className="p-4">
                 {/* header — mode tile, route, and (read-only) the service as a pill */}
                 <div className="flex items-start gap-2.5">

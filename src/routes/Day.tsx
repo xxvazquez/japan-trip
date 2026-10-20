@@ -1088,7 +1088,7 @@ function DayJourneyRow({ day, journey, data, onRemove }: { day: DayT; journey: J
 
   return (
     <li className="group relative after:pointer-events-none after:absolute after:bottom-0 after:left-12 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
-      <SwipeToDelete label="Remove" undoLabel="Journey removed from day" onDelete={onRemove}>
+      <SwipeToDelete label="Remove" message="This journey will be taken off the day. The journey itself stays." undoLabel="Journey removed from day" onDelete={onRemove}>
         <div className="flex items-center gap-1 pr-2">
           <Link to={`/journey/${journey.id}`} viewTransition className="flex min-w-0 flex-1 items-center gap-3 py-3 pl-3.5 pr-1 text-left active:bg-ink/[0.07]">
             <TitleLineTile><IconTile size="sm" name={first ? MODE_ICON[first.mode] : "train"} tone={first ? MODE_TONE[first.mode] : "ai"} /></TitleLineTile>
@@ -1783,7 +1783,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
       // held on a touch screen, the whole row lifts (the grip is mouse-only)
       onTouchStart={readOnly || timed || pinned ? undefined : (listeners?.onTouchStart as React.TouchEventHandler | undefined)}
     >
-      <SwipeToDelete undoLabel="Step removed" onDelete={readOnly ? undefined : onRemove}>
+      <SwipeToDelete message="This step will be deleted." undoLabel="Step removed" onDelete={readOnly ? undefined : onRemove}>
       <ContextMenu
         dismiss={isDragging}
         // held, a place lifts into a small card — what it is, its hours
@@ -3092,7 +3092,7 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
               id={`cost-${c.id}`}
               className={`group relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden transition-colors duration-700 ${c.id === highlightId ? "bg-accent/10" : ""}`}
             >
-              <SwipeToDelete undoLabel="Expense removed" onDelete={readOnly ? undefined : () => onChange(costs.filter((_, j) => j !== i))}>
+              <SwipeToDelete message="This amount will be deleted." undoLabel="Expense removed" onDelete={readOnly ? undefined : () => onChange(costs.filter((_, j) => j !== i))}>
               <div className="px-3.5 py-3">
               <div className="flex items-start gap-3">
                 <IconTile size="sm" name={tile.name} glyph={tile.glyph} tone={tile.tone} color={tile.color} className="mt-0.5 shrink-0" />

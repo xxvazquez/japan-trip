@@ -332,7 +332,7 @@ export function Stamps() {
     );
     return (
       <li key={s.id} className={ROW}>
-        {plain ? body : <SwipeToDelete undoLabel="Stamp removed" onDelete={remove}><ContextMenu>{body}</ContextMenu></SwipeToDelete>}
+        {plain ? body : <SwipeToDelete message="This stamp will be deleted." undoLabel="Stamp removed" onDelete={remove}><ContextMenu>{body}</ContextMenu></SwipeToDelete>}
       </li>
     );
   };

@@ -778,7 +778,7 @@ Notes edit in place and show their formatting as you type, like Apple Notes. The
 
 ### Deleting
 
-Every delete asks first (a confirm sheet that says what goes — "This day and its plan will be deleted." — or a second tap on a swiped row). After that, an **Undo** bar appears for 8 seconds (the clock stops while you're in another app) and puts back exactly what was removed. Only the last delete can be undone, and deleting a whole trip or a file can't be.
+Every delete asks first (a confirm sheet that says what goes — "This day and its plan will be deleted." — or, on a swiped row, the same sheet after tapping its red Delete). After that, an **Undo** bar appears for 8 seconds (the clock stops while you're in another app) and puts back exactly what was removed. Only the last delete can be undone, and deleting a whole trip or a file can't be.
 
 ### Switching apps
 

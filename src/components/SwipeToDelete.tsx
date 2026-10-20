@@ -24,6 +24,7 @@ export function SwipeToDelete({
   children,
   onDelete,
   label = "Delete",
+  message,
   undoLabel = "Removed",
   bg = "bg-surface",
 }: {
@@ -31,6 +32,9 @@ export function SwipeToDelete({
   /** Omit (e.g. in read-only mode) to render the content untouched. */
   onDelete?: () => void;
   label?: string;
+  /** what goes, said above the button ("This step will be deleted.") — the
+   *  same confirmation message `ConfirmButton` shows; else "Delete?" */
+  message?: string;
   /** what the "Undo" toast says once it's deleted */
   undoLabel?: string;
   bg?: string;
@@ -133,10 +137,10 @@ export function SwipeToDelete({
           {label}
         </button>
       )}
-      <ActionSheet open={confirmOpen} onClose={() => setConfirmOpen(false)} anchorRef={deleteBtnRef} title={`${label}?`}>
+      <ActionSheet open={confirmOpen} onClose={() => setConfirmOpen(false)} anchorRef={deleteBtnRef} title={message ?? `${label}?`} confirm>
         <button
           type="button"
-          className="menu-item text-danger"
+          className="menu-item justify-center text-danger"
           onClick={() => {
             setConfirmOpen(false);
             closeAnd(del);

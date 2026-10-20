@@ -261,7 +261,7 @@ function ListSection({ list }: { list: CustomList }) {
             key={it.id}
             className="relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden"
           >
-            <SwipeToDelete undoLabel="Item removed" onDelete={ro ? undefined : () => removeId(it.id)}>
+            <SwipeToDelete message="This item will be deleted." undoLabel="Item removed" onDelete={ro ? undefined : () => removeId(it.id)}>
             <ContextMenu className="flex items-start gap-2 px-3.5 py-3">
               <span className="min-w-0 flex-1">
                 <span className="block text-sm leading-snug text-ink">
@@ -1154,7 +1154,7 @@ function PackRow({ item, ro, people, tagged, caption, onToggle, onLabel, onAssig
   }
   return (
     <li className={`group ${liOuter}`}>
-      <SwipeToDelete undoLabel="Packing item removed" onDelete={onRemove}>
+      <SwipeToDelete message="This item will be deleted." undoLabel="Packing item removed" onDelete={onRemove}>
         <div className={rowInner}>
           {box}
           <span className="min-w-0 flex-1">
