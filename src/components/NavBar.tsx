@@ -4,7 +4,8 @@ import { Icon } from "./Icon";
 import { Wordmark } from "./Wordmark";
 import { useData } from "@/lib/data";
 import { tripRangeText } from "@/lib/dates";
-import { ActionSheet } from "./ActionSheet";
+import { ActionSheet, type MenuPoint } from "./ActionSheet";
+import { haptic } from "@/lib/haptics";
 import { useApp } from "@/store/useApp";
 import { sheetEntries } from "@/lib/backClose";
 
@@ -20,6 +21,9 @@ type Api = {
   state: NavState;
   /** the title of the page this one was opened from, if it had one */
   backTitle?: string;
+  /** every screen under this one, nearest first, with how far back each is
+   *  — what holding the back button lists */
+  trail: () => { title: string; steps: number }[];
   register: (v: { back?: { to?: string; label?: string }; title: string; subtitle?: string; backTitle?: string }) => void;
   setCollapsed: (v: boolean) => void;
   clear: () => void;
@@ -85,7 +89,22 @@ export function NavProvider({ children }: { children: ReactNode }) {
   );
   const from = openedFrom.current.get(loc.key);
   const backTitle = from ? titles.current.get(from) ?? PARENT_LABEL[paths.current.get(from) ?? ""] : undefined;
-  const api = useMemo<Api>(() => ({ state, backTitle, ...actions }), [state, backTitle, actions]);
+  const trail = useMemo(
+    () => () => {
+      const out: { title: string; steps: number }[] = [];
+      const seen = new Set<string>();
+      let key = openedFrom.current.get(keyRef.current);
+      for (let steps = 1; key && !seen.has(key); steps++) {
+        seen.add(key);
+        const title = titles.current.get(key) ?? PARENT_LABEL[paths.current.get(key) ?? ""];
+        if (title) out.push({ title, steps });
+        key = openedFrom.current.get(key);
+      }
+      return out;
+    },
+    [],
+  );
+  const api = useMemo<Api>(() => ({ state, backTitle, trail, ...actions }), [state, backTitle, trail, actions]);
   return <Ctx.Provider value={api}>{children}</Ctx.Provider>;
 }
 
@@ -194,12 +213,68 @@ export function NavLeft() {
     ro.observe(el);
     return () => ro.disconnect();
   }, [word, crowded]);
+  // hold the back button (or right-click it) for every screen under this
+  // one, as iOS has since 14 — a jump several screens back in one go
+  const button = useRef<HTMLButtonElement>(null);
+  const hold = useRef<{ timer: number; x: number; y: number } | null>(null);
+  const held = useRef(false);
+  const [menu, setMenu] = useState<{ point: MenuPoint; items: { title: string; steps: number }[] } | null>(null);
+  const openMenu = () => {
+    // the screens under this one; with none on record (a page the browser
+    // restored), at least the one Back goes to — a hold never acts as a tap
+    const trail = canGoBack ? nav?.trail() ?? [] : [];
+    const items = trail.length ? trail : canGoBack ? [{ title: tight === word ? "Back" : word, steps: 1 }] : [];
+    const r = button.current?.getBoundingClientRect();
+    if (!items.length || !r) return false;
+    setMenu({ point: { x: r.left, y: r.bottom + 6, flipY: r.top - 6, align: "start" }, items });
+    return true;
+  };
+  const endHold = () => {
+    if (hold.current) window.clearTimeout(hold.current.timer);
+    hold.current = null;
+  };
+  useEffect(() => endHold, []);
   if (!back) return <TripSwitcher />;
   return (
     // iOS 26 glass capsule — the chevron plus where it goes back to, kept as a
     // word so it's always clear which screen you're leaving for
+    <>
     <button
-      onClick={() => (canGoBack ? go(-1) : go(to))}
+      ref={button}
+      onPointerDown={(e) => {
+        if (!e.isPrimary || e.button > 0) return;
+        const { clientX: x, clientY: y } = e;
+        hold.current = {
+          x,
+          y,
+          timer: window.setTimeout(() => {
+            hold.current = null;
+            if (openMenu()) {
+              held.current = true;
+              haptic();
+            }
+          }, 450),
+        };
+      }}
+      onPointerMove={(e) => {
+        if (hold.current && Math.hypot(e.clientX - hold.current.x, e.clientY - hold.current.y) > 10) endHold();
+      }}
+      onPointerUp={endHold}
+      onPointerCancel={endHold}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        endHold();
+        openMenu();
+      }}
+      onClick={() => {
+        // letting go of a hold isn't a tap: the menu it opened stays up
+        if (held.current) {
+          held.current = false;
+          return;
+        }
+        if (canGoBack) go(-1);
+        else go(to);
+      }}
       className={`glass flex h-11 min-w-11 max-w-full items-center gap-0.5 rounded-full pl-2 text-[17px] ${crowded ? "pr-3.5 max-sm:justify-center max-sm:pl-0 max-sm:pr-0.5" : "pr-3.5"} text-ink transition-transform active:scale-95`}
     >
       <Icon name="back" size={22} className="shrink-0" />
@@ -207,6 +282,27 @@ export function NavLeft() {
           — here, a phone once a two-line title (a day's date) is showing */}
       <span ref={label} className={`min-w-0 overflow-hidden whitespace-nowrap ${crowded ? "max-sm:sr-only" : ""}`}>{tight === word ? "Back" : word}</span>
     </button>
+    <ActionSheet open={!!menu} onClose={() => setMenu(null)} anchorRef={button} point={menu?.point}>
+      {menu?.items.map((it) => (
+        <button
+          key={it.steps}
+          type="button"
+          className="menu-item"
+          onClick={() => {
+            // the open menu holds a history entry of its own, stepped back
+            // over as it closes: jump once that has landed, or the two
+            // traversals collide and only one step is taken
+            // (a tap can close the menu before its click lands, so ask the
+            // history, not the open sheets)
+            if (sheetEntries() || history.state?.sheet) window.addEventListener("popstate", () => setTimeout(() => go(-it.steps), 0), { once: true });
+            else go(-it.steps);
+          }}
+        >
+          <span className="min-w-0 flex-1 break-words">{it.title}</span>
+        </button>
+      ))}
+    </ActionSheet>
+    </>
   );
 }
 

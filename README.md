@@ -585,6 +585,7 @@ The guide has two halves: **This Trip**, picked from the trip, and **Guide**, th
 - Every guide page has a **Contents** button (☰) in the nav bar, as Books does. It opens the whole guide as one list: the guide's home, the Map and Saved; the places on this trip; every chapter by part; Before you go; all places by region; and the dates through the year.
 - Where you are is highlighted and opened, and the list starts scrolled to it. Tap any row to go straight there, without stepping back through the screens in between.
 - The chevron on a row opens what's inside in place (a chapter's articles, a place's reads and day trips) and leaves the sheet up.
+- Hold the **back button** (right-click on a computer) for every screen under this one, as iOS does, and jump several back in one tap. It works on every page with a back button, not just the guide.
 - On a wide screen (1024 px and up) the same list stays in a **sidebar** beside the page, as Books on a Mac or iPad keeps a book's contents beside the text, and the button steps aside. It keeps its scroll and what you opened as you move between pages, and the highlight follows you.
 
 #### This Trip
