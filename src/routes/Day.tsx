@@ -641,6 +641,9 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         dotColor={legHex(leg?.color)}
         eyebrow={<span className={isWeekend(day.date) ? "text-danger" : undefined}>{fmtDate(day.date, loc, { weekday: "long", day: "numeric", month: "long" })}</span>}
         navSubtitle={fmtDate(day.date, loc, { weekday: "short", day: "numeric", month: "short" })}
+        // a long day title would leave the pages it opens a bare "Back";
+        // its date names it as well, the way Calendar's back button does
+        backTitle={(day.title?.length ?? 0) > 14 ? fmtDate(day.date, loc, { weekday: "short", day: "numeric", month: "short" }) : undefined}
         title={
           // what the Plan row's title zooms into (`zoomFrom`)
           <span data-day={day.id} className="vt-zoom-title inline-block max-w-full">

@@ -641,7 +641,7 @@ The book reads in order, in five parts, with chapters numbered straight through.
 - Read marks, bookmarks and Continue reading are kept on this device only, not synced.
 - An article ends the way Apple News closes a story: its **sources**, then **Up next** as one big picture card (**Next chapter** at a chapter's end), then **Related**: its own related reads, the reads that point at it, then the city notes that do, each captioned with its chapter or place. Three show, with **Show All** for the rest.
 - A link is written once, on either side (`related` or an in-text `guide:` link), and shows at both ends. Day trips (`place/<city>/day-trips/<slug>`) and dates (`date/<slug>`) can be linked to too.
-- Up next opens the next entry in place, so Back still returns to the list. The back button names the page it returns to (‹ Kyoto, ‹ Japan), even after a reload; a long chapter or place name uses its short form (‹ Arts, ‹ Kurama), set as `short` on the chapter or city; anything still too long reads ‹ Back.
+- Up next opens the next entry in place, so Back still returns to the list. The back button names the page it returns to (‹ Kyoto, ‹ Japan), even after a reload; a long chapter or place name uses its short form (‹ Arts, ‹ Kurama), set as `short` on the chapter or city; a long day title uses the day's date (‹ Wed 21 Oct); anything still too long reads ‹ Back.
 - An article's address is its title without accents (`…/history/jomon-yayoi-and-kofun`). Older links that dropped accented letters (`j-mon`) redirect, and read marks and bookmarks move with them.
 
 #### Content
