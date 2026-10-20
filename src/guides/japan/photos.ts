@@ -322,7 +322,7 @@ const PHOTOS = {
   "tokyo-shinkansen-platform": { w: 900, h: 675, author: "Syced", license: "CC0", url: "https://commons.wikimedia.org/wiki/File:Shinkansen_platform_at_Tokyo_Station_5.jpg" },
   "coast-guard-drill": { w: 900, h: 601, author: "Staff Sgt. Maeson Elleman", license: "Public domain", url: "https://commons.wikimedia.org/wiki/File:18th_Wing_participates_in_Okinawa_disaster_drill_150905-F-LH638-120.jpg" },
   "yen-notes-coins": { w: 849, h: 565, author: "ASTELUS", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Yen%25$-3.jpg" },
-  "tokyo-skyline": { w: 900, h: 506, author: "Unknown photographer", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Tokyo_Tower,_Minato_City.jpg" },
+  "tokyo-skyline": { w: 900, h: 506, author: "David Kernan", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Tokyo_Tower,_Minato_City.jpg" },
   "kofukuji-park": { w: 900, h: 577, author: "Roger W from Sarasota, Florida, U.S.A.", license: "CC BY-SA 2.0", url: "https://commons.wikimedia.org/wiki/File:Five-storied_pagoda_(Goj%C5%AB-no-t%C5%8D)_and_East_Golden_Hall_(T%C5%8D-kond%C5%8D),_K%C5%8Dfuku-ji,_Nara_(1967-05-11_by_Roger_W).jpg" },
   "kurama-main-hall": { w: 900, h: 601, author: "Maarten Heerlien", license: "CC BY 2.0", url: "https://commons.wikimedia.org/wiki/File:Kurama-dera_main_hall_(48885598296).jpg" },
   "ashi-fuji-torii": { w: 900, h: 600, author: "Charlie fong", license: "CC BY-SA 4.0", url: "https://commons.wikimedia.org/wiki/File:Lake_Ashi_%26_Mt_Fuji_%26_Hakone_Shrine.jpg" },

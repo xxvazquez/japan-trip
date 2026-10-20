@@ -71,6 +71,7 @@ export type IconName =
   | "backspace"
   | "person"
   | "share"
+  | "external"
   | "bookmark"
   | "location"
   | "cloud-down"
@@ -472,6 +473,8 @@ const P: Record<IconName, JSX.Element> = {
   // bookmark — save a guide article; filled once it is saved
   bookmark: <path d="M7 3.75h10a1 1 0 0 1 1 1V20.2a.5.5 0 0 1-.8.4L12 16.75 6.8 20.6a.5.5 0 0 1-.8-.4V4.75a1 1 0 0 1 1-1Z" />,
   // iOS square.and.arrow.up
+  // a link that leaves the app — SF Symbols' arrow.up.right
+  external: <path d="M8 16 16.5 7.5M9.5 7.5h7v7" />,
   share: (
     <>
       <path d="M12 3.5v11M8.5 7 12 3.5 15.5 7" />

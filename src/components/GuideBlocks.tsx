@@ -458,7 +458,7 @@ export function Photo({ photo: p }: { photo: GuidePhoto }) {
       <figcaption className="mt-1.5 px-1">
         {p.caption && <span className="block break-words text-[13px] leading-snug text-ink-soft"><Inline text={p.caption} /></span>}
         <a href={p.url} target="_blank" rel="noreferrer" className="mt-0.5 block break-words text-[11px] leading-snug text-ink-faint">
-          Photo: {p.author} · {p.license}{free ? "" : ", resized"}
+          {p.author} · {p.license}{free ? "" : ", resized"}
         </a>
       </figcaption>
     </figure>
