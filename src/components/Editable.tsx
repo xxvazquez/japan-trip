@@ -341,6 +341,7 @@ export function Editable(props: Props) {
           open={sheetOpen}
           onClose={() => setSheetOpen(false)}
           anchorRef={sheetAnchorRef}
+          title={label}
           hour={h.padStart(2, "0")}
           minute={m}
           unset={!value}

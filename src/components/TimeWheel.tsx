@@ -322,8 +322,10 @@ function QuarterList({ hour, minute, onChoose }: {
  *  commit live as they change. With no time set yet the wheels show `hour` /
  *  `minute` as a starting point (`unset`), and "Done" saves that — what's on
  *  screen is what you get; otherwise "Done" just dismisses. */
-export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, unset, onPick, onClear }: {
+export function TimeWheelSheet({ open, onClose, anchorRef, title, hour, minute, unset, onPick, onClear }: {
   open: boolean;
+  /** what's being timed, centred between Clear and Done as an iOS sheet's title */
+  title?: string;
   onClose: () => void;
   anchorRef: RefObject<HTMLElement>;
   hour: string;
@@ -389,9 +391,11 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, unset, 
           <div {...handleProps} className="shrink-0 cursor-grab touch-none pb-1">
             <span aria-hidden className="mx-auto mb-1.5 block h-1 w-9 rounded-full bg-ink/20" />
           </div>
-          <div className="flex items-center justify-between px-4 pb-2">
-            <button type="button" onClick={onClear} className="text-[17px] text-danger">Clear</button>
-            <button type="button" onClick={done} className="text-[17px] font-medium text-accent">Done</button>
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 pb-2">
+            {/* nothing to clear before a time is set — the slot stays so the title keeps centre */}
+            <button type="button" onClick={onClear} className={`justify-self-start text-[17px] text-danger ${unset ? "invisible" : ""}`}>Clear</button>
+            <p className="text-center text-[17px] font-medium text-ink">{title}</p>
+            <button type="button" onClick={done} className="justify-self-end text-[17px] font-medium text-accent">Done</button>
           </div>
           <div className="pb-2">{wheels}</div>
         </div>
@@ -410,7 +414,7 @@ export function TimeWheelSheet({ open, onClose, anchorRef, hour, minute, unset, 
       >
         <div className="flex items-center gap-4 pr-1">
           <TimeField hour={h} minute={m} onPick={onPick} onDone={done} />
-          <button type="button" onClick={onClear} className="text-xs text-danger">Clear</button>
+          {!unset && <button type="button" onClick={onClear} className="text-xs text-danger">Clear</button>}
           <button type="button" onClick={done} className="text-xs font-medium text-accent">Done</button>
         </div>
         <div className="h-[var(--hair)] bg-line" />
