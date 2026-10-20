@@ -469,6 +469,7 @@ Your places on a clean map, read top to bottom: **search → city pills → plac
 - **Opens on the city you're in** — the city of the trip place nearest your location (within about 60 km), once location is allowed; opening the Map never asks for it. Away from the trip, or with location off, it goes by date: today's base, else the first base before the trip, the last after. Once you pick a pill it stays.
 - **One pill per city.** Several bases in the same city share a pill (matched by city name).
 - **Which city a place belongs to** — the nearest base within about 60 km, measured from where you're staying there (a second booking of the same hotel uses the first's location), else the places its days use, else the city found by name. Places further out only show under **All**. Override it on the place's card with **City**.
+- **A city's days bring their places along** — a stop on one of its days shows on its pill too, unless that place belongs to another city (the station you leave Kyoto from stays on Kyoto's pill).
 - **Day trips to another town** (Nara from Kyoto) get their own pill right after their base, with that town's places moved into it. The day must be marked as a day trip; the town comes from the day's name or its places.
 
 ### Places

@@ -1094,12 +1094,15 @@ export default function MapTab() {
       s.explicit.forEach((id) => explicit.add(id));
       return { inScopeIds: all, derivedIds: new Set([...all].filter((id) => !explicit.has(id))) };
     }
-    // a stay / city
+    // a stay / city — its days bring in their places, bar one that belongs
+    // to another city (Kyoto Station on the travel day back to Tokyo is
+    // Kyoto's, and would stretch Tokyo's map across half the country)
     const legId = scope.slice(4);
+    const ours = (id: string) => (placeLeg.get(id) ?? legId) === legId;
     for (const d of data.days.filter((d) => dayCity.get(d.id) === legId)) {
       const s = dayIds(d);
-      s.all.forEach((id) => all.add(id));
-      s.explicit.forEach((id) => explicit.add(id));
+      s.all.forEach((id) => ours(id) && all.add(id));
+      s.explicit.forEach((id) => ours(id) && explicit.add(id));
     }
     for (const p of places) if (placeLeg.get(p.id) === legId) all.add(p.id);
     return { inScopeIds: all, derivedIds: new Set([...all].filter((id) => !explicit.has(id) && !placeLeg.has(id))) };
