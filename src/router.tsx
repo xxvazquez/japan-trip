@@ -30,6 +30,7 @@ const Neighbourhoods = lazy(load.neighbourhoods);
 const LogbookIndex = lazy(() => load.logbook().then((m) => ({ default: m.LogbookIndex })));
 const LogbookSection = lazy(() => load.logbook().then((m) => ({ default: m.LogbookSection })));
 const ExpenseCategory = lazy(() => load.logbook().then((m) => ({ default: m.ExpenseCategory })));
+const GuideLayout = lazy(() => load.guide().then((m) => ({ default: m.GuideLayout })));
 const GuideHome = lazy(() => load.guide().then((m) => ({ default: m.GuideHome })));
 const GuideTopicPage = lazy(() => load.guide().then((m) => ({ default: m.GuideTopicPage })));
 const GuideCityPage = lazy(() => load.guide().then((m) => ({ default: m.GuideCityPage })));
@@ -78,15 +79,23 @@ export const router = createBrowserRouter([
       { path: "logbook/:section", element: <LogbookSection /> },
       { path: "logbook/documents/:id", element: <Document /> },
       { path: "logbook/budget/:category", element: <ExpenseCategory /> },
-      { path: "logbook/guide/:guide", element: <GuideHome /> },
-      { path: "logbook/guide/:guide/map", element: <GuideMapPage /> },
-      { path: "logbook/guide/:guide/:topic", element: <GuideTopicPage /> },
-      { path: "logbook/guide/:guide/place/:city", element: <GuideCityPage /> },
-      { path: "logbook/guide/:guide/place/:city/day-trips", element: <GuideDayTripsPage /> },
-      { path: "logbook/guide/:guide/:topic/:item", element: <GuideTopicArticle /> },
-      { path: "logbook/guide/:guide/place/:city/:item", element: <GuideCityArticle /> },
-      { path: "logbook/guide/:guide/place/:city/day-trips/:item", element: <GuideDayTripArticle /> },
-      { path: "logbook/guide/:guide/date/:item", element: <GuideDateArticle /> },
+      {
+        // the guide's pages share one frame: on a wide screen its contents
+        // stay beside whichever page is open
+        path: "logbook/guide/:guide",
+        element: <GuideLayout />,
+        children: [
+          { index: true, element: <GuideHome /> },
+          { path: "map", element: <GuideMapPage /> },
+          { path: ":topic", element: <GuideTopicPage /> },
+          { path: "place/:city", element: <GuideCityPage /> },
+          { path: "place/:city/day-trips", element: <GuideDayTripsPage /> },
+          { path: ":topic/:item", element: <GuideTopicArticle /> },
+          { path: "place/:city/:item", element: <GuideCityArticle /> },
+          { path: "place/:city/day-trips/:item", element: <GuideDayTripArticle /> },
+          { path: "date/:item", element: <GuideDateArticle /> },
+        ],
+      },
       { path: "hotel/:id", element: <Hotel /> },
       { path: "manage", element: <Manage /> },
       { path: "manage/:panel", element: <Manage /> },

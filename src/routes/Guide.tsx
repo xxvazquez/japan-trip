@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Link, Navigate, useLocation, useParams, useSearchParams } from "react-router-dom";
+import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Link, Navigate, Outlet, useLocation, useParams, useSearchParams } from "react-router-dom";
 import { ActionRow } from "@/components/ActionRow";
 import { GuideMap, MapPreview, type MapCity } from "@/components/GuideMap";
 import { areaAt, project, type CountryMap, type MapArea, type MapPoint } from "@/guides/map";
@@ -16,7 +16,7 @@ import { Compare, Eras, Evidence, Figures, Pull } from "@/components/GuideVisual
 import { ReadingActions, ReadMenuItem, ReadTick, ReadWhenFinished, useProgress } from "@/components/GuideReading";
 import { renamePaths, useReadSet, useSaved, type SavedEntry } from "@/lib/guideReading";
 import { ContextMenu } from "@/components/ContextMenu";
-import { GuideContentsButton } from "@/components/GuideContents";
+import { GuideContents, GuideContentsButton } from "@/components/GuideContents";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { useData } from "@/lib/data";
 import { guideTopicColor } from "@/lib/tones";
@@ -90,6 +90,28 @@ function useHomeView(id: string | undefined): [HomeView, (v: HomeView) => void] 
     setParams(v === "trip" ? { view: "trip" } : {}, { replace: true });
   };
   return [view, set];
+}
+
+/** Every guide page sits in this frame. On a wide screen the guide's
+ *  contents stay in a sidebar beside the page, as Books on a Mac and iPad
+ *  keep a book's contents beside the text; on a phone the same list is
+ *  the Contents button's sheet. */
+export function GuideLayout() {
+  return (
+    <div className="lg:flex lg:items-start">
+      <aside
+        aria-label="Contents"
+        className="vt-sidebar sticky top-[calc(var(--sat)+var(--nav-h))] hidden h-[calc(100dvh-var(--sat)-var(--nav-h))] w-[19rem] shrink-0 overflow-y-auto overscroll-contain border-r border-line pb-6 pt-4 lg:block"
+      >
+        <GuideContents />
+      </aside>
+      <div className="min-w-0 flex-1">
+        <Suspense fallback={null}>
+          <Outlet />
+        </Suspense>
+      </div>
+    </div>
+  );
 }
 
 /**

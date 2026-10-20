@@ -548,11 +548,15 @@ html:active-view-transition .vt-rail {
 html:active-view-transition .vt-up-next {
   view-transition-name: up-next;
 }
+html:active-view-transition .vt-sidebar {
+  view-transition-name: sidebar;
+}
 @media (prefers-reduced-motion: no-preference) {
   ::view-transition-group(nav-bar),
   ::view-transition-group(tab-bar),
   ::view-transition-group(rail),
-  ::view-transition-group(up-next) {
+  ::view-transition-group(up-next),
+  ::view-transition-group(sidebar) {
     animation-duration: 0.4s;
     animation-timing-function: var(--ease-paper);
   }

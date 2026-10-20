@@ -45,16 +45,22 @@ export function GuideContents({ onPick }: { onPick?: () => void }) {
     setOpen((s) => (opens.every((k) => s.has(k)) ? s : new Set([...s, ...opens])));
   }, [opens]);
   const list = useRef<HTMLDivElement>(null);
-  // where you are starts in view, as Books scrolls its contents to the
-  // chapter you're reading
+  // where you are is kept in view, as Books scrolls its contents to the
+  // chapter you're reading — moved only when it's out of sight, so a
+  // sidebar you've scrolled yourself isn't snatched back on every page
+  const seek = useRef("");
   useLayoutEffect(() => {
+    // once per page: the row can land a render late, when its group opens
+    if (seek.current === pathname) return;
     const el = list.current?.querySelector<HTMLElement>('[aria-current="page"]');
     const box = el?.closest<HTMLElement>(".overflow-y-auto");
     if (!el || !box) return;
+    seek.current = pathname;
     const r = el.getBoundingClientRect();
     const b = box.getBoundingClientRect();
+    if (r.top >= b.top && r.bottom <= b.bottom) return;
     box.scrollTop += r.top - b.top - (b.height - r.height) / 2;
-  }, []);
+  }, [pathname, open]);
 
   if (!guide) return null;
   const go = (to: string) => {
@@ -280,7 +286,8 @@ function Disclosure({ icon, lead, label, meta, trail, current, depth = 0, open, 
 
 /** The Contents button, a glass circle in the nav bar beside the account
  *  picture — or, with `inline`, one more button in the bar's capsule that
- *  an article already has. */
+ *  an article already has. Where the sidebar shows the list, it stands
+ *  down. */
 export function GuideContentsButton({ inline }: { inline?: boolean }) {
   const sheet = useActionSheet();
   const [slot, setSlot] = useState<HTMLElement | null>(null);
@@ -295,7 +302,7 @@ export function GuideContentsButton({ inline }: { inline?: boolean }) {
       aria-haspopup="dialog"
       aria-expanded={sheet.open}
       onClick={() => sheet.setOpen(true)}
-      className={inline ? "grid h-10 w-10 place-items-center rounded-full transition-colors hover:text-accent" : "glass grid h-11 w-11 place-items-center rounded-full text-ink transition-colors hover:text-accent"}
+      className={inline ? "grid h-10 w-10 place-items-center rounded-full transition-colors hover:text-accent lg:hidden" : "glass grid h-11 w-11 place-items-center rounded-full text-ink transition-colors hover:text-accent lg:hidden"}
     >
       <Icon name="list" size={20} />
     </button>
