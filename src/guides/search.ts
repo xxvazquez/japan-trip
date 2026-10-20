@@ -38,12 +38,20 @@ export function guideHits(ids: string[]): SearchHit[] {
     if (!g) continue;
     const base = `/logbook/guide/${g.id}`;
     const chip = `${g.name} guide`;
-    const tile = { name: "globe" as const, tone: "accent" as const };
-    const entry = (r: ArticleRef, to: string, sub?: string) =>
+    // each kind of hit keeps its own tile, as Spotlight marks a result by
+    // what it is: a read, a chapter, a place, a date, a prefecture
+    const tile: SearchHit["tile"] = { name: "globe", tone: "accent" };
+    const tiles: Record<"chapter" | "place" | "date" | "area", SearchHit["tile"]> = {
+      chapter: { name: "list", tone: "accent" },
+      place: { name: "pin", tone: "accent" },
+      date: { name: "calendar", tone: "accent" },
+      area: { name: "map", tone: "accent" },
+    };
+    const entry = (r: ArticleRef, to: string, sub?: string, t = tile) =>
       hits.push({
         kind: "guide",
         chip,
-        tile,
+        tile: t,
         label: r.title,
         sub: sub ?? r.eyebrow,
         to,
@@ -51,20 +59,20 @@ export function guideHits(ids: string[]): SearchHit[] {
         prose: true,
       });
     for (const t of allTopics(g)) {
-      hits.push({ kind: "guide", chip, tile, label: t.title, sub: "Chapter", to: `${base}/${t.id}`, fields: [{ text: t.summary }] });
-      for (const r of topicArticles(t)) entry(r, `${base}/${t.id}/${r.slug}`, r.slug === "overview" ? t.title : `${t.title} · ${r.eyebrow}`);
+      hits.push({ kind: "guide", chip, tile: tiles.chapter, label: t.title, sub: "Chapter", to: `${base}/${t.id}`, fields: [{ text: t.summary }] });
+      for (const r of topicArticles(t)) entry(r, `${base}/${t.id}/${r.slug}`, r.slug === "overview" || !r.eyebrow || r.eyebrow === t.title ? t.title : `${t.title} · ${r.eyebrow}`);
     }
     for (const c of g.cities) {
-      hits.push({ kind: "guide", chip, tile, label: c.name, sub: [c.local, c.region].filter(Boolean).join(" · ") || undefined, to: `${base}/place/${c.id}`, fields: (c.aliases ?? []).map((text) => ({ text })) });
+      hits.push({ kind: "guide", chip, tile: tiles.place, label: c.name, sub: [c.local, c.region].filter(Boolean).join(" · ") || undefined, to: `${base}/place/${c.id}`, fields: (c.aliases ?? []).map((text) => ({ text })) });
       for (const r of cityArticles(c)) entry(r, `${base}/place/${c.id}/${r.slug}`, c.name);
       for (const r of dayTripArticles(c)) entry(r, `${base}/place/${c.id}/day-trips/${r.slug}`, `Day trip from ${c.name}`);
     }
-    for (const r of dateArticles(g.dates)) entry(r, `${base}/date/${r.slug}`);
+    for (const r of dateArticles(g.dates)) entry(r, `${base}/date/${r.slug}`, undefined, tiles.date);
     // each prefecture opens the map on it — "Gifu", "岐阜県", or its capital
     if (g.map) {
       const unit = g.map.unit.one.replace(/^./, (c) => c.toUpperCase());
       for (const a of g.map.areas) {
-        hits.push({ kind: "guide", chip, tile, label: a.name, sub: [unit, a.region].filter(Boolean).join(" · "), to: `${base}/map?p=${a.code}`, fields: [a.local, a.capital].filter((x): x is string => !!x).map((text) => ({ text })) });
+        hits.push({ kind: "guide", chip, tile: tiles.area, label: a.name, sub: [unit, a.region].filter(Boolean).join(" · "), to: `${base}/map?p=${a.code}`, fields: [a.local, a.capital].filter((x): x is string => !!x).map((text) => ({ text })) });
       }
     }
   }

@@ -128,7 +128,9 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
   let n = 0;
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col items-center bg-ink/40 md:px-4 md:pt-[8vh]"
+      // a full screen on a phone, solid all the way down so nothing of the
+      // page shows behind the keyboard's bar; a dimmed popover above that
+      className="fixed inset-0 z-50 flex flex-col items-center bg-bg md:bg-ink/40 md:px-4 md:pt-[8vh]"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
