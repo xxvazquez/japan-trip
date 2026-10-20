@@ -1666,7 +1666,7 @@ export default function MapTab() {
               )}
               {data.places.length > 0 && (
                 <Link to="/map/neighbourhoods" className="menu-item">
-                  <Icon name="info" size={16} /> Neighbourhoods
+                  <Icon name="pin" size={16} /> Neighbourhoods
                 </Link>
               )}
             </>
