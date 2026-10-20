@@ -110,6 +110,11 @@ export interface TripClock {
   totalDays: number;
   daysUntilStart: number;
   daysRemaining: number;
+  /** the day you land, when getting there takes past the first date —
+   *  Day 1 is that day, not the day you board */
+  arrives: ISODate | undefined;
+  /** on the way there today: boarded, not landed yet */
+  inTransit: boolean;
   todayISO: ISODate;
   today: Day | undefined;
   currentLegId: string | undefined;
@@ -126,12 +131,17 @@ export function tripClock(d: TripData, now = new Date()): TripClock {
       totalDays: Math.max(1, d.days?.length ?? 1),
       daysUntilStart: 0,
       daysRemaining: 0,
+      arrives: undefined,
+      inTransit: false,
       todayISO: t,
       today: d.days?.find((x) => x.date === t),
       currentLegId: undefined,
     };
   }
-  const { start, end } = d.meta;
+  const { end } = d.meta;
+  const arrives = arrivalDate(d);
+  const start = arrives ?? d.meta.start;
+  const inTransit = !!arrives && t >= d.meta.start && t < arrives;
   const totalDays = Math.max(1, daysBetween(start, end) + 1);
   const untilStart = daysBetween(t, start);
   const untilEnd = daysBetween(t, end);
@@ -145,12 +155,29 @@ export function tripClock(d: TripData, now = new Date()): TripClock {
     phase,
     dayNumber: phase === "during" ? daysBetween(start, t) + 1 : null,
     totalDays,
-    daysUntilStart: Math.max(0, untilStart),
+    daysUntilStart: Math.max(0, inTransit ? untilStart : daysBetween(t, d.meta.start)),
     daysRemaining: phase === "during" ? Math.max(0, untilEnd + 1) : phase === "before" ? totalDays : 0,
+    arrives,
+    inTransit,
     todayISO: t,
     today,
     currentLegId: today?.legId ?? legForDate(d, t)?.id,
   };
+}
+
+/** When the journey out lands, if that's after the trip's first date — an
+ *  overnight flight boarded on the first day lands on the next. The journey
+ *  out is the first one marked as the arrival, else the first day's first
+ *  journey that doesn't leave from one of the trip's stays; its last hop's arrival time is local, so its date is the date
+ *  where you land. */
+export function arrivalDate(d: Pick<TripData, "meta" | "days" | "journeys">): ISODate | undefined {
+  const first = [...d.days].sort((a, b) => a.date.localeCompare(b.date))[0];
+  const out = dayJourneys(first ?? {}, d).find((j) => j.kind === "arrival")
+    ?? d.journeys.filter((j) => j.kind === "arrival").sort((a, b) => (a.date ?? "~").localeCompare(b.date ?? "~"))[0]
+    ?? (first && dayJourneys(first, d).find((j) => !j.fromLegId));
+  const lands = out?.segments.at(-1)?.arrive?.slice(0, 10);
+  if (!lands || !/^\d{4}-\d{2}-\d{2}$/.test(lands)) return undefined;
+  return lands > d.meta.start && lands <= d.meta.end ? lands : undefined;
 }
 
 /** The stay a date falls in. `leg.end` is the stay's last day, so it counts;

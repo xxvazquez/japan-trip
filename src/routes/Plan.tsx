@@ -51,6 +51,13 @@ function Wrap({ to, children }: { to: string | false | undefined; children: Reac
   return to ? <Link to={to} viewTransition className="block transition-opacity active:opacity-60">{children}</Link> : <div>{children}</div>;
 }
 
+/** "Arriving in Tokyo tomorrow" — under "On the way" while getting there
+ *  runs past the trip's first date. */
+function arrivingText(today: string, arrives: string, base: string | undefined, loc: string) {
+  const when = daysBetween(today, arrives) === 1 ? "tomorrow" : `on ${fmtDate(arrives, loc, { weekday: "long", day: "numeric", month: "long" })}`;
+  return `Arriving${base ? ` in ${base}` : ""} ${when}`;
+}
+
 /** After the trip: how long it was and when, then `Memories` — the
  *  cards for what it added up to. */
 function TripRecap({ data, totalDays }: { data: TripData; totalDays: number }) {
@@ -249,7 +256,16 @@ export default function Plan() {
             </p>
           </>
         )}
-        {!noDates && c.phase === "before" && (
+        {!noDates && c.inTransit && c.arrives && (
+          <Wrap to={c.today && `/day/${c.today.id}`}>
+            <p className="font-display text-display">On the way</p>
+            {/* the day you board isn't Day 1 — the count starts where you land */}
+            <p className="mt-2 text-sm text-ink-soft">
+              {arrivingText(c.todayISO, c.arrives, legForDate(data, c.arrives)?.base, loc)}
+            </p>
+          </Wrap>
+        )}
+        {!noDates && c.phase === "before" && !c.inTransit && (
           <>
             <p className="flex items-baseline gap-2">
               <span className="font-display text-display">{c.daysUntilStart}</span>
