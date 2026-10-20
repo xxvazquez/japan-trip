@@ -857,7 +857,7 @@ Once the app has loaded, it works with no signal. See [Before you travel](#befor
 
 | What | With no signal |
 |---|---|
-| **The trip** | Kept on the device once opened, so the app starts with no signal. Cleared when you sign out. |
+| **The trip** | Kept on the device once opened, so the app starts with no signal — straight away when the phone has no network at all (flight mode, no service). Cleared when you sign out. |
 | **Edits** | Queued on the device and sent when you're back. The app then re-pulls the trip to pick up your companion's changes. |
 | **Signing in** | You stay signed in, even after days away. The app opens straight away from the device copy and the login renews itself once you're back. |
 | **Weak signal** | If the server hasn't answered in 5 seconds, the app opens the device copy and updates once it gets through. |

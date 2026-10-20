@@ -1286,6 +1286,10 @@ export const useApp = create<AppStore>((set, get) => {
         // every server request would wait on that renewal, so open the trip
         // saved on the device now — the renewal re-pulls it once it lands
         if (be.kind === "supabase" && isSessionStale() && (await recoverFromOutbox(get, listen))) return;
+        // no network at all (flight mode, no service): asking the server only
+        // sits through its read retries — 1 s, 2 s, 4 s — before BOOT_WAIT_MS
+        // gives up on it. Open the device copy now; "online" re-pulls it.
+        if (be.kind === "supabase" && navigator.onLine === false && (await recoverFromOutbox(get, listen))) return;
 
         let trips: TripSummary[];
         let activeId: string | null;

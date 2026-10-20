@@ -116,6 +116,23 @@ describe("signed-in: loading", () => {
     expect(b.s().data?.meta.title).toBe("Server trip");
   });
 
+  it("with no network at all, opens the device copy without asking the server", async () => {
+    const id = await seedTrip();
+    await boot();
+    await sleep(60); // the device copy is written as the trip opens
+    let asked = 0;
+    fake.current.ctl.fail = () => { asked++; return { message: "Failed to fetch" }; };
+    Object.defineProperty(navigator, "onLine", { value: false, configurable: true }); // flight mode
+    try {
+      const b = await boot();
+      expect(b.s().activeId).toBe(id);
+      expect(b.s().data?.meta.title).toBe("Server trip");
+      expect(asked).toBe(0);
+    } finally {
+      delete (navigator as { onLine?: boolean }).onLine;
+    }
+  });
+
   it("an online launch keeps the open trip on record", async () => {
     const id = await seedTrip();
     const kv = (await import("@/lib/storage")).store;
