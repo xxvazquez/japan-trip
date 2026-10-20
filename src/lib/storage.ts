@@ -1,4 +1,5 @@
 import { get, set, del, keys } from "idb-keyval";
+import { idbStore } from "./idbStore";
 import { StorageError, isQuotaError } from "./safety/errors";
 
 /**
@@ -107,7 +108,7 @@ function migrateBack(key: string) {
   void serial(key, async () => {
     try {
       if (localStorage.getItem(PREFIX + key) !== snapshot) return;
-      await set(PREFIX + key, JSON.parse(snapshot));
+      await set(PREFIX + key, JSON.parse(snapshot), idbStore);
       markIdbSeen();
       if (localStorage.getItem(PREFIX + key) === snapshot) ls.remove(key);
     } catch { /* IndexedDB still not working — the fallback copy stays */ }
@@ -125,7 +126,7 @@ export const store: Store = {
       return local.value; // written while IndexedDB was failing — newest copy
     }
     try {
-      return (await get(PREFIX + key)) as T | undefined;
+      return (await get(PREFIX + key, idbStore)) as T | undefined;
     } catch (e) {
       if (idbSeen()) throw new StorageError("read", "Couldn't read your saved data", e);
       return undefined; // this environment has never had IndexedDB — localStorage was the only store
@@ -135,7 +136,7 @@ export const store: Store = {
   set<T>(key: string, value: T) {
     return serial(key, async () => {
       try {
-        await set(PREFIX + key, value);
+        await set(PREFIX + key, value, idbStore);
         markIdbSeen();
         ls.remove(key); // IndexedDB now holds the newest copy
         return;
@@ -151,7 +152,7 @@ export const store: Store = {
     return serial(key, async () => {
       let idbErr: unknown;
       try {
-        await del(PREFIX + key);
+        await del(PREFIX + key, idbStore);
       } catch (e) {
         idbErr = e;
       }
@@ -163,7 +164,7 @@ export const store: Store = {
   async keys() {
     let fromIdb: string[] = [];
     try {
-      fromIdb = (await keys())
+      fromIdb = (await keys(idbStore))
         .filter((x): x is string => typeof x === "string" && x.startsWith(PREFIX))
         .map((x) => x.slice(PREFIX.length));
     } catch (e) {

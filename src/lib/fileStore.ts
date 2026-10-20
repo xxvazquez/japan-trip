@@ -1,4 +1,5 @@
 import { get, set, del, keys } from "idb-keyval";
+import { idbStore } from "./idbStore";
 import { newId } from "@/lib/ids";
 
 /**
@@ -22,24 +23,24 @@ const CACHED = "file-copies";
 /** keep a copy of an attachment that lives elsewhere (storage, Drive). Copies
  *  are listed, so signing out can drop them without touching device-only files. */
 export async function putFileAs(id: string, file: Blob, { copy = false } = {}): Promise<void> {
-  await set(key(id), file);
-  if (copy) await set(CACHED, [...new Set([...((await get<string[]>(CACHED)) ?? []), id])]);
+  await set(key(id), file, idbStore);
+  if (copy) await set(CACHED, [...new Set([...((await get<string[]>(CACHED, idbStore)) ?? []), id])]);
   if (typeof window !== "undefined") window.dispatchEvent(new Event(FILES_CHANGED));
 }
 
 /** sign-out: the next account on this device mustn't find this one's files */
 export async function clearFileCopies(): Promise<void> {
-  for (const id of (await get<string[]>(CACHED)) ?? []) await del(key(id));
-  await del(CACHED);
+  for (const id of (await get<string[]>(CACHED, idbStore)) ?? []) await del(key(id), idbStore);
+  await del(CACHED, idbStore);
 }
 
 /** the ids of every attachment saved on this device */
 export async function fileIdsOnDevice(): Promise<Set<string>> {
-  const all = await keys();
+  const all = await keys(idbStore);
   return new Set(all.filter((k): k is string => typeof k === "string" && k.startsWith("file:")).map((k) => k.slice(5)));
 }
 
 /** the stored bytes, or undefined when this device doesn't have them */
 export async function getFileBlob(id: string): Promise<Blob | undefined> {
-  return get<Blob>(key(id));
+  return get<Blob>(key(id), idbStore);
 }
