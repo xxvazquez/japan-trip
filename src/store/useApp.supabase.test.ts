@@ -103,6 +103,27 @@ describe("signed-in: loading", () => {
     expect((await outbox(b.kv, id))?.ops.length).toBeGreaterThan(0); // still held for when the network returns
   });
 
+  it("opens the trip saved on the device with no signal, even with no last-open trip on record", async () => {
+    const id = await seedTrip();
+    await boot();
+    await sleep(60); // the device copy is written as the trip opens
+    const kv = (await import("@/lib/storage")).store;
+    await kv.del(STORAGE_KEYS.activeTrip); // never opened by hand on this device
+    fake.current.ctl.fail = () => ({ message: "Failed to fetch" }); // no signal
+    const b = await boot();
+    expect(b.s().bootError).toBeFalsy();
+    expect(b.s().activeId).toBe(id);
+    expect(b.s().data?.meta.title).toBe("Server trip");
+  });
+
+  it("an online launch keeps the open trip on record", async () => {
+    const id = await seedTrip();
+    const kv = (await import("@/lib/storage")).store;
+    await kv.del(STORAGE_KEYS.activeTrip);
+    await boot();
+    await until(async () => expect(await kv.get(STORAGE_KEYS.activeTrip)).toBe(id));
+  });
+
   it("refuses a trip a newer app has written", async () => {
     await seedTrip();
     rows("trips")[0].schema_version = SCHEMA_VERSION + 1;

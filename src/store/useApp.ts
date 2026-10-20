@@ -988,8 +988,23 @@ async function afterSynced(get: () => AppStore, tripId: string) {
  *  device mirror (with any unsent edits applied) and keep the ops queued for
  *  when the network returns. Returns false if there's nothing to recover from —
  *  the caller then shows the offline screen. */
+/** The trip saved on this device most recently — what a launch with no
+ *  signal opens when it doesn't know which trip was last open. */
+async function newestMirrored(): Promise<string | undefined> {
+  let best: { id: string; at: number } | undefined;
+  for (const k of await kv.keys().catch(() => [] as string[])) {
+    if (!k.startsWith("mirror:")) continue;
+    const id = k.slice("mirror:".length);
+    const m = await readMirror(id);
+    if (m && (!best || m.at > best.at)) best = { id, at: m.at };
+  }
+  return best?.id;
+}
+
 async function recoverFromOutbox(get: () => AppStore, listen: (id: string) => void): Promise<boolean> {
-  const id = await kv.get<string>(STORAGE_KEYS.activeTrip).catch(() => undefined);
+  // the last-open trip is only on record once one has been opened by hand;
+  // without it, the trip saved on the device is still there to open
+  const id = (await kv.get<string>(STORAGE_KEYS.activeTrip).catch(() => undefined)) ?? (await newestMirrored());
   if (!id) return false;
   const ob = await readOutbox(id);
   const data = await offlineData(id, ob);
@@ -1331,6 +1346,8 @@ export const useApp = create<AppStore>((set, get) => {
             }
           }
           set({ trips, activeId: id, data, loadIssue: issue, hydrated: true });
+          // keep the open trip on record, so a launch with no signal opens it
+          if (data && be.kind === "supabase") void be.setActive(id, trips).catch(() => {});
           if (data) {
             if (queue.length) commitAdopt(get, id);
             listen(id);
