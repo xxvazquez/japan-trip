@@ -45,6 +45,10 @@ export function fmtIn(min: number): string {
   return `in ${fmtMinutes(min)}`;
 }
 
+/** the day's last row: back to the hotel, or checking in on the first night */
+export const hotelEndTitle = (hotel: { name?: string }, checkIn: boolean) =>
+  `${checkIn ? "Check in at" : "Back to"} ${hotel.name || "your stay"}`;
+
 /** Today's next timed row, the way the day's plan names it — for the "Up
  *  next" pill that rides above the tab bar on every screen. Only rows with
  *  an exact time count (a loose "Around noon" can't be counted down to);
@@ -72,7 +76,7 @@ export function nextOnDay(data: TripData, date: ISODate, now: string): { day: Da
       time: st.time,
       title: st.kind === "leave" ? `Leave ${st.place || "from start"}` : `Arrive ${st.place || "at destination"}`,
     }))),
-    ...(back ? [{ time: day.backAt, title: `Back to ${back.name || "your stay"}` }] : []),
+    ...(back ? [{ time: day.backAt, title: hotelEndTitle(back, back.id !== from?.id) }] : []),
   ];
   const next = rows
     .map((r) => ({ ...r, time: clock(r.time) }))

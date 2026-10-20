@@ -79,7 +79,7 @@ import { prefetchTiles, canPrefetchTiles, dayOfflinePoints } from "@/lib/offline
 import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon, expenseCategoryForGlyph } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import { selectInSplit, useSplitCard } from "@/lib/splitSelect";
-import { fmtIn, minutesUntil, nowInDay } from "@/lib/upNext";
+import { fmtIn, hotelEndTitle, minutesUntil, nowInDay } from "@/lib/upNext";
 import { useClock, useToday } from "@/lib/useToday";
 import { buildDayPdf, buildPagePdf, mdToPlain, PDF_HREF, PDF_HIDE, PDF_KEEP, type DayPdfRow } from "@/lib/dayPdf";
 import { setExpandAll } from "@/lib/collapse";
@@ -1216,6 +1216,9 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   // With no time set it closes the day
   const backAt = returnHotel && /^\d{1,2}:\d{2}$/.test(day.backAt ?? "") ? day.backAt!.padStart(5, "0") : undefined;
   const backIdx = !returnHotel ? -1 : backAt ? stopAt(backAt) : items.length;
+  // a stay you didn't sleep in last night (an arrival, a moving day) is
+  // checked into, not gone back to
+  const checkIn = !!returnHotel && returnHotel.id !== startHotel?.id;
   // the hotel you woke up at sits where the time you leave puts it: a step
   // timed earlier (getting up, breakfast in the room) comes above it, with
   // the untimed steps that follow it. Without a time it opens the day
@@ -1268,7 +1271,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   // the plan in order, each entry with the time it starts at: a journey's
   // own rows, and each step with the way on to the next just under it — a
   // stop and its travel are one chunk, never split by a part-of-day label
-  const entries: { time?: string; nodes: React.ReactNode[]; item?: number; hotel?: boolean; morning?: boolean; print?: DayPdfRow }[] = [];
+  const entries: { time?: string; nodes: React.ReactNode[]; item?: number; hotel?: boolean; back?: boolean; morning?: boolean; print?: DayPdfRow }[] = [];
   // each step's own entry, so the way back to the hotel can hang off it
   const itemEntries: (typeof entries)[number][] = [];
   const pushStops = (sts: typeof stops) => {
@@ -1292,12 +1295,14 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
     const next = placeOf(items[i]);
     entries.push({
       time: backAt,
-      print: { time: fmtClock(day.backAt) || undefined, title: `Back to ${returnHotel.name || "your stay"}`, href: hotelHref(returnHotel), quiet: true },
+      back: true,
+      print: { time: fmtClock(day.backAt) || undefined, title: hotelEndTitle(returnHotel, checkIn), href: hotelHref(returnHotel), quiet: true },
       nodes: [
         <ReturnToHotel
           key="back-to-hotel"
           from={from}
           hotel={returnHotel}
+          checkIn={checkIn}
           time={day.backAt}
           timeStart={timeBefore(items, i)}
           readOnly={readOnly}
@@ -1453,7 +1458,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
   if (nextEntry?.item != null) {
     nextTo = placeOf(items[nextEntry.item]) ?? null;
     nextFrom = placeBefore(nextEntry.item)?.place ?? (startHotel && nextEntry.item <= leaveIdx ? hotelCoords(startHotel) : null);
-  } else if (nextEntry && returnHotel && nextEntry.print?.title.startsWith("Back to")) {
+  } else if (nextEntry?.back && returnHotel) {
     nextTo = hotelCoords(returnHotel);
     nextFrom = placeBefore(backIdx)?.place ?? null;
   }
@@ -2658,9 +2663,11 @@ function HotelRowTime({ label, time, timeStart, readOnly, onTime }: {
  *  travel (`TravelConnector`, drawn by the plan); its time is set on the wheel like a
  *  step's, and its name opens Google Maps directions (from wherever you are
  *  when the last step has no place). */
-function ReturnToHotel({ from, hotel, time, timeStart, readOnly, onTime }: {
+function ReturnToHotel({ from, hotel, checkIn, time, timeStart, readOnly, onTime }: {
   from?: Place;
   hotel: Hotel;
+  /** the first night there — you check in rather than go back */
+  checkIn: boolean;
   time?: string;
   timeStart?: string;
   readOnly: boolean;
@@ -2675,10 +2682,10 @@ function ReturnToHotel({ from, hotel, time, timeStart, readOnly, onTime }: {
     <li>
       <TimelineStop
         tile={<IconTile size="sm" glyph="hotel" tone="ink-faint" />}
-        time={<HotelRowTime label="Back at" time={time} timeStart={timeStart} readOnly={readOnly} onTime={onTime} />}
+        time={<HotelRowTime label={checkIn ? "Check in at" : "Back at"} time={time} timeStart={timeStart} readOnly={readOnly} onTime={onTime} />}
       >
-        <a href={href} target="_blank" rel="noopener" aria-label={`Directions back to ${hotel.name || "your stay"}`} className={`${STOP_TITLE} active:opacity-60`}>
-          Back to {hotel.name || "your stay"}
+        <a href={href} target="_blank" rel="noopener" aria-label={`Directions to ${hotel.name || "your stay"}`} className={`${STOP_TITLE} active:opacity-60`}>
+          {hotelEndTitle(hotel, checkIn)}
         </a>
       </TimelineStop>
     </li>

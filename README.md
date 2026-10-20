@@ -265,7 +265,7 @@ Suggestions from the trip's own saved places — nothing is looked up from outsi
 
 ### Steps
 
-The day reads as one route, like a route's stops in Maps: times in a column on the left, a thin line joining every stop, each stop's icon sitting on it. The hotel you start from, steps, journeys and the way back to the hotel all sit on that line. No hairlines between rows.
+The day reads as one route, like a route's stops in Maps: times in a column on the left, a thin line joining every stop, each stop's icon sitting on it. The hotel you start from, steps, journeys and the way back to the hotel all sit on that line. On the first night of a stay (arriving, or a moving day) that last row reads **Check in at** the new hotel instead of **Back to**. No hairlines between rows.
 
 Each step shows its name, then its note in smaller, lighter grey (folded after 2 lines, with **more**). A red line under the name only appears when it changes the plan: the step's time doesn't fit the place's hours (see below), it's marked **Overwhelming**, or it has a label of your own.
 

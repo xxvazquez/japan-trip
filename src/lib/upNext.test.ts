@@ -73,4 +73,8 @@ describe("nextOnDay", () => {
   it("is null on a day with nothing timed", () => {
     expect(nextOnDay(data, "2026-11-14", "08:00")).toBeNull();
   });
+  it("checks in, not goes back, on the first night of a stay", () => {
+    const first = { ...data, days: [{ id: "d0", date: "2026-11-14", legId: "l1", backAt: "18:00" }] } as unknown as TripData;
+    expect(nextOnDay(first, "2026-11-14", "12:00")).toMatchObject({ title: "Check in at Hotel by the river" });
+  });
 });
