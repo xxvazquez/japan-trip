@@ -580,6 +580,12 @@ The guide has two halves: **This Trip**, picked from the trip, and **Guide**, th
 - **Guide** — the cover picture, **Continue reading**, **Saved**, the contents by part, and **At a glance** last.
 - **This Trip** — On this trip, While you're there, Before you go, then Elsewhere in Japan.
 
+#### Contents
+
+- Every guide page has a **Contents** button (☰) in the nav bar, as Books does. It opens the whole guide as one list: the guide's home, the Map and Saved; the places on this trip; every chapter by part; Before you go; all places by region; and the dates through the year.
+- Where you are is highlighted and opened, and the list starts scrolled to it. Tap any row to go straight there, without stepping back through the screens in between.
+- The chevron on a row opens what's inside in place (a chapter's articles, a place's reads and day trips) and leaves the sheet up. On desktop it's a popover under the button.
+
 #### This Trip
 
 - **On this trip** — a card per city or town the trip touches, matched from its stays, bases and pins (a day trip to Uji or Kurama shows up without a stay there). Stays come first, marked **Staying**, with their day-trip count.
@@ -628,7 +634,7 @@ The book reads in order, in five parts, with chapters numbered straight through.
 - Visual blocks: an **era band** (spans to scale — tap or drag along it, or step with the arrows), a **pull quote** (a line from the read itself), **What's known** (Settled / Revised / Still argued), a side-by-side **compare**, a **photo pair**, and **Go deeper** panels that open in place.
 - Tap a small source number and that source opens in a sheet (a popover on desktop) with what it backs up and **Open Link**. All sources also sit folded and numbered at the foot.
 - Every article in both halves, every yearly date and every city card cites at least one source. No photo appears twice anywhere in the guide — every chapter, city and read has its own (`links.test.ts` checks it).
-- **Bookmark**, **Share** and **⋯** sit in the nav bar. Share opens the phone's share sheet; on desktop Chrome it copies the link (the button turns into a tick).
+- **Contents**, **Bookmark**, **Share** and **⋯** sit in the nav bar. Share opens the phone's share sheet; on desktop Chrome it copies the link (the button turns into a tick).
 - **Read by reading** — reaching the end of an article marks it read, as Books keeps your place. To change it by hand: **⋯ → Mark as Read / Mark as Unread** in the bar, or hold a row (right-click on a computer). Read articles get a green tick on their row, and a chapter page says how many of its articles you've read.
 - Read marks, bookmarks and Continue reading are kept on this device only, not synced.
 - An article ends the way Apple News closes a story: its **sources**, then **Up next** as one big picture card (**Next chapter** at a chapter's end), then **Related**: its own related reads, the reads that point at it, then the city notes that do, each captioned with its chapter or place. Three show, with **Show All** for the rest.

@@ -16,6 +16,7 @@ import { Compare, Eras, Evidence, Figures, Pull } from "@/components/GuideVisual
 import { ReadingActions, ReadMenuItem, ReadTick, ReadWhenFinished, useProgress } from "@/components/GuideReading";
 import { renamePaths, useReadSet, useSaved, type SavedEntry } from "@/lib/guideReading";
 import { ContextMenu } from "@/components/ContextMenu";
+import { GuideContentsButton } from "@/components/GuideContents";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { useData } from "@/lib/data";
 import { guideTopicColor } from "@/lib/tones";
@@ -116,6 +117,7 @@ export function GuideHome() {
       {/* pinned to the tab bar, the guide is a tab of its own — a root, with
           no back button */}
       <PageHeader back={pinned ? undefined : "/logbook"} title={guide.name} meta={guide.local} className="mb-4" />
+      <GuideContentsButton />
       <SegmentedControl
         className="mb-6"
         value={view}
@@ -484,6 +486,7 @@ export function GuideTopicPage() {
   return (
     <Page width="form">
       <PageHeader back={guidePath(guide)} backLabel={guide.name} backTitle={topic.short} eyebrow={chapterLabel(guide, topic)} title={topic.title} className="!mb-3" />
+      <GuideContentsButton />
       <p className="mb-2 break-words text-[17px] leading-[1.45] text-ink-soft">{topic.summary}</p>
       {progress}
       <div className="space-y-6">
@@ -553,6 +556,7 @@ export function GuideCityPage() {
   return (
     <Page width="form">
       <PageHeader back={guidePath(guide)} backLabel={guide.name} backTitle={city.short} title={city.name} meta={city.local} className="mb-6" />
+      <GuideContentsButton />
       <div className="space-y-6">
         <Hero fallback={cityFallback(guide, city)} />
         {/* the place's facts in one grouped list, the way Maps puts a
@@ -783,6 +787,7 @@ export function GuideMapPage() {
   return (
     <Page width="reading">
       <PageHeader back={home} backLabel={guide.name} title="Map" meta={`${map.areas.length} ${map.unit.many} in ${byRegion.length} regions`} className="mb-6" />
+      <GuideContentsButton />
       <div className="space-y-6">
         <div ref={frame} className="-mx-5 overflow-hidden sm:mx-0 sm:rounded-[12px]">
           <GuideMap
@@ -849,6 +854,7 @@ export function GuideDayTripsPage() {
   return (
     <Page width="form">
       <PageHeader back={`${guidePath(guide)}/place/${city.id}`} backLabel={city.short ?? city.name} backTitle="Day trips" title={`Day trips from ${city.name}`} meta="Off the usual list, by train or bus" className="mb-6" />
+      <GuideContentsButton />
       <Section>
         <ul>
           {dayTripArticles(city).map((r) => (

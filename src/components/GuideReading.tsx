@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useParams } from "react-router-dom";
 import { Icon } from "./Icon";
 import { ActionSheet, useActionSheet } from "./ActionSheet";
+import { GuideContentsButton } from "./GuideContents";
 import { setRead, setSaved, useReadSet, useSaved, type SavedEntry } from "@/lib/guideReading";
 
 /** The reader's tools on a guide article, kept per device: save it, share
@@ -12,7 +13,7 @@ import { setRead, setSaved, useReadSet, useSaved, type SavedEntry } from "@/lib/
  *  the ⋯ menu (and a row's long-press) is where you change it by hand, as
  *  Podcasts keeps Mark as Played in its menu. */
 
-/** Bookmark and Share — a glass capsule in the nav bar's `#nav-actions`
+/** Contents, Bookmark and Share — a glass capsule in the nav bar's `#nav-actions`
  *  slot, beside the account button. */
 export function ReadingActions({ entry }: { entry: SavedEntry }) {
   const { guide } = useParams();
@@ -47,6 +48,7 @@ export function ReadingActions({ entry }: { entry: SavedEntry }) {
   const btn = "grid h-10 w-10 place-items-center rounded-full transition-colors hover:text-accent";
   return createPortal(
     <div className="glass flex h-11 items-center rounded-full px-0.5 text-ink">
+      <GuideContentsButton inline />
       <button
         type="button"
         className={btn}
