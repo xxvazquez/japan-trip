@@ -65,7 +65,16 @@ export function GuideContents({ onPick }: { onPick?: () => void }) {
   if (!guide) return null;
   const go = (to: string) => {
     onPick?.();
-    if (to !== pathname) navigate(to);
+    if (to === pathname) return;
+    // the sheet's own history entry is stepped back over as it closes;
+    // navigating before that lands would leave it under the new page, where
+    // a jump back through the history trips over it
+    const push = (tries: number) => {
+      if (history.state?.sheet && tries > 0) return void setTimeout(() => push(tries - 1), 30);
+      navigate(to);
+    };
+    if (onPick) setTimeout(() => push(40), 0);
+    else navigate(to);
   };
   const toggle = (key: string) => setOpen((s) => {
     const n = new Set(s);

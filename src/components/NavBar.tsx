@@ -290,12 +290,15 @@ export function NavLeft() {
           className="menu-item"
           onClick={() => {
             // the open menu holds a history entry of its own, stepped back
-            // over as it closes: jump once that has landed, or the two
-            // traversals collide and only one step is taken
-            // (a tap can close the menu before its click lands, so ask the
-            // history, not the open sheets)
-            if (sheetEntries() || history.state?.sheet) window.addEventListener("popstate", () => setTimeout(() => go(-it.steps), 0), { once: true });
-            else go(-it.steps);
+            // over as it closes: jump only once that has landed, or the two
+            // traversals collide and WebKit takes just one step. Polling the
+            // entry (not waiting on an event) works whichever order the
+            // close and the click arrive in.
+            const jump = (tries: number) => {
+              if (history.state?.sheet && tries > 0) return void setTimeout(() => jump(tries - 1), 30);
+              go(-it.steps);
+            };
+            setTimeout(() => jump(40), 0);
           }}
         >
           <span className="min-w-0 flex-1 break-words">{it.title}</span>
