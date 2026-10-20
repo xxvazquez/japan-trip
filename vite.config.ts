@@ -188,7 +188,9 @@ export default defineConfig(({ command, mode }) => ({
         // no signal from the first launch and right after an update: `mjs` is
         // the PDF viewer's worker, `pdfjs/` its fonts and character maps, and
         // the supabase chunk is in too (signed in, it loads on every launch)
-        globPatterns: ["**/*.{js,mjs,css,html,woff2,svg}", "pdfjs/**/*", "guide/**/*.jpg"],
+        // the trip logo and favicon too — the Offline and error screens show
+        // the logo, and they're exactly the screens seen with no signal
+        globPatterns: ["**/*.{js,mjs,css,html,woff2,svg}", "pdfjs/**/*", "guide/**/*.jpg", "brand/*.png", "favicon.png"],
         globIgnores: ["pdfjs/**/LICENSE*"],
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         navigateFallback: "/index.html",
