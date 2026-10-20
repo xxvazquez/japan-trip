@@ -138,9 +138,51 @@ export function GuideMap({
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const gesture = useRef({ moved: 0, start: 0, lastTap: 0, lastX: 0, lastY: 0 });
   const pendingTap = useRef(0);
+  /** the drag's last moves, for the speed it's let go at; cleared by a pinch,
+   *  which ends where it's left rather than gliding on */
+  const trail = useRef<{ x: number; y: number; t: number }[]>([]);
+  /** a glide is running — a touch that stops it isn't also a tap */
+  const gliding = useRef(false);
+  const pinched = useRef(false);
   const local = (e: { clientX: number; clientY: number }) => {
     const r = box.current!.getBoundingClientRect();
     return { x: e.clientX - r.left, y: e.clientY - r.top };
+  };
+
+  /** let go mid-drag and the map glides on and eases to a stop, as Maps
+   *  does — slowing a little quicker than a scroll list (0.995 a
+   *  millisecond, between UIKit's normal and fast rates), so a flick on a
+   *  zoomed-in country doesn't carry it off into empty sea */
+  const glide = () => {
+    const pts = trail.current;
+    trail.current = [];
+    const last = pts[pts.length - 1];
+    if (pts.length < 2 || performance.now() - last.t > 60) return;
+    const first = pts[0];
+    const dt = Math.max(last.t - first.t, 1);
+    let vx = (last.x - first.x) / dt;
+    let vy = (last.y - first.y) / dt;
+    if (Math.hypot(vx, vy) < 0.25) return;
+    let t0 = performance.now();
+    const step = (now: number) => {
+      const ms = Math.min(now - t0, 32);
+      t0 = now;
+      const before = viewRef.current;
+      const next = clamp({ ...before, tx: before.tx + vx * ms, ty: before.ty + vy * ms });
+      // against an edge that axis stops, as the map can't be dragged off
+      if (next.tx === before.tx) vx = 0;
+      if (next.ty === before.ty) vy = 0;
+      viewRef.current = next;
+      setView(next);
+      const k = Math.pow(0.995, ms);
+      vx *= k;
+      vy *= k;
+      if (Math.hypot(vx, vy) > 0.02) anim.current = requestAnimationFrame(step);
+      else gliding.current = false;
+    };
+    cancelAnimationFrame(anim.current);
+    gliding.current = true;
+    anim.current = requestAnimationFrame(step);
   };
 
   const onPointerDown = (e: React.PointerEvent) => {
@@ -148,13 +190,17 @@ export function GuideMap({
     // a finger from the screen's left edge is going back, not panning
     if (e.pointerType === "touch" && !pointers.current.size && startsBackSwipe(e.clientX)) return;
     cancelAnimationFrame(anim.current);
+    const caught = gliding.current;
+    gliding.current = false;
     try {
       box.current!.setPointerCapture(e.pointerId);
     } catch {
       /* a pointer the browser no longer tracks */
     }
     pointers.current.set(e.pointerId, local(e));
-    if (pointers.current.size === 1) gesture.current = { ...gesture.current, moved: 0, start: performance.now() };
+    if (pointers.current.size === 1) gesture.current = { ...gesture.current, moved: caught ? 100 : 0, start: performance.now() };
+    trail.current = pointers.current.size === 1 ? [{ ...local(e), t: performance.now() }] : [];
+    if (pointers.current.size === 1) pinched.current = false;
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
@@ -165,6 +211,10 @@ export function GuideMap({
     if (ps.size === 1) {
       gesture.current.moved += Math.abs(p.x - prev.x) + Math.abs(p.y - prev.y);
       ps.set(e.pointerId, p);
+      if (!pinched.current) {
+        const now = performance.now();
+        trail.current = [...trail.current.filter((s) => now - s.t < 100), { ...p, t: now }];
+      }
       setView((v) => clamp({ ...v, tx: v.tx + p.x - prev.x, ty: v.ty + p.y - prev.y }));
       return;
     }
@@ -175,6 +225,8 @@ export function GuideMap({
     const m0 = { x: (prev.x + other.x) / 2, y: (prev.y + other.y) / 2 };
     const m1 = { x: (p.x + other.x) / 2, y: (p.y + other.y) / 2 };
     gesture.current.moved += 100;
+    trail.current = [];
+    pinched.current = true;
     ps.set(e.pointerId, p);
     setView((v) => {
       const z = zoomAbout(v, d0 ? d1 / d0 : 1, m0.x, m0.y);
@@ -188,6 +240,7 @@ export function GuideMap({
     const p = local(e);
     ps.delete(e.pointerId);
     const g = gesture.current;
+    if (!ps.size && g.moved > 8) glide();
     if (ps.size || g.moved > 8 || performance.now() - g.start > 500) return;
     const now = performance.now();
     if (now - g.lastTap < DOUBLE_TAP && Math.hypot(p.x - g.lastX, p.y - g.lastY) < 30) {
