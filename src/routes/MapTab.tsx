@@ -45,7 +45,7 @@ import { WalkLine } from "@/components/WalkLine";
 import { ChipStrip } from "@/components/ChipStrip";
 import { categoryName, glyphPath } from "@/lib/mapGlyphs";
 import { neighbourhoodAreas, usePlaceLevels } from "@/lib/neighbourhood";
-import { placeColor, placeTile, AREA_TONES, NEUTRAL_TONE } from "@/lib/tones";
+import { placeColor, placeTile, AREA_TONES, NEUTRAL_TONE, type LogbookTile } from "@/lib/tones";
 import { byAreaName, canonicalLegs, cityNear } from "@/lib/cityAssign";
 import { useCityAnchors, useTripCities } from "@/lib/cityCoords";
 import { DEFAULT_ACCENT } from "@/lib/themePresets";
@@ -821,6 +821,35 @@ export default function MapTab() {
   const [basePois, setBasePois] = useState(loadBasePois);
   const toggleBasePois = (on: boolean) => { setBasePois(on); saveBasePois(on); };
   const [selected, setSelected] = useState<string | null>(null);
+  /** the place whose pin is being moved — Maps' Move Pin: the map slides
+   *  under a fixed pin until Done */
+  const [moving, setMoving] = useState<string | null>(null);
+  /** where Move Pin flies once the map can — it may have been hidden
+   *  (list-only) and never laid out, or not loaded yet */
+  const moveTo = useRef<{ lat: number; lng: number } | null>(null);
+  /** the map has arrived on the pin — until then the centre is somewhere
+   *  else, and Done would save that */
+  const [moveReady, setMoveReady] = useState(false);
+  const moveRun = useRef(0);
+  useEffect(() => {
+    if (!moving || !mapReady || !moveTo.current) return;
+    const at = moveTo.current;
+    moveTo.current = null;
+    // after the selection's own fly-to, and after a hidden map is shown:
+    // measure it again first, or it keeps the size it had while hidden
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const m = map.current;
+      if (!m) return;
+      m.resize();
+      m.easeTo({ center: [at.lng, at.lat], zoom: Math.max(m.getZoom(), 17), duration: 500 });
+      // the ease's end; a map already there may not move at all. Only for
+      // this move — a cancelled one's timer mustn't wake the next
+      const run = moveRun.current;
+      const arrived = () => { if (moveRun.current === run) setMoveReady(true); };
+      m.once("moveend", arrived);
+      setTimeout(arrived, 800);
+    }));
+  }, [moving, mapReady]);
   /** the header's ⋯ menu — list/map, filters, area upkeep, sync */
   const moreSheet = useActionSheet();
   /** md and up, where the side column shows the list instead of the sheet.
@@ -1463,6 +1492,30 @@ export default function MapTab() {
   // bare to `.map()` elsewhere: Array.map's own (item, index) callback shape
   // silently satisfies `(p, distanceKm?)` and the row index gets typeset as a
   // distance ("row 2" → "2.0 km"). Always wrap it: `.map((p) => renderRow(p))`.
+  // Move Pin: the card stays the selected place; the map centres on its pin
+  // at street level (the effect up top)
+  const startMove = (p: Place) => {
+    setPoi(null);
+    setMapMenu(null);
+    setSelected(p.id);
+    moveTo.current = { lat: p.lat, lng: p.lng };
+    moveRun.current++;
+    setMoveReady(false);
+    setMoving(p.id);
+  };
+  // the new spot is the map's centre, where the pin's tip sits; the old
+  // OpenStreetMap match described the old spot, so it goes with it
+  const finishMove = (save: boolean) => {
+    const id = moving;
+    const m = map.current;
+    setMoving(null);
+    if (!save || !id || !m || !moveReady) return;
+    const c = m.getCenter();
+    const lat = Math.round(c.lat * 1e7) / 1e7;
+    const lng = Math.round(c.lng * 1e7) / 1e7;
+    undoable("Pin moved", () => updateEntity<Place>("places", id, { lat, lng, osm: undefined }));
+  };
+
   const renderRow = (p: Place, distanceKm?: number, card = false, nest?: "mid" | "end", stop?: number) => (
     <PlaceRow
       key={p.id}
@@ -1502,6 +1555,7 @@ export default function MapTab() {
           color: data.places.find((x) => x.category === category && x.id !== p.id)?.color ?? p.color,
         });
       }}
+      onMovePin={readOnly ? undefined : () => startMove(p)}
       onRemove={() => undoable("Place deleted", () => {
         removeEntity("places", p.id);
         if (selected === p.id) setSelected(null);
@@ -1518,6 +1572,7 @@ export default function MapTab() {
   // its list for a place card — the list stays as it was underneath, and ✕
   // brings it back scrolled to where it was, the row still in its place.
   const selectedPlace = selected ? data.places.find((p) => p.id === selected) : undefined;
+  const movingPlace = moving ? data.places.find((p) => p.id === moving) : undefined;
   // each list's scroll offset, per panel, put back when it comes back
   const listProps = (forMobile: boolean) => {
     const k = forMobile ? "m" : "d";
@@ -2016,9 +2071,10 @@ export default function MapTab() {
     >
       {/* map — hidden, not unmounted, in list-only view: keeps its instance
           (viewport, loaded tiles) alive for an instant toggle back */}
-      <div className={`absolute inset-0 md:left-[var(--panel-w)] ${listOnly ? "hidden" : ""}`}>
+      <div className={`absolute inset-0 md:left-[var(--panel-w)] ${listOnly && !moving ? "hidden" : ""}`}>
         <MapView
-          places={onMap}
+          // the pin being moved is drawn by the overlay, fixed at the centre
+          places={moving ? onMap.filter((p) => p.id !== moving) : onMap}
           selectedId={selected}
           derivedIds={derivedIds}
           route={dayRoute?.ids}
@@ -2029,12 +2085,13 @@ export default function MapTab() {
           categoryColors={data.config.categoryColors}
           dark={dark}
           // a stay's pin opens the stay, as its row does on the Plan
-          onSelect={(id) => { const stay = stayIdOfPin(id); if (stay) nav(`/hotel/${stay}`, { viewTransition: true }); else setSelected(id); }}
-          onMapClick={onMapClick}
-          onLongPress={onLongPress}
-          onPoiClick={onPoiClick}
-          onContextMenu={(at) => { setPoi(null); setMapMenu(at); }}
-          coverBottom={wide || listOnly ? 0 : halfStopPx}
+          // while a pin moves, the map only pans and zooms
+          onSelect={(id) => { if (moving) return; const stay = stayIdOfPin(id); if (stay) nav(`/hotel/${stay}`, { viewTransition: true }); else setSelected(id); }}
+          onMapClick={(lat, lng) => { if (!moving) onMapClick(lat, lng); }}
+          onLongPress={(lat, lng) => { if (!moving) onLongPress(lat, lng); }}
+          onPoiClick={(p) => { if (!moving) onPoiClick(p); }}
+          onContextMenu={(at) => { if (moving) return; setPoi(null); setMapMenu(at); }}
+          coverBottom={moving || wide || listOnly ? 0 : halfStopPx}
           onReady={(m) => {
             map.current = m;
             setMapReady(true); // fits the scope (the effect above) with this render's values, not the mount's
@@ -2090,15 +2147,25 @@ export default function MapTab() {
             Adding a place — search, or tap the map
           </div>
         )}
+        {movingPlace && (
+          <MovePin
+            map={map}
+            tile={placeTile(movingPlace, data.config.categoryIcons, data.config.categoryColors)}
+            ready={moveReady}
+            onCancel={() => finishMove(false)}
+            onDone={() => finishMove(true)}
+          />
+        )}
       </div>
 
       {/* desktop column — full width, no resize handle, in list-only view */}
       <div
         ref={panelRef}
-        className={`absolute left-0 top-0 bottom-0 z-10 hidden bg-bg md:block ${listOnly ? "md:w-full" : "border-r border-line md:w-[var(--panel-w)]"}`}
+        className={`absolute left-0 top-0 bottom-0 z-10 hidden bg-bg md:block ${listOnly && !moving ? "md:w-full" : "border-r border-line md:w-[var(--panel-w)]"} ${moving ? "pointer-events-none opacity-50" : ""}`}
+        aria-hidden={moving ? true : undefined}
       >
         {renderPanel(false)}
-        {!listOnly && (
+        {!(listOnly && !moving) && (
           <div
             onPointerDown={onPanelHandlePointerDown}
             onPointerMove={onPanelHandlePointerMove}
@@ -2123,7 +2190,9 @@ export default function MapTab() {
       <div
         ref={sheetRef}
         style={listOnly ? undefined : { height: `${sheetHeight}px` }}
-        className={`absolute inset-x-0 z-10 flex flex-col bg-bg md:hidden ${listOnly ? "inset-y-0" : "bottom-0 overflow-hidden rounded-t-[28px] shadow-[0_-6px_24px_rgb(var(--c-ink)/0.12)]"} ${dragging ? "" : "transition-[height] duration-200 ease-paper"}`}
+        className={`absolute inset-x-0 z-10 flex flex-col bg-bg md:hidden ${listOnly ? "inset-y-0" : "bottom-0 overflow-hidden rounded-t-[28px] shadow-[0_-6px_24px_rgb(var(--c-ink)/0.12)]"} ${dragging ? "" : "transition-[height,transform] duration-200 ease-paper"} ${moving ? "pointer-events-none translate-y-[calc(100%+2rem)]" : ""}`}
+        // put away while a pin moves, so the whole map is there to drag
+        aria-hidden={moving ? true : undefined}
       >
         {!listOnly && (
           <button
@@ -2141,6 +2210,75 @@ export default function MapTab() {
         <div className="min-h-0 flex-1">{renderPanel(true)}</div>
       </div>
     </div>
+  );
+}
+
+/** Maps' Move Pin: the place's pin fixed at the centre of the map, its tip
+ *  on the exact spot, while the map pans and zooms under it. The pin lifts
+ *  while the map moves and settles when it stops, as Maps' does; the hint
+ *  floats on top, Cancel and Done float at the foot like an iOS 26 toolbar.
+ *  Esc and Return do the same on a keyboard. */
+function MovePin({
+  map,
+  tile,
+  ready,
+  onCancel,
+  onDone,
+}: {
+  map: RefObject<MLMap | null>;
+  tile: LogbookTile & { glyph?: string };
+  /** the map is on the pin — Done waits for it */
+  ready: boolean;
+  onCancel: () => void;
+  onDone: () => void;
+}) {
+  const [lifted, setLifted] = useState(false);
+  useEffect(() => {
+    const m = map.current;
+    if (!m) return;
+    const up = () => setLifted(true);
+    const down = () => setLifted(false);
+    m.on("movestart", up);
+    m.on("moveend", down);
+    return () => { m.off("movestart", up); m.off("moveend", down); };
+  }, [map]);
+  const keys = useRef({ onCancel, onDone, ready });
+  keys.current = { onCancel, onDone, ready };
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") keys.current.onCancel();
+      else if (e.key === "Enter" && keys.current.ready) keys.current.onDone();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+  return (
+    <>
+      {/* the shadow stays on the spot; the pin rises off it while the map moves */}
+      <span aria-hidden className={`pointer-events-none absolute left-1/2 top-1/2 h-1.5 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/30 blur-[1px] transition-transform duration-200 ease-paper ${lifted ? "scale-75" : ""}`} />
+      <span
+        aria-hidden
+        className={`pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 flex-col items-center transition-transform duration-200 ease-spring ${lifted ? "-translate-y-[calc(100%+8px)]" : "-translate-y-full"}`}
+      >
+        <span className="rounded-full shadow-[0_2px_6px_rgb(0_0_0/0.3)] ring-[2.5px] ring-white">
+          <IconTile {...tile} className="!h-9 !w-9 !rounded-full" />
+        </span>
+        <span className="h-3.5 w-[2px] rounded-b-full bg-ink/70" />
+      </span>
+      <div className="pointer-events-none absolute inset-x-0 top-3 flex justify-center px-20">
+        <span className="glass rounded-full px-3.5 py-1.5 text-center text-xs text-ink">Drag the map to move the pin</span>
+      </div>
+      {/* the two ends of a toolbar on a phone; side by side on a wide map,
+          not a whole screen apart */}
+      <div className="absolute inset-x-0 bottom-[var(--tabbar-clear)] flex justify-between gap-3 px-4 md:bottom-6 md:justify-center">
+        <button type="button" onClick={onCancel} className="glass rounded-full px-5 py-2.5 text-[15px] text-ink active:opacity-70">
+          Cancel
+        </button>
+        <button type="button" onClick={onDone} disabled={!ready} className="rounded-full bg-accent px-5 py-2.5 text-[15px] font-medium text-white shadow-[0_2px_10px_rgb(0_0_0/0.18)] transition-opacity active:opacity-80 disabled:opacity-40">
+          Done
+        </button>
+      </div>
+    </>
   );
 }
 
@@ -2175,6 +2313,7 @@ function PlaceRow({
   onToggleArea,
   onLeg,
   onCategory,
+  onMovePin,
   onRemove,
 }: {
   place: Place;
@@ -2212,6 +2351,8 @@ function PlaceRow({
   onToggleArea: (areaId: string) => void;
   onLeg: (legId: string | undefined) => void;
   onCategory: (category: string) => void;
+  /** Maps' Move Pin — absent when read-only */
+  onMovePin?: () => void;
   onRemove: () => void;
 }) {
   const city = place.legId ? cityOf.get(place.legId) ?? place.legId : "";
@@ -2410,11 +2551,13 @@ function PlaceRow({
               { key: "share", icon: "share", label: copied ? "Copied" : "Share", run: () => void share() },
               !website && { key: "search", icon: "search", label: "Search Web", href: searchHref },
             ].filter(Boolean) as Act[];
+            // only ever in More, as Maps keeps Move Pin out of the button row
+            const menuOnly: Act[] = onMovePin ? [{ key: "move", icon: "pin", label: "Move Pin", run: () => { moreSheet.setOpen(false); onMovePin(); } }] : [];
             const dayBtn = !!day || (!readOnly && sortedDays.length > 0);
             // four across: Google Maps, the day, More, and what's left between
             const room = 4 - (link ? 1 : 0) - (dayBtn ? 1 : 0);
-            const fits = extras.length <= room ? extras : extras.slice(0, room - 1);
-            const over = extras.slice(fits.length);
+            const fits = extras.length <= room && !menuOnly.length ? extras : extras.slice(0, room - 1);
+            const over = [...extras.slice(fits.length), ...menuOnly];
             const ext = { target: "_blank", rel: "noopener" };
             return (
               <>
@@ -2523,6 +2666,11 @@ function PlaceRow({
                 <a href={reviewHref(reviewSite, place)} target="_blank" rel="noopener" className="menu-item">
                   <Icon name="link" size={16} /> {place.reviewUrl ? `Open in ${reviewSite.label}` : `Search ${reviewSite.label}`}
                 </a>
+              )}
+              {onMovePin && (
+                <button type="button" className="menu-item" onClick={onMovePin}>
+                  <Icon name="pin" size={16} /> Move Pin
+                </button>
               )}
               {!readOnly && <ConfirmMenuItem onConfirm={onRemove} label="Delete Place" icon={<Icon name="trash" size={16} />} />}
             </>
