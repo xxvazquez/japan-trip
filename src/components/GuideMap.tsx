@@ -13,6 +13,8 @@ export interface MapCity {
   people: number;
   /** a stay or a pin of this trip is here */
   onTrip: boolean;
+  /** the trip stays here — named before anywhere it only passes through */
+  stay?: boolean;
   to: string;
   /** the division it's in */
   area?: number;
@@ -298,7 +300,7 @@ export function GuideMap({
   }, [map, regions]);
 
   const placed = (() => {
-    type L = { key: string; text: string; x: number; y: number; kind: "city" | "area" | "region"; city?: MapCity; dot?: { x: number; y: number }; size: number; end?: boolean };
+    type L = { key: string; text: string; x: number; y: number; kind: "city" | "area" | "region"; city?: MapCity; dot?: { x: number; y: number }; size: number; anchor?: "start" | "middle" | "end"; box?: { x0: number; y0: number; x1: number; y1: number } };
     const out: L[] = [];
     // the zoom buttons' corner is kept clear, so no name hides under them
     const taken: { x0: number; y0: number; x1: number; y1: number }[] = [{ x0: size.w - 60, y0: size.h - 104, x1: size.w, y1: size.h }];
@@ -310,15 +312,27 @@ export function GuideMap({
       if (!p) return;
       const d = toScreen(p.x, p.y);
       const w = width(c.name, 13, false);
-      // the name sits right of its dot, or left where the right is taken,
-      // as Maps flips a label at the edge of the screen
-      const right = { x0: d.x - 4, y0: d.y - 9, x1: d.x + 8 + w, y1: d.y + 9 };
-      const left = { x0: d.x - 8 - w, y0: d.y - 9, x1: d.x + 4, y1: d.y + 9 };
-      const b = fits(right) ? right : fits(left) ? left : undefined;
-      if (!b) return;
-      taken.push(b);
-      const end = b === left;
-      out.push({ key: `c${c.id}`, text: c.name, x: end ? d.x - 7 : d.x + 7, y: d.y, kind: "city", city: c, dot: d, size: 13, end });
+      // the name sits right of its dot, else left, above or below — the
+      // first that's free, as Maps moves a pin's label rather than drop it
+      const spots = [
+        { b: { x0: d.x - 4, y0: d.y - 9, x1: d.x + 8 + w, y1: d.y + 9 }, x: d.x + 7, y: d.y, anchor: "start" as const },
+        { b: { x0: d.x - 8 - w, y0: d.y - 9, x1: d.x + 4, y1: d.y + 9 }, x: d.x - 7, y: d.y, anchor: "end" as const },
+        { b: { x0: d.x - w / 2 - 2, y0: d.y - 25, x1: d.x + w / 2 + 2, y1: d.y + 4 }, x: d.x, y: d.y - 14, anchor: "middle" as const },
+        { b: { x0: d.x - w / 2 - 2, y0: d.y - 4, x1: d.x + w / 2 + 2, y1: d.y + 25 }, x: d.x, y: d.y + 14, anchor: "middle" as const },
+      ];
+      const spot = spots.find((sp) => fits(sp.b));
+      if (!spot) {
+        // where the trip stays keeps its dot when there's no room for its
+        // name, as Maps keeps a pin and hides only the label; zoom names it.
+        // A day-trip stop in a crowd steps aside, as Maps' minor pins do
+        if (!c.stay) return;
+        const b = { x0: d.x - 5, y0: d.y - 5, x1: d.x + 5, y1: d.y + 5 };
+        taken.push(b);
+        out.push({ key: `c${c.id}`, text: "", x: d.x, y: d.y, kind: "city", city: c, dot: d, size: 13, box: b });
+        return;
+      }
+      taken.push(spot.b);
+      out.push({ key: `c${c.id}`, text: c.name, x: spot.x, y: spot.y, kind: "city", city: c, dot: d, size: 13, anchor: spot.anchor, box: spot.b });
     };
     const named = (name: string) => out.some((l) => l.kind === "city" && l.text.toLowerCase() === name.toLowerCase());
     const tryArea = (code: number) => {
@@ -335,7 +349,9 @@ export function GuideMap({
       out.push({ key: `a${code}`, text, x: d.x, y: d.y, kind: "area", size: 10.5 });
     };
     const byPeople = [...cities].sort((a, b) => b.people - a.people);
-    byPeople.filter((c) => c.onTrip).forEach(tryCity);
+    // the trip's own places first: where it stays, then where it goes
+    byPeople.filter((c) => c.stay).forEach(tryCity);
+    byPeople.filter((c) => c.onTrip && !c.stay).forEach(tryCity);
     // the selected division's own places, then its name where there's room
     if (selected != null) {
       byPeople.filter((c) => !c.onTrip && c.area === selected).forEach(tryCity);
@@ -408,9 +424,9 @@ export function GuideMap({
             l.kind === "city" ? (
               <g key={l.key} data-city={l.city!.to} className="cursor-pointer">
                 {/* a generous invisible target, as a map pin has */}
-                <rect x={l.end ? l.dot!.x - l.text.length * 7.3 - 14 : l.dot!.x - 10} y={l.dot!.y - 12} width={l.text.length * 7.3 + 24} height={24} fill="transparent" />
+                <rect x={Math.min(l.box!.x0, l.dot!.x - 10)} y={Math.min(l.box!.y0, l.dot!.y - 12)} width={Math.max(l.box!.x1, l.dot!.x + 10) - Math.min(l.box!.x0, l.dot!.x - 10)} height={Math.max(l.box!.y1, l.dot!.y + 12) - Math.min(l.box!.y0, l.dot!.y - 12)} fill="transparent" />
                 <circle cx={l.dot!.x} cy={l.dot!.y} r={l.city!.onTrip ? 4.5 : 3.5} className={l.city!.onTrip ? "fill-accent stroke-surface" : "fill-ink-soft stroke-surface"} strokeWidth={1.5} />
-                <text x={l.x} y={l.y} dy="0.35em" fontSize={l.size} textAnchor={l.end ? "end" : undefined} className={`stroke-surface ${l.city!.onTrip ? "fill-accent font-medium" : "fill-ink"}`} style={halo}>
+                <text x={l.x} y={l.y} dy="0.35em" fontSize={l.size} textAnchor={l.anchor} className={`stroke-surface ${l.city!.onTrip ? "fill-accent font-medium" : "fill-ink"}`} style={halo}>
                   {l.text}
                 </text>
               </g>

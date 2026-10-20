@@ -802,7 +802,7 @@ export function GuideMapPage() {
   const select = (code: number | undefined) => setParams(code ? { p: String(code) } : {}, { replace: true });
   const area = map.areas.find((a) => a.code === selected);
   const trip = new Set([...onTrip.stays, ...onTrip.others].map((c) => c.id));
-  const cities: MapCity[] = guide.cities.map((c) => ({ id: c.id, name: c.short ?? c.name, lat: c.lat, lng: c.lng, people: peopleIn(c), onTrip: trip.has(c.id), to: `${home}/place/${c.id}`, area: areaAt(map, c.lat, c.lng)?.code }));
+  const cities: MapCity[] = guide.cities.map((c) => ({ id: c.id, name: c.short ?? c.name, lat: c.lat, lng: c.lng, people: peopleIn(c), onTrip: trip.has(c.id), stay: onTrip.stays.includes(c), to: `${home}/place/${c.id}`, area: areaAt(map, c.lat, c.lng)?.code }));
   const regions = guide.regions ?? [];
   const byRegion = regions.map((r) => [r, map.areas.filter((a) => a.region === r)] as const).filter(([, list]) => list.length);
 
