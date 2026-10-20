@@ -147,6 +147,13 @@ export function installPageTransitions(router: ReturnType<typeof createBrowserRo
  * forward again, the page underneath never shown.
  * ------------------------------------------------------------------ */
 
+/** A touch this close to the left edge, with somewhere to go back to,
+ *  belongs to the edge swipe — a surface that pans itself (a map) leaves
+ *  it alone, as an iOS map yields to the back gesture. */
+export function startsBackSwipe(x: number): boolean {
+  return x <= 24 && (window.history.state?.idx ?? 0) > 0;
+}
+
 export interface BackSwipe {
   /** how far across the screen the page has been dragged, 0–1 */
   move(progress: number): void;

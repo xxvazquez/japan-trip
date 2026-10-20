@@ -19,7 +19,7 @@ import { useAutoHotelCoords, useAutoTripTimeZone } from "@/lib/hotelCoords";
 import { useResumeWhereLeft } from "@/lib/resume";
 import { useScrollMemory } from "@/lib/scrollMemory";
 import { useMergeDuplicates } from "@/lib/dedupe";
-import { startBackSwipe, usePageCommit, type BackSwipe } from "@/lib/pageTransition";
+import { startBackSwipe, startsBackSwipe, usePageCommit, type BackSwipe } from "@/lib/pageTransition";
 
 export function AppShell() {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -57,7 +57,7 @@ export function AppShell() {
     const start = (e: TouchEvent) => {
       if (e.touches.length !== 1) return;
       const first = e.touches[0];
-      if (first.clientX > 24 || (window.history.state?.idx ?? 0) <= 0) return;
+      if (!startsBackSwipe(first.clientX)) return;
       // the page this lands on is swapped out mid-drag, and a removed
       // element's touches no longer bubble up to the document: listen on
       // the element itself, which keeps getting them

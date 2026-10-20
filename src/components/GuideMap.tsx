@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { useNavigate } from "react-router-dom";
 import { Icon } from "./Icon";
 import { areaFocus, project, ringPath, type CountryMap } from "@/guides/map";
+import { startsBackSwipe } from "@/lib/pageTransition";
 
 export interface MapCity {
   id: string;
@@ -144,6 +145,8 @@ export function GuideMap({
 
   const onPointerDown = (e: React.PointerEvent) => {
     if ((e.target as Element).closest("button")) return;
+    // a finger from the screen's left edge is going back, not panning
+    if (e.pointerType === "touch" && !pointers.current.size && startsBackSwipe(e.clientX)) return;
     cancelAnimationFrame(anim.current);
     try {
       box.current!.setPointerCapture(e.pointerId);
