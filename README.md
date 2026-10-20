@@ -261,7 +261,7 @@ Suggestions from the trip's own saved places — nothing is looked up from outsi
 - **Add a journey** links an existing one (that day's first) or makes a new one.
 - Swipe a row (✕ on desktop) to take it off the day. The journey itself stays.
 - A journey that runs on another date says so in red and offers to move it there.
-- A journey's own page lists the days it's on (**On Plan**), or offers to add it to its departure day.
+- A journey's own page lists the days it's on (**On Plan**), or offers to add it to its departure day — or the day it lands, when it leaves before the plan starts.
 
 ### Steps
 

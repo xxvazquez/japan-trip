@@ -66,7 +66,10 @@ export default function Journey() {
   const fareText = fareLines.map((m) => fmtMoney(m.amount, m.currency)).join(" + ");
   const fareDerived = hopsPriced(j);
   const onDays = data.days.filter((d) => d.journeyIds?.includes(j.id));
-  const departDay = day ? data.days.find((d) => d.date === day) : undefined;
+  // the day to offer it to: the first one on the plan it actually runs on —
+  // its departure day, or for an overnight flight that leaves before the
+  // plan starts, the day it lands
+  const departDay = day ? [...data.days].sort((a, b) => a.date.localeCompare(b.date)).find((d) => !journeyOffDay(j, d.date)) : undefined;
 
   return (
     <Page>
