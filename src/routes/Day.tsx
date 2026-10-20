@@ -3057,10 +3057,11 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
     <>
       <button ref={anchorRef} onClick={add} className={className}><Icon name="plus" size={iconSize} /> Add an amount</button>
       <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="What was it?">
-        <button type="button" onClick={() => addWithLabel("")} className="menu-item">Custom…</button>
         {choices.map((c) => (
           <button key={c.label} type="button" onClick={() => addWithLabel(c.label, c.categoryId)} className="menu-item">{c.label}</button>
         ))}
+        {/* after the day's own steps, as iOS puts Custom last in a short list */}
+        <button type="button" onClick={() => addWithLabel("")} className="menu-item">Custom…</button>
       </ActionSheet>
     </>
   );
