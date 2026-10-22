@@ -1053,8 +1053,14 @@ async function resyncTrip(get: () => AppStore, tripId: string) {
       }
       mirrorSoon(get);
     }
-  } catch {
-    /* couldn't re-pull — keep what's on screen; it's still correct as of the last sync */
+  } catch (e) {
+    // gone from the server (deleted, or no longer shared) or unreadable there:
+    // say so, as opening it would, rather than leave a copy up whose edits
+    // can't be saved. Anything else is a failed re-pull — keep what's on
+    // screen; it's still correct as of the last sync
+    if (e instanceof TripLoadError && e.kind !== "unavailable" && get().activeId === tripId) {
+      useApp.setState({ loadIssue: { kind: e.kind, message: e.message, tripId } });
+    }
   }
 }
 

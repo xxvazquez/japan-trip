@@ -651,6 +651,27 @@ describe("signed-in: opening the saved copy first", () => {
       vi.useRealTimers();
     }
   });
+  it("says so when the saved trip is gone from the server, instead of keeping it open", async () => {
+    const id = await seedTrip("Saved trip");
+    await boot();
+    await sleep(80);
+    // deleted (or unshared) on another phone while this one was closed
+    fake.current.ctl.tables.trips = rows("trips").filter((r) => r.id !== id);
+    vi.resetModules();
+    const app = await import("@/store/useApp");
+    pages.push(app);
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      void app.useApp.getState().init();
+      for (let t = 0; t < 9000 && !app.useApp.getState().loadIssue; t += 500) {
+        await vi.advanceTimersByTimeAsync(500);
+        await new Promise((r) => setImmediate(r));
+      }
+      expect(app.useApp.getState().loadIssue?.kind).toBe("missing");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
 
 describe("signed-in: opening with no connection", () => {
