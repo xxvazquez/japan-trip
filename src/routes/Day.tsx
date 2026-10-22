@@ -26,6 +26,7 @@ import { ActionSheet, useActionSheet, ConfirmMenuItem } from "@/components/Actio
 import { Editable } from "@/components/Editable";
 import { MoneyField } from "@/components/MoneyField";
 import { AmountSheet } from "@/components/AmountSheet";
+import { useFxRates } from "@/lib/fx";
 import { PlaceAction, PlaceActions } from "@/components/PlaceAction";
 import type { Tip } from "@/components/InfoTips";
 import { saveFile, TAP, touchDevice } from "@/lib/device";
@@ -3049,6 +3050,13 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
     const m = parseMoney(c.amount, c.currency || primary);
     if (m) subtotals.set(m.currency, (subtotals.get(m.currency) ?? 0) + m.amount);
   }
+  // spent in more than the trip's own currency: the whole day in it too, at
+  // the same rates Expenses uses — only once every currency has a rate
+  const foreign = [...subtotals.keys()].filter((c) => c && c !== primary);
+  const { rates } = useFxRates(primary, foreign);
+  const inPrimary = primary && foreign.length && foreign.every((c) => rates[c])
+    ? [...subtotals].reduce((sum, [cur, amt]) => sum + (cur === primary ? amt : amt / rates[cur]), 0)
+    : null;
 
   if (costs.length === 0) {
     return readOnly ? (
@@ -3143,6 +3151,13 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
             total lines up under their amounts */}
         {!readOnly && <span aria-hidden className="-ml-1 w-[21px] shrink-0 [@media(hover:none)_and_(pointer:coarse)]:hidden" />}
       </li>
+      {inPrimary !== null && (
+        <li className="relative flex items-baseline justify-between gap-4 px-3.5 py-3 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
+          <span className="value flex-1">In {primary}</span>
+          <span className="value whitespace-nowrap tabular-nums">≈ {fmtMoney(Math.round(inPrimary), primary)}</span>
+          {!readOnly && <span aria-hidden className="-ml-1 w-[21px] shrink-0 [@media(hover:none)_and_(pointer:coarse)]:hidden" />}
+        </li>
+      )}
       {!readOnly && <li>{addButton("action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07] active:opacity-100", 14)}</li>}
     </ul>
   );
