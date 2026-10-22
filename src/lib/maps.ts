@@ -57,7 +57,7 @@ export function mapUrlCoords(url?: string): [number, number] | null {
 /** The Google Maps link in something pasted — a share often has the
  *  place's name before it, which comes back as `hint`. */
 export function findMapsLink(text: string): { link: string; hint: string } | null {
-  const m = text.match(/https?:\/\/(?:maps\.app\.goo\.gl|goo\.gl\/maps|(?:www\.|maps\.)?google\.[a-z.]+\/maps)\S*/i);
+  const m = text.match(/https?:\/\/(?:maps\.app\.goo\.gl|goo\.gl\/maps|maps\.google\.[a-z.]+|(?:www\.)?google\.[a-z.]+\/maps)\S*/i);
   if (!m) return null;
   // the sentence it was pasted in ends it, not the link: "(…/abc)." → "…/abc"
   const link = m[0].replace(/[).,;:!?'"\u201d\u2019>\]]+$/, "");
@@ -78,7 +78,9 @@ export function mapsLinkPlace(text: string): { name: string; address?: string; a
   } catch {
     return null;
   }
-  if (!/(^|\.)google\.[a-z.]+$/i.test(url.hostname) || !/^\/maps/.test(url.pathname)) return null;
+  // `maps.google.com/?q=…` (what the phone app's share often expands to) or `…google.com/maps/…`
+  const maps = /^maps\.google\.[a-z.]+$/i.test(url.hostname) || (/(^|\.)google\.[a-z.]+$/i.test(url.hostname) && /^\/maps/.test(url.pathname));
+  if (!maps) return null;
   const decode = (v: string) => {
     try {
       return decodeURIComponent(v.replace(/\+/g, " ")).trim();
@@ -94,10 +96,19 @@ export function mapsLinkPlace(text: string): { name: string; address?: string; a
   const said = searched || query;
   // a coordinate pair or a place id isn't a name
   if (!said || /^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/.test(said) || /^place_id:/i.test(said)) return { name: "", at };
-  const [name, ...rest] = said.split(/\s*,\s*/);
+  const parts = said.split(/\s*,\s*/);
+  // Japan's (and Korea's, China's, Taiwan's) addresses go country first
+  // ("Japan, 〒630-8213 Nara, …"): the whole thing is the address, with no
+  // name in it to take
+  if (bigEndian(parts)) return { name: "", address: said, at };
+  const [name, ...rest] = parts;
   const address = rest.join(", ");
   return address ? { name, address, at } : { name, at };
 }
+
+const COUNTRY_FIRST = /^(japan|日本|south korea|korea|대한민국|china|中国|taiwan|台灣|台湾)$/i;
+/** an address written country first, as Google does for East Asia */
+export const bigEndian = (parts: string[]) => COUNTRY_FIRST.test(parts[0] ?? "") || /〒/.test(parts[0] ?? "");
 
 /** Send a place to someone (or yourself): the Share sheet where the browser
  *  has one, else its name and map link onto the clipboard. Resolves true

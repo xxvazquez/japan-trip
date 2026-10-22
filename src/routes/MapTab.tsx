@@ -583,14 +583,15 @@ function useMapEditing(
       if (pasted) {
         const { link, hint } = pasted;
         let read = mapsLinkPlace(link);
-        // a short link, or one that doesn't say where: the Worker follows it
-        // and, if need be, reads the position off the place's page
-        if (!read?.at) {
+        // a short link, or one that doesn't say where or what: the Worker
+        // follows it and, if need be, reads both off the place's page
+        if (!read?.at || !read.name) {
           try {
             const res = await apiGet(`/api/maps-link?url=${encodeURIComponent(link)}`);
-            const body = (await res.json()) as { url?: string; at?: [number, number] };
+            const body = (await res.json()) as { url?: string; at?: [number, number]; name?: string };
             const full = body.url ? mapsLinkPlace(body.url) : null;
-            if (full) read = { ...full, name: full.name || read?.name || "", at: full.at ?? body.at ?? null };
+            // the page's own name beats one read out of the link
+            if (full) read = { ...full, name: body.name || full.name || read?.name || "", at: full.at ?? body.at ?? read?.at ?? null };
           } catch {
             if (stale) return;
             if (!read) {
@@ -607,17 +608,21 @@ function useMapEditing(
         let at = read?.at ?? null;
         let detail = "From Google Maps \u00b7 not on OpenStreetMap";
         // still nowhere: put it at its address, for Move Pin to fine-tune
-        if (!at && name && address) {
-          at = await addressAt(address);
+        const byAddress = !at && !!address;
+        if (byAddress) {
+          at = await addressAt(address!);
           if (stale) return;
           detail = "From Google Maps \u00b7 placed by its address";
         }
         if (at) {
-          const label = name || "New place";
           // the same place on OpenStreetMap, found by where it is rather
-          // than what it's called — its hours come from there
-          const twin = await osmVenueAt(at[0], at[1], label);
+          // than what it's called — its hours come from there, and its name
+          // when the link gave none
+          // (with no name to match, only on Google's own pin — near an
+          // address, the shop next door would be taken for it)
+          const twin = name || !byAddress ? await osmVenueAt(at[0], at[1], name) : null;
           if (stale) return;
+          const label = name || twin?.name || "New place";
           if (twin) detail = twin.name.toLowerCase() === label.toLowerCase()
             ? "On OpenStreetMap"
             : `On OpenStreetMap as \u201c${twin.name}\u201d`;

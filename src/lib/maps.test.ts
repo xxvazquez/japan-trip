@@ -44,6 +44,11 @@ describe("mapsLinkPlace", () => {
     ).toEqual({ name: "Tokyo Tower", address: "4-chōme-2-8 Shibakōen, Minato City, Tokyo 105-0011, Japan", at: null });
     expect(mapsLinkPlace("https://www.google.com/maps/place/?q=place_id:ChIJ123")).toEqual({ name: "", at: null });
   });
+  it("doesn't take the country for the name of a place in Japan", () => {
+    expect(mapsLinkPlace("https://maps.google.com/?q=Japan,+%E3%80%92630-8213+Nara,+Noboriojicho,+30&ftid=0x1:0x2")).toEqual({
+      name: "", address: "Japan, 〒630-8213 Nara, Noboriojicho, 30", at: null,
+    });
+  });
 });
 
 describe("findMapsLink", () => {

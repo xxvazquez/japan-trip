@@ -1,4 +1,5 @@
 import { haversineKm } from "./geo";
+import { bigEndian } from "./maps";
 import { nominatimGet } from "./nominatim";
 import { nameScore, sameName } from "../../worker/tabelog";
 
@@ -206,7 +207,10 @@ export async function osmVenueAt(lat: number, lng: number, name: string): Promis
  * then without the street. Null when nothing matches or OSM can't be asked.
  */
 export async function addressAt(address: string): Promise<[number, number] | null> {
-  const parts = address.split(/\s*,\s*/).filter(Boolean);
+  const written = address.split(/\s*,\s*/).filter(Boolean);
+  // a country-first address ("Japan, 〒630-8213 Nara, Noboriojicho, 30") is
+  // read street first like any other
+  const parts = (bigEndian(written) ? written.reverse() : written).map((p) => p.replace(/〒/g, "").trim()).filter(Boolean);
   const [first = "", ...rest] = parts;
   // "4-chōme-2-8 Shibakōen" → "Shibakōen"
   const street = first.replace(/^[\d\s-]*(?:ch[oō]me)?[\d\s-]*(?=\D)/i, "").trim();

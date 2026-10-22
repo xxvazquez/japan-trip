@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { handleMapsLink, pageCoords } from "./mapsLink";
+import { handleMapsLink, pageCoords, pageName } from "./mapsLink";
 
 const ask = (link: string) => new URL(`https://x/api/maps-link?url=${encodeURIComponent(link)}`);
 const redirect = (to: string) => new Response(null, { status: 302, headers: { location: to } });
@@ -19,6 +19,13 @@ describe("maps link", () => {
     expect(await (await handleMapsLink(ask("https://maps.app.goo.gl/abc"), undefined, f)).json()).toEqual({ url: full, at: [35.6585805, 139.7454329] });
   });
 
+  it("reads the name off the page when the link only gives the address", async () => {
+    const full = "https://maps.google.com/?q=Japan,+Nara,+Noboriojicho,+30&ftid=0x1:0x2";
+    const page = `<meta content="Intep &amp; Co · 30 Noboriojicho, Nara" itemprop="name" property="og:title"><meta content="https://maps.google.com/maps/api/staticmap?center=34.6851%2C135.8048&amp;zoom=17" property="og:image">`;
+    const f = vi.fn(async (u: RequestInfo | URL) => (String(u).includes("goo.gl") ? redirect(full) : new Response(page)));
+    expect(await (await handleMapsLink(ask("https://maps.app.goo.gl/abc"), undefined, f)).json()).toEqual({ url: full, at: [34.6851, 135.8048], name: "Intep & Co" });
+  });
+
   it("still gives the full link when the page says nothing", async () => {
     const full = "https://maps.google.com/maps?q=Taj&ftid=0x1:0x2";
     const f = vi.fn(async () => new Response("<html></html>"));
@@ -29,6 +36,13 @@ describe("maps link", () => {
     const f = vi.fn(async () => redirect("https://example.com/maps"));
     expect((await handleMapsLink(ask("https://maps.app.goo.gl/abc"), undefined, f)).status).toBe(422);
     expect(f).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("pageName", () => {
+  it("ignores a page that's only Google Maps itself", () => {
+    expect(pageName('<meta content="Google Maps" property="og:title">')).toBeNull();
+    expect(pageName("nothing")).toBeNull();
   });
 });
 
