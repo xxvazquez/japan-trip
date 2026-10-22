@@ -59,7 +59,10 @@ export function mapUrlCoords(url?: string): [number, number] | null {
 export function findMapsLink(text: string): { link: string; hint: string } | null {
   const m = text.match(/https?:\/\/(?:maps\.app\.goo\.gl|goo\.gl\/maps|(?:www\.|maps\.)?google\.[a-z.]+\/maps)\S*/i);
   if (!m) return null;
-  return { link: m[0], hint: text.replace(m[0], " ").replace(/\s+/g, " ").trim() };
+  // the sentence it was pasted in ends it, not the link: "(…/abc)." → "…/abc"
+  const link = m[0].replace(/[).,;:!?'"\u201d\u2019>\]]+$/, "");
+  const hint = text.replace(m[0], " ").replace(/\s+/g, " ").replace(/^[\s\p{P}]+|[\s\p{P}]+$/gu, "");
+  return { link, hint };
 }
 
 /** A pasted Google Maps place link read into a name and position — for a

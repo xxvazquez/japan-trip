@@ -50,6 +50,7 @@ describe("findMapsLink", () => {
   it("finds the link in a pasted share", () => {
     expect(findMapsLink("Tokyo Tower https://maps.app.goo.gl/abc?g_st=ic")).toEqual({ link: "https://maps.app.goo.gl/abc?g_st=ic", hint: "Tokyo Tower" });
     expect(findMapsLink(TAJ)).toEqual({ link: TAJ, hint: "" });
+    expect(findMapsLink("Dinner here (https://maps.app.goo.gl/abc).")).toEqual({ link: "https://maps.app.goo.gl/abc", hint: "Dinner here" });
     expect(findMapsLink("Taj Fuji")).toBeNull();
     expect(findMapsLink("https://example.com/maps/place/X")).toBeNull();
   });
