@@ -1775,6 +1775,50 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
       className={place || textGlyph ? "" : "opacity-70"}
     />
   );
+  // the step's own actions — the same list, in the same order, whether it's
+  // opened by holding the row or from its card's More; `done` closes the card
+  const stepActions = (done: () => void) => (
+    <>
+      <div className="my-1 h-px bg-ink/10" />
+      <MenuCheck checked={!!item.optional} onClick={toggleOptional}>Optional</MenuCheck>
+      {item.time && (
+        <MenuCheck checked={pinned} onClick={() => onPatch({ pinned: pinned ? undefined : true })}>Pin Time</MenuCheck>
+      )}
+      {place && <MenuCheck checked={!!place.overwhelming} onClick={toggleOverwhelming}>Overwhelming</MenuCheck>}
+      <button type="button" className="menu-item" onClick={() => { done(); setLabelsOpen(true); }}>
+        <Icon name="tag" size={16} /> {labels.length ? "Labels…" : "Add a Label…"}
+      </button>
+      <div className="my-1 h-px bg-ink/10" />
+      {place && (
+        <button type="button" className="menu-item" onClick={() => { done(); changePlace.setOpen(true); }}>
+          <Icon name="pin" size={16} /> Change Place
+        </button>
+      )}
+      <button type="button" className="menu-item" onClick={() => { done(); onQuickAddCost(item); }}>
+        <Icon name="wallet" size={16} /> Add an Expense
+      </button>
+      {timed && !pinned && onShiftFrom && (
+        <button type="button" className="menu-item" onClick={() => { done(); onShiftFrom(rowRef.current); }}>
+          <Icon name="clock" size={16} /> Shift Times from Here…
+        </button>
+      )}
+      <button type="button" className="menu-item" onClick={() => { done(); onAddBelow(rowRef.current); }}>
+        <Icon name="plus" size={16} /> Add Step Below
+      </button>
+      <button type="button" className="menu-item" onClick={() => { done(); onDuplicate(); }}>
+        <Icon name="copy" size={16} /> Duplicate
+      </button>
+      {tripDays.length > 1 && (
+        <button type="button" className="menu-item" onClick={() => { done(); moveSheet.setOpen(true); }}>
+          <Icon name="move" size={16} /> Move to Another Day
+        </button>
+      )}
+      <div className="my-1 h-px bg-ink/10" />
+      <button type="button" className="menu-item text-danger" onClick={() => { done(); undoable("Step removed", onRemove); }}>
+        <Icon name="close" size={16} /> Remove Step
+      </button>
+    </>
+  );
 
   return (
     <li
@@ -1923,53 +1967,14 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                     </a>
                   )}
                   <button type="button" className="menu-item" onClick={addToGoogleCalendar}>
-                    <Icon name="calendar" size={16} /> Add to Google Calendar
+                    <Icon name="calendar" size={16} /> Add to Calendar
                   </button>
-                  {!readOnly && (
-                    <>
-                      {place && (
-                        <button type="button" className="menu-item" onClick={toggleOverwhelming}>
-                          <Icon name="alert" size={16} /> {place.overwhelming ? "Unmark as overwhelming" : "Mark as overwhelming"}
-                        </button>
-                      )}
-                      <button type="button" className="menu-item" onClick={() => setLabelsOpen(true)}>
-                        <Icon name="tag" size={16} /> {labels.length ? "Labels…" : "Add a label…"}
-                      </button>
-                      {!item.note && (
-                        <button type="button" className="menu-item" onClick={() => { if (place) { setCardNote(true); placeCard.setOpen(true); } else setNoteOpen(true); }}>
-                          <Icon name="pencil" size={16} /> Add a note
-                        </button>
-                      )}
-                      {item.time && (
-                        <button type="button" className="menu-item" onClick={() => onPatch({ pinned: pinned ? undefined : true })}>
-                          <Icon name="pushpin" size={16} /> {pinned ? "Unpin this step" : "Pin this step"}
-                        </button>
-                      )}
-                      {timed && !pinned && onShiftFrom && (
-                        <button type="button" className="menu-item" onClick={() => onShiftFrom(rowRef.current)}>
-                          <Icon name="clock" size={16} /> Shift times from here…
-                        </button>
-                      )}
-                      <button type="button" className="menu-item" onClick={toggleOptional}>
-                        <Icon name="optional" size={16} /> {item.optional ? "Make this a must" : "Mark as optional"}
-                      </button>
-                      <button type="button" className="menu-item" onClick={() => onAddBelow(rowRef.current)}>
-                        <Icon name="plus" size={16} /> Add a step below
-                      </button>
-                      <button type="button" className="menu-item" onClick={onDuplicate}>
-                        <Icon name="copy" size={16} /> Duplicate
-                      </button>
-                      {tripDays.length > 1 && (
-                        <button type="button" className="menu-item" onClick={() => moveSheet.setOpen(true)}>
-                          <Icon name="move" size={16} /> Move to another day
-                        </button>
-                      )}
-                      <button type="button" className="menu-item" onClick={() => onQuickAddCost(item)}>
-                        <Icon name="wallet" size={16} /> Add an expense
-                      </button>
-                      <ConfirmMenuItem onConfirm={() => undoable("Step removed", onRemove)} label="Remove" icon={<Icon name="close" size={16} />} />
-                    </>
+                  {!readOnly && !item.note && (
+                    <button type="button" className="menu-item" onClick={() => { if (place) { setCardNote(true); placeCard.setOpen(true); } else setNoteOpen(true); }}>
+                      <Icon name="pencil" size={16} /> Add a Note
+                    </button>
                   )}
+                  {!readOnly && stepActions(() => {})}
                 </RowMenu>
               </span>
               {/* a pinned step's time is locked, so the pin shows on every
@@ -2166,39 +2171,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
                       <button type="button" className="menu-item" onClick={addToGoogleCalendar}>
                         <Icon name="calendar" size={16} /> Add to Calendar
                       </button>
-                      {!readOnly && <>
-                        <div className="my-1 h-px bg-ink/10" />
-                        <MenuCheck checked={!!item.optional} onClick={toggleOptional}>Optional</MenuCheck>
-                        {item.time && (
-                          <MenuCheck checked={pinned} onClick={() => onPatch({ pinned: pinned ? undefined : true })}>Pin Time</MenuCheck>
-                        )}
-                        <MenuCheck checked={!!place.overwhelming} onClick={toggleOverwhelming}>Overwhelming</MenuCheck>
-                        <button type="button" className="menu-item" onClick={() => { placeCard.setOpen(false); setLabelsOpen(true); }}>
-                          <Icon name="tag" size={16} /> {labels.length ? "Labels…" : "Add a Label…"}
-                        </button>
-                        <div className="my-1 h-px bg-ink/10" />
-                        <button type="button" className="menu-item" onClick={() => { placeCard.setOpen(false); changePlace.setOpen(true); }}>
-                          <Icon name="pin" size={16} /> Change Place
-                        </button>
-                        <button type="button" className="menu-item" onClick={() => { placeCard.setOpen(false); onQuickAddCost(item); }}>
-                          <Icon name="wallet" size={16} /> Add an Expense
-                        </button>
-                        <button type="button" className="menu-item" onClick={() => { placeCard.setOpen(false); onAddBelow(rowRef.current); }}>
-                          <Icon name="plus" size={16} /> Add Step Below
-                        </button>
-                        <button type="button" className="menu-item" onClick={() => { placeCard.setOpen(false); onDuplicate(); }}>
-                          <Icon name="copy" size={16} /> Duplicate
-                        </button>
-                        {tripDays.length > 1 && (
-                          <button type="button" className="menu-item" onClick={() => { placeCard.setOpen(false); moveSheet.setOpen(true); }}>
-                            <Icon name="move" size={16} /> Move to Another Day
-                          </button>
-                        )}
-                        <div className="my-1 h-px bg-ink/10" />
-                        <button type="button" className="menu-item text-danger" onClick={() => { placeCard.setOpen(false); undoable("Step removed", onRemove); }}>
-                          <Icon name="close" size={16} /> Remove Step
-                        </button>
-                      </>}
+                      {!readOnly && stepActions(() => placeCard.setOpen(false))}
                     </ActionSheet>
                   </div>
                 }

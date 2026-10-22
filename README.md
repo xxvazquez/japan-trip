@@ -300,11 +300,11 @@ A stop and the way on to the next one stay together: the walk or train sits unde
 - **More** on the place card holds everything else, as Maps does:
   - Whatever didn't fit in the row, and **Add to Calendar**. Show on Map is phone only — on a computer the map is already beside you.
   - **Optional**, **Pin Time** (a step with a time) and **Overwhelming**, ticked when on, then **Labels**.
-  - **Change Place**, **Add an Expense**, **Duplicate** and **Move to Another Day**.
+  - **Change Place**, **Add an Expense**, **Shift Times from Here…**, **Add Step Below**, **Duplicate** and **Move to Another Day**.
   - **Remove Step**, last.
 - **Walk and train lines** under a step open Google Maps directions; only a tap on the line itself does.
 - **Open in Google Maps** is also the first item when you hold a step (or right-click it on a computer).
-- **The step's menu** — long-press a step on a phone, or right-click it on a computer (an unlinked step also has a ⋯ on hover there): add to Google Calendar, mark as **overwhelming** (a ⚠ on its grey line; the day's count shows on Plan), add a label, add a note, pin, mark as optional, **add a step below**, duplicate, add an expense, remove.
+- **The step's menu** — long-press a step on a phone, or right-click it on a computer (an unlinked step also has a ⋯ on hover there): **Open in Google Maps**, **Add to Calendar** and **Add a Note**, then the same items as **More** on its place card, in the same order — **Change Place** included. **Overwhelming** puts a ⚠ on the step's grey line; the day's count shows on Plan.
 - **Move to another day** — from a step's menu or its place card: pick the day and the step leaves this one, keeping its time, pin and note. Undo brings it back.
 - **Delete** — swipe a step left on a phone.
 - **Notes** support bold, bullets and links. Tap to edit. Empty fields stay hidden.
