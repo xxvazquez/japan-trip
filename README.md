@@ -861,10 +861,10 @@ Once the app has loaded, it works with no signal. See [Before you travel](#befor
 
 | What | With no signal |
 |---|---|
-| **The trip** | Kept on the device once opened, so the app starts with no signal — straight away when the phone has no network at all (flight mode, no service). Cleared when you sign out. |
+| **The trip** | Kept on the device once opened. Every launch opens that copy straight away, signal or not, and the server's copy replaces it a moment later. Only the first open on a device, or one with edits still to send, waits for the server. Cleared when you sign out. |
 | **Edits** | Queued on the device and sent when you're back. The app then re-pulls the trip to pick up your companion's changes. |
 | **Signing in** | You stay signed in, even after days away. The app opens straight away from the device copy and the login renews itself once you're back. |
-| **Weak signal** | If the server hasn't answered in 5 seconds, the app opens the device copy and updates once it gets through. |
+| **Weak signal** | The device copy is already open; it updates once the server gets through. A launch that has to wait for the server opens the device copy after 5 seconds. |
 | **Wifi with no internet** (a plane, an unpaid hotel) | Weather, time-zone and walking-time lookups give up after a few seconds and show what's saved. An app update that can't finish carries on out of sight instead of leaving *Updating…* on screen. |
 | **Maps** | Areas you've viewed are kept. Save more ahead from a day's **Download offline maps** (Plan B's stops included), or the whole trip from **This device**. A new area opened offline retries when you reconnect. |
 | **Attachments** | Kept on the device — see [Documents](#documents). |

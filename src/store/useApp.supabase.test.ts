@@ -618,6 +618,41 @@ describe("signed-in: several tabs", () => {
   });
 });
 
+describe("signed-in: opening the saved copy first", () => {
+  it("opens the trip saved on the device without waiting on the server, then swaps in the server's copy", async () => {
+    const id = await seedTrip("Saved trip");
+    await boot();
+    await sleep(80); // the mirror is written in the background
+    // renamed on another phone while this one was closed
+    const row = rows("trips").find((r) => r.id === id)!;
+    row.meta = { ...(row.meta as object), title: "Renamed elsewhere" };
+    let release!: () => void;
+    fake.current.ctl.gate = new Promise((r) => { release = r; }); // the server is slow to answer
+    vi.resetModules();
+    const app = await import("@/store/useApp");
+    pages.push(app);
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      void app.useApp.getState().init();
+      for (let t = 0; t < 500 && !app.useApp.getState().hydrated; t += 50) {
+        await vi.advanceTimersByTimeAsync(50);
+        await new Promise((r) => setImmediate(r));
+      }
+      expect(app.useApp.getState().hydrated).toBe(true);
+      expect(app.useApp.getState().data!.meta.title).toBe("Saved trip");
+      fake.current.ctl.gate = null;
+      release();
+      for (let t = 0; t < 9000 && app.useApp.getState().data!.meta.title !== "Renamed elsewhere"; t += 500) {
+        await vi.advanceTimersByTimeAsync(500);
+        await new Promise((r) => setImmediate(r));
+      }
+      expect(app.useApp.getState().data!.meta.title).toBe("Renamed elsewhere");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
 describe("signed-in: opening with no connection", () => {
   const offline = () => { fake.current.ctl.fail = () => ({ message: "Failed to fetch" }); };
   const online = () => { fake.current.ctl.fail = null; };

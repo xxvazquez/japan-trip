@@ -939,7 +939,9 @@ async function flush(get: () => AppStore) {
     useApp.setState({ syncState: "saved", syncErrorItems: [], syncSchemaGap: null });
     saveOutboxNow(get); // nothing pending any more → this clears the mirror (ordered after any write before it)
     void afterSynced(get, activeId);
-    mirrorSoon(get);
+    // the next launch opens this copy, so it's kept as of the save just made
+    const { data: saved, trips } = get();
+    if (saved && get().activeId === activeId) writeMirror(activeId, saved, trips);
     if (bootedFromOutbox) { bootedFromOutbox = false; void resyncTrip(get, activeId); }
   }
 }
@@ -1001,12 +1003,15 @@ async function newestMirrored(): Promise<string | undefined> {
   return best?.id;
 }
 
-async function recoverFromOutbox(get: () => AppStore, listen: (id: string) => void): Promise<boolean> {
+async function recoverFromOutbox(get: () => AppStore, listen: (id: string) => void, { clean = false } = {}): Promise<boolean> {
   // the last-open trip is only on record once one has been opened by hand;
   // without it, the trip saved on the device is still there to open
   const id = (await kv.get<string>(STORAGE_KEYS.activeTrip).catch(() => undefined)) ?? (await newestMirrored());
   if (!id) return false;
   const ob = await readOutbox(id);
+  // `clean`: only with nothing unsent — edits waiting to go out are merged
+  // onto the server's copy by the normal boot, which keeps that copy first
+  if (clean && ob?.ops.length) return false;
   const data = await offlineData(id, ob);
   if (!data) return false;
   queue = ob?.ops.length && (!ob.user || ob.user === getUserId()) ? [...ob.ops] : [];
@@ -1039,7 +1044,12 @@ async function resyncTrip(get: () => AppStore, tripId: string) {
       if (bootedFromOutbox) {
         // we opened from the device mirror; the server is back and its copy is now on screen
         bootedFromOutbox = false;
-        try { useApp.setState({ trips: (await be.listTrips()).trips }); } catch { /* keep the mirrored list */ }
+        try {
+          const { trips } = await be.listTrips();
+          useApp.setState({ trips });
+          // long-deleted trips' restore points age out (the list just read is authoritative)
+          void purgeDeletedTripSnapshots(trips.map((t) => t.id), { cloud: true });
+        } catch { /* keep the mirrored list */ }
       }
       mirrorSoon(get);
     }
@@ -1052,6 +1062,9 @@ async function resyncTrip(get: () => AppStore, tripId: string) {
  *  why it couldn't be opened. `null` is not a possible answer. */
 /** How long a cold boot waits on the server before opening the device copy. */
 const BOOT_WAIT_MS = 5000;
+/** opened from the device copy with signal: re-pull by then if the live
+ *  connection hasn't joined to do it */
+const DEVICE_FIRST_PULL_MS = 8000;
 const SLOW = Symbol("slow");
 const orSlow = <T,>(p: Promise<T>): Promise<T | typeof SLOW> =>
   Promise.race([p, new Promise<typeof SLOW>((r) => setTimeout(() => r(SLOW), BOOT_WAIT_MS))]);
@@ -1290,6 +1303,17 @@ export const useApp = create<AppStore>((set, get) => {
         // sits through its read retries — 1 s, 2 s, 4 s — before BOOT_WAIT_MS
         // gives up on it. Open the device copy now; "online" re-pulls it.
         if (be.kind === "supabase" && navigator.onLine === false && (await recoverFromOutbox(get, listen))) return;
+        // the trip saved on this device opens straight away, signal or not, as a
+        // native app does — the server's copy replaces it once the live
+        // connection joins (see `listen`), or after DEVICE_FIRST_PULL_MS if it
+        // doesn't. A first open on this device, or one with edits still to send,
+        // waits on the server.
+        if (be.kind === "supabase" && (await recoverFromOutbox(get, listen, { clean: true }))) {
+          const id = get().activeId!;
+          void syncDeviceFiles(get, id);
+          setTimeout(() => { if (bootedFromOutbox && get().activeId === id) void resyncTrip(get, id); }, DEVICE_FIRST_PULL_MS);
+          return;
+        }
 
         let trips: TripSummary[];
         let activeId: string | null;
