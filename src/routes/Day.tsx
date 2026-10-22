@@ -409,9 +409,8 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     });
 
   const setCosts = (next: DayCost[]) => patch({ costs: next.length ? next : undefined });
-  // the wallet icon on a plan row: add a cost prefilled with that step's name,
-  // then scroll it into view and briefly highlight it so it's obvious where it
-  // landed — amount and category are still typed in by hand, same as always
+  // a spend just added: scroll it into view and briefly highlight it so it's
+  // obvious where it landed
   const [justAddedCostId, setJustAddedCostId] = useState<string | null>(null);
   useEffect(() => {
     if (!justAddedCostId) return;
@@ -420,19 +419,20 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     return () => clearTimeout(t);
   }, [justAddedCostId]);
   // today's ＋ → Amount: the keypad straight away, then its category — a
-  // spend logged at the till, landing in Spending like any other row
+  // spend logged at the till, landing in Spending like any other row. A
+  // step's Add an Expense opens the same keypad, already named for the step
   const [quickSpend, setQuickSpend] = useState(false);
+  const [spendFor, setSpendFor] = useState<SpendChoice | undefined>();
   const quickSpendAnchor = useRef<HTMLElement | null>(null);
   const addSpend = (cost: Omit<DayCost, "id">) => {
     const id = shortId();
     setCosts([...(day.costs ?? []), { id, ...cost }]);
     setJustAddedCostId(id);
   };
-  const quickAddCost = (item: PlanItem) => {
-    const id = shortId();
-    const { label, categoryId } = stepSpend(item);
-    setCosts([...(day.costs ?? []), { id, label, amount: "", ...(categoryId && { categoryId }) }]);
-    setJustAddedCostId(id);
+  const quickAddCost = (item: PlanItem, anchor?: HTMLElement | null) => {
+    quickSpendAnchor.current = anchor ?? null;
+    setSpendFor(stepSpend(item));
+    setQuickSpend(true);
   };
 
   // "show on map" — on a wide screen the map is already open beside this day
@@ -607,13 +607,14 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
             { icon: "itinerary", label: "Add a step", onClick: (a) => addStep(a ? { currentTarget: a } : undefined) },
             { icon: "train", label: "Add a journey", onClick: (a) => { journeyAnchor.current = a; journeySheet.setOpen(true); } },
             // during the trip, today's spending is a tap away
-            ...(isToday ? [{ icon: "wallet" as const, label: "Add an amount", onClick: (a: HTMLElement | null) => { quickSpendAnchor.current = a; setQuickSpend(true); } }] : []),
+            ...(isToday ? [{ icon: "wallet" as const, label: "Add an amount", onClick: (a: HTMLElement | null) => { quickSpendAnchor.current = a; setSpendFor(undefined); setQuickSpend(true); } }] : []),
           ]}
         />
       )}
-      {!ro && isToday && (
+      {!ro && (
         <QuickSpend
           open={quickSpend}
+          preset={spendFor}
           onClose={() => setQuickSpend(false)}
           anchorRef={quickSpendAnchor as React.RefObject<HTMLElement>}
           currencies={(data.config.currencies ?? []).filter(Boolean)}
@@ -1151,7 +1152,7 @@ function PlanList({ day, journeys, startHotel, returnHotel, tz, items: storedIte
    *  and Up next; unset on any other day */
   now?: string;
   onBreakfastAt: (time: string | undefined) => void;
-  onQuickAddCost: (item: PlanItem) => void;
+  onQuickAddCost: (item: PlanItem, anchor?: HTMLElement | null) => void;
   /** opens Shift Times from this step on */
   onShiftFrom?: (row: HTMLElement | null, id: string) => void;
   onShowOnMap: (place: Place) => void;
@@ -1617,7 +1618,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
   onDuplicate: () => void;
   /** adds a new step right under this one (opens what it is first) */
   onAddBelow: (row: HTMLElement | null) => void;
-  onQuickAddCost: (item: PlanItem) => void;
+  onQuickAddCost: (item: PlanItem, anchor?: HTMLElement | null) => void;
   onShiftFrom?: (row: HTMLElement | null) => void;
   onShowOnMap: (place: Place) => void;
 }) {
@@ -1794,7 +1795,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
           <Icon name="pin" size={16} /> Change Place
         </button>
       )}
-      <button type="button" className="menu-item" onClick={() => { done(); onQuickAddCost(item); }}>
+      <button type="button" className="menu-item" onClick={() => { done(); onQuickAddCost(item, rowRef.current); }}>
         <Icon name="wallet" size={16} /> Add an Expense
       </button>
       {timed && !pinned && onShiftFrom && (
@@ -2913,8 +2914,10 @@ type SpendChoice = { label: string; categoryId?: string };
  *  with what it comes to at home under it), then which category it was.
  *  Skipping the category still keeps the amount; what it was can be named
  *  later on its row in Spending. */
-function QuickSpend({ open, onClose, anchorRef, currencies, defaultCurrency, categories, onAdd }: {
+function QuickSpend({ open, preset, onClose, anchorRef, currencies, defaultCurrency, categories, onAdd }: {
   open: boolean;
+  /** the step it's for — names the spend, and its category skips the picker */
+  preset?: SpendChoice;
   onClose: () => void;
   anchorRef: React.RefObject<HTMLElement>;
   currencies: string[];
@@ -2943,7 +2946,7 @@ function QuickSpend({ open, onClose, anchorRef, currencies, defaultCurrency, cat
     if (added.current) return;
     added.current = true;
     onAdd({
-      label: "",
+      label: preset?.label ?? "",
       amount: amount.current,
       ...(categoryId && { categoryId }),
       ...(currency && currency !== primary && { currency }),
@@ -2956,11 +2959,12 @@ function QuickSpend({ open, onClose, anchorRef, currencies, defaultCurrency, cat
         open={open && !picking}
         onClose={() => {
           if (!amount.current) onClose();
+          else if (preset?.categoryId) add(preset.categoryId);
           else if (categories.length) setPicking(true);
           else add();
         }}
         anchorRef={anchorRef}
-        label="Spent today"
+        label={preset?.label || "Spent today"}
         amount=""
         currency={currency}
         currencies={currencies.length >= 2 ? currencies : []}

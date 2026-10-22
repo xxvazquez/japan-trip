@@ -250,7 +250,8 @@ Suggestions from the trip's own saved places — nothing is looked up from outsi
 ### Spending on a day
 
 - **Add an amount** offers the day's steps to pick from, then opens the keypad in the currency you last spent in.
-- A step picked there (or **Add an expense** in its ⋯) starts in the category its icon suggests — a café under Food & drink, a museum under Activities.
+- A step picked there starts in the category its icon suggests — a café under Food & drink, a museum under Activities.
+- **Add an Expense** in a step's menu opens the keypad named for that step, in the same category. The amount lands in Spending on **Done**; **Cancel** adds nothing.
 - **Custom…** asks for a name first; Return moves on to the keypad.
 - A row left with no name and no amount goes away. A typed name is kept even with no amount yet.
 - **Tap the grey category** under an amount to change it.
