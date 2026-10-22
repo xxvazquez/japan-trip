@@ -54,16 +54,20 @@ export function mapUrlCoords(url?: string): [number, number] | null {
   return null;
 }
 
-/** A Google Maps short link (the Share button's `maps.app.goo.gl/…`) —
- *  it carries no place until it's followed (`/api/maps-link`). */
-export function isMapsShortLink(text: string): boolean {
-  return /^https?:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps)\//i.test(text.trim());
+/** The Google Maps link in something pasted — a share often has the
+ *  place's name before it, which comes back as `hint`. */
+export function findMapsLink(text: string): { link: string; hint: string } | null {
+  const m = text.match(/https?:\/\/(?:maps\.app\.goo\.gl|goo\.gl\/maps|(?:www\.|maps\.)?google\.[a-z.]+\/maps)\S*/i);
+  if (!m) return null;
+  return { link: m[0], hint: text.replace(m[0], " ").replace(/\s+/g, " ").trim() };
 }
 
 /** A pasted Google Maps place link read into a name and position — for a
  *  place OpenStreetMap doesn't have. Null when the text isn't such a link;
- *  `at` is null when the link names a place but carries no coordinates. */
-export function mapsLinkPlace(text: string): { name: string; at: [number, number] | null } | null {
+ *  `at` is null when the link names a place but carries no coordinates.
+ *  A search link (`/maps/search/…`, `?q=`) often reads "Name, address",
+ *  so the address comes back on its own to place it by. */
+export function mapsLinkPlace(text: string): { name: string; address?: string; at: [number, number] | null } | null {
   const s = text.trim();
   let url: URL;
   try {
@@ -79,11 +83,17 @@ export function mapsLinkPlace(text: string): { name: string; at: [number, number
       return v.trim();
     }
   };
-  const fromPath = url.pathname.match(/\/maps\/place\/([^/]+)/)?.[1];
-  const fromQuery = url.searchParams.get("q") ?? url.searchParams.get("query") ?? "";
-  // a `q=` that's itself a coordinate pair isn't a name
-  const name = fromPath ? decode(fromPath) : /^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/.test(fromQuery) ? "" : fromQuery.trim();
-  return { name, at: mapUrlCoords(s) };
+  const at = mapUrlCoords(s);
+  const fromPath = url.pathname.match(/\/maps\/place\/([^/@]+)/)?.[1];
+  if (fromPath) return { name: decode(fromPath), at };
+  const searched = decode(url.pathname.match(/\/maps\/search\/([^/@]+)/)?.[1] ?? "");
+  const query = (url.searchParams.get("q") ?? url.searchParams.get("query") ?? "").trim();
+  const said = searched || query;
+  // a coordinate pair or a place id isn't a name
+  if (!said || /^-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?$/.test(said) || /^place_id:/i.test(said)) return { name: "", at };
+  const [name, ...rest] = said.split(/\s*,\s*/);
+  const address = rest.join(", ");
+  return address ? { name, address, at } : { name, at };
 }
 
 /** Send a place to someone (or yourself): the Share sheet where the browser

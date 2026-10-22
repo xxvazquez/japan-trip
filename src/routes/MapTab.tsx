@@ -21,9 +21,9 @@ import { Switch } from "@/components/Switch";
 import { CheckCircle } from "@/components/CheckCircle";
 import { useApp, undoable } from "@/store/useApp";
 import { tripClock, fmtDate, plural } from "@/lib/dates";
-import { isMapsShortLink, mapUrlCoords, mapsLinkPlace, placeMapLink, sharePlace, webSearchHref } from "@/lib/maps";
+import { findMapsLink, mapUrlCoords, mapsLinkPlace, placeMapLink, sharePlace, webSearchHref } from "@/lib/maps";
 import { apiGet } from "@/lib/api";
-import { osmVenueAt, searchPlaces, reverseGeocode, type GeoResult } from "@/lib/geocode";
+import { addressAt, osmVenueAt, searchPlaces, reverseGeocode, type GeoResult } from "@/lib/geocode";
 import { haversineKm, fmtDistanceKm, fmtWalk, useGeolocation } from "@/lib/geo";
 import { fmtClocksIn, fmtMinutes } from "@/lib/time";
 import { legHex } from "@/lib/legColors";
@@ -579,39 +579,54 @@ function useMapEditing(
       const c = mapRef.current?.getCenter();
       // a pasted Google Maps link: the place it points at, even one
       // OpenStreetMap doesn't have
-      const link = q.trim();
-      if (isMapsShortLink(link) || mapsLinkPlace(link)) {
+      const pasted = findMapsLink(q);
+      if (pasted) {
+        const { link, hint } = pasted;
         let read = mapsLinkPlace(link);
-        if (!read) {
+        // a short link, or one that doesn't say where: the Worker follows it
+        // and, if need be, reads the position off the place's page
+        if (!read?.at) {
           try {
             const res = await apiGet(`/api/maps-link?url=${encodeURIComponent(link)}`);
-            const { url } = (await res.json()) as { url?: string };
-            read = url ? mapsLinkPlace(url) : null;
+            const body = (await res.json()) as { url?: string; at?: [number, number] };
+            const full = body.url ? mapsLinkPlace(body.url) : null;
+            if (full) read = { ...full, name: full.name || read?.name || "", at: full.at ?? body.at ?? null };
           } catch {
             if (stale) return;
-            setResults([]);
-            setSearchState("failed");
-            return;
+            if (!read) {
+              setResults([]);
+              setSearchState("failed");
+              return;
+            }
           }
         }
         if (stale) return;
-        if (read?.at) {
-          const name = read.name || "New place";
+        // text pasted with the link names the place when the link doesn't
+        const name = read?.name || hint;
+        const address = read?.address;
+        let at = read?.at ?? null;
+        let detail = "From Google Maps \u00b7 not on OpenStreetMap";
+        // still nowhere: put it at its address, for Move Pin to fine-tune
+        if (!at && name && address) {
+          at = await addressAt(address);
+          if (stale) return;
+          detail = "From Google Maps \u00b7 placed by its address";
+        }
+        if (at) {
+          const label = name || "New place";
           // the same place on OpenStreetMap, found by where it is rather
           // than what it's called — its hours come from there
-          const twin = await osmVenueAt(read.at[0], read.at[1], name);
+          const twin = await osmVenueAt(at[0], at[1], label);
           if (stale) return;
-          const detail = !twin
-            ? "From Google Maps \u00b7 not on OpenStreetMap"
-            : twin.name.toLowerCase() === name.toLowerCase()
-              ? "On OpenStreetMap"
-              : `On OpenStreetMap as \u201c${twin.name}\u201d`;
-          setResults([twin ? { name, detail, lat: twin.lat, lng: twin.lng, url: link, osm: twin.osm } : { name, detail, lat: read.at[0], lng: read.at[1], url: link }]);
+          if (twin) detail = twin.name.toLowerCase() === label.toLowerCase()
+            ? "On OpenStreetMap"
+            : `On OpenStreetMap as \u201c${twin.name}\u201d`;
+          setResults([twin ? { name: label, detail, lat: twin.lat, lng: twin.lng, url: link, osm: twin.osm } : { name: label, detail, lat: at[0], lng: at[1], url: link }]);
           setSearchState("idle");
         } else {
           setResults([]);
-          setSearchState(read?.name ? "noPosition" : "badLink");
-          if (read?.name) setLinkOnly({ name: read.name, url: link });
+          setSearchState(name ? "noPosition" : "badLink");
+          if (name) setLinkOnly({ name, url: link });
         }
         return;
       }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isMapsShortLink, mapUrlCoords, mapsLinkPlace, placeMapLink } from "./maps";
+import { findMapsLink, mapUrlCoords, mapsLinkPlace, placeMapLink } from "./maps";
 
 describe("placeMapLink", () => {
   it("searches the name around the pin, so a chain opens the right branch", () => {
@@ -38,8 +38,19 @@ describe("mapsLinkPlace", () => {
     expect(mapsLinkPlace("https://example.com/maps/place/X")).toBeNull();
     expect(mapsLinkPlace("https://maps.app.goo.gl/abc")).toBeNull();
   });
-  it("spots a share short link", () => {
-    expect(isMapsShortLink("https://maps.app.goo.gl/abc?g_st=ic")).toBe(true);
-    expect(isMapsShortLink(TAJ)).toBe(false);
+  it("splits a search link into the name and the address", () => {
+    expect(
+      mapsLinkPlace("https://www.google.com/maps/search/Tokyo+Tower,+4-ch%C5%8Dme-2-8+Shibak%C5%8Den,+Minato+City,+Tokyo+105-0011,+Japan/data=!4m2!3m1!1s0x1:0x2?utm_source=mstt_1&entry=gps"),
+    ).toEqual({ name: "Tokyo Tower", address: "4-chōme-2-8 Shibakōen, Minato City, Tokyo 105-0011, Japan", at: null });
+    expect(mapsLinkPlace("https://www.google.com/maps/place/?q=place_id:ChIJ123")).toEqual({ name: "", at: null });
+  });
+});
+
+describe("findMapsLink", () => {
+  it("finds the link in a pasted share", () => {
+    expect(findMapsLink("Tokyo Tower https://maps.app.goo.gl/abc?g_st=ic")).toEqual({ link: "https://maps.app.goo.gl/abc?g_st=ic", hint: "Tokyo Tower" });
+    expect(findMapsLink(TAJ)).toEqual({ link: TAJ, hint: "" });
+    expect(findMapsLink("Taj Fuji")).toBeNull();
+    expect(findMapsLink("https://example.com/maps/place/X")).toBeNull();
   });
 });

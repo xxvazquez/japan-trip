@@ -200,6 +200,30 @@ export async function osmVenueAt(lat: number, lng: number, name: string): Promis
 }
 
 /**
+ * Where an address is, for a pasted Google Maps place whose link doesn't
+ * say — Google's romanised Japanese addresses ("4-chōme-2-8 Shibakōen, …")
+ * often miss on OpenStreetMap, so it tries again without the house number,
+ * then without the street. Null when nothing matches or OSM can't be asked.
+ */
+export async function addressAt(address: string): Promise<[number, number] | null> {
+  const parts = address.split(/\s*,\s*/).filter(Boolean);
+  const [first = "", ...rest] = parts;
+  // "4-chōme-2-8 Shibakōen" → "Shibakōen"
+  const street = first.replace(/^[\d\s-]*(?:ch[oō]me)?[\d\s-]*(?=\D)/i, "").trim();
+  const tries = [parts.join(", "), [street, ...rest].filter(Boolean).join(", "), rest.join(", ")];
+  for (const q of new Set(tries)) {
+    if (q.length < 3) continue;
+    try {
+      const [hit] = await nominatimSearch(q);
+      if (hit) return [hit.lat, hit.lng];
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+/**
  * A town by name, with the city it belongs to — so a day trip can tell a
  * different city (Nara) from a district of the one you're staying in
  * (Arashiyama is in Kyoto). `near` biases the match toward the stay.
