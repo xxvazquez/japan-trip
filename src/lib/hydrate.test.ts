@@ -37,6 +37,16 @@ describe("normalizeTrip migrations", () => {
     expect(row?.categoryId).toBeUndefined();
   });
 
+  it("drops a spending row with neither a name nor an amount, keeping a named one", () => {
+    const current = normalizeTrip(buildDemo() as TripData);
+    current.days[0].costs = [
+      { id: "e1", label: "", amount: "" },
+      { id: "e2", label: "Taxi", amount: "" },
+      { id: "e3", label: "", amount: "20" },
+    ];
+    expect(normalizeTrip(current).days[0].costs?.map((c) => c.id)).toEqual(["e2", "e3"]);
+  });
+
   it("folds the old single journey link into the day's list, dropping gone journeys", () => {
     const raw = legacy();
     raw.journeys = [{ id: "j1", label: "A → B", kind: "transfer", segments: [] }];

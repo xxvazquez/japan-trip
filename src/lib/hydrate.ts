@@ -358,8 +358,10 @@ export function normalizeTrip<T extends Partial<TripData>>(data: T | null | unde
     if (day.altPlan && day.onAltPlan) day.onAltPlan = true;
     else delete day.onAltPlan;
     const cats = d.config.expenseCategories ?? [];
+    // a row with neither a name nor an amount holds nothing (the old add
+    // flow left them behind when closed early) — dropped
     day.costs = Array.isArray(day.costs)
-      ? day.costs.map((c) => ({
+      ? day.costs.filter((c) => !!c && (`${c.amount ?? ""}`.trim() || `${c.label ?? ""}`.trim())).map((c) => ({
           id: c.id || fieldId(),
           categoryId: c.categoryId || (legacyCosts ? guessCategoryId(c.label ?? "", cats) : undefined),
           label: c.label ?? "",
