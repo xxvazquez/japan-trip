@@ -430,6 +430,13 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
     setCosts([...(day.costs ?? []), { id, ...cost }]);
     setJustAddedCostId(id);
   };
+  // an amount logged on the wrong day: off this one, onto the end of the
+  // picked day's Spending — undoable, like moving a step
+  const moveCost = (cost: DayCost, to: DayT) =>
+    undoable(`Moved to ${fmtDate(to.date, loc, { weekday: "short", day: "numeric", month: "short" })}`, () => {
+      setCosts((day.costs ?? []).filter((c) => c.id !== cost.id));
+      updateEntity<DayT>("days", to.id, { costs: [...(to.costs ?? []), cost] });
+    });
   const quickAddCost = (item: PlanItem, anchor?: HTMLElement | null) => {
     quickSpendAnchor.current = anchor ?? null;
     setSpendFor(stepSpend(item));
@@ -939,6 +946,8 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         ]}>
           <CostList
             costs={day.costs ?? []}
+            dayId={day.id}
+            onMove={moveCost}
             categories={data.config.expenseCategories ?? []}
             currencies={(data.config.currencies ?? []).filter(Boolean)}
             choices={spendChoices}
@@ -2255,22 +2264,7 @@ function PlanRow({ day, tz, item, fresh, timeStart, place, areaPlaces, morePlace
               </ActionSheet>
             )}
             {!readOnly && (
-              <ActionSheet open={moveSheet.open} onClose={() => moveSheet.setOpen(false)} anchorRef={placeCardAnchor} title="Move to">
-                {tripDays.map((d) => {
-                  const here = d.id === day.id;
-                  const city = tripData?.legs.find((l) => l.id === d.legId)?.base;
-                  const sub = [d.title, city].filter(Boolean).join(" · ");
-                  return (
-                    <button key={d.id} type="button" className="menu-item" aria-current={here || undefined} onClick={() => (here ? moveSheet.setOpen(false) : moveTo(d))}>
-                      <span className="min-w-0 flex-1">
-                        <span className="block">{fmtDate(d.date, tripData?.config.locale, dayOpts)}</span>
-                        {sub && <span className="block break-words text-[13px] leading-snug text-ink-faint">{sub}</span>}
-                      </span>
-                      {here && <Icon name="check" size={16} className="shrink-0 text-accent" />}
-                    </button>
-                  );
-                })}
-              </ActionSheet>
+              <MoveToDaySheet sheet={moveSheet} anchorRef={placeCardAnchor} current={day.id} onPick={moveTo} />
             )}
             {!readOnly && (
               <DayLabelsSheet
@@ -2988,11 +2982,44 @@ function QuickSpend({ open, preset, onClose, anchorRef, currencies, defaultCurre
   );
 }
 
+/** "Move to": every day of the trip, by date, with its title and base —
+ *  the one it's on ticked. Picking that one just closes. */
+function MoveToDaySheet({ sheet, anchorRef, current, onPick }: {
+  sheet: ReturnType<typeof useActionSheet>;
+  anchorRef: React.RefObject<HTMLElement>;
+  current: string;
+  onPick: (day: DayT) => void;
+}) {
+  const data = useData();
+  const days = useMemo(() => [...(data?.days ?? [])].sort((a, b) => a.date.localeCompare(b.date)), [data?.days]);
+  return (
+    <ActionSheet open={sheet.open} onClose={() => sheet.setOpen(false)} anchorRef={anchorRef} title="Move to">
+      {days.map((d) => {
+        const here = d.id === current;
+        const city = data?.legs.find((l) => l.id === d.legId)?.base;
+        const sub = [d.title, city].filter(Boolean).join(" · ");
+        return (
+          <button key={d.id} type="button" className="menu-item" aria-current={here || undefined} onClick={() => { sheet.setOpen(false); if (!here) onPick(d); }}>
+            <span className="min-w-0 flex-1">
+              <span className="block">{fmtDate(d.date, data?.config.locale, MOVE_DAY_OPTS)}</span>
+              {sub && <span className="block break-words text-[13px] leading-snug text-ink-faint">{sub}</span>}
+            </span>
+            {here && <Icon name="check" size={16} className="shrink-0 text-accent" />}
+          </button>
+        );
+      })}
+    </ActionSheet>
+  );
+}
+const MOVE_DAY_OPTS = { weekday: "short", day: "numeric", month: "short" } as const;
+
 /** The day's spend — a category + a whole-number amount per row, with an
  *  optional free-text note. The amounts feed `tripCost`; the category drives
  *  the Expenses grouping. */
-function CostList({ costs, categories, currencies, choices, defaultCurrency, highlightId, readOnly, onChange }: {
+function CostList({ costs, dayId, categories, currencies, choices, defaultCurrency, highlightId, readOnly, onChange, onMove }: {
   costs: DayCost[];
+  /** the day these are on — ticked in Move to */
+  dayId: string;
   /** the currency a new row starts in; absent = the trip's primary */
   defaultCurrency?: string;
   categories: ExpenseCategory[];
@@ -3001,8 +3028,15 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
   highlightId?: string | null;
   readOnly: boolean;
   onChange: (next: DayCost[]) => void;
+  /** move one amount onto another day */
+  onMove: (cost: DayCost, to: DayT) => void;
 }) {
   const primary = currencies[0] ?? "";
+  // a row's hold (or right-click) menu: Move to another day, Delete
+  const moveSheet = useActionSheet();
+  const moving = useRef<DayCost | null>(null);
+  const days = useData()?.days.length ?? 0;
+  const movingRow = useRef<HTMLElement | null>(null);
   const setAt = (i: number, patch: Partial<DayCost>) => onChange(costs.map((c, j) => (j === i ? { ...c, ...patch } : c)));
   // the row just added opens straight onto what's missing: the keypad once
   // it's named (picked off the plan), else its name. Rendered inside the tap
@@ -3079,6 +3113,18 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
               className={`group relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden transition-colors duration-700 ${c.id === highlightId ? "bg-accent/10" : ""}`}
             >
               <SwipeToDelete message="This amount will be deleted." undoLabel="Expense removed" onDelete={readOnly ? undefined : () => onChange(costs.filter((_, j) => j !== i))}>
+              <ContextMenu menu={readOnly ? null : (
+                <>
+                  {days > 1 && (
+                    <button type="button" className="menu-item" onClick={() => { moving.current = c; movingRow.current = document.getElementById(`cost-${c.id}`); moveSheet.setOpen(true); }}>
+                      <Icon name="move" size={16} /> Move to Another Day
+                    </button>
+                  )}
+                  <button type="button" className="menu-item text-danger" onClick={() => undoable("Expense removed", () => onChange(costs.filter((x) => x.id !== c.id)))}>
+                    <Icon name="close" size={16} /> Delete
+                  </button>
+                </>
+              )}>
               <div className="px-3.5 py-3">
               <div className="flex items-start gap-3">
                 <IconTile size="sm" name={tile.name} glyph={tile.glyph} tone={tile.tone} color={tile.color} className="mt-0.5 shrink-0" />
@@ -3136,6 +3182,7 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
                 {!readOnly && <RowDeleteButton undoLabel="Expense removed" onClick={() => onChange(costs.filter((_, j) => j !== i))} />}
               </div>
               </div>
+              </ContextMenu>
               </SwipeToDelete>
             </li>
           );
@@ -3159,6 +3206,9 @@ function CostList({ costs, categories, currencies, choices, defaultCurrency, hig
         </li>
       )}
       {!readOnly && <li>{addButton("action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07] active:opacity-100", 14)}</li>}
+      {!readOnly && (
+        <MoveToDaySheet sheet={moveSheet} anchorRef={movingRow as React.RefObject<HTMLElement>} current={dayId} onPick={(d) => moving.current && onMove(moving.current, d)} />
+      )}
     </ul>
   );
 }

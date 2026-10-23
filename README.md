@@ -255,6 +255,7 @@ Suggestions from the trip's own saved places — nothing is looked up from outsi
 - **Custom…** asks for a name first; Return moves on to the keypad.
 - A row left with no name and no amount goes away. A typed name is kept even with no amount yet.
 - **Tap the grey category** under an amount to change it.
+- **Hold an amount** (right-click on a computer) to **Move to Another Day** — it goes to the end of that day's Spending, and Undo brings it back — or **Delete** it.
 - **Total spent** is per currency. Spent in more than one, an **In PLN** row (the trip's first currency) adds it all up at the same rates as Expenses; it shows once every currency has a rate.
 
 ### Journeys on a day
