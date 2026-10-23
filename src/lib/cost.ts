@@ -246,6 +246,16 @@ export function tripCost(data: TripData): CostSummary {
   return { byCurrency, categories, unparsed, items };
 }
 
+/** Whether an amount is day-to-day spending rather than a booking made for
+ *  the trip: a stay's price, a flight, or anything filed under the
+ *  accommodation category or one that collects flights is a booking. Read off
+ *  what it is and the trip's own categories, never a category's name. */
+export function isDaySpend(it: CostItem, categories: ExpenseCategory[]): boolean {
+  if (it.kind === "stay" || it.mode === "flight") return false;
+  const cat = categories.find((c) => c.id === it.categoryId);
+  return !(cat?.role === "lodging" || cat?.modes?.includes("flight"));
+}
+
 /** The trip's amounts by the day they fall on, for a per-day chart: a day's
  *  spending and a fare on their date, a stay's price shared evenly across
  *  its nights (so a week's booking doesn't stand as one tall day). An

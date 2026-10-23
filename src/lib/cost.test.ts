@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { expenseCategoryForGlyph, fmtMoney, moneyParts, parseMoney, spendByDay, tripCost } from "./cost";
+import { expenseCategoryForGlyph, fmtMoney, isDaySpend, moneyParts, parseMoney, spendByDay, tripCost } from "./cost";
 import { normalizeTrip } from "./hydrate";
 import { buildBlank } from "@/templates/blank";
 
@@ -79,5 +79,24 @@ describe("spendByDay", () => {
     ] as never;
     const days = spendByDay(trip, tripCost(trip).items).map((x) => [x.date, Math.round(x.amount)]);
     expect(days).toEqual([["2026-11-01", 450], ["2026-11-02", 450], ["2026-11-01", 100]]);
+  });
+});
+
+describe("isDaySpend", () => {
+  it("leaves out stays and flights, whatever the categories are called", () => {
+    const categories = [
+      { id: "home", label: "Hotels", role: "lodging" },
+      { id: "air", label: "Planes", modes: ["flight"] },
+      { id: "rail", label: "Rail", modes: ["train"] },
+      { id: "food", label: "Eating" },
+    ] as never;
+    const item = (o: object) => ({ amount: 1, currency: "PLN", title: "x", to: "/", kind: "day", ...o }) as never;
+    expect(isDaySpend(item({ kind: "stay", categoryId: "home" }), categories)).toBe(false);
+    expect(isDaySpend(item({ kind: "fare", mode: "flight", categoryId: "air" }), categories)).toBe(false);
+    expect(isDaySpend(item({ categoryId: "home" }), categories)).toBe(false); // a hotel paid on the day
+    expect(isDaySpend(item({ categoryId: "air" }), categories)).toBe(false);
+    expect(isDaySpend(item({ kind: "fare", mode: "train", categoryId: "rail" }), categories)).toBe(true);
+    expect(isDaySpend(item({ categoryId: "food" }), categories)).toBe(true);
+    expect(isDaySpend(item({}), categories)).toBe(true);
   });
 });

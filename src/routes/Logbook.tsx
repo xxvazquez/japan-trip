@@ -42,7 +42,7 @@ import { fmtDate, fmtSpan, fmtStay, hotelStays, journeyDepartDate, plural } from
 import { MODE_ICON } from "@/lib/transport";
 import { toneForSegmentMode, logbookSectionTile, customListColor, contactTile, documentTile, TONE_BG, type Tone } from "@/lib/tones";
 import { LOGBOOK_SECTIONS, logbookLabel, packingGroups, sectionSlug, sectionFromSlug, type LogbookSection } from "@/lib/logbook";
-import { tripCost, fmtMoney, combineCurrencies, expenseCategoryIcon, spendByDay, type CostItem } from "@/lib/cost";
+import { tripCost, fmtMoney, combineCurrencies, expenseCategoryIcon, isDaySpend, spendByDay, type CostItem } from "@/lib/cost";
 import { useFxRates, useTripSpent } from "@/lib/fx";
 import { tripGuides } from "@/guides";
 import type { CustomList, Doc, LuggageNote, PackingItem, ScratchNote, TripData } from "@/core/types";
@@ -770,7 +770,10 @@ function SpendingChart({ items, categories, primary, rates }: {
   const [picked, setPicked] = useState<number | null>(null);
   const days = useMemo(() => [...new Set(data.days.map((d) => d.date))].sort(), [data.days]);
   const toPrimary = (amount: number, cur: string) => (cur === primary ? amount : cur && rates[cur] ? amount / rates[cur] : null);
-  const spread = spendByDay(data, items);
+  // day-to-day spending only: stays and flights are booked for the trip,
+  // and one would stand over every other day (they're in the totals below)
+  const spread = spendByDay(data, items.filter((it) => isDaySpend(it, categories)));
+  const booked = items.some((it) => !isDaySpend(it, categories));
   const missing = [...new Set(spread.filter((x) => toPrimary(x.amount, x.currency) === null).map((x) => x.currency))];
   // per day: each category's share, in the categories' own order
   const order = [...categories.map((c) => c.id), ""];
@@ -848,6 +851,7 @@ function SpendingChart({ items, categories, primary, rates }: {
             </span>
           ))}
         </div>
+        {booked && <p className="meta mt-2">Stays and flights aren’t counted here — they’re in the totals below.</p>}
         {missing.length > 0 && <p className="meta mt-2">Not included yet: {missing.join(", ")} — no exchange rate.</p>}
       </div>
     </Section>
