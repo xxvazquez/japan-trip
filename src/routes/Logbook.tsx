@@ -40,7 +40,7 @@ import { gmapsLink } from "@/lib/maps";
 import { pickBackend } from "@/lib/backend";
 import { fmtDate, fmtSpan, fmtStay, hotelStays, journeyDepartDate, plural } from "@/lib/dates";
 import { MODE_ICON } from "@/lib/transport";
-import { toneForSegmentMode, logbookSectionTile, customListColor, contactTile, documentTile, TONE_BG, type Tone } from "@/lib/tones";
+import { toneForSegmentMode, logbookSectionTile, customListColor, contactTile, documentTile, TONE_BG, AREA_TONES, NEUTRAL_TONE, type Tone } from "@/lib/tones";
 import { LOGBOOK_SECTIONS, logbookLabel, packingGroups, sectionSlug, sectionFromSlug, type LogbookSection } from "@/lib/logbook";
 import { tripCost, fmtMoney, roundMoney, combineCurrencies, expenseCategoryIcon, isDaySpend, spendByDay, type CostItem } from "@/lib/cost";
 import { useFxRates, useTripSpent } from "@/lib/fx";
@@ -768,6 +768,8 @@ function SpendingChart({ items, categories, primary, rates }: {
   const data = useData()!;
   const today = useToday();
   const [picked, setPicked] = useState<number | null>(null);
+  /** a category picked out in the legend — the bars show only it */
+  const [focus, setFocus] = useState<string | null>(null);
   const toPrimary = (amount: number, cur: string) => (cur === primary ? amount : cur && rates[cur] ? amount / rates[cur] : null);
   // day-to-day spending only: stays and flights are booked for the trip,
   // and one would stand over every other day (they're in the totals below)
@@ -802,62 +804,153 @@ function SpendingChart({ items, categories, primary, rates }: {
     const c = categories.find((x) => x.id === id);
     return c ? expenseCategoryIcon(c, categories.indexOf(c)) : null;
   };
+  const nameOf = (id: string) => categories.find((c) => c.id === id)?.label ?? "Uncategorised";
+  // a category's colour in the chart: its tile's, the one its row wears
+  // below — unless a bigger category already has that colour (Train and
+  // Transport share a blue), when it takes the next unused area tone, so no
+  // two series ever look alike
+  const colours = new Map<string, { className: string; style?: { background: string } }>();
+  const swatch = (id: string) => colours.get(id) ?? { className: "bg-ink-faint" };
+  const money = (v: number) => fmtMoney(roundMoney(v, primary), primary);
   const sel = picked !== null ? perDay[picked] : null;
   const city = sel ? data.legs.find((l) => l.id === data.days.find((d) => d.date === sel.date)?.legId)?.base : undefined;
+  // the categories the bars hold, biggest first — the chart's legend
+  const byCat = new Map<string, number>();
+  for (const d of perDay) for (const part of d.parts) byCat.set(part.id, (byCat.get(part.id) ?? 0) + part.amount);
+  const legend = [...byCat].sort((x, y) => y[1] - x[1]).map(([id, amount]) => ({ id, amount }));
+  const taken = new Set<string>();
+  for (const { id } of legend) {
+    const tile = tileOf(id);
+    const key = tile ? tile.color ?? `tone:${tile.tone ?? "accent"}` : "none";
+    if (!taken.has(key)) {
+      taken.add(key);
+      colours.set(id, tile?.color ? { className: "", style: { background: tile.color } } : { className: tile ? TONE_BG[tile.tone ?? "accent"] : "bg-ink-faint" });
+      continue;
+    }
+    const spare = AREA_TONES.find((hex) => !taken.has(hex)) ?? NEUTRAL_TONE;
+    taken.add(spare);
+    colours.set(id, { className: "", style: { background: spare } });
+  }
+  const shown = (id: string) => (sel ? sel.parts.find((p) => p.id === id)?.amount ?? 0 : byCat.get(id) ?? 0);
+  // a scale with round steps, as Health draws one: three lines to just above the tallest day
+  const step = niceStep(max / 3);
+  const top = Math.ceil(max / step) * step;
+  const ticks = Array.from({ length: Math.round(top / step) }, (_, i) => (i + 1) * step);
+  const compact = new Intl.NumberFormat(loc, { notation: "compact", maximumFractionDigits: 1 });
   // a label under every bar while they fit, else under every seventh
   const every = days.length <= 14 ? 1 : 7;
+  const range = `${fmtDate(days[0], loc, { day: "numeric", month: "short" })} – ${fmtDate(days.at(-1)!, loc, { day: "numeric", month: "short", year: "numeric" })}`;
+  const focusTotal = focus !== null ? perDay.reduce((sum, d) => sum + (d.parts.find((p) => p.id === focus)?.amount ?? 0), 0) : null;
+  const faded = (i: number) => picked !== null && picked !== i;
 
   return (
     <Section title="Spending per day">
-      <div className="px-3.5 pb-3 pt-3">
-        <p className="meta">{sel ? [fmtDate(sel.date, loc, { weekday: "short", day: "numeric", month: "short" }), city].filter(Boolean).join(" · ") : "Total"}</p>
-        <p className="text-[24px] font-semibold leading-tight tabular-nums text-ink">{fmtMoney(roundMoney(sel ? sel.total : total, primary), primary)}</p>
-        <p className="meta">{sel ? (sel.parts.length ? sel.parts.map((p) => `${categories.find((c) => c.id === p.id)?.label ?? "Uncategorised"} ${fmtMoney(roundMoney(p.amount, primary), primary)}`).join(" · ") : "Nothing spent") : `Daily average${midTrip ? " so far" : ""} ${fmtMoney(roundMoney(average, primary), primary)}`}</p>
-        <div className="relative mt-3 h-36" onMouseLeave={() => setPicked(null)}>
-          {/* the daily average, as a dashed rule across the bars */}
-          <div aria-hidden className="pointer-events-none absolute inset-x-0 border-t border-dashed border-ink-faint/60" style={{ bottom: `${(average / max) * 100}%` }} />
-          <div className="flex h-full items-end justify-around gap-[2px]">
-            {perDay.map((d, i) => (
-              <button
-                key={d.date}
-                type="button"
-                aria-label={`${fmtDate(d.date, loc, { weekday: "long", day: "numeric", month: "long" })}: ${fmtMoney(roundMoney(d.total, primary), primary)}`}
-                aria-pressed={picked === i}
-                onClick={() => setPicked(picked === i ? null : i)}
-                onMouseEnter={(e) => { if (window.matchMedia("(hover: hover)").matches) setPicked(i); else e.preventDefault(); }}
-                className="flex h-full min-w-0 max-w-[40px] flex-1 flex-col justify-end"
-              >
-                <span
-                  className={`flex w-full flex-col-reverse gap-[2px] overflow-hidden rounded-t-[4px] transition-opacity ${picked !== null && picked !== i ? "opacity-40" : ""}`}
-                  style={{ height: `${(d.total / max) * 100}%` }}
+      <div className="px-3.5 pb-3.5 pt-3">
+        {/* the headline, as Health and Screen Time lead a chart: what it is,
+            the figure, and the period — or the day or category picked */}
+        <p className="text-xs font-semibold uppercase tracking-wide text-ink-faint">
+          {sel ? "Spent" : focus !== null ? nameOf(focus) : "Total"}
+        </p>
+        <p className="text-[28px] font-semibold leading-tight tabular-nums text-ink">{money(sel ? sel.total : focusTotal ?? total)}</p>
+        <p className="meta">
+          {sel ? [fmtDate(sel.date, loc, { weekday: "long", day: "numeric", month: "long" }), city].filter(Boolean).join(" · ") : range}
+        </p>
+        <div className="mt-4 flex" onMouseLeave={() => setPicked(null)}>
+          <div className="relative h-40 min-w-0 flex-1">
+            {/* the scale's lines, faint, under the bars */}
+            {ticks.map((t) => (
+              <div key={t} aria-hidden className="pointer-events-none absolute inset-x-0 border-t border-line" style={{ bottom: `${(t / top) * 100}%` }} />
+            ))}
+            <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 border-t border-line" />
+            {/* the daily average, dashed and labelled, as Screen Time marks it */}
+            <div aria-hidden className="pointer-events-none absolute inset-x-0 z-10 border-t border-dashed border-accent" style={{ bottom: `${(average / top) * 100}%` }} />
+            <div className="relative flex h-full items-end justify-around gap-[2px]">
+              {perDay.map((d, i) => (
+                <button
+                  key={d.date}
+                  type="button"
+                  aria-label={`${fmtDate(d.date, loc, { weekday: "long", day: "numeric", month: "long" })}: ${money(d.total)}`}
+                  aria-pressed={picked === i}
+                  onClick={() => setPicked(picked === i ? null : i)}
+                  onMouseEnter={() => { if (window.matchMedia("(hover: hover)").matches) setPicked(i); }}
+                  className="flex h-full min-w-0 max-w-[32px] flex-1 flex-col justify-end"
                 >
-                  {d.parts.map((p) => {
-                    const tile = tileOf(p.id);
-                    return (
-                      <span
-                        key={p.id}
-                        className={tile?.color ? "" : tile ? TONE_BG[tile.tone ?? "accent"] : "bg-ink-faint opacity-50"}
-                        style={{ flexGrow: p.amount, flexBasis: 0, minHeight: 2, background: tile?.color }}
-                      />
-                    );
-                  })}
-                </span>
-              </button>
+                  <span
+                    className={`flex w-full flex-col-reverse gap-[2px] overflow-hidden rounded-t-[4px] transition-opacity ${faded(i) ? "opacity-30" : ""}`}
+                    style={{ height: `${(d.total / top) * 100}%` }}
+                  >
+                    {d.parts.map((part) => {
+                      const sw = swatch(part.id);
+                      return (
+                        <span
+                          key={part.id}
+                          className={`${sw.className} transition-opacity ${focus !== null && focus !== part.id ? "opacity-20" : ""}`}
+                          style={{ flexGrow: part.amount, flexBasis: 0, minHeight: 2, ...sw.style }}
+                        />
+                      );
+                    })}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* the scale's amounts, on the right as Health keeps them */}
+          <div aria-hidden className="relative h-40 w-11 shrink-0">
+            {/* a figure too close to "avg" gives way to it */}
+            {ticks.filter((t) => Math.abs(t - average) / top > 0.09).map((t) => (
+              <span key={t} className="meta absolute right-0 translate-y-1/2 text-[11px] leading-none tabular-nums" style={{ bottom: `${(t / top) * 100}%` }}>{compact.format(t)}</span>
+            ))}
+            <span className="absolute right-0 translate-y-1/2 text-[11px] font-medium leading-none text-accent" style={{ bottom: `${(average / top) * 100}%` }}>avg</span>
+          </div>
+        </div>
+        <div aria-hidden className="mt-1 flex pr-11">
+          <div className="flex min-w-0 flex-1 justify-around gap-[2px]">
+            {perDay.map((d, i) => (
+              <span key={d.date} className="meta flex min-w-0 max-w-[32px] flex-1 justify-center whitespace-nowrap text-[11px]">
+                {i % every === 0 ? (every === 1 ? fmtDate(d.date, loc, { weekday: "narrow" }) : fmtDate(d.date, loc, { day: "numeric", month: "short" })) : ""}
+              </span>
             ))}
           </div>
         </div>
-        <div aria-hidden className="mt-1 flex justify-around gap-[2px]">
-          {perDay.map((d, i) => (
-            <span key={d.date} className="meta flex min-w-0 max-w-[40px] flex-1 justify-center whitespace-nowrap text-[11px]">
-              {i % every === 0 ? (every === 1 ? fmtDate(d.date, loc, { weekday: "narrow" }) : fmtDate(d.date, loc, { day: "numeric", month: "short" })) : ""}
-            </span>
-          ))}
-        </div>
-        {booked && <p className="meta mt-2">Stays and flights aren’t counted here — they’re in the totals below.</p>}
+        <p className="meta mt-2">Daily average{midTrip ? " so far" : ""} {money(average)}</p>
+        {/* the legend: each category in its colour with what it comes to —
+            for the day picked, or the whole trip. Tap one to pick it out */}
+        <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5 sm:grid-cols-3">
+          {legend.map(({ id }) => {
+            const sw = swatch(id);
+            const on = focus === id;
+            const amount = shown(id);
+            return (
+              <li key={id}>
+                <button
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => { setPicked(null); setFocus(on ? null : id); }}
+                  className={`flex w-full items-start gap-2 text-left transition-opacity ${(focus !== null && !on) || (sel && !amount) ? "opacity-40" : ""}`}
+                >
+                  <span aria-hidden className={`mt-[5px] h-2.5 w-2.5 shrink-0 rounded-full ${sw.className}`} style={sw.style} />
+                  <span className="min-w-0">
+                    <span className="block break-words text-[13px] leading-snug text-ink-soft">{nameOf(id)}</span>
+                    <span className="block text-sm font-medium tabular-nums text-ink">{money(amount)}</span>
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+        {booked && <p className="meta mt-3">Stays and flights aren’t counted here — they’re in the totals below.</p>}
         {missing.length > 0 && <p className="meta mt-2">Not included yet: {missing.join(", ")} — no exchange rate.</p>}
       </div>
     </Section>
   );
+}
+
+/** A round step for a chart's scale — 1, 2, 2.5 or 5 times a power of ten. */
+function niceStep(raw: number): number {
+  if (!(raw > 0)) return 1;
+  const mag = 10 ** Math.floor(Math.log10(raw));
+  const n = raw / mag;
+  return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * mag;
 }
 
 /** Expenses by date, as Wallet lists transactions: a heading per day (its
