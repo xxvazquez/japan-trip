@@ -349,11 +349,13 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
   }
   // a new amount starts in the currency last used for day spending — on a
   // trip abroad that's the local one, not the home currency listed first
-  const lastSpendCurrency = [...data.days]
+  // (an amount in the home currency is stored with no code: that's it)
+  const lastSpend = [...data.days]
     .filter((x) => x.date <= day.date && x.costs?.some((c) => c.amount))
     .sort((a, b) => a.date.localeCompare(b.date))
     .flatMap((x) => (x.costs ?? []).filter((c) => c.amount))
-    .at(-1)?.currency;
+    .at(-1);
+  const lastSpendCurrency = lastSpend ? lastSpend.currency || data.config.currencies?.[0] : undefined;
   const overwhelmingCount = dayPlaces.filter((p) => p.overwhelming).length;
   // the day's forecast — anchored to wherever you're staying that day (an
   // override, else the leg's own hotel), since a day has no coordinates of
