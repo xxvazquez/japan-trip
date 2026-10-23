@@ -643,21 +643,26 @@ function Expenses() {
     return segs;
   };
 
+  // one switch for the chart and the list under it, as Health's D / W / M
+  // changes the chart and its figures together
   const switcher = (
     <SegmentedControl
-      className="mx-auto max-w-[18rem]"
       value={by}
       onChange={(v) => setParams(v === "category" ? {} : { by: v }, { replace: true })}
-      options={[{ value: "category", label: "Category" }, { value: "city", label: "City" }, { value: "date", label: "Date" }]}
+      options={[{ value: "category", label: "Category" }, { value: "date", label: "Day" }, { value: "city", label: "City" }]}
     />
   );
-  const chart = <SpendingChart items={items} categories={categories} primary={primary} rates={rates} />;
+  const hasChart = items.some((it) => it.currency === primary || !!rates[it.currency]);
+  const rateNote = others.length && date
+    ? `Other currencies converted at the rate of ${fmtDate(date, data.config.locale, { day: "numeric", month: "short" })}${stale ? " (the last one fetched)" : ""}.`
+    : undefined;
+  const chart = <ExpenseCharts mode={by} items={items} categories={categories} primary={primary} rates={rates} note={rateNote} />;
 
   if (by !== "category") {
     return (
       <div className="space-y-6">
-        {chart}
         {switcher}
+        {chart}
         {by === "city"
           ? <ExpensesByCity items={items} categories={categories} primary={primary} rates={rates} catLabel={catLabel} />
           : <ExpensesByDate items={items} categories={categories} primary={primary} rates={rates} />}
@@ -667,9 +672,11 @@ function Expenses() {
 
   return (
     <div className="space-y-6">
-      {chart}
       {switcher}
-      {combined && (
+      {chart}
+      {/* the chart above already ranks the combined totals; this stays for
+          when it can't (no rates yet) */}
+      {combined && !hasChart && (
         <Section
           title={`Combined · ${primary}`}
           info={[
@@ -754,16 +761,197 @@ function sumIn(items: CostItem[], primary: string, rates: Record<string, number>
   return { total, paid: [...byCur].map(([cur, amount]) => fmtMoney(amount, cur)).join(" + ") };
 }
 
+/** a category's fill in a chart: a tone class, or a hex */
+type Swatch = { className: string; style?: { background: string } };
+
+
+/** The chart at the top of Expenses for the grouping picked: spending per
+ *  day (with the list by date), the whole trip by category, or by city. Every chart paints a category the same
+ *  colour — its tile's, unless a bigger category already has that colour
+ *  (Train and Transport share a blue), when it takes the next unused area
+ *  tone — so no two series ever look alike. */
+function ExpenseCharts({ mode, items, categories, primary, rates, note }: {
+  mode: ExpensesBy;
+  /** how other currencies were converted */
+  note?: string;
+  items: CostItem[];
+  categories: ExpenseCat[];
+  primary: string;
+  rates: Record<string, number>;
+}) {
+  const toPrimary = (amount: number, cur: string) => (cur === primary ? amount : cur && rates[cur] ? amount / rates[cur] : null);
+  // every category's whole-trip total, biggest first — the colour order
+  const totals = new Map<string, number>();
+  for (const it of items) {
+    const v = toPrimary(it.amount, it.currency);
+    if (v !== null) totals.set(it.categoryId ?? "", (totals.get(it.categoryId ?? "") ?? 0) + v);
+  }
+  const ranked = [...totals].sort((x, y) => y[1] - x[1]).map(([id]) => id);
+  const colours = new Map<string, Swatch>();
+  const taken = new Set<string>();
+  for (const id of ranked) {
+    const c = categories.find((x) => x.id === id);
+    const tile = c ? expenseCategoryIcon(c, categories.indexOf(c)) : null;
+    const key = tile ? tile.color ?? `tone:${tile.tone ?? "accent"}` : "none";
+    if (!taken.has(key)) {
+      taken.add(key);
+      colours.set(id, tile?.color ? { className: "", style: { background: tile.color } } : { className: tile ? TONE_BG[tile.tone ?? "accent"] : "bg-ink-faint" });
+      continue;
+    }
+    const spare = AREA_TONES.find((hex) => !taken.has(hex)) ?? NEUTRAL_TONE;
+    taken.add(spare);
+    colours.set(id, { className: "", style: { background: spare } });
+  }
+  const swatch = (id: string): Swatch => colours.get(id) ?? { className: "bg-ink-faint" };
+  const unrated = [...new Set(items.filter((it) => toPrimary(it.amount, it.currency) === null).map((it) => it.currency || "—"))];
+  if (!ranked.length) return null;
+  const props = { items, categories, primary, rates, swatch };
+  return (
+    <Section title={mode === "date" ? "Spending per day" : mode === "city" ? "Spending by city" : "Spending by category"} id="expenses-charts">
+      <div className="px-3.5 pb-3.5 pt-3">
+        {mode === "date" ? <SpendingChart {...props} /> : mode === "category" ? <CategoryBars {...props} /> : <CityBars {...props} />}
+        {mode !== "date" && unrated.length > 0 && <p className="meta mt-3">Not included yet: {unrated.join(", ")} — no exchange rate.</p>}
+        {note && <p className="meta mt-3">{note}</p>}
+      </div>
+    </Section>
+  );
+}
+
+/** The chart header every view shares: what it counts, the figure, and the
+ *  line under it. */
+function ChartHead({ label, value, sub }: { label: string; value: string; sub: string }) {
+  return (
+    <>
+      <p className="text-xs font-semibold uppercase tracking-wide text-ink-faint">{label}</p>
+      <p className="text-[28px] font-semibold leading-tight tabular-nums text-ink">{value}</p>
+      <p className="meta">{sub}</p>
+    </>
+  );
+}
+
+/** The whole trip by category, as Apple Card ranks its categories: a bar
+ *  each, longest first, with the amount and its share — stays and fares
+ *  included. A row opens the category's amounts. */
+function CategoryBars({ items, categories, primary, rates, swatch }: {
+  items: CostItem[];
+  categories: ExpenseCat[];
+  primary: string;
+  rates: Record<string, number>;
+  swatch: (id: string) => Swatch;
+}) {
+  const money = (v: number) => fmtMoney(roundMoney(v, primary), primary);
+  const toPrimary = (amount: number, cur: string) => (cur === primary ? amount : cur && rates[cur] ? amount / rates[cur] : null);
+  const totals = new Map<string, number>();
+  for (const it of items) {
+    const v = toPrimary(it.amount, it.currency);
+    if (v !== null) totals.set(it.categoryId ?? "", (totals.get(it.categoryId ?? "") ?? 0) + v);
+  }
+  const rows = [...totals].sort((x, y) => y[1] - x[1]);
+  const total = rows.reduce((sum, [, v]) => sum + v, 0);
+  const max = rows[0]?.[1] ?? 1;
+  const pct = new Intl.NumberFormat(undefined, { style: "percent", maximumFractionDigits: 0 });
+  return (
+    <>
+      <ChartHead label="Total" value={money(total)} sub={`${plural(rows.length, "category", "categories")} · stays and fares included`} />
+      <ul className="mt-4 space-y-3">
+        {rows.map(([id, v]) => {
+          const sw = swatch(id);
+          const name = categories.find((c) => c.id === id)?.label ?? "Uncategorised";
+          return (
+            <li key={id || "none"}>
+              <Link to={`/logbook/budget/${id || UNCATEGORISED}`} viewTransition className="block rounded-[8px] transition-colors active:bg-ink/[0.07]">
+                <span className="flex items-baseline justify-between gap-3">
+                  <span className="min-w-0 break-words text-sm text-ink">{name}</span>
+                  <span className="shrink-0 text-sm tabular-nums text-ink">
+                    {money(v)} <span className="text-ink-faint">· {pct.format(v / total)}</span>
+                  </span>
+                </span>
+                <span className="mt-1 block h-2 w-full overflow-hidden rounded-full bg-ink/[0.06]">
+                  <span className={`block h-full rounded-full ${sw.className}`} style={{ width: `${Math.max(1.5, (v / max) * 100)}%`, ...sw.style }} />
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </>
+  );
+}
+
+/** The whole trip by city: a bar each, in trip order, split into its
+ *  categories in their chart colours, with the amount at the end and the
+ *  categories' key under the bars. */
+function CityBars({ items, categories, primary, rates, swatch }: {
+  items: CostItem[];
+  categories: ExpenseCat[];
+  primary: string;
+  rates: Record<string, number>;
+  swatch: (id: string) => Swatch;
+}) {
+  const money = (v: number) => fmtMoney(roundMoney(v, primary), primary);
+  const toPrimary = (amount: number, cur: string) => (cur === primary ? amount : cur && rates[cur] ? amount / rates[cur] : null);
+  const ordered = [...items].sort((a, b) => (a.date ?? "\uffff").localeCompare(b.date ?? "\uffff"));
+  const cities = [...new Set(ordered.map((it) => it.city ?? ""))].sort((a, b) => (a === "" ? 1 : b === "" ? -1 : 0));
+  const rows = cities.map((city) => {
+    const byCat = new Map<string, number>();
+    for (const it of items) {
+      if ((it.city ?? "") !== city) continue;
+      const v = toPrimary(it.amount, it.currency);
+      if (v !== null) byCat.set(it.categoryId ?? "", (byCat.get(it.categoryId ?? "") ?? 0) + v);
+    }
+    const parts = [...byCat].sort((x, y) => y[1] - x[1]);
+    return { city, parts, total: parts.reduce((sum, [, v]) => sum + v, 0) };
+  }).filter((r) => r.total > 0);
+  const max = Math.max(...rows.map((r) => r.total), 1);
+  const total = rows.reduce((sum, r) => sum + r.total, 0);
+  const used = [...new Set(rows.flatMap((r) => r.parts.map(([id]) => id)))];
+  return (
+    <>
+      <ChartHead label="Total" value={money(total)} sub={`${plural(rows.length, "city", "cities")} · stays and fares included`} />
+      <ul className="mt-4 space-y-3">
+        {rows.map((r) => (
+          <li key={r.city || "elsewhere"}>
+            <div>
+              <span className="flex items-baseline justify-between gap-3">
+                <span className="min-w-0 break-words text-sm text-ink">{r.city || "Elsewhere"}</span>
+                <span className="shrink-0 text-sm tabular-nums text-ink">{money(r.total)}</span>
+              </span>
+              <span className="mt-1 flex h-2.5 gap-[2px] overflow-hidden rounded-full" style={{ width: `${Math.max(2, (r.total / max) * 100)}%` }}>
+                {r.parts.map(([id, v]) => {
+                  const sw = swatch(id);
+                  return <span key={id || "none"} className={sw.className} style={{ flexGrow: v, flexBasis: 0, minWidth: 2, ...sw.style }} />;
+                })}
+              </span>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5">
+        {used.map((id) => {
+          const sw = swatch(id);
+          return (
+            <li key={id || "none"} className="flex items-center gap-1.5 text-[13px] text-ink-soft">
+              <span aria-hidden className={`h-2.5 w-2.5 rounded-full ${sw.className}`} style={sw.style} />
+              {categories.find((c) => c.id === id)?.label ?? "Uncategorised"}
+            </li>
+          );
+        })}
+      </ul>
+    </>
+  );
+}
+
 /** Spending per day, as Apple Card's spending card: the trip's total (or the
  *  day under the finger or pointer) over a bar per trip day, each stacked by
  *  category in the colours the category rows wear, with the daily average as
  *  a dashed line. All in the trip's main currency; an amount whose currency
  *  has no rate yet is left out and said so. */
-function SpendingChart({ items, categories, primary, rates }: {
+function SpendingChart({ items, categories, primary, rates, swatch }: {
   items: CostItem[];
   categories: ExpenseCat[];
   primary: string;
   rates: Record<string, number>;
+  swatch: (id: string) => Swatch;
 }) {
   const data = useData()!;
   const today = useToday();
@@ -800,17 +988,8 @@ function SpendingChart({ items, categories, primary, rates }: {
   const midTrip = sofar.length > 0 && sofar.length < days.length;
   const average = midTrip ? sofar.reduce((sum, d) => sum + d.total, 0) / sofar.length : total / days.length;
   const loc = data.config.locale;
-  const tileOf = (id: string) => {
-    const c = categories.find((x) => x.id === id);
-    return c ? expenseCategoryIcon(c, categories.indexOf(c)) : null;
-  };
   const nameOf = (id: string) => categories.find((c) => c.id === id)?.label ?? "Uncategorised";
-  // a category's colour in the chart: its tile's, the one its row wears
-  // below — unless a bigger category already has that colour (Train and
-  // Transport share a blue), when it takes the next unused area tone, so no
-  // two series ever look alike
-  const colours = new Map<string, { className: string; style?: { background: string } }>();
-  const swatch = (id: string) => colours.get(id) ?? { className: "bg-ink-faint" };
+
   const money = (v: number) => fmtMoney(roundMoney(v, primary), primary);
   const sel = picked !== null ? perDay[picked] : null;
   const city = sel ? data.legs.find((l) => l.id === data.days.find((d) => d.date === sel.date)?.legId)?.base : undefined;
@@ -818,19 +997,7 @@ function SpendingChart({ items, categories, primary, rates }: {
   const byCat = new Map<string, number>();
   for (const d of perDay) for (const part of d.parts) byCat.set(part.id, (byCat.get(part.id) ?? 0) + part.amount);
   const legend = [...byCat].sort((x, y) => y[1] - x[1]).map(([id, amount]) => ({ id, amount }));
-  const taken = new Set<string>();
-  for (const { id } of legend) {
-    const tile = tileOf(id);
-    const key = tile ? tile.color ?? `tone:${tile.tone ?? "accent"}` : "none";
-    if (!taken.has(key)) {
-      taken.add(key);
-      colours.set(id, tile?.color ? { className: "", style: { background: tile.color } } : { className: tile ? TONE_BG[tile.tone ?? "accent"] : "bg-ink-faint" });
-      continue;
-    }
-    const spare = AREA_TONES.find((hex) => !taken.has(hex)) ?? NEUTRAL_TONE;
-    taken.add(spare);
-    colours.set(id, { className: "", style: { background: spare } });
-  }
+
   const shown = (id: string) => (sel ? sel.parts.find((p) => p.id === id)?.amount ?? 0 : byCat.get(id) ?? 0);
   // a scale with round steps, as Health draws one: three lines to just above the tallest day
   const step = niceStep(max / 3);
@@ -844,12 +1011,11 @@ function SpendingChart({ items, categories, primary, rates }: {
   const faded = (i: number) => picked !== null && picked !== i;
 
   return (
-    <Section title="Spending per day">
-      <div className="px-3.5 pb-3.5 pt-3">
+    <>
         {/* the headline, as Health and Screen Time lead a chart: what it is,
             the figure, and the period — or the day or category picked */}
         <p className="text-xs font-semibold uppercase tracking-wide text-ink-faint">
-          {sel ? "Spent" : focus !== null ? nameOf(focus) : "Total"}
+          {sel ? "Spent" : focus !== null ? nameOf(focus) : "Day-to-day total"}
         </p>
         <p className="text-[28px] font-semibold leading-tight tabular-nums text-ink">{money(sel ? sel.total : focusTotal ?? total)}</p>
         <p className="meta">
@@ -938,10 +1104,9 @@ function SpendingChart({ items, categories, primary, rates }: {
             );
           })}
         </ul>
-        {booked && <p className="meta mt-3">Stays and flights aren’t counted here — they’re in the totals below.</p>}
+        {booked && <p className="meta mt-3">Day-to-day spending: stays and flights aren’t counted here, but they are in the list below and in Category and City.</p>}
         {missing.length > 0 && <p className="meta mt-2">Not included yet: {missing.join(", ")} — no exchange rate.</p>}
-      </div>
-    </Section>
+    </>
   );
 }
 
