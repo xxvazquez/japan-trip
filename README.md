@@ -253,7 +253,8 @@ Suggestions from the trip's own saved places — nothing is looked up from outsi
 - The day's steps sit under the name as suggestions. Picking one fills the name and the category its icon suggests — a café under Food & drink, a museum under Activities.
 - Nothing is saved until **Add**, which needs an amount. **Cancel**, or closing it empty, adds nothing.
 - **Add an Expense** in a step's menu opens the same sheet, already named for that step.
-- **Tap an amount** to change any of it in the same sheet.
+- **Tap an amount** to change any of it in the same sheet; **Delete Expense** at its foot removes it, with Undo.
+- On a phone the keypad folds away while you type the name, so the sheet sits above the keyboard, and comes back on Return. The categories are one row that scrolls sideways.
 - **Hold an amount** (right-click on a computer) to **Move to Another Day** — it goes to the end of that day's Spending, and Undo brings it back — or **Delete** it.
 - **Total spent** is per currency. Spent in more than one, an **In PLN** row (the trip's first currency) adds it all up at the same rates as Expenses; it shows once every currency has a rate.
 

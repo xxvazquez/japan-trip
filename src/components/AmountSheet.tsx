@@ -63,6 +63,8 @@ export function AmountSheet({
   onCurrency,
   home,
   extra,
+  footer,
+  hidePad = false,
   action = "Done",
 }: {
   open: boolean;
@@ -86,6 +88,11 @@ export function AmountSheet({
   extra?: ReactNode;
   /** the commit button — "Add" for something new */
   action?: string;
+  /** under the pad, at the sheet's foot — a form's Delete */
+  footer?: ReactNode;
+  /** fold the pad away on a phone — while the form's text field has the
+   *  keyboard up, so the sheet fits above it */
+  hidePad?: boolean;
 }) {
   const bare = /^[\d.,]+$/.test(amount);
   const start = bare ? amount.replace(/,/g, "") : "";
@@ -107,6 +114,8 @@ export function AmountSheet({
     }
     // reset only when the sheet opens, not on every keystroke's re-render
   }, [open]);
+  // a form that sets the currency as it opens (an expense being edited)
+  useEffect(() => setCurState(currency), [currency]);
 
   const frac = fractionDigits(cur);
   // a form commits only with an amount — a number keyed in, or the
@@ -267,7 +276,8 @@ export function AmountSheet({
           {header(false)}
           <div className={extra ? "pb-3 pt-1" : "pb-5 pt-3"}>{display}</div>
           {extra && <div className="pb-3">{extra}</div>}
-          {pad}
+          {!hidePad && pad}
+          {footer && <div className="pt-2">{footer}</div>}
         </div>
       </>,
       document.body,
@@ -287,6 +297,7 @@ export function AmountSheet({
         <div className="pb-3 pt-1">{display}</div>
         {extra && <div className="pb-2">{extra}</div>}
         {pad}
+        {footer && <div className="pt-1">{footer}</div>}
       </div>
     </>,
     document.body,

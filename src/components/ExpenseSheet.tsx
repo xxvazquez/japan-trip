@@ -15,7 +15,7 @@ export type SpendChoice = { label: string; categoryId?: string };
  * half-entered spend never lands as a blank row. The day's steps sit under
  * the name as one-tap suggestions; the categories are chips, one tap each.
  */
-export function ExpenseSheet({ open, onClose, anchorRef, cost, preset, choices = [], categories, currencies, defaultCurrency, onSave }: {
+export function ExpenseSheet({ open, onClose, anchorRef, cost, preset, choices = [], categories, currencies, defaultCurrency, onSave, onDelete }: {
   open: boolean;
   onClose: () => void;
   anchorRef: RefObject<HTMLElement>;
@@ -29,14 +29,19 @@ export function ExpenseSheet({ open, onClose, anchorRef, cost, preset, choices =
   /** the currency a new amount starts in, when it's one of the trip's */
   defaultCurrency?: string;
   onSave: (cost: Omit<DayCost, "id">) => void;
+  /** remove the amount being edited (undoable by the caller) */
+  onDelete?: () => void;
 }) {
   const primary = currencies[0] ?? "";
   const start = defaultCurrency && currencies.includes(defaultCurrency) ? defaultCurrency : currencies[1] ?? primary;
   const [label, setLabel] = useState("");
   const [categoryId, setCategoryId] = useState<string | undefined>();
   const [currency, setCurrency] = useState(start);
+  /** the name field has the keyboard */
+  const [typing, setTyping] = useState(false);
   useEffect(() => {
     if (!open) return;
+    setTyping(false);
     setLabel(cost?.label ?? preset?.label ?? "");
     setCategoryId(cost ? cost.categoryId : preset?.categoryId);
     setCurrency(cost ? cost.currency || primary : start);
@@ -57,6 +62,8 @@ export function ExpenseSheet({ open, onClose, anchorRef, cost, preset, choices =
         placeholder="What was it?"
         aria-label="What was it?"
         enterKeyHint="done"
+        onFocus={() => setTyping(true)}
+        onBlur={() => setTyping(false)}
         onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
         className="w-full rounded-[10px] bg-surface-2 px-3 py-2 text-[16px] text-ink placeholder:text-ink-faint focus:outline-none"
       />
@@ -70,7 +77,8 @@ export function ExpenseSheet({ open, onClose, anchorRef, cost, preset, choices =
         </ChipStrip>
       )}
       {categories.length > 0 && (
-        <div role="radiogroup" aria-label="Category" className="flex flex-wrap gap-1.5">
+        // one row that scrolls sideways, the picked one kept in view
+        <ChipStrip className="-mx-4 px-4">
           {categories.map((cat, i) => {
             const on = cat.id === categoryId;
             const tile = expenseCategoryIcon(cat, i);
@@ -78,17 +86,17 @@ export function ExpenseSheet({ open, onClose, anchorRef, cost, preset, choices =
               <button
                 key={cat.id}
                 type="button"
-                role="radio"
-                aria-checked={on}
+                aria-pressed={on}
+                aria-label={`Category: ${cat.label}`}
                 onClick={() => setCategoryId(on ? undefined : cat.id)}
-                className={`chip pl-1 ${on ? "chip-on" : ""}`}
+                className="chip pl-1"
               >
                 <IconTile size="sm" name={tile.name} glyph={tile.glyph} tone={tile.tone} color={tile.color} className="shrink-0 scale-[0.85]" />
                 {cat.label}
               </button>
             );
           })}
-        </div>
+        </ChipStrip>
       )}
     </div>
   );
@@ -117,6 +125,12 @@ export function ExpenseSheet({ open, onClose, anchorRef, cost, preset, choices =
         });
       }}
       extra={form}
+      hidePad={typing}
+      footer={cost && onDelete && (
+        <button type="button" onClick={() => { onClose(); onDelete(); }} className="w-full py-2.5 text-center text-[17px] text-danger sm:text-[15px]">
+          Delete Expense
+        </button>
+      )}
     />
   );
 }

@@ -2948,6 +2948,7 @@ function CostList({ costs, dayId, categories, currencies, choices, defaultCurren
       currencies={currencies}
       defaultCurrency={defaultCurrency}
       onSave={save}
+      onDelete={editing ? () => undoable("Expense removed", () => onChange(costs.filter((x) => x.id !== editing.id))) : undefined}
     />
   );
 
