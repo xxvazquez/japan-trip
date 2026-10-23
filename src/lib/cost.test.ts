@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { expenseCategoryForGlyph, fmtMoney, moneyParts, parseMoney } from "./cost";
+import { expenseCategoryForGlyph, fmtMoney, moneyParts, parseMoney, tripCost } from "./cost";
 import { normalizeTrip } from "./hydrate";
 import { buildBlank } from "@/templates/blank";
 
@@ -41,5 +41,23 @@ describe("parseMoney", () => {
   it("finds a currency code anywhere in the text, not just the first word", () => {
     expect(parseMoney("18 for two EUR")).toEqual({ amount: 18, currency: "EUR" });
     expect(parseMoney("18 for two", "PLN")).toEqual({ amount: 18, currency: "PLN" });
+  });
+});
+
+describe("tripCost cities", () => {
+  it("files each amount under the base it was spent in", () => {
+    const trip = normalizeTrip(buildBlank());
+    trip.config.currency = "PLN";
+    trip.legs = [
+      { id: "l1", base: "Tokyo", start: "2026-11-01", end: "2026-11-03", color: "ai", hotelId: "h1" },
+      { id: "l2", base: "Nara", start: "2026-11-03", end: "2026-11-05", color: "ai" },
+    ] as never;
+    trip.hotels = [{ id: "h1", name: "Inn", price: "900", fields: [] }] as never;
+    trip.days = [
+      { id: "d1", date: "2026-11-02", legId: "l1", costs: [{ id: "c1", label: "Ramen", amount: "1200", currency: "JPY" }] },
+      { id: "d2", date: "2026-11-04", legId: "l2", costs: [{ id: "c2", label: "Intep", amount: "800", currency: "JPY" }] },
+    ] as never;
+    const byTitle = Object.fromEntries(tripCost(trip).items.map((it) => [it.title, it.city]));
+    expect(byTitle).toEqual({ Inn: "Tokyo", Ramen: "Tokyo", Intep: "Nara" });
   });
 });

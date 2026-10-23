@@ -120,6 +120,9 @@ export interface CostItem {
   mode?: TransportMode;
   /** the page it's edited on */
   to: string;
+  /** the base it was spent in — the stay's, the day's, or (for a fare) the
+   *  one the trip is at on the day it leaves; absent when there's none */
+  city?: string;
 }
 
 const emptyBucket = (): CurrencyBucket => ({ byCategory: {}, uncategorised: 0, total: 0 });
@@ -189,9 +192,12 @@ export function tripCost(data: TripData): CostSummary {
   };
 
   const firstNight = (hotelId: string) => data.legs.filter((l) => l.hotelId === hotelId && l.start).map((l) => l.start).sort()[0];
+  const baseOf = (legId?: string) => data.legs.find((l) => l.id === legId)?.base?.trim() || undefined;
+  const cityOn = (date?: string) => (date ? baseOf(data.days.find((d) => d.date === date)?.legId) : undefined);
   for (const hotel of data.hotels) {
+    const first = data.legs.filter((l) => l.hotelId === hotel.id && l.start).sort((a, b) => a.start.localeCompare(b.start))[0];
     add(hotel.price, lodgingId, hotel.name || "Stay", hotel.priceCurrency, {
-      title: hotel.name || "Stay", kind: "stay", date: firstNight(hotel.id), to: `/hotel/${hotel.id}`,
+      title: hotel.name || "Stay", kind: "stay", date: firstNight(hotel.id), to: `/hotel/${hotel.id}`, city: first?.base?.trim() || undefined,
     });
   }
 
@@ -210,6 +216,7 @@ export function tripCost(data: TripData): CostSummary {
       const soleMode = modes.size === 1 ? [...modes][0] : undefined;
       addMoney(m, (soleMode && modeCategory.get(soleMode)) ?? transportId, {
         title: journey.label || "Journey", kind: "fare", mode: soleMode, date: journey.segments[0]?.depart?.slice(0, 10) || journey.date, to: `/journey/${journey.id}`,
+        city: cityOn(journey.segments[0]?.depart?.slice(0, 10) || journey.date),
       });
       continue;
     }
@@ -220,6 +227,7 @@ export function tripCost(data: TripData): CostSummary {
       addMoney(m, modeCategory.get(seg.mode) ?? transportId, {
         title: [seg.from, seg.to].filter(Boolean).join(" → ") || journey.label || "Journey",
         kind: "fare", mode: seg.mode, date: seg.depart?.slice(0, 10) || journey.date, to: `/journey/${journey.id}`,
+        city: cityOn(seg.depart?.slice(0, 10) || journey.date),
       });
     }
   }
@@ -229,6 +237,7 @@ export function tripCost(data: TripData): CostSummary {
     for (const c of day.costs ?? []) {
       add(c.amount, c.categoryId, `${day.title || day.date} — ${c.label || "spending"}`, c.currency, {
         title: c.label || day.title || "Spending", kind: "day", what: c.label && day.title ? day.title : undefined, date: day.date, to: `/day/${day.id}`,
+        city: baseOf(day.legId),
       });
     }
   }

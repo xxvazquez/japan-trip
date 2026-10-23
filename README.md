@@ -711,7 +711,8 @@ A read-only total of every price in the trip — stays, fares and day spending �
 - A journey's fare is counted once, never twice.
 - With more than one currency, **Combined** adds everything up in the main currency using a live exchange rate (cached offline, rounded). Unsupported currencies are left out and noted.
 - A bar above each currency shows the split by category.
-- **Tap a category** to see every amount behind it — each stay price, fare and day's spending, by date — and open the one you want to change.
+- **Category | City** at the top switches the grouping. **City** lists each base in trip order with what was spent there by category, in the main currency (what was paid underneath), and its total. Fares count where you are on the day they leave.
+- **Tap a category** to see every amount behind it — each stay price, fare and day's spending, by date — and open the one you want to change. From **City** it lists just that city's.
 - Every foreign amount shows its main-currency value under it — in each currency's section and on a category's page. A category page lists everything in the main currency, with what was paid underneath, and one total.
 - The Logbook row shows the same total in the main currency. Before the rates have loaded once, it lists each currency instead.
 

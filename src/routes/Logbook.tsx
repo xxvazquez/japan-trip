@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { flushSync } from "react-dom";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Page, PageHeader } from "@/components/Page";
 import { Missing } from "@/components/Missing";
 import { useLeavePage } from "@/components/NavBar";
 import { ConfirmButton } from "@/components/ConfirmButton";
 import { notePreview } from "@/lib/noteFormat";
 import { Section } from "@/components/Section";
+import { SegmentedControl } from "@/components/SegmentedControl";
 import { IconTile } from "@/components/IconTile";
 import { TileRow } from "@/components/TileRow";
 import { RouteLabel } from "@/components/RouteLabel";
@@ -25,7 +26,7 @@ import { Stamps } from "@/components/Stamps";
 import { FieldList } from "@/components/FieldList";
 import { RichNote } from "@/components/RichNote";
 import { withInitials, assigneeTag } from "@/lib/people";
-import type { Person } from "@/core/types";
+import type { Person, ExpenseCategory as ExpenseCat } from "@/core/types";
 import { Icon } from "@/components/Icon";
 import type { Tip } from "@/components/InfoTips";
 import { useData } from "@/lib/data";
@@ -40,7 +41,7 @@ import { fmtDate, fmtSpan, fmtStay, hotelStays, journeyDepartDate, plural } from
 import { MODE_ICON } from "@/lib/transport";
 import { toneForSegmentMode, logbookSectionTile, customListColor, contactTile, documentTile, TONE_BG, type Tone } from "@/lib/tones";
 import { LOGBOOK_SECTIONS, logbookLabel, packingGroups, sectionSlug, sectionFromSlug, type LogbookSection } from "@/lib/logbook";
-import { tripCost, fmtMoney, combineCurrencies, expenseCategoryIcon } from "@/lib/cost";
+import { tripCost, fmtMoney, combineCurrencies, expenseCategoryIcon, type CostItem } from "@/lib/cost";
 import { useFxRates, useTripSpent } from "@/lib/fx";
 import { tripGuides } from "@/guides";
 import type { CustomList, Doc, LuggageNote, PackingItem, ScratchNote, TripData } from "@/core/types";
@@ -597,9 +598,15 @@ function ProportionBar({ segments }: { segments: { id: string; amount: number; t
   );
 }
 
+/** how Expenses groups the trip's spending — kept in the URL, so Back from
+ *  a category lands on the same view */
+type ExpensesBy = "category" | "city";
+
 function Expenses() {
   const data = useData()!;
-  const { byCurrency, categories, unparsed } = tripCost(data);
+  const [params, setParams] = useSearchParams();
+  const by: ExpensesBy = params.get("by") === "city" ? "city" : "category";
+  const { byCurrency, categories, unparsed, items } = tripCost(data);
   const currencies = Object.keys(byCurrency);
   const primary = data.config.currency || currencies[0] || "";
   const others = currencies.filter((c) => c && c !== primary);
@@ -635,8 +642,27 @@ function Expenses() {
     return segs;
   };
 
+  const switcher = (
+    <SegmentedControl
+      className="mx-auto max-w-[18rem]"
+      value={by}
+      onChange={(v) => setParams(v === "category" ? {} : { by: v }, { replace: true })}
+      options={[{ value: "category", label: "Category" }, { value: "city", label: "City" }]}
+    />
+  );
+
+  if (by === "city") {
+    return (
+      <div className="space-y-6">
+        {switcher}
+        <ExpensesByCity items={items} categories={categories} primary={primary} rates={rates} catLabel={catLabel} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      {switcher}
       {combined && (
         <Section
           title={`Combined · ${primary}`}
@@ -712,6 +738,65 @@ function Expenses() {
 /** the path segment for amounts with no (known) category */
 const UNCATEGORISED = "uncategorised";
 
+/** A set of amounts in the trip's main currency — `null` while one of their
+ *  currencies has no rate yet — and what was paid, per currency. */
+function sumIn(items: CostItem[], primary: string, rates: Record<string, number>) {
+  const byCur = new Map<string, number>();
+  for (const it of items) byCur.set(it.currency, (byCur.get(it.currency) ?? 0) + it.amount);
+  const parts = [...byCur].map(([cur, amount]) => (cur === primary ? amount : cur && rates[cur] ? amount / rates[cur] : null));
+  const total = parts.every((v) => v !== null) ? parts.reduce<number>((sum, v) => sum + (v ?? 0), 0) : null;
+  return { total, paid: [...byCur].map(([cur, amount]) => fmtMoney(amount, cur)).join(" + ") };
+}
+
+/** Expenses by city: each base, in trip order, with what was spent there
+ *  by category — all in the trip's main currency — and its total. A
+ *  category opens onto its amounts in that city. Fares count where the trip
+ *  is on the day they leave. */
+function ExpensesByCity({ items, categories, primary, rates, catLabel }: {
+  items: CostItem[];
+  categories: ExpenseCat[];
+  primary: string;
+  rates: Record<string, number>;
+  catLabel: (c: ExpenseCat) => React.ReactNode;
+}) {
+  const OTHER = "";
+  const ordered = [...items].sort((a, b) => (a.date ?? "\uffff").localeCompare(b.date ?? "\uffff"));
+  const cities = [...new Set(ordered.map((it) => it.city ?? OTHER))].sort((a, b) => (a === OTHER ? 1 : b === OTHER ? -1 : 0));
+  const money = (list: CostItem[], strong = false) => {
+    const { total, paid } = sumIn(list, primary, rates);
+    const foreign = list.some((it) => it.currency !== primary);
+    return (
+      <span className="block text-right tabular-nums">
+        <span className={`block ${strong ? "font-medium text-ink" : ""}`}>{total !== null ? fmtMoney(Math.round(total), primary) : paid}</span>
+        {total !== null && foreign && <span className="meta mt-0.5 block">{paid}</span>}
+      </span>
+    );
+  };
+  return (
+    <>
+      {cities.map((city) => {
+        const here = items.filter((it) => (it.city ?? OTHER) === city);
+        const q = city ? `?city=${encodeURIComponent(city)}` : `?city=`;
+        const uncategorised = here.filter((it) => !it.categoryId);
+        return (
+          <Section key={city || "other"} title={city || "Elsewhere"}>
+            <ul>
+              {categories.map((c) => {
+                const mine = here.filter((it) => it.categoryId === c.id);
+                return mine.length ? <InsetRow key={c.id} label={catLabel(c)} to={`/logbook/budget/${c.id}${q}`}>{money(mine)}</InsetRow> : null;
+              })}
+              {uncategorised.length > 0 && (
+                <InsetRow label="Uncategorised" to={`/logbook/budget/${UNCATEGORISED}${q}`}>{money(uncategorised)}</InsetRow>
+              )}
+              <InsetRow label={<span className="font-medium text-ink">Total</span>}>{money(here, true)}</InsetRow>
+            </ul>
+          </Section>
+        );
+      })}
+    </>
+  );
+}
+
 /** One Expenses category opened: every amount behind its total — each stay
  *  price, fare and day-spending row — newest-last by date, each row opening
  *  the page it's edited on. Every amount reads in the trip's main currency,
@@ -721,10 +806,13 @@ const UNCATEGORISED = "uncategorised";
 export function ExpenseCategory() {
   const data = useData();
   const { category } = useParams();
+  // opened from Expenses by City: just that city's amounts ("" = elsewhere)
+  const city = useSearchParams()[0].get("city");
   const cost = data ? tripCost(data) : null;
   const cat = cost?.categories.find((c) => c.id === category);
   const mine = (cost?.items ?? [])
     .filter((it) => (cat ? it.categoryId === cat.id : !it.categoryId))
+    .filter((it) => city === null || (it.city ?? "") === city)
     .sort((a, b) => (a.date ?? "\uffff").localeCompare(b.date ?? "\uffff"));
   const currencies = [...new Set(mine.map((it) => it.currency))];
   const primary = data?.config.currency || currencies[0] || "";
@@ -744,7 +832,11 @@ export function ExpenseCategory() {
 
   return (
     <Page>
-      <PageHeader back="/logbook/budget" title={cat?.label ?? "Uncategorised"} className="mb-6" />
+      <PageHeader
+        back={city === null ? "/logbook/budget" : "/logbook/budget?by=city"}
+        title={[cat?.label ?? "Uncategorised", city === null ? null : city || "Elsewhere"].filter(Boolean).join(" · ")}
+        className="mb-6"
+      />
       {mine.length === 0 ? (
         <Empty what="Nothing here yet" hint="Prices on stays and journeys, and a day’s spending, show up here once they’re in this category." />
       ) : (
