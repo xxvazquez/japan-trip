@@ -30,6 +30,7 @@ import type { Person, ExpenseCategory as ExpenseCat } from "@/core/types";
 import { Icon } from "@/components/Icon";
 import type { Tip } from "@/components/InfoTips";
 import { useData } from "@/lib/data";
+import { useToday } from "@/lib/useToday";
 import { useApp, undoable } from "@/store/useApp";
 import { useAuth } from "@/lib/auth";
 import { supabaseEnabled } from "@/lib/supabase";
@@ -765,6 +766,7 @@ function SpendingChart({ items, categories, primary, rates }: {
   rates: Record<string, number>;
 }) {
   const data = useData()!;
+  const today = useToday();
   const [picked, setPicked] = useState<number | null>(null);
   const days = useMemo(() => [...new Set(data.days.map((d) => d.date))].sort(), [data.days]);
   const toPrimary = (amount: number, cur: string) => (cur === primary ? amount : cur && rates[cur] ? amount / rates[cur] : null);
@@ -785,7 +787,11 @@ function SpendingChart({ items, categories, primary, rates }: {
   const total = perDay.reduce((sum, d) => sum + d.total, 0);
   if (!days.length || total <= 0) return null;
   const max = Math.max(...perDay.map((d) => d.total));
-  const average = total / days.length;
+  // over the days so far once the trip has begun, as Apple Card averages
+  // the period to date — the days still ahead would only water it down
+  const sofar = perDay.filter((d) => d.date <= today);
+  const midTrip = sofar.length > 0 && sofar.length < days.length;
+  const average = midTrip ? sofar.reduce((sum, d) => sum + d.total, 0) / sofar.length : total / days.length;
   const loc = data.config.locale;
   const tileOf = (id: string) => {
     const c = categories.find((x) => x.id === id);
@@ -801,7 +807,7 @@ function SpendingChart({ items, categories, primary, rates }: {
       <div className="px-3.5 pb-3 pt-3">
         <p className="meta">{sel ? [fmtDate(sel.date, loc, { weekday: "short", day: "numeric", month: "short" }), city].filter(Boolean).join(" · ") : "Total"}</p>
         <p className="text-[24px] font-semibold leading-tight tabular-nums text-ink">{fmtMoney(Math.round(sel ? sel.total : total), primary)}</p>
-        <p className="meta">{sel ? (sel.parts.length ? sel.parts.map((p) => `${categories.find((c) => c.id === p.id)?.label ?? "Uncategorised"} ${fmtMoney(Math.round(p.amount), primary)}`).join(" · ") : "Nothing spent") : `Daily average ${fmtMoney(Math.round(average), primary)}`}</p>
+        <p className="meta">{sel ? (sel.parts.length ? sel.parts.map((p) => `${categories.find((c) => c.id === p.id)?.label ?? "Uncategorised"} ${fmtMoney(Math.round(p.amount), primary)}`).join(" · ") : "Nothing spent") : `Daily average${midTrip ? " so far" : ""} ${fmtMoney(Math.round(average), primary)}`}</p>
         <div className="relative mt-3 h-36" onMouseLeave={() => setPicked(null)}>
           {/* the daily average, as a dashed rule across the bars */}
           <div aria-hidden className="pointer-events-none absolute inset-x-0 border-t border-dashed border-ink-faint/60" style={{ bottom: `${(average / max) * 100}%` }} />
@@ -837,7 +843,7 @@ function SpendingChart({ items, categories, primary, rates }: {
         </div>
         <div aria-hidden className="mt-1 flex justify-around gap-[2px]">
           {perDay.map((d, i) => (
-            <span key={d.date} className="meta min-w-0 max-w-[40px] flex-1 text-center text-[11px]">
+            <span key={d.date} className="meta flex min-w-0 max-w-[40px] flex-1 justify-center whitespace-nowrap text-[11px]">
               {i % every === 0 ? (every === 1 ? fmtDate(d.date, loc, { weekday: "narrow" }) : fmtDate(d.date, loc, { day: "numeric", month: "short" })) : ""}
             </span>
           ))}
