@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { expenseCategoryForGlyph, fmtMoney, isDaySpend, moneyParts, parseMoney, spendByDay, tripCost } from "./cost";
+import { expenseCategoryForGlyph, fmtMoney, isDaySpend, moneyParts, parseMoney, roundMoney, spendByDay, tripCost } from "./cost";
 import { normalizeTrip } from "./hydrate";
 import { buildBlank } from "@/templates/blank";
 
@@ -98,5 +98,25 @@ describe("isDaySpend", () => {
     expect(isDaySpend(item({ kind: "fare", mode: "train", categoryId: "rail" }), categories)).toBe(true);
     expect(isDaySpend(item({ categoryId: "food" }), categories)).toBe(true);
     expect(isDaySpend(item({}), categories)).toBe(true);
+    // one ticket for a flight and a train: a booking, like the flight alone
+    expect(isDaySpend(item({ kind: "fare", modes: ["flight", "train"] }), categories)).toBe(false);
+  });
+  it("marks a mixed journey's one total with every mode it covers", () => {
+    const trip = normalizeTrip(buildBlank());
+    trip.journeys = [{ id: "j1", label: "Home", date: "2026-11-05", fare: "2000", segments: [
+      { id: "s1", mode: "flight", from: "HND", to: "WAW" },
+      { id: "s2", mode: "train", from: "WAW", to: "Kraków" },
+    ] }] as never;
+    const [fare] = tripCost(trip).items;
+    expect(fare.modes).toEqual(["flight", "train"]);
+    expect(isDaySpend(fare, trip.config.expenseCategories ?? [])).toBe(false);
+  });
+});
+
+describe("roundMoney", () => {
+  it("keeps a converted amount to its currency's smallest unit", () => {
+    expect(roundMoney(58.1176, "EUR")).toBe(58.12);
+    expect(roundMoney(1234.6, "JPY")).toBe(1235);
+    expect(roundMoney(9.999, "PLN")).toBe(10);
   });
 });

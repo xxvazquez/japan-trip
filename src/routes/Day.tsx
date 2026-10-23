@@ -76,7 +76,7 @@ import { NearbyCard, NearbyGroupRows, NearbyProvider, NearbyRow, usePlaceHours, 
 import { fetchDayWeather, forecastSpot, weatherLabel, type DayWeather } from "@/lib/weather";
 import { useDaySun } from "@/lib/daySun";
 import { prefetchTiles, canPrefetchTiles, dayOfflinePoints } from "@/lib/offlineTiles";
-import { parseMoney, fmtMoney, fmtFare, expenseCategoryIcon, expenseCategoryForGlyph } from "@/lib/cost";
+import { parseMoney, fmtMoney, roundMoney, fmtFare, expenseCategoryIcon, expenseCategoryForGlyph } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import { selectInSplit, useSplitCard } from "@/lib/splitSelect";
 import { fmtIn, hotelEndTitle, minutesUntil, nowInDay } from "@/lib/upNext";
@@ -3036,7 +3036,7 @@ function CostList({ costs, dayId, categories, currencies, choices, defaultCurren
       {inPrimary !== null && (
         <li className={`${hair} flex items-baseline justify-between gap-4 px-3.5 py-3`}>
           <span className="value flex-1">In {primary}</span>
-          <span className="value whitespace-nowrap tabular-nums">≈ {fmtMoney(Math.round(inPrimary), primary)}</span>
+          <span className="value whitespace-nowrap tabular-nums">≈ {fmtMoney(roundMoney(inPrimary, primary), primary)}</span>
           {!readOnly && <span aria-hidden className="-ml-1 w-[21px] shrink-0 [@media(hover:none)_and_(pointer:coarse)]:hidden" />}
         </li>
       )}

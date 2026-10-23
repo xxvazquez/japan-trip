@@ -42,7 +42,7 @@ import { fmtDate, fmtSpan, fmtStay, hotelStays, journeyDepartDate, plural } from
 import { MODE_ICON } from "@/lib/transport";
 import { toneForSegmentMode, logbookSectionTile, customListColor, contactTile, documentTile, TONE_BG, type Tone } from "@/lib/tones";
 import { LOGBOOK_SECTIONS, logbookLabel, packingGroups, sectionSlug, sectionFromSlug, type LogbookSection } from "@/lib/logbook";
-import { tripCost, fmtMoney, combineCurrencies, expenseCategoryIcon, isDaySpend, spendByDay, type CostItem } from "@/lib/cost";
+import { tripCost, fmtMoney, roundMoney, combineCurrencies, expenseCategoryIcon, isDaySpend, spendByDay, type CostItem } from "@/lib/cost";
 import { useFxRates, useTripSpent } from "@/lib/fx";
 import { tripGuides } from "@/guides";
 import type { CustomList, Doc, LuggageNote, PackingItem, ScratchNote, TripData } from "@/core/types";
@@ -688,13 +688,13 @@ function Expenses() {
             {categories
               .filter((c) => (combined.byCategory[c.id] ?? 0) > 0)
               .map((c) => (
-                <InsetRow key={c.id} label={catLabel(c)} to={`/logbook/budget/${c.id}`}>{fmtMoney(Math.round(combined.byCategory[c.id]), primary)}</InsetRow>
+                <InsetRow key={c.id} label={catLabel(c)} to={`/logbook/budget/${c.id}`}>{fmtMoney(roundMoney(combined.byCategory[c.id], primary), primary)}</InsetRow>
               ))}
             {combined.uncategorised > 0 && (
-              <InsetRow label="Uncategorised" to={`/logbook/budget/${UNCATEGORISED}`}>{fmtMoney(Math.round(combined.uncategorised), primary)}</InsetRow>
+              <InsetRow label="Uncategorised" to={`/logbook/budget/${UNCATEGORISED}`}>{fmtMoney(roundMoney(combined.uncategorised, primary), primary)}</InsetRow>
             )}
             <InsetRow label={<span className="font-medium text-ink">Total</span>}>
-              <span className="font-medium text-ink">{fmtMoney(Math.round(combined.total), primary)}</span>
+              <span className="font-medium text-ink">{fmtMoney(roundMoney(combined.total, primary), primary)}</span>
             </InsetRow>
           </ul>
           {unconverted.length > 0 && (
@@ -710,7 +710,7 @@ function Expenses() {
         const amount = (value: number, strong = false) => (
           <span className="block text-right tabular-nums">
             <span className={`block ${strong ? "font-medium text-ink" : ""}`}>{fmtMoney(value, cur)}</span>
-            {rate && <span className="meta mt-0.5 block">{fmtMoney(Math.round(value / rate), primary)}</span>}
+            {rate && <span className="meta mt-0.5 block">{fmtMoney(roundMoney(value / rate, primary), primary)}</span>}
           </span>
         );
         return (
@@ -768,12 +768,14 @@ function SpendingChart({ items, categories, primary, rates }: {
   const data = useData()!;
   const today = useToday();
   const [picked, setPicked] = useState<number | null>(null);
-  const days = useMemo(() => [...new Set(data.days.map((d) => d.date))].sort(), [data.days]);
   const toPrimary = (amount: number, cur: string) => (cur === primary ? amount : cur && rates[cur] ? amount / rates[cur] : null);
   // day-to-day spending only: stays and flights are booked for the trip,
   // and one would stand over every other day (they're in the totals below)
   const spread = spendByDay(data, items.filter((it) => isDaySpend(it, categories)));
   const booked = items.some((it) => !isDaySpend(it, categories));
+  // the trip's days, plus any day an amount falls on outside them (a train
+  // the day before the first base starts)
+  const days = [...new Set([...data.days.map((d) => d.date), ...spread.map((x) => x.date)])].sort();
   const missing = [...new Set(spread.filter((x) => toPrimary(x.amount, x.currency) === null).map((x) => x.currency))];
   // per day: each category's share, in the categories' own order
   const order = [...categories.map((c) => c.id), ""];
@@ -809,8 +811,8 @@ function SpendingChart({ items, categories, primary, rates }: {
     <Section title="Spending per day">
       <div className="px-3.5 pb-3 pt-3">
         <p className="meta">{sel ? [fmtDate(sel.date, loc, { weekday: "short", day: "numeric", month: "short" }), city].filter(Boolean).join(" · ") : "Total"}</p>
-        <p className="text-[24px] font-semibold leading-tight tabular-nums text-ink">{fmtMoney(Math.round(sel ? sel.total : total), primary)}</p>
-        <p className="meta">{sel ? (sel.parts.length ? sel.parts.map((p) => `${categories.find((c) => c.id === p.id)?.label ?? "Uncategorised"} ${fmtMoney(Math.round(p.amount), primary)}`).join(" · ") : "Nothing spent") : `Daily average${midTrip ? " so far" : ""} ${fmtMoney(Math.round(average), primary)}`}</p>
+        <p className="text-[24px] font-semibold leading-tight tabular-nums text-ink">{fmtMoney(roundMoney(sel ? sel.total : total, primary), primary)}</p>
+        <p className="meta">{sel ? (sel.parts.length ? sel.parts.map((p) => `${categories.find((c) => c.id === p.id)?.label ?? "Uncategorised"} ${fmtMoney(roundMoney(p.amount, primary), primary)}`).join(" · ") : "Nothing spent") : `Daily average${midTrip ? " so far" : ""} ${fmtMoney(roundMoney(average, primary), primary)}`}</p>
         <div className="relative mt-3 h-36" onMouseLeave={() => setPicked(null)}>
           {/* the daily average, as a dashed rule across the bars */}
           <div aria-hidden className="pointer-events-none absolute inset-x-0 border-t border-dashed border-ink-faint/60" style={{ bottom: `${(average / max) * 100}%` }} />
@@ -819,7 +821,7 @@ function SpendingChart({ items, categories, primary, rates }: {
               <button
                 key={d.date}
                 type="button"
-                aria-label={`${fmtDate(d.date, loc, { weekday: "long", day: "numeric", month: "long" })}: ${fmtMoney(Math.round(d.total), primary)}`}
+                aria-label={`${fmtDate(d.date, loc, { weekday: "long", day: "numeric", month: "long" })}: ${fmtMoney(roundMoney(d.total, primary), primary)}`}
                 aria-pressed={picked === i}
                 onClick={() => setPicked(picked === i ? null : i)}
                 onMouseEnter={(e) => { if (window.matchMedia("(hover: hover)").matches) setPicked(i); else e.preventDefault(); }}
@@ -894,7 +896,7 @@ function ExpensesByDate({ items, categories, primary, rates }: {
                         <span className="meta mt-0.5 block">{cat?.label ?? "Uncategorised"}</span>
                       </span>
                       <span className="shrink-0 text-right tabular-nums">
-                        <span className="block text-sm leading-snug text-ink">{local !== null ? fmtMoney(Math.round(local), primary) : fmtMoney(it.amount, it.currency)}</span>
+                        <span className="block text-sm leading-snug text-ink">{local !== null ? fmtMoney(roundMoney(local, primary), primary) : fmtMoney(it.amount, it.currency)}</span>
                         {local !== null && <span className="meta mt-0.5 block">{fmtMoney(it.amount, it.currency)}</span>}
                       </span>
                       <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
@@ -904,7 +906,7 @@ function ExpensesByDate({ items, categories, primary, rates }: {
               })}
               <InsetRow label={<span className="font-medium text-ink">Total</span>}>
                 <span className="block text-right tabular-nums">
-                  <span className="block font-medium text-ink">{total !== null ? fmtMoney(Math.round(total), primary) : paid}</span>
+                  <span className="block font-medium text-ink">{total !== null ? fmtMoney(roundMoney(total, primary), primary) : paid}</span>
                   {total !== null && mine.some((it) => it.currency !== primary) && <span className="meta mt-0.5 block">{paid}</span>}
                 </span>
               </InsetRow>
@@ -935,7 +937,7 @@ function ExpensesByCity({ items, categories, primary, rates, catLabel }: {
     const foreign = list.some((it) => it.currency !== primary);
     return (
       <span className="block text-right tabular-nums">
-        <span className={`block ${strong ? "font-medium text-ink" : ""}`}>{total !== null ? fmtMoney(Math.round(total), primary) : paid}</span>
+        <span className={`block ${strong ? "font-medium text-ink" : ""}`}>{total !== null ? fmtMoney(roundMoney(total, primary), primary) : paid}</span>
         {total !== null && foreign && <span className="meta mt-0.5 block">{paid}</span>}
       </span>
     );
@@ -1023,7 +1025,7 @@ export function ExpenseCategory() {
                     </span>
                     <span className="shrink-0 text-right tabular-nums">
                       <span className="block text-sm leading-snug text-ink">
-                        {local !== null ? fmtMoney(Math.round(local), primary) : fmtMoney(it.amount, it.currency)}
+                        {local !== null ? fmtMoney(roundMoney(local, primary), primary) : fmtMoney(it.amount, it.currency)}
                       </span>
                       {local !== null && <span className="meta mt-0.5 block">{fmtMoney(it.amount, it.currency)}</span>}
                     </span>
@@ -1035,7 +1037,7 @@ export function ExpenseCategory() {
             <InsetRow label={<span className="font-medium text-ink">Total</span>}>
               {total !== null ? (
                 <span className="block text-right tabular-nums">
-                  <span className="block font-medium text-ink">{fmtMoney(Math.round(total), primary)}</span>
+                  <span className="block font-medium text-ink">{fmtMoney(roundMoney(total, primary), primary)}</span>
                   {subtotals.some((s) => s.cur !== primary) && <span className="meta mt-0.5 block">{paid}</span>}
                 </span>
               ) : (

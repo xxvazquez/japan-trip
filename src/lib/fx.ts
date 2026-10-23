@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { TripData } from "@/core/types";
-import { tripCost, fmtMoney } from "./cost";
+import { tripCost, fmtMoney, roundMoney } from "./cost";
 
 /**
  * Exchange rates for the Expenses "combined" total — free, no-key, via
@@ -104,5 +104,5 @@ export function useTripSpent(data: TripData | null | undefined): string {
   const { rates } = useFxRates(primary, others);
   if (!others.every((c) => rates[c])) return "";
   const total = currencies.reduce((sum, c) => sum + byCurrency[c].total / (c === primary ? 1 : rates[c]), 0);
-  return total > 0 ? fmtMoney(Math.round(total), primary) : "";
+  return total > 0 ? fmtMoney(roundMoney(total, primary), primary) : "";
 }

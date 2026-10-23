@@ -119,6 +119,9 @@ export interface CostItem {
    *  or stay needs none: its title and tile already say what it is. */
   what?: string;
   mode?: TransportMode;
+  /** every mode a journey's one total covers (a flight and a train on one
+   *  ticket) — set when they're mixed and `mode` can't say */
+  modes?: TransportMode[];
   /** the page it's edited on */
   to: string;
   /** the base it was spent in — the stay's, the day's, or (for a fare) the
@@ -216,7 +219,7 @@ export function tripCost(data: TripData): CostSummary {
       const modes = new Set(journey.segments.map((s) => s.mode));
       const soleMode = modes.size === 1 ? [...modes][0] : undefined;
       addMoney(m, (soleMode && modeCategory.get(soleMode)) ?? transportId, {
-        title: journey.label || "Journey", kind: "fare", mode: soleMode, date: journey.segments[0]?.depart?.slice(0, 10) || journey.date, to: `/journey/${journey.id}`,
+        title: journey.label || "Journey", kind: "fare", mode: soleMode, ...(!soleMode && modes.size > 1 && { modes: [...modes] }), date: journey.segments[0]?.depart?.slice(0, 10) || journey.date, to: `/journey/${journey.id}`,
         city: cityOn(journey.segments[0]?.depart?.slice(0, 10) || journey.date),
       });
       continue;
@@ -251,7 +254,7 @@ export function tripCost(data: TripData): CostSummary {
  *  accommodation category or one that collects flights is a booking. Read off
  *  what it is and the trip's own categories, never a category's name. */
 export function isDaySpend(it: CostItem, categories: ExpenseCategory[]): boolean {
-  if (it.kind === "stay" || it.mode === "flight") return false;
+  if (it.kind === "stay" || it.mode === "flight" || it.modes?.includes("flight")) return false;
   const cat = categories.find((c) => c.id === it.categoryId);
   return !(cat?.role === "lodging" || cat?.modes?.includes("flight"));
 }
@@ -362,6 +365,17 @@ export function moneyParts(amount: number, currency: string): { before: string; 
 
 /** e.g. (42000, "JPY") -> "¥42,000", (15, "PLN") -> "15 zł"; a plain number
  *  with the code when Intl doesn't recognise it. */
+/** A converted amount kept to its currency's own smallest unit — cents for
+ *  the euro or złoty, whole yen — so converted rows add up to their total. */
+export function roundMoney(amount: number, currency: string): number {
+  let digits = 2;
+  try {
+    if (currency) digits = new Intl.NumberFormat(undefined, { style: "currency", currency }).resolvedOptions().maximumFractionDigits ?? 2;
+  } catch { /* a code Intl doesn't know: cents */ }
+  const f = 10 ** digits;
+  return Math.round(amount * f) / f;
+}
+
 export function fmtMoney(amount: number, currency: string): string {
   if (!currency) return amount.toLocaleString();
   const { before, number, after } = moneyParts(amount, currency);
