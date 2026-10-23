@@ -231,7 +231,7 @@ During the trip the app works like Calendar's Today:
 - **Up next** heads today's plan: the next stop and how long until it starts (*in 25 min*), and when to leave for it — *Leave by 09:45 · 15 min walk*, or *≈ 32 min by train* past a long walk (≈ marks a guess). *Leave now* in red once that time's come. For a journey it shows the hop's details instead.
 - **On every other screen** the next timed stop rides above the tab bar (bottom of the screen on a computer) with its countdown — *Market for lunch · Up next · 13:00 · in 25 min*. Tap it for today. It counts exact times only, so "Around noon" is skipped. Not on today's own page or the Map.
 - **A red line** across the timeline marks the time now, with the time beside it, and moves as the day goes on.
-- **＋ → Add an amount** logs a spend at the till: the keypad first (in the currency you last spent in, else the trip's second), then its category — **Skip** keeps it uncategorised. It lands in the day's Spending.
+- **＋ → Add an amount** logs a spend at the till in the same sheet as Spending's own (see [Spending on a day](#spending-on-a-day)). It lands in the day's Spending.
 
 ### Nearby on a day
 
@@ -249,12 +249,11 @@ Suggestions from the trip's own saved places — nothing is looked up from outsi
 
 ### Spending on a day
 
-- **Add an amount** offers the day's steps to pick from, then opens the keypad in the currency you last spent in.
-- A step picked there starts in the category its icon suggests — a café under Food & drink, a museum under Activities.
-- **Add an Expense** in a step's menu opens the keypad named for that step, in the same category. The amount lands in Spending on **Done**; **Cancel** adds nothing.
-- **Custom…** asks for a name first; Return moves on to the keypad.
-- A row left with no name and no amount goes away. A typed name is kept even with no amount yet.
-- **Tap the grey category** under an amount to change it.
+- **Add an amount** opens one sheet, as Wallet does: the amount over a keypad (in the currency you last spent in), **What was it?**, and the categories as chips.
+- The day's steps sit under the name as suggestions. Picking one fills the name and the category its icon suggests — a café under Food & drink, a museum under Activities.
+- Nothing is saved until **Add**, which needs an amount. **Cancel**, or closing it empty, adds nothing.
+- **Add an Expense** in a step's menu opens the same sheet, already named for that step.
+- **Tap an amount** to change any of it in the same sheet.
 - **Hold an amount** (right-click on a computer) to **Move to Another Day** — it goes to the end of that day's Spending, and Undo brings it back — or **Delete** it.
 - **Total spent** is per currency. Spent in more than one, an **In PLN** row (the trip's first currency) adds it all up at the same rates as Expenses; it shows once every currency has a rate.
 

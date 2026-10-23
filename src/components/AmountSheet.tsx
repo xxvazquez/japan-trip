@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useBackToClose } from "@/lib/backClose";
 import { createPortal } from "react-dom";
 import { currencySymbol, fmtMoney, moneyParts } from "@/lib/cost";
@@ -62,6 +62,8 @@ export function AmountSheet({
   onCommit,
   onCurrency,
   home,
+  extra,
+  action = "Done",
 }: {
   open: boolean;
   onClose: () => void;
@@ -78,6 +80,12 @@ export function AmountSheet({
   onCurrency?: (currency: string) => void;
   /** the trip's home currency — what an amount in another comes to there */
   home?: string;
+  /** the rest of a form, between the amount and the pad (an expense's name
+   *  and category). With it the sheet is that form: the left button is
+   *  always Cancel, and nothing is committed without an amount */
+  extra?: ReactNode;
+  /** the commit button — "Add" for something new */
+  action?: string;
 }) {
   const bare = /^[\d.,]+$/.test(amount);
   const start = bare ? amount.replace(/,/g, "") : "";
@@ -101,8 +109,12 @@ export function AmountSheet({
   }, [open]);
 
   const frac = fractionDigits(cur);
+  // a form commits only with an amount — a number keyed in, or the
+  // stored one left as it was (a legacy text amount included)
+  const noAmount = (clean: string) => !Number(clean) && !(clean === start && amount);
   const done = () => {
     const clean = draft.replace(/\.$/, "");
+    if (extra && noAmount(clean)) return onClose();
     // an untouched legacy text amount stays as it was
     onCommit(clean === start ? amount : clean);
     onClose();
@@ -129,6 +141,8 @@ export function AmountSheet({
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
+      // typing in the form's own fields (the name) isn't for the pad
+      if ((e.target as HTMLElement | null)?.closest?.("input, textarea, [contenteditable='true']")) return;
       if (/^\d$/.test(e.key)) press(e.key);
       else if (e.key === "." || e.key === ",") press(".");
       else if (e.key === "Backspace") press("del");
@@ -229,11 +243,11 @@ export function AmountSheet({
   const header = (small: boolean) => (
     <div className="flex items-center justify-between gap-3 px-4 pb-2">
       {/* nothing stored yet: there's nothing to clear, so the way out is Cancel */}
-      {amount
+      {amount && !extra
         ? <button type="button" onClick={clear} className={`${small ? "text-[15px]" : "text-[17px]"} text-danger`}>Clear</button>
         : <button type="button" onClick={onClose} className={`${small ? "text-[15px]" : "text-[17px]"} text-accent`}>Cancel</button>}
       <span className="min-w-0 break-words text-center text-[15px] text-ink-soft">{label}</span>
-      <button type="button" onClick={done} className={`${small ? "text-[15px]" : "text-[17px]"} font-medium text-accent`}>Done</button>
+      <button type="button" onClick={done} disabled={!!extra && noAmount(draft.replace(/\.$/, ""))} className={`${small ? "text-[15px]" : "text-[17px]"} font-medium text-accent disabled:opacity-40`}>{action}</button>
     </div>
   );
 
@@ -251,7 +265,8 @@ export function AmountSheet({
             <span aria-hidden className="mx-auto mb-1.5 block h-1 w-9 rounded-full bg-ink/20" />
           </div>
           {header(false)}
-          <div className="pb-5 pt-3">{display}</div>
+          <div className={extra ? "pb-3 pt-1" : "pb-5 pt-3"}>{display}</div>
+          {extra && <div className="pb-3">{extra}</div>}
           {pad}
         </div>
       </>,
@@ -266,10 +281,11 @@ export function AmountSheet({
         ref={popRef}
         role="dialog"
         aria-label={label}
-        className="glass-panel fixed z-[55] flex w-[272px] flex-col rounded-[18px] pb-2 pt-3 motion-safe:animate-fade-in"
+        className={`glass-panel fixed z-[55] flex ${extra ? "w-[340px]" : "w-[272px]"} flex-col rounded-[18px] pb-2 pt-3 motion-safe:animate-fade-in`}
       >
         {header(true)}
         <div className="pb-3 pt-1">{display}</div>
+        {extra && <div className="pb-2">{extra}</div>}
         {pad}
       </div>
     </>,

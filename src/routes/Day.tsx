@@ -24,8 +24,7 @@ import { SearchField } from "@/components/SearchField";
 import { RowSelect } from "@/components/RowSelect";
 import { ActionSheet, useActionSheet, ConfirmMenuItem } from "@/components/ActionSheet";
 import { Editable } from "@/components/Editable";
-import { MoneyField } from "@/components/MoneyField";
-import { AmountSheet } from "@/components/AmountSheet";
+import { ExpenseSheet, type SpendChoice } from "@/components/ExpenseSheet";
 import { useFxRates } from "@/lib/fx";
 import { PlaceAction, PlaceActions } from "@/components/PlaceAction";
 import type { Tip } from "@/components/InfoTips";
@@ -77,7 +76,7 @@ import { NearbyCard, NearbyGroupRows, NearbyProvider, NearbyRow, usePlaceHours, 
 import { fetchDayWeather, forecastSpot, weatherLabel, type DayWeather } from "@/lib/weather";
 import { useDaySun } from "@/lib/daySun";
 import { prefetchTiles, canPrefetchTiles, dayOfflinePoints } from "@/lib/offlineTiles";
-import { parseMoney, fmtMoney, cleanAmount, fmtFare, expenseCategoryIcon, expenseCategoryForGlyph } from "@/lib/cost";
+import { parseMoney, fmtMoney, fmtFare, expenseCategoryIcon, expenseCategoryForGlyph } from "@/lib/cost";
 import { useAsyncAction } from "@/lib/useAsyncAction";
 import { selectInSplit, useSplitCard } from "@/lib/splitSelect";
 import { fmtIn, hotelEndTitle, minutesUntil, nowInDay } from "@/lib/upNext";
@@ -620,15 +619,16 @@ function DayPage({ data, day }: { data: TripData; day: DayT }) {
         />
       )}
       {!ro && (
-        <QuickSpend
+        <ExpenseSheet
           open={quickSpend}
           preset={spendFor}
+          choices={spendFor ? [] : spendChoices}
           onClose={() => setQuickSpend(false)}
           anchorRef={quickSpendAnchor as React.RefObject<HTMLElement>}
           currencies={(data.config.currencies ?? []).filter(Boolean)}
           defaultCurrency={lastSpendCurrency}
           categories={data.config.expenseCategories ?? []}
-          onAdd={addSpend}
+          onSave={addSpend}
         />
       )}
       {!ro && (
@@ -2861,127 +2861,6 @@ function PlacePicker({ value, adding, places, more = [], title = "What this step
   );
 }
 
-/** a spend row's category as its grey caption (Wallet's second line) — tap
- *  it for the list to change it, the current one ticked */
-function CategoryCaption({ value, categories, onChange }: {
-  value?: string;
-  categories: ExpenseCategory[];
-  onChange: (id: string | undefined) => void;
-}) {
-  const sheet = useActionSheet();
-  const current = categories.find((c) => c.id === value);
-  return (
-    <>
-      <button
-        ref={sheet.anchorRef}
-        type="button"
-        onClick={() => sheet.setOpen(true)}
-        aria-haspopup="menu"
-        aria-label={`Category: ${current?.label ?? "none"}`}
-        className="meta tap mt-0.5 block break-words text-left"
-      >
-        {current?.label ?? "Add a category"}
-      </button>
-      <ActionSheet open={sheet.open} onClose={() => sheet.setOpen(false)} anchorRef={sheet.anchorRef} title="Category">
-        {categories.map((cat) => (
-          <button key={cat.id} type="button" className="menu-item" onClick={() => { onChange(cat.id); sheet.setOpen(false); }}>
-            <Icon name="check" size={14} className={`shrink-0 text-accent ${cat.id === value ? "" : "invisible"}`} />
-            {cat.label}
-          </button>
-        ))}
-        {value && (
-          <button type="button" className="menu-item" onClick={() => { onChange(undefined); sheet.setOpen(false); }}>
-            <Icon name="check" size={14} className="invisible shrink-0" />
-            No category
-          </button>
-        )}
-      </ActionSheet>
-    </>
-  );
-}
-
-/** a plan step offered under "Add an amount", with the category its icon
- *  suggests */
-type SpendChoice = { label: string; categoryId?: string };
-
-/** A spend logged in two taps, as Wallet takes a payment: the keypad first,
- *  in the currency last spent in (else the trip's second, the local one,
- *  with what it comes to at home under it), then which category it was.
- *  Skipping the category still keeps the amount; what it was can be named
- *  later on its row in Spending. */
-function QuickSpend({ open, preset, onClose, anchorRef, currencies, defaultCurrency, categories, onAdd }: {
-  open: boolean;
-  /** the step it's for — names the spend, and its category skips the picker */
-  preset?: SpendChoice;
-  onClose: () => void;
-  anchorRef: React.RefObject<HTMLElement>;
-  currencies: string[];
-  defaultCurrency?: string;
-  categories: ExpenseCategory[];
-  onAdd: (cost: Omit<DayCost, "id">) => void;
-}) {
-  const primary = currencies[0] ?? "";
-  const start = defaultCurrency && currencies.includes(defaultCurrency) ? defaultCurrency : currencies[1] ?? primary;
-  const [currency, setCurrency] = useState(start);
-  const [picking, setPicking] = useState(false);
-  // the keypad commits, then closes — read the amount through a ref so the
-  // close sees what was just committed
-  const amount = useRef("");
-  // a tapped category closes the sheet too, and closing it means "skip" —
-  // the spend is added once, by whichever comes first
-  const added = useRef(false);
-  useEffect(() => {
-    if (!open) return;
-    amount.current = "";
-    added.current = false;
-    setCurrency(start);
-    setPicking(false);
-  }, [open]);
-  const add = (categoryId?: string) => {
-    if (added.current) return;
-    added.current = true;
-    onAdd({
-      label: preset?.label ?? "",
-      amount: amount.current,
-      ...(categoryId && { categoryId }),
-      ...(currency && currency !== primary && { currency }),
-    });
-    onClose();
-  };
-  return (
-    <>
-      <AmountSheet
-        open={open && !picking}
-        onClose={() => {
-          if (!amount.current) onClose();
-          else if (preset?.categoryId) add(preset.categoryId);
-          else if (categories.length) setPicking(true);
-          else add();
-        }}
-        anchorRef={anchorRef}
-        label={preset?.label || "Spent today"}
-        amount=""
-        currency={currency}
-        currencies={currencies.length >= 2 ? currencies : []}
-        onCommit={(a) => { amount.current = a; }}
-        onCurrency={setCurrency}
-        home={currencies.length >= 2 ? primary : undefined}
-      />
-      <ActionSheet open={open && picking} onClose={() => add()} anchorRef={anchorRef} title={`${fmtFare(amount.current, currency || primary)} — what for?`} doneLabel="Skip">
-        {categories.map((cat, i) => {
-          const tile = expenseCategoryIcon(cat, i);
-          return (
-            <button key={cat.id} type="button" className="menu-item" onClick={() => add(cat.id)}>
-              <IconTile size="sm" name={tile.name} glyph={tile.glyph} tone={tile.tone} color={tile.color} className="shrink-0" />
-              {cat.label}
-            </button>
-          );
-        })}
-      </ActionSheet>
-    </>
-  );
-}
-
 /** "Move to": every day of the trip, by date, with its title and base —
  *  the one it's on ticked. Picking that one just closes. */
 function MoveToDaySheet({ sheet, anchorRef, current, onPick }: {
@@ -3013,14 +2892,15 @@ function MoveToDaySheet({ sheet, anchorRef, current, onPick }: {
 }
 const MOVE_DAY_OPTS = { weekday: "short", day: "numeric", month: "short" } as const;
 
-/** The day's spend — a category + a whole-number amount per row, with an
- *  optional free-text note. The amounts feed `tripCost`; the category drives
- *  the Expenses grouping. */
+/** The day's spend — one row per amount: what it was, its category under
+ *  it, the amount. Tapping a row opens it in the expense sheet; Add an
+ *  amount opens the same sheet empty. The amounts feed `tripCost`; the
+ *  category drives the Expenses grouping. */
 function CostList({ costs, dayId, categories, currencies, choices, defaultCurrency, highlightId, readOnly, onChange, onMove }: {
   costs: DayCost[];
   /** the day these are on — ticked in Move to */
   dayId: string;
-  /** the currency a new row starts in; absent = the trip's primary */
+  /** the currency a new amount starts in */
   defaultCurrency?: string;
   categories: ExpenseCategory[];
   currencies: string[];
@@ -3037,46 +2917,38 @@ function CostList({ costs, dayId, categories, currencies, choices, defaultCurren
   const moving = useRef<DayCost | null>(null);
   const days = useData()?.days.length ?? 0;
   const movingRow = useRef<HTMLElement | null>(null);
-  const setAt = (i: number, patch: Partial<DayCost>) => onChange(costs.map((c, j) => (j === i ? { ...c, ...patch } : c)));
-  // the row just added opens straight onto what's missing: the keypad once
-  // it's named (picked off the plan), else its name. Rendered inside the tap
-  // so the iPhone keyboard comes up for the name.
-  const [fresh, setFresh] = useState<string | null>(null);
-  // picked off the plan = nothing typed, so closing its keypad empty can
-  // simply drop the row; a typed name is kept
-  const [picked, setPicked] = useState(false);
-  // a custom row's name entered with Return moves straight on to its amount
-  // (remounting its field open), the way a quick-entry flow advances; tapping
-  // away just stops there
-  const [keypadFor, setKeypadFor] = useState<string | null>(null);
-  const addWithLabel = (label: string, categoryId?: string) => {
-    const id = shortId();
-    flushSync(() => {
-      setOpen(false);
-      setFresh(id);
-      setPicked(!!label);
-      const currency = defaultCurrency && currencies.includes(defaultCurrency) && defaultCurrency !== primary ? defaultCurrency : undefined;
-      onChange([...costs, { id, label, amount: "", ...(categoryId && { categoryId }), ...(currency && { currency }) }]);
-    });
+  // the expense sheet: a row being edited, or a new one (`editing` null)
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [editing, setEditing] = useState<DayCost | null>(null);
+  const sheetAnchor = useRef<HTMLElement | null>(null);
+  const openSheet = (cost: DayCost | null, anchor: HTMLElement | null) => {
+    sheetAnchor.current = anchor;
+    setEditing(cost);
+    setSheetOpen(true);
   };
-  const { open, setOpen, anchorRef } = useActionSheet();
-  // a step already on the day's plan can be picked straight off, so its name
-  // doesn't need retyping — otherwise there's nothing to pick from, so skip
-  // straight to a blank row like before
-  const add = () => (choices.length > 0 ? setOpen(true) : addWithLabel(""));
+  const save = (next: Omit<DayCost, "id">) => {
+    if (editing) onChange(costs.map((c) => (c.id === editing.id ? { id: c.id, ...next } : c)));
+    else onChange([...costs, { id: shortId(), ...next }]);
+  };
   const catLabel = (id?: string) => categories.find((c) => c.id === id)?.label ?? "Uncategorised";
 
-  const addButton = (className: string, iconSize: number) => (
-    <>
-      <button ref={anchorRef} onClick={add} className={className}><Icon name="plus" size={iconSize} /> Add an amount</button>
-      <ActionSheet open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} title="What was it?">
-        {choices.map((c) => (
-          <button key={c.label} type="button" onClick={() => addWithLabel(c.label, c.categoryId)} className="menu-item">{c.label}</button>
-        ))}
-        {/* after the day's own steps, as iOS puts Custom last in a short list */}
-        <button type="button" onClick={() => addWithLabel("")} className="menu-item">Custom…</button>
-      </ActionSheet>
-    </>
+  const addButton = (
+    <button type="button" onClick={(e) => openSheet(null, e.currentTarget)} className="action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07] active:opacity-100">
+      <Icon name="plus" size={14} /> Add an amount
+    </button>
+  );
+  const sheet = !readOnly && (
+    <ExpenseSheet
+      open={sheetOpen}
+      onClose={() => setSheetOpen(false)}
+      anchorRef={sheetAnchor as React.RefObject<HTMLElement>}
+      cost={editing ?? undefined}
+      choices={choices}
+      categories={categories}
+      currencies={currencies}
+      defaultCurrency={defaultCurrency}
+      onSave={save}
+    />
   );
 
   const subtotals = new Map<string, number>();
@@ -3096,98 +2968,58 @@ function CostList({ costs, dayId, categories, currencies, choices, defaultCurren
     return readOnly ? (
       <p className="px-3.5 py-3 text-sm text-ink-faint">Nothing logged.</p>
     ) : (
-      addButton("action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07] active:opacity-100", 14)
+      <>{addButton}{sheet}</>
     );
   }
 
+  const hair = "relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden";
   return (
     <ul>
-      {costs.map((c, i) => {
-          const known = !c.categoryId || categories.some((cat) => cat.id === c.categoryId);
-          const category = categories.find((cat) => cat.id === c.categoryId);
-          const tile = category ? expenseCategoryIcon(category, categories.indexOf(category)) : { name: "wallet" as const, tone: "ink-faint" as const };
-          return (
-            <li
-              key={c.id}
-              id={`cost-${c.id}`}
-              className={`group relative after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden transition-colors duration-700 ${c.id === highlightId ? "bg-accent/10" : ""}`}
-            >
-              <SwipeToDelete message="This amount will be deleted." undoLabel="Expense removed" onDelete={readOnly ? undefined : () => onChange(costs.filter((_, j) => j !== i))}>
-              <ContextMenu menu={readOnly ? null : (
-                <>
-                  {days > 1 && (
-                    <button type="button" className="menu-item" onClick={() => { moving.current = c; movingRow.current = document.getElementById(`cost-${c.id}`); moveSheet.setOpen(true); }}>
-                      <Icon name="move" size={16} /> Move to Another Day
-                    </button>
-                  )}
-                  <button type="button" className="menu-item text-danger" onClick={() => undoable("Expense removed", () => onChange(costs.filter((x) => x.id !== c.id)))}>
-                    <Icon name="close" size={16} /> Delete
-                  </button>
-                </>
-              )}>
-              <div className="px-3.5 py-3">
-              <div className="flex items-start gap-3">
-                <IconTile size="sm" name={tile.name} glyph={tile.glyph} tone={tile.tone} color={tile.color} className="mt-0.5 shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-baseline gap-3">
-                    <span className="min-w-0 flex-1">
-                      {readOnly ? (
-                        <span className="text-sm text-ink">{c.label.trim() || catLabel(c.categoryId)}</span>
-                      ) : (
-                        <Editable label="What was it?" value={c.label} placeholder="What was it?" autoEdit={c.id === fresh && !c.label} className="text-sm text-ink" onCommit={(v) => setAt(i, { label: v })}
-                          onReturn={c.id === fresh && !c.amount ? () => setKeypadFor(c.id) : undefined}
-                          // a row with no amount left without a name goes,
-                          // like a step left blank (undoably if it had a name
-                          // or category); one with an amount just loses its name
-                          onBlank={(onRow) => {
-                            if (c.amount || onRow) return void (c.label && setAt(i, { label: "" }));
-                            const drop = () => onChange(costs.filter((x) => x.id !== c.id));
-                            if (c.label || c.categoryId) undoable("Amount removed", drop);
-                            else drop();
-                          }}
-                        />
-                      )}
-                    </span>
-                    {readOnly ? (
-                      <span className="shrink-0 text-right text-sm text-ink tabular-nums">{fmtFare(c.amount, c.currency || primary)}</span>
-                    ) : (
-                      <span className="shrink-0 text-right text-sm text-ink tabular-nums">
-                        <MoneyField
-                          key={keypadFor === c.id ? `${c.id}-keypad` : c.id}
-                          label="Amount"
-                          autoOpen={c.id === fresh && !!c.label}
-                          // a row just added from the plan and left without an
-                          // amount goes away, like a new step left blank
-                          onLeftEmpty={c.id === fresh && picked ? () => onChange(costs.filter((x) => x.id !== c.id)) : undefined}
-                          amount={c.amount}
-                          currency={c.currency}
-                          onAmount={(v) => setAt(i, { amount: cleanAmount(v) })}
-                          onCurrency={(cc) => setAt(i, { currency: cc })}
-                        />
-                      </span>
+      {costs.map((c) => {
+        const category = categories.find((cat) => cat.id === c.categoryId);
+        const tile = category ? expenseCategoryIcon(category, categories.indexOf(category)) : { name: "wallet" as const, tone: "ink-faint" as const };
+        const name = c.label.trim();
+        const body = (
+          <>
+            <IconTile size="sm" name={tile.name} glyph={tile.glyph} tone={tile.tone} color={tile.color} className="mt-0.5 shrink-0" />
+            <span className="min-w-0 flex-1">
+              <span className="block break-words text-sm text-ink">{name || catLabel(c.categoryId)}</span>
+              {name && <span className="meta mt-0.5 block">{catLabel(c.categoryId)}</span>}
+            </span>
+            <span className={`shrink-0 text-right text-sm tabular-nums ${c.amount ? "text-ink" : "text-ink-faint"}`}>{c.amount ? fmtFare(c.amount, c.currency || primary) : "—"}</span>
+          </>
+        );
+        return (
+          <li key={c.id} id={`cost-${c.id}`} className={`group ${hair} transition-colors duration-700 ${c.id === highlightId ? "bg-accent/10" : ""}`}>
+            {readOnly ? (
+              <div className="flex items-start gap-3 px-3.5 py-3">{body}</div>
+            ) : (
+              <SwipeToDelete message="This amount will be deleted." undoLabel="Expense removed" onDelete={() => onChange(costs.filter((x) => x.id !== c.id))}>
+                <ContextMenu menu={(
+                  <>
+                    {days > 1 && (
+                      <button type="button" className="menu-item" onClick={() => { moving.current = c; movingRow.current = document.getElementById(`cost-${c.id}`); moveSheet.setOpen(true); }}>
+                        <Icon name="move" size={16} /> Move to Another Day
+                      </button>
                     )}
+                    <button type="button" className="menu-item text-danger" onClick={() => undoable("Expense removed", () => onChange(costs.filter((x) => x.id !== c.id)))}>
+                      <Icon name="close" size={16} /> Delete
+                    </button>
+                  </>
+                )}>
+                  <div className="flex items-start gap-3 px-3.5 py-3">
+                    <button type="button" onClick={(e) => openSheet(c, e.currentTarget)} aria-label={`Edit ${name || catLabel(c.categoryId)}`} className="flex min-w-0 flex-1 items-start gap-3 text-left">
+                      {body}
+                    </button>
+                    <RowDeleteButton undoLabel="Expense removed" onClick={() => onChange(costs.filter((x) => x.id !== c.id))} />
                   </div>
-                  {/* category — the quiet second line, so it never shouts the
-                      same word down the list */}
-                  {readOnly ? (
-                    c.label.trim() && <div className="meta mt-0.5">{catLabel(c.categoryId)}</div>
-                  ) : (
-<CategoryCaption
-                      value={known ? c.categoryId : undefined}
-                      categories={categories}
-                      onChange={(id) => setAt(i, { categoryId: id })}
-                    />
-                  )}
-                </div>
-                {!readOnly && <RowDeleteButton undoLabel="Expense removed" onClick={() => onChange(costs.filter((_, j) => j !== i))} />}
-              </div>
-              </div>
-              </ContextMenu>
+                </ContextMenu>
               </SwipeToDelete>
-            </li>
-          );
-        })}
-      <li className="relative flex items-baseline justify-between gap-4 px-3.5 py-3 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
+            )}
+          </li>
+        );
+      })}
+      <li className={`${hair} flex items-baseline justify-between gap-4 px-3.5 py-3`}>
         <span className="value flex-1 font-medium">Total spent</span>
         <span className="value flex flex-wrap justify-end gap-x-1.5 font-medium tabular-nums">
           {subtotals.size > 0
@@ -3199,16 +3031,17 @@ function CostList({ costs, dayId, categories, currencies, choices, defaultCurren
         {!readOnly && <span aria-hidden className="-ml-1 w-[21px] shrink-0 [@media(hover:none)_and_(pointer:coarse)]:hidden" />}
       </li>
       {inPrimary !== null && (
-        <li className="relative flex items-baseline justify-between gap-4 px-3.5 py-3 after:pointer-events-none after:absolute after:bottom-0 after:left-3.5 after:right-0 after:h-[var(--hair)] after:bg-line last:after:hidden">
+        <li className={`${hair} flex items-baseline justify-between gap-4 px-3.5 py-3`}>
           <span className="value flex-1">In {primary}</span>
           <span className="value whitespace-nowrap tabular-nums">≈ {fmtMoney(Math.round(inPrimary), primary)}</span>
           {!readOnly && <span aria-hidden className="-ml-1 w-[21px] shrink-0 [@media(hover:none)_and_(pointer:coarse)]:hidden" />}
         </li>
       )}
-      {!readOnly && <li>{addButton("action w-full px-3.5 py-2.5 text-xs transition-colors duration-150 active:bg-ink/[0.07] active:opacity-100", 14)}</li>}
+      {!readOnly && <li>{addButton}</li>}
       {!readOnly && (
         <MoveToDaySheet sheet={moveSheet} anchorRef={movingRow as React.RefObject<HTMLElement>} current={dayId} onPick={(d) => moving.current && onMove(moving.current, d)} />
       )}
+      {sheet}
     </ul>
   );
 }
