@@ -770,7 +770,7 @@ type Swatch = { className: string; style?: { background: string } };
  *  colour — its tile's, unless a bigger category already has that colour
  *  (Train and Transport share a blue), when it takes the next unused area
  *  tone — so no two series ever look alike. */
-function ExpenseCharts({ mode, items, categories, primary, rates, note }: {
+function ExpenseCharts({ mode, items: all, categories, primary, rates, note }: {
   mode: ExpensesBy;
   /** how other currencies were converted */
   note?: string;
@@ -779,10 +779,33 @@ function ExpenseCharts({ mode, items, categories, primary, rates, note }: {
   primary: string;
   rates: Record<string, number>;
 }) {
+  // what the charts leave out, as a filter menu sets it: bookings (stays and
+  // flights — out until asked for) and any category unticked
+  const [filter, setFilter] = useChartFilter();
+  const filterSheet = useActionSheet();
+  const hidden = new Set(filter.hidden);
+  const items = all.filter((it) => (filter.bookings || isDaySpend(it, categories)) && !hidden.has(it.categoryId ?? ""));
+  const hasBookings = all.some((it) => !isDaySpend(it, categories));
+  const present = [...new Set(all.map((it) => it.categoryId ?? ""))];
+  const filtered = (hasBookings && !filter.bookings) || present.some((id) => hidden.has(id));
+  // a category of nothing but bookings (Accommodation, Flights) shows only
+  // with them — its tick follows Stays & Flights, and ticking it brings them back
+  const onlyBookings = (id: string) => all.every((it) => (it.categoryId ?? "") !== id || !isDaySpend(it, categories));
+  const shownCat = (id: string) => !hidden.has(id) && (filter.bookings || !onlyBookings(id));
+  const toggleCategory = (id: string) => {
+    if (!shownCat(id) && onlyBookings(id) && !filter.bookings) return setFilter({ bookings: true, hidden: filter.hidden.filter((x) => x !== id) });
+    setFilter({ ...filter, hidden: hidden.has(id) ? filter.hidden.filter((x) => x !== id) : [...filter.hidden, id] });
+  };
+  const catName = (id: string) => categories.find((c) => c.id === id)?.label ?? "Uncategorised";
+  const leftOut = [
+    hasBookings && !filter.bookings ? "Stays & flights" : null,
+    ...present.filter((id) => hidden.has(id)).map(catName),
+  ].filter(Boolean) as string[];
   const toPrimary = (amount: number, cur: string) => (cur === primary ? amount : cur && rates[cur] ? amount / rates[cur] : null);
-  // every category's whole-trip total, biggest first — the colour order
+  // every category's whole-trip total, biggest first — the colour order,
+  // taken before the filter so hiding one never repaints the rest
   const totals = new Map<string, number>();
-  for (const it of items) {
+  for (const it of all) {
     const v = toPrimary(it.amount, it.currency);
     if (v !== null) totals.set(it.categoryId ?? "", (totals.get(it.categoryId ?? "") ?? 0) + v);
   }
@@ -804,16 +827,87 @@ function ExpenseCharts({ mode, items, categories, primary, rates, note }: {
   }
   const swatch = (id: string): Swatch => colours.get(id) ?? { className: "bg-ink-faint" };
   const unrated = [...new Set(items.filter((it) => toPrimary(it.amount, it.currency) === null).map((it) => it.currency || "—"))];
-  if (!ranked.length) return null;
+  if (!all.length) return null;
   const props = { items, categories, primary, rates, swatch };
   return (
-    <Section title={mode === "date" ? "Spending per day" : mode === "city" ? "Spending by city" : "Spending by category"} id="expenses-charts">
+    <Section
+      title={mode === "date" ? "Spending per day" : mode === "city" ? "Spending by city" : "Spending by category"}
+      id="expenses-charts"
+      action={
+        <>
+          <button
+            ref={filterSheet.anchorRef}
+            type="button"
+            onClick={() => filterSheet.setOpen(true)}
+            aria-label={filtered ? "Filter — some spending hidden" : "Filter"}
+            aria-haspopup="menu"
+            className={`tap-target grid h-7 w-7 place-items-center rounded-full transition-colors ${filtered ? "bg-accent text-white" : "text-accent"}`}
+          >
+            <Icon name="filter" size={16} />
+          </button>
+          <ActionSheet open={filterSheet.open} onClose={() => filterSheet.setOpen(false)} anchorRef={filterSheet.anchorRef} title="Show in Charts">
+            {hasBookings && (
+              <FilterCheck on={filter.bookings} onClick={() => setFilter({ ...filter, bookings: !filter.bookings })}>Stays &amp; Flights</FilterCheck>
+            )}
+            {hasBookings && <div className="my-1 h-px bg-ink/10" />}
+            {present.map((id) => (
+              <FilterCheck key={id || "none"} on={shownCat(id)} onClick={() => toggleCategory(id)}>{catName(id)}</FilterCheck>
+            ))}
+            {filtered && (
+              <>
+                <div className="my-1 h-px bg-ink/10" />
+                <button type="button" className="menu-item text-accent" onClick={() => setFilter({ bookings: true, hidden: [] })}>Show All</button>
+              </>
+            )}
+          </ActionSheet>
+        </>
+      }
+    >
       <div className="px-3.5 pb-3.5 pt-3">
-        {mode === "date" ? <SpendingChart {...props} /> : mode === "category" ? <CategoryBars {...props} /> : <CityBars {...props} />}
+        {!items.length ? (
+          <p className="meta py-6 text-center">Everything is filtered out.</p>
+        ) : mode === "date" ? <SpendingChart {...props} /> : mode === "category" ? <CategoryBars {...props} /> : <CityBars {...props} />}
+        {leftOut.length > 0 && (
+          <p className="meta mt-3">
+            Not shown: {leftOut.join(", ")}.{" "}
+            <button type="button" className="font-medium text-accent" onClick={() => filterSheet.setOpen(true)}>Filter</button>
+          </p>
+        )}
         {mode !== "date" && unrated.length > 0 && <p className="meta mt-3">Not included yet: {unrated.join(", ")} — no exchange rate.</p>}
         {note && <p className="meta mt-3">{note}</p>}
       </div>
     </Section>
+  );
+}
+
+type ChartFilter = { bookings: boolean; hidden: string[] };
+const CHART_FILTER_KEY = "za:expense-chart-filter";
+
+/** The charts' filter, kept on this device: stays and flights start out
+ *  hidden (they'd tower over day-to-day spending); categories start shown. */
+function useChartFilter(): [ChartFilter, (f: ChartFilter) => void] {
+  const [filter, setState] = useState<ChartFilter>(() => {
+    try {
+      const raw = JSON.parse(localStorage.getItem(CHART_FILTER_KEY) ?? "null") as Partial<ChartFilter> | null;
+      return { bookings: raw?.bookings === true, hidden: Array.isArray(raw?.hidden) ? raw!.hidden!.filter((x) => typeof x === "string") : [] };
+    } catch {
+      return { bookings: false, hidden: [] };
+    }
+  });
+  const set = (f: ChartFilter) => {
+    setState(f);
+    try { localStorage.setItem(CHART_FILTER_KEY, JSON.stringify(f)); } catch { /* private mode: this visit only */ }
+  };
+  return [filter, set];
+}
+
+/** a menu row ticked while it's shown, as iOS filter menus mark theirs */
+function FilterCheck({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button type="button" role="menuitemcheckbox" aria-checked={on} className="menu-item" onClick={onClick}>
+      <span className="grid w-4 shrink-0 place-items-center">{on && <Icon name="check" size={16} />}</span>
+      {children}
+    </button>
   );
 }
 
@@ -852,7 +946,7 @@ function CategoryBars({ items, categories, primary, rates, swatch }: {
   const pct = new Intl.NumberFormat(undefined, { style: "percent", maximumFractionDigits: 0 });
   return (
     <>
-      <ChartHead label="Total" value={money(total)} sub={`${plural(rows.length, "category", "categories")} · stays and fares included`} />
+      <ChartHead label="Total" value={money(total)} sub={plural(rows.length, "category", "categories")} />
       <ul className="mt-4 space-y-3">
         {rows.map(([id, v]) => {
           const sw = swatch(id);
@@ -907,7 +1001,7 @@ function CityBars({ items, categories, primary, rates, swatch }: {
   const used = [...new Set(rows.flatMap((r) => r.parts.map(([id]) => id)))];
   return (
     <>
-      <ChartHead label="Total" value={money(total)} sub={`${plural(rows.length, "city", "cities")} · stays and fares included`} />
+      <ChartHead label="Total" value={money(total)} sub={plural(rows.length, "city", "cities")} />
       <ul className="mt-4 space-y-3">
         {rows.map((r) => (
           <li key={r.city || "elsewhere"}>
@@ -959,10 +1053,7 @@ function SpendingChart({ items, categories, primary, rates, swatch }: {
   /** a category picked out in the legend — the bars show only it */
   const [focus, setFocus] = useState<string | null>(null);
   const toPrimary = (amount: number, cur: string) => (cur === primary ? amount : cur && rates[cur] ? amount / rates[cur] : null);
-  // day-to-day spending only: stays and flights are booked for the trip,
-  // and one would stand over every other day (they're in the totals below)
-  const spread = spendByDay(data, items.filter((it) => isDaySpend(it, categories)));
-  const booked = items.some((it) => !isDaySpend(it, categories));
+  const spread = spendByDay(data, items);
   // the trip's days, plus any day an amount falls on outside them (a train
   // the day before the first base starts)
   const days = [...new Set([...data.days.map((d) => d.date), ...spread.map((x) => x.date)])].sort();
@@ -1015,7 +1106,7 @@ function SpendingChart({ items, categories, primary, rates, swatch }: {
         {/* the headline, as Health and Screen Time lead a chart: what it is,
             the figure, and the period — or the day or category picked */}
         <p className="text-xs font-semibold uppercase tracking-wide text-ink-faint">
-          {sel ? "Spent" : focus !== null ? nameOf(focus) : "Day-to-day total"}
+          {sel ? "Spent" : focus !== null ? nameOf(focus) : "Total"}
         </p>
         <p className="text-[28px] font-semibold leading-tight tabular-nums text-ink">{money(sel ? sel.total : focusTotal ?? total)}</p>
         <p className="meta">
@@ -1104,7 +1195,6 @@ function SpendingChart({ items, categories, primary, rates, swatch }: {
             );
           })}
         </ul>
-        {booked && <p className="meta mt-3">Day-to-day spending: stays and flights aren’t counted here, but they are in the list below and in Category and City.</p>}
         {missing.length > 0 && <p className="meta mt-2">Not included yet: {missing.join(", ")} — no exchange rate.</p>}
     </>
   );
