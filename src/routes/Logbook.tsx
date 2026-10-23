@@ -41,7 +41,7 @@ import { fmtDate, fmtSpan, fmtStay, hotelStays, journeyDepartDate, plural } from
 import { MODE_ICON } from "@/lib/transport";
 import { toneForSegmentMode, logbookSectionTile, customListColor, contactTile, documentTile, TONE_BG, type Tone } from "@/lib/tones";
 import { LOGBOOK_SECTIONS, logbookLabel, packingGroups, sectionSlug, sectionFromSlug, type LogbookSection } from "@/lib/logbook";
-import { tripCost, fmtMoney, combineCurrencies, expenseCategoryIcon, type CostItem } from "@/lib/cost";
+import { tripCost, fmtMoney, combineCurrencies, expenseCategoryIcon, spendByDay, type CostItem } from "@/lib/cost";
 import { useFxRates, useTripSpent } from "@/lib/fx";
 import { tripGuides } from "@/guides";
 import type { CustomList, Doc, LuggageNote, PackingItem, ScratchNote, TripData } from "@/core/types";
@@ -600,12 +600,12 @@ function ProportionBar({ segments }: { segments: { id: string; amount: number; t
 
 /** how Expenses groups the trip's spending — kept in the URL, so Back from
  *  a category lands on the same view */
-type ExpensesBy = "category" | "city";
+type ExpensesBy = "category" | "city" | "date";
 
 function Expenses() {
   const data = useData()!;
   const [params, setParams] = useSearchParams();
-  const by: ExpensesBy = params.get("by") === "city" ? "city" : "category";
+  const by: ExpensesBy = params.get("by") === "city" ? "city" : params.get("by") === "date" ? "date" : "category";
   const { byCurrency, categories, unparsed, items } = tripCost(data);
   const currencies = Object.keys(byCurrency);
   const primary = data.config.currency || currencies[0] || "";
@@ -647,21 +647,26 @@ function Expenses() {
       className="mx-auto max-w-[18rem]"
       value={by}
       onChange={(v) => setParams(v === "category" ? {} : { by: v }, { replace: true })}
-      options={[{ value: "category", label: "Category" }, { value: "city", label: "City" }]}
+      options={[{ value: "category", label: "Category" }, { value: "city", label: "City" }, { value: "date", label: "Date" }]}
     />
   );
+  const chart = <SpendingChart items={items} categories={categories} primary={primary} rates={rates} />;
 
-  if (by === "city") {
+  if (by !== "category") {
     return (
       <div className="space-y-6">
+        {chart}
         {switcher}
-        <ExpensesByCity items={items} categories={categories} primary={primary} rates={rates} catLabel={catLabel} />
+        {by === "city"
+          ? <ExpensesByCity items={items} categories={categories} primary={primary} rates={rates} catLabel={catLabel} />
+          : <ExpensesByDate items={items} categories={categories} primary={primary} rates={rates} />}
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      {chart}
       {switcher}
       {combined && (
         <Section
@@ -746,6 +751,159 @@ function sumIn(items: CostItem[], primary: string, rates: Record<string, number>
   const parts = [...byCur].map(([cur, amount]) => (cur === primary ? amount : cur && rates[cur] ? amount / rates[cur] : null));
   const total = parts.every((v) => v !== null) ? parts.reduce<number>((sum, v) => sum + (v ?? 0), 0) : null;
   return { total, paid: [...byCur].map(([cur, amount]) => fmtMoney(amount, cur)).join(" + ") };
+}
+
+/** Spending per day, as Apple Card's spending card: the trip's total (or the
+ *  day under the finger or pointer) over a bar per trip day, each stacked by
+ *  category in the colours the category rows wear, with the daily average as
+ *  a dashed line. All in the trip's main currency; an amount whose currency
+ *  has no rate yet is left out and said so. */
+function SpendingChart({ items, categories, primary, rates }: {
+  items: CostItem[];
+  categories: ExpenseCat[];
+  primary: string;
+  rates: Record<string, number>;
+}) {
+  const data = useData()!;
+  const [picked, setPicked] = useState<number | null>(null);
+  const days = useMemo(() => [...new Set(data.days.map((d) => d.date))].sort(), [data.days]);
+  const toPrimary = (amount: number, cur: string) => (cur === primary ? amount : cur && rates[cur] ? amount / rates[cur] : null);
+  const spread = spendByDay(data, items);
+  const missing = [...new Set(spread.filter((x) => toPrimary(x.amount, x.currency) === null).map((x) => x.currency))];
+  // per day: each category's share, in the categories' own order
+  const order = [...categories.map((c) => c.id), ""];
+  const perDay = days.map((date) => {
+    const byCat = new Map<string, number>();
+    for (const x of spread) {
+      if (x.date !== date) continue;
+      const v = toPrimary(x.amount, x.currency);
+      if (v !== null) byCat.set(x.categoryId ?? "", (byCat.get(x.categoryId ?? "") ?? 0) + v);
+    }
+    const parts = order.filter((id) => (byCat.get(id) ?? 0) > 0).map((id) => ({ id, amount: byCat.get(id)! }));
+    return { date, parts, total: parts.reduce((sum, p) => sum + p.amount, 0) };
+  });
+  const total = perDay.reduce((sum, d) => sum + d.total, 0);
+  if (!days.length || total <= 0) return null;
+  const max = Math.max(...perDay.map((d) => d.total));
+  const average = total / days.length;
+  const loc = data.config.locale;
+  const tileOf = (id: string) => {
+    const c = categories.find((x) => x.id === id);
+    return c ? expenseCategoryIcon(c, categories.indexOf(c)) : null;
+  };
+  const sel = picked !== null ? perDay[picked] : null;
+  const city = sel ? data.legs.find((l) => l.id === data.days.find((d) => d.date === sel.date)?.legId)?.base : undefined;
+  // a label under every bar while they fit, else under every seventh
+  const every = days.length <= 14 ? 1 : 7;
+
+  return (
+    <Section title="Spending per day">
+      <div className="px-3.5 pb-3 pt-3">
+        <p className="meta">{sel ? [fmtDate(sel.date, loc, { weekday: "short", day: "numeric", month: "short" }), city].filter(Boolean).join(" · ") : "Total"}</p>
+        <p className="text-[24px] font-semibold leading-tight tabular-nums text-ink">{fmtMoney(Math.round(sel ? sel.total : total), primary)}</p>
+        <p className="meta">{sel ? (sel.parts.length ? sel.parts.map((p) => `${categories.find((c) => c.id === p.id)?.label ?? "Uncategorised"} ${fmtMoney(Math.round(p.amount), primary)}`).join(" · ") : "Nothing spent") : `Daily average ${fmtMoney(Math.round(average), primary)}`}</p>
+        <div className="relative mt-3 h-36" onMouseLeave={() => setPicked(null)}>
+          {/* the daily average, as a dashed rule across the bars */}
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 border-t border-dashed border-ink-faint/60" style={{ bottom: `${(average / max) * 100}%` }} />
+          <div className="flex h-full items-end justify-around gap-[2px]">
+            {perDay.map((d, i) => (
+              <button
+                key={d.date}
+                type="button"
+                aria-label={`${fmtDate(d.date, loc, { weekday: "long", day: "numeric", month: "long" })}: ${fmtMoney(Math.round(d.total), primary)}`}
+                aria-pressed={picked === i}
+                onClick={() => setPicked(picked === i ? null : i)}
+                onMouseEnter={(e) => { if (window.matchMedia("(hover: hover)").matches) setPicked(i); else e.preventDefault(); }}
+                className="flex h-full min-w-0 max-w-[40px] flex-1 flex-col justify-end"
+              >
+                <span
+                  className={`flex w-full flex-col-reverse gap-[2px] overflow-hidden rounded-t-[4px] transition-opacity ${picked !== null && picked !== i ? "opacity-40" : ""}`}
+                  style={{ height: `${(d.total / max) * 100}%` }}
+                >
+                  {d.parts.map((p) => {
+                    const tile = tileOf(p.id);
+                    return (
+                      <span
+                        key={p.id}
+                        className={tile?.color ? "" : tile ? TONE_BG[tile.tone ?? "accent"] : "bg-ink-faint opacity-50"}
+                        style={{ flexGrow: p.amount, flexBasis: 0, minHeight: 2, background: tile?.color }}
+                      />
+                    );
+                  })}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div aria-hidden className="mt-1 flex justify-around gap-[2px]">
+          {perDay.map((d, i) => (
+            <span key={d.date} className="meta min-w-0 max-w-[40px] flex-1 text-center text-[11px]">
+              {i % every === 0 ? (every === 1 ? fmtDate(d.date, loc, { weekday: "narrow" }) : fmtDate(d.date, loc, { day: "numeric", month: "short" })) : ""}
+            </span>
+          ))}
+        </div>
+        {missing.length > 0 && <p className="meta mt-2">Not included yet: {missing.join(", ")} — no exchange rate.</p>}
+      </div>
+    </Section>
+  );
+}
+
+/** Expenses by date, as Wallet lists transactions: a heading per day (its
+ *  date and base), each amount under it — what, its category, the amount in
+ *  the main currency with what was paid under it — and the day's total. */
+function ExpensesByDate({ items, categories, primary, rates }: {
+  items: CostItem[];
+  categories: ExpenseCat[];
+  primary: string;
+  rates: Record<string, number>;
+}) {
+  const data = useData()!;
+  const loc = data.config.locale;
+  const dates = [...new Set(items.map((it) => it.date ?? ""))].sort((a, b) => (!a ? 1 : !b ? -1 : a.localeCompare(b)));
+  const toPrimary = (amount: number, cur: string) => (cur === primary ? amount : cur && rates[cur] ? amount / rates[cur] : null);
+  return (
+    <>
+      {dates.map((date) => {
+        const mine = items.filter((it) => (it.date ?? "") === date);
+        const city = date ? data.legs.find((l) => l.id === data.days.find((d) => d.date === date)?.legId)?.base : undefined;
+        const { total, paid } = sumIn(mine, primary, rates);
+        const title = date ? [fmtDate(date, loc, { weekday: "short", day: "numeric", month: "short" }), city].filter(Boolean).join(" · ") : "No date";
+        return (
+          <Section key={date || "none"} id={`expenses-${date || "none"}`} title={title}>
+            <ul>
+              {mine.map((it, i) => {
+                const cat = categories.find((c) => c.id === it.categoryId);
+                const tile = cat ? expenseCategoryIcon(cat, categories.indexOf(cat)) : { name: "wallet" as const, tone: "ink-faint" as const };
+                const local = it.currency === primary ? null : toPrimary(it.amount, it.currency);
+                return (
+                  <li key={`${it.to}-${i}`} className={INSET_DIVIDER}>
+                    <Link to={it.to} viewTransition className="flex items-center gap-3 px-3.5 py-3 transition-colors duration-150 active:bg-ink/[0.07]">
+                      <IconTile size="sm" name={tile.name} glyph={tile.glyph} tone={tile.tone} color={tile.color} className="shrink-0" />
+                      <span className="min-w-0 flex-1">
+                        <span className="block break-words text-sm leading-snug text-ink"><RouteLabel label={it.title} /></span>
+                        <span className="meta mt-0.5 block">{cat?.label ?? "Uncategorised"}</span>
+                      </span>
+                      <span className="shrink-0 text-right tabular-nums">
+                        <span className="block text-sm leading-snug text-ink">{local !== null ? fmtMoney(Math.round(local), primary) : fmtMoney(it.amount, it.currency)}</span>
+                        {local !== null && <span className="meta mt-0.5 block">{fmtMoney(it.amount, it.currency)}</span>}
+                      </span>
+                      <Icon name="chevron" size={14} className="shrink-0 text-ink-faint" />
+                    </Link>
+                  </li>
+                );
+              })}
+              <InsetRow label={<span className="font-medium text-ink">Total</span>}>
+                <span className="block text-right tabular-nums">
+                  <span className="block font-medium text-ink">{total !== null ? fmtMoney(Math.round(total), primary) : paid}</span>
+                  {total !== null && mine.some((it) => it.currency !== primary) && <span className="meta mt-0.5 block">{paid}</span>}
+                </span>
+              </InsetRow>
+            </ul>
+          </Section>
+        );
+      })}
+    </>
+  );
 }
 
 /** Expenses by city: each base, in trip order, with what was spent there

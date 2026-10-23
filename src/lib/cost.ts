@@ -3,6 +3,7 @@ import type { IconName } from "@/components/Icon";
 import { MODE_ICON } from "@/lib/transport";
 import { AREA_TONES, toneForGlyph, toneForSegmentMode, type Tone } from "@/lib/tones";
 import { glyphGroup } from "@/lib/mapGlyphs";
+import { addDays, hotelStays } from "@/lib/dates";
 
 const SYMBOL_CURRENCY: Record<string, string> = {
   "¥": "JPY", "$": "USD", "€": "EUR", "£": "GBP", "₩": "KRW", "₹": "INR",
@@ -243,6 +244,24 @@ export function tripCost(data: TripData): CostSummary {
   }
 
   return { byCurrency, categories, unparsed, items };
+}
+
+/** The trip's amounts by the day they fall on, for a per-day chart: a day's
+ *  spending and a fare on their date, a stay's price shared evenly across
+ *  its nights (so a week's booking doesn't stand as one tall day). An
+ *  amount with no date is left out. */
+export function spendByDay(data: TripData, items: CostItem[]): { date: string; categoryId?: string; amount: number; currency: string }[] {
+  const out: { date: string; categoryId?: string; amount: number; currency: string }[] = [];
+  for (const it of items) {
+    const hotelId = it.kind === "stay" ? it.to.split("/").pop() : undefined;
+    const nights = hotelId ? hotelStays(data, hotelId).flatMap((st) => Array.from({ length: st.nights }, (_, i) => addDays(st.checkIn, i))) : [];
+    if (nights.length) {
+      for (const d of nights) out.push({ date: d, categoryId: it.categoryId, amount: it.amount / nights.length, currency: it.currency });
+    } else if (it.date) {
+      out.push({ date: it.date, categoryId: it.categoryId, amount: it.amount, currency: it.currency });
+    }
+  }
+  return out;
 }
 
 /** Blends every currency in `byCurrency` into one bucket, in `primary` units,

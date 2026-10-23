@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { expenseCategoryForGlyph, fmtMoney, moneyParts, parseMoney, tripCost } from "./cost";
+import { expenseCategoryForGlyph, fmtMoney, moneyParts, parseMoney, spendByDay, tripCost } from "./cost";
 import { normalizeTrip } from "./hydrate";
 import { buildBlank } from "@/templates/blank";
 
@@ -59,5 +59,25 @@ describe("tripCost cities", () => {
     ] as never;
     const byTitle = Object.fromEntries(tripCost(trip).items.map((it) => [it.title, it.city]));
     expect(byTitle).toEqual({ Inn: "Tokyo", Ramen: "Tokyo", Intep: "Nara" });
+  });
+});
+
+describe("spendByDay", () => {
+  it("shares a stay's price across its nights and keeps a day's spending on its day", () => {
+    const trip = normalizeTrip(buildBlank());
+    trip.config.currency = "PLN";
+    trip.legs = [
+      { id: "l1", base: "Tokyo", start: "2026-11-01", end: "2026-11-03", color: "ai", hotelId: "h1" },
+      { id: "l2", base: "Nara", start: "2026-11-03", end: "2026-11-04", color: "ai" },
+    ] as never;
+    trip.hotels = [{ id: "h1", name: "Inn", price: "900", fields: [] }] as never;
+    trip.days = [
+      { id: "d1", date: "2026-11-01", legId: "l1", costs: [{ id: "c1", label: "Ramen", amount: "100" }] },
+      { id: "d2", date: "2026-11-02", legId: "l1" },
+      { id: "d3", date: "2026-11-03", legId: "l2" },
+      { id: "d4", date: "2026-11-04", legId: "l2" },
+    ] as never;
+    const days = spendByDay(trip, tripCost(trip).items).map((x) => [x.date, Math.round(x.amount)]);
+    expect(days).toEqual([["2026-11-01", 450], ["2026-11-02", 450], ["2026-11-01", 100]]);
   });
 });
