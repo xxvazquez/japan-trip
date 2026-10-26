@@ -191,8 +191,14 @@ export function AmountSheet({
     : text.length > 11 ? "text-[1.75rem]" : "text-[2.125rem]";
   const options = [...new Set([...currencies, cur])].filter(Boolean);
 
+  // in a form, tapping the header or the currency switch while its text
+  // field has the keyboard keeps the focus there: taking it would drop the
+  // keyboard and bring the pad back mid-tap, moving the button away from the
+  // finger
+  const holdFocus = extra ? (e: React.MouseEvent) => { if ((e.target as HTMLElement).closest("button")) e.preventDefault(); } : undefined;
+
   const display = (
-    <div className="px-4 text-center">
+    <div className="px-4 text-center" onMouseDown={holdFocus}>
       <div aria-live="polite" className={`${size} font-medium leading-tight tracking-tight tabular-nums ${draft ? "text-ink" : "text-ink-faint"}`}>
         {before && <span className="text-ink-soft">{before}</span>}
         {text}
@@ -250,7 +256,7 @@ export function AmountSheet({
   );
 
   const header = (small: boolean) => (
-    <div className="flex items-center justify-between gap-3 px-4 pb-2">
+    <div className="flex items-center justify-between gap-3 px-4 pb-2" onMouseDown={holdFocus}>
       {/* nothing stored yet: there's nothing to clear, so the way out is Cancel */}
       {amount && !extra
         ? <button type="button" onClick={clear} className={`${small ? "text-[15px]" : "text-[17px]"} text-danger`}>Clear</button>

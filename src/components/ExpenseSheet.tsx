@@ -1,4 +1,4 @@
-import { useEffect, useState, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import type { DayCost, ExpenseCategory } from "@/core/types";
 import { cleanAmount, expenseCategoryIcon } from "@/lib/cost";
 import { AmountSheet } from "./AmountSheet";
@@ -39,6 +39,14 @@ export function ExpenseSheet({ open, onClose, anchorRef, cost, preset, choices =
   const [currency, setCurrency] = useState(start);
   /** the name field has the keyboard */
   const [typing, setTyping] = useState(false);
+  const nameRef = useRef<HTMLInputElement>(null);
+  // a chip tapped while the name has the keyboard: the tap mustn't take the
+  // focus first — that would bring the pad back and drop the keyboard while
+  // the finger is still down, shifting the sheet so the tap missed the chip
+  // (or landed on the backdrop and closed it). It keeps the focus, the pick
+  // lands, and only then does the keyboard go down for the amount.
+  const keepFocus = (e: React.MouseEvent) => e.preventDefault();
+  const doneTyping = () => nameRef.current?.blur();
   useEffect(() => {
     if (!open) return;
     setTyping(false);
@@ -52,11 +60,13 @@ export function ExpenseSheet({ open, onClose, anchorRef, cost, preset, choices =
   const pick = (c: SpendChoice) => {
     setLabel(c.label);
     if (c.categoryId && !categoryId) setCategoryId(c.categoryId);
+    doneTyping();
   };
 
   const form = (
     <div className="space-y-2.5 px-4">
       <input
+        ref={nameRef}
         value={label}
         onChange={(e) => setLabel(e.target.value)}
         placeholder="What was it?"
@@ -70,7 +80,7 @@ export function ExpenseSheet({ open, onClose, anchorRef, cost, preset, choices =
       {!label && suggestions.length > 0 && (
         <ChipStrip className="-mx-4 px-4">
           {suggestions.map((c) => (
-            <button key={c.label} type="button" onClick={() => pick(c)} className="chip">
+            <button key={c.label} type="button" onMouseDown={keepFocus} onClick={() => pick(c)} className="chip">
               {c.label}
             </button>
           ))}
@@ -88,7 +98,8 @@ export function ExpenseSheet({ open, onClose, anchorRef, cost, preset, choices =
                 type="button"
                 aria-pressed={on}
                 aria-label={`Category: ${cat.label}`}
-                onClick={() => setCategoryId(on ? undefined : cat.id)}
+                onMouseDown={keepFocus}
+                onClick={() => { setCategoryId(on ? undefined : cat.id); doneTyping(); }}
                 className="chip pl-1"
               >
                 <IconTile size="sm" name={tile.name} glyph={tile.glyph} tone={tile.tone} color={tile.color} className="shrink-0 scale-[0.85]" />
